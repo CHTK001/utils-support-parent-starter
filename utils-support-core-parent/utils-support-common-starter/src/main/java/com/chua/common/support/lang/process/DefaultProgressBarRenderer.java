@@ -14,65 +14,65 @@ import javax.annotation.Nullable;
 
 
 /**
- * 默认进度条渲染器，实现 {@link ProgressBarRenderer} 接口。
- * <p>
- * 提供标准的进度条文本渲染，支持样式、单位、速度、ETA 等配置。
- *
- * @author CH
- * @since 2024-01-01
- * @version 1.0.0
+* 默认进度条渲染器，实现 {@link ProgressBarRenderer} 接口。
+* <p>
+* 提供标准的进度条文本渲染，支持样式、单位、速度、ETA 等配置。
+*
+* @author CH
+* @since 2024-01-01
+* @version 1.0.0
  */
 public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
-     * 进度条样式
+    * 进度条样式
      */
     private final ProgressBarStyle style;
 
     /**
-     * 进度单位
+    * 进度单位
      */
     private final ProgressUnit unit;
 
     /**
-     * 单位名称
+    * 单位名称
      */
     private final String unitName;
 
     /**
-     * 单位大小
+    * 单位大小
      */
     private final long unitSize;
 
     /**
-     * 是否显示速度
+    * 是否显示速度
      */
     private final boolean isSpeedShown;
 
     /**
-     * 速度格式
+    * 速度格式
      */
     private final DecimalFormat speedFormat;
 
     /**
-     * 速度单位
+    * 速度单位
      */
     private final ChronoUnit speedUnit;
 
     /**
-     * 是否显示预计剩余时间
+    * 是否显示预计剩余时间
      */
     private final boolean isEtaShown;
 
     /**
-     * 预计剩余时间计算函数
+    * 预计剩余时间计算函数
      */
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
-     *             
-     *
-     * @param style                
+    *             
+    *
+    * @param style                
      */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style
@@ -91,17 +91,17 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *             
-     *
-     * @param style                
-     * @param unit             
-     * @param unitName             
-     * @param unitSize             
-     * @param isSpeedShown                   
-     * @param speedFormat                   
-     * @param speedUnit             
-     * @param isEtaShown                               
-     * @param eta                               
+    *             
+    *
+    * @param style                
+    * @param unit             
+    * @param unitName             
+    * @param unitSize             
+    * @param isSpeedShown                   
+    * @param speedFormat                   
+    * @param speedUnit             
+    * @param isEtaShown                               
+    * @param eta                               
      */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style,
@@ -126,22 +126,22 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                     
-     *
-     * @param progress             
-     * @param length          
-     * @return                   
+    *                                     
+    *
+    * @param progress             
+    * @param length          
+    * @return                   
      */
     protected int progressIntegralPart(ProgressState progress, int length) {
         return (int) (progress.getNormalizedProgress() * length);
     }
 
     /**
-     *                                     
-     *
-     * @param progress             
-     * @param length          
-     * @return                                           
+    *                                     
+    *
+    * @param progress             
+    * @param length          
+    * @return                                           
      */
     protected int progressFractionalPart(ProgressState progress, int length) {
         double p = progress.getNormalizedProgress() * length;
@@ -150,10 +150,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                  
-     *
-     * @param progress             
-     * @return                                                           "?"
+    *                                  
+    *
+    * @param progress             
+    * @return                                                           "?"
      */
     protected String etaString(ProgressState progress) {
         Optional<Duration> eta = this.eta.apply(progress);
@@ -161,10 +161,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                         
-     *
-     * @param progress             
-     * @return                                  4                  
+    *                         
+    *
+    * @param progress             
+    * @return                                  4                  
      */
     protected String percentage(ProgressState progress) {
         String res;
@@ -177,10 +177,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                                  /            
-     *
-     * @param progress             
-     * @return                                        NONE                     
+    *                                  /            
+    *
+    * @param progress             
+    * @return                                        NONE                     
      */
     protected String ratio(ProgressState progress) {
         if (unit == ProgressUnitType.NONE) {
@@ -192,10 +192,10 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                      
-     *
-     * @param progress             
-     * @return                               
+    *                      
+    *
+    * @param progress             
+    * @return                               
      */
     protected String speed(ProgressState progress) {
         String suffix = "/s";
@@ -228,11 +228,11 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     }
 
     /**
-     *                
-     *
-     * @param progress             
-     * @param maxLength             
-     * @return                               
+    *                
+    *
+    * @param progress             
+    * @param maxLength             
+    * @return                               
      */
     @Override
     public String render(ProgressState progress, int maxLength) {

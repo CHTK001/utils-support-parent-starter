@@ -14,23 +14,23 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-   * BGE 文本嵌入客户端（SPI 提供者="bge"，离线/自动下载通用）。
- *
- * <p>底层为 BGE 系列（bge-small-zh / bge-m3）ONNX，输入
- * {@code input_ids + attention_mask}，输出已池化句向量。中英文通用，可直接用于
- * 余弦相似度 / 向量检索。</p>
- *
- * <p>离线版（jar 内，如 bge-small-zh）由 {@link HuggingFaceTokenizer} + ORT 加载；
- * 自动下载版（bge-m3）传入本地模型路径。两种都无需联网。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* BGE 文本嵌入客户端（SPI 提供者="bge"，离线/自动下载通用）。
+*
+* <p>底层为 BGE 系列（bge-small-zh / bge-m3）ONNX，输入
+* {@code input_ids + attention_mask}，输出已池化句向量。中英文通用，可直接用于
+* 余弦相似度 / 向量检索。</p>
+*
+* <p>离线版（jar 内，如 bge-small-zh）由 {@link HuggingFaceTokenizer} + ORT 加载；
+* 自动下载版（bge-m3）传入本地模型路径。两种都无需联网。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
-     * 默认最大序列长度
+    * 默认最大序列长度
      */
     private static final int DEFAULT_MAX_LEN = 512;
 
@@ -47,7 +47,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private boolean loaded;
 
     /**
-      * jar 内打包的资源目录（离线版），空 表示自动下载版
+    * jar 内打包的资源目录（离线版），空 表示自动下载版
      */
     private String embeddedBase;
     /** 嵌入式模型名称 */
@@ -58,7 +58,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private final String embeddedTokenizer;
 
     /**
-     * 本地模型目录（自动下载版经 registry 解析后传入）
+    * 本地模型目录（自动下载版经 registry 解析后传入）
      */
     private Path localModelRoot;
     /** 嵌入式本地目录 */
@@ -68,8 +68,8 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     private Path modelPath;
 
     /**
-      * 创建 bge嵌入客户端 实例
-     * @param setting setting
+    * 创建 bge嵌入客户端 实例
+    * @param setting setting
      */
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
@@ -80,10 +80,10 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * 解析embeddedbase
-     *
-     * @param model 模型
-     * @return resolveEmbeddedBase的结果
+    * 解析embeddedbase
+    *
+    * @param model 模型
+    * @return resolveEmbeddedBase的结果
      */
     private String resolveEmbeddedBase(String model) {
         if (model == null) {
@@ -143,7 +143,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * 将 registry 解析到的模型路径适配为本地可加载形式。
+    * 将 registry 解析到的模型路径适配为本地可加载形式。
      */
     private void translateModel() throws Exception {
         if (embeddedBase != null) {
@@ -181,9 +181,9 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     }
 
     /**
-     * 设置本地模型目录（自动下载版）。
-     *
-     * @param path 模型文件或目录
+    * 设置本地模型目录（自动下载版）。
+    *
+    * @param path 模型文件或目录
      */
     public void setLocalModel(Path path) {
         this.localModelRoot = path;

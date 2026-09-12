@@ -3,21 +3,21 @@ package com.chua.common.support.utils;
 import java.lang.annotation.Annotation;
 
 /**
- * 注解定义，封装解析结果。
- *
- * <p>由 {@link AnnotationUtils#resolveAnnotationDefinition} 返回，用于区分
- * 注解来源（直接声明 / 父类继承 / 子类覆盖）。</p>
- *
- * @param <A> 注解类型
- * @author CH
- * @since 4.0.0.43
+* 注解定义，封装解析结果。
+*
+* <p>由 {@link AnnotationUtils#resolveAnnotationDefinition} 返回，用于区分
+* 注解来源（直接声明 / 父类继承 / 子类覆盖）。</p>
+*
+* @param <A> 注解类型
+* @author CH
+* @since 4.0.0.43
  */
 public final class AnnotationDefinition<A extends Annotation> {
 
     /**
-     * 注解来源标记。
-     * @author CH
-     * @since 4.0.0
+    * 注解来源标记。
+    * @author CH
+    * @since 4.0.0
      */
     public enum Source {
         /** 直接在当前元素上声明 */
@@ -27,11 +27,11 @@ public final class AnnotationDefinition<A extends Annotation> {
         /** 从父类方法重写继承 */
         OVERRIDDEN_METHOD,
         /**
-         * 通过别名解析找到（如 {@code @GetMapping} → {@code @RequestMapping}）
-         *
-         * @param annotation 注解
-         * @param annotationClass 注解类
-         * @return 的overridden方法的结果
+        * 通过别名解析找到（如 {@code @GetMapping} → {@code @RequestMapping}）
+        *
+        * @param annotation 注解
+        * @param annotationClass 注解类
+        * @return 的overridden方法的结果
          */
         ALIAS_RESOLVED
     }
@@ -44,30 +44,30 @@ public final class AnnotationDefinition<A extends Annotation> {
     private AnnotationDefinition(A annotation, Source source, Class<A> annotationClass,
                                  boolean subclassOverridesParent) {
         /**
-         * 的direct。
-         * @param annotation 注解
-         * @param annotationClass 注解类
-         * @return 的direct的结果
+        * 的direct。
+        * @param annotation 注解
+        * @param annotationClass 注解类
+        * @return 的direct的结果
          */
         this.annotation = annotation;
         this.source = source;
         this.annotationClass = annotationClass;
         this.subclassOverridesParent = subclassOverridesParent;
     /**
-     * 的inherited。
-     * @param annotation 注解
-     * @param annotationClass 注解类
-     * @return 的inherited的结果
+    * 的inherited。
+    * @param annotation 注解
+    * @param annotationClass 注解类
+    * @return 的inherited的结果
      */
     }
 
     public static <A extends Annotation> AnnotationDefinition<A> ofDirect(A annotation, Class<A> annotationClass) {
         return new AnnotationDefinition<>(annotation, Source.DIRECT, annotationClass, false);
     /**
-     * 的别名resolved。
-     * @param annotation 注解
-     * @param annotationClass 注解类
-     * @return 的别名resolved的结果
+    * 的别名resolved。
+    * @param annotation 注解
+    * @param annotationClass 注解类
+    * @return 的别名resolved的结果
      */
     }
 
@@ -84,8 +84,8 @@ public final class AnnotationDefinition<A extends Annotation> {
     }
 
     /**
-     * 创建子类覆盖父类的注解定义（子类优先标志置位）。
-     * @return 获取注解类的结果
+    * 创建子类覆盖父类的注解定义（子类优先标志置位）。
+    * @return 获取注解类的结果
      /**
        * subclassoverrides。
       * @param annotationClass 注解类
@@ -110,8 +110,8 @@ public final class AnnotationDefinition<A extends Annotation> {
     }
 
     /**
-     * 是否被子类覆盖（子类优先级高于父类）。
-     * @return 是否subclassoverrides的结果
+    * 是否被子类覆盖（子类优先级高于父类）。
+    * @return 是否subclassoverrides的结果
      */
     public boolean isSubclassOverrides() {
         return subclassOverridesParent;

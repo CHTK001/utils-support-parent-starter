@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * FTP 协议还原器。
- *
- * <p>FTP 控制连接命令/响应还原：USER、PASS、RETR、STOR、LIST、CWD 等。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* FTP 协议还原器。
+*
+* <p>FTP 控制连接命令/响应还原：USER、PASS、RETR、STOR、LIST、CWD 等。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FtpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -59,9 +59,9 @@ public class FtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 判断是否为 FTP 响应（3 位数字 + 空格 + 文本）。
-     * @param text 文本
-     * @return 是否ftp响应的结果
+    * 判断是否为 FTP 响应（3 位数字 + 空格 + 文本）。
+    * @param text 文本
+    * @return 是否ftp响应的结果
      */
     private static boolean isFtpResponse(String text) {
         return text.length() >= 4

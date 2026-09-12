@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * arcsoft 人脸特征提取翻译器
- *
- * @author CH
- * @since 4.0.0.42
+* arcsoft 人脸特征提取翻译器
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
@@ -27,8 +27,8 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
     private final FaceEngine faceEngine;
 
     /**
-      * 创建 arcface特征translator 实例
-     * @param faceEngine faceengine
+    * 创建 arcface特征translator 实例
+    * @param faceEngine faceengine
      */
     public ArcFaceFeatureTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;

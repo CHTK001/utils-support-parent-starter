@@ -12,35 +12,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 解压文件工厂类。
- * <p>
- * 基于 SPI 机制动态加载不同的解压实现，提供线程安全的文件解压功能。
- *
- * @author CH
- * @version 1.0.0
- * @since 2025/11/29
+* 解压文件工厂类。
+* <p>
+* 基于 SPI 机制动态加载不同的解压实现，提供线程安全的文件解压功能。
+*
+* @author CH
+* @version 1.0.0
+* @since 2025/11/29
  */
 @Slf4j
 public class ExtractorFactory {
 
     /**
-     * 用于管理并发解压操作的锁映射表。
-     * Key: 压缩文件的绝对路径。
-     * Value: 对应的重入锁。
+    * 用于管理并发解压操作的锁映射表。
+    * Key: 压缩文件的绝对路径。
+    * Value: 对应的重入锁。
      */
     private static final Map<String, ReentrantLock> EXTRACTION_LOCKS = new ConcurrentHashMap<>();
 
     /**
-     * 私有构造函数，防止外部实例化。
+    * 私有构造函数，防止外部实例化。
      */
     private ExtractorFactory() {
     }
 
     /**
-     * 根据文件名获取支持的解压器。
-     *
-     * @param fileName 文件名
-     * @return 匹配的解压器，如果未找到则返回 null
+    * 根据文件名获取支持的解压器。
+    *
+    * @param fileName 文件名
+    * @return 匹配的解压器，如果未找到则返回 null
      */
     public static Extractor getExtractor(String fileName) {
         if (fileName == null) {
@@ -58,26 +58,26 @@ public class ExtractorFactory {
     }
 
     /**
-     * 检查指定文件名是否支持解压。
-     *
-     * @param fileName 文件名
-     * @return 如果支持解压返回 true，否则返回 false
+    * 检查指定文件名是否支持解压。
+    *
+    * @param fileName 文件名
+    * @return 如果支持解压返回 true，否则返回 false
      */
     public static boolean isSupported(String fileName) {
         return getExtractor(fileName) != null;
     }
 
     /**
-     * 执行文件解压操作。
-     * <p>
-     * 该方法是线程安全的，会对同一压缩文件进行加锁处理，防止重复解压。
-     * 如果目标目录已存在且包含有效内容，则直接返回；否则执行解压逻辑。
-     *
-     * @param compressedFile 待解压的压缩文件
-     * @param extractionDir  解压后的目标目录
-     * @param keepOriginal   是否保留原始压缩文件
-     * @param fileName       文件名（用于判断解压器类型）
-     * @return 解压后的目录，如果失败或参数无效则返回 null
+    * 执行文件解压操作。
+    * <p>
+    * 该方法是线程安全的，会对同一压缩文件进行加锁处理，防止重复解压。
+    * 如果目标目录已存在且包含有效内容，则直接返回；否则执行解压逻辑。
+    *
+    * @param compressedFile 待解压的压缩文件
+    * @param extractionDir  解压后的目标目录
+    * @param keepOriginal   是否保留原始压缩文件
+    * @param fileName       文件名（用于判断解压器类型）
+    * @return 解压后的目录，如果失败或参数无效则返回 null
      */
     public static File extract(File compressedFile, File extractionDir, boolean keepOriginal, String fileName) {
         if (compressedFile == null || !compressedFile.exists()) {
@@ -158,10 +158,10 @@ public class ExtractorFactory {
     }
 
     /**
-     * 检查目录是否存在且包含有效内容（非空）。
-     *
-     * @param dir 待检查的目录
-     * @return 如果目录存在、是目录且包含文件则返回 true，否则返回 false
+    * 检查目录是否存在且包含有效内容（非空）。
+    *
+    * @param dir 待检查的目录
+    * @return 如果目录存在、是目录且包含文件则返回 true，否则返回 false
      */
     private static boolean hasValidContent(File dir) {
         if (!dir.exists() || !dir.isDirectory()) {
@@ -172,9 +172,9 @@ public class ExtractorFactory {
     }
 
     /**
-     * 递归删除指定的目录及其所有子文件和子目录。
-     *
-     * @param dir 待删除的目录
+    * 递归删除指定的目录及其所有子文件和子目录。
+    *
+    * @param dir 待删除的目录
      */
     private static void deleteDirectory(File dir) {
         if (dir == null || !dir.exists()) {

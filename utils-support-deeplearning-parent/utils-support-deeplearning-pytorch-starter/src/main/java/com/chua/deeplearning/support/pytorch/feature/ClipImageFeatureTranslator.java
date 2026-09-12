@@ -11,16 +11,16 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * CLIP 图像特征 Translator。
- * <p>输出 L2 归一化后的特征向量。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* CLIP 图像特征 Translator。
+* <p>输出 L2 归一化后的特征向量。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
 
     /**
-     * 输入尺寸。
+    * 输入尺寸。
      */
     private final int imageSize;
 
@@ -30,8 +30,8 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     /**
-      * 创建 clip镜像特征translator 实例
-     * @param imageSize 镜像大小
+    * 创建 clip镜像特征translator 实例
+    * @param imageSize 镜像大小
      */
     public ClipImageFeatureTranslator(int imageSize) {
         this.imageSize = imageSize;

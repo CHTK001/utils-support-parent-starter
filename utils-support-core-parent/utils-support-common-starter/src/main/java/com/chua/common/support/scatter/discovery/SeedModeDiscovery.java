@@ -20,19 +20,19 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
-   * 参见 引导模式发现：仅与 参见 同步 哈希 + 新节点扩散 + 最小 节点id 选举 + 全掉线降级。
- *
- * <p>机制：</p>
- * <ul>
- *   <li><b>同步</b>：每轮向所有 seed 拉取服务表合并（与 seed 同步 hash）；</li>
- *   <li><b>扩散</b>：节点上线后向所有 seed 推送自身 hash（PUSH），seed 收到后向已知老节点扩散一次；</li>
- *   <li><b>去重</b>：对端按 serverId 幂等合并（基类 get() 已按 serverId 去重）；</li>
- *   <li><b>选举</b>：seed 连续失败达阈值即标记掉线，存活节点按最小 nodeId 自动选举新引导；</li>
- *   <li><b>降级</b>：seed 全掉线时，节点间用已发现的老节点互相同步（降级 gossip），seed 恢复后重新纳入。</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 参见 引导模式发现：仅与 参见 同步 哈希 + 新节点扩散 + 最小 节点id 选举 + 全掉线降级。
+*
+* <p>机制：</p>
+* <ul>
+*   <li><b>同步</b>：每轮向所有 seed 拉取服务表合并（与 seed 同步 hash）；</li>
+*   <li><b>扩散</b>：节点上线后向所有 seed 推送自身 hash（PUSH），seed 收到后向已知老节点扩散一次；</li>
+*   <li><b>去重</b>：对端按 serverId 幂等合并（基类 get() 已按 serverId 去重）；</li>
+*   <li><b>选举</b>：seed 连续失败达阈值即标记掉线，存活节点按最小 nodeId 自动选举新引导；</li>
+*   <li><b>降级</b>：seed 全掉线时，节点间用已发现的老节点互相同步（降级 gossip），seed 恢复后重新纳入。</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
@@ -47,8 +47,8 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     private static final ExecutorService DEGRADE_SYNC_EXECUTOR = ThreadUtils.newDaemonFixedThreadPool(4, "scatter-degrade-sync");
 
     /**
-     * 参见modediscovery。
-     * @param setting setting
+    * 参见modediscovery。
+    * @param setting setting
      */
     public SeedModeDiscovery(ScatterSetting setting) {
         super(setting);
@@ -82,10 +82,10 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 与单个 参见 同步：拉取完整服务表合并（哈希 同步）。
-     *
-     * @param seed 参见
-     * @return 同步with参见的结果
+    * 与单个 参见 同步：拉取完整服务表合并（哈希 同步）。
+    *
+    * @param seed 参见
+    * @return 同步with参见的结果
      */
     private boolean syncWithSeed(ScatterNode seed) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
@@ -99,9 +99,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 向 参见 推送自身 哈希（新节点接入下发一次）。
-     *
-     * @param seed 参见
+    * 向 参见 推送自身 哈希（新节点接入下发一次）。
+    *
+    * @param seed 参见
      */
     private void pushSelf(ScatterNode seed) {
         try {
@@ -177,9 +177,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 选举：参见 全掉线时，最小 节点id 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。
-     *
-     * @param candidates candidates
+    * 选举：参见 全掉线时，最小 节点id 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。
+    *
+    * @param candidates candidates
      */
     private void electNewSeed(List<Discovery> candidates) {
         if (candidates.isEmpty()) {
@@ -200,9 +200,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。
-     *
-     * @param elected elected
+    * 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。
+    *
+    * @param elected elected
      */
     private void broadcastElection(Discovery elected) {
         byte[] payload = Json.toJson(elected).getBytes(StandardCharsets.UTF_8);
@@ -226,9 +226,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 与普通节点同步（复用路由模式的 同步with）。
-     *
-     * @param node 节点
+    * 与普通节点同步（复用路由模式的 同步with）。
+    *
+    * @param node 节点
      */
     private void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",

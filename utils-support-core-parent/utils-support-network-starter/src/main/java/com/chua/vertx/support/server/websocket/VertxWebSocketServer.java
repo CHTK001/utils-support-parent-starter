@@ -23,8 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * @author CH
- * @since 4.0.0
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @Spi("vertx-websocket")
@@ -40,8 +40,8 @@ public class VertxWebSocketServer extends AbstractServer {
     private final List<ServerWebSocket> connections = new CopyOnWriteArrayList<>();
 
     /**
-      * 创建 vertxweb套接字服务端 实例
-     * @param setting setting
+    * 创建 vertxweb套接字服务端 实例
+    * @param setting setting
      */
     public VertxWebSocketServer(ServerSetting setting) {
         super(setting);
@@ -194,11 +194,11 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     /**
-     * On订阅
-     *
-     * @param topic topic
-     * @param handler 处理器
-     * @return on订阅的结果
+    * On订阅
+    *
+    * @param topic topic
+    * @param handler 处理器
+    * @return on订阅的结果
      */
     public VertxWebSocketServer onSubscribe(String topic, ServerHandler handler) {
         topicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
@@ -206,10 +206,10 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     /**
-     * 发布
-     *
-     * @param topic topic
-     * @param payload payload
+    * 发布
+    *
+    * @param topic topic
+    * @param payload payload
      */
     public void publish(String topic, String payload) {
         String text = topic + "\n" + payload;
@@ -221,11 +221,11 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     /**
-     * 创建消息处理器
-     *
-     * @param bean Bean
-     * @param method 方法
-     * @return 创建消息处理器的结果
+    * 创建消息处理器
+    *
+    * @param bean Bean
+    * @param method 方法
+    * @return 创建消息处理器的结果
      */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         method.setAccessible(true);
@@ -261,11 +261,11 @@ public class VertxWebSocketServer extends AbstractServer {
     }
 
     /**
-     * 调用annotated方法
-     *
-     * @param annotationType 注解类型
-     * @author CH
-     * @since 4.0.0
+    * 调用annotated方法
+    *
+    * @param annotationType 注解类型
+    * @author CH
+    * @since 4.0.0
      */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
@@ -403,12 +403,12 @@ public class VertxWebSocketServer extends AbstractServer {
 
         @Override
         /**
-         * 设置Attribute
-         *
-         * @param name 名称
-         * @param value 值
-         * @author CH
-         * @since 4.0.0
+        * 设置Attribute
+        *
+        * @param name 名称
+        * @param value 值
+        * @author CH
+        * @since 4.0.0
          */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);

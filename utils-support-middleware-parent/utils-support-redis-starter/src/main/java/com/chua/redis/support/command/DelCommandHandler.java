@@ -6,10 +6,10 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
- * Redis DEL 命令处理器，删除一个或多个键。
- *
- * @author CH
- * @since 4.0.0.42
+* Redis DEL 命令处理器，删除一个或多个键。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("DEL")
 public class DelCommandHandler implements RedisCommandHandler {

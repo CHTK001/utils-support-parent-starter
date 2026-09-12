@@ -5,34 +5,34 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import org.apache.hadoop.hbase.client.Connection;
 
 /**
- * HBase 数据源封装，持有真实 {@link Connection}（ZooKeeper 寻址）。
- *
- * @author CH
- * @since 4.0.0.42
+* HBase 数据源封装，持有真实 {@link Connection}（ZooKeeper 寻址）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HBaseEngineDataSource implements EngineDataSource<Connection> {
 
     /**
-     * 数据源名称
+    * 数据源名称
      */
     private final String name;
 
     /**
-     * HBase 连接
+    * HBase 连接
      */
     private final Connection source;
 
     /**
-     * 连接描述（quorum 串）
+    * 连接描述（quorum 串）
      */
     private final String url;
 
     /**
-     * 构造数据源。
-     *
-     * @param name   数据源名称
-     * @param url    连接描述，如 {@code 172.16.0.40:2181}
-     * @param source HBase 连接
+    * 构造数据源。
+    *
+    * @param name   数据源名称
+    * @param url    连接描述，如 {@code 172.16.0.40:2181}
+    * @param source HBase 连接
      */
     public HBaseEngineDataSource(String name, String url, Connection source) {
         this.name = name;

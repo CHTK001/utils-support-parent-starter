@@ -6,11 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 咪咕音乐签名支持工具类
-   * 为咪咕音乐API请求生成签名（标志）与设备标识（deviceid）等请求参数
- * 
+* 咪咕音乐签名支持工具类
+* 为咪咕音乐API请求生成签名（标志）与设备标识（deviceid）等请求参数
+* 
 * @author CH
- * @since 4.0.0.42
+* @since 4.0.0.42
 */
 public final class MiguSignSupport {
 
@@ -24,11 +24,11 @@ public final class MiguSignSupport {
     }
 
     /**
-     * 头部
-     *
-     * @param keyword keyword
-     * @param timestamp 时间戳
-     * @return 头部的结果
+    * 头部
+    *
+    * @param keyword keyword
+    * @param timestamp 时间戳
+    * @return 头部的结果
      */
     public static Map<String, String> headers(String keyword, String timestamp) {
         String sign = md5(keyword + SIGNATURE_MD5 + "yyapp2d16148780a1dcc7408e06336b98cfd50" + DEVICE_ID + timestamp);
@@ -42,10 +42,10 @@ public final class MiguSignSupport {
     }
 
     /**
-     * Md
-     *
-     * @param text 文本
-     * @return md5的结果
+    * Md
+    *
+    * @param text 文本
+    * @return md5的结果
      */
     private static String md5(String text) {
         try {

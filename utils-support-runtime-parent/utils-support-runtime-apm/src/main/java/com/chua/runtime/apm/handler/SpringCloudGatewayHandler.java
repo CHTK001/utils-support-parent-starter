@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Spring Cloud Gateway 处理器 — intercepts gateway 过滤器 chain 执行.
- *
- * @author CH
- * @since 4.0.0.42
+* Spring Cloud Gateway 处理器 — intercepts gateway 过滤器 chain 执行.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SpringCloudGatewayHandler extends AbstractAppHandler {
 
     /**
-      * 过滤器 处理器
+    * 过滤器 处理器
      */
     private static final String FILTERING_HANDLER = "org/springframework/cloud/gateway/handler/FilteringWebHandler";
     /**
-      * 处理 方法
+    * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 

@@ -1,13 +1,13 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
-   * 微信 (we对话 / MMTLS) 协议还原器。
- *
- * <p>微信使用自研 MMTLS 协议，TCP/UDP 长连接。
-   * 还原层包括：MMTLS 握手头部识别（首字节 0x0a/0x12 表示 客户端/服务端 hello 类型）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 微信 (we对话 / MMTLS) 协议还原器。
+*
+* <p>微信使用自研 MMTLS 协议，TCP/UDP 长连接。
+* 还原层包括：MMTLS 握手头部识别（首字节 0x0a/0x12 表示 客户端/服务端 hello 类型）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WeChatProtocolRestorer extends AbstractProtocolRestorer {
 

@@ -9,13 +9,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 /**
- * Markdown 预览提供者：将 MD 转为 HTML。
- *
- * <p>不依赖外部库，仅做基础渲染（段落、标题、代码块、列表、链接）。
- * 若项目中含 commonmark 等库，替换为更强实现。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Markdown 预览提供者：将 MD 转为 HTML。
+*
+* <p>不依赖外部库，仅做基础渲染（段落、标题、代码块、列表、链接）。
+* 若项目中含 commonmark 等库，替换为更强实现。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-markdown")
 public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
@@ -48,10 +48,10 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * render转为html
-     *
-     * @param md md
-     * @return render转为html的结果
+    * render转为html
+    *
+    * @param md md
+    * @return render转为html的结果
      */
     private static String renderToHtml(String md) {
         StringBuilder sb = new StringBuilder();
@@ -110,10 +110,10 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * escapehtml
-     *
-     * @param s s
-     * @return escapeHtml的结果
+    * escapehtml
+    *
+    * @param s s
+    * @return escapeHtml的结果
      */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");

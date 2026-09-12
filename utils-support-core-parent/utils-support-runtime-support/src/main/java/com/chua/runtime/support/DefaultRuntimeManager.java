@@ -25,38 +25,38 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 默认运行时管理器实现 — 基于 {@link ConcurrentHashMap} 管理工件注册表和运行时实例。
- *
- * <p>所有操作线程安全，支持并发注册、启动和停止多个工件。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 默认运行时管理器实现 — 基于 {@link ConcurrentHashMap} 管理工件注册表和运行时实例。
+*
+* <p>所有操作线程安全，支持并发注册、启动和停止多个工件。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DefaultRuntimeManager implements RuntimeManager {
 
     /**
-     * 工件注册表
+    * 工件注册表
      */
     private final ConcurrentMap<String, RuntimeArtifact> artifactMap;
 
     /**
-     * 运行时实例表
+    * 运行时实例表
      */
     private final ConcurrentMap<String, RuntimeInstance> instanceMap;
 
     /**
-     * 系统服务管理器（延迟初始化）
+    * 系统服务管理器（延迟初始化）
      */
     private volatile ServiceManager serviceManager;
 
     /**
-      * Java 智能体 管理器（延迟初始化）
+    * Java 智能体 管理器（延迟初始化）
      */
     private volatile JavaAgentManager javaAgentManager;
 
     /**
-     * 创建空的运行时管理器。
+    * 创建空的运行时管理器。
      */
     public DefaultRuntimeManager() {
         this.artifactMap = new ConcurrentHashMap<>();
@@ -455,9 +455,9 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     /**
-      * 通过 SPI 自动发现当前平台可用的 服务管理器 实现。
-     *
-     * @return ServiceManager 实例，无可用实现返回 空
+    * 通过 SPI 自动发现当前平台可用的 服务管理器 实现。
+    *
+    * @return ServiceManager 实例，无可用实现返回 空
      */
     private ServiceManager discoverServiceManager() {
         java.util.Map<String, ServiceManager> managers = ServiceProvider.of(ServiceManager.class).list();

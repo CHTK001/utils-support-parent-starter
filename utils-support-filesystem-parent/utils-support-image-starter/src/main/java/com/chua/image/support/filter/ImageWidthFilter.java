@@ -18,11 +18,11 @@ import javax.annotation.Nullable;
 
 
 /**
- * 大小滤镜
- *
- * @author CH
-   * @版本 1.0.0
- * @since 2021/6/11
+* 大小滤镜
+*
+* @author CH
+* @版本 1.0.0
+* @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -38,9 +38,9 @@ public class ImageWidthFilter extends AbstractImageFilter {
     private int height = 100;
 
     /**
-      * 创建 镜像width过滤器 实例
-     * @param width width
-     * @param height height
+    * 创建 镜像width过滤器 实例
+    * @param width width
+    * @param height height
      */
     public ImageWidthFilter(int width, int height) {
         this.width = width;
@@ -57,12 +57,12 @@ public class ImageWidthFilter extends AbstractImageFilter {
 
 
     /**
-     * 按比例对图片进行缩放. 检测图片是横图还是竖图
-     *
-     * @param width  缩放后的宽
-     * @param height 缩放后的高
-     * @param img    缓冲镜像
-     * @return zoomby大小的结果
+    * 按比例对图片进行缩放. 检测图片是横图还是竖图
+    *
+    * @param width  缩放后的宽
+    * @param height 缩放后的高
+    * @param img    缓冲镜像
+    * @return zoomby大小的结果
      */
     public static BufferedImage zoomBySize(int width, int height, BufferedImage img) {
         //横向图
@@ -104,11 +104,11 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     /**
-     * 缩放比率计算
-     *
-     * @param divisor  divisor
-     * @param dividend dividend
-     * @return calculateZoomRatio的结果
+    * 缩放比率计算
+    *
+    * @param divisor  divisor
+    * @param dividend dividend
+    * @return calculateZoomRatio的结果
      */
     public static double calculateZoomRatio(int divisor, int dividend) {
         return BigDecimal.valueOf(divisor).divide(BigDecimal.valueOf(dividend), 6, RoundingMode.HALF_UP).doubleValue();

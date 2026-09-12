@@ -20,8 +20,8 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     private String device = "cpu";
 
     /**
-      * 创建 onnxfacerecognizer 实例
-     * @param apiKey API密钥
+    * 创建 onnxfacerecognizer 实例
+    * @param apiKey API密钥
      */
     public OnnxFaceRecognizer(String apiKey) {
     }
@@ -34,9 +34,9 @@ public class OnnxFaceRecognizer implements FaceRecognizer {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "arc-face";

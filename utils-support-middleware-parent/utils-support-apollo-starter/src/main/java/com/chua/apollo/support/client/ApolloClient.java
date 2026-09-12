@@ -13,37 +13,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
- * Apollo 全功能链式客户端。
- *
- * <p>封装 Apollo ConfigService，提供配置获取、监听的链式 API。</p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * // 创建客户端
- * ApolloClient client = ApolloClient.builder()
- *     .appId("my-app")
- *     .meta("http://apollo-server:8801")
- *     .namespaces("application", "database")
- *     .build();
- *
- * // 获取配置
- * String value = client.config().namespace("application").getProperty("db.host");
- *
- * // 监听配置变更
- * client.config().namespace("database").onChange(event -> {
- *     event.changedKeys().forEach(key -> {
- *         System.out.println(key + " = " + event.getChange(key).getNewValue());
- *     });
- * });
- *
- * // 获取命名空间的所有配置
- * Map<String, String> all = client.config().namespace("application").getProperties();
- * }</pre> // 获取命名空间的所有配置
-   * 映射<String, String> 全部 = 客户端.配置().namespace("application").获取属性();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Apollo 全功能链式客户端。
+*
+* <p>封装 Apollo ConfigService，提供配置获取、监听的链式 API。</p>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* // 创建客户端
+* ApolloClient client = ApolloClient.builder()
+*     .appId("my-app")
+*     .meta("http://apollo-server:8801")
+*     .namespaces("application", "database")
+*     .build();
+*
+* // 获取配置
+* String value = client.config().namespace("application").getProperty("db.host");
+*
+* // 监听配置变更
+* client.config().namespace("database").onChange(event -> {
+*     event.changedKeys().forEach(key -> {
+*         System.out.println(key + " = " + event.getChange(key).getNewValue());
+*     });
+* });
+*
+* // 获取命名空间的所有配置
+* Map<String, String> all = client.config().namespace("application").getProperties();
+* }</pre> // 获取命名空间的所有配置
+* 映射<String, String> 全部 = 客户端.配置().namespace("application").获取属性();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Getter
@@ -59,12 +59,12 @@ public class ApolloClient implements AutoCloseable {
     private final Map<String, Config> configCache = new ConcurrentHashMap<>();
 
     /**
-      * 创建 apollo客户端 实例
-     * @param appId appid
-     * @param appId 字符串
-     * @param namespaces 列表
-     * @param namespaces namespaces
-     * @param meta meta
+    * 创建 apollo客户端 实例
+    * @param appId appid
+    * @param appId 字符串
+    * @param namespaces 列表
+    * @param namespaces namespaces
+    * @param meta meta
      */
     private ApolloClient(String appId, String meta, List<String> namespaces) {
         this.appId = appId;
@@ -75,20 +75,20 @@ public class ApolloClient implements AutoCloseable {
     // ==================== 工厂方法 ====================
 
     /**
-     * 创建
-     *
-     * @param appId appid
-     * @param meta meta
-     * @return 创建的结果
+    * 创建
+    *
+    * @param appId appid
+    * @param meta meta
+    * @return 创建的结果
      */
     public static ApolloClient create(String appId, String meta) {
         return builder().appId(appId).meta(meta).build();
     }
 
     /**
-     * 构建器
-     *
-     * @return 构建器的结果
+    * 构建器
+    *
+    * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
@@ -97,9 +97,9 @@ public class ApolloClient implements AutoCloseable {
     // ==================== 启动/停止 ====================
 
     /**
-     * 开始
-     *
-     * @return 启动的结果
+    * 开始
+    *
+    * @return 启动的结果
      */
     public ApolloClient start() {
         System.setProperty("app.id", appId);
@@ -117,8 +117,8 @@ public class ApolloClient implements AutoCloseable {
     }
 
     /**
-     * 获取配置操作构建器。
-     * @return 配置的结果
+    * 获取配置操作构建器。
+    * @return 配置的结果
      */
     public ConfigOperation config() {
         return new ConfigOperation(this);
@@ -133,10 +133,10 @@ public class ApolloClient implements AutoCloseable {
 
     // ==================== Builder ====================
     /**
-     * 构建器类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 构建器类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class Builder {
@@ -148,25 +148,25 @@ public class ApolloClient implements AutoCloseable {
         private List<String> namespaces = new ArrayList<>(List.of("application"));
 
         /**
-         * appid
-         *
-         * @param appId appid
-         * @return appId的结果
+        * appid
+        *
+        * @param appId appid
+        * @return appId的结果
          */
         public Builder appId(String appId) { this.appId = appId; return this; }
         /**
-         * Meta
-         *
-         * @param meta meta
-         * @return meta的结果
+        * Meta
+        *
+        * @param meta meta
+        * @return meta的结果
          */
         public Builder meta(String meta) { this.meta = meta; return this; }
 
         /**
-         * Namespaces
-         *
-         * @param namespaces namespaces
-         * @return namespaces的结果
+        * Namespaces
+        *
+        * @param namespaces namespaces
+        * @return namespaces的结果
          */
         public Builder namespaces(String... namespaces) {
             this.namespaces = new ArrayList<>(List.of(namespaces));
@@ -174,10 +174,10 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * Namespaces
-         *
-         * @param namespaces namespaces
-         * @return namespaces的结果
+        * Namespaces
+        *
+        * @param namespaces namespaces
+        * @return namespaces的结果
          */
         public Builder namespaces(List<String> namespaces) {
             this.namespaces = new ArrayList<>(namespaces);
@@ -185,10 +185,10 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 添加Namespace
-         *
-         * @param namespace namespace
-         * @return 添加namespace的结果
+        * 添加Namespace
+        *
+        * @param namespace namespace
+        * @return 添加namespace的结果
          */
         public Builder addNamespace(String namespace) {
             this.namespaces.add(namespace);
@@ -196,9 +196,9 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 构建
-         *
-         * @return 构建的结果
+        * 构建
+        *
+        * @return 构建的结果
          */
         public ApolloClient build() {
             if (appId == null || appId.isEmpty()) {
@@ -211,9 +211,9 @@ public class ApolloClient implements AutoCloseable {
     // ==================== 配置操作 ====================
 
     /**
-     * Apollo 配置操作构建器。
-     * @author CH
-     * @since 4.0.0
+    * Apollo 配置操作构建器。
+    * @author CH
+    * @since 4.0.0
      */
     public static class ConfigOperation {
         /** 客户端 */
@@ -224,9 +224,9 @@ public class ApolloClient implements AutoCloseable {
         ConfigOperation(ApolloClient client) { this.client = client; }
 
         /**
-         * 指定命名空间。
-         * @param namespace namespace
-         * @return namespace的结果
+        * 指定命名空间。
+        * @param namespace namespace
+        * @return namespace的结果
          */
         public ConfigOperation namespace(String namespace) {
             this.namespace = namespace;
@@ -234,19 +234,19 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 获取配置值。
-         * @param key 键
-         * @return 获取财产的结果
+        * 获取配置值。
+        * @param key 键
+        * @return 获取财产的结果
          */
         public String getProperty(String key) {
             return getProperty(key, null);
         }
 
         /**
-         * 获取配置值，不存在返回默认值。
-         * @param key 键
-         * @param defaultValue 默认值
-         * @return 获取财产的结果
+        * 获取配置值，不存在返回默认值。
+        * @param key 键
+        * @param defaultValue 默认值
+        * @return 获取财产的结果
          */
         public String getProperty(String key, String defaultValue) {
             Config config = getConfig();
@@ -254,11 +254,11 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 获取指定类型的配置值。
-         * @param key 键
-         * @param defaultValue 默认值
-         * @param type 类型
-         * @return 获取财产的结果
+        * 获取指定类型的配置值。
+        * @param key 键
+        * @param defaultValue 默认值
+        * @param type 类型
+        * @return 获取财产的结果
          */
         @SuppressWarnings("unchecked")
         public <T> T getProperty(String key, T defaultValue, Class<T> type) {
@@ -283,8 +283,8 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 获取所有配置属性。
-         * @return 获取属性的结果
+        * 获取所有配置属性。
+        * @return 获取属性的结果
          */
         public Properties getProperties() {
             Config config = getConfig();
@@ -299,8 +299,8 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-          * 获取所有配置（映射 格式）。
-         * @return 获取属性映射的结果
+        * 获取所有配置（映射 格式）。
+        * @return 获取属性映射的结果
          */
         public Map<String, String> getPropertiesMap() {
             Map<String, String> map = new LinkedHashMap<>();
@@ -310,9 +310,9 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 判断配置键是否存在。
-         * @param key 键
-         * @return contains财产的结果
+        * 判断配置键是否存在。
+        * @param key 键
+        * @return contains财产的结果
          */
         public boolean containsProperty(String key) {
             Config config = getConfig();
@@ -320,8 +320,8 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 监听整个命名空间的配置变更。
-         * @param listener 监听器
+        * 监听整个命名空间的配置变更。
+        * @param listener 监听器
          */
         public void onChange(Consumer<ConfigChangeEvent> listener) {
             Config config = getConfig();
@@ -329,9 +329,9 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 监听指定键的配置变更。
-         * @param key 键
-         * @param listener 监听器
+        * 监听指定键的配置变更。
+        * @param key 键
+        * @param listener 监听器
          */
         public void onChange(String key, Consumer<String> listener) {
             Config config = getConfig();
@@ -344,8 +344,8 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 监听多个键的配置变更。
-         * @param listener 监听器
+        * 监听多个键的配置变更。
+        * @param listener 监听器
          */
         public void onChangeKeys(Consumer<Map<String, String>> listener) {
             Config config = getConfig();
@@ -359,9 +359,9 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 获取配置
-         *
-         * @return 获取配置的结果
+        * 获取配置
+        *
+        * @return 获取配置的结果
          */
         private Config getConfig() {
             Config config = client.configCache.get(namespace);
@@ -379,26 +379,26 @@ public class ApolloClient implements AutoCloseable {
 
     // ==================== 异常类 ====================
     /**
-     * apollo客户端异常类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * apollo客户端异常类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class ApolloClientException extends RuntimeException {
         /**
-          * 创建 apollo客户端异常 实例
-         * @param message 消息
+        * 创建 apollo客户端异常 实例
+        * @param message 消息
          */
         public ApolloClientException(String message) {
             super(message);
         }
 
         /**
-          * 创建 apollo客户端异常 实例
-         * @param message 消息
-         * @param cause Throwable
-         * @param cause cause
+        * 创建 apollo客户端异常 实例
+        * @param message 消息
+        * @param cause Throwable
+        * @param cause cause
          */
         public ApolloClientException(String message, Throwable cause) {
             super(message, cause);

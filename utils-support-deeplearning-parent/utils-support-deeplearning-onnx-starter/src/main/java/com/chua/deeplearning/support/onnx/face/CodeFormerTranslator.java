@@ -15,19 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
-   * 编码former ONNX
- * <p>
-   * 编码former
- *       face restoration / enhancement                                 
- *       blurry / low-quality / damaged face -> restored face               
- * </p>
- * <p>
-   * : 512x512 RGB 镜像
- *      : bluefoxcreation/Codeformer-ONNX
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 编码former ONNX
+* <p>
+* 编码former
+*       face restoration / enhancement                                 
+*       blurry / low-quality / damaged face -> restored face               
+* </p>
+* <p>
+* : 512x512 RGB 镜像
+*      : bluefoxcreation/Codeformer-ONNX
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class CodeFormerTranslator implements Translator<Image, Image> {
@@ -124,10 +124,10 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 将模型输出像素裁剪到 [0,255] 并取整。
-     *
-     * @param v 模型输出值（通常约 [0,1]，需反归一化）
-     * @return [0,255] 整数
+    * 将模型输出像素裁剪到 [0,255] 并取整。
+    *
+    * @param v 模型输出值（通常约 [0,1]，需反归一化）
+    * @return [0,255] 整数
      */
     private static int clamp255(float v) {
         float val = (v * STD[0] + MEAN[0]) * 255.0f;

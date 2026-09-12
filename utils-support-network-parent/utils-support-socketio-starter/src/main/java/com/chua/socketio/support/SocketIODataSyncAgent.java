@@ -13,61 +13,61 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
-   * Socket.IO 数据同步 智能体
- * <p>通过 SocketIO 与 DataSyncServer 保持长连接，支持双向事件通信。</p>
- *
- * <pre>{@code
- * SocketIODataSyncAgent agent = new SocketIODataSyncAgent(
- *         "agent-1", "source-1", "http://server:8080");
- * agent.start();
- * }</pre>8080");
- * agent.start();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Socket.IO 数据同步 智能体
+* <p>通过 SocketIO 与 DataSyncServer 保持长连接，支持双向事件通信。</p>
+*
+* <pre>{@code
+* SocketIODataSyncAgent agent = new SocketIODataSyncAgent(
+*         "agent-1", "source-1", "http://server:8080");
+* agent.start();
+* }</pre>8080");
+* agent.start();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SocketIODataSyncAgent implements DataSyncAgent {
 
     /**
-      * 智能体 标识
+    * 智能体 标识
      */
     private final String agentId;
     /**
-      * 源 标识
+    * 源 标识
      */
     private final String sourceId;
     /**
-     * 服务器地址
+    * 服务器地址
      */
     private final String serverUrl;
     /**
-      * 源
+    * 源
      */
     private final DataSyncSource source;
 
     /**
-      * 套接字
+    * 套接字
      */
     private io.socket.client.Socket socket;
     /**
-     * running
+    * running
      */
     private volatile boolean running = false;
     /**
-      * 消息 队列
+    * 消息 队列
      */
     private final BlockingQueue<Map<String, Object>> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-      * 创建 套接字io数据同步智能体 实例
-     * @param agentId 智能体标识
-     * @param agentId 字符串
-     * @param agentId 字符串
-     * @param source 数据同步源
-     * @param sourceId 源标识
-     * @param serverUrl 服务端url
-     * @param source 源
+    * 创建 套接字io数据同步智能体 实例
+    * @param agentId 智能体标识
+    * @param agentId 字符串
+    * @param agentId 字符串
+    * @param source 数据同步源
+    * @param sourceId 源标识
+    * @param serverUrl 服务端url
+    * @param source 源
      */
     public SocketIODataSyncAgent(String agentId, String sourceId, String serverUrl, DataSyncSource source) {
         this.agentId = agentId;
@@ -120,9 +120,9 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     public String dataUrl() { return ""; }
 
     /**
-     * 处理拉取
-     *
-     * @param args 参数
+    * 处理拉取
+    *
+    * @param args 参数
      */
     private void handlePull(Object[] args) {
         if (args.length == 0) {
@@ -142,9 +142,9 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     /**
-     * 处理推送
-     *
-     * @param args 参数
+    * 处理推送
+    *
+    * @param args 参数
      */
     private void handlePush(Object[] args) {
         if (args.length == 0) {
@@ -163,9 +163,9 @@ public class SocketIODataSyncAgent implements DataSyncAgent {
     }
 
     /**
-     * 发送
-     *
-     * @param data 数据
+    * 发送
+    *
+    * @param data 数据
      */
     private void emit(Map<String, Object> data) {
         if (socket == null || !socket.connected()) {

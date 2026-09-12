@@ -8,16 +8,16 @@ import javax.annotation.Nullable;
 
 
 /**
- * JsonObject 类型转换器（以 Map 作为底层存储类型）。
- * <p>将各种类型的值转换为 {@link Map}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link String} — 解析 JSON 对象格式的字符串（{key:value, ...}），自动去除键值引号</li>
- *   <li>{@code byte[]} — 先转为 String 再解析</li>
- *   <li>{@link Map} — 转为新的 HashMap</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* JsonObject 类型转换器（以 Map 作为底层存储类型）。
+* <p>将各种类型的值转换为 {@link Map}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link String} — 解析 JSON 对象格式的字符串（{key:value, ...}），自动去除键值引号</li>
+*   <li>{@code byte[]} — 先转为 String 再解析</li>
+*   <li>{@link Map} — 转为新的 HashMap</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class JsonObjectTypeConverter implements TypeConverter<Map> {
     @Override
@@ -27,10 +27,10 @@ public class JsonObjectTypeConverter implements TypeConverter<Map> {
     }
 
     /**
-     * 将给定值转换为 Map（JSON 对象）。
-     *
-     * @param value 源值
-     * @return Map 值，如果无法转换则返回 null
+    * 将给定值转换为 Map（JSON 对象）。
+    *
+    * @param value 源值
+    * @return Map 值，如果无法转换则返回 null
      */
     @Override
     public Map convert(Object value) {

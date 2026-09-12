@@ -13,30 +13,30 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
-   * Diffusion 深度条件图 Translator（midas 风格）。
- *
- * @author CH
- * @since 4.0.0.42
+* Diffusion 深度条件图 Translator（midas 风格）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DiffusionDepthTranslator implements Translator<Image, Image> {
 
     /**
-     * 输出分辨率。
+    * 输出分辨率。
      */
     private final int imageResolution;
 
     /**
-     * 检测分辨率。
+    * 检测分辨率。
      */
     private final int detectResolution;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int width;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int height;
 
@@ -46,10 +46,10 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 创建 diffusion深度translator 实例
-     * @param imageResolution 镜像resolution
-     * @param imageResolution int
-     * @param detectResolution detectresolution
+    * 创建 diffusion深度translator 实例
+    * @param imageResolution 镜像resolution
+    * @param imageResolution int
+    * @param detectResolution detectresolution
      */
     public DiffusionDepthTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
@@ -91,10 +91,10 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 转为display
-     *
-     * @param depthPt 深度pt
-     * @return 转为display的结果
+    * 转为display
+    *
+    * @param depthPt 深度pt
+    * @return 转为display的结果
      */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;

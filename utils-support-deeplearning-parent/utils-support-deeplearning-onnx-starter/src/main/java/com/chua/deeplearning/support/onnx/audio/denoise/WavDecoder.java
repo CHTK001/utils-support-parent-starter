@@ -4,26 +4,26 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * WAV / PCM 音频解码与封装工具。
- * <p>解析 RIFF WAV（支持 PCM 8/16/32 位、IEEE float 32），输出 float 样本；纯 PCM 按
-   * 48khz 单声道 int16 处理。支持线性插值重采样到目标采样率。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* WAV / PCM 音频解码与封装工具。
+* <p>解析 RIFF WAV（支持 PCM 8/16/32 位、IEEE float 32），输出 float 样本；纯 PCM 按
+* 48khz 单声道 int16 处理。支持线性插值重采样到目标采样率。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WavDecoder {
 
     /**
-     * 默认采样率（纯 PCM 假定值）。
+    * 默认采样率（纯 PCM 假定值）。
      */
     private static final int DEFAULT_SAMPLE_RATE = 48000;
 
     /**
-     * 解码音频为 float 样本（幅值约 ±32768），并重采样到目标采样率。
-     *
-     * @param data            输入字节（wav 或纯 pcm）
-     * @param targetSampleRate 目标采样率
-     * @return float 单声道样本
+    * 解码音频为 float 样本（幅值约 ±32768），并重采样到目标采样率。
+    *
+    * @param data            输入字节（wav 或纯 pcm）
+    * @param targetSampleRate 目标采样率
+    * @return float 单声道样本
      */
     public static float[] decodeToFloat(byte[] data, int targetSampleRate) {
         if (DfsmnAnsTranslator.isWav(data)) {
@@ -43,10 +43,10 @@ public class WavDecoder {
     }
 
     /**
-     * 解析 WAV 为 float 样本并重采样。
-     * @param data 数据
-     * @param targetSampleRate Target样本rate
-     * @return decodeWav的结果
+    * 解析 WAV 为 float 样本并重采样。
+    * @param data 数据
+    * @param targetSampleRate Target样本rate
+    * @return decodeWav的结果
      */
     private static float[] decodeWav(byte[] data, int targetSampleRate) {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
@@ -106,12 +106,12 @@ public class WavDecoder {
     }
 
     /**
-     * 线性插值重采样。
-     *
-     * @param samples 源样本
-     * @param srcRate 源采样率
-     * @param dstRate 目标采样率
-     * @return 重采样后样本
+    * 线性插值重采样。
+    *
+    * @param samples 源样本
+    * @param srcRate 源采样率
+    * @param dstRate 目标采样率
+    * @return 重采样后样本
      */
     private static float[] resample(float[] samples, int srcRate, int dstRate) {
         if (srcRate == dstRate || samples.length == 0) {
@@ -134,13 +134,13 @@ public class WavDecoder {
     }
 
     /**
-     * 构造 WAV 头。
-     *
-     * @param dataSize      数据 子块大小
-     * @param sampleRate    采样率
-     * @param channels      声道数
-     * @param bitsPerSample 位深
-     * @return 44 字节 WAV 头
+    * 构造 WAV 头。
+    *
+    * @param dataSize      数据 子块大小
+    * @param sampleRate    采样率
+    * @param channels      声道数
+    * @param bitsPerSample 位深
+    * @return 44 字节 WAV 头
      */
     public static byte[] buildWavHeader(int dataSize, int sampleRate, int channels, int bitsPerSample) {
         int byteRate = sampleRate * channels * bitsPerSample / 8;

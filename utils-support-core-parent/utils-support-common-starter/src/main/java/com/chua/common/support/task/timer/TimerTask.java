@@ -7,20 +7,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 时间轮任务封装。
- *
- * <p>封装待执行的 {@link Runnable} 及其调度元数据，支持取消和到期回调。
-   * 每个 定时器任务 在注册时由时间轮分配唯一 标识。
- *
- * <h3>生命周期</h3>
- * <pre>
- *   CREATED → SCHEDULED → FIRED → DONE
- *                 ↓
- *               CANCELLED
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 时间轮任务封装。
+*
+* <p>封装待执行的 {@link Runnable} 及其调度元数据，支持取消和到期回调。
+* 每个 定时器任务 在注册时由时间轮分配唯一 标识。
+*
+* <h3>生命周期</h3>
+* <pre>
+*   CREATED → SCHEDULED → FIRED → DONE
+*                 ↓
+*               CANCELLED
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class TimerTask {
@@ -57,25 +57,25 @@ public class TimerTask {
     private volatile Future<?> runningFuture;
 
     /**
-     * 创建单次到期任务。
-     *
-     * @param id      任务唯一标识
-     * @param name    任务名称
-     * @param task    任务逻辑
-     * @param deadline 到期时间戳（毫秒）
+    * 创建单次到期任务。
+    *
+    * @param id      任务唯一标识
+    * @param name    任务名称
+    * @param task    任务逻辑
+    * @param deadline 到期时间戳（毫秒）
      */
     public TimerTask(String id, String name, Runnable task, long deadline) {
         this(id, name, task, deadline, -1L);
     }
 
     /**
-     * 创建重复周期任务。
-     *
-     * @param id       任务唯一标识
-     * @param name     任务名称
-     * @param task     任务逻辑
-     * @param deadline 首次到期时间戳（毫秒）
-     * @param period   重复周期（毫秒），-1 表示单次
+    * 创建重复周期任务。
+    *
+    * @param id       任务唯一标识
+    * @param name     任务名称
+    * @param task     任务逻辑
+    * @param deadline 首次到期时间戳（毫秒）
+    * @param period   重复周期（毫秒），-1 表示单次
      */
     public TimerTask(String id, String name, Runnable task, long deadline, long period) {
         this.id = id;
@@ -86,9 +86,9 @@ public class TimerTask {
     }
 
     /**
-     * 执行任务逻辑（同步调用，由 tick 线程调用）。
-     *
-     * @return 执行是否成功（未取消且任务不为 空）
+    * 执行任务逻辑（同步调用，由 tick 线程调用）。
+    *
+    * @return 执行是否成功（未取消且任务不为 空）
      */
     public boolean run() {
         if (isCancelled()) {
@@ -108,9 +108,9 @@ public class TimerTask {
     }
 
     /**
-     * 取消任务：标记取消并中断在途执行（业务体需响应中断方可真正停止）。
-     *
-     * @return 之前是否已取消
+    * 取消任务：标记取消并中断在途执行（业务体需响应中断方可真正停止）。
+    *
+    * @return 之前是否已取消
      */
     public boolean cancel() {
         var previous = cancelled.compareAndSet(false, true);
@@ -122,37 +122,37 @@ public class TimerTask {
     }
 
     /**
-      * 绑定在途执行的 期货（仅供时间轮提交任务时调用）。
-     *
-     * @param future 执行器返回的 期货
+    * 绑定在途执行的 期货（仅供时间轮提交任务时调用）。
+    *
+    * @param future 执行器返回的 期货
      */
     void setRunningFuture(Future<?> future) {
         this.runningFuture = future;
     }
 
     /**
-     * 判断任务是否已取消。
-     *
-     * @return {@code true} 表示已取消
+    * 判断任务是否已取消。
+    *
+    * @return {@code true} 表示已取消
      */
     public boolean isCancelled() {
         return cancelled.get();
     }
 
     /**
-     * 判断任务是否到期。
-     *
-     * @param now 当前时间戳（毫秒）
-     * @return {@code true} 表示已到期
+    * 判断任务是否到期。
+    *
+    * @param now 当前时间戳（毫秒）
+    * @return {@code true} 表示已到期
      */
     public boolean isDeadline(long now) {
         return now >= deadline;
     }
 
     /**
-     * 获取下次到期时间（重复任务）。
-     *
-     * @return 下次 deadline，单次任务返回 -1
+    * 获取下次到期时间（重复任务）。
+    *
+    * @return 下次 deadline，单次任务返回 -1
      */
     public long nextDeadline() {
         if (period <= 0) {
@@ -162,61 +162,61 @@ public class TimerTask {
     }
 
     /**
-     * 获取任务唯一标识。
-     *
-     * @return ID
+    * 获取任务唯一标识。
+    *
+    * @return ID
      */
     public String getId() {
         return id;
     }
 
     /**
-     * 获取任务名称。
-     *
-     * @return 名称
+    * 获取任务名称。
+    *
+    * @return 名称
      */
     public String getName() {
         return name;
     }
 
     /**
-     * 获取到期时间戳。
-     *
-     * @return 毫秒时间戳
+    * 获取到期时间戳。
+    *
+    * @return 毫秒时间戳
      */
     public long getDeadline() {
         return deadline;
     }
 
     /**
-     * 获取执行次数。
-     *
-     * @return 执行次数
+    * 获取执行次数。
+    *
+    * @return 执行次数
      */
     public int getExecuteCount() {
         return executeCount.get();
     }
 
     /**
-     * 获取重复周期。
-     *
-     * @return 周期（毫秒），-1 表示单次
+    * 获取重复周期。
+    *
+    * @return 周期（毫秒），-1 表示单次
      */
     public long getPeriod() {
         return period;
     }
 
     /**
-     * 推进到期时间到下一周期（仅供时间轮重排使用，业务代码勿调）。
+    * 推进到期时间到下一周期（仅供时间轮重排使用，业务代码勿调）。
      */
     void advanceDeadline() {
         deadline += period;
     }
 
     /**
-     * 获取任务逻辑。
-     *
-     * @return Runnable
+    * 获取任务逻辑。
+    *
+    * @return Runnable
      */
     public Runnable getTask() {
         return task;

@@ -9,78 +9,78 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * 基于原生 Rust JNI 的 H.266/VVC 编码器。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于原生 Rust JNI 的 H.266/VVC 编码器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("rust-h266")
 public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
-     * 编码器原生句柄
+    * 编码器原生句柄
      */
     private long encoderHandle;
 
     /**
-     * 视频宽度
+    * 视频宽度
      */
     private int width;
 
     /**
-     * 视频高度
+    * 视频高度
      */
     private int height;
 
     /**
-     * 帧率
+    * 帧率
      */
     private int fps;
 
     /**
-     * 编码器是否已启动
+    * 编码器是否已启动
      */
     private boolean started;
 
     /**
-     * 默认画质值
+    * 默认画质值
      */
     private static final int DEFAULT_QUALITY = 23;
 
     /**
-     * 默认 preset 值
+    * 默认 preset 值
      */
     private static final int DEFAULT_PRESET = 1;
 
     /**
-      * 默认 配置文件 值
+    * 默认 配置文件 值
      */
     private static final int DEFAULT_PROFILE = 1;
 
     /**
-     * 空构造。
+    * 空构造。
      */
     public RustH266VideoEncoder() {
     }
 
     /**
-     * 使用宽高和帧率构造并初始化。
-     *
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @param fps 帧率
+    * 使用宽高和帧率构造并初始化。
+    *
+    * @param width 视频宽度
+    * @param height 视频高度
+    * @param fps 帧率
      */
     public RustH266VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
 
     /**
-      * 使用包装类型宽高和帧率构造，空 时跳过初始化。
-     *
-     * @param width 视频宽度
-     * @param height 视频高度
-     * @param fps 帧率
+    * 使用包装类型宽高和帧率构造，空 时跳过初始化。
+    *
+    * @param width 视频宽度
+    * @param height 视频高度
+    * @param fps 帧率
      */
     public RustH266VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
@@ -89,9 +89,9 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 使用可变参数构造，前三个参数分别为宽高和帧率。
-     *
-     * @param args 可变参数数组
+    * 使用可变参数构造，前三个参数分别为宽高和帧率。
+    *
+    * @param args 可变参数数组
      */
     public RustH266VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
@@ -105,11 +105,11 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 初始化
-     *
-     * @param width width
-     * @param height height
-     * @param fps fps
+    * 初始化
+    *
+    * @param width width
+    * @param height height
+    * @param fps fps
      */
     public synchronized void init(int width, int height, int fps) {
         close();
@@ -145,11 +145,11 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * ensure初始化
-     *
-     * @param w w
-     * @param h h
-     * @param f f
+    * ensure初始化
+    *
+    * @param w w
+    * @param h h
+    * @param f f
      */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || encoderHandle == 0) {
@@ -209,10 +209,10 @@ public class RustH266VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-      * 确保 缓冲镜像 转换为 BGR24 字节数组。
-     *
-     * @param image 源图像
-     * @return BGR24 字节数组
+    * 确保 缓冲镜像 转换为 BGR24 字节数组。
+    *
+    * @param image 源图像
+    * @return BGR24 字节数组
      */
     private static byte[] ensureBgrBytes(BufferedImage image) {
         if (image.getType() == BufferedImage.TYPE_3BYTE_BGR) {

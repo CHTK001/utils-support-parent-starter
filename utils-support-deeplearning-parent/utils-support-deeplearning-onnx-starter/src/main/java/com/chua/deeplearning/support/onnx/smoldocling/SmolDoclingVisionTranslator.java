@@ -14,29 +14,29 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-   * smoldocling Vision Translator
- * <p>
- *                                                                    Vision                
- * <p>
- *                
- * -                                   (512x512)
- * -                      
-   * -           5          : [批量, num_镜像, 通道, height, width]
-   * -        pixel_attention_mask: [批量, num_镜像, height, width] (512x512)
- * <p>
- *                
- * -                   
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025/01/22
+* smoldocling Vision Translator
+* <p>
+*                                                                    Vision                
+* <p>
+*                
+* -                                   (512x512)
+* -                      
+* -           5          : [批量, num_镜像, 通道, height, width]
+* -        pixel_attention_mask: [批量, num_镜像, height, width] (512x512)
+* <p>
+*                
+* -                   
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025/01/22
  */
 @Slf4j
 public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclingVisionOutput> {
 
     /**
-     *                         
-     *                                mask                       512x512
+    *                         
+    *                                mask                       512x512
      */
     private static final int INPUT_IMAGE_SIZE = 512;
 

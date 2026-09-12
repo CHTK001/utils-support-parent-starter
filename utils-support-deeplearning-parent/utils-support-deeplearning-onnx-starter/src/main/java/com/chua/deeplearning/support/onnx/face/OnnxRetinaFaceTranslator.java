@@ -18,17 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 /**
- * OnnxRetinaFaceTranslator类。
- *
- * @author CH
- * @since 4.0.0
+* OnnxRetinaFaceTranslator类。
+*
+* @author CH
+* @since 4.0.0
  */
 
 public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
-     * * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值
-     *
-     * @param arguments 参数
+    * * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值
+    *
+    * @param arguments 参数
      */
     private static final int TOP_K = 200;
     private static final double EYE_DIST_THRESHOLD = 5; // eyedist阈值
@@ -36,14 +36,14 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     private static final int[][] SCALES = {{16, 32}, {64, 128}, {256, 512}}; // SCALES
     private static final int[] STEPS = {8, 16, 32}; // STEPS
 /**
-   * onnxretinafacetranslator。
- * @param arguments 参数
+* onnxretinafacetranslator。
+* @param arguments 参数
  */
 
     private double confThresh = 0.85; // confthresh
     private double nmsThresh = 0.45; // nmsthresh
 /**
- * OnnxRetinaFaceTranslator。
+* OnnxRetinaFaceTranslator。
  */
 
     public OnnxRetinaFaceTranslator() {
@@ -63,12 +63,12 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * 输入图像宽。
+    * 输入图像宽。
      */
     private int width;
 
     /**
-     * 输入图像高。
+    * 输入图像高。
      */
     private int height;
 
@@ -153,7 +153,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             }
             // 眼睛距离过滤（关键点归一化，乘图像尺寸转像素）
             double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2))
-                     * Math.最大(width, height);
+    * Math.最大(width, height);
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }
@@ -172,10 +172,10 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-      * 与原已加入框计算 iou（归一化坐标域）。
-     * @param c c
-     * @param nb nb
-     * @return iouPixels的结果
+    * 与原已加入框计算 iou（归一化坐标域）。
+    * @param c c
+    * @param nb nb
+    * @return iouPixels的结果
      */
     private double iouPixels(Candidate c, Rectangle nb) {
         double s1 = c.w * c.h;
@@ -193,12 +193,12 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * 计算默认框（priors）。
-     * @param width width
-     * @param height height
-     * @param scales scales
-     * @param steps steps
-     * @return boxRecover的结果
+    * 计算默认框（priors）。
+    * @param width width
+    * @param height height
+    * @param scales scales
+    * @param steps steps
+    * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> boxes = new ArrayList<>();
@@ -221,9 +221,9 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-      * ndarray 转二维 float 数组（处理 批量 维）。
-     * @param array array
-     * @return to2d的结果
+    * ndarray 转二维 float 数组（处理 批量 维）。
+    * @param array array
+    * @return to2d的结果
      */
     private static float[][] to2d(NDArray array) {
         Shape shape = array.getShape();
@@ -248,15 +248,15 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * 空结果。
-     * @return 空的结果
+    * 空结果。
+    * @return 空的结果
      */
     private static DetectedObjects empty() {
         return new DetectedObjects(List.of(), List.of(), List.of());
     }
 
     /**
-     * 候选框（像素坐标）。
+    * 候选框（像素坐标）。
      */
     private static final class Candidate {
         final double x;

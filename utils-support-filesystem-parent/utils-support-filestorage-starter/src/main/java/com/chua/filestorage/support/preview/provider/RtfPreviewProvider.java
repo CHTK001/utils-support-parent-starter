@@ -12,37 +12,37 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * RTF 富文本预览提供器。
- * <p>SPI 类型：{@code preview-rtf}。提取 RTF 中的纯文本内容显示。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param rtf rtf
- * @return extract文本的结果
- * @param content 内容
- * @param ext ext
- * @param mime mime
+* RTF 富文本预览提供器。
+* <p>SPI 类型：{@code preview-rtf}。提取 RTF 中的纯文本内容显示。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param rtf rtf
+* @return extract文本的结果
+* @param content 内容
+* @param ext ext
+* @param mime mime
  */
 @Spi("preview-rtf")
 public class RtfPreviewProvider implements FileStoragePreviewProvider {
 
     private static final Set<String> SUPPORTED_EXTS = Set.of("rtf"); // 支持exts
     /**
-     * 支持。
-     * @param ext ext
-     * @param mime mime
-     * @return 支持的结果
-     * @param rtf rtf
-     * @param content 内容
+    * 支持。
+    * @param ext ext
+    * @param mime mime
+    * @return 支持的结果
+    * @param rtf rtf
+    * @param content 内容
      */
     private static final Pattern RTF_GROUP = Pattern.compile("\\\\[a-z]+\\d*\\s?");
     private static final Pattern RTF_SPECIAL = Pattern.compile("\\\\['{}\\\\~_-]");
     private static final Pattern RTF_CONTROL = Pattern.compile("\\\\[a-zA-Z]+\\d*\\s?");
 /**
- * 支持。
- * @param ext ext
- * @param mime mime
- * @return 支持的结果
+* 支持。
+* @param ext ext
+* @param mime mime
+* @return 支持的结果
  */
 
     @Override
@@ -103,10 +103,10 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建html。
-     * @param text 文本
-     * @param fileSize 文件大小
-     * @return 构建html的结果
+    * 构建html。
+    * @param text 文本
+    * @param fileSize 文件大小
+    * @return 构建html的结果
      */
     private String buildHtml(String text, long fileSize) {
         StringBuilder sb = new StringBuilder();
@@ -134,9 +134,9 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * escapehtml。
-     * @param text 文本
-     * @return escapeHtml的结果
+    * escapehtml。
+    * @param text 文本
+    * @return escapeHtml的结果
      */
     private String escapeHtml(String text) {
         if (text == null) {
@@ -146,9 +146,9 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * human大小。
-     * @param bytes bytes
-     * @return human大小的结果
+    * human大小。
+    * @param bytes bytes
+    * @return human大小的结果
      */
     private String humanSize(long bytes) {
         if (bytes < 1024) {

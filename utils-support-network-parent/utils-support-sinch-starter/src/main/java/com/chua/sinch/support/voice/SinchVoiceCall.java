@@ -6,10 +6,10 @@ import com.chua.common.support.network.voice.VoiceCall;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * Sinch 语音电话实现
- *
- * @author CH
- * @since 4.0.0.42
+* Sinch 语音电话实现
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("sinch")
 public class SinchVoiceCall implements VoiceCall {

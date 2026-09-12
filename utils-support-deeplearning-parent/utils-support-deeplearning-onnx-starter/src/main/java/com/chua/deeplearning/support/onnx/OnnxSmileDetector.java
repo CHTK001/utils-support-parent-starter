@@ -6,35 +6,35 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * ONNX 微笑检测引擎（SPI 提供者="onnx"）。
- *
- * <p>注册表中无专用微笑检测模型，必须通过 {@code .model("模型ID")} 显式指定
- * 已注册的情绪/人脸模型，否则抛出异常。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* ONNX 微笑检测引擎（SPI 提供者="onnx"）。
+*
+* <p>注册表中无专用微笑检测模型，必须通过 {@code .model("模型ID")} 显式指定
+* 已注册的情绪/人脸模型，否则抛出异常。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OnnxSmileDetector implements SmileDetector {
 
     /**
-     * 模型名称
+    * 模型名称
      */
     private String modelName;
 
     /**
-     * 模型路径
+    * 模型路径
      */
     private String modelPath;
 
     /**
-     * 运行设备
+    * 运行设备
      */
     private String device = "cpu";
 
     /**
-      * 创建 onnxsmiledetector 实例
-     * @param apiKey API密钥
+    * 创建 onnxsmiledetector 实例
+    * @param apiKey API密钥
      */
     public OnnxSmileDetector(String apiKey) {
     }
@@ -47,9 +47,9 @@ public class OnnxSmileDetector implements SmileDetector {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         if (modelName == null) {

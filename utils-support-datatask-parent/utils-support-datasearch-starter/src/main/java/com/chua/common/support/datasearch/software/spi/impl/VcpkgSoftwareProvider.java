@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * vcpkg 软件包管理器提供器。
- *
- * <p>通过 vcpkg CLI 搜索、安装和卸载 C/C++ 库。
-   * 支持 <code>vcpkg 搜索</code>、<code>vcpkg install</code>、
- * <code>vcpkg remove</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* vcpkg 软件包管理器提供器。
+*
+* <p>通过 vcpkg CLI 搜索、安装和卸载 C/C++ 库。
+* 支持 <code>vcpkg 搜索</code>、<code>vcpkg install</code>、
+* <code>vcpkg remove</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("vcpkg")
 public class VcpkgSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析vcpkg输出
-     *
-     * @param output 输出
-     * @return 解析vcpkg输出的结果
+    * 解析vcpkg输出
+    *
+    * @param output 输出
+    * @return 解析vcpkg输出的结果
      */
     private List<SoftwareInfo> parseVcpkgOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
@@ -167,10 +167,10 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * lookslike版本
-     *
-     * @param s s
-     * @return lookslike版本的结果
+    * lookslike版本
+    *
+    * @param s s
+    * @return lookslike版本的结果
      */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");

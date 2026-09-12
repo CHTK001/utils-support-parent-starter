@@ -16,13 +16,13 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * 定界符数据同步 Sink，将数据写入定界符文件。
- * <p>
- * 同步写入模式：消费完 Flux 后自动关闭文件。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 定界符数据同步 Sink，将数据写入定界符文件。
+* <p>
+* 同步写入模式：消费完 Flux 后自动关闭文件。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directional {
@@ -37,26 +37,26 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     private final boolean append;
 
     /**
-      * 创建 delimited数据同步智能体sink 实例
-     * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param filePath 文件路径
-     * @param delimiter delimiter
+    * 创建 delimited数据同步智能体sink 实例
+    * @param sinkId sinkid
+    * @param sinkId 字符串
+    * @param sinkId 字符串
+    * @param filePath 文件路径
+    * @param delimiter delimiter
      */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter) {
         this(sinkId, filePath, delimiter, false);
     }
 
     /**
-      * 创建 delimited数据同步智能体sink 实例
-     * @param sinkId sinkid
-     * @param sinkId 字符串
-     * @param sinkId 字符串
-     * @param append 布尔值
-     * @param filePath 文件路径
-     * @param delimiter delimiter
-     * @param append 追加
+    * 创建 delimited数据同步智能体sink 实例
+    * @param sinkId sinkid
+    * @param sinkId 字符串
+    * @param sinkId 字符串
+    * @param append 布尔值
+    * @param filePath 文件路径
+    * @param delimiter delimiter
+    * @param append 追加
      */
     public DelimitedDataSyncAgentSink(String sinkId, String filePath, String delimiter, boolean append) {
         this.sinkId = sinkId;
@@ -95,9 +95,9 @@ public class DelimitedDataSyncAgentSink implements DataSyncAgentSink, Directiona
     }
 
     /**
-     * 打开Writer
-     *
-     * @return 打开writer的结果
+    * 打开Writer
+    *
+    * @return 打开writer的结果
      */
     private BufferedWriter openWriter() throws java.io.IOException {
         if (append) {

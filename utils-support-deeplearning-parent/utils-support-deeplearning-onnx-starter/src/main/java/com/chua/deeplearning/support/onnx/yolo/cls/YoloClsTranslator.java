@@ -17,87 +17,87 @@ import java.util.stream.IntStream;
 
 
 /**
- * YOLO                
- * <p>
- *        YOLO                                     
- *                                                    
- * <p>
- *                
- * -                             
- * -                                   
- * -            Top-K       
- * -                                
- * <p>
- *                   
- * 1.                                  
- * 2.                      
- * 3.              [0, 1]
- * 4.           CHW       
- * <p>
- *                
- * <pre>{@code
- * //                      224x224   
- * List<String> classes = Arrays.asList("cat", "dog", "bird");
- * YoloClsTranslator translator = new YoloClsTranslator(classes);
- *
- * //                      
- * YoloClsTranslator translator = new YoloClsTranslator(224, 224, classes, 5);
- * }</pre>sses, 5);
- * }</pre>
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025-01-22
+* YOLO                
+* <p>
+*        YOLO                                     
+*                                                    
+* <p>
+*                
+* -                             
+* -                                   
+* -            Top-K       
+* -                                
+* <p>
+*                   
+* 1.                                  
+* 2.                      
+* 3.              [0, 1]
+* 4.           CHW       
+* <p>
+*                
+* <pre>{@code
+* //                      224x224   
+* List<String> classes = Arrays.asList("cat", "dog", "bird");
+* YoloClsTranslator translator = new YoloClsTranslator(classes);
+*
+* //                      
+* YoloClsTranslator translator = new YoloClsTranslator(224, 224, classes, 5);
+* }</pre>sses, 5);
+* }</pre>
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025-01-22
  */
 @Slf4j
 @Spi("yolo_cls")
 public class YoloClsTranslator implements Translator<Image, Classifications> {
 
     /**
-     *                   
+    *                   
      */
     private final List<String> classes;
 
     /**
-     *                   
+    *                   
      */
     private final int width;
 
     /**
-     *                   
+    *                   
      */
     private final int height;
 
     /**
-     * Top-K             
+    * Top-K             
      */
     private final int topk;
 
     /**
-     *              -                   
-     *
-     * @param classes                   
+    *              -                   
+    *
+    * @param classes                   
      */
     public YoloClsTranslator() {
         this(defaultClasses(1024));
     }
 
     /**
-     *              -                   
-     *
-     * @param classes                   
+    *              -                   
+    *
+    * @param classes                   
      */
     public YoloClsTranslator(List<String> classes) {
         this(224, 224, classes, 5);
     }
 
     /**
-     *              -                      
-     *
-     * @param width                     
-     * @param height                    
-     * @param classes                   
-     * @param topk    Top-K             
+    *              -                      
+    *
+    * @param width                     
+    * @param height                    
+    * @param classes                   
+    * @param topk    Top-K             
      */
     public YoloClsTranslator(int width, int height, List<String> classes, int topk) {
         this.width = width;
@@ -109,12 +109,12 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                     
-     * @param input             
-     * @return              NDList
-     * @throws Exception             
+    *                   
+    *
+    * @param ctx                     
+    * @param input             
+    * @return              NDList
+    * @throws Exception             
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -141,12 +141,12 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                    
-     * @param list              nd列表
-     * @return             
-     * @throws Exception             
+    *                   
+    *
+    * @param ctx                    
+    * @param list              nd列表
+    * @return             
+    * @throws Exception             
      */
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -171,9 +171,9 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
-     *
-     * @return STACK             
+    *                   
+    *
+    * @return STACK             
      */
     @Override
     public Batchifier getBatchifier() {
@@ -181,10 +181,10 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                           
-     *
-     * @param size                   
-     * @return                       
+    *                           
+    *
+    * @param size                   
+    * @return                       
      */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)

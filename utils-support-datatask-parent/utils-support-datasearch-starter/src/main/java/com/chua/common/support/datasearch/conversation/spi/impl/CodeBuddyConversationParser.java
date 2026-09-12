@@ -11,26 +11,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 腾讯云 编码buddy 编码 conversation parser.
- *
- * <p>CodeBuddy Code persists sessions as JSONL transcripts under
- * {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl} (CN edition:
- * {@code ~/.codebuddycn}). Message lines use a flat shape where the content
-   * array blocks are 类型 {@code input_text} / {@code output_text}:</p>
- *
- * <pre>{@code
- * {
- *   "id": "...", "timestamp": 1787545195161,
- *   "type": "message", "role": "user" | "assistant",
- *   "sessionId": "...", "cwd": "...",
- *   "content": [ { "type": "input_text", "text": "..." } ]
- * }
- * }</pre>", "text": "..." } ]
- * }
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 腾讯云 编码buddy 编码 conversation parser.
+*
+* <p>CodeBuddy Code persists sessions as JSONL transcripts under
+* {@code ~/.codebuddy/projects/<project>/<sessionId>.jsonl} (CN edition:
+* {@code ~/.codebuddycn}). Message lines use a flat shape where the content
+* array blocks are 类型 {@code input_text} / {@code output_text}:</p>
+*
+* <pre>{@code
+* {
+*   "id": "...", "timestamp": 1787545195161,
+*   "type": "message", "role": "user" | "assistant",
+*   "sessionId": "...", "cwd": "...",
+*   "content": [ { "type": "input_text", "text": "..." } ]
+* }
+* }</pre>", "text": "..." } ]
+* }
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("codebuddy")
 public class CodeBuddyConversationParser extends AbstractJsonlConversationParser {
@@ -42,9 +42,9 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
             System.getProperty("user.home"), ".codebuddycn", "projects");
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "codebuddy"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "codebuddy"}
      */
     @Override
     public String name() {
@@ -52,9 +52,9 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
     }
 
     /**
-     * 返回会话文件根目录（国际版）。
-     *
-     * @return {@code ~/.codebuddy/projects}
+    * 返回会话文件根目录（国际版）。
+    *
+    * @return {@code ~/.codebuddy/projects}
      */
     @Override
     protected Path rootDir() {
@@ -62,7 +62,7 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
     }
 
     /**
-     * 扫描国际版与国内版两个目录。
+    * 扫描国际版与国内版两个目录。
      */
     @Override
     protected List<Path> rootDirs() {
@@ -70,9 +70,9 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
     }
 
     /**
-     * 返回会话文件后缀。
-     *
-     * @return {@code ".jsonl"}
+    * 返回会话文件后缀。
+    *
+    * @return {@code ".jsonl"}
      */
     @Override
     protected String fileSuffix() {
@@ -80,7 +80,7 @@ public class CodeBuddyConversationParser extends AbstractJsonlConversationParser
     }
 
     /**
-     * 解析单行事件为零或多条消息记录。
+    * 解析单行事件为零或多条消息记录。
      */
     @Override
     protected List<ConversationMessage> parseLine(String line) {

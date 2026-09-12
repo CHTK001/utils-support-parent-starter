@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * SMTP 协议还原器。
- *
- * <p>识别 SMTP 命令：HELO/EHLO/MAIL FROM/RCPT TO/DATA/QUIT 等。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* SMTP 协议还原器。
+*
+* <p>识别 SMTP 命令：HELO/EHLO/MAIL FROM/RCPT TO/DATA/QUIT 等。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SmtpProtocolRestorer extends EmailProtocolRestorer {
 

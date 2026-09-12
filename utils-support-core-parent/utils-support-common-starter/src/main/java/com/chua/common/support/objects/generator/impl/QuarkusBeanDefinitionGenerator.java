@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
-   * Quarkus Bean 定义生成器，处理 Quarkus/CDI 注解（@applicationscoped、@单例 等）的类。
- *
- * <p>通过反射按类名字符串检测 Quarkus/CDI 注解，不依赖编译时注解 API。
- * 同时支持 javax 和 jakarta 命名空间。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Quarkus Bean 定义生成器，处理 Quarkus/CDI 注解（@applicationscoped、@单例 等）的类。
+*
+* <p>通过反射按类名字符串检测 Quarkus/CDI 注解，不依赖编译时注解 API。
+* 同时支持 javax 和 jakarta 命名空间。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("quarkus")

@@ -17,35 +17,35 @@ import java.util.List;
 
 
 /**
-   * webp 格式转换器（Java 实现）
- * <p>
-   * 使用 webp-imageio-核心 库实现 webp 格式的转换。
-   * 支持 webp 与其他常见图片格式之间的相互转换：
-   * - webp ↔ JPEG (.jpg, .jpeg)
-   * - webp ↔ PNG (.png)
-   * - webp ↔ BMP (.bmp)
-   * - webp ↔ GIF (.gif)
-   * - webp ↔ ICO (.ico)
- * </p>
- * <p>
- * 注意：此实现优先级较低（默认优先级 0），如果存在 Rust 实现（优先级 100），
- * 系统会优先使用 Rust 实现以获得更好的性能。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* webp 格式转换器（Java 实现）
+* <p>
+* 使用 webp-imageio-核心 库实现 webp 格式的转换。
+* 支持 webp 与其他常见图片格式之间的相互转换：
+* - webp ↔ JPEG (.jpg, .jpeg)
+* - webp ↔ PNG (.png)
+* - webp ↔ BMP (.bmp)
+* - webp ↔ GIF (.gif)
+* - webp ↔ ICO (.ico)
+* </p>
+* <p>
+* 注意：此实现优先级较低（默认优先级 0），如果存在 Rust 实现（优先级 100），
+* 系统会优先使用 Rust 实现以获得更好的性能。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = "java", order = 0)
 public class WebpConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
-      * 支持的图片格式（除 webp 外）
+    * 支持的图片格式（除 webp 外）
      */
     private static final String[] SUPPORTED_FORMATS = {"jpeg", "jpg", "png", "bmp", "gif", "ico"};
 
     /**
-     * 默认构造函数
+    * 默认构造函数
      */
     public WebpConvertFileSystem() {
         super();
@@ -60,18 +60,18 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-     * 构造函数
-     *
-     * @param file 文件对象
+    * 构造函数
+    *
+    * @param file 文件对象
      */
     public WebpConvertFileSystem(File file) {
         super(file);
     }
 
     /**
-     * 构造函数
-     *
-     * @param filePath 文件路径
+    * 构造函数
+    *
+    * @param filePath 文件路径
      */
     public WebpConvertFileSystem(String filePath) {
         super(filePath);
@@ -99,11 +99,11 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     /**
-     * 是否支持格式化
-     *
-     * @param sourceFormat 源格式化
-     * @param targetFormat Target格式化
-     * @return 是否支持格式化的结果
+    * 是否支持格式化
+    *
+    * @param sourceFormat 源格式化
+    * @param targetFormat Target格式化
+    * @return 是否支持格式化的结果
      */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换

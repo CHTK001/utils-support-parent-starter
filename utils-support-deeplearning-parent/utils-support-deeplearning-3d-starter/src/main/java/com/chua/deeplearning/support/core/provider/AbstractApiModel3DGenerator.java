@@ -21,10 +21,10 @@ import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 HTTP API 的 3D 生成器抽象基类
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 HTTP API 的 3D 生成器抽象基类
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, TextTo3DGenerator, ImageTo3DGenerator, SketchTo3DGenerator, Model3DStylizer {
 
@@ -49,8 +49,8 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     protected final OkHttpClient httpClient;
 
     /**
-      * 创建 抽象api模型3d生成器 实例
-     * @param config 配置
+    * 创建 抽象api模型3d生成器 实例
+    * @param config 配置
      */
     protected AbstractApiModel3DGenerator(Model3DConfig config) {
         this.config = config;
@@ -127,59 +127,59 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     /**
-     * 构建文本请求体
-     * @param prompt 提示符
-     * @param format 格式化
-     * @param style style
-     * @param quality quality
-     * @return 构建文本请求主体的结果
+    * 构建文本请求体
+    * @param prompt 提示符
+    * @param format 格式化
+    * @param style style
+    * @param quality quality
+    * @return 构建文本请求主体的结果
      */
     protected abstract String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
-     * 构建图片请求体
-     * @param image 镜像
-     * @param format 格式化
-     * @param style style
-     * @param quality quality
-     * @return 构建镜像请求主体的结果
+    * 构建图片请求体
+    * @param image 镜像
+    * @param format 格式化
+    * @param style style
+    * @param quality quality
+    * @return 构建镜像请求主体的结果
      */
     protected abstract String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
-     * 构建多视角图片请求体
-     * @param images 镜像
-     * @param format 格式化
-     * @param style style
-     * @param quality quality
-     * @return 构建multiview请求主体的结果
+    * 构建多视角图片请求体
+    * @param images 镜像
+    * @param format 格式化
+    * @param style style
+    * @param quality quality
+    * @return 构建multiview请求主体的结果
      */
     protected abstract String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
-     * 构建草图请求体
-     * @param sketch Sketch
-     * @param description description
-     * @param format 格式化
-     * @param style style
-     * @param quality quality
-     * @return 构建sketch请求主体的结果
+    * 构建草图请求体
+    * @param sketch Sketch
+    * @param description description
+    * @param format 格式化
+    * @param style style
+    * @param quality quality
+    * @return 构建sketch请求主体的结果
      */
     protected abstract String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
-     * 构建风格化请求体
-     * @param model 模型
-     * @param style style
-     * @param resolution resolution
-     * @return 构建stylize请求主体的结果
+    * 构建风格化请求体
+    * @param model 模型
+    * @param style style
+    * @param resolution resolution
+    * @return 构建stylize请求主体的结果
      */
     protected abstract String buildStylizeRequestBody(Model3D model, Model3DStyle style, int resolution);
 
     /**
-     * 执行 POST 请求
-     * @param requestBody 请求主体
-     * @return 执行post的结果
+    * 执行 POST 请求
+    * @param requestBody 请求主体
+    * @return 执行post的结果
      */
     protected byte[] doPost(String requestBody) throws IOException {
         RequestBody body = RequestBody.create(requestBody, JSON);
@@ -208,9 +208,9 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     }
 
     /**
-     * 从 JSON 响应中解析结果
-     * @param json json
-     * @return 解析结果从json的结果
+    * 从 JSON 响应中解析结果
+    * @param json json
+    * @return 解析结果从json的结果
      */
     protected byte[] parseResultFromJson(String json) throws IOException {
         try {

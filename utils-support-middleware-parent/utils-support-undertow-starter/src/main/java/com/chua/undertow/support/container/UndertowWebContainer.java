@@ -33,40 +33,40 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Undertow 的嵌入式 Web 容器实现。
- *
- * <p>Undertow 是 Red Hat 开源的高性能 Web 服务器，具有轻量级、
- * 低内存占用、高吞吐量的特点。
- *
- * <p>核心特性：
- * <ul>
- *   <li>纯异步非阻塞 I/O（基于 XNIO）</li>
- *   <li>支持 Servlet 3.1+ 规范</li>
- *   <li>支持 WebSocket 和 HTTP/2</li>
- *   <li>嵌入式部署，零外部依赖</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Undertow 的嵌入式 Web 容器实现。
+*
+* <p>Undertow 是 Red Hat 开源的高性能 Web 服务器，具有轻量级、
+* 低内存占用、高吞吐量的特点。
+*
+* <p>核心特性：
+* <ul>
+*   <li>纯异步非阻塞 I/O（基于 XNIO）</li>
+*   <li>支持 Servlet 3.1+ 规范</li>
+*   <li>支持 WebSocket 和 HTTP/2</li>
+*   <li>嵌入式部署，零外部依赖</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"undertow", "jboss-undertow"})
 public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
-     * Undertow 服务器实例
+    * Undertow 服务器实例
      */
     private Undertow undertow;
     /**
-     * Servlet 容器实例
+    * Servlet 容器实例
      */
     private ServletContainer servletContainer;
     /**
-      * 已部署应用集合，键 为上下文路径
+    * 已部署应用集合，键 为上下文路径
      */
     private final Map<String, DeploymentManager> deployments = new ConcurrentHashMap<>();
     /**
-     * 路径处理器
+    * 路径处理器
      */
     private final PathHandler pathHandler = Handlers.path();
 
@@ -106,9 +106,9 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 部署 WAR 文件。
-     * @param archivePath Arch Linux Linux路径
-     * @param contextPath 上下文路径
+    * 部署 WAR 文件。
+    * @param archivePath Arch Linux Linux路径
+    * @param contextPath 上下文路径
      */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         File warFile = resolveFile(archivePath);
@@ -139,9 +139,9 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 部署 Fat JAR（Spring Boot 等可执行 JAR）。
-     * @param archivePath Arch Linux Linux路径
-     * @param contextPath 上下文路径
+    * 部署 Fat JAR（Spring Boot 等可执行 JAR）。
+    * @param archivePath Arch Linux Linux路径
+    * @param contextPath 上下文路径
      */
     private void deployFatJar(String archivePath, String contextPath) throws Exception {
         File jarFile = resolveFile(archivePath);
@@ -164,9 +164,9 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 作为静态资源部署。
-     * @param archivePath Arch Linux Linux路径
-     * @param contextPath 上下文路径
+    * 作为静态资源部署。
+    * @param archivePath Arch Linux Linux路径
+    * @param contextPath 上下文路径
      */
     private void deployResource(String archivePath, String contextPath) throws Exception {
         File resourceFile = resolveFile(archivePath);
@@ -250,7 +250,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 构建处理器链。
+    * 构建处理器链。
      */
     private void buildHandlers() {
         // 部署所有待部署单元到路径处理器
@@ -273,8 +273,8 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 配置 SSL/TLS。
-     * @param builder 构建器
+    * 配置 SSL/TLS。
+    * @param builder 构建器
      */
     private void configureSsl(Undertow.Builder builder) {
         WebContainerSetting.SslConfig ssl = setting.getSsl();
@@ -308,9 +308,9 @@ public class UndertowWebContainer extends AbstractWebContainer {
     }
 
     /**
-     * 解析文件路径。
-     * @param path 路径
-     * @return resolve文件的结果
+    * 解析文件路径。
+    * @param path 路径
+    * @return resolve文件的结果
      */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {

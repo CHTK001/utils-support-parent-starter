@@ -22,21 +22,21 @@ import java.util.Map;
 import java.util.Random;
 
 /**
-   * MOSS-TTS-nano 多语言 TTS 翻译器（0.1B，48 khz 输出）。
- *
- * <p>基于 OpenMOSS 官方 browser_onnx 导出的多图编排管线：
- * <ol>
- *   <li>SentencePiece BPE 文本编码</li>
- *   <li>prefill 全局 Transformer 预填充（输出 12 层 KV cache）</li>
- *   <li>逐帧循环：local_fixed_sampled_frame 采样 16 码本音频 token，
- *       decode_step 推进全局状态</li>
- *   <li>Audio Tokenizer decode_full 将帧序列解码为波形</li>
- * </ol>
- *
- * <p>参考实现：OpenMOSS/MOSS-TTS-Nano Android 示例 MossOnnxDemoEngine.kt。
- *
- * @author chua
- * @since 4.0.0.42
+* MOSS-TTS-nano 多语言 TTS 翻译器（0.1B，48 khz 输出）。
+*
+* <p>基于 OpenMOSS 官方 browser_onnx 导出的多图编排管线：
+* <ol>
+*   <li>SentencePiece BPE 文本编码</li>
+*   <li>prefill 全局 Transformer 预填充（输出 12 层 KV cache）</li>
+*   <li>逐帧循环：local_fixed_sampled_frame 采样 16 码本音频 token，
+*       decode_step 推进全局状态</li>
+*   <li>Audio Tokenizer decode_full 将帧序列解码为波形</li>
+* </ol>
+*
+* <p>参考实现：OpenMOSS/MOSS-TTS-Nano Android 示例 MossOnnxDemoEngine.kt。
+*
+* @author chua
+* @since 4.0.0.42
  */
 @Slf4j
 public class MossTtsTranslator implements AutoCloseable {
@@ -70,12 +70,12 @@ public class MossTtsTranslator implements AutoCloseable {
     private final Map<String, int[][]> voicePrompts = new HashMap<>(); // voice提示符
 
     /**
-     * 加载模型。
-     *
-     * @param ttsDir   MOSS-TTS-nano-100M-ONNX 目录
-     * @param codecDir MOSS-音频-Tokenizer-nano-ONNX 目录
-     * @throws Exception 加载异常
-     * @param manifest manifest
+    * 加载模型。
+    *
+    * @param ttsDir   MOSS-TTS-nano-100M-ONNX 目录
+    * @param codecDir MOSS-音频-Tokenizer-nano-ONNX 目录
+    * @throws Exception 加载异常
+    * @param manifest manifest
      /**
       * prepare。
       * @param ttsDir ttsdir
@@ -83,9 +83,9 @@ public class MossTtsTranslator implements AutoCloseable {
       */
       * @param manifest manifest
      /**
-      * prepare。
-      * @param ttsDir ttsDir
-      * @param codecDir codecDir
+     * prepare。
+     * @param ttsDir ttsDir
+     * @param codecDir codecDir
       */
      */
     public void prepare(Path ttsDir, Path codecDir) throws Exception {
@@ -143,9 +143,9 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * JSON 行数组的轻量包装。
-     *
-     * @param node 节点
+    * JSON 行数组的轻量包装。
+    *
+    * @param node 节点
      /**
        * jsonrow。
       * @param node 节点
@@ -157,9 +157,9 @@ public class MossTtsTranslator implements AutoCloseable {
         private final JsonNode node;
 
         /**
-         * JsonRow。
-         * @param node 节点
-         * @return JsonRow的结果
+        * JsonRow。
+        * @param node 节点
+        * @return JsonRow的结果
          */
         private JsonRow(JsonNode node) {
             this.node = node;
@@ -183,27 +183,27 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * 合成语音（默认音色 Junhao）。
-     *
-     * @param text 待合成文本
-     * @return WAV 字节流（48 khz 单声道 PCM16）
-     * @throws Exception 推理异常
+    * 合成语音（默认音色 Junhao）。
+    *
+    * @param text 待合成文本
+    * @return WAV 字节流（48 khz 单声道 PCM16）
+    * @throws Exception 推理异常
      */
     public byte[] synthesize(String text) throws Exception {
         return synthesize(text, DEFAULT_VOICE, DEFAULT_MAX_FRAMES);
     }
 
     /**
-     * 声音克隆合成：以参考音频的音色朗读文本。
-     *
-     * <p>参考音频经 Audio Tokenizer 编码为提示码序列，
-     * 替代内置音色的 manifest 提示码，其余管线不变。</p>
-     *
-     * @param text      待合成文本（长文本自动分句）
-     * @param refWav    参考音频（任意采样率，建议 5~10 秒干净人声）
-     * @param maxFrames 单段最大帧数
-     * @return WAV 字节流（48 khz）
-     * @throws Exception 推理异常
+    * 声音克隆合成：以参考音频的音色朗读文本。
+    *
+    * <p>参考音频经 Audio Tokenizer 编码为提示码序列，
+    * 替代内置音色的 manifest 提示码，其余管线不变。</p>
+    *
+    * @param text      待合成文本（长文本自动分句）
+    * @param refWav    参考音频（任意采样率，建议 5~10 秒干净人声）
+    * @param maxFrames 单段最大帧数
+    * @return WAV 字节流（48 khz）
+    * @throws Exception 推理异常
      */
     public byte[] synthesizeWithReference(String text, Path refWav, int maxFrames)
             throws Exception {
@@ -217,8 +217,8 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-      * 参考音频 → 提示码。任意采样率/声道统一转为 48khz 双声道。
-     * @param stereo 立体
+    * 参考音频 → 提示码。任意采样率/声道统一转为 48khz 双声道。
+    * @param stereo 立体
      /**
       * encode引用。
       * @param refWav refwav
@@ -227,9 +227,9 @@ public class MossTtsTranslator implements AutoCloseable {
      * @return 立体flat的结果
       * @param stereo 立体
      /**
-      * encode引用。
-      * @param refWav refWav
-      * @return encode引用的结果
+     * encode引用。
+     * @param refWav refWav
+     * @return encode引用的结果
       */
      */
     private List<int[]> encodeReference(Path refWav) throws Exception {
@@ -267,9 +267,9 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
      /**
-      * 加载stereo48k。
-      * @param path 路径
-      * @return 加载stereo48k的结果
+     * 加载stereo48k。
+     * @param path 路径
+     * @return 加载stereo48k的结果
       */
      * 任意 WAV → 48k 双声道 float[2][N]。
      *
@@ -315,13 +315,13 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * 合成语音。
-     *
-     * @param text      待合成文本
-     * @param voice     内置音色名（如 Junhao/Zhiming/Xiaoyu）
-     * @param maxFrames 最大生成帧数（约 12.5 fps）
-     * @return WAV 字节流（48 khz 单声道 PCM16）
-     * @throws Exception 推理异常
+    * 合成语音。
+    *
+    * @param text      待合成文本
+    * @param voice     内置音色名（如 Junhao/Zhiming/Xiaoyu）
+    * @param maxFrames 最大生成帧数（约 12.5 fps）
+    * @return WAV 字节流（48 khz 单声道 PCM16）
+    * @throws Exception 推理异常
      */
     public byte[] synthesize(String text, String voice, int maxFrames) throws Exception {
         int[] textTokens = tokenizer.encode(text);
@@ -338,12 +338,12 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * 长文本合成入口：按标点分句逐段合成，段间插入短停顿后拼接。
-     *
-     * @param text  待合成文本（任意长度）
-     * @param voice 内置音色名
-     * @return WAV 字节流（48 khz 单声道 PCM16）
-     * @throws Exception 推理异常
+    * 长文本合成入口：按标点分句逐段合成，段间插入短停顿后拼接。
+    *
+    * @param text  待合成文本（任意长度）
+    * @param voice 内置音色名
+    * @return WAV 字节流（48 khz 单声道 PCM16）
+    * @throws Exception 推理异常
      */
     public byte[] synthesizeText(String text, String voice) throws Exception {
         return synthesizeChunks(splitChunks(text), selectVoicePrompt(voice));
@@ -400,11 +400,11 @@ public class MossTtsTranslator implements AutoCloseable {
     private static final int MAX_CHUNK_CHARS = 55;
 
     /**
-     * 日志chunk。
-     * @param index 索引
-     * @param total total
-     * @param chunk chunk
-     * @param samples 样本
+    * 日志chunk。
+    * @param index 索引
+    * @param total total
+    * @param chunk chunk
+    * @param samples 样本
      */
     private void logChunk(int index, int total, String chunk, int samples) {
         log.info("[MossTTS] 段 {}/{} ({}字, {:.2fs}: {}",
@@ -413,9 +413,9 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
      /**
-      * 分割chunks。
-      * @param text 文本
-      * @return 分割chunks的结果
+     * 分割chunks。
+     * @param text 文本
+     * @return 分割chunks的结果
       */
      * 按句末标点切分，超长句再按句内标点二次切分并合并碎段。
      *
@@ -453,11 +453,11 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * 在给定标点集合的每个字符之后切分（保留标点在前段尾部）。
-     *
-     * @param text 文本
-     * @param delims delims
-     * @return 分割by的结果
+    * 在给定标点集合的每个字符之后切分（保留标点在前段尾部）。
+    *
+    * @param text 文本
+    * @param delims delims
+    * @return 分割by的结果
      */
     private List<String> splitBy(String text, String delims) {
         List<String> parts = new ArrayList<>();
@@ -477,13 +477,13 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-      * 从预切分的文本 令牌 合成语音（调试用）。
-     *
-     * @param textTokens 文本 令牌 序列
-     * @param voice      内置音色名
-     * @param maxFrames  最大帧数
-     * @return WAV 字节流
-     * @throws Exception 推理异常
+    * 从预切分的文本 令牌 合成语音（调试用）。
+    *
+    * @param textTokens 文本 令牌 序列
+    * @param voice      内置音色名
+    * @param maxFrames  最大帧数
+    * @return WAV 字节流
+    * @throws Exception 推理异常
      */
     public byte[] synthesizeFromTokens(int[] textTokens, String voice, int maxFrames) throws Exception {
         List<int[]> promptCodes = selectVoicePrompt(voice);
@@ -512,10 +512,10 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * 构建请求行序列：文本前缀 + 音色提示音频行 + 后缀文本行。
-     *
-     * <p>行宽 n_vq+1=17：通道 0 承载文本/slot token，通道 1..16 承载音频码。</p>
-     * @param rows rows
+    * 构建请求行序列：文本前缀 + 音色提示音频行 + 后缀文本行。
+    *
+    * <p>行宽 n_vq+1=17：通道 0 承载文本/slot token，通道 1..16 承载音频码。</p>
+    * @param rows rows
      /**
       * 构建输入rows。
       * @param promptCodes 提示符编码
@@ -544,11 +544,11 @@ public class MossTtsTranslator implements AutoCloseable {
         suffix.add(audioStartTokenId);
         appendTextRows(rows, suffix, rowWidth);
         /**
-         * 追加文本rows。
-         * @param rows rows
-         * @param tokens 令牌
-         * @param rowWidth rowwidth
-         * @param codes 编码
+        * 追加文本rows。
+        * @param rows rows
+        * @param tokens 令牌
+        * @param rowWidth rowwidth
+        * @param codes 编码
          */
         return rows.toArray(new int[0][]);
     }
@@ -577,24 +577,24 @@ public class MossTtsTranslator implements AutoCloseable {
     }
 
     /**
-     * prefill 输出状态（全局_hidden + KV 缓存），可关闭。
-     *
-     * @param session 会话
-     * @param raw raw
-     * @return 创建tensor的结果
-     * @param tensor tensor
-     * @param inputIds 输入标识
-     * @author CH
-     * @since 4.0.0
+    * prefill 输出状态（全局_hidden + KV 缓存），可关闭。
+    *
+    * @param session 会话
+    * @param raw raw
+    * @return 创建tensor的结果
+    * @param tensor tensor
+    * @param inputIds 输入标识
+    * @author CH
+    * @since 4.0.0
      */
     private final class PrefillState implements AutoCloseable {
         private OnnxTensor globalHidden; // 全局hidden
         private int pastValidLengths; // pastvalid长度
         private OrtSession.Result pastResult; // past结果
 /**
- * 关闭。
- * @param inputIds 输入标识
- * @return 运行prefill的结果
+* 关闭。
+* @param inputIds 输入标识
+* @return 运行prefill的结果
  */
 
         PrefillState(OnnxTensor globalHidden, int pastValidLengths, OrtSession.Result pastResult) {
@@ -645,10 +645,10 @@ public class MossTtsTranslator implements AutoCloseable {
         try {
             OnnxTensor hidden = extractLastHidden((OnnxTensor) result.get("global_hidden").get());
             /**
-             * generate帧。
-             * @param state 状态
-             * @param maxFrames 最大帧
-             * @return generate帧的结果
+            * generate帧。
+            * @param state 状态
+            * @param maxFrames 最大帧
+            * @return generate帧的结果
              */
             return new PrefillState(hidden, seqLen, result);
         } catch (Exception e) {
@@ -760,10 +760,10 @@ public class MossTtsTranslator implements AutoCloseable {
             int[] tokens = flattenInts(frameTensor.getValue(), nVq);
             return new LocalFrame(shouldContinue > 0, tokens);
         /**
-         * 本地帧。
-         * @param shouldContinue should继续
-         * @param tokens 令牌
-         * @return 本地帧的结果
+        * 本地帧。
+        * @param shouldContinue should继续
+        * @param tokens 令牌
+        * @return 本地帧的结果
          */
         }
     }
@@ -772,11 +772,11 @@ public class MossTtsTranslator implements AutoCloseable {
         private final boolean shouldContinue;
         private final int[] tokens;
 /**
- * decode音频。
- * @param audioTokens 音频令牌
- * @return decode音频的结果
- * @param raw raw
- * @param tensor tensor
+* decode音频。
+* @param audioTokens 音频令牌
+* @return decode音频的结果
+* @param raw raw
+* @param tensor tensor
  /**
    * 本地帧。
    * @param shouldContinue should继续
@@ -853,10 +853,10 @@ public class MossTtsTranslator implements AutoCloseable {
         if (values.isEmpty()) {
             throw new IllegalStateException("无法提取标量整数");
         /**
-          * flattenints。
-         * @param raw raw
-         * @param limit 限制
-         * @return flattenInts的结果
+        * flattenints。
+        * @param raw raw
+        * @param limit 限制
+        * @return flattenInts的结果
          */
         }
         return values.get(0);
@@ -869,9 +869,9 @@ public class MossTtsTranslator implements AutoCloseable {
         for (int i = 0; i < result.length; i++) {
             result[i] = values.get(i);
         /**
-         * collect。
-         * @param raw raw
-         * @param out 出
+        * collect。
+        * @param raw raw
+        * @param out 出
          */
         }
         return result;
@@ -898,9 +898,9 @@ public class MossTtsTranslator implements AutoCloseable {
             for (Object item : arr) {
                 collect(item, out);
             /**
-              * clampunit。
-             * @param value 值
-             * @return clampUnit的结果
+            * clampunit。
+            * @param value 值
+            * @return clampUnit的结果
              */
             }
         }
@@ -909,8 +909,8 @@ public class MossTtsTranslator implements AutoCloseable {
     private static float clampUnit(double value) {
         double clamped = Math.max(1e-6, Math.min(value, 1.0 - 1e-6));
         /**
-         * 关闭。
-         * @param session 会话
+        * 关闭。
+        * @param session 会话
          */
         return (float) clamped;
     }

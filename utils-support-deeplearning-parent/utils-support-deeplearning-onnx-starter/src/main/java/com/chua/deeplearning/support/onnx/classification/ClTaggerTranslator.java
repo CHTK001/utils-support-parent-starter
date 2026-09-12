@@ -26,28 +26,28 @@ import java.util.stream.IntStream;
 
 
 /**
- * CL Tagger                            
- * <p>
- *        CL Tagger                                     
- *                                                                      
- * </p>
- * <p>
- *                
- * -                          
- * -                             Resize + Normalize   
- * -            Top-K       
- * </p>
- * <p>
- *                   
- * 1.           448x448
- * 2.              [0, 1]
- * 3.           CHW       
-   * 4. 镜像net
- * </p>
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025/01/26
+* CL Tagger                            
+* <p>
+*        CL Tagger                                     
+*                                                                      
+* </p>
+* <p>
+*                
+* -                          
+* -                             Resize + Normalize   
+* -            Top-K       
+* </p>
+* <p>
+*                   
+* 1.           448x448
+* 2.              [0, 1]
+* 3.           CHW       
+* 4. 镜像net
+* </p>
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025/01/26
  */
 public class ClTaggerTranslator implements Translator<Image, Classifications> {
 
@@ -65,17 +65,17 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     private static final Logger log = LoggerFactory.getLogger(ClTaggerTranslator.class);
 
     /**
-     *                   
+    *                   
      */
     private static final int INPUT_SIZE = 448;
 
     /**
-     * Top-K             
+    * Top-K             
      */
     private final int topk;
 
     /**
-     *                   
+    *                   
      */
     private List<String> classes;
 
@@ -84,27 +84,27 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     private final ThreadLocal<Boolean> lowInformationInput = ThreadLocal.withInitial(() -> false);
 
     /**
-     *              -              Top-K
-     *
-     * @param classes                   
+    *              -              Top-K
+    *
+    * @param classes                   
      */
     public ClTaggerTranslator() {
         this(defaultClasses(DEFAULT_CLASS_COUNT), 10);
     }
 
     /**
-      * 创建 cltaggertranslator 实例
-     * @param classes classes
+    * 创建 cltaggertranslator 实例
+    * @param classes classes
      */
     public ClTaggerTranslator(List<String> classes) {
         this(classes, 10);
     }
 
     /**
-     *              -           Top-K
-     *
-     * @param classes                   
-     * @param topk    Top-K             
+    *              -           Top-K
+    *
+    * @param classes                   
+    * @param topk    Top-K             
      */
     public ClTaggerTranslator(List<String> classes, int topk) {
         this.classes = new ArrayList<>(classes);
@@ -135,12 +135,12 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                     
-     * @param input             
-     * @return              NDList
-     * @throws Exception             
+    *                   
+    *
+    * @param ctx                     
+    * @param input             
+    * @return              NDList
+    * @throws Exception             
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
@@ -170,12 +170,12 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                    
-     * @param list              nd列表
-     * @return             
-     * @throws Exception             
+    *                   
+    *
+    * @param ctx                    
+    * @param list              nd列表
+    * @return             
+    * @throws Exception             
      */
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
@@ -199,9 +199,9 @@ finally {
     }
 
     /**
-     *                   
-     *
-     * @return STACK             
+    *                   
+    *
+    * @return STACK             
      */
     @Override
     public Batchifier getBatchifier() {
@@ -209,10 +209,10 @@ finally {
     }
 
     /**
-     * 默认类
-     *
-     * @param size 大小
-     * @return 默认类的结果
+    * 默认类
+    *
+    * @param size 大小
+    * @return 默认类的结果
      */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)
@@ -221,10 +221,10 @@ finally {
     }
 
     /**
-     * lookslike默认类
-     *
-     * @param classes 类
-     * @return lookslike默认类的结果
+    * lookslike默认类
+    *
+    * @param classes 类
+    * @return lookslike默认类的结果
      */
     private static boolean looksLikeDefaultClasses(List<String> classes) {
         return classes != null
@@ -233,10 +233,10 @@ finally {
     }
 
     /**
-     * 是否low信息
-     *
-     * @param array array
-     * @return 是否low信息的结果
+    * 是否low信息
+    *
+    * @param array array
+    * @return 是否low信息的结果
      */
     private static boolean isLowInformation(NDArray array) {
         NDArray floatArray = array.toType(DataType.FLOAT32, false);
@@ -246,10 +246,10 @@ finally {
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -263,10 +263,10 @@ finally {
     }
 
     /**
-     * 加载标签mapping
-     *
-     * @param tagMappingPath 标签mapping路径
-     * @return 加载标签mapping的结果
+    * 加载标签mapping
+    *
+    * @param tagMappingPath 标签mapping路径
+    * @return 加载标签mapping的结果
      */
     private static List<String> loadTagMapping(Path tagMappingPath) throws IOException {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
@@ -288,11 +288,11 @@ finally {
     }
 
     /**
-     * 标签mappingentry
-     *
-     * @param tag 标签
-     * @param category 分类
-     * @return 标签mappingentry的结果
+    * 标签mappingentry
+    *
+    * @param tag 标签
+    * @param category 分类
+    * @return 标签mappingentry的结果
      */
     private record TagMappingEntry(String tag, String category) {
     }

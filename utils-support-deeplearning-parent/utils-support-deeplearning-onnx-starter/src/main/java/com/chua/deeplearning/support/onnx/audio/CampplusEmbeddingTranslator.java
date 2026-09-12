@@ -18,19 +18,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * CAM++ 声纹嵌入提取翻译器（纯 ONNX Runtime 实现，192维）。
- *
- * <h2>模型说明</h2>
- * <p>CAM++ 是阿里 DAMO 提出的说话人验证模型，中文优化：
- * <ul>
- *   <li><b>输入</b>：16kHz 单声道 PCM float 音频采样数组。</li>
- *   <li><b>输出</b>：192 维 L2 归一化嵌入向量。</li>
- *   <li><b>用途</b>：声纹识别、说话人验证、声纹入库检索。</li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 4.0.0.44
+* CAM++ 声纹嵌入提取翻译器（纯 ONNX Runtime 实现，192维）。
+*
+* <h2>模型说明</h2>
+* <p>CAM++ 是阿里 DAMO 提出的说话人验证模型，中文优化：
+* <ul>
+*   <li><b>输入</b>：16kHz 单声道 PCM float 音频采样数组。</li>
+*   <li><b>输出</b>：192 维 L2 归一化嵌入向量。</li>
+*   <li><b>用途</b>：声纹识别、说话人验证、声纹入库检索。</li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 4.0.0.44
  */
 @Slf4j
 public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]> {
@@ -47,9 +47,9 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     private String modelPath; // 模型路径
 
     /**
-      * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
-     *
-     * @param modelPath 模型路径
+    * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
+    *
+    * @param modelPath 模型路径
      */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
@@ -117,7 +117,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-      * ensureprepared。
+    * ensureprepared。
      */
     private void ensurePrepared() throws Exception {
         if (prepared) {
@@ -144,9 +144,9 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-     * resolve模型路径。
-     * @param pathStr 路径str
-     * @return resolve模型路径的结果
+    * resolve模型路径。
+    * @param pathStr 路径str
+    * @return resolve模型路径的结果
      */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
@@ -171,9 +171,9 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-     * decode转为pcm。
-     * @param audioData 音频数据
-     * @return decode转为pcm的结果
+    * decode转为pcm。
+    * @param audioData 音频数据
+    * @return decode转为pcm的结果
      */
     private float[] decodeToPcm(byte[] audioData) {
         try {
@@ -205,10 +205,10 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-     * Kaldi-style fbank 80-dim 特征 extraction
-     *
-     * @param samples 样本
-     * @return computeFbank80的结果
+    * Kaldi-style fbank 80-dim 特征 extraction
+    *
+    * @param samples 样本
+    * @return computeFbank80的结果
      */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
@@ -272,9 +272,9 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-     * 构建kaldimel过滤器。
-     * @param nFreq nfreq
-     * @return 构建kaldimel过滤器的结果
+    * 构建kaldimel过滤器。
+    * @param nFreq nfreq
+    * @return 构建kaldimel过滤器的结果
      */
     private double[][] buildKaldiMelFilters(int nFreq) {
         double lowFreq = 20.0;
@@ -312,9 +312,9 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     }
 
     /**
-     * fft。
-     * @param re re
-     * @param im im
+    * fft。
+    * @param re re
+    * @param im im
      */
     private void fft(double[] re, double[] im) {
         int n = re.length;

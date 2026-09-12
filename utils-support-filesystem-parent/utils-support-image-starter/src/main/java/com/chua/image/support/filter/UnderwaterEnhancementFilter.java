@@ -19,23 +19,23 @@ import javax.annotation.Nullable;
 
 
 /**
- * 水下增强滤镜
- * <p>
- * 专门用于增强水下图像的滤镜，主要解决水下图像的以下问题：
- * 1. 蓝绿色偏色问题
- * 2. 对比度低
- * 3. 细节模糊
- * 4. 颜色饱和度不足
- * 
- * 算法特点：
- * - 白平衡校正：消除蓝绿色调偏移
- * - 对比度增强：提升图像层次感
- * - 颜色补偿：恢复红色通道信息
- * - 细节锐化：增强图像清晰度
- * - 饱和度调整：提升颜色鲜艳度
- *
- * @author CH
- * @since 2024/12/20
+* 水下增强滤镜
+* <p>
+* 专门用于增强水下图像的滤镜，主要解决水下图像的以下问题：
+* 1. 蓝绿色偏色问题
+* 2. 对比度低
+* 3. 细节模糊
+* 4. 颜色饱和度不足
+* 
+* 算法特点：
+* - 白平衡校正：消除蓝绿色调偏移
+* - 对比度增强：提升图像层次感
+* - 颜色补偿：恢复红色通道信息
+* - 细节锐化：增强图像清晰度
+* - 饱和度调整：提升颜色鲜艳度
+*
+* @author CH
+* @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -45,48 +45,48 @@ import javax.annotation.Nullable;
 public class UnderwaterEnhancementFilter extends AbstractImageFilter {
 
     /**
-     * 红色通道增强系数 (0.0-2.0)
-     * 用于补偿水下环境中红光衰减的问题
+    * 红色通道增强系数 (0.0-2.0)
+    * 用于补偿水下环境中红光衰减的问题
      */
     private double redEnhancement = 1.5;
 
     /**
-     * 蓝色通道衰减系数 (0.0-1.0)
-     * 用于减少水下图像的蓝色偏移
+    * 蓝色通道衰减系数 (0.0-1.0)
+    * 用于减少水下图像的蓝色偏移
      */
     private double blueReduction = 0.7;
 
     /**
-     * 绿色通道衰减系数 (0.0-1.0)
-     * 用于减少水下图像的绿色偏移
+    * 绿色通道衰减系数 (0.0-1.0)
+    * 用于减少水下图像的绿色偏移
      */
     private double greenReduction = 0.8;
 
     /**
-     * 对比度增强系数 (0.0-3.0)
-     * 用于提升图像的对比度
+    * 对比度增强系数 (0.0-3.0)
+    * 用于提升图像的对比度
      */
     private double contrastEnhancement = 1.3;
 
     /**
-     * 饱和度增强系数 (0.0-2.0)
-     * 用于提升颜色饱和度
+    * 饱和度增强系数 (0.0-2.0)
+    * 用于提升颜色饱和度
      */
     private double saturationEnhancement = 1.2;
 
     /**
-     * 亮度调整系数 (-100 到 100)
-     * 用于调整图像整体亮度
+    * 亮度调整系数 (-100 到 100)
+    * 用于调整图像整体亮度
      */
     private int brightnessAdjustment = 10;
 
     /**
-     * 是否启用锐化处理
+    * 是否启用锐化处理
      */
     private boolean sharpenEnabled = true;
 
     /**
-     * 锐化强度 (0.0-2.0)
+    * 锐化强度 (0.0-2.0)
      */
     private double sharpenStrength = 0.5;
 
@@ -146,10 +146,10 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     }
 
     /**
-     * 执行颜色校正
-     * 主要解决水下图像的蓝绿色偏移问题
-     * @param src src
-     * @return 执行colorcorrection的结果
+    * 执行颜色校正
+    * 主要解决水下图像的蓝绿色偏移问题
+    * @param src src
+    * @return 执行colorcorrection的结果
      */
     private BufferedImage performColorCorrection(BufferedImage src) {
         int width = src.getWidth();
@@ -181,9 +181,9 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     }
 
     /**
-     * 调整对比度和亮度
-     * @param src src
-     * @return adjustcontrast和brightness的结果
+    * 调整对比度和亮度
+    * @param src src
+    * @return adjustcontrast和brightness的结果
      */
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
@@ -213,9 +213,9 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     }
 
     /**
-     * 增强饱和度
-     * @param src src
-     * @return 增强saturation的结果
+    * 增强饱和度
+    * @param src src
+    * @return 增强saturation的结果
      */
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
@@ -248,9 +248,9 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     }
 
     /**
-     * 应用锐化滤镜
-     * @param src src
-     * @return applySharpen的结果
+    * 应用锐化滤镜
+    * @param src src
+    * @return applySharpen的结果
      */
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
@@ -332,11 +332,11 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     }
 
     /**
-     * RGB转HSV色彩空间
-     * @param r r
-     * @param g g
-     * @param b b
-     * @return rgb转为hsv的结果
+    * RGB转HSV色彩空间
+    * @param r r
+    * @param g g
+    * @param b b
+    * @return rgb转为hsv的结果
      */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
@@ -369,11 +369,11 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     }
 
     /**
-     * HSV转RGB色彩空间
-     * @param h h
-     * @param s s
-     * @param v v
-     * @return hsv转为rgb的结果
+    * HSV转RGB色彩空间
+    * @param h h
+    * @param s s
+    * @param v v
+    * @return hsv转为rgb的结果
      */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;

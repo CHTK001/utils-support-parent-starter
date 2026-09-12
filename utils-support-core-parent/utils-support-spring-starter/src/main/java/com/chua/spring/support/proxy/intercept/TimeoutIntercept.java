@@ -14,15 +14,15 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 超时拦截器，处理 {@link Timeout} 注解的方法。
- *
- * <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
- * 读取注解属性构建 {@link TimeoutFlow}，在超时保护下执行目标方法，超时自动中断并降级。</p>
- *
- * <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 超时拦截器，处理 {@link Timeout} 注解的方法。
+*
+* <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
+* 读取注解属性构建 {@link TimeoutFlow}，在超时保护下执行目标方法，超时自动中断并降级。</p>
+*
+* <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("com.chua.common.support.concurrent.timeout.annotation.Timeout")
 public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<Timeout> {
@@ -73,11 +73,11 @@ public class TimeoutIntercept extends AbstractMethodAnnotationIntercept implemen
     }
 
     /**
-     * 调用注解指定的回退方法。
-     *
-     * @param annotation  超时注解
-     * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 空
+    * 调用注解指定的回退方法。
+    *
+    * @param annotation  超时注解
+    * @param proxyMethod 被拦截的方法信息
+    * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(Timeout annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

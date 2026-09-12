@@ -12,28 +12,28 @@ import java.time.LocalTime;
 import java.util.*;
 
 /**
-   * 实体对象与 Lucene 文档 之间的转换器。
- *
- * <p>负责将 Java 实体对象序列化为 Lucene {@link Document}，
- * 以及从 {@link Document} 反序列化为实体对象。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 实体对象与 Lucene 文档 之间的转换器。
+*
+* <p>负责将 Java 实体对象序列化为 Lucene {@link Document}，
+* 以及从 {@link Document} 反序列化为实体对象。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class EntityDocumentConverter {
 
     /**
-     * 私有构造。
+    * 私有构造。
      */
     private EntityDocumentConverter() {
     }
 
     /**
-     * 反射获取对象字段值。
-     *
-     * @param entity   实体对象
-     * @param fieldName 字段名
-     * @return 字段值
+    * 反射获取对象字段值。
+    *
+    * @param entity   实体对象
+    * @param fieldName 字段名
+    * @return 字段值
      */
     private static Object getFieldValue(Object entity, String fieldName) {
         if (entity == null || fieldName == null) {
@@ -43,10 +43,10 @@ public final class EntityDocumentConverter {
     }
 
     /**
-      * 将实体对象转换为 Lucene 文档。
-     *
-     * @param entity 实体对象
-     * @return Lucene 文档
+    * 将实体对象转换为 Lucene 文档。
+    *
+    * @param entity 实体对象
+    * @return Lucene 文档
      */
     @SuppressWarnings("unchecked")
     public static Document toDocument(Object entity) {
@@ -77,12 +77,12 @@ public final class EntityDocumentConverter {
     }
 
     /**
-      * 将 Lucene 文档 转换为实体对象。
-     *
-     * @param doc        Lucene 文档
-     * @param entityClass 实体类
-     * @param <T>        实体类型
-     * @return 实体对象
+    * 将 Lucene 文档 转换为实体对象。
+    *
+    * @param doc        Lucene 文档
+    * @param entityClass 实体类
+    * @param <T>        实体类型
+    * @return 实体对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T toEntity(Document doc, Class<T> entityClass) {
@@ -109,11 +109,11 @@ public final class EntityDocumentConverter {
     }
 
     /**
-      * 向 文档 添加字段。
-     *
-     * @param doc       Lucene 文档
-     * @param fieldName 字段名
-     * @param value     字段值
+    * 向 文档 添加字段。
+    *
+    * @param doc       Lucene 文档
+    * @param fieldName 字段名
+    * @param value     字段值
      */
     private static void addField(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
@@ -160,12 +160,12 @@ public final class EntityDocumentConverter {
     }
 
     /**
-     * 设置字段值。
-     *
-     * @param entity   实体对象
-     * @param field    字段
-     * @param valueStr 字符串值
-     * @param fieldType 字段类型
+    * 设置字段值。
+    *
+    * @param entity   实体对象
+    * @param field    字段
+    * @param valueStr 字符串值
+    * @param fieldType 字段类型
      */
     private static void setFieldValue(Object entity, Field field, String valueStr, Class<?> fieldType) {
         try {

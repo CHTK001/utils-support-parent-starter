@@ -15,31 +15,31 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 模型资源定位工具。
- *
- * @author CH
- * @since 4.0.0.42
+* 模型资源定位工具。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LocationUtils {
 
     /**
-      * ndarray 转 镜像。
-     *
-     * @param array ndarray
-     * @return Image
+    * ndarray 转 镜像。
+    *
+    * @param array ndarray
+    * @return Image
      */
     public static Image getImage(NDArray array) {
         return ImageFactory.getInstance().fromNDArray(array);
     }
 
     /**
-     * 解析模型路径为 URL 列表。
-     * <p>支持文件系统绝对/相对路径、classpath 资源。</p>
-     *
-     * @param modelPath   路径
-     * @param isDirectory 是否目录
-     * @return URL 列表
+    * 解析模型路径为 URL 列表。
+    * <p>支持文件系统绝对/相对路径、classpath 资源。</p>
+    *
+    * @param modelPath   路径
+    * @param isDirectory 是否目录
+    * @return URL 列表
      */
     public static List<String> getUrl(String modelPath, boolean isDirectory) {
         if (modelPath == null || modelPath.isBlank()) {

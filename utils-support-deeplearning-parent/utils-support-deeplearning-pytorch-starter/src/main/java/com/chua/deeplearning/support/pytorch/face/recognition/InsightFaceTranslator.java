@@ -12,11 +12,11 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * 洞见face / arcface 人脸特征 Translator。
- * <p>输入 112x112，归一化到 [-1,1]，输出 L2 归一化特征向量。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 洞见face / arcface 人脸特征 Translator。
+* <p>输入 112x112，归一化到 [-1,1]，输出 L2 归一化特征向量。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InsightFaceTranslator implements Translator<Image, float[]> {
 
@@ -55,10 +55,10 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
     }
 
     /**
-     * lnormalize
-     *
-     * @param features 特征
-     * @return l2Normalize的结果
+    * lnormalize
+    *
+    * @param features 特征
+    * @return l2Normalize的结果
      */
     private static float[] l2Normalize(float[] features) {
         double sum = 0.0;

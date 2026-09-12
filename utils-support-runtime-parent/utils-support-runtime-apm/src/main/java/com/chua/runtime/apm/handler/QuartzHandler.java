@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * 石英石 处理器 — intercepts 石英石 作业 执行.
- *
- * @author CH
- * @since 4.0.0.42
+* 石英石 处理器 — intercepts 石英石 作业 执行.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class QuartzHandler extends AbstractAppHandler {
 
     /**
-      * 作业
+    * 作业
      */
     private static final String JOB = "org/quartz/Job";
     /**
-      * 执行 方法
+    * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
 

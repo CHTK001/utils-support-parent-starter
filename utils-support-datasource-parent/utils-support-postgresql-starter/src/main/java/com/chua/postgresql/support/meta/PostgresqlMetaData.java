@@ -7,20 +7,20 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.meta.JdbcMetaData;
 
 /**
- * PostgreSQL 元数据入口。
- * <p>
- * 继承自 {@link JdbcMetaData}，复用方言提供的触发器/存储过程查询 SQL。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* PostgreSQL 元数据入口。
+* <p>
+* 继承自 {@link JdbcMetaData}，复用方言提供的触发器/存储过程查询 SQL。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("postgresql")
 public class PostgresqlMetaData extends JdbcMetaData {
 
     /**
-     * postgresqlmeta数据。
-     * @param engine engine
+    * postgresqlmeta数据。
+    * @param engine engine
      */
     public PostgresqlMetaData(Engine engine) {
         super(engine);

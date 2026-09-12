@@ -4,28 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * B-Tree 节点
- *
- * <p>AST（抽象语法树）的核心节点，表示表达式中的一个操作或值。
- * 每个节点包含类型、值、运算符和子节点，构成二叉树结构。
- *
- * <h3>节点类型</h3>
- * <ul>
- *   <li>OPERATOR — 运算符节点（AND/OR/NOT/比较运算符），有左子节点</li>
- *   <li>LOGIC — 逻辑运算符（AND/OR），有左右子节点</li>
- *   <li>NOT — 逻辑非，只有右子节点</li>
- *   <li>COLUMN — 列引用（如 age、status），叶子节点</li>
- *   <li>VALUE — 常量值（如 18、'active'），叶子节点</li>
- *   <li>FUNCTION — 函数调用（如 NOW()、UPPER(name)）</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* B-Tree 节点
+*
+* <p>AST（抽象语法树）的核心节点，表示表达式中的一个操作或值。
+* 每个节点包含类型、值、运算符和子节点，构成二叉树结构。
+*
+* <h3>节点类型</h3>
+* <ul>
+*   <li>OPERATOR — 运算符节点（AND/OR/NOT/比较运算符），有左子节点</li>
+*   <li>LOGIC — 逻辑运算符（AND/OR），有左右子节点</li>
+*   <li>NOT — 逻辑非，只有右子节点</li>
+*   <li>COLUMN — 列引用（如 age、status），叶子节点</li>
+*   <li>VALUE — 常量值（如 18、'active'），叶子节点</li>
+*   <li>FUNCTION — 函数调用（如 NOW()、UPPER(name)）</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class BTreeNode {
 
     /**
-     * 节点类型
+    * 节点类型
      */
     public enum Type {
 
@@ -62,7 +62,7 @@ public class BTreeNode {
 
     /** 值（VALUE 类型时为实际值，其他类型可能为 null） */
     /**
-     * 值
+    * 值
      */
     private final Object value;
 
@@ -76,10 +76,10 @@ public class BTreeNode {
     private final List<BTreeNode> children = new ArrayList<>();
 
     /**
-     * 创建 BTreeNode 实例
-     * @param type type
-     * @param String String
-     * @param Object Object
+    * 创建 BTreeNode 实例
+    * @param type type
+    * @param String String
+    * @param Object Object
      */
     public BTreeNode(Type type, String operator, Object value) {
         this.type = type;
@@ -90,12 +90,12 @@ public class BTreeNode {
     // ==================== 静态工厂方法 ====================
 
     /**
-     * 创建逻辑运算节点
-     *
-     * @param operator "AND" 或 "OR"
-     * @param left     左子节点
-     * @param right    右子节点
-     * @return 逻辑运算节点
+    * 创建逻辑运算节点
+    *
+    * @param operator "AND" 或 "OR"
+    * @param left     左子节点
+    * @param right    右子节点
+    * @return 逻辑运算节点
      */
     public static BTreeNode logic(String operator, BTreeNode left, BTreeNode right) {
         BTreeNode node = new BTreeNode(Type.LOGIC, operator, null);
@@ -105,24 +105,24 @@ public class BTreeNode {
     }
 
     /**
-     * 创建 AND 节点
+    * 创建 AND 节点
      */
     public static BTreeNode and(BTreeNode left, BTreeNode right) {
         return logic("AND", left, right);
     }
 
     /**
-     * 创建 OR 节点
+    * 创建 OR 节点
      */
     public static BTreeNode or(BTreeNode left, BTreeNode right) {
         return logic("OR", left, right);
     }
 
     /**
-     * 创建 NOT 节点
-     *
-     * @param child 子节点
-     * @return NOT 节点
+    * 创建 NOT 节点
+    *
+    * @param child 子节点
+    * @return NOT 节点
      */
     public static BTreeNode not(BTreeNode child) {
         BTreeNode node = new BTreeNode(Type.NOT, "NOT", null);
@@ -131,12 +131,12 @@ public class BTreeNode {
     }
 
     /**
-     * 创建比较运算节点
-     *
-     * @param operator 比较运算符（=, !=, >, <, >=, <=, LIKE, IN）
-     * @param left     左操作数（通常是列引用）
-     * @param right    右操作数（通常是值）
-     * @return 比较运算节点
+    * 创建比较运算节点
+    *
+    * @param operator 比较运算符（=, !=, >, <, >=, <=, LIKE, IN）
+    * @param left     左操作数（通常是列引用）
+    * @param right    右操作数（通常是值）
+    * @return 比较运算节点
      */
     public static BTreeNode compare(String operator, BTreeNode left, BTreeNode right) {
         BTreeNode node = new BTreeNode(Type.COMPARE, operator, null);
@@ -146,31 +146,31 @@ public class BTreeNode {
     }
 
     /**
-     * 创建列引用节点
-     *
-     * @param columnName 列名
-     * @return 列引用节点
+    * 创建列引用节点
+    *
+    * @param columnName 列名
+    * @return 列引用节点
      */
     public static BTreeNode column(String columnName) {
         return new BTreeNode(Type.COLUMN, columnName, null);
     }
 
     /**
-     * 创建常量值节点
-     *
-     * @param value 常量值
-     * @return 常量值节点
+    * 创建常量值节点
+    *
+    * @param value 常量值
+    * @return 常量值节点
      */
     public static BTreeNode value(Object value) {
         return new BTreeNode(Type.VALUE, null, value);
     }
 
     /**
-     * 创建函数调用节点
-     *
-     * @param functionName 函数名
-     * @param args         函数参数
-     * @return 函数节点
+    * 创建函数调用节点
+    *
+    * @param functionName 函数名
+    * @param args         函数参数
+    * @return 函数节点
      */
     public static BTreeNode function(String functionName, BTreeNode... args) {
         BTreeNode node = new BTreeNode(Type.FUNCTION, functionName, null);
@@ -181,10 +181,10 @@ public class BTreeNode {
     }
 
     /**
-     * 创建原始表达式节点（未解析）
-     *
-     * @param rawExpression 原始文本
-     * @return 原始表达式节点
+    * 创建原始表达式节点（未解析）
+    *
+    * @param rawExpression 原始文本
+    * @return 原始表达式节点
      */
     public static BTreeNode raw(String rawExpression) {
         return new BTreeNode(Type.RAW, rawExpression, null);
@@ -223,42 +223,42 @@ public class BTreeNode {
     }
 
     /**
-     * 是否为叶子节点（无子节点）
+    * 是否为叶子节点（无子节点）
      */
     public boolean isLeaf() {
         return type == Type.COLUMN || type == Type.VALUE || type == Type.RAW;
     }
 
     /**
-     * 是否为逻辑运算节点
+    * 是否为逻辑运算节点
      */
     public boolean isLogic() {
         return type == Type.LOGIC;
     }
 
     /**
-     * 是否为 AND 节点
+    * 是否为 AND 节点
      */
     public boolean isAnd() {
         return type == Type.LOGIC && "AND".equalsIgnoreCase(operator);
     }
 
     /**
-     * 是否为 OR 节点
+    * 是否为 OR 节点
      */
     public boolean isOr() {
         return type == Type.LOGIC && "OR".equalsIgnoreCase(operator);
     }
 
     /**
-     * 获取字符串值
+    * 获取字符串值
      */
     public String asString() {
         return value != null ? String.valueOf(value) : operator;
     }
 
     /**
-     * 获取整数值
+    * 获取整数值
      */
     public Integer asInteger() {
         if (value instanceof Number n) { return n.intValue(); }
@@ -267,7 +267,7 @@ public class BTreeNode {
     }
 
     /**
-     * 获取双精度值
+    * 获取双精度值
      */
     public Double asDouble() {
         if (value instanceof Number n) { return n.doubleValue(); }

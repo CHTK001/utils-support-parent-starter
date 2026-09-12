@@ -28,8 +28,8 @@ public class OnnxLayoutDetector implements LayoutDetector {
     private String device = "cpu";
 
     /**
-      * 创建 onnxlayoutdetector 实例
-     * @param apiKey API密钥
+    * 创建 onnxlayoutdetector 实例
+    * @param apiKey API密钥
      */
     public OnnxLayoutDetector(String apiKey) {
     }
@@ -42,9 +42,9 @@ public class OnnxLayoutDetector implements LayoutDetector {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "doc-layout-yolo-imgsz640";

@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Spring Integration 处理器 — intercepts 消息 通道 发送 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* Spring Integration 处理器 — intercepts 消息 通道 发送 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SpringIntegrationHandler extends AbstractAppHandler {
 
     /**
-      * 消息 通道
+    * 消息 通道
      */
     private static final String MESSAGE_CHANNEL = "org/springframework/integration/channel/AbstractMessageChannel";
     /**
-      * 发送 方法
+    * 发送 方法
      */
     private static final String[] SEND_METHODS = {"send", "receive"};
 

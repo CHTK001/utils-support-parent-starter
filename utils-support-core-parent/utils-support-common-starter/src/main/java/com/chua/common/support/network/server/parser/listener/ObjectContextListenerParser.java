@@ -11,22 +11,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * ObjectContext 通用注解的监听解析器实现。
- *
- * <p>解析 {@code objects.annotation} 包下的通用生命周期/消息注解：
- * {@code @OnOpen}、{@code @OnMessage}、{@code @OnClose}、{@code @OnError}。
- * 这些注解不绑定具体协议，由 HTTP/MQTT/WS 等 Server 根据自身事件模型派发。</p>
- *
- * <h2>事件类型映射</h2>
- * <ul>
- *   <li>{@code @OnOpen} → "open"</li>
- *   <li>{@code @OnMessage} → "message"</li>
- *   <li>{@code @OnClose} → "close"</li>
- *   <li>{@code @OnError} → "error"</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/20
+* ObjectContext 通用注解的监听解析器实现。
+*
+* <p>解析 {@code objects.annotation} 包下的通用生命周期/消息注解：
+* {@code @OnOpen}、{@code @OnMessage}、{@code @OnClose}、{@code @OnError}。
+* 这些注解不绑定具体协议，由 HTTP/MQTT/WS 等 Server 根据自身事件模型派发。</p>
+*
+* <h2>事件类型映射</h2>
+* <ul>
+*   <li>{@code @OnOpen} → "open"</li>
+*   <li>{@code @OnMessage} → "message"</li>
+*   <li>{@code @OnClose} → "close"</li>
+*   <li>{@code @OnError} → "error"</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/20
  */
 public class ObjectContextListenerParser implements ListenerParser {
 

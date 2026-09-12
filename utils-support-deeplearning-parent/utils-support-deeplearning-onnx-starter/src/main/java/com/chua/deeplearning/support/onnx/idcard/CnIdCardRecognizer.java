@@ -20,15 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 中国居民身份证识别门面
- *
- * <p>组合 YOLOv8 身份证检测 + PaddleOCR 文字识别 + 结构化解析，
- * 从身份证图片中提取姓名、身份证号、地址等字段。</p>
- *
- * @author CH
- * @since 4.0.0.43
- * @param detectModel detect模型
- * @param recModel rec模型
+* 中国居民身份证识别门面
+*
+* <p>组合 YOLOv8 身份证检测 + PaddleOCR 文字识别 + 结构化解析，
+* 从身份证图片中提取姓名、身份证号、地址等字段。</p>
+*
+* @author CH
+* @since 4.0.0.43
+* @param detectModel detect模型
+* @param recModel rec模型
  */
 @Slf4j
 public class CnIdCardRecognizer {
@@ -37,9 +37,9 @@ public class CnIdCardRecognizer {
 
     private final String detectModel; // detect模型
     /**
-     * cnid卡片recognizer。
-     * @param detectModel detect模型
-     * @param recModel rec模型
+    * cnid卡片recognizer。
+    * @param detectModel detect模型
+    * @param recModel rec模型
      */
     private final String recModel;
 
@@ -53,11 +53,11 @@ public class CnIdCardRecognizer {
     }
 
     /**
-     * 从身份证图片中提取结构化信息
-     *
-     * @param imageData 身份证正面或反面图片（JPG/PNG）
-     * @return 解析结果列表（通常 1 条）
-     * @param data 数据
+    * 从身份证图片中提取结构化信息
+    *
+    * @param imageData 身份证正面或反面图片（JPG/PNG）
+    * @return 解析结果列表（通常 1 条）
+    * @param data 数据
      /**
       * recognize。
       * @param imageData 镜像数据
@@ -113,9 +113,9 @@ public class CnIdCardRecognizer {
         } catch (Exception e) {
             log.error("[CnIdCard] 识别失败: {}", e.getMessage(), e);
         /**
-         * detect卡片。
-         * @param imageData 镜像数据
-         * @return detect卡片的结果
+        * detect卡片。
+        * @param imageData 镜像数据
+        * @return detect卡片的结果
          */
         }
         return results;
@@ -133,11 +133,11 @@ public class CnIdCardRecognizer {
         } catch (Exception e) {
             log.error("[CnIdCard] 检测失败: {}", e.getMessage(), e);
             /**
-             * recognize文本。
-             * @param cropImage crop镜像
-             * @return recognize文本的结果
-             * @param cards 卡片
-             * @param modelId 模型id
+            * recognize文本。
+            * @param cropImage crop镜像
+            * @return recognize文本的结果
+            * @param cards 卡片
+            * @param modelId 模型id
              */
             return null;
         }
@@ -178,11 +178,11 @@ public class CnIdCardRecognizer {
         f.setAccessible(true);
         return (List<BoundingBox>) f.get(cards);
     /**
-     * 获取probabilities。
-     * @param cards 卡片
-     * @return 获取probabilities的结果
-     * @param data 数据
-     * @param img img
+    * 获取probabilities。
+    * @param cards 卡片
+    * @return 获取probabilities的结果
+    * @param data 数据
+    * @param img img
      */
     }
 

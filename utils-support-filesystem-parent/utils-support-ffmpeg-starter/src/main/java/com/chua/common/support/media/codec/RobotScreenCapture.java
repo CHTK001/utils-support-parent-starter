@@ -12,12 +12,12 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
 /**
-   * 基于 Java.awt.Robot 的纯 Java 屏幕采集实现。
- *
- * <p>无需任何 native 依赖，跨平台支持 Windows / Linux / macOS。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Java.awt.Robot 的纯 Java 屏幕采集实现。
+*
+* <p>无需任何 native 依赖，跨平台支持 Windows / Linux / macOS。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("robot")

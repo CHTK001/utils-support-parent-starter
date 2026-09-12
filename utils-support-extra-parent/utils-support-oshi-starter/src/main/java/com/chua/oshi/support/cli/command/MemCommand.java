@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * oshc mem — 内存明细：物理内存条、虚拟内存/交换分区。
- *
- * @author CH
- * @since 4.0.0.42
+* oshc mem — 内存明细：物理内存条、虚拟内存/交换分区。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class MemCommand extends AbstractCommand {
 

@@ -2,12 +2,12 @@ package com.chua.common.support.network.ip;
 
 
 /**
- * IP 定位配置
- *
- * <p>定义 IP 定位数据库路径、MaxMind 许可证等配置参数。
- *
- * @author CH
- * @since 1.0.0
+* IP 定位配置
+*
+* <p>定义 IP 定位数据库路径、MaxMind 许可证等配置参数。
+*
+* @author CH
+* @since 1.0.0
  */
 public class GeoSetting {
 
@@ -21,9 +21,9 @@ public class GeoSetting {
     private final String licenseKey;
 
     /**
-     * 创建 GeoSetting 实例
-     * @param databaseFile databaseFile
-     * @param String String
+    * 创建 GeoSetting 实例
+    * @param databaseFile databaseFile
+    * @param String String
      */
     public GeoSetting(String databaseFile, String licenseKey) {
         this.databaseFile = databaseFile;
@@ -36,7 +36,7 @@ public class GeoSetting {
     public String getLicenseKey() { return licenseKey; }
 
     /**
-     * 创建 Builder
+    * 创建 Builder
      */
     public static Builder builder() {
         return new Builder();

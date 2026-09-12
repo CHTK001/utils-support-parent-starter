@@ -11,27 +11,27 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Agent 路由对话客户端
- *
- * <p>将 Agent 的多模型路由能力包装为 {@link ChatClient} 接口。
- * 支持配置一个主模型（master）和多个从模型（slave），
- * 主模型负责意图识别和任务分派，从模型负责具体子任务执行。
- *
- * <p>MCP 默认关闭，Agent 退化为纯路由模型，不加载任何外部工具。
- *
- * <p>使用示例：
- * <pre>{@code
- *   ChatClient client = new AgentChatClient()
- *       .master("gpt-4", openAiClient)
- *       .slave("dev-agent", "开发助手", "代码开发专家", deepseekClient)
- *       .slave("search-agent", "搜索助手", "联网搜索", searchClient)
- *       .mode(AgentMode.ROUTER);
- *
- *   String answer = client.chatSync("帮我写一个快速排序");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.41
+* Agent 路由对话客户端
+*
+* <p>将 Agent 的多模型路由能力包装为 {@link ChatClient} 接口。
+* 支持配置一个主模型（master）和多个从模型（slave），
+* 主模型负责意图识别和任务分派，从模型负责具体子任务执行。
+*
+* <p>MCP 默认关闭，Agent 退化为纯路由模型，不加载任何外部工具。
+*
+* <p>使用示例：
+* <pre>{@code
+*   ChatClient client = new AgentChatClient()
+*       .master("gpt-4", openAiClient)
+*       .slave("dev-agent", "开发助手", "代码开发专家", deepseekClient)
+*       .slave("search-agent", "搜索助手", "联网搜索", searchClient)
+*       .mode(AgentMode.ROUTER);
+*
+*   String answer = client.chatSync("帮我写一个快速排序");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.41
  */
 public class AgentChatClient implements ChatClient {
 
@@ -54,11 +54,11 @@ public class AgentChatClient implements ChatClient {
     private boolean mcp = false;
 
     /**
-     * 配置主模型（负责路由决策）
-     *
-     * @param modelName 模型名称
-     * @param client    ChatClient 实例
-     * @return 当前实例
+    * 配置主模型（负责路由决策）
+    *
+    * @param modelName 模型名称
+    * @param client    ChatClient 实例
+    * @return 当前实例
      */
     public AgentChatClient master(String modelName, ChatClient client) {
         this.masterClient = client;
@@ -67,13 +67,13 @@ public class AgentChatClient implements ChatClient {
     }
 
     /**
-     * 注册从模型（负责具体子任务）
-     *
-     * @param id          Agent 标识
-     * @param name        Agent 名称
-     * @param description Agent 描述
-     * @param client      ChatClient 实例
-     * @return 当前实例
+    * 注册从模型（负责具体子任务）
+    *
+    * @param id          Agent 标识
+    * @param name        Agent 名称
+    * @param description Agent 描述
+    * @param client      ChatClient 实例
+    * @return 当前实例
      */
     public AgentChatClient slave(String id, String name, String description, ChatClient client) {
         slaves.put(id, new SlaveConfig(id, name, description, client));
@@ -81,7 +81,7 @@ public class AgentChatClient implements ChatClient {
     }
 
     /**
-     * 设置执行模式
+    * 设置执行模式
      */
     public AgentChatClient mode(AgentMode mode) {
         this.mode = mode;
@@ -89,7 +89,7 @@ public class AgentChatClient implements ChatClient {
     }
 
     /**
-     * 设置是否启用 MCP
+    * 设置是否启用 MCP
      */
     public AgentChatClient mcp(boolean mcp) {
         this.mcp = mcp;
@@ -133,11 +133,11 @@ public class AgentChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt prompt
-     * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+    * 对话
+    * @param prompt prompt
+    * @param consumer consumer
+    * @param onComplete onComplete
+    * @param onError onError
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {

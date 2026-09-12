@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * AWS SDK 处理器 — intercepts AWS 客户端 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* AWS SDK 处理器 — intercepts AWS 客户端 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class AwsSdkHandler extends AbstractAppHandler {
 
     /**
-      * 客户端
+    * 客户端
      */
     private static final String CLIENT = "software/amazon/awssdk/core/client/ClientExecution";
     /**
-      * 执行 方法
+    * 执行 方法
      */
     private static final String[] EXEC_METHODS = {"execute"};
 

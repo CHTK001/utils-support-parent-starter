@@ -10,14 +10,14 @@ import java.security.Security;
 import java.security.SecureRandom;
 
 /**
-   * 基于 bouncycastle 的 Noekeon 对称加解密实现
- *
- * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
-   * 实现 Noekeon/ECB/zerobytepadding 模式的加密与解密。
- * 密钥长度固定为 16 字节（128 位）。
- *
- * @author CH
- * @since 2026/07/16
+* 基于 bouncycastle 的 Noekeon 对称加解密实现
+*
+* <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
+* 实现 Noekeon/ECB/zerobytepadding 模式的加密与解密。
+* 密钥长度固定为 16 字节（128 位）。
+*
+* @author CH
+* @since 2026/07/16
  */
 @Spi({"bc", "bouncycastle"})
 public class BcNoekeonCipher implements NoekeonCipher {

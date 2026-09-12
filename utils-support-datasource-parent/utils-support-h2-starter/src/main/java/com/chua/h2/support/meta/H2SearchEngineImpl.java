@@ -12,28 +12,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * H2 搜索引擎实现，基于 H2 索引元数据（H2 2.x 语法）。
- * <p>
-   * H2 2.x 已移除内置全文检索引擎（文本 索引 / CATSEARCH），
- * 本实现将检索门面降级为：普通索引管理 + 关键字 LIKE 查询。
- * </p>
- * <ul>
- *   <li>创建索引：{@code CREATE INDEX IF NOT EXISTS}</li>
- *   <li>列出索引：{@code INFORMATION_SCHEMA.INDEXES}</li>
- *   <li>关键字查询：{@code WHERE col LIKE '%keyword%'}（调用方 SQL）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @return 列表索引的结果
+* H2 搜索引擎实现，基于 H2 索引元数据（H2 2.x 语法）。
+* <p>
+* H2 2.x 已移除内置全文检索引擎（文本 索引 / CATSEARCH），
+* 本实现将检索门面降级为：普通索引管理 + 关键字 LIKE 查询。
+* </p>
+* <ul>
+*   <li>创建索引：{@code CREATE INDEX IF NOT EXISTS}</li>
+*   <li>列出索引：{@code INFORMATION_SCHEMA.INDEXES}</li>
+*   <li>关键字查询：{@code WHERE col LIKE '%keyword%'}（调用方 SQL）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @return 列表索引的结果
  */
 public class H2SearchEngineImpl implements SearchEngine {
 
     private final H2Engine engine; // engine
 /**
- * h2搜索engineimpl。
- * @param engine engine
- * @return 列表索引的结果
+* h2搜索engineimpl。
+* @param engine engine
+* @return 列表索引的结果
  */
 
     public H2SearchEngineImpl(H2Engine engine) {
@@ -141,8 +141,8 @@ public class H2SearchEngineImpl implements SearchEngine {
     }
 
     /**
-      * 获取 数据源（用于全文检索查询）。
-     * @return 获取conn的结果
+    * 获取 数据源（用于全文检索查询）。
+    * @return 获取conn的结果
      */
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
@@ -166,10 +166,10 @@ public class H2SearchEngineImpl implements SearchEngine {
     }
 
     /**
-     * 标识符归一化：H2 未加引号标识符统一转为大写，
-     * 因此这里直接大写化以匹配 H2 内部存储形式，避免引号导致的大小写敏感问题。
-     * @param name 名称
-     * @return escape的结果
+    * 标识符归一化：H2 未加引号标识符统一转为大写，
+    * 因此这里直接大写化以匹配 H2 内部存储形式，避免引号导致的大小写敏感问题。
+    * @param name 名称
+    * @return escape的结果
      */
     private static String escape(String name) {
         if (name == null) {

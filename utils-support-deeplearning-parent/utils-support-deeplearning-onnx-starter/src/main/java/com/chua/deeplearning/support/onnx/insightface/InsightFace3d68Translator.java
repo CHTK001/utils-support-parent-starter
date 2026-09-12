@@ -9,13 +9,13 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.onnx.face.OnnxImageProcessor;
 
 /**
-   * 洞见face 1K3D68 3D 人脸关键点 Translator（buffalo_l 1k3d68）。
- *
- * <p>192×192 RGB 输入（归一化 (rgb-127.5)/128），输出 3309 维（1103 顶点 × 3 坐标
- * x/y/z，归一化到 [0,1]，z 为深度）。用于 3D 人脸重建、姿态估计。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 洞见face 1K3D68 3D 人脸关键点 Translator（buffalo_l 1k3d68）。
+*
+* <p>192×192 RGB 输入（归一化 (rgb-127.5)/128），输出 3309 维（1103 顶点 × 3 坐标
+* x/y/z，归一化到 [0,1]，z 为深度）。用于 3D 人脸重建、姿态估计。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InsightFace3d68Translator implements Translator<Image, float[]> {
 

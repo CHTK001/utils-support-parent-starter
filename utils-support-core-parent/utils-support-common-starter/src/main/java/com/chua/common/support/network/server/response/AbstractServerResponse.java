@@ -6,20 +6,20 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 服务器响应抽象基类，提供 {@link ServerResponse} 常用方法的默认实现。
- *
- * <p>管理状态码、响应头、响应体、已提交/已终止等通用状态。
- * 子类只需实现协议特定的输出方法（如 {@link #getOutputStream()}、{@link #writeRaw(byte[])} 等）。
- *
- * <h2>状态管理</h2>
- * <ul>
- *   <li>{@link #committed} — 响应头是否已发送</li>
- *   <li>{@link #ended} — 是否已调用 {@link #end()} 终止</li>
- * </ul>
- * 过滤器链通过检查这两个状态决定是否继续执行。
- *
- * @author CH
- * @since 2026/07/16
+* 服务器响应抽象基类，提供 {@link ServerResponse} 常用方法的默认实现。
+*
+* <p>管理状态码、响应头、响应体、已提交/已终止等通用状态。
+* 子类只需实现协议特定的输出方法（如 {@link #getOutputStream()}、{@link #writeRaw(byte[])} 等）。
+*
+* <h2>状态管理</h2>
+* <ul>
+*   <li>{@link #committed} — 响应头是否已发送</li>
+*   <li>{@link #ended} — 是否已调用 {@link #end()} 终止</li>
+* </ul>
+* 过滤器链通过检查这两个状态决定是否继续执行。
+*
+* @author CH
+* @since 2026/07/16
  */
 public abstract class AbstractServerResponse implements ServerResponse {
 
@@ -30,7 +30,7 @@ public abstract class AbstractServerResponse implements ServerResponse {
     protected HttpHeader headers = HttpHeader.create();
 
     /**
-     * 请求体
+    * 请求体
      */
     protected byte[] body;
 
@@ -159,17 +159,17 @@ public abstract class AbstractServerResponse implements ServerResponse {
     }
 
     /**
-     * 子类实现：获取底层输出流。
-     *
-     * @return 输出流
+    * 子类实现：获取底层输出流。
+    *
+    * @return 输出流
      */
     @Override
     public abstract OutputStream getOutputStream();
 
     /**
-     * 子类实现：直接写入原始字节数据。
-     *
-     * @param bytes 原始字节数组
+    * 子类实现：直接写入原始字节数据。
+    *
+    * @param bytes 原始字节数组
      */
     @Override
     public abstract void writeRaw(byte[] bytes);

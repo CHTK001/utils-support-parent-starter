@@ -2,19 +2,19 @@ package com.chua.common.support.concurrent.pool;
 
 
 /**
- * 池化对象包装器
- *
- * <p>封装实际对象及其元数据（状态、借出时间、空闲时间等），
- * 供对象池内部管理使用。调用方无需直接操作此类。
- *
- * @param <T> 被包装的对象类型
- * @author CH
- * @since 2026/07/16
+* 池化对象包装器
+*
+* <p>封装实际对象及其元数据（状态、借出时间、空闲时间等），
+* 供对象池内部管理使用。调用方无需直接操作此类。
+*
+* @param <T> 被包装的对象类型
+* @author CH
+* @since 2026/07/16
  */
 class PooledObject<T> {
 
     /**
-     * 对象状态
+    * 对象状态
      */
     enum Status {
 
@@ -79,7 +79,7 @@ class PooledObject<T> {
     }
 
     /**
-     * 标记为已借出
+    * 标记为已借出
      */
     void markBorrowed() {
         this.status = Status.BORROWED;
@@ -88,7 +88,7 @@ class PooledObject<T> {
     }
 
     /**
-     * 标记为已归还
+    * 标记为已归还
      */
     void markReturned() {
         this.status = Status.IDLE;
@@ -96,9 +96,9 @@ class PooledObject<T> {
     }
 
     /**
-     * 计算空闲时长（毫秒）
-     *
-     * @return 从上次归还到当前的空闲时长
+    * 计算空闲时长（毫秒）
+    *
+    * @return 从上次归还到当前的空闲时长
      */
     long getIdleTimeMillis() {
         if (status != Status.IDLE) {

@@ -12,28 +12,28 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * HEIC/HEIF 图像写入器（纯Java实现）。
- *
- * @author CH
- * @since 4.0.0.42
- * @param type 类型
- * @return 能否encode镜像的结果
- * @param param 参数
- * @param metadata metadata
- * @param spi spi
+* HEIC/HEIF 图像写入器（纯Java实现）。
+*
+* @author CH
+* @since 4.0.0.42
+* @param type 类型
+* @return 能否encode镜像的结果
+* @param param 参数
+* @param metadata metadata
+* @param spi spi
  */
 public class HEICImageWriter extends ImageWriter {
 
     private ImageOutputStream output; // 输出
 
     /**
-     * heic镜像writer。
-     * @param spi spi
+    * heic镜像writer。
+    * @param spi spi
      */
     public HEICImageWriter(HEICImageWriterSpi spi) {
         /**
-         * 设置输出。
-         * @param output 输出
+        * 设置输出。
+        * @param output 输出
          */
         super(spi);
     }
@@ -48,10 +48,10 @@ public class HEICImageWriter extends ImageWriter {
                                    int minWidth, int minHeight, IIOMetadata imgMeta,
                                    List<? extends BufferedImage> thumbnails, ImageWriteParam param) throws IOException {
         /**
-         * 写入。
-         * @param metadata metadata
-         * @param image 镜像
-         * @param param 参数
+        * 写入。
+        * @param metadata metadata
+        * @param image 镜像
+        * @param param 参数
          */
         throw new UnsupportedOperationException("Not supported");
     }
@@ -77,10 +77,10 @@ public class HEICImageWriter extends ImageWriter {
     public IIOMetadata convertImageMetadata(IIOMetadata metadata, ImageTypeSpecifier type, ImageWriteParam param) {
         return metadata;
     /**
-     * 转换流metadata。
-     * @param metadata metadata
-     * @param param 参数
-     * @return 转换流metadata的结果
+    * 转换流metadata。
+    * @param metadata metadata
+    * @param param 参数
+    * @return 转换流metadata的结果
      */
     }
 
@@ -88,9 +88,9 @@ public class HEICImageWriter extends ImageWriter {
     public IIOMetadata convertStreamMetadata(IIOMetadata metadata, ImageWriteParam param) {
         return metadata;
     /**
-     * 获取默认流metadata。
-     * @param param 参数
-     * @return 获取默认流metadata的结果
+    * 获取默认流metadata。
+    * @param param 参数
+    * @return 获取默认流metadata的结果
      */
     }
 
@@ -103,10 +103,10 @@ public class HEICImageWriter extends ImageWriter {
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier type, ImageWriteParam param) {
         return null;
     /**
-     * 获取镜像类型。
-     * @param index 索引
-     * @return 获取镜像类型的结果
-     * @param type 类型
+    * 获取镜像类型。
+    * @param index 索引
+    * @return 获取镜像类型的结果
+    * @param type 类型
      */
     }
 

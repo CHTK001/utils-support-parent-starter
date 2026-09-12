@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 阿里云 对象存储 文件存储实现。
- *
- * <p>基于阿里云 OSS SDK 实现 {@link FileStorage} SPI 接口，提供对象存储的上传、下载、删除、列表等操作。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 阿里云 对象存储 文件存储实现。
+*
+* <p>基于阿里云 OSS SDK 实现 {@link FileStorage} SPI 接口，提供对象存储的上传、下载、删除、列表等操作。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("oss")
 public class AliYunFileStorage extends AbstractFileStorage {
@@ -38,8 +38,8 @@ public class AliYunFileStorage extends AbstractFileStorage {
     private final OSS ossClient;
 
     /**
-      * 创建 aliyun文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 aliyun文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public AliYunFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);

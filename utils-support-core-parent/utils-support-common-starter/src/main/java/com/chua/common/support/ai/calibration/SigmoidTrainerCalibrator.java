@@ -14,40 +14,40 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Sigmoid 可训练校准器
- * <p>
- * 【用途】 实现 TrainerPureCalibrator 接口，自身就是 PureCalibrator。
- * 支持生成三个目录的训练数据、自动训练拟合参数、保存/加载模型。
- * <p>
- * 【公式】 score' = 100 / (1 + e^{-k * (raw - t)})
- * <p>
- * 【参数对象】 SigmoidParams
- * k – 陡度，越大过渡越陡（建议10~30）
- * t – 阈值，决定分界线位置（建议0.7~0.85）
- * <p>
- * 【典型用法】
- * <pre>
- * // 方式一：生成模拟数据训练
- * SigmoidTrainerCalibrator cal = SigmoidTrainerCalibrator.builder()
- *     .k(15.0).t(0.75)
- *     .generateTrainingData(200, 200, 400, 42L)
- *     .train()
- *     .saveModel("sigmoid_model.json")
- *     .build();
- *
- * double score = cal.calibrate(0.85); // 约90分
- *
- * // 方式二：加载已训练模型
- * SigmoidTrainerCalibrator loaded = SigmoidTrainerCalibrator.builder()
- *     .loadModel("sigmoid_model.json")
- *     .build();
- *
- * double score2 = loaded.calibrate(0.85);
- * </pre>
- * <p>
- *
- * @author CH
- * @since 4.0.0.42
+* Sigmoid 可训练校准器
+* <p>
+* 【用途】 实现 TrainerPureCalibrator 接口，自身就是 PureCalibrator。
+* 支持生成三个目录的训练数据、自动训练拟合参数、保存/加载模型。
+* <p>
+* 【公式】 score' = 100 / (1 + e^{-k * (raw - t)})
+* <p>
+* 【参数对象】 SigmoidParams
+* k – 陡度，越大过渡越陡（建议10~30）
+* t – 阈值，决定分界线位置（建议0.7~0.85）
+* <p>
+* 【典型用法】
+* <pre>
+* // 方式一：生成模拟数据训练
+* SigmoidTrainerCalibrator cal = SigmoidTrainerCalibrator.builder()
+*     .k(15.0).t(0.75)
+*     .generateTrainingData(200, 200, 400, 42L)
+*     .train()
+*     .saveModel("sigmoid_model.json")
+*     .build();
+*
+* double score = cal.calibrate(0.85); // 约90分
+*
+* // 方式二：加载已训练模型
+* SigmoidTrainerCalibrator loaded = SigmoidTrainerCalibrator.builder()
+*     .loadModel("sigmoid_model.json")
+*     .build();
+*
+* double score2 = loaded.calibrate(0.85);
+* </pre>
+* <p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Getter
 public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
@@ -55,32 +55,32 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 内部状态 ====================
 
     /**
-     * 内部持有的 Sigmoid 纯校准器
+    * 内部持有的 Sigmoid 纯校准器
      */
     private final SigmoidPureCalibrator calibrator;
 
     /**
-     * 训练数据（三个目录的分数）
+    * 训练数据（三个目录的分数）
      */
     private TrainingData trainingData;
 
     /**
-     * 训练效果统计
+    * 训练效果统计
      */
     private TrainingStats trainingStats;
 
     /**
-     * 是否已训练
+    * 是否已训练
      */
     private boolean trained = false;
 
     // ==================== 参数对象 ====================
 
     /**
-     * Sigmoid 参数对象
-     * <p>
-     * 包含 Sigmoid 校准器的全部可调参数。
-     * 用于替代 Map，明确告知用户有哪些参数可用。
+    * Sigmoid 参数对象
+    * <p>
+    * 包含 Sigmoid 校准器的全部可调参数。
+    * 用于替代 Map，明确告知用户有哪些参数可用。
      */
     @lombok.Data
     @lombok.NoArgsConstructor
@@ -88,14 +88,14 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     @lombok.Builder
     public static class SigmoidParams {
         /**
-         * 陡度参数，默认15.0
+        * 陡度参数，默认15.0
          */
         @Builder.Default
         /** K */
         private double k = 15.0;
 
         /**
-         * 阈值参数，默认0.75
+        * 阈值参数，默认0.75
          */
         @Builder.Default
         /** T */
@@ -103,14 +103,14 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     /**
-     * 当前参数
+    * 当前参数
      */
     private final SigmoidParams params;
 
     // ==================== 构造方法 ====================
 
     /**
-     * 私有构造方法，通过 Builder 创建
+    * 私有构造方法，通过 Builder 创建
      */
     private SigmoidTrainerCalibrator(SigmoidParams params,
                                      TrainingData trainingData,
@@ -122,7 +122,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     /**
-     * Builder 类
+    * Builder 类
      */
     @lombok.Builder
     public static SigmoidTrainerCalibrator build(
@@ -149,11 +149,11 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     @Override
     /**
-     * GenerateTrainingData
-     * @param notSimilarCount notSimilarCount
-     * @param lookSimilarCount lookSimilarCount
-     * @param samePersonCount samePersonCount
-     * @param seed seed
+    * GenerateTrainingData
+    * @param notSimilarCount notSimilarCount
+    * @param lookSimilarCount lookSimilarCount
+    * @param samePersonCount samePersonCount
+    * @param seed seed
      */
     public TrainerPureCalibrator generateTrainingData(int notSimilarCount,
                                                       int lookSimilarCount,
@@ -181,10 +181,10 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     @Override
     /**
-     * 设置TrainingData
-     * @param notSimilarScores notSimilarScores
-     * @param lookSimilarScores lookSimilarScores
-     * @param samePersonScores samePersonScores
+    * 设置TrainingData
+    * @param notSimilarScores notSimilarScores
+    * @param lookSimilarScores lookSimilarScores
+    * @param samePersonScores samePersonScores
      */
     public TrainerPureCalibrator setTrainingData(List<Double> notSimilarScores,
                                                  List<Double> lookSimilarScores,
@@ -359,13 +359,13 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 内部工具方法 ====================
 
     /**
-     * 用正态分布生成模拟分数
-     *
-     * @param count 样本数量
-     * @param mean  均值
-     * @param std   标准差
-     * @param rng   随机数生成器
-     * @return 分数列表
+    * 用正态分布生成模拟分数
+    *
+    * @param count 样本数量
+    * @param mean  均值
+    * @param std   标准差
+    * @param rng   随机数生成器
+    * @return 分数列表
      */
     private List<Double> generateNormalSamples(int count, double mean, double std, Random rng) {
         List<Double> samples = new ArrayList<>(count);
@@ -379,7 +379,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     /**
-     * 计算标准差
+    * 计算标准差
      */
     private double calculateStd(List<Double> values, double mean) {
         if (values.isEmpty()) {
@@ -392,7 +392,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     /**
-     * 计算分离度（Cohen's d）
+    * 计算分离度（Cohen's d）
      */
     private double calculateSeparation(double posMean, double negMean,
                                        double posStd, double negStd) {
@@ -406,7 +406,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     // ==================== 内部模型数据类 ====================
 
     /**
-     * 模型数据（用于 JSON 序列化/反序列化）
+    * 模型数据（用于 JSON 序列化/反序列化）
      */
     @lombok.Data
     private static class ModelData {

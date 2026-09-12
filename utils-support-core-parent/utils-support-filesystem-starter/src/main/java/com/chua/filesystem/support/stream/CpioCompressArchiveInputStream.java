@@ -11,13 +11,13 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * CPIO格式归档输入流提供者
- * <p>
-   * CPIO（副本 入, 副本 出）格式通常用于Unix/Linux系统
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CPIO格式归档输入流提供者
+* <p>
+* CPIO（副本 入, 副本 出）格式通常用于Unix/Linux系统
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("cpio")
 public class CpioCompressArchiveInputStream implements CompressArchiveInputStream {

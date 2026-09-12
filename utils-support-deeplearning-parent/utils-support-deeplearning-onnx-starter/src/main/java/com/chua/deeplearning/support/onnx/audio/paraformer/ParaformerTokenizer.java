@@ -10,20 +10,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Paraformer 词表解析与结果解码（纯 Java）。
- * <p>
-   * 令牌.txt 每行格式：{@code token<空格>id}，共 8359 个 令牌，
-   * 其中前 4 个为特殊 令牌：0=blank、1=&lt;s&gt;、2=&lt;/s&gt;、3=OOV。
- * </p>
- * <p>
- * 解码逻辑复刻 sherpa-onnx {@code OfflineRecognizerParaformerImpl::Convert}：
-   * 以 "@@" 结尾的 令牌 为子词（去 "@@" 后与前词合并），
- * ascii 与 ascii 之间补空格，ascii 与非 ascii 之间也补空格，
- * 连续非 ascii 直接拼接；遇到 EOS（&lt;/s&gt;=2）终止。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Paraformer 词表解析与结果解码（纯 Java）。
+* <p>
+* 令牌.txt 每行格式：{@code token<空格>id}，共 8359 个 令牌，
+* 其中前 4 个为特殊 令牌：0=blank、1=&lt;s&gt;、2=&lt;/s&gt;、3=OOV。
+* </p>
+* <p>
+* 解码逻辑复刻 sherpa-onnx {@code OfflineRecognizerParaformerImpl::Convert}：
+* 以 "@@" 结尾的 令牌 为子词（去 "@@" 后与前词合并），
+* ascii 与 ascii 之间补空格，ascii 与非 ascii 之间也补空格，
+* 连续非 ascii 直接拼接；遇到 EOS（&lt;/s&gt;=2）终止。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ParaformerTokenizer {
 
@@ -56,9 +56,9 @@ public class ParaformerTokenizer {
     private final int eosId;
 
     /**
-     * 构造词表。
-     *
-     * @param idToToken 令牌 标识 → 字符串映射
+    * 构造词表。
+    *
+    * @param idToToken 令牌 标识 → 字符串映射
      */
     private ParaformerTokenizer(String[] idToToken) {
         this.idToToken = idToToken;
@@ -71,11 +71,11 @@ public class ParaformerTokenizer {
     }
 
     /**
-      * 从 令牌.txt 文件加载词表。
-     *
-     * @param tokensPath 令牌.txt 路径
-     * @return 词表实例
-     * @throws IOException 文件读取失败
+    * 从 令牌.txt 文件加载词表。
+    *
+    * @param tokensPath 令牌.txt 路径
+    * @return 词表实例
+    * @throws IOException 文件读取失败
      */
     public static ParaformerTokenizer load(Path tokensPath) throws IOException {
         try (InputStream in = Files.newInputStream(tokensPath)) {
@@ -84,11 +84,11 @@ public class ParaformerTokenizer {
     }
 
     /**
-     * 从输入流加载词表。
-     *
-     * @param in 令牌.txt 输入流
-     * @return 词表实例
-     * @throws IOException 读取失败
+    * 从输入流加载词表。
+    *
+    * @param in 令牌.txt 输入流
+    * @return 词表实例
+    * @throws IOException 读取失败
      */
     public static ParaformerTokenizer loadFromStream(InputStream in) throws IOException {
         String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
@@ -126,28 +126,28 @@ public class ParaformerTokenizer {
     }
 
     /**
-     * 词表大小。
-     *
-     * @return 词表大小
+    * 词表大小。
+    *
+    * @return 词表大小
      */
     public int vocabSize() {
         return vocabSize;
     }
 
     /**
-      * EOS 令牌 标识。
-     *
-     * @return EOS 标识
+    * EOS 令牌 标识。
+    *
+    * @return EOS 标识
      */
     public int eosId() {
         return eosId;
     }
 
     /**
-      * 解码 令牌 标识 序列为文本（sherpa-onnx 转换 逻辑）。
-     *
-     * @param tokenIds 令牌 标识 序列（不含 EOS）
-     * @return 识别文本
+    * 解码 令牌 标识 序列为文本（sherpa-onnx 转换 逻辑）。
+    *
+    * @param tokenIds 令牌 标识 序列（不含 EOS）
+    * @return 识别文本
      */
     public String decode(List<Integer> tokenIds) {
         StringBuilder text = new StringBuilder();

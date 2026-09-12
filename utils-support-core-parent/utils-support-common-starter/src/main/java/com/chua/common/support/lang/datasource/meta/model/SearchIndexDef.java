@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 搜索引擎索引定义，描述 Elasticsearch / Solr / RedisSearch 等搜索引擎的索引结构。
- *
- * @author CH
- * @since 4.0.0.42
+* 搜索引擎索引定义，描述 Elasticsearch / Solr / RedisSearch 等搜索引擎的索引结构。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -21,32 +21,32 @@ import java.util.Map;
 public class SearchIndexDef {
 
     /**
-     * 索引名
+    * 索引名
      */
     private String name;
 
     /**
-     * 主分片数
+    * 主分片数
      */
     private Integer shards;
 
     /**
-     * 副本数
+    * 副本数
      */
     private Integer replicas;
 
     /**
-     * 字段定义列表
+    * 字段定义列表
      */
     private List<SearchFieldDef> fields;
 
     /**
-     * 索引设置（如 refresh_interval、max_result_window 等）
+    * 索引设置（如 refresh_interval、max_result_window 等）
      */
     private Map<String, Object> settings;
 
     /**
-     * 映射定义（Mappings），搜索引擎特定结构
+    * 映射定义（Mappings），搜索引擎特定结构
      */
     private Map<String, Object> mappings;
 }

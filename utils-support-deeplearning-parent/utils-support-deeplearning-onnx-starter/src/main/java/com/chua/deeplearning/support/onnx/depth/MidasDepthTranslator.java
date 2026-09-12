@@ -16,13 +16,13 @@ import java.awt.image.BufferedImage;
 
 
 /**
-   * midas
- * <p>
-   * midas
- * </p>
- *
- * @author CH
- * @since 2025-01-20
+* midas
+* <p>
+* midas
+* </p>
+*
+* @author CH
+* @since 2025-01-20
  */
 @Slf4j
 public class MidasDepthTranslator implements Translator<Image, Image> {
@@ -32,42 +32,42 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     private static final int MODEL_IMAGE_SIZE = 256;
     
     /**
-     *             
+    *             
      */
     protected Batchifier batchifier = Batchifier.STACK;
 
     /**
-     *                   
+    *                   
      */
     private int width;
 
     /**
-     *                   
+    *                   
      */
     private int height;
 
     /**
-     *                          512
+    *                          512
      */
     private int detectResolution = 512;
 
     /**
-     *                          512
+    *                          512
      */
     private int imageResolution = 512;
 
     /**
-     *                   
+    *                   
      */
     public MidasDepthTranslator() {
         this(MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
     }
 
     /**
-     *             
-     *
-     * @param detectResolution                
-     * @param imageResolution                 
+    *             
+    *
+    * @param detectResolution                
+    * @param imageResolution                 
      */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;

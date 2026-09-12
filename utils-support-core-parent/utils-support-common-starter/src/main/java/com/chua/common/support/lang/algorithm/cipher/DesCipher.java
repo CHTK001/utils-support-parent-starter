@@ -5,46 +5,46 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
 
 /**
- * DES 对称加解密实现
- *
- * <p>基于 JDK 内置 {@link javax.crypto.Cipher} 实现，支持 DES/CBC/PKCS5Padding 模式的加密与解密。
- * DES 密钥长度为 8 字节（56 位有效密钥 + 8 位奇偶校验）。
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 创建实例
- * DesCipher des = new DesCipher();
- *
- * // 加密
- * byte[] key = "12345678".getBytes(StandardCharsets.UTF_8); // 8 字节
- * byte[] ciphertext = des.encrypt(key, plaintext);
- *
- * // 解密
- * byte[] decrypted = des.decrypt(key, ciphertext);
- *
- * // 字符串模式
- * String encryptedStr = des.encryptToString(key, "明文数据");
- * String decryptedStr = des.decryptToString(key, encryptedStr);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
+* DES 对称加解密实现
+*
+* <p>基于 JDK 内置 {@link javax.crypto.Cipher} 实现，支持 DES/CBC/PKCS5Padding 模式的加密与解密。
+* DES 密钥长度为 8 字节（56 位有效密钥 + 8 位奇偶校验）。
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 创建实例
+* DesCipher des = new DesCipher();
+*
+* // 加密
+* byte[] key = "12345678".getBytes(StandardCharsets.UTF_8); // 8 字节
+* byte[] ciphertext = des.encrypt(key, plaintext);
+*
+* // 解密
+* byte[] decrypted = des.decrypt(key, ciphertext);
+*
+* // 字符串模式
+* String encryptedStr = des.encryptToString(key, "明文数据");
+* String decryptedStr = des.decryptToString(key, encryptedStr);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.Cipher {
 
     /**
-     * 算法名称
+    * 算法名称
      */
     private static final String ALGORITHM = "DES";
     /** 加密转换算法 */
     private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
 
     /**
-     * DES 加密
-     *
-     * @param key  加密密钥，长度必须为 8 字节（56 位有效密钥）
-     * @param data 待加密的明文数据
-     * @return 加密后的密文数据（前 8 字节为随机 IV）
+    * DES 加密
+    *
+    * @param key  加密密钥，长度必须为 8 字节（56 位有效密钥）
+    * @param data 待加密的明文数据
+    * @return 加密后的密文数据（前 8 字节为随机 IV）
      */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
@@ -66,11 +66,11 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     }
 
     /**
-     * DES 加密（字符串模式）
-     *
-     * @param key  加密密钥，长度必须为 8 字节
-     * @param data 待加密的明文字符串
-     * @return Base64 编码的密文字符串
+    * DES 加密（字符串模式）
+    *
+    * @param key  加密密钥，长度必须为 8 字节
+    * @param data 待加密的明文字符串
+    * @return Base64 编码的密文字符串
      */
     public String encryptToString(byte[] key, String data) {
         return java.util.Base64.getEncoder().encodeToString(
@@ -78,11 +78,11 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     }
 
     /**
-     * DES 解密
-     *
-     * @param key        解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext 待解密的密文数据（前 8 字节为随机 IV）
-     * @return 解密后的明文数据
+    * DES 解密
+    *
+    * @param key        解密密钥，必须与加密时使用的密钥一致
+    * @param ciphertext 待解密的密文数据（前 8 字节为随机 IV）
+    * @return 解密后的明文数据
      */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
@@ -99,11 +99,11 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     }
 
     /**
-     * DES 解密（字符串模式）
-     *
-     * @param key          解密密钥，必须与加密时使用的密钥一致
-     * @param ciphertext64 Base64 编码的密文字符串
-     * @return 解密后的明文字符串
+    * DES 解密（字符串模式）
+    *
+    * @param key          解密密钥，必须与加密时使用的密钥一致
+    * @param ciphertext64 Base64 编码的密文字符串
+    * @return 解密后的明文字符串
      */
     public String decryptToString(byte[] key, String ciphertext64) {
         return new String(

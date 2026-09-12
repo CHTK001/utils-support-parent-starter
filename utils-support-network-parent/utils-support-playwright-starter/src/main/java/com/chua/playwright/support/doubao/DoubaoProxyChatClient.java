@@ -27,25 +27,25 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * 豆包逆向代理对话客户端。
- *
- * <p>基于 {@link DoubaoBrowserSession} 在 Playwright 浏览器页面内发起
-   * 原生 获取 请求，借助字节跳动前端 JS hook 自动注入 {@code a_bogus} +
- * {@code msToken} 签名，绕过反爬虫墙，实现 Cookie 认证的豆包免费对话。
- *
- * <p>SPI 名称：{@code doubao-proxy}，appKey 为 Cookie 串
- * （{@code sessionid=xxx; ttwid=xxx; passport_csrf_token=xxx}）。
- *
- * <p>用法：
- * <pre>{@code
- * ChatClient client = ChatClient.create("doubao-proxy",
- *     "sessionid=abc; ttwid=def; passport_csrf_token=ghi");
- * String answer = client.model("doubao-think").chatSync("你好");
- * }</pre>oubao-think").chatSync("你好");
- * }</pre>
- *
- * @author CH
- * @since 2026/08/11
+* 豆包逆向代理对话客户端。
+*
+* <p>基于 {@link DoubaoBrowserSession} 在 Playwright 浏览器页面内发起
+* 原生 获取 请求，借助字节跳动前端 JS hook 自动注入 {@code a_bogus} +
+* {@code msToken} 签名，绕过反爬虫墙，实现 Cookie 认证的豆包免费对话。
+*
+* <p>SPI 名称：{@code doubao-proxy}，appKey 为 Cookie 串
+* （{@code sessionid=xxx; ttwid=xxx; passport_csrf_token=xxx}）。
+*
+* <p>用法：
+* <pre>{@code
+* ChatClient client = ChatClient.create("doubao-proxy",
+*     "sessionid=abc; ttwid=def; passport_csrf_token=ghi");
+* String answer = client.model("doubao-think").chatSync("你好");
+* }</pre>oubao-think").chatSync("你好");
+* }</pre>
+*
+* @author CH
+* @since 2026/08/11
  */
 @Slf4j
 @Spi("doubao-proxy")
@@ -53,117 +53,117 @@ import java.util.function.Consumer;
 public class DoubaoProxyChatClient implements ChatClient {
 
     /**
-     * 默认豆包 Web 基础地址。
+    * 默认豆包 Web 基础地址。
      */
     private static final String DEFAULT_BASE_URL = "https://www.doubao.com";
 
     /**
-     * 浏览器会话。
+    * 浏览器会话。
      */
     private final DoubaoBrowserSession session;
 
     /**
-     * 客户端配置。
+    * 客户端配置。
      */
     private final ChatClientSetting setting;
 
     /**
-     * 当前模型名称。
+    * 当前模型名称。
      */
     private String model;
 
     /**
-     * 当前温度参数。
+    * 当前温度参数。
      */
     private Double temperature;
 
     /**
-      * 当前最大 令牌 数。
+    * 当前最大 令牌 数。
      */
     private Integer maxTokens;
 
     /**
-     * 当前系统提示词。
+    * 当前系统提示词。
      */
     private String system;
 
     /**
-      * 当前会话 标识。
+    * 当前会话 标识。
      */
     private String conversationId;
 
     /**
-      * extra 主体
+    * extra 主体
      */
     private Map<String, Object> extraBody;
 
     /**
-     * top P
+    * top P
      */
     private Double topP;
     /**
-      * 停止
+    * 停止
      */
     private List<String> stop;
     /**
-     * seed
+    * seed
      */
     private Long seed;
     /**
-      * 响应 格式化
+    * 响应 格式化
      */
     private String responseFormat;
     /**
-      * 镜像 Urls
+    * 镜像 Urls
      */
     private final List<String> imageUrls = new ArrayList<>();
     /**
-     * attachments
+    * attachments
      */
     private final List<Attachment> attachments = new ArrayList<>();
     /**
-     * tools
+    * tools
      */
     private final List<ChatTool> tools = new ArrayList<>();
     /**
-     * tool Choice
+    * tool Choice
      */
     private String toolChoice;
 
     /**
-     * 是否启用深度思考。
+    * 是否启用深度思考。
      */
     private boolean thinking;
 
     /**
-     * 深度思考力度。
+    * 深度思考力度。
      */
     private String thinkingEffort;
 
     /**
-     * 是否启用智能搜索。
+    * 是否启用智能搜索。
      */
     private boolean smartSearch;
 
     /**
-      * 技能管理器（用于 提示符 注入）。
+    * 技能管理器（用于 提示符 注入）。
      */
     private SkillManager skillManager;
 
     /**
-     * 对话历史消息列表。
+    * 对话历史消息列表。
      */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-     * 外部传入的完整历史记录。
+    * 外部传入的完整历史记录。
      */
     private List<ChatMessage> externalHistory;
 
     /**
-     * 构造豆包逆向代理对话客户端。
-     *
-     * @param setting 客户端配置，其中 app键 为 Cookie 串
+    * 构造豆包逆向代理对话客户端。
+    *
+    * @param setting 客户端配置，其中 app键 为 Cookie 串
      */
     public DoubaoProxyChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -365,11 +365,11 @@ public class DoubaoProxyChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt 提示符
-     * @param consumer consumer
-     * @param onComplete on完成
-     * @param onError on错误
+    * 对话
+    * @param prompt 提示符
+    * @param consumer consumer
+    * @param onComplete on完成
+    * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -458,14 +458,14 @@ public void close() {
     }
 
     /**
-     * 构建豆包逆向协议请求体。
-     *
-     * <p>思考模式（{@code use_deep_think} / {@code use_auto_cot}）等参数
-     * 通过 {@link #extraBody(Map)} 传入，模型名仅作为标识透传。
-     *
-     * @param prompt   用户输入
-     * @param modelName 模型名称
-     * @return JSON 请求体字符串
+    * 构建豆包逆向协议请求体。
+    *
+    * <p>思考模式（{@code use_deep_think} / {@code use_auto_cot}）等参数
+    * 通过 {@link #extraBody(Map)} 传入，模型名仅作为标识透传。
+    *
+    * @param prompt   用户输入
+    * @param modelName 模型名称
+    * @return JSON 请求体字符串
      */
     private String buildRequestBody(String prompt, String modelName) {
         boolean useDeepThink = thinking;
@@ -578,14 +578,14 @@ return body.toJSONString();
 
     @Override
     /**
-      * generate镜像
-     * @param prompt 提示符
-     * @param ratio ratio
-     * @param n n
-     * @param width width
-     * @param height height
-     * @param quality quality
-     * @param refImageKey ref镜像键
+    * generate镜像
+    * @param prompt 提示符
+    * @param ratio ratio
+    * @param n n
+    * @param width width
+    * @param height height
+    * @param quality quality
+    * @param refImageKey ref镜像键
      */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
@@ -600,12 +600,12 @@ return body.toJSONString();
     }
 
     /**
-     * 执行generate镜像
-     *
-     * @param prompt 提示符
-     * @param ratio ratio
-     * @param refImageKey ref镜像键
-     * @return 执行generate镜像的结果
+    * 执行generate镜像
+    *
+    * @param prompt 提示符
+    * @param ratio ratio
+    * @param refImageKey ref镜像键
+    * @return 执行generate镜像的结果
      */
     private ImageGenerationResult doGenerateImage(String prompt, String ratio, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
@@ -670,12 +670,12 @@ return parseImageResult(result, prompt);
 
     @Override
     /**
-      * generate视频
-     * @param prompt 提示符
-     * @param ratio ratio
-     * @param cameraMovement 摄像头移动
-     * @param refImageKey ref镜像键
-     * @param timeoutSeconds 超时seconds
+    * generate视频
+    * @param prompt 提示符
+    * @param ratio ratio
+    * @param cameraMovement 摄像头移动
+    * @param refImageKey ref镜像键
+    * @param timeoutSeconds 超时seconds
      */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
@@ -690,11 +690,11 @@ return parseImageResult(result, prompt);
     }
 
     /**
-      * 执行generate视频
-     * @param prompt 提示符
-     * @param ratio ratio
-     * @param cameraMovement 摄像头移动
-     * @param refImageKey ref镜像键
+    * 执行generate视频
+    * @param prompt 提示符
+    * @param ratio ratio
+    * @param cameraMovement 摄像头移动
+    * @param refImageKey ref镜像键
      */
     private VideoGenerationResult doGenerateVideo(String prompt, String ratio,
                                                    String cameraMovement, String refImageKey) {
@@ -767,9 +767,9 @@ return parseImageResult(result, prompt);
     }
 
     /**
-      * 从 SSE 事件中提取异步任务 标识。
-     * @param result 结果
-     * @return extract异步任务id的结果
+    * 从 SSE 事件中提取异步任务 标识。
+    * @param result 结果
+    * @return extract异步任务id的结果
      */
     private String extractAsyncTaskId(DoubaoChatResult result) {
         List<Map<String, Object>> rawEvents = result.rawEvents();
@@ -805,10 +805,10 @@ return parseImageResult(result, prompt);
     }
 
     /**
-     * 轮询异步视频生成结果。
-     * @param taskId 任务标识
-     * @param prompt 提示符
-     * @return poll异步视频的结果
+    * 轮询异步视频生成结果。
+    * @param taskId 任务标识
+    * @param prompt 提示符
+    * @return poll异步视频的结果
      */
     private VideoGenerationResult pollAsyncVideo(String taskId, String prompt) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
@@ -822,10 +822,10 @@ return parseImageResult(result, prompt);
     }
 
     /**
-     * 解析图像生成结果。
-     * @param result 结果
-     * @param prompt 提示符
-     * @return 解析镜像结果的结果
+    * 解析图像生成结果。
+    * @param result 结果
+    * @param prompt 提示符
+    * @return 解析镜像结果的结果
      */
     private ImageGenerationResult parseImageResult(DoubaoChatResult result, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
@@ -884,10 +884,10 @@ return parseImageResult(result, prompt);
     }
 
     /**
-     * 解析视频生成结果。
-     * @param result 结果
-     * @param prompt 提示符
-     * @return 解析视频结果的结果
+    * 解析视频生成结果。
+    * @param result 结果
+    * @param prompt 提示符
+    * @return 解析视频结果的结果
      */
     private VideoGenerationResult parseVideoResult(DoubaoChatResult result, String prompt) {
         List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
@@ -951,10 +951,10 @@ return parseImageResult(result, prompt);
     }
 
 /**
- * array的
- *
- * @param obj obj
- * @return array的的结果
+* array的
+*
+* @param obj obj
+* @return array的的结果
  */
 private static JsonArray arrayOf(JsonObject obj) {
         JsonArray arr = new JsonArray();
@@ -963,10 +963,10 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
      /**
-      * 获取str。
-      * @param map 映射
-      * @param keys 键
-      * @return 获取str的结果
+     * 获取str。
+     * @param map 映射
+     * @param keys 键
+     * @return 获取str的结果
       */
      * 获取Str
      *
@@ -993,13 +993,13 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
     /**
-     * intval
-     *
-     * @param first 第一个
-     * @param firstKey 第一个键
-     * @param second second
-     * @param secondKey second键
-     * @return intVal的结果
+    * intval
+    *
+    * @param first 第一个
+    * @param firstKey 第一个键
+    * @param second second
+    * @param secondKey second键
+    * @return intVal的结果
      */
     private static int intVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
@@ -1018,13 +1018,13 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
     /**
-     * strval
-     *
-     * @param first 第一个
-     * @param firstKey 第一个键
-     * @param second second
-     * @param secondKey second键
-     * @return strVal的结果
+    * strval
+    *
+    * @param first 第一个
+    * @param firstKey 第一个键
+    * @param second second
+    * @param secondKey second键
+    * @return strVal的结果
      */
     private static String strVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
@@ -1043,11 +1043,11 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
     /**
-     * 转为int
-     *
-     * @param map 映射
-     * @param key 键
-     * @return 转为int的结果
+    * 转为int
+    *
+    * @param map 映射
+    * @param key 键
+    * @return 转为int的结果
      */
     private static int toInt(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
@@ -1058,11 +1058,11 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
     /**
-     * 转为double
-     *
-     * @param map 映射
-     * @param key 键
-     * @return 转为double的结果
+    * 转为double
+    *
+    * @param map 映射
+    * @param key 键
+    * @return 转为double的结果
      */
     private static double toDouble(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
@@ -1073,10 +1073,10 @@ private static JsonArray arrayOf(JsonObject obj) {
     }
 
     /**
-     * extract视频url从模型
-     *
-     * @param item item
-     * @return extract视频url从模型的结果
+    * extract视频url从模型
+    *
+    * @param item item
+    * @return extract视频url从模型的结果
      */
     private static String extractVideoUrlFromModel(Map<?, ?> item) {
         try {

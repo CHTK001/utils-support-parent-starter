@@ -7,63 +7,63 @@ import java.util.List;
 
 
 /**
- * YOLO          
- * <p>
- *                                  OBB - Oriented Bounding Box            
- *                                                       
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025-01-22
+* YOLO          
+* <p>
+*                                  OBB - Oriented Bounding Box            
+*                                                       
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025-01-22
  */
 @Data
 public class YoloRotatedBox {
 
     /**
-     *           X       
+    *           X       
      */
     private float cx;
 
     /**
-     *           Y       
+    *           Y       
      */
     private float cy;
 
     /**
-     *       
+    *       
      */
     private float w;
 
     /**
-     *       
+    *       
      */
     private float h;
 
     /**
-     *                         
+    *                         
      */
     private float angle;
 
     /**
-     *             
+    *             
      */
     private String className;
 
     /**
-     *                
+    *                
      */
     private float score;
 
     /**
-     *             
-     *
-     * @param cx                  X       
-     * @param cy                  Y       
-     * @param w               
-     * @param h               
-     * @param angle                             
-     * @param className             
-     * @param score                    
+    *             
+    *
+    * @param cx                  X       
+    * @param cy                  Y       
+    * @param w               
+    * @param h               
+    * @param angle                             
+    * @param className             
+    * @param score                    
      */
     public YoloRotatedBox(float cx, float cy, float w, float h, float angle, String className, float score) {
         this.cx = cx;
@@ -76,14 +76,14 @@ public class YoloRotatedBox {
     }
 
     /**
-      * probiou          iou
-     * <p>
-      * probiou                             iou
-     *
-     * @param b1             1
-     * @param b2             2
-     * @param eps                          
-     * @return ProbIoU    
+    * probiou          iou
+    * <p>
+    * probiou                             iou
+    *
+    * @param b1             1
+    * @param b2             2
+    * @param eps                          
+    * @return ProbIoU    
      */
     public static double probiou(YoloRotatedBox b1, YoloRotatedBox b2, double eps) {
         var c1 = covarianceMatrix(b1.w, b1.h, b1.angle);
@@ -116,12 +116,12 @@ public class YoloRotatedBox {
     }
 
     /**
-     *                      
-     *
-     * @param w       
-     * @param h       
-     * @param r                         
-     * @return                       [a, b, c]
+    *                      
+    *
+    * @param w       
+    * @param h       
+    * @param r                         
+    * @return                       [a, b, c]
      */
     private static double[] covarianceMatrix(double w, double h, double r) {
         var a = Math.pow(w, 2) / 12.0;
@@ -136,9 +136,9 @@ public class YoloRotatedBox {
     }
 
     /**
-     *           4                
-     *
-     * @return                                                                      
+    *           4                
+    *
+    * @return                                                                      
      */
     public List<Point2D> toPoints() {
         var cos = Math.cos(angle);
@@ -170,9 +170,9 @@ public class YoloRotatedBox {
     }
 
     /**
-     * 2D       
-     * @author CH
-     * @since 4.0.0
+    * 2D       
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     public static class Point2D {
@@ -184,10 +184,10 @@ public class YoloRotatedBox {
         private float y;
 
         /**
-         * 创建 Point2D 实例
-         * @param x x
-         * @param x float
-         * @param y y
+        * 创建 Point2D 实例
+        * @param x x
+        * @param x float
+        * @param y y
          */
         public Point2D(float x, float y) {
             this.x = x;

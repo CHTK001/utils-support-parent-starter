@@ -16,30 +16,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gemini CLI usage parser.
- *
- * <p>Gemini CLI persists chat transcripts under
- * {@code ~/.gemini/tmp/<project>/chats/session-<date>-<id>.jsonl}. Recent
-   * CLI 版本 emit one {@code type=gemini} 事件 per 模型 响应 with a
-   * real 令牌 breakdown:</p>
- *
- * <pre>{@code
- * {
- *   "type": "gemini",
- *   "id": "...", "timestamp": "2026-08-26T00:14:15.979Z",
- *   "content": "ok", "model": "gemini-3.5-flash",
- *   "tokens": { "input": 12779, "output": 1, "cached": 0,
- *               "thoughts": 151, "tool": 0, "total": 12931 }
- * }
- * }</pre> 151, "tool": 0, "total": 12931 }
- * }
- * }</pre>
- *
- * <p>The session id lives on the first line of each transcript. Older
-   * transcripts without gemini 事件 are skipped silently.</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Gemini CLI usage parser.
+*
+* <p>Gemini CLI persists chat transcripts under
+* {@code ~/.gemini/tmp/<project>/chats/session-<date>-<id>.jsonl}. Recent
+* CLI 版本 emit one {@code type=gemini} 事件 per 模型 响应 with a
+* real 令牌 breakdown:</p>
+*
+* <pre>{@code
+* {
+*   "type": "gemini",
+*   "id": "...", "timestamp": "2026-08-26T00:14:15.979Z",
+*   "content": "ok", "model": "gemini-3.5-flash",
+*   "tokens": { "input": 12779, "output": 1, "cached": 0,
+*               "thoughts": 151, "tool": 0, "total": 12931 }
+* }
+* }</pre> 151, "tool": 0, "total": 12931 }
+* }
+* }</pre>
+*
+* <p>The session id lives on the first line of each transcript. Older
+* transcripts without gemini 事件 are skipped silently.</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("gemini-cli")
 public class GeminiCliUsageParser extends BaseUsageParser {
@@ -48,16 +48,16 @@ public class GeminiCliUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".gemini", "tmp");
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "gemini-cli"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "gemini-cli"}
      */
     public String name() {
         return "gemini-cli";
     }
 
     /**
-     * 流式解析全部转录文件中的模型响应用量事件。
+    * 流式解析全部转录文件中的模型响应用量事件。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -100,8 +100,8 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 读取转录首行中的 会话id；读取后该行不再进入下游解析。
-     * @return 列表transcripts的结果
+    * 读取转录首行中的 会话id；读取后该行不再进入下游解析。
+    * @return 列表transcripts的结果
      /**
       * 读取会话id。
       * @param reader 读取
@@ -122,10 +122,10 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         } catch (Exception e) {
             return "";
         /**
-         * 解析线safe。
-         * @param line 线
-         * @param sessionId 会话标识
-         * @return 解析线safe的结果
+        * 解析线safe。
+        * @param line 线
+        * @param sessionId 会话标识
+        * @return 解析线safe的结果
          */
         }
     }

@@ -9,14 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * BGE 文本嵌入 Translator（registry 路径，ORT 原生 + huggingface Tokenizer）。
- *
- * <p>替代错误的 ClipTextFeatureTranslator 注册（bge 模型需要
- * {@code input_ids + attention_mask + token_type_ids} 三输入，CLIP 只提供 input_ids）。
-   * 模型 + tokenizer.json 由 模型 jar（如 bge-small-zh/en）提供，NAT加载 解压。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* BGE 文本嵌入 Translator（registry 路径，ORT 原生 + huggingface Tokenizer）。
+*
+* <p>替代错误的 ClipTextFeatureTranslator 注册（bge 模型需要
+* {@code input_ids + attention_mask + token_type_ids} 三输入，CLIP 只提供 input_ids）。
+* 模型 + tokenizer.json 由 模型 jar（如 bge-small-zh/en）提供，NAT加载 解压。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
@@ -139,7 +139,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-      * 关闭底层 ONNX 会话。
+    * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         translator.close();

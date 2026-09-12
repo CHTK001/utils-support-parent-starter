@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * HEIC/HEIF 图像读取器 SPI 声明。
- *
- * <p>独立于 nightmonkeys/imageio-heif 实现，避免对其共享库的依赖。
-   * 当系统有 libheif 时由 heifNAT解码器 提供实际解码能力。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* HEIC/HEIF 图像读取器 SPI 声明。
+*
+* <p>独立于 nightmonkeys/imageio-heif 实现，避免对其共享库的依赖。
+* 当系统有 libheif 时由 heifNAT解码器 提供实际解码能力。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HEICImageReaderSpi extends ImageReaderSpi {
 
@@ -24,7 +24,7 @@ public class HEICImageReaderSpi extends ImageReaderSpi {
     private static final String[] MIMES = {"image/heic", "image/heif"}; // MIMES
 
     /**
-     * heic镜像读取spi。
+    * heic镜像读取spi。
      */
     public HEICImageReaderSpi() {
         super(VENDOR, VERSION, NAMES, SUFFIXES, MIMES,

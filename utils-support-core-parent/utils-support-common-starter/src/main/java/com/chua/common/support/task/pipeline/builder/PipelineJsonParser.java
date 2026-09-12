@@ -8,89 +8,89 @@ import com.chua.common.support.task.pipeline.node.TaskNode;
 import java.util.*;
 
 /**
- * JSON 流水线解析器。
- *
- * <p>从 JSON 字符串解析并构建 {@link PipelineBuilder}，支持声明式定义流水线结构。</p>
- *
- * <p><strong>JSON 格式规范：</strong></p>
- * <pre>{@code
- * {
- *   "id": "my-pipeline",          // 可选，流水线唯一标识，默认自动生成
- *   "start": "node1",             // 可选，起始节点 ID，默认为 nodes 数组中第一个节点
- *   "end": "node3",               // 可选，终止节点 ID
- *   "nodes": [                    // 必需，节点数组，按添加顺序排列
- *     {
- *       "id": "node1",            // 必需，节点唯一标识
- *       "type": "task",           // 必需，节点类型：task / decision
- *       "params": {               // 可选，节点参数，执行时注入到 ctx.nodeLocalData
- *         "timeout": 5000,
- *         "retries": 3
- *       }
- *     },
- *     {
- *       "id": "node2",
- *       "type": "decision",       // decision 类型需配合 branches
- *       "params": {
- *         "threshold": 0.8
- *       },
- *       "branches": {             // decision 可选，分支映射（用于可视化）
- *         "true": "node3",        // key 为分支标签（如 "true"/"false" 或自定义名称）
- *         "false": "node1"        // value 为目标节点 ID
- *       }
- *     },
- *     {
- *       "id": "node3",
- *       "type": "task",
- *       "params": {
- *         "outputFormat": "json"
- *       }
- *     }
- *   ]
- * }
- * }</pre>出格式化": "json"
- *       }
- *     }
- *   ]
- * }
- * }</pre>
- *
- * <p><strong>字段说明：</strong></p>
- * <table>
- *   <tr><th>字段</th><th>层级</th><th>必需</th><th>说明</th></tr>
- *   <tr><td>id</td><td>根</td><td>否</td><td>流水线唯一标识</td></tr>
- *   <tr><td>start</td><td>根</td><td>否</td><td>起始节点 ID，默认取 nodes[0].id</td></tr>
- *   <tr><td>end</td><td>根</td><td>否</td><td>终止节点 ID</td></tr>
- *   <tr><td>nodes</td><td>根</td><td>是</td><td>节点数组，至少包含一个节点</td></tr>
- *   <tr><td>id</td><td>node</td><td>是</td><td>节点唯一标识</td></tr>
- *   <tr><td>type</td><td>node</td><td>是</td><td>节点类型：task 或 decision</td></tr>
- *   <tr><td>params</td><td>node</td><td>否</td><td>节点参数对象，执行时注入到 ctx.nodeLocalData</td></tr>
- *   <tr><td>branches</td><td>node</td><td>decision可选</td><td>分支映射，key 为分支标签，value 为目标节点 ID（用于可视化）</td></tr>
- * </table>
- *
- * <p><strong>params 参数注入机制：</strong></p>
- * <p>JSON 中定义的 {@code params} 会在流水线执行时自动注入到节点的 {@code nodeLocalData}，
- * 节点内部可通过 {@code ctx.getNodeLocalValue("key")} 获取。
- * 这使得 JSON 定义的静态配置可以在运行时被节点逻辑读取。</p>
- *
- * <p><strong>注意事项：</strong></p>
- * <ul>
- *   <li>JSON 构建仅支持静态结构定义（节点顺序和分支映射），业务逻辑需通过代码注入</li>
- *   <li>构建后可通过 {@link PipelineBuilder#task(String, PipelineNode)} 等方法覆盖同名节点以注入逻辑</li>
- *   <li>branches 为可选字段，仅用于树打印可视化，不影响路由逻辑（路由由节点回调返回值决定）</li>
- *   <li>params 中的值支持字符串、数字、布尔值和 null</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* JSON 流水线解析器。
+*
+* <p>从 JSON 字符串解析并构建 {@link PipelineBuilder}，支持声明式定义流水线结构。</p>
+*
+* <p><strong>JSON 格式规范：</strong></p>
+* <pre>{@code
+* {
+*   "id": "my-pipeline",          // 可选，流水线唯一标识，默认自动生成
+*   "start": "node1",             // 可选，起始节点 ID，默认为 nodes 数组中第一个节点
+*   "end": "node3",               // 可选，终止节点 ID
+*   "nodes": [                    // 必需，节点数组，按添加顺序排列
+*     {
+*       "id": "node1",            // 必需，节点唯一标识
+*       "type": "task",           // 必需，节点类型：task / decision
+*       "params": {               // 可选，节点参数，执行时注入到 ctx.nodeLocalData
+*         "timeout": 5000,
+*         "retries": 3
+*       }
+*     },
+*     {
+*       "id": "node2",
+*       "type": "decision",       // decision 类型需配合 branches
+*       "params": {
+*         "threshold": 0.8
+*       },
+*       "branches": {             // decision 可选，分支映射（用于可视化）
+*         "true": "node3",        // key 为分支标签（如 "true"/"false" 或自定义名称）
+*         "false": "node1"        // value 为目标节点 ID
+*       }
+*     },
+*     {
+*       "id": "node3",
+*       "type": "task",
+*       "params": {
+*         "outputFormat": "json"
+*       }
+*     }
+*   ]
+* }
+* }</pre>出格式化": "json"
+*       }
+*     }
+*   ]
+* }
+* }</pre>
+*
+* <p><strong>字段说明：</strong></p>
+* <table>
+*   <tr><th>字段</th><th>层级</th><th>必需</th><th>说明</th></tr>
+*   <tr><td>id</td><td>根</td><td>否</td><td>流水线唯一标识</td></tr>
+*   <tr><td>start</td><td>根</td><td>否</td><td>起始节点 ID，默认取 nodes[0].id</td></tr>
+*   <tr><td>end</td><td>根</td><td>否</td><td>终止节点 ID</td></tr>
+*   <tr><td>nodes</td><td>根</td><td>是</td><td>节点数组，至少包含一个节点</td></tr>
+*   <tr><td>id</td><td>node</td><td>是</td><td>节点唯一标识</td></tr>
+*   <tr><td>type</td><td>node</td><td>是</td><td>节点类型：task 或 decision</td></tr>
+*   <tr><td>params</td><td>node</td><td>否</td><td>节点参数对象，执行时注入到 ctx.nodeLocalData</td></tr>
+*   <tr><td>branches</td><td>node</td><td>decision可选</td><td>分支映射，key 为分支标签，value 为目标节点 ID（用于可视化）</td></tr>
+* </table>
+*
+* <p><strong>params 参数注入机制：</strong></p>
+* <p>JSON 中定义的 {@code params} 会在流水线执行时自动注入到节点的 {@code nodeLocalData}，
+* 节点内部可通过 {@code ctx.getNodeLocalValue("key")} 获取。
+* 这使得 JSON 定义的静态配置可以在运行时被节点逻辑读取。</p>
+*
+* <p><strong>注意事项：</strong></p>
+* <ul>
+*   <li>JSON 构建仅支持静态结构定义（节点顺序和分支映射），业务逻辑需通过代码注入</li>
+*   <li>构建后可通过 {@link PipelineBuilder#task(String, PipelineNode)} 等方法覆盖同名节点以注入逻辑</li>
+*   <li>branches 为可选字段，仅用于树打印可视化，不影响路由逻辑（路由由节点回调返回值决定）</li>
+*   <li>params 中的值支持字符串、数字、布尔值和 null</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PipelineJsonParser {
 
     /**
-      * 解析 JSON 字符串并创建 pipeline构建器。
-     *
-     * @param json JSON 字符串
-     * @return PipelineBuilder 实例
-     * @throws IllegalArgumentException 当 JSON 格式不合法时抛出
+    * 解析 JSON 字符串并创建 pipeline构建器。
+    *
+    * @param json JSON 字符串
+    * @return PipelineBuilder 实例
+    * @throws IllegalArgumentException 当 JSON 格式不合法时抛出
      */
     public static PipelineBuilder parse(String json) {
         if (json == null || json.trim().isEmpty()) {
@@ -165,9 +165,9 @@ public class PipelineJsonParser {
     // ========== 简易 JSON 解析器（无外部依赖） ==========
 
     /**
-     * 简易 JSON 节点表示
-     * @author CH
-     * @since 4.0.0
+    * 简易 JSON 节点表示
+    * @author CH
+    * @since 4.0.0
      */
     static class JsonNode {
         /** 数据 */
@@ -193,11 +193,11 @@ public class PipelineJsonParser {
         }
 
         /**
-          * 获取对象值（字符串 -> 字符串 映射）。
-         * 自动将值转为字符串表示。
-         *
-         * @param key 属性键
-         * @return 字符串映射，不存在时返回 空
+        * 获取对象值（字符串 -> 字符串 映射）。
+        * 自动将值转为字符串表示。
+        *
+        * @param key 属性键
+        * @return 字符串映射，不存在时返回 空
          */
         Map<String, String> getObjectAsStringMap(String key) {
             Object val = data.get(key);
@@ -214,10 +214,10 @@ public class PipelineJsonParser {
         }
 
         /**
-         * 获取对象值（支持任意值类型）。
-         *
-         * @param key 属性键
-         * @return 任意值类型的映射，不存在时返回 空
+        * 获取对象值（支持任意值类型）。
+        *
+        * @param key 属性键
+        * @return 任意值类型的映射，不存在时返回 空
          */
         Map<String, Object> getObjectMap(String key) {
             Object val = data.get(key);
@@ -231,9 +231,9 @@ public class PipelineJsonParser {
     }
 
     /**
-      * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、空）
-     * @param json json
-     * @return 解析json的结果
+    * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、空）
+    * @param json json
+    * @return 解析json的结果
      */
     static JsonNode parseJson(String json) {
         Object result = parseValue(json.trim(), new int[]{0});
@@ -246,11 +246,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析值
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析值的结果
+    * 解析值
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析值的结果
      */
     private static Object parseValue(String json, int[] pos) {
         skipWhitespace(json, pos);
@@ -275,11 +275,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析对象
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析对象的结果
+    * 解析对象
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析对象的结果
      */
     private static Map<String, Object> parseObject(String json, int[] pos) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -309,11 +309,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析Array
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析array的结果
+    * 解析Array
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析array的结果
      */
     private static List<Object> parseArray(String json, int[] pos) {
         List<Object> list = new ArrayList<>();
@@ -338,11 +338,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析字符串
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析字符串的结果
+    * 解析字符串
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析字符串的结果
      */
     private static String parseString(String json, int[] pos) {
         skipWhitespace(json, pos);
@@ -380,11 +380,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析布尔值
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析布尔值的结果
+    * 解析布尔值
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析布尔值的结果
      */
     private static Boolean parseBoolean(String json, int[] pos) {
         if (json.startsWith("true", pos[0])) {
@@ -398,11 +398,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析空
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析空的结果
+    * 解析空
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析空的结果
      */
     private static Object parseNull(String json, int[] pos) {
         if (json.startsWith("null", pos[0])) {
@@ -413,11 +413,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 解析数字
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @return 解析数字的结果
+    * 解析数字
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @return 解析数字的结果
      */
     private static Number parseNumber(String json, int[] pos) {
         int start = pos[0];
@@ -437,10 +437,10 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 跳过Whitespace
-     *
-     * @param json json
-     * @param pos 采购订单
+    * 跳过Whitespace
+    *
+    * @param json json
+    * @param pos 采购订单
      */
     private static void skipWhitespace(String json, int[] pos) {
         while (pos[0] < json.length() && Character.isWhitespace(json.charAt(pos[0]))) {
@@ -449,11 +449,11 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 期望char
-     *
-     * @param json json
-     * @param pos 采购订单
-     * @param expected 期望
+    * 期望char
+    *
+    * @param json json
+    * @param pos 采购订单
+    * @param expected 期望
      */
     private static void expectChar(String json, int[] pos, char expected) {
         if (pos[0] >= json.length() || json.charAt(pos[0]) != expected) {

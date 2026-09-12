@@ -18,30 +18,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-   * 文本特征 Translator（BERT 风格，可选中文 令牌 清理）。
- *
- * @author CH
- * @since 4.0.0.42
+* 文本特征 Translator（BERT 风格，可选中文 令牌 清理）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PytorchTextFeatureTranslator implements Translator<String, float[]> {
 
     /**
-     * 最大序列长度。
+    * 最大序列长度。
      */
     private final int maxSequenceLength = 512;
 
     /**
-     * 是否中文（去掉 ## 子词前缀）。
+    * 是否中文（去掉 ## 子词前缀）。
      */
     private final boolean chinese;
 
     /**
-     * 词表。
+    * 词表。
      */
     private DefaultVocabulary vocabulary;
 
     /**
-     * 分词器。
+    * 分词器。
      */
     private BertFullTokenizer tokenizer;
 
@@ -51,8 +51,8 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
     }
 
     /**
-      * 创建 pytorch文本特征translator 实例
-     * @param chinese chinese
+    * 创建 pytorch文本特征translator 实例
+    * @param chinese chinese
      */
     public PytorchTextFeatureTranslator(boolean chinese) {
         this.chinese = chinese;

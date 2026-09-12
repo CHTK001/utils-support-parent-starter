@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
-   * Spring Bean 定义生成器，处理 Spring 注解（@组件、@服务、@仓库、@控制器 等）的类。
- *
- * <p>通过反射按类名字符串检测 Spring 注解，不依赖 Spring 编译时注解 API，
- * 实现与 Spring 框架的解耦。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Spring Bean 定义生成器，处理 Spring 注解（@组件、@服务、@仓库、@控制器 等）的类。
+*
+* <p>通过反射按类名字符串检测 Spring 注解，不依赖 Spring 编译时注解 API，
+* 实现与 Spring 框架的解耦。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("spring")

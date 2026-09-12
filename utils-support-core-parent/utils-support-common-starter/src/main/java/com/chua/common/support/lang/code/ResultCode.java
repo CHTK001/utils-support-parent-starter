@@ -3,13 +3,13 @@ package com.chua.common.support.lang.code;
 import static com.chua.common.support.lang.code.ReturnCode.*;
 
 /**
- * 结果状态码接口
- * <p>
- * 提供 HTTP 状态码到系统 {@link ReturnCode} 的规范映射,
- * 映射规则覆盖 2xx/3xx/4xx/5xx 全系列标准状态码。
- *
- * @author CH
- * @since 4.0.0.42
+* 结果状态码接口
+* <p>
+* 提供 HTTP 状态码到系统 {@link ReturnCode} 的规范映射,
+* 映射规则覆盖 2xx/3xx/4xx/5xx 全系列标准状态码。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface ResultCode {
 

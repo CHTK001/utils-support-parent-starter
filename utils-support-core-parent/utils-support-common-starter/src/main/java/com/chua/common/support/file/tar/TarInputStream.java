@@ -5,46 +5,46 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Tar 文件输入流，用于读取 TAR 归档文件。
- * <p>
- * 该流支持逐条读取 TAR 条目，并在读取完当前条目内容后自动跳过填充字节。
- * 如果未完全读取当前条目即进入下一条，将自动跳过剩余数据。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Tar 文件输入流，用于读取 TAR 归档文件。
+* <p>
+* 该流支持逐条读取 TAR 条目，并在读取完当前条目内容后自动跳过填充字节。
+* 如果未完全读取当前条目即进入下一条，将自动跳过剩余数据。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class TarInputStream extends FilterInputStream {
 
 	/**
-	 * 跳过缓冲区的大小，默认为 2048 字节。
+	* 跳过缓冲区的大小，默认为 2048 字节。
 	 */
 	private static final int SKIP_BUFFER_SIZE = 2048;
 
 	/**
-	 * 当前正在处理的 TAR 条目。
+	* 当前正在处理的 TAR 条目。
 	 */
 	private TarEntry currentEntry;
 
 	/**
-	 * 当前条目已读取的字节数。
+	* 当前条目已读取的字节数。
 	 */
 	private long currentFileSize;
 
 	/**
-	 * 从流开始读取至今的总字节数。
+	* 从流开始读取至今的总字节数。
 	 */
 	private long bytesRead;
 
 	/**
-	 * 是否使用父类的 skip 方法。默认值为 false，表示手动实现跳过逻辑以精确控制字节计数。
+	* 是否使用父类的 skip 方法。默认值为 false，表示手动实现跳过逻辑以精确控制字节计数。
 	 */
 	private boolean defaultSkip = false;
 
 	/**
-	 * 构造一个新的 TarInputStream。
-	 *
-	 * @param in 底层的输入流
+	* 构造一个新的 TarInputStream。
+	*
+	* @param in 底层的输入流
 	 */
 	public TarInputStream(InputStream in) {
 		super(in);
@@ -53,9 +53,9 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 标记功能不支持。
-	 *
-	 * @return false
+	* 标记功能不支持。
+	*
+	* @return false
 	 */
 	@Override
 	public boolean markSupported() {
@@ -63,18 +63,18 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 标记功能不被支持，直接返回。
-	 *
-	 * @param readlimit 读取限制（未使用）
+	* 标记功能不被支持，直接返回。
+	*
+	* @param readlimit 读取限制（未使用）
 	 */
 	@Override
 	public synchronized void mark(int readlimit) {
 	}
 
 	/**
-	 * 重置功能不被支持，抛出异常。
-	 *
-	 * @throws IOException 总是抛出此异常
+	* 重置功能不被支持，抛出异常。
+	*
+	* @throws IOException 总是抛出此异常
 	 */
 	@Override
 	public synchronized void reset() throws IOException {
@@ -82,10 +82,10 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 读取单个字节。
-	 *
-	 * @return 读取到的字节值 (0-255)，如果到达文件末尾则返回 -1
-	 * @throws IOException 发生 I/O 错误时抛出
+	* 读取单个字节。
+	*
+	* @return 读取到的字节值 (0-255)，如果到达文件末尾则返回 -1
+	* @throws IOException 发生 I/O 错误时抛出
 	 */
 	@Override
 	public int read() throws IOException {
@@ -100,16 +100,16 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 读取字节数组。
-	 * <p>
-	 * 检查读取的字节数是否超过当前条目大小，如果是则调整长度。更新字节计数器。
-	 * </p>
-	 *
-	 * @param b 目标缓冲区
-	 * @param off 起始偏移量
-	 * @param len 请求读取的长度
-	 * @return 实际读取的字节数，如果到达文件末尾则返回 -1
-	 * @throws IOException 发生 I/O 错误时抛出
+	* 读取字节数组。
+	* <p>
+	* 检查读取的字节数是否超过当前条目大小，如果是则调整长度。更新字节计数器。
+	* </p>
+	*
+	* @param b 目标缓冲区
+	* @param off 起始偏移量
+	* @param len 请求读取的长度
+	* @return 实际读取的字节数，如果到达文件末尾则返回 -1
+	* @throws IOException 发生 I/O 错误时抛出
 	 */
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
@@ -135,10 +135,10 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 获取 TAR 文件中的下一个条目。
-	 *
-	 * @return 下一个 TAR 条目，如果没有更多条目则返回 null
-	 * @throws IOException 发生 I/O 错误或文件损坏时抛出
+	* 获取 TAR 文件中的下一个条目。
+	*
+	* @return 下一个 TAR 条目，如果没有更多条目则返回 null
+	* @throws IOException 发生 I/O 错误或文件损坏时抛出
 	 */
 	public TarEntry getNextEntry() throws IOException {
 		closeCurrentEntry();
@@ -174,24 +174,24 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 获取当前流的偏移量（字节数）。
-	 * <p>
-	 * 这可用于确定 TAR 文件中某个条目内容开始的位置。
-	 * </p>
-	 *
-	 * @return 当前偏移量
+	* 获取当前流的偏移量（字节数）。
+	* <p>
+	* 这可用于确定 TAR 文件中某个条目内容开始的位置。
+	* </p>
+	*
+	* @return 当前偏移量
 	 */
 	public long getCurrentOffset() {
 		return bytesRead;
 	}
 
 	/**
-	 * 关闭当前的 TAR 条目。
-	 * <p>
-	 * 如果当前条目未完全读取，将跳过剩余字节并跳过条目后的填充块。
-	 * </p>
-	 *
-	 * @throws IOException 发生 I/O 错误或检测到文件损坏时抛出
+	* 关闭当前的 TAR 条目。
+	* <p>
+	* 如果当前条目未完全读取，将跳过剩余字节并跳过条目后的填充块。
+	* </p>
+	*
+	* @throws IOException 发生 I/O 错误或检测到文件损坏时抛出
 	 */
 	protected void closeCurrentEntry() throws IOException {
 		if (currentEntry != null) {
@@ -215,12 +215,12 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 跳过每个 TAR 条目文件内容末尾的填充块。
-	 * <p>
-	 * TAR 文件要求每条记录必须是 512 字节的倍数，不足部分用零填充。
-	 * </p>
-	 *
-	 * @throws IOException 发生 I/O 错误时抛出
+	* 跳过每个 TAR 条目文件内容末尾的填充块。
+	* <p>
+	* TAR 文件要求每条记录必须是 512 字节的倍数，不足部分用零填充。
+	* </p>
+	*
+	* @throws IOException 发生 I/O 错误时抛出
 	 */
 	protected void skipPad() throws IOException {
 		if (bytesRead > 0) {
@@ -237,15 +237,15 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 跳过指定的字节数。
-	 * <p>
-	 * 重写父类的 skip 方法，如果启用了 defaultSkip 模式，则委托给父类；
-	 * 否则通过循环读取来精确跳过字节并更新 bytesRead 计数器。
-	 * </p>
-	 *
-	 * @param n 要跳过的字节数
-	 * @return 实际跳过的字节数
-	 * @throws IOException 发生 I/O 错误时抛出
+	* 跳过指定的字节数。
+	* <p>
+	* 重写父类的 skip 方法，如果启用了 defaultSkip 模式，则委托给父类；
+	* 否则通过循环读取来精确跳过字节并更新 bytesRead 计数器。
+	* </p>
+	*
+	* @param n 要跳过的字节数
+	* @return 实际跳过的字节数
+	* @throws IOException 发生 I/O 错误时抛出
 	 */
 	@Override
 	public long skip(long n) throws IOException {
@@ -275,18 +275,18 @@ public class TarInputStream extends FilterInputStream {
 	}
 
 	/**
-	 * 获取是否使用父类 skip 方法的标志。
-	 *
-	 * @return true 表示使用父类 skip 方法，false 表示手动实现
+	* 获取是否使用父类 skip 方法的标志。
+	*
+	* @return true 表示使用父类 skip 方法，false 表示手动实现
 	 */
 	public boolean isDefaultSkip() {
 		return defaultSkip;
 	}
 
 	/**
-	 * 设置是否使用父类 skip 方法。
-	 *
-	 * @param defaultSkip true 表示使用父类 skip 方法，false 表示手动实现
+	* 设置是否使用父类 skip 方法。
+	*
+	* @param defaultSkip true 表示使用父类 skip 方法，false 表示手动实现
 	 */
 	public void setDefaultSkip(boolean defaultSkip) {
 		this.defaultSkip = defaultSkip;

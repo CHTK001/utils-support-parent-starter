@@ -17,27 +17,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 数据库用量解析器 — 从关系型数据库读取 AI 用量数据。
- *
- * <p>支持通过 Spring Boot 配置自定义查询和字段映射，默认适配 sys_ai_usage 表结构。</p>
- *
- * <p>配置示例：
- * <pre>
- * ai.usage.database:
- *   enabled: true
- *   query-sql: "SELECT provider, model, input_tokens, output_tokens, total_tokens, cost, start_time FROM ai_usage"
- *   field-mapping:
- *     provider: provider
- *     model: model
- *     input-tokens: input_tokens
- *     output-tokens: output_tokens
- *     total-tokens: total_tokens
- *     start-time: start_time
- *     cost: cost
- * </pre>
- *
- * @author CH
- * @since 4.0.0.43
+* 数据库用量解析器 — 从关系型数据库读取 AI 用量数据。
+*
+* <p>支持通过 Spring Boot 配置自定义查询和字段映射，默认适配 sys_ai_usage 表结构。</p>
+*
+* <p>配置示例：
+* <pre>
+* ai.usage.database:
+*   enabled: true
+*   query-sql: "SELECT provider, model, input_tokens, output_tokens, total_tokens, cost, start_time FROM ai_usage"
+*   field-mapping:
+*     provider: provider
+*     model: model
+*     input-tokens: input_tokens
+*     output-tokens: output_tokens
+*     total-tokens: total_tokens
+*     start-time: start_time
+*     cost: cost
+* </pre>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Slf4j
 @Component
@@ -46,12 +46,12 @@ import java.util.Map;
 public class DatabaseUsageParser extends BaseUsageParser {
 
     /**
-     * Parser 名称标识
+    * Parser 名称标识
      */
     public static final String NAME = "database";
 
     /**
-      * 默认查询 SQL（适配 sys_AI_usage 表结构）
+    * 默认查询 SQL（适配 sys_AI_usage 表结构）
      */
     private static final String DEFAULT_QUERY_SQL =
             "SELECT sys_ai_usage_provider, sys_ai_usage_model," +
@@ -64,7 +64,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
             " ORDER BY sys_ai_usage_call_time DESC";
 
     /**
-     * 默认字段映射
+    * 默认字段映射
      */
     private static final Map<String, String> DEFAULT_FIELD_MAPPING = new LinkedHashMap<>();
     static {
@@ -80,26 +80,26 @@ public class DatabaseUsageParser extends BaseUsageParser {
     }
 
     /**
-     * JDBC 模板
+    * JDBC 模板
      */
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * 查询 SQL
+    * 查询 SQL
      */
     private final String querySql;
 
     /**
-     * 字段映射
+    * 字段映射
      */
     private final Map<String, String> fieldMapping;
 
     /**
-     * 构造函数。
-     *
-     * @param dataSource 数据源
-     * @param querySql   自定义查询 SQL
-     * @param fieldMapping 字段映射配置
+    * 构造函数。
+    *
+    * @param dataSource 数据源
+    * @param querySql   自定义查询 SQL
+    * @param fieldMapping 字段映射配置
      */
     public DatabaseUsageParser(
             DataSource dataSource,
@@ -140,9 +140,9 @@ public class DatabaseUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 将数据库行映射为 AIusage 对象。
-     * @param row row
-     * @return 映射转为AIusage的结果
+    * 将数据库行映射为 AIusage 对象。
+    * @param row row
+    * @return 映射转为AIusage的结果
      */
     private AiUsage mapToAiUsage(Map<String, Object> row) {
         AiUsage.AiUsageBuilder builder = AiUsage.builder();
@@ -196,9 +196,9 @@ public class DatabaseUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 获取映射后的列名。
-     * @param field 字段
-     * @return 获取mappedcolumn的结果
+    * 获取映射后的列名。
+    * @param field 字段
+    * @return 获取mappedcolumn的结果
      */
     private String getMappedColumn(String field) {
         return fieldMapping.getOrDefault(field, field);

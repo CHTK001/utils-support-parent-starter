@@ -16,17 +16,17 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 OkHttp3 的 HTTP 客户端执行器
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 OkHttp3 的 HTTP 客户端执行器
+*
+* @author CH
+* @since 4.0.0.42
 */
 @Spi("okhttp")
 @ConditionalOnClass("okhttp3.OkHttpClient")
 public class OkHttpExecutor implements HttpClientExecutor {
 
     /**
-     * 客户端实例
+    * 客户端实例
      */
     private final OkHttpClient client;
 
@@ -103,10 +103,10 @@ public class OkHttpExecutor implements HttpClientExecutor {
     }
 
     /**
-     * 转为客户端响应
-     *
-     * @param okResp okresp
-     * @return 转为客户端响应的结果
+    * 转为客户端响应
+    *
+    * @param okResp okresp
+    * @return 转为客户端响应的结果
      */
     private ClientResponse toClientResponse(Response okResp) throws IOException {
         ClientResponse resp = new ClientResponse();

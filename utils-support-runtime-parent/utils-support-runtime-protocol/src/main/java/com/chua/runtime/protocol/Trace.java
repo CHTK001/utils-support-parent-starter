@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 追踪 — 一个 追踪id 对应一整条调用链。
- *
- * <p>包含根 Span、所有 Span、起始时间、traceState（W3C 兼容）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 追踪 — 一个 追踪id 对应一整条调用链。
+*
+* <p>包含根 Span、所有 Span、起始时间、traceState（W3C 兼容）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -25,45 +25,45 @@ import java.util.Map;
 public class Trace {
 
     /**
-      * 追踪 标识（W3C traceparent 标准）
+    * 追踪 标识（W3C traceparent 标准）
      */
     private String traceId;
 
     /**
-      * W3C 追踪状态（多厂商 追踪 串联）
+    * W3C 追踪状态（多厂商 追踪 串联）
      */
     private String traceState;
 
     /**
-     * 根 Span
+    * 根 Span
      */
     private Span root;
 
     /**
-     * 所有 Span（按开始时间排序）
+    * 所有 Span（按开始时间排序）
      */
     @Builder.Default
     /** Spans */
     private List<Span> spans = new ArrayList<>();
 
     /**
-      * 追踪级属性（追踪-级别 attributes）
+    * 追踪级属性（追踪-级别 attributes）
      */
     @Builder.Default
     private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
-     * 追踪开始时间（毫秒）
+    * 追踪开始时间（毫秒）
      */
     private long startTime;
 
     /**
-     * 追踪结束时间（毫秒）
+    * 追踪结束时间（毫秒）
      */
     private long endTime;
 
     /**
-     * 是否已结束
+    * 是否已结束
      */
     @Builder.Default
     /** 饰面 */

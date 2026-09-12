@@ -22,56 +22,56 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
-   * Kafka 应用层 处理器 — 拦截 kafkaproducer / kafkaconsumer 并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code org.apache.kafka.clients.producer.KafkaProducer} — 生产消息</li>
- *   <li>{@code org.apache.kafka.clients.consumer.KafkaConsumer} — 消费消息</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：</p>
- * <ul>
- *   <li>不引入 kafka-clients 编译期依赖</li>
- *   <li>通过 {@link RuntimeSpy#registerInterceptor} 注册精确规则，
-   * 若 Kafka 不在 类路径 则 spy转换 找不到类而不生效（无副作用）</li>
- *   <li>从 ctx.userData 反射读取 broker 地址</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* Kafka 应用层 处理器 — 拦截 kafkaproducer / kafkaconsumer 并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code org.apache.kafka.clients.producer.KafkaProducer} — 生产消息</li>
+*   <li>{@code org.apache.kafka.clients.consumer.KafkaConsumer} — 消费消息</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：</p>
+* <ul>
+*   <li>不引入 kafka-clients 编译期依赖</li>
+*   <li>通过 {@link RuntimeSpy#registerInterceptor} 注册精确规则，
+* 若 Kafka 不在 类路径 则 spy转换 找不到类而不生效（无副作用）</li>
+*   <li>从 ctx.userData 反射读取 broker 地址</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(KafkaHandler.class.getName());
 
     /**
-      * kafkaproducer 内部名
+    * kafkaproducer 内部名
      */
     private static final String PRODUCER_CLASS = "org/apache/kafka/clients/producer/KafkaProducer";
 
     /**
-      * kafkaconsumer 内部名
+    * kafkaconsumer 内部名
      */
     private static final String CONSUMER_CLASS = "org/apache/kafka/clients/consumer/KafkaConsumer";
 
     /**
-     * 最大记录数
+    * 最大记录数
      */
     private static final int MAX_RECORDS = 5000;
 
     /**
-     * records
+    * records
      */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
     /**
-      * 已启用
+    * 已启用
      */
     private boolean enabled;
     /**
-     * 是否已启动
+    * 是否已启动
      */
     private final AtomicBoolean started;
 
@@ -136,7 +136,7 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 kafkaproducer/kafkaconsumer 关键方法插桩规则。
+    * 注册 kafkaproducer/kafkaconsumer 关键方法插桩规则。
      */
     private void registerInterceptors() {
         // Producer: send(ProducerRecord) / send(ProducerRecord, Callback)
@@ -193,14 +193,14 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 当前
+    * 当前
      */
     private static final ThreadLocal<TransmissionRecord> CURRENT = new ThreadLocal<>();
 
     /**
-     * 处理Entry
-     *
-     * @param ctx ctx
+    * 处理Entry
+    *
+    * @param ctx ctx
      */
     private void handleEntry(InterceptContext ctx) {
         try {
@@ -246,9 +246,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 处理Exit
-     *
-     * @param ctx ctx
+    * 处理Exit
+    *
+    * @param ctx ctx
      */
     private void handleExit(InterceptContext ctx) {
         try {
@@ -267,9 +267,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 处理异常
-     *
-     * @param ctx ctx
+    * 处理异常
+    *
+    * @param ctx ctx
      */
     private void handleException(InterceptContext ctx) {
         try {
@@ -292,10 +292,10 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 添加和发送
-     *
-     * @param record record
-     * @param isError 是否错误
+    * 添加和发送
+    *
+    * @param record record
+    * @param isError 是否错误
      */
     private void addAndEmit(TransmissionRecord record, boolean isError) {
         records.add(record);
@@ -320,10 +320,10 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * deriveoperation
-     *
-     * @param ctx ctx
-     * @return deriveOperation的结果
+    * deriveoperation
+    *
+    * @param ctx ctx
+    * @return deriveOperation的结果
      */
     private static String deriveOperation(InterceptContext ctx) {
         String method = ctx.getMethodName();
@@ -331,13 +331,13 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 反射从 kafkaproducer/kafkaconsumer 读取 bootstrap.服务端 配置。
-     *
-     * <p>KafkaProducer 内部结构：producer -> KafkaProducer(this) -> ... -> configs Map;
-      * 简化路径：直接查找字段 "bootstrap.服务端" / 通过 反射 拿到 metadata。
-      * 为降低耦合，统一兜底为 "Kafka-broker"。</p>
-     * @param client 客户端
-     * @return extractBootstrapBroker的结果
+    * 反射从 kafkaproducer/kafkaconsumer 读取 bootstrap.服务端 配置。
+    *
+    * <p>KafkaProducer 内部结构：producer -> KafkaProducer(this) -> ... -> configs Map;
+    * 简化路径：直接查找字段 "bootstrap.服务端" / 通过 反射 拿到 metadata。
+    * 为降低耦合，统一兜底为 "Kafka-broker"。</p>
+    * @param client 客户端
+    * @return extractBootstrapBroker的结果
      */
     private static String extractBootstrapBroker(Object client) {
         if (client == null) {
@@ -354,9 +354,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 本地主机
-     *
-     * @return 本地主机的结果
+    * 本地主机
+    *
+    * @return 本地主机的结果
      */
     private static String localHost() {
         try {
@@ -367,9 +367,9 @@ public class KafkaHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 获取Records
-     *
-     * @return 获取records的结果
+    * 获取Records
+    *
+    * @return 获取records的结果
      */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();

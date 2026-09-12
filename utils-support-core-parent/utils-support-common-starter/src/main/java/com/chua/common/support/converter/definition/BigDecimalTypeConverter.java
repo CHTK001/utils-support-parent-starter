@@ -8,27 +8,27 @@ import javax.annotation.Nullable;
 
 
 /**
- * BigDecimal 类型转换器。
- * <p>将各种类型的值转换为 {@link BigDecimal}，支持以下特性：</p>
- * <ul>
- *     <li>百分比字符串 "12.5%" → 0.125</li>
- *     <li>包含不可见空格（\u00A0）的字符串自动清理</li>
- *     <li>兜底调用 {@link #transToBigDecimal(Object)} 和 {@link #convertIfNecessary(Object)}</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @version 1.0.0
+* BigDecimal 类型转换器。
+* <p>将各种类型的值转换为 {@link BigDecimal}，支持以下特性：</p>
+* <ul>
+*     <li>百分比字符串 "12.5%" → 0.125</li>
+*     <li>包含不可见空格（\u00A0）的字符串自动清理</li>
+*     <li>兜底调用 {@link #transToBigDecimal(Object)} 和 {@link #convertIfNecessary(Object)}</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @version 1.0.0
  */
 @Slf4j
 public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
 
     /**
-     * 将给定值转换为 BigDecimal。
-     * <p>字符串处理流程：去除两端空白 → 检测百分比后缀 → 清理不可见空格 → 调用 {@link TypeConverter#stringTransToBigDecimal(String)} 解析。</p>
-     *
-     * @param value 源值
-     * @return BigDecimal 值，如果无法转换则返回 null
+    * 将给定值转换为 BigDecimal。
+    * <p>字符串处理流程：去除两端空白 → 检测百分比后缀 → 清理不可见空格 → 调用 {@link TypeConverter#stringTransToBigDecimal(String)} 解析。</p>
+    *
+    * @param value 源值
+    * @return BigDecimal 值，如果无法转换则返回 null
      */
     @Override
     public BigDecimal convert(Object value) {
@@ -69,9 +69,9 @@ public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return BigDecimal.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return BigDecimal.class
      */
     @Override
     public Class<BigDecimal> getType() {

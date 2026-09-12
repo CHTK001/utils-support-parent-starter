@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 包管理器工具类，用于检测系统包管理器并执行包安装操作。
- *
- * <p>支持主流包管理器的自动检测与安装操作，提供同步/异步安装以及实时输出回调。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 包管理器工具类，用于检测系统包管理器并执行包安装操作。
+*
+* <p>支持主流包管理器的自动检测与安装操作，提供同步/异步安装以及实时输出回调。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class PackageManager {

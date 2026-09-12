@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * densenet 表情识别 Translator。
- * <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* densenet 表情识别 Translator。
+* <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 
@@ -39,8 +39,8 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     /**
-      * 创建 densenetexpressiontranslator 实例
-     * @param imageSize 镜像大小
+    * 创建 densenetexpressiontranslator 实例
+    * @param imageSize 镜像大小
      */
     public DenseNetExpressionTranslator(int imageSize) {
         this.imageSize = imageSize;
@@ -90,10 +90,10 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     /**
-     * 默认标签
-     *
-     * @param size 大小
-     * @return 默认标签的结果
+    * 默认标签
+    *
+    * @param size 大小
+    * @return 默认标签的结果
      */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);

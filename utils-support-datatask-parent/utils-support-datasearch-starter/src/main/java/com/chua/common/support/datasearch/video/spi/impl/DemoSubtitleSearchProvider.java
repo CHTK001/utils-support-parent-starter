@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
-   * subhd 字幕搜索提供者 — 从 subhd.tv 接口检索真实字幕数据
- *
- * @author CH
- * @since 4.0.0.42
+* subhd 字幕搜索提供者 — 从 subhd.tv 接口检索真实字幕数据
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("subhd")
 public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
@@ -69,9 +69,9 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-      * 解析subhd响应
-     * @param body 主体
-     * @param request 请求
+    * 解析subhd响应
+    * @param body 主体
+    * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> parseSubHdResponse(String body,
                                                                       SubtitleSearchRequest request) {
@@ -105,7 +105,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-      * 降级: 通过 subhd HTML 搜索页面抓取字幕
+    * 降级: 通过 subhd HTML 搜索页面抓取字幕
      */
     private ReturnPageResult<SubtitleSearchResult> fallbackSearch(String keyword,
                                                                    SubtitleSearchRequest request) {
@@ -128,10 +128,10 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-      * 解析html降级
-     * @param html HTML
-     * @param keyword keyword
-     * @param request 请求
+    * 解析html降级
+    * @param html HTML
+    * @param keyword keyword
+    * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> parseHtmlFallback(String html,
                                                                       String keyword,
@@ -160,9 +160,9 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-      * 构建分页结果
-     * @param items items
-     * @param request 请求
+    * 构建分页结果
+    * @param items items
+    * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> buildPageResult(List<SubtitleSearchResult> items,
                                                                     SubtitleSearchRequest request) {

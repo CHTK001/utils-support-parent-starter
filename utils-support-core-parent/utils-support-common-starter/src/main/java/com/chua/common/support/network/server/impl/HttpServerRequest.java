@@ -23,10 +23,10 @@ import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
- *
- * @author CH
- * @since 2026/07/16
+* 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
+*
+* @author CH
+* @since 2026/07/16
  */
 public class HttpServerRequest implements ServerRequest {
 
@@ -42,10 +42,10 @@ public class HttpServerRequest implements ServerRequest {
     private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
     /**
-     * 创建 HttpServerRequest 实例
-     * @param exchange exchange
-     * @param long long
-     * @param String String
+    * 创建 HttpServerRequest 实例
+    * @param exchange exchange
+    * @param long long
+    * @param String String
      */
     public HttpServerRequest(HttpExchange exchange, long maxRequestSize, String charset) {
         this.exchange = exchange;
@@ -236,19 +236,19 @@ public class HttpServerRequest implements ServerRequest {
     }
 
     /**
-     * 解码 URL 查询参数片段。
-     *
-     * @param value 原始参数片段
-     * @return 解码后的参数
+    * 解码 URL 查询参数片段。
+    *
+    * @param value 原始参数片段
+    * @return 解码后的参数
      */
     private String decode(String value) {
         return URLDecoder.decode(value, defaultCharset);
     }
 
     /**
-     * 从 Content-Type 解析字符集，未声明时回退到服务器配置。
-     *
-     * @return 请求体字符集
+    * 从 Content-Type 解析字符集，未声明时回退到服务器配置。
+    *
+    * @return 请求体字符集
      */
     private Charset resolveCharset() {
         String contentType = getContentType();

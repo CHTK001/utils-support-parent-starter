@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Florence-2 视觉理解翻译器，支持多种图像理解任务。
- *
- * <p>使用 ONNX Runtime 加载 Florence-2 模型，
- * 支持 caption、detailed caption、OCR、目标检测等任务类型。
- *
- * @author CH
- * @since 4.0.0.42
+* Florence-2 视觉理解翻译器，支持多种图像理解任务。
+*
+* <p>使用 ONNX Runtime 加载 Florence-2 模型，
+* 支持 caption、detailed caption、OCR、目标检测等任务类型。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class Florence2Translator implements ITranslator<Object[], String> {
     private static final Logger log = LoggerFactory.getLogger(Florence2Translator.class); // 日志

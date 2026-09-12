@@ -7,10 +7,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
-   * postconstruct 注解，标记初始化方法。
- *
- * @author CH
- * @since 2024/12/20
+* postconstruct 注解，标记初始化方法。
+*
+* @author CH
+* @since 2024/12/20
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

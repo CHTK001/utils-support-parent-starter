@@ -15,26 +15,26 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Llama 3 GPU 对话翻译器。
- * <p>
- * 利用 llama.cpp 的 GPU 加速能力进行 Llama 3 模型的文本生成推理。
-   * 通过 模型参数 配置 GPU 层数和上下文大小。
- * </p>
- *
- * <p>支持运行时参数注入（通过 {@link DetectionConfigurable#configure(Map)} 或 {@link ModelParameters}）：</p>
- * <ul>
- *   <li>{@code useGpu} - Boolean：是否启用 GPU（null 时退化为 CPU）</li>
- *   <li>{@code gpuLayers} - Integer：分配给 GPU 的层数（-1 自动 / 0 CPU / N 指定层）</li>
- *   <li>{@code ctxSize} - Integer：上下文窗口大小</li>
- *   <li>{@code topK} - Integer：Top-K 采样</li>
- *   <li>{@code temperature} - Double：采样温度</li>
- *   <li>{@code nPredict} - Integer：最大输出 token 数</li>
- *   <li>{@code threads} - Integer：推理线程数</li>
- *   <li>{@code device} - String：设备选择（auto/cpu/gpu/cuda）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* Llama 3 GPU 对话翻译器。
+* <p>
+* 利用 llama.cpp 的 GPU 加速能力进行 Llama 3 模型的文本生成推理。
+* 通过 模型参数 配置 GPU 层数和上下文大小。
+* </p>
+*
+* <p>支持运行时参数注入（通过 {@link DetectionConfigurable#configure(Map)} 或 {@link ModelParameters}）：</p>
+* <ul>
+*   <li>{@code useGpu} - Boolean：是否启用 GPU（null 时退化为 CPU）</li>
+*   <li>{@code gpuLayers} - Integer：分配给 GPU 的层数（-1 自动 / 0 CPU / N 指定层）</li>
+*   <li>{@code ctxSize} - Integer：上下文窗口大小</li>
+*   <li>{@code topK} - Integer：Top-K 采样</li>
+*   <li>{@code temperature} - Double：采样温度</li>
+*   <li>{@code nPredict} - Integer：最大输出 token 数</li>
+*   <li>{@code threads} - Integer：推理线程数</li>
+*   <li>{@code device} - String：设备选择（auto/cpu/gpu/cuda）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class Llama3ChatTranslator implements ITranslator<String, String>, DetectionConfigurable, AutoCloseable {
@@ -70,16 +70,16 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     private volatile String device;
 
     /**
-     * 默认构造器，使用 llama-3-8b-it 模型。
+    * 默认构造器，使用 llama-3-8b-it 模型。
      */
     public Llama3ChatTranslator() {
         this("llama-3-8b-it");
     }
 
     /**
-     * 构造器。
-     *
-     * @param modelId 模型 标识
+    * 构造器。
+    *
+    * @param modelId 模型 标识
      */
     public Llama3ChatTranslator(String modelId) {
         this.modelId = modelId;
@@ -91,19 +91,19 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
-     * 注入运行参数（仅首次实例化前生效）。
-     *
-     * <p>参数键约定（与 {@code DetectionConfiguration.systemOption} 对齐）：</p>
-     * <ul>
-     *   <li>{@code useGpu} → {@link Boolean}：true/false（null 时由 device 自动决定）</li>
-     *   <li>{@code gpuLayers} → {@link Integer}：-1/0/N</li>
-     *   <li>{@code ctxSize} → {@link Integer}</li>
-     *   <li>{@code topK} → {@link Integer}</li>
-     *   <li>{@code temperature} → {@link Double}</li>
-     *   <li>{@code nPredict} → {@link Integer}（等价于 maxTokens）</li>
-     *   <li>{@code threads} → {@link Integer}</li>
-     *   <li>{@code device} → {@link String}（auto/cpu/gpu/cuda）</li>
-     * </ul>
+    * 注入运行参数（仅首次实例化前生效）。
+    *
+    * <p>参数键约定（与 {@code DetectionConfiguration.systemOption} 对齐）：</p>
+    * <ul>
+    *   <li>{@code useGpu} → {@link Boolean}：true/false（null 时由 device 自动决定）</li>
+    *   <li>{@code gpuLayers} → {@link Integer}：-1/0/N</li>
+    *   <li>{@code ctxSize} → {@link Integer}</li>
+    *   <li>{@code topK} → {@link Integer}</li>
+    *   <li>{@code temperature} → {@link Double}</li>
+    *   <li>{@code nPredict} → {@link Integer}（等价于 maxTokens）</li>
+    *   <li>{@code threads} → {@link Integer}</li>
+    *   <li>{@code device} → {@link String}（auto/cpu/gpu/cuda）</li>
+    * </ul>
      */
     @Override
     public void configure(Map<String, Object> options) {
@@ -201,8 +201,8 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
-      * 解析 gpulayers：优先运行时配置，其次默认 -1（全部 GPU）。
-     * @return resolveGpuLayers的结果
+    * 解析 gpulayers：优先运行时配置，其次默认 -1（全部 GPU）。
+    * @return resolveGpuLayers的结果
      */
     private int resolveGpuLayers() {
         if (gpuLayers != null) {
@@ -216,25 +216,25 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     }
 
     /**
-      * 解析 ctx大小：优先运行时配置，其次默认 4096。
-     * @return resolvectx大小的结果
+    * 解析 ctx大小：优先运行时配置，其次默认 4096。
+    * @return resolvectx大小的结果
      */
     private int resolveCtxSize() {
         return ctxSize != null ? ctxSize : DEFAULT_CTX_SIZE;
     }
 
     /**
-     * 解析 threads：优先运行时配置，其次 CPU 核心数。
-     * @return resolveThreads的结果
+    * 解析 threads：优先运行时配置，其次 CPU 核心数。
+    * @return resolveThreads的结果
      */
     private int resolveThreads() {
         return threads != null ? threads : Runtime.getRuntime().availableProcessors();
     }
 
     /**
-      * 逐 令牌 生成，遇结束符或达到上限提前终止。
-     * @param parameters 参数
-     * @return generatewith限制的结果
+    * 逐 令牌 生成，遇结束符或达到上限提前终止。
+    * @param parameters 参数
+    * @return generatewith限制的结果
      */
     private String generateWithLimit(InferenceParameters parameters) {
         StringBuilder sb = new StringBuilder();

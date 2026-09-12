@@ -8,22 +8,22 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 窗口 系统服务管理器 — 基于 {@code sc.exe} 命令管理 窗口 服务。
- *
- * <p>支持 Windows XP 及以上版本，通过系统自带的 sc.exe 工具实现服务安装、
- * 卸载、启动、停止、查询状态等操作。不支持开机自启类型设置（sc.exe 原生能力有限）。</p>
- *
- * <p>SPI 名称：{@code "windows"}</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 窗口 系统服务管理器 — 基于 {@code sc.exe} 命令管理 窗口 服务。
+*
+* <p>支持 Windows XP 及以上版本，通过系统自带的 sc.exe 工具实现服务安装、
+* 卸载、启动、停止、查询状态等操作。不支持开机自启类型设置（sc.exe 原生能力有限）。</p>
+*
+* <p>SPI 名称：{@code "windows"}</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("windows")
 public class WindowsServiceManager implements ServiceManager {
 
     /**
-     * 命令执行超时（秒）
+    * 命令执行超时（秒）
      */
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
@@ -169,10 +169,10 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     /**
-      * 将启动类型映射为 sc.exe 的 启动 参数值。
-     *
-     * @param startupType 启动类型（auto / manual / 已禁用）
-     * @return sc.exe 的 启动 参数值
+    * 将启动类型映射为 sc.exe 的 启动 参数值。
+    *
+    * @param startupType 启动类型（auto / manual / 已禁用）
+    * @return sc.exe 的 启动 参数值
      */
     private String mapStartupType(String startupType) {
         if (startupType == null) {

@@ -8,18 +8,18 @@ import com.chua.jvector.support.configuration.JVectorStorageProperties;
 import com.chua.jvector.support.storage.JVectorVectorStorage;
 
 /**
-   * j向量 向量存储 SPI 实现。
- *
- * @author CH
- * @since 4.0.0.42
+* j向量 向量存储 SPI 实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi(value = "jvector", order = 100)
 public class JVectorVectorStorageProvider implements VectorStorageProvider {
 
     /**
-     * SPI 名称。
-     *
-     * @return "jvector"
+    * SPI 名称。
+    *
+    * @return "jvector"
      */
     @Override
     public String name() {
@@ -28,10 +28,10 @@ public class JVectorVectorStorageProvider implements VectorStorageProvider {
 
     @Override
     /**
-     * 创建
-     * @param dimension 维度
-     * @param algorithm algorithm
-     * @param properties 属性
+    * 创建
+    * @param dimension 维度
+    * @param algorithm algorithm
+    * @param properties 属性
      */
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,

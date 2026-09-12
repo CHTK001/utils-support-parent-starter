@@ -10,20 +10,20 @@ import java.util.logging.Logger;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 窗口 系统服务管理器。
- *
- * @author CH
- * @since 4.0.0.42
+* 窗口 系统服务管理器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class WindowsServiceManager implements ServiceManager {
 
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(WindowsServiceManager.class.getName());
     /**
-     * 命令超时（秒）
+    * 命令超时（秒）
      */
     private static final int CMD_TIMEOUT = 30;
 
@@ -132,10 +132,10 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     /**
-     * 映射startup
-     *
-     * @param type 类型
-     * @return 映射startup的结果
+    * 映射startup
+    *
+    * @param type 类型
+    * @return 映射startup的结果
      */
     private String mapStartup(String type) {
         if (type == null) {

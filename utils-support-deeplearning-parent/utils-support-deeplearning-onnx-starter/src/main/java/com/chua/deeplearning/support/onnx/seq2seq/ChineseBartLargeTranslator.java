@@ -15,29 +15,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * fnlp/bart-large-chinese Seq2Seq ONNX 翻译器
- * <p>
- * 复旦大学 NLP 团队在约 200G 中文语料上重新训练的 BART-large 模型，
-   * 针对中文语义进行了结构调整和优化。相比 基础 版本，参数量更大、表达能力更强，
- * 适用于更复杂的中文生成任务如长文本摘要、复杂翻译、篇章级生成等。
- * </p>
- * <p>
- * 模型来源：huggingface.co/fnlp/bart-large-chinese
-   * 架构：编码器-解码器 (ONNX: 模型.onnx)
- * 输入：中文文本字符串
- * 输出：生成的中文字符串
- * </p>
- * <p>
- * 输入流程：
- * <ol>
- *   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
- *   <li>ONNX 模型正向推理得到 logits</li>
- *   <li>argmax 取每步最优 token ID</li>
- *   <li>Tokenizer decode 得到中文结果文本</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* fnlp/bart-large-chinese Seq2Seq ONNX 翻译器
+* <p>
+* 复旦大学 NLP 团队在约 200G 中文语料上重新训练的 BART-large 模型，
+* 针对中文语义进行了结构调整和优化。相比 基础 版本，参数量更大、表达能力更强，
+* 适用于更复杂的中文生成任务如长文本摘要、复杂翻译、篇章级生成等。
+* </p>
+* <p>
+* 模型来源：huggingface.co/fnlp/bart-large-chinese
+* 架构：编码器-解码器 (ONNX: 模型.onnx)
+* 输入：中文文本字符串
+* 输出：生成的中文字符串
+* </p>
+* <p>
+* 输入流程：
+* <ol>
+*   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
+*   <li>ONNX 模型正向推理得到 logits</li>
+*   <li>argmax 取每步最优 token ID</li>
+*   <li>Tokenizer decode 得到中文结果文本</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ChineseBartLargeTranslator implements Translator<String, String> {
@@ -106,10 +106,10 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -122,11 +122,11 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     }
 
     /**
-     * 查找文件
-     *
-     * @param root 根
-     * @param name 名称
-     * @return find文件的结果
+    * 查找文件
+    *
+    * @param root 根
+    * @param name 名称
+    * @return find文件的结果
      */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);

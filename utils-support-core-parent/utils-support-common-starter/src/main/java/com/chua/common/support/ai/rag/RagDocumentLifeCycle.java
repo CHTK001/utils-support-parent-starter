@@ -23,14 +23,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
- * RAG 文档生命周期管理。
- * <p>
- * 管理文档的完整生命周期：上传 → 提取文本 → 分块 → 索引 → 删除 → 重索引。
- * 文档元数据以 JSON 格式持久化到本地文件系统。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* RAG 文档生命周期管理。
+* <p>
+* 管理文档的完整生命周期：上传 → 提取文本 → 分块 → 索引 → 删除 → 重索引。
+* 文档元数据以 JSON 格式持久化到本地文件系统。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class RagDocumentLifeCycle implements AutoCloseable {
@@ -63,13 +63,13 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     private final List<RagDocument> documents;
 
     /**
-     * 构造文档生命周期管理器。
-     *
-     * @param uploadDir       上传目录路径
-     * @param knowledgeClient 向量知识库客户端
-     * @param textSplitter    文本分块器
-     * @param textExtractor   文本提取器（为 null 时纯文本直接读取）
-     * @throws IOException 目录创建失败时抛出
+    * 构造文档生命周期管理器。
+    *
+    * @param uploadDir       上传目录路径
+    * @param knowledgeClient 向量知识库客户端
+    * @param textSplitter    文本分块器
+    * @param textExtractor   文本提取器（为 null 时纯文本直接读取）
+    * @throws IOException 目录创建失败时抛出
      */
     public RagDocumentLifeCycle(String uploadDir, KnowledgeClient knowledgeClient,
                                 TextSplitter textSplitter, TextExtractor textExtractor) throws IOException {
@@ -89,11 +89,11 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     // ==================== 文档上传 ====================
 
     /**
-     * 上传文档：保存文件 → 提取文本 → 分块 → 索引。
-     *
-     * @param fileName 文件名
-     * @param data     文件字节数据
-     * @return 文档元数据
+    * 上传文档：保存文件 → 提取文本 → 分块 → 索引。
+    *
+    * @param fileName 文件名
+    * @param data     文件字节数据
+    * @return 文档元数据
      */
     public RagDocument uploadDocument(String fileName, byte[] data) {
         String docId = UUID.randomUUID().toString().replace("-", "");
@@ -139,10 +139,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     // ==================== 文档删除 ====================
 
     /**
-     * 删除文档：从知识库移除 + 删除本地文件。
-     *
-     * @param docId 文档 ID
-     * @return 是否成功
+    * 删除文档：从知识库移除 + 删除本地文件。
+    *
+    * @param docId 文档 ID
+    * @return 是否成功
      */
     public boolean deleteDocument(String docId) {
         try {
@@ -172,11 +172,11 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     // ==================== 文档查询 ====================
 
     /**
-     * 分页查询文档列表（按创建时间倒序）。
-     *
-     * @param page     页码（从 1 开始）
-     * @param pageSize 每页大小
-     * @return 文档列表
+    * 分页查询文档列表（按创建时间倒序）。
+    *
+    * @param page     页码（从 1 开始）
+    * @param pageSize 每页大小
+    * @return 文档列表
      */
     public List<RagDocument> listDocuments(int page, int pageSize) {
         List<RagDocument> sorted = documents.stream()
@@ -191,9 +191,9 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     }
 
     /**
-     * 获取文档总数。
-     *
-     * @return 文档数量
+    * 获取文档总数。
+    *
+    * @return 文档数量
      */
     public int documentCount() {
         return documents.size();
@@ -202,9 +202,9 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     // ==================== 重新索引 ====================
 
     /**
-     * 清空知识库 + 重新索引所有 READY 状态的文档。
-     *
-     * @return 重新索引的文档数量
+    * 清空知识库 + 重新索引所有 READY 状态的文档。
+    *
+    * @return 重新索引的文档数量
      */
     public int reindex() {
         try {
@@ -248,10 +248,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     // ==================== 文档内容 ====================
 
     /**
-     * 读取文档原始内容（限 100KB）。
-     *
-     * @param docId 文档 ID
-     * @return 文档内容，不存在则返回 null
+    * 读取文档原始内容（限 100KB）。
+    *
+    * @param docId 文档 ID
+    * @return 文档内容，不存在则返回 null
      */
     public String readDocumentContent(String docId) {
         Optional<RagDocument> opt = findDocument(docId);
@@ -276,10 +276,10 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     }
 
     /**
-     * 根据 ID 查找文档。
-     *
-     * @param docId 文档 ID
-     * @return 文档元数据
+    * 根据 ID 查找文档。
+    *
+    * @param docId 文档 ID
+    * @return 文档元数据
      */
     public Optional<RagDocument> findDocument(String docId) {
         return documents.stream().filter(d -> d.id().equals(docId)).findFirst();

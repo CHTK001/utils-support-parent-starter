@@ -15,27 +15,27 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 一次 CLI 调用的请求描述，采用链式风格组装参数与超时策略。
- *
- * <p>参数以数组形式直接传给进程，不经 Shell 解析、不做引号拼接，
- * 因此参数中的空格、中文、特殊字符都无需转义，也不存在命令注入风险。</p>
- *
- * <h3>使用示例</h3>
- * <pre>{@code
- * CmdResult result = tshark.request()
- *         .args("-r", "capture.pcap")
- *         .args("-T", "json")
- *         .timeout(30, TimeUnit.SECONDS)
- *         .execute();
- *
- * // 实时输出
- * tshark.request()
- *         .args("--version")
- *         .executeWithOutput(line -> System.out.println(line));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 一次 CLI 调用的请求描述，采用链式风格组装参数与超时策略。
+*
+* <p>参数以数组形式直接传给进程，不经 Shell 解析、不做引号拼接，
+* 因此参数中的空格、中文、特殊字符都无需转义，也不存在命令注入风险。</p>
+*
+* <h3>使用示例</h3>
+* <pre>{@code
+* CmdResult result = tshark.request()
+*         .args("-r", "capture.pcap")
+*         .args("-T", "json")
+*         .timeout(30, TimeUnit.SECONDS)
+*         .execute();
+*
+* // 实时输出
+* tshark.request()
+*         .args("--version")
+*         .executeWithOutput(line -> System.out.println(line));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class CliRequest {
 
@@ -58,9 +58,9 @@ public final class CliRequest {
     private String input;
 
     /**
-     * 创建请求实例
-     *
-     * @param tool 所属的 CLI 工具
+    * 创建请求实例
+    *
+    * @param tool 所属的 CLI 工具
      */
     CliRequest(@Nonnull CliTool tool) {
         this.tool = tool;
@@ -69,10 +69,10 @@ public final class CliRequest {
     }
 
     /**
-     * 追加单个参数。
-     *
-     * @param arg 参数
-     * @return this
+    * 追加单个参数。
+    *
+    * @param arg 参数
+    * @return this
      */
     @Nonnull
     public CliRequest arg(@Nonnull String arg) {
@@ -83,10 +83,10 @@ public final class CliRequest {
     }
 
     /**
-     * 追加多个参数。
-     *
-     * @param args 参数数组
-     * @return this
+    * 追加多个参数。
+    *
+    * @param args 参数数组
+    * @return this
      */
     @Nonnull
     public CliRequest args(@Nonnull String... args) {
@@ -97,10 +97,10 @@ public final class CliRequest {
     }
 
     /**
-     * 追加参数集合。
-     *
-     * @param args 参数集合
-     * @return this
+    * 追加参数集合。
+    *
+    * @param args 参数集合
+    * @return this
      */
     @Nonnull
     public CliRequest args(@Nonnull Collection<String> args) {
@@ -111,11 +111,11 @@ public final class CliRequest {
     }
 
     /**
-     * 设置超时时间，覆盖工具的默认超时。
-     *
-     * @param timeout 超时值
-     * @param unit    时间单位
-     * @return this
+    * 设置超时时间，覆盖工具的默认超时。
+    *
+    * @param timeout 超时值
+    * @param unit    时间单位
+    * @return this
      */
     @Nonnull
     public CliRequest timeout(long timeout, @Nonnull TimeUnit unit) {
@@ -125,11 +125,11 @@ public final class CliRequest {
     }
 
     /**
-     * 设置不超时，适用于执行时间不可预期的长任务。
-     *
-     * <p>请谨慎使用：被调程序若永不退出，当前线程会一直阻塞。</p>
-     *
-     * @return this
+    * 设置不超时，适用于执行时间不可预期的长任务。
+    *
+    * <p>请谨慎使用：被调程序若永不退出，当前线程会一直阻塞。</p>
+    *
+    * @return this
      */
     @Nonnull
     public CliRequest noTimeout() {
@@ -141,10 +141,10 @@ public final class CliRequest {
     // ==================== 扩展参数：工作目录 / 环境变量 / 标准输入 ====================
 
     /**
-     * 设置请求级工作目录。
-     *
-     * @param dir 工作目录，null 清除
-     * @return this
+    * 设置请求级工作目录。
+    *
+    * @param dir 工作目录，null 清除
+    * @return this
      */
     @Nonnull
     public CliRequest workingDirectory(@Nullable Path dir) {
@@ -153,10 +153,10 @@ public final class CliRequest {
     }
 
     /**
-     * 设置请求级工作目录。
-     *
-     * @param dir 工作目录，null 清除
-     * @return this
+    * 设置请求级工作目录。
+    *
+    * @param dir 工作目录，null 清除
+    * @return this
      */
     @Nonnull
     public CliRequest workingDirectory(@Nullable File dir) {
@@ -165,11 +165,11 @@ public final class CliRequest {
     }
 
     /**
-     * 添加单个附加环境变量。
-     *
-     * @param key   变量名
-     * @param value 变量值
-     * @return this
+    * 添加单个附加环境变量。
+    *
+    * @param key   变量名
+    * @param value 变量值
+    * @return this
      */
     @Nonnull
     public CliRequest env(@Nonnull String key, @Nonnull String value) {
@@ -181,10 +181,10 @@ public final class CliRequest {
     }
 
     /**
-     * 批量添加附加环境变量。
-     *
-     * @param env 环境变量集合，null 忽略
-     * @return this
+    * 批量添加附加环境变量。
+    *
+    * @param env 环境变量集合，null 忽略
+    * @return this
      */
     @Nonnull
     public CliRequest envs(@Nullable Map<String, String> env) {
@@ -198,10 +198,10 @@ public final class CliRequest {
     }
 
     /**
-     * 设置写入进程标准输入的内容。
-     *
-     * @param input 标准输入内容，null 清除
-     * @return this
+    * 设置写入进程标准输入的内容。
+    *
+    * @param input 标准输入内容，null 清除
+    * @return this
      */
     @Nonnull
     public CliRequest input(@Nullable String input) {
@@ -210,13 +210,13 @@ public final class CliRequest {
     }
 
     /**
-     * 以键值对形式追加参数，展开为 {@code --key value}（长选项风格）。
-     *
-     * <p>键已带 {@code -} 前缀时按原样使用；值为 null 时只输出键（布尔开关）。
-     * 适合封装 {@code --model xxx --steps 8} 这类选项式 CLI 软件。</p>
-     *
-     * @param options 键值对参数
-     * @return this
+    * 以键值对形式追加参数，展开为 {@code --key value}（长选项风格）。
+    *
+    * <p>键已带 {@code -} 前缀时按原样使用；值为 null 时只输出键（布尔开关）。
+    * 适合封装 {@code --model xxx --steps 8} 这类选项式 CLI 软件。</p>
+    *
+    * @param options 键值对参数
+    * @return this
      */
     @Nonnull
     public CliRequest args(@Nonnull Map<String, Object> options) {
@@ -237,9 +237,9 @@ public final class CliRequest {
     }
 
     /**
-     * 获取当前累积的参数列表。
-     *
-     * @return 参数列表副本
+    * 获取当前累积的参数列表。
+    *
+    * @return 参数列表副本
      */
     @Nonnull
     public List<String> args() {
@@ -247,18 +247,18 @@ public final class CliRequest {
     }
 
     /**
-     * 获取超时值。
-     *
-     * @return 超时值，小于等于 0 表示不超时
+    * 获取超时值。
+    *
+    * @return 超时值，小于等于 0 表示不超时
      */
     public long timeout() {
         return timeout;
     }
 
     /**
-     * 获取超时单位。
-     *
-     * @return 时间单位
+    * 获取超时单位。
+    *
+    * @return 时间单位
      */
     @Nonnull
     public TimeUnit unit() {
@@ -266,10 +266,10 @@ public final class CliRequest {
     }
 
     /**
-     * 组装完整的命令行数组，首元素为可执行文件路径，其后为参数。
-     *
-     * @return 命令行数组
-     * @throws IllegalStateException 工具不可用时抛出
+    * 组装完整的命令行数组，首元素为可执行文件路径，其后为参数。
+    *
+    * @return 命令行数组
+    * @throws IllegalStateException 工具不可用时抛出
      */
     @Nonnull
     public String[] commandLine() {
@@ -277,10 +277,10 @@ public final class CliRequest {
     }
 
     /**
-     * 同步执行。
-     *
-     * @return 执行结果
-     * @throws IllegalStateException 工具不可用时抛出
+    * 同步执行。
+    *
+    * @return 执行结果
+    * @throws IllegalStateException 工具不可用时抛出
      */
     @Nonnull
     public CmdResult execute() {
@@ -291,11 +291,11 @@ public final class CliRequest {
     }
 
     /**
-     * 同步执行并逐行接收输出。
-     *
-     * @param callback 逐行输出回调
-     * @return 执行结果
-     * @throws IllegalStateException 工具不可用时抛出
+    * 同步执行并逐行接收输出。
+    *
+    * @param callback 逐行输出回调
+    * @return 执行结果
+    * @throws IllegalStateException 工具不可用时抛出
      */
     @Nonnull
     public CmdResult executeWithOutput(@Nonnull LineCallback callback) {
@@ -307,10 +307,10 @@ public final class CliRequest {
     }
 
     /**
-     * 异步执行。
-     *
-     * @return 异步结果
-     * @throws IllegalStateException 工具不可用时抛出
+    * 异步执行。
+    *
+    * @return 异步结果
+    * @throws IllegalStateException 工具不可用时抛出
      */
     @Nonnull
     public CompletableFuture<CmdResult> executeAsync() {
@@ -348,9 +348,9 @@ public final class CliRequest {
     }
 
     /**
-     * 把累积的参数转换为数组。
-     *
-     * @return 参数数组
+    * 把累积的参数转换为数组。
+    *
+    * @return 参数数组
      */
     @Nonnull
     private String[] toArgArray() {

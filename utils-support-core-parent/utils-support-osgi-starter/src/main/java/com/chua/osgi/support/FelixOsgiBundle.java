@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Felix Bundle 实现，包装 OSGI 的 Bundle 对象。
- *
- * @author CH
- * @since 4.0.0.42
+* Felix Bundle 实现，包装 OSGI 的 Bundle 对象。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FelixOsgiBundle implements OsgiBundle {
 
@@ -22,8 +22,8 @@ public class FelixOsgiBundle implements OsgiBundle {
     private final List<ServiceRegistration<?>> registrations = new CopyOnWriteArrayList<>(); // registrations
 
     /**
-      * 创建 felixosgibundle 实例
-     * @param bundle bundle
+    * 创建 felixosgibundle 实例
+    * @param bundle bundle
      */
     public FelixOsgiBundle(Bundle bundle) {
         this.bundle = bundle;
@@ -96,11 +96,11 @@ public class FelixOsgiBundle implements OsgiBundle {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 注册服务
-     *
-     * @param type 类型
-     * @param service 服务
-     * @return 注册服务的结果
+    * 注册服务
+    *
+    * @param type 类型
+    * @param service 服务
+    * @return 注册服务的结果
      */
     public <T> void registerService(Class<T> type, T service) {
         ServiceRegistration<?> registration = bundle.getBundleContext()
@@ -111,11 +111,11 @@ public class FelixOsgiBundle implements OsgiBundle {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 注销服务
-     *
-     * @param type 类型
-     * @param service 服务
-     * @return 注销服务的结果
+    * 注销服务
+    *
+    * @param type 类型
+    * @param service 服务
+    * @return 注销服务的结果
      */
     public <T> void unregisterService(Class<T> type, T service) {
         registrations.removeIf(reg -> {
@@ -144,10 +144,10 @@ public class FelixOsgiBundle implements OsgiBundle {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取服务
-     *
-     * @param type 类型
-     * @return 获取服务的结果
+    * 获取服务
+    *
+    * @param type 类型
+    * @return 获取服务的结果
      */
     public <T> List<T> getServices(Class<T> type) {
         try {

@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-   * sqlite 搜索引擎元数据操作实现。
- * <p>
- * 基于 {@link SqliteSearchEngineImpl}，通过 FTS5 虚拟表管理索引。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* sqlite 搜索引擎元数据操作实现。
+* <p>
+* 基于 {@link SqliteSearchEngineImpl}，通过 FTS5 虚拟表管理索引。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SqliteMetaSearch extends AbstractMetaSearch {
 
@@ -30,10 +30,10 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
     private final SqliteSearchEngineImpl searchEngine;
 
     /**
-     * 构造方法。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
+    * 构造方法。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
      */
     public SqliteMetaSearch(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
@@ -92,10 +92,10 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
 
     // ==================== 内部构建器 ====================
     /**
-     * sqlite创建索引构建器类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * sqlite创建索引构建器类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     private class SqliteCreateIndexBuilder implements SearchIndexCreateBuilder {
@@ -174,12 +174,12 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
         }
 
         /**
-         * 将 ES/Solr 类型名转为 sqlite FTS5 可用形式
-         *
-         * @param type 类型
-         * @return normalize字段类型的结果
-         * @author CH
-         * @since 4.0.0
+        * 将 ES/Solr 类型名转为 sqlite FTS5 可用形式
+        *
+        * @param type 类型
+        * @return normalize字段类型的结果
+        * @author CH
+        * @since 4.0.0
          */
         private String normalizeFieldType(String type) {
             if (type == null) {

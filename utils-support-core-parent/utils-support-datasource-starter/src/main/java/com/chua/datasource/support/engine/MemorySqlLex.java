@@ -8,21 +8,21 @@ import java.util.Map;
 import com.chua.common.support.reflection.ReflectUtils;
 
 /**
- * SQL 词法扫描与行访问工具。
- *
- * @author CH
- * @since 4.0.0.42
+* SQL 词法扫描与行访问工具。
+*
+* @author CH
+* @since 4.0.0.42
  */
 final class MemorySqlLex {
 
     /**
-     * 内存sqllex。
+    * 内存sqllex。
      */
     private MemorySqlLex() {
     }
 
     /**
-      * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
+    * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
      */
     static final class TokenStream {
 
@@ -33,27 +33,27 @@ final class MemorySqlLex {
         private int pos;
 
         /**
-         * 构造词法流并完成全量切分。
-         *
-         * @param sql 原始 SQL 文本
+        * 构造词法流并完成全量切分。
+        *
+        * @param sql 原始 SQL 文本
          */
         TokenStream(String sql) {
             this.tokens = tokenize(sql);
         }
 
         /**
-         * 是否已读到末尾。
-         *
-         * @return true 表示无剩余 令牌
+        * 是否已读到末尾。
+        *
+        * @return true 表示无剩余 令牌
          */
         boolean eof() {
             return pos >= tokens.size();
         }
 
         /**
-          * 预览当前 令牌（不消费）。
-         *
-         * @return 当前 令牌
+        * 预览当前 令牌（不消费）。
+        *
+        * @return 当前 令牌
          */
         String peek() {
             if (eof()) {
@@ -63,9 +63,9 @@ final class MemorySqlLex {
         }
 
         /**
-          * 消费并返回当前 令牌。
-         *
-         * @return 当前 令牌
+        * 消费并返回当前 令牌。
+        *
+        * @return 当前 令牌
          */
         String next() {
             if (eof()) {
@@ -75,10 +75,10 @@ final class MemorySqlLex {
         }
 
         /**
-          * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
-         *
-         * @param sql 原始文本
-         * @return token 列表
+        * 将 SQL 切分为 令牌：标识符 / 数字 / '字符串' / 运算符（含 &lt;= &gt;= &lt;&gt;）/ 括号逗号星号问号。
+        *
+        * @param sql 原始文本
+        * @return token 列表
          */
         private static List<String> tokenize(String sql) {
             java.util.List<String> out = new java.util.ArrayList<>();
@@ -135,23 +135,23 @@ final class MemorySqlLex {
     }
 
     /**
-      * 行访问器：行可为 映射（列名忽略大小写）或 Bean（getter 反射）。
+    * 行访问器：行可为 映射（列名忽略大小写）或 Bean（getter 反射）。
      */
     static final class RowAccessor {
 
         /**
-          * rowaccessor。
-         * @return RowAccessor的结果
+        * rowaccessor。
+        * @return RowAccessor的结果
          */
         private RowAccessor() {
         }
 
         /**
-         * 读取行中指定列的值。
-         *
-         * @param row       行对象
-         * @param column    列名
-         * @return 值，缺失返回 空
+        * 读取行中指定列的值。
+        *
+        * @param row       行对象
+        * @param column    列名
+        * @return 值，缺失返回 空
          */
         static Object value(Object row, String column) {
             if (row instanceof Map) {
@@ -180,10 +180,10 @@ final class MemorySqlLex {
         }
 
         /**
-         * 输出行的全部列。
-         *
-         * @param row 行对象
-         * @return 列名到值的有序映射
+        * 输出行的全部列。
+        *
+        * @param row 行对象
+        * @return 列名到值的有序映射
          */
         static Map<String, Object> allColumns(Object row) {
             Map<String, Object> out = new LinkedHashMap<>();
@@ -214,12 +214,12 @@ final class MemorySqlLex {
         }
 
         /**
-          * 向行写入列值（映射 忽略大小写覆盖；Bean 走 setter）。
-         *
-         * @param row    行对象
-         * @param column 列名
-         * @param value  值
-         * @return 是否写入成功
+        * 向行写入列值（映射 忽略大小写覆盖；Bean 走 setter）。
+        *
+        * @param row    行对象
+        * @param column 列名
+        * @param value  值
+        * @return 是否写入成功
          */
         @SuppressWarnings("unchecked")
         static boolean setValue(Object row, String column, Object value) {
@@ -244,10 +244,10 @@ final class MemorySqlLex {
         }
 
         /**
-         * 依据值类型推断 setter 形参类型。
-         *
-         * @param v 值
-         * @return 对应的基本类型或运行时类型
+        * 依据值类型推断 setter 形参类型。
+        *
+        * @param v 值
+        * @return 对应的基本类型或运行时类型
          */
         private static Class<?> guessType(Object v) {
             if (v == null) {
@@ -269,12 +269,12 @@ final class MemorySqlLex {
         }
 
         /**
-          * 映射 行转 Bean 实例（反射 setter 注入）。
-         *
-         * @param row     结果行
-         * @param rowType 目标类型
-         * @param <T>     类型
-         * @return 实例
+        * 映射 行转 Bean 实例（反射 setter 注入）。
+        *
+        * @param row     结果行
+        * @param rowType 目标类型
+        * @param <T>     类型
+        * @return 实例
          */
         static <T> T toBean(Map<String, Object> row, Class<T> rowType) {
             try {
@@ -289,10 +289,10 @@ final class MemorySqlLex {
         }
 
         /**
-         * 由列名推导 getter 方法名。
-         *
-         * @param column 列名
-         * @return getter 名
+        * 由列名推导 getter 方法名。
+        *
+        * @param column 列名
+        * @return getter 名
          */
         private static String getterName(String column) {
             if (column.startsWith("is") && column.length() > 2) {

@@ -6,14 +6,14 @@ import lombok.Data;
 import java.util.*;
 
 /**
- * 表结构数据。
- * <p>
- * 描述数据库中的一张表（或视图）的结构信息，
- * 包含表名、注释和该表的列信息集合。
- * </p>
- *
- * @author CH
- * @since 4.0.0.41
+* 表结构数据。
+* <p>
+* 描述数据库中的一张表（或视图）的结构信息，
+* 包含表名、注释和该表的列信息集合。
+* </p>
+*
+* @author CH
+* @since 4.0.0.41
  */
 @Data
 @Builder
@@ -24,7 +24,7 @@ public class TableData {
 
     /** 模式名（schema） */
     /**
-     * Schema 名
+    * Schema 名
      */
     private String schema;
 
@@ -48,7 +48,7 @@ public class TableData {
 
     /** 对象类型：TABLE 或 VIEW */
     /**
-     * 类型
+    * 类型
      */
     private String type;
 }

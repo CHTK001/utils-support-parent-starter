@@ -13,32 +13,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 智能体 离线技能提供者抽象基类。
- *
- * <p>每个具体 agent（Cursor、Claude Code、Codex 等）子类声明自己的配置目录
- * 与 SPI 名称，扫描 {@code <configDir>/skills、rules、commands} 下的 SKILL.md 技能。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 智能体 离线技能提供者抽象基类。
+*
+* <p>每个具体 agent（Cursor、Claude Code、Codex 等）子类声明自己的配置目录
+* 与 SPI 名称，扫描 {@code <configDir>/skills、rules、commands} 下的 SKILL.md 技能。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineProvider {
 
     /**
-     * 用户主目录
+    * 用户主目录
      */
     protected static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
     /**
-      * 配置目录相对路径（如 .Cursor、.claude）。
-     *
-     * @return 配置目录
+    * 配置目录相对路径（如 .Cursor、.claude）。
+    *
+    * @return 配置目录
      */
     protected abstract String configDir();
 
     /**
-      * 工作区级 智能体 返回 true（如 编码buddy），主目录级返回 false。
-     *
-     * @return 是否工作区级
+    * 工作区级 智能体 返回 true（如 编码buddy），主目录级返回 false。
+    *
+    * @return 是否工作区级
      */
     protected boolean workspaceBased() {
         return false;
@@ -69,10 +69,10 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-      * 扫描目录下的技能（skills/rules/命令 子目录，SKILL.md 或单文件规则）。
-     *
-     * @param base   配置根目录
-     * @param result 结果收集器
+    * 扫描目录下的技能（skills/rules/命令 子目录，SKILL.md 或单文件规则）。
+    *
+    * @param base   配置根目录
+    * @param result 结果收集器
      */
     private void scanDirs(Path base, List<SkillDefinition> result) {
         if (!Files.isDirectory(base)) {
@@ -111,9 +111,9 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-      * 工作区级 智能体 向上查找配置目录（如 .codebuddy）。
-     *
-     * @return 找到的配置根目录；未找到返回 空
+    * 工作区级 智能体 向上查找配置目录（如 .codebuddy）。
+    *
+    * @return 找到的配置根目录；未找到返回 空
      */
     private Path findWorkspaceConfig() {
         Path current = Paths.get("").toAbsolutePath();
@@ -128,11 +128,11 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-      * 解析 SKILL.md 文件为 skilldefinition。
-     *
-     * @param skillMdFile SKILL.md 文件路径
-     * @param skillName   技能名称（目录名）
-     * @return SkillDefinition 实例；解析失败返回 空
+    * 解析 SKILL.md 文件为 skilldefinition。
+    *
+    * @param skillMdFile SKILL.md 文件路径
+    * @param skillName   技能名称（目录名）
+    * @return SkillDefinition 实例；解析失败返回 空
      */
     private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
         try {
@@ -157,14 +157,14 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-     * 解析技能在本机的真实落盘位置。
-     *
-     * <p>在与 {@link #listAgentSkills()} 相同的目录下（{@code skills/rules/commands}）
-     * 查找与技能名匹配的目录（含 SKILL.md/skill.md）或单文件规则（{@code <name>.md/.mdc}），
-     * 供后端将 {@code agent://PROVIDER/SKILL} 虚拟地址解析为可导入路径。</p>
-     *
-     * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
-     * @return 落盘路径；找不到返回 空
+    * 解析技能在本机的真实落盘位置。
+    *
+    * <p>在与 {@link #listAgentSkills()} 相同的目录下（{@code skills/rules/commands}）
+    * 查找与技能名匹配的目录（含 SKILL.md/skill.md）或单文件规则（{@code <name>.md/.mdc}），
+    * 供后端将 {@code agent://PROVIDER/SKILL} 虚拟地址解析为可导入路径。</p>
+    *
+    * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
+    * @return 落盘路径；找不到返回 空
      */
     @Override
     public Path resolveSkillPath(String skillName) {

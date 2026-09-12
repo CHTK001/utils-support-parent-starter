@@ -13,58 +13,58 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
- * 通用静态资源服务过滤器。
- *
- * <p>将 classpath 或文件系统目录中的静态资源（Vue/React 构建产物、图片、JS/CSS 等）
- * 通过 HTTP 对外提供。支持配置 URL 前缀与资源根路径：</p>
- *
- * <pre>{@code
- * // 示例：提供 classpath 下 static/fs/ 目录，挂载在 /fs 前缀
- * StaticResourceServerFilter filter = new StaticResourceServerFilter("/fs", "static/fs");
- * }</pre>
- *
- * <p>行为：</p>
- * <ul>
- *   <li>{@code GET /fs/index.html} → classpath {@code static/fs/index.html}</li>
- *   <li>{@code GET /fs/} 或 {@code GET /fs} → 默认返回 {@code index.html}（SPA 壳）</li>
- *   <li>{@code GET /fs/assets/app.js} → classpath {@code static/fs/assets/app.js}</li>
- *   <li>资源不存在时继续走过滤器链（放行），供业务路由兜底</li>
- * </ul>
- *
- * <p>配置参数（通过 {@link #init(ServerFilterConfig)} 注入）：</p>
- * <ul>
- *   <li>{@code urlPrefix} — URL 前缀，默认 {@code /static}</li>
- *   <li>{@code resourcePath} — classpath 资源根目录，默认 {@code static}</li>
- *   <li>{@code fsRoot} — 可选文件系统根目录（优先于 classpath）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 通用静态资源服务过滤器。
+*
+* <p>将 classpath 或文件系统目录中的静态资源（Vue/React 构建产物、图片、JS/CSS 等）
+* 通过 HTTP 对外提供。支持配置 URL 前缀与资源根路径：</p>
+*
+* <pre>{@code
+* // 示例：提供 classpath 下 static/fs/ 目录，挂载在 /fs 前缀
+* StaticResourceServerFilter filter = new StaticResourceServerFilter("/fs", "static/fs");
+* }</pre>
+*
+* <p>行为：</p>
+* <ul>
+*   <li>{@code GET /fs/index.html} → classpath {@code static/fs/index.html}</li>
+*   <li>{@code GET /fs/} 或 {@code GET /fs} → 默认返回 {@code index.html}（SPA 壳）</li>
+*   <li>{@code GET /fs/assets/app.js} → classpath {@code static/fs/assets/app.js}</li>
+*   <li>资源不存在时继续走过滤器链（放行），供业务路由兜底</li>
+* </ul>
+*
+* <p>配置参数（通过 {@link #init(ServerFilterConfig)} 注入）：</p>
+* <ul>
+*   <li>{@code urlPrefix} — URL 前缀，默认 {@code /static}</li>
+*   <li>{@code resourcePath} — classpath 资源根目录，默认 {@code static}</li>
+*   <li>{@code fsRoot} — 可选文件系统根目录（优先于 classpath）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class StaticResourceServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
-     * URL 前缀（如 /fs）
+    * URL 前缀（如 /fs）
      */
     private volatile String urlPrefix = "/static";
 
     /**
-     * classpath 资源根目录（如 static）
+    * classpath 资源根目录（如 static）
      */
     private volatile String resourcePath = "static";
 
     /**
-     * 文件系统根目录（可选，非空时优先读取磁盘文件）
+    * 文件系统根目录（可选，非空时优先读取磁盘文件）
      */
     private volatile Path fsRoot;
 
     /**
-     * 索引文件名（SPA 壳）
+    * 索引文件名（SPA 壳）
      */
     private volatile String indexFile = "index.html";
 
     /**
-     * 默认首页重定向（可选，如 /fs → /fs/）
+    * 默认首页重定向（可选，如 /fs → /fs/）
      */
     private volatile boolean redirectToIndex = true;
 
@@ -73,10 +73,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 创建过滤器。
-     *
-     * @param urlPrefix    URL 前缀（如 /fs）
-     * @param resourcePath classpath 资源根目录（如 static）
+    * 创建过滤器。
+    *
+    * @param urlPrefix    URL 前缀（如 /fs）
+    * @param resourcePath classpath 资源根目录（如 static）
      */
     public StaticResourceServerFilter(String urlPrefix, String resourcePath) {
         this.urlPrefix = normalizePrefix(urlPrefix);
@@ -149,7 +149,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 执行过滤逻辑。
+    * 执行过滤逻辑。
      */
     private CompletionStage<Void> doReactiveFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         String path = request.getPath();
@@ -195,10 +195,10 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 加载资源：优先文件系统，其次 classpath。
-     *
-     * @param resourceKey 资源相对路径
-     * @return 内容字节，不存在返回 null
+    * 加载资源：优先文件系统，其次 classpath。
+    *
+    * @param resourceKey 资源相对路径
+    * @return 内容字节，不存在返回 null
      */
     private byte[] loadResource(String resourceKey) {
         if (fsRoot != null) {
@@ -223,7 +223,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 推断静态资源 Content-Type。
+    * 推断静态资源 Content-Type。
      */
     private String guessContentType(String name) {
         String lower = name.toLowerCase();
@@ -248,7 +248,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 规范化 URL 前缀（确保以 / 开头、不以 / 结尾）。
+    * 规范化 URL 前缀（确保以 / 开头、不以 / 结尾）。
      */
     private static String normalizePrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
@@ -262,7 +262,7 @@ public class StaticResourceServerFilter implements ServerFilter, ReactiveServerF
     }
 
     /**
-     * 放行到后续过滤器链。
+    * 放行到后续过滤器链。
      */
     private static CompletionStage<Void> passthrough(ServerRequest request, ServerResponse response, ReactiveFilterChain chain) {
         try {

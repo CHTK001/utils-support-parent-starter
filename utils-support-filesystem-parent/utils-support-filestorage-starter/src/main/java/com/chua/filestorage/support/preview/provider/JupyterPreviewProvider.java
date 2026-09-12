@@ -17,12 +17,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Jupyter Notebook (IPYNB) 预览提供器。
- * <p>SPI 类型：{@code preview-jupyter}。解析 nbformat JSON 并渲染为单元格列表，
- * 支持 Markdown 与代码单元格及其执行输出。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Jupyter Notebook (IPYNB) 预览提供器。
+* <p>SPI 类型：{@code preview-jupyter}。解析 nbformat JSON 并渲染为单元格列表，
+* 支持 Markdown 与代码单元格及其执行输出。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-jupyter")
 public class JupyterPreviewProvider implements FileStoragePreviewProvider {
@@ -49,10 +49,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 读取 Notebook 标题（首个 Markdown 一级标题或文件名占位）。
-     *
-     * @param root nbformat 根节点
-     * @return 笔记本标题；未找到时返回默认标题
+    * 读取 Notebook 标题（首个 Markdown 一级标题或文件名占位）。
+    *
+    * @param root nbformat 根节点
+    * @return 笔记本标题；未找到时返回默认标题
      */
     private String readTitle(JsonNode root) {
         JsonNode cells = root.path("cells");
@@ -73,10 +73,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解析所有单元格。
-     *
-     * @param root nbformat 根节点
-     * @return 单元格信息列表
+    * 解析所有单元格。
+    *
+    * @param root nbformat 根节点
+    * @return 单元格信息列表
      */
     private List<CellInfo> parseCells(JsonNode root) {
         List<CellInfo> cells = new ArrayList<>();
@@ -101,10 +101,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * 读取单元格源码（源 可为字符串或字符串数组）。
-     *
-     * @param cell 单元格节点
-     * @return 拼接后的源码；缺失时返回 空
+    * 读取单元格源码（源 可为字符串或字符串数组）。
+    *
+    * @param cell 单元格节点
+    * @return 拼接后的源码；缺失时返回 空
      */
     private String readSource(JsonNode cell) {
         JsonNode sourceNode = cell.path("source");
@@ -127,10 +127,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 读取代码单元格的文本形式输出。
-     *
-     * @param outputsNode 输出数组节点
-     * @return 输出内容列表
+    * 读取代码单元格的文本形式输出。
+    *
+    * @param outputsNode 输出数组节点
+    * @return 输出内容列表
      */
     private List<String> readOutputs(JsonNode outputsNode) {
         List<String> outputs = new ArrayList<>();
@@ -168,11 +168,11 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 追加纯文本输出。
-     *
-     * @param outputs 输出容器
-     * @param output  输出节点
-     * @param field   文本字段名
+    * 追加纯文本输出。
+    *
+    * @param outputs 输出容器
+    * @param output  输出节点
+    * @param field   文本字段名
      */
     private void appendTextOutput(List<String> outputs, JsonNode output, String field) {
         JsonNode text = output.path(field);
@@ -192,10 +192,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * 追加 数据 中的纯文本回复（优先 文本/plain，无则取首个字符串类型值）。
-     *
-     * @param outputs 输出容器
-     * @param output  输出节点
+    * 追加 数据 中的纯文本回复（优先 文本/plain，无则取首个字符串类型值）。
+    *
+    * @param outputs 输出容器
+    * @param output  输出节点
      */
     private void appendDataOutput(List<String> outputs, JsonNode output) {
         JsonNode data = output.path("data");
@@ -220,12 +220,12 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建预览 HTML。
-     *
-     * @param title 笔记本标题
-     * @param cells 单元格列表
-     * @param size  文件大小
-     * @return 完整 HTML
+    * 构建预览 HTML。
+    *
+    * @param title 笔记本标题
+    * @param cells 单元格列表
+    * @param size  文件大小
+    * @return 完整 HTML
      */
     private String buildHtml(String title, List<CellInfo> cells, long size) {
         StringBuilder sb = new StringBuilder();
@@ -267,10 +267,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 渲染单个单元格。
-     *
-     * @param sb   输出缓冲区
-     * @param cell 单元格信息
+    * 渲染单个单元格。
+    *
+    * @param sb   输出缓冲区
+    * @param cell 单元格信息
      */
     private void renderCell(StringBuilder sb, CellInfo cell) {
         boolean isMarkdown = "markdown".equals(cell.type);
@@ -297,10 +297,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 轻量渲染 Markdown 子集（标题、代码块、列表、引用、行内代码）。
-     *
-     * @param source Markdown 源码
-     * @return 渲染后的 HTML 片段
+    * 轻量渲染 Markdown 子集（标题、代码块、列表、引用、行内代码）。
+    *
+    * @param source Markdown 源码
+    * @return 渲染后的 HTML 片段
      */
     private String renderMarkdown(String source) {
         StringBuilder sb = new StringBuilder();
@@ -344,10 +344,10 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 渲染行内 Markdown 片段（粗体、斜体、行内代码）。
-     *
-     * @param text 行内文本
-     * @return 渲染后的 HTML 片段
+    * 渲染行内 Markdown 片段（粗体、斜体、行内代码）。
+    *
+    * @param text 行内文本
+    * @return 渲染后的 HTML 片段
      */
     private String renderInline(String text) {
         String inner = escape(text);
@@ -357,33 +357,33 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * HTML 转义。
-     *
-     * @param text 原始文本
-     * @return 转义后的文本
+    * HTML 转义。
+    *
+    * @param text 原始文本
+    * @return 转义后的文本
      */
     private String escape(String text) {
         return StringUtils.escapeHtml(text);
     }
 
     /**
-     * 将字节数转为可读大小。
-     *
-     * @param bytes 字节数
-     * @return 格式化后的大小文本
+    * 将字节数转为可读大小。
+    *
+    * @param bytes 字节数
+    * @return 格式化后的大小文本
      */
     private String readableSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
 
     /**
-     * 单元格信息。
-     *
-     * @param type           单元格类型（markdown / 编码）
-     * @param source         单元格源码
-     * @param outputs        代码输出内容列表
-     * @param executionCount 执行计数（-1 表示未执行）
-     * @return cell信息的结果
+    * 单元格信息。
+    *
+    * @param type           单元格类型（markdown / 编码）
+    * @param source         单元格源码
+    * @param outputs        代码输出内容列表
+    * @param executionCount 执行计数（-1 表示未执行）
+    * @return cell信息的结果
      */
     private record CellInfo(String type, String source, List<String> outputs, int executionCount) {
     }

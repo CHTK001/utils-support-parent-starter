@@ -13,20 +13,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * JSONL (JSON Lines) 配置文件解析器
- * <p>
- * JSONL 格式每行一个独立 JSON 对象，逐行解析后合并为统一 PropertySource。
- * 支持空行和以 // 开头的注释行自动跳过。
- * </p>
- *
- * <pre>{@code
- * {"server.port": 8080}
- * {"server.host": "localhost"}
- * {"db.url": "jdbc:h2:mem:test"}
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* JSONL (JSON Lines) 配置文件解析器
+* <p>
+* JSONL 格式每行一个独立 JSON 对象，逐行解析后合并为统一 PropertySource。
+* 支持空行和以 // 开头的注释行自动跳过。
+* </p>
+*
+* <pre>{@code
+* {"server.port": 8080}
+* {"server.host": "localhost"}
+* {"db.url": "jdbc:h2:mem:test"}
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("jsonl")

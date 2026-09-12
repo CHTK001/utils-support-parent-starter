@@ -22,16 +22,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-   * Muou 摸鱼视频搜索 提供者
-   * 移植自 pansou/plugin/muou (Fish2018/pansou)
- *
- * <p>两阶段抓取：先搜索列表，再逐条访问详情页提取网盘链接。
-   * 支持的网盘：百度/夸克/阿里/迅雷/UC/115/123/pikpak/磁力/ed2k 等。</p>
- *
- * <p>数据源为海外站(666.666291.xyz)，请求经 {@link ProxyHttpClient}
- * （内部通过 {@code ProxyFetcherFlow} 获取代理，获取失败自动无代理兜底）。</p>
- * @author CH
- * @since 4.0.0
+* Muou 摸鱼视频搜索 提供者
+* 移植自 pansou/plugin/muou (Fish2018/pansou)
+*
+* <p>两阶段抓取：先搜索列表，再逐条访问详情页提取网盘链接。
+* 支持的网盘：百度/夸克/阿里/迅雷/UC/115/123/pikpak/磁力/ed2k 等。</p>
+*
+* <p>数据源为海外站(666.666291.xyz)，请求经 {@link ProxyHttpClient}
+* （内部通过 {@code ProxyFetcherFlow} 获取代理，获取失败自动无代理兜底）。</p>
+* @author CH
+* @since 4.0.0
  */
 @Spi("muou")
 public class MuouResourceProvider extends AbstractResourceProvider {
@@ -52,12 +52,12 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     private static final Pattern MAGNET = Pattern.compile("magnet:\\?xt=urn:btih:[0-9a-fA-F]{40}");
 
     /**
-     * muouresource提供者。
+    * muouresource提供者。
      */
     public MuouResourceProvider() { super(); }
     /**
-     * muouresource提供者。
-     * @param vs vs
+    * muouresource提供者。
+    * @param vs vs
      */
     public MuouResourceProvider(VideoSource vs) { super(vs); }
 
@@ -110,10 +110,10 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 获取detail。
-     * @param client 客户端
-     * @param id 标识
-     * @return 获取detail的结果
+    * 获取detail。
+    * @param client 客户端
+    * @param id 标识
+    * @return 获取detail的结果
      */
     private VideoInfoResult fetchDetail(HttpClient client, String id) {
         try {
@@ -142,9 +142,9 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-      * extracttitle。
-     * @param html HTML
-     * @return extractTitle的结果
+    * extracttitle。
+    * @param html HTML
+    * @return extractTitle的结果
      */
     private String extractTitle(String html) {
         Matcher m = Pattern.compile("<h1[^>]*>([^<]+)</h1>").matcher(html);
@@ -159,9 +159,9 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * extractnetdisk链接。
-     * @param html HTML
-     * @return extractnetdisk链接的结果
+    * extractnetdisk链接。
+    * @param html HTML
+    * @return extractnetdisk链接的结果
      */
     private String extractNetdiskLinks(String html) {
         StringBuilder sb = new StringBuilder();
@@ -179,11 +179,11 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 追加链接。
-     * @param sb sb
-     * @param p p
-     * @param type 类型
-     * @param html HTML
+    * 追加链接。
+    * @param sb sb
+    * @param p p
+    * @param type 类型
+    * @param html HTML
      */
     private void appendLinks(StringBuilder sb, Pattern p, String type, String html) {
         Set<String> seen = new LinkedHashSet<>();

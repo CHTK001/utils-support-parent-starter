@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 /**
- * 智能体调试middleware类。
- *
- * @author CH
- * @since 4.0.0
- * @param v v
- * @return safeLong的结果
- * @param event 事件
+* 智能体调试middleware类。
+*
+* @author CH
+* @since 4.0.0
+* @param v v
+* @return safeLong的结果
+* @param event 事件
  */
 
 public class AgentDebugMiddleware implements MiddlewareBase {
@@ -74,9 +74,9 @@ public class AgentDebugMiddleware implements MiddlewareBase {
                                        Function<io.agentscope.core.middleware.ActingInput, Flux<AgentEvent>> next) {
         log.debug("[Middleware] onAgent called, onReasoning called, onActing called");
         /**
-         * on事件。
-         * @param event 事件
-         * @return resolvetool名称的结果
+        * on事件。
+        * @param event 事件
+        * @return resolvetool名称的结果
          */
         return next.apply(input).doOnEach(signal -> { if (!signal.isOnError() && signal.get() != null) onEvent(signal.get()); });
     }
@@ -151,11 +151,11 @@ public class AgentDebugMiddleware implements MiddlewareBase {
         }
         return null;
     /**
-     * 是否planrelated。
-     * @param type 类型
-     * @param toolName tool名称
-     * @return 是否planrelated的结果
-     * @param v v
+    * 是否planrelated。
+    * @param type 类型
+    * @param toolName tool名称
+    * @return 是否planrelated的结果
+    * @param v v
      */
     }
 

@@ -4,11 +4,11 @@ import com.chua.deeplearning.support.engine.ModelRegistrar;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 
 /**
- * GPU Llama3 模型集中注册器。
- * <p>通过 SPI 被主框架加载；注册 Llama 3 模型元数据供 ModelRegistry 使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* GPU Llama3 模型集中注册器。
+* <p>通过 SPI 被主框架加载；注册 Llama 3 模型元数据供 ModelRegistry 使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class GpuLlama3ModelRegistrar implements ModelRegistrar {
 
@@ -17,7 +17,7 @@ public class GpuLlama3ModelRegistrar implements ModelRegistrar {
     }
 
     /**
-     * {@inheritDoc}
+    * {@inheritDoc}
      */
     @Override
     public void register(ModelRegistry registry) {
@@ -25,7 +25,7 @@ public class GpuLlama3ModelRegistrar implements ModelRegistrar {
     }
 
     /**
-     * 注册全部内置 GPU Llama3 模型元数据到 {@link ModelRegistry}，已注册则跳过。
+    * 注册全部内置 GPU Llama3 模型元数据到 {@link ModelRegistry}，已注册则跳过。
      */
     private static void registerAll() {
         // llama-3-8b-it: text generation (GPU)
@@ -52,7 +52,7 @@ public class GpuLlama3ModelRegistrar implements ModelRegistrar {
     }
 
     /**
-     * 注册单条模型元数据，已存在则跳过。
+    * 注册单条模型元数据，已存在则跳过。
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

@@ -13,12 +13,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-   * mailnest 临时邮箱服务实现（付费）。
- *
- * <p>注册地址：https://mailnest.top</p>
- *
- * @author CH
- * @since 4.0.0.42
+* mailnest 临时邮箱服务实现（付费）。
+*
+* <p>注册地址：https://mailnest.top</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("mailnest")
@@ -32,7 +32,7 @@ public class MailNestEmailProvider implements EmailProvider {
     private final String projectCode; // project编码
 
     /**
-     * mailnestemail提供者。
+    * mailnestemail提供者。
      */
     public MailNestEmailProvider() {
         this.apiKey = resolveEnv("MAILNEST_API_KEY", "");
@@ -129,10 +129,10 @@ public class MailNestEmailProvider implements EmailProvider {
     }
 
     /**
-      * resolveenv。
-     * @param key 键
-     * @param def def
-     * @return resolveEnv的结果
+    * resolveenv。
+    * @param key 键
+    * @param def def
+    * @return resolveEnv的结果
      */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);

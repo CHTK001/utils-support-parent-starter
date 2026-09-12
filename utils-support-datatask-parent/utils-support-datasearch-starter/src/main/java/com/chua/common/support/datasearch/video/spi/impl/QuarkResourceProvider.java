@@ -17,37 +17,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 夸克盘 (quark) 网盘搜索提供器
- *
- * @author CH
- * @since 4.0.0.42
- * @param html HTML
- * @param results 结果
+* 夸克盘 (quark) 网盘搜索提供器
+*
+* @author CH
+* @since 4.0.0.42
+* @param html HTML
+* @param results 结果
  */
 @Spi("quark")
 public class QuarkResourceProvider extends AbstractResourceProvider {
 
     /**
-     * quarkresource提供者。
+    * quarkresource提供者。
      */
     private static final String API_URL = "https://pan.quark.cn/s/search?kw=";
 /**
- * quarkresource提供者。
- * @param vs vs
+* quarkresource提供者。
+* @param vs vs
  */
 
     public QuarkResourceProvider() { super(); }
     /**
-     * quarkresource提供者。
-     * @param vs vs
+    * quarkresource提供者。
+    * @param vs vs
      */
     public QuarkResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
 /**
- * 搜索resource。
- * @param videoSearch 视频搜索
- * @return 搜索resource的结果
- * @param html html
- * @param results 结果
+* 搜索resource。
+* @param videoSearch 视频搜索
+* @return 搜索resource的结果
+* @param html html
+* @param results 结果
  */
 
     @Override

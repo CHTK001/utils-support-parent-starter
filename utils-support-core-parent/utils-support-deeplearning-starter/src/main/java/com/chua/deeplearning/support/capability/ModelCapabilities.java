@@ -39,15 +39,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 模型能力标签常量与能力接口映射工具。
- *
- * <p>统一模型注册时的能力声明：将能力接口（capabilityInterface）映射为
- * 标准能力标签字符串（如 {@code detect} / {@code feature} / {@code classify} / {@code enhance} 等），
- * 写入 {@link com.chua.common.support.ai.chat.ModelDefinition#getCapabilities()}，
- * 供统一能力清单、前端按能力筛选与分组使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 模型能力标签常量与能力接口映射工具。
+*
+* <p>统一模型注册时的能力声明：将能力接口（capabilityInterface）映射为
+* 标准能力标签字符串（如 {@code detect} / {@code feature} / {@code classify} / {@code enhance} 等），
+* 写入 {@link com.chua.common.support.ai.chat.ModelDefinition#getCapabilities()}，
+* 供统一能力清单、前端按能力筛选与分组使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class ModelCapabilities {
 
@@ -160,7 +160,7 @@ public final class ModelCapabilities {
     public static final String AGENT = "agent";
 
     /**
-     * 能力接口 → 能力标签 映射。
+    * 能力接口 → 能力标签 映射。
      */
     private static final Map<Class<?>, String> CAPABILITY_LABELS = Map.ofEntries(
             Map.entry(FaceDetector.class, DETECT),
@@ -204,10 +204,10 @@ public final class ModelCapabilities {
     }
 
     /**
-     * 将能力接口映射为能力标签。
-     *
-     * @param capabilityInterface 能力接口，可能为 空
-     * @return 能力标签；无法识别返回 空
+    * 将能力接口映射为能力标签。
+    *
+    * @param capabilityInterface 能力接口，可能为 空
+    * @return 能力标签；无法识别返回 空
      */
     public static String labelOf(Class<?> capabilityInterface) {
         if (capabilityInterface == null) {
@@ -227,9 +227,9 @@ public final class ModelCapabilities {
     }
 
     /**
-     * 获取全部能力标签。
-     *
-     * @return 能力标签列表
+    * 获取全部能力标签。
+    *
+    * @return 能力标签列表
      */
     public static List<String> allLabels() {
         return List.copyOf(new java.util.LinkedHashSet<>(CAPABILITY_LABELS.values()));

@@ -29,16 +29,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-   * 微信 i链接 机器人 客户端。
- *
- * <p>基于 {@code https://ilinkai.weixin.qq.com} 的 Bot API，
- * 支持扫码登录、长轮询接收消息、文本/媒体发送。</p>
- *
- * <p>登录流程：{@code loginWithQR()} 获取二维码（bot_type=3）→ 用户微信扫码确认 →
-   * 获得 机器人令牌 / 机器人id。登录成功后通过长轮询接收消息，使用 上下文_令牌 回复。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 微信 i链接 机器人 客户端。
+*
+* <p>基于 {@code https://ilinkai.weixin.qq.com} 的 Bot API，
+* 支持扫码登录、长轮询接收消息、文本/媒体发送。</p>
+*
+* <p>登录流程：{@code loginWithQR()} 获取二维码（bot_type=3）→ 用户微信扫码确认 →
+* 获得 机器人令牌 / 机器人id。登录成功后通过长轮询接收消息，使用 上下文_令牌 回复。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ILinkBotClient implements BotClient {
@@ -101,16 +101,16 @@ public class ILinkBotClient implements BotClient {
     private final HttpClient httpClient = HttpClientFactory.getClient();
 
     /**
-      * 创建 i链接机器人客户端
+    * 创建 i链接机器人客户端
      */
     public ILinkBotClient() {
     }
 
     /**
-     * 设置二维码监听器（用于前端展示二维码）。
-     *
-     * @param listener 监听器
-     * @return this
+    * 设置二维码监听器（用于前端展示二维码）。
+    *
+    * @param listener 监听器
+    * @return this
      */
     public ILinkBotClient qrcodeListener(QrcodeListener listener) {
         this.qrcodeListener = listener;
@@ -118,17 +118,17 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 扫码登录并启动消息轮询。
-     *
-     * <p>基于 iLink 官方协议：
-     * <ol>
-     *   <li>{@code GET /ilink/bot/get_bot_qrcode?bot_type=3} 获取二维码；</li>
-     *   <li>长轮询 {@code GET /ilink/bot/get_qrcode_status?qrcode=xxx} 等待用户扫码确认
-     *   （单次最长约 35s，状态机 wait → scanned → confirmed / expired）；</li>
-     *   <li>confirmed 响应直接携带 botToken / botId，无需额外登录接口。</li>
-     * </ol></p>
-     *
-     * @return botId，登录失败返回 空
+    * 扫码登录并启动消息轮询。
+    *
+    * <p>基于 iLink 官方协议：
+    * <ol>
+    *   <li>{@code GET /ilink/bot/get_bot_qrcode?bot_type=3} 获取二维码；</li>
+    *   <li>长轮询 {@code GET /ilink/bot/get_qrcode_status?qrcode=xxx} 等待用户扫码确认
+    *   （单次最长约 35s，状态机 wait → scanned → confirmed / expired）；</li>
+    *   <li>confirmed 响应直接携带 botToken / botId，无需额外登录接口。</li>
+    * </ol></p>
+    *
+    * @return botId，登录失败返回 空
      */
     public String loginWithQR() {
         try {
@@ -194,7 +194,7 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 启动消息轮询（阻塞式，建议在独立线程调用）。
+    * 启动消息轮询（阻塞式，建议在独立线程调用）。
      */
     public void startPolling() {
         running.set(true);
@@ -224,7 +224,7 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 停止运行。
+    * 停止运行。
      */
     public void shutdown() {
         running.set(false);
@@ -378,16 +378,16 @@ public class ILinkBotClient implements BotClient {
     // ==================== 私有方法 ====================
 
     /**
-      * 发送带 上下文_令牌 的文本消息到指定用户。
-     *
-     * <p>iLink 协议要求 POST /ilink/bot/sendmessage，
-      * 请求头需携带 机器人_令牌 与 X-WECHAT-UIN，
-      * 请求体为 {@code {"msg": {...}, "基础_信息": {...}}} 包裹结构。</p>
-     *
-     * @param toUser 目标用户
-     * @param body   文本内容
-     * @return 发送结果
-     * @param content 内容
+    * 发送带 上下文_令牌 的文本消息到指定用户。
+    *
+    * <p>iLink 协议要求 POST /ilink/bot/sendmessage，
+    * 请求头需携带 机器人_令牌 与 X-WECHAT-UIN，
+    * 请求体为 {@code {"msg": {...}, "基础_信息": {...}}} 包裹结构。</p>
+    *
+    * @param toUser 目标用户
+    * @param body   文本内容
+    * @return 发送结果
+    * @param content 内容
      */
     private BotSendResult sendWithToken(String toUser, String content) {
         try {
@@ -432,34 +432,34 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 构建文本消息体。
-     *
-     * @param content 文本内容
-     * @return 文本内容字符串
+    * 构建文本消息体。
+    *
+    * @param content 文本内容
+    * @return 文本内容字符串
      */
     private String buildTextBody(String content) {
         return content;
     }
 
     /**
-     * 发送媒体消息。
-     *
-     * @param toUser    目标用户
-     * @param mediaType 媒体类型
-     * @param mediaPath 媒体路径
-     * @return 发送结果
+    * 发送媒体消息。
+    *
+    * @param toUser    目标用户
+    * @param mediaType 媒体类型
+    * @param mediaPath 媒体路径
+    * @return 发送结果
      */
     private BotSendResult sendMedia(String toUser, String mediaType, String mediaPath) {
         return BotSendResult.fail(-1, "媒体发送暂不支持");
     }
 
     /**
-     * 长轮询获取新消息。
-     *
-     * <p>iLink 协议要求 POST /ilink/bot/getupdates，
-      * 请求体携带 基础_信息 与 获取_更新_buf 游标。</p>
-     *
-     * @return 入站消息列表
+    * 长轮询获取新消息。
+    *
+    * <p>iLink 协议要求 POST /ilink/bot/getupdates，
+    * 请求体携带 基础_信息 与 获取_更新_buf 游标。</p>
+    *
+    * @return 入站消息列表
      */
     private List<BotInboundMessage> pollMessages() {
         List<BotInboundMessage> result = new ArrayList<>();
@@ -526,10 +526,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 从嵌套结构提取文本内容。
-     *
-     * @param msg 消息映射
-     * @return 文本内容或空字符串
+    * 从嵌套结构提取文本内容。
+    *
+    * @param msg 消息映射
+    * @return 文本内容或空字符串
      */
     private String extractNestedText(Map<String, Object> msg) {
         var itemList = msg.get("item_list");
@@ -546,13 +546,13 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 发送 POST 请求并解析 JSON 响应。
-     *
-     * <p>携带 iLink 协议要求的鉴权头（ilink_bot_token + X-WECHAT-UIN）。</p>
-     *
-     * @param path API 路径
-     * @param body 请求体对象
-     * @return 响应映射，解析失败返回空 映射
+    * 发送 POST 请求并解析 JSON 响应。
+    *
+    * <p>携带 iLink 协议要求的鉴权头（ilink_bot_token + X-WECHAT-UIN）。</p>
+    *
+    * @param path API 路径
+    * @param body 请求体对象
+    * @return 响应映射，解析失败返回空 映射
      */
     private Map<String, Object> apiPost(String path, Object body) {
         ClientRequest request = ClientRequest.of(baseUrl + path, HttpMethod.POST)
@@ -564,10 +564,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 发送 获取 请求并解析 JSON 响应。
-     *
-     * @param pathAndQuery 带查询参数的路径
-     * @return 响应映射，解析失败返回空 映射
+    * 发送 获取 请求并解析 JSON 响应。
+    *
+    * @param pathAndQuery 带查询参数的路径
+    * @return 响应映射，解析失败返回空 映射
      */
     private Map<String, Object> apiGet(String pathAndQuery) {
         ClientRequest request = ClientRequest.of(baseUrl + pathAndQuery, HttpMethod.GET);
@@ -582,10 +582,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 为业务 POST 请求附加 i链接 协议鉴权头。
-     *
-     * <p>仅当已登录（token 非空）时附加 bot_token 鉴权；X-WECHAT-UIN 每次随机生成。</p>
-     * @param request 请求
+    * 为业务 POST 请求附加 i链接 协议鉴权头。
+    *
+    * <p>仅当已登录（token 非空）时附加 bot_token 鉴权；X-WECHAT-UIN 每次随机生成。</p>
+    * @param request 请求
      */
     private void applyAuthHeaders(ClientRequest request) {
         request.setConnectTimeout(connectTimeoutMillis);
@@ -599,8 +599,8 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 附加 i链接 应用标识头（官方 openclaw-weixin 协议要求）。
-     * @param request 请求
+    * 附加 i链接 应用标识头（官方 openclaw-weixin 协议要求）。
+    * @param request 请求
      */
     private static void applyCommonHeaders(ClientRequest request) {
         request.header("iLink-App-Id", ILINK_APP_ID);
@@ -608,8 +608,8 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 生成 X-WECHAT-UIN：随机 uint32 → 基础64。
-     * @return wechatUin的结果
+    * 生成 X-WECHAT-UIN：随机 uint32 → 基础64。
+    * @return wechatUin的结果
      */
     private static String wechatUin() {
  // 协议：4 随机 bytes → uint32 十进制字符串 → 基础64
@@ -620,10 +620,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 安全解析 JSON 为 映射，失败时返回空 映射。
-     *
-     * @param body JSON 字符串
-     * @return 解析结果，异常时返回 {@link Map#of()}
+    * 安全解析 JSON 为 映射，失败时返回空 映射。
+    *
+    * @param body JSON 字符串
+    * @return 解析结果，异常时返回 {@link Map#of()}
      */
     private static Map<String, Object> safeParse(String body) {
         try {
@@ -634,10 +634,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 从映射中提取字符串值。
-     * @param map 映射
-     * @param key 键
-     * @return 获取字符串的结果
+    * 从映射中提取字符串值。
+    * @param map 映射
+    * @param key 键
+    * @return 获取字符串的结果
      */
     private static String getString(Map<String, Object> map, String key) {
         if (map == null || !map.containsKey(key)) {
@@ -648,11 +648,11 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 从映射中提取 int 值，缺省返回 默认val。
-     * @param map 映射
-     * @param key 键
-     * @param defaultVal 默认val
-     * @return intVal的结果
+    * 从映射中提取 int 值，缺省返回 默认val。
+    * @param map 映射
+    * @param key 键
+    * @param defaultVal 默认val
+    * @return intVal的结果
      */
     private static int intVal(Map<String, Object> map, String key, int defaultVal) {
         if (map == null || !map.containsKey(key)) {
@@ -670,10 +670,10 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-      * 从映射中提取第一个非空字符串值（兼容 snake_大小写 与驼峰字段名）。
-     * @param map 映射
-     * @param keys 键
-     * @return 第一个nonblank的结果
+    * 从映射中提取第一个非空字符串值（兼容 snake_大小写 与驼峰字段名）。
+    * @param map 映射
+    * @param keys 键
+    * @return 第一个nonblank的结果
      */
     private static String firstNonBlank(Map<String, Object> map, String... keys) {
         if (map == null) {
@@ -689,9 +689,9 @@ public class ILinkBotClient implements BotClient {
     }
 
     /**
-     * 安静休眠。
-     *
-     * @param millis 毫秒数
+    * 安静休眠。
+    *
+    * @param millis 毫秒数
      */
     private static void sleepQuietly(long millis) {
         try { Thread.sleep(millis); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }

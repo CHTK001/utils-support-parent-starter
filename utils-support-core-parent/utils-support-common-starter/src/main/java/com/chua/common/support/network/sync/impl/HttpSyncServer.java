@@ -20,13 +20,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 JDK HttpServer 的 HTTP 同步服务端实现。
- * <p>
- * 提供主题发布、客户端消息拉取等能力。
- * </p>
- *
- * @author CH
- * @since 2026-07-25
+* 基于 JDK HttpServer 的 HTTP 同步服务端实现。
+* <p>
+* 提供主题发布、客户端消息拉取等能力。
+* </p>
+*
+* @author CH
+* @since 2026-07-25
  */
 @Spi("http")
 public class HttpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
@@ -51,36 +51,36 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 客户端注册表（clientId -> metadata）
+    * 客户端注册表（clientId -> metadata）
      */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
 
     /**
-     * 消息队列（topic -> queue of message）
+    * 消息队列（topic -> queue of message）
      */
     private final Map<String, java.util.Queue<String>> messageQueues = new ConcurrentHashMap<>();
 
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final List<SyncServerListener> listeners = new ArrayList<>();
 
     /**
-     * HTTP 服务器
+    * HTTP 服务器
      */
     private com.sun.net.httpserver.HttpServer server;
 
     /**
-     * 创建 HTTP 同步服务端 (默认配置)。
+    * 创建 HTTP 同步服务端 (默认配置)。
      */
     public HttpSyncServer() {
         this(ServerSetting.defaults());
     }
 
     /**
-     * 创建 HTTP 同步服务端。
-     *
-     * @param setting 服务端配置
+    * 创建 HTTP 同步服务端。
+    *
+    * @param setting 服务端配置
      */
     public HttpSyncServer(ServerSetting setting) {
         super(setting);
@@ -225,7 +225,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     // ==================== 内部方法 ====================
 
     /**
-     * 拉取消息（阻塞直到有消息或超时）
+    * 拉取消息（阻塞直到有消息或超时）
      */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
@@ -243,7 +243,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 发送响应
+    * 发送响应
      */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
@@ -255,7 +255,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 提取参数（支持 form-urlencoded 和 JSON 格式）
+    * 提取参数（支持 form-urlencoded 和 JSON 格式）
      */
     private String extractParam(String body, String key) {
         if (body == null || key == null) {
@@ -305,7 +305,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 解析查询参数
+    * 解析查询参数
      */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
@@ -329,7 +329,7 @@ public class HttpSyncServer extends com.chua.common.support.network.server.Abstr
     }
 
     /**
-     * 通知监听器
+    * 通知监听器
      */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {

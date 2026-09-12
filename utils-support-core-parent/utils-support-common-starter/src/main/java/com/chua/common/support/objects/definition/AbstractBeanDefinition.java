@@ -28,41 +28,41 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 /**
- * Bean 定义抽象基类。
- *
- * <p>提供 Bean 元数据管理的通用实现，包括：
- * <ul>
- *   <li>类型层次缓存（快速判断 Bean 是否可赋值给指定类型）</li>
- *   <li>注解信息缓存（快速判断 Bean 是否标注了指定注解）</li>
- *   <li>依赖注入流程（服务注入 + 配置注入）</li>
- *   <li>Bean 生命周期管理（初始化 + 销毁）</li>
- * </ul></p>
- *
- * <p>子类需要实现 {@link #setBean(Object)} 方法来保存创建的实例。</p>
- *
- * @author CH
- * @since 2024/12/20
+* Bean 定义抽象基类。
+*
+* <p>提供 Bean 元数据管理的通用实现，包括：
+* <ul>
+*   <li>类型层次缓存（快速判断 Bean 是否可赋值给指定类型）</li>
+*   <li>注解信息缓存（快速判断 Bean 是否标注了指定注解）</li>
+*   <li>依赖注入流程（服务注入 + 配置注入）</li>
+*   <li>Bean 生命周期管理（初始化 + 销毁）</li>
+* </ul></p>
+*
+* <p>子类需要实现 {@link #setBean(Object)} 方法来保存创建的实例。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 @SuppressWarnings("unchecked")
 public abstract class AbstractBeanDefinition implements BeanDefinition {
 
     /**
-     * 初始化状态标志
+    * 初始化状态标志
      */
     @Getter
     /** Initialized */
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
-     * 销毁状态标志
+    * 销毁状态标志
      */
     @Getter
     /** 销毁 */
     protected final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     /**
-     * 是否启用代理
+    * 是否启用代理
      */
     @Getter
     @Setter
@@ -70,7 +70,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private boolean proxy = true;
 
     /**
-     * 优先级，值越大优先级越高
+    * 优先级，值越大优先级越高
      */
     @Getter
     @Setter
@@ -78,7 +78,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private int priority;
 
     /**
-     * Bean 作用域
+    * Bean 作用域
      */
     @Getter
     @Setter
@@ -86,34 +86,34 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private BeanScope scope = BeanScope.SINGLETON;
 
     /**
-     * Bean 名称
+    * Bean 名称
      */
     @Getter
     @Setter
     /**
-     * 名称
+    * 名称
      */
     private String name;
 
     /**
-     * Bean 类型全限定名
+    * Bean 类型全限定名
      */
     @Getter
     @Setter
     /**
-     * 类型
+    * 类型
      */
     private String type;
 
     /**
-     * Bean 类
+    * Bean 类
      */
     @Getter
     @Setter
     private Class<?> beanClass; // Bean类
 
     /**
-     * 是否可用
+    * 是否可用
      */
     @Getter
     @Setter
@@ -121,27 +121,27 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private boolean available = true;
 
     /**
-     * 关联的注册器
+    * 关联的注册器
      */
     private volatile BeanDefinitionRegister register;
 
     /**
-     * 缓存的 Bean 类，用于判断缓存是否有效
+    * 缓存的 Bean 类，用于判断缓存是否有效
      */
     private volatile Class<?> cachedBeanClass;
 
     /**
-      * 类型层次缓存（类名 -> 是否存在），用于快速判断 是否assignable从
+    * 类型层次缓存（类名 -> 是否存在），用于快速判断 是否assignable从
      */
     private volatile Set<String> typeHierarchyNames = Collections.emptySet();
 
     /**
-      * 注解类型名缓存（注解类名 -> 是否存在），用于快速判断 是否注解present
+    * 注解类型名缓存（注解类名 -> 是否存在），用于快速判断 是否注解present
      */
     private volatile Set<String> annotationTypeNames = Collections.emptySet();
 
     /**
-     * 当前环境配置，注入时需要
+    * 当前环境配置，注入时需要
      */
     @Setter
     @Getter
@@ -149,34 +149,34 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private Environment environment;
 
     /**
-     * 按名称查找 Bean 的函数，用于服务注入
+    * 按名称查找 Bean 的函数，用于服务注入
      */
     @Setter
     protected Function<String, Object> beanNameProvider; // Bean名称提供者
 
     /**
-     * 按类型查找 Bean 的函数，用于服务注入
+    * 按类型查找 Bean 的函数，用于服务注入
      */
     @Setter
     protected Function<Class<?>, Object> beanTypeProvider; // Bean类型提供者
 
     /**
-     * 占位符解析最大迭代次数，防止无限循环
+    * 占位符解析最大迭代次数，防止无限循环
      */
     private static final int MAX_PLACEHOLDER_ITERATIONS = 100;
 
     /**
-     * 构造空的抽象 Bean 定义。
+    * 构造空的抽象 Bean 定义。
      */
     public AbstractBeanDefinition() {
     }
 
     /**
-     * 构造抽象 Bean 定义。
-     *
-     * @param name      Bean 名称
-     * @param beanClass Bean 类
-     * @param scope     Bean 作用域
+    * 构造抽象 Bean 定义。
+    *
+    * @param name      Bean 名称
+    * @param beanClass Bean 类
+    * @param scope     Bean 作用域
      */
     public AbstractBeanDefinition(String name, Class<?> beanClass, BeanScope scope) {
         this.name = name;
@@ -186,11 +186,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 获取 Bean 实例，未初始化时自动触发懒加载。
-     *
-     * <p>调用链：getBean() → 未初始化则 initializeBean() → createInstance() → setBean() → 注入 → 生命周期</p>
-     *
-     * @return Bean 实例，初始化失败返回 空
+    * 获取 Bean 实例，未初始化时自动触发懒加载。
+    *
+    * <p>调用链：getBean() → 未初始化则 initializeBean() → createInstance() → setBean() → 注入 → 生命周期</p>
+    *
+    * @return Bean 实例，初始化失败返回 空
      */
     @Override
     public Object getBean() {
@@ -201,26 +201,26 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 子类实现返回已缓存的 Bean 实例。
-     *
-     * @return Bean 实例，默认返回 空
+    * 子类实现返回已缓存的 Bean 实例。
+    *
+    * @return Bean 实例，默认返回 空
      */
     protected Object doGetBean() {
         return null;
     }
 
     /**
-     * 保存 Bean 实例。
-     *
-     * @param bean Bean 实例
+    * 保存 Bean 实例。
+    *
+    * @param bean Bean 实例
      */
     protected void setBean(Object bean) {
     }
 
     /**
-     * 获取类加载器。
-     *
-     * @return 类加载器
+    * 获取类加载器。
+    *
+    * @return 类加载器
      */
     @Override
     public ClassLoader getClassLoader() {
@@ -232,9 +232,9 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 创建 Bean 实例。
-     *
-     * @return Bean 实例，默认返回 空，子类按需重写
+    * 创建 Bean 实例。
+    *
+    * @return Bean 实例，默认返回 空，子类按需重写
      */
     @Override
     public Object createInstance() {
@@ -589,11 +589,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 依赖注入 ====================
 
     /**
-     * 执行 Bean 的依赖注入和装配。
-     *
-     * <p>包括字段注入（服务注入 + 配置注入）和方法注入。</p>
-     *
-     * @param instance Bean 实例
+    * 执行 Bean 的依赖注入和装配。
+    *
+    * <p>包括字段注入（服务注入 + 配置注入）和方法注入。</p>
+    *
+    * @param instance Bean 实例
      */
     public void injectAndAssemble(Object instance) {
         if (instance == null) {
@@ -604,9 +604,9 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 字段注入：遍历所有字段，尝试服务注入和配置注入。
-     *
-     * @param instance Bean 实例
+    * 字段注入：遍历所有字段，尝试服务注入和配置注入。
+    *
+    * @param instance Bean 实例
      */
     protected void injectFields(Object instance) {
         if (instance == null) {
@@ -641,11 +641,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 先按字段名找 setter 方法，有则调用 setter，无则直接设字段。
-     *
-     * @param field   目标字段
-     * @param instance Bean 实例
-     * @param value   注入值
+    * 先按字段名找 setter 方法，有则调用 setter，无则直接设字段。
+    *
+    * @param field   目标字段
+    * @param instance Bean 实例
+    * @param value   注入值
      */
     private void setFieldOrSetter(Field field, Object instance, Object value) {
         String setterName = "set" + Character.toUpperCase(field.getName().charAt(0)) + field.getName().substring(1);
@@ -660,9 +660,9 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 方法注入：遍历所有 setter 方法，尝试注入。
-     *
-     * @param instance Bean 实例
+    * 方法注入：遍历所有 setter 方法，尝试注入。
+    *
+    * @param instance Bean 实例
      */
     protected void injectMethods(Object instance) {
         if (instance == null) {
@@ -727,12 +727,12 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 执行服务注入（通过 SPI 注入器链）。
-     *
-     * @param field            目标字段
-     * @param instance         Bean 实例
-     * @param serviceInjectors 服务注入器列表
-     * @return 注入的值，null 表示不适配
+    * 执行服务注入（通过 SPI 注入器链）。
+    *
+    * @param field            目标字段
+    * @param instance         Bean 实例
+    * @param serviceInjectors 服务注入器列表
+    * @return 注入的值，null 表示不适配
      */
     protected Object injectService(Field field, Object instance, List<BeanDefinitionServiceInjector> serviceInjectors) {
         if (serviceInjectors == null || serviceInjectors.isEmpty()) {
@@ -749,12 +749,12 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 执行配置注入（通过 SPI 注入器链）。
-     *
-     * @param field           目标字段
-     * @param instance        Bean 实例
-     * @param configInjectors 配置注入器列表
-     * @return 注入的值，null 表示不适配
+    * 执行配置注入（通过 SPI 注入器链）。
+    *
+    * @param field           目标字段
+    * @param instance        Bean 实例
+    * @param configInjectors 配置注入器列表
+    * @return 注入的值，null 表示不适配
      */
     protected Object injectConfig(Field field, Object instance, List<BeanDefinitionConfigInjector> configInjectors) {
         if (configInjectors == null || configInjectors.isEmpty()) {
@@ -784,10 +784,10 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 获取类及其所有父类的所有字段（包括私有字段）。
-     *
-     * @param clazz 目标类
-     * @return 所有字段列表
+    * 获取类及其所有父类的所有字段（包括私有字段）。
+    *
+    * @param clazz 目标类
+    * @return 所有字段列表
      */
     protected List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
@@ -802,11 +802,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 类型缓存 ====================
 
     /**
-     * 确保类型层次缓存有效。
-     *
-     * <p>如果缓存的 beanClass 与当前 beanClass 不同，则重新构建缓存。</p>
-     *
-     * @param beanClass 当前 Bean 类
+    * 确保类型层次缓存有效。
+    *
+    * <p>如果缓存的 beanClass 与当前 beanClass 不同，则重新构建缓存。</p>
+    *
+    * @param beanClass 当前 Bean 类
      */
     private void ensureTypeCaches(Class<?> beanClass) {
         if (beanClass == null) {
@@ -833,10 +833,10 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 收集类型层次结构中的所有类型名。
-     *
-     * @param type 当前类型
-     * @param out  输出集合
+    * 收集类型层次结构中的所有类型名。
+    *
+    * @param type 当前类型
+    * @param out  输出集合
      */
     private static void collectTypeHierarchy(Class<?> type, Set<String> out) {
         if (type == null || type == Object.class) {
@@ -850,10 +850,10 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 收集类型层次结构中所有注解类型名。
-     *
-     * @param type 当前类型
-     * @param out  输出集合
+    * 收集类型层次结构中所有注解类型名。
+    *
+    * @param type 当前类型
+    * @param out  输出集合
      */
     private static void collectAnnotationTypes(Class<?> type, Set<String> out) {
         if (type == null || type == Object.class) {
@@ -869,12 +869,12 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 从类型层次结构中获取指定注解。
-     *
-     * @param type           当前类型
-     * @param annotationType 注解类型
-     * @param <T>            注解泛型
-     * @return 找到的注解，不存在返回 空
+    * 从类型层次结构中获取指定注解。
+    *
+    * @param type           当前类型
+    * @param annotationType 注解类型
+    * @param <T>            注解泛型
+    * @return 找到的注解，不存在返回 空
      */
     private static <T extends Annotation> T getAnnotationFromHierarchy(Class<?> type, Class<T> annotationType) {
         if (type == null || type == Object.class) {
@@ -894,11 +894,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 从类型层次结构中按类名获取注解。
-     *
-     * @param type               当前类型
-     * @param annotationTypeName 注解类型名
-     * @return 找到的注解，不存在返回 空
+    * 从类型层次结构中按类名获取注解。
+    *
+    * @param type               当前类型
+    * @param annotationTypeName 注解类型名
+    * @return 找到的注解，不存在返回 空
      */
     private static Annotation getAnnotationFromHierarchy(Class<?> type, String annotationTypeName) {
         if (type == null || type == Object.class) {
@@ -919,11 +919,11 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     /**
-     * 判断方法是否标注了指定注解（按类名）。
-     *
-     * @param method             方法
-     * @param annotationTypeName 注解类型名
-     * @return 是否标注
+    * 判断方法是否标注了指定注解（按类名）。
+    *
+    * @param method             方法
+    * @param annotationTypeName 注解类型名
+    * @return 是否标注
      */
     private static boolean hasAnnotation(Method method, String annotationTypeName) {
         if (method == null) {

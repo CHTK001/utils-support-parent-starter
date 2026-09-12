@@ -9,10 +9,10 @@ import ai.djl.translate.TranslatorContext;
 import java.util.Arrays;
 
 /**
-   * 通用编码器 Translator（NLLB / 翻译 编码器 模块）。
- *
- * @author CH
- * @since 4.0.0.42
+* 通用编码器 Translator（NLLB / 翻译 编码器 模块）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class EncoderTranslator implements NoBatchifyTranslator<long[], NDArray> {
 

@@ -16,28 +16,28 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-   * MQTT 入站适配器：订阅 MQTT Broker → JSON → 数据envelope → pipelineengine。
- *
- * <p>支持 MQTT 5.0 协议，自动将 JSON 消息体解析为 {@code Map<String, Object>}，
-   * 包装为 {@link DataEnvelope} 后交给 pipelineengine 执行管线处理。</p>
- *
- * <p>配置示例：</p>
- * <pre>{@code
- * MqttInboundAdapter adapter = MqttInboundAdapter.builder()
- *     .brokerUrl("tcp://localhost:1883")
- *     .clientId("datalake-sub-001")
- *     .topic("sensor/+/data")
- *     .pipelineId("sensor-pipeline")
- *     .pipelineEngine(engine)
- *     .qos(1)
- *     .build();
- * adapter.start();
- * }</pre>    .build();
- * adapter.start();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* MQTT 入站适配器：订阅 MQTT Broker → JSON → 数据envelope → pipelineengine。
+*
+* <p>支持 MQTT 5.0 协议，自动将 JSON 消息体解析为 {@code Map<String, Object>}，
+* 包装为 {@link DataEnvelope} 后交给 pipelineengine 执行管线处理。</p>
+*
+* <p>配置示例：</p>
+* <pre>{@code
+* MqttInboundAdapter adapter = MqttInboundAdapter.builder()
+*     .brokerUrl("tcp://localhost:1883")
+*     .clientId("datalake-sub-001")
+*     .topic("sensor/+/data")
+*     .pipelineId("sensor-pipeline")
+*     .pipelineEngine(engine)
+*     .qos(1)
+*     .build();
+* adapter.start();
+* }</pre>    .build();
+* adapter.start();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class MqttInboundAdapter {
@@ -79,8 +79,8 @@ public class MqttInboundAdapter {
     private volatile boolean running = false;
 
     /**
-     * mqttinbound适配器。
-     * @param builder 构建器
+    * mqttinbound适配器。
+    * @param builder 构建器
      */
     private MqttInboundAdapter(Builder builder) {
         this.brokerUrl = builder.brokerUrl;
@@ -94,16 +94,16 @@ public class MqttInboundAdapter {
     }
 
     /**
-     * 创建构建器。
-     *
-     * @return 新构建器
+    * 创建构建器。
+    *
+    * @return 新构建器
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * 启动 MQTT 订阅。
+    * 启动 MQTT 订阅。
      */
     public void start() {
         if (running) {
@@ -162,7 +162,7 @@ public class MqttInboundAdapter {
     }
 
     /**
-     * 停止 MQTT 订阅。
+    * 停止 MQTT 订阅。
      */
     public void stop() {
         if (!running || client == null) {
@@ -179,10 +179,10 @@ public class MqttInboundAdapter {
     }
 
     /**
-     * 处理 MQTT 消息。
-     *
-     * @param topic   主题
-     * @param message 消息
+    * 处理 MQTT 消息。
+    *
+    * @param topic   主题
+    * @param message 消息
      */
     @SuppressWarnings("unchecked")
     private void handleMessage(String topic, MqttMessage message) {
@@ -209,18 +209,18 @@ public class MqttInboundAdapter {
     }
 
     /**
-     * 返回已接收消息数。
-     *
-     * @return 消息计数
+    * 返回已接收消息数。
+    *
+    * @return 消息计数
      */
     public long getMessageCount() {
         return messageCount.get();
     }
 
     /**
-     * 是否运行中。
-     *
-     * @return true 表示已启动
+    * 是否运行中。
+    *
+    * @return true 表示已启动
      */
     public boolean isRunning() {
         return running;
@@ -229,9 +229,9 @@ public class MqttInboundAdapter {
  // ━━━━━━━━━━━━━━ 构建器 ━━━━━━━━━━━━━━
 
     /**
-     * MQTT 入站适配器构建器。
-     * @author CH
-     * @since 4.0.0
+    * MQTT 入站适配器构建器。
+    * @author CH
+    * @since 4.0.0
      */
     public static class Builder {
         private String brokerUrl = "tcp://localhost:1883"; // brokerurl
@@ -244,57 +244,57 @@ public class MqttInboundAdapter {
         private String password; // 密码
 
         /**
-          * brokerurl。
-         * @param brokerUrl brokerurl
-         * @return brokerUrl的结果
+        * brokerurl。
+        * @param brokerUrl brokerurl
+        * @return brokerUrl的结果
          */
         public Builder brokerUrl(String brokerUrl) { this.brokerUrl = brokerUrl; return this; }
         /**
-         * 客户端id。
-         * @param clientId 客户端标识
-         * @return 客户端id的结果
+        * 客户端id。
+        * @param clientId 客户端标识
+        * @return 客户端id的结果
          */
         public Builder clientId(String clientId) { this.clientId = clientId; return this; }
         /**
-         * topic。
-         * @param topic topic
-         * @return topic的结果
+        * topic。
+        * @param topic topic
+        * @return topic的结果
          */
         public Builder topic(String topic) { this.topic = topic; return this; }
         /**
-          * pipelineid。
-         * @param pipelineId pipelineid
-         * @return pipelineId的结果
+        * pipelineid。
+        * @param pipelineId pipelineid
+        * @return pipelineId的结果
          */
         public Builder pipelineId(String pipelineId) { this.pipelineId = pipelineId; return this; }
         /**
-          * pipelineengine。
-         * @param engine engine
-         * @return pipelineEngine的结果
+        * pipelineengine。
+        * @param engine engine
+        * @return pipelineEngine的结果
          */
         public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
         /**
-         * qos。
-         * @param qos qos
-         * @return qos的结果
+        * qos。
+        * @param qos qos
+        * @return qos的结果
          */
         public Builder qos(int qos) { this.qos = qos; return this; }
         /**
-         * 用户名。
-         * @param username 用户名
-         * @return 用户名的结果
+        * 用户名。
+        * @param username 用户名
+        * @return 用户名的结果
          */
         public Builder username(String username) { this.username = username; return this; }
         /**
-         * 密码。
-         * @param password 密码
-         * @return 密码的结果
+        * 密码。
+        * @param password 密码
+        * @return 密码的结果
          */
         public Builder password(String password) { this.password = password; return this; }
 
         /**
-         * 构建。
-         * @return 构建的结果
+        * 构建。
+        * @return 构建的结果
          */
         public MqttInboundAdapter build() {
             if (pipelineId == null || pipelineEngine == null) {

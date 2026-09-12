@@ -6,12 +6,12 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 /**
-   * Redis 获取 命令处理器，查询字符串键值。
- *
- * <p>返回"命中数量"语义：key 存在返回 1，不存在返回 0。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Redis 获取 命令处理器，查询字符串键值。
+*
+* <p>返回"命中数量"语义：key 存在返回 1，不存在返回 0。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("GET")
 public class GetCommandHandler implements RedisCommandHandler {

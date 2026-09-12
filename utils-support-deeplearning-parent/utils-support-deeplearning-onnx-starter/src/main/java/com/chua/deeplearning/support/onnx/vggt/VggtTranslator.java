@@ -15,34 +15,34 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * VGGT Translator
- * <p>
- *                                                                                  
- * <p>
- *                
- * -                 512x512
- * -                      
- * -           NCHW       
- * <p>
- *                
- * -        3D                   
-   * -                    translator上下文
-   * -              镜像                      上下文
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2024/11/08
+* VGGT Translator
+* <p>
+*                                                                                  
+* <p>
+*                
+* -                 512x512
+* -                      
+* -           NCHW       
+* <p>
+*                
+* -        3D                   
+* -                    translator上下文
+* -              镜像                      上下文
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2024/11/08
  */
 @Slf4j
 public class VggtTranslator implements Translator<Image, Image> {
 
     /**
-     *                         
+    *                         
      */
     private static final int INPUT_SIZE = 512;
 
     /**
-      * 上下文           3D
+    * 上下文           3D
      */
     public static final String VGGT_OUTPUT_KEY = "vggt_3d_output";
 
@@ -115,13 +115,13 @@ public class VggtTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                   
-     * <p>
-     *        3D                                                                
-      * 3D              translator上下文
-     *
-     * @param manager nd管理器
-     * @return             
+    *                   
+    * <p>
+    *        3D                                                                
+    * 3D              translator上下文
+    *
+    * @param manager nd管理器
+    * @return             
      */
     private Image createPlaceholderImage(NDManager manager) {
         //                                              

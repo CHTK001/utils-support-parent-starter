@@ -9,11 +9,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
- * 随机轮询负载均衡器。
- * <p>每次选择时对节点列表做随机洗牌后取首节点，提供最朴素的随机分摊效果。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 随机轮询负载均衡器。
+* <p>每次选择时对节点列表做随机洗牌后取首节点，提供最朴素的随机分摊效果。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("random")
 public class RandomRoundLoadBalance implements LoadBalance {

@@ -9,31 +9,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 嵌入服务 —— 文本/图像向量化接口。
- * <p>通过 {@link IdentificationEngine} 加载的模型，将文本或图像转换为特征向量。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 嵌入服务 —— 文本/图像向量化接口。
+* <p>通过 {@link IdentificationEngine} 加载的模型，将文本或图像转换为特征向量。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface EmbeddingService {
 
     /**
-     * 根据模型名称创建嵌入服务。
-     *
-     * @param name 模型名称
-     * @return EmbeddingService 实例
+    * 根据模型名称创建嵌入服务。
+    *
+    * @param name 模型名称
+    * @return EmbeddingService 实例
      */
     static EmbeddingService create(String name) {
         return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
 
     /**
-     * 查询该能力下全部可用模型。
-     *
-     * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
-     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
-     *
-     * @return 模型 标识 列表
+    * 查询该能力下全部可用模型。
+    *
+    * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
+    * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
+    *
+    * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.embedding.EmbeddingService.class);
@@ -41,112 +41,112 @@ public interface EmbeddingService {
 
 
     /**
-     * 根据模型名称和配置创建嵌入服务。
-     *
-     * @param name    模型名称
-     * @param setting 模型配置
-     * @return EmbeddingService 实例
+    * 根据模型名称和配置创建嵌入服务。
+    *
+    * @param name    模型名称
+    * @param setting 模型配置
+    * @return EmbeddingService 实例
      */
     static EmbeddingService create(String name, ModelSetting setting) {
         return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name, setting);
     }
 
     /**
-     * 设置模型路径。
-     *
-     * @param path 模型路径
-     * @return this
+    * 设置模型路径。
+    *
+    * @param path 模型路径
+    * @return this
      */
     default EmbeddingService modelPath(String path) {
         return this;
     }
 
     /**
-     * 设置计算设备。
-     *
-     * @param device 设备名称（如 "cpu"、"gpu"）
-     * @return this
+    * 设置计算设备。
+    *
+    * @param device 设备名称（如 "cpu"、"gpu"）
+    * @return this
      */
     default EmbeddingService device(String device) {
         return this;
     }
 
     /**
-     * 将文本转换为向量。
-     *
-     * @param text 文本内容
-     * @return 特征向量
+    * 将文本转换为向量。
+    *
+    * @param text 文本内容
+    * @return 特征向量
      */
     float[] embed(String text);
 
     /**
-     * 将图像数据转换为向量。
-     *
-     * @param imageData 图像字节数据
-     * @return 特征向量
+    * 将图像数据转换为向量。
+    *
+    * @param imageData 图像字节数据
+    * @return 特征向量
      */
     float[] embed(byte[] imageData);
 
     /**
-     * 批量将文本转换为向量。
-     *
-     * @param texts 文本列表
-     * @return 特征向量列表
+    * 批量将文本转换为向量。
+    *
+    * @param texts 文本列表
+    * @return 特征向量列表
      */
     List<float[]> embedBatch(List<String> texts);
 }
 
 /**
- * 默认嵌入服务实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 默认嵌入服务实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 class DefaultEmbeddingService implements EmbeddingService {
 
     /**
-     * 识别引擎实例
+    * 识别引擎实例
      */
     private final IdentificationEngine engine;
 
     /**
-     * 模型名称
+    * 模型名称
      */
     private final String modelName;
 
     /**
-     * 模型配置
+    * 模型配置
      */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
-     * 模型路径
+    * 模型路径
      */
     private String modelPath;
 
     /**
-     * 计算设备，默认 CPU
+    * 计算设备，默认 CPU
      */
     private String device = DEVICE_CPU;
 
     /**
-     * 默认设备：CPU
+    * 默认设备：CPU
      */
     private static final String DEVICE_CPU = "cpu";
 
     /**
-     * 错误信息：模型未注册
+    * 错误信息：模型未注册
      */
     private static final String MSG_MODEL_NOT_REGISTERED = "模型未注册: ";
 
     /**
-     * 构造默认嵌入服务。
-     *
-     * @param engine    识别引擎
-     * @param modelName 模型名称
-     * @param setting   模型配置
+    * 构造默认嵌入服务。
+    *
+    * @param engine    识别引擎
+    * @param modelName 模型名称
+    * @param setting   模型配置
      */
     DefaultEmbeddingService(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -177,10 +177,10 @@ class DefaultEmbeddingService implements EmbeddingService {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * Embed
-     *
-     * @param text 文本
-     * @return embed的结果
+    * Embed
+    *
+    * @param text 文本
+    * @return embed的结果
      */
     public float[] embed(String text) {
         ITranslator<String, float[]> t =
@@ -194,10 +194,10 @@ class DefaultEmbeddingService implements EmbeddingService {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * Embed
-     *
-     * @param imageData 镜像数据
-     * @return embed的结果
+    * Embed
+    *
+    * @param imageData 镜像数据
+    * @return embed的结果
      */
     public float[] embed(byte[] imageData) {
         ITranslator<byte[], float[]> t =

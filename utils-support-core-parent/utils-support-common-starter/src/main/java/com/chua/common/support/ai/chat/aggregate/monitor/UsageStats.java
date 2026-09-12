@@ -4,10 +4,10 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 用量统计摘要
- *
- * @author CH
- * @since 4.0.0.42
+* 用量统计摘要
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder

@@ -15,106 +15,106 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
-   * 部署操作流水线：自动 拉手 → compile → deploy。
- *
- * <p>执行顺序：</p>
- * <ol>
- *   <li>打开仓库（如未打开则自动 open）</li>
- *   <li>执行 git pull（拉取最新代码）</li>
- *   <li>遍历 SPI 注册的 {@link Deployer} 实现，匹配 {@link DeployConfig}</li>
- *   <li>调用 deployer.deploy() 完成编译与部署</li>
- * </ol>
- *
- * <pre>用法示例：
- * {@code
- * // 1. 基础用法（SPI 自动发现 Deployer）
- * DeployResult r = client.deploy()
- *         .projectPath("pom.xml")
- *         .goals("clean", "package")
- *         .execute();
- *
- * // 2. 异步执行
- * CompletableFuture<DeployResult> f = client.deploy()
- *         .async()
- *         .skipTests(true)
- *         .execute();
- *
- * // 3. 进度回调
- * client.deploy()
- *         .gitProgressListener(progress)
- *         .goals("deploy", "clean", "package")
- *         .deployTarget("/opt/app/")
- *         .execute();
- * }</pre> *         .goals("deploy", "clean", "package")
- *         .deployTarget("/opt/app/")
- *         .execute();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 部署操作流水线：自动 拉手 → compile → deploy。
+*
+* <p>执行顺序：</p>
+* <ol>
+*   <li>打开仓库（如未打开则自动 open）</li>
+*   <li>执行 git pull（拉取最新代码）</li>
+*   <li>遍历 SPI 注册的 {@link Deployer} 实现，匹配 {@link DeployConfig}</li>
+*   <li>调用 deployer.deploy() 完成编译与部署</li>
+* </ol>
+*
+* <pre>用法示例：
+* {@code
+* // 1. 基础用法（SPI 自动发现 Deployer）
+* DeployResult r = client.deploy()
+*         .projectPath("pom.xml")
+*         .goals("clean", "package")
+*         .execute();
+*
+* // 2. 异步执行
+* CompletableFuture<DeployResult> f = client.deploy()
+*         .async()
+*         .skipTests(true)
+*         .execute();
+*
+* // 3. 进度回调
+* client.deploy()
+*         .gitProgressListener(progress)
+*         .goals("deploy", "clean", "package")
+*         .deployTarget("/opt/app/")
+*         .execute();
+* }</pre> *         .goals("deploy", "clean", "package")
+*         .deployTarget("/opt/app/")
+*         .execute();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DeployOperation {
 
     /**
-      * 所属 git客户端。
+    * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-     * 项目 pom.xml 路径（相对仓库根目录）。
+    * 项目 pom.xml 路径（相对仓库根目录）。
      */
     private String projectPath = "pom.xml";
 
     /**
-     * Maven 目标列表。
+    * Maven 目标列表。
      */
     private List<String> goals = List.of("clean", "compile", "package");
 
     /**
-      * Maven 配置文件 列表。
+    * Maven 配置文件 列表。
      */
     private List<String> profiles = List.of();
 
     /**
-     * 是否跳过测试。
+    * 是否跳过测试。
      */
     private boolean skipTests = true;
 
     /**
-     * JDK 版本。
+    * JDK 版本。
      */
     private String jdkVersion;
 
     /**
-     * 部署目标路径。
+    * 部署目标路径。
      */
     private String deployTargetPath;
 
     /**
-     * 文件变更监听器。
+    * 文件变更监听器。
      */
     private GitFileListener fileListener;
 
     /**
-     * Git 操作进度监听器。
+    * Git 操作进度监听器。
      */
     private GitProgressListener gitProgressListener;
 
     /**
-     * 自定义部署器（刷新 SPI 自动发现）。
+    * 自定义部署器（刷新 SPI 自动发现）。
      */
     private Deployer customDeployer;
 
     /**
-     * 异步标志。
+    * 异步标志。
      */
     private boolean asyncMode;
 
     /**
-     * 构建操作实例（仅框架内部调用）。
-     *
-     * @param client 所属 Git客户端
+    * 构建操作实例（仅框架内部调用）。
+    *
+    * @param client 所属 Git客户端
      */
     public DeployOperation(GitClient client) {
         this.client = client;
@@ -123,10 +123,10 @@ public class DeployOperation {
     // ==================== 链式配置方法 ====================
 
     /**
-     * 设置项目 pom.xml 相对路径。
-     *
-     * @param projectPath 相对仓库根目录的 pom.xml 路径（默认 "pom.xml"）
-     * @return 当前操作实例
+    * 设置项目 pom.xml 相对路径。
+    *
+    * @param projectPath 相对仓库根目录的 pom.xml 路径（默认 "pom.xml"）
+    * @return 当前操作实例
      */
     public DeployOperation projectPath(String projectPath) {
         this.projectPath = projectPath;
@@ -134,10 +134,10 @@ public class DeployOperation {
     }
 
     /**
-     * 设置 Maven 编译目标列表。
-     *
-     * @param goals 目标（如 "clean"、"compile"、"包"）
-     * @return 当前操作实例
+    * 设置 Maven 编译目标列表。
+    *
+    * @param goals 目标（如 "clean"、"compile"、"包"）
+    * @return 当前操作实例
      */
     public DeployOperation goals(String... goals) {
         this.goals = List.of(goals);
@@ -145,10 +145,10 @@ public class DeployOperation {
     }
 
     /**
-      * 设置 Maven 配置文件。
-     *
-     * @param profiles 配置文件 列表
-     * @return 当前操作实例
+    * 设置 Maven 配置文件。
+    *
+    * @param profiles 配置文件 列表
+    * @return 当前操作实例
      */
     public DeployOperation profiles(String... profiles) {
         this.profiles = List.of(profiles);
@@ -156,10 +156,10 @@ public class DeployOperation {
     }
 
     /**
-     * 设置是否跳过测试。
-     *
-     * @param skipTests true 跳过测试
-     * @return 当前操作实例
+    * 设置是否跳过测试。
+    *
+    * @param skipTests true 跳过测试
+    * @return 当前操作实例
      */
     public DeployOperation skipTests(boolean skipTests) {
         this.skipTests = skipTests;
@@ -167,10 +167,10 @@ public class DeployOperation {
     }
 
     /**
-     * 设置 JDK 版本。
-     *
-     * @param jdkVersion 版本字符串（如 "25"）
-     * @return 当前操作实例
+    * 设置 JDK 版本。
+    *
+    * @param jdkVersion 版本字符串（如 "25"）
+    * @return 当前操作实例
      */
     public DeployOperation jdkVersion(String jdkVersion) {
         this.jdkVersion = jdkVersion;
@@ -178,10 +178,10 @@ public class DeployOperation {
     }
 
     /**
-      * 设置部署目标路径（本地或远程 目录）。
-     *
-     * @param targetPath 目标路径
-     * @return 当前操作实例
+    * 设置部署目标路径（本地或远程 目录）。
+    *
+    * @param targetPath 目标路径
+    * @return 当前操作实例
      */
     public DeployOperation deployTarget(String targetPath) {
         this.deployTargetPath = targetPath;
@@ -189,10 +189,10 @@ public class DeployOperation {
     }
 
     /**
-     * 设置文件变更监听器。
-     *
-     * @param listener 监听器
-     * @return 当前操作实例
+    * 设置文件变更监听器。
+    *
+    * @param listener 监听器
+    * @return 当前操作实例
      */
     public DeployOperation fileListener(GitFileListener listener) {
         this.fileListener = listener;
@@ -200,10 +200,10 @@ public class DeployOperation {
     }
 
     /**
-      * 设置 Git 进度监听器（拉手 阶段使用）。
-     *
-     * @param listener 进度监听器
-     * @return 当前操作实例
+    * 设置 Git 进度监听器（拉手 阶段使用）。
+    *
+    * @param listener 进度监听器
+    * @return 当前操作实例
      */
     public DeployOperation gitProgressListener(GitProgressListener listener) {
         this.gitProgressListener = listener;
@@ -211,10 +211,10 @@ public class DeployOperation {
     }
 
     /**
-     * 指定自定义部署器（覆盖 SPI 自动发现）。
-     *
-     * @param deployer 部署器实现
-     * @return 当前操作实例
+    * 指定自定义部署器（覆盖 SPI 自动发现）。
+    *
+    * @param deployer 部署器实现
+    * @return 当前操作实例
      */
     public DeployOperation deployer(Deployer deployer) {
         this.customDeployer = deployer;
@@ -222,9 +222,9 @@ public class DeployOperation {
     }
 
     /**
-     * 设为异步模式。
-     *
-     * @return 当前操作实例
+    * 设为异步模式。
+    *
+    * @return 当前操作实例
      */
     public DeployOperation async() {
         this.asyncMode = true;
@@ -234,9 +234,9 @@ public class DeployOperation {
     // ==================== 执行方法 ====================
 
     /**
-      * 执行完整流水线：拉手 → 查找 deployer → deploy。
-     *
-     * @return 同步模式返回 {@link DeployResult}，异步模式返回 {@link CompletableFuture}{@code <DeployResult>}
+    * 执行完整流水线：拉手 → 查找 deployer → deploy。
+    *
+    * @return 同步模式返回 {@link DeployResult}，异步模式返回 {@link CompletableFuture}{@code <DeployResult>}
      */
     @SuppressWarnings("unchecked")
     public Object execute() {
@@ -247,15 +247,15 @@ public class DeployOperation {
     }
 
     /**
-     * 执行实际部署流水线。
-     *
-     * <ol>
-     *   <li>打开仓库，执行 git pull</li>
-     *   <li>查找可匹配的 Deployer：优先使用 {@link #customDeployer}，否则通过 SPI 发现</li>
-     *   <li>调用 Deployer.deploy() 完成 <li>
-     * </ol>
-     *
-     * @return 部署结果
+    * 执行实际部署流水线。
+    *
+    * <ol>
+    *   <li>打开仓库，执行 git pull</li>
+    *   <li>查找可匹配的 Deployer：优先使用 {@link #customDeployer}，否则通过 SPI 发现</li>
+    *   <li>调用 Deployer.deploy() 完成 <li>
+    * </ol>
+    *
+    * @return 部署结果
      */
     private DeployResult doDeploy() {
         long start = System.currentTimeMillis();
@@ -289,20 +289,20 @@ public class DeployOperation {
     }
 
     /**
-     * 根据链式配置构造 {@link DeployConfig}。
-     * @return 构建配置的结果
+    * 根据链式配置构造 {@link DeployConfig}。
+    * @return 构建配置的结果
      */
     private DeployConfig buildConfig() {
         return new DeployConfig(projectPath, goals, profiles, skipTests, jdkVersion, deployTargetPath);
     }
 
     /**
-     * 查找可用的 Deployer 实现。
-     *
-     * <p>优先使用自定义部署器，否则通过 {@link ServiceProvider} 加载
-      * 并匹配 支持。通过 {@code META-INF/extensions} 文件注册实现。</p>
-     * @param config 配置
-     * @return findDeployer的结果
+    * 查找可用的 Deployer 实现。
+    *
+    * <p>优先使用自定义部署器，否则通过 {@link ServiceProvider} 加载
+    * 并匹配 支持。通过 {@code META-INF/extensions} 文件注册实现。</p>
+    * @param config 配置
+    * @return findDeployer的结果
      */
     private Deployer findDeployer(DeployConfig config) {
         if (customDeployer != null) {

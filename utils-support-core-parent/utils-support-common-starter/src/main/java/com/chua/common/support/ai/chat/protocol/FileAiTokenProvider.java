@@ -24,21 +24,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 基于文件的 AI 令牌提供者实现。
- *
- * <p>令牌文件格式（# 开头为注释）：</p>
- * <pre>{@code
- *   # 格式: token [group] [expire_time(yyyy-MM-dd)]
- *   sk-abc123 default
- *   sk-def456 vip 2026-12-31
- *   sk-ghi789 admin
- * }</pre>
- *
- * <p>文件变更时自动热加载（通过 WatchService），无需重启。
- * CRUD 操作实时更新内存并同步写回文件。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于文件的 AI 令牌提供者实现。
+*
+* <p>令牌文件格式（# 开头为注释）：</p>
+* <pre>{@code
+*   # 格式: token [group] [expire_time(yyyy-MM-dd)]
+*   sk-abc123 default
+*   sk-def456 vip 2026-12-31
+*   sk-ghi789 admin
+* }</pre>
+*
+* <p>文件变更时自动热加载（通过 WatchService），无需重启。
+* CRUD 操作实时更新内存并同步写回文件。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
@@ -62,18 +62,18 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
-     * 创建文件令牌提供者。
-     *
-     * @param filePath 令牌文件路径
+    * 创建文件令牌提供者。
+    *
+    * @param filePath 令牌文件路径
      */
     public FileAiTokenProvider(String filePath) {
         this(Paths.get(filePath));
     }
 
     /**
-     * 创建文件令牌提供者。
-     *
-     * @param filePath 令牌文件路径
+    * 创建文件令牌提供者。
+    *
+    * @param filePath 令牌文件路径
      */
     public FileAiTokenProvider(Path filePath) {
         this.filePath = filePath.toAbsolutePath().normalize();
@@ -85,7 +85,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     // ======================== 加载 ========================
 
     /**
-     * 从文件加载所有令牌到内存。
+    * 从文件加载所有令牌到内存。
      */
     public void reload() {
         doLoadFromFile();
@@ -143,7 +143,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     /**
-     * 将内存中的令牌写回文件。
+    * 将内存中的令牌写回文件。
      */
     private void flushToFile() {
         synchronized (this) {
@@ -173,7 +173,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     // ======================== 文件监听 ========================
 
     /**
-     * 启动文件变更监听，文件修改时自动重新加载。
+    * 启动文件变更监听，文件修改时自动重新加载。
      */
     private void startFileWatcher() {
         if (!watching.compareAndSet(false, true)) {
@@ -216,9 +216,9 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     /**
-     * 停止文件监听并释放资源。
-     *
-     * <p>调用后此提供者不再响应文件变更。</p>
+    * 停止文件监听并释放资源。
+    *
+    * <p>调用后此提供者不再响应文件变更。</p>
      */
     public void stopWatching() {
         watching.set(false);
@@ -228,7 +228,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     }
 
     /**
-     * 释放资源（停止监听）。
+    * 释放资源（停止监听）。
      */
     public void close() {
         stopWatching();
@@ -314,7 +314,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     // ======================== 工具 ========================
 
     /**
-     * 脱敏令牌，仅显示前 8 位。
+    * 脱敏令牌，仅显示前 8 位。
      */
     public static String maskToken(String token) {
         if (token == null) {

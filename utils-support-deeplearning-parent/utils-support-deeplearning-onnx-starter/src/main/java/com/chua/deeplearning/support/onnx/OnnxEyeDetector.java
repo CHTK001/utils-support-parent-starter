@@ -16,8 +16,8 @@ public class OnnxEyeDetector implements EyeDetector {
     private String device = "cpu";
 
     /**
-      * 创建 onnxeyedetector 实例
-     * @param apiKey API密钥
+    * 创建 onnxeyedetector 实例
+    * @param apiKey API密钥
      */
     public OnnxEyeDetector(String apiKey) {
     }
@@ -30,9 +30,9 @@ public class OnnxEyeDetector implements EyeDetector {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "ultra-face";

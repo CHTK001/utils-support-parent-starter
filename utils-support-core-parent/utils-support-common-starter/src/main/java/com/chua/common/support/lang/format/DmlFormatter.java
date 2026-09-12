@@ -3,62 +3,62 @@ package com.chua.common.support.lang.format;
 import java.util.*;
 
 /**
- * DML（数据操作语言，Data Manipulation Language）格式化器。
- *
- * <p><b>支持的语句类型：</b>
- * <ul>
- *   <li>{@code SELECT}：查询语句格式化</li>
- *   <li>{@code INSERT}：插入语句格式化</li>
- *   <li>{@code UPDATE}：更新语句格式化</li>
- *   <li>{@code DELETE}：删除语句格式化</li>
- * </ul>
- *
- * <p><b>核心功能：</b>
- * <ul>
- *   <li>SELECT语句：将列列表按逗号分行，每个子句（FROM、WHERE等）单独一行</li>
- *   <li>INSERT语句：将VALUES部分分行显示</li>
- *   <li>UPDATE语句：将SET和WHERE子句分行</li>
- *   <li>DELETE语句：将WHERE子句分行</li>
- * </ul>
- *
- * <p><b>格式化示例：</b>
- * <pre>
- * 输入：
- * SELECT u.id, u.username, u.email, r.name FROM users u INNER JOIN roles r ON u.role_id = r.id WHERE u.status = 'active' ORDER BY u.username ASC LIMIT 10
- *
- * 输出：
- * SELECT
- *     u.id,
- *     u.username,
- *     u.email,
- *     r.name
- * FROM users u INNER JOIN roles r ON u.role_id = r.id
- * WHERE u.status = 'active'
- * ORDER BY u.username ASC
- * LIMIT 10
- * </pre>
- *
- * @author CH
- * @see SqlFormatter
- * @since 1.0.0
+* DML（数据操作语言，Data Manipulation Language）格式化器。
+*
+* <p><b>支持的语句类型：</b>
+* <ul>
+*   <li>{@code SELECT}：查询语句格式化</li>
+*   <li>{@code INSERT}：插入语句格式化</li>
+*   <li>{@code UPDATE}：更新语句格式化</li>
+*   <li>{@code DELETE}：删除语句格式化</li>
+* </ul>
+*
+* <p><b>核心功能：</b>
+* <ul>
+*   <li>SELECT语句：将列列表按逗号分行，每个子句（FROM、WHERE等）单独一行</li>
+*   <li>INSERT语句：将VALUES部分分行显示</li>
+*   <li>UPDATE语句：将SET和WHERE子句分行</li>
+*   <li>DELETE语句：将WHERE子句分行</li>
+* </ul>
+*
+* <p><b>格式化示例：</b>
+* <pre>
+* 输入：
+* SELECT u.id, u.username, u.email, r.name FROM users u INNER JOIN roles r ON u.role_id = r.id WHERE u.status = 'active' ORDER BY u.username ASC LIMIT 10
+*
+* 输出：
+* SELECT
+*     u.id,
+*     u.username,
+*     u.email,
+*     r.name
+* FROM users u INNER JOIN roles r ON u.role_id = r.id
+* WHERE u.status = 'active'
+* ORDER BY u.username ASC
+* LIMIT 10
+* </pre>
+*
+* @author CH
+* @see SqlFormatter
+* @since 1.0.0
  */
 public class DmlFormatter extends SqlFormatter {
     /**
-     * 无参构造器（默认配置）
+    * 无参构造器（默认配置）
      */
     public DmlFormatter() {
         super();
     }
 
     /**
-     * 带参构造器（自定义配置）
+    * 带参构造器（自定义配置）
      */
     public DmlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         super(keepComments, upperCaseKeywords);
     }
 
     /**
-     * 全参构造器
+    * 全参构造器
      */
     public DmlFormatter(boolean keepComments, boolean upperCaseKeywords, boolean compressWhitespace) {
         super(keepComments, upperCaseKeywords, compressWhitespace);
@@ -66,10 +66,10 @@ public class DmlFormatter extends SqlFormatter {
     // ==================== 静态常量 ====================
 
     /**
-     * SQL子句关键字集合（用于分割SELECT语句的各个部分）。
-     *
-     * <p>这些关键字表示SELECT语句中各个子句的开始位置，
-     * 用于将完整的SELECT语句拆分为多个逻辑部分。
+    * SQL子句关键字集合（用于分割SELECT语句的各个部分）。
+    *
+    * <p>这些关键字表示SELECT语句中各个子句的开始位置，
+    * 用于将完整的SELECT语句拆分为多个逻辑部分。
      */
     private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
             // 查询核心子句
@@ -85,19 +85,19 @@ public class DmlFormatter extends SqlFormatter {
     ));
 
     /**
-     * 主要子句关键字（需要在单独一行显示的子句）。
-     *
-     * <p>这些关键字在格式化时会放在行首，
-     * 而其他关键字（如AND、OR）会跟随在上一行之后。
+    * 主要子句关键字（需要在单独一行显示的子句）。
+    *
+    * <p>这些关键字在格式化时会放在行首，
+    * 而其他关键字（如AND、OR）会跟随在上一行之后。
      */
     private static final Set<String> MAJOR_CLAUSE = new HashSet<>(Arrays.asList(
             "SELECT", "FROM", "WHERE", "GROUP", "ORDER", "HAVING", "LIMIT", "OFFSET"
     ));
 
     /**
-     * 连接关键字（JOIN相关）。
-     *
-     * <p>这些关键字在FROM子句中控制连接行为。
+    * 连接关键字（JOIN相关）。
+    *
+    * <p>这些关键字在FROM子句中控制连接行为。
      */
     private static final Set<String> JOIN_KEYWORDS = new HashSet<>(Arrays.asList(
             "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "ON", "USING"
@@ -106,18 +106,18 @@ public class DmlFormatter extends SqlFormatter {
     // ==================== 主方法 ====================
 
     /**
-     * 执行DML格式化（实现父类抽象方法）。
-     *
-     * <p><b>处理流程：</b>
-     * <ol>
-     *   <li>清理输入SQL</li>
-     *   <li>根据语句类型（SELECT/INSERT/UPDATE/DELETE）分发</li>
-     *   <li>执行对应的格式化逻辑</li>
-     *   <li>返回格式化结果</li>
-     * </ol>
-     *
-     * @param source 预处理后的SQL字符串
-     * @return 格式化后的DML语句
+    * 执行DML格式化（实现父类抽象方法）。
+    *
+    * <p><b>处理流程：</b>
+    * <ol>
+    *   <li>清理输入SQL</li>
+    *   <li>根据语句类型（SELECT/INSERT/UPDATE/DELETE）分发</li>
+    *   <li>执行对应的格式化逻辑</li>
+    *   <li>返回格式化结果</li>
+    * </ol>
+    *
+    * @param source 预处理后的SQL字符串
+    * @return 格式化后的DML语句
      */
     @Override
     protected String doFormat(String source) {
@@ -151,19 +151,19 @@ public class DmlFormatter extends SqlFormatter {
     // ==================== SELECT 语句格式化 ====================
 
     /**
-     * 格式化 SELECT 语句。
-     *
-     * <p><b>格式化策略：</b>
-     * <ol>
-     *   <li>使用 {@link #splitByKeywords} 将SQL按主要子句分割</li>
-     *   <li>SELECT子句特殊处理：列数较多时每个列独占一行</li>
-     *   <li>FROM子句保持在一行或换行（根据复杂度）</li>
-     *   <li>WHERE/ORDER BY等子句单独一行</li>
-     *   <li>JOIN子句保持在同一行（简单情况）</li>
-     * </ol>
-     *
-     * @param sql 原始SELECT语句
-     * @return 格式化后的SELECT语句
+    * 格式化 SELECT 语句。
+    *
+    * <p><b>格式化策略：</b>
+    * <ol>
+    *   <li>使用 {@link #splitByKeywords} 将SQL按主要子句分割</li>
+    *   <li>SELECT子句特殊处理：列数较多时每个列独占一行</li>
+    *   <li>FROM子句保持在一行或换行（根据复杂度）</li>
+    *   <li>WHERE/ORDER BY等子句单独一行</li>
+    *   <li>JOIN子句保持在同一行（简单情况）</li>
+    * </ol>
+    *
+    * @param sql 原始SELECT语句
+    * @return 格式化后的SELECT语句
      */
     private String formatSelect(String sql) {
         // 1. 按主要子句分割
@@ -241,27 +241,27 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 按关键字分割SQL语句。
-     *
-     * <p><b>算法说明：</b>
-     * 将SQL字符串按空格分割为单词数组，然后顺序遍历。
-     * 当遇到目标关键字时，开始一个新的子句。
-     *
-     * <p><b>示例：</b>
-     * <pre>
-     * splitByKeywords("SELECT id FROM users WHERE id > 10", {"SELECT", "FROM", "WHERE"})
-     * → ["SELECT id", "FROM users", "WHERE id > 10"]
-     * </pre>
-     *
-     * <p><b>注意事项：</b>
-     * <ul>
-     *   <li>只识别作为独立单词的关键字（不会匹配标识符中的关键字）</li>
-     *   <li>关键字匹配不区分大小写</li>
-     * </ul>
-     *
-     * @param sql SQL字符串
-     * @param keywords 目标关键字集合
-     * @return 分割后的子句列表
+    * 按关键字分割SQL语句。
+    *
+    * <p><b>算法说明：</b>
+    * 将SQL字符串按空格分割为单词数组，然后顺序遍历。
+    * 当遇到目标关键字时，开始一个新的子句。
+    *
+    * <p><b>示例：</b>
+    * <pre>
+    * splitByKeywords("SELECT id FROM users WHERE id > 10", {"SELECT", "FROM", "WHERE"})
+    * → ["SELECT id", "FROM users", "WHERE id > 10"]
+    * </pre>
+    *
+    * <p><b>注意事项：</b>
+    * <ul>
+    *   <li>只识别作为独立单词的关键字（不会匹配标识符中的关键字）</li>
+    *   <li>关键字匹配不区分大小写</li>
+    * </ul>
+    *
+    * @param sql SQL字符串
+    * @param keywords 目标关键字集合
+    * @return 分割后的子句列表
      */
     private List<String> splitByKeywords(String sql, Set<String> keywords) {
         List<String> result = new ArrayList<>();
@@ -304,28 +304,28 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 SELECT 子句（列列表）。
-     *
-     * <p><b>策略：</b>
-     * <ul>
-     *   <li>如果列数 ≤ 3，保持在一行（简洁查询）</li>
-     *   <li>如果列数 > 3，每个列独占一行（复杂查询，提高可读性）</li>
-     * </ul>
-     *
-     * <p><b>示例：</b>
-     * <pre>
-     * 列数少：SELECT id, name, age FROM users
-     * 列数多：SELECT
-     *     id,
-     *     name,
-     *     age,
-     *     email,
-     *     created_at
-     * FROM users
-     * </pre>
-     *
-     * @param clause SELECT子句字符串
-     * @return 格式化后的SELECT子句
+    * 格式化 SELECT 子句（列列表）。
+    *
+    * <p><b>策略：</b>
+    * <ul>
+    *   <li>如果列数 ≤ 3，保持在一行（简洁查询）</li>
+    *   <li>如果列数 > 3，每个列独占一行（复杂查询，提高可读性）</li>
+    * </ul>
+    *
+    * <p><b>示例：</b>
+    * <pre>
+    * 列数少：SELECT id, name, age FROM users
+    * 列数多：SELECT
+    *     id,
+    *     name,
+    *     age,
+    *     email,
+    *     created_at
+    * FROM users
+    * </pre>
+    *
+    * @param clause SELECT子句字符串
+    * @return 格式化后的SELECT子句
      */
     private String formatSelectClause(String clause) {
         if (clause == null) {
@@ -378,16 +378,16 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 FROM 子句。
-     *
-     * <p><b>处理逻辑：</b>
-     * 统一关键字格式，保留表名和别名。
-     *
-     * <p><b>扩展点：</b>
-     * 可以在此方法中添加对多表JOIN的格式化支持。
-     *
-     * @param clause FROM子句字符串
-     * @return 格式化后的FROM子句
+    * 格式化 FROM 子句。
+    *
+    * <p><b>处理逻辑：</b>
+    * 统一关键字格式，保留表名和别名。
+    *
+    * <p><b>扩展点：</b>
+    * 可以在此方法中添加对多表JOIN的格式化支持。
+    *
+    * @param clause FROM子句字符串
+    * @return 格式化后的FROM子句
      */
     private String formatFromClause(String clause) {
         if (clause == null) {
@@ -409,25 +409,25 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 WHERE 子句。
-     *
-     * <p><b>处理逻辑：</b>
-     * 将 AND、OR 等逻辑运算符换行并缩进，提高可读性。
-     *
-     * <p><b>示例：</b>
-     * <pre>
-     * 输入：WHERE status = 'active' AND age > 18 AND name LIKE '%John%'
-     * 输出：
-     * WHERE status = 'active' AND age > 18 AND name LIKE '%John%'
-     * （简单条件保持一行）
-     *
-     * 复杂条件：
-     * WHERE status = 'active' AND (age > 18 OR role = 'admin')
-     * 保持原样，因为括号内的条件视为一个整体
-     * </pre>
-     *
-     * @param clause WHERE子句字符串
-     * @return 格式化后的WHERE子句
+    * 格式化 WHERE 子句。
+    *
+    * <p><b>处理逻辑：</b>
+    * 将 AND、OR 等逻辑运算符换行并缩进，提高可读性。
+    *
+    * <p><b>示例：</b>
+    * <pre>
+    * 输入：WHERE status = 'active' AND age > 18 AND name LIKE '%John%'
+    * 输出：
+    * WHERE status = 'active' AND age > 18 AND name LIKE '%John%'
+    * （简单条件保持一行）
+    *
+    * 复杂条件：
+    * WHERE status = 'active' AND (age > 18 OR role = 'admin')
+    * 保持原样，因为括号内的条件视为一个整体
+    * </pre>
+    *
+    * @param clause WHERE子句字符串
+    * @return 格式化后的WHERE子句
      */
     private String formatWhereClause(String clause) {
         if (clause == null) {
@@ -447,10 +447,10 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 GROUP BY 子句。
-     *
-     * @param clause GROUP BY子句字符串
-     * @return 格式化后的GROUP BY子句
+    * 格式化 GROUP BY 子句。
+    *
+    * @param clause GROUP BY子句字符串
+    * @return 格式化后的GROUP BY子句
      */
     private String formatGroupByClause(String clause) {
         if (clause == null) {
@@ -463,10 +463,10 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 ORDER BY 子句。
-     *
-     * @param clause ORDER BY子句字符串
-     * @return 格式化后的ORDER BY子句
+    * 格式化 ORDER BY 子句。
+    *
+    * @param clause ORDER BY子句字符串
+    * @return 格式化后的ORDER BY子句
      */
     private String formatOrderByClause(String clause) {
         if (clause == null) {
@@ -481,10 +481,10 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 HAVING 子句。
-     *
-     * @param clause HAVING子句字符串
-     * @return 格式化后的HAVING子句
+    * 格式化 HAVING 子句。
+    *
+    * @param clause HAVING子句字符串
+    * @return 格式化后的HAVING子句
      */
     private String formatHavingClause(String clause) {
         if (clause == null) {
@@ -495,10 +495,10 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 LIMIT/OFFSET 子句。
-     *
-     * @param clause LIMIT或OFFSET子句字符串
-     * @return 格式化后的子句
+    * 格式化 LIMIT/OFFSET 子句。
+    *
+    * @param clause LIMIT或OFFSET子句字符串
+    * @return 格式化后的子句
      */
     private String formatLimitClause(String clause) {
         if (clause == null) {
@@ -512,10 +512,10 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化其他子句（JOIN、UNION等）。
-     *
-     * @param clause 其他子句字符串
-     * @return 格式化后的子句
+    * 格式化其他子句（JOIN、UNION等）。
+    *
+    * @param clause 其他子句字符串
+    * @return 格式化后的子句
      */
     private String formatOtherClause(String clause) {
         if (clause == null) {
@@ -538,17 +538,17 @@ public class DmlFormatter extends SqlFormatter {
     // ==================== INSERT/UPDATE/DELETE 格式化 ====================
 
     /**
-     * 格式化 INSERT 语句。
-     *
-     * <p><b>处理逻辑：</b>
-     * <ul>
-     *   <li>统一 INSERT INTO 关键字格式</li>
-     *   <li>将 VALUES 部分单独换行</li>
-     *   <li>如果有多行VALUES，每行缩进</li>
-     * </ul>
-     *
-     * @param sql 原始INSERT语句
-     * @return 格式化后的INSERT语句
+    * 格式化 INSERT 语句。
+    *
+    * <p><b>处理逻辑：</b>
+    * <ul>
+    *   <li>统一 INSERT INTO 关键字格式</li>
+    *   <li>将 VALUES 部分单独换行</li>
+    *   <li>如果有多行VALUES，每行缩进</li>
+    * </ul>
+    *
+    * @param sql 原始INSERT语句
+    * @return 格式化后的INSERT语句
      */
     private String formatInsert(String sql) {
         if (sql == null) {
@@ -593,17 +593,17 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 UPDATE 语句。
-     *
-     * <p><b>处理逻辑：</b>
-     * <ul>
-     *   <li>统一 UPDATE 关键字格式</li>
-     *   <li>SET子句换行</li>
-     *   <li>WHERE子句换行并缩进</li>
-     * </ul>
-     *
-     * @param sql 原始UPDATE语句
-     * @return 格式化后的UPDATE语句
+    * 格式化 UPDATE 语句。
+    *
+    * <p><b>处理逻辑：</b>
+    * <ul>
+    *   <li>统一 UPDATE 关键字格式</li>
+    *   <li>SET子句换行</li>
+    *   <li>WHERE子句换行并缩进</li>
+    * </ul>
+    *
+    * @param sql 原始UPDATE语句
+    * @return 格式化后的UPDATE语句
      */
     private String formatUpdate(String sql) {
         if (sql == null) {
@@ -632,16 +632,16 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 DELETE 语句。
-     *
-     * <p><b>处理逻辑：</b>
-     * <ul>
-     *   <li>统一 DELETE FROM 关键字格式</li>
-     *   <li>WHERE子句换行并缩进</li>
-     * </ul>
-     *
-     * @param sql 原始DELETE语句
-     * @return 格式化后的DELETE语句
+    * 格式化 DELETE 语句。
+    *
+    * <p><b>处理逻辑：</b>
+    * <ul>
+    *   <li>统一 DELETE FROM 关键字格式</li>
+    *   <li>WHERE子句换行并缩进</li>
+    * </ul>
+    *
+    * @param sql 原始DELETE语句
+    * @return 格式化后的DELETE语句
      */
     private String formatDelete(String sql) {
         if (sql == null) {
@@ -660,13 +660,13 @@ public class DmlFormatter extends SqlFormatter {
     }
 
     /**
-     * 格式化 WITH 子句（CTE，公共表表达式）。
-     *
-     * <p><b>处理逻辑：</b>
-     * 将 WITH 子句中的每个 CTE 单独一行，并缩进。
-     *
-     * @param sql 原始WITH语句
-     * @return 格式化后的WITH语句
+    * 格式化 WITH 子句（CTE，公共表表达式）。
+    *
+    * <p><b>处理逻辑：</b>
+    * 将 WITH 子句中的每个 CTE 单独一行，并缩进。
+    *
+    * @param sql 原始WITH语句
+    * @return 格式化后的WITH语句
      */
     private String formatWithClause(String sql) {
         if (sql == null) {

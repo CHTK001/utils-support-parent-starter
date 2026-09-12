@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Agent 执行响应
- *
- * <p>封装智能体执行完成后的输出结果、执行元数据和用量统计。
- *
- * @author CH
- * @since 2026/07/15
+* Agent 执行响应
+*
+* <p>封装智能体执行完成后的输出结果、执行元数据和用量统计。
+*
+* @author CH
+* @since 2026/07/15
  */
 @Data
 @Builder
@@ -44,10 +44,10 @@ public class AgentResponse implements Serializable {
     private Map<String, Object> metadata = new LinkedHashMap<>();
 
     /**
-     * 用量信息
-     *
-     * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
-     * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
+    * 用量信息
+    *
+    * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
+    * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
      */
     private AiUsage usage;
 }

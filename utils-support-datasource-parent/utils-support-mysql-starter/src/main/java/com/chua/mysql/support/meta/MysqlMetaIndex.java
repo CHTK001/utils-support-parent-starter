@@ -15,29 +15,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class MysqlMetaIndex extends AbstractMetaIndex {
 
     /**
-      * 创建 mysqlmeta索引 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+    * 创建 mysqlmeta索引 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param engine engine
      */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-      * 创建 mysqlmeta索引 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param indexName 字符串
-     * @param engine engine
-     * @param indexName 索引名称
+    * 创建 mysqlmeta索引 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param indexName 字符串
+    * @param engine engine
+    * @param indexName 索引名称
      */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine, String indexName) {
         super(metaData, engine, indexName);
@@ -118,9 +118,9 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     /**
-     * 获取Connection
-     *
-     * @return 获取connection的结果
+    * 获取Connection
+    *
+    * @return 获取connection的结果
      */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
@@ -135,22 +135,22 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     /**
-     * 引述
-     *
-     * @param name 名称
-     * @return 引述的结果
+    * 引述
+    *
+    * @param name 名称
+    * @return 引述的结果
      */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
     /**
-     * 执行更新
-     *
-     * @param sql SQL
-     * @return 执行更新的结果
-     * @author CH
-     * @since 4.0.0
+    * 执行更新
+    *
+    * @param sql SQL
+    * @return 执行更新的结果
+    * @author CH
+    * @since 4.0.0
      */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
@@ -267,10 +267,10 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     /**
-     * escapesql
-     *
-     * @param value 值
-     * @return escapeSql的结果
+    * escapesql
+    *
+    * @param value 值
+    * @return escapeSql的结果
      */
     private static String escapeSql(String value) {
         if (value == null) {

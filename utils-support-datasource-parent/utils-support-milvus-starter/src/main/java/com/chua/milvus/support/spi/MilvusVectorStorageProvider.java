@@ -8,18 +8,18 @@ import com.chua.milvus.support.configuration.MilvusStorageProperties;
 import com.chua.milvus.support.storage.MilvusVectorStorage;
 
 /**
- * Milvus 向量存储 SPI 实现。
- *
- * @author CH
- * @since 4.0.0.42
+* Milvus 向量存储 SPI 实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi(value = "milvus", order = 100)
 public class MilvusVectorStorageProvider implements VectorStorageProvider {
 
     /**
-     * SPI 名称。
-     *
-     * @return "milvus"
+    * SPI 名称。
+    *
+    * @return "milvus"
      */
     @Override
     public String name() {
@@ -28,10 +28,10 @@ public class MilvusVectorStorageProvider implements VectorStorageProvider {
 
     @Override
     /**
-     * 创建
-     * @param dimension 维度
-     * @param algorithm algorithm
-     * @param properties 属性
+    * 创建
+    * @param dimension 维度
+    * @param algorithm algorithm
+    * @param properties 属性
      */
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,

@@ -20,58 +20,58 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 任务管理器。
- *
- * <p>维护所有待执行、执行中、已完成的任务状态，支持超时检测、断线重发、
- * 取消、暂停、恢复和状态变更通知。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 任务管理器。
+*
+* <p>维护所有待执行、执行中、已完成的任务状态，支持超时检测、断线重发、
+* 取消、暂停、恢复和状态变更通知。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class TaskManager {
 
     /**
-      * 任务状态映射：任务id -> 任务holder
+    * 任务状态映射：任务id -> 任务holder
      */
     private final Map<String, TaskHolder> tasks = new ConcurrentHashMap<>();
 
 /**
- * 状态变更监听器
+* 状态变更监听器
  */
 private final List<TaskStateListener> stateListeners = new CopyOnWriteArrayList<>();
 
 /**
- * 任务持久化存储
+* 任务持久化存储
  */
 private TaskStore store;
 
 /**
- * 超时检测定时器
+* 超时检测定时器
  */
 private final ScheduledExecutorService timeoutScheduler;
 
 /**
- * 已完成任务清理过期时间（毫秒），默认 60 秒
+* 已完成任务清理过期时间（毫秒），默认 60 秒
  */
 private long cleanExpireMs = 60000;
 
     /**
-     * 默认超时检测间隔（毫秒）
+    * 默认超时检测间隔（毫秒）
      */
     private static final long TIMEOUT_CHECK_INTERVAL = 1000;
 
     /**
-     * 构造任务管理器，默认启用超时检测。
+    * 构造任务管理器，默认启用超时检测。
      */
     public TaskManager() {
         this(true);
     }
 
     /**
-     * 构造任务管理器。
-     *
-     * @param enableTimeoutCheck 是否启用超时检测
+    * 构造任务管理器。
+    *
+    * @param enableTimeoutCheck 是否启用超时检测
      */
     public TaskManager(boolean enableTimeoutCheck) {
         if (enableTimeoutCheck) {
@@ -89,18 +89,18 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 设置持久化存储。
-     *
-     * @param store 存储实现
+    * 设置持久化存储。
+    *
+    * @param store 存储实现
      */
     public void setStore(TaskStore store) {
         this.store = store;
     }
 
     /**
-     * 注册状态变更监听器。
-     *
-     * @param listener 监听器
+    * 注册状态变更监听器。
+    *
+    * @param listener 监听器
      */
     public void addStateListener(TaskStateListener listener) {
         if (listener != null) {
@@ -109,19 +109,19 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 移除状态变更监听器。
-     *
-     * @param listener 监听器
+    * 移除状态变更监听器。
+    *
+    * @param listener 监听器
      */
     public void removeStateListener(TaskStateListener listener) {
         stateListeners.remove(listener);
     }
 
     /**
-     * 添加任务。
-     *
-     * @param task     任务
-     * @param callback 回调
+    * 添加任务。
+    *
+    * @param task     任务
+    * @param callback 回调
      */
     public void addTask(Task<?> task, TaskCallback callback) {
         if (task == null || task.getTaskId() == null) {
@@ -136,10 +136,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 更新任务状态并通知监听器。
-     *
-     * @param taskId  任务 标识
-     * @param status  新状态
+    * 更新任务状态并通知监听器。
+    *
+    * @param taskId  任务 标识
+    * @param status  新状态
      */
     public void updateStatus(String taskId, TaskStatus status) {
         TaskHolder holder = tasks.get(taskId);
@@ -159,10 +159,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 通知状态变更。
-     * @param taskId 任务标识
-     * @param oldState 旧状态
-     * @param newState 新状态
+    * 通知状态变更。
+    * @param taskId 任务标识
+    * @param oldState 旧状态
+    * @param newState 新状态
      */
     private void notifyStateChanged(String taskId, TaskStatus oldState, TaskStatus newState) {
         for (TaskStateListener listener : stateListeners) {
@@ -175,8 +175,8 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 通知任务完成。
-     * @param result 结果
+    * 通知任务完成。
+    * @param result 结果
      */
     private void notifyCompleted(TaskResult<?> result) {
         for (TaskStateListener listener : stateListeners) {
@@ -189,10 +189,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 取消任务。
-     *
-     * @param taskId 任务 标识
-     * @return true 表示取消成功
+    * 取消任务。
+    *
+    * @param taskId 任务 标识
+    * @return true 表示取消成功
      */
     public boolean cancel(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -212,10 +212,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 暂停任务（服务端不再派发，工作端可继续执行）。
-     *
-     * @param taskId 任务 标识
-     * @return true 表示暂停成功
+    * 暂停任务（服务端不再派发，工作端可继续执行）。
+    *
+    * @param taskId 任务 标识
+    * @return true 表示暂停成功
      */
     public boolean pause(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -228,10 +228,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 恢复暂停的任务。
-     *
-     * @param taskId 任务 标识
-     * @return true 表示恢复成功
+    * 恢复暂停的任务。
+    *
+    * @param taskId 任务 标识
+    * @return true 表示恢复成功
      */
     public boolean resume(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -244,9 +244,9 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 处理任务结果。
-     *
-     * @param result 执行结果
+    * 处理任务结果。
+    *
+    * @param result 执行结果
      */
     public void handleResult(TaskResult<?> result) {
         if (result == null || result.getTaskId() == null) {
@@ -276,10 +276,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取任务状态。
-     *
-     * @param taskId 任务 标识
-     * @return 任务状态，不存在返回 空
+    * 获取任务状态。
+    *
+    * @param taskId 任务 标识
+    * @return 任务状态，不存在返回 空
      */
     public TaskStatus getStatus(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -287,10 +287,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取任务结果。
-     *
-     * @param taskId 任务 标识
-     * @return 任务结果，不存在返回 空
+    * 获取任务结果。
+    *
+    * @param taskId 任务 标识
+    * @return 任务结果，不存在返回 空
      */
     public TaskResult<?> getResult(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -298,10 +298,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取任务。
-     *
-     * @param taskId 任务 标识
-     * @return 任务，不存在返回 空
+    * 获取任务。
+    *
+    * @param taskId 任务 标识
+    * @return 任务，不存在返回 空
      */
     public Task<?> getTask(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -309,9 +309,9 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取所有待重试的任务。
-     *
-     * @return 待重试任务列表（含回调）
+    * 获取所有待重试的任务。
+    *
+    * @return 待重试任务列表（含回调）
      */
     public List<Map.Entry<Task<?>, TaskCallback>> getRetryableTasks() {
         return tasks.values().stream()
@@ -325,9 +325,9 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取所有待派发的任务（PENDING 状态，未暂停）。
-     *
-     * @return 待派发任务列表
+    * 获取所有待派发的任务（PENDING 状态，未暂停）。
+    *
+    * @return 待派发任务列表
      */
     public List<Task<?>> getPendingTasks() {
         return tasks.values().stream()
@@ -337,7 +337,7 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 超时检测。
+    * 超时检测。
      */
     private void checkTimeouts() {
         long now = System.currentTimeMillis();
@@ -368,9 +368,9 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 获取所有任务视图。
-     *
-     * @return 任务视图列表
+    * 获取所有任务视图。
+    *
+    * @return 任务视图列表
      */
     public List<TaskView> getAllTasks() {
         List<TaskView> views = new ArrayList<>();
@@ -388,10 +388,10 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 恢复未完成任务（应用重启后调用）。
-     * <p>从持久化存储加载 PENDING / RUNNING 状态的任务，重置为 PENDING 待重新派发。</p>
-     *
-     * @return 恢复的任务列表
+    * 恢复未完成任务（应用重启后调用）。
+    * <p>从持久化存储加载 PENDING / RUNNING 状态的任务，重置为 PENDING 待重新派发。</p>
+    *
+    * @return 恢复的任务列表
      */
     public List<Task<?>> recover() {
         if (store == null) {
@@ -409,7 +409,7 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 清理已完成任务。
+    * 清理已完成任务。
      */
     public void cleanCompleted() {
         long now = System.currentTimeMillis();
@@ -422,7 +422,7 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 销毁定时器。
+    * 销毁定时器。
      */
     public void destroy() {
         if (timeoutScheduler != null) {
@@ -432,9 +432,9 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 任务持有者（内部数据结构）。
-     * @author CH
-     * @since 4.0.0
+    * 任务持有者（内部数据结构）。
+    * @author CH
+    * @since 4.0.0
      */
     private static class TaskHolder {
         final Task<?> task; // 任务
@@ -456,16 +456,16 @@ private long cleanExpireMs = 60000;
     }
 
     /**
-     * 任务视图（对外只读展示）。
-     *
-     * @param taskId      任务 标识
-     * @param taskType    任务类型
-     * @param status      状态
-     * @param retryCount  重试次数
-     * @param createdAt   创建时间
-     * @param completedAt 完成时间
- * @author CH
-     * @since 4.0.0.42
+    * 任务视图（对外只读展示）。
+    *
+    * @param taskId      任务 标识
+    * @param taskType    任务类型
+    * @param status      状态
+    * @param retryCount  重试次数
+    * @param createdAt   创建时间
+    * @param completedAt 完成时间
+    * @author CH
+    * @since 4.0.0.42
      */
     public record TaskView(
             String taskId,

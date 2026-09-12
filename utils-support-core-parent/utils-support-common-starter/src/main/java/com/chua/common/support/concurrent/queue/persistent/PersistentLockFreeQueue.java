@@ -20,139 +20,139 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 /**
- * 带 WAL（Write-Ahead Log）的持久化无锁队列，crash 后可通过日志恢复队列状态。
- *
- * <p>核心机制：
- * <ul>
- *   <li>入队 {@link #offer}：先将操作写入 WAL 日志，再写入内存无锁队列</li>
- *   <li>出队 {@link #poll}：先写 WAL 日志（poll 标记），再从内存无锁队列取出</li>
- *   <li>构造时自动恢复：扫描 WAL 文件，回放所有 offer/poll 操作，重建内存队列状态</li>
- *   <li>WAL 写入支持 mmap（内存映射）或 FileChannel 两种模式，由 {@link WalConfig#mmap} 控制</li>
- *   <li>刷盘策略：{@link WalConfig#sync}=true 每次写入后 force 落盘；
- *       false 时降级为异步，由后台线程周期 flush</li>
- * </ul>
- * </p>
- *
- * <p>WAL 记录格式（定长头 + 变长体）：
- * <pre>
- *   [1 byte opType] [4 byte dataLength] [dataLength byte data]
- *   opType: 0=offer, 1=poll, 2=checkpoint(保留)
- * </pre>
- * </p>
- *
- * <p>约束：
- * <ul>
- *   <li>仅支持 {@link QueueType#UNBOUNDED}（无界），保证 offer 永远成功，避免 WAL 与内存状态不一致</li>
- *   <li>泛型元素需通过序列化函数 {@code Function<E,byte[]>} 转为字节</li>
- * </ul>
- * </p>
- *
- * @param <E> 队列元素类型
- * @author CH
- * @since 4.0.0.42
+* 带 WAL（Write-Ahead Log）的持久化无锁队列，crash 后可通过日志恢复队列状态。
+*
+* <p>核心机制：
+* <ul>
+*   <li>入队 {@link #offer}：先将操作写入 WAL 日志，再写入内存无锁队列</li>
+*   <li>出队 {@link #poll}：先写 WAL 日志（poll 标记），再从内存无锁队列取出</li>
+*   <li>构造时自动恢复：扫描 WAL 文件，回放所有 offer/poll 操作，重建内存队列状态</li>
+*   <li>WAL 写入支持 mmap（内存映射）或 FileChannel 两种模式，由 {@link WalConfig#mmap} 控制</li>
+*   <li>刷盘策略：{@link WalConfig#sync}=true 每次写入后 force 落盘；
+*       false 时降级为异步，由后台线程周期 flush</li>
+* </ul>
+* </p>
+*
+* <p>WAL 记录格式（定长头 + 变长体）：
+* <pre>
+*   [1 byte opType] [4 byte dataLength] [dataLength byte data]
+*   opType: 0=offer, 1=poll, 2=checkpoint(保留)
+* </pre>
+* </p>
+*
+* <p>约束：
+* <ul>
+*   <li>仅支持 {@link QueueType#UNBOUNDED}（无界），保证 offer 永远成功，避免 WAL 与内存状态不一致</li>
+*   <li>泛型元素需通过序列化函数 {@code Function<E,byte[]>} 转为字节</li>
+* </ul>
+* </p>
+*
+* @param <E> 队列元素类型
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
 
     /**
-     * 操作类型：写入（offer）
+    * 操作类型：写入（offer）
      */
     private static final byte OP_OFFER = 0;
 
     /**
-     * 操作类型：读取（poll）
+    * 操作类型：读取（poll）
      */
     private static final byte OP_POLL = 1;
 
     /**
-     * WAL 记录头部长度：1 byte opType + 4 byte dataLength
+    * WAL 记录头部长度：1 byte opType + 4 byte dataLength
      */
     private static final int HEADER_SIZE = 5;
 
     /**
-     * poll 操作的空数据负载
+    * poll 操作的空数据负载
      */
     private static final byte[] EMPTY_DATA = new byte[0];
 
     /**
-     * 底层无锁内存队列
+    * 底层无锁内存队列
      */
     private final LockFreeQueue<E> delegate;
 
     /**
-     * 序列化函数：将元素转为字节数组
+    * 序列化函数：将元素转为字节数组
      */
     private final Function<E, byte[]> serializer;
 
     /**
-     * 反序列化函数：将字节数组转为元素
+    * 反序列化函数：将字节数组转为元素
      */
     private final Function<byte[], E> deserializer;
 
     /**
-     * WAL 配置
+    * WAL 配置
      */
     private final WalConfig config;
 
     /**
-     * WAL 文件路径
+    * WAL 文件路径
      */
     private final Path walPath;
 
     /**
-     * meta 文件路径，记录有效写入长度（WAL 之外独立持久化，避免扫描尾部脏数据）
+    * meta 文件路径，记录有效写入长度（WAL 之外独立持久化，避免扫描尾部脏数据）
      */
     private final Path metaPath;
 
     /**
-     * 是否使用 mmap 模式
+    * 是否使用 mmap 模式
      */
     private final boolean useMmap;
 
     /**
-     * FileChannel 引用（mmap 模式下也用于扩展文件）
+    * FileChannel 引用（mmap 模式下也用于扩展文件）
      */
     private FileChannel channel;
 
     /**
-     * mmap 缓冲区
+    * mmap 缓冲区
      */
     private MappedByteBuffer mmapBuffer;
 
     /**
-     * 写入互斥锁，保证 WAL 写入顺序
+    * 写入互斥锁，保证 WAL 写入顺序
      */
     private final ReentrantLock writeLock = new ReentrantLock();
 
     /**
-     * 当前写入位置偏移量
+    * 当前写入位置偏移量
      */
     private final AtomicLong writePosition = new AtomicLong(0);
 
     /**
-     * mmap 当前映射区大小
+    * mmap 当前映射区大小
      */
     private int mappedSize;
 
     /**
-     * 异步刷盘线程
+    * 异步刷盘线程
      */
     private Thread flushThread;
 
     /**
-     * 运行标志位，控制异步刷盘线程
+    * 运行标志位，控制异步刷盘线程
      */
     private volatile boolean running = true;
 
     /**
-     * 创建持久化无锁队列并自动恢复。
-     *
-     * @param queueType    队列类型，仅支持 UNBOUNDED
-     * @param config       WAL 配置
-     * @param serializer   元素序列化函数
-     * @param deserializer 元素反序列化函数
-     * @throws IOException              文件操作失败时抛出
-     * @throws IllegalArgumentException 队列类型非 UNBOUNDED 时抛出
+    * 创建持久化无锁队列并自动恢复。
+    *
+    * @param queueType    队列类型，仅支持 UNBOUNDED
+    * @param config       WAL 配置
+    * @param serializer   元素序列化函数
+    * @param deserializer 元素反序列化函数
+    * @throws IOException              文件操作失败时抛出
+    * @throws IllegalArgumentException 队列类型非 UNBOUNDED 时抛出
      */
     public PersistentLockFreeQueue(QueueType queueType,
                                    WalConfig config,
@@ -189,9 +189,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 从 WAL 文件恢复队列状态，回放所有 offer/poll 操作。
-     *
-     * @throws IOException 读取失败时抛出
+    * 从 WAL 文件恢复队列状态，回放所有 offer/poll 操作。
+    *
+    * @throws IOException 读取失败时抛出
      */
     private void recover() throws IOException {
         log.info("从 WAL 恢复队列状态: {}", walPath);
@@ -263,9 +263,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 备份当前 WAL 文件并删除原文件。
-     *
-     * @throws IOException 文件操作失败时抛出
+    * 备份当前 WAL 文件并删除原文件。
+    *
+    * @throws IOException 文件操作失败时抛出
      */
     private void backupAndCleanup() throws IOException {
         if (Files.exists(walPath)) {
@@ -276,9 +276,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 打开 WAL 文件并初始化写入缓冲区。
-     *
-     * @throws IOException 文件操作失败时抛出
+    * 打开 WAL 文件并初始化写入缓冲区。
+    *
+    * @throws IOException 文件操作失败时抛出
      */
     private void openForWrite() throws IOException {
         this.channel = FileChannel.open(walPath,
@@ -293,10 +293,10 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 扩展 mmap 映射区域（当前映射区写满时调用）。
-     *
-     * @param requiredSize 需要容纳的记录总大小
-     * @throws IOException 映射失败时抛出
+    * 扩展 mmap 映射区域（当前映射区写满时调用）。
+    *
+    * @param requiredSize 需要容纳的记录总大小
+    * @throws IOException 映射失败时抛出
      */
     private void expandMmap(int requiredSize) throws IOException {
         long newPos = writePosition.get();
@@ -310,12 +310,12 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 入队一个元素：先写 WAL 日志，再写入内存无锁队列。
-     *
-     * @param element 待入队元素，禁止为 null
-     * @return 入队成功返回 true（无界队列恒为 true）
-     * @throws NullPointerException     元素为 null 时抛出
-     * @throws RuntimeException         WAL 写入失败时抛出
+    * 入队一个元素：先写 WAL 日志，再写入内存无锁队列。
+    *
+    * @param element 待入队元素，禁止为 null
+    * @return 入队成功返回 true（无界队列恒为 true）
+    * @throws NullPointerException     元素为 null 时抛出
+    * @throws RuntimeException         WAL 写入失败时抛出
      */
     @Override
     public boolean offer(E element) {
@@ -329,10 +329,10 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 出队并移除队首元素：先写 WAL 日志，再从内存无锁队列取出。
-     *
-     * @return 队首元素；队列为空时返回 null
-     * @throws RuntimeException WAL 写入失败时抛出
+    * 出队并移除队首元素：先写 WAL 日志，再从内存无锁队列取出。
+    *
+    * @return 队首元素；队列为空时返回 null
+    * @throws RuntimeException WAL 写入失败时抛出
      */
     @Override
     public E poll() {
@@ -341,9 +341,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 查看队首元素但不移除，直接委托内存队列。
-     *
-     * @return 队首元素；队列为空时返回 null
+    * 查看队首元素但不移除，直接委托内存队列。
+    *
+    * @return 队首元素；队列为空时返回 null
      */
     @Override
     public E peek() {
@@ -351,9 +351,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 判断队列是否为空。
-     *
-     * @return 队列为空返回 true
+    * 判断队列是否为空。
+    *
+    * @return 队列为空返回 true
      */
     @Override
     public boolean isEmpty() {
@@ -361,9 +361,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 返回队列中的元素数量（近似值）。
-     *
-     * @return 元素数量
+    * 返回队列中的元素数量（近似值）。
+    *
+    * @return 元素数量
      */
     @Override
     public int size() {
@@ -371,7 +371,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 清空队列，同时清空 WAL。
+    * 清空队列，同时清空 WAL。
      */
     @Override
     public void clear() {
@@ -394,9 +394,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 无界队列容量返回 Integer.MAX_VALUE。
-     *
-     * @return {@link Integer#MAX_VALUE}
+    * 无界队列容量返回 Integer.MAX_VALUE。
+    *
+    * @return {@link Integer#MAX_VALUE}
      */
     @Override
     public int capacity() {
@@ -404,9 +404,9 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 关闭队列，刷盘并释放资源。
-     *
-     * @throws IOException 刷盘或关闭文件失败时抛出
+    * 关闭队列，刷盘并释放资源。
+    *
+    * @throws IOException 刷盘或关闭文件失败时抛出
      */
     @Override
     public void close() throws IOException {
@@ -431,10 +431,10 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 写入一条 WAL 记录。
-     *
-     * @param opType 操作类型（OP_OFFER / OP_POLL）
-     * @param data   数据负载（poll 时为空数组）
+    * 写入一条 WAL 记录。
+    *
+    * @param opType 操作类型（OP_OFFER / OP_POLL）
+    * @param data   数据负载（poll 时为空数组）
      */
     private void writeWal(byte opType, byte[] data) {
         int recordSize = HEADER_SIZE + data.length;
@@ -481,7 +481,7 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 启动异步刷盘后台线程。
+    * 启动异步刷盘后台线程。
      */
     private void startFlushThread() {
         flushThread = new Thread(() -> {
@@ -509,10 +509,10 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 读取 meta 文件中记录的有效写入长度，文件不存在或读取失败时返回 0。
-     *
-     * @return 有效写入长度（字节），无效时返回 0
-     * @throws IOException 读取失败时抛出
+    * 读取 meta 文件中记录的有效写入长度，文件不存在或读取失败时返回 0。
+    *
+    * @return 有效写入长度（字节），无效时返回 0
+    * @throws IOException 读取失败时抛出
      */
     private long readMetaLength() throws IOException {
         if (!Files.exists(metaPath)) {
@@ -529,10 +529,10 @@ public class PersistentLockFreeQueue<E> implements LockFreeQueue<E>, Closeable {
     }
 
     /**
-     * 写入有效写入长度到 meta 文件（覆盖写入 8 字节 long）。
-     *
-     * @param length 有效写入长度（字节）
-     * @throws IOException 写入失败时抛出
+    * 写入有效写入长度到 meta 文件（覆盖写入 8 字节 long）。
+    *
+    * @param length 有效写入长度（字节）
+    * @throws IOException 写入失败时抛出
      */
     private void writeMetaLength(long length) throws IOException {
         try (FileChannel ch = FileChannel.open(metaPath,

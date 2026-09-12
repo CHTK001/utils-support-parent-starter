@@ -13,18 +13,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ip-api.com IP 定位数据源实现。
- *
- * <p>免费公开接口（无 key，免费版走 http）：</p>
- * <ul>
- *   <li>{@code http://ip-api.com/json/?lang=zh-CN} — 定位当前请求者（服务器自身）</li>
- *   <li>{@code http://ip-api.com/json/{ip}?lang=zh-CN} — 按 IP 定位</li>
- * </ul>
- *
- * <p>返回国家/省份/城市/经纬度/时区/运营商等。1 小时内存缓存（惰性刷新）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* ip-api.com IP 定位数据源实现。
+*
+* <p>免费公开接口（无 key，免费版走 http）：</p>
+* <ul>
+*   <li>{@code http://ip-api.com/json/?lang=zh-CN} — 定位当前请求者（服务器自身）</li>
+*   <li>{@code http://ip-api.com/json/{ip}?lang=zh-CN} — 按 IP 定位</li>
+* </ul>
+*
+* <p>返回国家/省份/城市/经纬度/时区/运营商等。1 小时内存缓存（惰性刷新）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("ip-api")
 public class IpApiLocationProvider implements LocationProvider {
@@ -65,10 +65,10 @@ public class IpApiLocationProvider implements LocationProvider {
     }
 
     /**
-      * 执行定位（空 键 表示请求者自身）。
-     *
-     * @param key IP 或空串
-     * @return 定位信息；失败返回 空
+    * 执行定位（空 键 表示请求者自身）。
+    *
+    * @param key IP 或空串
+    * @return 定位信息；失败返回 空
      */
     private LocationInfo locate(String key) {
         Long ts = cachedAt.get(key);
@@ -104,10 +104,10 @@ public class IpApiLocationProvider implements LocationProvider {
     }
 
     /**
-     * 读取数值节点。
-     *
-     * @param node 数值节点
-     * @return 数值；缺失/非数值返回 空
+    * 读取数值节点。
+    *
+    * @param node 数值节点
+    * @return 数值；缺失/非数值返回 空
      */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {

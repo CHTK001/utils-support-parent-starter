@@ -24,96 +24,96 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * WAL（Write-Ahead log）分发器提供者。
- *
- * <p>双支杆架构：
- * <ul>
- *   <li><b>主支杆</b>：无锁队列（MpmcArrayQueue），数据直达消费者，零系统调用</li>
- *   <li><b>副支杆</b>：WAL + mmap 持久化，用于崩溃恢复</li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* WAL（Write-Ahead log）分发器提供者。
+*
+* <p>双支杆架构：
+* <ul>
+*   <li><b>主支杆</b>：无锁队列（MpmcArrayQueue），数据直达消费者，零系统调用</li>
+*   <li><b>副支杆</b>：WAL + mmap 持久化，用于崩溃恢复</li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WalDispatcherProvider extends AbstractDispatcherProvider implements DispatcherProvider {
 
     /**
-     * WAL 帧头魔数：WAL1
+    * WAL 帧头魔数：WAL1
      */
     private static final int MAGIC = 0x57414C31;
 
     /**
-     * 序列化器实例
+    * 序列化器实例
      */
     private volatile com.chua.common.support.base.serialize.Serialization serializer;
 
     /**
-     * 主题 -> WAL 日志文件映射
+    * 主题 -> WAL 日志文件映射
      */
     private final Map<String, WalLog> logs = new ConcurrentHashMap<>();
 
     /**
-     * 主题 -> 订阅者列表映射
+    * 主题 -> 订阅者列表映射
      */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-     * 主题 -> 无锁快速队列映射（主支杆）
+    * 主题 -> 无锁快速队列映射（主支杆）
      */
     private final Map<String, LockFreeQueue<byte[]>> fastQueues = new ConcurrentHashMap<>();
 
     /**
-     * 消费者线程池（虚拟线程）
+    * 消费者线程池（虚拟线程）
      */
     private final ExecutorService consumerExecutor = java.util.concurrent.Executors.newThreadPerTaskExecutor(
             Thread.ofVirtual().name("wal-consumer-", 0).factory());
 
     /**
-     * WAL 日志文件存储目录
+    * WAL 日志文件存储目录
      */
     private final Path logDir;
 
     /**
-     * 关闭标志
+    * 关闭标志
      */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * 快速队列类型（SPSC 单生产者单消费者，吞吐最高）
+    * 快速队列类型（SPSC 单生产者单消费者，吞吐最高）
      */
     private static final QueueType FAST_QUEUE_TYPE = QueueType.SPSC;
 
     /**
-     * 快速队列容量（2 的幂）
+    * 快速队列容量（2 的幂）
      */
     private static final int FAST_QUEUE_CAPACITY = 65536;
 
     /**
-     * WAL 帧头大小（魔数 4 字节 + 长度 4 字节）
+    * WAL 帧头大小（魔数 4 字节 + 长度 4 字节）
      */
     private static final int FRAME_HEADER_SIZE = 8;
 
     /**
-     * mmap 每次扩容大小：64MB
+    * mmap 每次扩容大小：64MB
      */
     private static final long MMAP_GROW = 64L * 1024 * 1024;
 
     /**
-     * 创建 WalDispatcherProvider 实例
-     * @param config config
+    * 创建 WalDispatcherProvider 实例
+    * @param config config
      */
     public WalDispatcherProvider(DispatcherConfig config) {
         this(config, (String) null);
     }
 
     /**
-     * 构造 WAL 分发器提供者，按 SPI 名称加载序列化器。
-     *
-     * @param config        分发器配置
-     * @param serializerName 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），
-     *                       为空时回退使用 config 中的序列化名称，再为空使用默认 Jackson
+    * 构造 WAL 分发器提供者，按 SPI 名称加载序列化器。
+    *
+    * @param config        分发器配置
+    * @param serializerName 序列化器 SPI 名称（如 {@code fury}/{@code fory}/{@code jackson}），
+    *                       为空时回退使用 config 中的序列化名称，再为空使用默认 Jackson
      */
     public WalDispatcherProvider(DispatcherConfig config, String serializerName) {
         this(config, resolveSerializer(
@@ -123,9 +123,9 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 构造 WAL 分发器提供者，序列化器 SPI 名称统一从 {@link DispatcherConfig#getSerializer()} 读取。
-     *
-     * @param config 分发器配置（可含 serializer 序列化名称）
+    * 构造 WAL 分发器提供者，序列化器 SPI 名称统一从 {@link DispatcherConfig#getSerializer()} 读取。
+    *
+    * @param config 分发器配置（可含 serializer 序列化名称）
      */
     public WalDispatcherProvider(DispatcherConfig config,
                                  com.chua.common.support.base.serialize.Serialization serializer) {
@@ -146,11 +146,11 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 按 SPI 名称解析序列化器。
-     *
-     * @param name 序列化器 SPI 名称（{@code fury}/{@code fory}/{@code jackson} 等），
-     *             为空时使用 Jackson 默认实现
-     * @return 解析出的序列化器，Spi 加载失败时回退 Jackson
+    * 按 SPI 名称解析序列化器。
+    *
+    * @param name 序列化器 SPI 名称（{@code fury}/{@code fory}/{@code jackson} 等），
+    *             为空时使用 Jackson 默认实现
+    * @return 解析出的序列化器，Spi 加载失败时回退 Jackson
      */
     private static com.chua.common.support.base.serialize.Serialization resolveSerializer(String name) {
         if (name == null || name.isBlank()) {
@@ -187,7 +187,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 获取或创建主题的无锁快速队列。
+    * 获取或创建主题的无锁快速队列。
      */
     private LockFreeQueue<byte[]> fastQueue(String topic) {
         return fastQueues.computeIfAbsent(topic, t -> LockFreeQueueFlow.create(FAST_QUEUE_TYPE, FAST_QUEUE_CAPACITY));
@@ -230,14 +230,14 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 获取或创建指定主题的 WAL 日志。
+    * 获取或创建指定主题的 WAL 日志。
      */
     private WalLog getLog(String topic) {
         return logs.computeIfAbsent(topic, t -> new WalLog(logDir.resolve("wal-" + t + ".log")));
     }
 
     /**
-     * 启动消费者虚拟线程，从无锁快速队列读取并分发。
+    * 启动消费者虚拟线程，从无锁快速队列读取并分发。
      */
     private void startConsumer(String topic) {
         var queue = fastQueue(topic);
@@ -262,7 +262,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * 分发已反序列化的消息到所有订阅者。
+    * 分发已反序列化的消息到所有订阅者。
      */
     private void dispatch(String topic, byte[] data) {
         var definitions = definitionMap.get(topic);
@@ -314,45 +314,45 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
     }
 
     /**
-     * WAL 日志文件，封装 mmap 写入和提交位置追踪。
-     *
-     * @since 4.0.0.42
+    * WAL 日志文件，封装 mmap 写入和提交位置追踪。
+    *
+    * @since 4.0.0.42
      */
     @Slf4j
     static class WalLog {
 
         /**
-         * WAL 日志文件路径
+        * WAL 日志文件路径
          */
         final Path file;
 
         /**
-         * 文件通道
+        * 文件通道
          */
         private FileChannel channel;
 
         /**
-         * mmap 读写缓冲区
+        * mmap 读写缓冲区
          */
         private MappedByteBuffer mappedBuf;
 
         /**
-         * 当前 mmap 映射大小
+        * 当前 mmap 映射大小
          */
         private long mappedSize = 0;
 
         /**
-         * 是否启用 mmap
+        * 是否启用 mmap
          */
         private volatile boolean useMmap = true;
 
         /**
-         * 写入端已确认的提交位置，消费者仅读到该位置
+        * 写入端已确认的提交位置，消费者仅读到该位置
          */
         final AtomicLong commitPos = new AtomicLong(0);
 
         /**
-         * 写入锁，保证多线程并发 publish 时 mmap 写入原子性
+        * 写入锁，保证多线程并发 publish 时 mmap 写入原子性
          */
         private final Object writeLock = new Object();
 
@@ -370,7 +370,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
 
         /**
-         * 尝试初始化 mmap 映射。
+        * 尝试初始化 mmap 映射。
          */
         private void tryMmap() {
             try {
@@ -386,7 +386,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
 
         /**
-         * 确保 mmap 缓冲区有足够空间写入指定大小的数据。
+        * 确保 mmap 缓冲区有足够空间写入指定大小的数据。
          */
         private void ensureMmap(int needed) {
             if (!useMmap || mappedBuf == null) {
@@ -409,8 +409,8 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
 
         /**
-         * 写入一帧数据到 mmap。
-         * <p>帧格式：魔数(4B) + 负载长度(4B) + 负载数据。</p>
+        * 写入一帧数据到 mmap。
+        * <p>帧格式：魔数(4B) + 负载长度(4B) + 负载数据。</p>
          */
         void writeFrame(byte[] payload) {
             int frameSize = FRAME_HEADER_SIZE + payload.length;
@@ -447,7 +447,7 @@ public class WalDispatcherProvider extends AbstractDispatcherProvider implements
         }
 
         /**
-         * 关闭 WAL 日志，释放文件通道。
+        * 关闭 WAL 日志，释放文件通道。
          */
         void close() {
             try {

@@ -3,10 +3,10 @@ package com.chua.oshi.support;
 import lombok.Data;
 
 /**
- * 传感器内部信息类，封装单个传感器的读数。
- *
- * @author CH
- * @since 4.0.0
+* 传感器内部信息类，封装单个传感器的读数。
+*
+* @author CH
+* @since 4.0.0
  */
 @Data
 public class SensorInfo {

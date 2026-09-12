@@ -17,46 +17,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SMB 文件存储实现。
- *
- * <p>基于 smb-jna 实现 {@link com.chua.common.support.storage.FileStorage} SPI 接口。</p>
- *
- * <p>{@link BucketSetting} 映射规则：</p>
- * <ul>
- *   <li>endpoint     → SMB 服务器地址（如 "192.168.1.10" 或 "smb://192.168.1.10:445"）</li>
- *   <li>bucket       → share 名称</li>
- *   <li>accessKeyId  → SMB 用户名</li>
- *   <li>accessKeySecret → SMB 密码</li>
- * </ul>
- *
- * <p>配置示例：</p>
- * <pre>{@code
- * BucketSetting setting = BucketSetting.builder()
- *     .endpoint("192.168.1.10")
- *     .bucket("shared")
- *     .accessKeyId("admin")
- *     .accessKeySecret("password")
- *     .build();
- *
- * FileStorage storage = FileStorage.createStorage("smb", setting);
- * }</pre>Storage("smb", setting);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* SMB 文件存储实现。
+*
+* <p>基于 smb-jna 实现 {@link com.chua.common.support.storage.FileStorage} SPI 接口。</p>
+*
+* <p>{@link BucketSetting} 映射规则：</p>
+* <ul>
+*   <li>endpoint     → SMB 服务器地址（如 "192.168.1.10" 或 "smb://192.168.1.10:445"）</li>
+*   <li>bucket       → share 名称</li>
+*   <li>accessKeyId  → SMB 用户名</li>
+*   <li>accessKeySecret → SMB 密码</li>
+* </ul>
+*
+* <p>配置示例：</p>
+* <pre>{@code
+* BucketSetting setting = BucketSetting.builder()
+*     .endpoint("192.168.1.10")
+*     .bucket("shared")
+*     .accessKeyId("admin")
+*     .accessKeySecret("password")
+*     .build();
+*
+* FileStorage storage = FileStorage.createStorage("smb", setting);
+* }</pre>Storage("smb", setting);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("smb")
 public class SmbFileStorage extends AbstractFileStorage {
 
     /**
-      * smb 客户端
+    * smb 客户端
      */
     private final SmbClient smbClient;
 
     /**
-      * 创建 smb文件storage 实例
-     * @param bucketSetting bucketsetting
+    * 创建 smb文件storage 实例
+    * @param bucketSetting bucketsetting
      */
     public SmbFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -217,10 +217,10 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * normalize键
-     *
-     * @param key 键
-     * @return normalize键的结果
+    * normalize键
+    *
+    * @param key 键
+    * @return normalize键的结果
      */
     private static String normalizeKey(String key) {
         if (key == null) {
@@ -230,10 +230,10 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * extract名称
-     *
-     * @param key 键
-     * @return extract名称的结果
+    * extract名称
+    *
+    * @param key 键
+    * @return extract名称的结果
      */
     private static String extractName(String key) {
         int i = key.lastIndexOf('/');
@@ -241,10 +241,10 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     /**
-     * extract路径
-     *
-     * @param key 键
-     * @return extract路径的结果
+    * extract路径
+    *
+    * @param key 键
+    * @return extract路径的结果
      */
     private static String extractPath(String key) {
         int i = key.lastIndexOf('/');

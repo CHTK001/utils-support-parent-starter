@@ -6,8 +6,8 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class MysqlAlterUserStep implements UserManager.AlterUserStep {

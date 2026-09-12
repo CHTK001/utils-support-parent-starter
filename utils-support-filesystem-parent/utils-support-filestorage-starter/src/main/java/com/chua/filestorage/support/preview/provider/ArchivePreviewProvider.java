@@ -24,17 +24,17 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
-   * 压缩包 / 压缩文档预览提供器，支持 压缩、rar、焦油、gz、bz2、xz、7z、zst 等格式。
- * <p>SPI 类型：{@code preview-archive}。输出树形 HTML 结构，按目录层级展示压缩包条目，并列出大小、修改时间。</p>
- *
- * @author CH
- * @since 4.0.0
+* 压缩包 / 压缩文档预览提供器，支持 压缩、rar、焦油、gz、bz2、xz、7z、zst 等格式。
+* <p>SPI 类型：{@code preview-archive}。输出树形 HTML 结构，按目录层级展示压缩包条目，并列出大小、修改时间。</p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Spi("preview-archive")
 public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 支持的压缩包扩展名（小写）
+    * 支持的压缩包扩展名（小写）
      */
     private static final Set<String> SUPPORTED = Set.of(
             "zip", "rar", "tar", "gz", "tgz", "tar.gz", "bz2", "tbz2", "tar.bz2",
@@ -42,14 +42,14 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             "jar", "war", "ear", "apk", "ipa", "zipx");
 
     /**
-     * 纯压缩流扩展名（不视为容器，无条目概念）
+    * 纯压缩流扩展名（不视为容器，无条目概念）
      */
     private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst", "lz4", "lzma");
 
     /**
-     * @param ext  文件扩展名
-     * @param mime MIME 类型（当前忽略）
-     * @return true 表示支持预览
+    * @param ext  文件扩展名
+    * @param mime MIME 类型（当前忽略）
+    * @return true 表示支持预览
      */
     @Override
     public boolean supports(String ext, String mime) {
@@ -61,13 +61,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 生成压缩包预览页面。
-     *
-     * @param content 压缩包字节内容
-     * @param ext     文件扩展名
-     * @param mime    MIME 类型（当前忽略）
-     * @return 预览结果，包含树形 HTML 与内联样式
-     * @throws IOException 读取压缩包失败
+    * 生成压缩包预览页面。
+    *
+    * @param content 压缩包字节内容
+    * @param ext     文件扩展名
+    * @param mime    MIME 类型（当前忽略）
+    * @return 预览结果，包含树形 HTML 与内联样式
+    * @throws IOException 读取压缩包失败
      */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
@@ -155,9 +155,9 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建压缩包下钻脚本：点击文件条目跳转至内层预览。
-     *
-     * @return 内联 JS 代码
+    * 构建压缩包下钻脚本：点击文件条目跳转至内层预览。
+    *
+    * @return 内联 JS 代码
      */
     private String buildDrillJs() {
         return "window.addEventListener('DOMContentLoaded',function(){"
@@ -173,12 +173,12 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从压缩包中提取指定路径的文件内容。
-     *
-     * @param content 压缩包字节
-     * @param ext     压缩包扩展名（小写）
-     * @param path    目标条目完整路径
-     * @return 条目内容字节；条目不存在或解析失败时返回 空
+    * 从压缩包中提取指定路径的文件内容。
+    *
+    * @param content 压缩包字节
+    * @param ext     压缩包扩展名（小写）
+    * @param path    目标条目完整路径
+    * @return 条目内容字节；条目不存在或解析失败时返回 空
      */
     public static byte[] extractFile(byte[] content, String ext, String path) {
         if (content == null || ext == null || path == null) {
@@ -207,11 +207,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从 7z 压缩包中提取指定路径的文件内容。
-     *
-     * @param content 压缩包字节
-     * @param path    目标条目完整路径
-     * @return 条目内容字节；条目不存在时返回 空
+    * 从 7z 压缩包中提取指定路径的文件内容。
+    *
+    * @param content 压缩包字节
+    * @param path    目标条目完整路径
+    * @return 条目内容字节；条目不存在时返回 空
      */
     private static byte[] extractFrom7z(byte[] content, String path) {
         Path tmp = null;
@@ -250,11 +250,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 安全获取 7z 条目的最后修改时间。
-     * 部分 7z 条目未记录时间戳，调用方直接取值会抛出 {@link UnsupportedOperationException}。
-     *
-     * @param entry 7z 归档条目
-     * @return 修改时间；无时间戳时返回 空
+    * 安全获取 7z 条目的最后修改时间。
+    * 部分 7z 条目未记录时间戳，调用方直接取值会抛出 {@link UnsupportedOperationException}。
+    *
+    * @param entry 7z 归档条目
+    * @return 修改时间；无时间戳时返回 空
      */
     private static Date safeLastModifiedDate(org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry) {
         try {
@@ -265,13 +265,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * 按扩展名将纯压缩流包装为解压流（如 焦油.gz 解 gzip、焦油.xz 解 xz）。
-     * 非复合扩展名原样返回。
-     *
-     * @param in  原始输入流
-     * @param ext 文件扩展名
-     * @return 解压后的输入流
-     * @throws IOException 创建解压器失败
+    * 按扩展名将纯压缩流包装为解压流（如 焦油.gz 解 gzip、焦油.xz 解 xz）。
+    * 非复合扩展名原样返回。
+    *
+    * @param in  原始输入流
+    * @param ext 文件扩展名
+    * @return 解压后的输入流
+    * @throws IOException 创建解压器失败
      */
     private static InputStream wrapDecompressor(InputStream in, String ext) throws IOException {
         String compType = compressorOf(ext);
@@ -286,10 +286,10 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * 返回扩展名对应的解压器类型；无对应解压器时返回 空。
-     *
-     * @param ext 文件扩展名
-     * @return 解压器类型（如 gz、bzip2、xz、zstd、lz4、lzma）；不支持时返回 空
+    * 返回扩展名对应的解压器类型；无对应解压器时返回 空。
+    *
+    * @param ext 文件扩展名
+    * @return 解压器类型（如 gz、bzip2、xz、zstd、lz4、lzma）；不支持时返回 空
      */
     private static String compressorOf(String ext) {
         return switch (ext) {
@@ -304,13 +304,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建树形 HTML：目录按字典序展示，目录下文件缩进排列，根目录文件紧随其后。
-     *
-     * @param ext       文件扩展名（用于标题展示）
-     * @param entries   归档条目列表
-     * @param dirs      目录数量
-     * @param totalSize 文件总大小
-     * @return 树形 HTML 片段
+    * 构建树形 HTML：目录按字典序展示，目录下文件缩进排列，根目录文件紧随其后。
+    *
+    * @param ext       文件扩展名（用于标题展示）
+    * @param entries   归档条目列表
+    * @param dirs      目录数量
+    * @param totalSize 文件总大小
+    * @return 树形 HTML 片段
      */
     private String buildHtml(String ext, List<EntryInfo> entries, int dirs, long totalSize) {
         java.util.Map<String, List<EntryInfo>> dirMap = new java.util.TreeMap<>();
@@ -349,11 +349,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 渲染单个文件行（文件图标、名称、大小与修改时间）。
-     *
-     * @param sb   输出缓冲区
-     * @param name 文件显示名
-     * @param fe   文件条目信息
+    * 渲染单个文件行（文件图标、名称、大小与修改时间）。
+    *
+    * @param sb   输出缓冲区
+    * @param name 文件显示名
+    * @param fe   文件条目信息
      */
     private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
         String eExt = extFromName(name);
@@ -370,10 +370,10 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 从文件名提取小写扩展名（不含点号）。
-     *
-     * @param name 文件名
-     * @return 扩展名；无扩展名时返回 空
+    * 从文件名提取小写扩展名（不含点号）。
+    *
+    * @param name 文件名
+    * @return 扩展名；无扩展名时返回 空
      */
     private static String extFromName(String name) {
         String ext = FileUtils.getExtension(name);
@@ -381,13 +381,13 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 压缩包内条目信息。
-     *
-     * @param name         条目完整路径
-     * @param size         条目大小
-     * @param date         最后修改时间（可为空）
-     * @param compressOnly 是否为纯压缩流条目（无文件信息）
-     * @return entry信息的结果
+    * 压缩包内条目信息。
+    *
+    * @param name         条目完整路径
+    * @param size         条目大小
+    * @param date         最后修改时间（可为空）
+    * @param compressOnly 是否为纯压缩流条目（无文件信息）
+    * @return entry信息的结果
      */
     private record EntryInfo(String name, long size, Date date, boolean compressOnly) {}
 }

@@ -4,41 +4,41 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * JSONPath SPI 接口，提供声明式的 JSON 路径查询与操作能力。
- *
- * <p>本接口采用<b>双层设计</b>，兼顾一次性调用和链式操作两种场景：</p>
- *
- * <p><b>1. 一次性调用（便捷方法，直接传入 JSON 字符串）：</b></p>
- * <pre>{@code
- * JsonPath jp = JsonPath.getInstance();
- *
- * // 读取值
- * String title = jp.read(json, "$.store.book[0].title");
- * double price = jp.read(json, "$.store.book[0].price", double.class);
- *
- * // 判断存在
- * boolean exists = jp.isExist(json, "$.store.book[0]");
- *
- * // 修改
- * String result = jp.set(json, "$.store.book[0].price", 35.0);
- * result = jp.delete(result, "$.store.book[1]");
- * }</pre>
- *
- * <p><b>2. 链式操作（解析一次 JSON，多次操作后输出结果）：</b></p>
- * <pre>{@code
- * String result = JsonPath.getInstance()
- * .parse(json)
- * .set("$.store.book[0].price", 35.0)
- * .delete("$.store.temp")
- * .add("$.store.book", Map.of("title", "Python", "price", 39.9))
- * .toJson();
- * }</pre>
- *
- * <p>实现类通过 SPI 机制发现与加载，详见 {@link com.chua.common.support.spi.ServiceProvider}。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @see ServiceProvider
+* JSONPath SPI 接口，提供声明式的 JSON 路径查询与操作能力。
+*
+* <p>本接口采用<b>双层设计</b>，兼顾一次性调用和链式操作两种场景：</p>
+*
+* <p><b>1. 一次性调用（便捷方法，直接传入 JSON 字符串）：</b></p>
+* <pre>{@code
+* JsonPath jp = JsonPath.getInstance();
+*
+* // 读取值
+* String title = jp.read(json, "$.store.book[0].title");
+* double price = jp.read(json, "$.store.book[0].price", double.class);
+*
+* // 判断存在
+* boolean exists = jp.isExist(json, "$.store.book[0]");
+*
+* // 修改
+* String result = jp.set(json, "$.store.book[0].price", 35.0);
+* result = jp.delete(result, "$.store.book[1]");
+* }</pre>
+*
+* <p><b>2. 链式操作（解析一次 JSON，多次操作后输出结果）：</b></p>
+* <pre>{@code
+* String result = JsonPath.getInstance()
+* .parse(json)
+* .set("$.store.book[0].price", 35.0)
+* .delete("$.store.temp")
+* .add("$.store.book", Map.of("title", "Python", "price", 39.9))
+* .toJson();
+* }</pre>
+*
+* <p>实现类通过 SPI 机制发现与加载，详见 {@link com.chua.common.support.spi.ServiceProvider}。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @see ServiceProvider
  */
 @Spi
 public interface JsonPath {

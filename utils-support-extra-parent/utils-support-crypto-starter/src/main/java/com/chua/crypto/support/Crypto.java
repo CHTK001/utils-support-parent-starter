@@ -14,90 +14,90 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 系统加密门面（链式 API）
- *
- * <p>一站式完成：密钥策略设置（自定义/绑定服务器）、生命周期设置（一次性读取即销毁/持久）、
- * 密钥载体选择（密钥文件/内存）、数据加解密、配置文件整体或单值加密。
-   * 同时适配普通 Java、springboot、fatjar 等运行形态（相对路径自动按 工作目录 → Jar 目录 → 用户目录 解析）。
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 1. 绑定服务器 + 持久密钥文件（默认策略）
- * Crypto crypto = Crypto.create()
- *         .keyPolicy(KeyPolicy.SERVER_BOUND)
- *         .lifecycle(KeyLifecycle.PERSISTENT)
- *         .keyFile("security/master.key")
- *         .build();
- *
- * // 2. 自定义口令 + 一次性读取即销毁
- * Crypto ephemeral = Crypto.create()
- *         .keyPolicy(KeyPolicy.CUSTOM)
- *         .secret("my-passphrase".toCharArray())
- *         .lifecycle(KeyLifecycle.ONE_TIME)
- *         .keyFile("security/once.key")
- *         .build();
- *
- * // 4. 配置文件随系统一起加密
- * Crypto.create()
- *         .encryptConfig(true)
- *         .configFile("application.yml", "application-prod.yml")
- *         .build()
- *         .encryptConfigFiles();
- *
- * String cipherText = crypto.encryptToString("hello");
- * String plainText  = crypto.decryptToString(cipherText);
- * }</pre>
- *         .build()
- *         .encryptConfigFiles();
- *
- * String cipherText = crypto.encryptToString("hello");
- * String plainText  = crypto.decryptToString(cipherText);
- * }</pre>
- *
- * <p>实例实现 {@link AutoCloseable}：{@link #close()} 擦除内存密钥；持久载体不受影响，
- * 如需彻底作废落盘密钥请调用 {@link #destroyCarrier()}。
- *
- * @author CH
- * @since 2026-08-26
+* 系统加密门面（链式 API）
+*
+* <p>一站式完成：密钥策略设置（自定义/绑定服务器）、生命周期设置（一次性读取即销毁/持久）、
+* 密钥载体选择（密钥文件/内存）、数据加解密、配置文件整体或单值加密。
+* 同时适配普通 Java、springboot、fatjar 等运行形态（相对路径自动按 工作目录 → Jar 目录 → 用户目录 解析）。
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 1. 绑定服务器 + 持久密钥文件（默认策略）
+* Crypto crypto = Crypto.create()
+*         .keyPolicy(KeyPolicy.SERVER_BOUND)
+*         .lifecycle(KeyLifecycle.PERSISTENT)
+*         .keyFile("security/master.key")
+*         .build();
+*
+* // 2. 自定义口令 + 一次性读取即销毁
+* Crypto ephemeral = Crypto.create()
+*         .keyPolicy(KeyPolicy.CUSTOM)
+*         .secret("my-passphrase".toCharArray())
+*         .lifecycle(KeyLifecycle.ONE_TIME)
+*         .keyFile("security/once.key")
+*         .build();
+*
+* // 4. 配置文件随系统一起加密
+* Crypto.create()
+*         .encryptConfig(true)
+*         .configFile("application.yml", "application-prod.yml")
+*         .build()
+*         .encryptConfigFiles();
+*
+* String cipherText = crypto.encryptToString("hello");
+* String plainText  = crypto.decryptToString(cipherText);
+* }</pre>
+*         .build()
+*         .encryptConfigFiles();
+*
+* String cipherText = crypto.encryptToString("hello");
+* String plainText  = crypto.decryptToString(cipherText);
+* }</pre>
+*
+* <p>实例实现 {@link AutoCloseable}：{@link #close()} 擦除内存密钥；持久载体不受影响，
+* 如需彻底作废落盘密钥请调用 {@link #destroyCarrier()}。
+*
+* @author CH
+* @since 2026-08-26
  */
 @Slf4j
 public class Crypto implements AutoCloseable {
 
     /**
-     * 内部配置
+    * 内部配置
      */
     private final CryptoSetting setting = new CryptoSetting();
 
     /**
-     * 主密钥材料（初始化后可用）
+    * 主密钥材料（初始化后可用）
      */
     private volatile SecretKeyMaterial material;
 
     /**
-     * 是否已初始化
+    * 是否已初始化
      */
     private volatile boolean initialized;
 
     /**
-     * 私有构造，统一从 {@link #create()} / {@link #from(CryptoSetting)} 进入
+    * 私有构造，统一从 {@link #create()} / {@link #from(CryptoSetting)} 进入
      */
     private Crypto() {
     }
 
     /**
-     * 创建链式构建器入口
-     *
-     * @return 未初始化的加密门面
+    * 创建链式构建器入口
+    *
+    * @return 未初始化的加密门面
      */
     public static Crypto create() {
         return new Crypto();
     }
 
     /**
-     * 从既有配置创建（SpringBoot 属性绑定场景）
-     *
-     * @param setting 加密配置
-     * @return 未初始化的加密门面
+    * 从既有配置创建（SpringBoot 属性绑定场景）
+    *
+    * @param setting 加密配置
+    * @return 未初始化的加密门面
      */
     public static Crypto from(CryptoSetting setting) {
         Crypto crypto = new Crypto();
@@ -106,10 +106,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 应用既有配置（覆盖当前全部设置）
-     *
-     * @param source 来源配置
-     * @return 当前对象
+    * 应用既有配置（覆盖当前全部设置）
+    *
+    * @param source 来源配置
+    * @return 当前对象
      */
     public Crypto apply(CryptoSetting source) {
         setting.setKeyPolicy(source.getKeyPolicy());
@@ -133,10 +133,10 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-     * 设置密钥策略
-     *
-     * @param keyPolicy 自定义(习俗)/绑定服务器(服务端_BOUND)
-     * @return 当前对象
+    * 设置密钥策略
+    *
+    * @param keyPolicy 自定义(习俗)/绑定服务器(服务端_BOUND)
+    * @return 当前对象
      */
     public Crypto keyPolicy(KeyPolicy keyPolicy) {
         setting.setKeyPolicy(keyPolicy);
@@ -144,10 +144,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置密钥生命周期
-     *
-     * @param lifecycle 一次性读取即销毁(ONE_时间)/持久(PERSISTENT)
-     * @return 当前对象
+    * 设置密钥生命周期
+    *
+    * @param lifecycle 一次性读取即销毁(ONE_时间)/持久(PERSISTENT)
+    * @return 当前对象
      */
     public Crypto lifecycle(KeyLifecycle lifecycle) {
         setting.setLifecycle(lifecycle);
@@ -155,10 +155,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置密钥文件路径并切换为文件载体
-     *
-     * @param keyFile 路径（绝对或相对）
-     * @return 当前对象
+    * 设置密钥文件路径并切换为文件载体
+    *
+    * @param keyFile 路径（绝对或相对）
+    * @return 当前对象
      */
     public Crypto keyFile(String keyFile) {
         setting.setStoreType(KeyStoreType.FILE);
@@ -167,10 +167,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-      * 设置自定义口令（习俗 策略必填；服务端_BOUND 策略可作为 pepper 叠加）
-     *
-     * @param secret 口令字符数组
-     * @return 当前对象
+    * 设置自定义口令（习俗 策略必填；服务端_BOUND 策略可作为 pepper 叠加）
+    *
+    * @param secret 口令字符数组
+    * @return 当前对象
      */
     public Crypto secret(char[] secret) {
         setting.setSecret(secret != null ? Arrays.copyOf(secret, secret.length) : null);
@@ -178,20 +178,20 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置自定义口令
-     *
-     * @param secret 口令字符串
-     * @return 当前对象
+    * 设置自定义口令
+    *
+    * @param secret 口令字符串
+    * @return 当前对象
      */
     public Crypto secret(CharSequence secret) {
         return secret(secret == null ? null : secret.toString().toCharArray());
     }
 
     /**
-      * 固定服务器指纹标识（服务端_BOUND 策略容灾迁移场景；缺省自动采集本机指纹）
-     *
-     * @param serverId 稳定标识
-     * @return 当前对象
+    * 固定服务器指纹标识（服务端_BOUND 策略容灾迁移场景；缺省自动采集本机指纹）
+    *
+    * @param serverId 稳定标识
+    * @return 当前对象
      */
     public Crypto serverId(String serverId) {
         setting.setServerId(serverId);
@@ -199,10 +199,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-      * 设置数据加密算法（缺省 AES/GCM/nopadding）
-     *
-     * @param algorithm JCE 变换名
-     * @return 当前对象
+    * 设置数据加密算法（缺省 AES/GCM/nopadding）
+    *
+    * @param algorithm JCE 变换名
+    * @return 当前对象
      */
     public Crypto algorithm(String algorithm) {
         setting.setAlgorithm(algorithm);
@@ -210,9 +210,9 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置纯内存载体：不落盘，每次构建生成随机主密钥，进程退出即失效
-     *
-     * @return 当前对象
+    * 设置纯内存载体：不落盘，每次构建生成随机主密钥，进程退出即失效
+    *
+    * @return 当前对象
      */
     public Crypto memory() {
         setting.setStoreType(KeyStoreType.MEMORY);
@@ -220,10 +220,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置配置文件是否随系统一起加密
-     *
-     * @param encryptConfig true 表示参与批量加密
-     * @return 当前对象
+    * 设置配置文件是否随系统一起加密
+    *
+    * @param encryptConfig true 表示参与批量加密
+    * @return 当前对象
      */
     public Crypto encryptConfig(boolean encryptConfig) {
         setting.setEncryptConfigFiles(encryptConfig);
@@ -231,10 +231,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-      * 追加参与整体加解密的配置文件（隐式开启 encrypt配置）
-     *
-     * @param files 配置文件路径（可多个）
-     * @return 当前对象
+    * 追加参与整体加解密的配置文件（隐式开启 encrypt配置）
+    *
+    * @param files 配置文件路径（可多个）
+    * @return 当前对象
      */
     public Crypto configFile(String... files) {
         setting.addConfigFiles(files);
@@ -245,10 +245,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 设置配置文件加密时是否保留明文备份(*.bak)
-     *
-     * @param backup true 表示保留备份
-     * @return 当前对象
+    * 设置配置文件加密时是否保留明文备份(*.bak)
+    *
+    * @param backup true 表示保留备份
+    * @return 当前对象
      */
     public Crypto configBackup(boolean backup) {
         setting.setConfigBackup(backup);
@@ -260,31 +260,31 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-     * 校验配置并加载/生成主密钥
-     *
-     * @return 已初始化的门面
+    * 校验配置并加载/生成主密钥
+    *
+    * @return 已初始化的门面
      */
     public synchronized Crypto build() {
         return initializeInternal();
     }
 
     /**
-     * {@link #build()} 别名，语义化初始化
-     *
-     * @return 已初始化的门面
+    * {@link #build()} 别名，语义化初始化
+    *
+    * @return 已初始化的门面
      */
     public Crypto initialize() {
         return build();
     }
 
     /**
-     * 初始化核心流程：
-     * <ol>
-     *   <li>参数校验（口令/载体/生命周期组合）</li>
-     *   <li>MEMORY：直接生成随机主密钥；FILE：缺失时自动引导生成</li>
-     *   <li>统一经载体 load 完成校验（ONE_TIME 在此步销毁落盘副本）</li>
-     * </ol>
-     * @return 初始化内部的结果
+    * 初始化核心流程：
+    * <ol>
+    *   <li>参数校验（口令/载体/生命周期组合）</li>
+    *   <li>MEMORY：直接生成随机主密钥；FILE：缺失时自动引导生成</li>
+    *   <li>统一经载体 load 完成校验（ONE_TIME 在此步销毁落盘副本）</li>
+    * </ol>
+    * @return 初始化内部的结果
      */
     private synchronized Crypto initializeInternal() {
         if (initialized) {
@@ -316,7 +316,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 参数合法性校验
+    * 参数合法性校验
      */
     private void validate() {
         if (setting.getKeyPolicy() == KeyPolicy.CUSTOM
@@ -329,9 +329,9 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 载体缺失时的引导策略：密钥文件自动生成并写入
-     *
-     * @param store 密钥载体
+    * 载体缺失时的引导策略：密钥文件自动生成并写入
+    *
+    * @param store 密钥载体
      */
     private void ensureBootstrap(SecretKeyStore store) {
         SecretKeyMaterial fresh = SecretKeyMaterial.generate();
@@ -340,9 +340,9 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 经 SPI 解析密钥载体实现
-     *
-     * @return 载体实例
+    * 经 SPI 解析密钥载体实现
+    *
+    * @return 载体实例
      */
     private SecretKeyStore resolveStore() {
         String alias = setting.getStoreType().name().toLowerCase();
@@ -354,7 +354,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 确保已初始化（懒初始化，保证链式 API 即用性）
+    * 确保已初始化（懒初始化，保证链式 API 即用性）
      */
     private void ensureInitialized() {
         if (!initialized) {
@@ -374,10 +374,10 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-     * 加密字节数据
-     *
-     * @param plaintext 明文
-     * @return 密文字节
+    * 加密字节数据
+    *
+    * @param plaintext 明文
+    * @return 密文字节
      */
     public byte[] encrypt(byte[] plaintext) {
         ensureInitialized();
@@ -385,10 +385,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 解密字节数据
-     *
-     * @param ciphertext 密文
-     * @return 明文
+    * 解密字节数据
+    *
+    * @param ciphertext 密文
+    * @return 明文
      */
     public byte[] decrypt(byte[] ciphertext) {
         ensureInitialized();
@@ -396,10 +396,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-      * 加密字符串（UTF-8），返回 基础64 密文
-     *
-     * @param plaintext 明文
-     * @return Base64 密文
+    * 加密字符串（UTF-8），返回 基础64 密文
+    *
+    * @param plaintext 明文
+    * @return Base64 密文
      */
     public String encryptToString(String plaintext) {
         ensureInitialized();
@@ -407,10 +407,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-      * 解密 基础64 密文
-     *
-     * @param ciphertext 基础64 密文
-     * @return 明文
+    * 解密 基础64 密文
+    *
+    * @param ciphertext 基础64 密文
+    * @return 明文
      */
     public String decryptToString(String ciphertext) {
         ensureInitialized();
@@ -422,9 +422,9 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-      * 批量加密已登记的配置文件（encrypt配置(true)+配置文件(...) 场景）
-     *
-     * @return 处理后的密文文件路径列表
+    * 批量加密已登记的配置文件（encrypt配置(true)+配置文件(...) 场景）
+    *
+    * @return 处理后的密文文件路径列表
      */
     public List<Path> encryptConfigFiles() {
         ensureInitialized();
@@ -436,9 +436,9 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 批量解密已登记的配置文件到同名 *.dec 明文文件
-     *
-     * @return 明文文件路径列表
+    * 批量解密已登记的配置文件到同名 *.dec 明文文件
+    *
+    * @return 明文文件路径列表
      */
     public List<Path> decryptConfigFiles() {
         ensureInitialized();
@@ -452,10 +452,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 整文件加密指定配置文件
-     *
-     * @param file 配置文件
-     * @return 密文文件路径
+    * 整文件加密指定配置文件
+    *
+    * @param file 配置文件
+    * @return 密文文件路径
      */
     public Path encryptConfigFile(Path file) {
         ensureInitialized();
@@ -463,10 +463,10 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 解密整文件加密的配置内容
-     *
-     * @param file 密文配置文件
-     * @return 明文内容
+    * 解密整文件加密的配置内容
+    *
+    * @param file 密文配置文件
+    * @return 明文内容
      */
     public String decryptConfigFile(Path file) {
         ensureInitialized();
@@ -474,20 +474,20 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 解密 ENC(...) 单值
-     *
-     * @param value 原始值
-     * @return 明文值或原值
+    * 解密 ENC(...) 单值
+    *
+    * @param value 原始值
+    * @return 明文值或原值
      */
     public String decryptValue(String value) {
         return ConfigFileCipher.decryptValue(value, this);
     }
 
     /**
-     * 加密单值为 ENC(...) 形态
-     *
-     * @param value 明文值
-     * @return ENC(Base64密文)
+    * 加密单值为 ENC(...) 形态
+    *
+    * @param value 明文值
+    * @return ENC(Base64密文)
      */
     public String encryptValue(String value) {
         ensureInitialized();
@@ -499,27 +499,27 @@ public class Crypto implements AutoCloseable {
     // ------------------------------------------------------------------
 
     /**
-     * 是否已完成初始化
-     *
-     * @return true 表示主密钥已就绪
+    * 是否已完成初始化
+    *
+    * @return true 表示主密钥已就绪
      */
     public boolean isInitialized() {
         return initialized && material != null && !material.isDestroyed();
     }
 
     /**
-     * 获取只读配置快照
-     *
-     * @return 内部配置（请勿长期持有口令引用）
+    * 获取只读配置快照
+    *
+    * @return 内部配置（请勿长期持有口令引用）
      */
     public CryptoSetting setting() {
         return setting;
     }
 
     /**
-     * 获取当前主密钥材料（用于密钥备份/迁移等高级场景）
-     *
-     * @return 密钥材料
+    * 获取当前主密钥材料（用于密钥备份/迁移等高级场景）
+    *
+    * @return 密钥材料
      */
     public SecretKeyMaterial material() {
         ensureInitialized();
@@ -527,8 +527,8 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 销毁持久载体上的密钥（安全擦除后删除），内存密钥同时失效。
-     * 注意：此后历史密文将永久无法解密，请谨慎调用。
+    * 销毁持久载体上的密钥（安全擦除后删除），内存密钥同时失效。
+    * 注意：此后历史密文将永久无法解密，请谨慎调用。
      */
     public synchronized void destroyCarrier() {
         if (setting.getStoreType() == KeyStoreType.MEMORY) {
@@ -545,7 +545,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 关闭门面：仅擦除内存中的主密钥，持久载体保持不变（可重新加载）
+    * 关闭门面：仅擦除内存中的主密钥，持久载体保持不变（可重新加载）
      */
     @Override
     public synchronized void close() {
@@ -553,7 +553,7 @@ public class Crypto implements AutoCloseable {
     }
 
     /**
-     * 静默擦除内存密钥
+    * 静默擦除内存密钥
      */
     private void closeQuietly() {
         SecretKeyMaterial current = material;

@@ -15,10 +15,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于 Netty 的 WebSocket 同步服务端实现。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Netty 的 WebSocket 同步服务端实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
@@ -39,8 +39,8 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-      * 创建 nettyweb套接字同步服务端 实例
-     * @param setting setting
+    * 创建 nettyweb套接字同步服务端 实例
+    * @param setting setting
      */
     public NettyWebSocketSyncServer(ServerSetting setting) {
         super(setting);
@@ -169,9 +169,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 处理Connection
-     *
-     * @param conn conn
+    * 处理Connection
+    *
+    * @param conn conn
      */
     private void handleConnection(Connection conn) {
         try {
@@ -188,10 +188,10 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 执行handshake
-     *
-     * @param conn conn
-     * @return 执行handshake的结果
+    * 执行handshake
+    *
+    * @param conn conn
+    * @return 执行handshake的结果
      */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -230,9 +230,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 读取帧
-     *
-     * @param conn conn
+    * 读取帧
+    *
+    * @param conn conn
      */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
@@ -295,10 +295,10 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * computeweb套接字accept
-     *
-     * @param key 键
-     * @return computeweb套接字accept的结果
+    * computeweb套接字accept
+    *
+    * @param key 键
+    * @return computeweb套接字accept的结果
      */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -308,10 +308,10 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 构建文本帧
-     *
-     * @param payload payload
-     * @return 构建文本帧的结果
+    * 构建文本帧
+    *
+    * @param payload payload
+    * @return 构建文本帧的结果
      */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
@@ -339,9 +339,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 关闭Connection
-     *
-     * @param conn conn
+    * 关闭Connection
+    *
+    * @param conn conn
      */
     private void closeConnection(Connection conn) {
         try {
@@ -357,9 +357,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-     * 通知监听器
-     *
-     * @param action 动作
+    * 通知监听器
+    *
+    * @param action 动作
      */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
@@ -368,10 +368,10 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
             } catch (Exception e) {
                 // ignore
     /**
-     * Connection类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * Connection类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
             }
         }

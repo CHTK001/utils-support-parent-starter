@@ -17,16 +17,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Scatter / Cluster 集群自动配置。
- *
- * <p>当 classpath 中存在 {@code ClusterServer} 且配置属性 {@code chua.cluster.enabled=true}
- *（默认开启）时，自动创建并启动 {@link ClusterServer} Bean。</p>
- *
- * <p>使用方式：在 application.yml 中配置 {@code chua.cluster.*}，Spring Boot 启动后
- * {@link ClusterServer} 即可通过 {@code @Autowired} 注入使用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Scatter / Cluster 集群自动配置。
+*
+* <p>当 classpath 中存在 {@code ClusterServer} 且配置属性 {@code chua.cluster.enabled=true}
+*
+*
+* <p>使用方式：在 application.yml 中配置 {@code chua.cluster.*}，Spring Boot 启动后
+* {@link ClusterServer} 即可通过 {@code @Autowired} 注入使用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @AutoConfiguration
@@ -41,12 +41,12 @@ public class ClusterAutoConfiguration {
     private org.springframework.core.env.Environment environment; // 环境
 
     /**
-     * 零配置增强：未显式配置时自动从 Spring 环境推导。
-     * <ul>
-     *   <li>host 未配置(仍为默认 127.0.0.1) → NetUtils 自动探测本机局域网 IP</li>
-     *   <li>scatterId 未配置(仍为 "default") → 取 spring.application.name</li>
-     *   <li>nodeId 未配置 → ip:port 保证同机多实例唯一</li>
-     * </ul>
+    * 零配置增强：未显式配置时自动从 Spring 环境推导。
+    * <ul>
+    *   <li>host 未配置(仍为默认 127.0.0.1) → NetUtils 自动探测本机局域网 IP</li>
+    *   <li>scatterId 未配置(仍为 "default") → 取 spring.application.name</li>
+    *   <li>nodeId 未配置 → ip:port 保证同机多实例唯一</li>
+    * </ul>
      */
     private void autoDetect() {
         // 1. host: Spring server.address > chua.cluster.host > NetUtils 探测
@@ -78,8 +78,8 @@ public class ClusterAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     /**
-     * cluster服务端。
-     * @return cluster服务端的结果
+    * cluster服务端。
+    * @return cluster服务端的结果
      */
     public ClusterServer clusterServer() throws Exception {
         autoDetect();

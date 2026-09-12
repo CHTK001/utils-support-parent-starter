@@ -14,28 +14,28 @@ import java.util.Spliterator;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
- * 工具类，提供进度条相关的静态工具方法。
- * <p>
- * 包含线程池管理、控制台消费者创建、字符重复等通用功能。
- *
- * @author CH
- * @since 2024-01-01
- * @version 1.0.0
+* 工具类，提供进度条相关的静态工具方法。
+* <p>
+* 包含线程池管理、控制台消费者创建、字符重复等通用功能。
+*
+* @author CH
+* @since 2024-01-01
+* @version 1.0.0
  */
 class Util {
 
     /**
-     * 进度条定时刷新线程池
-     * <p>
-     * 单线程调度池，用于定时刷新进度条显示。
+    * 进度条定时刷新线程池
+    * <p>
+    * 单线程调度池，用于定时刷新进度条显示。
      */
     static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, ThreadUtils.newDaemonThreadFactory("ProgressBar"));
 
     /**
-     *                                                    
-     *
-     * @param predefinedWidth                
-     * @return                   
+    *                                                    
+    *
+    * @param predefinedWidth                
+    * @return                   
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(int predefinedWidth) {
         PrintStream real = new PrintStream(new FileOutputStream(FileDescriptor.out));
@@ -43,23 +43,23 @@ class Util {
     }
 
     /**
-     *                                                    
-     *
-     * @param out          
-     * @return                   
+    *                                                    
+    *
+    * @param out          
+    * @return                   
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out) {
         return createConsoleConsumer(out, -1);
     }
 
     /**
-     *                         
-     * <p>
-     *                                                                                        
-     *
-     * @param out          
-     * @param predefinedWidth                   -1                        
-     * @return                   
+    *                         
+    * <p>
+    *                                                                                        
+    *
+    * @param out          
+    * @param predefinedWidth                   -1                        
+    * @return                   
      */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out, int predefinedWidth) {
         return TerminalUtils.hasCursorMovementSupport()
@@ -68,11 +68,11 @@ class Util {
     }
 
     /**
-     *                         
-     *
-     * @param c                   
-     * @param n             
-     * @return                      
+    *                         
+    *
+    * @param c                   
+    * @param n             
+    * @return                      
      */
     static String repeat(char c, int n) {
         if (n <= 0) {
@@ -86,12 +86,12 @@ class Util {
     }
 
     /**
-     *                      
-     * <p>
-     *    Duration             "   :   :   "       
-     *
-     * @param d             
-     * @return                                           HH:MM:SS   
+    *                      
+    * <p>
+    *    Duration             "   :   :   "       
+    *
+    * @param d             
+    * @return                                           HH:MM:SS   
      */
     static String formatDuration(Duration d) {
         long s = d.getSeconds();
@@ -99,12 +99,12 @@ class Util {
     }
 
     /**
-     *                               
-     * <p>
-     *                                                                   
-     *
-     * @param progress             
-     * @return                                                    
+    *                               
+    * <p>
+    *                                                                   
+    *
+    * @param progress             
+    * @return                                                    
      */
     static Optional<Duration> linearEta(ProgressState progress) {
         if (progress.getMax() <= 0 || progress.isIndefinite()) {
@@ -121,12 +121,12 @@ class Util {
     }
 
     /**
-     *                         
-     * <p>
-     *                                                                                  available()            
-     *
-     * @param is          
-     * @return                                                       -1
+    *                         
+    * <p>
+    *                                                                                  available()            
+    *
+    * @param is          
+    * @return                                                       -1
      */
     static long getInputStreamSize(InputStream is) {
         try {
@@ -146,11 +146,11 @@ class Util {
     }
 
     /**
-     *       Spliterator         
-     *
-     * @param sp Spliterator      
-     * @param <T>             
-     * @return Spliterator                                    Long.MAX_VALUE         -1
+    *       Spliterator         
+    *
+    * @param sp Spliterator      
+    * @param <T>             
+    * @return Spliterator                                    Long.MAX_VALUE         -1
      */
     static <T> long getSpliteratorSize(Spliterator<T> sp) {
         try {

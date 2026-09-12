@@ -16,34 +16,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * pytorch YOLO 目标检测 Translator。
- * <p>
-   * 支持 yolov5/v8 风格输出：letterbox 预处理 + conf 过滤 + NMS。
-   * 适用于 torchscript 导出的 YOLO 检测模型。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* pytorch YOLO 目标检测 Translator。
+* <p>
+* 支持 yolov5/v8 风格输出：letterbox 预处理 + conf 过滤 + NMS。
+* 适用于 torchscript 导出的 YOLO 检测模型。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PytorchYoloTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 默认输入尺寸。
+    * 默认输入尺寸。
      */
     private static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-     * 默认置信度阈值。
+    * 默认置信度阈值。
      */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
-     * 默认 NMS 阈值。
+    * 默认 NMS 阈值。
      */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /**
-     * COCO 80 类。
+    * COCO 80 类。
      */
     private static final List<String> COCO_CLASSES = List.of(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
@@ -58,39 +58,39 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     );
 
     /**
-     * 输入尺寸。
+    * 输入尺寸。
      */
     private final int inputSize;
 
     /**
-     * 置信度阈值。
+    * 置信度阈值。
      */
     private final float threshold;
 
     /**
-     * NMS 阈值。
+    * NMS 阈值。
      */
     private final float nmsThreshold;
 
     /**
-     * 类别列表。
+    * 类别列表。
      */
     private final List<String> classes;
 
     /**
-     * 默认构造（COCO 80 类）。
+    * 默认构造（COCO 80 类）。
      */
     public PytorchYoloTranslator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, COCO_CLASSES);
     }
 
     /**
-     * 构造检测器。
-     *
-     * @param inputSize    输入尺寸
-     * @param threshold    置信度阈值
-     * @param nmsThreshold NMS 阈值
-     * @param classes      类别列表
+    * 构造检测器。
+    *
+    * @param inputSize    输入尺寸
+    * @param threshold    置信度阈值
+    * @param nmsThreshold NMS 阈值
+    * @param classes      类别列表
      */
     public PytorchYoloTranslator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
         this.inputSize = inputSize;
@@ -238,12 +238,12 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-     * 简易 NMS。
-     *
-     * @param boxes         框
-     * @param probabilities 置信度
-     * @param threshold     iou 阈值
-     * @return 保留索引
+    * 简易 NMS。
+    *
+    * @param boxes         框
+    * @param probabilities 置信度
+    * @param threshold     iou 阈值
+    * @return 保留索引
      */
     private static List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float threshold) {
         int n = boxes.size();
@@ -277,11 +277,11 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-      * 计算 iou。
-     *
-     * @param a 框 A
-     * @param b 框 B
-     * @return IoU
+    * 计算 iou。
+    *
+    * @param a 框 A
+    * @param b 框 B
+    * @return IoU
      */
     private static double iou(Rectangle a, Rectangle b) {
         double x1 = Math.max(a.getX(), b.getX());

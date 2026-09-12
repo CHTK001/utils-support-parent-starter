@@ -9,10 +9,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * 飞桨 人脸关键点 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* 飞桨 人脸关键点 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FaceLandmarkTranslator implements Translator<Image, float[]> {
 
@@ -38,10 +38,10 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     }
 
     /**
-     * Std
-     *
-     * @param points points
-     * @return std的结果
+    * Std
+    *
+    * @param points points
+    * @return std的结果
      */
     private float std(NDArray points) {
         float[] arr = points.toType(ai.djl.ndarray.types.DataType.FLOAT32, false).toFloatArray();

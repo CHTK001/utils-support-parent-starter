@@ -6,20 +6,20 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * 成本路由策略 — 根据输入复杂度选择最经济的模型。
- *
- * <p>基于 prompt 长度评估复杂度：
- * <ul>
- *   <li>&lt;100 字符 → 低成本模型（列表前部）</li>
- *   <li>100~1000 字符 → 中等成本模型</li>
- *   <li>&gt;1000 字符 → 高成本模型（列表尾部）</li>
- * </ul>
- *
- * <p>客户端应按成本升序排列（weight 越低越便宜）。
- * 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
- *
- * @author CH
- * @since 4.0.0.42
+* 成本路由策略 — 根据输入复杂度选择最经济的模型。
+*
+* <p>基于 prompt 长度评估复杂度：
+* <ul>
+*   <li>&lt;100 字符 → 低成本模型（列表前部）</li>
+*   <li>100~1000 字符 → 中等成本模型</li>
+*   <li>&gt;1000 字符 → 高成本模型（列表尾部）</li>
+* </ul>
+*
+* <p>客户端应按成本升序排列（weight 越低越便宜）。
+* 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("cost")
 public class CostRouterStrategy implements RouterStrategy {

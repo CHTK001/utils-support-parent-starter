@@ -4,14 +4,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 中国居民身份证文字解析器
- *
- * <p>从 PaddleOCR 识别的身份证文字中提取结构化字段。
- * 支持正面（姓名/性别/民族/出生日期/地址/身份证号/签发机关）和反面（有效期限）。
- * 使用正则匹配各行关键字+值模式。</p>
- *
- * @author CH
- * @since 4.0.0.43
+* 中国居民身份证文字解析器
+*
+* <p>从 PaddleOCR 识别的身份证文字中提取结构化字段。
+* 支持正面（姓名/性别/民族/出生日期/地址/身份证号/签发机关）和反面（有效期限）。
+* 使用正则匹配各行关键字+值模式。</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 public class CnIdCardParser {
 
@@ -28,10 +28,10 @@ public class CnIdCardParser {
     private static final Pattern VALID_SIMPLE_PATTERN = Pattern.compile("有效期限\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
 
     /**
-     * 从识别文本中解析身份证信息
-     *
-     * @param text PaddleOCR 识别的身份证正面或反面文字
-     * @return 解析结果
+    * 从识别文本中解析身份证信息
+    *
+    * @param text PaddleOCR 识别的身份证正面或反面文字
+    * @return 解析结果
      */
     public CnIdCardResult parse(String text) {
         if (text == null || text.isBlank()) {
@@ -111,11 +111,11 @@ public class CnIdCardParser {
     }
 
     /**
-     * 从多行 OCR 结果中合并解析
-     *
-     * @param lines OCR 识别的每一行文字
-     * @return 解析结果
-     * @param s s
+    * 从多行 OCR 结果中合并解析
+    *
+    * @param lines OCR 识别的每一行文字
+    * @return 解析结果
+    * @param s s
      /**
       * 解析线。
       * @param lines 线
@@ -123,15 +123,15 @@ public class CnIdCardParser {
       */
       * @param s s
      /**
-      * 解析线。
-      * @param lines 线
-      * @return 解析线的结果
+     * 解析线。
+     * @param lines 线
+     * @return 解析线的结果
       */
       * @param s s
      /**
-      * 解析线。
-      * @param lines 线
-      * @return 解析线的结果
+     * 解析线。
+     * @param lines 线
+     * @return 解析线的结果
       */
      */
     public CnIdCardResult parseLines(String... lines) {

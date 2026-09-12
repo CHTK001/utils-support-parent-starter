@@ -9,35 +9,35 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 音频通用工具类。
- *
- * <p>聚合音频域的纯函数工具：采样解码、重采样、向量归一化、
- * 余弦相似度与 WAV 字节封装，供各音频管线复用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 音频通用工具类。
+*
+* <p>聚合音频域的纯函数工具：采样解码、重采样、向量归一化、
+* 余弦相似度与 WAV 字节封装，供各音频管线复用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class AudioUtils {
 
     /**
-      * 工具类统一目标采样率（16khz）
+    * 工具类统一目标采样率（16khz）
      */
     public static final int TARGET_SAMPLE_RATE = 16000;
 
     /**
-     * 音频工具。
+    * 音频工具。
      */
     private AudioUtils() {
     }
 
     /**
-      * 加载任意 WAV 为 16khz 单声道 [-1,1] 浮点采样。
-     *
-     * <p>内部完成声道合并与线性插值重采样。</p>
-     *
-     * @param path 音频路径
-     * @return 16kHz 单声道采样
-     * @throws Exception 解码失败
+    * 加载任意 WAV 为 16khz 单声道 [-1,1] 浮点采样。
+    *
+    * <p>内部完成声道合并与线性插值重采样。</p>
+    *
+    * @param path 音频路径
+    * @return 16kHz 单声道采样
+    * @throws Exception 解码失败
      */
     public static float[] loadMono16k(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
@@ -64,12 +64,12 @@ public final class AudioUtils {
     }
 
     /**
-     * 线性插值重采样。
-     *
-     * @param samples 原始采样
-     * @param sourceRate 源采样率
-     * @param targetRate 目标采样率
-     * @return 重采样结果
+    * 线性插值重采样。
+    *
+    * @param samples 原始采样
+    * @param sourceRate 源采样率
+    * @param targetRate 目标采样率
+    * @return 重采样结果
      */
     public static float[] resample(float[] samples, float sourceRate, float targetRate) {
         if (Math.abs(sourceRate - targetRate) < 1F) {
@@ -88,11 +88,11 @@ public final class AudioUtils {
     }
 
     /**
-     * 余弦相似度。
-     *
-     * @param a 向量 a
-     * @param b 向量 b
-     * @return 相似度 [-1,1]
+    * 余弦相似度。
+    *
+    * @param a 向量 a
+    * @param b 向量 b
+    * @return 相似度 [-1,1]
      */
     public static double cosine(float[] a, float[] b) {
         double dot = 0;
@@ -108,9 +108,9 @@ public final class AudioUtils {
     }
 
     /**
-     * 就地 L2 归一化。
-     *
-     * @param v 待归一化向量
+    * 就地 L2 归一化。
+    *
+    * @param v 待归一化向量
      */
     public static void l2Normalize(float[] v) {
         double n = norm(v);
@@ -122,10 +122,10 @@ public final class AudioUtils {
     }
 
     /**
-     * 向量模长。
-     *
-     * @param v 输入向量
-     * @return 模长
+    * 向量模长。
+    *
+    * @param v 输入向量
+    * @return 模长
      */
     public static double norm(float[] v) {
         double s = 0;
@@ -136,12 +136,12 @@ public final class AudioUtils {
     }
 
     /**
-      * float 采样封装为 16钻头 单声道小端 PCM WAV 字节。
-     *
-     * @param samples [-1,1] 采样
-     * @param sampleRate 采样率
-     * @return 完整 WAV 字节（含 RIFF 头）
-     * @throws Exception 封装失败
+    * float 采样封装为 16钻头 单声道小端 PCM WAV 字节。
+    *
+    * @param samples [-1,1] 采样
+    * @param sampleRate 采样率
+    * @return 完整 WAV 字节（含 RIFF 头）
+    * @throws Exception 封装失败
      */
     public static byte[] toWavBytes(float[] samples, int sampleRate) throws Exception {
         ByteArrayOutputStream pcmOut = new ByteArrayOutputStream(samples.length * 2);
@@ -161,11 +161,11 @@ public final class AudioUtils {
     }
 
     /**
-     * 读取流全部字节。
-     *
-     * @param in 输入流
-     * @return 字节数组
-     * @throws Exception 读取失败
+    * 读取流全部字节。
+    *
+    * @param in 输入流
+    * @return 字节数组
+    * @throws Exception 读取失败
      */
     public static byte[] readAll(AudioInputStream in) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -178,13 +178,13 @@ public final class AudioUtils {
     }
 
     /**
-     * 写临时 WAV 文件。
-     *
-     * @param prefix 文件名前缀
-     * @param samples [-1,1] 采样
-     * @param sampleRate 采样率
-     * @return 已登记删除的临时文件路径
-     * @throws Exception 写入失败
+    * 写临时 WAV 文件。
+    *
+    * @param prefix 文件名前缀
+    * @param samples [-1,1] 采样
+    * @param sampleRate 采样率
+    * @return 已登记删除的临时文件路径
+    * @throws Exception 写入失败
      */
     public static Path writeTempWav(String prefix, float[] samples, int sampleRate) throws Exception {
         Path tmp = Files.createTempFile(prefix, ".wav");

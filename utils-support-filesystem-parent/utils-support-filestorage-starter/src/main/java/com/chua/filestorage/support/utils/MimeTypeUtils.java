@@ -8,19 +8,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * MIME 类型与文件能力工具类。
- *
- * <p>提供以下能力：</p>
- * <ul>
- *   <li>根据扩展名获取 MIME 类型</li>
- *   <li>判断是否支持浏览器原生预览</li>
- *   <li>判断是否可转换为 PDF</li>
- *   <li>判断是否支持前端插件预览</li>
- *   <li>判断是否支持范围请求（Range）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* MIME 类型与文件能力工具类。
+*
+* <p>提供以下能力：</p>
+* <ul>
+*   <li>根据扩展名获取 MIME 类型</li>
+*   <li>判断是否支持浏览器原生预览</li>
+*   <li>判断是否可转换为 PDF</li>
+*   <li>判断是否支持前端插件预览</li>
+*   <li>判断是否支持范围请求（Range）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class MimeTypeUtils {
 
@@ -196,10 +196,10 @@ public final class MimeTypeUtils {
     }
 
     /**
-     * 根据扩展名获取 MIME 类型（小写）。
-     *
-     * @param extension 扩展名（不带点，如 "pdf"）
-     * @return MIME 类型，找不到返回 "application/octet-流"
+    * 根据扩展名获取 MIME 类型（小写）。
+    *
+    * @param extension 扩展名（不带点，如 "pdf"）
+    * @return MIME 类型，找不到返回 "application/octet-流"
      */
     public static String getMimeType(String extension) {
         if (extension == null) {
@@ -210,10 +210,10 @@ public final class MimeTypeUtils {
     }
 
     /**
-     * 从文件名提取扩展名并获取 MIME 类型。
-     *
-     * @param filename 文件名（如 "report.pdf"）
-     * @return MIME 类型
+    * 从文件名提取扩展名并获取 MIME 类型。
+    *
+    * @param filename 文件名（如 "report.pdf"）
+    * @return MIME 类型
      */
     public static String getMimeTypeFromFilename(String filename) {
         if (filename == null || !filename.contains(".")) {
@@ -224,40 +224,40 @@ public final class MimeTypeUtils {
     }
 
     /**
-     * 判断指定 MIME 是否支持浏览器原生预览。
-     *
-     * @param mime MIME 类型
-     * @return true 表示支持
+    * 判断指定 MIME 是否支持浏览器原生预览。
+    *
+    * @param mime MIME 类型
+    * @return true 表示支持
      */
     public static boolean isBrowserPreviewSupported(String mime) {
         return mime != null && BROWSER_PREVIEW_MIMES.contains(mime);
     }
 
     /**
-     * 判断扩展名是否支持前端插件预览。
-     *
-     * @param extension 扩展名（不带点）
-     * @return true 表示支持
+    * 判断扩展名是否支持前端插件预览。
+    *
+    * @param extension 扩展名（不带点）
+    * @return true 表示支持
      */
     public static boolean isPluginPreviewSupported(String extension) {
         return extension != null && PLUGIN_PREVIEW_EXTENSIONS.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     /**
-     * 判断扩展名是否可转换为 PDF。
-     *
-     * @param extension 扩展名（不带点）
-     * @return true 表示可转换
+    * 判断扩展名是否可转换为 PDF。
+    *
+    * @param extension 扩展名（不带点）
+    * @return true 表示可转换
      */
     public static boolean isConvertableToPdf(String extension) {
         return extension != null && CONVERTABLE_TO_PDF_EXTENSIONS.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     /**
-      * 判断 MIME 是否支持 范围 范围请求。
-     *
-     * @param mime MIME 类型
-     * @return true 表示支持
+    * 判断 MIME 是否支持 范围 范围请求。
+    *
+    * @param mime MIME 类型
+    * @return true 表示支持
      */
     public static boolean isRangeSupported(String mime) {
         return mime != null && RANGE_SUPPORTED_MIMES.contains(mime);

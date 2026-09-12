@@ -16,36 +16,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 纯 打开cv HOG 行人检测翻译器。
- * <p>使用 OpenCV 内置的默认行人检测器，无需外部模型文件。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 纯 打开cv HOG 行人检测翻译器。
+* <p>使用 OpenCV 内置的默认行人检测器，无需外部模型文件。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
 
     /**
-     * HOG 描述子。
+    * HOG 描述子。
      */
     private final HOGDescriptor hog;
 
     /**
-     * 命中阈值。
+    * 命中阈值。
      */
     private final double hitThreshold;
 
     /**
-     * 构造行人检测器。
+    * 构造行人检测器。
      */
     public OpencvHogPedestrianDetector() {
         this(0.0);
     }
 
     /**
-     * 构造行人检测器。
-     *
-     * @param hitThreshold 命中阈值
+    * 构造行人检测器。
+    *
+    * @param hitThreshold 命中阈值
      */
     public OpencvHogPedestrianDetector(double hitThreshold) {
         super("opencv-pedestrian-hog");

@@ -9,24 +9,24 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 3D 模型预览提供器，基于 three.js 0.163 渲染 glb / gltf / obj / stl / dxf 格式。
- * <p>SPI 类型：{@code preview-3d}。输出嵌入 OrbitControls 的 three.js 预览页面。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 3D 模型预览提供器，基于 three.js 0.163 渲染 glb / gltf / obj / stl / dxf 格式。
+* <p>SPI 类型：{@code preview-3d}。输出嵌入 OrbitControls 的 three.js 预览页面。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-3d")
 public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 支持的 3D 模型扩展名（小写）
+    * 支持的 3D 模型扩展名（小写）
      */
     private static final Set<String> SUPPORTED = Set.of("glb", "gltf", "obj", "stl", "dxf");
 
     /**
-     * @param ext  文件扩展名
-     * @param mime MIME 类型（当前忽略）
-     * @return true 表示支持预览
+    * @param ext  文件扩展名
+    * @param mime MIME 类型（当前忽略）
+    * @return true 表示支持预览
      */
     @Override
     public boolean supports(String ext, String mime) {
@@ -59,11 +59,11 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建script
-     *
-     * @param b64 b64
-     * @param ext ext
-     * @return 构建script的结果
+    * 构建script
+    *
+    * @param b64 b64
+    * @param ext ext
+    * @return 构建script的结果
      */
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +

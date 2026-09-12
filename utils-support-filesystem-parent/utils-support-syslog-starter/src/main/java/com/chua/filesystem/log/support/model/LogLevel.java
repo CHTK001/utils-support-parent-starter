@@ -1,10 +1,10 @@
 package com.chua.filesystem.log.support.model;
 
 /**
- * 系统日志级别枚举
- *
- * @author CH
- * @since 4.0.0.42
+* 系统日志级别枚举
+*
+* @author CH
+* @since 4.0.0.42
  */
 public enum LogLevel {
 
@@ -34,19 +34,19 @@ public enum LogLevel {
     }
 
     /**
-     * 获取Severity
-     *
-     * @return 获取severity的结果
+    * 获取Severity
+    *
+    * @return 获取severity的结果
      */
     public int getSeverity() {
         return severity;
     }
 
     /**
-     * meetsminimum
-     *
-     * @param minLevel 最小级别
-     * @return meetsMinimum的结果
+    * meetsminimum
+    *
+    * @param minLevel 最小级别
+    * @return meetsMinimum的结果
      */
     public boolean meetsMinimum(LogLevel minLevel) {
         return minLevel == null || this.severity >= minLevel.severity;

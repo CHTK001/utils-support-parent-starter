@@ -16,30 +16,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Aspose.Slides 演示文稿格式转换器。
- *
- * <p>支持 ppt/pptx/pptm/potx/potm 的相互转换，以及转换为 pdf/html/tiff/svg/xps
- * 和常见图片格式。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Aspose.Slides 演示文稿格式转换器。
+*
+* <p>支持 ppt/pptx/pptm/potx/potm 的相互转换，以及转换为 pdf/html/tiff/svg/xps
+* 和常见图片格式。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("aspose-ppt")
 public class AsposePptFileConvertSystem implements FileConvertSystem {
 
     /**
-     * 支持的源文件格式列表
+    * 支持的源文件格式列表
      */
     private static final List<String> SOURCES = List.of("ppt", "pptx", "pptm", "potx", "potm");
 
     /**
-     * 支持的目标文件格式列表
+    * 支持的目标文件格式列表
      */
     private static final List<String> TARGETS = List.of("pdf", "ppt", "pptx", "html", "htm", "tiff", "xps");
 
     /**
-      * 格式与 Aspose.Slides 保存格式化 常量映射表
+    * 格式与 Aspose.Slides 保存格式化 常量映射表
      */
     private static final Map<String, Integer> FORMAT_MAP = Map.ofEntries(
         Map.entry("pdf", SaveFormat.Pdf), Map.entry("ppt", SaveFormat.Ppt),

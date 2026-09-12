@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 短剧网 (duanjuw) 短剧搜索提供器
- * @author CH
- * @since 4.0.0
+* 短剧网 (duanjuw) 短剧搜索提供器
+* @author CH
+* @since 4.0.0
  */
 @Spi("duanjuw")
 public class DuanJuWangResourceProvider extends AbstractResourceProvider {
     /**
-     * duanjuwangresource提供者。
+    * duanjuwangresource提供者。
      */
     public DuanJuWangResourceProvider() { super(); }
     @Override

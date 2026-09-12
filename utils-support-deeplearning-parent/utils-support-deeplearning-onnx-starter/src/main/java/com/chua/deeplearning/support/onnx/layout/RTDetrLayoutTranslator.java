@@ -19,12 +19,12 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-   * RT-DETR v2 文档版面检测 Translator（doclaynet 17 类）。
- *
- * <p>双输入 images[N,3,640,640] + orig_target_sizes[N,2]，
-   * 输出 标签/scores/boxes（已后处理）。</p>
- * @author CH
- * @since 4.0.0
+* RT-DETR v2 文档版面检测 Translator（doclaynet 17 类）。
+*
+* <p>双输入 images[N,3,640,640] + orig_target_sizes[N,2]，
+* 输出 标签/scores/boxes（已后处理）。</p>
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects> {
@@ -38,19 +38,19 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
     private int imgHeight; // imgheight
 
     /**
-      * rtdetrlayouttranslator。
+    * rtdetrlayouttranslator。
      */
     public RTDetrLayoutTranslator() {}
     /**
-      * rtdetrlayouttranslator。
-     * @param threshold 阈值
+    * rtdetrlayouttranslator。
+    * @param threshold 阈值
      */
     public RTDetrLayoutTranslator(float threshold) { this.scoreThreshold = threshold; }
 
     /**
-     * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
-     *
-     * @param configuration 检测配置（可空）
+    * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
+    *
+    * @param configuration 检测配置（可空）
      */
     public RTDetrLayoutTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? 0.5f

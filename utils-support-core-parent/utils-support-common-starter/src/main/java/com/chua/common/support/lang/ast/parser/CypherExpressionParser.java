@@ -8,185 +8,185 @@ import com.chua.common.support.utils.StringUtils;
 import java.util.List;
 
 /**
- * Neo4j Cypher 表达式解析器
- *
- * <p>支持 Neo4j Cypher 查询中 WHERE 子句的条件表达式解析和生成。</p>
- *
- * <h3>支持的语法</h3>
- * <pre>
- *   n.age &gt; 18 AND n.status = 'active'
- *   n.name CONTAINS 'test'
- *   n.id IN [1, 2, 3]
- *   n.age &gt;= 10 AND n.age &lt;= 60
- *   n.deleted IS NULL
- *   n.name STARTS WITH 'John'
- *   n.name ENDS WITH 'son'
- *   n.name =~ '.*test.*'
- *   (n.age &gt; 18 OR n.role = 'admin') AND n.deleted IS NULL
- *   n.prop.subprop = 'deep'
- * </pre>
- *
- * <h3>Cypher 特有语法映射</h3>
- * <ul>
- *   <li>n.property → COLUMN 节点（点号保留为属性路径分隔符，如 "n.name"）</li>
- *   <li>n.prop.subprop → COLUMN 节点（多级属性路径）</li>
- *   <li>CONTAINS → COMPARE("CONTAINS", left, right)</li>
- *   <li>STARTS WITH → COMPARE("STARTS WITH", left, right)</li>
- *   <li>ENDS WITH → COMPARE("ENDS WITH", left, right)</li>
- *   <li>=~ → COMPARE("=~", left, right)</li>
- *   <li>{@code [...]} → 与 {@code (...)} 等效的 IN 列表语法</li>
- * </ul>
- *
- * <h3>示例</h3>
- * <pre>{@code
- *   ExpressionParser parser = new CypherExpressionParser();
- *
- *   // 解析
- *   BTreeNode tree = parser.parse("n.age > 18 AND n.status = 'active'");
- *
- *   // 生成
- *   String cypher = parser.generate(tree);
- *   // → "(n.age > 18 AND n.status = 'active')"
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Neo4j Cypher 表达式解析器
+*
+* <p>支持 Neo4j Cypher 查询中 WHERE 子句的条件表达式解析和生成。</p>
+*
+* <h3>支持的语法</h3>
+* <pre>
+*   n.age &gt; 18 AND n.status = 'active'
+*   n.name CONTAINS 'test'
+*   n.id IN [1, 2, 3]
+*   n.age &gt;= 10 AND n.age &lt;= 60
+*   n.deleted IS NULL
+*   n.name STARTS WITH 'John'
+*   n.name ENDS WITH 'son'
+*   n.name =~ '.*test.*'
+*   (n.age &gt; 18 OR n.role = 'admin') AND n.deleted IS NULL
+*   n.prop.subprop = 'deep'
+* </pre>
+*
+* <h3>Cypher 特有语法映射</h3>
+* <ul>
+*   <li>n.property → COLUMN 节点（点号保留为属性路径分隔符，如 "n.name"）</li>
+*   <li>n.prop.subprop → COLUMN 节点（多级属性路径）</li>
+*   <li>CONTAINS → COMPARE("CONTAINS", left, right)</li>
+*   <li>STARTS WITH → COMPARE("STARTS WITH", left, right)</li>
+*   <li>ENDS WITH → COMPARE("ENDS WITH", left, right)</li>
+*   <li>=~ → COMPARE("=~", left, right)</li>
+*   <li>{@code [...]} → 与 {@code (...)} 等效的 IN 列表语法</li>
+* </ul>
+*
+* <h3>示例</h3>
+* <pre>{@code
+*   ExpressionParser parser = new CypherExpressionParser();
+*
+*   // 解析
+*   BTreeNode tree = parser.parse("n.age > 18 AND n.status = 'active'");
+*
+*   // 生成
+*   String cypher = parser.generate(tree);
+*   // → "(n.age > 18 AND n.status = 'active')"
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("cypher")
 public class CypherExpressionParser implements ExpressionParser {
 
     /**
-     * 解析器类型标识
+    * 解析器类型标识
      */
     private static final String TYPE = "cypher";
 
     /**
-     * 空表达式错误消息
+    * 空表达式错误消息
      */
     private static final String MSG_EXPRESSION_EMPTY = "Cypher 表达式不能为空";
 
     /**
-     * 表达式解析不完整错误消息前缀
+    * 表达式解析不完整错误消息前缀
      */
     private static final String MSG_EXPRESSION_INCOMPLETE_PREFIX = "Cypher 表达式解析不完整，剩余: ";
 
     /**
-     * 意外的字符错误消息前缀
+    * 意外的字符错误消息前缀
      */
     private static final String MSG_UNEXPECTED_CHAR_PREFIX = "意外的字符: ";
 
     /**
-     * 输入结束哨兵
+    * 输入结束哨兵
      */
     private static final String EOF_MARKER = "EOF";
 
     /**
-     * IS NULL 运算符
+    * IS NULL 运算符
      */
     private static final String OP_IS_NULL = "IS NULL";
 
     /**
-     * IS NOT NULL 运算符
+    * IS NOT NULL 运算符
      */
     private static final String OP_IS_NOT_NULL = "IS NOT NULL";
 
     /**
-     * CONTAINS 运算符
+    * CONTAINS 运算符
      */
     private static final String OP_CONTAINS = "CONTAINS";
 
     /**
-     * STARTS WITH 运算符
+    * STARTS WITH 运算符
      */
     private static final String OP_STARTS_WITH = "STARTS WITH";
 
     /**
-     * ENDS WITH 运算符
+    * ENDS WITH 运算符
      */
     private static final String OP_ENDS_WITH = "ENDS WITH";
 
     /**
-     * 正则匹配运算符
+    * 正则匹配运算符
      */
     private static final String OP_REGEX_MATCH = "=~";
 
     /**
-     * BETWEEN 运算符
+    * BETWEEN 运算符
      */
     private static final String OP_BETWEEN = "BETWEEN";
 
     /**
-     * IN 运算符
+    * IN 运算符
      */
     private static final String OP_IN = "IN";
 
     /**
-     * IS 关键字
+    * IS 关键字
      */
     private static final String KW_IS = "IS";
 
     /**
-     * NOT 关键字
+    * NOT 关键字
      */
     private static final String KW_NOT = "NOT";
 
     /**
-     * NULL 关键字
+    * NULL 关键字
      */
     private static final String KW_NULL = "NULL";
 
     /**
-     * AND 关键字
+    * AND 关键字
      */
     private static final String KW_AND = "AND";
 
     /**
-     * OR 关键字
+    * OR 关键字
      */
     private static final String KW_OR = "OR";
 
     /**
-     * TRUE 关键字
+    * TRUE 关键字
      */
     private static final String KW_TRUE = "TRUE";
 
     /**
-     * FALSE 关键字
+    * FALSE 关键字
      */
     private static final String KW_FALSE = "FALSE";
 
     /**
-     * LIKE 关键字
+    * LIKE 关键字
      */
     private static final String KW_LIKE = "LIKE";
 
     /**
-     * STARTS 关键字
+    * STARTS 关键字
      */
     private static final String KW_STARTS = "STARTS";
 
     /**
-     * ENDS 关键字
+    * ENDS 关键字
      */
     private static final String KW_ENDS = "ENDS";
 
     /**
-     * WITH 关键字
+    * WITH 关键字
      */
     private static final String KW_WITH = "WITH";
 
     /**
-     * 空列表占位符
+    * 空列表占位符
      */
     private static final String EMPTY_LIST_PLACEHOLDER = "()";
 
     /**
-     * 不等号别名
+    * 不等号别名
      */
     private static final String OP_NOT_EQUAL = "!=";
 
     /**
-     * 等号
+    * 等号
      */
     private static final String OP_EQUAL = "=";
 
@@ -288,28 +288,28 @@ public class CypherExpressionParser implements ExpressionParser {
     // ==================== 递归下降解析器 ====================
 
     /**
-     * Cypher 表达式递归下降解析器
-     *
-     * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子</p>
-     *
-     * <p>与 DefaultExpressionParser 的区别：
-     * <ul>
-     *   <li>支持点号属性路径（如 n.name、n.prop.subprop）</li>
-     *   <li>支持 CONTAINS、STARTS WITH、ENDS WITH、=~ 运算符</li>
-     *   <li>支持方括号列表语法 [1, 2, 3] 用于 IN 表达式</li>
-     * </ul>
-     *
-     * @since 4.0.0.42
+    * Cypher 表达式递归下降解析器
+    *
+    * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子</p>
+    *
+    * <p>与 DefaultExpressionParser 的区别：
+    * <ul>
+    *   <li>支持点号属性路径（如 n.name、n.prop.subprop）</li>
+    *   <li>支持 CONTAINS、STARTS WITH、ENDS WITH、=~ 运算符</li>
+    *   <li>支持方括号列表语法 [1, 2, 3] 用于 IN 表达式</li>
+    * </ul>
+    *
+    * @since 4.0.0.42
      */
     private static class CypherParser {
 
         /**
-         * 输入字符串
+        * 输入字符串
          */
         private final String input;
 
         /**
-         * 当前解析位置
+        * 当前解析位置
          */
         private int pos;
 
@@ -319,9 +319,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析 OR 表达式（最低优先级）
-         *
-         * @return OR 表达式节点
+        * 解析 OR 表达式（最低优先级）
+        *
+        * @return OR 表达式节点
          */
         BTreeNode parseOr() {
             BTreeNode left = parseAnd();
@@ -333,9 +333,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析 AND 表达式
-         *
-         * @return AND 表达式节点
+        * 解析 AND 表达式
+        *
+        * @return AND 表达式节点
          */
         BTreeNode parseAnd() {
             BTreeNode left = parseNot();
@@ -347,9 +347,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析 NOT 表达式
-         *
-         * @return NOT 表达式节点
+        * 解析 NOT 表达式
+        *
+        * @return NOT 表达式节点
          */
         BTreeNode parseNot() {
             if (matchKeyword(KW_NOT) || matchSymbol("!")) {
@@ -360,9 +360,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析比较表达式
-         *
-         * @return 比较表达式节点
+        * 解析比较表达式
+        *
+        * @return 比较表达式节点
          */
         BTreeNode parseComparison() {
             BTreeNode left = parseAtom();
@@ -404,11 +404,11 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析 IN 列表
-         *
-         * <p>支持 Cypher 方括号语法 [1, 2, 3] 和标准圆括号语法 (1, 2, 3)</p>
-         *
-         * @return IN 列表节点
+        * 解析 IN 列表
+        *
+        * <p>支持 Cypher 方括号语法 [1, 2, 3] 和标准圆括号语法 (1, 2, 3)</p>
+        *
+        * @return IN 列表节点
          */
         BTreeNode parseInList() {
             if (match('[')) {
@@ -447,11 +447,11 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析原子表达式
-         *
-         * <p>支持括号分组、函数调用、列名和常量值</p>
-         *
-         * @return 原子表达式节点
+        * 解析原子表达式
+        *
+        * <p>支持括号分组、函数调用、列名和常量值</p>
+        *
+        * @return 原子表达式节点
          */
         BTreeNode parseAtom() {
             skipWhitespace();
@@ -467,9 +467,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析函数调用
-         *
-         * @return 函数调用节点
+        * 解析函数调用
+        *
+        * @return 函数调用节点
          */
         BTreeNode parseFunction() {
             String name = readIdentifier();
@@ -488,11 +488,11 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 解析列名或常量值
-         *
-         * <p>Cypher 特有：支持点号属性路径（如 n.name、a.b.c）</p>
-         *
-         * @return 列引用或常量值节点
+        * 解析列名或常量值
+        *
+        * <p>Cypher 特有：支持点号属性路径（如 n.name、a.b.c）</p>
+        *
+        * @return 列引用或常量值节点
          */
         BTreeNode parseColumnOrValue() {
             skipWhitespace();
@@ -526,17 +526,17 @@ public class CypherExpressionParser implements ExpressionParser {
         // ==================== 工具方法 ====================
 
         /**
-         * 匹配比较运算符
-         *
-         * <p>Cypher 特有运算符：
-         * <ul>
-         *   <li>CONTAINS</li>
-         *   <li>STARTS WITH（双词）</li>
-         *   <li>ENDS WITH（双词）</li>
-         *   <li>=~（正则匹配）</li>
-         * </ul>
-         *
-         * @return 比较运算符字符串，无匹配返回 null
+        * 匹配比较运算符
+        *
+        * <p>Cypher 特有运算符：
+        * <ul>
+        *   <li>CONTAINS</li>
+        *   <li>STARTS WITH（双词）</li>
+        *   <li>ENDS WITH（双词）</li>
+        *   <li>=~（正则匹配）</li>
+        * </ul>
+        *
+        * @return 比较运算符字符串，无匹配返回 null
          */
         String matchCompareOp() {
             skipWhitespace();
@@ -602,16 +602,16 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 读取属性路径标识符
-         *
-         * <p>支持点号分隔的多级路径，如：
-         * <ul>
-         *   <li>name → "name"</li>
-         *   <li>n.name → "n.name"</li>
-         *   <li>a.b.c → "a.b.c"</li>
-         * </ul>
-         *
-         * @return 属性路径字符串，若无有效标识符返回空字符串
+        * 读取属性路径标识符
+        *
+        * <p>支持点号分隔的多级路径，如：
+        * <ul>
+        *   <li>name → "name"</li>
+        *   <li>n.name → "n.name"</li>
+        *   <li>a.b.c → "a.b.c"</li>
+        * </ul>
+        *
+        * @return 属性路径字符串，若无有效标识符返回空字符串
          */
         String readPropertyPath() {
             String first = readIdentifier();
@@ -646,10 +646,10 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 预检关键字（不消费输入）
-         *
-         * @param keyword 要预检的关键字
-         * @return 匹配返回 true
+        * 预检关键字（不消费输入）
+        *
+        * @param keyword 要预检的关键字
+        * @return 匹配返回 true
          */
         boolean peekKeyword(String keyword) {
             int saved = pos;
@@ -659,13 +659,13 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 预检下一个关键字（不消费输入）
-         *
-         * <p>跳过当前单词和空白，检查下一个位置的单词是否匹配关键字。
-         * 用于处理 STARTS WITH / ENDS WITH 这样的双词运算符预检。</p>
-         *
-         * @param keyword 要预检的关键字
-         * @return 匹配返回 true
+        * 预检下一个关键字（不消费输入）
+        *
+        * <p>跳过当前单词和空白，检查下一个位置的单词是否匹配关键字。
+        * 用于处理 STARTS WITH / ENDS WITH 这样的双词运算符预检。</p>
+        *
+        * @param keyword 要预检的关键字
+        * @return 匹配返回 true
          */
         boolean peekNextKeyword(String keyword) {
             int saved = pos;
@@ -681,10 +681,10 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 尝试匹配关键字（忽略大小写）
-         *
-         * @param keyword 要匹配的关键字
-         * @return 匹配成功则消费并返回 true
+        * 尝试匹配关键字（忽略大小写）
+        *
+        * @param keyword 要匹配的关键字
+        * @return 匹配成功则消费并返回 true
          */
         boolean matchKeyword(String keyword) {
             skipWhitespace();
@@ -703,10 +703,10 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 尝试匹配符号字符串
-         *
-         * @param symbol 要匹配的符号
-         * @return 匹配成功则消费并返回 true
+        * 尝试匹配符号字符串
+        *
+        * @param symbol 要匹配的符号
+        * @return 匹配成功则消费并返回 true
          */
         boolean matchSymbol(String symbol) {
             skipWhitespace();
@@ -720,10 +720,10 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 尝试匹配单个字符
-         *
-         * @param c 要匹配的字符
-         * @return 匹配成功则消费并返回 true
+        * 尝试匹配单个字符
+        *
+        * @param c 要匹配的字符
+        * @return 匹配成功则消费并返回 true
          */
         boolean match(char c) {
             skipWhitespace();
@@ -735,9 +735,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 期望匹配指定字符，失败则抛出异常
-         *
-         * @param c 期望匹配的字符
+        * 期望匹配指定字符，失败则抛出异常
+        *
+        * @param c 期望匹配的字符
          */
         void expect(char c) {
             if (!match(c)) {
@@ -747,7 +747,7 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 跳过空白字符
+        * 跳过空白字符
          */
         void skipWhitespace() {
             while (pos < input.length()
@@ -757,9 +757,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 读取标识符（字母、数字、下划线）
-         *
-         * @return 标识符字符串
+        * 读取标识符（字母、数字、下划线）
+        *
+        * @return 标识符字符串
          */
         String readIdentifier() {
             int start = pos;
@@ -772,9 +772,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 读取值文本（用于 IN 列表）
-         *
-         * @return 值文本字符串
+        * 读取值文本（用于 IN 列表）
+        *
+        * @return 值文本字符串
          */
         String readValue() {
             skipWhitespace();
@@ -798,10 +798,10 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 读取引号字符串
-         *
-         * @param quote 引号字符（' 或 "）
-         * @return 引号内的字符串内容（不含引号）
+        * 读取引号字符串
+        *
+        * @param quote 引号字符（' 或 "）
+        * @return 引号内的字符串内容（不含引号）
          */
         String readQuoted(char quote) {
             int start = pos;
@@ -819,9 +819,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 读取数字
-         *
-         * @return 整数或双精度浮点数
+        * 读取数字
+        *
+        * @return 整数或双精度浮点数
          */
         Number readNumber() {
             int start = pos;
@@ -849,9 +849,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 检查当前字符是否为字母
-         *
-         * @return 是字母返回 true
+        * 检查当前字符是否为字母
+        *
+        * @return 是字母返回 true
          */
         boolean peekIsLetter() {
             return pos < input.length()
@@ -859,9 +859,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 检查当前字符是否为数字
-         *
-         * @return 是数字返回 true
+        * 检查当前字符是否为数字
+        *
+        * @return 是数字返回 true
          */
         boolean peekIsDigit() {
             return pos < input.length()
@@ -869,20 +869,20 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 检查当前字符是否等于指定字符
-         *
-         * @param c 要比较的字符
-         * @return 相等返回 true
+        * 检查当前字符是否等于指定字符
+        *
+        * @param c 要比较的字符
+        * @return 相等返回 true
          */
         boolean peekIs(char c) {
             return pos < input.length() && input.charAt(pos) == c;
         }
 
         /**
-         * 检查下一个字符是否等于指定字符
-         *
-         * @param c 要比较的字符
-         * @return 相等返回 true
+        * 检查下一个字符是否等于指定字符
+        *
+        * @param c 要比较的字符
+        * @return 相等返回 true
          */
         boolean peekNextIs(char c) {
             return pos + 1 < input.length()
@@ -890,9 +890,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 是否已到达输入末尾
-         *
-         * @return 已到末尾返回 true
+        * 是否已到达输入末尾
+        *
+        * @return 已到末尾返回 true
          */
         boolean isEnd() {
             skipWhitespace();
@@ -900,9 +900,9 @@ public class CypherExpressionParser implements ExpressionParser {
         }
 
         /**
-         * 获取剩余未解析的输入片段
-         *
-         * @return 剩余字符串
+        * 获取剩余未解析的输入片段
+        *
+        * @return 剩余字符串
          */
         String remaining() {
             return pos < input.length() ? input.substring(pos) : "";

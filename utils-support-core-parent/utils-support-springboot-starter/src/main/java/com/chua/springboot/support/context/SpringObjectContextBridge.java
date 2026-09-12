@@ -11,22 +11,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 将外部对象注册到 Spring 容器中的桥接工具。
- *
- * <p>仅在 {@link ConfigurableApplicationContext} 可用时生效：
- * 通过 {@link DefaultListableBeanFactory#registerSingleton(String, Object)}
- * 将对象以单例形式加入 Spring 容器，后续 {@code @Autowired} 可正常解析。</p>
- *
- * <p>已注册的 beanName 会在内部缓存中记录，避免重复注册。</p>
- *
- * @author CH
- * @since 2026/07/29
+* 将外部对象注册到 Spring 容器中的桥接工具。
+*
+* <p>仅在 {@link ConfigurableApplicationContext} 可用时生效：
+* 通过 {@link DefaultListableBeanFactory#registerSingleton(String, Object)}
+* 将对象以单例形式加入 Spring 容器，后续 {@code @Autowired} 可正常解析。</p>
+*
+* <p>已注册的 beanName 会在内部缓存中记录，避免重复注册。</p>
+*
+* @author CH
+* @since 2026/07/29
  */
 @Slf4j
 final class SpringObjectContextBridge {
 
     /**
-      * 已注册到 Spring 的 Bean名称 缓存，键 = Bean名称，值 = Bean 实例引用
+    * 已注册到 Spring 的 Bean名称 缓存，键 = Bean名称，值 = Bean 实例引用
      */
     private static final ConcurrentMap<String, Object> REGISTERED = new ConcurrentHashMap<>();
 
@@ -35,11 +35,11 @@ final class SpringObjectContextBridge {
     }
 
     /**
-     * 若 Spring 容器中尚未注册该对象，则以单例形式注册。
-     * <p>beanName 默认取小驼峰类名（与 {@code TypeBeanDefinition} 命名一致）。</p>
-     *
-     * @param applicationContext Spring 容器
-     * @param bean               待注册对象
+    * 若 Spring 容器中尚未注册该对象，则以单例形式注册。
+    * <p>beanName 默认取小驼峰类名（与 {@code TypeBeanDefinition} 命名一致）。</p>
+    *
+    * @param applicationContext Spring 容器
+    * @param bean               待注册对象
      */
     public static void registerIfAbsent(ApplicationContext applicationContext, Object bean) {
         if (applicationContext == null || bean == null) {
@@ -76,10 +76,10 @@ final class SpringObjectContextBridge {
     }
 
     /**
-      * 解析默认 Bean名称：小驼峰类名（首字母小写），与 {@code TypeBeanDefinition.of} 保持一致。
-     *
-     * @param beanClass Bean 类型
-     * @return beanName
+    * 解析默认 Bean名称：小驼峰类名（首字母小写），与 {@code TypeBeanDefinition.of} 保持一致。
+    *
+    * @param beanClass Bean 类型
+    * @return beanName
      */
     private static String resolveBeanName(Class<?> beanClass) {
         if (beanClass == null) {

@@ -10,19 +10,19 @@ import javax.annotation.Nullable;
 
 
 /**
- * 二值化
- *
- * @author CH
- * @since 4.0.0
+* 二值化
+*
+* @author CH
+* @since 4.0.0
  */
 @Spi("Bin")
 @SpiDescribe("二值化滤镜")
 public class ImageBinImageFilter extends AbstractImageFilter {
     /**
-     * 获取镜像rgb
-     *
-     * @param i i
-     * @return 获取镜像rgb的结果
+    * 获取镜像rgb
+    *
+    * @param i i
+    * @return 获取镜像rgb的结果
      */
     private static int getImageRgb(int i) {
         String argb = Integer.toHexString(i);
@@ -33,14 +33,14 @@ public class ImageBinImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 获取Gray
-     *
-     * @param gray gray
-     * @param x x
-     * @param y y
-     * @param w w
-     * @param h h
-     * @return 获取gray的结果
+    * 获取Gray
+    *
+    * @param gray gray
+    * @param x x
+    * @param y y
+    * @param w w
+    * @param h h
+    * @return 获取gray的结果
      */
     public static int getGray(int[][] gray, int x, int y, int w, int h) {
         int rs = gray[x][y]

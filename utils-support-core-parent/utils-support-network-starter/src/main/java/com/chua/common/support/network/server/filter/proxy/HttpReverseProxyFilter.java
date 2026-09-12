@@ -24,23 +24,23 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
- * HTTP 反向代理过滤器，将请求转发到后端服务器。
- *
- * <p>基于 Vert.x {@link HttpClient} 实现异步转发，后端地址由
- * {@link ServerAttribute#getBackendDiscovery(ServerRequest)} 决定，
- * 通常由 {@link com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter}
- * 在请求进入时设置（该过滤器内部使用现有负载均衡体系）。</p>
- *
- * <p>使用示例：</p>
- * <pre>{@code
- * HttpReverseProxyFilter proxy = new HttpReverseProxyFilter();
- * server.addFilter(proxy);
- * }</pre>lter(proxy);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/24
- * @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
+* HTTP 反向代理过滤器，将请求转发到后端服务器。
+*
+* <p>基于 Vert.x {@link HttpClient} 实现异步转发，后端地址由
+* {@link ServerAttribute#getBackendDiscovery(ServerRequest)} 决定，
+* 通常由 {@link com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter}
+* 在请求进入时设置（该过滤器内部使用现有负载均衡体系）。</p>
+*
+* <p>使用示例：</p>
+* <pre>{@code
+* HttpReverseProxyFilter proxy = new HttpReverseProxyFilter();
+* server.addFilter(proxy);
+* }</pre>lter(proxy);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/24
+* @see com.chua.common.support.network.server.filter.discovery.ServiceDiscoveryServerFilter
  */
 @Slf4j
 public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilter {
@@ -91,10 +91,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
     @Override
     /**
-      * 执行过滤
-     * @param request 请求
-     * @param response 响应
-     * @param chain chain
+    * 执行过滤
+    * @param request 请求
+    * @param response 响应
+    * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
@@ -108,10 +108,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
     @Override
     /**
-      * 执行过滤
-     * @param request 请求
-     * @param response 响应
-     * @param chain chain
+    * 执行过滤
+    * @param request 请求
+    * @param response 响应
+    * @param chain chain
      */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
@@ -125,11 +125,11 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-      * 代理异步
-     * @param discovery discovery
-     * @param request 请求
-     * @param response 响应
-     * @param completionFuture 完成期货
+    * 代理异步
+    * @param discovery discovery
+    * @param request 请求
+    * @param response 响应
+    * @param completionFuture 完成期货
      */
     private void proxyAsync(Discovery discovery, ServerRequest request, ServerResponse response,
                             CompletableFuture<Void> completionFuture) {
@@ -165,10 +165,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * 复制头部
-     *
-     * @param request 请求
-     * @param req req
+    * 复制头部
+    *
+    * @param request 请求
+    * @param req req
      */
     private void copyHeaders(ServerRequest request, HttpClientRequest req) {
         if (request.getHeaders() != null) {
@@ -184,10 +184,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-      * 处理backend响应
-     * @param resp resp
-     * @param response 响应
-     * @param completionFuture 完成期货
+    * 处理backend响应
+    * @param resp resp
+    * @param response 响应
+    * @param completionFuture 完成期货
      */
     private void handleBackendResponse(HttpClientResponse resp, ServerResponse response,
                                        CompletableFuture<Void> completionFuture) {
@@ -223,10 +223,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * extract路径
-     *
-     * @param request 请求
-     * @return extract路径的结果
+    * extract路径
+    *
+    * @param request 请求
+    * @return extract路径的结果
      */
     private String extractPath(ServerRequest request) {
         String path = request.getPath();
@@ -241,11 +241,11 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * 发送记录错误
-     *
-     * @param response 响应
-     * @param code 编码
-     * @param msg msg
+    * 发送记录错误
+    *
+    * @param response 响应
+    * @param code 编码
+    * @param msg msg
      */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
@@ -256,10 +256,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * 完成
-     *
-     * @param future 期货
-     * @param value 值
+    * 完成
+    *
+    * @param future 期货
+    * @param value 值
      */
     private static void complete(CompletableFuture<Void> future, Void value) {
         if (future != null) {
@@ -268,10 +268,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * 完成exceptionally
-     *
-     * @param future 期货
-     * @param cause cause
+    * 完成exceptionally
+    *
+    * @param future 期货
+    * @param cause cause
      */
     private static void completeExceptionally(CompletableFuture<Void> future, Throwable cause) {
         if (future != null) {

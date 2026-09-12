@@ -16,24 +16,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-   * joy编码 usage parser.
- *
- * <p>JoyCode is a Chinese AI coding IDE (by JD.com) using an OpenAI-compatible
-   * API (e.g. joyAI-编码-1.5, deepseek-V4-Pro). Real per-请求 usage 是否 tracked
-   * 服务端-side by the joy编码 platform — no 账单 令牌 are 存储 本地.</p>
- *
- * <p>The only local token data lives in editor logs under
- * {@code %USERPROFILE%\AppData\Roaming\JoyCode\logs}: {@code [NonMessageTokens]}
-   * 线 carry a 客户端-side estimate 的 系统 提示符 + tool definition 令牌,
-   * computed 之前 each 请求. These are a 降低 bound on real 输入 usage —
-   * every record 是否 flagged {@code estimated = true} so downstream aggregation
-   * 能否 exclude them 从 账单 totals.</p>
- *
- * <p>{@code [OpenAI Inner]} model-selection events contain no token data and
- * are intentionally ignored.</p>
- *
- * @author CH
- * @since 4.0.0.42
+* joy编码 usage parser.
+*
+* <p>JoyCode is a Chinese AI coding IDE (by JD.com) using an OpenAI-compatible
+* API (e.g. joyAI-编码-1.5, deepseek-V4-Pro). Real per-请求 usage 是否 tracked
+* 服务端-side by the joy编码 platform — no 账单 令牌 are 存储 本地.</p>
+*
+* <p>The only local token data lives in editor logs under
+* {@code %USERPROFILE%\AppData\Roaming\JoyCode\logs}: {@code [NonMessageTokens]}
+* 线 carry a 客户端-side estimate 的 系统 提示符 + tool definition 令牌,
+* computed 之前 each 请求. These are a 降低 bound on real 输入 usage —
+* every record 是否 flagged {@code estimated = true} so downstream aggregation
+* 能否 exclude them 从 账单 totals.</p>
+*
+* <p>{@code [OpenAI Inner]} model-selection events contain no token data and
+* are intentionally ignored.</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("joycode")
 public class JoyCodeUsageParser extends BaseUsageParser {
@@ -52,12 +52,12 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     private static final String FINISH_CONTEXT_ESTIMATE = "context-window-estimate"; // 饰面上下文estimate
 
     /**
-      * 返回 the SPI 名称 for joy编码.
-     *
-     * @return {@code "joycode"}
+    * 返回 the SPI 名称 for joy编码.
+    *
+    * @return {@code "joycode"}
      */
     /**
-      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
+    * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
@@ -70,9 +70,9 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 解析 全部 joy编码 日志 文件 和 extracts 上下文-大小 estimates.
-     *
-     * @return list 的 estimated aiusage records (estimated = true)
+    * 解析 全部 joy编码 日志 文件 和 extracts 上下文-大小 estimates.
+    *
+    * @return list 的 estimated aiusage records (estimated = true)
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
@@ -101,11 +101,11 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 读取 one joy编码 日志 文件 线 by 线, 追加 estimates.
-     *
-     * @param file   路径 转为 the 日志 文件
-     * @param result accumulator 列表 for 解析 records
-     * @throws IOException if the 文件 cannot be 读取
+    * 读取 one joy编码 日志 文件 线 by 线, 追加 estimates.
+    *
+    * @param file   路径 转为 the 日志 文件
+    * @param result accumulator 列表 for 解析 records
+    * @throws IOException if the 文件 cannot be 读取
      */
     private void parseLogFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -117,10 +117,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-      * Extracts a 上下文-大小 estimate 从 one 日志 线 if present.
-     *
-     * @param line   the 日志 线 转为 inspect
-     * @param result accumulator 列表 for 解析 records
+    * Extracts a 上下文-大小 estimate 从 one 日志 线 if present.
+    *
+    * @param line   the 日志 线 转为 inspect
+    * @param result accumulator 列表 for 解析 records
      */
     private void parseLine(String line, List<AiUsage> result) {
         Matcher nonMsgMatcher = NON_MSG_TOKENS.matcher(line);
@@ -149,10 +149,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-      * Extracts the 铅 yyyy-MM-dd 时间戳 的 a 日志 线.
-     *
-     * @param line the 日志 线
-     * @return epoch millis at day 启动, 或 0L When.js.js absent 或 malformed
+    * Extracts the 铅 yyyy-MM-dd 时间戳 的 a 日志 线.
+    *
+    * @param line the 日志 线
+    * @return epoch millis at day 启动, 或 0L When.js.js absent 或 malformed
      */
     private long extractDayStart(String line) {
         Matcher m = TIMESTAMP.matcher(line);

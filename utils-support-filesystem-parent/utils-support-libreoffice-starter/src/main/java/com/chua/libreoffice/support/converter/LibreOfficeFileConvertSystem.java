@@ -15,20 +15,20 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
-   * libre办公室 文档格式转换器。
- *
- * <p>通过命令行调用 LibreOffice 实现多种 Office 格式的相互转换。
- * 支持 doc/docx/xls/xlsx/ppt/pptx/odt/ods/odp 等格式的交叉转换。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* libre办公室 文档格式转换器。
+*
+* <p>通过命令行调用 LibreOffice 实现多种 Office 格式的相互转换。
+* 支持 doc/docx/xls/xlsx/ppt/pptx/odt/ods/odp 等格式的交叉转换。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("libreoffice")
 public class LibreOfficeFileConvertSystem implements FileConvertSystem {
 
     /**
-     * 支持的源文件格式列表
+    * 支持的源文件格式列表
      */
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp");
 
@@ -70,11 +70,11 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     }
 
     /**
-     * 将输入流写入临时文件
-     *
-     * @param in     输入流
-     * @param suffix 文件后缀
-     * @return 临时文件绝对路径
+    * 将输入流写入临时文件
+    *
+    * @param in     输入流
+    * @param suffix 文件后缀
+    * @return 临时文件绝对路径
      */
     private static String writeTemp(InputStream in, String suffix) throws IOException {
         File f = File.createTempFile("lo_", suffix);

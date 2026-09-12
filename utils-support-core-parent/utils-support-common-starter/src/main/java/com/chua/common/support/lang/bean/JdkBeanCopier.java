@@ -17,22 +17,22 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * JDK 反射实现的 Bean 属性拷贝器。
- *
- * <p>通过 {@link PropertyDescriptor} 结合 {@link java.beans.Introspector} 获取属性信息，
- * 使用反射调用 getter/setter 方法完成属性复制。内部缓存类的属性描述信息以提升性能。</p>
- *
- * <p>支持以下特性：</p>
- * <ul>
- *   <li>基本类型与包装类型的自动转换</li>
- *   <li>String 到基本类型的转换</li>
- *   <li>忽略指定属性</li>
- *   <li>Map 与 JavaBean 之间的互相转换</li>
- *   <li>属性描述信息缓存</li>
- * </ul>
- *
- * @author CH
- * @since 1.0.0
+* JDK 反射实现的 Bean 属性拷贝器。
+*
+* <p>通过 {@link PropertyDescriptor} 结合 {@link java.beans.Introspector} 获取属性信息，
+* 使用反射调用 getter/setter 方法完成属性复制。内部缓存类的属性描述信息以提升性能。</p>
+*
+* <p>支持以下特性：</p>
+* <ul>
+*   <li>基本类型与包装类型的自动转换</li>
+*   <li>String 到基本类型的转换</li>
+*   <li>忽略指定属性</li>
+*   <li>Map 与 JavaBean 之间的互相转换</li>
+*   <li>属性描述信息缓存</li>
+* </ul>
+*
+* @author CH
+* @since 1.0.0
  */
 @SpiDefault
 @Spi("jdk")
@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JdkBeanCopier implements BeanCopier {
 
     /**
-     * 属性描述信息缓存（类 -> 属性名 -> PropertyDescriptor）
+    * 属性描述信息缓存（类 -> 属性名 -> PropertyDescriptor）
      */
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> READ_CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> WRITE_CACHE = new ConcurrentHashMap<>();

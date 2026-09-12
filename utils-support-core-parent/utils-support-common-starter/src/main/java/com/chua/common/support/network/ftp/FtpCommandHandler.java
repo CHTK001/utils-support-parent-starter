@@ -13,112 +13,112 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * FTP 命令处理器，负责解析和执行 FTP 协议命令。
- *
- * <p>FTP 协议基于文本命令/响应模式，控制连接与数据连接分离。
- * 命令处理器在控制连接上读取命令行，解析命令和参数，执行对应操作，
- * 通过控制连接发送响应码和消息。</p>
- *
- * <p>支持的 FTP 命令集：</p>
- * <ul>
- *   <li>认证：USER、PASS、QUIT</li>
- *   <li>目录：PWD、CWD、CDUP、MKD、RMD、DELE、RNFR、RNTO</li>
- *   <li>传输：TYPE、PORT、PASV、STOR、RETR、LIST、NLST、REST</li>
- *   <li>系统：SYST、FEAT、NOOP、SIZE</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.43
+* FTP 命令处理器，负责解析和执行 FTP 协议命令。
+*
+* <p>FTP 协议基于文本命令/响应模式，控制连接与数据连接分离。
+* 命令处理器在控制连接上读取命令行，解析命令和参数，执行对应操作，
+* 通过控制连接发送响应码和消息。</p>
+*
+* <p>支持的 FTP 命令集：</p>
+* <ul>
+*   <li>认证：USER、PASS、QUIT</li>
+*   <li>目录：PWD、CWD、CDUP、MKD、RMD、DELE、RNFR、RNTO</li>
+*   <li>传输：TYPE、PORT、PASV、STOR、RETR、LIST、NLST、REST</li>
+*   <li>系统：SYST、FEAT、NOOP、SIZE</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Slf4j
 class FtpCommandHandler {
 
     /**
-     * FTP 200 响应码：命令成功
+    * FTP 200 响应码：命令成功
      */
     private static final int CODE_OK = 200;
 
     /**
-     * FTP 220 响应码：服务就绪
+    * FTP 220 响应码：服务就绪
      */
     private static final int CODE_SERVICE_READY = 220;
 
     /**
-     * FTP 221 响应码：服务关闭
+    * FTP 221 响应码：服务关闭
      */
     private static final int CODE_SERVICE_CLOSE = 221;
 
     /**
-     * FTP 226 响应码：数据连接关闭，请求的文件操作成功
+    * FTP 226 响应码：数据连接关闭，请求的文件操作成功
      */
     private static final int CODE_DATA_CLOSE = 226;
 
     /**
-     * FTP 227 响应码：进入被动模式
+    * FTP 227 响应码：进入被动模式
      */
     private static final int CODE_ENTER_PASV = 227;
 
     /**
-     * FTP 230 响应码：用户登录成功
+    * FTP 230 响应码：用户登录成功
      */
     private static final int CODE_LOGIN_SUCCESS = 230;
 
     /**
-     * FTP 331 响应码：用户名正确，需要密码
+    * FTP 331 响应码：用户名正确，需要密码
      */
     private static final int CODE_NEED_PASSWORD = 331;
 
     /**
-     * FTP 350 响应码：请求的文件操作需要进一步命令
+    * FTP 350 响应码：请求的文件操作需要进一步命令
      */
     private static final int CODE_FILE_ACTION_PENDING = 350;
 
     /**
-     * FTP 421 响应码：服务不可用
+    * FTP 421 响应码：服务不可用
      */
     private static final int CODE_SERVICE_UNAVAILABLE = 421;
 
     /**
-     * FTP 425 响应码：无法打开数据连接
+    * FTP 425 响应码：无法打开数据连接
      */
     private static final int CODE_CANNOT_OPEN_DATA = 425;
 
     /**
-     * FTP 500 响应码：语法错误，命令无法识别
+    * FTP 500 响应码：语法错误，命令无法识别
      */
     private static final int CODE_SYNTAX_ERROR = 500;
 
     /**
-     * FTP 501 响应码：参数语法错误
+    * FTP 501 响应码：参数语法错误
      */
     private static final int CODE_PARAM_ERROR = 501;
 
     /**
-     * FTP 530 响应码：登录失败
+    * FTP 530 响应码：登录失败
      */
     private static final int CODE_LOGIN_FAILED = 530;
 
     /**
-     * FTP 550 响应码：请求的操作未执行，文件不可用
+    * FTP 550 响应码：请求的操作未执行，文件不可用
      */
     private static final int CODE_FILE_UNAVAILABLE = 550;
 
     /**
-     * FTP 隐藏文件前缀
+    * FTP 隐藏文件前缀
      */
     private static final String HIDDEN_FILE_PREFIX = ".";
 
     /**
-     * 日期格式化器
+    * 日期格式化器
      */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd HH:mm", Locale.US);
 
     /**
-     * 处理 FTP 命令。
-     *
-     * @param session FTP 会话
-     * @param line    原始命令行
-     * @return 是否继续处理（false 表示会话应关闭）
+    * 处理 FTP 命令。
+    *
+    * @param session FTP 会话
+    * @param line    原始命令行
+    * @return 是否继续处理（false 表示会话应关闭）
      */
     boolean handleCommand(FtpSession session, String line) {
         if (line == null || line.isBlank()) {
@@ -166,11 +166,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 USER 命令：设置用户名。
-     *
-     * @param session  FTP 会话
-     * @param username 用户名
-     * @return 是否继续
+    * 处理 USER 命令：设置用户名。
+    *
+    * @param session  FTP 会话
+    * @param username 用户名
+    * @return 是否继续
      */
     private boolean handleUser(FtpSession session, String username) {
         if (username.isBlank()) {
@@ -197,11 +197,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 PASS 命令：验证密码。
-     *
-     * @param session FTP 会话
-     * @param password 密码
-     * @return 是否继续
+    * 处理 PASS 命令：验证密码。
+    *
+    * @param session FTP 会话
+    * @param password 密码
+    * @return 是否继续
      */
     private boolean handlePass(FtpSession session, String password) {
         // 匿名用户已在 USER 阶段处理
@@ -223,10 +223,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 QUIT 命令：退出会话。
-     *
-     * @param session FTP 会话
-     * @return 是否继续（始终返回 false）
+    * 处理 QUIT 命令：退出会话。
+    *
+    * @param session FTP 会话
+    * @return 是否继续（始终返回 false）
      */
     private boolean handleQuit(FtpSession session) {
         session.reply(CODE_SERVICE_CLOSE, "Goodbye.");
@@ -234,10 +234,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 SYST 命令：返回系统类型。
-     *
-     * @param session FTP 会话
-     * @return 是否继续
+    * 处理 SYST 命令：返回系统类型。
+    *
+    * @param session FTP 会话
+    * @return 是否继续
      */
     private boolean handleSyst(FtpSession session) {
         session.reply(CODE_OK, "UNIX Type: L8");
@@ -245,10 +245,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 FEAT 命令：返回支持的扩展特性。
-     *
-     * @param session FTP 会话
-     * @return 是否继续
+    * 处理 FEAT 命令：返回支持的扩展特性。
+    *
+    * @param session FTP 会话
+    * @return 是否继续
      */
     private boolean handleFeat(FtpSession session) {
         session.replyMultiLine(CODE_OK,
@@ -264,11 +264,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 TYPE 命令：设置传输类型。
-     *
-     * @param session  FTP 会话
-     * @param argument 类型参数（I=二进制，A=ASCII）
-     * @return 是否继续
+    * 处理 TYPE 命令：设置传输类型。
+    *
+    * @param session  FTP 会话
+    * @param argument 类型参数（I=二进制，A=ASCII）
+    * @return 是否继续
      */
     private boolean handleType(FtpSession session, String argument) {
         if (argument.isBlank()) {
@@ -295,10 +295,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 PWD 命令：显示当前工作目录。
-     *
-     * @param session FTP 会话
-     * @return 是否继续
+    * 处理 PWD 命令：显示当前工作目录。
+    *
+    * @param session FTP 会话
+    * @return 是否继续
      */
     private boolean handlePwd(FtpSession session) {
         var dir = session.getCurrentDir();
@@ -308,11 +308,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 CWD 命令：切换工作目录。
-     *
-     * @param session  FTP 会话
-     * @param argument 目录路径
-     * @return 是否继续
+    * 处理 CWD 命令：切换工作目录。
+    *
+    * @param session  FTP 会话
+    * @param argument 目录路径
+    * @return 是否继续
      */
     private boolean handleCwd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -333,10 +333,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 CDUP 命令：切换到上级目录。
-     *
-     * @param session FTP 会话
-     * @return 是否继续
+    * 处理 CDUP 命令：切换到上级目录。
+    *
+    * @param session FTP 会话
+    * @return 是否继续
      */
     private boolean handleCdup(FtpSession session) {
         var currentDir = session.getCurrentDir();
@@ -355,11 +355,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 MKD 命令：创建目录。
-     *
-     * @param session  FTP 会话
-     * @param argument 目录路径
-     * @return 是否继续
+    * 处理 MKD 命令：创建目录。
+    *
+    * @param session  FTP 会话
+    * @param argument 目录路径
+    * @return 是否继续
      */
     private boolean handleMkd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -377,11 +377,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 RMD 命令：删除目录。
-     *
-     * @param session  FTP 会话
-     * @param argument 目录路径
-     * @return 是否继续
+    * 处理 RMD 命令：删除目录。
+    *
+    * @param session  FTP 会话
+    * @param argument 目录路径
+    * @return 是否继续
      */
     private boolean handleRmd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -406,11 +406,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 DELE 命令：删除文件。
-     *
-     * @param session  FTP 会话
-     * @param argument 文件路径
-     * @return 是否继续
+    * 处理 DELE 命令：删除文件。
+    *
+    * @param session  FTP 会话
+    * @param argument 文件路径
+    * @return 是否继续
      */
     private boolean handleDele(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -435,11 +435,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 RNFR 命令：设置重命名源文件。
-     *
-     * @param session  FTP 会话
-     * @param argument 原文件路径
-     * @return 是否继续
+    * 处理 RNFR 命令：设置重命名源文件。
+    *
+    * @param session  FTP 会话
+    * @param argument 原文件路径
+    * @return 是否继续
      */
     private boolean handleRnfr(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -457,11 +457,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 RNTO 命令：执行重命名。
-     *
-     * @param session  FTP 会话
-     * @param argument 新文件路径
-     * @return 是否继续
+    * 处理 RNTO 命令：执行重命名。
+    *
+    * @param session  FTP 会话
+    * @param argument 新文件路径
+    * @return 是否继续
      */
     private boolean handleRnto(FtpSession session, String argument) {
         var rnfrPath = (String) session.getAttribute("RNFR_PATH");
@@ -485,11 +485,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 PORT 命令：设置主动模式数据连接。
-     *
-     * @param session  FTP 会话
-     * @param argument PORT 参数（h1,h2,h3,h4,p1,p2）
-     * @return 是否继续
+    * 处理 PORT 命令：设置主动模式数据连接。
+    *
+    * @param session  FTP 会话
+    * @param argument PORT 参数（h1,h2,h3,h4,p1,p2）
+    * @return 是否继续
      */
     private boolean handlePort(FtpSession session, String argument) {
         if (!session.getConfig().isAllowActiveMode()) {
@@ -515,10 +515,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 PASV 命令：进入被动模式。
-     *
-     * @param session FTP 会话
-     * @return 是否继续
+    * 处理 PASV 命令：进入被动模式。
+    *
+    * @param session FTP 会话
+    * @return 是否继续
      */
     private boolean handlePasv(FtpSession session) {
         if (!session.getConfig().isAllowPassiveMode()) {
@@ -536,11 +536,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 STOR 命令：上传文件。
-     *
-     * @param session  FTP 会话
-     * @param argument 远程文件路径
-     * @return 是否继续
+    * 处理 STOR 命令：上传文件。
+    *
+    * @param session  FTP 会话
+    * @param argument 远程文件路径
+    * @return 是否继续
      */
     private boolean handleStor(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -577,11 +577,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 RETR 命令：下载文件。
-     *
-     * @param session  FTP 会话
-     * @param argument 远程文件路径
-     * @return 是否继续
+    * 处理 RETR 命令：下载文件。
+    *
+    * @param session  FTP 会话
+    * @param argument 远程文件路径
+    * @return 是否继续
      */
     private boolean handleRetr(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -616,11 +616,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 LIST 命令：列出目录内容（详细格式）。
-     *
-     * @param session  FTP 会话
-     * @param argument 目录路径（可为空）
-     * @return 是否继续
+    * 处理 LIST 命令：列出目录内容（详细格式）。
+    *
+    * @param session  FTP 会话
+    * @param argument 目录路径（可为空）
+    * @return 是否继续
      */
     private boolean handleList(FtpSession session, String argument) {
         var dirPath = session.resolvePath(argument.isEmpty() ? "." : argument);
@@ -658,11 +658,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 NLST 命令：列出目录内容（名称列表）。
-     *
-     * @param session  FTP 会话
-     * @param argument 目录路径（可为空）
-     * @return 是否继续
+    * 处理 NLST 命令：列出目录内容（名称列表）。
+    *
+    * @param session  FTP 会话
+    * @param argument 目录路径（可为空）
+    * @return 是否继续
      */
     private boolean handleNlst(FtpSession session, String argument) {
         var dirPath = session.resolvePath(argument.isEmpty() ? "." : argument);
@@ -698,11 +698,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 REST 命令：设置恢复标记（断点续传）。
-     *
-     * @param session  FTP 会话
-     * @param argument 字节偏移量
-     * @return 是否继续
+    * 处理 REST 命令：设置恢复标记（断点续传）。
+    *
+    * @param session  FTP 会话
+    * @param argument 字节偏移量
+    * @return 是否继续
      */
     private boolean handleRest(FtpSession session, String argument) {
         try {
@@ -716,11 +716,11 @@ class FtpCommandHandler {
     }
 
     /**
-     * 处理 SIZE 命令：获取文件大小。
-     *
-     * @param session  FTP 会话
-     * @param argument 文件路径
-     * @return 是否继续
+    * 处理 SIZE 命令：获取文件大小。
+    *
+    * @param session  FTP 会话
+    * @param argument 文件路径
+    * @return 是否继续
      */
     private boolean handleSize(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
@@ -738,9 +738,9 @@ class FtpCommandHandler {
     }
 
     /**
-     * 确保匿名上传目录存在。
-     *
-     * @param session FTP 会话
+    * 确保匿名上传目录存在。
+    *
+    * @param session FTP 会话
      */
     private void ensureAnonymousUploadDir(FtpSession session) {
         var uploadDir = Path.of(
@@ -754,10 +754,10 @@ class FtpCommandHandler {
     }
 
     /**
-     * 格式化 Unix 风格的目录列表条目。
-     *
-     * @param path 文件路径
-     * @return Unix ls -l 格式的字符串
+    * 格式化 Unix 风格的目录列表条目。
+    *
+    * @param path 文件路径
+    * @return Unix ls -l 格式的字符串
      */
     private String formatUnixListEntry(Path path) {
         var isDir = Files.isDirectory(path);

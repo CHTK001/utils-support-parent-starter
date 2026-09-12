@@ -19,21 +19,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 飞桨 情感分析 Senta Translator。
- * <p>输入分词后的 token 数组，输出情感分数向量。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 飞桨 情感分析 Senta Translator。
+* <p>输入分词后的 token 数组，输出情感分数向量。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SentaTranslator implements Translator<String[], float[]> {
 
     /**
-      * 词到 标识。
+    * 词到 标识。
      */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
-      * 未知词 标识。
+    * 未知词 标识。
      */
     private String unkId = "";
 
@@ -57,10 +57,10 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     /**
-     * 打开Vocab
-     *
-     * @param model 模型
-     * @return 打开vocab的结果
+    * 打开Vocab
+    *
+    * @param model 模型
+    * @return 打开vocab的结果
      */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
@@ -92,11 +92,11 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     /**
-     * Tokenize
-     *
-     * @param input 输入
-     * @param lod lod
-     * @return tokenize的结果
+    * Tokenize
+    *
+    * @param input 输入
+    * @param lod lod
+    * @return tokenize的结果
      */
     private List<Long> tokenize(String[] input, List<Long> lod) {
         List<Long> wordIds = new ArrayList<>();
@@ -109,11 +109,11 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     /**
-     * 尝试设置Lod
-     *
-     * @param ndArray ndarray
-     * @param begin 开始
-     * @param end 结束
+    * 尝试设置Lod
+    *
+    * @param ndArray ndarray
+    * @param begin 开始
+    * @param end 结束
      */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {

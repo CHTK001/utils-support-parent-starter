@@ -7,69 +7,69 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 消息请求对象
- * <p>
- * 封装发送消息所需的全部参数，包括接收人、内容、标题、附件等。
-   * 通过 构建器 模式构建，支持不同类型的消息需求。
- *
- * @author CH
- * @since 2026/07/17
+* 消息请求对象
+* <p>
+* 封装发送消息所需的全部参数，包括接收人、内容、标题、附件等。
+* 通过 构建器 模式构建，支持不同类型的消息需求。
+*
+* @author CH
+* @since 2026/07/17
  */
 @Getter
 public class MessageRequest {
 
     /**
-      * 接收人（邮箱/手机号/用户标识/群组标识 等）
+    * 接收人（邮箱/手机号/用户标识/群组标识 等）
      */
     private final String to;
 
     /**
-     * 抄送人列表
+    * 抄送人列表
      */
     private final List<String> cc;
 
     /**
-     * 消息标题（邮件/通知场景）
+    * 消息标题（邮件/通知场景）
      */
     private final String subject;
 
     /**
-     * 消息内容（文本）
+    * 消息内容（文本）
      */
     @Setter
     /**
-     * 内容
+    * 内容
      */
     private String content;
 
     /**
-      * 消息类型（文本/HTML/markdown/json 等）
+    * 消息类型（文本/HTML/markdown/json 等）
      */
     private final String contentType;
 
     /**
-     * 附件文件路径列表
+    * 附件文件路径列表
      */
     private final List<String> attachments;
 
     /**
-      * 模板 标识（使用模板发送时）
+    * 模板 标识（使用模板发送时）
      */
     private final String templateId;
 
     /**
-     * 模板参数
+    * 模板参数
      */
     private final Map<String, String> templateParams;
 
     /**
-     * 扩展参数
+    * 扩展参数
      */
     private final Map<String, Object> extra;
 
     /**
-      * 创建 消息请求 实例
-     * @param builder 构建器
+    * 创建 消息请求 实例
+    * @param builder 构建器
      */
     private MessageRequest(Builder builder) {
         this.to = builder.to;
@@ -84,11 +84,11 @@ public class MessageRequest {
     }
 
     /**
-     * 构建器
-     *
-     * @return 构建器的结果
-     * @author CH
-     * @since 4.0.0
+    * 构建器
+    *
+    * @return 构建器的结果
+    * @author CH
+    * @since 4.0.0
      */
     public static Builder builder() {
         return new Builder();
@@ -100,11 +100,11 @@ public class MessageRequest {
         /** CC */
         private List<String> cc;
         /**
-         * 主题
+        * 主题
          */
         private String subject;
         /**
-         * 内容
+        * 内容
          */
         private String content;
         /** 内容类型 */
@@ -112,7 +112,7 @@ public class MessageRequest {
         /** Attachments */
         private List<String> attachments;
         /**
-          * 模板 标识
+        * 模板 标识
          */
         private String templateId;
         /** template参数 */
@@ -121,10 +121,10 @@ public class MessageRequest {
         private Map<String, Object> extra;
 
         /**
-         * 设置接收人
-         *
-         * @param to 接收人标识
-         * @return 当前 构建器 实例
+        * 设置接收人
+        *
+        * @param to 接收人标识
+        * @return 当前 构建器 实例
          */
         public Builder to(String to) {
             this.to = to;
@@ -132,10 +132,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置抄送人列表
-         *
-         * @param cc 抄送人列表
-         * @return 当前 构建器 实例
+        * 设置抄送人列表
+        *
+        * @param cc 抄送人列表
+        * @return 当前 构建器 实例
          */
         public Builder cc(List<String> cc) {
             this.cc = cc;
@@ -143,10 +143,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置消息标题
-         *
-         * @param subject 消息标题
-         * @return 当前 构建器 实例
+        * 设置消息标题
+        *
+        * @param subject 消息标题
+        * @return 当前 构建器 实例
          */
         public Builder subject(String subject) {
             this.subject = subject;
@@ -154,10 +154,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置消息内容
-         *
-         * @param content 消息内容
-         * @return 当前 构建器 实例
+        * 设置消息内容
+        *
+        * @param content 消息内容
+        * @return 当前 构建器 实例
          */
         public Builder content(String content) {
             this.content = content;
@@ -165,10 +165,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置消息类型
-         *
-         * @param contentType 消息类型（如 文本, HTML, markdown 等）
-         * @return 当前 构建器 实例
+        * 设置消息类型
+        *
+        * @param contentType 消息类型（如 文本, HTML, markdown 等）
+        * @return 当前 构建器 实例
          */
         public Builder contentType(String contentType) {
             this.contentType = contentType;
@@ -176,10 +176,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置附件文件路径列表
-         *
-         * @param attachments 附件路径列表
-         * @return 当前 构建器 实例
+        * 设置附件文件路径列表
+        *
+        * @param attachments 附件路径列表
+        * @return 当前 构建器 实例
          */
         public Builder attachments(List<String> attachments) {
             this.attachments = attachments;
@@ -187,10 +187,10 @@ public class MessageRequest {
         }
 
         /**
-          * 设置模板 标识
-         *
-         * @param templateId 模板唯一标识
-         * @return 当前 构建器 实例
+        * 设置模板 标识
+        *
+        * @param templateId 模板唯一标识
+        * @return 当前 构建器 实例
          */
         public Builder templateId(String templateId) {
             this.templateId = templateId;
@@ -198,10 +198,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置模板参数
-         *
-         * @param params 模板参数字典
-         * @return 当前 构建器 实例
+        * 设置模板参数
+        *
+        * @param params 模板参数字典
+        * @return 当前 构建器 实例
          */
         public Builder templateParams(Map<String, String> params) {
             this.templateParams = params;
@@ -209,10 +209,10 @@ public class MessageRequest {
         }
 
         /**
-         * 设置扩展参数
-         *
-         * @param extra 额外的扩展参数
-         * @return 当前 构建器 实例
+        * 设置扩展参数
+        *
+        * @param extra 额外的扩展参数
+        * @return 当前 构建器 实例
          */
         public Builder extra(Map<String, Object> extra) {
             this.extra = extra;
@@ -220,10 +220,10 @@ public class MessageRequest {
         }
 
         /**
-          * 构建 消息请求 对象
-         *
-         * @return 构建完成的 消息请求 实例
-         * @throws IllegalArgumentException 当接收人为空或空白时抛出异常
+        * 构建 消息请求 对象
+        *
+        * @return 构建完成的 消息请求 实例
+        * @throws IllegalArgumentException 当接收人为空或空白时抛出异常
          */
         public MessageRequest build() {
             if (to == null || to.isBlank()) {

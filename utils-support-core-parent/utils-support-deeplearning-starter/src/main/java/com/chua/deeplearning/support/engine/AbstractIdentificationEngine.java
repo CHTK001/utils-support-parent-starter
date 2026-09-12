@@ -15,53 +15,53 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.nio.file.Path;
 
 /**
- * 抽象识别引擎。
- * <p>通过 SPI 自动发现 {@link ModelProvider} 实现，构建模型注册表，
- * 支持按名称和类型查找模型实例。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 抽象识别引擎。
+* <p>通过 SPI 自动发现 {@link ModelProvider} 实现，构建模型注册表，
+* 支持按名称和类型查找模型实例。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractIdentificationEngine implements IdentificationEngine {
 
     /**
-     * 模型名称到定义的映射
+    * 模型名称到定义的映射
      */
     protected final Map<String, TranslatorModelDefinition> modelMap = new ConcurrentHashMap<>();
 
     /**
-      * 默认 提供者 名称
+    * 默认 提供者 名称
      */
     private static final String DEFAULT_PROVIDER = "onnx";
 
     /**
-      * 提供者 名称：pytorch
+    * 提供者 名称：pytorch
      */
     private static final String PROVIDER_PYTORCH = "pytorch";
 
     /**
-      * 提供者 名称：Safetensors
+    * 提供者 名称：Safetensors
      */
     private static final String PROVIDER_SAFETENSORS = "safetensors";
 
     /**
-      * 提供者 名称：PaddlePaddle
+    * 提供者 名称：PaddlePaddle
      */
     private static final String PROVIDER_PADDLE = "paddle";
 
     /**
-      * 提供者 名称：tensor流
+    * 提供者 名称：tensor流
      */
     private static final String PROVIDER_TENSORFLOW = "tensorflow";
 
     /**
-      * 类路径 前缀
+    * 类路径 前缀
      */
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
-     * 构造引擎，自动执行 SPI 模型发现。
+    * 构造引擎，自动执行 SPI 模型发现。
      */
     static {
         ServiceProvider.CACHE.clear();
@@ -74,7 +74,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-      * 通过 模型registry 静态注册 + SPI 模型提供者 发现模型定义。
+    * 通过 模型registry 静态注册 + SPI 模型提供者 发现模型定义。
      */
     private void discoverModels() {
         try {
@@ -215,11 +215,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取
-     *
-     * @param name 名称
-     * @param target Target
-     * @return 获取的结果
+    * 获取
+    *
+    * @param name 名称
+    * @param target Target
+    * @return 获取的结果
      */
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
@@ -236,12 +236,12 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取并注入运行参数
-     *
-     * @param name 名称
-     * @param target Target
-     * @param options 期权
-     * @return 获取的结果
+    * 获取并注入运行参数
+    *
+    * @param name 名称
+    * @param target Target
+    * @param options 期权
+    * @return 获取的结果
      */
     public <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
         TranslatorModelDefinition def = modelMap.get(name);
@@ -261,10 +261,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取
-     *
-     * @param target Target
-     * @return 获取的结果
+    * 获取
+    *
+    * @param target Target
+    * @return 获取的结果
      */
     public <T> T get(Class<T> target) {
         for (TranslatorModelDefinition def : modelMap.values()) {
@@ -277,11 +277,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-     * 获取引擎全局实例（单例）。
-     * <p>优先通过 SPI 获取已注册的 {@link IdentificationEngine} 实现（如 ONNX），
-     * 若无则返回默认匿名实例。</p>
-     *
-     * @return IdentificationEngine 实例
+    * 获取引擎全局实例（单例）。
+    * <p>优先通过 SPI 获取已注册的 {@link IdentificationEngine} 实现（如 ONNX），
+    * 若无则返回默认匿名实例。</p>
+    *
+    * @return IdentificationEngine 实例
      */
     public static IdentificationEngine getInstance() {
         if (INSTANCE == null) {
@@ -306,13 +306,13 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     private static volatile IdentificationEngine INSTANCE;
 
     /**
-     * 根据模型注册条目的能力接口生成能力标签列表。
-     *
-     * <p>优先使用能力接口映射（如 {@code ImageDetector → detect}）；
-     * 未声明能力接口或无法识别时，回退按名称约定识别（OCR/版面/姿态等）。</p>
-     *
-     * @param entry 模型注册条目
-     * @return 能力标签列表（可为空列表）
+    * 根据模型注册条目的能力接口生成能力标签列表。
+    *
+    * <p>优先使用能力接口映射（如 {@code ImageDetector → detect}）；
+    * 未声明能力接口或无法识别时，回退按名称约定识别（OCR/版面/姿态等）。</p>
+    *
+    * @param entry 模型注册条目
+    * @return 能力标签列表（可为空列表）
      */
     private static List<String> capabilityLabels(ModelRegistry.Entry entry) {
         List<String> labels = new ArrayList<>();
@@ -343,11 +343,11 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-     * 名称contains
-     *
-     * @param name 名称
-     * @param keywords keywords
-     * @return 名称contains的结果
+    * 名称contains
+    *
+    * @param name 名称
+    * @param keywords keywords
+    * @return 名称contains的结果
      */
     private static boolean nameContains(String name, String... keywords) {
         for (String keyword : keywords) {
@@ -359,10 +359,10 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     }
 
     /**
-     * 解析提供者
-     *
-     * @param relativePath relative路径
-     * @return resolve提供者的结果
+    * 解析提供者
+    *
+    * @param relativePath relative路径
+    * @return resolve提供者的结果
      */
     private static String resolveProvider(String relativePath) {
         if (relativePath == null) {

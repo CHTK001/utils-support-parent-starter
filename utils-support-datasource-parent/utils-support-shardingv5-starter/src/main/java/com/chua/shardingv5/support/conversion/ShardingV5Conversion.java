@@ -20,49 +20,49 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * 分库分表sphere V5 分库分表数据源转换器。
- *
- * <p>链式注册分片表 + 自定义算法，自动发现物理表。</p>
- *
- * <h3>使用示例</h3>
- * <pre>{@code
- * // 自定义算法实现
- * new ShardingV5Conversion()
- *     .algo("myMod", MyModAlgorithm.class)
- *     .table("User", "user_id", 16, "myMod")
- *     .convert(List.of(ds), env);
- *
- * // 内置算法（MOD / INTERVAL / HASH_MOD）
- * new ShardingV5Conversion()
- *     .algo("mod", "MOD")
- *     .table("User", "user_id", 16, "mod")
- *     .convert(List.of(ds), env);
- *
- * // 默认 MOD
- * new ShardingV5Conversion()
- *     .table("User", "user_id", 16)
- *     .convert(List.of(ds), env);
- *
- * // 时间分片 + 自定义参数
- * new ShardingV5Conversion()
- *     .algo("tm", "INTERVAL", Map.of("datetime-pattern","yyyyMM","datetime-lower","2024-01-01"))
- *     .table("Order", "create_time", 12, "tm")
- *     .convert(List.of(ds), env);
- *
- * // 显式时间范围
- * new ShardingV5Conversion()
- *     .tableTimeRange("create_time", "2026-01-01", "2026-12-31",
- *         List.of("User_202601", "User_202602"))
- *     .convert(List.of(ds), env);
- * }</pre>间范围
- * new ShardingV5Conversion()
- *     .tableTimeRange("create_time", "2026-01-01", "2026-12-31",
- *         List.of("User_202601", "User_202602"))
- *     .convert(List.of(ds), env);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 分库分表sphere V5 分库分表数据源转换器。
+*
+* <p>链式注册分片表 + 自定义算法，自动发现物理表。</p>
+*
+* <h3>使用示例</h3>
+* <pre>{@code
+* // 自定义算法实现
+* new ShardingV5Conversion()
+*     .algo("myMod", MyModAlgorithm.class)
+*     .table("User", "user_id", 16, "myMod")
+*     .convert(List.of(ds), env);
+*
+* // 内置算法（MOD / INTERVAL / HASH_MOD）
+* new ShardingV5Conversion()
+*     .algo("mod", "MOD")
+*     .table("User", "user_id", 16, "mod")
+*     .convert(List.of(ds), env);
+*
+* // 默认 MOD
+* new ShardingV5Conversion()
+*     .table("User", "user_id", 16)
+*     .convert(List.of(ds), env);
+*
+* // 时间分片 + 自定义参数
+* new ShardingV5Conversion()
+*     .algo("tm", "INTERVAL", Map.of("datetime-pattern","yyyyMM","datetime-lower","2024-01-01"))
+*     .table("Order", "create_time", 12, "tm")
+*     .convert(List.of(ds), env);
+*
+* // 显式时间范围
+* new ShardingV5Conversion()
+*     .tableTimeRange("create_time", "2026-01-01", "2026-12-31",
+*         List.of("User_202601", "User_202602"))
+*     .convert(List.of(ds), env);
+* }</pre>间范围
+* new ShardingV5Conversion()
+*     .tableTimeRange("create_time", "2026-01-01", "2026-12-31",
+*         List.of("User_202601", "User_202602"))
+*     .convert(List.of(ds), env);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
 */
 @Spi("SHARDINGV5")
 @Slf4j
@@ -84,20 +84,20 @@ public class ShardingV5Conversion implements DataSourceConversion {
     private TableCache tableCache;
 
     /**
-     * autodiscover
-     *
-     * @param auto auto
-     * @return autoDiscover的结果
+    * autodiscover
+    *
+    * @param auto auto
+    * @return autoDiscover的结果
      */
     public ShardingV5Conversion autoDiscover(boolean auto) { this.autoDiscover = auto; return this; }
 
     /**
-     * 设置表缓存 TTL。
-     * <p>开启后，表发现结果会缓存指定秒数，过期后自动重新扫描。
-     * 保证 DBA 新增表后能被自动感知。</p>
-     *
-     * @param seconds 缓存秒数，-1 表示不过期（默认）
-     * @return 缓存的结果
+    * 设置表缓存 TTL。
+    * <p>开启后，表发现结果会缓存指定秒数，过期后自动重新扫描。
+    * 保证 DBA 新增表后能被自动感知。</p>
+    *
+    * @param seconds 缓存秒数，-1 表示不过期（默认）
+    * @return 缓存的结果
      */
     public ShardingV5Conversion cache(int seconds) {
         this.cacheSeconds = seconds;
@@ -105,10 +105,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-      * 注册自定义算法实现类。类_基础 要求类有无参构造器。
-     * @param name 名称
-     * @param implClass impl类
-     * @return algo的结果
+    * 注册自定义算法实现类。类_基础 要求类有无参构造器。
+    * @param name 名称
+    * @param implClass impl类
+    * @return algo的结果
      */
     public ShardingV5Conversion algo(String name, Class<? extends ShardingAlgorithm> implClass) {
         try {
@@ -122,10 +122,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-      * 注册内置算法（MOD / 哈希_MOD / 间隔 等）。
-     * @param name 名称
-     * @param type 类型
-     * @return algo的结果
+    * 注册内置算法（MOD / 哈希_MOD / 间隔 等）。
+    * @param name 名称
+    * @param type 类型
+    * @return algo的结果
      */
     public ShardingV5Conversion algo(String name, String type) {
         algorithms.put(name, new AlgorithmHolder(type, Map.of()));
@@ -133,11 +133,11 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 注册内置算法 + 自定义参数。
-     * @param name 名称
-     * @param type 类型
-     * @param props props
-     * @return algo的结果
+    * 注册内置算法 + 自定义参数。
+    * @param name 名称
+    * @param type 类型
+    * @param props props
+    * @return algo的结果
      */
     public ShardingV5Conversion algo(String name, String type, Map<String, String> props) {
         algorithms.put(name, new AlgorithmHolder(type, props != null ? props : Map.of()));
@@ -145,13 +145,13 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 配置分库策略。
-     *
-     * @param prefix         逻辑表前缀
-     * @param shardingColumn 分片字段
-     * @param dbCount        分库数量
-     * @param algorithm      库算法名称
-     * @return db的结果
+    * 配置分库策略。
+    *
+    * @param prefix         逻辑表前缀
+    * @param shardingColumn 分片字段
+    * @param dbCount        分库数量
+    * @param algorithm      库算法名称
+    * @return db的结果
      */
     public ShardingV5Conversion db(String prefix, String shardingColumn, int dbCount, String algorithm) {
         dbConfigs.add(new DbConfig(prefix, shardingColumn, dbCount, algorithm));
@@ -159,13 +159,13 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 注册分片表。
-     *
-     * @param prefix         表名前缀
-     * @param shardingColumn 分片字段
-     * @param shardCount     分片数
-     * @param algorithm      表算法名称
-     * @return table的结果
+    * 注册分片表。
+    *
+    * @param prefix         表名前缀
+    * @param shardingColumn 分片字段
+    * @param shardCount     分片数
+    * @param algorithm      表算法名称
+    * @return table的结果
      */
     public ShardingV5Conversion table(String prefix, String shardingColumn, int shardCount, String algorithm) {
         tableConfigs.add(new TableConfig(prefix, shardingColumn, shardCount, algorithm));
@@ -173,23 +173,23 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * Table
-     *
-     * @param prefix 前缀
-     * @param shardingColumn 分库分表column
-     * @param shardCount shard数量
-     * @return table的结果
+    * Table
+    *
+    * @param prefix 前缀
+    * @param shardingColumn 分库分表column
+    * @param shardCount shard数量
+    * @return table的结果
      */
     public ShardingV5Conversion table(String prefix, String shardingColumn, int shardCount) {
         return table(prefix, shardingColumn, shardCount, "MOD");
     }
 
     /**
-      * table时间范围
-     * @param shardingColumn 分库分表column
-     * @param start 启动
-     * @param end 结束
-     * @param realTables realtables
+    * table时间范围
+    * @param shardingColumn 分库分表column
+    * @param start 启动
+    * @param end 结束
+    * @param realTables realtables
      */
     public ShardingV5Conversion tableTimeRange(String shardingColumn,
                                                 String start, String end,
@@ -347,7 +347,7 @@ public class ShardingV5Conversion implements DataSourceConversion {
     @Override public String type() { return "SHARDINGV5"; }
 
     /**
-      * 确保算法已注册；内置算法自动注册并设 分库分表-数量
+    * 确保算法已注册；内置算法自动注册并设 分库分表-数量
      */
     private void ensureAlgo(String algoName, int count) {
         if (algorithms.containsKey(algoName)) {
@@ -371,8 +371,8 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 校验已注册的算法参数完整性
-     * @param name 名称
+    * 校验已注册的算法参数完整性
+    * @param name 名称
      */
     private void validateAlgo(String name) {
         var h = algorithms.get(name);
@@ -388,9 +388,9 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 全量扫描所有数据源的表（给缓存模式下注册非分片表用）
-     * @param dss dss
-     * @return 扫描全部tables的结果
+    * 全量扫描所有数据源的表（给缓存模式下注册非分片表用）
+    * @param dss dss
+    * @return 扫描全部tables的结果
      */
     private Set<String> scanAllTables(List<DataSource> dss) {
         var all = new LinkedHashSet<String>();
@@ -401,10 +401,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 转为映射
-     *
-     * @param props props
-     * @return 转为映射的结果
+    * 转为映射
+    *
+    * @param props props
+    * @return 转为映射的结果
      */
     private Map<String, String> toMap(Properties props) {
         var map = new LinkedHashMap<String, String>();
@@ -413,10 +413,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * discovertables
-     *
-     * @param ds ds
-     * @return discoverTables的结果
+    * discovertables
+    *
+    * @param ds ds
+    * @return discoverTables的结果
      */
     private Set<String> discoverTables(DataSource ds) {
         var tables = new LinkedHashSet<String>();
@@ -432,10 +432,10 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 合并discoveredtables
-     *
-     * @param discovered discovered
-     * @return 合并discoveredtables的结果
+    * 合并discoveredtables
+    *
+    * @param discovered discovered
+    * @return 合并discoveredtables的结果
      */
     private Set<String> mergeDiscoveredTables(Map<String, Set<String>> discovered) {
         var all = new LinkedHashSet<String>();
@@ -444,13 +444,13 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 构建数据节点
-     *
-     * @param table table
-     * @param dsNames ds名称
-     * @return 构建数据节点的结果
-     * @author CH
-     * @since 4.0.0
+    * 构建数据节点
+    *
+    * @param table table
+    * @param dsNames ds名称
+    * @return 构建数据节点的结果
+    * @author CH
+    * @since 4.0.0
      */
     private String buildDataNodes(String table, Set<String> dsNames) {
         return dsNames.stream().map(ds -> ds + "." + table).collect(Collectors.joining(","));
@@ -465,19 +465,19 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * 根据前缀查找对应的分库配置
-     * @param prefix 前缀
-     * @return finddb配置的结果
+    * 根据前缀查找对应的分库配置
+    * @param prefix 前缀
+    * @return finddb配置的结果
      */
     private DbConfig findDbConfig(String prefix) {
         return dbConfigs.stream().filter(d -> d.prefix.equals(prefix)).findFirst().orElse(null);
     }
 
     /**
-     * 是否builtinalgo
-     *
-     * @param name 名称
-     * @return 是否builtinalgo的结果
+    * 是否builtinalgo
+    *
+    * @param name 名称
+    * @return 是否builtinalgo的结果
      */
     private boolean isBuiltinAlgo(String name) {
         return List.of("MOD", "HASH_MOD", "INTERVAL", "CLASS_BASED", "STANDARD",
@@ -486,21 +486,21 @@ public class ShardingV5Conversion implements DataSourceConversion {
     }
 
     /**
-     * Natural比较
-     *
-     * @param a a
-     * @param b b
-     * @return naturalCompare的结果
+    * Natural比较
+    *
+    * @param a a
+    * @param b b
+    * @return naturalCompare的结果
      */
     private int naturalCompare(String a, String b) {
         return extractSuffix(a).compareTo(extractSuffix(b));
     }
 
     /**
-     * extract后缀
-     *
-     * @param name 名称
-     * @return extract后缀的结果
+    * extract后缀
+    *
+    * @param name 名称
+    * @return extract后缀的结果
      */
     private String extractSuffix(String name) {
         var m = java.util.regex.Pattern.compile("\\d+$").matcher(name);

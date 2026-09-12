@@ -7,24 +7,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * Lambda 解析工具类，将 sfunction 方法引用解析为属性名。
- *
- * @author CH
- * @since 4.0.0.42
+* Lambda 解析工具类，将 sfunction 方法引用解析为属性名。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class LambdaUtils {
 
     /**
-      * 缓存：类 → (方法引用类 → 属性名)。
+    * 缓存：类 → (方法引用类 → 属性名)。
      */
     private static final Map<Class<?>, Map<String, String>> CACHE = new ConcurrentHashMap<>();
 
     /**
-      * 解析 sfunction 方法引用为属性名。
-     *
-     * @param func 方法引用
-     * @param <T>  实体类型
-     * @return 属性名（驼峰），解析失败返回 空
+    * 解析 sfunction 方法引用为属性名。
+    *
+    * @param func 方法引用
+    * @param <T>  实体类型
+    * @return 属性名（驼峰），解析失败返回 空
      */
     public static <T> String resolveObject(SFunction<T, ?> func) {
         try {

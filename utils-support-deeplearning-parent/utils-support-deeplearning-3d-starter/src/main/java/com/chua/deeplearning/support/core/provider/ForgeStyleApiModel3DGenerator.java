@@ -14,16 +14,16 @@ import java.io.IOException;
 import java.util.Base64;
 
 /**
- * Forge 风格 API 3D 生成器
- *
- * @author CH
- * @since 4.0.0.42
+* Forge 风格 API 3D 生成器
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
 
     /**
-      * 创建 forgestyleapi模型3d生成器 实例
-     * @param config 配置
+    * 创建 forgestyleapi模型3d生成器 实例
+    * @param config 配置
      */
     public ForgeStyleApiModel3DGenerator(Model3DConfig config) {
         super(config);

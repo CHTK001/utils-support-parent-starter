@@ -26,84 +26,84 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 基于UDP广播的服务发现实现类。
- * 作者：CH
- * @author CH
- * @since 4.0.0.42
+* 基于UDP广播的服务发现实现类。
+* 作者：CH
+* @author CH
+* @since 4.0.0.42
  */@Spi("udp-broadcast")
 @Slf4j
 public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery implements Runnable {
 
 
     /**
-     * 默认监听端口
+    * 默认监听端口
      */
     private static final int DEFAULT_PORT = 53321;
 
     /**
-     * UDP数据包缓冲区大小
+    * UDP数据包缓冲区大小
      */
     private static final int BUFFER_SIZE = 65507;
 
     /**
-     * 记录最后收到消息的服务器ID和对应的时间戳
+    * 记录最后收到消息的服务器ID和对应的时间戳
      */
     private final ConcurrentMap<String, Long> lastSeen = new ConcurrentHashMap<>();
 
     /**
-     * 本地注册的服务列表，线程安全
+    * 本地注册的服务列表，线程安全
      */
     private final List<Discovery> localServices = new CopyOnWriteArrayList<>();
 
     /**
-     * 用于处理接收UDP消息的执行器
+    * 用于处理接收UDP消息的执行器
      */
     private ExecutorService executor;
 
     /**
-     * 用于发送心跳和清理过期服务的调度执行器
+    * 用于发送心跳和清理过期服务的调度执行器
      */
     private ScheduledExecutorService scheduler;
 
     /**
-     * 用于发送UDP广播报文的Socket
+    * 用于发送UDP广播报文的Socket
      */
     private DatagramSocket sendSocket;
 
     /**
-     * 用于接收UDP广播报文的Socket
+    * 用于接收UDP广播报文的Socket
      */
     private DatagramSocket receiveSocket;
 
     /**
-     * 广播地址
+    * 广播地址
      */
     private InetAddress broadcastAddress;
 
     /**
-     * 服务监听的端口号
+    * 服务监听的端口号
      */
     private int port;
 
     /**
-     * 表示当前服务是否正在运行的标志位
+    * 表示当前服务是否正在运行的标志位
      */
     private AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * 构造函数，初始化基础配置
-     *
-     * @param discoveryOption 服务发现选项
+    * 构造函数，初始化基础配置
+    *
+    * @param discoveryOption 服务发现选项
      */
     public UdpBroadcastServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
     /**
-     * 构造函数，初始化基础配置并指定集群名称
-     *
-     * @param discoveryOption 服务发现选项
-     * @param clusterName     集群名称
+    * 构造函数，初始化基础配置并指定集群名称
+    *
+    * @param discoveryOption 服务发现选项
+    * @param clusterName     集群名称
      */
     public UdpBroadcastServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
@@ -171,9 +171,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * 处理接收到的UDP消息
-     *
-     * @param msg 消息内容
+    * 处理接收到的UDP消息
+    *
+    * @param msg 消息内容
      */
     private void handleMessage(String msg) {
         try {
@@ -221,7 +221,7 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * 定时发送心跳包
+    * 定时发送心跳包
      */
     private void sendHeartbeat() {
         for (Discovery d : localServices) {
@@ -230,9 +230,9 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * 广播UDP消息
-     *
-     * @param msg 要广播的消息
+    * 广播UDP消息
+    *
+    * @param msg 要广播的消息
      */
     private void broadcast(UdpMessage msg) {
         try {
@@ -245,12 +245,12 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * 创建UDP消息对象
-     *
-     * @param path   服务路径
-     * @param d      服务发现信息
-     * @param remove 是否为移除操作
-     * @return UDP消息对象
+    * 创建UDP消息对象
+    *
+    * @param path   服务路径
+    * @param d      服务发现信息
+    * @param remove 是否为移除操作
+    * @return UDP消息对象
      */
     private UdpMessage createMessage(String path, Discovery d, boolean remove) {
         UdpMessage msg = new UdpMessage();
@@ -262,7 +262,7 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * 清理过期的服务记录
+    * 清理过期的服务记录
      */
     private void cleanExpired() {
         long now = System.currentTimeMillis();
@@ -325,26 +325,26 @@ public class UdpBroadcastServiceDiscovery extends AbstractServiceDiscovery imple
     }
 
     /**
-     * UDP广播消息内部类
+    * UDP广播消息内部类
      */
     public static class UdpMessage {
         /**
-         * 服务路径
+        * 服务路径
          */
         private String path;
 
         /**
-         * 服务器唯一标识
+        * 服务器唯一标识
          */
         private String serverId;
 
         /**
-         * 服务发现详细信息
+        * 服务发现详细信息
          */
         private Discovery discovery;
 
         /**
-         * 标记是否为移除操作
+        * 标记是否为移除操作
          */
         private boolean remove;
 

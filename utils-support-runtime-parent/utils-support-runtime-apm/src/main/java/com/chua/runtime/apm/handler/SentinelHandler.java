@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Sentinel 处理器 — intercepts Sentinel resource entry/exit.
- *
- * @author CH
- * @since 4.0.0.42
+* Sentinel 处理器 — intercepts Sentinel resource entry/exit.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SentinelHandler extends AbstractAppHandler {
 
     /**
-     * sph u
+    * sph u
      */
     private static final String SPH_U = "com/alibaba/csp/sentinel/SphU";
     /**
-     * sph entry
+    * sph entry
      */
     private static final String SPH_ENTRY = "com/alibaba/csp/sentinel/Entry";
     /**
-      * entry 方法
+    * entry 方法
      */
     private static final String[] ENTRY_METHODS = {"entry", "asyncEntry"};
     /**
-      * exit 方法
+    * exit 方法
      */
     private static final String[] EXIT_METHODS = {"exit"};
 

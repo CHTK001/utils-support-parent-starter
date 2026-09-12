@@ -11,26 +11,26 @@ import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
 /**
- * Spring 构造器参数解析器。
- *
- * <p>直接使用 Spring 注解 {@link Autowired} / {@link Qualifier}，
- * 从容器按 Qualifier 名称或参数类型查找 Bean。</p>
- *
- * @author CH
- * @since 2024/12/20
+* Spring 构造器参数解析器。
+*
+* <p>直接使用 Spring 注解 {@link Autowired} / {@link Qualifier}，
+* 从容器按 Qualifier 名称或参数类型查找 Bean。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Spi("spring")
 public class SpringBeanConstructorResolver implements BeanConstructorResolver {
 
     @Override
     /**
-     * 解析
-     * @param paramType 参数类型
-     * @param paramName 参数名称
-     * @param annotations 注解
-     * @param typeProvider 类型提供者
-     * @param nameProvider 名称提供者
-     * @param beanDefinition Beandefinition
+    * 解析
+    * @param paramType 参数类型
+    * @param paramName 参数名称
+    * @param annotations 注解
+    * @param typeProvider 类型提供者
+    * @param nameProvider 名称提供者
+    * @param beanDefinition Beandefinition
      */
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,

@@ -12,69 +12,69 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 文件拦截器 — 劫持所有文件 I/O 操作。
- *
- * <p>字节码插桩实现：</p>
- * <p>对目标文件类（如 java/io/FileInputStream）的 read/write 方法，
-   * 在方法入口/出口插入 runtimespy.onintercept()。</p>
- *
- * <p>ASM 插入的字节码：</p>
- * <pre>
- * FileInputStream.read([BII):
- *   LDC "java/io/FileInputStream"     // className
- *   LDC "read"                         // methodName
- *   LDC "([BII)I"                      // descriptor
- *   LDC "file_open_pre"                // pointKey
- *   INVOKESTATIC RuntimeSpy.onIntercept
- *   // 原始方法体...
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 文件拦截器 — 劫持所有文件 I/O 操作。
+*
+* <p>字节码插桩实现：</p>
+* <p>对目标文件类（如 java/io/FileInputStream）的 read/write 方法，
+* 在方法入口/出口插入 runtimespy.onintercept()。</p>
+*
+* <p>ASM 插入的字节码：</p>
+* <pre>
+* FileInputStream.read([BII):
+*   LDC "java/io/FileInputStream"     // className
+*   LDC "read"                         // methodName
+*   LDC "([BII)I"                      // descriptor
+*   LDC "file_open_pre"                // pointKey
+*   INVOKESTATIC RuntimeSpy.onIntercept
+*   // 原始方法体...
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(FileHandler.class.getName());
 
     /**
-      * 文件输入流 类名
+    * 文件输入流 类名
      */
     private static final String FILE_INPUT = "java/io/FileInputStream";
 
     /**
-      * 文件输出流 类名
+    * 文件输出流 类名
      */
     private static final String FILE_OUTPUT = "java/io/FileOutputStream";
 
     /**
-      * 随机access文件 类名
+    * 随机access文件 类名
      */
     private static final String RANDOM_FILE = "java/io/RandomAccessFile";
 
     /**
-     * 文件操作记录
+    * 文件操作记录
      */
     private final com.chua.runtime.apm.handler.BoundedRecordList<FileRecord> records;
 
     /**
-     * 最大记录数
+    * 最大记录数
      */
     private static final int MAX_RECORDS = 10000;
 
     /**
-     * 是否启用
+    * 是否启用
      */
     private boolean enabled;
 
     /**
-     * 插件上下文
+    * 插件上下文
      */
     private PluginContext context;
 
     /**
-     * 是否已启动
+    * 是否已启动
      */
     private final AtomicBoolean started;
 
@@ -140,9 +140,9 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 接收插桩事件。
-     *
-     * @param ctx 插桩上下文
+    * 接收插桩事件。
+    *
+    * @param ctx 插桩上下文
      */
     @Override
     public void onIntercept(InterceptContext ctx) {
@@ -160,10 +160,10 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 记录文件操作。
-     *
-     * @param ctx       插桩上下文
-     * @param operation 操作类型
+    * 记录文件操作。
+    *
+    * @param ctx       插桩上下文
+    * @param operation 操作类型
      */
     private void recordOperation(InterceptContext ctx, String operation) {
         FileRecord record = new FileRecord();
@@ -180,7 +180,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 注册文件 I/O 拦截点。
+    * 注册文件 I/O 拦截点。
      */
     private void registerFileIntercepts() {
         registerInputStreamIntercepts();
@@ -190,7 +190,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 文件输入流 拦截。
+    * 注册 文件输入流 拦截。
      */
     private void registerInputStreamIntercepts() {
         RuntimeSpy.registerInterceptor(FILE_INPUT, "<init>",
@@ -203,7 +203,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 文件输出流 拦截。
+    * 注册 文件输出流 拦截。
      */
     private void registerOutputStreamIntercepts() {
         RuntimeSpy.registerInterceptor(FILE_OUTPUT, "<init>",
@@ -216,7 +216,7 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 注册 随机access文件 拦截。
+    * 注册 随机access文件 拦截。
      */
     private void registerRandomAccessIntercepts() {
         RuntimeSpy.registerInterceptor(RANDOM_FILE, "<init>",
@@ -229,91 +229,91 @@ public class FileHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 添加文件操作记录。
-     *
-     * @param record 文件记录
+    * 添加文件操作记录。
+    *
+    * @param record 文件记录
      */
     public void addRecord(FileRecord record) {
         records.add(record);
     }
 
     /**
-     * 获取所有文件操作记录。
-     *
-     * @return 文件记录列表
+    * 获取所有文件操作记录。
+    *
+    * @return 文件记录列表
      */
     public List<FileRecord> getRecords() {
         return records.snapshot();
     }
 
     /**
-     * 获取最近 N 条文件操作记录。
-     *
-     * @param n 条数
-     * @return 文件记录列表
+    * 获取最近 N 条文件操作记录。
+    *
+    * @param n 条数
+    * @return 文件记录列表
      */
     public List<FileRecord> tail(int n) {
         return records.tail(n);
     }
 
     /**
-     * 清空文件操作记录。
+    * 清空文件操作记录。
      */
     public void clear() {
         records.clear();
     }
 
     /**
-     * 文件操作记录。
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 文件操作记录。
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     @Data
     public static class FileRecord {
 
         /**
-         * 时间戳
+        * 时间戳
          */
         private long timestamp;
 
         /**
-         * 操作类型
+        * 操作类型
          */
         private String operation;
 
         /**
-         * 文件路径
+        * 文件路径
          */
         private String path;
 
         /**
-         * 读取字节数
+        * 读取字节数
          */
         private long bytesRead;
 
         /**
-         * 写入字节数
+        * 写入字节数
          */
         private long bytesWritten;
 
         /**
-         * 耗时（毫秒）
+        * 耗时（毫秒）
          */
         private long duration;
 
         /**
-         * 状态
+        * 状态
          */
         private String status;
 
         /**
-         * 类名
+        * 类名
          */
         private String className;
 
         /**
-         * 方法名
+        * 方法名
          */
         private String methodName;
     }

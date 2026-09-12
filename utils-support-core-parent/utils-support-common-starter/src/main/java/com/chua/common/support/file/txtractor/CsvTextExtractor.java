@@ -10,14 +10,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * CSV 文本提取器 SPI 实现，从 CSV 文件中提取纯文本表格内容。
- * <p>
- * 纯 JDK 实现，无外部依赖。支持 UTF-8 BOM 自动检测与跳过。
- * 每行以换行分隔，每个字段以制表符分隔。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CSV 文本提取器 SPI 实现，从 CSV 文件中提取纯文本表格内容。
+* <p>
+* 纯 JDK 实现，无外部依赖。支持 UTF-8 BOM 自动检测与跳过。
+* 每行以换行分隔，每个字段以制表符分隔。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"csv", "tsv"})
@@ -61,7 +61,7 @@ public class CsvTextExtractor implements TextExtractor {
     }
 
     /**
-     * 跳过 UTF-8 BOM 字节 (EF BB BF)。
+    * 跳过 UTF-8 BOM 字节 (EF BB BF)。
      */
     private InputStream skipBom(InputStream in) throws IOException {
         in.mark(3);
@@ -75,7 +75,7 @@ public class CsvTextExtractor implements TextExtractor {
     }
 
     /**
-     * 解析 CSV 行，支持双引号转义。
+    * 解析 CSV 行，支持双引号转义。
      */
     private String[] parseLine(String line, char delimiter) {
         List<String> parts = new ArrayList<>();

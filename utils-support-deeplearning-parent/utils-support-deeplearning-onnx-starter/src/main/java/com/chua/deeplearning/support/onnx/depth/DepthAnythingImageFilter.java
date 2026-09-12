@@ -14,13 +14,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
-   * 深度-Anything V2 深度估计滤镜。
- *
- * <p>输入任意图像，输出深度图（近处亮、远处暗），以 ImageFilter SPI 方式提供，
- * 可直接通过 {@code ServiceProvider.of(ImageFilter.class).getExtension("depth-anything")} 调用。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 深度-Anything V2 深度估计滤镜。
+*
+* <p>输入任意图像，输出深度图（近处亮、远处暗），以 ImageFilter SPI 方式提供，
+* 可直接通过 {@code ServiceProvider.of(ImageFilter.class).getExtension("depth-anything")} 调用。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("depth-anything")
@@ -29,8 +29,8 @@ public class DepthAnythingImageFilter implements ImageFilter {
     private volatile ITranslator<Object, Object> translator; // translator
 
     /**
-     * translator。
-     * @return translator的结果
+    * translator。
+    * @return translator的结果
      */
     private ITranslator<Object, Object> translator() {
         if (translator == null) {

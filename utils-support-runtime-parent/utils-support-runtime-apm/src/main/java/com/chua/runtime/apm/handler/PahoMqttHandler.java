@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Paho MQTT 处理器 — intercepts Eclipse Paho MQTT 客户端 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* Paho MQTT 处理器 — intercepts Eclipse Paho MQTT 客户端 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PahoMqttHandler extends AbstractAppHandler {
 
     /**
-      * MQTT 客户端
+    * MQTT 客户端
      */
     private static final String MQTT_CLIENT = "org/eclipse/paho/client/mqttv3/MqttClient";
     /**
-     * OPERATIONS
+    * OPERATIONS
      */
     private static final String[] OPERATIONS = {"connect", "publish", "subscribe", "unsubscribe", "disconnect"};
 

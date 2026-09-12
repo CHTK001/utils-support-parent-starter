@@ -13,24 +13,24 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * youtu reid                 Translator
- *
- * <p>            : [batch, 3, 256, 128] RGB       
- * <p>            : [batch, 768, 1, 1]             
- *
- * <p>         :
- * -                       256x128   H x W   
- * -              [0, 1]
-   * - 镜像net
- * -           NCHW       
- *
- * <p>         :
- * -                    (1x1)
- * -        768                
- * - L2          
- *
- * @author CH
- * @since 2026-05-10
+* youtu reid                 Translator
+*
+* <p>            : [batch, 3, 256, 128] RGB       
+* <p>            : [batch, 768, 1, 1]             
+*
+* <p>         :
+* -                       256x128   H x W   
+* -              [0, 1]
+* - 镜像net
+* -           NCHW       
+*
+* <p>         :
+* -                    (1x1)
+* -        768                
+* - L2          
+*
+* @author CH
+* @since 2026-05-10
  */
 @Slf4j
 public class OsnetReidTranslator implements Translator<Image, float[]> {

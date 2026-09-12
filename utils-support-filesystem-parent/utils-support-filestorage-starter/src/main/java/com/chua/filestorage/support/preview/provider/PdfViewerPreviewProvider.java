@@ -10,13 +10,13 @@ import java.util.Base64;
 import java.util.Locale;
 
 /**
- * PDF 预览提供者：返回内嵌 PDF.js 的 HTML+JS 页面，浏览器无需插件即可渲染 PDF。
- *
- * <p>PDF 字节以 base64 嵌入 HTML，适合中小文件（&lt;10MB）。
- * 大文件场景建议配合分块加载。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* PDF 预览提供者：返回内嵌 PDF.js 的 HTML+JS 页面，浏览器无需插件即可渲染 PDF。
+*
+* <p>PDF 字节以 base64 嵌入 HTML，适合中小文件（&lt;10MB）。
+* 大文件场景建议配合分块加载。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-pdf")
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {

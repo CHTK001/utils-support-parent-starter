@@ -20,10 +20,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * C 模式探针：并发扫描网段，发现存活节点。
- *
- * @author CH
- * @since 4.0.0.42
+* C 模式探针：并发扫描网段，发现存活节点。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class CModeProbe implements ProbeStrategy {
@@ -43,10 +43,10 @@ public class CModeProbe implements ProbeStrategy {
     private volatile boolean stopped;
 
     /**
-     * 构造函数。
-     *
-     * @param config 配置
-     * @param localServerId 本地 serverId（用于排除自身）
+    * 构造函数。
+    *
+    * @param config 配置
+    * @param localServerId 本地 serverId（用于排除自身）
      */
     public CModeProbe(MeshConfig config, String localServerId) {
         this.config = config;
@@ -97,10 +97,10 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     /**
-     * 探测指定主机端口。
-     *
-     * @param host 目标主机
-     * @param port 目标端口
+    * 探测指定主机端口。
+    *
+    * @param host 目标主机
+    * @param port 目标端口
      */
     private void probeHost(String host, int port) {
         if (stopped) {
@@ -142,11 +142,11 @@ public class CModeProbe implements ProbeStrategy {
     }
 
     /**
-     * 解析 CIDR，返回所有可能的主机 IP 列表。
-     * 仅支持 IPv4。
-     *
-     * @param cidr CIDR 字符串，如 192.168.1.0/24
-     * @return 主机 IP 列表
+    * 解析 CIDR，返回所有可能的主机 IP 列表。
+    * 仅支持 IPv4。
+    *
+    * @param cidr CIDR 字符串，如 192.168.1.0/24
+    * @return 主机 IP 列表
      */
     private static List<String> parseCidrHosts(String cidr) {
         try {

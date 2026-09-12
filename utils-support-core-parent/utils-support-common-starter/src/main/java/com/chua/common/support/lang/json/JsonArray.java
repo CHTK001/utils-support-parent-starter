@@ -10,12 +10,12 @@ import java.util.function.Consumer;
 
 
 /**
- * 表示一个 JSON 数组的封装类，继承自 LinkedList。
- * 该类提供了对 JSON 数据结构的便捷操作，包括元素的添加、获取以及类型转换。
- * 它支持将内部存储的 Map 自动转换为 JsonObject，Collection 自动转换为 JsonArray。
- *
- * @author CH
- * @since 4.0.0.42
+* 表示一个 JSON 数组的封装类，继承自 LinkedList。
+* 该类提供了对 JSON 数据结构的便捷操作，包括元素的添加、获取以及类型转换。
+* 它支持将内部存储的 Map 自动转换为 JsonObject，Collection 自动转换为 JsonArray。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonArray extends LinkedList<Object> {

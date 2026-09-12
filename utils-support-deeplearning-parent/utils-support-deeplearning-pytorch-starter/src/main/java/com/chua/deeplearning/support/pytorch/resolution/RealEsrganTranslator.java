@@ -11,19 +11,19 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Real-ESRGAN 超分辨率 Translator。
- * <p>
-   * 输入 HWC→CHW 并归一化到 [0,1]；输出 clip 到 [0,1] 后还原为 镜像。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Real-ESRGAN 超分辨率 Translator。
+* <p>
+* 输入 HWC→CHW 并归一化到 [0,1]；输出 clip 到 [0,1] 后还原为 镜像。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class RealEsrganTranslator implements Translator<Image, Image> {
 
     /**
-     * 放大倍数（元数据，推理不依赖）。
+    * 放大倍数（元数据，推理不依赖）。
      */
     private final int scale;
 
@@ -33,8 +33,8 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 创建 realesrgantranslator 实例
-     * @param scale scale
+    * 创建 realesrgantranslator 实例
+    * @param scale scale
      */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;

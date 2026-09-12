@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * 统一 SQL 方言实现，所有配置驱动。
- * <p>
- * 所有数据库特有配置（驱动、引用符、类型映射、DDL/DML 片段、触发器/存储过程查询 SQL）
- * 均从 {@code META-INF/dialect-env/{protocol}.env} 资源文件加载，外部 {@link #properties}
- * 可覆盖其中任意值。
- * </p>
- * <p>
- * 示例：{@code new SqlDialect("mysql")} 即可工作，子类只需传递协议名。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 统一 SQL 方言实现，所有配置驱动。
+* <p>
+* 所有数据库特有配置（驱动、引用符、类型映射、DDL/DML 片段、触发器/存储过程查询 SQL）
+* 均从 {@code META-INF/dialect-env/{protocol}.env} 资源文件加载，外部 {@link #properties}
+* 可覆盖其中任意值。
+* </p>
+* <p>
+* 示例：{@code new SqlDialect("mysql")} 即可工作，子类只需传递协议名。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SqlDialect extends AbstractDialect {
 
@@ -33,19 +33,19 @@ public class SqlDialect extends AbstractDialect {
     private final String protocol;
 
     /**
-     * 构造 SQL 方言，自动加载 {@code META-INF/dialect-env/{protocol}.env}。
-     *
-     * @param protocol 协议名（如 {@code mysql}、{@code postgresql}、{@code oracle}）
+    * 构造 SQL 方言，自动加载 {@code META-INF/dialect-env/{protocol}.env}。
+    *
+    * @param protocol 协议名（如 {@code mysql}、{@code postgresql}、{@code oracle}）
      */
     public SqlDialect(String protocol) {
         this.protocol = protocol;
     }
 
     /**
-      * 构造 SQL 方言，加载默认 env 并用外部 属性 覆盖。
-     *
-     * @param protocol     协议名
-     * @param properties   外部属性（优先级高于 .env）
+    * 构造 SQL 方言，加载默认 env 并用外部 属性 覆盖。
+    *
+    * @param protocol     协议名
+    * @param properties   外部属性（优先级高于 .env）
      */
     public SqlDialect(String protocol, Properties properties) {
         this.protocol = protocol;
@@ -83,10 +83,10 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-     * 返回字符串第一个字符，空字符串时返回空格。
-     *
-     * @param key 配置键
-     * @return 第一个字符或空格
+    * 返回字符串第一个字符，空字符串时返回空格。
+    *
+    * @param key 配置键
+    * @return 第一个字符或空格
      */
     private char firstChar(String key) {
         String v = config(key, "");
@@ -106,10 +106,10 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-      * 读取布尔型配置，键 不存在时返回 空。
-     *
-     * @param key 配置键
-     * @return 解析后的布尔值，key 不存在返回 空
+    * 读取布尔型配置，键 不存在时返回 空。
+    *
+    * @param key 配置键
+    * @return 解析后的布尔值，key 不存在返回 空
      */
     private Boolean configBool(String key) {
         String v = config(key, null);
@@ -318,12 +318,12 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-      * 在模板末尾追加 模式 过滤条件。
-     *
-     * @param template       SQL 模板
-     * @param schema         模式 名称，空 或空时不追加
-     * @param schemaColumn   模式 列名
-     * @return 追加条件后的 SQL
+    * 在模板末尾追加 模式 过滤条件。
+    *
+    * @param template       SQL 模板
+    * @param schema         模式 名称，空 或空时不追加
+    * @param schemaColumn   模式 列名
+    * @return 追加条件后的 SQL
      */
     private String buildWithSchema(String template, String schema, String schemaColumn) {
         if (schema == null || schema.isEmpty()) {
@@ -338,11 +338,11 @@ public class SqlDialect extends AbstractDialect {
     // ==================== 配置加载 ====================
 
     /**
-     * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
-     *
-     * @return 加载后的 属性，文件不存在时返回空 属性
-     * @param defaults 默认
-     * @param overrides overrides
+    * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
+    *
+    * @return 加载后的 属性，文件不存在时返回空 属性
+    * @param defaults 默认
+    * @param overrides overrides
      /**
       * 加载默认env。
       * @return 加载默认env的结果
@@ -350,14 +350,14 @@ public class SqlDialect extends AbstractDialect {
       * @param defaults 默认
       * @param overrides overrides
      /**
-      * 加载默认env。
-      * @return 加载默认env的结果
+     * 加载默认env。
+     * @return 加载默认env的结果
       */
       * @param defaults 默认
       * @param overrides overrides
      /**
-      * 加载默认env。
-      * @return 加载默认env的结果
+     * 加载默认env。
+     * @return 加载默认env的结果
       */
      */
     @Override

@@ -5,24 +5,24 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 终端面板/表格渲染工具，输出风格与 ocgc 一致。
- *
- * @author CH
- * @since 4.0.0.42
+* 终端面板/表格渲染工具，输出风格与 ocgc 一致。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class Formatter {
 
     /**
-     * Formatter。
+    * Formatter。
      */
     private Formatter() {
     }
 
     /**
-     * 格式化字节数（B/KB/MB/GB）。
-     *
-     * @param n 字节数
-     * @return 格式化字符串
+    * 格式化字节数（B/KB/MB/GB）。
+    *
+    * @param n 字节数
+    * @return 格式化字符串
      */
     public static String formatBytes(long n) {
         if (n >= 1_073_741_824L) {
@@ -38,11 +38,11 @@ public final class Formatter {
     }
 
     /**
-     * 渲染键值面板（顶部带标题）。
-     *
-     * @param title 面板标题
-     * @param rows  交替的 键,值
-     * @return 面板字符串
+    * 渲染键值面板（顶部带标题）。
+    *
+    * @param title 面板标题
+    * @param rows  交替的 键,值
+    * @return 面板字符串
      */
     public static String panel(String title, String... rows) {
         List<String> keys = new ArrayList<>();
@@ -70,25 +70,25 @@ public final class Formatter {
     }
 
     /**
-     * 渲染表格。
-     *
-     * @param title   表格标题（空串则不显示标题栏）
-     * @param headers 表头
-     * @param rows    数据行（每行长度与表头一致）
-     * @return 表格字符串
+    * 渲染表格。
+    *
+    * @param title   表格标题（空串则不显示标题栏）
+    * @param headers 表头
+    * @param rows    数据行（每行长度与表头一致）
+    * @return 表格字符串
      */
     public static String table(String title, String[] headers, List<String[]> rows) {
         return table(title, headers, rows, null);
     }
 
     /**
-     * 渲染表格（可带汇总行）。
-     *
-     * @param title   表格标题（空串则不显示标题栏）
-     * @param headers 表头
-     * @param rows    数据行
-     * @param summary 汇总行（可空）
-     * @return 表格字符串
+    * 渲染表格（可带汇总行）。
+    *
+    * @param title   表格标题（空串则不显示标题栏）
+    * @param headers 表头
+    * @param rows    数据行
+    * @param summary 汇总行（可空）
+    * @return 表格字符串
      */
     public static String table(String title, String[] headers, List<String[]> rows, String[] summary) {
         int cols = headers.length;
@@ -134,10 +134,10 @@ public final class Formatter {
     }
 
      /**
-      * bar。
-      * @param pct pct
-      * @param length 长度
-      * @return bar的结果
+     * bar。
+     * @param pct pct
+     * @param length 长度
+     * @return bar的结果
       */
      * 构建百分比进度条。
      *
@@ -158,10 +158,10 @@ public final class Formatter {
         sb.append("┃");
         for (int c = 0; c < headers.length; c++) {
             /**
-             * row。
-             * @param sb sb
-             * @param cells cells
-             * @param widths widths
+            * row。
+            * @param sb sb
+            * @param cells cells
+            * @param widths widths
              */
             String h = headers[c];
             sb.append(' ').append(h).append(repeat(" ", widths[c] - width(h))).append("  ┃");
@@ -173,12 +173,12 @@ public final class Formatter {
         sb.append("│");
         for (int c = 0; c < cells.length; c++) {
             /**
-             * sep。
-             * @param sb sb
-             * @param widths widths
-             * @param l l
-             * @param m m
-             * @param r r
+            * sep。
+            * @param sb sb
+            * @param widths widths
+            * @param l l
+            * @param m m
+            * @param r r
              */
             String cell = cells[c] == null ? "" : cells[c];
             sb.append(' ').append(cell).append(repeat(" ", widths[c] - width(cell))).append("  │");
@@ -192,10 +192,10 @@ public final class Formatter {
             sb.append(repeat("━", widths[c] + 3));
             if (c < widths.length - 1) {
                 /**
-                 * width。
-                 * @param s s
-                 * @return width的结果
-                 * @param n n
+                * width。
+                * @param s s
+                * @return width的结果
+                * @param n n
                  */
                 sb.append(m);
             }

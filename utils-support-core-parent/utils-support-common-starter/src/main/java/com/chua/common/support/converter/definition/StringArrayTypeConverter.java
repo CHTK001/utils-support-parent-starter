@@ -12,27 +12,27 @@ import static com.chua.common.support.constant.CommonConstant.*;
 
 
 /**
- * String[] 类型转换器。
- * <p>将各种类型的值转换为 {@code String[]}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@code String[]} — 直接返回</li>
- *   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和大括号对象组格式（{a}{b}{c}）</li>
- *   <li>{@link URL} / {@code URL[]} — 转为外部格式字符串</li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2020/11/5
+* String[] 类型转换器。
+* <p>将各种类型的值转换为 {@code String[]}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@code String[]} — 直接返回</li>
+*   <li>{@link String} — 支持 JSON 数组格式（[a,b,c]）和大括号对象组格式（{a}{b}{c}）</li>
+*   <li>{@link URL} / {@code URL[]} — 转为外部格式字符串</li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2020/11/5
  */
 public class StringArrayTypeConverter implements TypeConverter<String[]> {
 
     final public static Pattern PATTERN = Pattern.compile("\\}[\\s]{0,},[\\s]{0,}\\{");
 
     /**
-     * 将给定值转换为 String[]。
-     *
-     * @param value 源值
-     * @return String[] 值，如果为 null 则返回空数组
+    * 将给定值转换为 String[]。
+    *
+    * @param value 源值
+    * @return String[] 值，如果为 null 则返回空数组
      */
     @Override
     public String[] convert(Object value) {
@@ -81,9 +81,9 @@ public class StringArrayTypeConverter implements TypeConverter<String[]> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return String[].class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return String[].class
      */
     @Override
     public Class<String[]> getType() {

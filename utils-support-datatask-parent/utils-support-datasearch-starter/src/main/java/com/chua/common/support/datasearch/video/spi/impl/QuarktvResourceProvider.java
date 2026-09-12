@@ -17,37 +17,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * quarktv 网盘搜索提供器
- *
- * @author CH
- * @since 4.0.0.42
- * @param html HTML
- * @param results 结果
+* quarktv 网盘搜索提供器
+*
+* @author CH
+* @since 4.0.0.42
+* @param html HTML
+* @param results 结果
  */
 @Spi("quarktv")
 public class QuarktvResourceProvider extends AbstractResourceProvider {
 
     /**
-     * quarktvresource提供者。
+    * quarktvresource提供者。
      */
     private static final String SEARCH_URL = "https://www.quarktv.com/?s=";
 /**
- * quarktvresource提供者。
- * @param vs vs
+* quarktvresource提供者。
+* @param vs vs
  */
 
     public QuarktvResourceProvider() { super(); }
     /**
-     * quarktvresource提供者。
-     * @param vs vs
+    * quarktvresource提供者。
+    * @param vs vs
      */
     public QuarktvResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
 /**
- * 搜索resource。
- * @param videoSearch 视频搜索
- * @return 搜索resource的结果
- * @param html html
- * @param results 结果
+* 搜索resource。
+* @param videoSearch 视频搜索
+* @return 搜索resource的结果
+* @param html html
+* @param results 结果
  */
 
     @Override

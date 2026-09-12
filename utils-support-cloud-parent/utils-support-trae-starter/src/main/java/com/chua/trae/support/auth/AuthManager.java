@@ -11,17 +11,17 @@ import java.util.Base64;
 import java.util.Objects;
 
 /**
-   * Trae 认证管理器，从 Trae IDE 的 storage.json 或手动 令牌 中读取 JWT 凭证。
-   * 支持 CN/SG 双版本、令牌 过期检测与缓存失效。
- *
- * <p>认证优先级：
- * <ol>
- *   <li>手动 Token（JWT 格式，解析 payload 获取过期时间）</li>
- *   <li>storage.json 中 iCubeAuthInfo 节点（明文或加密）</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* Trae 认证管理器，从 Trae IDE 的 storage.json 或手动 令牌 中读取 JWT 凭证。
+* 支持 CN/SG 双版本、令牌 过期检测与缓存失效。
+*
+* <p>认证优先级：
+* <ol>
+*   <li>手动 Token（JWT 格式，解析 payload 获取过期时间）</li>
+*   <li>storage.json 中 iCubeAuthInfo 节点（明文或加密）</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class AuthManager {
 
@@ -46,17 +46,17 @@ public class AuthManager {
     private volatile AuthSnapshot cached;
 
     /**
-      * 认证快照，承载从 Trae 存储或手动 令牌 中解析出的全部认证信息。
-     *
-     * @param token JWT 访问令牌，不可为 空
-     * @param refreshToken 刷新令牌，手动 令牌 场景为 空
-     * @param expiredAt 过期时间（ISO-8601），未知时为 空
-     * @param refreshTokenExpiredAt 刷新令牌过期时间，未知时为 空
-     * @param userId 用户 标识，从 JWT payload 解析
-     * @param host API 主机地址
-     * @param userRegion 用户区域（CN/SG/US）
-     * @param account 账号名
-     * @param edition 版本来源：cn / sg / manual
+    * 认证快照，承载从 Trae 存储或手动 令牌 中解析出的全部认证信息。
+    *
+    * @param token JWT 访问令牌，不可为 空
+    * @param refreshToken 刷新令牌，手动 令牌 场景为 空
+    * @param expiredAt 过期时间（ISO-8601），未知时为 空
+    * @param refreshTokenExpiredAt 刷新令牌过期时间，未知时为 空
+    * @param userId 用户 标识，从 JWT payload 解析
+    * @param host API 主机地址
+    * @param userRegion 用户区域（CN/SG/US）
+    * @param account 账号名
+    * @param edition 版本来源：cn / sg / manual
      */
     public record AuthSnapshot(
         String token,
@@ -71,12 +71,12 @@ public class AuthManager {
     ) {}
 
     /**
-     * 创建认证管理器。
-     *
-     * @param edition Trae 版本（cn/sg），空 时默认 cn
-     * @param dataDir Trae 数据目录，可为 空（使用 manual令牌 时）
-     * @param manualToken 手动 JWT 令牌，可为 空
-     * @param apiHost API 主机地址，手动 令牌 场景必填
+    * 创建认证管理器。
+    *
+    * @param edition Trae 版本（cn/sg），空 时默认 cn
+    * @param dataDir Trae 数据目录，可为 空（使用 manual令牌 时）
+    * @param manualToken 手动 JWT 令牌，可为 空
+    * @param apiHost API 主机地址，手动 令牌 场景必填
      */
     public AuthManager(String edition, String dataDir, String manualToken, String apiHost) {
         this.edition = (edition != null ? edition : "cn").toLowerCase();
@@ -86,10 +86,10 @@ public class AuthManager {
     }
 
     /**
-     * 基于 Trae 数据目录创建认证管理器。
-     *
-     * @param traeDataDir Trae 安装数据目录（如 C:\用户\xxx\app数据\Roaming\Trae CN），不可为 空
-     * @return 新的 认证管理器 实例
+    * 基于 Trae 数据目录创建认证管理器。
+    *
+    * @param traeDataDir Trae 安装数据目录（如 C:\用户\xxx\app数据\Roaming\Trae CN），不可为 空
+    * @return 新的 认证管理器 实例
      */
     public AuthManager fromTraeDataDir(Path traeDataDir) {
         Objects.requireNonNull(traeDataDir, "traeDataDir must not be null");
@@ -99,10 +99,10 @@ public class AuthManager {
     }
 
     /**
-     * 获取认证快照，优先使用缓存，过期或无缓存时重新加载。
-     *
-     * @return 认证快照，不可为 空
-     * @throws AuthException 当无法读取认证信息或 令牌 格式无效时
+    * 获取认证快照，优先使用缓存，过期或无缓存时重新加载。
+    *
+    * @return 认证快照，不可为 空
+    * @throws AuthException 当无法读取认证信息或 令牌 格式无效时
      */
     public synchronized AuthSnapshot getAuth() throws AuthException {
         if (cached != null && !isExpired(cached)) {
@@ -159,11 +159,11 @@ public class AuthManager {
     }
 
     /**
-      * 解析手动 JWT 令牌，从 payload 提取过期时间与用户 标识。
-     *
-     * @param token JWT 格式 令牌，必须以 eyj 开头
-     * @return 认证快照
-     * @throws AuthException 当 令牌 格式无效时
+    * 解析手动 JWT 令牌，从 payload 提取过期时间与用户 标识。
+    *
+    * @param token JWT 格式 令牌，必须以 eyj 开头
+    * @return 认证快照
+    * @throws AuthException 当 令牌 格式无效时
      */
     private AuthSnapshot parseManualToken(String token) throws AuthException {
         try {
@@ -191,10 +191,10 @@ public class AuthManager {
     }
 
     /**
-     * 判断认证快照是否已过期。
-     *
-     * @param auth 认证快照，可为 空
-     * @return true 表示已过期或无法判断
+    * 判断认证快照是否已过期。
+    *
+    * @param auth 认证快照，可为 空
+    * @return true 表示已过期或无法判断
      */
     public static boolean isExpired(AuthSnapshot auth) {
         if (auth == null || auth.expiredAt() == null) {
@@ -209,18 +209,18 @@ public class AuthManager {
     }
 
     /**
-      * 清除认证缓存，下次 获取认证 时重新加载。
-     * 线程安全。
+    * 清除认证缓存，下次 获取认证 时重新加载。
+    * 线程安全。
      */
     public synchronized void invalidate() {
         cached = null;
     }
 
     /**
-      * 补齐 基础64 填充位。
-     *
-     * @param s 基础64 字符串，不可为 空
-     * @return 补齐后的字符串
+    * 补齐 基础64 填充位。
+    *
+    * @param s 基础64 字符串，不可为 空
+    * @return 补齐后的字符串
      */
     private static String padBase64(String s) {
         int mod = s.length() % 4;
@@ -231,23 +231,23 @@ public class AuthManager {
     }
 
     /**
-     * 认证异常，读取/解析认证信息失败时抛出。
-     * @author CH
-     * @since 4.0.0
+    * 认证异常，读取/解析认证信息失败时抛出。
+    * @author CH
+    * @since 4.0.0
      */
     public static class AuthException extends Exception {
         /**
-         * 创建认证异常。
-         *
-         * @param message 异常消息
+        * 创建认证异常。
+        *
+        * @param message 异常消息
          */
         public AuthException(String message) { super(message); }
 
         /**
-         * 创建带原因的认证异常。
-         *
-         * @param message 异常消息
-         * @param cause 原因
+        * 创建带原因的认证异常。
+        *
+        * @param message 异常消息
+        * @param cause 原因
          */
         public AuthException(String message, Throwable cause) { super(message, cause); }
     }

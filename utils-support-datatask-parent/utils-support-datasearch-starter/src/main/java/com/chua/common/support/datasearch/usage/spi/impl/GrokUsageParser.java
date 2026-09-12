@@ -17,43 +17,43 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Grok Build (xAI) usage parser.
- *
- * <p>Grok Build persists per-session append-only updates under
- * {@code ~/.grok/sessions/<encoded-cwd>/<session-id>/updates.jsonl}.
- * Each {@code turn_completed} update carries a real per-turn usage envelope:</p>
- *
- * <pre>{@code
- * {
- *   "params": {
- *     "update": {
- *       "sessionUpdate": "turn_completed",
- *       "usage": {
- *         "inputTokens": 4200,        // whole prompt, cache read/write INCLUDED
- *         "outputTokens": 300,       // includes reasoning
- *         "cachedReadTokens": 3900,
- *         "cacheCreationTokens": 120,
- *         "reasoningTokens": 90,
- *         "totalCostUsd": 0.0042
- *       },
- *       "model": "grok-4-fast"
- *     }
- *   }
- * }
- * </pre>
- *
- * <p>In Grok's camelCase shape {@code inputTokens} is inclusive of cache
- * read/write and {@code outputTokens} is inclusive of reasoning — this parser
- * splits both into mutually exclusive columns so downstream aggregation does
- * not double-count. Cost may arrive as {@code totalCostUsd} or as integer
- * ticks ({@code totalCostUsdTicks}, where 10_000_000_000 ticks = 1 USD).</p>
- *
- * <p>When an updates.jsonl has no turn usage, the sibling {@code signals.json}
- * carries a cumulative {@code totalTokens} watermark; a single estimated record
- * is emitted as fallback.</p>
- *
- * @author CH
- * @since 4.0.0.43
+* Grok Build (xAI) usage parser.
+*
+* <p>Grok Build persists per-session append-only updates under
+* {@code ~/.grok/sessions/<encoded-cwd>/<session-id>/updates.jsonl}.
+* Each {@code turn_completed} update carries a real per-turn usage envelope:</p>
+*
+* <pre>{@code
+* {
+*   "params": {
+*     "update": {
+*       "sessionUpdate": "turn_completed",
+*       "usage": {
+*         "inputTokens": 4200,        // whole prompt, cache read/write INCLUDED
+*         "outputTokens": 300,       // includes reasoning
+*         "cachedReadTokens": 3900,
+*         "cacheCreationTokens": 120,
+*         "reasoningTokens": 90,
+*         "totalCostUsd": 0.0042
+*       },
+*       "model": "grok-4-fast"
+*     }
+*   }
+* }
+* </pre>
+*
+* <p>In Grok's camelCase shape {@code inputTokens} is inclusive of cache
+* read/write and {@code outputTokens} is inclusive of reasoning — this parser
+* splits both into mutually exclusive columns so downstream aggregation does
+* not double-count. Cost may arrive as {@code totalCostUsd} or as integer
+* ticks ({@code totalCostUsdTicks}, where 10_000_000_000 ticks = 1 USD).</p>
+*
+* <p>When an updates.jsonl has no turn usage, the sibling {@code signals.json}
+* carries a cumulative {@code totalTokens} watermark; a single estimated record
+* is emitted as fallback.</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Spi("grok")
 public class GrokUsageParser extends BaseUsageParser {
@@ -76,9 +76,9 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "grok"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "grok"}
      */
     @Override
     public String name() {
@@ -86,7 +86,7 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部会话更新文件中的回合用量事件。
+    * 流式解析全部会话更新文件中的回合用量事件。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -102,9 +102,9 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 枚举 {@code ~/.grok/sessions/**/updates.jsonl} 文件。
-     *
-     * @return 更新文件列表
+    * 枚举 {@code ~/.grok/sessions/**/updates.jsonl} 文件。
+    *
+    * @return 更新文件列表
      */
     private List<Path> listUpdateFiles() {
         Path sessionsRoot = GROK_HOME.resolve("sessions");
@@ -122,10 +122,10 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析单个更新文件（惰性逐行）。
-     *
-     * @param file 更新事件文件
-     * @return 逐 turn 用量记录流
+    * 流式解析单个更新文件（惰性逐行）。
+    *
+    * @param file 更新事件文件
+    * @return 逐 turn 用量记录流
      */
     private Flux<AiUsage> streamUpdatesFile(Path file) {
         String sessionId = file.getParent().getFileName().toString();
@@ -150,12 +150,12 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析一条 updates.jsonl 行：仅接受 {@code params.update.sessionUpdate=turn_completed}
-     * 且携带非空 usage 的回合事件。
-     *
-     * @param line JSONL 行
-     * @param sessionId 会话 id
-     * @return 用量记录
+    * 解析一条 updates.jsonl 行：仅接受 {@code params.update.sessionUpdate=turn_completed}
+    * 且携带非空 usage 的回合事件。
+    *
+    * @param line JSONL 行
+    * @param sessionId 会话 id
+    * @return 用量记录
      */
     private Optional<AiUsage> parseLine(String line, String sessionId) {
         JsonNode node = Json.parse(line);
@@ -222,10 +222,10 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 提取 Grok 成本：支持 USD 直接值与 ticks 整数（10^10 ticks = 1 USD）。
-     *
-     * @param usage usage 节点
-     * @return USD 金额；缺失或负数时返回 null
+    * 提取 Grok 成本：支持 USD 直接值与 ticks 整数（10^10 ticks = 1 USD）。
+    *
+    * @param usage usage 节点
+    * @return USD 金额；缺失或负数时返回 null
      */
     private BigDecimal grokCostUsd(JsonNode usage) {
         long ticks = usage.get("costUsdTicks").toLongValue(
@@ -243,10 +243,10 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 行内时间戳（兼容 ISO 与 epoch 秒/毫秒）。
-     *
-     * @param node 行节点
-     * @return epoch 毫秒；无法解析时返回 0
+    * 行内时间戳（兼容 ISO 与 epoch 秒/毫秒）。
+    *
+    * @param node 行节点
+    * @return epoch 毫秒；无法解析时返回 0
      */
     private long timestampMillis(JsonNode node) {
         JsonNode meta = node.get("params").get("_meta");
@@ -262,10 +262,10 @@ public class GrokUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从 usage.modelUsage 选出令牌量最大的模型名。
-     *
-     * @param usage usage 节点
-     * @return 模型名；无则空串
+    * 从 usage.modelUsage 选出令牌量最大的模型名。
+    *
+    * @param usage usage 节点
+    * @return 模型名；无则空串
      */
     private String pickGrokModel(JsonNode usage) {
         JsonNode modelUsage = usage.get("modelUsage");

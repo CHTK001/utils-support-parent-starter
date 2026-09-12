@@ -18,15 +18,15 @@ import java.util.*;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-   * yolov8n-pose 姿态估计 — 检测人体 17 个关键点（骨骼点）。
- *
- * <p>输入 {@code [1,3,640,640]}，输出 {@code [1,56,8400]}。
- * 56 = 4(bbox) + 1(cls) + 51(17关键点×3)，8400 个预测。
- * 模型来源：modelscope {@code Xenova/yolov8n-pose} 的
- * {@code model_fp16.onnx}（约 6.5MB，fp16）。OpenCV 预处理，ORT 原生推理。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* yolov8n-pose 姿态估计 — 检测人体 17 个关键点（骨骼点）。
+*
+* <p>输入 {@code [1,3,640,640]}，输出 {@code [1,56,8400]}。
+* 56 = 4(bbox) + 1(cls) + 51(17关键点×3)，8400 个预测。
+* 模型来源：modelscope {@code Xenova/yolov8n-pose} 的
+* {@code model_fp16.onnx}（约 6.5MB，fp16）。OpenCV 预处理，ORT 原生推理。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypoint>> {
@@ -67,10 +67,10 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     private float thresholdOverride = -1f;
 
     /**
-     * 取生效阈值。
-     *
-     * @param def def
-     * @return eff阈值的结果
+    * 取生效阈值。
+    *
+    * @param def def
+    * @return eff阈值的结果
      */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
@@ -88,10 +88,10 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     /** SRC高度 */
     private int srcHeight;
     /**
-     * pose结果类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * pose结果类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class PoseResult {
@@ -164,10 +164,10 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     /**
-      * 检测图像中的姿态关键点（byte[] 输入，打开cv 预处理）。
-     *
-     * @param imageData 图像字节
-     * @return 姿态结果列表
+    * 检测图像中的姿态关键点（byte[] 输入，打开cv 预处理）。
+    *
+    * @param imageData 图像字节
+    * @return 姿态结果列表
      */
     public List<PoseResult> detectBytes(byte[] imageData) {
         try {
@@ -212,10 +212,10 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     /**
-     * 解码
-     *
-     * @param data 数据
-     * @return decode的结果
+    * 解码
+    *
+    * @param data 数据
+    * @return decode的结果
      */
     private List<PoseResult> decode(float[][] data) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
@@ -274,11 +274,11 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     /**
-     * Iou
-     *
-     * @param a a
-     * @param b b
-     * @return iou的结果
+    * Iou
+    *
+    * @param a a
+    * @param b b
+    * @return iou的结果
      */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
@@ -297,10 +297,10 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         session = null; ortEnv = null;
     }
     /**
-     * 创建 Translator（支持外部阈值覆盖）。
-     *
-     * @param configuration 检测配置（可空）
-     * @return YoloV8nPoseTranslator的结果
+    * 创建 Translator（支持外部阈值覆盖）。
+    *
+    * @param configuration 检测配置（可空）
+    * @return YoloV8nPoseTranslator的结果
      */
     public YoloV8nPoseTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {

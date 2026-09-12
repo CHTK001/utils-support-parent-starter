@@ -8,54 +8,54 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 
 /**
-   * Small st Diffusion v0 unet
- * <p>
-   * Small st Diffusion v0           unet
- *                                  
- * </p>
- * <p>
- *                
- * -                       
- * -                                               
- * -                    
- * </p>
- * <p>
- *                      
-   * -          nd列表        [latent, timestep, 文本_嵌入]
- *   - latent:                      shape: [1, 4, H/8, W/8]   
- *   - timestep:             shape: [1]   
-   * - 文本_嵌入:                      shape: [1, 77, 768]
- * -                                           shape: [1, 4, H/8, W/8]   
- * </p>
- *
- * @author CH
- * @since 2025-01-30
+* Small st Diffusion v0 unet
+* <p>
+* Small st Diffusion v0           unet
+*                                  
+* </p>
+* <p>
+*                
+* -                       
+* -                                               
+* -                    
+* </p>
+* <p>
+*                      
+* -          nd列表        [latent, timestep, 文本_嵌入]
+*   - latent:                      shape: [1, 4, H/8, W/8]   
+*   - timestep:             shape: [1]   
+* - 文本_嵌入:                      shape: [1, 77, 768]
+* -                                           shape: [1, 4, H/8, W/8]   
+* </p>
+*
+* @author CH
+* @since 2025-01-30
  */
 @Slf4j
 public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDList> {
 
     /**
-     *                   
+    *                   
      */
     private final int width;
 
     /**
-     *                   
+    *                   
      */
     private final int height;
 
     /**
-     *              -                   
+    *              -                   
      */
     public SmallSdUnetTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
-     *
-     * @param width                    
-     * @param height                   
+    *              -                
+    *
+    * @param width                    
+    * @param height                   
      */
     public SmallSdUnetTranslator(int width, int height) {
         this.width = width;
@@ -66,9 +66,9 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     }
 
     /**
-     *             
-     *
-     * @param ctx                   
+    *             
+    *
+    * @param ctx                   
      */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
@@ -78,17 +78,17 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     }
 
     /**
-     *                   
-     * <p>
-      * unet
-      * - 样本:                      latent
-     * - timestep:          
-      * - 编码器_hidden_状态:
-     * </p>
-     *
-     * @param ctx                     
-     * @param input        nd列表
-     * @return                         
+    *                   
+    * <p>
+    * unet
+    * - 样本:                      latent
+    * - timestep:          
+    * - 编码器_hidden_状态:
+    * </p>
+    *
+    * @param ctx                     
+    * @param input        nd列表
+    * @return                         
      */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull NDList input) {
@@ -123,15 +123,15 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     }
 
     /**
-     *                   
-     * <p>
-      * unet
-     * - noise_pred:                   shape: [1, 4, H/8, W/8]   
-     * </p>
-     *
-     * @param ctx                    
-     * @param list                   
-     * @return                               
+    *                   
+    * <p>
+    * unet
+    * - noise_pred:                   shape: [1, 4, H/8, W/8]   
+    * </p>
+    *
+    * @param ctx                    
+    * @param list                   
+    * @return                               
      */
     @Override
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {

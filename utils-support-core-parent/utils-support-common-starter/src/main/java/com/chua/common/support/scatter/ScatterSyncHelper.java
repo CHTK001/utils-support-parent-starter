@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * scatter 同步辅助工具：集中处理 TCP 短连接、超时、重试与 请求id 生成。
- *
- * <p>所有 Scatter 模块的网络调用统一通过此类，避免散落的重复代码与遗漏的超时控制。</p>
- *
- * @author CH
- * @since 4.0.0.42
- **/
+* scatter 同步辅助工具：集中处理 TCP 短连接、超时、重试与 请求id 生成。
+*
+* <p>所有 Scatter 模块的网络调用统一通过此类，避免散落的重复代码与遗漏的超时控制。</p>
+*
+* @author CH
+* @since 4.0.0.42
+*
 @Slf4j
 public final class ScatterSyncHelper {
 
@@ -30,15 +30,15 @@ public final class ScatterSyncHelper {
     private static volatile TcpClient customClient;
 
     /**
-     * scatter同步助手。
+    * scatter同步助手。
      */
     private ScatterSyncHelper() {
     }
 
     /**
-     * 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。
-     *
-     * @param client 客户端
+    * 注入自定义 TCP 客户端（未启动前调用，SPI/测试场景）。
+    *
+    * @param client 客户端
      */
     public static void setCustomClient(TcpClient client) {
         customClient = client;
@@ -60,12 +60,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 拉取目标节点的服务表（带超时 + 重试）。
-     *
-     * @param context        请求上下文
-     * @param node           目标节点
-     * @param timeoutMillis  单次超时毫秒
-     * @return 同步结果（失败时返回 空）
+    * 拉取目标节点的服务表（带超时 + 重试）。
+    *
+    * @param context        请求上下文
+    * @param node           目标节点
+    * @param timeoutMillis  单次超时毫秒
+    * @return 同步结果（失败时返回 空）
      */
     public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
                                                        long timeoutMillis) {
@@ -105,12 +105,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 向节点推送数据（带超时，无响应值场景）。
-     *
-     * @param node          目标节点
-     * @param frame         帧
-     * @param timeoutMillis 超时毫秒
-     * @return true=收到 ACK
+    * 向节点推送数据（带超时，无响应值场景）。
+    *
+    * @param node          目标节点
+    * @param frame         帧
+    * @param timeoutMillis 超时毫秒
+    * @return true=收到 ACK
      */
     public static boolean push(ScatterNode node, ScatterFrame frame, long timeoutMillis) {
         try {
@@ -132,12 +132,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 批量广播帧（逐个节点，失败不中断）。
-     *
-     * @param nodes         目标节点列表
-     * @param frame         帧
-     * @param timeoutMillis 超时毫秒
-     * @param node 节点
+    * 批量广播帧（逐个节点，失败不中断）。
+    *
+    * @param nodes         目标节点列表
+    * @param frame         帧
+    * @param timeoutMillis 超时毫秒
+    * @param node 节点
      /**
       * broadcast。
       * @param nodes 节点
@@ -150,10 +150,10 @@ public final class ScatterSyncHelper {
      * @param payload payload
       * @param node 节点
      /**
-      * broadcast。
-      * @param nodes 节点
-      * @param frame 帧
-      * @param timeoutMillis 超时millis
+     * broadcast。
+     * @param nodes 节点
+     * @param frame 帧
+     * @param timeoutMillis 超时millis
       */
      */
     public static void broadcast(List<ScatterNode> nodes, ScatterFrame frame, long timeoutMillis) {

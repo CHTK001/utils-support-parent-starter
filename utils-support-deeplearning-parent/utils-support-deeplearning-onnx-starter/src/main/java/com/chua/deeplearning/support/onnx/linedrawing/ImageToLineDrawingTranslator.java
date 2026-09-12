@@ -13,56 +13,56 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- *                            ONNX          Translator
- * <p>
-   * 模型scope        {@code msocoder/image-to-line-drawing-onnx}
- *                                                                   
- * </p>
- * <p>
- * <ul>
- *     <li>                         RGB                    {@code [-1, 1]}                {@code NCHW}       </li>
- *     <li>                                                                                 </li>
- *     <li>                                  {@code [0, 255]}                                                      </li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 2025-01-30
+*                            ONNX          Translator
+* <p>
+* 模型scope        {@code msocoder/image-to-line-drawing-onnx}
+*                                                                   
+* </p>
+* <p>
+* <ul>
+*     <li>                         RGB                    {@code [-1, 1]}                {@code NCHW}       </li>
+*     <li>                                                                                 </li>
+*     <li>                                  {@code [0, 255]}                                                      </li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 2025-01-30
  */
 @Slf4j
 public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
 
     /**
-     *                                        
+    *                                        
      */
     private static final int INPUT_SIZE = 512;
 
     /**
-     *                      
+    *                      
      */
     private static final float NORMALIZE_MAX = 255.0f;
 
     /**
-     *                         
+    *                         
      */
     private static final float DENORMALIZE_MULTIPLIER = 127.5f;
 
     /**
-     *                                                 
+    *                                                 
      */
     private int originalWidth;
 
     /**
-     *                                                 
+    *                                                 
      */
     private int originalHeight;
 
     /**
-     *                                                   {@link NDList}   
-     *
-     * @param ctx                               {@code NDManager}          
-     * @param input                                RGB          
-     * @return                                            {@code [1, 3, INPUT_SIZE, INPUT_SIZE]}
+    *                                                   {@link NDList}   
+    *
+    * @param ctx                               {@code NDManager}          
+    * @param input                                RGB          
+    * @return                                            {@code [1, 3, INPUT_SIZE, INPUT_SIZE]}
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
@@ -100,11 +100,11 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                                                  {@link Image}   
-     *
-     * @param ctx                    
-     * @param list                                                                 {@code [1, C, H, W]}     {@code [C, H, W}
-     * @return                                                 
+    *                                                  {@link Image}   
+    *
+    * @param ctx                    
+    * @param list                                                                 {@code [1, C, H, W]}     {@code [C, H, W}
+    * @return                                                 
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -152,12 +152,12 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     *                      
-     * <p>
-     *              {@link Batchifier#STACK}                                                      
-     * </p>
-     *
-     * @return                   
+    *                      
+    * <p>
+    *              {@link Batchifier#STACK}                                                      
+    * </p>
+    *
+    * @return                   
      */
     @Override
     public Batchifier getBatchifier() {

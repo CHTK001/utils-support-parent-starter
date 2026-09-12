@@ -8,21 +8,21 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 数字 Mock 生成器
- *
- * <p>按环境指定长度生成由数字 0-9 组成的字符串，如 {@code 18472305}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 数字 Mock 生成器
+*
+* <p>按环境指定长度生成由数字 0-9 组成的字符串，如 {@code 18472305}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"digit", "digits", "number"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class DigitMockString implements MockString {
 
     /**
-     * 数字池
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 数字池
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final char[] DIGITS = "0123456789".toCharArray();
 

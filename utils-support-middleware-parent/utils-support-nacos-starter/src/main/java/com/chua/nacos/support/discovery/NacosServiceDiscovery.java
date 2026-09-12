@@ -16,8 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("nacos")
@@ -27,18 +27,18 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     private NamingService namingService;
 
     /**
-      * 创建 nacos服务discovery 实例
-     * @param discoveryOption discovery期权
+    * 创建 nacos服务discovery 实例
+    * @param discoveryOption discovery期权
      */
     public NacosServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
     /**
-      * 创建 nacos服务discovery 实例
-     * @param discoveryOption discovery期权
-     * @param clusterName 字符串
-     * @param clusterName cluster名称
+    * 创建 nacos服务discovery 实例
+    * @param discoveryOption discovery期权
+    * @param clusterName 字符串
+    * @param clusterName cluster名称
      */
     public NacosServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
@@ -89,11 +89,11 @@ public class NacosServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-     * 获取Meta
-     *
-     * @param it it
-     * @param key 键
-     * @return 获取meta的结果
+    * 获取Meta
+    *
+    * @param it it
+    * @param key 键
+    * @return 获取meta的结果
      */
     private static String getMeta(Instance it, String key) {
         return it.getMetadata() != null ? it.getMetadata().get(key) : null;

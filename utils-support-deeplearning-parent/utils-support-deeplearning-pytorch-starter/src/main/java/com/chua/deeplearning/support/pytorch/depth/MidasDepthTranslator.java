@@ -12,31 +12,31 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * midas 深度估计 Translator。
- * <p>输入 RGB 图，输出可视化深度图。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* midas 深度估计 Translator。
+* <p>输入 RGB 图，输出可视化深度图。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class MidasDepthTranslator implements Translator<Image, Image> {
 
     /**
-     * 检测分辨率。
+    * 检测分辨率。
      */
     private final int detectResolution;
 
     /**
-     * 输出分辨率。
+    * 输出分辨率。
      */
     private final int imageResolution;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int width;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int height;
 
@@ -46,10 +46,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 创建 midas深度translator 实例
-     * @param detectResolution detectresolution
-     * @param detectResolution int
-     * @param imageResolution 镜像resolution
+    * 创建 midas深度translator 实例
+    * @param detectResolution detectresolution
+    * @param detectResolution int
+    * @param imageResolution 镜像resolution
      */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
@@ -92,10 +92,10 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 转为displayndarray
-     *
-     * @param depthPt 深度pt
-     * @return 转为displayndarray的结果
+    * 转为displayndarray
+    *
+    * @param depthPt 深度pt
+    * @return 转为displayndarray的结果
      */
     private NDArray toDisplayNdArray(NDArray depthPt) {
         NDArray normalized = depthPt;
@@ -122,12 +122,12 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 调整大小
-     *
-     * @param h h
-     * @param w w
-     * @param resolution resolution
-     * @return resize64的结果
+    * 调整大小
+    *
+    * @param h h
+    * @param w w
+    * @param resolution resolution
+    * @return resize64的结果
      */
     private int[] resize64(double h, double w, double resolution) {
         double k = resolution / Math.min(h, w);

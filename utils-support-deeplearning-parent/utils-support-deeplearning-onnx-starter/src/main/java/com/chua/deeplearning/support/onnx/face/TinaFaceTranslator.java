@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * tinaface        ONNX Translator
- *
- * <p>模型输出 18 个 flat tensor：6 层（P2~P7）× 3 输出（cls/reg/iou）：
- * [cls_2, reg_2, iou_2, cls_3, reg_3, iou_3, cls_4, reg_4, iou_4,
- *  cls_5, reg_5, iou_5, cls_6, reg_6, iou_6, cls_7, reg_7, iou_7]，
- * P2~P7 对应 stride 4/8/16/32/64/128。</p>
- *
- * <p>每像素 3 个 anchor（scales_per_octave=3，ratios=[1.3]），1 类（人脸）。
-   * cls 通道 3、reg 通道 12、iou 通道 3。iou 感知得分 = sqrt(sigmoid(cls) × sigmoid(iou))。</p>
- *
- * @author CH
- * @since 2026-08-20
+* tinaface        ONNX Translator
+*
+* <p>模型输出 18 个 flat tensor：6 层（P2~P7）× 3 输出（cls/reg/iou）：
+* [cls_2, reg_2, iou_2, cls_3, reg_3, iou_3, cls_4, reg_4, iou_4,
+*  cls_5, reg_5, iou_5, cls_6, reg_6, iou_6, cls_7, reg_7, iou_7]，
+* P2~P7 对应 stride 4/8/16/32/64/128。</p>
+*
+* <p>每像素 3 个 anchor（scales_per_octave=3，ratios=[1.3]），1 类（人脸）。
+* cls 通道 3、reg 通道 12、iou 通道 3。iou 感知得分 = sqrt(sigmoid(cls) × sigmoid(iou))。</p>
+*
+* @author CH
+* @since 2026-08-20
  */
 public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
@@ -62,15 +62,15 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     private double nmsThresh = 0.45d;
 
     /**
-      * tinafacetranslator。
+    * tinafacetranslator。
      */
     public TinaFaceTranslator() {
     }
 
     /**
-      * 创建 tinafacetranslator 实例
-     * @param arguments 参数（阈值 默认 0.4，nms 默认 0.45）
-     * @param candidates candidates
+    * 创建 tinafacetranslator 实例
+    * @param arguments 参数（阈值 默认 0.4，nms 默认 0.45）
+    * @param candidates candidates
      /**
        * tinafacetranslator。
       * @param arguments 参数
@@ -85,8 +85,8 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
      * @param input 输入
       * @param candidates candidates
      /**
-      * TinaFaceTranslator。
-      * @param arguments 参数
+     * TinaFaceTranslator。
+     * @param arguments 参数
       */
      */
     public TinaFaceTranslator(Map<String, ?> arguments) {
@@ -209,29 +209,29 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Sigmoid
-     *
-     * @param value 值
-     * @return sigmoid的结果
+    * Sigmoid
+    *
+    * @param value 值
+    * @return sigmoid的结果
      */
     private static double sigmoid(float value) {
         return 1.0d / (1.0d + Math.exp(-value));
     }
 
     /**
-     * Clip
-     *
-     * @param value 值
-     * @return clip的结果
+    * Clip
+    *
+    * @param value 值
+    * @return clip的结果
      */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
     /**
-     * 空
-     *
-     * @return 空的结果
+    * 空
+    *
+    * @return 空的结果
      */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -245,11 +245,11 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Candidate
-     *
-     * @param rectangle rectangle
-     * @param score score
-     * @return Candidate的结果
+    * Candidate
+    *
+    * @param rectangle rectangle
+    * @param score score
+    * @return Candidate的结果
      */
     private record Candidate(Rectangle rectangle, double score) {
     }

@@ -24,48 +24,48 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * 基于 JDK DatagramSocket 的 UDP 同步服务端实现。
- * <p>
- * 提供主题发布与客户端注册能力,消息以数据报方式推送。
- * </p>
- *
- * @author CH
- * @since 2026-07-25
+* 基于 JDK DatagramSocket 的 UDP 同步服务端实现。
+* <p>
+* 提供主题发布与客户端注册能力,消息以数据报方式推送。
+* </p>
+*
+* @author CH
+* @since 2026-07-25
  */
 @Spi("udp")
 public class UdpSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
     /**
-     * 客户端注册表（clientId -> 地址与元数据）
+    * 客户端注册表（clientId -> 地址与元数据）
      */
     private final Map<String, ClientInfo> clients = new ConcurrentHashMap<>();
 
     /**
-     * 监听器列表
+    * 监听器列表
      */
     private final List<SyncServerListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * UDP 服务器
+    * UDP 服务器
      */
     private DatagramSocket server;
 
     /**
-     * 接收线程
+    * 接收线程
      */
     private Thread receiveThread;
 
     /**
-     * 创建 UDP 同步服务端 (默认配置)。
+    * 创建 UDP 同步服务端 (默认配置)。
      */
     public UdpSyncServer() {
         this(ServerSetting.defaults());
     }
 
     /**
-     * 创建 UDP 同步服务端。
-     *
-     * @param setting 服务端配置
+    * 创建 UDP 同步服务端。
+    *
+    * @param setting 服务端配置
      */
     public UdpSyncServer(ServerSetting setting) {
         super(setting);
@@ -165,7 +165,7 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 接收数据报循环。
+    * 接收数据报循环。
      */
     private void receiveLoop() {
         byte[] buffer = new byte[setting.getBufferSize()];
@@ -184,9 +184,9 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 处理数据报。
-     *
-     * @param packet 数据报
+    * 处理数据报。
+    *
+    * @param packet 数据报
      */
     private void handlePacket(DatagramPacket packet) {
         String message = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8).trim();
@@ -208,10 +208,10 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 按数据报来源地址反查已注册的 clientId。
-     *
-     * @param packet 数据报
-     * @return clientId，未注册返回 null
+    * 按数据报来源地址反查已注册的 clientId。
+    *
+    * @param packet 数据报
+    * @return clientId，未注册返回 null
      */
     private String findClientIdByAddress(DatagramPacket packet) {
         for (Map.Entry<String, ClientInfo> entry : clients.entrySet()) {
@@ -226,10 +226,10 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 发送数据报到客户端。
-     *
-     * @param address 目标地址
-     * @param payload 消息内容
+    * 发送数据报到客户端。
+    *
+    * @param address 目标地址
+    * @param payload 消息内容
      */
     private void sendTo(InetSocketAddress address, String payload) {
         try {
@@ -241,9 +241,9 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 通知监听器。
-     *
-     * @param action 动作
+    * 通知监听器。
+    *
+    * @param action 动作
      */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
@@ -255,25 +255,25 @@ public class UdpSyncServer extends com.chua.common.support.network.server.Abstra
     }
 
     /**
-     * 客户端信息。
-     *
+    * 客户端信息。
+    *
      */
     private static final class ClientInfo {
 
         /**
-         * 客户端地址
+        * 客户端地址
          */
         private final InetSocketAddress address;
 
         /**
-         * 客户端元数据
+        * 客户端元数据
          */
         private final Map<String, Object> metadata = new HashMap<>();
 
         /**
-         * 创建客户端信息。
-         *
-         * @param address 客户端地址
+        * 创建客户端信息。
+        *
+        * @param address 客户端地址
          */
         private ClientInfo(InetSocketAddress address) {
             this.address = address;

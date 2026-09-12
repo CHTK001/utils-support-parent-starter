@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * oshc net — 网络接口明细：IP/MAC、收发字节、速率、状态。
- *
- * @author CH
- * @since 4.0.0.42
- * @param bps bps
- * @return 格式化速度的结果
- * @param options 期权
+* oshc net — 网络接口明细：IP/MAC、收发字节、速率、状态。
+*
+* @author CH
+* @since 4.0.0.42
+* @param bps bps
+* @return 格式化速度的结果
+* @param options 期权
  */
 public final class NetworkCommand extends AbstractCommand {
 
@@ -23,10 +23,10 @@ public final class NetworkCommand extends AbstractCommand {
     public String name() {
         return "net";
     /**
-     * description。
-     * @return description的结果
-     * @param bps bps
-     * @param options 期权
+    * description。
+    * @return description的结果
+    * @param bps bps
+    * @param options 期权
      */
     }
 

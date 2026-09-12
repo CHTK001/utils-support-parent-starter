@@ -14,14 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-   * 通义千问2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV 缓存 自回归）。
- *
- * <p>模型为 HF decoder-with-past 导出（59 输入：input_ids / attention_mask / position_ids
-   * + 28 层 past_键_值），首步传空 缓存，后续步注入上一步的 present KV。
-   * 支持 CUDA EP（{@code useGpu}）。资源由 模型registry downloadurl 拉取。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 通义千问2.5-Instruct ONNX 因果语言模型（onnxruntime 直连 + KV 缓存 自回归）。
+*
+* <p>模型为 HF decoder-with-past 导出（59 输入：input_ids / attention_mask / position_ids
+* + 28 层 past_键_值），首步传空 缓存，后续步注入上一步的 present KV。
+* 支持 CUDA EP（{@code useGpu}）。资源由 模型registry downloadurl 拉取。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OnnxQwenTranslator implements ITranslator<String, String>, AutoCloseable {
@@ -41,8 +41,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     private volatile boolean initialized; // 初始化
     private int kvDim = 128; // kvdim
     /**
-     * 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28）
-     *
+    * 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28）
+    *
      /**
       * onnx通义千问translator。
       */
@@ -51,9 +51,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
      * @param temperature temperature
      * @param repeatPenalty repeat罚款
      /**
-      * onnx通义千问translator。
-      * @param modelId 模型标识
-      * @param useGpu usegpu
+     * onnx通义千问translator。
+     * @param modelId 模型标识
+     * @param useGpu usegpu
       */
      * @param topK topk
       * @param temperature temperature
@@ -64,9 +64,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     public OnnxQwenTranslator() {
         this("qwen2-1.5b-onnx", false);
     /**
-     * onnx通义千问translator。
-     * @param modelId 模型id
-     * @param useGpu useGpu
+    * onnx通义千问translator。
+    * @param modelId 模型id
+    * @param useGpu useGpu
      */
     }
 
@@ -83,10 +83,10 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     /**
-     * 从 URL 下载资源到模型目录（若不存在），供外部权重 / tokenizer 补充下载。
-     * @param dir dir
-     * @param fileName 文件名称
-     * @param url url
+    * 从 URL 下载资源到模型目录（若不存在），供外部权重 / tokenizer 补充下载。
+    * @param dir dir
+    * @param fileName 文件名称
+    * @param url url
      */
     private static void downloadIfMissing(Path dir, String fileName, String url) throws Exception {
         if (dir == null) {
@@ -214,9 +214,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     /**
-     * 对话。
-     * @param userPrompt 用户提示符
-     * @return 对话的结果
+    * 对话。
+    * @param userPrompt 用户提示符
+    * @return 对话的结果
      */
     public String chat(String userPrompt) throws Exception {
         prepare();
@@ -291,8 +291,8 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     /**
-     * 空past。
-     * @return 空past的结果
+    * 空past。
+    * @return 空past的结果
      */
     private Map<String, OnnxTensor> emptyPast() throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
@@ -308,9 +308,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     /**
-      * collectpast。
-     * @param result 结果
-     * @return collectPast的结果
+    * collectpast。
+    * @param result 结果
+    * @return collectPast的结果
      */
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
@@ -324,17 +324,17 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     }
 
     /**
-     * 是否eos。
-     * @param id 标识
-     * @return 是否eos的结果
+    * 是否eos。
+    * @param id 标识
+    * @return 是否eos的结果
      */
     private boolean isEos(int id) {
         return eosTokenId >= 0 && id == eosTokenId;
     }
 
     /**
-     * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
-     * @param logits logits
+    * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
+    * @param logits logits
      /**
       * 是否degenerate。
       * @param tokens 令牌
@@ -386,9 +386,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         }
         return r;
     /**
-     * 范围。
-     * @param n n
-     * @return 范围的结果
+    * 范围。
+    * @param n n
+    * @return 范围的结果
      */
     }
 
@@ -399,11 +399,11 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         }
         return r;
     /**
-     * 下一个令牌。
-     * @param logits logits
-     * @param tokens 令牌
-     * @param promptLen 提示符len
-     * @return 下一个令牌的结果
+    * 下一个令牌。
+    * @param logits logits
+    * @param tokens 令牌
+    * @param promptLen 提示符len
+    * @return 下一个令牌的结果
      */
     }
 
@@ -427,12 +427,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
         }
         return argmax(scores);
     /**
-     * 样本。
-     * @param scores scores
-     * @param temp temp
-     * @param k k
-     * @return 样本的结果
-     * @param logits logits
+    * 样本。
+    * @param scores scores
+    * @param temp temp
+    * @param k k
+    * @return 样本的结果
+    * @param logits logits
      */
     }
 

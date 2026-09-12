@@ -23,20 +23,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 腾讯云短信推送实现
- *
- * <p>基于腾讯云 SMS SDK（com.tencentcloudapi.sms.v20190711）的短信发送实现。
- *
- * <h3>环境配置</h3>
- * <pre>
- *   sms.secretId    腾讯云 SecretId（必填）
- *   sms.secretKey   腾讯云 SecretKey（必填）
- *   sms.appId       短信应用 ID（必填）
- *   sms.signName    短信签名（必填）
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 腾讯云短信推送实现
+*
+* <p>基于腾讯云 SMS SDK（com.tencentcloudapi.sms.v20190711）的短信发送实现。
+*
+* <h3>环境配置</h3>
+* <pre>
+*   sms.secretId    腾讯云 SecretId（必填）
+*   sms.secretKey   腾讯云 SecretKey（必填）
+*   sms.appId       短信应用 ID（必填）
+*   sms.signName    短信签名（必填）
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("tencent-sms")
 @SpiDescribe(
@@ -51,10 +51,10 @@ import lombok.extern.slf4j.Slf4j;
         }
 )
 /**
-   * 公共 类 tencentsms消息push implements 消息push {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 tencentsms消息push implements 消息push {
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class TencentSmsMessagePush implements MessagePush {
@@ -70,8 +70,8 @@ public class TencentSmsMessagePush implements MessagePush {
     }
 
     /**
-      * 创建 tencentsms消息push 实例
-     * @param environment 环境
+    * 创建 tencentsms消息push 实例
+    * @param environment 环境
      */
     public TencentSmsMessagePush(MessageEnvironment environment) {
         this.environment = environment;
@@ -85,8 +85,8 @@ public class TencentSmsMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送
-     * @param request 请求
+    * 发送
+    * @param request 请求
      */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
@@ -168,16 +168,16 @@ public class TencentSmsMessagePush implements MessagePush {
 
     @Override
     /**
-     * 获取Template
-     * @param templateId templateid
+    * 获取Template
+    * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
     /**
-     * 注册Template
-     * @param template template
+    * 注册Template
+    * @param template template
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
@@ -185,10 +185,10 @@ public class TencentSmsMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送Template
-     * @param templateId templateid
-     * @param to 转为
-     * @param params 参数
+    * 发送Template
+    * @param templateId templateid
+    * @param to 转为
+    * @param params 参数
      */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()

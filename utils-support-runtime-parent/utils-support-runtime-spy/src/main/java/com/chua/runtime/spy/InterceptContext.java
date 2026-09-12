@@ -6,77 +6,77 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
-   * 插桩上下文 — 由 ASM 字节码插入的 runtimespy.onintercept() 创建，
-   * 传递给 拦截器.onintercept()。
- *
- * <p>携带目标方法元数据（类名、方法名、描述符）、插桩点、时间戳，
-   * 以及链路追踪上下文（追踪id / spanid / 父spanid）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 插桩上下文 — 由 ASM 字节码插入的 runtimespy.onintercept() 创建，
+* 传递给 拦截器.onintercept()。
+*
+* <p>携带目标方法元数据（类名、方法名、描述符）、插桩点、时间戳，
+* 以及链路追踪上下文（追踪id / spanid / 父spanid）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
 public class InterceptContext {
 
     /**
-     * 目标类名（内部名格式，如 {@code org/slf4j/Logger}）
+    * 目标类名（内部名格式，如 {@code org/slf4j/Logger}）
      */
     private String className;
 
     /**
-     * 目标方法名
+    * 目标方法名
      */
     private String methodName;
 
     /**
-     * 方法描述符（如 {@code (Ljava/lang/String;)V}）
+    * 方法描述符（如 {@code (Ljava/lang/String;)V}）
      */
     private String descriptor;
 
     /**
-     * 插桩点
+    * 插桩点
      */
     private InterceptPoint point;
 
     /**
-     * 时间戳（毫秒）
+    * 时间戳（毫秒）
      */
     private long timestamp;
 
     /**
-      * 异常（仅在 异常 插桩点有效）
+    * 异常（仅在 异常 插桩点有效）
      */
     private Throwable throwable;
 
     /**
-     * 用户附加数据
+    * 用户附加数据
      */
     private Object userData;
 
     /**
-      * 全局追踪 标识（同一根调用链共享）。
-     *
-     * <p>由 RuntimeSpy 在 ENTRY 插桩时为根调用生成，子调用继承。
-     * 跨线程时可通过 {@link RuntimeSpy#capture()} 与
-     * {@link RuntimeSpy#restore(RuntimeSpy.TraceContextSnapshot)} 传递。</p>
+    * 全局追踪 标识（同一根调用链共享）。
+    *
+    * <p>由 RuntimeSpy 在 ENTRY 插桩时为根调用生成，子调用继承。
+    * 跨线程时可通过 {@link RuntimeSpy#capture()} 与
+    * {@link RuntimeSpy#restore(RuntimeSpy.TraceContextSnapshot)} 传递。</p>
      */
     private String traceId;
 
     /**
-      * 当前 Span 标识（每次 ENTRY 新建）
+    * 当前 Span 标识（每次 ENTRY 新建）
      */
     private String spanId;
 
     /**
-      * 父 Span 标识（嵌套调用时指向调用方 span，根调用为 空）
+    * 父 Span 标识（嵌套调用时指向调用方 span，根调用为 空）
      */
     private String parentSpanId;
 
     /**
-      * 设置追踪栈（同时更新 追踪id/spanid/父spanid）。
-     *
-     * @param stack 追踪栈对象，空 时不修改任何字段
+    * 设置追踪栈（同时更新 追踪id/spanid/父spanid）。
+    *
+    * @param stack 追踪栈对象，空 时不修改任何字段
      */
     public void setTraceStack(TraceStack stack) {
         if (stack == null) {
@@ -88,27 +88,27 @@ public class InterceptContext {
     }
 
     /**
-     * 获取人类可读的类名（将内部名 {@code /} 转为 {@code .}）。
-     *
-     * @return 点分隔的类名
+    * 获取人类可读的类名（将内部名 {@code /} 转为 {@code .}）。
+    *
+    * @return 点分隔的类名
      */
     public String getReadableClassName() {
         return className.replace('/', '.');
     }
 
     /**
-     * 获取方法签名。
-     *
-     * @return "类.方法(描述符)"
+    * 获取方法签名。
+    *
+    * @return "类.方法(描述符)"
      */
     public String getSignature() {
         return getReadableClassName() + "." + methodName + descriptor;
     }
 
     /**
-     * 是否入口插桩。
-     *
-     * @return true 表示入口
+    * 是否入口插桩。
+    *
+    * @return true 表示入口
      */
     public boolean isEntry() {
         return point == InterceptPoint.ENTRY
@@ -123,9 +123,9 @@ public class InterceptContext {
     }
 
     /**
-     * 是否出口插桩。
-     *
-     * @return true 表示出口
+    * 是否出口插桩。
+    *
+    * @return true 表示出口
      */
     public boolean isExit() {
         return point == InterceptPoint.EXIT
@@ -136,31 +136,31 @@ public class InterceptContext {
     }
 
     /**
-     * 是否异常插桩。
-     *
-     * @return true 表示异常
+    * 是否异常插桩。
+    *
+    * @return true 表示异常
      */
     public boolean isException() {
         return point == InterceptPoint.EXCEPTION;
     }
 
     /**
-     * 是否根 Span（无父调用）。
-     *
-     * @return true 表示根
+    * 是否根 Span（无父调用）。
+    *
+    * @return true 表示根
      */
     public boolean isRootSpan() {
         return parentSpanId == null;
     }
 
     /**
-      * 追踪栈对象 — 包含 追踪id / spanid / 父spanid 的不可变快照。
-     *
-     * @param traceId      全局追踪 标识
-     * @param spanId       当前 Span 标识
-     * @param parentSpanId 父 Span 标识（根调用为 空）
- * @author CH
-     * @since 4.0.0.42
+    * 追踪栈对象 — 包含 追踪id / spanid / 父spanid 的不可变快照。
+    *
+    * @param traceId      全局追踪 标识
+    * @param spanId       当前 Span 标识
+    * @param parentSpanId 父 Span 标识（根调用为 空）
+    * @author CH
+    * @since 4.0.0.42
      */
     public record TraceStack(
             String traceId,

@@ -15,16 +15,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * EPUB 电子书预览提供器。
- * <p>SPI 类型：{@code preview-epub}。解析 EPUB ZIP 中的 XHTML 内容，提取文本显示。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param html HTML
- * @return extract文本从html的结果
- * @param content 内容
- * @param ext ext
- * @param mime mime
+* EPUB 电子书预览提供器。
+* <p>SPI 类型：{@code preview-epub}。解析 EPUB ZIP 中的 XHTML 内容，提取文本显示。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param html HTML
+* @return extract文本从html的结果
+* @param content 内容
+* @param ext ext
+* @param mime mime
  */
 @Spi("preview-epub")
 public class EpubPreviewProvider implements FileStoragePreviewProvider {
@@ -45,10 +45,10 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
                 .htmlContent(html)
                 .build();
     /**
-      * extractchapters。
-     * @param epubBytes epubbytes
-     * @return extractChapters的结果
-     * @param html html
+    * extractchapters。
+    * @param epubBytes epubbytes
+    * @return extractChapters的结果
+    * @param html html
      */
     }
 
@@ -117,10 +117,10 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建html。
-     * @param chapters chapters
-     * @param fileSize 文件大小
-     * @return 构建html的结果
+    * 构建html。
+    * @param chapters chapters
+    * @param fileSize 文件大小
+    * @return 构建html的结果
      */
     private String buildHtml(List<String> chapters, long fileSize) {
         StringBuilder sb = new StringBuilder();
@@ -165,10 +165,10 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * truncate。
-     * @param text 文本
-     * @param maxLen 最大len
-     * @return truncate的结果
+    * truncate。
+    * @param text 文本
+    * @param maxLen 最大len
+    * @return truncate的结果
      */
     private String truncate(String text, int maxLen) {
         if (text.length() <= maxLen) {
@@ -178,9 +178,9 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * escapehtml。
-     * @param text 文本
-     * @return escapeHtml的结果
+    * escapehtml。
+    * @param text 文本
+    * @return escapeHtml的结果
      */
     private String escapeHtml(String text) {
         if (text == null) {
@@ -190,9 +190,9 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * human大小。
-     * @param bytes bytes
-     * @return human大小的结果
+    * human大小。
+    * @param bytes bytes
+    * @return human大小的结果
      */
     private String humanSize(long bytes) {
         if (bytes < 1024) {

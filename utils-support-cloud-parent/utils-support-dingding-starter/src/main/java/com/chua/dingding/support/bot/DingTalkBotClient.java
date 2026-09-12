@@ -39,100 +39,100 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
-   * 钉钉 机器人 客户端，实现 {@link BotClient} 接口。
- * <p>支持 Webhook 模式（接收消息通过回调）和发送消息（文本、图片等）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 钉钉 机器人 客户端，实现 {@link BotClient} 接口。
+* <p>支持 Webhook 模式（接收消息通过回调）和发送消息（文本、图片等）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DingTalkBotClient implements BotClient {
 
     /**
-     * HMAC SHA256 算法名称
+    * HMAC SHA256 算法名称
      */
     private static final String HMAC_SHA256 = "HmacSHA256";
 
     /**
-     * JSON 媒体类型
+    * JSON 媒体类型
      */
     private static final MediaType JSON_MEDIA_TYPE =
             MediaType.get("application/json; charset=utf-8");
 
     /**
-     * Webhook URL
+    * Webhook URL
      */
     private String webhookUrl;
 
     /**
-     * 签名密钥
+    * 签名密钥
      */
     private String secret;
 
     /**
-      * 应用 键
+    * 应用 键
      */
     private String appKey;
 
     /**
-     * 应用 Secret
+    * 应用 Secret
      */
     private String appSecret;
 
     /**
-     * API 基础地址
+    * API 基础地址
      */
     private String baseUrl =
             "https://oapi.dingtalk.com/robot/send?access_token=";
 
     /**
-     * 连接超时时间（毫秒）
+    * 连接超时时间（毫秒）
      */
     private long connectTimeoutMillis = 10_000;
 
     /**
-     * 读取超时时间（毫秒）
+    * 读取超时时间（毫秒）
      */
     private long readTimeoutMillis = 30_000;
 
     /**
-      * Webhook 验证 令牌
+    * Webhook 验证 令牌
      */
     private String webhookVerifyToken;
 
     /**
-     * 运行状态标识
+    * 运行状态标识
      */
     private volatile boolean running;
 
     /**
-     * HTTP 客户端实例
+    * HTTP 客户端实例
      */
     private OkHttpClient httpClient;
 
     /**
-     * 消息监听器列表
+    * 消息监听器列表
      */
     private final List<BotMessageListener> messageListeners
             = new CopyOnWriteArrayList<>();
 
     /**
-     * 错误监听器列表
+    * 错误监听器列表
      */
     private final List<BotErrorListener> errorListeners
             = new CopyOnWriteArrayList<>();
 
     /**
-     * 用户存储实例
+    * 用户存储实例
      */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     @Override
     /**
-     * 配置
-     * @param token 令牌
-     * @param secret secret
-     * @param encodingAesKey 编码aes键
+    * 配置
+    * @param token 令牌
+    * @param secret secret
+    * @param encodingAesKey 编码aes键
      */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
@@ -197,10 +197,10 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 设置 Webhook URL
-     *
-     * @param webhookUrl Webhook 地址
-     * @return this
+    * 设置 Webhook URL
+    *
+    * @param webhookUrl Webhook 地址
+    * @return this
      */
     public DingTalkBotClient webhookUrl(String webhookUrl) {
         this.webhookUrl = webhookUrl;
@@ -208,10 +208,10 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-      * 设置 Webhook 验证 令牌
-     *
-     * @param token 验证 令牌
-     * @return this
+    * 设置 Webhook 验证 令牌
+    *
+    * @param token 验证 令牌
+    * @return this
      */
     public DingTalkBotClient webhookVerifyToken(String token) {
         this.webhookVerifyToken = token;
@@ -302,11 +302,11 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送视频
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
+    * 发送视频
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
      */
     public BotSendResult sendVideo(String toUser, String mediaPath,
             String title, String desc) {
@@ -349,52 +349,52 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送文本异步
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param false false
-     * @param text 文本
-     * @param at at
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param userStore 用户存储
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送文本异步
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param false false
+    * @param text 文本
+    * @param at at
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param userStore 用户存储
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
@@ -404,49 +404,49 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送镜像异步
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param false false
-     * @param text 文本
-     * @param at at
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param userStore 用户存储
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送镜像异步
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param false false
+    * @param text 文本
+    * @param at at
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param userStore 用户存储
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
@@ -456,46 +456,46 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送异步
-     * @param message 消息
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param false false
-     * @param text 文本
-     * @param at at
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param userStore 用户存储
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送异步
+    * @param message 消息
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param false false
+    * @param text 文本
+    * @param at at
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param userStore 用户存储
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
@@ -510,9 +510,9 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组
-     * @param groupId 群体标识
-     * @param content 内容
+    * 发送转为分组
+    * @param groupId 群体标识
+    * @param content 内容
      */
     public BotSendResult sendToGroup(String groupId,
             String content) {
@@ -523,43 +523,43 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组异步
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param false false
-     * @param text 文本
-     * @param at at
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param userStore 用户存储
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送转为分组异步
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param false false
+    * @param text 文本
+    * @param at at
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param userStore 用户存储
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
@@ -569,40 +569,40 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组提及
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param false false
-     * @param text 文本
-     * @param at at
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param userStore 用户存储
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送转为分组提及
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param false false
+    * @param text 文本
+    * @param at at
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param userStore 用户存储
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public BotSendResult sendToGroupMention(
             String groupId,
@@ -657,25 +657,25 @@ public class DingTalkBotClient implements BotClient {
 
     @Override
     /**
-      * 移除消息监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param running running
-     * @param jsonBody json主体
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 移除消息监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param running running
+    * @param jsonBody json主体
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
@@ -703,10 +703,10 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 处理回调请求
-     *
-     * @param jsonBody 请求体 JSON 字符串
-     * @return true 表示处理成功
+    * 处理回调请求
+    *
+    * @param jsonBody 请求体 JSON 字符串
+    * @return true 表示处理成功
      */
     public boolean handleCallback(String jsonBody) {
         try {
@@ -736,18 +736,18 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-      * 发送内部
-     * @param message 消息
-     * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
-     * @param errcode errcode
-     * @param errmsg errmsg
-     * @param e e
-     * @param e e
-     * @param HMAC_SHA256 HMAC_SHA256
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 发送内部
+    * @param message 消息
+    * @param JSON_MEDIA_TYPE JSON_MEDIA_类型
+    * @param errcode errcode
+    * @param errmsg errmsg
+    * @param e e
+    * @param e e
+    * @param HMAC_SHA256 HMAC_SHA256
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     private BotSendResult sendInternal(
             Map<String, Object> message) {
@@ -801,9 +801,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 构建请求url
-     *
-     * @return 构建请求url的结果
+    * 构建请求url
+    *
+    * @return 构建请求url的结果
      */
     private String buildRequestUrl() throws Exception {
         if (secret == null || secret.isBlank()) {
@@ -825,11 +825,11 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 解析Inbound
-     * @param data 数据
-     * @param type 类型
-     * @param e e
-     * @param ignored ignored
+    * 解析Inbound
+    * @param data 数据
+    * @param type 类型
+    * @param e e
+    * @param ignored ignored
      */
     private BotInboundMessage parseInbound(
             Map<String, Object> data) {
@@ -867,10 +867,10 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 映射msg类型
-     *
-     * @param type 类型
-     * @return 映射msg类型的结果
+    * 映射msg类型
+    *
+    * @param type 类型
+    * @return 映射msg类型的结果
      */
     private Type mapMsgType(String type) {
         if (type == null) {
@@ -886,9 +886,9 @@ public class DingTalkBotClient implements BotClient {
     }
 
     /**
-     * 通知记录错误
-     *
-     * @param e e
+    * 通知记录错误
+    *
+    * @param e e
      */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {

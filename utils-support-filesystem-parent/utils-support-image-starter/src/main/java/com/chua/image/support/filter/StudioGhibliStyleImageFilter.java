@@ -19,24 +19,24 @@ import javax.annotation.Nullable;
 
 
 /**
- * 宫崎骏风格滤镜
- * <p>
- * 模拟宫崎骏动画电影的画风特点，创造温暖、梦幻的视觉效果：
- * 1. 温暖的色调调整
- * 2. 柔和的光影效果
- * 3. 增强的饱和度
- * 4. 梦幻的氛围感
- * 5. 细腻的色彩过渡
- * 
- * 算法特点：
- * - 暖色调增强：增加橙色和黄色的温暖感
- * - 柔光效果：模拟动画中的柔和光线
- * - 色彩饱和度提升：让颜色更加鲜艳生动
- * - 对比度优化：保持细节的同时营造氛围
- * - 边缘柔化：减少锐利边缘，增加手绘感
- *
- * @author CH
- * @since 2024/12/20
+* 宫崎骏风格滤镜
+* <p>
+* 模拟宫崎骏动画电影的画风特点，创造温暖、梦幻的视觉效果：
+* 1. 温暖的色调调整
+* 2. 柔和的光影效果
+* 3. 增强的饱和度
+* 4. 梦幻的氛围感
+* 5. 细腻的色彩过渡
+* 
+* 算法特点：
+* - 暖色调增强：增加橙色和黄色的温暖感
+* - 柔光效果：模拟动画中的柔和光线
+* - 色彩饱和度提升：让颜色更加鲜艳生动
+* - 对比度优化：保持细节的同时营造氛围
+* - 边缘柔化：减少锐利边缘，增加手绘感
+*
+* @author CH
+* @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -46,48 +46,48 @@ import javax.annotation.Nullable;
 public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
-     * 暖色调增强系数 (0.0-2.0)
-     * 增加橙色和黄色的温暖感
+    * 暖色调增强系数 (0.0-2.0)
+    * 增加橙色和黄色的温暖感
      */
     private double warmToneEnhancement = 1.3;
 
     /**
-     * 饱和度增强系数 (0.0-2.0)
-     * 让颜色更加鲜艳生动
+    * 饱和度增强系数 (0.0-2.0)
+    * 让颜色更加鲜艳生动
      */
     private double saturationBoost = 1.4;
 
     /**
-     * 柔光强度 (0.0-1.0)
-     * 模拟动画中的柔和光线效果
+    * 柔光强度 (0.0-1.0)
+    * 模拟动画中的柔和光线效果
      */
     private double softLightIntensity = 0.3;
 
     /**
-     * 对比度调整 (0.0-2.0)
-     * 保持细节的同时营造氛围
+    * 对比度调整 (0.0-2.0)
+    * 保持细节的同时营造氛围
      */
     private double contrastAdjustment = 1.1;
 
     /**
-     * 亮度提升 (-50 到 50)
-     * 整体亮度调整
+    * 亮度提升 (-50 到 50)
+    * 整体亮度调整
      */
     private int brightnessBoost = 8;
 
     /**
-     * 边缘柔化强度 (0.0-1.0)
-     * 减少锐利边缘，增加手绘感
+    * 边缘柔化强度 (0.0-1.0)
+    * 减少锐利边缘，增加手绘感
      */
     private double edgeSofteningStrength = 0.4;
 
     /**
-     * 是否启用梦幻效果
+    * 是否启用梦幻效果
      */
     private boolean dreamyEffectEnabled = true;
 
     /**
-     * 梦幻效果强度 (0.0-1.0)
+    * 梦幻效果强度 (0.0-1.0)
      */
     private double dreamyEffectStrength = 0.2;
 
@@ -153,9 +153,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 应用暖色调效果
-     * @param src src
-     * @return applyWarmTone的结果
+    * 应用暖色调效果
+    * @param src src
+    * @return applyWarmTone的结果
      */
     private BufferedImage applyWarmTone(BufferedImage src) {
         int width = src.getWidth();
@@ -185,9 +185,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 增强饱和度
-     * @param src src
-     * @return 增强saturation的结果
+    * 增强饱和度
+    * @param src src
+    * @return 增强saturation的结果
      */
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
@@ -219,9 +219,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 应用柔光效果
-     * @param src src
-     * @return applySoftLight的结果
+    * 应用柔光效果
+    * @param src src
+    * @return applySoftLight的结果
      */
     private BufferedImage applySoftLight(BufferedImage src) {
         int width = src.getWidth();
@@ -252,9 +252,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 调整对比度和亮度
-     * @param src src
-     * @return adjustcontrast和brightness的结果
+    * 调整对比度和亮度
+    * @param src src
+    * @return adjustcontrast和brightness的结果
      */
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
@@ -284,9 +284,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 应用边缘柔化
-     * @param src src
-     * @return applySoftEdges的结果
+    * 应用边缘柔化
+    * @param src src
+    * @return applySoftEdges的结果
      */
     private BufferedImage applySoftEdges(BufferedImage src) {
         int width = src.getWidth();
@@ -349,9 +349,9 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 应用梦幻效果
-     * @param src src
-     * @return applyDreamyEffect的结果
+    * 应用梦幻效果
+    * @param src src
+    * @return applyDreamyEffect的结果
      */
     private BufferedImage applyDreamyEffect(BufferedImage src) {
         int width = src.getWidth();
@@ -410,11 +410,11 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * RGB转HSV色彩空间
-     * @param r r
-     * @param g g
-     * @param b b
-     * @return rgb转为hsv的结果
+    * RGB转HSV色彩空间
+    * @param r r
+    * @param g g
+    * @param b b
+    * @return rgb转为hsv的结果
      */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
@@ -447,11 +447,11 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * HSV转RGB色彩空间
-     * @param h h
-     * @param s s
-     * @param v v
-     * @return hsv转为rgb的结果
+    * HSV转RGB色彩空间
+    * @param h h
+    * @param s s
+    * @param v v
+    * @return hsv转为rgb的结果
      */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;

@@ -15,30 +15,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 请求签名验证过滤器，验证请求的签名防篡改。
- *
- * <p>从请求头中获取签名值（默认 {@code X-Signature}），
- * 使用 HMAC-SHA256 或 MD5 对请求体计算签名并与请求头中的签名比对。
- * 签名不匹配则返回 403。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code signature.secret} — 签名密钥，必填</li>
- *   <li>{@code signature.algorithm} — 签名算法，默认 HMAC-SHA256</li>
- *   <li>{@code signature.header} — 签名头名称，默认 {@code X-Signature}</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* 请求签名验证过滤器，验证请求的签名防篡改。
+*
+* <p>从请求头中获取签名值（默认 {@code X-Signature}），
+* 使用 HMAC-SHA256 或 MD5 对请求体计算签名并与请求头中的签名比对。
+* 签名不匹配则返回 403。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code signature.secret} — 签名密钥，必填</li>
+*   <li>{@code signature.algorithm} — 签名算法，默认 HMAC-SHA256</li>
+*   <li>{@code signature.header} — 签名头名称，默认 {@code X-Signature}</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class SignatureServerFilter implements ServerFilter {
 
     /**
-     * 默认签名头名称
+    * 默认签名头名称
      */
     private static final String DEFAULT_SIGNATURE_HEADER = "X-Signature";
     /**
-     * 默认签名算法
+    * 默认签名算法
      */
     private static final String DEFAULT_ALGORITHM = "HMAC-SHA256";
 
@@ -108,10 +108,10 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     /**
-     * compute签名
-     *
-     * @param data 数据
-     * @return compute签名的结果
+    * compute签名
+    *
+    * @param data 数据
+    * @return compute签名的结果
      */
     private String computeSignature(byte[] data) {
         try {
@@ -137,10 +137,10 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     /**
-     * 是否Excluded
-     *
-     * @param path 路径
-     * @return 是否excluded的结果
+    * 是否Excluded
+    *
+    * @param path 路径
+    * @return 是否excluded的结果
      */
     private boolean isExcluded(String path) {
         if (path == null) {

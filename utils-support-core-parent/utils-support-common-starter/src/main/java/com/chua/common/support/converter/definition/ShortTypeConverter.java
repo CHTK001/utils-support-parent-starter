@@ -6,21 +6,21 @@ import javax.annotation.Nullable;
 
 
 /**
- * Short 类型转换器。
- * <p>将各种类型的值转换为 {@link Short}，通过 {@link #transToBigDecimal(Object)} 转为 BigDecimal 后取 shortValue。</p>
- *
- * @author CH
- * @version 1.0.0
- * @since 2020/10/30
+* Short 类型转换器。
+* <p>将各种类型的值转换为 {@link Short}，通过 {@link #transToBigDecimal(Object)} 转为 BigDecimal 后取 shortValue。</p>
+*
+* @author CH
+* @version 1.0.0
+* @since 2020/10/30
  */
 public class ShortTypeConverter implements TypeConverter<Short> {
 
     /**
-     * 将给定值转换为 Short。
-     * <p>通过 {@link #transToBigDecimal(Object)} 转为 BigDecimal 后取 shortValue。</p>
-     *
-     * @param value 源值
-     * @return Short 值，如果无法转换则返回 null
+    * 将给定值转换为 Short。
+    * <p>通过 {@link #transToBigDecimal(Object)} 转为 BigDecimal 后取 shortValue。</p>
+    *
+    * @param value 源值
+    * @return Short 值，如果无法转换则返回 null
      */
     @Override
     public Short convert(Object value) {
@@ -36,9 +36,9 @@ public class ShortTypeConverter implements TypeConverter<Short> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return Short.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return Short.class
      */
     @Override
     public Class<Short> getType() {

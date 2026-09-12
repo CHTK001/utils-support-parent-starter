@@ -33,21 +33,21 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * 基于 Fastjson 的 JSON 实现。
- *
- * <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
- * 通过 {@code Json.setImplementation(new FastjsonJsonProvider())} 全局切换。</p>
- *
- * <p>统一门户注解适配：fastjson 原生只识别自身注解（{@code @JSONField}），无法原生识别
-   * common-starter 的门户注解。因此本实现通过 {@link JsonBeanMapper} 桥接：
- * 目标类型携带 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解时，
-   * 先转换为普通 映射 再交给 fastjson 编解码，保证门户注解在各套实现间行为一致。</p>
- *
- * <p>通过 {@code @Spi("fastjson")} 注册为 {@link JsonProvider} 的 SPI 实现，
- * 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Fastjson 的 JSON 实现。
+*
+* <p>通过 {@link JsonProvider} 接口对外提供契约，可作为 {@link Json} 门面类的实现之一，
+* 通过 {@code Json.setImplementation(new FastjsonJsonProvider())} 全局切换。</p>
+*
+* <p>统一门户注解适配：fastjson 原生只识别自身注解（{@code @JSONField}），无法原生识别
+* common-starter 的门户注解。因此本实现通过 {@link JsonBeanMapper} 桥接：
+* 目标类型携带 {@link JsonName} / {@link JsonIgnore} / {@link JsonFormat} 注解时，
+* 先转换为普通 映射 再交给 fastjson 编解码，保证门户注解在各套实现间行为一致。</p>
+*
+* <p>通过 {@code @Spi("fastjson")} 注册为 {@link JsonProvider} 的 SPI 实现，
+* 并由 {@code @AutoSpi} 在编译期自动生成 {@code META-INF/extensions} SPI 索引。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("fastjson")
 @AutoSpi(value = "com.chua.common.support.lang.json.JsonProvider")
@@ -407,10 +407,10 @@ public class FastjsonJsonProvider implements JsonProvider {
     }
 
     /**
-     * 判断类型是否携带统一门户注解（{@link JsonName} / {@link JsonIgnore} / {@link JsonFormat}）。
-     *
-     * @param type 目标类型
-     * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
+    * 判断类型是否携带统一门户注解（{@link JsonName} / {@link JsonIgnore} / {@link JsonFormat}）。
+    *
+    * @param type 目标类型
+    * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
      */
     private static boolean hasUnifiedAnnotations(Class<?> type) {
         for (Field field : ClassUtils.getFields(type)) {
@@ -424,10 +424,10 @@ public class FastjsonJsonProvider implements JsonProvider {
     }
 
     /**
-     * 读取 Reader 为字符串。
-     *
-     * @param reader 读取器
-     * @return 字符串内容
+    * 读取 Reader 为字符串。
+    *
+    * @param reader 读取器
+    * @return 字符串内容
      */
     private String readString(Reader reader) {
         StringBuilder sb = new StringBuilder();
@@ -444,10 +444,10 @@ public class FastjsonJsonProvider implements JsonProvider {
     }
 
     /**
-     * 读取输入流为字符串。
-     *
-     * @param stream 输入流
-     * @return 字符串内容
+    * 读取输入流为字符串。
+    *
+    * @param stream 输入流
+    * @return 字符串内容
      */
     private String readString(InputStream stream) {
         return readString(new InputStreamReader(stream, UTF_8));

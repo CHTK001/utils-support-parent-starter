@@ -13,55 +13,55 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-   * Oracle CDC 分发器提供者，模拟 Oracle 日志最小 变更数据捕获事件流。
- * <p>
- * 基于 Reactor Sinks 实现进程内发布订阅，主题约定为：
- * {@code oracle.cdc.<schema>.<table>}，消息体为 JSON 格式的变更事件，
-   * 包含操作类型（插入/更新/删除）、变更前后数据等信息。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Oracle CDC 分发器提供者，模拟 Oracle 日志最小 变更数据捕获事件流。
+* <p>
+* 基于 Reactor Sinks 实现进程内发布订阅，主题约定为：
+* {@code oracle.cdc.<schema>.<table>}，消息体为 JSON 格式的变更事件，
+* 包含操作类型（插入/更新/删除）、变更前后数据等信息。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("oracle")
 public class OracleDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-     * 主题与 Sink 的映射，每个主题对应一个多播 Sink
+    * 主题与 Sink 的映射，每个主题对应一个多播 Sink
      */
     private final Map<String, Sinks.Many<Object>> sinkMap = new ConcurrentHashMap<>();
 
     /**
-     * 主题与订阅定义列表的映射
+    * 主题与订阅定义列表的映射
      */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-     * 是否已关闭
+    * 是否已关闭
      */
     private volatile boolean closed = false;
 
     /**
-      * 创建 oracledispatcher提供者 实例
-     * @param config 配置
+    * 创建 oracledispatcher提供者 实例
+    * @param config 配置
      */
     public OracleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     /**
-     * 无参构造，使用默认配置，供 SPI 自动实例化。
+    * 无参构造，使用默认配置，供 SPI 自动实例化。
      */
     public OracleDispatcherProvider() {
         this(DispatcherConfig.builder().build());
     }
 
     /**
-     * 向指定 Oracle CDC 主题发布变更事件。
-     *
-     * @param topic 目标主题，格式为 oracle.cdc.<schema>.<table>
-     * @param body  变更事件 JSON 字符串
+    * 向指定 Oracle CDC 主题发布变更事件。
+    *
+    * @param topic 目标主题，格式为 oracle.cdc.<schema>.<table>
+    * @param body  变更事件 JSON 字符串
      */
     @Override
     public void publish(String topic, Object body) {
@@ -80,9 +80,9 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 注册 Oracle CDC 主题订阅。
-     *
-     * @param definition 订阅定义，主题列表中的每个主题应符合 oracle.cdc.<schema>.<table> 格式
+    * 注册 Oracle CDC 主题订阅。
+    *
+    * @param definition 订阅定义，主题列表中的每个主题应符合 oracle.cdc.<schema>.<table> 格式
      */
     @Override
     public void subscribe(DispatcherDefinition definition) {
@@ -106,9 +106,9 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 取消指定订阅定义在目标主题上的注册关系。
-     *
-     * @param definition 待取消的订阅定义对象
+    * 取消指定订阅定义在目标主题上的注册关系。
+    *
+    * @param definition 待取消的订阅定义对象
      */
     @Override
     public void unsubscribe(DispatcherDefinition definition) {
@@ -125,7 +125,7 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 关闭 Oracle CDC 分发器，完成所有 Sink 的结束信号发送并清空注册状态。
+    * 关闭 Oracle CDC 分发器，完成所有 Sink 的结束信号发送并清空注册状态。
      */
     @Override
     public void close() {

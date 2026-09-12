@@ -8,13 +8,13 @@ import com.chua.common.support.ai.skill.SkillManager;
 import java.util.List;
 
 /**
- * ImageDefinition 扩展 AgentDefinition，增加图像生成能力。
- *
- * <p>子 Agent 使用此类时，会自动携带图像生成客户端和模型信息，
- * AgentScopeAgent 内部会将其注册为支持生图的 Model，而不是普通 ChatClient。
- *
- * @author CH
- * @since 4.0.0.42
+* ImageDefinition 扩展 AgentDefinition，增加图像生成能力。
+*
+* <p>子 Agent 使用此类时，会自动携带图像生成客户端和模型信息，
+* AgentScopeAgent 内部会将其注册为支持生图的 Model，而不是普通 ChatClient。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ImageDefinition extends AgentDefinition {
 
@@ -25,29 +25,29 @@ public class ImageDefinition extends AgentDefinition {
     private final ImageClient imageClient;
 
     /**
-     * 创建 ImageDefinition 实例
-     * @param id id
-     * @param name name
-     * @param description description
-     * @param role role
-     * @param instruction instruction
-     * @param planning planning
-     * @param mcp mcp
-     * @param leader leader
-     * @param agents agents
-     * @param mcpManager mcpManager
-     * @param skillManager skillManager
-     * @param memory memory
-     * @param memoryConfig memoryConfig
-     * @param retryConfig retryConfig
-     * @param maxToolIterations maxToolIterations
-     * @param compressionConfig compressionConfig
-     * @param planMaxTask planMaxTask
-     * @param debugHook debugHook
-     * @param planHook planHook
-     * @param systemPrompt systemPrompt
-     * @param imageModel imageModel
-     * @param imageClient imageClient
+    * 创建 ImageDefinition 实例
+    * @param id id
+    * @param name name
+    * @param description description
+    * @param role role
+    * @param instruction instruction
+    * @param planning planning
+    * @param mcp mcp
+    * @param leader leader
+    * @param agents agents
+    * @param mcpManager mcpManager
+    * @param skillManager skillManager
+    * @param memory memory
+    * @param memoryConfig memoryConfig
+    * @param retryConfig retryConfig
+    * @param maxToolIterations maxToolIterations
+    * @param compressionConfig compressionConfig
+    * @param planMaxTask planMaxTask
+    * @param debugHook debugHook
+    * @param planHook planHook
+    * @param systemPrompt systemPrompt
+    * @param imageModel imageModel
+    * @param imageClient imageClient
      */
     public ImageDefinition(String id, String name, String description, String role,
                            String instruction, boolean planning, boolean mcp, boolean leader,

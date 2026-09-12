@@ -13,36 +13,36 @@ import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.MetaView;
 
 /**
- * 元数据操作入口抽象基类。
- * <p>
- * 持有 Engine 引用，为每个元数据子接口提供默认的实例化逻辑。
- * 子类必须实现所有抽象方法来提供具体的元数据操作能力。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 元数据操作入口抽象基类。
+* <p>
+* 持有 Engine 引用，为每个元数据子接口提供默认的实例化逻辑。
+* 子类必须实现所有抽象方法来提供具体的元数据操作能力。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractMetaData implements MetaData {
 
     /**
-     * 引擎实例
+    * 引擎实例
      */
     protected final Engine engine;
 
     /**
-     * 当前 catalog
+    * 当前 catalog
      */
     protected String catalog;
 
     /**
-      * 当前 模式
+    * 当前 模式
      */
     protected String schema;
 
     /**
-     * 构造方法。
-     *
-     * @param engine 引擎实例
+    * 构造方法。
+    *
+    * @param engine 引擎实例
      */
     protected AbstractMetaData(Engine engine) {
         this.engine = engine;
@@ -113,27 +113,27 @@ public abstract class AbstractMetaData implements MetaData {
     public abstract MetaSearch search(String indexName);
 
     /**
-     * 获取当前 catalog。
-     *
-     * @return catalog 名称
+    * 获取当前 catalog。
+    *
+    * @return catalog 名称
      */
     public String getCatalog() {
         return catalog;
     }
 
     /**
-      * 获取当前 模式。
-     *
-     * @return schema 名称
+    * 获取当前 模式。
+    *
+    * @return schema 名称
      */
     public String getSchema() {
         return schema;
     }
 
     /**
-     * 获取引擎实例。
-     *
-     * @return 引擎实例
+    * 获取引擎实例。
+    *
+    * @return 引擎实例
      */
     public Engine getEngine() {
         return engine;

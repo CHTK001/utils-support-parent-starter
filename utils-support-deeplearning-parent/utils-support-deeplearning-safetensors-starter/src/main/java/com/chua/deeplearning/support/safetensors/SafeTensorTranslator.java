@@ -8,48 +8,48 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * safetensor 人脸检测翻译器，输入图像字节数组，输出 {@link PredictRectangle} 列表。
- * <p>
- * 默认连接 {@code facade-face} 模型与 {@code face_detection} 任务类型，可通过构造函数覆盖。
- * 推理失败时返回空列表，不抛出异常。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* safetensor 人脸检测翻译器，输入图像字节数组，输出 {@link PredictRectangle} 列表。
+* <p>
+* 默认连接 {@code facade-face} 模型与 {@code face_detection} 任务类型，可通过构造函数覆盖。
+* 推理失败时返回空列表，不抛出异常。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRectangle>> {
 
     /**
-     * HTTP 客户端
+    * HTTP 客户端
      */
     private final SafeTensorServiceClient client;
 
     /**
-     * 模型名称
+    * 模型名称
      */
     private final String modelName;
 
     /**
-     * 模型类型（默认 face_detection）
+    * 模型类型（默认 face_detection）
      */
     private final String modelType;
 
     /**
-     * 使用默认 facade-face + face_detection 构造。
-     *
-     * @param host safetensor服务 主机
-     * @param port safetensor服务 端口
+    * 使用默认 facade-face + face_detection 构造。
+    *
+    * @param host safetensor服务 主机
+    * @param port safetensor服务 端口
      */
     public SafeTensorTranslator(String host, int port) {
         this(host, port, "facade-face", "face_detection");
     }
 
     /**
-     * @param host      safetensor服务 主机
-     * @param port      safetensor服务 端口
-     * @param modelName 模型名称
-     * @param modelType 模型类型
+    * @param host      safetensor服务 主机
+    * @param port      safetensor服务 端口
+    * @param modelName 模型名称
+    * @param modelType 模型类型
      */
     public SafeTensorTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
@@ -64,10 +64,10 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     }
 
     /**
-      * 把图像字节发给 safetensor服务 并解析返回人脸框列表。
-     *
-     * @param input 图像字节数组
-     * @return PredictRectangle 列表
+    * 把图像字节发给 safetensor服务 并解析返回人脸框列表。
+    *
+    * @param input 图像字节数组
+    * @return PredictRectangle 列表
      */
     @Override
     public List<PredictRectangle> translate(byte[] input) {

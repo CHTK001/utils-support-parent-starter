@@ -9,17 +9,17 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.onnx.face.OnnxImageProcessor;
 
 /**
-   * 洞见face 性别年龄预测 Translator（buffalo_l genderage）。
- *
- * <p>96×96 RGB 输入（归一化 (rgb-127.5)/128），输出 3 维：</p>
- * <ul>
- *   <li>[0] 女性概率（softmax 前 logit）</li>
- *   <li>[1] 男性概率（softmax 前 logit）</li>
- *   <li>[2] 年龄（0~100 归一化到 ~[0,1]，乘 100 得年龄）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 洞见face 性别年龄预测 Translator（buffalo_l genderage）。
+*
+* <p>96×96 RGB 输入（归一化 (rgb-127.5)/128），输出 3 维：</p>
+* <ul>
+*   <li>[0] 女性概率（softmax 前 logit）</li>
+*   <li>[1] 男性概率（softmax 前 logit）</li>
+*   <li>[2] 年龄（0~100 归一化到 ~[0,1]，乘 100 得年龄）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InsightFaceGenderAgeTranslator implements Translator<Image, float[]> {
 

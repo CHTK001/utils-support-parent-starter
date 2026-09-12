@@ -15,13 +15,13 @@ import com.chua.alibaba.support.payment.AlipayConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 支付宝登录渠道实现
- *
- * <p>基于 alipay-sdk-java 的 {@link AlipaySystemOauthTokenRequest} 实现授权码登录。
- * 支持小程序授权码登录、H5/APP 授权登录。
- *
- * @author CH
- * @since 4.0.0.42
+* 支付宝登录渠道实现
+*
+* <p>基于 alipay-sdk-java 的 {@link AlipaySystemOauthTokenRequest} 实现授权码登录。
+* 支持小程序授权码登录、H5/APP 授权登录。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("alipay")
@@ -31,8 +31,8 @@ public class AlipayLoginProvider implements LoginChannel {
     private final AlipayClient client;
 
     /**
-      * 创建 alipaylogin提供者 实例
-     * @param config 配置
+    * 创建 alipaylogin提供者 实例
+    * @param config 配置
      */
     public AlipayLoginProvider(AlipayConfig config) {
         this.client = new DefaultAlipayClient(

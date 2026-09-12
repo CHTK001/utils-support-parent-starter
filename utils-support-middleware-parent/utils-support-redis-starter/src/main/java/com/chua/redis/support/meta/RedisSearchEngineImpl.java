@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * Redis redi搜索 搜索引擎实现。
- *
- * @author CH
- * @since 4.0.0.42
+* Redis redi搜索 搜索引擎实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RedisSearchEngineImpl implements SearchEngine {
 
@@ -26,8 +26,8 @@ public class RedisSearchEngineImpl implements SearchEngine {
     private final RediSearchEngine engine;
 
     /**
-      * 创建 redis搜索engineimpl 实例
-     * @param engine engine
+    * 创建 redis搜索engineimpl 实例
+    * @param engine engine
      */
     public RedisSearchEngineImpl(RediSearchEngine engine) {
         this.engine = engine;

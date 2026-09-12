@@ -9,51 +9,51 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-   * Redis 数据表实现，将 Redis 哈希 数据映射为表格结构。
- * <p>
-   * 每个 Redis 键 对应一行数据，哈希 字段对应列。
-   * 支持通过 键 模式匹配（如 {@code user:*}) 扫描数据。
- * 当前为只读实现，用于 Calcite 查询聚合。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* Redis 数据表实现，将 Redis 哈希 数据映射为表格结构。
+* <p>
+* 每个 Redis 键 对应一行数据，哈希 字段对应列。
+* 支持通过 键 模式匹配（如 {@code user:*}) 扫描数据。
+* 当前为只读实现，用于 Calcite 查询聚合。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class RedisDataTable implements DataTable {
 
     /**
-     * 表名
+    * 表名
      */
     private final String name;
 
     /**
-     * Redis 连接池
+    * Redis 连接池
      */
     private final JedisPool jedisPool;
 
     /**
-      * 键 模式（如 用户:*）
+    * 键 模式（如 用户:*）
      */
     private final String keyPattern;
 
     /**
-     * 列名列表
+    * 列名列表
      */
     private final List<String> columnNames;
 
     /**
-     * 列类型列表
+    * 列类型列表
      */
     private final List<Class<?>> columnTypes;
 
     /**
-     * 行数据缓存
+    * 行数据缓存
      */
     private final List<Map<String, Object>> rows;
 
     /**
-     * 是否已初始化
+    * 是否已初始化
      */
     private boolean initialized;
 
@@ -62,11 +62,11 @@ public class RedisDataTable implements DataTable {
     // ---------------------------------------------------------------
 
     /**
-      * 创建 Redis 数据table。
-     *
-     * @param name       表名
-     * @param jedisPool  Redis 连接池
-     * @param keyPattern 键 匹配模式（如 {@code user:*})
+    * 创建 Redis 数据table。
+    *
+    * @param name       表名
+    * @param jedisPool  Redis 连接池
+    * @param keyPattern 键 匹配模式（如 {@code user:*})
      */
     public RedisDataTable(String name, JedisPool jedisPool, String keyPattern) {
         this.name = name;
@@ -83,7 +83,7 @@ public class RedisDataTable implements DataTable {
     // ---------------------------------------------------------------
 
     /**
-     * 扫描 Redis 并加载数据。
+    * 扫描 Redis 并加载数据。
      */
     private void ensureLoaded() {
         if (initialized) {
@@ -144,8 +144,8 @@ public class RedisDataTable implements DataTable {
 
     @Override
      /**
-      * 获取column名称。
-      * @return 获取column名称的结果
+     * 获取column名称。
+     * @return 获取column名称的结果
       */
      * 获取column名称
      *

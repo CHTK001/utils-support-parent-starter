@@ -11,14 +11,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 /**
- * 本地文件系统实现的配置保存/加载器。
- *
- * <p>将配置数据以文件形式存储在本地磁盘上。默认根路径为 ${user.home}/.config。
- * 支持原子写入（先写临时文件再移动），确保写入操作的完整性。
- * 具有路径逃逸检查，防止 key 中包含 ../ 等路径穿越攻击。</p>
- *
- * @author CH
- * @since 2024/12/20
+* 本地文件系统实现的配置保存/加载器。
+*
+* <p>将配置数据以文件形式存储在本地磁盘上。默认根路径为 ${user.home}/.config。
+* 支持原子写入（先写临时文件再移动），确保写入操作的完整性。
+* 具有路径逃逸检查，防止 key 中包含 ../ 等路径穿越攻击。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Spi({"file", "local"})
 @SpiOrder(100)
@@ -33,8 +33,8 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     }
 
     /**
-     * 创建 FileConfigSaveOrLoader 实例
-     * @param setting setting
+    * 创建 FileConfigSaveOrLoader 实例
+    * @param setting setting
      */
     public FileConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting);

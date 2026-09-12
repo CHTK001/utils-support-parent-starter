@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 服务器请求抽象，封装 HTTP 或自定义协议的请求数据。
- * <p>
- * 提供对请求行、请求头、请求体、参数、属性等元素的统一访问接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 服务器请求抽象，封装 HTTP 或自定义协议的请求数据。
+* <p>
+* 提供对请求行、请求头、请求体、参数、属性等元素的统一访问接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface ServerRequest {
 
@@ -61,9 +61,9 @@ public interface ServerRequest {
     int getRemotePort();
 
     /**
-     * 获取所有请求属性（非请求参数，由 Filter 或框架设置）。
-     *
-     * @return 属性 Map
+    * 获取所有请求属性（非请求参数，由 Filter 或框架设置）。
+    *
+    * @return 属性 Map
      */
     Map<String, Object> getAttributes();
 
@@ -71,26 +71,26 @@ public interface ServerRequest {
     Object getAttribute(String name);
 
     /**
-     * 设置请求属性，用于在 Filter 之间传递数据。
-     *
-     * @param name  属性名
-     * @param value 属性值
+    * 设置请求属性，用于在 Filter 之间传递数据。
+    *
+    * @param name  属性名
+    * @param value 属性值
      */
     void setAttribute(String name, Object value);
 
     /**
-     * 获取表单字段（仅 multipart/form-data 或 application/x-www-form-urlencoded 时有效）。
-     *
-     * @return 表单字段名到值的映射，不存在时返回空 Map
+    * 获取表单字段（仅 multipart/form-data 或 application/x-www-form-urlencoded 时有效）。
+    *
+    * @return 表单字段名到值的映射，不存在时返回空 Map
      */
     default Map<String, String> getFormData() {
         return Collections.emptyMap();
     }
 
     /**
-     * 获取上传的文件列表（仅 multipart/form-data 时有效）。
-     *
-     * @return 上传文件列表，不存在时返回空 List
+    * 获取上传的文件列表（仅 multipart/form-data 时有效）。
+    *
+    * @return 上传文件列表，不存在时返回空 List
      */
     default List<FormFile> getFiles() {
         return Collections.emptyList();

@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * PP-ocrv6 文字识别 — 纯 打开cv DNN 实现（无 ONNX Runtime 依赖）
- *
- * <p>使用 OpenCV DNN 模块直接加载 PaddleOCR v6 ONNX 识别模型。</p>
- * @author CH
- * @since 4.0.0
- * @param imageData 镜像数据
- * @return recognize的结果
+* PP-ocrv6 文字识别 — 纯 打开cv DNN 实现（无 ONNX Runtime 依赖）
+*
+* <p>使用 OpenCV DNN 模块直接加载 PaddleOCR v6 ONNX 识别模型。</p>
+* @author CH
+* @since 4.0.0
+* @param imageData 镜像数据
+* @return recognize的结果
  */
 @Slf4j
 public class PpOcrOpencvTranslator {
@@ -37,19 +37,19 @@ public class PpOcrOpencvTranslator {
     private final String modelResourcePath; // 模型resource路径
     private Path modelFile; // 模型文件
     /**
-      * ppocropencvtranslator。
+    * ppocropencvtranslator。
      */
     private Net net;
 
     /**
-     * PpOcrOpencvTranslator。
+    * PpOcrOpencvTranslator。
      */
     public PpOcrOpencvTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/inference.onnx", "ocr/PP-OCRv6/tiny/rec_infer/inference.yml");
     /**
-      * ppocropencvtranslator。
-     * @param modelResourcePath 模型resource路径
-     * @param dictResourcePath dictresource路径
+    * ppocropencvtranslator。
+    * @param modelResourcePath 模型resource路径
+    * @param dictResourcePath dictresource路径
      */
     }
 
@@ -58,10 +58,10 @@ public class PpOcrOpencvTranslator {
         this.dict = loadCharacterDict(dictResourcePath);
         log.info("[PpOcrOpencv] dict_size={}", dict.size());
     /**
-     * 加载characterdict。
-     * @param resourcePath resource路径
-     * @return 加载characterdict的结果
-     * @param imageData 镜像数据
+    * 加载characterdict。
+    * @param resourcePath resource路径
+    * @return 加载characterdict的结果
+    * @param imageData 镜像数据
      */
     }
 
@@ -149,9 +149,9 @@ public class PpOcrOpencvTranslator {
     }
 
     /**
-      * ctcdecode。
-     * @param probs probs
-     * @return ctcDecode的结果
+    * ctcdecode。
+    * @param probs probs
+    * @return ctcDecode的结果
      */
     private String ctcDecode(Mat probs) {
  // 打开cv DNN 输出 shape: [1, seqlen, num类]
@@ -227,7 +227,7 @@ public class PpOcrOpencvTranslator {
     }
 
     /**
-     * ensure模型。
+    * ensure模型。
      */
     private void ensureModel() {
         if (net != null) {
@@ -252,9 +252,9 @@ public class PpOcrOpencvTranslator {
     }
 
     /**
-     * decode镜像。
-     * @param data 数据
-     * @return decode镜像的结果
+    * decode镜像。
+    * @param data 数据
+    * @return decode镜像的结果
      */
     private static Mat decodeImage(byte[] data) {
         Mat mob = new Mat();
@@ -266,7 +266,7 @@ public class PpOcrOpencvTranslator {
     }
 
     /**
-     * 关闭。
+    * 关闭。
      */
     public void close() {
         // net lifecycle managed by GC (OpenCV Java binding)

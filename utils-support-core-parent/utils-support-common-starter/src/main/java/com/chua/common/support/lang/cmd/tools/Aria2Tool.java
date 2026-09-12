@@ -11,22 +11,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
- * 多线程下载工具 aria2c。
- *
- * <p>此前下载服务直接 {@code new ProcessBuilder("aria2c", ...)} 调用，
- * 程序名硬编码且完全依赖 PATH，进程启动失败时只能得到笼统的 IOException。
- * 改用本类后可预先用 {@link #isAvailable()} 判断，并得到明确的缺失提示。</p>
- *
- * <h3>使用示例</h3>
- * <pre>{@code
- * Aria2Tool aria2 = new Aria2Tool();
- * if (aria2.isAvailable()) {
- *     CmdResult result = aria2.download("https://example.com/file.zip", "/data/file.zip");
- * }
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 多线程下载工具 aria2c。
+*
+* <p>此前下载服务直接 {@code new ProcessBuilder("aria2c", ...)} 调用，
+* 程序名硬编码且完全依赖 PATH，进程启动失败时只能得到笼统的 IOException。
+* 改用本类后可预先用 {@link #isAvailable()} 判断，并得到明确的缺失提示。</p>
+*
+* <h3>使用示例</h3>
+* <pre>{@code
+* Aria2Tool aria2 = new Aria2Tool();
+* if (aria2.isAvailable()) {
+*     CmdResult result = aria2.download("https://example.com/file.zip", "/data/file.zip");
+* }
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("aria2c")
 public class Aria2Tool extends CliTool {
@@ -36,7 +36,7 @@ public class Aria2Tool extends CliTool {
             Pattern.compile("aria2 version (\\d[\\d.]*)");
 
     /**
-     * 创建 aria2c 工具实例，使用预置的工具描述。
+    * 创建 aria2c 工具实例，使用预置的工具描述。
      */
     public Aria2Tool() {
         super(CliToolDescriptor.builder("aria2c")
@@ -57,11 +57,11 @@ public class Aria2Tool extends CliTool {
     }
 
     /**
-     * 下载文件到指定路径，使用 16 线程断点续传。
-     *
-     * @param url      下载地址
-     * @param savePath 保存路径
-     * @return 执行结果
+    * 下载文件到指定路径，使用 16 线程断点续传。
+    *
+    * @param url      下载地址
+    * @param savePath 保存路径
+    * @return 执行结果
      */
     @Nonnull
     public CmdResult download(@Nonnull String url, @Nonnull String savePath) {
@@ -77,12 +77,12 @@ public class Aria2Tool extends CliTool {
     }
 
     /**
-     * 以指定线程数下载文件。
-     *
-     * @param url         下载地址
-     * @param savePath    保存路径
-     * @param connections 连接数
-     * @return 执行结果
+    * 以指定线程数下载文件。
+    *
+    * @param url         下载地址
+    * @param savePath    保存路径
+    * @param connections 连接数
+    * @return 执行结果
      */
     @Nonnull
     public CmdResult download(@Nonnull String url, @Nonnull String savePath, int connections) {

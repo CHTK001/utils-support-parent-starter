@@ -13,51 +13,51 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
-   * 指标 服务实现（基于 polled目录）。
- *
- * <p>内部维护一个轮询目录实例，通过定时获取 native 内存数据，
-   * 解析为指标模型对象，触发 polled目录 的升级流程。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 指标 服务实现（基于 polled目录）。
+*
+* <p>内部维护一个轮询目录实例，通过定时获取 native 内存数据，
+* 解析为指标模型对象，触发 polled目录 的升级流程。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotWrapper> implements AutoCloseable {
 
     /**
-      * 快照包装类，用于 diffpolled目录 的泛型参数。
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 快照包装类，用于 diffpolled目录 的泛型参数。
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     @Data
     public static class SnapshotWrapper {
         /**
-         * 原始指标快照
+        * 原始指标快照
          */
         private MetricsSnapshot snapshot;
 
         /**
-         * 时间戳
+        * 时间戳
          */
         private long timestamp;
     }
 
     /**
-     * JSON 解析器
+    * JSON 解析器
      */
     private final MetricsJsonParser parser = new MetricsJsonParser();
 
     /**
-     * native 库实例
+    * native 库实例
      */
     private final MetricsNativeLibrary nativeLib;
 
     /**
-      * 构造 指标服务 实例。
-     *
-     * @param intervalMs native 内部采样间隔（毫秒）
-     * @return 指标服务的结果
+    * 构造 指标服务 实例。
+    *
+    * @param intervalMs native 内部采样间隔（毫秒）
+    * @return 指标服务的结果
      */
     public MetricsService(long intervalMs) {
         super("/metrics");
@@ -69,9 +69,9 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     }
 
     /**
-     * 启动轮询，使用默认执行器。
-     *
-     * @param environment 轮询环境配置
+    * 启动轮询，使用默认执行器。
+    *
+    * @param environment 轮询环境配置
      */
     public void start(DirectoryPollerEnvironment environment) {
         super.start(environment, null);
@@ -118,9 +118,9 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     }
 
     /**
-     * 获取当前最新的指标快照。
-     *
-     * @return 指标快照，无数据时返回 空
+    * 获取当前最新的指标快照。
+    *
+    * @return 指标快照，无数据时返回 空
      */
     public MetricsSnapshot getCurrentSnapshot() {
         List<SnapshotWrapper> dataList = listAndModified("/metrics");

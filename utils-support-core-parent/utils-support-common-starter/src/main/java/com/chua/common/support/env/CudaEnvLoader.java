@@ -11,24 +11,24 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * CUDA 运行时库配置加载器（读取 classpath 下 {@code env/cuda.env}）。
- *
- * <p>单例 + 懒加载 + 缓存：JVM 生命周期内仅首次访问时读取一次 .env 文件，
- * 之后全部命中内存缓存，对性能无影响。可通过 {@link #reload()} 强制重读
- * （例如外部修改 .env 后希望生效的场景）。</p>
- *
- * <p>配置项（均不硬编码，见 {@code env/cuda.env}）：
- * <ul>
- *   <li>{@code CUDA_MAJOR} — 目标 CUDA 主版本</li>
- *   <li>{@code ORT_VERSION} — 配套 onnxruntime-gpu 版本</li>
- *   <li>{@code TARGET_DIR} — CUDA 运行库目标目录</li>
- *   <li>{@code SCRIPT_WINDOWS/LINUX/MACOS} — 三平台安装脚本名</li>
- *   <li>{@code DOWNLOAD_TIMEOUT_SEC} / {@code AUTO_PATH}</li>
- * </ul>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* CUDA 运行时库配置加载器（读取 classpath 下 {@code env/cuda.env}）。
+*
+* <p>单例 + 懒加载 + 缓存：JVM 生命周期内仅首次访问时读取一次 .env 文件，
+* 之后全部命中内存缓存，对性能无影响。可通过 {@link #reload()} 强制重读
+* （例如外部修改 .env 后希望生效的场景）。</p>
+*
+* <p>配置项（均不硬编码，见 {@code env/cuda.env}）：
+* <ul>
+*   <li>{@code CUDA_MAJOR} — 目标 CUDA 主版本</li>
+*   <li>{@code ORT_VERSION} — 配套 onnxruntime-gpu 版本</li>
+*   <li>{@code TARGET_DIR} — CUDA 运行库目标目录</li>
+*   <li>{@code SCRIPT_WINDOWS/LINUX/MACOS} — 三平台安装脚本名</li>
+*   <li>{@code DOWNLOAD_TIMEOUT_SEC} / {@code AUTO_PATH}</li>
+* </ul>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public final class CudaEnvLoader {
@@ -43,21 +43,21 @@ public final class CudaEnvLoader {
     }
 
     /**
-     * 获取配置值。
-     *
-     * @param key 配置键，如 {@code CUDA_MAJOR}
-     * @return 配置值；缺失返回 null
+    * 获取配置值。
+    *
+    * @param key 配置键，如 {@code CUDA_MAJOR}
+    * @return 配置值；缺失返回 null
      */
     public static String get(String key) {
         return load().get(key);
     }
 
     /**
-     * 获取配置值（带默认值）。
-     *
-     * @param key          配置键
-     * @param defaultValue 默认值
-     * @return 配置值；缺失或为空返回默认值
+    * 获取配置值（带默认值）。
+    *
+    * @param key          配置键
+    * @param defaultValue 默认值
+    * @return 配置值；缺失或为空返回默认值
      */
     public static String get(String key, String defaultValue) {
         String v = load().get(key);
@@ -65,11 +65,11 @@ public final class CudaEnvLoader {
     }
 
     /**
-     * 获取 int 配置值（带默认值）。
-     *
-     * @param key          配置键
-     * @param defaultValue 默认值
-     * @return int 配置值
+    * 获取 int 配置值（带默认值）。
+    *
+    * @param key          配置键
+    * @param defaultValue 默认值
+    * @return int 配置值
      */
     public static int getInt(String key, int defaultValue) {
         try {
@@ -80,11 +80,11 @@ public final class CudaEnvLoader {
     }
 
     /**
-     * 获取 bool 配置值（带默认值）。
-     *
-     * @param key          配置键
-     * @param defaultValue 默认值
-     * @return bool 配置值
+    * 获取 bool 配置值（带默认值）。
+    *
+    * @param key          配置键
+    * @param defaultValue 默认值
+    * @return bool 配置值
      */
     public static boolean getBool(String key, boolean defaultValue) {
         String v = get(key, String.valueOf(defaultValue)).trim();
@@ -92,16 +92,16 @@ public final class CudaEnvLoader {
     }
 
     /**
-     * 获取全部配置（只读视图）。
-     *
-     * @return 配置键值对
+    * 获取全部配置（只读视图）。
+    *
+    * @return 配置键值对
      */
     public static Map<String, String> all() {
         return java.util.Collections.unmodifiableMap(load());
     }
 
     /**
-     * 强制重载（清空缓存，下次访问重新读取）。
+    * 强制重载（清空缓存，下次访问重新读取）。
      */
     public static synchronized void reload() {
         CACHE = null;
@@ -109,7 +109,7 @@ public final class CudaEnvLoader {
     }
 
     /**
-     * 懒加载单例：double-check，仅首次读取 .env。
+    * 懒加载单例：double-check，仅首次读取 .env。
      */
     private static Map<String, String> load() {
         Map<String, String> cached = CACHE;

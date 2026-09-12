@@ -17,70 +17,70 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * SIP 多路复用数据面共享连接（客户端侧）。
- *
- * <p>单条 TCP 连接承载同角色的全部隧道数据：帧格式
- * {@code [4B 长度][16B channelId UUID][payload]}，payload 为空表示通道关闭标记。
- * 握手行 {@code MUXCONN|首个channelId|role|signature} 与 CONNECT 验签规则一致。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* SIP 多路复用数据面共享连接（客户端侧）。
+*
+* <p>单条 TCP 连接承载同角色的全部隧道数据：帧格式
+* {@code [4B 长度][16B channelId UUID][payload]}，payload 为空表示通道关闭标记。
+* 握手行 {@code MUXCONN|首个channelId|role|signature} 与 CONNECT 验签规则一致。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 class SipMuxConnection {
 
     /**
-     * UUID 字节长度
+    * UUID 字节长度
      */
     private static final int CH_LEN = 16;
 
     /**
-     * 单帧 payload 上限
+    * 单帧 payload 上限
      */
     private static final int MAX_PAYLOAD = 64 * 1024;
 
     /**
-     * 所属客户端
+    * 所属客户端
      */
     private final SipClient client;
 
     /**
-     * 角色（visitor / provider）
+    * 角色（visitor / provider）
      */
     private final String role;
 
     /**
-     * 底层 Socket
+    * 底层 Socket
      */
     private final Socket socket;
 
     /**
-     * 输出流（加密开启时为加密流）
+    * 输出流（加密开启时为加密流）
      */
     private final OutputStream out;
 
     /**
-     * 输入流（加密开启时为解密流）
+    * 输入流（加密开启时为解密流）
      */
     private final InputStream in;
 
     /**
-     * 已挂载的虚拟流（channelId → stream）
+    * 已挂载的虚拟流（channelId → stream）
      */
     private final Map<String, SipMuxStream> streams = new ConcurrentHashMap<>();
 
     /**
-     * 早期帧缓冲（stream 尚未 attach 时到达的帧，attach 后补发）
+    * 早期帧缓冲（stream 尚未 attach 时到达的帧，attach 后补发）
      */
     private final Map<String, List<byte[]>> earlyFrames = new ConcurrentHashMap<>();
 
     /**
-     * attach 前已关闭的通道
+    * attach 前已关闭的通道
      */
     private final java.util.Set<String> earlyClosed = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
     /**
-     * 是否已关闭
+    * 是否已关闭
      */
     private volatile boolean closed;
 
@@ -93,18 +93,18 @@ class SipMuxConnection {
     }
 
     /**
-     * 建立多路复用连接（握手 MUXCONN|首个channelId|role|sig）。
-     *
-     * @param client         所属客户端
-     * @param host           服务器地址
-     * @param port           服务器端口
-     * @param role           角色
-     * @param sharedToken    共享令牌（流加密密钥派生）
-     * @param sessionToken   会话令牌（握手签名）
-     * @param firstChannelId 首个通道标识
-     * @param encrypt        是否流加密
-     * @return 多路复用连接
-     * @throws IOException IO 异常
+    * 建立多路复用连接（握手 MUXCONN|首个channelId|role|sig）。
+    *
+    * @param client         所属客户端
+    * @param host           服务器地址
+    * @param port           服务器端口
+    * @param role           角色
+    * @param sharedToken    共享令牌（流加密密钥派生）
+    * @param sessionToken   会话令牌（握手签名）
+    * @param firstChannelId 首个通道标识
+    * @param encrypt        是否流加密
+    * @return 多路复用连接
+    * @throws IOException IO 异常
      */
     static SipMuxConnection open(SipClient client, String host, int port, String role,
                                  String sharedToken, String sessionToken, String firstChannelId,
@@ -131,9 +131,9 @@ class SipMuxConnection {
     }
 
     /**
-     * 挂载虚拟流（并补发早期帧）。
-     *
-     * @param stream 虚拟流
+    * 挂载虚拟流（并补发早期帧）。
+    *
+    * @param stream 虚拟流
      */
     void attach(SipMuxStream stream) {
         streams.put(stream.channelId(), stream);
@@ -150,11 +150,11 @@ class SipMuxConnection {
     }
 
     /**
-     * 发送一帧（payload 空表示通道关闭）。
-     *
-     * @param channelId 通道标识
-     * @param payload   负载（可为空数组）
-     * @throws IOException IO 异常
+    * 发送一帧（payload 空表示通道关闭）。
+    *
+    * @param channelId 通道标识
+    * @param payload   负载（可为空数组）
+    * @throws IOException IO 异常
      */
     void sendFrame(String channelId, byte[] payload) throws IOException {
         log.info("SIP mux send: role={}, ch={}, payload={}", role, channelId, payload.length);
@@ -170,9 +170,9 @@ class SipMuxConnection {
     }
 
     /**
-     * 关闭指定通道（发送关闭标记并摘除虚拟流）。
-     *
-     * @param channelId 通道标识
+    * 关闭指定通道（发送关闭标记并摘除虚拟流）。
+    *
+    * @param channelId 通道标识
      */
     void closeChannel(String channelId) {
         SipMuxStream stream = streams.remove(channelId);
@@ -188,7 +188,7 @@ class SipMuxConnection {
     }
 
     /**
-     * 关闭整个复用连接。
+    * 关闭整个复用连接。
      */
     void close() {
         if (closed) {
@@ -206,16 +206,16 @@ class SipMuxConnection {
     }
 
     /**
-     * 是否已关闭。
-     *
-     * @return true 表示已关闭
+    * 是否已关闭。
+    *
+    * @return true 表示已关闭
      */
     boolean isClosed() {
         return closed;
     }
 
     /**
-     * 读循环：解帧并按 channelId 分发。
+    * 读循环：解帧并按 channelId 分发。
      */
     private void readLoop() {
         try {
@@ -263,11 +263,11 @@ class SipMuxConnection {
     }
 
     /**
-     * 阻塞读满指定长度。
-     *
-     * @param n 期望长度
-     * @return 数据
-     * @throws IOException 流结束
+    * 阻塞读满指定长度。
+    *
+    * @param n 期望长度
+    * @return 数据
+    * @throws IOException 流结束
      */
     private byte[] readFully(int n) throws IOException {
         byte[] data = new byte[n];
@@ -283,10 +283,10 @@ class SipMuxConnection {
     }
 
     /**
-     * UUID 字符串转 16 字节（去连字符后按十六进制）。
-     *
-     * @param uuid UUID 字符串
-     * @return 16 字节
+    * UUID 字符串转 16 字节（去连字符后按十六进制）。
+    *
+    * @param uuid UUID 字符串
+    * @return 16 字节
      */
     private static byte[] uuidBytes(String uuid) {
         String hex = uuid.replace("-", "");
@@ -298,10 +298,10 @@ class SipMuxConnection {
     }
 
     /**
-     * 16 字节转 UUID 字符串（标准连字符格式）。
-     *
-     * @param data 16 字节
-     * @return UUID 字符串
+    * 16 字节转 UUID 字符串（标准连字符格式）。
+    *
+    * @param data 16 字节
+    * @return UUID 字符串
      */
     private static String uuidString(byte[] data) {
         StringBuilder hex = new StringBuilder();

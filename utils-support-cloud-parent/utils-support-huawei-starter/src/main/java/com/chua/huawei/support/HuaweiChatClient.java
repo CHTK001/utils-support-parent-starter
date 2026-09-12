@@ -24,107 +24,107 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * 华为盘古大模型对话客户端
- *
- * <p>基于华为云盘古大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
-   * 调用华为云 模型arts 盘古大模型的对话接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 华为盘古大模型对话客户端
+*
+* <p>基于华为云盘古大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
+* 调用华为云 模型arts 盘古大模型的对话接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"huawei", "pangu"})
 public class HuaweiChatClient implements ChatClient {
 
     /**
-     * 盘古大模型默认 API 地址
+    * 盘古大模型默认 API 地址
      */
     private static final String DEFAULT_URL = "https://pangu.cn-north-4.myhuaweicloud.com/v1";
 
     /**
-      * 获取 令牌 的 身份与访问管理 地址
+    * 获取 令牌 的 身份与访问管理 地址
      */
     private static final String IAM_URL = "https://iam.cn-north-4.myhuaweicloud.com/v3/auth/tokens";
 
     /**
-     * HTTP 客户端
+    * HTTP 客户端
      */
     private final HttpClient httpClient;
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final ChatClientSetting setting;
 
     /**
-     * 当前使用的模型名称
+    * 当前使用的模型名称
      */
     private String model;
 
     /**
-     * 当前温度参数
+    * 当前温度参数
      */
     private Double temperature;
 
     /**
-      * 当前最大 令牌 数
+    * 当前最大 令牌 数
      */
     private Integer maxTokens;
 
     /**
-     * 当前系统提示词
+    * 当前系统提示词
      */
     private String system;
 
     /**
-      * 当前会话 标识
+    * 当前会话 标识
      */
     private String sessionId;
 
     /**
-     * 对话历史消息列表
+    * 对话历史消息列表
      */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
-     * 外部传入的完整历史记录
+    * 外部传入的完整历史记录
      */
     private List<ChatMessage> externalHistory;
 
     /**
-     * 图片附件 URL 列表
+    * 图片附件 URL 列表
      */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
-     * 是否启用深度思考
+    * 是否启用深度思考
      */
     private boolean thinking;
 
     /**
-     * 深度思考力度
+    * 深度思考力度
      */
     private String thinkingEffort;
 
     /**
-     * 是否启用智能搜索
+    * 是否启用智能搜索
      */
     private boolean smartSearch;
 
     /**
-     * 技能管理器
+    * 技能管理器
      */
     private SkillManager skillManager;
 
     /**
-      * 缓存的 身份与访问管理 令牌
+    * 缓存的 身份与访问管理 令牌
      */
     private String iamToken;
 
     /**
-     * 构造华为盘古大模型对话客户端
-     *
-     * @param setting 客户端配置
+    * 构造华为盘古大模型对话客户端
+    *
+    * @param setting 客户端配置
      */
     public HuaweiChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -274,11 +274,11 @@ public class HuaweiChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt 提示符
-     * @param consumer consumer
-     * @param onComplete on完成
-     * @param onError on错误
+    * 对话
+    * @param prompt 提示符
+    * @param consumer consumer
+    * @param onComplete on完成
+    * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -377,12 +377,12 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-      * 获取华为云 身份与访问管理 令牌
-     *
-     * <p>使用 AK/SK 或用户名密码从华为云 IAM 服务获取认证 Token。
-     *
-     * @return IAM 令牌 字符串
-     * @throws Exception 请求失败时抛出异常
+    * 获取华为云 身份与访问管理 令牌
+    *
+    * <p>使用 AK/SK 或用户名密码从华为云 IAM 服务获取认证 Token。
+    *
+    * @return IAM 令牌 字符串
+    * @throws Exception 请求失败时抛出异常
      */
     private String getIamToken() throws Exception {
         if (iamToken != null) {
@@ -404,11 +404,11 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-     * 规范化 API 基础地址
-     *
-     * <p>若未配置地址则使用默认的盘古大模型 API 地址。
-     *
-     * @return 规范化后的 URL
+    * 规范化 API 基础地址
+    *
+    * <p>若未配置地址则使用默认的盘古大模型 API 地址。
+    *
+    * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
@@ -422,10 +422,10 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+    * 转义 JSON 字符串中的特殊字符
+    *
+    * @param input 原始字符串
+    * @return 转义后的字符串
      */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
@@ -436,10 +436,10 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-     * 转为int
-     *
-     * @param val val
-     * @return 转为int的结果
+    * 转为int
+    *
+    * @param val val
+    * @return 转为int的结果
      */
     private static Integer toInt(Object val) {
         if (val instanceof Number n) { return n.intValue(); }
@@ -447,10 +447,10 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-     * 代理selector
-     *
-     * @param proxyStr 代理str
-     * @return 代理selector的结果
+    * 代理selector
+    *
+    * @param proxyStr 代理str
+    * @return 代理selector的结果
      */
     private static ProxySelector proxySelector(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {

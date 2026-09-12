@@ -15,57 +15,57 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
- * 蓝奏云专用 HTTP 客户端。
- *
- * <p>未复用项目统一的 {@code HttpClientFactory}，原因是蓝奏云协议对以下细节高度敏感，
- * 需要逐项精确控制：</p>
- * <ul>
- *   <li>响应强制 gzip/deflate 压缩，需自行解码；</li>
- *   <li>需要维护会话级 Cookie（登录态 Cookie + WAF 下发的 acw_sc__v2）；</li>
- *   <li>下载直链需要禁止自动重定向以取出 Location，或以流式方式透传大文件；</li>
- *   <li>WAF 挑战页需要求解后原样重放请求。</li>
- * </ul>
- *
- * <p>本类线程安全：Cookie 存放于 {@link ConcurrentHashMap}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 蓝奏云专用 HTTP 客户端。
+*
+* <p>未复用项目统一的 {@code HttpClientFactory}，原因是蓝奏云协议对以下细节高度敏感，
+* 需要逐项精确控制：</p>
+* <ul>
+*   <li>响应强制 gzip/deflate 压缩，需自行解码；</li>
+*   <li>需要维护会话级 Cookie（登录态 Cookie + WAF 下发的 acw_sc__v2）；</li>
+*   <li>下载直链需要禁止自动重定向以取出 Location，或以流式方式透传大文件；</li>
+*   <li>WAF 挑战页需要求解后原样重放请求。</li>
+* </ul>
+*
+* <p>本类线程安全：Cookie 存放于 {@link ConcurrentHashMap}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 class LanzouHttp {
 
     /**
-      * 浏览器 用户-智能体，蓝奏云会对非浏览器 UA 返回异常页面。
+    * 浏览器 用户-智能体，蓝奏云会对非浏览器 UA 返回异常页面。
      */
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                     + "Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0";
 
     /**
-     * WAF 挑战最大重试次数。
+    * WAF 挑战最大重试次数。
      */
     private static final int MAX_CHALLENGE_RETRY = 2;
 
     /**
-     * 连接超时（毫秒）。
+    * 连接超时（毫秒）。
      */
     private final int connectTimeout;
 
     /**
-     * 读取超时（毫秒）。
+    * 读取超时（毫秒）。
      */
     private final int readTimeout;
 
     /**
-      * 会话 Cookie 容器，键 为 Cookie 名。
+    * 会话 Cookie 容器，键 为 Cookie 名。
      */
     private final Map<String, String> cookies = new ConcurrentHashMap<>();
 
     /**
-     * 构造 HTTP 客户端。
-     *
-     * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
-     * @param connectTimeout 连接超时（毫秒）
-     * @param readTimeout    读取超时（毫秒）
+    * 构造 HTTP 客户端。
+    *
+    * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
+    * @param connectTimeout 连接超时（毫秒）
+    * @param readTimeout    读取超时（毫秒）
      */
     LanzouHttp(String rawCookie, int connectTimeout, int readTimeout) {
         this.connectTimeout = connectTimeout;
@@ -77,9 +77,9 @@ class LanzouHttp {
     }
 
     /**
-     * 合并 Cookie 串到会话中。
-     *
-     * @param rawCookie Cookie 串，形如 {@code a=1; b=2}
+    * 合并 Cookie 串到会话中。
+    *
+    * @param rawCookie Cookie 串，形如 {@code a=1; b=2}
      */
     final void mergeCookie(String rawCookie) {
         if (rawCookie == null || rawCookie.isEmpty()) {
@@ -95,19 +95,19 @@ class LanzouHttp {
     }
 
     /**
-     * 读取指定 Cookie 值。
-     *
-     * @param name Cookie 名
-     * @return Cookie 值，不存在返回 空
+    * 读取指定 Cookie 值。
+    *
+    * @param name Cookie 名
+    * @return Cookie 值，不存在返回 空
      */
     String getCookie(String name) {
         return cookies.get(name);
     }
 
     /**
-     * 拼接当前会话的 Cookie 请求头。
-     *
-     * @return Cookie 头值
+    * 拼接当前会话的 Cookie 请求头。
+    *
+    * @return Cookie 头值
      */
     private String cookieHeader() {
         StringBuilder builder = new StringBuilder();
@@ -121,11 +121,11 @@ class LanzouHttp {
     }
 
     /**
-      * 发送 获取 请求并返回文本响应，自动处理 WAF 挑战。
-     *
-     * @param url     请求地址
-     * @param referer Referer 头，可为 空
-     * @return 响应正文
+    * 发送 获取 请求并返回文本响应，自动处理 WAF 挑战。
+    *
+    * @param url     请求地址
+    * @param referer Referer 头，可为 空
+    * @return 响应正文
      */
     String get(String url, String referer) {
         for (int attempt = 0; attempt <= MAX_CHALLENGE_RETRY; attempt++) {
@@ -143,12 +143,12 @@ class LanzouHttp {
     }
 
     /**
-     * 发送表单 POST 请求并返回文本响应，自动处理 WAF 挑战。
-     *
-     * @param url     请求地址
-     * @param params  表单参数，将以 {@code application/x-www-form-urlencoded} 编码
-     * @param referer Referer 头，可为 空
-     * @return 响应正文
+    * 发送表单 POST 请求并返回文本响应，自动处理 WAF 挑战。
+    *
+    * @param url     请求地址
+    * @param params  表单参数，将以 {@code application/x-www-form-urlencoded} 编码
+    * @param referer Referer 头，可为 空
+    * @return 响应正文
      */
     String post(String url, Map<String, String> params, String referer) {
         byte[] payload = encodeForm(params).getBytes(StandardCharsets.UTF_8);
@@ -167,15 +167,15 @@ class LanzouHttp {
     }
 
     /**
-      * 以 multipart/form-数据 上传文件。
-     *
-     * @param url      上传地址
-     * @param referer  Referer 头
-     * @param fields   普通表单字段
-     * @param fileKey  文件字段名
-     * @param fileName 文件名
-     * @param content  文件内容
-     * @return 响应正文
+    * 以 multipart/form-数据 上传文件。
+    *
+    * @param url      上传地址
+    * @param referer  Referer 头
+    * @param fields   普通表单字段
+    * @param fileKey  文件字段名
+    * @param fileName 文件名
+    * @param content  文件内容
+    * @return 响应正文
      */
     String upload(String url, String referer, Map<String, String> fields,
                   String fileKey, String fileName, byte[] content) {
@@ -201,13 +201,13 @@ class LanzouHttp {
     }
 
     /**
-     * 打开下载直链的输入流，跟随重定向。
-     *
-     * <p>调用方负责关闭返回的流。</p>
-     *
-     * @param url     直链地址
-     * @param referer Referer 头
-     * @return 文件内容输入流
+    * 打开下载直链的输入流，跟随重定向。
+    *
+    * <p>调用方负责关闭返回的流。</p>
+    *
+    * @param url     直链地址
+    * @param referer Referer 头
+    * @return 文件内容输入流
      */
     InputStream openStream(String url, String referer) {
         String current = url;
@@ -242,13 +242,13 @@ class LanzouHttp {
     }
 
     /**
-     * 执行请求并读取文本响应。
-     *
-     * @param url     请求地址
-     * @param method  请求方法
-     * @param payload 请求体，获取 时为 空
-     * @param referer Referer 头
-     * @return 响应正文
+    * 执行请求并读取文本响应。
+    *
+    * @param url     请求地址
+    * @param method  请求方法
+    * @param payload 请求体，获取 时为 空
+    * @param referer Referer 头
+    * @return 响应正文
      */
     private String doText(String url, String method, byte[] payload, String referer) {
         HttpURLConnection connection = null;
@@ -272,13 +272,13 @@ class LanzouHttp {
     }
 
     /**
-     * 创建并初始化连接，写入公共请求头。
-     *
-     * @param url     请求地址
-     * @param method  请求方法
-     * @param referer Referer 头
-     * @return 已配置的连接
-     * @throws IOException 网络异常
+    * 创建并初始化连接，写入公共请求头。
+    *
+    * @param url     请求地址
+    * @param method  请求方法
+    * @param referer Referer 头
+    * @return 已配置的连接
+    * @throws IOException 网络异常
      */
     private HttpURLConnection open(String url, String method, String referer) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -301,11 +301,11 @@ class LanzouHttp {
     }
 
     /**
-     * 读取响应正文，处理压缩编码并回收下发的 Cookie。
-     *
-     * @param connection 连接
-     * @return 响应正文
-     * @throws IOException 网络异常
+    * 读取响应正文，处理压缩编码并回收下发的 Cookie。
+    *
+    * @param connection 连接
+    * @return 响应正文
+    * @throws IOException 网络异常
      */
     private String readText(HttpURLConnection connection) throws IOException {
         collectCookies(connection);
@@ -326,12 +326,12 @@ class LanzouHttp {
     }
 
     /**
-      * 根据 内容-编码 包装解压流。
-     *
-     * @param input    原始流
-     * @param encoding 内容编码
-     * @return 解压后的流
-     * @throws IOException 解压异常
+    * 根据 内容-编码 包装解压流。
+    *
+    * @param input    原始流
+    * @param encoding 内容编码
+    * @return 解压后的流
+    * @throws IOException 解压异常
      */
     private InputStream decode(InputStream input, String encoding) throws IOException {
         if (encoding == null) {
@@ -347,9 +347,9 @@ class LanzouHttp {
     }
 
     /**
-      * 收集响应中的 设置-Cookie 并合并到会话。
-     *
-     * @param connection 连接
+    * 收集响应中的 设置-Cookie 并合并到会话。
+    *
+    * @param connection 连接
      */
     private void collectCookies(HttpURLConnection connection) {
         for (int index = 0; ; index++) {
@@ -366,10 +366,10 @@ class LanzouHttp {
     }
 
     /**
-     * 将参数编码为 URL 表单串。
-     *
-     * @param params 参数
-     * @return 编码结果
+    * 将参数编码为 URL 表单串。
+    *
+    * @param params 参数
+    * @return 编码结果
      */
     private String encodeForm(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
@@ -389,14 +389,14 @@ class LanzouHttp {
     }
 
     /**
-      * 构造 multipart/form-数据 请求体。
-     *
-     * @param boundary 分隔串
-     * @param fields   普通字段
-     * @param fileKey  文件字段名
-     * @param fileName 文件名
-     * @param content  文件内容
-     * @return 请求体字节
+    * 构造 multipart/form-数据 请求体。
+    *
+    * @param boundary 分隔串
+    * @param fields   普通字段
+    * @param fileKey  文件字段名
+    * @param fileName 文件名
+    * @param content  文件内容
+    * @return 请求体字节
      */
     private byte[] buildMultipart(String boundary, Map<String, String> fields,
                                   String fileKey, String fileName, byte[] content) {

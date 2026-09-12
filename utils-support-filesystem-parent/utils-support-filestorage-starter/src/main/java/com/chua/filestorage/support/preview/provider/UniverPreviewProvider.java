@@ -8,17 +8,17 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
-   * Univer 办公室 预览提供器，支持 Excel / Word / powerpoint 及其模板格式的在线预览。
- * <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Univer 办公室 预览提供器，支持 Excel / Word / powerpoint 及其模板格式的在线预览。
+* <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-univer")
 public class UniverPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-      * 支持的 办公室 扩展名（小写）
+    * 支持的 办公室 扩展名（小写）
      */
     private static final Set<String> SUPPORTED_EXTS = Set.of(
             // Excel
@@ -30,23 +30,23 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     );
 
     /**
-      * 表格类扩展名（需要 luckyexcel 解析）
+    * 表格类扩展名（需要 luckyexcel 解析）
      */
     private static final Set<String> SHEET_EXTS = Set.of(
             "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml"
     );
 
     /**
-     * 文档类扩展名
+    * 文档类扩展名
      */
     private static final Set<String> DOC_EXTS = Set.of(
             "docx", "doc", "dotx", "dotm"
     );
 
     /**
-     * @param ext  文件扩展名
-     * @param mime MIME 类型（当前忽略）
-     * @return true 表示支持预览
+    * @param ext  文件扩展名
+    * @param mime MIME 类型（当前忽略）
+    * @return true 表示支持预览
      */
     @Override
     public boolean supports(String ext, String mime) {
@@ -55,10 +55,10 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
     /**
-     * Preview
-     * @param content 内容
-     * @param ext ext
-     * @param mime mime
+    * Preview
+    * @param content 内容
+    * @param ext ext
+    * @param mime mime
      */
     public PreviewResult preview(byte[] content, String ext, String mime) {
         String b64 = Base64.getEncoder().encodeToString(content);
@@ -91,12 +91,12 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-      * 构建script
-     * @param b64 b64
-     * @param ext ext
-     * @param isSheet 是否sheet
-     * @param isDoc 是否doc
-     * @return 构建script的结果
+    * 构建script
+    * @param b64 b64
+    * @param ext ext
+    * @param isSheet 是否sheet
+    * @param isDoc 是否doc
+    * @return 构建script的结果
      */
     private String buildScript(String b64, String ext, boolean isSheet, boolean isDoc) {
         String s = "(function(){";

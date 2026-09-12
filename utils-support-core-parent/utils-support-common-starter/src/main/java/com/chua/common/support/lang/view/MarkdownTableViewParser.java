@@ -6,23 +6,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Markdown 表格视图解析器，将数据渲染为 Markdown 表格格式。
- *
- * <p>方便复制到文档、Issue、PR 等场景。支持三类数据：</p>
- * <ul>
- *   <li>{@link Map}：渲染为两列表格（Key / Value）</li>
- *   <li>{@link Iterable} / 数组：若元素为简单类型，按行号渲染；否则反射读取字段</li>
- * </ul>
- *
- * <pre>{@code
- * | Name  | Value |
- * |-------|-------|
- * | foo   | 123   |
- * | bar   | 456   |
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Markdown 表格视图解析器，将数据渲染为 Markdown 表格格式。
+*
+* <p>方便复制到文档、Issue、PR 等场景。支持三类数据：</p>
+* <ul>
+*   <li>{@link Map}：渲染为两列表格（Key / Value）</li>
+*   <li>{@link Iterable} / 数组：若元素为简单类型，按行号渲染；否则反射读取字段</li>
+* </ul>
+*
+* <pre>{@code
+* | Name  | Value |
+* |-------|-------|
+* | foo   | 123   |
+* | bar   | 456   |
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("md")
 public class MarkdownTableViewParser implements ViewParser {

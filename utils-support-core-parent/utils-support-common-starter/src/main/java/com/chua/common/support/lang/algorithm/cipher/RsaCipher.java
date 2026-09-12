@@ -5,48 +5,48 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.security.KeyPair;
 
 /**
- * RSA 非对称加解密 SPI 接口
- *
- * <p>基于 SPI 机制加载实现，支持 RSA 算法的密钥生成、加密、解密、签名和验签操作。
- * RSA 是目前应用最广泛的非对称加密算法，适用于数据加密、数字签名和密钥交换。
- *
- * <h2>功能特性</h2>
- * <ul>
- * <li>密钥对生成 — 支持 1024/2048/4096 位密钥长度，默认 2048 位</li>
- * <li>数据加密 — 使用公钥加密数据</li>
- * <li>数据解密 — 使用私钥解密数据</li>
- * <li>数字签名 — 使用私钥对数据进行签名</li>
- * <li>签名验证 — 使用公钥验证签名的有效性</li>
- * </ul>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 1. 创建 RSA 加解密实例（指定密钥长度，默认 2048）
- * RsaCipher rsa = RsaCipher.create("bc");
- *
- * // 2. 生成密钥对
- * KeyPair keyPair = rsa.generateKeyPair();
- * byte[] publicKey = keyPair.getPublic().getEncoded();
- * byte[] privateKey = keyPair.getPrivate().getEncoded();
- *
- * // 3. 加密
- * byte[] ciphertext = rsa.encrypt(publicKey, plaintext);
- *
- * // 4. 解密
- * byte[] decrypted = rsa.decrypt(privateKey, ciphertext);
- *
- * // 5. 签名
- * byte[] signature = rsa.sign(privateKey, data);
- *
- * // 6. 验签
- * boolean isValid = rsa.verify(publicKey, data, signature);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
- * @see Sm2Cipher
- * @see Cipher
- * @see com.chua.common.support.spi.ServiceProvider
+* RSA 非对称加解密 SPI 接口
+*
+* <p>基于 SPI 机制加载实现，支持 RSA 算法的密钥生成、加密、解密、签名和验签操作。
+* RSA 是目前应用最广泛的非对称加密算法，适用于数据加密、数字签名和密钥交换。
+*
+* <h2>功能特性</h2>
+* <ul>
+* <li>密钥对生成 — 支持 1024/2048/4096 位密钥长度，默认 2048 位</li>
+* <li>数据加密 — 使用公钥加密数据</li>
+* <li>数据解密 — 使用私钥解密数据</li>
+* <li>数字签名 — 使用私钥对数据进行签名</li>
+* <li>签名验证 — 使用公钥验证签名的有效性</li>
+* </ul>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 1. 创建 RSA 加解密实例（指定密钥长度，默认 2048）
+* RsaCipher rsa = RsaCipher.create("bc");
+*
+* // 2. 生成密钥对
+* KeyPair keyPair = rsa.generateKeyPair();
+* byte[] publicKey = keyPair.getPublic().getEncoded();
+* byte[] privateKey = keyPair.getPrivate().getEncoded();
+*
+* // 3. 加密
+* byte[] ciphertext = rsa.encrypt(publicKey, plaintext);
+*
+* // 4. 解密
+* byte[] decrypted = rsa.decrypt(privateKey, ciphertext);
+*
+* // 5. 签名
+* byte[] signature = rsa.sign(privateKey, data);
+*
+* // 6. 验签
+* boolean isValid = rsa.verify(publicKey, data, signature);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
+* @see Sm2Cipher
+* @see Cipher
+* @see com.chua.common.support.spi.ServiceProvider
  */
 public interface RsaCipher extends Cipher {
 

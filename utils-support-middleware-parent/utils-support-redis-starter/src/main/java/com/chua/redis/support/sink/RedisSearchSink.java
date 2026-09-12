@@ -17,115 +17,115 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
-   * redis搜索 全文检索索引 Sink：基于 Redis Stack 的 FT.创建 / FT.信息 命令为每条 topic 建立全文索引。
- * <p>SPI 类型 {@code "redis-search"}。默认连接 {@code 127.0.0.1:6379}，可由 setter 覆盖。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* redis搜索 全文检索索引 Sink：基于 Redis Stack 的 FT.创建 / FT.信息 命令为每条 topic 建立全文索引。
+* <p>SPI 类型 {@code "redis-search"}。默认连接 {@code 127.0.0.1:6379}，可由 setter 覆盖。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("redis-search")
 public class RedisSearchSink implements DataSink {
 
     /**
-      * FT.创建 命令
+    * FT.创建 命令
      */
     private static final ProtocolCommand FT_CREATE = () -> SafeEncoder.encode("FT.CREATE");
 
     /**
-      * FT.信息 命令
+    * FT.信息 命令
      */
     private static final ProtocolCommand FT_INFO = () -> SafeEncoder.encode("FT.INFO");
 
     /**
-     * 索引名前缀
+    * 索引名前缀
      */
     private static final String IDX_PREFIX = "idx:ds:";
 
     /**
-     * 文档键前缀
+    * 文档键前缀
      */
     private static final String DOC_PREFIX = "ds:";
 
     /**
-     * 已建过索引的 topic 集合（线程安全）
+    * 已建过索引的 topic 集合（线程安全）
      */
     private final Map<String, Boolean> indexCreated = new ConcurrentHashMap<>();
 
     /**
-     * Redis 主机，默认 {@code 127.0.0.1}
+    * Redis 主机，默认 {@code 127.0.0.1}
      */
     private String host = "127.0.0.1";
 
     /**
-     * Redis 端口，默认 6379
+    * Redis 端口，默认 6379
      */
     private int port = 6379;
 
     /**
-      * 鉴权密码，空 表示无密码
+    * 鉴权密码，空 表示无密码
      */
     private String password;
 
     /**
-     * 数据库编号
+    * 数据库编号
      */
     private int database = 0;
 
     /**
-     * 连接超时（毫秒）
+    * 连接超时（毫秒）
      */
     private int timeout = 3000;
 
     /**
-     * Jedis 连接池
+    * Jedis 连接池
      */
     private JedisPool pool;
 
     /**
-     * 默认构造函数（SPI 框架使用）
+    * 默认构造函数（SPI 框架使用）
      */
     public RedisSearchSink() {
     }
 
     /**
-     * 设置 Redis 主机。
-     *
-     * @param host IP 或域名
+    * 设置 Redis 主机。
+    *
+    * @param host IP 或域名
      */
     public void setHost(String host) {
         this.host = host;
     }
 
     /**
-     * 设置 Redis 端口。
-     *
-     * @param port 端口号
+    * 设置 Redis 端口。
+    *
+    * @param port 端口号
      */
     public void setPort(int port) {
         this.port = port;
     }
 
     /**
-     * 设置鉴权密码。
-     *
-     * @param password 密码
+    * 设置鉴权密码。
+    *
+    * @param password 密码
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * 设置数据库编号。
-     *
-     * @param database 数据库编号（0~15）
+    * 设置数据库编号。
+    *
+    * @param database 数据库编号（0~15）
      */
     public void setDatabase(int database) {
         this.database = database;
     }
 
     /**
-     * @return SPI 类型 {@code redis-search}
+    * @return SPI 类型 {@code redis-search}
      */
     @Override
     public String type() {
@@ -133,7 +133,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * 启动连接池。
+    * 启动连接池。
      */
     @Override
     public void start() {
@@ -150,7 +150,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * 关闭连接池。
+    * 关闭连接池。
      */
     @Override
     public void stop() {
@@ -160,11 +160,11 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-      * 写入一条 envelope：自动创建 topic 对应索引（首条时），哈希 存储为 {@code ds:{topic}:{追踪id}}。
-     *
-     * @param envelope 数据信封
-     * @param config   附加配置（当前未使用）
-     * @return true 表示写入成功
+    * 写入一条 envelope：自动创建 topic 对应索引（首条时），哈希 存储为 {@code ds:{topic}:{追踪id}}。
+    *
+    * @param envelope 数据信封
+    * @param config   附加配置（当前未使用）
+    * @return true 表示写入成功
      */
     @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
@@ -196,11 +196,11 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-      * 索引自动创建逻辑：FT.信息 失败时按 样本 字段类型推断（数字→NUMERIC，其他→文本）构造 FT.创建。
-     *
-     * @param jedis      Jedis 连接
-     * @param indexName  索引名
-     * @param sample     索引结构推断使用的样本数据
+    * 索引自动创建逻辑：FT.信息 失败时按 样本 字段类型推断（数字→NUMERIC，其他→文本）构造 FT.创建。
+    *
+    * @param jedis      Jedis 连接
+    * @param indexName  索引名
+    * @param sample     索引结构推断使用的样本数据
      */
     private void tryCreateIndex(Jedis jedis, String indexName, Map<String, Object> sample) {
         try {
@@ -233,10 +233,10 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-      * 把 {@code Map<String, Object>} 转为 HSET 可写的 {@code Map<String, String>}，跳过 空 值。
-     *
-     * @param data 原始数据
-     * @return 字符串形式的新 映射
+    * 把 {@code Map<String, Object>} 转为 HSET 可写的 {@code Map<String, String>}，跳过 空 值。
+    *
+    * @param data 原始数据
+    * @return 字符串形式的新 映射
      */
     private static Map<String, String> convertToStringMap(Map<String, Object> data) {
         Map<String, String> result = new java.util.LinkedHashMap<>();
@@ -249,7 +249,7 @@ public class RedisSearchSink implements DataSink {
     }
 
     /**
-     * @return 始终返回 空（Redis 不接入 Engine）
+    * @return 始终返回 空（Redis 不接入 Engine）
      */
     @Override
     public EngineDataSource<?> getDataSource() {

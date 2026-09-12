@@ -12,10 +12,10 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
-   * sphereface 人脸特征 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* sphereface 人脸特征 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SphereFaceTranslator implements Translator<Image, float[]> {
 

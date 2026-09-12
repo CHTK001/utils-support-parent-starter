@@ -5,10 +5,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 文件存在性检查结果对象。
- *
- * @author CH
- * @since 1.0
+* 文件存在性检查结果对象。
+*
+* @author CH
+* @since 1.0
  */
 @Getter
 @Setter
@@ -19,7 +19,7 @@ public class ExistObjectResult extends ObjectResult {
     public static final ExistObjectResult EMPTY = ExistObjectResult.builder().build();
 
     /**
-     * 文件是否存在。
+    * 文件是否存在。
      */
     private boolean exists;
 }

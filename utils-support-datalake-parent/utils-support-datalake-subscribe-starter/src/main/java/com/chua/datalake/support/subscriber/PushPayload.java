@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 /**
- * 推送载荷。
- *
- * @author CH
- * @since 4.0.0.42
+* 推送载荷。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -20,17 +20,17 @@ import java.util.Map;
 public class PushPayload {
 
     /**
-      * 订阅器 标识
+    * 订阅器 标识
      */
     private String subscriberId;
 
     /**
-      * 偏移量
+    * 偏移量
      */
     private long offset;
 
     /**
-     * 业务数据
+    * 业务数据
      */
     private Map<String, Object> data;
 }

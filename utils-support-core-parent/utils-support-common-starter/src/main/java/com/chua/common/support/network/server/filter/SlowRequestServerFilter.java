@@ -9,24 +9,24 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 慢请求过滤器。
- *
- * <p>统计单请求处理耗时,超过阈值时按采样率输出告警日志,
- * 用于发现拖慢事件循环/占用连接槽的慢 handler。
- * 采样控制避免慢请求风暴时的日志洪泛。</p>
- *
- * <p>同时实现同步({@link ServerFilter})与响应式({@link ReactiveServerFilter})
- * 两种链接口:阻塞传输走同步链,NIO/AIO 响应式传输走响应式链
- * (经 whenComplete 附加后置统计,不改变链的异步语义)。</p>
- *
- * @author CH
- * @since 2026/08/24
+* 慢请求过滤器。
+*
+* <p>统计单请求处理耗时,超过阈值时按采样率输出告警日志,
+* 用于发现拖慢事件循环/占用连接槽的慢 handler。
+* 采样控制避免慢请求风暴时的日志洪泛。</p>
+*
+* <p>同时实现同步({@link ServerFilter})与响应式({@link ReactiveServerFilter})
+* 两种链接口:阻塞传输走同步链,NIO/AIO 响应式传输走响应式链
+* (经 whenComplete 附加后置统计,不改变链的异步语义)。</p>
+*
+* @author CH
+* @since 2026/08/24
  */
 @Slf4j
 public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilter {
 
     /**
-     * 默认采样间隔:每 N 条慢请求记录一条日志
+    * 默认采样间隔:每 N 条慢请求记录一条日志
      */
     private static final int DEFAULT_SAMPLE_EVERY = 10;
 
@@ -40,9 +40,9 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     private final AtomicLong slowCount = new AtomicLong();
 
     /**
-     * 创建慢请求过滤器(默认采样间隔 10)。
-     *
-     * @param thresholdMillis 慢请求判定阈值(毫秒)
+    * 创建慢请求过滤器(默认采样间隔 10)。
+    *
+    * @param thresholdMillis 慢请求判定阈值(毫秒)
      */
     public SlowRequestServerFilter(long thresholdMillis) {
         this.thresholdMillis = thresholdMillis;
@@ -50,10 +50,10 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-     * 创建慢请求过滤器。
-     *
-     * @param thresholdMillis 慢请求判定阈值(毫秒)
-     * @param sampleEvery     采样间隔:每 N 条慢请求记录一条日志
+    * 创建慢请求过滤器。
+    *
+    * @param thresholdMillis 慢请求判定阈值(毫秒)
+    * @param sampleEvery     采样间隔:每 N 条慢请求记录一条日志
      */
     public SlowRequestServerFilter(long thresholdMillis, int sampleEvery) {
         this.thresholdMillis = thresholdMillis;
@@ -80,11 +80,11 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
 
     @Override
     /**
-     * Do过滤
-     *
-     * @param request request
-     * @param response response
-     * @param chain chain
+    * Do过滤
+    *
+    * @param request request
+    * @param response response
+    * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
@@ -98,11 +98,11 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
 
     @Override
     /**
-     * 响应式Do过滤
-     *
-     * @param request request
-     * @param response response
-     * @param chain chain
+    * 响应式Do过滤
+    *
+    * @param request request
+    * @param response response
+    * @param chain chain
      */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
@@ -113,10 +113,10 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-     * 记录单请求耗时,超阈值按采样率告警。
-     *
-     * @param request 请求对象
-     * @param startNanos 开始时间(nanoTime)
+    * 记录单请求耗时,超阈值按采样率告警。
+    *
+    * @param request 请求对象
+    * @param startNanos 开始时间(nanoTime)
      */
     private void recordLatency(ServerRequest request, long startNanos) {
         long costMillis = (System.nanoTime() - startNanos) / 1_000_000L;
@@ -133,9 +133,9 @@ public class SlowRequestServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     /**
-     * 获取慢请求累计数量(监控接入用)。
-     *
-     * @return 慢请求总数
+    * 获取慢请求累计数量(监控接入用)。
+    *
+    * @return 慢请求总数
      */
     public long getSlowCount() {
         return slowCount.get();

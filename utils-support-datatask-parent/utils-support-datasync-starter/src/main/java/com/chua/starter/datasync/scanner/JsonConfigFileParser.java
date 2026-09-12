@@ -13,10 +13,10 @@ import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * JSON 配置文件解析器。
- *
- * @author CH
- * @since 4.0.0.42
+* JSON 配置文件解析器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class JsonConfigFileParser implements ConfigFileParser {
 

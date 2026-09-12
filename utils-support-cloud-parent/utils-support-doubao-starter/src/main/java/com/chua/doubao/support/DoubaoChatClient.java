@@ -24,12 +24,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * 豆包/火山引擎大模型对话客户端
- *
- * <p>基于 Ark SDK 的 {@link ChatClient} 实现，调用豆包系列模型的对话接口。
- *
- * @author CH
- * @since 4.0.0.42
+* 豆包/火山引擎大模型对话客户端
+*
+* <p>基于 Ark SDK 的 {@link ChatClient} 实现，调用豆包系列模型的对话接口。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"doubao", "volcengine"})
@@ -66,8 +66,8 @@ public class DoubaoChatClient implements ChatClient {
     private SkillManager skillManager;
 
     /**
-      * 创建 doubao对话客户端 实例
-     * @param setting setting
+    * 创建 doubao对话客户端 实例
+    * @param setting setting
      */
     public DoubaoChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -205,11 +205,11 @@ public class DoubaoChatClient implements ChatClient {
 
     @Override
     /**
-     * 对话
-     * @param prompt 提示符
-     * @param consumer consumer
-     * @param onComplete on完成
-     * @param onError on错误
+    * 对话
+    * @param prompt 提示符
+    * @param consumer consumer
+    * @param onComplete on完成
+    * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -323,10 +323,10 @@ public class DoubaoChatClient implements ChatClient {
     }
 
     /**
-     * 转为代理
-     *
-     * @param proxyStr 代理str
-     * @return 转为代理的结果
+    * 转为代理
+    *
+    * @param proxyStr 代理str
+    * @return 转为代理的结果
      */
     private static java.net.Proxy toProxy(String proxyStr) {
         try {

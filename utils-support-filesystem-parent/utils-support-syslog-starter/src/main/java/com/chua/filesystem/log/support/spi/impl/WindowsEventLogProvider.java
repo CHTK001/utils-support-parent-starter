@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
-   * 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
- *
- * @author CH
- * @since 4.0.0.42
+* 窗口 系统日志提供者 - 通过 Java 25 FFM 直调 advapi32 事件 日志 API
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("windows")
 @SpiDescribe(value = "windows-event-log", desc = "Windows 系统事件日志提供者", type = "log")
@@ -68,8 +68,8 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     private volatile MethodHandle getLastErrorHandle;
 
     /**
-      * 创建 窗口事件日志提供者 实例
-     * @param bridge bridge
+    * 创建 窗口事件日志提供者 实例
+    * @param bridge bridge
      */
     public WindowsEventLogProvider(SystemLogBridge bridge) {
         if (bridge != null) {
@@ -197,37 +197,37 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-      * 解析事件日志records
-     * @param buffer 缓冲
-     * @param bytesRead bytes读取
-     * @param source 源
-     * @param regex regex
-     * @param minLevel 最小级别
-     * @param remaining remaining
-     * @param results 结果
-     * @param remaining remaining
-     * @param offset 偏移量
-     * @param bytesRead bytes读取
-     * @param offset 偏移量
-     * @param stringOffset 字符串偏移量
-     * @param message 消息
-     * @param level 级别
-     * @param source 源
-     * @param message 消息
-     * @param null 空
-     * @param buffer 缓冲
-     * @param recordOffset record偏移量
-     * @param stringOffset 字符串偏移量
-     * @param i i
-     * @param eventType 事件类型
-     * @param glob glob
-     * @param e e
-     * @param glob glob
-     * @param handleObj 处理obj
-     * @param seg seg
-     * @param num num
-     * @param e e
-     * @param e e
+    * 解析事件日志records
+    * @param buffer 缓冲
+    * @param bytesRead bytes读取
+    * @param source 源
+    * @param regex regex
+    * @param minLevel 最小级别
+    * @param remaining remaining
+    * @param results 结果
+    * @param remaining remaining
+    * @param offset 偏移量
+    * @param bytesRead bytes读取
+    * @param offset 偏移量
+    * @param stringOffset 字符串偏移量
+    * @param message 消息
+    * @param level 级别
+    * @param source 源
+    * @param message 消息
+    * @param null 空
+    * @param buffer 缓冲
+    * @param recordOffset record偏移量
+    * @param stringOffset 字符串偏移量
+    * @param i i
+    * @param eventType 事件类型
+    * @param glob glob
+    * @param e e
+    * @param glob glob
+    * @param handleObj 处理obj
+    * @param seg seg
+    * @param num num
+    * @param e e
+    * @param e e
      */
     public static int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
@@ -282,12 +282,12 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * extract字符串
-     *
-     * @param buffer 缓冲
-     * @param recordOffset record偏移量
-     * @param stringOffset 字符串偏移量
-     * @return extract字符串的结果
+    * extract字符串
+    *
+    * @param buffer 缓冲
+    * @param recordOffset record偏移量
+    * @param stringOffset 字符串偏移量
+    * @return extract字符串的结果
      */
     public static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
@@ -307,10 +307,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 映射事件类型转为级别
-     *
-     * @param eventType 事件类型
-     * @return 映射事件类型转为级别的结果
+    * 映射事件类型转为级别
+    *
+    * @param eventType 事件类型
+    * @return 映射事件类型转为级别的结果
      */
     public static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
@@ -322,10 +322,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * compile模式
-     *
-     * @param glob glob
-     * @return compile模式的结果
+    * compile模式
+    *
+    * @param glob glob
+    * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) {
@@ -366,10 +366,10 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * coerce转为内存segment
-     *
-     * @param handleObj 处理obj
-     * @return coerce转为内存segment的结果
+    * coerce转为内存segment
+    *
+    * @param handleObj 处理obj
+    * @return coerce转为内存segment的结果
      */
     private static MemorySegment coerceToMemorySegment(Object handleObj) {
         if (handleObj instanceof MemorySegment seg) {
@@ -382,9 +382,9 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 获取最后一个记录错误
-     *
-     * @return 获取最后一个错误的结果
+    * 获取最后一个记录错误
+    *
+    * @return 获取最后一个错误的结果
      */
     private int getLastError() {
         if (getLastErrorHandle == null) {

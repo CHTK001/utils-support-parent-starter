@@ -11,10 +11,10 @@ import java.lang.reflect.Field;
 import java.util.function.Function;
 
 /**
-   * 默认服务注入器，基于 @autoinject 注解进行依赖注入。
- *
- * @author CH
- * @since 2024/12/20
+* 默认服务注入器，基于 @autoinject 注解进行依赖注入。
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 @Spi("default")
@@ -30,12 +30,12 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
 
     @Override
     /**
-     * Inject
-     * @param field 字段
-     * @param bean Bean
-     * @param beanDefinition Beandefinition
-     * @param beanProvider Bean提供者
-     * @param typeProvider 类型提供者
+    * Inject
+    * @param field 字段
+    * @param bean Bean
+    * @param beanDefinition Beandefinition
+    * @param beanProvider Bean提供者
+    * @param typeProvider 类型提供者
      */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,

@@ -15,52 +15,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 纯 打开cv 人脸检测翻译器。
- * <p>
-   * 使用 打开cv Haar 级联分类器做人脸检测，不依赖 DJL 或 ONNX Runtime。
- * 输入为图像字节数组，输出为检测到的人脸列表（{@link PredictRectangle}）。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 纯 打开cv 人脸检测翻译器。
+* <p>
+* 使用 打开cv Haar 级联分类器做人脸检测，不依赖 DJL 或 ONNX Runtime。
+* 输入为图像字节数组，输出为检测到的人脸列表（{@link PredictRectangle}）。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class OpencvFaceDetector extends OpencvModelTranslator {
 
     /**
-     * Haar 级联分类器模型文件路径。
+    * Haar 级联分类器模型文件路径。
      */
     private final String modelPath;
 
     /**
-      * 打开cv 人脸检测级联分类器。
+    * 打开cv 人脸检测级联分类器。
      */
     private final CascadeClassifier classifier;
 
     /**
-     * 检测置信度（Haar 级联无置信度输出，固定为 1.0）。
+    * 检测置信度（Haar 级联无置信度输出，固定为 1.0）。
      */
     private static final float DEFAULT_CONFIDENCE = 1.0f;
 
     /**
-     * 图像缩放因子，用于加速检测。
+    * 图像缩放因子，用于加速检测。
      */
     private static final double SCALE_FACTOR = 1.1;
 
     /**
-     * 最小邻域数量，用于过滤误检。
+    * 最小邻域数量，用于过滤误检。
      */
     private static final int MIN_NEIGHBORS = 3;
 
     /**
-     * 最小人脸尺寸（像素）。
+    * 最小人脸尺寸（像素）。
      */
     private static final Size MIN_FACE_SIZE = new Size(30, 30);
 
     /**
-     * 构造人脸检测翻译器。
-     *
-     * @param modelPath Haar 级联分类器模型文件路径（支持文件系统路径或 类路径 路径）
+    * 构造人脸检测翻译器。
+    *
+    * @param modelPath Haar 级联分类器模型文件路径（支持文件系统路径或 类路径 路径）
      */
     public OpencvFaceDetector(String modelPath) {
         super("opencv-face-detector");
@@ -74,10 +74,10 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
     }
 
     /**
-     * 执行人脸检测推理。
-     *
-     * @param input 输入对象，必须为 byte[]（图像字节数组）
-     * @return 检测到的人脸列表
+    * 执行人脸检测推理。
+    *
+    * @param input 输入对象，必须为 byte[]（图像字节数组）
+    * @return 检测到的人脸列表
      */
     @Override
     protected Object doTranslate(Object input) {

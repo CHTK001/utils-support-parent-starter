@@ -5,31 +5,31 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.security.KeyPair;
 
 /**
- * ECIES 椭圆曲线集成加密方案 SPI 接口
- *
- * <p>基于 SPI 机制加载实现，支持 ECIES 混合加密方案（密钥封装 + 对称加密）。
- * 使用椭圆曲线生成共享密钥，通过 KDF 派生对称密钥后加密数据，
- * 加密输出包含临时公钥、IV 和密文。
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 创建 ECIES 加解密实例
- * EciesCipher cipher = EciesCipher.create("bc");
- *
- * // 生成密钥对
- * KeyPair keyPair = cipher.generateKeyPair();
- * byte[] publicKey = keyPair.getPublic().getEncoded();
- * byte[] privateKey = keyPair.getPrivate().getEncoded();
- *
- * // 加密
- * byte[] ciphertext = cipher.encrypt(publicKey, plaintext);
- *
- * // 解密
- * byte[] decrypted = cipher.decrypt(privateKey, ciphertext);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
+* ECIES 椭圆曲线集成加密方案 SPI 接口
+*
+* <p>基于 SPI 机制加载实现，支持 ECIES 混合加密方案（密钥封装 + 对称加密）。
+* 使用椭圆曲线生成共享密钥，通过 KDF 派生对称密钥后加密数据，
+* 加密输出包含临时公钥、IV 和密文。
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 创建 ECIES 加解密实例
+* EciesCipher cipher = EciesCipher.create("bc");
+*
+* // 生成密钥对
+* KeyPair keyPair = cipher.generateKeyPair();
+* byte[] publicKey = keyPair.getPublic().getEncoded();
+* byte[] privateKey = keyPair.getPrivate().getEncoded();
+*
+* // 加密
+* byte[] ciphertext = cipher.encrypt(publicKey, plaintext);
+*
+* // 解密
+* byte[] decrypted = cipher.decrypt(privateKey, ciphertext);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
  */
 public interface EciesCipher extends Cipher {
 

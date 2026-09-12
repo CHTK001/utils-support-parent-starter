@@ -12,47 +12,47 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
-   * LCM-lora VAE
- * <p>
-   * LCM-lora           VAE
- *                                     
- * </p>
- * <p>
- *                
- * -                       
- * -                                
- * -                       
- * </p>
- *
- * @author CH
-   * @版本 4.0.0.32
- * @since 2025/01/26
+* LCM-lora VAE
+* <p>
+* LCM-lora           VAE
+*                                     
+* </p>
+* <p>
+*                
+* -                       
+* -                                
+* -                       
+* </p>
+*
+* @author CH
+* @版本 4.0.0.32
+* @since 2025/01/26
  */
 @Slf4j
 public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
 
     /**
-     *                   
+    *                   
      */
     private final int width;
 
     /**
-     *                   
+    *                   
      */
     private final int height;
 
     /**
-     *              -                   
+    *              -                   
      */
     public LcmLoraVaeDecoderTranslator() {
         this(512, 512);
     }
 
     /**
-     *              -                
-     *
-     * @param width                    
-     * @param height                   
+    *              -                
+    *
+    * @param width                    
+    * @param height                   
      */
     public LcmLoraVaeDecoderTranslator(int width, int height) {
         this.width = width;
@@ -63,11 +63,11 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                     
-     * @param input        nd列表
-     * @return                         
+    *                   
+    *
+    * @param ctx                     
+    * @param input        nd列表
+    * @return                         
      */
     @Override
     public NDList processInput(TranslatorContext ctx, NDList input) {
@@ -88,11 +88,11 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     }
 
     /**
-     *                   
-     *
-     * @param ctx                    
-     * @param list              nd列表
-     * @return                   
+    *                   
+    *
+    * @param ctx                    
+    * @param list              nd列表
+    * @return                   
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
@@ -123,9 +123,9 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     }
 
     /**
-     *                   
-     *
-     * @return STACK             
+    *                   
+    *
+    * @return STACK             
      */
     @Override
     public Batchifier getBatchifier() {

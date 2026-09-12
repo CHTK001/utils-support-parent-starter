@@ -15,23 +15,23 @@ import javax.annotation.Nullable;
 
 
 /**
- * Color 类型转换器。
- * <p>将各种类型的值转换为 {@link Color}，支持以下输入格式：</p>
- * <ul>
- *   <li>数值类型 — 直接作为 RGB 整数值构造 Color</li>
- *   <li>字符串：
- *     <ul>
- *       <li>0xRRGGBB 或 0xAARRGGBB — 十六进制 RGBA 格式</li>
- *       <li>rgba(r,g,b,a) — CSS RGBA 格式</li>
- *       <li>rgb(r,g,b) — CSS RGB 格式</li>
- *       <li>#RRGGBB 或 #RGB — HTML 十六进制颜色格式</li>
- *     </ul>
- *   </li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2020/10/30
+* Color 类型转换器。
+* <p>将各种类型的值转换为 {@link Color}，支持以下输入格式：</p>
+* <ul>
+*   <li>数值类型 — 直接作为 RGB 整数值构造 Color</li>
+*   <li>字符串：
+*     <ul>
+*       <li>0xRRGGBB 或 0xAARRGGBB — 十六进制 RGBA 格式</li>
+*       <li>rgba(r,g,b,a) — CSS RGBA 格式</li>
+*       <li>rgb(r,g,b) — CSS RGB 格式</li>
+*       <li>#RRGGBB 或 #RGB — HTML 十六进制颜色格式</li>
+*     </ul>
+*   </li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2020/10/30
  */
 public class ColorTypeConverter implements TypeConverter<Color> {
 
@@ -39,10 +39,10 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     private static final String HEX_16 = "0x";
 
     /**
-     * 将给定值转换为 Color。
-     *
-     * @param value 源值
-     * @return Color 值，如果无法转换则返回 null
+    * 将给定值转换为 Color。
+    *
+    * @param value 源值
+    * @return Color 值，如果无法转换则返回 null
      */
     @Override
     public Color convert(Object value) {
@@ -78,10 +78,10 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-     * Convert hex string to Color
-     *
-     * @param hexColor hex color string, e.g. "#418063"
-     * @return Color object
+    * Convert hex string to Color
+    *
+    * @param hexColor hex color string, e.g. "#418063"
+    * @return Color object
      */
     private Color hexStringToColor(String hexColor) {
         if (hexColor.startsWith(SYMBOL_HASH)) {
@@ -108,9 +108,9 @@ public class ColorTypeConverter implements TypeConverter<Color> {
 
 
     /**
-     * Parse hex rgba color
-     * @param str color string
-     * @return color
+    * Parse hex rgba color
+    * @param str color string
+    * @return color
      */
     private Color hexRgba(String str) {
         boolean hasA = str.length() >= 8;
@@ -136,10 +136,10 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-     * Parse rgb color
-     *
-     * @param hexStr rgb string
-     * @return color
+    * Parse rgb color
+    *
+    * @param hexStr rgb string
+    * @return color
      */
     private Color rgb(String hexStr) {
         String[] parts = hexStr.split(",");
@@ -150,10 +150,10 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-     * Parse rgba color
-     *
-     * @param hexStr rgba string
-     * @return color
+    * Parse rgba color
+    *
+    * @param hexStr rgba string
+    * @return color
      */
     private Color rgba(String hexStr) {
         String[] parts = hexStr.split(",");
@@ -166,29 +166,29 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-     * Check if string is rgb format
-     *
-     * @param str rgb string
-     * @return true if rgb
+    * Check if string is rgb format
+    *
+    * @param str rgb string
+    * @return true if rgb
      */
     private boolean isRgb(String str) {
         return str.startsWith("rgb");
     }
 
     /**
-     * Check if string is rgba format
-     *
-     * @param str rgba string
-     * @return true if rgba
+    * Check if string is rgba format
+    *
+    * @param str rgba string
+    * @return true if rgba
      */
     private boolean isRgba(String str) {
         return str.startsWith("rgba");
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return Color.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return Color.class
      */
     @Override
     public Class<Color> getType() {
@@ -196,7 +196,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     }
 
     /**
-     * Color name helper
+    * Color name helper
      */
     @Data
     @AllArgsConstructor
@@ -204,16 +204,16 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         /** RGB 颜色分量 */
         public int r, g, b;
         /**
-         * 名称
+        * 名称
          */
         public String name;
 
         /**
-         * 创建 ColorName 实例
-         * @param name name
-         * @param int int
-         * @param int int
-         * @param int int
+        * 创建 ColorName 实例
+        * @param name name
+        * @param int int
+        * @param int int
+        * @param int int
          */
         public ColorName(String name, int r, int g, int b) {
             this.r = r;
@@ -223,8 +223,8 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         }
 
         /**
-         * Get Color object
-         * @return color
+        * Get Color object
+        * @return color
          */
         public Color getColor() {
             return new Color(r, g, b);

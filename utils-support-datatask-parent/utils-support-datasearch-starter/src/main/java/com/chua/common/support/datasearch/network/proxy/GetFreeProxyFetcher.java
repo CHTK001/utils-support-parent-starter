@@ -9,23 +9,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 从 getfreeproxy.com 获取免费代理。
- *
- * <p>解析页面表格中的 IP 和端口，每 10 分钟更新一次。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 从 getfreeproxy.com 获取免费代理。
+*
+* <p>解析页面表格中的 IP 和端口，每 10 分钟更新一次。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("getfreeproxy")
 public class GetFreeProxyFetcher implements ProxyFetcher {
 
     /**
-     * 免费代理列表 URL
+    * 免费代理列表 URL
      */
     private static final String URL = "https://getfreeproxy.com/";
 
     /**
-     * 匹配代理 IP 和端口（支持 HTML 表格和 JSON 格式）
+    * 匹配代理 IP 和端口（支持 HTML 表格和 JSON 格式）
      */
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})[\":\\s]*(\\d{2,5})");

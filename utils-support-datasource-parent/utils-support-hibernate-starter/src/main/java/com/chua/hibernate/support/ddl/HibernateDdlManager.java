@@ -17,93 +17,93 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Hibernate DDL 管理器，通过 JDBC 元数据读取表结构，
- * 并结合 {@link Dialect} 方言体系生成数据库感知的 DDL 语句。
- * <p>
- * 主要功能：
- * <ul>
- *   <li>通过 JDBC {@link DatabaseMetaData} 获取表定义</li>
- *   <li>自动检测数据库方言（根据 JDBC URL 匹配已注册的 Dialect SPI）</li>
- *   <li>使用方言的引用符、类型映射、DDL 语法生成跨数据库兼容的 SQL</li>
- * </ul>
- * </p>
- * <p>
- * 使用方式：
- * <pre>{@code
- * HibernateDdlManager mgr = new HibernateDdlManager();
- * mgr.setDataSource(dataSource);
- *
- * // 自动检测方言（根据 JDBC URL）
- * String ddl = mgr.createTableDDL(null, null, "user");
- *
- * // 或手动指定方言
- * mgr.setDialect(Dialect.getExtension("mysql"));
- * }</pre>ialect.getExtension("mysql"));
- * }</pre>
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
- * @see Dialect
- * @see DslManager
+* Hibernate DDL 管理器，通过 JDBC 元数据读取表结构，
+* 并结合 {@link Dialect} 方言体系生成数据库感知的 DDL 语句。
+* <p>
+* 主要功能：
+* <ul>
+*   <li>通过 JDBC {@link DatabaseMetaData} 获取表定义</li>
+*   <li>自动检测数据库方言（根据 JDBC URL 匹配已注册的 Dialect SPI）</li>
+*   <li>使用方言的引用符、类型映射、DDL 语法生成跨数据库兼容的 SQL</li>
+* </ul>
+* </p>
+* <p>
+* 使用方式：
+* <pre>{@code
+* HibernateDdlManager mgr = new HibernateDdlManager();
+* mgr.setDataSource(dataSource);
+*
+* // 自动检测方言（根据 JDBC URL）
+* String ddl = mgr.createTableDDL(null, null, "user");
+*
+* // 或手动指定方言
+* mgr.setDialect(Dialect.getExtension("mysql"));
+* }</pre>ialect.getExtension("mysql"));
+* }</pre>
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
+* @see Dialect
+* @see DslManager
  */
 @Spi("hibernate")
 @Slf4j
 public class HibernateDdlManager implements DslManager {
 
     /**
-     * 数据源，用于通过 JDBC 元数据读取表结构
+    * 数据源，用于通过 JDBC 元数据读取表结构
      */
     private DataSource dataSource;
 
     /**
-     * 数据库方言，用于生成数据库感知的 DDL；未设置时通过 JDBC URL 自动检测
+    * 数据库方言，用于生成数据库感知的 DDL；未设置时通过 JDBC URL 自动检测
      */
     private Dialect dialect;
 
     /**
-     * 设置数据源。
-     *
-     * @param dataSource JDBC 数据源
+    * 设置数据源。
+    *
+    * @param dataSource JDBC 数据源
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     /**
-     * 获取数据源。
-     *
-     * @return JDBC 数据源
+    * 获取数据源。
+    *
+    * @return JDBC 数据源
      */
     public DataSource getDataSource() {
         return dataSource;
     }
 
     /**
-     * 手动设置数据库方言。
-     * <p>如果未调用此方法，{@link #createTableDDL}、{@link #renameTable} 等方法
-     * 会自动通过 JDBC URL 检测方言。</p>
-     *
-     * @param dialect 数据库方言实例
+    * 手动设置数据库方言。
+    * <p>如果未调用此方法，{@link #createTableDDL}、{@link #renameTable} 等方法
+    * 会自动通过 JDBC URL 检测方言。</p>
+    *
+    * @param dialect 数据库方言实例
      */
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
     }
 
     /**
-     * 获取当前使用的方言。
-     *
-     * @return 方言实例（可能为 空）
+    * 获取当前使用的方言。
+    *
+    * @return 方言实例（可能为 空）
      */
     public Dialect getDialect() {
         return dialect;
     }
 
     /**
-     * 获取或自动检测方言。
-     * <p>如果已手动设置方言，直接返回；否则通过 JDBC URL 自动匹配已注册的 Dialect SPI。</p>
-     *
-     * @return 方言实例（检测失败返回 空）
+    * 获取或自动检测方言。
+    * <p>如果已手动设置方言，直接返回；否则通过 JDBC URL 自动匹配已注册的 Dialect SPI。</p>
+    *
+    * @return 方言实例（检测失败返回 空）
      */
     private Dialect resolveDialect() {
         if (dialect != null) {
@@ -140,16 +140,16 @@ public class HibernateDdlManager implements DslManager {
     }
 
     /**
-     * 从方言的 URL 模板中提取 JDBC 协议前缀。
-     * <p>例如：
-     * <ul>
-     *   <li>{@code jdbc:mysql://...} → {@code jdbc:mysql}</li>
-     *   <li>{@code jdbc:h2:...} → {@code jdbc:h2}</li>
-     * </ul>
-     * </p>
-     *
-     * @param dialectUrl 方言的 URL 模板
-     * @return 协议前缀，解析失败返回 空
+    * 从方言的 URL 模板中提取 JDBC 协议前缀。
+    * <p>例如：
+    * <ul>
+    *   <li>{@code jdbc:mysql://...} → {@code jdbc:mysql}</li>
+    *   <li>{@code jdbc:h2:...} → {@code jdbc:h2}</li>
+    * </ul>
+    * </p>
+    *
+    * @param dialectUrl 方言的 URL 模板
+    * @return 协议前缀，解析失败返回 空
      */
     private String extractJdbcProtocol(String dialectUrl) {
         if (dialectUrl == null || !dialectUrl.startsWith("jdbc:")) {
@@ -206,13 +206,13 @@ public class HibernateDdlManager implements DslManager {
     }
 
     /**
-     * 解析actual模式
-     *
-     * @param meta meta
-     * @param catalog catalog
-     * @param schema 模式
-     * @param table table
-     * @return resolveactual模式的结果
+    * 解析actual模式
+    *
+    * @param meta meta
+    * @param catalog catalog
+    * @param schema 模式
+    * @param table table
+    * @return resolveactual模式的结果
      */
     private String resolveActualSchema(DatabaseMetaData meta, String catalog, String schema, String table) throws Exception {
         if (schema != null) {
@@ -341,10 +341,10 @@ public class HibernateDdlManager implements DslManager {
     }
 
     /**
-     * 转义 SQL 字符串中的单引号。
-     *
-     * @param value 原始字符串
-     * @return 转义后的字符串（单引号替换为两个单引号）
+    * 转义 SQL 字符串中的单引号。
+    *
+    * @param value 原始字符串
+    * @return 转义后的字符串（单引号替换为两个单引号）
      */
     private String escapeSqlString(String value) {
         if (value == null) {

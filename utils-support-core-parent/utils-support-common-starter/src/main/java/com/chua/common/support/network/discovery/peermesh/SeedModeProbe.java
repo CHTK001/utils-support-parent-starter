@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * SEED 模式探针：连接种子节点列表。
- *
- * @author CH
- * @since 4.0.0.42
+* SEED 模式探针：连接种子节点列表。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SeedModeProbe implements ProbeStrategy {
@@ -41,12 +41,12 @@ public class SeedModeProbe implements ProbeStrategy {
     private volatile boolean stopped;
 
     /**
-     * 构造函数。
-     *
-     * @param config 配置
-     * @param localServerId 本地 serverId
-     * @param localHost 本地主机 IP
-     * @param localPort 本地端口
+    * 构造函数。
+    *
+    * @param config 配置
+    * @param localServerId 本地 serverId
+    * @param localHost 本地主机 IP
+    * @param localPort 本地端口
      */
     public SeedModeProbe(MeshConfig config, String localServerId, String localHost, int localPort) {
         this.config = config;
@@ -83,9 +83,9 @@ public class SeedModeProbe implements ProbeStrategy {
     }
 
     /**
-     * 探测种子节点。
-     *
-     * @param seed 种子地址，格式 host:port
+    * 探测种子节点。
+    *
+    * @param seed 种子地址，格式 host:port
      */
     private void probeSeed(String seed) {
         String[] parts = seed.split(":");

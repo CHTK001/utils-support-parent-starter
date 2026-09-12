@@ -15,36 +15,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * Kafka 全功能链式客户端。
- *
- * <p>封装 Kafka Producer + Consumer + AdminClient，提供订阅/发布的链式 API。</p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * // 创建客户端
- * KafkaClient client = KafkaClient.builder()
- *     .bootstrapServers("127.0.0.1:9092")
- *     .groupId("my-group")
- *     .build();
- *
- * // 发布消息
- * client.producer().topic("order").key("k1").value("{\"id\":1}").send();
- *
- * // 订阅消息
- * client.consumer().topic("order").handler(msg -> {
- *     System.out.println("收到: " + msg.value());
- * }).subscribe();
- *
- * // 管理操作
- * client.admin().createTopic("order", 3, (short) 1);
- * client.admin().deleteTopic("order");
- * client.admin().listTopics();
- * }</pre>
-   * 客户端.admin().列表topics();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Kafka 全功能链式客户端。
+*
+* <p>封装 Kafka Producer + Consumer + AdminClient，提供订阅/发布的链式 API。</p>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* // 创建客户端
+* KafkaClient client = KafkaClient.builder()
+*     .bootstrapServers("127.0.0.1:9092")
+*     .groupId("my-group")
+*     .build();
+*
+* // 发布消息
+* client.producer().topic("order").key("k1").value("{\"id\":1}").send();
+*
+* // 订阅消息
+* client.consumer().topic("order").handler(msg -> {
+*     System.out.println("收到: " + msg.value());
+* }).subscribe();
+*
+* // 管理操作
+* client.admin().createTopic("order", 3, (short) 1);
+* client.admin().deleteTopic("order");
+* client.admin().listTopics();
+* }</pre>
+* 客户端.admin().列表topics();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Getter
@@ -69,12 +69,12 @@ public class KafkaClient implements AutoCloseable {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-      * 创建 kafka客户端 实例
-     * @param bootstrapServers bootstrap服务端
-     * @param bootstrapServers 字符串
-     * @param extraProps 属性
-     * @param groupId 群体标识
-     * @param extraProps extraprops
+    * 创建 kafka客户端 实例
+    * @param bootstrapServers bootstrap服务端
+    * @param bootstrapServers 字符串
+    * @param extraProps 属性
+    * @param groupId 群体标识
+    * @param extraProps extraprops
      */
     private KafkaClient(String bootstrapServers, String groupId, Properties extraProps) {
         this.bootstrapServers = bootstrapServers;
@@ -85,30 +85,30 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 工厂方法 ====================
 
     /**
-     * 创建
-     *
-     * @param bootstrapServers bootstrap服务端
-     * @return 创建的结果
+    * 创建
+    *
+    * @param bootstrapServers bootstrap服务端
+    * @return 创建的结果
      */
     public static KafkaClient create(String bootstrapServers) {
         return builder().bootstrapServers(bootstrapServers).build();
     }
 
     /**
-     * 创建
-     *
-     * @param bootstrapServers bootstrap服务端
-     * @param groupId 群体标识
-     * @return 创建的结果
+    * 创建
+    *
+    * @param bootstrapServers bootstrap服务端
+    * @param groupId 群体标识
+    * @return 创建的结果
      */
     public static KafkaClient create(String bootstrapServers, String groupId) {
         return builder().bootstrapServers(bootstrapServers).groupId(groupId).build();
     }
 
     /**
-     * 构建器
-     *
-     * @return 构建器的结果
+    * 构建器
+    *
+    * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
@@ -117,9 +117,9 @@ public class KafkaClient implements AutoCloseable {
     // ==================== 启动/停止 ====================
 
     /**
-     * 开始
-     *
-     * @return 启动的结果
+    * 开始
+    *
+    * @return 启动的结果
      */
     public KafkaClient start() {
         // 初始化 Producer
@@ -143,9 +143,9 @@ public class KafkaClient implements AutoCloseable {
     }
 
     /**
-     * 关闭
-     *
-     * @return 关闭的结果
+    * 关闭
+    *
+    * @return 关闭的结果
      */
     public KafkaClient shutdown() {
         if (closed.compareAndSet(false, true)) {
@@ -177,24 +177,24 @@ public class KafkaClient implements AutoCloseable {
     }
 
     /**
-     * 获取生产者操作构建器。
-     * @return producer的结果
+    * 获取生产者操作构建器。
+    * @return producer的结果
      */
     public ProducerOperation producer() {
         return new ProducerOperation(this);
     }
 
     /**
-     * 获取消费者操作构建器。
-     * @return consumer的结果
+    * 获取消费者操作构建器。
+    * @return consumer的结果
      */
     public ConsumerOperation consumer() {
         return new ConsumerOperation(this);
     }
 
     /**
-     * 获取管理操作构建器。
-     * @return admin的结果
+    * 获取管理操作构建器。
+    * @return admin的结果
      */
     public AdminOperation admin() {
         return new AdminOperation(this);
@@ -208,10 +208,10 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== Builder ====================
     /**
-     * 构建器类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 构建器类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class Builder {
@@ -223,60 +223,60 @@ public class KafkaClient implements AutoCloseable {
         private Properties extraProps = new Properties();
 
         /**
-         * bootstrap服务端
-         *
-         * @param s s
-         * @return bootstrap服务端的结果
+        * bootstrap服务端
+        *
+        * @param s s
+        * @return bootstrap服务端的结果
          */
         public Builder bootstrapServers(String s) { this.bootstrapServers = s; return this; }
         /**
-         * 分组标识
-         *
-         * @param g g
-         * @return 群体id的结果
+        * 分组标识
+        *
+        * @param g g
+        * @return 群体id的结果
          */
         public Builder groupId(String g) { this.groupId = g; return this; }
         /**
-         * 财产
-         *
-         * @param key 键
-         * @param value 值
-         * @return 财产的结果
+        * 财产
+        *
+        * @param key 键
+        * @param value 值
+        * @return 财产的结果
          */
         public Builder property(String key, String value) { this.extraProps.setProperty(key, value); return this; }
         /**
-         * 属性
-         *
-         * @param p p
-         * @return 属性的结果
+        * 属性
+        *
+        * @param p p
+        * @return 属性的结果
          */
         public Builder properties(Properties p) { this.extraProps.putAll(p); return this; }
         /**
-         * auto偏移量重置
-         *
-         * @param policy policy
-         * @return auto偏移量reset的结果
+        * auto偏移量重置
+        *
+        * @param policy policy
+        * @return auto偏移量reset的结果
          */
         public Builder autoOffsetReset(String policy) { this.extraProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, policy); return this; }
         /**
-         * 启用Auto提交
-         *
-         * @param enable enable
-         * @return enableAutoCommit的结果
+        * 启用Auto提交
+        *
+        * @param enable enable
+        * @return enableAutoCommit的结果
          */
         public Builder enableAutoCommit(boolean enable) { this.extraProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, enable); return this; }
         /**
-         * 最大值取出Records
-         *
-         * @param max 最大
-         * @return 最大pollrecords的结果
+        * 最大值取出Records
+        *
+        * @param max 最大
+        * @return 最大pollrecords的结果
          */
         public Builder maxPollRecords(int max) { this.extraProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, max); return this; }
 
         /**
-         * 构建
-         *
-         * @return 构建的结果
+        * 构建
+        *
+        * @return 构建的结果
          */
         public KafkaClient build() {
             return new KafkaClient(bootstrapServers, groupId, extraProps);
@@ -285,10 +285,10 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== 生产者操作 ====================
     /**
-     * ProducerOperation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * ProducerOperation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class ProducerOperation {
@@ -310,61 +310,61 @@ public class KafkaClient implements AutoCloseable {
         ProducerOperation(KafkaClient client) { this.client = client; }
 
         /**
-         * Topic
-         *
-         * @param t t
-         * @return topic的结果
+        * Topic
+        *
+        * @param t t
+        * @return topic的结果
          */
         public ProducerOperation topic(String t) { this.topic = t; return this; }
         /**
-         * 键
-         *
-         * @param k k
-         * @return 键的结果
+        * 键
+        *
+        * @param k k
+        * @return 键的结果
          */
         public ProducerOperation key(String k) { this.key = k; return this; }
         /**
-         * 值
-         *
-         * @param v v
-         * @return 值的结果
+        * 值
+        *
+        * @param v v
+        * @return 值的结果
          */
         public ProducerOperation value(String v) { this.value = v; return this; }
         /**
-         * 分区
-         *
-         * @param p p
-         * @return 分区的结果
+        * 分区
+        *
+        * @param p p
+        * @return 分区的结果
          */
         public ProducerOperation partition(Integer p) { this.partition = p; return this; }
         /**
-         * 时间戳
-         *
-         * @param t t
-         * @return 时间戳的结果
+        * 时间戳
+        *
+        * @param t t
+        * @return 时间戳的结果
          */
         public ProducerOperation timestamp(Long t) { this.timestamp = t; return this; }
         /**
-         * 头部
-         *
-         * @param name 名称
-         * @param value 值
-         * @return 头部的结果
+        * 头部
+        *
+        * @param name 名称
+        * @param value 值
+        * @return 头部的结果
          */
         public ProducerOperation header(String name, byte[] value) { this.headers.put(name, value); return this; }
         /**
-         * 头部
-         *
-         * @param name 名称
-         * @param value 值
-         * @return 头部的结果
+        * 头部
+        *
+        * @param name 名称
+        * @param value 值
+        * @return 头部的结果
          */
         public ProducerOperation header(String name, String value) { this.headers.put(name, value.getBytes()); return this; }
 
         /**
-         * 发送消息（异步）。
-         *
-         * @param callback 发送结果回调
+        * 发送消息（异步）。
+        *
+        * @param callback 发送结果回调
          */
         public void sendAsync(java.util.function.Consumer<RecordMetadata> callback) {
             ProducerRecord<String, String> record = buildRecord();
@@ -378,9 +378,9 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 同步发送消息。
-         *
-         * @return RecordMetadata
+        * 同步发送消息。
+        *
+        * @return RecordMetadata
          */
         public RecordMetadata send() {
             try {
@@ -391,9 +391,9 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 构建Record
-         *
-         * @return 构建record的结果
+        * 构建Record
+        *
+        * @return 构建record的结果
          */
         private ProducerRecord<String, String> buildRecord() {
             ProducerRecord<String, String> record;
@@ -413,10 +413,10 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== 消费者操作 ====================
     /**
-     * ConsumerOperation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * ConsumerOperation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class ConsumerOperation {
@@ -438,45 +438,45 @@ public class KafkaClient implements AutoCloseable {
         ConsumerOperation(KafkaClient client) { this.client = client; }
 
         /**
-         * 分组标识
-         *
-         * @param g g
-         * @return 群体id的结果
+        * 分组标识
+        *
+        * @param g g
+        * @return 群体id的结果
          */
         public ConsumerOperation groupId(String g) { this.groupId = g; return this; }
         /**
-         * Topic
-         *
-         * @param t t
-         * @return topic的结果
+        * Topic
+        *
+        * @param t t
+        * @return topic的结果
          */
         public ConsumerOperation topic(String... t) { this.topics = t; return this; }
         /**
-         * Auto提交
-         *
-         * @param a a
-         * @return autoCommit的结果
+        * Auto提交
+        *
+        * @param a a
+        * @return autoCommit的结果
          */
         public ConsumerOperation autoCommit(boolean a) { this.autoCommit = a; return this; }
         /**
-         * 偏移量重置
-         *
-         * @param o o
-         * @return 偏移量reset的结果
+        * 偏移量重置
+        *
+        * @param o o
+        * @return 偏移量reset的结果
          */
         public ConsumerOperation offsetReset(String o) { this.offsetReset = o; return this; }
         /**
-         * 取出超时
-         *
-         * @param ms ms
-         * @return poll超时的结果
+        * 取出超时
+        *
+        * @param ms ms
+        * @return poll超时的结果
          */
         public ConsumerOperation pollTimeout(long ms) { this.pollTimeoutMs = ms; return this; }
 
         /**
-         * 设置消息处理器。
-         * @param h h
-         * @return 处理器的结果
+        * 设置消息处理器。
+        * @param h h
+        * @return 处理器的结果
          */
         public ConsumerOperation handler(Consumer<ConsumerRecord<String, String>> h) {
             this.handler = h;
@@ -484,9 +484,9 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-          * 设置简单消息处理器（仅处理 值）。
-         * @param h h
-         * @return on消息的结果
+        * 设置简单消息处理器（仅处理 值）。
+        * @param h h
+        * @return on消息的结果
          */
         public ConsumerOperation onMessage(Consumer<String> h) {
             this.handler = record -> h.accept(record.value());
@@ -494,9 +494,9 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 订阅并开始消费（在独立线程中）。
-         *
-         * @return 消费者线程名
+        * 订阅并开始消费（在独立线程中）。
+        *
+        * @return 消费者线程名
          */
         public String subscribe() {
             String group = groupId != null ? groupId : client.groupId;
@@ -544,7 +544,7 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 手动提交偏移量。
+        * 手动提交偏移量。
          */
         public void commitSync() {
             String threadName = client.consumerCache.keySet().stream().findFirst().orElse(null);
@@ -559,10 +559,10 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== 管理操作 ====================
     /**
-     * AdminOperation类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * AdminOperation类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class AdminOperation {
@@ -572,10 +572,10 @@ public class KafkaClient implements AutoCloseable {
         AdminOperation(KafkaClient client) { this.client = client; }
 
         /**
-         * 创建 Topic。
-         * @param name 名称
-         * @param partitions 分区
-         * @param replicationFactor replicationfactor
+        * 创建 Topic。
+        * @param name 名称
+        * @param partitions 分区
+        * @param replicationFactor replicationfactor
          */
         public void createTopic(String name, int partitions, short replicationFactor) {
             try {
@@ -588,8 +588,8 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 删除 Topic。
-         * @param name 名称
+        * 删除 Topic。
+        * @param name 名称
          */
         public void deleteTopic(String name) {
             try {
@@ -601,8 +601,8 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 列出所有 Topic。
-         * @return 列表topics的结果
+        * 列出所有 Topic。
+        * @return 列表topics的结果
          */
         public Set<String> listTopics() {
             try {
@@ -613,9 +613,9 @@ public class KafkaClient implements AutoCloseable {
         }
 
         /**
-         * 获取 Topic 信息。
-         * @param name 名称
-         * @return describeTopic的结果
+        * 获取 Topic 信息。
+        * @param name 名称
+        * @return describeTopic的结果
          */
         public TopicDescription describeTopic(String name) {
             try {
@@ -630,18 +630,18 @@ public class KafkaClient implements AutoCloseable {
 
     // ==================== 异常类 ====================
     /**
-     * kafka客户端异常类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * kafka客户端异常类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     public static class KafkaClientException extends RuntimeException {
         /**
-          * 创建 kafka客户端异常 实例
-         * @param message 消息
-         * @param cause Throwable
-         * @param cause cause
+        * 创建 kafka客户端异常 实例
+        * @param message 消息
+        * @param cause Throwable
+        * @param cause cause
          */
         public KafkaClientException(String message, Throwable cause) {
             super(message, cause);

@@ -8,19 +8,19 @@ import javax.annotation.Nullable;
 
 
 /**
- * 初始化感知自动装配
- *
- * @author CH
- * @since 4.0.0.42
+* 初始化感知自动装配
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InitializingAwareAutoServiceAutowire implements ServiceAutowire {
 
     /**
-      * Spring 初始化Bean 类名
+    * Spring 初始化Bean 类名
      */
     private static final String SPRING = "org.springframework.beans.factory.InitializingBean";
     /**
-      * Spring 初始化Bean 类型
+    * Spring 初始化Bean 类型
      */
     private static Class<?> SPRING_TYPE;
 

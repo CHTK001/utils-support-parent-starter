@@ -16,44 +16,44 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
-   * 指标 NAT 库（指标_NAT）Java 侧封装，基于 JDK Panama FFI 调用系统采样器。
- * <p>
-   * 通过 {@link NativeLoader} 加载 {@code metrics_native} 库，提供 启动/poll/停止 三个原语以及 auto关闭 支持。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* 指标 NAT 库（指标_NAT）Java 侧封装，基于 JDK Panama FFI 调用系统采样器。
+* <p>
+* 通过 {@link NativeLoader} 加载 {@code metrics_native} 库，提供 启动/poll/停止 三个原语以及 auto关闭 支持。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
-      * 当前 NAT 库的 symbollookup（Panama 加载lookup）
+    * 当前 NAT 库的 symbollookup（Panama 加载lookup）
      */
     private static final SymbolLookup LOADER_LOOKUP;
 
     /**
-     * 系统 Linker
+    * 系统 Linker
      */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-     * 启动采样器方法句柄
+    * 启动采样器方法句柄
      */
     private static final MethodHandle START_SAMPLER;
 
     /**
-     * 停止采样器方法句柄
+    * 停止采样器方法句柄
      */
     private static final MethodHandle STOP_SAMPLER;
 
     /**
-     * 查询快照字节长度方法句柄
+    * 查询快照字节长度方法句柄
      */
     private static final MethodHandle SNAPSHOT_SIZE;
 
     /**
-     * 拉取快照方法句柄
+    * 拉取快照方法句柄
      */
     private static final MethodHandle GET_SNAPSHOT;
 
@@ -84,14 +84,14 @@ public class MetricsNativeLibrary implements AutoCloseable {
     }
 
     /**
-     * 采样器是否已启动
+    * 采样器是否已启动
      */
     private volatile boolean started;
 
     /**
-      * 尝试加载 NAT 库并返回实例；加载失败时返回 空 并记录错误日志。
-     *
-     * @return MetricsNativeLibrary 实例（失败时为 空）
+    * 尝试加载 NAT 库并返回实例；加载失败时返回 空 并记录错误日志。
+    *
+    * @return MetricsNativeLibrary 实例（失败时为 空）
      */
     public static MetricsNativeLibrary create() {
         try {
@@ -103,17 +103,17 @@ public class MetricsNativeLibrary implements AutoCloseable {
     }
 
     /**
-     * 私有构造函数。
+    * 私有构造函数。
      */
     private MetricsNativeLibrary() {
         this.started = false;
     }
 
     /**
-     * 启动采样器。
-     *
-     * @param intervalMs 采样间隔（毫秒），必须大于 0
-     * @throws IllegalArgumentException 当 间隔ms &lt;= 0
+    * 启动采样器。
+    *
+    * @param intervalMs 采样间隔（毫秒），必须大于 0
+    * @throws IllegalArgumentException 当 间隔ms &lt;= 0
      */
     public void start(long intervalMs) {
         if (started) {
@@ -131,9 +131,9 @@ public class MetricsNativeLibrary implements AutoCloseable {
     }
 
     /**
-     * 拉取当前快照的 UTF-8 字符串表示。
-     *
-     * @return 快照内容；未启动或拉取失败返回 空
+    * 拉取当前快照的 UTF-8 字符串表示。
+    *
+    * @return 快照内容；未启动或拉取失败返回 空
      */
     public String poll() {
         if (!started) {
@@ -160,7 +160,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
     }
 
     /**
-     * 停止采样器（幂等）。
+    * 停止采样器（幂等）。
      */
     public void stop() {
         if (started) {
@@ -174,7 +174,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
     }
 
     /**
-     * 关闭资源，等价于 {@link #stop()}。
+    * 关闭资源，等价于 {@link #stop()}。
      */
     @Override
     public void close() {

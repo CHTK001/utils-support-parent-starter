@@ -9,14 +9,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
- * VEC（向量）格式 WAL 文件系统实现。
-   * payload: int32 键len + 键(utf8) + int32 dim + float[dim] + int32 metalen + meta(utf8)
- * @author CH
- * @since 4.0.0
- * @param id 标识
- * @param dim dim
- * @param data 数据
- * @param metadata metadata
+* VEC（向量）格式 WAL 文件系统实现。
+* payload: int32 键len + 键(utf8) + int32 dim + float[dim] + int32 metalen + meta(utf8)
+* @author CH
+* @since 4.0.0
+* @param id 标识
+* @param dim dim
+* @param data 数据
+* @param metadata metadata
  /**
    * vecwal文件系统。
    * @param config 配置
@@ -27,9 +27,9 @@ import java.util.Optional;
 @Spi("wal-vec")
 public class VecWalFileSystem extends AbstractWalFileSystem {
 /**
- * op类型。
- * @return op类型的结果
- * @param config 配置
+* op类型。
+* @return op类型的结果
+* @param config 配置
  */
 
     public VecWalFileSystem(WalStoreConfig config) throws IOException {
@@ -45,12 +45,12 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
             return null;
         }
         /**
-         * encode。
-         * @param id 标识
-         * @param dim dim
-         * @param data 数据
-         * @param metadata metadata
-         * @return encode的结果
+        * encode。
+        * @param id 标识
+        * @param dim dim
+        * @param data 数据
+        * @param metadata metadata
+        * @return encode的结果
          */
         int keyLen = ByteBuffer.wrap(payload).getInt();
         if (keyLen <= 0 || keyLen > payload.length - 4) {
@@ -71,23 +71,23 @@ public class VecWalFileSystem extends AbstractWalFileSystem {
         }
         bb.putInt(metaBytes.length); bb.put(metaBytes);
         /**
-         * decode。
-         * @param payload payload
-         * @return decode的结果
-         * @param id 标识
-         * @param dim dim
-         * @param data 数据
-         * @param metadata metadata
+        * decode。
+        * @param payload payload
+        * @return decode的结果
+        * @param id 标识
+        * @param dim dim
+        * @param data 数据
+        * @param metadata metadata
          */
         byte[] result = new byte[bb.position()];
         /**
-         * decode。
-         * @param payload payload
-         * @return decode的结果
-         * @param id id
-         * @param dim dim
-         * @param data 数据
-         * @param metadata metadata
+        * decode。
+        * @param payload payload
+        * @return decode的结果
+        * @param id id
+        * @param dim dim
+        * @param data 数据
+        * @param metadata metadata
          */
         bb.position(0); bb.get(result);
         return result;

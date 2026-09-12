@@ -14,13 +14,13 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 /**
- * U2netSegTranslator类。
- *
- * @author CH
- * @since 4.0.0
- * @param mask mask
- * @param bgValue bg值
- * @return 创建rgb镜像的结果
+* U2netSegTranslator类。
+*
+* @author CH
+* @since 4.0.0
+* @param mask mask
+* @param bgValue bg值
+* @return 创建rgb镜像的结果
  */
 
 public final class U2netSegTranslator implements Translator<Image, Image> {
@@ -30,25 +30,25 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
 
     private final MattingTranslator.MattingMode mode; // mode
     /**
-      * U2netsegtranslator。
+    * U2netsegtranslator。
      */
     private int width, height;
     /**
-      * U2netsegtranslator。
-     * @param mode mode
+    * U2netsegtranslator。
+    * @param mode mode
      */
     private BufferedImage originalImage;
 
     /**
-     * U2netSegTranslator。
+    * U2netSegTranslator。
      */
     public U2netSegTranslator() { this(DEFAULT_MODE); }
     /**
-     * 处理输入。
-     * @param ctx ctx
-     * @param input 输入
-     * @return 处理输入的结果
-     * @param mode mode
+    * 处理输入。
+    * @param ctx ctx
+    * @param input 输入
+    * @return 处理输入的结果
+    * @param mode mode
      */
     public U2netSegTranslator(MattingTranslator.MattingMode mode) { this.mode = mode; }
 
@@ -72,10 +72,10 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         NDArray arr = ctx.getNDManager().create(data, new Shape(1, 3, SIZE, SIZE));
         return new NDList(arr);
     /**
-     * 处理输出。
-     * @param ctx ctx
-     * @param list 列表
-     * @return 处理输出的结果
+    * 处理输出。
+    * @param ctx ctx
+    * @param list 列表
+    * @return 处理输出的结果
      */
     }
 
@@ -112,9 +112,9 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
             case ALPHA_ONLY -> createAlphaOnlyImage(mask);
             default -> createRgbImage(mask, 0);
         /**
-         * 转为缓冲镜像。
-         * @param input 输入
-         * @return 转为缓冲镜像的结果
+        * 转为缓冲镜像。
+        * @param input 输入
+        * @return 转为缓冲镜像的结果
          */
         };
     }
@@ -125,11 +125,11 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
             return bi;
         }
         /**
-         * resize转为。
-         * @param input 输入
-         * @param tw tw
-         * @param th th
-         * @return resize转为的结果
+        * resize转为。
+        * @param input 输入
+        * @param tw tw
+        * @param th th
+        * @return resize转为的结果
          */
         throw new IllegalStateException("无法获取 BufferedImage");
     }
@@ -145,10 +145,10 @@ public final class U2netSegTranslator implements Translator<Image, Image> {
         g.drawImage(src, 0, 0, tw, th, null);
         g.dispose();
         /**
-         * 创建alphaonly镜像。
-         * @param mask mask
-         * @return 创建alphaonly镜像的结果
-         * @param bgValue bg值
+        * 创建alphaonly镜像。
+        * @param mask mask
+        * @return 创建alphaonly镜像的结果
+        * @param bgValue bg值
          */
         return resized;
     }

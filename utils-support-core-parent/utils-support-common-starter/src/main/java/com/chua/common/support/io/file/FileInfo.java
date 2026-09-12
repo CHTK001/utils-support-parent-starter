@@ -10,10 +10,10 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 
 /**
- * 文件信息
- *
- * @author CH
- * @since 2026/7/30
+* 文件信息
+*
+* @author CH
+* @since 2026/7/30
  */
 @Data
 @Builder

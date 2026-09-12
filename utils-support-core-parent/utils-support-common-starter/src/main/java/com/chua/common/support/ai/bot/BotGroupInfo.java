@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Bot 群组信息。
- *
- * @author CH
- * @since 2026/07/18
+* Bot 群组信息。
+*
+* @author CH
+* @since 2026/07/18
  */
 @Builder
 public record BotGroupInfo(

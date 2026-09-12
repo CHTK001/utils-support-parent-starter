@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Conda 软件包管理器提供器。
- *
- * <p>通过 conda CLI 搜索、安装和卸载 Conda / Anaconda 环境中的软件包。
-   * 支持 <code>Conda 搜索</code>、<code>Conda install -y</code>、
- * <code>conda remove -y</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* Conda 软件包管理器提供器。
+*
+* <p>通过 conda CLI 搜索、安装和卸载 Conda / Anaconda 环境中的软件包。
+* 支持 <code>Conda 搜索</code>、<code>Conda install -y</code>、
+* <code>conda remove -y</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("conda")
 public class CondaSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class CondaSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class CondaSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析conda输出
-     *
-     * @param output 输出
-     * @return 解析conda输出的结果
+    * 解析conda输出
+    *
+    * @param output 输出
+    * @return 解析conda输出的结果
      */
     private List<SoftwareInfo> parseCondaOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
@@ -157,10 +157,10 @@ public class CondaSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * lookslike版本
-     *
-     * @param s s
-     * @return lookslike版本的结果
+    * lookslike版本
+    *
+    * @param s s
+    * @return lookslike版本的结果
      */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");

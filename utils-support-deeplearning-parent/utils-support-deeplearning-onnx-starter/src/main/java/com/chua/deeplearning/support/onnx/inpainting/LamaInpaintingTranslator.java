@@ -16,28 +16,28 @@ import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 /**
-   * lama 图像修复（Inpainting）Translator
- * <p>
-   * lama (Large Mask Inpainting) 是基于拉普拉斯金字塔的大尺寸掩码修复模型，
- * 能够有效修复图像中的大面积缺失区域，生成自然连贯的内容。
- * 适用于修复照片划痕、移除水印、擦除不需要的物体等场景。
- * </p>
- * <p>
-   * 模型来源：huggingface.co/onnx-社区/lama-inpainting-ONNX
- * 架构：U-Net 风格编码器-解码器 + 拉普拉斯金字塔
-   * 输入：镜像（RGBA 格式，RGB=待修复图像，A=掩码，255=需修复区域）
-   * 输出：镜像（RGB 修复结果）
- * </p>
- * <p>
- * 输入流程：
- * <ol>
- *   <li>从 RGBA 图像中分离 RGB 通道作为图像输入</li>
- *   <li>从 Alpha 通道提取二值掩码（255=修复区域，0=保留区域）</li>
- *   <li>ONNX 模型同时接收图像和掩码，输出修复结果</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* lama 图像修复（Inpainting）Translator
+* <p>
+* lama (Large Mask Inpainting) 是基于拉普拉斯金字塔的大尺寸掩码修复模型，
+* 能够有效修复图像中的大面积缺失区域，生成自然连贯的内容。
+* 适用于修复照片划痕、移除水印、擦除不需要的物体等场景。
+* </p>
+* <p>
+* 模型来源：huggingface.co/onnx-社区/lama-inpainting-ONNX
+* 架构：U-Net 风格编码器-解码器 + 拉普拉斯金字塔
+* 输入：镜像（RGBA 格式，RGB=待修复图像，A=掩码，255=需修复区域）
+* 输出：镜像（RGB 修复结果）
+* </p>
+* <p>
+* 输入流程：
+* <ol>
+*   <li>从 RGBA 图像中分离 RGB 通道作为图像输入</li>
+*   <li>从 Alpha 通道提取二值掩码（255=修复区域，0=保留区域）</li>
+*   <li>ONNX 模型同时接收图像和掩码，输出修复结果</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class LamaInpaintingTranslator implements Translator<Image, Image> {
@@ -89,16 +89,16 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 从 RGBA 图像的 Alpha 通道提取二值掩码
-     * <p>
-     * Alpha=255 -> 掩码=1（需修复区域）
-     * Alpha=0   -> 掩码=0（保留区域）
-     *
-     * @param manager   nd管理器
-     * @param image     输入图像（应为 RGBA 格式）
-     * @param width     图像宽度
-     * @param height    图像高度
-     * @return 二值掩码 ndarray，形状 [1, 1, H, W]，值域 [0, 1]
+    * 从 RGBA 图像的 Alpha 通道提取二值掩码
+    * <p>
+    * Alpha=255 -> 掩码=1（需修复区域）
+    * Alpha=0   -> 掩码=0（保留区域）
+    *
+    * @param manager   nd管理器
+    * @param image     输入图像（应为 RGBA 格式）
+    * @param width     图像宽度
+    * @param height    图像高度
+    * @return 二值掩码 ndarray，形状 [1, 1, H, W]，值域 [0, 1]
      */
     private static NDArray extractMask(NDManager manager, Image image, int width, int height) {
         BufferedImage buffered = (BufferedImage) image.getWrappedImage();

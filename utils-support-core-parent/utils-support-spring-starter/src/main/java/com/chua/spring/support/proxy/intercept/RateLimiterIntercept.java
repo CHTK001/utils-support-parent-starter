@@ -14,16 +14,16 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 限流拦截器，处理 {@link RateLimiter} 注解的方法。
- *
- * <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
- * 基于 {@link RateLimiterFlow} 门面，通过链式 API 获取许可，降级回调交给
- * {@link RateLimiterFlow#fallback} 处理。</p>
- *
- * <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
- *
- * @author CH
- * @since 4.0.0
+* 限流拦截器，处理 {@link RateLimiter} 注解的方法。
+*
+* <p>通过 {@link MethodAnnotationIntercept} SPI 机制被 Invoker 的 Proxy 自动发现。
+* 基于 {@link RateLimiterFlow} 门面，通过链式 API 获取许可，降级回调交给
+* {@link RateLimiterFlow#fallback} 处理。</p>
+*
+* <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Spi("com.chua.common.support.concurrent.rate.annotation.RateLimiter")
 public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLimiter> {
@@ -71,12 +71,12 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
     }
 
     /**
-     * 限流拒绝处理：优先返回回退结果，无回退时抛出限流异常。
-     *
-     * @param annotation  限流注解
-     * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值
-     * @throws IllegalStateException 无回退方法时抛出
+    * 限流拒绝处理：优先返回回退结果，无回退时抛出限流异常。
+    *
+    * @param annotation  限流注解
+    * @param proxyMethod 被拦截的方法信息
+    * @return 回退方法的返回值
+    * @throws IllegalStateException 无回退方法时抛出
      */
     private Object onRejected(RateLimiter annotation, ProxyMethod proxyMethod) throws Throwable {
         Object fallbackResult = resolveFallback(annotation, proxyMethod);
@@ -87,11 +87,11 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
     }
 
     /**
-     * 调用注解指定的回退方法。
-     *
-     * @param annotation  限流注解
-     * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 空
+    * 调用注解指定的回退方法。
+    *
+    * @param annotation  限流注解
+    * @param proxyMethod 被拦截的方法信息
+    * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(RateLimiter annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

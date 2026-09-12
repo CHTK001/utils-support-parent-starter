@@ -14,16 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 打开编码 用量解析器 — 从本地 sqlite 数据库解析会话与消息用量
- *
- * <p>数据源: {@code %USERPROFILE%\.local\share\opencode\opencode.db}
- *
- * <p>解析 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
-   * 输入/输出/ReasonML/缓存 令牌、费用、模型及服务商信息，
- * 映射为标准的 {@link AiUsage} 记录。
- *
- * @author CH
- * @since 4.0.0.42
+* 打开编码 用量解析器 — 从本地 sqlite 数据库解析会话与消息用量
+*
+* <p>数据源: {@code %USERPROFILE%\.local\share\opencode\opencode.db}
+*
+* <p>解析 {@code message} 表中的 {@code data} JSON 列，提取每次请求的
+* 输入/输出/ReasonML/缓存 令牌、费用、模型及服务商信息，
+* 映射为标准的 {@link AiUsage} 记录。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("opencode")
 public class OpencodeUsageParser extends BaseUsageParser {
@@ -34,8 +34,8 @@ public class OpencodeUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-     * resolvedb路径。
-     * @return resolvedb路径的结果
+    * resolvedb路径。
+    * @return resolvedb路径的结果
      */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
@@ -46,10 +46,10 @@ public class OpencodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * SQL: 从 消息 表按 令牌 用量筛选并返回每条请求的用量字段
-     *
-     * @param rs R
-     * @return 转为AIusage的结果
+    * SQL: 从 消息 表按 令牌 用量筛选并返回每条请求的用量字段
+    *
+    * @param rs R
+    * @return 转为AIusage的结果
      */
     private static final String SQL_MESSAGES =
             "SELECT time_created, "
@@ -63,17 +63,17 @@ public class OpencodeUsageParser extends BaseUsageParser {
             + "CAST(json_extract(data, '$.cost') AS REAL) "
             + "FROM message "
             /**
-             * 名称。
-             * @return 名称的结果
-             * @param rs R
+            * 名称。
+            * @return 名称的结果
+            * @param rs R
              */
             + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
             + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
             + "ORDER BY time_created ASC";
 
     /**
-     * 名称。
-     * @return 名称的结果
+    * 名称。
+    * @return 名称的结果
      */
     @Override
     public String name() {

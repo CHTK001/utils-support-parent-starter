@@ -5,34 +5,34 @@ import javax.annotation.Nullable;
 
 
 /**
-   * neuquant Neural-Net Quantization Algorithm
- * ------------------------------------------
- * <p>
- * Copyright (c) 1994 Anthony Dekker
- * <p>
- * NEUQUANT Neural-Net quantization algorithm by Anthony Dekker, 1994.
-   * 参见 "Kohonen neural networks for optimal colour quantization"
-   * 入 "Network: Computation 入 Neural 系统" Vol. 5 (1994) pp 351-367.
-   * for a discussion 的 the algorithm.
- * <p>
-   * 任意 party obtaining a 副本 的 these 文件 从 the 作者, directly 或
-   * indirectly, 是否 granted, free 的 charge, a 完整 和 unrestricted irrevocable,
-   * world-wide, paid up, royalty-free, nonexclusive right 和 执照 转为 deal
-   * 入 this software 和 documentation 文件 (the "Software"), including without
-   * limitation the rights 转为 use, 副本, modify, 合并, 发布, distribute, sublicense,
-   * 和/或 sell 副本 的 the Software, 和 转为 许可证 persons who 接收
-   * 副本 从 任意 such party 转为 执行 so, with the only requirement 存在
- * that this copyright notice remain intact.
+* neuquant Neural-Net Quantization Algorithm
+* ------------------------------------------
+* <p>
+* Copyright (c) 1994 Anthony Dekker
+* <p>
+* NEUQUANT Neural-Net quantization algorithm by Anthony Dekker, 1994.
+* 参见 "Kohonen neural networks for optimal colour quantization"
+* 入 "Network: Computation 入 Neural 系统" Vol. 5 (1994) pp 351-367.
+* for a discussion 的 the algorithm.
+* <p>
+* 任意 party obtaining a 副本 的 these 文件 从 the 作者, directly 或
+* indirectly, 是否 granted, free 的 charge, a 完整 和 unrestricted irrevocable,
+* world-wide, paid up, royalty-free, nonexclusive right 和 执照 转为 deal
+* 入 this software 和 documentation 文件 (the "Software"), including without
+* limitation the rights 转为 use, 副本, modify, 合并, 发布, distribute, sublicense,
+* 和/或 sell 副本 的 the Software, 和 转为 许可证 persons who 接收
+* 副本 从 任意 such party 转为 执行 so, with the only requirement 存在
+* that this copyright notice remain intact.
  */
 
 
 /**
-   * neuquant Neural-Net Quantization Algorithm
- *
- * @author Dekker
- * @since 4.0.0.42
- * @author CH
- * @since 4.0.0.42
+* neuquant Neural-Net Quantization Algorithm
+*
+* @author Dekker
+* @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
 */
 public class NeuQuant {
 
@@ -44,7 +44,7 @@ public class NeuQuant {
 /** four primes near 500 - assume no 镜像 是否包含 a 长度 so large */
 
     /**
-      * that it 是否 divisible by 全部 four primes
+    * that it 是否 divisible by 全部 four primes
      */
     protected static final int PRIME1 = 499;
     /** Prime2 */
@@ -74,32 +74,32 @@ public class NeuQuant {
 
 
     /**
-     * Network Definitions
-     * -------------------
+    * Network Definitions
+    * -------------------
      */
 
     protected static final int MAXNETPOS = (NETSIZE - 1); // MAXNETPOS
     /** Netbiasshift */
     protected static final int NETBIASSHIFT = 4;
     /**
-      * 偏置 for colour 值
+    * 偏置 for colour 值
      */
     protected static final int NCYCLES = 100;
 /** no. 的 学习 循环 */
 
 
     /**
-      * defs for freq 和 偏置
+    * defs for freq 和 偏置
      */
     protected static final int INTBIASSHIFT = 16;
     /**
-      * 偏置 for fractions
+    * 偏置 for fractions
      */
     protected static final int INTBIAS = (1 << INTBIASSHIFT);
     /** Gammashift */
     protected static final int GAMMASHIFT = 10;
     /**
-     * gamma = 1024
+    * gamma = 1024
      */
     protected static final int GAMMA = (1 << GAMMASHIFT);
     /** Betashift */
@@ -107,39 +107,39 @@ public class NeuQuant {
     /** Beta */
     protected static final int BETA = (INTBIAS >> BETASHIFT);
     /**
-     * beta = 1/1024
+    * beta = 1/1024
      */
     protected static final int BETAGAMMA =
             (INTBIAS << (GAMMASHIFT - BETASHIFT));
 
 
     /**
-     * defs for decreasing radius factor
+    * defs for decreasing radius factor
      */
     protected static final int INITRAD = (NETSIZE >> 3);
     /**
-      * for 256 cols, radius 启动
+    * for 256 cols, radius 启动
      */
     protected static final int RADIUSBIASSHIFT = 6;
     /**
-      * at 32.0 偏置 by 6 钻头
+    * at 32.0 偏置 by 6 钻头
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
     /** Initradius */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
-      * 和 减少 by a
+    * 和 减少 by a
      */
     protected static final int RADIUSDEC = 30;
 /** factor 的 1/30 each 循环 */
 
 
     /**
-     * defs for decreasing alpha factor
+    * defs for decreasing alpha factor
      */
     protected static final int ALPHABIASSHIFT = 10;
     /**
-      * alpha 启动 at 1.0
+    * alpha 启动 at 1.0
      */
     protected static final int INITALPHA = (1 << ALPHABIASSHIFT);
 
@@ -149,7 +149,7 @@ public class NeuQuant {
 
 
     /**
-      * radbias 和 alpharadbias used for radpower calculation
+    * radbias 和 alpharadbias used for radpower calculation
      */
     protected static final int RADBIASSHIFT = 8;
     /** Radbias */
@@ -161,17 +161,17 @@ public class NeuQuant {
 
 
     /**
-      * 类型 和 全局 变量
-     * --------------------------
+    * 类型 和 全局 变量
+    * --------------------------
      */
 
     protected byte[] thepicture; // thepicture
     /**
-      * the 输入 镜像 itself
+    * the 输入 镜像 itself
      */
     protected int lengthcount;
     /**
-     * lengthcount = H*W*3
+    * lengthcount = H*W*3
      */
 
     protected int samplefac; // samplefac
@@ -179,23 +179,23 @@ public class NeuQuant {
 
 
     /**
-      * bgrc
+    * bgrc
      */
     protected int[][] network;
     /**
-     * the network itself - [netsize][4]
+    * the network itself - [netsize][4]
      */
 
     protected int[] netindex = new int[256]; // netindex
 
     /**
-     * for network lookup - really 256
+    * for network lookup - really 256
      */
 
     protected int[] bias = new int[NETSIZE]; // 偏置
 
     /**
-      * 偏置 和 freq arrays for 学习
+    * 偏置 和 freq arrays for 学习
      */
     protected int[] freq = new int[NETSIZE];
     /** Radpower */
@@ -205,11 +205,11 @@ public class NeuQuant {
 
 
     /**
-      * Initialise network 入 范围 (0,0,0) 转为 (255,255,255) 和 设置 参数
-     * -----------------------------------------------------------------------
-     * @param thepic thepic
-     * @param len len
-     * @param sample 样本
+    * Initialise network 入 范围 (0,0,0) 转为 (255,255,255) 和 设置 参数
+    * -----------------------------------------------------------------------
+    * @param thepic thepic
+    * @param len len
+    * @param sample 样本
      */
     public NeuQuant(byte[] thepic, int len, int sample) {
 
@@ -232,9 +232,9 @@ public class NeuQuant {
     }
 
     /**
-     * color映射
-     *
-     * @return color映射的结果
+    * color映射
+    *
+    * @return color映射的结果
      */
     public byte[] colorMap() {
         byte[] map = new byte[3 * NETSIZE];
@@ -254,8 +254,8 @@ public class NeuQuant {
 
 
     /**
-      * Insertion 排序 的 network 和 构建 的 netindex[0..255] (转为 执行 之后 unbias)
-     * -------------------------------------------------------------------------------
+    * Insertion 排序 的 network 和 构建 的 netindex[0..255] (转为 执行 之后 unbias)
+    * -------------------------------------------------------------------------------
      */
     public void inxbuild() {
 
@@ -320,8 +320,8 @@ public class NeuQuant {
 
 
     /**
-      * Main 学习 循环
-     * ------------------
+    * Main 学习 循环
+    * ------------------
      */
     public void learn() {
 
@@ -405,12 +405,12 @@ public class NeuQuant {
 
 
     /**
-      * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
-     * ----------------------------------------------------------------------------
-     * @param b b
-     * @param g g
-     * @param r r
-     * @return 映射的结果
+    * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
+    * ----------------------------------------------------------------------------
+    * @param b b
+    * @param g g
+    * @param r r
+    * @return 映射的结果
      */
     public int map(int b, int g, int r) {
 
@@ -492,9 +492,9 @@ public class NeuQuant {
     }
 
     /**
-     * 处理
-     *
-     * @return 处理的结果
+    * 处理
+    *
+    * @return 处理的结果
      */
     public byte[] process() {
         learn();
@@ -505,8 +505,8 @@ public class NeuQuant {
 
 
     /**
-      * Unbias network 转为 give byte 值 0..255 和 record 位置 i 转为 prepare for 排序
-     * -----------------------------------------------------------------------------------
+    * Unbias network 转为 give byte 值 0..255 和 record 位置 i 转为 prepare for 排序
+    * -----------------------------------------------------------------------------------
      */
     public void unbiasnet() {
         for (int i = 0; i < NETSIZE; i++) {
@@ -520,13 +520,13 @@ public class NeuQuant {
 
 
     /**
-      * Move.com adjacent neurons by precomputed alpha*(1-((i-j)^2/[R]^2)) 入 radpower[|i-j|]
-     * ---------------------------------------------------------------------------------
-     * @param rad rad
-     * @param i i
-     * @param b b
-     * @param g g
-     * @param r r
+    * Move.com adjacent neurons by precomputed alpha*(1-((i-j)^2/[R]^2)) 入 radpower[|i-j|]
+    * ---------------------------------------------------------------------------------
+    * @param rad rad
+    * @param i i
+    * @param b b
+    * @param g g
+    * @param r r
      */
     protected void alterneigh(int rad, int i, int b, int g, int r) {
 
@@ -570,13 +570,13 @@ public class NeuQuant {
 
 
     /**
-      * Move.com neuron i towards 偏置 (b,g,R) by factor alpha
-     * ----------------------------------------------------
-     * @param alpha alpha
-     * @param i i
-     * @param b b
-     * @param g g
-     * @param r r
+    * Move.com neuron i towards 偏置 (b,g,R) by factor alpha
+    * ----------------------------------------------------
+    * @param alpha alpha
+    * @param i i
+    * @param b b
+    * @param g g
+    * @param r r
      */
     protected void altersingle(int alpha, int i, int b, int g, int r) {
 
@@ -590,12 +590,12 @@ public class NeuQuant {
 
 
     /**
-      * 搜索 for 偏置 BGR 值
-     * ----------------------------
-     * @param b b
-     * @param g g
-     * @param r r
-     * @return contest的结果
+    * 搜索 for 偏置 BGR 值
+    * ----------------------------
+    * @param b b
+    * @param g g
+    * @param r r
+    * @return contest的结果
      */
     protected int contest(int b, int g, int r) {
 

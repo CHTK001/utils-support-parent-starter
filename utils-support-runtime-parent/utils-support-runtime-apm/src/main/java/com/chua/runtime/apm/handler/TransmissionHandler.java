@@ -26,118 +26,118 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-   * 传输链路 处理器 — 拦截 套接字 / 服务端套接字 / datagram套接字 / httpurlconnection。
- *
- * <p>职责：</p>
- * <ul>
- *   <li>记录每次 TCP/UDP/HTTP 传输事件（传输链路对象）</li>
- *   <li>通过 Socket 远程地址提取远端 host:port</li>
- *   <li>通过端口号推断协议（Redis=6379, MySQL=3306, ZK=2181 等）</li>
- *   <li>通过调用栈分析识别三方软件栈（Jedis/Lettuce/Redisson/MySQL/Jedis/Kafka 等）</li>
- *   <li>与 RuntimeSpy 当前 traceId/spanId 关联</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
+* 传输链路 处理器 — 拦截 套接字 / 服务端套接字 / datagram套接字 / httpurlconnection。
+*
+* <p>职责：</p>
+* <ul>
+*   <li>记录每次 TCP/UDP/HTTP 传输事件（传输链路对象）</li>
+*   <li>通过 Socket 远程地址提取远端 host:port</li>
+*   <li>通过端口号推断协议（Redis=6379, MySQL=3306, ZK=2181 等）</li>
+*   <li>通过调用栈分析识别三方软件栈（Jedis/Lettuce/Redisson/MySQL/Jedis/Kafka 等）</li>
+*   <li>与 RuntimeSpy 当前 traceId/spanId 关联</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(TransmissionHandler.class.getName());
 
     /**
-      * 处理器 名称
+    * 处理器 名称
      */
     private static final String HANDLER_NAME = "transmission-handler";
 
     /**
-     * 插件版本
+    * 插件版本
      */
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-      * 启用配置属性 键
+    * 启用配置属性 键
      */
     private static final String PROP_TRANSMISSION_ENABLED = "transmission.enabled";
 
     /**
-     * 默认启用值
+    * 默认启用值
      */
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-     * 最大传输记录数
+    * 最大传输记录数
      */
     private static final int MAX_RECORDS = 10000;
 
     /**
-      * 套接字 内部名（Java.net.套接字）
+    * 套接字 内部名（Java.net.套接字）
      */
     private static final String SOCKET = "java/net/Socket";
 
     /**
-      * 服务端套接字 内部名
+    * 服务端套接字 内部名
      */
     private static final String SERVER_SOCKET = "java/net/ServerSocket";
 
     /**
-      * datagram套接字 内部名
+    * datagram套接字 内部名
      */
     private static final String DATAGRAM_SOCKET = "java/net/DatagramSocket";
 
     /**
-      * httpurlconnection 内部名
+    * httpurlconnection 内部名
      */
     private static final String HTTP_URL_CONNECTION = "java/net/HttpURLConnection";
 
     /**
-      * 套接字 拦截方法列表（连接/读取/写入/关闭）
+    * 套接字 拦截方法列表（连接/读取/写入/关闭）
      */
     private static final String[] SOCKET_METHODS = {"connect", "getInputStream", "getOutputStream", "close"};
 
     /**
-      * 服务端套接字 拦截方法列表（接收连接）
+    * 服务端套接字 拦截方法列表（接收连接）
      */
     private static final String[] SERVER_SOCKET_METHODS = {"accept"};
 
     /**
-      * datagram套接字 拦截方法列表（发送/接收）
+    * datagram套接字 拦截方法列表（发送/接收）
      */
     private static final String[] DATAGRAM_METHODS = {"send", "receive"};
 
     /**
-      * httpurlconnection 拦截方法列表（连接）
+    * httpurlconnection 拦截方法列表（连接）
      */
     private static final String[] HTTP_METHODS = {"connect"};
 
     /**
-     * 传输记录列表
+    * 传输记录列表
      */
     private final com.chua.runtime.apm.handler.BoundedRecordList<TransmissionRecord> records;
 
     /**
-      * 主机:端口 → 计数（依赖图数据）
+    * 主机:端口 → 计数（依赖图数据）
      */
     private final Map<String, Long> connectionCount;
 
     /**
-     * 是否启用
+    * 是否启用
      */
     private boolean enabled;
 
     /**
-     * 插件上下文
+    * 插件上下文
      */
     private PluginContext context;
 
     /**
-     * 是否已启动
+    * 是否已启动
      */
     private final AtomicBoolean started;
 
     /**
-     * 传输记录线程局部存储（用于关联 ENTRY 和 EXIT）。
+    * 传输记录线程局部存储（用于关联 ENTRY 和 EXIT）。
      */
     private static final ThreadLocal<TransmissionRecord> TRANSMISSION_HOLDER =
             new ThreadLocal<>();
@@ -243,18 +243,18 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 本地网络身份缓存 — 避免在 处理entry 阶段重复解析 inet地址.获取本地主机()
+    * 本地网络身份缓存 — 避免在 处理entry 阶段重复解析 inet地址.获取本地主机()
      */
     private static volatile String LOCAL_HOST;
     /**
-      * 本地 端口 hint
+    * 本地 端口 hint
      */
     private static volatile int LOCAL_PORT_HINT = -1;
 
     /**
-     * 解析本地主机
-     *
-     * @return resolve本地主机的结果
+    * 解析本地主机
+    *
+    * @return resolve本地主机的结果
      */
     private static String resolveLocalHost() {
         if (LOCAL_HOST != null) {
@@ -269,9 +269,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 处理Entry
-     *
-     * @param ctx ctx
+    * 处理Entry
+    *
+    * @param ctx ctx
      */
     private void handleEntry(InterceptContext ctx) {
         try {
@@ -350,9 +350,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 处理Exit
-     *
-     * @param ctx ctx
+    * 处理Exit
+    *
+    * @param ctx ctx
      */
     private void handleExit(InterceptContext ctx) {
         try {
@@ -390,9 +390,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 把单次传输事件同步到 dependency图计算处理器，生成 源 → Target 边。
-     *
-     * @param record 传输记录
+    * 把单次传输事件同步到 dependency图计算处理器，生成 源 → Target 边。
+    *
+    * @param record 传输记录
      */
     private void emitToDependencyGraph(TransmissionRecord record) {
         try {
@@ -413,9 +413,9 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-      * 补充目标端点信息（端口 / 主机 / software / operation）。
-     * @param ctx ctx
-     * @param record record
+    * 补充目标端点信息（端口 / 主机 / software / operation）。
+    * @param ctx ctx
+    * @param record record
      */
     private void enrichTargetEndpoint(InterceptContext ctx, TransmissionRecord record) {
         String className = ctx.getClassName();
@@ -433,10 +433,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * enrich套接字端点
-     *
-     * @param ctx ctx
-     * @param record record
+    * enrich套接字端点
+    *
+    * @param ctx ctx
+    * @param record record
      */
     private void enrichSocketEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
@@ -473,10 +473,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * enrichdatagram端点
-     *
-     * @param ctx ctx
-     * @param record record
+    * enrichdatagram端点
+    *
+    * @param ctx ctx
+    * @param record record
      */
     private void enrichDatagramEndpoint(InterceptContext ctx, TransmissionRecord record) {
  // datagram套接字 的 发送/接收 目标地址来自 datagram数据包 参数
@@ -491,10 +491,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * enrichhttp端点
-     *
-     * @param ctx ctx
-     * @param record record
+    * enrichhttp端点
+    *
+    * @param ctx ctx
+    * @param record record
      */
     private void enrichHttpEndpoint(InterceptContext ctx, TransmissionRecord record) {
         try {
@@ -527,10 +527,10 @@ public class TransmissionHandler implements Plugin, RuntimeSpy.Interceptor {
     }
 
     /**
-     * 推断协议：优先用栈分析识别的软件栈反查默认协议，其次用类名兜底。
-     * @param software software
-     * @param className 类名称
-     * @return infer协议从stack和类的结果
+    * 推断协议：优先用栈分析识别的软件栈反查默认协议，其次用类名兜底。
+    * @param software software
+    * @param className 类名称
+    * @return infer协议从stack和类的结果
      */
     private Protocol inferProtocolFromStackAndClass(Software software, String className) {
         // 已识别软件栈 → 反查默认协议
@@ -591,10 +591,10 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
     }
 
     /**
-     * infer协议从类
-     *
-     * @param internalName 内部名称
-     * @return infer协议从类的结果
+    * infer协议从类
+    *
+    * @param internalName 内部名称
+    * @return infer协议从类的结果
      */
     private Protocol inferProtocolFromClass(String internalName) {
         if (internalName == null) {
@@ -613,10 +613,10 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
     }
 
     /**
-     * 解析套接字对象
-     *
-     * @param ctx ctx
-     * @return resolve套接字对象的结果
+    * 解析套接字对象
+    *
+    * @param ctx ctx
+    * @return resolve套接字对象的结果
      */
     private Object resolveSocketObject(InterceptContext ctx) {
  // 从 用户数据 优先；否则从 ctx 自身的 this 引用尝试获取
@@ -624,28 +624,28 @@ case HDFS, SPARK, FLINK -> { return Protocol.INTERNAL; }
     }
 
     /**
-     * 解析httpconnection
-     *
-     * @param ctx ctx
-     * @return resolveHttpConnection的结果
+    * 解析httpconnection
+    *
+    * @param ctx ctx
+    * @return resolveHttpConnection的结果
      */
     private Object resolveHttpConnection(InterceptContext ctx) {
         return ctx.getUserData() != null ? ctx.getUserData() : null;
     }
 
     /**
-     * 获取Records
-     *
-     * @return 获取records的结果
+    * 获取Records
+    *
+    * @return 获取records的结果
      */
     public List<TransmissionRecord> getRecords() {
         return records.snapshot();
     }
 
     /**
-     * 获取Connection计算数量
-     *
-     * @return 获取connection数量的结果
+    * 获取Connection计算数量
+    *
+    * @return 获取connection数量的结果
      */
     public Map<String, Long> getConnectionCount() {
         return Collections.unmodifiableMap(connectionCount);

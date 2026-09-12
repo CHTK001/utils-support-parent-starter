@@ -5,11 +5,11 @@ import lombok.Data;
 
 
 /**
- * 负载均衡服务配置。
- * <p>封装负载均衡器所需的连接信息。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 负载均衡服务配置。
+* <p>封装负载均衡器所需的连接信息。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder

@@ -14,20 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL 权限元数据操作实现。
- *
- * @author CH
- * @since 4.0.0.42
- * @param ds ds
- * @param sql SQL
- * @param privileges privileges
- * @return 方法的结果
- * @param username 用户名
+* MySQL 权限元数据操作实现。
+*
+* @author CH
+* @since 4.0.0.42
+* @param ds ds
+* @param sql SQL
+* @param privileges privileges
+* @return 方法的结果
+* @param username 用户名
  */
 public class MysqlMetaPermission implements MetaPermission {
 /**
- * mysqlmeta权限。
- * @param dataSource 数据源
+* mysqlmeta权限。
+* @param dataSource 数据源
  */
 
     private final DataSource dataSource; // 数据源
@@ -35,9 +35,9 @@ public class MysqlMetaPermission implements MetaPermission {
     private String table; // table
 
     /**
-     * 列表。
-     * @return 列表的结果
-     * @param dataSource 数据源
+    * 列表。
+    * @return 列表的结果
+    * @param dataSource 数据源
      */
     public MysqlMetaPermission(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -70,9 +70,9 @@ public class MysqlMetaPermission implements MetaPermission {
         return list().stream()
                 .filter(p -> username.equals(p.getUser()))
                 /**
-                 * 转为用户。
-                 * @param username 用户名
-                 * @return 转为用户的结果
+                * 转为用户。
+                * @param username 用户名
+                * @return 转为用户的结果
                  */
                 .toList();
     }
@@ -81,9 +81,9 @@ public class MysqlMetaPermission implements MetaPermission {
     public MetaPermission toUser(String username) {
         this.user = username;
         /**
-          * ontable。
-         * @param tableName table名称
-         * @return onTable的结果
+        * ontable。
+        * @param tableName table名称
+        * @return onTable的结果
          */
         return this;
     }
@@ -92,10 +92,10 @@ public class MysqlMetaPermission implements MetaPermission {
     public MetaPermission onTable(String tableName) {
         this.table = tableName;
         /**
-          * oncolumn。
-         * @param tableName table名称
-         * @param columnName column名称
-         * @return onColumn的结果
+        * oncolumn。
+        * @param tableName table名称
+        * @param columnName column名称
+        * @return onColumn的结果
          */
         return this;
     }
@@ -103,9 +103,9 @@ public class MysqlMetaPermission implements MetaPermission {
     @Override
     public MetaPermission onColumn(String tableName, String columnName) {
         /**
-         * grant。
-         * @param privileges privileges
-         * @return grant的结果
+        * grant。
+        * @param privileges privileges
+        * @return grant的结果
          */
         return this;
     }
@@ -119,11 +119,11 @@ public class MysqlMetaPermission implements MetaPermission {
     public RevokeBuilder revoke(String privileges) {
         return new RevokeStep(dataSource, privileges, user);
     /**
-     * strip引述。
-     * @param raw raw
-     * @return strip引述的结果
-     * @param ds ds
-     * @param sql sql
+    * strip引述。
+    * @param raw raw
+    * @return strip引述的结果
+    * @param ds ds
+    * @param sql sql
      */
     }
 
@@ -147,10 +147,10 @@ public class MysqlMetaPermission implements MetaPermission {
 
     // ==================== Inner Steps ====================
      /**
-      * GrantStep类。
-      *
-      * @author CH
-      * @since 4.0.0
+     * GrantStep类。
+     *
+     * @author CH
+     * @since 4.0.0
       */
      * RevokeStep类。
      *

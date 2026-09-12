@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Hibernate 处理器 — intercepts Hibernate ORM 会话 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* Hibernate 处理器 — intercepts Hibernate ORM 会话 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HibernateHandler extends AbstractAppHandler {
 
     /**
-      * 会话
+    * 会话
      */
     private static final String SESSION = "org/hibernate/Session";
     /**
-      * 会话 方法
+    * 会话 方法
      */
     private static final String[] SESSION_METHODS = {"save", "update", "delete", "load", "get", "merge", "persist"};
 

@@ -7,10 +7,10 @@ import java.io.OutputStream;
 import java.util.function.Consumer;
 
 /**
-   * ffmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
- *
- * @author CH
- * @since 4.0.0.42
+* ffmpeg 处理器 SPI 接口，定义音视频处理的核心操作。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public interface FFmpegProcessor {
 

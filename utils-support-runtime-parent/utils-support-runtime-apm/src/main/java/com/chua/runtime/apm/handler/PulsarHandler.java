@@ -7,38 +7,38 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Pulsar 应用层 处理器 — 拦截 Apache Pulsar 客户端 关键调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code org.apache.pulsar.client.api.Producer} — send / sendAsync（生产）</li>
- *   <li>{@code org.apache.pulsar.client.api.Consumer} — receive / acknowledge（消费）</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：Pulsar 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Pulsar 应用层 处理器 — 拦截 Apache Pulsar 客户端 关键调用并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code org.apache.pulsar.client.api.Producer} — send / sendAsync（生产）</li>
+*   <li>{@code org.apache.pulsar.client.api.Consumer} — receive / acknowledge（消费）</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：Pulsar 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PulsarHandler extends AbstractAppHandler {
 
     /**
-     * Producer 接口 / 实现类内部名
+    * Producer 接口 / 实现类内部名
      */
     private static final String PRODUCER_CLASS = "org/apache/pulsar/client/api/Producer";
 
     /**
-     * Consumer 接口 / 实现类内部名
+    * Consumer 接口 / 实现类内部名
      */
     private static final String CONSUMER_CLASS = "org/apache/pulsar/client/api/Consumer";
 
     /**
-     * Producer 方法集合
+    * Producer 方法集合
      */
     private static final String[] PRODUCER_METHODS = {"send", "sendAsync"};
 
     /**
-     * Consumer 方法集合
+    * Consumer 方法集合
      */
     private static final String[] CONSUMER_METHODS = {"receive", "receiveAsync", "acknowledge"};
 

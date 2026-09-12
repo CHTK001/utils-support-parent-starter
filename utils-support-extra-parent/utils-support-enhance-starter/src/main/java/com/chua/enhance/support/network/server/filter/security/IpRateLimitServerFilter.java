@@ -10,28 +10,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * IP 限流过滤器，基于令牌桶算法按 IP 进行精准限流。
- *
- * <p>每个 IP 独立维护一个令牌桶，默认容量 50 个令牌，每秒补充 10 个令牌。
- * 令牌耗尽时返回 429。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code ipRateLimit.bucketCapacity} — 令牌桶容量，默认 50</li>
- *   <li>{@code ipRateLimit.refillRate} — 每秒补充令牌数，默认 10</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* IP 限流过滤器，基于令牌桶算法按 IP 进行精准限流。
+*
+* <p>每个 IP 独立维护一个令牌桶，默认容量 50 个令牌，每秒补充 10 个令牌。
+* 令牌耗尽时返回 429。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code ipRateLimit.bucketCapacity} — 令牌桶容量，默认 50</li>
+*   <li>{@code ipRateLimit.refillRate} — 每秒补充令牌数，默认 10</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class IpRateLimitServerFilter implements ServerFilter {
 
     /**
-     * 默认令牌桶容量
+    * 默认令牌桶容量
      */
     private static final int DEFAULT_BUCKET_CAPACITY = 50;
     /**
-     * 默认每秒补充令牌数
+    * 默认每秒补充令牌数
      */
     private static final int DEFAULT_REFILL_RATE = 10;
 
@@ -41,7 +41,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     private int refillRate = DEFAULT_REFILL_RATE;
 
     /**
-     * IP → 令牌桶
+    * IP → 令牌桶
      */
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
@@ -84,10 +84,10 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     /**
-     * 解析客户端ip
-     *
-     * @param request 请求
-     * @return resolve客户端ip的结果
+    * 解析客户端ip
+    *
+    * @param request 请求
+    * @return resolve客户端ip的结果
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
@@ -103,9 +103,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
     }
 
     /**
-     * 令牌桶实现，支持按时间补充令牌。
-     * @author CH
-     * @since 4.0.0
+    * 令牌桶实现，支持按时间补充令牌。
+    * @author CH
+    * @since 4.0.0
      */
     private static class TokenBucket {
         /** 容量 */
@@ -125,9 +125,9 @@ public class IpRateLimitServerFilter implements ServerFilter {
         }
 
         /**
-         * 尝试consume
-         *
-         * @return 尝试consume的结果
+        * 尝试consume
+        *
+        * @return 尝试consume的结果
          */
         synchronized boolean tryConsume() {
             refill();

@@ -4,10 +4,10 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 音乐源选项
- * 
- * @author CH
- * @since 4.0.0.42
+* 音乐源选项
+* 
+* @author CH
+* @since 4.0.0.42
 */
 @Data
 @Builder

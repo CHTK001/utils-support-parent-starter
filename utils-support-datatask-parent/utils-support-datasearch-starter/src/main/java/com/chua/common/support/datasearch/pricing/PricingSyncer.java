@@ -13,25 +13,25 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 定价同步工具。
- *
- * <p>负责触发各厂商从线上拉取最新定价并持久化到本地文件缓存，
- * 或直接从本地加载全部厂商定价。</p>
- *
- * <pre>{@code
- *   // 从线上同步全部厂商定价到本地文件缓存
- *   PricingSyncer.syncAllFromOnline(FileConfigSaveOrLoader.create());
- *
- *   // 同步指定厂商定价到本地
- *   PricingSyncer.syncFromOnline(loader, "openai", "zhipu");
- *
- *   // 从本地文件缓存加载全部定价
- *   List<ModelDefinition> all = PricingSyncer.loadAll(loader);
- * }</pre>ition> all = PricingSyncer.loadAll(loader);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 定价同步工具。
+*
+* <p>负责触发各厂商从线上拉取最新定价并持久化到本地文件缓存，
+* 或直接从本地加载全部厂商定价。</p>
+*
+* <pre>{@code
+*   // 从线上同步全部厂商定价到本地文件缓存
+*   PricingSyncer.syncAllFromOnline(FileConfigSaveOrLoader.create());
+*
+*   // 同步指定厂商定价到本地
+*   PricingSyncer.syncFromOnline(loader, "openai", "zhipu");
+*
+*   // 从本地文件缓存加载全部定价
+*   List<ModelDefinition> all = PricingSyncer.loadAll(loader);
+* }</pre>ition> all = PricingSyncer.loadAll(loader);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class PricingSyncer {
 
@@ -43,10 +43,10 @@ public final class PricingSyncer {
     }
 
     /**
-     * 从线上同步全部厂商定价到本地文件缓存。
-     *
-     * @param loader 配置加载器
-     * @return 同步成功的厂商数量
+    * 从线上同步全部厂商定价到本地文件缓存。
+    *
+    * @param loader 配置加载器
+    * @return 同步成功的厂商数量
      */
     public static int syncAllFromOnline(ConfigSaveOrLoader loader) {
         if (loader == null) {
@@ -70,11 +70,11 @@ public final class PricingSyncer {
     }
 
     /**
-     * 从线上同步指定厂商定价到本地文件缓存。
-     *
-     * @param loader  配置加载器
-     * @param names   厂商名称（如 "openai", "zhipu"）
-     * @return 同步成功的厂商数量
+    * 从线上同步指定厂商定价到本地文件缓存。
+    *
+    * @param loader  配置加载器
+    * @param names   厂商名称（如 "openai", "zhipu"）
+    * @return 同步成功的厂商数量
      */
     public static int syncFromOnline(ConfigSaveOrLoader loader, String... names) {
         if (loader == null || names == null || names.length == 0) {
@@ -99,10 +99,10 @@ public final class PricingSyncer {
     }
 
     /**
-     * 从本地文件缓存加载全部厂商定价。
-     *
-     * @param loader 配置加载器
-     * @return 全部定价列表
+    * 从本地文件缓存加载全部厂商定价。
+    *
+    * @param loader 配置加载器
+    * @return 全部定价列表
      */
     public static List<ModelDefinition> loadAll(ConfigSaveOrLoader loader) {
         if (loader == null) {

@@ -15,29 +15,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * UER/bart-基础-chinese-cluecorpussmall Seq2Seq ONNX 翻译器
- * <p>
-   * 在 cluecorpussmall 中文语料上从头预训练的 BART-基础 模型。
- * BART 架构结合了双向编码器与自回归解码器，适用于中文摘要、文本生成、问答等任务。
- * 词表和 tokenizer 针对中文重新设计，与英文 BART 不兼容。
- * </p>
- * <p>
-   * 模型来源：huggingface.co/UER/bart-基础-chinese-cluecorpussmall
-   * 架构：编码器-解码器 (ONNX: 模型.onnx)
- * 输入：中文文本字符串
- * 输出：生成的中文字符串
- * </p>
- * <p>
- * 输入流程：
- * <ol>
- *   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
- *   <li>ONNX 模型正向推理得到 logits</li>
- *   <li>argmax 取每步最优 token ID</li>
- *   <li>Tokenizer decode 得到中文结果文本</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* UER/bart-基础-chinese-cluecorpussmall Seq2Seq ONNX 翻译器
+* <p>
+* 在 cluecorpussmall 中文语料上从头预训练的 BART-基础 模型。
+* BART 架构结合了双向编码器与自回归解码器，适用于中文摘要、文本生成、问答等任务。
+* 词表和 tokenizer 针对中文重新设计，与英文 BART 不兼容。
+* </p>
+* <p>
+* 模型来源：huggingface.co/UER/bart-基础-chinese-cluecorpussmall
+* 架构：编码器-解码器 (ONNX: 模型.onnx)
+* 输入：中文文本字符串
+* 输出：生成的中文字符串
+* </p>
+* <p>
+* 输入流程：
+* <ol>
+*   <li>HuggingFaceTokenizer (SentencePiece) 将中文文本编码为 input_ids / attention_mask</li>
+*   <li>ONNX 模型正向推理得到 logits</li>
+*   <li>argmax 取每步最优 token ID</li>
+*   <li>Tokenizer decode 得到中文结果文本</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ChineseBartBaseTranslator implements Translator<String, String> {
@@ -106,10 +106,10 @@ public class ChineseBartBaseTranslator implements Translator<String, String> {
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -122,11 +122,11 @@ public class ChineseBartBaseTranslator implements Translator<String, String> {
     }
 
     /**
-     * 查找文件
-     *
-     * @param root 根
-     * @param name 名称
-     * @return find文件的结果
+    * 查找文件
+    *
+    * @param root 根
+    * @param name 名称
+    * @return find文件的结果
      */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);

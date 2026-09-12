@@ -9,18 +9,18 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 import java.lang.annotation.Annotation;
 
 /**
- * Spring 作用域检测器。
- *
- * <p>通过反射检测 Spring 作用域注解，不依赖 Spring 编译时 API。
- * 支持的注解：
- * <ul>
- *   <li>@Scope("prototype") → PROTOTYPE</li>
- *   <li>@Prototype → PROTOTYPE</li>
- *   <li>@Scope("singleton") / 默认值 → SINGLETON</li>
- * </ul></p>
- *
- * @author CH
- * @since 4.0.0.42
+* Spring 作用域检测器。
+*
+* <p>通过反射检测 Spring 作用域注解，不依赖 Spring 编译时 API。
+* 支持的注解：
+* <ul>
+*   <li>@Scope("prototype") → PROTOTYPE</li>
+*   <li>@Prototype → PROTOTYPE</li>
+*   <li>@Scope("singleton") / 默认值 → SINGLETON</li>
+* </ul></p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("spring")
 @SpiDescribe("Spring 作用域检测器")
@@ -51,12 +51,12 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
 
     @SuppressWarnings("unchecked")
     /**
-     * 获取注解值
-     *
-     * @param annotation 注解
-     * @param attribute attribute
-     * @param defaultValue 默认值
-     * @return 获取注解值的结果
+    * 获取注解值
+    *
+    * @param annotation 注解
+    * @param attribute attribute
+    * @param defaultValue 默认值
+    * @return 获取注解值的结果
      */
     private static <T> T getAnnotationValue(Annotation annotation, String attribute, T defaultValue) {
         try {

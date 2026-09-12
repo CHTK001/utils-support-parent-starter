@@ -15,17 +15,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 基于在线号码段接口的手机归属地提供器（在线 API + 内置兜底）。
- *
- * <p>在线数据源使用 tenapi 手机号码归属地接口（无需 key）：
- * {@code https://tenapi.cn/v2/mobile?phone=%s}，返回结构
- * {@code {"code":200,"data":{"province":..., "city":..., "carrier":..., ...}}}。
- *
- * <p>在线请求失败或接口不可达时，自动回退到内置号码段前缀表（覆盖常用运营商与省份），
- * 保证核心能力可用。内置兜底基于公开号码段资料，具体属地以运营商实时数据为准。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于在线号码段接口的手机归属地提供器（在线 API + 内置兜底）。
+*
+* <p>在线数据源使用 tenapi 手机号码归属地接口（无需 key）：
+* {@code https://tenapi.cn/v2/mobile?phone=%s}，返回结构
+* {@code {"code":200,"data":{"province":..., "city":..., "carrier":..., ...}}}。
+*
+* <p>在线请求失败或接口不可达时，自动回退到内置号码段前缀表（覆盖常用运营商与省份），
+* 保证核心能力可用。内置兜底基于公开号码段资料，具体属地以运营商实时数据为准。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("tenapi")
 public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
@@ -54,9 +54,9 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 构造一个指定接口地址模板的提供器。
-     *
-     * @param urlTemplate 含 {@code %s} 号码占位符的接口地址，如 {@code https://host/api?phone=%s}
+    * 构造一个指定接口地址模板的提供器。
+    *
+    * @param urlTemplate 含 {@code %s} 号码占位符的接口地址，如 {@code https://host/api?phone=%s}
      */
     public OnlinePhoneLocationProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
@@ -80,10 +80,10 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 在线查询
-     *
-     * @param phone phone
-     * @return 获取online的结果
+    * 在线查询
+    *
+    * @param phone phone
+    * @return 获取online的结果
      */
     private PhoneLocationInfo fetchOnline(String phone) {
         try {
@@ -111,10 +111,10 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 内置前缀表兜底
-     *
-     * @param phone phone
-     * @return lookup降级的结果
+    * 内置前缀表兜底
+    *
+    * @param phone phone
+    * @return lookup降级的结果
      */
     private PhoneLocationInfo lookupFallback(String phone) {
         String prefix4 = phone.substring(0, 4);
@@ -131,10 +131,10 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 按前 3 位识别运营商
-     *
-     * @param prefix 前缀
-     * @return carrierByPrefix3的结果
+    * 按前 3 位识别运营商
+    *
+    * @param prefix 前缀
+    * @return carrierByPrefix3的结果
      */
     private static String carrierByPrefix3(String prefix) {
         if (prefix.startsWith("13") || prefix.startsWith("15") || prefix.startsWith("18")) {
@@ -150,11 +150,11 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 文本
-     *
-     * @param n n
-     * @param k k
-     * @return 文本的结果
+    * 文本
+    *
+    * @param n n
+    * @param k k
+    * @return 文本的结果
      */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
@@ -162,8 +162,8 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 内置常用号码段前缀表（前 4 位 -> 属地）。
-     * @return 构建前缀table的结果
+    * 内置常用号码段前缀表（前 4 位 -> 属地）。
+    * @return 构建前缀table的结果
      */
     private static Map<String, PhoneLocationInfo> buildPrefixTable() {
         Map<String, PhoneLocationInfo> map = new HashMap<>();
@@ -208,13 +208,13 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     }
 
     /**
-     * 添加前缀表词条
-     *
-     * @param map 映射
-     * @param prefix 前缀
-     * @param province province
-     * @param city city
-     * @param carrier carrier
+    * 添加前缀表词条
+    *
+    * @param map 映射
+    * @param prefix 前缀
+    * @param province province
+    * @param city city
+    * @param carrier carrier
      */
     private static void add(Map<String, PhoneLocationInfo> map, String prefix, String province, String city, String carrier) {
         map.put(prefix, new PhoneLocationInfo("", province, city, carrier, "", ""));

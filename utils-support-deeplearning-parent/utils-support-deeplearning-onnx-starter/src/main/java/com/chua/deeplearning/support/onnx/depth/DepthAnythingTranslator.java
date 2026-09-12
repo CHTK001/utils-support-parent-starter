@@ -17,20 +17,20 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
-   * 深度-Anything V2 ONNX
- * <p>
-   * 深度-Anything V2
-   * monocular 深度 estimation
-   * 单个 RGB 镜像 -> 深度 映射
- * </p>
- * <p>
-   * : 518x518 RGB  镜像net normalize
- *      : [1, 3, 518, 518] -> [1, 1, H/14, W/14]                
-   * : 镜像
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 深度-Anything V2 ONNX
+* <p>
+* 深度-Anything V2
+* monocular 深度 estimation
+* 单个 RGB 镜像 -> 深度 映射
+* </p>
+* <p>
+* : 518x518 RGB  镜像net normalize
+*      : [1, 3, 518, 518] -> [1, 1, H/14, W/14]                
+* : 镜像
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DepthAnythingTranslator implements Translator<Image, Image> {

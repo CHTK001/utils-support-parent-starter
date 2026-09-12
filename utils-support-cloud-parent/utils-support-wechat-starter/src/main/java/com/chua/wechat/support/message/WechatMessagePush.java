@@ -26,28 +26,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 微信消息推送实现
- * <p>
-   * 支持三种推送模式（通过 内容类型 或 {@code wechat.type} 配置区分）：
- * <ul>
- *   <li>webhook：企业微信群机器人 Webhook，发送文本/Markdown 消息</li>
- *   <li>mp：公众号模板消息，需 appId/appSecret 与模板 ID</li>
- *   <li>mini：小程序订阅消息，需 appId/appSecret 与模板 ID</li>
- * </ul>
-   * 接收人（转为）为企业微信/公众号/小程序用户的 openid。
- * </p>
- *
- * <h3>环境配置</h3>
- * <pre>
- *   wechat.type        推送类型: webhook/mp/mini（默认 webhook）
- *   wechat.webhookUrl  企业微信群机器人 Webhook 地址（webhook 模式必填）
- *   wechat.appId       公众号/小程序 AppID（mp/mini 模式必填）
- *   wechat.appSecret   公众号/小程序 AppSecret（mp/mini 模式必填）
- *   wechat.templateId  默认模板 ID（mp/mini 模式，发送时也可通过 request.templateId 指定）
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 微信消息推送实现
+* <p>
+* 支持三种推送模式（通过 内容类型 或 {@code wechat.type} 配置区分）：
+* <ul>
+*   <li>webhook：企业微信群机器人 Webhook，发送文本/Markdown 消息</li>
+*   <li>mp：公众号模板消息，需 appId/appSecret 与模板 ID</li>
+*   <li>mini：小程序订阅消息，需 appId/appSecret 与模板 ID</li>
+* </ul>
+* 接收人（转为）为企业微信/公众号/小程序用户的 openid。
+* </p>
+*
+* <h3>环境配置</h3>
+* <pre>
+*   wechat.type        推送类型: webhook/mp/mini（默认 webhook）
+*   wechat.webhookUrl  企业微信群机器人 Webhook 地址（webhook 模式必填）
+*   wechat.appId       公众号/小程序 AppID（mp/mini 模式必填）
+*   wechat.appSecret   公众号/小程序 AppSecret（mp/mini 模式必填）
+*   wechat.templateId  默认模板 ID（mp/mini 模式，发送时也可通过 request.templateId 指定）
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("wechat")
 @SpiDescribe(
@@ -63,46 +63,46 @@ import java.util.concurrent.ConcurrentMap;
         }
 )
 /**
-   * 公共 类 wechat消息push implements 消息push {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 wechat消息push implements 消息push {
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WechatMessagePush implements MessagePush {
 
     /**
-      * 微信 access_令牌 获取地址
+    * 微信 access_令牌 获取地址
      */
     private static final String API_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token";
 
     /**
-     * 公众号模板消息发送地址
+    * 公众号模板消息发送地址
      */
     private static final String API_TEMPLATE_SEND_URL = "https://api.weixin.qq.com/cgi-bin/message/template/send";
 
     /**
-     * 小程序订阅消息发送地址
+    * 小程序订阅消息发送地址
      */
     private static final String API_SUBSCRIBE_SEND_URL = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send";
 
     /**
-     * 推送类型：企业微信群机器人 Webhook
+    * 推送类型：企业微信群机器人 Webhook
      */
     private static final String TYPE_WEBHOOK = "webhook";
 
     /**
-     * 推送类型：公众号模板消息
+    * 推送类型：公众号模板消息
      */
     private static final String TYPE_MP = "mp";
 
     /**
-     * 推送类型：小程序订阅消息
+    * 推送类型：小程序订阅消息
      */
     private static final String TYPE_MINI = "mini";
 
     /**
-      * access_令牌 提前过期余量（毫秒），避免边界失效
+    * access_令牌 提前过期余量（毫秒），避免边界失效
      */
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
@@ -113,16 +113,16 @@ public class WechatMessagePush implements MessagePush {
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
-      * access_令牌 缓存（按 appid:appsecret 维度）
+    * access_令牌 缓存（按 appid:appsecret 维度）
      */
     private static final ConcurrentMap<String, TokenCache> TOKEN_CACHE = new ConcurrentHashMap<>();
 
     /**
-      * access_令牌 缓存项
-     *
-     * @param token    访问令牌
-     * @param expireAt 过期时间戳（毫秒）
-     * @return 令牌缓存的结果
+    * access_令牌 缓存项
+    *
+    * @param token    访问令牌
+    * @param expireAt 过期时间戳（毫秒）
+    * @return 令牌缓存的结果
      */
     private record TokenCache(String token, long expireAt) {
     }
@@ -133,8 +133,8 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-      * 创建 wechat消息push 实例
-     * @param environment 环境
+    * 创建 wechat消息push 实例
+    * @param environment 环境
      */
     public WechatMessagePush(MessageEnvironment environment) {
         this.environment = environment;
@@ -148,8 +148,8 @@ public class WechatMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送
-     * @param request 请求
+    * 发送
+    * @param request 请求
      */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
@@ -178,10 +178,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 解析推送类型
-     *
-     * @param request 消息请求
-     * @return 推送类型（webhook/mp/mini）
+    * 解析推送类型
+    *
+    * @param request 消息请求
+    * @return 推送类型（webhook/mp/mini）
      */
     private String resolveType(MessageRequest request) {
         String contentType = request.getContentType();
@@ -201,10 +201,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 归一化配置的推送类型
-     *
-     * @param rawType 原始类型
-     * @return 归一化类型
+    * 归一化配置的推送类型
+    *
+    * @param rawType 原始类型
+    * @return 归一化类型
      */
     private String normalizeType(String rawType) {
         if (StringUtils.isBlank(rawType)) {
@@ -221,10 +221,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 企业微信群机器人 Webhook 推送
-     *
-     * @param request 消息请求
-     * @return 消息响应
+    * 企业微信群机器人 Webhook 推送
+    *
+    * @param request 消息请求
+    * @return 消息响应
      */
     private MessageResponse sendWebhook(MessageRequest request) {
         String webhookUrl = environment.get("wechat.webhookUrl");
@@ -252,10 +252,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 公众号模板消息推送
-     *
-     * @param request 消息请求
-     * @return 消息响应
+    * 公众号模板消息推送
+    *
+    * @param request 消息请求
+    * @return 消息响应
      */
     private MessageResponse sendTemplateMessage(MessageRequest request) {
         String appId = environment.get("wechat.appId");
@@ -287,10 +287,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 小程序订阅消息推送
-     *
-     * @param request 消息请求
-     * @return 消息响应
+    * 小程序订阅消息推送
+    *
+    * @param request 消息请求
+    * @return 消息响应
      */
     private MessageResponse sendSubscribeMessage(MessageRequest request) {
         String appId = environment.get("wechat.appId");
@@ -323,10 +323,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-      * 解析模板 标识：优先请求携带，否则使用配置默认值
-     *
-     * @param request 消息请求
-     * @return 模板 标识
+    * 解析模板 标识：优先请求携带，否则使用配置默认值
+    *
+    * @param request 消息请求
+    * @return 模板 标识
      */
     private String resolveTemplateId(MessageRequest request) {
         if (StringUtils.isNotBlank(request.getTemplateId())) {
@@ -336,10 +336,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-      * 将模板参数转换为微信 数据 结构（{键: {值: xxx}}）
-     *
-     * @param params 模板参数
-     * @return 微信 数据 JSON
+    * 将模板参数转换为微信 数据 结构（{键: {值: xxx}}）
+    *
+    * @param params 模板参数
+    * @return 微信 数据 JSON
      */
     private JsonObject buildData(Map<String, String> params) {
         JsonObject data = new JsonObject();
@@ -355,11 +355,11 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-      * 获取 access_令牌（带缓存）
-     *
-     * @param appId     公众号/小程序 appid
-     * @param appSecret 公众号/小程序 appsecret
-     * @return access_token
+    * 获取 access_令牌（带缓存）
+    *
+    * @param appId     公众号/小程序 appid
+    * @param appSecret 公众号/小程序 appsecret
+    * @return access_token
      */
     private String getAccessToken(String appId, String appSecret) {
         String cacheKey = appId + ":" + appSecret;
@@ -395,11 +395,11 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 执行 JSON POST 请求
-     *
-     * @param url 请求地址
-     * @param body 请求体
-     * @return 响应体字符串
+    * 执行 JSON POST 请求
+    *
+    * @param url 请求地址
+    * @param body 请求体
+    * @return 响应体字符串
      */
     private String executeJsonPost(String url, JsonObject body) {
         ClientRequest request = ClientRequest.of(url, HttpMethod.POST)
@@ -411,11 +411,11 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 解析微信接口返回结果
-     *
-     * @param responseBody 响应体
-     * @param bizName      业务名称（用于错误提示）
-     * @return 消息响应
+    * 解析微信接口返回结果
+    *
+    * @param responseBody 响应体
+    * @param bizName      业务名称（用于错误提示）
+    * @return 消息响应
      */
     private MessageResponse parseWechatResult(String responseBody, String bizName) {
         if (StringUtils.isBlank(responseBody)) {
@@ -442,17 +442,17 @@ public class WechatMessagePush implements MessagePush {
 
     @Override
     /**
-     * 获取Template
-     * @param templateId templateid
+    * 获取Template
+    * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
     /**
-     * 注册模板
-     *
-     * @param template 模板信息
+    * 注册模板
+    *
+    * @param template 模板信息
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);

@@ -8,21 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 Java 对象反射的 BeanPath 实现，支持链式配置忽略大小写和命名风格转换。
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Java 对象反射的 BeanPath 实现，支持链式配置忽略大小写和命名风格转换。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("object")
 public class ObjectBeanPath implements BeanPath {
 
     /**
-     * 是否忽略大小写匹配属性名
+    * 是否忽略大小写匹配属性名
      */
     private boolean ignoreCase;
 
     /**
-     * 命名风格，用于自动转换属性名
+    * 命名风格，用于自动转换属性名
      */
     private NamingStyle namingStyle = NamingStyle.RAW;
 

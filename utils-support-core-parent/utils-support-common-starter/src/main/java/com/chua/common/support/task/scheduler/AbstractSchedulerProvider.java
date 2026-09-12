@@ -6,14 +6,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 调度器提供者抽象基类
- *
- * <p>提供共享的任务注册表管理和通用方法实现。
- * 子类只需实现核心调度逻辑：{@link #doSchedule(String, Runnable, Trigger)}、
- * {@link #doReschedule(String, Trigger)}、{@link #doCancel(String)}、{@link #doShutdown()}。
- *
- * @author CH
- * @since 1.0.0
+* 调度器提供者抽象基类
+*
+* <p>提供共享的任务注册表管理和通用方法实现。
+* 子类只需实现核心调度逻辑：{@link #doSchedule(String, Runnable, Trigger)}、
+* {@link #doReschedule(String, Trigger)}、{@link #doCancel(String)}、{@link #doShutdown()}。
+*
+* @author CH
+* @since 1.0.0
  */
 public abstract class AbstractSchedulerProvider implements SchedulerProvider {
 
@@ -23,7 +23,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     protected volatile boolean running = true;
 
     /**
-     * 以随机 UUID 注册并调度任务。
+    * 以随机 UUID 注册并调度任务。
      */
     @Override
     public ScheduledTask schedule(Runnable task, Trigger trigger) {
@@ -31,7 +31,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-      * 以指定 标识 注册并调度任务：登记到任务表后委托 {@link #doSchedule}。
+    * 以指定 标识 注册并调度任务：登记到任务表后委托 {@link #doSchedule}。
      */
     @Override
     public ScheduledTask schedule(String id, Runnable task, Trigger trigger) {
@@ -42,7 +42,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-      * 更新指定任务的触发器；任务不存在时返回 空（调用方自行判定）。
+    * 更新指定任务的触发器；任务不存在时返回 空（调用方自行判定）。
      */
     @Override
     public ScheduledTask reschedule(String id, Trigger trigger) {
@@ -56,7 +56,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 取消并移除指定任务；任务不存在返回 false。
+    * 取消并移除指定任务；任务不存在返回 false。
      */
     @Override
     public boolean cancel(String id) {
@@ -70,7 +70,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 判断指定任务是否处于运行中（已注册且未取消）。
+    * 判断指定任务是否处于运行中（已注册且未取消）。
      */
     @Override
     public boolean isRunning(String id) {
@@ -79,7 +79,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 判断调度器整体是否运行中。
+    * 判断调度器整体是否运行中。
      */
     @Override
     public boolean isRunning() {
@@ -87,7 +87,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 获取全部已注册任务的快照列表。
+    * 获取全部已注册任务的快照列表。
      */
     @Override
     public List<ScheduledTask> getScheduledTasks() {
@@ -95,7 +95,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 关闭调度器：置位状态、取消并清空任务表后委托 {@link #doShutdown}。
+    * 关闭调度器：置位状态、取消并清空任务表后委托 {@link #doShutdown}。
      */
     @Override
     public void shutdown() {
@@ -106,31 +106,31 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 执行具体调度：将任务按触发器交给底层调度设施，由子类实现。
-     *
-     * @param id      任务 标识
-     * @param task    业务逻辑
-     * @param trigger 触发器
+    * 执行具体调度：将任务按触发器交给底层调度设施，由子类实现。
+    *
+    * @param id      任务 标识
+    * @param task    业务逻辑
+    * @param trigger 触发器
      */
     protected abstract void doSchedule(String id, Runnable task, Trigger trigger);
 
     /**
-     * 重新调度指定任务（触发器已更新），由子类实现。
-     *
-     * @param id      任务 标识
-     * @param trigger 新触发器
+    * 重新调度指定任务（触发器已更新），由子类实现。
+    *
+    * @param id      任务 标识
+    * @param trigger 新触发器
      */
     protected abstract void doReschedule(String id, Trigger trigger);
 
     /**
-     * 取消底层设施中的指定任务，由子类实现。
-     *
-     * @param id 任务 标识
+    * 取消底层设施中的指定任务，由子类实现。
+    *
+    * @param id 任务 标识
      */
     protected abstract void doCancel(String id);
 
     /**
-     * 释放底层调度资源（线程池等），由子类实现。
+    * 释放底层调度资源（线程池等），由子类实现。
      */
     protected abstract void doShutdown();
 }

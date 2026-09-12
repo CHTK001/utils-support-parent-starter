@@ -14,28 +14,28 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 
 /**
- * 图像上色 Translator
- * <p>
- * 基于深度学习的自动上色模型，为黑白照片或灰度图像生成自然的彩色图像。
-   * 大多数 ONNX 上色模型（如 deoldify、Colorize）直接输出 RGB 格式，
- * 无需 Lab 色彩空间转换，流程简洁高效。
- * </p>
- * <p>
-   * 模型来源：huggingface.co/bluefoxcreation/deoldify-ONNX
- * 架构：U-Net 风格编码器-解码器
-   * 输入：镜像（灰度图像）
-   * 输出：镜像（彩色 RGB 图像）
- * </p>
- * <p>
- * 输入流程：
- * <ol>
- *   <li>灰度图像归一化到 [0, 1]</li>
- *   <li>ONNX 模型直接预测 RGB 三通道输出</li>
- *   <li>反归一化到 [0, 255]，转为 uint8 图像</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* 图像上色 Translator
+* <p>
+* 基于深度学习的自动上色模型，为黑白照片或灰度图像生成自然的彩色图像。
+* 大多数 ONNX 上色模型（如 deoldify、Colorize）直接输出 RGB 格式，
+* 无需 Lab 色彩空间转换，流程简洁高效。
+* </p>
+* <p>
+* 模型来源：huggingface.co/bluefoxcreation/deoldify-ONNX
+* 架构：U-Net 风格编码器-解码器
+* 输入：镜像（灰度图像）
+* 输出：镜像（彩色 RGB 图像）
+* </p>
+* <p>
+* 输入流程：
+* <ol>
+*   <li>灰度图像归一化到 [0, 1]</li>
+*   <li>ONNX 模型直接预测 RGB 三通道输出</li>
+*   <li>反归一化到 [0, 255]，转为 uint8 图像</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class ImageColorizeTranslator implements Translator<Image, Image> {

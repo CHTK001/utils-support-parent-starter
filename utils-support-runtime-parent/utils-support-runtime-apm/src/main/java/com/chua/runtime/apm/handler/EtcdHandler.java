@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Etcd 处理器 — intercepts Etcd KV operations.
- *
- * @author CH
- * @since 4.0.0.42
+* Etcd 处理器 — intercepts Etcd KV operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class EtcdHandler extends AbstractAppHandler {
 
     /**
-     * kv 客户端
+    * kv 客户端
      */
     private static final String KV_CLIENT = "io/etcd/jetcd/KV";
     /**
-      * kv 方法
+    * kv 方法
      */
     private static final String[] KV_METHODS = {"put", "get", "delete", "compact"};
 

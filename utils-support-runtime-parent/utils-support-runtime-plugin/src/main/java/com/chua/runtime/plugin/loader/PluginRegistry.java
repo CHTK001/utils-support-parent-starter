@@ -8,24 +8,24 @@ import java.util.logging.Logger;
 import java.util.*;
 
 /**
- * 插件注册表 — 管理所有已加载的插件实例。
- *
- * @author CH
- * @since 4.0.0.42
+* 插件注册表 — 管理所有已加载的插件实例。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PluginRegistry {
 
     /**
-      * 日志
+    * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class.getName());
     /**
-     * 插件名称到信息映射
+    * 插件名称到信息映射
      */
     private final Map<String, PluginInfo> pluginMap;
 
     /**
-     * 所有插件列表
+    * 所有插件列表
      */
     private final List<PluginInfo> pluginList;
 
@@ -36,9 +36,9 @@ public class PluginRegistry {
     }
 
     /**
-     * 注册插件。
-     *
-     * @param info 插件信息
+    * 注册插件。
+    *
+    * @param info 插件信息
      */
     public void register(PluginInfo info) {
         if (pluginMap.containsKey(info.name())) {
@@ -50,10 +50,10 @@ public class PluginRegistry {
     }
 
     /**
-     * 按名称获取插件。
-     *
-     * @param name 插件名称
-     * @return 插件实例
+    * 按名称获取插件。
+    *
+    * @param name 插件名称
+    * @return 插件实例
      */
     public Plugin get(String name) {
         PluginInfo info = pluginMap.get(name);
@@ -61,54 +61,54 @@ public class PluginRegistry {
     }
 
     /**
-     * 按名称获取插件信息。
-     *
-     * @param name 插件名称
-     * @return 插件信息
+    * 按名称获取插件信息。
+    *
+    * @param name 插件名称
+    * @return 插件信息
      */
     public PluginInfo getInfo(String name) {
         return pluginMap.get(name);
     }
 
     /**
-     * 所有插件名称。
-     *
-     * @return 名称列表
+    * 所有插件名称。
+    *
+    * @return 名称列表
      */
     public List<String> getNames() {
         return new ArrayList<>(pluginMap.keySet());
     }
 
     /**
-     * 所有插件列表。
-     *
-     * @return 插件列表
+    * 所有插件列表。
+    *
+    * @return 插件列表
      */
     public List<PluginInfo> list() {
         return Collections.unmodifiableList(pluginList);
     }
 
     /**
-     * 插件数量。
-     *
-     * @return 数量
+    * 插件数量。
+    *
+    * @return 数量
      */
     public int size() {
         return pluginList.size();
     }
 
     /**
-     * 是否包含指定插件。
-     *
-     * @param name 插件名称
-     * @return 包含返回 true
+    * 是否包含指定插件。
+    *
+    * @param name 插件名称
+    * @return 包含返回 true
      */
     public boolean contains(String name) {
         return pluginMap.containsKey(name);
     }
 
     /**
-     * 清除所有插件。
+    * 清除所有插件。
      */
     public void clear() {
         pluginList.clear();
@@ -116,7 +116,7 @@ public class PluginRegistry {
     }
 
     /**
-     * 启动所有插件。
+    * 启动所有插件。
      */
     public void startAll() {
         for (PluginInfo info : pluginList) {
@@ -130,7 +130,7 @@ public class PluginRegistry {
     }
 
     /**
-     * 停止所有插件。
+    * 停止所有插件。
      */
     public void stopAll() {
         for (PluginInfo info : pluginList) {
@@ -144,9 +144,9 @@ public class PluginRegistry {
     }
 
     /**
-     * 获取所有运行中的插件。
-     *
-     * @return 运行中的插件列表
+    * 获取所有运行中的插件。
+    *
+    * @return 运行中的插件列表
      */
     public List<PluginInfo> getRunning() {
         List<PluginInfo> running = new ArrayList<>();

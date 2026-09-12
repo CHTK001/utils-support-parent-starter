@@ -24,79 +24,79 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 链式 SMB 客户端，基于 smb-jna。
- *
- * <p>用法：</p>
- * <pre>{@code
- * try (SmbClient client = SmbClient.create("smb://admin:pass@192.168.1.10:445/share")
- *         .connect()
- *         .login()
- *         .openShare()
- *         .cd("/folder")
- *         .upload(inputStream, "test.txt")
- *         .download("test.txt", outputStream)
- *         .listFiles("/")
- *         .close();
- * }</pre>       .download("test.txt", outputStream)
- *         .listFiles("/")
- *         .close();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 链式 SMB 客户端，基于 smb-jna。
+*
+* <p>用法：</p>
+* <pre>{@code
+* try (SmbClient client = SmbClient.create("smb://admin:pass@192.168.1.10:445/share")
+*         .connect()
+*         .login()
+*         .openShare()
+*         .cd("/folder")
+*         .upload(inputStream, "test.txt")
+*         .download("test.txt", outputStream)
+*         .listFiles("/")
+*         .close();
+* }</pre>       .download("test.txt", outputStream)
+*         .listFiles("/")
+*         .close();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SmbClient implements AutoCloseable {
 
     /**
-     * URI 地址
+    * URI 地址
      */
     private final String uri;
     /**
-      * smb 客户端
+    * smb 客户端
      */
     private final SMBClient smbClient;
     /**
-     * connection
+    * connection
      */
     private Connection connection;
     /**
-     * 会话对象
+    * 会话对象
      */
     private Session session;
     /**
-      * disk 共享
+    * disk 共享
      */
     private DiskShare diskShare;
 
     /**
-     * 主机地址
+    * 主机地址
      */
     private String host;
     /**
-     * 端口号
+    * 端口号
      */
     private int port;
     /**
-     * 用户
+    * 用户
      */
     private String user;
     /**
-     * 登录密码
+    * 登录密码
      */
     private String password;
     /**
-      * 共享 名称
+    * 共享 名称
      */
     private String shareName;
     /**
-      * work 路径
+    * work 路径
      */
     private String workPath = "/";
 
     /**
-      * 创建 smb客户端 实例
-     * @param uri uri
+    * 创建 smb客户端 实例
+    * @param uri uri
      */
     private SmbClient(String uri) {
         this.uri = uri;
@@ -105,19 +105,19 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 创建
-     *
-     * @param uri uri
-     * @return 创建的结果
+    * 创建
+    *
+    * @param uri uri
+    * @return 创建的结果
      */
     public static SmbClient create(String uri) {
         return new SmbClient(uri);
     }
 
     /**
-     * 解析Uri
-     *
-     * @param uri uri
+    * 解析Uri
+    *
+    * @param uri uri
      */
     private void parseUri(String uri) {
         String rest = uri.replaceFirst("^smb://", "");
@@ -141,9 +141,9 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 连接
-     *
-     * @return 连接的结果
+    * 连接
+    *
+    * @return 连接的结果
      */
     public SmbClient connect() {
         try {
@@ -155,9 +155,9 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * Login
-     *
-     * @return login的结果
+    * Login
+    *
+    * @return login的结果
      */
     public SmbClient login() {
         try {
@@ -172,9 +172,9 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 打开共享
-     *
-     * @return 打开共享的结果
+    * 打开共享
+    *
+    * @return 打开共享的结果
      */
     public SmbClient openShare() {
         if (session == null) {
@@ -189,10 +189,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * Cd
-     *
-     * @param path 路径
-     * @return cd的结果
+    * Cd
+    *
+    * @param path 路径
+    * @return cd的结果
      */
     public SmbClient cd(String path) {
         if (path == null || path.isEmpty()) {
@@ -206,11 +206,11 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * Upload
-     *
-     * @param in 入
-     * @param remoteName 远程名称
-     * @return upload的结果
+    * Upload
+    *
+    * @param in 入
+    * @param remoteName 远程名称
+    * @return upload的结果
      */
     public SmbClient upload(InputStream in, String remoteName) {
         checkShare();
@@ -237,11 +237,11 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * Download
-     *
-     * @param remoteName 远程名称
-     * @param out 出
-     * @return download的结果
+    * Download
+    *
+    * @param remoteName 远程名称
+    * @param out 出
+    * @return download的结果
      */
     public SmbClient download(String remoteName, OutputStream out) {
         checkShare();
@@ -267,10 +267,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 列表文件
-     *
-     * @param path 路径
-     * @return 列表文件的结果
+    * 列表文件
+    *
+    * @param path 路径
+    * @return 列表文件的结果
      */
     public List<SmbFileEntry> listFiles(String path) {
         checkShare();
@@ -297,10 +297,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 创建目录
-     *
-     * @param path 路径
-     * @return mkdir的结果
+    * 创建目录
+    *
+    * @param path 路径
+    * @return mkdir的结果
      */
     public SmbClient mkdir(String path) {
         checkShare();
@@ -314,10 +314,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * 删除
-     *
-     * @param path 路径
-     * @return 删除的结果
+    * 删除
+    *
+    * @param path 路径
+    * @return 删除的结果
      */
     public SmbClient delete(String path) {
         checkShare();
@@ -347,9 +347,9 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * ensure父路径
-     *
-     * @param fullPath 完整路径
+    * ensure父路径
+    *
+    * @param fullPath 完整路径
      */
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
@@ -371,10 +371,10 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * Normalize
-     *
-     * @param p p
-     * @return normalize的结果
+    * Normalize
+    *
+    * @param p p
+    * @return normalize的结果
      */
     private static String normalize(String p) {
         String s = p.replace('\\', '/');
@@ -388,12 +388,12 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-      * smb文件entry
-     * @param name 名称
-     * @param size 大小
-     * @param isDirectory 是否目录
-     * @param lastModified 最后一个modified
-     * @param path 路径
+    * smb文件entry
+    * @param name 名称
+    * @param size 大小
+    * @param isDirectory 是否目录
+    * @param lastModified 最后一个modified
+    * @param path 路径
      */
     public record SmbFileEntry(
             String name,

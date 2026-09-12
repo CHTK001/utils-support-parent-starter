@@ -25,8 +25,8 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     private String device = "cpu";
 
     /**
-      * 创建 onnxocrrecognizer 实例
-     * @param apiKey API密钥
+    * 创建 onnxocrrecognizer 实例
+    * @param apiKey API密钥
      */
     public OnnxOcrRecognizer(String apiKey) {
     }
@@ -39,18 +39,18 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     /**
-     * 解析模型
-     *
-     * @return resolve模型的结果
+    * 解析模型
+    *
+    * @return resolve模型的结果
      */
     private String resolveModel() {
         return modelName != null ? modelName : "paddleocrv6";
     }
 
     /**
-     * detector模型
-     *
-     * @return detector模型的结果
+    * detector模型
+    *
+    * @return detector模型的结果
      */
     private String detectorModel() {
         String m = resolveModel();
@@ -58,9 +58,9 @@ public class OnnxOcrRecognizer implements OcrRecognizer {
     }
 
     /**
-     * recognizer模型
-     *
-     * @return recognizer模型的结果
+    * recognizer模型
+    *
+    * @return recognizer模型的结果
      */
     private String recognizerModel() {
         String m = resolveModel();

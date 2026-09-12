@@ -19,25 +19,25 @@ import static com.chua.common.support.constant.CommonConstant.FILE_PROTOCOL;
 
 
 /**
- * File 类型转换器。
- * <p>将各种类型的值转换为 {@link File}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link File} / {@link Path} — 直接返回或转换</li>
- *   <li>{@link String} — 支持 HTTP URL、file:/ 协议、Base64 Data URL、classpath:、classpath*:、用户目录、临时目录等多种路径解析</li>
- *   <li>{@link URL} (file://协议) / {@link java.net.URI} — 转为 File</li>
- *   <li>数组类型 — 遍历取第一个 File 元素</li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2021/5/24
+* File 类型转换器。
+* <p>将各种类型的值转换为 {@link File}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link File} / {@link Path} — 直接返回或转换</li>
+*   <li>{@link String} — 支持 HTTP URL、file:/ 协议、Base64 Data URL、classpath:、classpath*:、用户目录、临时目录等多种路径解析</li>
+*   <li>{@link URL} (file://协议) / {@link java.net.URI} — 转为 File</li>
+*   <li>数组类型 — 遍历取第一个 File 元素</li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2021/5/24
  */
 public class FileTypeConverter implements TypeConverter<File> {
 
     /** 操作系统默认临时目录 */
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
     /**
-     * 数据
+    * 数据
      */
     private static final String DATA = "data:";
     /** base64 数据前缀 */
@@ -50,10 +50,10 @@ public class FileTypeConverter implements TypeConverter<File> {
     private static final String CLASSPATH_URL_ALL_PREFIX = "classpath*:";
 
     /**
-     * 将给定值转换为 File。
-     *
-     * @param value 源值
-     * @return File 值，如果无法转换则返回 null
+    * 将给定值转换为 File。
+    *
+    * @param value 源值
+    * @return File 值，如果无法转换则返回 null
      */
     @Override
     public File convert(Object value) {
@@ -98,17 +98,17 @@ public class FileTypeConverter implements TypeConverter<File> {
     }
 
     /**
-     * 将字符串转换为 File。
-     * <p>支持的字符串格式（按优先级降序）：</p>
-     * <ol>
-     *   <li>http/https URL — 转为 URI 后取路径</li>
-     *   <li>file: 协议 URL</li>
-     *   <li>Base64 Data URL (data:...;base64,...) — 解码为临时文件</li>
-     *   <li>classpath: / classpath*: 前缀 — 从类路径查找</li>
-     *   <li>用户目录 ({@code user_home}) 下查找</li>
-     *   <li>Documents/Downloads/Desktop 子目录下查找</li>
-     *   <li>直接作为文件路径</li>
-     * </ol>
+    * 将字符串转换为 File。
+    * <p>支持的字符串格式（按优先级降序）：</p>
+    * <ol>
+    *   <li>http/https URL — 转为 URI 后取路径</li>
+    *   <li>file: 协议 URL</li>
+    *   <li>Base64 Data URL (data:...;base64,...) — 解码为临时文件</li>
+    *   <li>classpath: / classpath*: 前缀 — 从类路径查找</li>
+    *   <li>用户目录 ({@code user_home}) 下查找</li>
+    *   <li>Documents/Downloads/Desktop 子目录下查找</li>
+    *   <li>直接作为文件路径</li>
+    * </ol>
      */
     private File stringToFile(String str) {
         if (str.startsWith(HTTP_PREFIX)) {
@@ -207,9 +207,9 @@ public class FileTypeConverter implements TypeConverter<File> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return File.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return File.class
      */
     @Override
     public Class<File> getType() {

@@ -7,27 +7,27 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * RabbitMQ 应用层 处理器 — 拦截 RabbitMQ Java 客户端 关键调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code com.rabbitmq.client.impl.ChannelN} — basicPublish / basicConsume / basicGet / basicAck 等</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：RabbitMQ 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* RabbitMQ 应用层 处理器 — 拦截 RabbitMQ Java 客户端 关键调用并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code com.rabbitmq.client.impl.ChannelN} — basicPublish / basicConsume / basicGet / basicAck 等</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：RabbitMQ 客户端不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RabbitMqHandler extends AbstractAppHandler {
 
     /**
-      * 通道n 类内部名
+    * 通道n 类内部名
      */
     private static final String CHANNEL_CLASS = "com/rabbitmq/client/impl/ChannelN";
 
     /**
-      * 通道 方法集合（生产/消费/确认）
+    * 通道 方法集合（生产/消费/确认）
      */
     private static final String[] CHANNEL_METHODS = {
             "basicPublish", "basicConsume", "basicGet", "basicAck", "basicNack",
@@ -36,7 +36,7 @@ public class RabbitMqHandler extends AbstractAppHandler {
     };
 
     /**
-      * 通道 内部名（RabbitMQ 方对 通道 接口的别名）
+    * 通道 内部名（RabbitMQ 方对 通道 接口的别名）
      */
     private static final String CONNECTION_CLASS = "com/rabbitmq/client/impl/ConnectionImpl";
 

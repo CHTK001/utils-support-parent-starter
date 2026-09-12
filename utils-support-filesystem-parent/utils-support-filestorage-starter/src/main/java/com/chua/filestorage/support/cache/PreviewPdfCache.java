@@ -17,25 +17,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 预览 PDF 本地磁盘缓存（增强版）。
- *
- * <p>将非原生预览文件（如 Word、Excel 等）转换为 PDF 后缓存到本地临时目录，
- * 避免重复转换。</p>
- *
- * <h3>增强特性</h3>
- * <ul>
- *   <li><b>TTL 自动过期</b> — 缓存文件超过 TTL 后自动删除，磁盘不会无限增长</li>
- *   <li><b>内存 LRU</b> — 热门文件缓存在内存中，避免反复磁盘 IO</li>
- *   <li><b>并发去重</b> — 同一文件并发请求只触发一次转换，通过 CompletableFuture 共享结果</li>
- *   <li><b>大小限制</b> — 超过阈值的文件不缓存到内存，防止 OOM</li>
- *   <li><b>安全清理</b> — 临时文件 try-finally 保证清理，后台定时清理过期文件</li>
- * </ul>
- *
- * <p>缓存键规则：{@code storageName}:{fileKey}</p>
- * <p>缓存文件命名：{@code <md5(key)>.pdf}</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 预览 PDF 本地磁盘缓存（增强版）。
+*
+* <p>将非原生预览文件（如 Word、Excel 等）转换为 PDF 后缓存到本地临时目录，
+* 避免重复转换。</p>
+*
+* <h3>增强特性</h3>
+* <ul>
+*   <li><b>TTL 自动过期</b> — 缓存文件超过 TTL 后自动删除，磁盘不会无限增长</li>
+*   <li><b>内存 LRU</b> — 热门文件缓存在内存中，避免反复磁盘 IO</li>
+*   <li><b>并发去重</b> — 同一文件并发请求只触发一次转换，通过 CompletableFuture 共享结果</li>
+*   <li><b>大小限制</b> — 超过阈值的文件不缓存到内存，防止 OOM</li>
+*   <li><b>安全清理</b> — 临时文件 try-finally 保证清理，后台定时清理过期文件</li>
+* </ul>
+*
+* <p>缓存键规则：{@code storageName}:{fileKey}</p>
+* <p>缓存文件命名：{@code <md5(key)>.pdf}</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class PreviewPdfCache {
@@ -90,29 +90,29 @@ public class PreviewPdfCache {
     }
 
     /**
-      * 创建 previewpdf缓存 实例
-     * @param cacheDir 缓存目录
+    * 创建 previewpdf缓存 实例
+    * @param cacheDir 缓存目录
      */
     public PreviewPdfCache(Path cacheDir) {
         this(cacheDir, DEFAULT_TTL_SECONDS, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }
 
     /**
-      * 创建 previewpdf缓存 实例
-     * @param cacheDir   缓存目录
-     * @param ttlSeconds 缓存 TTL（秒），0 表示永不过期
+    * 创建 previewpdf缓存 实例
+    * @param cacheDir   缓存目录
+    * @param ttlSeconds 缓存 TTL（秒），0 表示永不过期
      */
     public PreviewPdfCache(Path cacheDir, long ttlSeconds) {
         this(cacheDir, ttlSeconds, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }
 
     /**
-      * 创建 previewpdf缓存 实例（完整参数）
-     *
-     * @param cacheDir         缓存目录
-     * @param ttlSeconds       缓存 TTL（秒），0 表示永不过期
-     * @param memoryCapacity   内存 LRU 容量（条目数）
-     * @param maxMemoryFileSize 单文件内存缓存上限（字节），超过此值不放入内存
+    * 创建 previewpdf缓存 实例（完整参数）
+    *
+    * @param cacheDir         缓存目录
+    * @param ttlSeconds       缓存 TTL（秒），0 表示永不过期
+    * @param memoryCapacity   内存 LRU 容量（条目数）
+    * @param maxMemoryFileSize 单文件内存缓存上限（字节），超过此值不放入内存
      */
     public PreviewPdfCache(Path cacheDir, long ttlSeconds, int memoryCapacity, long maxMemoryFileSize) {
         this.cacheDir = cacheDir;
@@ -156,13 +156,13 @@ public class PreviewPdfCache {
     // ==================== 核心 API ====================
 
     /**
-     * 获取缓存的 PDF 字节（优先内存，其次磁盘）。
-     *
-     * <p>返回的字节数组是内存缓存的引用（不可修改），或从磁盘读取的新副本。</p>
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
-     * @return PDF 字节数组；若不存在或已过期返回 空
+    * 获取缓存的 PDF 字节（优先内存，其次磁盘）。
+    *
+    * <p>返回的字节数组是内存缓存的引用（不可修改），或从磁盘读取的新副本。</p>
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
+    * @return PDF 字节数组；若不存在或已过期返回 空
      */
     public byte[] get(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -201,13 +201,13 @@ public class PreviewPdfCache {
     }
 
     /**
-      * 获取缓存文件路径（兼容旧 API，内部委托 获取()）。
-     *
-     * <p>注意：此方法返回的 Path 仅在调用时有效，并发场景下建议使用 {@link #get(String, String)}。</p>
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
-     * @return 缓存文件路径，若不存在返回 空
+    * 获取缓存文件路径（兼容旧 API，内部委托 获取()）。
+    *
+    * <p>注意：此方法返回的 Path 仅在调用时有效，并发场景下建议使用 {@link #get(String, String)}。</p>
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
+    * @return 缓存文件路径，若不存在返回 空
      */
     public Path getCacheFile(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -215,13 +215,13 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 写入缓存（同时写磁盘和内存）。
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
-     * @param pdfBytes    转换后的 PDF 字节数组
-     * @return 写入后的磁盘文件路径
-     * @throws IOException IO 异常
+    * 写入缓存（同时写磁盘和内存）。
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
+    * @param pdfBytes    转换后的 PDF 字节数组
+    * @return 写入后的磁盘文件路径
+    * @throws IOException IO 异常
      */
     public Path writeCache(String storageName, String key, byte[] pdfBytes) throws IOException {
         String cacheKey = buildCacheKey(storageName, key);
@@ -250,15 +250,15 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 带并发去重的缓存获取/转换。
-     *
-     * <p>如果同一文件正在转换中，后续请求会等待第一个转换完成并共享结果，
-     * 避免重复转换浪费 CPU/IO。</p>
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
-     * @param converter   转换函数（仅在缓存未命中且无进行中转换时调用）
-     * @return PDF 字节数组；转换失败返回 空
+    * 带并发去重的缓存获取/转换。
+    *
+    * <p>如果同一文件正在转换中，后续请求会等待第一个转换完成并共享结果，
+    * 避免重复转换浪费 CPU/IO。</p>
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
+    * @param converter   转换函数（仅在缓存未命中且无进行中转换时调用）
+    * @return PDF 字节数组；转换失败返回 空
      */
     public byte[] getOrConvert(String storageName, String key, java.util.function.Supplier<byte[]> converter) {
         // 1. 先查缓存（内存 + 磁盘）
@@ -301,10 +301,10 @@ public class PreviewPdfCache {
     // ==================== 清理 ====================
 
     /**
-      * 清理指定 键 的缓存（磁盘 + 内存）。
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
+    * 清理指定 键 的缓存（磁盘 + 内存）。
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
      */
     public void evict(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
@@ -326,7 +326,7 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 清空全部缓存（磁盘 + 内存）。
+    * 清空全部缓存（磁盘 + 内存）。
      */
     public void clearAll() {
         // 清内存
@@ -354,9 +354,9 @@ public class PreviewPdfCache {
     // ==================== 统计 ====================
 
     /**
-     * 获取缓存统计信息
-     *
-     * @return 获取stats的结果
+    * 获取缓存统计信息
+    *
+    * @return 获取stats的结果
      */
     public CacheStats getStats() {
         synchronized (memoryCache) {
@@ -365,19 +365,19 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 缓存统计信息
-     *
-     * @param hitCount hit数量
-     * @param missCount miss数量
-     * @param evictionCount eviction数量
-     * @param memorySize 内存大小
-     * @return 缓存stats的结果
+    * 缓存统计信息
+    *
+    * @param hitCount hit数量
+    * @param missCount miss数量
+    * @param evictionCount eviction数量
+    * @param memorySize 内存大小
+    * @return 缓存stats的结果
      */
     public record CacheStats(long hitCount, long missCount, long evictionCount, int memorySize) {
         /**
-         * 命中率
-         *
-         * @return hitRate的结果
+        * 命中率
+        *
+        * @return hitRate的结果
          */
         public double hitRate() {
             long total = hitCount + missCount;
@@ -394,10 +394,10 @@ public class PreviewPdfCache {
     // ==================== 内部方法 ====================
 
     /**
-     * 检查磁盘缓存文件是否存在且未过期。
-     *
-     * @param cacheKey 缓存键
-     * @return 缓存文件路径；不存在或已过期返回 空（过期文件会被自动删除）
+    * 检查磁盘缓存文件是否存在且未过期。
+    *
+    * @param cacheKey 缓存键
+    * @return 缓存文件路径；不存在或已过期返回 空（过期文件会被自动删除）
      */
     private Path getDiskCacheFile(String cacheKey) {
         String fileName = DigestUtils.md5(cacheKey) + ".pdf";
@@ -432,8 +432,8 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 后台清理过期缓存文件。
-     * <p>由 ScheduledExecutorService 每小时调用一次，扫描磁盘目录删除过期文件。</p>
+    * 后台清理过期缓存文件。
+    * <p>由 ScheduledExecutorService 每小时调用一次，扫描磁盘目录删除过期文件。</p>
      */
     private void cleanupExpired() {
         if (ttlSeconds <= 0) {
@@ -470,18 +470,18 @@ public class PreviewPdfCache {
     }
 
     /**
-     * 构建缓存键。
-     *
-     * @param storageName 存储名称
-     * @param key         文件 键
-     * @return 缓存键
+    * 构建缓存键。
+    *
+    * @param storageName 存储名称
+    * @param key         文件 键
+    * @return 缓存键
      */
     private String buildCacheKey(String storageName, String key) {
         return storageName + ":" + key + ":pdf";
     }
 
     /**
-     * 关闭缓存（停止后台清理线程）。
+    * 关闭缓存（停止后台清理线程）。
      */
     public void close() {
         cleanupScheduler.shutdown();

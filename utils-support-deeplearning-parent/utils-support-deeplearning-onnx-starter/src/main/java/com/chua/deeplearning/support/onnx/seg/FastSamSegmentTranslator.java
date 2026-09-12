@@ -21,17 +21,17 @@ import java.util.*;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
-   * fastsam-s 分割 Translator（yolov8-seg 架构，单模型自动分割）。
- *
- * <p>FastSAM 是 YOLOv8 与 SAM 的融合，单模型自动检测并分割任意物体。
- * 输入 {@code [1,3,1024,1024]}，输出检测框 + 原型掩码。
- * 本 Translator 自动检测所有物体并合并为前景掩码图。</p>
- *
- * <p>模型来源：HuggingFace 镜像 {@code anakhiu/fastsam-onnx} 的
- * {@code fastsam_s.onnx}（约 45MB，opset 17，FP32）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* fastsam-s 分割 Translator（yolov8-seg 架构，单模型自动分割）。
+*
+* <p>FastSAM 是 YOLOv8 与 SAM 的融合，单模型自动检测并分割任意物体。
+* 输入 {@code [1,3,1024,1024]}，输出检测框 + 原型掩码。
+* 本 Translator 自动检测所有物体并合并为前景掩码图。</p>
+*
+* <p>模型来源：HuggingFace 镜像 {@code anakhiu/fastsam-onnx} 的
+* {@code fastsam_s.onnx}（约 45MB，opset 17，FP32）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class FastSamSegmentTranslator {
@@ -69,10 +69,10 @@ public class FastSamSegmentTranslator {
     private float thresholdOverride = -1f;
 
     /**
-     * 取生效阈值。
-     *
-     * @param def def
-     * @return eff阈值的结果
+    * 取生效阈值。
+    *
+    * @param def def
+    * @return eff阈值的结果
      */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
@@ -126,10 +126,10 @@ public class FastSamSegmentTranslator {
     }
 
     /**
-     * Segment
-     *
-     * @param input 输入
-     * @return segment的结果
+    * Segment
+    *
+    * @param input 输入
+    * @return segment的结果
      */
     public Image segment(Image input) throws Exception {
         prepare();
@@ -172,11 +172,11 @@ public class FastSamSegmentTranslator {
     }
 
     /**
-     * Postprocess
-     *
-     * @param detections detections
-     * @param protos Proto.io.io
-     * @return postprocess的结果
+    * Postprocess
+    *
+    * @param detections detections
+    * @param protos Proto.io.io
+    * @return postprocess的结果
      */
     private Image postprocess(float[] detections, float[][][] protos) throws Exception {
         int numPreds = detections.length / 37;
@@ -265,12 +265,12 @@ public class FastSamSegmentTranslator {
     }
 
     /**
-     * Nms
-     *
-     * @param boxes boxes
-     * @param scores scores
-     * @param threshold 阈值
-     * @return nms的结果
+    * Nms
+    *
+    * @param boxes boxes
+    * @param scores scores
+    * @param threshold 阈值
+    * @return nms的结果
      */
     private int[] nms(float[][] boxes, float[] scores, float threshold) {
         int n = boxes.length;
@@ -306,11 +306,11 @@ public class FastSamSegmentTranslator {
     }
 
     /**
-     * Iou
-     *
-     * @param a a
-     * @param b b
-     * @return iou的结果
+    * Iou
+    *
+    * @param a a
+    * @param b b
+    * @return iou的结果
      */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
@@ -324,10 +324,10 @@ public class FastSamSegmentTranslator {
     }
 
     /**
-     * 转为缓冲镜像
-     *
-     * @param input 输入
-     * @return 转为缓冲镜像的结果
+    * 转为缓冲镜像
+    *
+    * @param input 输入
+    * @return 转为缓冲镜像的结果
      */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
@@ -344,9 +344,9 @@ public class FastSamSegmentTranslator {
         ortEnv = null;
     }
     /**
-     * 创建 Translator（支持外部阈值覆盖）。
-     *
-     * @param configuration 检测配置（可空）
+    * 创建 Translator（支持外部阈值覆盖）。
+    *
+    * @param configuration 检测配置（可空）
      */
     public FastSamSegmentTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {

@@ -14,39 +14,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Cline usage parser.
- *
- * <p>Cline CLI stores one session JSON per run under
- * {@code ~/.cline/data/sessions/<id>/<id>.json}, containing real per-session
-   * 令牌 usage reported by the upstream 提供者:</p>
- *
- * <pre>{@code
- * {
- *   "provider": "gemini",
- *   "model": "gemini-3.6-flash",
- *   "started_at": "2026-08-24T02:21:53.998Z",
- *   "ended_at": "2026-08-24T02:21:59.295Z",
- *   "metadata": {
- *     "usage": {
- *       "inputTokens": 4864,
- *       "outputTokens": 116,
- *       "cacheReadTokens": 0,
- *       "cacheWriteTokens": 0,
- *       "totalCost": 0.004083
- *     }
- *   }
- * }
- * }</pre>ns": 0,
- *       "totalCost": 0.004083
- *     }
- *   }
- * }
- * }</pre>
- *
- * <p>Companion {@code *.messages.json} files are skipped.</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Cline usage parser.
+*
+* <p>Cline CLI stores one session JSON per run under
+* {@code ~/.cline/data/sessions/<id>/<id>.json}, containing real per-session
+* 令牌 usage reported by the upstream 提供者:</p>
+*
+* <pre>{@code
+* {
+*   "provider": "gemini",
+*   "model": "gemini-3.6-flash",
+*   "started_at": "2026-08-24T02:21:53.998Z",
+*   "ended_at": "2026-08-24T02:21:59.295Z",
+*   "metadata": {
+*     "usage": {
+*       "inputTokens": 4864,
+*       "outputTokens": 116,
+*       "cacheReadTokens": 0,
+*       "cacheWriteTokens": 0,
+*       "totalCost": 0.004083
+*     }
+*   }
+* }
+* }</pre>ns": 0,
+*       "totalCost": 0.004083
+*     }
+*   }
+* }
+* }</pre>
+*
+* <p>Companion {@code *.messages.json} files are skipped.</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("cline")
 public class ClineUsageParser extends BaseUsageParser {
@@ -55,16 +55,16 @@ public class ClineUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-      * 返回 the SPI 名称 for Cline.
-     *
-     * @return {@code "cline"}
+    * 返回 the SPI 名称 for Cline.
+    *
+    * @return {@code "cline"}
      */
     public String name() {
         return "cline";
     }
 
     /**
-      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
+    * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
@@ -73,9 +73,9 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 解析 全部 Cline CLI 会话 文件 和 extracts 令牌 usage.
-     *
-     * @return list 的 aiusage records, one per 完成 会话
+    * 解析 全部 Cline CLI 会话 文件 和 extracts 令牌 usage.
+    *
+    * @return list 的 aiusage records, one per 完成 会话
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
@@ -96,10 +96,10 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-      * 解析 a 单个 Cline 会话 文件 into an AIusage record.
-     *
-     * @param file 路径 转为 the 会话 JSON 文件
-     * @return the 解析 aiusage, 或 空 if the 文件 是否包含 no usage 数据
+    * 解析 a 单个 Cline 会话 文件 into an AIusage record.
+    *
+    * @param file 路径 转为 the 会话 JSON 文件
+    * @return the 解析 aiusage, 或 空 if the 文件 是否包含 no usage 数据
      */
     private java.util.Optional<AiUsage> parseSession(Path file) {
         try {

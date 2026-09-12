@@ -14,28 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL 用户元数据操作实现。
- *
- * @author CH
- * @since 4.0.0.42
- * @param ds ds
- * @param sql SQL
- * @param username 用户名
- * @return 方法的结果
- * @param dataSource 数据源
+* MySQL 用户元数据操作实现。
+*
+* @author CH
+* @since 4.0.0.42
+* @param ds ds
+* @param sql SQL
+* @param username 用户名
+* @return 方法的结果
+* @param dataSource 数据源
  */
 public class MysqlMetaUser implements MetaUser {
 
     private final DataSource dataSource; // 数据源
 
     /**
-     * mysqlmeta用户。
-     * @param dataSource 数据源
+    * mysqlmeta用户。
+    * @param dataSource 数据源
      */
     public MysqlMetaUser(DataSource dataSource) {
         /**
-         * 列表。
-         * @return 列表的结果
+        * 列表。
+        * @return 列表的结果
          */
         this.dataSource = dataSource;
     }
@@ -65,11 +65,11 @@ public class MysqlMetaUser implements MetaUser {
     @Override
     public UserCreateBuilder create(String username) {
         /**
-         * alter。
-         * @param username 用户名
-         * @return alter的结果
-         * @param ds ds
-         * @param sql sql
+        * alter。
+        * @param username 用户名
+        * @return alter的结果
+        * @param ds ds
+        * @param sql sql
          */
         return new CreateStep(dataSource, username);
     }
@@ -96,10 +96,10 @@ public class MysqlMetaUser implements MetaUser {
 
     // ==================== Inner Steps ====================
      /**
-      * 创建step类。
-      *
-      * @author CH
-      * @since 4.0.0
+     * 创建step类。
+     *
+     * @author CH
+     * @since 4.0.0
       */
      * AlterStep类。
      *

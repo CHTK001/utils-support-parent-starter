@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 /**
- * 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
- *
- * @author CH
- * @since 2026/07/18
- * @see ReverseProxyServerFilter
+* 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
+*
+* @author CH
+* @since 2026/07/18
+* @see ReverseProxyServerFilter
  */
 @Slf4j
 public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServerFilter {
@@ -185,9 +185,9 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     }
 
     /**
-     * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
-     * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
-     * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
+    * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
+    * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
+    * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
      */
     private boolean isExcluded(String serverId) {
         if (serverId == null) {

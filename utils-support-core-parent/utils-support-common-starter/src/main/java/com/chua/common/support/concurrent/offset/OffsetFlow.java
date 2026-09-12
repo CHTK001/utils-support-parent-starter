@@ -6,80 +6,80 @@ import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * offset 门面，支持链式调用、provider 切换和重试操作。
- *
- * <pre>{@code
- * OffsetFlow flow = OffsetFlow.create()
- *     .persistent(false)
- *     .basePath("/tmp/myoffsets")
- *     .provider("file")
- *     .start();
- *
- * long offset = flow.advance("sub-001");
- * long current = flow.current("sub-001");
- * flow.reset("sub-001", 0);
- * flow.remove("sub-001");
- * flow.truncate();
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.43
+* offset 门面，支持链式调用、provider 切换和重试操作。
+*
+* <pre>{@code
+* OffsetFlow flow = OffsetFlow.create()
+*     .persistent(false)
+*     .basePath("/tmp/myoffsets")
+*     .provider("file")
+*     .start();
+*
+* long offset = flow.advance("sub-001");
+* long current = flow.current("sub-001");
+* flow.reset("sub-001", 0);
+* flow.remove("sub-001");
+* flow.truncate();
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Slf4j
 public final class OffsetFlow implements AutoCloseable {
 
     /**
-     * 重试次数
+    * 重试次数
      */
     private static final int RETRY_COUNT = 3;
 
     /**
-     * 重试间隔（毫秒）
+    * 重试间隔（毫秒）
      */
     private static final long RETRY_DELAY_MS = 100L;
 
     /**
-     * 偏移量存储
+    * 偏移量存储
      */
     private OffsetStore store;
 
     /**
-     * 配置
+    * 配置
      */
     private OffsetConfig config;
 
     /**
-     * 创建 OffsetFlow 实例
-     * @param config config
+    * 创建 OffsetFlow 实例
+    * @param config config
      */
     private OffsetFlow(OffsetConfig config) {
         this.config = config;
     }
 
     /**
-     * 创建 OffsetFlow 实例，使用默认配置。
-     *
-     * @return OffsetFlow 实例
+    * 创建 OffsetFlow 实例，使用默认配置。
+    *
+    * @return OffsetFlow 实例
      */
     public static OffsetFlow create() {
         return new OffsetFlow(OffsetConfig.createDefault());
     }
 
     /**
-     * 创建 OffsetFlow 实例，使用指定配置。
-     *
-     * @param config offset 配置
-     * @return OffsetFlow 实例
+    * 创建 OffsetFlow 实例，使用指定配置。
+    *
+    * @param config offset 配置
+    * @return OffsetFlow 实例
      */
     public static OffsetFlow of(OffsetConfig config) {
         return new OffsetFlow(config);
     }
 
     /**
-     * 设置文件存储根目录（链式）。
-     *
-     * @param basePath 根目录字符串
-     * @return this
+    * 设置文件存储根目录（链式）。
+    *
+    * @param basePath 根目录字符串
+    * @return this
      */
     public OffsetFlow basePath(String basePath) {
         config.setBasePath(java.nio.file.Paths.get(basePath));
@@ -87,10 +87,10 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 设置是否持久化（链式）。
-     *
-     * @param persistent 持久化标志
-     * @return this
+    * 设置是否持久化（链式）。
+    *
+    * @param persistent 持久化标志
+    * @return this
      */
     public OffsetFlow persistent(boolean persistent) {
         config.setPersistent(persistent);
@@ -98,10 +98,10 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 设置 provider 名称（链式）。
-     *
-     * @param provider provider 名
-     * @return this
+    * 设置 provider 名称（链式）。
+    *
+    * @param provider provider 名
+    * @return this
      */
     public OffsetFlow provider(String provider) {
         config.setProvider(provider);
@@ -109,18 +109,18 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 获取提供者名称。
-     *
-     * @return provider 名称
+    * 获取提供者名称。
+    *
+    * @return provider 名称
      */
     public String getProvider() {
         return config.getProvider();
     }
 
     /**
-     * 启动偏移量存储。
-     *
-     * @return this
+    * 启动偏移量存储。
+    *
+    * @return this
      */
     public OffsetFlow start() {
         if (store == null) {
@@ -134,10 +134,10 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 原子推进 offset（+1），返回新值。
-     *
-     * @param subscriberId 订阅器 ID
-     * @return 新 offset 值
+    * 原子推进 offset（+1），返回新值。
+    *
+    * @param subscriberId 订阅器 ID
+    * @return 新 offset 值
      */
     public long advance(String subscriberId) {
         Offset offset = getStore().getOffset(subscriberId);
@@ -153,10 +153,10 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 获取当前 offset 值。
-     *
-     * @param subscriberId 订阅器 ID
-     * @return 当前 offset 值
+    * 获取当前 offset 值。
+    *
+    * @param subscriberId 订阅器 ID
+    * @return 当前 offset 值
      */
     public long current(String subscriberId) {
         Offset offset = getStore().getOffset(subscriberId);
@@ -164,10 +164,10 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 重置 offset。
-     *
-     * @param subscriberId 订阅器 ID
-     * @param newValue     新值
+    * 重置 offset。
+    *
+    * @param subscriberId 订阅器 ID
+    * @param newValue     新值
      */
     public void reset(String subscriberId, long newValue) {
         Offset offset = getStore().getOffset(subscriberId);
@@ -175,23 +175,23 @@ public final class OffsetFlow implements AutoCloseable {
     }
 
     /**
-     * 删除指定订阅器的 offset。
-     *
-     * @param subscriberId 订阅器 ID
+    * 删除指定订阅器的 offset。
+    *
+    * @param subscriberId 订阅器 ID
      */
     public void remove(String subscriberId) {
         getStore().removeOffset(subscriberId);
     }
 
     /**
-     * 清空所有 offset 记录。
+    * 清空所有 offset 记录。
      */
     public void truncate() {
         getStore().truncate();
     }
 
     /**
-     * 获取或初始化存储。
+    * 获取或初始化存储。
      */
     private OffsetStore getStore() {
         if (store == null) {

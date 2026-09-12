@@ -13,58 +13,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 提交日志查询操作（Git 日志）。
- *
- * <p>对已打开的本地仓库，提供以下查询：</p>
- * <ul>
- *   <li>{@link #list()} — 全部提交</li>
- *   <li>{@link #list(int)} — 最近 N 条</li>
- *   <li>{@link #listBetween(String, String)} — 两个引用之间的日志</li>
- * </ul>
- *
- * <pre>示例：
- * {@code
- * // 最近 10 条日志
- * List<LogEntry> log = client.log().list(10);
- *
- * // 全部日志
- * List<LogEntry> all = client.log().list();
- *
- * // 两个版本之间的日志
- * List<LogEntry> between = client.log().listBetween("v1.0", "v0.9");
- * }</pre> "v0.9");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 提交日志查询操作（Git 日志）。
+*
+* <p>对已打开的本地仓库，提供以下查询：</p>
+* <ul>
+*   <li>{@link #list()} — 全部提交</li>
+*   <li>{@link #list(int)} — 最近 N 条</li>
+*   <li>{@link #listBetween(String, String)} — 两个引用之间的日志</li>
+* </ul>
+*
+* <pre>示例：
+* {@code
+* // 最近 10 条日志
+* List<LogEntry> log = client.log().list(10);
+*
+* // 全部日志
+* List<LogEntry> all = client.log().list();
+*
+* // 两个版本之间的日志
+* List<LogEntry> between = client.log().listBetween("v1.0", "v0.9");
+* }</pre> "v0.9");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class LogOperation {
 
     /**
-      * 所属 git客户端。
+    * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-     * 数量限制。
+    * 数量限制。
      */
     private int maxCount = Integer.MAX_VALUE;
 
     /**
-     * 构建操作实例（仅框架内部调用）。
-     *
-     * @param client 所属 Git客户端
+    * 构建操作实例（仅框架内部调用）。
+    *
+    * @param client 所属 Git客户端
      */
     public LogOperation(GitClient client) {
         this.client = client;
     }
 
     /**
-     * 限制返回条数。
-     *
-     * @param count 最大返回条数
-     * @return 当前操作实例
+    * 限制返回条数。
+    *
+    * @param count 最大返回条数
+    * @return 当前操作实例
      */
     public LogOperation limit(int count) {
         this.maxCount = count;
@@ -74,19 +74,19 @@ public class LogOperation {
     // ==================== 查询方法 ====================
 
     /**
-     * 查询全部提交日志。
-     *
-     * @return 提交日志列表（从新到旧）
+    * 查询全部提交日志。
+    *
+    * @return 提交日志列表（从新到旧）
      */
     public List<LogEntry> list() {
         return doList(null, null);
     }
 
     /**
-     * 查询最近 N 条提交日志。
-     *
-     * @param count 最大返回条数
-     * @return 提交日志列表（从新到旧）
+    * 查询最近 N 条提交日志。
+    *
+    * @param count 最大返回条数
+    * @return 提交日志列表（从新到旧）
      */
     public List<LogEntry> list(int count) {
         this.maxCount = count;
@@ -94,11 +94,11 @@ public class LogOperation {
     }
 
     /**
-      * 查询两个引用之间的提交日志（不含 转为ref）。
-     *
-     * @param fromRef 起点引用（较新，如 "v1.0"、"HEAD"）
-     * @param toRef   终点引用（较旧，如 "v0.9"）
-     * @return 提交日志列表
+    * 查询两个引用之间的提交日志（不含 转为ref）。
+    *
+    * @param fromRef 起点引用（较新，如 "v1.0"、"HEAD"）
+    * @param toRef   终点引用（较旧，如 "v0.9"）
+    * @return 提交日志列表
      */
     public List<LogEntry> listBetween(String fromRef, String toRef) {
         return doList(fromRef, toRef);
@@ -107,10 +107,10 @@ public class LogOperation {
     // ==================== 内部方法 ====================
 
     /**
-     * 执行列表。
-     * @param fromRef 从ref
-     * @param toRef 转为ref
-     * @return 执行列表的结果
+    * 执行列表。
+    * @param fromRef 从ref
+    * @param toRef 转为ref
+    * @return 执行列表的结果
      */
     private List<LogEntry> doList(String fromRef, String toRef) {
         try {
@@ -155,10 +155,10 @@ public class LogOperation {
     }
 
     /**
-      * resolveref。
-     * @param repo repo
-     * @param ref ref
-     * @return resolveRef的结果
+    * resolveref。
+    * @param repo repo
+    * @param ref ref
+    * @return resolveRef的结果
      */
     private ObjectId resolveRef(Repository repo, String ref) throws Exception {
         ObjectId oid = repo.resolve(ref);

@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 /**
- * 活跃台风列表项实体。
- *
- * <p>对应浙江省水利厅 {@code /Api/TyhoonActivity} 响应元素。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 活跃台风列表项实体。
+*
+* <p>对应浙江省水利厅 {@code /Api/TyhoonActivity} 响应元素。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

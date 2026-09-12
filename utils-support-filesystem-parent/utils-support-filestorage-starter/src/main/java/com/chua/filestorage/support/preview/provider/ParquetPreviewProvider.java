@@ -22,12 +22,12 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Parquet 列式数据文件 (PARQUET) 预览提供器。
- * <p>SPI 类型：{@code preview-parquet}。通过 Apache Parquet 读取列式数据，
-   * 展示 模式 与前 100 行数据。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Parquet 列式数据文件 (PARQUET) 预览提供器。
+* <p>SPI 类型：{@code preview-parquet}。通过 Apache Parquet 读取列式数据，
+* 展示 模式 与前 100 行数据。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("preview-parquet")
 public class ParquetPreviewProvider implements FileStoragePreviewProvider {
@@ -62,11 +62,11 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解析 Parquet 文件并构建预览 HTML。
-     *
-     * @param file Parquet 文件
-     * @return 完整 HTML
-     * @throws IOException 解析失败时抛出
+    * 解析 Parquet 文件并构建预览 HTML。
+    *
+    * @param file Parquet 文件
+    * @return 完整 HTML
+    * @throws IOException 解析失败时抛出
      */
     private String previewParquet(File file) throws IOException {
         Configuration conf = new Configuration();
@@ -104,11 +104,11 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 统计 Parquet 文件总行数。
-     *
-     * @param path Hadoop 路径
-     * @param conf Hadoop 配置
-     * @return 总行数；统计失败时返回 -1
+    * 统计 Parquet 文件总行数。
+    *
+    * @param path Hadoop 路径
+    * @param conf Hadoop 配置
+    * @return 总行数；统计失败时返回 -1
      */
     private long rowCount(org.apache.hadoop.fs.Path path, Configuration conf) {
         try (ParquetFileReader reader = ParquetFileReader.open(conf, path)) {
@@ -119,11 +119,11 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 读取指定字段值。
-     *
-     * @param row 当前行
-     * @param field 字段名
-     * @return 字段文本；无值时返回空串
+    * 读取指定字段值。
+    *
+    * @param row 当前行
+    * @param field 字段名
+    * @return 字段文本；无值时返回空串
      */
     private String readValue(Group row, String field) {
         try {
@@ -138,13 +138,13 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建预览 HTML。
-     *
-     * @param size      文件字节
-     * @param fields    字段名列表
-     * @param rows      数据行
-     * @param totalRows 总行数
-     * @return 完整 HTML
+    * 构建预览 HTML。
+    *
+    * @param size      文件字节
+    * @param fields    字段名列表
+    * @param rows      数据行
+    * @param totalRows 总行数
+    * @return 完整 HTML
      */
     private String buildHtml(long size, List<String> fields, List<List<String>> rows, long totalRows) {
         StringBuilder sb = new StringBuilder();
@@ -186,10 +186,10 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建不可预览页面。
-     *
-     * @param message 提示信息
-     * @return 完整 HTML
+    * 构建不可预览页面。
+    *
+    * @param message 提示信息
+    * @return 完整 HTML
      */
     private String unavailableHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
@@ -199,20 +199,20 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 可读文件大小。
-     *
-     * @param bytes 字节数
-     * @return 可读大小文本
+    * 可读文件大小。
+    *
+    * @param bytes 字节数
+    * @return 可读大小文本
      */
     private String readableSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
 
     /**
-     * HTML 转义。
-     *
-     * @param text 原始文本
-     * @return 转义后文本
+    * HTML 转义。
+    *
+    * @param text 原始文本
+    * @return 转义后文本
      */
     private String escape(String text) {
         return text == null ? "" : StringUtils.escapeHtml(text);

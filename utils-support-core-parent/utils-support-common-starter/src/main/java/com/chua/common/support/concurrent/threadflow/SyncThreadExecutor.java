@@ -9,21 +9,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 同步执行器，所有任务在当前线程顺序执行。
- *
- * <p>不涉及线程池，直接调用 {@link Callable#call()}。</p>
- *
- * @author CH
- * @since 2026/08/15
+* 同步执行器，所有任务在当前线程顺序执行。
+*
+* <p>不涉及线程池，直接调用 {@link Callable#call()}。</p>
+*
+* @author CH
+* @since 2026/08/15
  */
 public class SyncThreadExecutor extends AbstractThreadExecutor {
 
     /**
-     * 创建 SyncThreadExecutor 实例
-     * @param strategy strategy
-     * @param int int
-     * @param long long
-     * @param TimeUnit TimeUnit
+    * 创建 SyncThreadExecutor 实例
+    * @param strategy strategy
+    * @param int int
+    * @param long long
+    * @param TimeUnit TimeUnit
      */
     public SyncThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         super(strategy, threshold, timeout, timeUnit);
@@ -51,7 +51,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     /**
-     * 已完成 Future 包装。
+    * 已完成 Future 包装。
      */
     private static final class CompletedFuture implements Future<Object> {
         /** 结果对象 */
@@ -93,7 +93,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     /**
-     * 失败 Future 包装。
+    * 失败 Future 包装。
      */
     private static final class FailedFuture implements Future<Object> {
         /** 异常对象 */

@@ -22,39 +22,39 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TCP 反向代理过滤器，支持动态后端选择。
- *
- * <p>基于 Vert.x {@link NetServer} / {@link NetClient} 实现，后端地址由
- * {@link ProxyTargetResolver} 决定，可以基于静态路由或服务发现。</p>
- *
- * <h2>使用方式</h2>
- * <pre>{@code
- * // 1. 静态路由（单目标）
- * TcpProxyServerFilter proxy = TcpProxyServerFilter.staticRoutes(
- *         java.util.Collections.singletonMap("redis", new InetSocketAddress("127.0.0.1", 6379)));
- *
- * // 2. 静态路由（多目标，按顺序取第一个）
- * TcpProxyServerFilter proxy = TcpProxyServerFilter.staticRoutes(Map.of(
- *         "redis1", new InetSocketAddress("127.0.0.1", 6379),
- *         "redis2", new InetSocketAddress("127.0.0.1", 6380)));
- *
- * // 3. 自定义解析器（例如基于服务发现）
- * TcpProxyServerFilter proxy = new TcpProxyServerFilter(5000, 30000, remoteAddr -> {
- *     return null;
- * });
- *
- * server.addFilter(proxy);
- * proxy.startProxy(7000); // 监听本地端口
- * }</pre> = new TcpProxyServerFilter(5000, 30000, remoteAddr -> {
- *     return null;
- * });
- *
-   * 服务端.添加过滤器(代理);
-   * 代理.启动代理(7000); // 监听本地端口
- * }</pre>
- *
- * @author CH
- * @since 2026/07/24
+* TCP 反向代理过滤器，支持动态后端选择。
+*
+* <p>基于 Vert.x {@link NetServer} / {@link NetClient} 实现，后端地址由
+* {@link ProxyTargetResolver} 决定，可以基于静态路由或服务发现。</p>
+*
+* <h2>使用方式</h2>
+* <pre>{@code
+* // 1. 静态路由（单目标）
+* TcpProxyServerFilter proxy = TcpProxyServerFilter.staticRoutes(
+*         java.util.Collections.singletonMap("redis", new InetSocketAddress("127.0.0.1", 6379)));
+*
+* // 2. 静态路由（多目标，按顺序取第一个）
+* TcpProxyServerFilter proxy = TcpProxyServerFilter.staticRoutes(Map.of(
+*         "redis1", new InetSocketAddress("127.0.0.1", 6379),
+*         "redis2", new InetSocketAddress("127.0.0.1", 6380)));
+*
+* // 3. 自定义解析器（例如基于服务发现）
+* TcpProxyServerFilter proxy = new TcpProxyServerFilter(5000, 30000, remoteAddr -> {
+*     return null;
+* });
+*
+* server.addFilter(proxy);
+* proxy.startProxy(7000); // 监听本地端口
+* }</pre> = new TcpProxyServerFilter(5000, 30000, remoteAddr -> {
+*     return null;
+* });
+*
+* 服务端.添加过滤器(代理);
+* 代理.启动代理(7000); // 监听本地端口
+* }</pre>
+*
+* @author CH
+* @since 2026/07/24
  */
 @Slf4j
 public class TcpProxyServerFilter implements ServerFilter {
@@ -82,20 +82,20 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-      * 创建 tcp代理服务端过滤器 实例
-     * @param connectTimeoutMs 连接超时ms
-     * @param connectTimeoutMs int
-     * @param readTimeoutMs 读取超时ms
+    * 创建 tcp代理服务端过滤器 实例
+    * @param connectTimeoutMs 连接超时ms
+    * @param connectTimeoutMs int
+    * @param readTimeoutMs 读取超时ms
      */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs) {
         this(connectTimeoutMs, readTimeoutMs, null);
     }
 
     /**
-     * 静态routes
-     *
-     * @param routes routes
-     * @return 静态routes的结果
+    * 静态routes
+    *
+    * @param routes routes
+    * @return 静态routes的结果
      */
     public static TcpProxyServerFilter staticRoutes(Map<String, InetSocketAddress> routes) {
         Objects.requireNonNull(routes, "routes must not be null");
@@ -113,24 +113,24 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-     * 的
-     *
-     * @param connectTimeoutMs 连接超时ms
-     * @param readTimeoutMs 读取超时ms
-     * @param targetResolver Target解析器
-     * @return 的的结果
+    * 的
+    *
+    * @param connectTimeoutMs 连接超时ms
+    * @param readTimeoutMs 读取超时ms
+    * @param targetResolver Target解析器
+    * @return 的的结果
      */
     public static TcpProxyServerFilter of(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         return new TcpProxyServerFilter(connectTimeoutMs, readTimeoutMs, targetResolver);
     }
 
     /**
-      * 创建 tcp代理服务端过滤器 实例
-     * @param connectTimeoutMs 连接超时ms
-     * @param connectTimeoutMs int
-     * @param targetResolver 代理Target解析器
-     * @param readTimeoutMs 读取超时ms
-     * @param targetResolver Target解析器
+    * 创建 tcp代理服务端过滤器 实例
+    * @param connectTimeoutMs 连接超时ms
+    * @param connectTimeoutMs int
+    * @param targetResolver 代理Target解析器
+    * @param readTimeoutMs 读取超时ms
+    * @param targetResolver Target解析器
      */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         this.connectTimeoutMs = connectTimeoutMs;
@@ -178,10 +178,10 @@ public class TcpProxyServerFilter implements ServerFilter {
 
     @Override
     /**
-      * 执行过滤
-     * @param request 请求
-     * @param response 响应
-     * @param chain chain
+    * 执行过滤
+    * @param request 请求
+    * @param response 响应
+    * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
@@ -197,28 +197,28 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-     * 获取活跃connections
-     *
-     * @return 获取活跃connections的结果
+    * 获取活跃connections
+    *
+    * @return 获取活跃connections的结果
      */
     public int getActiveConnections() {
         return activeConnections.get();
     }
 
     /**
-     * 开始代理
-     *
-     * @param listenPort 监听端口
+    * 开始代理
+    *
+    * @param listenPort 监听端口
      */
     public void startProxy(int listenPort) {
         startProxy(listenPort, 0);
     }
 
     /**
-     * 开始代理
-     *
-     * @param listenPort 监听端口
-     * @param backlog backlog
+    * 开始代理
+    *
+    * @param listenPort 监听端口
+    * @param backlog backlog
      */
     public void startProxy(int listenPort, int backlog) {
         if (vertx == null) {
@@ -242,9 +242,9 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-     * 处理Connection
-     *
-     * @param clientSocket 客户端套接字
+    * 处理Connection
+    *
+    * @param clientSocket 客户端套接字
      */
     private void handleConnection(NetSocket clientSocket) {
         InetSocketAddress remote = remoteAddress(clientSocket);
@@ -273,10 +273,10 @@ public class TcpProxyServerFilter implements ServerFilter {
     }
 
     /**
-     * 远程地址
-     *
-     * @param socket 套接字
-     * @return 远程地址的结果
+    * 远程地址
+    *
+    * @param socket 套接字
+    * @return 远程地址的结果
      */
     private static InetSocketAddress remoteAddress(NetSocket socket) {
         io.vertx.core.net.SocketAddress addr = socket.remoteAddress();

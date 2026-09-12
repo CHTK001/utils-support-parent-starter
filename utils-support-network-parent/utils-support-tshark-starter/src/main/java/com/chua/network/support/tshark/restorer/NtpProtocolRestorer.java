@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * NTP 协议还原器。
- *
- * <p>解析 NTP 版本/模式/Stratum 信息。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* NTP 协议还原器。
+*
+* <p>解析 NTP 版本/模式/Stratum 信息。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class NtpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -63,10 +63,10 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为mode名称
-     *
-     * @param mode mode
-     * @return 转为mode名称的结果
+    * 转为mode名称
+    *
+    * @param mode mode
+    * @return 转为mode名称的结果
      */
     private static String toModeName(int mode) {
         return switch (mode) {
@@ -83,10 +83,10 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为leap名称
-     *
-     * @param li li
-     * @return 转为leap名称的结果
+    * 转为leap名称
+    *
+    * @param li li
+    * @return 转为leap名称的结果
      */
     private static String toLeapName(int li) {
         return switch (li) {

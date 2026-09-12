@@ -8,21 +8,21 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 街道 Mock 生成器
- *
- * <p>从常见中国街道名池中随机返回一个街道名称，如「人民路」。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 街道 Mock 生成器
+*
+* <p>从常见中国街道名池中随机返回一个街道名称，如「人民路」。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("street")
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class StreetMockString implements MockString {
 
     /**
-     * 街道名池
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 街道名池
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final String[] STREETS = {
             "人民路", "中山路", "解放路", "建设路", "和平路", "新华路", "青年路", "朝阳路",

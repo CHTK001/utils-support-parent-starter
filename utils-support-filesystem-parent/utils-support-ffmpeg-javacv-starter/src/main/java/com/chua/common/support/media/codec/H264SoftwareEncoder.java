@@ -19,114 +19,114 @@ import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
 import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
 
 /**
- * 基于 libx264 的软件 H.264 编码器。
- *
- * <p>仅接受 YUV420P 格式的 Frame，输入分辨率超过 1080p 时自动缩放到 1080p。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 libx264 的软件 H.264 编码器。
+*
+* <p>仅接受 YUV420P 格式的 Frame，输入分辨率超过 1080p 时自动缩放到 1080p。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi(value = {"h264", "software", "javacv-ffmpeg"}, order = 99)
 public class H264SoftwareEncoder implements VideoEncoder {
 
     /**
-     * 最大编码宽度（1080p）
+    * 最大编码宽度（1080p）
      */
     private static final int MAX_WIDTH = 1920;
 
     /**
-     * 最大编码高度（1080p）
+    * 最大编码高度（1080p）
      */
     private static final int MAX_HEIGHT = 1080;
 
     /**
-     * GOP 大小（关键帧间隔）
+    * GOP 大小（关键帧间隔）
      */
     private static final int GOP_SIZE = 150;
 
     /**
-     * 内存输出流初始容量
+    * 内存输出流初始容量
      */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
-      * ffmpeg 帧录制器
+    * ffmpeg 帧录制器
      */
     private FFmpegFrameRecorder recorder;
 
     /**
-     * 内存输出流
+    * 内存输出流
      */
     private ByteArrayOutputStream memoryStream;
 
     /**
-     * 色彩空间转换上下文（缩放用）
+    * 色彩空间转换上下文（缩放用）
      */
     private SwsContext swsCtx;
 
     /**
-      * 缩放后的 av帧
+    * 缩放后的 av帧
      */
     private org.bytedeco.ffmpeg.avutil.AVFrame swsFrame;
 
     /**
-     * 缩放帧缓冲区
+    * 缩放帧缓冲区
      */
     private BytePointer swsFrameBuf;
 
     /**
-     * 编码宽度（≤1080p）
+    * 编码宽度（≤1080p）
      */
     private int encWidth;
 
     /**
-     * 编码高度（≤1080p）
+    * 编码高度（≤1080p）
      */
     private int encHeight;
 
     /**
-     * 目标帧率
+    * 目标帧率
      */
     private int fps;
 
     /**
-     * 帧时间戳
+    * 帧时间戳
      */
     private long pts;
 
     /**
-     * 是否请求了关键帧
+    * 是否请求了关键帧
      */
     private boolean keyFrameRequested;
 
     /**
-     * 是否已启动
+    * 是否已启动
      */
     private boolean started;
 
     /**
-     * 帧计数器
+    * 帧计数器
      */
     private long frameIndex;
 
     /**
-     * CRF 值（18-35，越低质量越高）
+    * CRF 值（18-35，越低质量越高）
      */
     private int crf = 23;
 
     /**
-     * 空构造。
+    * 空构造。
      */
     public H264SoftwareEncoder() {
     }
 
     /**
-     * 初始化 libx264 编码器。
-     *
-     * @param width  输入宽度
-     * @param height 输入高度
-     * @param fps    目标帧率
+    * 初始化 libx264 编码器。
+    *
+    * @param width  输入宽度
+    * @param height 输入高度
+    * @param fps    目标帧率
      */
     private void init(int width, int height, int fps) {
         close();
@@ -213,11 +213,11 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     /**
-     * 编码单帧 YUV420P 数据。
-     *
-     * @param frame 输入 YUV 帧
-     * @return 编码后的 H264 数据
-     * @throws Exception 编码异常
+    * 编码单帧 YUV420P 数据。
+    *
+    * @param frame 输入 YUV 帧
+    * @return 编码后的 H264 数据
+    * @throws Exception 编码异常
      */
     private byte[] encodeFrame(Frame frame) throws Exception {
         int inW = frame.imageWidth;
@@ -272,9 +272,9 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     /**
-     * 确保缩放帧缓冲区已分配。
-     *
-     * @return AVFrame 实例
+    * 确保缩放帧缓冲区已分配。
+    *
+    * @return AVFrame 实例
      */
     private org.bytedeco.ffmpeg.avutil.AVFrame ensureSwsFrame() {
         if (swsFrame == null) {
@@ -293,10 +293,10 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     /**
-     * 从内存流中提取当前帧的编码数据。
-     *
-     * @param captureSize 提取前的流大小
-     * @return 编码帧字节数组
+    * 从内存流中提取当前帧的编码数据。
+    *
+    * @param captureSize 提取前的流大小
+    * @return 编码帧字节数组
      */
     private byte[] extractFrameBytes(long captureSize) {
         byte[] all = memoryStream.toByteArray();
@@ -348,29 +348,29 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     /**
-     * 确保数值为偶数。
-     *
-     * @param v 原始数值
-     * @return 调整后的偶数
+    * 确保数值为偶数。
+    *
+    * @param v 原始数值
+    * @return 调整后的偶数
      */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
 
     /**
-     * 内存输出流适配器。
+    * 内存输出流适配器。
      */
     private static final class MemoryOutputStream extends OutputStream {
 
         /**
-         * 底层字节数组输出流
+        * 底层字节数组输出流
          */
         private final ByteArrayOutputStream backing;
 
         /**
-         * 构造内存输出流。
-         *
-         * @param backing 底层字节数组输出流
+        * 构造内存输出流。
+        *
+        * @param backing 底层字节数组输出流
          */
         MemoryOutputStream(ByteArrayOutputStream backing) {
             this.backing = backing;

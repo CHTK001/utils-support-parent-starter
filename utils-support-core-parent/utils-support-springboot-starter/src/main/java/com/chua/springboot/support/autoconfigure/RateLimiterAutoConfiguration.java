@@ -13,13 +13,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * 限流自动配置。
- *
- * <p>注入可配置的 Guava {@link RateLimiterProvider}、拦截器和 AOP Advisor。
- * QPS 与预热时间可通过 {@code plugin.rate-limiter.*} 配置。</p>
- *
- * @author CH
- * @since 2026/07/24
+* 限流自动配置。
+*
+* <p>注入可配置的 Guava {@link RateLimiterProvider}、拦截器和 AOP Advisor。
+* QPS 与预热时间可通过 {@code plugin.rate-limiter.*} 配置。</p>
+*
+* @author CH
+* @since 2026/07/24
  */
 @AutoConfiguration
 @ConditionalOnClass(RateLimiterProvider.class)
@@ -28,10 +28,10 @@ import org.springframework.context.annotation.Bean;
 public class RateLimiterAutoConfiguration {
 
     /**
-     * 创建限流提供者。
-     *
-     * @param rateLimiterProperties 限流配置属性
-     * @return RateLimiterProvider 实例
+    * 创建限流提供者。
+    *
+    * @param rateLimiterProperties 限流配置属性
+    * @return RateLimiterProvider 实例
      */
     @Bean
     @ConditionalOnMissingBean
@@ -49,9 +49,9 @@ public class RateLimiterAutoConfiguration {
     }
 
     /**
-     * 创建限流拦截器。
-     *
-     * @return RateLimiterIntercept 实例
+    * 创建限流拦截器。
+    *
+    * @return RateLimiterIntercept 实例
      */
     @Bean
     @ConditionalOnMissingBean
@@ -60,10 +60,10 @@ public class RateLimiterAutoConfiguration {
     }
 
     /**
-     * 创建限流 AOP 通知器。
-     *
-     * @param intercept 限流拦截器
-     * @return RateLimiterAdvisor 实例
+    * 创建限流 AOP 通知器。
+    *
+    * @param intercept 限流拦截器
+    * @return RateLimiterAdvisor 实例
      */
     @Bean
     @ConditionalOnMissingBean

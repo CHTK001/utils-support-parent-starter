@@ -10,40 +10,40 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 认证过滤器，验证请求是否携带有效的认证凭证。
- *
- * <p>检查请求头中的 {@code Authorization} 字段，未携带或 token 不在白名单中时
-   * 返回 401 并终止过滤器链。默认不校验具体 令牌 值，仅检查是否携带。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code auth.header} — 认证头名称，默认 {@code Authorization}</li>
- *   <li>{@code auth.tokens} — 逗号分隔的有效 token 白名单，为空则跳过 token 校验</li>
- *   <li>{@code auth.excludePaths} — 逗号分隔的排除路径，不校验</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* 认证过滤器，验证请求是否携带有效的认证凭证。
+*
+* <p>检查请求头中的 {@code Authorization} 字段，未携带或 token 不在白名单中时
+* 返回 401 并终止过滤器链。默认不校验具体 令牌 值，仅检查是否携带。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code auth.header} — 认证头名称，默认 {@code Authorization}</li>
+*   <li>{@code auth.tokens} — 逗号分隔的有效 token 白名单，为空则跳过 token 校验</li>
+*   <li>{@code auth.excludePaths} — 逗号分隔的排除路径，不校验</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class AuthServerFilter implements ServerFilter {
 
     /**
-     * 默认认证头名称
+    * 默认认证头名称
      */
     private static final String DEFAULT_AUTH_HEADER = "Authorization";
 
     /**
-     * 认证头名称
+    * 认证头名称
      */
     private String authHeader = DEFAULT_AUTH_HEADER;
 
     /**
-      * 有效 令牌 白名单
+    * 有效 令牌 白名单
      */
     private final Set<String> validTokens = new HashSet<>();
 
     /**
-     * 排除路径集合
+    * 排除路径集合
      */
     private final Set<String> excludePaths = new HashSet<>();
 
@@ -106,10 +106,10 @@ public class AuthServerFilter implements ServerFilter {
     }
 
     /**
-     * 是否Excluded
-     *
-     * @param path 路径
-     * @return 是否excluded的结果
+    * 是否Excluded
+    *
+    * @param path 路径
+    * @return 是否excluded的结果
      */
     private boolean isExcluded(String path) {
         if (path == null) {

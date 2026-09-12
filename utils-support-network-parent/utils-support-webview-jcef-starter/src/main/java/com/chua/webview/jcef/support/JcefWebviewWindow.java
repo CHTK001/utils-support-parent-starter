@@ -23,33 +23,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
-   * JCEF (Java 铬 Embedded 框架) webview
- * <p>
- *        <a href="https://github.com/jcefmaven/jcefmaven">JCEF Maven</a>   
-   * 铬
- * <ul>
- *   <li>          HTML5 / CSS3 / JavaScript       </li>
- *   <li>DevTools       </li>
- *   <li>          (Windows / macOS / Linux)</li>
- *   <li>IPC                 JS   Java              {@link IpcProtocolServer}          </li>
- * </ul>
-   * webview_Java     webview2/wkwebview/webkitgtk
-   * JCEF                 铬
- * </p>
- * <p>
- *        {@link ConditionalOnClass}                       classpath          
- * {@code org.cef.CefApp}       SPI                         
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* JCEF (Java 铬 Embedded 框架) webview
+* <p>
+*        <a href="https://github.com/jcefmaven/jcefmaven">JCEF Maven</a>   
+* 铬
+* <ul>
+*   <li>          HTML5 / CSS3 / JavaScript       </li>
+*   <li>DevTools       </li>
+*   <li>          (Windows / macOS / Linux)</li>
+*   <li>IPC                 JS   Java              {@link IpcProtocolServer}          </li>
+* </ul>
+* webview_Java     webview2/wkwebview/webkitgtk
+* JCEF                 铬
+* </p>
+* <p>
+*        {@link ConditionalOnClass}                       classpath          
+* {@code org.cef.CefApp}       SPI                         
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @SuppressWarnings("unused")
 @Slf4j
 public class JcefWebviewWindow implements WebViewWindow {
 
     /**
-     * ipc 页面
+    * ipc 页面
      */
     private static final String IPC_PAGE =
             "<!DOCTYPE html><html><body style='background:#1e1e1e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'>" +
@@ -59,23 +59,23 @@ public class JcefWebviewWindow implements WebViewWindow {
             "</div></body></html>";
 
     /**
-     * cef App
+    * cef App
      */
     private CefApp cefApp;
     /**
-     * 客户端实例
+    * 客户端实例
      */
     private CefClient client;
     /**
-     * 浏览器实例
+    * 浏览器实例
      */
     private CefBrowser browser;
     /**
-      * 帧
+    * 帧
      */
     private Frame frame;
     /**
-      * ipc 服务端
+    * ipc 服务端
      */
     private IpcProtocolServer ipcServer;
 
@@ -111,12 +111,12 @@ catch (Throwable e) {
     }
 
     /**
-     * 打开
-     *
-     * @param server 服务端
-     * @param title title
-     * @param width width
-     * @param height height
+    * 打开
+    *
+    * @param server 服务端
+    * @param title title
+    * @param width width
+    * @param height height
      */
     public void open(ProtocolServer server, String title, int width, int height) {
         ProtocolType type = server.getProtocolType();
@@ -129,16 +129,16 @@ catch (Throwable e) {
     }
 
     /**
-      * IPC              webview
-     * <p>
-      * IPC                 cef消息router        {@code javaBridge} JS
-     *              {@code window.javaBridge.send(JSON.stringify({path, method, body}), callback)}
-     *     {@link IpcProtocolServer#handleMessage}                            
-     * </p>
-     * @param server 服务端
-     * @param title title
-     * @param width width
-     * @param height height
+    * IPC              webview
+    * <p>
+    * IPC                 cef消息router        {@code javaBridge} JS
+    *              {@code window.javaBridge.send(JSON.stringify({path, method, body}), callback)}
+    *     {@link IpcProtocolServer#handleMessage}                            
+    * </p>
+    * @param server 服务端
+    * @param title title
+    * @param width width
+    * @param height height
      */
     private void openIpc(ProtocolServer server, String title, int width, int height) {
         if (!(server instanceof IpcProtocolServer)) {
@@ -203,14 +203,14 @@ finally {
     }
 
     /**
-      * JCEF cef消息router                 JS                 {@link IpcProtocolServer}
-     * @author CH
-     * @since 4.0.0
+    * JCEF cef消息router                 JS                 {@link IpcProtocolServer}
+    * @author CH
+    * @since 4.0.0
      */
     private static class IpcMessageRouterHandler extends CefMessageRouterHandlerAdapter {
 
         /**
-          * ipc 服务端
+        * ipc 服务端
          */
         private final IpcProtocolServer ipcServer;
 
@@ -220,13 +220,13 @@ finally {
 
         @Override
         /**
-         * On查询
-         * @param browser browser
-         * @param frame 帧
-         * @param queryId 查询标识
-         * @param request 请求
-         * @param persistent persistent
-         * @param callback callback
+        * On查询
+        * @param browser browser
+        * @param frame 帧
+        * @param queryId 查询标识
+        * @param request 请求
+        * @param persistent persistent
+        * @param callback callback
          */
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId,
                                String request, boolean persistent, CefQueryCallback callback) {

@@ -5,29 +5,29 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 文件存在性检查请求对象。
- *
- * @author CH
- * @since 1.0
+* 文件存在性检查请求对象。
+*
+* @author CH
+* @since 1.0
  */
 @Data
 @Builder
 public class ExistObjectRequest {
 
     /**
-     * 文件名（含扩展名）。
+    * 文件名（含扩展名）。
      */
     private String fileName;
 
     /**
-     * 文件路径。
+    * 文件路径。
      */
     private String filePath;
 
     /**
-      * 获取完整的对象 键。
-     *
-     * @return 完整的 键（路径 + 文件名）
+    * 获取完整的对象 键。
+    *
+    * @return 完整的 键（路径 + 文件名）
      */
     public String getKey() {
         if (StringUtils.isBlank(filePath)) {

@@ -2,20 +2,20 @@ package com.chua.common.support.file.tar;
 
 
 /**
- * 八进制数值转换工具类，用于 Tar 头部字段的解析与写入。
- *
- * @author CH
- * @since 4.0.0.42
+* 八进制数值转换工具类，用于 Tar 头部字段的解析与写入。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class Octal {
 
     /**
-     * 从头部缓冲区解析八进制字符串。此方法用于文件权限模式值的解析。
-     *
-     * @param header 从中解析的头部缓冲区。
-     * @param offset 从中开始解析的缓冲区偏移量。
-     * @param length 要解析的头部字节数。
-     * @return 八进制字符串对应的长整型值。
+    * 从头部缓冲区解析八进制字符串。此方法用于文件权限模式值的解析。
+    *
+    * @param header 从中解析的头部缓冲区。
+    * @param offset 从中开始解析的缓冲区偏移量。
+    * @param length 要解析的头部字节数。
+    * @return 八进制字符串对应的长整型值。
      */
     public static long parseOctal(byte[] header, int offset, int length) {
         long result = 0;
@@ -46,13 +46,13 @@ public class Octal {
     }
 
     /**
-     * 将八进制整数写入头部缓冲区。
-     *
-     * @param value  要写入的值。
-     * @param buf    写入的目标头部缓冲区。
-     * @param offset 在缓冲区中的起始偏移量。
-     * @param length 要写入的字节数。
-     * @return 写入操作完成后的下一个位置索引。
+    * 将八进制整数写入头部缓冲区。
+    *
+    * @param value  要写入的值。
+    * @param buf    写入的目标头部缓冲区。
+    * @param offset 在缓冲区中的起始偏移量。
+    * @param length 要写入的字节数。
+    * @return 写入操作完成后的下一个位置索引。
      */
     public static int getOctalBytes(long value, byte[] buf, int offset, int length) {
         int idx = length - 1;
@@ -80,13 +80,13 @@ public class Octal {
     }
 
     /**
-     * 将校验和八进制整数写入头部缓冲区。
-     *
-     * @param value  要写入的值。
-     * @param buf    写入的目标头部缓冲区。
-     * @param offset 在缓冲区中的起始偏移量。
-     * @param length 要写入的字节数。
-     * @return 条目校验和的整数值（实际返回的是写入结束的位置）。
+    * 将校验和八进制整数写入头部缓冲区。
+    *
+    * @param value  要写入的值。
+    * @param buf    写入的目标头部缓冲区。
+    * @param offset 在缓冲区中的起始偏移量。
+    * @param length 要写入的字节数。
+    * @return 条目校验和的整数值（实际返回的是写入结束的位置）。
      */
     public static int getCheckSumOctalBytes(long value, byte[] buf, int offset, int length) {
         getOctalBytes(value, buf, offset, length);
@@ -96,13 +96,13 @@ public class Octal {
     }
 
     /**
-     * 将八进制长整型整数写入头部缓冲区。
-     *
-     * @param value  要写入的值。
-     * @param buf    写入的目标头部缓冲区。
-     * @param offset 在缓冲区中的起始偏移量。
-     * @param length 要写入的字节数。
-     * @return 写入操作完成后的下一个位置索引。
+    * 将八进制长整型整数写入头部缓冲区。
+    *
+    * @param value  要写入的值。
+    * @param buf    写入的目标头部缓冲区。
+    * @param offset 在缓冲区中的起始偏移量。
+    * @param length 要写入的字节数。
+    * @return 写入操作完成后的下一个位置索引。
      */
     public static int getLongOctalBytes(long value, byte[] buf, int offset, int length) {
         byte[] temp = new byte[length + 1];

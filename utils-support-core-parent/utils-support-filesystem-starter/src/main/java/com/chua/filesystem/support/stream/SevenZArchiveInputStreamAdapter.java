@@ -9,30 +9,30 @@ import java.io.IOException;
 import javax.annotation.Nullable;
 
 /**
- * 7Z归档输入流适配器
- * <p>
-   * 将commons-compress的sevenz文件适配为项目接口
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 7Z归档输入流适配器
+* <p>
+* 将commons-compress的sevenz文件适配为项目接口
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
-      * 原始sevenz文件
+    * 原始sevenz文件
      */
     private final SevenZFile sevenZFile;
 
     /**
-     * 当前条目
+    * 当前条目
      */
     private SevenZArchiveEntry currentEntry;
 
     /**
-     * 构造7Z归档输入流适配器
-     *
-     * @param sevenZFile commons-compress的sevenz文件
+    * 构造7Z归档输入流适配器
+    *
+    * @param sevenZFile commons-compress的sevenz文件
      */
     SevenZArchiveInputStreamAdapter(SevenZFile sevenZFile) {
         this.sevenZFile = sevenZFile;
@@ -41,9 +41,9 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     @Override
     @Nullable
     /**
-     * 获取下一个entry
-     *
-     * @return 获取下一个entry的结果
+    * 获取下一个entry
+    *
+    * @return 获取下一个entry的结果
      */
     public ArchiveEntry getNextEntry() throws IOException {
         currentEntry = sevenZFile.getNextEntry();

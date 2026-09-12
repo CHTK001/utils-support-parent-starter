@@ -7,10 +7,10 @@ import java.io.*;
 import java.io.Serializable;
 
 /**
-   * Java原生序列化实现，基于对象输入流/对象输出流。
- *
- * @author CH
- * @since 1.0.0
+* Java原生序列化实现，基于对象输入流/对象输出流。
+*
+* @author CH
+* @since 1.0.0
  */
 @Spi("java")
 @SpiDefault
@@ -34,10 +34,10 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 反序列化
-     *
-     * @param bytes bytes
-     * @return deserialize的结果
+    * 反序列化
+    *
+    * @param bytes bytes
+    * @return deserialize的结果
      */
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {

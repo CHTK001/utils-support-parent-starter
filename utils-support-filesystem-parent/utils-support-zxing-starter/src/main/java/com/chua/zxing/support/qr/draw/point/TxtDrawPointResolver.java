@@ -13,27 +13,27 @@ import javax.annotation.Nullable;
 
 
 /**
-   * txtdrawpoint解析器，解析并处理文本绘制点的问题。
-   * 继承自抽象drawpoint解析器，提供具体的绘制点的解析实现。
- *
- * @author CH
- * @since 4.0.0.42
+* txtdrawpoint解析器，解析并处理文本绘制点的问题。
+* 继承自抽象drawpoint解析器，提供具体的绘制点的解析实现。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("TEXT")
 public class TxtDrawPointResolver extends AbstractDrawPointResolver {
     /**
-      * 创建 txtdrawpoint解析器 实例
-     * @param qrCodeConfig qr编码配置
-     * @param g2 Graphics2D
-     * @param bitMatrix 钻头matrixex
-     * @param leftPadding int
-     * @param leftPadding int
-     * @param leftPadding int
-     * @param g2 g2
-     * @param bitMatrix 钻头matrix
-     * @param leftPadding leftpadding
-     * @param topPadding toppadding
-     * @param infoSize 信息大小
+    * 创建 txtdrawpoint解析器 实例
+    * @param qrCodeConfig qr编码配置
+    * @param g2 Graphics2D
+    * @param bitMatrix 钻头matrixex
+    * @param leftPadding int
+    * @param leftPadding int
+    * @param leftPadding int
+    * @param g2 g2
+    * @param bitMatrix 钻头matrix
+    * @param leftPadding leftpadding
+    * @param topPadding toppadding
+    * @param infoSize 信息大小
      */
     public TxtDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);

@@ -18,22 +18,22 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-   * MOSS-TTS-nano 多语言 TTS 标准客户端（48 khz）。
- *
- * <p>通过 SPI 名称 {@code moss-tts-nano} 创建：
- *
- * <pre>{@code
- * TextToAudioClient client = TextToAudioClient.create("onnx", "moss-tts-nano");
- * byte[] wav = client.voice("Junhao").synthesize("你好世界");
- * }</pre>synthesize("你好世界");
- * }</pre>
- *
- * <p>模型（TTS 640MB + Codec 85MB）首次使用时自动从 hf-mirror 下载到缓存目录，
- * 也可通过系统属性 {@code speech.loop.moss.dir} / {@code speech.loop.codec.dir}
- * 指定已有模型目录。
- *
- * @author chua
- * @since 4.0.0.42
+* MOSS-TTS-nano 多语言 TTS 标准客户端（48 khz）。
+*
+* <p>通过 SPI 名称 {@code moss-tts-nano} 创建：
+*
+* <pre>{@code
+* TextToAudioClient client = TextToAudioClient.create("onnx", "moss-tts-nano");
+* byte[] wav = client.voice("Junhao").synthesize("你好世界");
+* }</pre>synthesize("你好世界");
+* }</pre>
+*
+* <p>模型（TTS 640MB + Codec 85MB）首次使用时自动从 hf-mirror 下载到缓存目录，
+* 也可通过系统属性 {@code speech.loop.moss.dir} / {@code speech.loop.codec.dir}
+* 指定已有模型目录。
+*
+* @author chua
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"moss-tts-nano", "moss-tts"})
@@ -64,14 +64,14 @@ public class MossTextToAudioClient implements TextToAudioClient {
     private boolean prepared; // prepared
 
     /**
-     * 克隆参考音频（设置后优先于内置音色）。
+    * 克隆参考音频（设置后优先于内置音色）。
      */
     private java.nio.file.Path referencePath;
 
     /**
-     * 构造客户端。
-     *
-     * @param setting 配置
+    * 构造客户端。
+    *
+    * @param setting 配置
      */
     public MossTextToAudioClient(TextToAudioClientSetting setting) {
         this.setting = setting;
@@ -125,10 +125,10 @@ public class MossTextToAudioClient implements TextToAudioClient {
     }
 
     /**
-     * 设置克隆参考音频（优先于 voice）。
-     *
-     * @param refPath 参考音频 WAV 路径（建议 5~10 秒干净人声）
-     * @return this
+    * 设置克隆参考音频（优先于 voice）。
+    *
+    * @param refPath 参考音频 WAV 路径（建议 5~10 秒干净人声）
+    * @return this
      */
     public MossTextToAudioClient reference(java.nio.file.Path refPath) {
         this.referencePath = refPath;
@@ -136,10 +136,10 @@ public class MossTextToAudioClient implements TextToAudioClient {
     }
 
     /**
-     * 设置克隆参考音频字节。
-     *
-     * @param wavBytes 参考音频 WAV 字节
-     * @return this
+    * 设置克隆参考音频字节。
+    *
+    * @param wavBytes 参考音频 WAV 字节
+    * @return this
      */
     public MossTextToAudioClient reference(byte[] wavBytes) throws IOException {
         Path temp = Files.createTempFile("moss-ref-", ".wav");
@@ -201,7 +201,7 @@ public class MossTextToAudioClient implements TextToAudioClient {
     }
 
      /**
-       * ensureprepared。
+     * ensureprepared。
       */
      * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
      *
@@ -231,8 +231,8 @@ public class MossTextToAudioClient implements TextToAudioClient {
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-tts-nano");
         /**
-          * codecdir。
-         * @return codecDir的结果
+        * codecdir。
+        * @return codecDir的结果
          */
         Files.createDirectories(dir);
         return dir;
@@ -244,11 +244,11 @@ public class MossTextToAudioClient implements TextToAudioClient {
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-audio-tokenizer");
         /**
-          * downloadmissing。
-         * @param dir dir
-         * @param files 文件
-         * @param mirrorBase mirrorbase
-         * @return 缓存根的结果
+        * downloadmissing。
+        * @param dir dir
+        * @param files 文件
+        * @param mirrorBase mirrorbase
+        * @return 缓存根的结果
          */
         Files.createDirectories(dir);
         return dir;

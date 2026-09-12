@@ -7,17 +7,17 @@ import com.chua.common.support.lang.json.Json;
 import java.nio.charset.StandardCharsets;
 
 /**
- * JSON 响应转化器，将数据对象转换为 JSON 格式文本。
- *
- * <p>Content-Type 为 {@code application/json}。支持以下数据类型：
- * <ul>
- *   <li>{@link String} — 直接作为 JSON 输出</li>
- *   <li>{@code byte[]} — 按 UTF-8 解码为字符串</li>
- *   <li>其他对象 — 调用 {@link Object#toString()} 输出</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* JSON 响应转化器，将数据对象转换为 JSON 格式文本。
+*
+* <p>Content-Type 为 {@code application/json}。支持以下数据类型：
+* <ul>
+*   <li>{@link String} — 直接作为 JSON 输出</li>
+*   <li>{@code byte[]} — 按 UTF-8 解码为字符串</li>
+*   <li>其他对象 — 调用 {@link Object#toString()} 输出</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class JsonResponseConverter implements ResponseConverter {
 

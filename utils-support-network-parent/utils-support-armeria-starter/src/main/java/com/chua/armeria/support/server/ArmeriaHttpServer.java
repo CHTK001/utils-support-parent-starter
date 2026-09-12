@@ -29,26 +29,26 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 基于 Armeria 的 HTTP 服务器实现。
- *
- * <p>继承 {@link AbstractServer}，通过 SPI 以键 {@code armeria-http} 注册。
-   * Armeria 是一款高性能异步 HTTP 服务器，相比 JDK http服务端 具备更高的并发能力。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Armeria 的 HTTP 服务器实现。
+*
+* <p>继承 {@link AbstractServer}，通过 SPI 以键 {@code armeria-http} 注册。
+* Armeria 是一款高性能异步 HTTP 服务器，相比 JDK http服务端 具备更高的并发能力。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"armeria-http"})
 public class ArmeriaHttpServer extends AbstractServer {
 
     /**
-     * Armeria 服务端实例
+    * Armeria 服务端实例
      */
     private com.linecorp.armeria.server.Server server;
 
     /**
-      * 创建 armeriahttp服务端 实例
-     * @param setting setting
+    * 创建 armeriahttp服务端 实例
+    * @param setting setting
      */
     public ArmeriaHttpServer(ServerSetting setting) {
         super(setting);
@@ -67,7 +67,7 @@ public class ArmeriaHttpServer extends AbstractServer {
     }
 
     /**
-      * 请求处理线程池，使用虚拟线程避免阻塞 事件 循环
+    * 请求处理线程池，使用虚拟线程避免阻塞 事件 循环
      */
     private final java.util.concurrent.ExecutorService requestExecutor =
             java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
@@ -138,53 +138,53 @@ public class ArmeriaHttpServer extends AbstractServer {
     // ======================== Response ========================
 
     /**
-     * Armeria 响应封装，实现 {@link ServerResponse} 接口。
-     *
-     * <p>内部维护响应状态、头、体，最终由 {@link #buildAggregatedResponse()} 生成
-     * Armeria 的 {@link AggregatedHttpResponse} 对象。</p>
-     *
-     * @author CH
-     * @since 4.0.0
+    * Armeria 响应封装，实现 {@link ServerResponse} 接口。
+    *
+    * <p>内部维护响应状态、头、体，最终由 {@link #buildAggregatedResponse()} 生成
+    * Armeria 的 {@link AggregatedHttpResponse} 对象。</p>
+    *
+    * @author CH
+    * @since 4.0.0
      */
     static class ArmeriaServerResponse implements ServerResponse {
 
         /**
-         * Armeria 服务请求上下文
+        * Armeria 服务请求上下文
          */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
 
         /**
-         * HTTP 状态码，默认 200
+        * HTTP 状态码，默认 200
          */
         private int status = 200;
 
         /**
-         * 响应体字节数组
+        * 响应体字节数组
          */
         private byte[] body;
 
         /**
-         * 响应头键值对
+        * 响应头键值对
          */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
 
         /**
-          * 内容-类型 值
+        * 内容-类型 值
          */
         private String contentType;
 
         /**
-         * 是否已提交（禁止修改）
+        * 是否已提交（禁止修改）
          */
         private boolean committed;
 
         /**
-         * 是否已结束
+        * 是否已结束
          */
         private boolean ended;
 
         /**
-         * 响应结果对象（供后续序列化使用）
+        * 响应结果对象（供后续序列化使用）
          */
         private Object result;
 
@@ -354,7 +354,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         /**
-         * 标记 Armeria 层面的响应为已完成，禁止后续修改。
+        * 标记 Armeria 层面的响应为已完成，禁止后续修改。
          */
         void endArmeria() {
             if (committed) {
@@ -365,9 +365,9 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         /**
-         * 构建 Armeria {@link AggregatedHttpResponse}。
-         *
-         * @return 聚合响应对象
+        * 构建 Armeria {@link AggregatedHttpResponse}。
+        *
+        * @return 聚合响应对象
          */
         AggregatedHttpResponse buildAggregatedResponse() {
             ResponseHeadersBuilder hdrs = ResponseHeaders.builder(status);
@@ -381,12 +381,12 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         /**
-         * 由 {@code setResult} 设置的结果对象派生出响应体字节（对齐 {@code AbstractServer#convertResult} 语义）：
-          * 字符串 → UTF-8 字节、byte[] → 原样、其他 → 转为字符串() 字节。
-         * 仅在 {@code body} 未显式设置时生效，避免覆盖 {@code setBody} 结果。
-         *
-         * @param r 处理器 通过 设置结果 设置的结果对象
-         * @return 派生的响应体字节；r 为 空 返回 空
+        * 由 {@code setResult} 设置的结果对象派生出响应体字节（对齐 {@code AbstractServer#convertResult} 语义）：
+        * 字符串 → UTF-8 字节、byte[] → 原样、其他 → 转为字符串() 字节。
+        * 仅在 {@code body} 未显式设置时生效，避免覆盖 {@code setBody} 结果。
+        *
+        * @param r 处理器 通过 设置结果 设置的结果对象
+        * @return 派生的响应体字节；r 为 空 返回 空
          */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
@@ -408,32 +408,32 @@ public class ArmeriaHttpServer extends AbstractServer {
     // ======================== Request ========================
 
     /**
-     * Armeria 请求封装，实现 {@link ServerRequest} 接口。
-     *
-     * <p>包装 Armeria 的 {@link com.linecorp.armeria.common.AggregatedHttpRequest}，
-     * 提供统一的请求属性、参数、表单、文件上传等访问能力。</p>
-     *
-     * @author CH
-     * @since 4.0.0
+    * Armeria 请求封装，实现 {@link ServerRequest} 接口。
+    *
+    * <p>包装 Armeria 的 {@link com.linecorp.armeria.common.AggregatedHttpRequest}，
+    * 提供统一的请求属性、参数、表单、文件上传等访问能力。</p>
+    *
+    * @author CH
+    * @since 4.0.0
      */
     static class ArmeriaServerRequest implements ServerRequest {
 
         /**
-         * Armeria 服务请求上下文
+        * Armeria 服务请求上下文
          */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
         /**
-         * 聚合后的 HTTP 请求
+        * 聚合后的 HTTP 请求
          */
         private final com.linecorp.armeria.common.AggregatedHttpRequest aggReq;
 
         /**
-         * 请求体字节数组
+        * 请求体字节数组
          */
         private byte[] bodyBytes;
 
         /**
-         * 请求属性映射
+        * 请求属性映射
          */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 

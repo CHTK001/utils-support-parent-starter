@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * RAG 查询响应。
- *
- * @param answer   LLM 生成的回答
- * @param sources  命中的文档片段列表
- * @param metadata 扩展元数据
- * @author CH
- * @since 4.0.0.42
+* RAG 查询响应。
+*
+* @param answer   LLM 生成的回答
+* @param sources  命中的文档片段列表
+* @param metadata 扩展元数据
+* @author CH
+* @since 4.0.0.42
  */
 public record RagResponse(
         String answer,
@@ -19,12 +19,12 @@ public record RagResponse(
 ) {
 
     /**
-     * 命中的文档片段。
-     *
-     * @param documentId 文档 ID
-     * @param content    文档片段内容
-     * @param score      相似度分数
-     * @param metadata   扩展元数据
+    * 命中的文档片段。
+    *
+    * @param documentId 文档 ID
+    * @param content    文档片段内容
+    * @param score      相似度分数
+    * @param metadata   扩展元数据
      */
     public record Source(
             String documentId,

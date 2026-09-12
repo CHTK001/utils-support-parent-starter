@@ -26,25 +26,25 @@ import weka.core.Instances;
 import weka.core.Instance;
 
 /**
- * 随机森林模型包装（基于 Weka {@link RandomForest}）。
- *
- * <p>持有训练好的分类器与训练参数、建模域快照，
- * 支持 JDK 序列化落盘 / 恢复，以及单条、批量预测与特征重要性分析。</p>
- *
- * <p>使用示例：</p>
- * <pre>{@code
- * RandomForestModel model = new WekaRandomForestClassifier().train(data, RandomForestOptions.defaults());
- * model.predictRaw(instance);          // 底层原始预测（分类=标签索引 / 回归=数值）
- * model.predictDistribution(instance); // 类别概率分布（回归为 Optional.empty）
- * model.featureImportances(trainIns);  // 特征重要性排名
- * model.save(Path.of("model.ser"));    // 序列化保存
- * RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
- * }</pre> RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
- * }</pre>
- *
- * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
- * @author CH
- * @since 4.0.0.42
+* 随机森林模型包装（基于 Weka {@link RandomForest}）。
+*
+* <p>持有训练好的分类器与训练参数、建模域快照，
+* 支持 JDK 序列化落盘 / 恢复，以及单条、批量预测与特征重要性分析。</p>
+*
+* <p>使用示例：</p>
+* <pre>{@code
+* RandomForestModel model = new WekaRandomForestClassifier().train(data, RandomForestOptions.defaults());
+* model.predictRaw(instance);          // 底层原始预测（分类=标签索引 / 回归=数值）
+* model.predictDistribution(instance); // 类别概率分布（回归为 Optional.empty）
+* model.featureImportances(trainIns);  // 特征重要性排名
+* model.save(Path.of("model.ser"));    // 序列化保存
+* RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
+* }</pre> RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
+* }</pre>
+*
+* @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
+* @author CH
+* @since 4.0.0.42
  */
 @Getter
 public final class RandomForestModel implements Serializable {
@@ -64,10 +64,10 @@ public final class RandomForestModel implements Serializable {
     private final long createdAtMillis;
 
     /**
-     * 随机forest模型。
-     * @param forest forest
-     * @param options 期权
-     * @param domain domain
+    * 随机forest模型。
+    * @param forest forest
+    * @param options 期权
+    * @param domain domain
      */
     private RandomForestModel(RandomForest forest, RandomForestOptions options, ModelDomain domain) {
         this.forest = forest;
@@ -77,11 +77,11 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 创建空壳（未训练）随机森林模型。
-     *
-     * @param options 训练参数，不能为 空
-     * @param domain  建模域快照，不能为 空
-     * @return 模型实例
+    * 创建空壳（未训练）随机森林模型。
+    *
+    * @param options 训练参数，不能为 空
+    * @param domain  建模域快照，不能为 空
+    * @return 模型实例
      */
     public static RandomForestModel create(RandomForestOptions options, ModelDomain domain) {
         Objects.requireNonNull(options, "options must not be null");
@@ -104,10 +104,10 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 训练模型。
-     *
-     * @param trainingData 训练实例，不能为 空
-     * @throws WekaException 训练失败
+    * 训练模型。
+    *
+    * @param trainingData 训练实例，不能为 空
+    * @throws WekaException 训练失败
      */
     public void train(Instances trainingData) {
         Objects.requireNonNull(trainingData, "trainingData must not be null");
@@ -119,10 +119,10 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 按建模域快照构建预测实例。
-     *
-     * @param rows 预测数据行，不能为 空
-     * @return 实例容器
+    * 按建模域快照构建预测实例。
+    *
+    * @param rows 预测数据行，不能为 空
+    * @return 实例容器
      */
     public Instances instancesFor(List<Map<String, Object>> rows) {
         Objects.requireNonNull(rows, "rows must not be null");
@@ -150,11 +150,11 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 单条原始预测。
-     *
-     * @param instance 预测实例，不能为 空
-     * @return 分类场景为标签索引，回归场景为预测值
-     * @throws WekaException 预测失败
+    * 单条原始预测。
+    *
+    * @param instance 预测实例，不能为 空
+    * @return 分类场景为标签索引，回归场景为预测值
+    * @throws WekaException 预测失败
      */
     public double predictRaw(Instance instance) {
         Objects.requireNonNull(instance, "instance must not be null");
@@ -166,11 +166,11 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 单条预测的概率分布。
-     *
-     * @param instance 预测实例，不能为 空
-     * @return 类别概率分布；回归场景无分布，返回 {@link Optional#empty()}
-     * @throws WekaException 预测失败
+    * 单条预测的概率分布。
+    *
+    * @param instance 预测实例，不能为 空
+    * @return 类别概率分布；回归场景无分布，返回 {@link Optional#empty()}
+    * @throws WekaException 预测失败
      */
     public Optional<double[]> predictDistribution(Instance instance) {
         Objects.requireNonNull(instance, "instance must not be null");
@@ -182,11 +182,11 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 计算特征重要性（平均不纯度下降，并按排名归一化）。
-     *
-     * @param trainingData 训练实例，不能为 空
-     * @return 按重要性降序排列的重要性列表
-     * @throws WekaException 计算失败
+    * 计算特征重要性（平均不纯度下降，并按排名归一化）。
+    *
+    * @param trainingData 训练实例，不能为 空
+    * @return 按重要性降序排列的重要性列表
+    * @throws WekaException 计算失败
      */
     public List<FeatureImportance> featureImportances(Instances trainingData) {
         Objects.requireNonNull(trainingData, "trainingData must not be null");
@@ -217,10 +217,10 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 保存模型到磁盘（JDK 序列化）。
-     *
-     * @param file 目标文件，不能为 空
-     * @throws WekaException 写入失败
+    * 保存模型到磁盘（JDK 序列化）。
+    *
+    * @param file 目标文件，不能为 空
+    * @throws WekaException 写入失败
      */
     public void save(Path file) {
         Objects.requireNonNull(file, "file must not be null");
@@ -232,11 +232,11 @@ public final class RandomForestModel implements Serializable {
     }
 
     /**
-     * 从磁盘加载模型。
-     *
-     * @param file 模型文件，不能为 空
-     * @return 模型实例
-     * @throws WekaException 读取失败或文件不是本模块序列化的模型
+    * 从磁盘加载模型。
+    *
+    * @param file 模型文件，不能为 空
+    * @return 模型实例
+    * @throws WekaException 读取失败或文件不是本模块序列化的模型
      */
     public static RandomForestModel load(Path file) {
         Objects.requireNonNull(file, "file must not be null");

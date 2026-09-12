@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 音频识别上下文，管线中间状态的数据载体。
- *
- * <p>在 {@link AudioRecognitionPipeline} 的每一步处理中，将当前状态暂存于此对象，
- * 供后续节点读取和写入。</p>
- *
- * @author CH
- * @since 4.0.0.43
+* 音频识别上下文，管线中间状态的数据载体。
+*
+* <p>在 {@link AudioRecognitionPipeline} 的每一步处理中，将当前状态暂存于此对象，
+* 供后续节点读取和写入。</p>
+*
+* @author CH
+* @since 4.0.0.43
  */
 @Data
 @Builder

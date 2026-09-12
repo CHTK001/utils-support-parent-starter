@@ -1,13 +1,13 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * AMQP 0-9-1 协议还原器。
- *
- * <p>AMQP 帧结构：type(1) + channel(2) + size(可变) + payload。
-   * 类型: 0x01=方法, 0x02=头部, 0x03=主体, 0x08=CONTROL。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* AMQP 0-9-1 协议还原器。
+*
+* <p>AMQP 帧结构：type(1) + channel(2) + size(可变) + payload。
+* 类型: 0x01=方法, 0x02=头部, 0x03=主体, 0x08=CONTROL。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -88,10 +88,10 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为帧类型
-     *
-     * @param type 类型
-     * @return 转为帧类型的结果
+    * 转为帧类型
+    *
+    * @param type 类型
+    * @return 转为帧类型的结果
      */
     private static String toFrameType(int type) {
         return switch (type) {
@@ -104,10 +104,10 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为类名称
-     *
-     * @param classId 类标识
-     * @return 转为类名称的结果
+    * 转为类名称
+    *
+    * @param classId 类标识
+    * @return 转为类名称的结果
      */
     private static String toClassName(int classId) {
         return switch (classId) {
@@ -122,11 +122,11 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 转为方法名称
-     *
-     * @param classId 类标识
-     * @param methodId 方法标识
-     * @return 转为方法名称的结果
+    * 转为方法名称
+    *
+    * @param classId 类标识
+    * @param methodId 方法标识
+    * @return 转为方法名称的结果
      */
     private static String toMethodName(int classId, int methodId) {
         if (classId == 10) {

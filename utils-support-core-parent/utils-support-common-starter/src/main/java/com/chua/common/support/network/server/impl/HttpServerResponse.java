@@ -10,17 +10,17 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 基于 JDK {@link HttpExchange} 的 {@link ServerResponse} 实现。
- *
- * <p>采用缓冲响应模式：所有写入先缓存在内存中，过滤器链完成后统一
- * 通过 {@link #complete()} 发送到客户端。{@code committed} 仅表示
- * 物理数据已发送，{@code ended} 表示逻辑处理已完成。</p>
- *
- * <p>SSE 模式下使用 {@link #sseMode} 标志位，调用 {@link #sse()} 后即提交响应头
- * （chunked transfer），后续 {@link #sseEvent(String, String)} 直接写真实流。</p>
- *
- * @author CH
- * @since 2026/07/16
+* 基于 JDK {@link HttpExchange} 的 {@link ServerResponse} 实现。
+*
+* <p>采用缓冲响应模式：所有写入先缓存在内存中，过滤器链完成后统一
+* 通过 {@link #complete()} 发送到客户端。{@code committed} 仅表示
+* 物理数据已发送，{@code ended} 表示逻辑处理已完成。</p>
+*
+* <p>SSE 模式下使用 {@link #sseMode} 标志位，调用 {@link #sse()} 后即提交响应头
+* （chunked transfer），后续 {@link #sseEvent(String, String)} 直接写真实流。</p>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class HttpServerResponse implements ServerResponse {
 
@@ -29,7 +29,7 @@ public class HttpServerResponse implements ServerResponse {
     /** 状态代码 */
     private int statusCode = 200;
     /**
-     * 请求体
+    * 请求体
      */
     private byte[] body;
     /** Ended */
@@ -43,15 +43,15 @@ public class HttpServerResponse implements ServerResponse {
     /** SSE输出流 */
     private OutputStream sseOutputStream;
     /**
-     * 结果
+    * 结果
      */
     private Object result;
     /** 输出 */
     private ByteArrayOutputStream output;
 
     /**
-     * 创建 HttpServerResponse 实例
-     * @param exchange exchange
+    * 创建 HttpServerResponse 实例
+    * @param exchange exchange
      */
     public HttpServerResponse(HttpExchange exchange) {
         this.exchange = exchange;

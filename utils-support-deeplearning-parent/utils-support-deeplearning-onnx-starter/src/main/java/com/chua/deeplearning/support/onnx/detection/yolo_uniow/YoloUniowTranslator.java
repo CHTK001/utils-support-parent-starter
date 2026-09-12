@@ -28,20 +28,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-   * YOLO-uniow 通用开世界目标检测（打开-World 对象 Detection）Translator。
- *
- * <p>YOLO-UniOW（清华 THU-MIG，arxiv 2412.20645）基于 YOLO-World + YOLOv10，
- * 支持开世界动态词表检测。ONNX 部署模型输入 {@code images(1,3,640,640)} +
- * {@code text_features(1,N,512)}（类别文本嵌入，需与模型文本编码器一致），
- * 输出 3 个尺度特征图 {@code (1,H,W, 4*reg_max + N)}——前 64 通道为 bbox
-   * DFL 分布 logits（reg_最大=16，4 边×16 bin），后 N 通道为类别 logits。</p>
- *
- * <p>解码流程与 AXERA-TECH/YOLO-UniOW（easydeploy 部署）保持一致：
-   * DFL softmax 积分 → dist2bbox（ltrb → xywh，锚栓 中心网格偏移 0.5）→
- * 乘以 stride 还原像素 → sigmoid 类别分数 → 阈值过滤 → NMS。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* YOLO-uniow 通用开世界目标检测（打开-World 对象 Detection）Translator。
+*
+* <p>YOLO-UniOW（清华 THU-MIG，arxiv 2412.20645）基于 YOLO-World + YOLOv10，
+* 支持开世界动态词表检测。ONNX 部署模型输入 {@code images(1,3,640,640)} +
+* {@code text_features(1,N,512)}（类别文本嵌入，需与模型文本编码器一致），
+* 输出 3 个尺度特征图 {@code (1,H,W, 4*reg_max + N)}——前 64 通道为 bbox
+* DFL 分布 logits（reg_最大=16，4 边×16 bin），后 N 通道为类别 logits。</p>
+*
+* <p>解码流程与 AXERA-TECH/YOLO-UniOW（easydeploy 部署）保持一致：
+* DFL softmax 积分 → dist2bbox（ltrb → xywh，锚栓 中心网格偏移 0.5）→
+* 乘以 stride 还原像素 → sigmoid 类别分数 → 阈值过滤 → NMS。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
 
@@ -88,10 +88,10 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 yolouniowtranslator 实例。
-     *
-     * @param threshold    置信度阈值
-     * @param nmsThreshold NMS iou 阈值
+    * 创建 yolouniowtranslator 实例。
+    *
+    * @param threshold    置信度阈值
+    * @param nmsThreshold NMS iou 阈值
      */
     public YoloUniowTranslator(float threshold, float nmsThreshold) {
         this.threshold = threshold;
@@ -103,10 +103,10 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 指定外部嵌入文件（覆盖 类路径 资源）。
-     *
-     * @param path 嵌入文件路径（float32 数组，N×512）
-     * @return this
+    * 指定外部嵌入文件（覆盖 类路径 资源）。
+    *
+    * @param path 嵌入文件路径（float32 数组，N×512）
+    * @return this
      */
     public YoloUniowTranslator embeddings(Path path) {
         this.textFeatures = loadEmbeddings(path);
@@ -222,10 +222,10 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     // ==================== NMS 与结果组装 ====================
 
     /**
-      * 按分数阈值过滤 + NMS，组装 detected对象。
-     * @param clsData cls数据
-     * @param boxData box数据
-     * @return decodeDetections的结果
+    * 按分数阈值过滤 + NMS，组装 detected对象。
+    * @param clsData cls数据
+    * @param boxData box数据
+    * @return decodeDetections的结果
      */
     private DetectedObjects decodeDetections(float[] clsData, float[] boxData) {
         int numAnchors = clsData.length / classes.size();
@@ -320,8 +320,8 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     // ==================== 资源加载 ====================
 
     /**
-      * 从 类路径 加载类别名列表。
-     * @return 加载类名称的结果
+    * 从 类路径 加载类别名列表。
+    * @return 加载类名称的结果
      */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
@@ -352,9 +352,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 从 类路径 资源加载文本嵌入（float32 数组）。
-     * @param resource resource
-     * @return 加载嵌入的结果
+    * 从 类路径 资源加载文本嵌入（float32 数组）。
+    * @param resource resource
+    * @return 加载嵌入的结果
      */
     private float[] loadEmbeddings(String resource) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
@@ -368,8 +368,8 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * 从外部文件加载文本嵌入（float32 数组）。
-     * @param is 是否
+    * 从外部文件加载文本嵌入（float32 数组）。
+    * @param is 是否
      /**
       * 加载嵌入。
       * @param path 路径
@@ -378,9 +378,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
      * @return 读取floats的结果
       * @param is 是否
      /**
-      * 加载嵌入。
-      * @param path 路径
-      * @return 加载嵌入的结果
+     * 加载嵌入。
+     * @param path 路径
+     * @return 加载嵌入的结果
       */
      */
     private float[] loadEmbeddings(Path path) {
@@ -413,12 +413,12 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * HWC(RGB) → CHW(BGR) 并归一化到 [0,1]。
-     * <p>mmdet/YOLO 系模型训练输入为 BGR（OpenCV 惯例），
-     * DJL {@code Image.toNDArray} 返回 RGB，需反转通道。</p>
-     * @param ctx ctx
-     * @param array array
-     * @return 转为normalizedchw的结果
+    * HWC(RGB) → CHW(BGR) 并归一化到 [0,1]。
+    * <p>mmdet/YOLO 系模型训练输入为 BGR（OpenCV 惯例），
+    * DJL {@code Image.toNDArray} 返回 RGB，需反转通道。</p>
+    * @param ctx ctx
+    * @param array array
+    * @return 转为normalizedchw的结果
      */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();

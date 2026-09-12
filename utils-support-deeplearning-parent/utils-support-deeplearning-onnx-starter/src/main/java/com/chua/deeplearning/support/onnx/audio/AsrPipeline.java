@@ -10,103 +10,103 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 本地离线语音识别管线。
- *
- * <p><b>阶段构成</b>：</p>
- * <ul>
- *   <li>必选-1 音频解码：任意 WAV/PCM → 16kHz 单声道 float[]</li>
- *   <li>必选-2 引擎推理：moonshine / whisper / paraformer（VirtualClient SPI）逐段转写</li>
- *   <li>必选-3 结果拼接：多段文本按时间序合并</li>
- *   <li>可选-A 能量 VAD 切分：静音检测切段，长音频必备，短音频可关；
- *       相邻语音段间隙小于 0.6s 自动合并以保持整句上下文</li>
- *   <li>可选-B 降噪预处理：DFSMN 单麦近场降噪（48k 模型，内部自动重采样），
- *       嘈杂场景建议开启</li>
- *   <li>可选-C 后处理：压缩空白、英文句首大写</li>
- * </ul>
- *
- * <p>用法：</p>
- *
- * <pre>{@code
- *   String text = AsrPipeline.builder()
- *           .engine("moonshine")          // 必选：引擎 id
- *           .vad("energy")                // 可选：VAD 类型（默认 null）
- *           .denoise("dfsmn-ans")         // 可选：降噪模型 ID（默认 null）
- *           .postProcess(true)            // 可选：默认 true
- *           .build()
- *           .transcribe(Path.of("a.wav"));
- * }</pre>           .build()
- *           .transcribe(Path.of("a.wav"));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 本地离线语音识别管线。
+*
+* <p><b>阶段构成</b>：</p>
+* <ul>
+*   <li>必选-1 音频解码：任意 WAV/PCM → 16kHz 单声道 float[]</li>
+*   <li>必选-2 引擎推理：moonshine / whisper / paraformer（VirtualClient SPI）逐段转写</li>
+*   <li>必选-3 结果拼接：多段文本按时间序合并</li>
+*   <li>可选-A 能量 VAD 切分：静音检测切段，长音频必备，短音频可关；
+*       相邻语音段间隙小于 0.6s 自动合并以保持整句上下文</li>
+*   <li>可选-B 降噪预处理：DFSMN 单麦近场降噪（48k 模型，内部自动重采样），
+*       嘈杂场景建议开启</li>
+*   <li>可选-C 后处理：压缩空白、英文句首大写</li>
+* </ul>
+*
+* <p>用法：</p>
+*
+* <pre>{@code
+*   String text = AsrPipeline.builder()
+*           .engine("moonshine")          // 必选：引擎 id
+*           .vad("energy")                // 可选：VAD 类型（默认 null）
+*           .denoise("dfsmn-ans")         // 可选：降噪模型 ID（默认 null）
+*           .postProcess(true)            // 可选：默认 true
+*           .build()
+*           .transcribe(Path.of("a.wav"));
+* }</pre>           .build()
+*           .transcribe(Path.of("a.wav"));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public final class AsrPipeline {
 
     /**
-     * 目标采样率
+    * 目标采样率
      */
     private static final int TARGET_SR = 16000;
 
     /**
-     * 默认静音阈值（RMS）
+    * 默认静音阈值（RMS）
      */
     private static final float DEFAULT_SILENCE_RMS = 0.01F;
 
     /**
-     * 默认最短语音段（秒）
+    * 默认最短语音段（秒）
      */
     private static final float DEFAULT_MIN_SEG = 0.4F;
 
     /**
-     * 默认最大段长（秒），超长强制切分
+    * 默认最大段长（秒），超长强制切分
      */
     private static final float DEFAULT_MAX_SEG = 28F;
 
     /**
-      * 引擎 标识（必选）
+    * 引擎 标识（必选）
      */
     private final String engineId;
 
     /**
-     * 识别语言（可选，whisper 类多语言引擎建议显式指定）
+    * 识别语言（可选，whisper 类多语言引擎建议显式指定）
      */
     private final String language;
 
     /**
-      * VAD 类型（空 表示不做 VAD）。
+    * VAD 类型（空 表示不做 VAD）。
      */
     private final String vadType;
 
     /**
-      * 降噪增强器（空 表示不降噪）。
+    * 降噪增强器（空 表示不降噪）。
      */
     private final SpeechEnhancer denoiseEnhancer;
 
     /**
-     * 是否启用文本后处理（可选，默认开）
+    * 是否启用文本后处理（可选，默认开）
      */
     private final boolean postProcess;
 
     /**
-     * VAD 静音 RMS 门限
+    * VAD 静音 RMS 门限
      */
     private final float silenceRms;
 
     /**
-     * 最短有效语音段（秒）
+    * 最短有效语音段（秒）
      */
     private final float minSegSec;
 
     /**
-     * 最大段长（秒）
+    * 最大段长（秒）
      */
     private final float maxSegSec;
 
     /**
-      * asrpipeline。
-     * @param b b
+    * asrpipeline。
+    * @param b b
      */
     private AsrPipeline(Builder b) {
         this.engineId = b.engineId;
@@ -120,21 +120,21 @@ public final class AsrPipeline {
     }
 
     /**
-     * 创建构建器。
-     *
-     * @param engineId 必选：ASR 引擎 标识（moonshine / whisper-tiny / paraformer-zh-small 等）
-     * @return 构建器
+    * 创建构建器。
+    *
+    * @param engineId 必选：ASR 引擎 标识（moonshine / whisper-tiny / paraformer-zh-small 等）
+    * @return 构建器
      */
     public static Builder builder(String engineId) {
         return new Builder(engineId);
     }
 
     /**
-     * 执行管线：解码 → 降噪 → VAD 切分 → 引擎转写 → 拼接 → 后处理。
-     *
-     * @param wavPath 输入音频
-     * @return 全文转写结果；无语音时返回空串
-     * @throws Exception 管线失败
+    * 执行管线：解码 → 降噪 → VAD 切分 → 引擎转写 → 拼接 → 后处理。
+    *
+    * @param wavPath 输入音频
+    * @return 全文转写结果；无语音时返回空串
+    * @throws Exception 管线失败
      */
     public String transcribe(Path wavPath) throws Exception {
         long t0 = System.currentTimeMillis();
@@ -183,11 +183,11 @@ public final class AsrPipeline {
     }
 
     /**
-     * 可选-A：按类型 VAD 切分。
-     *
-     * @param s    16khz 单声道采样
-     * @param type VAD 类型（"energy" / "silero" 等）
-     * @return 语音段列表
+    * 可选-A：按类型 VAD 切分。
+    *
+    * @param s    16khz 单声道采样
+    * @param type VAD 类型（"energy" / "silero" 等）
+    * @return 语音段列表
      */
     private List<float[]> splitByVad(float[] s, String type) {
         return switch (type.toLowerCase()) {
@@ -197,16 +197,16 @@ public final class AsrPipeline {
     }
 
     /**
-     * 能量 VAD 切分（静态通用实现）。
-     *
-     * <p>RMS 门限判定有声帧；短于最小时长的片段丢弃；相邻语音段间隙小于
-     * 0.6 秒时自动合并为完整语句；超过最大段长强制二次切分。</p>
-     *
-     * @param s           16khz 单声道采样
-     * @param silenceRms  静音 RMS 门限
-     * @param minSegSec   最短语音段秒数
-     * @param maxSegSec   最大段长秒数
-     * @return 语音段列表
+    * 能量 VAD 切分（静态通用实现）。
+    *
+    * <p>RMS 门限判定有声帧；短于最小时长的片段丢弃；相邻语音段间隙小于
+    * 0.6 秒时自动合并为完整语句；超过最大段长强制二次切分。</p>
+    *
+    * @param s           16khz 单声道采样
+    * @param silenceRms  静音 RMS 门限
+    * @param minSegSec   最短语音段秒数
+    * @param maxSegSec   最大段长秒数
+    * @return 语音段列表
      */
     static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * TARGET_SR);
@@ -257,10 +257,10 @@ public final class AsrPipeline {
     }
 
     /**
-     * 关闭 VAD 时按最大段长强制切块。
-     *
-     * @param s 16khz 单声道采样
-     * @return 分块列表
+    * 关闭 VAD 时按最大段长强制切块。
+    *
+    * @param s 16khz 单声道采样
+    * @return 分块列表
      */
     private List<float[]> forceSplit(float[] s) {
         int maxSeg = (int) (maxSegSec * TARGET_SR);
@@ -278,12 +278,12 @@ public final class AsrPipeline {
     }
 
     /**
-     * 计算帧 RMS 能量。
-     *
-     * @param s 采样
-     * @param off 起始偏移
-     * @param len 帧长
-     * @return RMS 值
+    * 计算帧 RMS 能量。
+    *
+    * @param s 采样
+    * @param off 起始偏移
+    * @param len 帧长
+    * @return RMS 值
      */
     private static float rms(float[] s, int off, int len) {
         double sum = 0;
@@ -294,13 +294,13 @@ public final class AsrPipeline {
     }
 
     /**
-      * 可选-B：降噪预处理（委托给 语音enhancer）。
-     *
-     * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送增强器，
-     * 再将增强结果解码回 16k float；失败时回退原始音频。</p>
-     *
-     * @param s 16khz 采样
-     * @return 增强后采样
+    * 可选-B：降噪预处理（委托给 语音enhancer）。
+    *
+    * <p>管线内部为 16k float：先上采样至 48k 封装 WAV 送增强器，
+    * 再将增强结果解码回 16k float；失败时回退原始音频。</p>
+    *
+    * @param s 16khz 采样
+    * @return 增强后采样
      */
     private float[] denoise(float[] s) {
         try {
@@ -319,10 +319,10 @@ public final class AsrPipeline {
     }
 
     /**
-     * 可选-C：压缩连续空白并大写英文句首字符。
-     *
-     * @param text 原始文本
-     * @return 后处理文本
+    * 可选-C：压缩连续空白并大写英文句首字符。
+    *
+    * @param text 原始文本
+    * @return 后处理文本
      */
     static String postProcess(String text) {
         String t = text.replaceAll("\\s+", " ").trim();
@@ -333,54 +333,54 @@ public final class AsrPipeline {
     }
 
     /**
-     * 构建器。
+    * 构建器。
      */
     public static final class Builder {
 
         /**
-          * 引擎 标识（必选）
+        * 引擎 标识（必选）
          */
         private final String engineId;
 
         /**
-         * 识别语言（可选）
+        * 识别语言（可选）
          */
         private String language;
 
         /**
-          * VAD 类型（空 表示不做 VAD）
+        * VAD 类型（空 表示不做 VAD）
          */
         private String vadType;
 
         /**
-          * 降噪增强器（空 表示不降噪）
+        * 降噪增强器（空 表示不降噪）
          */
         private SpeechEnhancer denoiseEnhancer;
 
         /**
-         * 启用文本后处理（默认 true）
+        * 启用文本后处理（默认 true）
          */
         private boolean postProcess = true;
 
         /**
-         * 静音 RMS 门限（默认 0.01）
+        * 静音 RMS 门限（默认 0.01）
          */
         private float silenceRms = DEFAULT_SILENCE_RMS;
 
         /**
-         * 最短语音段秒数（默认 0.4）
+        * 最短语音段秒数（默认 0.4）
          */
         private float minSegSec = DEFAULT_MIN_SEG;
 
         /**
-         * 最大段长秒数（默认 28）
+        * 最大段长秒数（默认 28）
          */
         private float maxSegSec = DEFAULT_MAX_SEG;
 
         /**
-         * 构建器。
-         * @param engineId engineid
-         * @return 构建器的结果
+        * 构建器。
+        * @param engineId engineid
+        * @return 构建器的结果
          */
         private Builder(String engineId) {
             if (engineId == null || engineId.isBlank()) {
@@ -390,10 +390,10 @@ public final class AsrPipeline {
         }
 
         /**
-         * 可选：识别语言（zh/en 等；whisper 类多语言引擎建议显式指定）。
-         *
-         * @param language 语言代码
-         * @return 构建器
+        * 可选：识别语言（zh/en 等；whisper 类多语言引擎建议显式指定）。
+        *
+        * @param language 语言代码
+        * @return 构建器
          */
         public Builder language(String language) {
             this.language = language;
@@ -401,15 +401,15 @@ public final class AsrPipeline {
         }
 
         /**
-         * 可选-A：启用能量 VAD 切分（长音频建议开启）。
-         *
-         * <p>统一 provider 模式（与 FacePipeline 一致），按类型字符串选择切分策略：
-         * <pre>{@code
-         * .vad("energy")   // 能量 VAD（默认参数）
-         * }</pre>
-         *
-         * @param type VAD 类型（"energy" 等），空 关闭
-         * @return 构建器
+        * 可选-A：启用能量 VAD 切分（长音频建议开启）。
+        *
+        * <p>统一 provider 模式（与 FacePipeline 一致），按类型字符串选择切分策略：
+        * <pre>{@code
+        * .vad("energy")   // 能量 VAD（默认参数）
+        * }</pre>
+        *
+        * @param type VAD 类型（"energy" 等），空 关闭
+        * @return 构建器
          */
         public Builder vad(String type) {
             this.vadType = type;
@@ -417,15 +417,15 @@ public final class AsrPipeline {
         }
 
         /**
-          * 可选-B：降噪模型 标识（嘈杂场景建议开启）。
-         *
-         * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
-         * <pre>{@code
-         * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
-         * }</pre>
-         *
-         * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表），空 关闭
-         * @return 构建器
+        * 可选-B：降噪模型 标识（嘈杂场景建议开启）。
+        *
+        * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
+        * <pre>{@code
+        * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
+        * }</pre>
+        *
+        * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表），空 关闭
+        * @return 构建器
          */
         public Builder denoise(String modelId) {
             this.denoiseEnhancer = modelId != null ? SpeechEnhancer.create(modelId) : null;
@@ -433,10 +433,10 @@ public final class AsrPipeline {
         }
 
         /**
-         * 可选-C：启用文本后处理（默认开）。
-         *
-         * @param enable 是否启用
-         * @return 构建器
+        * 可选-C：启用文本后处理（默认开）。
+        *
+        * @param enable 是否启用
+        * @return 构建器
          */
         public Builder postProcess(boolean enable) {
             this.postProcess = enable;
@@ -444,10 +444,10 @@ public final class AsrPipeline {
         }
 
         /**
-         * 设置 VAD 静音 RMS 门限。
-         *
-         * @param threshold 门限值
-         * @return 构建器
+        * 设置 VAD 静音 RMS 门限。
+        *
+        * @param threshold 门限值
+        * @return 构建器
          */
         public Builder silenceRms(float threshold) {
             this.silenceRms = threshold;
@@ -455,10 +455,10 @@ public final class AsrPipeline {
         }
 
         /**
-         * 设置最短有效语音段秒数。
-         *
-         * @param sec 秒数
-         * @return 构建器
+        * 设置最短有效语音段秒数。
+        *
+        * @param sec 秒数
+        * @return 构建器
          */
         public Builder minSegment(float sec) {
             this.minSegSec = sec;
@@ -466,10 +466,10 @@ public final class AsrPipeline {
         }
 
         /**
-         * 设置最大段长秒数。
-         *
-         * @param sec 秒数
-         * @return 构建器
+        * 设置最大段长秒数。
+        *
+        * @param sec 秒数
+        * @return 构建器
          */
         public Builder maxSegment(float sec) {
             this.maxSegSec = sec;
@@ -477,9 +477,9 @@ public final class AsrPipeline {
         }
 
         /**
-         * 构建管线实例。
-         *
-         * @return 管线实例
+        * 构建管线实例。
+        *
+        * @return 管线实例
          */
         public AsrPipeline build() {
             return new AsrPipeline(this);

@@ -24,10 +24,10 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 /**
-   * macOS 系统日志提供者 - 日志 show 命令 + /var/日志 文件回退
- *
- * @author CH
- * @since 4.0.0.42
+* macOS 系统日志提供者 - 日志 show 命令 + /var/日志 文件回退
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("macos")
 @SpiDescribe(value = "macos-unified-log", desc = "macOS 系统日志提供者(log show + /var/log)", type = "log")
@@ -84,10 +84,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 搜索Via记录日志Show
-     *
-     * @param query 查询
-     * @return 搜索via日志show的结果
+    * 搜索Via记录日志Show
+    *
+    * @param query 查询
+    * @return 搜索via日志show的结果
      */
     private List<LogEntry> searchViaLogShow(LogQuery query) {
         List<String> args = new ArrayList<>();
@@ -150,10 +150,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 构建Predicate
-     *
-     * @param query 查询
-     * @return 构建predicate的结果
+    * 构建Predicate
+    *
+    * @param query 查询
+    * @return 构建predicate的结果
      */
     private String buildPredicate(LogQuery query) {
         StringBuilder sb = new StringBuilder();
@@ -180,10 +180,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 解析记录日志show线
-     *
-     * @param line 线
-     * @return 解析日志show线的结果
+    * 解析记录日志show线
+    *
+    * @param line 线
+    * @return 解析日志show线的结果
      */
     private LogEntry parseLogShowLine(String line) {
         if (line == null || line.isBlank()) { return null; }
@@ -220,10 +220,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 搜索viavar记录日志
-     *
-     * @param query 查询
-     * @return 搜索viavar日志的结果
+    * 搜索viavar记录日志
+    *
+    * @param query 查询
+    * @return 搜索viavar日志的结果
      */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
@@ -262,11 +262,11 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * 解析Var记录日志线
-     *
-     * @param line 线
-     * @param source 源
-     * @return 解析var日志线的结果
+    * 解析Var记录日志线
+    *
+    * @param line 线
+    * @param source 源
+    * @return 解析var日志线的结果
      */
     private LogEntry parseVarLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
@@ -281,10 +281,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * detect级别从消息
-     *
-     * @param line 线
-     * @return detect级别从消息的结果
+    * detect级别从消息
+    *
+    * @param line 线
+    * @return detect级别从消息的结果
      */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
@@ -307,10 +307,10 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     /**
-     * compile模式
-     *
-     * @param glob glob
-     * @return compile模式的结果
+    * compile模式
+    *
+    * @param glob glob
+    * @return compile模式的结果
      */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }

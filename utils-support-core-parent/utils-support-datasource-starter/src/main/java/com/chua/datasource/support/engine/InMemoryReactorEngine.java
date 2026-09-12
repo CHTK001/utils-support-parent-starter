@@ -17,31 +17,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 内存响应式引擎，真正响应式实现。
- *
- * <p>内存操作无阻塞 I/O，所有终端方法直接返回 {@link Flux}/{@link Mono}，
- * 不经过 {@code boundedElastic} 调度，在订阅者线程直接执行。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param clazz clazz
- * @return 执行查询的结果
- * @param pn pn
- * @param ps ps
+* 内存响应式引擎，真正响应式实现。
+*
+* <p>内存操作无阻塞 I/O，所有终端方法直接返回 {@link Flux}/{@link Mono}，
+* 不经过 {@code boundedElastic} 调度，在订阅者线程直接执行。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param clazz clazz
+* @return 执行查询的结果
+* @param pn pn
+* @param ps ps
  */
 @Spi("memory")
 public class InMemoryReactorEngine implements ReactorEngine {
 /**
- * 查询。
- * @param entityClass 实体类
- * @return 查询的结果
+* 查询。
+* @param entityClass 实体类
+* @return 查询的结果
  */
 
     private final InMemoryEngine delegate = new InMemoryEngine(); // delegate
 
     /**
-     * 列表。
-     * @return 列表的结果
+    * 列表。
+    * @return 列表的结果
      */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
@@ -49,19 +49,19 @@ public class InMemoryReactorEngine implements ReactorEngine {
             @Override
             public Flux<T> list() {
                 /**
-                 * one。
-                 * @return one的结果
-                 * @param clazz clazz
-                 * @param pn pn
-                 * @param ps ps
+                * one。
+                * @return one的结果
+                * @param clazz clazz
+                * @param pn pn
+                * @param ps ps
                  */
                 return Flux.fromIterable(doQuery(entityClass));
             /**
-             * one。
-             * @return one的结果
-             * @param clazz clazz
-             * @param pn pn
-             * @param ps ps
+            * one。
+            * @return one的结果
+            * @param clazz clazz
+            * @param pn pn
+            * @param ps ps
              */
             }
 
@@ -151,11 +151,11 @@ public class InMemoryReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 存入表数据（委托同步引擎，供原生 SQL 与 Lambda 共享）。
-     *
-     * @param name 表名
-     * @param data 行数据
-     * @return 当前引擎
+    * 存入表数据（委托同步引擎，供原生 SQL 与 Lambda 共享）。
+    *
+    * @param name 表名
+    * @param data 行数据
+    * @return 当前引擎
      */
     public InMemoryReactorEngine store(String name, java.util.List<?> data) {
         delegate.store(name, data);
@@ -163,7 +163,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 关闭引擎，释放内存数据。
+    * 关闭引擎，释放内存数据。
      */
     public void close() {
         delegate.close();

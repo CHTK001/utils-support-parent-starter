@@ -21,44 +21,44 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * RabbitMQ 分发器提供者，基于 RabbitMQ 实现跨进程的发布订阅。
- *
- * @author CH
- * @since 4.0.0.42
+* RabbitMQ 分发器提供者，基于 RabbitMQ 实现跨进程的发布订阅。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("rabbitmq")
 public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-     * RabbitMQ 连接
+    * RabbitMQ 连接
      */
     private Connection connection;
 
     /**
-     * RabbitMQ 通道
+    * RabbitMQ 通道
      */
     private Channel channel;
 
     /**
-     * 主题与订阅定义列表的映射
+    * 主题与订阅定义列表的映射
      */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
-     * 消费者线程池
+    * 消费者线程池
      */
     private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("rabbitmq-dispatcher-%d").setDaemon(true).build());
 
     /**
-     * 是否已关闭
+    * 是否已关闭
      */
     private volatile boolean closed = false;
 
     /**
-      * 创建 rabbitmqdispatcher提供者 实例
-     * @param config 配置
+    * 创建 rabbitmqdispatcher提供者 实例
+    * @param config 配置
      */
     public RabbitmqDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -101,9 +101,9 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 启动 RabbitMQ 消费者监听指定交换器。
-     *
-     * @param topic 交换器名称
+    * 启动 RabbitMQ 消费者监听指定交换器。
+    *
+    * @param topic 交换器名称
      */
     private void startConsumer(String topic) {
         try {

@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 纯文本表格渲染器，无边框、无 Unicode 字符，适合窄屏终端或纯文本输出场景。
- *
- * <p>输出格式示例：</p>
- * <pre>
- * Name    Value
- * foo     123
- * bar     456
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 纯文本表格渲染器，无边框、无 Unicode 字符，适合窄屏终端或纯文本输出场景。
+*
+* <p>输出格式示例：</p>
+* <pre>
+* Name    Value
+* foo     123
+* bar     456
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("plain")
 public class PlainTableViewParser implements ViewParser {

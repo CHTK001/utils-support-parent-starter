@@ -8,22 +8,22 @@ import com.chua.common.support.network.server.filter.ServerFilterChain;
 import com.chua.common.support.network.server.filter.ServerFilterConfig;
 
 /**
-   * 跨域资源共享 跨域过滤器，为 HTTP 响应添加跨域资源共享头。
- *
- * <p>处理 OPTIONS 预检请求直接返回 204，为普通请求添加 Access-Control-* 头。
- * 支持动态配置允许的源、方法、头等。
- *
- * <h2>配置参数</h2>
- * <ul>
- *   <li>{@code cors.allowOrigin} — 允许的源，默认 {@code *}</li>
- *   <li>{@code cors.allowMethods} — 允许的方法，默认 {@code GET,POST,PUT,DELETE,PATCH,OPTIONS}</li>
- *   <li>{@code cors.allowHeaders} — 允许的请求头，默认 {@code *}</li>
- *   <li>{@code cors.maxAge} — 预检缓存时间（秒），默认 3600</li>
- *   <li>{@code cors.allowCredentials} — 是否允许凭证，默认 false</li>
- * </ul>
- *
- * @author CH
- * @since 2026/07/16
+* 跨域资源共享 跨域过滤器，为 HTTP 响应添加跨域资源共享头。
+*
+* <p>处理 OPTIONS 预检请求直接返回 204，为普通请求添加 Access-Control-* 头。
+* 支持动态配置允许的源、方法、头等。
+*
+* <h2>配置参数</h2>
+* <ul>
+*   <li>{@code cors.allowOrigin} — 允许的源，默认 {@code *}</li>
+*   <li>{@code cors.allowMethods} — 允许的方法，默认 {@code GET,POST,PUT,DELETE,PATCH,OPTIONS}</li>
+*   <li>{@code cors.allowHeaders} — 允许的请求头，默认 {@code *}</li>
+*   <li>{@code cors.maxAge} — 预检缓存时间（秒），默认 3600</li>
+*   <li>{@code cors.allowCredentials} — 是否允许凭证，默认 false</li>
+* </ul>
+*
+* @author CH
+* @since 2026/07/16
  */
 public class CorsServerFilter implements ServerFilter {
 

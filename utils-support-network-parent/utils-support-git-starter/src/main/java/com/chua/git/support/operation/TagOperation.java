@@ -10,44 +10,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * 标签操作（Git 标签）。
- *
- * <p>对已打开的本地仓库，提供以下操作：</p>
- * <ul>
- *   <li>{@link #list()} — 列出所有标签</li>
- *   <li>{@link #create(String)} — 创建轻量标签</li>
- *   <li>{@link #create(String, String)} — 创建附注标签</li>
- *   <li>{@link #delete(String)} — 删除标签</li>
- * </ul>
- *
- * <pre>示例：
- * {@code
- * // 列出所有标签
- * List<TagInfo> tags = client.tag().list();
- *
- * // 创建附注标签
- * client.tag().create("v1.0", "发布 1.0 版本");
- *
- * // 删除标签
- * client.tag().delete("v0.9");
- * }</pre>("v0.9");
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 标签操作（Git 标签）。
+*
+* <p>对已打开的本地仓库，提供以下操作：</p>
+* <ul>
+*   <li>{@link #list()} — 列出所有标签</li>
+*   <li>{@link #create(String)} — 创建轻量标签</li>
+*   <li>{@link #create(String, String)} — 创建附注标签</li>
+*   <li>{@link #delete(String)} — 删除标签</li>
+* </ul>
+*
+* <pre>示例：
+* {@code
+* // 列出所有标签
+* List<TagInfo> tags = client.tag().list();
+*
+* // 创建附注标签
+* client.tag().create("v1.0", "发布 1.0 版本");
+*
+* // 删除标签
+* client.tag().delete("v0.9");
+* }</pre>("v0.9");
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class TagOperation {
 
     /**
-      * 所属 git客户端。
+    * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-     * 构建操作实例（仅框架内部调用）。
-     *
-     * @param client 所属 Git客户端
+    * 构建操作实例（仅框架内部调用）。
+    *
+    * @param client 所属 Git客户端
      */
     public TagOperation(GitClient client) {
         this.client = client;
@@ -56,9 +56,9 @@ public class TagOperation {
     // ==================== 查询方法 ====================
 
     /**
-     * 列出所有标签。
-     *
-     * @return 标签信息列表
+    * 列出所有标签。
+    *
+    * @return 标签信息列表
      */
     public List<TagInfo> list() {
         try {
@@ -82,10 +82,10 @@ public class TagOperation {
     // ==================== 创建方法 ====================
 
     /**
-     * 创建轻量标签。
-     *
-     * @param name 标签名称（如 "v1.0"）
-     * @return 当前操作实例
+    * 创建轻量标签。
+    *
+    * @param name 标签名称（如 "v1.0"）
+    * @return 当前操作实例
      */
     public TagOperation create(String name) {
         create(name, null);
@@ -93,11 +93,11 @@ public class TagOperation {
     }
 
     /**
-     * 创建附注标签。
-     *
-     * @param name    标签名称
-     * @param message 标签消息
-     * @return 当前操作实例
+    * 创建附注标签。
+    *
+    * @param name    标签名称
+    * @param message 标签消息
+    * @return 当前操作实例
      */
     public TagOperation create(String name, String message) {
         try {
@@ -118,10 +118,10 @@ public class TagOperation {
     // ==================== 删除方法 ====================
 
     /**
-     * 删除本地标签。
-     *
-     * @param name 标签名称
-     * @return 当前操作实例
+    * 删除本地标签。
+    *
+    * @param name 标签名称
+    * @return 当前操作实例
      */
     public TagOperation delete(String name) {
         try {

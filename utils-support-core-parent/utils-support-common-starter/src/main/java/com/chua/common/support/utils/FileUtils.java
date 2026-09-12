@@ -20,24 +20,24 @@ import static com.chua.common.support.constant.NameConstant.FILE_URL_PREFIX;
 import static com.chua.common.support.constant.NumberConstant.NUMBER_2;
 
 /**
- * 文件工具类
- *
- * @author CH
- * @since 4.0.0.42
+* 文件工具类
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FileUtils {
 
     /**
-     * 文件工具。
+    * 文件工具。
      */
     private FileUtils() {
     }
 
     /**
-     * 获取简单扩展名（去掉第一段）
-     *
-     * @param name 名称
-     * @return 简单扩展名
+    * 获取简单扩展名（去掉第一段）
+    *
+    * @param name 名称
+    * @return 简单扩展名
      */
     public static String getSimpleExtension(String name) {
         if (null == name) {
@@ -60,10 +60,10 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件的扩展名
-     *
-     * @param file 文件对象
-     * @return 扩展名，如果文件为null则返回空字符串
+    * 获取文件的扩展名
+    *
+    * @param file 文件对象
+    * @return 扩展名，如果文件为null则返回空字符串
      */
     public static String getExtension(final File file) {
         if (null == file) {
@@ -73,10 +73,10 @@ public class FileUtils {
     }
 
     /**
-     * 获取URL的扩展名
-     *
-     * @param url URL对象
-     * @return 扩展名，如果URL为null或无法识别则返回空字符串
+    * 获取URL的扩展名
+    *
+    * @param url URL对象
+    * @return 扩展名，如果URL为null或无法识别则返回空字符串
      */
     public static String getExtension(final URL url) {
         if (null == url) {
@@ -98,17 +98,17 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件名的扩展名
-     *
-     * <pre>
-     * foo.txt      -> "txt"
-     * a/b/c.jpg    -> "jpg"
-     * a/b.txt/c    -> ""
-     * a/b/c        -> ""
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 扩展名，如果不存在则返回空字符串，如果filename为null则返回null
+    * 获取文件名的扩展名
+    *
+    * <pre>
+    * foo.txt      -> "txt"
+    * a/b/c.jpg    -> "jpg"
+    * a/b.txt/c    -> ""
+    * a/b/c        -> ""
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 扩展名，如果不存在则返回空字符串，如果filename为null则返回null
      */
     public static String getExtension(String filename) {
         if (filename == null) {
@@ -127,10 +127,10 @@ public class FileUtils {
     }
 
     /**
-     * 将字节数格式化为人类可读的文件大小。
-     *
-     * @param bytes 文件大小（字节），负数视为 0
-     * @return 格式化后的大小字符串，如 "1.5 KB"、"2.3 MB"
+    * 将字节数格式化为人类可读的文件大小。
+    *
+    * @param bytes 文件大小（字节），负数视为 0
+    * @return 格式化后的大小字符串，如 "1.5 KB"、"2.3 MB"
      */
     public static String readableFileSize(long bytes) {
         if (bytes < 0) {
@@ -149,17 +149,17 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件的基础名称（不含路径和扩展名）
-     *
-     * <pre>
-     * a/b/c.txt -> c
-     * a.txt     -> a
-     * a/b/c     -> c
-     * a/b/c/    -> ""
-     * </pre>
-     *
-     * @param file 文件对象
-     * @return 基础名称，如果文件为null则返回null
+    * 获取文件的基础名称（不含路径和扩展名）
+    *
+    * <pre>
+    * a/b/c.txt -> c
+    * a.txt     -> a
+    * a/b/c     -> c
+    * a/b/c/    -> ""
+    * </pre>
+    *
+    * @param file 文件对象
+    * @return 基础名称，如果文件为null则返回null
      */
     public static String getBaseName(final File file) {
         if (null == file) {
@@ -169,34 +169,34 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件名的基础名称（不含路径和扩展名）
-     *
-     * <pre>
-     * a/b/c.txt -> c
-     * a.txt     -> a
-     * a/b/c     -> c
-     * a/b/c/    -> ""
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 基础名称，如果filename为null则返回null
+    * 获取文件名的基础名称（不含路径和扩展名）
+    *
+    * <pre>
+    * a/b/c.txt -> c
+    * a.txt     -> a
+    * a/b/c     -> c
+    * a/b/c/    -> ""
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 基础名称，如果filename为null则返回null
      */
     public static String getBaseName(final String filename) {
         return removeExtension(getName(filename));
     }
 
     /**
-     * 移除文件名的扩展名
-     *
-     * <pre>
-     * foo.txt -> foo
-     * a\b\c.jpg -> a\b\c
-     * a\b\c   -> a\b\c
-     * a.b\c   -> a.b\c
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 移除扩展名后的文件名，如果filename为null则返回null
+    * 移除文件名的扩展名
+    *
+    * <pre>
+    * foo.txt -> foo
+    * a\b\c.jpg -> a\b\c
+    * a\b\c   -> a\b\c
+    * a.b\c   -> a.b\c
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 移除扩展名后的文件名，如果filename为null则返回null
      */
     public static String removeExtension(final String filename) {
         if (filename == null) {
@@ -213,10 +213,10 @@ public class FileUtils {
     }
 
     /**
-     * 查找扩展名的位置
-     *
-     * @param filename 文件名
-     * @return 扩展名的起始位置，如果未找到则返回INDEX_NOT_FOUND
+    * 查找扩展名的位置
+    *
+    * @param filename 文件名
+    * @return 扩展名的起始位置，如果未找到则返回INDEX_NOT_FOUND
      */
     public static int indexOfExtension(final String filename) {
         if (filename == null) {
@@ -231,69 +231,69 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件的完整路径
-     *
-     * <pre>
-     * C:\a\b\c.txt -> C:\a\b\
-     * ~/a/b/c.txt  -> ~/a/b/
-     * a.txt        -> ""
-     * a/b/c        -> a/b/
-     * a/b/c/       -> a/b/c/
-     * C:           -> C:
-     * C:\          -> C:\
-     * ~            -> ~/
-     * ~/           -> ~/
-     * ~user        -> ~user/
-     * ~user/       -> ~user/
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 完整路径，如果filename为null则返回null
+    * 获取文件的完整路径
+    *
+    * <pre>
+    * C:\a\b\c.txt -> C:\a\b\
+    * ~/a/b/c.txt  -> ~/a/b/
+    * a.txt        -> ""
+    * a/b/c        -> a/b/
+    * a/b/c/       -> a/b/c/
+    * C:           -> C:
+    * C:\          -> C:\
+    * ~            -> ~/
+    * ~/           -> ~/
+    * ~user        -> ~user/
+    * ~user/       -> ~user/
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 完整路径，如果filename为null则返回null
      */
     public static String getFullPath(final String filename) {
         return doGetFullPath(filename, true);
     }
 
     /**
-     * 获取文件的路径部分
-     *
-     * <pre>
-     * C:\a\b\c.txt -> a\b\
-     * ~/a/b/c.txt  -> a/b/
-     * a.txt        -> ""
-     * a/b/c        -> a/b/
-     * a/b/c/       -> a/b/c/
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 路径部分，如果filename为null则返回null
+    * 获取文件的路径部分
+    *
+    * <pre>
+    * C:\a\b\c.txt -> a\b\
+    * ~/a/b/c.txt  -> a/b/
+    * a.txt        -> ""
+    * a/b/c        -> a/b/
+    * a/b/c/       -> a/b/c/
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 路径部分，如果filename为null则返回null
      */
     public static String getPath(final String filename) {
         return doGetPath(filename, 1);
     }
 
     /**
-     * 获取文件的前缀（如盘符、用户主目录等）
-     *
-     * <pre>
-     * Windows:
-     * a\b\c.txt           -> ""          -> relative
-     * \a\b\c.txt          -> "\"         -> current drive absolute
-     * C:a\b\c.txt         -> "C:"        -> drive relative
-     * C:\a\b\c.txt        -> "C:\"       -> absolute
-     * \\server\a\b\c.txt  -> "\\server\" -> UNC
-     *
-     * Unix:
-     * a/b/c.txt           -> ""          -> relative
-     * /a/b/c.txt          -> "/"         -> absolute
-     * ~/a/b/c.txt         -> "~/"        -> current user
-     * ~                   -> "~/"        -> current user (slash added)
-     * ~user/a/b/c.txt     -> "~user/"    -> named user
-     * ~user               -> "~user/"    -> named user (slash added)
-     * </pre>
-     *
-     * @param filename 文件名
-     * @return 前缀，如果filename为null则返回null
+    * 获取文件的前缀（如盘符、用户主目录等）
+    *
+    * <pre>
+    * Windows:
+    * a\b\c.txt           -> ""          -> relative
+    * \a\b\c.txt          -> "\"         -> current drive absolute
+    * C:a\b\c.txt         -> "C:"        -> drive relative
+    * C:\a\b\c.txt        -> "C:\"       -> absolute
+    * \\server\a\b\c.txt  -> "\\server\" -> UNC
+    *
+    * Unix:
+    * a/b/c.txt           -> ""          -> relative
+    * /a/b/c.txt          -> "/"         -> absolute
+    * ~/a/b/c.txt         -> "~/"        -> current user
+    * ~                   -> "~/"        -> current user (slash added)
+    * ~user/a/b/c.txt     -> "~user/"    -> named user
+    * ~user               -> "~user/"    -> named user (slash added)
+    * </pre>
+    *
+    * @param filename 文件名
+    * @return 前缀，如果filename为null则返回null
      */
     public static String getPrefix(final String filename) {
         if (filename == null) {
@@ -313,38 +313,38 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件前缀的长度
-     *
-     * <p>此方法将处理Unix或Windows格式的文件。
-     *
-     * <p>前缀长度包括完整文件名中适用的第一个斜杠。因此，返回的长度可能大于输入字符串的长度。
-     *
-     * <pre>
-     * Windows:
-     * a\b\c.txt           -> ""          -> relative
-     * \a\b\c.txt          -> "\"         -> current drive absolute
-     * C:a\b\c.txt         -> "C:"        -> drive relative
-     * C:\a\b\c.txt        -> "C:\"       -> absolute
-     * \\server\a\b\c.txt  -> "\\server\" -> UNC
-     * \\\a\b\c.txt        -> error, length = -1
-     *
-     * Unix:
-     * a/b/c.txt           -> ""          -> relative
-     * /a/b/c.txt          -> "/"         -> absolute
-     * ~/a/b/c.txt         -> "~/"        -> current user
-     * ~                   -> "~/"        -> current user (slash added)
-     * ~user/a/b/c.txt     -> "~user/"    -> named user
-     * ~user               -> "~user/"    -> named user (slash added)
-     * //server/a/b/c.txt  -> "//server/"
-     * ///a/b/c.txt        -> error, length = -1
-     * </pre>
-     *
-     * <p>无论代码在哪台机器上运行，输出都将相同。即：无论Unix还是Windows前缀，都会被匹配。
-     *
-     * <p>注意：在Windows上，前导//（或\\）用于指示UNC名称。这些必须后跟服务器名称，因此双斜杠不会在文件名开头折叠为单斜杠。
-     *
-     * @param filename 要查找前缀的文件名
-     * @return 前缀的长度，如果无效或为null则返回-1
+    * 获取文件前缀的长度
+    *
+    * <p>此方法将处理Unix或Windows格式的文件。
+    *
+    * <p>前缀长度包括完整文件名中适用的第一个斜杠。因此，返回的长度可能大于输入字符串的长度。
+    *
+    * <pre>
+    * Windows:
+    * a\b\c.txt           -> ""          -> relative
+    * \a\b\c.txt          -> "\"         -> current drive absolute
+    * C:a\b\c.txt         -> "C:"        -> drive relative
+    * C:\a\b\c.txt        -> "C:\"       -> absolute
+    * \\server\a\b\c.txt  -> "\\server\" -> UNC
+    * \\\a\b\c.txt        -> error, length = -1
+    *
+    * Unix:
+    * a/b/c.txt           -> ""          -> relative
+    * /a/b/c.txt          -> "/"         -> absolute
+    * ~/a/b/c.txt         -> "~/"        -> current user
+    * ~                   -> "~/"        -> current user (slash added)
+    * ~user/a/b/c.txt     -> "~user/"    -> named user
+    * ~user               -> "~user/"    -> named user (slash added)
+    * //server/a/b/c.txt  -> "//server/"
+    * ///a/b/c.txt        -> error, length = -1
+    * </pre>
+    *
+    * <p>无论代码在哪台机器上运行，输出都将相同。即：无论Unix还是Windows前缀，都会被匹配。
+    *
+    * <p>注意：在Windows上，前导//（或\\）用于指示UNC名称。这些必须后跟服务器名称，因此双斜杠不会在文件名开头折叠为单斜杠。
+    *
+    * @param filename 要查找前缀的文件名
+    * @return 前缀的长度，如果无效或为null则返回-1
      */
     public static int getPrefixLength(final String filename) {
         if (filename == null) {
@@ -417,10 +417,10 @@ public class FileUtils {
     }
 
     /**
-     * 判断字符是否为分隔符
-     *
-     * @param ch 字符
-     * @return 如果是分隔符则返回true，否则返回false
+    * 判断字符是否为分隔符
+    *
+    * @param ch 字符
+    * @return 如果是分隔符则返回true，否则返回false
      */
     private static boolean isSeparator(final char ch) {
         if (ch == SYMBOL_LEFT_SLASH_CHAR) {
@@ -433,11 +433,11 @@ public class FileUtils {
     }
 
     /**
-     * 判断是否未找到分隔符
-     *
-     * @param posUnix Unix分隔符位置
-     * @param posWin  窗口分隔符位置
-     * @return 如果未找到则返回true，否则返回false
+    * 判断是否未找到分隔符
+    *
+    * @param posUnix Unix分隔符位置
+    * @param posWin  窗口分隔符位置
+    * @return 如果未找到则返回true，否则返回false
      */
     private static boolean isNotFound(int posUnix, int posWin) {
         if (posUnix == 2) {
@@ -450,10 +450,10 @@ public class FileUtils {
     }
 
     /**
-     * 获取文件名（不含路径）
-     *
-     * @param filename 文件名
-     * @return 文件名，如果filename为null则返回null
+    * 获取文件名（不含路径）
+    *
+    * @param filename 文件名
+    * @return 文件名，如果filename为null则返回null
      */
     public static String getName(final String filename) {
         if (filename == null) {
@@ -465,10 +465,10 @@ public class FileUtils {
     }
 
     /**
-     * 获取最后一个分隔符的位置
-     *
-     * @param filename 文件名
-     * @return 最后一个分隔符的位置，如果未找到则返回INDEX_NOT_FOUND
+    * 获取最后一个分隔符的位置
+    *
+    * @param filename 文件名
+    * @return 最后一个分隔符的位置，如果未找到则返回INDEX_NOT_FOUND
      */
     public static int indexOfLastSeparator(final String filename) {
         if (filename == null) {
@@ -483,12 +483,12 @@ public class FileUtils {
     }
 
     /**
-     * 创建文件所在的父目录。
-     *
-     * <p>当文件为 null、无父目录或父目录已存在时直接返回，不进行任何操作；
-     * 父目录不存在时调用 {@link File#mkdirs()} 递归创建。
-     *
-     * @param file 文件对象，允许为 空
+    * 创建文件所在的父目录。
+    *
+    * <p>当文件为 null、无父目录或父目录已存在时直接返回，不进行任何操作；
+    * 父目录不存在时调用 {@link File#mkdirs()} 递归创建。
+    *
+    * @param file 文件对象，允许为 空
      */
     public static void mkParentDirs(final File file) {
         if (file == null) {
@@ -501,10 +501,10 @@ public class FileUtils {
     }
 
     /**
-     * 检查路径中是否存在空字节
-     *
-     * @param path 路径
-     * @throws IllegalArgumentException 如果存在空字节则抛出异常
+    * 检查路径中是否存在空字节
+    *
+    * @param path 路径
+    * @throws IllegalArgumentException 如果存在空字节则抛出异常
      */
     private static void failIfNullBytePresent(final String path) {
         final int len = path.length();
@@ -518,10 +518,10 @@ public class FileUtils {
     }
 
     /**
-     * 规范化路径（支持多个路径参数）
-     *
-     * @param path 路径数组
-     * @return 规范化后的路径
+    * 规范化路径（支持多个路径参数）
+    *
+    * @param path 路径数组
+    * @return 规范化后的路径
      */
     public static String normalize(final String... path) {
         String join = Joiner.on("/").skipNulls().join(path);
@@ -532,11 +532,11 @@ public class FileUtils {
     }
 
     /**
-     * 获取完整的内部路径
-     *
-     * @param filename        文件名
-     * @param includeSeparator 是否包含分隔符
-     * @return 完整路径
+    * 获取完整的内部路径
+    *
+    * @param filename        文件名
+    * @param includeSeparator 是否包含分隔符
+    * @return 完整路径
      */
     private static String doGetFullPath(final String filename, final boolean includeSeparator) {
         if (filename == null) {
@@ -565,11 +565,11 @@ public class FileUtils {
     }
 
     /**
-     * 获取内部路径
-     *
-     * @param filename     文件名
-     * @param separatorAdd 分隔符添加量
-     * @return 路径
+    * 获取内部路径
+    *
+    * @param filename     文件名
+    * @param separatorAdd 分隔符添加量
+    * @return 路径
      */
     private static String doGetPath(final String filename, final int separatorAdd) {
         if (filename == null) {
@@ -590,10 +590,10 @@ public class FileUtils {
     }
 
     /**
-     * 规范化路径字符串
-     *
-     * @param path 原始路径
-     * @return 规范化后的路径
+    * 规范化路径字符串
+    *
+    * @param path 原始路径
+    * @return 规范化后的路径
      */
     public static String normalize(final String path) {
         if (path == null) {
@@ -664,12 +664,12 @@ public class FileUtils {
     }
 
     /**
-      * 静默删除文件或目录（吞掉所有异常，常用于 最终 块的最佳努力清理）。
-      * 支持 Java.io.文件 和 Java.nio.文件.路径 两种入参；递归删除目录及其内容。
-     *
-     * @param target 待删除的文件或目录，允许为 空；为 空 时直接返回 true
-     * @return true 表示目标已不存在（删除成功或本来就不存在）；false 表示删除失败且文件仍存在
-     * @since 4.0.0.44
+    * 静默删除文件或目录（吞掉所有异常，常用于 最终 块的最佳努力清理）。
+    * 支持 Java.io.文件 和 Java.nio.文件.路径 两种入参；递归删除目录及其内容。
+    *
+    * @param target 待删除的文件或目录，允许为 空；为 空 时直接返回 true
+    * @return true 表示目标已不存在（删除成功或本来就不存在）；false 表示删除失败且文件仍存在
+    * @since 4.0.0.44
      */
     public static boolean deleteQuietly(File target) {
         if (target == null) {
@@ -694,12 +694,12 @@ public class FileUtils {
     }
 
     /**
-      * 静默删除文件或目录（路径 版本）。
-     * 仅删除最外层条目；如需递归请使用 {@link #deleteQuietly(File)}。
-     *
-     * @param target 待删除的路径，允许为 空；为 空 时直接返回 true
-     * @return true 表示目标已不存在；false 表示删除失败
-     * @since 4.0.0.44
+    * 静默删除文件或目录（路径 版本）。
+    * 仅删除最外层条目；如需递归请使用 {@link #deleteQuietly(File)}。
+    *
+    * @param target 待删除的路径，允许为 空；为 空 时直接返回 true
+    * @return true 表示目标已不存在；false 表示删除失败
+    * @since 4.0.0.44
      */
     public static boolean deleteQuietly(java.nio.file.Path target) {
         if (target == null) {
@@ -714,13 +714,13 @@ public class FileUtils {
     }
 
     /**
-      * 静默删除并把内部异常抛出（与 删除quietly 行为一致，但通过 供应商 暴露被吞掉的异常）。
-      * 调用方可通过 供应商 记录或断言是否真的清理成功。
-     *
-     * @param target    待删除的路径，允许为 空
-     * @param errorSink 异常接收器，接收被吞掉的 抛出；允许为 空 表示仍按静默处理
-     * @return true 表示目标已不存在
-     * @since 4.0.0.44
+    * 静默删除并把内部异常抛出（与 删除quietly 行为一致，但通过 供应商 暴露被吞掉的异常）。
+    * 调用方可通过 供应商 记录或断言是否真的清理成功。
+    *
+    * @param target    待删除的路径，允许为 空
+    * @param errorSink 异常接收器，接收被吞掉的 抛出；允许为 空 表示仍按静默处理
+    * @return true 表示目标已不存在
+    * @since 4.0.0.44
      */
     public static boolean deleteSilently(java.nio.file.Path target,
                                          java.util.function.Consumer<Throwable> errorSink) {

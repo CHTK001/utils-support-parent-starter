@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * auto服务 Bean 定义生成器，处理 @auto服务 注解的类。
- *
- * @author CH
- * @since 2024/12/20
+* auto服务 Bean 定义生成器，处理 @auto服务 注解的类。
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 @Spi("autoservice")

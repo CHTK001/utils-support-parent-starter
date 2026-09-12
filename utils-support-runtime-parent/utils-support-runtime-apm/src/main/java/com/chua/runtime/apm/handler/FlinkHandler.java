@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * Flink 处理器 — intercepts Flink 数据流 operations.
- *
- * @author CH
- * @since 4.0.0.42
+* Flink 处理器 — intercepts Flink 数据流 operations.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class FlinkHandler extends AbstractAppHandler {
 
     /**
-      * 数据 流
+    * 数据 流
      */
     private static final String DATA_STREAM = "org/apache/flink/streaming/api/datastream/DataStream";
     /**
-      * 流 方法
+    * 流 方法
      */
     private static final String[] STREAM_METHODS = {"execute", "print", "collect", "count", "map", "filter", "flatMap"};
 

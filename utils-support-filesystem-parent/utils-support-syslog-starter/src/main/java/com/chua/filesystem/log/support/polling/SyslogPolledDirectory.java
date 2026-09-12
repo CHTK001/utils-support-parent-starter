@@ -20,114 +20,114 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 系统日志轮询监听器 - 实时监听系统日志变更
- * <p>
- * 实现 {@link PolledDirectory} 接口，通过定时调用 {@link SystemLogService} 获取最新系统日志，
- * 与上次轮询快照对比后向监听器分发新增日志事件（{@link WatcherEvent#MODIFY}）。
- * 适用于跨平台实时日志流监控场景，替代 {@code tail -f} 效果。
- * </p>
- * <p>
- * 内部以 {@link LogEntry#timestamp} 作为游标，仅推送上次轮询之后新出现的日志条目。
- * 支持按日志级别过滤，默认轮询间隔 5 秒，可按需调整。
- * </p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 监听所有级别、全部日志源
- * SyslogPolledDirectory watcher = SyslogPolledDirectory.builder().build();
- *
- * watcher.addListener(new PolledListener() {
- *     @Override
- *     public void onModify(WatcherEvent event, EventObserver observer) {
- *         System.out.println("新日志: " + observer.getSource());
- *     }
- * });
- *
- * watcher.start(DirectoryPollerEnvironment.defaults());
- *
- * // 过滤错误级别，轮询间隔 2 秒
- * SyslogPolledDirectory errorWatcher = SyslogPolledDirectory.builder()
- *     .minLevel(LogLevel.ERROR)
- *     .pollIntervalSeconds(2)
- *     .build();
- *
- * errorWatcher.start(DirectoryPollerEnvironment.defaults());
- * }</pre> .构建();
- *
-   * 错误watcher.启动(目录poller环境.默认());
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 系统日志轮询监听器 - 实时监听系统日志变更
+* <p>
+* 实现 {@link PolledDirectory} 接口，通过定时调用 {@link SystemLogService} 获取最新系统日志，
+* 与上次轮询快照对比后向监听器分发新增日志事件（{@link WatcherEvent#MODIFY}）。
+* 适用于跨平台实时日志流监控场景，替代 {@code tail -f} 效果。
+* </p>
+* <p>
+* 内部以 {@link LogEntry#timestamp} 作为游标，仅推送上次轮询之后新出现的日志条目。
+* 支持按日志级别过滤，默认轮询间隔 5 秒，可按需调整。
+* </p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 监听所有级别、全部日志源
+* SyslogPolledDirectory watcher = SyslogPolledDirectory.builder().build();
+*
+* watcher.addListener(new PolledListener() {
+*     @Override
+*     public void onModify(WatcherEvent event, EventObserver observer) {
+*         System.out.println("新日志: " + observer.getSource());
+*     }
+* });
+*
+* watcher.start(DirectoryPollerEnvironment.defaults());
+*
+* // 过滤错误级别，轮询间隔 2 秒
+* SyslogPolledDirectory errorWatcher = SyslogPolledDirectory.builder()
+*     .minLevel(LogLevel.ERROR)
+*     .pollIntervalSeconds(2)
+*     .build();
+*
+* errorWatcher.start(DirectoryPollerEnvironment.defaults());
+* }</pre> .构建();
+*
+* 错误watcher.启动(目录poller环境.默认());
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
-      * 日志来源，空 表示全部来源
+    * 日志来源，空 表示全部来源
      */
     private final String source;
 
     /**
-      * 消息匹配模式，空 表示不过滤
+    * 消息匹配模式，空 表示不过滤
      */
     private final String pattern;
 
     /**
-      * 最低日志级别，空 表示所有级别
+    * 最低日志级别，空 表示所有级别
      */
     private final LogLevel minLevel;
 
     /**
-     * 轮询间隔（秒）
+    * 轮询间隔（秒）
      */
     private final int pollIntervalSeconds;
 
     /**
-     * 上次轮询最后一条日志的时间戳游标，用于增量检测新日志
+    * 上次轮询最后一条日志的时间戳游标，用于增量检测新日志
      */
     private volatile String lastTimestamp;
 
     /**
-     * 事件监听器列表
+    * 事件监听器列表
      */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * 运行状态
+    * 运行状态
      */
     private volatile boolean running = false;
 
     /**
-      * 关闭标志，关闭() 后不可再 upgrade
+    * 关闭标志，关闭() 后不可再 upgrade
      */
     private volatile boolean closed = false;
 
     /**
-     * 系统日志服务实例
+    * 系统日志服务实例
      */
     private final SystemLogService logService;
 
     /**
-     * 构造系统日志轮询监听器
-     *
-     * @param source              日志来源（如 "系统"/"Application"/"安全性"），空 表示全部
-     * @param pattern             消息匹配 glob 模式，空 表示不过滤
-     * @param minLevel            最低日志级别，空 表示所有级别
-     * @param pollIntervalSeconds 轮询间隔（秒）
+    * 构造系统日志轮询监听器
+    *
+    * @param source              日志来源（如 "系统"/"Application"/"安全性"），空 表示全部
+    * @param pattern             消息匹配 glob 模式，空 表示不过滤
+    * @param minLevel            最低日志级别，空 表示所有级别
+    * @param pollIntervalSeconds 轮询间隔（秒）
      */
     private SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds) {
         this(source, pattern, minLevel, pollIntervalSeconds, SystemLogService.getInstance());
     }
 
     /**
-     * 构造系统日志轮询监听器（注入日志服务，便于测试）。
-     *
-     * @param source              日志来源
-     * @param pattern             消息匹配模式
-     * @param minLevel            最低日志级别
-     * @param pollIntervalSeconds 轮询间隔（秒）
-     * @param logService          系统日志服务实例
+    * 构造系统日志轮询监听器（注入日志服务，便于测试）。
+    *
+    * @param source              日志来源
+    * @param pattern             消息匹配模式
+    * @param minLevel            最低日志级别
+    * @param pollIntervalSeconds 轮询间隔（秒）
+    * @param logService          系统日志服务实例
      */
     SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds, SystemLogService logService) {
         this.source = source;
@@ -138,7 +138,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 判断是否委托操作系统监听。返回 false，本实现使用定时轮询。
+    * 判断是否委托操作系统监听。返回 false，本实现使用定时轮询。
      */
     @Override
     public boolean isDelegatedOperatingSystem() {
@@ -146,7 +146,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 注册事件监听器
+    * 注册事件监听器
      */
     @Override
     public void addListener(PolledListener listener) {
@@ -154,7 +154,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 启动系统日志轮询监听
+    * 启动系统日志轮询监听
      */
     @Override
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor) {
@@ -171,7 +171,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 启动轮询线程（简化入口）
+    * 启动轮询线程（简化入口）
      */
     @Override
     public void start(DirectoryPollerEnvironment environment) {
@@ -179,11 +179,11 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 执行一次轮询，拉取系统日志，与上次快照对比，向监听器分发新增条目。
-     * <p>
-      * 每次轮询按升序（订单_ASC）查询系统日志，确保游标在时间轴上单调前进。
-     * 以 {@link LogEntry#timestamp} 字段作为增量标记。
-     * </p>
+    * 执行一次轮询，拉取系统日志，与上次快照对比，向监听器分发新增条目。
+    * <p>
+    * 每次轮询按升序（订单_ASC）查询系统日志，确保游标在时间轴上单调前进。
+    * 以 {@link LogEntry#timestamp} 字段作为增量标记。
+    * </p>
      */
     @Override
     public void upgrade() {
@@ -236,8 +236,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 向所有监听器分发新日志条目
-     * @param entry entry
+    * 向所有监听器分发新日志条目
+    * @param entry entry
      */
     private void fireLogEntry(LogEntry entry) {
         EventObserver observer = EventObserver.builder()
@@ -257,15 +257,15 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 获取当前游标（最后已知日志时间戳）
-     * @return 获取最后一个时间戳的结果
+    * 获取当前游标（最后已知日志时间戳）
+    * @return 获取最后一个时间戳的结果
      */
     public String getLastTimestamp() {
         return lastTimestamp;
     }
 
     /**
-     * 停止轮询监听
+    * 停止轮询监听
      */
     @Override
     public void close() {
@@ -277,8 +277,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 启动内部轮询线程（当未提供外部执行器时）
-     * @param environment 环境
+    * 启动内部轮询线程（当未提供外部执行器时）
+    * @param environment 环境
      */
     private void startPollingThread(DirectoryPollerEnvironment environment) {
         long intervalSec = environment != null && environment.getPollingInterval() > 0
@@ -324,17 +324,17 @@ public class SyslogPolledDirectory implements PolledDirectory {
     // ==================== Builder ====================
 
     /**
-     * 创建构建器
-     * @return 构建器的结果
+    * 创建构建器
+    * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * 系统日志轮询监听器构建器
-     * @author CH
-     * @since 4.0.0
+    * 系统日志轮询监听器构建器
+    * @author CH
+    * @since 4.0.0
      */
     public static class Builder {
         /** 来源 */
@@ -349,9 +349,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         private SystemLogService logService;
 
         /**
-          * 指定日志来源（如 窗口 的 系统/Application/安全性，journald 的 unit 名）
-         * @param source 源
-         * @return 源的结果
+        * 指定日志来源（如 窗口 的 系统/Application/安全性，journald 的 unit 名）
+        * @param source 源
+        * @return 源的结果
          */
         public Builder source(String source) {
             this.source = source;
@@ -359,9 +359,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-         * 指定消息匹配 glob 模式，如 {@code "*error*"}、{@code "*.dll*"}
-         * @param pattern 模式
-         * @return 模式的结果
+        * 指定消息匹配 glob 模式，如 {@code "*error*"}、{@code "*.dll*"}
+        * @param pattern 模式
+        * @return 模式的结果
          */
         public Builder pattern(String pattern) {
             this.pattern = pattern;
@@ -369,9 +369,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-         * 指定最低日志级别过滤
-         * @param minLevel 最小级别
-         * @return 最小级别的结果
+        * 指定最低日志级别过滤
+        * @param minLevel 最小级别
+        * @return 最小级别的结果
          */
         public Builder minLevel(LogLevel minLevel) {
             this.minLevel = minLevel;
@@ -379,9 +379,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-         * 指定轮询间隔（秒），默认 5 秒
-         * @param seconds seconds
-         * @return poll间隔seconds的结果
+        * 指定轮询间隔（秒），默认 5 秒
+        * @param seconds seconds
+        * @return poll间隔seconds的结果
          */
         public Builder pollIntervalSeconds(int seconds) {
             this.pollIntervalSeconds = seconds;
@@ -389,9 +389,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-          * 注入自定义 系统日志服务（测试用）
-         * @param service 服务
-         * @return 服务的结果
+        * 注入自定义 系统日志服务（测试用）
+        * @param service 服务
+        * @return 服务的结果
          */
         public Builder service(SystemLogService service) {
             this.logService = service;
@@ -399,8 +399,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-         * 构建系统日志轮询监听器
-         * @return 构建的结果
+        * 构建系统日志轮询监听器
+        * @return 构建的结果
          */
         public SyslogPolledDirectory build() {
             if (logService != null) {

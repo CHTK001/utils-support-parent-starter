@@ -7,38 +7,38 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * RocketMQ 应用层 处理器 — 拦截 RocketMQ Producer / Consumer 关键调用并生成应用语义传输记录。
- *
- * <p>拦截目标：</p>
- * <ul>
- *   <li>{@code org.apache.rocketmq.client.producer.DefaultMQProducer} — send / sendOneway</li>
- *   <li>{@code org.apache.rocketmq.client.consumer.DefaultMQPushConsumer} — subscribe</li>
- * </ul>
- *
- * <p>采用零编译期依赖策略：RocketMQ 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* RocketMQ 应用层 处理器 — 拦截 RocketMQ Producer / Consumer 关键调用并生成应用语义传输记录。
+*
+* <p>拦截目标：</p>
+* <ul>
+*   <li>{@code org.apache.rocketmq.client.producer.DefaultMQProducer} — send / sendOneway</li>
+*   <li>{@code org.apache.rocketmq.client.consumer.DefaultMQPushConsumer} — subscribe</li>
+* </ul>
+*
+* <p>采用零编译期依赖策略：RocketMQ 不在 classpath 时 SpyTransformer 找不到类而不生效（无副作用）。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RocketMqHandler extends AbstractAppHandler {
 
     /**
-      * 默认mqproducer 类内部名
+    * 默认mqproducer 类内部名
      */
     private static final String PRODUCER_CLASS = "org/apache/rocketmq/client/producer/DefaultMQProducer";
 
     /**
-      * 默认mqpushconsumer 类内部名
+    * 默认mqpushconsumer 类内部名
      */
     private static final String CONSUMER_CLASS = "org/apache/rocketmq/client/consumer/DefaultMQPushConsumer";
 
     /**
-     * Producer 方法集合
+    * Producer 方法集合
      */
     private static final String[] PRODUCER_METHODS = {"send", "sendOneway", "sendInTransaction"};
 
     /**
-     * Consumer 方法集合
+    * Consumer 方法集合
      */
     private static final String[] CONSUMER_METHODS = {"subscribe", "unsubscribe"};
 

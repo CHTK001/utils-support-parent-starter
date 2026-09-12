@@ -17,41 +17,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 基于 k6 CLI 的压测引擎实现。
- *
- * <p>通过 {@code ProcessBuilder} 调用本机 k6 可执行文件执行压测：</p>
- * <ul>
- *   <li>并发模式（默认）：{@code k6 run --vus N --iterations N} — N 个 VU 同时各发 1 次请求</li>
- *   <li>吞吐模式：{@code k6 run --vus N --iterations N*perVus}（或 {@code --duration}）— 固定连接持续吞吐</li>
- *   <li>每次运行导出 summary JSON（{@code --summary-export}），解析后汇总到 {@link BenchmarkResult}</li>
- * </ul>
- *
- * <p>报告通过 {@link BenchmarkHtmlProvider}（ECharts）一键生成。</p>
- *
- * <h2>用法</h2>
- * <pre>{@code
- * try (Benchmark benchmark = Benchmark.create("k6")) {
- *     benchmark.configure(BenchmarkConfig.builder()
- *             .targetUrl("http://127.0.0.1:8100/echo")
- *             .mode(BenchmarkConfig.Mode.CONCURRENCY)
- *             .concurrencyLevels(new int[]{100, 500, 1000})
- *             .implementation("nio")
- *             .reportPath("target/http-bench.html")
- *             .build());
- *     BenchmarkResult result = benchmark.run();
- *     benchmark.report();
- * }
- * }</pre>
- *
- * @author CH
- * @since 2026/08/15
+* 基于 k6 CLI 的压测引擎实现。
+*
+* <p>通过 {@code ProcessBuilder} 调用本机 k6 可执行文件执行压测：</p>
+* <ul>
+*   <li>并发模式（默认）：{@code k6 run --vus N --iterations N} — N 个 VU 同时各发 1 次请求</li>
+*   <li>吞吐模式：{@code k6 run --vus N --iterations N*perVus}（或 {@code --duration}）— 固定连接持续吞吐</li>
+*   <li>每次运行导出 summary JSON（{@code --summary-export}），解析后汇总到 {@link BenchmarkResult}</li>
+* </ul>
+*
+* <p>报告通过 {@link BenchmarkHtmlProvider}（ECharts）一键生成。</p>
+*
+* <h2>用法</h2>
+* <pre>{@code
+* try (Benchmark benchmark = Benchmark.create("k6")) {
+*     benchmark.configure(BenchmarkConfig.builder()
+*             .targetUrl("http://127.0.0.1:8100/echo")
+*             .mode(BenchmarkConfig.Mode.CONCURRENCY)
+*             .concurrencyLevels(new int[]{100, 500, 1000})
+*             .implementation("nio")
+*             .reportPath("target/http-bench.html")
+*             .build());
+*     BenchmarkResult result = benchmark.run();
+*     benchmark.report();
+* }
+* }</pre>
+*
+* @author CH
+* @since 2026/08/15
  */
 @Slf4j
 @Spi("k6")
 public class K6Benchmark implements Benchmark {
 
     /**
-     * k6 压测脚本（通过环境变量注入目标 URL）。
+    * k6 压测脚本（通过环境变量注入目标 URL）。
      */
     private static final String K6_SCRIPT = """
             import http from 'k6/http';
@@ -89,9 +89,9 @@ public class K6Benchmark implements Benchmark {
     }
 
     /**
-     * 解析 k6 可执行文件路径：配置 > 环境变量 K6_BIN > 常见安装路径 > PATH。
-     *
-     * @return k6 可执行文件路径
+    * 解析 k6 可执行文件路径：配置 > 环境变量 K6_BIN > 常见安装路径 > PATH。
+    *
+    * @return k6 可执行文件路径
      */
     private String resolveK6Binary() {
         if (config.getK6Binary() != null && !config.getK6Binary().isEmpty()) {
@@ -166,7 +166,7 @@ public class K6Benchmark implements Benchmark {
     }
 
     /**
-     * 调用 k6 CLI 执行单档压测。
+    * 调用 k6 CLI 执行单档压测。
      */
     private void runK6(String k6, Path script, Path summary,
                        int vus, int iterations, String targetUrl) throws Exception {

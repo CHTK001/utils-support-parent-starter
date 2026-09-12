@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- * 环境信息命令 — 显示系统与 JVM 属性。
- *
- * @author CH
- * @since 4.0.0.42
+* 环境信息命令 — 显示系统与 JVM 属性。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class InfoCommand implements Command {
 

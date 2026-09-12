@@ -16,10 +16,10 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * yolov8s COCO ͨ用Ŀ标检测 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* yolov8s COCO ͨ用Ŀ标检测 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
@@ -73,12 +73,12 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-      * 创建 yolov8stranslator 实例（支持运行参数覆盖阈值）。
-     *
-     * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
-     * 未提供的键使用内置准确默认值。</p>
-     *
-     * @param configuration 检测配置（可空）
+    * 创建 yolov8stranslator 实例（支持运行参数覆盖阈值）。
+    *
+    * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
+    * 未提供的键使用内置准确默认值。</p>
+    *
+    * @param configuration 检测配置（可空）
      */
     public YoloV8sTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this(configuration == null ? DEFAULT_THRESHOLD
@@ -91,12 +91,12 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
 
     /**
-      * 创建 yolov8stranslator 实例
-     * @param threshold 阈值
-     * @param threshold float
-     * @param classes 列表
-     * @param classes classes
-     * @param nmsThreshold nms阈值
+    * 创建 yolov8stranslator 实例
+    * @param threshold 阈值
+    * @param threshold float
+    * @param classes 列表
+    * @param classes classes
+    * @param nmsThreshold nms阈值
      */
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {
         this.threshold = threshold;
@@ -234,21 +234,21 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * Sigmoid
-     *
-     * @param x x
-     * @return sigmoid的结果
+    * Sigmoid
+    *
+    * @param x x
+    * @return sigmoid的结果
      */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
     /**
-     * 转为normalizedchw
-     *
-     * @param ctx ctx
-     * @param array array
-     * @return 转为normalizedchw的结果
+    * 转为normalizedchw
+    *
+    * @param ctx ctx
+    * @param array array
+    * @return 转为normalizedchw的结果
      */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();

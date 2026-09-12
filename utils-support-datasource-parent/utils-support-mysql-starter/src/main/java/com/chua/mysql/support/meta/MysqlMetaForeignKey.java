@@ -16,29 +16,29 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 
 public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
 
     /**
-      * 创建 mysqlmeta国外键 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param engine engine
+    * 创建 mysqlmeta国外键 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param engine engine
      */
     protected MysqlMetaForeignKey(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-      * 创建 mysqlmeta国外键 实例
-     * @param metaData meta数据
-     * @param engine Engine
-     * @param fkName 字符串
-     * @param engine engine
-     * @param fkName fk名称
+    * 创建 mysqlmeta国外键 实例
+    * @param metaData meta数据
+    * @param engine Engine
+    * @param fkName 字符串
+    * @param engine engine
+    * @param fkName fk名称
      */
     protected MysqlMetaForeignKey(AbstractMetaData metaData, Engine engine, String fkName) {
         super(metaData, engine, fkName);
@@ -97,9 +97,9 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     /**
-     * 获取Connection
-     *
-     * @return 获取connection的结果
+    * 获取Connection
+    *
+    * @return 获取connection的结果
      */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
@@ -114,20 +114,20 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     /**
-     * 引述
-     *
-     * @param name 名称
-     * @return 引述的结果
+    * 引述
+    *
+    * @param name 名称
+    * @return 引述的结果
      */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
     /**
-     * 执行更新
-     *
-     * @param sql SQL
-     * @return 执行更新的结果
+    * 执行更新
+    *
+    * @param sql SQL
+    * @return 执行更新的结果
      */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
@@ -140,12 +140,12 @@ public class MysqlMetaForeignKey extends AbstractMetaForeignKey {
     }
 
     /**
-     * 解析Rule
-     *
-     * @param rule rule
-     * @return resolveRule的结果
-     * @author CH
-     * @since 4.0.0
+    * 解析Rule
+    *
+    * @param rule rule
+    * @return resolveRule的结果
+    * @author CH
+    * @since 4.0.0
      */
     private static String resolveRule(short rule) {
         return switch (rule) {

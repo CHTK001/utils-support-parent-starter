@@ -17,23 +17,23 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 基于 JDK keytool 的证书生成提供者实现。
- *
- * <p>使用 JDK 自带的 keytool 命令行工具生成自签名证书，
- * 无需连接外部 ACME 服务器，适用于开发、测试和内网环境。</p>
- *
- * <p><b>特性说明：</b></p>
- * <ul>
- *   <li>基于 JDK keytool 命令生成自签名证书</li>
- *   <li>支持 RSA 和 EC 密钥算法</li>
- *   <li>支持 JKS 和 PKCS12 密钥库类型</li>
- *   <li>支持自定义有效期和 SAN 扩展</li>
- *   <li>无需外部 ACME 服务器，离线可用</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
- * @version 1.0.0
+* 基于 JDK keytool 的证书生成提供者实现。
+*
+* <p>使用 JDK 自带的 keytool 命令行工具生成自签名证书，
+* 无需连接外部 ACME 服务器，适用于开发、测试和内网环境。</p>
+*
+* <p><b>特性说明：</b></p>
+* <ul>
+*   <li>基于 JDK keytool 命令生成自签名证书</li>
+*   <li>支持 RSA 和 EC 密钥算法</li>
+*   <li>支持 JKS 和 PKCS12 密钥库类型</li>
+*   <li>支持自定义有效期和 SAN 扩展</li>
+*   <li>无需外部 ACME 服务器，离线可用</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @version 1.0.0
  */
 @Slf4j
 @Spi("jdk")
@@ -70,12 +70,12 @@ public class JdkCertificateProvider implements AcmeProvider {
 
     @Override
     /**
-     * 连接
-     * @param serverUrl serverUrl
-     * @param email email
-     * @param privateKeyPem privateKeyPem
-     * @param eabKid eabKid
-     * @param eabHmacKey eabHmacKey
+    * 连接
+    * @param serverUrl serverUrl
+    * @param email email
+    * @param privateKeyPem privateKeyPem
+    * @param eabKid eabKid
+    * @param eabHmacKey eabHmacKey
      */
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                          String eabKid, String eabHmacKey) {
@@ -175,7 +175,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 构建 keytool 命令字符串
+    * 构建 keytool 命令字符串
      */
     private String buildKeytoolCommand(String primaryDomain, List<String> domains, String keystoreFile) {
         StringBuilder cmd = new StringBuilder(KEYTOOL);
@@ -200,7 +200,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 构建 SAN 扩展字符串
+    * 构建 SAN 扩展字符串
      */
     private String buildSanExtension(List<String> domains) {
         StringBuilder sb = new StringBuilder();
@@ -219,14 +219,14 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 构建 DN (Distinguished Name)
+    * 构建 DN (Distinguished Name)
      */
     private String buildDName(String domain) {
         return "CN=" + domain + ",OU=Self-Signed,O=JDK-Certificate,L=Unknown,ST=Unknown,C=CN";
     }
 
     /**
-     * 获取签名算法
+    * 获取签名算法
      */
     private String getSigAlg() {
         if ("EC".equalsIgnoreCase(keyAlg)) {
@@ -236,7 +236,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 判断是否为 IP 地址
+    * 判断是否为 IP 地址
      */
     private boolean isIpAddress(String value) {
         if (value == null || value.isEmpty()) {
@@ -262,7 +262,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 从密钥库中提取证书信息
+    * 从密钥库中提取证书信息
      */
     private AcmeCertificateResult extractCertificateFromKeystore(String keystoreFile,
                                                                    String primaryDomain, String san) {
@@ -306,7 +306,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 获取密钥库文件路径
+    * 获取密钥库文件路径
      */
     public String getKeystorePath(String domain) {
         if (keystorePath != null && !keystorePath.isEmpty()) {
@@ -319,7 +319,7 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 将 X509 证书转换为 PEM 格式
+    * 将 X509 证书转换为 PEM 格式
      */
     private String convertToPem(X509Certificate cert) throws Exception {
         StringBuilder pem = new StringBuilder();
@@ -333,10 +333,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     // ==================== 配置方法 ====================
 
     /**
-     * 设置密钥算法
-     *
-     * @param keyAlg 密钥算法（RSA / EC）
-     * @return this
+    * 设置密钥算法
+    *
+    * @param keyAlg 密钥算法（RSA / EC）
+    * @return this
      */
     public JdkCertificateProvider setKeyAlg(String keyAlg) {
         this.keyAlg = keyAlg;
@@ -344,10 +344,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 设置密钥大小
-     *
-     * @param keySize 密钥大小
-     * @return this
+    * 设置密钥大小
+    *
+    * @param keySize 密钥大小
+    * @return this
      */
     public JdkCertificateProvider setKeySize(int keySize) {
         this.keySize = keySize;
@@ -355,10 +355,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 设置密钥库类型
-     *
-     * @param keystoreType 密钥库类型（JKS / PKCS12）
-     * @return this
+    * 设置密钥库类型
+    *
+    * @param keystoreType 密钥库类型（JKS / PKCS12）
+    * @return this
      */
     public JdkCertificateProvider setKeystoreType(String keystoreType) {
         this.keystoreType = keystoreType;
@@ -366,10 +366,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 设置证书有效期（天）
-     *
-     * @param validityDays 有效期天数
-     * @return this
+    * 设置证书有效期（天）
+    *
+    * @param validityDays 有效期天数
+    * @return this
      */
     public JdkCertificateProvider setValidityDays(int validityDays) {
         this.validityDays = validityDays;
@@ -377,10 +377,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 设置密钥库路径
-     *
-     * @param keystorePath 密钥库文件路径
-     * @return this
+    * 设置密钥库路径
+    *
+    * @param keystorePath 密钥库文件路径
+    * @return this
      */
     public JdkCertificateProvider setKeystorePath(String keystorePath) {
         this.keystorePath = keystorePath;
@@ -388,10 +388,10 @@ public class JdkCertificateProvider implements AcmeProvider {
     }
 
     /**
-     * 设置密钥库密码
-     *
-     * @param keystorePassword 密钥库密码
-     * @return this
+    * 设置密钥库密码
+    *
+    * @param keystorePassword 密钥库密码
+    * @return this
      */
     public JdkCertificateProvider setKeystorePassword(String keystorePassword) {
         this.keystorePassword = keystorePassword;

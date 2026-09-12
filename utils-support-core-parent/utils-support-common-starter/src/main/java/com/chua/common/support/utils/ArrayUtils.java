@@ -17,37 +17,37 @@ import static com.chua.common.support.constant.ValueConstant.*;
 
 
 /**
- * 数组工具类，提供数组操作的核心工具方法。
- *
- * <p>包含以下功能：
- * <ul>
- *   <li>数组创建 — 空数组常量、类型化数组、包装数组</li>
- *   <li>数组拷贝 — 克隆、截取、合并、追加、插入</li>
- *   <li>数组查找 — 遍历查找、二分查找、正向/反向查找、元素索引</li>
- *   <li>数组转换 — 字符串与数组互转、集合与数组互转、基本类型与包装类型互转</li>
- *   <li>数组判断 — 判空、是否包含、元素类型校验、值比较</li>
- *   <li>数组操作 — 反转、去重、排序、移除、填充</li>
- *   <li>子数组 — 获取子数组、分页、坐标转换</li>
- *   <li>编辑距离 — 莱文斯坦距离计算</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0
+* 数组工具类，提供数组操作的核心工具方法。
+*
+* <p>包含以下功能：
+* <ul>
+*   <li>数组创建 — 空数组常量、类型化数组、包装数组</li>
+*   <li>数组拷贝 — 克隆、截取、合并、追加、插入</li>
+*   <li>数组查找 — 遍历查找、二分查找、正向/反向查找、元素索引</li>
+*   <li>数组转换 — 字符串与数组互转、集合与数组互转、基本类型与包装类型互转</li>
+*   <li>数组判断 — 判空、是否包含、元素类型校验、值比较</li>
+*   <li>数组操作 — 反转、去重、排序、移除、填充</li>
+*   <li>子数组 — 获取子数组、分页、坐标转换</li>
+*   <li>编辑距离 — 莱文斯坦距离计算</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0
  */
 public class ArrayUtils {
 
     /**
-     * array工具。
+    * array工具。
      */
     private ArrayUtils() {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @param name  名称
-     * @return the 结果
+    *
+    *
+    * @param array array
+    * @param name  名称
+    * @return the 结果
      */
     public static boolean isMatch(@Nullable String[] array, @Nullable String name) {
         if (isEmpty(array)) {
@@ -71,22 +71,22 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param obj obj
-     * @return {@code null}       false
+    *
+    *
+    * @param obj obj
+    * @return {@code null}       false
      */
     public static boolean isArray(@Nullable Object obj) {
         return null != obj && obj.getClass().isArray();
     }
 
     /**
-     * {@code null}
-     *
-     * @param <T>
-     * @param array array
-     * @return {@code null}
-     * @since 3.0.7
+    * {@code null}
+    *
+    * @param <T>
+    * @param array array
+    * @return {@code null}
+    * @since 3.0.7
      */
 @SuppressWarnings({"unchecked", "all"})
     public static <T> boolean hasNull(T... array) {
@@ -101,12 +101,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param source       源
-     * @param defaultArray 默认array
-     * @param <T>
-     * @return the 结果
+    *
+    *
+    * @param source       源
+    * @param defaultArray 默认array
+    * @param <T>
+    * @return the 结果
      */
     public static <T> T[] defaultIfEmpty(T[] source, T[] defaultArray) {
         if (null == source || source.length == 0) {
@@ -117,13 +117,13 @@ public class ArrayUtils {
     }
 
     /**
-     * {@link System#arraycopy(Object, int, Object, int, int)}<br>
-     * 0
-     *
-     * @param src    src
-     * @param length 长度
-     * @return the 结果
-     * @since 3.0.6
+    * {@link System#arraycopy(Object, int, Object, int, int)}<br>
+    * 0
+    *
+    * @param src    src
+    * @param length 长度
+    * @return the 结果
+    * @since 3.0.6
      */
     public static <T> T copyRange(T src, int length) {
         int max = Array.getLength(src);
@@ -139,14 +139,14 @@ public class ArrayUtils {
     }
 
     /**
-     * {@link System#arraycopy(Object, int, Object, int, int)}<br>
-     * 0
-     *
-     * @param src    src
-     * @param dest   dest
-     * @param length 长度
-     * @return the 结果
-     * @since 3.0.6
+    * {@link System#arraycopy(Object, int, Object, int, int)}<br>
+    * 0
+    *
+    * @param src    src
+    * @param dest   dest
+    * @param length 长度
+    * @return the 结果
+    * @since 3.0.6
      */
     public static Object copy(Object src, Object dest, int length) {
         System.arraycopy(src, 0, dest, 0, length);
@@ -154,35 +154,35 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param stringArray  字符串array
-     * @param index        索引
-     * @param defaultValue 默认值
-     * @return the 结果
-     * @see NullPointerException
+    *
+    *
+    * @param stringArray  字符串array
+    * @param index        索引
+    * @param defaultValue 默认值
+    * @return the 结果
+    * @see NullPointerException
      */
     public static <T> T getIndex(T[] stringArray, int index, T defaultValue) {
         return stringArray == null || stringArray.length == 0 || stringArray.length <= index ? defaultValue : stringArray[index];
     }
 
     /**
-     *
-     *
-     * @param stringArray 字符串array
-     * @param index       索引
-     * @return the 结果
-     * @see NullPointerException
+    *
+    *
+    * @param stringArray 字符串array
+    * @param index       索引
+    * @return the 结果
+    * @see NullPointerException
      */
     public static <T> T getIndex(T[] stringArray, int index) {
         return getIndex(stringArray, index, null);
     }
 
     /**
-     * byte[]           float[]
-     *
-     * @param value 值
-     * @return float[]                空
+    * byte[]           float[]
+    *
+    * @param value 值
+    * @return float[]                空
      */
     public static float[] transToFloatArray(byte[] value) {
         float[] floats = new float[value.length];
@@ -194,14 +194,14 @@ public class ArrayUtils {
     }
 
     /**
-     * float[] 转 double[]。
-     *
-     * <p>null 输入返回 null，空数组返回空数组。</p>
-     *
-     * @param value float 数组
-     * @return 对应的 double 数组，空 输入返回 空
-     * @author CH
-     * @since 4.0.0.42
+    * float[] 转 double[]。
+    *
+    * <p>null 输入返回 null，空数组返回空数组。</p>
+    *
+    * @param value float 数组
+    * @return 对应的 double 数组，空 输入返回 空
+    * @author CH
+    * @since 4.0.0.42
      */
     public static double[] toDouble(float[] value) {
         if (value == null) {
@@ -215,14 +215,14 @@ public class ArrayUtils {
     }
 
     /**
-     * double[] 转 float[]。
-     *
-     * <p>null 输入返回 null，空数组返回空数组。</p>
-     *
-     * @param value double 数组
-     * @return 对应的 float 数组，空 输入返回 空
-     * @author CH
-     * @since 4.0.0.42
+    * double[] 转 float[]。
+    *
+    * <p>null 输入返回 null，空数组返回空数组。</p>
+    *
+    * @param value double 数组
+    * @return 对应的 float 数组，空 输入返回 空
+    * @author CH
+    * @since 4.0.0.42
      */
     public static float[] toFloat(double[] value) {
         if (value == null) {
@@ -236,11 +236,11 @@ public class ArrayUtils {
     }
 
     /**
-     * byte[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * byte[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(byte[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -255,11 +255,11 @@ public class ArrayUtils {
     }
 
     /**
-     * long[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * long[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(long[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -274,11 +274,11 @@ public class ArrayUtils {
     }
 
     /**
-     * float[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * float[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(float[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -293,11 +293,11 @@ public class ArrayUtils {
     }
 
     /**
-     * double[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * double[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(double[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -312,11 +312,11 @@ public class ArrayUtils {
     }
 
     /**
-     * short[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * short[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(short[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -331,11 +331,11 @@ public class ArrayUtils {
     }
 
     /**
-     * int[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * int[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(int[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -350,11 +350,11 @@ public class ArrayUtils {
     }
 
     /**
-      * 布尔值[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * 布尔值[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(boolean[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -369,11 +369,11 @@ public class ArrayUtils {
     }
 
     /**
-      * 对象[]
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * 对象[]
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(Object[] value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, value.length);
@@ -388,11 +388,11 @@ public class ArrayUtils {
     }
 
     /**
-      * 列表
-     *
-     * @param value 值
-     * @param type  类型
-     * @return null
+    * 列表
+    *
+    * @param value 值
+    * @param type  类型
+    * @return null
      */
     public static <T> T[] transToArray(List value, Class<T> type) {
         T[] newInstance = (T[]) Array.newInstance(type, null == value ? 0 : value.size());
@@ -407,23 +407,23 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @param value 值
-     * @return the 结果
-     * @since 3.0.7
+    *
+    *
+    * @param array array
+    * @param value 值
+    * @return the 结果
+    * @since 3.0.7
      */
     public static boolean contains(char[] array, char value) {
         return indexOf(array, value) > INDEX_NOT_FOUND;
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @param str   str
-     * @return true               false
+    *
+    *
+    * @param array array
+    * @param str   str
+    * @return true               false
      */
     public static <T> boolean contains(T[] array, T str) {
         if (array == null) {
@@ -451,11 +451,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @param str   str
-     * @return true               false
+    *
+    *
+    * @param array array
+    * @param str   str
+    * @return true               false
      */
     public static <T> boolean containsIgnoreCase(T[] array, T str) {
         if (array == null) {
@@ -479,12 +479,12 @@ public class ArrayUtils {
     }
 
     /**
-     * {@link CommonConstant#INDEX_NOT_FOUND}
-     *
-     * @param array array
-     * @param value 值
-     * @return {@link 通用常量#索引_NOT_FOUND}
-     * @since 3.0.7
+    * {@link CommonConstant#INDEX_NOT_FOUND}
+    *
+    * @param array array
+    * @param value 值
+    * @return {@link 通用常量#索引_NOT_FOUND}
+    * @since 3.0.7
      */
     public static int indexOf(char[] array, char value) {
         if (null != array) {
@@ -498,12 +498,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array1 1
-     * @param array2 2
-     * @return the 结果
-     * @since 5.4.2
+    *
+    *
+    * @param array1 1
+    * @param array2 2
+    * @return the 结果
+    * @since 5.4.2
      */
     public static boolean isEquals(Object array1, Object array2) {
         if (array1 == array2) {
@@ -536,11 +536,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param source 源
-     * @param target Target
-     * @return true
+    *
+    *
+    * @param source 源
+    * @param target Target
+    * @return true
      */
     public static boolean isEquals(Class<?>[] source, Class<?>[] target) {
         if (source == target && source == null) {
@@ -569,11 +569,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param params 参数
-     * @param args   参数
-     * @return the 结果
+    *
+    *
+    * @param params 参数
+    * @param args   参数
+    * @return the 结果
      */
     public static boolean isEquals(Class<?>[] params, Object[] args) {
         if (params.length != args.length) {
@@ -593,11 +593,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param params 参数
-     * @param args   参数
-     * @return the 结果
+    *
+    *
+    * @param params 参数
+    * @param args   参数
+    * @return the 结果
      */
     public static boolean isEquals(Class<?>[] params, String[] args) {
         if (params.length != args.length) {
@@ -617,21 +617,21 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return true
+    *
+    *
+    * @param array array
+    * @return true
      */
     public static <T> boolean isEmpty(@Nullable T[] array) {
         return null == array || array.length == 0;
     }
 
     /**
-     * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
-     *
-     * @param args 参数
-     * @return the 结果
-     * @since 4.5.18
+    * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
+    *
+    * @param args 参数
+    * @return the 结果
+    * @since 4.5.18
      */
     public static boolean hasEmpty(Object... args) {
         if (isNotEmpty(args)) {
@@ -645,41 +645,41 @@ public class ArrayUtils {
     }
 
     /**
-     * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
-     *
-     * @param args ,
-     * @return the 结果
-     * @since 4.5.18
+    * {@code null}                     {@link ObjectUtils#isEmpty(Object)}
+    *
+    * @param args ,
+    * @return the 结果
+    * @since 4.5.18
      */
     public static boolean isAllNotEmpty(Object... args) {
         return !hasEmpty(args);
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return true
+    *
+    *
+    * @param array array
+    * @return true
      */
     public static boolean isEmpty(@Nullable final int[] array) {
         return null == array || array.length == 0;
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return true
+    *
+    *
+    * @param array array
+    * @return true
      */
     public static boolean isEmpty(@Nullable final float[] array) {
         return null == array || array.length == 0;
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return true
+    *
+    *
+    * @param array array
+    * @return true
      */
     public static boolean isEmpty(@Nullable final byte[] array) {
         return null == array || array.length == 0;
@@ -688,69 +688,69 @@ public class ArrayUtils {
     // ----------------------------------------------------------------------
 
     /**
-     * <p>                                           {@code null}
-     *
-     * @param <T>
-     * @param array array
-     * @return {@code true}                                {@code null}
-     * @since 2.5
+    * <p>                                           {@code null}
+    *
+    * @param <T>
+    * @param array array
+    * @return {@code true}                                {@code null}
+    * @since 2.5
      */
     public static <T> boolean isNotEmpty(@Nullable final T[] array) {
         return !isEmpty(array);
     }
 
     /**
-     * <p>                                           {@code null}
-     *
-     * @param <T>
-     * @param array array
-     * @return {@code true}                                {@code null}
-     * @since 2.5
+    * <p>                                           {@code null}
+    *
+    * @param <T>
+    * @param array array
+    * @return {@code true}                                {@code null}
+    * @since 2.5
      */
     public static <T> boolean isNotEmpty(@Nullable final byte[] array) {
         return !isEmpty(array);
     }
 
     /**
-     * x
-     *
-     * @param index      索引
-     * @param arrayWidth x
-     * @return x
+    * x
+    *
+    * @param index      索引
+    * @param arrayWidth x
+    * @return x
      */
     public static int convert1DtoX(final int index, final int arrayWidth) {
         return index % arrayWidth;
     }
 
     /**
-     * y
-     *
-     * @param index      索引
-     * @param arrayWidth x
-     * @return y
+    * y
+    *
+    * @param index      索引
+    * @param arrayWidth x
+    * @return y
      */
     public static int convert1DtoY(final int index, final int arrayWidth) {
         return index / arrayWidth;
     }
 
     /**
-     *
-     *
-     * @param x          x
-     * @param y          y
-     * @param arrayWidth x
-     * @return the 结果
+    *
+    *
+    * @param x          x
+    * @param y          y
+    * @param arrayWidth x
+    * @return the 结果
      */
     public static int convert2dTo1d(final int x, final int y, final int arrayWidth) {
         return y * arrayWidth + x;
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <T> T[] mergeOfDistince(T[] target, T... source) {
         if (target.length == 0 && source.length == 0) {
@@ -769,11 +769,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <T> T[] merge(T[] target, T... source) {
         if (target.length == 0 && source.length == 0) {
@@ -788,22 +788,22 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return 添加element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return 添加element的结果
      */
     public static <E> void addElement(E[] target, Collection<E> source) {
         addElement(target, source.toArray(target));
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <E> E[] addFirstElement(E[] target, E source) {
         if (target.length == 0) {
@@ -820,11 +820,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <E> E[] addLastElement(E[] target, E source) {
         if (target.length == 0) {
@@ -839,13 +839,13 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @param from   从
-     * @param to     转为
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @param from   从
+    * @param to     转为
+    * @return the 结果
      */
     public static <E> E[] setRange(E[] target, E source, int from, int to) {
         if (target.length == 0) {
@@ -858,11 +858,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <E> E[] setFirst(E[] target, E source) {
         if (target.length == 0) {
@@ -873,11 +873,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <E> E[] setLast(E[] target, E source) {
         if (target.length == 0) {
@@ -888,12 +888,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @param index  索引
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @param index  索引
+    * @return the 结果
      */
     public static <E> E[] setElement(E[] target, E source, int index) {
         if (target.length == 0) {
@@ -904,11 +904,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return the 结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return the 结果
      */
     public static <E> E[] addElement(E[] target, E... source) {
         if (target.length == 0 && source.length == 0) {
@@ -923,69 +923,69 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, Collection<E> source) {
         insertElement(target, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @param offset 偏移量
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @param offset 偏移量
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, Collection<E> source) {
         insertElement(target, offset, source.toArray((E[]) Array.newInstance(CollectionUtils.findLast(source).getClass(), 0)));
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, E[] source) {
         insertElement(target, 0, source);
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, E source) {
         insertElement(target, 0, Collections.singletonList(source));
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @param offset 偏移量
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @param offset 偏移量
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, E source) {
         insertElement(target, offset, Collections.singletonList(source));
     }
 
     /**
-     *
-     *
-     * @param target Target
-     * @param source 源
-     * @param offset 偏移量
-     * @return 插入element的结果
+    *
+    *
+    * @param target Target
+    * @param source 源
+    * @param offset 偏移量
+    * @return 插入element的结果
      */
     public static <E> void insertElement(E[] target, int offset, E[] source) {
         if (target.length == 0 && source.length == 0) {
@@ -996,11 +996,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @param array    array
-     * @return the 结果
+    *
+    *
+    * @param iterable 可迭代
+    * @param array    array
+    * @return the 结果
      */
     public static <T> T[] toArray(Iterable<? extends T> iterable, T[] array) {
         List<? extends T> ts = CollectionUtils.newArrayList(iterable);
@@ -1008,12 +1008,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @param function function
-     * @return the 结果
-     * @param generator 生成器
+    *
+    *
+    * @param iterable 可迭代
+    * @param function function
+    * @return the 结果
+    * @param generator 生成器
      */
     public static <T, A> A[] toArray(T[] iterable, Function<T, A> function, IntFunction<A[]> generator) {
         if (null == iterable) {
@@ -1024,11 +1024,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @param function function
-     * @return the 结果
+    *
+    *
+    * @param iterable 可迭代
+    * @param function function
+    * @return the 结果
      */
     public static <T> String[] toArrayString(T[] iterable, Function<T, String> function) {
         if (null == iterable) {
@@ -1039,12 +1039,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @param function function
-     * @return the 结果
-     * @param generator 生成器
+    *
+    *
+    * @param iterable 可迭代
+    * @param function function
+    * @return the 结果
+    * @param generator 生成器
      */
     public static <T, A> A[] toArray(Iterable<? extends T> iterable, Function<T, A> function, IntFunction<A[]> generator) {
         if (null == iterable) {
@@ -1055,11 +1055,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @param function function
-     * @return the 结果
+    *
+    *
+    * @param iterable 可迭代
+    * @param function function
+    * @return the 结果
      */
     public static <T> String[] toArrayString(Iterable<? extends T> iterable, Function<T, String> function) {
         if (null == iterable) {
@@ -1070,10 +1070,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param iterable 可迭代
-     * @return the 结果
+    *
+    *
+    * @param iterable 可迭代
+    * @return the 结果
      */
     public static <T> T[] toArray(Iterable<? extends T> iterable) {
         List<? extends T> ts = CollectionUtils.newArrayList(iterable);
@@ -1084,11 +1084,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param split     分割
-     * @param separator separator
-     * @return the 结果
+    *
+    *
+    * @param split     分割
+    * @param separator separator
+    * @return the 结果
      */
     public static String[] trimOrSeparator(String[] split, String separator) {
         String[] rs = new String[split.length];
@@ -1101,10 +1101,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return null
+    *
+    *
+    * @param value 值
+    * @return null
      */
     public static byte[] transToByteArray(String[] value) {
         if (value == null) {
@@ -1124,10 +1124,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return null
+    *
+    *
+    * @param value 值
+    * @return null
      */
     public static byte[] transToByteArray(Object value) {
         if (value == null) {
@@ -1150,10 +1150,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return null
+    *
+    *
+    * @param value 值
+    * @return null
      */
     public static byte[] transToByteArray(List value) {
         byte[] newInstance = new byte[value.size()];
@@ -1168,10 +1168,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return null
+    *
+    *
+    * @param value 值
+    * @return null
      */
     public static <T> byte[] transToByteArray(T[] value) {
         byte[] newInstance = new byte[value.length];
@@ -1186,10 +1186,10 @@ public class ArrayUtils {
     }
 
     /**
-     * trans转为bytearray
-     *
-     * @param value 值
-     * @return trans转为bytearray的结果
+    * trans转为bytearray
+    *
+    * @param value 值
+    * @return trans转为bytearray的结果
      */
     public static byte[] transToByteArray(float[] value) {
         if (value == null) {
@@ -1207,10 +1207,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return null
+    *
+    *
+    * @param value 值
+    * @return null
      */
     public static <T> int[] transToIntArray(byte[] value) {
         int[] newInstance = new int[value.length];
@@ -1225,12 +1225,12 @@ public class ArrayUtils {
     }
 
     /**
-     * <br>
-      * 空
-     *
-     * @param <T>
-     * @param arrays arrays
-     * @return the 结果
+    * <br>
+    * 空
+    *
+    * @param <T>
+    * @param arrays arrays
+    * @return the 结果
      */
     @SafeVarargs
     public static <T> T[] addAll(T[]... arrays) {
@@ -1257,44 +1257,44 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param <T>
-     * @param componentType 组件类型
-     * @param newSize       新大小
-     * @return the 结果
+    *
+    *
+    * @param <T>
+    * @param componentType 组件类型
+    * @param newSize       新大小
+    * @return the 结果
      */
     public static <T> T[] newArray(Class<?> componentType, int newSize) {
         return (T[]) Array.newInstance(componentType, newSize);
     }
 
     /**
-     *
-     *
-     * @param newSize 新大小
-     * @return the 结果
-     * @since 3.3.0
+    *
+    *
+    * @param newSize 新大小
+    * @return the 结果
+    * @since 3.3.0
      */
     public static Object[] newArray(int newSize) {
         return new Object[newSize];
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return the 结果
-     * @since 3.2.2
+    *
+    *
+    * @param array array
+    * @return the 结果
+    * @since 3.2.2
      */
     public static Class<?> getComponentType(Object array) {
         return null == array ? null : array.getClass().getComponentType();
     }
 
     /**
-     *
-     *
-     * @param arr arr
-     * @return the 结果
+    *
+    *
+    * @param arr arr
+    * @return the 结果
      */
     public static boolean allEmpty(Object[] arr) {
         for (Object o : arr) {
@@ -1307,10 +1307,10 @@ public class ArrayUtils {
     }
 
     /**
-      * 字符串
-     *
-     * @param obj obj
-     * @return the 结果
+    * 字符串
+    *
+    * @param obj obj
+    * @return the 结果
      */
     public static String toString(Object obj) {
         if (null == obj) {
@@ -1346,10 +1346,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param arr arr
-     * @return the 结果
+    *
+    *
+    * @param arr arr
+    * @return the 结果
      */
     public static List<String> strArrayToList(String[] arr) {
         List<String> result = new ArrayList<String>();
@@ -1361,11 +1361,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param columns    columns
-     * @param collection 集合
-     * @return the 结果
+    *
+    *
+    * @param columns    columns
+    * @param collection 集合
+    * @return the 结果
      */
     public static Object[][] toArrays(List<String> columns, List<?> collection) {
         Object[][] rs = new Object[collection.size()][columns.size()];
@@ -1379,11 +1379,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param columns columns
-     * @param o       o
-     * @return the 结果
+    *
+    *
+    * @param columns columns
+    * @param o       o
+    * @return the 结果
      */
     private static Object[] toArray(List<String> columns, Object o) {
         Map<String, Object> beanMap = BeanUtils.objectToMap(o);
@@ -1397,10 +1397,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return the 结果
+    *
+    *
+    * @param value 值
+    * @return the 结果
      */
     public static Collection<?> toList(Object value) {
         List<Object> rs = new LinkedList<>();
@@ -1413,11 +1413,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param arr    arr
-     * @param offset 偏移量
-     * @return the 结果
+    *
+    *
+    * @param arr    arr
+    * @param offset 偏移量
+    * @return the 结果
      */
     public static <T> T[] subArray(T[] arr, int offset) {
         if (arr.length < offset) {
@@ -1430,11 +1430,11 @@ public class ArrayUtils {
     }
 
     /**
-     * <p>
-     *
-     * <p>       {@code null}
-     *
-     * @param array {@code null}
+    * <p>
+    *
+    * <p>       {@code null}
+    *
+    * @param array {@code null}
      */
     public static void reverse(final byte[] array) {
         if (array == null) {
@@ -1444,16 +1444,16 @@ public class ArrayUtils {
     }
 
     /**
-     * <p>
-     *
-     *
-     * <p>
-     * {@code null}
-     *
-     * @param array               {@code null}
-     * @param startIndexInclusive 0               0
-     * @param endIndexExclusive   结束索引-1
-     * @since 3.2
+    * <p>
+    *
+    *
+    * <p>
+    * {@code null}
+    *
+    * @param array               {@code null}
+    * @param startIndexInclusive 0               0
+    * @param endIndexExclusive   结束索引-1
+    * @since 3.2
      */
     public static void reverse(final byte[] array, final int startIndexInclusive, final int endIndexExclusive) {
         if (array == null) {
@@ -1472,12 +1472,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param arr     arr
-     * @param offset  偏移量
-     * @param offset2 偏移量2
-     * @return the 结果
+    *
+    *
+    * @param arr     arr
+    * @param offset  偏移量
+    * @param offset2 偏移量2
+    * @return the 结果
      */
     public static <T> T[] subArray(T[] arr, int offset, int offset2) {
         if (arr.length < offset) {
@@ -1494,11 +1494,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param arr         arr
-     * @param targetValue Target值
-     * @return the 结果
+    *
+    *
+    * @param arr         arr
+    * @param targetValue Target值
+    * @return the 结果
      */
     public static boolean arraysContains(String[] arr, String targetValue) {
         for (String s : arr) {
@@ -1510,12 +1510,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param arr     arr
-     * @param offset  偏移量
-     * @param offset2 偏移量2
-     * @return the 结果
+    *
+    *
+    * @param arr     arr
+    * @param offset  偏移量
+    * @param offset2 偏移量2
+    * @return the 结果
      */
     public static byte[] subArray(byte[] arr, int offset, int offset2) {
         if (arr.length < offset) {
@@ -1532,20 +1532,20 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param value 值
-     * @return the 结果
+    *
+    *
+    * @param value 值
+    * @return the 结果
      */
     public static int length(String[] value) {
         return null != value ? value.length : 0;
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return the 结果
+    *
+    *
+    * @param array array
+    * @return the 结果
      */
     public static byte[] reverseArray(byte[] array) {
         byte[] copy = new byte[array.length];
@@ -1561,11 +1561,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param bytes       bytes
-     * @param fixedLength fixed长度
-     * @return the 结果
+    *
+    *
+    * @param bytes       bytes
+    * @param fixedLength fixed长度
+    * @return the 结果
      */
     public static byte[] fixed(byte[] bytes, int fixedLength) {
         if (bytes.length > fixedLength) {
@@ -1580,10 +1580,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return the 结果
+    *
+    *
+    * @param array array
+    * @return the 结果
      */
     public static String first(String[] array) {
         if (null == array || array.length == 0) {
@@ -1594,10 +1594,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return the 结果
+    *
+    *
+    * @param array array
+    * @return the 结果
      */
     public static String last(String[] array) {
         if (null == array || array.length == 0) {
@@ -1608,11 +1608,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param ele ele
-     * @param <E>
-     * @return the 结果
+    *
+    *
+    * @param ele ele
+    * @param <E>
+    * @return the 结果
      */
     public static <E> E[] of(E... ele) {
         //                                                                                        
@@ -1625,12 +1625,12 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param source     源
-     * @param ele        ele
-     * @param ignoreCase ignore大小写
-     * @return true               false
+    *
+    *
+    * @param source     源
+    * @param ele        ele
+    * @param ignoreCase ignore大小写
+    * @return true               false
      */
     public static boolean containsAny(Set<String> source, String[] ele, boolean ignoreCase) {
         //                                                                               false                                       
@@ -1650,23 +1650,23 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param responseBody 响应主体
-     * @param start        启动
-     * @param end          结束
-     * @return the 结果
+    *
+    *
+    * @param responseBody 响应主体
+    * @param start        启动
+    * @param end          结束
+    * @return the 结果
      */
     public static byte[] range(byte[] responseBody, Integer start, Integer end) {
         return ArrayUtils.subArray(responseBody, (start == null || start < 0 ? 0 : start), (null == end || end < 0 ? responseBody.length : end));
     }
 
     /**
-     *
-     *
-     * @param source 源
-     * @param target 1
-     * @return 1
+    *
+    *
+    * @param source 源
+    * @param target 1
+    * @return 1
      */
     public static boolean containsAllIgnoreCase(String[] target, String... source) {
         if (ArrayUtils.isEmpty(source)) {
@@ -1685,11 +1685,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param key   键
-     * @param limit 限制
-     * @return the 结果
+    *
+    *
+    * @param key   键
+    * @param limit 限制
+    * @return the 结果
      */
     public static byte[] rightPadAndLimit(byte[] key, int limit) {
         byte[] rs = new byte[limit];
@@ -1703,11 +1703,11 @@ public class ArrayUtils {
     }
 
     /**
-     * N
-     *
-     * @param originalArray 原始array
-     * @param step          N
-     * @return N
+    * N
+    *
+    * @param originalArray 原始array
+    * @param step          N
+    * @return N
      */
     public static <T> T[][] generatePairArray(T[] originalArray, int step) {
  // 群体大小
@@ -1729,15 +1729,15 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param strings       字符串
-     * @param strings1      字符串1
-     * @param strBiFunction strbifunction
-     * @param <S>
-     * @param <T>
-     * @param <R>
-     * @return the 结果
+    *
+    *
+    * @param strings       字符串
+    * @param strings1      字符串1
+    * @param strBiFunction strbifunction
+    * @param <S>
+    * @param <T>
+    * @param <R>
+    * @return the 结果
      */
     public static <S, T, R> R[] convert(S[] strings, T[] strings1, BiFunction<S, T, R> strBiFunction) {
         List<Object> result = new ArrayList<Object>(strings.length * strings1.length);
@@ -1753,10 +1753,10 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param array array
-     * @return the 结果
+    *
+    *
+    * @param array array
+    * @return the 结果
      */
     public static Float[] toObject(float[] array) {
         if (array == null) {
@@ -1772,12 +1772,12 @@ public class ArrayUtils {
     }
 
     /**
-     * <p>
-     *
-     * <p>       {@code null}                                {@code null}
-     *
-     * @param array array
-     * @return null         空
+    * <p>
+    *
+    * <p>       {@code null}                                {@code null}
+    *
+    * @param array array
+    * @return null         空
      */
     public static Byte[] toObject(final byte[] array) {
         if (array == null) {
@@ -1793,12 +1793,12 @@ public class ArrayUtils {
     }
 
     /**
-     * <p>
-     *
-     * <p>       {@code null}                                {@code null}
-     *
-     * @param value 值
-     * @return null         空
+    * <p>
+    *
+    * <p>       {@code null}                                {@code null}
+    *
+    * @param value 值
+    * @return null         空
      */
     public static String[] toUpperCase(String[] value) {
         if (value == null) {
@@ -1811,12 +1811,12 @@ public class ArrayUtils {
     }
 
     /**
-     * <p>
-     *
-     * <p>       {@code null}                                {@code null}
-     *
-     * @param value 值
-     * @return null         空
+    * <p>
+    *
+    * <p>       {@code null}                                {@code null}
+    *
+    * @param value 值
+    * @return null         空
      */
     public static String[] toLowerCase(String[] value) {
         if (value == null) {
@@ -1830,17 +1830,17 @@ public class ArrayUtils {
 
 
     /**
-      * 排序字段
-     *
-     * @param values 值
-     * @param sortedFields 排序字段
-     * @param direction             /      
-     * @return the 结果
+    * 排序字段
+    *
+    * @param values 值
+    * @param sortedFields 排序字段
+    * @param direction             /      
+    * @return the 结果
      */
     /**
-      * 排序条件.排序direction
-     * @author CH
-     * @since 4.0.0
+    * 排序条件.排序direction
+    * @author CH
+    * @since 4.0.0
      */
     public enum SortDirection {
         /** 升序 */
@@ -1850,10 +1850,10 @@ public class ArrayUtils {
     }
 
     /**
-     * 排序
-     * @param values 值
-     * @param sortedFields 排序字段
-     * @param direction direction
+    * 排序
+    * @param values 值
+    * @param sortedFields 排序字段
+    * @param direction direction
      */
     public static String[] sort(String[] values,
                                 String[] sortedFields,
@@ -1893,12 +1893,12 @@ public class ArrayUtils {
     }
 
     /**
-      * 排序字段                             偏移量element
-     *
-     * @param values        值
-     * @param sortedFields  排序字段
-     * @param offsetElement 偏移量element
-     * @return offsetElement
+    * 排序字段                             偏移量element
+    *
+    * @param values        值
+    * @param sortedFields  排序字段
+    * @param offsetElement 偏移量element
+    * @return offsetElement
      */
     public static String[] filterAfter(String[] values,
                                        String[] sortedFields,
@@ -1942,11 +1942,11 @@ public class ArrayUtils {
     }
 
     /**
-     *
-     *
-     * @param firstValue 第一个值
-     * @param extValues  ext值
-     * @return the 结果
+    *
+    *
+    * @param firstValue 第一个值
+    * @param extValues  ext值
+    * @return the 结果
      */
     public static String join(String firstValue, String... extValues) {
         if (extValues == null || extValues.length == 0) {
@@ -1961,13 +1961,13 @@ public class ArrayUtils {
     }
 
     /**
-     * 用指定分隔符连接对象数组。
-     *
-     * <p>数组中的 null 元素会被替换为空字符串；byte[] 元素会被转换为默认字符集的字符串。</p>
-     *
-     * @param array     对象数组，为 空 时返回 空
-     * @param separator 分隔符
-     * @return 连接后的字符串
+    * 用指定分隔符连接对象数组。
+    *
+    * <p>数组中的 null 元素会被替换为空字符串；byte[] 元素会被转换为默认字符集的字符串。</p>
+    *
+    * @param array     对象数组，为 空 时返回 空
+    * @param separator 分隔符
+    * @return 连接后的字符串
      */
     public static String join(Object[] array, String separator) {
         if (array == null) {

@@ -18,62 +18,62 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 文档解析管线。
- *
- * <p>调度已注册的文档解析 / 多模态理解模型（如 donut、smol-docling-combined 等），
- * 输出结构化文本。各模型输出类型不同，本管线统一返回翻译器原始输出 {@link Object}，
-   * 常用模型（donut）输出含 {@code jsonText} 的 donut结果，可调用
- * {@link #recognizeText(byte[])} 提取字符串形式的结果。</p>
- *
- * <pre>{@code
- * DocumentParsePipeline pipeline = DocumentParsePipeline.builder()
- *         .model("donut")
- *         .build();
- * Object result = pipeline.recognizeSingle(imageBytes);
- * String text = pipeline.recognizeText(imageBytes);
- * }</pre>tring text = pipeline.recognizeText(imageBytes);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 文档解析管线。
+*
+* <p>调度已注册的文档解析 / 多模态理解模型（如 donut、smol-docling-combined 等），
+* 输出结构化文本。各模型输出类型不同，本管线统一返回翻译器原始输出 {@link Object}，
+* 常用模型（donut）输出含 {@code jsonText} 的 donut结果，可调用
+* {@link #recognizeText(byte[])} 提取字符串形式的结果。</p>
+*
+* <pre>{@code
+* DocumentParsePipeline pipeline = DocumentParsePipeline.builder()
+*         .model("donut")
+*         .build();
+* Object result = pipeline.recognizeSingle(imageBytes);
+* String text = pipeline.recognizeText(imageBytes);
+* }</pre>tring text = pipeline.recognizeText(imageBytes);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DocumentParsePipeline {
 
     /**
-     * 节点：识别
+    * 节点：识别
      */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
-     * 节点：收集
+    * 节点：收集
      */
     private static final String NODE_COLLECT = "collect";
 
     /**
-     * 节点：终止
+    * 节点：终止
      */
     private static final String NODE_END = "end";
 
     /**
-     * 识别引擎。
+    * 识别引擎。
      */
     private final IdentificationEngine engine;
 
     /**
-     * 文档解析模型名称。
+    * 文档解析模型名称。
      */
     private final String model;
 
     /**
-     * 识别管线实例。
+    * 识别管线实例。
      */
     private final Pipeline pipeline;
 
     /**
-     * 构造识别管线。
-     *
-     * @param model 模型名称
+    * 构造识别管线。
+    *
+    * @param model 模型名称
      */
     public DocumentParsePipeline(String model) {
         this.engine = AbstractIdentificationEngine.getInstance();
@@ -82,31 +82,31 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 构建器。
-     *
-     * @return builder
+    * 构建器。
+    *
+    * @return builder
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * 链式构建器。
-     *
-     * @since 4.0.0.42
+    * 链式构建器。
+    *
+    * @since 4.0.0.42
      */
     public static final class Builder {
 
         /**
-         * 模型名称。
+        * 模型名称。
          */
         private String model;
 
         /**
-         * 设置模型名称。
-         *
-         * @param model 模型
-         * @return this
+        * 设置模型名称。
+        *
+        * @param model 模型
+        * @return this
          */
         public Builder model(String model) {
             this.model = model;
@@ -114,9 +114,9 @@ public class DocumentParsePipeline {
         }
 
         /**
-         * 构建。
-         *
-         * @return DocumentParsePipeline
+        * 构建。
+        *
+        * @return DocumentParsePipeline
          */
         public DocumentParsePipeline build() {
             return new DocumentParsePipeline(model);
@@ -124,9 +124,9 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 编排识别管线（识别 → 收集）。
-     *
-     * @return 管线实例
+    * 编排识别管线（识别 → 收集）。
+    *
+    * @return 管线实例
      */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("document-parse")
@@ -145,10 +145,10 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 解析单张文档图像。
-     *
-     * @param imageData 图像
-     * @return 解析结果（各模型输出类型不同）
+    * 解析单张文档图像。
+    *
+    * @param imageData 图像
+    * @return 解析结果（各模型输出类型不同）
      */
     public Object recognizeSingle(byte[] imageData) {
         if (imageData == null) {
@@ -164,10 +164,10 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 解析单张文档图像（结果为列表，便于统一消费）。
-     *
-     * @param imageData 图像
-     * @return 结果列表
+    * 解析单张文档图像（结果为列表，便于统一消费）。
+    *
+    * @param imageData 图像
+    * @return 结果列表
      */
     public List<Object> recognize(byte[] imageData) {
         DocumentParseContext dc = new DocumentParseContext(imageData);
@@ -179,17 +179,17 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 解析文档并提取字符串文本。
-     *
-     * <p>支持以下输出形态：</p>
-     * <ul>
-     *   <li>String 直接返回</li>
-     *   <li>DonutResult 返回其 jsonText</li>
-     *   <li>其它对象返回 toString</li>
-     * </ul>
-     *
-     * @param imageData 图像
-     * @return 文本结果
+    * 解析文档并提取字符串文本。
+    *
+    * <p>支持以下输出形态：</p>
+    * <ul>
+    *   <li>String 直接返回</li>
+    *   <li>DonutResult 返回其 jsonText</li>
+    *   <li>其它对象返回 toString</li>
+    * </ul>
+    *
+    * @param imageData 图像
+    * @return 文本结果
      */
     public String recognizeText(byte[] imageData) {
         Object result = recognizeSingle(imageData);
@@ -212,10 +212,10 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 从管线上下文提取文档解析上下文。
-     *
-     * @param ctx 管线上下文
-     * @return 上下文
+    * 从管线上下文提取文档解析上下文。
+    *
+    * @param ctx 管线上下文
+    * @return 上下文
      */
     @SuppressWarnings("unchecked")
     private static DocumentParseContext current(PipelineContext<?> ctx) {
@@ -223,9 +223,9 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 枚举可用文档解析模型。
-     *
-     * @return 能力分组 → 模型 标识 列表
+    * 枚举可用文档解析模型。
+    *
+    * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {
@@ -248,9 +248,9 @@ public class DocumentParsePipeline {
     }
 
     /**
-     * 创建标注管线，支持一键绘制检测结果。
-     *
-     * @return DrawerPipeline 实例
+    * 创建标注管线，支持一键绘制检测结果。
+    *
+    * @return DrawerPipeline 实例
      */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);

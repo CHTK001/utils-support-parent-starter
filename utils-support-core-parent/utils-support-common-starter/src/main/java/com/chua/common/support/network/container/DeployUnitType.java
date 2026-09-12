@@ -2,13 +2,13 @@ package com.chua.common.support.network.container;
 
 
 /**
- * 可部署单元类型枚举。
- *
- * <p>定义了 Web 容器支持的部署单元类型，包括标准的 Java Web 应用归档格式
- * 以及 FAT-JAR、Spring Boot 可执行归档和 Main 类部署。
- *
- * @author CH
- * @since 1.0.0
+* 可部署单元类型枚举。
+*
+* <p>定义了 Web 容器支持的部署单元类型，包括标准的 Java Web 应用归档格式
+* 以及 FAT-JAR、Spring Boot 可执行归档和 Main 类部署。
+*
+* @author CH
+* @since 1.0.0
  */
 public enum DeployUnitType {
 
@@ -38,19 +38,19 @@ public enum DeployUnitType {
     }
 
     /**
-     * 获取文件扩展名。
-     *
-     * @return 文件扩展名
+    * 获取文件扩展名。
+    *
+    * @return 文件扩展名
      */
     public String getExtension() {
         return extension;
     }
 
     /**
-     * 根据文件名后缀推断部署单元类型。
-     *
-     * @param fileName 文件名
-     * @return 对应的部署单元类型，默认返回 JAR
+    * 根据文件名后缀推断部署单元类型。
+    *
+    * @param fileName 文件名
+    * @return 对应的部署单元类型，默认返回 JAR
      */
     public static DeployUnitType fromFileName(String fileName) {
         if (fileName == null) {
@@ -67,10 +67,10 @@ public enum DeployUnitType {
     }
 
     /**
-     * 根据扩展名字符串获取部署单元类型。
-     *
-     * @param extension 扩展名
-     * @return 对应的部署单元类型，默认返回 JAR
+    * 根据扩展名字符串获取部署单元类型。
+    *
+    * @param extension 扩展名
+    * @return 对应的部署单元类型，默认返回 JAR
      */
     public static DeployUnitType fromExtension(String extension) {
         if (extension == null) {

@@ -25,24 +25,24 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 通用 Webhook 消息推送实现
- * <p>
- * 向任意 Webhook 地址发送消息，兼容钉钉、企业微信群机器人及自建网关。
-   * 按 内容类型 选择消息格式：
- * <ul>
- *   <li>text（默认）：{@code {"msgtype":"text","text":{"content":"..."}}}，兼容钉钉/企业微信</li>
- *   <li>markdown：{@code {"msgtype":"markdown","markdown":{"content":"..."}}}，兼容钉钉/企业微信</li>
- *   <li>json/raw：将消息内容作为原始 JSON 请求体透传，适合自建网关</li>
- * </ul>
- * </p>
- *
- * <h3>环境配置</h3>
- * <pre>
- *   webhook.url  Webhook 地址（必填）
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 通用 Webhook 消息推送实现
+* <p>
+* 向任意 Webhook 地址发送消息，兼容钉钉、企业微信群机器人及自建网关。
+* 按 内容类型 选择消息格式：
+* <ul>
+*   <li>text（默认）：{@code {"msgtype":"text","text":{"content":"..."}}}，兼容钉钉/企业微信</li>
+*   <li>markdown：{@code {"msgtype":"markdown","markdown":{"content":"..."}}}，兼容钉钉/企业微信</li>
+*   <li>json/raw：将消息内容作为原始 JSON 请求体透传，适合自建网关</li>
+* </ul>
+* </p>
+*
+* <h3>环境配置</h3>
+* <pre>
+*   webhook.url  Webhook 地址（必填）
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("webhook")
 @SpiDescribe(
@@ -54,26 +54,26 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
-   * 公共 类 webhook消息push implements 消息push {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 webhook消息push implements 消息push {
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class WebhookMessagePush implements MessagePush {
 
     /**
-     * 推送文本格式（钉钉/企业微信通用）
+    * 推送文本格式（钉钉/企业微信通用）
      */
     private static final String CONTENT_TYPE_TEXT = "text";
 
     /**
-     * 推送 Markdown 格式
+    * 推送 Markdown 格式
      */
     private static final String CONTENT_TYPE_MARKDOWN = "markdown";
 
     /**
-     * 原始 JSON 透传格式
+    * 原始 JSON 透传格式
      */
     private static final String CONTENT_TYPE_RAW = "raw";
 
@@ -89,8 +89,8 @@ public class WebhookMessagePush implements MessagePush {
     }
 
     /**
-      * 创建 webhook消息push 实例
-     * @param environment 环境
+    * 创建 webhook消息push 实例
+    * @param environment 环境
      */
     public WebhookMessagePush(MessageEnvironment environment) {
         this.environment = environment;
@@ -104,8 +104,8 @@ public class WebhookMessagePush implements MessagePush {
 
     @Override
     /**
-     * 发送
-     * @param request 请求
+    * 发送
+    * @param request 请求
      */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
@@ -133,11 +133,11 @@ public class WebhookMessagePush implements MessagePush {
     }
 
     /**
-     * 构建请求体
-     *
-     * @param contentType 内容类型
-     * @param content     消息内容
-     * @return 请求体 JSON 字符串
+    * 构建请求体
+    *
+    * @param contentType 内容类型
+    * @param content     消息内容
+    * @return 请求体 JSON 字符串
      */
     private String buildRequestBody(String contentType, String content) {
         String normalized = contentType == null ? "" : contentType.toLowerCase();
@@ -165,12 +165,12 @@ public class WebhookMessagePush implements MessagePush {
     }
 
     /**
-     * 解析 Webhook 返回结果
-     *
-     * @param statusCode HTTP 状态码
-     * @param body       响应体
-     * @param duration   耗时（毫秒）
-     * @return 消息响应
+    * 解析 Webhook 返回结果
+    *
+    * @param statusCode HTTP 状态码
+    * @param body       响应体
+    * @param duration   耗时（毫秒）
+    * @return 消息响应
      */
     private MessageResponse parseResult(int statusCode, String body, long duration) {
         if (statusCode >= 200 && statusCode < 300) {
@@ -196,10 +196,10 @@ public class WebhookMessagePush implements MessagePush {
     }
 
     /**
-     * 从响应体提取错误码（钉钉/企业微信返回 errcode 字段）
-     *
-     * @param body 响应体
-     * @return 错误码，无该字段返回 空
+    * 从响应体提取错误码（钉钉/企业微信返回 errcode 字段）
+    *
+    * @param body 响应体
+    * @return 错误码，无该字段返回 空
      */
     private Integer extractErrorCode(String body) {
         if (StringUtils.isBlank(body)) {
@@ -228,17 +228,17 @@ public class WebhookMessagePush implements MessagePush {
 
     @Override
     /**
-     * 获取Template
-     * @param templateId templateid
+    * 获取Template
+    * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
 
     /**
-     * 注册模板
-     *
-     * @param template 模板信息
+    * 注册模板
+    *
+    * @param template 模板信息
      */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);

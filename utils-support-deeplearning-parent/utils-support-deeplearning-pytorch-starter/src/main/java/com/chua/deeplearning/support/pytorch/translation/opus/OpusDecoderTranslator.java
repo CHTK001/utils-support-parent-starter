@@ -7,25 +7,25 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.translation.CausalLMOutput;
 
 /**
- * Opus-MT 解码器 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* Opus-MT 解码器 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class OpusDecoderTranslator implements NoBatchifyTranslator<NDList, CausalLMOutput> {
 
     /**
-     * 层数。
+    * 层数。
      */
     private static final int NUM_LAYERS = 6;
 
     /**
-     * 注意力头组数。
+    * 注意力头组数。
      */
     private static final int NUM_ATTENTION_HEADS = 4;
 
     /**
-      * past_键_值 元组名。
+    * past_键_值 元组名。
      */
     private final String tupleName;
 

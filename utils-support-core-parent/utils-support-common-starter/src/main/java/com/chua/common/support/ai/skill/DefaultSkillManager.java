@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 默认技能管理器（进程内注册表）。
- *
- * @author CH
- * @since 2026/07/20
+* 默认技能管理器（进程内注册表）。
+*
+* @author CH
+* @since 2026/07/20
  */
 public class DefaultSkillManager implements SkillManager {
 

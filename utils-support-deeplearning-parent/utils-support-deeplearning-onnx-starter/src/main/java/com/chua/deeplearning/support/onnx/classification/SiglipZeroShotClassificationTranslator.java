@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * siglip                 Translator
- *
- * <p>SigLIP        unified image-text ONNX                       CLIP                      
- *                                                                    logits          </p>
- *
- * @author CH
- * @since 2026-04-23
+* siglip                 Translator
+*
+* <p>SigLIP        unified image-text ONNX                       CLIP                      
+*                                                                    logits          </p>
+*
+* @author CH
+* @since 2026-04-23
  */
 public class SiglipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
@@ -67,8 +67,8 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-      * 创建 siglipzeroshotclassificationtranslator 实例
-     * @param arguments 参数
+    * 创建 siglipzeroshotclassificationtranslator 实例
+    * @param arguments 参数
      */
     public SiglipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
@@ -146,11 +146,11 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 选择Logits
-     *
-     * @param list 列表
-     * @param candidateCount candidate数量
-     * @return 选择logits的结果
+    * 选择Logits
+    *
+    * @param list 列表
+    * @param candidateCount candidate数量
+    * @return 选择logits的结果
      */
     private NDArray selectLogits(NDList list, int candidateCount) {
         for (NDArray array : list) {
@@ -176,10 +176,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 构建candidate输入标识
-     *
-     * @param labels 标签
-     * @return 构建candidate输入标识的结果
+    * 构建candidate输入标识
+    *
+    * @param labels 标签
+    * @return 构建candidate输入标识的结果
      */
     private long[][] buildCandidateInputIds(List<String> labels) {
         List<long[]> encoded = new ArrayList<>(labels.size());
@@ -203,10 +203,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 转为probabilities
-     *
-     * @param logits logits
-     * @return 转为probabilities的结果
+    * 转为probabilities
+    *
+    * @param logits logits
+    * @return 转为probabilities的结果
      */
     private List<Double> toProbabilities(float[] logits) {
         double[] softmax = softmax(logits);
@@ -218,10 +218,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * Softmax
-     *
-     * @param logits logits
-     * @return softmax的结果
+    * Softmax
+    *
+    * @param logits logits
+    * @return softmax的结果
      */
     private double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
@@ -244,10 +244,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 格式化提示符
-     *
-     * @param label 标签
-     * @return 格式化提示符的结果
+    * 格式化提示符
+    *
+    * @param label 标签
+    * @return 格式化提示符的结果
      */
     private String formatPrompt(String label) {
         if (promptTemplate.contains("%s")) {
@@ -257,10 +257,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析Candidates
-     *
-     * @param rawCandidates rawcandidates
-     * @return 解析candidates的结果
+    * 解析Candidates
+    *
+    * @param rawCandidates rawcandidates
+    * @return 解析candidates的结果
      */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
@@ -277,11 +277,11 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 读取参数
-     *
-     * @param arguments 参数
-     * @param key 键
-     * @return 读取参数的结果
+    * 读取参数
+    *
+    * @param arguments 参数
+    * @param key 键
+    * @return 读取参数的结果
      */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
@@ -292,10 +292,10 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析模型根
-     *
-     * @param modelPath 模型路径
-     * @return resolve模型根的结果
+    * 解析模型根
+    *
+    * @param modelPath 模型路径
+    * @return resolve模型根的结果
      */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -312,11 +312,11 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     /**
-     * 解析required文件
-     *
-     * @param root 根
-     * @param fileName 文件名称
-     * @return resolverequired文件的结果
+    * 解析required文件
+    *
+    * @param root 根
+    * @param fileName 文件名称
+    * @return resolverequired文件的结果
      */
     private Path resolveRequiredFile(Path root, String fileName) throws IOException {
         Path file = root.resolve(fileName);

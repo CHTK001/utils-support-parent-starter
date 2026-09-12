@@ -14,51 +14,51 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 
 /**
- * Real-ESRGAN ONNX                      
- *
- * <p>       RRDBNet                                     
- *
- * <p>         :
- * <ul>
- *   <li>HWC     CHW                       [0, 1]          255.0   
- *   <li>          mean/std             RRDBNet              [0, 1]          
- * </ul>
- *
- * <p>         :
- * <ul>
- *   <li>          [0, 1]          [0, 255] uint8
- *   <li>          Image
- * </ul>
- *
- * <p>      : <a href="https://github.com/xinntao/Real-ESRGAN">Real-ESRGAN</a>
- *
- * @author CH
- * @since 2026-05-02
+* Real-ESRGAN ONNX                      
+*
+* <p>       RRDBNet                                     
+*
+* <p>         :
+* <ul>
+*   <li>HWC     CHW                       [0, 1]          255.0   
+*   <li>          mean/std             RRDBNet              [0, 1]          
+* </ul>
+*
+* <p>         :
+* <ul>
+*   <li>          [0, 1]          [0, 255] uint8
+*   <li>          Image
+* </ul>
+*
+* <p>      : <a href="https://github.com/xinntao/Real-ESRGAN">Real-ESRGAN</a>
+*
+* @author CH
+* @since 2026-05-02
  */
 @Slf4j
 public class RealEsrganTranslator implements Translator<Image, Image> {
 
     /**
-     *                                                             
+    *                                                             
      */
     private final int scale;
 
     /**
-      * ndarray
+    * ndarray
      */
     private NDManager manager;
 
     /**
-     *                              
+    *                              
      */
     public RealEsrganTranslator() {
         this(4);
     }
 
     /**
-     *                              
-     *
-     * @param scale                   2     4   
+    *                              
+    *
+    * @param scale                   2     4   
      */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;
@@ -132,10 +132,10 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
-     *
-     * @param v 浮点像素值
-     * @return 0-255 整数
+    * 将 [0, 1] 浮点像素钳制并转为 [0, 255] uint8。
+    *
+    * @param v 浮点像素值
+    * @return 0-255 整数
      */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));

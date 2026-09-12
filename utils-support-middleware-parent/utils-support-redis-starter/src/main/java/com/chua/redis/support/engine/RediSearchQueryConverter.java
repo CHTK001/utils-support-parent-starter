@@ -5,22 +5,22 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
-   * redi搜索 查询语句转换器。
- *
- * <p>将 SQL WHERE 子句转换为 RediSearch FT.SEARCH 查询语法，
-   * 支持 和/或/NOT/BETWEEN/LIKE/入/是否 空/比较运算符等常见 SQL 表达式。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* redi搜索 查询语句转换器。
+*
+* <p>将 SQL WHERE 子句转换为 RediSearch FT.SEARCH 查询语法，
+* 支持 和/或/NOT/BETWEEN/LIKE/入/是否 空/比较运算符等常见 SQL 表达式。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class RediSearchQueryConverter {
 
     /**
-      * 将 SQL WHERE 子句转换为 redi搜索 查询语法。
-     *
-     * @param sqlWhere SQL WHERE 子句
-     * @param params   参数列表
-     * @return RediSearch 查询字符串
+    * 将 SQL WHERE 子句转换为 redi搜索 查询语法。
+    *
+    * @param sqlWhere SQL WHERE 子句
+    * @param params   参数列表
+    * @return RediSearch 查询字符串
      */
     public String convertToQuery(String sqlWhere, List<Object> params) {
         if (sqlWhere == null || sqlWhere.trim().isEmpty()) {
@@ -45,11 +45,11 @@ public class RediSearchQueryConverter {
     }
 
     /**
-     * 递归解析 SQL 条件表达式。
-     *
-     * @param expr 条件表达式
-     * @param ph   参数持有者
-     * @param out  输出缓冲区
+    * 递归解析 SQL 条件表达式。
+    *
+    * @param expr 条件表达式
+    * @param ph   参数持有者
+    * @param out  输出缓冲区
      */
     private void parse(String expr, ParamHolder ph, StringBuilder out) {
         expr = expr.trim();
@@ -91,10 +91,10 @@ public class RediSearchQueryConverter {
     }
 
     /**
-      * 按顶层 和/或 分割表达式。
-     *
-     * @param expr SQL 表达式
-     * @return 分割后的子表达式列表
+    * 按顶层 和/或 分割表达式。
+    *
+    * @param expr SQL 表达式
+    * @return 分割后的子表达式列表
      */
     private List<String> splitTopLevel(String expr) {
         List<String> parts = new ArrayList<>();
@@ -124,10 +124,10 @@ public class RediSearchQueryConverter {
     }
 
     /**
-     * 检测顶层连接运算符。
-     *
-     * @param expr SQL 表达式
-     * @return "|" 或 " "
+    * 检测顶层连接运算符。
+    *
+    * @param expr SQL 表达式
+    * @return "|" 或 " "
      */
     private String detectTopLevelOp(String expr) {
         if (expr.toUpperCase().contains(" OR ")) {
@@ -137,11 +137,11 @@ public class RediSearchQueryConverter {
     }
 
     /**
-      * 转换单个条件为 redi搜索 语法。
-     *
-     * @param cond 单个条件
-     * @param ph   参数持有者
-     * @param out  输出缓冲区
+    * 转换单个条件为 redi搜索 语法。
+    *
+    * @param cond 单个条件
+    * @param ph   参数持有者
+    * @param out  输出缓冲区
      */
     private void convertCondition(String cond, ParamHolder ph, StringBuilder out) {
         cond = cond.trim();
@@ -241,11 +241,11 @@ public class RediSearchQueryConverter {
     }
 
     /**
-     * 参数持有者。
-     *
-     * <p>按顺序提供 SQL 参数值，记录上一个值用于范围查询。</p>
-     * @author CH
-     * @since 4.0.0
+    * 参数持有者。
+    *
+    * <p>按顺序提供 SQL 参数值，记录上一个值用于范围查询。</p>
+    * @author CH
+    * @since 4.0.0
      */
     static class ParamHolder {
 
@@ -271,9 +271,9 @@ public class RediSearchQueryConverter {
         Object prev;
 
         /**
-         * 创建参数持有者。
-         *
-         * @param params 参数列表
+        * 创建参数持有者。
+        *
+        * @param params 参数列表
          */
         ParamHolder(List<Object> params) {
             this.params = params;
@@ -281,9 +281,9 @@ public class RediSearchQueryConverter {
         }
 
         /**
-         * 获取下一个参数值。
-         *
-         * @return 参数值
+        * 获取下一个参数值。
+        *
+        * @return 参数值
          */
         Object next() {
             if (idx < params.size()) {
@@ -296,9 +296,9 @@ public class RediSearchQueryConverter {
         }
 
         /**
-         * 获取上一个参数值。
-         *
-         * @return 上一个参数值
+        * 获取上一个参数值。
+        *
+        * @return 上一个参数值
          */
         Object nextPrev() {
             return prev;

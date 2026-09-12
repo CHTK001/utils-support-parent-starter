@@ -15,18 +15,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Context compression service - two phase strategy.
- *
- * <p>Phase 1: When message count reaches threshold, save full context as baseline snapshot,
- * then execute regular compression (keep last N messages).</p>
- * <p>Phase 2: After baseline established, every N rounds: load baseline snapshot,
- * summarize it with fresh ChatClient session, then correct deviation with current context.</p>
- *
- * <p>轻量复用入口见 {@link com.chua.common.support.ai.context.ContextCompressor}，
- * Agent 与普通 ChatClient 均可使用，不绑定工具/计划。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Context compression service - two phase strategy.
+*
+* <p>Phase 1: When message count reaches threshold, save full context as baseline snapshot,
+* then execute regular compression (keep last N messages).</p>
+* <p>Phase 2: After baseline established, every N rounds: load baseline snapshot,
+* summarize it with fresh ChatClient session, then correct deviation with current context.</p>
+*
+* <p>轻量复用入口见 {@link com.chua.common.support.ai.context.ContextCompressor}，
+* Agent 与普通 ChatClient 均可使用，不绑定工具/计划。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class AgentContextCompressionService implements AgentContextCompressionConsumer {
@@ -64,11 +64,11 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     private String cachedBaselineSummary = null;
 
     /**
-     * 创建 AgentContextCompressionService 实例
-     * @param config config
-     * @param compressionChatClient compressionChatClient
-     * @param fallbackChatClient fallbackChatClient
-     * @param workspace workspace
+    * 创建 AgentContextCompressionService 实例
+    * @param config config
+    * @param compressionChatClient compressionChatClient
+    * @param fallbackChatClient fallbackChatClient
+    * @param workspace workspace
      */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient compressionChatClient,
@@ -81,10 +81,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     }
 
     /**
-     * 创建 AgentContextCompressionService 实例
-     * @param config config
-     * @param fallbackChatClient fallbackChatClient
-     * @param workspace workspace
+    * 创建 AgentContextCompressionService 实例
+    * @param config config
+    * @param fallbackChatClient fallbackChatClient
+    * @param workspace workspace
      */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient fallbackChatClient,
@@ -116,9 +116,9 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
 
     @Override
     /**
-     * OnDeviationCompression
-     * @param baselineContext baselineContext
-     * @param currentContext currentContext
+    * OnDeviationCompression
+    * @param baselineContext baselineContext
+    * @param currentContext currentContext
      */
     public List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                                      List<ChatMessage> currentContext) {
@@ -352,10 +352,10 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     }
 
     /**
-     * CorrectDeviation
-     * @param client client
-     * @param baselineSummary baselineSummary
-     * @param currentContext currentContext
+    * CorrectDeviation
+    * @param client client
+    * @param baselineSummary baselineSummary
+    * @param currentContext currentContext
      */
     private List<ChatMessage> correctDeviation(ChatClient client,
                                                 String baselineSummary,

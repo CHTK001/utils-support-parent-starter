@@ -4,38 +4,38 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
- * <p>
- * 该抽象类定义了所有 Lambda 包装器共用的条件构建方法，包括：
- * <ul>
- *   <li>比较操作 — {@link #eq}, {@link #ne}, {@link #gt}, {@link #ge}, {@link #lt}, {@link #le}</li>
- *   <li>模糊匹配 — {@link #like}, {@link #likeLeft}, {@link #likeRight}</li>
- *   <li>范围操作 — {@link #in}, {@link #notIn}, {@link #between}</li>
- *   <li>空值判断 — {@link #isNull}, {@link #isNotNull}</li>
- *   <li>逻辑分组 — {@link #and}, {@link #or}</li>
- *   <li>排序 — {@link #orderByAsc}, {@link #orderByDesc}</li>
- * </ul>
- * </p>
- * <p>
- * 条件以结构化的 {@link Condition} 对象列表存储，不直接拼接 SQL 字符串，
- * 由子类通过 {@link #buildSql()} 方法统一渲染为 SQL 语句。
- * 这样可以在渲染阶段引用实体元数据和方言信息，生成语法正确的 SQL。
- * </p>
- * <p>
- * 子类需要实现：
- * <ul>
- *   <li>{@link #newInstance()} — 创建同类型的新包装器实例（用于 and/or 嵌套）</li>
- *   <li>{@link #resolveColumn(SFunction)} — 将 Lambda 方法引用解析为数据库列名</li>
- * </ul>
- * </p>
- *
- * @param <T> 实体类型
- * @param <C> 子类类型（CRTP 模式，支持链式调用返回子类类型）
- * @author CH
- * @since 2024/12/12
- * @see LambdaQueryWrapper
- * @see LambdaUpdateWrapper
- * @see LambdaDeleteWrapper
+* Lambda 抽象包装器，提供类似 MyBatis-Plus 的链式条件 API。
+* <p>
+* 该抽象类定义了所有 Lambda 包装器共用的条件构建方法，包括：
+* <ul>
+*   <li>比较操作 — {@link #eq}, {@link #ne}, {@link #gt}, {@link #ge}, {@link #lt}, {@link #le}</li>
+*   <li>模糊匹配 — {@link #like}, {@link #likeLeft}, {@link #likeRight}</li>
+*   <li>范围操作 — {@link #in}, {@link #notIn}, {@link #between}</li>
+*   <li>空值判断 — {@link #isNull}, {@link #isNotNull}</li>
+*   <li>逻辑分组 — {@link #and}, {@link #or}</li>
+*   <li>排序 — {@link #orderByAsc}, {@link #orderByDesc}</li>
+* </ul>
+* </p>
+* <p>
+* 条件以结构化的 {@link Condition} 对象列表存储，不直接拼接 SQL 字符串，
+* 由子类通过 {@link #buildSql()} 方法统一渲染为 SQL 语句。
+* 这样可以在渲染阶段引用实体元数据和方言信息，生成语法正确的 SQL。
+* </p>
+* <p>
+* 子类需要实现：
+* <ul>
+*   <li>{@link #newInstance()} — 创建同类型的新包装器实例（用于 and/or 嵌套）</li>
+*   <li>{@link #resolveColumn(SFunction)} — 将 Lambda 方法引用解析为数据库列名</li>
+* </ul>
+* </p>
+*
+* @param <T> 实体类型
+* @param <C> 子类类型（CRTP 模式，支持链式调用返回子类类型）
+* @author CH
+* @since 2024/12/12
+* @see LambdaQueryWrapper
+* @see LambdaUpdateWrapper
+* @see LambdaDeleteWrapper
  */
 @SuppressWarnings("unchecked")
 public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T, C>> {
@@ -53,8 +53,8 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     protected String tableAlias;
 
     /**
-     * 创建 AbstractLambdaWrapper 实例
-     * @param entityClass entityClass
+    * 创建 AbstractLambdaWrapper 实例
+    * @param entityClass entityClass
      */
     protected AbstractLambdaWrapper(Class<T> entityClass) {
         this.entityClass = entityClass;
@@ -286,20 +286,20 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     // ==================== 子类扩展点 ====================
 
     /**
-     * 创建同类型的新包装器实例，用于 and/or 嵌套条件。
-     *
-     * @return 新实例
+    * 创建同类型的新包装器实例，用于 and/or 嵌套条件。
+    *
+    * @return 新实例
      */
     protected abstract C newInstance();
 
     /**
-     * 将 Lambda 方法引用解析为数据库列名。
-     * <p>由子类或外部 {@code LambdaUtils} 实现，
-     * 通过解析 {@link java.lang.invoke.SerializedLambda} 字节码获取属性名，
-     * 再根据实体元数据映射为数据库列名。</p>
-     *
-     * @param column Lambda 方法引用
-     * @return 数据库列名
+    * 将 Lambda 方法引用解析为数据库列名。
+    * <p>由子类或外部 {@code LambdaUtils} 实现，
+    * 通过解析 {@link java.lang.invoke.SerializedLambda} 字节码获取属性名，
+    * 再根据实体元数据映射为数据库列名。</p>
+    *
+    * @param column Lambda 方法引用
+    * @return 数据库列名
      */
     protected abstract String resolveColumn(SFunction<T, ?> column);
 

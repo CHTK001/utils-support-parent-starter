@@ -12,25 +12,25 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
-   * 线art Anime 动漫线稿条件图 Translator。
- *
- * @author CH
- * @since 4.0.0.42
+* 线art Anime 动漫线稿条件图 Translator。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class LineArtAnimeTranslator implements Translator<Image, Image> {
 
     /**
-     * 输出分辨率。
+    * 输出分辨率。
      */
     private final int imageResolution;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int width;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int height;
 
@@ -40,8 +40,8 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 创建 线artanimetranslator 实例
-     * @param imageResolution 镜像resolution
+    * 创建 线artanimetranslator 实例
+    * @param imageResolution 镜像resolution
      */
     public LineArtAnimeTranslator(int imageResolution) {
         this.imageResolution = imageResolution;

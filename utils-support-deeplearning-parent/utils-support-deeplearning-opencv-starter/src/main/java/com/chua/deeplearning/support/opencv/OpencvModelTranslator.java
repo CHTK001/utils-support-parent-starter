@@ -16,27 +16,27 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
-   * 纯 打开cv 翻译器抽象基类。
- * <p>
-   * 不依赖 DJL，直接使用 打开cv 传统视觉算法或 DNN 做预处理、推理、后处理。
- * 子类只需实现 {@link #doTranslate(Object)} 完成具体模型推理逻辑。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 纯 打开cv 翻译器抽象基类。
+* <p>
+* 不依赖 DJL，直接使用 打开cv 传统视觉算法或 DNN 做预处理、推理、后处理。
+* 子类只需实现 {@link #doTranslate(Object)} 完成具体模型推理逻辑。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class OpencvModelTranslator implements ITranslator<Object, Object> {
 
     /**
-     * 模型名称，对应模型标识。
+    * 模型名称，对应模型标识。
      */
     private final String modelName;
 
     /**
-     * 构造翻译器并确保原生库已加载。
-     *
-     * @param modelName 模型名称
+    * 构造翻译器并确保原生库已加载。
+    *
+    * @param modelName 模型名称
      */
     protected OpencvModelTranslator(String modelName) {
         OpencvNative.ensureLoaded();
@@ -56,18 +56,18 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-     * 执行翻译（推理）。
-     *
-     * @param input 输入对象，通常为 byte[]（图像字节数组）
-     * @return 业务输出对象
+    * 执行翻译（推理）。
+    *
+    * @param input 输入对象，通常为 byte[]（图像字节数组）
+    * @return 业务输出对象
      */
     protected abstract Object doTranslate(Object input);
 
     /**
-     * byte[] 转 Mat（BGR）。
-     *
-     * @param imageBytes 图像字节数组
-     * @return OpenCV Mat 对象
+    * byte[] 转 Mat（BGR）。
+    *
+    * @param imageBytes 图像字节数组
+    * @return OpenCV Mat 对象
      */
     protected static Mat bytesToMat(byte[] imageBytes) {
         if (imageBytes == null || imageBytes.length == 0) {
@@ -81,10 +81,10 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-      * 缓冲镜像 转 Mat（BGR）。
-     *
-     * @param image 缓冲镜像 对象
-     * @return OpenCV Mat 对象
+    * 缓冲镜像 转 Mat（BGR）。
+    *
+    * @param image 缓冲镜像 对象
+    * @return OpenCV Mat 对象
      */
     protected static Mat bufferedToMat(BufferedImage image) {
         if (image == null) {
@@ -98,10 +98,10 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-     * Mat 转 byte[]（PNG 格式）。
-     *
-     * @param mat 打开cv Mat 对象
-     * @return PNG 格式字节数组
+    * Mat 转 byte[]（PNG 格式）。
+    *
+    * @param mat 打开cv Mat 对象
+    * @return PNG 格式字节数组
      */
     protected static byte[] matToBytes(Mat mat) {
         if (mat == null || mat.empty()) {
@@ -111,10 +111,10 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-      * Mat 转 缓冲镜像。
-     *
-     * @param mat 打开cv Mat 对象
-     * @return BufferedImage 对象
+    * Mat 转 缓冲镜像。
+    *
+    * @param mat 打开cv Mat 对象
+    * @return BufferedImage 对象
      */
     protected static BufferedImage matToBufferedImage(Mat mat) {
         if (mat == null || mat.empty()) {
@@ -138,13 +138,13 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     }
 
     /**
-      * 从文件系统或 类路径 解析模型文件。
-     * <p>
-      * 类路径 资源会复制到临时目录，保证 cascadeclassifier 等 API 可按路径读取。
-     * </p>
-     *
-     * @param modelPath 模型路径（文件系统绝对/相对路径，或 类路径 路径）
-     * @return 模型文件的 文件 对象
+    * 从文件系统或 类路径 解析模型文件。
+    * <p>
+    * 类路径 资源会复制到临时目录，保证 cascadeclassifier 等 API 可按路径读取。
+    * </p>
+    *
+    * @param modelPath 模型路径（文件系统绝对/相对路径，或 类路径 路径）
+    * @return 模型文件的 文件 对象
      */
     public static File resolveModelPath(String modelPath) {
         if (modelPath == null || modelPath.isBlank()) {

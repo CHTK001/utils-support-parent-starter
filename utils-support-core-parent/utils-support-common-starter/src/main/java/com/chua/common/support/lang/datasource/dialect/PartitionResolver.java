@@ -4,10 +4,10 @@ import com.chua.common.support.lang.datasource.dialect.meta.PartitionMetadata;
 import java.util.List;
 
 /**
- * 分区解析器，定义数据库分区管理的 DDL 操作。
- *
- * @author CH
- * @since 2024/12/12
+* 分区解析器，定义数据库分区管理的 DDL 操作。
+*
+* @author CH
+* @since 2024/12/12
  */
 public interface PartitionResolver {
 
@@ -42,10 +42,10 @@ public interface PartitionResolver {
     }
 
     /**
-     * ReorganizePartition
-     * @param tableName tableName
-     * @param sourcePartitionNames sourcePartitionNames
-     * @param targetPartitions targetPartitions
+    * ReorganizePartition
+    * @param tableName tableName
+    * @param sourcePartitionNames sourcePartitionNames
+    * @param targetPartitions targetPartitions
      */
     default String reorganizePartition(String tableName, List<String> sourcePartitionNames,
                                        List<PartitionMetadata> targetPartitions) {

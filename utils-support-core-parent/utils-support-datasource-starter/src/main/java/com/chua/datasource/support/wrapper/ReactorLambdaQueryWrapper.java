@@ -17,46 +17,46 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 响应式 Lambda 查询包装器，条件 API 与 {@code LambdaQueryWrapper} 一致，
- * 终端方法返回 Reactor 响应式类型（{@link Flux} / {@link Mono}）。
- *
- * <p>底层通过 {@link Schedulers#boundedElastic()} 调度阻塞的 JDBC 执行，
- * 避免阻塞 Reactor 事件循环线程。</p>
- *
- * <pre>{@code
- * Flux<User> users = engine.query(User.class)
- *     .eq(User::getName, "张三")
- *     .gt(User::getAge, 18)
- *     .list();
- * }</pre> *     .list();
- * }</pre>
- *
- * @param <T> 实体类型
- * @author CH
- * @since 4.0.0.42
+* 响应式 Lambda 查询包装器，条件 API 与 {@code LambdaQueryWrapper} 一致，
+* 终端方法返回 Reactor 响应式类型（{@link Flux} / {@link Mono}）。
+*
+* <p>底层通过 {@link Schedulers#boundedElastic()} 调度阻塞的 JDBC 执行，
+* 避免阻塞 Reactor 事件循环线程。</p>
+*
+* <pre>{@code
+* Flux<User> users = engine.query(User.class)
+*     .eq(User::getName, "张三")
+*     .gt(User::getAge, 18)
+*     .list();
+* }</pre> *     .list();
+* }</pre>
+*
+* @param <T> 实体类型
+* @author CH
+* @since 4.0.0.42
  */
 public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, ReactorLambdaQueryWrapper<T>> {
 
     /**
-     * 底层同步引擎
+    * 底层同步引擎
      */
     private final Engine engine;
 
     /**
-     * 查询列列表
+    * 查询列列表
      */
     private final List<String> selectColumns = new ArrayList<>();
 
     /**
-     * 分组列名
+    * 分组列名
      */
     private String groupByColumn;
 
     /**
-     * 创建响应式查询包装器。
-     *
-     * @param engine      底层引擎
-     * @param entityClass 实体类
+    * 创建响应式查询包装器。
+    *
+    * @param engine      底层引擎
+    * @param entityClass 实体类
      */
     public ReactorLambdaQueryWrapper(Engine engine, Class<T> entityClass) {
         super(entityClass);
@@ -66,9 +66,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     // ==================== SELECT / GROUP BY ====================
 
     /**
-      * 添加 选择 列。
-     * @param column column
-     * @return 选择的结果
+    * 添加 选择 列。
+    * @param column column
+    * @return 选择的结果
      */
     public ReactorLambdaQueryWrapper<T> select(SFunction<T, ?> column) {
         selectColumns.add(resolveColumn(column));
@@ -76,9 +76,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-      * 批量添加 选择 列。
-     * @param columns columns
-     * @return 选择的结果
+    * 批量添加 选择 列。
+    * @param columns columns
+    * @return 选择的结果
      */
     @SafeVarargs
     public final ReactorLambdaQueryWrapper<T> select(SFunction<T, ?>... columns) {
@@ -89,9 +89,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-      * 以字符串形式添加 选择 列。
-     * @param columns columns
-     * @return 选择的结果
+    * 以字符串形式添加 选择 列。
+    * @param columns columns
+    * @return 选择的结果
      */
     public ReactorLambdaQueryWrapper<T> select(String... columns) {
         selectColumns.addAll(List.of(columns));
@@ -99,9 +99,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-      * 添加 群体 BY 列。
-     * @param column column
-     * @return 群体by的结果
+    * 添加 群体 BY 列。
+    * @param column column
+    * @return 群体by的结果
      */
     public ReactorLambdaQueryWrapper<T> groupBy(SFunction<T, ?> column) {
         this.groupByColumn = resolveColumn(column);
@@ -111,8 +111,8 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     // ==================== SQL 构建 ====================
 
     /**
-     * 构建查询 SQL 信息。
-     * @return 构建sql的结果
+    * 构建查询 SQL 信息。
+    * @return 构建sql的结果
      */
     public QuerySql<T> buildSql() {
         StringBuilder where = new StringBuilder();
@@ -124,9 +124,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     // ==================== 终端执行方法（响应式） ====================
 
     /**
-     * 执行查询，返回实体列表的 Flux。
-     *
-     * @return 实体 Flux
+    * 执行查询，返回实体列表的 Flux。
+    *
+    * @return 实体 Flux
      */
     public Flux<T> list() {
         return Mono.fromCallable(this::doList)
@@ -135,9 +135,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 执行查询，返回单个实体的 Mono。
-     *
-     * @return 实体 Mono，不存在返回空 Mono
+    * 执行查询，返回单个实体的 Mono。
+    *
+    * @return 实体 Mono，不存在返回空 Mono
      */
     public Mono<T> one() {
         return Mono.fromCallable(() -> {
@@ -147,11 +147,11 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 执行分页查询，返回分页结果的 Mono。
-     *
-     * @param pageNum  页码（从 1 开始）
-     * @param pageSize 每页大小
-     * @return 分页结果 Mono
+    * 执行分页查询，返回分页结果的 Mono。
+    *
+    * @param pageNum  页码（从 1 开始）
+    * @param pageSize 每页大小
+    * @return 分页结果 Mono
      */
     public Mono<Page<T>> page(int pageNum, int pageSize) {
         return Mono.fromCallable(() -> {
@@ -166,8 +166,8 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 同步执行查询（内部使用，供响应式方法在 boundedElastic 线程调用）。
-     * @return 执行列表的结果
+    * 同步执行查询（内部使用，供响应式方法在 boundedElastic 线程调用）。
+    * @return 执行列表的结果
      */
     private List<T> doList() {
         QuerySql<T> sql = buildSql();
@@ -204,9 +204,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 构建 WHERE 子句和参数列表。
-     * @param sb sb
-     * @param params 参数
+    * 构建 WHERE 子句和参数列表。
+    * @param sb sb
+    * @param params 参数
      */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
@@ -218,10 +218,10 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 渲染单个条件为 SQL 片段。
-     * @param sb sb
-     * @param params 参数
-     * @param c c
+    * 渲染单个条件为 SQL 片段。
+    * @param sb sb
+    * @param params 参数
+    * @param c c
      */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

@@ -7,43 +7,43 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * 默认断路器判断器
- *
- * <p>处理 COMPARE 节点的标准求值，支持以下运算符：
- * <ul>
- *   <li>等于：=、==</li>
- *   <li>不等：!=、&lt;&gt;</li>
- *   <li>数值比较：&gt;、&lt;、&gt;=、&lt;=</li>
- *   <li>集合：IN</li>
- *   <li>范围：BETWEEN</li>
- *   <li>模糊匹配：LIKE</li>
- *   <li>空值检查：IS NULL、IS NOT NULL</li>
- * </ul>
- *
- * <p>对于 COLUMN / FUNCTION 节点直接返回 true（不阻断）。
- * 未实现的运算符也返回 false（保守策略，便于业务扩展）。</p>
- *
- * <h3>COMPARE 节点结构</h3>
- * <pre>
- *   COMPARE 节点
- *     ├─ left  = COLUMN 节点（列名在 operator 字段）
- *     ├─ operator = 比较运算符
- *     └─ right = VALUE 节点 / COLUMN 节点（expected 在 value 或 operator 字段）
- * </pre>
- *
- * <p>字面量解析策略：当 expected 是 {@code 'quoted'} 时存为 VALUE 节点，
- * 解析器对未加引号的标识符统一作为 COLUMN 节点。本判断器在 COLUMN 节点中
- * 通过 {@code ctx.containsKey(name)} 判断是否为真列引用；若 ctx 不含则视为
- * 字面量，回退到 operator 字段取值。</p>
- *
- * @author CH
- * @since 2026/07/28
+* 默认断路器判断器
+*
+* <p>处理 COMPARE 节点的标准求值，支持以下运算符：
+* <ul>
+*   <li>等于：=、==</li>
+*   <li>不等：!=、&lt;&gt;</li>
+*   <li>数值比较：&gt;、&lt;、&gt;=、&lt;=</li>
+*   <li>集合：IN</li>
+*   <li>范围：BETWEEN</li>
+*   <li>模糊匹配：LIKE</li>
+*   <li>空值检查：IS NULL、IS NOT NULL</li>
+* </ul>
+*
+* <p>对于 COLUMN / FUNCTION 节点直接返回 true（不阻断）。
+* 未实现的运算符也返回 false（保守策略，便于业务扩展）。</p>
+*
+* <h3>COMPARE 节点结构</h3>
+* <pre>
+*   COMPARE 节点
+*     ├─ left  = COLUMN 节点（列名在 operator 字段）
+*     ├─ operator = 比较运算符
+*     └─ right = VALUE 节点 / COLUMN 节点（expected 在 value 或 operator 字段）
+* </pre>
+*
+* <p>字面量解析策略：当 expected 是 {@code 'quoted'} 时存为 VALUE 节点，
+* 解析器对未加引号的标识符统一作为 COLUMN 节点。本判断器在 COLUMN 节点中
+* 通过 {@code ctx.containsKey(name)} 判断是否为真列引用；若 ctx 不含则视为
+* 字面量，回退到 operator 字段取值。</p>
+*
+* @author CH
+* @since 2026/07/28
  */
 @Spi("default")
 public class DefaultBreakerJudge implements BreakerJudge {
 
     /**
-     * 默认 SPI 名称
+    * 默认 SPI 名称
      */
     public static final String NAME = "default";
 
@@ -135,12 +135,12 @@ public class DefaultBreakerJudge implements BreakerJudge {
     // ==================== 字面量/列名消歧 ====================
 
     /**
-     * 读取右节点的值：
-     * <ol>
-     *   <li>VALUE 节点：直接取 value 字段</li>
-     *   <li>COLUMN 节点：若 ctx 包含此列名则视为列引用（ctx.get(name)）；否则视为字面量</li>
-     *   <li>其他：返回 null</li>
-     * </ol>
+    * 读取右节点的值：
+    * <ol>
+    *   <li>VALUE 节点：直接取 value 字段</li>
+    *   <li>COLUMN 节点：若 ctx 包含此列名则视为列引用（ctx.get(name)）；否则视为字面量</li>
+    *   <li>其他：返回 null</li>
+    * </ol>
      */
     private static Object readValue(BTreeNode right, Map<String, Object> context) {
         if (right == null) {
@@ -167,13 +167,13 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 读取非 COMPARE 节点（COLUMN/VALUE/FUNCTION）作为独立布尔表达式的值。
-     *
-     * <ul>
-     *   <li>VALUE：直接取 value</li>
-     *   <li>COLUMN：ctx 包含则 ctx.get(name)，否则视为字面量（取 operator）</li>
-     *   <li>FUNCTION：暂返回 null（未来扩展）</li>
-     * </ul>
+    * 读取非 COMPARE 节点（COLUMN/VALUE/FUNCTION）作为独立布尔表达式的值。
+    *
+    * <ul>
+    *   <li>VALUE：直接取 value</li>
+    *   <li>COLUMN：ctx 包含则 ctx.get(name)，否则视为字面量（取 operator）</li>
+    *   <li>FUNCTION：暂返回 null（未来扩展）</li>
+    * </ul>
      */
     private static Object readNodeValue(BTreeNode node, Map<String, Object> context) {
         if (node == null) {
@@ -183,14 +183,14 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 对象 → boolean：用于 NOT/AND/OR 下的叶子节点布尔求值。
-     *
-     * <ul>
-     *   <li>Boolean：直接取值</li>
-     *   <li>Number：非零为 true</li>
-     *   <li>String："true"/"1"/"yes"（忽略大小写）为 true，其他非空字符串为 true</li>
-     *   <li>null：false</li>
-     * </ul>
+    * 对象 → boolean：用于 NOT/AND/OR 下的叶子节点布尔求值。
+    *
+    * <ul>
+    *   <li>Boolean：直接取值</li>
+    *   <li>Number：非零为 true</li>
+    *   <li>String："true"/"1"/"yes"（忽略大小写）为 true，其他非空字符串为 true</li>
+    *   <li>null：false</li>
+    * </ul>
      */
     private static boolean toBoolean(Object value) {
         if (value == null) {
@@ -220,13 +220,13 @@ public class DefaultBreakerJudge implements BreakerJudge {
     // ==================== 比较器 ====================
 
     /**
-     * 值相等：
-     * <ul>
-     *   <li>两侧均为 Boolean：按 boolean 比较</li>
-     *   <li>两侧均严格为数值：按 double 比较</li>
-     *   <li>其他：按字符串比较</li>
-     * </ul>
-     * null 不参与比较。
+    * 值相等：
+    * <ul>
+    *   <li>两侧均为 Boolean：按 boolean 比较</li>
+    *   <li>两侧均严格为数值：按 double 比较</li>
+    *   <li>其他：按字符串比较</li>
+    * </ul>
+    * null 不参与比较。
      */
     private static boolean equalsValue(Object actual, Object expected) {
         if (actual == null || expected == null) {
@@ -243,9 +243,9 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 严格数值判断：避免 {@code "01"} 与 {@code 1} 误判。
-     * - Number 实例直接通过
-     * - 字符串必须完整匹配 double 格式（不允许前导 0 单独视为字符串）
+    * 严格数值判断：避免 {@code "01"} 与 {@code 1} 误判。
+    * - Number 实例直接通过
+    * - 字符串必须完整匹配 double 格式（不允许前导 0 单独视为字符串）
      */
     private static boolean isStrictNumber(Object value) {
         if (value instanceof Number) {
@@ -268,8 +268,8 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 数值比较：返回 actual - expected 的符号。
-     * 任一侧非数值时返回 Integer.MIN_VALUE（确保比较结果异常，让上层识别）。
+    * 数值比较：返回 actual - expected 的符号。
+    * 任一侧非数值时返回 Integer.MIN_VALUE（确保比较结果异常，让上层识别）。
      */
     private static int compareNumber(Object actual, Object expected) {
         if (!isStrictNumber(actual) || !isStrictNumber(expected)) {
@@ -281,7 +281,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 安全转 double，非数值返回 NaN（让 compareNumber 判定为非数值）
+    * 安全转 double，非数值返回 NaN（让 compareNumber 判定为非数值）
      */
     private static double toDouble(Object value) {
         if (value instanceof Number) {
@@ -300,7 +300,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     // ==================== 集合/范围/模糊匹配 ====================
 
     /**
-     * IN 列表匹配：expected 支持 {@code (a, b, c)} 或 {@code a,b,c} 格式
+    * IN 列表匹配：expected 支持 {@code (a, b, c)} 或 {@code a,b,c} 格式
      */
     private static boolean matchIn(Object actual, Object expected) {
         if (expected == null) {
@@ -332,15 +332,15 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * BETWEEN 范围匹配：right 节点结构为 {@code COMPARE("AND", low, high)}
-     *
-     * <p>解析器实际结构：{@code COMPARE("BETWEEN", left, COMPARE("AND", low, high))}。
-     * low/high 可以是字面量或 ctx 列引用（如 {@code score BETWEEN low AND high}）。</p>
-     *
-     * @param actual 当前列的值
-     * @param right  BETWEEN 右节点（COMPARE("AND", low, high)）
-     * @param context 上下文参数（用于解析边界列引用）
-     * @return actual 是否在 [low, high] 闭区间内
+    * BETWEEN 范围匹配：right 节点结构为 {@code COMPARE("AND", low, high)}
+    *
+    * <p>解析器实际结构：{@code COMPARE("BETWEEN", left, COMPARE("AND", low, high))}。
+    * low/high 可以是字面量或 ctx 列引用（如 {@code score BETWEEN low AND high}）。</p>
+    *
+    * @param actual 当前列的值
+    * @param right  BETWEEN 右节点（COMPARE("AND", low, high)）
+    * @param context 上下文参数（用于解析边界列引用）
+    * @return actual 是否在 [low, high] 闭区间内
      */
     private static boolean matchBetween(Object actual, BTreeNode right, Map<String, Object> context) {
         if (right == null) {
@@ -355,8 +355,8 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * LIKE 模糊匹配：通配符 {@code %}（任意长度）、{@code _}（单字符）。
-     * 对特殊字符做正则转义。
+    * LIKE 模糊匹配：通配符 {@code %}（任意长度）、{@code _}（单字符）。
+    * 对特殊字符做正则转义。
      */
     private static boolean matchLike(Object actual, Object expected) {
         if (actual == null || expected == null) {
@@ -381,7 +381,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     }
 
     /**
-     * 空值检查：{@code context} 中列不存在或值为 null 即视为 NULL
+    * 空值检查：{@code context} 中列不存在或值为 null 即视为 NULL
      */
     private static boolean isNullValue(Map<String, Object> context, BTreeNode columnNode) {
         if (columnNode == null) {

@@ -8,21 +8,21 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 句子 Mock 生成器
- *
- * <p>从常见中文句子池中随机返回一句话，如「今天天气不错，适合出门走走。」</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 句子 Mock 生成器
+*
+* <p>从常见中文句子池中随机返回一句话，如「今天天气不错，适合出门走走。」</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi({"sentence", "cn-sentence"})
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class SentenceMockString implements MockString {
 
     /**
-     * 中文句子池
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 中文句子池
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final String[] SENTENCES = {
             "今天天气不错，适合出门走走。",

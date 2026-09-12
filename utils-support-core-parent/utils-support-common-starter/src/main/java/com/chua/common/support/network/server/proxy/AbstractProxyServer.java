@@ -21,52 +21,52 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TCP 代理服务器抽象基类。
- *
- * <p>提供代理服务器的公共基础设施：</p>
- * <ul>
- *   <li>虚拟线程池生命周期管理（start 时创建，stop 时关闭）</li>
- *   <li>ServerSocket 监听与接受循环</li>
- *   <li>双向数据转发</li>
- *   <li>活跃连接计数</li>
- * </ul>
- *
- * <p>子类只需实现 {@link #handleConnection(Socket)} 即可。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* TCP 代理服务器抽象基类。
+*
+* <p>提供代理服务器的公共基础设施：</p>
+* <ul>
+*   <li>虚拟线程池生命周期管理（start 时创建，stop 时关闭）</li>
+*   <li>ServerSocket 监听与接受循环</li>
+*   <li>双向数据转发</li>
+*   <li>活跃连接计数</li>
+* </ul>
+*
+* <p>子类只需实现 {@link #handleConnection(Socket)} 即可。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public abstract class AbstractProxyServer extends AbstractServer {
 
     /**
-     * 活跃连接计数。
+    * 活跃连接计数。
      */
     protected final AtomicInteger activeConnections = new AtomicInteger(0);
 
     /**
-     * 虚拟线程池（start 时创建，stop 时关闭）。
-     * <p>所有 accept 线程和转发线程均由此 executor 管理，
-     * 确保 {@code shutdownNow()} 可取消全部活跃任务。</p>
+    * 虚拟线程池（start 时创建，stop 时关闭）。
+    * <p>所有 accept 线程和转发线程均由此 executor 管理，
+    * 确保 {@code shutdownNow()} 可取消全部活跃任务。</p>
      */
     protected ExecutorService proxyPool;
 
     /**
-     * JDK 服务端监听套接字。
+    * JDK 服务端监听套接字。
      */
     protected ServerSocket serverSocket;
 
     /**
-     * 连接数限流信号量（maxConnections > 0 时启用）。
-     * <p>超出上限时直接关闭客户端 Socket，避免内存溢出。</p>
+    * 连接数限流信号量（maxConnections > 0 时启用）。
+    * <p>超出上限时直接关闭客户端 Socket，避免内存溢出。</p>
      */
     protected Semaphore connectionLimiter;
 
     /**
-     * 是否使用非阻塞事件循环批量 accept（默认 false = 阻塞 accept）。
-     * <p>设为 true 时改用 {@link ServerSocketChannel} + Selector，每次 select 后
-     * 循环 accept 全部就绪连接（批量 drain），瞬时接纳吞吐显著高于阻塞 accept
-     * 一次一个。子类（如 TcpProxyServer）可覆写置为 true，Socks5 等保持默认。</p>
+    * 是否使用非阻塞事件循环批量 accept（默认 false = 阻塞 accept）。
+    * <p>设为 true 时改用 {@link ServerSocketChannel} + Selector，每次 select 后
+    * 循环 accept 全部就绪连接（批量 drain），瞬时接纳吞吐显著高于阻塞 accept
+    * 一次一个。子类（如 TcpProxyServer）可覆写置为 true，Socks5 等保持默认。</p>
      */
     protected volatile boolean preferNonBlockingAccept = false;
 
@@ -77,18 +77,18 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected Selector acceptSelector;
 
     /**
-     * 构造代理服务器。
-     *
-     * @param setting 服务器配置
+    * 构造代理服务器。
+    *
+    * @param setting 服务器配置
      */
     protected AbstractProxyServer(ServerSetting setting) {
         super(setting);
     }
 
     /**
-     * 获取当前活跃连接数。
-     *
-     * @return 活跃连接数
+    * 获取当前活跃连接数。
+    *
+    * @return 活跃连接数
      */
     public int getActiveConnections() {
         return activeConnections.get();
@@ -177,9 +177,9 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 接受连接循环。
-     * <p>支持多 acceptor 并行（bossThreads > 1 时），
-     * 超过 maxConnections 时直接关闭连接并发送 503。</p>
+    * 接受连接循环。
+    * <p>支持多 acceptor 并行（bossThreads > 1 时），
+    * 超过 maxConnections 时直接关闭连接并发送 503。</p>
      */
     protected void acceptLoop() {
         while (running) {
@@ -217,12 +217,12 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 非阻塞事件循环批量 accept（{@link #preferNonBlockingAccept} 为 true 时使用）。
-     * <p>每次 select 后循环 accept 全部就绪连接并批量提交到连接处理线程，
-     * 瞬时接纳吞吐显著高于阻塞 accept 一次一个，可在突发接入(每秒数千连接)下
-     * 避免内核 accept 队列积压导致连接被拒。握手后的 {@link SocketChannel} 通过
-     * {@link SocketChannel#socket()} 包装为 {@link Socket}，复用
-     * {@link #handleConnection(Socket)} 子类契约。</p>
+    * 非阻塞事件循环批量 accept（{@link #preferNonBlockingAccept} 为 true 时使用）。
+    * <p>每次 select 后循环 accept 全部就绪连接并批量提交到连接处理线程，
+    * 瞬时接纳吞吐显著高于阻塞 accept 一次一个，可在突发接入(每秒数千连接)下
+    * 避免内核 accept 队列积压导致连接被拒。握手后的 {@link SocketChannel} 通过
+    * {@link SocketChannel#socket()} 包装为 {@link Socket}，复用
+    * {@link #handleConnection(Socket)} 子类契约。</p>
      */
     protected void nonBlockingAcceptLoop() {
         log.info("{} nonBlockingAcceptLoop started", getClass().getSimpleName());
@@ -296,21 +296,21 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 处理单个客户端连接。子类实现具体协议逻辑。
-     *
-     * @param clientSocket 客户端套接字
+    * 处理单个客户端连接。子类实现具体协议逻辑。
+    *
+    * @param clientSocket 客户端套接字
      */
     protected abstract void handleConnection(Socket clientSocket);
 
     /**
-     * 双向转发：客户端 ↔ 后端。
-     *
-     * <p>使用 proxyPool 中的虚拟线程分别处理双向数据流。
-     * 任一方向结束时，通过关闭双方 Socket 解除另一方向的阻塞。
-     * 线程由 proxyPool 管理，shutdownNow() 可中断全部转发。</p>
-     *
-     * @param clientSocket  客户端套接字
-     * @param backendSocket 后端套接字
+    * 双向转发：客户端 ↔ 后端。
+    *
+    * <p>使用 proxyPool 中的虚拟线程分别处理双向数据流。
+    * 任一方向结束时，通过关闭双方 Socket 解除另一方向的阻塞。
+    * 线程由 proxyPool 管理，shutdownNow() 可中断全部转发。</p>
+    *
+    * @param clientSocket  客户端套接字
+    * @param backendSocket 后端套接字
      */
     protected void forwardBidirectional(Socket clientSocket, Socket backendSocket) {
         // 后端 Socket 也启用 TCP_NODELAY
@@ -349,24 +349,24 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 转发缓冲区大小（64KB）。
-     * <p>虚拟线程的 ThreadLocal 开销极低,适当增大 buffer 提升吞吐量。
-     * 相比 8KB,大文件转发场景吞吐量提升约 2x;相比 32KB,大报文场景
-     * read/write 系统调用进一步减半。</p>
+    * 转发缓冲区大小（64KB）。
+    * <p>虚拟线程的 ThreadLocal 开销极低,适当增大 buffer 提升吞吐量。
+    * 相比 8KB,大文件转发场景吞吐量提升约 2x;相比 32KB,大报文场景
+    * read/write 系统调用进一步减半。</p>
      */
     private static final int FORWARD_BUFFER_SIZE = 64 * 1024;
 
     /**
-     * 转发用缓冲区，每虚拟线程独立缓存。
+    * 转发用缓冲区，每虚拟线程独立缓存。
      */
     private static final ThreadLocal<byte[]> FORWARD_BUFFER =
             ThreadLocal.withInitial(() -> new byte[FORWARD_BUFFER_SIZE]);
 
     /**
-     * 单向数据转发。
-     *
-     * @param in  源输入流
-     * @param out 目标输出流
+    * 单向数据转发。
+    *
+    * @param in  源输入流
+    * @param out 目标输出流
      */
     protected void forward(InputStream in, OutputStream out) {
         try {
@@ -386,7 +386,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 安全关闭 Socket。
+    * 安全关闭 Socket。
      */
     protected static void closeQuietly(Socket socket) {
         if (socket != null && !socket.isClosed()) {
@@ -398,27 +398,27 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 读取指定字节数。
-     *
-     * @param in    输入流
-     * @param count 字节数
-     * @return 字节数组
-     * @throws IOException IO 异常
+    * 读取指定字节数。
+    *
+    * @param in    输入流
+    * @param count 字节数
+    * @return 字节数组
+    * @throws IOException IO 异常
      */
     /**
-     * readBytes 复用缓冲：调用点均立即消费返回值（不跨调用持有），
-     * 避免热路径（每连接多次小结构读取）反复分配小数组。
+    * readBytes 复用缓冲：调用点均立即消费返回值（不跨调用持有），
+    * 避免热路径（每连接多次小结构读取）反复分配小数组。
      */
     private static final ThreadLocal<byte[]> READ_BUFFER =
             ThreadLocal.withInitial(() -> new byte[64]);
 
     /**
-     * 从输入流精确读取 {@code count} 字节。
-     *
-     * @param in    输入流
-     * @param count 字节数
-     * @return 读取的字节（复用缓冲；调用方须在下次调用前消费完）
-     * @throws IOException IO 异常
+    * 从输入流精确读取 {@code count} 字节。
+    *
+    * @param in    输入流
+    * @param count 字节数
+    * @return 读取的字节（复用缓冲；调用方须在下次调用前消费完）
+    * @throws IOException IO 异常
      */
     protected static byte[] readBytes(InputStream in, int count) throws IOException {
         byte[] bytes = READ_BUFFER.get();
@@ -438,11 +438,11 @@ public abstract class AbstractProxyServer extends AbstractServer {
     }
 
     /**
-     * 读取 2 字节端口号（网络字节序）。
-     *
-     * @param in 输入流
-     * @return 端口号
-     * @throws IOException IO 异常
+    * 读取 2 字节端口号（网络字节序）。
+    *
+    * @param in 输入流
+    * @return 端口号
+    * @throws IOException IO 异常
      */
     protected static int readPort(InputStream in) throws IOException {
         byte[] port = readBytes(in, 2);

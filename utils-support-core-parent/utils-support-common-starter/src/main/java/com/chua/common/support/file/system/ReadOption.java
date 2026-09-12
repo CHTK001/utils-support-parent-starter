@@ -2,12 +2,12 @@ package com.chua.common.support.file.system;
 
 
 /**
- * 文件读取选项，控制文件读取时的行为参数。
- *
- * <p>支持设置返回格式（Map/对象）、起始行号、读取行数限制等参数。</p>
- *
- * @author CH
- * @since 1.0.0
+* 文件读取选项，控制文件读取时的行为参数。
+*
+* <p>支持设置返回格式（Map/对象）、起始行号、读取行数限制等参数。</p>
+*
+* @author CH
+* @since 1.0.0
  */
 public class ReadOption {
 
@@ -19,14 +19,14 @@ public class ReadOption {
 
     /** 最大读取行数，0 表示不限制 */
     /**
-     * 限制
+    * 限制
      */
     private int limit;
 
     /**
-     * 创建以 Map 格式返回的读取选项。
-     *
-     * @return 读取选项
+    * 创建以 Map 格式返回的读取选项。
+    *
+    * @return 读取选项
      */
     public static ReadOption maps() {
         ReadOption option = new ReadOption();
@@ -35,9 +35,9 @@ public class ReadOption {
     }
 
     /**
-     * 创建默认读取选项。
-     *
-     * @return 读取选项
+    * 创建默认读取选项。
+    *
+    * @return 读取选项
      */
     public static ReadOption of() {
         return new ReadOption();
@@ -54,10 +54,10 @@ public class ReadOption {
     }
 
     /**
-     * 设置起始行号。
-     *
-     * @param startRow 起始行号
-     * @return 当前选项
+    * 设置起始行号。
+    *
+    * @param startRow 起始行号
+    * @return 当前选项
      */
     public ReadOption startRow(int startRow) {
         this.startRow = startRow;
@@ -70,10 +70,10 @@ public class ReadOption {
     }
 
     /**
-     * 设置最大读取行数。
-     *
-     * @param limit 最大行数，0 为不限制
-     * @return 当前选项
+    * 设置最大读取行数。
+    *
+    * @param limit 最大行数，0 为不限制
+    * @return 当前选项
      */
     public ReadOption limit(int limit) {
         this.limit = limit;

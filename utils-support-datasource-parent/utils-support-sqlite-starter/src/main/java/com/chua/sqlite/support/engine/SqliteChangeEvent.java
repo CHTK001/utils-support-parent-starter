@@ -1,60 +1,60 @@
 package com.chua.sqlite.support.engine;
 
 /**
-   * sqlite 变更事件，由 更新_hook 触发。
- *
- * @author CH
- * @since 4.0.0.42
+* sqlite 变更事件，由 更新_hook 触发。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class SqliteChangeEvent {
     /**
-     * 类型枚举。
-     *
-     * @author CH
-     * @since 4.0.0
-     * @return 获取类型的结果
-     * @param table table
-     * @param rowId rowid
+    * 类型枚举。
+    *
+    * @author CH
+    * @since 4.0.0
+    * @return 获取类型的结果
+    * @param table table
+    * @param rowId rowid
      */
 
     public enum Type { INSERT, UPDATE, DELETE }
 
     private final Type type; // 类型
     /**
-     * sqlite改变事件。
-     * @param type 类型
-     * @param table table
-     * @param rowId rowid
-     * @return sqlite改变事件的结果
+    * sqlite改变事件。
+    * @param type 类型
+    * @param table table
+    * @param rowId rowid
+    * @return sqlite改变事件的结果
      */
     private final String table;
     private final long rowId; // rowid
 
     /**
-     * sqlite改变事件。
-     * @param type 类型
-     * @param table table
-     * @param rowId rowId
-     * @return sqlite改变事件的结果
+    * sqlite改变事件。
+    * @param type 类型
+    * @param table table
+    * @param rowId rowId
+    * @return sqlite改变事件的结果
      */
     private SqliteChangeEvent(Type type, String table, long rowId) {
         this.type = type;
         this.table = table;
         /**
-         * 插入。
-         * @param table table
-         * @param rowId rowid
-         * @return 插入的结果
+        * 插入。
+        * @param table table
+        * @param rowId rowid
+        * @return 插入的结果
          */
         this.rowId = rowId;
     }
 
     public static SqliteChangeEvent insert(String table, long rowId) {
         /**
-         * 更新。
-         * @param table table
-         * @param rowId rowid
-         * @return 更新的结果
+        * 更新。
+        * @param table table
+        * @param rowId rowid
+        * @return 更新的结果
          */
         return new SqliteChangeEvent(Type.INSERT, table, rowId);
     }
@@ -69,13 +69,13 @@ public final class SqliteChangeEvent {
 
     public Type getType() { return type; }
     /**
-     * 获取table。
-     * @return 获取table的结果
+    * 获取table。
+    * @return 获取table的结果
      */
     public String getTable() { return table; }
     /**
-     * 获取rowid。
-     * @return 获取rowid的结果
+    * 获取rowid。
+    * @return 获取rowid的结果
      */
     public long getRowId() { return rowId; }
 

@@ -5,55 +5,55 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import io.greptime.GreptimeDB;
 
 /**
-   * greptimedb 数据源封装，持有 {@link GreptimeDB} gRPC 客户端实例。
- * <p>
-   * 供 {@link com.chua.greptimedb.support.engine.GreptimeDbEngine} 按名称管理多个 greptimedb 集群。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* greptimedb 数据源封装，持有 {@link GreptimeDB} gRPC 客户端实例。
+* <p>
+* 供 {@link com.chua.greptimedb.support.engine.GreptimeDbEngine} 按名称管理多个 greptimedb 集群。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> {
 
     /**
-     * 数据源名称
+    * 数据源名称
      */
     private final String name;
 
     /**
-     * 底层 gRPC 客户端
+    * 底层 gRPC 客户端
      */
     private GreptimeDB source;
 
     /**
-     * 连接端点
+    * 连接端点
      */
     private final String url;
 
     /**
-     * 用户名
+    * 用户名
      */
     private final String username;
 
     /**
-     * 密码
+    * 密码
      */
     private final String password;
 
     /**
-     * 数据库名
+    * 数据库名
      */
     private final String database;
 
     /**
-     * 构造方法
-     *
-     * @param name     数据源名称
-     * @param url      连接端点
-     * @param username 用户名
-     * @param password 密码
-     * @param database 数据库名
-     * @param source   greptimedb 客户端
+    * 构造方法
+    *
+    * @param name     数据源名称
+    * @param url      连接端点
+    * @param username 用户名
+    * @param password 密码
+    * @param database 数据库名
+    * @param source   greptimedb 客户端
      */
     public GreptimeDbEngineDataSource(String name, String url, String username,
                                        String password, String database, GreptimeDB source) {
@@ -79,10 +79,10 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
 
     @Override
     /**
-     * 设置客户端
-     *
-     * @param source 源
-     * @return 设置源的结果
+    * 设置客户端
+    *
+    * @param source 源
+    * @return 设置源的结果
      */
     @SuppressWarnings("unchecked")
     public EngineDataSource<GreptimeDB> setSource(Object source) {

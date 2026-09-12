@@ -11,22 +11,22 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
-   * SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
-   * 伪响应式实现，jtds 无 R2DBC 驱动。
- *
- * @author CH
- * @since 4.0.0.43
+* SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
+* 伪响应式实现，jtds 无 R2DBC 驱动。
+*
+* @author CH
+* @since 4.0.0.43
  */
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
 
     /**
-     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-     * @param table table
-     * @param cols cols
-     * @param vals vals
-     * @return 插入的结果
-     * @param where where
+    * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+    * @param table table
+    * @param cols cols
+    * @param vals vals
+    * @return 插入的结果
+    * @param where where
      /**
       * 添加数据源。
       * @param name 名称
@@ -44,44 +44,44 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine(); // delegate
 
     /**
-     * 添加数据源。
-     * @param name 名称
-     * @param host 主机
-     * @param port 端口
-     * @param database database
-     * @param username 用户名
-     * @param password 密码
-     * @return 添加数据源的结果
+    * 添加数据源。
+    * @param name 名称
+    * @param host 主机
+    * @param port 端口
+    * @param database database
+    * @param username 用户名
+    * @param password 密码
+    * @return 添加数据源的结果
      */
     public SqlServerLegacyReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
         delegate.addDataSource(name, host, port, database, username, password);
         EngineDataSource<?> ds = delegate.getDataSource(name);
         /**
-         * 查询全部。
-         * @param table table
-         * @return 查询全部的结果
-         * @param cols cols
-         * @param vals vals
+        * 查询全部。
+        * @param table table
+        * @return 查询全部的结果
+        * @param cols cols
+        * @param vals vals
          */
         if (ds != null) {
             registerJdbcDataSource(name, ds.url(), username, password);
         }
         return this;
     /**
-     * 查询全部。
-     * @param table table
-     * @return 查询全部的结果
+    * 查询全部。
+    * @param table table
+    * @return 查询全部的结果
      */
     }
 
     public Flux<Map<String, Object>> queryAll(String table) {
         return query("SELECT * FROM " + safeIdentifier(table));
     /**
-     * 查询where。
-     * @param table table
-     * @param where where
-     * @param params 参数
-     * @return 查询where的结果
+    * 查询where。
+    * @param table table
+    * @param where where
+    * @param params 参数
+    * @return 查询where的结果
      */
     }
 
@@ -107,11 +107,11 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     }
 
     /**
-     * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
-     *
-     * @param id 待校验标识符
-     * @return 去除首尾空白后的标识符
-     * @throws IllegalArgumentException 标识符非法时抛出
+    * 校验并返回安全的 SQL 标识符（仅允许字母、数字、下划线）。
+    *
+    * @param id 待校验标识符
+    * @return 去除首尾空白后的标识符
+    * @throws IllegalArgumentException 标识符非法时抛出
      */
     private String safeIdentifier(String id) {
         if (id == null) {

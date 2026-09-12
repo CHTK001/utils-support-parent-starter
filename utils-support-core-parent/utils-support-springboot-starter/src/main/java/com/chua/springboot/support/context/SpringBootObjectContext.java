@@ -28,62 +28,62 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-   * Spring Boot 集成 对象上下文 — 桥接 Spring application上下文 与核心容器。
- *
- * <p>核心职责：</p>
- * <ul>
- *   <li>将 Spring {@link ApplicationContext} 的 Bean 管理能力暴露给 {@link ObjectContext} 体系</li>
- *   <li>支持 SPI 发现、注解扫描、包扫描等 ObjectContext 标准能力</li>
- *   <li>提供统一的 Bean 查找路径：Spring → 本地注册表 → SPI</li>
- * </ul>
- *
- * <p><b>边界</b>：本类不感知任何具体容器实现（如 OSGi、远程节点），
- * 外部容器由消费方通过 {@link ObjectContext#registerBean(BeanDefinitionRegister)} 自行挂接。</p>
- *
- * <h2>Bean 查找优先级</h2>
- * <pre>
- *   getBean(name, type)
- *     ├─ 1. Spring ApplicationContext.getBean(name, type)
- *     ├─ 2. 本地 BeanDefinitionRegistry.getBean(name, type)
- *     └─ 3. SPI ServiceProvider.getExtension(type)
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* Spring Boot 集成 对象上下文 — 桥接 Spring application上下文 与核心容器。
+*
+* <p>核心职责：</p>
+* <ul>
+*   <li>将 Spring {@link ApplicationContext} 的 Bean 管理能力暴露给 {@link ObjectContext} 体系</li>
+*   <li>支持 SPI 发现、注解扫描、包扫描等 ObjectContext 标准能力</li>
+*   <li>提供统一的 Bean 查找路径：Spring → 本地注册表 → SPI</li>
+* </ul>
+*
+* <p><b>边界</b>：本类不感知任何具体容器实现（如 OSGi、远程节点），
+* 外部容器由消费方通过 {@link ObjectContext#registerBean(BeanDefinitionRegister)} 自行挂接。</p>
+*
+* <h2>Bean 查找优先级</h2>
+* <pre>
+*   getBean(name, type)
+*     ├─ 1. Spring ApplicationContext.getBean(name, type)
+*     ├─ 2. 本地 BeanDefinitionRegistry.getBean(name, type)
+*     └─ 3. SPI ServiceProvider.getExtension(type)
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SpringBootObjectContext implements ObjectContext {
 
     /**
-     * Spring 应用上下文引用
+    * Spring 应用上下文引用
      */
     private final ApplicationContext applicationContext;
 
     /**
-      * 本地 Beandefinitionregistry（用于非 Spring 管理的 Bean）
+    * 本地 Beandefinitionregistry（用于非 Spring 管理的 Bean）
      */
     private final BeanDefinitionRegistry localRegistry;
 
     /**
-     * 环境配置
+    * 环境配置
      */
     private Environment environment;
 
     /**
-      * 事件发布器，每个 springboot对象上下文 实例独立持有
+    * 事件发布器，每个 springboot对象上下文 实例独立持有
      */
     private final EventPublisher eventPublisher = new EventPublisher();
 
     /**
-     * 是否已关闭
+    * 是否已关闭
      */
     private volatile boolean closed = false;
 
     /**
-      * 构造 springboot对象上下文。
-     *
-     * @param applicationContext Spring application上下文
-     * @param config             容器配置
+    * 构造 springboot对象上下文。
+    *
+    * @param applicationContext Spring application上下文
+    * @param config             容器配置
      */
     public SpringBootObjectContext(ApplicationContext applicationContext, ObjectContextConfig config) {
         this.applicationContext = applicationContext;
@@ -243,12 +243,12 @@ public class SpringBootObjectContext implements ObjectContext {
     }
 
     /**
-      * 收集 Bean 上标注了指定注解的方法，包装为 方法definition。
-     *
-     * @param result         输出列表
-     * @param beanName       Bean 名称
-     * @param bean           Bean 实例
-     * @param annotationType 注解类型
+    * 收集 Bean 上标注了指定注解的方法，包装为 方法definition。
+    *
+    * @param result         输出列表
+    * @param beanName       Bean 名称
+    * @param bean           Bean 实例
+    * @param annotationType 注解类型
      */
     private void collectMethodDefinitions(List<MethodDefinition> result, String beanName, Object bean,
                                           Class<? extends Annotation> annotationType) {
@@ -451,9 +451,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Spring ApplicationContext 访问 ====================
 
     /**
-      * 获取 Spring application上下文。
-     *
-     * @return Spring application上下文
+    * 获取 Spring application上下文。
+    *
+    * @return Spring application上下文
      */
     public ApplicationContext getApplicationContext() {
         return applicationContext;
@@ -462,7 +462,7 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== 生命周期 ====================
 
     /**
-     * 关闭上下文，释放资源。
+    * 关闭上下文，释放资源。
      */
     @Override
     public void close() {
@@ -492,9 +492,9 @@ public class SpringBootObjectContext implements ObjectContext {
     // ==================== Spring Environment 适配器 ====================
 
     /**
-      * Spring 环境 适配器 — 将 Spring 的 环境 适配为 对象上下文 的 环境。
-     * @author CH
-     * @since 4.0.0
+    * Spring 环境 适配器 — 将 Spring 的 环境 适配为 对象上下文 的 环境。
+    * @author CH
+    * @since 4.0.0
      */
     private static class SpringBootEnvironment implements Environment {
 

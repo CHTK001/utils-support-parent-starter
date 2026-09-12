@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Composer 软件包管理器提供器。
- *
- * <p>通过 composer CLI 搜索、安装和卸载 PHP 依赖包。
-   * 支持 <code>Composer 搜索</code>、<code>Composer 全局 require</code>、
- * <code>composer global remove</code>。
- *
- * @author CH
- * @since 4.0.0.42
+* Composer 软件包管理器提供器。
+*
+* <p>通过 composer CLI 搜索、安装和卸载 PHP 依赖包。
+* 支持 <code>Composer 搜索</code>、<code>Composer 全局 require</code>、
+* <code>composer global remove</code>。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("composer")
 public class ComposerSoftwareProvider implements SoftwareProvider {
@@ -90,12 +90,12 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 执行命令
-     *
-     * @param cmd CMD
-     * @param action 动作
-     * @param packageId 包标识
-     * @return 执行命令的结果
+    * 执行命令
+    *
+    * @param cmd CMD
+    * @param action 动作
+    * @param packageId 包标识
+    * @return 执行命令的结果
      */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
@@ -123,10 +123,10 @@ public class ComposerSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-     * 解析composer输出
-     *
-     * @param output 输出
-     * @return 解析composer输出的结果
+    * 解析composer输出
+    *
+    * @param output 输出
+    * @return 解析composer输出的结果
      */
     private List<SoftwareInfo> parseComposerOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();

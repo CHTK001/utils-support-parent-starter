@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * HEIC/HEIF 图像写入器 SPI 声明。
- *
- * @author CH
- * @since 4.0.0.42
+* HEIC/HEIF 图像写入器 SPI 声明。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HEICImageWriterSpi extends ImageWriterSpi {
 
@@ -24,7 +24,7 @@ public class HEICImageWriterSpi extends ImageWriterSpi {
     private static final String[] MIMES = {"image/heic", "image/heif"}; // MIMES
 
     /**
-     * heic镜像writerspi。
+    * heic镜像writerspi。
      */
     public HEICImageWriterSpi() {
         super(VENDOR, VERSION, NAMES, SUFFIXES, MIMES,

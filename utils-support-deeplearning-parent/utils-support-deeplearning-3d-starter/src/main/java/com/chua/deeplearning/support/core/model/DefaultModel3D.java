@@ -6,10 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 默认 3D 模型实现
- *
- * @author CH
- * @since 4.0.0.42
+* 默认 3D 模型实现
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultModel3D implements Model3D {
 
@@ -26,12 +26,12 @@ public class DefaultModel3D implements Model3D {
     private byte[] texture;
 
     /**
-      * 创建 默认模型3D 实例
-     * @param name 名称
-     * @param format 模型3d格式化
-     * @param byte byte
-     * @param data 数据
-     * @param format 格式化
+    * 创建 默认模型3D 实例
+    * @param name 名称
+    * @param format 模型3d格式化
+    * @param byte byte
+    * @param data 数据
+    * @param format 格式化
      */
     public DefaultModel3D(String name, Model3DFormat format, byte[] data) {
         this.name = name;

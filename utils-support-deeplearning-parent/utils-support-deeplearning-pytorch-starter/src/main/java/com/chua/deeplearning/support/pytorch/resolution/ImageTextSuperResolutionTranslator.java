@@ -12,15 +12,15 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * 图文超分 Translator（短边对齐后归一化到 [-1,1]）。
- *
- * @author CH
- * @since 4.0.0.42
+* 图文超分 Translator（短边对齐后归一化到 [-1,1]）。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ImageTextSuperResolutionTranslator implements Translator<Image, Image> {
 
     /**
-     * 检测/短边分辨率。
+    * 检测/短边分辨率。
      */
     private final int detectResolution;
 
@@ -30,8 +30,8 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     /**
-      * 创建 镜像文本父resolutiontranslator 实例
-     * @param detectResolution detectresolution
+    * 创建 镜像文本父resolutiontranslator 实例
+    * @param detectResolution detectresolution
      */
     public ImageTextSuperResolutionTranslator(int detectResolution) {
         this.detectResolution = detectResolution;

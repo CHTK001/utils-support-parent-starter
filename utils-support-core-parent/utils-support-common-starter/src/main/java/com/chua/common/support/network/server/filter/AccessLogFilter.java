@@ -6,13 +6,13 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 访问日志过滤器。
- *
- * <p>记录每个请求的访问日志，包括客户端地址、方法、路径、状态码、处理耗时。
- * 适用于所有协议类型，日志输出至 SLF4J。</p>
- *
- * @author CH
- * @since 2024/12/20
+* 访问日志过滤器。
+*
+* <p>记录每个请求的访问日志，包括客户端地址、方法、路径、状态码、处理耗时。
+* 适用于所有协议类型，日志输出至 SLF4J。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 public class AccessLogFilter implements ServerFilter {

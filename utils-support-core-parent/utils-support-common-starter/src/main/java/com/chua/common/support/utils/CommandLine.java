@@ -6,34 +6,34 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 命令行参数解析工具。
- *
- * <p>支持三种参数格式：</p>
- * <ul>
- * <li>{@code --key value} — 长选项带值</li>
- * <li>{@code --flag} — 长选项作为布尔标志</li>
- * <li>{@code --key=value} — 长选项带等号</li>
- * </ul>
- *
- * <p>自动适配长短命令（如 {@code --type} 与 {@code -t}）。
- * 通过 {@link #register(String, String, String, String)} 注册命令元数据后，
- * {@link #help()} 可自动输出帮助信息。</p>
- *
- * <h2>使用示例</h2>
- * <pre>
- * CommandLine cli = CommandLine.parse(args)
- * .register("type", "t", "实现类型", "JdkTcpServer")
- * .register("port", "p", "监听端口", "8888")
- * .register("test", "自检模式")
- * .register("help", "显示帮助");
- * if (cli.isHelp()) {
- * cli.help();
- * return;
- * }
- * </pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 命令行参数解析工具。
+*
+* <p>支持三种参数格式：</p>
+* <ul>
+* <li>{@code --key value} — 长选项带值</li>
+* <li>{@code --flag} — 长选项作为布尔标志</li>
+* <li>{@code --key=value} — 长选项带等号</li>
+* </ul>
+*
+* <p>自动适配长短命令（如 {@code --type} 与 {@code -t}）。
+* 通过 {@link #register(String, String, String, String)} 注册命令元数据后，
+* {@link #help()} 可自动输出帮助信息。</p>
+*
+* <h2>使用示例</h2>
+* <pre>
+* CommandLine cli = CommandLine.parse(args)
+* .register("type", "t", "实现类型", "JdkTcpServer")
+* .register("port", "p", "监听端口", "8888")
+* .register("test", "自检模式")
+* .register("help", "显示帮助");
+* if (cli.isHelp()) {
+* cli.help();
+* return;
+* }
+* </pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class CommandLine {
 
@@ -73,8 +73,8 @@ public class CommandLine {
  private String programName = "java";
 
  /**
-   * 创建 命令线 实例
-   * @param args 参数
+ * 创建 命令线 实例
+ * @param args 参数
   */
  private CommandLine(String[] args) {
  this.args = args == null ? new String[0] : args;
@@ -262,11 +262,11 @@ public class CommandLine {
  }
 
 /**
- * consume值
- *
- * @param index 索引
- * @param token 令牌
- * @return consume值的结果
+* consume值
+*
+* @param index 索引
+* @param token 令牌
+* @return consume值的结果
  */
 private int consumeValue(int index, String token) {
   String value = null;
@@ -283,9 +283,9 @@ private int consumeValue(int index, String token) {
   }
 
  /**
-   * 注册Long
-   *
-   * @param token 令牌
+ * 注册Long
+ *
+ * @param token 令牌
   */
  private void registerLong(String token) {
  String base = token.substring(2);
@@ -297,9 +297,9 @@ private int consumeValue(int index, String token) {
  }
 
  /**
-   * 注册Short
-   *
-   * @param token 令牌
+ * 注册Short
+ *
+ * @param token 令牌
   */
  private void registerShort(String token) {
  String base = token.substring(1);
@@ -311,10 +311,10 @@ private int consumeValue(int index, String token) {
  }
 
  /**
-   * 解析
-   *
-   * @param name 名称
-   * @return resolve的结果
+ * 解析
+ *
+ * @param name 名称
+ * @return resolve的结果
   */
  private String resolve(String name) {
  if (name == null) {
@@ -340,8 +340,8 @@ private int consumeValue(int index, String token) {
 
  /**
  * 命令规格内部类。
-   * @author CH
-   * @since 4.0.0
+ * @author CH
+ * @since 4.0.0
  */
  private static class CommandSpec {
  final String name; // 名称

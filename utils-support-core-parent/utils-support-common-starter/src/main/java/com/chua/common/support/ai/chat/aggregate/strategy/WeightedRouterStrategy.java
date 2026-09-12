@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 权重策略 — 按权重比例随机选择客户端。
- *
- * <p>适用于 API Key 配额不均的场景。使用权重构建概率分布，随机选择。
- * 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
- *
- * @author CH
- * @since 4.0.0.42
+* 权重策略 — 按权重比例随机选择客户端。
+*
+* <p>适用于 API Key 配额不均的场景。使用权重构建概率分布，随机选择。
+* 故障转移由 {@link com.chua.common.support.ai.chat.aggregate.FailoverTemplate} 处理。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("weighted")
 public class WeightedRouterStrategy implements RouterStrategy {

@@ -56,8 +56,8 @@ public class ChronicleWalLog implements WalLog {
     private volatile boolean closed;
 
     /**
-      * 创建 chroniclewal日志 实例
-     * @param config 配置
+    * 创建 chroniclewal日志 实例
+    * @param config 配置
      */
     public ChronicleWalLog(WalConfig config) {
         this.config = config;
@@ -78,10 +78,10 @@ public class ChronicleWalLog implements WalLog {
     }
 
     /**
-     * 解析Dir
-     *
-     * @param config 配置
-     * @return resolveDir的结果
+    * 解析Dir
+    *
+    * @param config 配置
+    * @return resolveDir的结果
      */
     private Path resolveDir(WalConfig config) {
         Path walDir = config.walDir();

@@ -9,31 +9,31 @@ import java.io.OutputStreamWriter;
 import java.util.*;
 
 /**
- * INI 文件写入构建器。
- *
- * <p>支持将 {@code Map<String, Map<String, String>>}（嵌套 Section 结构）
- * 或 {@code List<Map<String, String>>}（含 __section__ 字段的表格格式）
- * 写入为 INI 格式文件。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* INI 文件写入构建器。
+*
+* <p>支持将 {@code Map<String, Map<String, String>>}（嵌套 Section 结构）
+* 或 {@code List<Map<String, String>>}（含 __section__ 字段的表格格式）
+* 写入为 INI 格式文件。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class IniWriteBuilder extends WriteBuilder {
 
     /**
-     * 构造函数。
-     *
-     * @param file 目标文件
+    * 构造函数。
+    *
+    * @param file 目标文件
      */
     public IniWriteBuilder(File file) {
         super(file);
     }
 
     /**
-     * 设置字符集。
-     *
-     * @param charset 字符集名称
-     * @return this
+    * 设置字符集。
+    *
+    * @param charset 字符集名称
+    * @return this
      */
     @Override
     public IniWriteBuilder withCharset(String charset) {
@@ -42,10 +42,10 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 追加待写入数据。
-     *
-     * @param data INI 数据（映射 或 列表&lt;映射&gt;）
-     * @return this
+    * 追加待写入数据。
+    *
+    * @param data INI 数据（映射 或 列表&lt;映射&gt;）
+    * @return this
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -55,7 +55,7 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 完成写入并关闭底层输出流。
+    * 完成写入并关闭底层输出流。
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -95,10 +95,10 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-      * 判断 映射 是否为嵌套 Section 结构（值 也是 映射）。
-     *
-     * @param map 待判断的 映射
-     * @return true 表示嵌套 Section 结构
+    * 判断 映射 是否为嵌套 Section 结构（值 也是 映射）。
+    *
+    * @param map 待判断的 映射
+    * @return true 表示嵌套 Section 结构
      */
     private boolean isNestedSectionMap(Map<String, Object> map) {
         for (Map.Entry<String, Object> e : map.entrySet()) {
@@ -110,10 +110,10 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 写入嵌套 Section 结构（每 Section 做一次行过滤）。
-     *
-     * @param sb       字符串构建器
-     * @param sections Section 数据
+    * 写入嵌套 Section 结构（每 Section 做一次行过滤）。
+    *
+    * @param sb       字符串构建器
+    * @param sections Section 数据
      */
     private void writeNestedMap(StringBuilder sb, Map<String, Map<String, String>> sections) {
         for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
@@ -135,10 +135,10 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 写入单层属性（无 Section），每行独立过滤。
-     *
-     * @param sb   字符串构建器
-     * @param data 单层属性数据
+    * 写入单层属性（无 Section），每行独立过滤。
+    *
+    * @param sb   字符串构建器
+    * @param data 单层属性数据
      */
     private void writeFlatMap(StringBuilder sb, Map<String, Object> data) {
         if (!testRow(data)) {
@@ -151,10 +151,10 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 写入行列表格式（含 __section__）。
-     *
-     * @param sb   字符串构建器
-     * @param rows 行数据列表
+    * 写入行列表格式（含 __section__）。
+    *
+    * @param sb   字符串构建器
+    * @param rows 行数据列表
      */
     private void writeRowList(StringBuilder sb, List<Map<String, Object>> rows) {
         for (Map<String, Object> row : rows) {

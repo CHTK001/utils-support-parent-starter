@@ -12,55 +12,55 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * CSV 文件 -> {@link WekaInstanceData} 加载器。
- *
- * <p>按逗号分隔解析（支持双引号包裹与 "" 转义），自动推断各列类型：
- * 非空值均可解析为数值时推断为数值特征，否则推断为类别特征。
- * 加载结果不含标签 / 目标列，需通过 {@link WekaInstanceData#withLabelColumn(String)} 或
- * {@link WekaInstanceData#withTargetColumn(String)} 指定。</p>
- *
- * <p>使用示例（CSV 内容：age,city,label）：</p>
- * <pre>{@code
- * // 30,北京,高
- * // 45,上海,低
- * WekaInstanceData data = WekaCsvLoader.load(Path.of("data.csv"))
- *         .withLabelColumn("label");      // 分类：标签列是名义值
- * // 回归场景：.withTargetColumn("amount")
- * }</pre>mn("amount")
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* CSV 文件 -> {@link WekaInstanceData} 加载器。
+*
+* <p>按逗号分隔解析（支持双引号包裹与 "" 转义），自动推断各列类型：
+* 非空值均可解析为数值时推断为数值特征，否则推断为类别特征。
+* 加载结果不含标签 / 目标列，需通过 {@link WekaInstanceData#withLabelColumn(String)} 或
+* {@link WekaInstanceData#withTargetColumn(String)} 指定。</p>
+*
+* <p>使用示例（CSV 内容：age,city,label）：</p>
+* <pre>{@code
+* // 30,北京,高
+* // 45,上海,低
+* WekaInstanceData data = WekaCsvLoader.load(Path.of("data.csv"))
+*         .withLabelColumn("label");      // 分类：标签列是名义值
+* // 回归场景：.withTargetColumn("amount")
+* }</pre>mn("amount")
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class WekaCsvLoader {
 
     /**
-     * wekacsv加载。
+    * wekacsv加载。
      */
     private WekaCsvLoader() {
         throw new UnsupportedOperationException("工具类，禁止实例化");
     }
 
     /**
-     * 读取带表头的 CSV 文件（第一行作为列名）。
-     *
-     * @param csvFile CSV 文件路径，不能为 空
-     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
-     * @throws NullPointerException 当文件路径为 空 时
-     * @throws WekaException        文件读取失败或数据行为空
+    * 读取带表头的 CSV 文件（第一行作为列名）。
+    *
+    * @param csvFile CSV 文件路径，不能为 空
+    * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
+    * @throws NullPointerException 当文件路径为 空 时
+    * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile) {
         return load(csvFile, true);
     }
 
     /**
-     * 读取 CSV 文件。
-     *
-     * @param csvFile   CSV 文件路径，不能为 空
-     * @param hasHeader 第一行是否为表头（true 时第一行解析为列名，否则列名按 col_0 / col_1 生成）
-     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
-     * @throws NullPointerException 当文件路径为 空 时
-     * @throws WekaException        文件读取失败或数据行为空
+    * 读取 CSV 文件。
+    *
+    * @param csvFile   CSV 文件路径，不能为 空
+    * @param hasHeader 第一行是否为表头（true 时第一行解析为列名，否则列名按 col_0 / col_1 生成）
+    * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
+    * @throws NullPointerException 当文件路径为 空 时
+    * @throws WekaException        文件读取失败或数据行为空
      */
     public static WekaInstanceData load(Path csvFile, boolean hasHeader) {
         Objects.requireNonNull(csvFile, "csvFile must not be null");
@@ -124,20 +124,20 @@ public final class WekaCsvLoader {
     }
 
     /**
-     * 去除行首 UTF-8 BOM 字符（若存在），原样返回无前缀字符串
-     *
-     * @param value 值
-     * @return stripBOM的结果
+    * 去除行首 UTF-8 BOM 字符（若存在），原样返回无前缀字符串
+    *
+    * @param value 值
+    * @return stripBOM的结果
      */
     private static String stripBom(String value) {
         return value.startsWith("\uFEFF") ? value.substring(1) : value;
     }
 
     /**
-     * 按逗号拆分一行 CSV，支持双引号包裹字段与 "" 转义。
-     *
-     * @param line CSV 行
-     * @return 字段列表
+    * 按逗号拆分一行 CSV，支持双引号包裹字段与 "" 转义。
+    *
+    * @param line CSV 行
+    * @return 字段列表
      */
     private static List<String> splitLine(String line) {
         List<String> out = new ArrayList<>();

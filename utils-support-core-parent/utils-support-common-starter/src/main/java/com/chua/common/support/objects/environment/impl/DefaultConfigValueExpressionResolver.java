@@ -7,18 +7,18 @@ import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 默认配置值表达式解析器，处理 {@code ${key:default}} 占位符格式。
- *
- * <p>解析规则：
- * <ol>
- *   <li>提取 {@code ${}} 包裹的键名</li>
- *   <li>从 {@code :} 分隔默认值（如 {@code ${server.port:8080}}）</li>
- *   <li>调用 {@link Environment#getProperty(String, Class)} 获取值</li>
- *   <li>未找到时回退到默认值</li>
- * </ol></p>
- *
- * @author CH
- * @since 2024/12/20
+* 默认配置值表达式解析器，处理 {@code ${key:default}} 占位符格式。
+*
+* <p>解析规则：
+* <ol>
+*   <li>提取 {@code ${}} 包裹的键名</li>
+*   <li>从 {@code :} 分隔默认值（如 {@code ${server.port:8080}}）</li>
+*   <li>调用 {@link Environment#getProperty(String, Class)} 获取值</li>
+*   <li>未找到时回退到默认值</li>
+* </ol></p>
+*
+* @author CH
+* @since 2024/12/20
  */
 @Slf4j
 @Spi("default")
@@ -40,12 +40,12 @@ public class DefaultConfigValueExpressionResolver implements ConfigValueExpressi
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 解析
-     *
-     * @param expression expression
-     * @param targetType Target类型
-     * @param environment 环境
-     * @return resolve的结果
+    * 解析
+    *
+    * @param expression expression
+    * @param targetType Target类型
+    * @param environment 环境
+    * @return resolve的结果
      */
     public <T> T resolve(String expression, Class<T> targetType, Environment environment) {
         if (expression == null || environment == null) {

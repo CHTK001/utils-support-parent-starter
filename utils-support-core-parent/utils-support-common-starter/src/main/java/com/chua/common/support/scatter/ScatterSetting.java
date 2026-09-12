@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * scatter 配置。
- *
- * <p><b>模式</b>（tcp 双模式）：</p>
- * <ul>
- *   <li>路由模式：{@code subnet} 非空，网段内 gossip 探测扩散；</li>
- *   <li>seed 引导模式：{@code seeds} 非空，仅与 seed 同步 hash、seed 扩散、最小 nodeId 选举。</li>
- * </ul>
- *
- * <p><b>SPI 注入</b>（未启动前设置）：{@code spiName} 指定实现（如 "tcp"/"vertx-tcp"），
- * 或直接注入 {@code server}/{@code client} 实现对象；都为空则默认 jdk 实现。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* scatter 配置。
+*
+* <p><b>模式</b>（tcp 双模式）：</p>
+* <ul>
+*   <li>路由模式：{@code subnet} 非空，网段内 gossip 探测扩散；</li>
+*   <li>seed 引导模式：{@code seeds} 非空，仅与 seed 同步 hash、seed 扩散、最小 nodeId 选举。</li>
+* </ul>
+*
+* <p><b>SPI 注入</b>（未启动前设置）：{@code spiName} 指定实现（如 "tcp"/"vertx-tcp"），
+* 或直接注入 {@code server}/{@code client} 实现对象；都为空则默认 jdk 实现。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 public class ScatterSetting {
@@ -76,9 +76,9 @@ public class ScatterSetting {
     private int gossipTargetCount = 4;
 
     /**
-      * 对外宣告地址：announce主机 非空时优先，否则回落 主机。
-     *
-     * @return 宣告地址
+    * 对外宣告地址：announce主机 非空时优先，否则回落 主机。
+    *
+    * @return 宣告地址
      */
     public String effectiveHost() {
         return announceHost == null || announceHost.isBlank() ? host : announceHost;

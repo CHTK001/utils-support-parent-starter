@@ -14,34 +14,34 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 代理池内存存储。
- *
- * @author CH
- * @since 4.0.0.42
+* 代理池内存存储。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SpiderProxyPoolStore {
 
     /**
-      * 自增 标识 生成器
+    * 自增 标识 生成器
      */
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     /**
-     * 代理池编码 -> 代理池映射
+    * 代理池编码 -> 代理池映射
      */
     private final Map<String, SpiderProxyPool> storage = new ConcurrentHashMap<>();
 
     /**
-     * 轮询计数器（按代理池隔离）
+    * 轮询计数器（按代理池隔离）
      */
     private final Map<String, AtomicLong> roundCounters = new ConcurrentHashMap<>();
 
     /**
-     * 分页查询代理池。
-     * @param pageNo pageno
-     * @param pageSize page大小
-     * @param keyword keyword
-     * @return page的结果
+    * 分页查询代理池。
+    * @param pageNo pageno
+    * @param pageSize page大小
+    * @param keyword keyword
+    * @return page的结果
      */
     public PageResult<SpiderProxyPool> page(int pageNo, int pageSize, String keyword) {
         List<SpiderProxyPool> all = new ArrayList<>(storage.values());
@@ -59,18 +59,18 @@ public class SpiderProxyPoolStore {
     }
 
     /**
-     * 按编码查询代理池。
-     * @param poolCode 游泳池编码
-     * @return 获取的结果
+    * 按编码查询代理池。
+    * @param poolCode 游泳池编码
+    * @return 获取的结果
      */
     public SpiderProxyPool get(String poolCode) {
         return storage.get(poolCode);
     }
 
     /**
-     * 保存或更新代理池。
-     * @param pool 游泳池
-     * @return 保存的结果
+    * 保存或更新代理池。
+    * @param pool 游泳池
+    * @return 保存的结果
      */
     public SpiderProxyPool save(SpiderProxyPool pool) {
         if (pool.getPoolId() == null) {
@@ -81,9 +81,9 @@ public class SpiderProxyPoolStore {
     }
 
     /**
-     * 删除代理池。
-     * @param poolCode 游泳池编码
-     * @return 移除的结果
+    * 删除代理池。
+    * @param poolCode 游泳池编码
+    * @return 移除的结果
      */
     public boolean remove(String poolCode) {
         if (storage.remove(poolCode) != null) {
@@ -94,11 +94,11 @@ public class SpiderProxyPoolStore {
     }
 
     /**
-     * 从池中挑选一个代理。
-     *
-     * <p>ROUND 策略按顺序轮询；RANDOM 策略随机选取。</p>
-     * @param poolCode 游泳池编码
-     * @return 下一个代理的结果
+    * 从池中挑选一个代理。
+    *
+    * <p>ROUND 策略按顺序轮询；RANDOM 策略随机选取。</p>
+    * @param poolCode 游泳池编码
+    * @return 下一个代理的结果
      */
     public SpiderProxy nextProxy(String poolCode) {
         SpiderProxyPool pool = storage.get(poolCode);
@@ -117,7 +117,7 @@ public class SpiderProxyPoolStore {
     }
 
     /**
-     * 分页结果。
+    * 分页结果。
      */
     public record PageResult<T>(
             List<T> records,

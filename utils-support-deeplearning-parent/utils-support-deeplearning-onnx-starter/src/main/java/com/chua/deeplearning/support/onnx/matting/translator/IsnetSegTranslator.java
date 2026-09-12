@@ -15,46 +15,46 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
 /**
-   * 是否net/Anime 类通用分割 Translator：1024x1024 输入，不做 镜像net 归一化。
- *
- * @author CH
- * @since 4.0.0
- * @param mask mask
- * @param bgValue bg值
- * @return 创建rgb镜像的结果
- * @param input 输入
- * @param tw tw
- * @param th th
- * @param ctx ctx
- * @param list 列表
+* 是否net/Anime 类通用分割 Translator：1024x1024 输入，不做 镜像net 归一化。
+*
+* @author CH
+* @since 4.0.0
+* @param mask mask
+* @param bgValue bg值
+* @return 创建rgb镜像的结果
+* @param input 输入
+* @param tw tw
+* @param th th
+* @param ctx ctx
+* @param list 列表
  */
 public final class IsnetSegTranslator implements Translator<Image, Image> {
 
     /**
-      * isnetsegtranslator。
+    * isnetsegtranslator。
      */
     private static final int SIZE = 1024;
     private static final MattingTranslator.MattingMode DEFAULT_MODE =
             MattingTranslator.MattingMode.RGBA;
 
     /**
-      * isnetsegtranslator。
-     * @param mode mode
+    * isnetsegtranslator。
+    * @param mode mode
      */
     private final MattingTranslator.MattingMode mode;
     private int width, height; // height
     private BufferedImage originalImage; // 原始镜像
 
     /**
-     * IsnetSegTranslator。
+    * IsnetSegTranslator。
      */
     public IsnetSegTranslator() {
         /**
-         * 处理输入。
-         * @param ctx ctx
-         * @param input 输入
-         * @return 处理输入的结果
-         * @param mode mode
+        * 处理输入。
+        * @param ctx ctx
+        * @param input 输入
+        * @return 处理输入的结果
+        * @param mode mode
          */
         this(DEFAULT_MODE);
     }
@@ -120,11 +120,11 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         return switch (mode) {
             case RGBA -> createRgbaImage(mask);
             /**
-             * 转为缓冲镜像。
-             * @param input 输入
-             * @return 转为缓冲镜像的结果
-             * @param tw tw
-             * @param th th
+            * 转为缓冲镜像。
+            * @param input 输入
+            * @return 转为缓冲镜像的结果
+            * @param tw tw
+            * @param th th
              */
             case RGB_BLACK_BG -> createRgbImage(mask, 0);
             case RGB_WHITE_BG -> createRgbImage(mask, 255);
@@ -151,10 +151,10 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
         g.drawImage(src, 0, 0, tw, th, null);
         g.dispose();
         /**
-         * 创建alphaonly镜像。
-         * @param mask mask
-         * @return 创建alphaonly镜像的结果
-         * @param bgValue bg值
+        * 创建alphaonly镜像。
+        * @param mask mask
+        * @return 创建alphaonly镜像的结果
+        * @param bgValue bg值
          */
         return resized;
     }

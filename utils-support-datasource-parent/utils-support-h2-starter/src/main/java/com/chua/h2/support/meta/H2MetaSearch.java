@@ -18,15 +18,15 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * H2 搜索引擎元数据操作实现（H2 2.x）。
- * <p>
-   * H2 2.x 已移除内置全文检索引擎（文本 索引 / CATSEARCH），
- * 检索门面降级为普通索引管理：索引通过 {@code CREATE INDEX} 创建，
- * 关键字查询由调用方以 {@code LIKE} 方式执行。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* H2 搜索引擎元数据操作实现（H2 2.x）。
+* <p>
+* H2 2.x 已移除内置全文检索引擎（文本 索引 / CATSEARCH），
+* 检索门面降级为普通索引管理：索引通过 {@code CREATE INDEX} 创建，
+* 关键字查询由调用方以 {@code LIKE} 方式执行。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class H2MetaSearch extends AbstractMetaSearch {
 
@@ -34,10 +34,10 @@ public class H2MetaSearch extends AbstractMetaSearch {
     private final H2SearchEngineImpl searchEngine; // 搜索engine
 
     /**
-     * 构造方法。
-     *
-     * @param metaData 元数据入口
-     * @param engine   引擎实例
+    * 构造方法。
+    *
+    * @param metaData 元数据入口
+    * @param engine   引擎实例
      */
     public H2MetaSearch(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
@@ -86,10 +86,10 @@ public class H2MetaSearch extends AbstractMetaSearch {
 
     // ==================== 内部构建器 ====================
      /**
-      * h2创建索引构建器类。
-      *
-      * @author CH
-      * @since 4.0.0
+     * h2创建索引构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
       */
      * 搜索字段构建器impl类。
      *
@@ -109,9 +109,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
         H2CreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         /**
-         * shards。
-         * @param shards shards
-         * @return shards的结果
+        * shards。
+        * @param shards shards
+        * @return shards的结果
          */
         }
 
@@ -120,9 +120,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
             this.shards = shards;
             return this;
         /**
-         * replicas。
-         * @param replicas replicas
-         * @return replicas的结果
+        * replicas。
+        * @param replicas replicas
+        * @return replicas的结果
          */
         }
 
@@ -131,10 +131,10 @@ public class H2MetaSearch extends AbstractMetaSearch {
             this.replicas = replicas;
             return this;
         /**
-         * 字段。
-         * @param name 名称
-         * @param type 类型
-         * @return 字段的结果
+        * 字段。
+        * @param name 名称
+        * @param type 类型
+        * @return 字段的结果
          */
         }
 
@@ -146,11 +146,11 @@ public class H2MetaSearch extends AbstractMetaSearch {
             fields.add(field);
             return this;
         /**
-         * 字段。
-         * @param name 名称
-         * @param type 类型
-         * @param config 配置
-         * @return 字段的结果
+        * 字段。
+        * @param name 名称
+        * @param type 类型
+        * @param config 配置
+        * @return 字段的结果
          */
         }
 
@@ -168,9 +168,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
             fields.add(field);
             return this;
         /**
-         * 字段。
-         * @param fields 字段
-         * @return 字段的结果
+        * 字段。
+        * @param fields 字段
+        * @return 字段的结果
          */
         }
 
@@ -179,13 +179,13 @@ public class H2MetaSearch extends AbstractMetaSearch {
             this.fields.addAll(fields);
             return this;
         /**
-         * settings。
-         * @param settings settings
-         * @return settings的结果
-         * @author CH
-         * @since 4.0.0
-         * @param type 类型
-         * @param mappings mappings
+        * settings。
+        * @param settings settings
+        * @return settings的结果
+        * @author CH
+        * @since 4.0.0
+        * @param type 类型
+        * @param mappings mappings
          */
         }
 

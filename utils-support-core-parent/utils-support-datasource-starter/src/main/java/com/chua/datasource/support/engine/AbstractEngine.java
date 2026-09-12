@@ -28,30 +28,30 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 抽象引擎基类，提供默认的 Engine 接口实现。
- * <p>
- * 子类只需实现 {@link #executeNewQuery} 方法即可获得完整的 ORM 能力。
-   * 更新/删除 操作默认基于内存 数据存储 执行，子类可重写
- * {@link #executeUpdate} 和 {@link #executeDelete} 实现真实数据库操作。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 抽象引擎基类，提供默认的 Engine 接口实现。
+* <p>
+* 子类只需实现 {@link #executeNewQuery} 方法即可获得完整的 ORM 能力。
+* 更新/删除 操作默认基于内存 数据存储 执行，子类可重写
+* {@link #executeUpdate} 和 {@link #executeDelete} 实现真实数据库操作。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public abstract class AbstractEngine implements Engine {
 
     /**
-     * 内存数据存储映射表，键为表名，值为数据列表。
+    * 内存数据存储映射表，键为表名，值为数据列表。
      */
     protected final Map<String, List<?>> dataStores = new ConcurrentHashMap<>();
 
     /**
-     * 数据源映射表，存储所有注册的数据源。
+    * 数据源映射表，存储所有注册的数据源。
      */
     protected final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
-     * 默认数据源名称。
+    * 默认数据源名称。
      */
     protected String defaultDataSourceName;
 
@@ -76,11 +76,11 @@ public abstract class AbstractEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 添加数据源
-     *
-     * @param name 名称
-     * @param ds ds
-     * @return 添加数据源的结果
+    * 添加数据源
+    *
+    * @param name 名称
+    * @param ds ds
+    * @return 添加数据源的结果
      */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         dataSources.put(name, (EngineDataSource<Object>) ds);
@@ -122,10 +122,10 @@ public abstract class AbstractEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取数据源
-     *
-     * @param n n
-     * @return 获取数据源的结果
+    * 获取数据源
+    *
+    * @param n n
+    * @return 获取数据源的结果
      */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
@@ -134,9 +134,9 @@ public abstract class AbstractEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 获取数据源
-     *
-     * @return 获取数据源的结果
+    * 获取数据源
+    *
+    * @return 获取数据源的结果
      */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
@@ -162,9 +162,9 @@ public abstract class AbstractEngine implements Engine {
 
     @Override
     /**
-     * 关闭引擎，释放所有已注册数据源的底层资源。
-     *
-     * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
+    * 关闭引擎，释放所有已注册数据源的底层资源。
+    *
+    * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
      */
     public void close() {
         for (EngineDataSource<?> ds : dataSources.values()) {
@@ -212,47 +212,47 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 创建新版查询包装器。
-     *
-     * @param entityClass 实体类类型
-     * @param <T>         实体类型
-     * @return 查询包装器
+    * 创建新版查询包装器。
+    *
+    * @param entityClass 实体类类型
+    * @param <T>         实体类型
+    * @return 查询包装器
      */
     public <T> EngineQueryWrapper<T> queryNew(Class<T> entityClass) {
         return new EngineQueryWrapper<>(this, entityClass);
     }
 
     /**
-     * 执行新版查询。
-     *
-     * @param wrapper 查询包装器
-     * @param <T>     实体类型
-     * @return 查询结果
+    * 执行新版查询。
+    *
+    * @param wrapper 查询包装器
+    * @param <T>     实体类型
+    * @return 查询结果
      */
     public <T> List<T> execute(EngineQueryWrapper<T> wrapper) {
         return executeQuery(wrapper, wrapper.getEntityClass());
     }
 
     /**
-     * 分页执行新版查询。
-     *
-     * @param wrapper 查询包装器
-     * @param pn      页码
-     * @param ps      每页大小
-     * @param <T>     实体类型
-     * @return 分页结果
+    * 分页执行新版查询。
+    *
+    * @param wrapper 查询包装器
+    * @param pn      页码
+    * @param ps      每页大小
+    * @param <T>     实体类型
+    * @return 分页结果
      */
     public <T> Page<T> executePage(EngineQueryWrapper<T> wrapper, int pn, int ps) {
         return executePage(wrapper, wrapper.getEntityClass(), pn, ps);
     }
 
     /**
-     * 执行旧版查询。
-     *
-     * @param wrapper     查询包装器
-     * @param entityClass 实体类类型
-     * @param <T>         实体类型
-     * @return 查询结果
+    * 执行旧版查询。
+    *
+    * @param wrapper     查询包装器
+    * @param entityClass 实体类类型
+    * @param <T>         实体类型
+    * @return 查询结果
      */
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
@@ -282,13 +282,13 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-      * 按 订单 BY 列表比较两个对象。
-     *
-     * @param a        对象 A
-     * @param b        对象 B
-     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
-     * @param <T>      对象类型
-     * @return 比较结果
+    * 按 订单 BY 列表比较两个对象。
+    *
+    * @param a        对象 A
+    * @param b        对象 B
+    * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
+    * @param <T>      对象类型
+    * @return 比较结果
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> int compareOrdered(T a, T b, List<String> orderBys) {
@@ -318,25 +318,25 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 通过反射获取对象属性值。
-     *
-     * @param bean  对象实例
-     * @param field 字段名
-     * @return 属性值，获取失败返回 空
+    * 通过反射获取对象属性值。
+    *
+    * @param bean  对象实例
+    * @param field 字段名
+    * @return 属性值，获取失败返回 空
      */
     private static Object getPropertyValue(Object bean, String field) {
         return MethodCache.getValue(bean, field);
     }
 
     /**
-     * 分页执行旧版查询。
-     *
-     * @param wrapper 查询包装器
-     * @param ec      实体类类型
-     * @param pn      页码
-     * @param ps      每页大小
-     * @param <T>     实体类型
-     * @return 分页结果
+    * 分页执行旧版查询。
+    *
+    * @param wrapper 查询包装器
+    * @param ec      实体类类型
+    * @param pn      页码
+    * @param ps      每页大小
+    * @param <T>     实体类型
+    * @return 分页结果
      */
     public <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, Class<T> ec, int pn, int ps) {
         List<T> all = executeQuery(wrapper, ec);
@@ -349,36 +349,36 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 执行基于 WHERE 条件的查询。
-     *
-     * @param where       WHERE 子句
-     * @param params      参数值数组
-     * @param entityClass 实体类类型
-     * @param <T>         实体类型
-     * @return 查询结果
+    * 执行基于 WHERE 条件的查询。
+    *
+    * @param where       WHERE 子句
+    * @param params      参数值数组
+    * @param entityClass 实体类类型
+    * @param <T>         实体类型
+    * @return 查询结果
      */
     protected abstract <T> List<T> executeNewQuery(
             String where, Object[] params, Class<T> entityClass, int limit, int offset);
 
     /**
-     * 执行更新操作。
-     * <p>默认调用内存实现，子类可重写。</p>
-     *
-     * @param sql  更新 SQL 信息
-     * @param <T>  实体类型
-     * @return 影响行数
+    * 执行更新操作。
+    * <p>默认调用内存实现，子类可重写。</p>
+    *
+    * @param sql  更新 SQL 信息
+    * @param <T>  实体类型
+    * @return 影响行数
      */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         return executeUpdateInMemory(sql);
     }
 
     /**
-     * 执行删除操作。
-     * <p>默认调用内存实现，子类可重写。</p>
-     *
-     * @param sql  删除 SQL 信息
-     * @param <T>  实体类型
-     * @return 影响行数
+    * 执行删除操作。
+    * <p>默认调用内存实现，子类可重写。</p>
+    *
+    * @param sql  删除 SQL 信息
+    * @param <T>  实体类型
+    * @return 影响行数
      */
     public <T> int executeDelete(DeleteSql<T> sql) {
         return executeDeleteInMemory(sql);
@@ -386,10 +386,10 @@ public abstract class AbstractEngine implements Engine {
 
     @SuppressWarnings("unchecked")
     /**
-     * 执行更新入内存
-     *
-     * @param sql SQL
-     * @return 执行更新入内存的结果
+    * 执行更新入内存
+    *
+    * @param sql SQL
+    * @return 执行更新入内存的结果
      */
     private <T> int executeUpdateInMemory(UpdateSql<T> sql) {
         List<T> data = getData(sql.entityClass());
@@ -438,10 +438,10 @@ public abstract class AbstractEngine implements Engine {
 
     @SuppressWarnings("unchecked")
     /**
-     * 执行删除入内存
-     *
-     * @param sql SQL
-     * @return 执行删除入内存的结果
+    * 执行删除入内存
+    *
+    * @param sql SQL
+    * @return 执行删除入内存的结果
      */
     private <T> int executeDeleteInMemory(DeleteSql<T> sql) {
         List<T> data = getData(sql.entityClass());
@@ -472,22 +472,22 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 为对象的字段设置值（基于反射）。
-     *
-     * @param obj   目标对象
-     * @param field 字段名
-     * @param value 字段值
+    * 为对象的字段设置值（基于反射）。
+    *
+    * @param obj   目标对象
+    * @param field 字段名
+    * @param value 字段值
      */
     private void setFieldValue(Object obj, String field, Object value) {
         MethodCache.setValue(obj, field, value);
     }
 
     /**
-     * 获取指定实体类对应的数据列表。
-     *
-     * @param entityClass 实体类
-     * @param <T>         实体类型
-     * @return 数据列表
+    * 获取指定实体类对应的数据列表。
+    *
+    * @param entityClass 实体类
+    * @param <T>         实体类型
+    * @return 数据列表
      */
     @SuppressWarnings("unchecked")
     protected <T> List<T> getData(Class<T> entityClass) {
@@ -504,25 +504,25 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 将实体类名称转为表名（驼峰转下划线）。
-     * <p>实体类标注 {@link TableName} 时优先使用注解值。</p>
-     *
-     * @param entityClass 实体类
-     * @param <T>         实体类型
-     * @return 表名
+    * 将实体类名称转为表名（驼峰转下划线）。
+    * <p>实体类标注 {@link TableName} 时优先使用注解值。</p>
+    *
+    * @param entityClass 实体类
+    * @param <T>         实体类型
+    * @return 表名
      */
     protected <T> String getTableName(Class<T> entityClass) {
         return resolveTableName(entityClass);
     }
 
     /**
-     * 解析实体类对应的表名。
-     * <p>优先读取 {@link TableName} 注解；未标注时将驼峰命名
-      * 转换为下划线命名（如 my用户 → my_用户）。</p>
-     *
-     * @param entityClass 实体类
-     * @param <T>         实体类型
-     * @return 表名
+    * 解析实体类对应的表名。
+    * <p>优先读取 {@link TableName} 注解；未标注时将驼峰命名
+    * 转换为下划线命名（如 my用户 → my_用户）。</p>
+    *
+    * @param entityClass 实体类
+    * @param <T>         实体类型
+    * @return 表名
      */
     public static <T> String resolveTableName(Class<T> entityClass) {
         TableName annotation = entityClass.getAnnotation(TableName.class);
@@ -543,22 +543,22 @@ public abstract class AbstractEngine implements Engine {
     /* ==================== 能力入口（与 meta() 同模式） ==================== */
 
     /**
-     * 获取 DDL 管理器入口（与 meta() 同模式）。
-     * <p>默认实现抛出 UnsupportedOperationException，由具备
-     * DDL 管理能力的引擎子类或 SPI 环境覆盖。</p>
-     *
-     * @return DdlManager 实例
+    * 获取 DDL 管理器入口（与 meta() 同模式）。
+    * <p>默认实现抛出 UnsupportedOperationException，由具备
+    * DDL 管理能力的引擎子类或 SPI 环境覆盖。</p>
+    *
+    * @return DdlManager 实例
      */
     public DslManager ddl() {
         throw new UnsupportedOperationException("当前引擎不支持 DDL 管理");
     }
 
     /**
-     * 获取用户管理器入口（与 meta() 同模式）。
-     * <p>默认实现抛出 UnsupportedOperationException，由具备
-     * 用户管理能力的引擎子类或 SPI 环境覆盖。</p>
-     *
-     * @return UserManager 实例
+    * 获取用户管理器入口（与 meta() 同模式）。
+    * <p>默认实现抛出 UnsupportedOperationException，由具备
+    * 用户管理能力的引擎子类或 SPI 环境覆盖。</p>
+    *
+    * @return UserManager 实例
      */
     public UserManager user() {
         throw new UnsupportedOperationException("当前引擎不支持用户管理");

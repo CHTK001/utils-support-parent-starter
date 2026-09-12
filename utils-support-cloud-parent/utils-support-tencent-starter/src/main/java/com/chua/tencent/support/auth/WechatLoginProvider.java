@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * @author CH
- * @since 4.0.0.42
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi("wechat")
@@ -45,8 +45,8 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     /**
-      * 创建 wechatlogin提供者 实例
-     * @param config 配置
+    * 创建 wechatlogin提供者 实例
+    * @param config 配置
      */
     public WechatLoginProvider(TenpayConfig config) {
         this.config = config;
@@ -55,9 +55,9 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     /**
-     * 构建ma服务
-     *
-     * @return 构建ma服务的结果
+    * 构建ma服务
+    *
+    * @return 构建ma服务的结果
      */
     private WxMaService buildMaService() {
         if (config == null || config.getAppId() == null || config.getAppSecret() == null) {
@@ -72,9 +72,9 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     /**
-     * 构建mp服务
-     *
-     * @return 构建mp服务的结果
+    * 构建mp服务
+    *
+    * @return 构建mp服务的结果
      */
     private WxMpService buildMpService() {
         if (config == null || config.getAppId() == null || config.getAppSecret() == null) {
@@ -116,10 +116,10 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     /**
-     * malogin
-     *
-     * @param code 编码
-     * @return maLogin的结果
+    * malogin
+    *
+    * @param code 编码
+    * @return maLogin的结果
      */
     private LoginResponse maLogin(String code) {
         if (wxMaService == null) {
@@ -138,10 +138,10 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     /**
-     * mplogin
-     *
-     * @param code 编码
-     * @return mpLogin的结果
+    * mplogin
+    *
+    * @param code 编码
+    * @return mpLogin的结果
      */
     private LoginResponse mpLogin(String code) {
         if (wxMpService == null) {

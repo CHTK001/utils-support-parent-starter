@@ -14,13 +14,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-   * 基于 Vert.x net客户端 的短连接 tcp客户端 实现。
- *
- * <p>{@link #call(String, int, byte[])}：connect → send 请求帧 → 等待响应帧 → close，
- * 一请求一响应一断（短连接）。用于 scatter 等需要短连接的场景。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 基于 Vert.x net客户端 的短连接 tcp客户端 实现。
+*
+* <p>{@link #call(String, int, byte[])}：connect → send 请求帧 → 等待响应帧 → close，
+* 一请求一响应一断（短连接）。用于 scatter 等需要短连接的场景。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class VertxTcpClient implements TcpClient {
 
@@ -28,7 +28,7 @@ public class VertxTcpClient implements TcpClient {
     private final NetClient netClient; // net客户端
 
     /**
-     * vertxtcp客户端。
+    * vertxtcp客户端。
      */
     public VertxTcpClient() {
         this.vertx = Vertx.vertx(new VertxOptions()

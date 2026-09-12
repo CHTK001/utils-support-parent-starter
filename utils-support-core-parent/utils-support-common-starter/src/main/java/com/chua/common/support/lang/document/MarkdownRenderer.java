@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Markdown 文档导出器。
- *
- * <p>通过 {@link DocumentTemplate} SPI 加载模板文件渲染。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* Markdown 文档导出器。
+*
+* <p>通过 {@link DocumentTemplate} SPI 加载模板文件渲染。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("markdown")
 public class MarkdownRenderer implements DocumentProvider {

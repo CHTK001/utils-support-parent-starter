@@ -11,37 +11,37 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
- * 系统日志服务门面 - 跨平台系统日志检索的统一入口
- * <p>
-   * 自动检测当前运行平台并选择对应的 系统日志提供者 实现：
- * <ul>
- *   <li>Windows : WindowsEventLogProvider (advapi32 FFM)</li>
- *   <li>Linux   : LinuxJournaldProvider (libsystemd FFM + /var/log)</li>
- *   <li>macOS   : MacOSUnifiedLogProvider (log show + /var/log)</li>
- * </ul>
- * </p>
- *
- * <h3>快速使用：</h3>
- * <pre>{@code
- * // 搜索包含 "disk" 的错误日志，最多返回 50 条
- * List<LogEntry> entries = SystemLogService.getInstance()
- *         .search("disk", LogLevel.ERROR, 50);
- *
- * // 高级查询
- * LogQuery query = LogQuery.builder()
- *         .source("System")
- *         .pattern("*.dll")
- *         .minLevel(LogLevel.WARNING)
- *         .maxResults(100)
- *         .build();
- * List<LogEntry> results = SystemLogService.getInstance().search(query);
- * }</pre>        .maxResults(100)
- *         .build();
- * List<LogEntry> results = SystemLogService.getInstance().search(query);
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 系统日志服务门面 - 跨平台系统日志检索的统一入口
+* <p>
+* 自动检测当前运行平台并选择对应的 系统日志提供者 实现：
+* <ul>
+*   <li>Windows : WindowsEventLogProvider (advapi32 FFM)</li>
+*   <li>Linux   : LinuxJournaldProvider (libsystemd FFM + /var/log)</li>
+*   <li>macOS   : MacOSUnifiedLogProvider (log show + /var/log)</li>
+* </ul>
+* </p>
+*
+* <h3>快速使用：</h3>
+* <pre>{@code
+* // 搜索包含 "disk" 的错误日志，最多返回 50 条
+* List<LogEntry> entries = SystemLogService.getInstance()
+*         .search("disk", LogLevel.ERROR, 50);
+*
+* // 高级查询
+* LogQuery query = LogQuery.builder()
+*         .source("System")
+*         .pattern("*.dll")
+*         .minLevel(LogLevel.WARNING)
+*         .maxResults(100)
+*         .build();
+* List<LogEntry> results = SystemLogService.getInstance().search(query);
+* }</pre>        .maxResults(100)
+*         .build();
+* List<LogEntry> results = SystemLogService.getInstance().search(query);
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class SystemLogService {
@@ -91,9 +91,9 @@ public class SystemLogService {
     }
 
     /**
-     * 获取Instance
-     *
-     * @return 获取instance的结果
+    * 获取Instance
+    *
+    * @return 获取instance的结果
      */
     public static SystemLogService getInstance() {
         if (INSTANCE == null) {
@@ -107,42 +107,42 @@ public class SystemLogService {
     }
 
     /**
-     * 是否可用
-     *
-     * @return 是否可用的结果
+    * 是否可用
+    *
+    * @return 是否可用的结果
      */
     public boolean isAvailable() {
         return provider != null && provider.isPlatformSupported();
     }
 
     /**
-     * 搜索
-     *
-     * @param pattern 模式
-     * @return 搜索的结果
+    * 搜索
+    *
+    * @param pattern 模式
+    * @return 搜索的结果
      */
     public List<LogEntry> search(String pattern) {
         return search(pattern, null);
     }
 
     /**
-     * 搜索
-     *
-     * @param pattern 模式
-     * @param minLevel 最小级别
-     * @return 搜索的结果
+    * 搜索
+    *
+    * @param pattern 模式
+    * @param minLevel 最小级别
+    * @return 搜索的结果
      */
     public List<LogEntry> search(String pattern, LogLevel minLevel) {
         return search(pattern, minLevel, 100);
     }
 
     /**
-     * 搜索
-     *
-     * @param pattern 模式
-     * @param minLevel 最小级别
-     * @param maxResults 最大结果
-     * @return 搜索的结果
+    * 搜索
+    *
+    * @param pattern 模式
+    * @param minLevel 最小级别
+    * @param maxResults 最大结果
+    * @return 搜索的结果
      */
     public List<LogEntry> search(String pattern, LogLevel minLevel, int maxResults) {
         LogQuery query = LogQuery.builder()
@@ -154,10 +154,10 @@ public class SystemLogService {
     }
 
     /**
-     * 搜索
-     *
-     * @param query 查询
-     * @return 搜索的结果
+    * 搜索
+    *
+    * @param query 查询
+    * @return 搜索的结果
      */
     public List<LogEntry> search(LogQuery query) {
         if (!isAvailable()) {
@@ -173,9 +173,9 @@ public class SystemLogService {
     }
 
     /**
-     * 获取源
-     *
-     * @return 获取源的结果
+    * 获取源
+    *
+    * @return 获取源的结果
      */
     public List<String> getSources() {
         if (!isAvailable()) {
@@ -185,9 +185,9 @@ public class SystemLogService {
     }
 
     /**
-     * 获取提供者
-     *
-     * @return 获取提供者的结果
+    * 获取提供者
+    *
+    * @return 获取提供者的结果
      */
     public SystemLogProvider getProvider() {
         return provider;

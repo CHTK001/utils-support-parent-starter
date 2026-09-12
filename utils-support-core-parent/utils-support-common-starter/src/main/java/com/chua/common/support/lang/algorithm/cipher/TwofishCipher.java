@@ -3,29 +3,29 @@ package com.chua.common.support.lang.algorithm.cipher;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * Twofish 对称加解密 SPI 接口
- *
- * <p>基于 SPI 机制加载实现，支持 Twofish/CBC/PKCS7Padding 模式的加密与解密。
- * Twofish 是 AES 评选入围算法之一，密钥长度支持 128、192 和 256 位。
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 创建 Twofish 加解密实例
- * TwofishCipher cipher = TwofishCipher.create("bc");
- *
- * // 加密
- * byte[] ciphertext = cipher.encrypt(key, plaintext);
- *
- * // 解密
- * byte[] decrypted = cipher.decrypt(key, ciphertext);
- *
- * // 字符串模式
- * String encryptedStr = cipher.encryptToString(key, "明文数据");
- * String decryptedStr = cipher.decryptToString(key, encryptedStr);
- * }</pre>
- *
- * @author CH
- * @since 2026/07/16
+* Twofish 对称加解密 SPI 接口
+*
+* <p>基于 SPI 机制加载实现，支持 Twofish/CBC/PKCS7Padding 模式的加密与解密。
+* Twofish 是 AES 评选入围算法之一，密钥长度支持 128、192 和 256 位。
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 创建 Twofish 加解密实例
+* TwofishCipher cipher = TwofishCipher.create("bc");
+*
+* // 加密
+* byte[] ciphertext = cipher.encrypt(key, plaintext);
+*
+* // 解密
+* byte[] decrypted = cipher.decrypt(key, ciphertext);
+*
+* // 字符串模式
+* String encryptedStr = cipher.encryptToString(key, "明文数据");
+* String decryptedStr = cipher.decryptToString(key, encryptedStr);
+* }</pre>
+*
+* @author CH
+* @since 2026/07/16
  */
 public interface TwofishCipher extends Cipher {
 

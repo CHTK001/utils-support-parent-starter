@@ -7,19 +7,19 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
-   * 分库分表sphere 处理器 — intercepts SQL 执行 via 分库分表sphere.
- *
- * @author CH
- * @since 4.0.0.42
+* 分库分表sphere 处理器 — intercepts SQL 执行 via 分库分表sphere.
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ShardingSphereHandler extends AbstractAppHandler {
 
     /**
-      * 分库分表 sphere
+    * 分库分表 sphere
      */
     private static final String SHARDING_SPHERE = "org/apache/shardingsphere";
     /**
-      * 执行 方法
+    * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute", "executeQuery", "executeUpdate"};
 

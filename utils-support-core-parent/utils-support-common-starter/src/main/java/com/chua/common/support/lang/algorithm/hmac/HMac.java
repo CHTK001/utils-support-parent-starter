@@ -19,29 +19,29 @@ import java.util.Base64;
 
 
 /**
- * HMAC (Hash-based Message Authentication Code) 工具类
- * <p>
- * 提供基于哈希的消息认证码功能，支持多种哈希算法（MD5, SHA1, SHA256, SHA512）
- * 可用于数据完整性校验和消息来源认证。
- * </p>
- *
- * <h2>使用示例</h2>
- * <pre>{@code
- * // 示例 1: 使用字符串密钥计算十六进制摘要
- * HMac hmac = new HMac(HmacAlgorithm.HMAC_SHA256, "mySecretKey");
- * String hex = hmac.digestHex("Hello World");
- * 
- * // 示例 2: 使用字节数组密钥计算原始字节摘要
- * HMac hmac2 = new HMac(HmacAlgorithm.HMAC_SHA256, key.getBytes());
- * byte[] digest = hmac2.digest("Hello World");
- * 
- * // 示例 3: 使用静态工厂方法并获取 Base64 编码的摘要
- * HMac hmac3 = HMac.hmacSha256("myKey");
- * String base64 = hmac3.digestBase64("Hello World");
- * }</pre>
- *
- * @author CH
- * @since 2025/10/23
+* HMAC (Hash-based Message Authentication Code) 工具类
+* <p>
+* 提供基于哈希的消息认证码功能，支持多种哈希算法（MD5, SHA1, SHA256, SHA512）
+* 可用于数据完整性校验和消息来源认证。
+* </p>
+*
+* <h2>使用示例</h2>
+* <pre>{@code
+* // 示例 1: 使用字符串密钥计算十六进制摘要
+* HMac hmac = new HMac(HmacAlgorithm.HMAC_SHA256, "mySecretKey");
+* String hex = hmac.digestHex("Hello World");
+* 
+* // 示例 2: 使用字节数组密钥计算原始字节摘要
+* HMac hmac2 = new HMac(HmacAlgorithm.HMAC_SHA256, key.getBytes());
+* byte[] digest = hmac2.digest("Hello World");
+* 
+* // 示例 3: 使用静态工厂方法并获取 Base64 编码的摘要
+* HMac hmac3 = HMac.hmacSha256("myKey");
+* String base64 = hmac3.digestBase64("Hello World");
+* }</pre>
+*
+* @author CH
+* @since 2025/10/23
  */
 public class HMac implements Serializable {
 

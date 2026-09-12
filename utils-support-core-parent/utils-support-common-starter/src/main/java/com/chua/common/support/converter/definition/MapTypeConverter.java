@@ -22,22 +22,22 @@ import javax.annotation.Nullable;
 
 
 /**
- * Map 类型转换器。
- * <p>将各种类型的值转换为 {@link Map}，支持以下输入类型：</p>
- * <ul>
- *   <li>{@link java.util.Dictionary} — 遍历键值对构造 HashMap</li>
- *   <li>{@link Map} — 直接返回</li>
- *   <li>{@link String} — 支持以下格式：
- *     <ul>
- *       <li>{key=value, key2=value2} — 大括号包裹的键值对</li>
- *       <li>key=value 或 key:value — 逗号/分号分隔的键值对</li>
- *     </ul>
- *   </li>
- * </ul>
- *
- * @author CH
- * @version 1.0.0
- * @since 2020/11/5
+* Map 类型转换器。
+* <p>将各种类型的值转换为 {@link Map}，支持以下输入类型：</p>
+* <ul>
+*   <li>{@link java.util.Dictionary} — 遍历键值对构造 HashMap</li>
+*   <li>{@link Map} — 直接返回</li>
+*   <li>{@link String} — 支持以下格式：
+*     <ul>
+*       <li>{key=value, key2=value2} — 大括号包裹的键值对</li>
+*       <li>key=value 或 key:value — 逗号/分号分隔的键值对</li>
+*     </ul>
+*   </li>
+* </ul>
+*
+* @author CH
+* @version 1.0.0
+* @since 2020/11/5
  */
 public class MapTypeConverter implements TypeConverter<Map> {
 
@@ -46,10 +46,10 @@ public class MapTypeConverter implements TypeConverter<Map> {
     public static final MapTypeConverter INSTANCE = new MapTypeConverter();
 
     /**
-     * 将给定值转换为 Map。
-     *
-     * @param value 源值
-     * @return Map 值，如果为 null 则返回空 Map
+    * 将给定值转换为 Map。
+    *
+    * @param value 源值
+    * @return Map 值，如果为 null 则返回空 Map
      */
     @Override
     @SuppressWarnings("ALL")
@@ -120,12 +120,12 @@ public class MapTypeConverter implements TypeConverter<Map> {
     }
 
     /**
-     * 解析键值对格式的字符串为 Map。
-     *
-     * @param str      字符串
-     * @param entrySep 条目分隔符
-     * @param kvSep    键值分隔符
-     * @return 解析后的 Map，如果无有效条目则返回 null
+    * 解析键值对格式的字符串为 Map。
+    *
+    * @param str      字符串
+    * @param entrySep 条目分隔符
+    * @param kvSep    键值分隔符
+    * @return 解析后的 Map，如果无有效条目则返回 null
      */
     private Map<String, String> parseKeyValue(String str, String entrySep, String kvSep) {
         String[] entries = str.split(entrySep);
@@ -140,11 +140,11 @@ public class MapTypeConverter implements TypeConverter<Map> {
     }
 
     /**
-     * 解析键值对中的值部分，支持嵌套 Map/List。
-     *
-     * @param s     完整字符串
-     * @param index 值部分的起始索引（分隔符之后）
-     * @return 解析后的值对象
+    * 解析键值对中的值部分，支持嵌套 Map/List。
+    *
+    * @param s     完整字符串
+    * @param index 值部分的起始索引（分隔符之后）
+    * @return 解析后的值对象
      */
     private Object createValue(String s, int index) {
         String keyValue = s.substring(index + 1).trim();
@@ -159,9 +159,9 @@ public class MapTypeConverter implements TypeConverter<Map> {
     }
 
     /**
-     * 获取当前转换器支持的目标类型。
-     *
-     * @return Map.class
+    * 获取当前转换器支持的目标类型。
+    *
+    * @return Map.class
      */
     @Override
     public Class<Map> getType() {

@@ -19,32 +19,32 @@ import static com.chua.common.support.utils.MapUtils.DEFAULT_INITIAL_CAPACITY;
 
 
 /**
- * 层级结构展开与合并工具类
- * <p>
- * 用于将扁平化的键值对（如 "user.name": "test", "user.hobbies[0]": "reading"）
- * 转换为多层级嵌套的 Map 和 List 结构，并支持多个此类结构的深度合并。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
- * @version 1.0.0
+* 层级结构展开与合并工具类
+* <p>
+* 用于将扁平化的键值对（如 "user.name": "test", "user.hobbies[0]": "reading"）
+* 转换为多层级嵌套的 Map 和 List 结构，并支持多个此类结构的深度合并。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
+* @version 1.0.0
  */
 @SuppressWarnings("unchecked")
 public class LevelsOpen implements Levels {
 
     /**
-     * 将扁平化的 Map 转换为多层级嵌套的 Map 结构。
-     * <p>
-     * 支持以下格式的扁平键：
-     * <ul>
-     *   <li>"user.name" → {"user": {"name": value}}</li>
-     *   <li>"hobbies[0]" → {"hobbies": [value]}</li>
-     *   <li>"users[0].name" → {"users": [{"name": value}]}</li>
-     * </ul>
-     * </p>
-     *
-     * @param stringObjectMap 扁平化的键值对 Map
-     * @return 嵌套后的 Map 结构，如果输入为空则返回 null
+    * 将扁平化的 Map 转换为多层级嵌套的 Map 结构。
+    * <p>
+    * 支持以下格式的扁平键：
+    * <ul>
+    *   <li>"user.name" → {"user": {"name": value}}</li>
+    *   <li>"hobbies[0]" → {"hobbies": [value]}</li>
+    *   <li>"users[0].name" → {"users": [{"name": value}]}</li>
+    * </ul>
+    * </p>
+    *
+    * @param stringObjectMap 扁平化的键值对 Map
+    * @return 嵌套后的 Map 结构，如果输入为空则返回 null
      */
     @Override
     public Map<String, Object> apply(Map<String, Object> stringObjectMap) {
@@ -94,10 +94,10 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 合并多个分片 Map 为一个统一的嵌套结构 Map。
-     *
-     * @param toArray 包含多个 Map 分片的列表
-     * @return 合并后的最终 Map
+    * 合并多个分片 Map 为一个统一的嵌套结构 Map。
+    *
+    * @param toArray 包含多个 Map 分片的列表
+    * @return 合并后的最终 Map
      */
     private Map<String, Object> merge(List<Map<String, Object>> toArray) {
         Map<String, Object> result = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
@@ -108,14 +108,14 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 深度合并两个 Map。
-     * <p>
-     * 如果存在相同的 Key 且 Value 均为 Map 类型，则递归合并子级；
-     * 如果 Value 为 List 类型，则合并 List 元素。
-     * </p>
-     *
-     * @param mapLeft  目标 Map（方法内部会修改此 Map）
-     * @param mapRight 源 Map
+    * 深度合并两个 Map。
+    * <p>
+    * 如果存在相同的 Key 且 Value 均为 Map 类型，则递归合并子级；
+    * 如果 Value 为 List 类型，则合并 List 元素。
+    * </p>
+    *
+    * @param mapLeft  目标 Map（方法内部会修改此 Map）
+    * @param mapRight 源 Map
      */
     public void merge(Map<String, Object> mapLeft, Map<String, Object> mapRight) {
         for (Map.Entry<String, Object> entry : mapRight.entrySet()) {
@@ -137,10 +137,10 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 合并两个列表对象，支持 List 元素的深度合并。
-     *
-     * @param leftList  左侧列表对象
-     * @param rightList 右侧列表对象
+    * 合并两个列表对象，支持 List 元素的深度合并。
+    *
+    * @param leftList  左侧列表对象
+    * @param rightList 右侧列表对象
      */
     private void mergeList(Object leftList, Object rightList) {
         List<Object> temp = CollectionUtils.ifList(leftList);
@@ -162,22 +162,22 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 判断两个对象是否均为 Map 类型。
-     *
-     * @param left  左侧对象
-     * @param right 右侧对象
-     * @return 如果均为 Map 返回 true，否则返回 false
+    * 判断两个对象是否均为 Map 类型。
+    *
+    * @param left  左侧对象
+    * @param right 右侧对象
+    * @return 如果均为 Map 返回 true，否则返回 false
      */
     private boolean isAllMap(Object left, Object right) {
         return left instanceof Map && right instanceof Map;
     }
 
     /**
-     * 处理列表元素的深度合并逻辑，递归合并 Map 类型的列表元素。
-     *
-     * @param offset 当前处理的列表索引
-     * @param temp   目标列表
-     * @param list   源列表
+    * 处理列表元素的深度合并逻辑，递归合并 Map 类型的列表元素。
+    *
+    * @param offset 当前处理的列表索引
+    * @param temp   目标列表
+    * @param list   源列表
      */
     private void intoTemp(int offset, List<Object> temp, List<Object> list) {
         Object o3 = list.get(0);
@@ -203,11 +203,11 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 判断右侧 Map 的所有 Key 是否都包含在左侧 Map 中。
-     *
-     * @param leftMap  左侧 Map
-     * @param rightMap 右侧 Map
-     * @return 如果右侧 Map 的所有 Key 都在左侧 Map 中存在，返回 true
+    * 判断右侧 Map 的所有 Key 是否都包含在左侧 Map 中。
+    *
+    * @param leftMap  左侧 Map
+    * @param rightMap 右侧 Map
+    * @return 如果右侧 Map 的所有 Key 都在左侧 Map 中存在，返回 true
      */
     private boolean allIn(Map<String, Object> leftMap, Map<String, Object> rightMap) {
         boolean isAll = true;
@@ -221,12 +221,12 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 递归解析带有 "." 的键，构建嵌套 Map。
-     * <p>例如：key="user.name", value="test" → {"user": {"name": "test"}}</p>
-     *
-     * @param key   当前处理的键（可能包含 "." 分隔符）
-     * @param value 对应的值
-     * @return 构建后的嵌套 Map
+    * 递归解析带有 "." 的键，构建嵌套 Map。
+    * <p>例如：key="user.name", value="test" → {"user": {"name": "test"}}</p>
+    *
+    * @param key   当前处理的键（可能包含 "." 分隔符）
+    * @param value 对应的值
+    * @return 构建后的嵌套 Map
      */
     private Map<String, Object> levelOpenMap(String key, Object value) {
         String tempKey = key;
@@ -254,12 +254,12 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 递归解析带有 "[]" 和 "." 的键，构建包含 Map 元素的 List。
-     * <p>例如：key="[0].name", value="test" → [{"name": "test"}]</p>
-     *
-     * @param key   当前处理的键
-     * @param value 对应的值
-     * @return 构建后的 List，包含解析后的 Map 元素
+    * 递归解析带有 "[]" 和 "." 的键，构建包含 Map 元素的 List。
+    * <p>例如：key="[0].name", value="test" → [{"name": "test"}]</p>
+    *
+    * @param key   当前处理的键
+    * @param value 对应的值
+    * @return 构建后的 List，包含解析后的 Map 元素
      */
     private List<Map<String, Object>> levelOpenListMap(String key, Object value) {
         String tempKey = key;
@@ -289,13 +289,13 @@ public class LevelsOpen implements Levels {
     }
 
     /**
-     * 将对象或集合统一转换为 List。
-     * <p>如果对象已经是 {@link Collection} 类型，则直接包装为 ArrayList；
-     * 否则将单个对象包装为单元素 List。</p>
-     *
-     * @param substring 未使用的参数（历史遗留）
-     * @param o         需要转换的对象
-     * @return 转换后的 List
+    * 将对象或集合统一转换为 List。
+    * <p>如果对象已经是 {@link Collection} 类型，则直接包装为 ArrayList；
+    * 否则将单个对象包装为单元素 List。</p>
+    *
+    * @param substring 未使用的参数（历史遗留）
+    * @param o         需要转换的对象
+    * @return 转换后的 List
      */
     private List<Object> levelOpenList(String substring, Object o) {
         if (o instanceof Collection) {

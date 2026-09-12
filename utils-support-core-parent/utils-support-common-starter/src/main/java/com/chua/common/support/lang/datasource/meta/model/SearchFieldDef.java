@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 搜索引擎字段定义，描述索引中的一个字段。
- *
- * @author CH
- * @since 4.0.0.42
+* 搜索引擎字段定义，描述索引中的一个字段。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Data
 @Builder
@@ -18,43 +18,43 @@ import lombok.NoArgsConstructor;
 public class SearchFieldDef {
 
     /**
-     * 字段名
+    * 字段名
      */
     private String name;
 
     /**
-     * 字段类型（ES: text/keyword/integer/long/float/double/date/boolean/object/nested；
-     * Solr: text_general/string/pint/pfloat/date 等；
-     * RedisSearch: TEXT/ NUMERIC/ GEO 等）
+    * 字段类型（ES: text/keyword/integer/long/float/double/date/boolean/object/nested；
+    * Solr: text_general/string/pint/pfloat/date 等；
+    * RedisSearch: TEXT/ NUMERIC/ GEO 等）
      */
     private String type;
 
     /**
-     * 分词器（如 ik_max_word、standard、english 等）
+    * 分词器（如 ik_max_word、standard、english 等）
      */
     private String analyzer;
 
     /**
-     * 搜索分词器
+    * 搜索分词器
      */
     private String searchAnalyzer;
 
     /**
-     * 是否建立索引（默认 true）
+    * 是否建立索引（默认 true）
      */
     @lombok.Builder.Default
     /** Indexed */
     private boolean indexed = true;
 
     /**
-     * 是否存储原文（默认 false）
+    * 是否存储原文（默认 false）
      */
     @lombok.Builder.Default
     /** Stored */
     private boolean stored = false;
 
     /**
-     * 字段权重（用于排序/打分，默认 1.0）
+    * 字段权重（用于排序/打分，默认 1.0）
      */
     @lombok.Builder.Default
     /** 权重 */

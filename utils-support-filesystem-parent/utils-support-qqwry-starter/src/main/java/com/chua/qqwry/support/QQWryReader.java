@@ -10,10 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * qqwry 纯真 IP 数据库查询器。
- *
- * @author CH
- * @since 4.0.0.42
+* qqwry 纯真 IP 数据库查询器。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class QQWryReader implements Closeable {
 
@@ -23,36 +23,36 @@ public class QQWryReader implements Closeable {
     private static final int MODE_2 = 0x02;
 
     /**
-     * 原始数据字节数组
+    * 原始数据字节数组
      */
     private final byte[] data;
     /**
-     * 索引区起始位置
+    * 索引区起始位置
      */
     private final long indexBegin;
     /**
-     * 索引区结束位置
+    * 索引区结束位置
      */
     private final long indexEnd;
     /**
-     * 总记录数
+    * 总记录数
      */
     private final int totalRecords;
 
     /**
-     * 通过文件路径构建读取器。
-     *
-     * @param filePath 文件路径
-     * @throws IOException 当读取文件失败时抛出
+    * 通过文件路径构建读取器。
+    *
+    * @param filePath 文件路径
+    * @throws IOException 当读取文件失败时抛出
      */
     public QQWryReader(String filePath) throws IOException {
         this(Files.readAllBytes(Path.of(filePath)));
     }
 
     /**
-     * 通过字节数组构建读取器。
-     *
-     * @param data 数据库文件内容
+    * 通过字节数组构建读取器。
+    *
+    * @param data 数据库文件内容
      */
     public QQWryReader(byte[] data) {
         this.data = data;
@@ -63,29 +63,29 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 获取总记录数。
-     *
-     * @return 总记录数
+    * 获取总记录数。
+    *
+    * @return 总记录数
      */
     public int getTotalRecords() {
         return totalRecords;
     }
 
     /**
-     * 根据 IP 地址字符串查询地理位置信息。
-     *
-     * @param ip IP 地址字符串，例如 "192.168.1.1"
-     * @return 地理位置信息对象，若未找到则返回 空
+    * 根据 IP 地址字符串查询地理位置信息。
+    *
+    * @param ip IP 地址字符串，例如 "192.168.1.1"
+    * @return 地理位置信息对象，若未找到则返回 空
      */
     public IpLocation query(String ip) {
         return query(ipToLong(ip));
     }
 
     /**
-     * 根据 IP 地址长整型值查询地理位置信息。
-     *
-     * @param ip IP 地址的长整型表示
-     * @return 地理位置信息对象，若未找到则返回 空
+    * 根据 IP 地址长整型值查询地理位置信息。
+    *
+    * @param ip IP 地址的长整型表示
+    * @return 地理位置信息对象，若未找到则返回 空
      */
     public IpLocation query(long ip) {
         int lo = 0;
@@ -107,10 +107,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 解析指定偏移量处的地理位置数据。
-     *
-     * @param offset 数据在文件中的偏移量
-     * @return 解析后的地理位置对象
+    * 解析指定偏移量处的地理位置数据。
+    *
+    * @param offset 数据在文件中的偏移量
+    * @return 解析后的地理位置对象
      */
     private IpLocation parseLocation(int offset) {
         IpLocation loc = new IpLocation();
@@ -136,10 +136,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 解析区域字符串并提取省份和城市信息。
-     *
-     * @param loc  地理位置对象
-     * @param area 区域描述字符串
+    * 解析区域字符串并提取省份和城市信息。
+    *
+    * @param loc  地理位置对象
+    * @param area 区域描述字符串
      */
     private void parseRegion(IpLocation loc, String area) {
         if (area == null || area.isEmpty()) {
@@ -167,10 +167,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 读取国家信息，处理可能的重定向模式。
-     *
-     * @param offset 当前偏移量
-     * @return 国家名称
+    * 读取国家信息，处理可能的重定向模式。
+    *
+    * @param offset 当前偏移量
+    * @return 国家名称
      */
     private String readCountry(int offset) {
         int mode = data[offset] & 0xFF;
@@ -183,10 +183,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 读取地区信息，处理可能的重定向模式。
-     *
-     * @param offset 当前偏移量
-     * @return 地区名称
+    * 读取地区信息，处理可能的重定向模式。
+    *
+    * @param offset 当前偏移量
+    * @return 地区名称
      */
     private String readArea(int offset) {
         if (offset >= data.length) {
@@ -200,10 +200,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-      * 从指定偏移量读取以 空 结尾的字符串。
-     *
-     * @param offset 起始偏移量
-     * @return 读取的字符串
+    * 从指定偏移量读取以 空 结尾的字符串。
+    *
+    * @param offset 起始偏移量
+    * @return 读取的字符串
      */
     private String readStr(int offset) {
         int end = offset;
@@ -214,10 +214,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-      * 计算从指定偏移量开始到 空 字符的长度。
-     *
-     * @param offset 起始偏移量
-     * @return 字符串长度
+    * 计算从指定偏移量开始到 空 字符的长度。
+    *
+    * @param offset 起始偏移量
+    * @return 字符串长度
      */
     private int strLen(int offset) {
         int end = offset;
@@ -228,20 +228,20 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 读取 3 个字节组成的整数（小端序）。
-     *
-     * @param offset 起始偏移量
-     * @return 读取的长整型数值
+    * 读取 3 个字节组成的整数（小端序）。
+    *
+    * @param offset 起始偏移量
+    * @return 读取的长整型数值
      */
     private long read3(int offset) {
         return (data[offset] & 0xFFL) | ((data[offset + 1] & 0xFFL) << 8) | ((data[offset + 2] & 0xFFL) << 16);
     }
 
     /**
-     * 清理字符串，移除无关标记如 CZ88.NET。
-     *
-     * @param s 待清理的字符串
-     * @return 清理后的字符串
+    * 清理字符串，移除无关标记如 CZ88.NET。
+    *
+    * @param s 待清理的字符串
+    * @return 清理后的字符串
      */
     private String clean(String s) {
         if (s == null) {
@@ -251,10 +251,10 @@ public class QQWryReader implements Closeable {
     }
 
     /**
-     * 将点分十进制 IP 地址转换为长整型数值。
-     *
-     * @param ip 点分十进制 IP 字符串
-     * @return 转换后的长整型 IP 值
+    * 将点分十进制 IP 地址转换为长整型数值。
+    *
+    * @param ip 点分十进制 IP 字符串
+    * @return 转换后的长整型 IP 值
      */
     public static long ipToLong(String ip) {
         String[] parts = ip.split("\\.");

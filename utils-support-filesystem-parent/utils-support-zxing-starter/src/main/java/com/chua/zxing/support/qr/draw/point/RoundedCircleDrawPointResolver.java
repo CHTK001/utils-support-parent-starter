@@ -16,21 +16,21 @@ import javax.annotation.Nullable;
 
 
 /**
- * 流体风格码点：相邻的点会以“胶囊”连接，形成融合效果
- *
- * @author CH
- * @since 4.0.0.42
+* 流体风格码点：相邻的点会以“胶囊”连接，形成融合效果
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("ROUND_DOT")
 public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
     /**
-      * 创建 roundedcircledrawpoint解析器 实例
-     * @param qrCodeConfig qr编码配置
-     * @param g2 g2
-     * @param bitMatrix 钻头matrix
-     * @param leftPadding leftpadding
-     * @param topPadding toppadding
-     * @param infoSize 信息大小
+    * 创建 roundedcircledrawpoint解析器 实例
+    * @param qrCodeConfig qr编码配置
+    * @param g2 g2
+    * @param bitMatrix 钻头matrix
+    * @param leftPadding leftpadding
+    * @param topPadding toppadding
+    * @param infoSize 信息大小
      */
     public RoundedCircleDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix,
             int leftPadding, int topPadding, int infoSize) {
@@ -38,7 +38,7 @@ public class RoundedCircleDrawPointResolver extends AbstractDrawPointResolver {
     }
 
     /**
-     * 自定义覆盖：按模块坐标绘制，并处理与右/下（以及右下对角）邻居的流体连接
+    * 自定义覆盖：按模块坐标绘制，并处理与右/下（以及右下对角）邻居的流体连接
      */
     @Override
     public void draw(int mx, int my) {

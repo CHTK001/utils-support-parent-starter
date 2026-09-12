@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文件响应式引擎，真响应式文件读取与内存查询。
- *
- * <p>文件读取通过 {@link AsynchronousFileChannel} 完成，为非阻塞 I/O；
- * 加载完成后数据驻留内存，查询/更新/删除均在订阅者线程直接执行，不经过 {@code boundedElastic}。</p>
- *
- * @author CH
- * @since 4.0.0.42
- * @param clazz clazz
- * @return 执行查询的结果
- * @param pn pn
- * @param ps ps
+* 文件响应式引擎，真响应式文件读取与内存查询。
+*
+* <p>文件读取通过 {@link AsynchronousFileChannel} 完成，为非阻塞 I/O；
+* 加载完成后数据驻留内存，查询/更新/删除均在订阅者线程直接执行，不经过 {@code boundedElastic}。</p>
+*
+* @author CH
+* @since 4.0.0.42
+* @param clazz clazz
+* @return 执行查询的结果
+* @param pn pn
+* @param ps ps
  */
 @Spi("file")
 public class FileReactorEngine implements ReactorEngine {
@@ -48,16 +48,16 @@ public class FileReactorEngine implements ReactorEngine {
     private static final TypeReference<List<Map<String, Object>>> JSON_LIST_TYPE =
             new TypeReference<List<Map<String, Object>>>() {};
 /**
- * 查询。
- * @param entityClass 实体类
- * @return 查询的结果
+* 查询。
+* @param entityClass 实体类
+* @return 查询的结果
  */
 
     private final FileEngine delegate = new FileEngine(); // delegate
 
     /**
-     * 列表。
-     * @return 列表的结果
+    * 列表。
+    * @return 列表的结果
      */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
@@ -65,19 +65,19 @@ public class FileReactorEngine implements ReactorEngine {
             @Override
             public Flux<T> list() {
                 /**
-                 * one。
-                 * @return one的结果
-                 * @param clazz clazz
-                 * @param pn pn
-                 * @param ps ps
+                * one。
+                * @return one的结果
+                * @param clazz clazz
+                * @param pn pn
+                * @param ps ps
                  */
                 return Flux.fromIterable(doQuery(entityClass));
             /**
-             * one。
-             * @return one的结果
-             * @param clazz clazz
-             * @param pn pn
-             * @param ps ps
+            * one。
+            * @return one的结果
+            * @param clazz clazz
+            * @param pn pn
+            * @param ps ps
              */
             }
 
@@ -170,15 +170,15 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 响应式加载文件，通过 {@link AsynchronousFileChannel} 非阻塞读取。
-     *
-     * <p>JSON 文件直接解析为 {@code List<Map>} 存入内存；
-     * CSV 文件按行解析，首行为列名，支持引号包裹字段；
-     * 其他格式回退到同步 {@link FileEngine#load(String, String)}。</p>
-     *
-     * @param name     数据源名称
-     * @param filePath 文件路径
-     * @return 当前引擎实例的 Mono
+    * 响应式加载文件，通过 {@link AsynchronousFileChannel} 非阻塞读取。
+    *
+    * <p>JSON 文件直接解析为 {@code List<Map>} 存入内存；
+    * CSV 文件按行解析，首行为列名，支持引号包裹字段；
+    * 其他格式回退到同步 {@link FileEngine#load(String, String)}。</p>
+    *
+    * @param name     数据源名称
+    * @param filePath 文件路径
+    * @return 当前引擎实例的 Mono
      */
     public Mono<FileReactorEngine> load(String name, String filePath) {
         Path path = Path.of(filePath);
@@ -209,8 +209,8 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-      * 通过 asynchronous文件通道 非阻塞读取文件全部内容。
-     * @param line 线
+    * 通过 asynchronous文件通道 非阻塞读取文件全部内容。
+    * @param line 线
      /**
       * 读取文件异步。
       * @param path 路径
@@ -224,9 +224,9 @@ public class FileReactorEngine implements ReactorEngine {
     private static Mono<byte[]> readFileAsync(Path path) {
         return Mono.create(sink -> {
             /**
-             * 完成。
-             * @param result 结果
-             * @param attachment attachment
+            * 完成。
+            * @param result 结果
+            * @param attachment attachment
              */
             try {
                 AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
@@ -238,9 +238,9 @@ public class FileReactorEngine implements ReactorEngine {
                         byte[] data = new byte[buffer.remaining()];
                         buffer.get(data);
                         /**
-                         * 失败。
-                         * @param exc exc
-                         * @param attachment attachment
+                        * 失败。
+                        * @param exc exc
+                        * @param attachment attachment
                          */
                         try { channel.close(); } catch (IOException ignored) {}
                         sink.success(data);
@@ -255,12 +255,12 @@ public class FileReactorEngine implements ReactorEngine {
             } catch (Exception e) {
                 sink.error(e);
             /**
-             * 解析json。
-             * @param name 名称
-             * @param bytes bytes
-             * @return 解析json的结果
-             * @param line 线
-             * @param separator separator
+            * 解析json。
+            * @param name 名称
+            * @param bytes bytes
+            * @return 解析json的结果
+            * @param line 线
+            * @param separator separator
              */
             }
         });
@@ -325,15 +325,15 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-      * 获取底层同步 文件engine。
-     * @return 获取delegate的结果
+    * 获取底层同步 文件engine。
+    * @return 获取delegate的结果
      */
     public FileEngine getDelegate() {
         return delegate;
     }
 
     /**
-     * 关闭引擎，释放底层数据源资源。
+    * 关闭引擎，释放底层数据源资源。
      */
     public void close() {
         delegate.close();

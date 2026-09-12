@@ -21,83 +21,83 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
-   * 打开AI 语音识别（ASR / STT）客户端。
- *
- * <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/transcriptions} 的 {@link VirtualClient}
-   * 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
- *
- * <p>通过 SPI 机制注册以下别名：
- * <ul>
- *   <li>openai — OpenAI 官方（whisper-1 / gpt-4o-transcribe）</li>
- *   <li>openai-asr — 语义化别名</li>
- *   <li>siliconflow / sensetime / github / gitee — OpenAI 兼容服务商</li>
- * </ul>
- *
- * <p>调用示例：
- * <pre>{@code
- *   String text = VirtualClient.create("openai", "sk-xxx")
- *       .model("whisper-1")
- *       .language("zh")
- *       .transcribe(Path.of("audio.wav"));
- * }</pre>(Path.of("audio.wav"));
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* 打开AI 语音识别（ASR / STT）客户端。
+*
+* <p>基于 OpenAI 音频标准接口 {@code POST /v1/audio/transcriptions} 的 {@link VirtualClient}
+* 实现，支持 打开AI 兼容接口的所有服务商（如 打开AI、silicon流、sense时间、b.AI 等）。
+*
+* <p>通过 SPI 机制注册以下别名：
+* <ul>
+*   <li>openai — OpenAI 官方（whisper-1 / gpt-4o-transcribe）</li>
+*   <li>openai-asr — 语义化别名</li>
+*   <li>siliconflow / sensetime / github / gitee — OpenAI 兼容服务商</li>
+* </ul>
+*
+* <p>调用示例：
+* <pre>{@code
+*   String text = VirtualClient.create("openai", "sk-xxx")
+*       .model("whisper-1")
+*       .language("zh")
+*       .transcribe(Path.of("audio.wav"));
+* }</pre>(Path.of("audio.wav"));
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"openai", "openai-asr", "siliconflow", "sensetime", "github", "gitee"})
 public class OpenAiAudioClient implements VirtualClient {
 
     /**
-      * 打开AI 默认 API 地址
+    * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
-     * 默认转录模型
+    * 默认转录模型
      */
     private static final String DEFAULT_MODEL = "whisper-1";
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final AudioClientSetting setting;
 
     /**
-     * 当前模型
+    * 当前模型
      */
     private String model;
 
     /**
-     * 当前语言
+    * 当前语言
      */
     private String language;
 
     /**
-     * 当前提示词
+    * 当前提示词
      */
     private String prompt;
 
     /**
-     * 音频字节
+    * 音频字节
      */
     private byte[] audio;
 
     /**
-     * 音频输入流
+    * 音频输入流
      */
     private InputStream audioInput;
 
     /**
-     * 音频文件路径
+    * 音频文件路径
      */
     private Path audioPath;
 
     /**
-      * 构造 打开AI 语音识别客户端。
-     *
-     * @param setting 客户端配置
+    * 构造 打开AI 语音识别客户端。
+    *
+    * @param setting 客户端配置
      */
     public OpenAiAudioClient(AudioClientSetting setting) {
         this.setting = setting;
@@ -256,11 +256,11 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-      * 解析音频字节：优先使用已设置的 音频 字节，其次音频路径。
-     *
-     * @param path 调用方法时传入的路径（可为 空）
-     * @return 音频字节
-     * @throws IOException 读取失败时抛出
+    * 解析音频字节：优先使用已设置的 音频 字节，其次音频路径。
+    *
+    * @param path 调用方法时传入的路径（可为 空）
+    * @return 音频字节
+    * @throws IOException 读取失败时抛出
      */
     private byte[] resolveAudioBytes(Path path) throws IOException {
         if (audio != null && audio.length > 0) {
@@ -277,10 +277,10 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 解析上传文件名。
-     *
-     * @param path 音频路径
-     * @return 文件名（带扩展名）
+    * 解析上传文件名。
+    *
+    * @param path 音频路径
+    * @return 文件名（带扩展名）
      */
     private String resolveFilename(Path path) {
         Path effective = path != null ? path : audioPath;
@@ -289,10 +289,10 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-      * 解析音频 内容-类型。
-     *
-     * @param filename 文件名
-     * @return MIME 类型
+    * 解析音频 内容-类型。
+    *
+    * @param filename 文件名
+    * @return MIME 类型
      */
     private String resolveContentType(String filename) {
         String lower = filename.toLowerCase();
@@ -321,10 +321,10 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 解析转录响应 JSON 中的文本。
-     *
-     * @param json 响应 JSON 字符串
-     * @return 转录文本
+    * 解析转录响应 JSON 中的文本。
+    *
+    * @param json 响应 JSON 字符串
+    * @return 转录文本
      */
     @SuppressWarnings("unchecked")
     private String parseTranscript(String json) {
@@ -334,10 +334,10 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 创建带公共配置的 HTTP 请求构建器。
-     *
-     * @param path API 路径（含前导斜杠）
-     * @return 请求构建器
+    * 创建带公共配置的 HTTP 请求构建器。
+    *
+    * @param path API 路径（含前导斜杠）
+    * @return 请求构建器
      */
     private HttpClientBuilder newBuilder(String path) {
         HttpClientBuilder builder = HttpClientFactory.of(normalizeBaseUrl())
@@ -356,9 +356,9 @@ public class OpenAiAudioClient implements VirtualClient {
     }
 
     /**
-     * 规范化 API 基础地址。
-     *
-     * @return 规范化后的 URL
+    * 规范化 API 基础地址。
+    *
+    * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();

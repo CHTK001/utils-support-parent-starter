@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 豆瓣 (douban2) 影视搜索提供器
- * @author CH
- * @since 4.0.0
+* 豆瓣 (douban2) 影视搜索提供器
+* @author CH
+* @since 4.0.0
  */
 @Spi("douban2")
 public class Douban2ResourceProvider extends AbstractResourceProvider {
     /**
-     * douban2resource提供者。
+    * douban2resource提供者。
      */
     public Douban2ResourceProvider() { super(); }
     @Override

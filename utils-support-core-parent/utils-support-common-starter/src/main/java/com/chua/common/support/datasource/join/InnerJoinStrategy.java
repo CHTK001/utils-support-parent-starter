@@ -5,10 +5,10 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.*;
 
 /**
- * 内连接策略。
- *
- * @author CH
- * @since 4.0.0.42
+* 内连接策略。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi(value = "inner", order = 100)
 public class InnerJoinStrategy implements JoinStrategy {

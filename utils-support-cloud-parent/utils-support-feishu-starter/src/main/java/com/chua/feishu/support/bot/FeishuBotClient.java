@@ -35,109 +35,109 @@ import com.lark.oapi.service.im.v1.model.CreateMessageResp;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * 飞书 机器人 客户端，实现 {@link BotClient} 接口。
- * <p>使用飞书开放平台 SDK（oapi-sdk）发送消息，
- * 通过事件出站轮询（Outbox）或 Webhook 回调接收用户消息。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 飞书 机器人 客户端，实现 {@link BotClient} 接口。
+* <p>使用飞书开放平台 SDK（oapi-sdk）发送消息，
+* 通过事件出站轮询（Outbox）或 Webhook 回调接收用户消息。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class FeishuBotClient implements BotClient {
 
     /**
-      * 应用 标识
+    * 应用 标识
      */
     private String appId;
 
     /**
-     * 应用密钥
+    * 应用密钥
      */
     private String appSecret;
 
     /**
-     * API 基础地址
+    * API 基础地址
      */
     private String baseUrl = "https://open.feishu.cn/open-apis";
 
     /**
-     * 连接超时时间（毫秒）
+    * 连接超时时间（毫秒）
      */
     private long connectTimeoutMillis = 10_000;
 
     /**
-     * 读取超时时间（毫秒）
+    * 读取超时时间（毫秒）
      */
     private long readTimeoutMillis = 30_000;
 
     /**
-      * Webhook 验证 令牌
+    * Webhook 验证 令牌
      */
     private String webhookVerifyToken;
 
     /**
-     * 飞书开放平台客户端实例
+    * 飞书开放平台客户端实例
      */
     private volatile Client client;
 
     /**
-     * 运行状态标识
+    * 运行状态标识
      */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * 事件轮询线程
+    * 事件轮询线程
      */
     private volatile Thread eventThread;
 
     /**
-     * 是否使用 Webhook 模式
+    * 是否使用 Webhook 模式
      */
     private volatile boolean useWebhookMode;
 
     /**
-     * 消息监听器列表
+    * 消息监听器列表
      */
     private final List<BotMessageListener> messageListeners
             = new CopyOnWriteArrayList<>();
 
     /**
-     * 错误监听器列表
+    * 错误监听器列表
      */
     private final List<BotErrorListener> errorListeners
             = new CopyOnWriteArrayList<>();
 
     /**
-     * 用户存储实例
+    * 用户存储实例
      */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     /**
-     * 退避初始等待时间（毫秒）
+    * 退避初始等待时间（毫秒）
      */
     private static final long BACKOFF_INITIAL_MS = 1_000;
 
     /**
-     * 退避最大等待时间（毫秒）
+    * 退避最大等待时间（毫秒）
      */
     private static final long BACKOFF_MAX_MS = 30_000;
 
     /**
-     * 退避倍增系数
+    * 退避倍增系数
      */
     private static final double BACKOFF_MULTIPLIER = 2.0;
 
     /**
-     * 事件轮询间隔（毫秒）
+    * 事件轮询间隔（毫秒）
      */
     private static final long POLL_INTERVAL_MS = 1_000;
 
     @Override
     /**
-     * 配置
-     * @param token 令牌
-     * @param secret secret
-     * @param encodingAesKey 编码aes键
+    * 配置
+    * @param token 令牌
+    * @param secret secret
+    * @param encodingAesKey 编码aes键
      */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
@@ -181,109 +181,109 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 连接超时millis
-     * @param connectTimeoutMillis 连接超时millis
-     * @param readTimeoutMillis 读取超时millis
-     * @param configSaveOrLoader 配置保存或加载
-     * @param token 令牌
-     * @param appSecret appsecret
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 连接超时millis
+    * @param connectTimeoutMillis 连接超时millis
+    * @param readTimeoutMillis 读取超时millis
+    * @param configSaveOrLoader 配置保存或加载
+    * @param token 令牌
+    * @param appSecret appsecret
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param baseUrl baseurl
+    * @param useWebhookMode usewebhookmode
+    * @param userStore 用户存储
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
@@ -300,107 +300,107 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 配置保存或加载
-     * @param configSaveOrLoader 配置保存或加载
-     * @param token 令牌
-     * @param appSecret appsecret
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 配置保存或加载
+    * @param configSaveOrLoader 配置保存或加载
+    * @param token 令牌
+    * @param appSecret appsecret
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param baseUrl baseurl
+    * @param useWebhookMode usewebhookmode
+    * @param userStore 用户存储
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
@@ -408,10 +408,10 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-      * 设置 Webhook 验证 令牌
-     *
-     * @param token 验证 令牌
-     * @return this
+    * 设置 Webhook 验证 令牌
+    *
+    * @param token 验证 令牌
+    * @return this
      */
     public FeishuBotClient webhookVerifyToken(String token) {
         this.webhookVerifyToken = token;
@@ -481,101 +481,101 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送文本异步
-     * @param toUser 转为用户
-     * @param content 内容
-     * @param content 内容
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送文本异步
+    * @param toUser 转为用户
+    * @param content 内容
+    * @param content 内容
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param baseUrl baseurl
+    * @param useWebhookMode usewebhookmode
+    * @param userStore 用户存储
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
@@ -585,9 +585,9 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送镜像
-     * @param toUser 转为用户
-     * @param mediaPath media路径
+    * 发送镜像
+    * @param toUser 转为用户
+    * @param mediaPath media路径
      */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
@@ -596,95 +596,95 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送镜像异步
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param message 消息
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送镜像异步
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param message 消息
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param baseUrl baseurl
+    * @param useWebhookMode usewebhookmode
+    * @param userStore 用户存储
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
@@ -694,9 +694,9 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-     * 发送Voice
-     * @param toUser 转为用户
-     * @param mediaPath media路径
+    * 发送Voice
+    * @param toUser 转为用户
+    * @param mediaPath media路径
      */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
@@ -707,11 +707,11 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送视频
-     * @param toUser 转为用户
-     * @param mediaPath media路径
-     * @param title title
-     * @param desc desc
+    * 发送视频
+    * @param toUser 转为用户
+    * @param mediaPath media路径
+    * @param title title
+    * @param desc desc
      */
     public BotSendResult sendVideo(String toUser,
             String mediaPath, String title, String desc) {
@@ -724,9 +724,9 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送文件
-     * @param toUser 转为用户
-     * @param mediaPath media路径
+    * 发送文件
+    * @param toUser 转为用户
+    * @param mediaPath media路径
      */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
@@ -781,81 +781,81 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送异步
-     * @param message 消息
-     * @param baseUrl baseurl
-     * @param useWebhookMode usewebhookmode
-     * @param userStore 用户存储
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送异步
+    * @param message 消息
+    * @param baseUrl baseurl
+    * @param useWebhookMode usewebhookmode
+    * @param userStore 用户存储
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
@@ -922,9 +922,9 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组
-     * @param groupId 群体标识
-     * @param content 内容
+    * 发送转为分组
+    * @param groupId 群体标识
+    * @param content 内容
      */
     public BotSendResult sendToGroup(String groupId,
             String content) {
@@ -933,72 +933,72 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组异步
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送转为分组异步
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
@@ -1008,69 +1008,69 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 发送转为分组提及
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送转为分组提及
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public BotSendResult sendToGroupMention(
             String groupId,
@@ -1093,59 +1093,59 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 添加消息监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 添加消息监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public BotClient addMessageListener(
             BotMessageListener listener) {
@@ -1157,58 +1157,58 @@ public class FeishuBotClient implements BotClient {
 
     @Override
     /**
-      * 移除消息监听器
-     * @param listener 监听器
-     * @param listener 监听器
-     * @param challengeToken challenge令牌
-     * @param null 空
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param currentBackoff 当前退避
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param BACKOFF_MAX_MS 退避_最大_MS
-     * @param event 事件
-     * @param Map 映射
-     * @param msgType msg类型
-     * @param e e
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 移除消息监听器
+    * @param listener 监听器
+    * @param listener 监听器
+    * @param challengeToken challenge令牌
+    * @param null 空
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param currentBackoff 当前退避
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param BACKOFF_MAX_MS 退避_最大_MS
+    * @param event 事件
+    * @param Map 映射
+    * @param msgType msg类型
+    * @param e e
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
@@ -1226,10 +1226,10 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 验证 Webhook 挑战令牌
-     *
-     * @param challengeToken 挑战令牌
-     * @return 验证结果
+    * 验证 Webhook 挑战令牌
+    *
+    * @param challengeToken 挑战令牌
+    * @return 验证结果
      */
     public String verifyChallenge(String challengeToken) {
         if (webhookVerifyToken == null) {
@@ -1241,16 +1241,16 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 是否使用 Webhook 模式
-     *
-     * @return true 表示使用 Webhook 模式
+    * 是否使用 Webhook 模式
+    *
+    * @return true 表示使用 Webhook 模式
      */
     public boolean isUseWebhookMode() {
         return useWebhookMode;
     }
 
     /**
-     * 轮询事件
+    * 轮询事件
      */
     @SuppressWarnings("unchecked")
     private void pollEvents() {
@@ -1308,10 +1308,10 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * sleep退避
-     *
-     * @param currentBackoff 当前退避
-     * @return sleep退避的结果
+    * sleep退避
+    *
+    * @param currentBackoff 当前退避
+    * @return sleep退避的结果
      */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
@@ -1321,8 +1321,8 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 处理单个事件
-     * @param event 事件
+    * 处理单个事件
+    * @param event 事件
      */
     @SuppressWarnings("unchecked")
     private void handleEvent(Map<String, Object> event) {
@@ -1399,42 +1399,42 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-      * 发送文本内部
-     * @param receiveId 接收标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送文本内部
+    * @param receiveId 接收标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     private BotSendResult sendTextInternal(
             String receiveId, String content) {
@@ -1468,37 +1468,37 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-      * 发送分组文本内部
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param content 内容
-     * @param e e
-     * @param e e
-     * @param groupId 群体标识
-     * @param content 内容
-     * @param mentionedUserIds 提及用户标识
-     * @param content 内容
-     * @param userId 用户标识
-     * @param atList at列表
-     * @param e e
-     * @param e e
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送分组文本内部
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param content 内容
+    * @param e e
+    * @param e e
+    * @param groupId 群体标识
+    * @param content 内容
+    * @param mentionedUserIds 提及用户标识
+    * @param content 内容
+    * @param userId 用户标识
+    * @param atList at列表
+    * @param e e
+    * @param e e
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
@@ -1532,7 +1532,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 发送群组 @ 提及消息
+    * 发送群组 @ 提及消息
      */
     @SuppressWarnings("unchecked")
     private BotSendResult sendGroupMentionInternal(
@@ -1577,24 +1577,24 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-      * 发送镜像内部
-     * @param receiveId 接收标识
-     * @param mediaPath media路径
-     * @param imageBytes 镜像bytes
-     * @param imageKey 镜像键
-     * @param e e
-     * @param e e
-     * @param message 消息
-     * @param msgType msg类型
-     * @param e e
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 发送镜像内部
+    * @param receiveId 接收标识
+    * @param mediaPath media路径
+    * @param imageBytes 镜像bytes
+    * @param imageKey 镜像键
+    * @param e e
+    * @param e e
+    * @param message 消息
+    * @param msgType msg类型
+    * @param e e
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     private BotSendResult sendImageInternal(
             String receiveId, String mediaPath) {
@@ -1647,7 +1647,7 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 提取消息内容
+    * 提取消息内容
      */
     @SuppressWarnings("unchecked")
     private String extractContent(Map<String, Object> message,
@@ -1680,15 +1680,15 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-      * 映射消息类型
-     * @param msgType msg类型
-     * @param value 值
-     * @param defaultValue 默认值
-     * @param Number 数字
-     * @param e e
-     * @param ignored ignored
-     * @param millis millis
-     * @param e e
+    * 映射消息类型
+    * @param msgType msg类型
+    * @param value 值
+    * @param defaultValue 默认值
+    * @param Number 数字
+    * @param e e
+    * @param ignored ignored
+    * @param millis millis
+    * @param e e
      */
     private static BotInboundMessage.Type mapMessageType(
             String msgType) {
@@ -1711,11 +1711,11 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 转为int
-     *
-     * @param value 值
-     * @param defaultValue 默认值
-     * @return 转为int的结果
+    * 转为int
+    *
+    * @param value 值
+    * @param defaultValue 默认值
+    * @return 转为int的结果
      */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number) {
@@ -1725,9 +1725,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * 通知记录错误
-     *
-     * @param e e
+    * 通知记录错误
+    *
+    * @param e e
      */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
@@ -1740,9 +1740,9 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-     * Sleep
-     *
-     * @param millis millis
+    * Sleep
+    *
+    * @param millis millis
      */
     private void sleep(long millis) {
         try {

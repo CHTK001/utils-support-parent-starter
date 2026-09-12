@@ -3,10 +3,10 @@ package com.chua.common.support.lang.datasource.engine.wrapper;
 import java.util.List;
 
 /**
- * 查询 SQL 信息记录，包含构建查询所需的所有结构化数据。
- *
- * @author CH
- * @since 4.0.0.42
+* 查询 SQL 信息记录，包含构建查询所需的所有结构化数据。
+*
+* @author CH
+* @since 4.0.0.42
  */
 public record QuerySql<T>(
         Class<T> entityClass,

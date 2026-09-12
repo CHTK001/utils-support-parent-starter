@@ -10,38 +10,38 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * curl 鍛戒护瑙ｆ瀽鍣ㄣ€? *
- * <p>灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}锛屾敮鎸佷互涓嬮€夐」锛?/p>
- * <ul>
- *   <li><b>鏂规硶锛?/b>{@code -X}, {@code --request}, {@code -G}, {@code --get}, {@code -I}, {@code --head}</li>
- *   <li><b>璇锋眰浣擄細</b>{@code -d}, {@code --data}, {@code --data-raw}, {@code --data-binary}, {@code --data-ascii}, {@code --data-urlencode}</li>
- *   <li><b>璇锋眰澶达細</b>{@code -H}, {@code --header}, {@code -A}, {@code --user-agent}, {@code -e}, {@code --referer}, {@code -b}, {@code --cookie}</li>
- *   <li><b>璁よ瘉锛?/b>{@code -u}, {@code --user}锛圔asic Auth锛?/li>
- *   <li><b>瓒呮椂锛?/b>{@code --connect-timeout}, {@code --max-time}</li>
- *   <li><b>浠ｇ悊锛?/b>{@code --proxy}, {@code --proxy-user}</li>
- *   <li><b>閲嶅畾鍚戯細</b>{@code -L}, {@code --location}</li>
- *   <li><b>SSL锛?/b>{@code -k}, {@code --insecure}</li>
- *   <li><b>琛ㄥ崟/涓婁紶锛?/b>{@code --form}, {@code -F}, {@code -T}, {@code --upload-file}</li>
- *   <li><b>鍏朵粬锛?/b>{@code --compressed}, {@code --url}</li>
- * </ul>
- *
- * <p><b>浣跨敤绀轰緥锛?/b></p>
- * <pre>{@code
- * HttpClientBuilder builder = CurlParser.fromCurl(
- *     "curl -X POST https://api.example.com/users " +
- *     "-H 'Content-Type: application/json' " +
- *     "-H 'Authorization: Bearer xxx' " +
- *     "-d '{\"name\":\"test\"}'"
- * );
- * ClientResponse resp = builder.post();
- *
- * // 鎴栫洿鎺ユ墽琛? * ClientResponse resp = CurlParser.curl(
- *     "curl https://api.example.com/users?page=1"
- * );
- * }</pre>
- *
- * @author CH
- * @since 4.0.0.42
+* curl 鍛戒护瑙ｆ瀽鍣ㄣ€? *
+* <p>灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}锛屾敮鎸佷互涓嬮€夐」锛?/p>
+* <ul>
+*   <li><b>鏂规硶锛?/b>{@code -X}, {@code --request}, {@code -G}, {@code --get}, {@code -I}, {@code --head}</li>
+*   <li><b>璇锋眰浣擄細</b>{@code -d}, {@code --data}, {@code --data-raw}, {@code --data-binary}, {@code --data-ascii}, {@code --data-urlencode}</li>
+*   <li><b>璇锋眰澶达細</b>{@code -H}, {@code --header}, {@code -A}, {@code --user-agent}, {@code -e}, {@code --referer}, {@code -b}, {@code --cookie}</li>
+*   <li><b>璁よ瘉锛?/b>{@code -u}, {@code --user}锛圔asic Auth锛?/li>
+*   <li><b>瓒呮椂锛?/b>{@code --connect-timeout}, {@code --max-time}</li>
+*   <li><b>浠ｇ悊锛?/b>{@code --proxy}, {@code --proxy-user}</li>
+*   <li><b>閲嶅畾鍚戯細</b>{@code -L}, {@code --location}</li>
+*   <li><b>SSL锛?/b>{@code -k}, {@code --insecure}</li>
+*   <li><b>琛ㄥ崟/涓婁紶锛?/b>{@code --form}, {@code -F}, {@code -T}, {@code --upload-file}</li>
+*   <li><b>鍏朵粬锛?/b>{@code --compressed}, {@code --url}</li>
+* </ul>
+*
+* <p><b>浣跨敤绀轰緥锛?/b></p>
+* <pre>{@code
+* HttpClientBuilder builder = CurlParser.fromCurl(
+*     "curl -X POST https://api.example.com/users " +
+*     "-H 'Content-Type: application/json' " +
+*     "-H 'Authorization: Bearer xxx' " +
+*     "-d '{\"name\":\"test\"}'"
+* );
+* ClientResponse resp = builder.post();
+*
+* // 鎴栫洿鎺ユ墽琛? * ClientResponse resp = CurlParser.curl(
+*     "curl https://api.example.com/users?page=1"
+* );
+* }</pre>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public final class CurlParser {
 
@@ -51,9 +51,9 @@ public final class CurlParser {
     }
 
     /**
-     * 灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}銆?     *
-     * @param curl curl 鍛戒护瀛楃涓诧紝鍙互鏄畬鏁村懡浠わ紙鍚?{@code curl} 鍓嶇紑锛夛紝涔熷彲浠ユ槸閫夐」閮ㄥ垎
-     * @return 鏋勫缓濂界殑 HttpClientBuilder锛屽彲鐢ㄤ簬閾惧紡閰嶇疆鍚庢墽琛?     */
+    * 灏?curl 鍛戒护瀛楃涓茶В鏋愪负 {@link HttpClientBuilder}銆?     *
+    * @param curl curl 鍛戒护瀛楃涓诧紝鍙互鏄畬鏁村懡浠わ紙鍚?{@code curl} 鍓嶇紑锛夛紝涔熷彲浠ユ槸閫夐」閮ㄥ垎
+    * @return 鏋勫缓濂界殑 HttpClientBuilder锛屽彲鐢ㄤ簬閾惧紡閰嶇疆鍚庢墽琛?     */
     public static HttpClientBuilder fromCurl(String curl) {
         if (curl == null || curl.isBlank()) {
             throw new IllegalArgumentException("curl command must not be blank");
@@ -75,8 +75,8 @@ public final class CurlParser {
     }
 
     /**
-     * 鐩存帴鎵ц curl 鍛戒护骞惰繑鍥炲搷搴斻€?     *
-     * @param curl curl 鍛戒护瀛楃涓?     * @return HTTP 鍝嶅簲
+    * 鐩存帴鎵ц curl 鍛戒护骞惰繑鍥炲搷搴斻€?     *
+    * @param curl curl 鍛戒护瀛楃涓?     * @return HTTP 鍝嶅簲
      */
     public static ClientResponse curl(String curl) {
         return fromCurl(curl).execute();

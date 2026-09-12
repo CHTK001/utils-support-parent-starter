@@ -16,37 +16,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Kilo CLI usage parser.
- *
- * <p>Kilo CLI (kilo.ai) is an OpenCode fork that persists assistant turns in
- * the {@code message} table of {@code ~/.local/share/kilo/kilo.db} (or
- * {@code $XDG_DATA_HOME/kilo/kilo.db}). Each assistant row's {@code data}
- * JSON column carries per-request token breakdown:</p>
- *
- * <pre>{@code
- * {
- *   "role": "assistant",
- *   "modelID": "google/gemini-3-pro-image",
- *   "providerID": "kilo",
- *   "time": { "created": 1787616871678, "completed": 1787616888000 },
- *   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
- *               "cache": { "read": 0, "write": 0 } },
- *   "cost": 0.0012
- * }
- * }</pre>
- *
- * <p>Token semantics: {@code tokens.input} is already the <b>non-cached</b>
- * input; {@code cache.read} / {@code cache.write} are tracked separately and
- * are <i>not</i> added into the total. The {@code session} table also exists
- * with cumulative per-session counters, but per-request usage (used for
- * billing) lives here; the cumulative session totals would double-count
- * against this source so only {@code message} rows are streamed.</p>
- *
- * <p>Newer Kilo CLI versions may write to the OpenCode v2 layout
- * ({@code session_message}); both tables are probed and merged.</p>
- *
- * @author CH
- * @since 4.0.0.44
+* Kilo CLI usage parser.
+*
+* <p>Kilo CLI (kilo.ai) is an OpenCode fork that persists assistant turns in
+* the {@code message} table of {@code ~/.local/share/kilo/kilo.db} (or
+* {@code $XDG_DATA_HOME/kilo/kilo.db}). Each assistant row's {@code data}
+* JSON column carries per-request token breakdown:</p>
+*
+* <pre>{@code
+* {
+*   "role": "assistant",
+*   "modelID": "google/gemini-3-pro-image",
+*   "providerID": "kilo",
+*   "time": { "created": 1787616871678, "completed": 1787616888000 },
+*   "tokens": { "input": 1200, "output": 210, "reasoning": 0,
+*               "cache": { "read": 0, "write": 0 } },
+*   "cost": 0.0012
+* }
+* }</pre>
+*
+* <p>Token semantics: {@code tokens.input} is already the <b>non-cached</b>
+* input; {@code cache.read} / {@code cache.write} are tracked separately and
+* are <i>not</i> added into the total. The {@code session} table also exists
+* with cumulative per-session counters, but per-request usage (used for
+* billing) lives here; the cumulative session totals would double-count
+* against this source so only {@code message} rows are streamed.</p>
+*
+* <p>Newer Kilo CLI versions may write to the OpenCode v2 layout
+* ({@code session_message}); both tables are probed and merged.</p>
+*
+* @author CH
+* @since 4.0.0.44
  */
 @Spi("kilo")
 public class KiloUsageParser extends BaseUsageParser {
@@ -56,8 +56,8 @@ public class KiloUsageParser extends BaseUsageParser {
     private static final String PROVIDER_KILO = "kilo";
 
     /**
-     * resolvedb路径。
-     * @return resolvedb路径的结果
+    * resolvedb路径。
+    * @return resolvedb路径的结果
      */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
@@ -68,7 +68,7 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-     * v1 schema：助手行携带 data JSON，按 token 量筛选。
+    * v1 schema：助手行携带 data JSON，按 token 量筛选。
      */
     private static final String SQL_V1 =
             "SELECT time_created, "
@@ -83,7 +83,7 @@ public class KiloUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-     * v2 schema（session_message 表，type 列而非 role）。
+    * v2 schema（session_message 表，type 列而非 role）。
      */
     private static final String SQL_V2 =
             "SELECT time_created, "
@@ -98,9 +98,9 @@ public class KiloUsageParser extends BaseUsageParser {
                     + "ORDER BY time_created ASC";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "kilo"}
+    * 返回 SPI 名称。
+    *
+    * @return {@code "kilo"}
      */
     @Override
     public String name() {
@@ -108,9 +108,9 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
-     * {@code session_message} 表合并，两表并存时由下游按 (session, message)
-     * 去重，避免过渡期双计。
+    * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
+    * {@code session_message} 表合并，两表并存时由下游按 (session, message)
+    * 去重，避免过渡期双计。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -134,10 +134,10 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将 SQL 行映射为 {@link AiUsage}。
-     *
-     * @param row 数据库行
-     * @return 用量记录
+    * 将 SQL 行映射为 {@link AiUsage}。
+    *
+    * @param row 数据库行
+    * @return 用量记录
      */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));
@@ -177,10 +177,10 @@ public class KiloUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析可能为 null / 空字符串的 JSON 字符串字段。
-     *
-     * @param raw 原始字符串
-     * @return 解析结果；失败返回缺失值节点
+    * 解析可能为 null / 空字符串的 JSON 字符串字段。
+    *
+    * @param raw 原始字符串
+    * @return 解析结果；失败返回缺失值节点
      */
     private JsonNode parseJsonOrEmpty(String raw) {
         if (raw == null || raw.isBlank()) {

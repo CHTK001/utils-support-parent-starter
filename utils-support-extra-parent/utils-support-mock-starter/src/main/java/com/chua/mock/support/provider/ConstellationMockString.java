@@ -8,21 +8,21 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * 星座 Mock 生成器
- *
- * <p>随机返回十二星座之一，如「双子座」。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 星座 Mock 生成器
+*
+* <p>随机返回十二星座之一，如「双子座」。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Spi("constellation")
 @AutoSpi(value = "com.chua.common.support.mock.MockString")
 public class ConstellationMockString implements MockString {
 
     /**
-     * 十二星座池
-     * @param environment 环境
-     * @return 获取字符串的结果
+    * 十二星座池
+    * @param environment 环境
+    * @return 获取字符串的结果
      */
     private static final String[] CONSTELLATIONS = {
             "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座",

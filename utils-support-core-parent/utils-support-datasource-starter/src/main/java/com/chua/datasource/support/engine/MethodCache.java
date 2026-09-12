@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * 方法处理 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
- * <p>
- * 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
- * {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 方法处理 级别的 getter/setter 缓存，用于按字段名反射访问对象属性，避免每次调用都重新解析方法。
+* <p>
+* 键为 {@code (Class<?>)} + 字段名，值为 {@link MethodHandle}。
+* {@link #getValue(Object, String)} 与 {@link #setValue(Object, String, Object)} 在方法缺失或调用异常时静默返回 {@code null}，不会抛出。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 final class MethodCache {
 
@@ -26,11 +26,11 @@ final class MethodCache {
     }
 
     /**
-     * 获取值
-     *
-     * @param obj obj
-     * @param field 字段
-     * @return 获取值的结果
+    * 获取值
+    *
+    * @param obj obj
+    * @param field 字段
+    * @return 获取值的结果
      */
     static Object getValue(Object obj, String field) {
         MethodHandle mh = getter(obj.getClass(), field);
@@ -65,11 +65,11 @@ final class MethodCache {
     }
 
     /**
-     * 设置值
-     *
-     * @param obj obj
-     * @param field 字段
-     * @param value 值
+    * 设置值
+    *
+    * @param obj obj
+    * @param field 字段
+    * @param value 值
      */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
@@ -97,11 +97,11 @@ final class MethodCache {
     }
 
     /**
-     * Getter
-     *
-     * @param clazz clazz
-     * @param field 字段
-     * @return getter的结果
+    * Getter
+    *
+    * @param clazz clazz
+    * @param field 字段
+    * @return getter的结果
      */
     private static MethodHandle getter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = GETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
@@ -109,11 +109,11 @@ final class MethodCache {
     }
 
     /**
-     * Setter
-     *
-     * @param clazz clazz
-     * @param field 字段
-     * @return setter的结果
+    * Setter
+    *
+    * @param clazz clazz
+    * @param field 字段
+    * @return setter的结果
      */
     private static MethodHandle setter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = SETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
@@ -121,11 +121,11 @@ final class MethodCache {
     }
 
     /**
-     * 查找Getter
-     *
-     * @param clazz clazz
-     * @param field 字段
-     * @return findGetter的结果
+    * 查找Getter
+    *
+    * @param clazz clazz
+    * @param field 字段
+    * @return findGetter的结果
      */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
         try {
@@ -152,11 +152,11 @@ final class MethodCache {
     }
 
     /**
-     * 查找Setter
-     *
-     * @param clazz clazz
-     * @param field 字段
-     * @return findSetter的结果
+    * 查找Setter
+    *
+    * @param clazz clazz
+    * @param field 字段
+    * @return findSetter的结果
      */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
         try {
@@ -174,10 +174,10 @@ final class MethodCache {
     }
 
     /**
-     * 转为camel大小写
-     *
-     * @param name 名称
-     * @return 转为camel大小写的结果
+    * 转为camel大小写
+    *
+    * @param name 名称
+    * @return 转为camel大小写的结果
      */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();

@@ -8,21 +8,21 @@ import javax.annotation.Nullable;
 
 
 /**
- * 图片 RGB 像素工具类。
- *
- * <p>提供 BufferedImage 与二维像素数组之间的相互转换，
- * 以及图片缩放、亮度调整等常用图像处理操作。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 图片 RGB 像素工具类。
+*
+* <p>提供 BufferedImage 与二维像素数组之间的相互转换，
+* 以及图片缩放、亮度调整等常用图像处理操作。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class ImgRgbUtils {
 
     /**
-     * 将图片转换位像素点
-     *
-     * @param image
-     * @return
+    * 将图片转换位像素点
+    *
+    * @param image
+    * @return
      */
     public static Color[][] getPixels(BufferedImage image) {
         int w = image.getWidth();
@@ -38,10 +38,10 @@ public class ImgRgbUtils {
     }
 
     /**
-     * 将像素点转换为图片
-     *
-     * @param pixels
-     * @return
+    * 将像素点转换为图片
+    *
+    * @param pixels
+    * @return
      */
     public static BufferedImage toImage(Color[][] pixels) {
         int h = pixels.length;
@@ -56,11 +56,11 @@ public class ImgRgbUtils {
     }
 
     /**
-      * 通过缓冲镜像图片流调整图片大小
-     * @param originalImage 原始镜像
-     * @param targetWidth Targetwidth
-     * @param targetHeight Targetheight
-     * @return resize镜像的结果
+    * 通过缓冲镜像图片流调整图片大小
+    * @param originalImage 原始镜像
+    * @param targetWidth Targetwidth
+    * @param targetHeight Targetheight
+    * @return resize镜像的结果
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
         Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_AREA_AVERAGING);
@@ -70,11 +70,11 @@ public class ImgRgbUtils {
     }
 
     /**
-     * 修改图片亮度
-     *
-     * @param colors
-     * @param Light  亮度
-     * @return
+    * 修改图片亮度
+    *
+    * @param colors
+    * @param Light  亮度
+    * @return
      */
     public static void GetGrayScaleHalf(Color[][] colors, float Light) {
         for (int x = 0; x < colors.length; x++) {

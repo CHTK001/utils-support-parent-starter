@@ -1,12 +1,12 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * DNS 协议还原器。
- *
- * <p>解析 DNS 查询/响应：查询名、记录类型、应答数量、应答内容。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* DNS 协议还原器。
+*
+* <p>解析 DNS 查询/响应：查询名、记录类型、应答数量、应答内容。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DnsProtocolRestorer extends AbstractProtocolRestorer {
 
@@ -109,11 +109,11 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-      * 读取 DNS 域名（处理 标签 与 pointer）。
-     *
-     * @param data 完整 DNS 报文
-     * @param idx  起始偏移
-     * @return 域名字符串
+    * 读取 DNS 域名（处理 标签 与 pointer）。
+    *
+    * @param data 完整 DNS 报文
+    * @param idx  起始偏移
+    * @return 域名字符串
      */
     private static String readName(byte[] data, int idx) {
         StringBuilder sb = new StringBuilder();
@@ -155,11 +155,11 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 跳过域名标签所需的字节数（不解析内容）。
-     *
-     * @param data 报文
-     * @param idx  起始偏移
-     * @return 字节数
+    * 跳过域名标签所需的字节数（不解析内容）。
+    *
+    * @param data 报文
+    * @param idx  起始偏移
+    * @return 字节数
      */
     private static int jumpLength(byte[] data, int idx) {
         int len = 0;
@@ -180,9 +180,9 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 资源记录类型转可读名称。
-     * @param type 类型
-     * @return 转为类型名称的结果
+    * 资源记录类型转可读名称。
+    * @param type 类型
+    * @return 转为类型名称的结果
      */
     private static String toTypeName(int type) {
         return switch (type) {
@@ -205,9 +205,9 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-      * DNS 类（类）转可读名称。
-     * @param cls cls
-     * @return 转为类名称的结果
+    * DNS 类（类）转可读名称。
+    * @param cls cls
+    * @return 转为类名称的结果
      */
     private static String toClassName(int cls) {
         return switch (cls) {
@@ -221,9 +221,9 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * DNS RCODE 转可读名称。
-     * @param rcode rcode
-     * @return 转为rcode的结果
+    * DNS RCODE 转可读名称。
+    * @param rcode rcode
+    * @return 转为rcode的结果
      */
     private static String toRcode(int rcode) {
         return switch (rcode) {

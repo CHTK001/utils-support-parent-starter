@@ -12,18 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 本地进程级服务管理器（默认实现）。
- *
- * <p>使用 {@link ServiceProcessTracker} 追踪 Java 进程 PID，
- * 支持通过 PID 文件或进程名停止服务。</p>
- *
- * @author CH
- * @since 4.0.0.43
- * @param jarPath jar路径
- * @return extract名称的结果
- * @param serviceName 服务名称
- * @param pid pid
- * @param startCmd 启动CMD
+* 本地进程级服务管理器（默认实现）。
+*
+* <p>使用 {@link ServiceProcessTracker} 追踪 Java 进程 PID，
+* 支持通过 PID 文件或进程名停止服务。</p>
+*
+* @author CH
+* @since 4.0.0.43
+* @param jarPath jar路径
+* @return extract名称的结果
+* @param serviceName 服务名称
+* @param pid pid
+* @param startCmd 启动CMD
  */
 @Slf4j
 @SpiDefault
@@ -31,16 +31,16 @@ import java.nio.file.Path;
 public class LocalServiceManager implements ServiceManager {
 
     /**
-     * 本地服务管理器。
-     * @param tracker tracker
+    * 本地服务管理器。
+    * @param tracker tracker
      */
     private static final String DEFAULT_PID_DIR = System.getProperty("java.io.tmpdir") + "/sip-services";
     private static final String NAME_FALLBACK = "unknown-service"; // 名称降级
 
     private final ServiceProcessTracker tracker; // tracker
 /**
- * 本地服务管理器。
- * @param tracker tracker
+* 本地服务管理器。
+* @param tracker tracker
  */
 
     public LocalServiceManager(ServiceProcessTracker tracker) {
@@ -101,9 +101,9 @@ public class LocalServiceManager implements ServiceManager {
         }
         start(jarPath, startCmd);
     /**
-     * 是否running。
-     * @param pid pid
-     * @return 是否running的结果
+    * 是否running。
+    * @param pid pid
+    * @return 是否running的结果
      */
     }
 
@@ -111,9 +111,9 @@ public class LocalServiceManager implements ServiceManager {
     public boolean isRunning(long pid) {
         return pid > 0 && tracker.isRunning(pid);
     /**
-     * findpidby名称。
-     * @param serviceName 服务名称
-     * @return findpidby名称的结果
+    * findpidby名称。
+    * @param serviceName 服务名称
+    * @return findpidby名称的结果
      */
     }
 
@@ -121,11 +121,11 @@ public class LocalServiceManager implements ServiceManager {
     public long findPidByName(String serviceName) {
         return tracker.findPidByName(serviceName);
     /**
-     * install。
-     * @param serviceName 服务名称
-     * @param jarPath jar路径
-     * @param startCmd 启动CMD
-     * @return extract名称的结果
+    * install。
+    * @param serviceName 服务名称
+    * @param jarPath jar路径
+    * @param startCmd 启动CMD
+    * @return extract名称的结果
      */
     }
 

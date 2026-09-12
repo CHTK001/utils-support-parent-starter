@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 集群配置：封装 scatter 配置 + HTTP/TCP 双协议开关 + 服务元数据声明。
- *
- * <p>每个节点通过 seeds 引导加入对等网格，
-   * 按 scatterid 业务分组自动发现、注册/路由、负载均衡与故障退避。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 集群配置：封装 scatter 配置 + HTTP/TCP 双协议开关 + 服务元数据声明。
+*
+* <p>每个节点通过 seeds 引导加入对等网格，
+* 按 scatterid 业务分组自动发现、注册/路由、负载均衡与故障退避。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Getter
 @Setter
@@ -39,9 +39,9 @@ public class ClusterSetting {
     private List<String> servicePaths = new ArrayList<>();
 
     /**
-     * 显式声明的远端服务元数据列表。
-     * <p>ClusterServer builder 在启动前填入，ClusterNode.start() 会将它们注册进 scatter 供对等扩散。</p>
-     * <p>同一 servicePath 下只允许同一种协议，混用时 {@link ClusterManager#addServer} 会拒绝。</p>
+    * 显式声明的远端服务元数据列表。
+    * <p>ClusterServer builder 在启动前填入，ClusterNode.start() 会将它们注册进 scatter 供对等扩散。</p>
+    * <p>同一 servicePath 下只允许同一种协议，混用时 {@link ClusterManager#addServer} 会拒绝。</p>
      */
     private List<ServerEntry> serverEntries = new ArrayList<>();
 
@@ -67,22 +67,22 @@ public class ClusterSetting {
     private long autoDiscoveryIntervalMillis = 1000;
 
     /**
-     * 集群 master（域名或主入口地址）。
-     * <p>仅作为元数据记录，供运维/监控识别主入口，不影响 scatter 对等发现逻辑。</p>
+    * 集群 master（域名或主入口地址）。
+    * <p>仅作为元数据记录，供运维/监控识别主入口，不影响 scatter 对等发现逻辑。</p>
      */
     private String master;
 
     /**
-      * 获取有效业务分组：clusterid 为空时回落到 scatterid。
-     * @return effective群体id的结果
+    * 获取有效业务分组：clusterid 为空时回落到 scatterid。
+    * @return effective群体id的结果
      */
     public String effectiveGroupId() {
         return clusterId != null && !clusterId.isBlank() ? clusterId : scatterId;
     }
 
     /**
-     * 转换为 scatter 配置。
-     * @return 转为scattersetting的结果
+    * 转换为 scatter 配置。
+    * @return 转为scattersetting的结果
      */
     public ScatterSetting toScatterSetting() {
         ScatterSetting setting = new ScatterSetting();

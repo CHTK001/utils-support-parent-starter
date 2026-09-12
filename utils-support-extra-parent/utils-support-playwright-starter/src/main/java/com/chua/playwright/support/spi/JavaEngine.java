@@ -6,31 +6,31 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * playwright-Java 回退引擎。<br>
-   * 当 {@link PlaywrightNative} 无法加载 NAT 库时自动启用。
-   * 内部维护自己的句柄→对象注册表，方法直接委托给官方 playwright-Java API。
- * <p>
-   * TODO: 更多方法的 playwright-Java 映射
- * @author CH
- * @since 4.0.0
- * @param handle 处理
- * @param type 类型
- * @return 获取的结果
+* playwright-Java 回退引擎。<br>
+* 当 {@link PlaywrightNative} 无法加载 NAT 库时自动启用。
+* 内部维护自己的句柄→对象注册表，方法直接委托给官方 playwright-Java API。
+* <p>
+* TODO: 更多方法的 playwright-Java 映射
+* @author CH
+* @since 4.0.0
+* @param handle 处理
+* @param type 类型
+* @return 获取的结果
  */
 public class JavaEngine implements Engine {
 
     private com.microsoft.playwright.Playwright pw; // pw
     /**
-     * alloc。
-     * @return alloc的结果
+    * alloc。
+    * @return alloc的结果
      */
     final Map<Long, Object> registry = new ConcurrentHashMap<>();
     private long nextHandle = 1; // 下一个处理
 /**
- * playwright。
- * @return playwright的结果
- * @param handle 处理
- * @param type 类型
+* playwright。
+* @return playwright的结果
+* @param handle 处理
+* @param type 类型
  /**
    * alloc。
    * @return alloc的结果
@@ -166,10 +166,10 @@ public class JavaEngine implements Engine {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 查询selector全部。
-     * @param handle 处理
-     * @param selector selector
-     * @return 查询selector全部的结果
+    * 查询selector全部。
+    * @param handle 处理
+    * @param selector selector
+    * @return 查询selector全部的结果
      */
     public List<Long> querySelectorAll(long handle, String selector) {
         com.microsoft.playwright.Page page = get(handle, com.microsoft.playwright.Page.class);

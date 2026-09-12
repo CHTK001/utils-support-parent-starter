@@ -6,13 +6,13 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 
 /**
- * CORS 跨域过滤器。
- *
- * <p>根据 {@link ServerSetting} 中的 CORS 配置自动添加跨域响应头。
- * 仅在 {@link ServerSetting.CorsConfig#isAllowOrigin()} 为 true 时生效。</p>
- *
- * @author CH
- * @since 2024/12/20
+* CORS 跨域过滤器。
+*
+* <p>根据 {@link ServerSetting} 中的 CORS 配置自动添加跨域响应头。
+* 仅在 {@link ServerSetting.CorsConfig#isAllowOrigin()} 为 true 时生效。</p>
+*
+* @author CH
+* @since 2024/12/20
  */
 public class CorsFilter implements ServerFilter {
 
@@ -85,11 +85,11 @@ public class CorsFilter implements ServerFilter {
     }
 
     /**
-     * 判断请求源是否在配置白名单中。
-     *
-     * @param origin         请求源
-     * @param allowedOrigins 允许的源列表
-     * @return true 表示允许
+    * 判断请求源是否在配置白名单中。
+    *
+    * @param origin         请求源
+    * @param allowedOrigins 允许的源列表
+    * @return true 表示允许
      */
     private boolean isOriginAllowed(String origin, String allowedOrigins) {
         if (allowedOrigins == null || allowedOrigins.isBlank()) {

@@ -12,27 +12,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 响应式引擎默认实现，将同步 {@link Engine} 包装为 Reactor 响应式。
- *
- * <p>所有阻塞调用通过 {@link Schedulers#boundedElastic()} 调度执行，
- * 避免阻塞 Reactor 事件循环线程。Lambda 链式查询/更新/删除复用
- * {@link ReactorLambdaQueryWrapper} / {@link ReactorLambdaUpdateWrapper} /
- * {@link ReactorLambdaDeleteWrapper}。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 响应式引擎默认实现，将同步 {@link Engine} 包装为 Reactor 响应式。
+*
+* <p>所有阻塞调用通过 {@link Schedulers#boundedElastic()} 调度执行，
+* 避免阻塞 Reactor 事件循环线程。Lambda 链式查询/更新/删除复用
+* {@link ReactorLambdaQueryWrapper} / {@link ReactorLambdaUpdateWrapper} /
+* {@link ReactorLambdaDeleteWrapper}。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class DefaultReactorEngine implements ReactorEngine {
 
     /**
-     * 被包装的同步引擎
+    * 被包装的同步引擎
      */
     protected final Engine delegate;
 
     /**
-     * 用同步引擎构造响应式包装。
-     *
-     * @param delegate 同步引擎
+    * 用同步引擎构造响应式包装。
+    *
+    * @param delegate 同步引擎
      */
     public DefaultReactorEngine(Engine delegate) {
         if (delegate == null) {
@@ -42,9 +42,9 @@ public class DefaultReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 获取被包装的同步引擎。
-     *
-     * @return 同步引擎
+    * 获取被包装的同步引擎。
+    *
+    * @return 同步引擎
      */
     public Engine getDelegate() {
         return delegate;

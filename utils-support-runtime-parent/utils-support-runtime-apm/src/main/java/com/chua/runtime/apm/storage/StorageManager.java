@@ -10,30 +10,30 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 /**
- * 存储管理器 — SPI 加载 / 全局访问 / 写入分发。
- *
- * <p>启动时通过 {@link #init(StorageConfig)} 加载 SPI；运行时各 Handler 通过
- * {@link #appendTransmission(TransmissionRecord)} 等便捷方法写入。</p>
- *
- * <p>选择策略：</p>
- * <ol>
- *   <li>SPI 第一个有效实现作为默认</li>
- *   <li>若 {@code apm.storage.type} 配置与默认实现名不同，尝试加载同名实现</li>
- *   <li>找不到匹配实现时 fallback 到 {@link NoopStorage}</li>
- * </ol>
- *
- * @author CH
- * @since 4.0.0.42
+* 存储管理器 — SPI 加载 / 全局访问 / 写入分发。
+*
+* <p>启动时通过 {@link #init(StorageConfig)} 加载 SPI；运行时各 Handler 通过
+* {@link #appendTransmission(TransmissionRecord)} 等便捷方法写入。</p>
+*
+* <p>选择策略：</p>
+* <ol>
+*   <li>SPI 第一个有效实现作为默认</li>
+*   <li>若 {@code apm.storage.type} 配置与默认实现名不同，尝试加载同名实现</li>
+*   <li>找不到匹配实现时 fallback 到 {@link NoopStorage}</li>
+* </ol>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Log
 public final class StorageManager {
 
     /**
-      * 全局
+    * 全局
      */
     private static final AtomicReference<ApmStorage> GLOBAL = new AtomicReference<>(new NoopStorage());
     /**
-      * 注册
+    * 注册
      */
     private static final Map<String, ApmStorage> REGISTERED = new ConcurrentHashMap<>();
 
@@ -42,8 +42,8 @@ public final class StorageManager {
     }
 
     /**
-     * 初始化全局存储。
-     * @param config 配置
+    * 初始化全局存储。
+    * @param config 配置
      */
     public static synchronized void init(StorageConfig config) {
         ApmStorage resolved = resolve(config);
@@ -59,7 +59,7 @@ public final class StorageManager {
     }
 
     /**
-     * 关闭并清理。
+    * 关闭并清理。
      */
     public static synchronized void shutdown() {
         ApmStorage s = GLOBAL.get();
@@ -73,16 +73,16 @@ public final class StorageManager {
     }
 
     /**
-     * 获取当前全局存储。
-     * @return 获取的结果
+    * 获取当前全局存储。
+    * @return 获取的结果
      */
     public static ApmStorage get() {
         return GLOBAL.get();
     }
 
     /**
-     * 注册自定义存储（可绕过 SPI 直接注入）。
-     * @param storage storage
+    * 注册自定义存储（可绕过 SPI 直接注入）。
+    * @param storage storage
      */
     public static void register(ApmStorage storage) {
         if (storage != null) {
@@ -93,8 +93,8 @@ public final class StorageManager {
     // ====== 便捷写入接口 ======
 
     /**
-     * 从 {@link TransmissionRecord} 转扁平并写入。
-     * @param record record
+    * 从 {@link TransmissionRecord} 转扁平并写入。
+    * @param record record
      */
     public static void appendTransmission(TransmissionRecord record) {
         ApmStorage s = GLOBAL.get();
@@ -109,16 +109,16 @@ public final class StorageManager {
     }
 
     /**
-     * 解析要使用的存储实现。
-     *
-     * <p>查找顺序:</p>
-     * <ol>
-     *   <li>已显式 register() 的 storage</li>
-     *   <li>SPI 加载 + 按 type 精确匹配</li>
-     *   <li>找不到 type 时,使用 NoopStorage(不盲选第一个 SPI 实现,避免配置与实际不一致)</li>
-     * </ol>
-     * @param config 配置
-     * @return resolve的结果
+    * 解析要使用的存储实现。
+    *
+    * <p>查找顺序:</p>
+    * <ol>
+    *   <li>已显式 register() 的 storage</li>
+    *   <li>SPI 加载 + 按 type 精确匹配</li>
+    *   <li>找不到 type 时,使用 NoopStorage(不盲选第一个 SPI 实现,避免配置与实际不一致)</li>
+    * </ol>
+    * @param config 配置
+    * @return resolve的结果
      */
     private static ApmStorage resolve(StorageConfig config) {
  // 1. 先按 类型 字段精确匹配

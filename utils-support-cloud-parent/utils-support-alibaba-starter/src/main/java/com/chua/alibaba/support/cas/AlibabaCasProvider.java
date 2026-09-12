@@ -33,75 +33,75 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * 阿里云数字证书管理服务（CAS 2020-04-07）的 acme提供者 SPI 实现。
- *
- * <p>将阿里云 OpenAPI 客户端封装为统一证书接口：
- * <ul>
- *   <li>{@link #connect} 使用阿里云 AccessKey + Region 创建 CAS 客户端</li>
- *   <li>{@link #getValidationInfo} 走 {@code CreateCertificateForPackageRequest} 下单，
- *       再 {@code DescribeCertificateState} 拉取 DNS/HTTP 验证记录</li>
- *   <li>{@link #requestCertificate} 走 {@code ApplyCertificate} 触发签发并拉取证书详情</li>
- *   <li>{@link #renewCertificate} 走 {@code RenewCertificateOrderForPackageRequest}</li>
- *   <li>{@link #revokeCertificate} 走 {@code RevokeCertificate}</li>
- *   <li>{@link #getAccountPrivateKeyPem} 阿里云账号体系无 EAB 私钥，固定返回 null</li>
- * </ul>
- *
- * <p>注意：CAS SDK 通过 {@code provided} 方式引入，由用户在运行时自行加依赖。</p>
- *
- * <p>连接参数映射：
- * <ul>
- *   <li>{@code serverUrl} → CAS Region（如 cn-hangzhou）</li>
- *   <li>{@code email} → 联系人邮箱</li>
- *   <li>{@code privateKeyPem} → AccessKeyId</li>
- *   <li>{@code eabKid} → AccessKeySecret</li>
- *   <li>{@code eabHmacKey} → productCode（证书产品编码，例如 digicert-free-1-free）</li>
- * </ul>
- *
- * @author CH
- * @since 4.0.0.42
-   * @版本 1.0.0
+* 阿里云数字证书管理服务（CAS 2020-04-07）的 acme提供者 SPI 实现。
+*
+* <p>将阿里云 OpenAPI 客户端封装为统一证书接口：
+* <ul>
+*   <li>{@link #connect} 使用阿里云 AccessKey + Region 创建 CAS 客户端</li>
+*   <li>{@link #getValidationInfo} 走 {@code CreateCertificateForPackageRequest} 下单，
+*       再 {@code DescribeCertificateState} 拉取 DNS/HTTP 验证记录</li>
+*   <li>{@link #requestCertificate} 走 {@code ApplyCertificate} 触发签发并拉取证书详情</li>
+*   <li>{@link #renewCertificate} 走 {@code RenewCertificateOrderForPackageRequest}</li>
+*   <li>{@link #revokeCertificate} 走 {@code RevokeCertificate}</li>
+*   <li>{@link #getAccountPrivateKeyPem} 阿里云账号体系无 EAB 私钥，固定返回 null</li>
+* </ul>
+*
+* <p>注意：CAS SDK 通过 {@code provided} 方式引入，由用户在运行时自行加依赖。</p>
+*
+* <p>连接参数映射：
+* <ul>
+*   <li>{@code serverUrl} → CAS Region（如 cn-hangzhou）</li>
+*   <li>{@code email} → 联系人邮箱</li>
+*   <li>{@code privateKeyPem} → AccessKeyId</li>
+*   <li>{@code eabKid} → AccessKeySecret</li>
+*   <li>{@code eabHmacKey} → productCode（证书产品编码，例如 digicert-free-1-free）</li>
+* </ul>
+*
+* @author CH
+* @since 4.0.0.42
+* @版本 1.0.0
  */
 @Slf4j
 @Spi("cas")
 public class AlibabaCasProvider implements AcmeProvider {
 
     /**
-     * 阿里云 CAS 客户端
+    * 阿里云 CAS 客户端
      */
     private Client client;
     /**
-     * 联系邮箱
+    * 联系邮箱
      */
     private String email;
     /**
-     * 证书产品编码
+    * 证书产品编码
      */
     private String productCode;
     /**
-      * 缓存 domain → 订单id 的映射，避免重复下单
+    * 缓存 domain → 订单id 的映射，避免重复下单
      */
     private final Map<String, Long> orderIdCache = new ConcurrentHashMap<>();
     /**
-      * 缓存 订单id → instanceid 的映射（CAS 签发需要 instanceid）
+    * 缓存 订单id → instanceid 的映射（CAS 签发需要 instanceid）
      */
     private final Map<Long, String> instanceIdCache = new ConcurrentHashMap<>();
     /**
-      * 缓存 订单id → csr（续签用）
+    * 缓存 订单id → csr（续签用）
      */
     private final Map<Long, String> csrCache = new ConcurrentHashMap<>();
 
     /**
-     * 连接阿里云 CAS。
-     *
-     * <p>参数语义：{@code serverUrl} 当作 RegionId，{@code privateKeyPem} 当作 AccessKeyId，
-     * {@code eabKid} 当作 AccessKeySecret，{@code eabHmacKey} 当作 productCode。</p>
-     *
-     * @param serverUrl CAS 区域（如 cn-hangzhou）
-     * @param email 联系邮箱（同时用作联系人 用户名）
-     * @param privateKeyPem 阿里云 access键标识
-     * @param eabKid access键secret
-     * @param eabHmacKey 证书产品编码（product编码），如 digicert-free-1-free（默认免费版）
-     * @return 连接结果
+    * 连接阿里云 CAS。
+    *
+    * <p>参数语义：{@code serverUrl} 当作 RegionId，{@code privateKeyPem} 当作 AccessKeyId，
+    * {@code eabKid} 当作 AccessKeySecret，{@code eabHmacKey} 当作 productCode。</p>
+    *
+    * @param serverUrl CAS 区域（如 cn-hangzhou）
+    * @param email 联系邮箱（同时用作联系人 用户名）
+    * @param privateKeyPem 阿里云 access键标识
+    * @param eabKid access键secret
+    * @param eabHmacKey 证书产品编码（product编码），如 digicert-free-1-free（默认免费版）
+    * @return 连接结果
      */
     @Override
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
@@ -137,15 +137,15 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 获取域名验证信息：内部走"下单 → 拉验证记录"。
-     *
-     * <p>仅取 {@code domains[0]} 作为下单主域名，其它域名通过 CSR 的 SAN 字段（CAS 自动从 csr 解析）。
-     * 如需 SAN 扩展，请在业务层构造带 SAN 的 CSR，并通过 {@code challengeType} 传入 CSR PEM。
-     * （SPI 未透传 CSR，本实现按单域处理。）</p>
-     *
-     * @param domains 域名
-     * @param challengeType HTTP-01 / DNS-01，可选
-     * @return 验证信息列表
+    * 获取域名验证信息：内部走"下单 → 拉验证记录"。
+    *
+    * <p>仅取 {@code domains[0]} 作为下单主域名，其它域名通过 CSR 的 SAN 字段（CAS 自动从 csr 解析）。
+    * 如需 SAN 扩展，请在业务层构造带 SAN 的 CSR，并通过 {@code challengeType} 传入 CSR PEM。
+    * （SPI 未透传 CSR，本实现按单域处理。）</p>
+    *
+    * @param domains 域名
+    * @param challengeType HTTP-01 / DNS-01，可选
+    * @return 验证信息列表
      */
     @Override
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
@@ -199,14 +199,14 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 申请证书：触发签发并返回证书详情。
-     *
-     * <p>若 {@code challengeType} 为 PEM 格式的 CSR（含 "-----BEGIN CERTIFICATE REQUEST-----"），
-      * 视为 CSR PEM 传入订单；否则视为 challenge类型 字符串，下单时 CSR 字段为空。</p>
-     *
-     * @param domains 域名
-     * @param challengeType CSR PEM 或 challenge类型 字符串
-     * @return 证书结果
+    * 申请证书：触发签发并返回证书详情。
+    *
+    * <p>若 {@code challengeType} 为 PEM 格式的 CSR（含 "-----BEGIN CERTIFICATE REQUEST-----"），
+    * 视为 CSR PEM 传入订单；否则视为 challenge类型 字符串，下单时 CSR 字段为空。</p>
+    *
+    * @param domains 域名
+    * @param challengeType CSR PEM 或 challenge类型 字符串
+    * @return 证书结果
      */
     @Override
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
@@ -261,13 +261,13 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 续签证书：必须传入 CSR PEM 作为 {@code challengeType}。
-     *
-     * <p>{@code domains} 用于选择要续签的订单；同一 domain 会优先使用 {@link #orderIdCache}。</p>
-     *
-     * @param domains 域名
-     * @param challengeType CSR PEM
-     * @return 证书结果
+    * 续签证书：必须传入 CSR PEM 作为 {@code challengeType}。
+    *
+    * <p>{@code domains} 用于选择要续签的订单；同一 domain 会优先使用 {@link #orderIdCache}。</p>
+    *
+    * @param domains 域名
+    * @param challengeType CSR PEM
+    * @return 证书结果
      */
     @Override
     public AcmeCertificateResult renewCertificate(List<String> domains, String challengeType) {
@@ -292,13 +292,13 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-      * 吊销证书：参数为阿里云侧证书 标识（{@code certId}）而非 PEM 内容。
-     *
-     * <p>接口约定为 PEM，但 CAS 只能通过 certificateId+instanceId 吊销；调用方请在调用本方法前
-      * 自行维护 证书id/instanceid → 证书 PEM 的映射（或扩展 acme提供者 接口）。</p>
-     *
-     * @param certificatePem 证书 PEM（当前未使用，仅占位）
-     * @return 是否成功
+    * 吊销证书：参数为阿里云侧证书 标识（{@code certId}）而非 PEM 内容。
+    *
+    * <p>接口约定为 PEM，但 CAS 只能通过 certificateId+instanceId 吊销；调用方请在调用本方法前
+    * 自行维护 证书id/instanceid → 证书 PEM 的映射（或扩展 acme提供者 接口）。</p>
+    *
+    * @param certificatePem 证书 PEM（当前未使用，仅占位）
+    * @return 是否成功
      */
     @Override
     public boolean revokeCertificate(String certificatePem) {
@@ -311,11 +311,11 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-      * 通过 证书id + instanceid 吊销。
-     *
-     * @param certificateId 阿里云证书 标识
-     * @param instanceId 实例 标识
-     * @return 是否成功
+    * 通过 证书id + instanceid 吊销。
+    *
+    * @param certificateId 阿里云证书 标识
+    * @param instanceId 实例 标识
+    * @return 是否成功
      */
     public boolean revokeCertificateWithId(Long certificateId, String instanceId) {
         if (client == null) {
@@ -338,9 +338,9 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 阿里云账号体系无 EAB 私钥。
-     *
-     * @return 固定返回 空
+    * 阿里云账号体系无 EAB 私钥。
+    *
+    * @return 固定返回 空
      */
     @Override
     public String getAccountPrivateKeyPem() {
@@ -358,12 +358,12 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 解析 CAS 服务接入点。
-     * <p>华东1（杭州）公网接入地址为 {@code cas.aliyuncs.com}（无地域前缀），
-     * 其它地域为 {@code cas.&lt;regionId&gt;.aliyuncs.com}。</p>
-     *
-     * @param regionId 地域 标识（如 cn-hangzhou）
-     * @return 服务接入点域名
+    * 解析 CAS 服务接入点。
+    * <p>华东1（杭州）公网接入地址为 {@code cas.aliyuncs.com}（无地域前缀），
+    * 其它地域为 {@code cas.&lt;regionId&gt;.aliyuncs.com}。</p>
+    *
+    * @param regionId 地域 标识（如 cn-hangzhou）
+    * @return 服务接入点域名
      */
     private String resolveEndpoint(String regionId) {
         if (regionId == null || regionId.isEmpty()) {
@@ -376,11 +376,11 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 创建订单并返回 订单id（缓存避免重复下单）
-     *
-     * @param domain domain
-     * @param csr csr
-     * @return 创建订单id的结果
+    * 创建订单并返回 订单id（缓存避免重复下单）
+    *
+    * @param domain domain
+    * @param csr csr
+    * @return 创建订单id的结果
      */
     private Long createOrderId(String domain, String csr) throws Exception {
         return orderIdCache.computeIfAbsent(domain + "|" + (csr == null ? "" : csr), key -> {
@@ -410,10 +410,10 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 查询 instanceid（首次申请后立即可用）
-     *
-     * @param orderId 订单标识
-     * @return 查询instanceid的结果
+    * 查询 instanceid（首次申请后立即可用）
+    *
+    * @param orderId 订单标识
+    * @return 查询instanceid的结果
      */
     private String queryInstanceId(Long orderId) throws Exception {
         if (orderId == null) {
@@ -442,10 +442,10 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 轮询证书详情（最多 60 次，每次 5 秒）
-     *
-     * @param orderId 订单标识
-     * @return poll证书detail的结果
+    * 轮询证书详情（最多 60 次，每次 5 秒）
+    *
+    * @param orderId 订单标识
+    * @return poll证书detail的结果
      */
     private GetCertificateDetailResponse pollCertificateDetail(Long orderId) throws Exception {
         int maxAttempts = 60;
@@ -480,10 +480,10 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 拼接证书链为 PEM
-     *
-     * @param body 主体
-     * @return 连接证书chain的结果
+    * 拼接证书链为 PEM
+    *
+    * @param body 主体
+    * @return 连接证书chain的结果
      */
     private String joinCertificateChain(GetCertificateDetailResponseBody body) {
         StringBuilder sb = new StringBuilder();
@@ -510,11 +510,11 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 把 CAS 校验类型 映射为 SPI 的 challenge类型
-     *
-     * @param validateType 校验类型
-     * @param fallback 降级
-     * @return 转为challenge类型的结果
+    * 把 CAS 校验类型 映射为 SPI 的 challenge类型
+    *
+    * @param validateType 校验类型
+    * @param fallback 降级
+    * @return 转为challenge类型的结果
      */
     private String toChallengeType(String validateType, String fallback) {
         if (validateType == null || validateType.isEmpty()) {
@@ -531,10 +531,10 @@ public class AlibabaCasProvider implements AcmeProvider {
     }
 
     /**
-     * 判断 challenge类型 是否为 CSR PEM
-     *
-     * @param s s
-     * @return 是否csrpem的结果
+    * 判断 challenge类型 是否为 CSR PEM
+    *
+    * @param s s
+    * @return 是否csrpem的结果
      */
     private boolean isCsrPem(String s) {
         return s != null && s.contains("-----BEGIN CERTIFICATE REQUEST-----");

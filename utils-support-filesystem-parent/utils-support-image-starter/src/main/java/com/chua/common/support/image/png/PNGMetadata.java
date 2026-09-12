@@ -26,14 +26,14 @@ import javax.annotation.Nullable;
 
 
 /**
- * PNG 图像元数据。
- *
- * <p>继承自 {@link javax.imageio.metadata.IIOMetadata}，封装 PNG 格式的所有元数据，
-   * 包括 IHDR、PLTE、trns、gama、srgb 等标准 PNG 块信息，以及 APNG 动画相关元数据。
- * 支持元数据的读取、写入和标准 XML 树形结构的转换。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* PNG 图像元数据。
+*
+* <p>继承自 {@link javax.imageio.metadata.IIOMetadata}，封装 PNG 格式的所有元数据，
+* 包括 IHDR、PLTE、trns、gama、srgb 等标准 PNG 块信息，以及 APNG 动画相关元数据。
+* 支持元数据的读取、写入和标准 XML 树形结构的转换。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class PNGMetadata extends IIOMetadata implements Cloneable {
 
@@ -361,23 +361,23 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public ZoneOffset creation_time_offset;
 
     /*
-      * 文本_创建_时间_present- Specifies whether 任意 文本 chunk (文本, itxt,
-      * ztxt) exists with 镜像 创建 时间. The 数据 结构 corresponding
-      * 转为 the 最后一个 decoded 文本 chunk with 创建 时间 是否 indicated by the
-      * 迭代器- 文本_创建_时间_iter.
-     *
-      * 任意 更新 转为 the 文本 chunks with 创建 时间 是否 reflected on
-      * 标准/文档/镜像创建时间 之后 retrieving 时间 从 the 文本
-      * chunk. If there are 多个 文本 chunks with 创建 时间, the 时间
-      * retrieved 从 the 最后一个 decoded 文本 chunk will be used. A point 转为 笔记
-      * 是否 that, retrieval 的 时间 从 文本 chunks 是否 possible only if the
-      * encoded 时间 入 the chunk confirms 转为 either the recommended RFC1123
-      * 格式化 或 ISO 格式化.
-     *
-      * Similarly, 任意 更新 转为 标准/文档/镜像创建时间 是否 reflected
-      * on the 最后一个 decoded 文本 chunk's 数据 结构 with 时间 encoded 入
-      * RFC1123 格式化. By 更新 the 文本 chunk's 数据 结构, we also
-      * ensure that png镜像writer will 写入 镜像 创建 时间 on the 输出.
+    * 文本_创建_时间_present- Specifies whether 任意 文本 chunk (文本, itxt,
+    * ztxt) exists with 镜像 创建 时间. The 数据 结构 corresponding
+    * 转为 the 最后一个 decoded 文本 chunk with 创建 时间 是否 indicated by the
+    * 迭代器- 文本_创建_时间_iter.
+    *
+    * 任意 更新 转为 the 文本 chunks with 创建 时间 是否 reflected on
+    * 标准/文档/镜像创建时间 之后 retrieving 时间 从 the 文本
+    * chunk. If there are 多个 文本 chunks with 创建 时间, the 时间
+    * retrieved 从 the 最后一个 decoded 文本 chunk will be used. A point 转为 笔记
+    * 是否 that, retrieval 的 时间 从 文本 chunks 是否 possible only if the
+    * encoded 时间 入 the chunk confirms 转为 either the recommended RFC1123
+    * 格式化 或 ISO 格式化.
+    *
+    * Similarly, 任意 更新 转为 标准/文档/镜像创建时间 是否 reflected
+    * on the 最后一个 decoded 文本 chunk's 数据 结构 with 时间 encoded 入
+    * RFC1123 格式化. By 更新 the 文本 chunk's 数据 结构, we also
+    * ensure that png镜像writer will 写入 镜像 创建 时间 on the 输出.
      */
     public boolean tEXt_creation_time_present;
     /** 文本_创建_时间_iter */
@@ -466,12 +466,12 @@ public boolean tRNS_present;
     }
 
     /**
-      * 创建 pngmetadata 实例
-     * @param metadata metadata
-     * @param target Target
+    * 创建 pngmetadata 实例
+    * @param metadata metadata
+    * @param target Target
      /**
-       * pngmetadata。
-      * @param metadata metadata
+    * pngmetadata。
+    * @param metadata metadata
       */
      * @param methodName 方法名称
      * @return invoke字符串的结果
@@ -481,10 +481,10 @@ public boolean tRNS_present;
               invokeString(metadata, "getNativeMetadataFormatName"),
               invokeString(metadata, "getNativeMetadataFormatClassName"),
               /**
-               * invoke布尔值。
-               * @param target Target
-               * @param methodName 方法名称
-               * @return invoke布尔值的结果
+              * invoke布尔值。
+              * @param target Target
+              * @param methodName 方法名称
+              * @return invoke布尔值的结果
                */
               null, null);
     }
@@ -506,22 +506,22 @@ public boolean tRNS_present;
     }
 
     /**
-     * 初始化
-     *
-     * @param imageType 镜像类型
-     * @param numBands numbands
+    * 初始化
+    *
+    * @param imageType 镜像类型
+    * @param numBands numbands
      */
     public void initialize(ImageTypeSpecifier imageType, int numBands) {
         initialize(imageType.getColorModel(), imageType.getSampleModel(), numBands);
     }
 
     /**
-      * 设置 the IHDR_钻头深度 和 IHDR_color类型 变量.
-      * The {@code numBands} 参数 是否 necessary 自
-      * we may only be 写入 a subset 的 the 镜像 bands.
-     * @param colorModel color模型
-     * @param sampleModel 样本模型
-     * @param numBands numbands
+    * 设置 the IHDR_钻头深度 和 IHDR_color类型 变量.
+    * The {@code numBands} 参数 是否 necessary 自
+    * we may only be 写入 a subset 的 the 镜像 bands.
+    * @param colorModel color模型
+    * @param sampleModel 样本模型
+    * @param numBands numbands
      */
     public void initialize(ColorModel colorModel, SampleModel sampleModel, int numBands) {
 
@@ -686,19 +686,19 @@ public boolean tRNS_present;
     }
 
     /**
-     * 是否读取Only
-     *
-     * @return 是否读取only的结果
+    * 是否读取Only
+    *
+    * @return 是否读取only的结果
      */
     public boolean isReadOnly() {
         return false;
     }
 
     /**
-     * clonebytesarray列表
-     *
-     * @param in 入
-     * @return clonebytesarray列表的结果
+    * clonebytesarray列表
+    *
+    * @param in 入
+    * @return clonebytesarray列表的结果
      */
     private ArrayList<byte[]> cloneBytesArrayList(ArrayList<byte[]> in) {
         if (in == null) {
@@ -714,9 +714,9 @@ public boolean tRNS_present;
 
     // Deep clone
     /**
-     * Clone
-     *
-     * @return clone的结果
+    * Clone
+    *
+    * @return clone的结果
      */
     public Object clone() {
         PNGMetadata metadata;
@@ -734,10 +734,10 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取as树
-     *
-     * @param formatName 格式化名称
-     * @return 获取as树的结果
+    * 获取as树
+    *
+    * @param formatName 格式化名称
+    * @return 获取as树的结果
      */
     public Node getAsTree(String formatName) {
         if (formatName.equals(nativeMetadataFormatName)) {
@@ -751,9 +751,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取NAT树
-     *
-     * @return 获取NAT树的结果
+    * 获取NAT树
+    *
+    * @return 获取NAT树的结果
      */
     private Node getNativeTree() {
  // scratch 节点
@@ -1146,9 +1146,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取num通道
-     *
-     * @return 获取num通道的结果
+    * 获取num通道
+    *
+    * @return 获取num通道的结果
      */
     private int getNumChannels() {
  // Determine 数字 的 通道
@@ -1162,9 +1162,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准chroma节点
-     *
-     * @return 获取标准chroma节点的结果
+    * 获取标准chroma节点
+    *
+    * @return 获取标准chroma节点的结果
      */
     public IIOMetadataNode getStandardChromaNode() {
         IIOMetadataNode chroma_node = new IIOMetadataNode("Chroma");
@@ -1241,9 +1241,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准compression节点
-     *
-     * @return 获取标准compression节点的结果
+    * 获取标准compression节点
+    *
+    * @return 获取标准compression节点的结果
      */
     public IIOMetadataNode getStandardCompressionNode() {
         IIOMetadataNode compression_node = new IIOMetadataNode("Compression");
@@ -1268,11 +1268,11 @@ public boolean tRNS_present;
     }
 
     /**
-     * Repeat
-     *
-     * @param s s
-     * @param times 时间
-     * @return repeat的结果
+    * Repeat
+    *
+    * @param s s
+    * @param times 时间
+    * @return repeat的结果
      */
     private String repeat(String s, int times) {
         if (times == 1) {
@@ -1288,9 +1288,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准数据节点
-     *
-     * @return 获取标准数据节点的结果
+    * 获取标准数据节点
+    *
+    * @return 获取标准数据节点的结果
      */
     public IIOMetadataNode getStandardDataNode() {
         IIOMetadataNode data_node = new IIOMetadataNode("Data");
@@ -1340,9 +1340,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准维度节点
-     *
-     * @return 获取标准维度节点的结果
+    * 获取标准维度节点
+    *
+    * @return 获取标准维度节点的结果
      */
     public IIOMetadataNode getStandardDimensionNode() {
         IIOMetadataNode dimension_node = new IIOMetadataNode("Dimension");
@@ -1386,9 +1386,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准文档节点
-     *
-     * @return 获取标准文档节点的结果
+    * 获取标准文档节点
+    *
+    * @return 获取标准文档节点的结果
      */
     public IIOMetadataNode getStandardDocumentNode() {
         IIOMetadataNode document_node = null;
@@ -1431,9 +1431,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准文本节点
-     *
-     * @return 获取标准文本节点的结果
+    * 获取标准文本节点
+    *
+    * @return 获取标准文本节点的结果
      */
     public IIOMetadataNode getStandardTextNode() {
         int numEntries = tEXt_keyword.size() +
@@ -1485,9 +1485,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取标准transparency节点
-     *
-     * @return 获取标准transparency节点的结果
+    * 获取标准transparency节点
+    *
+    * @return 获取标准transparency节点的结果
      */
     public IIOMetadataNode getStandardTransparencyNode() {
         IIOMetadataNode transparency_node =
@@ -2305,18 +2305,18 @@ public boolean tRNS_present;
     }
 
     /*
-      * Accrding 转为 PNG spec, keywords are restricted 转为 1 转为 79 bytes
-      * 入 长度. Keywords shall contain only printable Latin-1 characters
-      * 和 spaces; 转为 reduce the chances for human misreading 的 a keyword,
-      * 铅 spaces, trailing spaces, 和 consecutive spaces are not
-      * permitted 入 keywords.
-     *
-      * 参见: http://www.w3.org/TR/PNG/#11keywords
+    * Accrding 转为 PNG spec, keywords are restricted 转为 1 转为 79 bytes
+    * 入 长度. Keywords shall contain only printable Latin-1 characters
+    * 和 spaces; 转为 reduce the chances for human misreading 的 a keyword,
+    * 铅 spaces, trailing spaces, 和 consecutive spaces are not
+    * permitted 入 keywords.
+    *
+    * 参见: http://www.w3.org/TR/PNG/#11keywords
      */
     /**
-     * 是否validkeyword。
-     * @param s s
-     * @return 是否validkeyword的结果
+    * 是否validkeyword。
+    * @param s s
+    * @return 是否validkeyword的结果
      */
     private boolean isValidKeyword(String s) {
         int len = s.length();
@@ -2339,10 +2339,10 @@ public boolean tRNS_present;
       * 参见: http://www.w3.org/TR/PNG/#11keywords
      */
     /**
-     * 是否isolatin。
-     * @param s s
-     * @param isLineFeedAllowed 是否线feedallowed
-     * @return 是否isolatin的结果
+    * 是否isolatin。
+    * @param s s
+    * @param isLineFeedAllowed 是否线feedallowed
+    * @return 是否isolatin的结果
      */
     private boolean isISOLatin(String s, boolean isLineFeedAllowed) {
         int len = s.length();
@@ -2599,9 +2599,9 @@ public boolean tRNS_present;
                         int sec   = getIntAttribute(child, "second", 0, false);
 
                         /*
-                          * 更新 标准/文档/镜像创建时间 和 encode
-                          * the same 入 the 最后一个 decoded 文本 chunk with 创建
-                          * 时间
+    * 更新 标准/文档/镜像创建时间 和 encode
+    * the same 入 the 最后一个 decoded 文本 chunk with 创建
+    * 时间
                          */
                         initImageCreationTime(year, month, day, hour, mins, sec);
                         encodeImageCreationTimeToTextChunk();
@@ -2742,9 +2742,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 设置创建时间chunk
-     *
-     * @param iter iter
+    * 设置创建时间chunk
+    *
+    * @param iter iter
      */
     private void setCreationTimeChunk(ListIterator<String> iter) {
         // Check for iterator's valid state
@@ -2755,9 +2755,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 设置encoded时间
-     *
-     * @param encodedTime encoded时间
+    * 设置encoded时间
+    *
+    * @param encodedTime encoded时间
      */
     private void setEncodedTime(String encodedTime) {
         if (tEXt_creation_time_iter != null
@@ -2771,9 +2771,9 @@ public boolean tRNS_present;
     }
 
     /**
-     * 获取encoded时间
-     *
-     * @return 获取encoded时间的结果
+    * 获取encoded时间
+    *
+    * @return 获取encoded时间的结果
      */
     private String getEncodedTime() {
         String encodedTime = null;
@@ -2787,10 +2787,10 @@ public boolean tRNS_present;
     }
 
     /**
-     * 解析encoded时间
-     *
-     * @param encodedTime encoded时间
-     * @return 解析encoded时间的结果
+    * 解析encoded时间
+    *
+    * @param encodedTime encoded时间
+    * @return 解析encoded时间的结果
      */
     private OffsetDateTime parseEncodedTime(String encodedTime) {
         OffsetDateTime retVal = null;

@@ -17,70 +17,70 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * 数据同步 智能体 服务器，统一管理本地与远程 智能体 的注册、数据推送。
- * <p>
-   * 本地 智能体 通过 {@link #register(DataSyncAgent)} 直接注册；
-   * 远程 智能体 通过 同步服务端 的注册消息自动注册。
-   * 数据推送时优先走本地调用，远程 智能体 通过 同步服务端 的 {@code sink:{agentId}} 主题下发。
- * </p>
- * <p>
-   * 每个 智能体 注册后，其持有的 源 和 Sink 会一并注册到 {@link DataSyncServer}，
- * 供调度器按 Mapping 配置查找使用。
- * </p>
- *
- * @author CH
- * @since 4.0.0.42
+* 数据同步 智能体 服务器，统一管理本地与远程 智能体 的注册、数据推送。
+* <p>
+* 本地 智能体 通过 {@link #register(DataSyncAgent)} 直接注册；
+* 远程 智能体 通过 同步服务端 的注册消息自动注册。
+* 数据推送时优先走本地调用，远程 智能体 通过 同步服务端 的 {@code sink:{agentId}} 主题下发。
+* </p>
+* <p>
+* 每个 智能体 注册后，其持有的 源 和 Sink 会一并注册到 {@link DataSyncServer}，
+* 供调度器按 Mapping 配置查找使用。
+* </p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 public class DataSyncAgentServer implements AgentServerManager {
 
     /**
-     * 主题前缀：Sink 注册/推送
+    * 主题前缀：Sink 注册/推送
      */
     private static final String TOPIC_SINK_PREFIX = "sink:";
 
     /**
-      * 主题前缀：源 注册/拉取
+    * 主题前缀：源 注册/拉取
      */
     private static final String TOPIC_SOURCE_PREFIX = "source:";
 
     /**
-      * 主题前缀：智能体 注册
+    * 主题前缀：智能体 注册
      */
     private static final String TOPIC_REGISTER_PREFIX = "register:";
 
     /**
-      * 关联的 数据同步服务端 实例
+    * 关联的 数据同步服务端 实例
      */
     private final DataSyncServer dataSyncServer;
 
     /**
-      * 底层 同步服务端 网络服务
+    * 底层 同步服务端 网络服务
      */
     private final SyncServer syncServer;
 
     /**
-     * 本地数据分发执行器
+    * 本地数据分发执行器
      */
     private final ReactorDataSyncExecutor executor;
 
     /**
-      * 智能体 注册表
+    * 智能体 注册表
      */
     private final Map<String, DataSyncAgent> agents = new ConcurrentHashMap<>();
 
     /**
-     * 网络消息监听器
+    * 网络消息监听器
      */
     private final SyncServerListener listener = new AgentSyncListener();
 
     /**
-      * 创建 数据同步智能体服务端 实例
-     * @param dataSyncServer 数据同步服务端
-     * @param syncServer 同步服务端
-     * @param serverId 字符串
-     * @param syncServer 同步服务端
-     * @param serverId 服务端标识
+    * 创建 数据同步智能体服务端 实例
+    * @param dataSyncServer 数据同步服务端
+    * @param syncServer 同步服务端
+    * @param serverId 字符串
+    * @param syncServer 同步服务端
+    * @param serverId 服务端标识
      */
     public DataSyncAgentServer(DataSyncServer dataSyncServer, SyncServer syncServer, String serverId) {
         this.dataSyncServer = dataSyncServer;
@@ -156,14 +156,14 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-      * 远程 源 读取超时时间（秒）。
+    * 远程 源 读取超时时间（秒）。
      */
     private static final int REMOTE_SOURCE_READ_TIMEOUT_SECONDS = 30;
 
     /**
-     * 注册智能体resources
-     *
-     * @param agent 智能体
+    * 注册智能体resources
+    *
+    * @param agent 智能体
      */
     private void registerAgentResources(DataSyncAgent agent) {
         List<DataSyncAgentSource> sources = new ArrayList<>();
@@ -184,9 +184,9 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-     * 注销智能体resources
-     *
-     * @param agent 智能体
+    * 注销智能体resources
+    *
+    * @param agent 智能体
      */
     private void unregisterAgentResources(DataSyncAgent agent) {
  // 从 数据同步服务端 注销 智能体 持有的 源 和 Sink
@@ -200,14 +200,14 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-      * 主题前缀：源 数据响应
+    * 主题前缀：源 数据响应
      */
     private static final String TOPIC_SOURCE_DATA_PREFIX = "source-data:";
     /**
-     * 智能体同步监听器类。
-     *
-     * @author CH
-     * @since 4.0.0
+    * 智能体同步监听器类。
+    *
+    * @author CH
+    * @since 4.0.0
      */
 
     private class AgentSyncListener implements SyncServerListener {
@@ -229,11 +229,11 @@ public class DataSyncAgentServer implements AgentServerManager {
         }
 
         /**
-         * 从 JSON 中解析字符串数组。
-         *
-         * @param json JSON 字符串
-         * @param field 字段名
-         * @return 字符串列表
+        * 从 JSON 中解析字符串数组。
+        *
+        * @param json JSON 字符串
+        * @param field 字段名
+        * @return 字符串列表
          */
         private List<String> parseStringArray(String json, String field) {
             List<String> result = new ArrayList<>();
@@ -267,16 +267,16 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-      * 远程 智能体 代理，代表尚未在本地注册的远程 智能体。
-     * <p>
-      * 代理对象将远程 源/Sink 的 标识 映射为本地代理对象，
-      * 通过 同步服务端 与远程 智能体 进行网络通信。
-     * </p>
-     * @param agentId 智能体标识
-     * @param sourceIds 源标识
-     * @param sinkIds sink标识
-     * @param syncServer 同步服务端
-     * @return 远程智能体代理的结果
+    * 远程 智能体 代理，代表尚未在本地注册的远程 智能体。
+    * <p>
+    * 代理对象将远程 源/Sink 的 标识 映射为本地代理对象，
+    * 通过 同步服务端 与远程 智能体 进行网络通信。
+    * </p>
+    * @param agentId 智能体标识
+    * @param sourceIds 源标识
+    * @param sinkIds sink标识
+    * @param syncServer 同步服务端
+    * @return 远程智能体代理的结果
      */
     private record RemoteAgentProxy(String agentId, List<String> sourceIds, List<String> sinkIds, SyncServer syncServer) implements DataSyncAgent {
 
@@ -331,33 +331,33 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-      * 远程 源 代理，通过网络请求远程 智能体 读取数据。
-     * @author CH
-     * @since 4.0.0
+    * 远程 源 代理，通过网络请求远程 智能体 读取数据。
+    * @author CH
+    * @since 4.0.0
      */
     private static class RemoteAgentSource implements DataSyncAgentSource {
 
         /**
-          * 智能体 标识
+        * 智能体 标识
          */
         private final String agentId;
 
         /**
-          * 源 标识
+        * 源 标识
          */
         private final String sourceId;
 
         /**
-         * 网络服务
+        * 网络服务
          */
         private final SyncServer syncServer;
 
         /**
-          * 构造远程 源 代理。
-         *
-         * @param agentId 智能体 标识
-         * @param sourceId 源 标识
-         * @param syncServer 同步服务端 实例
+        * 构造远程 源 代理。
+        *
+        * @param agentId 智能体 标识
+        * @param sourceId 源 标识
+        * @param syncServer 同步服务端 实例
          */
         RemoteAgentSource(String agentId, String sourceId, SyncServer syncServer) {
             this.agentId = agentId;
@@ -448,33 +448,33 @@ public class DataSyncAgentServer implements AgentServerManager {
     }
 
     /**
-      * 远程 Sink 代理，通过网络推送数据到远程 智能体。
-     * @author CH
-     * @since 4.0.0
+    * 远程 Sink 代理，通过网络推送数据到远程 智能体。
+    * @author CH
+    * @since 4.0.0
      */
     private static class RemoteAgentSink implements DataSyncAgentSink {
 
         /**
-          * 智能体 标识
+        * 智能体 标识
          */
         private final String agentId;
 
         /**
-          * Sink 标识
+        * Sink 标识
          */
         private final String sinkId;
 
         /**
-         * 网络服务
+        * 网络服务
          */
         private final SyncServer syncServer;
 
         /**
-         * 构造远程 Sink 代理。
-         *
-         * @param agentId 智能体 标识
-         * @param sinkId Sink 标识
-         * @param syncServer 同步服务端 实例
+        * 构造远程 Sink 代理。
+        *
+        * @param agentId 智能体 标识
+        * @param sinkId Sink 标识
+        * @param syncServer 同步服务端 实例
          */
         RemoteAgentSink(String agentId, String sinkId, SyncServer syncServer) {
             this.agentId = agentId;

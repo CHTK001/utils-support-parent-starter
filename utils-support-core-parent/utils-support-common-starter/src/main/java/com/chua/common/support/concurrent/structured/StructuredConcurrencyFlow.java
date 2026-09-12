@@ -22,125 +22,125 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * 结构化并发流式构建器。
- *
- * <p>提供链式调用的结构化并发编程模型，支持失败策略、重试、超时等特性。</p>
- *
- * <pre>{@code
- * // 失败快速模式：任意任务失败立即取消其余任务
- * StructuredConcurrencyFlow.of("batch")
- *         .failureStrategy(FailureStrategy.FAIL_FAST)
- *         .submit(() -> callApi1())
- *         .submit(() -> callApi2())
- *         .collect();
- *
- * // 收集最佳结果模式：忽略失败的任务，返回成功的结果
- * StructuredConcurrencyFlow.of("batch")
- *         .failureStrategy(FailureStrategy.COLLECT_BEST)
- *         .submit(() -> callApi1())
- *         .submit(() -> callApi2())
- *         .submit(() -> callApi3())
- *         .collect();
- *
- * // 成功计数模式：达到指定数量的成功结果后停止
- * StructuredConcurrencyFlow.of("batch")
- *         .failureStrategy(FailureStrategy.SUCCESS_COUNT)
- *         .successCount(2)
- *         .submit(() -> callApi1())
- *         .submit(() -> callApi2())
- *         .submit(() -> callApi3())
- *         .collect();
- * }</pre>
- *
- * @since 2026/07/24
+* 结构化并发流式构建器。
+*
+* <p>提供链式调用的结构化并发编程模型，支持失败策略、重试、超时等特性。</p>
+*
+* <pre>{@code
+* // 失败快速模式：任意任务失败立即取消其余任务
+* StructuredConcurrencyFlow.of("batch")
+*         .failureStrategy(FailureStrategy.FAIL_FAST)
+*         .submit(() -> callApi1())
+*         .submit(() -> callApi2())
+*         .collect();
+*
+* // 收集最佳结果模式：忽略失败的任务，返回成功的结果
+* StructuredConcurrencyFlow.of("batch")
+*         .failureStrategy(FailureStrategy.COLLECT_BEST)
+*         .submit(() -> callApi1())
+*         .submit(() -> callApi2())
+*         .submit(() -> callApi3())
+*         .collect();
+*
+* // 成功计数模式：达到指定数量的成功结果后停止
+* StructuredConcurrencyFlow.of("batch")
+*         .failureStrategy(FailureStrategy.SUCCESS_COUNT)
+*         .successCount(2)
+*         .submit(() -> callApi1())
+*         .submit(() -> callApi2())
+*         .submit(() -> callApi3())
+*         .collect();
+* }</pre>
+*
+* @since 2026/07/24
  */
 @SuppressWarnings("unchecked")
 public final class StructuredConcurrencyFlow {
 
     /**
-     * 失败策略枚举。
- * @author CH
+    * 失败策略枚举。
+    * @author CH
      */
     public enum FailureStrategy {
         /**
-         * 快速失败：任一任务失败立即取消其余任务。
+        * 快速失败：任一任务失败立即取消其余任务。
          */
         FAIL_FAST,
 
         /**
-         * 收集最佳：收集所有成功结果，忽略失败。
+        * 收集最佳：收集所有成功结果，忽略失败。
          */
         COLLECT_BEST,
 
         /**
-         * 成功计数：达到指定成功数后停止。
+        * 成功计数：达到指定成功数后停止。
          */
         SUCCESS_COUNT,
 
         /**
-         * 失败计数：达到指定失败数后停止。
+        * 失败计数：达到指定失败数后停止。
          */
         FAILURE_COUNT,
 
         /**
-         * 失败时重试：任务失败后进行重试，重试耗尽则按 FAIL_FAST 处理
+        * 失败时重试：任务失败后进行重试，重试耗尽则按 FAIL_FAST 处理
          */
         RETRY_ON_FAILURE
     }
 
     /**
-     * 名称
+    * 名称
      */
     private final String name;
 
     /**
-     * 失败策略，默认为 FAIL_FAST
+    * 失败策略，默认为 FAIL_FAST
      */
     private FailureStrategy failureStrategy = FailureStrategy.FAIL_FAST;
 
     /**
-     * 成功计数，用于 SUCCESS_COUNT 策略，默认为 1
+    * 成功计数，用于 SUCCESS_COUNT 策略，默认为 1
      */
     private int successCount = 1;
 
     /**
-     * 失败计数，用于 FAILURE_COUNT 策略，默认为 1
+    * 失败计数，用于 FAILURE_COUNT 策略，默认为 1
      */
     private int failureCount = 1;
 
     /**
-     * 最大重试次数，默认为 3
+    * 最大重试次数，默认为 3
      */
     private int maxRetries = 3;
 
     /**
-     * 退避策略
+    * 退避策略
      */
     private BackoffProvider backoff;
 
     /**
-     * 超时时间
+    * 超时时间
      */
     private long timeout;
 
     /**
-     * 超时时间单位
+    * 超时时间单位
      */
     private TimeUnit timeUnit;
 
     /**
-     * 降级回调
+    * 降级回调
      */
     private Supplier<Object> fallback;
 
     /**
-     * 任务列表
+    * 任务列表
      */
     private final List<Callable<?>> tasks = new ArrayList<>();
 
     /**
-     * 创建 StructuredConcurrencyFlow 实例
-     * @param name name
+    * 创建 StructuredConcurrencyFlow 实例
+    * @param name name
      */
     private StructuredConcurrencyFlow(String name) {
         this.name = name;
@@ -225,19 +225,19 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 获取结构化并发提供者。
-     *
-     * <p>根据当前配置的失败策略创建对应的提供者实现，并注册到全局缓存中：</p>
-     * <ul>
-     *   <li>{@link FailureStrategy#FAIL_FAST} -> {@link ShutdownOnFailureStructuredConcurrencyProvider}</li>
-     *   <li>{@link FailureStrategy#COLLECT_BEST} -> {@link ShutdownOnSuccessStructuredConcurrencyProvider}</li>
-     *   <li>其余策略 -> {@link VirtualThreadStructuredConcurrencyProvider}</li>
-     * </ul>
-     *
-     * <p>提供者按 Flow 名称缓存（{@code computeIfAbsent}），首次调用后注册到缓存，
-     * 后续调用直接返回缓存实例，不会因策略变更而改变。</p>
-     *
-     * @return 结构化并发提供者
+    * 获取结构化并发提供者。
+    *
+    * <p>根据当前配置的失败策略创建对应的提供者实现，并注册到全局缓存中：</p>
+    * <ul>
+    *   <li>{@link FailureStrategy#FAIL_FAST} -> {@link ShutdownOnFailureStructuredConcurrencyProvider}</li>
+    *   <li>{@link FailureStrategy#COLLECT_BEST} -> {@link ShutdownOnSuccessStructuredConcurrencyProvider}</li>
+    *   <li>其余策略 -> {@link VirtualThreadStructuredConcurrencyProvider}</li>
+    * </ul>
+    *
+    * <p>提供者按 Flow 名称缓存（{@code computeIfAbsent}），首次调用后注册到缓存，
+    * 后续调用直接返回缓存实例，不会因策略变更而改变。</p>
+    *
+    * @return 结构化并发提供者
      */
     public StructuredConcurrencyProvider getProvider() {
         return CACHE.computeIfAbsent(name, k -> createProvider(failureStrategy));
@@ -263,7 +263,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 快速失败策略：使用 invokeAll 并行执行，任一失败即取消其余。
+    * 快速失败策略：使用 invokeAll 并行执行，任一失败即取消其余。
      */
     private List<Object> executeFailFast(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -280,7 +280,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 收集最佳策略：使用 invokeAll 并行执行，忽略失败的任务，返回 null 作为失败标记。
+    * 收集最佳策略：使用 invokeAll 并行执行，忽略失败的任务，返回 null 作为失败标记。
      */
     private List<Object> executeCollectBest(ExecutorService executor) {
         try {
@@ -297,7 +297,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 成功计数策略：达到指定成功数后立即取消其余任务。
+    * 成功计数策略：达到指定成功数后立即取消其余任务。
      */
     private List<Object> executeSuccessCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -330,7 +330,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 失败计数策略：达到指定失败数后停止。
+    * 失败计数策略：达到指定失败数后停止。
      */
     private List<Object> executeFailureCount(ExecutorService executor) throws Exception {
         List<Future<Object>> futures = invokeAll(executor);
@@ -354,7 +354,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 带重试的失败策略：任务失败后进行重试。
+    * 带重试的失败策略：任务失败后进行重试。
      */
     private List<Object> executeWithRetry(ExecutorService executor) throws Exception {
         List<Object> results = new ArrayList<>();
@@ -397,7 +397,7 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 使用执行器并行执行所有任务。
+    * 使用执行器并行执行所有任务。
      */
     private List<Future<Object>> invokeAll(ExecutorService executor) throws InterruptedException {
         return executor.invokeAll(tasks.stream()
@@ -442,71 +442,71 @@ public final class StructuredConcurrencyFlow {
     }
 
     /**
-     * 全局缓存 Map。
+    * 全局缓存 Map。
      */
     private static final Map<String, StructuredConcurrencyProvider> CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 根据名称获取缓存的 Provider，不存在则返回 null。
-     *
-     * @param name 名称
-     * @return 缓存的 Provider 或 null
+    * 根据名称获取缓存的 Provider，不存在则返回 null。
+    *
+    * @param name 名称
+    * @return 缓存的 Provider 或 null
      */
     public static StructuredConcurrencyProvider get(String name) {
         return CACHE.get(name);
     }
 
     /**
-     * 注册一个结构化并发提供者到全局缓存。
-     *
-     * <p>注册后可通过 {@link #get(String)} 按名称重复使用，避免重复创建。</p>
-     *
-     * @param name     提供者名称
-     * @param provider 结构化并发提供者
-     * @return 之前已注册的同名提供者，若之前未注册则返回 null
+    * 注册一个结构化并发提供者到全局缓存。
+    *
+    * <p>注册后可通过 {@link #get(String)} 按名称重复使用，避免重复创建。</p>
+    *
+    * @param name     提供者名称
+    * @param provider 结构化并发提供者
+    * @return 之前已注册的同名提供者，若之前未注册则返回 null
      */
     public static StructuredConcurrencyProvider register(String name, StructuredConcurrencyProvider provider) {
         return CACHE.put(name, provider);
     }
 
     /**
-     * 从全局缓存中注销指定名称的提供者。
-     *
-     * @param name 要注销的提供者名称
-     * @return 被移除的提供者，若之前未注册则返回 null
+    * 从全局缓存中注销指定名称的提供者。
+    *
+    * @param name 要注销的提供者名称
+    * @return 被移除的提供者，若之前未注册则返回 null
      */
     public static StructuredConcurrencyProvider unregister(String name) {
         return CACHE.remove(name);
     }
 
     /**
-     * 获取或创建一个指定名称的默认提供者（基于虚拟线程）并缓存。
-     *
-     * <p>如果缓存中已有同名提供者则直接返回，否则创建一个新的
-     * {@link VirtualThreadStructuredConcurrencyProvider} 并注册到缓存中。</p>
-     *
-     * @param name 提供者名称
-     * @return 缓存的结构化并发提供者（不会为 null）
+    * 获取或创建一个指定名称的默认提供者（基于虚拟线程）并缓存。
+    *
+    * <p>如果缓存中已有同名提供者则直接返回，否则创建一个新的
+    * {@link VirtualThreadStructuredConcurrencyProvider} 并注册到缓存中。</p>
+    *
+    * @param name 提供者名称
+    * @return 缓存的结构化并发提供者（不会为 null）
      */
     public static StructuredConcurrencyProvider getOrCreate(String name) {
         return CACHE.computeIfAbsent(name, k -> new VirtualThreadStructuredConcurrencyProvider());
     }
 
     /**
-     * 获取或创建一个指定名称和策略的提供者并缓存。
-     *
-     * <p>如果缓存中已有同名提供者则直接返回，否则根据策略创建对应的提供者并注册。</p>
-     *
-     * @param name     提供者名称
-     * @param strategy 失败策略，决定创建哪种类型的提供者
-     * @return 缓存的结构化并发提供者（不会为 null）
+    * 获取或创建一个指定名称和策略的提供者并缓存。
+    *
+    * <p>如果缓存中已有同名提供者则直接返回，否则根据策略创建对应的提供者并注册。</p>
+    *
+    * @param name     提供者名称
+    * @param strategy 失败策略，决定创建哪种类型的提供者
+    * @return 缓存的结构化并发提供者（不会为 null）
      */
     public static StructuredConcurrencyProvider getOrCreate(String name, FailureStrategy strategy) {
         return CACHE.computeIfAbsent(name, k -> createProvider(strategy));
     }
 
     /**
-     * 根据失败策略创建对应的 Provider。
+    * 根据失败策略创建对应的 Provider。
      */
     private static StructuredConcurrencyProvider createProvider(FailureStrategy strategy) {
         return switch (strategy) {

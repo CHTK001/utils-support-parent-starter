@@ -21,68 +21,68 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 腾讯混元生图图片生成客户端
- *
- * <p>基于腾讯混元大模型生图 API 的 {@link ImageClient} 实现，通过 HTTP 协议
-   * 调用混元生图接口。该接口返回的图片数据可能为 基础64 编码或 URL，
- * 实现中自动识别并处理两种格式。
- *
- * @author CH
- * @since 4.0.0.42
+* 腾讯混元生图图片生成客户端
+*
+* <p>基于腾讯混元大模型生图 API 的 {@link ImageClient} 实现，通过 HTTP 协议
+* 调用混元生图接口。该接口返回的图片数据可能为 基础64 编码或 URL，
+* 实现中自动识别并处理两种格式。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @Spi({"tencent-hunyuan", "tencent"})
 public class HunyuanImageClient implements ImageClient {
 
     /**
-     * 腾讯混元默认 API 地址
+    * 腾讯混元默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.hunyuan.cloud.tencent.com/v1";
 
     /**
-     * HTTP 客户端
+    * HTTP 客户端
      */
     private final HttpClient httpClient;
 
     /**
-     * 客户端配置
+    * 客户端配置
      */
     private final ImageClientSetting setting;
 
     /**
-     * 当前使用的模型名称
+    * 当前使用的模型名称
      */
     private String model;
 
     /**
-     * 当前图片宽度
+    * 当前图片宽度
      */
     private Integer width;
 
     /**
-     * 当前图片高度
+    * 当前图片高度
      */
     private Integer height;
 
     /**
-     * 当前提示词
+    * 当前提示词
      */
     private String prompt;
 
     /**
-     * 当前风格
+    * 当前风格
      */
     private String style;
 
     /**
-     * 当前推理步数
+    * 当前推理步数
      */
     private Integer steps;
 
     /**
-     * 构造腾讯混元生图客户端
-     *
-     * @param setting 客户端配置
+    * 构造腾讯混元生图客户端
+    *
+    * @param setting 客户端配置
      */
     public HunyuanImageClient(ImageClientSetting setting) {
         this.setting = setting;
@@ -190,13 +190,13 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-     * 解析响应并下载图片
-     *
-     * <p>混元生图接口返回的 content 可能是图片 URL 或 base64 编码数据，自动识别并处理。
-     *
-     * @param json 混元返回的 JSON 响应
-     * @return BufferedImage 对象
-     * @throws IOException 下载或解析失败
+    * 解析响应并下载图片
+    *
+    * <p>混元生图接口返回的 content 可能是图片 URL 或 base64 编码数据，自动识别并处理。
+    *
+    * @param json 混元返回的 JSON 响应
+    * @return BufferedImage 对象
+    * @throws IOException 下载或解析失败
      */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
@@ -257,9 +257,9 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-     * 构建图片尺寸字符串
-     *
-     * @return 如 "1024x1024"
+    * 构建图片尺寸字符串
+    *
+    * @return 如 "1024x1024"
      */
     private String buildSize() {
         int w = width != null ? width : 1024;
@@ -268,9 +268,9 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-     * 规范化 API 基础地址
-     *
-     * @return 规范化后的 URL
+    * 规范化 API 基础地址
+    *
+    * @return 规范化后的 URL
      */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
@@ -284,10 +284,10 @@ public BufferedImage generate(String prompt) {
     }
 
     /**
-     * 转义 JSON 字符串中的特殊字符
-     *
-     * @param input 原始字符串
-     * @return 转义后的字符串
+    * 转义 JSON 字符串中的特殊字符
+    *
+    * @param input 原始字符串
+    * @return 转义后的字符串
      */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")

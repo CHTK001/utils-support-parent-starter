@@ -4,10 +4,10 @@ import java.util.Arrays;
 
 
 /**
- * Base32 编码与解码工具类
- * 使用 RFC 4648 标准定义的 Base32 字符集进行数据转换
- * @author CH
- * @since 2024/12/3
+* Base32 编码与解码工具类
+* 使用 RFC 4648 标准定义的 Base32 字符集进行数据转换
+* @author CH
+* @since 2024/12/3
  */
 public class Base32 {
  /**

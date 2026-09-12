@@ -11,26 +11,26 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * HED 线稿/涂鸦预处理 Translator。
- * <p>输出边缘强度可视化图，用于 ControlNet 条件输入。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* HED 线稿/涂鸦预处理 Translator。
+* <p>输出边缘强度可视化图，用于 ControlNet 条件输入。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class HedScribbleTranslator implements Translator<Image, Image> {
 
     /**
-     * 输入分辨率。
+    * 输入分辨率。
      */
     private final int resolution;
 
     /**
-     * 原图宽。
+    * 原图宽。
      */
     private int width;
 
     /**
-     * 原图高。
+    * 原图高。
      */
     private int height;
 
@@ -40,8 +40,8 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
     }
 
     /**
-      * 创建 hedscribbletranslator 实例
-     * @param resolution resolution
+    * 创建 hedscribbletranslator 实例
+    * @param resolution resolution
      */
     public HedScribbleTranslator(int resolution) {
         this.resolution = resolution;

@@ -18,21 +18,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
-   * 飞桨 simnet BOW 文本相似度 Translator。
- * <p>输入 [query tokens, title tokens]，输出相似度分数。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 飞桨 simnet BOW 文本相似度 Translator。
+* <p>输入 [query tokens, title tokens]，输出相似度分数。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SimnetBowTranslator implements Translator<String[][], float[]> {
 
     /**
-     * 词表。
+    * 词表。
      */
     private final Map<String, Long> word2Id = new HashMap<>();
 
     /**
-     * unk。
+    * unk。
      */
     private long unkId;
 
@@ -63,10 +63,10 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     /**
-     * 打开
-     *
-     * @param model 模型
-     * @return 打开的结果
+    * 打开
+    *
+    * @param model 模型
+    * @return 打开的结果
      */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
@@ -91,12 +91,12 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     /**
-     * 转为标识
-     *
-     * @param manager 管理器
-     * @param tokens 令牌
-     * @param name 名称
-     * @return 转为标识的结果
+    * 转为标识
+    *
+    * @param manager 管理器
+    * @param tokens 令牌
+    * @param name 名称
+    * @return 转为标识的结果
      */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
         List<Long> ids = new ArrayList<>();
