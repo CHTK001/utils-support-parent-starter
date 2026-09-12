@@ -3,17 +3,6 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.nio.file.Path;
-
-/**
- * Craft Agents 用量解析器。
- *
- * <p>Craft Agents 将每个会话持久化为
- * {@code ~/.craft-agent/sessions/<session-id>/session.jsonl}，
- * 用量信封与 Prime Agent 相同（per-session 头携带模型名）。</p>
- *
- * @author CH
- * @since 4.0.0.43
- */
 @Spi("craft")
 public class CraftAgentsUsageParser extends AgentSessionUsageParser {
 
