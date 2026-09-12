@@ -42,7 +42,8 @@ r.probabilities(); // 各类别概率
 
 // ④ 评估（K 折交叉验证，默认 10 折）
 EvaluationReport report = classifier.evaluate(model, data);
-report.accuracyPct(); report.kappa();
+report.accuracyPct();
+report.kappa();
 
 // ⑤ 模型落盘 / 恢复
 model.save(Path.of("rf.ser"));
@@ -57,7 +58,8 @@ WekaRandomForestRegressor regressor = new WekaRandomForestRegressor();
 RandomForestModel model = regressor.train(data, null);
 RegressionResult r = regressor.predict(model, Map.of("price", 12.5));
 r.predictedValue();
-EvaluationReport report = regressor.evaluate(model, data); // rmse / mae
+EvaluationReport report = regressor.evaluate(model, data);
+// rmse / mae 见报告
 ```
 
 ### 3. 特征重要性（特征筛选 / 可解释性）
