@@ -38,6 +38,7 @@
         <module>utils-support-openai-starter</module>
         <module>utils-support-wechat-starter</module>
         <module>utils-support-webhook-starter</module>
+        <module>utils-support-trae-starter</module>
     </modules>
 </project>
 
