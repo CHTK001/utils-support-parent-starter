@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrappe
 import com.chua.common.support.lang.datasource.flyway.DefaultFlyway;
 import com.chua.common.support.lang.datasource.flyway.Flyway;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
  *   <li><b>Lambda 链式更新</b> — 通过 {@link #update(Class)} 创建 LambdaUpdateWrapper</li>
  *   <li><b>Lambda 链式删除</b> — 通过 {@link #delete(Class)} 创建 LambdaDeleteWrapper</li>
  *   <li><b>SQL 执行</b> — 通过 {@link #getExecutor()} / {@link #getExecutor(String)} 获取 JDBC 执行器</li>
+ *   <li><b>数据库迁移</b> — 通过 {@link #flyway()} 获取 SQL 脚本版本化迁移工具</li>
  * </ul>
  * </p>
  * <p>
@@ -182,17 +184,19 @@ public interface Engine extends AutoCloseable {
 
     /**
      * 获取数据库迁移工具，提供类似 Flyway 的 SQL 脚本版本化管理。
+     * <p>获取逻辑：通过 {@code ServiceProvider.of(Flyway.class).getNewExtensions(SPI_NAME, this)}
+     * 获取 {@code flyway} 扩展点实现（结果列表按 SPI order 降序排列，首个即最高优先级）；
+     * 取列表中首个（即最高优先级）扩展实例，如业务方注册的
+     * {@code utils-support-flyway-starter} 增强实现；无匹配扩展时兜底返回
+     * 默认实现 {@link DefaultFlyway}。</p>
      *
-     * <p>使用示例：</p>
-     * <pre>{@code
-     * engine.flyway()
-     *     .location("classpath:db/migration")
-     *     .migrate();
-     * }</pre>
-     *
-     * @return 迁移工具
+     * @return 迁移工具（非 null：SPI 扩展或默认实现二选一）
      */
     default Flyway flyway() {
+        for (Flyway f : ServiceProvider.of(Flyway.class)
+                .getNewExtensions(Flyway.SPI_NAME, this)) {
+            return f;
+        }
         return new DefaultFlyway(this);
     }
 

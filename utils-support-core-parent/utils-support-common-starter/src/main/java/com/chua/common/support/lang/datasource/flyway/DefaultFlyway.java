@@ -1,6 +1,8 @@
 package com.chua.common.support.lang.datasource.flyway;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDefault;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,8 @@ import java.util.regex.Pattern;
  * @author CH
  * @since 4.0.0.42
  */
+@SpiDefault
+@Spi(value = Flyway.SPI_NAME, order = 0)
 public class DefaultFlyway implements Flyway {
 
     /**
