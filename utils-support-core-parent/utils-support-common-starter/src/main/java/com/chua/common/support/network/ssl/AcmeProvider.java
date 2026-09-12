@@ -39,8 +39,23 @@ public interface AcmeProvider {
 
     /**
     * 续签证书
-     */
+    */
     AcmeCertificateResult renewCertificate(List<String> domains, String challengeType);
+
+    /**
+    * 基于历史订单地址继续完成证书申请（跨请求恢复订单）。
+    *
+    * <p>适用于用户手动部署验证文件后重新验证的场景：首次申请时已创建订单，
+    * 用户部署完成后在新的请求中根据订单地址恢复并触发验证、提交 CSR。</p>
+    *
+    * @param orderUrl      ACME 订单地址
+    * @param domains       域名列表
+    * @param challengeType 挑战类型（HTTP-01/DNS-01）
+    * @return 证书申请结果
+    */
+    default AcmeCertificateResult resumeCertificate(String orderUrl, List<String> domains, String challengeType) {
+        return AcmeCertificateResult.fail("当前 ACME 提供者不支持恢复历史订单");
+    }
 
     /**
     * 吊销证书

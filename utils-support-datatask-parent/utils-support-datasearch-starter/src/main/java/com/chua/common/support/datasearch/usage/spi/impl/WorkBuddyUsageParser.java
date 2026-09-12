@@ -62,6 +62,7 @@ import java.util.stream.Stream;
  *
  * @author CH
  * @since 4.0.0.44
+     */
 @Spi("workbuddy")
 public class WorkBuddyUsageParser extends BaseUsageParser {
 
@@ -74,12 +75,15 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
      * 返回 SPI 名称。
      *
      * @return {@code "workbuddy"}
+     */
     @Override
     public String name() {
         return PROVIDER_WORKBUDDY;
     }
 
+    /**
      * 响应式流式入口：惰性扫描全部会话转录（含子代理目录）。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listTranscriptFiles();
@@ -96,10 +100,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
      * 枚举 {@code ~/.workbuddy/projects/**} 下的全部会话转录文件
      * （主会话与 {@code subagents/agent-*.jsonl} 子代理）。
      *
      * @return 转录文件列表
+    */
     private List<Path> listTranscriptFiles() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             return List.of();
@@ -116,10 +122,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
         return files;
     }
 
+    /**
      * 流式解析单个转录文件，仅处理携带 rawUsage 的 assistant / function_call 记录。
      *
      * @param file 转录文件
      * @return 用量记录流
+    */
     private Flux<AiUsage> streamTranscriptFile(Path file) {
         return streamLines(file)
                 .map(this::parseLineSafe)
@@ -127,10 +135,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
+    /**
      * 解析单行；失败或非用量行返回 null。
      *
      * @param line 单行 JSON
      * @return 用量记录或 null
+    */
     private AiUsage parseLineSafe(String line) {
         if (line.isBlank()) {
             return null;
@@ -143,10 +153,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
      * 将转录行转换为 AiUsage；仅处理携带 rawUsage 的记录。
      *
      * @param node 解析后的行
      * @return 用量记录；无 rawUsage 或全零时返回 null
+    */
     private AiUsage parseNode(JsonNode node) {
         JsonNode providerData = node.get("providerData");
         if (providerData.isMissingValue()) {
@@ -198,10 +210,12 @@ public class WorkBuddyUsageParser extends BaseUsageParser {
                 .build();
     }
 
+    /**
      * 返回第一个非空字符串。
      *
      * @param values 候选字符串
      * @return 第一个非空白值；全空时 ""
+    */
     private static String firstNonBlank(String... values) {
         for (String v : values) {
             if (v != null && !v.isBlank()) {

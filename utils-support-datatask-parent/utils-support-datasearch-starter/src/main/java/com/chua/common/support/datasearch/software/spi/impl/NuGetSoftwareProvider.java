@@ -139,12 +139,10 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
                         && trimmed.contains("Latest Version")
                         || trimmed.startsWith("---")
                         || trimmed.startsWith("The")) {
-                    {
                     continue;
-                    }
-                    // 表格列: 包  Latest 版本  Owners  Downloads  Verified
-                    String[] tokens = trimmed.split("\\s+");
                 }
+                // 表格列: 包  Latest 版本  Owners  Downloads  Verified
+                String[] tokens = trimmed.split("\\s+");
                 if (tokens.length < 2) {
                     continue;
                 }

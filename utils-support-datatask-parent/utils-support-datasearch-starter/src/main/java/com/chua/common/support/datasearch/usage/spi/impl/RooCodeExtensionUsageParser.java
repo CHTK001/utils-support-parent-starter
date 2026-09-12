@@ -3,6 +3,7 @@ package com.chua.common.support.datasearch.usage.spi.impl;
 import com.chua.common.support.spi.annotations.Spi;
 import reactor.core.publisher.Flux;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -54,19 +55,30 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     }
 
     private String resolveRoocodeModel(String taskId) {
-        for (Map<Path, String> batch : collectTaskFiles()) {
-            for (Map.Entry<Path, String> entry : batch.entrySet()) {
-                if (!taskId.equals(entry.getValue())) {
-                    continue;
-                }
-                Path historyFile = entry.getKey().getParent().resolve("api_conversation_history.json");
-                String model = extractLastModelFromHistory(historyFile);
-                if (model != null) {
-                    return model;
-                }
+        for (Map.Entry<Path, String> entry : resolveTaskFilesOnDisk().entrySet()) {
+            if (!taskId.equals(entry.getValue())) {
+                continue;
+            }
+            Path historyFile = entry.getKey().getParent().resolve("api_conversation_history.json");
+            String model = extractLastModelFromHistory(historyFile);
+            if (model != null) {
+                return model;
             }
         }
         return null;
+    }
+
+    /**
+    * 扁平化所有已收集的任务文件批次（用于按 taskId 查找对应任务目录）。
+    *
+    * @return 任务文件 -> 任务 id 的全局映射（跨全部 IDE 安装）
+    */
+    private java.util.Map<Path, String> resolveTaskFilesOnDisk() {
+        java.util.Map<Path, String> merged = new java.util.LinkedHashMap<>();
+        for (Map<Path, String> batch : collectTaskFiles()) {
+            merged.putAll(batch);
+        }
+        return merged;
     }
 
     /**

@@ -71,7 +71,6 @@ public class KiloConversationParser implements ConversationParser {
      /**
       * 流消息。
       * @return 流消息的结果
-      */
      * @param raw raw
      */
     @Override

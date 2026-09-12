@@ -300,8 +300,7 @@ public abstract class AbstractEngine implements Engine {
             interceptor.beforeQuery(ql, queryParams);
         }
         try {
-            List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass, sql.limit(), sql.offset());
-            result = processQueryResult(sql, result);
+            List<T> result = executeQueryFull(sql);
             for (EngineInterceptor interceptor : interceptorList) {
                 interceptor.afterQuery(ql, queryParams, result);
             }
@@ -312,6 +311,25 @@ public abstract class AbstractEngine implements Engine {
             }
             throw re;
         }
+    }
+
+    /**
+    * 执行完整查询 SQL 信息（含 SELECT 列、WHERE、GROUP BY、ORDER BY、LIMIT/OFFSET）。
+    * <p>
+    * 默认实现仅把 WHERE 条件与分页参数委托给子类的 {@link #executeNewQuery}，
+    * 再通过 {@link #processQueryResult} 做内存排序与分页兜底，适用于内存/文件/NoSQL 引擎。
+    * SQL 引擎（如 {@link JdbcEngine}）应覆盖本方法，将 SELECT 列、GROUP BY、ORDER BY、
+    * LIMIT/OFFSET 全部下推到数据库执行，避免全表数据加载到 JVM。
+    * </p>
+    *
+    * @param sql 查询 SQL 信息
+    * @param <T> 实体类型
+    * @return 查询结果
+    */
+    protected <T> List<T> executeQueryFull(QuerySql<T> sql) {
+        List<T> result = executeNewQuery(sql.whereClause(), sql.params().toArray(),
+                sql.entityClass(), sql.limit(), sql.offset());
+        return processQueryResult(sql, result);
     }
 
     /**
@@ -405,6 +423,19 @@ public abstract class AbstractEngine implements Engine {
     * @return 分页结果
      */
     public <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, Class<T> ec, int pn, int ps) {
+        if (pn < 1) {
+            pn = 1;
+        }
+        if (ps < 1) {
+            throw new IllegalArgumentException("每页条数必须大于 0");
+        }
+        // SQL 引擎走数据库物理分页：COUNT 取总数 + 分页 SQL 取当前页，避免全表加载
+        if (supportsNativePaging(ec)) {
+            long total = executeCount(wrapper);
+            wrapper.limit(ps).offset((pn - 1) * ps);
+            List<T> records = executeQuery(wrapper, ec);
+            return new Page<>(pn, ps, total, records);
+        }
         List<T> all = executeQuery(wrapper, ec);
         int from = (pn - 1) * ps;
         int to = Math.min(from + ps, all.size());
@@ -412,6 +443,46 @@ public abstract class AbstractEngine implements Engine {
             return new Page<>(pn, ps, all.size(), Collections.emptyList());
         }
         return new Page<>(pn, ps, all.size(), all.subList(from, to));
+    }
+
+    /**
+    * 当前引擎是否支持数据库物理分页（COUNT + 分页 SQL）。
+    * <p>默认返回 false，走全量加载后内存分页；SQL 引擎覆盖返回 true。</p>
+    *
+    * @param entityClass 实体类类型（内存存储中存在该实体数据时应回退内存分页）
+    * @return true 表示支持物理分页
+     */
+    protected boolean supportsNativePaging(Class<?> entityClass) {
+        return false;
+    }
+
+    /**
+    * 统计查询条件命中的总行数（供 {@code LambdaQueryWrapper#count()} 终端方法调用）。
+    * <p>SQL 引擎优先下推 {@code SELECT COUNT(*)} 物理计数；
+    * 内存引擎回退为执行查询后对结果计数。</p>
+    *
+    * @param wrapper 查询包装器（不含分页参数）
+    * @param <T>     实体类型
+    * @return 总行数
+     */
+    public <T> long queryCount(LambdaQueryWrapper<T> wrapper) {
+        if (supportsNativePaging(wrapper.getEntityClass())) {
+            return executeCount(wrapper);
+        }
+        return executeQuery(wrapper, wrapper.getEntityClass()).size();
+    }
+
+    /**
+    * 统计查询条件命中的总行数，用于物理分页的 total。
+    * <p>仅在 {@link #supportsNativePaging(Class)} 返回 true 时被调用，
+    * 由 SQL 引擎覆盖实现，通常渲染为 {@code SELECT COUNT(*) FROM (...原始查询...) }。</p>
+    *
+    * @param wrapper 查询包装器（不含分页参数）
+    * @param <T>     实体类型
+    * @return 总行数
+    */
+    protected <T> long executeCount(LambdaQueryWrapper<T> wrapper) {
+        throw new UnsupportedOperationException("当前引擎不支持物理分页计数");
     }
 
     /**

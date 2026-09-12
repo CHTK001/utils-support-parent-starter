@@ -173,6 +173,139 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
+    /** 限制返回行数 */
+    public EngineQueryWrapper<T> limit(int limit) {
+        super.limit(limit);
+        return this;
+    }
+
+    @Override
+    /** 设置偏移行数 */
+    public EngineQueryWrapper<T> offset(int offset) {
+        super.offset(offset);
+        return this;
+    }
+
+    @Override
+    /** Lambda 投影列 */
+    public EngineQueryWrapper<T> select(SFunction<T, ?> column) {
+        super.select(column);
+        return this;
+    }
+
+    @Override
+    /** 字符串投影列 */
+    public EngineQueryWrapper<T> select(String... columns) {
+        super.select(columns);
+        return this;
+    }
+
+    @Override
+    /** 聚合函数投影列 */
+    public EngineQueryWrapper<T> selectFunc(String function, String column, String alias) {
+        super.selectFunc(function, column, alias);
+        return this;
+    }
+
+    @Override
+    /** COUNT(*) 聚合投影列 */
+    public EngineQueryWrapper<T> selectCount(String alias) {
+        super.selectCount(alias);
+        return this;
+    }
+
+    @Override
+    /** SUM 聚合投影列 */
+    public EngineQueryWrapper<T> selectSum(String column, String alias) {
+        super.selectSum(column, alias);
+        return this;
+    }
+
+    @Override
+    /** AVG 聚合投影列 */
+    public EngineQueryWrapper<T> selectAvg(String column, String alias) {
+        super.selectAvg(column, alias);
+        return this;
+    }
+
+    @Override
+    /** MAX 聚合投影列 */
+    public EngineQueryWrapper<T> selectMax(String column, String alias) {
+        super.selectMax(column, alias);
+        return this;
+    }
+
+    @Override
+    /** MIN 聚合投影列 */
+    public EngineQueryWrapper<T> selectMin(String column, String alias) {
+        super.selectMin(column, alias);
+        return this;
+    }
+
+    @Override
+    /** 单列分组 */
+    public EngineQueryWrapper<T> groupBy(SFunction<T, ?> column) {
+        super.groupBy(column);
+        return this;
+    }
+
+    @Override
+    @SafeVarargs
+    public final EngineQueryWrapper<T> groupBy(String... columns) {
+        super.groupBy(columns);
+        return this;
+    }
+
+    @Override
+    /** HAVING 分组过滤条件 */
+    public EngineQueryWrapper<T> having(String condition, Object... params) {
+        super.having(condition, params);
+        return this;
+    }
+
+    @Override
+    /** INNER JOIN 关联 */
+    public EngineQueryWrapper<T> innerJoin(String table, String onCondition) {
+        super.innerJoin(table, onCondition);
+        return this;
+    }
+
+    @Override
+    /** INNER JOIN 关联（显式别名） */
+    public EngineQueryWrapper<T> innerJoin(String table, String alias, String onCondition) {
+        super.innerJoin(table, alias, onCondition);
+        return this;
+    }
+
+    @Override
+    /** LEFT JOIN 关联 */
+    public EngineQueryWrapper<T> leftJoin(String table, String onCondition) {
+        super.leftJoin(table, onCondition);
+        return this;
+    }
+
+    @Override
+    /** LEFT JOIN 关联（显式别名） */
+    public EngineQueryWrapper<T> leftJoin(String table, String alias, String onCondition) {
+        super.leftJoin(table, alias, onCondition);
+        return this;
+    }
+
+    @Override
+    /** RIGHT JOIN 关联 */
+    public EngineQueryWrapper<T> rightJoin(String table, String onCondition) {
+        super.rightJoin(table, onCondition);
+        return this;
+    }
+
+    @Override
+    /** RIGHT JOIN 关联（显式别名） */
+    public EngineQueryWrapper<T> rightJoin(String table, String alias, String onCondition) {
+        super.rightJoin(table, alias, onCondition);
+        return this;
+    }
+
+    @Override
     /** 列表 */
     public List<T> list() {
         return engine.executeQuery(this, entityClass);
@@ -192,5 +325,11 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     /** Page */
     public Page<T> page(int pn, int ps) {
         return engine.executePage(this, entityClass, pn, ps);
+    }
+
+    @Override
+    /** 统计当前条件命中的总行数 */
+    public long count() {
+        return engine.queryCount(this);
     }
 }

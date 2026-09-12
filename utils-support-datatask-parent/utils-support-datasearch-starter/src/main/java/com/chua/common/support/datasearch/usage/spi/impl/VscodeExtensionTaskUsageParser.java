@@ -89,7 +89,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
                 name(), total, batches.size());
         return Flux.fromIterable(batches)
                 .subscribeOn(Schedulers.boundedElastic())
-                .flatMap(batch -> Flux.fromIterable(parseTaskFiles(batch)), 4);
+                .flatMap(batch -> Flux.fromIterable(parseTaskFiles(null, batch)), 4);
     }
 
     /**

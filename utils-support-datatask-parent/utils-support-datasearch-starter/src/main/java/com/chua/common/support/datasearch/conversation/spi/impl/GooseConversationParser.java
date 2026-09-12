@@ -65,7 +65,6 @@ public class GooseConversationParser implements ConversationParser {
      /**
       * 流消息。
       * @return 流消息的结果
-      */
      * @return 第一个nonblank的结果
      * @param raw raw
      */

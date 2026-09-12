@@ -85,19 +85,13 @@ public class H2MetaSearch extends AbstractMetaSearch {
     }
 
     // ==================== 内部构建器 ====================
-     /**
-     * h2创建索引构建器类。
-     *
-     * @author CH
-     * @since 4.0.0
-      */
-     * 搜索字段构建器impl类。
-     *
-      * @param type 类型
-      * @return normalize字段类型的结果
-      * @param mappings mappings
-     */
 
+    /**
+    * H2 创建索引构建器类。
+    *
+    * @author CH
+    * @since 4.0.0
+     */
     private class H2CreateIndexBuilder implements SearchIndexCreateBuilder {
 
         private final String indexName; // 索引名称
@@ -106,13 +100,13 @@ public class H2MetaSearch extends AbstractMetaSearch {
         private int shards = 1; // shards
         private int replicas = 1; // replicas
 
+        /**
+        * 构造 H2 创建索引构建器。
+        *
+        * @param indexName 索引名称
+         */
         H2CreateIndexBuilder(String indexName) {
             this.indexName = indexName;
-        /**
-        * shards。
-        * @param shards shards
-        * @return shards的结果
-         */
         }
 
         @Override

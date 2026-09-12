@@ -67,7 +67,6 @@ public class ContinueConversationParser implements ConversationParser {
      /**
       * 流消息。
       * @return 流消息的结果
-      */
      * @return 解析entry的结果
      */
     @Override
