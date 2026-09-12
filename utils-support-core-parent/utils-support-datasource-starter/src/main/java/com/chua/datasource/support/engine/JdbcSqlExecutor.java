@@ -220,9 +220,10 @@ public class JdbcSqlExecutor implements SqlExecutor {
      */
     private static void setFieldValue(Object instance, String columnName, Object value) {
         Class<?> clazz = instance.getClass();
-        // 依次尝试原列名与驼峰化列名
+        // 依次尝试原列名、全小写（H2/PostgreSQL/Oracle 大写标签）、驼峰化列名
         String[] candidates = {
                 columnName,
+                columnName.toLowerCase(),
                 toCamelCase(columnName)
         };
         for (String candidate : candidates) {
@@ -242,6 +243,45 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 // 忽略访问异常，尝试下一个候选
             }
         }
+        // 兜底：忽略大小写与下划线的宽松匹配（DEPT_ID → deptId、CNT → cnt）
+        Field loose = findFieldLoose(clazz, columnName);
+        if (loose == null) {
+            return;
+        }
+        try {
+            loose.setAccessible(true);
+            Object converted = Converter.convertIfNecessary(value, loose.getType());
+            if (converted != null) {
+                loose.set(instance, converted);
+            }
+        } catch (IllegalAccessException ignored) {
+            // 忽略访问异常，放弃该列
+        }
+    }
+
+    /**
+    * 按忽略大小写与下划线的规则宽松查找字段。
+    *
+    * @param clazz      目标类
+    * @param columnName 结果集列名
+    * @return 匹配的字段，未找到返回 null
+     */
+    private static Field findFieldLoose(Class<?> clazz, String columnName) {
+        String normalizedColumn = columnName.replace("_", "").toLowerCase();
+        Class<?> current = clazz;
+        while (current != null) {
+            for (Field field : current.getDeclaredFields()) {
+                if (field.isSynthetic()) {
+                    continue;
+                }
+                String normalizedField = field.getName().replace("_", "").toLowerCase();
+                if (normalizedField.equals(normalizedColumn)) {
+                    return field;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return null;
     }
 
     /**

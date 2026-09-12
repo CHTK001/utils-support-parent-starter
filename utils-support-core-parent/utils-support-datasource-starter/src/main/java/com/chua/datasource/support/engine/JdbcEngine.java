@@ -1,12 +1,16 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.dialect.Pagination;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
+import com.chua.common.support.lang.datasource.engine.wrapper.JoinClause;
+import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper;
+import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.spi.ServiceProvider;
@@ -90,27 +94,7 @@ public abstract class JdbcEngine extends AbstractEngine {
             }
 
             try (ResultSet rs = ps.executeQuery()) {
-                ResultSetMetaData metaData = rs.getMetaData();
-                int columnCount = metaData.getColumnCount();
-
-                while (rs.next()) {
- // 使用反射无参构造实例化，避免 方法处理 对部分类的访问限制
-                    Constructor<?> constructor = clazz.getDeclaredConstructor();
-                    constructor.setAccessible(true);
-                    @SuppressWarnings("unchecked")
-                    T instance = (T) constructor.newInstance();
-                    for (int i = 1; i <= columnCount; i++) {
-                        String columnName = metaData.getColumnLabel(i);
-                        if (columnName == null || columnName.isEmpty()) {
-                            columnName = metaData.getColumnName(i);
-                        }
-                        Object value = rs.getObject(i);
-                        if (value != null) {
-                            setFieldValue(instance, columnName, value);
-                        }
-                    }
-                    result.add(instance);
-                }
+                result.addAll(mapEntities(rs, clazz));
             }
         } catch (Exception e) {
             throw new RuntimeException("JDBC query error: " + fullSql, e);
@@ -120,12 +104,268 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
+    * 执行完整查询并将 SELECT 列、GROUP BY、ORDER BY、LIMIT/OFFSET 全部下推到数据库。
+    * <p>
+    * 引擎内存存储（{@link #store(String, List)}）中存在该实体数据时，回退到内存
+    * 过滤/排序/分页链路，与历史行为保持一致；否则构建完整 SQL 走 JDBC 物理执行，
+    * 避免把全表数据加载到 JVM 后再内存排序截断。
+    * </p>
+    *
+    * @param sql 查询 SQL 信息
+    * @param <T> 实体类型
+    * @return 查询结果
+    */
+    @Override
+    protected <T> List<T> executeQueryFull(QuerySql<T> sql) {
+        // 有 JOIN 时内存链路无法完成跨表关联，即使实体有内存存储数据也强制走 JDBC 执行
+        if (sql.hasJoins()) {
+            String fullSql = buildSelectSql(sql, true);
+            return executeNativeQuery(fullSql, mergedParams(sql), sql.entityClass());
+        }
+        // 内存存储中存在数据时走内存链路（executeNewQuery 内存分支 + 内存排序/分页后处理）
+        List<T> memoryData = getData(sql.entityClass());
+        if (memoryData != null && !memoryData.isEmpty()) {
+            return super.executeQueryFull(sql);
+        }
+        String fullSql = buildSelectSql(sql, true);
+        return executeNativeQuery(fullSql, mergedParams(sql), sql.entityClass());
+    }
+
+    /**
+    * 合并 WHERE 参数与 HAVING 参数为按占位符顺序排列的绑定数组。
+    *
+    * @param sql 查询 SQL 信息
+    * @param <T> 实体类型
+    * @return 参数数组（WHERE 参数在前，HAVING 参数在后）
+    */
+    private static <T> Object[] mergedParams(QuerySql<T> sql) {
+        List<Object> all = new ArrayList<>(sql.params());
+        if (sql.hasHaving()) {
+            all.addAll(sql.havingParams());
+        }
+        return all.toArray();
+    }
+
+    /**
+    * 基于 JDBC 执行查询并映射结果为实体列表。
+    *
+    * @param fullSql 完整 SQL 语句
+    * @param args    WHERE 参数（与占位符顺序一致）
+    * @param clazz   实体类类型
+    * @param <T>     实体类型
+    * @return 实体列表，数据源缺失或非 JDBC 时返回空列表
+    */
+    private <T> List<T> executeNativeQuery(String fullSql, Object[] args, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        EngineDataSource<?> dataSource = getDataSource();
+        if (dataSource == null) {
+            return result;
+        }
+        Object source = dataSource.getSource();
+        if (!(source instanceof DataSource ds)) {
+            return result;
+        }
+        try (Connection conn = ds.getConnection();
+             PreparedStatement ps = conn.prepareStatement(fullSql)) {
+            if (args != null) {
+                for (int i = 0; i < args.length; i++) {
+                    ps.setObject(i + 1, args[i]);
+                }
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                result.addAll(mapEntities(rs, clazz));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("JDBC query error: " + fullSql, e);
+        }
+        return result;
+    }
+
+    /**
+    * 根据查询 SQL 信息构建完整 SELECT 语句。
+    * <p>子句顺序：SELECT 列 → FROM 表 → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → 分页。
+    * 参数值不内联，仍以 {@code ?} 占位符由 PreparedStatement 绑定；
+    * 列名、表名与 ON 条件来自 Lambda 解析或调用方编写的受控片段。</p>
+    *
+    * @param sql                   查询 SQL 信息
+    * @param includeOrderAndPaging 是否包含 ORDER BY 与分页子句（COUNT 包装时传 false）
+    * @param <T>                   实体类型
+    * @return 完整 SELECT 语句
+     */
+    private <T> String buildSelectSql(QuerySql<T> sql, boolean includeOrderAndPaging) {
+        return buildSelectSql(sql, includeOrderAndPaging, null);
+    }
+
+    /**
+    * 根据查询 SQL 信息构建完整 SELECT 语句（支持投影覆盖）。
+    *
+    * @param sql                   查询 SQL 信息
+    * @param includeOrderAndPaging 是否包含 ORDER BY 与分页子句
+    * @param projectionOverride    SELECT 投影覆盖片段（如 COUNT(*)），null 时按常规规则计算投影
+    * @param <T>                   实体类型
+    * @return 完整 SELECT 语句
+     */
+    private <T> String buildSelectSql(QuerySql<T> sql, boolean includeOrderAndPaging, String projectionOverride) {
+        String tableName = resolveTableName(sql.entityClass());
+        StringBuilder sb = new StringBuilder("SELECT ");
+        if (projectionOverride != null) {
+            sb.append(projectionOverride);
+        } else {
+            List<String> columns = sql.selectColumns();
+            if (columns != null && !columns.isEmpty()) {
+                sb.append(String.join(", ", columns));
+            } else if (sql.hasGroupBy()) {
+                // 有 GROUP BY 但无显式投影列时，只选择分组列，兼容 ONLY_FULL_GROUP_BY 严格模式
+                sb.append(sql.groupByColumn());
+            } else {
+                sb.append('*');
+            }
+        }
+        sb.append(" FROM ").append(tableName);
+        // 渲染 JOIN 关联子句：类型 + 目标表[别名] + ON 条件
+        if (sql.joins() != null) {
+            for (JoinClause join : sql.joins()) {
+                sb.append(" ").append(join.joinType()).append(" JOIN ")
+                        .append(join.renderTable()).append(" ON ").append(join.onCondition());
+            }
+        }
+        if (sql.hasWhere()) {
+            sb.append(" WHERE ").append(sql.whereClause());
+        }
+        if (sql.hasGroupBy()) {
+            sb.append(" GROUP BY ").append(sql.groupByColumn());
+        }
+        if (sql.hasHaving()) {
+            sb.append(" HAVING ").append(sql.havingClause());
+        }
+        String coreSql = sb.toString();
+        if (includeOrderAndPaging && sql.hasOrderBy()) {
+            coreSql = coreSql + " ORDER BY " + String.join(", ", sql.orderBys());
+        }
+        if (includeOrderAndPaging && sql.limit() > 0) {
+            coreSql = wrapPagination(coreSql, sql.limit(), sql.offset());
+        }
+        return coreSql;
+    }
+
+    /**
+    * 为 SQL 追加分页子句。
+    * <p>偏移量与页大小对齐（offset 是 limit 的整数倍）时，优先使用当前方言的
+    * {@link Dialect#processSql(String, Pagination)}，支持 SQL Server/Oracle 等
+    * 非 LIMIT 语法；无方言或非对齐偏移时使用标准 {@code LIMIT ? OFFSET ?}
+    * 语法兜底（兼容 MySQL/PostgreSQL/H2/SQLite）。</p>
+    *
+    * @param coreSql 不含分页的 SQL
+    * @param limit   返回行数上限
+    * @param offset  偏移行数
+    * @return 带分页子句的 SQL
+    */
+    private String wrapPagination(String coreSql, int limit, int offset) {
+        Dialect d = dialect();
+        if (d != null && offset % limit == 0) {
+            Pagination pagination = new Pagination()
+                    .setPageNum(offset / limit + 1)
+                    .setPageSize(limit);
+            return d.processSql(coreSql, pagination);
+        }
+        return coreSql + " LIMIT " + limit + " OFFSET " + offset;
+    }
+
+    /**
+    * 将 JDBC 结果集反射映射为实体列表。
+    *
+    * @param rs    已执行的结果集
+    * @param clazz 实体类类型
+    * @param <T>   实体类型
+    * @return 实体列表
+    * @throws Exception 反射实例化或读取结果集失败时抛出
+    */
+    @SuppressWarnings("unchecked")
+    private <T> List<T> mapEntities(ResultSet rs, Class<T> clazz) throws Exception {
+        List<T> result = new ArrayList<>();
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        while (rs.next()) {
+            // 使用反射无参构造实例化，避免构造器访问限制
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            T instance = (T) constructor.newInstance();
+            for (int i = 1; i <= columnCount; i++) {
+                String columnName = metaData.getColumnLabel(i);
+                if (columnName == null || columnName.isEmpty()) {
+                    columnName = metaData.getColumnName(i);
+                }
+                Object value = rs.getObject(i);
+                if (value != null) {
+                    setFieldValue(instance, columnName, value);
+                }
+            }
+            result.add(instance);
+        }
+        return result;
+    }
+
+    /**
+    * JDBC 引擎支持物理分页：默认数据源为 JDBC 数据源且实体无内存存储数据时返回 true。
+    *
+    * @param entityClass 实体类类型
+    * @return true 表示走 COUNT + 分页 SQL 的物理分页
+    */
+    @Override
+    protected boolean supportsNativePaging(Class<?> entityClass) {
+        // 内存存储中存在数据时回退内存分页，保证 store() 语义不被绕过
+        List<?> memoryData = getData(entityClass);
+        if (memoryData != null && !memoryData.isEmpty()) {
+            return false;
+        }
+        EngineDataSource<?> ds = getDataSource();
+        return ds != null && ds.getSource() instanceof DataSource;
+    }
+
+    /**
+    * 执行 COUNT 查询统计总行数，用于物理分页的 total。
+    * <p>将不含 ORDER BY/分页的查询包装为
+    * {@code SELECT COUNT(*) FROM (...查询...) t_count} 执行，
+    * JOIN 与 HAVING 子句随子查询一并下推，
+    * 参数绑定顺序与原始占位符保持一致（WHERE 参数在前，HAVING 参数在后）。</p>
+    *
+    * @param wrapper 查询包装器（不含分页参数）
+    * @param <T>     实体类型
+    * @return 总行数
+    */
+    @Override
+    protected <T> long executeCount(LambdaQueryWrapper<T> wrapper) {
+        QuerySql<T> sql = wrapper.buildSql();
+        String countSql;
+        if (sql.hasJoins() && !sql.hasSelect() && !sql.hasGroupBy()) {
+            // JOIN 且无显式投影、无分组时不能包 SELECT * 子查询（多表同名列导致
+            // Duplicate column name 错误），改为 COUNT(*) 直连 JOIN 语句
+            countSql = buildSelectSql(sql, false, "COUNT(*)");
+        } else {
+            String baseSql = buildSelectSql(sql, false);
+            countSql = "SELECT COUNT(*) FROM (" + baseSql + ") t_count";
+        }
+        try (Connection conn = getJdbcConnection();
+             PreparedStatement ps = conn.prepareStatement(countSql)) {
+            Object[] params = mergedParams(sql);
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getLong(1) : 0L;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("执行 COUNT 查询失败: " + countSql, e);
+        }
+    }
+
+    /**
     * 对内存数据执行 限制/偏移量 截取，dialect 不支持物理分页时的兜底实现。
     * @param data 数据
     * @param limit 限制
     * @param offset 偏移量
     * @return 限制slice的结果
-     */
+    */
     private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
         if (limit <= 0 && offset <= 0) {
             return data;
@@ -147,27 +387,90 @@ public abstract class JdbcEngine extends AbstractEngine {
     * @return 设置字段值的结果
      */
     private static <T> void setFieldValue(T instance, String columnName, Object value) {
-        try {
-            Field field = instance.getClass().getDeclaredField(columnName);
-            field.setAccessible(true);
-            if (field.getType().isPrimitive() && value == null) {
-                return;
-            }
-            field.set(instance, value);
-        } catch (NoSuchFieldException e) {
-            try {
-                Field field = instance.getClass().getSuperclass().getDeclaredField(columnName);
-                field.setAccessible(true);
-                if (field.getType().isPrimitive() && value == null) {
+        if (columnName == null) {
+            return;
+        }
+        // 列名候选：原名（MySQL 小写场景）→ 全小写（H2/PostgreSQL/Oracle 默认返回大写标签）
+        // → 下划线转驼峰（user_name → userName）
+        String[] candidates = {
+                columnName,
+                columnName.toLowerCase(),
+                toCamelCase(columnName)
+        };
+        Class<?> current = instance.getClass();
+        while (current != null) {
+            for (String candidate : candidates) {
+                try {
+                    Field field = current.getDeclaredField(candidate);
+                    field.setAccessible(true);
+                    if (field.getType().isPrimitive() && value == null) {
+                        return;
+                    }
+                    field.set(instance, value);
+                    return;
+                } catch (NoSuchFieldException ignore) {
+                    // 尝试下一个候选字段名
+                } catch (IllegalAccessException e) {
                     return;
                 }
-                field.set(instance, value);
-            } catch (Exception ex) {
-                // ignore
             }
-        } catch (Exception e) {
-            // ignore
+            // 兜底：忽略大小写与下划线的宽松匹配，覆盖 H2/Oracle 大写蛇形标签
+            // （如 DEPT_ID → 字段 deptId、TOTAL_SALARY → totalSalary）
+            Field loose = findFieldLoose(current, columnName);
+            if (loose != null) {
+                try {
+                    loose.setAccessible(true);
+                    loose.set(instance, value);
+                } catch (IllegalAccessException e) {
+                    // 无法写入时静默跳过该列
+                }
+            }
+            current = current.getSuperclass();
         }
+    }
+
+    /**
+    * 按忽略大小写与下划线的规则宽松查找字段。
+    *
+    * @param type       字段所在的类
+    * @param columnName 结果集列名
+    * @return 匹配的字段，未匹配返回 null
+     */
+    private static Field findFieldLoose(Class<?> type, String columnName) {
+        String normalizedColumn = columnName.replace("_", "").toLowerCase();
+        for (Field field : type.getDeclaredFields()) {
+            if (field.isSynthetic()) {
+                continue;
+            }
+            String normalizedField = field.getName().replace("_", "").toLowerCase();
+            if (normalizedField.equals(normalizedColumn)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    /**
+    * 下划线列名转驼峰属性名（如 {@code user_name} → {@code userName}）。
+    *
+    * @param name 原始列名
+    * @return 驼峰属性名
+    */
+    private static String toCamelCase(String name) {
+        StringBuilder sb = new StringBuilder(name.length());
+        boolean upperNext = false;
+        for (int i = 0; i < name.length(); i++) {
+            char ch = name.charAt(i);
+            if (ch == '_') {
+                upperNext = true;
+            } else if (upperNext) {
+                sb.append(Character.toUpperCase(ch));
+                upperNext = false;
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
     }
 
     // ==================== 执行器 / 方言 ====================

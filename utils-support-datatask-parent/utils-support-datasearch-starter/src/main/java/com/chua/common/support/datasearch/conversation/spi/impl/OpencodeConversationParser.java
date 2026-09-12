@@ -72,7 +72,6 @@ public class OpencodeConversationParser implements ConversationParser {
      /**
       * 流消息。
       * @return 流消息的结果
-      */
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
