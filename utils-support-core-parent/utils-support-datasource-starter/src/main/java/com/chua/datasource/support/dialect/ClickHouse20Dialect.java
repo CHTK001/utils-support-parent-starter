@@ -1,43 +1,15 @@
 package com.chua.datasource.support.dialect;
 import java.util.Properties;
 /**
-* click房子 20.x 方言（旧驱动）。
-*
- /**
-   * click房子20Dialect。
-  */
- * @param a a
- /**
- * click房子20Dialect。
- * @param properties 属性
-  */
- * @param b b
- /**
- * 默认props。
- * @return 默认props的结果
-  */
- * @return 合并的结果
-   * @param a a
-   * @param b b
+ * ClickHouse 20.x 方言（旧驱动）。
  */
 public class ClickHouse20Dialect extends SqlDialect {
     /**
-    * click房子20Dialect。
-    * @param properties 属性
+     * ClickHouse 20.x 方言（旧驱动）版本。
      */
     public static final String VERSION = "ClickHouse 20.x"; // 版本
     /**
-    * 默认props。
-    * @return 默认props的结果
-    * @param a a
-     /**
-      * ClickHouse20Dialect。
-      */
-     * @param b b
-     /**
-     * ClickHouse20Dialect。
-     * @param properties 属性
-      */
+     * 构造 ClickHouse 20.x 方言，使用默认属性。
      */
     public ClickHouse20Dialect() { super("clickhouse20", defaultProps()); }
     public ClickHouse20Dialect(Properties properties) { super("clickhouse20", merge(defaultProps(), properties)); }

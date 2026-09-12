@@ -215,12 +215,8 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-    * 窗口 注册表检查 NVIDIA 驱动。
-    * @return 是否Linux的结果
-     /**
-      * 检查nvidiaregistry。
-      * @return 检查nvidiaregistry的结果
-      */
+    * Windows 注册表检查 NVIDIA 驱动。
+    * @return 检查nvidiaregistry的结果
      */
     private boolean checkNvidiaRegistry() {
         try {

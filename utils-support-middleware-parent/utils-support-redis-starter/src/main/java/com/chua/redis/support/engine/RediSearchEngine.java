@@ -104,6 +104,43 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     }
 
     @Override
+    /**
+    * 执行原生 Redis 命令。
+    * <p>将语句按空白拆分为命令与参数（{@code params} 追加为尾部参数），
+    * 经 Jedis {@code sendCommand} 分发执行；命令返回整数响应时返回该值，
+    * 其余响应返回 0。</p>
+    *
+    * @param ql     Redis 命令行（如 {@code DEL user:1}）
+    * @param params 附加参数列表
+    * @return 受影响行数
+     */
+    public int execute(String ql, Object... params) {
+        if (ql == null || ql.isBlank()) {
+            throw new IllegalArgumentException("Redis 命令不能为空");
+        }
+        String[] tokens = ql.trim().split("\\s+");
+        ProtocolCommand command = () -> SafeEncoder.encode(tokens[0].toUpperCase());
+        List<byte[]> args = new ArrayList<>();
+        for (int i = 1; i < tokens.length; i++) {
+            args.add(SafeEncoder.encode(tokens[i]));
+        }
+        if (params != null) {
+            for (Object param : params) {
+                args.add(SafeEncoder.encode(String.valueOf(param)));
+            }
+        }
+        try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
+            Object response = jedis.sendCommand(command, args.toArray(new byte[0][]));
+            if (response instanceof Long affected) {
+                return affected.intValue();
+            }
+            return 0;
+        } catch (Exception e) {
+            throw new RuntimeException("Redis 命令执行失败: " + ql, e);
+        }
+    }
+
+    @Override
     /** 获取数据源 */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return super.getDataSource(name);

@@ -338,27 +338,9 @@ public class SqlDialect extends AbstractDialect {
     // ==================== 配置加载 ====================
 
     /**
-    * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
-    *
-    * @return 加载后的 属性，文件不存在时返回空 属性
-    * @param defaults 默认
-    * @param overrides overrides
-     /**
-      * 加载默认env。
-      * @return 加载默认env的结果
-      */
-      * @param defaults 默认
-      * @param overrides overrides
-     /**
-     * 加载默认env。
-     * @return 加载默认env的结果
-      */
-      * @param defaults 默认
-      * @param overrides overrides
-     /**
-     * 加载默认env。
-     * @return 加载默认env的结果
-      */
+     * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
+     *
+     * @return 加载后的属性，文件不存在时返回空属性
      */
     @Override
     protected Properties loadDefaultEnv() {

@@ -209,17 +209,9 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-    * 通过 asynchronous文件通道 非阻塞读取文件全部内容。
-    * @param line 线
-     /**
-      * 读取文件异步。
-      * @param path 路径
-      * @return 读取文件异步的结果
-      */
-     * @param separator separator
-     * @return 解析线的结果
-     * @param name 名称
-     * @param bytes bytes
+     * 通过异步文件通道非阻塞读取文件全部内容。
+     * @param path 路径
+     * @return 读取文件异步的结果
      */
     private static Mono<byte[]> readFileAsync(Path path) {
         return Mono.create(sink -> {

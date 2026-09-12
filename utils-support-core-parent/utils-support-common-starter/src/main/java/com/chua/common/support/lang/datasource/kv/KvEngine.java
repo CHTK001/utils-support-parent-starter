@@ -18,18 +18,18 @@ import java.util.Map;
 * 「设值 + 过期」的组合操作，例如 {@code engine.key("user:1").expire(3600).set("张三")}</p>
 *
 * <h2>SPI 契约</h2>
-* <pre>{@code
-* // META-INF/services/com.chua.common.support.lang.datasource.kv.KvOperations
-* // com.chua.redis.support.client.RedisClient
-* // com.chua.chronicle.support.kv.ChronicleMapKv
-*
-* Properties props = new Properties();
-* props.setProperty("host", "127.0.0.1");
-* props.setProperty("port", "6379");
-* KvEngine engine = ServiceProvider.of(KvEngine.class).getNewExtension("redis", props);
-* engine.put("token", "abc123", Duration.ofHours(1));
-* Map<String, String> all = engine.findAllByPrefix("user:");
-* }</pre>
+    * <pre>{@code
+    * // 注册文件：META-INF/extensions/com.chua.common.support.lang.datasource.kv.KvEngine
+    * // 内容格式：别名=实现类全限定名，例如
+    * // redis=com.chua.redis.support.client.RedisClient
+    *
+    * Properties props = new Properties();
+    * props.setProperty("host", "127.0.0.1");
+    * props.setProperty("port", "6379");
+    * KvEngine engine = ServiceProvider.of(KvEngine.class).getNewExtension("redis", props);
+    * engine.put("token", "abc123", Duration.ofHours(1));
+    * Map<String, String> all = engine.findAllByPrefix("user:");
+    * }</pre>
 *
 * <h2>Spring 注入</h2>
 * <pre>{@code

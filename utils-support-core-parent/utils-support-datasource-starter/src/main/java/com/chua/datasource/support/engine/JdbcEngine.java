@@ -4,6 +4,7 @@ import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.dialect.ProcedureDefinition;
 import com.chua.common.support.lang.datasource.dialect.TriggerDefinition;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
+import com.chua.common.support.lang.datasource.engine.ddl.DdlProvider;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
@@ -560,7 +561,8 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
     * 获取用户管理器入口，通过 SPI 按当前方言协议加载实现。
-    * @return 用户的结果
+    *
+    * @return 用户管理器实例，无可用实现时返回 null
      */
     public UserManager user() {
         return resolveManager(UserManager.class);
@@ -568,7 +570,8 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
     * 获取索引管理器入口，通过 SPI 按当前方言协议加载实现。
-    * @return 索引的结果
+    *
+    * @return 索引管理器实例，无可用实现时返回 null
      */
     public IndexManager index() {
         return resolveManager(IndexManager.class);
@@ -576,22 +579,18 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
     * 获取权限管理器入口，通过 SPI 按当前方言协议加载实现。
-    * @param clazz clazz
-     /**
-      * 权限。
-      * @return 权限的结果
-      */
-     * @return resolve管理器的结果
+    *
+    * @return 权限管理器实例，无可用实现时返回 null
      */
     public PermissionManager permission() {
         return resolveManager(PermissionManager.class);
-    /**
-    * 当前dialect协议。
-    * @return 当前dialect协议的结果
-    * @param clazz clazz
-     */
     }
 
+    /**
+    * 获取当前方言协议名，用于 SPI 能力实现的按协议查找。
+    *
+    * @return 方言协议名（如 "mysql"），方言缺失时返回 "unknown"
+     */
     private String currentDialectProtocol() {
         Dialect d = dialect();
         if (d != null) {
@@ -625,8 +624,9 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
     * 创建数据库（如果不存在）。
-    * <p>使用当前默认数据源的连接执行 {@code CREATE DATABASE IF NOT EXISTS} 语句。</p>
-    * <p>此为基础实现，各数据库子类可重写以支持特定语法（如字符集、排序规则）。</p>
+    * <p>建库语句优先通过 SPI 查找支持当前方言协议的
+    * {@code DdlProvider} 扩展生成（如 MySQL 的 utf8mb4 语法）；
+    * 无匹配扩展时使用内置语法兜底。</p>
     *
     * @param dbName 数据库名称
     * @return true 创建成功或已存在
@@ -635,8 +635,7 @@ public abstract class JdbcEngine extends AbstractEngine {
         if (dbName == null || dbName.isBlank()) {
             throw new IllegalArgumentException("数据库名不能为空");
         }
-        String sql = "CREATE DATABASE IF NOT EXISTS " + escapeIdentifier(dbName)
-                + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+        String sql = resolveCreateDatabaseSql(dbName);
         try (Connection conn = getJdbcConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
@@ -644,6 +643,26 @@ public abstract class JdbcEngine extends AbstractEngine {
         } catch (Exception e) {
             throw new RuntimeException("创建数据库失败: " + dbName, e);
         }
+    }
+
+    /**
+    * 生成建库语句。
+    * <p>遍历 {@code ddl-provider} SPI 扩展，取首个支持当前方言协议的实现生成语句；
+    * 无匹配扩展时使用内置 MySQL 语法兜底。</p>
+    *
+    * @param dbName 数据库名称
+    * @return 完整建库 DDL 语句
+     */
+    private String resolveCreateDatabaseSql(String dbName) {
+        String protocol = currentDialectProtocol();
+        for (DdlProvider provider : ServiceProvider.of(DdlProvider.class)
+                .getNewExtensions(DdlProvider.SPI_NAME, this)) {
+            if (provider.supports(protocol)) {
+                return provider.createDatabase(dbName);
+            }
+        }
+        return "CREATE DATABASE IF NOT EXISTS " + escapeIdentifier(dbName)
+                + " DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
     }
 
     /**
@@ -671,21 +690,6 @@ public abstract class JdbcEngine extends AbstractEngine {
     * 列出所有数据库。
     *
     * @return 数据库名列表
-    * @param name 名称
-     /**
-      * 列表databases。
-      * @return 列表databases的结果
-      */
-      * @param name 名称
-     /**
-     * 列表databases。
-     * @return 列表databases的结果
-      */
-      * @param name 名称
-     /**
-     * 列表databases。
-     * @return 列表databases的结果
-      */
      */
     public List<String> listDatabases() {
         List<String> result = new ArrayList<>();

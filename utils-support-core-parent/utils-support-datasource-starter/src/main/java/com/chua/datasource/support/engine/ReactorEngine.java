@@ -36,7 +36,6 @@ import java.util.Map;
 *
 * // 原生 SQL 查询（返回 Flux）
 * Flux<Map<String, Object>> rows = engine.query("select * from user where age > ?", 18);
-* }</pre>>> rows = engine.query("select * from user where age > ?", 18);
 * }</pre>
 *
 * @author CH

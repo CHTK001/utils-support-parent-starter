@@ -215,6 +215,31 @@ public class PrometheusEngine implements Engine {
     }
 
     @Override
+    /**
+    * 执行数据操作语句。
+    * <p>Prometheus 为只读指标数据源，不支持数据操作语句；
+    * 查询类需求请使用 {@link #query(String)} 执行 PromQL 即时查询。</p>
+    *
+    * @param ql     数据操作语句
+    * @param params 参数
+    * @return 永不返回
+    * @throws UnsupportedOperationException 始终抛出
+     */
+    public int execute(String ql, Object... params) {
+        throw new UnsupportedOperationException("Prometheus 引擎为只读数据源，不支持数据操作语句，请使用 query(promql) 执行 PromQL 即时查询");
+    }
+
+    @Override
+    /**
+    * 判断是否支持元数据操作。
+    *
+    * @return Prometheus 引擎不支持元数据操作，恒返回 false
+     */
+    public boolean supportsMeta() {
+        return false;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     /**
     * 获取数据源

@@ -1,6 +1,7 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.lang.datasource.engine.Engine;
+import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaQueryWrapper;
 import com.chua.datasource.support.wrapper.ReactorLambdaUpdateWrapper;
@@ -67,27 +68,43 @@ public class DefaultReactorEngine implements ReactorEngine {
 
     @Override
     public Flux<Map<String, Object>> query(String sql, Object... params) {
-        return Mono.fromCallable(() -> delegate.getExecutor().query(sql, params))
+        SqlExecutor executor = delegate.getExecutor();
+        if (executor == null) {
+            return Flux.error(new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + delegate.getClass().getName()));
+        }
+        return Mono.fromCallable(() -> executor.query(sql, params))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMapMany(list -> Flux.fromIterable(list));
     }
 
     @Override
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
-        return Mono.fromCallable(() -> delegate.getExecutor().query(sql, rowType, params))
+        SqlExecutor executor = delegate.getExecutor();
+        if (executor == null) {
+            return Flux.error(new UnsupportedOperationException("当前引擎不支持 SQL 查询: " + delegate.getClass().getName()));
+        }
+        return Mono.fromCallable(() -> executor.query(sql, rowType, params))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMapMany(list -> Flux.fromIterable(list));
     }
 
     @Override
     public Mono<Integer> execute(String sql, Object... params) {
-        return Mono.fromCallable(() -> delegate.getExecutor().execute(sql, params))
+        SqlExecutor executor = delegate.getExecutor();
+        if (executor == null) {
+            return Mono.error(new UnsupportedOperationException("当前引擎不支持数据操作: " + delegate.getClass().getName()));
+        }
+        return Mono.fromCallable(() -> executor.execute(sql, params))
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
     public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
-        return Mono.fromCallable(() -> delegate.getExecutor().batch(sql, batchParams))
+        SqlExecutor executor = delegate.getExecutor();
+        if (executor == null) {
+            return Flux.error(new UnsupportedOperationException("当前引擎不支持批量操作: " + delegate.getClass().getName()));
+        }
+        return Mono.fromCallable(() -> executor.batch(sql, batchParams))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMapMany(results -> {
                     Integer[] boxed = new Integer[results.length];

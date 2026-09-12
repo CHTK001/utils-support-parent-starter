@@ -681,13 +681,6 @@ public class FileEngine extends AbstractEngine {
      * @param targetType Target类型
      * @return 转换值的结果
       */
-     * 转换值
-     *
-     * @param data 数据
-     * @param limit 限制
-     * @param offset 偏移量
-     * @return 限制slice的结果
-     */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null || targetType.isInstance(value)) {
             return value;

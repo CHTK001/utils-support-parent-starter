@@ -311,35 +311,12 @@ public class H2Flyway {
     }
 
     /**
-    * 将 SQL 语句转换为 H2 兼容写法。
-    * <ul>
-    *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
-    * </ul>
-    * @param version 版本
-     /**
-      * normalize。
-      * @param sql SQL
-      * @return normalize的结果
-      */
-     * @param description description
-     * @param fileName 文件名称
-     * @param path 路径
-     * @return script文件的结果
-      * @param version 版本
-     /**
-     * normalize。
-     * @param sql SQL
-     * @return normalize的结果
-      */
-      * @param version 版本
-      /**
-      * normalize。
-      * @param sql sql
-      * @return normalize的结果
-       */
-      * @param description description
-      * @param fileName 文件名称
-      * @param path 路径
+     * 将 SQL 语句转换为 H2 兼容写法。
+     * <ul>
+     *   <li>{@code AUTO_INCREMENT} → {@code IDENTITY AUTOINCREMENT}</li>
+     * </ul>
+     * @param sql 原始 SQL 语句
+     * @return 转换后的 H2 兼容 SQL 语句
      */
     public static String normalize(String sql) {
         if (sql == null) {

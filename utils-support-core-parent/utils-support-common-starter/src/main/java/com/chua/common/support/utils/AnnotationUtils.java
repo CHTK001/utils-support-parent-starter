@@ -182,21 +182,6 @@ public class AnnotationUtils {
     * @param <A>             注解泛型
     * @return 找到的注解实例，未找到返回 {@code null}
     * @since 4.0.0.43
-    * @param method 方法
-     /**
-      * 获取注解。
-      * @param element element
-      * @param annotationClass 注解类
-      * @return 获取注解的结果
-      */
-     * @param clazz clazz
-      * @param method 方法
-     /**
-     * 获取注解。
-     * @param element element
-     * @param annotationClass 注解类
-     * @return 获取注解的结果
-      */
      */
     public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationClass) {
         if (element == null || annotationClass == null) {

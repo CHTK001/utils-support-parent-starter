@@ -354,14 +354,6 @@ public class ServiceBuilder implements Closeable {
 
         /**
         * 卸载服务。
-        * @return 构建启动cmd的结果
-         /**
-          * uninstall。
-          */
-          * @return 构建启动cmd的结果
-         /**
-         * uninstall。
-          */
          */
         public void uninstall() {
             resolveAndValidate();
@@ -630,14 +622,6 @@ public class ServiceBuilder implements Closeable {
 
         /**
         * 卸载远程服务（删除 systemd unit、停止进程）。
-        * @return 构建远程启动cmd的结果
-         /**
-          * uninstall。
-          */
-          * @return 构建远程启动cmd的结果
-         /**
-         * uninstall。
-          */
          */
         public void uninstall() {
             if (!manager.isConnected()) {
@@ -723,33 +707,14 @@ public class ServiceBuilder implements Closeable {
     * 远程模式快捷入口：{@code ServiceBuilder.remote().start()}
     * @author CH
     * @since 4.0.0
-    * @param host 主机
-    * @param port 端口
-    * @param username 用户名
-    * @param password 密码
-     /**
-       * withjar。
-      * @param jarPath jar路径
-      * @return withJar的结果
-      */
-     * @return 转为远程的结果
      */
     public static class RemoteDsl {
         private final ServiceBuilder b = new ServiceBuilder(); // b
 
         /**
-        * with服务名称。
-        * @param name 名称
-        * @return with服务名称的结果
-        * @param host 主机
-         /**
-          * withJar。
-          * @param jarPath jar路径
-          * @return withJar的结果
-          */
-         * @param port 端口
-         * @param username 用户名
-         * @param password 密码
+        * withJar。
+        * @param jarPath jar路径
+        * @return withJar的结果
          */
         public RemoteDsl withJar(String jarPath) {
             /**
@@ -777,19 +742,10 @@ public class ServiceBuilder implements Closeable {
         *
         * @param protocol 远程协议（ssh / winrm）
         * @param host 主机
-         /**
-          * 转为远程。
-          * @param protocol 协议
-          * @param host 主机
-          * @param port 端口
-          * @param username 用户名
-          * @param password 密码
-          * @return 转为远程的结果
-          */
-         * @param port 端口
-         * @param username 用户名
-         * @param privateKey 私募键
-         * @return 转为远程键的结果
+        * @param port 端口
+        * @param username 用户名
+        * @param password 密码
+        * @return 转为远程的结果
          */
         public RemoteManager toRemote(String protocol, String host, int port, String username, String password) {
             RemoteManager m = new RemoteManager(b, protocol);

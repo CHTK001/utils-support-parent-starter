@@ -2243,22 +2243,6 @@ public class ClassUtils {
             * @param rs R
             * @param aClass a类
             * @param validate 校验
-            * @param method 方法
-             /**
-              * 执行注册方法。
-              * @param rs R
-              * @param aClass a类
-              * @param validate 校验
-              */
-             * @param paramTypes 参数类型
-             * @return 是否包含same参数的结果
-              * @param method 方法
-             /**
-             * 执行注册方法。
-             * @param rs R
-             * @param aClass a类
-             * @param validate 校验
-              */
              */
             private void doRegisterMethod(List<Method> rs, Class<?> aClass, List<Class<?>> validate) {
                 if(validate.contains(aClass)) {
@@ -3358,30 +3342,12 @@ public class ClassUtils {
     }
 
     /**
-    *             
-    * @param target       
-    * @param map             
-    * @param args             
-    * @return       
-    * @param <T>
-    * @author CH
-    * @since 4.0.0
-    * @param parameters 参数
-     /**
-      * for对象的映射。
-      * @param target Target
-      * @param map 映射
-      * @param args 参数
-      * @return for对象的映射的结果
-      */
-      * @param parameters 参数
-     /**
-     * for对象的映射。
-     * @param target Target
-     * @param map 映射
-     * @param args 参数
-     * @return for对象的映射的结果
-      */
+    * for对象的映射。
+    * @param target Target
+    * @param map 映射
+    * @param args 参数
+    * @param <T> 类型
+    * @return for对象的映射的结果
      */
     public static <T> T forObjectOfMap(Class<T> target, Map map, Object... args) {
         T t = forObject(target, args);
