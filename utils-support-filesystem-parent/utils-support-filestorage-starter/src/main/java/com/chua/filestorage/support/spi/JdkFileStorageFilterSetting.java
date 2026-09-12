@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  * filestorage.filter.chain=resize,grayscale
  * filestorage.filter.exclude.paths=**\/avatar.*,**\/logo.*
  * filestorage.filter.exclude.extensions=svg
+ * }</pre>svg
  * }</pre>
  *
  * @author CH
@@ -25,17 +26,17 @@ import java.util.regex.Pattern;
 @Spi("jdk")
 public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
 
-    /** Prefix */
+    /** 前缀 */
     private static final String PREFIX = "filestorage.filter.";
 
     /** 过滤器chain */
     private final List<FileStorageFilterSetting.ImageFilterConfig> filterChain;
-    /** Exclude路径patterns */
+    /** Exclude路径模式 */
     private final List<Pattern> excludePathPatterns;
     /** Excludeextensions */
     private final Set<String> excludeExtensions;
 
-    /** 创建 JdkFileStorageFilterSetting 实例 */
+    /** 创建 jdk文件storage过滤器setting 实例 */
     public JdkFileStorageFilterSetting() {
         this.filterChain = buildFilterChain();
         this.excludePathPatterns = buildExcludePathPatterns();
@@ -81,7 +82,11 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
         return false;
     }
 
-    /** 构建过滤Chain */
+    /**
+     * 构建过滤Chain
+     *
+     * @return 构建过滤器chain的结果
+     */
     private List<FileStorageFilterSetting.ImageFilterConfig> buildFilterChain() {
         String chainStr = System.getProperty(PREFIX + "chain", "");
         if (chainStr.isBlank()) {
@@ -94,7 +99,11 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .toList();
     }
 
-    /** 构建ExcludePathPatterns */
+    /**
+     * 构建exclude路径模式
+     *
+     * @return 构建exclude路径模式的结果
+     */
     private List<Pattern> buildExcludePathPatterns() {
         String paths = System.getProperty(PREFIX + "exclude.paths", "");
         if (paths.isBlank()) {
@@ -107,7 +116,11 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .toList();
     }
 
-    /** 构建ExcludeExtensions */
+    /**
+     * 构建exclude延伸
+     *
+     * @return 构建exclude延伸的结果
+     */
     private Set<String> buildExcludeExtensions() {
         String exts = System.getProperty(PREFIX + "exclude.extensions", "svg");
         return java.util.Arrays.stream(exts.split(","))
@@ -117,7 +130,12 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
                 .collect(java.util.stream.Collectors.toSet());
     }
 
-    /** AntToRegex */
+    /**
+     * ant转为regex
+     *
+     * @param ant Ant
+     * @return ant转为regex的结果
+     */
     private String antToRegex(String ant) {
         return ant
                 .replace("**", "<<<DOUBLESTAR>>>")

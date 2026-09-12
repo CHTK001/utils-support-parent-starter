@@ -31,6 +31,8 @@ public class VinMockString implements MockString {
     private static final int[] WEIGHTS = {8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2};
     /**
      * VIN 长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int LENGTH = 17;
 

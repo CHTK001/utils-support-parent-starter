@@ -21,9 +21,9 @@ public final class PlatformSystems {
     }
 
     /**
-     * 判断当前系统是否为 Windows
+      * 判断当前系统是否为 窗口
      *
-     * @return true 如果系统是 Windows，否则为 false
+     * @return true 如果系统是 窗口，否则为 false
      */
     public static boolean isWindows() {
         if (OS_NAME.contains("win")) {

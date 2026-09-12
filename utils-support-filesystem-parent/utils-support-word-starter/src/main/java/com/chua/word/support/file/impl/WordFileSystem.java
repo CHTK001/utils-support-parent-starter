@@ -22,6 +22,8 @@ import java.io.File;
  * // 写入文本
  * WordWriteBuilder wb = (WordWriteBuilder) fs.write(new File("out.docx"));
  * wb.writeText(List.of("标题", "正文内容"));
+ * }</pre>ocx"));
+ * wb.writeText(List.of("标题", "正文内容"));
  * }</pre>
  *
  * @author CH
@@ -31,7 +33,7 @@ import java.io.File;
 public class WordFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         
         return "docx";

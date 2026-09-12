@@ -97,7 +97,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     private double blockBorderStrength = 0.3;
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat() {
         
         return "png";
@@ -105,7 +105,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -159,6 +159,8 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用像素化效果
+     * @param src src
+     * @return applyPixelation的结果
      */
     private BufferedImage applyPixelation(BufferedImage src) {
         int width = src.getWidth();
@@ -203,6 +205,8 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用颜色量化
+     * @param src src
+     * @return applyColorQuantization的结果
      */
     private BufferedImage applyColorQuantization(BufferedImage src) {
         int width = src.getWidth();
@@ -240,6 +244,8 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 增强对比度和饱和度
+     * @param src src
+     * @return 增强contrast和saturation的结果
      */
     private BufferedImage enhanceContrastAndSaturation(BufferedImage src) {
         int width = src.getWidth();
@@ -277,6 +283,8 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用锐化效果
+     * @param src src
+     * @return applySharpen的结果
      */
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
@@ -334,6 +342,8 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用方块效果
+     * @param src src
+     * @return applyBlockEffect的结果
      */
     private BufferedImage applyBlockEffect(BufferedImage src) {
         int width = src.getWidth();
@@ -388,6 +398,9 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 使颜色变暗
+     * @param rgb rgb
+     * @param factor factor
+     * @return darkenColor的结果
      */
     private int darkenColor(int rgb, double factor) {
         int alpha = (rgb >> 24) & 0xFF;
@@ -403,7 +416,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
@@ -427,6 +440,10 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * RGB转HSV色彩空间
+     * @param r r
+     * @param g g
+     * @param b b
+     * @return rgb转为hsv的结果
      */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
@@ -460,6 +477,10 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
 
     /**
      * HSV转RGB色彩空间
+     * @param h h
+     * @param s s
+     * @param v v
+     * @return hsv转为rgb的结果
      */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;

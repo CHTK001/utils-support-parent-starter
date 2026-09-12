@@ -57,7 +57,7 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String referer = request.getHeader("Referer");
         if (referer != null && !referer.isEmpty() && !isAllowedHost(referer)) {
@@ -73,19 +73,21 @@ public class SsrfServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 12;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "SsrfServerFilter";
     }
 
     /**
      * 检查 URL 中的主机是否在白名单中且不是内网地址。
+     * @param url url
+     * @return 是否allowed主机的结果
      */
     private boolean isAllowedHost(String url) {
         try {
@@ -115,6 +117,8 @@ public class SsrfServerFilter implements ServerFilter {
 
     /**
      * 判断是否为内网地址。
+     * @param host 主机
+     * @return 是否内部地址的结果
      */
     private boolean isInternalAddress(String host) {
         if ("localhost".equals(host) || "127.0.0.1".equals(host) || "::1".equals(host)) {

@@ -15,6 +15,8 @@ import java.util.UUID;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param environment 环境
+ * @return 获取字符串的结果
  */
 @Spi("uuid")
 @AutoSpi(value = "com.chua.common.support.mock.MockString")

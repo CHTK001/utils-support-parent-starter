@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "telnet";
     }
@@ -76,7 +76,12 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString().trim();
     }
 
-    /** ToTelnetCommand */
+    /**
+     * 转为telnet命令
+     *
+     * @param cmd CMD
+     * @return 转为telnet命令的结果
+     */
     private static String toTelnetCommand(int cmd) {
         return switch (cmd) {
             case 0xfb -> "WILL";
@@ -97,7 +102,12 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToTelnetOption */
+    /**
+     * 转为telnet期权
+     *
+     * @param option 期权
+     * @return 转为telnet期权的结果
+     */
     private static String toTelnetOption(int option) {
         return switch (option) {
             case 0x00 -> "TRANSMIT-BINARY";

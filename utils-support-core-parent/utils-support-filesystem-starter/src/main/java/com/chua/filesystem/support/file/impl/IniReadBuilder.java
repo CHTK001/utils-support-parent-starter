@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 public class IniReadBuilder extends ReadBuilder {
 
     /**
-     * 创建 IniReadBuilder 实例
-     * @param file file
+      * 创建 ini读取构建器 实例
+     * @param file 文件
      */
     public IniReadBuilder(File file) {
         super(file);
     }
 
     @Override
-    /** WithCharset */
+    /** with字符集 */
     public IniReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -56,9 +56,9 @@ public class IniReadBuilder extends ReadBuilder {
     }
 
     /**
-     * 读取 INI 文件为嵌套 Map 结构（Section → {Key → Value}）。
+      * 读取 INI 文件为嵌套 映射 结构（Section → {键 → 值}）。
      *
-     * @return Section 名称到属性 Map 的映射
+     * @return Section 名称到属性 映射 的映射
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -120,7 +120,7 @@ public class IniReadBuilder extends ReadBuilder {
      * 获取指定 Section 的所有属性。
      *
      * @param sectionName Section 名称
-     * @return 属性 Map，Section 不存在时返回空 Map
+     * @return 属性 映射，Section 不存在时返回空 映射
      */
     public Map<String, String> section(String sectionName) {
         Map<String, Map<String, String>> nested = IniParser.parseToNestedMap(asString());

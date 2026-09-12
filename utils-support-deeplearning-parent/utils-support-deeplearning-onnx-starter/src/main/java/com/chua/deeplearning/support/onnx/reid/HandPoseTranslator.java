@@ -12,7 +12,7 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * OpenCV MediaPipe HandPose                       Translator
+   * 打开cv media管道 handpose                       Translator
  *
  * <p>            : [1, 224, 224, 3] NHWC RGB       
  * <p>            :
@@ -36,14 +36,14 @@ import lombok.extern.slf4j.Slf4j;
 public class HandPoseTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 224;
     /** 关键点数量 */
     /** Num_keypoints */
     private static final int NUM_KEYPOINTS = 21;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -59,7 +59,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
         //              [0, 1]
         array = array.div(255.0f);
 
-        //        batch       : [H, W, 3]     [1, H, W, 3]          NHWC   
+ // 批量       : [H, W, 3]     [1, H, W, 3]          NHWC
         array = array.expandDims(0);
 
         if (log.isDebugEnabled()) {
@@ -70,7 +70,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // Identity: [1, 63]     21              3 (x,y,z)
         NDArray landmarks = list.get(0);

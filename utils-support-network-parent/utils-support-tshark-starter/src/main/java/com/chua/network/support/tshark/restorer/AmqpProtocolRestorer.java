@@ -4,7 +4,7 @@ package com.chua.network.support.tshark.restorer;
  * AMQP 0-9-1 协议还原器。
  *
  * <p>AMQP 帧结构：type(1) + channel(2) + size(可变) + payload。
- * type: 0x01=METHOD, 0x02=HEADER, 0x03=BODY, 0x08=CONTROL。</p>
+   * 类型: 0x01=方法, 0x02=头部, 0x03=主体, 0x08=CONTROL。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -12,7 +12,7 @@ package com.chua.network.support.tshark.restorer;
 public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "amqp";
     }
@@ -47,7 +47,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 7) {
             return "[AMQP] empty";
         }
-        // Protocol header
+ // 协议 头部
         if (rawData.length >= 8 && rawData[0] == 'A' && rawData[1] == 'M'
                 && rawData[2] == 'Q' && rawData[3] == 'P') {
             int frameEnd = rawData[7] & 0xff;
@@ -87,7 +87,12 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToFrameType */
+    /**
+     * 转为帧类型
+     *
+     * @param type 类型
+     * @return 转为帧类型的结果
+     */
     private static String toFrameType(int type) {
         return switch (type) {
             case 0x01 -> "METHOD";
@@ -98,7 +103,12 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToClassName */
+    /**
+     * 转为类名称
+     *
+     * @param classId 类标识
+     * @return 转为类名称的结果
+     */
     private static String toClassName(int classId) {
         return switch (classId) {
             case 10 -> "Connection";
@@ -111,7 +121,13 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToMethodName */
+    /**
+     * 转为方法名称
+     *
+     * @param classId 类标识
+     * @param methodId 方法标识
+     * @return 转为方法名称的结果
+     */
     private static String toMethodName(int classId, int methodId) {
         if (classId == 10) {
             return switch (methodId) {

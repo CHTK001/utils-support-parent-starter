@@ -3,7 +3,7 @@ package com.chua.deeplearning.support.pipeline;
 /**
  * 管线通用回调接口，用于调试时捕获各阶段中间数据。
  * <p>
- * 所有方法均为 default 实现（no-op），按需覆写需要观察的阶段即可。
+   * 所有方法均为 默认 实现（no-op），按需覆写需要观察的阶段即可。
  * </p>
  *
  * @author CH

@@ -46,7 +46,7 @@ public class ZhipuVideoClient implements VideoClient {
     private Double imageStrength;
 
     /**
-     * 创建 ZhipuVideoClient 实例
+      * 创建 zhipu视频客户端 实例
      * @param setting setting
      */
     public ZhipuVideoClient(VideoClientSetting setting) {
@@ -59,7 +59,7 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public VideoClient model(String model) {
         this.model = model;
         return this;
@@ -74,14 +74,14 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public VideoClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
     }
 
     @Override
-    /** Duration */
+    /** 持续时间 */
     public VideoClient duration(Integer duration) {
         this.duration = duration;
         return this;
@@ -95,13 +95,18 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public VideoClient referenceImage(byte[] image) {
         this.referenceImage = image;
         return this;
     }
 
-    /** ReferenceImage */
+    /**
+     * 引用镜像
+     *
+     * @param image 镜像
+     * @return 引用镜像的结果
+     */
     public VideoClient referenceImage(BufferedImage image) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -114,7 +119,7 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public VideoClient imageStrength(double strength) {
         this.imageStrength = strength;
         return this;
@@ -127,7 +132,7 @@ public class ZhipuVideoClient implements VideoClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         String actualPrompt = prompt != null ? prompt : this.prompt;
         if (actualPrompt == null || actualPrompt.isBlank()) {
@@ -163,7 +168,12 @@ public class ZhipuVideoClient implements VideoClient {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 查询Task */
+    /**
+     * 查询任务
+     *
+     * @param taskId 任务标识
+     * @return 查询任务的结果
+     */
     public VideoResponse queryTask(String taskId) {
         if (taskId == null || taskId.isBlank()) {
             throw new IllegalArgumentException("任务 ID 不能为空");
@@ -210,7 +220,12 @@ public class ZhipuVideoClient implements VideoClient {
         }
     }
 
-    /** MapStatus */
+    /**
+     * 映射状态
+     *
+     * @param taskStatus 任务状态
+     * @return 映射状态的结果
+     */
     private VideoResponse.Status mapStatus(String taskStatus) {
         if (taskStatus == null) {
             return VideoResponse.Status.PENDING;
@@ -225,7 +240,7 @@ public class ZhipuVideoClient implements VideoClient {
 
     @Override public void close() {}
 
-    /** NormalizeBaseUrl */
+    /** normalizebaseurl */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

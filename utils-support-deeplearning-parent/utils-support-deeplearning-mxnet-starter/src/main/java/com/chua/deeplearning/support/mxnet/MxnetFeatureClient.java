@@ -10,7 +10,7 @@ import com.chua.deeplearning.support.ai.client.DeeplearningModels;
 import java.util.List;
 
 /**
- * 基于 MXNet 的本地图像理解客户端。
+   * 基于 mxnet 的本地图像理解客户端。
  * <p>
  * 调度 mxnet 引擎下已注册的图像模型（分类等），
  * 统一以 {@link FeatureClient} 对外提供图像特征 / 理解能力。
@@ -23,7 +23,7 @@ import java.util.List;
 public class MxnetFeatureClient extends AbstractLocalFeatureClient {
 
     /**
-     * 构造 MXNet 图像理解客户端。
+      * 构造 mxnet 图像理解客户端。
      *
      * @param setting 客户端配置
      */
@@ -32,7 +32,7 @@ public class MxnetFeatureClient extends AbstractLocalFeatureClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

@@ -44,6 +44,8 @@ public class UsccMockString implements MockString {
     private static final int[] USCC_WEIGHTS = {1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28};
     /**
      * 行政区划代码池（与 {@link CnIdCardUtils} 保持一致的真实区划）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] ADMIN_CODES = {
             "110000", "120000", "310000", "500000", "440100", "440300", "330100",

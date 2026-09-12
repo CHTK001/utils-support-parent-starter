@@ -28,10 +28,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * SymmetricDS CDC 实现 - 基于触发器的实时数据变更捕获。
+   * symmetricds CDC 实现 - 基于触发器的实时数据变更捕获。
  *
  * <p>通过在数据库中创建触发器捕获 INSERT/UPDATE/DELETE 操作，适合 Debezium 不支持的数据库版本。
- * SymmetricDS 3.17.6 通过 JDBC + 触发器方式工作，理论上支持所有有 JDBC 驱动的数据库。</p>
+   * symmetricds 3.17.6 通过 JDBC + 触发器方式工作，理论上支持所有有 JDBC 驱动的数据库。</p>
  *
  * <h2>SymmetricDS 官方支持的数据库类型（已配置）</h2>
  * <table border="1" cellpadding="4" cellspacing="0">
@@ -60,6 +60,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     .tableIncludeList("mydb.orders,mydb.customers")
  *     .autoSetup(true)
  *     .build();
+ * }</pre>mydb.orders,mydb.customers")
+ *     .autoSetup(true)
+ *     .build();
  * }</pre>
  *
  * @author CH
@@ -79,11 +82,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      */
     private static final String KEY_DB_TYPE = "symmetric.db.type";
     /**
-     * 键 group 标识
+      * 键 群体 标识
      */
     private static final String KEY_GROUP_ID = "symmetric.group.id";
     /**
-     * 键 external 标识
+      * 键 外部 标识
      */
     private static final String KEY_EXTERNAL_ID = "symmetric.external.id";
     /**
@@ -91,7 +94,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      */
     private static final String KEY_REGISTRATION_URL = "symmetric.registration.url";
     /**
-     * 键 sync URL
+      * 键 同步 URL
      */
     private static final String KEY_SYNC_URL = "symmetric.sync.url";
     /**
@@ -119,7 +122,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      */
     private static final String KEY_TABLE_INCLUDE_LIST = "symmetric.table.include.list";
     /**
-     * 键 auto create tables
+      * 键 auto 创建 tables
      */
     private static final String KEY_AUTO_CREATE_TABLES = "symmetric.auto.create.tables";
     /**
@@ -138,11 +141,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     // ==================== 默认值 ====================
 
     /**
-     * 默认 group 标识
+      * 默认 群体 标识
      */
     private static final String DEFAULT_GROUP_ID = "default";
     /**
-     * 默认 auto create
+      * 默认 auto 创建
      */
     private static final String DEFAULT_AUTO_CREATE = "true";
     /**
@@ -157,11 +160,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     // ==================== 实例字段 ====================
 
     /**
-     * listen Path
+      * 监听 路径
      */
     private final String listenPath;
     /**
-     * environment
+      * 环境
      */
     private final DirectoryPollerEnvironment environment;
     /**
@@ -174,7 +177,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      */
     private ISymmetricEngine engine;
     /**
-     * 执行器 Service
+      * 执行器 服务
      */
     private ExecutorService executorService;
     /**
@@ -183,7 +186,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * 构造 SymmetricDS 同步轮询器。
+      * 构造 symmetricds 同步轮询器。
      *
      * @param listenPath  逻辑路径
      * @param environment 环境配置
@@ -194,7 +197,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
@@ -210,10 +213,10 @@ public class SymmetricPolledDirectory implements PolledDirectory {
         // 自动配置数据库环境（如需）
         autoSetupEnvironment();
 
-        // 构建 SymmetricDS 配置
+ // 构建 symmetricds 配置
         Properties properties = buildConfig();
 
-        // 初始化 SymmetricDS 引擎
+ // 初始化 symmetricds 引擎
         this.engine = new ClientSymmetricEngine(properties);
 
         // 创建后台线程
@@ -280,7 +283,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 构建 SymmetricDS 配置属性。
+      * 构建 symmetricds 配置属性。
      *
      * @return 配置属性对象
      */
@@ -340,7 +343,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
      * 通过 SPI 解析数据库连接器配置。
      *
      * @param dbType 数据库类型
-     * @return 连接器配置实例，未找到返回 null
+     * @return 连接器配置实例，未找到返回 空
      */
     private SymmetricConnectorConfig resolveConnectorConfig(String dbType) {
         if (dbType.isEmpty()) {
@@ -360,6 +363,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
 
     /**
      * 通用数据库配置。
+     * @param props props
      */
     private void configureGenericDb(Properties props) {
         String host = environment.getString(KEY_HOST, "localhost");
@@ -452,7 +456,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 检查 outgoing batch。
+      * 检查 outgoing 批量。
      */
     private void checkOutgoingBatches() {
         try {
@@ -477,9 +481,9 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 分发 batch 事件到监听器。
+      * 分发 批量 事件到监听器。
      *
-     * @param batch SymmetricDS outgoing batch
+     * @param batch symmetricds outgoing 批量
      */
     private void dispatchBatchEvent(OutgoingBatch batch) {
         try {
@@ -505,7 +509,7 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     /**
      * 从完整表名中提取表名。
      *
-     * @param fullTableName 完整表名，格式 schema.table 或 table
+     * @param fullTableName 完整表名，格式 模式.table 或 table
      * @return 表名
      */
     private String extractTableName(String fullTableName) {
@@ -516,10 +520,10 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 从完整表名中提取 schema。
+      * 从完整表名中提取 模式。
      *
      * @param fullTableName 完整表名
-     * @return schema 名称，若不存在返回 null
+     * @return schema 名称，若不存在返回 空
      */
     private String extractSchemaName(String fullTableName) {
         if (fullTableName.contains(".")) {
@@ -546,11 +550,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     @Override
     /** Upgrade */
     public void upgrade() {
-        // SymmetricDS 引擎内部自动处理
+ // symmetricds 引擎内部自动处理
     }
 
     @Override
-    /** 是否DelegatedOperatingSystem */
+    /** 是否delegatedoperating系统 */
     public boolean isDelegatedOperatingSystem() {
         return true;
     }

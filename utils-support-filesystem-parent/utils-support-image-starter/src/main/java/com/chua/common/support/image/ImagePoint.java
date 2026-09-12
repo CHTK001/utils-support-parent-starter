@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 public class ImagePoint extends Point {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
     /** 比率 */
     private double rate;
@@ -28,7 +28,7 @@ public class ImagePoint extends Point {
     private int height;
 
     /**
-     * 创建 ImagePoint 实例
+      * 创建 镜像point 实例
      * @param rate rate
      */
     public ImagePoint(double rate) {
@@ -36,7 +36,7 @@ public class ImagePoint extends Point {
     }
 
     /**
-     * 创建 ImagePoint 实例
+      * 创建 镜像point 实例
      * @param width width
      * @param height height
      */
@@ -46,7 +46,7 @@ public class ImagePoint extends Point {
     }
 
     /**
-     * 创建 ImagePoint 实例
+      * 创建 镜像point 实例
      * @param p p
      * @param width width
      * @param height height
@@ -58,7 +58,7 @@ public class ImagePoint extends Point {
     }
 
     /**
-     * 创建 ImagePoint 实例
+      * 创建 镜像point 实例
      * @param x x
      * @param y y
      * @param width width

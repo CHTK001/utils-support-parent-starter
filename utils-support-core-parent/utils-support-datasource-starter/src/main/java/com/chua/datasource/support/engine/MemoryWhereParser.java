@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
  * 内存 WHERE 条件解析器。
  * <p>
  * 将 SQL 风格的 WHERE 子句解析为 Java {@link Predicate}。
- * 支持 =、!=、&lt;&gt;、&gt;、&gt;=、&lt;、&lt;=、LIKE、IN、IS NULL、IS NOT NULL、BETWEEN，
- * 以及括号分组（AND / OR 嵌套）。
+   * 支持 =、!=、&lt;&gt;、&gt;、&gt;=、&lt;、&lt;=、LIKE、入、是否 空、是否 NOT 空、BETWEEN，
+   * 以及括号分组（和 / 或 嵌套）。
  * </p>
  *
  * @author CH
@@ -35,7 +35,14 @@ public class MemoryWhereParser {
     }
 
     @SuppressWarnings("unchecked")
-    /** 解析Conditions */
+    /**
+     * 解析条件
+     *
+     * @param where where
+     * @param params 参数
+     * @param startIdx 启动idx
+     * @return 解析条件的结果
+     */
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int startIdx) {
         Predicate<T> result = t -> true;
         String remaining = where.trim();
@@ -69,7 +76,7 @@ public class MemoryWhereParser {
                 continue;
             }
 
-            // BETWEEN a AND b
+ // BETWEEN a 和 b
             if (remaining.matches("(?i)^\\w+\\s+BETWEEN\\s+\\?\\s+AND\\s+\\?")) {
                 String field = remaining.replaceAll("(?i)\\s+BETWEEN\\s+\\?\\s+AND\\s+\\?.*", "");
                 int idxAfter = remaining.indexOf("BETWEEN");
@@ -131,7 +138,7 @@ public class MemoryWhereParser {
                 }
             }
 
-            // IS NOT NULL
+ // 是否 NOT 空
             if (remaining.matches("(?i)^\\w+\\s+IS\\s+NOT\\s+NULL\\s*.*")) {
                 String field = remaining.replaceAll("(?i)\\s+IS\\s+NOT\\s+NULL.*", "");
                 Predicate<T> pred = t -> getFieldValue(t, field) != null;
@@ -144,7 +151,7 @@ public class MemoryWhereParser {
                 continue;
             }
 
-            // IS NULL
+ // 是否 空
             if (remaining.matches("(?i)^\\w+\\s+IS\\s+NULL\\s*.*")) {
                 String field = remaining.replaceAll("(?i)\\s+IS\\s+NULL.*", "");
                 Predicate<T> pred = t -> getFieldValue(t, field) == null;
@@ -236,7 +243,7 @@ public class MemoryWhereParser {
                 continue;
             }
 
-            // AND / OR
+ // 和 / 或
             if (remaining.startsWith("AND") || remaining.startsWith("and")) {
                 lastConnector = "AND";
                 remaining = remaining.substring(3).trim();
@@ -254,7 +261,10 @@ public class MemoryWhereParser {
     }
 
     /**
-     * 将参数值转换为与字段值相同的类型，避免 ClassCastException。
+      * 将参数值转换为与字段值相同的类型，避免 类cast异常。
+     * @param fieldValue 字段值
+     * @param paramValue 参数值
+     * @return 转换转为匹配的结果
      */
     private Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
@@ -263,7 +273,7 @@ public class MemoryWhereParser {
         if (fieldValue.getClass().isInstance(paramValue)) {
             return paramValue;
         }
-        // Number 类型转换
+ // 数字 类型转换
         if (fieldValue instanceof Number) {
             try {
                 String s = String.valueOf(paramValue).trim();
@@ -288,7 +298,7 @@ public class MemoryWhereParser {
             } catch (NumberFormatException ignored) {
             }
         }
-        // String
+ // 字符串
         if (fieldValue instanceof String) {
             return String.valueOf(paramValue);
         }
@@ -297,6 +307,9 @@ public class MemoryWhereParser {
 
     /**
      * 通过反射获取对象字段的值。
+     * @param obj obj
+     * @param field 字段
+     * @return 获取字段值的结果
      */
     private <T> Object getFieldValue(T obj, String field) {
         return MethodCache.getValue(obj, field);

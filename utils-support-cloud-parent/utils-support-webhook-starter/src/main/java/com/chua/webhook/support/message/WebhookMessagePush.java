@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 通用 Webhook 消息推送实现
  * <p>
  * 向任意 Webhook 地址发送消息，兼容钉钉、企业微信群机器人及自建网关。
- * 按 contentType 选择消息格式：
+   * 按 内容类型 选择消息格式：
  * <ul>
  *   <li>text（默认）：{@code {"msgtype":"text","text":{"content":"..."}}}，兼容钉钉/企业微信</li>
  *   <li>markdown：{@code {"msgtype":"markdown","markdown":{"content":"..."}}}，兼容钉钉/企业微信</li>
@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
         }
 )
 /**
- * public class WebhookMessagePush implements MessagePush {
+   * 公共 类 webhook消息push implements 消息push {
  *
  * @author CH
  * @since 4.0.0.42
@@ -83,21 +83,21 @@ public class WebhookMessagePush implements MessagePush {
     /** 模板映射 */
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
-    /** 创建 WebhookMessagePush 实例 */
+    /** 创建 webhook消息push 实例 */
     public WebhookMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 WebhookMessagePush 实例
-     * @param environment environment
+      * 创建 webhook消息push 实例
+     * @param environment 环境
      */
     public WebhookMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "webhook";
     }
@@ -105,7 +105,7 @@ public class WebhookMessagePush implements MessagePush {
     @Override
     /**
      * 发送
-     * @param request request
+     * @param request 请求
      */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
@@ -199,7 +199,7 @@ public class WebhookMessagePush implements MessagePush {
      * 从响应体提取错误码（钉钉/企业微信返回 errcode 字段）
      *
      * @param body 响应体
-     * @return 错误码，无该字段返回 null
+     * @return 错误码，无该字段返回 空
      */
     private Integer extractErrorCode(String body) {
         if (StringUtils.isBlank(body)) {
@@ -221,7 +221,7 @@ public class WebhookMessagePush implements MessagePush {
     }
 
     @Override
-    /** ListTemplates */
+    /** 列表templates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
@@ -229,7 +229,7 @@ public class WebhookMessagePush implements MessagePush {
     @Override
     /**
      * 获取Template
-     * @param templateId templateId
+     * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);

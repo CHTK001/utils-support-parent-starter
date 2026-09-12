@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
 /**
- * DHT 传输层，基于 Netty NIO Datagram Channel 实现。
+   * DHT 传输层，基于 Netty NIO Datagram 通道 实现。
  * <p>
  * 提供 UDP 消息的收发、pending 匹配、超时控制和 JSON/KRPC 自动分发。
  * 相比原 {@link DhtUdpServer}，本类使用 Netty 非阻塞 IO，
@@ -51,7 +51,7 @@ public class DhtNettyServer {
     private NioEventLoopGroup group;
 
     /**
-     * UDP 监听 Channel
+      * UDP 监听 通道
      */
     private Channel channel;
 
@@ -71,12 +71,12 @@ public class DhtNettyServer {
     private volatile BiConsumer<DhtMessage, InetSocketAddress> responseEncoder;
 
     /**
-     * JSON 格式挂起请求映射，键为 "targetId@host:port"
+      * JSON 格式挂起请求映射，键为 "Targetid@主机:端口"
      */
     private final Map<String, CompletableFuture<DhtMessage>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
-     * KRPC / 原始字节格式挂起请求映射，键为 "{txId}@{host}:{port}"
+      * KRPC / 原始字节格式挂起请求映射，键为 "{txid}@{主机}:{端口}"
      */
     private final Map<String, CompletableFuture<byte[]>> pendingRaw = new ConcurrentHashMap<>();
 
@@ -114,7 +114,7 @@ public class DhtNettyServer {
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
                     @Override
                     /**
-                     * 初始化Channel
+                      * 初始化通道
                      * @param ch ch
                      */
                     protected void initChannel(NioDatagramChannel ch) {
@@ -166,7 +166,7 @@ public class DhtNettyServer {
      * 用于 KRPC 协议响应编码。
      * </p>
      *
-     * @param encoder 响应编码器，接收 DhtMessage 和目标地址
+     * @param encoder 响应编码器，接收 dht消息 和目标地址
      */
     public void setResponseEncoder(BiConsumer<DhtMessage, InetSocketAddress> encoder) {
         this.responseEncoder = encoder;
@@ -213,7 +213,7 @@ public class DhtNettyServer {
     /**
      * 发送原始字节数据并等待响应。
      * <p>
-     * 用于 KRPC 等非 JSON 格式的消息，pendingKey 通常为 "{txId}@{host}:{port}"。
+      * 用于 KRPC 等非 JSON 格式的消息，pending键 通常为 "{txid}@{主机}:{端口}"。
      * </p>
      *
      * @param data      原始字节数据
@@ -246,7 +246,7 @@ public class DhtNettyServer {
      * 移除并返回挂起的原始请求。
      *
      * @param pendingKey 挂起请求的键
-     * @return CompletableFuture，未找到返回 null
+     * @return CompletableFuture，未找到返回 空
      */
     public CompletableFuture<byte[]> removePendingRaw(String pendingKey) {
         return pendingRaw.remove(pendingKey);
@@ -255,7 +255,7 @@ public class DhtNettyServer {
     /**
      * 为 JSON 挂起的请求注册超时任务。
      *
-     * @param future  CompletableFuture
+     * @param future  completable期货
      * @param reqId   请求标识
      * @param timeoutMs 超时时间（毫秒）
      */
@@ -272,7 +272,7 @@ public class DhtNettyServer {
     /**
      * 为原始字节挂起的请求注册超时任务。
      *
-     * @param future  CompletableFuture
+     * @param future  completable期货
      * @param reqId   请求标识
      * @param timeoutMs 超时时间（毫秒）
      */
@@ -288,13 +288,15 @@ public class DhtNettyServer {
 
     /**
      * Netty 数据包处理器，负责接收并分发消息。
+     * @author CH
+     * @since 4.0.0
      */
     private class DhtPacketHandler extends SimpleChannelInboundHandler<DatagramPacket> {
         @Override
         /**
-         * Channel读取
+          * 通道读取
          * @param ctx ctx
-         * @param packet packet
+         * @param packet 数据包
          */
         protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
             SocketAddress sender = packet.sender();
@@ -312,7 +314,7 @@ public class DhtNettyServer {
 
         @Override
         /**
-         * ExceptionCaught
+          * 异常caught
          * @param ctx ctx
          * @param cause cause
          */

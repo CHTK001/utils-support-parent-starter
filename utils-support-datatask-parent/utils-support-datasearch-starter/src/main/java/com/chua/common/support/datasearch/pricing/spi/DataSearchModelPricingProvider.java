@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DataSearch 模型定价桥接实现。
+   * 数据搜索 模型定价桥接实现。
  *
  * <p>通过 ServiceProvider 加载各数据源的 {@link ModelMetricsProvider} 实现，
  * 将全部数据源的指标列表**合并**为一份完整模型定义：首个命中的源作为基础
  * （如 Artificial Analysis 的官方牌价、logo、速度/延迟），后续源仅补齐基础中
- * 缺失的字段（如 OpenRouter 的图片价格、网络检索价格、缓存价格、多模态能力）。</p>
+   * 缺失的字段（如 打开router 的图片价格、网络检索价格、缓存价格、多模态能力）。</p>
  *
  * <p>因此无论注册多少个数据源，上层按 (provider, model) 查询都能拿到合并后的
  * 完整数据，不再依赖单个实现。</p>
@@ -29,7 +29,7 @@ import java.util.Map;
 public class DataSearchModelPricingProvider implements ModelPricingProvider {
 
     @Override
-    /** 获取ModelPricing */
+    /** 获取模型pricing */
     public ModelDefinition getModelPricing(String provider, String model) {
         if (provider == null || model == null) {
             return null;
@@ -67,9 +67,9 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     }
 
     /**
-     * 合并两条模型定义：target 为 null 的字段用 src 补齐。
+      * 合并两条模型定义：Target 为 空 的字段用 src 补齐。
      *
-     * @param target 已合并的结果，首次调用为 null
+     * @param target 已合并的结果，首次调用为 空
      * @param src    当前数据源的命中记录
      * @return 合并后的结果
      */
@@ -133,10 +133,10 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     }
 
     /**
-     * 合并能力布尔字段:目标为 null 或为 false 而源为 true 时,用源的 true 覆盖。
+      * 合并能力布尔字段:目标为 空 或为 false 而源为 true 时,用源的 true 覆盖。
      *
      * <p>数据源对不支持的能力可能填 false（按名推断），而另一数据源有明确 true
-     * （如 OpenRouter 的 input_modalities），此时需用 true 覆盖，避免丢失能力标记。</p>
+      * （如 打开router 的 输入_modalities），此时需用 true 覆盖，避免丢失能力标记。</p>
      *
      * @param targetGetter 目标取值
      * @param sourceValue  源值

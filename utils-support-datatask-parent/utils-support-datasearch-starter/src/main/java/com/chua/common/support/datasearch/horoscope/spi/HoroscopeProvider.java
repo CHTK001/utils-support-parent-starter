@@ -25,7 +25,7 @@ public interface HoroscopeProvider {
      *
      * @param sign 星座（如：白羊座、金牛座）
      * @param type 周期：today=今日 / week=本周 / month=本月
-     * @return 运势信息；参数非法或查询失败返回 null
+     * @return 运势信息；参数非法或查询失败返回 空
      */
     HoroscopeInfo get(String sign, String type);
 

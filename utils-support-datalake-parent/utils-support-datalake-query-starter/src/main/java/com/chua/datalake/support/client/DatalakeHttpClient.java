@@ -7,7 +7,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * datalake-starter 提供的查询 API 客户端。
+   * 数据湖-启动 提供的查询 API 客户端。
  *
  * <p>默认调用 {server}/query?sdl=...；后续可加更多端点。</p>
  *
@@ -31,14 +31,14 @@ public class DatalakeHttpClient {
     private final String baseUrl;
 
     /**
-     * HttpClient 实例
+      * HTTP客户端 实例
      */
     private final HttpClient client;
 
     /**
      * 构造
      *
-     * @param baseUrl datalake-starter 提供的 API 服务地址（如 http://localhost:8700）
+     * @param baseUrl 数据湖-启动 提供的 API 服务地址（如 http://localhost:8700）
      */
     public DatalakeHttpClient(String baseUrl) {
         if (baseUrl.endsWith("/")) {
@@ -73,6 +73,6 @@ public class DatalakeHttpClient {
      * 关闭资源
      */
     public void close() {
-        // java.net.http.HttpClient 不需要关闭
+ // Java.net.http.HTTP客户端 不需要关闭
     }
 }

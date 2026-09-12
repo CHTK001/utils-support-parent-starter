@@ -42,23 +42,23 @@ import java.util.stream.IntStream;
  * 1.           448x448
  * 2.              [0, 1]
  * 3.           CHW       
- * 4. ImageNet          
+   * 4. 镜像net
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 public class ClTaggerTranslator implements Translator<Image, Classifications> {
 
     /** JSON 对象映射器 */
-    /** Object_mapper */
+    /** 对象_映射器 */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /** 默认类别数量 */
-    /** Default_class_count */
+    /** 默认_类_数量 */
     private static final int DEFAULT_CLASS_COUNT = 51213;
     /** 低信息范围阈值 */
-    /** Low_information_range_threshold */
+    /** Low_信息_范围_阈值 */
     private static final float LOW_INFORMATION_RANGE_THRESHOLD = 2.0f;
     /** 日志记录器 */
     /** 日志 */
@@ -80,7 +80,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     private List<String> classes;
 
     /** 低信息输入标记 */
-    /** LOWinformation输入 */
+    /** lowinformation输入 */
     private final ThreadLocal<Boolean> lowInformationInput = ThreadLocal.withInitial(() -> false);
 
     /**
@@ -93,7 +93,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     }
 
     /**
-     * 创建 ClTaggerTranslator 实例
+      * 创建 cltaggertranslator 实例
      * @param classes classes
      */
     public ClTaggerTranslator(List<String> classes) {
@@ -157,7 +157,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
         // HWC -> CHW
         array = array.transpose(2, 0, 1);
 
-        // ImageNet          
+ // 镜像net
         var mean = manager.create(new float[]{0.485f, 0.456f, 0.406f}, new Shape(3, 1, 1));
         var std = manager.create(new float[]{0.229f, 0.224f, 0.225f}, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
@@ -173,7 +173,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return             
      * @throws Exception             
      */
@@ -208,21 +208,36 @@ finally {
         return Batchifier.STACK;
     }
 
-    /** DefaultClasses */
+    /**
+     * 默认类
+     *
+     * @param size 大小
+     * @return 默认类的结果
+     */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)
                 .mapToObj(index -> "tag-" + index)
                 .toList();
     }
 
-    /** LooksLikeDefaultClasses */
+    /**
+     * lookslike默认类
+     *
+     * @param classes 类
+     * @return lookslike默认类的结果
+     */
     private static boolean looksLikeDefaultClasses(List<String> classes) {
         return classes != null
                 && !classes.isEmpty()
                 && classes.stream().limit(Math.min(16, classes.size())).allMatch(value -> value != null && value.startsWith("tag-"));
     }
 
-    /** 是否LowInformation */
+    /**
+     * 是否low信息
+     *
+     * @param array array
+     * @return 是否low信息的结果
+     */
     private static boolean isLowInformation(NDArray array) {
         NDArray floatArray = array.toType(DataType.FLOAT32, false);
         float min = floatArray.min().toFloatArray()[0];
@@ -230,7 +245,12 @@ finally {
         return (max - min) <= LOW_INFORMATION_RANGE_THRESHOLD;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -242,7 +262,12 @@ finally {
         return normalized.getParent() == null ? normalized : normalized.getParent();
     }
 
-    /** 加载TagMapping */
+    /**
+     * 加载标签mapping
+     *
+     * @param tagMappingPath 标签mapping路径
+     * @return 加载标签mapping的结果
+     */
     private static List<String> loadTagMapping(Path tagMappingPath) throws IOException {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
                 new TypeReference<Map<String, TagMappingEntry>>() {
@@ -262,7 +287,13 @@ finally {
                 .toList();
     }
 
-    /** TagMappingEntry */
+    /**
+     * 标签mappingentry
+     *
+     * @param tag 标签
+     * @param category 分类
+     * @return 标签mappingentry的结果
+     */
     private record TagMappingEntry(String tag, String category) {
     }
 }

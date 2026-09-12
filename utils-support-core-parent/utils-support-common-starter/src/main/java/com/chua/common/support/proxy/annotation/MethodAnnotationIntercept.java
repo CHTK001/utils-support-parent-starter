@@ -64,12 +64,15 @@ import java.lang.annotation.Annotation;
  *         return result;
  *     }
  * }
+ * }</pre>果;
+ *     }
+ * }
  * }</pre>
  *
  * @param <A> 注解类型，必须继承自 {@link java.lang.annotation.Annotation}
  * @author CH
  * @since 2025/11/26
- * @version 1.1.0
+   * @版本 1.1.0
  * @see ProxyMethod
  * @see MethodInvocation
  * @see Spi
@@ -82,7 +85,7 @@ public interface MethodAnnotationIntercept<A extends Annotation> {
      * <p>必须与 {@link Spi @Spi} 中 {@code value} 所指定的注解全名对应的 {@code Class} 完全一致，
      * 框架会在运行时检查二者一致性，不一致则跳过该拦截器。</p>
      *
-     * @return 注解类型 Class 对象，不可为 null
+     * @return 注解类型 类 对象，不可为 空
      */
     Class<A> annotationType();
 

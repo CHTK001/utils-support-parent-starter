@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 数据同步 Source 接口，定义数据读取能力。
+   * 数据同步 源 接口，定义数据读取能力。
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,9 +15,9 @@ import java.util.Map;
 public interface DataSyncAgentSource {
 
     /**
-     * 获取 Source 实例唯一标识。
+      * 获取 源 实例唯一标识。
      *
-     * @return Source 实例 ID
+     * @return Source 实例 标识
      */
     String sourceId();
 
@@ -37,7 +37,7 @@ public interface DataSyncAgentSource {
     Flux<Map<String, Object>> read(Map<String, Object> params);
 
     /**
-     * 读取偏移量（由 Source 通过存储接口自行恢复）。
+      * 读取偏移量（由 源 通过存储接口自行恢复）。
      *
      * @param params 读取参数
      * @return 偏移量，可能为空（首次运行时）
@@ -47,7 +47,7 @@ public interface DataSyncAgentSource {
     }
 
     /**
-     * 写入偏移量（由 Source 通过存储接口自行持久化）。
+      * 写入偏移量（由 源 通过存储接口自行持久化）。
      *
      * @param offset 偏移量对象
      */
@@ -55,16 +55,16 @@ public interface DataSyncAgentSource {
     }
 
     /**
-     * 获取本次读取的最后偏移量（由 Source 在 read() 内部追踪）。
+      * 获取本次读取的最后偏移量（由 源 在 读取() 内部追踪）。
      *
-     * @return 最后偏移量值，若不可追踪则返回 null
+     * @return 最后偏移量值，若不可追踪则返回 空
      */
     default Object getLastReadOffset() {
         return null;
     }
 
     /**
-     * 关闭 Source，释放资源。
+      * 关闭 源，释放资源。
      */
     void close();
 }

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * MQTT 应用层 Handler — 拦截 Eclipse Paho 客户端关键调用并生成应用语义传输记录。
+   * MQTT 应用层 处理器 — 拦截 Eclipse Paho 客户端关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,12 +23,12 @@ import com.chua.runtime.protocol.Software;
 public class MqttHandler extends AbstractAppHandler {
 
     /**
-     * MqttAsyncClient 类内部名
+      * mqtt异步客户端 类内部名
      */
     private static final String MQTT_ASYNC_CLIENT = "org/eclipse/paho/client/mqttv3/MqttAsyncClient";
 
     /**
-     * MqttClient 类内部名
+      * mqtt客户端 类内部名
      */
     private static final String MQTT_SYNC_CLIENT = "org/eclipse/paho/client/mqttv3/MqttClient";
 
@@ -38,13 +38,13 @@ public class MqttHandler extends AbstractAppHandler {
     private static final String[] MQTT_METHODS = {"publish", "subscribe", "unsubscribe"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "mqtt-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "mqtt.enabled";
     }
@@ -56,28 +56,28 @@ public class MqttHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MQTT;
     }
 
     @Override
-    /** SoftwareForEntry */
+    /** softwareforentry */
     protected Software softwareForEntry(InterceptContext ctx) {
         return Software.PAHO_MQTT;
     }
 
     @Override
-    /** KindForEntry */
+    /** 种类forentry */
     protected EndpointKind kindForEntry(InterceptContext ctx) {
-        // publish 为生产者，subscribe 为消费者
+ // 发布 为生产者，订阅 为消费者
         String method = ctx.getMethodName();
         return "subscribe".equals(method) || "unsubscribe".equals(method)
                 ? EndpointKind.CONSUMER : EndpointKind.PRODUCER;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(MQTT_ASYNC_CLIENT, MQTT_METHODS);
         registerAll(MQTT_SYNC_CLIENT, MQTT_METHODS);

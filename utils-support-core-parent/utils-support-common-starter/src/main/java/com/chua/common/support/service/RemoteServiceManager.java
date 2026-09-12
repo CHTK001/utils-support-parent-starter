@@ -29,8 +29,12 @@ public interface RemoteServiceManager {
         String privateKeyPath
     ) {
         public SshConfig {
-            if (host == null || host.isBlank()) throw new IllegalArgumentException("host cannot be blank");
-            if (username == null || username.isBlank()) throw new IllegalArgumentException("username cannot be blank");
+            if (host == null || host.isBlank()) {
+                throw new IllegalArgumentException("host cannot be blank");
+            }
+            if (username == null || username.isBlank()) {
+                throw new IllegalArgumentException("username cannot be blank");
+            }
         }
     }
 

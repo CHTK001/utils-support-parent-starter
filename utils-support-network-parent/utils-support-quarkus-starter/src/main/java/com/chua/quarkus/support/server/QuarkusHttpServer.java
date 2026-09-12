@@ -54,12 +54,12 @@ public class QuarkusHttpServer extends AbstractServer {
     private io.vertx.core.http.HttpServer server;
 
     /**
-     * 是否使用 EventLoop 线程（响应式模式）。
+      * 是否使用 事件循环 线程（响应式模式）。
      */
     private boolean reactive;
 
     /**
-     * 创建 QuarkusHttpServer 实例
+      * 创建 quarkushttp服务端 实例
      * @param setting setting
      */
     public QuarkusHttpServer(ServerSetting setting) {
@@ -67,19 +67,19 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     @Override
-    /** SupportsReactor */
+    /** 支持reactor */
     public boolean supportsReactor() {
         return true;
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         this.reactive = setting.isReactor();
         int eventLoopPoolSize = Math.max(setting.getBossThreads(), 2);
@@ -149,7 +149,12 @@ public class QuarkusHttpServer extends AbstractServer {
         log.info("Quarkus HttpServer started on {}:{}", setting.getHost(), setting.getPort());
     }
 
-    /** Do处理 */
+    /**
+     * 执行处理
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void doHandle(QuarkusServerRequest request, QuarkusServerResponse response) {
         try {
             handleRequest(request, response);
@@ -162,7 +167,7 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (server != null) {
             try {
@@ -180,6 +185,12 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
     // ======================== Response ========================
+    /**
+     * quarkus服务端响应类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     static class QuarkusServerResponse implements ServerResponse {
 
@@ -196,11 +207,11 @@ public class QuarkusHttpServer extends AbstractServer {
          */
         private byte[] body;
         /**
-         * headers
+          * 头部
          */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         /**
-         * content Type
+          * 内容 类型
          */
         private String contentType;
         /**
@@ -208,7 +219,7 @@ public class QuarkusHttpServer extends AbstractServer {
          */
         private boolean committed;
         /**
-         * ended
+          * 结束
          */
         private boolean ended;
         /**
@@ -225,7 +236,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -234,13 +245,13 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -249,13 +260,13 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
@@ -263,20 +274,20 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置ContentType */
+        /** 设置内容类型 */
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return contentType;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -285,7 +296,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -294,26 +305,26 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return body;
         }
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 设置Result */
+        /** 设置结果 */
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
         @Override
-        /** 获取Result */
+        /** 获取结果 */
         public Object getResult() {
             return result;
         }
@@ -353,13 +364,13 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 是否Ended */
+        /** 是否结束 */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** End */
+        /** 结束 */
         public void end() {
             if (ended) {
                 return;
@@ -413,7 +424,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** SseEvent */
+        /** sse事件 */
         public void sseEvent(String event, String data) {
             if (!sseMode) {
                 return;
@@ -463,12 +474,12 @@ public class QuarkusHttpServer extends AbstractServer {
     }
 
         /**
-         * 由 setResult 设置的结果对象派生出响应体字节（对齐 AbstractServer#convertResult 语义）：
-         * String → UTF-8、byte[] → 原样、Path → 文件字节、其他 → toString() 字节。
-         * 仅在 body 未显式设置时生效，避免覆盖 setBody。
+          * 由 设置结果 设置的结果对象派生出响应体字节（对齐 抽象服务端#转换结果 语义）：
+          * 字符串 → UTF-8、byte[] → 原样、路径 → 文件字节、其他 → 转为字符串() 字节。
+          * 仅在 主体 未显式设置时生效，避免覆盖 设置主体。
          *
-         * @param r handler 通过 setResult 设置的结果对象
-         * @return 派生的响应体字节；r 为 null 返回 null
+         * @param r 处理器 通过 设置结果 设置的结果对象
+         * @return 派生的响应体字节；r 为 空 返回 空
          */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
@@ -487,6 +498,12 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
     // ======================== Request ========================
+    /**
+     * quarkus服务端请求类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     static class QuarkusServerRequest implements ServerRequest {
 
@@ -505,7 +522,7 @@ public class QuarkusHttpServer extends AbstractServer {
 
         QuarkusServerRequest(RoutingContext ctx) {
             this.ctx = ctx;
-            // 预缓存 body
+ // 预缓存 主体
             if (ctx.body() != null && ctx.body().buffer() != null) {
                 this.bodyBytes = ctx.body().buffer().getBytes();
             } else {
@@ -520,25 +537,25 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return ctx.request().path();
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.request().method().name());
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return ctx.request().getHeader(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             ctx.request().headers().forEach(e -> h.add(e.getKey(), e.getValue()));
@@ -546,7 +563,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Params */
+        /** 获取参数 */
         public Map<String, String> getParams() {
             Map<String, String> params = new java.util.HashMap<>();
             ctx.request().params().forEach(e -> params.put(e.getKey(), e.getValue()));
@@ -554,49 +571,49 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Param */
+        /** 获取参数 */
         public String getParam(String name) {
             return ctx.request().getParam(name);
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return ctx.request().getHeader("Content-Type");
         }
 
         @Override
-        /** 获取Content获取长度 */
+        /** 获取内容获取长度 */
         public long getContentLength() {
             return bodyBytes != null ? bodyBytes.length : 0;
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return bodyBytes;
         }
 
         @Override
-        /** 获取BodyString */
+        /** 获取主体字符串 */
         public String getBodyString() {
             return bodyBytes != null ? new String(bodyBytes, StandardCharsets.UTF_8) : "";
         }
 
         @Override
-        /** 获取InputStream */
+        /** 获取输入流 */
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return ctx.request().remoteAddress().host();
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return ctx.request().remoteAddress().port();
         }
@@ -620,7 +637,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取FormData */
+        /** 获取form数据 */
         public Map<String, String> getFormData() {
             Map<String, String> form = new java.util.LinkedHashMap<>();
             var req = ctx.request();
@@ -631,7 +648,7 @@ public class QuarkusHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Files */
+        /** 获取文件 */
         public List<FormFile> getFiles() {
             List<io.vertx.ext.web.FileUpload> uploads = ctx.fileUploads();
             if (uploads == null || uploads.isEmpty()) {

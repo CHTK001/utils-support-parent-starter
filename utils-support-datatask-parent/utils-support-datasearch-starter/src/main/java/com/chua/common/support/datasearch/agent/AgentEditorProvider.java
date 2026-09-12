@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * datasearch 的 MCP 提供器 + Skills 提供器 + Agent Editor 配置读写。
+   * datasearch 的 MCP 提供器 + Skills 提供器 + 智能体 Editor 配置读写。
  *
  * <p>合并了以下能力：
  * <ul>
@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  *
  * <p>支持的 AI 编辑器：Cursor、Claude Code、Codex、Windsurf、Cline、Roo Code、
- * Trae、Augment Code、Continue、Gemini CLI、Cody、MiMo Code、AtomCode、CodeBuddy、TRAE-CN
+   * Trae、Augment 编码、继续、Gemini CLI、Cody、mimo 编码、Atom编码、编码buddy、Trae-CN
  *
  * @author CH
  * @since 4.0.0.42
@@ -53,52 +53,52 @@ public class AgentEditorProvider {
     public static final String NAME = "datasearch";
 
     /**
-     * 用户主目录 Path，作为各编辑器配置目录的根前缀，缺省回退到当前目录
+      * 用户主目录 路径，作为各编辑器配置目录的根前缀，缺省回退到当前目录
      */
     private static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
     /**
-     * CodeBuddy 项目配置目录名
+      * 编码buddy 项目配置目录名
      */
     private static final String CODEBUDDY_DIR = ".codebuddy";
 
     /**
-     * CodeBuddy Skills 目录名（在 .codebuddy 下）
+      * 编码buddy Skills 目录名（在 .codebuddy 下）
      */
     private static final String CODEBUDDY_SKILLS_DIR = "skills";
 
     /**
-     * CodeBuddy Skills 定义文件名
+      * 编码buddy Skills 定义文件名
      */
     private static final String SKILL_MD_FILE = "SKILL.md";
 
     /**
-     * TRAE-CN 配置根目录
+      * Trae-CN 配置根目录
      */
     private static final Path TRAE_CN_DIR = USER_HOME.resolve(".trae-cn");
 
     /**
-     * TRAE-CN 插件目录
+      * Trae-CN 插件目录
      */
     private static final Path TRAE_CN_PLUGINS_DIR = TRAE_CN_DIR.resolve("plugins");
 
     /**
-     * TRAE-CN Skills 目录
+      * Trae-CN Skills 目录
      */
     private static final Path TRAE_CN_SKILLS_DIR = TRAE_CN_DIR.resolve("skills");
 
     /**
-     * Skills 目录前缀，datasearch 自定义技能目录以此前缀命名（如 datasearch_video）
+      * Skills 目录前缀，datasearch 自定义技能目录以此前缀命名（如 datasearch_视频）
      */
     private static final String PREFIX = "";
 
     /**
-     * 默认视频数据源标识，用于视频搜索时缺省 source 参数（如豆瓣）
+      * 默认视频数据源标识，用于视频搜索时缺省 源 参数（如豆瓣）
      */
     private static final String DEFAULT_VIDEO_SOURCE = "douban";
 
     /**
-     * 默认音乐数据源标识，用于音乐搜索时缺省 source 参数（如 demo）
+      * 默认音乐数据源标识，用于音乐搜索时缺省 源 参数（如 demo）
      */
     private static final String DEFAULT_MUSIC_SOURCE = "demo";
 
@@ -113,7 +113,7 @@ public class AgentEditorProvider {
     private static final String DEFAULT_JAR_PATH = "datasearch-mcp.jar";
 
     /**
-     * SSE 模式下默认 MCP Server URL
+      * SSE 模式下默认 MCP 服务端 URL
      */
     private static final String DEFAULT_SERVER_URL = "http://localhost:8080/mcp";
 
@@ -142,6 +142,8 @@ public class AgentEditorProvider {
     /**
      * AI 编辑器配置定义，封装编辑器名称、配置目录与 MCP 配置文件名，
      * 用于定位各编辑器在用户主目录下的 MCP/Skills 配置文件路径。
+     * @author CH
+     * @since 4.0.0
      */
     public static class AgentEditor {
 
@@ -151,7 +153,7 @@ public class AgentEditorProvider {
         private final String name;
 
         /**
-         * 相对于用户主目录的配置目录路径，例如 .cursor、.claude
+          * 相对于用户主目录的配置目录路径，例如 .Cursor、.claude
          */
         private final String configDir;
 
@@ -161,34 +163,34 @@ public class AgentEditorProvider {
         private final String mcpConfigFile;
 
         /**
-         * 是否基于工作区目录（如 CodeBuddy），而非 USER_HOME。
-         * true 时配置路径为 {workspace}/{configDir}/{mcpConfigFile}
+          * 是否基于工作区目录（如 编码buddy），而非 用户_Home。
+          * true 时配置路径为 {workspace}/{配置dir}/{mcp配置文件}
          */
         private final boolean workspaceBased;
 
         /**
          * 环境变量名，用于覆盖默认配置目录路径。
-         * 例如 CODEX_HOME、CLAUDE_CONFIG_DIR 等
+          * 例如 CODEX_Home、CLAUDE_配置_DIR 等
          */
         private final String envVar;
 
         /**
-         * Cursor 编辑器配置，配置目录为 .cursor，MCP 配置文件为 mcp.json
+          * Cursor 编辑器配置，配置目录为 .Cursor，MCP 配置文件为 mcp.json
          */
         public static final AgentEditor CURSOR = new AgentEditor("Cursor", ".cursor", "mcp.json", false, "CURSOR_CONFIG_DIR");
 
         /**
-         * Claude Code 编辑器配置，配置目录为 .claude，MCP 配置文件为 settings.json
+          * Claude 编码 编辑器配置，配置目录为 .claude，MCP 配置文件为 settings.json
          */
         public static final AgentEditor CLAUDE = new AgentEditor("Claude Code", ".claude", "settings.json", false, "CLAUDE_CONFIG_DIR");
 
         /**
-         * Codex 编辑器配置，配置目录为 .codex，MCP 配置文件为 config.json
+          * Codex 编辑器配置，配置目录为 .codex，MCP 配置文件为 配置.json
          */
         public static final AgentEditor CODEX = new AgentEditor("Codex", ".codex", "config.json", false, "CODEX_HOME");
 
         /**
-         * Windsurf 编辑器配置，配置目录为 .codeium/windsurf，MCP 配置文件为 mcp_config.json
+          * Windsurf 编辑器配置，配置目录为 .codeium/Windsurf，MCP 配置文件为 mcp_配置.json
          */
         public static final AgentEditor WINDSURF = new AgentEditor("Windsurf", ".codeium/windsurf", "mcp_config.json", false, null);
 
@@ -198,22 +200,22 @@ public class AgentEditorProvider {
         public static final AgentEditor CLINE = new AgentEditor("Cline", ".cline", "cline_mcp_settings.json", false, "CLINE_DATA_DIR");
 
         /**
-         * Roo Code 编辑器配置，配置目录为 .roo，MCP 配置文件为 mcp.json
+          * Roo 编码 编辑器配置，配置目录为 .roo，MCP 配置文件为 mcp.json
          */
         public static final AgentEditor ROO_CODE = new AgentEditor("Roo Code", ".roo", "mcp.json", false, null);
 
         /**
-         * Trae 编辑器配置（国际版），配置目录为 .trae，MCP 配置文件为 mcp.json
+          * Trae 编辑器配置（国际版），配置目录为 .Trae，MCP 配置文件为 mcp.json
          */
         public static final AgentEditor TRAE = new AgentEditor("Trae", ".trae", "mcp.json", false, null);
 
         /**
-         * Augment Code 编辑器配置，配置目录为 .augment，MCP 配置文件为 mcp.json
+          * Augment 编码 编辑器配置，配置目录为 .augment，MCP 配置文件为 mcp.json
          */
         public static final AgentEditor AUGMENT = new AgentEditor("Augment Code", ".augment", "mcp.json", false, null);
 
         /**
-         * Continue 编辑器配置，配置目录为 .continue，MCP 配置文件为 config.json
+          * 继续 编辑器配置，配置目录为 .继续，MCP 配置文件为 配置.json
          */
         public static final AgentEditor CONTINUE = new AgentEditor("Continue", ".continue", "config.json", false, null);
 
@@ -228,25 +230,25 @@ public class AgentEditorProvider {
         public static final AgentEditor CODY = new AgentEditor("Cody", ".cody", "mcp.json", false, null);
 
         /**
-         * CodeBuddy 编辑器配置，配置目录为 .codebuddy，MCP 配置文件为 mcp.json。
-         * workspaceBased=true，从当前目录向上搜索 .codebuddy/。
+          * 编码buddy 编辑器配置，配置目录为 .codebuddy，MCP 配置文件为 mcp.json。
+          * workspace基础=true，从当前目录向上搜索 .codebuddy/。
          */
         public static final AgentEditor CODEBUDDY = new AgentEditor("CodeBuddy", CODEBUDDY_DIR, "mcp.json", true, null);
 
         /**
-         * TRAE-CN 编辑器配置，配置目录为 .trae-cn，MCP 配置在 plugins 目录下。
+          * Trae-CN 编辑器配置，配置目录为 .Trae-cn，MCP 配置在 plugins 目录下。
          * install/uninstall 为 no-op，仅用于插件发现和 Skills 扫描。
          */
         public static final AgentEditor TRAE_CN = new AgentEditor("TRAE-CN", ".trae-cn", "plugins", false, null);
 
         /**
-         * MiMo Code 编辑器配置，配置目录为 .mimocode，MCP 配置文件为 mimocode.json。
-         * 支持 MIMOCODE_HOME 环境变量覆盖默认配置目录。
+          * mimo 编码 编辑器配置，配置目录为 .mimocode，MCP 配置文件为 mimocode.json。
+          * 支持 MIMOCODE_Home 环境变量覆盖默认配置目录。
          */
         public static final AgentEditor MIMO = new AgentEditor("MiMo Code", ".mimocode", "mcp.json", false, "MIMOCODE_HOME");
 
         /**
-         * AtomCode 编辑器配置，配置目录为 .atomcode，MCP 配置文件为 mcp.json。
+          * Atom编码 编辑器配置，配置目录为 .atomcode，MCP 配置文件为 mcp.json。
          */
         public static final AgentEditor ATOMCODE = new AgentEditor("AtomCode", ".atomcode", "mcp.json", false, null);
 
@@ -277,7 +279,7 @@ public class AgentEditorProvider {
          * @param configDir      相对目录的配置目录路径
          * @param mcpConfigFile  MCP 配置文件名
          * @param workspaceBased 是否基于工作区目录（true: 从当前目录向上搜索配置目录）
-         * @param envVar         环境变量名，用于覆盖默认配置目录路径，可为 null
+         * @param envVar         环境变量名，用于覆盖默认配置目录路径，可为 空
          */
         public AgentEditor(String name, String configDir, String mcpConfigFile, boolean workspaceBased, String envVar) {
             this.name = name;
@@ -308,7 +310,7 @@ public class AgentEditorProvider {
         /**
          * 获取环境变量名。
          *
-         * @return 环境变量名，可为 null
+         * @return 环境变量名，可为 空
          */
         public String getEnvVar() {
             return envVar;
@@ -316,9 +318,9 @@ public class AgentEditorProvider {
 
         /**
          * 获取实际的配置目录路径。
-         * 优先使用环境变量（如果配置了且非空），否则使用默认的 configDir。
+          * 优先使用环境变量（如果配置了且非空），否则使用默认的 配置dir。
          *
-         * @return 配置目录 Path
+         * @return 配置目录 路径
          */
         public Path getConfigDirPath() {
             if (envVar != null) {
@@ -342,14 +344,14 @@ public class AgentEditorProvider {
         /**
          * 是否基于工作区目录解析配置，参见 {@link #discoverWorkspaces()}。
          *
-         * @return true 表示从工作区而非 USER_HOME 查找配置
+         * @return true 表示从工作区而非 用户_Home 查找配置
          */
         public boolean isWorkspaceBased() {
             return workspaceBased;
         }
 
         /**
-         * 获取 MCP 配置文件的完整相对路径（configDir/mcpConfigFile）。
+          * 获取 MCP 配置文件的完整相对路径（配置dir/mcp配置文件）。
          *
          * @return MCP 配置文件相对路径字符串
          */
@@ -358,10 +360,10 @@ public class AgentEditorProvider {
         }
 
         /**
-         * 获取 MCP 配置文件的实际 Path。
-         * 优先使用环境变量（如果配置了），否则使用 USER_HOME/configDir/mcpConfigFile。
+          * 获取 MCP 配置文件的实际 路径。
+          * 优先使用环境变量（如果配置了），否则使用 用户_Home/配置dir/mcp配置文件。
          *
-         * @return MCP 配置文件 Path
+         * @return MCP 配置文件 路径
          */
         public Path getMcpConfigFilePath() {
             return getConfigDirPath().resolve(mcpConfigFile);
@@ -369,7 +371,9 @@ public class AgentEditorProvider {
     }
 
     /**
-     * MCP Server 配置模型（从 JSON 反序列化，用于 TRAE-CN 等插件发现场景）
+      * MCP 服务端 配置模型（从 JSON 反序列化，用于 Trae-CN 等插件发现场景）
+     * @author CH
+     * @since 4.0.0
      */
     protected static class McpServerConfig {
         /** 名称 */
@@ -385,66 +389,92 @@ public class AgentEditorProvider {
         /** 类型 */
         private String type;
 
-        /** 获取Name */
+        /**
+         * 获取名称
+         *
+         * @return 获取名称的结果
+         */
         public String getName() { return name; }
         /**
-         * 设置Name
-         * @param name name
+          * 设置名称
+         * @param name 名称
          */
         public void setName(String name) { this.name = name; }
-        /** 获取Command */
+        /**
+         * 获取命令
+         *
+         * @return 获取命令的结果
+         */
         public String getCommand() { return command; }
         /**
-         * 设置Command
-         * @param command command
+          * 设置命令
+         * @param command 命令
          */
         public void setCommand(String command) { this.command = command; }
-        /** 获取Args */
+        /**
+         * 获取参数
+         *
+         * @return 获取参数的结果
+         */
         public List<String> getArgs() { return args; }
         /**
-         * 设置Args
-         * @param args args
+          * 设置参数
+         * @param args 参数
          */
         public void setArgs(List<String> args) { this.args = args; }
+        /**
+         * 获取env。
+         * @return 获取env的结果
+         */
         public Map<String, String> getEnv() { return env; }
         /**
          * 设置Env
          * @param env env
          */
         public void setEnv(Map<String, String> env) { this.env = env; }
-        /** 获取Url */
+        /**
+         * 获取Url
+         *
+         * @return 获取url的结果
+         */
         public String getUrl() { return url; }
         /**
          * 设置Url
          * @param url url
          */
         public void setUrl(String url) { this.url = url; }
-        /** 获取Type */
+        /**
+         * 获取类型
+         *
+         * @return 获取类型的结果
+         */
         public String getType() { return type; }
         /**
-         * 设置Type
-         * @param type type
+          * 设置类型
+         * @param type 类型
          */
         public void setType(String type) { this.type = type; }
 
         @Override
-        /** ToString */
+        /** 转为字符串 */
         public String toString() {
             return name + " [" + (command != null ? command : url) + "]";
         }
     }
 
     /**
-     * MCP 传输模式枚举：STDIO 表示标准输入输出模式，SSE 表示 Server-Sent Events 模式
+      * MCP 传输模式枚举：STDIO 表示标准输入输出模式，SSE 表示 服务端-Sent 事件 模式
+     * @author CH
+     * @since 4.0.0
      */
     public enum McpMode {
         /**
-         * 标准输入输出模式，MCP Server 通过子进程 stdin/stdout 通信
+          * 标准输入输出模式，MCP 服务端 通过子进程 stdin/stdout 通信
          */
         STDIO,
 
         /**
-         * Server-Sent Events 模式，MCP Server 通过 HTTP SSE 推送消息
+          * 服务端-Sent 事件 模式，MCP 服务端 通过 HTTP SSE 推送消息
          */
         SSE
     }
@@ -453,7 +483,7 @@ public class AgentEditorProvider {
 
     /**
      * 视频搜索处理器，由外部注入实现，用于将搜索结果回调给调用方；
-     * 为 null 时回退到 SPI 自动绑定的 ResourceProvider
+      * 为 空 时回退到 SPI 自动绑定的 resource提供者
      */
     private VideoSearchHandler videoSearchHandler;
 
@@ -464,7 +494,7 @@ public class AgentEditorProvider {
     private final Map<String, MusicSourceProvider> musicProviders = new ConcurrentHashMap<>();
 
     /**
-     * 自定义编辑器列表，存放用户通过 addCustomEditor 追加的非内置编辑器配置，
+      * 自定义编辑器列表，存放用户通过 添加习俗editor 追加的非内置编辑器配置，
      * 用于扩展安装/卸载的目标范围
      */
     private final List<AgentEditor> customEditors = new ArrayList<>();
@@ -474,6 +504,8 @@ public class AgentEditorProvider {
      *
      * <p>当外部需要自定义视频搜索逻辑时，实现此接口并通过
      * {@link #videoSearchHandler(VideoSearchHandler)} 注入。</p>
+     * @author CH
+     * @since 4.0.0
      */
     public interface VideoSearchHandler {
 
@@ -484,7 +516,7 @@ public class AgentEditorProvider {
          * @param source   数据源标识
          * @param page     页码（从 1 开始）
          * @param pageSize 每页大小
-         * @return 搜索结果 Map，至少包含 total 与 items 字段
+         * @return 搜索结果 映射，至少包含 total 与 items 字段
          */
         Map<String, Object> search(String keyword, String source, int page, int pageSize);
 
@@ -492,7 +524,7 @@ public class AgentEditorProvider {
          * 根据关键词获取视频下载链接列表。
          *
          * @param keyword 视频标题或关键词
-         * @return 下载链接信息列表，每项为 Map 结构
+         * @return 下载链接信息列表，每项为 映射 结构
          */
         List<Map<String, Object>> getDownloadUrls(String keyword);
     }
@@ -501,7 +533,7 @@ public class AgentEditorProvider {
      * 注入视频搜索处理器，用于自定义视频搜索回调。
      *
      * @param handler 视频搜索处理器实例
-     * @return 当前 Provider 实例，支持链式调用
+     * @return 当前 提供者 实例，支持链式调用
      */
     public AgentEditorProvider videoSearchHandler(VideoSearchHandler handler) {
         this.videoSearchHandler = handler;
@@ -513,7 +545,7 @@ public class AgentEditorProvider {
      *
      * @param source   音乐源标识（如 demo、tx、bd）
      * @param provider 音乐源提供器实例
-     * @return 当前 Provider 实例，支持链式调用
+     * @return 当前 提供者 实例，支持链式调用
      */
     public AgentEditorProvider registerMusicProvider(String source, MusicSourceProvider provider) {
         musicProviders.put(source, provider);
@@ -521,12 +553,12 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从 SPI 自动绑定视频/音乐 Provider，保证 MCP/Skills 可返回真实数据。
+      * 从 SPI 自动绑定视频/音乐 提供者，保证 MCP/Skills 可返回真实数据。
      *
      * <p>绑定顺序：先绑定音乐源，再绑定视频源。绑定过程中对每个 Provider 做容错处理，
-     * 单个 Provider 加载失败不会影响其他 Provider。</p>
+      * 单个 提供者 加载失败不会影响其他 提供者。</p>
      *
-     * @return 当前 Provider 实例，支持链式调用
+     * @return 当前 提供者 实例，支持链式调用
      */
     public AgentEditorProvider autoBind() {
         bindMusicFromSpi();
@@ -535,11 +567,11 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从 SPI 加载已知的音乐源 Provider（demo、tx、bd）并注册到本地。
+      * 从 SPI 加载已知的音乐源 提供者（demo、tx、bd）并注册到本地。
      *
      * <p>先按已知名称逐一加载，再遍历 SPI 全量列表补充未在已知列表中的实现。</p>
      *
-     * @return 当前 Provider 实例，支持链式调用
+     * @return 当前 提供者 实例，支持链式调用
      */
     public AgentEditorProvider bindMusicFromSpi() {
         String[] known = {"demo", "tx", "bd"};
@@ -572,7 +604,7 @@ public class AgentEditorProvider {
 
     /**
      * 从 SPI 自动绑定视频搜索处理器；当外部未通过 {@link #videoSearchHandler(VideoSearchHandler)}
-     * 注入自定义实现时，创建基于 {@link ResourceProvider} 的默认 VideoSearchHandler。
+      * 注入自定义实现时，创建基于 {@link ResourceProvider} 的默认 视频搜索处理器。
      *
      * <p>默认实现通过 SPI 加载所有 {@link ResourceProvider}：
      * <ul>
@@ -581,7 +613,7 @@ public class AgentEditorProvider {
      * </ul>
      * </p>
      *
-     * @return 当前 Provider 实例，支持链式调用
+     * @return 当前 提供者 实例，支持链式调用
      */
     public AgentEditorProvider bindVideoFromSpi() {
         if (videoSearchHandler != null) {
@@ -671,7 +703,7 @@ public class AgentEditorProvider {
      * 再在自定义编辑器列表中按名称匹配。</p>
      *
      * @param clientId 客户端标识，可为编辑器名称或配置目录
-     * @return 匹配到的 AgentEditor 实例；未找到返回 null
+     * @return 匹配到的 智能体editor 实例；未找到返回 空
      */
     protected AgentEditor findEditor(String clientId) {
         for (AgentEditor editor : supportedEditors()) {
@@ -726,7 +758,7 @@ public class AgentEditorProvider {
     // ==================== 配置读取 ====================
 
     /**
-     * 获取所有受支持的 AI 编辑器列表，包含内置编辑器与通过 addCustomEditor 追加的自定义编辑器。
+      * 获取所有受支持的 AI 编辑器列表，包含内置编辑器与通过 添加习俗editor 追加的自定义编辑器。
      *
      * @return 编辑器列表（新建副本，对返回值的修改不影响内部状态）
      */
@@ -749,7 +781,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 添加自定义 AI 编辑器配置，支持 workspaceBased 模式。
+      * 添加自定义 AI 编辑器配置，支持 workspace基础 模式。
      *
      * @param name           编辑器显示名称
      * @param configDir      配置目录路径
@@ -764,12 +796,12 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 读取指定编辑器的 MCP 配置文件，返回 mcpServers 等配置项的 Map 结构。
+      * 读取指定编辑器的 MCP 配置文件，返回 mcp服务端 等配置项的 映射 结构。
      *
      * <p>配置文件不存在或读取/解析失败时返回空 Map，并记录警告日志。</p>
      *
      * @param editor 编辑器配置
-     * @return 配置内容 Map；文件不存在或解析失败时返回空 Map
+     * @return 配置内容 映射；文件不存在或解析失败时返回空 映射
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> readMcpConfig(AgentEditor editor) {
@@ -787,10 +819,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从指定文件路径读取 MCP 配置 JSON 并解析为 Map。
+      * 从指定文件路径读取 MCP 配置 JSON 并解析为 映射。
      *
      * @param filePath MCP 配置文件路径
-     * @return 配置内容 Map；文件不存在或解析失败时返回空 Map
+     * @return 配置内容 映射；文件不存在或解析失败时返回空 映射
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> readMcpConfig(Path filePath) {
@@ -807,12 +839,12 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 读取所有受支持编辑器的 MCP 配置，返回编辑器到配置 Map 的有序映射。
+      * 读取所有受支持编辑器的 MCP 配置，返回编辑器到配置 映射 的有序映射。
      *
      * <p>仅包含配置非空的编辑器，按 {@link #supportedEditors()} 顺序返回。
-     * 对于工作区级别的编辑器（如 CodeBuddy），会遍历发现的所有工作区。</p>
+      * 对于工作区级别的编辑器（如 编码buddy），会遍历发现的所有工作区。</p>
      *
-     * @return 编辑器到 MCP 配置的 LinkedHashMap，保留插入顺序
+     * @return 编辑器到 MCP 配置的 链接哈希映射，保留插入顺序
      */
     public Map<AgentEditor, Map<String, Object>> readAllMcpConfigs() {
         Map<AgentEditor, Map<String, Object>> result = new LinkedHashMap<>();
@@ -832,8 +864,8 @@ public class AgentEditorProvider {
      *
      * <p>从当前目录向上搜索，最多向上搜索 64 级；支持通过逗号分隔的路径字符串指定多个起始目录。</p>
      *
-     * @param workspacePaths 逗号分隔的额外搜索起始路径，可为 null
-     * @return 已发现的工作区 Path 列表（去重）
+     * @param workspacePaths 逗号分隔的额外搜索起始路径，可为 空
+     * @return 已发现的工作区 路径 列表（去重）
      */
     public List<Path> discoverCodebuddyWorkspaces(String workspacePaths) {
         List<Path> workspaces = new ArrayList<>();
@@ -860,10 +892,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 获取 CodeBuddy 各工作区下的 MCP 配置文件路径列表（{workspace}/.codebuddy/mcp.json）。
+      * 获取 编码buddy 各工作区下的 MCP 配置文件路径列表（{workspace}/.codebuddy/mcp.json）。
      *
-     * @param workspacePaths 逗号分隔的工作区路径，可为 null
-     * @return MCP 配置文件 Path 列表
+     * @param workspacePaths 逗号分隔的工作区路径，可为 空
+     * @return MCP 配置文件 路径 列表
      */
     public List<Path> getCodebuddyConfigPaths(String workspacePaths) {
         List<Path> paths = new ArrayList<>();
@@ -875,10 +907,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 扫描 CodeBuddy 工作区的 Skills 目录（{workspace}/.codebuddy/skills/），
-     * 通过解析 SKILL.md 生成 SkillDefinition。
+      * 扫描 编码buddy 工作区的 Skills 目录（{workspace}/.codebuddy/skills/），
+      * 通过解析 SKILL.md 生成 skilldefinition。
      *
-     * @param workspacePaths 逗号分隔的工作区路径，可为 null
+     * @param workspacePaths 逗号分隔的工作区路径，可为 空
      * @return 发现的 Skills 定义列表
      */
     public List<SkillDefinition> scanCodebuddySkills(String workspacePaths) {
@@ -908,11 +940,11 @@ public class AgentEditorProvider {
     // ==================== TRAE-CN 扫描 ====================
 
     /**
-     * 扫描 TRAE-CN 的 {@code .trae-cn/plugins/} 目录，发现已安装插件的 MCP Server 配置。
+      * 扫描 Trae-CN 的 {@code .trae-cn/plugins/} 目录，发现已安装插件的 MCP 服务端 配置。
      *
      * <p>插件目录结构：{@code {registry}/{plugin}/{version}/.mcp.json}</p>
      *
-     * @return 已发现的 MCP Server 配置列表
+     * @return 已发现的 MCP 服务端 配置列表
      */
     public List<McpServerConfig> scanTraeCnMcpServers() {
         List<McpServerConfig> servers = new ArrayList<>();
@@ -942,7 +974,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 扫描 TRAE-CN 的 {@code .trae-cn/skills/} 目录，解析 SKILL.md 生成 SkillDefinition。
+      * 扫描 Trae-CN 的 {@code .trae-cn/skills/} 目录，解析 SKILL.md 生成 skilldefinition。
      *
      * @return 已发现的 Skills 定义列表
      */
@@ -968,11 +1000,11 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 解析 SKILL.md 文件为 SkillDefinition。
+      * 解析 SKILL.md 文件为 skilldefinition。
      *
      * @param skillMdFile SKILL.md 文件路径
      * @param skillName   技能名称（目录名）
-     * @return SkillDefinition 实例；解析失败返回 null
+     * @return SkillDefinition 实例；解析失败返回 空
      */
     private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
         try {
@@ -993,7 +1025,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从 MCP 配置 JSON 文件中解析出 MCP Server 配置列表。
+      * 从 MCP 配置 JSON 文件中解析出 MCP 服务端 配置列表。
      *
      * @param mcpJsonPath mcp.json 文件路径
      * @return McpServerConfig 列表
@@ -1030,7 +1062,7 @@ public class AgentEditorProvider {
 
     /**
      * 判断 datasearch MCP 是否已安装到指定编辑器，
-     * 通过检查 mcpServers 配置中是否包含 {@link #NAME} 键确定。
+      * 通过检查 mcp服务端 配置中是否包含 {@link #NAME} 键确定。
      *
      * @param editor 编辑器配置
      * @return 已安装返回 true；未安装或读取配置失败返回 false
@@ -1068,9 +1100,9 @@ public class AgentEditorProvider {
     /**
      * 列出当前机器上已安装（配置目录存在）的 AI 编辑器。
      * <p>对于 USER_HOME 级别的编辑器，检查 {@code USER_HOME/{configDir}} 是否存在；
-     * 对于工作区级别的编辑器（如 CodeBuddy），检查是否能发现至少一个工作区。</p>
+      * 对于工作区级别的编辑器（如 编码buddy），检查是否能发现至少一个工作区。</p>
      *
-     * @return 配置目录实际存在的编辑器名称列表，按 supportedEditors 顺序
+     * @return 配置目录实际存在的编辑器名称列表，按 支持editors 顺序
      */
     public List<String> listAvailableEditors() {
         List<String> result = new ArrayList<>();
@@ -1092,7 +1124,7 @@ public class AgentEditorProvider {
     // ==================== 配置生成 ====================
 
     /**
-     * 生成 datasearch MCP 配置 JSON 字符串，使用默认 JAR 路径与默认 Server URL。
+      * 生成 datasearch MCP 配置 JSON 字符串，使用默认 JAR 路径与默认 服务端 URL。
      *
      * @param mode MCP 传输模式（STDIO 或 SSE）
      * @return MCP 配置 JSON 字符串
@@ -1102,14 +1134,14 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 生成 datasearch MCP 配置 JSON 字符串，可指定 JAR 路径（STDIO 模式）与 Server URL（SSE 模式）。
+      * 生成 datasearch MCP 配置 JSON 字符串，可指定 JAR 路径（STDIO 模式）与 服务端 URL（SSE 模式）。
      *
      * <p>STDIO 模式生成 command/args/env 三段配置；
      * SSE 模式生成 url/transport 两段配置。</p>
      *
      * @param mode      MCP 传输模式
-     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 null 时使用默认值 {@link #DEFAULT_JAR_PATH}
-     * @param serverUrl SSE 模式下的 MCP Server URL，为 null 时使用默认值 {@link #DEFAULT_SERVER_URL}
+     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 空 时使用默认值 {@link #DEFAULT_JAR_PATH}
+     * @param serverUrl SSE 模式下的 MCP 服务端 URL，为 空 时使用默认值 {@link #DEFAULT_SERVER_URL}
      * @return MCP 配置 JSON 字符串
      */
     public String generateMcpConfig(McpMode mode, String jarPath, String serverUrl) {
@@ -1128,7 +1160,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 将 datasearch MCP 配置写入指定编辑器，使用默认 JAR 路径与默认 Server URL。
+      * 将 datasearch MCP 配置写入指定编辑器，使用默认 JAR 路径与默认 服务端 URL。
      *
      * @param editor 目标编辑器配置
      * @param mode   MCP 传输模式
@@ -1139,20 +1171,20 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 将 datasearch MCP 配置写入指定编辑器，可指定 JAR 路径与 Server URL。
+      * 将 datasearch MCP 配置写入指定编辑器，可指定 JAR 路径与 服务端 URL。
      *
      * <p>若编辑器配置目录不存在则自动创建；读取已有配置并合并 datasearch 项后写回，
-     * 保留其他已有的 MCP Server 配置。</p>
+      * 保留其他已有的 MCP 服务端 配置。</p>
      *
      * @param editor    目标编辑器配置
      * @param mode      MCP 传输模式
-     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 null 时使用默认值 {@link #DEFAULT_JAR_PATH}
-     * @param serverUrl SSE 模式下的 MCP Server URL，为 null 时使用默认值 {@link #DEFAULT_SERVER_URL}
+     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 空 时使用默认值 {@link #DEFAULT_JAR_PATH}
+     * @param serverUrl SSE 模式下的 MCP 服务端 URL，为 空 时使用默认值 {@link #DEFAULT_SERVER_URL}
      * @return 安装成功返回 true；IO 异常时返回 false
      */
     @SuppressWarnings("unchecked")
     public boolean installTo(AgentEditor editor, McpMode mode, String jarPath, String serverUrl) {
-        // 工作区级别的编辑器（如 CodeBuddy），安装在所有发现的工作区中
+ // 工作区级别的编辑器（如 编码buddy），安装在所有发现的工作区中
         if (editor.isWorkspaceBased()) {
             List<Path> workspaces = discoverCodebuddyWorkspaces(null);
             if (workspaces.isEmpty()) {
@@ -1167,7 +1199,7 @@ public class AgentEditorProvider {
             }
             return allOk;
         }
-        // TRAE-CN：只读发现，不写入
+ // Trae-CN：只读发现，不写入
         if (editor == AgentEditor.TRAE_CN) {
             return true;
         }
@@ -1175,19 +1207,19 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 在指定根目录下安装 datasearch MCP，适用于工作区级别和 USER_HOME 级别。
+      * 在指定根目录下安装 datasearch MCP，适用于工作区级别和 用户_Home 级别。
      *
      * @param editor    目标编辑器配置
-     * @param basePath  根目录（USER_HOME 或工作区路径）
+     * @param basePath  根目录（用户_Home 或工作区路径）
      * @param mode      MCP 传输模式
      * @param jarPath   STDIO 模式下的可执行 JAR 路径
-     * @param serverUrl SSE 模式下的 MCP Server URL
+     * @param serverUrl SSE 模式下的 MCP 服务端 URL
      * @return 安装成功返回 true
      */
     @SuppressWarnings("unchecked")
     private boolean installToWorkspace(AgentEditor editor, Path basePath, McpMode mode, String jarPath, String serverUrl) {
         try {
-            // 优先使用环境变量指定的路径，否则使用 basePath/configDir
+ // 优先使用环境变量指定的路径，否则使用 基础路径/配置dir
             Path configDir;
             Path configFile;
             String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
@@ -1235,9 +1267,9 @@ public class AgentEditorProvider {
      * 将 datasearch MCP 配置批量写入所有受支持的编辑器，返回每个编辑器的安装结果。
      *
      * @param mode      MCP 传输模式
-     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 null 时使用默认值
-     * @param serverUrl SSE 模式下的 MCP Server URL，为 null 时使用默认值
-     * @return 编辑器到安装结果的 Map，true 表示安装成功，按 {@link #supportedEditors()} 顺序返回
+     * @param jarPath   STDIO 模式下的可执行 JAR 路径，为 空 时使用默认值
+     * @param serverUrl SSE 模式下的 MCP 服务端 URL，为 空 时使用默认值
+     * @return 编辑器到安装结果的 映射，true 表示安装成功，按 {@link #supportedEditors()} 顺序返回
      */
     public Map<AgentEditor, Boolean> installToAll(McpMode mode, String jarPath, String serverUrl) {
         Map<AgentEditor, Boolean> result = new LinkedHashMap<>();
@@ -1248,7 +1280,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从指定编辑器中移除 datasearch MCP 配置项，保留其他 MCP Server 配置。
+      * 从指定编辑器中移除 datasearch MCP 配置项，保留其他 MCP 服务端 配置。
      *
      * <p>若配置文件不存在视为已卸载成功；否则读取已有配置、移除 mcpServers 中的 datasearch 项后写回。</p>
      *
@@ -1271,7 +1303,7 @@ public class AgentEditorProvider {
             }
             return allOk;
         }
-        // TRAE-CN：只读发现，不操作
+ // Trae-CN：只读发现，不操作
         if (editor == AgentEditor.TRAE_CN) {
             return true;
         }
@@ -1279,11 +1311,14 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 从指定根目录下卸载 datasearch MCP，适用于工作区级别和 USER_HOME 级别。
+      * 从指定根目录下卸载 datasearch MCP，适用于工作区级别和 用户_Home 级别。
+     * @param editor editor
+     * @param basePath 基础路径
+     * @return uninstall从workspace的结果
      */
     private boolean uninstallFromWorkspace(AgentEditor editor, Path basePath) {
         try {
-            // 优先使用环境变量指定的路径，否则使用 basePath/configDir
+ // 优先使用环境变量指定的路径，否则使用 基础路径/配置dir
             Path configFile;
             String envValue = editor.getEnvVar() != null ? System.getenv(editor.getEnvVar()) : null;
             if (envValue != null && !envValue.isBlank()) {
@@ -1315,8 +1350,8 @@ public class AgentEditorProvider {
 
     /**
      * 获取 datasearch MCP 全部工具描述符列表，包含 6 个工具：
-     * datasearch_video_search、datasearch_video_download、datasearch_music_search、
-     * datasearch_music_playlist、datasearch_music_track、datasearch_search_all。
+      * datasearch_视频_搜索、datasearch_视频_download、datasearch_music_搜索、
+      * datasearch_music_playlist、datasearch_music_track、datasearch_搜索_全部。
      *
      * <p>每个描述符定义工具名称、说明及 JSON Schema 参数结构，供 MCP 协议调用方发现工具。</p>
      *
@@ -1362,11 +1397,13 @@ public class AgentEditorProvider {
 
     /**
      * datasearch MCP 客户端实现，将 datasearch 视频/音乐搜索能力暴露为 MCP 工具，
-     * 供 MCP 协议调用方通过 listTools 与 callTool 调用。
+      * 供 MCP 协议调用方通过 列表tools 与 calltool 调用。
      *
      * <p>工具调用按 toolName 分发到外部类的 handle* 方法，
      * 支持的工具详见 {@link #toolDescriptors()}。</p>
      *
+     * @author CH
+     * @since 4.0.0
      */
     protected class DatasearchMcpClient implements McpClient {
 
@@ -1428,10 +1465,10 @@ public class AgentEditorProvider {
     // ==================== 工具处理 ====================
 
     /**
-     * 处理视频搜索工具调用，从参数解析 query/source/page/pageSize 后委托给
+      * 处理视频搜索工具调用，从参数解析 查询/源/page/page大小 后委托给
      * {@link VideoSearchHandler} 执行搜索。
      *
-     * @param args 工具参数 Map，支持 query、source、page、pageSize 四个键
+     * @param args 工具参数 映射，支持 查询、源、page、page大小 四个键
      * @return MCP 工具调用结果，包含搜索结果或错误信息
      */
     private McpToolResult handleVideoSearch(Map<String, Object> args) {
@@ -1446,9 +1483,9 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 处理视频下载链接获取工具调用，根据 keyword 调用 VideoSearchHandler 获取下载链接列表。
+      * 处理视频下载链接获取工具调用，根据 keyword 调用 视频搜索处理器 获取下载链接列表。
      *
-     * @param args 工具参数 Map，需包含 keyword 键
+     * @param args 工具参数 映射，需包含 keyword 键
      * @return MCP 工具调用结果，包含 keyword 与 urls 字段
      */
     private McpToolResult handleVideoDownload(Map<String, Object> args) {
@@ -1460,10 +1497,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 根据音乐源标识解析对应的 MusicSourceProvider，支持大小写不敏感匹配。
+      * 根据音乐源标识解析对应的 music源提供者，支持大小写不敏感匹配。
      *
-     * @param source 音乐源标识（如 demo、tx、bd），可为 null
-     * @return 对应的音乐源提供器；未注册或 source 为 null 时返回 null
+     * @param source 音乐源标识（如 demo、tx、bd），可为 空
+     * @return 对应的音乐源提供器；未注册或 源 为 空 时返回 空
      */
     private MusicSourceProvider resolveMusicProvider(String source) {
         if (source == null) {
@@ -1477,10 +1514,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 处理音乐搜索工具调用，根据 keyword/source/page/pageSize 调用对应音乐源进行搜索。
+      * 处理音乐搜索工具调用，根据 keyword/源/page/page大小 调用对应音乐源进行搜索。
      *
-     * @param args 工具参数 Map，支持 keyword、source、page、pageSize 四个键
-     * @return MCP 工具调用结果，包含 source、keyword、total、tracks 字段
+     * @param args 工具参数 映射，支持 keyword、源、page、page大小 四个键
+     * @return MCP 工具调用结果，包含 源、keyword、total、tracks 字段
      */
     private McpToolResult handleMusicSearch(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
@@ -1498,10 +1535,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 处理歌单详情获取工具调用，根据 source 与 playlistId 查询指定音乐源的歌单详情。
+      * 处理歌单详情获取工具调用，根据 源 与 playlistid 查询指定音乐源的歌单详情。
      *
-     * @param args 工具参数 Map，需包含 source 与 playlistId 键
-     * @return MCP 工具调用结果，包含 source、playlistId、detail 字段
+     * @param args 工具参数 映射，需包含 源 与 playlistid 键
+     * @return MCP 工具调用结果，包含 源、playlistid、detail 字段
      */
     private McpToolResult handleMusicPlaylist(Map<String, Object> args) {
         String source = (String) args.get("source");
@@ -1515,10 +1552,10 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 处理歌曲详情获取工具调用，根据 source 与 trackId 查询指定音乐源的歌曲详情。
+      * 处理歌曲详情获取工具调用，根据 源 与 trackid 查询指定音乐源的歌曲详情。
      *
-     * @param args 工具参数 Map，需包含 source 与 trackId 键
-     * @return MCP 工具调用结果，包含 source、trackId、detail 字段
+     * @param args 工具参数 映射，需包含 源 与 trackid 键
+     * @return MCP 工具调用结果，包含 源、trackid、detail 字段
      */
     private McpToolResult handleMusicTrack(Map<String, Object> args) {
         String source = (String) args.get("source");
@@ -1538,8 +1575,8 @@ public class AgentEditorProvider {
      * 音乐部分遍历所有已注册音乐源，每个源取前 {@value #SEARCH_ALL_LIMIT} 条；
      * 单个音乐源异常不影响其他源。</p>
      *
-     * @param args 工具参数 Map，需包含 keyword 键
-     * @return MCP 工具调用结果，包含 keyword、video、music 字段
+     * @param args 工具参数 映射，需包含 keyword 键
+     * @return MCP 工具调用结果，包含 keyword、视频、music 字段
      */
     private McpToolResult handleSearchAll(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
@@ -1565,8 +1602,8 @@ public class AgentEditorProvider {
     // ==================== Skills 定义 ====================
 
     /**
-     * 构建视频搜索 SkillDefinition，封装工具名为 datasearch_video_search、
-     * 必填参数为 query 的技能定义。
+      * 构建视频搜索 skilldefinition，封装工具名为 datasearch_视频_搜索、
+      * 必填参数为 查询 的技能定义。
      *
      * @return 视频搜索技能定义
      */
@@ -1577,7 +1614,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 构建视频下载链接获取 SkillDefinition，封装工具名为 datasearch_video_download、
+      * 构建视频下载链接获取 skilldefinition，封装工具名为 datasearch_视频_download、
      * 必填参数为 keyword 的技能定义。
      *
      * @return 视频下载技能定义
@@ -1589,7 +1626,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 构建音乐搜索 SkillDefinition，封装工具名为 datasearch_music_search、
+      * 构建音乐搜索 skilldefinition，封装工具名为 datasearch_music_搜索、
      * 必填参数为 keyword 的技能定义。
      *
      * @return 音乐搜索技能定义
@@ -1601,8 +1638,8 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 构建歌单详情 SkillDefinition，封装工具名为 datasearch_music_playlist、
-     * 必填参数为 source 与 playlistId 的技能定义。
+      * 构建歌单详情 skilldefinition，封装工具名为 datasearch_music_playlist、
+      * 必填参数为 源 与 playlistid 的技能定义。
      *
      * @return 歌单详情技能定义
      */
@@ -1614,8 +1651,8 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 构建歌曲详情 SkillDefinition，封装工具名为 datasearch_music_track、
-     * 必填参数为 source 与 trackId 的技能定义。
+      * 构建歌曲详情 skilldefinition，封装工具名为 datasearch_music_track、
+      * 必填参数为 源 与 trackid 的技能定义。
      *
      * @return 歌曲详情技能定义
      */
@@ -1627,7 +1664,7 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 构建全量搜索 SkillDefinition，封装工具名为 datasearch_search_all、
+      * 构建全量搜索 skilldefinition，封装工具名为 datasearch_搜索_全部、
      * 必填参数为 keyword 的技能定义。
      *
      * @return 全量搜索技能定义
@@ -1654,9 +1691,9 @@ public class AgentEditorProvider {
     // ==================== JSON 工具 ====================
 
     /**
-     * 将 Map 序列化为格式化的 JSON 字符串，使用指定缩进层级控制输出对齐。
+      * 将 映射 序列化为格式化的 JSON 字符串，使用指定缩进层级控制输出对齐。
      *
-     * @param map    待序列化的 Map，键为 String
+     * @param map    待序列化的 映射，键为 字符串
      * @param indent 当前缩进层级（每级 2 个空格）
      * @return JSON 对象字符串
      */
@@ -1679,8 +1716,8 @@ public class AgentEditorProvider {
     }
 
     /**
-     * 将任意 Java 对象序列化为 JSON 字符串片段，支持 String、Number、Boolean、
-     * List、Map 及 null 等类型，对未知类型调用 toString 后按字符串处理。
+      * 将任意 Java 对象序列化为 JSON 字符串片段，支持 字符串、数字、布尔值、
+      * 列表、映射 及 空 等类型，对未知类型调用 转为字符串 后按字符串处理。
      *
      * @param value  待序列化的对象
      * @param indent 当前缩进层级（每级 2 个空格）
@@ -1723,7 +1760,7 @@ public class AgentEditorProvider {
      * 转义 JSON 字符串中的特殊字符，包括反斜杠、双引号、换行、回车、制表符，
      * 防止生成 JSON 时出现语法错误。
      *
-     * @param s 待转义的字符串，为 null 时返回空串
+     * @param s 待转义的字符串，为 空 时返回空串
      * @return 转义后的安全 JSON 字符串
      */
     private static String escapeJson(String s) {
@@ -1738,10 +1775,12 @@ public class AgentEditorProvider {
 
     /**
      * 简易 JSON 解析器，递归下降解析 JSON 字符串为 Java 对象，
-     * 支持 Object、Array、String、Number、Boolean、null 六种类型。
+      * 支持 对象、Array、字符串、数字、布尔值、空 六种类型。
      *
      * <p>用于读取编辑器 MCP 配置文件，避免引入第三方 JSON 库依赖。</p>
      *
+     * @author CH
+     * @since 4.0.0
      */
     static class JsonParser {
 
@@ -1765,7 +1804,7 @@ public class AgentEditorProvider {
         /**
          * 解析 JSON 字符串为 Java 对象，根据首字符分发到对应的解析方法。
          *
-         * @return 解析得到的 Java 对象（Map、List、String、Number、Boolean 或 null）；输入为空时返回 null
+         * @return 解析得到的 Java 对象（映射、列表、字符串、数字、布尔值 或 空）；输入为空时返回 空
          */
         Object parse() {
             skipWhitespace();
@@ -1783,11 +1822,11 @@ public class AgentEditorProvider {
         }
 
         /**
-         * 解析 JSON 对象字面量为 LinkedHashMap，键为 String，值为任意 Java 对象。
+          * 解析 JSON 对象字面量为 链接哈希映射，键为 字符串，值为任意 Java 对象。
          *
          * <p>解析完成后 pos 停在闭合括号 } 之后。</p>
          *
-         * @return 解析得到的 Map，保留键的插入顺序
+         * @return 解析得到的 映射，保留键的插入顺序
          */
         private Map<String, Object> parseObject() {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -1812,11 +1851,11 @@ public class AgentEditorProvider {
         }
 
         /**
-         * 解析 JSON 数组字面量为 ArrayList，元素为任意 Java 对象。
+          * 解析 JSON 数组字面量为 array列表，元素为任意 Java 对象。
          *
          * <p>解析完成后 pos 停在闭合中括号 ] 之后。</p>
          *
-         * @return 解析得到的 List，保留元素顺序
+         * @return 解析得到的 列表，保留元素顺序
          */
         private List<Object> parseArray() {
             List<Object> list = new ArrayList<>();
@@ -1865,7 +1904,7 @@ public class AgentEditorProvider {
          * <p>解析完成后根据是否包含小数点或指数符号返回 Double 或 Long/Integer：
          * 整数范围在 int 表示范围内时返回 Integer，否则返回 Long。</p>
          *
-         * @return 解析得到的 Number（Double、Long 或 Integer）
+         * @return 解析得到的 数字（Double、Long 或 Integer）
          */
         private Number parseNumber() {
             int start = pos;
@@ -1887,9 +1926,9 @@ public class AgentEditorProvider {
         }
 
         /**
-         * 解析 JSON 布尔字面量 true 或 false，解析完成后 pos 停在字面量之后。
+          * 解析 JSON 布尔字面量 true 或 false，解析完成后 采购订单 停在字面量之后。
          *
-         * @return 解析得到的 Boolean（true 或 false）
+         * @return 解析得到的 布尔值（true 或 false）
          */
         private Boolean parseBoolean() {
             if (json.startsWith("true", pos)) { pos += 4; return true; }

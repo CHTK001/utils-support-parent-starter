@@ -41,42 +41,46 @@ import static com.chua.common.support.converter.Converter.convertIfPrimitive;
  * 构造函数匹配、字段赋值以及方法调用等场景。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @SuppressWarnings("ALL")
 public class ClassUtils {
 
+    /**
+     * 类工具。
+     */
     private ClassUtils() {
     }
 
     /**
      *       .
-     * Key             Value                    JDK          
-     *        ConcurrentReferenceHashMap                512                              
+      * 键             值                    JDK
+      * 并发引用哈希映射                512
      */
     private static final Map<String, Boolean> CACHE = new ConcurrentReferenceHashMap<>(512);
     /**
      *             .
-     * Key                   Value              Method       
-     *        ConcurrentReferenceHashMap                512                              
+      * 键                   值              方法
+      * 并发引用哈希映射                512
      */
     private static final Map<Integer, Method> cacheMethod = new ConcurrentReferenceHashMap<>(512);
     /**
      *                   : {@code '$' == {@value}}.
-     *                             Outer$Inner        $
+      * 外部$内部        $
      */
     public static final char INNER_CLASS_SEPARATOR_CHAR = '$';
 
     /**
      *                : {@code '&#x2e;' == {@value}}.
-     *                                            com.example.utils        .
+      * com.example.工具        .
      */
     public static final char PACKAGE_SEPARATOR_CHAR = '.';
 
     /**
      *           JDK                .
      *        Java                                            JDK                                  
-     *          java   javax   jdk   oracle     sun          
+      * Java   javax   jdk   oracle     sun
      */
     private static final String[] RT_PACKAGE = new String[]{
             "java.*",
@@ -88,15 +92,15 @@ public class ClassUtils {
 
     /**
      *                         .
-     *        ConcurrentReferenceHashMap          Key             Value                                  
+      * 并发引用哈希映射          键             值
      *                 256                                          
      */
     private static final Map<Class<?>, Method[]> DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                           .
-     *                       int.class                                        Integer.class   
-     *                       Map                                     
+      * int.类                                        Integer.类
+      * 映射
      */
     public static final Map<Class<?>, Class<?>> PRIMITIVE_PACK = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
         {
@@ -134,7 +138,7 @@ public class ClassUtils {
     /**
      *                         .
      *                                                                                     
-     *          CGLIB   Spring                Javassist   Apache IBatis          
+      * CGLIB   Spring                Javassist   Apache ibatis
      */
     private static final List<String> PROXY_CLASS_NAMES = Arrays.asList("net.sf.cglib.proxy.Factory"
             // cglib
@@ -145,77 +149,77 @@ public class ClassUtils {
 
     /**
      *                               .
-     * Key             Value                                  
-     *        ConcurrentReferenceHashMap                                                  256
+      * 键             值
+      * 并发引用哈希映射                                                  256
      */
     protected static final Map<Class<?>, Type[]> ACTUAL = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                                          .
-     * Key             Value                                              
-     *        ConcurrentReferenceHashMap                256                              
+      * 键             值
+      * 并发引用哈希映射                256
      */
     protected static final Map<Class<?>, List<Field>> CLASS_FIELD = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                                                         .
-     * Key             Value                                                                   
-     *        ConcurrentReferenceHashMap                256
+      * 键             值
+      * 并发引用哈希映射                256
      */
     protected static final Map<Class<?>, List<Field>> CLASS_FIELD_LOCAL = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                                                         .
-     * Key             Value                                  
-     *        ConcurrentReferenceHashMap                256                              
+      * 键             值
+      * 并发引用哈希映射                256
      */
     protected static final Map<Class<?>, List<Method>> CLASS_METHOD = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                                                         .
-     * Key             Value                                                                   
-     *        ConcurrentReferenceHashMap                256
+      * 键             值
+      * 并发引用哈希映射                256
      */
     protected static final Map<Class<?>, List<Method>> CLASS_METHOD_LOCAL = new ConcurrentReferenceHashMap<>(256);
 
     /**
      *                                     .
-     *                       Integer.class                               int.class   
-     *        IdentityHashMap                                         9
+      * Integer.类                               int.类
+      * identity哈希映射                                         9
      */
     private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_TYPE_MAP = new IdentityHashMap<>(9);
 
     /**
      *                                     .
-     *                       int.class                                        Integer.class   
-     *        IdentityHashMap                                         9
+      * int.类                                        Integer.类
+      * identity哈希映射                                         9
      */
     private static final Map<Class<?>, Class<?>> PRIMITIVE_TYPE_TO_WRAPPER_MAP = new IdentityHashMap<>(9);
 
     /**
      *                                     .
-     *                                "int"                                        int.class   
-     *        ConcurrentReferenceHashMap                32                              
+      * "int"                                        int.类
+      * 并发引用哈希映射                32
      */
     private static final Map<String, Class<?>> PRIMITIVE_TYPE_NAME_MAP = new ConcurrentReferenceHashMap<>(32);
 
     /**
-     *        Java           Class                .
-     *                 Java           String   Integer   List                                  
-     *        ConcurrentReferenceHashMap                64
+      * Java           类                .
+      * Java           字符串   Integer   列表
+      * 并发引用哈希映射                64
      */
     private static final Map<String, Class<?>> COMMON_CLASS_CACHE = new ConcurrentReferenceHashMap<>(64);
 
     /**
-     *           Class                      .
-     *                    forName                                        
-     *        ConcurrentReferenceHashMap                1024                              
+      * 类                      .
+      * for名称
+      * 并发引用哈希映射                1024
      */
     private static final Map<String, Class<?>> CLASS_NAME_CACHE = new ConcurrentReferenceHashMap<>(1024);
 
     /**
      *                      : {@code "[]"}.
-     *                                      "String[]"     "int[]"
+      * "字符串[]"     "int[]"
      */
     public static final String ARRAY_SUFFIX = "[]";
 
@@ -227,7 +231,7 @@ public class ClassUtils {
 
     /**
      *                               : {@code "[L"}.
-     *                                      "[Ljava.lang.String;"
+      * "[Ljava.lang.字符串;"
      */
     private static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
 
@@ -251,7 +255,7 @@ public class ClassUtils {
 
     /**
      *                   : {@code '$'}.
-     *                                         Outer$Inner
+      * 外部$内部
      */
     private static final char NESTED_CLASS_SEPARATOR = '$';
 
@@ -270,7 +274,7 @@ public class ClassUtils {
      */
     private static final Map<String, String> REVERSE_ABBREVIATION_MAP;
 
-    // Feed abbreviation maps
+ // Feed abbreviation 映射
     static {
         final Map<String, String> m = new HashMap<>();
         m.put("int", "I");
@@ -299,7 +303,7 @@ public class ClassUtils {
         PRIMITIVE_WRAPPER_TYPE_MAP.put(Short.class, short.class);
         PRIMITIVE_WRAPPER_TYPE_MAP.put(Void.class, void.class);
 
-        // Map entry iteration is less expensive to initialize than forEach with lambdas
+ // 映射 entry 迭代 是否 less expensive 转为 初始化 than foreach with lambdas
         for (Map.Entry<Class<?>, Class<?>> entry : PRIMITIVE_WRAPPER_TYPE_MAP.entrySet()) {
             PRIMITIVE_TYPE_TO_WRAPPER_MAP.put(entry.getValue(), entry.getKey());
             registerCommonClasses(entry.getKey());
@@ -381,7 +385,7 @@ public class ClassUtils {
      *
      *                               
      * 1.                                                 
-     * 2.                       ClassUtils                      
+      * 2.                       类工具
      * 3.                                           
      *
      * @return                                                                    null
@@ -408,20 +412,20 @@ public class ClassUtils {
     }
 
     /**
-     * 已被 {@link ScriptDefinition} 主动管理的 ClassLoader 集合。
+      * 已被 {@link ScriptDefinition} 主动管理的 类加载 集合。
      * <p>用于避免 GC 时 ClassLoader 泄漏（脚本编译产生的 ClassLoader 持有大量 Metaspace）。
-     * 弱引用保证 ClassLoader 不再被业务引用时可被 GC 回收，本集合不阻止回收。</p>
+      * 弱引用保证 类加载 不再被业务引用时可被 GC 回收，本集合不阻止回收。</p>
      */
     private static final java.util.Set<java.lang.ref.WeakReference<ClassLoader>> REGISTERED_CLASS_LOADERS =
             java.util.Collections.newSetFromMap(new java.util.concurrent.ConcurrentHashMap<>());
 
     /**
-     * 将 ClassLoader 注册到全局弱引用集合中，便于后续清理时遍历释放。
+      * 将 类加载 注册到全局弱引用集合中，便于后续清理时遍历释放。
      * <p>主要用于脚本引擎（Groovy/JS/Python 等）动态编译产生的 ClassLoader，
      * 它们持有大量已编译类可能引发 Metaspace 泄漏。
-     * 调用方应自行保证 ClassLoader 唯一，否则该方法会被相同 ClassLoader 重复注册。</p>
+      * 调用方应自行保证 类加载 唯一，否则该方法会被相同 类加载 重复注册。</p>
      *
-     * @param classLoader 待注册的 ClassLoader，null 时不处理
+     * @param classLoader 待注册的 类加载，空 时不处理
      */
     public static void registerClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
@@ -431,7 +435,7 @@ public class ClassUtils {
     }
 
     /**
-     * 注销（清理）指定的 ClassLoader。
+      * 注销（清理）指定的 类加载。
      *
      * <p>按以下顺序尝试释放：</p>
      * <ol>
@@ -442,7 +446,7 @@ public class ClassUtils {
      *
      * <p>同时从全局注册集合中移除该 ClassLoader 的弱引用。</p>
      *
-     * @param classLoader 待注销的 ClassLoader，null 时不处理
+     * @param classLoader 待注销的 类加载，空 时不处理
      */
     public static void unregisterClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
@@ -470,12 +474,12 @@ public class ClassUtils {
     }
 
     /**
-     * 清理并注销所有已注册的 ClassLoader。
+      * 清理并注销所有已注册的 类加载。
      * <p>遍历 {@link #REGISTERED_CLASS_LOADERS} 中所有仍然存活（未被 GC）的 ClassLoader，
      * 逐一调用 {@link #unregisterClassLoader(ClassLoader)}。
      * 已被 GC 回收的弱引用直接移除。</p>
      *
-     * @return 实际注销的 ClassLoader 数量
+     * @return 实际注销的 类加载 数量
      */
     public static int clearAllClassLoaders() {
         int count = 0;
@@ -497,14 +501,14 @@ public class ClassUtils {
     }
 
     /**
-     * 精确清理指定的 ClassLoader 实例（从全局注册表移除并释放资源）。
+      * 精确清理指定的 类加载 实例（从全局注册表移除并释放资源）。
      *
      * <p>与 {@link #unregisterClassLoader(ClassLoader)} 功能相同，但语义更明确：
-     * 强调「精确清理单个 ClassLoader」而非「注销」。适用于热重载场景中
-     * 主动清理旧 ClassLoader 的场景。</p>
+      * 强调「精确清理单个 类加载」而非「注销」。适用于热重载场景中
+      * 主动清理旧 类加载 的场景。</p>
      *
-     * @param classLoader 待清理的 ClassLoader，null 时不处理
-     * @return true 表示成功清理，false 表示 ClassLoader 不在注册表中或为 null
+     * @param classLoader 待清理的 类加载，空 时不处理
+     * @return true 表示成功清理，false 表示 类加载 不在注册表中或为 空
      */
     public static boolean clearClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
@@ -534,10 +538,10 @@ public class ClassUtils {
     }
 
     /**
-     * 清理所有满足条件的已注册 ClassLoader。
+      * 清理所有满足条件的已注册 类加载。
      *
-     * @param predicate 过滤条件，返回 true 表示需要清理；null 时等同于 {@link #clearAllClassLoaders()}
-     * @return 实际清理的 ClassLoader 数量
+     * @param predicate 过滤条件，返回 true 表示需要清理；空 时等同于 {@link #clearAllClassLoaders()}
+     * @return 实际清理的 类加载 数量
      */
     public static int clearClassLoaders(Predicate<ClassLoader> predicate) {
         if (predicate == null) {
@@ -564,10 +568,10 @@ public class ClassUtils {
     }
 
     /**
-     * 判断指定的 ClassLoader 是否已注册到全局弱引用集合中。
+      * 判断指定的 类加载 是否已注册到全局弱引用集合中。
      *
-     * @param classLoader 待检查的 ClassLoader，null 时返回 false
-     * @return true 表示该 ClassLoader 已注册
+     * @param classLoader 待检查的 类加载，空 时返回 false
+     * @return true 表示该 类加载 已注册
      */
     public static boolean isRegisteredClassLoader(ClassLoader classLoader) {
         if (classLoader == null) {
@@ -589,9 +593,9 @@ public class ClassUtils {
     }
 
     /**
-     * 获取当前已注册的存活 ClassLoader 数量。
+      * 获取当前已注册的存活 类加载 数量。
      *
-     * @return 当前已注册的存活 ClassLoader 数量
+     * @return 当前已注册的存活 类加载 数量
      */
     public static int getRegisteredClassLoaderCount() {
         int count = 0;
@@ -640,6 +644,7 @@ public class ClassUtils {
      * @param consumer                                                             
      * @param <T>                            
      * @since 1.0
+     * @return 是否present的结果
      */
     public static <T> void isPresent(final String className, Class<T> type, Consumer<T> consumer) {
         if (!isPresent(className)) { return; }
@@ -708,16 +713,16 @@ public class ClassUtils {
     }
 
     /**
-     *                                      Class       .
+      * 类       .
      *
      *                               
-     * -                      com.example.User
-     * -                java.lang.String[]
-     * - JVM                      [Ljava.lang.String;
-     * -                int, boolean    
+      * -                      com.example.用户
+      * -                Java.lang.字符串[]
+      * - JVM                      [Ljava.lang.字符串;
+      * -                int, 布尔值
      *
-     * @param name                             null
-     * @return              Class                                                  null
+     * @param name                             空
+     * @return              Class                                                  空
      * @since 1.0
      */
     public static Class<?> forName(String name) {
@@ -726,7 +731,7 @@ public class ClassUtils {
         return forName(name, getDefaultClassLoader());
     }
     /**
-     *                                      Class                                           .
+      * 类                                           .
      *
      *                                                                                              
      *                                                                                        
@@ -735,7 +740,7 @@ public class ClassUtils {
      * @param classLoader                               
      * @return              Class       
      * @throws ClassNotFoundException                                  
-     * @throws RuntimeException     ClassNotFoundException                         
+     * @throws RuntimeException     类notfound异常
      * @since 1.0
      */
     public static Class<?> toClassConfident(String name, ClassLoader classLoader) {
@@ -780,17 +785,17 @@ public class ClassUtils {
     }
 
     /**
-     *                                                                 Class       .
+      * 类       .
      *
      *                               
-     * -                      com.example.User
-     * -                java.lang.String[]   [[Ljava.lang.String;
-     * -                int   boolean                                     
-     * -             java.util.Map.Entry                      java.util.Map$Entry   
+      * -                      com.example.用户
+      * -                Java.lang.字符串[]   [[Ljava.lang.字符串;
+      * -                int   布尔值
+      * -             Java.util.映射.Entry                      Java.util.映射$Entry
      *
      * @param name                   
-     * @param classLoader                                         null                            
-     * @return              Class                                                  null
+     * @param classLoader                                         空
+     * @return              Class                                                  空
      * @since 1.0
      */
     public static Class<?> forName(String name, ClassLoader classLoader) {
@@ -854,7 +859,7 @@ public class ClassUtils {
             clToUse = getDefaultClassLoader();
         }
         try {
-            // 底层统一走 ReflectUtils.forName（带缓存 + 调试日志）
+ // 底层统一走 reflect工具.for名称（带缓存 + 调试日志）
             clazz = ReflectUtils.forName(name, clToUse);
             if (clazz != null) {
                 CLASS_NAME_CACHE.put(name, clazz);
@@ -875,7 +880,7 @@ public class ClassUtils {
                         return clazz;
                     }
                 } catch (Exception ex2) {
-                    // 忽略，返回 null
+ // 忽略，返回 空
                 }
             }
             return null;
@@ -998,16 +1003,16 @@ public class ClassUtils {
     }
 
     /**
-     *        Class                                              .
+      * 类                                              .
      *
      *                         
-     * 1.                       List   Collection     Set                                                 
+      * 1.                       列表   集合     设置
      * 2.                                                                            
      * 3.                                                                         
      * 4.                                                                                  
      *
      *       /                     
-     * 1.                          null                                 
+      * 1.                          空
      *
      * @param tClass                   
      * @param classLoader                               
@@ -1102,6 +1107,7 @@ public class ClassUtils {
      *
      * @param params       
      * @return       
+     * @param tClass t类
      */
     private static <T> T createAlgorithm(Class<T> tClass, Object[] params) {
         Map<Constructor<?>, Object[]> loss = new LinkedHashMap<>();
@@ -1362,6 +1368,7 @@ public class ClassUtils {
      *
      * @param value    
      * @return             
+     * @param includes includes
      */
     public static Type[] getActualTypeArguments(final Class<?> value, final Class<?>... includes) {
         return ACTUAL.computeIfAbsent(value, it -> {
@@ -1420,8 +1427,8 @@ public class ClassUtils {
 
 
     /**
-     *       ClassPath                                                <br>
-     *       ClassPath                                       
+      * 类路径                                                <br>
+      * 类路径
      *
      * @return ClassPath
      */
@@ -1430,7 +1437,7 @@ public class ClassUtils {
     }
 
     /**
-     *       ClassPath         ClassPath                                       
+      * 类路径         类路径
      *
      * @param isEncoded                               
      * @return ClassPath
@@ -1443,7 +1450,7 @@ public class ClassUtils {
     }
 
     /**
-     *       ClassPath URL
+      * 类路径 URL
      *
      * @return ClassPath URL
      */
@@ -1460,7 +1467,7 @@ public class ClassUtils {
      * spring/xml/test.xml
      * </pre>
      *
-     * @param source                Classpath            
+     * @param source                类路径
      * @return       URL
      */
     public static URL getResourceUrl(String source) {
@@ -1478,7 +1485,7 @@ public class ClassUtils {
     }
 
     /**
-     * java   
+      * Java
      *
      * @param type       
      * @return java   
@@ -1531,7 +1538,7 @@ public class ClassUtils {
      *
      * @param obj       
      * @param fieldName             
-     * @return           Field                                   null
+     * @return           Field                                   空
      * @since 1.0
      */
     public static Field getFields(final Object obj, String fieldName) {
@@ -1548,10 +1555,10 @@ public class ClassUtils {
     /**
      *                                                                .
      *
-     *                                                                       Object                
+      * 对象
      *
      * @param obj       
-     * @return                 List                   null              List
+     * @return                 List                   空              列表
      * @since 1.0
      */
     public static List<Field> getFields(final Object obj) {
@@ -1614,7 +1621,7 @@ public class ClassUtils {
      *                                                                   .
      *
      * @param aClass                
-     * @return                 List                               List
+     * @return                 List                               列表
      * @since 1.0
      */
     public static List<Field> getFields(final Class<?> aClass) {
@@ -1638,11 +1645,11 @@ public class ClassUtils {
     /**
      *                                           .
      *
-     *                                                                    Object    
+      * 对象
      *
      * @param type                
      * @param name             
-     * @return           Field                                   null
+     * @return           Field                                   空
      * @since 1.0
      */
     public static Field findField(Class<?> type, String name) {
@@ -1824,10 +1831,10 @@ public class ClassUtils {
 
 
     /**
-     *             Object.class
+      * 对象.类
      *
      * @param clazz    
-     * @return        Object.class       null       true
+     * @return        Object.class       空       true
      */
     public static boolean isObject(Class<?> clazz) {
         return null == clazz || Object.class.getName().equals(clazz.getName());
@@ -2059,7 +2066,7 @@ public class ClassUtils {
      *             
      * <p>
      *                       {@link MethodInvoker}                      
-     *        JDK                    MethodHandle          
+      * JDK                    方法处理
      * </p>
      *
      * @param method       
@@ -2099,7 +2106,7 @@ public class ClassUtils {
         }
     }
     /**
-     *        MethodHandle
+      * 方法处理
      *
      * @param methodHandle
      * @param obj
@@ -2165,13 +2172,13 @@ public class ClassUtils {
      *
      *                
      * -                            
-     * -                       null                                                   
+      * -                       空
      * -                                                                         
      *
      * @param clazz                
      * @param name             
-     * @param paramTypes                                   null                      
-     * @return           Method                                   null
+     * @param paramTypes                                   空
+     * @return           Method                                   空
      * @since 1.0
      */
     public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
@@ -2199,7 +2206,7 @@ public class ClassUtils {
      * @param clazz         
      * @param name                
      * @param paramTypes                         
-     * @return           Method                                   null
+     * @return           Method                                   空
      * @since 1.0
      */
     public static Method findDeclaredMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
@@ -2211,17 +2218,17 @@ public class ClassUtils {
     }
 
     /**
-     * get-all      
+      * 获取-全部
      *
      * @param clazz clazz
-     * @return {@link Method[]}
+     * @return {@link 方法[]}
      */
     private static Method[] getAllMethod(Class<?> clazz) {
         return DECLARED_METHODS_CACHE.computeIfAbsent(clazz, new Function<Class<?>, Method[]>() {
             @Override
             /**
              * 应用
-             * @param aClass aClass
+             * @param aClass a类
              */
             public Method[] apply(Class<?> aClass) {
                 List<Method> rs = new LinkedList<>();
@@ -2232,10 +2239,26 @@ public class ClassUtils {
             }
 
             /**
-             * Do注册Method
-             * @param rs rs
-             * @param aClass aClass
-             * @param validate validate
+              * 执行注册方法
+             * @param rs R
+             * @param aClass a类
+             * @param validate 校验
+             * @param method 方法
+             /**
+              * 执行注册方法。
+              * @param rs R
+              * @param aClass a类
+              * @param validate 校验
+              */
+             * @param paramTypes 参数类型
+             * @return 是否包含same参数的结果
+              * @param method 方法
+             /**
+              * 执行注册方法。
+              * @param rs R
+              * @param aClass a类
+              * @param validate 校验
+              */
              */
             private void doRegisterMethod(List<Method> rs, Class<?> aClass, List<Class<?>> validate) {
                 if(validate.contains(aClass)) {
@@ -2294,7 +2317,7 @@ public class ClassUtils {
         try {
             ModuleLoader.exportAllToAll();
         } catch (Throwable t) {
-            // GraalVM native-image / 模块化环境下模块导出不可用时静默忽略
+ // graalvm NAT-镜像 / 模块化环境下模块导出不可用时静默忽略
         }
         if(null == object) {
             return false;
@@ -2337,6 +2360,7 @@ public class ClassUtils {
      * @param fieldName       
      * @param target          
      * @param value        
+     * @return 获取字段值的结果
      */
     public static Object getFieldValue(String fieldName, Class<?> target, Object value) {
         List<Field> fields = getFields(target);
@@ -2355,6 +2379,7 @@ public class ClassUtils {
      * @param field        
      * @param target       
      * @param value     
+     * @return 获取字段值的结果
      */
     public static Object getFieldValue(Field field, Class<?> target, Object value) {
         if (null == field) {
@@ -2393,6 +2418,7 @@ public class ClassUtils {
      *
      * @param fieldName       
      * @param bean        
+     * @return 获取字段值的结果
      */
     public static Object getFieldValue(String fieldName, Object bean) {
         if (null == fieldName || null == bean) {
@@ -2408,7 +2434,8 @@ public class ClassUtils {
      *                
      *
      * @param field       
-     * @param bean bean
+     * @param bean Bean
+     * @return 获取字段值的结果
      */
     public static Object getFieldValue(Field field, Object bean) {
         if (null == field) {
@@ -2488,16 +2515,16 @@ public class ClassUtils {
     }
 
     /**
-     *                       Field                .
+      * 字段                .
      *
      *       
-     * 1.        bean     null                        
-     * 2.                 final                    final                      
+      * 1.        Bean     空
+      * 2.                 最终                    最终
      * 3.                                  
      *
-     * @param field                          null
+     * @param field                          空
      * @param value                
-     * @param bean                                   null                         
+     * @param bean                                   空
      * @since 1.0
      */
     public static void setFieldValue(Field field, Object value, Object bean) {
@@ -2524,11 +2551,11 @@ public class ClassUtils {
     }
 
     /**
-     *                          Field                .
+      * 字段                .
      *
-     *                       setXxx()                                                 
+      * 设置xxx()
      *
-     * @param field                          null
+     * @param field                          空
      * @param target                      
      * @param value                
      * @param bean                         
@@ -2576,6 +2603,7 @@ public class ClassUtils {
      * @param type        
      * @param bean        
      * @param <T>         
+     * @return 设置全部字段值的结果
      */
     public static <T> void setAllFieldValue(Field field, Object value, Class<T> type, T bean) {
         Class<?> type1 = field.getType();
@@ -2637,22 +2665,22 @@ public class ClassUtils {
     }
 
     /**
-     * Resolve the given class name into a Class instance. Supports
-     * primitives (like "int") and array class names (like "String[]").
+      * Resolve the given 类 名称 into a 类 instance. 支持
+      * primitives (like "int") 和 array 类 名称 (like "字符串[]").
      * <p>This is effectively equivalent to the {@code forName}
-     * method with the same arguments, with the only difference being
-     * the exceptions thrown in case of class loading failure.
+      * 方法 with the same 参数, with the only difference 存在
+      * the 异常 thrown 入 大小写 的 类 加载 失败.
      *
-     * @param className   the name of the Class
-     * @param classLoader the class loader to use
-     *                    (may be {@code null}, which indicates the default class loader)
-     * @return a class instance for the supplied name
-     * @throws IllegalArgumentException if the class name was not resolvable
-     *                                  (that is, the class could not be found or the class file could not be loaded)
-     * @throws IllegalStateException    if the corresponding class is resolvable but
-     *                                  there was a readability mismatch in the inheritance hierarchy of the class
-     *                                  (typically a missing dependency declaration in a Jigsaw module definition
-     *                                  for a superclass or interface implemented by the class to be loaded here)
+     * @param className   the 名称 的 the 类
+     * @param classLoader the 类 加载 转为 use
+      * (may be {@code null}, which indicates the 默认 类 加载)
+     * @return a 类 instance for the supplied 名称
+     * @throws IllegalArgumentException if the 类 名称 was not resolvable
+      * (that 是否, the 类 could not be found 或 the 类 文件 could not be 加载)
+     * @throws IllegalStateException    if the corresponding 类 是否 resolvable but
+      * there was a readability mismatch 入 the inheritance hierarchy 的 the 类
+      * (typically a missing dependency declaration 入 a Jigsaw module definition
+      * for a superclass 或 接口 implemented by the 类 转为 be 加载 here)
      * @see #forName(String, ClassLoader)
      */
     public static Class<?> resolveClassName(String className, ClassLoader classLoader)
@@ -2762,6 +2790,7 @@ public class ClassUtils {
      *
      * @param type    
      * @return             
+     * @param consumer consumer
      */
     public static void withInterface(Class<?> type, Consumer<Class<?>> consumer) {
         Set<Class<?>> result = new HashSet<>();
@@ -2802,6 +2831,7 @@ public class ClassUtils {
      *
      * @param type    
      * @return             
+     * @param consumer consumer
      */
     public static void withSuperType(Class<?> type, Consumer<Class<?>> consumer) {
         Set<Class<?>> result = new HashSet<>();
@@ -2974,8 +3004,8 @@ public class ClassUtils {
         doWithMethods(type, new SafeConsumer<Method>() {
             @Override
             /**
-             * SafeAccept
-             * @param method method
+              * safeaccept
+             * @param method 方法
              */
             public void safeAccept(Method method) throws Throwable {
                 if (!predicate.test(method)) {
@@ -3003,7 +3033,7 @@ public class ClassUtils {
     }
 
     /**
-                continue;
+                continue; // 继续
             }
             indexValue.addAll(filterType(typeArgument, type).getAll());
         }
@@ -3116,7 +3146,7 @@ public class ClassUtils {
     /**
      *                                        .
      *
-     * @param s                 classpath          
+     * @param s                 类路径
      * @return                                                     null
      * @since 1.0
      */
@@ -3128,14 +3158,14 @@ public class ClassUtils {
      *                                     .
      *
      *                                              
-     * - int.class -> 0
-     * - long.class -> 0L
-     * - float.class -> 0f
-     * - double.class -> 0d
-     * - boolean.class -> false
-     * - char.class -> ' '                  
-     * - short.class -> (short) 0
-     * - byte.class -> (byte) 0
+      * - int.类 -> 0
+      * - long.类 -> 0L
+      * - float.类 -> 0f
+      * - double.类 -> 0d
+      * - 布尔值.类 -> false
+      * - char.类 -> ' '
+      * - short.类 -> (short) 0
+      * - byte.类 -> (byte) 0
      *
      * @param targetType             
      * @return                         
@@ -3184,10 +3214,13 @@ public class ClassUtils {
     }
 
     /**
-     * promitive -> orm
+     * 将基本类型（primitive）转换为对应的包装器类型（wrapper）。
      *
-     * @param cls
-     * @return
+     * <p>例如 {@code int.class} 转为 {@code Integer.class}，{@code void.class} 转为 {@code Void.class}；
+     * 非基本类型原样返回。基本类型与包装器的映射表见 {@link #BASIC_VIRTUAL}。</p>
+     *
+     * @param cls 待转换的类型
+     * @return 对应的包装器类型；入参为 null 或非基本类型时原样返回
      */
     public static Class<?> primitiveToWrapper(final Class<?> cls) {
         Class<?> convertedClass = cls;
@@ -3202,6 +3235,13 @@ public class ClassUtils {
             }
         }
         return convertedClass;
+    /**
+      * primitiveint。
+     * @param fieldValue 字段值
+     * @return primitiveInt的结果
+     * @param declaredConstructor declaredConstructor
+     * @param Object...args Object...args
+     */
     }
 
     public static int primitiveInt(Object fieldValue) {
@@ -3251,10 +3291,12 @@ public class ClassUtils {
     /**
      *                                                          
      *
-     * @param protoMapClass                                      Class<T>   T                   
-     * @param args                                                              Object...
+     * @param protoMapClass                                      类<T>   T
+     * @param args                                                              对象...
      * @return        protoMapClass                                T
-     * @throws RuntimeException                                                        InstantiationException   IllegalAccessException   InvocationTargetException     NoSuchMethodException   
+     * @throws RuntimeException                                                        instantiation异常   illegalaccess异常   invocationTarget异常     nosuch方法异常
+     * @param Object...args 对象...参数
+     * @param Object...args Object...args
      */
     public static <T>T newInstance(Class<T> protoMapClass, Object...args) {
         try {
@@ -3279,6 +3321,11 @@ public class ClassUtils {
         }
     }
 
+    /**
+     * 静态构建器方法。
+     * @param protoMapClass Proto.io映射类
+     * @return 静态构建器方法的结果
+     */
     private static <T> T staticBuilderMethod(Class<T> protoMapClass) {
         Method builder = null;
         try {
@@ -3294,12 +3341,12 @@ public class ClassUtils {
     }
 
     /**
-     *     Map                               .
+      * 映射                               .
      *
-     *                                               Map                                     
+      * 映射
      *
-     * @param item                    Map
-     * @param targetType                 Class       
+     * @param item                    映射
+     * @param targetType                 类
      * @param <T>                            
      * @return                         
      * @since 1.0
@@ -3317,6 +3364,24 @@ public class ClassUtils {
      * @param args             
      * @return       
      * @param <T>
+     * @author CH
+     * @since 4.0.0
+     * @param parameters 参数
+     /**
+      * for对象的映射。
+      * @param target Target
+      * @param map 映射
+      * @param args 参数
+      * @return for对象的映射的结果
+      */
+      * @param parameters 参数
+     /**
+      * for对象的映射。
+      * @param target Target
+      * @param map 映射
+      * @param args 参数
+      * @return for对象的映射的结果
+      */
      */
     public static <T> T forObjectOfMap(Class<T> target, Map map, Object... args) {
         T t = forObject(target, args);
@@ -3367,7 +3432,7 @@ public class ClassUtils {
         private final T obj;
 
         /**
-         * 创建 SetAccessibleAction 实例
+          * 创建 设置accessible动作 实例
          * @param obj obj
          */
         public SetAccessibleAction(T obj) {
@@ -3382,7 +3447,7 @@ public class ClassUtils {
         }
 
     }
-// Short class name
+ // Short 类 名称
     // ----------------------------------------------------------------------
 
     /**
@@ -3391,10 +3456,10 @@ public class ClassUtils {
      * <p>The method looks up the class of the object and then converts the name of the class invoking
      * {@link #getShortClassName(Class)} (see relevant notes there).</p>
      *
-     * @param object      the class to get the short name for, may be {@code null}
-     * @param valueIfNull the value to return if the object is {@code null}
-     * @return the class name of the object without the package name, or {@code valueIfNull}
-     * if the argument {@code object} is {@code null}
+     * @param object      the 类 转为 获取 the short 名称 for, may be {@code null}
+     * @param valueIfNull the 值 转为 返回 if the 对象 是否 {@code null}
+     * @return the 类 名称 的 the 对象 without the 包 名称, 或 {@code valueIfNull}
+      * if the 参数 {@code object} 是否 {@code null}
      */
     public static String getShortClassName(final Object object, final String valueIfNull) {
         if (object == null) {
@@ -3409,10 +3474,10 @@ public class ClassUtils {
      * <p>This method simply gets the name using {@code Class.getName()} and then calls
      * {@link #getShortClassName(Class)}. See relevant notes there.</p>
      *
-     * @param cls the class to get the short name for.
-     * @return the class name without the package name or an empty string. If the class
-     * is an inner class then the returned value will contain the outer class
-     * or classes separated with {@code .} (dot) character.
+     * @param cls the 类 转为 获取 the short 名称 for.
+     * @return the 类 名称 without the 包 名称 或 an 空 字符串. If the 类
+      * 是否 an 内部 类 然后 the 返回 值 will contain the 外部 类
+      * 或 类 separated with {@code .} (dot) character.
      */
     public static String getShortClassName(final Class<?> cls) {
         if (cls == null) {
@@ -3425,26 +3490,26 @@ public class ClassUtils {
      * <p>Gets the class name minus the package name from a String.</p>
      *
      * <p>The string passed in is assumed to be a class name - it is not checked. The string has to be formatted the way
-     * as the JDK method {@code Class.getName()} returns it, and not the usual way as we write it, for example in import
-     * statements, or as it is formatted by {@code Class.getCanonicalName()}.</p>
+      * as the JDK 方法 {@code Class.getName()} 返回 it, 和 not the usual way as we 写入 it, for example 入 导入
+      * 对账单, 或 as it 是否 formatted by {@code Class.getCanonicalName()}.</p>
      *
      * <p>The difference is is significant only in case of classes that are inner classes of some other
-     * classes. In this case the separator between the outer and inner class (possibly on multiple hierarchy level) has
-     * to be {@code $} (dollar sign) and not {@code .} (dot), as it is returned by {@code Class.getName()}</p>
+      * 类. 入 this 大小写 the separator between the 外部 和 内部 类 (possibly on 多个 hierarchy 级别) 是否包含
+      * 转为 be {@code $} (dollar 标志) 和 not {@code .} (dot), as it 是否 返回 by {@code Class.getName()}</p>
      *
      * <p>Note that this method is called from the {@link #getShortClassName(Class)} method using the string
-     * returned by {@code Class.getName()}.</p>
+      * 返回 by {@code Class.getName()}.</p>
      *
      * <p>Note that this method differs from {@link #getSimpleName(Class)} in that this will
-     * return, for example {@code "Map.Entry"} whilst the {@code java.lang.Class} variant will simply
-     * return {@code "Entry"}. In this example the argument {@code className} is the string
+      * 返回, for example {@code "Map.Entry"} whilst the {@code java.lang.Class} variant will simply
+      * 返回 {@code "Entry"}. 入 this example the 参数 {@code className} 是否 the 字符串
      * {@code java.util.Map$Entry} (note the {@code $} sign.</p>
      *
-     * @param className the className to get the short name for. It has to be formatted as returned by
+     * @param className the 类名称 转为 获取 the short 名称 for. It 是否包含 转为 be formatted as 返回 by
      *                  {@code Class.getName()} and not {@code Class.getCanonicalName()}
-     * @return the class name of the class without the package name or an empty string. If the class is
-     * an inner class then value contains the outer class or classes and the separator is replaced
-     * to be {@code .} (dot) character.
+     * @return the 类 名称 的 the 类 without the 包 名称 或 an 空 字符串. If the 类 是否
+      * an 内部 类 然后 值 contains the 外部 类 或 类 和 the separator 是否 替换
+      * 转为 be {@code .} (dot) character.
      */
     public static String getShortClassName(String className) {
         if (StringUtils.isEmpty(className)) {
@@ -3453,13 +3518,13 @@ public class ClassUtils {
 
         final StringBuilder arrayPrefix = new StringBuilder();
 
-        // Handle array encoding
+ // 处理 array 编码
         if (className.startsWith("[")) {
             while (className.charAt(0) == '[') {
                 className = className.substring(1);
                 arrayPrefix.append("[]");
             }
-            // Strip Object type encoding
+ // Strip 对象 类型 编码
             if (className.charAt(0) == 'L' && className.charAt(className.length() - 1) == ';') {
                 className = className.substring(1, className.length() - 1);
             }
@@ -3479,22 +3544,22 @@ public class ClassUtils {
         return out + arrayPrefix;
     }
 
-    // Generics type resolution
+ // Generics 类型 resolution
     // -----------------------------------------------------------------------
 
     /**
      *                                                          
      *
-     *                                                     List&lt;Map&lt;String, Integer&gt;&gt;   
+      * 列表&lt;映射&lt;字符串, Integer&gt;&gt;
      *
      *          
-     * -              List&lt;String&gt;          getGenericType(clazz, 0)        String.class
-     * -              Map&lt;String, Integer&gt;          getGenericType(clazz, 0)        String.class
+      * -              列表&lt;字符串&gt;          获取generic类型(clazz, 0)        字符串.类
+      * -              映射&lt;字符串, Integer&gt;          获取generic类型(clazz, 0)        字符串.类
      *
      * @param clazz                            
      * @param index                         0-based                                    
      * @return                                                                       null
-     * @throws IllegalArgumentException     index             
+     * @throws IllegalArgumentException     索引
      * @since 2024/12/21
      */
     public static Class<?> getGenericType(Class<?> clazz, int index) {
@@ -3531,8 +3596,8 @@ public class ClassUtils {
      *                                              
      *
      *          
-     * -              List&lt;String&gt;          [String.class]
-     * -              Map&lt;String, Integer&gt;          [String.class, Integer.class]
+      * -              列表&lt;字符串&gt;          [字符串.类]
+      * -              映射&lt;字符串, Integer&gt;          [字符串.类, Integer.类]
      * -                                           
      *
      * @param clazz                            
@@ -3603,10 +3668,10 @@ public class ClassUtils {
     }
 
     /**
-     *     Type                      
+      * 类型
      *
-     * @param type              Type
-     * @return                                   ParameterizedType           null
+     * @param type              类型
+     * @return                                   ParameterizedType           空
      */
     private static Type[] extractGenericTypes(Type type) {
         if (type instanceof ParameterizedType) {
@@ -3621,10 +3686,10 @@ public class ClassUtils {
     }
 
     /**
-     *     Type                 Class       
+      * 类型                 类
      *
-     * @param types Type       
-     * @return Class                                            Object.class       
+     * @param types 类型
+     * @return Class                                            对象.类
      */
     private static Class<?>[] convertToClassArray(Type[] types) {
         if (types == null || types.length == 0) {
@@ -3641,13 +3706,13 @@ public class ClassUtils {
                 //                                                                
                 classes[i] = (Class<?>) ((ParameterizedType) type).getRawType();
             } else if (type instanceof TypeVariable) {
-                //                                   Object.class
+ // 对象.类
                 classes[i] = Object.class;
             } else if (type instanceof WildcardType) {
-                //                       Object.class
+ // 对象.类
                 classes[i] = Object.class;
             } else {
-                //                       Object.class
+ // 对象.类
                 classes[i] = Object.class;
             }
         }

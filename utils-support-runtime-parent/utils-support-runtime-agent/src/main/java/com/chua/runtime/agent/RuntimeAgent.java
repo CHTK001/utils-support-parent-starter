@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 运行时 Agent 入口 — 通过 agentmain/premain 注入运行时管理能力。
+   * 运行时 智能体 入口 — 通过 agentmain/premain 注入运行时管理能力。
  *
  * <p>使用方式：</p>
  * <pre>
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 public class RuntimeAgent {
 
     /**
-     * JUL Logger — 不依赖 slf4j。
+      * JUL 日志记录器 — 不依赖 slf4j。
      */
     private static final Logger LOG = Logger.getLogger(RuntimeAgent.class.getName());
 
@@ -49,14 +49,14 @@ public class RuntimeAgent {
      */
     private static volatile boolean started;
 
-    /** 创建 RuntimeAgent 实例 */
+    /** 创建 runtime智能体 实例 */
     private RuntimeAgent() {
     }
 
     /**
-     * Agent 启动入口（运行中注入）。
+      * 智能体 启动入口（运行中注入）。
      *
-     * @param args Agent 参数
+     * @param args 智能体 参数
      * @param inst Instrumentation 实例
      */
     public static void agentmain(String args, Instrumentation inst) {
@@ -64,9 +64,9 @@ public class RuntimeAgent {
     }
 
     /**
-     * Agent 启动入口（JVM 启动时加载）。
+      * 智能体 启动入口（JVM 启动时加载）。
      *
-     * @param args Agent 参数
+     * @param args 智能体 参数
      * @param inst Instrumentation 实例
      */
     public static void premain(String args, Instrumentation inst) {
@@ -92,17 +92,17 @@ public class RuntimeAgent {
     }
 
     /**
-     * 把当前 Agent JAR 追加到系统类加载器。
+      * 把当前 智能体 JAR 追加到系统类加载器。
      *
      * <p>关键：因为 {@code java.net.Socket} 等 JDK 类由 <b>bootstrap classloader</b> 加载，
      * 它们织入的 {@code INVOKESTATIC com.chua.runtime.agent.Bootstrap.onIntercept} 必须在
-     * bootstrap classloader 内可解析。因此 shaded agent JAR 必须同时存在于 system 和 bootstrap
-     * classpath。这样 Bootstrap/RuntimeSpy/Interceptor 接口全部在 bootstrap 内一致，
-     * 不会出现 LinkageError。</p>
+      * bootstrap classloader 内可解析。因此 shaded 智能体 JAR 必须同时存在于 系统 和 bootstrap
+      * 类路径。这样 Bootstrap/runtimespy/拦截器 接口全部在 bootstrap 内一致，
+      * 不会出现 linkage错误。</p>
      *
      * <p>注意：使用前请确保启动命令包含 {@code -Xbootclasspath/a:agent.jar} 优先于
      * {@code -javaagent:agent.jar}，这样 Premain-Class {@code RuntimeAgent} 本身由
-     * bootstrap 加载，避免 javaagent 路径将 RuntimeAgent 装入 app classloader 后再将
+      * bootstrap 加载，避免 javaagent 路径将 runtime智能体 装入 app classloader 后再将
      * 同名类塞入 bootstrap 触发 loader constraint violation。</p>
      *
      * @param inst Instrumentation 实例
@@ -141,9 +141,9 @@ public class RuntimeAgent {
     }
 
     /**
-     * 通过 ProtectionDomain 解析 agent jar 的绝对路径。
+      * 通过 protectiondomain 解析 智能体 jar 的绝对路径。
      *
-     * @return jar 绝对路径，无法解析返回 null
+     * @return jar 绝对路径，无法解析返回 空
      */
     private static String resolveAgentJarPath() {
         try {

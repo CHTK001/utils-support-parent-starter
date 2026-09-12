@@ -90,7 +90,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
      * </p>
      *
      * @param ctx                     
-     * @param input        NDList                              
+     * @param input        nd列表
      * @return                         
      */
     @Override
@@ -119,11 +119,11 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
      *                   
      * <p>
      * VAE                   
-     * - sample:                            shape: [1, 3, H, W]   
+      * - 样本:                            shape: [1, 3, H, W]
      * </p>
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return                   
      */
     @Override
@@ -150,7 +150,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
             output = output.transpose(1, 2, 0);
         }
 
-        //     NDArray                   
+ // ndarray
         var img = ImageFactory.getInstance().fromNDArray(output);
 
         if (log.isDebugEnabled()) {

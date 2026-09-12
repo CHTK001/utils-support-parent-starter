@@ -9,7 +9,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import java.util.*;
 
 /**
- * Socket.IO 同步流程管理器。
+   * 套接字.IO 同步流程管理器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,9 +34,10 @@ public class SocketIOSyncFlow implements SyncFlow {
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-     * 创建 SocketIOSyncFlow 实例
+      * 创建 套接字io同步流 实例
      * @param setting setting
-     * @param String String
+     * @param serverUrl 字符串
+     * @param serverUrl 服务端url
      */
     public SocketIOSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new SocketIOSyncServer(setting);
@@ -44,8 +45,8 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 SocketIOSyncFlow 实例
-     * @param serverUrl serverUrl
+      * 创建 套接字io同步流 实例
+     * @param serverUrl 服务端url
      */
     public SocketIOSyncFlow(String serverUrl) {
         this.server = null;
@@ -53,7 +54,7 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 SocketIOSyncFlow 实例
+      * 创建 套接字io同步流 实例
      * @param setting setting
      */
     public SocketIOSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
@@ -100,37 +101,37 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 获取Server */
+    /** 获取服务端 */
     public SyncServer getServer() {
         return server;
     }
 
     @Override
-    /** 获取Client */
+    /** 获取客户端 */
     public SyncClient getClient() {
         return client;
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
         if (server != null) {
             server.addListener(new SyncServerListener() {
                 @Override
-                /** OnClientConnected */
+                /** on客户端连接 */
                 public void onClientConnected(String clientId, Map<String, Object> metadata) {
                     listener.onClientConnected(clientId);
                 }
 
                 @Override
-                /** OnClientDisconnected */
+                /** on客户端断开连接 */
                 public void onClientDisconnected(String clientId) {
                     listener.onClientDisconnected(clientId);
                 }
 
                 @Override
-                /** OnMessage */
+                /** on消息 */
                 public void onMessage(String clientId, String topic, Object message) {
                     listener.onMessage(topic, message);
                 }
@@ -148,7 +149,7 @@ public class SocketIOSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
         if (client != null) {
@@ -162,7 +163,11 @@ public class SocketIOSyncFlow implements SyncFlow {
         stop();
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

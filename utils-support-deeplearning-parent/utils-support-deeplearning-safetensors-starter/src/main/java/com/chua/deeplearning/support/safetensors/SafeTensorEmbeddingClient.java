@@ -9,9 +9,9 @@ import com.chua.deeplearning.support.ai.client.AbstractLocalEmbeddingClient;
 import java.util.List;
 
 /**
- * SafeTensor 本地文本嵌入客户端（HTTP 网关）。
+   * safetensor 本地文本嵌入客户端（HTTP 网关）。
  * <p>
- * 通过本地 SafeTensorService（localhost:8765）调度文本嵌入模型（qwen3-embedding、gte 等），
+   * 通过本地 safetensor服务（localhost:8765）调度文本嵌入模型（通义千问3-嵌入、gte 等），
  * 统一以 {@link EmbeddingClient} 对外提供向量化能力。
  * </p>
  *
@@ -22,7 +22,7 @@ import java.util.List;
 public class SafeTensorEmbeddingClient extends AbstractLocalEmbeddingClient {
 
     /**
-     * 构造 SafeTensor 文本嵌入客户端。
+      * 构造 safetensor 文本嵌入客户端。
      *
      * @param setting 客户端配置
      */
@@ -31,7 +31,7 @@ public class SafeTensorEmbeddingClient extends AbstractLocalEmbeddingClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("text_embedding");
     }

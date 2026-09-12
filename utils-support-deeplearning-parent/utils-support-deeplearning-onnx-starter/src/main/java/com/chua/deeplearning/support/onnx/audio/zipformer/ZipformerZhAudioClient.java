@@ -18,7 +18,7 @@ import java.util.UUID;
  * Zipformer 纯中文流式 ASR 客户端。
  *
  * <p>基于 sherpa-onnx-streaming-zipformer-zh-14M，支持 chunk-by-chunk 实时转写。
- * 模型首次使用时自动从 classpath 解压到缓存目录（嵌入于 utils-support-models-onnx-zipformer-zh），
+   * 模型首次使用时自动从 类路径 解压到缓存目录（嵌入于 utils-support-onnx-zipformer-zh），
  * 或从 HF 下载（需配置 {@code speech.loop.zipformer-zh.dir} 指定本地目录）。
  *
  * <p>Provider 名称：{@code zipformer-zh} / {@code zipformer-zh-streaming}
@@ -26,6 +26,7 @@ import java.util.UUID;
  * <pre>{@code
  * VirtualClient client = VirtualClient.create("zipformer-zh", "");
  * String text = client.transcribe(Path.of("audio.wav"));
+ * }</pre>Path.of("audio.wav"));
  * }</pre>
  *
  * @author CH
@@ -45,17 +46,21 @@ public class ZipformerZhAudioClient implements VirtualClient {
             "tokens.txt",
     };
 
-    /** classpath 内嵌资源基准路径 */
+    /** 类路径 内嵌资源基准路径 */
     private static final String RESOURCE_BASE = "audio/asr/zipformer-zh/";
     /** 缓存子目录 */
     private static final String CACHE_SUBDIR = "audio/asr/zipformer-zh/";
     /** 临时音频文件前缀 */
     private static final String TMP_PREFIX = "zipformer-zh-audio-";
 
-    private final AudioClientSetting setting;
-    private ZipformerStreamingTranslator translator;
-    private boolean prepared;
+    private final AudioClientSetting setting; // setting
+    private ZipformerStreamingTranslator translator; // translator
+    private boolean prepared; // prepared
 
+    /**
+     * zipformerzh音频客户端。
+     * @param setting setting
+     */
     public ZipformerZhAudioClient(AudioClientSetting setting) {
         this.setting = setting;
     }
@@ -87,12 +92,14 @@ public class ZipformerZhAudioClient implements VirtualClient {
 
     // ==================== 流式转录门面实现 ====================
 
-    /** 流式转录状态是否已初始化（非 null 表示正在流式中） */
+    /** 流式转录状态是否已初始化（非 空 表示正在流式中） */
     private boolean streamingActive = false;
 
     @Override
     public void feedAudio(float[] samples) {
-        if (samples == null || samples.length == 0) return;
+        if (samples == null || samples.length == 0) {
+            return;
+        }
         ensurePrepared();
         streamingActive = true;
         try {
@@ -105,7 +112,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
 
     @Override
     public String getResult() {
-        if (!streamingActive || translator == null) return null;
+        if (!streamingActive || translator == null) {
+            return null;
+        }
         try {
             return translator.getResult();
         } catch (Exception e) {
@@ -115,7 +124,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
 
     @Override
     public String complete() {
-        if (!streamingActive) return transcribe();
+        if (!streamingActive) {
+            return transcribe();
+        }
         streamingActive = false;
         try {
             return translator.complete();
@@ -163,11 +174,21 @@ public class ZipformerZhAudioClient implements VirtualClient {
         );
     }
 
-    /** 从 classpath 嵌入资源或 HF 下载模型到缓存目录 */
+     /**
+       * ensureprepared。
+      */
+     * 从 类路径 嵌入资源或 HF 下载模型到缓存目录
+     *
+     * @param modelDir 模型dir
+     */
     private void ensurePrepared() {
-        if (prepared) return;
+        if (prepared) {
+            return;
+        }
         synchronized (this) {
-            if (prepared) return;
+            if (prepared) {
+                return;
+            }
             try {
                 Path modelDir = modelDir();
                 boolean ready = MODEL_FILES.length > 0
@@ -186,7 +207,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     private void loadFromEmbeddedOrHf(Path modelDir) throws IOException {
-        // 先尝试从 classpath 嵌入资源解压
+ // 先尝试从 类路径 嵌入资源解压
         try {
             NativeLoader.of("zipformer-zh-resources")
                     .from(ZipformerZhAudioClient.class.getClassLoader())
@@ -199,13 +220,15 @@ public class ZipformerZhAudioClient implements VirtualClient {
             log.info("[ZipformerZh] extracted from classpath embedded resources");
             return;
         } catch (Exception ignored) {
-            // classpath 无嵌入资源，回退到 HF 下载
+ // 类路径 无嵌入资源，回退到 HF 下载
         }
         // 从 HF 下载
         Files.createDirectories(modelDir);
         for (String name : MODEL_FILES) {
             Path target = modelDir.resolve(name);
-            if (Files.exists(target) && Files.size(target) > 1024) continue;
+            if (Files.exists(target) && Files.size(target) > 1024) {
+                continue;
+            }
             log.info("[ZipformerZh] downloading {}...", name);
             Path tmp = modelDir.resolve(name + ".part");
             try (InputStream in = java.net.URI.create(HF_BASE + name).toURL().openStream()) {
@@ -216,24 +239,41 @@ public class ZipformerZhAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 模型dir。
+     * @return 模型dir的结果
+     */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
-        if (prop != null && !prop.isBlank()) return Path.of(prop.trim());
+        if (prop != null && !prop.isBlank()) {
+            return Path.of(prop.trim());
+        }
         Path dir = Path.of(cacheRoot(), CACHE_SUBDIR.stripLeading().stripTrailing());
         Files.createDirectories(dir);
         return dir;
     }
 
+    /**
+     * resolve音频路径。
+     * @return resolve音频路径的结果
+     */
     private Path resolveAudioPath() {
-        if (setting.getAudioPath() != null) return setting.getAudioPath();
-        if (setting.getAudio() == null && setting.getAudioInput() == null)
+        if (setting.getAudioPath() != null) {
+            return setting.getAudioPath();
+        }
+        if (setting.getAudio() == null && setting.getAudioInput() == null) {
             throw new IllegalStateException("No audio input configured");
+        }
         try {
             Path tmp = Files.createTempFile(TMP_PREFIX, ".wav");
-            if (setting.getAudio() != null) Files.write(tmp, setting.getAudio());
+            if (setting.getAudio() != null) {
+                Files.write(tmp, setting.getAudio());
+            }
             else {
                 InputStream in = setting.getAudioInput();
-                if (in != null) Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                if (in != null) {
+                    Files.copy(in, tmp, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
             }
             tmp.toFile().deleteOnExit();
             return tmp;
@@ -242,6 +282,10 @@ public class ZipformerZhAudioClient implements VirtualClient {
         }
     }
 
+    /**
+     * 缓存根。
+     * @return 缓存根的结果
+     */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

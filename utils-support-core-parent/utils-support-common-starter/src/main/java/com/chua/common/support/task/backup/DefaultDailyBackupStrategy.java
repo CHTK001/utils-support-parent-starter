@@ -46,7 +46,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     private static final String TYPE = "daily";
     /** Archive_dir */
     private static final String ARCHIVE_DIR = "archive";
-    /** Date_fmt */
+    /** 日期_fmt */
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -99,7 +99,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-     * 清理超过保留天数的历史备份（ZIP 与当天目录），返回清理数量。
+      * 清理超过保留天数的历史备份（压缩 与当天目录），返回清理数量。
      */
     @Override
     public int cleanExpired(BackupConfig config) {
@@ -145,7 +145,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-     * 列出归档目录中的全部 ZIP 备份，按日期倒序。
+      * 列出归档目录中的全部 压缩 备份，按日期倒序。
      */
     @Override
     public List<Path> listBackups(BackupConfig config) {
@@ -165,6 +165,10 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**
      * 拷贝目录
+     * @param source 源
+     * @param target Target
+     * @param config 配置
+     * @return 副本目录的结果
      */
     private List<Path> copyDirectory(Path source, Path target, BackupConfig config) throws IOException {
         List<Path> copied = new ArrayList<>();
@@ -201,7 +205,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
             }
 
             /**
-             * 判断字符串是否为空白（null/空串/纯空格）。
+              * 判断字符串是否为空白（空/空串/纯空格）。
+             * @param s s
+             * @return 是否blank的结果
              */
             private boolean isBlank(String s) {
                 return s == null || s.isBlank();
@@ -211,13 +217,15 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-     * 压缩为 ZIP
+      * 压缩为 压缩
+     * @param source 源
+     * @param zipFile 压缩文件
      */
     private void compressToZip(Path source, Path zipFile) throws IOException {
         Files.createDirectories(zipFile.getParent());
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
             Files.walkFileTree(source, new SimpleFileVisitor<>() {
-                /** 将单个文件以相对路径写入 ZIP 条目 */
+                /** 将单个文件以相对路径写入 压缩 条目 */
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String entryName = source.relativize(file).toString().replace("\\", "/");
@@ -232,6 +240,7 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**
      * 递归删除目录
+     * @param dir dir
      */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
@@ -256,6 +265,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
 
     /**
      * Glob 模式匹配
+     * @param fileName 文件名称
+     * @param pattern 模式
+     * @return 匹配模式的结果
      */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {

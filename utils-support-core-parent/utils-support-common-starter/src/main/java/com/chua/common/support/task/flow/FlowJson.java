@@ -6,7 +6,7 @@ import com.chua.common.support.lang.json.Json;
  * 流程定义 JSON 导入导出工具。
  *
  * <p>基于 common-starter 的 JSON 工具类实现流程定义的序列化与反序列化，
- * 复用已有工具避免重复造轮子。导出格式与前端 ReFlow 画布数据完全一致，
+   * 复用已有工具避免重复造轮子。导出格式与前端 re流 画布数据完全一致，
  * 支持双向互通。</p>
  *
  * @author CH

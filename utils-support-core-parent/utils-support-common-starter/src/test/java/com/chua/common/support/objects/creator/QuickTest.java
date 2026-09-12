@@ -32,6 +32,10 @@ public class QuickTest {
     /** 成功计数 */
     private static int passCount = 0;
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         testCreate();
         testIndependentContext();
@@ -64,7 +68,7 @@ public class QuickTest {
         System.out.println("RESULT: PASS");
     }
 
-    /** 静态create */
+    /** 静态创建 */
     static void testCreate() {
         Quick quick = Quick.create();
         check(quick != null, "Quick.create() 返回实例");
@@ -133,7 +137,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** init类 */
+    /** 初始化类 */
     static void testInit() {
         Quick quick = Quick.create();
         User user = quick.init(User.class);
@@ -141,7 +145,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** init从数据 */
+    /** 初始化从数据 */
     static void testInitFromData() {
         Quick quick = Quick.create();
         quick.fromXml("<user><name>zhao</name><age>40</age></user>");
@@ -152,7 +156,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** Map构造器 */
+    /** 映射构造器 */
     static void testMapBuilder() {
         Quick quick = Quick.create();
         Map<String, Integer> map = quick.<String, Integer>map()
@@ -169,7 +173,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** List构造器 */
+    /** 列表构造器 */
     static void testListBuilder() {
         Quick quick = Quick.create();
         List<String> list = quick.<String>list()
@@ -228,7 +232,7 @@ public class QuickTest {
         Quick quick = Quick.create()
                 .variable("x", 10)
                 .variable("y", 20);
-        // variables.get 返回 Object，片段内需自行强转
+ // 变量.获取 返回 对象，片段内需自行强转
         Object result = quick.execute(
                 "return ((Number) variables.get(\"x\")).intValue() + ((Number) variables.get(\"y\")).intValue();");
         check(result instanceof Number && ((Number) result).intValue() == 30, "execute 访问变量 x+y=30");
@@ -261,7 +265,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 导入包 + 按名称init */
+    /** 导入包 + 按名称初始化 */
     static void testImportPackageAndInitByName() {
         Quick quick = Quick.create()
                 .importPackage("java.util");
@@ -270,7 +274,7 @@ public class QuickTest {
         quick.close();
     }
 
-    /** 编译器 SPI：dynamic/compile 自动切换（classpath 含 asm-starter 时使用 ASM） */
+    /** 编译器 SPI：dynamic/compile 自动切换（类路径 含 asm-启动 时使用 ASM） */
     static void testCompilerSpiSwitch() {
         Quick quick = Quick.create();
         Compiler compiler = resolveCompilerReflectively(quick);
@@ -278,7 +282,7 @@ public class QuickTest {
         String implName = compiler.getClass().getName();
         System.out.println("[INFO] 当前编译器实现: " + implName);
         if (implName.equals("com.chua.common.support.lang.compile.AsmCompiler")) {
-            // classpath 含 utils-support-asm-starter：验证 SPI 注册与 dynamic/compile 均可用
+ // 类路径 含 utils-support-asm-starter：验证 SPI 注册与 dynamic/compile 均可用
             Compiler asm = ServiceProvider.of(Compiler.class).getExtension("asm");
             check(asm != null && asm.getClass().getName().equals("com.chua.common.support.lang.compile.AsmCompiler"),
                     "asm-starter 在 classpath 时自动解析 AsmCompiler");
@@ -290,7 +294,7 @@ public class QuickTest {
             Class<?> clazz = quick.compile("public class CompiledProbe { public static int add(int a, int b) { return a + b; } }");
             check(clazz != null, "compile() 在 ASM 编译器下编译源码");
         } else {
-            // 无 asm-starter：应回退 common-starter 自带 JdkCompiler
+ // 无 asm-启动：应回退 common-starter 自带 jdkcompiler
             check(implName.equals("com.chua.common.support.lang.compile.JdkCompiler"),
                     "无 asm-starter 时回退 JdkCompiler");
         }
@@ -300,7 +304,7 @@ public class QuickTest {
     /**
      * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
      *
-     * @param quick Quick 实例（DefaultQuick 实现）
+     * @param quick Quick 实例（默认quick 实现）
      * @return 当前编译器实现
      */
     private static Compiler resolveCompilerReflectively(Quick quick) {
@@ -313,13 +317,38 @@ public class QuickTest {
         }
     }
 
-    /** 测试用用户类 */
+    /**
+     * 测试用用户类
+     *
+     * @param age age
+     * @return 设置名称的结果
+     /**
+      * 获取名称。
+      * @return 获取名称的结果
+      */
+     */
     public static class User {
-        private String name;
-        private int age;
+        private String name; // 名称
+        private int age; // age
+/**
+ * 设置名称。
+ * @param name 名称
+ * @param age age
+ * @return 方法的结果
+ /**
+   * 获取名称。
+   * @return 获取名称的结果
+  */
+ */
 
         public String getName() {
             return name;
+        /**
+         * 设置名称。
+         * @param name 名称
+         * @param age age
+         * @return 方法的结果
+         */
         }
 
         public void setName(String name) {
@@ -352,7 +381,7 @@ public class QuickTest {
     }
 
     /**
-     * 对象相等比较（处理 null）。
+      * 对象相等比较（处理 空）。
      *
      * @param expected 期望值
      * @param actual   实际值

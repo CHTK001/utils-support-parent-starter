@@ -19,7 +19,7 @@ import java.util.Map;
 public class PackageManagerMcpProvider extends PackageManagerProvider implements McpProvider {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -43,13 +43,13 @@ public class PackageManagerMcpProvider extends PackageManagerProvider implements
     }
 
     @Override
-    /** ListInstalled */
+    /** 列表installed */
     public Map<String, Boolean> listInstalled() {
         return super.listInstalled();
     }
 
     @Override
-    /** ListAvailable */
+    /** 列表可用 */
     public List<String> listAvailable() {
         return super.listAvailable();
     }

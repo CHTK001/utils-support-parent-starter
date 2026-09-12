@@ -21,7 +21,7 @@ public interface FieldMappingConverter {
      * @param value         原始值
      * @param sourceField   源字段名
      * @param targetField   目标字段名
-     * @param converter     转换器标识（如 "toString", "toInteger" 等）
+     * @param converter     转换器标识（如 "转为字符串", "转为integer" 等）
      * @return 转换后的值
      */
     Object convert(Object value, String sourceField, String targetField, String converter);

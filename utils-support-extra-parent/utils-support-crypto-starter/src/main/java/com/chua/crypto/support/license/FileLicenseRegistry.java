@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
-     * 内存注册表：指纹(hex) -> Base64(封装块)
+      * 内存注册表：指纹(hex) -> 基础64(封装块)
      */
     private final Map<String, String> store = new ConcurrentHashMap<>();
 

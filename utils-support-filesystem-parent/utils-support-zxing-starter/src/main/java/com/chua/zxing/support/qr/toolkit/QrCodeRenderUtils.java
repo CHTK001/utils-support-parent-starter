@@ -124,7 +124,7 @@ public class QrCodeRenderUtils {
 
 
         BufferedImage ftImg = frontImgOptions.getFtImg();
-        // 前置图支持设置圆角 or 圆形设置
+ // 前置图支持设置圆角 或 圆形设置
         if (frontImgOptions.getImgStyle() == QrCodeOptions.ImgStyle.ROUND) {
             int cornerRadius = (int) (Math.min(resW, resH) * frontImgOptions.getRadius());
             ftImg = ImageOperateUtil.makeRoundedCorner(ftImg, cornerRadius);
@@ -141,9 +141,9 @@ public class QrCodeRenderUtils {
     }
 
     /**
-     * DrawFrontGifImg
-     * @param qrImg qrImg
-     * @param frontImgOptions frontImgOptions
+      * drawfrontgifimg
+     * @param qrImg qrimg
+     * @param frontImgOptions frontimg期权
      */
     public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawFrontGifImg(BufferedImage qrImg,
                                                                                         QrCodeOptions.FrontImgOptions frontImgOptions) {
@@ -206,7 +206,7 @@ public class QrCodeRenderUtils {
             bgImg = temp;
         }
 
-        // 背景图支持设置圆角 or 圆形设置
+ // 背景图支持设置圆角 或 圆形设置
         if (bgImgOptions.getImgStyle() == QrCodeOptions.ImgStyle.ROUND) {
             int cornerRadius = (int) (Math.min(bgW, bgH) * bgImgOptions.getRadius());
             bgImg = ImageOperateUtil.makeRoundedCorner(bgImg, cornerRadius);
@@ -276,7 +276,7 @@ public class QrCodeRenderUtils {
                 // 选择一块区域进行填充
                 bgGraphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 1.0f));
                 bgGraphic.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//                bgGraphic
+ // bggraphic
 //                        .drawImage(qrImg.getScaledInstance(qrWidth, qrHeight, Image.SCALE_SMOOTH), bgOffsetX, bgOffsetY,
 //                                null);
                 // 实验功能，gif生成时缩放
@@ -372,13 +372,13 @@ public class QrCodeRenderUtils {
     }
 
     /**
-     * Do注册DrawStyle
+      * 执行注册drawstyle
      * @param g2 g2
-     * @param detectInnerColor detectInnerColor
-     * @param detectOutColor detectOutColor
-     * @param qrCodeConfig qrCodeConfig
-     * @param bitMatrix bitMatrix
-     * @param drawOptions drawOptions
+     * @param detectInnerColor detect内部color
+     * @param detectOutColor detect出color
+     * @param qrCodeConfig qr编码配置
+     * @param bitMatrix 钻头matrix
+     * @param drawOptions draw期权
      * @param setting setting
      */
     private static void doRegisterDrawStyle(Graphics2D g2,
@@ -401,10 +401,10 @@ public class QrCodeRenderUtils {
     }
 
     /**
-     * ScaleQrRealSize
-     * @param qrCodeConfig qrCodeConfig
-     * @param bitMatrix bitMatrix
-     * @param qrCode qrCode
+      * scaleqrreal大小
+     * @param qrCodeConfig qr编码配置
+     * @param bitMatrix 钻头matrix
+     * @param qrCode qr编码
      */
     private static BufferedImage scaleQr2RealSize(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix,
                                                   BufferedImage qrCode) {
@@ -413,6 +413,12 @@ public class QrCodeRenderUtils {
         int qrCodeHeight = bitMatrix.getHeight();
 
         // 若二维码的实际宽高和预期的宽高不一致, 则缩放
+    /**
+     * detect位置枚举。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
         int realQrCodeWidth = qrCodeConfig.getW();
         int realQrCodeHeight = qrCodeConfig.getH();
         if (qrCodeWidth != realQrCodeWidth || qrCodeHeight != realQrCodeHeight) {
@@ -437,7 +443,7 @@ public class QrCodeRenderUtils {
         RT,
         NONE {
             @Override
-            /** DetectedArea */
+            /** detectedarea */
             public boolean detectedArea() {
         
                 return false;
@@ -445,7 +451,11 @@ public class QrCodeRenderUtils {
     }
         };
 
-        /** DetectedArea */
+        /**
+         * detectedarea
+         *
+         * @return detectedArea的结果
+         */
         public boolean detectedArea() {
             return true;
         }
@@ -546,12 +556,12 @@ public class QrCodeRenderUtils {
     }
 
     /**
-     * DrawQrDotBgImg
-     * @param qrCodeConfig qrCodeConfig
+      * drawqrdotbgimg
+     * @param qrCodeConfig qr编码配置
      * @param g2 g2
-     * @param leftPadding leftPadding
-     * @param topPadding topPadding
-     * @param infoSize infoSize
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
      * @param x x
      * @param y y
      */
@@ -721,7 +731,16 @@ public class QrCodeRenderUtils {
         return cnt;
     }
 
-    /** 获取Available获取大小 */
+    /**
+     * 获取可用获取大小
+     *
+     * @param bitMatrix 钻头matrix
+     * @param x x
+     * @param y y
+     * @param maxRow 最大row
+     * @param maxCol 最大col
+     * @return 获取可用大小的结果
+     */
     public static java.util.List<DotSize> getAvailableSize(ByteMatrix bitMatrix, int x, int y, int maxRow, int maxCol) {
         if (maxRow == 1) {
             return Collections.singletonList(DotSize.create(1, maxCol));

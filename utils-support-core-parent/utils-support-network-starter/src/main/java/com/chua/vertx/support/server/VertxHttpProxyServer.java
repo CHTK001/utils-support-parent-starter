@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * {@link com.chua.common.support.network.server.proxy.TcpProxyServer} 对齐。
  *
  * <p>接收前端 HTTP 请求 → 按 {@link ProxyTargetResolver} 解析后端地址 →
- * 经 HttpClient 转发后端 → 回传响应。全链路事件循环异步，天然高吞吐。</p>
+   * 经 HTTP客户端 转发后端 → 回传响应。全链路事件循环异步，天然高吞吐。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -48,20 +48,20 @@ public class VertxHttpProxyServer extends AbstractServer {
     private HttpClient httpClient;
 
     /**
-     * 创建 VertxHttpProxyServer 实例
+      * 创建 vertxhttp代理服务端 实例
      * @param setting setting
      */
     public VertxHttpProxyServer(ServerSetting setting) {
         super(setting);
-        // 与 TcpProxyServer 一致：SPI 加载时 resolver 未提供，拒绝所有连接，调用方自行注入
+ // 与 tcp代理服务端 一致：SPI 加载时 解析器 未提供，拒绝所有连接，调用方自行注入
         this.targetResolver = remote -> null;
     }
 
     /**
-     * 创建 VertxHttpProxyServer 实例
+      * 创建 vertxhttp代理服务端 实例
      * @param setting setting
-     * @param ProxyTargetResolver ProxyTargetResolver
-     * @param targetResolver targetResolver
+     * @param targetResolver 代理Target解析器
+     * @param targetResolver Target解析器
      */
     public VertxHttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
@@ -69,9 +69,10 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 创建 VertxHttpProxyServer 实例
+      * 创建 vertxhttp代理服务端 实例
      * @param setting setting
-     * @param InetSocketAddress InetSocketAddress
+     * @param backend inet套接字地址
+     * @param backend backend
      */
     public VertxHttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
@@ -79,7 +80,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             VertxOptions opts = new VertxOptions()
@@ -113,7 +114,7 @@ public class VertxHttpProxyServer extends AbstractServer {
                     .setTcpKeepAlive(true);
             server = vertx.createHttpServer(options);
             server.requestHandler(this::handleProxy);
-            // Vert.x 5.x:listen 返回 Future,异步完成;用 latch 等监听就绪并回填端口
+ // Vert.x 5.x:监听 返回 期货,异步完成;用 插销 等监听就绪并回填端口
             CountDownLatch ready = new CountDownLatch(1);
             server.listen().onSuccess(s -> {
                 setting.setPort(server.actualPort());
@@ -134,7 +135,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     /**
-     * 代理处理：解析后端 → HttpClient 转发 → 回传响应。
+      * 代理处理：解析后端 → HTTP客户端 转发 → 回传响应。
      *
      * @param front 前端请求
      */
@@ -156,7 +157,7 @@ public class VertxHttpProxyServer extends AbstractServer {
         Future<HttpClientRequest> reqFuture = httpClient.request(front.method(),
                 backend.getPort(), backend.getHostString(), front.uri());
         reqFuture.onSuccess(req -> {
-            // 请求头透传（Host 保留后端）
+ // 请求头透传（主机 保留后端）
             front.headers().forEach(req::putHeader);
             HttpServerResponse resp = front.response();
             // Vert.x 5:req.send(request) 会抛 "Request has already been read"；
@@ -188,7 +189,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (server != null) {
             try {
@@ -212,7 +213,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }

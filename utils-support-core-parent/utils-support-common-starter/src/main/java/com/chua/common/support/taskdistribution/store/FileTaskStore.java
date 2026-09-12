@@ -120,7 +120,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
-    /** 保存Task */
+    /** 保存任务 */
     public void saveTask(Task<?> task, TaskStatus status) {
         if (task == null || task.getTaskId() == null) {
             return;
@@ -131,7 +131,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
-    /** 更新Status */
+    /** 更新状态 */
     public void updateStatus(String taskId, TaskStatus status) {
         if (taskId != null) {
             statusCache.put(taskId, status);
@@ -139,7 +139,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
-    /** 保存Result */
+    /** 保存结果 */
     public void saveResult(TaskResult<?> result) {
         if (result == null || result.getTaskId() == null) {
             return;
@@ -154,7 +154,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
-    /** 获取Status */
+    /** 获取状态 */
     public TaskStatus getStatus(String taskId) {
         TaskStatus status = statusCache.get(taskId);
         if (status != null) {
@@ -182,7 +182,7 @@ public class FileTaskStore implements TaskStore {
     }
 
     @Override
-    /** 移除Task */
+    /** 移除任务 */
     public void removeTask(String taskId) {
         taskCache.remove(taskId);
         statusCache.remove(taskId);
@@ -217,6 +217,7 @@ public class FileTaskStore implements TaskStore {
 
     /**
      * 持久化任务到文件。
+     * @param task 任务
      */
     private void persistTask(Task<?> task) {
         try {
@@ -232,6 +233,7 @@ public class FileTaskStore implements TaskStore {
 
     /**
      * 持久化结果到文件。
+     * @param result 结果
      */
     private void persistResult(TaskResult<?> result) {
         try {

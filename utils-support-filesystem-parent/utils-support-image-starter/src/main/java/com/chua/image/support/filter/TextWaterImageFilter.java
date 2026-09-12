@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
  * 水印
  *
  * @author CH
+ * @since 4.0.0
  */
 @SpiIgnore
 public class TextWaterImageFilter extends AbstractImageFilter {
@@ -36,17 +37,17 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
      */
     public TextWaterImageFilter(String text) {
         this(text, Position.RIGHT_BOTTOM, DEFAULT_FONT, DEFAULT_FONT_SIZE);
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
-     * @param position position
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     * @param position 位置
      */
     public TextWaterImageFilter(String text, Position position) {
         this(text, position, DEFAULT_FONT, DEFAULT_FONT_SIZE);
@@ -54,8 +55,8 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
      * @param font font
      */
     public TextWaterImageFilter(String text, Font font) {
@@ -63,8 +64,8 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
      * @param color color
      */
     public TextWaterImageFilter(String text, Color color) {
@@ -72,8 +73,8 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
      * @param font font
      * @param color color
      */
@@ -83,9 +84,9 @@ public class TextWaterImageFilter extends AbstractImageFilter {
 
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
-     * @param position position
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     * @param position 位置
      * @param font font
      */
     public TextWaterImageFilter(String text, Position position, Font font) {
@@ -93,9 +94,9 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
-     * @param position position
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     * @param position 位置
      * @param font font
      * @param color color
      */
@@ -104,11 +105,11 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
-     * @param position position
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     * @param position 位置
      * @param font font
-     * @param fontSize fontSize
+     * @param fontSize font大小
      */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize) {
         this.text = text;
@@ -118,11 +119,11 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     }
 
     /**
-     * 创建 TextWaterImageFilter 实例
-     * @param text text
-     * @param position position
+      * 创建 文本水镜像过滤器 实例
+     * @param text 文本
+     * @param position 位置
      * @param font font
-     * @param fontSize fontSize
+     * @param fontSize font大小
      * @param color color
      */
     public TextWaterImageFilter(String text, Position position, Font font, int fontSize, Color color) {
@@ -170,7 +171,13 @@ public class TextWaterImageFilter extends AbstractImageFilter {
     
     }
 
-    /** Water过滤 */
+    /**
+     * 水过滤
+     *
+     * @param src src
+     * @param dst dst
+     * @return 水过滤器的结果
+     */
     private BufferedImage waterFilter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth(), h = src.getHeight();
 
@@ -178,13 +185,13 @@ public class TextWaterImageFilter extends AbstractImageFilter {
                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bufferedImage.createGraphics();
         g.drawImage(src, 0, 0, w, h, null);
-        // 图片中标识 start
+ // 图片中标识 启动
         g.setFont(font);
 
         g.setColor(color);
         //图片位置定位计算并且绘制
         imageCountProcess(g, text, w, h, position);
-        // draw end
+ // draw 结束
         g.dispose();
 
         return bufferedImage;
@@ -199,7 +206,7 @@ public class TextWaterImageFilter extends AbstractImageFilter {
      * @param direction 位置
      */
     private void imageCountProcess(Graphics2D g, String text, int width, int height, Position direction) {
-        //LOWER_RIGHT
+ // 降低_RIGHT
         switch (direction) {
             case LEFT_TOP:
                 g.drawString(text, getStrWidth(text, fontSize), 0);

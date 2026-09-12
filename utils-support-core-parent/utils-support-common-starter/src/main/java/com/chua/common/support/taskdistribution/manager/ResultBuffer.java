@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class ResultBuffer {
 
     /**
-     * 结果缓冲：taskId -> ResultEntry
+      * 结果缓冲：任务id -> 结果entry
      */
     private final Map<String, ResultEntry> buffer = new ConcurrentHashMap<>();
 
@@ -78,7 +78,7 @@ public class ResultBuffer {
     /**
      * 缓存结果。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @param result 执行结果
      */
     public void cacheResult(String taskId, TaskResult<?> result) {
@@ -93,8 +93,8 @@ public class ResultBuffer {
     /**
      * 获取结果。
      *
-     * @param taskId 任务 ID
-     * @return 任务结果，不存在或已过期返回 null
+     * @param taskId 任务 标识
+     * @return 任务结果，不存在或已过期返回 空
      */
     public TaskResult<?> getResult(String taskId) {
         ResultEntry entry = buffer.get(taskId);
@@ -114,8 +114,8 @@ public class ResultBuffer {
     /**
      * 移除结果。
      *
-     * @param taskId 任务 ID
-     * @return 被移除的结果，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 被移除的结果，不存在返回 空
      */
     public TaskResult<?> remove(String taskId) {
         ResultEntry entry = buffer.remove(taskId);
@@ -128,7 +128,7 @@ public class ResultBuffer {
     /**
      * 是否包含指定任务结果。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示存在
      */
     public boolean contains(String taskId) {
@@ -177,10 +177,12 @@ public class ResultBuffer {
 
     /**
      * 结果条目。
+     * @author CH
+     * @since 4.0.0
      */
     private static class ResultEntry {
-        final TaskResult<?> result;
-        final long timestamp;
+        final TaskResult<?> result; // 结果
+        final long timestamp; // 时间戳
 
         ResultEntry(TaskResult<?> result, long timestamp) {
             this.result = result;

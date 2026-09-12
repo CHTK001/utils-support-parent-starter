@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  * 码眼解析器
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 public class RectangleCodeEyeResolver implements CodeEyeResolver{
@@ -19,13 +19,13 @@ public class RectangleCodeEyeResolver implements CodeEyeResolver{
     /** 单位宽度 */
     private int unitWidth = 54;
 
-    /** 创建 RectangleCodeEyeResolver 实例 */
+    /** 创建 rectangle编码eye解析器 实例 */
     public RectangleCodeEyeResolver() {
     }
 
     /**
-     * 创建 RectangleCodeEyeResolver 实例
-     * @param unitWidth unitWidth
+      * 创建 rectangle编码eye解析器 实例
+     * @param unitWidth unitwidth
      */
     public RectangleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;

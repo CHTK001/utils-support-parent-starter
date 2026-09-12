@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 自动注入注解。
  *
  * <p>标记需要容器自动装配的字段。当容器创建 Bean 实例后，
- * 会扫描带有 @AutoInject 注解的字段，并尝试从容器中查找匹配的 Bean 进行注入。</p>
+   * 会扫描带有 @autoinject 注解的字段，并尝试从容器中查找匹配的 Bean 进行注入。</p>
  *
  * <p>使用示例：</p>
  * <pre>
@@ -49,7 +49,7 @@ public @interface AutoInject {
      * 是否必须注入。
      *
      * <p>当设置为 true（默认）时，如果容器中找不到匹配的 Bean，将抛出异常。
-     * 设置为 false 时，找不到 Bean 则字段保持 null，不会报错。</p>
+      * 设置为 false 时，找不到 Bean 则字段保持 空，不会报错。</p>
      *
      * @return 是否必须注入，默认 true
      */

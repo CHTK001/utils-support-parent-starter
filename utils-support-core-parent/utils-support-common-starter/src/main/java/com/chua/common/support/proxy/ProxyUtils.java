@@ -30,6 +30,10 @@ import java.lang.reflect.InvocationHandler;
  *         System.out.println("调用方法: " + method.getName());
  *         return method.invoke(targetBean, args);
  *     });
+ * }</pre> -> {
+   * 系统.出.println("调用方法: " + 方法.获取名称());
+   * 返回 方法.invoke(TargetBean, 参数);
+ *     });
  * }</pre>
  *
  * @author CH

@@ -46,32 +46,32 @@ import java.util.*;
 public class SubPipelineResult {
 
     /**
-     * 子流水线节点 ID
+      * 子流水线节点 标识
      */
     private final String nodeId;
 
     /**
-     * 子流水线的最终输出数据（子上下文的 currentData）
+      * 子流水线的最终输出数据（子上下文的 当前数据）
      */
     private final Object output;
 
     /**
-     * 子流水线的执行历史（子上下文的 history）
+      * 子流水线的执行历史（子上下文的 历史）
      */
     private final List<String> history;
 
     /**
-     * 子流水线 ID
+      * 子流水线 标识
      */
     private final String pipelineId;
 
     /**
      * 构造子流水线结果。
      *
-     * @param nodeId     子流水线节点 ID
+     * @param nodeId     子流水线节点 标识
      * @param output     子流水线的最终输出数据
      * @param history    子流水线的执行历史
-     * @param pipelineId 子流水线 ID
+     * @param pipelineId 子流水线 标识
      */
     public SubPipelineResult(String nodeId, Object output, List<String> history, String pipelineId) {
         this.nodeId = nodeId;
@@ -81,9 +81,9 @@ public class SubPipelineResult {
     }
 
     /**
-     * 获取子流水线节点 ID。
+      * 获取子流水线节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getNodeId() {
         return nodeId;
@@ -105,7 +105,7 @@ public class SubPipelineResult {
      *
      * @param type 期望的数据类型
      * @param <V>  数据值类型
-     * @return 输出数据，不存在时返回 null
+     * @return 输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getOutput(Class<V> type) {
@@ -122,9 +122,9 @@ public class SubPipelineResult {
     }
 
     /**
-     * 获取子流水线 ID。
+      * 获取子流水线 标识。
      *
-     * @return 子流水线 ID
+     * @return 子流水线 标识
      */
     public String getPipelineId() {
         return pipelineId;

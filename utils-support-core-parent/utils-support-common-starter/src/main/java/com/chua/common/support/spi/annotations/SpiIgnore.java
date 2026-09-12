@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * SPI 忽略注解
  * <p>
- *     SPI (Service Provider Interface) 忽略注解，用于标记指定的类不参与 SPI 的自动扫描与加载。
+   * SPI (服务 提供者 接口) 忽略注解，用于标记指定的类不参与 SPI 的自动扫描与加载。
  *     通常用于在某些场景下排除特定的 SPI 实现类。
  * </p>
  *
@@ -27,12 +27,14 @@ import java.lang.annotation.*;
  * public class OldService implements Service {
  *     // 该类将被 SPI 机制忽略，不会被自动加载
  * }
+ * }</pre>被自动加载
+ * }
  * }</pre>
  * </p>
  *
  * @author CH
  * @since 2024-01-01
- * @version 1.0.0
+   * @版本 1.0.0
  * @see Spi
  */
 @Documented

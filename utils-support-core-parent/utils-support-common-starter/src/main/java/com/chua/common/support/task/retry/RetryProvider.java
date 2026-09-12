@@ -21,6 +21,7 @@ import java.util.function.Predicate;
  * <pre>{@code
  * RetryProvider provider = new JdkRetryProvider();
  * String result = provider.execute(() -> httpClient.get("/api"), config);
+ * }</pre> httpClient.get("/api"), config);
  * }</pre>
  *
  * @author CH

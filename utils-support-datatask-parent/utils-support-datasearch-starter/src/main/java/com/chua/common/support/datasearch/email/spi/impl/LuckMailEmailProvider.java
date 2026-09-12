@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * LuckMail 临时邮箱服务实现（付费，约 ¥0.02/个）。
+   * luckmail 临时邮箱服务实现（付费，约 ¥0.02/个）。
  *
  * <p>注册地址：https://mails.luckyous.com</p>
  *
@@ -21,18 +21,21 @@ import java.util.List;
 @Spi("luckmail")
 public class LuckMailEmailProvider implements EmailProvider {
 
-    private static final String DEFAULT_BASE = "https://mails.luckyous.com";
-    private static final String DEFAULT_PROJECT_CODE = "grok";
-    private static final String DEFAULT_DOMAIN = "outlook.com";
-    private static final String DEFAULT_EMAIL_TYPE = "ms_imap";
+    private static final String DEFAULT_BASE = "https://mails.luckyous.com"; // 默认基础
+    private static final String DEFAULT_PROJECT_CODE = "grok"; // 默认project编码
+    private static final String DEFAULT_DOMAIN = "outlook.com"; // 默认domain
+    private static final String DEFAULT_EMAIL_TYPE = "ms_imap"; // 默认email类型
 
-    private final String apiKey;
-    private final String apiSecret;
-    private final String baseUrl;
-    private final String projectCode;
-    private final String emailType;
-    private final String domain;
+    private final String apiKey; // api键
+    private final String apiSecret; // apisecret
+    private final String baseUrl; // baseurl
+    private final String projectCode; // project编码
+    private final String emailType; // email类型
+    private final String domain; // domain
 
+    /**
+     * luckmailemail提供者。
+     */
     public LuckMailEmailProvider() {
         this.apiKey = resolveEnv("LUCKMAIL_API_KEY", "");
         this.apiSecret = resolveEnv("LUCKMAIL_API_SECRET", "");
@@ -87,6 +90,12 @@ public class LuckMailEmailProvider implements EmailProvider {
         return null;
     }
 
+    /**
+      * resolveenv。
+     * @param key 键
+     * @param def def
+     * @return resolveEnv的结果
+     */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);
         return v != null && !v.isBlank() ? v : def;

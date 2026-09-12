@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class SmtpProtocolRestorer extends EmailProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "smtp";
     }

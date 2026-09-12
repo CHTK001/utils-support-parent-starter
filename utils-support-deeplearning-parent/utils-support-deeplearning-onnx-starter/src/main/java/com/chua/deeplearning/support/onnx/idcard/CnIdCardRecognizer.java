@@ -27,13 +27,20 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.43
+ * @param detectModel detect模型
+ * @param recModel rec模型
  */
 @Slf4j
 public class CnIdCardRecognizer {
 
-    private static final CnIdCardParser PARSER = new CnIdCardParser();
+    private static final CnIdCardParser PARSER = new CnIdCardParser(); // PARSER
 
-    private final String detectModel;
+    private final String detectModel; // detect模型
+    /**
+     * cnid卡片recognizer。
+     * @param detectModel detect模型
+     * @param recModel rec模型
+     */
     private final String recModel;
 
     public CnIdCardRecognizer() {
@@ -50,6 +57,15 @@ public class CnIdCardRecognizer {
      *
      * @param imageData 身份证正面或反面图片（JPG/PNG）
      * @return 解析结果列表（通常 1 条）
+     * @param data 数据
+     /**
+      * recognize。
+      * @param imageData 镜像数据
+      * @return recognize的结果
+      */
+     * @param img img
+     * @param cards 卡片
+     * @param modelId 模型标识
      */
     public List<CnIdCardResult> recognize(byte[] imageData) {
         List<CnIdCardResult> results = new ArrayList<>();
@@ -76,7 +92,9 @@ public class CnIdCardRecognizer {
                 int x2 = Math.min(w, (int) (r.getX() * w + r.getWidth() * w));
                 int y2 = Math.min(h, (int) (r.getY() * h + r.getHeight() * h));
 
-                if (x2 <= x1 || y2 <= y1) continue;
+                if (x2 <= x1 || y2 <= y1) {
+                    continue;
+                }
 
                 BufferedImage crop = srcImg.getSubimage(x1, y1, x2 - x1, y2 - y1);
                 byte[] cropped = toByteArray(crop);
@@ -94,6 +112,11 @@ public class CnIdCardRecognizer {
             }
         } catch (Exception e) {
             log.error("[CnIdCard] 识别失败: {}", e.getMessage(), e);
+        /**
+         * detect卡片。
+         * @param imageData 镜像数据
+         * @return detect卡片的结果
+         */
         }
         return results;
     }
@@ -109,6 +132,13 @@ public class CnIdCardRecognizer {
             return detector.translate(image);
         } catch (Exception e) {
             log.error("[CnIdCard] 检测失败: {}", e.getMessage(), e);
+            /**
+             * recognize文本。
+             * @param cropImage crop镜像
+             * @return recognize文本的结果
+             * @param cards 卡片
+             * @param modelId 模型id
+             */
             return null;
         }
     }
@@ -132,7 +162,9 @@ public class CnIdCardRecognizer {
         try {
             com.chua.deeplearning.support.engine.ModelRegistry.Entry entry =
                     com.chua.deeplearning.support.engine.ModelRegistry.get(modelId);
-            if (entry == null) return null;
+            if (entry == null) {
+                return null;
+            }
             return (ITranslator<I, O>) Class.forName(entry.translatorClassName())
                     .getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -145,6 +177,13 @@ public class CnIdCardRecognizer {
         Field f = cards.getClass().getDeclaredField("boundingBoxes");
         f.setAccessible(true);
         return (List<BoundingBox>) f.get(cards);
+    /**
+     * 获取probabilities。
+     * @param cards 卡片
+     * @return 获取probabilities的结果
+     * @param data 数据
+     * @param img img
+     */
     }
 
     private List<Double> getProbabilities(DetectedObjects cards) throws Exception {

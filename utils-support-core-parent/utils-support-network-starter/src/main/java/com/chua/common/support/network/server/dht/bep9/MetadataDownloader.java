@@ -15,6 +15,8 @@ public class MetadataDownloader {
 
     /**
      * 下载结果。
+     * @author CH
+     * @since 4.0.0
      */
     public static class MetadataResult {
         /**
@@ -26,16 +28,17 @@ public class MetadataDownloader {
          */
         public String name;
 
-        /** 创建 MetadataResult 实例 */
+        /** 创建 metadata结果 实例 */
         public MetadataResult() {
             this.ok = false;
             this.name = null;
         }
 
         /**
-         * 创建 MetadataResult 实例
+          * 创建 metadata结果 实例
          * @param ok ok
-         * @param String String
+         * @param name 字符串
+         * @param name 名称
          */
         public MetadataResult(boolean ok, String name) {
             this.ok = ok;
@@ -45,6 +48,7 @@ public class MetadataDownloader {
 
     /**
      * 构造元数据下载器。
+     * @return MetadataDownloader的结果
      */
     public MetadataDownloader() {
     }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * 包装统一 Calcite {@link DataSource}：拦截简单 UPDATE 并路由到 Engine。
+   * 包装统一 Calcite {@link DataSource}：拦截简单 更新 并路由到 Engine。
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,7 +29,7 @@ public final class EngineAwareDataSource implements DataSource {
     private final DataSource delegate;
 
     /**
-     * UPDATE 路由执行器
+      * 更新 路由执行器
      */
     private final EngineUpdateSqlExecutor updateExecutor;
 
@@ -56,7 +56,12 @@ public final class EngineAwareDataSource implements DataSource {
         return wrapConnection(delegate.getConnection(username, password));
     }
 
-    /** WrapConnection */
+    /**
+     * wrapconnection
+     *
+     * @param conn conn
+     * @return wrapConnection的结果
+     */
     private Connection wrapConnection(Connection conn) {
         return (Connection) ReflectUtils.newProxy(
                 Connection.class.getClassLoader(),
@@ -68,7 +73,7 @@ public final class EngineAwareDataSource implements DataSource {
     private static final class ConnectionHandler implements InvocationHandler {
         /** 目标 */
         private final Connection target;
-        /** Update执行器 */
+        /** 更新执行器 */
         private final EngineUpdateSqlExecutor updateExecutor;
 
         ConnectionHandler(Connection target, EngineUpdateSqlExecutor updateExecutor) {
@@ -87,7 +92,7 @@ public final class EngineAwareDataSource implements DataSource {
             if ("prepareStatement".equals(name) && args != null && args.length >= 1 && args[0] instanceof String sql) {
                 Integer routed = updateExecutor.tryExecute(sql);
                 if (routed != null) {
-                    // 预编译 UPDATE：返回只执行已计算结果的代理
+ // 预编译 更新：返回只执行已计算结果的代理
                     return fixedUpdatePreparedStatement(routed);
                 }
             }
@@ -100,7 +105,12 @@ public final class EngineAwareDataSource implements DataSource {
             }
         }
 
-        /** WrapStatement */
+        /**
+         * wrap对账单
+         *
+         * @param st st
+         * @return wrap对账单的结果
+         */
         private Statement wrapStatement(Statement st) {
             return (Statement) ReflectUtils.newProxy(
                     Statement.class.getClassLoader(),
@@ -131,7 +141,12 @@ public final class EngineAwareDataSource implements DataSource {
             );
         }
 
-        /** Fixed更新PreparedStatement */
+        /**
+         * Fixed更新prepared对账单
+         *
+         * @param rows rows
+         * @return fixed更新prepared对账单的结果
+         */
         private Object fixedUpdatePreparedStatement(int rows) {
             return ReflectUtils.newProxy(
                     java.sql.PreparedStatement.class.getClassLoader(),
@@ -179,19 +194,19 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     @Override
-    /** 设置LoginTimeout */
+    /** 设置login超时 */
     public void setLoginTimeout(int seconds) throws SQLException {
         delegate.setLoginTimeout(seconds);
     }
 
     @Override
-    /** 获取LoginTimeout */
+    /** 获取login超时 */
     public int getLoginTimeout() throws SQLException {
         return delegate.getLoginTimeout();
     }
 
     @Override
-    /** 获取ParentLogger */
+    /** 获取父日志记录器 */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return delegate.getParentLogger();
     }
@@ -206,7 +221,7 @@ public final class EngineAwareDataSource implements DataSource {
     }
 
     @Override
-    /** 是否WrapperFor */
+    /** 是否包装器for */
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return iface.isInstance(this) || delegate.isWrapperFor(iface);
     }

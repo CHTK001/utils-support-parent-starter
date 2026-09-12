@@ -22,12 +22,12 @@ import java.util.Map;
 /**
  * Whisper ONNX Translator（音频文件 → 转写文本）。
  * <p>
- * 简化实现：每步 feed 1 个 token（不做 KV cache 优化），
- * 始终 use_cache_branch=False（optimum 导出 decoder 的
- * encoder KV cache shape bug workaround）。
+   * 简化实现：每步 feed 1 个 令牌（不做 KV 缓存 优化），
+   * 始终 use_缓存_分支=False（optimum 导出 解码器 的
+   * 编码器 KV 缓存 shape bug workaround）。
  * </p>
  *
- * 流程：WAV → mel → encoder → decoder greedy → token ids → text
+   * 流程：WAV → mel → 编码器 → 解码器 greedy → 令牌 标识 → 文本
  *
  * @author CH
  * @since 4.0.0.42
@@ -36,19 +36,19 @@ import java.util.Map;
 public class WhisperTranslator {
 
     /** 采样率 */
-    /** Sample_rate */
+    /** 样本_rate */
     private static final int SAMPLE_RATE = 16000;
     /** 梅尔滤波器组数量 */
     /** N_mels */
     private static final int N_MELS = 80;
     /** 帧数量 */
-    /** N_frames */
+    /** N_帧 */
     private static final int N_FRAMES = 3000;
     /** 编码器序列输出索引 */
-    /** Enc_seq_out */
+    /** Enc_seq_出 */
     private static final int ENC_SEQ_OUT = 1500;
     /** 隐藏层维度 */
-    /** Hidden_size */
+    /** Hidden_大小 */
     private static final int HIDDEN_SIZE = 384;
     /** 层数量 */
     /** N_layers */
@@ -61,24 +61,28 @@ public class WhisperTranslator {
     private static final int HEAD_DIM = 64;
 
     /** 梅尔特征提取器 */
-    /** MELextractor */
+    /** melextractor */
     private WhisperMelExtractor melExtractor;
     /** 分词器 */
     /** Tokenizer */
     private WhisperTokenizer tokenizer;
-    /** 识别语言（zh/en 等；显式指定后在提示中加入语言 token，解决非英文输出乱码） */
+    /** 识别语言（zh/en 等；显式指定后在提示中加入语言 令牌，解决非英文输出乱码） */
     private String language;
     /** ONNX 运行时环境 */
     /** ORTENV */
     private OrtEnvironment ortEnv;
     /** 编码器会话 */
     private OrtSession encoderSession;
-    /** 解码器会话（初始 2-token 解码） */
+    /** 解码器会话（初始 2-令牌 解码） */
     private OrtSession decoderSession;
-    /** 解码器会话（自回归单 token 解码，带 KV cache） */
+    /** 解码器会话（自回归单 令牌 解码，带 KV 缓存） */
     private OrtSession decoderPastSession;
 
-    /** Prepare */
+    /**
+     * Prepare
+     *
+     * @param modelDir 模型dir
+     */
     public void prepare(Path modelDir) throws Exception {
         Path onnxDir = modelDir.resolve("onnx");
         Path encoderPath = Files.isDirectory(onnxDir) ? findOnnx(onnxDir, "encoder_model") : null;
@@ -114,7 +118,13 @@ public class WhisperTranslator {
         }
     }
 
-    /** 查找Onnx */
+    /**
+     * 查找Onnx
+     *
+     * @param dir dir
+     * @param prefix 前缀
+     * @return findOnnx的结果
+     */
     private static Path findOnnx(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             Path result = stream
@@ -127,8 +137,9 @@ public class WhisperTranslator {
     }
 
     /**
-     * 从 classpath jar 内按 audio/asr/whisper-tiny/ 路径解压到 modelDir。
-     * 保留子目录结构（onnx/encoder_model_quantized.onnx 等）。
+      * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。
+      * 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
+     * @param modelDir 模型dir
      */
     private static void extractFromJar(Path modelDir) throws Exception {
         final String basePath = "audio/asr/whisper-tiny";
@@ -167,10 +178,16 @@ public class WhisperTranslator {
                     while (entries.hasMoreElements()) {
                         java.util.jar.JarEntry entry = entries.nextElement();
                         String name = entry.getName();
-                        if (!name.startsWith(entryPrefix + "/") && !name.startsWith(entryPrefix)) continue;
+                        if (!name.startsWith(entryPrefix + "/") && !name.startsWith(entryPrefix)) {
+                            continue;
+                        }
                         String rel = name.substring(entryPrefix.length());
-                        if (rel.startsWith("/")) rel = rel.substring(1);
-                        if (rel.isEmpty()) continue;
+                        if (rel.startsWith("/")) {
+                            rel = rel.substring(1);
+                        }
+                        if (rel.isEmpty()) {
+                            continue;
+                        }
                         Path dest = modelDir.resolve(rel);
                         if (entry.isDirectory()) {
                             Files.createDirectories(dest);
@@ -190,7 +207,12 @@ public class WhisperTranslator {
         }
     }
 
-    /** Transcribe */
+    /**
+     * Transcribe
+     *
+     * @param audioPath 音频路径
+     * @return transcribe的结果
+     */
     public String transcribe(Path audioPath) throws Exception {
         long start = System.currentTimeMillis();
         log.info("[Whisper] loadAudio start");
@@ -207,7 +229,12 @@ public class WhisperTranslator {
         }
     }
 
-    /** DoTranscribe */
+    /**
+     * 执行transcribe
+     *
+     * @param mel mel
+     * @return 执行transcribe的结果
+     */
     private String doTranscribe(float[][] mel) throws Exception {
 
         // encoder input: (1, 80, 3000) flat
@@ -232,12 +259,21 @@ public class WhisperTranslator {
     }
 
 
-    /** 设置识别语言（zh/en 等） */
+    /**
+     * 设置识别语言（zh/en 等）
+     *
+     * @param language language
+     */
     public void setLanguage(String language) {
         this.language = language;
     }
 
-    /** Greedy解码（非自回归模式：每次扩展输入序列重新推理） */
+    /**
+     * Greedy解码（非自回归模式：每次扩展输入序列重新推理）
+     *
+     * @param encoderHidden 编码器hidden
+     * @return greedyDecode的结果
+     */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
         tokens.add(WhisperTokenizer.SOT);
@@ -258,7 +294,9 @@ public class WhisperTranslator {
 
         for (int step = 0; step < maxNew; step++) {
             long[] ids = new long[tokens.size()];
-            for (int i = 0; i < tokens.size(); i++) ids[i] = tokens.get(i);
+            for (int i = 0; i < tokens.size(); i++) {
+                ids[i] = tokens.get(i);
+            }
 
             Map<String, OnnxTensor> feed = new HashMap<>();
             try {
@@ -292,7 +330,9 @@ public class WhisperTranslator {
                         log.debug("[Whisper] step {} token={} ({})", step, nextToken, tokenizer.idToToken(nextToken));
                     }
                 } finally {
-                    for (OnnxTensor t : feed.values()) t.close();
+                    for (OnnxTensor t : feed.values()) {
+                        t.close();
+                    }
                 }
             } catch (Exception e) {
                 log.error("[Whisper] decoder error at step {}: {}", step, e.getMessage(), e);
@@ -302,7 +342,14 @@ public class WhisperTranslator {
         return tokens.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    /** Argmax */
+    /**
+     * Argmax
+     *
+     * @param arr arr
+     * @param offset 偏移量
+     * @param length 长度
+     * @return argmax的结果
+     */
     private static int argmax(float[] arr, int offset, int length) {
         int idx = 0;
         float max = arr[offset];
@@ -316,7 +363,12 @@ public class WhisperTranslator {
         return idx;
     }
 
-    /** 加载Audio */
+    /**
+     * 加载音频
+     *
+     * @param path 路径
+     * @return 加载音频的结果
+     */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();
@@ -329,7 +381,9 @@ public class WhisperTranslator {
             try (var baos = new java.io.ByteArrayOutputStream()) {
                 byte[] buf = new byte[8192];
                 int n;
-                while ((n = in.read(buf)) > 0) baos.write(buf, 0, n);
+                while ((n = in.read(buf)) > 0) {
+                    baos.write(buf, 0, n);
+                }
                 bytes = baos.toByteArray();
             }
 
@@ -362,7 +416,9 @@ public class WhisperTranslator {
                 mono[i] = sum / channels;
             }
 
-            if (Math.abs(sampleRate - 16000.0f) < 1.0f) return mono;
+            if (Math.abs(sampleRate - 16000.0f) < 1.0f) {
+                return mono;
+            }
             int newLen = (int) Math.round(mono.length * 16000.0f / sampleRate);
             float[] resampled = new float[newLen];
             for (int i = 0; i < newLen; i++) {

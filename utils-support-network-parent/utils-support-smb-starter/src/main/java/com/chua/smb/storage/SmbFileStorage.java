@@ -39,6 +39,7 @@ import java.util.List;
  *     .build();
  *
  * FileStorage storage = FileStorage.createStorage("smb", setting);
+ * }</pre>Storage("smb", setting);
  * }</pre>
  *
  * @author CH
@@ -49,13 +50,13 @@ import java.util.List;
 public class SmbFileStorage extends AbstractFileStorage {
 
     /**
-     * smb Client
+      * smb 客户端
      */
     private final SmbClient smbClient;
 
     /**
-     * 创建 SmbFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 smb文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public SmbFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -81,7 +82,7 @@ public class SmbFileStorage extends AbstractFileStorage {
         this.smbClient = SmbClient.create(uri);
     }
 
-    /** EnsureConnected */
+    /** ensure连接 */
     private void ensureConnected() {
         if (smbClient != null) {
             smbClient.connect().login().openShare();
@@ -89,7 +90,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -115,7 +116,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = normalizeKey(request.getKey());
@@ -136,7 +137,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = extractName(key);
         String path = extractPath(key);
@@ -144,7 +145,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             ensureConnected();
@@ -161,7 +162,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             ensureConnected();
@@ -181,7 +182,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String path = request.getFilePath() != null ? request.getFilePath() : "/";
@@ -215,7 +216,12 @@ public class SmbFileStorage extends AbstractFileStorage {
         try { if (smbClient != null) smbClient.close(); } catch (Exception ignored) {}
     }
 
-    /** NormalizeKey */
+    /**
+     * normalize键
+     *
+     * @param key 键
+     * @return normalize键的结果
+     */
     private static String normalizeKey(String key) {
         if (key == null) {
             return "/";
@@ -223,13 +229,23 @@ public class SmbFileStorage extends AbstractFileStorage {
         return key.replace('\\', '/').replaceAll("^/+", "/");
     }
 
-    /** ExtractName */
+    /**
+     * extract名称
+     *
+     * @param key 键
+     * @return extract名称的结果
+     */
     private static String extractName(String key) {
         int i = key.lastIndexOf('/');
         return i >= 0 ? key.substring(i + 1) : key;
     }
 
-    /** ExtractPath */
+    /**
+     * extract路径
+     *
+     * @param key 键
+     * @return extract路径的结果
+     */
     private static String extractPath(String key) {
         int i = key.lastIndexOf('/');
         return i > 0 ? key.substring(0, i) : "/";

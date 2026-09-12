@@ -21,19 +21,19 @@ import java.nio.charset.StandardCharsets;
 public class PdfDocumentRenderer implements DocumentProvider {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "pdf";
     }
 
     @Override
-    /** 获取Extensions */
+    /** 获取延伸 */
     public String[] getExtensions() {
         return new String[]{".pdf"};
     }
 
     @Override
-    /** Export */
+    /** 导出 */
     public void export(DocumentData data, File outputFile, DocumentExportConfig config) {
         DocumentExportConfig resolved = config == null
                 ? DocumentExportConfig.builder().format("pdf").templateType(DocumentTemplateType.DEFAULT).build()
@@ -63,7 +63,13 @@ public class PdfDocumentRenderer implements DocumentProvider {
         }
     }
 
-    /** 转换HtmlToPdf */
+    /**
+     * 转换html转为pdf
+     *
+     * @param htmlFile HTML文件
+     * @param pdfFile pdf文件
+     * @return 转换html转为pdf的结果
+     */
     private boolean convertHtmlToPdf(File htmlFile, File pdfFile) {
         String[] commands = {
                 "wkhtmltopdf --encoding utf-8 --enable-local-file-access \""

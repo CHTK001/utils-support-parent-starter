@@ -15,12 +15,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 /**
- * Utils Spring Boot 自动配置类。
+   * 工具 Spring Boot 自动配置类。
  * <p>
  * 导入 {@link UtilsSpringConfiguration} 核心配置，
  * 确保 {@link SpringBeanUtils} 持有 {@link ApplicationContext}。
  *
  * @author CH
+ * @since 4.0.0
+ * @param intercept intercept
+ * @return 超时advisor的结果
  */
 @AutoConfiguration
 @ConditionalOnClass(SpringBeanUtils.class)

@@ -39,16 +39,18 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
 
     /** 微信开放平台服务 */
     private final WxOpenService wxOpenService;
-    /** 第三方平台应用 AppId */
+    /** 第三方平台应用 appid */
     private final String componentAppId;
-    /** 默认小程序 AppId */
+    /** 默认小程序 appid */
     private final String defaultMiniAppId;
 
     /**
-     * 创建 WechatOpenIdConvertService 实例
-     * @param componentAppId componentAppId
-     * @param String String
-     * @param String String
+      * 创建 wechat打开id转换服务 实例
+     * @param componentAppId 组件appid
+     * @param componentAppId 字符串
+     * @param componentAppId 字符串
+     * @param componentAppSecret 组件appsecret
+     * @param defaultMiniAppId 默认miniappid
      */
     public WechatOpenIdConvertService(String componentAppId, String componentAppSecret, String defaultMiniAppId) {
         this.componentAppId = componentAppId;
@@ -56,7 +58,13 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
         this.wxOpenService = buildWxOpenService(componentAppId, componentAppSecret);
     }
 
-    /** 构建Wx打开Service */
+    /**
+     * 构建Wx打开服务
+     *
+     * @param componentAppId 组件appid
+     * @param componentAppSecret 组件appsecret
+     * @return 构建wx打开服务的结果
+     */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
         config.setWxOpenInfo(componentAppId, componentAppSecret, null, null);
@@ -66,7 +74,7 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     @Override
-    /** 转换ToOfficial打开Id */
+    /** 转换转为official打开标识 */
     public String convertToOfficialOpenId(String miniAppId, String officialAppId, String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppId)) {
             miniAppId = defaultMiniAppId;
@@ -121,13 +129,16 @@ public class WechatOpenIdConvertService implements OpenIdConvertService {
     }
 
     @Override
-    /** 转换ToOfficial打开Id */
+    /** 转换转为official打开标识 */
     public String convertToOfficialOpenId(String officialAppId, String miniAppOpenId) {
         return convertToOfficialOpenId(defaultMiniAppId, officialAppId, miniAppOpenId);
     }
 
     /**
      * 发送POST请求
+     * @param urlStr urlstr
+     * @param body 主体
+     * @return 执行post的结果
      */
     private String doPost(String urlStr, String body) throws Exception {
         URL url = new URL(urlStr);

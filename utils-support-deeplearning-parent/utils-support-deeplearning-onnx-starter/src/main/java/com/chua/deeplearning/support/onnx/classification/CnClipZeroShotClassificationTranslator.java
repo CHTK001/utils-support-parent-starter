@@ -35,8 +35,8 @@ import java.util.Map;
  *                                                                    logits          </p>
  *
  * <p>        gficcg/clip_cn_vit-onnx              
- *  image encoder + text encoder + vocab.txt                   
- *  ONNX   unnorm_image_features / unnorm_text_features             
+   * 镜像 编码器 + 文本 编码器 + vocab.txt
+   * ONNX   unnorm_镜像_特征 / unnorm_文本_特征
  *  L2      cosine * logit_scale  softmax             </p>
  *
  * @author CH
@@ -45,16 +45,16 @@ import java.util.Map;
 public class CnClipZeroShotClassificationTranslator implements Translator<Image, Classifications> {
 
     /** 图像尺寸 */
-    /** Image_size */
+    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 文本最大长度 */
-    /** Text_max_length */
+    /** 文本_最大_长度 */
     private static final int TEXT_MAX_LENGTH = 52;
     /** Logit 缩放系数 */
     /** Logit_scale */
     private static final float LOGIT_SCALE = 100f;
     /** 默认候选列表 */
-    /** Default_candidates */
+    /** 默认_candidates */
     private static final List<String> DEFAULT_CANDIDATES = List.of("person", "document", "animal", "vehicle");
 
     /** 均值数组 */
@@ -68,7 +68,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     /** Requestedcandidates */
     private final List<String> requestedCandidates;
     /** 提示词模板 */
-    /** Prompt模板 */
+    /** 提示符模板 */
     private final String promptTemplate;
 
     /** 分词器 */
@@ -78,14 +78,14 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     /** Candidates */
     private List<String> candidates = DEFAULT_CANDIDATES;
 
-    /** 创建 CnClipZeroShotClassificationTranslator 实例 */
+    /** 创建 cnclipzeroshotclassificationtranslator 实例 */
     public CnClipZeroShotClassificationTranslator() {
         this(Collections.emptyMap());
     }
 
     /**
-     * 创建 CnClipZeroShotClassificationTranslator 实例
-     * @param arguments arguments
+      * 创建 cnclipzeroshotclassificationtranslator 实例
+     * @param arguments 参数
      */
     public CnClipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
@@ -108,7 +108,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -134,7 +134,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         float[] imageVec = normalize(imageEmbeds.squeeze().toFloatArray());
@@ -181,7 +181,12 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return null;
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     *
+     * @param vec vec
+     * @return normalize的结果
+     */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -199,6 +204,12 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     }
 
     // 输入已 L2 归一化，余弦相似度 = 点积
+    /**
+     * cosine相似度。
+     * @param a a
+     * @param b b
+     * @return cosine相似度的结果
+     */
     private static float cosineSimilarity(float[] a, float[] b) {
         float dot = 0f;
         int len = Math.min(a.length, b.length);
@@ -208,7 +219,13 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return dot;
     }
 
-    /** Truncate */
+    /**
+     * Truncate
+     *
+     * @param ids 标识
+     * @param maxLen 最大len
+     * @return truncate的结果
+     */
     private static long[] truncate(long[] ids, int maxLen) {
         if (ids.length <= maxLen) {
             return ids;
@@ -218,7 +235,12 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return out;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -227,7 +249,13 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return parent != null ? parent : Paths.get("models/onnx");
     }
 
-    /** 解析FirstExisting */
+    /**
+     * 解析第一个existing
+     *
+     * @param modelRoot 模型根
+     * @param names 名称
+     * @return resolve第一个existing的结果
+     */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -238,7 +266,12 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         throw new IOException("找不到必需文件，尝试: " + Arrays.toString(names) + "，根目录: " + modelRoot);
     }
 
-    /** 解析Candidates */
+    /**
+     * 解析Candidates
+     *
+     * @param raw raw
+     * @return 解析candidates的结果
+     */
     private static List<String> parseCandidates(@Nullable String raw) {
         if (raw == null || raw.isBlank()) {
             return Collections.emptyList();
@@ -253,7 +286,13 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
         return list;
     }
 
-    /** 读取Argument */
+    /**
+     * 读取参数
+     *
+     * @param arguments 参数
+     * @param key 键
+     * @return 读取参数的结果
+     */
     private static String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null) {
             return null;

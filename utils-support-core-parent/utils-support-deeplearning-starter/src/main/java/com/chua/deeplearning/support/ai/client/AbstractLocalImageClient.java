@@ -28,7 +28,7 @@ import java.util.List;
 public abstract class AbstractLocalImageClient implements ImageClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -79,7 +79,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -94,7 +94,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -148,7 +148,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     }
 
     /**
-     * 将翻译器输出转换为 BufferedImage。
+      * 将翻译器输出转换为 缓冲镜像。
      *
      * @param result    翻译器输出
      * @param modelName 模型名称
@@ -175,19 +175,19 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("本地图像生成不支持异步任务模式");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("本地图像生成不支持异步任务模式");
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

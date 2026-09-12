@@ -15,7 +15,7 @@ import com.chua.common.support.lang.json.JsonNode;
 public class ForyJsonNode extends JsonNode {
 
     /**
-     * 使用原始值构造 ForyJsonNode。
+      * 使用原始值构造 foryjson节点。
      *
      * @param value 原始 JSON 值
      */

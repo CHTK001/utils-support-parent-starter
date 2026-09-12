@@ -17,23 +17,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * QuarkTV 网盘搜索提供器
+   * quarktv 网盘搜索提供器
  *
  * @author CH
  * @since 4.0.0.42
+ * @param html HTML
+ * @param results 结果
  */
 @Spi("quarktv")
 public class QuarktvResourceProvider extends AbstractResourceProvider {
 
+    /**
+     * quarktvresource提供者。
+     */
     private static final String SEARCH_URL = "https://www.quarktv.com/?s=";
+/**
+ * quarktvresource提供者。
+ * @param vs vs
+ */
 
     public QuarktvResourceProvider() { super(); }
+    /**
+     * quarktvresource提供者。
+     * @param vs vs
+     */
     public QuarktvResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
+/**
+ * 搜索resource。
+ * @param videoSearch 视频搜索
+ * @return 搜索resource的结果
+ * @param html html
+ * @param results 结果
+ */
 
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
-        if (!StringUtils.hasText(kw)) return ReturnPageResult.error("关键词不能为空");
+        if (!StringUtils.hasText(kw)) {
+            return ReturnPageResult.error("关键词不能为空");
+        }
         try {
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(10))
@@ -50,7 +72,9 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
             List<VideoInfoResult> results = new ArrayList<>();
             parseHtml(resp.body(), results);
             
-            if (results.isEmpty()) return ReturnPageResult.empty();
+            if (results.isEmpty()) {
+                return ReturnPageResult.empty();
+            }
             return ReturnPageResult.of(PageResult.<VideoInfoResult>builder()
                     .data(results).total(results.size()).build());
         } catch (Exception e) {
@@ -65,7 +89,9 @@ public class QuarktvResourceProvider extends AbstractResourceProvider {
         while (m.find() && idx++ < 10) {
             String link = m.group(1);
             String title = m.group(2).trim();
-            if (title.length() < 3) continue;
+            if (title.length() < 3) {
+                continue;
+            }
             
             VideoInfoResult v = new VideoInfoResult();
             v.setVideoName(title);

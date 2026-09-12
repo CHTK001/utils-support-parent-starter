@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 本地引擎文本嵌入客户端抽象基类。
  * <p>
  * 统一实现 {@link EmbeddingClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
- * 已注册的 String→float[] 翻译器执行文本向量化，并提供该引擎的模型列表。
+   * 已注册的 字符串→float[] 翻译器执行文本向量化，并提供该引擎的模型列表。
  * 子类只需指定引擎名称（如 "onnx"、"pytorch"、"llama"）。
  * </p>
  *
@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -60,20 +60,20 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Provider */
+    /** 提供者 */
     public EmbeddingClient provider(String provider) {
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public EmbeddingClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Dimensions */
+    /** 维度 */
     public EmbeddingClient dimensions(int dimensions) {
         this.dimensions = dimensions;
         return this;
@@ -103,7 +103,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         String modelName = resolveModel();
         @SuppressWarnings("unchecked")
@@ -127,7 +127,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatch */
+    /** 嵌入批量 */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -140,7 +140,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingWithResponse */
+    /** 嵌入with响应 */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -150,7 +150,7 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingBatchWithResponse */
+    /** 嵌入batchwith响应 */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -163,19 +163,19 @@ public abstract class AbstractLocalEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** EmbeddingAsync */
+    /** 嵌入异步 */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** EmbeddingBatchAsync */
+    /** 嵌入批量异步 */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

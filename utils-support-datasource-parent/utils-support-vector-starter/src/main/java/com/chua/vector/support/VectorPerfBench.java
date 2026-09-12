@@ -10,19 +10,31 @@ import java.util.Random;
 
 /**
  * 向量存储性能基准测试（精简版）。
+ * @author CH
+ * @since 4.0.0
+ * @param name 名称
+ * @param factory 工厂
  */
 public class VectorPerfBench {
 
-    private static final int DIM = 128;
-    private static final int COUNT = 5_000;
-    private static final int TOP_K = 10;
-    private static final int MEASURE_ROUNDS = 2;
-    private static final int QS = 20;
-    private static final int FLUSH_BATCH = 5_000;
+    private static final int DIM = 128; // DIM
+    private static final int COUNT = 5_000; // 数量
+    private static final int TOP_K = 10; // TOP_K
+    private static final int MEASURE_ROUNDS = 2; // 测量rounds
+    private static final int QS = 20; // Q
+    private static final int FLUSH_BATCH = 5_000; // FLUSH_批量
 
-    private static final Random RND = new Random(20260829);
+    private static final Random RND = new Random(20260829); // RND
+    /**
+     * main。
+     * @param args 参数
+     */
     private static Path benchDir;
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         benchDir = Files.createTempDirectory("vector-perf-bench-");
         System.out.println("============================================================");
@@ -32,6 +44,11 @@ public class VectorPerfBench {
         runAll();
         deleteRecursively(benchDir);
         System.out.println("\n测试目录已清理: " + benchDir);
+    /**
+     * 运行全部。
+     * @param name 名称
+     * @param factory 工厂
+     */
     }
 
     private static void runAll() {
@@ -69,7 +86,9 @@ public class VectorPerfBench {
                 // 预热
                 for (int r = 0; r < 1; r++) {
                     VectorStorage ws = factory.create();
-                    for (int i = 0; i < COUNT / 5; i++) ws.add("id_" + i, randomVector(DIM));
+                    for (int i = 0; i < COUNT / 5; i++) {
+                        ws.add("id_" + i, randomVector(DIM));
+                    }
                     ws.search(query, TOP_K);
                     safeFlush(ws);
                     ws.close();
@@ -79,7 +98,9 @@ public class VectorPerfBench {
                 for (int round = 0; round < MEASURE_ROUNDS; round++) {
                     VectorStorage s = factory.create();
                     long t0 = System.nanoTime();
-                    for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
+                    for (int i = 0; i < COUNT; i++) {
+                        s.add("id_" + i, randomVector(DIM));
+                    }
                     safeFlush(s);
                     writeNs += System.nanoTime() - t0;
                     s.close();
@@ -87,13 +108,26 @@ public class VectorPerfBench {
                 long avgWriteNs = writeNs / MEASURE_ROUNDS;
                 double writeWps = COUNT * 1_000_000.0 / avgWriteNs;
                 // 搜索
+    /**
+     * storage工厂接口。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param fmt fmt
+     * @param args 参数
+     * @param s s
+     */
                 long searchNs = 0;
                 for (int round = 0; round < MEASURE_ROUNDS; round++) {
                     VectorStorage s = factory.create();
-                    for (int i = 0; i < COUNT; i++) s.add("id_" + i, randomVector(DIM));
+                    for (int i = 0; i < COUNT; i++) {
+                        s.add("id_" + i, randomVector(DIM));
+                    }
                     safeFlush(s);
                     long t0 = System.nanoTime();
-                    for (int q = 0; q < QS; q++) s.search(randomVector(DIM), TOP_K);
+                    for (int q = 0; q < QS; q++) {
+                        s.search(randomVector(DIM), TOP_K);
+                    }
                     searchNs += System.nanoTime() - t0;
                     s.close();
                 }
@@ -111,18 +145,38 @@ public class VectorPerfBench {
 
     private static void safeFlush(VectorStorage s) {
         try { if (s instanceof DefaultVectorStorage ds) ds.flush(); } catch (Exception ignored) {}
+    /**
+     * 随机向量。
+     * @param dim dim
+     * @return 随机向量的结果
+     */
     }
 
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
-        for (int i = 0; i < dim; i++) v[i] = (float) (Math.random() * 2 - 1);
+        for (int i = 0; i < dim; i++) {
+            v[i] = (float) (Math.random() * 2 - 1);
+        }
         return v;
+    /**
+     * resolve。
+     * @param name 名称
+     * @return resolve的结果
+     */
     }
 
     private static Path resolve(String name) throws Exception {
         Path p = benchDir.resolve(name);
         Files.createDirectories(p);
         return p;
+    /**
+     * 删除recursively。
+     * @param dir dir
+     * @author CH
+     * @since 4.0.0
+     * @param fmt fmt
+     * @param args 参数
+     */
     }
 
     private static void deleteRecursively(Path dir) {

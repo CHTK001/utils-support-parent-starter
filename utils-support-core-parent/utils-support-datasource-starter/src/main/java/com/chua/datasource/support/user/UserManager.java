@@ -14,6 +14,7 @@ public interface UserManager {
      * 创建用户步骤接口。
      *
  * @author CH
+     * @since 4.0.0
      */
     interface CreateUserStep {
 
@@ -28,6 +29,7 @@ public interface UserManager {
      * 修改用户步骤接口。
      *
  * @author CH
+     * @since 4.0.0
      */
     interface AlterUserStep {
 
@@ -46,6 +48,7 @@ public interface UserManager {
      * 删除用户步骤接口。
      *
  * @author CH
+     * @since 4.0.0
      */
     interface DropUserStep {
 

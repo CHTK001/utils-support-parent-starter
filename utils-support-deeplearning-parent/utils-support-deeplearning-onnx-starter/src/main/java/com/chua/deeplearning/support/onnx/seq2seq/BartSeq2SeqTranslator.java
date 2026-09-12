@@ -18,12 +18,12 @@ import java.nio.file.Path;
 /**
  * BART Seq2Seq ONNX                 
  * <p>
- * BART (Bidirectional and Auto-Regressive Transformers)                   
- *       text summarization、machine translation、abstractive QA、paraphrase                
+   * BART (Bidirectional 和 Auto-Regressive Transformers)
+   * 文本 summarization、machine 翻译、抽象 QA、释义
  * </p>
  * <p>
  *      : Xenova/bart-large-cnn
- *      : input_ids + attention_mask -> logits [batch, seq_len, vocab_size]
+   * : 输入_标识 + attention_mask -> logits [批量, seq_len, vocab_大小]
  * </p>
  * <p>
  *      :       
@@ -41,7 +41,7 @@ import java.nio.file.Path;
 public class BartSeq2SeqTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
+    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 1024;
 
     /** 分词器 */
@@ -69,7 +69,7 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("BartSeq2Seq tokenizer not initialized");
@@ -90,7 +90,7 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
 
@@ -109,7 +109,12 @@ public class BartSeq2SeqTranslator implements Translator<String, String> {
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");

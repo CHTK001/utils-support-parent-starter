@@ -22,11 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@code 127.0.0.1:4822}）与 Guacamole Web 前端地址（默认本机
  * {@code 127.0.0.1:8080/guacamole}）。敏感连接参数（主机、账号、密码）不写入 URL，
  * 而是由客户端内部以短链形式维持：{@link #issue()} 操作链登记一组远控参数，
- * 产出一个随机短 token；{@link #url(String)} 仅携带该短 token 生成会话 URL；
+   * 产出一个随机短 令牌；{@link #url(String)} 仅携带该短 令牌 生成会话 URL；
  * {@link #resolve(String)} 反向映射回完整连接参数。</p>
  *
  * <p>所有短 token 的有效期由 {@link ExpireValue} 统一维护：到期后取值自动清除，
- * 调用方需重新 {@code issue()} 获取新 token；也可 {@link #refreshTokens()} 手动续期。</p>
+   * 调用方需重新 {@code issue()} 获取新 令牌；也可 {@link #refreshTokens()} 手动续期。</p>
  *
  * <h2>使用方式</h2>
  * <pre>{@code
@@ -49,6 +49,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * // 反向解析出完整连接参数
  * Optional<GuacamoleClient.RemoteSpec> spec = client.resolve(token);
+ * }</pre>出完整连接参数
+ * Optional<GuacamoleClient.RemoteSpec> spec = client.resolve(token);
  * }</pre>
  *
  * @author CH
@@ -68,13 +70,13 @@ public class GuacamoleClient {
     private static final int DEFAULT_WEB_PORT = 8080;
     /** 默认 Web 上下文路径 */
     private static final String DEFAULT_CONTEXT_PATH = "/guacamole";
-    /** 默认短 token 有效期（1 小时） */
+    /** 默认短 令牌 有效期（1 小时） */
     private static final Duration DEFAULT_TOKEN_TTL = Duration.ofHours(1);
     /** 短链 fragment 参数名 */
     private static final String TOKEN_FRAGMENT_PARAM = "token";
-    /** token 随机字节数（16 位十六进制字符） */
+    /** 令牌 随机字节数（16 位十六进制字符） */
     private static final int TOKEN_BYTES = 8;
-    /** token 冲突重试上限 */
+    /** 令牌 冲突重试上限 */
     private static final int TOKEN_MAX_RETRY = 3;
     /** 随机数生成器（线程安全） */
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -83,28 +85,28 @@ public class GuacamoleClient {
 
     /** guacd 服务器地址 */
     @Getter
-    private String guacdHost;
+    private String guacdHost; // guacd主机
     /** guacd 服务器端口 */
     @Getter
-    private int guacdPort;
+    private int guacdPort; // guacd端口
     /** Web 前端地址 */
     @Getter
-    private String webHost;
+    private String webHost; // web主机
     /** Web 前端端口 */
     @Getter
-    private int webPort;
+    private int webPort; // web端口
     /** Web 上下文路径 */
     @Getter
-    private String contextPath;
-    /** 短 token 有效期 */
+    private String contextPath; // 上下文路径
+    /** 短 令牌 有效期 */
     @Getter
-    private final Duration tokenTtl;
-    /** 短链登记表：token 到连接参数，每个 token 的有效期由 ExpireValue 维护 */
+    private final Duration tokenTtl; // 令牌ttl
+    /** 短链登记表：令牌 到连接参数，每个 令牌 的有效期由 expire值 维护 */
     private final Map<String, ExpireValue<RemoteSpec>> tokens = new ConcurrentHashMap<>(16);
 
     /**
-     * 创建 GuacamoleClient 实例
-     * @param b 构建器，不能为 null
+      * 创建 guacamole客户端 实例
+     * @param b 构建器，不能为 空
      */
     private GuacamoleClient(Builder b) {
         this.guacdHost = b.guacdHost;
@@ -138,7 +140,7 @@ public class GuacamoleClient {
     }
 
     /**
-     * 创建 Builder。
+      * 创建 构建器。
      *
      * @return Builder 实例
      */
@@ -151,7 +153,7 @@ public class GuacamoleClient {
     /**
      * 设置 guacd 服务器地址。
      *
-     * @param host guacd 服务器地址，不能为 null
+     * @param host guacd 服务器地址，不能为 空
      * @return 当前实例（链式调用）
      */
     public GuacamoleClient guacdHost(String host) {
@@ -175,7 +177,7 @@ public class GuacamoleClient {
     /**
      * 设置 Web 前端地址。
      *
-     * @param host Web 前端地址，不能为 null
+     * @param host Web 前端地址，不能为 空
      * @return 当前实例（链式调用）
      */
     public GuacamoleClient webHost(String host) {
@@ -199,7 +201,7 @@ public class GuacamoleClient {
     /**
      * 设置 Web 上下文路径。
      *
-     * @param path 上下文路径（如 /guacamole），允许 null（null 时按默认路径处理）
+     * @param path 上下文路径（如 /guacamole），允许 空（空 时按默认路径处理）
      * @return 当前实例（链式调用）
      */
     public GuacamoleClient contextPath(String path) {
@@ -271,14 +273,14 @@ public class GuacamoleClient {
     }
 
     /**
-     * 生成指定短 token 的会话 URL。
+      * 生成指定短 令牌 的会话 URL。
      *
      * <p>URL 仅携带短 token（fragment 形式，浏览器不会将 fragment 发送到服务器），
      * 连接参数通过 {@link #resolve(String)} 反向解析，敏感信息不落地到 URL。</p>
      *
-     * @param token 由 {@link IssueOperation#issue()} 签发的短 token，不能为 null 或空白
+     * @param token 由 {@link IssueOperation#issue()} 签发的短 令牌，不能为 空 或空白
      * @return 形如 {@code http://host:port/guacamole/#token=xxxxxxxx}
-     * @throws GuacamoleClientException token 为空白时
+     * @throws GuacamoleClientException 令牌 为空白时
      */
     public String url(String token) {
         if (token == null || token.isBlank()) {
@@ -288,12 +290,12 @@ public class GuacamoleClient {
     }
 
     /**
-     * 解析短 token 对应的远控连接参数。
+      * 解析短 令牌 对应的远控连接参数。
      *
      * <p>取值经 {@link ExpireValue#getValue()} 自动处理过期：token 有效期内的值直接返回，
-     * 已过期或未知 token 返回空。</p>
+      * 已过期或未知 令牌 返回空。</p>
      *
-     * @param token 短 token，允许 null（null/空白直接返回空）
+     * @param token 短 令牌，允许 空（空/空白直接返回空）
      * @return 连接参数集；token 未知或已过期时为空
      */
     public Optional<RemoteSpec> resolve(String token) {
@@ -308,11 +310,11 @@ public class GuacamoleClient {
     }
 
     /**
-     * 手动刷新全部短 token 的有效期（按 token 有效期时长续期）。
+      * 手动刷新全部短 令牌 的有效期（按 令牌 有效期时长续期）。
      *
      * <p>仅对尚未过期清除的 token 生效；已被清除的 token 无法复活，需重新 {@link #issue()}。</p>
      *
-     * @return 实际续期的 token 数量
+     * @return 实际续期的 令牌 数量
      */
     public int refreshTokens() {
         var count = 0;
@@ -325,7 +327,7 @@ public class GuacamoleClient {
     }
 
     /**
-     * 返回已登记的短 token 数量（含已过期未清除的）。
+      * 返回已登记的短 令牌 数量（含已过期未清除的）。
      *
      * @return token 数量
      */
@@ -336,12 +338,12 @@ public class GuacamoleClient {
     // ==================== 内部登记 ====================
 
     /**
-     * 登记一组连接参数并返回其短 token（供 {@link IssueOperation} 内部调用）。
+      * 登记一组连接参数并返回其短 令牌（供 {@link IssueOperation} 内部调用）。
      *
      * <p>token 有效期由 {@link ExpireValue} 维护；极小概率的随机 token 冲突时自动重试。</p>
      *
-     * @param spec 连接参数集，不能为 null
-     * @return 短 token
+     * @param spec 连接参数集，不能为 空
+     * @return 短 令牌
      */
     private String register(RemoteSpec spec) {
         Objects.requireNonNull(spec, "spec 不能为 null");
@@ -356,9 +358,9 @@ public class GuacamoleClient {
     }
 
     /**
-     * 生成随机短 token（16 位十六进制小写字符）。
+      * 生成随机短 令牌（16 位十六进制小写字符）。
      *
-     * @return 短 token
+     * @return 短 令牌
      */
     private static String newToken() {
         var bytes = new byte[TOKEN_BYTES];
@@ -369,9 +371,11 @@ public class GuacamoleClient {
     // ==================== Builder ====================
 
     /**
-     * GuacamoleClient 构建器。
+      * guacamole客户端 构建器。
      *
      * <p>guacd 与 Web 前端均默认本机；短 token 有效期默认 1 小时。</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
         /** guacd 服务器地址，默认本机 */
@@ -384,13 +388,13 @@ public class GuacamoleClient {
         private int webPort = DEFAULT_WEB_PORT;
         /** Web 上下文路径，默认 /guacamole */
         private String contextPath = DEFAULT_CONTEXT_PATH;
-        /** 短 token 有效期，默认 1 小时 */
+        /** 短 令牌 有效期，默认 1 小时 */
         private Duration tokenTtl = DEFAULT_TOKEN_TTL;
 
         /**
          * 设置 guacd 服务器地址。
          *
-         * @param host guacd 服务器地址，不允许 null 或空白
+         * @param host guacd 服务器地址，不允许 空 或空白
          * @return 当前构建器
          */
         public Builder guacdHost(String host) {
@@ -412,7 +416,7 @@ public class GuacamoleClient {
         /**
          * 设置 Web 前端地址。
          *
-         * @param host Web 前端地址，不允许 null 或空白
+         * @param host Web 前端地址，不允许 空 或空白
          * @return 当前构建器
          */
         public Builder webHost(String host) {
@@ -443,11 +447,11 @@ public class GuacamoleClient {
         }
 
         /**
-         * 设置短 token 有效期。
+          * 设置短 令牌 有效期。
          *
-         * @param ttl 有效期，不能为 null 或负值
+         * @param ttl 有效期，不能为 空 或负值
          * @return 当前构建器
-         * @throws NullPointerException ttl 为 null 时
+         * @throws NullPointerException ttl 为 空 时
          * @throws GuacamoleClientException ttl 为负时
          */
         public Builder tokenTtl(Duration ttl) {
@@ -460,7 +464,7 @@ public class GuacamoleClient {
         }
 
         /**
-         * 构建 GuacamoleClient 实例。
+          * 构建 guacamole客户端 实例。
          *
          * @return GuacamoleClient 实例
          * @throws GuacamoleClientException guacd 或 Web 前端地址为空白、端口越界时
@@ -485,6 +489,8 @@ public class GuacamoleClient {
      *
      * <p>链式设置协议、主机、端口、账号与 Guacamole 扩展参数，
      * {@link #issue()} 将参数集登记进客户端内部短链登记表并签发短 token。</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class IssueOperation {
         /** 客户端 */
@@ -493,11 +499,11 @@ public class GuacamoleClient {
         private RemoteProtocol protocol = RemoteProtocol.RDP;
         /** 远控服务器地址 */
         private String host;
-        /** 远控服务器端口，可为 null（null 时取协议默认端口） */
+        /** 远控服务器端口，可为 空（空 时取协议默认端口） */
         private Integer port;
-        /** 用户名，可为 null */
+        /** 用户名，可为 空 */
         private String username;
-        /** 密码，可为 null */
+        /** 密码，可为 空 */
         private String password;
         /** Guacamole 扩展参数 */
         private final Map<String, String> params = new LinkedHashMap<>(8);
@@ -505,7 +511,7 @@ public class GuacamoleClient {
         /**
          * 创建登记操作链。
          *
-         * @param client 所属客户端，不能为 null
+         * @param client 所属客户端，不能为 空
          */
         IssueOperation(GuacamoleClient client) {
             this.client = client;
@@ -514,7 +520,7 @@ public class GuacamoleClient {
         /**
          * 设置协议。
          *
-         * @param protocol 协议，不能为 null
+         * @param protocol 协议，不能为 空
          * @return 当前操作链
          */
         public IssueOperation protocol(RemoteProtocol protocol) {
@@ -560,7 +566,7 @@ public class GuacamoleClient {
         /**
          * 设置用户名。
          *
-         * @param username 用户名，可为 null
+         * @param username 用户名，可为 空
          * @return 当前操作链
          */
         public IssueOperation username(String username) {
@@ -571,7 +577,7 @@ public class GuacamoleClient {
         /**
          * 设置密码。
          *
-         * @param password 密码，可为 null
+         * @param password 密码，可为 空
          * @return 当前操作链
          */
         public IssueOperation password(String password) {
@@ -582,8 +588,8 @@ public class GuacamoleClient {
         /**
          * 追加单个 Guacamole 扩展参数（参数名与 guacd 配置属性一致）。
          *
-         * @param key 参数名，null 时忽略
-         * @param value 参数值，null 时忽略
+         * @param key 参数名，空 时忽略
+         * @param value 参数值，空 时忽略
          * @return 当前操作链
          */
         public IssueOperation param(String key, String value) {
@@ -596,7 +602,7 @@ public class GuacamoleClient {
         /**
          * 批量追加 Guacamole 扩展参数。
          *
-         * @param params 参数集合，null 时忽略；其中的 null 键值对会被过滤
+         * @param params 参数集合，空 时忽略；其中的 空 键值对会被过滤
          * @return 当前操作链
          */
         public IssueOperation params(Map<String, String> params) {
@@ -607,11 +613,11 @@ public class GuacamoleClient {
         }
 
         /**
-         * 登记当前参数集并签发短 token。
+          * 登记当前参数集并签发短 令牌。
          *
          * <p>参数集与有效期由客户端内部维护，token 本身不含任何连接信息。</p>
          *
-         * @return 短 token
+         * @return 短 令牌
          * @throws GuacamoleClientException 远控服务器地址未设置时
          */
         public String issue() {
@@ -633,12 +639,12 @@ public class GuacamoleClient {
      * <p>由短 token 承载，经 {@link GuacamoleClient#resolve(String)} 传递；
      * 密码等敏感字段仅存在于客户端内存登记表，不落地到 URL。</p>
      *
-     * @param protocol 协议，不能为 null
-     * @param host 远控服务器地址，不能为 null
-     * @param port 远控服务器端口，可为 null（null 时取协议默认端口）
-     * @param username 用户名，可为 null
-     * @param password 密码，可为 null
-     * @param params Guacamole 扩展参数，可为 null（null 时规范化为空不可变 Map）
+     * @param protocol 协议，不能为 空
+     * @param host 远控服务器地址，不能为 空
+     * @param port 远控服务器端口，可为 空（空 时取协议默认端口）
+     * @param username 用户名，可为 空
+     * @param password 密码，可为 空
+     * @param params Guacamole 扩展参数，可为 空（空 时规范化为空不可变 映射）
      * @author CH
      * @since 4.0.0.42
      */
@@ -651,7 +657,7 @@ public class GuacamoleClient {
             Map<String, String> params
     ) {
         /**
-         * 规范构造器：校验必填字段并将扩展参数规范化为不可变 Map。
+          * 规范构造器：校验必填字段并将扩展参数规范化为不可变 映射。
          */
         public RemoteSpec {
             Objects.requireNonNull(protocol, "protocol 不能为 null");
@@ -675,6 +681,8 @@ public class GuacamoleClient {
      * Guacamole 支持协议。
      *
      * <p>每个协议携带 guacd 参数值与默认端口号。</p>
+     * @author CH
+     * @since 4.0.0
      */
     public enum RemoteProtocol {
         /** RDP 远程桌面 */
@@ -741,20 +749,23 @@ public class GuacamoleClient {
 
     /**
      * Guacamole 客户端异常。
+     * @author CH
+     * @since 4.0.0
      */
     public static class GuacamoleClientException extends RuntimeException {
         /**
-         * 创建 GuacamoleClientException 实例
-         * @param message message
+          * 创建 guacamole客户端异常 实例
+         * @param message 消息
          */
         public GuacamoleClientException(String message) {
             super(message);
         }
 
         /**
-         * 创建 GuacamoleClientException 实例
-         * @param message message
-         * @param Throwable Throwable
+          * 创建 guacamole客户端异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
          */
         public GuacamoleClientException(String message, Throwable cause) {
             super(message, cause);

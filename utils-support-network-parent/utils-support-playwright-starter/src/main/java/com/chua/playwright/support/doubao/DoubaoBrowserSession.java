@@ -33,7 +33,7 @@ import java.util.function.BiConsumer;
 public class DoubaoBrowserSession implements AutoCloseable {
 
     /**
-     * Chromium 启动超时。
+      * 铬 启动超时。
      */
     private static final Duration LAUNCH_TIMEOUT = Duration.ofSeconds(60);
 
@@ -63,7 +63,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
     };
 
     /**
-     * 聊天请求巨大的 fetch 脚本（页面内执行，自动触发签名 hook）。
+      * 聊天请求巨大的 获取 脚本（页面内执行，自动触发签名 hook）。
      */
     private static final String CHAT_SCRIPT = """
             async (args) => {
@@ -170,7 +170,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
     /**
      * 构造豆包浏览器会话。
      *
-     * @param cookieString Cookie 串，形如 "sessionid=...; ttwid=...; passport_csrf_token=..."
+     * @param cookieString Cookie 串，形如 "sessionid=...; ttwid=...; 护照_CSRF_令牌=..."
      * @param userDataDir  浏览器用户数据目录，可空使用默认目录
      */
     public DoubaoBrowserSession(String cookieString, String userDataDir) {
@@ -204,7 +204,7 @@ public class DoubaoBrowserSession implements AutoCloseable {
      *
      * @param url            聊天端点完整 URL
      * @param body           JSON 请求体字符串
-     * @param conversationId 会话 ID，可为空表示新会话
+     * @param conversationId 会话 标识，可为空表示新会话
      * @param listener       流式事件监听器，可为空
      * @return 解析后的聊天结果
      */
@@ -255,7 +255,7 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     /**
      * 删除指定会话（清理豆包侧边栏）。
      *
-     * @param conversationId 会话 ID
+     * @param conversationId 会话 标识
      * @return true 表示删除成功
      */
     public boolean deleteConversation(String conversationId) {
@@ -345,7 +345,10 @@ Object result = page.evaluate(CHAT_SCRIPT, args);
     }
 
     /**
-     * 从 map 中安全获取字符串值。
+      * 从 映射 中安全获取字符串值。
+     * @param map 映射
+     * @param key 键
+     * @return 获取字符串的结果
      */
     private static String getString(Map<?, ?> map, String key) {
         Object val = map.get(key);

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * H2 应用层 Handler — 拦截 H2 JDBC 驱动关键调用并生成应用语义传输记录。
+   * H2 应用层 处理器 — 拦截 H2 JDBC 驱动关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -24,22 +24,22 @@ import com.chua.runtime.protocol.Software;
 public class H2Handler extends AbstractAppHandler {
 
     /**
-     * JdbcConnection 类内部名
+      * jdbcconnection 类内部名
      */
     private static final String H2_CONNECTION_CLASS = "org/h2/jdbc/JdbcConnection";
 
     /**
-     * JdbcStatement 类内部名
+      * jdbc对账单 类内部名
      */
     private static final String H2_STATEMENT_CLASS = "org/h2/jdbc/JdbcStatement";
 
     /**
-     * JdbcPreparedStatement 类内部名
+      * jdbcprepared对账单 类内部名
      */
     private static final String H2_PREPARED_STATEMENT_CLASS = "org/h2/jdbc/JdbcPreparedStatement";
 
     /**
-     * SQL 执行方法集合（Statement / PreparedStatement 共有）
+      * SQL 执行方法集合（对账单 / prepared对账单 共有）
      */
     private static final String[] SQL_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
@@ -49,13 +49,13 @@ public class H2Handler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "h2-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "h2.enabled";
     }
@@ -67,13 +67,13 @@ public class H2Handler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.H2;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAllEntryExit(H2_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(H2_PREPARED_STATEMENT_CLASS, SQL_METHODS);

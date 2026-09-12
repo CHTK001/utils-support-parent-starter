@@ -28,26 +28,49 @@ import java.util.Map;
 @AllArgsConstructor
 public class StorageConfig {
 
-    /** 配置项 map */
+    /** 配置项 映射 */
     private Map<String, String> properties = new HashMap<>();
 
-    /** Put */
+    /**
+     * 放入
+     *
+     * @param key 键
+     * @param value 值
+     * @return 放入的结果
+     */
     public StorageConfig put(String key, String value) {
         properties.put(key, value);
         return this;
     }
 
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param key 键
+     * @return 获取的结果
+     */
     public String get(String key) {
         return properties.get(key);
     }
 
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取的结果
+     */
     public String get(String key, String defaultValue) {
         return properties.getOrDefault(key, defaultValue);
     }
 
-    /** 获取Long */
+    /**
+     * 获取Long
+     *
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取long的结果
+     */
     public long getLong(String key, long defaultValue) {
         String v = properties.get(key);
         if (v == null || v.isEmpty()) {
@@ -60,13 +83,20 @@ public class StorageConfig {
         }
     }
 
-    /** 获取Int */
+    /**
+     * 获取Int
+     *
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取int的结果
+     */
     public int getInt(String key, int defaultValue) {
         return (int) getLong(key, defaultValue);
     }
 
     /**
      * 默认配置（无操作存储）。
+     * @return 默认的结果
      */
     public static StorageConfig defaults() {
         StorageConfig c = new StorageConfig();

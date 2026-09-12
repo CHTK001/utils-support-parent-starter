@@ -18,7 +18,7 @@ public interface DhtCrawlListener {
      * 当发现新的 infohash 时触发回调。
      *
      * @param infohash 发现的 infohash 值
-     * @param source 消息来源的 socket 地址
+     * @param source 消息来源的 套接字 地址
      */
     default void onInfohash(String infohash, InetSocketAddress source) {
     }

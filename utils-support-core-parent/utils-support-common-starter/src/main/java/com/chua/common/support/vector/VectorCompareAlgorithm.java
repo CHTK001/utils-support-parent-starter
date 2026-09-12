@@ -26,8 +26,8 @@ public interface VectorCompareAlgorithm {
      *
      * <p>返回值越大表示越相似（符合人类直觉）。</p>
      *
-     * @param a 向量 a，不能为 null
-     * @param b 向量 b，不能为 null，长度必须与 a 一致
+     * @param a 向量 a，不能为 空
+     * @param b 向量 b，不能为 空，长度必须与 a 一致
      * @return 相似度，越大越相似
      */
     float compare(float[] a, float[] b);

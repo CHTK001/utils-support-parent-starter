@@ -111,6 +111,7 @@ public class FileOperationSetting {
 
     /**
      * 判断是否有任意操作需要执行。
+     * @return 是否包含operation的结果
      */
     public boolean hasOperation() {
         return size != null || format != null || quality != null

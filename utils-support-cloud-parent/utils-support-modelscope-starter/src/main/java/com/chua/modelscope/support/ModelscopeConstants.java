@@ -1,7 +1,7 @@
 package com.chua.modelscope.support;
 
 /**
- * ModelScope（魔搭）服务常量。
+   * 模型scope（魔搭）服务常量。
  *
  * <p>ModelScope 提供 OpenAI 兼容的 API-Inference 端点以及自有 Hub 接口。
  * 本模块所有客户端均以这些常量为默认地址，便于集中覆盖。
@@ -12,7 +12,7 @@ package com.chua.modelscope.support;
 public final class ModelscopeConstants {
 
     /**
-     * API-Inference 公网基地址（OpenAI 兼容子集）
+      * API-推理 公网基地址（打开AI 兼容子集）
      */
     public static final String DEFAULT_INFERENCE_BASE_URL = "https://api-inference.modelscope.cn";
 
@@ -22,12 +22,12 @@ public final class ModelscopeConstants {
     public static final String DEFAULT_HUB_BASE_URL = "https://www.modelscope.cn";
 
     /**
-     * OpenAI 兼容 chat/completions 路径
+      * 打开AI 兼容 对话/completions 路径
      */
     public static final String PATH_CHAT_COMPLETIONS = "/v1/chat/completions";
 
     /**
-     * OpenAI 兼容图像生成路径
+      * 打开AI 兼容图像生成路径
      */
     public static final String PATH_IMAGES_GENERATIONS = "/v1/images/generations";
 
@@ -37,7 +37,7 @@ public final class ModelscopeConstants {
     public static final String PATH_MODELS = "/v1/models";
 
     /**
-     * 通用推理路径（按 model 路由）模板
+      * 通用推理路径（按 模型 路由）模板
      */
     public static final String PATH_MODEL_INFER = "/v1/models/%s/infer";
 
@@ -61,6 +61,9 @@ public final class ModelscopeConstants {
      */
     public static final long CONNECT_TIMEOUT_MILLIS = 15_000L;
 
+    /**
+     * modelscope常量。
+     */
     private ModelscopeConstants() {
     }
 }

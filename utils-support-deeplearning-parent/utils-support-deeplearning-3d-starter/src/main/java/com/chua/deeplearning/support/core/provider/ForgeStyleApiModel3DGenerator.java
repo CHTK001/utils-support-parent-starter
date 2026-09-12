@@ -22,15 +22,15 @@ import java.util.Base64;
 public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
 
     /**
-     * 创建 ForgeStyleApiModel3DGenerator 实例
-     * @param config config
+      * 创建 forgestyleapi模型3d生成器 实例
+     * @param config 配置
      */
     public ForgeStyleApiModel3DGenerator(Model3DConfig config) {
         super(config);
     }
 
     @Override
-    /** 构建TextRequestBody */
+    /** 构建文本请求主体 */
     protected String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -49,7 +49,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
-    /** 构建ImageRequestBody */
+    /** 构建镜像请求主体 */
     protected String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(image);
@@ -70,7 +70,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
-    /** 构建MultiViewRequestBody */
+    /** 构建multiview请求主体 */
     protected String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             ObjectNode node = objectMapper.createObjectNode();
@@ -93,7 +93,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
-    /** 构建SketchRequestBody */
+    /** 构建sketch请求主体 */
     protected String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) {
         try {
             String base64 = Base64.getEncoder().encodeToString(sketch);
@@ -115,7 +115,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     }
 
     @Override
-    /** 构建StylizeRequestBody */
+    /** 构建stylize请求主体 */
     protected String buildStylizeRequestBody(Model3D model, Model3DStyle style, int resolution) {
         try {
             String modelBase64 = Base64.getEncoder().encodeToString(model.getData().readAllBytes());

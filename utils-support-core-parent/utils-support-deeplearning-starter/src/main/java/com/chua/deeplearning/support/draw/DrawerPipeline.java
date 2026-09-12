@@ -30,6 +30,8 @@ import java.util.function.BiConsumer;
  *         .box(box1, "table")
  *         .box(box2, "text")
  *         .done();
+ * }</pre>x2, "文本")
+ *         .done();
  * }</pre>
  *
  * @author CH
@@ -112,7 +114,7 @@ public class DrawerPipeline {
      * 注入单个检测框与标签。
      *
      * @param box   检测框
-     * @param label 标签（可为 null）
+     * @param label 标签（可为 空）
      * @return this
      */
     public DrawerPipeline box(DetectionInfo box, String label) {
@@ -149,7 +151,7 @@ public class DrawerPipeline {
     }
 
     /**
-     * 一键注入检测框与标签列表（PredictRectangle 版本）。
+      * 一键注入检测框与标签列表（predictrectangle 版本）。
      *
      * @param boxList 检测框列表
      * @param labelList 标签列表（与检测框一一对应）

@@ -117,6 +117,7 @@ public class CronExpression {
 
     /**
      * 解析秒字段（0-59）
+     * @param field 字段
      */
     private void parseSeconds(String field) {
         parseField(field, 0, 59, seconds);
@@ -124,6 +125,7 @@ public class CronExpression {
 
     /**
      * 解析分钟字段（0-59）
+     * @param field 字段
      */
     private void parseMinutes(String field) {
         parseField(field, 0, 59, minutes);
@@ -131,6 +133,7 @@ public class CronExpression {
 
     /**
      * 解析小时字段（0-23）
+     * @param field 字段
      */
     private void parseHours(String field) {
         parseField(field, 0, 23, hours);
@@ -138,6 +141,7 @@ public class CronExpression {
 
     /**
      * 解析月份字段（1-12），支持 JAN-DEC 英文缩写
+     * @param field 字段
      */
     private void parseMonths(String field) {
         String resolved = resolveNames(field, "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC");
@@ -146,6 +150,7 @@ public class CronExpression {
 
     /**
      * 解析日期字段（1-31），支持 L、W 修饰符
+     * @param field 字段
      */
     private void parseDaysOfMonth(String field) {
         if ("?".equals(field)) {
@@ -168,6 +173,7 @@ public class CronExpression {
 
     /**
      * 解析星期字段（0-7），支持 L、# 修饰符和 SUN-SAT 英文缩写
+     * @param field 字段
      */
     private void parseDaysOfWeek(String field) {
         if ("?".equals(field)) {
@@ -209,6 +215,10 @@ public class CronExpression {
 
     /**
      * 解析标准字段（支持 *、逗号列表）
+     * @param field 字段
+     * @param min 最小
+     * @param max 最大
+     * @param bits 钻头
      */
     private void parseField(String field, int min, int max, BitSet bits) {
         if ("*".equals(field)) {
@@ -222,6 +232,10 @@ public class CronExpression {
 
     /**
      * 解析字段中的单个部分（支持范围 - 和步进 /）
+     * @param part part
+     * @param min 最小
+     * @param max 最大
+     * @param bits 钻头
      */
     private void parseFieldPart(String part, int min, int max, BitSet bits) {
         int step = 1;
@@ -346,6 +360,9 @@ public class CronExpression {
 
     /**
      * 获取指定月份的天数
+     * @param year year
+     * @param month month
+     * @return 长度的month的结果
      */
     private int lengthOfMonth(int year, int month) {
         return LocalDate.of(year, month, 1).lengthOfMonth();
@@ -353,6 +370,8 @@ public class CronExpression {
 
     /**
      * 判断是否为该月最后一个工作日（周五为最后一个工作日时，周六日往后顺延）
+     * @param dt dt
+     * @return 是否最后一个weekday的结果
      */
     private boolean isLastWeekDay(LocalDateTime dt) {
         LocalDate date = dt.toLocalDate();
@@ -362,6 +381,8 @@ public class CronExpression {
 
     /**
      * 判断是否为第 N 个星期几
+     * @param dt dt
+     * @return 是否nthday的week的结果
      */
     private boolean isNthDayOfWeek(LocalDateTime dt) {
         int weekOfMonth = (dt.getDayOfMonth() - 1) / 7 + 1;
@@ -370,7 +391,7 @@ public class CronExpression {
     }
 
     /**
-     * 获取从指定时间之后的下一个有效执行时间（兼容 Quartz 风格）。
+      * 获取从指定时间之后的下一个有效执行时间（兼容 石英石 风格）。
      *
      * @param fromTime 基准时间
      * @return 下一个有效时间，如果无法确定则返回 {@code null}
@@ -386,6 +407,10 @@ public class CronExpression {
      *
      * <p>如果指定日期是周六，则返回周五；如果是周日，则返回周一；
      * 如果调整后跨月，则向前取最近的工作日。
+     * @param year year
+     * @param month month
+     * @param dt dt
+     * @return 是否nearestweekday的结果
      */
     private boolean isNearestWeekday(int year, int month, LocalDateTime dt) {
         LocalDate target = LocalDate.of(year, month, nearestWeekday);

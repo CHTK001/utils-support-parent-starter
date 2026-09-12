@@ -21,6 +21,8 @@ public class ProvinceMockString implements MockString {
 
     /**
      * 省级行政区池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] PROVINCES = {
             "北京市", "天津市", "上海市", "重庆市", "河北省", "山西省", "辽宁省", "吉林省",

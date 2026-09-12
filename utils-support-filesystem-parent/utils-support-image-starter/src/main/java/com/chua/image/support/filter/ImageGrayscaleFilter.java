@@ -46,7 +46,7 @@ import javax.annotation.Nullable;
  * - 内存占用优化
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @SpiDescribe("NTSC标准灰度转换滤镜")

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 配置值注入注解。
  *
  * <p>用于将外部配置属性注入到 Bean 的字段或 setter 方法上。
- * 支持 ${key} 占位符语法、默认值回退、配置热加载和变更回调。</p>
+   * 支持 ${键} 占位符语法、默认值回退、配置热加载和变更回调。</p>
  *
  * <p>使用示例：</p>
  * <pre>
@@ -43,7 +43,7 @@ public @interface ConfigValue {
      * 默认值。
      *
      * <p>当指定的配置键在环境中不存在时，使用此默认值回退。
-     * 为空字符串时表示无默认值，字段将保持原值（null 或类型默认值）。</p>
+      * 为空字符串时表示无默认值，字段将保持原值（空 或类型默认值）。</p>
      *
      * @return 默认值，默认为空字符串
      */
@@ -63,7 +63,7 @@ public @interface ConfigValue {
      * 配置变更回调方法名。
      *
      * <p>当配置值发生变更时，会调用 Bean 中与该名称匹配的方法。
-     * 回调方法签名应为：void callbackName(String oldValue, String newValue)。</p>
+      * 回调方法签名应为：Void Linux callback名称(字符串 旧值, 字符串 新值)。</p>
      *
      * @return 回调方法名，默认为空字符串表示不回调
      */

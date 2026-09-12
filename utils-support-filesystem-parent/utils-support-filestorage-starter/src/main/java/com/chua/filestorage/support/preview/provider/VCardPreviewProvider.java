@@ -12,16 +12,21 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * vCard (VCF) 联系人预览提供器。
+   * v卡片 (VCF) 联系人预览提供器。
  * <p>SPI 类型：{@code preview-vcard}。解析 VCF 文件中的联系人信息。</p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @param bytes bytes
+ * @return human大小的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-vcard")
 public class VCardPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("vcf", "vcard");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("vcf", "vcard"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -37,6 +42,11 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder()
                 .htmlContent(html)
                 .build();
+    /**
+     * 解析v卡片。
+     * @param vcf vcf
+     * @return 解析v卡片的结果
+     */
     }
 
     private List<ContactInfo> parseVCard(String vcf) {
@@ -96,12 +106,25 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
         }
 
         return contacts;
+    /**
+     * extract值。
+     * @param line 线
+     * @return extract值的结果
+     */
     }
 
     private String extractValue(String line) {
         int colonIdx = line.indexOf(':');
-        if (colonIdx < 0) return null;
+        if (colonIdx < 0) {
+            return null;
+        }
         return line.substring(colonIdx + 1).trim();
+    /**
+     * 构建html。
+     * @param contacts contacts
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(List<ContactInfo> contacts, long fileSize) {
@@ -169,29 +192,43 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("</div></body></html>");
         return sb.toString();
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class ContactInfo {
-        String fullName;
-        String firstName;
-        String lastName;
-        String organization;
-        String title;
-        String address;
-        String url;
-        String note;
-        List<String> phones = new ArrayList<>();
-        List<String> emails = new ArrayList<>();
+        String fullName; // 完整名称
+        String firstName; // 第一个名称
+        String lastName; // 最后一个名称
+        String organization; // 组织
+        String title; // title
+        String address; // 地址
+        String url; // url
+        String note; // 笔记
+        List<String> phones = new ArrayList<>(); // phones
+        List<String> emails = new ArrayList<>(); // emails
     }
 }

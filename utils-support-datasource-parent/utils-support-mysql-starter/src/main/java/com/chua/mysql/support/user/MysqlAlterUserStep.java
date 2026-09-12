@@ -14,7 +14,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
 
     /** 数据来源 */
     private final DataSource dataSource;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private String password;
@@ -31,21 +31,21 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
-    /** WithPassword */
+    /** with密码 */
     public UserManager.AlterUserStep withPassword(String password) {
         this.password = password;
         return this;
     }
 
     @Override
-    /** WithHost */
+    /** with主机 */
     public UserManager.AlterUserStep withHost(String host) {
         this.host = host;
         return this;
     }
 
     @Override
-    /** WithGrant */
+    /** withgrant */
     public UserManager.AlterUserStep withGrant(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         grants.add("GRANT " + privilege + " ON " + database + " TO '" + username + "'@'" + resolvedHost + "'");
@@ -53,7 +53,7 @@ public class MysqlAlterUserStep implements UserManager.AlterUserStep {
     }
 
     @Override
-    /** WithRevoke */
+    /** withrevoke */
     public UserManager.AlterUserStep withRevoke(String privilege, String database) {
         String resolvedHost = host != null ? host : "%";
         revokes.add("REVOKE " + privilege + " ON " + database + " FROM '" + username + "'@'" + resolvedHost + "'");

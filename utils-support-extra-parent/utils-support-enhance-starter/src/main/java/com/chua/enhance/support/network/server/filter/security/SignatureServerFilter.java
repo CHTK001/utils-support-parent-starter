@@ -75,7 +75,7 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (secret == null || isExcluded(request.getPath())) {
             chain.doFilter(request, response);
@@ -96,18 +96,23 @@ public class SignatureServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 15;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "SignatureServerFilter";
     }
 
-    /** ComputeSignature */
+    /**
+     * compute签名
+     *
+     * @param data 数据
+     * @return compute签名的结果
+     */
     private String computeSignature(byte[] data) {
         try {
             if ("HMAC-SHA256".equalsIgnoreCase(algorithm)) {
@@ -131,7 +136,12 @@ public class SignatureServerFilter implements ServerFilter {
         return "";
     }
 
-    /** 是否Excluded */
+    /**
+     * 是否Excluded
+     *
+     * @param path 路径
+     * @return 是否excluded的结果
+     */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

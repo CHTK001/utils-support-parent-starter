@@ -22,6 +22,7 @@ import java.util.List;
  * MockStringFactory.generate("phone");                // 随机手机号
  * MockStringFactory.generate("email", 12);            // 指定长度
  * MockStringFactory.generate("random", MockEnvironment.of(8, 16)); // 注入环境
+ * }</pre>vironment.of(8, 16)); // 注入环境
  * }</pre>
  *
  * @author CH
@@ -30,7 +31,7 @@ import java.util.List;
 public final class MockStringFactory {
 
     /**
-     * MockString SPI 服务提供者
+      * mock字符串 SPI 服务提供者
      */
     private static final ServiceProvider<MockString> PROVIDER = ServiceProvider.of(MockString.class);
 
@@ -41,13 +42,13 @@ public final class MockStringFactory {
     }
 
     /**
-     * 按名称获取 MockString 生成器实例。
+      * 按名称获取 mock字符串 生成器实例。
      *
      * <p>名称匹配大小写不敏感；未注册的名称返回 null，
      * 不会回退到默认实现，便于调用方识别拼写错误。</p>
      *
-     * @param name 生成器名称（如 name、phone、email、uuid 等）
-     * @return 生成器实例；名称未注册时返回 null
+     * @param name 生成器名称（如 名称、phone、email、uuid 等）
+     * @return 生成器实例；名称未注册时返回 空
      */
     @Nullable
     public static MockString getMockString(@Nullable String name) {
@@ -81,7 +82,7 @@ public final class MockStringFactory {
      * 使用默认 Mock 环境按名称生成字符串数据。
      *
      * @param name 生成器名称
-     * @return 生成的字符串数据；生成器不存在时返回 null
+     * @return 生成的字符串数据；生成器不存在时返回 空
      */
     @Nullable
     public static String generate(@Nullable String name) {
@@ -97,7 +98,7 @@ public final class MockStringFactory {
      *
      * @param name        生成器名称
      * @param environment Mock 环境/上下文
-     * @return 生成的字符串数据；生成器不存在或环境为 null 时返回 null
+     * @return 生成的字符串数据；生成器不存在或环境为 空 时返回 空
      */
     @Nullable
     public static String generate(@Nullable String name, @Nullable MockEnvironment environment) {
@@ -113,7 +114,7 @@ public final class MockStringFactory {
      *
      * @param name   生成器名称
      * @param length 生成长度
-     * @return 生成的字符串数据；生成器不存在时返回 null
+     * @return 生成的字符串数据；生成器不存在时返回 空
      */
     @Nullable
     public static String generate(@Nullable String name, int length) {
@@ -125,7 +126,7 @@ public final class MockStringFactory {
      *
      * @param name    生成器名称
      * @param keyword 生成关键词
-     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 null
+     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 空
      */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword) {
@@ -141,7 +142,7 @@ public final class MockStringFactory {
      * @param name    生成器名称
      * @param keyword 生成关键词
      * @param length  生成长度
-     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 null
+     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 空
      */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword, int length) {

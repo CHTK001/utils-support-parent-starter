@@ -32,7 +32,7 @@ public interface BeanDefinitionConfigInjector {
      * @param bean             目标 Bean 实例，包含需要被注入的字段
      * @param beanDefinition   Bean 的定义信息，提供上下文元数据
      * @param environment      环境配置对象，提供可读取的配置源
-     * @return 注入后的新值；如果无法注入或不适配，则返回 null
+     * @return 注入后的新值；如果无法注入或不适配，则返回 空
      */
     Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment);
 
@@ -54,7 +54,7 @@ public interface BeanDefinitionConfigInjector {
      * @param bean            目标 Bean 实例
      * @param beanDefinition  Bean 定义
      * @param environment     环境配置对象
-     * @return 参数值数组，每项为对应位置的配置值；无法解析的位为 null
+     * @return 参数值数组，每项为对应位置的配置值；无法解析的位为 空
      */
     default Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         return null;

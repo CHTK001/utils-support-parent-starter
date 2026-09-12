@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentMap;
  * 字段访问工具。
  * <p>
  * 通过 {@link ReflectUtils} 提供的字段读写、查找能力封装，
- * 提供对 bean 字段按字符串名称的动态读写能力。
+   * 提供对 Bean 字段按字符串名称的动态读写能力。
  * </p>
  *
  * @author CH
@@ -34,7 +34,7 @@ public final class FieldStation {
     }
 
     /**
-     * 按类创建 FieldStation。
+      * 按类创建 字段状态。
      *
      * @param type 类型
      * @return FieldStation 实例
@@ -44,9 +44,9 @@ public final class FieldStation {
     }
 
     /**
-     * 按实例创建 FieldStation。
+      * 按实例创建 字段状态。
      *
-     * @param instance 实例，允许为 null
+     * @param instance 实例，允许为 空
      * @return FieldStation 实例
      */
     public static FieldStation of(Object instance) {
@@ -59,8 +59,8 @@ public final class FieldStation {
     /**
      * 读取字段值。
      *
-     * @param name 字段名（支持 PascalCase，自动转 camelCase）
-     * @return 字段值，不存在返回 null
+     * @param name 字段名（支持 pascal大小写，自动转 camel大小写）
+     * @return 字段值，不存在返回 空
      */
     public Object getValue(String name) {
         if (type == null) {
@@ -83,7 +83,7 @@ public final class FieldStation {
     }
 
     /**
-     * 将字段名首字母大写转小写（PascalCase → camelCase）。
+      * 将字段名首字母大写转小写（pascal大小写 → camel大小写）。
      *
      * @param name 字段名
      * @return 转换后的字段名

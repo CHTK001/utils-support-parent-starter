@@ -22,6 +22,7 @@ import java.nio.file.Path;
  * mgr.connect(new SshConfig("192.168.1.10", 22, "root", "pass", null));
  * mgr.installRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
  * mgr.startRemote("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
+ * }</pre>te("app", "/opt/app/app.jar", "java -jar /opt/app/app.jar");
  * }</pre>
  *
  * @author CH
@@ -124,7 +125,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 停止 Windows 远程 Java 进程（按 PID 或按命令行过滤）。
+      * 停止 窗口 远程 Java 进程（按 PID 或按命令行过滤）。
+     * @param pid pid
+     * @param serviceName 服务名称
      */
     private void stopRemoteWindows(long pid, String serviceName) {
         if (pid > 0) {
@@ -138,7 +141,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在 Windows 远程主机后台启动命令并返回 PID。
+      * 在 窗口 远程主机后台启动命令并返回 PID。
+     * @param cmd CMD
+     * @return 执行detach窗口的结果
      */
     private long execDetachWindows(String cmd) {
         try {
@@ -157,6 +162,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
 
     /**
      * 从 {@code java -jar <path>} 命令中提取 jar 路径。
+     * @param cmd CMD
+     * @return extractjar参数的结果
      */
     private static String extractJarArg(String cmd) {
         int jarIdx = cmd.toLowerCase().indexOf("-jar");
@@ -232,9 +239,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 检测远程主机操作系统类型（Windows 返回 true）。
+      * 检测远程主机操作系统类型（窗口 返回 true）。
      *
-     * @return true 表示远程主机为 Windows
+     * @return true 表示远程主机为 窗口
      */
     private boolean isWindows() {
         try {
@@ -266,13 +273,16 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在 Windows 远程主机上安装服务（sc.exe create）。
+      * 在 窗口 远程主机上安装服务（sc.exe 创建）。
+     * @param serviceName 服务名称
+     * @param remoteJarPath 远程jar路径
+     * @param startCmd 启动CMD
      */
     private void installRemoteWindows(String serviceName, String remoteJarPath, String startCmd) {
         String winPath = normalizeWindowsPath(remoteJarPath);
         String remoteDir = Path.of(winPath).getParent().toString().replace("\\", "/");
         execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
-        // 将 startCmd 中的 Linux 风格路径替换为 Windows 绝对路径
+ // 将 启动CMD 中的 Linux 风格路径替换为 窗口 绝对路径
         String winStartCmd = replaceToken(startCmd, remoteJarPath, winPath);
         execAndWait("sc.exe create \"" + serviceName + "\" binPath= \"" + winStartCmd + "\" start= auto");
         execAndWait("sc.exe description \"" + serviceName + "\" \"" + serviceName + " service\"");
@@ -281,7 +291,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 将 Linux 风格远程路径归一化为 Windows 绝对路径（/opt/x → C:\opt\x）。
+      * 将 Linux 风格远程路径归一化为 窗口 绝对路径（/opt/x → C:\opt\x）。
+     * @param path 路径
+     * @return normalize窗口路径的结果
      */
     private static String normalizeWindowsPath(String path) {
         if (path == null) {
@@ -299,6 +311,9 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
 
     /**
      * 在 Linux 远程主机上安装服务（systemd unit）。
+     * @param serviceName 服务名称
+     * @param remoteJarPath 远程jar路径
+     * @param startCmd 启动CMD
      */
     private void installRemoteLinux(String serviceName, String remoteJarPath, String startCmd) {
         String unitContent = buildSystemdUnit(serviceName, remoteJarPath, startCmd);
@@ -309,7 +324,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在 Windows 远程主机上卸载服务。
+      * 在 窗口 远程主机上卸载服务。
+     * @param serviceName 服务名称
      */
     private void uninstallRemoteWindows(String serviceName) {
         execAndWait("sc.exe stop \"" + serviceName + "\" 2>nul");
@@ -324,6 +340,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
 
     /**
      * 在 Linux 远程主机上卸载服务。
+     * @param serviceName 服务名称
      */
     private void uninstallRemoteLinux(String serviceName) {
         execAndWait("systemctl disable " + serviceName + " 2>/dev/null; systemctl stop "
@@ -398,10 +415,10 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
                 return;
             }
             ensureSftp();
-            // SFTP 统一使用正斜杠路径（Windows OpenSSH 亦兼容）
+ // SFTP 统一使用正斜杠路径（窗口 打开ssh 亦兼容）
             String sftpPath = remotePath.replace("\\", "/");
             String remoteDir = Path.of(sftpPath).getParent().toString();
-            // 使用 SSH 命令创建目录（比 SFTP mkdir 更可靠，尤其 Windows）
+ // 使用 SSH 命令创建目录（比 SFTP mkdir 更可靠，尤其 窗口）
             execAndWait("powershell -Command \"New-Item -ItemType Directory -Path '" + remoteDir + "' -Force | Out-Null\"");
             sftpClient.upload().local(localPath).remote(sftpPath).exec();
             log.info("[service-remote] jar 已上传: {} -> {}", localPath, sftpPath);
@@ -446,7 +463,7 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 替换模板中的占位符 token。
+      * 替换模板中的占位符 令牌。
      *
      * @param template 模板字符串
      * @param token    占位符（如 {jar}）

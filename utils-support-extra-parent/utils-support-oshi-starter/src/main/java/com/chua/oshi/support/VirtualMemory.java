@@ -8,6 +8,7 @@ import lombok.Data;
  * 用于封装系统交换空间/页面文件的总量、已用量、空闲量及使用率等指标。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class VirtualMemory {
@@ -28,7 +29,7 @@ public class VirtualMemory {
     private long swapFree;
 
     /**
-     * 页面文件总容量（字节），Windows 特有。
+      * 页面文件总容量（字节），窗口 特有。
      */
     private long pagefileTotal;
 

@@ -4,7 +4,7 @@ import com.chua.crypto.support.CryptoSetting;
 import com.chua.crypto.support.key.SecretKeyMaterial;
 
 /**
- * 密钥载体 SPI（Service Provider Interface）
+   * 密钥载体 SPI（服务 提供者 接口）
  *
  * <p>抽象主密钥的持久化载体，负责密文的写入、加载、存在性判断与销毁。
  * 载体内保存的永远是"经 KEK 封装后的主密钥密文"，明文主密钥仅存在于进程内存（隐私存储）。
@@ -29,7 +29,7 @@ public interface SecretKeyStore extends AutoCloseable {
      * {@code ONE_TIME} 且载体可擦除时，加载成功后应立即销毁落盘副本。
      *
      * @param setting 加密配置
-     * @return 密钥材料；载体不存在时返回 null
+     * @return 密钥材料；载体不存在时返回 空
      */
     SecretKeyMaterial load(CryptoSetting setting);
 

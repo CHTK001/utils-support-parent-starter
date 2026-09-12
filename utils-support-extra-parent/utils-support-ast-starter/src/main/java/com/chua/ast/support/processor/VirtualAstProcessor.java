@@ -12,11 +12,12 @@ import java.util.Set;
 /**
  * {@link Virtual} 注解的 AST 处理器
  * <p>
- * 在编译期扫描标注了 {@code @Virtual} 注解的 void 方法，通过 javac Tree API
+   * 在编译期扫描标注了 {@code @Virtual} 注解的 Void Linux 方法，通过 javac 树 API
  * 将方法体替换为 {@code Thread.startVirtualThread()} 的 Runnable lambda 调用。
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.Virtual")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -75,7 +76,11 @@ public final class VirtualAstProcessor extends AbstractProcessor {
         return false;
     }
 
-    /** 应用VirtualTransform */
+    /**
+     * 应用虚拟转换
+     *
+     * @param methodTree 方法树
+     */
     private void applyVirtualTransform(com.sun.source.tree.MethodTree methodTree) throws Exception {
 
         var jcMethod = AstUtils.asJcMethodDecl(methodTree);

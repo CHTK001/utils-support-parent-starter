@@ -49,19 +49,19 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     private WebSocketClient webSocketClient;
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Integer.MAX_VALUE - 45;
     }
 
     @Override
-    /** SupportPath */
+    /** 支持路径 */
     public String supportPath() {
         return null;
     }
 
     @Override
-    /** SupportProtocols */
+    /** 支持协议 */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.WS};
     }
@@ -70,7 +70,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     /** 初始化 */
     public void init(ServerFilterConfig config) {
         this.vertx = Vertx.vertx();
-        // 后端 WebSocket 客户端性能配置:TcpNoDelay 减小包延迟,帧大小上限放大,
+ // 后端 WebSocket 客户端性能配置:tcpno延迟 减小包延迟,帧大小上限放大,
         // 连接超时防后端不可达时挂起,提升代理转发吞吐
         this.webSocketClient = vertx.createWebSocketClient(new io.vertx.core.http.WebSocketClientOptions()
                 .setTcpNoDelay(true)
@@ -94,9 +94,9 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
 
     @Override
     /**
-     * Do过滤
-     * @param request request
-     * @param response response
+      * 执行过滤
+     * @param request 请求
+     * @param response 响应
      * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
@@ -109,9 +109,9 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
 
     @Override
     /**
-     * Do过滤
-     * @param request request
-     * @param response response
+      * 执行过滤
+     * @param request 请求
+     * @param response 响应
      * @param chain chain
      */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
@@ -124,6 +124,9 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
 
     /**
      * 尝试 WebSocket 反向代理。成功返回 true（请求已被接管），否则返回 false。
+     * @param request 请求
+     * @param response 响应
+     * @return 尝试代理web套接字的结果
      */
     private boolean tryProxyWebSocket(ServerRequest request, ServerResponse response) {
         String upgrade = request.getHeader("Upgrade");
@@ -172,6 +175,8 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
 
     /**
      * 建立客户端与后端之间的双向帧管道。
+     * @param clientWs 客户端ws
+     * @param backendWs backendws
      */
     private void pipe(ServerWebSocket clientWs, WebSocket backendWs) {
         clientWs.frameHandler(frame -> {
@@ -198,7 +203,13 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
                 clientWs.path(), backendWs.remoteAddress());
     }
 
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+     *
+     * @param response 响应
+     * @param code 编码
+     * @param msg msg
+     */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);

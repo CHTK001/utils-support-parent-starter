@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spring MVC Handler — intercepts DispatcherServlet request handling.
+   * Spring MVC 处理器 — intercepts dispatcherservlet 请求 处理.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class SpringMvcHandler extends AbstractAppHandler {
      */
     private static final String DISPATCHER_SERVLET = "org/springframework/web/servlet/DispatcherServlet";
     /**
-     * do dispatch
+      * 执行 dispatch
      */
     private static final String[] DO_DISPATCH = {"doDispatch"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "spring-mvc-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "spring-mvc.enabled";
     }
@@ -42,13 +42,13 @@ public class SpringMvcHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(DISPATCHER_SERVLET, DO_DISPATCH);
     }

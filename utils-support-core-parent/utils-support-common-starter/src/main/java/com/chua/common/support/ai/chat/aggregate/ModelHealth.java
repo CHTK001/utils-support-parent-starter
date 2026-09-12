@@ -34,7 +34,7 @@ public class ModelHealth {
     /**
      * 创建 ModelHealth 实例
      * @param provider provider
-     * @param String String
+     * @param provider String
      */
     public ModelHealth(String provider, String model) {
         this.provider = provider;

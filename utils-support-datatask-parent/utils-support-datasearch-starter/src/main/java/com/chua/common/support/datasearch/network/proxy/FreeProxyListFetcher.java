@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 从 free-proxy-list.net 获取免费代理。
+   * 从 free-代理-列表.net 获取免费代理。
  *
  * @author CH
  * @since 4.0.0.42
@@ -28,7 +28,7 @@ public class FreeProxyListFetcher implements ProxyFetcher {
     private static final Pattern PROXY_PATTERN = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
 
     @Override
-    /** FetchProxies */
+    /** 获取代理 */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -43,7 +43,7 @@ public class FreeProxyListFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取SourceName */
+    /** 获取源名称 */
     public String getSourceName() {
         return "free-proxy-list";
     }

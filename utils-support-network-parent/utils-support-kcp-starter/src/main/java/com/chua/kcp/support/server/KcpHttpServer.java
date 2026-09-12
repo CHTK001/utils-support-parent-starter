@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * 基于 kcp-base 的 KCP HTTP 服务器（简化版）。
+   * 基于 kcp-基础 的 KCP HTTP 服务器（简化版）。
  *
  * <p>在 KCP 之上提供 HTTP 风格请求-响应，使用 {@code topic=path} 映射 HTTP path，
  * payload 为 JSON 字符串。响应通过 {@code resp/path} 主题回传。</p>
@@ -32,7 +32,7 @@ public class KcpHttpServer extends AbstractServer {
     private KcpServer kcpServer;
 
     /**
-     * 创建 KcpHttpServer 实例
+      * 创建 kcphttp服务端 实例
      * @param setting setting
      */
     public KcpHttpServer(ServerSetting setting) {
@@ -40,19 +40,19 @@ public class KcpHttpServer extends AbstractServer {
     }
 
     @Override
-    /** 获取Protocol */
+    /** 获取协议 */
     public String getProtocol() {
         return "kcp";
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.KCP;
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         setting.setProtocol("kcp");
         kcpServer = new KcpServer(setting);
@@ -62,7 +62,7 @@ public class KcpHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (kcpServer != null) {
             try {

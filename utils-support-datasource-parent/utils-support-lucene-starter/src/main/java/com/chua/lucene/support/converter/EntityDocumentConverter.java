@@ -12,7 +12,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 /**
- * 实体对象与 Lucene Document 之间的转换器。
+   * 实体对象与 Lucene 文档 之间的转换器。
  *
  * <p>负责将 Java 实体对象序列化为 Lucene {@link Document}，
  * 以及从 {@link Document} 反序列化为实体对象。</p>
@@ -43,10 +43,10 @@ public final class EntityDocumentConverter {
     }
 
     /**
-     * 将实体对象转换为 Lucene Document。
+      * 将实体对象转换为 Lucene 文档。
      *
      * @param entity 实体对象
-     * @return Lucene Document
+     * @return Lucene 文档
      */
     @SuppressWarnings("unchecked")
     public static Document toDocument(Object entity) {
@@ -77,9 +77,9 @@ public final class EntityDocumentConverter {
     }
 
     /**
-     * 将 Lucene Document 转换为实体对象。
+      * 将 Lucene 文档 转换为实体对象。
      *
-     * @param doc        Lucene Document
+     * @param doc        Lucene 文档
      * @param entityClass 实体类
      * @param <T>        实体类型
      * @return 实体对象
@@ -90,7 +90,7 @@ public final class EntityDocumentConverter {
             return null;
         }
         try {
-            // 使用无参构造反射实例化，避免 MethodHandle 对部分类的访问限制
+ // 使用无参构造反射实例化，避免 方法处理 对部分类的访问限制
             java.lang.reflect.Constructor<T> constructor = entityClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             T entity = constructor.newInstance();
@@ -109,9 +109,9 @@ public final class EntityDocumentConverter {
     }
 
     /**
-     * 向 Document 添加字段。
+      * 向 文档 添加字段。
      *
-     * @param doc       Lucene Document
+     * @param doc       Lucene 文档
      * @param fieldName 字段名
      * @param value     字段值
      */

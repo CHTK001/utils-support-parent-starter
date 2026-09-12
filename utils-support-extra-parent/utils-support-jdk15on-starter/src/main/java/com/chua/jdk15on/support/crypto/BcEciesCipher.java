@@ -22,7 +22,7 @@ import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 
 /**
- * 基于 BouncyCastle 的 ECIES 椭圆曲线集成加密方案实现
+   * 基于 bouncycastle 的 弹性容器实例 椭圆曲线集成加密方案实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，实现密钥封装与对称加密结合的混合加密方案。
  * 使用 P-256 (secp256r1) 曲线，ECDH 密钥协商，SHA-256 KDF，AES/CBC 数据加密。
@@ -37,7 +37,7 @@ public class BcEciesCipher implements EciesCipher {
     private static final String PROVIDER = "BC";
     /** Curve */
     private static final String CURVE = "secp256r1";
-    /** Key_algorithm */
+    /** 键_algorithm */
     private static final String KEY_ALGORITHM = "EC";
 
     static {
@@ -47,7 +47,7 @@ public class BcEciesCipher implements EciesCipher {
     }
 
     @Override
-    /** GenerateKeyPair */
+    /** generate键pair */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER);

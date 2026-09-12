@@ -38,13 +38,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
 
-    /** framework */
+    /** 框架 */
     private volatile Framework framework;
-    /** 原始 OSGi BundleContext（服务注册表按名查找入口） */
+    /** 原始 osgi bundle上下文（服务注册表按名查找入口） */
     private volatile org.osgi.framework.BundleContext frameworkContext;
     /** Applications */
     private final List<BundleApplication> applications = new CopyOnWriteArrayList<>();
-    /** Listeners */
+    /** 监听器 */
     private final List<BundleLifecycleListener> listeners = new CopyOnWriteArrayList<>();
     /** Auto开始installedbundles */
     private boolean autoStartInstalledBundles = true;
@@ -78,7 +78,11 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         }
     }
 
-    /** 获取原始 OSGi BundleContext（服务注册表访问入口，供框架外组件按名查找 OSGi 服务） */
+    /**
+     * 获取原始 osgi bundle上下文（服务注册表访问入口，供框架外组件按名查找 osgi 服务）
+     *
+     * @return 获取框架bundle上下文的结果
+     */
     public org.osgi.framework.BundleContext getFrameworkBundleContext() {
         return frameworkContext;
     }
@@ -98,52 +102,95 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         });
     }
 
-    /** 添加Listener */
+    /**
+     * 添加监听器
+     *
+     * @param listener 监听器
+     */
     public void addListener(BundleLifecycleListener listener) {
         listeners.add(listener);
     }
 
-    /** 移除Listener */
+    /**
+     * 移除监听器
+     *
+     * @param listener 监听器
+     */
     public void removeListener(BundleLifecycleListener listener) {
         listeners.remove(listener);
     }
 
-    /** FireBundleInstalled */
+    /**
+     * firebundleinstalled
+     *
+     * @param symbolicName symbolic名称
+     */
     private void fireBundleInstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleInstalled(symbolicName));
     }
 
-    /** FireBundleStarted */
+    /**
+     * firebundle启动
+     *
+     * @param symbolicName symbolic名称
+     */
     private void fireBundleStarted(String symbolicName) {
         listeners.forEach(l -> l.onBundleStarted(symbolicName));
     }
 
-    /** FireBundleStopped */
+    /**
+     * firebundlestopped
+     *
+     * @param symbolicName symbolic名称
+     */
     private void fireBundleStopped(String symbolicName) {
         listeners.forEach(l -> l.onBundleStopped(symbolicName));
     }
 
-    /** FireBundleUpdated */
+    /**
+     * firebundle更新
+     *
+     * @param symbolicName symbolic名称
+     * @param newVersion 新版本
+     */
     private void fireBundleUpdated(String symbolicName, String newVersion) {
         listeners.forEach(l -> l.onBundleUpdated(symbolicName, newVersion));
     }
 
-    /** FireBundleUninstalled */
+    /**
+     * firebundleuninstalled
+     *
+     * @param symbolicName symbolic名称
+     */
     private void fireBundleUninstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleUninstalled(symbolicName));
     }
 
-    /** FireBundleStateChanged */
+    /**
+     * firebundle状态改变
+     *
+     * @param symbolicName symbolic名称
+     * @param oldState 旧状态
+     * @param newState 新状态
+     */
     private void fireBundleStateChanged(String symbolicName, String oldState, String newState) {
         listeners.forEach(l -> l.onBundleStateChanged(symbolicName, oldState, newState));
     }
 
-    /** 是否Auto开始InstalledBundles */
+    /**
+     * 是否Auto开始installedbundles
+     *
+     * @return 是否auto启动installedbundles的结果
+     */
     public boolean isAutoStartInstalledBundles() {
         return autoStartInstalledBundles;
     }
 
-    /** 设置Auto开始InstalledBundles */
+    /**
+     * 设置Auto开始installedbundles
+     *
+     * @param autoStart auto启动
+     */
     public void setAutoStartInstalledBundles(boolean autoStart) {
         this.autoStartInstalledBundles = autoStart;
     }
@@ -174,13 +221,13 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** 是否Active */
+    /** 是否活跃 */
     public boolean isActive() {
         return framework != null && framework.getState() == Bundle.ACTIVE;
     }
 
     @Override
-    /** 获取Services */
+    /** 获取服务 */
     public <T> List<T> getServices(Class<T> type) {
         if (!isActive()) {
             return Collections.emptyList();
@@ -205,7 +252,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** 获取Service */
+    /** 获取服务 */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
         return services.isEmpty() ? null : services.get(0);
@@ -226,7 +273,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** InstallBundle */
+    /** installbundle */
     public OsgiBundle installBundle(String url) {
         if (!isActive()) {
             throw new IllegalStateException("OSGI framework is not active");
@@ -252,7 +299,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     }
 
     @Override
-    /** UninstallBundle */
+    /** uninstallbundle */
     public void uninstallBundle(String bundleSymbolicName) {
         if (!isActive()) {
             return;
@@ -278,7 +325,12 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
         log.warn("[osgi] Bundle not found: {}", bundleSymbolicName);
     }
 
-    /** 获取Bundle */
+    /**
+     * 获取Bundle
+     *
+     * @param symbolicName symbolic名称
+     * @return 获取bundle的结果
+     */
     public OsgiBundle getBundle(String symbolicName) {
         List<OsgiBundle> bundles = getBundles();
         return bundles.stream()
@@ -287,24 +339,41 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
                 .orElse(null);
     }
 
-    /** 获取BundlesByState */
+    /**
+     * 获取bundlesby状态
+     *
+     * @param state 状态
+     * @return 获取bundlesby状态的结果
+     */
     public List<OsgiBundle> getBundlesByState(String state) {
         return getBundles().stream()
                 .filter(b -> b.getState().equals(state))
                 .collect(Collectors.toList());
     }
 
-    /** 获取ActiveBundles */
+    /**
+     * 获取活跃bundles
+     *
+     * @return 获取活跃bundles的结果
+     */
     public List<OsgiBundle> getActiveBundles() {
         return getBundlesByState("ACTIVE");
     }
 
-    /** 获取Bundle计算数量 */
+    /**
+     * 获取Bundle计算数量
+     *
+     * @return 获取bundle数量的结果
+     */
     public long getBundleCount() {
         return getBundles().size();
     }
 
-    /** 获取FrameworkStats */
+    /**
+     * 获取框架stats
+     *
+     * @return 获取框架stats的结果
+     */
     public Map<String, Object> getFrameworkStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("active", isActive());

@@ -26,6 +26,9 @@ import java.util.List;
  *         }
  *     })
  *     .deployTo("/opt/app/");
+ * }</pre>         }
+ *     })
+   * .deploy转为("/opt/app/");
  * }</pre>
  *
  * @author CH

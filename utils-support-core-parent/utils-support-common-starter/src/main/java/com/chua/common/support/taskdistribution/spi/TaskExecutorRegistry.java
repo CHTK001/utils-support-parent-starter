@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskExecutorRegistry {
 
     /**
-     * 执行器映射：taskType -> TaskExecutor
+      * 执行器映射：任务类型 -> 任务执行器
      */
     private final Map<String, TaskExecutor<?>> executors = new ConcurrentHashMap<>();
 
@@ -48,7 +48,7 @@ public class TaskExecutorRegistry {
      * 查找执行器。
      *
      * @param taskType 任务类型
-     * @return 执行器，不存在返回 null
+     * @return 执行器，不存在返回 空
      */
     public TaskExecutor<?> find(String taskType) {
         return executors.get(taskType);
@@ -58,7 +58,7 @@ public class TaskExecutorRegistry {
      * 根据任务查找执行器。
      *
      * @param task 任务
-     * @return 匹配的执行器，无匹配返回 null
+     * @return 匹配的执行器，无匹配返回 空
      */
     @SuppressWarnings("unchecked")
     public TaskExecutor<?> findExecutor(Task<?> task) {

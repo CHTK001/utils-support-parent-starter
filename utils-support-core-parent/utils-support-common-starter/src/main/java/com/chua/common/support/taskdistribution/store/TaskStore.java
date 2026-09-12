@@ -28,7 +28,7 @@ public interface TaskStore extends AutoCloseable {
     /**
      * 更新任务状态。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @param status 新状态
      */
     void updateStatus(String taskId, TaskStatus status);
@@ -43,24 +43,24 @@ public interface TaskStore extends AutoCloseable {
     /**
      * 获取任务。
      *
-     * @param taskId 任务 ID
-     * @return 任务，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 任务，不存在返回 空
      */
     Task<?> getTask(String taskId);
 
     /**
      * 获取任务状态。
      *
-     * @param taskId 任务 ID
-     * @return 状态，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 状态，不存在返回 空
      */
     TaskStatus getStatus(String taskId);
 
     /**
      * 获取任务结果。
      *
-     * @param taskId 任务 ID
-     * @return 结果，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 结果，不存在返回 空
      */
     TaskResult<?> getResult(String taskId);
 
@@ -74,7 +74,7 @@ public interface TaskStore extends AutoCloseable {
     /**
      * 移除任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     void removeTask(String taskId);
 

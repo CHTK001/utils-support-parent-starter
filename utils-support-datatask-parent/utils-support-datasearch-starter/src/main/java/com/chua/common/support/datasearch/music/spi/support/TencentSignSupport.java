@@ -17,16 +17,21 @@ public final class TencentSignSupport {
     private static final int[] PART_1_INDEXES = {23, 14, 6, 36, 16, 40, 7, 19};
     /** Part_2_indexes */
     private static final int[] PART_2_INDEXES = {16, 1, 32, 12, 19, 27, 8, 5};
-    /** Scramble_values */
+    /** Scramble_值 */
     private static final int[] SCRAMBLE_VALUES = {
             89, 39, 179, 150, 218, 82, 58, 252, 177, 52, 186, 123, 120, 64, 242, 133, 143, 161, 121, 179
     };
 
-    /** 创建 TencentSignSupport 实例 */
+    /** 创建 tencent标志支持 实例 */
     private TencentSignSupport() {
     }
 
-    /** Sign */
+    /**
+     * 标志
+     *
+     * @param text 文本
+     * @return 标志的结果
+     */
     public static String sign(String text) {
         String hash = sha1(text).toUpperCase();
         String part1 = pick(hash, PART_1_INDEXES);
@@ -45,7 +50,13 @@ public final class TencentSignSupport {
         return ("zzc" + part1 + middle + part2).toLowerCase();
     }
 
-    /** Pick */
+    /**
+     * Pick
+     *
+     * @param hash 哈希
+     * @param indexes 索引
+     * @return pick的结果
+     */
     private static String pick(String hash, int[] indexes) {
         StringBuilder builder = new StringBuilder();
         int last = hash.length() - 1;
@@ -58,7 +69,12 @@ public final class TencentSignSupport {
         return builder.toString();
     }
 
-    /** Sha */
+    /**
+     * Sha
+     *
+     * @param text 文本
+     * @return sha1的结果
+     */
     private static String sha1(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

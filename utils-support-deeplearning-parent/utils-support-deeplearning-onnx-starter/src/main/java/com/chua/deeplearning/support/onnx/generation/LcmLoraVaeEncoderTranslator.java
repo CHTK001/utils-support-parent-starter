@@ -12,9 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * LCM-LoRA VAE                   
+   * LCM-lora VAE
  * <p>
- *              LCM-LoRA           VAE                
+   * LCM-lora           VAE
  *                                     
  * </p>
  * <p>
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * </p>
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/26
  */
 @Slf4j
@@ -97,7 +97,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return VAE                                        
      */
     @Override

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Windows 系统服务管理器。
+   * 窗口 系统服务管理器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ public class WindowsServiceManager implements ServiceManager {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(WindowsServiceManager.class.getName());
     /**
@@ -28,13 +28,13 @@ public class WindowsServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT = 30;
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "windows";
     }
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported() {
         String os = System.getProperty("os.name", "").toLowerCase();
         return os.contains("win");
@@ -97,7 +97,7 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public CmdResult status(String serviceName) {
         return CmdExecutors.execute("sc query \"" + serviceName + "\"", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
@@ -115,7 +115,7 @@ public class WindowsServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否Enabled */
+    /** 是否已启用 */
     public boolean isEnabled(String serviceName) {
         CmdResult r = status(serviceName);
         if (!r.isSuccess()) {
@@ -131,7 +131,12 @@ public class WindowsServiceManager implements ServiceManager {
         return status(serviceName).isSuccess();
     }
 
-    /** MapStartup */
+    /**
+     * 映射startup
+     *
+     * @param type 类型
+     * @return 映射startup的结果
+     */
     private String mapStartup(String type) {
         if (type == null) {
             return "auto";

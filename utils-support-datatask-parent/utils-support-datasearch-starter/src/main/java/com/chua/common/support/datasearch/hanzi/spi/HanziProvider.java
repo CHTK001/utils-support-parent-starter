@@ -28,7 +28,7 @@ public interface HanziProvider {
      * <p>字完全匹配，找不到时返回 null。
      *
      * @param character 单个汉字（如：中）
-     * @return 汉字信息；不存在返回 null
+     * @return 汉字信息；不存在返回 空
      */
     HanziInfo get(String character);
 

@@ -10,7 +10,7 @@ import java.util.Map;
  * 单个人脸识别结果（检测框 + 活体 + 检索命中）。
  *
  * @param box       人脸框
- * @param feature   人脸特征（活体失败可为 null）
+ * @param feature   人脸特征（活体失败可为 空）
  * @param hits      向量库检索结果
  * @param live      是否通过活体（未配置活体时为 true）
  * @param liveScore 活体分数
@@ -30,15 +30,16 @@ public record FaceIdentifyHit(
      * @param box     框
      * @param feature 特征
      * @param hits    命中
+     * @return FaceIdentifyHit的结果
      */
     public FaceIdentifyHit(PredictRectangle box, float[] feature, List<FaceSearchHit> hits) {
         this(box, feature, hits, true, 1.0f);
     }
 
     /**
-     * 取第一命中 ID。
+      * 取第一命中 标识。
      *
-     * @return id 或 null
+     * @return id 或 空
      */
     public String bestId() {
         if (hits == null || hits.isEmpty()) {

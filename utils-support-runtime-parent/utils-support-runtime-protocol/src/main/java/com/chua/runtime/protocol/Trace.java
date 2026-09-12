@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 追踪 — 一个 traceId 对应一整条调用链。
+   * 追踪 — 一个 追踪id 对应一整条调用链。
  *
  * <p>包含根 Span、所有 Span、起始时间、traceState（W3C 兼容）。</p>
  *
@@ -25,12 +25,12 @@ import java.util.Map;
 public class Trace {
 
     /**
-     * 追踪 ID（W3C traceparent 标准）
+      * 追踪 标识（W3C traceparent 标准）
      */
     private String traceId;
 
     /**
-     * W3C traceState（多厂商 trace 串联）
+      * W3C 追踪状态（多厂商 追踪 串联）
      */
     private String traceState;
 
@@ -47,10 +47,10 @@ public class Trace {
     private List<Span> spans = new ArrayList<>();
 
     /**
-     * 追踪级属性（trace-level attributes）
+      * 追踪级属性（追踪-级别 attributes）
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
      * 追踪开始时间（毫秒）
@@ -66,6 +66,6 @@ public class Trace {
      * 是否已结束
      */
     @Builder.Default
-    /** Finished */
+    /** 饰面 */
     private boolean finished = false;
 }

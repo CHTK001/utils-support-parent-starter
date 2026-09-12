@@ -26,8 +26,13 @@ import java.net.Socket;
 @Slf4j
 public class ScatterTcpNodeServer extends AbstractProxyServer {
 
-    private final ScatterNodeHandler handler;
+    private final ScatterNodeHandler handler; // 处理器
 
+    /**
+     * scattertcp节点服务端。
+     * @param setting setting
+     * @param handler 处理器
+     */
     public ScatterTcpNodeServer(ServerSetting setting, ScatterNodeHandler handler) {
         super(setting);
         this.handler = handler;
@@ -52,7 +57,7 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
                 response = new ScatterFrame(ScatterProtocol.TYPE_ACK, frame.getRequestId(),
                         frame.getPath(), new byte[0]).encode();
             }
-            // 写 4 字节长度头 + 响应帧（与 JdkTcpClient.exchange 长度帧协议对称）
+ // 写 4 字节长度头 + 响应帧（与 jdktcp客户端.exchange 长度帧协议对称）
             byte[] len = new byte[4];
             len[0] = (byte) (response.length >>> 24);
             len[1] = (byte) (response.length >>> 16);
@@ -74,10 +79,10 @@ public class ScatterTcpNodeServer extends AbstractProxyServer {
     }
 
     /**
-     * 从输入流读取一帧（兼容 TcpClient 长度帧协议：4 字节长度头 + ScatterFrame body）。
+      * 从输入流读取一帧（兼容 tcp客户端 长度帧协议：4 字节长度头 + scatter帧 主体）。
      *
      * @param in 输入流
-     * @return 帧，EOF 返回 null
+     * @return 帧，EOF 返回 空
      */
     private ScatterFrame readFrame(InputStream in) throws IOException {
         byte[] lenBytes = new byte[4];

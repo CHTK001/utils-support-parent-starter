@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
- * LocalDate 转 String 转换器
+   * 本地日期 转 字符串 转换器
  * 将 {@link LocalDate} 转换为 ISO 格式字符串（yyyy-MM-dd）
  *
  * @author CH
@@ -47,10 +47,10 @@ public class LocalDateToStringConverter implements Converter<LocalDate, String> 
     }
 
     /**
-     * 将 LocalDate 转换为字符串
+      * 将 本地日期 转换为字符串
      *
-     * @param source 源 LocalDate 对象
-     * @return 格式化后的日期字符串，如果 source 为 null 则返回 null
+     * @param source 源 本地日期 对象
+     * @return 格式化后的日期字符串，如果 源 为 空 则返回 空
      */
     @Override
     public String convert(LocalDate source) {

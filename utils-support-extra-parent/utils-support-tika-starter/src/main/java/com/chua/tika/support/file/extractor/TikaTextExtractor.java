@@ -25,15 +25,17 @@ import java.util.List;
  * <p>
  * Tika 通过 {@link AutoDetectParser} 自动检测文件类型并调用对应的解析器，
  * 支持的格式包括但不限于：PDF、Word（.docx/.doc）、Excel（.xlsx/.xls）、
- * PowerPoint（.pptx）、HTML、XML、CSV、RTF、EPUB、邮件（.msg/.eml）等。
+   * powerpoint（.pptx）、HTML、XML、CSV、RTF、EPUB、邮件（.msg/.eml）等。
  * </p>
  *
  * <pre>{@code
  * // 使用方式
  * String text = TextExtractor.create("tika").extractText(new File("document.pdf"));
+ * }</pre>nt.pdf"));
  * }</pre>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Spi("tika")
@@ -43,7 +45,7 @@ public class TikaTextExtractor implements TextExtractor {
     private final Parser parser = new AutoDetectParser();
 
     @Override
-    /** ExtractText */
+    /** extract文本 */
     public List<TextExtractResult> extractText(File file) {
         Metadata metadata = new Metadata();
         metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, file.getName());
@@ -105,7 +107,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "tika";
     }

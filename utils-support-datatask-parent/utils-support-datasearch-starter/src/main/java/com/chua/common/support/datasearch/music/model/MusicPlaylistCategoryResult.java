@@ -16,7 +16,7 @@ import java.util.List;
 public class MusicPlaylistCategoryResult {
     /** 来源 */
     private String source;
-    /** 标签ID */
+    /** 标签标识 */
     private String tagId;
     /** 分类名称 */
     private String categoryName;

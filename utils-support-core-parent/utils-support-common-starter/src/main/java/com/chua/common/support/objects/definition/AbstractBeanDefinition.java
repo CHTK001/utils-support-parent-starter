@@ -58,7 +58,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * 销毁状态标志
      */
     @Getter
-    /** Destroyed */
+    /** 销毁 */
     protected final AtomicBoolean destroyed = new AtomicBoolean(false);
 
     /**
@@ -66,7 +66,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
-    /** Proxy */
+    /** 代理 */
     private boolean proxy = true;
 
     /**
@@ -110,7 +110,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      */
     @Getter
     @Setter
-    private Class<?> beanClass;
+    private Class<?> beanClass; // Bean类
 
     /**
      * 是否可用
@@ -131,12 +131,12 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     private volatile Class<?> cachedBeanClass;
 
     /**
-     * 类型层次缓存（类名 -> 是否存在），用于快速判断 isAssignableFrom
+      * 类型层次缓存（类名 -> 是否存在），用于快速判断 是否assignable从
      */
     private volatile Set<String> typeHierarchyNames = Collections.emptySet();
 
     /**
-     * 注解类型名缓存（注解类名 -> 是否存在），用于快速判断 isAnnotationPresent
+      * 注解类型名缓存（注解类名 -> 是否存在），用于快速判断 是否注解present
      */
     private volatile Set<String> annotationTypeNames = Collections.emptySet();
 
@@ -152,13 +152,13 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * 按名称查找 Bean 的函数，用于服务注入
      */
     @Setter
-    protected Function<String, Object> beanNameProvider;
+    protected Function<String, Object> beanNameProvider; // Bean名称提供者
 
     /**
      * 按类型查找 Bean 的函数，用于服务注入
      */
     @Setter
-    protected Function<Class<?>, Object> beanTypeProvider;
+    protected Function<Class<?>, Object> beanTypeProvider; // Bean类型提供者
 
     /**
      * 占位符解析最大迭代次数，防止无限循环
@@ -190,7 +190,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      *
      * <p>调用链：getBean() → 未初始化则 initializeBean() → createInstance() → setBean() → 注入 → 生命周期</p>
      *
-     * @return Bean 实例，初始化失败返回 null
+     * @return Bean 实例，初始化失败返回 空
      */
     @Override
     public Object getBean() {
@@ -203,7 +203,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * 子类实现返回已缓存的 Bean 实例。
      *
-     * @return Bean 实例，默认返回 null
+     * @return Bean 实例，默认返回 空
      */
     protected Object doGetBean() {
         return null;
@@ -234,7 +234,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     /**
      * 创建 Bean 实例。
      *
-     * @return Bean 实例，默认返回 null，子类按需重写
+     * @return Bean 实例，默认返回 空，子类按需重写
      */
     @Override
     public Object createInstance() {
@@ -260,7 +260,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否Destroyed */
+    /** 是否销毁 */
     public boolean isDestroyed() {
         return destroyed.get();
     }
@@ -268,7 +268,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 注解检测 ====================
 
     @Override
-    /** 是否AnnotationPresent */
+    /** 是否注解present */
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return false;
@@ -287,7 +287,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否AnnotationPresent */
+    /** 是否注解present */
     public boolean isAnnotationPresent(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return false;
@@ -301,7 +301,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取Annotation */
+    /** 获取注解 */
     public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
         if (annotationType == null) {
             return null;
@@ -324,7 +324,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取Annotation */
+    /** 获取注解 */
     public Annotation getAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return null;
@@ -343,7 +343,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 类型判断 ====================
 
     @Override
-    /** 是否AssignableFrom */
+    /** 是否assignable从 */
     public boolean isAssignableFrom(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -361,7 +361,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否AssignableFrom */
+    /** 是否assignable从 */
     public boolean isAssignableFrom(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -375,7 +375,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否AssignableTo */
+    /** 是否assignable转为 */
     public boolean isAssignableTo(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -393,7 +393,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否AssignableTo */
+    /** 是否assignable转为 */
     public boolean isAssignableTo(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -407,7 +407,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否Type */
+    /** 是否类型 */
     public boolean isType(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -425,7 +425,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否Type */
+    /** 是否类型 */
     public boolean isType(String clazz) {
         if (clazz == null || clazz.isEmpty()) {
             return false;
@@ -441,7 +441,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     // ==================== 方法查询 ====================
 
     @Override
-    /** 获取MethodsWithAnnotation */
+    /** 获取方法with注解 */
     public List<Method> getMethodsWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return Collections.emptyList();
@@ -450,7 +450,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取MethodsWithAnnotation */
+    /** 获取方法with注解 */
     public List<Method> getMethodsWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return Collections.emptyList();
@@ -465,7 +465,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取MethodDefinitions */
+    /** 获取方法definitions */
     public List<MethodDefinition> getMethodDefinitions() {
         Class<?> beanClass = getBeanClass();
         if (beanClass == null) {
@@ -477,7 +477,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取MethodDefinition */
+    /** 获取方法definition */
     public MethodDefinition getMethodDefinition(Method method) {
         if (method == null || getBeanClass() == null) {
             return null;
@@ -486,7 +486,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取MethodWithAnnotation */
+    /** 获取方法with注解 */
     public Method getMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return null;
@@ -495,7 +495,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 获取MethodWithAnnotation */
+    /** 获取方法with注解 */
     public Method getMethodWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return null;
@@ -511,7 +511,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否拥有MethodWithAnnotation */
+    /** 是否拥有方法with注解 */
     public boolean hasMethodWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
             return false;
@@ -520,7 +520,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** 是否拥有MethodWithAnnotation */
+    /** 是否拥有方法with注解 */
     public boolean hasMethodWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
             return false;
@@ -542,7 +542,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
         if (initialized.get()) {
             return getBean();
         }
-        // 已销毁则返回 null
+ // 已销毁则返回 空
         if (destroyed.get()) {
             return null;
         }
@@ -556,7 +556,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                 }
                 // 2. 保存实例
                 setBean(bean);
-                // 3. 依赖注入（@AutoInject、@ConfigValue 等）
+ // 3. 依赖注入（@autoinject、@配置值 等）
                 injectAndAssemble(bean);
                 // 4. 执行生命周期初始化
                 BeanDefinitionLifecycleManager.init(this, bean);
@@ -692,7 +692,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
                 continue;
             }
 
-            // 后尝试配置注入（@ConfigValue 参数），统一解析 String 类型表达式
+ // 后尝试配置注入（@配置值 参数），统一解析 字符串 类型表达式
             if (environment != null) {
                 for (BeanDefinitionConfigInjector injector : configInjectors) {
                     if (injector.isSupport(method, this)) {
@@ -767,7 +767,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
             if (injector.isSupport(field, this)) {
                 Object value = injector.inject(field, instance, this, environment);
                 if (value instanceof String str) {
-                    // 统一处理表达式（${} / #{}）和直接 key 查找
+ // 统一处理表达式（${} / #{}）和直接 键 查找
                     Object resolved = ConfigValueResolvers.resolve(str, field.getType(), environment);
                     if (resolved != null) {
                         return resolved;
@@ -874,7 +874,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      * @param type           当前类型
      * @param annotationType 注解类型
      * @param <T>            注解泛型
-     * @return 找到的注解，不存在返回 null
+     * @return 找到的注解，不存在返回 空
      */
     private static <T extends Annotation> T getAnnotationFromHierarchy(Class<?> type, Class<T> annotationType) {
         if (type == null || type == Object.class) {
@@ -898,7 +898,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
      *
      * @param type               当前类型
      * @param annotationTypeName 注解类型名
-     * @return 找到的注解，不存在返回 null
+     * @return 找到的注解，不存在返回 空
      */
     private static Annotation getAnnotationFromHierarchy(Class<?> type, String annotationTypeName) {
         if (type == null || type == Object.class) {
@@ -938,7 +938,7 @@ public abstract class AbstractBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return getType();
     }

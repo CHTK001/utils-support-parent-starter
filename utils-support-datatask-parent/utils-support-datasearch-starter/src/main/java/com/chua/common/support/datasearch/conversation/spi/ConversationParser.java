@@ -22,7 +22,7 @@ public interface ConversationParser {
     Flux<ConversationMessage> streamMessages();
 
     /**
-     * 当前解析器标识（如 "claude-code"、"qoder"）。
+      * 当前解析器标识（如 "claude-编码"、"qoder"）。
      *
      * @return SPI 名称
      */

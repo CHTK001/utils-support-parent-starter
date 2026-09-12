@@ -14,25 +14,29 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * GitClient 新增操作集成测试。
+   * git客户端 新增操作集成测试。
  *
  * <p>运行方式：直接执行 {@code main}，在临时目录中创建真实 Git 仓库，
- * 依次验证 log、status、commit、branch、tag 各操作。</p>
+   * 依次验证 日志、状态、commit、分支、标签 各操作。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class GitClientTest {
 
-    static int passed = 0;
-    static int failed = 0;
+    static int passed = 0; // 通过
+    static int failed = 0; // 失败
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         Path tempDir = Files.createTempDirectory("git-test");
         System.out.println("临时目录: " + tempDir);
 
         try {
-            // 初始化 git 仓库
+ // 初始化 Git 仓库
             Git.init().setDirectory(tempDir.toFile()).call();
             GitClient client = GitClient.ofLocal(tempDir).open();
 
@@ -42,16 +46,16 @@ public class GitClientTest {
             // 2. 添加文件并提交
             testAddAndCommit(client, tempDir);
 
-            // 3. 测试 log
+ // 3. 测试 日志
             testLog(client);
 
-            // 4. 测试 status
+ // 4. 测试 状态
             testStatus(client, tempDir);
 
-            // 5. 测试 branch
+ // 5. 测试 分支
             testBranch(client, tempDir);
 
-            // 6. 测试 tag
+ // 6. 测试 标签
             testTag(client);
 
             // 7. 测试 amend
@@ -69,6 +73,11 @@ public class GitClientTest {
         }
     }
 
+    /**
+     * 测试initialcommit。
+     * @param client 客户端
+     * @param dir dir
+     */
     static void testInitialCommit(GitClient client, Path dir) throws Exception {
         String msg = "init: 初始提交";
         String sha = (String) client.commit()
@@ -78,6 +87,11 @@ public class GitClientTest {
         System.out.println("  SHA: " + sha.substring(0, 7));
     }
 
+    /**
+     * 测试添加和commit。
+     * @param client 客户端
+     * @param dir dir
+     */
     static void testAddAndCommit(GitClient client, Path dir) throws Exception {
         Path newFile = dir.resolve("hello.txt");
         Files.writeString(newFile, "hello world\n");
@@ -88,7 +102,7 @@ public class GitClientTest {
         assertOk("添加文件并提交", sha != null && !sha.isEmpty());
         System.out.println("  SHA: " + sha.substring(0, 7));
 
-        // 测试 addAll
+ // 测试 添加全部
         Path anotherFile = dir.resolve("another.txt");
         Files.writeString(anotherFile, "another content\n");
         String sha2 = (String) client.commit()
@@ -97,6 +111,10 @@ public class GitClientTest {
         assertOk("addAll 提交", sha2 != null && !sha2.equals(sha));
     }
 
+    /**
+     * 测试日志。
+     * @param client 客户端
+     */
     static void testLog(GitClient client) {
         List<LogEntry> all = client.log().list();
         assertOk("log 全部", all.size() >= 3);
@@ -122,6 +140,11 @@ public class GitClientTest {
         assertOk("log 最新条目", latest.sha() != null && latest.author() != null);
     }
 
+    /**
+     * 测试状态。
+     * @param client 客户端
+     * @param dir dir
+     */
     static void testStatus(GitClient client, Path dir) throws Exception {
         // 先 commit 所有未跟踪文件，确保工作区干净
         client.commit().addAll().commit("chore: 清理未跟踪文件");
@@ -137,6 +160,11 @@ public class GitClientTest {
         Files.delete(untracked);
     }
 
+    /**
+     * 测试分支。
+     * @param client 客户端
+     * @param dir dir
+     */
     static void testBranch(GitClient client, Path dir) throws Exception {
         List<BranchInfo> branches = client.branch().listLocal();
         assertOk("branch listLocal", branches.size() >= 1);
@@ -164,6 +192,10 @@ public class GitClientTest {
         assertOk("branch delete", afterDelete.size() == branches.size());
     }
 
+    /**
+     * 测试标签。
+     * @param client 客户端
+     */
     static void testTag(GitClient client) {
         List<TagInfo> tags = client.tag().list();
         int before = tags.size();
@@ -181,6 +213,11 @@ public class GitClientTest {
         assertOk("tag delete", afterDelete.size() == before);
     }
 
+    /**
+     * 测试amend。
+     * @param client 客户端
+     * @param dir dir
+     */
     static void testAmend(GitClient client, Path dir) throws Exception {
         Path file = dir.resolve("amend.txt");
         Files.writeString(file, "v1\n");
@@ -191,6 +228,11 @@ public class GitClientTest {
         assertOk("commit amend", sha != null);
     }
 
+    /**
+     * 断言ok。
+     * @param name 名称
+     * @param condition 条件
+     */
     static void assertOk(String name, boolean condition) {
         if (condition) {
             passed++;
@@ -201,8 +243,14 @@ public class GitClientTest {
         }
     }
 
+    /**
+     * 删除recursively。
+     * @param dir dir
+     */
     static void deleteRecursively(Path dir) throws IOException {
-        if (dir == null || !Files.exists(dir)) return;
+        if (dir == null || !Files.exists(dir)) {
+            return;
+        }
         try (var walk = Files.walk(dir)) {
             walk.sorted(java.util.Comparator.reverseOrder())
                     .forEach(p -> {

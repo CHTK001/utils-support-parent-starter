@@ -82,17 +82,17 @@ public class SimpleWalLog implements WalLog {
     private final WalConfig config;
 
     /**
-     * RandomAccessFile（提供 FileChannel 以支持 fsync 和 mmap）
+      * 随机access文件（提供 文件通道 以支持 fsync 和 mmap）
      */
     private RandomAccessFile raf;
 
     /**
-     * FileChannel
+      * 文件通道
      */
     private FileChannel channel;
 
     /**
-     * 写入通道：mmap 模式下为 MappedByteBuffer，否则为 DataOutputStream（包装 FileChannel）
+      * 写入通道：mmap 模式下为 mappedbyte缓冲，否则为 数据输出流（包装 文件通道）
      */
     private DataOutputStream out;
 
@@ -147,8 +147,8 @@ public class SimpleWalLog implements WalLog {
     private boolean closed;
 
     /**
-     * 创建 SimpleWalLog 实例
-     * @param config config
+      * 创建 简单wal日志 实例
+     * @param config 配置
      */
     public SimpleWalLog(WalConfig config) throws IOException {
         this.config = config;
@@ -160,12 +160,12 @@ public class SimpleWalLog implements WalLog {
 
     /** 打开 */
     private void open() throws IOException {
-        // 打开 RandomAccessFile（支持读写 + 追加 + mmap）
+ // 打开 随机access文件（支持读写 + 追加 + mmap）
         boolean exists = Files.exists(walFile);
         this.raf = new RandomAccessFile(walFile.toFile(), "rw");
         this.channel = raf.getChannel();
         if (!exists) {
-            // 首次创建：写 magic
+ // 首次创建：写 魔法
             if (config.useMemoryMap()) {
                 this.mmapBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, MMAP_SIZE);
                 writeMagicToMmap();
@@ -200,7 +200,7 @@ public class SimpleWalLog implements WalLog {
         this.checkpointOffset = meta.checkpointOffset();
     }
 
-    /** 写入MagicToMmap */
+    /** 写入魔法转为mmap */
     private void writeMagicToMmap() throws IOException {
         byte[] magic = config.magic();
         mmapBuffer.put(magic);
@@ -208,7 +208,11 @@ public class SimpleWalLog implements WalLog {
         writtenBytes = magic.length;
     }
 
-    /** 扫描Tail */
+    /**
+     * 扫描Tail
+     *
+     * @param len len
+     */
     private void scanTail(long len) throws IOException {
         if (len <= config.magic().length) {
             this.currentLsn = 0L;
@@ -281,7 +285,11 @@ public class SimpleWalLog implements WalLog {
         return lsn;
     }
 
-    /** EnsureMmapCapacity */
+    /**
+     * ensuremmap容量
+     *
+     * @param needed needed
+     */
     private void ensureMmapCapacity(long needed) throws IOException {
         if (mmapBuffer == null) {
             return;
@@ -296,7 +304,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     /**
-     * 反射 unmap MappedByteBuffer，兼容 JDK 9+ 模块系统。
+      * 反射 unmap mappedbyte缓冲，兼容 JDK 9+ 模块系统。
      */
     private void unmapMmap() {
         if (mmapBuffer == null || mmapBufferRef == null) {
@@ -305,7 +313,7 @@ public class SimpleWalLog implements WalLog {
         try {
             Object result = mmapBufferRef.invoke(null, mmapBuffer);
             if (result instanceof Boolean) {
-                // sun.misc.Unsafe.invokeCleaner 返回 boolean
+ // sun.misc.Unsafe.invoke清洁剂 返回 布尔值
             }
         } catch (ReflectiveOperationException ignored) {
         }
@@ -322,13 +330,13 @@ public class SimpleWalLog implements WalLog {
             f.setAccessible(true);
             Object unsafe = f.get(null);
             m = unsafeCls.getMethod("invokeCleaner", java.nio.ByteBuffer.class);
-            // 静态调用 invokeCleaner 时无需 unsafe 实例（因为是 static）
+ // 静态调用 invoke清洁剂 时无需 unsafe 实例（因为是 静态）
         } catch (ReflectiveOperationException ignored) {
         }
         mmapBufferRef = m;
     }
 
-    /** MaybeFsync */
+    /** maybefsync */
     private void maybeFsync() throws IOException {
         if (!config.syncOnWrite()) {
             return;
@@ -340,7 +348,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** Sync */
+    /** 同步 */
     public void sync() throws IOException {
         ensureOpen();
         force();
@@ -348,7 +356,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     /**
-     * 真正 fsync：调用 FileChannel.force(true)。
+      * 真正 fsync：调用 文件通道.force(true)。
      *
      * @throws IOException IO 异常
      */
@@ -364,7 +372,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** CurrentLsn */
+    /** 当前lsn */
     public long currentLsn() {
         return currentLsn;
     }
@@ -378,7 +386,11 @@ public class SimpleWalLog implements WalLog {
         return readCheckpointFromDisk();
     }
 
-    /** 读取CheckpointFromDisk */
+    /**
+     * 读取checkpoint从disk
+     *
+     * @return 读取checkpoint从disk的结果
+     */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();
@@ -408,7 +420,11 @@ public class SimpleWalLog implements WalLog {
         }
     }
 
-    /** 写入CheckpointToDisk */
+    /**
+     * 写入checkpoint转为disk
+     *
+     * @param meta meta
+     */
     private void writeCheckpointToDisk(CheckpointMeta meta) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(CHECKPOINT_META_SIZE);
         buf.put(CHECKPOINT_MAGIC);
@@ -452,7 +468,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** ForceCheckpoint */
+    /** forcecheckpoint */
     public void forceCheckpoint(long lsn) throws IOException {
         ensureOpen();
         this.checkpointLsn = lsn;
@@ -556,7 +572,7 @@ public class SimpleWalLog implements WalLog {
     // ==================== Query ====================
 
     @Override
-    /** 查找ByLsn */
+    /** 查找bylsn */
     public Optional<WalRecord> findByLsn(long lsn) throws IOException {
         ensureOpen();
         if (!Files.exists(walFile) || Files.size(walFile) <= config.magic().length) {
@@ -597,13 +613,13 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** PurgeCheckpointed */
+    /** purgecheckpointed */
     public int purgeCheckpointed(int keepSegments) {
         return 0;
     }
 
     @Override
-    /** CurrentSegment */
+    /** 当前segment */
     public WalSegmentInfo currentSegment() {
         return new WalSegmentInfo(1,
                 currentLsn == 0 ? 0 : 1,
@@ -614,7 +630,7 @@ public class SimpleWalLog implements WalLog {
     }
 
     @Override
-    /** ListSegments */
+    /** 列表segments */
     public List<WalSegmentInfo> listSegments() {
         return Collections.singletonList(currentSegment());
     }
@@ -662,7 +678,14 @@ public class SimpleWalLog implements WalLog {
         }
     }
 
-    /** 构建Body */
+    /**
+     * 构建主体
+     *
+     * @param lsn lsn
+     * @param op op
+     * @param payload payload
+     * @return 构建主体的结果
+     */
     private byte[] buildBody(long lsn, byte op, byte[] payload) {
         CRC32 crc = new CRC32();
         crc.update(op);
@@ -677,7 +700,13 @@ public class SimpleWalLog implements WalLog {
         return body;
     }
 
-    /** Crc */
+    /**
+     * Crc
+     *
+     * @param op op
+     * @param payload payload
+     * @return crc32的结果
+     */
     private long crc32(byte op, byte[] payload) {
         CRC32 crc = new CRC32();
         crc.update(op);
@@ -685,7 +714,13 @@ public class SimpleWalLog implements WalLog {
         return crc.getValue();
     }
 
-    /** 写入Int */
+    /**
+     * 写入Int
+     *
+     * @param dst dst
+     * @param offset 偏移量
+     * @param value 值
+     */
     private static void writeInt(byte[] dst, int offset, int value) {
         dst[offset] = (byte) ((value >>> 24) & 0xFF);
         dst[offset + 1] = (byte) ((value >>> 16) & 0xFF);
@@ -693,7 +728,13 @@ public class SimpleWalLog implements WalLog {
         dst[offset + 3] = (byte) (value & 0xFF);
     }
 
-    /** 写入Long */
+    /**
+     * 写入Long
+     *
+     * @param dst dst
+     * @param offset 偏移量
+     * @param value 值
+     */
     private static void writeLong(byte[] dst, int offset, long value) {
         dst[offset] = (byte) ((value >>> 56) & 0xFF);
         dst[offset + 1] = (byte) ((value >>> 48) & 0xFF);
@@ -705,7 +746,13 @@ public class SimpleWalLog implements WalLog {
         dst[offset + 7] = (byte) (value & 0xFF);
     }
 
-    /** 读取Int */
+    /**
+     * 读取Int
+     *
+     * @param src src
+     * @param offset 偏移量
+     * @return 读取int的结果
+     */
     private static int readInt(byte[] src, int offset) {
         return ((src[offset] & 0xFF) << 24)
                 | ((src[offset + 1] & 0xFF) << 16)
@@ -713,7 +760,13 @@ public class SimpleWalLog implements WalLog {
                 | (src[offset + 3] & 0xFF);
     }
 
-    /** 读取Long */
+    /**
+     * 读取Long
+     *
+     * @param src src
+     * @param offset 偏移量
+     * @return 读取long的结果
+     */
     private static long readLong(byte[] src, int offset) {
         return ((long) (src[offset] & 0xFF) << 56)
                 | ((long) (src[offset + 1] & 0xFF) << 48)

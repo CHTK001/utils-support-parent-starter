@@ -35,7 +35,7 @@ public class DefaultFlowContext implements FlowContext {
     private static final int DEFAULT_MAX_LOOP_COUNT = 100;
 
     /**
-     * 所属流程 ID
+      * 所属流程 标识
      */
     private final String flowId;
 
@@ -45,7 +45,7 @@ public class DefaultFlowContext implements FlowContext {
     private final DefaultFlow flow;
 
     /**
-     * 当前正在执行的节点 ID
+      * 当前正在执行的节点 标识
      */
     private String currentNodeId;
 
@@ -60,7 +60,7 @@ public class DefaultFlowContext implements FlowContext {
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     /**
-     * 手动指定的下一节点 ID
+      * 手动指定的下一节点 标识
      */
     private String nextNodeId;
 
@@ -70,7 +70,7 @@ public class DefaultFlowContext implements FlowContext {
     private Action action = Action.NEXT;
 
     /**
-     * 执行轨迹：按序记录全部已执行节点 ID
+      * 执行轨迹：按序记录全部已执行节点 标识
      */
     private final List<String> executionTrace = new ArrayList<>();
 
@@ -80,7 +80,7 @@ public class DefaultFlowContext implements FlowContext {
     private final List<FlowTrace> traces = new ArrayList<>();
 
     /**
-     * 节点 ID 到累计执行次数的映射
+      * 节点 标识 到累计执行次数的映射
      */
     private final Map<String, Integer> executeCounts = new LinkedHashMap<>();
 
@@ -97,7 +97,7 @@ public class DefaultFlowContext implements FlowContext {
     /**
      * 构造流程运行上下文。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @param flow   所属流程
      */
     public DefaultFlowContext(String flowId, DefaultFlow flow) {
@@ -106,31 +106,31 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取FlowId */
+    /** 获取流标识 */
     public String getFlowId() {
         return flowId;
     }
 
     @Override
-    /** 获取CurrentNodeId */
+    /** 获取当前节点标识 */
     public String getCurrentNodeId() {
         return currentNodeId;
     }
 
     @Override
-    /** 设置CurrentNodeId */
+    /** 设置当前节点标识 */
     public void setCurrentNodeId(String nodeId) {
         this.currentNodeId = nodeId;
     }
 
     @Override
-    /** 获取Data */
+    /** 获取数据 */
     public Object getData() {
         return data;
     }
 
     @Override
-    /** 设置Data */
+    /** 设置数据 */
     public void setData(Object data) {
         this.data = data;
     }
@@ -149,31 +149,36 @@ public class DefaultFlowContext implements FlowContext {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Attribute */
+    /**
+     * 获取Attribute
+     *
+     * @param key 键
+     * @return 获取attribute的结果
+     */
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
 
     @Override
-    /** CurrentNodeProps */
+    /** 当前节点props */
     public FlowProps currentNodeProps() {
         return flow.nodeProps(currentNodeId);
     }
 
     @Override
-    /** 获取NextNodeId */
+    /** 获取下一个节点标识 */
     public String getNextNodeId() {
         return nextNodeId;
     }
 
     @Override
-    /** 设置NextNodeId */
+    /** 设置下一个节点标识 */
     public void setNextNodeId(String nodeId) {
         this.nextNodeId = nodeId;
     }
 
     @Override
-    /** WaitFor恢复 */
+    /** waitfor恢复 */
     public void waitForResume() {
         this.action = Action.WAIT;
     }
@@ -185,13 +190,13 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取ExecutionTrace */
+    /** 获取执行追踪 */
     public List<String> getExecutionTrace() {
         return new ArrayList<>(executionTrace);
     }
 
     @Override
-    /** 获取Traces */
+    /** 获取追踪 */
     public List<FlowTrace> getTraces() {
         return new ArrayList<>(traces);
     }
@@ -203,13 +208,13 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取最大值Loop计算数量 */
+    /** 获取最大值循环计算数量 */
     public int getMaxLoopCount() {
         return maxLoopCount;
     }
 
     @Override
-    /** 设置最大值Loop计算数量 */
+    /** 设置最大值循环计算数量 */
     public void setMaxLoopCount(int maxLoopCount) {
         if (maxLoopCount <= 0) {
             throw new IllegalArgumentException("maxLoopCount 必须大于 0");
@@ -218,7 +223,7 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     @Override
-    /** 获取PendingNodeIds */
+    /** 获取pending节点标识 */
     public List<String> getPendingNodeIds() {
         return new ArrayList<>(pendingSnapshot);
     }
@@ -240,7 +245,7 @@ public class DefaultFlowContext implements FlowContext {
     }
 
     /**
-     * 清除手动指定的下一节点 ID。
+      * 清除手动指定的下一节点 标识。
      */
     public void clearNextNodeId() {
         this.nextNodeId = null;
@@ -252,7 +257,7 @@ public class DefaultFlowContext implements FlowContext {
      * <p>追加执行轨迹并递增执行计数，供回放与防死循环判断。
      * 输入为执行前当前数据，输出为执行后当前数据。</p>
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @param input  节点执行前当前数据
      * @param output 节点执行后当前数据
      */
@@ -267,7 +272,7 @@ public class DefaultFlowContext implements FlowContext {
      *
      * <p>达到上限判定为死循环，执行器据此终止流程。</p>
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @return 已达上限返回 true，否则返回 false
      */
     public boolean isLoopLimitReached(String nodeId) {
@@ -279,7 +284,7 @@ public class DefaultFlowContext implements FlowContext {
      *
      * <p>供暂停/恢复时查看当前节点之后的待执行目标。</p>
      *
-     * @param pendingNodeIds 待执行节点 ID 列表
+     * @param pendingNodeIds 待执行节点 标识 列表
      */
     public void snapshotPending(List<String> pendingNodeIds) {
         pendingSnapshot.clear();

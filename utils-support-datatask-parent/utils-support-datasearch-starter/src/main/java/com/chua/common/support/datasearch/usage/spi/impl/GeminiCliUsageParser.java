@@ -20,8 +20,8 @@ import java.util.List;
  *
  * <p>Gemini CLI persists chat transcripts under
  * {@code ~/.gemini/tmp/<project>/chats/session-<date>-<id>.jsonl}. Recent
- * CLI versions emit one {@code type=gemini} event per model response with a
- * real token breakdown:</p>
+   * CLI 版本 emit one {@code type=gemini} 事件 per 模型 响应 with a
+   * real 令牌 breakdown:</p>
  *
  * <pre>{@code
  * {
@@ -31,10 +31,12 @@ import java.util.List;
  *   "tokens": { "input": 12779, "output": 1, "cached": 0,
  *               "thoughts": 151, "tool": 0, "total": 12931 }
  * }
+ * }</pre> 151, "tool": 0, "total": 12931 }
+ * }
  * }</pre>
  *
  * <p>The session id lives on the first line of each transcript. Older
- * transcripts without gemini events are skipped silently.</p>
+   * transcripts without gemini 事件 are skipped silently.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -98,7 +100,15 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取转录首行中的 sessionId；读取后该行不再进入下游解析。
+      * 读取转录首行中的 会话id；读取后该行不再进入下游解析。
+     * @return 列表transcripts的结果
+     /**
+      * 读取会话id。
+      * @param reader 读取
+      * @return 读取会话id的结果
+      */
+     * @param line 线
+     * @param sessionId 会话标识
      */
     private String readSessionId(java.io.BufferedReader reader) throws IOException {
         String first = reader.readLine();
@@ -111,6 +121,12 @@ public class GeminiCliUsageParser extends BaseUsageParser {
             return sessionId.isMissingValue() ? "" : sessionId.toStringValue();
         } catch (Exception e) {
             return "";
+        /**
+         * 解析线safe。
+         * @param line 线
+         * @param sessionId 会话标识
+         * @return 解析线safe的结果
+         */
         }
     }
 

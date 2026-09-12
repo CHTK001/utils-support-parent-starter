@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * SocketIO Agent 数据源
+   * Socket.IO 智能体 数据源
  * <p>Server 侧通过 SocketIO 事件与 Agent 交互，支持拉取和推送。</p>
  *
  * @author CH
@@ -27,11 +27,11 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
      */
     private final SocketIOClient client;
     /**
-     * source Id
+      * 源 标识
      */
     private final String sourceId;
     /**
-     * agent Id
+      * 智能体 标识
      */
     private final String agentId;
     /**
@@ -40,10 +40,12 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     private final Map<String, CompletableFuture<Map<String, Object>>> pending = new ConcurrentHashMap<>();
 
     /**
-     * 创建 SocketIOAgentDataSyncSource 实例
-     * @param client client
-     * @param String String
-     * @param String String
+      * 创建 套接字io智能体数据同步源 实例
+     * @param client 客户端
+     * @param agentId 字符串
+     * @param agentId 字符串
+     * @param agentId 智能体标识
+     * @param sourceId 源标识
      */
     public SocketIOAgentDataSyncSource(SocketIOClient client, String agentId, String sourceId) {
         this.client = client;
@@ -58,13 +60,13 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
@@ -102,7 +104,7 @@ public class SocketIOAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

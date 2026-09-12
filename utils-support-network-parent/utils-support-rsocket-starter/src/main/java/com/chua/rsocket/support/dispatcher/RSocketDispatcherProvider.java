@@ -20,11 +20,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * RSocket 分发器提供者，基于 RSocket Java 客户端连接远程 RSocket 服务。
+   * r套接字 分发器提供者，基于 r套接字 Java 客户端连接远程 r套接字 服务。
  * <p>
- * 作为客户端接入远程 RSocket 服务，通过 requestStream 订阅 topic，
+   * 作为客户端接入远程 r套接字 服务，通过 请求流 订阅 topic，
  * 服务端推送消息后本地逐条分发给对应订阅定义。
- * 本地不启动任何服务器，所有连接都指向外部已部署的 RSocket 服务。
+   * 本地不启动任何服务器，所有连接都指向外部已部署的 r套接字 服务。
  * </p>
  *
  * @author CH
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
-     * RSocket 客户端连接
+      * r套接字 客户端连接
      */
     private io.rsocket.RSocket rSocket;
 
@@ -50,7 +50,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     private final Map<String, Disposable> topicSubscriptions = new ConcurrentHashMap<>();
 
     /**
-     * 构造 RSocket 分发器提供者。
+      * 构造 r套接字 分发器提供者。
      *
      * @param config 分发器配置
      */
@@ -152,7 +152,7 @@ public class RSocketDispatcherProvider extends AbstractDispatcherProvider {
     /**
      * 在远程服务上注册 topic 订阅流。
      * <p>
-     * 通过 requestStream 向远端发送订阅请求，远端推送消息后逐条分发。
+      * 通过 请求流 向远端发送订阅请求，远端推送消息后逐条分发。
      * 同一个 topic 只注册一次。
      * </p>
      *

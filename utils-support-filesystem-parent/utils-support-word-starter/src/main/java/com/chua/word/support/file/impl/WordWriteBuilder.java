@@ -21,7 +21,7 @@ import java.util.Map;
  * Word 文件写入构建器。
  *
  * <p>基于 Apache POI 实现 .docx 文档的文本写入。
- * 支持延迟写入（多次 write + finish）和实时写入（writeAndFlush），
+   * 支持延迟写入（多次 写入 + 饰面）和实时写入（写入和flush），
  * 设置 {@link #withTemplate(File)} 后只走模板模式。</p>
  *
  * @author CH
@@ -34,8 +34,8 @@ public class WordWriteBuilder extends WriteBuilder {
     private InputStream templateStream;
 
     /**
-     * 创建 WordWriteBuilder 实例
-     * @param file file
+      * 创建 word写入构建器 实例
+     * @param file 文件
      */
     public WordWriteBuilder(File file) {
         super(file);
@@ -56,6 +56,7 @@ public class WordWriteBuilder extends WriteBuilder {
      * 将文本行加入延迟写入队列。
      *
      * @param lines 文本行列表
+     * @return 写入的结果
      */
     public WordWriteBuilder write(List<String> lines) {
         pending.add(lines);
@@ -70,9 +71,10 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 将 Map 数据加入延迟写入队列。
+      * 将 映射 数据加入延迟写入队列。
      *
-     * @param rows Map 数据列表
+     * @param rows 映射 数据列表
+     * @return 写入映射的结果
      */
     public WordWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
@@ -97,9 +99,9 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 实时写入 Map 数据。
+      * 实时写入 映射 数据。
      *
-     * @param rows Map 数据列表
+     * @param rows 映射 数据列表
      */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
@@ -114,7 +116,7 @@ public class WordWriteBuilder extends WriteBuilder {
     }
 
     @Override
-    /** Finish */
+    /** 饰面 */
     public void finish() {
         callback.onStart();
         callback.onBeginWrite();
@@ -161,7 +163,11 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** Do写入Text */
+    /**
+     * 执行写入文本
+     *
+     * @param lines 线
+     */
     private void doWriteText(List<String> lines) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;
@@ -180,7 +186,11 @@ public class WordWriteBuilder extends WriteBuilder {
         }
     }
 
-    /** Do写入Map */
+    /**
+     * 执行写入映射
+     *
+     * @param rows rows
+     */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;

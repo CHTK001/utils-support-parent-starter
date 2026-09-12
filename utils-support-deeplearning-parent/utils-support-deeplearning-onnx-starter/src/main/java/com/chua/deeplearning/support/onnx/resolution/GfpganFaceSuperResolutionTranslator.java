@@ -19,13 +19,13 @@ import java.awt.image.BufferedImage;
 /**
  * GFPGAN 人脸修复/超分 Translator（ONNX 版）。
  * <p>
- * 预处理与 PyTorch 版一致：直接 resize 到 512×512（不做 center-crop），
+   * 预处理与 pytorch 版一致：直接 resize 到 512×512（不做 center-crop），
  * mean=[0.5,0.5,0.5] std=[0.5,0.5,0.5] 归一化，
  * 输出 [-1,1] → 还原 [0,255]。
  * </p>
  * <p>
  * 注意：GFPGAN 模型输入期望 FFHQ 标准 512×512 对齐人脸，
- * 独立使用时应先通过 FacePipeline.restoreWithAlign() 做 5 点仿射对齐。
+   * 独立使用时应先通过 facepipeline.restorewithalign() 做 5 点仿射对齐。
  * </p>
  *
  * @author CH
@@ -33,14 +33,14 @@ import java.awt.image.BufferedImage;
  */
 public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Image> {
 
-    private static final int INPUT_SIZE = 512;
-    private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
-    private static final float[] STD = {0.5f, 0.5f, 0.5f};
+    private static final int INPUT_SIZE = 512; // 输入大小
+    private static final float[] MEAN = {0.5f, 0.5f, 0.5f}; // MEAN
+    private static final float[] STD = {0.5f, 0.5f, 0.5f}; // STD
 
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
-        // 与 PyTorch 版一致：直接 resize 到 512x512，不 center-crop
+ // 与 pytorch 版一致：直接 resize 到 512x512，不 center-crop
         float[] pixels = ImageUtils.toTensor(new TensorOptions(input, INPUT_SIZE, MEAN, STD, false));
         NDArray array = manager.create(pixels, new Shape(3, INPUT_SIZE, INPUT_SIZE));
         return new NDList(array);
@@ -77,6 +77,11 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
         return ImageFactory.getInstance().fromImage(img);
     }
 
+    /**
+      * clampu8。
+     * @param v v
+     * @return clampU8的结果
+     */
     private static int clampU8(float v) {
         float x = Math.max(-1f, Math.min(1f, v));
         return (int) Math.round((x + 1f) / 2f * 255f);

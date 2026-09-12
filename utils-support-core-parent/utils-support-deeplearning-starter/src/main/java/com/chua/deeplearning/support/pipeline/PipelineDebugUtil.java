@@ -10,19 +10,25 @@ import java.time.format.DateTimeFormatter;
 /**
  * 管线调试工具：将管线各阶段中间数据落盘。
  * <p>
- * 自动将 ImagePipeline 各步骤的图片保存到 <code>G:/images/output/debug/管线名/步骤名_时间戳.png</code>，
+   * 自动将 镜像pipeline 各步骤的图片保存到 <code>G:/镜像/输出/调试/管线名/步骤名_时间戳.png</code>，
  * 方便查看管线真实流程效果。
  * </p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @param pipelineName pipeline名称
  */
 public class PipelineDebugUtil {
 
-    private static final String DEBUG_ROOT = "G:/images/output/debug";
+    private static final String DEBUG_ROOT = "G:/images/output/debug"; // 调试根
 
-    private final String pipelineName;
-    private final boolean enabled;
+    private final String pipelineName; // pipeline名称
+    private final boolean enabled; // 已启用
+/**
+ * pipeline调试util。
+ * @param pipelineName pipeline名称
+ * @param enabled 已启用
+ */
 
     public PipelineDebugUtil(String pipelineName, boolean enabled) {
         this.pipelineName = pipelineName;
@@ -40,10 +46,14 @@ public class PipelineDebugUtil {
      * @param data     图片字节或可转为图片的对象
      */
     public void snapshot(String stepName, Object data) {
-        if (!enabled || data == null) return;
+        if (!enabled || data == null) {
+            return;
+        }
         try {
             byte[] imageBytes = toBytes(data);
-            if (imageBytes == null) return;
+            if (imageBytes == null) {
+                return;
+            }
             String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmssSSS"));
             Path dir = Path.of(DEBUG_ROOT, pipelineName);
             Files.createDirectories(dir);
@@ -59,14 +69,39 @@ public class PipelineDebugUtil {
      * @param stepName 步骤名
      * @param index    索引
      * @param data     图片数据
+     * @return 转为bytes的结果
+     /**
+      * snapshot。
+      * @param stepName step名称
+      * @param index 索引
+      * @param data 数据
+      */
+      * @return 转为bytes的结果
+     /**
+      * snapshot。
+      * @param stepName step名称
+      * @param index 索引
+      * @param data 数据
+      */
+      * @return 转为bytes的结果
+     /**
+      * snapshot。
+      * @param stepName step名称
+      * @param index 索引
+      * @param data 数据
+      */
      */
     public void snapshot(String stepName, int index, Object data) {
         snapshot(stepName + "_" + index, data);
     }
 
     private static byte[] toBytes(Object data) {
-        if (data instanceof byte[] b) return b;
-        if (data instanceof java.awt.image.BufferedImage bi) return ImageUtils.encode(ImageUtils.toMat(bi));
+        if (data instanceof byte[] b) {
+            return b;
+        }
+        if (data instanceof java.awt.image.BufferedImage bi) {
+            return ImageUtils.encode(ImageUtils.toMat(bi));
+        }
         return null;
     }
 }

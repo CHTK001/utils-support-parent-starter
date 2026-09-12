@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class SubtitleSearchRequest {
     /** Keyword */
     private String keyword;
-    /** 视频ID */
+    /** 视频标识 */
     private String videoId;
     /** 语言 */
     private String language;

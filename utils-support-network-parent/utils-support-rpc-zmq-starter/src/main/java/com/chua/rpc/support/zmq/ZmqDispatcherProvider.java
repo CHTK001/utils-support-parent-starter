@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.nio.charset.StandardCharsets;
 
 /**
- * ZeroMQ 消息分发器提供者（JeroMQ，纯 Java 无需原生依赖）。
+   * zeromq 消息分发器提供者（jeromq，纯 Java 无需原生依赖）。
  *
  * <p><b>模型</b>：基于 <strong>PUB/SUB</strong> 发布订阅模型，单实例同时承担
  * 发布者与订阅者两种角色：</p>
@@ -38,7 +38,7 @@ import java.nio.charset.StandardCharsets;
  *   第一帧: 主题名（UTF-8 字节）
  *   第二帧: 序列化后的消息体（JSON/SPI 序列化）
  * </pre>
- * SUB 套接字按主题过滤由 ZeroMQ 内核完成，同一主题只投递匹配的报文。</p>
+   * SUB 套接字按主题过滤由 zeromq 内核完成，同一主题只投递匹配的报文。</p>
  *
  * <p><b>序列化</b>：优先使用 {@link DispatcherConfig#getSerializer()} 指定的
  * SPI 序列化器（如 {@code fury}/{@code fory}/{@code jackson}），未配置时回退
@@ -105,9 +105,9 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * 创建 ZmqDispatcherProvider 实例。
+      * 创建 zmqdispatcher提供者 实例。
      *
-     * @param config 分发器配置（url 指定 PUB/SUB 端点地址，serializer 指定序列化器）
+     * @param config 分发器配置（url 指定 PUB/SUB 端点地址，序列化器 指定序列化器）
      */
     public ZmqDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -232,7 +232,7 @@ public class ZmqDispatcherProvider extends AbstractDispatcherProvider {
                 continue;
             }
             definitionMap.computeIfAbsent(topic, t -> {
-                // ZeroMQ SUB 按主题前缀过滤：直接订阅精确主题
+ // zeromq SUB 按主题前缀过滤：直接订阅精确主题
                 subSocket.subscribe(t.getBytes(StandardCharsets.UTF_8));
                 return new CopyOnWriteArrayList<>();
             }).add(definition);

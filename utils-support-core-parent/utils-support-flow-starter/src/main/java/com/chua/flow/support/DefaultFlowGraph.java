@@ -38,12 +38,12 @@ public class DefaultFlowGraph implements FlowGraph {
     private final DefaultFlow flow;
 
     /**
-     * 当前连线游标节点 ID
+      * 当前连线游标节点 标识
      */
     private String cursor;
 
     /**
-     * 起始节点 ID
+      * 起始节点 标识
      */
     private String startNodeId;
 
@@ -66,7 +66,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
-    /** Next */
+    /** 下一个 */
     public FlowGraph next(String... nodeIds) {
         if (nodeIds == null || nodeIds.length == 0) {
             throw new FlowException("next 必须指定至少一个节点");
@@ -83,7 +83,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
-    /** When */
+    /** When.js.js.js */
     public FlowGraph when(String nodeId, boolean result, String... targets) {
         checkNode(nodeId);
         if (targets == null || targets.length == 0) {
@@ -98,7 +98,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
-    /** End */
+    /** 结束 */
     public FlowGraph end(String... nodeIds) {
         String[] targets = nodeIds;
         if (targets == null || targets.length == 0) {
@@ -131,7 +131,7 @@ public class DefaultFlowGraph implements FlowGraph {
     }
 
     @Override
-    /** ExportJson */
+    /** 导出json */
     public String exportJson() {
         return FlowJson.toJson(flow.getDefinition());
     }
@@ -139,7 +139,7 @@ public class DefaultFlowGraph implements FlowGraph {
     /**
      * 校验节点是否已注册到流程。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      */
     private void checkNode(String nodeId) {
         if (!flow.containsNode(nodeId)) {

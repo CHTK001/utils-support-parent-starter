@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
- * 默认配置注入器，基于 @ConfigValue 注解进行配置值注入。
+   * 默认配置注入器，基于 @配置值 注解进行配置值注入。
  *
  * @author CH
  * @since 2024/12/20
@@ -25,7 +25,7 @@ import java.lang.reflect.Parameter;
 public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfigInjector {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(ConfigValue.class);
@@ -41,7 +41,7 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -79,6 +79,9 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
 
     /**
      * 返回原始表达式字符串，表达式解析在 {@code AbstractBeanDefinition} 统一处理。
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return raw值的结果
      */
     private static Object rawValue(String value, String defaultValue) {
         if (value != null && !value.isEmpty()) {

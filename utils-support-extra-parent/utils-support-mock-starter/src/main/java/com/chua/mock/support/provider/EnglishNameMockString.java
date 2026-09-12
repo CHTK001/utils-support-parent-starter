@@ -30,6 +30,8 @@ public class EnglishNameMockString implements MockString {
     };
     /**
      * 英文姓氏池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] LAST_NAMES = {
             "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",

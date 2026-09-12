@@ -111,6 +111,8 @@ public class HumanPredictResult {
 
     /**
      * 人像预测结果构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class HumanPredictResultBuilder {
 

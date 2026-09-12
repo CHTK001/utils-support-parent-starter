@@ -36,7 +36,7 @@ public class ModelHealthChecker {
     /**
      * 创建 ModelHealthChecker 实例
      * @param checkIntervalMs checkIntervalMs
-     * @param Function Function
+     * @param healthCheckFunction Function
      * @param ModelHealthCheckResult ModelHealthCheckResult
      * @param healthCheckFunction healthCheckFunction
      */
@@ -196,8 +196,8 @@ public class ModelHealthChecker {
         /**
          * 创建 ModelHealthCheckResult 实例
          * @param healthy healthy
-         * @param IssueType IssueType
-         * @param String String
+         * @param issueType IssueType
+         * @param message String
          */
         public ModelHealthCheckResult(boolean healthy, IssueType issueType, String message) {
             this.healthy = healthy;

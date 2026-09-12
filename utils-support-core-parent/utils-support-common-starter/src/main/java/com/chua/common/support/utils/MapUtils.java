@@ -29,7 +29,7 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
 
 
 /**
- * Map 工具类，提供 Map 操作的核心工具方法。
+   * 映射 工具类，提供 映射 操作的核心工具方法。
  *
  * <p>包含以下功能：
  * <ul>
@@ -42,35 +42,39 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  * </ul>
  *
  * @author CH
+ * @since 4.0.0
  */
 @SuppressWarnings({"unchecked", "ALL"})
 public class MapUtils {
 
+    /**
+     * 映射工具。
+     */
     private MapUtils() {
     }
 
     /**
-     * 默认初始容量，HashMap 默认的桶数量。
+      * 默认初始容量，哈希映射 默认的桶数量。
      */
     public static final int DEFAULT_INITIAL_CAPACITY = 16;
     /**
-     * 默认负载因子，当 Map 中元素数量达到 size * LOAD_FACTOR 时触发扩容。
+      * 默认负载因子，当 映射 中元素数量达到 大小 * 加载_FACTOR 时触发扩容。
      */
     public static final float DEFAULT_LOAD_FACTOR = 0.75f;
     /**
      * 2 的最大幂次阈值，用于 {@link #capacity(int)} 中判断是否需要使用精确容量计算。
-     * 值为 {@code 1 << 30}（约 10.7 亿），超过此值时直接返回 Integer.MAX_VALUE。
+      * 值为 {@code 1 << 30}（约 10.7 亿），超过此值时直接返回 Integer.最大_值。
      */
     private static final int MAX_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
 
     /**
-     * 将嵌套 Map 展开为扁平化的 Map 结构。
+      * 将嵌套 映射 展开为扁平化的 映射 结构。
      *
      * <p>递归遍历 Map 及其嵌套的 Map 或 List，将嵌套键拼接为点号分隔的扁平键，
-     * List 元素以 {@code [index]} 形式标记位置。
+      * 列表 元素以 {@code [index]} 形式标记位置。
      *
-     * @param map 待展开的嵌套 Map，允许为 null
-     * @return 扁平化后的 Map，若 map 为 null 则返回空 Map
+     * @param map 待展开的嵌套 映射，允许为 空
+     * @return 扁平化后的 映射，若 映射 为 空 则返回空 映射
      */
     public static Map<String, Object> flattenMap(Map<String, Object> map) {
         if (null == map) {
@@ -106,14 +110,14 @@ public class MapUtils {
     }
 
     /**
-     * 根据预期大小创建一个新的 HashMap。
+      * 根据预期大小创建一个新的 哈希映射。
      *
      * <p>内部自动计算合适的初始容量，避免 HashMap 在填充过程中频繁扩容。
      *
      * @param expectedSize 预期的元素数量
      * @param <K>          键类型
      * @param <V>          值类型
-     * @return 初始容量适配 expectedSize 的 HashMap
+     * @return 初始容量适配 期望大小 的 哈希映射
      * @since 3.4.0
      */
     public static <K, V> HashMap<K, V> newHashMapWithExpectedSize(int expectedSize) {
@@ -121,14 +125,14 @@ public class MapUtils {
     }
 
     /**
-     * 计算适合指定预期大小的 HashMap 初始容量。
+      * 计算适合指定预期大小的 哈希映射 初始容量。
      *
      * <p>根据负载因子 0.75 反推容量，确保在不超过 expectedSize 个元素时无需扩容。
-     * expectedSize 为负数时抛出 IllegalArgumentException。
+      * 期望大小 为负数时抛出 illegal参数异常。
      *
      * @param expectedSize 预期的元素数量
-     * @return 适配 expectedSize 的初始容量，最大为 Integer.MAX_VALUE
-     * @throws IllegalArgumentException 当 expectedSize 为负数时
+     * @return 适配 期望大小 的初始容量，最大为 Integer.最大_值
+     * @throws IllegalArgumentException 当 期望大小 为负数时
      * @since 3.4.0
      */
     private static int capacity(int expectedSize) {
@@ -147,12 +151,12 @@ public class MapUtils {
     }
 
     /**
-     * 将后续 Map 数据全部合并到第一个 Map 中。
+      * 将后续 映射 数据全部合并到第一个 映射 中。
      *
-     * @param source 待合并的 Map 数组，至少一个元素
+     * @param source 待合并的 映射 数组，至少一个元素
      * @param <K>    键类型
      * @param <V>    值类型
-     * @return 合并后的 Map，即第一个元素
+     * @return 合并后的 映射，即第一个元素
      */
     @SafeVarargs
     public static <K, V> Map<K, V> putAll(final Map<K, V>... source) {
@@ -171,12 +175,12 @@ public class MapUtils {
     }
 
     /**
-     * 合并多个 Map 为一个新的 Map。
+      * 合并多个 映射 为一个新的 映射。
      *
-     * @param source 待合并的 Map 数组
+     * @param source 待合并的 映射 数组
      * @param <K>    键类型
      * @param <V>    值类型
-     * @return 合并后的新 Map
+     * @return 合并后的新 映射
      */
     @SafeVarargs
     public static <K, V> Map<K, V> merge(final Map<K, V>... source) {
@@ -194,18 +198,18 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串值，若值为 null 或空字符串则尝试备用 key 取值。
+      * 从 映射 中获取字符串值，若值为 空 或空字符串则尝试备用 键 取值。
      *
      * <p>先对 key 取值，若结果为 null 或空字符串则尝试 key2 取值，
-     * 两步都为空时返回 defaultValue。
+      * 两步都为空时返回 默认值。
      *
-     * @param map          Map
-     * @param key          主 key
-     * @param key2         备用 key
+     * @param map          映射
+     * @param key          主 键
+     * @param key2         备用 键
      * @param defaultValue 默认值
      * @param <K>          键类型
      * @param <V>          值类型
-     * @return 取到的字符串值，若都为空则返回 defaultValue
+     * @return 取到的字符串值，若都为空则返回 默认值
      */
     public static <K, V> String getStringForEmpty(final Map<K, V> map, final K key, final K key2, final String defaultValue) {
         if (null == map) {
@@ -218,17 +222,17 @@ public class MapUtils {
 
 
     /**
-     * 若 key 在 Map 中不存在则放入默认值，并返回最终的值。
+      * 若 键 在 映射 中不存在则放入默认值，并返回最终的值。
      *
      * <p>基于"若不存在则计算并放入"的模式：先尝试 {@link Map#get(Object)}，
-     * 若返回 null 则调用 {@link Map#put(Object, Object)} 放入默认值，
+      * 若返回 空 则调用 {@link Map#put(Object, Object)} 放入默认值，
      * 再通过 {@link Map#put} 的返回值确认是否真正放入成功。
      * 此方法与 {@link Map#computeIfAbsent(Object, java.util.function.Function)} 不同之处在于
      * 它接受一个固定值（而非函数）。
      *
-     * @param map   Map，若为 null 则直接返回 null
+     * @param map   映射，若为 空 则直接返回 空
      * @param key   键
-     * @param value 当 key 不存在时要放入的默认值，若为 null 则直接返回 null
+     * @param value 当 键 不存在时要放入的默认值，若为 空 则直接返回 空
      * @param <K>   键类型
      * @param <V>   值类型
      * @return Map 中最终存在的值（原有值或刚放入的默认值）
@@ -248,24 +252,24 @@ public class MapUtils {
     }
 
 /**
-     * 判断 Properties 是否为空。
+      * 判断 属性 是否为空。
      *
      * <p>Properties 为 null 或无任何键值对时返回 true。
      *
-     * @param properties Properties 对象，允许为 null
-     * @return 若 properties 为 null 或为空则返回 true
+     * @param properties 属性 对象，允许为 空
+     * @return 若 属性 为 空 或为空则返回 true
      */
     public static boolean isEmpty(Properties properties) {
         return (properties == null || properties.isEmpty());
     }
 
     /**
-     * 判断 Map 是否为空。
+      * 判断 映射 是否为空。
      *
      * <p>Map 为 null 或无任何键值对时返回 true。
      *
-     * @param map Map 对象，允许为 null
-     * @return 若 map 为 null 或为空则返回 true
+     * @param map 映射 对象，允许为 空
+     * @return 若 映射 为 空 或为空则返回 true
      */
     public static boolean isEmpty(Map map) {
         return (map == null || map.isEmpty());
@@ -276,8 +280,8 @@ public class MapUtils {
      *
      * <p>Dictionary 为 null 或无任何键值对时返回 true。
      *
-     * @param dictionary Dictionary 对象，允许为 null
-     * @return 若 dictionary 为 null 或为空则返回 true
+     * @param dictionary Dictionary 对象，允许为 空
+     * @return 若 dictionary 为 空 或为空则返回 true
      */
     public static boolean isEmpty(Dictionary<?, ?> dictionary) {
         return (dictionary == null || dictionary.isEmpty());
@@ -288,34 +292,34 @@ public class MapUtils {
      *
      * <p>Dictionary 不为 null 且至少包含一个键值对时返回 true。
      *
-     * @param dictionary Dictionary 对象，允许为 null
-     * @return 若 dictionary 非 null 且非空则返回 true
+     * @param dictionary Dictionary 对象，允许为 空
+     * @return 若 dictionary 非 空 且非空则返回 true
      */
     public static boolean isNotEmpty(Dictionary<?, ?> dictionary) {
         return !isEmpty(dictionary);
     }
 
     /**
-     * 判断 Map 是否非空。
+      * 判断 映射 是否非空。
      *
      * <p>Map 不为 null 且至少包含一个键值对时返回 true。
      *
-     * @param map Map 对象，允许为 null
-     * @return 若 map 非 null 且非空则返回 true
+     * @param map 映射 对象，允许为 空
+     * @return 若 映射 非 空 且非空则返回 true
      */
     public static boolean isNotEmpty(Map map) {
         return !isEmpty(map);
     }
 
     /**
-     * 从 Map 中获取 Number 值，取不到时返回默认值。
+      * 从 映射 中获取 数字 值，取不到时返回默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
-     * @param defaultValue 当取不到 Number 时的默认值
-     * @return 取到的 Number，若为 null 则返回 defaultValue
+     * @param defaultValue 当取不到 数字 时的默认值
+     * @return 取到的 数字，若为 空 则返回 默认值
      */
     public static <K, V> Number getNumber(final Map<K, V> map, K key, Number defaultValue) {
         Number answer = getNumber(map, key);
@@ -323,16 +327,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Number 值。
+      * 从 映射 中获取 数字 值。
      *
      * <p>取出的值若为 Number 类型则直接返回；若为字符串则尝试通过
      * {@link NumberFormat} 解析为 Number。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Number，若不存在或无法转换则返回 null
+     * @return 取到的 数字，若不存在或无法转换则返回 空
      */
     public static <K, V> Number getNumber(final Map<K, V> map, final K key) {
         Object answer = getObject(map, key);
@@ -352,26 +356,26 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取原始对象值。
+      * 从 映射 中获取原始对象值。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return Map 中 key 对应的值，若 Map 为 null 或 key 为 null 则返回 null
+     * @return Map 中 键 对应的值，若 映射 为 空 或 键 为 空 则返回 空
      */
     public static <K, V> V getObject(final Map<K, V> map, final K key) {
         return null != key && map != null ? map.get(key) : null;
     }
 
     /**
-     * 从 Map 中依次尝试多个 key，返回第一个非 null 的值。
+      * 从 映射 中依次尝试多个 键，返回第一个非 空 的值。
      *
      * @param <K>  键类型
      * @param <V>  值类型
-     * @param map  Map
+     * @param map  映射
      * @param keys 多个候选键
-     * @return 第一个非 null 的值，若所有 key 对应的值均为 null 则返回 null
+     * @return 第一个非 空 的值，若所有 键 对应的值均为 空 则返回 空
      */
     public static <K, V> Object getObject(final Map<K, V> map, final K... keys) {
         for (K key : keys) {
@@ -384,14 +388,14 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取原始对象值，取不到时返回默认值。
+      * 从 映射 中获取原始对象值，取不到时返回默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return Map 中 key 对应的值，若为 null 则返回 defaultValue
+     * @return Map 中 键 对应的值，若为 空 则返回 默认值
      */
     public static <K, V> Object getObject(final Map<K, V> map, final K key, final Object defaultValue) {
         Object object = getObject(map, key);
@@ -402,16 +406,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取指定类型的值，类型不匹配时返回默认值。
+      * 从 映射 中获取指定类型的值，类型不匹配时返回默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
      * @param <R>          期望的返回值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
      * @param type         期望的类型
-     * @return 类型匹配的对象，不匹配或为 null 时返回 defaultValue
+     * @return 类型匹配的对象，不匹配或为 空 时返回 默认值
      */
     public static <K, V, R> R getType(final Map<K, V> map, final K key, final R defaultValue, final Class<R> type) {
         Object object = getObject(map, key);
@@ -419,15 +423,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取指定类型的值，类型不匹配时返回 null。
+      * 从 映射 中获取指定类型的值，类型不匹配时返回 空。
      *
      * @param <K>  键类型
      * @param <V>  值类型
      * @param <R>  期望的返回值类型
-     * @param map  Map
+     * @param map  映射
      * @param key  键
      * @param type 期望的类型
-     * @return 类型匹配的对象，不匹配或为 null 时返回 null
+     * @return 类型匹配的对象，不匹配或为 空 时返回 空
      */
     public static <K, V, R> R getType(final Map<K, V> map, final K key, final Class<R> type) {
         Object object = getObject(map, key);
@@ -435,16 +439,16 @@ public class MapUtils {
     }
 
     /**
-     * 从对象中获取字符串值，对象可以是 Map 或可转为 Map 的 POJO。
+      * 从对象中获取字符串值，对象可以是 映射 或可转为 映射 的 POJO。
      *
      * <p>若对象为 Map 则直接取值，否则先通过 JavaBean 内省机制将对象转为 Map 再取值，
      * 值通过 {@code toString} 转为字符串。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map 或可转为 Map 的 POJO 对象，允许为 null
+     * @param map 映射 或可转为 映射 的 POJO 对象，允许为 空
      * @param key 键
-     * @return Map 中 key 对应的字符串值，若 Map 为 null 或值不存在则返回 null
+     * @return Map 中 键 对应的字符串值，若 映射 为 空 或值不存在则返回 空
      */
     public static <K, V> String getString(final Object map, final K key) {
         if (map instanceof Map) {
@@ -454,15 +458,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串值，值通过 {@code toString} 转为字符串。
+      * 从 映射 中获取字符串值，值通过 {@code toString} 转为字符串。
      *
      * <p>Map 为 null 或 key 对应值为 null 时返回 null。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map，允许为 null
+     * @param map 映射，允许为 空
      * @param key 键
-     * @return Map 中 key 对应值的字符串表示，若 Map 为 null 或值为 null 则返回 null
+     * @return Map 中 键 对应值的字符串表示，若 映射 为 空 或值为 空 则返回 空
      */
     public static <K, V> String getString(final Map<K, V> map, final K key) {
         Object object = getObject(map, key);
@@ -473,18 +477,18 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中依次尝试多个 key（List 形式），返回第一个非 null 值的字符串表示。
+      * 从 映射 中依次尝试多个 键（列表 形式），返回第一个非 空 值的字符串表示。
      *
      * <p>遍历 key 列表，对每个 key 通过 {@link #getObject(Map, Object)} 取值，
-     * 第一个非 null 值通过 {@code toString} 转为字符串并返回。
-     * 全部 key 取值均为 null 时返回 defaultValue。
+      * 第一个非 空 值通过 {@code toString} 转为字符串并返回。
+      * 全部 键 取值均为 空 时返回 默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map，允许为 null
+     * @param map          映射，允许为 空
      * @param key          候选键列表
-     * @param defaultValue 当所有 key 均取不到值时的默认值
-     * @return 第一个非 null 值的字符串表示，全为空时返回 defaultValue
+     * @param defaultValue 当所有 键 均取不到值时的默认值
+     * @return 第一个非 空 值的字符串表示，全为空时返回 默认值
      */
     public static <K, V> String getString(final Map<K, V> map, final List<K> key, final String defaultValue) {
         for (K k : key) {
@@ -497,15 +501,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中依次尝试多个 key，返回第一个非 null 值的字符串表示。
+      * 从 映射 中依次尝试多个 键，返回第一个非 空 值的字符串表示。
      *
      * <p>内部通过 {@code toString} 转换取值结果。
      *
      * @param <K>  键类型
      * @param <V>  值类型
-     * @param map  Map
+     * @param map  映射
      * @param keys 多个候选键
-     * @return 第一个非 null 值的字符串表示，全为空时返回 null
+     * @return 第一个非 空 值的字符串表示，全为空时返回 空
      */
     public static <K, V> String getString(final Map<K, V> map, final K... keys) {
         for (K k : keys) {
@@ -518,17 +522,17 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串值，若 key 取不到值则尝试 key2，都为空时返回默认值。
+      * 从 映射 中获取字符串值，若 键 取不到值则尝试 键2，都为空时返回默认值。
      *
      * <p>内部通过 {@code toString} 转换取值结果。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          主键
      * @param key2         备用键
      * @param defaultValue 默认值
-     * @return 取到的字符串值，都为空时返回 defaultValue
+     * @return 取到的字符串值，都为空时返回 默认值
      */
     public static <K, V> String getString(final Map<K, V> map, final K key, final K key2, final String defaultValue) {
         if (null == map) {
@@ -540,16 +544,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串值，取不到时返回默认值。
+      * 从 映射 中获取字符串值，取不到时返回默认值。
      *
      * <p>内部通过 {@code toString} 转换取值结果。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的字符串值，若为 null 则返回 defaultValue
+     * @return 取到的字符串值，若为 空 则返回 默认值
      */
     public static <K, V> String getString(final Map<K, V> map, final K key, final String defaultValue) {
         String answer = getString(map, key);
@@ -560,16 +564,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串数组，按分隔符拆分字符串值。
+      * 从 映射 中获取字符串数组，按分隔符拆分字符串值。
      *
      * <p>值若为字符串数组则直接返回；值为字符串或对象时调用 toString 后按分隔符拆分。
      *
      * @param <K>       键类型
      * @param <V>       值类型
-     * @param map       Map
+     * @param map       映射
      * @param key       键
      * @param delimiter 分隔符
-     * @return 拆分后的字符串数组，若值为 null 则返回空字符串数组
+     * @return 拆分后的字符串数组，若值为 空 则返回空字符串数组
      */
     public static <K, V> String[] getStringArray(final Map<K, V> map, final K key, final String delimiter) {
         Object object = getObject(map, key);
@@ -588,16 +592,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串数组，取不到时返回默认值。
+      * 从 映射 中获取字符串数组，取不到时返回默认值。
      *
      * <p>值若为字符串数组则直接返回；值为字符串时按逗号拆分。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的字符串数组，若值为 null 则返回 defaultValue
+     * @return 取到的字符串数组，若值为 空 则返回 默认值
      */
     public static <K, V> String[] getStringArray(final Map<K, V> map, final K key, final String[] defaultValue) {
         Object object = getObject(map, key);
@@ -613,31 +617,31 @@ public class MapUtils {
     }
 
 /**
-     * 从 Map 中获取字符串数组，默认使用逗号（{@code ,}）作为分隔符拆分字符串值。
+      * 从 映射 中获取字符串数组，默认使用逗号（{@code ,}）作为分隔符拆分字符串值。
      *
      * <p>内部调用 {@link #getStringArray(Map, Object, String)} 并以逗号为分隔符。
-     * 值若为字符串数组则直接返回；值为字符串或对象时调用 toString 后按逗号拆分。
+      * 值若为字符串数组则直接返回；值为字符串或对象时调用 转为字符串 后按逗号拆分。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 拆分后的字符串数组，若值为 null 则返回空字符串数组
+     * @return 拆分后的字符串数组，若值为 空 则返回空字符串数组
      */
     public static <K, V> String[] getStringArray(final Map<K, V> map, final K key) {
         return getStringArray(map, key, SYMBOL_COMMA);
     }
 
 /**
-     * 从 Map 中获取 Date 值。
+      * 从 映射 中获取 日期 值。
      *
      * <p>值若为 Date 则直接返回；若为 Long 则按时间戳构造；若为字符串则按默认格式解析。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Date，若值不存在或无法转换则返回 null
+     * @return 取到的 日期，若值不存在或无法转换则返回 空
      */
     public static <K, V> Date getDate(final Map<K, V> map, final K key) {
         Object answer = getObject(map, key);
@@ -663,15 +667,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Double 值。
+      * 从 映射 中获取 Double 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Double。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Double，若 Map 为 null 或值不存在则返回 null
+     * @return 取到的 Double，若 映射 为 空 或值不存在则返回 空
      */
     public static <K, V> Double getDouble(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -684,16 +688,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Double 值，取不到时返回默认值。
+      * 从 映射 中获取 Double 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Double。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Double，若为 null 则返回 defaultValue
+     * @return 取到的 Double，若为 空 则返回 默认值
      */
     public static <K, V> Double getDouble(final Map<K, V> map, final K key, final Double defaultValue) {
         Double aDouble = getDouble(map, key);
@@ -701,17 +705,17 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Double 值，若 key 取不到则尝试 key2，都为空时返回默认值。
+      * 从 映射 中获取 Double 值，若 键 取不到则尝试 键2，都为空时返回默认值。
      *
      * <p>内部通过 {@link #getDouble(Map, Object)} 获取 Double。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          主键
      * @param key2         备用键
      * @param defaultValue 默认值
-     * @return 取到的 Double，都为空时返回 defaultValue
+     * @return 取到的 Double，都为空时返回 默认值
      */
     public static <K, V> Double getDouble(final Map<K, V> map, final K key, final K key2, final Double defaultValue) {
         if (null == map) {
@@ -722,15 +726,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 double 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 double 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 double。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 double 值，若为 null 则返回 0
+     * @return 取到的 double 值，若为 空 则返回 0
      */
     public static <K, V> double getDoubleValue(final Map<K, V> map, final K key) {
         Double aDouble = getDouble(map, key);
@@ -738,16 +742,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 double 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 double 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 double。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 double 值，若为 null 则返回 defaultValue
+     * @return 取到的 double 值，若为 空 则返回 默认值
      */
     public static <K, V> double getDoubleValue(final Map<K, V> map, final K key, final double defaultValue) {
         Double aDouble = getDouble(map, key);
@@ -756,15 +760,15 @@ public class MapUtils {
 
 
 /**
-     * 从 Map 中获取 int 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 int 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getInteger(Map, Object)} 获取 Integer，再自动拆箱为 int。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 int 值，若为 null 则返回 0
+     * @return 取到的 int 值，若为 空 则返回 0
      */
     public static <K, V> int getIntValue(final Map<K, V> map, final K key) {
         Integer integer = getInteger(map, key);
@@ -772,16 +776,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 int 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 int 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getInteger(Map, Object)} 获取 Integer，再自动拆箱为 int。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 当取不到值时的默认值
-     * @return 取到的 int 值，若为 null 则返回 defaultValue
+     * @return 取到的 int 值，若为 空 则返回 默认值
      */
     public static <K, V> int getIntValue(final Map<K, V> map, final K key, final int defaultValue) {
         Integer integer = getInteger(map, key);
@@ -789,15 +793,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Integer 值。
+      * 从 映射 中获取 Integer 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Integer。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Integer，若为 null 则返回 null
+     * @return 取到的 Integer，若为 空 则返回 空
      */
     public static <K, V> Integer getInteger(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -810,16 +814,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Integer 值，取不到时返回默认值。
+      * 从 映射 中获取 Integer 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Integer。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Integer，若为 null 则返回 defaultValue
+     * @return 取到的 Integer，若为 空 则返回 默认值
      */
     public static <K, V> Integer getInteger(final Map<K, V> map, final K key, final Integer defaultValue) {
         Integer integer = getInteger(map, key);
@@ -828,15 +832,15 @@ public class MapUtils {
 
 
 /**
-     * 从 Map 中依次尝试多个 key 获取 Integer 值，全为空时返回默认值。
+      * 从 映射 中依次尝试多个 键 获取 Integer 值，全为空时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Integer。
      *
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param defaultValue 默认值
      * @param keys         多个候选键
-     * @return 第一个非 null 的 Integer 值，全为空时返回 defaultValue
+     * @return 第一个非 空 的 Integer 值，全为空时返回 默认值
      */
     public static <V> Integer multiInteger(final Map<String, V> map, final Integer defaultValue, String... keys) {
         for (String key : keys) {
@@ -849,14 +853,14 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 List 值，值必须为 List 类型否则返回 null。
+      * 从 映射 中获取 列表 值，值必须为 列表 类型否则返回 空。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param <E> List 元素类型
-     * @param map Map
+     * @param <E> 列表 元素类型
+     * @param map 映射
      * @param key 键
-     * @return 取到的 List，若 Map 为 null、值为 null 或类型不匹配则返回 null
+     * @return 取到的 列表，若 映射 为 空、值为 空 或类型不匹配则返回 空
      */
     public static <K, V, E> List<E> getList(final Map<K, V> map, final K key) {
         if (map == null) {
@@ -873,15 +877,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 List 值，取不到时返回默认值。
+      * 从 映射 中获取 列表 值，取不到时返回默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param <E>          List 元素类型
-     * @param map          Map
+     * @param <E>          列表 元素类型
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 List，若为 null 则返回 defaultValue
+     * @return 取到的 列表，若为 空 则返回 默认值
      */
     public static <K, V, E> List<E> getList(final Map<K, V> map, final K key, final List<E> defaultValue) {
         List<E> list = getList(map, key);
@@ -889,15 +893,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取内嵌的子 Map。
+      * 从 映射 中获取内嵌的子 映射。
      *
-     * @param <K>  外层 Map 的键类型
-     * @param <V>  外层 Map 的值类型
-     * @param <MK> 内嵌 Map 的键类型
-     * @param <MV> 内嵌 Map 的值类型
-     * @param map  Map
+     * @param <K>  外层 映射 的键类型
+     * @param <V>  外层 映射 的值类型
+     * @param <MK> 内嵌 映射 的键类型
+     * @param <MV> 内嵌 映射 的值类型
+     * @param map  映射
      * @param key  键
-     * @return 取到的内嵌 Map，若值不存在或类型不匹配则返回 null
+     * @return 取到的内嵌 映射，若值不存在或类型不匹配则返回 空
      */
     public static <K, V, MK, MV> Map<MK, MV> getMap(final Map<K, V> map, final K key) {
         if (map == null) {
@@ -914,15 +918,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 long 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 long 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 long。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 long 值，若为 null 则返回 0
+     * @return 取到的 long 值，若为 空 则返回 0
      */
     public static <K, V> long getLongValue(final Map<K, V> map, final K key) {
         Long value = getLong(map, key);
@@ -930,16 +934,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 long 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 long 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 long。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 long 值，若为 null 则返回 defaultValue
+     * @return 取到的 long 值，若为 空 则返回 默认值
      */
     public static <K, V> long getLongValue(final Map<K, V> map, final K key, final long defaultValue) {
         Long aLong = getLong(map, key);
@@ -947,15 +951,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Long 值。
+      * 从 映射 中获取 Long 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Long。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Long，若为 null 则返回 null
+     * @return 取到的 Long，若为 空 则返回 空
      */
     public static <K, V> Long getLong(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -968,16 +972,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Long 值，取不到时返回默认值。
+      * 从 映射 中获取 Long 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Long。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Long，若为 null 则返回 defaultValue
+     * @return 取到的 Long，若为 空 则返回 默认值
      */
     public static <K, V> Long getLong(final Map<K, V> map, final K key, final Long defaultValue) {
         Long aLong = getLong(map, key);
@@ -985,15 +989,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Boolean 值。
+      * 从 映射 中获取 布尔值 值。
      *
      * <p>值可为 Boolean、字符串或数字（非零视为 true）。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Boolean，若值不存在或无法转换则返回 null
+     * @return 取到的 布尔值，若值不存在或无法转换则返回 空
      */
     public static <K, V> Boolean getBoolean(final Map<K, V> map, final K key) {
         Object answer = getObject(map, key);
@@ -1012,16 +1016,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Boolean 值，取不到时返回默认值。
+      * 从 映射 中获取 布尔值 值，取不到时返回默认值。
      *
      * <p>值可为 Boolean、字符串或数字（非零视为 true）。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Boolean，若为 null 则返回 defaultValue
+     * @return 取到的 布尔值，若为 空 则返回 默认值
      */
     public static <K, V> Boolean getBoolean(final Map<K, V> map, final K key, final Boolean defaultValue) {
         Boolean aBoolean = getBoolean(map, key);
@@ -1029,16 +1033,16 @@ public class MapUtils {
     }
 
 /**
-     * 从 Map 中获取 Byte 值。
+      * 从 映射 中获取 Byte 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Byte。
-     * 若 Number 已是 Byte 类型则直接返回，否则调用 {@code byteValue()} 转换。
+      * 若 数字 已是 Byte 类型则直接返回，否则调用 {@code byteValue()} 转换。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Byte，若 Map 为 null、值不存在或无法转换则返回 null
+     * @return 取到的 Byte，若 映射 为 空、值不存在或无法转换则返回 空
      */
     public static <K, V> Byte getByte(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -1051,17 +1055,17 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Byte 值，取不到时返回默认值。
+      * 从 映射 中获取 Byte 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Byte。
-     * 若 Number 已是 Byte 类型则直接返回，否则调用 {@code byteValue()} 转换。
+      * 若 数字 已是 Byte 类型则直接返回，否则调用 {@code byteValue()} 转换。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 当取不到 Byte 时的默认值
-     * @return 取到的 Byte，若为 null 则返回 defaultValue
+     * @return 取到的 Byte，若为 空 则返回 默认值
      */
     public static <K, V> Byte getByte(final Map<K, V> map, final K key, final Byte defaultValue) {
         Byte aByte = getByte(map, key);
@@ -1069,15 +1073,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 byte 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 byte 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 byte。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 byte 值，若为 null 则返回 0
+     * @return 取到的 byte 值，若为 空 则返回 0
      */
     public static <K, V> byte getByteValue(final Map<K, V> map, final K key) {
         Byte aByte = getByte(map, key);
@@ -1085,16 +1089,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 byte 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 byte 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 byte。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 byte 值，若为 null 则返回 defaultValue
+     * @return 取到的 byte 值，若为 空 则返回 默认值
      */
     public static <K, V> byte getByteValue(final Map<K, V> map, final K key, final byte defaultValue) {
         Byte aByte = getByte(map, key);
@@ -1102,15 +1106,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Float 值。
+      * 从 映射 中获取 Float 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Float。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Float，若为 null 则返回 null
+     * @return 取到的 Float，若为 空 则返回 空
      */
     public static <K, V> Float getFloat(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -1123,16 +1127,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Float 值，取不到时返回默认值。
+      * 从 映射 中获取 Float 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Float。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Float，若为 null 则返回 defaultValue
+     * @return 取到的 Float，若为 空 则返回 默认值
      */
     public static <K, V> Float getFloat(final Map<K, V> map, final K key, final Float defaultValue) {
         Float aFloat = getFloat(map, key);
@@ -1140,17 +1144,17 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 Float 值，若 key 取不到则尝试 key2，都为空时返回默认值。
+      * 从 映射 中获取 Float 值，若 键 取不到则尝试 键2，都为空时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Float。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          主键
      * @param key2         备用键
      * @param defaultValue 默认值
-     * @return 取到的 Float，都为空时返回 defaultValue
+     * @return 取到的 Float，都为空时返回 默认值
      */
     public static <K, V> Float getFloat(final Map<K, V> map, final K key, final K key2, final Float defaultValue) {
         Float aFloat = getFloat(map, key);
@@ -1158,15 +1162,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 float 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 float 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 float。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 float 值，若为 null 则返回 0
+     * @return 取到的 float 值，若为 空 则返回 0
      */
     public static <K, V> float getFloatValue(final Map<K, V> map, final K key) {
         Float aFloat = getFloat(map, key);
@@ -1174,16 +1178,16 @@ public class MapUtils {
     }
 
 /**
-     * 从 Map 中获取 float 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 float 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 float。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 float 值，若为 null 则返回 defaultValue
+     * @return 取到的 float 值，若为 空 则返回 默认值
      */
     public static <K, V> float getFloatValue(final Map<K, V> map, final K key, final float defaultValue) {
         Float aFloat = getFloat(map, key);
@@ -1191,15 +1195,15 @@ public class MapUtils {
     }
 
 /**
-     * 从 Map 中获取 Short 值。
+      * 从 映射 中获取 Short 值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Short。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 Short，若为 null 则返回 null
+     * @return 取到的 Short，若为 空 则返回 空
      */
     public static <K, V> Short getShort(final Map<K, V> map, final K key) {
         Number answer = getNumber(map, key);
@@ -1212,16 +1216,16 @@ public class MapUtils {
     }
 
 /**
-     * 从 Map 中获取 Short 值，取不到时返回默认值。
+      * 从 映射 中获取 Short 值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 Short。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 Short，若为 null 则返回 defaultValue
+     * @return 取到的 Short，若为 空 则返回 默认值
      */
     public static <K, V> Short getShort(final Map<K, V> map, final K key, final Short defaultValue) {
         Short aShort = getShort(map, key);
@@ -1229,15 +1233,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 short 基本类型值，取不到时返回 0。
+      * 从 映射 中获取 short 基本类型值，取不到时返回 0。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 short。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 short 值，若为 null 则返回 0
+     * @return 取到的 short 值，若为 空 则返回 0
      */
     public static <K, V> short getShortValue(final Map<K, V> map, final K key) {
         Short aShort = getShort(map, key);
@@ -1245,16 +1249,16 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取 short 基本类型值，取不到时返回默认值。
+      * 从 映射 中获取 short 基本类型值，取不到时返回默认值。
      *
      * <p>内部通过 {@link #getNumber(Map, Object)} 获取 Number 再转为 short。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param map          Map
+     * @param map          映射
      * @param key          键
      * @param defaultValue 默认值
-     * @return 取到的 short 值，若为 null 则返回 defaultValue
+     * @return 取到的 short 值，若为 空 则返回 默认值
      */
     public static <K, V> short getShortValue(final Map<K, V> map, final K key, final short defaultValue) {
         Short aShort = getShort(map, key);
@@ -1263,15 +1267,15 @@ public class MapUtils {
 
 
     /**
-     * 从 Map 中获取 File 值。
+      * 从 映射 中获取 文件 值。
      *
      * <p>值若为 File 则直接返回，否则通过转换器转为 File。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 取到的 File，若值为 null 则返回 null
+     * @return 取到的 文件，若值为 空 则返回 空
      */
     public static <K, V> File getFile(final Map<K, V> map, final K key) {
         Object object = getObject(map, key);
@@ -1285,11 +1289,11 @@ public class MapUtils {
     }
 
     /**
-     * 若 key 在 Map 中不存在，则调用 function 计算值并放入 Map，返回最终值。
+      * 若 键 在 映射 中不存在，则调用 function 计算值并放入 映射，返回最终值。
      *
      * @param <K>      键类型
      * @param <V>      值类型
-     * @param map      Map
+     * @param map      映射
      * @param key      键
      * @param function 计算值的函数
      * @return Map 中最终存在的值
@@ -1307,28 +1311,28 @@ public class MapUtils {
     }
 
     /**
-     * 将键值对字符串按指定字符分隔符解析为 Map。
+      * 将键值对字符串按指定字符分隔符解析为 映射。
      *
      * <p>委托 {@link #asMap(String, String, String)} 实现，内部将字符转为字符串分隔符。
-     * 常用于解析 URL 查询字符串（{@code "a=1&b=2"}），值为空时放 null，
-     * 值会经过 UTF-8 URL 解码，key 相同的值会合并为列表。
+      * 常用于解析 URL 查询字符串（{@code "a=1&b=2"}），值为空时放 空，
+      * 值会经过 UTF-8 URL 解码，键 相同的值会合并为列表。
      *
-     * @param value            键值对字符串，允许为空（返回空 Map）
+     * @param value            键值对字符串，允许为空（返回空 映射）
      * @param valueSeparator   键值对之间的分隔符（如 {@code '&'}）
      * @param keyValueSeparator 键与值之间的分隔符（如 {@code '='}）
-     * @return 解析后的 Map，value 为空时返回空 Map
+     * @return 解析后的 映射，值 为空时返回空 映射
      */
     public static Map<String, String> asMap(String value, char valueSeparator, char keyValueSeparator) {
         return asMap(value, String.valueOf(valueSeparator), String.valueOf(keyValueSeparator));
     }
 
     /**
-     * 将键值对字符串按指定字符串分隔符解析为 Map。
+      * 将键值对字符串按指定字符串分隔符解析为 映射。
      *
      * @param value            键值对字符串
      * @param valueSeparator   键值对之间的分隔符
      * @param keyValueSeparator 键与值之间的分隔符
-     * @return 解析后的不可变 Map
+     * @return 解析后的不可变 映射
      */
     public static Map<String, String> asMap(String value, String valueSeparator, String keyValueSeparator) {
         if (StringUtils.isEmpty(value)) {
@@ -1368,11 +1372,11 @@ public class MapUtils {
     }
 
     /**
-     * 将键值对按需转换为列表形式存入目标 Map。
+      * 将键值对按需转换为列表形式存入目标 映射。
      *
-     * @param target 目标 Map
+     * @param target 目标 映射
      * @param key    键
-     * @param value  值，若为 null 则不做任何操作
+     * @param value  值，若为 空 则不做任何操作
      */
     private static void convertToList(Map<String, Object> target, String key, Object value) {
         Object computeIfAbsent = target.computeIfAbsent(key, (Function<String, List<Object>>) input -> new ArrayList());
@@ -1392,12 +1396,12 @@ public class MapUtils {
 
 
     /**
-     * 获取 Map 中的第一个键值对。
+      * 获取 映射 中的第一个键值对。
      *
      * @param <K>   键类型
      * @param <V>   值类型
-     * @param kvMap Map
-     * @return 第一个 Map.Entry，若 Map 为空则返回 null
+     * @param kvMap 映射
+     * @return 第一个 映射.Entry，若 映射 为空则返回 空
      */
     public static <K, V> Map.Entry<K, V> getFirst(final Map<K, V> kvMap) {
         if (isEmpty(kvMap)) {
@@ -1407,12 +1411,12 @@ public class MapUtils {
     }
 
     /**
-     * 获取 Map 中第一个键值对的值。
+      * 获取 映射 中第一个键值对的值。
      *
      * @param <K>   键类型
      * @param <V>   值类型
-     * @param kvMap Map
-     * @return 第一个键值对的值，若 Map 为空则返回 null
+     * @param kvMap 映射
+     * @return 第一个键值对的值，若 映射 为空则返回 空
      */
     public static <K, V> V getFirstValue(final Map<K, V> kvMap) {
         if (isEmpty(kvMap)) {
@@ -1423,10 +1427,10 @@ public class MapUtils {
 
 
     /**
-     * 将 Map 转为 Properties 对象。
+      * 将 映射 转为 属性 对象。
      *
-     * @param map Map
-     * @return 对应的 Properties，null 值会被跳过
+     * @param map 映射
+     * @return 对应的 属性，空 值会被跳过
      */
     public static Properties asProp(Map<?, ?> map) {
         Properties properties = new Properties();
@@ -1442,10 +1446,10 @@ public class MapUtils {
     }
 
     /**
-     * 将对象转为 Properties，对象可为 Map、POJO 或数组。
+      * 将对象转为 属性，对象可为 映射、POJO 或数组。
      *
      * @param v 待转换的对象，数组按偶数对键值交替处理
-     * @return 对应的 Properties
+     * @return 对应的 属性
      */
     public static Properties asProp(Object v) {
         if (null == v) {
@@ -1475,10 +1479,10 @@ public class MapUtils {
     }
 
     /**
-     * 将 Properties 转为 Map。
+      * 将 属性 转为 映射。
      *
-     * @param properties Properties 对象
-     * @return 对应的 Map
+     * @param properties 属性 对象
+     * @return 对应的 映射
      */
     public static Map<String, Object> asMap(Properties properties) {
         Map<String, Object> rs = new HashMap<>(properties.size());
@@ -1489,13 +1493,13 @@ public class MapUtils {
     }
 
     /**
-     * 为 Map 的所有键添加前缀。
+      * 为 映射 的所有键添加前缀。
      *
      * @param <K>   键类型
      * @param <V>   值类型
      * @param pre   要添加的前缀
-     * @param kvMap Map
-     * @return 键添加前缀后的新 Map
+     * @param kvMap 映射
+     * @return 键添加前缀后的新 映射
      */
     public static <K, V> Map<String, V> appendPre(String pre, Map<K, V> kvMap) {
         Map<String, V> tmp = new HashMap<>(kvMap.size());
@@ -1507,28 +1511,28 @@ public class MapUtils {
     }
 
     /**
-     * 返回非空的 Map，若 source 为空则返回默认值。
+      * 返回非空的 映射，若 源 为空则返回默认值。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param source       源 Map
-     * @param defaultValue 默认 Map
-     * @return source 如果不为空，否则返回 defaultValue
+     * @param source       源 映射
+     * @param defaultValue 默认 映射
+     * @return source 如果不为空，否则返回 默认值
      */
     public static <K, V> Map<K, V> defaultValue(Map<K, V> source, Map<K, V> defaultValue) {
         return isEmpty(source) ? defaultValue : source;
     }
 
     /**
-     * 以 source 为基础，将 defaultValue 中不存在的键值对补充到 source 中。
+      * 以 源 为基础，将 默认值 中不存在的键值对补充到 源 中。
      *
      * <p>不会修改 source 和 defaultValue，返回一个新的 LinkedHashMap。
      *
      * @param <K>          键类型
      * @param <V>          值类型
-     * @param source       源 Map
-     * @param defaultValue 默认值 Map
-     * @return 合并后的新 Map
+     * @param source       源 映射
+     * @param defaultValue 默认值 映射
+     * @return 合并后的新 映射
      */
     public static <K, V> Map<K, V> compute(Map<K, V> source, Map<K, V> defaultValue) {
         if (isEmpty(source)) {
@@ -1548,12 +1552,13 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中依次获取多个键的值，非 null 的值传递给 consumer 处理。
+      * 从 映射 中依次获取多个键的值，非 空 的值传递给 consumer 处理。
      *
      * @param <V>      值类型
-     * @param map      Map
-     * @param consumer 处理非 null 值的回调
+     * @param map      映射
+     * @param consumer 处理非 空 值的回调
      * @param name     要查询的键列表
+     * @return 过滤器无的结果
      */
     public static <V> void filterNone(Map<String, V> map, Consumer<V> consumer, String... name) {
         for (String s : name) {
@@ -1567,10 +1572,10 @@ public class MapUtils {
     }
 
     /**
-     * 将 Map 的键转为 String、值保持原类型，返回新 Map。
+      * 将 映射 的键转为 字符串、值保持原类型，返回新 映射。
      *
-     * @param source 源 Map
-     * @return 键为 String 的新 LinkedHashMap
+     * @param source 源 映射
+     * @return 键为 字符串 的新 链接哈希映射
      */
     public static Map<String, Object> asStringObjectMap(Map source) {
         Map<String, Object> tpl = new LinkedHashMap<>(source.size());
@@ -1581,10 +1586,10 @@ public class MapUtils {
     }
 
     /**
-     * 将 Map 的键和值都转为 String，返回新 Map。
+      * 将 映射 的键和值都转为 字符串，返回新 映射。
      *
-     * @param source 源 Map
-     * @return 键和值均为 String 的新 LinkedHashMap
+     * @param source 源 映射
+     * @return 键和值均为 字符串 的新 链接哈希映射
      */
     public static Map<String, String> asStringMap(Map source) {
         Map<String, String> tpl = new LinkedHashMap<>(source.size());
@@ -1595,10 +1600,10 @@ public class MapUtils {
     }
 
     /**
-     * 将 Properties 的键和值都转为 String，返回新 Map。
+      * 将 属性 的键和值都转为 字符串，返回新 映射。
      *
-     * @param source Properties 对象
-     * @return 键和值均为 String 的新 LinkedHashMap
+     * @param source 属性 对象
+     * @return 键和值均为 字符串 的新 链接哈希映射
      */
     public static Map<String, String> asStringMap(Properties source) {
         Map<String, String> tpl = new LinkedHashMap<>(source.size());
@@ -1609,7 +1614,7 @@ public class MapUtils {
     }
 
     /**
-     * 将列表转为索引 Map，元素的值为其在列表中的位置序号。
+      * 将列表转为索引 映射，元素的值为其在列表中的位置序号。
      *
      * @param <T>           元素类型
      * @param valuesInOrder 元素列表
@@ -1626,7 +1631,7 @@ public class MapUtils {
     }
 
     /**
-     * 返回提取 Map.Entry 键的 Function。
+      * 返回提取 映射.Entry 键的 Function。
      *
      * @param <K> 键类型
      * @return Map.Entry::getKey 函数
@@ -1636,7 +1641,7 @@ public class MapUtils {
     }
 
     /**
-     * 返回提取 Map.Entry 值的 Function。
+      * 返回提取 映射.Entry 值的 Function。
      *
      * @param <V> 值类型
      * @return Map.Entry::getValue 函数
@@ -1647,24 +1652,24 @@ public class MapUtils {
 
 
     /**
-     * 创建一个默认初始容量的新 HashMap。
+      * 创建一个默认初始容量的新 哈希映射。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @return 新的 HashMap
+     * @return 新的 哈希映射
      */
     public static <K, V> Map<K, V> newHashMap() {
         return new HashMap<>(DEFAULT_INITIAL_CAPACITY);
     }
 
     /**
-     * 创建包含单个键值对的 HashMap。
+      * 创建包含单个键值对的 哈希映射。
      *
      * @param <K> 键类型
      * @param <V> 值类型
      * @param k   键
      * @param v   值
-     * @return 包含指定键值对的新 HashMap
+     * @return 包含指定键值对的新 哈希映射
      */
     public static <K, V> Map<K, V> ofHashMap(K k, V v) {
         Map<K, V> rs = new HashMap<>(1 << 4);
@@ -1673,13 +1678,13 @@ public class MapUtils {
     }
 
     /**
-     * 创建包含单个键值对的 LinkedHashMap。
+      * 创建包含单个键值对的 链接哈希映射。
      *
      * @param <K> 键类型
      * @param <V> 值类型
      * @param k   键
      * @param v   值
-     * @return 包含指定键值对的新 LinkedHashMap
+     * @return 包含指定键值对的新 链接哈希映射
      */
     public static <K, V> Map<K, V> ofLinkedMap(K k, V v) {
         Map<K, V> rs = new LinkedHashMap<>();
@@ -1688,13 +1693,13 @@ public class MapUtils {
     }
 
     /**
-     * 创建包含单个键值对的 MultiValueMap（支持一对多映射）。
+      * 创建包含单个键值对的 multi值映射（支持一对多映射）。
      *
      * @param <K> 键类型
      * @param <V> 值类型
      * @param k   键
      * @param v   值
-     * @return 新的 MultiLinkedValueMap
+     * @return 新的 multi链接值映射
      */
     public static <K, V> MultiValueMap<K, V> ofMultiMap(K k, V v) {
         MultiValueMap<K, V> rs = new MultiLinkedValueMap<>();
@@ -1703,22 +1708,22 @@ public class MapUtils {
     }
 
     /**
-     * 创建一个空的 MultiValueMap（支持一对多映射）。
+      * 创建一个空的 multi值映射（支持一对多映射）。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @return 新的空 MultiLinkedValueMap
+     * @return 新的空 multi链接值映射
      */
     public static <K, V> MultiValueMap<K, V> ofMultiMap() {
         return new MultiLinkedValueMap<>();
     }
 
     /**
-     * 若 key 不存在则通过 function 计算并放入值，返回最终值。
+      * 若 键 不存在则通过 function 计算并放入值，返回最终值。
      *
      * @param <K>      键类型
      * @param <V>      值类型
-     * @param map      缓存 Map
+     * @param map      缓存 映射
      * @param key      键
      * @param function 计算函数
      * @return Map 中存在的值
@@ -1738,11 +1743,11 @@ public class MapUtils {
     }
 
 /**
-     * 按字母顺序（ASCII）对 Map 的键进行排序，返回新 LinkedHashMap。
+      * 按字母顺序（ASCII）对 映射 的键进行排序，返回新 链接哈希映射。
      *
      * @param <V>   值类型
-     * @param param 待排序的 Map
-     * @return 按键排序后的新 LinkedHashMap
+     * @param param 待排序的 映射
+     * @return 按键排序后的新 链接哈希映射
      */
     public static <V> Map<String, V> sortKey(Map<String, V> param) {
         Map<String, V> rs = new LinkedHashMap<>();
@@ -1756,12 +1761,12 @@ public class MapUtils {
     }
 
 /**
-     * 比较新旧两个 Map，返回新 Map 中值与旧 Map 不同的键值对。
+      * 比较新旧两个 映射，返回新 映射 中值与旧 映射 不同的键值对。
      *
      * @param <K>     键类型
      * @param <V>     值类型
-     * @param newData 新数据 Map
-     * @param oldData 旧数据 Map
+     * @param newData 新数据 映射
+     * @param oldData 旧数据 映射
      * @return 值发生变化的键值对
      */
     public static <K, V> Map<K, V> removeSameData(Map<K, V> newData, Map<K, V> oldData) {
@@ -1780,22 +1785,22 @@ public class MapUtils {
     }
 
     /**
-     * 判断 Map 中是否包含指定 key。
+      * 判断 映射 中是否包含指定 键。
      *
-     * @param arg Map
+     * @param arg 映射
      * @param key 键
-     * @return 若 Map 非空且包含 key 则返回 true
+     * @return 若 映射 非空且包含 键 则返回 true
      */
     public static boolean hasKey(Map arg, String key) {
         return isNotEmpty(arg) && arg.containsKey(key);
     }
 
     /**
-     * 从 Map 中获取配置值，支持驼峰和下划线命名自动转换查找。
+      * 从 映射 中获取配置值，支持驼峰和下划线命名自动转换查找。
      *
      * @param <K>  键类型
      * @param <V>  值类型
-     * @param arg  Map
+     * @param arg  映射
      * @param name 配置项名称
      * @return 取到的配置值
      */
@@ -1814,15 +1819,15 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中获取字符串值并匹配为枚举。
+      * 从 映射 中获取字符串值并匹配为枚举。
      *
      * @param <K>      键类型
      * @param <V>      值类型
      * @param <T>      枚举类型
-     * @param map      Map
+     * @param map      映射
      * @param name     键
      * @param enumType 枚举值数组
-     * @return 匹配到的枚举值，若未匹配则返回 null
+     * @return 匹配到的枚举值，若未匹配则返回 空
      */
     public static <K, V, T extends Enum<T>> T getEnum(Map<K, V> map, String name, T[] enumType) {
         String string = getString(map, name);
@@ -1835,13 +1840,13 @@ public class MapUtils {
     }
 
     /**
-     * 获取 Map 中指定索引位置的键值对。
+      * 获取 映射 中指定索引位置的键值对。
      *
      * @param <K>    键类型
      * @param <V>    值类型
-     * @param params Map
+     * @param params 映射
      * @param i      索引位置（0-based）
-     * @return 指定位置的 Map.Entry，若超出范围则返回 null
+     * @return 指定位置的 映射.Entry，若超出范围则返回 空
      */
     public static <K, V> Map.Entry<K, V> getEntry(Map<K, V> params, int i) {
         int index = 0;
@@ -1854,16 +1859,17 @@ public class MapUtils {
     }
 
     /**
-     * 若 key 不存在则放入值，key、value 或 Map 任一为 null 时忽略。
+      * 若 键 不存在则放入值，键、值 或 映射 任一为 空 时忽略。
      *
      * @param <K>   键类型
      * @param <V>   值类型
-     * @param kvMap Map，允许为 null
-     * @param name  键，允许为 null
-     * @param value 值，允许为 null
+     * @param kvMap 映射，允许为 空
+     * @param name  键，允许为 空
+     * @param value 值，允许为 空
+     * @return 放入ifabsent的结果
      */
     public static <K, V> void putIfAbsent(Map<K, V> kvMap, K name, V value) {
-        //                                  null         null                                       
+ // 空         空
         if (null == value || null == kvMap || null == name) {
             return;
         }
@@ -1872,13 +1878,13 @@ public class MapUtils {
     }
 
     /**
-     * 判断 Map 中指定 key 对应的值是否有效（非 null 且非空字符串）。
+      * 判断 映射 中指定 键 对应的值是否有效（非 空 且非空字符串）。
      *
      * @param <K> 键类型
      * @param <V> 值类型
-     * @param map Map
+     * @param map 映射
      * @param key 键
-     * @return 若值非 null 且非空字符串则返回 true
+     * @return 若值非 空 且非空字符串则返回 true
      */
     public static <K, V> boolean containsValue(Map<K, V> map, K key) {
         if (isEmpty(map) || null == key) {
@@ -1898,13 +1904,13 @@ public class MapUtils {
     }
 
     /**
-     * 判断 Map 是否非空且包含指定 key。
+      * 判断 映射 是否非空且包含指定 键。
      *
      * @param <K>    键类型
      * @param <V>    值类型
-     * @param source Map，允许为 null
+     * @param source 映射，允许为 空
      * @param name   键
-     * @return 若 Map 非空且包含 key 则返回 true
+     * @return 若 映射 非空且包含 键 则返回 true
      */
     public static <K, V> boolean containsKey(Map<K, V> source, K name) {
         //                                                 
@@ -1912,28 +1918,29 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中安全获取值，Map 为空时返回 null。
+      * 从 映射 中安全获取值，映射 为空时返回 空。
      *
      * @param <K>    键类型
      * @param <V>    值类型
-     * @param source Map
+     * @param source 映射
      * @param name   键
-     * @return 取到的值，若 Map 为空则返回 null
+     * @return 取到的值，若 映射 为空则返回 空
      */
     public static <K, V> V get(Map<K, V> source, K name) {
-        //                    name             
+ // 名称
         return isEmpty(source) ? null : source.get(name);
     }
 
     /**
-     * 通过类名字符串构造对象并放入 Map。
+      * 通过类名字符串构造对象并放入 映射。
      *
      * @param <K>   键类型
      * @param <V>   值类型
-     * @param map   Map
+     * @param map   映射
      * @param key   键
      * @param vType 类的全限定名
      * @param args  构造参数
+     * @return 放入的结果
      */
     public static <K, V> void put(Map<K, V> map, K key, String vType, Object... args) {
         if (null == map || null == key || StringUtils.isEmpty(vType)) {
@@ -1949,14 +1956,15 @@ public class MapUtils {
     }
 
     /**
-     * 通过 Class 对象构造实例并放入 Map。
+      * 通过 类 对象构造实例并放入 映射。
      *
      * @param <K>   键类型
      * @param <V>   值类型
-     * @param map   Map
+     * @param map   映射
      * @param key   键
      * @param vType 目标类型
      * @param args  构造参数
+     * @return 放入的结果
      */
     public static <K, V> void put(Map<K, V> map, K key, Class<V> vType, Object... args) {
         if (null == map || null == key || null == vType) {
@@ -1972,9 +1980,9 @@ public class MapUtils {
     }
 
     /**
-     * 按点号分隔的嵌套路径从 Map 中获取值，取不到时返回默认值。
+      * 按点号分隔的嵌套路径从 映射 中获取值，取不到时返回默认值。
      *
-     * @param properties   Map
+     * @param properties   映射
      * @param name         点号分隔的嵌套键路径（如 "a.b.c"）
      * @param defaultValue 默认值
      * @return 取到的值或默认值
@@ -2003,12 +2011,12 @@ public class MapUtils {
     }
 
     /**
-     * 将 Map 的每个键值对通过转换函数映射为列表。
+      * 将 映射 的每个键值对通过转换函数映射为列表。
      *
      * @param <T>         列表元素类型
-     * @param beanOfTypes Map
+     * @param beanOfTypes 映射
      * @param function    转换函数，接收键和值，返回列表元素
-     * @return 转换后的列表，若 Map 为空则返回空列表
+     * @return 转换后的列表，若 映射 为空则返回空列表
      */
     public static <T> List<T> mapToList(Map<String, ?> beanOfTypes, BiFunction<String, Object, T> function) {
         if (isEmpty(beanOfTypes)) {
@@ -2018,40 +2026,40 @@ public class MapUtils {
     }
 
     /**
-     * 将嵌套 Map 展开为扁平化的点号键格式。
+      * 将嵌套 映射 展开为扁平化的点号键格式。
      *
      * <p>嵌套结构被展开为点号分隔的扁平键：
      * <pre>{@code {"user": {"name": "张三", "age": 25}} → {"user.name": "张三", "user.age": 25}}</pre>
      *
-     * @param map 嵌套 Map
-     * @return 扁平化的 Map
+     * @param map 嵌套 映射
+     * @return 扁平化的 映射
      */
     public static Map<String, Object> flattenToProperties(Map<String, Object> map) {
         return flattenToProperties(map, "");
     }
 
     /**
-     * 将嵌套 Map 按 Properties 格式展开为扁平化的点号键格式。
+      * 将嵌套 映射 按 属性 格式展开为扁平化的点号键格式。
      *
      * <p>
      * 嵌套结构被展开为点号分隔的扁平键：
      * {@code {"user": {"name": "张三", "age": 25}} → {"user.name": "张三", "user.age": 25}}
      *
-     * @param properties Properties 对象
-     * @return 扁平化的 Map
+     * @param properties 属性 对象
+     * @return 扁平化的 映射
      */
     public static Map<String, Object> flattenToProperties(Properties properties) {
         return flattenToProperties(new HashMap(properties), "");
     }
 
     /**
-     * 将嵌套 Map 按 Properties 格式展开为扁平化的点号键格式。
+      * 将嵌套 映射 按 属性 格式展开为扁平化的点号键格式。
      *
      * <p>递归遍历 Map，将嵌套键拼接为点号分隔的扁平键。
      *
-     * @param map    嵌套 Map
+     * @param map    嵌套 映射
      * @param prefix 键前缀
-     * @return 扁平化的 Map
+     * @return 扁平化的 映射
      */
     public static Map<String, Object> flattenToProperties(Map<String, Object> map, String prefix) {
         Map<String, Object> result = new LinkedHashMap<>();
@@ -2068,7 +2076,7 @@ public class MapUtils {
             String newKey = StringUtils.isEmpty(prefix) ? key : prefix + "." + key;
 
             if (value instanceof Map) {
-                //                   Map
+ // 映射
                 Map<String, Object> nestedMap = (Map<String, Object>) value;
                 result.putAll(flattenToProperties(nestedMap, newKey));
             } else if (value instanceof Collection<?> collection) {
@@ -2107,14 +2115,14 @@ public class MapUtils {
     }
 
     /**
-     * 将扁平化的点号键 Map 还原为嵌套 Map 结构。
+      * 将扁平化的点号键 映射 还原为嵌套 映射 结构。
      *
      * <p>
      * 点号分隔的扁平键被还原为多层嵌套：
      * {@code {"user.name": "张三", "user.age": 25} → {"user": {"name": "张三", "age": 25}}}
      *
-     * @param flatMap 扁平化的 Map
-     * @return 还原后的嵌套 Map
+     * @param flatMap 扁平化的 映射
+     * @return 还原后的嵌套 映射
      */
     public static Map<String, Object> unflattenFromProperties(Map<String, Object> flatMap) {
         if (flatMap == null || flatMap.isEmpty()) {
@@ -2134,9 +2142,9 @@ public class MapUtils {
     }
 
     /**
-     * 设置嵌套 Map 的值，根据点号分隔的键路径逐层深入。
+      * 设置嵌套 映射 的值，根据点号分隔的键路径逐层深入。
      *
-     * @param map   目标 Map
+     * @param map   目标 映射
      * @param key   点号分隔的键
      * @param value 要设置的值
      */
@@ -2163,12 +2171,12 @@ public class MapUtils {
      * 处理嵌套键路径中的一个键片段，支持普通键和 {@code [index]} 数组下标语法。
      *
      * <p>若键片段包含 {@code [index]} 格式（如 "items[0]"），则提取数组名和索引，
-     * 在 current Map 中创建或获取对应索引位置的 Map 节点。
-     * 若为普通键，则调用 {@link #ensureMapExists(Map, String)} 创建或获取下一层级的 Map。
+      * 在 当前 映射 中创建或获取对应索引位置的 映射 节点。
+      * 若为普通键，则调用 {@link #ensureMapExists(Map, String)} 创建或获取下一层级的 映射。
      *
-     * @param current 当前层级的 Map
-     * @param part    键路径片段，可为普通键名或 "arrayName[index]" 格式
-     * @return 下一层级的 Map 节点
+     * @param current 当前层级的 映射
+     * @param part    键路径片段，可为普通键名或 "array名称[索引]" 格式
+     * @return 下一层级的 映射 节点
      */
     private static Map<String, Object> processMapPart(Map<String, Object> current, String part) {
         //                          "items[0]"
@@ -2197,7 +2205,7 @@ public class MapUtils {
                     list.add(new LinkedHashMap<String, Object>());
                 }
 
-                //                      Map
+ // 映射
                 if (!(list.get(index) instanceof Map)) {
                     list.set(index, new LinkedHashMap<String, Object>());
                 }
@@ -2214,14 +2222,14 @@ public class MapUtils {
     }
 
     /**
-     * 在当前 Map 中确保指定 key 存在对应的子 Map 节点。
+      * 在当前 映射 中确保指定 键 存在对应的子 映射 节点。
      *
      * <p>若 key 不存在则创建新的 LinkedHashMap 作为值；若 key 已存在但值不是 Map 类型，
-     * 则覆盖为新的 LinkedHashMap。保证下一级始终为 Map 类型。
+      * 则覆盖为新的 链接哈希映射。保证下一级始终为 映射 类型。
      *
-     * @param current 当前层级的 Map
+     * @param current 当前层级的 映射
      * @param key     要确保存在的键
-     * @return key 对应的子 Map 节点，保证非 null 且为 Map 类型
+     * @return key 对应的子 映射 节点，保证非 空 且为 映射 类型
      */
     private static Map<String, Object> ensureMapExists(Map<String, Object> current, String key) {
         if (!current.containsKey(key)) {
@@ -2237,10 +2245,10 @@ public class MapUtils {
     }
 
     /**
-     * 设置最终值到当前 Map 节点，支持数组下标语法。
+      * 设置最终值到当前 映射 节点，支持数组下标语法。
      *
-     * @param current  当前层级的 Map
-     * @param finalKey 最终键名，可包含 [index] 数组下标
+     * @param current  当前层级的 映射
+     * @param finalKey 最终键名，可包含 [索引] 数组下标
      * @param value    要设置的值
      */
     private static void setFinalValue(Map<String, Object> current, String finalKey, Object value) {
@@ -2275,14 +2283,15 @@ public class MapUtils {
     }
 
     /**
-     * 清除 Map 中所有值为 null 的条目。
+      * 清除 映射 中所有值为 空 的条目。
      *
      * <p>遍历 Map 并移除所有值为 null 的键值对，与 {@link Map#remove(Object)} 不同，
      * 此方法不会移除不存在的键。
      * <p>示例：输入 {"name": "张三", "age": null} → 输出 {"name": "张三"}
      *
-     * @param doc 待清理的 Map，键为 String 类型
-     * @param <V> Map 的值类型
+     * @param doc 待清理的 映射，键为 字符串 类型
+     * @param <V> 映射 的值类型
+     * @return clear空值的结果
      */
     public static <V> void clearNullValue(Map<String, V> doc) {
         doc.entrySet().removeIf(entry -> entry.getValue() == null);
@@ -2290,17 +2299,17 @@ public class MapUtils {
 
 
     /**
-     * 从 Map 中获取字符串值，并将其中的分隔符从 oldSplit 替换为 newSplit。
+      * 从 映射 中获取字符串值，并将其中的分隔符从 旧分割 替换为 新分割。
      *
      * <p>先通过 {@link #getString(Map, Object)} 取值，若值为 null 则返回 null；
      * 否则使用 {@link Splitter#onPattern(String)} 按旧分隔符拆分字符串，
      * 再用 {@link Joiner#on(String)} 按新分隔符重新拼接。拆分时自动去除空白和空片段。
      *
-     * @param map      Map
+     * @param map      映射
      * @param name     键
      * @param oldSplit 原始分隔符（正则表达式模式）
      * @param newSplit 替换后的分隔符
-     * @return 分隔符替换后的字符串，若原始值为 null 则返回 null
+     * @return 分隔符替换后的字符串，若原始值为 空 则返回 空
      */
     public static String getStringSplitter(Map<String, Object> map, String name, String oldSplit, String newSplit) {
         String value = getString(map, name);
@@ -2314,15 +2323,15 @@ public class MapUtils {
     }
 
     /**
-     * 比较期望值与 Map 中指定 key 对应的字符串值是否相等。
+      * 比较期望值与 映射 中指定 键 对应的字符串值是否相等。
      *
      * <p>若 expectation 为 null，则 Map 为 null、Map 中不含该 key 或 key 对应值为 null 时返回 true；
-     * 否则通过 {@code equals} 比较 expectation 与 Map 中取出的字符串值。
+      * 否则通过 {@code equals} 比较 expectation 与 映射 中取出的字符串值。
      *
-     * @param expectation 期望的字符串值，允许为 null
-     * @param key         Map 中的键
-     * @param item        待比较的 Map，允许为 null
-     * @return 若期望值与 Map 值相等则返回 true，不相等返回 false
+     * @param expectation 期望的字符串值，允许为 空
+     * @param key         映射 中的键
+     * @param item        待比较的 映射，允许为 空
+     * @return 若期望值与 映射 值相等则返回 true，不相等返回 false
      */
     public static Boolean isEquals(String expectation, String key, Map<String, Object> item) {
         if (null == expectation) {
@@ -2333,16 +2342,16 @@ public class MapUtils {
     }
 
     /**
-     * 比较 int 期望值与 Map 中指定 key 对应的值是否相等。
+      * 比较 int 期望值与 映射 中指定 键 对应的值是否相等。
      *
      * <p>若 Map 为 null 或不含该 key 则返回 null；否则通过
      * {@link Converter#convertIfNecessary(Object, Class)} 将值转为 Integer，
      * 转换失败时返回 false，转换成功后用 {@code ==} 比较。
      *
      * @param expectation 期望的 int 值
-     * @param key         Map 中的键
-     * @param item        待比较的 Map，允许为 null
-     * @return 相等返回 true，不相等返回 false，key 不存在返回 null
+     * @param key         映射 中的键
+     * @param item        待比较的 映射，允许为 空
+     * @return 相等返回 true，不相等返回 false，键 不存在返回 空
      */
     public static Boolean isEquals(int expectation, String key, Map<String, Object> item) {
         if (item == null || !item.containsKey(key)) {
@@ -2358,16 +2367,16 @@ public class MapUtils {
     }
 
     /**
-     * 比较 double 期望值与 Map 中指定 key 对应的值是否相等。
+      * 比较 double 期望值与 映射 中指定 键 对应的值是否相等。
      *
      * <p>若 Map 为 null 或不含该 key 则返回 null；否则通过
      * {@link Converter#convertIfNecessary(Object, Class)} 将值转为 Double，
      * 转换失败时返回 false，转换成功后用 {@code ==} 比较。
      *
      * @param expectation 期望的 double 值
-     * @param key         Map 中的键
-     * @param item        待比较的 Map，允许为 null
-     * @return 相等返回 true，不相等返回 false，key 不存在返回 null
+     * @param key         映射 中的键
+     * @param item        待比较的 映射，允许为 空
+     * @return 相等返回 true，不相等返回 false，键 不存在返回 空
      */
     public static Boolean isEquals(double expectation, String key, Map<String, Object> item) {
         if (item == null || !item.containsKey(key)) {
@@ -2383,14 +2392,14 @@ public class MapUtils {
     }
 
     /**
-     * 从 Map 中安全获取 LocalDateTime 值。
+      * 从 映射 中安全获取 本地日期时间 值。
      *
      * <p>若 Map 为 null 或不含指定 key 则返回 null，否则通过
      * {@link Converter#parseLocalDateTimeSafe(Object)} 将值转为 LocalDateTime。
      *
      * @param key  键
-     * @param item Map，允许为 null
-     * @return 取到的 LocalDateTime，若 Map 为空、key 不存在或转换失败则返回 null
+     * @param item 映射，允许为 空
+     * @return 取到的 本地日期时间，若 映射 为空、键 不存在或转换失败则返回 空
      */
     public static LocalDateTime parseLocalDateTimeSafe(String key, Map<String, Object> item) {
         if (item == null || !item.containsKey(key)) {
@@ -2399,7 +2408,12 @@ public class MapUtils {
         return Converter.parseLocalDateTimeSafe(item.get(key));
     }
 
-    /** BeanToMap */
+    /**
+     * Bean转为映射
+     *
+     * @param bean Bean
+     * @return Bean转为映射的结果
+     */
     private static Map<String, Object> beanToMap(Object bean) {
         if (bean instanceof Map) {
             return (Map<String, Object>) bean;

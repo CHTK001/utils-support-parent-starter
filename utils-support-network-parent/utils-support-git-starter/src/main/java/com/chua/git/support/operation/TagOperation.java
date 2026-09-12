@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 标签操作（git tag）。
+   * 标签操作（Git 标签）。
  *
  * <p>对已打开的本地仓库，提供以下操作：</p>
  * <ul>
@@ -30,6 +30,7 @@ import java.util.List;
  *
  * // 删除标签
  * client.tag().delete("v0.9");
+ * }</pre>("v0.9");
  * }</pre>
  *
  * @author CH
@@ -39,14 +40,14 @@ import java.util.List;
 public class TagOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public TagOperation(GitClient client) {
         this.client = client;

@@ -31,7 +31,7 @@ public class RedisDeduplicator implements Deduplicator {
 
     /**
 
-     * * Redis key 前缀
+      * * Redis 键 前缀
 
      */
     private static final String KEY_PREFIX = "dedup:";
@@ -42,7 +42,7 @@ public class RedisDeduplicator implements Deduplicator {
     private final long ttlMs;
 
     /**
-     * 创建 RedisDeduplicator 实例
+      * 创建 redisdeduplicator 实例
      * @param redisson redisson
      */
     public RedisDeduplicator(RedissonClient redisson) {
@@ -50,9 +50,10 @@ public class RedisDeduplicator implements Deduplicator {
     }
 
     /**
-     * 创建 RedisDeduplicator 实例
+      * 创建 redisdeduplicator 实例
      * @param redisson redisson
-     * @param long long
+     * @param ttlMs long
+     * @param ttlMs ttlms
      */
     public RedisDeduplicator(RedissonClient redisson, long ttlMs) {
         this.redisson = redisson;
@@ -60,13 +61,13 @@ public class RedisDeduplicator implements Deduplicator {
     }
 
     @Override
-    /** 是否Duplicate */
+    /** 是否重复 */
     public boolean isDuplicate(String key) {
         return redisson.getBucket(KEY_PREFIX + key).isExists();
     }
 
     @Override
-    /** 标记Processed */
+    /** 标记处理 */
     public void markProcessed(String key) {
         RBucket<String> bucket = redisson.getBucket(KEY_PREFIX + key);
         bucket.set("1", ttlMs, TimeUnit.MILLISECONDS);

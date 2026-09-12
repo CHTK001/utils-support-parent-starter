@@ -1,7 +1,7 @@
 package com.chua.datasync.agent.support;
 
 /**
- * 数据同步 Agent 异常。
+   * 数据同步 智能体 异常。
  *
  * @author CH
  * @since 4.0.0.42

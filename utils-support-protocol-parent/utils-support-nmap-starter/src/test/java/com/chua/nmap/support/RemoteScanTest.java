@@ -9,15 +9,17 @@ import java.util.List;
 
 /**
  * 远程主机扫描测试 - 8.139.4.229
+ * @author CH
+ * @since 4.0.0
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RemoteScanTest {
 
-    private static final Logger log = LoggerFactory.getLogger(RemoteScanTest.class);
-    private static final String TARGET = "8.139.4.229";
-    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded();
+    private static final Logger log = LoggerFactory.getLogger(RemoteScanTest.class); // 日志
+    private static final String TARGET = "8.139.4.229"; // Target
+    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded(); // NAT加载
 
-    private RustNmapScanner scanner;
+    private RustNmapScanner scanner; // scanner
 
     @BeforeEach
     void setUp() {

@@ -24,21 +24,21 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
      */
     private final int detectResolution;
 
-    /** 创建 ImageTextSuperResolutionTranslator 实例 */
+    /** 创建 镜像文本父resolutiontranslator 实例 */
     public ImageTextSuperResolutionTranslator() {
         this(512);
     }
 
     /**
-     * 创建 ImageTextSuperResolutionTranslator 实例
-     * @param detectResolution detectResolution
+      * 创建 镜像文本父resolutiontranslator 实例
+     * @param detectResolution detectresolution
      */
     public ImageTextSuperResolutionTranslator(int detectResolution) {
         this.detectResolution = detectResolution;
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager()).toType(DataType.FLOAT32, false);
         float upScale = (float) detectResolution / (float) Math.max(1, input.getHeight());
@@ -52,7 +52,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         if (array.getShape().dimension() == 4 && array.getShape().get(0) == 1) {

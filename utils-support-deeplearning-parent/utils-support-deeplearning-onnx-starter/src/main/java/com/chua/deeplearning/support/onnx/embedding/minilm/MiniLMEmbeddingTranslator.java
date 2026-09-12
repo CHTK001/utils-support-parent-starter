@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * all-MiniLM-L6-v2 Sentence Embedding Translator（文本 → 384 维句向量）。
+   * 全部-minilm-L6-v2 Sentence 嵌入 Translator（文本 → 384 维句向量）。
  *
  * <p>底层 ONNX：{@code Xenova/all-MiniLM-L6-v2}，支持两种精度：
  * <ul>
@@ -28,16 +28,16 @@ import java.util.Map;
  *   <li>{@code attention_mask}: [batch, seq] int64</li>
  *   <li>{@code token_type_ids}: [batch, seq] int64</li>
  * </ul>
- * 输出：{@code last_hidden_state} [batch, seq, 384] float32。
+   * 输出：{@code last_hidden_state} [批量, seq, 384] float32。
  * </p>
  *
  * <p>本 Translator 把 last_hidden_state 做 mean-pooling（按 attention_mask
- * 取均值）→ L2 归一化 → 384 维 float[]，与 sentence-transformers/all-MiniLM-L6-v2
+   * 取均值）→ L2 归一化 → 384 维 float[]，与 sentence-transformers/全部-minilm-L6-v2
  * 的默认句向量语义完全一致，可直接用于余弦相似度 / 向量检索。</p>
  *
  * <p>资源在 jar 内路径：{@code nlp/embedding/minilm/}（int8）或
  * {@code nlp/embedding/minilm-fp32/}（fp32），由 {@link NativeLoader} 解压到
- * java.io.tmpdir 后加载。单例模型 + 多线程安全（{@code OrtSession} 本身线程安全）。</p>
+   * Java.io.tmpdir 后加载。单例模型 + 多线程安全（{@code OrtSession} 本身线程安全）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -46,7 +46,7 @@ import java.util.Map;
 public class MiniLMEmbeddingTranslator {
 
     /**
-     * 嵌入维度（384 维，与 all-MiniLM-L6-v2 一致）
+      * 嵌入维度（384 维，与 全部-minilm-L6-v2 一致）
      */
     public static final int HIDDEN_SIZE = 384;
 
@@ -97,6 +97,7 @@ public class MiniLMEmbeddingTranslator {
 
     /**
      * 创建 fp32 未量化版 Translator（精度更高，~90MB）
+     * @return fp32的结果
      */
     public static MiniLMEmbeddingTranslator fp32() {
         return new MiniLMEmbeddingTranslator(RESOURCE_BASE_FP32, MODEL_FILE_FP32);
@@ -104,6 +105,7 @@ public class MiniLMEmbeddingTranslator {
 
     /**
      * 创建 int8 量化版 Translator（默认，速度快，~22MB）
+     * @return int8的结果
      */
     public static MiniLMEmbeddingTranslator int8() {
         return new MiniLMEmbeddingTranslator(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
@@ -197,7 +199,11 @@ public class MiniLMEmbeddingTranslator {
     }
 
     /**
-     * Mean-pooling：对 last_hidden_state 每个非 padding token 取均值，再 L2 归一化。
+      * Mean-游泳池：对 最后一个_hidden_状态 每个非 padding 令牌 取均值，再 L2 归一化。
+     * @param seqVec seqvec
+     * @param attentionMask attentionmask
+     * @param seqLen seqlen
+     * @return mean游泳池的结果
      */
     private float[] meanPool(float[][] seqVec, long[] attentionMask, int seqLen) {
         float[] sum = new float[HIDDEN_SIZE];
@@ -232,7 +238,7 @@ public class MiniLMEmbeddingTranslator {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

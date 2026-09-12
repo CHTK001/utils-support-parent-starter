@@ -18,7 +18,7 @@ package com.chua.network.support.tshark.restorer;
 public class RedisProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "redis";
     }
@@ -74,7 +74,13 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** 解析获取长度 */
+    /**
+     * 解析获取长度
+     *
+     * @param data 数据
+     * @param offset 偏移量
+     * @return 解析长度的结果
+     */
     private static int parseLength(byte[] data, int offset) {
         int value = 0;
         int idx = offset;
@@ -92,7 +98,13 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
         return value;
     }
 
-    /** 解析Long */
+    /**
+     * 解析Long
+     *
+     * @param data 数据
+     * @param offset 偏移量
+     * @return 解析long的结果
+     */
     private static long parseLong(byte[] data, int offset) {
         long value = 0;
         boolean negative = false;

@@ -39,12 +39,12 @@ public final class KeyBlobCodec {
     public static final int PREFIX_BYTES = 6;
 
     /**
-     * 密钥 ID 长度（字节）
+      * 密钥 标识 长度（字节）
      */
     public static final int KEY_ID_BYTES = SecretKeyMaterial.KEY_ID_LENGTH_BYTES;
 
     /**
-     * 固定段长度：头部(6)+密钥ID(8)+盐(16)+IV(12)
+      * 固定段长度：头部(6)+密钥标识(8)+盐(16)+IV(12)
      */
     public static final int FIXED_HEADER_BYTES = PREFIX_BYTES + KEY_ID_BYTES
             + KeyProtector.SALT_BYTES + KeyProtector.GCM_IV_BYTES;

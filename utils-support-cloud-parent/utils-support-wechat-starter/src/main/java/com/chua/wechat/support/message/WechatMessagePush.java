@@ -28,13 +28,13 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * 微信消息推送实现
  * <p>
- * 支持三种推送模式（通过 contentType 或 {@code wechat.type} 配置区分）：
+   * 支持三种推送模式（通过 内容类型 或 {@code wechat.type} 配置区分）：
  * <ul>
  *   <li>webhook：企业微信群机器人 Webhook，发送文本/Markdown 消息</li>
  *   <li>mp：公众号模板消息，需 appId/appSecret 与模板 ID</li>
  *   <li>mini：小程序订阅消息，需 appId/appSecret 与模板 ID</li>
  * </ul>
- * 接收人（to）为企业微信/公众号/小程序用户的 openid。
+   * 接收人（转为）为企业微信/公众号/小程序用户的 openid。
  * </p>
  *
  * <h3>环境配置</h3>
@@ -63,7 +63,7 @@ import java.util.concurrent.ConcurrentMap;
         }
 )
 /**
- * public class WechatMessagePush implements MessagePush {
+   * 公共 类 wechat消息push implements 消息push {
  *
  * @author CH
  * @since 4.0.0.42
@@ -72,7 +72,7 @@ import java.util.concurrent.ConcurrentMap;
 public class WechatMessagePush implements MessagePush {
 
     /**
-     * 微信 access_token 获取地址
+      * 微信 access_令牌 获取地址
      */
     private static final String API_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token";
 
@@ -102,7 +102,7 @@ public class WechatMessagePush implements MessagePush {
     private static final String TYPE_MINI = "mini";
 
     /**
-     * access_token 提前过期余量（毫秒），避免边界失效
+      * access_令牌 提前过期余量（毫秒），避免边界失效
      */
     private static final long TOKEN_EXPIRE_MARGIN_MILLIS = 200L;
 
@@ -113,34 +113,35 @@ public class WechatMessagePush implements MessagePush {
     private final Map<String, TemplateInfo> templates = new ConcurrentHashMap<>();
 
     /**
-     * access_token 缓存（按 appId:appSecret 维度）
+      * access_令牌 缓存（按 appid:appsecret 维度）
      */
     private static final ConcurrentMap<String, TokenCache> TOKEN_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * access_token 缓存项
+      * access_令牌 缓存项
      *
      * @param token    访问令牌
      * @param expireAt 过期时间戳（毫秒）
+     * @return 令牌缓存的结果
      */
     private record TokenCache(String token, long expireAt) {
     }
 
-    /** 创建 WechatMessagePush 实例 */
+    /** 创建 wechat消息push 实例 */
     public WechatMessagePush() {
         this(new MessageEnvironment());
     }
 
     /**
-     * 创建 WechatMessagePush 实例
-     * @param environment environment
+      * 创建 wechat消息push 实例
+     * @param environment 环境
      */
     public WechatMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    /** 获取Provider */
+    /** 获取提供者 */
     public String getProvider() {
         return "wechat";
     }
@@ -148,7 +149,7 @@ public class WechatMessagePush implements MessagePush {
     @Override
     /**
      * 发送
-     * @param request request
+     * @param request 请求
      */
     public MessageResponse send(MessageRequest request) {
         long start = System.currentTimeMillis();
@@ -322,10 +323,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 解析模板 ID：优先请求携带，否则使用配置默认值
+      * 解析模板 标识：优先请求携带，否则使用配置默认值
      *
      * @param request 消息请求
-     * @return 模板 ID
+     * @return 模板 标识
      */
     private String resolveTemplateId(MessageRequest request) {
         if (StringUtils.isNotBlank(request.getTemplateId())) {
@@ -335,10 +336,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 将模板参数转换为微信 data 结构（{key: {value: xxx}}）
+      * 将模板参数转换为微信 数据 结构（{键: {值: xxx}}）
      *
      * @param params 模板参数
-     * @return 微信 data JSON
+     * @return 微信 数据 JSON
      */
     private JsonObject buildData(Map<String, String> params) {
         JsonObject data = new JsonObject();
@@ -354,10 +355,10 @@ public class WechatMessagePush implements MessagePush {
     }
 
     /**
-     * 获取 access_token（带缓存）
+      * 获取 access_令牌（带缓存）
      *
-     * @param appId     公众号/小程序 AppID
-     * @param appSecret 公众号/小程序 AppSecret
+     * @param appId     公众号/小程序 appid
+     * @param appSecret 公众号/小程序 appsecret
      * @return access_token
      */
     private String getAccessToken(String appId, String appSecret) {
@@ -434,7 +435,7 @@ public class WechatMessagePush implements MessagePush {
     }
 
     @Override
-    /** ListTemplates */
+    /** 列表templates */
     public List<TemplateInfo> listTemplates() {
         return new ArrayList<>(templates.values());
     }
@@ -442,7 +443,7 @@ public class WechatMessagePush implements MessagePush {
     @Override
     /**
      * 获取Template
-     * @param templateId templateId
+     * @param templateId templateid
      */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);

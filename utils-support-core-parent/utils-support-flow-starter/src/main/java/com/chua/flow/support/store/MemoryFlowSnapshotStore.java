@@ -22,7 +22,7 @@ public class MemoryFlowSnapshotStore implements FlowSnapshotStore {
     private final Map<String, FlowSnapshot> snapshots = new ConcurrentHashMap<>();
 
     /**
-     * 流程 ID 到执行号列表的映射
+      * 流程 标识 到执行号列表的映射
      */
     private final Map<String, List<String>> flowIndex = new ConcurrentHashMap<>();
 
@@ -42,7 +42,7 @@ public class MemoryFlowSnapshotStore implements FlowSnapshotStore {
      * 按执行号读取快照。
      *
      * @param executionNo 执行号
-     * @return 快照，不存在时返回 null
+     * @return 快照，不存在时返回 空
      */
     @Override
     public FlowSnapshot load(String executionNo) {
@@ -50,9 +50,9 @@ public class MemoryFlowSnapshotStore implements FlowSnapshotStore {
     }
 
     /**
-     * 按流程 ID 列出快照。
+      * 按流程 标识 列出快照。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 快照列表，无则返回空列表
      */
     @Override

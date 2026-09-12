@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 /**
  * 7Z归档输入流适配器
  * <p>
- * 将commons-compress的SevenZFile适配为项目接口
+   * 将commons-compress的sevenz文件适配为项目接口
  * </p>
  *
  * @author CH
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
-     * 原始SevenZFile
+      * 原始sevenz文件
      */
     private final SevenZFile sevenZFile;
 
@@ -32,7 +32,7 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     /**
      * 构造7Z归档输入流适配器
      *
-     * @param sevenZFile commons-compress的SevenZFile
+     * @param sevenZFile commons-compress的sevenz文件
      */
     SevenZArchiveInputStreamAdapter(SevenZFile sevenZFile) {
         this.sevenZFile = sevenZFile;
@@ -40,7 +40,11 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
 
     @Override
     @Nullable
-    /** 获取NextEntry */
+    /**
+     * 获取下一个entry
+     *
+     * @return 获取下一个entry的结果
+     */
     public ArchiveEntry getNextEntry() throws IOException {
         currentEntry = sevenZFile.getNextEntry();
         if (currentEntry == null) {
@@ -98,7 +102,7 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** Available */
+    /** 可用 */
     public int available() throws IOException {
         if (currentEntry == null) {
             return 0;
@@ -120,7 +124,7 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     }
 
     @Override
-    /** 标记Supported */
+    /** 标记支持 */
     public boolean markSupported() {
         return false;
     }

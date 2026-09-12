@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * 华为盘古大模型对话客户端
  *
  * <p>基于华为云盘古大模型 API 的 {@link ChatClient} 实现，通过 HTTP 协议
- * 调用华为云 ModelArts 盘古大模型的对话接口。
+   * 调用华为云 模型arts 盘古大模型的对话接口。
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,7 +42,7 @@ public class HuaweiChatClient implements ChatClient {
     private static final String DEFAULT_URL = "https://pangu.cn-north-4.myhuaweicloud.com/v1";
 
     /**
-     * 获取 Token 的 IAM 地址
+      * 获取 令牌 的 身份与访问管理 地址
      */
     private static final String IAM_URL = "https://iam.cn-north-4.myhuaweicloud.com/v3/auth/tokens";
 
@@ -67,7 +67,7 @@ public class HuaweiChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 Token 数
+      * 当前最大 令牌 数
      */
     private Integer maxTokens;
 
@@ -77,7 +77,7 @@ public class HuaweiChatClient implements ChatClient {
     private String system;
 
     /**
-     * 当前会话 ID
+      * 当前会话 标识
      */
     private String sessionId;
 
@@ -117,7 +117,7 @@ public class HuaweiChatClient implements ChatClient {
     private SkillManager skillManager;
 
     /**
-     * 缓存的 IAM Token
+      * 缓存的 身份与访问管理 令牌
      */
     private String iamToken;
 
@@ -139,7 +139,7 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -153,14 +153,14 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
@@ -174,7 +174,7 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** ThinkingEffort */
+    /** thinkingeffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
@@ -195,35 +195,35 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
@@ -236,13 +236,13 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -251,7 +251,7 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -264,7 +264,7 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -275,10 +275,10 @@ public class HuaweiChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -291,7 +291,7 @@ public class HuaweiChatClient implements ChatClient {
                     .state(ChatResponse.State.START)
                     .build());
 
-            // 获取 IAM Token
+ // 获取 身份与访问管理 令牌
             String token = getIamToken();
 
             // 构建盘古大模型请求体
@@ -377,11 +377,11 @@ public class HuaweiChatClient implements ChatClient {
     }
 
     /**
-     * 获取华为云 IAM Token
+      * 获取华为云 身份与访问管理 令牌
      *
      * <p>使用 AK/SK 或用户名密码从华为云 IAM 服务获取认证 Token。
      *
-     * @return IAM Token 字符串
+     * @return IAM 令牌 字符串
      * @throws Exception 请求失败时抛出异常
      */
     private String getIamToken() throws Exception {
@@ -435,13 +435,23 @@ public class HuaweiChatClient implements ChatClient {
                 .replace("\t", "\\t");
     }
 
-    /** ToInt */
+    /**
+     * 转为int
+     *
+     * @param val val
+     * @return 转为int的结果
+     */
     private static Integer toInt(Object val) {
         if (val instanceof Number n) { return n.intValue(); }
         return null;
     }
 
-    /** ProxySelector */
+    /**
+     * 代理selector
+     *
+     * @param proxyStr 代理str
+     * @return 代理selector的结果
+     */
     private static ProxySelector proxySelector(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;
@@ -473,7 +483,7 @@ public class HuaweiChatClient implements ChatClient {
             }
 
             @Override
-            /** 连接Failed */
+            /** 连接失败 */
             public void connectFailed(URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {
             }
         };

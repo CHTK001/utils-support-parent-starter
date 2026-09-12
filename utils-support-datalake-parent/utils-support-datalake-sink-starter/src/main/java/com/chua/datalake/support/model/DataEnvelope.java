@@ -14,7 +14,7 @@ import java.util.Set;
  * 数据信封，封装流转中的业务数据与元数据。
  *
  * <p>每条数据进入管道后都会被包装为 DataEnvelope 在管线中流转。
- * 管线各阶段（Filter、Parser、Cleaner、Standardizer、Sink）通过读取和修改
+   * 管线各阶段（过滤器、Parser、清洁剂、Standardizer、Sink）通过读取和修改
  * {@link #getParsed()} 完成数据处理/清洗。管线终点通过 DispatcherProvider
  * 发布至订阅的 sink，sink 解开 envelope 执行业务逻辑。</p>
  *
@@ -41,7 +41,7 @@ public class DataEnvelope {
     private Map<String, Object> parsed;
 
     /**
-     * 所属管线 ID，同一管线同结构在这条流上处理/分析
+      * 所属管线 标识，同一管线同结构在这条流上处理/分析
      */
     private String pipelineId;
 
@@ -51,12 +51,12 @@ public class DataEnvelope {
     private PipelineState state;
 
     /**
-     * 受理时间戳（毫秒），用作数据排序的 monotonically increasing offset
+      * 受理时间戳（毫秒），用作数据排序的 monotonically 增加 偏移量
      */
     private long timestamp;
 
     /**
-     * 追踪 ID，可观察性标识
+      * 追踪 标识，可观察性标识
      */
     private String traceId;
 

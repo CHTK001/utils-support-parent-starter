@@ -13,7 +13,7 @@ import java.util.Map;
  * 爬虫请求。
  *
  * <p>封装一次爬取请求的全部参数，包括目标 URL、请求头、Cookie、请求方法、
- * 优先级、爬取深度、代理等信息。通过 Builder 模式构建。</p>
+   * 优先级、爬取深度、代理等信息。通过 构建器 模式构建。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -38,7 +38,7 @@ public class SpiderRequest {
      * <p>自定义 HTTP 请求头，用于模拟浏览器行为或携带认证信息。</p>
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers = new HashMap<>(); // 头部
 
     /**
      * Cookie。
@@ -63,7 +63,7 @@ public class SpiderRequest {
      * <p>HTTP 请求方法，默认 GET。支持 GET、POST 等。</p>
      */
     @Builder.Default
-    /** Method */
+    /** 方法 */
     private String method = "GET";
 
     /**
@@ -104,7 +104,7 @@ public class SpiderRequest {
      * <p>透传给后续组件的自定义属性，Fetcher、Parser、Pipeline 均可读取。</p>
      */
     @Builder.Default
-    private Map<String, Object> attributes = new HashMap<>();
+    private Map<String, Object> attributes = new HashMap<>(); // attributes
 
     /**
      * 代理配置。

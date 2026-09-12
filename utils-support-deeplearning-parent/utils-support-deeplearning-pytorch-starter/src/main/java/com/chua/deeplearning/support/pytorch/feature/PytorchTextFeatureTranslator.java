@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 文本特征 Translator（BERT 风格，可选中文 token 清理）。
+   * 文本特征 Translator（BERT 风格，可选中文 令牌 清理）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -45,13 +45,13 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
      */
     private BertFullTokenizer tokenizer;
 
-    /** 创建 PytorchTextFeatureTranslator 实例 */
+    /** 创建 pytorch文本特征translator 实例 */
     public PytorchTextFeatureTranslator() {
         this(false);
     }
 
     /**
-     * 创建 PytorchTextFeatureTranslator 实例
+      * 创建 pytorch文本特征translator 实例
      * @param chinese chinese
      */
     public PytorchTextFeatureTranslator(boolean chinese) {
@@ -78,13 +78,13 @@ public class PytorchTextFeatureTranslator implements Translator<String, float[]>
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         List<String> tokens = tokenizer.tokenize(input);
         if (tokens.size() > maxSequenceLength - 2) {

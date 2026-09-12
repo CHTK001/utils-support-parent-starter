@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Paddle 菜品分类 Translator。
+   * 飞桨 菜品分类 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,13 +40,13 @@ public class DishesTranslator implements Translator<Image, Classifications> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         return new Classifications(this.classes, list.singletonOrThrow());
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         float percent = 256f / Math.min(input.getWidth(), input.getHeight());

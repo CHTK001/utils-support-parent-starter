@@ -13,7 +13,7 @@ import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
 /**
- * 基于 BouncyCastle 的 SM2 非对称加解密实现
+   * 基于 bouncycastle 的 SM2 非对称加解密实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
  * 实现 SM2 密钥生成、加密、解密、签名和验签。
@@ -28,7 +28,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     private static final String PROVIDER = "BC";
     /** Ec_algorithm */
     private static final String EC_ALGORITHM = "EC";
-    /** Sm2_id */
+    /** Sm2_标识 */
     private static final byte[] SM2_ID = "1234567812345678".getBytes();
 
     static {
@@ -38,7 +38,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** GenerateKeyPair */
+    /** generate键pair */
     public KeyPair generateKeyPair() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(EC_ALGORITHM, PROVIDER);
@@ -76,7 +76,7 @@ public class BcSm2Cipher implements Sm2Cipher {
     }
 
     @Override
-    /** Sign */
+    /** 标志 */
     public byte[] sign(byte[] privateKey, byte[] data) {
         try {
             AsymmetricKeyParameter privKey = PrivateKeyFactory.createKey(privateKey);

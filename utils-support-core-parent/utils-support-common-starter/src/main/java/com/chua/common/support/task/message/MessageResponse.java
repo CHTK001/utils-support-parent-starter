@@ -21,7 +21,7 @@ public class MessageResponse {
     private final boolean success;
 
     /**
-     * 消息 ID（服务商返回）
+      * 消息 标识（服务商返回）
      */
     private final String messageId;
 
@@ -56,7 +56,7 @@ public class MessageResponse {
     /**
      * 创建一个新的构建器实例。
      *
-     * @return 新的 Builder 实例。
+     * @return 新的 构建器 实例。
      */
     public static Builder builder() {
         return new Builder();
@@ -65,8 +65,8 @@ public class MessageResponse {
     /**
      * 创建一个成功的消息响应对象。
      *
-     * @param messageId 服务商返回的消息 ID。
-     * @return 成功的 MessageResponse 实例。
+     * @param messageId 服务商返回的消息 标识。
+     * @return 成功的 消息响应 实例。
      */
     public static MessageResponse success(String messageId) {
         return builder().success(true).messageId(messageId).build();
@@ -76,15 +76,17 @@ public class MessageResponse {
      * 创建一个失败的消息响应对象。
      *
      * @param errorMessage 描述失败原因的详细信息。
-     * @return 失败的 MessageResponse 实例。
+     * @return 失败的 消息响应 实例。
      */
     public static MessageResponse failure(String errorMessage) {
         return builder().success(false).errorMessage(errorMessage).build();
     }
 
     /**
-     * 构建器类，用于构建 MessageResponse 对象。
+      * 构建器类，用于构建 消息响应 对象。
      *
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
 
@@ -94,7 +96,7 @@ public class MessageResponse {
         private boolean success;
 
         /**
-         * 消息 ID（服务商返回）。
+          * 消息 标识（服务商返回）。
          */
         private String messageId;
 
@@ -125,9 +127,9 @@ public class MessageResponse {
         }
 
         /**
-         * 设置消息 ID。
+          * 设置消息 标识。
          *
-         * @param messageId 消息 ID。
+         * @param messageId 消息 标识。
          * @return 当前构建器实例。
          */
         public Builder messageId(String messageId) {
@@ -169,9 +171,9 @@ public class MessageResponse {
         }
 
         /**
-         * 构建 MessageResponse 对象。
+          * 构建 消息响应 对象。
          *
-         * @return 构建完成的 MessageResponse 对象。
+         * @return 构建完成的 消息响应 对象。
          */
         public MessageResponse build() {
             return new MessageResponse(this);

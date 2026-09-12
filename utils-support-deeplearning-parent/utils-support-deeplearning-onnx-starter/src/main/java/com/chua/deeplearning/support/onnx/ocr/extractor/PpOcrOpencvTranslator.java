@@ -17,37 +17,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PP-OCRv6 文字识别 — 纯 OpenCV DNN 实现（无 ONNX Runtime 依赖）
+   * PP-ocrv6 文字识别 — 纯 打开cv DNN 实现（无 ONNX Runtime 依赖）
  *
  * <p>使用 OpenCV DNN 模块直接加载 PaddleOCR v6 ONNX 识别模型。</p>
+ * @author CH
+ * @since 4.0.0
+ * @param imageData 镜像数据
+ * @return recognize的结果
  */
 @Slf4j
 public class PpOcrOpencvTranslator {
 
-    private static final int IMG_H = 48;
-    private static final int IMG_W_MAX = 1920;
-    private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
-    private static final float[] STD = {0.5f, 0.5f, 0.5f};
+    private static final int IMG_H = 48; // IMG_H
+    private static final int IMG_W_MAX = 1920; // imgw最大
+    private static final float[] MEAN = {0.5f, 0.5f, 0.5f}; // MEAN
+    private static final float[] STD = {0.5f, 0.5f, 0.5f}; // STD
 
-    private final List<String> dict;
-    private final String modelResourcePath;
-    private Path modelFile;
+    private final List<String> dict; // dict
+    private final String modelResourcePath; // 模型resource路径
+    private Path modelFile; // 模型文件
+    /**
+      * ppocropencvtranslator。
+     */
     private Net net;
 
+    /**
+     * PpOcrOpencvTranslator。
+     */
     public PpOcrOpencvTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/inference.onnx", "ocr/PP-OCRv6/tiny/rec_infer/inference.yml");
+    /**
+      * ppocropencvtranslator。
+     * @param modelResourcePath 模型resource路径
+     * @param dictResourcePath dictresource路径
+     */
     }
 
     public PpOcrOpencvTranslator(String modelResourcePath, String dictResourcePath) {
         this.modelResourcePath = modelResourcePath;
         this.dict = loadCharacterDict(dictResourcePath);
         log.info("[PpOcrOpencv] dict_size={}", dict.size());
+    /**
+     * 加载characterdict。
+     * @param resourcePath resource路径
+     * @return 加载characterdict的结果
+     * @param imageData 镜像数据
+     */
     }
 
     private static List<String> loadCharacterDict(String resourcePath) {
         List<String> chars = new ArrayList<>();
         try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader().getResourceAsStream(resourcePath)) {
-            if (is == null) return List.of("blank");
+            if (is == null) {
+                return List.of("blank");
+            }
             String content = new String(is.readAllBytes());
             boolean inDict = false;
             for (String line : content.split("\n")) {
@@ -57,8 +80,9 @@ public class PpOcrOpencvTranslator {
                     if (trimmed.startsWith("- ")) {
                         String raw = trimmed.substring(2).trim();
                         String ch = raw;
-                        if (ch.length() >= 2 && (ch.startsWith("'") || ch.startsWith("\"")))
+                        if (ch.length() >= 2 && (ch.startsWith("'") || ch.startsWith("\""))) {
                             ch = ch.substring(1, ch.length() - 1);
+                        }
                         chars.add(ch);
                     } else if (!trimmed.isEmpty() && !trimmed.startsWith("-")) {
                         break;
@@ -77,7 +101,9 @@ public class PpOcrOpencvTranslator {
     public String recognize(byte[] imageData) {
         ensureModel();
         Mat src = decodeImage(imageData);
-        if (src == null || src.empty()) throw new IllegalArgumentException("无法解码图片");
+        if (src == null || src.empty()) {
+            throw new IllegalArgumentException("无法解码图片");
+        }
         try {
             int srcW = src.cols(), srcH = src.rows();
             float ratio = (float) srcH / IMG_H;
@@ -86,7 +112,7 @@ public class PpOcrOpencvTranslator {
             Mat resized = new Mat();
             Imgproc.resize(src, resized, new Size(resizeW, IMG_H));
 
-            // Extract BGR pixels, normalize, flatten to [1,3,48,W]
+ // Extract BGR pixels, normalize, flatten 转为 [1,3,48,W]
             float[] pixels = new float[3 * IMG_H * resizeW];
             for (int y = 0; y < IMG_H; y++) {
                 for (int x = 0; x < resizeW; x++) {
@@ -100,15 +126,17 @@ public class PpOcrOpencvTranslator {
             resized.release();
             src.release();
 
-            // Create input blob [1,3,48,W] CV_32F
+ // 创建 输入 blob [1,3,48,W] CV_32F
             Mat inputBlob = new Mat();
             inputBlob.create(new int[]{1, 3, IMG_H, resizeW}, CvType.CV_32F);
             inputBlob.put(0, 0, pixels);
 
-            // Forward pass
+ // 远期 通过
             List<Mat> outputs = new ArrayList<>();
             net.forward(outputs);
-            if (outputs.isEmpty()) throw new RuntimeException("模型无输出");
+            if (outputs.isEmpty()) {
+                throw new RuntimeException("模型无输出");
+            }
             Mat result = outputs.get(0);
 
             // Decode CTC
@@ -120,16 +148,23 @@ public class PpOcrOpencvTranslator {
         }
     }
 
+    /**
+      * ctcdecode。
+     * @param probs probs
+     * @return ctcDecode的结果
+     */
     private String ctcDecode(Mat probs) {
-        // OpenCV DNN output shape: [1, seqLen, numClasses]
+ // 打开cv DNN 输出 shape: [1, seqlen, num类]
         // probs.total() = 1 * seqLen * numClasses
         long total = probs.total();
-        if (total == 0) return "";
+        if (total == 0) {
+            return "";
+        }
         int numClasses = dict.size();
-        // Determine seqLen from total and numClasses
-        // For PP-OCR rec: output is [1, seqLen, numClasses]
+ // Determine seqlen 从 total 和 num类
+ // For PP-OCR rec: 输出 是否 [1, seqlen, num类]
         // But we don't know the exact shape, so infer from dict size
-        // Try to find the best seqLen
+ // 尝试 转为 查找 the best seqlen
         int seqLen = 0;
         int bestRemainder = Integer.MAX_VALUE;
         for (int s = 1; s <= 200; s++) {
@@ -142,11 +177,11 @@ public class PpOcrOpencvTranslator {
             }
         }
         if (seqLen == 0) {
-            // Fallback: assume [1, numClasses, seqLen] layout
+ // 降级: assume [1, num类, seqlen] layout
             seqLen = (int) (total / numClasses);
         }
 
-        // Read all values into a flat array
+ // 读取 全部 值 into a flat array
         float[] values = new float[(int) total];
         probs.get(0, 0, values);
 
@@ -164,7 +199,9 @@ public class PpOcrOpencvTranslator {
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
-                    if (ch != null && !ch.isBlank()) sb.append(ch);
+                    if (ch != null && !ch.isBlank()) {
+                        sb.append(ch);
+                    }
                 }
                 prevIdx = maxIdx;
             }
@@ -179,7 +216,9 @@ public class PpOcrOpencvTranslator {
                 }
                 if (maxIdx != prevIdx && maxIdx != 0 && maxIdx < dict.size()) {
                     String ch = dict.get(maxIdx);
-                    if (ch != null && !ch.isBlank()) sb.append(ch);
+                    if (ch != null && !ch.isBlank()) {
+                        sb.append(ch);
+                    }
                 }
                 prevIdx = maxIdx;
             }
@@ -187,15 +226,22 @@ public class PpOcrOpencvTranslator {
         return sb.toString();
     }
 
+    /**
+     * ensure模型。
+     */
     private void ensureModel() {
-        if (net != null) return;
+        if (net != null) {
+            return;
+        }
         try {
-            // Extract ONNX model from classpath to temp file
+ // Extract ONNX 模型 从 类路径 转为 temp 文件
             modelFile = Files.createTempFile("ppocrv6_rec_", ".onnx");
             modelFile.toFile().deleteOnExit();
             try (InputStream is = PpOcrOpencvTranslator.class.getClassLoader()
                     .getResourceAsStream(modelResourcePath)) {
-                if (is == null) throw new IllegalStateException("模型未找到: " + modelResourcePath);
+                if (is == null) {
+                    throw new IllegalStateException("模型未找到: " + modelResourcePath);
+                }
                 Files.copy(is, modelFile);
             }
             net = Dnn.readNetFromONNX(modelFile.toString());
@@ -205,6 +251,11 @@ public class PpOcrOpencvTranslator {
         }
     }
 
+    /**
+     * decode镜像。
+     * @param data 数据
+     * @return decode镜像的结果
+     */
     private static Mat decodeImage(byte[] data) {
         Mat mob = new Mat();
         try {
@@ -214,6 +265,9 @@ public class PpOcrOpencvTranslator {
         }
     }
 
+    /**
+     * 关闭。
+     */
     public void close() {
         // net lifecycle managed by GC (OpenCV Java binding)
         if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }

@@ -3,8 +3,8 @@ package com.chua.captcha.support;
 /**
  * 验证码类型枚举
  * <p>
- * 支持市面上主流的验证码服务类型，包括 Google reCAPTCHA、HCaptcha、FunCaptcha、
- * Cloudflare Turnstile、极验(GeeTest)、MtCaptcha 以及自定义文本验证码。
+   * 支持市面上主流的验证码服务类型，包括 Google recaptcha、hcaptcha、funcaptcha、
+   * Cloudflare Turnstile、极验(gee测试)、mtcaptcha 以及自定义文本验证码。
  * </p>
  *
  * @author CH
@@ -13,27 +13,27 @@ package com.chua.captcha.support;
 public enum CaptchaType {
 
     /**
-     * Google reCAPTCHA V2
+      * Google recaptcha V2
      */
     RECAPTCHA_V2("ReCaptchaV2"),
     /**
-     * Google reCAPTCHA V3
+      * Google recaptcha V3
      */
     RECAPTCHA_V3("ReCaptchaV3"),
     /**
-     * Google reCAPTCHA V2 Enterprise
+      * Google recaptcha V2 Enterprise
      */
     RECAPTCHA_V2_ENTERPRISE("ReCaptchaV2Enterprise"),
     /**
-     * Google reCAPTCHA V3 Enterprise
+      * Google recaptcha V3 Enterprise
      */
     RECAPTCHA_V3_ENTERPRISE("ReCaptchaV3Enterprise"),
     /**
-     * HCaptcha
+      * hcaptcha
      */
     HCAPTCHA("HCaptcha"),
     /**
-     * FunCaptcha
+      * funcaptcha
      */
     FUNCAPTCHA("FunCaptcha"),
     /**
@@ -41,11 +41,11 @@ public enum CaptchaType {
      */
     TURNSTILE("Turnstile"),
     /**
-     * 极验(GeeTest)
+      * 极验(gee测试)
      */
     GEETEST("Geetest"),
     /**
-     * MtCaptcha
+      * mtcaptcha
      */
     MT_CAPTCHA("MtCaptcha"),
     /**

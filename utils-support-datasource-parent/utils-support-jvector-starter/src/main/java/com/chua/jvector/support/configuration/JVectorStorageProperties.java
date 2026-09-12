@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.concurrent.ForkJoinPool;
 
 /**
- * JVector 向量存储配置属性。
+   * j向量 向量存储配置属性。
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,17 +44,17 @@ public class JVectorStorageProperties {
     private static final String DEFAULT_INDEX_PATH = "./jvector-index";
 
     /**
-     * 存储模式，默认 Larger-than-Memory。
+      * 存储模式，默认 Larger-than-内存。
      */
     private Mode mode = Mode.LARGER_THAN_MEMORY;
 
     /**
-     * PQ 子空间数量（仅 LARGER_THAN_MEMORY 模式生效）。
+      * PQ 子空间数量（仅 LARGER_THAN_内存 模式生效）。
      */
     private int pqSubspaces = DEFAULT_PQ_SUBSPACES;
 
     /**
-     * 每个子空间的码本数量（仅 LARGER_THAN_MEMORY 模式生效）。
+      * 每个子空间的码本数量（仅 LARGER_THAN_内存 模式生效）。
      */
     private int pqCentroidsPerSubspace = DEFAULT_PQ_CENTROIDS;
 
@@ -64,7 +64,7 @@ public class JVectorStorageProperties {
     private int graphM = DEFAULT_GRAPH_M;
 
     /**
-     * 构建时的搜索深度 efConstruction。
+      * 构建时的搜索深度 efconstruction。
      */
     private int graphEfConstruction = DEFAULT_GRAPH_EF_CONSTRUCTION;
 
@@ -89,7 +89,9 @@ public class JVectorStorageProperties {
     private int pqParallelism = 0;
 
     /**
-     * JVector 存储模式。
+      * j向量 存储模式。
+     * @author CH
+     * @since 4.0.0
      */
     public enum Mode {
         /**

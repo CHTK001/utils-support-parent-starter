@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class MultipartPartResult extends ObjectResult {
 
     /**
-     * 上传任务 ID
+      * 上传任务 标识
      */
     private String uploadId;
 
@@ -27,7 +27,7 @@ public class MultipartPartResult extends ObjectResult {
     private Integer partNumber;
 
     /**
-     * 分片 ETag
+      * 分片 e标签
      */
     private String etag;
 

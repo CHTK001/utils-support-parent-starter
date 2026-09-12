@@ -9,7 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 
 /**
- * JPEG 解码器 — 基于 Java ImageIO 实现。
+   * JPEG 解码器 — 基于 Java 镜像io 实现。
  *
  * <p>使用 {@link javax.imageio.ImageIO#read(ByteArrayInputStream)} 解码 JPEG 数据，输出 ARGB 格式。</p>
  *

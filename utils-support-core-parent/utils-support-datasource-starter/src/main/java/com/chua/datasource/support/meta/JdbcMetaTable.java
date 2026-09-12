@@ -160,7 +160,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     }
 
     /**
-     * 通用建表链式构建器，基于方言生成 CREATE TABLE。
+      * 通用建表链式构建器，基于方言生成 创建 TABLE。
      *
      * @author CH
      * @since 4.0.0.42

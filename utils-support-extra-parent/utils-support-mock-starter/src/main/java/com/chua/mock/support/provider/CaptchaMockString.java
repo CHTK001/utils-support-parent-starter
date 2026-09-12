@@ -27,6 +27,8 @@ public class CaptchaMockString implements MockString {
             "23456789ABCDEFGHJKMNPQRSTUVWXYZ".toCharArray();
     /**
      * 默认验证码长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int DEFAULT_LENGTH = 4;
 

@@ -26,16 +26,22 @@ import java.util.Map;
 @Spi({"toml"})
 public class TomlConfigParser implements ConfigParser {
 
-    /** Toml_mapper */
+    /** Toml_映射器 */
     private static final ObjectMapper TOML_MAPPER = new ObjectMapper(new TomlFactory());
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param urlPath url路径
+     * @param is 是否
+     * @return 解析的结果
+     */
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             Map<String, Object> map = TOML_MAPPER.readValue(is, Map.class);
-            // 扁平化嵌套Map
+ // 扁平化嵌套映射
             Map<String, Object> flatMap = flattenMap(map, "");
             return new MapPropertySource(urlPath, flatMap);
         } catch (Exception e) {
@@ -45,9 +51,9 @@ public class TomlConfigParser implements ConfigParser {
     }
 
     /**
-     * 扁平化嵌套Map
+      * 扁平化嵌套映射
      *
-     * @param map    原始Map
+     * @param map    原始映射
      * @param prefix 前缀
      * @return 扁平化后的Map
      */

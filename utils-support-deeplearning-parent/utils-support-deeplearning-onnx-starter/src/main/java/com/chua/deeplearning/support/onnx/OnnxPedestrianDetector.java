@@ -5,7 +5,7 @@ import com.chua.deeplearning.support.image.PedestrianDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxPedestrianDetector implements PedestrianDetector {
@@ -17,20 +17,24 @@ public class OnnxPedestrianDetector implements PedestrianDetector {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxPedestrianDetector 实例
-     * @param apiKey apiKey
+      * 创建 onnxpedestriandetector 实例
+     * @param apiKey API密钥
      */
     public OnnxPedestrianDetector(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public PedestrianDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8n-ppe";
     }

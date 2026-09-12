@@ -5,7 +5,7 @@ package com.chua.deeplearning.support.onnx.seq2seq;
  *
  * <p>复用 {@link T5Seq2SeqOrtTranslator} 的自回归实现，替换模型定义为
  * {@link Seq2SeqModelDefinition#BART_ZH}（fnlp/bart-large-chinese，12 层 16 头，decoderStart=eos=102）。
- * 中文书面语稳定性优于 mT5。</p>
+   * 中文书面语稳定性优于 mt5。</p>
  *
  * @author CH
  * @since 4.0.0.42

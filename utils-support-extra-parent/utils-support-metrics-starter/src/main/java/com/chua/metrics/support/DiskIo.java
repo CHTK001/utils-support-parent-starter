@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class DiskIo {
     /**
-     * 磁盘名称（对应 DiskInfo.name）
+      * 磁盘名称（对应 disk信息.名称）
      */
     private String name;
 

@@ -7,23 +7,29 @@ import java.util.Map;
 
 /**
  * 咪咕音乐签名支持工具类
- * 为咪咕音乐API请求生成签名（sign）与设备标识（deviceId）等请求参数
+   * 为咪咕音乐API请求生成签名（标志）与设备标识（deviceid）等请求参数
  * 
 * @author CH
  * @since 4.0.0.42
 */
 public final class MiguSignSupport {
 
-    /** Device_id */
+    /** Device_标识 */
     private static final String DEVICE_ID = "963B7AA0D21511ED807EE5846EC87D20";
-    /** Signature_md5 */
+    /** 签名_md5 */
     private static final String SIGNATURE_MD5 = "6cdc72a439cef99a3418d2a78aa28c73";
 
-    /** 创建 MiguSignSupport 实例 */
+    /** 创建 migu标志支持 实例 */
     private MiguSignSupport() {
     }
 
-    /** Headers */
+    /**
+     * 头部
+     *
+     * @param keyword keyword
+     * @param timestamp 时间戳
+     * @return 头部的结果
+     */
     public static Map<String, String> headers(String keyword, String timestamp) {
         String sign = md5(keyword + SIGNATURE_MD5 + "yyapp2d16148780a1dcc7408e06336b98cfd50" + DEVICE_ID + timestamp);
         Map<String, String> headers = new LinkedHashMap<>();
@@ -35,7 +41,12 @@ public final class MiguSignSupport {
         return headers;
     }
 
-    /** Md */
+    /**
+     * Md
+     *
+     * @param text 文本
+     * @return md5的结果
+     */
     private static String md5(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");

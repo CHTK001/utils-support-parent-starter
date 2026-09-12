@@ -7,13 +7,14 @@ import java.util.Map;
  *
  * <p>描述一个消息模板的元数据，包括 ID、名称、内容、参数定义等。
  *
- * @param id        模板 ID
+ * @param id        模板 标识
  * @param name      模板名称
- * @param content   模板内容（支持 {{param}} 占位符）
+ * @param content   模板内容（支持 {{参数}} 占位符）
  * @param type      模板类型（email/sms/notification 等）
  * @param paramDefs 参数定义（参数名 → 说明）
  * @author CH
  * @since 2026/07/17
+ * @return template信息的结果
  */
 public record TemplateInfo(String id, String name, String content, String type, Map<String, String> paramDefs) {
 

@@ -32,7 +32,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 /**
- * Linux 系统日志提供者 - libsystemd FFM + /var/log 文件回退
+   * Linux 系统日志提供者 - libsystemd FFM + /var/日志 文件回退
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,12 +42,12 @@ import java.util.stream.Stream;
 @Slf4j
 public class LinuxJournaldProvider implements SystemLogProvider {
 
-    /** Sources */
+    /** 源 */
     private static final List<String> SOURCES = Arrays.asList(
             "journald", "syslog", "auth", "kern", "daemon", "cron", "user"
     );
 
-    /** Var_log_files */
+    /** Var_日志_文件 */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/syslog",
             "/var/log/messages",
@@ -56,7 +56,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
             "/var/log/daemon.log"
     );
 
-    /** Timestamp_formatter */
+    /** 时间戳_formatter */
     private static final DateTimeFormatter TIMESTAMP_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
                     .withZone(ZoneId.systemDefault());
@@ -64,29 +64,29 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     /** 注册表 */
     private final NativeFunctionRegistry registry;
 
-    /** sdJournalOpen */
+    /** sdjournal打开 */
     private volatile MethodHandle sdJournalOpen;
-    /** sdJournalAddMatch */
+    /** sdjournal添加匹配 */
     private volatile MethodHandle sdJournalAddMatch;
-    /** sdJournalNext */
+    /** sdjournal下一个 */
     private volatile MethodHandle sdJournalNext;
-    /** sdJournalPrevious */
+    /** sdjournal上一个 */
     private volatile MethodHandle sdJournalPrevious;
-    /** sdJournalGetData */
+    /** sdjournal获取数据 */
     private volatile MethodHandle sdJournalGetData;
-    /** sdJournalClose */
+    /** sdjournal关闭 */
     private volatile MethodHandle sdJournalClose;
-    /** sdJournalSeekTail */
+    /** sdjournalseektail */
     private volatile MethodHandle sdJournalSeekTail;
-    /** sdJournalSeekHead */
+    /** sdjournalseekhead */
     private volatile MethodHandle sdJournalSeekHead;
-    /** sdJournalGetCursor */
+    /** sdjournal获取Cursor */
     private volatile MethodHandle sdJournalGetCursor;
-    /** sdJournalSeekCursor */
+    /** sdjournalseekCursor */
     private volatile MethodHandle sdJournalSeekCursor;
 
     /**
-     * 创建 LinuxJournaldProvider 实例
+      * 创建 Linuxjournald提供者 实例
      * @param bridge bridge
      */
     public LinuxJournaldProvider(SystemLogBridge bridge) {
@@ -98,7 +98,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 是否PlatformSupported */
+    /** 是否platform支持 */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isLinux();
@@ -106,7 +106,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取Sources */
+    /** 获取源 */
     public List<String> getSources() {
         
         return SOURCES;
@@ -131,7 +131,11 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return searchViaVarLog(query);
     }
 
-    /** 是否JournaldAvailable */
+    /**
+     * 是否journald可用
+     *
+     * @return 是否journald可用的结果
+     */
     private boolean isJournaldAvailable() {
         try {
             bindFunctions();
@@ -141,7 +145,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    /** 搜索ViaJournald */
+    /**
+     * 搜索viajournald
+     *
+     * @param query 查询
+     * @return 搜索viajournald的结果
+     */
     private List<LogEntry> searchViaJournald(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         MemorySegment journal = null;
@@ -235,7 +244,14 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return results;
     }
 
-    /** 获取JournalField */
+    /**
+     * 获取journal字段
+     *
+     * @param journal journal
+     * @param arena arena
+     * @param field 字段
+     * @return 获取journal字段的结果
+     */
     private String getJournalField(MemorySegment journal, Arena arena, String field) {
         try {
             MemorySegment dataPtr = arena.allocate(ValueLayout.ADDRESS);
@@ -270,7 +286,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    /** 解析JournalPriority */
+    /**
+     * 解析journalpriority
+     *
+     * @param priorityStr prioritystr
+     * @return 解析journalpriority的结果
+     */
     private LogLevel parseJournalPriority(String priorityStr) {
         if (priorityStr == null) {
             return LogLevel.INFO;
@@ -291,7 +312,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    /** 格式化Timestamp */
+    /**
+     * 格式化时间戳
+     *
+     * @param tsStr tsstr
+     * @return 格式化时间戳的结果
+     */
     private String formatTimestamp(String tsStr) {
         if (tsStr == null) {
             return "unknown";
@@ -304,7 +330,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    /** 搜索ViaVar记录日志 */
+    /**
+     * 搜索viavar记录日志
+     *
+     * @param query 查询
+     * @return 搜索viavar日志的结果
+     */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         log.debug("Searching /var/log files with pattern={}", query.pattern());
         List<LogEntry> results = new ArrayList<>();
@@ -344,7 +375,13 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return results;
     }
 
-    /** 解析记录日志Line */
+    /**
+     * 解析记录日志线
+     *
+     * @param line 线
+     * @param source 源
+     * @return 解析日志线的结果
+     */
     private LogEntry parseLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -364,7 +401,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         }
     }
 
-    /** DetectLevelFromMessage */
+    /**
+     * detect级别从消息
+     *
+     * @param line 线
+     * @return detect级别从消息的结果
+     */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -382,7 +424,12 @@ public class LinuxJournaldProvider implements SystemLogProvider {
         return LogLevel.INFO;
     }
 
-    /** CompilePattern */
+    /**
+     * compile模式
+     *
+     * @param glob glob
+     * @return compile模式的结果
+     */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {

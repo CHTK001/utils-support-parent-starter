@@ -23,6 +23,9 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
  */
 public class ServiceDefinitionUtils {
 
+    /**
+     * 服务definition工具。
+     */
     private ServiceDefinitionUtils() {
     }
 

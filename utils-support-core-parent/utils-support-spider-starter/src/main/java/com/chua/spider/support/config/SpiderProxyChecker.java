@@ -81,7 +81,7 @@ public class SpiderProxyChecker {
      * 测试单个代理节点。
      *
      * @param proxy 代理节点
-     * @return 测试结果 { ok, host, port, status, elapsedMs, error }
+     * @return 测试结果 { ok, 主机, 端口, 状态, elapsedms, 错误 }
      */
     private Map<String, Object> testOne(SpiderProxy proxy) {
         long start = System.currentTimeMillis();
@@ -117,7 +117,7 @@ public class SpiderProxyChecker {
     }
 
     /**
-     * 始终返回同一代理的 ProxySelector。
+      * 始终返回同一代理的 代理selector。
      *
      * <p>JDK 25 javac 对 {@code ProxySelector.of(Proxy)} 重载解析为
      * {@code of(InetSocketAddress)}，为此显式继承 ProxySelector 避免歧义。</p>
@@ -140,7 +140,7 @@ public class SpiderProxyChecker {
         }
 
         @Override
-        /** 连接Failed */
+        /** 连接失败 */
         public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
             // no-op
         }

@@ -25,9 +25,9 @@ public interface FaceRecognizer {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -37,9 +37,9 @@ public interface FaceRecognizer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default FaceRecognizer provider(String provider) {
@@ -56,7 +56,12 @@ public interface FaceRecognizer {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static FaceRecognizer create(String name) {
         return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -67,7 +72,7 @@ public interface FaceRecognizer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceRecognizer.class);
@@ -206,14 +211,14 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public FaceRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -228,7 +233,12 @@ class DefaultFaceRecognizer implements FaceRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** ExtractFeature */
+    /**
+     * extract特征
+     *
+     * @param imageData 镜像数据
+     * @return extract特征的结果
+     */
     public float[] extractFeature(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);

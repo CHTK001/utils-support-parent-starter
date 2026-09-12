@@ -12,7 +12,7 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
- * LineArt 线稿条件图 Translator。
+   * 线art 线稿条件图 Translator。
  * <p>ControlNet / img2img 线稿预处理。</p>
  *
  * @author CH
@@ -40,15 +40,16 @@ public class LineArtTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 LineArtTranslator 实例 */
+    /** 创建 线arttranslator 实例 */
     public LineArtTranslator() {
         this(512, 512);
     }
 
     /**
-     * 创建 LineArtTranslator 实例
-     * @param imageResolution imageResolution
-     * @param int int
+      * 创建 线arttranslator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param detectResolution detectresolution
      */
     public LineArtTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
@@ -56,7 +57,7 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -69,7 +70,7 @@ public class LineArtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray line = list.singletonOrThrow();
         if (line.getShape().dimension() == 4 && line.getShape().get(0) == 1) {

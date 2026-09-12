@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxFeatureClient implements FeatureClient {
@@ -22,11 +22,11 @@ public class OnnxFeatureClient implements FeatureClient {
     /** 翻译器 */
     private ITranslator<Object, Object> translator;
     /** 解析后的模型标识 */
-    /** Resolved模型ID */
+    /** Resolved模型标识 */
     private String resolvedModelId;
 
     /**
-     * 创建 OnnxFeatureClient 实例
+      * 创建 onnx特征客户端 实例
      * @param setting setting
      */
     public OnnxFeatureClient(FeatureClientSetting setting) {
@@ -34,18 +34,24 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FeatureClient model(String model) {
         setting.setModel(model);
         translator = null;
         return this;
     }
 
-    /** 获取Translator */
+    /**
+     * 获取Translator
+     *
+     * @return 获取translator的结果
+     */
     private synchronized ITranslator<Object, Object> getTranslator() throws Exception {
         if (translator == null) {
             String modelId = setting.getModel();
-            if (modelId == null || modelId.isBlank()) modelId = "resnet50-feature";
+            if (modelId == null || modelId.isBlank()) {
+                modelId = "resnet50-feature";
+            }
             resolvedModelId = modelId;
             ModelRegistry.discoverAll();
             Path modelPath = ModelRegistry.resolveModelPath(modelId);
@@ -62,7 +68,7 @@ public class OnnxFeatureClient implements FeatureClient {
     }
 
     @Override
-    /** ExtractImage */
+    /** extract镜像 */
     public float[] extractImage(byte[] imageData) {
         try {
             BufferedImage img = ImageUtils.toBufferedImage(imageData);

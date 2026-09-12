@@ -21,12 +21,12 @@ public final class KimiProtocol {
     public static final String BASE_URL = "https://www.kimi.com";
 
     /**
-     * 对话接口路径（connect-rpc）。
+      * 对话接口路径（连接-rpc）。
      */
     public static final String CHAT_PATH = "/apiv2/kimi.gateway.chat.v1.ChatService/Chat";
 
     /**
-     * refresh token 换取 access token 接口路径。
+      * refresh 令牌 换取 access 令牌 接口路径。
      */
     public static final String REFRESH_PATH = "/api/auth/token/refresh";
 
@@ -50,12 +50,12 @@ public final class KimiProtocol {
      */
     public static final int FLAG_TYPE_KEEP = 0x00;
 
-    /** 创建 KimiProtocol 实例 */
+    /** 创建 kimi协议 实例 */
     private KimiProtocol() {
     }
 
     /**
-     * 生成 device id（16 位纯数字，客户端持久化身份）。
+      * 生成 device 标识（16 位纯数字，客户端持久化身份）。
      *
      * @return 随机 16 位数字字符串
      */
@@ -65,7 +65,7 @@ public final class KimiProtocol {
     }
 
     /**
-     * 生成 session id（16 位纯数字）。
+      * 生成 会话 标识（16 位纯数字）。
      *
      * @return 随机 16 位数字字符串
      */
@@ -75,10 +75,10 @@ public final class KimiProtocol {
     }
 
     /**
-     * 解析 JWT 的 payload（Base64URL 解码）。
+      * 解析 JWT 的 payload（基础64URL 解码）。
      *
      * @param token JWT 字符串
-     * @return payload JSON 对象，解析失败返回 null
+     * @return payload JSON 对象，解析失败返回 空
      */
     public static JsonObject parseJwt(String token) {
         if (token == null) {
@@ -103,10 +103,10 @@ public final class KimiProtocol {
     }
 
     /**
-     * 检测 token 类型：JWT access token 或 refresh token。
+      * 检测 令牌 类型：JWT access 令牌 或 refresh 令牌。
      *
-     * @param token 原始 token
-     * @return true 表示为 JWT access token
+     * @param token 原始 令牌
+     * @return true 表示为 JWT access 令牌
      */
     public static boolean isJwt(String token) {
         if (token == null || !token.startsWith("eyJ")) {
@@ -122,7 +122,7 @@ public final class KimiProtocol {
     }
 
     /**
-     * 对请求体做 connect 帧编码：5 字节帧头 + JSON 字节。
+      * 对请求体做 连接 帧编码：5 字节帧头 + JSON 字节。
      *
      * <p>帧首字节：保留类型（0x00）；后 4 字节：大端无符号长度。</p>
      *

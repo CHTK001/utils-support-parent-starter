@@ -33,17 +33,17 @@ import java.util.Map;
 public class Span {
 
     /**
-     * 全局追踪 ID（同一根调用链共享）
+      * 全局追踪 标识（同一根调用链共享）
      */
     private String traceId;
 
     /**
-     * 当前 Span ID
+      * 当前 Span 标识
      */
     private String spanId;
 
     /**
-     * 父 Span ID（根调用为 null）
+      * 父 Span 标识（根调用为 空）
      */
     private String parentSpanId;
 
@@ -51,7 +51,7 @@ public class Span {
      * Span 类型
      */
     @Builder.Default
-    /** Kind */
+    /** 种类 */
     private SpanKind kind = SpanKind.INTERNAL;
 
     /**
@@ -60,12 +60,12 @@ public class Span {
     private String name;
 
     /**
-     * 类名（INTERNAL 时填）
+      * 类名（内部 时填）
      */
     private String className;
 
     /**
-     * 方法名（INTERNAL 时填）
+      * 方法名（内部 时填）
      */
     private String methodName;
 
@@ -97,14 +97,14 @@ public class Span {
     private StatusCode status = StatusCode.UNSET;
 
     /**
-     * 标准描述信息（"HTTP GET /api/order 200 OK 12ms"）。
+      * 标准描述信息（"HTTP 获取 /api/订单 200 OK 12ms"）。
      *
      * <p>用于传输链路 / 日志 / 调试输出，对齐 SkyWalking / OpenTelemetry message 字段。</p>
      */
     private String message;
 
     /**
-     * 异常类名（status=ERROR 时填）
+      * 异常类名（状态=错误 时填）
      */
     private String errorType;
 
@@ -117,20 +117,20 @@ public class Span {
      * 自定义属性
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
      * 生命周期事件
      */
     @Builder.Default
-    /** Events */
+    /** 事件 */
     private List<SpanEvent> events = new ArrayList<>();
 
     /**
-     * 跨 trace 关联（异步消息、批处理）
+      * 跨 追踪 关联（异步消息、批处理）
      */
     @Builder.Default
-    /** Links */
+    /** 链接 */
     private List<SpanLink> links = new ArrayList<>();
 
     /**
@@ -160,7 +160,7 @@ public class Span {
     }
 
     /**
-     * 设置异常事件（OpenTelemetry semantic conventions）。
+      * 设置异常事件（打开telemetry semantic conventions）。
      *
      * @param errorType 异常类名
      * @param errorMessage 异常消息

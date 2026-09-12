@@ -21,11 +21,11 @@ import java.util.Map;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * PP-OCRv6 文字检测（DB 算法，ORT 原生 + OpenCV）。
+   * PP-ocrv6 文字检测（DB 算法，ORT 原生 + 打开cv）。
  *
  * <p>模型 {@code ocr/PP-OCRv6/tiny/det_infer/inference.onnx} 由 jar
  * {@code utils-support-models-onnx-paddleocrv6-tiny} 提供。输入 {@code x [1,3,H,W]}
- * （OpenCV resize 到 32 的倍数），输出 {@code fetch_name_0 [1,1,H,W]} 概率图。
+   * （打开cv resize 到 32 的倍数），输出 {@code fetch_name_0 [1,1,H,W]} 概率图。
  * DB 后处理：阈值二值化 → 连通域轮廓 → 最小外接矩形 → {@link DetectionInfo}。</p>
  *
  * @author CH
@@ -43,13 +43,18 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     /** 阈值 */
     private static final float THRESHOLD = 0.3f;
     /** 最大边长 */
-    /** Max_side */
+    /** 最大_side */
     private static final int MAX_SIDE = 960;
 
         /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
 
-    /** 取生效阈值。 */
+    /**
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -78,13 +83,18 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         return effectiveThreshold(THRESHOLD);
     }
 
-    /** 取生效阈值（外部覆盖优先）。 */
+    /**
+     * 取生效阈值（外部覆盖优先）。
+     *
+     * @param modelDefault 模型默认
+     * @return effective阈值的结果
+     */
     protected float effectiveThreshold(float modelDefault) {
         return thresholdOverride > 0 ? thresholdOverride : modelDefault;
     }
 
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "inference.onnx";
 
     /**
@@ -93,7 +103,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private final String resourceBase;
 
     /**
-     * 模型名称（用于 NativeLoader 缓存隔离）。
+      * 模型名称（用于 NAT加载 缓存隔离）。
      */
     private final String modelName;
 
@@ -110,7 +120,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     private int srcHeight;
 
     /**
-     * 默认使用 PP-OCRv6 tiny 资源。
+      * 默认使用 PP-ocrv6 tiny 资源。
      */
     public PpOcrDetTranslator() {
         this("ocr/PP-OCRv6/tiny/det_infer/", "paddleocrv6-det");
@@ -186,7 +196,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
@@ -202,7 +212,12 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         }
     }
 
-    /** Detect */
+    /**
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -299,11 +314,18 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         }
     }
 
-    /** BoxesFromProbMap */
+    /**
+     * boxes从prob映射
+     *
+     * @param probs probs
+     * @param mapW 映射w
+     * @param mapH 映射h
+     * @return boxes从prob映射的结果
+     */
     private List<DetectionInfo> boxesFromProbMap(float[][] probs, int mapW, int mapH) {
         float scaleX = (float) srcWidth / mapW;
         float scaleY = (float) srcHeight / mapH;
-        // 概率图 → 二值图（一次性写入 byte 数组，避免逐像素 put 的边界问题）
+ // 概率图 → 二值图（一次性写入 byte 数组，避免逐像素 放入 的边界问题）
         Mat binary = new Mat(mapH, mapW, org.opencv.core.CvType.CV_8UC1);
         byte[] binData = new byte[mapH * mapW];
         for (int y = 0; y < mapH; y++) {
@@ -342,8 +364,12 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
                 angle = (float) rotatedRect.angle + 90;
                 float tmp = rw; rw = rh; rh = tmp;
             }
-            if (angle > 90) angle -= 180;
-            if (angle < -90) angle += 180;
+            if (angle > 90) {
+                angle -= 180;
+            }
+            if (angle < -90) {
+                angle += 180;
+            }
             float x1 = rect.x * scaleX;
             float y1 = rect.y * scaleY;
             float x2 = (rect.x + rect.width) * scaleX;
@@ -384,7 +410,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {
@@ -396,7 +422,11 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
         session = null;
         ortEnv = null;
     }
-    /** 子类注入外部阈值覆盖。 */
+    /**
+     * 子类注入外部阈值覆盖。
+     *
+     * @param value 值
+     */
     protected void applyThresholdOverride(float value) {
         if (value > 0) {
             this.thresholdOverride = value;

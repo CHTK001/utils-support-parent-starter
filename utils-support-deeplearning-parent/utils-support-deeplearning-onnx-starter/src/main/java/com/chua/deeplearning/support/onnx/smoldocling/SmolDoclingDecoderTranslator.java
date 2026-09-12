@@ -15,22 +15,22 @@ import java.util.Map;
 
 
 /**
- * SmolDocling Decoder Translator
+   * smoldocling 解码器 Translator
  * <p>
  *                                        
  * <p>
  *                
- * - inputs_embeds:                                     
+   * - 输入_embeds:
  * - attention_mask:                
- * - position_ids:             
- * - past_key_values:           KV       
+   * - 位置_标识:
+   * - past_键_值:           KV
  * <p>
  *                
- * - logits:           token                
- * - past_key_values:              KV       
+   * - logits:           令牌
+   * - past_键_值:              KV
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/01/22
  */
 @Slf4j
@@ -57,30 +57,30 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     private static final int HEAD_DIM = 64;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, DecoderInput input) throws Exception {
         NDManager manager = ctx.getNDManager();
 
-        // inputs_embeds: [batch_size, seq_len, hidden_size]
+ // 输入_embeds: [批量_大小, seq_len, hidden_大小]
         NDArray inputsEmbeds = input.getInputsEmbeds();
         inputsEmbeds.setName("inputs_embeds");
 
-        // attention_mask: [batch_size, seq_len]
+ // attention_mask: [批量_大小, seq_len]
         NDArray attentionMask = input.getAttentionMask();
         attentionMask.setName("attention_mask");
 
-        // position_ids: [batch_size, seq_len]
+ // 位置_标识: [批量_大小, seq_len]
         NDArray positionIds = input.getPositionIds();
         positionIds.setName("position_ids");
 
         NDList inputs = new NDList(inputsEmbeds, attentionMask, positionIds);
 
-        //        past_key_values
+ // past_键_值
         Map<String, NDArray> pastKeyValues = input.getPastKeyValues();
         if (pastKeyValues == null || pastKeyValues.isEmpty()) {
-            //                                past_key_values
-            //                             30                 key     value
-            // past_key_values                    [batch_size, num_heads, past_seq_len, head_dim]
+ // past_键_值
+ // 30                 键     值
+ // past_键_值                    [批量_大小, num_heads, past_seq_len, head_dim]
             //                         past_seq_len = 0                                                
             long[] embedsShape = inputsEmbeds.getShape().getShape();
             int batchSize = (int) embedsShape[0];
@@ -97,12 +97,12 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
             //              past_key_values   past_seq_len = 0   
             for (int i = 0; i < NUM_LAYERS; i++) {
-                // Key: [batch_size, num_key_value_heads, 0, head_dim]
+ // 键: [批量_大小, num_键_值_heads, 0, head_dim]
                 NDArray pastKey = manager.zeros(new Shape(batchSize, kvHeads, 0, headDim));
                 pastKey.setName("past_key_values." + i + ".key");
                 inputs.add(pastKey);
 
-                // Value: [batch_size, num_key_value_heads, 0, head_dim]
+ // 值: [批量_大小, num_键_值_heads, 0, head_dim]
                 NDArray pastValue = manager.zeros(new Shape(batchSize, kvHeads, 0, headDim));
                 pastValue.setName("past_key_values." + i + ".value");
                 inputs.add(pastValue);
@@ -112,8 +112,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
                 log.debug("             past_key_values: {}    ", NUM_LAYERS);
             }
         } else {
-            //                 past_key_values
-            //                                     layer0.key, layer0.value, layer1.key, layer1.value, ...
+ // past_键_值
+ // layer0.键, layer0.值, layer1.键, layer1.值, ...
             for (int i = 0; i < NUM_LAYERS; i++) {
                 NDArray key = pastKeyValues.get("past_key_values." + i + ".key");
                 NDArray value = pastKeyValues.get("past_key_values." + i + ".value");
@@ -135,7 +135,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DecoderStepOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("             Decoder             : {}          ", list.size());
@@ -165,12 +165,12 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         log.debug("Decoder                      :       shape={},             shape={}, data length={}",
                 logitsShape, shape, logitsData.length);
 
-        //        past_key_values                  
+ // past_键_值
         //                logits + 30       (key, value) = 1 + 60 = 61          
         Map<String, NDArray> pastKeyValues = null;
         if (list.size() > 1) {
             pastKeyValues = new HashMap<>();
-            // past_key_values                                      key     value
+ // past_键_值                                      键     值
             int expectedOutputs = 1 + NUM_LAYERS * 2;
             if (list.size() >= expectedOutputs) {
                 for (int i = 0; i < NUM_LAYERS; i++) {
@@ -180,7 +180,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
                     NDArray key = list.get(keyIndex);
                     NDArray value = list.get(valueIndex);
 
-                    //                 NDManager                      
+ // nd管理器
                     NDManager externalManager = ctx.getNDManager();
                     NDArray keyCopied = key.toDevice(externalManager.getDevice(), true);
                     NDArray valueCopied = value.toDevice(externalManager.getDevice(), true);
@@ -208,6 +208,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
     /**
      *                
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class DecoderInput {
@@ -227,7 +229,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         private NDArray positionIds;
 
         /**
-         * Past Key Values   KV          
+          * Past 键 值   KV
          */
         private Map<String, NDArray> pastKeyValues;
 
@@ -264,6 +266,8 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
     /**
      *                      
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class DecoderStepOutput {

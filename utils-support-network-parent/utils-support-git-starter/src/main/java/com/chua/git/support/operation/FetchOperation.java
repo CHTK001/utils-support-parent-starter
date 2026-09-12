@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 拉取操作（git pull），同步/异步执行并支持进度及文件变更回调。
+   * 拉取操作（Git 拉手），同步/异步执行并支持进度及文件变更回调。
  *
  * <p>该类本身是链式构建的一个环节，最终通过以下任一方式触发执行：</p>
  * <ol>
@@ -36,6 +36,9 @@ import java.util.concurrent.TimeUnit;
  *     .listener(e -> System.out.println(e.changeType() + ": " + e.filePath()))
  *     .progressListener(new ConsoleProgress())
  *     .start();
+ * }</pre>) + ": " + e.filePath()))
+ *     .progressListener(new ConsoleProgress())
+ *     .start();
  * }</pre>
  *
  * @author CH
@@ -45,12 +48,12 @@ import java.util.concurrent.TimeUnit;
 public class FetchOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
-     * 异步标记：为 true 时 {@link #execute()} 返回 CompletableFuture。
+      * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
      */
     private boolean asyncMode;
 
@@ -60,17 +63,17 @@ public class FetchOperation {
     private long watchInterval = 30;
 
     /**
-     * 轮询间隔单位，默认 TimeUnit.SECONDS。
+      * 轮询间隔单位，默认 时间unit.SECONDS。
      */
     private TimeUnit watchTimeUnit = TimeUnit.SECONDS;
 
     /**
-     * 文件变更监听器，不为 null 时执行 diff。
+      * 文件变更监听器，不为 空 时执行 diff。
      */
     private GitFileListener watchListener;
 
     /**
-     * 进度监听器，透传到底层 JGit ProgressMonitor。
+      * 进度监听器，透传到底层 jgit 进步监控。
      */
     private GitProgressListener progressListener;
 
@@ -82,7 +85,7 @@ public class FetchOperation {
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public FetchOperation(GitClient client) {
         this.client = client;
@@ -127,7 +130,7 @@ public class FetchOperation {
     /**
      * 设置文件变更监听器（与 {@link #start()} 配合使用）。
      *
-     * @param listener 文件变更监听器，非 null
+     * @param listener 文件变更监听器，非 空
      * @return 当前操作实例
      */
     public FetchOperation listener(GitFileListener listener) {
@@ -153,7 +156,7 @@ public class FetchOperation {
      * 启动定时拉取监听。
      *
      * <p>后台守护线程会以固定间隔执行 {@code git pull}，
-     * 若 pull 后 HEAD 树变化，再 diff 出文件列表通知 {@link #watchListener}。</p>
+      * 若 拉手 后 HEAD 树变化，再 diff 出文件列表通知 {@link #watchListener}。</p>
      *
      * <p>必须先调用 {@link #listener(GitFileListener)} 后再调用该方法。</p>
      *

@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
  */
 public class EmptinessBackgroundResolver implements BackgroundResolver {
 
-    static final int UNIT_WIDTH = 54;
+    static final int UNIT_WIDTH = 54; // UNIT_WIDTH
 
     @Override
     /** 解析 */
@@ -69,11 +69,22 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
 
         g.dispose();
-        // resize imageCode
+ // resize 镜像编码
         return BufferedImageUtils.scaleImage(bufferedImage, width, height);
     }
 
-    /** Render */
+    /**
+     * Render
+     *
+     * @param g g
+     * @param whiteColor whitecolor
+     * @param blackColor blackcolor
+     * @param bufferedImage 缓冲镜像
+     * @param rect rect
+     * @param i i
+     * @param j j
+     * @param codePointStyle 编码pointstyle
+     */
     private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect, int i, int j, CodePointStyle codePointStyle) {
         if (rect[i][j] == 1) {
             // 画黑色的点
@@ -91,16 +102,16 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
         }
     }
     /**
-     * FillPositionDetectionShape
+      * fill位置detectionshape
      * @param g g
-     * @param eyeDf eyeDf
+     * @param eyeDf eyedf
      * @param lf lf
      * @param lb lb
-     * @param qrCodeWidth qrCodeWidth
-     * @param startX startX
-     * @param startY startY
-     * @param version version
-     * @param fillPositionDetectionShapeModel fillPositionDetectionShapeModel
+     * @param qrCodeWidth qr编码width
+     * @param startX 启动x
+     * @param startY 启动y
+     * @param version 版本
+     * @param fillPositionDetectionShapeModel fill位置detectionshape模型
      */
     private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version,
                                                    CodeEyeStyle fillPositionDetectionShapeModel) {

@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
- * 基于 Redisson RTopic 的 Redis 发布订阅分发器提供者
+   * 基于 Redisson rtopic 的 Redis 发布订阅分发器提供者
  *
  * @author CH
  * @since 4.0.0.42
@@ -29,18 +29,18 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
 
     /** Redisson客户端 */
     private final RedissonClient redissonClient;
-    /** topicMap */
+    /** topic映射 */
     private final Map<String, RTopic> topicMap = new ConcurrentHashMap<>();
-    /** definitionMap */
+    /** definition映射 */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
-    /** listenerIdMap */
+    /** 监听器id映射 */
     private final Map<String, Integer> listenerIdMap = new ConcurrentHashMap<>();
     /** closed */
     private volatile boolean closed = false;
 
     /**
-     * 创建 RedissonDispatcherProvider 实例
-     * @param config config
+      * 创建 redissondispatcher提供者 实例
+     * @param config 配置
      */
     public RedissonDispatcherProvider(DispatcherConfig config) {
         super(config);
@@ -52,9 +52,10 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     }
 
     /**
-     * 创建 RedissonDispatcherProvider 实例
-     * @param config config
-     * @param RedissonClient RedissonClient
+      * 创建 redissondispatcher提供者 实例
+     * @param config 配置
+     * @param redissonClient redisson客户端
+     * @param redissonClient redisson客户端
      */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);
@@ -79,7 +80,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
                 var rt = getOrCreateTopic(topic);
                 var listenerId = rt.addListener(String.class, new MessageListener<String>() {
                     @Override
-                    /** OnMessage */
+                    /** on消息 */
                     public void onMessage(CharSequence channel, String msg) {
                         var definitions = definitionMap.get(topic);
                         if (definitions != null) {
@@ -131,7 +132,12 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
         redissonClient.shutdown();
     }
 
-    /** 获取Or创建Topic */
+    /**
+     * 获取或创建Topic
+     *
+     * @param topic topic
+     * @return 获取或创建topic的结果
+     */
     private RTopic getOrCreateTopic(String topic) {
         return topicMap.computeIfAbsent(topic, redissonClient::getTopic);
     }

@@ -5,9 +5,9 @@ import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import io.greptime.GreptimeDB;
 
 /**
- * GreptimeDB 数据源封装，持有 {@link GreptimeDB} gRPC 客户端实例。
+   * greptimedb 数据源封装，持有 {@link GreptimeDB} gRPC 客户端实例。
  * <p>
- * 供 {@link com.chua.greptimedb.support.engine.GreptimeDbEngine} 按名称管理多个 GreptimeDB 集群。
+   * 供 {@link com.chua.greptimedb.support.engine.GreptimeDbEngine} 按名称管理多个 greptimedb 集群。
  * </p>
  *
  * @author CH
@@ -53,7 +53,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
      * @param username 用户名
      * @param password 密码
      * @param database 数据库名
-     * @param source   GreptimeDB 客户端
+     * @param source   greptimedb 客户端
      */
     public GreptimeDbEngineDataSource(String name, String url, String username,
                                        String password, String database, GreptimeDB source) {
@@ -78,7 +78,12 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     }
 
     @Override
-    /** 设置客户端 */
+    /**
+     * 设置客户端
+     *
+     * @param source 源
+     * @return 设置源的结果
+     */
     @SuppressWarnings("unchecked")
     public EngineDataSource<GreptimeDB> setSource(Object source) {
         if (source instanceof GreptimeDB client) {
@@ -88,7 +93,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     }
 
     @Override
-    /** 获取方言（非 SQL 数据源返回 null） */
+    /** 获取方言（非 SQL 数据源返回 空） */
     public Dialect getDialect() {
         return null;
     }

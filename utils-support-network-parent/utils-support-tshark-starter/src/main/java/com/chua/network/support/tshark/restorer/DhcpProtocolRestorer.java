@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "dhcp";
     }
@@ -28,7 +28,7 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
         if (rawData == null || rawData.length < 240) {
             return false;
         }
-        // BOOTP/DHCP magic cookie: 99.130.83.99
+ // BOOTP/DHCP 魔法 Cookie: 99.130.83.99
         int m1 = rawData[236] & 0xff;
         int m2 = rawData[237] & 0xff;
         int m3 = rawData[238] & 0xff;
@@ -55,7 +55,7 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
         sb.append(", hType=").append(hType).append(", hLen=").append(hLen);
         sb.append(", xid=0x").append(Integer.toHexString(xid));
 
-        // 解析 options
+ // 解析 期权
         int idx = 240;
         String messageType = null;
         int requestedIp = 0;
@@ -113,7 +113,12 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToMessageTypeName */
+    /**
+     * 转为消息类型名称
+     *
+     * @param type 类型
+     * @return 转为消息类型名称的结果
+     */
     private static String toMessageTypeName(int type) {
         return switch (type) {
             case 1 -> "DISCOVER";
@@ -128,7 +133,12 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** IpToString */
+    /**
+     * ip转为字符串
+     *
+     * @param ip ip
+     * @return ip转为字符串的结果
+     */
     private static String ipToString(int ip) {
         return ((ip >> 24) & 0xff) + "."
                 + ((ip >> 16) & 0xff) + "."

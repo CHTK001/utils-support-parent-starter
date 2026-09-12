@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Metrics 配置属性。
+   * 指标 配置属性。
  *
  * @author CH
  * @since 4.0.0.42
@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MetricsProperties {
 
     /**
-     * 是否启用 metrics 模块
+      * 是否启用 指标 模块
      */
     private boolean enabled = true;
 

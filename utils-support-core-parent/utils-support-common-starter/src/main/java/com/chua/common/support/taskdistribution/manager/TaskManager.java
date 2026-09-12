@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class TaskManager {
 
     /**
-     * 任务状态映射：taskId -> TaskHolder
+      * 任务状态映射：任务id -> 任务holder
      */
     private final Map<String, TaskHolder> tasks = new ConcurrentHashMap<>();
 
@@ -138,7 +138,7 @@ private long cleanExpireMs = 60000;
     /**
      * 更新任务状态并通知监听器。
      *
-     * @param taskId  任务 ID
+     * @param taskId  任务 标识
      * @param status  新状态
      */
     public void updateStatus(String taskId, TaskStatus status) {
@@ -160,6 +160,9 @@ private long cleanExpireMs = 60000;
 
     /**
      * 通知状态变更。
+     * @param taskId 任务标识
+     * @param oldState 旧状态
+     * @param newState 新状态
      */
     private void notifyStateChanged(String taskId, TaskStatus oldState, TaskStatus newState) {
         for (TaskStateListener listener : stateListeners) {
@@ -173,6 +176,7 @@ private long cleanExpireMs = 60000;
 
     /**
      * 通知任务完成。
+     * @param result 结果
      */
     private void notifyCompleted(TaskResult<?> result) {
         for (TaskStateListener listener : stateListeners) {
@@ -187,7 +191,7 @@ private long cleanExpireMs = 60000;
     /**
      * 取消任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示取消成功
      */
     public boolean cancel(String taskId) {
@@ -210,7 +214,7 @@ private long cleanExpireMs = 60000;
     /**
      * 暂停任务（服务端不再派发，工作端可继续执行）。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示暂停成功
      */
     public boolean pause(String taskId) {
@@ -226,7 +230,7 @@ private long cleanExpireMs = 60000;
     /**
      * 恢复暂停的任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示恢复成功
      */
     public boolean resume(String taskId) {
@@ -274,8 +278,8 @@ private long cleanExpireMs = 60000;
     /**
      * 获取任务状态。
      *
-     * @param taskId 任务 ID
-     * @return 任务状态，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 任务状态，不存在返回 空
      */
     public TaskStatus getStatus(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -285,8 +289,8 @@ private long cleanExpireMs = 60000;
     /**
      * 获取任务结果。
      *
-     * @param taskId 任务 ID
-     * @return 任务结果，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 任务结果，不存在返回 空
      */
     public TaskResult<?> getResult(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -296,8 +300,8 @@ private long cleanExpireMs = 60000;
     /**
      * 获取任务。
      *
-     * @param taskId 任务 ID
-     * @return 任务，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 任务，不存在返回 空
      */
     public Task<?> getTask(String taskId) {
         TaskHolder holder = tasks.get(taskId);
@@ -429,15 +433,17 @@ private long cleanExpireMs = 60000;
 
     /**
      * 任务持有者（内部数据结构）。
+     * @author CH
+     * @since 4.0.0
      */
     private static class TaskHolder {
-        final Task<?> task;
-        final TaskCallback callback;
-        volatile TaskStatus status;
-        volatile int retryCount;
-        volatile long createdAt;
-        volatile long completedAt;
-        volatile TaskResult<?> result;
+        final Task<?> task; // 任务
+        final TaskCallback callback; // callback
+        volatile TaskStatus status; // 状态
+        volatile int retryCount; // 重试数量
+        volatile long createdAt; // 创建at
+        volatile long completedAt; // 完成at
+        volatile TaskResult<?> result; // 结果
 
         TaskHolder(Task<?> task, TaskCallback callback) {
             this.task = task;
@@ -452,7 +458,7 @@ private long cleanExpireMs = 60000;
     /**
      * 任务视图（对外只读展示）。
      *
-     * @param taskId      任务 ID
+     * @param taskId      任务 标识
      * @param taskType    任务类型
      * @param status      状态
      * @param retryCount  重试次数

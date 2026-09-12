@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 解析 Quarkus / JAX-RS 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
+   * 解析 Quarkus / JAX-R 注解的 {@link com.chua.common.support.network.server.parser.ServerHandlerAnnotationParser} 实现。
  *
  * <p>从 {@link ObjectContext} 中查找标注了 {@link Path} 的 Bean，
  * 解析方法级的 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH}
@@ -91,10 +91,10 @@ public class QuarkusServerHandlerAnnotationParser
      * 解析方法对应的 HTTP 方法集合。
      *
      * <p>JAX-RS 方法必须标注 {@link GET}、{@link POST}、{@link PUT}、{@link DELETE}、{@link PATCH} 之一，
-     * 未标注任何 HTTP 方法注解时返回 null（非法资源方法，跳过）。</p>
+      * 未标注任何 HTTP 方法注解时返回 空（非法资源方法，跳过）。</p>
      *
      * @param method 目标方法
-     * @return HTTP 方法集合，空集合表示匹配所有方法，null 表示跳过
+     * @return HTTP 方法集合，空集合表示匹配所有方法，空 表示跳过
      */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
         Set<HttpMethod> result = new HashSet<>();

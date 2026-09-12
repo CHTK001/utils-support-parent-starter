@@ -23,7 +23,7 @@ public interface ActionDetector {
     /**
      * 通过 SPI 创建实例。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -56,7 +56,7 @@ public interface ActionDetector {
     /**
      * 查询该能力下全部可用模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return ModelRegistry.getModelIdsByCapability(ActionDetector.class);
@@ -110,18 +110,22 @@ public interface ActionDetector {
  *
  * @author CH
  * @since 4.0.0.42
+ * @param videoData 视频数据
+ * @return detect的结果
+ * @param device device
+ * @param model 模型
  */
 class DefaultActionDetector implements ActionDetector {
 
-    private static final float DEFAULT_THRESHOLD = 0.45f;
-    private static final String DEFAULT_DEVICE = "cpu";
+    private static final float DEFAULT_THRESHOLD = 0.45f; // 默认阈值
+    private static final String DEFAULT_DEVICE = "cpu"; // 默认device
 
-    private final IdentificationEngine engine;
-    private final String modelName;
-    private final ModelSetting setting;
-    private float threshold = DEFAULT_THRESHOLD;
-    private String modelPath;
-    private String device = DEFAULT_DEVICE;
+    private final IdentificationEngine engine; // engine
+    private final String modelName; // 模型名称
+    private final ModelSetting setting; // setting
+    private float threshold = DEFAULT_THRESHOLD; // 阈值
+    private String modelPath; // 模型路径
+    private String device = DEFAULT_DEVICE; // device
 
     DefaultActionDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -138,12 +142,24 @@ class DefaultActionDetector implements ActionDetector {
     @Override
     public ActionDetector model(String model) {
         return this;
+    /**
+     * 阈值。
+     * @param threshold 阈值
+     * @return 阈值的结果
+     */
     }
 
     @Override
     public ActionDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
+    /**
+     * 模型路径。
+     * @param path 路径
+     * @return 模型路径的结果
+     * @param videoData 视频数据
+     * @param device device
+     */
     }
 
     @Override

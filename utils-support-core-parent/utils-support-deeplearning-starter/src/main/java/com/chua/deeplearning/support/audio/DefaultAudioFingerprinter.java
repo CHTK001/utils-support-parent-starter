@@ -27,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
  *       "audio/fingerprint/wav2vec2-zh/model.onnx",
  *       "https://huggingface.co/onnx-community/wav2vec2-large-xlsr-53-chinese-zh-cn-ONNX/resolve/main/model.onnx",
  *       false, null);
+ * }</pre>/main/model.onnx",
+ *       false, null);
  * }</pre>
  *
  * <h2>输入音频格式要求</h2>
@@ -50,16 +52,16 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
 
     /** 默认推理设备：CPU */
     private static final String DEFAULT_DEVICE = "cpu";
-    /** 默认目标采样率：16kHz（大多数语音模型的标准输入采样率） */
+    /** 默认目标采样率：16khz（大多数语音模型的标准输入采样率） */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
 
     /** 推理引擎实例（全局单例） */
     private final IdentificationEngine engine;
-    /** 要使用的模型 ID */
+    /** 要使用的模型 标识 */
     private final String modelName;
     /** 模型配置（来源：构造时传入） */
     @SuppressWarnings("unused")
-    private final ModelSetting setting;
+    private final ModelSetting setting; // setting
     /** 自定义模型路径（覆盖注册表中的默认路径） */
     private String modelPath;
     /** 推理设备："cpu" 或 "cuda" */
@@ -73,8 +75,8 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
      * 构造默认音频指纹提取器。
      *
      * @param engine    推理引擎实例
-     * @param modelName 模型 ID（须在 ModelRegistry 中注册）
-     * @param setting   模型配置（可包含 modelPath、device 等覆盖默认值）
+     * @param modelName 模型 标识（须在 模型registry 中注册）
+     * @param setting   模型配置（可包含 模型路径、device 等覆盖默认值）
      */
     public DefaultAudioFingerprinter(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -175,7 +177,7 @@ public class DefaultAudioFingerprinter implements AudioFingerprinter {
      * <p>公式：{@code result[i] = vec[i] / sqrt(sum(vec[j]^2))}</p>
      *
      * <p>若向量范数接近零（{@code < 1e-8}），说明输入为全零向量，直接原样返回，
-     * 避免除以零产生 NaN。</p>
+      * 避免除以零产生 nan。</p>
      *
      * @param vec 原始特征向量
      * @return L2 归一化后的向量，模长为 1

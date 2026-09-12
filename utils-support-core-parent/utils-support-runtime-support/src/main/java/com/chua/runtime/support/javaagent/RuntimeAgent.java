@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 运行时 Agent 入口 — 可作为 {@code -javaagent} 附加到 JVM，
+   * 运行时 智能体 入口 — 可作为 {@code -javaagent} 附加到 JVM，
  * 或在运行时通过 {@code VirtualMachine.attach()} 注入。
  *
  * <p>核心能力：</p>
@@ -88,14 +88,14 @@ public class RuntimeAgent {
      *
      * <p>在 main 方法执行前被调用，用于在应用启动时初始化运行时管理器。</p>
      *
-     * @param agentArgs   Agent 参数
+     * @param agentArgs   智能体 参数
      * @param inst        Instrumentation 实例
      */
     public static void premain(String agentArgs, Instrumentation inst) {
         log.info("[runtime-javaagent] RuntimeAgent premain 加载，参数: {}", agentArgs);
         try {
             RuntimeManager manager = createRuntimeManager(agentArgs);
-            // 注册到 ThreadLocal 供应用随时获取
+ // 注册到 thread本地 供应用随时获取
             RuntimeContextHolder.setManager(manager);
             log.info("[runtime-javaagent] RuntimeAgent premain 初始化完成");
         } catch (Exception e) {
@@ -104,11 +104,11 @@ public class RuntimeAgent {
     }
 
     /**
-     * 运行时通过 VirtualMachine.attach() 注入的入口方法。
+      * 运行时通过 虚拟machine.attach() 注入的入口方法。
      *
      * <p>在目标 JVM 运行时被调用，用于动态附加运行时管理器到已有进程。</p>
      *
-     * @param agentArgs   Agent 参数
+     * @param agentArgs   智能体 参数
      * @param inst        Instrumentation 实例
      */
     public static void agentmain(String agentArgs, Instrumentation inst) {
@@ -134,9 +134,9 @@ public class RuntimeAgent {
     // ==================== 运行时管理器创建 ====================
 
     /**
-     * 根据参数创建 RuntimeManager 实例。
+      * 根据参数创建 runtime管理器 实例。
      *
-     * @param agentArgs Agent 参数
+     * @param agentArgs 智能体 参数
      * @return RuntimeManager 实例
      */
     private static RuntimeManager createRuntimeManager(String agentArgs) {
@@ -151,9 +151,9 @@ public class RuntimeAgent {
     // ==================== 参数解析 ====================
 
     /**
-     * 解析 Agent 参数。
+      * 解析 智能体 参数。
      *
-     * @param agentArgs Agent 参数字符串
+     * @param agentArgs 智能体 参数字符串
      * @return 解析后的参数
      */
     private static AgentParams parseAgentArgs(String agentArgs) {
@@ -189,7 +189,7 @@ public class RuntimeAgent {
     // ==================== 内部类 ====================
 
     /**
-     * Agent 参数容器。
+      * 智能体 参数容器。
      *
      * @param startupTimeoutMs      启动超时（毫秒）
      * @param healthCheckIntervalSec 健康检查间隔（秒）

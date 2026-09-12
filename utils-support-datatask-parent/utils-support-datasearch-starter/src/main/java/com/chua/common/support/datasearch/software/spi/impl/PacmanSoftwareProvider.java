@@ -33,7 +33,7 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "pacman";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("pacman 搜索完成, exitCode={}", exitCode);
             }
@@ -89,17 +89,24 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -115,7 +122,12 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析PacmanOutput */
+    /**
+     * 解析pacman输出
+     *
+     * @param output 输出
+     * @return 解析pacman输出的结果
+     */
     private List<SoftwareInfo> parsePacmanOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -124,7 +136,7 @@ public class PacmanSoftwareProvider implements SoftwareProvider {
                 if (trimmed.isEmpty() || trimmed.startsWith("::") || trimmed.startsWith("warning")) {
                     continue;
                 }
-                // 格式: repo/name  version  description
+ // 格式: repo/名称  版本  description
                 int firstSpace = trimmed.indexOf(' ');
                 if (firstSpace <= 0) {
                     continue;

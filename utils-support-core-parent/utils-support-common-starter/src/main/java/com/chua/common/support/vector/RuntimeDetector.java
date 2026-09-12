@@ -22,6 +22,8 @@ package com.chua.common.support.vector;
  *     @Override public boolean isAvailable() { return true; }
  *     @Override public int priority() { return 50; }
  * }
+ * }</pre>de 公共 int priority() { 返回 50; }
+ * }
  * }</pre>
  *
  * @author CH

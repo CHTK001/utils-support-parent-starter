@@ -17,15 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OpenAI 兼容接口真伪探测器。
+   * 打开AI 兼容接口真伪探测器。
  *
  * <p>基于 12 维度交叉验证策略，探测 AI 中转站背后真实使用的模型。
- * 使用 common 模块的 {@link HttpClientFactory} 发送原始 HTTP 请求，
- * 直接调用 {baseUrl}/v1/models 和 /v1/chat/completions 接口。</p>
+   * 使用 通用 模块的 {@link HttpClientFactory} 发送原始 HTTP 请求，
+   * 直接调用 {baseurl}/v1/模型 和 /v1/对话/completions 接口。</p>
  *
  * <p>探测维度涵盖：模型列表扫描、模型名矩阵嗅探、错误消息分析、
  * 身份追问、越狱探测、知识截止日期、安全对齐指纹、数学推理陷阱、
- * Prompt Token 注入检测、Function Calling 探测、HTTP 响应头识别、速度基准测试。</p>
+   * 提示符 令牌 注入检测、Function Calling 探测、HTTP 响应头识别、速度基准测试。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,7 +44,7 @@ public class OpenAiProbeStation {
     private static final int DEFAULT_TIMEOUT_MILLIS = 30000;
 
     /**
-     * 默认最大输出 Token 数
+      * 默认最大输出 令牌 数
      */
     private static final int DEFAULT_MAX_TOKENS = 100;
 
@@ -59,7 +59,7 @@ public class OpenAiProbeStation {
     private static final int BENCHMARK_REQUEST_COUNT = 3;
 
     /**
-     * 速度基准测试每次生成的 Token 数
+      * 速度基准测试每次生成的 令牌 数
      */
     private static final int BENCHMARK_MAX_TOKENS = 50;
 
@@ -84,7 +84,7 @@ public class OpenAiProbeStation {
     private List<String> scannedModels;
 
     /**
-     * 探测使用的模型名称（优先使用配置中的 model）。
+      * 探测使用的模型名称（优先使用配置中的 模型）。
      *
      * @return 模型名称
      */
@@ -96,7 +96,7 @@ public class OpenAiProbeStation {
     /**
      * 构造真伪探测器。
      *
-     * @param setting 客户端配置，包含 provider、apiKey、baseUrl 等
+     * @param setting 客户端配置，包含 提供者、API密钥、baseurl 等
      */
     public OpenAiProbeStation(ChatClientSetting setting) {
         this.setting = setting;
@@ -145,7 +145,7 @@ public class OpenAiProbeStation {
     // ==================== 维度 1：模型列表扫描 ====================
 
     /**
-     * 调用 GET {baseUrl}/v1/models 接口，扫描可用模型列表。
+      * 调用 获取 {baseurl}/v1/模型 接口，扫描可用模型列表。
      *
      * @return 探测结果
      */
@@ -377,7 +377,7 @@ public class OpenAiProbeStation {
     // ==================== 维度 9：Prompt Token 注入检测 ====================
 
     /**
-     * 检测 prompt_tokens 是否异常偏高，判断是否存在 token 窃取。
+      * 检测 提示符_令牌 是否异常偏高，判断是否存在 令牌 窃取。
      *
      * @return 探测结果
      */
@@ -411,7 +411,7 @@ public class OpenAiProbeStation {
             int expectedTokens = estimateTokenCount(testPrompt);
             double ratio = expectedTokens > 0 ? (double) promptTokens / expectedTokens : 1.0;
 
-            // 动态阈值：小模型/免费模型 token 计算通常偏高
+ // 动态阈值：小模型/免费模型 令牌 计算通常偏高
             String modelLower = resolveModel().toLowerCase();
             double threshold = 3.0;
             if (modelLower.contains("mini") || modelLower.contains("nano")
@@ -433,7 +433,7 @@ public class OpenAiProbeStation {
                         .build();
             }
 
-            // 轻度偏高：常见于小模型 token 化差异，不判失败但降低置信度
+ // 轻度偏高：常见于小模型 令牌 化差异，不判失败但降低置信度
             double mildThreshold = threshold * 0.6;
             if (ratio > mildThreshold) {
                 return ProbeResult.builder()
@@ -606,7 +606,7 @@ public class OpenAiProbeStation {
     // ==================== 维度 12：速度基准测试 ====================
 
     /**
-     * 测量 tokens/second 吞吐量，作为模型真实性的辅助判断依据。
+      * 测量 令牌/second 吞吐量，作为模型真实性的辅助判断依据。
      *
      * @return 探测结果
      */
@@ -682,7 +682,7 @@ public class OpenAiProbeStation {
         };
         String apiKey = setting.getAppKey();
 
-        // 越狱/安全维度首次失败后用更温和 prompt 重试一次
+ // 越狱/安全维度首次失败后用更温和 提示符 重试一次
         boolean softRetry = false;
         String actualPrompt = prompt;
 
@@ -707,7 +707,9 @@ public class OpenAiProbeStation {
     }
 
     /**
-     * 为敏感维度（越狱/安全）构造更温和的重试 prompt。
+      * 为敏感维度（越狱/安全）构造更温和的重试 提示符。
+     * @param dimensionKey 维度键
+     * @return 构建soft提示符的结果
      */
     private String buildSoftPrompt(String dimensionKey) {
         return switch (dimensionKey) {
@@ -719,6 +721,9 @@ public class OpenAiProbeStation {
 
     /**
      * POST 请求并对 429 限流进行指数退避重试（最多 3 次）。
+     * @param apiKey api键
+     * @param body 主体
+     * @return 执行postwith重试的结果
      */
     private ClientResponse doPostWithRetry(String apiKey, String body) {
         long[] backoffs = {0L, 2000L, 5000L};
@@ -747,6 +752,11 @@ public class OpenAiProbeStation {
 
     /**
      * 执行单次聊天探测请求。
+     * @param mapped mapped
+     * @param apiKey api键
+     * @param prompt 提示符
+     * @param maxTokens 最大令牌
+     * @return 执行探针对话的结果
      */
     private ProbeResult doProbeChat(String mapped, String apiKey, String prompt, int maxTokens) {
         String body = buildChatBody(resolveModel(), prompt, maxTokens, DEFAULT_TEMPERATURE);
@@ -852,11 +862,11 @@ public class OpenAiProbeStation {
     // ==================== 辅助方法 ====================
 
     /**
-     * 构建 OpenAI 兼容的聊天请求体（JSON 字符串）。
+      * 构建 打开AI 兼容的聊天请求体（JSON 字符串）。
      *
      * @param model      模型名称
      * @param prompt     用户输入
-     * @param maxTokens  最大输出 Token 数
+     * @param maxTokens  最大输出 令牌 数
      * @param temperature 温度参数
      * @return JSON 请求体字符串
      */
@@ -956,7 +966,7 @@ public class OpenAiProbeStation {
      * 从各维度结果中提取疑似真实模型名称。
      *
      * @param results 各维度结果
-     * @return 疑似模型名称，无法确定时返回 null
+     * @return 疑似模型名称，无法确定时返回 空
      */
     private String extractSuspectedModel(List<ProbeResult> results) {
         for (ProbeResult result : results) {
@@ -971,7 +981,7 @@ public class OpenAiProbeStation {
      * 检测疑似代理框架。
      *
      * @param results 各维度结果
-     * @return 代理框架名称，未检测到时返回 null
+     * @return 代理框架名称，未检测到时返回 空
      */
     private String detectProxyFramework(List<ProbeResult> results) {
         for (ProbeResult result : results) {
@@ -988,10 +998,10 @@ public class OpenAiProbeStation {
     }
 
     /**
-     * 简单估算文本的 Token 数量（按字符数 / 4 粗略估算）。
+      * 简单估算文本的 令牌 数量（按字符数 / 4 粗略估算）。
      *
      * @param text 输入文本
-     * @return 估算的 Token 数
+     * @return 估算的 令牌 数
      */
     private int estimateTokenCount(String text) {
         return Math.max(1, text.length() / 4);

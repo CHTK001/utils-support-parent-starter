@@ -46,24 +46,24 @@ import java.util.*;
 public class ForkResult {
 
     /**
-     * 分叉节点 ID
+      * 分叉节点 标识
      */
     private final String nodeId;
 
     /**
-     * 分支输出数据：分支名称 → 分支的最终输出（currentData）
+      * 分支输出数据：分支名称 → 分支的最终输出（当前数据）
      */
     private final Map<String, Object> branches;
 
     /**
-     * 分支执行历史：分支名称 → 分支已执行节点ID列表
+      * 分支执行历史：分支名称 → 分支已执行节点标识列表
      */
     private final Map<String, List<String>> histories;
 
     /**
      * 构造分叉结果。
      *
-     * @param nodeId   分叉节点 ID
+     * @param nodeId   分叉节点 标识
      * @param branches 分支输出数据
      * @param histories 分支执行历史
      */
@@ -74,9 +74,9 @@ public class ForkResult {
     }
 
     /**
-     * 获取分叉节点 ID。
+      * 获取分叉节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getNodeId() {
         return nodeId;
@@ -96,7 +96,7 @@ public class ForkResult {
      *
      * @param branchName 分支名称
      * @param <V>        数据值类型
-     * @return 分支输出数据，不存在时返回 null
+     * @return 分支输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName) {
@@ -109,7 +109,7 @@ public class ForkResult {
      * @param branchName 分支名称
      * @param type       期望的数据类型
      * @param <V>        数据值类型
-     * @return 分支输出数据，不存在时返回 null
+     * @return 分支输出数据，不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public <V> V getBranch(String branchName, Class<V> type) {
@@ -120,7 +120,7 @@ public class ForkResult {
     /**
      * 获取所有分支的执行历史。
      *
-     * @return 分支名称 → 执行历史节点ID列表的不可变映射
+     * @return 分支名称 → 执行历史节点标识列表的不可变映射
      */
     public Map<String, List<String>> getHistories() {
         return Collections.unmodifiableMap(histories);

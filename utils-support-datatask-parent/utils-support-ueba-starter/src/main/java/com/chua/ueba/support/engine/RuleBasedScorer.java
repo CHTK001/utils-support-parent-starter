@@ -28,7 +28,7 @@ import java.util.Objects;
 @Slf4j
 public class RuleBasedScorer {
 
-    /** 规则评分归一化基数（threshold 恒为 1.0，分数即归一化后的风险度） */
+    /** 规则评分归一化基数（阈值 恒为 1.0，分数即归一化后的风险度） */
     private static final double RULE_THRESHOLD = 1.0d;
 
     /** IP 高异常阈值 */
@@ -101,8 +101,8 @@ public class RuleBasedScorer {
     /**
      * 构造规则评分器。
      *
-     * @param featureExtractor 特征提取器，不能为 null
-     * @throws IllegalArgumentException 当 featureExtractor 为 null 时
+     * @param featureExtractor 特征提取器，不能为 空
+     * @throws IllegalArgumentException 当 特征extractor 为 空 时
      */
     public RuleBasedScorer(FeatureExtractor featureExtractor) {
         Objects.requireNonNull(featureExtractor, "featureExtractor must not be null");
@@ -117,10 +117,10 @@ public class RuleBasedScorer {
      * 模型模式与规则模式完全一致。
      * </p>
      *
-     * @param entityId 实体标识，不能为 null 或空白
+     * @param entityId 实体标识，不能为 空 或空白
      * @param window   窗口事件列表，允许为空
      * @return IP 异常评分结果
-     * @throws IllegalArgumentException 当 entityId 为 null 或空白时
+     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
      */
     public IpAnomalyResult scoreIp(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
@@ -173,10 +173,10 @@ public class RuleBasedScorer {
      * 输出类别标签（normal / suspicious / attack）与规则风险分数。
      * </p>
      *
-     * @param entityId 实体标识，不能为 null 或空白
+     * @param entityId 实体标识，不能为 空 或空白
      * @param window   窗口事件列表，允许为空
      * @return 行为画像结果
-     * @throws IllegalArgumentException 当 entityId 为 null 或空白时
+     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
      */
     public BehaviorProfile scoreBehavior(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
@@ -296,7 +296,7 @@ public class RuleBasedScorer {
      * 获取窗口内最近访问路径，供引擎与规则评分共用。
      *
      * @param events 事件列表
-     * @return 路径列表（最多 5 条），绝不为 null
+     * @return 路径列表（最多 5 条），绝不为 空
      */
     static List<String> recentPaths(List<TrafficEvent> events) {
         List<String> paths = new ArrayList<>(5);
@@ -313,7 +313,7 @@ public class RuleBasedScorer {
     /**
      * 判断路径是否命中敏感关键字。
      *
-     * @param event 流量事件，不能为 null
+     * @param event 流量事件，不能为 空
      * @return true 表示命中敏感路径
      */
     private static boolean isSensitivePath(TrafficEvent event) {
@@ -334,7 +334,7 @@ public class RuleBasedScorer {
     /**
      * 判断事件是否发生在夜间时段（22:00 至次日 06:00）。
      *
-     * @param event 流量事件，不能为 null
+     * @param event 流量事件，不能为 空
      * @return true 表示夜间访问
      */
     private static boolean isNightAccess(TrafficEvent event) {

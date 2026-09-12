@@ -45,7 +45,7 @@ public interface DataSyncMappingManager {
     /**
      * 从配置定义创建映射。
      *
-     * @param mappingId 映射 ID
+     * @param mappingId 映射 标识
      * @param config 配置定义
      * @return 映射实例
      */
@@ -54,7 +54,7 @@ public interface DataSyncMappingManager {
     /**
      * 移除映射。
      *
-     * @param mappingId 映射 ID
+     * @param mappingId 映射 标识
      */
     void removeMapping(String mappingId);
 }

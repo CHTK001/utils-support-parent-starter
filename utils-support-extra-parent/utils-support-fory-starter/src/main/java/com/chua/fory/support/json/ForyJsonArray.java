@@ -17,15 +17,15 @@ import java.util.Collection;
 public class ForyJsonArray extends JsonArray {
 
     /**
-     * 默认构造函数，创建一个新的空 ForyJsonArray。
+      * 默认构造函数，创建一个新的空 foryjsonarray。
      */
     public ForyJsonArray() {
     }
 
     /**
-     * 从 Collection 构造 ForyJsonArray，将集合中的所有元素添加到当前数组中。
+      * 从 集合 构造 foryjsonarray，将集合中的所有元素添加到当前数组中。
      *
-     * @param collection 源 Collection
+     * @param collection 源 集合
      */
     public ForyJsonArray(Collection collection) {
         super(collection);

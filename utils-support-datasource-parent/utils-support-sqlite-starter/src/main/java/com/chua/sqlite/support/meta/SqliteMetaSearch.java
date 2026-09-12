@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * SQLite 搜索引擎元数据操作实现。
+   * sqlite 搜索引擎元数据操作实现。
  * <p>
  * 基于 {@link SqliteSearchEngineImpl}，通过 FTS5 虚拟表管理索引。
  * </p>
@@ -91,14 +91,20 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
     }
 
     // ==================== 内部构建器 ====================
+    /**
+     * sqlite创建索引构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private class SqliteCreateIndexBuilder implements SearchIndexCreateBuilder {
 
-        private final String indexName;
-        private final List<SearchFieldDef> fields = new ArrayList<>();
-        private final Map<String, Object> settings = new LinkedHashMap<>();
-        private int shards = 1;
-        private int replicas = 1;
+        private final String indexName; // 索引名称
+        private final List<SearchFieldDef> fields = new ArrayList<>(); // 字段
+        private final Map<String, Object> settings = new LinkedHashMap<>(); // settings
+        private int shards = 1; // shards
+        private int replicas = 1; // replicas
 
         SqliteCreateIndexBuilder(String indexName) {
             this.indexName = indexName;
@@ -167,7 +173,14 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
             return def;
         }
 
-        /** 将 ES/Solr 类型名转为 SQLite FTS5 可用形式 */
+        /**
+         * 将 ES/Solr 类型名转为 sqlite FTS5 可用形式
+         *
+         * @param type 类型
+         * @return normalize字段类型的结果
+         * @author CH
+         * @since 4.0.0
+         */
         private String normalizeFieldType(String type) {
             if (type == null) {
                 return "text";
@@ -182,8 +195,8 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
 
     private static class SearchFieldBuilderImpl implements SearchFieldBuilder {
 
-        private boolean indexed = true;
-        private boolean stored = false;
+        private boolean indexed = true; // 索引
+        private boolean stored = false; // 存储
 
         @Override
         public SearchFieldBuilder analyzer(String analyzer) {

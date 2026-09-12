@@ -26,8 +26,12 @@ import java.util.stream.Stream;
 @Spi("wal-filesearch")
 public class FileSearchWalFileSystem implements WalFileSystem {
 
-    private final WalFileSystem delegate;
+    private final WalFileSystem delegate; // delegate
 
+    /**
+     * 文件搜索wal文件系统。
+     * @param delegate delegate
+     */
     public FileSearchWalFileSystem(WalFileSystem delegate) {
         this.delegate = delegate;
     }
@@ -104,7 +108,9 @@ public class FileSearchWalFileSystem implements WalFileSystem {
         java.nio.file.Path walDir = delegate instanceof AbstractWalFileSystem awf
                 ? awf.config().baseDir().resolve("_wal")
                 : java.nio.file.Paths.get("./_wal");
-        if (!java.nio.file.Files.exists(walDir)) return java.util.Collections.emptyList();
+        if (!java.nio.file.Files.exists(walDir)) {
+            return java.util.Collections.emptyList();
+        }
         try (Stream<java.nio.file.Path> stream = java.nio.file.Files.list(walDir)) {
             return stream
                     .filter(p -> matchesGlob(p.getFileName().toString(), pattern))
@@ -114,12 +120,16 @@ public class FileSearchWalFileSystem implements WalFileSystem {
 
     /**
      * 正则表达式搜索 WAL 段文件。
+     * @param regex regex
+     * @return 搜索文件的结果
      */
     public List<java.nio.file.Path> searchFiles(Pattern regex) throws IOException {
         java.nio.file.Path walDir = delegate instanceof AbstractWalFileSystem awf
                 ? awf.config().baseDir().resolve("_wal")
                 : java.nio.file.Paths.get("./_wal");
-        if (!java.nio.file.Files.exists(walDir)) return java.util.Collections.emptyList();
+        if (!java.nio.file.Files.exists(walDir)) {
+            return java.util.Collections.emptyList();
+        }
         try (Stream<java.nio.file.Path> stream = java.nio.file.Files.list(walDir)) {
             return stream
                     .filter(p -> regex.matcher(p.getFileName().toString()).matches())
@@ -129,13 +139,21 @@ public class FileSearchWalFileSystem implements WalFileSystem {
 
     /**
      * 在指定 LSN 范围内搜索包含指定字节的记录（调试用）。
+     * @param fromLsn 从lsn
+     * @param toLsn 转为lsn
+     * @param keyword keyword
+     * @return 搜索内容的结果
      */
     public List<WalSearchHit> searchContent(long fromLsn, long toLsn, byte[] keyword) throws IOException {
         List<WalSearchHit> hits = new java.util.ArrayList<>();
         // 遍历所有分片，扫描记录内容
         for (WalSegmentInfo seg : listSegments()) {
-            if (seg.lastLsn() < fromLsn) continue;
-            if (seg.firstLsn() >= toLsn) break;
+            if (seg.lastLsn() < fromLsn) {
+                continue;
+            }
+            if (seg.firstLsn() >= toLsn) {
+                break;
+            }
             try (java.io.DataInputStream in = new java.io.DataInputStream(
                     new java.io.BufferedInputStream(java.nio.file.Files.newInputStream(seg.path())))) {
                 while (true) {
@@ -145,7 +163,9 @@ public class FileSearchWalFileSystem implements WalFileSystem {
                             + com.chua.common.support.wal.WalConfig.LSN_BYTES
                             + com.chua.common.support.wal.WalConfig.OP_BYTES);
                     long lsn = readLong(header, com.chua.common.support.wal.WalConfig.CRC32_BYTES);
-                    if (lsn < fromLsn || lsn >= toLsn) continue;
+                    if (lsn < fromLsn || lsn >= toLsn) {
+                        continue;
+                    }
                     byte[] payload = new byte[len];
                     try { in.readFully(payload); } catch (java.io.EOFException e) { break; }
                     if (contains(payload, keyword)) {
@@ -158,11 +178,23 @@ public class FileSearchWalFileSystem implements WalFileSystem {
         return hits;
     }
 
+    /**
+     * 读取int。
+     * @param src src
+     * @param offset 偏移量
+     * @return 读取int的结果
+     */
     private static int readInt(byte[] src, int offset) {
         return ((src[offset] & 0xFF) << 24) | ((src[offset + 1] & 0xFF) << 16)
                 | ((src[offset + 2] & 0xFF) << 8) | (src[offset + 3] & 0xFF);
     }
 
+    /**
+     * 读取long。
+     * @param src src
+     * @param offset 偏移量
+     * @return 读取long的结果
+     */
     private static long readLong(byte[] src, int offset) {
         return ((long)(src[offset] & 0xFF) << 56) | ((long)(src[offset + 1] & 0xFF) << 48)
                 | ((long)(src[offset + 2] & 0xFF) << 40) | ((long)(src[offset + 3] & 0xFF) << 32)
@@ -170,29 +202,60 @@ public class FileSearchWalFileSystem implements WalFileSystem {
                 | ((long)(src[offset + 6] & 0xFF) << 8) | (src[offset + 7] & 0xFF);
     }
 
+    /**
+     * 匹配glob。
+     * @param filename 文件名
+     * @param pattern 模式
+     * @return 匹配glob的结果
+     */
     private static boolean matchesGlob(String filename, String pattern) {
         // 简单 glob：* → .*, ? → .
         String regex = "^" + pattern.replace(".", "\\.").replace("*", ".*").replace("?", ".") + "$";
         return java.util.regex.Pattern.matches(regex, filename);
     }
 
+    /**
+     * contains。
+     * @param data 数据
+     * @param keyword keyword
+     * @return contains的结果
+     */
     private static boolean contains(byte[] data, byte[] keyword) {
-        if (keyword.length == 0 || keyword.length > data.length) return false;
+        if (keyword.length == 0 || keyword.length > data.length) {
+            return false;
+        }
         for (int i = 0; i <= data.length - keyword.length; i++) {
             boolean match = true;
             for (int j = 0; j < keyword.length; j++) {
                 if (data[i + j] != keyword[j]) { match = false; break; }
             }
-            if (match) return true;
+            if (match) {
+                return true;
+            }
         }
         return false;
     }
 
+    /**
+     * wal搜索hit。
+     * @param lsn lsn
+     * @param op op
+     * @param payload payload
+     * @return wal搜索hit的结果
+     */
     public record WalSearchHit(long lsn, byte op, byte[] payload) {
+        /**
+         * 键snippet。
+         * @return 键snippet的结果
+         */
         public String keySnippet() {
-            if (payload == null || payload.length < 4) return "";
+            if (payload == null || payload.length < 4) {
+                return "";
+            }
             int len = ByteBuffer.wrap(payload).getInt();
-            if (len <= 0 || len > payload.length - 4) return "";
+            if (len <= 0 || len > payload.length - 4) {
+                return "";
+            }
             return new String(payload, 4, Math.min(len, 32), StandardCharsets.UTF_8);
         }
     }

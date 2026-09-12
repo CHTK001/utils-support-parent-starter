@@ -103,11 +103,11 @@ public class MetadataDownloader {
     /**
      * 下载指定索引的元数据块。
      *
-     * @param client   PeerWire 客户端
-     * @param utId     ut_metadata 扩展消息 ID
+     * @param client   peerwire 客户端
+     * @param utId     ut_metadata 扩展消息 标识
      * @param piece    块索引
      * @param deadline 截止时间戳（毫秒）
-     * @return 块数据，失败返回 null
+     * @return 块数据，失败返回 空
      * @throws Exception 下载异常
      */
     private byte[] downloadPiece(PeerWireClient client, int utId, int piece, long deadline) throws Exception {
@@ -145,8 +145,8 @@ public class MetadataDownloader {
      *
      * @param payload      消息负载
      * @param expectedPiece 期望的块索引
-     * @param extMsgId     扩展消息 ID
-     * @return 块数据，不匹配或异常返回 null
+     * @param extMsgId     扩展消息 标识
+     * @return 块数据，不匹配或异常返回 空
      */
     private byte[] tryExtractPiece(byte[] payload, int expectedPiece, int extMsgId) {
         if (payload.length < 2) {
@@ -271,10 +271,10 @@ public class MetadataDownloader {
     }
 
     /**
-     * 将对象转换为字符串（支持 byte[] 和 String）。
+      * 将对象转换为字符串（支持 byte[] 和 字符串）。
      *
      * @param obj 值对象
-     * @return 字符串，不匹配返回 null
+     * @return 字符串，不匹配返回 空
      */
     private String str(Object obj) {
         if (obj instanceof byte[]) {
@@ -295,6 +295,8 @@ public class MetadataDownloader {
 
     /**
      * 元数据下载结果。
+     * @author CH
+     * @since 4.0.0
      */
     public static class MetadataResult {
 

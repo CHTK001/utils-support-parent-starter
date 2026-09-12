@@ -9,10 +9,10 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.onnx.face.OnnxImageProcessor;
 
 /**
- * InsightFace AdaFace 人脸识别 Translator（buffalo_l AdaFace）。
+   * 洞见face adaface 人脸识别 Translator（buffalo_l adaface）。
  *
  * <p>112×112 RGB 输入（归一化 (rgb-127.5)/128），输出 512 维 embedding（未归一化，
- * 调用方按需 L2 归一化）。ResNet IR50 骨干 + AdaFace 自适应 margin。</p>
+   * 调用方按需 L2 归一化）。Rnet IR50 骨干 + adaface 自适应 margin。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,14 +23,14 @@ public class InsightFaceAdaFaceTranslator implements Translator<Image, float[]> 
     private static final int INPUT_SIZE = 112;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(input, INPUT_SIZE, INPUT_SIZE, 3, false,
                 127.5f, 1.0f / 128.0f, ctx.getNDManager());
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();

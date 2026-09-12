@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
  * - 显示适配：为不同显示设备优化图像
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @Spi("bsc")
@@ -122,7 +122,7 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
      * 使用 HSL 颜色空间进行亮度和饱和度调整，RGB 空间进行对比度调整。
      *
      * @param src  源图像
-     * @param dest 目标图像，可以为 null
+     * @param dest 目标图像，可以为 空
      * @return 调整后的图像
      */
     @Override

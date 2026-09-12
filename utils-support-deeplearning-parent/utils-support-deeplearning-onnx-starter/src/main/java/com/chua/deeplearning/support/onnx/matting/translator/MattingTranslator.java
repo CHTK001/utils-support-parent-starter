@@ -17,27 +17,33 @@ import java.awt.image.WritableRaster;
 
 
 /**
- * 通用抠图 Translator，支持 ISNet/U2Net/Anime/Cloth/Human 等分割模型。
- * 使用 AWT Graphics2D 替代 NDImageUtils.resize（ORT 引擎不支持后者）。
+   * 通用抠图 Translator，支持 是否net/U2Net/Anime/Cloth/Human 等分割模型。
+   * 使用 AWT Graphics2D 替代 nd镜像工具.resize（ORT 引擎不支持后者）。
  *
  * @author CH
  * @since 2025/10/22
  */
 public final class MattingTranslator implements Translator<Image, Image> {
 
-    private static final int DEFAULT_TARGET_SIZE = 512;
-    private static final int U2NET_TARGET_SIZE = 320;
+    private static final int DEFAULT_TARGET_SIZE = 512; // 默认Target大小
+    private static final int U2NET_TARGET_SIZE = 320; // u2netTarget大小
 
-    private final int targetWidth;
-    private final int targetHeight;
-    private final boolean needResize;
-    private final MattingMode mode;
-    private final boolean normalize;
+    private final int targetWidth; // Targetwidth
+    private final int targetHeight; // Targetheight
+    private final boolean needResize; // needresize
+    private final MattingMode mode; // mode
+    private final boolean normalize; // normalize
 
-    private int width;
-    private int height;
-    private BufferedImage originalImage;
-    private boolean lowInformationInput;
+    private int width; // width
+    private int height; // height
+    private BufferedImage originalImage; // 原始镜像
+    private boolean lowInformationInput; // low信息输入
+    /**
+     * MattingMode枚举。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public enum MattingMode {
         ALPHA_ONLY,
@@ -48,6 +54,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
 
     /**
      * 无参构造，默认 512×512，RGBA 输出，需归一化。
+     * @return MattingTranslator的结果
      */
     public MattingTranslator() {
         this(DEFAULT_TARGET_SIZE, DEFAULT_TARGET_SIZE, MattingMode.RGBA, true);
@@ -59,7 +66,8 @@ public final class MattingTranslator implements Translator<Image, Image> {
      * @param targetWidth  目标宽度
      * @param targetHeight 目标高度
      * @param mode         输出模式
-     * @param normalize    是否做 ImageNet 归一化
+     * @param normalize    是否做 镜像net 归一化
+     * @return MattingTranslator的结果
      */
     public MattingTranslator(int targetWidth, int targetHeight, MattingMode mode, boolean normalize) {
         this.targetWidth = targetWidth;
@@ -70,12 +78,26 @@ public final class MattingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * 从 DetectionConfiguration 构造，自动识别模型类型。
+      * 从 detection配置 构造，自动识别模型类型。
      *
      * @param configuration 配置
+     * @return resolveNormalize的结果
+     /**
+       * mattingtranslator。
+      * @param configuration 配置
+      * @return MattingTranslator的结果
+      */
+     * @param image 镜像
+     * @param input 输入
      */
     public MattingTranslator(DetectionConfiguration configuration) {
         this(resolveTargetSize(configuration), resolveTargetSize(configuration), resolveMode(configuration), resolveNormalize(configuration));
+    /**
+     * 处理输入。
+     * @param ctx ctx
+     * @param input 输入
+     * @return 处理输入的结果
+     */
     }
 
     @Override
@@ -122,6 +144,13 @@ public final class MattingTranslator implements Translator<Image, Image> {
 
         NDArray array = ctx.getNDManager().create(data, new Shape(1, 3, th, tw));
         return new NDList(array);
+    /**
+     * 处理输出。
+     * @param ctx ctx
+     * @param list 列表
+     * @return 处理输出的结果
+     * @param input 输入
+     */
     }
 
     @Override
@@ -182,6 +211,11 @@ public final class MattingTranslator implements Translator<Image, Image> {
             return bufferedImage;
         }
         throw new IllegalStateException("无法获取 BufferedImage");
+    /**
+     * 创建alphaonly镜像。
+     * @param alphaMask alphamask
+     * @return 创建alphaonly镜像的结果
+     */
     }
 
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
@@ -194,6 +228,11 @@ public final class MattingTranslator implements Translator<Image, Image> {
             }
         }
         return ImageFactory.getInstance().fromImage(result);
+    /**
+     * 创建rgba镜像。
+     * @param alphaMask alphamask
+     * @return 创建rgba镜像的结果
+     */
     }
 
     private Image createRgbaImage(BufferedImage alphaMask) {
@@ -206,6 +245,12 @@ public final class MattingTranslator implements Translator<Image, Image> {
             }
         }
         return ImageFactory.getInstance().fromImage(result);
+    /**
+     * 创建rgb镜像。
+     * @param alphaMask alphamask
+     * @param bgValue bg值
+     * @return 创建rgb镜像的结果
+     */
     }
 
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
@@ -222,10 +267,24 @@ public final class MattingTranslator implements Translator<Image, Image> {
             }
         }
         return ImageFactory.getInstance().fromImage(result);
+    /**
+     * blend通道。
+     * @param foreground foreground
+     * @param background background
+     * @param alpha alpha
+     * @param inverseAlpha inversealpha
+     * @return blend通道的结果
+     */
     }
 
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
+    /**
+     * 创建low信息降级。
+     * @return 创建low信息降级的结果
+     * @param configuration 配置
+     * @param image 镜像
+     */
     }
 
     private Image createLowInformationFallback() {

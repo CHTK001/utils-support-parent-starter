@@ -16,9 +16,9 @@ import java.awt.image.BufferedImage;
 
 
 /**
- * MiDaS                      
+   * midas
  * <p>
- *        MiDaS                                                                      
+   * midas
  * </p>
  *
  * @author CH
@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage;
 public class MidasDepthTranslator implements Translator<Image, Image> {
 
     /** 模型图像尺寸 */
-    /** Model_image_size */
+    /** 模型_镜像_大小 */
     private static final int MODEL_IMAGE_SIZE = 256;
     
     /**
@@ -75,7 +75,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -95,7 +95,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
 

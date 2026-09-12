@@ -23,37 +23,37 @@ class LzwEncoder {
     private final int imgH;
     /** PIXARY */
     private final byte[] pixAry;
-    /** Init代码尺寸 */
+    /** 初始化代码尺寸 */
     private final int initCodeSize;
 
     /** 剩余 */
     private int remaining;
-    /** CURpixel */
+    /** curpixel */
     private int curPixel;
 
 
-    static final int BITS = 12;
-    static final int HSIZE = 5003;
-    int nBits;
-    int maxbits = BITS;
-    int maxcode;
-    int maxmaxcode = 1 << BITS;
+    static final int BITS = 12; // 钻头
+    static final int HSIZE = 5003; // HSIZE
+    int nBits; // n钻头
+    int maxbits = BITS; // maxbits
+    int maxcode; // maxcode
+    int maxmaxcode = 1 << BITS; // maxmaxcode
 
-    int[] htab = new int[HSIZE];
-    int[] codetab = new int[HSIZE];
+    int[] htab = new int[HSIZE]; // htab
+    int[] codetab = new int[HSIZE]; // codetab
 
-    int hsize = HSIZE;
+    int hsize = HSIZE; // hsize
 
-    int freeEnt = 0;
+    int freeEnt = 0; // freeent
 
-    boolean clearFlg = false;
+    boolean clearFlg = false; // clearflg
 
-    int gInitBits;
+    int gInitBits; // g初始化钻头
 
-    int clearCode;
-    int eofCode;
-    int curAccum = 0;
-    int curBits = 0;
+    int clearCode; // clear编码
+    int eofCode; // eof编码
+    int curAccum = 0; // curaccum
+    int curBits = 0; // cur钻头
 
     final int[] masks =
             {
@@ -76,8 +76,8 @@ class LzwEncoder {
                     0xFFFF};
 
 
-    int aCount;
-    byte[] accum = new byte[256];
+    int aCount; // a数量
+    byte[] accum = new byte[256]; // accum
 
 
     LzwEncoder(int width, int height, byte[] pixels, int colorDepth) {
@@ -205,13 +205,22 @@ class LzwEncoder {
         }
     }
 
-    /** Maxcode */
+    /**
+     * Maxcode
+     *
+     * @param nBits n钻头
+     * @return maxcode的结果
+     */
     final int maxcode(int nBits) {
         return (1 << nBits) - 1;
     }
 
 
-    /** NextPixel */
+    /**
+     * 下一个pixel
+     *
+     * @return 下一个pixel的结果
+     */
     private int nextPixel() {
         if (remaining == 0) {
             return EOF;

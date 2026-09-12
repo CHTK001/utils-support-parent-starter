@@ -14,7 +14,7 @@ import java.io.File;
  * 视频文件系统 SPI 实现。
  *
  * <p>基于 FFmpeg 实现视频文件的元数据读取与格式转换。
- * 底层通过 {@link FFmpegProcessor} SPI 进行实际的 FFmpeg 操作。</p>
+   * 底层通过 {@link FFmpegProcessor} SPI 进行实际的 ffmpeg 操作。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,19 +25,19 @@ public class VideoFileSystem implements FileSystem {
     /** 处理器 */
     private final FFmpegProcessor processor;
 
-    /** 创建 VideoFileSystem 实例 */
+    /** 创建 视频文件系统 实例 */
     public VideoFileSystem() {
         FFmpegProcessor p = null;
         try {
             p = ServiceProvider.of(FFmpegProcessor.class).getExtension("jaffree");
         } catch (Exception e) {
-            // 无可用 FFmpeg 实现
+ // 无可用 ffmpeg 实现
         }
         this.processor = p;
     }
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "video";
     }
@@ -54,7 +54,11 @@ public class VideoFileSystem implements FileSystem {
         return new VideoWriteBuilder(file, processor);
     }
 
-    /** 获取Processor */
+    /**
+     * 获取处理器
+     *
+     * @return 获取处理器的结果
+     */
     public FFmpegProcessor getProcessor() {
         return processor;
     }

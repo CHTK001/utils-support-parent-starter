@@ -22,7 +22,7 @@ public enum DhtMessageType {
     PONG,
 
     /**
-     * 查找节点请求，查询目标节点 ID 附近的节点列表
+      * 查找节点请求，查询目标节点 标识 附近的节点列表
      */
     FIND_NODE,
 
@@ -72,7 +72,7 @@ public enum DhtMessageType {
     NAT_DETECT_RESPONSE,
 
     /**
-     * 获取 Peers 请求，用于 BitTorrent DHT 查询某个 infohash 的 peers
+      * 获取 Peers 请求，用于 钻头torrent DHT 查询某个 infohash 的 peers
      */
     GET_PEERS,
 

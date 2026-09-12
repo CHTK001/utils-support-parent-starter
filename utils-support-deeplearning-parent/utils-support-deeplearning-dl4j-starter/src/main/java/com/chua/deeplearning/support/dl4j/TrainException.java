@@ -11,7 +11,7 @@ package com.chua.deeplearning.support.dl4j;
  */
 public class TrainException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 创建异常。

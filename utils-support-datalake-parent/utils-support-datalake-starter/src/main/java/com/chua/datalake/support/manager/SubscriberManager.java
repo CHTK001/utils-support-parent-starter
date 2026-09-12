@@ -3,7 +3,7 @@ package com.chua.datalake.support.manager;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 订阅管理器，负责 subscriberId↔offset 映射与实时推送调度。
+   * 订阅管理器，负责 subscriberid↔偏移量 映射与实时推送调度。
  *
  * <p>当前版本提供内存实现；后续版本会通过 {@code OffsetFlow} 结合 Redis 进行持久化。</p>
  *

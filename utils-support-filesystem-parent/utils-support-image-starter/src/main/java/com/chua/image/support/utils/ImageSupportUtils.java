@@ -71,12 +71,12 @@ public class ImageSupportUtils {
         FORMAT_ALIASES.put("ico", "ico");
     }
 
-    /** 创建 ImageSupportUtils 实例 */
+    /** 创建 镜像支持工具 实例 */
     private ImageSupportUtils() {
     }
 
     /**
-     * 获取 ImageIO 支持的所有可读取图片格式名称。
+      * 获取 镜像io 支持的所有可读取图片格式名称。
      *
      * <p>通过 {@link IIORegistry} 获取所有已注册的 {@link ImageReaderSpi}，
      * 收集它们声明的文件后缀名。返回的格式名称已去重且均转为小写。
@@ -106,7 +106,7 @@ public class ImageSupportUtils {
     }
 
     /**
-     * 获取 ImageIO 支持的所有可写入图片格式名称。
+      * 获取 镜像io 支持的所有可写入图片格式名称。
      *
      * <p>通过 {@link IIORegistry} 获取所有已注册的 {@link ImageWriterSpi}，
      * 收集它们声明的格式名称。返回的格式名称已去重且均转为小写。
@@ -197,7 +197,7 @@ public class ImageSupportUtils {
     }
 
     /**
-     * 保存 BufferedImage 到输出流，自动处理格式差异。
+      * 保存 缓冲镜像 到输出流，自动处理格式差异。
      *
      * <p>特殊处理：</p>
      * <ul>

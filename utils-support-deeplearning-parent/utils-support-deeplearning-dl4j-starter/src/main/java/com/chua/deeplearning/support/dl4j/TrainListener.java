@@ -19,23 +19,23 @@ public interface TrainListener {
     void onStarted(TrainProgress progress);
 
     /**
-     * 当前 epoch 训练完成。
+      * 当前 轮次 训练完成。
      *
-     * @param progress 当前进度快照（包含 currentEpoch、bestScore 等已更新值）
+     * @param progress 当前进度快照（包含 当前轮次、bestscore 等已更新值）
      */
     void onEpochCompleted(TrainProgress progress);
 
     /**
      * 训练成功完成。
      *
-     * @param progress 最终进度快照（包含 modelPath、classLabels）
+     * @param progress 最终进度快照（包含 模型路径、类标签）
      */
     void onFinished(TrainProgress progress);
 
     /**
      * 训练过程中发生异常而失败。
      *
-     * @param progress 当前进度快照（status=FAILED，error 已填充）
+     * @param progress 当前进度快照（状态=失败，错误 已填充）
      * @param cause    原始异常
      */
     void onFailed(TrainProgress progress, Throwable cause);

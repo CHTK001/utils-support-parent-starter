@@ -17,15 +17,15 @@ import javax.annotation.Nullable;
  */
 public interface LogoResolver {
     /**
-     * 使用给定的设置解析并构建QrCodeGenWrapper对象。
-     * 会将QrSetting中的配置应用到QrCodeGenWrapper.Builder上，最终生成QrCodeGenWrapper对象。
+      * 使用给定的设置解析并构建qr编码gen包装器对象。
+      * 会将qrsetting中的配置应用到qr编码gen包装器.构建器上，最终生成qr编码gen包装器对象。
      *
      * @param logoSetting   logo配置
      * @param setting Qr码的设置包含生成Qr码所需的所有配置，如尺寸、颜色、错误修正级别等。
-     *                      该参数决定了QrCodeGenWrapper对象的生成方式。
+      * 该参数决定了qr编码gen包装器对象的生成方式。
      * @param bufferedImage 缓冲图像
-     * @return {@link BufferedImage}
-     * @throws IOException IOException
+     * @return {@link 缓冲镜像}
+     * @throws IOException io异常
      */
     BufferedImage resolve(BufferedImage bufferedImage,  LogoSetting logoSetting, QrSetting setting) throws IOException;
 

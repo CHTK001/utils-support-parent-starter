@@ -7,10 +7,10 @@ import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.image.ImageEnhancer;
 
 /**
- * TensorFlow 模块模型集中注册器。
+   * tensor流 模块模型集中注册器。
  * <p>
- * 通过 SPI 被主框架加载；relativePath 相对 models 根目录，统一 tensorflow/ 前缀。
- * 支持 SavedModel 目录或 .pb。
+   * 通过 SPI 被主框架加载；relative路径 相对 模型 根目录，统一 tensorflow/ 前缀。
+   * 支持 保存模型 目录或 .pb。
  * </p>
  *
  * @author CH
@@ -28,7 +28,7 @@ public class TensorflowModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    /** 注册All */
+    /** 注册全部 */
     private static void registerAll() {
         // 分类
         reg("tf-mobilenet",
@@ -36,7 +36,7 @@ public class TensorflowModelRegistrar implements ModelRegistrar {
                 ai.djl.modality.cv.Image.class, ai.djl.modality.Classifications.class,
                 ImageClassifier.class, "classification/mobilenet");
 
-        // 目标检测 SavedModel
+ // 目标检测 保存模型
         reg("tf-object-detection",
                 "com.chua.deeplearning.support.tensorflow.detection.SavedModelObjectDetectionTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.output.DetectedObjects.class,

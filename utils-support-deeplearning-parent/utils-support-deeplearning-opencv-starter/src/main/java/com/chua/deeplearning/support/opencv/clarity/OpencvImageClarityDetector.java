@@ -4,10 +4,10 @@ import com.chua.deeplearning.support.image.ImageClarityDetector;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 
 /**
- * OpenCV 图片清晰度检测器（SPI provider="opencv"）。
+   * 打开cv 图片清晰度检测器（SPI 提供者="opencv"）。
  *
  * <p>默认使用 {@code opencv-image-quality} 引擎模型（Laplacian 方差），
- * 纯 OpenCV 算法，无需下载模型文件，嵌入式友好。</p>
+   * 纯 打开cv 算法，无需下载模型文件，嵌入式友好。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -43,26 +43,30 @@ public class OpencvImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "opencv-image-quality";
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -76,7 +80,7 @@ public class OpencvImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

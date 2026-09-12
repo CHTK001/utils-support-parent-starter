@@ -20,6 +20,7 @@ import java.util.List;
  * Mono<Integer> affected = engine.delete(User.class)
  *     .eq(User::getId, 1)
  *     .remove();
+ * }</pre>    .remove();
  * }</pre>
  *
  * @param <T> 实体类型
@@ -46,6 +47,7 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
 
     /**
      * 构建删除 SQL 信息。
+     * @return 构建sql的结果
      */
     public DeleteSql<T> buildSql() {
         List<Object> params = new ArrayList<>();
@@ -71,6 +73,7 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
 
     /**
      * 同步执行删除（内部使用）。
+     * @return 执行移除的结果
      */
     private int doRemove() {
         DeleteSql<T> sql = buildSql();
@@ -94,6 +97,9 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
 
     /**
      * 渲染单个条件为 SQL 片段。
+     * @param sb sb
+     * @param params 参数
+     * @param c c
      */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

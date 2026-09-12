@@ -33,8 +33,8 @@ public class McpToolDescriptor {
     /**
      * 创建 McpToolDescriptor 实例
      * @param name name
-     * @param String String
-     * @param Map Map
+     * @param name String
+     * @param inputSchema Map
      * @param Object Object
      * @param inputSchema inputSchema
      */
@@ -45,9 +45,9 @@ public class McpToolDescriptor {
     /**
      * 创建 McpToolDescriptor 实例
      * @param name name
-     * @param String String
-     * @param String String
-     * @param Map Map
+     * @param name String
+     * @param name String
+     * @param inputSchema Map
      * @param Object Object
      * @param inputSchema inputSchema
      */

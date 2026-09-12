@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
  * 码眼解析器
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 public class CircleCodeEyeResolver implements CodeEyeResolver{
@@ -19,13 +19,13 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
     /** 单位宽度 */
     private int unitWidth = 54;
 
-    /** 创建 CircleCodeEyeResolver 实例 */
+    /** 创建 circle编码eye解析器 实例 */
     public CircleCodeEyeResolver() {
     }
 
     /**
-     * 创建 CircleCodeEyeResolver 实例
-     * @param unitWidth unitWidth
+      * 创建 circle编码eye解析器 实例
+     * @param unitWidth unitwidth
      */
     public CircleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;

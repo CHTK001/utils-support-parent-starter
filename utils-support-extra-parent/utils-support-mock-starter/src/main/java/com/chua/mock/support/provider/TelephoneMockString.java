@@ -25,6 +25,8 @@ public class TelephoneMockString implements MockString {
     private static final String[] CODE_3 = {"010", "021", "020", "022", "023"};
     /**
      * 4 位区号城市（7-8 位号码）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] CODE_4 = {
             "0755", "0571", "028", "027", "025", "029", "0731", "0371", "024",

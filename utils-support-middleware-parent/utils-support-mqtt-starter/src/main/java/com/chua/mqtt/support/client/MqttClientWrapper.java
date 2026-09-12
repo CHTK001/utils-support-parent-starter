@@ -53,6 +53,9 @@ import java.util.function.Consumer;
  *     &#64;OnClose
  *     public void onDisconnect() { System.out.println("已断开"); }
  * });
+ * }</pre>n关闭
+   * 公共 Void Linux on断开连接() { 系统.出.println("已断开"); }
+ * });
  * }</pre>
  *
  * @author CH
@@ -64,9 +67,9 @@ public class MqttClientWrapper implements AutoCloseable {
 
     /** Broker */
     private final String broker;
-    /** 客户端ID */
+    /** 客户端标识 */
     private final String clientId;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private final String password;
@@ -79,21 +82,21 @@ public class MqttClientWrapper implements AutoCloseable {
     /** Automaticreconnect */
     private final boolean automaticReconnect;
 
-    /** Mqtt客户端 */
+    /** MQTT客户端 */
     private MqttClient mqttClient;
-    /** topicHandlers */
+    /** topic处理器 */
     private final Map<String, List<BiConsumer<String, String>>> topicHandlers = new ConcurrentHashMap<>();
     /** Connectlisteners */
     private final List<Runnable> connectListeners = new CopyOnWriteArrayList<>();
     /** Disconnectlisteners */
     private final List<Consumer<Throwable>> disconnectListeners = new CopyOnWriteArrayList<>();
-    /** 错误listeners */
+    /** 错误监听器 */
     private final List<Consumer<Throwable>> errorListeners = new CopyOnWriteArrayList<>();
-    /** Connected */
+    /** 连接 */
     private final AtomicBoolean connected = new AtomicBoolean(false);
 
     /**
-     * 创建 MqttClientWrapper 实例
+      * 创建 mqtt客户端包装器 实例
      * @param b b
      */
     private MqttClientWrapper(Builder b) {
@@ -109,12 +112,21 @@ public class MqttClientWrapper implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param broker broker
+     * @return 创建的结果
+     */
     public static MqttClientWrapper create(String broker) {
         return builder().broker(broker).build();
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() { return new Builder(); }
 
     /**
@@ -128,13 +140,17 @@ public class MqttClientWrapper implements AutoCloseable {
 
     // ==================== 启动/停止 ====================
 
-    /** 开始 */
+    /**
+     * 开始
+     *
+     * @return 启动的结果
+     */
     public MqttClientWrapper start() {
         try {
             mqttClient = new MqttClient(broker, clientId, new MemoryPersistence());
             mqttClient.setCallback(new MqttCallback() {
                 @Override
-                /** ConnectionLost */
+                /** connectionlost */
                 public void connectionLost(Throwable cause) {
                     connected.set(false);
                     log.warn("MQTT 连接断开: {}", cause.getMessage());
@@ -147,7 +163,7 @@ public class MqttClientWrapper implements AutoCloseable {
                 }
 
                 @Override
-                /** MessageArrived */
+                /** 消息arrived */
                 public void messageArrived(String topic, MqttMessage message) {
                     String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
                     // 精确匹配
@@ -178,7 +194,7 @@ public class MqttClientWrapper implements AutoCloseable {
                 }
 
                 @Override
-                /** DeliveryComplete */
+                /** delivery完成 */
                 public void deliveryComplete(IMqttDeliveryToken token) {}
             });
 
@@ -207,7 +223,11 @@ public class MqttClientWrapper implements AutoCloseable {
         return this;
     }
 
-    /** 关闭 */
+    /**
+     * 关闭
+     *
+     * @return 关闭的结果
+     */
     public MqttClientWrapper shutdown() {
         try {
             if (mqttClient != null && mqttClient.isConnected()) {
@@ -234,15 +254,25 @@ public class MqttClientWrapper implements AutoCloseable {
 
     // ==================== 操作入口 ====================
 
-    /** 订阅 */
+    /**
+     * 订阅
+     *
+     * @return 订阅的结果
+     */
     public SubscribeOperation subscribe() { return new SubscribeOperation(this); }
-    /** 发布 */
+    /**
+     * 发布
+     *
+     * @return 发布的结果
+     */
     public PublishOperation publish() { return new PublishOperation(this); }
 
     /**
      * 注册注解处理器。
      *
      * <p>扫描对象上的 @OnOpen/@OnClose/@OnMessage 注解并注册回调。</p>
+     * @param handler 处理器
+     * @return 注册的结果
      */
     public MqttClientWrapper register(Object handler) {
         Class<?> clazz = handler.getClass();
@@ -289,32 +319,54 @@ public class MqttClientWrapper implements AutoCloseable {
 
     // ==================== 事件监听 ====================
 
-    /** On连接 */
+    /**
+     * On连接
+     *
+     * @param listener 监听器
+     * @return on连接的结果
+     */
     public MqttClientWrapper onConnect(Runnable listener) {
         connectListeners.add(listener);
         return this;
     }
 
-    /** On断开 */
+    /**
+     * On断开
+     *
+     * @param listener 监听器
+     * @return on断开连接的结果
+     */
     public MqttClientWrapper onDisconnect(Consumer<Throwable> listener) {
         disconnectListeners.add(listener);
         return this;
     }
 
-    /** OnMessage */
+    /**
+     * on消息
+     *
+     * @param topic topic
+     * @param handler 处理器
+     * @return on消息的结果
+     */
     public MqttClientWrapper onMessage(String topic, BiConsumer<String, String> handler) {
         topicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
     }
 
     // ==================== Builder ====================
+    /**
+     * 构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class Builder {
         /** Broker */
         private String broker = "tcp://127.0.0.1:1883";
-        /** 客户端ID */
+        /** 客户端标识 */
         private String clientId = "mqtt-client-" + System.currentTimeMillis();
-        /** Username */
+        /** 用户名 */
         private String username;
         /** 密码 */
         private String password;
@@ -327,28 +379,78 @@ public class MqttClientWrapper implements AutoCloseable {
         /** Automaticreconnect */
         private boolean automaticReconnect = true;
 
-        /** Broker */
+        /**
+         * Broker
+         *
+         * @param b b
+         * @return broker的结果
+         */
         public Builder broker(String b) { this.broker = b; return this; }
-        /** ClientId */
+        /**
+         * 客户端id
+         *
+         * @param id 标识
+         * @return 客户端id的结果
+         */
         public Builder clientId(String id) { this.clientId = id; return this; }
-        /** Username */
+        /**
+         * 用户名
+         *
+         * @param u u
+         * @return 用户名的结果
+         */
         public Builder username(String u) { this.username = u; return this; }
-        /** Password */
+        /**
+         * 密码
+         *
+         * @param p p
+         * @return 密码的结果
+         */
         public Builder password(String p) { this.password = p; return this; }
-        /** KeepAlive */
+        /**
+         * keepalive
+         *
+         * @param sec sec
+         * @return keepAlive的结果
+         */
         public Builder keepAlive(int sec) { this.keepAlive = sec; return this; }
-        /** CleanSession */
+        /**
+         * clean会话
+         *
+         * @param c c
+         * @return clean会话的结果
+         */
         public Builder cleanSession(boolean c) { this.cleanSession = c; return this; }
-        /** ConnectionTimeout */
+        /**
+         * connection超时
+         *
+         * @param sec sec
+         * @return connection超时的结果
+         */
         public Builder connectionTimeout(int sec) { this.connectionTimeout = sec; return this; }
-        /** AutomaticReconnect */
+        /**
+         * automaticreconnect
+         *
+         * @param r r
+         * @return automaticReconnect的结果
+         */
         public Builder automaticReconnect(boolean r) { this.automaticReconnect = r; return this; }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public MqttClientWrapper build() { return new MqttClientWrapper(this); }
     }
 
     // ==================== 订阅操作 ====================
+    /**
+     * 订阅operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class SubscribeOperation {
         /** 客户端 */
@@ -357,18 +459,38 @@ public class MqttClientWrapper implements AutoCloseable {
         private String topic;
         /** QOS */
         private int qos = 1;
-        /** handler */
+        /** 处理器 */
         private BiConsumer<String, String> handler;
 
         SubscribeOperation(MqttClientWrapper client) { this.client = client; }
 
-        /** Topic */
+        /**
+         * Topic
+         *
+         * @param t t
+         * @return topic的结果
+         */
         public SubscribeOperation topic(String t) { this.topic = t; return this; }
-        /** Qos */
+        /**
+         * Qos
+         *
+         * @param q q
+         * @return qos的结果
+         */
         public SubscribeOperation qos(int q) { this.qos = q; return this; }
-        /** Handler */
+        /**
+         * 处理器
+         *
+         * @param h h
+         * @return 处理器的结果
+         */
         public SubscribeOperation handler(BiConsumer<String, String> h) { this.handler = h; return this; }
-        /** OnMessage */
+        /**
+         * on消息
+         *
+         * @param h h
+         * @return on消息的结果
+         */
         public SubscribeOperation onMessage(Consumer<String> h) {
             this.handler = (t, msg) -> h.accept(msg);
             return this;
@@ -395,6 +517,12 @@ public class MqttClientWrapper implements AutoCloseable {
     }
 
     // ==================== 发布操作 ====================
+    /**
+     * 发布operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class PublishOperation {
         /** 客户端 */
@@ -410,21 +538,58 @@ public class MqttClientWrapper implements AutoCloseable {
 
         PublishOperation(MqttClientWrapper client) { this.client = client; }
 
-        /** Topic */
+        /**
+         * Topic
+         *
+         * @param t t
+         * @return topic的结果
+         */
         public PublishOperation topic(String t) { this.topic = t; return this; }
-        /** Payload */
+        /**
+         * Payload
+         *
+         * @param p p
+         * @return payload的结果
+         */
         public PublishOperation payload(String p) { this.payload = p.getBytes(StandardCharsets.UTF_8); return this; }
-        /** Payload */
+        /**
+         * Payload
+         *
+         * @param p p
+         * @return payload的结果
+         */
         public PublishOperation payload(byte[] p) { this.payload = p; return this; }
-        /** Qos */
+        /**
+         * Qos
+         *
+         * @param q q
+         * @return qos的结果
+         */
         public PublishOperation qos(int q) { this.qos = q; return this; }
-        /** Retained */
+        /**
+         * Retained
+         *
+         * @param r r
+         * @return retained的结果
+         */
         public PublishOperation retained(boolean r) { this.retained = r; return this; }
-        /** Qos */
+        /**
+         * Qos
+         *
+         * @return qos0的结果
+         */
         public PublishOperation qos0() { this.qos = 0; return this; }
-        /** Qos */
+        /**
+         * Qos
+         *
+         * @return qos1的结果
+         */
         public PublishOperation qos1() { this.qos = 1; return this; }
-        /** Qos */
+        /**
+         * Qos
+         *
+         * @return qos2的结果
+         */
         public PublishOperation qos2() { this.qos = 2; return this; }
 
         /** 发送 */
@@ -439,7 +604,7 @@ public class MqttClientWrapper implements AutoCloseable {
             }
         }
 
-        /** 发送Async */
+        /** 发送异步 */
         public void sendAsync() {
             try {
                 MqttMessage msg = new MqttMessage(payload);
@@ -452,7 +617,7 @@ public class MqttClientWrapper implements AutoCloseable {
         }
 
         /**
-         * 同步发布：等待 PUBACK（QoS>0）或发送完成（QoS 0）。性能压测使用，避免丢消息。
+          * 同步发布：等待 PUBACK（qos>0）或发送完成（qos 0）。性能压测使用，避免丢消息。
          *
          * @param timeoutMs 最大等待毫秒
          */
@@ -471,7 +636,13 @@ public class MqttClientWrapper implements AutoCloseable {
 
     // ==================== 内部方法 ====================
 
-    /** MatchTopic */
+    /**
+     * 匹配topic
+     *
+     * @param pattern 模式
+     * @param topic topic
+     * @return 匹配topic的结果
+     */
     private static boolean matchTopic(String pattern, String topic) {
         String[] patternParts = pattern.split("/");
         String[] topicParts = topic.split("/");
@@ -493,7 +664,13 @@ public class MqttClientWrapper implements AutoCloseable {
         return p == patternParts.length && t == topicParts.length;
     }
 
-    /** 调用Method */
+    /**
+     * 调用方法
+     *
+     * @param handler 处理器
+     * @param method 方法
+     * @param args 参数
+     */
     private void invokeMethod(Object handler, Method method, Object... args) {
         try {
             ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
@@ -503,12 +680,19 @@ public class MqttClientWrapper implements AutoCloseable {
     }
 
     // ==================== 异常类 ====================
+    /**
+     * mqtt客户端异常类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class MqttClientException extends RuntimeException {
         /**
-         * 创建 MqttClientException 实例
-         * @param message message
-         * @param Throwable Throwable
+          * 创建 mqtt客户端异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
          */
         public MqttClientException(String message, Throwable cause) { super(message, cause); }
     }

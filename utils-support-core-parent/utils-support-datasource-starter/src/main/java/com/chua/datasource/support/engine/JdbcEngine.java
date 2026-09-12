@@ -36,7 +36,16 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 执行New查询 */
+    /**
+     * 执行新查询
+     *
+     * @param where where
+     * @param args 参数
+     * @param clazz clazz
+     * @param limit 限制
+     * @param offset 偏移量
+     * @return 执行新查询的结果
+     */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         List<T> data = getData(clazz);
         if (!data.isEmpty()) {
@@ -84,7 +93,7 @@ public abstract class JdbcEngine extends AbstractEngine {
                 int columnCount = metaData.getColumnCount();
 
                 while (rs.next()) {
-                    // 使用反射无参构造实例化，避免 MethodHandle 对部分类的访问限制
+ // 使用反射无参构造实例化，避免 方法处理 对部分类的访问限制
                     Constructor<?> constructor = clazz.getDeclaredConstructor();
                     constructor.setAccessible(true);
                     @SuppressWarnings("unchecked")
@@ -110,7 +119,11 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 对内存数据执行 LIMIT/OFFSET 截取，dialect 不支持物理分页时的兜底实现。
+      * 对内存数据执行 限制/偏移量 截取，dialect 不支持物理分页时的兜底实现。
+     * @param data 数据
+     * @param limit 限制
+     * @param offset 偏移量
+     * @return 限制slice的结果
      */
     private static <T> List<T> limitSlice(List<T> data, int limit, int offset) {
         if (limit <= 0 && offset <= 0) {
@@ -124,7 +137,14 @@ public abstract class JdbcEngine extends AbstractEngine {
         return data.subList(from, to);
     }
 
-    /** 设置FieldValue */
+    /**
+     * 设置字段值
+     *
+     * @param instance instance
+     * @param columnName column名称
+     * @param value 值
+     * @return 设置字段值的结果
+     */
     private static <T> void setFieldValue(T instance, String columnName, Object value) {
         try {
             Field field = instance.getClass().getDeclaredField(columnName);
@@ -152,7 +172,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     // ==================== 执行器 / 方言 ====================
 
     /**
-     * 获取指定数据源的 SQL 执行器，非 JDBC 数据源返回 null。
+      * 获取指定数据源的 SQL 执行器，非 JDBC 数据源返回 空。
      *
      * @param n 数据源名称
      * @return SQL 执行器
@@ -167,7 +187,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 获取默认数据源的 SQL 执行器，非 JDBC 数据源返回 null。
+      * 获取默认数据源的 SQL 执行器，非 JDBC 数据源返回 空。
      *
      * @return SQL 执行器
      */
@@ -180,7 +200,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      * 获取指定数据源的方言。
      *
      * @param n 数据源名称
-     * @return 方言实例，数据源不存在或非 SQL 数据源返回 null
+     * @return 方言实例，数据源不存在或非 SQL 数据源返回 空
      */
     @Override
     public Dialect getDialect(String n) {
@@ -189,7 +209,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 获取元数据操作入口，按默认数据源的协议自动加载对应的 MetaData 实现。
+      * 获取元数据操作入口，按默认数据源的协议自动加载对应的 meta数据 实现。
      *
      * <p>优先尝试通过 SPI 按 {@link Dialect#protocol()} 协议名查找注册的 MetaData 实现类，
      * 例如协议为 {@code "mysql"} 时加载 {@code MysqlMetaData}；
@@ -207,7 +227,9 @@ public abstract class JdbcEngine extends AbstractEngine {
                 if (md instanceof JdbcMetaData jdbcMd) {
                     jdbcMd.setDataSource(getJdbcDataSource());
                 }
-                if (md != null) return md;
+                if (md != null) {
+                    return md;
+                }
             } catch (Exception ignored) {
             }
         }
@@ -215,7 +237,8 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 获取默认数据源的 JDBC DataSource，失败返回 null。
+      * 获取默认数据源的 JDBC 数据源，失败返回 空。
+     * @return 获取jdbc数据源的结果
      */
     protected javax.sql.DataSource getJdbcDataSource() {
         try {
@@ -238,7 +261,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     // ==================== 更新 / 删除（真实 JDBC 执行） ====================
 
     /**
-     * 基于 JDBC 执行更新操作，生成 UPDATE 语句。
+      * 基于 JDBC 执行更新操作，生成 更新 语句。
      *
      * <p>表名取实体类简单名的小写形式，与 {@link #executeNewQuery} 保持一致。</p>
      *
@@ -268,7 +291,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     }
 
     /**
-     * 基于 JDBC 执行删除操作，生成 DELETE 语句。
+      * 基于 JDBC 执行删除操作，生成 删除 语句。
      *
      * <p>表名取实体类简单名的小写形式，与 {@link #executeNewQuery} 保持一致。</p>
      *
@@ -327,7 +350,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取当前方言提供的默认数据源方言实例。
      *
-     * @return 方言实例，数据源未配置或不可用时返回 null
+     * @return 方言实例，数据源未配置或不可用时返回 空
      */
     private Dialect dialect() {
         String name = getDefaultDataSourceName();
@@ -362,7 +385,7 @@ public abstract class JdbcEngine extends AbstractEngine {
      *
      * @param rs     结果集
      * @param labels 候选列名（按优先级排列）
-     * @return 列值，均不存在返回 null
+     * @return 列值，均不存在返回 空
      */
     private static String getString(ResultSet rs, String... labels) {
         for (String label : labels) {
@@ -381,7 +404,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取默认数据源下的所有触发器定义。
      *
-     * @param schema schema 名称，null 表示不限定
+     * @param schema 模式 名称，空 表示不限定
      * @return 触发器定义列表
      */
     public List<TriggerDefinition> getTriggers(String schema) {
@@ -408,8 +431,8 @@ public abstract class JdbcEngine extends AbstractEngine {
      * 获取指定触发器的定义。
      *
      * @param triggerName 触发器名
-     * @param schema      schema 名称，null 表示不限定
-     * @return 触发器定义，未找到返回 null
+     * @param schema      模式 名称，空 表示不限定
+     * @return 触发器定义，未找到返回 空
      */
     public TriggerDefinition getTrigger(String triggerName, String schema) {
         Dialect dialect = dialect();
@@ -433,7 +456,7 @@ public abstract class JdbcEngine extends AbstractEngine {
     /**
      * 获取默认数据源下的所有存储过程定义。
      *
-     * @param schema schema 名称，null 表示不限定
+     * @param schema 模式 名称，空 表示不限定
      * @return 存储过程定义列表
      */
     public List<ProcedureDefinition> getProcedures(String schema) {
@@ -460,8 +483,8 @@ public abstract class JdbcEngine extends AbstractEngine {
      * 获取指定存储过程的定义。
      *
      * @param procedureName 存储过程名
-     * @param schema        schema 名称，null 表示不限定
-     * @return 存储过程定义，未找到返回 null
+     * @param schema        模式 名称，空 表示不限定
+     * @return 存储过程定义，未找到返回 空
      */
     public ProcedureDefinition getProcedure(String procedureName, String schema) {
         Dialect dialect = dialect();
@@ -537,6 +560,7 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
      * 获取用户管理器入口，通过 SPI 按当前方言协议加载实现。
+     * @return 用户的结果
      */
     public UserManager user() {
         return resolveManager(UserManager.class);
@@ -544,6 +568,7 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
      * 获取索引管理器入口，通过 SPI 按当前方言协议加载实现。
+     * @return 索引的结果
      */
     public IndexManager index() {
         return resolveManager(IndexManager.class);
@@ -551,9 +576,20 @@ public abstract class JdbcEngine extends AbstractEngine {
 
     /**
      * 获取权限管理器入口，通过 SPI 按当前方言协议加载实现。
+     * @param clazz clazz
+     /**
+      * 权限。
+      * @return 权限的结果
+      */
+     * @return resolve管理器的结果
      */
     public PermissionManager permission() {
         return resolveManager(PermissionManager.class);
+    /**
+     * 当前dialect协议。
+     * @return 当前dialect协议的结果
+     * @param clazz clazz
+     */
     }
 
     private String currentDialectProtocol() {
@@ -570,10 +606,14 @@ public abstract class JdbcEngine extends AbstractEngine {
             String type = currentDialectProtocol();
             ServiceProvider<T> provider = ServiceProvider.of(clazz);
             T ext = provider.getExtension(type);
-            if (ext == null) return null;
+            if (ext == null) {
+                return null;
+            }
             if (ext instanceof DataSourceAware aware) {
                 javax.sql.DataSource ds = getJdbcDataSource();
-                if (ds != null) aware.setDataSource(ds);
+                if (ds != null) {
+                    aware.setDataSource(ds);
+                }
             }
             return ext;
         } catch (Exception e) {
@@ -613,7 +653,9 @@ public abstract class JdbcEngine extends AbstractEngine {
      * @return true 存在
      */
     public boolean databaseExists(String dbName) {
-        if (dbName == null || dbName.isBlank()) return false;
+        if (dbName == null || dbName.isBlank()) {
+            return false;
+        }
         try (Connection conn = getJdbcConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(
@@ -629,6 +671,21 @@ public abstract class JdbcEngine extends AbstractEngine {
      * 列出所有数据库。
      *
      * @return 数据库名列表
+     * @param name 名称
+     /**
+      * 列表databases。
+      * @return 列表databases的结果
+      */
+      * @param name 名称
+     /**
+      * 列表databases。
+      * @return 列表databases的结果
+      */
+      * @param name 名称
+     /**
+      * 列表databases。
+      * @return 列表databases的结果
+      */
      */
     public List<String> listDatabases() {
         List<String> result = new ArrayList<>();
@@ -649,6 +706,11 @@ public abstract class JdbcEngine extends AbstractEngine {
         return StringUtils.replace(name, "`", "``");
     }
 
+    /**
+     * escape字符串。
+     * @param s s
+     * @return escape字符串的结果
+     */
     private static String escapeString(String s) {
         if (StringUtils.isEmpty(s)) {
             return "";

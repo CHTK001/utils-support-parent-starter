@@ -19,8 +19,8 @@ public interface ProxyTargetResolver {
     /**
      * 根据连接信息解析后端地址。
      *
-     * @param remoteAddr 客户端地址（可为 null）
-     * @return Discovery 对象，返回 null 表示无法解析
+     * @param remoteAddr 客户端地址（可为 空）
+     * @return Discovery 对象，返回 空 表示无法解析
      */
     Discovery resolve(InetSocketAddress remoteAddr);
 }

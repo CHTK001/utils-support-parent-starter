@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>使用 Playwright 重新渲染已抓取的 HTML 内容，
  * 提取 JS 执行后的页面标题和纯文本。
- * 适用于 SPA 或动态页面内容的提取。
+   * 适用于 水疗中心 或动态页面内容的提取。
  *
  * <p>SPI 名称：{@code playwright}，配合 {@link PlaywrightFetcher} 使用。
  * 内部持有 Playwright 浏览器实例，{@link #close()} 可释放资源。
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PlaywrightParser implements SpiderParser {
 
     /**
-     * supported types
+      * 支持 类型
      */
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
@@ -46,7 +46,7 @@ public class PlaywrightParser implements SpiderParser {
     private final Browser browser;
 
     /**
-     * 默认构造器，启动 Chromium 浏览器。
+      * 默认构造器，启动 铬 浏览器。
      */
     public PlaywrightParser() {
         this.playwright = Playwright.create();
@@ -103,7 +103,7 @@ public class PlaywrightParser implements SpiderParser {
     }
 
     @Override
-    /** SupportedContentTypes */
+    /** 支持内容类型 */
     public String[] supportedContentTypes() {
         return SUPPORTED_TYPES;
     }

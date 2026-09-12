@@ -69,28 +69,28 @@ public final class ModelCapabilities {
     /** Face_recognize */
     public static final String FACE_RECOGNIZE = "face-recognize";
     /** 特征提取（图像/文本） */
-    /** Feature */
+    /** 特征 */
     public static final String FEATURE = "feature";
     /** 图像分类 */
     /** Classify */
     public static final String CLASSIFY = "classify";
     /** 图像检测（目标/物体） */
-    /** Image_detect */
+    /** 镜像_detect */
     public static final String IMAGE_DETECT = "image-detect";
-    /** 图像增强（超分/上色/风格等 Image→Image） */
-    /** Enhance */
+    /** 图像增强（超分/上色/风格等 镜像→镜像） */
+    /** 增强 */
     public static final String ENHANCE = "enhance";
     /** 图像分割 */
     /** Segment */
     public static final String SEGMENT = "segment";
     /** 图像质量评估 */
-    /** Image_quality */
+    /** 镜像_quality */
     public static final String IMAGE_QUALITY = "image-quality";
-    /** 图像描述（Image Captioning） */
+    /** 图像描述（镜像 Captioning） */
     /** Captioning */
     public static final String CAPTIONING = "captioning";
     /** 图像生成 */
-    /** Image_generate */
+    /** 镜像_generate */
     public static final String IMAGE_GENERATE = "image-generate";
     /** 深度估计 */
     /** 深度 */
@@ -111,16 +111,16 @@ public final class ModelCapabilities {
     /** Pose */
     public static final String POSE = "pose";
     /** 嵌入（文本/图像向量化） */
-    /** Embedding */
+    /** 嵌入 */
     public static final String EMBEDDING = "embedding";
     /** 文本翻译 */
     /** Translate */
     public static final String TRANSLATE = "translate";
     /** 车牌检测 */
-    /** Plate_detect */
+    /** 铭牌_detect */
     public static final String PLATE_DETECT = "plate-detect";
     /** 车牌识别 */
-    /** Plate_recognize */
+    /** 铭牌_recognize */
     public static final String PLATE_RECOGNIZE = "plate-recognize";
     /** 语音识别 ASR */
     /** ASR */
@@ -129,7 +129,7 @@ public final class ModelCapabilities {
     /** TTS */
     public static final String TTS = "tts";
     /** 音频指纹提取（语音特征向量） */
-    /** Audio_fingerprint */
+    /** 音频_fingerprint */
     public static final String AUDIO_FINGERPRINT = "audio-fingerprint";
     /** 说话人分离（时间切分） */
     /** Speaker_diarization */
@@ -138,25 +138,25 @@ public final class ModelCapabilities {
     // ==================== 云端 AI 客户端能力标签 ====================
 
     /** 对话/大模型 */
-    /** Chat */
+    /** 对话 */
     public static final String CHAT = "chat";
     /** 视觉理解（多模态图像理解） */
     /** Vision */
     public static final String VISION = "vision";
     /** 文生图 */
-    /** Text_to_image */
+    /** 文本_转为_镜像 */
     public static final String TEXT_TO_IMAGE = "text-to-image";
     /** 文生视频 */
-    /** Text_to_video */
+    /** 文本_转为_视频 */
     public static final String TEXT_TO_VIDEO = "text-to-video";
     /** 文本嵌入 */
-    /** Text_embedding */
+    /** 文本_嵌入 */
     public static final String TEXT_EMBEDDING = "text-embedding";
     /** RAG 检索增强 */
     /** RAG */
     public static final String RAG = "rag";
-    /** Agent 智能体 */
-    /** Agent */
+    /** 智能体 智能体 */
+    /** 智能体 */
     public static final String AGENT = "agent";
 
     /**
@@ -199,15 +199,15 @@ public final class ModelCapabilities {
             Map.entry(SpeakerDiarizer.class, SPEAKER_DIARIZATION)
     );
 
-    /** 创建 ModelCapabilities 实例 */
+    /** 创建 模型capabilities 实例 */
     private ModelCapabilities() {
     }
 
     /**
      * 将能力接口映射为能力标签。
      *
-     * @param capabilityInterface 能力接口，可能为 null
-     * @return 能力标签；无法识别返回 null
+     * @param capabilityInterface 能力接口，可能为 空
+     * @return 能力标签；无法识别返回 空
      */
     public static String labelOf(Class<?> capabilityInterface) {
         if (capabilityInterface == null) {
@@ -217,7 +217,7 @@ public final class ModelCapabilities {
         if (label != null) {
             return label;
         }
-        // 支持子类型：遍历映射找 isAssignableFrom
+ // 支持子类型：遍历映射找 是否assignable从
         for (Map.Entry<Class<?>, String> entry : CAPABILITY_LABELS.entrySet()) {
             if (entry.getKey().isAssignableFrom(capabilityInterface)) {
                 return entry.getValue();

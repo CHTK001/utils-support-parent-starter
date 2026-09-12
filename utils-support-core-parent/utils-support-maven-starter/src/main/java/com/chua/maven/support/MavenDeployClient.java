@@ -46,6 +46,11 @@ import java.util.List;
  *     })
  *     .deployTo(new LocalDeployTarget("/opt/app"));
  * }</pre>
+ *             System.out.println("部署到: " + paths);
+ *         }
+ *     })
+   * .deploy转为(新 本地deployTarget("/opt/app"));
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -66,8 +71,8 @@ public class MavenDeployClient {
     private MavenDeployCallback deployCallback;
 
     /**
-     * 创建 MavenDeployClient 实例
-     * @param result result
+      * 创建 mavendeploy客户端 实例
+     * @param result 结果
      */
     public MavenDeployClient(MavenCompileResult result) {
         this.result = result;
@@ -117,7 +122,7 @@ public class MavenDeployClient {
     /**
      * 部署到指定目标
      *
-     * @param target 部署目标（如 LocalDeployTarget、SshDeployTarget）
+     * @param target 部署目标（如 本地deployTarget、sshdeployTarget）
      * @return 部署后的文件列表（目标路径）
      */
     public List<String> deployTo(MavenDeployTarget target) {
@@ -173,7 +178,7 @@ public class MavenDeployClient {
     // ==================== 快捷部署方法 ====================
 
     /**
-     * 部署到本地目录（快捷方式，每次创建新 LocalDeployTarget）
+      * 部署到本地目录（快捷方式，每次创建新 本地deployTarget）
      *
      * @param targetDir 目标目录
      * @return 部署后的文件列表
@@ -244,7 +249,11 @@ public class MavenDeployClient {
 
     // ==================== 回调通知 ====================
 
-    /** 通知开始 */
+    /**
+     * 通知开始
+     *
+     * @param info 信息
+     */
     private void notifyStart(String info) {
         if (deployCallback != null) {
             try {
@@ -255,7 +264,12 @@ public class MavenDeployClient {
         }
     }
 
-    /** 通知Progress */
+    /**
+     * 通知进步
+     *
+     * @param message 消息
+     * @param percent percent
+     */
     private void notifyProgress(String message, int percent) {
         if (deployCallback != null) {
             try {
@@ -266,7 +280,11 @@ public class MavenDeployClient {
         }
     }
 
-    /** 通知Success */
+    /**
+     * 通知成功
+     *
+     * @param deployedPaths deployed路径
+     */
     private void notifySuccess(List<String> deployedPaths) {
         if (deployCallback != null) {
             try {
@@ -277,7 +295,11 @@ public class MavenDeployClient {
         }
     }
 
-    /** 通知Failure */
+    /**
+     * 通知失败
+     *
+     * @param exception 异常
+     */
     private void notifyFailure(Exception exception) {
         if (deployCallback != null) {
             try {

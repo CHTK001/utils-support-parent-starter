@@ -48,18 +48,18 @@ public class DefaultLogoResolver implements LogoResolver {
 
 
     /**
-     * 根据提供的Logo风格格式化QrCodeGenWrapper的构建器设置。
+      * 根据提供的Logo风格格式化qr编码gen包装器的构建器设置。
      *
-     * @param builder QrCodeGenWrapper的构建器对象，设置Logo风格
-     * @param logoStyle 待设置的Logo风格，枚举类型LogoStyle
+     * @param builder qr编码gen包装器的构建器对象，设置Logo风格
+     * @param logoStyle 待设置的Logo风格，枚举类型logostyle
      *                  可以是圆形(CIRCLE)或矩形(ROUND)。
      *
-     * 根据传入的logoStyle参数决定设置圆形还是矩形的Logo风格。
-     * 如果logoStyle为圆形，则设置为圆形Logo风格；
+      * 根据传入的logostyle参数决定设置圆形还是矩形的Logo风格。
+      * 如果logostyle为圆形，则设置为圆形Logo风格；
      * 否则，默认设置为矩形Logo风格。
      */
     private void formatLogoStyle(QrCodeOptions.LogoOptions.LogoOptionsBuilder builder, LogoStyle logoStyle) {
-        // 验证logoStyle是否为null，若为null则抛出NullPointerException
+ // 验证logostyle是否为空，若为空则抛出空pointer异常
         if (Objects.requireNonNull(logoStyle) == LogoStyle.CIRCLE) {
             builder.logoStyle(QrCodeOptions.LogoStyle.CIRCLE);
             return;

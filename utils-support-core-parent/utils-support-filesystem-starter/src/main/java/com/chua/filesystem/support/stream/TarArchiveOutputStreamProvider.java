@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import javax.annotation.Nullable;
 
 /**
- * TAR格式归档输出流提供者
+   * 焦油格式归档输出流提供者
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 public class TarArchiveOutputStreamProvider implements CompressArchiveOutputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -29,13 +29,13 @@ public class TarArchiveOutputStreamProvider implements CompressArchiveOutputStre
     }
 
     @Override
-    /** 创建OutputStream */
+    /** 创建输出流 */
     public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
         return new TarArchiveOutputStream(outputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "tar";
     }

@@ -46,7 +46,7 @@ public class SpiderResponse {
      * <p>服务端返回的 HTTP 响应头键值对。
      */
     @Builder.Default
-    private Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers = new HashMap<>(); // 头部
 
     /**
      * 原始内容字节数组。
@@ -60,7 +60,7 @@ public class SpiderResponse {
      * 原始内容文本。
      *
      * <p>将 rawContent 按响应头的字符集解码后的文本字符串。
-     * 供 Parser 和 LinkExtractor 直接使用。
+      * 供 Parser 和 链接extractor 直接使用。
      */
     private String content;
 
@@ -76,7 +76,7 @@ public class SpiderResponse {
      * 字符集编码。
      *
      * <p>响应内容的字符集编码，如 "UTF-8"、"GBK" 等。
-     * 用于将 rawContent 正确解码为文本。
+      * 用于将 raw内容 正确解码为文本。
      */
     private String charset;
 

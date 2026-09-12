@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * pip 软件包管理器提供器。
  *
  * <p>通过 pip CLI 搜索、安装和卸载 Python 软件包。
- * 支持 <code>pip search</code>（已废弃，使用 pip install 试探）、
+   * 支持 <code>pip 搜索</code>（已废弃，使用 pip install 试探）、
  * <code>pip install</code>、<code>pip uninstall</code>。
  *
  * @author CH
@@ -33,7 +33,7 @@ public class PipSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "pip";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -43,21 +43,21 @@ public class PipSoftwareProvider implements SoftwareProvider {
     public List<SoftwareInfo> search(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
 
-        // pip search 已被 PyPI 禁用，改用 pip index versions 或 pip install --dry-run 试探
-        // 尝试通过 pip install --dry-run --report 获取信息
+ // pip 搜索 已被 pypi 禁用，改用 pip 索引 版本 或 pip install --dry-运行 试探
+ // 尝试通过 pip install --dry-运行 --report 获取信息
         String cmd = "pip install --dry-run --report - " + keyword + " 2>&1";
         log.info("pip 搜索: keyword={}", keyword);
 
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("pip 搜索完成, exitCode={}", exitCode);
             }
@@ -92,17 +92,24 @@ public class PipSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -118,7 +125,12 @@ public class PipSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析PipOutput */
+    /**
+     * 解析pip输出
+     *
+     * @param output 输出
+     * @return 解析pip输出的结果
+     */
     private List<SoftwareInfo> parsePipOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {

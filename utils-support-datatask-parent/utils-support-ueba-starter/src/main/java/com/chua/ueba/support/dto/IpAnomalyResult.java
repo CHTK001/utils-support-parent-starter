@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * IP 异常检测结果 DTO。
  * <p>
- * AutoEncoder 推理后输出的单条 IP 事件异常评分与标签。
+   * auto编码器 推理后输出的单条 IP 事件异常评分与标签。
  * </p>
  *
  * @author CH
@@ -22,7 +22,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class IpAnomalyResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 被分析的 IP 地址
@@ -30,7 +30,7 @@ public class IpAnomalyResult implements Serializable {
     private String ip;
 
     /**
-     * 重建误差（reconstruction error），越大越异常
+      * 重建误差（reconstruction 错误），越大越异常
      */
     private double reconstructionError;
 
@@ -56,6 +56,8 @@ public class IpAnomalyResult implements Serializable {
 
     /**
      * 异常等级枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum AnomalyLevel {
         NORMAL, LOW, MEDIUM, HIGH, CRITICAL

@@ -46,6 +46,8 @@ import java.util.stream.Stream;
  *
  * // 下载文件
  * GetObjectResult result = storage.getObject("docs/test.txt");
+ * }</pre>件
+ * GetObjectResult result = storage.getObject("docs/test.txt");
  * }</pre>
  *
  * @author CH
@@ -54,12 +56,12 @@ import java.util.stream.Stream;
 @Spi({"filesystem", "file", "local"})
 public class FileSystemFileStorage extends AbstractFileStorage {
 
-    /** Base路径 */
+    /** 基础路径 */
     private final Path basePath;
 
     /**
-     * 创建 FileSystemFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 文件系统文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public FileSystemFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -70,7 +72,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         ensureBasePath();
     }
 
-    /** EnsureBasePath */
+    /** ensurebase路径 */
     private void ensureBasePath() {
         try {
             Files.createDirectories(basePath);
@@ -79,12 +81,22 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         }
     }
 
-    /** 解析Path */
+    /**
+     * 解析路径
+     *
+     * @param key 键
+     * @return resolve路径的结果
+     */
     private Path resolvePath(String key) {
         return basePath.resolve(key).normalize();
     }
 
-    /** 构建Key */
+    /**
+     * 构建键
+     *
+     * @param request 请求
+     * @return 构建键的结果
+     */
     private String buildKey(PutObjectRequest request) {
         String path = request.getFilePath();
         String name = request.getFileName();
@@ -94,7 +106,12 @@ public class FileSystemFileStorage extends AbstractFileStorage {
         return name;
     }
 
-    /** 构建Key */
+    /**
+     * 构建键
+     *
+     * @param request 请求
+     * @return 构建键的结果
+     */
     private String buildKey(GetObjectRequest request) {
         String path = request.getFilePath();
         String name = request.getFileName();
@@ -105,7 +122,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = buildKey(request);
@@ -132,7 +149,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = buildKey(request);
@@ -169,7 +186,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -177,7 +194,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             Path target = resolvePath(key);
@@ -194,7 +211,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             String key = request.getKey();
@@ -212,7 +229,7 @@ public class FileSystemFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String filePath = request.getFilePath();

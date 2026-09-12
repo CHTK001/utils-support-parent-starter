@@ -18,7 +18,7 @@ import java.util.List;
 public class PluginManager {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginManager.class.getName());
     /**
@@ -42,17 +42,18 @@ public class PluginManager {
     private Object runtimeManager;
 
     /**
-     * 创建 PluginManager 实例
-     * @param pluginRoot pluginRoot
+      * 创建 plugin管理器 实例
+     * @param pluginRoot plugin根
      */
     public PluginManager(Path pluginRoot) {
         this(pluginRoot, ClassLoader.getSystemClassLoader());
     }
 
     /**
-     * 创建 PluginManager 实例
-     * @param pluginRoot pluginRoot
-     * @param ClassLoader ClassLoader
+      * 创建 plugin管理器 实例
+     * @param pluginRoot plugin根
+     * @param parentLoader 类加载
+     * @param parentLoader 父加载
      */
     public PluginManager(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
@@ -143,17 +144,29 @@ public class PluginManager {
         }
     }
 
-    /** 获取PluginRoot */
+    /**
+     * 获取plugin根
+     *
+     * @return 获取plugin根的结果
+     */
     public Path getPluginRoot() {
         return pluginRoot;
     }
 
-    /** 获取Registry */
+    /**
+     * 获取Registry
+     *
+     * @return 获取registry的结果
+     */
     public PluginRegistry getRegistry() {
         return registry;
     }
 
-    /** 获取大小 */
+    /**
+     * 获取大小
+     *
+     * @return 大小的结果
+     */
     public int size() {
         return registry.size();
     }

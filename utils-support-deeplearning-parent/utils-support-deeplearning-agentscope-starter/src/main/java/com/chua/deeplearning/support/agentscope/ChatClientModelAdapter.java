@@ -32,16 +32,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+/**
+ * 对话客户端模型适配器类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 public class ChatClientModelAdapter implements Model {
 
-    private static final Logger log = LoggerFactory.getLogger(ChatClientModelAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(ChatClientModelAdapter.class); // 日志
 
-    private final ChatClient chatClient;
-    private final String modelName;
-    /** 复用 OpenAIClient 实例，避免每次调用新建连接 */
+    private final ChatClient chatClient; // 对话客户端
+    private final String modelName; // 模型名称
+    /**
+     * 复用 打开AI客户端 实例，避免每次调用新建连接
+     *
+     /**
+      * 对话客户端模型适配器。
+      * @param chatClient 对话客户端
+      * @param modelName 模型名称
+      */
+     * @param params 参数
+     * @return 转为json值映射的结果
+     * @param json json
+     * @param messages 消息
+     * @param tools tools
+     /**
+      * 获取打开AI客户端。
+      * @return 获取打开AI客户端的结果
+      */
+     * @param options 期权
+     */
     private volatile OpenAIClient openAiClient;
 
+    /**
+     * 对话客户端模型适配器。
+     * @param chatClient 对话客户端
+     * @param modelName 模型名称
+     */
     public ChatClientModelAdapter(ChatClient chatClient, String modelName) {
         this.chatClient = chatClient;
         this.modelName = modelName != null ? modelName : "chat-client";
@@ -132,6 +161,14 @@ public class ChatClientModelAdapter implements Model {
         }
 
         ChatResponse response = ChatResponse.builder()
+                /**
+                  * callwithtools。
+                 * @param prompt 提示符
+                 * @param history 历史
+                 * @param tools tools
+                 * @param systemPrompt 系统提示符
+                 * @return callWithTools的结果
+                 */
                 .content(List.of(TextBlock.builder().text(responseText).build()))
                 .finishReason("stop")
                 .build();
@@ -205,10 +242,22 @@ public class ChatClientModelAdapter implements Model {
 
         String content = message.content().orElse("");
         return ChatResponse.builder()
+                /**
+                 * 构建tools提示符。
+                 * @param tools tools
+                 * @return 构建tools提示符的结果
+                 * @param params 参数
+                 * @param json json
+                 */
                 .id(completion.id())
                 .content(List.of(TextBlock.builder().text(content).build()))
                 .finishReason("stop")
                 .build();
+    /**
+     * 构建tools提示符。
+     * @param tools tools
+     * @return 构建tools提示符的结果
+     */
     }
 
     private String buildToolsPrompt(List<ToolSchema> tools) {

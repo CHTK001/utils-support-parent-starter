@@ -23,27 +23,27 @@ public class RuntimeCommand implements Command {
     private static final String CMD_NAME = "runtime";
 
     /**
-     * "list" 子命令
+      * "列表" 子命令
      */
     private static final String SUB_LIST = "list";
 
     /**
-     * "start" 子命令
+      * "启动" 子命令
      */
     private static final String SUB_START = "start";
 
     /**
-     * "stop" 子命令
+      * "停止" 子命令
      */
     private static final String SUB_STOP = "stop";
 
     /**
-     * "status" 子命令
+      * "状态" 子命令
      */
     private static final String SUB_STATUS = "status";
 
     /**
-     * "log" 子命令
+      * "日志" 子命令
      */
     private static final String SUB_LOG = "log";
 
@@ -67,7 +67,7 @@ public class RuntimeCommand implements Command {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return CMD_NAME;
     }
@@ -186,7 +186,7 @@ public class RuntimeCommand implements Command {
         String id = args[1];
         manager.tailLog(id, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 console.println(line);
             }

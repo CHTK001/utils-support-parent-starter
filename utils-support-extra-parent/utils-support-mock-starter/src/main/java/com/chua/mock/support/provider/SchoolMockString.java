@@ -70,6 +70,8 @@ public class SchoolMockString implements MockString {
     };
     /**
      * 学校可覆盖的学段池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] STAGES = {
             "幼儿园", "小学", "初中", "高中", "大专", "本科"

@@ -1,7 +1,7 @@
 package com.chua.common.support.status;
 
 /**
- * 服务器运行状态枚举，标记 STARTING / RUNNING / STOPPING / STOPPED / PAUSED / ERROR 六种生命周期阶段。
+   * 服务器运行状态枚举，标记 启动 / RUNNING / STOPPING / STOPPED / PAUSED / 错误 六种生命周期阶段。
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ public enum ServerStatus {
      */
     STARTING {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -24,7 +24,7 @@ public enum ServerStatus {
      */
     RUNNING {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return true;
         }
@@ -35,7 +35,7 @@ public enum ServerStatus {
      */
     STOPPING {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -46,7 +46,7 @@ public enum ServerStatus {
      */
     STOPPED {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -57,7 +57,7 @@ public enum ServerStatus {
      */
     PAUSED {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }
@@ -68,7 +68,7 @@ public enum ServerStatus {
      */
     ERROR {
         @Override
-        /** 是否可以AcceptRequests */
+        /** 是否可以acceptRequests */
         public boolean canAcceptRequests() {
             return false;
         }

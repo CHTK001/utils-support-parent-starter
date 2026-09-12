@@ -18,25 +18,25 @@ import java.util.List;
 
 
 /**
- * DocLayout-YOLO                               DocStructBench             
+   * doclayout-YOLO                               docstructbench
  * <p>
- *        YOLOv10                                                                               
+   * yolov10
  *                https://github.com/opendatalab/DocLayout-YOLO
  *                https://github.com/RapidAI/RapidLayout
- *             DocStructBench
+   * docstructbench
  * <p>
- * DocLayout-YOLO                                                                    YOLOv10          
+   * doclayout-YOLO                                                                    yolov10
  *                                                                                     
  * <p>
- * YOLOv10                            
+   * yolov10
  * -        shape: [1, num_boxes, 6]        [1, 300, 6]
- * -                : [x1, y1, x2, y2, confidence, class_id]
+   * -                : [x1, y1, x2, y2, 信心, 类_标识]
  * -                                              
- * - YOLOv10        NMS                                    
+   * - yolov10        NMS
  * <p>
  *                         10         
  * - title:       
- * - plain text:       /         
+   * - plain 文本:       /
  * - abandon:             /      
  * - figure:       
  * - figure_caption:             
@@ -48,7 +48,7 @@ import java.util.List;
  * <p>
  *                
  * -                                   1024x1024   
- * -        DocStructBench                
+   * -        docstructbench
  * -                                                                                     
  * -        NMS                  
  * <p>
@@ -59,14 +59,14 @@ import java.util.List;
  * -        OCR          
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025/11/28
  */
 @Slf4j
 public class DocLayoutYoloTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * DocStructBench                               
+      * docstructbench
      *          https://github.com/RapidAI/RapidLayout
      *          https://github.com/opendatalab/DocLayout-YOLO
      * <p>
@@ -86,7 +86,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     );
 
     /**
-     *                      DocLayout-YOLO        1024   
+      * doclayout-YOLO        1024
      */
     private static final int DEFAULT_INPUT_SIZE = 1280;
 
@@ -195,7 +195,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             log.debug("                  : {}x{}", imageWidth, imageHeight);
         }
 
-        // 提取 BufferedImage，AWT 缩放至 inputSize（规避 DJL Image.resize 走 NDArray）
+ // 提取 缓冲镜像，AWT 缩放至 输入大小（规避 DJL 镜像.resize 走 ndarray）
         Object wrapped = input.getWrappedImage();
         java.awt.image.BufferedImage src = wrapped instanceof java.awt.image.BufferedImage b
                 ? b
@@ -224,13 +224,13 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     /**
      *                   
      * <p>
-     * YOLOv10                       NMS      
+      * yolov10                       NMS
      * -        shape: [1, num_boxes, 6]        [1, 300, 6]
-     * -                : [x1, y1, x2, y2, confidence, class_id]
+      * -                : [x1, y1, x2, y2, 信心, 类_标识]
      * -                                              
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return             
      * @throws Exception             
      */
@@ -240,7 +240,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             log.debug("             DocLayout-YOLO             ");
         }
 
-        // 输出 [1, num_boxes, 6]，用 toFloatArray 手动索引（规避 squeeze/get 不支持）
+ // 输出 [1, num_boxes, 6]，用 转为floatarray 手动索引（规避 squeeze/获取 不支持）
         NDArray output = list.get(0);
         long[] shape = output.getShape().getShape();
         int dims = shape.length;
@@ -254,7 +254,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
 
         for (int i = 0; i < numBoxes; i++) {
             int base = i * (int) numFeatures;
-            // YOLOv10 输出: [x1, y1, x2, y2, confidence, class_id]
+ // yolov10 输出: [x1, y1, x2, y2, 信心, 类_标识]
             float x1 = flat[base];
             float y1 = flat[base + 1];
             float x2 = flat[base + 2];
@@ -267,7 +267,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 continue;
             }
 
-            //             ID         
+ // 标识
             if (classId < 0 || classId >= classes.size()) {
                 if (log.isDebugEnabled()) {
                     log.debug("                  ID: classId={},             ={}", classId, classes.size());
@@ -283,7 +283,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
                 continue;
             }
 
-            //                       [0, inputSize]
+ // [0, 输入大小]
             x1 = Math.max(0, Math.min(inputSize, x1));
             y1 = Math.max(0, Math.min(inputSize, y1));
             x2 = Math.max(0, Math.min(inputSize, x2));

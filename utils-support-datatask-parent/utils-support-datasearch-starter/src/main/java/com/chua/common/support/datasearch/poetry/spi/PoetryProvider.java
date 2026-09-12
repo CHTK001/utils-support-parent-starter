@@ -8,7 +8,7 @@ import java.util.List;
  * 古诗词数据提供者 SPI 接口。
  *
  * <p>封装中国古典诗词的随机、作者检索与关键词搜索能力。
- * 各实现通过 SPI 机制注册，例如基于 chinese-poetry 全唐诗语料的在线数据源。
+   * 各实现通过 SPI 机制注册，例如基于 chinese-Poetry 全唐诗语料的在线数据源。
  *
  * @author CH
  * @since 4.0.0.42

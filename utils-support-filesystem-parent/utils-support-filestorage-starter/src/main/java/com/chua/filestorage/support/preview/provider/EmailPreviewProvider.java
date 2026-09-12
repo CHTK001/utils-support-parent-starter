@@ -19,11 +19,16 @@ import java.util.regex.Pattern;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param eml eml
+ * @return 解析eml的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-email")
 public class EmailPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("eml", "msg");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("eml", "msg"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -93,12 +98,26 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
         // 移除 HTML 标签
         bodyText = bodyText.replaceAll("<[^>]+>", "");
         // 截断
+    /**
+     * email信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         if (bodyText.length() > 2000) {
             bodyText = bodyText.substring(0, 2000) + "...";
         }
 
         info.body = bodyText;
         return info;
+    /**
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(EmailInfo info, long fileSize) {
@@ -146,24 +165,38 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
 
         sb.append("</div></body></html>");
         return sb.toString();
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class EmailInfo {
-        String subject;
-        String from;
-        String to;
-        String date;
-        String body = "";
+        String subject; // 主题
+        String from; // 从
+        String to; // 转为
+        String date; // 日期
+        String body = ""; // 主体
     }
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * H2 数据清理插件，提供测试环境的 Schema 和数据清理能力。
+   * H2 数据清理插件，提供测试环境的 模式 和数据清理能力。
  * <p>
  * 清理顺序：删除所有全文索引 → 删除所有用户表 → 重置序列。
  * </p>
@@ -46,7 +46,7 @@ public class H2CleanupPlugin {
             conn.setAutoCommit(false);
             int count = 0;
 
-            // 1. 删除所有用户索引（H2 2.x 无 TEXT 索引）
+ // 1. 删除所有用户索引（H2 2.x 无 文本 索引）
             dropAllUserIndexes(conn);
 
             // 2. 删除所有用户表（排除系统表）
@@ -113,6 +113,10 @@ public class H2CleanupPlugin {
         }
     }
 
+    /**
+     * 获取connection。
+     * @return 获取connection的结果
+     */
     private Connection getConnection() throws SQLException {
         DataSource ds = getDataSource();
         if (ds == null) {
@@ -122,13 +126,19 @@ public class H2CleanupPlugin {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * 获取数据源。
+     * @return 获取数据源的结果
+     */
     private DataSource getDataSource() {
         var dsObj = engine.getDataSource();
         return dsObj != null ? (DataSource) dsObj.getSource() : null;
     }
 
     /**
-     * 删除所有用户索引（H2 2.x 无 TEXT 索引，按普通索引清理）。
+      * 删除所有用户索引（H2 2.x 无 文本 索引，按普通索引清理）。
+     * @param conn conn
+     * @return 掉落全部用户索引的结果
      */
     private int dropAllUserIndexes(Connection conn) throws SQLException {
         List<String> indexes = new ArrayList<>();
@@ -149,6 +159,8 @@ public class H2CleanupPlugin {
     /**
      * 获取所有用户表名（排除系统表）。
      * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
+     * @param conn conn
+     * @return 获取用户table名称的结果
      */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
@@ -169,6 +181,8 @@ public class H2CleanupPlugin {
 
     /**
      * 删除所有用户表。
+     * @param conn conn
+     * @return 掉落全部用户tables的结果
      */
     private int dropAllUserTables(Connection conn) throws SQLException {
         List<String> tables = getUserTableNames(conn);
@@ -180,6 +194,8 @@ public class H2CleanupPlugin {
 
     /**
      * 删除指定表。
+     * @param conn conn
+     * @param tableName table名称
      */
     private void dropTable(Connection conn, String tableName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
@@ -191,6 +207,8 @@ public class H2CleanupPlugin {
 
     /**
      * 删除指定索引。
+     * @param conn conn
+     * @param indexName 索引名称
      */
     private void dropIndex(Connection conn, String indexName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {

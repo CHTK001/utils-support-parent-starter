@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 @Slf4j
 public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProvider {
 
-    /** Mapper */
+    /** 映射器 */
     protected static final ObjectMapper MAPPER = new ObjectMapper();
     /** Desktop_ua */
     protected static final String DESKTOP_UA =
@@ -38,25 +38,36 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     /** Mobile_ua */
     protected static final String MOBILE_UA =
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
-    /** Default_connect_timeout_millis */
+    /** 默认_连接_超时_millis */
     private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10_000;
-    /** Default_read_timeout_millis */
+    /** 默认_读取_超时_millis */
     private static final int DEFAULT_READ_TIMEOUT_MILLIS = 20_000;
-    /** Connect_timeout_property */
+    /** 连接_超时_财产 */
     private static final String CONNECT_TIMEOUT_PROPERTY = "music.http.connect-timeout-millis";
-    /** Connect_timeout_env */
+    /** 连接_超时_env */
     private static final String CONNECT_TIMEOUT_ENV = "MUSIC_HTTP_CONNECT_TIMEOUT_MILLIS";
-    /** Read_timeout_property */
+    /** 读取_超时_财产 */
     private static final String READ_TIMEOUT_PROPERTY = "music.http.read-timeout-millis";
-    /** Read_timeout_env */
+    /** 读取_超时_env */
     private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
-    /** 获取Json */
+    /**
+     * 获取Json
+     *
+     * @param url url
+     * @return 获取json的结果
+     */
     protected JsonNode getJson(String url) {
         return getJson(url, null);
     }
 
-    /** 获取Json */
+    /**
+     * 获取Json
+     *
+     * @param url url
+     * @param customizer customizer
+     * @return 获取json的结果
+     */
     protected JsonNode getJson(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -74,12 +85,23 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
-    /** 获取Text */
+    /**
+     * 获取文本
+     *
+     * @param url url
+     * @return 获取文本的结果
+     */
     protected String getText(String url) {
         return getText(url, null);
     }
 
-    /** 获取Text */
+    /**
+     * 获取文本
+     *
+     * @param url url
+     * @param customizer customizer
+     * @return 获取文本的结果
+     */
     protected String getText(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -97,7 +119,14 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
-    /** PostJson */
+    /**
+     * postjson
+     *
+     * @param url url
+     * @param body 主体
+     * @param customizer customizer
+     * @return postJson的结果
+     */
     protected JsonNode postJson(String url, Object body, Consumer<HttpClientBuilder> customizer) {
         String jsonBody;
         try {
@@ -123,7 +152,14 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
-    /** PostForm */
+    /**
+     * postform
+     *
+     * @param url url
+     * @param form form
+     * @param customizer customizer
+     * @return postForm的结果
+     */
     protected JsonNode postForm(String url, Map<String, ?> form, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -148,7 +184,13 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
-    /** 获取Response */
+    /**
+     * 获取响应
+     *
+     * @param url url
+     * @param customizer customizer
+     * @return 获取响应的结果
+     */
     protected ClientResponse getResponse(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -166,7 +208,13 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         }
     }
 
-    /** OverviewOf */
+    /**
+     * overview的
+     *
+     * @param hotKeywords hotkeywords
+     * @param featuredPlaylists 特征playlists
+     * @return overview的的结果
+     */
     protected MusicOverview overviewOf(List<String> hotKeywords, List<MusicPlaylistSummary> featuredPlaylists) {
         return MusicOverview.builder()
                 .hotKeywords(hotKeywords == null ? List.of() : hotKeywords)
@@ -174,7 +222,16 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
                 .build();
     }
 
-    /** 搜索Result */
+    /**
+     * 搜索结果
+     *
+     * @param keyword keyword
+     * @param page page
+     * @param pageSize page大小
+     * @param total total
+     * @param tracks tracks
+     * @return 搜索结果的结果
+     */
     protected MusicSearchResult searchResult(String keyword, int page, int pageSize, long total, List<MusicTrackSummary> tracks) {
         return MusicSearchResult.builder()
                 .source(getSource().getCode())
@@ -186,25 +243,49 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
                 .build();
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param node 节点
+     * @param fields 字段
+     * @return 文本的结果
+     */
     protected String text(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? "" : current.asText("");
     }
 
-    /** Integer */
+    /**
+     * Integer
+     *
+     * @param node 节点
+     * @param fields 字段
+     * @return integer的结果
+     */
     protected int integer(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0 : current.asInt(0);
     }
 
-    /** LongValue */
+    /**
+     * long值
+     *
+     * @param node 节点
+     * @param fields 字段
+     * @return long值的结果
+     */
     protected long longValue(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0L : current.asLong(0L);
     }
 
-    /** Path */
+    /**
+     * 路径
+     *
+     * @param node 节点
+     * @param fields 字段
+     * @return 路径的结果
+     */
     protected JsonNode path(JsonNode node, String... fields) {
         JsonNode current = node;
         for (String field : fields) {
@@ -216,7 +297,12 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return current;
     }
 
-    /** Elements */
+    /**
+     * Elements
+     *
+     * @param node 节点
+     * @return elements的结果
+     */
     protected List<JsonNode> elements(JsonNode node) {
         if (node == null || !node.isArray()) {
             return List.of();
@@ -226,12 +312,22 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return result;
     }
 
-    /** 编码 */
+    /**
+     * 编码
+     *
+     * @param value 值
+     * @return encode的结果
+     */
     protected String encode(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
 
-    /** FirstNonBlank */
+    /**
+     * 第一个nonblank
+     *
+     * @param values 值
+     * @return 第一个nonblank的结果
+     */
     protected String firstNonBlank(String... values) {
         for (String value : values) {
             if (StringUtils.hasText(value)) {
@@ -241,24 +337,44 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         return "";
     }
 
-    /** AssertOk */
+    /**
+     * 断言ok
+     *
+     * @param response 响应
+     * @param url url
+     */
     protected void assertOk(ClientResponse response, String url) {
         if (response == null || !response.isSuccess()) {
             throw new IllegalStateException("音乐接口请求失败: " + url);
         }
     }
 
-    /** 连接TimeoutMillis */
+    /**
+     * 连接超时millis
+     *
+     * @return 连接超时millis的结果
+     */
     protected int connectTimeoutMillis() {
         return resolveTimeoutMillis(CONNECT_TIMEOUT_PROPERTY, CONNECT_TIMEOUT_ENV, DEFAULT_CONNECT_TIMEOUT_MILLIS);
     }
 
-    /** 读取TimeoutMillis */
+    /**
+     * 读取超时millis
+     *
+     * @return 读取超时millis的结果
+     */
     protected int readTimeoutMillis() {
         return resolveTimeoutMillis(READ_TIMEOUT_PROPERTY, READ_TIMEOUT_ENV, DEFAULT_READ_TIMEOUT_MILLIS);
     }
 
-    /** 解析TimeoutMillis */
+    /**
+     * 解析超时millis
+     *
+     * @param propertyName 财产名称
+     * @param envName env名称
+     * @param defaultValue 默认值
+     * @return resolve超时millis的结果
+     */
     private int resolveTimeoutMillis(String propertyName, String envName, int defaultValue) {
         String configured = System.getProperty(propertyName);
         if (!StringUtils.hasText(configured)) {

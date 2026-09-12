@@ -3,7 +3,7 @@ package com.chua.datasync.agent.support.model;
 /**
  * 标记具有方向性的接口。
  * <p>
- * 用于区分 INPUT（数据源）和 OUTPUT（数据汇）。
+   * 用于区分 输入（数据源）和 输出（数据汇）。
  * </p>
  *
  * @author CH

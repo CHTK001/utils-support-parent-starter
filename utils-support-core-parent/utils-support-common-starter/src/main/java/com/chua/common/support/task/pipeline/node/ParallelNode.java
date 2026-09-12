@@ -10,7 +10,7 @@ import java.util.concurrent.StructuredTaskScope;
 import java.util.function.BiConsumer;
 
 /**
- * 并行子流水线节点 — 基于结构化并发（StructuredTaskScope）的非阻塞并行执行。
+   * 并行子流水线节点 — 基于结构化并发（Structured Streaming任务scope）的非阻塞并行执行。
  *
  * <p>与 {@link SubPipelineNode} 和 {@link ForkNode} 的核心区别：</p>
  * <ul>
@@ -93,6 +93,8 @@ import java.util.function.BiConsumer;
  *     }
  *     return null;
  * }).taskEnd()
+ * }</pre>* 返回 空;
+   * }).任务结束()
  * }</pre>
  *
  * @author CH
@@ -104,10 +106,10 @@ import java.util.function.BiConsumer;
 public class ParallelNode implements PipelineNode {
 
     /**
-     * 内部属性键 — StructuredTaskScope 实例。
+      * 内部属性键 — Structured Streaming任务scope 实例。
      *
      * <p>与 {@code DefaultPipeline.ATTR_PIPELINE_SCOPE} 保持一致，
-     * 通过 PipelineContext.attributes 传递 Pipeline 级别的 StructuredTaskScope。</p>
+      * 通过 pipeline上下文.attributes 传递 Pipeline 级别的 Structured Streaming任务scope。</p>
      */
     private static final String ATTR_PIPELINE_SCOPE = "__pipelineScope__";
 
@@ -122,13 +124,13 @@ public class ParallelNode implements PipelineNode {
     private final Pipeline subPipeline;
 
     /**
-     * 并行完成后是否将输出合并到父上下文的 currentData，默认 true。
+      * 并行完成后是否将输出合并到父上下文的 当前数据，默认 true。
      *
      * <p>并行子流程的结果必须合并回主干，否则后续节点无法获取异步执行的结果。
      * 默认启用合并，确保数据流完整性。</p>
      *
      * <p>注意：并行完成时主干可能已在其他节点，合并 currentData 可能覆盖当前节点的数据。
-     * 如需自定义合并逻辑，可通过 completionHandler 手动处理。</p>
+      * 如需自定义合并逻辑，可通过 完成处理器 手动处理。</p>
      */
     private boolean mergeCurrentData = true;
 
@@ -146,12 +148,12 @@ public class ParallelNode implements PipelineNode {
     private PipelineNode preHandler;
 
     /**
-     * 子流水线起始节点 ID（覆盖默认起始节点，可选）
+      * 子流水线起始节点 标识（覆盖默认起始节点，可选）
      */
     private String startNode;
 
     /**
-     * 子流水线参数（注入到子上下文的 nodeLocalData，可选）
+      * 子流水线参数（注入到子上下文的 节点本地数据，可选）
      */
     private Map<String, Object> params;
 
@@ -172,25 +174,25 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     @Override
     public String getId() {
         return id;
     }
 
-    /** 节点类型：parallel。 */
+    /** 节点类型：并行。 */
     @Override
     public String getType() {
         return "parallel";
     }
 
     /**
-     * 获取并行子流水线 ID。
+      * 获取并行子流水线 标识。
      *
-     * @return 子流水线 ID
+     * @return 子流水线 标识
      */
     public String getSubPipelineId() {
         return subPipeline.getId();
@@ -206,9 +208,9 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 设置并行完成后是否合并 currentData。
+      * 设置并行完成后是否合并 当前数据。
      *
-     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 currentData
+     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 当前数据
      * @return this
      */
     public ParallelNode mergeCurrentData(boolean mergeCurrentData) {
@@ -217,9 +219,9 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 获取并行完成后是否合并 currentData。
+      * 获取并行完成后是否合并 当前数据。
      *
-     * @return true 表示并行完成后将输出写回父上下文的 currentData
+     * @return true 表示并行完成后将输出写回父上下文的 当前数据
      */
     public boolean isMergeCurrentData() {
         return mergeCurrentData;
@@ -239,7 +241,7 @@ public class ParallelNode implements PipelineNode {
     /**
      * 获取并行完成回调。
      *
-     * @return 完成回调，未设置时返回 null
+     * @return 完成回调，未设置时返回 空
      */
     public BiConsumer<PipelineContext<?>, AsyncResult> getCompletionHandler() {
         return completionHandler;
@@ -259,16 +261,16 @@ public class ParallelNode implements PipelineNode {
     /**
      * 获取前置处理器。
      *
-     * @return 前置处理器，未设置时返回 null
+     * @return 前置处理器，未设置时返回 空
      */
     public PipelineNode getPreHandler() {
         return preHandler;
     }
 
     /**
-     * 设置子流水线起始节点 ID。
+      * 设置子流水线起始节点 标识。
      *
-     * @param startNode 起始节点 ID
+     * @param startNode 起始节点 标识
      * @return this
      */
     public ParallelNode start(String startNode) {
@@ -277,9 +279,9 @@ public class ParallelNode implements PipelineNode {
     }
 
     /**
-     * 获取子流水线起始节点 ID。
+      * 获取子流水线起始节点 标识。
      *
-     * @return 起始节点 ID，未设置时返回 null
+     * @return 起始节点 标识，未设置时返回 空
      */
     public String getStartNode() {
         return startNode;
@@ -299,7 +301,7 @@ public class ParallelNode implements PipelineNode {
     /**
      * 获取子流水线参数。
      *
-     * @return 参数映射，未设置时返回空 Map
+     * @return 参数映射，未设置时返回空 映射
      */
     public Map<String, Object> getParams() {
         return params != null ? params : Collections.emptyMap();
@@ -351,9 +353,9 @@ public class ParallelNode implements PipelineNode {
             preHandler.execute(context);
         }
 
-        // 2. 创建子上下文 — 通过 createBranchContext 共享 attributes/nodeOutputs（与 ForkNode 一致）
-        //    共享 attributes 使子流水线继承父 Pipeline 的 StructuredTaskScope，
-        //    executeWith 的嵌套场景分支直接复用父 scope 运行，无需创建嵌套 scope
+ // 2. 创建子上下文 — 通过 创建分支上下文 共享 attributes/节点输出（与 fork节点 一致）
+ // 共享 attributes 使子流水线继承父 Pipeline 的 Structured Streaming Streaming任务scope，
+ // 执行with 的嵌套场景分支直接复用父 scope 运行，无需创建嵌套 scope
         PipelineContext<Object> subCtx =
                 context.createBranchContext(subPipeline.getId(), context.getCurrentData());
         if (startNode != null) {
@@ -364,7 +366,7 @@ public class ParallelNode implements PipelineNode {
             localData.putAll(params);
         }
 
-        // 3. 创建 AsyncResult（初始未完成状态）
+ // 3. 创建 异步结果（初始未完成状态）
         AsyncResult asyncResult = new AsyncResult(id, subPipeline.getId());
         context.setNodeOutput(id, asyncResult);
 
@@ -378,7 +380,7 @@ public class ParallelNode implements PipelineNode {
             scope.fork(() -> {
                 try {
                     subPipeline.execute(finalSubCtx);
-                    // 正常完成：用子流水线上下文的结果填充 AsyncResult
+ // 正常完成：用子流水线上下文的结果填充 异步结果
                     asyncResult.complete(finalSubCtx.getCurrentData(), finalSubCtx.getHistory());
                 } catch (Exception e) {
                     // 异常完成
@@ -417,7 +419,7 @@ public class ParallelNode implements PipelineNode {
      */
     @SuppressWarnings("unchecked")
     private void mergeResultToParent(PipelineContext<?> parentCtx, AsyncResult asyncResult) {
-        // mergeCurrentData：将并行输出写回父上下文的 currentData（默认 true）
+ // 合并当前数据：将并行输出写回父上下文的 当前数据（默认 true）
         if (mergeCurrentData && asyncResult.isCompleted() && !asyncResult.isFailed()) {
             PipelineContext<Object> ctx = (PipelineContext<Object>) parentCtx;
             ctx.setCurrentData(asyncResult.getOutput());

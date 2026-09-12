@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * AsyncHttpClient Handler — intercepts async HTTP client requests.
+   * 异步http客户端 处理器 — intercepts 异步 HTTP 客户端 Requests.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class AsyncHttpClientHandler extends AbstractAppHandler {
 
     /**
-     * async HTTP 客户端
+      * 异步 HTTP 客户端
      */
     private static final String ASYNC_HTTP_CLIENT = "org/asynchttpclient/AsyncHttpClient";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"executeRequest", "execute"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "async-http-client-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "async-http-client.enabled";
     }
@@ -42,13 +42,13 @@ public class AsyncHttpClientHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(ASYNC_HTTP_CLIENT, EXECUTE_METHODS);
     }

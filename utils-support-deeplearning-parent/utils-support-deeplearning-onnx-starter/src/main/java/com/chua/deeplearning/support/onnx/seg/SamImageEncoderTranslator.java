@@ -13,17 +13,17 @@ import com.chua.deeplearning.support.feature.FeatureExtractor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * SAM ViT-H Encoder                   
+   * SAM vit-H 编码器
  * <p>
- *      : vietanhdev/segment-anything-onnx-models
- *      sam_vit_h_4b8939.zip  encoder.onnx
+   * : vietanhdev/segment-anything-onnx-模型
+   * sam_vit_h_4b8939.压缩  编码器.onnx
  * </p>
  * <p>
- *      : 1024x1024 BGR  ImageNet normalize
- *      : float[256]  image embedding (global avg pool from [256,64,64])
+   * : 1024x1024 BGR  镜像net normalize
+   * : float[256]  镜像 嵌入 (全局 avg 游泳池 从 [256,64,64])
  * </p>
  * <p>
- *      : SAM decoder                     
+   * : SAM 解码器
  * </p>
  *
  * @author CH
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SamImageEncoderTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 1024;
     /** 均值数组 */
     /** Mean */
@@ -43,7 +43,7 @@ public class SamImageEncoderTranslator implements Translator<Image, float[]> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -65,7 +65,7 @@ public class SamImageEncoderTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray embedding = list.singletonOrThrow();
 

@@ -6,11 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 插桩上下文 — 由 ASM 字节码插入的 RuntimeSpy.onIntercept() 创建，
- * 传递给 Interceptor.onIntercept()。
+   * 插桩上下文 — 由 ASM 字节码插入的 runtimespy.onintercept() 创建，
+   * 传递给 拦截器.onintercept()。
  *
  * <p>携带目标方法元数据（类名、方法名、描述符）、插桩点、时间戳，
- * 以及链路追踪上下文（traceId / spanId / parentSpanId）。</p>
+   * 以及链路追踪上下文（追踪id / spanid / 父spanid）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -45,7 +45,7 @@ public class InterceptContext {
     private long timestamp;
 
     /**
-     * 异常（仅在 EXCEPTION 插桩点有效）
+      * 异常（仅在 异常 插桩点有效）
      */
     private Throwable throwable;
 
@@ -55,7 +55,7 @@ public class InterceptContext {
     private Object userData;
 
     /**
-     * 全局追踪 ID（同一根调用链共享）。
+      * 全局追踪 标识（同一根调用链共享）。
      *
      * <p>由 RuntimeSpy 在 ENTRY 插桩时为根调用生成，子调用继承。
      * 跨线程时可通过 {@link RuntimeSpy#capture()} 与
@@ -64,19 +64,19 @@ public class InterceptContext {
     private String traceId;
 
     /**
-     * 当前 Span ID（每次 ENTRY 新建）
+      * 当前 Span 标识（每次 ENTRY 新建）
      */
     private String spanId;
 
     /**
-     * 父 Span ID（嵌套调用时指向调用方 span，根调用为 null）
+      * 父 Span 标识（嵌套调用时指向调用方 span，根调用为 空）
      */
     private String parentSpanId;
 
     /**
-     * 设置追踪栈（同时更新 traceId/spanId/parentSpanId）。
+      * 设置追踪栈（同时更新 追踪id/spanid/父spanid）。
      *
-     * @param stack 追踪栈对象，null 时不修改任何字段
+     * @param stack 追踪栈对象，空 时不修改任何字段
      */
     public void setTraceStack(TraceStack stack) {
         if (stack == null) {
@@ -154,11 +154,11 @@ public class InterceptContext {
     }
 
     /**
-     * 追踪栈对象 — 包含 traceId / spanId / parentSpanId 的不可变快照。
+      * 追踪栈对象 — 包含 追踪id / spanid / 父spanid 的不可变快照。
      *
-     * @param traceId      全局追踪 ID
-     * @param spanId       当前 Span ID
-     * @param parentSpanId 父 Span ID（根调用为 null）
+     * @param traceId      全局追踪 标识
+     * @param spanId       当前 Span 标识
+     * @param parentSpanId 父 Span 标识（根调用为 空）
  * @author CH
      * @since 4.0.0.42
      */

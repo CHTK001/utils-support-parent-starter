@@ -6,7 +6,7 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * QQ Bot 客户端工厂（SPI 实现）。
+   * QQ 机器人 客户端工厂（SPI 实现）。
  * <p>平台名称为 {@code qq}。</p>
  *
  * @author CH
@@ -23,20 +23,22 @@ public class QqBotClientFactory implements BotClient.Factory {
     }
 
     @Override
-    /** Builder */
+    /** 构建器 */
     public BotClient.Builder builder() {
         log.debug("Creating QQ Bot client builder");
         return new QqBuilder();
     }
 
     /**
-     * QQ Builder 内部类
+      * QQ 构建器 内部类
      *
+     * @author CH
+     * @since 4.0.0
      */
     static class QqBuilder implements BotClient.Builder {
 
         /**
-         * 应用 ID
+          * 应用 标识
          */
         private String appId;
 
@@ -46,7 +48,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         private String appSecret;
 
         /**
-         * Bot Token
+          * 机器人 令牌
          */
         private String botToken;
 
@@ -71,7 +73,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
-        /** Token */
+        /** 令牌 */
         public BotClient.Builder token(String token) {
             this.appId = token;
             return this;
@@ -86,14 +88,14 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * EncodingAesKey
-         * @param encodingAesKey encodingAesKey
-         * @param baseUrl baseUrl
-         * @param connectTimeoutMillis connectTimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param appId appId
-         * @param baseUrl baseUrl
+          * 编码aes键
+         * @param encodingAesKey 编码aes键
+         * @param baseUrl baseurl
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
          */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
@@ -102,7 +104,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** BaseUrl */
+        /** baseurl */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -110,12 +112,12 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * 连接TimeoutMillis
-         * @param connectTimeoutMillis connectTimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param appId appId
-         * @param baseUrl baseUrl
+          * 连接超时millis
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
          */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
@@ -125,11 +127,11 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * 读取TimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param appId appId
-         * @param baseUrl baseUrl
+          * 读取超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
          */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
@@ -139,10 +141,10 @@ public class QqBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * Config保存OrLoader
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param appId appId
-         * @param baseUrl baseUrl
+          * 配置保存或加载
+         * @param configSaveOrLoader 配置保存或加载
+         * @param appId appid
+         * @param baseUrl baseurl
          */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {

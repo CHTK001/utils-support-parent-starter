@@ -15,6 +15,8 @@ import java.util.List;
  *     .projectPath("/path/to/project")
  *     .onProgress((message, percent) -> System.out.printf("[%d%%] %s%n", percent, message))
  *     .compile();
+ * }</pre>age))
+ *     .compile();
  * }</pre>
  *
  * @author CH

@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 /**
- * Datalake 侧的 ExecutorManager 实现。每次返回同一个 DatalakeReactorExecutor。
+   * 数据湖 侧的 执行器管理器 实现。每次返回同一个 数据湖reactor执行器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,21 +24,21 @@ public class DatalakeExecutorManager implements ExecutorManager {
     private final DatalakeReactorExecutor executor;
 
     /**
-     * 注入 DispatcherProvider，使 executor 能共享 Chronicle 队列。
+      * 注入 dispatcher提供者，使 执行器 能共享 Chronicle 队列。
      *
-     * @param dispatcherProvider DispatcherProvider 实例
+     * @param dispatcherProvider dispatcher提供者 实例
      */
     public void setDispatcherProvider(DispatcherProvider dispatcherProvider) {
         executor.setDispatcherProvider(dispatcherProvider);
     }
 
-    /** 创建 DatalakeExecutorManager 实例 */
+    /** 创建 数据湖执行器管理器 实例 */
     public DatalakeExecutorManager() {
         this.executor = new DatalakeReactorExecutor("datalake", true);
     }
 
     /**
-     * 注入管线引擎，并同时为执行器注册 sink（用于 fallback 直接派发）。
+      * 注入管线引擎，并同时为执行器注册 sink（用于 降级 直接派发）。
      *
      * @param unused 兼容参数
      * @param engine 管线引擎
@@ -74,7 +74,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executor;
     }

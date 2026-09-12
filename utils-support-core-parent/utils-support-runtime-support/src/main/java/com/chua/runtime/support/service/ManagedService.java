@@ -45,7 +45,7 @@ public class ManagedService {
     private String description;
 
     /**
-     * 关联的运行时工件 ID
+      * 关联的运行时工件 标识
      */
     private String artifactId;
 
@@ -70,19 +70,19 @@ public class ManagedService {
     private Map<String, String> env;
 
     /**
-     * 启动类型（auto / manual / disabled）
+      * 启动类型（auto / manual / 已禁用）
      */
     @Builder.Default
     /** Startup类型 */
     private String startupType = "auto";
 
     /**
-     * 运行用户（systemd User= 或 Windows 服务登录账户）
+      * 运行用户（systemd 用户= 或 窗口 服务登录账户）
      */
     private String runAsUser;
 
     /**
-     * 服务依赖（其他服务名，如 "network.target"）
+      * 服务依赖（其他服务名，如 "network.Target"）
      */
     @Builder.Default
     /** Dependencies */
@@ -99,15 +99,17 @@ public class ManagedService {
      * 重启间隔（秒）
      */
     @Builder.Default
-    /** RestartSEC */
+    /** restartsec */
     private int restartSec = 10;
 
     /**
      * 服务类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum ServiceType {
         /**
-         * Windows 服务
+          * 窗口 服务
          */
         WINDOWS_SERVICE,
 
@@ -117,7 +119,7 @@ public class ManagedService {
         SYSTEMD,
 
         /**
-         * Linux init.d 服务
+          * Linux 初始化.d 服务
          */
         INIT_D,
 

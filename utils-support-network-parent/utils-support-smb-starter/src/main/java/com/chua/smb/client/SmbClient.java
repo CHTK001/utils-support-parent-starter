@@ -37,6 +37,9 @@ import lombok.extern.slf4j.Slf4j;
  *         .download("test.txt", outputStream)
  *         .listFiles("/")
  *         .close();
+ * }</pre>       .download("test.txt", outputStream)
+ *         .listFiles("/")
+ *         .close();
  * }</pre>
  *
  * @author CH
@@ -50,7 +53,7 @@ public class SmbClient implements AutoCloseable {
      */
     private final String uri;
     /**
-     * smb Client
+      * smb 客户端
      */
     private final SMBClient smbClient;
     /**
@@ -62,7 +65,7 @@ public class SmbClient implements AutoCloseable {
      */
     private Session session;
     /**
-     * disk Share
+      * disk 共享
      */
     private DiskShare diskShare;
 
@@ -83,16 +86,16 @@ public class SmbClient implements AutoCloseable {
      */
     private String password;
     /**
-     * share Name
+      * 共享 名称
      */
     private String shareName;
     /**
-     * work Path
+      * work 路径
      */
     private String workPath = "/";
 
     /**
-     * 创建 SmbClient 实例
+      * 创建 smb客户端 实例
      * @param uri uri
      */
     private SmbClient(String uri) {
@@ -101,12 +104,21 @@ public class SmbClient implements AutoCloseable {
         parseUri(uri);
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param uri uri
+     * @return 创建的结果
+     */
     public static SmbClient create(String uri) {
         return new SmbClient(uri);
     }
 
-    /** 解析Uri */
+    /**
+     * 解析Uri
+     *
+     * @param uri uri
+     */
     private void parseUri(String uri) {
         String rest = uri.replaceFirst("^smb://", "");
         String userPass = "";
@@ -128,7 +140,11 @@ public class SmbClient implements AutoCloseable {
         this.port = hp.length > 1 ? Integer.parseInt(hp[1]) : 445;
     }
 
-    /** 连接 */
+    /**
+     * 连接
+     *
+     * @return 连接的结果
+     */
     public SmbClient connect() {
         try {
             connection = smbClient.connect(host, port);
@@ -138,7 +154,11 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** Login */
+    /**
+     * Login
+     *
+     * @return login的结果
+     */
     public SmbClient login() {
         try {
             AuthenticationContext authCtx = (user == null || user.isEmpty())
@@ -151,7 +171,11 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** 打开Share */
+    /**
+     * 打开共享
+     *
+     * @return 打开共享的结果
+     */
     public SmbClient openShare() {
         if (session == null) {
             throw new IllegalStateException("请先 login()");
@@ -164,7 +188,12 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** Cd */
+    /**
+     * Cd
+     *
+     * @param path 路径
+     * @return cd的结果
+     */
     public SmbClient cd(String path) {
         if (path == null || path.isEmpty()) {
             return this;
@@ -176,7 +205,13 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** Upload */
+    /**
+     * Upload
+     *
+     * @param in 入
+     * @param remoteName 远程名称
+     * @return upload的结果
+     */
     public SmbClient upload(InputStream in, String remoteName) {
         checkShare();
         try {
@@ -201,7 +236,13 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** Download */
+    /**
+     * Download
+     *
+     * @param remoteName 远程名称
+     * @param out 出
+     * @return download的结果
+     */
     public SmbClient download(String remoteName, OutputStream out) {
         checkShare();
         try {
@@ -225,7 +266,12 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** ListFiles */
+    /**
+     * 列表文件
+     *
+     * @param path 路径
+     * @return 列表文件的结果
+     */
     public List<SmbFileEntry> listFiles(String path) {
         checkShare();
         String dirPath = path != null ? normalize(path) : workPath;
@@ -250,7 +296,12 @@ public class SmbClient implements AutoCloseable {
         return result;
     }
 
-    /** 创建目录 */
+    /**
+     * 创建目录
+     *
+     * @param path 路径
+     * @return mkdir的结果
+     */
     public SmbClient mkdir(String path) {
         checkShare();
         try {
@@ -262,7 +313,12 @@ public class SmbClient implements AutoCloseable {
         return this;
     }
 
-    /** 删除 */
+    /**
+     * 删除
+     *
+     * @param path 路径
+     * @return 删除的结果
+     */
     public SmbClient delete(String path) {
         checkShare();
         try {
@@ -283,14 +339,18 @@ public class SmbClient implements AutoCloseable {
         try { smbClient.close(); } catch (Exception ignored) {}
     }
 
-    /** 校验Share */
+    /** 校验共享 */
     private void checkShare() {
         if (diskShare == null) {
             throw new IllegalStateException("请先 openShare()");
         }
     }
 
-    /** EnsureParentPath */
+    /**
+     * ensure父路径
+     *
+     * @param fullPath 完整路径
+     */
     private void ensureParentPath(String fullPath) throws IOException {
         int lastSep = fullPath.lastIndexOf('/');
         if (lastSep <= 0) {
@@ -310,7 +370,12 @@ public class SmbClient implements AutoCloseable {
         }
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     *
+     * @param p p
+     * @return normalize的结果
+     */
     private static String normalize(String p) {
         String s = p.replace('\\', '/');
         while (s.contains("//")) {
@@ -323,12 +388,12 @@ public class SmbClient implements AutoCloseable {
     }
 
     /**
-     * SmbFileEntry
-     * @param name name
-     * @param size size
-     * @param isDirectory isDirectory
-     * @param lastModified lastModified
-     * @param path path
+      * smb文件entry
+     * @param name 名称
+     * @param size 大小
+     * @param isDirectory 是否目录
+     * @param lastModified 最后一个modified
+     * @param path 路径
      */
     public record SmbFileEntry(
             String name,

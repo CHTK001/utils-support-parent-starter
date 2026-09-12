@@ -35,6 +35,7 @@ package com.chua.common.support.task.pipeline.core;
  *     .task("step1", ctx -> { return "nonExistent"; }).taskEnd()  // 跳过，执行 step2
  *     .task("step2", ctx -> null).taskEnd()
  *     .build();
+ * }</pre>* .构建();
  * }</pre>
  *
  * @author CH
@@ -46,7 +47,7 @@ public enum RouteStrategy {
      * 抛出异常（默认策略）。
      *
      * <p>当目标节点不存在时，抛出 {@link com.chua.common.support.task.pipeline.exception.PipelineException}，
-     * 携带节点 ID 和可用节点列表等上下文信息。</p>
+      * 携带节点 标识 和可用节点列表等上下文信息。</p>
      *
      * <p>适用于大多数场景，确保流水线配置的正确性。</p>
      */

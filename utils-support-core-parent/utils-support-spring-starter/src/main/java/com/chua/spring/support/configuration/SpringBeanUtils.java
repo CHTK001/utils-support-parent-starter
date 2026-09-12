@@ -47,7 +47,7 @@ import static org.springframework.util.ClassUtils.getAllInterfacesForClass;
 import static org.springframework.util.ReflectionUtils.*;
 
 /**
- * Spring Bean 工具类，提供 ApplicationContext 持有、Bean 获取注册、类型转换等功能。
+   * Spring Bean 工具类，提供 application上下文 持有、Bean 获取注册、类型转换等功能。
  * 该类封装了 Spring 容器的常用操作，支持线程安全的上下文管理、动态 Bean 注册与注销、
  * 以及请求映射信息的查询等高级功能。
  *
@@ -69,7 +69,7 @@ public class SpringBeanUtils {
     public static final PathMatcher MATCHER = new AntPathMatcher();
 
     /**
-     * 应用上下文持有者，使用 ThreadLocal 存储当前线程的 ApplicationContext。
+      * 应用上下文持有者，使用 thread本地 存储当前线程的 application上下文。
      */
     private static final ThreadLocal<ApplicationContext> APPLICATION_CONTEXT = new ThreadLocal<>();
 
@@ -79,7 +79,7 @@ public class SpringBeanUtils {
     private static volatile RequestMappingHandlerMapping requestMappingHandlerMappingStatic;
 
     /**
-     * 设置应用上下文到当前线程的 ThreadLocal 中。
+      * 设置应用上下文到当前线程的 thread本地 中。
      * 通常在 Spring 容器初始化时调用，以便后续工具方法能获取上下文。
      *
      * @param applicationContext 应用上下文实例
@@ -103,17 +103,17 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 获取当前线程的应用上下文，允许返回 null。
+      * 获取当前线程的应用上下文，允许返回 空。
      * 适用于不确定上下文是否已初始化的场景。
      *
-     * @return 应用上下文实例，未初始化则返回 null
+     * @return 应用上下文实例，未初始化则返回 空
      */
     public static ApplicationContext getApplicationContextOrNull() {
         return APPLICATION_CONTEXT.get();
     }
 
     /**
-     * 清除当前线程的 ApplicationContext 引用。
+      * 清除当前线程的 application上下文 引用。
      * 通常在请求结束或线程销毁时调用，防止内存泄漏。
      */
     public static void clearApplicationContext() {
@@ -132,7 +132,7 @@ public class SpringBeanUtils {
     /**
      * 设置请求映射处理器映射
      *
-     * @param requestMappingHandlerMapping RequestMappingHandlerMapping 实例
+     * @param requestMappingHandlerMapping 请求mapping处理器mapping 实例
      */
     public static void setRequestMappingHandlerMapping(RequestMappingHandlerMapping requestMappingHandlerMapping) {
         requestMappingHandlerMappingStatic = requestMappingHandlerMapping;
@@ -144,7 +144,7 @@ public class SpringBeanUtils {
      * @param clazz       类
      * @param name        方法名
      * @param paramTypes  参数类型
-     * @return Method 对象，未找到返回 null
+     * @return Method 对象，未找到返回 空
      */
     private static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
         if (clazz == null || name == null) {
@@ -163,11 +163,11 @@ public class SpringBeanUtils {
 
     /**
      * 根据类型从当前上下文中获取 Bean 实例。
-     * 如果未找到或发生异常，返回 null。
+      * 如果未找到或发生异常，返回 空。
      *
      * @param target Bean 的目标类型
      * @param <T>    Bean 的类型泛型
-     * @return Bean 实例，未找到则返回 null
+     * @return Bean 实例，未找到则返回 空
      */
     public static <T> T getBean(Class<T> target) {
         try {
@@ -195,12 +195,12 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 根据类型从指定的应用上下文中获取 Bean 实例，若未找到则返回 null。
+      * 根据类型从指定的应用上下文中获取 Bean 实例，若未找到则返回 空。
      *
      * @param applicationContext 指定的应用上下文
      * @param target             Bean 的目标类型
      * @param <T>                Bean 的类型泛型
-     * @return Bean 实例，未找到则返回 null
+     * @return Bean 实例，未找到则返回 空
      */
     public static <T> T getBean(ApplicationContext applicationContext, Class<T> target) {
         try {
@@ -234,7 +234,7 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 将控制器 Bean 动态注册到 RequestMappingHandlerMapping 中，使其能够处理 HTTP 请求。
+      * 将控制器 Bean 动态注册到 请求mapping处理器mapping 中，使其能够处理 HTTP 请求。
      * 此方法常用于动态加载或热部署场景下的控制器注册。
      *
      * <p><strong>注意：</strong>此方法依赖 Spring 内部 API（{@code detectHandlerMethods}），
@@ -262,8 +262,8 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 取消注册控制器，从 RequestMappingHandlerMapping 中移除该控制器的所有映射信息。
-     * 此方法遍历控制器的所有声明方法，计算其对应的 RequestMappingInfo 并执行注销操作。
+      * 取消注册控制器，从 请求mapping处理器mapping 中移除该控制器的所有映射信息。
+      * 此方法遍历控制器的所有声明方法，计算其对应的 请求mapping信息 并执行注销操作。
      *
      * <p><strong>注意：</strong>此方法依赖 Spring 内部 API（{@code getMappingForMethod}），
      * 在不同 Spring 版本中可能不兼容。建议仅在必要时使用，并充分测试。
@@ -309,13 +309,13 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 尝试将给定值转换为指定的 Type 类型。
-     * 如果目标类型不是 Class 类型，则返回 null。
+      * 尝试将给定值转换为指定的 类型 类型。
+      * 如果目标类型不是 类 类型，则返回 空。
      *
      * @param value 待转换的值
      * @param type  目标类型
      * @param <T>   目标类型泛型
-     * @return 转换后的值，若无法转换或类型不匹配则返回 null
+     * @return 转换后的值，若无法转换或类型不匹配则返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T convertIfNecessary(Object value, Type type) {
@@ -323,13 +323,18 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 内部持有 ConversionService 的单例类，延迟加载以避免循环依赖或空指针问题。
+      * 内部持有 转换服务 的单例类，延迟加载以避免循环依赖或空指针问题。
      */
     private static final class ConversionServiceHolder {
-        /** conversionService */
+        /** 转换服务 */
         private static volatile ConversionService conversionService;
 
-        /** 获取 */
+        /**
+         * 获取
+         *
+         * @param applicationContext application上下文
+         * @return 获取的结果
+         */
         static ConversionService get(ApplicationContext applicationContext) {
             if (conversionService == null) {
                 synchronized (ConversionServiceHolder.class) {
@@ -343,10 +348,10 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 尝试将给定值转换为指定的 Class 类型，利用 Spring 的 ConversionService 进行转换。
+      * 尝试将给定值转换为指定的 类 类型，利用 Spring 的 转换服务 进行转换。
      *
      * @param value 待转换的值
-     * @param type  目标 Class 类型
+     * @param type  目标 类 类型
      * @param <T>   目标类型泛型
      * @return 转换后的值
      */
@@ -364,12 +369,12 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 根据提供的 URL 查找对应的 HandlerMethod。
-     * 通过遍历 RequestMappingHandlerMapping 中的映射关系，使用 AntPathMatcher 进行模式匹配。
+      * 根据提供的 URL 查找对应的 处理器方法。
+       * 通过遍历 请求mapping处理器mapping 中的映射关系，使用 Ant路径匹配 进行模式匹配。
      *
      * @param requestMappingHandlerMapping 请求映射处理器映射对象
      * @param url                          请求的 URL 路径
-     * @return 匹配的 HandlerMethod 实例，未找到则返回 null
+     * @return 匹配的 处理器方法 实例，未找到则返回 空
      */
     public static HandlerMethod getMethodInfo(RequestMappingHandlerMapping requestMappingHandlerMapping, String url) {
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = requestMappingHandlerMapping.getHandlerMethods();
@@ -387,7 +392,7 @@ public class SpringBeanUtils {
 
     /**
      * 获取当前服务器的端口号。
-     * 从 Environment 中读取 {@code server.port} 配置，默认值为 8080。
+      * 从 环境 中读取 {@code server.port} 配置，默认值为 8080。
      *
      * @return 服务器端口号
      */
@@ -397,8 +402,8 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 获取当前应用的上下文路径（Context Path）。
-     * 从 Environment 中读取 {@code server.servlet.context-path} 配置，默认值为 "/"。
+      * 获取当前应用的上下文路径（上下文 路径）。
+      * 从 环境 中读取 {@code server.servlet.context-path} 配置，默认值为 "/"。
      *
      * @return 上下文路径字符串
      */
@@ -417,10 +422,10 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 解析字符串中的占位符（如 ${key}），替换为实际的环境变量或配置值。
+      * 解析字符串中的占位符（如 ${键}），替换为实际的环境变量或配置值。
      *
      * @param value 包含占位符的原始字符串
-     * @return 解析后的字符串，若输入为 null 则返回 null
+     * @return 解析后的字符串，若输入为 空 则返回 空
      */
     public static String resolvePlaceholders(String value) {
         if (null == value) {
@@ -474,31 +479,51 @@ public class SpringBeanUtils {
         private final ApplicationContext applicationContext;
 
         /**
-         * 创建 EventPublisher 实例
-         * @param applicationContext applicationContext
+          * 创建 事件发布 实例
+         * @param applicationContext application上下文
+         * @return 事件发布的结果
          */
         private EventPublisher(ApplicationContext applicationContext) {
             this.applicationContext = applicationContext;
         }
 
-        /** Of */
+        /**
+         * 的
+         *
+         * @param applicationContext application上下文
+         * @return 的的结果
+         */
         public static EventPublisher of(ApplicationContext applicationContext) {
             return new EventPublisher(applicationContext);
         }
 
-        /** Of */
+        /**
+         * 的
+         *
+         * @return 的的结果
+         */
         public static EventPublisher of() {
             return new EventPublisher(getApplicationContext());
         }
 
-        /** 发布 */
+        /**
+         * 发布
+         *
+         * @param event 事件
+         * @return 发布的结果
+         */
         public EventPublisher publish(Object event) {
             applicationContext.publishEvent(event);
             return this;
         }
 
         @SafeVarargs
-        /** 发布All */
+        /**
+         * 发布全部
+         *
+         * @param events 事件
+         * @return 发布全部的结果
+         */
         public final EventPublisher publishAll(Object... events) {
             for (Object event : events) {
                 applicationContext.publishEvent(event);
@@ -508,7 +533,7 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 获取指定配置键的值，若不存在则抛出 IllegalStateException。
+      * 获取指定配置键的值，若不存在则抛出 illegal状态异常。
      *
      * @param key 配置键
      * @return 配置值
@@ -528,7 +553,7 @@ public class SpringBeanUtils {
      * @param key 配置键
      * @param type 目标类型
      * @param <T> 目标类型泛型
-     * @return 转换后的配置值，若不存在则返回 null
+     * @return 转换后的配置值，若不存在则返回 空
      */
     public static <T> T getPropertyAs(String key, Class<T> type) {
         return getEnvironment().getProperty(key, type);
@@ -545,7 +570,7 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 获取底层可配置的 BeanFactory。
+      * 获取底层可配置的 Bean工厂。
      *
      * @return ConfigurableListableBeanFactory 实例
      */
@@ -651,7 +676,7 @@ public class SpringBeanUtils {
     // ==================== 异步执行器 ====================
 
     /**
-     * 获取名为 {@code taskExecutor} 的 TaskExecutor；若不存在则返回一个轻量默认实现。
+      * 获取名为 {@code taskExecutor} 的 任务执行器；若不存在则返回一个轻量默认实现。
      *
      * @return TaskExecutor 实例
      */
@@ -709,7 +734,7 @@ public class SpringBeanUtils {
     // ==================== 国际化 MessageSource ====================
 
     /**
-     * 获取 MessageSource 工具。
+      * 获取 消息源 工具。
      *
      * @return MessageSourceAccessor 实例
      */
@@ -748,7 +773,7 @@ public class SpringBeanUtils {
      *
      * @param annotationType 注解类型
      * @param <T> Bean 类型
-     * @return Bean 实例 Map
+     * @return Bean 实例 映射
      */
     @SuppressWarnings("unchecked")
     public static <T> Map<String, T> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
@@ -756,11 +781,11 @@ public class SpringBeanUtils {
     }
 
     /**
-     * 按名称查找 Bean，若不存在则返回 null。
+      * 按名称查找 Bean，若不存在则返回 空。
      *
      * @param name Bean 名称
      * @param <T> Bean 类型
-     * @return Bean 实例或 null
+     * @return Bean 实例或 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T findBean(String name) {

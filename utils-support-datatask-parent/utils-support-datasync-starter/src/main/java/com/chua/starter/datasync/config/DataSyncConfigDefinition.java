@@ -20,9 +20,9 @@ public interface DataSyncConfigDefinition {
     String inputId();
 
     /**
-     * 获取输入 Source 实例 ID。
+      * 获取输入 源 实例 标识。
      *
-     * @return 输入 Source ID
+     * @return 输入 源 标识
      */
     String sourceId();
 
@@ -34,9 +34,9 @@ public interface DataSyncConfigDefinition {
     String outputId();
 
     /**
-     * 获取输出 Sink 实例 ID。
+      * 获取输出 Sink 实例 标识。
      *
-     * @return 输出 Sink ID
+     * @return 输出 Sink 标识
      */
     String sinkId();
 

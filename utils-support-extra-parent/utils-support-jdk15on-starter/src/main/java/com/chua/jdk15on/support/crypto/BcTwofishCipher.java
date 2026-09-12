@@ -11,7 +11,7 @@ import java.security.Security;
 import java.security.SecureRandom;
 
 /**
- * 基于 BouncyCastle 的 Twofish 对称加解密实现
+   * 基于 bouncycastle 的 Twofish 对称加解密实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
  * 实现 Twofish/CBC/PKCS7Padding 模式的加密与解密。
@@ -27,7 +27,7 @@ public class BcTwofishCipher implements TwofishCipher {
     private static final String PROVIDER = "BC";
     /** 算法 */
     private static final String ALGORITHM = "Twofish";
-    /** Transformation */
+    /** 转变 */
     private static final String TRANSFORMATION = "Twofish/CBC/PKCS7Padding";
 
     static {

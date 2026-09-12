@@ -20,15 +20,18 @@ import java.nio.file.Path;
 public final class AudioUtils {
 
     /**
-     * 工具类统一目标采样率（16kHz）
+      * 工具类统一目标采样率（16khz）
      */
     public static final int TARGET_SAMPLE_RATE = 16000;
 
+    /**
+     * 音频工具。
+     */
     private AudioUtils() {
     }
 
     /**
-     * 加载任意 WAV 为 16kHz 单声道 [-1,1] 浮点采样。
+      * 加载任意 WAV 为 16khz 单声道 [-1,1] 浮点采样。
      *
      * <p>内部完成声道合并与线性插值重采样。</p>
      *
@@ -133,7 +136,7 @@ public final class AudioUtils {
     }
 
     /**
-     * float 采样封装为 16bit 单声道小端 PCM WAV 字节。
+      * float 采样封装为 16钻头 单声道小端 PCM WAV 字节。
      *
      * @param samples [-1,1] 采样
      * @param sampleRate 采样率

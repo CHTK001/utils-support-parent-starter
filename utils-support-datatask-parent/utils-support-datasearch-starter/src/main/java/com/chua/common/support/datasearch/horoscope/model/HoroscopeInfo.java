@@ -65,7 +65,7 @@ public class HoroscopeInfo {
     private final String description;
 
     /**
-     * 创建 HoroscopeInfo 实例
+      * 创建 horoscope信息 实例
      *
      * @param sign        星座
      * @param type        运势类型
@@ -92,58 +92,98 @@ public class HoroscopeInfo {
         this.description = description;
     }
 
-    /** 获取星座 */
+    /**
+     * 获取星座
+     *
+     * @return 获取标志的结果
+     */
     public String getSign() {
         return sign;
     }
 
-    /** 获取运势类型 */
+    /**
+     * 获取运势类型
+     *
+     * @return 获取类型的结果
+     */
     public String getType() {
         return type;
     }
 
-    /** 获取综合运势指数 */
+    /**
+     * 获取综合运势指数
+     *
+     * @return 获取overall的结果
+     */
     public int getOverall() {
         return overall;
     }
 
-    /** 获取爱情运势指数 */
+    /**
+     * 获取爱情运势指数
+     *
+     * @return 获取love的结果
+     */
     public int getLove() {
         return love;
     }
 
-    /** 获取事业运势指数 */
+    /**
+     * 获取事业运势指数
+     *
+     * @return 获取career的结果
+     */
     public int getCareer() {
         return career;
     }
 
-    /** 获取财运指数 */
+    /**
+     * 获取财运指数
+     *
+     * @return 获取wealth的结果
+     */
     public int getWealth() {
         return wealth;
     }
 
-    /** 获取健康指数 */
+    /**
+     * 获取健康指数
+     *
+     * @return 获取健康的结果
+     */
     public int getHealth() {
         return health;
     }
 
-    /** 获取幸运数字 */
+    /**
+     * 获取幸运数字
+     *
+     * @return 获取lucky数字的结果
+     */
     public String getLuckyNumber() {
         return luckyNumber;
     }
 
-    /** 获取幸运颜色 */
+    /**
+     * 获取幸运颜色
+     *
+     * @return 获取luckycolor的结果
+     */
     public String getLuckyColor() {
         return luckyColor;
     }
 
-    /** 获取运势描述 */
+    /**
+     * 获取运势描述
+     *
+     * @return 获取description的结果
+     */
     public String getDescription() {
         return description;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

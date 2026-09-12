@@ -3,11 +3,20 @@ package com.chua.deeplearning.support.onnx.yolo;
 import java.util.Arrays;
 import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
+/**
+ * SafetyHelmetDetectorTranslator类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 public class SafetyHelmetDetectorTranslator extends YoloTranslator {
 
-    private static final List<String> SAFETY_HELMET_3_CLASSES = Arrays.asList("person", "head", "helmet");
+    private static final List<String> SAFETY_HELMET_3_CLASSES = Arrays.asList("person", "head", "helmet"); // safetyhelmet3类
 
+    /**
+      * safetyhelmetdetectortranslator。
+     */
     public SafetyHelmetDetectorTranslator() {
         super(640, 0.05f, 0.50f, SAFETY_HELMET_3_CLASSES, true);
     }

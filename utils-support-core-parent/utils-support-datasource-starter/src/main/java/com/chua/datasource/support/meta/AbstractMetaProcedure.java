@@ -60,7 +60,7 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<ProcedureDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
@@ -78,7 +78,7 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String procedureName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

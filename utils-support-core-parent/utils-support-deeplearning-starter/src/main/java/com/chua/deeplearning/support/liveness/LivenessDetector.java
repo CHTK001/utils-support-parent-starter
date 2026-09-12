@@ -24,9 +24,9 @@ public interface LivenessDetector {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -36,9 +36,9 @@ public interface LivenessDetector {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default LivenessDetector provider(String provider) {
@@ -55,7 +55,12 @@ public interface LivenessDetector {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static LivenessDetector create(String name) {
         return new DefaultLivenessDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +71,7 @@ public interface LivenessDetector {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.liveness.LivenessDetector.class);
@@ -191,14 +196,14 @@ class DefaultLivenessDetector implements LivenessDetector {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LivenessDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LivenessDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -213,7 +218,12 @@ class DefaultLivenessDetector implements LivenessDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 是否Live */
+    /**
+     * 是否Live
+     *
+     * @param imageData 镜像数据
+     * @return 是否live的结果
+     */
     public boolean isLive(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -221,7 +231,7 @@ class DefaultLivenessDetector implements LivenessDetector {
             throw new IllegalStateException("模型未注册: " + modelName);
         }
         Object result = t.translate(imageData);
-        // 兼容 Boolean / Float / Number 输出（FLRGB 等返回活体分数）
+ // 兼容 布尔值 / Float / 数字 输出（FLRGB 等返回活体分数）
         if (result instanceof Boolean bool) {
             return bool;
         }
@@ -238,7 +248,12 @@ class DefaultLivenessDetector implements LivenessDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** LiveScore */
+    /**
+     * livescore
+     *
+     * @param imageData 镜像数据
+     * @return liveScore的结果
+     */
     public float liveScore(byte[] imageData) {
         ITranslator<byte[], Object> t =
                 (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

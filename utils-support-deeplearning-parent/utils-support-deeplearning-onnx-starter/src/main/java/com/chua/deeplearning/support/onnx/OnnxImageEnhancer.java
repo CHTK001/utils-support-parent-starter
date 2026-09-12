@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageEnhancer;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxImageEnhancer implements ImageEnhancer {
@@ -11,26 +11,30 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     private String modelName;
 
     /**
-     * 创建 OnnxImageEnhancer 实例
-     * @param apiKey apiKey
+      * 创建 onnx镜像enhancer 实例
+     * @param apiKey API密钥
      */
     public OnnxImageEnhancer(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageEnhancer model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "onnx-gfpgan";
     }
 
     @Override
-    /** Enhance */
+    /** 增强 */
     public byte[] enhance(byte[] imageData) {
         return ImageEnhancer.create(resolveModel()).enhance(imageData);
     }

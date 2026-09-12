@@ -20,12 +20,18 @@ import java.util.Optional;
  */
 public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
-    private final int order;
-    BTreeNode<K, V> root;
-    private int size;
+    private final int order; // 订单
+    BTreeNode<K, V> root; // 根
+    private int size; // 大小
 
+    /**
+     * b树。
+     * @param order 订单
+     */
     public BTree(int order) {
-        if (order < 3) throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
+        if (order < 3) {
+            throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
+        }
         this.order = order;
         this.root = new BTreeNode<>(true, order * 4);
         this.size = 0;
@@ -38,7 +44,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     @Override
     public Optional<V> get(K key) {
-        if (key == null) return Optional.empty();
+        if (key == null) {
+            return Optional.empty();
+        }
         BTreeNode<K, V> node = root;
         while (true) {
             List<K> keys = node.keys;
@@ -46,7 +54,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             if (i >= 0 && Objects.equals(keys.get(i), key)) {
                 return Optional.of(node.values.get(i));
             }
-            if (node.leaf) return Optional.empty();
+            if (node.leaf) {
+                return Optional.empty();
+            }
             node = node.children.get(-i - 1);
         }
     }
@@ -56,15 +66,27 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return get(key).isPresent();
     }
 
-    /** 二分查找：命中返回索引，未命中返回 -(插入点+1) */
+    /**
+     * 二分查找：命中返回索引，未命中返回 -(插入点+1)
+     *
+     * @param keys 键
+     * @param key 键
+     * @return binary搜索的结果
+     */
     private static <K extends Comparable<K>> int binarySearch(List<K> keys, K key) {
         int lo = 0, hi = keys.size() - 1;
         while (lo <= hi) {
             int mid = (lo + hi) >>> 1;
             int c = keys.get(mid).compareTo(key);
-            if (c < 0) lo = mid + 1;
-            else if (c > 0) hi = mid - 1;
-            else return mid;
+            if (c < 0) {
+                lo = mid + 1;
+            }
+            else if (c > 0) {
+                hi = mid - 1;
+            }
+            else {
+                return mid;
+            }
         }
         return -(lo + 1);
     }
@@ -73,24 +95,39 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     @Override
     public List<Map.Entry<K, V>> range(K from, K to) {
-        if (from == null || to == null) return Collections.emptyList();
+        if (from == null || to == null) {
+            return Collections.emptyList();
+        }
         int estimatedSize = Math.min(size, (size / Math.max(order / 2, 1)) * 2);
         List<Map.Entry<K, V>> result = new ArrayList<>(estimatedSize);
         collectRange(root, from, to, result);
         return result;
     }
 
+    /**
+     * collect范围。
+     * @param node 节点
+     * @param from 从
+     * @param to 转为
+     * @param result 结果
+     */
     private void collectRange(BTreeNode<K, V> node, K from, K to, List<Map.Entry<K, V>> result) {
         List<K> keys = node.keys;
         List<V> values = node.values;
         int n = keys.size();
         for (int i = 0; i < n; i++) {
             K k = keys.get(i);
-            if (k.compareTo(from) < 0) continue;
-            if (k.compareTo(to) >= 0) break;
+            if (k.compareTo(from) < 0) {
+                continue;
+            }
+            if (k.compareTo(to) >= 0) {
+                break;
+            }
             result.add(Map.entry(k, values.get(i)));
         }
-        if (node.leaf) return;
+        if (node.leaf) {
+            return;
+        }
         for (BTreeNode<K, V> child : node.children) {
             collectRange(child, from, to, result);
         }
@@ -100,7 +137,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     @Override
     public Optional<V> put(K key, V value) {
-        if (key == null) return Optional.empty();
+        if (key == null) {
+            return Optional.empty();
+        }
         SplitResult<K, V> split = splitInsert(root, key, value);
         if (split != null) {
             BTreeNode<K, V> newRoot = new BTreeNode<>(false, order * 2);
@@ -114,6 +153,13 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         return Optional.empty();
     }
 
+    /**
+     * 分割插入。
+     * @param node 节点
+     * @param key 键
+     * @param value 值
+     * @return 分割插入的结果
+     */
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -127,13 +173,17 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         if (node.leaf) {
             keys.add(i, key);
             values.add(i, value);
-            if (keys.size() < order) return null;
+            if (keys.size() < order) {
+                return null;
+            }
             return doSplit(node);
         }
 
         List<BTreeNode<K, V>> children = node.children;
         SplitResult<K, V> sub = splitInsert(children.get(i), key, value);
-        if (sub == null) return null;
+        if (sub == null) {
+            return null;
+        }
 
         keys.add(i, sub.promotedKey);
         values.add(i, sub.promotedValue);
@@ -141,10 +191,17 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         children.add(i, sub.left);
         children.add(i + 1, sub.right);
 
-        if (keys.size() < order) return null;
+        if (keys.size() < order) {
+            return null;
+        }
         return doSplit(node);
     }
 
+    /**
+     * 执行分割。
+     * @param node 节点
+     * @return 执行分割的结果
+     */
     private SplitResult<K, V> doSplit(BTreeNode<K, V> node) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -175,15 +232,26 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     @Override
     public Optional<V> remove(K key) {
-        if (key == null) return Optional.empty();
+        if (key == null) {
+            return Optional.empty();
+        }
         Optional<V> oldValue = get(key);
-        if (oldValue.isEmpty()) return Optional.empty();
+        if (oldValue.isEmpty()) {
+            return Optional.empty();
+        }
         delete(root, key);
-        if (root.leaf && root.keys.isEmpty()) root = new BTreeNode<>(true, order);
+        if (root.leaf && root.keys.isEmpty()) {
+            root = new BTreeNode<>(true, order);
+        }
         size--;
         return oldValue;
     }
 
+    /**
+     * 删除。
+     * @param node 节点
+     * @param key 键
+     */
     private void delete(BTreeNode<K, V> node, K key) {
         List<K> keys = node.keys;
         int i = binarySearch(keys, key);
@@ -211,13 +279,27 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         delete(node.children.get(ins), key);
     }
 
+    /**
+      * findpredecessor。
+     * @param node 节点
+     * @return findPredecessor的结果
+     */
     private K findPredecessor(BTreeNode<K, V> node) {
-        while (!node.leaf) node = node.children.get(node.keys.size());
+        while (!node.leaf) {
+            node = node.children.get(node.keys.size());
+        }
         return node.keys.get(node.keys.size() - 1);
     }
 
+    /**
+      * findsuccessor。
+     * @param node 节点
+     * @return findSuccessor的结果
+     */
     private K findSuccessor(BTreeNode<K, V> node) {
-        while (!node.leaf) node = node.children.get(0);
+        while (!node.leaf) {
+            node = node.children.get(0);
+        }
         return node.keys.get(0);
     }
 
@@ -233,6 +315,12 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     public String toString() { return "BTree{order=" + order + ", size=" + size + "}"; }
 
     BTreeNode<K, V> getRoot() { return root; }
+    /**
+     * 分割结果类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class SplitResult<K, V> {
         final K promotedKey;

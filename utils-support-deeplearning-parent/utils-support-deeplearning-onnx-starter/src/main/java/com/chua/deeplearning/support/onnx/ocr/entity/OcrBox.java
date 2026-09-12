@@ -22,11 +22,14 @@ public class OcrBox {
     private final Point bottomLeft;
 
     /**
-     * 创建 OcrBox 实例
-     * @param topLeft topLeft
-     * @param Point Point
-     * @param Point Point
-     * @param Point Point
+      * 创建 ocrbox 实例
+     * @param topLeft topleft
+     * @param topLeft Point
+     * @param topLeft Point
+     * @param topLeft Point
+     * @param topRight topright
+     * @param bottomRight bottomright
+     * @param bottomLeft bottomleft
      */
     public OcrBox(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
         this.topLeft = topLeft;
@@ -35,22 +38,38 @@ public class OcrBox {
         this.bottomLeft = bottomLeft;
     }
 
-    /** 获取TopLeft */
+    /**
+     * 获取topleft
+     *
+     * @return 获取topleft的结果
+     */
     public Point getTopLeft() {
         return topLeft;
     }
 
-    /** 获取TopRight */
+    /**
+     * 获取topright
+     *
+     * @return 获取topright的结果
+     */
     public Point getTopRight() {
         return topRight;
     }
 
-    /** 获取BottomRight */
+    /**
+     * 获取bottomright
+     *
+     * @return 获取bottomright的结果
+     */
     public Point getBottomRight() {
         return bottomRight;
     }
 
-    /** 获取BottomLeft */
+    /**
+     * 获取bottomleft
+     *
+     * @return 获取bottomleft的结果
+     */
     public Point getBottomLeft() {
         return bottomLeft;
     }

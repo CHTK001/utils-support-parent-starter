@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 数据同步 Agent 抽象基类，统一管理 Source、Sink 与生命周期。
+   * 数据同步 智能体 抽象基类，统一管理 源、Sink 与生命周期。
  *
  * @author CH
  * @since 4.0.0.42
@@ -17,11 +17,11 @@ import java.util.Map;
 public abstract class AbstractDataSyncAgent implements DataSyncAgent {
 
     /**
-     * Agent 唯一标识
+      * 智能体 唯一标识
      */
     private final String agentId;
     /**
-     * Source 实例列表
+      * 源 实例列表
      */
     private final List<DataSyncAgentSource> sources;
     /**
@@ -30,9 +30,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     private final List<DataSyncAgentSink> sinks;
 
     /**
-     * 构造 Agent。
+      * 构造 智能体。
      *
-     * @param agentId Agent 唯一标识
+     * @param agentId 智能体 唯一标识
      */
     protected AbstractDataSyncAgent(String agentId) {
         this.agentId = agentId;
@@ -41,9 +41,9 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     /**
-     * 添加 Source 实例。
+      * 添加 源 实例。
      *
-     * @param source Source 实例
+     * @param source 源 实例
      */
     protected void addSource(DataSyncAgentSource source) {
         this.sources.add(source);
@@ -59,13 +59,13 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
 
     /**
-     * 获取所有 Source 实例。
+      * 获取所有 源 实例。
      *
      * @return Source 列表
      */
@@ -74,7 +74,7 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 获取Source */
+    /** 获取源 */
     public DataSyncAgentSource getSource(String sourceId) {
         for (DataSyncAgentSource source : sources) {
             if (source.sourceId().equals(sourceId)) {
@@ -109,7 +109,7 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     public void start() {
         for (DataSyncAgentSource source : sources) {
             try {
-                // 启动 Source 资源
+ // 启动 源 资源
             } catch (Exception e) {
                 throw new DataSyncAgentException("启动 Source 失败: " + source.sourceId(), e);
             }

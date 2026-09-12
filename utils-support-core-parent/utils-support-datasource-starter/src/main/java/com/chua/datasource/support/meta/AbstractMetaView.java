@@ -60,7 +60,7 @@ public abstract class AbstractMetaView implements MetaView {
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<ViewDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
@@ -84,7 +84,7 @@ public abstract class AbstractMetaView implements MetaView {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop() {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

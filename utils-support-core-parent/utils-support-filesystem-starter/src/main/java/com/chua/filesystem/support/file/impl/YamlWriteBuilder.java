@@ -17,15 +17,15 @@ import java.io.*;
 public class YamlWriteBuilder extends WriteBuilder {
 
     /**
-     * 创建 YamlWriteBuilder 实例
-     * @param file file
+      * 创建 yaml写入构建器 实例
+     * @param file 文件
      */
     public YamlWriteBuilder(File file) {
         super(file);
     }
 
     @Override
-    /** WithCharset */
+    /** with字符集 */
     public YamlWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
@@ -34,7 +34,7 @@ public class YamlWriteBuilder extends WriteBuilder {
     /**
      * 将指定对象写入 YAML 文件。
      *
-     * @param data 待写入的对象，可以是 Map、List 或普通 Java Bean
+     * @param data 待写入的对象，可以是 映射、列表 或普通 Java Bean
      */
     @Override
     public YamlWriteBuilder write(Object data) {

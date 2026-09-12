@@ -21,12 +21,22 @@ public class Splitter {
         this.delimiter = delimiter;
     }
 
-    /** On */
+    /**
+     * On
+     *
+     * @param delimiter delimiter
+     * @return on的结果
+     */
     public static Splitter on(String delimiter) {
         return new Splitter(delimiter);
     }
 
-    /** 分割ToList */
+    /**
+     * 分割转为列表
+     *
+     * @param input 输入
+     * @return 分割转为列表的结果
+     */
     public List<String> splitToList(String input) {
         if (input == null || input.isEmpty()) {
             return Collections.emptyList();

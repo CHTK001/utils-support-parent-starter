@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.function.Function;
 
 /**
- * 默认服务注入器，基于 @AutoInject 注解进行依赖注入。
+   * 默认服务注入器，基于 @autoinject 注解进行依赖注入。
  *
  * @author CH
  * @since 2024/12/20
@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServiceInjector {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         if (field == null) { return false; }
         return field.isAnnotationPresent(AutoInject.class);
@@ -31,11 +31,11 @@ public class DefaultBeanDefinitionServiceInjector implements BeanDefinitionServi
     @Override
     /**
      * Inject
-     * @param field field
-     * @param bean bean
-     * @param beanDefinition beanDefinition
-     * @param beanProvider beanProvider
-     * @param typeProvider typeProvider
+     * @param field 字段
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param beanProvider Bean提供者
+     * @param typeProvider 类型提供者
      */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition,
                          Function<String, Object> beanProvider,

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 从 ProxyScrape API 获取免费代理。
+   * 从 代理scrape API 获取免费代理。
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,13 +19,13 @@ import java.util.Map;
 public class ProxyScrapeFetcher implements ProxyFetcher {
 
     /**
-     * ProxyScrape API URL（HTTP Elite 代理）
+      * 代理scrape API URL（HTTP Elite 代理）
      */
     private static final String URL = "https://api.proxyscrape.com/v4/free-proxy-list/get"
             + "?request=displayproxies&protocol=http&anonymity=elite&proxy_format=protocolipport&format=json";
 
     @Override
-    /** FetchProxies */
+    /** 获取代理 */
     public List<String> fetchProxies() {
         List<String> proxies = new ArrayList<>();
         try {
@@ -54,7 +54,7 @@ public class ProxyScrapeFetcher implements ProxyFetcher {
     }
 
     @Override
-    /** 获取SourceName */
+    /** 获取源名称 */
     public String getSourceName() {
         return "proxy-scrape";
     }

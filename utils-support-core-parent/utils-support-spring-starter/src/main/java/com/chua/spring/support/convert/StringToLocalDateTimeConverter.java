@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * String 转 LocalDateTime 转换器
+   * 字符串 转 本地日期时间 转换器
  * 将字符串解析为 {@link LocalDateTime} 对象
  *
  * @author CH
@@ -48,10 +48,10 @@ public class StringToLocalDateTimeConverter implements Converter<String, LocalDa
     }
 
     /**
-     * 将字符串转换为 LocalDateTime
+      * 将字符串转换为 本地日期时间
      *
      * @param source 源字符串
-     * @return LocalDateTime 对象，如果 source 为 blank 则返回 null
+     * @return LocalDateTime 对象，如果 源 为 blank 则返回 空
      */
     @Override
     public LocalDateTime convert(String source) {

@@ -22,7 +22,7 @@ public class SystemdServiceManager implements ServiceManager {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(SystemdServiceManager.class.getName());
     /**
@@ -36,13 +36,13 @@ public class SystemdServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT = 30;
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "systemd";
     }
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported() {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (!os.contains("nix") && !os.contains("nux")) {
@@ -127,7 +127,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public CmdResult status(String serviceName) {
         return CmdExecutors.execute("systemctl status \"" + serviceName + "\" 2>&1", CMD_TIMEOUT, TimeUnit.SECONDS);
     }
@@ -145,7 +145,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否Enabled */
+    /** 是否已启用 */
     public boolean isEnabled(String serviceName) {
         CmdResult r = CmdExecutors.execute("systemctl is-enabled \"" + serviceName + "\" 2>&1",
                 CMD_TIMEOUT, TimeUnit.SECONDS);
@@ -161,7 +161,12 @@ public class SystemdServiceManager implements ServiceManager {
         return r.isSuccess() && "yes".equals(r.getStdout().trim());
     }
 
-    /** GenerateServiceFile */
+    /**
+     * generate服务文件
+     *
+     * @param service 服务
+     * @return generate服务文件的结果
+     */
     private String generateServiceFile(ManagedService service) {
         StringBuilder sb = new StringBuilder();
         sb.append("[Unit]\n");

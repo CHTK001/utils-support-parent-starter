@@ -12,17 +12,34 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param arguments 参数
+ * @return resolvenms阈值的结果
  */
 public class SealInspectionTranslator extends YoloTranslator {
 
+    /**
+      * sealinspectiontranslator。
+     */
     private static final List<String> SEAL_4_CLASSES = Arrays.asList("公章", "个人章", "审核章", "其他");
 
+    /**
+     * SealInspectionTranslator。
+     */
     public SealInspectionTranslator() {
         this(null);
+    /**
+      * sealinspectiontranslator。
+     * @param arguments 参数
+     */
     }
 
     public SealInspectionTranslator(Map<String, ?> arguments) {
         super(resolveInputSize(arguments), resolveThreshold(arguments), resolveNmsThreshold(arguments), SEAL_4_CLASSES, true);
+    /**
+     * resolve输入大小。
+     * @param arguments 参数
+     * @return resolve输入大小的结果
+     */
     }
 
     private static int resolveInputSize(Map<String, ?> arguments) {
@@ -30,6 +47,11 @@ public class SealInspectionTranslator extends YoloTranslator {
             return Integer.parseInt(arguments.get("inputSize").toString());
         }
         return 640;
+    /**
+     * resolve阈值。
+     * @param arguments 参数
+     * @return resolve阈值的结果
+     */
     }
 
     private static float resolveThreshold(Map<String, ?> arguments) {

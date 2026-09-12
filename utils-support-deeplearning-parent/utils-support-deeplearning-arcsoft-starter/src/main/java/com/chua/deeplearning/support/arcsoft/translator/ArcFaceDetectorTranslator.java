@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ArcSoft 人脸检测翻译器
+   * arcsoft 人脸检测翻译器
  *
  * @author CH
  * @since 4.0.0.42
@@ -27,15 +27,15 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
     private final FaceEngine faceEngine;
 
     /**
-     * 创建 ArcFaceDetectorTranslator 实例
-     * @param faceEngine faceEngine
+      * 创建 arcfacedetectortranslator 实例
+     * @param faceEngine faceengine
      */
     public ArcFaceDetectorTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "arcface-detector";
     }

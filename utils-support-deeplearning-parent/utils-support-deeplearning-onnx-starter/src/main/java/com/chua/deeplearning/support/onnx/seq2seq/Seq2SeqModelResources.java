@@ -42,7 +42,7 @@ public final class Seq2SeqModelResources {
      */
     private static final String MODEL_SCOPE_BASE = "https://www.modelscope.cn/models/%s/resolve/master/%s";
 
-    /** 创建 Seq2SeqModelResources 实例 */
+    /** 创建 Seq2seq模型resources 实例 */
     private Seq2SeqModelResources() {
     }
 
@@ -93,7 +93,7 @@ public final class Seq2SeqModelResources {
     }
 
     /**
-     * 优先从嵌入式 classpath jar 提取模型资源。
+      * 优先从嵌入式 类路径 jar 提取模型资源。
      *
      * @param def    模型定义
      * @param target 目标目录
@@ -105,7 +105,7 @@ public final class Seq2SeqModelResources {
             return false;
         }
         try {
-            // 探测 classpath 是否真的存在该资源目录，避免 NativeLoader 抛错
+ // 探测 类路径 是否真的存在该资源目录，避免 NAT加载 抛错
             boolean exists = Thread.currentThread().getContextClassLoader()
                     .getResources(base).hasMoreElements();
             if (!exists) {

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spring RestTemplate 应用层 Handler — 拦截 RestTemplate 调用并生成应用语义传输记录。
+   * Spring RestTemplate 应用层 处理器 — 拦截 RestTemplate 调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -36,13 +36,13 @@ public class RestTemplateHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "resttemplate-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "resttemplate.enabled";
     }
@@ -54,13 +54,13 @@ public class RestTemplateHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(REST_TEMPLATE, TEMPLATE_METHODS);
     }
@@ -68,7 +68,7 @@ public class RestTemplateHandler extends AbstractAppHandler {
     @Override
     /** 构建Target */
     protected Endpoint buildTarget(InterceptContext ctx, Object instance) {
-        // RestTemplate 目标 host 通常从方法参数的 URL 提取，此处无法直接获取，
+ // RestTemplate 目标 主机 通常从方法参数的 URL 提取，此处无法直接获取，
         // 兜底返回本机 HTTP
         return Endpoint.builder()
                 .kind(EndpointKind.SERVER)

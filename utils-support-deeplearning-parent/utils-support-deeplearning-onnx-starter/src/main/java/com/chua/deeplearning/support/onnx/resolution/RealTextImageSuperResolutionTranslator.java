@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RealTextImageSuperResolutionTranslator implements Translator<Image, Image> {
 
     /**
-     * ND                        NDArray               
+      * ND                        ndarray
      */
     private NDManager manager;
 
@@ -44,10 +44,10 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
-     *                                                       NDList      
+      * nd列表
      * <p>
      *                
-     * 1.                   NDArray         FLOAT32      
+      * 1.                   ndarray         FLOAT32
      * 2.                                                 
      * 3.                                  
      * 4.                      HWC -> CHW
@@ -60,7 +60,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
      */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
-        //                   NDArray                        FLOAT32
+ // ndarray                        FLOAT32
         NDArray array = input.toNDArray(this.manager).toType(DataType.FLOAT32, false);
 
         //                      
@@ -87,17 +87,17 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     }
 
     /**
-     *                         NDList                     
+      * nd列表
      * <p>
      *                
      * 1.                               
-     * 2.                output * 0.5 + 0.5
+      * 2.                输出 * 0.5 + 0.5
      * 3.                   [0,1]         
      * 4.          UINT8                  [0,255]      
-     * 5.    NDArray                  
+      * 5.    ndarray
      *
      * @param ctx                    
-     * @param list                NDList
+     * @param list                nd列表
      * @return                               
      */
     @Override
@@ -105,7 +105,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
         //                         
         NDArray outputImg = list.singletonOrThrow();
 
-        //                output * 0.5 + 0.5
+ // 输出 * 0.5 + 0.5
         outputImg = outputImg.mul(0.5f).add(0.5f);
 
         //                   0-1         
@@ -114,7 +114,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
         //          0-255                  UINT8      
         outputImg = outputImg.mul(255.0f).round().toType(DataType.UINT8, false);
 
-        //    NDArray                  
+ // ndarray
         Image img = ImageFactory.getInstance().fromNDArray(outputImg);
 
         //             

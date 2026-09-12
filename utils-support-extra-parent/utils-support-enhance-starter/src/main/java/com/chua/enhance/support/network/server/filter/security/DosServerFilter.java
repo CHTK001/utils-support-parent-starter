@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * DOS 防护过滤器，基于滑动窗口的请求频率限制。
+   * 执行 防护过滤器，基于滑动窗口的请求频率限制。
  *
  * <p>按客户端 IP 统计固定时间窗口内的请求次数，超过阈值返回 429。
  * 使用 {@link ConcurrentHashMap} + {@link AtomicInteger} 实现线程安全的计数。
@@ -36,9 +36,9 @@ public class DosServerFilter implements ServerFilter {
      */
     private static final int DEFAULT_WINDOW_SECONDS = 60;
 
-    /** 最大值requests */
+    /** 最大值Requests */
     private int maxRequests = DEFAULT_MAX_REQUESTS;
-    /** Window秒 */
+    /** 窗口秒 */
     private int windowSeconds = DEFAULT_WINDOW_SECONDS;
 
     /**
@@ -64,7 +64,7 @@ public class DosServerFilter implements ServerFilter {
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String ip = resolveClientIp(request);
         long now = System.currentTimeMillis();
@@ -87,19 +87,21 @@ public class DosServerFilter implements ServerFilter {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return 20;
     }
 
     @Override
-    /** 获取过滤Id */
+    /** 获取过滤标识 */
     public String getFilterId() {
         return "DosServerFilter";
     }
 
     /**
-     * 解析客户端真实 IP，优先从 X-Forwarded-For 头获取。
+      * 解析客户端真实 IP，优先从 X-远期-For 头获取。
+     * @param request 请求
+     * @return resolve客户端ip的结果
      */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");

@@ -300,7 +300,7 @@ public class ServiceDefinitionFinder {
     }
 
     /**
-     * 创建 NameAware 匹配的服务定义集合
+      * 创建 名称aware 匹配的服务定义集合
      *
      * @param name 名称
      * @param definitions 服务定义列表

@@ -21,7 +21,7 @@ public class BatteryInfo {
     private int chargePercent;
 
     /**
-     * 电池状态（charging/discharging/full/unknown 等）
+      * 电池状态（charging/discharging/完整/unknown 等）
      */
     private String status;
 

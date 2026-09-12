@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Socket.IO 嵌入式服务器，轻量级实现。
+   * 套接字.IO 嵌入式服务器，轻量级实现。
  * <p>
  * 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
  * {@link com.chua.common.support.objects.annotation.OnOpen @OnOpen}、
  * {@link com.chua.common.support.objects.annotation.OnClose @OnClose}、
  * {@link com.chua.common.support.objects.annotation.OnMessage @OnMessage} 注解处理。
- * 基于 netty-socketio 实现，提供主题订阅和发布能力。
+   * 基于 Netty-Socket.IO 实现，提供主题订阅和发布能力。
  * </p>
  *
  * <h2>使用方式</h2>
@@ -51,6 +51,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * server.publish("order", "hello");
  * server.stop();
  * }</pre>
+   * 服务端.发布("订单", "hello");
+   * 服务端.停止();
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -60,22 +63,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketIOServer extends AbstractServer {
 
     /**
-     * netty-socketio 服务器实例
+      * Netty-Socket.IO 服务器实例
      */
     private com.corundumstudio.socketio.SocketIOServer delegate;
 
     /**
-     * 运行标记，替代 netty-socketio 不存在的 isRunning() 方法
+      * 运行标记，替代 Netty-Socket.IO 不存在的 是否running() 方法
      */
     private volatile boolean delegateRunning;
 
     /**
-     * 主题到 ServerHandler 的映射
+      * 主题到 服务端处理器 的映射
      */
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
     /**
-     * 创建 SocketIOServer 实例
+      * 创建 套接字io服务端 实例
      * @param setting setting
      */
     public SocketIOServer(ServerSetting setting) {
@@ -83,7 +86,7 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         Configuration configuration = new Configuration();
         configuration.setHostname(setting.getHost());
@@ -114,7 +117,7 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (delegate != null) {
             delegate.stop();
@@ -126,7 +129,7 @@ public class SocketIOServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.WS;
     }
@@ -197,11 +200,11 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
-     * 处理收到的消息，走 ServerFilter 链，并通过 ackRequest 返回结果。
+      * 处理收到的消息，走 服务端过滤器 链，并通过 ACK请求 返回结果。
      *
      * @param topic      主题名称
      * @param data       消息内容
-     * @param ackRequest Socket.IO ack 请求
+     * @param ackRequest 套接字.IO ACK 请求
      */
     private void handleMessage(String topic, String data, com.corundumstudio.socketio.AckRequest ackRequest) {
         ServerHandler handler = messageHandlers.get(topic);
@@ -296,7 +299,9 @@ public class SocketIOServer extends AbstractServer {
     // ==================== 轻量请求/响应适配 ====================
 
     /**
-     * 轻量 Socket.IO 请求适配。
+      * 轻量 套接字.IO 请求适配。
+     * @author CH
+     * @since 4.0.0
      */
     private static class SimpleServerRequest implements com.chua.common.support.network.server.request.ServerRequest {
 
@@ -325,79 +330,79 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取Params */
+        /** 获取参数 */
         public Map<String, String> getParams() {
             return java.util.Collections.emptyMap();
         }
 
         @Override
-        /** 获取Param */
+        /** 获取参数 */
         public String getParam(String name) {
             return null;
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return "application/json";
         }
 
         @Override
-        /** 获取Content获取长度 */
+        /** 获取内容获取长度 */
         public long getContentLength() {
             return body != null ? body.getBytes().length : -1;
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return body != null ? body.getBytes() : new byte[0];
         }
 
         @Override
-        /** 获取BodyString */
+        /** 获取主体字符串 */
         public String getBodyString() {
             return body;
         }
 
         @Override
-        /** 获取InputStream */
+        /** 获取输入流 */
         public java.io.InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(body != null ? body.getBytes() : new byte[0]);
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return 0;
         }
@@ -422,12 +427,14 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
-     * 轻量 Socket.IO 响应适配。
+      * 轻量 套接字.IO 响应适配。
+     * @author CH
+     * @since 4.0.0
      */
     private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
 
         /**
-         * ended
+          * 结束
          */
         private volatile boolean ended;
         /**
@@ -444,70 +451,70 @@ public class SocketIOServer extends AbstractServer {
         private Object result;
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public ServerResponse setStatus(int status) {
             this.status = status;
             return this;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(byte[] body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(String body) {
             this.result = body;
             return this;
         }
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public ServerResponse setHeader(String name, String value) {
             return this;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return null;
         }
 
         @Override
-        /** 设置ContentType */
+        /** 设置内容类型 */
         public ServerResponse setContentType(String contentType) {
             return this;
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return result instanceof byte[] ? (byte[]) result : null;
         }
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
@@ -539,13 +546,13 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 是否Ended */
+        /** 是否结束 */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** End */
+        /** 结束 */
         public void end() {
             this.ended = true;
         }
@@ -567,14 +574,14 @@ public class SocketIOServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Result */
+        /** 设置结果 */
         public ServerResponse setResult(Object result) {
             this.result = result;
             return this;
         }
 
         @Override
-        /** 获取Result */
+        /** 获取结果 */
         public Object getResult() {
             return result;
         }

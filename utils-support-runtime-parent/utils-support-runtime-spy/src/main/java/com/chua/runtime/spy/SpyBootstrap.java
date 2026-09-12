@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 public class SpyBootstrap {
 
     /**
-     * JUL Logger — 不依赖 slf4j，避免与外部 Logger 框架冲突
+      * JUL 日志记录器 — 不依赖 slf4j，避免与外部 日志记录器 框架冲突
      */
     private static final Logger LOG = Logger.getLogger(SpyBootstrap.class.getName());
 
@@ -59,14 +59,14 @@ public class SpyBootstrap {
      */
     private static volatile boolean initialized;
 
-    /** 创建 SpyBootstrap 实例 */
+    /** 创建 spybootstrap 实例 */
     private SpyBootstrap() {
     }
 
     /**
      * 初始化 Spy 引擎。
      *
-     * @param args Agent 参数
+     * @param args 智能体 参数
      * @param inst Instrumentation 实例
      * @return 是否成功
      */
@@ -111,9 +111,9 @@ public class SpyBootstrap {
     }
 
     /**
-     * 解析 Agent 参数。
+      * 解析 智能体 参数。
      *
-     * @param args Agent 参数字符串
+     * @param args 智能体 参数字符串
      */
     private static void parseAgentArgs(String args) {
         if (args == null || args.isBlank()) {

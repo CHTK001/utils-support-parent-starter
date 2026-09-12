@@ -15,7 +15,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 /**
- * PNG Chunk 写入流：在写入数据时同步累积 CRC，结束时回写 length 与 CRC 字段。
+   * PNG Chunk 写入流：在写入数据时同步累积 CRC，结束时回写 长度 与 CRC 字段。
  * <p>仅作为 ImageOutputStream 的装饰使用，读操作被禁用。</p>
  *
  * @author CH
@@ -25,7 +25,7 @@ final class ChunkStream extends ImageOutputStreamImpl {
 
     /** 流 */
     private final ImageOutputStream stream;
-    /** 开始POS */
+    /** 开始采购订单 */
     private final long startPos;
     /** CRC */
     private final CRC crc = new CRC();
@@ -34,7 +34,7 @@ final class ChunkStream extends ImageOutputStreamImpl {
         this.stream = stream;
         this.startPos = stream.getStreamPosition();
 
-        // length, will backpatch
+ // 长度, will backpatch
         // (-1);
         stream.writeInt(-1);
 
@@ -68,15 +68,15 @@ final class ChunkStream extends ImageOutputStreamImpl {
     }
 
     void finish() throws IOException {
-        // Write CRC
+ // 写入 CRC
         stream.writeInt(crc.getValue());
 
-        // Write length
+ // 写入 长度
         long pos = stream.getStreamPosition();
         stream.seek(startPos);
         stream.writeInt((int)(pos - startPos) - 12);
 
-        // Return to end of chunk and flush to minimize buffering
+ // 返回 转为 结束 的 chunk 和 flush 转为 最小化 缓冲
         stream.seek(pos);
         stream.flushBefore(pos);
     }

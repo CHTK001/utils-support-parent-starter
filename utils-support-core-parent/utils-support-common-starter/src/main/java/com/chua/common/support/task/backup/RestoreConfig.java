@@ -44,7 +44,7 @@ public class RestoreConfig {
      * <p>默认 true，覆盖目标目录中的同名文件。
      */
     @Builder.Default
-    private boolean overwrite = true;
+    private boolean overwrite = true; // overwrite
 
     /**
      * 是否恢复后删除备份源文件
@@ -52,7 +52,7 @@ public class RestoreConfig {
      * <p>默认 false，保留备份文件。
      */
     @Builder.Default
-    private boolean deleteAfterRestore = false;
+    private boolean deleteAfterRestore = false; // 删除之后restore
 
     /**
      * 恢复文件过滤模式
@@ -60,5 +60,5 @@ public class RestoreConfig {
      * <p>Glob 模式，如 "*.json"。为空则恢复所有文件。
      */
     @Builder.Default
-    private String includePattern = "";
+    private String includePattern = ""; // include模式
 }

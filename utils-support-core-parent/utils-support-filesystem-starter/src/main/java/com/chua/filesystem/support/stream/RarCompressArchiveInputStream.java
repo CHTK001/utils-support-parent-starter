@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  * RAR格式归档输入流提供者
  * <p>
  * 基于Junrar库实现RAR格式的读取。
- * 注意：RAR格式需要File对象，不支持从InputStream直接读取。
+   * 注意：RAR格式需要文件对象，不支持从输入流直接读取。
  * </p>
  *
  * @author CH
@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 public class RarCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -40,9 +40,9 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
-        // RAR格式需要File对象，不能使用InputStream
+ // RAR格式需要文件对象，不能使用输入流
         if (file == null) {
             throw new IOException("RAR格式需要File对象，不能使用InputStream");
         }
@@ -50,13 +50,15 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "rar";
     }
 
     /**
      * RAR归档输入流适配器
+     * @author CH
+     * @since 4.0.0
      */
     private static class RarArchiveInputStreamAdapter implements ArchiveInputStream {
         /** Archive */
@@ -85,7 +87,11 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
 
         @Override
         @Nullable
-        /** 获取NextEntry */
+        /**
+         * 获取下一个entry
+         *
+         * @return 获取下一个entry的结果
+         */
         public ArchiveEntry getNextEntry() throws IOException {
             // 关闭当前条目流
             if (currentEntryStream != null) {
@@ -164,7 +170,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         }
 
         @Override
-        /** Available */
+        /** 可用 */
         public int available() throws IOException {
             if (currentEntryStream == null) {
                 return 0;
@@ -191,7 +197,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         }
 
         @Override
-        /** 标记Supported */
+        /** 标记支持 */
         public boolean markSupported() {
             return currentEntryStream != null && currentEntryStream.markSupported();
         }
@@ -219,6 +225,8 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
 
     /**
      * RAR归档条目适配器
+     * @author CH
+     * @since 4.0.0
      */
     private static class RarArchiveEntryAdapter implements ArchiveEntry {
         /** 文件头部 */
@@ -229,13 +237,13 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         }
 
         @Override
-        /** 获取Name */
+        /** 获取名称 */
         public String getName() {
             return fileHeader.getFileName();
         }
 
         @Override
-        /** 是否Directory */
+        /** 是否目录 */
         public boolean isDirectory() {
             return fileHeader.isDirectory();
         }

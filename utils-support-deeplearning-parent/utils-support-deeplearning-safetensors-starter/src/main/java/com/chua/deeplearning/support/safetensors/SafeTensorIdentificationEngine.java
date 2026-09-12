@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SafeTensor 引擎实现。
+   * safetensor 引擎实现。
  *
  * <p>提供模型实例化和 LLM 翻译能力。</p>
  *
@@ -38,13 +38,13 @@ public class SafeTensorIdentificationEngine implements IdentificationEngine {
     }
 
     @Override
-    /** 获取Models */
+    /** 获取模型 */
     public List<ModelDefinition> getModels() {
         return new ArrayList<>();
     }
 
     @Override
-    /** 获取TranslatorModels */
+    /** 获取translator模型 */
     public List<TranslatorModelDefinition> getTranslatorModels() {
         return new ArrayList<>();
     }

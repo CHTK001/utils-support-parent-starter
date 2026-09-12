@@ -8,13 +8,14 @@ import java.util.List;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
- * 图像描述（Image Captioning）能力接口。
+   * 图像描述（镜像 Captioning）能力接口。
  *
  * <p>输入图像，输出对图像内容的文字描述。
- * 底层基于 ViT-GPT2 图像编码 + 文本解码模型（如 vit-gpt2-captioning）。</p>
+   * 底层基于 vit-GPT2 图像编码 + 文本解码模型（如 vit-gpt2-captioning）。</p>
  *
  * <pre>{@code
  * String caption = ImageCaptioning.create("vit-gpt2-captioning").describe(imageBytes);
+ * }</pre>
  * }</pre>
  *
  * @author CH
@@ -30,9 +31,9 @@ public interface ImageCaptioning {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -42,9 +43,9 @@ public interface ImageCaptioning {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageCaptioning provider(String provider) {
@@ -61,7 +62,12 @@ public interface ImageCaptioning {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static ImageCaptioning create(String name) {
         return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -72,7 +78,7 @@ public interface ImageCaptioning {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageCaptioning.class);
@@ -135,7 +141,12 @@ class DefaultImageCaptioning implements ImageCaptioning {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Describe */
+    /**
+     * Describe
+     *
+     * @param imageData 镜像数据
+     * @return describe的结果
+     */
     public String describe(byte[] imageData) {
         ITranslator<byte[], String> t = engine.get(modelName, ITranslator.class);
         if (t == null) {

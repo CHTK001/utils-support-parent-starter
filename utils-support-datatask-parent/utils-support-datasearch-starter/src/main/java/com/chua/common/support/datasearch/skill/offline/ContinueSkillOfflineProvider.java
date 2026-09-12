@@ -3,7 +3,7 @@ package com.chua.common.support.datasearch.skill.offline;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * Continue 离线技能提供者。
+   * 继续 离线技能提供者。
  *
  * @author CH
  * @since 4.0.0.42

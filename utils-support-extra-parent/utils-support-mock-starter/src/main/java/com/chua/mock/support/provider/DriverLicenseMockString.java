@@ -27,6 +27,8 @@ public class DriverLicenseMockString implements MockString {
     private static final String BIRTHDAY_MIN = "1960-01-01";
     /**
      * 出生日期范围上界（包含，保证已满 18 周岁）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String BIRTHDAY_MAX = "2008-08-20";
 

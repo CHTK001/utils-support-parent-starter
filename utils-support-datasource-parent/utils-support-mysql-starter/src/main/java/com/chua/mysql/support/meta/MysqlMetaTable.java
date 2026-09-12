@@ -29,19 +29,28 @@ import java.util.List;
 public class MysqlMetaTable extends AbstractMetaTable {
 
     /**
-     * 创建 MysqlMetaTable 实例
-     * @param metaData metaData
-     * @param Engine Engine
+      * 创建 mysqlmetatable 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param engine engine
      */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 MysqlMetaTable 实例
-     * @param metaData metaData
-     * @param Engine Engine
-     * @param String String
+      * 创建 mysqlmetatable 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param tableName 字符串
+     * @param tableName table名称
+     /**
+       * mysqlmetatable。
+      * @param metaData meta数据
+      * @param engine engine
+      * @param tableName table名称
+      */
+     * @return 创建的结果
      */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
@@ -80,7 +89,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return new MysqlTableAlterBuilder(this);
     }
 
-        /** Drop */
+        /** 掉落 */
 @Override
     public boolean drop() {
         if (tableName == null) {
@@ -113,7 +122,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             // columns
             List<ColumnDef> cols = readColumns(dbMeta, catalog, schema, tableName);
             def.setColumns(cols);
-            // primary keys
+ // primary 键
             List<String> pks = new ArrayList<>();
             try (ResultSet rs = dbMeta.getPrimaryKeys(catalog, schema, tableName)) {
                 while (rs.next()) {
@@ -123,7 +132,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             def.setPrimaryKeys(pks.toArray(new String[0]));
             // indexes (skipped to avoid compilation issues with IndexMetadata)
             def.setIndexes(new ArrayList<>());
-            // table info from INFORMATION_SCHEMA
+ // table 信息 从 信息_模式
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(
                          "SELECT TABLE_COMMENT, TABLE_TYPE, CREATE_TIME, UPDATE_TIME"
@@ -142,7 +151,15 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return def;
     }
 
-    /** 读取Columns */
+    /**
+     * 读取Columns
+     *
+     * @param dbMeta dbmeta
+     * @param catalog catalog
+     * @param schema 模式
+     * @param tableName table名称
+     * @return 读取columns的结果
+     */
     protected List<ColumnDef> readColumns(DatabaseMetaData dbMeta, String catalog, String schema, String tableName) throws SQLException {
         List<ColumnDef> columns = new ArrayList<>();
         try (ResultSet rs = dbMeta.getColumns(catalog, schema, tableName, "%")) {
@@ -161,7 +178,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
         return columns;
     }
 
-    /** 获取Connection */
+    /**
+     * 获取Connection
+     *
+     * @return 获取connection的结果
+     */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -198,6 +219,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     // ==================== MySQL 建表构建器 ====================
+    /**
+     * mysqltable创建构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class MysqlTableCreateBuilder implements TableCreateBuilder {
 
@@ -207,7 +234,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         private final String tableName;
         /** Columns */
         private final List<ColumnDef> columns = new ArrayList<>();
-        /** Comment */
+        /** 评论 */
         private String comment;
         /** 引擎 */
         private String engine;
@@ -230,7 +257,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** NotNull */
+                /** not空 */
 @Override
         public TableCreateBuilder notNull() {
             if (!columns.isEmpty()) {
@@ -239,7 +266,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** PrimaryKey */
+                /** primary键 */
 @Override
         public TableCreateBuilder primaryKey() {
             if (!columns.isEmpty()) {
@@ -251,7 +278,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** AutoIncrement */
+                /** autoincrement */
 @Override
         public TableCreateBuilder autoIncrement() {
             if (!columns.isEmpty()) {
@@ -269,7 +296,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** DefaultValue */
+                /** 默认值 */
 @Override
         public TableCreateBuilder defaultValue(String val) {
             if (!columns.isEmpty()) {
@@ -278,7 +305,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** Comment */
+                /** 评论 */
 @Override
         public TableCreateBuilder comment(String val) {
             if (!columns.isEmpty()) {
@@ -287,7 +314,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** After */
+                /** 之后 */
 @Override
         public TableCreateBuilder after(String columnName) {
             if (!columns.isEmpty()) {
@@ -296,7 +323,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** First */
+                /** 第一个 */
 @Override
         public TableCreateBuilder first() {
             if (!columns.isEmpty()) {
@@ -305,7 +332,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** PrimaryKey */
+                /** primary键 */
 @Override
         public TableCreateBuilder primaryKey(String... cols) {
             for (String col : cols) {
@@ -314,7 +341,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** CommentTable */
+                /** 评论table */
 @Override
         public TableCreateBuilder commentTable(String comment) {
             this.comment = comment;
@@ -328,7 +355,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** Charset */
+                /** 字符集 */
 @Override
         public TableCreateBuilder charset(String charset) {
             this.charset = charset;
@@ -398,12 +425,18 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     // ==================== MySQL 改表构建器 ====================
+    /**
+     * mysqltablealter构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     private static class MysqlTableAlterBuilder implements TableAlterBuilder {
 
         /** Meta表 */
         private final MysqlMetaTable metaTable;
-        /** Sqls */
+        /** SQL */
         private final List<String> sqls = new ArrayList<>();
 
         MysqlTableAlterBuilder(MysqlMetaTable metaTable) {
@@ -420,20 +453,20 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return new MysqlAlterColumnBuilder(this, "ADD COLUMN `" + name + "` " + type, name);
         }
 
-                /** DropColumn */
+                /** 掉落column */
 @Override
         public TableAlterBuilder dropColumn(String columnName) {
             sqls.add("DROP COLUMN `" + columnName + "`");
             return this;
         }
 
-                /** ModifyColumn */
+                /** modifycolumn */
 @Override
         public AlterColumnBuilder modifyColumn(String columnName, String newType) {
             return new MysqlAlterColumnBuilder(this, "MODIFY COLUMN `" + columnName + "` " + newType, columnName);
         }
 
-                /** 添加PrimaryKey */
+                /** 添加primary键 */
 @Override
         public TableAlterBuilder addPrimaryKey(String... columns) {
             String pkCols = String.join(", ", java.util.Arrays.stream(columns).map(c -> "`" + c + "`").toList());
@@ -441,40 +474,40 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** DropPrimaryKey */
+                /** 掉落primary键 */
 @Override
         public TableAlterBuilder dropPrimaryKey() {
             sqls.add("DROP PRIMARY KEY");
             return this;
         }
 
-                /** 添加Index */
+                /** 添加索引 */
 @Override
         public AlterIndexBuilder addIndex(String indexName) {
             return new MysqlAlterIndexBuilder(this, indexName);
         }
 
-                /** DropIndex */
+                /** 掉落索引 */
 @Override
         public TableAlterBuilder dropIndex(String indexName) {
             sqls.add("DROP INDEX `" + indexName + "`");
             return this;
         }
 
-                /** 添加ForeignKey */
+                /** 添加国外键 */
 @Override
         public AlterForeignKeyBuilder addForeignKey(String fkName) {
             return new MysqlAlterForeignKeyBuilder(this, fkName);
         }
 
-                /** DropForeignKey */
+                /** 掉落国外键 */
 @Override
         public TableAlterBuilder dropForeignKey(String fkName) {
             sqls.add("DROP FOREIGN KEY `" + fkName + "`");
             return this;
         }
 
-                /** 重命名To */
+                /** 重命名转为 */
 @Override
         public TableAlterBuilder renameTo(String newName) {
             sqls.add("RENAME TO `" + newName + "`");
@@ -511,13 +544,13 @@ public class MysqlMetaTable extends AbstractMetaTable {
         private final MysqlTableAlterBuilder parent;
         /** 列名称 */
         private final String columnName;
-        /** NOT是否为null */
+        /** NOT是否为空 */
         private boolean notNull;
         /** 默认值 */
         private String defaultValue;
-        /** Comment */
+        /** 评论 */
         private String comment;
-        /** After */
+        /** 之后 */
         private String after;
         /** 首个 */
         private boolean first;
@@ -533,7 +566,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             parent.addSql(sql.toString());
         }
 
-                /** NotNull */
+                /** not空 */
 @Override
         public AlterColumnBuilder notNull() {
             this.notNull = true;
@@ -541,7 +574,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** DefaultValue */
+                /** 默认值 */
 @Override
         public AlterColumnBuilder defaultValue(String val) {
             this.defaultValue = val;
@@ -549,7 +582,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** Comment */
+                /** 评论 */
 @Override
         public AlterColumnBuilder comment(String comment) {
             this.comment = comment;
@@ -557,7 +590,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** After */
+                /** 之后 */
 @Override
         public AlterColumnBuilder after(String columnName) {
             this.after = columnName;
@@ -565,7 +598,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** First */
+                /** 第一个 */
 @Override
         public AlterColumnBuilder first() {
             this.first = true;
@@ -579,7 +612,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return parent;
         }
 
-        /** RebuildColumnClause */
+        /** rebuildcolumnclause */
         private void rebuildColumnClause() {
             String base = parent.sqls.getLast();
             StringBuilder sb = new StringBuilder();
@@ -615,7 +648,7 @@ public class MysqlMetaTable extends AbstractMetaTable {
         private boolean unique;
         /** 类型 */
         private String type;
-        /** Comment */
+        /** 评论 */
         private String comment;
 
         MysqlAlterIndexBuilder(MysqlTableAlterBuilder parent, String indexName) {
@@ -637,14 +670,19 @@ public class MysqlMetaTable extends AbstractMetaTable {
             return this;
         }
 
-                /** Type */
+                /** 类型 */
 @Override
         public AlterIndexBuilder type(String type) {
             this.type = type;
             return this;
         }
 
-        /** Comment */
+        /**
+         * 评论
+         *
+         * @param comment 评论
+         * @return 评论的结果
+         */
         public AlterIndexBuilder comment(String comment) {
             this.comment = comment;
             return this;
@@ -683,9 +721,9 @@ public class MysqlMetaTable extends AbstractMetaTable {
         private String refTable;
         /** 引用列 */
         private String refColumn;
-        /** ONdelete */
+        /** ondelete */
         private String onDelete;
-        /** ONupdate */
+        /** onupdate */
         private String onUpdate;
 
         MysqlAlterForeignKeyBuilder(MysqlTableAlterBuilder parent, String fkName) {
@@ -693,13 +731,18 @@ public class MysqlMetaTable extends AbstractMetaTable {
             this.fkName = fkName;
         }
 
-        /** Column */
+        /**
+         * Column
+         *
+         * @param columnName column名称
+         * @return column的结果
+         */
         public AlterForeignKeyBuilder column(String columnName) {
             this.columnName = columnName;
             return this;
         }
 
-                /** References */
+                /** 引用 */
 @Override
         public AlterForeignKeyBuilder references(String table, String column) {
             this.refTable = table;
@@ -738,7 +781,12 @@ public class MysqlMetaTable extends AbstractMetaTable {
         }
     }
 
-    /** EscapeSql */
+    /**
+     * escapesql
+     *
+     * @param value 值
+     * @return escapeSql的结果
+     */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

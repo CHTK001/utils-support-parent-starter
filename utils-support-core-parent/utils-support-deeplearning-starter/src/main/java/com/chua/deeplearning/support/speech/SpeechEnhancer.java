@@ -13,7 +13,7 @@ import java.util.List;
  * 语音增强器（降噪）。
  * <p>
  * 输入带噪语音音频字节数组，输出降噪后的语音音频字节数组。
- * 支持 wav / pcm 等音频格式，具体格式由模型实现定义（如 DFSMN 模型处理 48kHz 单声道）。
+   * 支持 wav / pcm 等音频格式，具体格式由模型实现定义（如 DFSMN 模型处理 48khz 单声道）。
  * </p>
  *
  * @author CH
@@ -22,9 +22,9 @@ import java.util.List;
 public interface SpeechEnhancer {
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -57,7 +57,7 @@ public interface SpeechEnhancer {
     /**
      * 查询该能力下全部可用模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return ModelRegistry.getModelIdsByCapability(SpeechEnhancer.class);
@@ -107,16 +107,20 @@ public interface SpeechEnhancer {
  *
  * @author CH
  * @since 4.0.0.42
+ * @param audioData 音频数据
+ * @return 增强的结果
+ * @param device device
+ * @param model 模型
  */
 class DefaultSpeechEnhancer implements SpeechEnhancer {
 
-    private static final String DEFAULT_DEVICE = "cpu";
+    private static final String DEFAULT_DEVICE = "cpu"; // 默认device
 
-    private final IdentificationEngine engine;
-    private final String modelName;
-    private final ModelSetting setting;
-    private String modelPath;
-    private String device = DEFAULT_DEVICE;
+    private final IdentificationEngine engine; // engine
+    private final String modelName; // 模型名称
+    private final ModelSetting setting; // setting
+    private String modelPath; // 模型路径
+    private String device = DEFAULT_DEVICE; // device
 
     DefaultSpeechEnhancer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
@@ -133,6 +137,13 @@ class DefaultSpeechEnhancer implements SpeechEnhancer {
     @Override
     public SpeechEnhancer model(String model) {
         return this;
+    /**
+     * 模型路径。
+     * @param path 路径
+     * @return 模型路径的结果
+     * @param audioData 音频数据
+     * @param device device
+     */
     }
 
     @Override

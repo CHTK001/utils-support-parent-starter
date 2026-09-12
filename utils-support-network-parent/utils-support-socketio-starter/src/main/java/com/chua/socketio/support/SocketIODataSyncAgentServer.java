@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SocketIO 数据同步 Agent 服务端
+   * Socket.IO 数据同步 智能体 服务端
  * <p>运行在 DataSyncServer 侧，通过 SocketIO 管理 Agent 连接，支持事件拉取和推送。</p>
  *
  * @author CH
@@ -29,8 +29,8 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     private com.corundumstudio.socketio.SocketIOServer server;
 
     /**
-     * 创建 SocketIODataSyncAgentServer 实例
-     * @param port port
+      * 创建 套接字io数据同步智能体服务端 实例
+     * @param port 端口
      */
     public SocketIODataSyncAgentServer(int port) {
         super("socketio");
@@ -58,11 +58,11 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
         });
 
         server.addEventListener("pull_result", Map.class, (client, data, ackSender) -> {
-            // handled by source request correlation
+ // 处理 by 源 请求 correlation
         });
 
         server.addEventListener("push_result", Map.class, (client, data, ackSender) -> {
-            // handled by source request correlation
+ // 处理 by 源 请求 correlation
         });
 
         server.start();
@@ -81,7 +81,15 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     }
 
     @Override
-    /** 转换ToSource */
+    /**
+     * 转换转为源
+     *
+     * @param agent 智能体
+     * @param data 数据
+     * @return 转换转为源的结果
+     * @author CH
+     * @since 4.0.0
+     */
     public DataSyncSource convertToSource(DataSyncAgent agent, Object data) {
         if (agent == null) {
             return null;
@@ -98,11 +106,11 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
         /**
-         * agent Id
+          * 智能体 标识
          */
         private final String agentId;
         /**
-         * source Id
+          * 源 标识
          */
         private final String sourceId;
         /**

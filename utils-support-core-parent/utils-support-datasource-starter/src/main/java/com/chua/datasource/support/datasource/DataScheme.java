@@ -3,7 +3,7 @@ package com.chua.datasource.support.datasource;
 import java.util.List;
 
 /**
- * 数据方案接口，对应数据库中的一个库（Schema）。
+   * 数据方案接口，对应数据库中的一个库（模式）。
  *
  * @author CH
  * @since 4.0.0.42

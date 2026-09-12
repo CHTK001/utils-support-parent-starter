@@ -28,6 +28,13 @@ import java.util.Map;
  *
  * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
  * instance.run();
+ * }</pre>rue, "transform")
+ *     .when("check", false, "end")
+ *     .next("transform").next("end")
+ *     .end();
+ *
+ * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
+ * instance.run();
  * }</pre>
  *
  * @author CH
@@ -38,7 +45,7 @@ public interface Flow {
     /**
      * 获取流程唯一标识。
      *
-     * @return 流程 ID
+     * @return 流程 标识
      */
     String getId();
 
@@ -71,7 +78,7 @@ public interface Flow {
      * 获取指定节点。
      *
      * @param id 节点唯一标识
-     * @return 节点实例，不存在时返回 null
+     * @return 节点实例，不存在时返回 空
      */
     FlowNode getNode(String id);
 

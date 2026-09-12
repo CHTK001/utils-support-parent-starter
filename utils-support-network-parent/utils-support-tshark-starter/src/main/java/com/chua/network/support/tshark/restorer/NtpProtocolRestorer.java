@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class NtpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "ntp";
     }
@@ -62,7 +62,12 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToModeName */
+    /**
+     * 转为mode名称
+     *
+     * @param mode mode
+     * @return 转为mode名称的结果
+     */
     private static String toModeName(int mode) {
         return switch (mode) {
             case 0 -> "Reserved";
@@ -77,7 +82,12 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToLeapName */
+    /**
+     * 转为leap名称
+     *
+     * @param li li
+     * @return 转为leap名称的结果
+     */
     private static String toLeapName(int li) {
         return switch (li) {
             case 0 -> "NoWarning";

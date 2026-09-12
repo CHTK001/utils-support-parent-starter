@@ -13,12 +13,21 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param bps bps
+ * @return 格式化速度的结果
+ * @param options 期权
  */
 public final class NetworkCommand extends AbstractCommand {
 
     @Override
     public String name() {
         return "net";
+    /**
+     * description。
+     * @return description的结果
+     * @param bps bps
+     * @param options 期权
+     */
     }
 
     @Override

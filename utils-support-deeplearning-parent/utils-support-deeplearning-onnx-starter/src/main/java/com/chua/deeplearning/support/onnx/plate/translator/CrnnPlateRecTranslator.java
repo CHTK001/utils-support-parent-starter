@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * CRNN              Translator
  * <p>
- *        SmartJavaAI     CRNNPlateRecTranslator          
+   * smartjavaAI     crnn铭牌rectranslator
  *                                                          
  * </p>
  *
@@ -28,10 +28,10 @@ import java.util.List;
 public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
 
     /** 车牌名称 */
-    /** Plate_name */
+    /** 铭牌_名称 */
     private static final String PLATE_NAME = "#                                                                                                                           0123456789ABCDEFGHJKLMNPQRSTUVWXYZ      ";
     /** 车牌颜色数组 */
-    /** Plate_colors */
+    /** 铭牌_colors */
     private static final String[] PLATE_COLORS = {"      ", "      ", "      ", "      ", "      "};
     /** 均值数组 */
     /** Mean */
@@ -40,17 +40,17 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     /** STD */
     private static final float STD = 0.193f;
     /** 输入宽度 */
-    /** Input_w */
+    /** 输入_w */
     private static final int INPUT_W = 168;
     /** 输入高度 */
-    /** Input_h */
+    /** 输入_h */
     private static final int INPUT_H = 48;
     /** 省份名称 */
     /** Provinces */
     private static final String PROVINCES = "                                                                                             ";
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
 
@@ -72,9 +72,9 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public PlateResult processOutput(TranslatorContext ctx, NDList list) {
-        //                         plate logits + color logits
+ // 铭牌 logits + color logits
         // (0);  // shape: [1, T, num_classes]
         NDArray plateOutput = list.get(0);  // shape: [1, T, num_classes]
         // ull;  // shape: [1, num_colors]
@@ -98,7 +98,12 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return new PlateResult(plateNo, plateColor);
     }
 
-    /** 解码Plate */
+    /**
+     * 解码铭牌
+     *
+     * @param preds preds
+     * @return decode铭牌的结果
+     */
     private String decodePlate(int[] preds) {
         int pre = 0;
         List<Integer> newPreds = new ArrayList<>();
@@ -118,7 +123,12 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return sb.toString();
     }
 
-    /** NormalizePlateText */
+    /**
+     * normalize铭牌文本
+     *
+     * @param raw raw
+     * @return normalize铭牌文本的结果
+     */
     private String normalizePlateText(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
@@ -161,7 +171,12 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return cleaned;
     }
 
-    /** 查找ProvinceIndex */
+    /**
+     * 查找province索引
+     *
+     * @param text 文本
+     * @return findprovince索引的结果
+     */
     private int findProvinceIndex(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (isProvince(text.charAt(i))) {
@@ -171,7 +186,12 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
         return -1;
     }
 
-    /** 是否Province */
+    /**
+     * 是否Province
+     *
+     * @param c c
+     * @return 是否province的结果
+     */
     private boolean isProvince(char c) {
         return PROVINCES.indexOf(c) >= 0;
     }

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Java Agent 链式注入器 — 提供流畅的 API 将 Agent JAR 注入到目标 JVM。
+   * Java 智能体 链式注入器 — 提供流畅的 API 将 智能体 JAR 注入到目标 JVM。
  *
  * <p>支持两种注入方式：</p>
  * <ul>
@@ -48,6 +48,12 @@ import java.util.concurrent.TimeUnit;
  * AgentInjector.builder()
  *         .agentPath(Path.of("runtime-starter.jar"))
  *         .injectAll();
+ * }</pre>njectAll();
+ *
+ * // 注入到所有 Java 进程
+ * AgentInjector.builder()
+ *         .agentPath(Path.of("runtime-starter.jar"))
+ *         .injectAll();
  * }</pre>
  *
  * <h3>注入后使用</h3>
@@ -58,6 +64,8 @@ import java.util.concurrent.TimeUnit;
  *         .id("target-app")
  *         .name("Target Application")
  *         .build());
+ * }</pre>on")
+ *         .build());
  * }</pre>
  *
  * @author CH
@@ -67,7 +75,7 @@ import java.util.concurrent.TimeUnit;
 public class AgentInjector {
 
     /**
-     * JDK VirtualMachine 类名
+      * JDK 虚拟machine 类名
      */
     private static final String VM_CLASS_NAME = "com.sun.tools.attach.VirtualMachine";
 
@@ -77,17 +85,17 @@ public class AgentInjector {
     private static final String JATTACH_PATH = "/usr/local/bin/jattach";
 
     /**
-     * Agent 注入超时（毫秒）
+      * 智能体 注入超时（毫秒）
      */
     private static final int DEFAULT_TIMEOUT = 30_000;
 
     /**
-     * Agent JAR 路径
+      * 智能体 JAR 路径
      */
     private Path agentPath;
 
     /**
-     * 目标进程 ID
+      * 目标进程 标识
      */
     private Integer pid;
 
@@ -102,7 +110,7 @@ public class AgentInjector {
     private String processNameContains;
 
     /**
-     * Agent 参数
+      * 智能体 参数
      */
     private String options;
 
@@ -246,10 +254,10 @@ public class AgentInjector {
     // ==================== 注入方式 ====================
 
     /**
-     * 通过 JDK VirtualMachine 注入。
+      * 通过 JDK 虚拟machine 注入。
      *
-     * @param pid 目标进程 ID
-     * @param agentJarPath Agent JAR 路径
+     * @param pid 目标进程 标识
+     * @param agentJarPath 智能体 JAR 路径
      * @return 注入结果
      */
     private CmdResult injectByVirtualMachine(int pid, String agentJarPath) {
@@ -287,8 +295,8 @@ public class AgentInjector {
     /**
      * 通过 jattach 命令注入。
      *
-     * @param pid 目标进程 ID
-     * @param agentJarPath Agent JAR 路径
+     * @param pid 目标进程 标识
+     * @param agentJarPath 智能体 JAR 路径
      * @return 注入结果
      */
     private CmdResult injectByJattach(int pid, String agentJarPath) {
@@ -300,8 +308,8 @@ public class AgentInjector {
     /**
      * 通过 jpigeon 工具注入。
      *
-     * @param pid 目标进程 ID
-     * @param agentJarPath Agent JAR 路径
+     * @param pid 目标进程 标识
+     * @param agentJarPath 智能体 JAR 路径
      * @return 注入结果
      */
     private CmdResult injectByJpigeon(int pid, String agentJarPath) {
@@ -313,12 +321,12 @@ public class AgentInjector {
     /**
      * 自动选择注入方式。
      *
-     * @param pid 目标进程 ID
-     * @param agentJarPath Agent JAR 路径
+     * @param pid 目标进程 标识
+     * @param agentJarPath 智能体 JAR 路径
      * @return 注入结果
      */
     private CmdResult injectByAutomatic(int pid, String agentJarPath) {
-        // 尝试 VirtualMachine
+ // 尝试 虚拟machine
         CmdResult result = injectByVirtualMachine(pid, agentJarPath);
         if (result.isSuccess()) {
             return result;
@@ -365,10 +373,10 @@ public class AgentInjector {
     }
 
     /**
-     * 从 JAR Manifest 中获取 Agent-Class。
+      * 从 JAR Manifest 中获取 智能体-类。
      *
-     * @param agentJarPath Agent JAR 路径
-     * @return Agent 类名，未找到返回 null
+     * @param agentJarPath 智能体 JAR 路径
+     * @return Agent 类名，未找到返回 空
      */
     private String getAgentClass(String agentJarPath) {
         try {
@@ -385,6 +393,8 @@ public class AgentInjector {
 
     /**
      * 注入策略枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum InjectionStrategy {
         /**
@@ -393,7 +403,7 @@ public class AgentInjector {
         AUTOMATIC,
 
         /**
-         * JDK VirtualMachine
+          * JDK 虚拟machine
          */
         VIRTUAL_MACHINE,
 
@@ -409,19 +419,20 @@ public class AgentInjector {
     }
 
     /**
-     * AgentInjector 构建器 — 链式 API。
+      * 智能体injector 构建器 — 链式 API。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     public static class AgentInjectorBuilder {
 
         /**
-         * Agent JAR 路径
+          * 智能体 JAR 路径
          */
         private Path agentPath;
 
         /**
-         * 目标进程 ID
+          * 目标进程 标识
          */
         private Integer pid;
 
@@ -436,7 +447,7 @@ public class AgentInjector {
         private String processNameContains;
 
         /**
-         * Agent 参数
+          * 智能体 参数
          */
         private String options;
 
@@ -456,9 +467,9 @@ public class AgentInjector {
         private InjectionStrategy strategy = InjectionStrategy.AUTOMATIC;
 
         /**
-         * 指定 Agent JAR 路径。
+          * 指定 智能体 JAR 路径。
          *
-         * @param agentPath Agent JAR 路径
+         * @param agentPath 智能体 JAR 路径
          * @return 构建器自身
          */
         public AgentInjectorBuilder agentPath(Path agentPath) {
@@ -467,9 +478,9 @@ public class AgentInjector {
         }
 
         /**
-         * 指定 Agent JAR 路径（字符串形式）。
+          * 指定 智能体 JAR 路径（字符串形式）。
          *
-         * @param agentPath Agent JAR 路径
+         * @param agentPath 智能体 JAR 路径
          * @return 构建器自身
          */
         public AgentInjectorBuilder agentPath(String agentPath) {
@@ -478,9 +489,9 @@ public class AgentInjector {
         }
 
         /**
-         * 指定目标进程 ID。
+          * 指定目标进程 标识。
          *
-         * @param pid 进程 ID
+         * @param pid 进程 标识
          * @return 构建器自身
          */
         public AgentInjectorBuilder pid(int pid) {
@@ -511,9 +522,9 @@ public class AgentInjector {
         }
 
         /**
-         * 指定 Agent 参数。
+          * 指定 智能体 参数。
          *
-         * @param options Agent 参数（key=value 格式，多参数用逗号分隔）
+         * @param options 智能体 参数（键=值 格式，多参数用逗号分隔）
          * @return 构建器自身
          */
         public AgentInjectorBuilder options(String options) {

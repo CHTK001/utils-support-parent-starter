@@ -8,10 +8,10 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.io.File;
 
 /**
- * DBF（dBASE）文件系统 SPI 实现。
+   * DBF（dbase）文件系统 SPI 实现。
  *
  * <p>基于 javadbf 库实现 .dbf 文件的读取与写入。
- * DBF 是 dBASE、FoxPro 等数据库系统使用的表格数据格式。</p>
+   * DBF 是 dbase、foxpro 等数据库系统使用的表格数据格式。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -23,6 +23,8 @@ import java.io.File;
  * // 写入
  * DbfWriteBuilder wb = (DbfWriteBuilder) fs.write(new File("out.dbf"));
  * wb.write(data);
+ * }</pre>(new File("out.dbf"));
+ * wb.write(data);
  * }</pre>
  *
  * @author CH
@@ -32,7 +34,7 @@ import java.io.File;
 public class DbfFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         
         return "dbf";

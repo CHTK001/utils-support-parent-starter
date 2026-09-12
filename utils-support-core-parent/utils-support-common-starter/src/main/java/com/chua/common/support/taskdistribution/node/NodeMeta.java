@@ -24,13 +24,13 @@ public class NodeMeta {
     private String nodeId;
 
     /**
-     * 能力标签（{"cap": "cpu", "group": "prod"}）
+      * 能力标签（{"cap": "cpu", "群体": "prod"}）
      */
     @Builder.Default
-    private Map<String, String> tags = new HashMap<>();
+    private Map<String, String> tags = new HashMap<>(); // 标签
 
     /**
-     * 节点权重（负载均衡 WEIGHT 策略使用）
+      * 节点权重（负载均衡 权重 策略使用）
      */
     @Builder.Default
     /** 权重 */
@@ -47,7 +47,7 @@ public class NodeMeta {
     private int port;
 
     /**
-     * 归属中间件节点 ID（home 节点独享派发）
+      * 归属中间件节点 标识（Home 节点独享派发）
      */
     private String homeMiddlewareId;
 

@@ -15,15 +15,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * IDEA-CCNL/Randeng-T5-77M-Chinese Seq2Seq ONNX 翻译器
+   * 想法-CCNL/Randeng-T5-77M-Chinese Seq2Seq ONNX 翻译器
  * <p>
- * 清华大学 IDEA-CCNL 在悟道 180G 中文语料上重训的 T5 中文版，
- * 参数量约 77M，对标英文 BART-base 级规模。词表、tokenizer、位置嵌入均针对中文优化。
+   * 清华大学 想法-CCNL 在悟道 180G 中文语料上重训的 T5 中文版，
+   * 参数量约 77M，对标英文 BART-基础 级规模。词表、tokenizer、位置嵌入均针对中文优化。
  * 适用于轻量级中文摘要、文本生成、信息抽取等任务。
  * </p>
  * <p>
- * 模型来源：huggingface.co/IDEA-CCNL/Randeng-T5-77M-Chinese
- * 架构：Encoder-Decoder (ONNX: encoder_model.onnx / decoder_with_past_model.onnx)
+   * 模型来源：huggingface.co/想法-CCNL/Randeng-T5-77M-Chinese
+   * 架构：编码器-解码器 (ONNX: 编码器_模型.onnx / 解码器_with_past_模型.onnx)
  * 输入：中文文本字符串
  * 输出：生成的中文字符串
  * </p>
@@ -43,10 +43,10 @@ import java.nio.file.Path;
 public class RandengT5Translator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
+    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 512;
     /** 结束符标识 */
-    /** Eos_id */
+    /** Eos_标识 */
     private static final long EOS_ID = 1L;
 
     /** 分词器 */
@@ -71,7 +71,7 @@ public class RandengT5Translator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("RandengT5 tokenizer not initialized");
@@ -92,7 +92,7 @@ public class RandengT5Translator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -116,7 +116,12 @@ public class RandengT5Translator implements Translator<String, String> {
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -127,7 +132,13 @@ public class RandengT5Translator implements Translator<String, String> {
         return modelPath;
     }
 
-    /** 查找File */
+    /**
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

@@ -16,28 +16,28 @@ import java.util.List;
 
 
 /**
- * YOLOv2-COCO                
+   * yolov2-COCO
  * <p>
- *        ONNX Runtime     YOLOv2 COCO                               
+   * ONNX Runtime     yolov2 COCO
  * <p>
  *                
  * -                416x416                608x608   
  * -                                                    
  * -             COCO   80             
- * - Anchor Boxes          5                 anchor boxes
+   * - 锚栓 Boxes          5                 锚栓 boxes
  * <p>
  *                
  * -                [1, 3, 416, 416] - NCHW
  * -                [1, 125, 13, 13] - (5 * (5 + 80))
  * -                80
- * - Anchor          5
+   * - 锚栓          5
  * <p>
  *                
  * -                YOLO9000: Better, Faster, Stronger
  * - ONNX          https://github.com/onnx/models/tree/main/validated/vision/object_detection_segmentation/yolov2-coco
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
@@ -64,7 +64,7 @@ public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> 
     private static final int NUM_CLASSES = 80;
 
     /**
-     * Anchor boxes       
+      * 锚栓 boxes
      */
     private static final int NUM_ANCHORS = 5;
 
@@ -74,15 +74,15 @@ public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> 
     private static final int GRID_SIZE = 13;
 
     /**
-     * YOLOv2     anchor boxes         ,          
-     *              COCO                                   anchors
+      * yolov2     锚栓 boxes         ,
+      * COCO                                   锚栓
      */
 private static final float[][] ANCHORS = {
-        {1.3221f, 1.73145f},   // anchor 0
-        {3.19275f, 4.00944f},  // anchor 1
-        {5.05587f, 8.09892f},  // anchor 2
-        {9.47112f, 4.84053f},  // anchor 3
-        {11.2364f, 10.0071f}   // anchor 4
+        {1.3221f, 1.73145f}, // 锚栓 0
+        {3.19275f, 4.00944f}, // 锚栓 1
+        {5.05587f, 8.09892f}, // 锚栓 2
+        {9.47112f, 4.84053f}, // 锚栓 3
+        {11.2364f, 10.0071f} // 锚栓 4
 };
 
     /**
@@ -126,7 +126,7 @@ private static final float[][] ANCHORS = {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
         imageWidth = input.getWidth();
@@ -139,7 +139,7 @@ private static final float[][] ANCHORS = {
         //                                        
         Image resized = input.resize(inputSize, inputSize, true);
 
-        //           NDArray             
+ // ndarray
         NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
 
         //              [0, 1]
@@ -148,7 +148,7 @@ private static final float[][] ANCHORS = {
         //           CHW       
         array = array.transpose(2, 0, 1);
 
-        //                       batch          Batchifier.STACK                
+ // 批量          Batchifier.STACK
         // array = array.expandDims(0);  //                                   batch       
 
         if (log.isDebugEnabled()) {
@@ -158,7 +158,7 @@ private static final float[][] ANCHORS = {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");
@@ -171,7 +171,7 @@ private static final float[][] ANCHORS = {
             log.debug("       shape: {}", output.getShape());
         }
 
-        //        batch          [125, 13, 13]
+ // 批量          [125, 13, 13]
         output = output.squeeze(0);
 
         //                   
@@ -182,7 +182,7 @@ private static final float[][] ANCHORS = {
         //                               
         for (int cy = 0; cy < GRID_SIZE; cy++) {
             for (int cx = 0; cx < GRID_SIZE; cx++) {
-                //              anchor box
+ // 锚栓 box
                 for (int b = 0; b < NUM_ANCHORS; b++) {
                     //           125                         
                     int baseIndex = b * (5 + NUM_CLASSES);
@@ -325,7 +325,7 @@ private static final float[][] ANCHORS = {
     }
 
     /**
-     *                          IoU (Intersection over Union)
+      * iou (Intersection over Union)
      *
      * @param box1           1
      * @param box2           2
@@ -383,8 +383,8 @@ private static final float[][] ANCHORS = {
     /**
      *                   
      * <p>
-     *        STACK                    batch       
-     * processInput        [C, H, W] = [3, 416, 416]
+      * STACK                    批量
+      * 处理输入        [C, H, W] = [3, 416, 416]
      * Batchifier.STACK                    [1, C, H, W] = [1, 3, 416, 416]
      *
      * @return STACK             

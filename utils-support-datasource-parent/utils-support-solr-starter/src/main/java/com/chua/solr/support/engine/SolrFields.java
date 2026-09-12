@@ -8,10 +8,10 @@ package com.chua.solr.support.engine;
  */
 public class SolrFields {
 
-    /** 创建 SolrFields 实例 */
+    /** 创建 Solr字段 实例 */
     private SolrFields() {}
 
-    /** ID */
+    /** 标识 */
     public static final String ID = "id";
     /** 版本 */
     public static final String VERSION = "_version_";

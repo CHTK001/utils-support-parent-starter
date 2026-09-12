@@ -31,39 +31,64 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+/**
+ * c3d动作detectiontranslator类。
+ *
+ * @author CH
+ * @since 4.0.0
+ * @param x1 x1
+ * @param y1 y1
+ * @param x2 x2
+ * @param y2 y2
+ * @param score score
+ * @param classId 类标识
+ * @return Detection的结果
+ * @param predBboxes predbboxes
+ * @param predScores predscores
+ * @param timestamp 时间戳
+ * @param frames 帧
+ * @param videoData 视频数据
+ */
 
 @Slf4j
 public class C3DActionDetectionTranslator implements ITranslator<byte[], List<ActionDetectionResult>> {
 
-    private static final int INPUT_FRAMES = 4;
-private static final int INPUT_CHANNELS = 3;
-    private static final int INPUT_HEIGHT = 384;
-    private static final int INPUT_WIDTH = 640;
-    private static final int STEP = 2;
-    private static final int VIDEO_LENGTH_LIMIT = 10;
-    private static final float NMS_THRESH = 0.3f;
-    private static final int PRE_NMS_TOP_N = 100;
-    private static final int POST_NMS_TOP_N = 10;
+    private static final int INPUT_FRAMES = 4; // 输入帧
+private static final int INPUT_CHANNELS = 3; // 输入通道
+    private static final int INPUT_HEIGHT = 384; // 输入height
+    private static final int INPUT_WIDTH = 640; // 输入width
+    private static final int STEP = 2; // STEP
+    private static final int VIDEO_LENGTH_LIMIT = 10; // 视频长度限制
+    private static final float NMS_THRESH = 0.3f; // NMS_THRESH
+    private static final int PRE_NMS_TOP_N = 100; // PRE_NMS_TOP_N
+    private static final int POST_NMS_TOP_N = 10; // POST_NMS_TOP_N
     private static final float[] PRE_NMS_THRESH = {
             0.45f, 0.45f, 0.45f, 0.45f, 0.45f, 0.45f, 0.45f, 0.45f, 0.45f
     };
     private static final String[] ACTION_NAMES = {
             "举手", "吃喝", "吸烟", "打电话", "玩手机", "趴桌睡觉", "跌倒", "洗手", "拍照"
     };
-    private static final int NUM_CLASSES = ACTION_NAMES.length;
+    private static final int NUM_CLASSES = ACTION_NAMES.length; // num类
 
-    private static final String RESOURCE_BASE = "vision/action/c3d/";
-    private static final String MODEL_FILE = "model.onnx";
-    private static final String MODEL_ID = "c3d-action-detection";
+    private static final String RESOURCE_BASE = "vision/action/c3d/"; // RESOURCE_基础
+    private static final String MODEL_FILE = "model.onnx"; // 模型文件
+    private static final String MODEL_ID = "c3d-action-detection"; // 模型标识
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private volatile boolean loaded;
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private volatile boolean loaded; // 加载
 
-    private static volatile C3DActionDetectionTranslator shared;
+    private static volatile C3DActionDetectionTranslator shared; // 共享
+/**
+ * c3d动作detectiontranslator。
+ * @return 获取instance的结果
+ */
 
     public static C3DActionDetectionTranslator getInstance() {
         if (shared == null) {
+            /**
+             * prepare。
+             */
             synchronized (C3DActionDetectionTranslator.class) {
                 if (shared == null) {
                     shared = new C3DActionDetectionTranslator();
@@ -77,9 +102,13 @@ private static final int INPUT_CHANNELS = 3;
     }
 
     private void prepare() {
-        if (loaded) return;
+        if (loaded) {
+            return;
+        }
         synchronized (this) {
-            if (loaded) return;
+            if (loaded) {
+                return;
+            }
             try {
                 Path cache = Path.of(System.getProperty("java.io.tmpdir"))
                         .resolve("chua-models").resolve(MODEL_ID);
@@ -95,6 +124,12 @@ private static final int INPUT_CHANNELS = 3;
                             .load();
                 }
                 this.ortEnv = OrtEnvironment.getEnvironment();
+                /**
+                 * 名称。
+                 * @return 名称的结果
+                 * @param frames 帧
+                 * @param videoData 视频数据
+                 */
                 OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
                 opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
                 this.session = ortEnv.createSession(cache.resolve(MODEL_FILE).toString(), opts);
@@ -135,8 +170,12 @@ private static final int INPUT_CHANNELS = 3;
                     int limitFrames = (int) Math.min(duration, VIDEO_LENGTH_LIMIT);
                     Mat frame = new Mat();
                     for (int i = 0; i < limitFrames * fps; i++) {
-                        if (!capture.read(frame)) break;
-                        if (frame.empty()) break;
+                        if (!capture.read(frame)) {
+                            break;
+                        }
+                        if (frame.empty()) {
+                            break;
+                        }
                         allFrames.add(frame.clone());
                     }
                     frame.release();
@@ -150,7 +189,9 @@ private static final int INPUT_CHANNELS = 3;
                         for (int j = 0; j < INPUT_FRAMES && startTs + j < allFrames.size(); j++) {
                             windowFrames.add(allFrames.get(startTs + j));
                         }
-                        if (windowFrames.size() < INPUT_FRAMES) break;
+                        if (windowFrames.size() < INPUT_FRAMES) {
+                            break;
+                        }
                         float[] inputData = preprocess(windowFrames);
                         long[] shape = {1, INPUT_CHANNELS, INPUT_FRAMES, INPUT_HEIGHT, INPUT_WIDTH};
                         float timestamp = (float) startTs / (float) actualFps;
@@ -207,6 +248,16 @@ private static final int INPUT_CHANNELS = 3;
                         int pixelOffset = f * frameSize + y * INPUT_WIDTH + x;
                         data[0 * chStride + pixelOffset] = (float) pixel[0];
                         data[1 * chStride + pixelOffset] = (float) pixel[1];
+                        /**
+                         * 解析tensor。
+                         * @param result 结果
+                         * @param name 名称
+                         * @param expectedDims 期望dims
+                         * @return 解析tensor的结果
+                         * @param predBboxes predBboxes
+                         * @param predScores predScores
+                         * @param timestamp 时间戳
+                         */
                         data[2 * chStride + pixelOffset] = (float) pixel[2];
                     }
                 }
@@ -220,11 +271,15 @@ private static final int INPUT_CHANNELS = 3;
     private float[][] parseTensor(OrtSession.Result result, String name, int expectedDims) {
         try {
             var opt = result.get(name);
-            if (opt.isEmpty()) return new float[0][0];
+            if (opt.isEmpty()) {
+                return new float[0][0];
+            }
             var tensor = (OnnxTensor) opt.get();
             float[] flat = tensor.getFloatBuffer().array();
             long[] shape = tensor.getInfo().getShape();
-            if (shape.length != expectedDims) return new float[0][0];
+            if (shape.length != expectedDims) {
+                return new float[0][0];
+            }
             int dim1 = (int) shape[0];
             int dim2 = (int) shape[1];
             int dim3 = (int) shape[2];
@@ -250,14 +305,22 @@ private static final int INPUT_CHANNELS = 3;
         for (int c = 0; c < NUM_CLASSES; c++) {
             List<Detection> candidates = new ArrayList<>();
             for (int i = 0; i < numDetections; i++) {
-                if (predScores[i].length <= c) continue;
+                if (predScores[i].length <= c) {
+                    continue;
+                }
                 float score = predScores[i][c];
-                if (score < PRE_NMS_THRESH[c]) continue;
+                if (score < PRE_NMS_THRESH[c]) {
+                    continue;
+                }
                 float[] box = predBboxes[i];
-                if (box.length < 4) continue;
+                if (box.length < 4) {
+                    continue;
+                }
                 candidates.add(new Detection(box[0], box[1], box[2], box[3], score, c));
             }
-            if (candidates.isEmpty()) continue;
+            if (candidates.isEmpty()) {
+                continue;
+            }
             candidates.sort((a, b) -> Float.compare(b.score, a.score));
             if (candidates.size() > PRE_NMS_TOP_N) {
                 candidates = candidates.subList(0, PRE_NMS_TOP_N);
@@ -265,6 +328,12 @@ private static final int INPUT_CHANNELS = 3;
             List<Detection> kept = nms(candidates, NMS_THRESH);
             for (Detection d : kept) {
                 results.add(new ActionDetectionResult(
+                        /**
+                         * nms。
+                         * @param detections detections
+                         * @param threshold 阈值
+                         * @return nms的结果
+                         */
                         timestamp, ACTION_NAMES[d.classId], d.score,
                         d.x1, d.y1, d.x2 - d.x1, d.y2 - d.y1));
             }
@@ -276,15 +345,37 @@ private static final int INPUT_CHANNELS = 3;
         List<Detection> result = new ArrayList<>();
         boolean[] suppressed = new boolean[detections.size()];
         for (int i = 0; i < detections.size(); i++) {
-            if (suppressed[i]) continue;
+            if (suppressed[i]) {
+                continue;
+            }
             Detection a = detections.get(i);
             result.add(a);
             for (int j = i + 1; j < detections.size(); j++) {
-                if (suppressed[j]) continue;
+                if (suppressed[j]) {
+                    continue;
+                }
                 Detection b = detections.get(j);
                 float iou = computeIou(a, b);
                 if (iou > threshold) {
+                    /**
+                      * computeiou。
+                     * @param a a
+                     * @param b b
+                     * @return computeIou的结果
+                     * @param x1 x1
+                     * @param y1 y1
+                     * @param x2 x2
+                     * @param y2 y2
+                     * @param score score
+                     * @param classId 类id
+                     */
                     suppressed[j] = true;
+                /**
+                 * computeIou。
+                 * @param a a
+                 * @param b b
+                 * @return computeIou的结果
+                 */
                 }
             }
         }

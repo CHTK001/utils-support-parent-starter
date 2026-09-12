@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Memcached 应用层 Handler — 拦截 Spymemcached 客户端关键调用并生成应用语义传输记录。
+   * Memcached 应用层 处理器 — 拦截 Spymemcached 客户端关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -22,7 +22,7 @@ import com.chua.runtime.protocol.Software;
 public class MemcachedHandler extends AbstractAppHandler {
 
     /**
-     * MemcachedClient 类内部名
+      * memcached客户端 类内部名
      */
     private static final String MEMCACHED_CLIENT = "net/spy/memcached/MemcachedClient";
 
@@ -35,13 +35,13 @@ public class MemcachedHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "memcached-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "memcached.enabled";
     }
@@ -53,13 +53,13 @@ public class MemcachedHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MEMCACHED;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(MEMCACHED_CLIENT, CLIENT_METHODS);
     }

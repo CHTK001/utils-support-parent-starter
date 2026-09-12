@@ -26,9 +26,9 @@ public interface LayoutDetector {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -38,9 +38,9 @@ public interface LayoutDetector {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default LayoutDetector provider(String provider) {
@@ -57,7 +57,11 @@ public interface LayoutDetector {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @return 创建的结果
+     */
     static LayoutDetector create() {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "", ModelSetting.builder().build());
     }
@@ -78,7 +82,7 @@ public interface LayoutDetector {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.layout.LayoutDetector.class);
@@ -139,7 +143,7 @@ public interface LayoutDetector {
     /**
      * 解析文档版面为结构化文本（Markdown）。
      * <p>端到端版面解析模型（如 OvisOCR2、Unlimited-OCR）直接输出结构化 Markdown 文本，
-     * 包含表格 HTML、公式 LaTeX 和图片坐标。
+      * 包含表格 HTML、公式 乳胶 和图片坐标。
      * 传统检测框模型默认不支持此方法。</p>
      *
      * @param imageData 图像数据
@@ -213,14 +217,14 @@ class DefaultLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LayoutDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -234,7 +238,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     }
 
     @Override
-    /** UseGpu */
+    /** usegpu */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;
@@ -242,7 +246,12 @@ class DefaultLayoutDetector implements LayoutDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Detect */
+    /**
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
@@ -263,7 +272,12 @@ class DefaultLayoutDetector implements LayoutDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param imageData 镜像数据
+     * @return 解析的结果
+     */
     public String parse(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
@@ -271,7 +285,7 @@ class DefaultLayoutDetector implements LayoutDetector {
         }
         Object result = t.translate(imageData);
         if (result instanceof String txt) {
-            return txt;  // 端到端解析器（OvisOCR2）直接返回 Markdown
+            return txt; // 端到端解析器（ovisocr2）直接返回 Markdown
         }
         // 传统检测框模型 → 按区域类型名拼接
         Map<String, List<PredictRectangle>> regions;

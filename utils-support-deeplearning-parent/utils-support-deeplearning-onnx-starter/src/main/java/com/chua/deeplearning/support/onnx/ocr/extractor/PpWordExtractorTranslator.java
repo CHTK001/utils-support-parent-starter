@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PP-OCRv6 文字识别（ORT 原生 + OpenCV）。
+   * PP-ocrv6 文字识别（ORT 原生 + 打开cv）。
  *
  * <p>替代 DJL 版（djl-onnx 不支持 NDArray 张量运算）。模型 + dict 由 jar
  * {@code utils-support-models-onnx-paddleocrv6-tiny} 提供，NativeLoader 解压。
  * 字符表从 {@code inference.yml} 的 {@code character_dict} 提取（与模型 6906 类对齐，
- * 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（OpenCV resize 高 48、
+   * 而非精简的 dict.txt 6623 行）。输入 {@code x [1,3,48,W]}（打开cv resize 高 48、
  * 按宽高比缩放、归一化；宽度动态，上限 1920），输出 {@code fetch_name_0 [1,seq,classes]}，
  * CTC 解码 → 识别文本。</p>
  *
@@ -38,7 +38,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     /** Img_h */
     private static final int IMG_H = 48;
     /** 图像最大宽度 */
-    /** Img_w_max */
+    /** Img_w_最大 */
     private static final int IMG_W_MAX = 1920;
     /** 均值数组 */
     /** Mean */
@@ -48,10 +48,10 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "inference.onnx";
     /** 配置文件路径 */
-    /** Config_file */
+    /** 配置_文件 */
     private static final String CONFIG_FILE = "inference.yml";
 
     /**
@@ -60,7 +60,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private final String resourceBase;
 
     /**
-     * 模型名称（用于 NativeLoader 缓存隔离）。
+      * 模型名称（用于 NAT加载 缓存隔离）。
      */
     private final String modelName;
 
@@ -74,7 +74,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     private List<String> dict;
 
     /**
-     * 默认使用 PP-OCRv6 tiny 资源。
+      * 默认使用 PP-ocrv6 tiny 资源。
      */
     public PpWordExtractorTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/", "paddleocrv6-rec");
@@ -122,9 +122,9 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-     * 从 inference.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
+      * 从 推理.yml 的 character_dict 提取完整字符表（含 blank 前缀，与模型类数对齐）。
      *
-     * @param ymlPath inference.yml 路径
+     * @param ymlPath 推理.yml 路径
      * @return 字符表（index 0 为 blank，其余为字符）
      */
     private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
@@ -160,7 +160,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
@@ -176,7 +176,12 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         }
     }
 
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     private String recognize(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -234,7 +239,9 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-     * CTC 解码：每步取 argmax，去掉连续重复和 blank（index 0）。
+      * CTC 解码：每步取 argmax，去掉连续重复和 blank（索引 0）。
+     * @param seqProbs seqprobs
+     * @return decode的结果
      */
     private String decode(float[][] seqProbs) {
         StringBuilder sb = new StringBuilder();
@@ -252,7 +259,12 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
         return sb.toString();
     }
 
-    /** Arg最大值 */
+    /**
+     * 参数最大值
+     *
+     * @param arr arr
+     * @return 参数最大的结果
+     */
     private int argMax(float[] arr) {
         int idx = 0;
         float best = arr[0];
@@ -266,7 +278,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

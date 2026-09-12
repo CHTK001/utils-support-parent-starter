@@ -36,14 +36,14 @@ import java.util.stream.Collectors;
 public class BranchOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public BranchOperation(GitClient client) {
         this.client = client;
@@ -115,7 +115,7 @@ public class BranchOperation {
     // ==================== 分支操作方法 ====================
 
     /**
-     * 切换到指定分支（git checkout / git switch）。
+      * 切换到指定分支（Git checkout / Git switch）。
      *
      * @param branch 分支名称（如 "main"、"develop"）
      * @return 当前操作实例
@@ -134,7 +134,7 @@ public class BranchOperation {
     }
 
     /**
-     * 创建并切换到新分支（git checkout -b）。
+      * 创建并切换到新分支（Git checkout -b）。
      *
      * @param branch 新分支名称
      * @return 当前操作实例
@@ -175,7 +175,7 @@ public class BranchOperation {
     }
 
     /**
-     * 删除本地分支（git branch -d）。
+      * 删除本地分支（Git 分支 -d）。
      *
      * @param branch 分支名称
      * @return 当前操作实例
@@ -194,7 +194,7 @@ public class BranchOperation {
     }
 
     /**
-     * 强制删除本地分支（git branch -D），允许删除未合并分支。
+      * 强制删除本地分支（Git 分支 -D），允许删除未合并分支。
      *
      * @param branch 分支名称
      * @return 当前操作实例

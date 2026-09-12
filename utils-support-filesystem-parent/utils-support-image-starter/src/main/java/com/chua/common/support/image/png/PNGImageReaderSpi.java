@@ -10,14 +10,14 @@ import javax.annotation.Nullable;
 
 /**
  * PNG 图像阅读器服务提供者类
- * 该类继承自 ImageReaderSpi，描述 PNG 图像格式的读取支持
+   * 该类继承自 镜像读取spi，描述 PNG 图像格式的读取支持
  *
  * @author CH
  * @since 4.0.0.42
 */
 public class PNGImageReaderSpi extends ImageReaderSpi {
     // 定义供应商名称
-    /** Vendor名称 */
+    /** 供应商名称 */
     private static final String vendorName = "Karstian Lee";
 
     // 定义版本号
@@ -25,7 +25,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     private static final String version = "1.0";
 
     // 支持的文件名列表，包括 png 和 apng
-    /** Names */
+    /** 名称 */
     private static final String[] names = { "png", "PNG", "apng", "APNG" };
 
     // 支持的文件后缀列表
@@ -37,19 +37,19 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     private static final String[] MIMETypes = { "image/png", "image/x-png", "image/apng" };
 
     // 定义 PNG 图像阅读器的类名
-    /** 读取器class名称 */
+    /** 读取器类名称 */
     private static final String readerClassName =
             "com.tianscar.imageio.plugins.png.PNGImageReader";
 
     // 支持的图像写入服务提供者名称列表
-    /** 写入器SPInames */
+    /** 写入器spinames */
     private static final String[] writerSpiNames = {
             "com.tianscar.imageio.plugins.png.PNGImageWriterSpi"
     };
 
     /**
      * 构造函数
-     * 初始化 ImageReaderSpi 的基本信息
+      * 初始化 镜像读取spi 的基本信息
      */
     public PNGImageReaderSpi() {
         super(vendorName,
@@ -83,17 +83,17 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     /**
      * 检查输入对象是否可以解码
      *
-     * @param input 输入对象，通常是一个 ImageInputStream 对象
+     * @param input 输入对象，通常是一个 镜像输入流 对象
      * @return 如果可以解码，则返回 true；否则返回 false
      * @throws IOException 如果发生 I/O 错误
      */
     public boolean canDecodeInput(Object input) throws IOException {
-        // 检查输入对象是否为 ImageInputStream 类型
+ // 检查输入对象是否为 镜像输入流 类型
         if (!(input instanceof ImageInputStream stream)) {
             return false;
         }
 
-        // 强制转换为 ImageInputStream 对象
+ // 强制转换为 镜像输入流 对象
 
         // 创建一个字节数组，读取文件头信息
         byte[] b = new byte[8];

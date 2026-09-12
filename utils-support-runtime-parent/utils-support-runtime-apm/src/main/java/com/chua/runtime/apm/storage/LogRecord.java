@@ -25,10 +25,10 @@ public class LogRecord {
     /** 日志时间戳（毫秒） */
     private long timestamp;
 
-    /** 日志级别（INFO/WARN/ERROR/DEBUG） */
+    /** 日志级别（信息/WARN/错误/调试） */
     private String level;
 
-    /** logger 名（业务 logger） */
+    /** 日志记录器 名（业务 日志记录器） */
     private String logger;
 
     /** 触发日志的类名 */
@@ -40,6 +40,6 @@ public class LogRecord {
     /** 日志消息 */
     private String message;
 
-    /** 关联 traceId */
+    /** 关联 追踪id */
     private String traceId;
 }

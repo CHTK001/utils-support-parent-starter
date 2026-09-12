@@ -1,7 +1,7 @@
 package com.chua.datasync.agent.support.source;
 
 /**
- * TSV 数据同步 Source，从 TSV 文件读取数据。
+   * TSV 数据同步 源，从 TSV 文件读取数据。
  *
  * @author CH
  * @since 4.0.0.42
@@ -9,9 +9,9 @@ package com.chua.datasync.agent.support.source;
 public class TsvDataSyncAgentSource extends DelimitedDataSyncAgentSource {
 
     /**
-     * 构造 TSV Source。
+      * 构造 TSV 源。
      *
-     * @param sourceId Source 实例 ID
+     * @param sourceId 源 实例 标识
      * @param inputId 输入标识
      * @param filePath TSV 文件路径
      */

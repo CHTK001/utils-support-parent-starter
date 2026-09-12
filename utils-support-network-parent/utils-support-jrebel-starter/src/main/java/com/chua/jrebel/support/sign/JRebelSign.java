@@ -11,9 +11,9 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
- * JRebel 签名工具。
+   * jrebel 签名工具。
  * <p>
- * 提供 RSA 签名功能，生成 JRebel 许可证的数字签名。
+   * 提供 RSA 签名功能，生成 jrebel 许可证的数字签名。
  * </p>
  *
  * @author CH
@@ -23,7 +23,7 @@ import java.util.Base64;
 public class JRebelSign {
 
     /**
-     * JRebel 私钥（PKCS8 格式）
+      * jrebel 私钥（PKCS8 格式）
      */
     private static final String PRIVATE_KEY =
             "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALrznBxfPFSgBx8g" +
@@ -64,7 +64,7 @@ public class JRebelSign {
      */
     private PrivateKey privateKey;
 
-    /** 创建 JRebelSign 实例 */
+    /** 创建 jrebel标志 实例 */
     public JRebelSign() {
         initPrivateKey();
     }
@@ -86,7 +86,7 @@ public class JRebelSign {
     }
 
     /**
-     * 使用 MD5withRSA 进行签名
+      * 使用 MD5withrsa 进行签名
      *
      * @param content 待签名内容
      * @return Base64 编码的签名
@@ -126,7 +126,7 @@ public class JRebelSign {
     }
 
     /**
-     * 生成 JRebel 专用签名
+      * 生成 jrebel 专用签名
      *
      * @param clientRandomness 客户端随机数
      * @param guid             许可证 GUID

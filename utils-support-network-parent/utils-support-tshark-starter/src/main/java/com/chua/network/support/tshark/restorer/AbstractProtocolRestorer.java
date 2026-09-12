@@ -23,10 +23,10 @@ import java.util.Map;
 public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
 
     /**
-     * 从 protocolInfo 中取出原始字节数组。
+      * 从 协议信息 中取出原始字节数组。
      *
      * @param protocolInfo 协议信息
-     * @return 字节数组，若不存在返回 null
+     * @return 字节数组，若不存在返回 空
      */
     protected static byte[] bytes(Map<String, Object> protocolInfo) {
         if (protocolInfo == null) {
@@ -44,11 +44,11 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-     * 从 protocolInfo 安全提取字符串字段。
+      * 从 协议信息 安全提取字符串字段。
      *
      * @param protocolInfo 协议信息
      * @param key           字段名
-     * @return 字符串值，不存在返回 null
+     * @return 字符串值，不存在返回 空
      */
     protected static String string(Map<String, Object> protocolInfo, String key) {
         if (protocolInfo == null) {
@@ -59,7 +59,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-     * 判断 protocolInfo 是否包含指定 layer（用于 canRestore 短路）。
+      * 判断 协议信息 是否包含指定 layer（用于 能否restore 短路）。
      *
      * @param protocolInfo 协议信息
      * @param layerName    layer 名称
@@ -94,7 +94,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-     * 将字节数组按 UTF-8 解码（用于 HTTP body 等场景）。
+      * 将字节数组按 UTF-8 解码（用于 HTTP 主体 等场景）。
      *
      * @param data 字节数组
      * @return UTF-8 字符串
@@ -107,7 +107,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     }
 
     /**
-     * 默认 canRestore：仅判断 protocolInfo 包含指定 layer。
+      * 默认 能否restore：仅判断 协议信息 包含指定 layer。
      *
      * @param protocolInfo 协议信息
      * @param rawData      原始字节

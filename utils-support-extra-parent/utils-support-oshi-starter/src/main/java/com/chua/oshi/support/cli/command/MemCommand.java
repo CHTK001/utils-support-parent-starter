@@ -51,7 +51,7 @@ public final class MemCommand extends AbstractCommand {
                 )
         );
 
-        // ── Physical memory modules ──
+ // ── Physical 内存 modules ──
         List<PhysicalMemory> modules = globalMemory.getPhysicalMemory();
         if (modules != null && !modules.isEmpty()) {
             System.out.println();
@@ -70,7 +70,7 @@ public final class MemCommand extends AbstractCommand {
             System.out.println(Formatter.table("", new String[]{"Bank", "Part Number", "Type", "Capacity", "Speed", "Manufacturer"}, rows));
         }
 
-        // ── Virtual memory / swap ──
+ // ── 虚拟 内存 / 掉期 ──
         VirtualMemory virtualMemory = globalMemory.getVirtualMemory();
         System.out.println();
         long swapTotal = virtualMemory.getSwapTotal();

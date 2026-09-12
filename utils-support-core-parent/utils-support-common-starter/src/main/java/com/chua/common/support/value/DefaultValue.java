@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 /**
  * 默认值实现，包装一个具体值并支持携带可选的默认值和异常信息。
  * <p>
- * 当原始值为 null 时，{@link #getValue()} 会回退返回 {@code defaultValue}。
+   * 当原始值为 空 时，{@link #getValue()} 会回退返回 {@code defaultValue}。
  * 该类为包私有，通过 {@link Value#of(Object)} 工厂方法创建实例。
  * </p>
  *
@@ -21,7 +21,7 @@ class DefaultValue<T> implements Value<T> {
      * 值
      */
     private final T value;
-    /** 默认值（当 value 为 null 时返回） */
+    /** 默认值（当 值 为 空 时返回） */
     private final T defaultValue;
     /** 转换过程中产生的异常 */
     private final Throwable throwable;
@@ -49,7 +49,7 @@ class DefaultValue<T> implements Value<T> {
      * 构造函数，设置原始值和默认值。
      *
      * @param value        原始值
-     * @param defaultValue 默认值（value 为 null 时使用）
+     * @param defaultValue 默认值（值 为 空 时使用）
      */
     DefaultValue(T value, T defaultValue) {
         this.value = value;
@@ -58,7 +58,7 @@ class DefaultValue<T> implements Value<T> {
     }
 
     /**
-     * 获取原始值，如果为 null 则返回预设的默认值。
+      * 获取原始值，如果为 空 则返回预设的默认值。
      *
      * @return 值或默认值
      */
@@ -70,7 +70,7 @@ class DefaultValue<T> implements Value<T> {
     /**
      * 获取转换过程中产生的异常。
      *
-     * @return 异常，可能为 null
+     * @return 异常，可能为 空
      */
     @Override
     public Throwable getThrowable() {
@@ -78,9 +78,9 @@ class DefaultValue<T> implements Value<T> {
     }
 
     /**
-     * 判断原始值是否为 null。
+      * 判断原始值是否为 空。
      *
-     * @return true 表示原始值为 null
+     * @return true 表示原始值为 空
      */
     @Override
     public boolean isNull() {

@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 /**
  * 7Z格式归档输入流提供者
  * <p>
- * 注意：7Z格式需要随机访问，因此需要File对象而不是InputStream
+   * 注意：7Z格式需要随机访问，因此需要文件对象而不是输入流
  * </p>
  *
  * @author CH
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class SevenZCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -33,9 +33,9 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
-        // 7Z格式需要随机访问，必须使用File对象
+ // 7Z格式需要随机访问，必须使用文件对象
         if (file == null) {
             throw new IOException("7Z格式需要File对象，不能使用InputStream");
         }
@@ -44,7 +44,7 @@ public class SevenZCompressArchiveInputStream implements CompressArchiveInputStr
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "7z";
     }

@@ -72,6 +72,7 @@ import java.util.function.Consumer;
  *
  * // JSON 构建
  * Pipeline pipeline = PipelineBuilder.fromJson(jsonString).build();
+ * }</pre>e pipeline = pipeline构建器.从json(json字符串).构建();
  * }</pre>
  *
  * @author CH
@@ -95,22 +96,22 @@ public class PipelineBuilder {
     private final List<PipelineListener> listeners;
 
     /**
-     * 节点 ID -> 节点实例的映射
+      * 节点 标识 -> 节点实例的映射
      */
     private final Map<String, PipelineNode> nodeMap;
 
     /**
-     * 起始节点 ID
+      * 起始节点 标识
      */
     private String startNodeId;
 
     /**
-     * 终止节点 ID
+      * 终止节点 标识
      */
     private String endNodeId;
 
     /**
-     * 是否已构建，防止重复调用 build()
+      * 是否已构建，防止重复调用 构建()
      */
     private boolean built;
 
@@ -120,7 +121,7 @@ public class PipelineBuilder {
     private RouteStrategy routeStrategy;
 
     /**
-     * WAL 持久化目录，null 表示不启用 WAL
+      * WAL 持久化目录，空 表示不启用 WAL
      */
     private String walDir;
 
@@ -139,7 +140,7 @@ public class PipelineBuilder {
     }
 
     /**
-     * 创建流水线构建器，自动生成流水线 ID。
+      * 创建流水线构建器，自动生成流水线 标识。
      *
      * @return PipelineBuilder
      */
@@ -202,10 +203,12 @@ public class PipelineBuilder {
      *     .branch("yes", "process")
      *     .branch("no", "error")
      *     .taskEnd()
+     * }</pre>")
+      * .任务结束()
      * }</pre>
      *
      * @param id      节点唯一标识
-     * @param handler 业务逻辑处理器，返回 null 按默认顺序执行，返回节点 ID 则跳转
+     * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
      * @return TaskDefinition 任务节点定义
      */
     public TaskDefinition task(String id, PipelineNode handler) {
@@ -218,7 +221,7 @@ public class PipelineBuilder {
      * <p>语义上表示"开始一个任务定义"，与 {@link TaskDefinition#taskEnd()} 配对使用：</p>
      * <pre>{@code
      * .taskStart("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
-     * }</pre>
+     * }</pre>  * }</pre>
      *
      * @param id      节点唯一标识
      * @param handler 业务逻辑处理器
@@ -229,7 +232,7 @@ public class PipelineBuilder {
     }
 
     /**
-     * 添加执行节点（无 handler 模式，配合 onStep/step 使用）。
+      * 添加执行节点（无 处理器 模式，配合 onstep/step 使用）。
      *
      * <p>创建一个空 handler 的任务定义，后续通过 {@link TaskDefinition#onStep}、
      * {@link TaskDefinition#step} 等便捷方法设置业务逻辑：</p>
@@ -249,17 +252,18 @@ public class PipelineBuilder {
      * .onStep(ctx -> cleanup(ctx))
      * .exit()
      * .taskEnd()
+     * }</pre>* .taskEnd()
      * }</pre>
      *
      * @param id 节点唯一标识
-     * @return TaskDefinition 任务节点定义（handler 为空实现）
+     * @return TaskDefinition 任务节点定义（处理器 为空实现）
      */
     public TaskDefinition taskStart(String id) {
         return new TaskDefinition(id, ctx -> null, this);
     }
 
     /**
-     * 添加执行节点（无 handler 模式，配合 onStep/step 使用）。
+      * 添加执行节点（无 处理器 模式，配合 onstep/step 使用）。
      *
      * <p>等价于 {@link #taskStart(String)}，提供更简洁的调用方式：</p>
      * <pre>{@code
@@ -278,10 +282,11 @@ public class PipelineBuilder {
      * .onStep(ctx -> cleanup(ctx))
      * .exit()
      * .taskEnd()
+     * }</pre>skEnd()
      * }</pre>
      *
      * @param id 节点唯一标识
-     * @return TaskDefinition 任务节点定义（handler 为空实现）
+     * @return TaskDefinition 任务节点定义（处理器 为空实现）
      */
     public TaskDefinition task(String id) {
         return taskStart(id);
@@ -310,10 +315,14 @@ public class PipelineBuilder {
      *         default: return "defaultNode";
      *     }
      * })
+     * }</pre>eB";
+     *         default: return "defaultNode";
+     *     }
+     * })
      * }</pre>
      *
      * @param id     节点唯一标识
-     * @param router 路由处理器，返回目标节点 ID；返回 null 表示按默认顺序执行
+     * @param router 路由处理器，返回目标节点 标识；返回 空 表示按默认顺序执行
      * @return this
      */
     public PipelineBuilder decision(String id, PipelineNode router) {
@@ -324,7 +333,7 @@ public class PipelineBuilder {
     }
 
     /**
-     * 添加判断节点（Definition API，无 handler 模式）。
+      * 添加判断节点（Definition API，无 处理器 模式）。
      *
      * <p>返回 {@link TaskDefinition}，配合 {@link TaskDefinition#onStep}、
      * {@link TaskDefinition#step} 等便捷方法使用：</p>
@@ -344,10 +353,13 @@ public class PipelineBuilder {
      *         ctx.setNextNodeId(target);
      *     })
      *     .taskEnd()
+     * }</pre>   ctx.setNextNodeId(target);
+     *     })
+      * .任务结束()
      * }</pre>
      *
      * @param id 节点唯一标识
-     * @return TaskDefinition 任务节点定义（handler 为空实现，需配合 step/onStep 使用）
+     * @return TaskDefinition 任务节点定义（处理器 为空实现，需配合 step/onstep 使用）
      */
     public TaskDefinition decision(String id) {
         return new TaskDefinition(id, ctx -> null, this);
@@ -390,6 +402,7 @@ public class PipelineBuilder {
      *         .env("modelPath", "/models")  // 设置环境参数
      *     .taskEnd()
      *     .build();
+     * }</pre> * .构建();
      * }</pre>
      *
      * @param id          节点唯一标识
@@ -421,6 +434,8 @@ public class PipelineBuilder {
      *         .env("modelPath", "/models")           // 设置环境参数
      *     .taskEnd()
      *     .build();
+     * }</pre>束()
+      * .构建();
      * }</pre>
      *
      * @param id          节点唯一标识
@@ -454,6 +469,8 @@ public class PipelineBuilder {
      *         .endFork()                            // 结束分支 "b"
      *     .taskEnd()                                // 结束分叉定义
      *     .build();
+     * }</pre>    // 结束分叉定义
+      * .构建();
      * }</pre>
      *
      * <p><strong>方式2：预构建 Pipeline 传入</strong></p>
@@ -468,6 +485,7 @@ public class PipelineBuilder {
      *         .branch("b", branchB)
      *     .taskEnd()
      *     .build();
+     * }</pre>      * .构建();
      * }</pre>
      *
      * @param id 节点唯一标识
@@ -547,7 +565,7 @@ public class PipelineBuilder {
      *
      * <p>每完成一个节点并确定下一节点时触发，可用于监控执行进度。</p>
      *
-     * @param onNextStep 回调函数，参数为 (context, currentNodeId, nextNodeId)
+     * @param onNextStep 回调函数，参数为 (上下文, 当前节点标识, 下一个节点标识)
      * @return this
      */
     public PipelineBuilder onNextStep(java.util.function.BiConsumer<PipelineContext<?>, String[]> onNextStep) {
@@ -579,6 +597,8 @@ public class PipelineBuilder {
      *     .task("step1", ctx -> { doWork(ctx); return null; }).taskEnd()
      *     .task("step2", ctx -> { doMore(ctx); return null; }).taskEnd()
      *     .build();
+     * }</pre>).任务结束()
+      * .构建();
      * }</pre>
      *
      * @param onDraw 绘制回调，参数为当前流水线上下文
@@ -619,9 +639,11 @@ public class PipelineBuilder {
      *         return null;
      *     }).taskEnd()
      *     .build();
+     * }</pre>)
+      * .构建();
      * }</pre>
      *
-     * @param onError 异常回调函数，参数为 (context, exception)，返回恢复节点 ID 或 null
+     * @param onError 异常回调函数，参数为 (上下文, 异常)，返回恢复节点 标识 或 空
      * @return this
      */
     public PipelineBuilder onError(BiFunction<PipelineContext<?>, Throwable, String> onError) {
@@ -635,11 +657,11 @@ public class PipelineBuilder {
     }
 
     /**
-     * 指定起始节点 ID。
+      * 指定起始节点 标识。
      *
      * <p>不指定时默认以第一个添加的节点作为起始节点。</p>
      *
-     * @param id 起始节点 ID
+     * @param id 起始节点 标识
      * @return this
      */
     public PipelineBuilder start(String id) {
@@ -648,9 +670,9 @@ public class PipelineBuilder {
     }
 
     /**
-     * 指定终止节点 ID。
+      * 指定终止节点 标识。
      *
-     * @param id 终止节点 ID
+     * @param id 终止节点 标识
      * @return this
      */
     public PipelineBuilder end(String id) {
@@ -678,6 +700,8 @@ public class PipelineBuilder {
      *     .decision("route", ctx -> ctx.getAttribute("type"))
      *     .task("typeA", ctx -> null).taskEnd()
      *     .task("fallback", ctx -> null).taskEnd()
+     *     .build();
+     * }</pre>ctx -> null).taskEnd()
      *     .build();
      * }</pre>
      *
@@ -824,6 +848,7 @@ public class PipelineBuilder {
      * // 方式2：Builder 的 pipelineEnd()
      * .taskStart("done", handler).taskEnd()
      * .pipelineEnd()
+     * }</pre>lineEnd()
      * }</pre>
      *
      * @return 构建完成的 Pipeline 实例
@@ -836,9 +861,9 @@ public class PipelineBuilder {
     // ========== Getter（供 JSON 解析器使用） ==========
 
     /**
-     * 获取流水线 ID。
+      * 获取流水线 标识。
      *
-     * @return 流水线 ID
+     * @return 流水线 标识
      */
     public String getId() {
         return id;
@@ -847,7 +872,7 @@ public class PipelineBuilder {
     /**
      * 获取节点映射。
      *
-     * @return 节点 ID -> 节点实例的映射
+     * @return 节点 标识 -> 节点实例的映射
      */
     Map<String, PipelineNode> getNodeMap() {
         return nodeMap;
@@ -863,18 +888,18 @@ public class PipelineBuilder {
     }
 
     /**
-     * 获取起始节点 ID。
+      * 获取起始节点 标识。
      *
-     * @return 起始节点 ID，未指定时返回 null
+     * @return 起始节点 标识，未指定时返回 空
      */
     String getStartNodeId() {
         return startNodeId;
     }
 
     /**
-     * 获取终止节点 ID。
+      * 获取终止节点 标识。
      *
-     * @return 终止节点 ID，未指定时返回 null
+     * @return 终止节点 标识，未指定时返回 空
      */
     String getEndNodeId() {
         return endNodeId;

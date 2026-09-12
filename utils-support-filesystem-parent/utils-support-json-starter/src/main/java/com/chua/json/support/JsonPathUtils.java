@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JSONPath 工具类，基于 <a href="https://github.com/json-path/JsonPath">jayway JsonPath</a> 提供 JSON 数据提取与操作功能。
+   * json路径 工具类，基于 <a href="https://github.com/json-path/JsonPath">jayway json路径</a> 提供 JSON 数据提取与操作功能。
  *
  * <p>JSONPath 是一种类似 XPath 的 JSON 查询语言，用于从 JSON 结构中定位和提取数据。
  * 以下是常用表达式示例：</p>
@@ -26,6 +26,7 @@ import java.util.Map;
  * $.store.book[0:3]   — 前三本书
  * $..author           — 所有 author 字段（递归查找）
  * $.store.*           — store 下所有字段
+ * }</pre>ore 下所有字段
  * }</pre>
  *
  * <p><b>使用方式：</b></p>
@@ -56,7 +57,7 @@ import java.util.Map;
  * ctx.set("$.store.book[0].price", 35.0)
  *    .delete("$.store.book[1]");
  * String result = ctx.jsonString();
- * }</pre>
+ * }</pre>pre>
  *
  * <p><b>默认配置：</b></p>
  * <ul>
@@ -71,7 +72,7 @@ import java.util.Map;
 public class JsonPathUtils {
 
     /**
-     * 默认配置：Jackson 序列化 + 路径不存在时返回 null
+      * 默认配置：Jackson 序列化 + 路径不存在时返回 空
      */
     private static final Configuration DEFAULT_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
@@ -92,14 +93,14 @@ public class JsonPathUtils {
      */
     private static final ParseContext PARSE_CTX = JsonPath.using(DEFAULT_CONFIG);
 
-    /** 创建 JsonPathUtils 实例 */
+    /** 创建 json路径工具 实例 */
     private JsonPathUtils() {
     }
 
     // ==================== 读取操作 ====================
 
     /**
-     * 从 JSON 字符串中读取 JSONPath 表达式的值，自动推断返回类型。
+      * 从 JSON 字符串中读取 json路径 表达式的值，自动推断返回类型。
      *
      * <p>返回类型根据 JSON 数据类型自动映射：</p>
      * <ul>
@@ -112,9 +113,9 @@ public class JsonPathUtils {
      * </ul>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，如 {@code "$.store.book[0].title"}
+     * @param jsonPath json路径 表达式，如 {@code "$.store.book[0].title"}
      * @param <T>      返回值类型
-     * @return JSONPath 指向的值，路径不存在时返回 null
+     * @return JSONPath 指向的值，路径不存在时返回 空
      */
     @SuppressWarnings("unchecked")
     public static <T> T read(String json, String jsonPath) {
@@ -128,13 +129,14 @@ public class JsonPathUtils {
      * <pre>{@code
      * String name = JsonPathUtils.read(json, "$.name", String.class);
      * double price = JsonPathUtils.read(json, "$.price", double.class);
+     * }</pre> double.class);
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param type     目标类型
      * @param <T>      返回值类型
-     * @return 解析后的值，路径不存在时返回 null
+     * @return 解析后的值，路径不存在时返回 空
      */
     public static <T> T read(String json, String jsonPath, Class<T> type) {
         return PARSE_CTX.parse(json).read(jsonPath, type);
@@ -147,10 +149,11 @@ public class JsonPathUtils {
      * <pre>{@code
      * List<String> titles = JsonPathUtils.read(json, "$..title",
      *         new TypeRef<List<String>>() {});
+     * }</pre>{});
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param typeRef  类型引用
      * @param <T>      返回值类型
      * @return 解析后的值
@@ -160,10 +163,10 @@ public class JsonPathUtils {
     }
 
     /**
-     * 从 JSON 输入流中读取 JSONPath 表达式的值。
+      * 从 JSON 输入流中读取 json路径 表达式的值。
      *
      * @param input    JSON 输入流（不会自动关闭，调用方负责关闭）
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param <T>      返回值类型
      * @return JSONPath 指向的值
      */
@@ -173,16 +176,17 @@ public class JsonPathUtils {
     }
 
     /**
-     * 从 JSON 字符串中读取 JSONPath 表达式指向的列表。
+      * 从 JSON 字符串中读取 json路径 表达式指向的列表。
      *
      * <p>等效于 {@link #read(String, String)}，但明确返回 {@link List} 类型：</p>
      * <pre>{@code
      * List<String> titles = JsonPathUtils.readList(json, "$.store.book[*].title");
      * List<Map<String, Object>> books = JsonPathUtils.readList(json, "$.store.book[*]");
+     * }</pre>.book[*]");
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，应指向数组或产生多个结果的路径
+     * @param jsonPath json路径 表达式，应指向数组或产生多个结果的路径
      * @param <T>      列表元素类型
      * @return 解析后的列表，路径不存在返回空列表
      */
@@ -192,11 +196,11 @@ public class JsonPathUtils {
     }
 
     /**
-     * 从 JSON 字符串中读取 JSONPath 表达式指向的值，以 Map 形式返回。
+      * 从 JSON 字符串中读取 json路径 表达式指向的值，以 映射 形式返回。
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，应指向 JSON 对象
-     * @return 解析后的 Map，路径不存在返回空 Map
+     * @param jsonPath json路径 表达式，应指向 JSON 对象
+     * @return 解析后的 映射，路径不存在返回空 映射
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> readMap(String json, String jsonPath) {
@@ -213,9 +217,10 @@ public class JsonPathUtils {
      * <pre>{@code
      * String result = JsonPathUtils.set(json, "$.store.book[0].price", 35.0);
      * }</pre>
+     * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param value    要设置的新值
      * @return 设置后的 JSON 字符串
      */
@@ -228,10 +233,11 @@ public class JsonPathUtils {
      *
      * <pre>{@code
      * String result = JsonPathUtils.delete(json, "$.store.book[1]");
+     * }</pre>");
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @return 删除后的 JSON 字符串
      */
     public static String delete(String json, String jsonPath) {
@@ -246,10 +252,11 @@ public class JsonPathUtils {
      * String result = JsonPathUtils.add(json,
      *         "$.store.book",
      *         Map.of("title", "Python", "price", 39.9));
+     * }</pre>"price", 39.9));
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，应指向数组
+     * @param jsonPath json路径 表达式，应指向数组
      * @param value    要添加的元素
      * @return 添加后的 JSON 字符串
      */
@@ -258,15 +265,16 @@ public class JsonPathUtils {
     }
 
     /**
-     * 在 JSON 对象中设置键值对（相当于 Map.put）。
+      * 在 JSON 对象中设置键值对（相当于 映射.放入）。
      *
      * <pre>{@code
      * String result = JsonPathUtils.put(json,
      *         "$.store", "discount", 0.8);
+     * }</pre>, 0.8);
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，应指向 JSON 对象
+     * @param jsonPath json路径 表达式，应指向 JSON 对象
      * @param key      键名
      * @param value    键值
      * @return 设置后的 JSON 字符串
@@ -278,16 +286,16 @@ public class JsonPathUtils {
     // ==================== 路径判断 ====================
 
     /**
-     * 判断 JSONPath 路径在 JSON 中是否存在。
+      * 判断 json路径 路径在 JSON 中是否存在。
      *
      * <pre>{@code
      * if (JsonPathUtils.isExist(json, "$.store.book[0]")) {
      *     // 存在
      * }
-     * }</pre>
+     * }</pre>}</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @return 路径存在返回 true，否则返回 false
      */
     public static boolean isExist(String json, String jsonPath) {
@@ -299,15 +307,16 @@ public class JsonPathUtils {
     }
 
     /**
-     * 获取 JSONPath 路径对应的值长度（适用于数组或字符串）。
+      * 获取 json路径 路径对应的值长度（适用于数组或字符串）。
      *
      * <pre>{@code
      * int count = JsonPathUtils.length(json, "$.store.book[*]");
      * int len = JsonPathUtils.length(json, "$.store.book[0].title");
+     * }</pre>].title");
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式，应指向数组或字符串
+     * @param jsonPath json路径 表达式，应指向数组或字符串
      * @return 数组长度或字符串长度，路径不存在返回 0
      */
     public static int length(String json, String jsonPath) {
@@ -336,6 +345,7 @@ public class JsonPathUtils {
      *    .delete("$.temp")
      *    .add("$.items", newItem);
      * String result = ctx.jsonString();
+     * }</pre>g result = ctx.jsonString();
      * }</pre>
      *
      * @param json JSON 字符串
@@ -346,7 +356,7 @@ public class JsonPathUtils {
     }
 
     /**
-     * 使用严格模式读取 JSONPath 值（路径不存在时抛出异常而非返回 null）。
+      * 使用严格模式读取 json路径 值（路径不存在时抛出异常而非返回 空）。
      *
      * <pre>{@code
      * try {
@@ -355,9 +365,10 @@ public class JsonPathUtils {
      *     // 路径不存在
      * }
      * }</pre>
+     * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param <T>      返回值类型
      * @return JSONPath 指向的值
      * @throws com.jayway.jsonpath.PathNotFoundException 路径不存在时抛出
@@ -368,17 +379,18 @@ public class JsonPathUtils {
     }
 
     /**
-     * 使用自定义配置读取 JSONPath 值。
+      * 使用自定义配置读取 json路径 值。
      *
      * <pre>{@code
      * Configuration config = Configuration.builder()
      *         .options(Option.ALWAYS_RETURN_LIST)
      *         .build();
      * List<Object> result = JsonPathUtils.read(json, "$..items", config);
+     * }</pre>Object> result = JsonPathUtils.read(json, "$..items", config);
      * }</pre>
      *
      * @param json     JSON 字符串
-     * @param jsonPath JSONPath 表达式
+     * @param jsonPath json路径 表达式
      * @param config   自定义配置
      * @param <T>      返回值类型
      * @return JSONPath 指向的值
@@ -391,7 +403,7 @@ public class JsonPathUtils {
     /**
      * 获取默认配置实例。
      *
-     * @return 默认 Configuration
+     * @return 默认 配置
      */
     public static Configuration getDefaultConfig() {
         return DEFAULT_CONFIG;

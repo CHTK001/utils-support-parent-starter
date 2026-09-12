@@ -9,17 +9,18 @@ package com.chua.maven.support;
 public class MavenDeployException extends RuntimeException {
 
     /**
-     * 创建 MavenDeployException 实例
-     * @param message message
+      * 创建 mavendeploy异常 实例
+     * @param message 消息
      */
     public MavenDeployException(String message) {
         super(message);
     }
 
     /**
-     * 创建 MavenDeployException 实例
-     * @param message message
-     * @param Throwable Throwable
+      * 创建 mavendeploy异常 实例
+     * @param message 消息
+     * @param cause Throwable
+     * @param cause cause
      */
     public MavenDeployException(String message, Throwable cause) {
         super(message, cause);

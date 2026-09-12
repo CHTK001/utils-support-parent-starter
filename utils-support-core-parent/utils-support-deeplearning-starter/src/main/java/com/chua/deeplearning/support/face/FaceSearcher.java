@@ -24,6 +24,8 @@ import java.util.Objects;
  *         .build();
  * searcher.enroll("user-1", faceBytes);
  * List&lt;FaceSearchHit&gt; hits = searcher.search(queryBytes, 5);
+ * }</pre>nroll("user-1", faceBytes);
+ * List&lt;FaceSearchHit&gt; hits = searcher.search(queryBytes, 5);
  * }</pre>
  *
  * @author CH
@@ -96,9 +98,9 @@ public class FaceSearcher {
         }
 
         /**
-         * 按模型 ID 创建特征提取器。
+          * 按模型 标识 创建特征提取器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder featureExtractor(String modelId) {
@@ -144,7 +146,7 @@ public class FaceSearcher {
     /**
      * 入库。
      *
-     * @param id        人员/业务 ID
+     * @param id        人员/业务 标识
      * @param imageData 人脸图
      * @return 是否成功
      */
@@ -155,7 +157,7 @@ public class FaceSearcher {
     /**
      * 入库：直接写特征。
      *
-     * @param id      业务 ID
+     * @param id      业务 标识
      * @param feature 特征
      * @return 是否成功
      */
@@ -166,7 +168,7 @@ public class FaceSearcher {
     /**
      * 入库：带元数据。
      *
-     * @param id        业务 ID
+     * @param id        业务 标识
      * @param imageData 人脸图
      * @param metadata  元数据
      * @param content   附加文本

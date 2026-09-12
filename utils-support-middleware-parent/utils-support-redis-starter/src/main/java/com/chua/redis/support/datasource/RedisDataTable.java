@@ -9,10 +9,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Redis 数据表实现，将 Redis Hash 数据映射为表格结构。
+   * Redis 数据表实现，将 Redis 哈希 数据映射为表格结构。
  * <p>
- * 每个 Redis Key 对应一行数据，Hash 字段对应列。
- * 支持通过 key 模式匹配（如 {@code user:*}) 扫描数据。
+   * 每个 Redis 键 对应一行数据，哈希 字段对应列。
+   * 支持通过 键 模式匹配（如 {@code user:*}) 扫描数据。
  * 当前为只读实现，用于 Calcite 查询聚合。
  * </p>
  *
@@ -33,7 +33,7 @@ public class RedisDataTable implements DataTable {
     private final JedisPool jedisPool;
 
     /**
-     * key 模式（如 user:*）
+      * 键 模式（如 用户:*）
      */
     private final String keyPattern;
 
@@ -62,11 +62,11 @@ public class RedisDataTable implements DataTable {
     // ---------------------------------------------------------------
 
     /**
-     * 创建 Redis DataTable。
+      * 创建 Redis 数据table。
      *
      * @param name       表名
      * @param jedisPool  Redis 连接池
-     * @param keyPattern key 匹配模式（如 {@code user:*})
+     * @param keyPattern 键 匹配模式（如 {@code user:*})
      */
     public RedisDataTable(String name, JedisPool jedisPool, String keyPattern) {
         this.name = name;
@@ -117,7 +117,7 @@ public class RedisDataTable implements DataTable {
             log.warn("读取 Redis 数据失败: keyPattern={}", keyPattern, e);
         }
 
-        // 补充 _key 列
+ // 补充 _键 列
         List<String> cols = new ArrayList<>();
         cols.add("_key");
         cols.addAll(columnSet);
@@ -133,17 +133,24 @@ public class RedisDataTable implements DataTable {
     }
 
     // ---------------------------------------------------------------
-    // DataTable 接口
+ // 数据table 接口
     // ---------------------------------------------------------------
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return name;
     }
 
     @Override
-    /** 获取ColumnNames */
+     /**
+      * 获取column名称。
+      * @return 获取column名称的结果
+      */
+     * 获取column名称
+     *
+     * @return 获取column类型的结果
+     */
     public List<String> getColumnNames() {
         ensureLoaded();
         return Collections.unmodifiableList(columnNames);
@@ -155,7 +162,7 @@ public class RedisDataTable implements DataTable {
     }
 
     @Override
-    /** 获取Data */
+    /** 获取数据 */
     public List<Map<String, Object>> getData() {
         ensureLoaded();
         return Collections.unmodifiableList(rows);
@@ -169,7 +176,7 @@ public class RedisDataTable implements DataTable {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return "RedisDataTable{" +
                 "name='" + name + '\'' +

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
- * Datalake 侧执行器，继承 {@link ReactorDataSyncExecutor}。
+   * 数据湖 侧执行器，继承 {@link ReactorDataSyncExecutor}。
  *
  * <p>当 DataSync 调度器把源数据 {@code List<Map<String, Object>>} 写入时：
  * <ol>
@@ -36,19 +36,20 @@ import java.util.function.Consumer;
 public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
 
     /**
-     * 管线引擎（由 DatalakeServerBuilder 注入）
+      * 管线引擎（由 数据湖服务端构建器 注入）
      */
     private volatile PipelineEngine pipelineEngine;
 
     /**
-     * 直接派发用的 sink 注册表（PipelineEngine 不可用时 fallback）
+      * 直接派发用的 sink 注册表（pipelineengine 不可用时 降级）
      */
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
-     * 创建 DatalakeReactorExecutor 实例
-     * @param agentId agentId
-     * @param boolean boolean
+      * 创建 数据湖reactor执行器 实例
+     * @param agentId 智能体标识
+     * @param serverMode 布尔值
+     * @param serverMode 服务端mode
      */
     public DatalakeReactorExecutor(String agentId, boolean serverMode) {
         super(agentId, serverMode);
@@ -56,13 +57,15 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
 
     /**
      * 注入管线引擎。
+     * @param pipelineEngine pipelineengine
      */
     public void setPipelineEngine(PipelineEngine pipelineEngine) {
         this.pipelineEngine = pipelineEngine;
     }
 
     /**
-     * 注册 fallback 派发用的 sink。
+      * 注册 降级 派发用的 sink。
+     * @param sink sink
      */
     public void registerSink(DataSink sink) {
         sinkRegistry.put(sink.type(), sink);

@@ -51,7 +51,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     private volatile ServiceManager serviceManager;
 
     /**
-     * Java Agent 管理器（延迟初始化）
+      * Java 智能体 管理器（延迟初始化）
      */
     private volatile JavaAgentManager javaAgentManager;
 
@@ -76,7 +76,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 注册OrReplace */
+    /** 注册或替换 */
     public RuntimeArtifact registerOrReplace(RuntimeArtifact artifact) {
         String id = artifact.getId();
         RuntimeInstance oldInstance = instanceMap.get(id);
@@ -251,7 +251,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public RuntimeStatus status(String id) {
         RuntimeInstance instance = instanceMap.get(id);
         if (instance != null) {
@@ -274,13 +274,13 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 获取ArtifactIds */
+    /** 获取artifact标识 */
     public List<String> getArtifactIds() {
         return new ArrayList<>(artifactMap.keySet());
     }
 
     @Override
-    /** 获取RunningInstances */
+    /** 获取runninginstances */
     public List<RuntimeInstance> getRunningInstances() {
         List<RuntimeInstance> running = new ArrayList<>();
         for (RuntimeInstance instance : instanceMap.values()) {
@@ -298,7 +298,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 获取ServiceManager */
+    /** 获取服务管理器 */
     public ServiceManager getServiceManager() {
         if (serviceManager == null) {
             synchronized (this) {
@@ -311,7 +311,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** InstallAsService */
+    /** installas服务 */
     public CmdResult installAsService(String id, ManagedService service) {
         RuntimeArtifact artifact = artifactMap.get(id);
         if (artifact == null) {
@@ -357,7 +357,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** UninstallService */
+    /** uninstall服务 */
     public CmdResult uninstallService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -371,7 +371,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 开始Service */
+    /** 开始服务 */
     public CmdResult startService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -385,7 +385,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 停止Service */
+    /** 停止服务 */
     public CmdResult stopService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -399,7 +399,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** RestartService */
+    /** restart服务 */
     public CmdResult restartService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -413,7 +413,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** ServiceStatus */
+    /** 服务状态 */
     public CmdResult serviceStatus(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -427,7 +427,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 启用Service */
+    /** 启用服务 */
     public CmdResult enableService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -441,7 +441,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 禁用Service */
+    /** 禁用服务 */
     public CmdResult disableService(String serviceName) {
         ServiceManager sm = getServiceManager();
         if (sm == null) {
@@ -455,9 +455,9 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     /**
-     * 通过 SPI 自动发现当前平台可用的 ServiceManager 实现。
+      * 通过 SPI 自动发现当前平台可用的 服务管理器 实现。
      *
-     * @return ServiceManager 实例，无可用实现返回 null
+     * @return ServiceManager 实例，无可用实现返回 空
      */
     private ServiceManager discoverServiceManager() {
         java.util.Map<String, ServiceManager> managers = ServiceProvider.of(ServiceManager.class).list();
@@ -472,7 +472,7 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** 获取JavaAgentManager */
+    /** 获取Java智能体管理器 */
     public JavaAgentManager getJavaAgentManager() {
         if (javaAgentManager == null) {
             synchronized (this) {
@@ -485,13 +485,13 @@ public class DefaultRuntimeManager implements RuntimeManager {
     }
 
     @Override
-    /** AttachToJvm */
+    /** attach转为jvm */
     public CmdResult attachToJvm(int pid, String options) {
         return getJavaAgentManager().attach(pid, null, options);
     }
 
     @Override
-    /** ListJavaProcesses */
+    /** 列表Java处理 */
     public java.util.Map<Integer, String> listJavaProcesses() {
         return AgentInjector.listJavaProcesses();
     }

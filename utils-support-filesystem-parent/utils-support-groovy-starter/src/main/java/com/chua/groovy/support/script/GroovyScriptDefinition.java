@@ -24,6 +24,7 @@ import java.nio.file.Path;
  *
  * // URL 轮询
  * ScriptDefinition def = GroovyScriptDefinition.of("remoteScript", new URL("http://host/script.groovy"), 5000);
+ * }</pre>0);
  * }</pre></p>
  *
  * @author CH

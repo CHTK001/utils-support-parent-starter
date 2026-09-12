@@ -21,7 +21,7 @@ public class PartETag {
     private Integer partNumber;
 
     /**
-     * 分片 ETag
+      * 分片 e标签
      */
     private String etag;
 }

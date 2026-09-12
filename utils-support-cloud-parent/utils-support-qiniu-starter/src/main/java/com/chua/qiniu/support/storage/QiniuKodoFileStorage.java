@@ -40,8 +40,8 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     private final BucketManager bucketManager;
 
     /**
-     * 创建 QiniuKodoFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 qiniukodo文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public QiniuKodoFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -52,7 +52,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -79,7 +79,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -104,7 +104,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -112,7 +112,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             bucketManager.delete(bucket, key);
@@ -128,7 +128,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             com.qiniu.storage.model.FileInfo info = bucketManager.stat(bucket, request.getKey());
@@ -152,16 +152,16 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
-            // 使用 marker 作为分页起始（七牛用空字符串表示从头开始）
+ // 使用 记号笔 作为分页起始（七牛用空字符串表示从头开始）
             String marker = request.getMarker() != null ? request.getMarker() : "";
             BucketManager.FileListIterator iterator = bucketManager.createFileListIterator(
                     bucket, request.getFilePath(), request.getLimit(), marker);
             List<Metadata> metadataList = new ArrayList<>();
 
-            // 只获取一页数据（不循环所有页），以支持 marker 分页
+ // 只获取一页数据（不循环所有页），以支持 记号笔 分页
             if (iterator.hasNext()) {
                 FileInfo[] items = iterator.next();
                 if (items != null) {
@@ -173,7 +173,7 @@ public class QiniuKodoFileStorage extends AbstractFileStorage {
                                 .build());
                     }
                 }
-                // 记录最后一个文件的 key 作为下一页的 marker
+ // 记录最后一个文件的 键 作为下一页的 记号笔
                 if (!metadataList.isEmpty()) {
                     marker = metadataList.get(metadataList.size() - 1).getName();
                 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 
 /**
- * NMS 非极大值抑制工具类，提供基于 NDArray 的 NMS、MTCNN NMS 以及批量 NMS 实现
+   * NMS 非极大值抑制工具类，提供基于 ndarray 的 NMS、MTCNN NMS 以及批量 NMS 实现
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,11 +19,11 @@ import java.util.List;
 public class NMSUtils {
 
     /**
-     * 标准 NMS 非极大值抑制，基于 candidate bounding boxes 的置信度分数和 IoU 阈值进行筛选
+      * 标准 NMS 非极大值抑制，基于 candidate bounding boxes 的置信度分数和 iou 阈值进行筛选
      *
-     * @param boxes       候选边界框 NDArray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
-     * @param scores      置信度分数 NDArray，形状为 (N,) 或 (N, 1)，每个候选框对应一个分数
-     * @param iouThreshold IoU 重叠阈值，超过此值的框将被抑制
+     * @param boxes       候选边界框 ndarray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
+     * @param scores      置信度分数 ndarray，形状为 (N,) 或 (N, 1)，每个候选框对应一个分数
+     * @param iouThreshold iou 重叠阈值，超过此值的框将被抑制
      * @return 保留的候选框索引数组
      */
     public static int[] nms(NDArray boxes, NDArray scores, float iouThreshold) {
@@ -74,32 +74,32 @@ public class NMSUtils {
     }
 
     /**
-     * 批量 NMS，按 batch ID 分组执行 NMS，每组的用例 ID 通过全局索引返回为单个 NDArray
+      * 批量 NMS，按 批量 标识 分组执行 NMS，每组的用例 标识 通过全局索引返回为单个 ndarray
      *
-     * @param boxes 待筛选的边界框 NDArray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
-     * @param scores 置信度分数 NDArray，形状为 (N,) 或 (N, 1)，每个框对应一个分数
-     * @param idxs 每个框对应的 batch ID NDArray，形状为 (N,)
-     * @param iouThreshold IoU 阈值，超过此值的框将被抑制
-     * @param manager NDManager 用于创建临时 NDArray
-     * @return 保留的候选框全局索引 NDArray
+     * @param boxes 待筛选的边界框 ndarray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
+     * @param scores 置信度分数 ndarray，形状为 (N,) 或 (N, 1)，每个框对应一个分数
+     * @param idxs 每个框对应的 批量 标识 ndarray，形状为 (N,)
+     * @param iouThreshold iou 阈值，超过此值的框将被抑制
+     * @param manager nd管理器 用于创建临时 ndarray
+     * @return 保留的候选框全局索引 ndarray
      */
     public static NDArray batchedNms(NDArray boxes, NDArray scores, NDArray idxs, float iouThreshold, NDManager manager) {
         List<NDArray> keepList = new ArrayList<>();
 
-        // 获取唯一的 batch ID 列表
+ // 获取唯一的 批量 标识 列表
         NDArray uniqueIdxs = idxs.unique().get(0);
 
         for (long batchId : uniqueIdxs.toLongArray()) {
-            // 筛选出属于当前 batch 的框
+ // 筛选出属于当前 批量 的框
             NDArray mask = idxs.eq(batchId);
             NDArray batchBoxes = boxes.get(mask);
             NDArray batchScores = scores.get(mask);
 
-            // 对当前 batch 执行 NMS
+ // 对当前 批量 执行 NMS
             int[] keepIndices = mtcnnNms(batchBoxes, batchScores, iouThreshold);
 
             if (keepIndices.length > 0) {
-                // 将 batch 内索引映射为全局索引
+ // 将 批量 内索引映射为全局索引
                 NDArray globalIndices = manager.arange(boxes.getShape().get(0))
                         .get(mask)
                         .toType(DataType.INT64, false)
@@ -116,11 +116,11 @@ public class NMSUtils {
     }
 
     /**
-     * MTCNN 专用的 NMS 变体，按置信度升序处理，采用面积最小值计算 IoU
+      * MTCNN 专用的 NMS 变体，按置信度升序处理，采用面积最小值计算 iou
      *
-     * @param boxes 待筛选的边界框 NDArray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
-     * @param scores 置信度分数 NDArray，形状为 (N,) 或 (N, 1)，每个框对应一个分数
-     * @param iouThreshold IoU 阈值，超过此值的框将被抑制
+     * @param boxes 待筛选的边界框 ndarray，形状为 (N, 4)，格式为 [x1, y1, x2, y2]
+     * @param scores 置信度分数 ndarray，形状为 (N,) 或 (N, 1)，每个框对应一个分数
+     * @param iouThreshold iou 阈值，超过此值的框将被抑制
      * @return 保留的候选框索引数组
      */
     public static int[] mtcnnNms(NDArray boxes, NDArray scores, float iouThreshold) {
@@ -178,10 +178,10 @@ public class NMSUtils {
      * Nms
      * @param boxes boxes
      * @param probabilities probabilities
-     * @param nmsThreshold nmsThreshold
+     * @param nmsThreshold nms阈值
      * @param i2 i2
      * @param box2 box2
-     * @param nmsThreshold nmsThreshold
+     * @param nmsThreshold nms阈值
      * @param rect1 rect1
      * @param rect2 rect2
      */
@@ -222,7 +222,7 @@ public class NMSUtils {
     }
 
     /**
-     * CalculateIoU
+      * calculateiou
      * @param rect1 rect1
      * @param rect2 rect2
      */

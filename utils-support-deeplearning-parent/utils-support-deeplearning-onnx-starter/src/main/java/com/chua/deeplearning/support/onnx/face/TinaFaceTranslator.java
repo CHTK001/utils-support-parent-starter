@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TinaFace        ONNX Translator   
+   * tinaface        ONNX Translator
  *
  * <p>模型输出 18 个 flat tensor：6 层（P2~P7）× 3 输出（cls/reg/iou）：
  * [cls_2, reg_2, iou_2, cls_3, reg_3, iou_3, cls_4, reg_4, iou_4,
@@ -26,7 +26,7 @@ import java.util.Map;
  * P2~P7 对应 stride 4/8/16/32/64/128。</p>
  *
  * <p>每像素 3 个 anchor（scales_per_octave=3，ratios=[1.3]），1 类（人脸）。
- * cls 通道 3、reg 通道 12、iou 通道 3。IoU 感知得分 = sqrt(sigmoid(cls) × sigmoid(iou))。</p>
+   * cls 通道 3、reg 通道 12、iou 通道 3。iou 感知得分 = sqrt(sigmoid(cls) × sigmoid(iou))。</p>
  *
  * @author CH
  * @since 2026-08-20
@@ -34,13 +34,13 @@ import java.util.Map;
 public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 640;
     /** 层步长 */
     /** Strides */
     private static final int[] STRIDES = {4, 8, 16, 32, 64, 128};
     /** 每像素锚框数量 */
-    /** Num_anchors */
+    /** Num_锚栓 */
     private static final int NUM_ANCHORS = 3;
     /** 每个 octave 的缩放数 */
     /** Scales_per_octave */
@@ -61,12 +61,33 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     /** Nms_thresh */
     private double nmsThresh = 0.45d;
 
+    /**
+      * tinafacetranslator。
+     */
     public TinaFaceTranslator() {
     }
 
     /**
-     * 创建 TinaFaceTranslator 实例
-     * @param arguments arguments（threshold 默认 0.4，nms 默认 0.45）
+      * 创建 tinafacetranslator 实例
+     * @param arguments 参数（阈值 默认 0.4，nms 默认 0.45）
+     * @param candidates candidates
+     /**
+       * tinafacetranslator。
+      * @param arguments 参数
+      */
+     * @param clsArray clsarray
+     * @param regArray regarray
+     * @param iouArray iouarray
+     * @param stride stride
+     * @param ctx ctx
+     * @param list 列表
+     * @return 获取nd管理器的结果
+     * @param input 输入
+      * @param candidates candidates
+     /**
+      * TinaFaceTranslator。
+      * @param arguments 参数
+      */
      */
     public TinaFaceTranslator(Map<String, ?> arguments) {
         if (arguments != null) {
@@ -187,17 +208,31 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
         }
     }
 
-    /** Sigmoid */
+    /**
+     * Sigmoid
+     *
+     * @param value 值
+     * @return sigmoid的结果
+     */
     private static double sigmoid(float value) {
         return 1.0d / (1.0d + Math.exp(-value));
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param value 值
+     * @return clip的结果
+     */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
-    /** Empty */
+    /**
+     * 空
+     *
+     * @return 空的结果
+     */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
@@ -205,11 +240,17 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 
-    /** Candidate */
+    /**
+     * Candidate
+     *
+     * @param rectangle rectangle
+     * @param score score
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rectangle, double score) {
     }
 }

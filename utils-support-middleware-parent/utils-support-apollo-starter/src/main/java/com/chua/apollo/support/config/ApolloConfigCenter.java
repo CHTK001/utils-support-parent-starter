@@ -62,7 +62,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     /**
      * 构造 Apollo 配置中心。
      *
-     * @param configCenterSetting 配置中心连接设置（地址通过 Apollo 的 app.properties 或环境变量配置）
+     * @param configCenterSetting 配置中心连接设置（地址通过 Apollo 的 app.属性 或环境变量配置）
      */
     public ApolloConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
@@ -75,10 +75,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
             throw new IllegalStateException("Apollo 未初始化，请先调用 start() 方法启动配置中心");
         }
 
-        // dataId 为空时使用当前命名空间
+ // 数据标识 为空时使用当前命名空间
         String ns = StringUtils.isNotBlank(dataId) ? dataId : namespace;
 
-        // 如果 dataId 与当前命名空间不同，需要获取新的 Config 对象
+ // 如果 数据标识 与当前命名空间不同，需要获取新的 配置 对象
         Config config = getConfigForNamespace(ns);
         if (config == null) {
             return Collections.emptyMap();
@@ -103,7 +103,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     @Override
     /** 获取 */
     public Map<String, Object> get(String dataId, String group) {
-        // Apollo 中 group 参数对应不同的 namespace
+ // Apollo 中 群体 参数对应不同的 namespace
         return get(dataId);
     }
 
@@ -114,13 +114,13 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         this.namespace = StringUtils.isNotBlank(configCenterSetting.getProfile())
                 ? configCenterSetting.getProfile() : DEFAULT_NAMESPACE;
 
-        // 获取 Apollo Config 对象
+ // 获取 Apollo 配置 对象
         this.apolloConfig = ConfigService.getConfig(namespace);
 
         // 注册配置变更监听器
         this.apolloConfig.addChangeListener(new ConfigChangeListener() {
             @Override
-            /** OnChange */
+            /** on改变 */
             public void onChange(ConfigChangeEvent event) {
                 Set<String> changedKeys = event.changedKeys();
                 for (String key : changedKeys) {
@@ -149,7 +149,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 是否Support发布 */
+    /** 是否支持发布 */
     public boolean isSupportPublish() {
         return false;
     }
@@ -169,10 +169,10 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 获取指定命名空间的 Apollo Config 对象。
+      * 获取指定命名空间的 Apollo 配置 对象。
      *
      * @param ns 命名空间名称
-     * @return Apollo Config 对象；如果参数为空则返回当前 Config
+     * @return Apollo 配置 对象；如果参数为空则返回当前 配置
      */
     private Config getConfigForNamespace(String ns) {
         if (StringUtils.isBlank(ns) || ns.equals(namespace)) {
@@ -182,7 +182,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(String dataId, ConfigListener listener) {
         super.addListener(dataId, listener);
 
@@ -192,7 +192,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
         if (config != null) {
             config.addChangeListener(new ConfigChangeListener() {
                 @Override
-                /** OnChange */
+                /** on改变 */
                 public void onChange(ConfigChangeEvent event) {
                     Set<String> changedKeys = event.changedKeys();
                     for (String key : changedKeys) {

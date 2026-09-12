@@ -59,7 +59,7 @@ public class ApngUtils {
                 return false;
             }
             
-            // 检查是否包含 acTL 块（APNG 控制块）
+ // 检查是否包含 actl 块（APNG 控制块）
             return containsActlChunk(header);
             
         } catch (Exception e) {
@@ -72,6 +72,8 @@ public class ApngUtils {
 
     /**
      * 检查是否为 PNG 文件签名
+     * @param header 头部
+     * @return 是否png签名的结果
      */
     private static boolean isPngSignature(byte[] header) {
         if (header.length < 8) {
@@ -90,7 +92,9 @@ public class ApngUtils {
     }
 
     /**
-     * 检查是否包含 acTL 块
+      * 检查是否包含 actl 块
+     * @param data 数据
+     * @return containsActlChunk的结果
      */
     private static boolean containsActlChunk(byte[] data) {
         // 简单检查是否包含 "acTL" 字符串
@@ -298,9 +302,11 @@ public class ApngUtils {
 
     /**
      * APNG 信息类
+     * @author CH
+     * @since 4.0.0
      */
     public static class ApngInfo {
-        /** Frame数量 */
+        /** 帧数量 */
         private final int frameCount;
         /** 宽度 */
         private final int width;
@@ -308,10 +314,12 @@ public class ApngUtils {
         private final int height;
 
         /**
-         * 创建 ApngInfo 实例
-         * @param frameCount frameCount
-         * @param int int
-         * @param int int
+          * 创建 apng信息 实例
+         * @param frameCount 帧数量
+         * @param frameCount int
+         * @param frameCount int
+         * @param width width
+         * @param height height
          */
         public ApngInfo(int frameCount, int width, int height) {
             this.frameCount = frameCount;
@@ -319,28 +327,44 @@ public class ApngUtils {
             this.height = height;
         }
 
-        /** 获取Frame计算数量 */
+        /**
+         * 获取帧计算数量
+         *
+         * @return 获取帧数量的结果
+         */
         public int getFrameCount() {
             return frameCount;
         }
 
-        /** 获取Width */
+        /**
+         * 获取Width
+         *
+         * @return 获取width的结果
+         */
         public int getWidth() {
             return width;
         }
 
-        /** 获取Height */
+        /**
+         * 获取Height
+         *
+         * @return 获取height的结果
+         */
         public int getHeight() {
             return height;
         }
 
-        /** 是否Animated */
+        /**
+         * 是否Animated
+         *
+         * @return 是否animated的结果
+         */
         public boolean isAnimated() {
             return frameCount > 1;
         }
 
         @Override
-        /** ToString */
+        /** 转为字符串 */
         public String toString() {
         
             return String.format("ApngInfo{frames=%d, size=%dx%d, animated=%s}", 

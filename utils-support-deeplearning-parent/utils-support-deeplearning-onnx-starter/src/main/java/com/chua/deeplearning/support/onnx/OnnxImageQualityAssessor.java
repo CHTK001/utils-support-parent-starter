@@ -3,7 +3,7 @@ package com.chua.deeplearning.support.onnx;
 import com.chua.deeplearning.support.image.ImageQualityAssessor;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxImageQualityAssessor implements ImageQualityAssessor {
@@ -20,33 +20,37 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxImageQualityAssessor 实例
-     * @param apiKey apiKey
+      * 创建 onnx镜像qualityassessor 实例
+     * @param apiKey API密钥
      */
     public OnnxImageQualityAssessor(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageQualityAssessor model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "nima";
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public ImageQualityAssessor blurThreshold(double blurThreshold) {
         this.blurThreshold = blurThreshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageQualityAssessor modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -60,7 +64,7 @@ public class OnnxImageQualityAssessor implements ImageQualityAssessor {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageQualityAssessor.create(resolveModel()).blurThreshold(blurThreshold).modelPath(modelPath).device(device).assess(imageData);
     }

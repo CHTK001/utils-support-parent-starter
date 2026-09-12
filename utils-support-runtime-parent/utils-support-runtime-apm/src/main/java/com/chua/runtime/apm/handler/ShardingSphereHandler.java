@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * ShardingSphere Handler — intercepts SQL execution via ShardingSphere.
+   * 分库分表sphere 处理器 — intercepts SQL 执行 via 分库分表sphere.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class ShardingSphereHandler extends AbstractAppHandler {
 
     /**
-     * sharding sphere
+      * 分库分表 sphere
      */
     private static final String SHARDING_SPHERE = "org/apache/shardingsphere";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "shardingsphere-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "shardingsphere.enabled";
     }
@@ -42,13 +42,13 @@ public class ShardingSphereHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.SQL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SHARDING_SPHERE, EXECUTE_METHODS);
     }

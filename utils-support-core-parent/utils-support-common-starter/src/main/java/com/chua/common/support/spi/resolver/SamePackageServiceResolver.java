@@ -39,6 +39,7 @@ import javax.annotation.Nullable;
  * </ol>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class SamePackageServiceResolver implements ServiceResolver {
@@ -56,7 +57,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
 
     /**
      * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
-     * 避免一个线程 close 后其他线程访问已关闭的 JarFile 报 zip file closed。
+      * 避免一个线程 关闭 后其他线程访问已关闭的 jar文件 报 压缩 文件 关闭。
      */
     private static final Map<String, Object> JAR_URL_LOCKS = new ConcurrentHashMap<>(64);
 
@@ -227,7 +228,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
                                   String packageDirName,
                                   Class<?> service,
                                   ClassLoader classLoader) {
-        // 同一 URL 串行打开-扫描-关闭,避免并发 close 导致 zip file closed
+ // 同一 URL 串行打开-扫描-关闭,避免并发 关闭 导致 压缩 文件 关闭
         Object lock = JAR_URL_LOCKS.computeIfAbsent(url.toString(), k -> new Object());
         synchronized (lock) {
             doAnalysisJarUrlInner(result, url, packageDirName, service, classLoader);
@@ -235,12 +236,12 @@ public class SamePackageServiceResolver implements ServiceResolver {
     }
 
     /**
-     * DoAnalysisJarUrlInner
-     * @param result result
+      * 执行analysisjarurl内部
+     * @param result 结果
      * @param url url
-     * @param packageDirName packageDirName
-     * @param service service
-     * @param classLoader classLoader
+     * @param packageDirName 包dir名称
+     * @param service 服务
+     * @param classLoader 类加载
      */
     private void doAnalysisJarUrlInner(Collection<Class<?>> result,
                                        URL url,

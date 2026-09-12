@@ -59,7 +59,7 @@ public class GoogleChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 Token 数
+      * 当前最大 令牌 数
      */
     private Integer maxTokens;
 
@@ -69,7 +69,7 @@ public class GoogleChatClient implements ChatClient {
     private String system;
 
     /**
-     * 当前会话 ID
+      * 当前会话 标识
      */
     private String sessionId;
 
@@ -126,7 +126,7 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -140,14 +140,14 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
@@ -161,7 +161,7 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** ThinkingEffort */
+    /** thinkingeffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
@@ -182,35 +182,35 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("model").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
@@ -223,13 +223,13 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -238,7 +238,7 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         StringBuilder reasoning = new StringBuilder();
@@ -259,7 +259,7 @@ public class GoogleChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -270,10 +270,10 @@ public class GoogleChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {

@@ -34,14 +34,14 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     /** 解析器 */
     private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 
-    /** springEnv */
+    /** springenv */
     private volatile org.springframework.core.env.Environment springEnv;
 
     @Override
     /**
-     * 是否Support
-     * @param field field
-     * @param beanDefinition beanDefinition
+      * 是否支持
+     * @param field 字段
+     * @param beanDefinition Beandefinition
      */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Value.class);
@@ -50,10 +50,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     @Override
     /**
      * Inject
-     * @param field field
-     * @param bean bean
-     * @param beanDefinition beanDefinition
-     * @param environment environment
+     * @param field 字段
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param environment 环境
      */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null) {
@@ -68,9 +68,9 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @Override
     /**
-     * 是否Support
-     * @param method method
-     * @param beanDefinition beanDefinition
+      * 是否支持
+     * @param method 方法
+     * @param beanDefinition Beandefinition
      */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
@@ -87,10 +87,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     @Override
     /**
      * Inject
-     * @param method method
-     * @param bean bean
-     * @param beanDefinition beanDefinition
-     * @param environment environment
+     * @param method 方法
+     * @param bean Bean
+     * @param beanDefinition Beandefinition
+     * @param environment 环境
      */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null) {
@@ -114,8 +114,9 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     }
 
     /**
-     * 获取SpringEnv
-     * @param frameworkEnv frameworkEnv
+      * 获取springenv
+     * @param frameworkEnv 框架env
+     * @return 获取springenv的结果
      */
     private org.springframework.core.env.Environment getSpringEnv(Environment frameworkEnv) {
         org.springframework.core.env.Environment env = this.springEnv;
@@ -129,10 +130,11 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
 
     @SuppressWarnings("unchecked")
     /**
-     * 解析Value
+      * 解析值
      * @param expression expression
-     * @param targetType targetType
-     * @param frameworkEnv frameworkEnv
+     * @param targetType Target类型
+     * @param frameworkEnv 框架env
+     * @return resolve值的结果
      */
     private Object resolveValue(String expression, Class<?> targetType, Environment frameworkEnv) {
         if (expression == null) {
@@ -141,7 +143,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
         try {
             org.springframework.core.env.Environment springEnv = getSpringEnv(frameworkEnv);
 
-            // SpEL：直接走 Spring ExpressionParser
+ // spel：直接走 Spring expressionparser
             if (expression.startsWith("#{") && expression.endsWith("}")) {
                 String spel = expression.substring(2, expression.length() - 1);
                 Expression expr = PARSER.parseExpression(spel);
@@ -158,7 +160,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
                 return Converter.convertIfNecessary(val, targetType);
             }
 
-            // ${} 占位符或直接值：走 Spring Environment.resolvePlaceholders
+ // ${} 占位符或直接值：走 Spring 环境.resolveplaceholders
             String resolved = springEnv.resolvePlaceholders(expression);
             if (StringUtils.isEmpty(resolved)) {
                 return null;

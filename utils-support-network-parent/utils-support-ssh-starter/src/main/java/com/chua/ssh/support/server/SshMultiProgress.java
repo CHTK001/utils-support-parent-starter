@@ -23,6 +23,11 @@ import javax.annotation.Nonnull;
  *     }
  *     mp.close();
  * }
+ * }</pre>pBy(2, 1);
+ *         Thread.sleep(50);
+ *     }
+   * mp.关闭();
+ * }
  * }</pre>
  *
  * @author CH
@@ -155,8 +160,8 @@ public class SshMultiProgress implements AutoCloseable {
     }
 
     static class TaskDef {
-        final String name;
-        final long total;
+        final String name; // 名称
+        final long total; // total
 
         TaskDef(String name, long total) {
             this.name = name;

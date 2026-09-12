@@ -12,9 +12,9 @@ import java.time.Duration;
 import java.util.Map;
 
 /**
- * SafeTensor Python HTTP 推理服务客户端。
+   * safetensor Python HTTP 推理服务客户端。
  * <p>
- * 通过 HTTP 协议调用 python_service/safetensor_service.py 提供的推理接口。
+   * 通过 HTTP 协议调用 Python_服务/safetensor_服务.py 提供的推理接口。
  * 支持模型推理、下载和健康检查。
  * </p>
  *
@@ -78,7 +78,7 @@ public class SafeTensorServiceClient {
      * 模型推理。
      *
      * @param modelName 模型名称
-     * @param modelType 模型类型（llm / image_gen / asr / tts / etc.）
+     * @param modelType 模型类型（llm / 镜像_gen / asr / tts / etc.）
      * @param input     输入数据
      * @param params    推理参数
      * @return 推理结果
@@ -117,7 +117,7 @@ public class SafeTensorServiceClient {
      * 执行训练、评估、保存、加载等训练相关操作。</p>
      *
      * @param modelName 模型名称
-     * @param modelType 操作类型（train / train_step / eval / load / save / prepare_for_training）
+     * @param modelType 操作类型（train / train_step / eval / 加载 / 保存 / prepare_for_培训假）
      * @param input     输入数据
      * @param params    训练参数
      * @return 训练结果

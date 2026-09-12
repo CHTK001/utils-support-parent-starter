@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 智谱 CogView 图片生成客户端
+   * 智谱 cogview 图片生成客户端
  *
  * <p>基于智谱 CogView API 的 {@link ImageClient} 实现，通过 HTTP 协议
- * 调用 CogView 系列模型的图片生成接口，兼容 OpenAI 格式。
+   * 调用 cogview 系列模型的图片生成接口，兼容 打开AI 格式。
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,7 +33,7 @@ import java.util.Map;
 public class ZhipuImageClient implements ImageClient {
 
     /**
-     * 智谱 CogView 默认 API 地址
+      * 智谱 cogview 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
@@ -78,7 +78,7 @@ public class ZhipuImageClient implements ImageClient {
     private String style;
 
     /**
-     * 构造智谱 CogView 图片生成客户端
+      * 构造智谱 cogview 图片生成客户端
      *
      * @param setting 客户端配置
      */
@@ -93,7 +93,7 @@ public class ZhipuImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -108,7 +108,7 @@ public class ZhipuImageClient implements ImageClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -129,25 +129,25 @@ public class ZhipuImageClient implements ImageClient {
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) {
         throw new UnsupportedOperationException("该服务商不支持参考图");
     }
 
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) {
         throw new UnsupportedOperationException("该服务商不支持参考图强度");
     }
 
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) {
         throw new UnsupportedOperationException("该服务商不支持ControlNet");
     }
@@ -231,13 +231,13 @@ public BufferedImage generate(String prompt) {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("智谱 CogView 不支持异步任务模式，请使用 generate() 方法同步生成");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("智谱 CogView 不支持异步任务模式");
     }

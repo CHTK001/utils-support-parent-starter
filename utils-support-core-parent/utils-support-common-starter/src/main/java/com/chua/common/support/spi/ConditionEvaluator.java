@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
  * if (evaluator.evaluate(definition)) {
  *     // 条件满足，可以加载服务
  * }
+ * }</pre>以加载服务
+ * }
  * }</pre>
  *
  * @author CH
@@ -40,7 +42,7 @@ import javax.annotation.Nullable;
 public class ConditionEvaluator {
 
 
-    /** 创建 ConditionEvaluator 实例 */
+    /** 创建 条件evaluator 实例 */
     public ConditionEvaluator() {
     }
 

@@ -16,9 +16,9 @@ import java.util.List;
 public class MusicPlaylistCategoryCatalog {
     /** 来源 */
     private String source;
-    /** HOTtags */
+    /** hottags */
     private List<MusicPlaylistCategory> hotTags;
-    /** Groups */
+    /** 群体 */
     private List<MusicPlaylistCategoryGroup> groups;
 }
 

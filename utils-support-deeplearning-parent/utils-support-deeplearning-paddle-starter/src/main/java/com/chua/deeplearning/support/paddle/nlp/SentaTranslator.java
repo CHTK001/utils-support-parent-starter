@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Paddle 情感分析 Senta Translator。
+   * 飞桨 情感分析 Senta Translator。
  * <p>输入分词后的 token 数组，输出情感分数向量。</p>
  *
  * @author CH
@@ -28,12 +28,12 @@ import java.util.Map;
 public class SentaTranslator implements Translator<String[], float[]> {
 
     /**
-     * 词到 id。
+      * 词到 标识。
      */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
-     * 未知词 id。
+      * 未知词 标识。
      */
     private String unkId = "";
 
@@ -56,7 +56,12 @@ public class SentaTranslator implements Translator<String[], float[]> {
         unkId = String.valueOf(word2IdDict.size());
     }
 
-    /** 打开Vocab */
+    /**
+     * 打开Vocab
+     *
+     * @param model 模型
+     * @return 打开vocab的结果
+     */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
         for (String name : candidates) {
@@ -69,7 +74,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String[] input) {
         NDManager manager = ctx.getNDManager();
         List<Long> lodList = new ArrayList<>();
@@ -86,7 +91,13 @@ public class SentaTranslator implements Translator<String[], float[]> {
         return new NDList(ndArray);
     }
 
-    /** Tokenize */
+    /**
+     * Tokenize
+     *
+     * @param input 输入
+     * @param lod lod
+     * @return tokenize的结果
+     */
     private List<Long> tokenize(String[] input, List<Long> lod) {
         List<Long> wordIds = new ArrayList<>();
         for (String word : input) {
@@ -97,10 +108,16 @@ public class SentaTranslator implements Translator<String[], float[]> {
         return wordIds;
     }
 
-    /** Try设置Lod */
+    /**
+     * 尝试设置Lod
+     *
+     * @param ndArray ndarray
+     * @param begin 开始
+     * @param end 结束
+     */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
-            // Paddle LoD：若运行时为 PpNDArray 则设置
+ // 飞桨 lod：若运行时为 ppndarray 则设置
             Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");
             if (pp.isInstance(ndArray)) {
                 long[][] lod = new long[1][2];
@@ -109,12 +126,12 @@ public class SentaTranslator implements Translator<String[], float[]> {
                 ReflectUtils.invoke(ndArray, "setLoD", void.class, long[][].class, lod);
             }
         } catch (Throwable ignored) {
-            // 非 Paddle 引擎时忽略
+ // 非 飞桨 引擎时忽略
         }
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }

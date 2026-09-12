@@ -17,9 +17,9 @@ import javax.annotation.Nullable;
 
 
 /**
- * LaMa ONNX推理类
+   * lama ONNX推理类
  * <p>
- * 基于ONNX Runtime实现的LaMa图像修复模型推理
+   * 基于ONNX Runtime实现的lama图像修复模型推理
  * 支持CPU和GPU推理，提供图像修复功能
  * </p>
  * 
@@ -42,9 +42,9 @@ public class LaMaOnnxInfer implements AutoCloseable {
 
     /** 配置 */
     private final LaMaConfiguration config;
-    /** ortEnvironment */
+    /** ort环境 */
     private Object ortEnvironment;
-    /** ortSession */
+    /** ort会话 */
     private Object ortSession;
     /** 是否已初始化 */
     private boolean initialized = false;
@@ -52,7 +52,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     /**
      * 构造函数
      *
-     * @param config LaMa配置
+     * @param config lama配置
      */
     public LaMaOnnxInfer(LaMaConfiguration config) {
         this.config = config;
@@ -259,7 +259,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
             // 通常是"mask"
             inputs.put(nameArray[1], maskTensor);
         } else {
-            // 如果只有一个输入，可能需要合并image和mask
+ // 如果只有一个输入，可能需要合并镜像和mask
             inputs.put(nameArray[0], imageTensor);
         }
 
@@ -287,7 +287,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
             float[] outputData;
 if (tensorValue instanceof float[][][]) {
                 float[][][] output3D = (float[][][]) tensorValue;
-                // 取第一个batch
+ // 取第一个批量
                 outputData = flatten3DArray(output3D);
             } else if (tensorValue instanceof float[][]) {
                 float[][] output2D = (float[][]) tensorValue;
@@ -315,6 +315,8 @@ if (tensorValue instanceof float[][][]) {
 
     /**
      * 展平3D数组
+     * @param array3D array3D
+     * @return flatten3DArray的结果
      */
     private float[] flatten3DArray(float[][][] array3D) {
         int channels = array3D[0].length;
@@ -331,6 +333,8 @@ if (tensorValue instanceof float[][][]) {
 
     /**
      * 展平2D数组
+     * @param array2D array2D
+     * @return flatten2DArray的结果
      */
     private float[] flatten2DArray(float[][] array2D) {
         int height = array2D.length;

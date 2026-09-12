@@ -30,7 +30,7 @@ public class SpiderExecutionRecord {
     private String spiderCode;
 
     /**
-     * 执行状态：RUNNING / SUCCESS / FAILED
+      * 执行状态：RUNNING / 成功 / 失败
      */
     private String status;
 
@@ -55,7 +55,7 @@ public class SpiderExecutionRecord {
     private Integer resultCount;
 
     /**
-     * 抓取结果 JSON 字符串（SpiderResult 列表序列化）
+      * 抓取结果 JSON 字符串（蜘蛛结果 列表序列化）
      */
     private String resultsJson;
 }

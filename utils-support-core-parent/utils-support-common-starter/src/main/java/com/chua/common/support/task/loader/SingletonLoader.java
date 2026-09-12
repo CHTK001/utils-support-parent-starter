@@ -12,6 +12,8 @@ import java.util.function.Supplier;
  * <pre>{@code
  * SingletonLoader<DataSource> loader = SingletonLoader.of(() -> new HikariDataSource(config));
  * DataSource ds = loader.get();
+ * }</pre>g));
+ * DataSource ds = loader.get();
  * }</pre>
  * </p>
  *

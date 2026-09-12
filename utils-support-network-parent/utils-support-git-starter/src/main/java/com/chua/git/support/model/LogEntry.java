@@ -28,9 +28,9 @@ public record LogEntry(
 ) {
 
     /**
-     * 从 JGit {@link RevCommit} 构造。
+      * 从 jgit {@link RevCommit} 构造。
      *
-     * @param commit JGit RevCommit 对象
+     * @param commit jgit revcommit 对象
      * @return LogEntry
      */
     public static LogEntry from(RevCommit commit) {

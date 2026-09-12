@@ -30,7 +30,7 @@ public interface ServiceManager extends AutoCloseable {
     /**
      * 获取服务管理器名称。
      *
-     * @return 名称标识，如 "windows"、"systemd"
+     * @return 名称标识，如 "窗口"、"systemd"
      */
     String name();
 

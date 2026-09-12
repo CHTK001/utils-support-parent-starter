@@ -24,9 +24,9 @@ import java.util.Properties;
 /**
  * Redis 配置中心实现。
  * <p>
- * 基于 Jedis 连接 Redis 服务器，将 Redis 的 String 类型键值对作为配置存储。
- * dataId 对应 Redis 的 key，配置值支持 JSON、Properties 和纯文本三种格式。
- * 通过 profile 参数指定 Redis 数据库索引（0-15），实现多环境配置隔离。
+   * 基于 Jedis 连接 Redis 服务器，将 Redis 的 字符串 类型键值对作为配置存储。
+   * 数据id 对应 Redis 的 键，配置值支持 JSON、属性 和纯文本三种格式。
+   * 通过 配置文件 参数指定 Redis 数据库索引（0-15），实现多环境配置隔离。
  * </p>
  * <p>
  * <b>功能特性：</b>
@@ -87,7 +87,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
     @Override
     public Map<String, Object> get(String dataId, String group) {
-        // Redis 不支持分组概念，group 参数无效，直接按 dataId 查询
+ // Redis 不支持分组概念，群体 参数无效，直接按 数据标识 查询
         return get(dataId);
     }
 
@@ -145,11 +145,11 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 解析 Redis 地址为 host 和 port。
+      * 解析 Redis 地址为 主机 和 端口。
      * <p>支持格式：host:port、host（默认端口 6379）</p>
      *
      * @param address Redis 地址字符串
-     * @return [host, port]
+     * @return [host, 端口]
      */
     private String[] parseRedisAddress(String address) {
         if (StringUtils.isBlank(address)) {
@@ -167,7 +167,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 解析 profile 参数为 Redis 数据库索引。
+      * 解析 配置文件 参数为 Redis 数据库索引。
      * <p>profile 可作为 Redis 数据库索引（0-15），用于多环境配置隔离。</p>
      *
      * @param profile 环境标识，为数字时作为数据库索引
@@ -216,6 +216,9 @@ public class RedisConfigCenter extends AbstractConfigCenter {
      * * 测试 Redis 连接是否正常。
 
      */
+    /**
+     * 测试connection。
+     */
     private void testConnection() {
         try (Jedis jedis = jedisPool.getResource()) {
             String pong = jedis.ping();
@@ -249,7 +252,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
                 return parseJsonContent(configContent);
             }
 
-            // 尝试 Properties 格式解析
+ // 尝试 属性 格式解析
             if (isPropertiesContent(configContent)) {
                 return parsePropertiesContent(configContent);
             }
@@ -276,11 +279,11 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 判断是否为 Properties 格式内容。
+      * 判断是否为 属性 格式内容。
      * <p>Properties 格式特征：包含等号和换行符。</p>
      *
      * @param content 配置内容
-     * @return true-是 Properties 格式
+     * @return true-是 属性 格式
      */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
@@ -321,9 +324,9 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     }
 
     /**
-     * 解析 Properties 格式的配置内容。
+      * 解析 属性 格式的配置内容。
      *
-     * @param content Properties 格式的字符串
+     * @param content 属性 格式的字符串
      * @return 键值映射
      */
     private Map<String, Object> parsePropertiesContent(String content) {
@@ -331,7 +334,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
         Properties properties = new Properties();
 
         try {
-            // 使用 java.util.Properties 标准加载
+ // 使用 Java.util.属性 标准加载
             StringReader reader = new StringReader(content);
             properties.load(reader);
 
@@ -339,7 +342,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
                 result.put(key, properties.getProperty(key));
             }
         } catch (Exception e) {
-            // Properties 加载失败时，回退到逐行解析
+ // 属性 加载失败时，回退到逐行解析
             String[] lines = content.split("\n");
             for (String line : lines) {
                 line = line.trim();

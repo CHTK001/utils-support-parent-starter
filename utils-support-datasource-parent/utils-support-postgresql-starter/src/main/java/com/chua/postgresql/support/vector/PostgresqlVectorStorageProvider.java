@@ -32,7 +32,9 @@ public class PostgresqlVectorStorageProvider implements VectorStorageProvider {
     }
 
     /**
-     * 包装属性，持有 DataSource 和向量存储配置。
+      * 包装属性，持有 数据源 和向量存储配置。
+     * @param dataSource 数据源
+     * @return pg向量storageprops的结果
      */
     public record PgVectorStorageProps(
             DataSource dataSource,

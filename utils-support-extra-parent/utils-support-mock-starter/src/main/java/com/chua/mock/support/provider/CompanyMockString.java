@@ -35,6 +35,8 @@ public class CompanyMockString implements MockString {
     };
     /**
      * 行业词池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] INDUSTRIES = {
             "科技", "网络", "信息", "智能", "数据", "软件", "电子", "文化", "传媒", "实业"

@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Jetty Handler — intercepts request handling in Eclipse Jetty.
+   * Jetty 处理器 — intercepts 请求 处理 入 Eclipse Jetty.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class JettyHandler extends AbstractAppHandler {
 
     /**
-     * SERVER
+      * 服务端
      */
     private static final String SERVER = "org/eclipse/jetty/server/Server";
     /**
-     * handle methods
+      * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "jetty-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "jetty.enabled";
     }
@@ -42,13 +42,13 @@ public class JettyHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SERVER, HANDLE_METHODS);
     }

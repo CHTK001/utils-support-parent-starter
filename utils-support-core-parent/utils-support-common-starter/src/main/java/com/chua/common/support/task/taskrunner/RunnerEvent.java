@@ -3,22 +3,25 @@ package com.chua.common.support.task.taskrunner;
 import java.util.Objects;
 
 /**
- * 运行事件 — TaskRunner 执行过程中对外发布的生命周期事件。
+   * 运行事件 — 任务runner 执行过程中对外发布的生命周期事件。
  *
  * <p>通过 {@link RunnerListener} 同步回调，或经 {@code TaskRunner#watch()} 以
  * {@code Flux<RunnerEvent>} 响应式消费。</p>
  *
  * @param type      事件类型
- * @param nodeId    关联节点 ID，运行级事件（RUN_STARTED/RUN_COMPLETED）为 null
+ * @param nodeId    关联节点 标识，运行级事件（运行_启动/运行_完成）为 空
  * @param message   事件描述，如失败原因摘要
  * @param timestamp 事件产生时间戳（毫秒）
  * @author CH
  * @since 4.0.0.42
+ * @return runner事件的结果
  */
 public record RunnerEvent(Type type, String nodeId, String message, long timestamp) {
 
     /**
      * 事件类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum Type {
         /**
@@ -53,7 +56,7 @@ public record RunnerEvent(Type type, String nodeId, String message, long timesta
     }
 
     /**
-     * 构造校验：type 与 timestamp 必填。
+      * 构造校验：类型 与 时间戳 必填。
      */
     public RunnerEvent {
         Objects.requireNonNull(type, "type must not be null");
@@ -65,7 +68,7 @@ public record RunnerEvent(Type type, String nodeId, String message, long timesta
     /**
      * 创建运行级事件。
      *
-     * @param type  事件类型，须为 RUN_STARTED / RUN_COMPLETED
+     * @param type  事件类型，须为 运行_启动 / 运行_完成
      * @param msg   事件描述
      * @param now   时间戳毫秒
      * @return 运行级事件
@@ -77,8 +80,8 @@ public record RunnerEvent(Type type, String nodeId, String message, long timesta
     /**
      * 创建节点级事件。
      *
-     * @param type  事件类型，须为 NODE_* 系列
-     * @param node  节点 ID
+     * @param type  事件类型，须为 节点_* 系列
+     * @param node  节点 标识
      * @param msg   事件描述
      * @param now   时间戳毫秒
      * @return 节点级事件

@@ -17,13 +17,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class TransactionalIntercept implements MethodAnnotationIntercept<Transactional> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<Transactional> annotationType() {
         return Transactional.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 200;
     }

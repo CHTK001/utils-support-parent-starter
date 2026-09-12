@@ -12,9 +12,9 @@ import lombok.Data;
 @Data
 @Builder
 public class MusicComment {
-    /** CommentID */
+    /** 评论id */
     private String commentId;
-    /** Author */
+    /** 作者 */
     private String author;
     /** Avatar */
     private String avatar;

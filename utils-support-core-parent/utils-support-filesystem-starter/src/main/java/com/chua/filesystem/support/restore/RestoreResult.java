@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 
@@ -86,11 +86,15 @@ public class RestoreResult {
      * 警告信息列表
      */
     @Builder.Default
-    /** Warnings */
+    /** 警告 */
     private List<String> warnings = new ArrayList<>();
 
     /**
      * 创建成功结果
+     * @param schemaName 模式名称
+     * @param tableName table名称
+     * @param rowCount row数量
+     * @return 成功的结果
      */
     public static RestoreResult success(String schemaName, String tableName, long rowCount) {
         return RestoreResult.builder()
@@ -105,6 +109,10 @@ public class RestoreResult {
 
     /**
      * 创建结构恢复成功结果
+     * @param schemaName 模式名称
+     * @param tableName table名称
+     * @param ddl ddl
+     * @return 结构成功的结果
      */
     public static RestoreResult structureSuccess(String schemaName, String tableName, String ddl) {
         return RestoreResult.builder()
@@ -119,6 +127,10 @@ public class RestoreResult {
 
     /**
      * 创建数据恢复成功结果
+     * @param schemaName 模式名称
+     * @param tableName table名称
+     * @param rowCount row数量
+     * @return 数据成功的结果
      */
     public static RestoreResult dataSuccess(String schemaName, String tableName, long rowCount) {
         return RestoreResult.builder()
@@ -133,6 +145,8 @@ public class RestoreResult {
 
     /**
      * 创建失败结果
+     * @param errorMessage 错误消息
+     * @return 失败的结果
      */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
@@ -143,6 +157,9 @@ public class RestoreResult {
 
     /**
      * 创建失败结果（带异常）
+     * @param errorMessage 错误消息
+     * @param exception 异常
+     * @return 失败的结果
      */
     public static RestoreResult failure(String errorMessage, Throwable exception) {
         return RestoreResult.builder()
@@ -154,6 +171,8 @@ public class RestoreResult {
 
     /**
      * 添加警告信息
+     * @param warning 警告
+     * @return 添加警告的结果
      */
     public RestoreResult addWarning(String warning) {
         if (this.warnings == null) {
@@ -165,6 +184,7 @@ public class RestoreResult {
 
     /**
      * 是否有警告
+     * @return 是否包含警告的结果
      */
     public boolean hasWarnings() {
         return warnings != null && !warnings.isEmpty();

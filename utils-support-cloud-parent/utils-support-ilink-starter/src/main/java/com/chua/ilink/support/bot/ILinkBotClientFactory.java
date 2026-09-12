@@ -4,7 +4,7 @@ import com.chua.common.support.ai.bot.BotClient;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
- * iLink Bot 客户端工厂。
+   * i链接 机器人 客户端工厂。
  *
  * <p>SPI 名称：{@code ilink}。通过 {@code BotClient.auto("ilink")} 自动加载。</p>
  *
@@ -15,7 +15,7 @@ import com.chua.common.support.spi.annotations.Spi;
 public class ILinkBotClientFactory implements BotClient.Factory {
 
     /**
-     * 创建 ILinkBotClient 实例。
+      * 创建 i链接机器人客户端 实例。
      *
      * @return BotClient 实例
      */
@@ -25,7 +25,7 @@ public class ILinkBotClientFactory implements BotClient.Factory {
     }
 
     /**
-     * 创建 Builder。
+      * 创建 构建器。
      *
      * @return Builder 实例
      */
@@ -35,7 +35,9 @@ public class ILinkBotClientFactory implements BotClient.Factory {
     }
 
     /**
-     * ILink Bot 客户端构建器。
+      * i链接 机器人 客户端构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder implements BotClient.Builder {
 

@@ -24,7 +24,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
 
     /** 数据来源 */
     private final DataSource dataSource;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private String password;
@@ -51,7 +51,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     }
 
     /**
-     * Oracle 不支持 host 概念，忽略此参数。
+      * Oracle 不支持 主机 概念，忽略此参数。
      *
      * @param host 忽略
      * @return this
@@ -64,7 +64,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     /**
      * 授予权限。
      *
-     * @param privilege 权限名（如 CREATE SESSION、SELECT ANY TABLE）
+     * @param privilege 权限名（如 创建 会话、选择 任意 TABLE）
      * @param database  忽略（Oracle 中直接对用户授权）
      * @return this
      */

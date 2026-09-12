@@ -18,7 +18,7 @@ import java.util.Locale;
 public class TextPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String extension, String mimeType) {
         return "txt".equalsIgnoreCase(extension)
                 || "text/plain".equals(mimeType);
@@ -34,7 +34,12 @@ public class TextPreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder().htmlContent(html).embeddedCss(css).build();
     }
 
-    /** EscapeHtml */
+    /**
+     * escapehtml
+     *
+     * @param s s
+     * @return escapeHtml的结果
+     */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

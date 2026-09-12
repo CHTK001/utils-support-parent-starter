@@ -35,6 +35,7 @@ import java.util.List;
  * };
  *
  * Flow flow = FlowEngine.createFlow("demo").addNode("n1", node);
+ * }</pre>建流("demo").添加节点("n1", 节点);
  * }</pre>
  *
  * <p>内置了常用二级节点接口，直接使用即可：{@link StartNode}、{@link EndNode}、
@@ -81,7 +82,7 @@ public interface FlowNode {
      * ��ȡ�ڵ����ñ��ε�Ԫ��Ϣ��
      *
      * <p>�ڵ�������嵥չʾʱ��ǰ�˸��ݷ��ص��ֶ��б���̬��ɸñ��εı���
-     * ��Լ�������ǰ�� ReFlow ���������һ�¡�δ�ṩ����ֶ�ʱ默�Ϸ��ؿ��б���</p>
+      * ��Լ�������ǰ�� re流 ���������һ�¡�δ�ṩ����ֶ�ʱ默�Ϸ��ؿ��б���</p>
      *
      * @return �ڵ����ñ��ε�Ԫ��Ϣ�б�
      */

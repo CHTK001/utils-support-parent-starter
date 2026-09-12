@@ -32,7 +32,7 @@ import java.util.Map;
  * <p>
  * HBase 为无 SQL 的宽表模型，本引擎不伪装 ORM，而是暴露真实领域 API：
  * {@link #put} / {@link #get} / {@link #scan} / {@link #deleteRow} / 建表。
- * Lambda 查询/存储等接口按语义显式拒绝（与 PrometheusEngine 同风格）。
+   * Lambda 查询/存储等接口按语义显式拒绝（与 prometheusengine 同风格）。
  * SPI 键 {@code "hbase"}；数据源支持传入 {@code quorum:port} 串或现成 Connection。
  * </p>
  *
@@ -92,6 +92,12 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
      * 由 quorum 串创建真实连接。
+     * @return conn的结果
+     /**
+      * 连接。
+      * @param quorum quorum
+      * @return 连接的结果
+      */
      */
     private static Connection connect(String quorum) {
         String host = quorum;
@@ -147,7 +153,7 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 写入一行（真实 Put）。
+      * 写入一行（真实 放入）。
      *
      * @param table    表名
      * @param rowKey   行键
@@ -167,12 +173,12 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 读取一行（真实 Get）。
+      * 读取一行（真实 获取）。
      *
      * @param table  表名
      * @param rowKey 行键
      * @param family 列族
-     * @return 列限定符 -> 字符串值；行不存在返回空 Map
+     * @return 列限定符 -> 字符串值；行不存在返回空 映射
      */
     public Map<String, String> get(String table, String rowKey, String family) {
         try (Table t = conn().getTable(TableName.valueOf(table))) {
@@ -184,11 +190,11 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 全表扫描（真实 Scan），可选行键前缀过滤。
+      * 全表扫描（真实 扫描），可选行键前缀过滤。
      *
      * @param table      表名
      * @param family     列族
-     * @param rowPrefix  行键前缀，可为 null
+     * @param rowPrefix  行键前缀，可为 空
      * @return 行列表，每行含 {@code __row} 键为行键
      */
     public java.util.List<Map<String, String>> scan(String table, String family, String rowPrefix) {
@@ -209,7 +215,7 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 删除一行（真实 Delete）。
+      * 删除一行（真实 删除）。
      *
      * @param table  表名
      * @param rowKey 行键
@@ -225,7 +231,10 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 构建 Scan（含可选前缀）。
+      * 构建 扫描（含可选前缀）。
+     * @param family family
+     * @param rowPrefix row前缀
+     * @return 构建扫描的结果
      */
     private static Scan buildScan(String family, String rowPrefix) {
         Scan s = new Scan();
@@ -238,7 +247,9 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 前缀+1 用于 Scan stopRow（包含式边界处理）。
+      * 前缀+1 用于 扫描 停止row（包含式边界处理）。
+     * @param prefix 前缀
+     * @return increment前缀的结果
      */
     private static String incrementPrefix(String prefix) {
         byte[] b = Bytes.toBytes(prefix);
@@ -252,7 +263,10 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * Result 转 Map（仅取指定列族下的字符串值）。
+      * 结果 转 映射（仅取指定列族下的字符串值）。
+     * @param r r
+     * @param family family
+     * @return 转为映射的结果
      */
     private static Map<String, String> toMap(Result r, String family) {
         Map<String, String> m = new LinkedHashMap<>();
@@ -275,7 +289,7 @@ public class HBaseEngine extends AbstractEngine {
     // ==================== 接口语义：显式拒绝 ====================
 
     /**
-     * HBase 无 SQL：请使用 put/get/scan/deleteRow 领域 API。
+      * HBase 无 SQL：请使用 放入/获取/扫描/删除row 领域 API。
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
@@ -284,7 +298,7 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * HBase 无 SQL：请使用 scan()。
+      * HBase 无 SQL：请使用 扫描()。
      */
     @Override
     protected <T> java.util.List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
@@ -293,7 +307,7 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * HBase 无 UPDATE。
+      * HBase 无 更新。
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
@@ -302,7 +316,7 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * HBase 无 SQL DELETE：请使用 deleteRow()。
+      * HBase 无 SQL 删除：请使用 删除row()。
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SafeTensor 人脸检测翻译器，输入图像字节数组，输出 {@link PredictRectangle} 列表。
+   * safetensor 人脸检测翻译器，输入图像字节数组，输出 {@link PredictRectangle} 列表。
  * <p>
  * 默认连接 {@code facade-face} 模型与 {@code face_detection} 任务类型，可通过构造函数覆盖。
  * 推理失败时返回空列表，不抛出异常。
@@ -38,16 +38,16 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     /**
      * 使用默认 facade-face + face_detection 构造。
      *
-     * @param host SafeTensorService 主机
-     * @param port SafeTensorService 端口
+     * @param host safetensor服务 主机
+     * @param port safetensor服务 端口
      */
     public SafeTensorTranslator(String host, int port) {
         this(host, port, "facade-face", "face_detection");
     }
 
     /**
-     * @param host      SafeTensorService 主机
-     * @param port      SafeTensorService 端口
+     * @param host      safetensor服务 主机
+     * @param port      safetensor服务 端口
      * @param modelName 模型名称
      * @param modelType 模型类型
      */
@@ -58,13 +58,13 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
 
     /**
-     * 把图像字节发给 SafeTensorService 并解析返回人脸框列表。
+      * 把图像字节发给 safetensor服务 并解析返回人脸框列表。
      *
      * @param input 图像字节数组
      * @return PredictRectangle 列表

@@ -24,6 +24,10 @@ import java.util.List;
  *
  * // 列出所有 SPI 实现：
  * List<String> providers = VectorStorageProvider.providers();
+ * }</pre>y", dim, algo);
+ *
+ * // 列出所有 SPI 实现：
+ * List<String> providers = VectorStorageProvider.providers();
  * }</pre>
  *
  * @author CH
@@ -32,7 +36,7 @@ import java.util.List;
 public interface VectorStorageProvider {
 
     /**
-     * SPI 名称（如 "memory", "jvector", "milvus"）。
+      * SPI 名称（如 "内存", "jvector", "milvus"）。
      */
     String name();
 
@@ -41,7 +45,7 @@ public interface VectorStorageProvider {
      *
      * @param dimension  向量维度
      * @param algorithm  比较算法
-     * @param properties 实现特定的配置（可为 null）
+     * @param properties 实现特定的配置（可为 空）
      * @return VectorStorage 实例
      */
     VectorStorage create(int dimension, VectorCompareAlgorithm algorithm, Object properties);
@@ -55,9 +59,11 @@ public interface VectorStorageProvider {
      *         .algorithm("cosine")
      *         .properties(props)
      *         .build();
+     * }</pre>rties(props)
+     *         .build();
      * }</pre>
      *
-     * @param providerName SPI 名称（如 "memory", "jvector", "milvus"）
+     * @param providerName SPI 名称（如 "内存", "jvector", "milvus"）
      * @return 链式构建器
      */
     static Builder of(String providerName) {
@@ -86,7 +92,7 @@ public interface VectorStorageProvider {
      * @param providerName SPI 名称
      * @param dimension    向量维度
      * @param algorithm    比较算法
-     * @param properties   实现特定的配置（可为 null）
+     * @param properties   实现特定的配置（可为 空）
      * @return VectorStorage 实例
      */
     static VectorStorage create(String providerName,
@@ -105,6 +111,7 @@ public interface VectorStorageProvider {
 
     /**
      * 返回所有已注册的 SPI 名称。
+     * @return 提供者的结果
      */
     static List<String> providers() {
         return ServiceProvider.of(VectorStorageProvider.class)
@@ -122,12 +129,16 @@ public interface VectorStorageProvider {
      *         .algorithm("cosine")
      *         .properties(props)
      *         .build();
+     * }</pre>rties(props)
+     *         .build();
      * }</pre>
+     * @author CH
+     * @since 4.0.0
      */
     final class Builder {
         /** 提供者 */
         private final VectorStorageProvider provider;
-        /** Dimension */
+        /** 维度 */
         private int dimension = 128;
         /** 算法 */
         private VectorCompareAlgorithm algorithm = VectorCompareAlgorithm.euclidean();
@@ -179,7 +190,7 @@ public interface VectorStorageProvider {
         /**
          * 设置实现特定的配置属性。
          *
-         * @param properties 配置对象（可为 null）
+         * @param properties 配置对象（可为 空）
          * @return this
          */
         public Builder properties(Object properties) {
@@ -199,11 +210,13 @@ public interface VectorStorageProvider {
 
     /**
      * 默认的内存实现（最低优先级，作为兜底）。
+     * @author CH
+     * @since 4.0.0
      */
     @Spi(value = "memory", order = -100)
     class MemoryProvider implements VectorStorageProvider {
         @Override
-        /** Name */
+        /** 名称 */
         public String name() {
             return "memory";
         }
@@ -211,9 +224,9 @@ public interface VectorStorageProvider {
         @Override
         /**
          * 创建
-         * @param dimension dimension
+         * @param dimension 维度
          * @param algorithm algorithm
-         * @param properties properties
+         * @param properties 属性
          */
         public VectorStorage create(int dimension,
                                     VectorCompareAlgorithm algorithm,

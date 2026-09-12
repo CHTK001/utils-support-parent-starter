@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * Linux systemd 系统服务管理器 — 通过 {@code systemctl} 命令管理 systemd 服务。
  *
  * <p>在 Linux 系统上使用 systemd 的 service 文件注册和管理服务。
- * service 文件生成到 {@code /etc/systemd/system/} 目录。</p>
+   * 服务 文件生成到 {@code /etc/systemd/system/} 目录。</p>
  *
  * <p>SPI 名称：{@code "systemd"}</p>
  *
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class SystemdServiceManager implements ServiceManager {
 
     /**
-     * systemd service 文件目录
+      * systemd 服务 文件目录
      */
     private static final String SYSTEMD_SERVICE_DIR = "/etc/systemd/system";
 
@@ -37,13 +37,13 @@ public class SystemdServiceManager implements ServiceManager {
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "systemd";
     }
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported() {
         String osName = System.getProperty("os.name", "").toLowerCase();
         if (!osName.contains("nix") && !osName.contains("nux") && !osName.contains("aix")) {
@@ -62,7 +62,7 @@ public class SystemdServiceManager implements ServiceManager {
             String serviceContent = generateServiceFile(service);
             Path servicePath = Paths.get(SYSTEMD_SERVICE_DIR, service.getServiceName() + ".service");
 
-            // 需要 root 权限写入 /etc/systemd/system
+ // 需要 根 权限写入 /etc/systemd/系统
             String tempFile = "/tmp/" + service.getServiceName() + ".service";
             Files.writeString(Path.of(tempFile), serviceContent);
 
@@ -126,7 +126,7 @@ public class SystemdServiceManager implements ServiceManager {
         // 禁用开机自启
         CmdExecutors.execute("systemctl disable \"" + serviceName + "\"", CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        // 删除 service 文件
+ // 删除 服务 文件
         Path servicePath = Paths.get(SYSTEMD_SERVICE_DIR, serviceName + ".service");
         CmdResult result = CmdExecutors.execute(
                 "rm -f " + servicePath.toString(),
@@ -170,7 +170,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public CmdResult status(String serviceName) {
         String cmd = "systemctl status \"" + serviceName + "\" 2>&1";
         return CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -193,7 +193,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     @Override
-    /** 是否Enabled */
+    /** 是否已启用 */
     public boolean isEnabled(String serviceName) {
         String cmd = "systemctl is-enabled \"" + serviceName + "\" 2>&1";
         CmdResult result = CmdExecutors.execute(cmd, CMD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -211,7 +211,7 @@ public class SystemdServiceManager implements ServiceManager {
     }
 
     /**
-     * 生成 systemd service 文件内容。
+      * 生成 systemd 服务 文件内容。
      *
      * @param service 服务配置
      * @return service 文件内容

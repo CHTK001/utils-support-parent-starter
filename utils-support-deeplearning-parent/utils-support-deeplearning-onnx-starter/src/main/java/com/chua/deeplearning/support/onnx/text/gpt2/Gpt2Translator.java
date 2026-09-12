@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 /**
  * GPT-2              Translator   
  * <p>
- *        HuggingFace Tokenizer + ONNX                                                   
- *                 decode                 token                                                    
+   * huggingface Tokenizer + ONNX
+   * decode                 令牌
  * </p>
  *
  * @author CH
@@ -37,7 +37,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     private static final int MAX_LENGTH = 128;
 
     /**
-     * HuggingFace          
+      * huggingface
      */
     private HuggingFaceTokenizer tokenizer;
 
@@ -65,7 +65,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("Tokenizer not initialized");
@@ -87,7 +87,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) {
@@ -122,11 +122,11 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     }
 
     /**
-     * modelPath          fileName                 
+      * 模型路径          文件名
      *
      * @param modelPath             
      * @param fileName              
-     * @return                        path，       null
+     * @return                        path，       空
      */
     private static Path findFile(Path modelPath, String fileName) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();

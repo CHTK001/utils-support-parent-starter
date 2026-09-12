@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
- * Univer Office 预览提供器，支持 Excel / Word / PowerPoint 及其模板格式的在线预览。
+   * Univer 办公室 预览提供器，支持 Excel / Word / powerpoint 及其模板格式的在线预览。
  * <p>SPI 类型：{@code preview-univer}。表格走 LuckyExcel，文档走 Univer importDOCXToSnapshotAsync。</p>
  *
  * @author CH
@@ -18,19 +18,19 @@ import java.util.Set;
 public class UniverPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 支持的 Office 扩展名（小写）
+      * 支持的 办公室 扩展名（小写）
      */
     private static final Set<String> SUPPORTED_EXTS = Set.of(
             // Excel
             "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml",
             // Word
             "docx", "doc", "dotx", "dotm",
-            // PowerPoint
+ // powerpoint
             "pptx", "ppt", "potx", "potm"
     );
 
     /**
-     * 表格类扩展名（需要 LuckyExcel 解析）
+      * 表格类扩展名（需要 luckyexcel 解析）
      */
     private static final Set<String> SHEET_EXTS = Set.of(
             "xlsx", "xls", "xlsb", "xlt", "xltx", "xltm", "xlam", "xlsxml"
@@ -56,7 +56,7 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     @Override
     /**
      * Preview
-     * @param content content
+     * @param content 内容
      * @param ext ext
      * @param mime mime
      */
@@ -91,11 +91,12 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 构建Script
+      * 构建script
      * @param b64 b64
      * @param ext ext
-     * @param isSheet isSheet
-     * @param isDoc isDoc
+     * @param isSheet 是否sheet
+     * @param isDoc 是否doc
+     * @return 构建script的结果
      */
     private String buildScript(String b64, String ext, boolean isSheet, boolean isDoc) {
         String s = "(function(){";
@@ -127,6 +128,6 @@ public class UniverPreviewProvider implements FileStoragePreviewProvider {
             s += "document.getElementById('app').innerHTML='<p style=\"padding:40px;color:#666\">幻灯片预览加载中...</p>';";
         }
         s += "}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}})();";
-        return s;
+        return s; // s
     }
 }

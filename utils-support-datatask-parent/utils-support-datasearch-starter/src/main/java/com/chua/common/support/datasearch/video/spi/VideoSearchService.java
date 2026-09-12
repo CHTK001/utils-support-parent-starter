@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class VideoSearchService {
 
-    private static final Logger log = LoggerFactory.getLogger(VideoSearchService.class);
+    private static final Logger log = LoggerFactory.getLogger(VideoSearchService.class); // 日志
 
     /**
      * 聚合搜索全部可用视频数据源。

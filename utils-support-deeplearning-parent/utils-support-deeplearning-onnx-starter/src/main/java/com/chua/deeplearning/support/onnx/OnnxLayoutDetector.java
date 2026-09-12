@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxLayoutDetector implements LayoutDetector {
@@ -28,40 +28,44 @@ public class OnnxLayoutDetector implements LayoutDetector {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxLayoutDetector 实例
-     * @param apiKey apiKey
+      * 创建 onnxlayoutdetector 实例
+     * @param apiKey API密钥
      */
     public OnnxLayoutDetector(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public LayoutDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "doc-layout-yolo-imgsz640";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LayoutDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LayoutDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
     }
 
     @Override
-    /** UseGpu */
+    /** usegpu */
     public LayoutDetector useGpu(boolean useGpu) {
         this.useGpu = useGpu;
         return this;

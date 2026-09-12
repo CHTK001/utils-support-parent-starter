@@ -79,7 +79,7 @@ public class InsideColoredTankUtils {
      *
      * @param colors
      * @param A      Alpha倍数
-     * @param R      Red比重
+     * @param R      R比重
      * @param G      Green比重
      * @param B      Blue比重
      * @param Light  亮度

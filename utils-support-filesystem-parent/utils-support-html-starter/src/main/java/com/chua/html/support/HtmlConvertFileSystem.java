@@ -33,7 +33,7 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
     private static final List<String> SOURCES = List.of("html", "htm", "xhtml", "svg", "epub", "mhtml", "md");
 
     /**
-     * 目标文件格式（固定为 html）
+      * 目标文件格式（固定为 HTML）
      */
     private static final String TARGET = "html";
 
@@ -43,7 +43,7 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
     private static final Set<String> SOURCE_SET = Set.copyOf(SOURCES);
 
     @Override
-    /** 是否Supported */
+    /** 是否支持 */
     public boolean isSupported(String sourceType, String targetType) {
         if (!TARGET.equalsIgnoreCase(targetType)) {
             return false;
@@ -118,7 +118,7 @@ public class HtmlConvertFileSystem implements FileConvertSystem {
      * 获取源文件的格式后缀
      *
      * @param source 文件源
-     * @return 格式后缀（如 "html"、"epub"），无法识别时返回 null
+     * @return 格式后缀（如 "HTML"、"epub"），无法识别时返回 空
      */
     private String getSourceFormat(FileSource source) {
         if (source.isPath()) {

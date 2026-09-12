@@ -34,21 +34,50 @@ public class ObjectContextSetting {
         return new ObjectContextSettingBuilder();
     }
 
-    /** 是否SpiEnabled */
+    /**
+     * 是否spi已启用
+     *
+     * @return 是否spi已启用的结果
+     */
     public boolean isSpiEnabled() { return spiEnabled; }
-    /** 设置SpiEnabled */
+    /**
+     * 设置spi已启用
+     *
+     * @param spiEnabled spi已启用
+     * @return 设置spi已启用的结果
+     */
     public ObjectContextSetting setSpiEnabled(boolean spiEnabled) { this.spiEnabled = spiEnabled; return this; }
-    /** 是否Annotation扫描Enabled */
+    /**
+     * 是否注解扫描已启用
+     *
+     * @return 是否注解扫描已启用的结果
+     */
     public boolean isAnnotationScanEnabled() { return annotationScanEnabled; }
-    /** 设置Annotation扫描Enabled */
+    /**
+     * 设置注解扫描已启用
+     *
+     * @param annotationScanEnabled 注解扫描已启用
+     * @return 设置注解扫描已启用的结果
+     */
     public ObjectContextSetting setAnnotationScanEnabled(boolean annotationScanEnabled) { this.annotationScanEnabled = annotationScanEnabled; return this; }
-    /** 获取扫描Packages */
+    /**
+     * 获取扫描包
+     *
+     * @return 获取扫描包的结果
+     */
     public List<String> getScanPackages() { return scanPackages; }
-    /** 添加扫描Package */
+    /**
+     * 添加扫描包
+     *
+     * @param scanPackage 扫描包
+     * @return 添加扫描包的结果
+     */
     public ObjectContextSetting addScanPackage(String scanPackage) { this.scanPackages.add(scanPackage); return this; }
 
     /**
-     * ObjectContextSetting 构建器。
+      * 对象上下文setting 构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class ObjectContextSettingBuilder {
 
@@ -67,15 +96,30 @@ public class ObjectContextSetting {
          */
         private final List<String> scanPackages = new ArrayList<>();
 
-        /** SpiEnabled */
+        /**
+         * spi已启用
+         *
+         * @param spiEnabled spi已启用
+         * @return spi已启用的结果
+         */
         public ObjectContextSettingBuilder spiEnabled(boolean spiEnabled) { this.spiEnabled = spiEnabled; return this; }
-        /** Annotation扫描Enabled */
+        /**
+         * 注解扫描已启用
+         *
+         * @param annotationScanEnabled 注解扫描已启用
+         * @return 注解扫描已启用的结果
+         */
         public ObjectContextSettingBuilder annotationScanEnabled(boolean annotationScanEnabled) { this.annotationScanEnabled = annotationScanEnabled; return this; }
-        /** 扫描Package */
+        /**
+         * 扫描包
+         *
+         * @param scanPackage 扫描包
+         * @return 扫描包的结果
+         */
         public ObjectContextSettingBuilder scanPackage(String scanPackage) { this.scanPackages.add(scanPackage); return this; }
 
         /**
-         * 构造 ObjectContextSetting 实例。
+          * 构造 对象上下文setting 实例。
          *
          * @return 新配置实例
          */

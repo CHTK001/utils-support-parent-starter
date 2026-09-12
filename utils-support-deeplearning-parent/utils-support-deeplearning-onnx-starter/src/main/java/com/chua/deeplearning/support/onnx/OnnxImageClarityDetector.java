@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.image.ImageClarityDetector;
 import com.chua.deeplearning.support.model.ImageQualityInfo;
 
 /**
- * ONNX 图片清晰度检测器（SPI provider="onnx"）。
+   * ONNX 图片清晰度检测器（SPI 提供者="onnx"）。
  *
  * <p>默认使用 {@code nima} 模型（NIMA 图像质量评分）。</p>
  *
@@ -42,26 +42,30 @@ public class OnnxImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "nima";
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -75,7 +79,7 @@ public class OnnxImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public ImageQualityInfo assess(byte[] imageData) {
         return ImageClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

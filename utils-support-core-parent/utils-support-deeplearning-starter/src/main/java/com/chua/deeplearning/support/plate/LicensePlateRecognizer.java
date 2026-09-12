@@ -26,9 +26,9 @@ public interface LicensePlateRecognizer {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -38,9 +38,9 @@ public interface LicensePlateRecognizer {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default LicensePlateRecognizer provider(String provider) {
@@ -57,7 +57,12 @@ public interface LicensePlateRecognizer {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static LicensePlateRecognizer create(String name) {
         return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -68,7 +73,7 @@ public interface LicensePlateRecognizer {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.plate.LicensePlateRecognizer.class);
@@ -201,14 +206,14 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LicensePlateRecognizer modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -223,14 +228,24 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] imageData) {
         return recognizePlate(imageData).plateNo();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** RecognizeDetail */
+    /**
+     * recognizedetail
+     *
+     * @param imageData 镜像数据
+     * @return recognizeDetail的结果
+     */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -242,7 +257,12 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** RecognizePlate */
+    /**
+     * recognize铭牌
+     *
+     * @param imageData 镜像数据
+     * @return recognize铭牌的结果
+     */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

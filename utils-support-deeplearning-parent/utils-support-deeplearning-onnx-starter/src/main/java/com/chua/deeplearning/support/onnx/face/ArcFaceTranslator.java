@@ -9,7 +9,7 @@ import ai.djl.translate.TranslatorContext;
 
 
 /**
- * ArcFace (InsightFace w600k_r50) 特征提取 Translator。
+   * arcface (洞见face w600k_R50) 特征提取 Translator。
  *
  * <p>输入: [1, 3, 112, 112] RGB，归一化 (pixel - 127.5) / 128.0</p>
  * <p>输出: [1, 512] 512 维人脸特征</p>
@@ -26,11 +26,11 @@ import ai.djl.translate.TranslatorContext;
 public class ArcFaceTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 112;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         return OnnxImageProcessor.toModelInput(
                 input, INPUT_SIZE, INPUT_SIZE,
@@ -39,7 +39,7 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         float[] features = array.toFloatArray();
@@ -63,7 +63,7 @@ public class ArcFaceTranslator implements Translator<Image, float[]> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // 输入已含 batch 维度 shape [1, C, H, W]，返回 null 避免 batchifier 二次堆叠
+ // 输入已含 批量 维度 shape [1, C, H, W]，返回 空 避免 batchifier 二次堆叠
         return null;
     }
 }

@@ -27,35 +27,35 @@ public class MysqlCreateIndexStep implements IndexManager.CreateIndexStep {
     }
 
     @Override
-    /** OnTable */
+    /** ontable */
     public IndexManager.CreateIndexStep onTable(String table) {
         this.table = table;
         return this;
     }
 
     @Override
-    /** OnColumn */
+    /** oncolumn */
     public IndexManager.CreateIndexStep onColumn(String column) {
         this.column = column;
         return this;
     }
 
     @Override
-    /** Field */
+    /** 字段 */
     public IndexManager.CreateIndexStep field(String field) {
         this.column = field;
         return this;
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public IndexManager.CreateIndexStep type(String type) {
         this.algorithm = type;
         return this;
     }
 
     @Override
-    /** Using */
+    /** 使用 */
     public IndexManager.CreateIndexStep using(String algorithm) {
         this.algorithm = algorithm;
         return this;

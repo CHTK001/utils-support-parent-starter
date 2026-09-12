@@ -5,29 +5,29 @@ import javax.annotation.Nullable;
 
 
 /**
- * NeuQuant Neural-Net Quantization Algorithm
+   * neuquant Neural-Net Quantization Algorithm
  * ------------------------------------------
  * <p>
  * Copyright (c) 1994 Anthony Dekker
  * <p>
  * NEUQUANT Neural-Net quantization algorithm by Anthony Dekker, 1994.
- * See "Kohonen neural networks for optimal colour quantization"
- * in "Network: Computation in Neural Systems" Vol. 5 (1994) pp 351-367.
- * for a discussion of the algorithm.
+   * 参见 "Kohonen neural networks for optimal colour quantization"
+   * 入 "Network: Computation 入 Neural 系统" Vol. 5 (1994) pp 351-367.
+   * for a discussion 的 the algorithm.
  * <p>
- * Any party obtaining a copy of these files from the author, directly or
- * indirectly, is granted, free of charge, a full and unrestricted irrevocable,
- * world-wide, paid up, royalty-free, nonexclusive right and license to deal
- * in this software and documentation files (the "Software"), including without
- * limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons who receive
- * copies from any such party to do so, with the only requirement being
+   * 任意 party obtaining a 副本 的 these 文件 从 the 作者, directly 或
+   * indirectly, 是否 granted, free 的 charge, a 完整 和 unrestricted irrevocable,
+   * world-wide, paid up, royalty-free, nonexclusive right 和 执照 转为 deal
+   * 入 this software 和 documentation 文件 (the "Software"), including without
+   * limitation the rights 转为 use, 副本, modify, 合并, 发布, distribute, sublicense,
+   * 和/或 sell 副本 的 the Software, 和 转为 许可证 persons who 接收
+   * 副本 从 任意 such party 转为 执行 so, with the only requirement 存在
  * that this copyright notice remain intact.
  */
 
 
 /**
- * NeuQuant Neural-Net Quantization Algorithm
+   * neuquant Neural-Net Quantization Algorithm
  *
  * @author Dekker
  * @since 4.0.0.42
@@ -38,13 +38,13 @@ public class NeuQuant {
 
     /** Netsize */
     protected static final int NETSIZE = 256;
-/**number of colours used */
+/** 数字 的 colours used */
 
 
-/**four primes near 500 - assume no image has a length so large */
+/** four primes near 500 - assume no 镜像 是否包含 a 长度 so large */
 
     /**
-     * that it is divisible by all four primes
+      * that it 是否 divisible by 全部 four primes
      */
     protected static final int PRIME1 = 499;
     /** Prime2 */
@@ -57,7 +57,7 @@ public class NeuQuant {
     /** Minpicturebytes */
     protected static final int MINPICTUREBYTES = (3 * PRIME4);
 
-/**minimum size for input image */
+/** minimum 大小 for 输入 镜像 */
 
 
 /**Program Skeleton
@@ -78,22 +78,22 @@ public class NeuQuant {
      * -------------------
      */
 
-    protected static final int MAXNETPOS = (NETSIZE - 1);
+    protected static final int MAXNETPOS = (NETSIZE - 1); // MAXNETPOS
     /** Netbiasshift */
     protected static final int NETBIASSHIFT = 4;
     /**
-     * bias for colour values
+      * 偏置 for colour 值
      */
     protected static final int NCYCLES = 100;
-/**no. of learning cycles */
+/** no. 的 学习 循环 */
 
 
     /**
-     * defs for freq and bias
+      * defs for freq 和 偏置
      */
     protected static final int INTBIASSHIFT = 16;
     /**
-     * bias for fractions
+      * 偏置 for fractions
      */
     protected static final int INTBIAS = (1 << INTBIASSHIFT);
     /** Gammashift */
@@ -118,20 +118,20 @@ public class NeuQuant {
      */
     protected static final int INITRAD = (NETSIZE >> 3);
     /**
-     * for 256 cols, radius starts
+      * for 256 cols, radius 启动
      */
     protected static final int RADIUSBIASSHIFT = 6;
     /**
-     * at 32.0 biased by 6 bits
+      * at 32.0 偏置 by 6 钻头
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
     /** Initradius */
     protected static final int INITRADIUS = (INITRAD * RADIUSBIAS);
     /**
-     * and decreases by a
+      * 和 减少 by a
      */
     protected static final int RADIUSDEC = 30;
-/**factor of 1/30 each cycle */
+/** factor 的 1/30 each 循环 */
 
 
     /**
@@ -139,17 +139,17 @@ public class NeuQuant {
      */
     protected static final int ALPHABIASSHIFT = 10;
     /**
-     * alpha starts at 1.0
+      * alpha 启动 at 1.0
      */
     protected static final int INITALPHA = (1 << ALPHABIASSHIFT);
 
     /** Alphadec */
     protected int alphadec;
-/**biased by 10 bits */
+/** 偏置 by 10 钻头 */
 
 
     /**
-     * radbias and alpharadbias used for radpower calculation
+      * radbias 和 alpharadbias used for radpower calculation
      */
     protected static final int RADBIASSHIFT = 8;
     /** Radbias */
@@ -161,41 +161,41 @@ public class NeuQuant {
 
 
     /**
-     * Types and Global Variables
+      * 类型 和 全局 变量
      * --------------------------
      */
 
-    protected byte[] thepicture;
+    protected byte[] thepicture; // thepicture
     /**
-     * the input image itself
+      * the 输入 镜像 itself
      */
     protected int lengthcount;
     /**
      * lengthcount = H*W*3
      */
 
-    protected int samplefac;
+    protected int samplefac; // samplefac
 /**sampling factor 1..30 */
 
 
     /**
-     * BGRc
+      * bgrc
      */
     protected int[][] network;
     /**
      * the network itself - [netsize][4]
      */
 
-    protected int[] netindex = new int[256];
+    protected int[] netindex = new int[256]; // netindex
 
     /**
      * for network lookup - really 256
      */
 
-    protected int[] bias = new int[NETSIZE];
+    protected int[] bias = new int[NETSIZE]; // 偏置
 
     /**
-     * bias and freq arrays for learning
+      * 偏置 和 freq arrays for 学习
      */
     protected int[] freq = new int[NETSIZE];
     /** Radpower */
@@ -205,8 +205,11 @@ public class NeuQuant {
 
 
     /**
-     * Initialise network in range (0,0,0) to (255,255,255) and set parameters
+      * Initialise network 入 范围 (0,0,0) 转为 (255,255,255) 和 设置 参数
      * -----------------------------------------------------------------------
+     * @param thepic thepic
+     * @param len len
+     * @param sample 样本
      */
     public NeuQuant(byte[] thepic, int len, int sample) {
 
@@ -228,7 +231,11 @@ public class NeuQuant {
         }
     }
 
-    /** ColorMap */
+    /**
+     * color映射
+     *
+     * @return color映射的结果
+     */
     public byte[] colorMap() {
         byte[] map = new byte[3 * NETSIZE];
         int[] index = new int[NETSIZE];
@@ -247,7 +254,7 @@ public class NeuQuant {
 
 
     /**
-     * Insertion sort of network and building of netindex[0..255] (to do after unbias)
+      * Insertion 排序 的 network 和 构建 的 netindex[0..255] (转为 执行 之后 unbias)
      * -------------------------------------------------------------------------------
      */
     public void inxbuild() {
@@ -263,21 +270,21 @@ public class NeuQuant {
             p = network[i];
             smallpos = i;
             smallval = p[1];
-/**index on g */
+/** 索引 on g */
 
-/**find smallest in i..netsize-1 */
+/** 查找 smallest 入 i..netsize-1 */
             for (j = i + 1; j < NETSIZE; j++) {
                 q = network[j];
                 if (q[1] < smallval) {
-/**index on g */
+/** 索引 on g */
                     smallpos = j;
                     smallval = q[1];
-/**index on g */
+/** 索引 on g */
                 }
             }
             q = network[smallpos];
 
-/**swap p (i) and q (smallpos) entries */
+/** 掉期 p (i) 和 Q (smallpos) entries */
             if (i != smallpos) {
                 j = q[0];
                 q[0] = p[0];
@@ -293,7 +300,7 @@ public class NeuQuant {
                 p[3] = j;
             }
 
-/**smallval entry is now in position i */
+/** smallval entry 是否 now 入 位置 i */
             if (smallval != previouscol) {
                 netindex[previouscol] = (startpos + i) >> 1;
                 for (j = previouscol + 1; j < smallval; j++) {
@@ -313,7 +320,7 @@ public class NeuQuant {
 
 
     /**
-     * Main Learning Loop
+      * Main 学习 循环
      * ------------------
      */
     public void learn() {
@@ -398,8 +405,12 @@ public class NeuQuant {
 
 
     /**
-     * Search for BGR values 0..255 (after net is unbiased) and return colour index
+      * 搜索 for BGR 值 0..255 (之后 net 是否 unbiased) 和 返回 colour 索引
      * ----------------------------------------------------------------------------
+     * @param b b
+     * @param g g
+     * @param r r
+     * @return 映射的结果
      */
     public int map(int b, int g, int r) {
 
@@ -408,21 +419,21 @@ public class NeuQuant {
         int best;
 
         bestd = 1000;
-/**biggest possible dist is 256*3 */
+/** biggest possible dist 是否 256*3 */
         best = -1;
         i = netindex[g];
-/**index on g */
+/** 索引 on g */
         j = i - 1;
-/**start at netindex[g] and work outwards */
+/** 启动 at netindex[g] 和 work outwards */
 
         while ((i < NETSIZE) || (j >= 0)) {
             if (i < NETSIZE) {
                 p = network[i];
                 dist = p[1] - g;
-/**inx key */
+/** inx 键 */
                 if (dist >= bestd) {
                     i = NETSIZE;
-/**stop iter */
+/** 停止 iter */
                 } else {
                     i++;
                     if (dist < 0) {
@@ -449,10 +460,10 @@ public class NeuQuant {
             if (j >= 0) {
                 p = network[j];
                 dist = g - p[1];
-/**inx key - reverse dif */
+/** inx 键 - reverse dif */
                 if (dist >= bestd) {
                     j = -1;
-/**stop iter */
+/** 停止 iter */
                 } else {
                     j--;
                     if (dist < 0) {
@@ -480,7 +491,11 @@ public class NeuQuant {
         return (best);
     }
 
-    /** 处理 */
+    /**
+     * 处理
+     *
+     * @return 处理的结果
+     */
     public byte[] process() {
         learn();
         unbiasnet();
@@ -490,7 +505,7 @@ public class NeuQuant {
 
 
     /**
-     * Unbias network to give byte values 0..255 and record position i to prepare for sort
+      * Unbias network 转为 give byte 值 0..255 和 record 位置 i 转为 prepare for 排序
      * -----------------------------------------------------------------------------------
      */
     public void unbiasnet() {
@@ -505,8 +520,13 @@ public class NeuQuant {
 
 
     /**
-     * Move adjacent neurons by precomputed alpha*(1-((i-j)^2/[r]^2)) in radpower[|i-j|]
+      * Move.com adjacent neurons by precomputed alpha*(1-((i-j)^2/[R]^2)) 入 radpower[|i-j|]
      * ---------------------------------------------------------------------------------
+     * @param rad rad
+     * @param i i
+     * @param b b
+     * @param g g
+     * @param r r
      */
     protected void alterneigh(int rad, int i, int b, int g, int r) {
 
@@ -550,8 +570,13 @@ public class NeuQuant {
 
 
     /**
-     * Move neuron i towards biased (b,g,r) by factor alpha
+      * Move.com neuron i towards 偏置 (b,g,R) by factor alpha
      * ----------------------------------------------------
+     * @param alpha alpha
+     * @param i i
+     * @param b b
+     * @param g g
+     * @param r r
      */
     protected void altersingle(int alpha, int i, int b, int g, int r) {
 
@@ -565,19 +590,23 @@ public class NeuQuant {
 
 
     /**
-     * Search for biased BGR values
+      * 搜索 for 偏置 BGR 值
      * ----------------------------
+     * @param b b
+     * @param g g
+     * @param r r
+     * @return contest的结果
      */
     protected int contest(int b, int g, int r) {
 
 
-/**finds closest neuron (min dist) and updates freq */
+/** 查找 closest neuron (最小 dist) 和 更新 freq */
 
-/**finds best neuron (min dist-bias) and returns position */
+/** 查找 best neuron (最小 dist-偏置) 和 返回 位置 */
 
-/**for frequently chosen neurons, freq[i] is high and bias[i] is negative */
+/** for frequently chosen neurons, freq[i] 是否 high 和 偏置[i] 是否 negative */
 
-/**bias[i] = gamma*((1/netsize)-freq[i]) */
+/** 偏置[i] = gamma*((1/netsize)-freq[i]) */
 
         int i, dist, a, biasdist, betafreq;
         int bestpos, bestbiaspos, bestd, bestbiasd;

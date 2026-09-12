@@ -17,14 +17,14 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     /** 存储目录 */
     private final Path storageDir;
 
-    /** 创建 FileSyncDataOffsetStorage 实例 */
+    /** 创建 文件同步数据偏移量storage 实例 */
     public FileSyncDataOffsetStorage() {
         this(Path.of(System.getProperty("java.io.tmpdir"), "datasync-offsets"));
     }
 
     /**
-     * 创建 FileSyncDataOffsetStorage 实例
-     * @param storageDir storageDir
+      * 创建 文件同步数据偏移量storage 实例
+     * @param storageDir storagedir
      */
     public FileSyncDataOffsetStorage(Path storageDir) {
         this.storageDir = storageDir;
@@ -89,7 +89,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     }
 
     @Override
-    /** ListAll */
+    /** 列表全部 */
     public java.util.List<SyncDataOffset> listAll() {
         try {
             return Files.list(storageDir)

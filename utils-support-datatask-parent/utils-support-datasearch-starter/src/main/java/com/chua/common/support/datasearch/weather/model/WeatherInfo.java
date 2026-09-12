@@ -37,7 +37,7 @@ public class WeatherInfo {
     /** 风速（公里/小时） */
     private Double windSpeedKmph;
 
-    /** 气压（hPa） */
+    /** 气压（hpa） */
     private Integer pressure;
 
     /** 观测时间（当地时间） */
@@ -46,6 +46,6 @@ public class WeatherInfo {
     /** 当天逐小时天气（8 个点，3 小时间隔，00:00-21:00） */
     private List<HourlyWeather> hourly;
 
-    /** 未来数日天气预报（wttr.in 提供 3 天） */
+    /** 未来数日天气预报（wttr.入 提供 3 天） */
     private List<DailyForecast> forecast;
 }

@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * Oracle 索引管理器 SPI 实现。
  * <p>
- * Oracle 索引管理使用 user_indexes 视图查询当前用户的索引列表。
- * 创建索引使用 CREATE INDEX，删除使用 DROP INDEX。
+   * Oracle 索引管理使用 用户_索引 视图查询当前用户的索引列表。
+   * 创建索引使用 创建 索引，删除使用 掉落 索引。
  * </p>
  *
  * @author CH
@@ -46,7 +46,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     }
 
     /**
-     * 查询指定表上的所有索引（通过 user_indexes 视图）。
+      * 查询指定表上的所有索引（通过 用户_索引 视图）。
      *
      * @param table 表名（自动转换为大写）
      * @return 索引名列表

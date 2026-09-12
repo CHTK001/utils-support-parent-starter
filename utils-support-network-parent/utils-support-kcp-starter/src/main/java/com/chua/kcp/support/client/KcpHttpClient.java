@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 基于 kcp-base 的 KCP HTTP 客户端（简化版）。
+   * 基于 kcp-基础 的 KCP HTTP 客户端（简化版）。
  *
  * <p>在 KCP 之上提供 HTTP 风格请求-响应，使用 {@code topic=path} 映射 HTTP path，
  * payload 为 JSON 字符串。响应通过 {@code resp/path} 主题回传。</p>
@@ -41,19 +41,22 @@ public class KcpHttpClient {
     private KcpClient client;
 
     /**
-     * 创建 KcpHttpClient 实例
-     * @param host host
-     * @param int int
+      * 创建 kcphttp客户端 实例
+     * @param host 主机
+     * @param port int
+     * @param port 端口
      */
     public KcpHttpClient(String host, int port) {
         this(host, port, 5000L);
     }
 
     /**
-     * 创建 KcpHttpClient 实例
-     * @param host host
-     * @param int int
-     * @param long long
+      * 创建 kcphttp客户端 实例
+     * @param host 主机
+     * @param port int
+     * @param timeoutMs long
+     * @param port 端口
+     * @param timeoutMs 超时ms
      */
     public KcpHttpClient(String host, int port, long timeoutMs) {
         this.host = host;
@@ -71,7 +74,15 @@ public class KcpHttpClient {
         }
     }
 
-    /** Request */
+    /**
+     * 请求
+     *
+     * @param method 方法
+     * @param path 路径
+     * @param headers 头部
+     * @param body 主体
+     * @return 请求的结果
+     */
     public HttpResponse request(String method, String path, Map<String, String> headers, byte[] body) throws Exception {
         if (!isConnected()) {
             throw new IllegalStateException("KCP HTTP 客户端未连接");
@@ -105,17 +116,32 @@ public class KcpHttpClient {
         return resp;
     }
 
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param path 路径
+     * @return 获取的结果
+     */
     public HttpResponse get(String path) throws Exception {
         return request("GET", path, null, null);
     }
 
-    /** Post */
+    /**
+     * Post
+     *
+     * @param path 路径
+     * @param body 主体
+     * @return post的结果
+     */
     public HttpResponse post(String path, byte[] body) throws Exception {
         return request("POST", path, null, body);
     }
 
-    /** 是否Connected */
+    /**
+     * 是否连接
+     *
+     * @return 是否连接的结果
+     */
     public boolean isConnected() {
         return client != null && client.isConnected();
     }
@@ -134,6 +160,8 @@ public class KcpHttpClient {
 
     /**
      * 简易 HTTP 响应对象。
+     * @author CH
+     * @since 4.0.0
      */
     public static class HttpResponse {
         /**
@@ -149,38 +177,63 @@ public class KcpHttpClient {
          */
         private byte[] body = new byte[0];
 
-        /** 获取Status */
+        /**
+         * 获取状态
+         *
+         * @return 获取状态的结果
+         */
         public int getStatus() {
             return status;
         }
 
-        /** 设置Status */
+        /**
+         * 设置状态
+         *
+         * @param status 状态
+         */
         public void setStatus(int status) {
             this.status = status;
         }
 
-        /** 获取Headers */
+        /**
+         * 获取头部
+         *
+         * @return 获取头部的结果
+         */
         public Map<String, String> getHeaders() {
             return headers;
         }
 
-        /** 获取Header */
+        /**
+         * 获取头部
+         *
+         * @param name 名称
+         * @return 获取头部的结果
+         */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
-        /** 获取Body */
+        /**
+         * 获取主体
+         *
+         * @return 获取主体的结果
+         */
         public byte[] getBody() {
             return body;
         }
 
-        /** 获取BodyString */
+        /**
+         * 获取主体字符串
+         *
+         * @return 获取主体字符串的结果
+         */
         public String getBodyString() {
             return body != null ? new String(body, StandardCharsets.UTF_8) : "";
         }
 
         @Override
-        /** ToString */
+        /** 转为字符串 */
         public String toString() {
             return "HttpResponse{status=" + status + ", body=" + getBodyString() + "}";
         }

@@ -27,10 +27,12 @@ public class ExpressTrace {
     private final String location;
 
     /**
-     * 创建 ExpressTrace 实例
-     * @param time time
-     * @param String String
-     * @param String String
+      * 创建 express追踪 实例
+     * @param time 时间
+     * @param time 字符串
+     * @param time 字符串
+     * @param context 上下文
+     * @param location 位置
      */
     public ExpressTrace(String time, String context, String location) {
         this.time = time;
@@ -38,23 +40,35 @@ public class ExpressTrace {
         this.location = location;
     }
 
-    /** 获取Time */
+    /**
+     * 获取时间
+     *
+     * @return 获取时间的结果
+     */
     public String getTime() {
         return time;
     }
 
-    /** 获取Context */
+    /**
+     * 获取上下文
+     *
+     * @return 获取上下文的结果
+     */
     public String getContext() {
         return context;
     }
 
-    /** 获取Location */
+    /**
+     * 获取位置
+     *
+     * @return 获取位置的结果
+     */
     public String getLocation() {
         return location;
     }
 
     /**
-     * 转换为 Map 用于 JSON 序列化
+      * 转换为 映射 用于 JSON 序列化
      *
      * @return Map 表示
      */

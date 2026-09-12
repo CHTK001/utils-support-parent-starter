@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Quartz Handler — intercepts Quartz job execution.
+   * 石英石 处理器 — intercepts 石英石 作业 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class QuartzHandler extends AbstractAppHandler {
 
     /**
-     * JOB
+      * 作业
      */
     private static final String JOB = "org/quartz/Job";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "quartz-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "quartz.enabled";
     }
@@ -42,13 +42,13 @@ public class QuartzHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(JOB, EXECUTE_METHODS);
     }

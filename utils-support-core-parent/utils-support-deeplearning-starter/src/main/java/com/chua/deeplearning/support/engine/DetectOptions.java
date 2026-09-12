@@ -17,15 +17,18 @@ import java.util.Map;
  */
 public final class DetectOptions {
 
+    /**
+     * detect期权。
+     */
     private DetectOptions() {
     }
 
     /**
-     * 构建运行参数表（仅包含非 null 项）。
+      * 构建运行参数表（仅包含非 空 项）。
      *
-     * @param threshold 置信度阈值（null 表示使用模型默认值）
-     * @param nms       NMS IOU 阈值（null 表示使用模型默认值）
-     * @return 运行参数（可能为空 Map）
+     * @param threshold 置信度阈值（空 表示使用模型默认值）
+     * @param nms       NMS IOU 阈值（空 表示使用模型默认值）
+     * @return 运行参数（可能为空 映射）
      */
     public static Map<String, Object> of(Float threshold, Float nms) {
         Map<String, Object> options = new LinkedHashMap<>();

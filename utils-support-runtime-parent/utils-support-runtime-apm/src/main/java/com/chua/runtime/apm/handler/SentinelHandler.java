@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Sentinel Handler — intercepts Sentinel resource entry/exit.
+   * Sentinel 处理器 — intercepts Sentinel resource entry/exit.
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,22 +23,22 @@ public class SentinelHandler extends AbstractAppHandler {
      */
     private static final String SPH_ENTRY = "com/alibaba/csp/sentinel/Entry";
     /**
-     * entry methods
+      * entry 方法
      */
     private static final String[] ENTRY_METHODS = {"entry", "asyncEntry"};
     /**
-     * exit methods
+      * exit 方法
      */
     private static final String[] EXIT_METHODS = {"exit"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "sentinel-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "sentinel.enabled";
     }
@@ -50,13 +50,13 @@ public class SentinelHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(SPH_U, ENTRY_METHODS);
         registerAll(SPH_ENTRY, EXIT_METHODS);

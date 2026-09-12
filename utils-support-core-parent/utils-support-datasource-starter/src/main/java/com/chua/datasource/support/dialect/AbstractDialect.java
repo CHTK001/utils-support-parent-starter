@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * 方言抽象基类。
  * <p>
- * 提供默认的分页 SQL 生成（LIMIT/OFFSET 语法）和默认类型映射。
+   * 提供默认的分页 SQL 生成（限制/偏移量 语法）和默认类型映射。
  * 所有数据库特有字符串（引号、关键字、DDL片段、SQL模板、JDBC类型映射）
  * 均从 {@code META-INF/dialect-env/{protocol}.env} 资源文件加载，
  * 再由外部传入的 {@link #properties} 覆盖。
@@ -30,7 +30,7 @@ public abstract class AbstractDialect implements Dialect {
      */
     protected Properties properties;
 
-    /** 内存中的默认值缓存，避免重复从 properties 读取 */
+    /** 内存中的默认值缓存，避免重复从 属性 读取 */
     private final Map<String, String> configCache = new HashMap<>();
 
     /**
@@ -44,7 +44,7 @@ public abstract class AbstractDialect implements Dialect {
     /**
      * 从类路径加载方言默认配置文件。
      *
-     * @return 加载后的 Properties，文件不存在时返回空 Properties
+     * @return 加载后的 属性，文件不存在时返回空 属性
      */
     protected Properties loadDefaultEnv() {
         String simpleName = getClass().getSimpleName().toLowerCase();
@@ -62,21 +62,21 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     @Override
-    /** SupportsLimit */
+    /** 支持限制 */
     public boolean supportsLimit() {
         return true;
     }
 
     @Override
-    /** 处理Sql */
+    /** 处理SQL */
     public String processSql(String sql, Pagination pagination) {
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
     @Override
-    /** 获取TypeName */
+    /** 获取类型名称 */
     public String getTypeName(int jdbcType, long length, int precision, int scale) {
-        // 1. 优先读外部 properties（application.properties 等）
+ // 1. 优先读外部 属性（application.属性 等）
         String configured = config("type." + jdbcTypeName(jdbcType), null);
         if (configured != null) {
             return configured;
@@ -86,8 +86,10 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     /**
-     * 将 JDBC 类型码转为常量名字符串，用于 properties key 查找。
+      * 将 JDBC 类型码转为常量名字符串，用于 属性 键 查找。
      * <p>例如 {@code java.sql.Types.VARCHAR} → {@code "VARCHAR"}，未知类型 → {@code "UNKNOWN"}。</p>
+     * @param jdbcType JDBC类型
+     * @return jdbc类型名称的结果
      */
     protected static String jdbcTypeName(int jdbcType) {
         return switch (jdbcType) {
@@ -140,7 +142,7 @@ public abstract class AbstractDialect implements Dialect {
     }
 
     /**
-     * 根据 key 从 properties 中读取配置值，找不到时返回 {@code defaultValue}。
+      * 根据 键 从 属性 中读取配置值，找不到时返回 {@code defaultValue}。
      * <p>读取顺序：外部注入的 properties → 内置 .env 文件 → defaultValue。</p>
      * <p>读取结果会被缓存，避免重复 I/O。</p>
      *
@@ -148,7 +150,7 @@ public abstract class AbstractDialect implements Dialect {
      * // application.properties 示例（覆盖默认值）：
      * dialect.mysql.quote-open=[
      * dialect.mysql.type.VARCHAR=VARCHAR(1000)
-     * }</pre>
+     * }</pre>   * }</pre>
      *
      * @param key          配置键
      * @param defaultValue 默认值
@@ -187,7 +189,7 @@ public abstract class AbstractDialect implements Dialect {
      * @return this
      */
     public AbstractDialect withProperties(Properties properties) {
-        // 合并：先存 .env 默认值，再被外部 properties 覆盖
+ // 合并：先存 .env 默认值，再被外部 属性 覆盖
         Properties merged = new Properties(this.properties);
         if (properties != null) {
             merged.putAll(properties);

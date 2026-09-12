@@ -28,6 +28,7 @@ import java.util.List;
  *   byte[] wav = TextToAudioClient.create("onnx", "")
  *       .model("mms-tts-eng")
  *       .synthesize("Hello world");
+ * }</pre>size("Hello world");
  * }</pre>
  *
  * <p>VITS 多说话人：
@@ -36,6 +37,7 @@ import java.util.List;
  *       .model("vits-icefall-zh")
  *       .voice("SSB0005")     // 说话人名称
  *       .synthesize("你好世界");
+ * }</pre>.synthesize("你好世界");
  * }</pre>
  *
  * <p>Pocket-TTS 声音克隆（参考音频路径）：
@@ -44,6 +46,7 @@ import java.util.List;
  *       .model("pocket-tts")
  *       .voice("ref_audio.wav") // 引用音频文件路径
  *       .synthesize("Hello world");
+ * }</pre>.synthesize("Hello world");
  * }</pre>
  *
  * @author CH
@@ -85,7 +88,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
 
     /**
      * 说话人指定（voice 参数）。
-     * VITS 模型：说话人名称或 id（如 "SSB0005" 或 "0"）。
+      * VITS 模型：说话人名称或 标识（如 "SSB0005" 或 "0"）。
      * Pocket-TTS：参考音频文件路径（用于零样本声音克隆）。
      */
     private String voice;
@@ -128,10 +131,10 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     }
 
     /**
-     * 解析 VITS 说话人 id：voice 参数为数字时直接使用，否则按说话人名查 speakers 序。
+      * 解析 VITS 说话人 标识：voice 参数为数字时直接使用，否则按说话人名查 speakers 序。
      * 无法解析回退 0。
      *
-     * @return 说话人 id
+     * @return 说话人 标识
      */
     private int resolveSpeakerId() {
         if (voice != null && !voice.isBlank()) {
@@ -153,7 +156,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     /**
      * 加载参考音频字节（Pocket-TTS 声音克隆用）。
      *
-     * @return 参考音频 WAV 字节；voice 为空或非文件路径时返回 null
+     * @return 参考音频 WAV 字节；voice 为空或非文件路径时返回 空
      */
     private byte[] loadRefAudio() {
         if (voice == null || voice.isBlank()) {

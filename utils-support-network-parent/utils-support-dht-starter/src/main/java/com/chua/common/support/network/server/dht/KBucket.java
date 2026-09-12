@@ -83,9 +83,9 @@ public class KBucket {
     }
 
     /**
-     * 根据节点 ID 从 Bucket 中移除节点。
+      * 根据节点 标识 从 Bucket 中移除节点。
      *
-     * @param nodeId 要移除的节点 ID
+     * @param nodeId 要移除的节点 标识
      * @return 移除成功返回 true
      */
     public synchronized boolean remove(String nodeId) {
@@ -93,10 +93,10 @@ public class KBucket {
     }
 
     /**
-     * 根据节点 ID 查找 Bucket 中的条目。
+      * 根据节点 标识 查找 Bucket 中的条目。
      *
-     * @param nodeId 要查找的节点 ID
-     * @return 找到的 KBucketEntry，未找到返回 null
+     * @param nodeId 要查找的节点 标识
+     * @return 找到的 kbucketentry，未找到返回 空
      */
     public synchronized KBucketEntry find(String nodeId) {
         for (KBucketEntry e : entries) {

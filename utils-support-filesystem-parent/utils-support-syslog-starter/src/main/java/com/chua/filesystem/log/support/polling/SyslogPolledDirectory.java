@@ -52,6 +52,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *     .build();
  *
  * errorWatcher.start(DirectoryPollerEnvironment.defaults());
+ * }</pre> .构建();
+ *
+   * 错误watcher.启动(目录poller环境.默认());
  * }</pre>
  *
  * @author CH
@@ -61,17 +64,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
-     * 日志来源，null 表示全部来源
+      * 日志来源，空 表示全部来源
      */
     private final String source;
 
     /**
-     * 消息匹配模式，null 表示不过滤
+      * 消息匹配模式，空 表示不过滤
      */
     private final String pattern;
 
     /**
-     * 最低日志级别，null 表示所有级别
+      * 最低日志级别，空 表示所有级别
      */
     private final LogLevel minLevel;
 
@@ -96,7 +99,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     private volatile boolean running = false;
 
     /**
-     * 关闭标志，close() 后不可再 upgrade
+      * 关闭标志，关闭() 后不可再 upgrade
      */
     private volatile boolean closed = false;
 
@@ -108,9 +111,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
     /**
      * 构造系统日志轮询监听器
      *
-     * @param source              日志来源（如 "System"/"Application"/"Security"），null 表示全部
-     * @param pattern             消息匹配 glob 模式，null 表示不过滤
-     * @param minLevel            最低日志级别，null 表示所有级别
+     * @param source              日志来源（如 "系统"/"Application"/"安全性"），空 表示全部
+     * @param pattern             消息匹配 glob 模式，空 表示不过滤
+     * @param minLevel            最低日志级别，空 表示所有级别
      * @param pollIntervalSeconds 轮询间隔（秒）
      */
     private SyslogPolledDirectory(String source, String pattern, LogLevel minLevel, int pollIntervalSeconds) {
@@ -178,7 +181,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
     /**
      * 执行一次轮询，拉取系统日志，与上次快照对比，向监听器分发新增条目。
      * <p>
-     * 每次轮询按升序（ORDER_ASC）查询系统日志，确保游标在时间轴上单调前进。
+      * 每次轮询按升序（订单_ASC）查询系统日志，确保游标在时间轴上单调前进。
      * 以 {@link LogEntry#timestamp} 字段作为增量标记。
      * </p>
      */
@@ -189,7 +192,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         try {
-            // 每次最多拉取 pollIntervalSeconds * 10 条，避免长轮询时 provider 压力过大
+ // 每次最多拉取 poll间隔seconds * 10 条，避免长轮询时 提供者 压力过大
             int fetchLimit = Math.max(pollIntervalSeconds * 10, 50);
             LogQuery query = LogQuery.builder()
                     .source(source)
@@ -234,6 +237,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
      * 向所有监听器分发新日志条目
+     * @param entry entry
      */
     private void fireLogEntry(LogEntry entry) {
         EventObserver observer = EventObserver.builder()
@@ -254,6 +258,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
      * 获取当前游标（最后已知日志时间戳）
+     * @return 获取最后一个时间戳的结果
      */
     public String getLastTimestamp() {
         return lastTimestamp;
@@ -273,6 +278,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
      * 启动内部轮询线程（当未提供外部执行器时）
+     * @param environment 环境
      */
     private void startPollingThread(DirectoryPollerEnvironment environment) {
         long intervalSec = environment != null && environment.getPollingInterval() > 0
@@ -319,6 +325,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
      * 创建构建器
+     * @return 构建器的结果
      */
     public static Builder builder() {
         return new Builder();
@@ -326,6 +333,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
     /**
      * 系统日志轮询监听器构建器
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
         /** 来源 */
@@ -340,7 +349,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         private SystemLogService logService;
 
         /**
-         * 指定日志来源（如 Windows 的 System/Application/Security，journald 的 unit 名）
+          * 指定日志来源（如 窗口 的 系统/Application/安全性，journald 的 unit 名）
+         * @param source 源
+         * @return 源的结果
          */
         public Builder source(String source) {
             this.source = source;
@@ -349,6 +360,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
         /**
          * 指定消息匹配 glob 模式，如 {@code "*error*"}、{@code "*.dll*"}
+         * @param pattern 模式
+         * @return 模式的结果
          */
         public Builder pattern(String pattern) {
             this.pattern = pattern;
@@ -357,6 +370,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
         /**
          * 指定最低日志级别过滤
+         * @param minLevel 最小级别
+         * @return 最小级别的结果
          */
         public Builder minLevel(LogLevel minLevel) {
             this.minLevel = minLevel;
@@ -365,6 +380,8 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
         /**
          * 指定轮询间隔（秒），默认 5 秒
+         * @param seconds seconds
+         * @return poll间隔seconds的结果
          */
         public Builder pollIntervalSeconds(int seconds) {
             this.pollIntervalSeconds = seconds;
@@ -372,7 +389,9 @@ public class SyslogPolledDirectory implements PolledDirectory {
         }
 
         /**
-         * 注入自定义 SystemLogService（测试用）
+          * 注入自定义 系统日志服务（测试用）
+         * @param service 服务
+         * @return 服务的结果
          */
         public Builder service(SystemLogService service) {
             this.logService = service;
@@ -381,6 +400,7 @@ public class SyslogPolledDirectory implements PolledDirectory {
 
         /**
          * 构建系统日志轮询监听器
+         * @return 构建的结果
          */
         public SyslogPolledDirectory build() {
             if (logService != null) {

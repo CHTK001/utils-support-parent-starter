@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.image.ImageClassifier;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxImageClassifier implements ImageClassifier {
@@ -21,33 +21,37 @@ public class OnnxImageClassifier implements ImageClassifier {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxImageClassifier 实例
-     * @param apiKey apiKey
+      * 创建 onnx镜像classifier 实例
+     * @param apiKey API密钥
      */
     public OnnxImageClassifier(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClassifier model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "efficient-net-lite4-classification";
     }
 
     @Override
-    /** TopK */
+    /** topk */
     public ImageClassifier topK(int topK) {
         this.topK = topK;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageClassifier modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -67,7 +71,7 @@ public class OnnxImageClassifier implements ImageClassifier {
     }
 
     @Override
-    /** ClassifyTopK */
+    /** classifytopk */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         return ImageClassifier.create(resolveModel()).topK(topK).modelPath(modelPath).device(device).classifyTopK(imageData, k);
     }

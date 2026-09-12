@@ -10,9 +10,13 @@ import static com.chua.common.support.constant.CommonConstant.SYMBOL_RIGHT_SLASH
  * 文件分隔符判断以及字符映射转换等辅助方法。
  *
  * @author CH
+ * @since 4.0.0
  */
 public class CharUtils {
 
+    /**
+     * char工具。
+     */
     private CharUtils() {}
 
     /**
@@ -265,7 +269,7 @@ public class CharUtils {
      * @return 如果对象为 {@link Character} 或原始字符类型，则返回 {@code true}
      */
     public static boolean isChar(Object value) {
-        //noinspection ConstantConditions
+ // noinspection 常量条件
         return value instanceof Character || value.getClass() == char.class;
     }
 
@@ -307,7 +311,7 @@ public class CharUtils {
      * @since 4.0.8
      */
     public static boolean isEmoji(char c) {
-        //noinspection ConstantConditions
+ // noinspection 常量条件
         boolean b = (c == 0x0) ||
                 (c == 0x9) ||
                 (c == 0xA) ||
@@ -320,7 +324,7 @@ public class CharUtils {
     }
 
     /**
-     *                                              Windows: \, Unix/Linux: /
+      * 窗口: \, Unix/Linux: /
      *
      * @param c
      * @return                                     true               false
@@ -441,7 +445,7 @@ public class CharUtils {
         int index2 = start;
         int tmpLen = length;
 
-        //                                  java.lang.String                  NPE
+ // Java.lang.字符串                  NPE
         final int srcLen = cs.length() - thisStart;
         final int otherLen = substring.length() - start;
 

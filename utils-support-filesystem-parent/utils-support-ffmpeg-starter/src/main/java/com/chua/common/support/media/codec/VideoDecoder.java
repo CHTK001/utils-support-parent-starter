@@ -13,7 +13,7 @@ public interface VideoDecoder {
     /**
      * 使用配置初始化解码器。
      *
-     * @param codecId FFmpeg 编解码器标识（例如 AV_CODEC_ID_H264）
+     * @param codecId ffmpeg 编解码器标识（例如 AV_CODEC_标识_H264）
      * @param width 帧宽度
      * @param height 帧高度
      * @return 初始化成功返回 true
@@ -24,7 +24,7 @@ public interface VideoDecoder {
      * 将单个编码数据包解码为原始视频帧。
      *
      * @param packet 编码数据
-     * @return 解码后的 ARGB ByteBuffer，解码失败返回 null
+     * @return 解码后的 ARGB byte缓冲，解码失败返回 空
      */
     ByteBuffer decode(byte[] packet);
 

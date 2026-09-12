@@ -24,6 +24,7 @@ import java.util.UUID;
  *   String text = VirtualClient.create("paraformer", "")
  *       .model("paraformer-zh-small")
  *       .transcribe(Path.of("audio.wav"));
+ * }</pre>(Path.of("audio.wav"));
  * }</pre>
  * </p>
  *
@@ -35,27 +36,27 @@ import java.util.UUID;
 public class ParaformerAudioClient implements VirtualClient {
 
     /** 默认模型名 */
-    /** Default_model */
+    /** 默认_模型 */
     private static final String DEFAULT_MODEL = "paraformer-zh-small";
 
-    /** classpath 资源根路径 */
-    /** Resource_base */
+    /** 类路径 资源根路径 */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "audio/asr/";
 
-    /** 模型缓存根目录（相对 deeplearning.model.cache-dir 或 %TEMP%） */
-    /** Cache_root */
+    /** 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%） */
+    /** 缓存_根 */
     private static final String CACHE_ROOT = "audio/asr/";
 
     /** 临时音频文件名前缀 */
-    /** Tmp_audio_prefix */
+    /** Tmp_音频_前缀 */
     private static final String TMP_AUDIO_PREFIX = "paraformer-audio-";
 
     /** 临时音频文件名后缀 */
-    /** Tmp_audio_suffix */
+    /** Tmp_音频_后缀 */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
-    /** 任务 ID 前缀 */
-    /** Task_id_prefix */
+    /** 任务 标识 前缀 */
+    /** 任务_标识_前缀 */
     private static final String TASK_ID_PREFIX = "paraformer-";
 
     /** 设置 */
@@ -75,7 +76,7 @@ public class ParaformerAudioClient implements VirtualClient {
     private String format;
 
     /** 提示词 */
-    /** Prompt */
+    /** 提示符 */
     private String prompt;
 
     /** 温度 */
@@ -107,7 +108,7 @@ public class ParaformerAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-     * 创建 ParaformerAudioClient 实例
+      * 创建 paraformer音频客户端 实例
      * @param setting setting
      */
     public ParaformerAudioClient(AudioClientSetting setting) {
@@ -122,7 +123,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
@@ -136,7 +137,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** SampleRate */
+    /** 样本rate */
     public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
@@ -150,7 +151,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -171,7 +172,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -180,7 +181,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -189,7 +190,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -216,7 +217,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -225,7 +226,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -273,7 +274,7 @@ public class ParaformerAudioClient implements VirtualClient {
     }
 
     /**
-     * 模型缓存根目录：优先读系统属性 deeplearning.model.cache-dir，
+      * 模型缓存根目录：优先读系统属性 deeplearning.模型.缓存-dir，
      * 未配置时回落 %TEMP%。
      *
      * @return 缓存根目录

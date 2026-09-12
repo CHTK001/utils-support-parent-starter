@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Bean 定义接口。
  * <p>
  * 描述一个 Bean 的完整元数据信息，包括名称、类型、作用域、注解信息等。
- * 是容器中 Bean 的核心抽象，类似于 Spring 的 BeanDefinition。
+   * 是容器中 Bean 的核心抽象，类似于 Spring 的 Beandefinition。
  * </p>
  * <p>
  * Bean 的生命周期：
@@ -70,7 +70,7 @@ public interface BeanDefinition {
     /**
      * 获取已创建的 Bean 实例引用。
      *
-     * @return Bean 实例，若未创建则返回 null
+     * @return Bean 实例，若未创建则返回 空
      */
     Object getBean();
 
@@ -94,12 +94,12 @@ public interface BeanDefinition {
      *
      * @param annotationType 要获取的注解类型
      * @param <T>            注解的泛型类型
-     * @return 注解实例，如果不存在则返回 null
+     * @return 注解实例，如果不存在则返回 空
      */
     <T extends Annotation> T getAnnotation(Class<T> annotationType);
 
     /**
-     * 检查当前 Bean 是否标注了指定类名的注解（支持跨 ClassLoader）。
+      * 检查当前 Bean 是否标注了指定类名的注解（支持跨 类加载）。
      *
      * @param annotationTypeName 注解的全限定类名
      * @return 如果存在该注解则返回 true，否则返回 false
@@ -107,10 +107,10 @@ public interface BeanDefinition {
     boolean isAnnotationPresent(String annotationTypeName);
 
     /**
-     * 获取当前 Bean 上标注的指定类名的注解（支持跨 ClassLoader）。
+      * 获取当前 Bean 上标注的指定类名的注解（支持跨 类加载）。
      *
      * @param annotationTypeName 注解的全限定类名
-     * @return 注解实例，如果不存在则返回 null
+     * @return 注解实例，如果不存在则返回 空
      */
     Annotation getAnnotation(String annotationTypeName);
 
@@ -221,7 +221,7 @@ public interface BeanDefinition {
     List<MethodDefinition> getMethodDefinitions();
 
     /**
-     * 根据 Java Method 对象获取对应的详细方法定义。
+      * 根据 Java 方法 对象获取对应的详细方法定义。
      *
      * @param method Java 反射方法对象
      * @return 方法定义对象
@@ -232,7 +232,7 @@ public interface BeanDefinition {
      * 获取当前 Bean 类中第一个标注了指定注解的方法。
      *
      * @param annotationType 要查找的注解类型
-     * @return 找到的方法，如果未找到则返回 null
+     * @return 找到的方法，如果未找到则返回 空
      */
     Method getMethodWithAnnotation(Class<? extends Annotation> annotationType);
 
@@ -240,7 +240,7 @@ public interface BeanDefinition {
      * 获取当前 Bean 类中第一个标注了指定注解的方法（按类名）。
      *
      * @param annotationTypeName 要查找的注解类名
-     * @return 找到的方法，如果未找到则返回 null
+     * @return 找到的方法，如果未找到则返回 空
      */
     Method getMethodWithAnnotation(String annotationTypeName);
 
@@ -304,7 +304,7 @@ public interface BeanDefinition {
 
     /**
      * 获取排序优先级，值越大优先级越高。
-     * 默认实现委托给 getPriority()。
+      * 默认实现委托给 获取priority()。
      *
      * @return 优先级数值
      */

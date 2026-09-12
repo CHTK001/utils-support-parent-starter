@@ -13,7 +13,7 @@ import ai.djl.translate.TranslatorContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * YouTu ReID                 Translator
+   * youtu reid                 Translator
  *
  * <p>            : [batch, 3, 256, 128] RGB       
  * <p>            : [batch, 768, 1, 1]             
@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>         :
  * -                       256x128   H x W   
  * -              [0, 1]
- * - ImageNet          
+   * - 镜像net
  * -           NCHW       
  *
  * <p>         :
@@ -36,13 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 public class OsnetReidTranslator implements Translator<Image, float[]> {
 
     /** 输入高度 */
-    /** Input_h */
+    /** 输入_h */
     private static final int INPUT_H = 256;
     /** 输入宽度 */
-    /** Input_w */
+    /** 输入_w */
     private static final int INPUT_W = 128;
     /** 特征维度 */
-    /** Feature_dim */
+    /** 特征_dim */
     private static final int FEATURE_DIM = 768;
     /** 均值数组 */
     /** Mean */
@@ -52,7 +52,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDManager manager = ctx.getNDManager();
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
@@ -68,12 +68,12 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         // HWC     CHW                [0, 1]
         array = array.transpose(2, 0, 1).div(255.0f);
 
-        // ImageNet          
+ // 镜像net
         NDArray mean = manager.create(MEAN, new Shape(3, 1, 1));
         NDArray std = manager.create(STD, new Shape(3, 1, 1));
         array = array.sub(mean).div(std);
 
-        //        batch       : [C, H, W]     [1, C, H, W]
+ // 批量       : [C, H, W]     [1, C, H, W]
         array = array.expandDims(0);
 
         if (log.isDebugEnabled()) {
@@ -84,11 +84,11 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
 
-        //        batch       
+ // 批量
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
             output = output.squeeze(0);
         }

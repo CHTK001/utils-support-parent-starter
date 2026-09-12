@@ -23,10 +23,10 @@ import java.util.*;
 public final class SoftwareDetector {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(SoftwareDetector.class.getName());
-    /** 创建 SoftwareDetector 实例 */
+    /** 创建 softwaredetector 实例 */
     private SoftwareDetector() {
     }
 
@@ -83,7 +83,7 @@ public final class SoftwareDetector {
         // MQTT (Paho)
         put("org.eclipse.paho", Software.PAHO_MQTT);
 
-        // OpenFeign
+ // 打开Feign
         put("feign", Software.FEIGN);
         put("org.springframework.cloud.openfeign", Software.FEIGN);
 
@@ -97,7 +97,7 @@ public final class SoftwareDetector {
         put("oracle.jdbc", Software.ORACLE_DRIVER);
         put("oracle.ucp", Software.ORACLE_DRIVER);
 
-        // SQL Server
+ // SQL 服务端
         put("com.microsoft.sqlserver", Software.SQLSERVER_DRIVER);
 
         // gRPC
@@ -138,16 +138,16 @@ public final class SoftwareDetector {
         // Elasticsearch
         put("org.elasticsearch", Software.ELASTICSEARCH);
 
-        // InfluxDB
+ // influxdb
         put("org.influxdb", Software.INFLUXDB_CLIENT);
 
-        // ClickHouse
+ // click房子
         put("com.clickhouse", Software.CLICKHOUSE_DRIVER);
 
-        // TiDB
+ // tidb
         put("com.pingcap", Software.UNKNOWN);
 
-        // OceanBase
+ // oceanbase
         put("com.oceanbase", Software.UNKNOWN);
 
         // DM 达梦
@@ -183,7 +183,7 @@ public final class SoftwareDetector {
         // Thrift
         put("org.apache.thrift", Software.THRIFT);
 
-        // ShardingSphere
+ // 分库分表sphere
         put("org.apache.shardingsphere", Software.SHARDING_SPHERE);
 
         // Neo4j
@@ -204,7 +204,7 @@ public final class SoftwareDetector {
         // Spring Cloud Gateway
         put("org.springframework.cloud.gateway", Software.SPRING_CLOUD_GATEWAY);
 
-        // Spring Cloud Stream
+ // Spring Cloud 流
         put("org.springframework.cloud.stream", Software.SPRING_CLOUD_STREAM);
 
         // WebSocket
@@ -214,19 +214,19 @@ public final class SoftwareDetector {
         // Hibernate
         put("org.hibernate", Software.HIBERNATE);
 
-        // Spring Data JPA
+ // Spring 数据 JPA
         put("org.springframework.data.jpa", Software.SPRING_DATA_JPA);
 
         // Vert.x
         put("io.vertx", Software.VERTX);
 
-        // Play Framework
+ // Play 框架
         put("play", Software.PLAY);
 
-        // Reactive Streams
+ // 响应式 流
         put("org.reactivestreams", Software.REACTIVE_STREAMS);
 
-        // XXL-Job
+ // XXL-作业
         put("com.xxl.job", Software.XXL_JOB);
 
         // Sentinel
@@ -238,7 +238,7 @@ public final class SoftwareDetector {
         // Apache CXF
         put("org.apache.cxf", Software.CXF);
 
-        // OpenSearch
+ // 打开搜索
         put("org.opensearch", Software.OPENSEARCH);
 
         // HDFS
@@ -262,10 +262,10 @@ public final class SoftwareDetector {
         put("software.amazon.awssdk", Software.AWS_SDK);
         put("com.amazonaws", Software.AWS_SDK);
 
-        // Quartz
+ // 石英石
         put("org.quartz", Software.QUARTZ);
 
-        // Spring Batch
+ // Spring 批量
         put("org.springframework.batch", Software.SPRING_BATCH);
 
         // Java 线程
@@ -274,7 +274,7 @@ public final class SoftwareDetector {
         // H2
         put("org.h2", Software.H2_DRIVER);
 
-        // AsyncHttpClient
+ // 异步http客户端
         put("org.asynchttpclient", Software.ASYNC_HTTP_CLIENT);
 
         // Couchbase
@@ -286,7 +286,7 @@ public final class SoftwareDetector {
         // Ignite
         put("org.apache.ignite", Software.IGNITE);
 
-        // RSocket
+ // r套接字
         put("io.rsocket", Software.RSOCKET);
 
         // NATS
@@ -298,7 +298,7 @@ public final class SoftwareDetector {
         // Feign
         put("feign", Software.FEIGN);
 
-        // ShardingSphere
+ // 分库分表sphere
         put("org.apache.shardingsphere", Software.SHARDING_SPHERE);
 
         // GraphQL
@@ -310,7 +310,7 @@ public final class SoftwareDetector {
     }};
 
     /**
-     * 需跳过的包名前缀（JDK + 本 Agent 框架自身）。
+      * 需跳过的包名前缀（JDK + 本 智能体 框架自身）。
      */
     private static final List<String> SKIP_PREFIXES = Arrays.asList(
             "java.", "javax.", "jdk.", "sun.", "com.sun.", "com.oracle.",
@@ -324,7 +324,7 @@ public final class SoftwareDetector {
     );
 
     /**
-     * 栈帧跳过深度 — 跳过当前方法 + ASM 注入字节码 + RuntimeSpy.onIntercept + JDK 内部。
+      * 栈帧跳过深度 — 跳过当前方法 + ASM 注入字节码 + runtimespy.onintercept + JDK 内部。
      */
     private static final int SKIP_FRAMES = 5;
 
@@ -357,11 +357,11 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 从 Socket 实例的远程地址推断协议（通过端口号）。
+      * 从 套接字 实例的远程地址推断协议（通过端口号）。
      *
      * <p>使用反射避免编译时依赖，调用方负责捕获 NoSuchMethodException。</p>
      *
-     * @param socket Socket 实例
+     * @param socket 套接字 实例
      * @return 推断的协议，获取失败返回 UNKNOWN
      */
     public static Protocol inferProtocolFromSocket(Socket socket) {
@@ -377,9 +377,9 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 从 InetSocketAddress 实例推断协议（通过端口号）。
+      * 从 inet套接字地址 实例推断协议（通过端口号）。
      *
-     * @param addr InetSocketAddress 实例
+     * @param addr inet套接字地址 实例
      * @return 推断的协议
      */
     public static Protocol inferProtocolFromAddress(InetSocketAddress addr) {
@@ -390,12 +390,12 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 从 Socket 实例提取目标 Endpoint 信息（用于依赖图）。
+      * 从 套接字 实例提取目标 端点 信息（用于依赖图）。
      *
      * <p>反射调用 Socket.getRemoteSocketAddress() + Socket.getLocalSocketAddress()。</p>
      *
-     * @param socket Socket 实例
-     * @return Endpoint 描述（host:port），获取失败返回 "?"
+     * @param socket 套接字 实例
+     * @return Endpoint 描述（主机:端口），获取失败返回 "?"
      */
     public static String extractSocketTarget(Socket socket) {
         try {
@@ -410,9 +410,9 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 从 HttpURLConnection 提取目标 URL。
+      * 从 httpurlconnection 提取目标 URL。
      *
-     * @param conn HttpURLConnection 实例
+     * @param conn httpurlconnection 实例
      * @return URL 字符串，获取失败返回 "?"
      */
     public static String extractHttpUrl(Object conn) {
@@ -425,10 +425,10 @@ public final class SoftwareDetector {
     }
 
     /**
-     * 从 HttpURLConnection 提取 HTTP 方法。
+      * 从 httpurlconnection 提取 HTTP 方法。
      *
-     * @param conn HttpURLConnection 实例
-     * @return HTTP 方法，获取失败返回 "GET"
+     * @param conn httpurlconnection 实例
+     * @return HTTP 方法，获取失败返回 "获取"
      */
     public static String extractHttpMethod(Object conn) {
         try {
@@ -457,7 +457,7 @@ public final class SoftwareDetector {
      * 通过包名前缀匹配软件栈。
      *
      * @param className 全限定类名
-     * @return 匹配到的软件栈，无匹配返回 null
+     * @return 匹配到的软件栈，无匹配返回 空
      */
     private static Software matchSoftware(String className) {
         for (Map.Entry<String, Software> entry : SOFTWARE_PATTERNS.entrySet()) {

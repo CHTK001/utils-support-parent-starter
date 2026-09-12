@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 /**
- * 基于 JavaCV FFmpeg 的 H.265/HEVC 编码器。
+   * 基于 javacv ffmpeg 的 H.265/HEVC 编码器。
  *
  * <p>支持零拷贝 Frame 路径和 BufferedImage 降级路径。</p>
  *
@@ -26,7 +26,7 @@ import java.io.OutputStream;
 public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
-     * FFmpeg 帧录制器
+      * ffmpeg 帧录制器
      */
     private FFmpegFrameRecorder recorder;
 
@@ -71,7 +71,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     private long frameIndex;
 
     /**
-     * BufferedImage 转换器
+      * 缓冲镜像 转换器
      */
     private Java2DFrameConverter bufferedImageConverter;
 
@@ -96,17 +96,17 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     private static final int GOP_SIZE = 150;
 
     /**
-     * H.265 编码 preset 选项的 key（"preset"）
+      * H.265 编码 preset 选项的 键（"preset"）
      */
     private static final String KEY_PRESET = "preset";
 
     /**
-     * H.265 编码 tune 选项的 key（"tune"）
+      * H.265 编码 tune 选项的 键（"tune"）
      */
     private static final String KEY_TUNE = "tune";
 
     /**
-     * H.265 编码 profile 选项的 key（"profile"）
+      * H.265 编码 配置文件 选项的 键（"配置文件"）
      */
     private static final String KEY_PROFILE = "profile";
 
@@ -121,7 +121,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     private static final String VAL_TUNE = "zerolatency";
 
     /**
-     * H.265 编码 profile 值（"main"）
+      * H.265 编码 配置文件 值（"main"）
      */
     private static final String VAL_PROFILE = "main";
 
@@ -143,7 +143,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 使用包装类型宽高和帧率构造，null 时跳过初始化。
+      * 使用包装类型宽高和帧率构造，空 时跳过初始化。
      *
      * @param width 视频宽度
      * @param height 视频高度
@@ -171,7 +171,13 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
-    /** 初始化 */
+    /**
+     * 初始化
+     *
+     * @param width width
+     * @param height height
+     * @param fps fps
+     */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = ensureEven(width);
@@ -209,30 +215,36 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取CodecName */
+    /** 获取codec名称 */
     public String getCodecName() {
         return CODEC_NAME_H265;
     }
 
     @Override
-    /** 获取CodecId */
+    /** 获取codecid */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H265;
     }
 
     @Override
-    /** 是否HardwareAccelerated */
+    /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** ForceKeyFrame */
+    /** force键帧 */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
 
-    /** EnsureInitialized */
+    /**
+     * ensure初始化
+     *
+     * @param w w
+     * @param h h
+     * @param f f
+     */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
             init(w, h, f);
@@ -308,7 +320,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 确保 BufferedImage 为 TYPE_3BYTE_BGR 格式。
+      * 确保 缓冲镜像 为 类型_3BYTE_BGR 格式。
      *
      * @param src 源图像
      * @return BGR 格式图像

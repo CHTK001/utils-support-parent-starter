@@ -26,7 +26,7 @@ public class DefaultCodeProduct implements CodeProduct{
     }
 
     /**
-     * 将二维码数据转换为带有可能的背景图、logo和前景图的BufferedImage对象。
+      * 将二维码数据转换为带有可能的背景图、logo和前景图的缓冲镜像对象。
      *
      * @param qrCodeConfig 二维码配置选项，包含背景图、logo和前景图等设置
      * @param bitMatrix 二维码的位矩阵数据

@@ -47,7 +47,12 @@ class DefaultMattingService implements MattingService {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Matte */
+    /**
+     * Matte
+     *
+     * @param imageData 镜像数据
+     * @return matte的结果
+     */
     public byte[] matte(byte[] imageData) {
         ITranslator<Object, Object> t = engine.get(modelName, ITranslator.class);
         if (t == null) {
@@ -62,10 +67,10 @@ class DefaultMattingService implements MattingService {
     }
 
     /**
-     * 将模型输出转换为 BufferedImage。
+      * 将模型输出转换为 缓冲镜像。
      *
      * @param result 模型输出
-     * @return BufferedImage，无法转换返回 null
+     * @return BufferedImage，无法转换返回 空
      */
     private static BufferedImage toBufferedImage(Object result) {
         if (result instanceof BufferedImage image) {
@@ -81,7 +86,9 @@ class DefaultMattingService implements MattingService {
             try {
                 java.io.ByteArrayInputStream bis = new java.io.ByteArrayInputStream(bytes);
                 BufferedImage bi = javax.imageio.ImageIO.read(bis);
-                if (bi != null) return bi;
+                if (bi != null) {
+                    return bi;
+                }
             } catch (Exception ignored) {
             }
         }

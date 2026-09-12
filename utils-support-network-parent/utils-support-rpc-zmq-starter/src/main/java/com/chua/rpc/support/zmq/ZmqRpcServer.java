@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * ZeroMQ RPC 服务端实现（JeroMQ，纯 Java 无需原生依赖）。
+   * zeromq RPC 服务端实现（jeromq，纯 Java 无需原生依赖）。
  *
  * <p><b>传输模型</b>：基于 <strong>ROUTER 套接字</strong>的多对多异步消息模型。
  * 每个客户端（{@link ZmqRpcClient} 的 DEALER 套接字）发给服务端的消息，
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p><b>服务发现</b>：构造器传入的 {@link RpcRegistryConfig} 中 protocol 为注册中心类型
  * （如 {@code zookeeper}/{@code nacos}）时，自动通过 SPI 加载 {@link ServiceDiscovery}
- * 并注册服务（路径 {@code /appName/serviceName}）；protocol 为 {@code direct}/{@code zmq}
+   * 并注册服务（路径 {@code /appName/serviceName}）；协议 为 {@code direct}/{@code zmq}
  * 或空时走纯直连，与无注册中心场景兼容。</p>
  *
  * @author CH
@@ -187,8 +187,8 @@ public class ZmqRpcServer implements RpcServer {
     /**
      * 构造器。
      *
-     * @param registryConfigs 注册中心配置列表；protocol 为 "zookeeper"/"nacos" 等时走服务发现，
-     *                        为 {@code null} 或 protocol 为 "direct"/"native"/空时走直连
+     * @param registryConfigs 注册中心配置列表；协议 为 "ZooKeeper"/"nacos" 等时走服务发现，
+      * 为 {@code null} 或 协议 为 "direct"/"NAT"/空时走直连
      * @param protocolConfig  协议配置（端口 / 线程数 / 序列化），可为 {@code null}
      * @param name            应用名（用于服务发现路径拼接）
      */
@@ -215,7 +215,7 @@ public class ZmqRpcServer implements RpcServer {
         services.put(name, bean);
         // 写入同 JVM 直调共享注册表，客户端 inline=true 时可零网络调用
         LocalServiceRegistry.INSTANCE.register(name, bean);
-        // 注册到服务发现（zookeeper/nacos 等），客户端无需硬编码端口即可发现
+ // 注册到服务发现（ZooKeeper/nacos 等），客户端无需硬编码端口即可发现
         if (serviceDiscovery != null) {
             Discovery discovery = Discovery.builder()
                     .serverId(name)
@@ -231,7 +231,7 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     /**
-     * 初始化服务发现：遍历注册中心配置，protocol 为注册中心类型（zookeeper/nacos 等）时
+      * 初始化服务发现：遍历注册中心配置，协议 为注册中心类型（ZooKeeper/nacos 等）时
      * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
      */
     private void initServiceDiscovery() {
@@ -259,7 +259,7 @@ public class ZmqRpcServer implements RpcServer {
     }
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() {
         if (!state.compareAndSet(false, true)) {
             return;
@@ -364,8 +364,8 @@ public class ZmqRpcServer implements RpcServer {
             response.setSuccess(true);
             response.setResult(result);
         } catch (Exception e) {
-            // method.invoke 会把业务方法抛出的异常包装成 InvocationTargetException
-            // （其 getMessage 为 null），必须解包根因，否则客户端丢失原始错误消息。
+ // 方法.invoke 会把业务方法抛出的异常包装成 invocationTarget异常
+ // （其 获取消息 为 空），必须解包根因，否则客户端丢失原始错误消息。
             Throwable cause = (e instanceof java.lang.reflect.InvocationTargetException ite
                     && ite.getCause() != null) ? ite.getCause() : e;
             response.setSuccess(false);
@@ -458,7 +458,7 @@ public class ZmqRpcServer implements RpcServer {
     @Override
     /** 连接信息 */
     public List<RpcConnectionInfo> getConnections() {
-        // JeroMQ 不暴露已连接的 identity 列表，装载后按协议返回虚拟连接占位
+ // jeromq 不暴露已连接的 identity 列表，装载后按协议返回虚拟连接占位
         return Collections.emptyList();
     }
 
@@ -519,6 +519,7 @@ public class ZmqRpcServer implements RpcServer {
      * @param service    服务名
      * @param method     方法名
      * @param paramTypes 参数类型名数组
+     * @return 方法键的结果
      */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override
@@ -535,7 +536,7 @@ public class ZmqRpcServer implements RpcServer {
         }
 
         @Override
-        /** HashCode */
+        /** 哈希编码 */
         public int hashCode() {
             int result = service.hashCode();
             result = 31 * result + method.hashCode();

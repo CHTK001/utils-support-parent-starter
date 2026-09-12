@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 
 /**
- * NIMA (Neural Image Assessment)                    Translator
+   * NIMA (Neural 镜像 评定)                    Translator
  *
  * <p>       VGG16                                            10                          1-10          
- *        Softmax             ,                          Mean Opinion Score (MOS)   
+   * Softmax             ,                          Mean 观点 Score (MOS)
  *
  * <p>         :
  * <ul>
@@ -40,17 +40,17 @@ import javax.annotation.Nonnull;
 public class NimaTranslator implements Translator<Image, float[]> {
 
     /** 图像尺寸 */
-    /** Image_size */
+    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 图像均值 */
-    /** Image_mean */
+    /** 镜像_mean */
     private static final float[] IMAGE_MEAN = {0.485f, 0.456f, 0.406f};
     /** 图像标准差 */
-    /** Image_std */
+    /** 镜像_std */
     private static final float[] IMAGE_STD = {0.229f, 0.224f, 0.225f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         // OpenCV 预处理：resize 224 + ImageNet 归一化 + CHW → float[] → create() 喂入 djl-onnx
         float[] pixels = ImageUtils.toTensor(new TensorOptions(input, IMAGE_SIZE, IMAGE_MEAN, IMAGE_STD, false));
@@ -60,7 +60,7 @@ public class NimaTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.singletonOrThrow();
         float[] logits = output.toFloatArray();

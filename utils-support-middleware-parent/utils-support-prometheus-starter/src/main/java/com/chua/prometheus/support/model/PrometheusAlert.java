@@ -27,13 +27,13 @@ public class PrometheusAlert {
      * 告警标签
      */
     @Builder.Default
-    private Map<String, String> labels = new LinkedHashMap<>();
+    private Map<String, String> labels = new LinkedHashMap<>(); // 标签
 
     /**
      * 注释
      */
     @Builder.Default
-    private Map<String, String> annotations = new LinkedHashMap<>();
+    private Map<String, String> annotations = new LinkedHashMap<>(); // 注解
 
     /**
      * 状态: firing / pending / inactive
@@ -46,7 +46,7 @@ public class PrometheusAlert {
     private long activeAt;
 
     /**
-     * 告警名(从 labels.alertname 读取)
+      * 告警名(从 标签.alertname 读取)
      *
      * @return 告警名
      */

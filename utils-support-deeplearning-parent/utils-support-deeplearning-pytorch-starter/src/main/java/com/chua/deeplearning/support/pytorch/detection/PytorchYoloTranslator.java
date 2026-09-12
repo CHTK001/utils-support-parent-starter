@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PyTorch YOLO 目标检测 Translator。
+   * pytorch YOLO 目标检测 Translator。
  * <p>
- * 支持 YOLOv5/v8 风格输出：letterbox 预处理 + conf 过滤 + NMS。
- * 适用于 TorchScript 导出的 YOLO 检测模型。
+   * 支持 yolov5/v8 风格输出：letterbox 预处理 + conf 过滤 + NMS。
+   * 适用于 torchscript 导出的 YOLO 检测模型。
  * </p>
  *
  * @author CH
@@ -100,7 +100,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         ctx.setAttachment("sourceWidth", input.getWidth());
         ctx.setAttachment("sourceHeight", input.getHeight());
@@ -127,7 +127,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int sourceWidth = (int) ctx.getAttachment("sourceWidth");
         int sourceHeight = (int) ctx.getAttachment("sourceHeight");
@@ -242,7 +242,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
      *
      * @param boxes         框
      * @param probabilities 置信度
-     * @param threshold     IoU 阈值
+     * @param threshold     iou 阈值
      * @return 保留索引
      */
     private static List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float threshold) {
@@ -277,7 +277,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     }
 
     /**
-     * 计算 IoU。
+      * 计算 iou。
      *
      * @param a 框 A
      * @param b 框 B

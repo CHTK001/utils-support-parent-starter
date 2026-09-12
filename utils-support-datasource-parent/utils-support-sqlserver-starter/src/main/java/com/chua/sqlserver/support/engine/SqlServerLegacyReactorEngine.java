@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * SQL Server 老版本兼容响应式引擎（SQL Server 2000/2005），使用 jTDS 驱动。
- * 伪响应式实现，jTDS 无 R2DBC 驱动。
+   * SQL 服务端 老版本兼容响应式引擎（SQL 服务端 2000/2005），使用 jtds 驱动。
+   * 伪响应式实现，jtds 无 R2DBC 驱动。
  *
  * @author CH
  * @since 4.0.0.43
@@ -22,22 +22,67 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
 
     /**
      * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
+     * @param table table
+     * @param cols cols
+     * @param vals vals
+     * @return 插入的结果
+     * @param where where
+     /**
+      * 添加数据源。
+      * @param name 名称
+      * @param host 主机
+      * @param port 端口
+      * @param database database
+      * @param username 用户名
+      * @param password 密码
+      * @return 添加数据源的结果
+      */
+     * @param params 参数
      */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
-    private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine();
+    private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine(); // delegate
 
+    /**
+     * 添加数据源。
+     * @param name 名称
+     * @param host 主机
+     * @param port 端口
+     * @param database database
+     * @param username 用户名
+     * @param password 密码
+     * @return 添加数据源的结果
+     */
     public SqlServerLegacyReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
         delegate.addDataSource(name, host, port, database, username, password);
         EngineDataSource<?> ds = delegate.getDataSource(name);
+        /**
+         * 查询全部。
+         * @param table table
+         * @return 查询全部的结果
+         * @param cols cols
+         * @param vals vals
+         */
         if (ds != null) {
             registerJdbcDataSource(name, ds.url(), username, password);
         }
         return this;
+    /**
+     * 查询全部。
+     * @param table table
+     * @return 查询全部的结果
+     */
     }
 
     public Flux<Map<String, Object>> queryAll(String table) {
         return query("SELECT * FROM " + safeIdentifier(table));
+    /**
+     * 查询where。
+     * @param table table
+     * @param where where
+     * @param params 参数
+     * @return 查询where的结果
+     */
     }
 
     public Flux<Map<String, Object>> queryWhere(String table, String where, Object... params) {
@@ -52,7 +97,9 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
         StringBuilder sb = new StringBuilder("INSERT INTO ").append(table)
                 .append(" (").append(String.join(", ", cols)).append(") VALUES (");
         for (int i = 0; i < cols.length; i++) {
-            if (i > 0) sb.append(", ");
+            if (i > 0) {
+                sb.append(", ");
+            }
             sb.append("?");
         }
         sb.append(")");

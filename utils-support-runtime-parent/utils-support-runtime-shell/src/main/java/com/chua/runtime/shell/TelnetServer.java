@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TelnetServer {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(TelnetServer.class.getName());
     /**

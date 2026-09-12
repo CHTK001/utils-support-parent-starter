@@ -43,17 +43,17 @@ public class RustVideoDecoder implements VideoDecoder {
     private boolean initialized;
 
     /**
-     * FFmpeg AV_CODEC_ID_H264
+      * ffmpeg AV_CODEC_标识_H264
      */
     private static final int AV_CODEC_ID_H264 = 27;
 
     /**
-     * FFmpeg AV_CODEC_ID_H265
+      * ffmpeg AV_CODEC_标识_H265
      */
     private static final int AV_CODEC_ID_H265 = 173;
 
     /**
-     * FFmpeg AV_CODEC_ID_H266
+      * ffmpeg AV_CODEC_标识_H266
      */
     private static final int AV_CODEC_ID_H266 = 276;
 

@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 /**
- * Solr 引擎的 DataSync OUTPUT Provider。
+   * Solr 引擎的 数据同步 输出 提供者。
  * <p>将 {@link Flux}&lt;Map&gt; 批量写入 Solr Collection。</p>
  *
  * @author CH
@@ -19,27 +19,27 @@ import java.util.*;
 @Slf4j
 public class SolrDataSyncSource implements DataSyncSource {
 
-    /** Default_batch */
+    /** 默认_批量 */
     private static final int DEFAULT_BATCH = 1000;
 
     /** 引擎 */
     private final SolrEngine engine;
-    /** Collection名称 */
+    /** 集合名称 */
     private final String collectionName;
-    /** 来源ID */
+    /** 来源标识 */
     private final String sourceId;
-    /** AgentID */
+    /** 智能体id */
     private final String agentId;
-    /** Batch尺寸 */
+    /** 批量尺寸 */
     private final int batchSize;
 
     /**
-     * 创建 SolrDataSyncSource 实例
+      * 创建 Solr数据同步源 实例
      * @param engine engine
-     * @param collectionName collectionName
-     * @param sourceId sourceId
-     * @param agentId agentId
-     * @param batchSize batchSize
+     * @param collectionName 集合名称
+     * @param sourceId 源标识
+     * @param agentId 智能体标识
+     * @param batchSize 批量大小
      */
     private SolrDataSyncSource(SolrEngine engine, String collectionName,
                                String sourceId, String agentId, int batchSize) {
@@ -51,11 +51,11 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     /**
-     * Output
+      * 输出
      * @param engine engine
-     * @param collectionName collectionName
-     * @param sourceId sourceId
-     * @param agentId agentId
+     * @param collectionName 集合名称
+     * @param sourceId 源标识
+     * @param agentId 智能体标识
      */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId) {
@@ -63,12 +63,12 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     /**
-     * Output
+      * 输出
      * @param engine engine
-     * @param collectionName collectionName
-     * @param sourceId sourceId
-     * @param agentId agentId
-     * @param batchSize batchSize
+     * @param collectionName 集合名称
+     * @param sourceId 源标识
+     * @param agentId 智能体标识
+     * @param batchSize 批量大小
      */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId, int batchSize) {
@@ -82,13 +82,13 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
@@ -100,7 +100,7 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

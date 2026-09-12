@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * DL4J ResNet50 迁移学习模型：数据加载 + 模型构建。
+   * DL4J Rnet50 迁移学习模型：数据加载 + 模型构建。
  *
  * <p>移植自 AIAS 2_training_platform 的 {@code ResNet50Model}，核心流程：</p>
  * <ol>
@@ -204,7 +204,7 @@ public class ResNet50Model {
     }
 
     /**
-     * 设置学习率（迁移学习 fine-tune 用，默认 1e-3）。
+      * 设置学习率（迁移学习 罚金-tune 用，默认 1e-3）。
      *
      * @param learningRate 学习率
      */
@@ -226,7 +226,7 @@ public class ResNet50Model {
     }
 
     /**
-     * 从本地 zip 文件加载模型。
+      * 从本地 压缩 文件加载模型。
      *
      * @param model 模型文件
      * @return 加载后的计算图
@@ -318,7 +318,7 @@ public class ResNet50Model {
     }
 
     /**
-     * 构建迁移学习模型（从本地 zip 加载预训练权重）。
+      * 构建迁移学习模型（从本地 压缩 加载预训练权重）。
      *
      * @param model 本地预训练模型文件
      * @return 构建好的计算图
@@ -330,7 +330,7 @@ public class ResNet50Model {
     }
 
     /**
-     * 构建 FineTuneConfiguration。
+      * 构建 罚金tune配置。
      *
      * @return FineTuneConfiguration
      */
@@ -352,7 +352,7 @@ public class ResNet50Model {
     }
 
     /**
-     * 构建迁移学习计算图：替换 fc1000 输出层为新分类数。
+      * 构建迁移学习计算图：替换 函数计算1000 输出层为新分类数。
      *
      * @param pretrained 预训练计算图
      * @return 迁移学习后的计算图

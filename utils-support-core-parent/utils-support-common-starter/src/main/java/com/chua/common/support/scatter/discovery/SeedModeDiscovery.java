@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 /**
- * seed 引导模式发现：仅与 seed 同步 hash + 新节点扩散 + 最小 nodeId 选举 + 全掉线降级。
+   * 参见 引导模式发现：仅与 参见 同步 哈希 + 新节点扩散 + 最小 节点id 选举 + 全掉线降级。
  *
  * <p>机制：</p>
  * <ul>
@@ -43,9 +43,13 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /** 已扩散过的新节点（去重） */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    /** 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool） */
+    /** 降级同步专用线程池（固定大小，与 routemodediscovery 隔离，不占用 通用游泳池） */
     private static final ExecutorService DEGRADE_SYNC_EXECUTOR = ThreadUtils.newDaemonFixedThreadPool(4, "scatter-degrade-sync");
 
+    /**
+     * 参见modediscovery。
+     * @param setting setting
+     */
     public SeedModeDiscovery(ScatterSetting setting) {
         super(setting);
     }
@@ -64,7 +68,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             if (ok) {
                 aliveSeeds++;
                 announcedSeeds.add(seed.getNodeId());
-                // 扩散：向 seed 推送自身 hash
+ // 扩散：向 参见 推送自身 哈希
                 pushSelf(seed);
             } else {
                 announcedSeeds.remove(seed.getNodeId());
@@ -77,7 +81,12 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 与单个 seed 同步：拉取完整服务表合并（hash 同步）。 */
+    /**
+     * 与单个 参见 同步：拉取完整服务表合并（哈希 同步）。
+     *
+     * @param seed 参见
+     * @return 同步with参见的结果
+     */
     private boolean syncWithSeed(ScatterNode seed) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
@@ -89,7 +98,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         return false;
     }
 
-    /** 向 seed 推送自身 hash（新节点接入下发一次）。 */
+    /**
+     * 向 参见 推送自身 哈希（新节点接入下发一次）。
+     *
+     * @param seed 参见
+     */
     private void pushSelf(ScatterNode seed) {
         try {
             Discovery self = getServiceAll(setting.getServicePath()).stream()
@@ -111,7 +124,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** seed 全掉线：标记本地 seed 引导条目降级（不依赖 announcedSeeds——其会在同步失败时被清空）。 */
+    /** 参见 全掉线：标记本地 参见 引导条目降级（不依赖 announcedseeds——其会在同步失败时被清空）。 */
     private void markSeedDown() {
         for (Discovery d : getServiceAll(setting.getServicePath())) {
             if (d.getServerId() == null) {
@@ -147,7 +160,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             }
             candidates.add(d);
         }
-        // 按 nodeId 排序（最小 nodeId 优先），取 gossipTargetCount 台
+ // 按 节点标识 排序（最小 节点标识 优先），取 gossipTarget数量 台
         candidates.sort(Comparator.comparing(Discovery::getServerId, Comparator.nullsLast(String::compareTo)));
         int limit = Math.min(setting.getGossipTargetCount(), candidates.size());
         // 并发同步，避免单节点阻塞导致其他候选节点同步延迟
@@ -159,19 +172,23 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             futures[i] = CompletableFuture.runAsync(() -> syncWith(node), DEGRADE_SYNC_EXECUTOR);
         }
         CompletableFuture.allOf(futures).join();
-        // 降级选举：若 seed 全掉线，选举最小 nodeId 的老节点为新引导并广播
+ // 降级选举：若 参见 全掉线，选举最小 节点标识 的老节点为新引导并广播
         electNewSeed(candidates);
     }
 
-    /** 选举：seed 全掉线时，最小 nodeId 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。 */
+    /**
+     * 选举：参见 全掉线时，最小 节点id 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。
+     *
+     * @param candidates candidates
+     */
     private void electNewSeed(List<Discovery> candidates) {
         if (candidates.isEmpty()) {
             // 无其他存活节点：自己是唯一节点，无需广播
             return;
         }
-        Discovery minRemote = candidates.get(0); // 已按 nodeId 排序（最小优先）
+        Discovery minRemote = candidates.get(0); // 已按 节点标识 排序（最小优先）
         String selfId = setting.getNodeId();
-        // 自己 vs 远端最小 nodeId：自己更小则自己成为新引导并广播
+ // 自己 vs 远端最小 节点标识：自己更小则自己成为新引导并广播
         if (selfId.compareTo(minRemote.getServerId()) < 0) {
             Discovery self = getServiceAll(setting.getServicePath()).stream()
                     .filter(d -> selfId.equals(d.getServerId()))
@@ -182,7 +199,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。 */
+    /**
+     * 向其他节点广播选举通知（ELEC 帧，携带新引导信息）。
+     *
+     * @param elected elected
+     */
     private void broadcastElection(Discovery elected) {
         byte[] payload = Json.toJson(elected).getBytes(StandardCharsets.UTF_8);
         ScatterFrame elec = new ScatterFrame(ScatterProtocol.TYPE_ELEC,
@@ -204,7 +225,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         log.info("seed 全掉线，选举新引导节点: {}", elected.getServerId());
     }
 
-    /** 与普通节点同步（复用路由模式的 syncWith）。 */
+    /**
+     * 与普通节点同步（复用路由模式的 同步with）。
+     *
+     * @param node 节点
+     */
     private void syncWith(ScatterNode node) {
         ScatterContext ctx = new ScatterContext(genRequestId() + "",
                 setting.getServicePath(), setting.getTimeoutMillis());
@@ -220,11 +245,11 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         super.registerSelf();
         List<ScatterNode> seeds = resolveSeeds();
         // 未配置 seed：自动将本节点注册为自身 seed（网关模式）
-        // 使用 port+2 作为 scatter 通信端口，确保其他节点可通过该端口连接
+ // 使用 端口+2 作为 scatter 通信端口，确保其他节点可通过该端口连接
         if (seeds.isEmpty()) {
             String selfNodeId = setting.getNodeId();
-            // 使用 scatterPort（已由 DefaultScatter 填充为 nodeServer 实际端口）
-            // 若未设置则回退到 port+2
+ // 使用 scatter端口（已由 默认scatter 填充为 节点服务端 实际端口）
+ // 若未设置则回退到 端口+2
             int scatterPort = setting.getScatterPort() > 0
                     ? setting.getScatterPort()
                     : (setting.getPort() > 0 ? setting.getPort() + 2 : setting.getPort());
@@ -246,7 +271,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             return;
         }
         for (ScatterNode seed : seeds) {
-            // serverId 使用 nodeId 而非 seed 地址，与 AbstractScatterDiscovery.registerSelf 保持一致
+ // 服务端标识 使用 节点标识 而非 参见 地址，与 抽象scatterdiscovery.注册self 保持一致
             // 避免 seed 条目以 "host:port" 为 serverId 导致移除逻辑失效
             Discovery node = Discovery.builder()
                     .id(seed.getNodeId())

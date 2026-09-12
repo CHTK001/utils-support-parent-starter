@@ -69,7 +69,7 @@ public class MavenCompileResult {
     private List<String> goals;
 
     /**
-     * 激活的 Profile
+      * 激活的 配置文件
      */
     private List<String> profiles;
 
@@ -78,21 +78,21 @@ public class MavenCompileResult {
      */
     private List<String> artifacts;
 
-    /** 创建 MavenCompileResult 实例 */
+    /** 创建 mavencompile结果 实例 */
     public MavenCompileResult() {
     }
 
     /**
-     * 创建 MavenCompileResult 实例
-     * @param success success
-     * @param exitCode exitCode
-     * @param output output
-     * @param errors errors
-     * @param durationMillis durationMillis
-     * @param projectPath projectPath
-     * @param projectDir projectDir
+      * 创建 mavencompile结果 实例
+     * @param success 成功
+     * @param exitCode exit编码
+     * @param output 输出
+     * @param errors 错误
+     * @param durationMillis 持续时间millis
+     * @param projectPath project路径
+     * @param projectDir projectdir
      * @param goals goals
-     * @param profiles profiles
+     * @param profiles 配置文件
      * @param artifacts artifacts
      */
     private MavenCompileResult(boolean success, int exitCode, String output, List<String> errors,
@@ -112,47 +112,83 @@ public class MavenCompileResult {
 
     // ==================== Getter ====================
 
-    /** 是否Success */
+    /**
+     * 是否成功
+     *
+     * @return 是否成功的结果
+     */
     public boolean isSuccess() {
         return success;
     }
 
-    /** 获取ExitCode */
+    /**
+     * 获取exit编码
+     *
+     * @return 获取exit编码的结果
+     */
     public int getExitCode() {
         return exitCode;
     }
 
-    /** 获取Output */
+    /**
+     * 获取输出
+     *
+     * @return 获取输出的结果
+     */
     public String getOutput() {
         return output;
     }
 
-    /** 获取Errors */
+    /**
+     * 获取错误
+     *
+     * @return 获取错误的结果
+     */
     public List<String> getErrors() {
         return errors;
     }
 
-    /** 获取DurationMillis */
+    /**
+     * 获取持续时间millis
+     *
+     * @return 获取持续时间millis的结果
+     */
     public long getDurationMillis() {
         return durationMillis;
     }
 
-    /** 获取ProjectPath */
+    /**
+     * 获取project路径
+     *
+     * @return 获取project路径的结果
+     */
     public String getProjectPath() {
         return projectPath;
     }
 
-    /** 获取ProjectDir */
+    /**
+     * 获取projectdir
+     *
+     * @return 获取projectdir的结果
+     */
     public String getProjectDir() {
         return projectDir;
     }
 
-    /** 获取Goals */
+    /**
+     * 获取Goals
+     *
+     * @return 获取goals的结果
+     */
     public List<String> getGoals() {
         return goals;
     }
 
-    /** 获取Profiles */
+    /**
+     * 获取配置文件
+     *
+     * @return 获取配置文件的结果
+     */
     public List<String> getProfiles() {
         return profiles;
     }
@@ -169,7 +205,7 @@ public class MavenCompileResult {
     /**
      * 获取主产物路径（第一个 jar 或 war 文件）
      *
-     * @return 主产物路径，无产物时返回 null
+     * @return 主产物路径，无产物时返回 空
      */
     public String getMainArtifact() {
         if (artifacts != null && !artifacts.isEmpty()) {
@@ -181,7 +217,7 @@ public class MavenCompileResult {
     /**
      * 获取主产物文件名
      *
-     * @return 文件名，无产物时返回 null
+     * @return 文件名，无产物时返回 空
      */
     public String getMainArtifactName() {
         String main = getMainArtifact();
@@ -208,7 +244,7 @@ public class MavenCompileResult {
      * @param projectPath 项目路径
      * @param output      输出信息
      * @param goals       目标列表
-     * @param profiles    Profile 列表
+     * @param profiles    配置文件 列表
      * @param duration    耗时（毫秒）
      * @return 编译成功结果
      */
@@ -228,7 +264,7 @@ public class MavenCompileResult {
      * @param output      输出
      * @param errors      错误列表
      * @param goals       目标列表
-     * @param profiles    Profile 列表
+     * @param profiles    配置文件 列表
      * @param duration    耗时（毫秒）
      * @return 编译失败结果
      */
@@ -258,10 +294,10 @@ public class MavenCompileResult {
     }
 
     /**
-     * 扫描 target 目录下的构建产物（jar/war）
+      * 扫描 Target 目录下的构建产物（jar/war）
      * <p>
-     * 当执行了 package 或 install 等目标时，自动查找目标目录下的构建产物。
-     * 对于多模块项目，会递归查找各子模块的 target 目录。
+      * 当执行了 包 或 install 等目标时，自动查找目标目录下的构建产物。
+      * 对于多模块项目，会递归查找各子模块的 Target 目录。
      * </p>
      *
      * @param projectDir 项目根目录
@@ -282,7 +318,7 @@ public class MavenCompileResult {
 
         List<String> result = new ArrayList<>();
 
-        // 先扫描项目根目录 target
+ // 先扫描项目根目录 Target
         String rootTarget = projectDir + File.separator + "target";
         scanTargetDir(new File(rootTarget), result);
         if (result.isEmpty()) {
@@ -306,7 +342,7 @@ public class MavenCompileResult {
     /**
      * 递归扫描指定目录下构建产物
      *
-     * @param dir   target 目录
+     * @param dir   Target 目录
      * @param result 结果列表
      */
     private static void scanTargetDir(File dir, List<String> result) {
@@ -338,7 +374,7 @@ public class MavenCompileResult {
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return "MavenCompileResult{" +
                 "success=" + success +

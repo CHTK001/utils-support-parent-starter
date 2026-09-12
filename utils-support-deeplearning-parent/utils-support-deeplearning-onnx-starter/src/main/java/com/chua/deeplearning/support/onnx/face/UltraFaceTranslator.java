@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * UltraFace/UltraLight        ONNX Translator   
+   * ultraface/ultralight        ONNX Translator
  *
  * <p>             `face_detection_sdk`        `slim / RFB / mobilenet`                            
- *                 raw boxes + class scores (+ landmarks)             anchor                         
- * output0     scores          </p>
+   * raw boxes + 类 scores (+ landmarks)             锚栓
+   * 输出0     scores          </p>
  *
  * @author CH
  * @since 2025-01-20
@@ -30,7 +30,7 @@ import java.util.Locale;
 public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /** 默认方差数组 */
-    /** Default_variance */
+    /** 默认_variance */
     private static final double[] DEFAULT_VARIANCE = {0.1d, 0.2d};
     /** BGR 通道均值 */
     /** Bgr_mean */
@@ -40,7 +40,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /** Confthresh */
     private final double confThresh;
     /** NMS 阈值 */
-    /** NMSthresh */
+    /** nmsthresh */
     private final double nmsThresh;
     /** Top-K 采样数量 */
     /** 顶部K */
@@ -59,34 +59,36 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /** Steps */
     private final int[] steps;
 
-    /** 创建 UltraFaceTranslator 实例 */
+    /** 创建 ultrafacetranslator 实例 */
     public UltraFaceTranslator() {
         this((String) null);
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param configuration configuration
+      * 创建 ultrafacetranslator 实例
+     * @param configuration 配置
      */
     public UltraFaceTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? null : configuration.loadModelName());
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param confThresh confThresh
-     * @param double double
+      * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param confThresh double
+     * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this(confThresh, nmsThresh, "slim");
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param confThresh confThresh
-     * @param double double
+      * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param confThresh double
      * @param int int
-     * @param inputSize inputSize
+     * @param inputSize 输入大小
+     * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh, int[] inputSize) {
         this(confThresh, nmsThresh, inputSize[0], inputSize[1], DEFAULT_VARIANCE,
@@ -95,18 +97,20 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param modelName modelName
+      * 创建 ultrafacetranslator 实例
+     * @param modelName 模型名称
      */
     private UltraFaceTranslator(String modelName) {
         this(0.2d, 0.3d, modelName);
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param confThresh confThresh
-     * @param double double
-     * @param String String
+      * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param confThresh double
+     * @param modelName 字符串
+     * @param nmsThresh nmsthresh
+     * @param modelName 模型名称
      */
     private UltraFaceTranslator(double confThresh, double nmsThresh, String modelName) {
         String normalized = modelName == null ? "" : modelName.toLowerCase(Locale.ROOT);
@@ -146,15 +150,15 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param confThresh confThresh
-     * @param nmsThresh nmsThresh
-     * @param inputWidth inputWidth
-     * @param inputHeight inputHeight
+      * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param nmsThresh nmsthresh
+     * @param inputWidth 输入width
+     * @param inputHeight 输入height
      * @param variance variance
      * @param scales scales
      * @param steps steps
-     * @param topK topK
+     * @param topK topk
      */
     private UltraFaceTranslator(double confThresh, double nmsThresh, int inputWidth, int inputHeight,
                                 double[] variance, int[][] scales, int[] steps, int topK) {
@@ -169,18 +173,18 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
-        // AWT 缩放（ONNX Runtime 引擎的 NDArray 不支持 resize/transpose/flip）
+ // AWT 缩放（ONNX Runtime 引擎的 ndarray 不支持 resize/transpose/flip）
         java.awt.image.BufferedImage resized = ImageUtils.resize(
                 bufferedImage, inputWidth, inputHeight, org.opencv.imgproc.Imgproc.INTER_LINEAR);
         int[] rgb = resized.getRGB(0, 0, inputWidth, inputHeight, null, 0, inputWidth);
 
-        // 模型输入为 BGR 归一化（减 BGR_MEAN），无 ImageNet/255 缩放（原生 onnx 用像素直接减）
+ // 模型输入为 BGR 归一化（减 BGR_MEAN），无 镜像net/255 缩放（原生 onnx 用像素直接减）
         float[] data = new float[3 * inputWidth * inputHeight];
         int total = inputWidth * inputHeight;
         for (int i = 0; i < rgb.length; i++) {
@@ -195,7 +199,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -274,7 +278,12 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probs, boxes);
     }
 
-    /** SqueezeBatch */
+    /**
+     * squeezebatch
+     *
+     * @param array array
+     * @return squeezeBatch的结果
+     */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
             return array.squeeze(0);
@@ -282,7 +291,15 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return array;
     }
 
-    /** BoxRecover */
+    /**
+     * boxrecover
+     *
+     * @param width width
+     * @param height height
+     * @param scales scales
+     * @param steps steps
+     * @return boxRecover的结果
+     */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
         for (int index = 0; index < steps.length; index++) {
@@ -309,12 +326,23 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return boxes;
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param value 值
+     * @return clip的结果
+     */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
-    /** Clip获取大小 */
+    /**
+     * Clip获取大小
+     *
+     * @param origin origin
+     * @param size 大小
+     * @return clip大小的结果
+     */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
@@ -322,11 +350,17 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // ONNX Runtime 的 NDArray 不支持 Stack，单图推理不批处理
+ // ONNX Runtime 的 ndarray 不支持 Stack，单图推理不批处理
         return null;
     }
 
-    /** Candidate */
+    /**
+     * Candidate
+     *
+     * @param rectangle rectangle
+     * @param probability probability
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

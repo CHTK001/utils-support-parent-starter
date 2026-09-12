@@ -30,17 +30,17 @@ import java.util.function.Function;
  * <p>
  * 模型来源：Google Gemma-3-270M（原版，词表 262144 完整多语言词表，含中文），
  * uint8 量化 ONNX 导出（约 437MB）。输入 {@code input_ids / attention_mask / position_ids}，
- * 输出 {@code logits}，无 KV cache —— 采用朴素自回归解码：每步前向喂入完整序列，
- * 取最后位置 logits 贪心取下一个 token，直至 EOS / {@code <end_of_turn>}。
+   * 输出 {@code logits}，无 KV 缓存 —— 采用朴素自回归解码：每步前向喂入完整序列，
+   * 取最后位置 logits 贪心取下一个 令牌，直至 EOS / {@code <end_of_turn>}。
  * </p>
  * <p>
- * 推理流程：gemma-3 chat 模板（{@code <bos><start_of_turn>user\n...<end_of_turn>\n<start_of_turn>model\n}）
- * → 原版 tokenizer 编码 → ORT 贪心自回归解码 → 跳过特殊 token 解码输出。
+   * 推理流程：gemma-3 对话 模板（{@code <bos><start_of_turn>user\n...<end_of_turn>\n<start_of_turn>model\n}）
+   * → 原版 tokenizer 编码 → ORT 贪心自回归解码 → 跳过特殊 令牌 解码输出。
  * </p>
  * <p>
- * 模型文件嵌入式存放于 models-parent 模块
+   * 模型文件嵌入式存放于 模型-父 模块
  * {@code utils-support-models-onnx-gemma-3-270m}
- * （classpath: {@code models/gemma-3-270m/}）。
+   * （类路径: {@code models/gemma-3-270m/}）。
  * </p>
  *
  * @author CH
@@ -55,23 +55,23 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     private static final String DEFAULT_MODEL_ID = "gemma-3-270m";
 
     /**
-     * 最大生成 token 数（可用 -Dgemma.maxNewTokens=N 覆盖）。
+      * 最大生成 令牌 数（可用 -Dgemma.最大新令牌=N 覆盖）。
      */
     private static final int MAX_NEW_TOKENS =
             Integer.getInteger("gemma.maxNewTokens", 96);
 
     /**
-     * 最大输入 token 数（超出截断，防止长文本 OOM）
+      * 最大输入 令牌 数（超出截断，防止长文本 OOM）
      */
     private static final int MAX_INPUT_LENGTH = 2048;
 
     /**
-     * BOS token id（{@code <bos>}）
+      * BOS 令牌 标识（{@code <bos>}）
      */
     private static final long BOS_TOKEN_ID = 2L;
 
     /**
-     * EOS token id（{@code <eos>}）
+      * EOS 令牌 标识（{@code <eos>}）
      */
     private static final long EOS_TOKEN_ID = 1L;
 
@@ -85,8 +85,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      */
     private static final int VOCAB_SIZE = 262144;
 
-    private final String modelId;
-    private final boolean useGpu;
+    private final String modelId; // 模型标识
+    private final boolean useGpu; // usegpu
 
     /** 采样温度（>0 时启用温度采样；0 = 纯贪心） */
     private final float temperature;
@@ -95,15 +95,15 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     /** top-k 采样候选数（>0 启用，0 = 不限制） */
     private final int topK;
 
-    private HuggingFaceTokenizer tokenizer;
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private volatile boolean initialized;
+    private HuggingFaceTokenizer tokenizer; // tokenizer
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private volatile boolean initialized; // 初始化
 
-    /** 是否为 KV cache 版模型（含 past_key_values/present 输入输出，如 transformers.js 导出） */
+    /** 是否为 KV 缓存 版模型（含 past_键_值/present 输入输出，如 transformers.js 导出） */
     private boolean kvCacheModel;
 
-    /** 多轮对话历史（交替存储 user / assistant 文本） */
+    /** 多轮对话历史（交替存储 用户 / assistant 文本） */
     private final List<String> history = new ArrayList<>();
 
     /** 多轮对话总结指令 */
@@ -120,7 +120,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     /**
      * 构造翻译器。
      *
-     * @param modelId 模型标识（ModelRegistry 注册名）
+     * @param modelId 模型标识（模型registry 注册名）
      * @param useGpu  是否启用 CUDA 执行提供程序
      */
     public Gemma3Translator(String modelId, boolean useGpu) {
@@ -185,14 +185,14 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     public String chat(String userPrompt) throws Exception {
         prepare();
         String content = userPrompt == null ? "" : userPrompt.trim();
-        // gemma-3 chat 模板（与 transformers apply_chat_template 一致）：
+ // gemma-3 对话 模板（与 transformers apply_对话_template 一致）：
         // <bos><start_of_turn>user\n{content}<end_of_turn>\n<start_of_turn>model\n
         String prompt = "<bos><start_of_turn>user\n" + content + "<end_of_turn>\n<start_of_turn>model\n";
         return generate(prompt);
     }
 
     /**
-     * 多轮对话：携带全部历史拼接 chat 模板生成回复，并追加到历史。
+      * 多轮对话：携带全部历史拼接 对话 模板生成回复，并追加到历史。
      *
      * @param userPrompt 本轮用户输入
      * @return 模型回复
@@ -202,7 +202,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         prepare();
         String content = userPrompt == null ? "" : userPrompt.trim();
         StringBuilder sb = new StringBuilder("<bos>");
-        // 历史轮次：user / assistant 交替
+ // 历史轮次：用户 / assistant 交替
         for (int i = 0; i + 1 < history.size(); i += 2) {
             sb.append("<start_of_turn>user\n").append(history.get(i))
                     .append("<end_of_turn>\n<start_of_turn>model\n")
@@ -244,14 +244,17 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     }
 
     /**
-     * 多轮对话历史条目数（user+assistant 各计一条；偶数 = 完整轮次 ×2）。
+      * 多轮对话历史条目数（用户+assistant 各计一条；偶数 = 完整轮次 ×2）。
+     * @return 历史大小的结果
      */
     public int historySize() {
         return history.size();
     }
 
     /**
-     * 按完整 gemma-3 chat 模板执行生成（模板已含 {@code <bos>} 与 {@code <start_of_turn>} 收尾）。
+      * 按完整 gemma-3 对话 模板执行生成（模板已含 {@code <bos>} 与 {@code <start_of_turn>} 收尾）。
+     * @param fullPrompt 完整提示符
+     * @return generate的结果
      */
     private String generate(String fullPrompt) throws Exception {
         Encoding enc = tokenizer.encode(fullPrompt);
@@ -275,8 +278,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         long start = System.currentTimeMillis();
 
         if (kvCacheModel) {
-            // KV cache 版（transformers.js 导出）：每步只传 1 个新 token + 上一步 present，
-            // 由公用 KvCacheDecoder 管理 past 生命周期，避免重复计算整个上下文
+ // KV 缓存 版（transformers.js 导出）：每步只传 1 个新 令牌 + 上一步 present，
+ // 由公用 kv缓存解码器 管理 past 生命周期，避免重复计算整个上下文
             try (KvCacheDecoder decoder = KvCacheDecoder.of(ortEnv, session)) {
                 float[] lastLogits = decoder.step(toLongArray(tokens), ones(tokens.size()));
                 while (stepCount < MAX_NEW_TOKENS) {
@@ -294,7 +297,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
                 }
             }
         } else {
-            // 朴素自回归（无 KV cache）：每步前向完整序列，取最后位置 logits
+ // 朴素自回归（无 KV 缓存）：每步前向完整序列，取最后位置 logits
             while (stepCount < MAX_NEW_TOKENS) {
                 long[] ids = toLongArray(tokens);
                 Map<String, OnnxTensor> inputs = new HashMap<>();
@@ -333,19 +336,19 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     }
 
     /**
-     * 从 logits 选择下一个 token。
+      * 从 logits 选择下一个 令牌。
      * <p>应用重复惩罚（对已生成 token 降权）后，按采样策略选择：
      * temperature&gt;0 时做温度 + top-k 采样，否则纯贪心。</p>
      *
      * @param logits    最后一个位置 logits（词表大小）
-     * @param tokens    当前完整 token 序列（含 prompt 与已生成）
-     * @param promptLen prompt 长度，仅对 prompt 之后的生成 token 施加重复惩罚
-     * @return 选中的 token id
+     * @param tokens    当前完整 令牌 序列（含 提示符 与已生成）
+     * @param promptLen 提示符 长度，仅对 提示符 之后的生成 令牌 施加重复惩罚
+     * @return 选中的 令牌 标识
      */
     private int nextToken(float[] logits, List<Long> tokens, int promptLen) {
         float[] scores = logits.clone();
         if (repeatPenalty > 1f) {
-            // 对已生成的 token 施加重复惩罚（跳过 prompt，避免抑制关键词）
+ // 对已生成的 令牌 施加重复惩罚（跳过 提示符，避免抑制关键词）
             for (int i = promptLen; i < tokens.size(); i++) {
                 int id = tokens.get(i).intValue();
                 if (id < 0 || id >= scores.length) {
@@ -371,7 +374,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      * @param scores 已施加惩罚的 logits
      * @param temp   温度（&gt;0）
      * @param k      top-k 候选数（&gt;0）
-     * @return 采样得到的 token id
+     * @return 采样得到的 令牌 标识
      */
     private int sample(float[] scores, float temp, int k) {
         // softmax(score / temp)
@@ -417,6 +420,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         return argmax(scores);
     }
 
+    /**
+     * argmax。
+     * @param logits logits
+     * @return argmax的结果
+     */
     private static int argmax(float[] logits) {
         int best = 0;
         float max = Float.NEGATIVE_INFINITY;
@@ -434,8 +442,8 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
      * <p>策略：取最近生成的若干 token，检测是否存在长度 ≥2 的重复周期
      * （如 A A A...、AB AB AB...、ABC ABC... 等典型循环模式）。</p>
      *
-     * @param tokens    完整 token 序列（含 prompt 与已生成）
-     * @param promptLen prompt 长度
+     * @param tokens    完整 令牌 序列（含 提示符 与已生成）
+     * @param promptLen 提示符 长度
      * @return true 表示已陷入重复，应终止生成
      */
     private static boolean isDegenerate(List<Long> tokens, int promptLen) {
@@ -445,7 +453,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         }
         int start = tokens.size() - Math.min(gen, 16);
         int window = tokens.size() - start;
-        // 检测周期 p（2..window/2）：窗口尾部是否由该周期重复构成
+ // 检测周期 p（2..窗口/2）：窗口尾部是否由该周期重复构成
         for (int p = 2; p <= window / 2; p++) {
             if (window % p != 0) {
                 continue;
@@ -464,6 +472,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         return false;
     }
 
+    /**
+     * 转为longarray。
+     * @param list 列表
+     * @return 转为longarray的结果
+     */
     private static long[] toLongArray(List<Long> list) {
         long[] r = new long[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -472,6 +485,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         return r;
     }
 
+    /**
+     * ones。
+     * @param n n
+     * @return ones的结果
+     */
     private static long[] ones(int n) {
         long[] r = new long[n];
         for (int i = 0; i < n; i++) {
@@ -480,6 +498,11 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         return r;
     }
 
+    /**
+     * 范围。
+     * @param n n
+     * @return 范围的结果
+     */
     private static long[] range(int n) {
         long[] r = new long[n];
         for (int i = 0; i < n; i++) {
@@ -489,7 +512,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
     }
 
     /**
-     * 懒加载：解析模型路径（嵌入式 classpath 资源自动抽取）、加载 tokenizer 与 ORT 会话。
+      * 懒加载：解析模型路径（嵌入式 类路径 资源自动抽取）、加载 tokenizer 与 ORT 会话。
      */
     private synchronized void prepare() throws Exception {
         if (initialized) {
@@ -497,7 +520,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         }
         Path modelPath = ModelRegistry.resolveModelPath(modelId);
         if (modelPath == null || !Files.exists(modelPath)) {
-            // 嵌入式回退：注册表无法定位时，从模型 jar 整目录抽取（含 model.onnx 与 tokenizer）
+ // 嵌入式回退：注册表无法定位时，从模型 jar 整目录抽取（含 模型.onnx 与 tokenizer）
             Path base = Paths.get(System.getProperty("java.io.tmpdir"), "chua-models", modelId);
             log.info("[Gemma3] registry 未命中({})，从 classpath 抽取到 {}", modelPath, base);
             NativeLoader.of(modelId + "-resources")
@@ -516,7 +539,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         }
         Path dir = modelPath.getParent();
 
-        // tokenizer.json 不在磁盘时，从 classpath 整目录抽取（模型 jar 内嵌）
+ // tokenizer.json 不在磁盘时，从 类路径 整目录抽取（模型 jar 内嵌）
         Path tokPath = dir != null ? dir.resolve("tokenizer.json") : null;
         if (tokPath == null || !Files.exists(tokPath)) {
             log.debug("[Gemma3] tokenizer.json not found in {}, extracting from classpath...", dir);
@@ -546,10 +569,10 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
         // 线程数可用 -Dgemma.intraop=N 覆盖（低内存环境调小可显著降低原生内存峰值）
         int intraOp = Integer.getInteger("gemma.intraop", Math.min(8, Runtime.getRuntime().availableProcessors()));
         opts.setIntraOpNumThreads(intraOp);
-        // uint8 量化模型：必须保留默认图优化（ALL_OPT）。
-        // NO_OPT 下量化 MatMul 走降级内核，需物化 ~671MB 反量化权重（262144×640 fp32）→ bad allocation，
-        // 且输出 token 与优化路径不一致；ALL_OPT 使用优化内核。
-        // 同时关闭 BFCArena：lm_head 量化 MatMul 的 ~135MB 临时缓冲在 BFC arena 下分配失败。
+ // uint8 量化模型：必须保留默认图优化（全部_OPT）。
+ // NO_OPT 下量化 matmul 走降级内核，需物化 ~671MB 反量化权重（262144×640 fp32）→ bad allocation，
+ // 且输出 令牌 与优化路径不一致；全部_OPT 使用优化内核。
+ // 同时关闭 bfcarena：lm_head 量化 matmul 的 ~135MB 临时缓冲在 BFC arena 下分配失败。
         opts.setCPUArenaAllocator(false);
         if (useGpu) {
             // 根据 DetectionConfiguration(useGpu=true) 触发 CUDA 环境检测；
@@ -562,7 +585,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             } catch (Throwable envEx) {
                 log.debug("[Gemma3] CUDA 环境检测跳过: {}", envEx.getMessage());
             }
-            // CUDA provider：默认图优化 + 默认 arena 策略（gemma 大词表 lm_head 临时缓冲较大，
+ // CUDA 提供者：默认图优化 + 默认 arena 策略（gemma 大词表 lm_head 临时缓冲较大，
             // 不宜过度收紧内存限制否则碎片导致 OOM）。gpu_mem_limit 可选，经 -Dgemma.gpuMemLimit=MB 设置。
             try {
                 ai.onnxruntime.providers.OrtCUDAProviderOptions cuda =
@@ -581,7 +604,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
             }
         }
         session = ortEnv.createSession(modelPath.toString(), opts);
-        // 探测是否为 KV cache 版（transformers.js 导出含 past_key_values 输入）
+ // 探测是否为 KV 缓存 版（transformers.js 导出含 past_键_值 输入）
         kvCacheModel = KvCacheDecoder.isKvCacheModel(session);
         initialized = true;
         log.info("[Gemma3] ORT session ready (gpu={}, vocab={}, kvCache={}) model={}",

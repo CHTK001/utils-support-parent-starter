@@ -23,18 +23,19 @@ import java.util.concurrent.TimeUnit;
  * <p>属性解析链与通用规则见 {@link AbstractMethodAnnotationIntercept}。</p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Spi("com.chua.common.support.concurrent.rate.annotation.RateLimiter")
 public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept implements MethodAnnotationIntercept<RateLimiter> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<RateLimiter> annotationType() {
         return RateLimiter.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 100;
     }
@@ -42,10 +43,10 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
     @Override
     /** Intercept */
     public Object intercept(RateLimiter annotation, ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
-        // 解析限流器名称（支持 SpEL），未填使用 类名.方法名
+ // 解析限流器名称（支持 spel），未填使用 类名.方法名
         String name = resolveName(annotation.name(), proxyMethod);
 
-        // 解析数值属性（支持 SpEL 和占位符），解析失败时使用默认值
+ // 解析数值属性（支持 spel 和占位符），解析失败时使用默认值
         double permitsPerSecond = resolveDouble(annotation.permitsPerSecond(), 1, proxyMethod);
         long warmupPeriod = resolveLong(annotation.warmupPeriod(), 0, proxyMethod);
         long waitTime = resolveLong(annotation.waitTime(), 0, proxyMethod);
@@ -90,7 +91,7 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
      *
      * @param annotation  限流注解
      * @param proxyMethod 被拦截的方法信息
-     * @return 回退方法的返回值，找不到时返回 null
+     * @return 回退方法的返回值，找不到时返回 空
      */
     private Object resolveFallback(RateLimiter annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);

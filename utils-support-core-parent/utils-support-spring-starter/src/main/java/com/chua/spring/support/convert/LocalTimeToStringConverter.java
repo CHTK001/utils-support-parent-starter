@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * LocalTime 转 String 转换器
+   * 本地时间 转 字符串 转换器
  * 将 {@link LocalTime} 转换为 ISO 格式字符串（HH:mm:ss）
  *
  * @author CH
@@ -48,10 +48,10 @@ public class LocalTimeToStringConverter implements Converter<LocalTime, String> 
     }
 
     /**
-     * 将 LocalTime 转换为字符串
+      * 将 本地时间 转换为字符串
      *
-     * @param source 源 LocalTime 对象
-     * @return 格式化后的时间字符串，如果 source 为 null 则返回 null
+     * @param source 源 本地时间 对象
+     * @return 格式化后的时间字符串，如果 源 为 空 则返回 空
      */
     @Override
     public String convert(LocalTime source) {

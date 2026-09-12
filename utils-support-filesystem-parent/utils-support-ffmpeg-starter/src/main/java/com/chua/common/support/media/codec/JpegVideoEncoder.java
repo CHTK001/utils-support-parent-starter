@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
 /**
- * 基于纯 Java ImageIO 的 MJPEG/JPEG 编码器。
+   * 基于纯 Java 镜像io 的 MJPEG/JPEG 编码器。
  *
  * <p>低延迟、软件编码。硬件加速不可用时优雅降级。</p>
  *
@@ -65,7 +65,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 使用包装类型宽高和帧率构造，null 时跳过初始化。
+      * 使用包装类型宽高和帧率构造，空 时跳过初始化。
      *
      * @param width 视频宽度
      * @param height 视频高度
@@ -93,7 +93,13 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
-    /** 初始化 */
+    /**
+     * 初始化
+     *
+     * @param width width
+     * @param height height
+     * @param fps fps
+     */
     public synchronized void init(int width, int height, int fps) {
         // 重置编码质量为默认值
         this.quality = DEFAULT_QUALITY;
@@ -102,25 +108,25 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取CodecName */
+    /** 获取codec名称 */
     public String getCodecName() {
         return CODEC_NAME_JPEG;
     }
 
     @Override
-    /** 获取CodecId */
+    /** 获取codecid */
     public int getCodecId() {
         return 0;
     }
 
     @Override
-    /** 是否HardwareAccelerated */
+    /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** ForceKeyFrame */
+    /** force键帧 */
     public void forceKeyFrame() {
     }
 

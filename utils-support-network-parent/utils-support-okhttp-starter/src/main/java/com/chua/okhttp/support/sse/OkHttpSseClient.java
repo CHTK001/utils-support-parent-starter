@@ -161,6 +161,8 @@ public class OkHttpSseClient implements SseClient {
 
     /**
      * OkHttp SSE 连接实现，跟踪连接状态
+     * @author CH
+     * @since 4.0.0
      */
     private static class OkHttpSseConnection implements SseConnection {
 
@@ -199,7 +201,7 @@ public class OkHttpSseClient implements SseClient {
         }
 
         @Override
-        /** 是否Connected */
+        /** 是否连接 */
         public boolean isConnected() {
             return !closed;
         }
@@ -221,7 +223,7 @@ public class OkHttpSseClient implements SseClient {
         }
 
         @Override
-        /** 是否Connected */
+        /** 是否连接 */
         public boolean isConnected() {
             return false;
         }

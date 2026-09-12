@@ -18,7 +18,7 @@ import java.util.*;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * YOLOv8n-pose 姿态估计 — 检测人体 17 个关键点（骨骼点）。
+   * yolov8n-pose 姿态估计 — 检测人体 17 个关键点（骨骼点）。
  *
  * <p>输入 {@code [1,3,640,640]}，输出 {@code [1,56,8400]}。
  * 56 = 4(bbox) + 1(cls) + 51(17关键点×3)，8400 个预测。
@@ -32,7 +32,7 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypoint>> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 640;
     /** 预测数量 */
     /** Num_preds */
@@ -41,21 +41,21 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     /** Num_keypoints */
     private static final int NUM_KEYPOINTS = 17;
     /** 置信度阈值 */
-    /** Conf_threshold */
+    /** Conf_阈值 */
     private static final float CONF_THRESHOLD = 0.3f;
     /** NMS 阈值 */
-    /** Nms_threshold */
+    /** Nms_阈值 */
     private static final float NMS_THRESHOLD = 0.45f;
 
     /** 资源基础路径 */
-    /** Resource_base */
+    /** Resource_基础 */
     private static final String RESOURCE_BASE = "vision/pose/yolov8n/onnx/";
     /** 模型文件路径 */
-    /** Model_file */
+    /** 模型_文件 */
     private static final String MODEL_FILE = "model_quantized.onnx";
 
     /** 关键点名称数组 */
-    /** Keypoint_names */
+    /** Keypoint_名称 */
     private static final String[] KEYPOINT_NAMES = {
             "nose", "left_eye", "right_eye", "left_ear", "right_ear",
             "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
@@ -66,7 +66,12 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
 
-    /** 取生效阈值。 */
+    /**
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -82,6 +87,12 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     /** 源图像高度 */
     /** SRC高度 */
     private int srcHeight;
+    /**
+     * pose结果类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class PoseResult {
         /** 边界框坐标 */
@@ -100,7 +111,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
 
     /** Prepare */
     private synchronized void prepare() throws Exception {
-        if (session != null) return;
+        if (session != null) {
+            return;
+        }
         Path tmpDir = Files.createTempDirectory("yolov8n-pose-");
         tmpDir.toFile().deleteOnExit();
         Path modelDir = tmpDir.resolve("yolov8n-pose");
@@ -113,7 +126,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
                 .withMd5(true)
                 .extractOnly(true).load();
         Path modelPath = modelDir.resolve(MODEL_FILE);
-        if (!Files.isRegularFile(modelPath)) throw new Exception("模型缺失: " + modelPath);
+        if (!Files.isRegularFile(modelPath)) {
+            throw new Exception("模型缺失: " + modelPath);
+        }
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
             OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
@@ -126,7 +141,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "yolov8n-pose";
     }
@@ -149,7 +164,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     /**
-     * 检测图像中的姿态关键点（byte[] 输入，OpenCV 预处理）。
+      * 检测图像中的姿态关键点（byte[] 输入，打开cv 预处理）。
      *
      * @param imageData 图像字节
      * @return 姿态结果列表
@@ -196,7 +211,12 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         }
     }
 
-    /** 解码 */
+    /**
+     * 解码
+     *
+     * @param data 数据
+     * @return decode的结果
+     */
     private List<PoseResult> decode(float[][] data) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
@@ -208,7 +228,9 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
             float w = data[2][i];
             float h = data[3][i];
             float cls = data[4][i];
-            if (cls < effThreshold(CONF_THRESHOLD)) continue;
+            if (cls < effThreshold(CONF_THRESHOLD)) {
+                continue;
+            }
 
             float x1 = (cx - w / 2) * scaleX;
             float y1 = (cy - h / 2) * scaleY;
@@ -235,10 +257,14 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         boolean[] suppressed = new boolean[candidates.size()];
         List<PoseResult> result = new ArrayList<>();
         for (int i = 0; i < candidates.size(); i++) {
-            if (suppressed[i]) continue;
+            if (suppressed[i]) {
+                continue;
+            }
             result.add(candidates.get(i));
             for (int j = i + 1; j < candidates.size(); j++) {
-                if (suppressed[j]) continue;
+                if (suppressed[j]) {
+                    continue;
+                }
                 if (iou(candidates.get(i).bbox, candidates.get(j).bbox) > NMS_THRESHOLD) {
                     suppressed[j] = true;
                 }
@@ -247,7 +273,13 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
         return result;
     }
 
-    /** Iou */
+    /**
+     * Iou
+     *
+     * @param a a
+     * @param b b
+     * @return iou的结果
+     */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -268,6 +300,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
      * 创建 Translator（支持外部阈值覆盖）。
      *
      * @param configuration 检测配置（可空）
+     * @return YoloV8nPoseTranslator的结果
      */
     public YoloV8nPoseTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {

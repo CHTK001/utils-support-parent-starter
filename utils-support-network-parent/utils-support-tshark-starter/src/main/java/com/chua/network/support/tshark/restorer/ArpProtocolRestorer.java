@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class ArpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "arp";
     }
@@ -53,7 +53,13 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** MacToString */
+    /**
+     * mac转为字符串
+     *
+     * @param data 数据
+     * @param offset 偏移量
+     * @return mac转为字符串的结果
+     */
     private static String macToString(byte[] data, int offset) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 6; i++) {
@@ -65,7 +71,13 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** IpToString */
+    /**
+     * ip转为字符串
+     *
+     * @param data 数据
+     * @param offset 偏移量
+     * @return ip转为字符串的结果
+     */
     private static String ipToString(byte[] data, int offset) {
         return (data[offset] & 0xff) + "."
                 + (data[offset + 1] & 0xff) + "."

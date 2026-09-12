@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ArcSoft 模型提供者
+   * arcsoft 模型提供者
  * <p>
- * 实现 BulkModelProvider 接口，提供 ArcSoft 翻译器定义。
+   * 实现 bulk模型提供者 接口，提供 arcsoft 翻译器定义。
  * </p>
  *
  * @author CH
@@ -28,7 +28,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
-    /** 创建 ArcFaceModelProvider 实例 */
+    /** 创建 arcface模型提供者 实例 */
     public ArcFaceModelProvider() {
         FaceEngine engine = null;
         try {
@@ -40,7 +40,7 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     }
 
     @Override
-    /** 获取All */
+    /** 获取全部 */
     public List<TranslatorModelDefinition> getAll() {
         List<TranslatorModelDefinition> definitions = new ArrayList<>();
 

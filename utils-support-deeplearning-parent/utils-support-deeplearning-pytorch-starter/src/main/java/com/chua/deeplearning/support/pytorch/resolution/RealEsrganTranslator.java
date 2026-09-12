@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Real-ESRGAN 超分辨率 Translator。
  * <p>
- * 输入 HWC→CHW 并归一化到 [0,1]；输出 clip 到 [0,1] 后还原为 Image。
+   * 输入 HWC→CHW 并归一化到 [0,1]；输出 clip 到 [0,1] 后还原为 镜像。
  * </p>
  *
  * @author CH
@@ -27,13 +27,13 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
      */
     private final int scale;
 
-    /** 创建 RealEsrganTranslator 实例 */
+    /** 创建 realesrgantranslator 实例 */
     public RealEsrganTranslator() {
         this(4);
     }
 
     /**
-     * 创建 RealEsrganTranslator 实例
+      * 创建 realesrgantranslator 实例
      * @param scale scale
      */
     public RealEsrganTranslator(int scale) {
@@ -41,7 +41,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager()).toType(DataType.FLOAT32, false);
         array = array.transpose(2, 0, 1).div(255.0f);
@@ -50,7 +50,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         if (outputImg.getShape().dimension() == 4 && outputImg.getShape().get(0) == 1) {

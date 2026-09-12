@@ -24,7 +24,7 @@ import java.util.Map;
  * 流程编排 REST 接口。
  *
  * <p>提供流程定义的增删改查、JSON 导入导出、实例运行与恢复、
- * 节点类型清单查询能力，供前端 ReFlow 画布对接。</p>
+   * 节点类型清单查询能力，供前端 re流 画布对接。</p>
  *
  * <p>接口约定：</p>
  * <ul>
@@ -80,7 +80,7 @@ public class FlowController {
     /**
      * 查询流程定义。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 流程定义，不存在时返回 404
      */
     @GetMapping("/{flowId}")
@@ -105,7 +105,7 @@ public class FlowController {
     /**
      * 删除流程定义。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 操作结果
      */
     @DeleteMapping("/{flowId}")
@@ -132,7 +132,7 @@ public class FlowController {
     /**
      * 导出流程定义 JSON。
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @return 流程定义 JSON 字符串
      */
     @GetMapping("/{flowId}/export")
@@ -149,9 +149,9 @@ public class FlowController {
      *
      * <p>按流程 ID 加载定义，创建实例并执行，携带 body 中的运行参数。</p>
      *
-     * @param flowId 流程 ID
+     * @param flowId 流程 标识
      * @param params 运行参数
-     * @return 运行结果摘要（实例 ID、状态、流程 ID）
+     * @return 运行结果摘要（实例 标识、状态、流程 标识）
      */
     @PostMapping("/{flowId}/run")
     public ResponseEntity<Map<String, Object>> run(@PathVariable String flowId,
@@ -171,7 +171,7 @@ public class FlowController {
     /**
      * 恢复挂起实例。
      *
-     * @param instanceId 实例 ID
+     * @param instanceId 实例 标识
      * @return 恢复结果摘要
      */
     @PostMapping("/instance/{instanceId}/resume")

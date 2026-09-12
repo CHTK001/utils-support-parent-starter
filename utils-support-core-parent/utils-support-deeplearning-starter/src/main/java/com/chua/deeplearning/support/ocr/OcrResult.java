@@ -21,6 +21,10 @@ public record OcrResult(
 
     /**
      * 兼容无旋转角度的构造（angle=0）。
+     * @param text 文本
+     * @param confidence 信心
+     * @param boundingBox boundingbox
+     * @return ocr结果的结果
      */
     public OcrResult(String text, float confidence, PredictRectangle boundingBox) {
         this(text, confidence, boundingBox, 0f);

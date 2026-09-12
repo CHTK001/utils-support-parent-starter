@@ -25,6 +25,7 @@ import java.util.UUID;
  * <pre>{@code
  * VirtualClient client = VirtualClient.create("onnx", "zipformer");
  * String text = client.audio(Path.of("test.wav")).transcribe();
+ * }</pre>est.wav")).transcribe();
  * }</pre>
  *
  * <p>模型（int8 约 189MB）首次使用时自动从 hf-mirror 下载到缓存目录，
@@ -48,9 +49,9 @@ public class ZipformerAudioClient implements VirtualClient {
             "tokens.txt",
     };
 
-    private final AudioClientSetting setting;
-    private ZipformerStreamingTranslator translator;
-    private boolean prepared;
+    private final AudioClientSetting setting; // setting
+    private ZipformerStreamingTranslator translator; // translator
+    private boolean prepared; // prepared
 
     /**
      * 构造客户端。
@@ -152,7 +153,13 @@ public class ZipformerAudioClient implements VirtualClient {
         }
     }
 
-    /** 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。 */
+     /**
+       * ensureprepared。
+      */
+     * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
+     *
+     * @return 缓存根的结果
+     */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -176,6 +183,10 @@ public class ZipformerAudioClient implements VirtualClient {
             return Path.of(prop.trim());
         }
         Path dir = Path.of(cacheRoot(), "audio", "asr", "zipformer-zh-en");
+        /**
+         * download模型。
+         * @param dir dir
+         */
         Files.createDirectories(dir);
         return dir;
     }
@@ -196,6 +207,10 @@ public class ZipformerAudioClient implements VirtualClient {
             Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
         }
         if (!failed.isEmpty()) {
+            /**
+             * resolve音频路径。
+             * @return resolve音频路径的结果
+             */
             throw new IOException("模型文件下载失败: " + failed);
         }
     }

@@ -41,6 +41,8 @@ public class CarPlateMockString implements MockString {
             "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ").toCharArray();
     /**
      * 序号长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int SERIAL_LENGTH = 5;
 

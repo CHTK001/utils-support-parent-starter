@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * <p>基于 {@link Pipeline} 通用管线框架编排：支持直接对车牌图识别，
  * 也支持先检测车牌再逐框识别（detect → crop → recognize）。调度已注册的
- * 车牌号识别模型（如 crnn-plate-rec、yolov5-plate-recognize 等），
+   * 车牌号识别模型（如 crnn-铭牌-rec、yolov5-铭牌-recognize 等），
  * 输出 {@link PlateResult}（车牌号 + 颜色）。</p>
  *
  * <pre>{@code
@@ -33,6 +33,7 @@ import java.util.Objects;
  *         .detector("yolo5-plate-detect")
  *         .build();
  * List&lt;PlateResult&gt; results = pipeline.recognize(imageBytes);
+ * }</pre>sult&gt; results = pipeline.recognize(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -72,7 +73,7 @@ public class PlateNumberPipeline {
     private final String model;
 
     /**
-     * 车牌检测模型名称，可为 null（直接识别车牌图）。
+      * 车牌检测模型名称，可为 空（直接识别车牌图）。
      */
     private final String detectorModel;
 
@@ -90,7 +91,7 @@ public class PlateNumberPipeline {
      * 构造识别管线。
      *
      * @param model         识别模型
-     * @param detectorModel 检测模型，可为 null
+     * @param detectorModel 检测模型，可为 空
      */
     public PlateNumberPipeline(String model, String detectorModel) {
         this.engine = AbstractIdentificationEngine.getInstance();
@@ -265,7 +266,7 @@ public class PlateNumberPipeline {
     /**
      * 获取车牌号识别管线回调。
      *
-     * @return 回调实例，可能为 null
+     * @return 回调实例，可能为 空
      */
     public PlateNumberPipelineCallback callback() {
         return this.callback;
@@ -285,7 +286,7 @@ public class PlateNumberPipeline {
     /**
      * 枚举可用车牌识别 / 检测模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

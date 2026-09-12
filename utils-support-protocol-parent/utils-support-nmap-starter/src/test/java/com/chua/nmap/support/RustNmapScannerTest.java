@@ -13,15 +13,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * RustNmapScanner 测试
+   * rustnmapscanner 测试
  * 动态库未加载时验证降级行为，加载时跑真实扫描
+ * @author CH
+ * @since 4.0.0
  */
 class RustNmapScannerTest {
 
-    private static final Logger log = LoggerFactory.getLogger(RustNmapScannerTest.class);
-    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded();
+    private static final Logger log = LoggerFactory.getLogger(RustNmapScannerTest.class); // 日志
+    private static final boolean NATIVE_LOADED = RustNmapBridge.isLoaded(); // NAT加载
 
-    private RustNmapScanner scanner;
+    private RustNmapScanner scanner; // scanner
 
     @BeforeEach
     void setUp() {

@@ -49,8 +49,8 @@ import java.util.stream.StreamSupport;
  * Calcite 数据表适配器，将 {@link DataTable} 适配为 Calcite 的 {@link FilterableTable}。
  * <p>
  * {@link SourceDataTable}：Engine 条件下推 +（因其继承 MutableDataTable）支持 SQL 写回。<br>
- * 其它 {@link MutableDataTable}：ModifiableTable 写入。<br>
- * 只读表：仅 FilterableTable / 全量扫描。
+   * 其它 {@link MutableDataTable}：modifiabletable 写入。<br>
+   * 只读表：仅 过滤器table / 全量扫描。
  * </p>
  *
  * @author CH
@@ -65,7 +65,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     protected final DataTable dataTable;
 
     /**
-     * 是否启用条件下推（仅 SourceDataTable 启用）
+      * 是否启用条件下推（仅 源数据table 启用）
      */
     private final boolean filterable;
 
@@ -77,6 +77,8 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     /**
      * 按底层表能力创建适配器。
      * <p>仅可变表声明 {@link ModifiableTable}；并实现可用的 asQueryable，避免 SELECT 走空 Expression。</p>
+     * @param dataTable 数据table
+     * @return 的的结果
      */
     public static AbstractTable of(DataTable dataTable) {
         if (dataTable instanceof MutableDataTable) {
@@ -86,8 +88,8 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     /**
-     * 创建 CalciteDataTableAdapter 实例
-     * @param dataTable dataTable
+      * 创建 calcite数据table适配器 实例
+     * @param dataTable 数据table
      */
     public CalciteDataTableAdapter(DataTable dataTable) {
         this.dataTable = dataTable;
@@ -95,7 +97,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     @Override
-    /** 获取RowType */
+    /** 获取row类型 */
     public RelDataType getRowType(RelDataTypeFactory typeFactory) {
         if (rowType == null) {
             List<String> names = dataTable.getColumnNames();
@@ -111,12 +113,18 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     // ---------------------------------------------------------------
-    // FilterableTable — 条件下推读取
+ // 过滤器table — 条件下推读取
     // ---------------------------------------------------------------
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 扫描 */
+    /**
+     * 扫描
+     *
+     * @param root 根
+     * @param filters 过滤器
+     * @return 扫描的结果
+     */
     public Enumerable<Object[]> scan(DataContext root, List<RexNode> filters) {
         if (filterable && CollectionUtils.isNotEmpty(filters)) {
             SourceDataTable source = (SourceDataTable) dataTable;
@@ -147,12 +155,21 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return fullScan();
     }
 
-    /** 扫描 */
+    /**
+     * 扫描
+     *
+     * @param root 根
+     * @return 扫描的结果
+     */
     public Enumerable<Object[]> scan(DataContext root) {
         return fullScan();
     }
 
-    /** Full扫描 */
+    /**
+     * 完整扫描
+     *
+     * @return 完整扫描的结果
+     */
     private Enumerable<Object[]> fullScan() {
         List<Object[]> rows = dataTable.getData().stream()
                 .map(this::rowToArray)
@@ -161,7 +178,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return Linq4j.asEnumerable(rows);
     }
 
-    /** RowToArray */
+    /**
+     * row转为array
+     *
+     * @param row row
+     * @return row转为array的结果
+     */
     private Object[] rowToArray(Map<String, Object> row) {
         List<String> names = dataTable.getColumnNames();
         Object[] result = new Object[names.size()];
@@ -172,10 +194,16 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     // ---------------------------------------------------------------
-    // RexNode → Condition 翻译
+ // rex节点 → 条件 翻译
     // ---------------------------------------------------------------
 
-    /** TranslateRexNodes */
+    /**
+     * translaterex节点
+     *
+     * @param filters 过滤器
+     * @param columnNames column名称
+     * @return translaterex节点的结果
+     */
     private List<Condition> translateRexNodes(List<RexNode> filters, List<String> columnNames) {
         List<Condition> result = new ArrayList<>();
         for (RexNode filter : filters) {
@@ -187,7 +215,13 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result.isEmpty() ? null : result;
     }
 
-    /** TranslateCondition */
+    /**
+     * translate条件
+     *
+     * @param node 节点
+     * @param columnNames column名称
+     * @return translate条件的结果
+     */
     private Condition translateCondition(RexNode node, List<String> columnNames) {
         if (node == null) {
             return null;
@@ -262,7 +296,13 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return Condition.of(colName, op, value);
     }
 
-    /** ExtractColumn */
+    /**
+     * extractcolumn
+     *
+     * @param node 节点
+     * @param columnNames column名称
+     * @return extractColumn的结果
+     */
     private String extractColumn(RexNode node, List<String> columnNames) {
         if (node instanceof RexInputRef) {
             int idx = ((RexInputRef) node).getIndex();
@@ -273,7 +313,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return null;
     }
 
-    /** ExtractValue */
+    /**
+     * extract值
+     *
+     * @param node 节点
+     * @return extract值的结果
+     */
     private Object extractValue(RexNode node) {
         if (node instanceof RexLiteral) {
             RexLiteral literal = (RexLiteral) node;
@@ -305,7 +350,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return null;
     }
 
-    /** SqlKindToOperator */
+    /**
+     * sql种类转为操作符
+     *
+     * @param kind 种类
+     * @return sql种类转为操作符的结果
+     */
     private static String sqlKindToOperator(SqlKind kind) {
         switch (kind) {
             case EQUALS:
@@ -333,7 +383,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
     }
 
-    /** FlipOp */
+    /**
+     * flipop
+     *
+     * @param op op
+     * @return flipOp的结果
+     */
     private static String flipOp(String op) {
         if (">".equals(op)) {
             return "<";
@@ -350,7 +405,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return op;
     }
 
-    /** NegateOp */
+    /**
+     * negateop
+     *
+     * @param op op
+     * @return negateOp的结果
+     */
     private static String negateOp(String op) {
         if ("=".equals(op)) {
             return "!=";
@@ -386,10 +446,16 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     // ---------------------------------------------------------------
-    // 实体 → Object[] 转换
+ // 实体 → 对象[] 转换
     // ---------------------------------------------------------------
 
-    /** ToObjectArrays */
+    /**
+     * 转为对象arrays
+     *
+     * @param entities 实体
+     * @param columnNames column名称
+     * @return 转为对象arrays的结果
+     */
     private static List<Object[]> toObjectArrays(List<?> entities, List<String> columnNames) {
         if (CollectionUtils.isEmpty(entities)) {
             return Collections.emptyList();
@@ -416,7 +482,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result;
     }
 
-    /** 解析Getters */
+    /**
+     * 解析Getters
+     *
+     * @param entityClass 实体类
+     * @return resolveGetters的结果
+     */
     private static List<Method> resolveGetters(Class<?> entityClass) {
         List<Method> result = new ArrayList<>();
         for (Method method : entityClass.getMethods()) {
@@ -441,7 +512,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return result;
     }
 
-    /** ToGetterMap */
+    /**
+     * 转为getter映射
+     *
+     * @param getters getters
+     * @return 转为getter映射的结果
+     */
     private static Map<String, Method> toGetterMap(List<Method> getters) {
         Map<String, Method> map = new LinkedHashMap<>();
         for (Method getter : getters) {
@@ -450,7 +526,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return map;
     }
 
-    /** GetterToColumnName */
+    /**
+     * getter转为column名称
+     *
+     * @param getter getter
+     * @return getter转为column名称的结果
+     */
     private static String getterToColumnName(Method getter) {
         String methodName = getter.getName();
         String prop = methodName.startsWith("is") ? methodName.substring(2) : methodName.substring(3);
@@ -461,7 +542,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     }
 
     // ---------------------------------------------------------------
-    // 可变表适配器 — 仅 MutableDataTable 声明 ModifiableTable
+ // 可变表适配器 — 仅 mutable数据table 声明 modifiabletable
     // ---------------------------------------------------------------
 
     private static final class ModifiableCalciteDataTableAdapter
@@ -472,67 +553,67 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 获取ModifiableCollection */
+        /** 获取modifiable集合 */
         public Collection getModifiableCollection() {
             return new ObjectArrayMutableCollection(dataTable);
         }
 
         @Override
         /**
-         * ToModificationRel
+          * 转为修改rel
          * @param cluster cluster
          * @param table table
-         * @param catalogReader catalogReader
-         * @param child child
+         * @param catalogReader catalog读取
+         * @param child 子
          * @param operation operation
-         * @param updateColumnList updateColumnList
-         * @param sourceExpressionList sourceExpressionList
+         * @param updateColumnList 更新column列表
+         * @param sourceExpressionList 源expression列表
          * @param flattened flattened
-         * @param catalogReader catalogReader
-         * @param child child
+         * @param catalogReader catalog读取
+         * @param child 子
          * @param operation operation
-         * @param updateColumnList updateColumnList
-         * @param sourceExpressionList sourceExpressionList
+         * @param updateColumnList 更新column列表
+         * @param sourceExpressionList 源expression列表
          * @param flattened flattened
-         * @param queryProvider queryProvider
-         * @param schema schema
-         * @param tableName tableName
-         * @param schema schema
+         * @param queryProvider 查询提供者
+         * @param schema 模式
+         * @param tableName table名称
+         * @param schema 模式
          * @param this this
-         * @param tableName tableName
-         * @param schema schema
-         * @param tableName tableName
+         * @param tableName table名称
+         * @param schema 模式
+         * @param tableName table名称
          * @param clazz clazz
-         * @param tableName tableName
+         * @param tableName table名称
          * @param clazz clazz
-         * @param dataTable dataTable
-         * @param index index
+         * @param dataTable 数据table
+         * @param index 索引
          * @param element element
-         * @param index index
+         * @param index 索引
          * @param element element
-         * @param index index
+         * @param index 索引
          * @param o o
          * @param c c
-         * @param index index
+         * @param index 索引
          * @param element element
          * @param element element
          * @param row row
          * @param arr arr
          * @param v v
-         * @param source source
+         * @param source 源
          * @param mutable mutable
-         * @param values values
+         * @param values 值
          * @param o o
          * @param other other
-         * @param typeFactory typeFactory
-         * @param names names
-         * @param types types
-         * @param typeFactory typeFactory
-         * @param names names
+         * @param typeFactory 类型工厂
+         * @param names 名称
+         * @param types 类型
+         * @param typeFactory 类型工厂
+         * @param names 名称
          * @param clazz clazz
-         * @param typeFactory typeFactory
+         * @param typeFactory 类型工厂
          * @param true true
-         * @param data data
+         * @param data 数据
          */
         public TableModify toModificationRel(
                 RelOptCluster cluster,
@@ -550,7 +631,14 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
 
         @Override
         @SuppressWarnings("unchecked")
-        /** AsQueryable */
+        /**
+         * as查询
+         *
+         * @param queryProvider 查询提供者
+         * @param schema 模式
+         * @param tableName table名称
+         * @return as查询的结果
+         */
         public <T> Queryable<T> asQueryable(QueryProvider queryProvider, SchemaPlus schema, String tableName) {
             final DataTable source = this.dataTable;
             return new AbstractTableQueryable<T>(queryProvider, schema, this, tableName) {
@@ -572,7 +660,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 获取ElementType */
+        /** 获取element类型 */
         public Type getElementType() {
             return Object[].class;
         }
@@ -580,21 +668,23 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         @Override
         /** 获取Expression */
         public Expression getExpression(SchemaPlus schema, String tableName, Class clazz) {
-            // 第 4 参必须是调用方传入的 clazz（Queryable/Enumerable），不能写死 Object[]
+ // 第 4 参必须是调用方传入的 clazz（查询/Enumerable），不能写死 对象[]
             return Schemas.tableExpression(schema, getElementType(), tableName, clazz);
         }
     }
 
     /**
-     * Calcite DML 以 Object[] 行为元素；变更后同步回 MutableDataTable / SourceDataTable。
+      * Calcite DML 以 对象[] 行为元素；变更后同步回 mutable数据table / 源数据table。
      * <p>元素使用 {@link Row}（内容等值），保证 DELETE 的 removeAll 能匹配成功。</p>
      * <p>Calcite ModifiableTable 仅支持 INSERT / DELETE，不支持 SQL UPDATE。</p>
+     * @author CH
+     * @since 4.0.0
      */
     private static class ObjectArrayMutableCollection extends AbstractList<Object> {
 
         /** 数据表 */
         private final DataTable dataTable;
-        /** 列names */
+        /** 列名称 */
         private final List<String> columnNames;
         /** Rows */
         private final List<Row> rows = new ArrayList<>();
@@ -657,7 +747,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** 移除All */
+        /** 移除全部 */
         public boolean removeAll(Collection<?> c) {
             boolean changed = false;
             for (Object o : c) {
@@ -686,7 +776,12 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             flush();
         }
 
-        /** ToRow */
+        /**
+         * 转为row
+         *
+         * @param element element
+         * @return 转为row的结果
+         */
         private static Row toRow(Object element) {
             if (element instanceof Row row) {
                 return row;
@@ -719,7 +814,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
     }
 
-    /** 内容等值的行包装，供 removeAll 匹配。 */
+    /** 内容等值的行包装，供 移除全部 匹配。 */
     private static final class Row {
         final Object[] values;
 
@@ -740,7 +835,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         }
 
         @Override
-        /** HashCode */
+        /** 哈希编码 */
         public int hashCode() {
             return Arrays.hashCode(values);
         }
@@ -751,10 +846,10 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
     // ---------------------------------------------------------------
 
     /**
-     * 构建RowType
-     * @param typeFactory typeFactory
-     * @param names names
-     * @param types types
+      * 构建row类型
+     * @param typeFactory 类型工厂
+     * @param names 名称
+     * @param types 类型
      */
     static RelDataType buildRowType(RelDataTypeFactory typeFactory,
                                      List<String> names, List<Class<?>> types) {
@@ -764,7 +859,13 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         return typeFactory.createStructType(sqlTypes, names);
     }
 
-    /** JavaClassToSqlType */
+    /**
+     * java类转为sql类型
+     *
+     * @param clazz clazz
+     * @param typeFactory 类型工厂
+     * @return java类转为sql类型的结果
+     */
     static RelDataType javaClassToSqlType(Class<?> clazz, RelDataTypeFactory typeFactory) {
         SqlTypeName sqlTypeName;
         if (clazz == String.class) {
@@ -801,6 +902,8 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
 
     /**
      * 从已有行数据推断各列类型。
+     * @param data 数据
+     * @return infercolumn类型的结果
      */
     private static List<Class<?>> inferColumnTypes(List<Map<String, Object>> data) {
         if (CollectionUtils.isEmpty(data)) {

@@ -30,21 +30,21 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
      */
     private final int maxSideLen;
 
-    /** 创建 PpWordDetectionTranslator 实例 */
+    /** 创建 ppworddetectiontranslator 实例 */
     public PpWordDetectionTranslator() {
         this(960);
     }
 
     /**
-     * 创建 PpWordDetectionTranslator 实例
-     * @param maxSideLen maxSideLen
+      * 创建 ppworddetectiontranslator 实例
+     * @param maxSideLen 最大sidelen
      */
     public PpWordDetectionTranslator(int maxSideLen) {
         this.maxSideLen = maxSideLen;
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         result = result.squeeze().mul(255f).toType(DataType.UINT8, true).gt(0.3);
@@ -67,7 +67,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray img = input.toNDArray(ctx.getNDManager());
         int h = input.getHeight();
@@ -95,7 +95,12 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         return new NDList(img);
     }
 
-    /** Align */
+    /**
+     * Align
+     *
+     * @param value 值
+     * @return align32的结果
+     */
     private int align32(int value) {
         if (value % 32 == 0) {
             return value;

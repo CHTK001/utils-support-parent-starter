@@ -35,7 +35,7 @@ public class TyphoonPoint {
     /** 风速（米/秒） */
     private String speed;
 
-    /** 中心气压（hPa） */
+    /** 中心气压（hpa） */
     private String pressure;
 
     /** 移动速度（公里/小时） */

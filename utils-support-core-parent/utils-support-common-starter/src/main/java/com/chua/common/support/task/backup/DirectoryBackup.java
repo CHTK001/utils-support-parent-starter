@@ -24,7 +24,7 @@ public class DirectoryBackup implements BackupStrategy {
     private final DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();
 
     /**
-     * 策略类型标识：directory。
+      * 策略类型标识：目录。
      */
     @Override
     public String type() {
@@ -40,7 +40,7 @@ public class DirectoryBackup implements BackupStrategy {
     }
 
     /**
-     * 执行增量备份：仅拷贝修改时间晚于 lastBackupTime 的文件。
+      * 执行增量备份：仅拷贝修改时间晚于 最后一个backup时间 的文件。
      */
     @Override
     public BackupResult executeIncremental(BackupConfig config, long lastBackupTime) {
@@ -73,6 +73,11 @@ public class DirectoryBackup implements BackupStrategy {
 
     /**
      * 仅拷贝变更的文件
+     * @param source 源
+     * @param target Target
+     * @param config 配置
+     * @param since 自
+     * @return 副本改变文件的结果
      */
     private List<Path> copyChangedFiles(Path source, Path target, BackupConfig config, long since) throws IOException {
         List<Path> changed = new ArrayList<>();
@@ -86,7 +91,7 @@ public class DirectoryBackup implements BackupStrategy {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 try {
-                    // 仅拷贝修改时间晚于 since 的文件
+ // 仅拷贝修改时间晚于 自 的文件
                     if (attrs.lastModifiedTime().toMillis() <= since) {
                         return FileVisitResult.CONTINUE;
                     }

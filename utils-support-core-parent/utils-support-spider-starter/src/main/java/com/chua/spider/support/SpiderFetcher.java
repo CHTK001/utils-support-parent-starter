@@ -16,7 +16,7 @@ import com.chua.spider.support.model.SpiderResponse;
  *
  * <p>通过 {@code @Spi("http")} 等方式注册，
  * {@link Spider} 主入口通过 SPI 名称选择具体的 Fetcher 实现。
- * 内置默认实现为 {@code http}（基于 JDK HttpClient，无外部依赖）。
+   * 内置默认实现为 {@code http}（基于 JDK HTTP客户端，无外部依赖）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -28,7 +28,7 @@ public interface SpiderFetcher {
      *
      * <p>根据请求中的 URL、方法、头信息等参数发起网络请求，
      * 返回包含状态码、响应头和原始内容的响应对象。
-     * 如果请求失败，应在响应中设置 error 信息而非抛出异常。
+      * 如果请求失败，应在响应中设置 错误 信息而非抛出异常。
      *
      * @param request 爬取请求，包含 URL、头信息、请求方法等
      * @return 爬取响应，包含状态码、内容和可能的错误信息

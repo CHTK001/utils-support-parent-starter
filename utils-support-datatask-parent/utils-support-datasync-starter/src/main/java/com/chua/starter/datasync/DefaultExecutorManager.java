@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 默认执行器管理器，按 topic 池化管理 ReactorDataSyncExecutor 实例。
+   * 默认执行器管理器，按 topic 池化管理 reactor数据同步执行器 实例。
  *
  * <p>特性：
  * <ul>
@@ -34,17 +34,18 @@ public class DefaultExecutorManager implements ExecutorManager {
     private final AtomicBoolean started = new AtomicBoolean(false);
 
     /**
-     * 创建 DefaultExecutorManager 实例
-     * @param serverId serverId
+      * 创建 默认执行器管理器 实例
+     * @param serverId 服务端标识
      */
     public DefaultExecutorManager(String serverId) {
         this(serverId, false);
     }
 
     /**
-     * 创建 DefaultExecutorManager 实例
-     * @param serverId serverId
-     * @param boolean boolean
+      * 创建 默认执行器管理器 实例
+     * @param serverId 服务端标识
+     * @param directDispatch 布尔值
+     * @param directDispatch directdispatch
      */
     public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
@@ -74,7 +75,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public ReactorDataSyncExecutor getExecutor(String topic) {
         return executors.computeIfAbsent(topic, t -> {
             ReactorDataSyncExecutor executor = new ReactorDataSyncExecutor(t, true);
@@ -87,7 +88,11 @@ public class DefaultExecutorManager implements ExecutorManager {
         });
     }
 
-    /** 获取Executor计算数量 */
+    /**
+     * 获取执行器计算数量
+     *
+     * @return 获取执行器数量的结果
+     */
     public int getExecutorCount() {
         return executors.size();
     }

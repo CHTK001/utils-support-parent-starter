@@ -4,7 +4,7 @@ package com.chua.network.support.tshark.restorer;
  * HTTPS/TLS 协议还原器。
  *
  * <p>解析 TLS ClientHello 与 ServerHello，提取 SNI（Server Name Indication）、
- * CipherSuite 等关键字段。</p>
+   * ciphersuite 等关键字段。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -12,7 +12,7 @@ package com.chua.network.support.tshark.restorer;
 public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "https";
     }
@@ -51,7 +51,7 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
         int length = ((rawData[3] & 0xff) << 8) | (rawData[4] & 0xff);
         sb.append(", length=").append(length);
 
-        // 尝试解析 ClientHello 中的 SNI
+ // 尝试解析 客户端hello 中的 SNI
         if (rawData.length > 43 && contentType == 0x16) {
             int handshakeType = rawData[5] & 0xff;
             if (handshakeType == 0x01) {
@@ -68,10 +68,10 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * 从 ClientHello 中提取 SNI。
+      * 从 客户端hello 中提取 SNI。
      *
      * @param data TLS 记录字节
-     * @return SNI 域名，若无法提取返回 null
+     * @return SNI 域名，若无法提取返回 空
      */
     private static String extractSni(byte[] data) {
         try {
@@ -135,7 +135,7 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     }
 
     /**
-     * TLS ContentType 编号转可读字符串。
+      * TLS 内容类型 编号转可读字符串。
      *
      * @param type 原始类型编号
      * @return 类型字符串

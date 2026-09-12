@@ -15,7 +15,7 @@ package com.chua.network.support.tshark.restorer;
 public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "modbus";
     }
@@ -60,7 +60,12 @@ public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToFunctionName */
+    /**
+     * 转为function名称
+     *
+     * @param fc 函数计算
+     * @return 转为function名称的结果
+     */
     private static String toFunctionName(int fc) {
         return switch (fc) {
             case 0x01 -> "ReadCoils";

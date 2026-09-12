@@ -50,7 +50,14 @@ public class SpringBeanScopeDetector implements BeanScopeDetector {
     }
 
     @SuppressWarnings("unchecked")
-    /** 获取AnnotationValue */
+    /**
+     * 获取注解值
+     *
+     * @param annotation 注解
+     * @param attribute attribute
+     * @param defaultValue 默认值
+     * @return 获取注解值的结果
+     */
     private static <T> T getAnnotationValue(Annotation annotation, String attribute, T defaultValue) {
         try {
 return (T) ReflectUtils.invoke(annotation, attribute, Object.class, new Class<?>[0]);

@@ -36,7 +36,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     private static final String CALCITE_LEX = "lex";
 
     /**
-     * Calcite lex 属性值（MYSQL 方言）
+      * Calcite lex 属性值（MySQL 方言）
      */
     private static final String CALCITE_LEX_MYSQL = "MYSQL";
 
@@ -50,13 +50,15 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "CALCITE";
     }
 
     /**
      * 封装 Calcite 数据源逻辑的内部类。
+     * @author CH
+     * @since 4.0.0
      */
     private static class CalciteDataSource implements DataSource {
 
@@ -99,7 +101,12 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
 
         @Override
         @SuppressWarnings("unchecked")
-        /** Unwrap */
+        /**
+         * Unwrap
+         *
+         * @param iface iface
+         * @return unwrap的结果
+         */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;
@@ -108,7 +115,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
-        /** 是否WrapperFor */
+        /** 是否包装器for */
         public boolean isWrapperFor(Class<?> iface) {
             return iface.isInstance(this);
         }
@@ -125,18 +132,18 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         }
 
         @Override
-        /** 设置LoginTimeout */
+        /** 设置login超时 */
         public void setLoginTimeout(int seconds) {
         }
 
         @Override
-        /** 获取LoginTimeout */
+        /** 获取login超时 */
         public int getLoginTimeout() {
             return 0;
         }
 
         @Override
-        /** 获取ParentLogger */
+        /** 获取父日志记录器 */
         public Logger getParentLogger() {
             return Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         }

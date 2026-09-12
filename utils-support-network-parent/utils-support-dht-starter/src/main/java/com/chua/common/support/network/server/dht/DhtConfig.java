@@ -73,7 +73,7 @@ public class DhtConfig {
     private long peerTimeoutMs = 30_000;
 
     /**
-     * 节点 ID 字符串（为空则随机生成）
+      * 节点 标识 字符串（为空则随机生成）
      */
     private String nodeId;
 
@@ -93,7 +93,7 @@ public class DhtConfig {
     private int advertisedPort;
 
     /**
-     * 种子节点地址集合，格式 host:port
+      * 种子节点地址集合，格式 主机:端口
      */
     private Set<String> seeds;
 
@@ -157,7 +157,7 @@ public class DhtConfig {
     /**
      * 判断是否配置了对外宣告地址（用于 NAT 穿透）。
      *
-     * @return 如果 advertisedHost 和 advertisedPort 都有效返回 true
+     * @return 如果 advertised主机 和 advertised端口 都有效返回 true
      */
     public boolean hasAdvertisedAddress() {
         return advertisedHost != null && !advertisedHost.isEmpty() && advertisedPort > 0;

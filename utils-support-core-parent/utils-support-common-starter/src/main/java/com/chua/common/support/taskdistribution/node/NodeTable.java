@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 public class NodeTable {
 
     /**
-     * 节点注册表：nodeId -> NodeMeta
+      * 节点注册表：节点id -> 节点meta
      */
     private final Map<String, NodeMeta> nodes = new ConcurrentHashMap<>();
 
     /**
-     * 节点注册顺序表 — FIRST/LAST 分发策略依赖稳定的注册顺序，
-     * ConcurrentHashMap 本身无序，故以写时复制的有序列表补充记录。
+      * 节点注册顺序表 — 第一个/最后一个 分发策略依赖稳定的注册顺序，
+      * 并发哈希映射 本身无序，故以写时复制的有序列表补充记录。
      */
     private final List<String> registrationOrder = new CopyOnWriteArrayList<>();
 
@@ -89,7 +89,7 @@ public class NodeTable {
     }
 
     /**
-     * 注册节点（同 nodeId 覆盖，实现去重）。
+      * 注册节点（同 节点id 覆盖，实现去重）。
      *
      * @param meta 节点元数据
      */
@@ -113,7 +113,7 @@ public class NodeTable {
     /**
      * 注销节点。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      */
     public void unregister(String nodeId) {
         NodeMeta removed = nodes.remove(nodeId);
@@ -126,7 +126,7 @@ public class NodeTable {
     /**
      * 心跳更新。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      */
     public void heartbeat(String nodeId) {
         NodeMeta meta = nodes.get(nodeId);
@@ -139,8 +139,8 @@ public class NodeTable {
     /**
      * 获取节点。
      *
-     * @param nodeId 节点 ID
-     * @return 节点元数据，不存在返回 null
+     * @param nodeId 节点 标识
+     * @return 节点元数据，不存在返回 空
      */
     public NodeMeta getNode(String nodeId) {
         return nodes.get(nodeId);
@@ -179,7 +179,7 @@ public class NodeTable {
                     }
                     return true;
                 })
-                // 按注册顺序稳定输出，保证 FIRST/LAST 策略语义确定
+ // 按注册顺序稳定输出，保证 第一个/最后一个 策略语义确定
                 .sorted(Comparator.comparingInt(
                         meta -> registrationOrder.indexOf(meta.getNodeId())))
                 .collect(Collectors.toList());
@@ -203,7 +203,7 @@ public class NodeTable {
      *
      * @param candidates 候选节点列表
      * @param strategy   派发策略
-     * @return 选中的节点，无可选节点返回 null
+     * @return 选中的节点，无可选节点返回 空
      */
     public NodeMeta select(List<NodeMeta> candidates, DispatchStrategy strategy) {
         if (candidates == null || candidates.isEmpty()) {
@@ -242,6 +242,8 @@ public class NodeTable {
 
     /**
      * 轮询选择。
+     * @param candidates candidates
+     * @return roundrobin选择的结果
      */
     private NodeMeta roundRobinSelect(List<NodeMeta> candidates) {
         int index = roundRobinCounter.getAndIncrement() & ROUND_ROBIN_MASK;
@@ -251,6 +253,8 @@ public class NodeTable {
 
     /**
      * 加权随机选择。
+     * @param candidates candidates
+     * @return 权重随机选择的结果
      */
     private NodeMeta weightedRandomSelect(List<NodeMeta> candidates) {
         int totalWeight = candidates.stream().mapToInt(NodeMeta::getWeight).sum();

@@ -19,7 +19,7 @@ import org.apache.fury.config.Language;
 public class ForySerialization implements Serialization {
 
     /**
-     * 全局共享 Fury 实例（调用方通过 synchronized 保证线程安全）
+      * 全局共享 Fury 实例（调用方通过 同步 保证线程安全）
      */
     private static final Fury FURY = Fury.builder()
             .withLanguage(Language.JAVA)
@@ -38,7 +38,7 @@ public class ForySerialization implements Serialization {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "fory";
     }

@@ -46,13 +46,13 @@ public class NumberValue implements Value<Number> {
     }
 
     /**
-     * 判断值是否为 null 或无效数字。
+      * 判断值是否为 空 或无效数字。
      *
      * @return true 表示值为空或无法转换为数字
      */
     @Override
     public boolean isNull() {
-        // 空字符串或无法转换为 Number 时视为 null
+ // 空字符串或无法转换为 数字 时视为 空
         return StringUtils.isEmpty(source) || null == Converter.convertIfNecessary(source, Number.class);
     }
 
@@ -71,11 +71,11 @@ public class NumberValue implements Value<Number> {
     /**
      * 获取数字值。
      *
-     * @return 转换后的 Number 值，如果无法转换则返回 null
+     * @return 转换后的 数字 值，如果无法转换则返回 空
      */
     @Override
     public Number getValue() {
-        // 将源字符串转换为 Number 类型
+ // 将源字符串转换为 数字 类型
         Number number = Converter.convertIfNecessary(source, Number.class);
         if (null != number) {
             return number;
@@ -86,7 +86,7 @@ public class NumberValue implements Value<Number> {
     /**
      * 获取转换异常。
      *
-     * @return 始终返回 null（当前实现不记录异常）
+     * @return 始终返回 空（当前实现不记录异常）
      */
     @Override
     public Throwable getThrowable() {

@@ -14,10 +14,10 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
- * OSGi Bean 定义注册器（只读）。
+   * osgi Bean 定义注册器（只读）。
  *
  * <p>委托注入的 {@link OsgiLauncher} 获取 OSGi 框架，所有查询直接委派
- * OSGi 服务注册表。Bean 实例由 Felix OSGi 容器管理，本注册器仅做桥接。</p>
+   * osgi 服务注册表。Bean 实例由 Felix osgi 容器管理，本注册器仅做桥接。</p>
  *
  * <p>标记为 {@link SpiIgnore}，不参与 SPI 自动注册。</p>
  *
@@ -31,20 +31,20 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
 
     /** closed */
     private volatile boolean closed;
-    /** osgiLauncher */
+    /** osgilauncher */
     private volatile OsgiLauncher osgiLauncher;
 
     /**
-     * 设置 OSGi 启动器（由 Spring 注入，替代静态持有）。
+      * 设置 osgi 启动器（由 Spring 注入，替代静态持有）。
      *
-     * @param osgiLauncher OSGi 启动器
+     * @param osgiLauncher osgi 启动器
      */
     public void setOsgiLauncher(OsgiLauncher osgiLauncher) {
         this.osgiLauncher = osgiLauncher;
     }
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "osgi";
     }
@@ -56,7 +56,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return false;
     }
@@ -92,7 +92,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取BeanDefinition */
+    /** 获取Beandefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed) {
             return null;
@@ -128,7 +128,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -158,7 +158,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -174,7 +174,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** ContainsBean */
+    /** containsBean */
     public boolean containsBean(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -183,19 +183,19 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     }
 
     @Override
-    /** 获取BeanDefinitionNames */
+    /** 获取Beandefinition名称 */
     public Collection<String> getBeanDefinitionNames() {
         return Collections.emptyList();
     }
 
     @Override
-    /** 获取BeansWithAnnotation */
+    /** 获取Beanwith注解 */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }
 
     @Override
-    /** 获取BeansWithMethodAnnotation */
+    /** 获取Beanwith方法注解 */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }

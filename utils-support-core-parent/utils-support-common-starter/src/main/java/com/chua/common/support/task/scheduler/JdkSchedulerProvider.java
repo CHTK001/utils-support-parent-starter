@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * </ol>
  *
  * <p>线程安全：使用 {@link ReentrantLock} 保护任务注册表的并发修改，
- * 使用 {@link ConcurrentHashMap} 存储任务和 Future 映射。
+   * 使用 {@link ConcurrentHashMap} 存储任务和 期货 映射。
  *
  * @author CH
  * @since 1.0.0
@@ -51,7 +51,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     private final ExecutorService virtualThreadExecutor;
 
     /**
-     * 调度 Future 注册表（任务 ID → 调度 Future）
+      * 调度 期货 注册表（任务 标识 → 调度 期货）
      */
     private final ConcurrentHashMap<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
@@ -82,7 +82,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-     * 调度一个任务（指定任务 ID）
+      * 调度一个任务（指定任务 标识）
      *
      * <p>如果指定 ID 已存在调度任务，会先取消旧任务再注册新任务。
      * 注册完成后立即计算第一次触发时间并开始调度。
@@ -179,7 +179,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     }
 
     /**
-     * 取消指定 ID 的调度任务
+      * 取消指定 标识 的调度任务
      *
      * @param id 任务唯一标识
      * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractSchedulerProvider implements SchedulerProvider {
 
-    /** 任务注册表：taskId -> 调度任务 */
+    /** 任务注册表：任务id -> 调度任务 */
     protected final Map<String, ScheduledTask> taskMap = new ConcurrentHashMap<>();
     /** 调度器是否处于运行状态 */
     protected volatile boolean running = true;
@@ -31,7 +31,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 以指定 ID 注册并调度任务：登记到任务表后委托 {@link #doSchedule}。
+      * 以指定 标识 注册并调度任务：登记到任务表后委托 {@link #doSchedule}。
      */
     @Override
     public ScheduledTask schedule(String id, Runnable task, Trigger trigger) {
@@ -42,7 +42,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     }
 
     /**
-     * 更新指定任务的触发器；任务不存在时返回 null（调用方自行判定）。
+      * 更新指定任务的触发器；任务不存在时返回 空（调用方自行判定）。
      */
     @Override
     public ScheduledTask reschedule(String id, Trigger trigger) {
@@ -108,7 +108,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     /**
      * 执行具体调度：将任务按触发器交给底层调度设施，由子类实现。
      *
-     * @param id      任务 ID
+     * @param id      任务 标识
      * @param task    业务逻辑
      * @param trigger 触发器
      */
@@ -117,7 +117,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     /**
      * 重新调度指定任务（触发器已更新），由子类实现。
      *
-     * @param id      任务 ID
+     * @param id      任务 标识
      * @param trigger 新触发器
      */
     protected abstract void doReschedule(String id, Trigger trigger);
@@ -125,7 +125,7 @@ public abstract class AbstractSchedulerProvider implements SchedulerProvider {
     /**
      * 取消底层设施中的指定任务，由子类实现。
      *
-     * @param id 任务 ID
+     * @param id 任务 标识
      */
     protected abstract void doCancel(String id);
 

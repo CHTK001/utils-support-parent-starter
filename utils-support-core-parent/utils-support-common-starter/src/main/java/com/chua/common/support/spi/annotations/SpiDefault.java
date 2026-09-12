@@ -52,6 +52,8 @@ import java.lang.annotation.*;
  *     @Spi("sms")
  *     private MessageService defaultMessageService;
  * }
+ * }</pre>募 消息服务 默认消息服务;
+ * }
  * }</pre>
  *
  * <p> 注意事项：
@@ -69,7 +71,7 @@ import java.lang.annotation.*;
  *
  * @author CH
  * @since 2024-01-01
- * @version 1.0.0
+   * @版本 1.0.0
  * @see Spi
  */
 @Documented

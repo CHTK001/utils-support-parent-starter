@@ -18,9 +18,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 动漫风格迁移图像滤镜（AnimeGANv2）
+   * 动漫风格迁移图像滤镜（animeganv2）
  * <p>
- * 基于 AnimeGANv2 ONNX 模型的动漫风格迁移滤镜，
+   * 基于 animeganv2 ONNX 模型的动漫风格迁移滤镜，
  * 支持以下 4 种动漫风格：
  * <ul>
  *   <li>hayao - 宫崎骏风格</li>
@@ -40,10 +40,10 @@ import java.io.OutputStream;
  * BufferedImage result = filter.converter(inputImage);
  * </pre>
  * <p>
- * 依赖：需要引入对应的 models-parent 模块（如 utils-support-models-onnx-animegan-hayao）
+   * 依赖：需要引入对应的 模型-父 模块（如 utils-support-onnx-animegan-hayao）
  *
  * @author CH
- * @version 4.0.0.42
+   * @版本 4.0.0.42
  * @since 2026/8/15
  */
 @Slf4j
@@ -105,7 +105,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public BufferedImage converter(BufferedImage image) throws Exception {
         if (image == null) {
             throw new IllegalArgumentException("输入图像不能为空");
@@ -116,7 +116,7 @@ public class AnimeGanImageFilter implements ImageFilter {
         }
 
         try {
-            // 1. BufferedImage → byte[]
+ // 1. 缓冲镜像 → byte[]
             byte[] imageData = toBytes(image, "png");
 
             // 2. 通过引擎获取 Translator 并推理
@@ -128,7 +128,7 @@ public class AnimeGanImageFilter implements ImageFilter {
 
             Object result = translator.translate(imageData);
 
-            // 3. 结果转换：DJL Image → BufferedImage
+ // 3. 结果转换：DJL 镜像 → 缓冲镜像
             BufferedImage outputImage;
             if (result instanceof Image djlImage) {
                 outputImage = djlImageToBufferedImage(djlImage);
@@ -155,7 +155,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public OutputStream converter(InputStream image) throws Exception {
         BufferedImage inputImage = ImageUtils.toBufferedImage(ImageUtils.decode(image.readAllBytes()));
         BufferedImage outputImage = converter(inputImage);
@@ -165,19 +165,19 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat() {
         return "png";
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat(String name) {
         return name != null ? name : getImageFormat();
     }
 
     /**
-     * 将 BufferedImage 转换为字节数组
+      * 将 缓冲镜像 转换为字节数组
      *
      * @param image  图像
      * @param format 格式（如 "png", "jpg"）
@@ -189,28 +189,28 @@ public class AnimeGanImageFilter implements ImageFilter {
     }
 
     /**
-     * 将 DJL Image 转换为 BufferedImage
+      * 将 DJL 镜像 转换为 缓冲镜像
      *
-     * @param djlImage DJL Image 对象
+     * @param djlImage DJL 镜像 对象
      * @return BufferedImage
      */
     private static BufferedImage djlImageToBufferedImage(Image djlImage) {
         // DJL Image 的 getWrappedImage() 返回底层 OpenCV/BufferedImage 对象
-        // 或通过 toNDArray → BufferedImage 转换
+ // 或通过 转为ndarray → 缓冲镜像 转换
         try {
-            // 尝试直接获取 BufferedImage
+ // 尝试直接获取 缓冲镜像
             Object wrapped = djlImage.getWrappedImage();
             if (wrapped instanceof BufferedImage bi) {
                 return bi;
             }
         } catch (Exception ignored) {
-            // 某些 DJL 实现可能不支持 getWrappedImage
+ // 某些 DJL 实现可能不支持 获取wrapped镜像
         }
 
-        // 回退方案：通过 NDArray 转换
+ // 回退方案：通过 ndarray 转换
         try (var manager = ai.djl.ndarray.NDManager.newBaseManager()) {
             ai.djl.ndarray.NDArray array = djlImage.toNDArray(manager);
-            // NHWC → BufferedImage
+ // NHWC → 缓冲镜像
             array = array.clip(0, 255).toType(ai.djl.ndarray.types.DataType.UINT8, false);
             Image result = ImageFactory.getInstance().fromNDArray(array);
             Object wrapped = result.getWrappedImage();

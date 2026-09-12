@@ -20,11 +20,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @param <T> 可序列化的目标类型
  * @author CH
+ * @since 4.0.0
  */
 @Spi("kryo")
 @Slf4j
 public class KryoSerializer<T extends Serializable> implements Serializer<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * Kryo 实例缓存池，按实体类类型缓存 Kryo 实例
@@ -52,8 +53,8 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 获取或创建线程安全的 Kryo 实例。
      * <p>
-     * 每个实体类类型对应一个唯一的 Kryo 实例，通过 ConcurrentHashMap 缓存。
-     * Kryo 配置：允许循环引用、不要求注册类、使用默认 InstantiatorStrategy。
+      * 每个实体类类型对应一个唯一的 Kryo 实例，通过 并发哈希映射 缓存。
+      * Kryo 配置：允许循环引用、不要求注册类、使用默认 instantiatorstrategy。
      * </p>
      *
      * @return Kryo 实例
@@ -73,7 +74,7 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 将对象序列化为字节数组。
      *
-     * @param object 待序列化的对象，null 返回空字节数组
+     * @param object 待序列化的对象，空 返回空字节数组
      * @return 序列化后的字节数组
      */
     @Override
@@ -99,7 +100,7 @@ public class KryoSerializer<T extends Serializable> implements Serializer<T> {
     /**
      * 将字节数组反序列化为对象。
      *
-     * @param bytes 序列化后的字节数组，null 或空数组返回 null
+     * @param bytes 序列化后的字节数组，空 或空数组返回 空
      * @return 反序列化后的对象
      */
     @Override

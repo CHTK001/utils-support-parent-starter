@@ -44,7 +44,7 @@ public class IniWriteBuilder extends WriteBuilder {
     /**
      * 追加待写入数据。
      *
-     * @param data INI 数据（Map 或 List&lt;Map&gt;）
+     * @param data INI 数据（映射 或 列表&lt;映射&gt;）
      * @return this
      */
     @SuppressWarnings("unchecked")
@@ -95,9 +95,9 @@ public class IniWriteBuilder extends WriteBuilder {
     }
 
     /**
-     * 判断 Map 是否为嵌套 Section 结构（value 也是 Map）。
+      * 判断 映射 是否为嵌套 Section 结构（值 也是 映射）。
      *
-     * @param map 待判断的 Map
+     * @param map 待判断的 映射
      * @return true 表示嵌套 Section 结构
      */
     private boolean isNestedSectionMap(Map<String, Object> map) {
@@ -118,7 +118,7 @@ public class IniWriteBuilder extends WriteBuilder {
     private void writeNestedMap(StringBuilder sb, Map<String, Map<String, String>> sections) {
         for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
             String sectionName = section.getKey();
-            // 将 Section 所有属性转为一行，供 testRow 过滤
+ // 将 Section 所有属性转为一行，供 测试row 过滤
             Map<String, Object> sectionRow = new LinkedHashMap<>(section.getValue());
             if (!testRow(sectionRow)) {
                 continue;

@@ -21,21 +21,28 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * WD-v1-4 MoAT Tagger V2 自动标签 Translator（448×448，NHWC BGR→RGB，9083 标签）。
+   * WD-v1-4 moat Tagger V2 自动标签 Translator（448×448，NHWC BGR→RGB，9083 标签）。
  *
  * <p>输入 448×448 NHWC，ImageNet 均值方差，输出 9083 维 sigmoid 标签分数。</p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @param topk topk
+ * @param csvPath csv路径
  */
 @Slf4j
 public class MoatTaggerTranslator implements Translator<Image, Classifications> {
 
-    private static final int INPUT_SIZE = 448;
-    private static final int TOP_K = 20;
+    private static final int INPUT_SIZE = 448; // 输入大小
+    private static final int TOP_K = 20; // TOP_K
 
-    private final int topk;
-    private List<String> classes;
+    private final int topk; // topk
+    private List<String> classes; // 类
+    /**
+      * moattaggertranslator。
+     * @param topk topk
+     * @param csvPath csv路径
+     */
     private final Path csvPath;
 
     public MoatTaggerTranslator() {
@@ -78,7 +85,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
         array = array.toType(DataType.FLOAT32, false).div(255f);
         // NHWC [H,W,3] -> [1, H, W, 3] batch，保持 NHWC 输入（input_1 要求 NHWC BGR）
         // 端输入为 NHWC BGR，故先 BGR->RGB (channel 0<->2 交换)
-        // toNDArray 出 BGR，需转 RGB：手工交换通道
+ // 转为ndarray 出 BGR，需转 RGB：手工交换通道
         float[] bgr = array.toFloatArray();
         // bgr 是 HWC float，交换通道
         int hw = INPUT_SIZE * INPUT_SIZE;
@@ -109,7 +116,9 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
         var prob = list.singletonOrThrow();
         float[] scores = prob.toFloatArray();
         List<Integer> idx = new ArrayList<>();
-        for (int i = 0; i < scores.length; i++) idx.add(i);
+        for (int i = 0; i < scores.length; i++) {
+            idx.add(i);
+        }
         idx.sort(Comparator.comparingDouble((Integer i) -> -scores[i]));
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
@@ -125,11 +134,18 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     @Override public Batchifier getBatchifier() { return Batchifier.STACK; }
 
     private static Path resolveModelRoot(Path modelPath) {
-        if (modelPath == null) return Path.of(".");
+        if (modelPath == null) {
+            return Path.of(".");
+        }
         Path n = modelPath.toAbsolutePath().normalize();
         return java.nio.file.Files.isDirectory(n) ? n : (n.getParent() == null ? n : n.getParent());
     }
 
+    /**
+     * 加载csv。
+     * @param csv csv
+     * @return 加载csv的结果
+     */
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {
@@ -137,7 +153,9 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
             while ((line = br.readLine()) != null) {
                 if (first) { first = false; continue; }
                 String[] parts = line.split(",", -1);
-                if (parts.length >= 2) names.add(parts[1].trim());
+                if (parts.length >= 2) {
+                    names.add(parts[1].trim());
+                }
             }
         }
         return names;

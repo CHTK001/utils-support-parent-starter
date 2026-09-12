@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 抽象引擎基类，提供默认的 Engine 接口实现。
  * <p>
  * 子类只需实现 {@link #executeNewQuery} 方法即可获得完整的 ORM 能力。
- * UPDATE/DELETE 操作默认基于内存 dataStores 执行，子类可重写
+   * 更新/删除 操作默认基于内存 数据存储 执行，子类可重写
  * {@link #executeUpdate} 和 {@link #executeDelete} 实现真实数据库操作。
  * </p>
  *
@@ -75,7 +75,13 @@ public abstract class AbstractEngine implements Engine {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 添加DataSource */
+    /**
+     * 添加数据源
+     *
+     * @param name 名称
+     * @param ds ds
+     * @return 添加数据源的结果
+     */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
@@ -85,14 +91,14 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         dataStores.put(name, new ArrayList<>(data));
         if (defaultDataSourceName == null) {
@@ -102,27 +108,36 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String n) {
         return null;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @param n n
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取DataSource */
+    /**
+     * 获取数据源
+     *
+     * @return 获取数据源的结果
+     */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -134,7 +149,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    /** 获取DefaultDataSourceName */
+    /** 获取默认数据源名称 */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
@@ -245,14 +260,16 @@ public abstract class AbstractEngine implements Engine {
         if (result == null || result.isEmpty()) {
             return result;
         }
-        // 如果设置了 limit 但 dialect 不支持物理分页，内存截取
+ // 如果设置了 限制 但 dialect 不支持物理分页，内存截取
         if (sql.hasLimit()) {
             int from = sql.offset();
             int to = Math.min(from + sql.limit(), result.size());
-            if (from >= result.size()) return Collections.emptyList();
+            if (from >= result.size()) {
+                return Collections.emptyList();
+            }
             result = result.subList(from, to);
         }
-        // 过滤 null 元素，避免排序引发 NPE
+ // 过滤 空 元素，避免排序引发 NPE
         List<T> valid = result.stream()
                 .filter(java.util.Objects::nonNull)
                 .toList();
@@ -265,11 +282,11 @@ public abstract class AbstractEngine implements Engine {
     }
 
     /**
-     * 按 ORDER BY 列表比较两个对象。
+      * 按 订单 BY 列表比较两个对象。
      *
      * @param a        对象 A
      * @param b        对象 B
-     * @param orderBys 排序字段列表，格式为 "fieldName ASC" 或 "fieldName DESC"
+     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
      * @param <T>      对象类型
      * @return 比较结果
      */
@@ -305,7 +322,7 @@ public abstract class AbstractEngine implements Engine {
      *
      * @param bean  对象实例
      * @param field 字段名
-     * @return 属性值，获取失败返回 null
+     * @return 属性值，获取失败返回 空
      */
     private static Object getPropertyValue(Object bean, String field) {
         return MethodCache.getValue(bean, field);
@@ -368,7 +385,12 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
-    /** 执行更新InMemory */
+    /**
+     * 执行更新入内存
+     *
+     * @param sql SQL
+     * @return 执行更新入内存的结果
+     */
     private <T> int executeUpdateInMemory(UpdateSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -380,7 +402,7 @@ public abstract class AbstractEngine implements Engine {
             return 0;
         }
 
-        // 解析 SET 子句，分离参数
+ // 解析 设置 子句，分离参数
         List<Object> params = sql.params();
         Map<String, Object> setValues = new LinkedHashMap<>();
         String[] setParts = setClause.split(", ");
@@ -392,7 +414,7 @@ public abstract class AbstractEngine implements Engine {
             }
         }
 
-        // WHERE 参数在 SET 参数之后
+ // WHERE 参数在 设置 参数之后
         List<Object> whereParams;
         int totalParams = params.size();
         if (totalParams > setCount) {
@@ -415,7 +437,12 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
-    /** 执行删除InMemory */
+    /**
+     * 执行删除入内存
+     *
+     * @param sql SQL
+     * @return 执行删除入内存的结果
+     */
     private <T> int executeDeleteInMemory(DeleteSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -491,7 +518,7 @@ public abstract class AbstractEngine implements Engine {
     /**
      * 解析实体类对应的表名。
      * <p>优先读取 {@link TableName} 注解；未标注时将驼峰命名
-     * 转换为下划线命名（如 MyUser → my_user）。</p>
+      * 转换为下划线命名（如 my用户 → my_用户）。</p>
      *
      * @param entityClass 实体类
      * @param <T>         实体类型

@@ -27,6 +27,7 @@ import java.util.function.Consumer;
  *     .onStep(...)              // 配置步骤
  *     .exit()                    // 便捷方法
  *     .taskEnd()                // 结束定义，返回 builder
+ * }</pre>回 builder
  * }</pre>
  *
  * <p><strong>核心设计：</strong></p>
@@ -100,6 +101,7 @@ import java.util.function.Consumer;
  *     .branch("no", "errorNode")
  *     .taskEnd()
  *     .build();
+ * }</pre>   * .构建();
  * }</pre>
  *
  * @author CH
@@ -109,7 +111,7 @@ import java.util.function.Consumer;
  */
 public class TaskDefinition {
 
-    /** ID */
+    /** 标识 */
     private final String id;
     /** 处理器 */
     private PipelineNode handler;
@@ -143,7 +145,7 @@ public class TaskDefinition {
      * 完成定义，将任务节点添加到流水线，返回构建器继续链式配置。
      *
      * <p>与 {@link PipelineBuilder#taskStart(String, PipelineNode)} 配对使用，
-     * 构成完整的任务定义：taskStart → ... → taskEnd。</p>
+      * 构成完整的任务定义：任务启动 → ... → 任务结束。</p>
      *
      * @return PipelineBuilder
      */
@@ -186,6 +188,7 @@ public class TaskDefinition {
      *     .taskStart("process", ctx -> { process(ctx); return null; }).taskEnd()
      *     .taskStart("done", ctx -> { cleanup(ctx); return null; }).pipelineEnd();
      *     // ↑ 等价于 .taskEnd().end("done").build()
+     * }</pre>束("done").构建()
      * }</pre>
      *
      * @return 构建完成的 Pipeline 实例
@@ -200,12 +203,12 @@ public class TaskDefinition {
      * 设置无返回值的步骤处理器（Consumer 模式）。
      *
      * <p>适用于只需执行副作用、不需要路由到其他节点的场景。
-     * 自动将 Consumer 包装为返回 null 的 PipelineNode。</p>
+      * 自动将 Consumer 包装为返回 空 的 pipeline节点。</p>
      *
      * <p>等价于：</p>
      * <pre>{@code
      * .task("name", ctx -> { doWork(ctx); return null; })
-     * }</pre>
+     * }</pre> * }</pre>
      *
      * <p>用法示例：</p>
      * <pre>{@code
@@ -215,6 +218,8 @@ public class TaskDefinition {
      *     processData(ctx.getCurrentData());
      * })
      * .taskEnd()
+     * }</pre>)
+      * .任务结束()
      * }</pre>
      *
      * @param action Consumer 回调，无返回值
@@ -250,9 +255,10 @@ public class TaskDefinition {
      *     return "A".equals(type) ? "nodeA" : "nodeB";
      * })
      * .taskEnd()
+     * }</pre>    * .任务结束()
      * }</pre>
      *
-     * @param handler PipelineNode 处理器，返回值决定路由
+     * @param handler pipeline节点 处理器，返回值决定路由
      * @return this
      */
     public TaskDefinition step(PipelineNode handler) {
@@ -261,10 +267,10 @@ public class TaskDefinition {
     }
 
     /**
-     * 便捷方法：执行后自动终止流水线（等价于 action=EXIT）。
+      * 便捷方法：执行后自动终止流水线（等价于 动作=EXIT）。
      *
      * <p>包装 handler，在执行完毕后设置 {@code ctx.setAction(Action.EXIT)}，
-     * 无论 handler 返回什么值，流水线都将终止。</p>
+      * 无论 处理器 返回什么值，流水线都将终止。</p>
      *
      * <p>等价于：</p>
      * <pre>{@code
@@ -273,6 +279,7 @@ public class TaskDefinition {
      *     ctx.setAction(Action.EXIT);
      *     return null;
      * })
+     * }</pre>    * })
      * }</pre>
      *
      * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
@@ -302,9 +309,9 @@ public class TaskDefinition {
      * .taskStart("callApi", ctx -> { ... })
      *     .retry(new RetryConfig().setMaxRetries(3).setDelay(1000))
      *     .taskEnd()
-     * }</pre>
+     * }</pre>pre>
      *
-     * @param retryConfig 重试配置，null 表示不重试
+     * @param retryConfig 重试配置，空 表示不重试
      * @return this
      * @see com.chua.common.support.task.retry.RetryConfig
      * @see com.chua.common.support.task.retry.RetryFlow
@@ -351,9 +358,13 @@ public class TaskDefinition {
      *         // 校验...
      *     })
      *     .taskEnd()
+     * }</pre>.获取数据("解析");
+     *         // 校验...
+     *     })
+      * .任务结束()
      * }</pre>
      *
-     * @param unitIds 依赖的节点 ID 列表
+     * @param unitIds 依赖的节点 标识 列表
      * @return this
      * @see PipelineContext#getData(String)
      * @see PipelineContext#getNodeOutput(String)
@@ -376,6 +387,7 @@ public class TaskDefinition {
      * .branch("yes", "processNode")      // 添加分支
      * .branch("no", "errorNode")
      * .taskEnd()                         // 完成定义
+     * }</pre>          // 完成定义
      * }</pre>
      *
      * @return TaskDecisionDefinition
@@ -421,6 +433,7 @@ public class TaskDefinition {
      *     .branch("b", branchB)
      *     .errorStrategy(ForkErrorStrategy.WAIT_ALL)
      * .taskEnd()                                 // 完成定义
+     * }</pre>       // 完成定义
      * }</pre>
      *
      * @return TaskForkDefinition
@@ -430,7 +443,7 @@ public class TaskDefinition {
     public TaskForkDefinition fork() {
         TaskForkDefinition def = new TaskForkDefinition(id, builder);
         if (handler != null) {
-            // handler 作为前置处理器
+ // 处理器 作为前置处理器
             def.onStep(ctx -> handler.execute(ctx));
         }
         return def;
@@ -454,6 +467,8 @@ public class TaskDefinition {
      *         log.info("Parallel completed: {}", result.getOutput());
      *     })
      * .taskEnd()
+     * }</pre>})
+      * .任务结束()
      * }</pre>
      *
      * @param subPipeline 并行子流水线实例
@@ -469,7 +484,7 @@ public class TaskDefinition {
      * 便捷方法：执行后自动终止流水线。
      *
      * <p>包装 handler，在执行完毕后设置 {@code ctx.setAction(Action.EXIT)}，
-     * 无论 handler 返回什么值，流水线都将终止。</p>
+      * 无论 处理器 返回什么值，流水线都将终止。</p>
      *
      * <p>等价于：</p>
      * <pre>{@code
@@ -478,6 +493,7 @@ public class TaskDefinition {
      *     ctx.setAction(Action.EXIT);
      *     return null;
      * })
+     * }</pre>    * })
      * }</pre>
      *
      * <p>与 {@link #ext()} 完全等价。</p>
@@ -502,7 +518,7 @@ public class TaskDefinition {
     }
 
     /**
-     * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.nodeLocalData）。
+      * 设置节点参数（JSON 构建时传入，执行时注入到 ctx.节点本地数据）。
      *
      * @param params 节点参数映射
      * @return this
@@ -546,6 +562,8 @@ public class TaskDefinition {
      * })
      * .env(Map.of("modelPath", "/models/ocr-v3.onnx", "threshold", 0.85))
      * .taskEnd()
+     * }</pre>路径", "/模型/ocr-v3.onnx", "阈值", 0.85))
+      * .任务结束()
      * }</pre>
      *
      * @param env 环境参数映射
@@ -567,7 +585,7 @@ public class TaskDefinition {
      * .env("modelPath", "/models/ocr-v3.onnx")
      * .env("threshold", 0.85)
      * .taskEnd()
-     * }</pre>
+     * }</pre>  * }</pre>
      *
      * @param key   参数键
      * @param value 参数值
@@ -582,7 +600,9 @@ public class TaskDefinition {
     }
 
     /**
-     * 包装 handler：执行后设置 EXIT 动作。
+      * 包装 处理器：执行后设置 EXIT 动作。
+     * @param original 原始
+     * @return wrapwith结束的结果
      */
     private static PipelineNode wrapWithEnd(PipelineNode original) {
         return ctx -> {

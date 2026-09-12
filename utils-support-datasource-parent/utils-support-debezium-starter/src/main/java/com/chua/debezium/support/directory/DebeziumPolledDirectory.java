@@ -71,7 +71,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
@@ -79,7 +79,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     @Override
     /** 开始 */
     public void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor pollerExecutor) {
-        // event-driven, executor 传 null 即可
+ // 事件-driven, 执行器 传 空 即可
 
         // 环境自动检测与设置
         String connectorType = environment.getProperty("debezium.connector.type");
@@ -140,7 +140,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
 
         props.setProperty("connector.class", connectorClass);
 
-        // 透传额外的 database./snapshot./tombstones./key. 开头的属性
+ // 透传额外的 database./snapshot./tombstones./键. 开头的属性
         for (var entry : environment.getProperties().entrySet()) {
             String k = entry.getKey();
             if (k.startsWith("database.") || k.startsWith("snapshot.")
@@ -168,7 +168,11 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         log.info("[debezium-cdc] CDC 已启动: listenPath={}, connectorClass={}", listenPath, connectorClass);
     }
 
-    /** 分发 */
+    /**
+     * 分发
+     *
+     * @param value 值
+     */
     private void dispatch(String value) {
         String op = extractOp(value);
         String table = extractTable(value);
@@ -196,7 +200,12 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         }
     }
 
-    /** ExtractTable */
+    /**
+     * extracttable
+     *
+     * @param value 值
+     * @return extractTable的结果
+     */
     private String extractTable(String value) {
         int idx = value.indexOf("\"table\":\"");
         if (idx < 0) {
@@ -207,7 +216,12 @@ public class DebeziumPolledDirectory implements PolledDirectory {
         return end > start ? value.substring(start, end) : null;
     }
 
-    /** ExtractOp */
+    /**
+     * extractop
+     *
+     * @param value 值
+     * @return extractOp的结果
+     */
     private String extractOp(String value) {
         int idx = value.indexOf("\"op\":\"");
         if (idx < 0) {
@@ -223,7 +237,7 @@ public class DebeziumPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 是否DelegatedOperatingSystem */
+    /** 是否delegatedoperating系统 */
     public boolean isDelegatedOperatingSystem() {
         return true;
     }

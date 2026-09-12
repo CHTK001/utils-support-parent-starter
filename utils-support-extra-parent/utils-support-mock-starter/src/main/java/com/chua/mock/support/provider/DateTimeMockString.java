@@ -25,6 +25,8 @@ public class DateTimeMockString implements MockString {
 
     /**
      * 日期时间格式
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 

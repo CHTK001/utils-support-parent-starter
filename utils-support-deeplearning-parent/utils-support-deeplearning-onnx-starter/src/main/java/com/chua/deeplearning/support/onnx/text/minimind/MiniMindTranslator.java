@@ -17,26 +17,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MiniMind 因果语言模型 Translator。
+   * minimind 因果语言模型 Translator。
  * <p>
- * MiniMind 是一个基于 Qwen3 架构的小型中文语言模型（~64M 参数），
- * 使用 RMSNorm + RoPE + SwiGLU + GQA（8 attention heads / 4 KV heads）。
- * 模型通过 PyTorch 2.13 + minimind/model/model_minimind.py 导出为 ONNX
- * （opset 14, fp32, dynamic batch + sequence, 单文件 inline weights）。
+   * minimind 是一个基于 通义千问3 架构的小型中文语言模型（~64M 参数），
+   * 使用 rmsnorm + rope + swiglu + GQA（8 attention heads / 4 KV heads）。
+   * 模型通过 pytorch 2.13 + minimind/模型/模型_minimind.py 导出为 ONNX
+   * （opset 14, fp32, dynamic 批量 + sequence, 单文件 inline 权重）。
  * </p>
  * <p>
- * 本 Translator 实现 String → String 的文本生成：
+   * 本 Translator 实现 字符串 → 字符串 的文本生成：
  * <ol>
  *   <li>使用纯 Java BPE tokenizer（{@link MiniMindTokenizer}）分词，绕过 DJL
  *       自带的 Rust tokenizers（与 minimind 新版 tokenizer.json 兼容性差）</li>
  *   <li>通过 DJL {@code ctx.getModel().getBlock().forward(...)} 走标准 ONNX 推理，
- *       每次一步（自回归生成），直到遇到 EOS（{@code <|im_end|>}, id=2）或达到最大长度</li>
+   * 每次一步（自回归生成），直到遇到 EOS（{@code <|im_end|>}, 标识=2）或达到最大长度</li>
  *   <li>将生成的 token 解码为文本返回</li>
  * </ol>
  * </p>
  * <p>
- * 模型输入：{@code input_ids} [batch, seq] int64 + （可选）{@code attention_mask}<br>
- * 模型输出：{@code logits} [batch, seq, 6400] float32
+   * 模型输入：{@code input_ids} [批量, seq] int64 + （可选）{@code attention_mask}<br>
+   * 模型输出：{@code logits} [批量, seq, 6400] float32
  * </p>
  *
  * @author CH
@@ -51,17 +51,17 @@ public class MiniMindTranslator implements Translator<String, String> {
     private static final int MAX_INPUT_LENGTH = 256;
 
     /**
-     * 最大生成 token 数
+      * 最大生成 令牌 数
      */
     private static final int MAX_NEW_TOKENS = 64;
 
     /**
-     * EOS token ID（{@code <|im_end|>}，MiniMind 的对话结束符）
+      * EOS 令牌 标识（{@code <|im_end|>}，minimind 的对话结束符）
      */
     private static final long EOS_TOKEN_ID = 2L;
 
     /**
-     * BOS token ID（{@code <|im_start|>}）
+      * BOS 令牌 标识（{@code <|im_start|>}）
      */
     private static final long BOS_TOKEN_ID = 1L;
 
@@ -81,7 +81,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     private int[] cachedIds;
 
     /**
-     * DJL 参数存储（用于 block.forward）
+      * DJL 参数存储（用于 block.远期）
      */
     private final ParameterStore parameterStore = new ParameterStore();
 
@@ -122,13 +122,13 @@ public class MiniMindTranslator implements Translator<String, String> {
         if (onnxPath == null || !Files.exists(onnxPath)) {
             throw new IOException("MiniMind model.onnx not found in: " + modelRoot);
         }
-        // DJL 严格匹配 ONNX 输入数量：minimind 导出时只有 input_ids（无 attention_mask）
+ // DJL 严格匹配 ONNX 输入数量：minimind 导出时只有 输入_标识（无 attention_mask）
         hasAttentionMask = false;
         log.info("[MiniMind] ORT session ready (via DJL block): model={}", onnxPath);
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         currentInput = input;
         if (tokenizer == null) {
@@ -156,7 +156,7 @@ public class MiniMindTranslator implements Translator<String, String> {
         NDArray idsArray = ctx.getNDManager().create(ids2d);
         idsArray.setName("input_ids");
 
-        // ONNX 实际只需要 input_ids，但 DJL 要求所有 input 都在 NDList
+ // ONNX 实际只需要 输入_标识，但 DJL 要求所有 输入 都在 nd列表
         if (hasAttentionMask) {
             long[][] mask2d = new long[1][ids.length];
             for (int i = 0; i < ids.length; i++) {
@@ -170,7 +170,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         if (tokenizer == null) {
             throw new IllegalStateException("MiniMind translator not initialized");
@@ -187,8 +187,10 @@ public class MiniMindTranslator implements Translator<String, String> {
     /**
      * 贪婪解码生成文本。
      * <p>
-     * 使用 DJL block.forward 多次自回归调用。
+      * 使用 DJL block.远期 多次自回归调用。
      * </p>
+     * @param ctx ctx
+     * @return generateGreedy的结果
      */
     private String generateGreedy(TranslatorContext ctx) {
         long startTime = System.currentTimeMillis();
@@ -227,7 +229,7 @@ public class MiniMindTranslator implements Translator<String, String> {
                     inputs = new NDList(idsArray);
                 }
 
-                // DJL block forward
+ // DJL block 远期
                 NDList output = ctx.getModel().getBlock().forward(parameterStore, inputs, false);
 
                 NDArray logits = output.singletonOrThrow();
@@ -282,6 +284,8 @@ public class MiniMindTranslator implements Translator<String, String> {
 
     /**
      * argmax
+     * @param logits logits
+     * @return argmax的结果
      */
     private static int argmax(float[] logits) {
         int maxIdx = 0;
@@ -297,6 +301,8 @@ public class MiniMindTranslator implements Translator<String, String> {
 
     /**
      * 解析模型根目录
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
      */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
@@ -310,6 +316,9 @@ public class MiniMindTranslator implements Translator<String, String> {
 
     /**
      * 在模型目录中查找指定文件
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
      */
     private static Path findFile(Path root, String name) {
         if (root == null) {
@@ -330,6 +339,8 @@ public class MiniMindTranslator implements Translator<String, String> {
 
     /**
      * 查找 ONNX 模型文件
+     * @param modelRoot 模型根
+     * @return findonnx文件的结果
      */
     private static Path findOnnxFile(Path modelRoot) {
         Path onnxPath = modelRoot.resolve("model.onnx");

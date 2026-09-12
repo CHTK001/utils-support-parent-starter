@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * PP-DocLayout-L / PP-DocLayout_plus-L  ONNX Translator
+   * PP-doclayout-L / PP-doclayout_plus-L  ONNX Translator
  *
  * <p>文档版面分析（Layout Detection），RT-DETR-L 架构，DETR 输出格式
  * {@code [class_id, score, x1, y1, x2, y2]} 行 + count 输出。
@@ -45,17 +45,17 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     private static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
-     * PP-DocLayout-L 输入尺寸。
+      * PP-doclayout-L 输入尺寸。
      */
     private static final int INPUT_SIZE_L = 640;
 
     /**
-     * PP-DocLayout_plus-L 输入尺寸。
+      * PP-doclayout_plus-L 输入尺寸。
      */
     private static final int INPUT_SIZE_PLUS_L = 800;
 
     /**
-     * PP-DocLayout-L 标签（23 类，与 PaddleOCR inference.yml 一致）。
+      * PP-doclayout-L 标签（23 类，与 PaddleOCR 推理.yml 一致）。
      */
     private static final List<String> LABELS_L = List.of(
             "paragraph_title",
@@ -84,7 +84,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     );
 
     /**
-     * PP-DocLayout_plus-L 标签（21 类，与 PaddleOCR inference.yml 一致）。
+      * PP-doclayout_plus-L 标签（21 类，与 PaddleOCR 推理.yml 一致）。
      */
     private static final List<String> LABELS_PLUS_L = List.of(
             "paragraph_title",
@@ -168,12 +168,12 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-     * 注入运行参数（threshold 等）。
+      * 注入运行参数（阈值 等）。
      *
      * <p>由 {@link com.chua.deeplearning.support.engine.AbstractIdentificationEngine#get(String, Class, Map)}
      * 在门面调用时注入，覆盖模型默认阈值。</p>
      *
-     * @param options 运行参数（threshold / scoreThreshold 等）
+     * @param options 运行参数（阈值 / score阈值 等）
      */
     @Override
     public void configure(Map<String, Object> options) {
@@ -189,9 +189,9 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-     * 将 BufferedImage 处理为模型输入 NDList。
+      * 将 缓冲镜像 处理为模型输入 nd列表。
      *
-     * @param ctx   TranslatorContext
+     * @param ctx   translator上下文
      * @param input 输入图像
      * @return NDList
      */
@@ -230,10 +230,10 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-     * 解析模型输出为 DetectedObjects。
+      * 解析模型输出为 detected对象。
      *
-     * @param ctx  TranslatorContext
-     * @param list NDList
+     * @param ctx  translator上下文
+     * @param list nd列表
      * @return DetectedObjects
      */
     @Override
@@ -329,7 +329,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     /**
      * 确定检测数量。
      *
-     * @param list NDList
+     * @param list nd列表
      * @param rows 检测行
      * @return 检测数量
      */
@@ -361,7 +361,7 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
      * 从参数中提取阈值。
      *
      * @param arguments 参数
-     * @return 阈值或 null
+     * @return 阈值或 空
      */
     private Float extractThreshold(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
@@ -426,14 +426,14 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-     * 将 BufferedImage 经 OpenCV 缩放并转为 CHW 归一化 float 数组。
+      * 将 缓冲镜像 经 打开cv 缩放并转为 CHW 归一化 float 数组。
      *
      * <p>直接走 OpenCV Mat 缩放（INTER_CUBIC）并在 float 域提取像素，
-     * 避免 BufferedImage 往返的 8-bit 量化损失，与 python cv2.resize 路径一致。</p>
+      * 避免 缓冲镜像 往返的 8-钻头 量化损失，与 Python cv2.resize 路径一致。</p>
      *
-     * @param buf  BufferedImage
+     * @param buf  缓冲镜像
      * @param size 目标尺寸
-     * @return CHW 数组，长度 3 * size * size
+     * @return CHW 数组，长度 3 * 大小 * 大小
      */
     private float[] toChwFloatsOpenCv(java.awt.image.BufferedImage buf, int size) {
         org.opencv.core.Mat src = ImageUtils.toMat(buf);
@@ -466,9 +466,9 @@ public class PpDocLayoutLTranslator implements Translator<Image, DetectedObjects
     }
 
     /**
-     * 将 BufferedImage 转换为 CHW 归一化 float 数组（RGB，除以 255）。
+      * 将 缓冲镜像 转换为 CHW 归一化 float 数组（RGB，除以 255）。
      *
-     * @param buf BufferedImage
+     * @param buf 缓冲镜像
      * @return CHW 数组，长度 3 * H * W
      */
     private float[] toChwFloats(java.awt.image.BufferedImage buf) {

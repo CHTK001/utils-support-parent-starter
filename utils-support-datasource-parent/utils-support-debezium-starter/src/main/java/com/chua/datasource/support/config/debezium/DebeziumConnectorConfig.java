@@ -20,10 +20,10 @@ public interface DebeziumConnectorConfig {
     String connectorClass();
 
     /**
-     * 将外部配置写入 Debezium Properties。
+      * 将外部配置写入 Debezium 属性。
      *
      * @param props       Debezium 属性容器
-     * @param environment DirectoryPoller 环境
+     * @param environment 目录poller 环境
      */
     void configure(Properties props, DirectoryPollerEnvironment environment);
 }

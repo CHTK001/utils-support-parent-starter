@@ -50,7 +50,7 @@ public class JdkImageOperation implements ImageOperation {
                 throw new IOException("图片格式不能为空");
             }
 
-            // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
             var image = BufferedImageUtils.getBufferedImage(imageBytes);
             if (image == null) {
                 throw new IOException("无法解析图片数据");
@@ -67,7 +67,7 @@ public class JdkImageOperation implements ImageOperation {
                 resizedImage = BufferedImageUtils.zoomImage(image, targetWidth, targetHeight);
             }
 
-            // 将BufferedImage转换回字节数组
+ // 将缓冲镜像转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(resizedImage, format);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -85,7 +85,7 @@ public class JdkImageOperation implements ImageOperation {
                 throw new IOException("图片格式不能为空");
             }
 
-            // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
             var image = BufferedImageUtils.getBufferedImage(imageBytes);
             if (image == null) {
                 throw new IOException("无法解析图片数据");
@@ -99,7 +99,7 @@ public class JdkImageOperation implements ImageOperation {
 
             var croppedImage = BufferedImageUtils.getSubImage(new SubImageOptions(image, x, y, width, height));
 
-            // 将BufferedImage转换回字节数组
+ // 将缓冲镜像转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(croppedImage, format);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -117,7 +117,7 @@ public class JdkImageOperation implements ImageOperation {
                 throw new IOException("图片格式不能为空");
             }
 
-            // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
             var image = BufferedImageUtils.getBufferedImage(imageBytes);
             if (image == null) {
                 throw new IOException("无法解析图片数据");
@@ -125,7 +125,7 @@ public class JdkImageOperation implements ImageOperation {
 
             var rotatedImage = BufferedImageUtils.rotate(image, angle);
 
-            // 将BufferedImage转换回字节数组
+ // 将缓冲镜像转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(rotatedImage, format);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -147,7 +147,7 @@ public class JdkImageOperation implements ImageOperation {
                 throw new IOException("滤镜类型不能为空");
             }
 
-            // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
             var image = BufferedImageUtils.getBufferedImage(imageBytes);
             if (image == null) {
                 throw new IOException("无法解析图片数据");
@@ -167,7 +167,7 @@ public class JdkImageOperation implements ImageOperation {
                 default -> throw new IOException("不支持的滤镜类型: " + filterType);
             };
 
-            // 将BufferedImage转换回字节数组
+ // 将缓冲镜像转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(filteredImage, format);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -206,7 +206,7 @@ public class JdkImageOperation implements ImageOperation {
             }
 
             try {
-                // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
                 var image = BufferedImageUtils.getBufferedImage(imageBytes);
                 if (image == null) {
                     throw new IOException("无法解析图片数据");
@@ -258,7 +258,7 @@ public class JdkImageOperation implements ImageOperation {
                 throw new IOException("水印参数不能为空");
             }
 
-            // 将字节数组转换为BufferedImage
+ // 将字节数组转换为缓冲镜像
             var image = BufferedImageUtils.getBufferedImage(imageBytes);
             if (image == null) {
                 throw new IOException("无法解析图片数据");
@@ -312,7 +312,7 @@ public class JdkImageOperation implements ImageOperation {
 
             graphics.dispose();
 
-            // 将BufferedImage转换回字节数组
+ // 将缓冲镜像转换回字节数组
             return BufferedImageUtils.toBufferedImageArray(result, format);
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -322,7 +322,7 @@ public class JdkImageOperation implements ImageOperation {
      *
      * @param image          原始图片
      * @param params         水印参数
-     * @param watermarkImage 水印图片（可为null）
+     * @param watermarkImage 水印图片（可为空）
      * @return 水印位置坐标
      */
     private Point calculateWatermarkPosition(BufferedImage image, ImageOperation.WatermarkParams params, BufferedImage watermarkImage) {

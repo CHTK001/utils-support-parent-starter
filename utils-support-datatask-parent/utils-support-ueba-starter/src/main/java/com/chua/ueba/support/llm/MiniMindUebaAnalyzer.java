@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * MiniMind 语义解释器。
+   * minimind 语义解释器。
  * <p>
- * 复用 deeplearning-onnx-starter 中的 {@link MiniMindTranslator}，将结构化分析结果
+   * 复用 deeplearning-onnx-启动 中的 {@link MiniMindTranslator}，将结构化分析结果
  * （IP 异常 + 行为画像 + 风险分数）组装为提示词，生成人可读的风险解释。
  * 模型通过系统属性 {@code ueba.minimind.model.dir} 指定目录（需包含
  * {@code model.onnx} 与 {@code tokenizer.json}）；模型缺失或推理失败时
@@ -31,7 +31,7 @@ import java.util.Objects;
 @Slf4j
 public class MiniMindUebaAnalyzer implements AutoCloseable {
 
-    /** 系统属性名：MiniMind 模型目录 */
+    /** 系统属性名：minimind 模型目录 */
     public static final String MODEL_DIR_PROPERTY = "ueba.minimind.model.dir";
 
     /** 提示词中最近路径的最大展示条数 */
@@ -40,7 +40,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     /** 异常等级最大展示条数（正常等级不生成解释） */
     private static final String NORMAL_LEVEL = "NORMAL";
 
-    /** MiniMind 模型（懒加载，可能为 null） */
+    /** minimind 模型（懒加载，可能为 空） */
     private final ZooModel<String, String> model;
 
     /**
@@ -49,7 +49,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     private final boolean available;
 
     /**
-     * 构造解释器并尝试加载 MiniMind 模型。
+      * 构造解释器并尝试加载 minimind 模型。
      * <p>
      * 模型加载失败仅记录警告，实例仍可使用模板解释能力。
      * </p>
@@ -76,7 +76,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     /**
      * 构建 DJL 模型实例。
      *
-     * @param dir 模型目录，需包含 model.onnx 与 tokenizer.json
+     * @param dir 模型目录，需包含 模型.onnx 与 tokenizer.json
      * @return 加载完成的模型
      * @throws IOException    当模型文件缺失时
      * @throws ModelException 当 DJL 模型加载失败时
@@ -97,7 +97,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     /**
      * 是否可用（模型已加载）。
      *
-     * @return true 表示 MiniMind 可用
+     * @return true 表示 minimind 可用
      */
     public boolean isAvailable() {
         return available;
@@ -106,11 +106,11 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     /**
      * 生成风险语义解释。
      *
-     * @param ipAnomaly IP 异常检测结果，不能为 null
-     * @param behavior  行为画像，不能为 null
+     * @param ipAnomaly IP 异常检测结果，不能为 空
+     * @param behavior  行为画像，不能为 空
      * @param riskScore 综合风险分数，范围 [0, 1]
-     * @return 解释文本；模型不可用时返回模板解释，绝不为 null
-     * @throws IllegalArgumentException 当 ipAnomaly 或 behavior 为 null 时
+     * @return 解释文本；模型不可用时返回模板解释，绝不为 空
+     * @throws IllegalArgumentException 当 ipanomaly 或 行为 为 空 时
      */
     public String explain(IpAnomalyResult ipAnomaly, BehaviorProfile behavior, double riskScore) {
         Objects.requireNonNull(ipAnomaly, "ipAnomaly must not be null");
@@ -132,7 +132,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     }
 
     /**
-     * 组装 MiniMind 提示词。
+      * 组装 minimind 提示词。
      *
      * @param ipAnomaly IP 异常检测结果
      * @param behavior  行为画像
@@ -179,8 +179,8 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     /**
      * 截取路径列表，最多保留 {@link #MAX_RECENT_PATHS} 条。
      *
-     * @param paths 路径列表，允许为 null
-     * @return 截取后的列表，绝不为 null
+     * @param paths 路径列表，允许为 空
+     * @return 截取后的列表，绝不为 空
      */
     private static List<String> truncate(List<String> paths) {
         if (paths == null || paths.isEmpty()) {

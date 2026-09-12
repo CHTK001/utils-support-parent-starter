@@ -12,14 +12,14 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 
 
 /**
- * Emotion FERPlus                   
+   * 情绪 ferplus
  * <p>
  *             : [1, 3, 224, 224] RGB       
  *             : [1, 7]                   
  * <p>
  *          :
  * -                 224x224
- * -              ImageNet       
+   * -              镜像net
  * -           CHW       
  * <p>
  *          :
@@ -35,27 +35,27 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     /** Emotionlabels */
     private final String[] emotionLabels;
 
-    /** 创建 EmotionFerplusTranslator 实例 */
+    /** 创建 情绪ferplustranslator 实例 */
     public EmotionFerplusTranslator() {
         this(new String[]{"angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"});
     }
 
     /**
-     * 创建 EmotionFerplusTranslator 实例
-     * @param emotionLabels emotionLabels
+      * 创建 情绪ferplustranslator 实例
+     * @param emotionLabels 情绪标签
      */
     public EmotionFerplusTranslator(String[] emotionLabels) {
         this.emotionLabels = emotionLabels;
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         Object wrapped = input.getWrappedImage();
         if (!(wrapped instanceof java.awt.image.BufferedImage bufferedImage)) {
             throw new IllegalArgumentException("不支持的图像类型: " + wrapped.getClass().getName());
         }
-        // AWT 缩放（ONNX Runtime 引擎的 NDArray 不支持 resize）
+ // AWT 缩放（ONNX Runtime 引擎的 ndarray 不支持 resize）
         java.awt.image.BufferedImage resized = ImageUtils.resize(bufferedImage, 224, 224,
                 org.opencv.imgproc.Imgproc.INTER_LINEAR);
         int[] pixels = resized.getRGB(0, 0, 224, 224, null, 0, 224);
@@ -72,7 +72,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         float[] scores = logits.toFloatArray();
@@ -100,6 +100,8 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
 
     /**
      *        softmax       
+     * @param logits logits
+     * @return softmax的结果
      */
     private float[] softmax(float[] logits) {
         float max = 0.0f;

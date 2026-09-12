@@ -4,9 +4,9 @@ package com.chua.network.support.tshark.restorer;
  * MQTT 控制包协议还原器。
  *
  * <p>MQTT v3.1.1 / v5 固定头部：byte 0 = (PacketType << 4 | Flags)。
- * PacketType：1=CONNECT, 2=CONNACK, 3=PUBLISH, 4=PUBACK, 5=PUBREC, 6=PUBREL,
- * 7=PUBCOMP, 8=SUBSCRIBE, 9=SUBACK, 10=UNSUBSCRIBE, 11=UNSUBACK, 12=PINGREQ,
- * 13=PINGRESP, 14=DISCONNECT, 15=AUTH。</p>
+   * 数据包类型：1=连接, 2=CONNACK, 3=发布, 4=PUBACK, 5=PUBREC, 6=PUBREL,
+   * 7=PUBCOMP, 8=订阅, 9=SUBACK, 10=UNSUBSCRIBE, 11=UNSUBACK, 12=PINGREQ,
+   * 13=PINGRESP, 14=断开连接, 15=认证。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -14,7 +14,7 @@ package com.chua.network.support.tshark.restorer;
 public class MqttProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "mqtt";
     }
@@ -101,7 +101,12 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToPacketTypeName */
+    /**
+     * 转为数据包类型名称
+     *
+     * @param type 类型
+     * @return 转为数据包类型名称的结果
+     */
     private static String toPacketTypeName(int type) {
         return switch (type) {
             case 1 -> "CONNECT";

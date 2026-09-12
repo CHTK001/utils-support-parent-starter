@@ -12,12 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OnnxSpeechEnhancer implements SpeechEnhancer {
 
-    private String modelName;
-    private String modelPath;
-    private String device = "cpu";
+    private String modelName; // 模型名称
+    private String modelPath; // 模型路径
+    private String device = "cpu"; // device
 
     /**
-     * 创建 OnnxSpeechEnhancer 实例。
+      * 创建 onnx语音enhancer 实例。
      *
      * @param apiKey API 密钥（本地引擎可空）
      */

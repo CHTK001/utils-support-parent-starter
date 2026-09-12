@@ -24,32 +24,32 @@ public enum InterceptPoint {
     EXCEPTION("exception"),
 
     /**
-     * 日志方法调用前 — Logger.info/debug/error 等调用前
+      * 日志方法调用前 — 日志记录器.信息/调试/错误 等调用前
      */
     LOG_PRE("log_pre"),
 
     /**
-     * 日志方法调用后 — Logger.info/debug/error 等调用后
+      * 日志方法调用后 — 日志记录器.信息/调试/错误 等调用后
      */
     LOG_POST("log_post"),
 
     /**
-     * Socket 连接前
+      * 套接字 连接前
      */
     NET_CONNECT_PRE("net_connect_pre"),
 
     /**
-     * Socket 连接后
+      * 套接字 连接后
      */
     NET_CONNECT_POST("net_connect_post"),
 
     /**
-     * Socket 读取前
+      * 套接字 读取前
      */
     NET_READ_PRE("net_read_pre"),
 
     /**
-     * Socket 写入前
+      * 套接字 写入前
      */
     NET_WRITE_PRE("net_write_pre"),
 
@@ -112,15 +112,19 @@ public enum InterceptPoint {
         this.key = key;
     }
 
-    /** 获取Key */
+    /**
+     * 获取键
+     *
+     * @return 获取键的结果
+     */
     public String getKey() {
         return key;
     }
 
     /**
-     * 根据 key 获取插桩点。
+      * 根据 键 获取插桩点。
      *
-     * @param key 插桩点 key
+     * @param key 插桩点 键
      * @return 插桩点
      */
     public static InterceptPoint of(String key) {

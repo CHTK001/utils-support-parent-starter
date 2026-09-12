@@ -22,7 +22,7 @@ import java.util.Map;
 public class JdbcSink implements DataSink {
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "jdbc";
     }

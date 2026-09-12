@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 链式 Ngrok 客户端，基于官方 ngrok-java Agent SDK。
+   * 链式 Ngrok 客户端，基于官方 ngrok-Java 智能体 SDK。
  *
  * <p>用法：</p>
  * <pre>{@code
@@ -33,6 +33,9 @@ import java.util.List;
  *     // 隧道已建立，可读取 url
  *     System.out.println(client.getUrls());
  * }
+ * }</pre>隧道已建立，可读取 url
+ *     System.out.println(client.getUrls());
+ * }
  * }</pre>
  *
  * <p>支持以转发模式将外部流量代理到内部 URL：</p>
@@ -43,6 +46,8 @@ import java.util.List;
  *         .domain("example.ngrok-free.app")
  *         .forwardHttp(new URL("http://127.0.0.1:8080"))) {
  *     // 公网 https://example.ngrok-free.app -> 127.0.0.1:8080
+ * }
+ * }</pre>e.app -> 127.0.0.1:8080
  * }
  * }</pre>
  *
@@ -93,7 +98,7 @@ public class NgrokClient implements AutoCloseable {
     private Duration heartbeatTolerance = Duration.ofSeconds(DEFAULT_HEARTBEAT_TOLERANCE_SECONDS);
 
     /**
-     * 已连接的 ngrok Session
+      * 已连接的 ngrok 会话
      */
     private Session session;
 
@@ -108,7 +113,7 @@ public class NgrokClient implements AutoCloseable {
     private final List<Forwarder> forwarders = new ArrayList<>();
 
     /**
-     * 创建 NgrokClient 实例
+      * 创建 ngrok客户端 实例
      * @param authtoken authtoken
      */
     private NgrokClient(String authtoken) {
@@ -116,7 +121,7 @@ public class NgrokClient implements AutoCloseable {
     }
 
     /**
-     * 创建一个 NgrokClient 构造器。
+      * 创建一个 ngrok客户端 构造器。
      *
      * @param authtoken ngrok authtoken（可为空，为空时尝试读取 NGROK_AUTHTOKEN 环境变量）
      * @return NgrokClient 实例
@@ -126,10 +131,10 @@ public class NgrokClient implements AutoCloseable {
     }
 
     /**
-     * 设置 Session 元数据。
+      * 设置 会话 元数据。
      *
      * @param metadata 元数据
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient metadata(String metadata) {
         this.metadata = metadata;
@@ -140,7 +145,7 @@ public class NgrokClient implements AutoCloseable {
      * 设置自定义 ngrok 服务端地址（私有部署）。
      *
      * @param serverAddr 服务端地址，例如 {@code tunnel.example.com:443}
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient serverAddr(String serverAddr) {
         this.serverAddr = serverAddr;
@@ -151,7 +156,7 @@ public class NgrokClient implements AutoCloseable {
      * 设置私有部署 CA 证书。
      *
      * @param caCert CA 证书字节
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient caCert(byte[] caCert) {
         this.caCert = caCert;
@@ -162,7 +167,7 @@ public class NgrokClient implements AutoCloseable {
      * 设置心跳间隔。
      *
      * @param heartbeatInterval 心跳间隔
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient heartbeatInterval(Duration heartbeatInterval) {
         this.heartbeatInterval = heartbeatInterval;
@@ -173,7 +178,7 @@ public class NgrokClient implements AutoCloseable {
      * 设置心跳容忍。
      *
      * @param heartbeatTolerance 心跳容忍
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient heartbeatTolerance(Duration heartbeatTolerance) {
         this.heartbeatTolerance = heartbeatTolerance;
@@ -181,9 +186,9 @@ public class NgrokClient implements AutoCloseable {
     }
 
     /**
-     * 连接到 ngrok 服务，建立 Session。
+      * 连接到 ngrok 服务，建立 会话。
      *
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient connect() {
         if (session != null) {
@@ -250,8 +255,8 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 HTTP 监听。
      *
-     * @param builder 已配置好的 HttpBuilder
-     * @return 当前 NgrokClient
+     * @param builder 已配置好的 http构建器
+     * @return 当前 ngrok客户端
      */
     public NgrokClient listenHttp(HttpBuilder builder) {
         ensureSession();
@@ -268,9 +273,9 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 HTTP 转发到本地 URL。
      *
-     * @param builder 已配置好的 HttpBuilder
+     * @param builder 已配置好的 http构建器
      * @param url     内部目标地址
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient forwardHttp(HttpBuilder builder, URL url) {
         ensureSession();
@@ -287,8 +292,8 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 TCP 监听。
      *
-     * @param builder 已配置好的 TcpBuilder
-     * @return 当前 NgrokClient
+     * @param builder 已配置好的 tcp构建器
+     * @return 当前 ngrok客户端
      */
     public NgrokClient listenTcp(TcpBuilder builder) {
         ensureSession();
@@ -305,9 +310,9 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 TCP 转发到本地 URL。
      *
-     * @param builder 已配置好的 TcpBuilder
+     * @param builder 已配置好的 tcp构建器
      * @param url     内部目标地址
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient forwardTcp(TcpBuilder builder, URL url) {
         ensureSession();
@@ -324,8 +329,8 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 TLS 监听。
      *
-     * @param builder 已配置好的 TlsBuilder
-     * @return 当前 NgrokClient
+     * @param builder 已配置好的 tls构建器
+     * @return 当前 ngrok客户端
      */
     public NgrokClient listenTls(TlsBuilder builder) {
         ensureSession();
@@ -342,9 +347,9 @@ public class NgrokClient implements AutoCloseable {
     /**
      * 启动 TLS 转发到本地 URL。
      *
-     * @param builder 已配置好的 TlsBuilder
+     * @param builder 已配置好的 tls构建器
      * @param url     内部目标地址
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient forwardTls(TlsBuilder builder, URL url) {
         ensureSession();
@@ -359,11 +364,11 @@ public class NgrokClient implements AutoCloseable {
     }
 
     /**
-     * 阻塞当前线程，直到 Session 关闭。
+      * 阻塞当前线程，直到 会话 关闭。
      *
      * <p>通常在所有隧道建立后调用此方法，使进程保持运行。</p>
      *
-     * @return 当前 NgrokClient
+     * @return 当前 ngrok客户端
      */
     public NgrokClient block() {
         ensureSession();
@@ -400,9 +405,9 @@ public class NgrokClient implements AutoCloseable {
     }
 
     /**
-     * 获取底层 ngrok Session。
+      * 获取底层 ngrok 会话。
      *
-     * @return Session 实例（未连接时返回 null）
+     * @return Session 实例（未连接时返回 空）
      */
     public Session getSession() {
         return session;
@@ -437,14 +442,19 @@ public class NgrokClient implements AutoCloseable {
         }
     }
 
-    /** EnsureSession */
+    /** ensure会话 */
     private void ensureSession() {
         if (session == null) {
             connect();
         }
     }
 
-    /** Safe获取Url */
+    /**
+     * Safe获取Url
+     *
+     * @param obj obj
+     * @return safe获取url的结果
+     */
     private static String safeGetUrl(Object obj) {
         try {
             return (String) ReflectUtils.invoke(obj, "getUrl", String.class);
@@ -466,19 +476,21 @@ public class NgrokClient implements AutoCloseable {
     public static final class HttpBuilderStage {
 
         /**
-         * 所属 NgrokClient
+          * 所属 ngrok客户端
          */
         private final NgrokClient owner;
 
         /**
-         * 原始 HttpBuilder
+          * 原始 http构建器
          */
         private final HttpBuilder builder;
 
         /**
-         * 创建 HttpBuilderStage 实例
+          * 创建 http构建器Stage 实例
          * @param owner owner
-         * @param HttpBuilder HttpBuilder
+         * @param builder http构建器
+         * @param builder 构建器
+         * @return http构建器Stage的结果
          */
         private HttpBuilderStage(NgrokClient owner, HttpBuilder builder) {
             this.owner = owner;
@@ -561,9 +573,9 @@ public class NgrokClient implements AutoCloseable {
         }
 
         /**
-         * 添加 BasicAuth 鉴权。
+          * 添加 basic认证 鉴权。
          *
-         * @param options BasicAuth 配置
+         * @param options 基础认证 配置
          * @return 当前阶段
          */
         public HttpBuilderStage basicAuthOptions(com.ngrok.Http.BasicAuth options) {
@@ -684,7 +696,7 @@ public class NgrokClient implements AutoCloseable {
         }
 
         /**
-         * 暴露底层 HttpBuilder，供高级用户使用。
+          * 暴露底层 http构建器，供高级用户使用。
          *
          * @return HttpBuilder
          */
@@ -695,7 +707,7 @@ public class NgrokClient implements AutoCloseable {
         /**
          * 启动 HTTP 监听。
          *
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient listenHttp() {
             return owner.listenHttp(builder);
@@ -705,7 +717,7 @@ public class NgrokClient implements AutoCloseable {
          * 启动 HTTP 转发。
          *
          * @param url 内部目标 URL
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient forwardHttp(URL url) {
             return owner.forwardHttp(builder, url);
@@ -720,19 +732,21 @@ public class NgrokClient implements AutoCloseable {
     public static final class TcpBuilderStage {
 
         /**
-         * 所属 NgrokClient
+          * 所属 ngrok客户端
          */
         private final NgrokClient owner;
 
         /**
-         * 原始 TcpBuilder
+          * 原始 tcp构建器
          */
         private final TcpBuilder builder;
 
         /**
-         * 创建 TcpBuilderStage 实例
+          * 创建 tcp构建器Stage 实例
          * @param owner owner
-         * @param TcpBuilder TcpBuilder
+         * @param builder tcp构建器
+         * @param builder 构建器
+         * @return tcp构建器Stage的结果
          */
         private TcpBuilderStage(NgrokClient owner, TcpBuilder builder) {
             this.owner = owner;
@@ -795,7 +809,7 @@ public class NgrokClient implements AutoCloseable {
         }
 
         /**
-         * 暴露底层 TcpBuilder。
+          * 暴露底层 tcp构建器。
          *
          * @return TcpBuilder
          */
@@ -806,7 +820,7 @@ public class NgrokClient implements AutoCloseable {
         /**
          * 启动 TCP 监听。
          *
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient listenTcp() {
             return owner.listenTcp(builder);
@@ -816,7 +830,7 @@ public class NgrokClient implements AutoCloseable {
          * 启动 TCP 转发。
          *
          * @param url 内部目标 URL
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient forwardTcp(URL url) {
             return owner.forwardTcp(builder, url);
@@ -831,19 +845,21 @@ public class NgrokClient implements AutoCloseable {
     public static final class TlsBuilderStage {
 
         /**
-         * 所属 NgrokClient
+          * 所属 ngrok客户端
          */
         private final NgrokClient owner;
 
         /**
-         * 原始 TlsBuilder
+          * 原始 tls构建器
          */
         private final TlsBuilder builder;
 
         /**
-         * 创建 TlsBuilderStage 实例
+          * 创建 tls构建器Stage 实例
          * @param owner owner
-         * @param TlsBuilder TlsBuilder
+         * @param builder tls构建器
+         * @param builder 构建器
+         * @return tls构建器Stage的结果
          */
         private TlsBuilderStage(NgrokClient owner, TlsBuilder builder) {
             this.owner = owner;
@@ -906,7 +922,7 @@ public class NgrokClient implements AutoCloseable {
         }
 
         /**
-         * 暴露底层 TlsBuilder。
+          * 暴露底层 tls构建器。
          *
          * @return TlsBuilder
          */
@@ -917,7 +933,7 @@ public class NgrokClient implements AutoCloseable {
         /**
          * 启动 TLS 监听。
          *
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient listenTls() {
             return owner.listenTls(builder);
@@ -927,7 +943,7 @@ public class NgrokClient implements AutoCloseable {
          * 启动 TLS 转发。
          *
          * @param url 内部目标 URL
-         * @return 所属 NgrokClient
+         * @return 所属 ngrok客户端
          */
         public NgrokClient forwardTls(URL url) {
             return owner.forwardTls(builder, url);

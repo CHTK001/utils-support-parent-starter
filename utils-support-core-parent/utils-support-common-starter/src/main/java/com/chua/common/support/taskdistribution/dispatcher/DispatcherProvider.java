@@ -32,7 +32,7 @@ public interface DispatcherProvider extends AutoCloseable {
     /**
      * 取消任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示取消成功
      */
     default boolean cancel(String taskId) {
@@ -42,7 +42,7 @@ public interface DispatcherProvider extends AutoCloseable {
     /**
      * 暂停任务（服务端不再派发该任务，工作端可继续执行）。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示暂停成功
      */
     default boolean pause(String taskId) {
@@ -52,7 +52,7 @@ public interface DispatcherProvider extends AutoCloseable {
     /**
      * 恢复暂停的任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return true 表示恢复成功
      */
     default boolean resume(String taskId) {

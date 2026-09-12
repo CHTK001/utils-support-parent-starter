@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * CAD 文件预览提供器，支持 dwg、dgn、step、stp、iges、igs 等格式。
  * <p>SPI 类型：{@code preview-cad}。由于 Java 生态缺少成熟的 CAD 解析库，
- * 当前仅显示文件元信息（类型、大小），后续可集成 LibreDWG/Open CASCADE 增强。</p>
+   * 当前仅显示文件元信息（类型、大小），后续可集成 libredwg/打开 CASCADE 增强。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -94,6 +94,8 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 根据扩展名返回推荐软件提示
+     * @param ext ext
+     * @return 获取softwarehint的结果
      */
     private String getSoftwareHint(String ext) {
         return switch (ext) {
@@ -108,11 +110,19 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
 
     /**
      * 人类可读的文件大小
+     * @param bytes bytes
+     * @return human大小的结果
      */
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
-        if (bytes < 1024 * 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
+        if (bytes < 1024 * 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
+        }
         return String.format(Locale.ENGLISH, "%.2f GB", bytes / (1024.0 * 1024 * 1024));
     }
 }

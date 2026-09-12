@@ -44,7 +44,7 @@ public abstract class AbstractMetaSearch implements MetaSearch {
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<SearchIndexDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
@@ -62,7 +62,7 @@ public abstract class AbstractMetaSearch implements MetaSearch {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String indexName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }
@@ -74,7 +74,7 @@ public abstract class AbstractMetaSearch implements MetaSearch {
     }
 
     @Override
-    /** Optimize */
+    /** 优化 */
     public boolean optimize(String indexName) {
         throw new UnsupportedOperationException("请实现 optimize() 方法");
     }

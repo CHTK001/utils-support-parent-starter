@@ -22,7 +22,7 @@ public interface ProtocolServer extends AutoCloseable {
     void post(String path, BiConsumer<ServletRequest, ServletResponse> handler);
 
     /**
-     * 注册 GET 路由。
+      * 注册 获取 路由。
      *
      * @param path    路由路径
      * @param handler 请求处理器

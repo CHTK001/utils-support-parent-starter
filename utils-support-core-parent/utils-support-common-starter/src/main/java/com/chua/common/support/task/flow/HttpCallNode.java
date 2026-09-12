@@ -4,7 +4,7 @@ package com.chua.common.support.task.flow;
  * HTTP 调用节点接口。
  *
  * <p>发起 HTTP 请求，响应结果写入流程上下文，供下游节点消费。
- * 支持 GET / POST / PUT / DELETE 等常用方法及自定义请求头。</p>
+   * 支持 获取 / POST / 放入 / 删除 等常用方法及自定义请求头。</p>
  *
  * <p>节点属性说明：</p>
  * <ul>

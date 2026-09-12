@@ -19,7 +19,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExchangeRateResponse {
 
-    /** 请求结果（success / error） */
+    /** 请求结果（成功 / 错误） */
     private String result;
 
     /** 提供商名称 */
@@ -27,11 +27,11 @@ public class ExchangeRateResponse {
 
     /** 基准币种 */
     @JsonProperty("base_code")
-    private String baseCode;
+    private String baseCode; // 基础编码
 
     /** 上次更新时间（Unix 秒） */
     @JsonProperty("time_last_update_unix")
-    private long timeLastUpdateUnix;
+    private long timeLastUpdateUnix; // 时间最后一个更新unix
 
     /** 全量汇率表 */
     private Map<String, Double> rates;

@@ -23,10 +23,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class UebaResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 风险等级枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum RiskLevel {
         /**
@@ -56,7 +58,7 @@ public class UebaResult implements Serializable {
     }
 
     /**
-     * 实体标识（IP 或 Session ID）
+      * 实体标识（IP 或 会话 标识）
      */
     private String entityId;
 

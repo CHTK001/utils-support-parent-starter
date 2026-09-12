@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @param text            最终回答文本
  * @param thinkingContent 思考链内容（仅思考模式有值）
- * @param conversationId  会话 ID，用于多轮对话
+ * @param conversationId  会话 标识，用于多轮对话
  * @param errorMessage    错误消息（请求失败时非空）
  * @param rawEvents       原始 SSE 事件列表（供图像/视频生成等解析）
  * @param done            是否正常结束
@@ -40,7 +40,7 @@ public record QwenChatResult(
      *
      * @param text            回答文本
      * @param thinkingContent 思考链文本
-     * @param conversationId  会话 ID
+     * @param conversationId  会话 标识
      * @return 成功结果
      */
     public static QwenChatResult ok(String text, String thinkingContent, String conversationId) {
@@ -52,7 +52,7 @@ public record QwenChatResult(
      *
      * @param text            回答文本
      * @param thinkingContent 思考链文本
-     * @param conversationId  会话 ID
+     * @param conversationId  会话 标识
      * @param rawEvents       原始 SSE 事件列表
      * @return 成功结果
      */

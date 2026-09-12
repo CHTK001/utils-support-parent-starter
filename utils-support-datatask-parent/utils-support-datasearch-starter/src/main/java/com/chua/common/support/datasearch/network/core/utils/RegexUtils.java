@@ -9,10 +9,15 @@ import java.util.regex.Pattern;
 
 public class RegexUtils {
 
-    /** Number_pattern */
+    /** 数字_模式 */
     private static final Pattern NUMBER_PATTERN = Pattern.compile("\\d+");
 
-    /** 获取FirstNumber */
+    /**
+     * 获取第一个数字
+     *
+     * @param text 文本
+     * @return 获取第一个数字的结果
+     */
     public static Integer getFirstNumber(String text) {
         if (text == null || text.isEmpty()) {
             return null;

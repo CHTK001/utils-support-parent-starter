@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
  *     .maxMemory("256mb")
  *     .build();
  * redis.start();
+ * }</pre> *     .build();
+ * redis.start();
  * }</pre>
  *
  * @author CH
@@ -45,9 +47,10 @@ public class RedisServer {
     private final int port;
 
     /**
-     * 创建 RedisServer 实例
+      * 创建 redis服务端 实例
      * @param delegate delegate
-     * @param int int
+     * @param port int
+     * @param port 端口
      */
     private RedisServer(redis.embedded.RedisServer delegate, int port) {
         this.delegate = delegate;
@@ -74,7 +77,7 @@ public class RedisServer {
     }
 
     /**
-     * 创建 Builder。
+      * 创建 构建器。
      *
      * @return Builder 实例
      */
@@ -140,25 +143,29 @@ public class RedisServer {
     }
 
     /**
-     * 关闭服务器（实现 AutoCloseable）。
+      * 关闭服务器（实现 auto关闭）。
      */
     public void close() {
         stop();
     }
 
     /**
-     * Builder 模式创建 RedisServer。
+      * 构建器 模式创建 redis服务端。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
         /** 端口 */
         private int port = 6379;
-        /** 最大值memory */
+        /** 最大值内存 */
         private String maxMemory;
         /** 参数 */
         private String[] args = new String[0];
 
         /**
          * 设置端口，默认 6379
+         * @param port 端口
+         * @return 端口的结果
          */
         public Builder port(int port) {
             this.port = port;
@@ -167,6 +174,8 @@ public class RedisServer {
 
         /**
          * 设置最大内存，如 "256mb"
+         * @param maxMemory 最大内存
+         * @return 最大内存的结果
          */
         public Builder maxMemory(String maxMemory) {
             this.maxMemory = maxMemory;
@@ -175,6 +184,8 @@ public class RedisServer {
 
         /**
          * 设置额外 Redis 配置参数
+         * @param args 参数
+         * @return 参数的结果
          */
         public Builder args(String... args) {
             this.args = args;
@@ -182,7 +193,7 @@ public class RedisServer {
         }
 
         /**
-         * 构建 RedisServer 实例。
+          * 构建 redis服务端 实例。
          *
          * @return RedisServer
          */

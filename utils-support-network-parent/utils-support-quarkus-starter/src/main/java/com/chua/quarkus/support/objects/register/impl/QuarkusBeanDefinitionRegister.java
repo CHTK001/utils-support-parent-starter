@@ -28,7 +28,7 @@ import java.util.*;
 public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
     /**
-     * cdi class
+      * cdi 类
      */
     private static final String CDI_CLASS = "jakarta.enterprise.inject.spi.CDI";
 
@@ -38,7 +38,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     private volatile boolean closed;
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "quarkus";
     }
@@ -50,7 +50,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return false;
     }
@@ -86,7 +86,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 获取BeanDefinition */
+    /** 获取Beandefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null || closed || !ClassUtils.isPresent(CDI_CLASS)) {
             return null;
@@ -113,7 +113,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -138,7 +138,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -154,7 +154,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** ContainsBean */
+    /** containsBean */
     public boolean containsBean(String beanName) {
         if (beanName == null || closed) {
             return false;
@@ -163,7 +163,7 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 获取BeanDefinitionNames */
+    /** 获取Beandefinition名称 */
     public Collection<String> getBeanDefinitionNames() {
         if (closed || !ClassUtils.isPresent(CDI_CLASS)) {
             return Collections.emptyList();
@@ -187,13 +187,13 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
     }
 
     @Override
-    /** 获取BeansWithAnnotation */
+    /** 获取Beanwith注解 */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }
 
     @Override
-    /** 获取BeansWithMethodAnnotation */
+    /** 获取Beanwith方法注解 */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         return Collections.emptyMap();
     }

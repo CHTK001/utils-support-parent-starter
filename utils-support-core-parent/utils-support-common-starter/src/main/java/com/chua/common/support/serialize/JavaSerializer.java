@@ -7,7 +7,7 @@ import java.io.*;
 import java.io.Serializable;
 
 /**
- * Java原生序列化实现，基于ObjectInputStream/ObjectOutputStream。
+   * Java原生序列化实现，基于对象输入流/对象输出流。
  *
  * @author CH
  * @since 1.0.0
@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Spi("java")
 @SpiDefault
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     @Override
     /** 序列化 */
@@ -33,7 +33,12 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 反序列化 */
+    /**
+     * 反序列化
+     *
+     * @param bytes bytes
+     * @return deserialize的结果
+     */
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

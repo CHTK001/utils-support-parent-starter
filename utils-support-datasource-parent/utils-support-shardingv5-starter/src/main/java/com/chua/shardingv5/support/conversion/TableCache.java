@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ShardingSphere 表结构缓存。
+   * 分库分表sphere 表结构缓存。
  *
  * @author CH
  * @since 4.0.0.42
@@ -17,24 +17,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TableCache {
 
-    /** 数据sources */
+    /** 数据源 */
     private final List<DataSource> dataSources;
     /** 缓存秒 */
     private final int cacheSeconds;
-    /** cache */
+    /** 缓存 */
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /**
-     * 创建 TableCache 实例
-     * @param dataSources dataSources
-     * @param int int
+      * 创建 table缓存 实例
+     * @param dataSources 数据源
+     * @param cacheSeconds int
+     * @param cacheSeconds 缓存seconds
      */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;
         this.cacheSeconds = cacheSeconds;
     }
 
-    /** 获取Tables */
+    /**
+     * 获取Tables
+     *
+     * @param prefix 前缀
+     * @return 获取tables的结果
+     */
     public List<String> getTables(String prefix) {
         var now = System.currentTimeMillis();
         var entry = cache.get(prefix);
@@ -58,7 +64,12 @@ public class TableCache {
     /** Clear */
     public void clear() { cache.clear(); }
 
-    /** 扫描Tables */
+    /**
+     * 扫描Tables
+     *
+     * @param prefix 前缀
+     * @return 扫描tables的结果
+     */
     private List<String> scanTables(String prefix) {
         var all = new LinkedHashSet<String>();
         var pat = Pattern.compile("^" + Pattern.quote(prefix) + ".+");

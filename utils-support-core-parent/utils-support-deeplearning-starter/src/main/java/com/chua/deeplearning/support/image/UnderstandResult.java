@@ -19,7 +19,7 @@ public class UnderstandResult {
      * 创建理解结果。
      *
      * @param task 执行的任务类型
-     * @param text 模型返回文本，可为 null（自动 trim 为 null）
+     * @param text 模型返回文本，可为 空（自动 修剪 为 空）
      */
     public UnderstandResult(UnderstandTask task, String text) {
         this.task = task;

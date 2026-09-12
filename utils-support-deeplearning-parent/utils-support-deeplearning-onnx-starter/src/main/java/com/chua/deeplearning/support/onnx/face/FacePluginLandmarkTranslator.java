@@ -9,14 +9,14 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * FacePlugin face landmark detection Translator (MobileFaceNet).
+   * faceplugin face landmark detection Translator (mobilefacenet).
  *
  * <p>Model: MobileFaceNet
- * Input:  1x1x64x64 grayscale, normalized by /256
- * Output: 136-dim (68 landmarks * 2 coordinates), values in [0, 1] relative to cropped face
+   * 输入:  1x1x64x64 grayscale, normalized by /256
+   * 输出: 136-dim (68 landmarks * 2 coordinates), 值 入 [0, 1] relative 转为 cropped face
  *
  * <p>The caller must crop the face region from the image using the detected bounding box
- * before passing it to this translator. The 136 output values are relative coordinates
+   * 之前 通过 it 转为 this translator. The 136 输出 值 are relative coordinates
  * within the cropped region.
  *
  * @author CH
@@ -25,15 +25,15 @@ import ai.djl.translate.TranslatorContext;
 public class FacePluginLandmarkTranslator implements Translator<Image, float[]> {
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 64;
 
-    /** 创建 FacePluginLandmarkTranslator 实例 */
+    /** 创建 facepluginlandmarktranslator 实例 */
     public FacePluginLandmarkTranslator() {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_SIZE || input.getWidth() != INPUT_SIZE) {
             input = input.resize(INPUT_SIZE, INPUT_SIZE, false);
@@ -46,7 +46,7 @@ public class FacePluginLandmarkTranslator implements Translator<Image, float[]> 
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         return array.toFloatArray();
@@ -55,7 +55,7 @@ public class FacePluginLandmarkTranslator implements Translator<Image, float[]> 
 @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // 输入已包含 batch 维（shape [1, C, H, W]），无需 batchifier 再次叠加
+ // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;
     }
 }

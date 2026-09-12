@@ -7,11 +7,11 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.lang.reflect.Method;
 
 /**
- * 验证引入 utils-support-asm-starter 后 Quick 的 {@code dynamic()}/{@code compile()}
+   * 验证引入 utils-support-asm-starter 后 Quick 的 {@code dynamic()}/{@code compile()}
  * 自动切换到 ASM 编译器实现（{@link Compiler} SPI 优先解析 {@code "asm"}）。
  *
  * <p>asm-starter 的测试类路径天然包含本模块（{@link AsmCompiler} 及其 SPI 注册资源）
- * 与 common-starter（{@link Quick}/{@link DefaultQuick}），单向依赖无 reactor 循环引用，
+   * 与 common-starter（{@link Quick}/{@link DefaultQuick}），单向依赖无 reactor 循环引用，
  * 因此本测试是“asm-starter 在测试类路径”场景的规范验证位置。</p>
  *
  * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
@@ -34,6 +34,10 @@ public class AsmQuickTest {
     /** 成功计数 */
     private static int passCount = 0;
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         testSpiResolvesAsm();
         testResolveCompilerPrefersAsm();
@@ -50,14 +54,14 @@ public class AsmQuickTest {
         System.out.println("RESULT: PASS");
     }
 
-    /** SPI 注册：asm=AsmCompiler */
+    /** SPI 注册：asm=asmcompiler */
     static void testSpiResolvesAsm() {
         ServiceProvider<Compiler> provider = ServiceProvider.of(Compiler.class);
         Compiler asm = provider.getExtension("asm");
         check(asm instanceof AsmCompiler, "Compiler SPI 解析到 AsmCompiler");
     }
 
-    /** DefaultQuick.resolveCompiler() 优先选择 AsmCompiler */
+    /** 默认quick.resolvecompiler() 优先选择 asmcompiler */
     static void testResolveCompilerPrefersAsm() {
         DefaultQuick quick = new DefaultQuick();
         try {
@@ -95,7 +99,7 @@ public class AsmQuickTest {
         quick.close();
     }
 
-    /** execute() 脚本经 ASM 编译器执行 */
+    /** 执行() 脚本经 ASM 编译器执行 */
     static void testExecuteWithAsm() {
         DefaultQuick quick = new DefaultQuick();
         Object result = quick.execute("1 + 2");
@@ -106,7 +110,7 @@ public class AsmQuickTest {
     /**
      * 反射调用 {@link DefaultQuick#resolveCompiler()} 获取当前解析到的编译器。
      *
-     * @param quick DefaultQuick 实例
+     * @param quick 默认quick 实例
      * @return 当前编译器实现
      */
     private static Compiler resolveCompilerReflectively(DefaultQuick quick) {
@@ -136,7 +140,7 @@ public class AsmQuickTest {
     }
 
     /**
-     * 对象相等比较（处理 null）。
+      * 对象相等比较（处理 空）。
      *
      * @param expected 期望值
      * @param actual   实际值

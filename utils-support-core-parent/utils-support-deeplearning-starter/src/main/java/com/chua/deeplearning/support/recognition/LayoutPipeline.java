@@ -16,6 +16,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+/**
+   * layoutpipeline类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 @Slf4j
 public class LayoutPipeline {
@@ -51,7 +57,7 @@ public class LayoutPipeline {
     private final String model;
 
     /**
-     * 图像预处理管线，可为 null（不预处理）。
+      * 图像预处理管线，可为 空（不预处理）。
      */
     private final ImagePipeline imagePipeline;
 
@@ -69,7 +75,7 @@ public class LayoutPipeline {
      * 构造识别管线。
      *
      * @param model         模型名称
-     * @param imagePipeline 图像预处理管线，可为 null
+     * @param imagePipeline 图像预处理管线，可为 空
      */
     public LayoutPipeline(String model, ImagePipeline imagePipeline) {
         this.engine = AbstractIdentificationEngine.getInstance();
@@ -100,7 +106,7 @@ public class LayoutPipeline {
         private String model;
 
         /**
-         * 图像预处理管线，默认 null（不预处理）。
+          * 图像预处理管线，默认 空（不预处理）。
          */
         private ImagePipeline imagePipeline;
 
@@ -121,7 +127,7 @@ public class LayoutPipeline {
          * <p>可组合 {@code ImagePipeline.builder()} 启用灰度化、二值化、
          * 降噪、腐蚀、膨胀等预处理步骤。未设置时不做预处理。</p>
          *
-         * @param imagePipeline 图像管线，可为 null
+         * @param imagePipeline 图像管线，可为 空
          * @return this
          */
         public Builder imagePipeline(ImagePipeline imagePipeline) {
@@ -235,7 +241,7 @@ public class LayoutPipeline {
     /**
      * 获取版面分析管线回调。
      *
-     * @return 回调实例，可能为 null
+     * @return 回调实例，可能为 空
      */
     public LayoutPipelineCallback callback() {
         return this.callback;
@@ -255,7 +261,7 @@ public class LayoutPipeline {
     /**
      * 枚举可用版面分析模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

@@ -56,7 +56,7 @@ public class FifoScheduler implements SpiderScheduler {
     }
 
     @Override
-    /** 是否拥有Next */
+    /** 是否拥有下一个 */
     public boolean hasNext() {
         return count.get() > 0;
     }

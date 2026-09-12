@@ -14,10 +14,10 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * IP 异常流量检测 AutoEncoder Translator。
+   * IP 异常流量检测 auto编码器 Translator。
  *
  * <p>底层模型为通过 Python/PyTorch 训练的 AutoEncoder，导出为 ONNX
- * （opset ≥ 14, fp32, batch=1），输入输出均为单条 IP 聚合特征向量：</p>
+   * （opset ≥ 14, fp32, 批量=1），输入输出均为单条 IP 聚合特征向量：</p>
  * <ul>
  *   <li>输入：{@code features} [1, inputDim] float32，特征顺序与
  *       {@code ueba-config.yaml} 中 {@code features} 定义严格一致</li>
@@ -47,13 +47,13 @@ public class AutoEncoderIpTranslator {
     /** 默认模型文件名 */
     public static final String DEFAULT_MODEL_FILE = "autoencoder_ip.onnx";
 
-    /** classpath 资源基础路径 */
+    /** 类路径 资源基础路径 */
     private static final String RESOURCE_BASE = "models/ueba/";
 
     /** ONNX Runtime 单次推理使用的最多线程数 */
     private static final int MAX_INTRA_OP_THREADS = 8;
 
-    /** 输入特征维度，由配置的 features 数量决定 */
+    /** 输入特征维度，由配置的 特征 数量决定 */
     private final int inputDim;
 
     /** 模型文件名 */
@@ -69,7 +69,7 @@ public class AutoEncoderIpTranslator {
     private OrtSession session;
 
     /**
-     * 构造 AutoEncoder Translator。
+      * 构造 auto编码器 Translator。
      *
      * @param inputDim 输入特征维度，必须大于 0，与训练模型输入维度一致
      */
@@ -78,21 +78,21 @@ public class AutoEncoderIpTranslator {
     }
 
     /**
-     * 构造 AutoEncoder Translator。
+      * 构造 auto编码器 Translator。
      *
      * @param inputDim  输入特征维度，必须大于 0，与训练模型输入维度一致
-     * @param modelFile 模型文件名，不能为 null 或空字符串
+     * @param modelFile 模型文件名，不能为 空 或空字符串
      */
     public AutoEncoderIpTranslator(int inputDim, String modelFile) {
         this(inputDim, modelFile, null);
     }
 
     /**
-     * 构造 AutoEncoder Translator。
+      * 构造 auto编码器 Translator。
      *
      * @param inputDim     输入特征维度，必须大于 0，与训练模型输入维度一致
-     * @param modelFile    模型文件名，不能为 null 或空字符串
-     * @param explicitPath 显式模型文件路径，允许为 null（null 时按目录扫描与 classpath 回退）
+     * @param modelFile    模型文件名，不能为 空 或空字符串
+     * @param explicitPath 显式模型文件路径，允许为 空（空 时按目录扫描与 类路径 回退）
      */
     public AutoEncoderIpTranslator(int inputDim, String modelFile, String explicitPath) {
         if (inputDim <= 0) {
@@ -130,8 +130,8 @@ public class AutoEncoderIpTranslator {
     /**
      * 按优先级解析模型文件路径。
      *
-     * @return 模型文件路径；未找到时返回 null
-     * @throws IOException 当临时目录创建失败或 classpath 资源提取失败时
+     * @return 模型文件路径；未找到时返回 空
+     * @throws IOException 当临时目录创建失败或 类路径 资源提取失败时
      */
     private Path resolveModelPath() throws IOException {
         if (explicitPath != null) {
@@ -193,7 +193,7 @@ public class AutoEncoderIpTranslator {
     /**
      * 计算输入特征向量的重建误差。
      *
-     * @param features IP 聚合特征向量，长度必须等于 inputDim，顺序与配置定义一致
+     * @param features IP 聚合特征向量，长度必须等于 输入dim，顺序与配置定义一致
      * @return 重建误差（MSE），非负，越大代表越异常
      * @throws Exception 当模型不可用、特征维度不匹配或推理失败时
      */

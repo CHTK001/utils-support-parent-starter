@@ -40,19 +40,19 @@ import java.util.List;
 @ConfigurationProperties(prefix = "chua.cluster")
 public class ClusterProperties {
 
-    /** 节点 ID（缺省自动生成） */
+    /** 节点 标识（缺省自动生成） */
     private String nodeId;
 
-    /** 本机 host */
+    /** 本机 主机 */
     private String host = "127.0.0.1";
 
-    /** 业务分组标识（scatterId） */
+    /** 业务分组标识（scatterid） */
     private String scatterId = "default";
 
-    /** 集群标识（为空回落到 scatterId） */
+    /** 集群标识（为空回落到 scatterid） */
     private String clusterId;
 
-    /** 种子节点列表（host:port） */
+    /** 种子节点列表（主机:端口） */
     private List<String> seeds = new ArrayList<>();
 
     /** 本节点服务路径列表 */
@@ -61,7 +61,7 @@ public class ClusterProperties {
     /** 本节点业务端口（0=自动分配） */
     private int port = 0;
 
-    /** scatter 通信端口（0=port+2） */
+    /** scatter 通信端口（0=端口+2） */
     private int scatterPort = 0;
 
     /** 是否启用 HTTP 入口（默认 true） */
@@ -70,7 +70,7 @@ public class ClusterProperties {
     /** 是否启用 TCP 入口（默认 false） */
     private boolean tcpEnabled = false;
 
-    /** 负载均衡策略（weight/round/random） */
+    /** 负载均衡策略（权重/round/随机） */
     private String balance = "weight";
 
     /** 请求超时毫秒 */
@@ -81,12 +81,14 @@ public class ClusterProperties {
 
     /**
      * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
-     * 同一 servicePath 下只允许同一种协议。
+      * 同一 服务路径 下只允许同一种协议。
      */
     private List<ServerEntryProp> serverEntries = new ArrayList<>();
 
     /**
      * 单个服务条目元数据。
+     * @author CH
+     * @since 4.0.0
      */
     @Getter
     @Setter
@@ -104,7 +106,7 @@ public class ClusterProperties {
         /** 协议：http / tcp / udp */
         private String protocol = "http";
 
-        /** 业务分组（null 时回落 clusterId/scatterId） */
+        /** 业务分组（空 时回落 clusterid/scatterid） */
         private String scatterId;
     }
 }

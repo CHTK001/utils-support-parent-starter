@@ -5,12 +5,12 @@ import java.util.Random;
 /**
  * DFSMN ANS kaldi fbank 特征提取器（纯 Java，复刻 torchaudio.compliance.kaldi.fbank）。
  * <p>
- * 参数与 ModelScope DFSMN 语音降噪 pipeline 一致：48kHz、帧长 40ms(1920)、帧移 20ms(960)、
+   * 参数与 模型scope DFSMN 语音降噪 pipeline 一致：48khz、帧长 40ms(1920)、帧移 20ms(960)、
  * FFT 补零到 2048、120 维 mel 滤波器组（20 ~ 23600Hz，htk 公式）、dither=1.0、hamming 窗。
  * </p>
  * <p>
  * 处理链路：样本(±32768 级) → dither → DC 去除 → pre-emphasis 0.97 → hamming 窗 → FFT power 谱
- * → mel 滤波器组加权 → log 能量，输出 (num_frames, 120)。
+   * → mel 滤波器组加权 → 日志 能量，输出 (num_帧, 120)。
  * </p>
  *
  * @author CH
@@ -48,7 +48,7 @@ class DfsmnKaldiFbank {
     /** dither 系数 */
     private static final float DITHER = 1.0f;
 
-    /** log 下限（避免 log(0)） */
+    /** 日志 下限（避免 日志(0)） */
     private static final float EPSILON = Float.MIN_NORMAL;
 
     /** hamming 窗系数 */
@@ -63,13 +63,13 @@ class DfsmnKaldiFbank {
     /** 固定随机种子（dither 可复现） */
     private final Random random = new Random(0);
 
-    /** 创建 DfsmnKaldiFbank 实例（dither=1.0） */
+    /** 创建 dfsmnkaldifbank 实例（dither=1.0） */
     DfsmnKaldiFbank() {
         this(DITHER);
     }
 
     /**
-     * 创建 DfsmnKaldiFbank 实例。
+      * 创建 dfsmnkaldifbank 实例。
      *
      * @param dither dither 系数
      */
@@ -82,7 +82,7 @@ class DfsmnKaldiFbank {
     /**
      * 提取 fbank 特征。
      *
-     * @param samples 48kHz 单声道样本（幅值约 ±32768）
+     * @param samples 48khz 单声道样本（幅值约 ±32768）
      * @return (num_frames, 120) 扁平数组
      */
     float[] extract(float[] samples) {
@@ -158,7 +158,7 @@ class DfsmnKaldiFbank {
     }
 
     /**
-     * 构造非周期 hamming 窗：0.54 - 0.46·cos(2πi/(N-1))。
+      * 构造非周期 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
      *
      * @return 窗口系数
      */

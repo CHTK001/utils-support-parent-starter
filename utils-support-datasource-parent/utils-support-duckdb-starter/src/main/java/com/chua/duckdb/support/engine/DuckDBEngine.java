@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * DuckDB 嵌入式数据库引擎，基于 {@link JdbcEngine} 提供 JDBC 查询能力。
+   * duckdb 嵌入式数据库引擎，基于 {@link JdbcEngine} 提供 JDBC 查询能力。
  *
  * <p>支持两种数据来源：</p>
  * <ul>
  *   <li><b>内存数据</b> — 通过 {@link #store(String, List)} 存入内存，用于本地过滤查询</li>
  *   <li><b>DuckDB 数据库</b> — 通过 {@link #addDataSource(String, String)} 指定 {@code jdbc:duckdb:} 连接串，
- *       查询、更新、删除均走真实 DuckDB SQL 执行</li>
+   * 查询、更新、删除均走真实 duckdb SQL 执行</li>
  * </ul>
  *
  * <p>使用示例：</p>
@@ -36,6 +36,7 @@ import java.util.logging.Logger;
  * engine.addDataSource("default", "jdbc:duckdb:");
  * // 连接文件数据库
  * engine.addDataSource("file", "jdbc:duckdb:/path/to/data.duckdb");
+ * }</pre>.duckdb");
  * }</pre>
  *
  * @author CH
@@ -77,10 +78,10 @@ public class DuckDBEngine extends JdbcEngine {
     }
 
     /**
-     * 添加一个 DuckDB 数据源（无用户名密码，适用于嵌入式内存库）。
+      * 添加一个 duckdb 数据源（无用户名密码，适用于嵌入式内存库）。
      *
      * @param name    数据源名称
-     * @param jdbcUrl DuckDB JDBC 连接串，如 {@code jdbc:duckdb:} 或 {@code jdbc:duckdb:/path/to/file.db}
+     * @param jdbcUrl duckdb JDBC 连接串，如 {@code jdbc:duckdb:} 或 {@code jdbc:duckdb:/path/to/file.db}
      * @return 当前引擎实例
      */
     public Engine addDataSource(String name, String jdbcUrl) {
@@ -88,12 +89,12 @@ public class DuckDBEngine extends JdbcEngine {
     }
 
     /**
-     * 添加一个 DuckDB 数据源，支持用户名与密码。
+      * 添加一个 duckdb 数据源，支持用户名与密码。
      *
      * @param name     数据源名称
-     * @param jdbcUrl  DuckDB JDBC 连接串
-     * @param username 用户名（可为 null）
-     * @param password 密码（可为 null）
+     * @param jdbcUrl  duckdb JDBC 连接串
+     * @param username 用户名（可为 空）
+     * @param password 密码（可为 空）
      * @return 当前引擎实例
      */
     public Engine addDataSource(String name, String jdbcUrl, String username, String password) {
@@ -148,7 +149,7 @@ public class DuckDBEngine extends JdbcEngine {
      * <p>适用于 DuckDB 等仅提供 JDBC Driver、未提供 DataSource 实现的嵌入式数据库。</p>
      * <p>嵌入式内存库（如 {@code jdbc:duckdb:}）的每个连接是独立数据库实例，
      * 因此本数据源复用同一个底层连接，并通过动态代理屏蔽 {@code close()}，
-     * 使 try-with-resources 释放时不会真正关闭底层连接、避免表结构丢失。</p>
+      * 使 尝试-with-resources 释放时不会真正关闭底层连接、避免表结构丢失。</p>
      *
      * @author CH
      * @since 4.0.0.42
@@ -161,12 +162,12 @@ public class DuckDBEngine extends JdbcEngine {
         private final String jdbcUrl;
 
         /**
-         * 用户名（可为 null）
+          * 用户名（可为 空）
          */
         private final String username;
 
         /**
-         * 密码（可为 null）
+          * 密码（可为 空）
          */
         private final String password;
 
@@ -176,11 +177,11 @@ public class DuckDBEngine extends JdbcEngine {
         private Connection sharedConnection;
 
         /**
-         * 构造基于 DriverManager 的数据源。
+          * 构造基于 driver管理器 的数据源。
          *
          * @param jdbcUrl  JDBC 连接串
-         * @param username 用户名（可为 null）
-         * @param password 密码（可为 null）
+         * @param username 用户名（可为 空）
+         * @param password 密码（可为 空）
          */
         DriverDataSource(String jdbcUrl, String username, String password) {
             this.jdbcUrl = jdbcUrl;
@@ -201,7 +202,7 @@ public class DuckDBEngine extends JdbcEngine {
         /**
          * 获取复用的底层连接，不存在时懒加载创建。
          *
-         * @return 屏蔽 close 的共享连接
+         * @return 屏蔽 关闭 的共享连接
          * @throws SQLException 连接创建失败
          */
         private Connection getSharedConnection() throws SQLException {
@@ -217,7 +218,7 @@ public class DuckDBEngine extends JdbcEngine {
          * <p>其他方法全部委托给底层连接。</p>
          *
          * @param target 底层连接
-         * @return 屏蔽 close 的连接代理
+         * @return 屏蔽 关闭 的连接代理
          */
         @SuppressWarnings("unchecked")
         private static Connection proxyCloseIgnored(Connection target) {

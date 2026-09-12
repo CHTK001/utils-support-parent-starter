@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Claude Code conversation parser.
+   * Claude 编码 conversation parser.
  *
  * <p>Claude Code persists every session as a JSONL transcript under
  * {@code ~/.claude/projects/<encoded-path>/<sessionId>.jsonl}; user and
- * assistant events carry the chat content. Text blocks are emitted with
- * full content; thinking / tool_use / tool_result blocks are emitted as
- * type markers with empty content.</p>
+   * assistant 事件 carry the 对话 内容. 文本 blocks are emitted with
+   * 完整 内容; thinking / tool_use / tool_结果 blocks are emitted as
+   * 类型 记号笔 with 空 内容.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -61,6 +61,14 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
 
     /**
      * 解析单行事件为零或多条消息记录。
+     * @param ts ts
+     * @return 解析instant转为millis的结果
+     /**
+      * 解析线。
+      * @param line 线
+      * @return 解析线的结果
+      */
+      * @param ts ts
      */
     @Override
     protected List<ConversationMessage> parseLine(String line) {

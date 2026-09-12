@@ -9,12 +9,13 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
  * <p>当前为伪响应式实现（{@code boundedElastic} 调度阻塞 JDBC 调用），
  * 复用 {@link OracleEngine} 的数据源配置能力，提供响应式访问入口。
  * 如需真正非阻塞路径，可直接使用父类的 {@code addDataSource(name, "jdbc:oracle:thin:@//...", user, pwd)}
- * 自动转换为 R2DBC 连接（需 classpath 存在 oracle-r2dbc 驱动）。</p>
+   * 自动转换为 R2DBC 连接（需 类路径 存在 oracle-R2dbc 驱动）。</p>
  *
  * <pre>{@code
  * OracleReactorEngine engine = new OracleReactorEngine();
  * engine.addDataSource("default", "localhost", 1521, "orcl", "system", "password");
  * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
+ * }</pre>ser::getName, "张三").list();
  * }</pre>
  *
  * @author CH
@@ -36,7 +37,7 @@ public class OracleReactorEngine extends JdbcReactorEngine {
      * @param name     数据源名称
      * @param host     主机地址
      * @param port     端口号
-     * @param database 服务名（service name）
+     * @param database 服务名（服务 名称）
      * @param username 用户名
      * @param password 密码
      * @return 当前引擎实例

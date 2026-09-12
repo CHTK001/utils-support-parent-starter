@@ -17,11 +17,11 @@ public interface SketchTo3DGenerator {
     /**
      * 根据草图生成 3D 模型（无纹理几何体）
      *
-     * @param sketch       草图字节（PNG/JPG/WebP）
+     * @param sketch       草图字节（PNG/JPG/webp）
      * @param description  草图描述（必填）
      * @param format       输出格式
      * @param style        风格
-     * @param quality      质量（draft / standard / high）
+     * @param quality      质量（draft / 标准 / high）
      * @return 3D 模型
      * @throws IOException IO 异常
      */

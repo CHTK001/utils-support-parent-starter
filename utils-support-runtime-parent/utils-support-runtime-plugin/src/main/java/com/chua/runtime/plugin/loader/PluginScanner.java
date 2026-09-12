@@ -25,7 +25,7 @@ import java.util.*;
 public class PluginScanner {
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(PluginScanner.class.getName());
     /**
@@ -44,17 +44,18 @@ public class PluginScanner {
     private final List<PluginInfo> plugins;
 
     /**
-     * 创建 PluginScanner 实例
-     * @param pluginRoot pluginRoot
+      * 创建 pluginscanner 实例
+     * @param pluginRoot plugin根
      */
     public PluginScanner(Path pluginRoot) {
         this(pluginRoot, ClassLoader.getSystemClassLoader());
     }
 
     /**
-     * 创建 PluginScanner 实例
-     * @param pluginRoot pluginRoot
-     * @param ClassLoader ClassLoader
+      * 创建 pluginscanner 实例
+     * @param pluginRoot plugin根
+     * @param parentLoader 类加载
+     * @param parentLoader 父加载
      */
     public PluginScanner(Path pluginRoot, ClassLoader parentLoader) {
         this.pluginRoot = pluginRoot;
@@ -135,7 +136,7 @@ public class PluginScanner {
         if (name.startsWith(".") || name.equals("lib") || name.equals("config")) {
             return false;
         }
-        // 有 META-INF/services 则认为是插件
+ // 有 META-INF/服务 则认为是插件
         Path spiPath = dir.resolve("META-INF/services/com.chua.runtime.plugin.Plugin");
         if (Files.exists(spiPath)) {
             return true;
@@ -150,7 +151,11 @@ public class PluginScanner {
         }
     }
 
-    /** 获取Plugins */
+    /**
+     * 获取Plugins
+     *
+     * @return 获取plugins的结果
+     */
     public List<PluginInfo> getPlugins() {
         return Collections.unmodifiableList(plugins);
     }

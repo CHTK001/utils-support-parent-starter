@@ -5,7 +5,7 @@ import javax.imageio.stream.ImageInputStreamImpl;
 import java.io.IOException;
 
 /**
- * SubImageInputStream 类继承自 ImageInputStreamImpl，从现有的 ImageInputStream 中
+   * sub镜像输入流 类继承自 镜像输入流impl，从现有的 镜像输入流 中
  * 读取一个子图像流。它维护了关于子图像流的起始位置和长度的信息，以便能够正确地
  * 从父图像流中读取子图像数据。
  *
@@ -24,7 +24,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     int length;
 
     /**
-     * 构造函数，初始化 SubImageInputStream。
+      * 构造函数，初始化 sub镜像输入流。
      *
      * @param stream 父图像流
      * @param length 子图像流的长度

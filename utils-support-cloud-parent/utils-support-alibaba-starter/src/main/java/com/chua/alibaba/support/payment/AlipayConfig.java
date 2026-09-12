@@ -14,7 +14,7 @@ import lombok.Data;
 public class AlipayConfig {
 
     /**
-     * 应用ID
+      * 应用标识
      */
     private String appId;
 

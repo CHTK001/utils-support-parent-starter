@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 实体行为窗口跟踪器。
  * <p>
- * 按实体标识（IP 或 Session ID）维护最近事件的滑动窗口，为序列模型提供
- * 时序上下文。使用 {@link ConcurrentHashMap} + synchronized 方法保证多线程安全，
+   * 按实体标识（IP 或 会话 标识）维护最近事件的滑动窗口，为序列模型提供
+   * 时序上下文。使用 {@link ConcurrentHashMap} + 同步 方法保证多线程安全，
  * 窗口超长时自动丢弃最旧事件。
  * </p>
  *
@@ -37,7 +37,7 @@ public class IpBehaviorTracker implements AutoCloseable {
      * 构造跟踪器。
      *
      * @param maxWindow 每个实体保留的最大事件数，必须大于 0
-     * @throws IllegalArgumentException 当 maxWindow 小于等于 0 时
+     * @throws IllegalArgumentException 当 最大窗口 小于等于 0 时
      */
     public IpBehaviorTracker(int maxWindow) {
         if (maxWindow <= 0) {
@@ -50,8 +50,8 @@ public class IpBehaviorTracker implements AutoCloseable {
     /**
      * 提取实体的窗口键。
      *
-     * @param event 流量事件，不能为 null
-     * @return 实体标识；IP 与 Session ID 均缺失时返回 unknown
+     * @param event 流量事件，不能为 空
+     * @return 实体标识；IP 与 会话 标识 均缺失时返回 unknown
      */
     private static String entityKey(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
@@ -67,7 +67,7 @@ public class IpBehaviorTracker implements AutoCloseable {
     /**
      * 向指定实体窗口追加一条事件，超长时丢弃最旧事件。
      *
-     * @param event 流量事件，不能为 null
+     * @param event 流量事件，不能为 空
      */
     public synchronized void add(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
@@ -82,8 +82,8 @@ public class IpBehaviorTracker implements AutoCloseable {
     /**
      * 获取指定实体的窗口事件快照。
      *
-     * @param entityId 实体标识，允许为 null（返回空列表）
-     * @return 事件不可变快照，无数据时返回空列表，绝不为 null
+     * @param entityId 实体标识，允许为 空（返回空列表）
+     * @return 事件不可变快照，无数据时返回空列表，绝不为 空
      */
     public synchronized List<TrafficEvent> snapshot(String entityId) {
         if (entityId == null) {
@@ -96,7 +96,7 @@ public class IpBehaviorTracker implements AutoCloseable {
     /**
      * 移除指定实体的全部窗口数据。
      *
-     * @param entityId 实体标识，允许为 null（忽略）
+     * @param entityId 实体标识，允许为 空（忽略）
      */
     public synchronized void remove(String entityId) {
         if (entityId != null) {

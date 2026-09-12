@@ -16,18 +16,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * JoyCode usage parser.
+   * joy编码 usage parser.
  *
  * <p>JoyCode is a Chinese AI coding IDE (by JD.com) using an OpenAI-compatible
- * API (e.g. JoyAI-Code-1.5, DeepSeek-V4-Pro). Real per-request usage is tracked
- * server-side by the JoyCode platform — no billed tokens are stored locally.</p>
+   * API (e.g. joyAI-编码-1.5, deepseek-V4-Pro). Real per-请求 usage 是否 tracked
+   * 服务端-side by the joy编码 platform — no 账单 令牌 are 存储 本地.</p>
  *
  * <p>The only local token data lives in editor logs under
  * {@code %USERPROFILE%\AppData\Roaming\JoyCode\logs}: {@code [NonMessageTokens]}
- * lines carry a client-side estimate of system prompt + tool definition tokens,
- * computed before each request. These are a lower bound on real input usage —
- * every record is flagged {@code estimated = true} so downstream aggregation
- * can exclude them from billing totals.</p>
+   * 线 carry a 客户端-side estimate 的 系统 提示符 + tool definition 令牌,
+   * computed 之前 each 请求. These are a 降低 bound on real 输入 usage —
+   * every record 是否 flagged {@code estimated = true} so downstream aggregation
+   * 能否 exclude them 从 账单 totals.</p>
  *
  * <p>{@code [OpenAI Inner]} model-selection events contain no token data and
  * are intentionally ignored.</p>
@@ -47,17 +47,17 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     private static final Pattern TIMESTAMP = Pattern.compile(
             "(\\d{4}-\\d{2}-\\d{2})\\s+(\\d{2}:\\d{2}:\\d{2})");
 
-    private static final String PROVIDER_JOYCODE = "joycode-platform";
-    private static final String MODEL_CONTEXT_ESTIMATE = "context-estimate";
-    private static final String FINISH_CONTEXT_ESTIMATE = "context-window-estimate";
+    private static final String PROVIDER_JOYCODE = "joycode-platform"; // 提供者joycode
+    private static final String MODEL_CONTEXT_ESTIMATE = "context-estimate"; // 模型上下文estimate
+    private static final String FINISH_CONTEXT_ESTIMATE = "context-window-estimate"; // 饰面上下文estimate
 
     /**
-     * Returns the SPI name for JoyCode.
+      * 返回 the SPI 名称 for joy编码.
      *
      * @return {@code "joycode"}
      */
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+      * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
      */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
@@ -70,9 +70,9 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Parses all JoyCode log files and extracts context-size estimates.
+      * 解析 全部 joy编码 日志 文件 和 extracts 上下文-大小 estimates.
      *
-     * @return list of estimated AiUsage records (estimated = true)
+     * @return list 的 estimated aiusage records (estimated = true)
      */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
@@ -101,11 +101,11 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Reads one JoyCode log file line by line, appending estimates.
+      * 读取 one joy编码 日志 文件 线 by 线, 追加 estimates.
      *
-     * @param file   path to the log file
-     * @param result accumulator list for parsed records
-     * @throws IOException if the file cannot be read
+     * @param file   路径 转为 the 日志 文件
+     * @param result accumulator 列表 for 解析 records
+     * @throws IOException if the 文件 cannot be 读取
      */
     private void parseLogFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
@@ -117,10 +117,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Extracts a context-size estimate from one log line if present.
+      * Extracts a 上下文-大小 estimate 从 one 日志 线 if present.
      *
-     * @param line   the log line to inspect
-     * @param result accumulator list for parsed records
+     * @param line   the 日志 线 转为 inspect
+     * @param result accumulator 列表 for 解析 records
      */
     private void parseLine(String line, List<AiUsage> result) {
         Matcher nonMsgMatcher = NON_MSG_TOKENS.matcher(line);
@@ -149,10 +149,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Extracts the leading yyyy-MM-dd timestamp of a log line.
+      * Extracts the 铅 yyyy-MM-dd 时间戳 的 a 日志 线.
      *
-     * @param line the log line
-     * @return epoch millis at day start, or 0L when absent or malformed
+     * @param line the 日志 线
+     * @return epoch millis at day 启动, 或 0L When.js.js absent 或 malformed
      */
     private long extractDayStart(String line) {
         Matcher m = TIMESTAMP.matcher(line);

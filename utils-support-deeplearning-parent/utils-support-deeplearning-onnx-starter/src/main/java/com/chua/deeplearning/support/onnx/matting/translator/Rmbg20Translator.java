@@ -126,7 +126,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
             }
         }
 
-        // ImageNet normalize
+ // 镜像net normalize
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
         int total = tw * th;
@@ -163,7 +163,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         // Reject small outputs (e.g. if shape is [1,3,1024,1024] -> actual alpha is 2D)
         int expected = alphaHeight * alphaWidth;
         if (alphaValues.length > expected * 2) {
-            // Model output is multi-channel, pick first channel
+ // 模型 输出 是否 multi-通道, pick 第一个 通道
             alphaHeight = (int) sh[sh.length - 2];
             alphaWidth = (int) sh[sh.length - 1];
             expected = alphaHeight * alphaWidth;
@@ -202,7 +202,12 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         };
     }
 
-    /** 创建AlphaOnlyImage */
+    /**
+     * 创建alphaonly镜像
+     *
+     * @param alphaMask alphamask
+     * @return 创建alphaonly镜像的结果
+     */
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -215,7 +220,12 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
-    /** 创建RgbaImage */
+    /**
+     * 创建rgba镜像
+     *
+     * @param alphaMask alphamask
+     * @return 创建rgba镜像的结果
+     */
     private Image createRgbaImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -228,7 +238,13 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
-    /** 创建RgbImage */
+    /**
+     * 创建rgb镜像
+     *
+     * @param alphaMask alphamask
+     * @param bgValue bg值
+     * @return 创建rgb镜像的结果
+     */
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -245,18 +261,36 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromImage(result);
     }
 
-    /** BlendChannel */
+    /**
+     * blend通道
+     *
+     * @param foreground foreground
+     * @param background background
+     * @param alpha alpha
+     * @param inverseAlpha inversealpha
+     * @return blend通道的结果
+     */
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
     }
 
-    /** ToAlpha */
+    /**
+     * 转为alpha
+     *
+     * @param value 值
+     * @return 转为alpha255的结果
+     */
     private int toAlpha255(float value) {
         float clipped = Math.max(0f, Math.min(1f, value));
         return Math.round(clipped * 255f);
     }
 
-    /** 解析Mode */
+    /**
+     * 解析Mode
+     *
+     * @param arguments 参数
+     * @return resolveMode的结果
+     */
     private static MattingTranslator.MattingMode resolveMode(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return MattingTranslator.MattingMode.RGBA;
@@ -274,7 +308,12 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
         }
     }
 
-    /** 解析Target获取大小 */
+    /**
+     * 解析Target获取大小
+     *
+     * @param arguments 参数
+     * @return resolveTarget大小的结果
+     */
     private static int resolveTargetSize(Map<String, ?> arguments) {
         Object configured = arguments == null ? null : arguments.get("targetSize");
         if (configured == null) {

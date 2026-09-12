@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * <p>内部收集所有可用的 {@link SpiderParser} SPI 实现，
  * 按优先级排序。执行 {@link #parse(SpiderResponse)} 时，
- * 先尝试优先级最高的实现，如果返回 null 则依次降级到下一个实现，
+   * 先尝试优先级最高的实现，如果返回 空 则依次降级到下一个实现，
  * 直到某个实现成功解析或所有实现尝试完毕。
  *
  * <p>适用于内容类型不确定的场景：
@@ -45,13 +45,13 @@ public class AutoParser implements SpiderParser {
      * 默认构造器，从 SPI 收集所有可用的 Parser 实现。
      *
      * <p>注意：不能使用 {@code collectNew()} 收集，因为 SPI 注册表中包含
-     * AutoParser 自身，{@code collectNew()} 会递归实例化 AutoParser，
-     * 导致无限递归（StackOverflowError）。因此这里直接遍历服务定义，
+      * autoparser 自身，{@code collectNew()} 会递归实例化 autoparser，
+      * 导致无限递归（stackoverflow错误）。因此这里直接遍历服务定义，
      * 显式排除自身后再实例化。</p>
      */
     public AutoParser() {
         ServiceProvider<SpiderParser> provider = ServiceProvider.of(SpiderParser.class);
-        // 遍历所有服务定义，排除 AutoParser 自身，再实例化，避免递归死循环
+ // 遍历所有服务定义，排除 autoparser 自身，再实例化，避免递归死循环
         this.parsers = provider.getDefinitions(null).stream()
                 .filter(definition -> null != definition.getImplClass()
                         && !AutoParser.class.isAssignableFrom(definition.getImplClass()))
@@ -99,6 +99,9 @@ public class AutoParser implements SpiderParser {
 
     /**
      * 截断字符串（保留前 N 个字符，附加 … 提示省略）。
+     * @param s s
+     * @param max 最大
+     * @return truncate的结果
      */
     private static String truncate(String s, int max) {
         if (s == null) {
@@ -108,7 +111,7 @@ public class AutoParser implements SpiderParser {
     }
 
     @Override
-    /** SupportedContentTypes */
+    /** 支持内容类型 */
     public String[] supportedContentTypes() {
         // 支持所有类型，由内部 Parser 决定
         return new String[] {"*/*"};

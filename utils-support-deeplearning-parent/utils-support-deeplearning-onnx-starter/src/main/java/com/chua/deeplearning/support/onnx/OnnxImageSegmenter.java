@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.ImageSegmenter;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxImageSegmenter implements ImageSegmenter {
@@ -16,26 +16,30 @@ public class OnnxImageSegmenter implements ImageSegmenter {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxImageSegmenter 实例
-     * @param apiKey apiKey
+      * 创建 onnx镜像segmenter 实例
+     * @param apiKey API密钥
      */
     public OnnxImageSegmenter(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageSegmenter model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "fastsam";
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageSegmenter modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;

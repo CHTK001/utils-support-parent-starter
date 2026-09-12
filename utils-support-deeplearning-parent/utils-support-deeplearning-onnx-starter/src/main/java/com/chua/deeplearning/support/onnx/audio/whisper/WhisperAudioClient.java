@@ -24,6 +24,7 @@ import java.util.UUID;
  *       .model("whisper-tiny")
  *       .language("zh")
  *       .transcribe(Path.of("audio.wav"));
+ * }</pre>(Path.of("audio.wav"));
  * }</pre>
  *
  * @author CH
@@ -39,7 +40,7 @@ public class WhisperAudioClient implements VirtualClient {
     private static final String DEFAULT_MODEL = "whisper-tiny";
 
     /**
-     * classpath 资源根路径
+      * 类路径 资源根路径
      */
     private static final String RESOURCE_BASE = "audio/asr/";
 
@@ -59,7 +60,7 @@ public class WhisperAudioClient implements VirtualClient {
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /**
-     * 任务 ID 前缀
+      * 任务 标识 前缀
      */
     private static final String TASK_ID_PREFIX = "whisper-";
 
@@ -76,7 +77,7 @@ public class WhisperAudioClient implements VirtualClient {
     /** 格式 */
     private String format;
     /** 提示词 */
-    /** Prompt */
+    /** 提示符 */
     private String prompt;
     /** 温度参数 */
     /** Temperature */
@@ -102,7 +103,7 @@ public class WhisperAudioClient implements VirtualClient {
     private boolean prepared;
 
     /**
-     * 创建 WhisperAudioClient 实例
+      * 创建 whisper音频客户端 实例
      * @param setting setting
      */
     public WhisperAudioClient(AudioClientSetting setting) {
@@ -117,7 +118,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
@@ -131,7 +132,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** SampleRate */
+    /** 样本rate */
     public VirtualClient sampleRate(Integer sampleRate) {
         this.overrideSampleRate = sampleRate;
         return this;
@@ -145,7 +146,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Prompt */
+    /** 提示符 */
     public VirtualClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -166,7 +167,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -175,7 +176,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(InputStream input) {
         this.audioInput = input;
         this.audioPath = null;
@@ -184,7 +185,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -211,7 +212,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(Path path) {
         if (path != null) {
             this.audioPath = path;
@@ -220,7 +221,7 @@ public class WhisperAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public AudioResponse queryTask(String taskId) {
         if (!prepared) {
             ensurePrepared();
@@ -243,7 +244,7 @@ public class WhisperAudioClient implements VirtualClient {
         }
     }
 
-    /** EnsurePrepared */
+    /** ensureprepared */
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;
@@ -279,7 +280,11 @@ public class WhisperAudioClient implements VirtualClient {
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
     }
 
-    /** 解析AudioPath */
+    /**
+     * 解析音频路径
+     *
+     * @return resolve音频路径的结果
+     */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

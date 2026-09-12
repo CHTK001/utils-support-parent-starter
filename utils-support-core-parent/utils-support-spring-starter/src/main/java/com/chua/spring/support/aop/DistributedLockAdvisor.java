@@ -45,6 +45,8 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
      * {@link DistributedLock} 注解的 Spring AOP Advice 实现类。
+     * @author CH
+     * @since 4.0.0
      */
     private static class DistributedLockAdvice implements MethodInterceptor {
 

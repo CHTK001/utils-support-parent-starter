@@ -12,6 +12,7 @@ import java.util.Map;
  * <pre>{@code
  * Quick quick = Quick.create().variable("x", 10).variable("y", 20);
  * Object result = quick.execute("return variables.get(\"x\") + variables.get(\"y\");");
+ * }</pre>(\"x\") + variables.get(\"y\");");
  * }</pre>
  *
  * @author CH
@@ -26,7 +27,7 @@ public interface QuickScript {
      *
      * @param quick     当前 Quick 实例，可访问已绑定的常量/变量/Bean
      * @param variables 绑定变量快照（常量 + 变量）
-     * @return 执行结果，可为 null
+     * @return 执行结果，可为 空
      */
     Object run(Quick quick, Map<String, Object> variables);
 }

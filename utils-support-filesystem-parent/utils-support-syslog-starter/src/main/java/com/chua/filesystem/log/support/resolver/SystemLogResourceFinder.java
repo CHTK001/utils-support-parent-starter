@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
- * System log ResourceFinder implementation - registers "syslog:" protocol
+   * 系统 日志 resource查找 implementation - 注册 "syslog:" 协议
  * <p>
- * Integrates system log retrieval into the ResourceProvider framework,
- * querying system logs on each platform via the unified syslog: protocol.
+   * Integrates 系统 日志 retrieval into the resource提供者 框架,
+   * 查询 系统 日志 on each platform via the unified syslog: 协议.
  * </p>
  *
  * <h3>Ant-style glob syntax:</h3>
@@ -46,12 +46,12 @@ import javax.annotation.Nullable;
 public class SystemLogResourceFinder implements ResourceFinder {
 
     /**
-     * Protocol name
+      * 协议 名称
      */
     public static final String PROTOCOL = "syslog";
 
     /**
-     * Provider, lazily initialized
+      * 提供者, lazily 初始化
      */
     private volatile SystemLogProvider provider;
 
@@ -78,7 +78,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     @Nullable
-    /** 解析查询 */
+    /**
+     * 解析查询
+     *
+     * @param raw raw
+     * @return 解析查询的结果
+     */
     private LogQuery parseQuery(String raw) {
         if (raw == null) {
             return null;
@@ -99,7 +104,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
         return parseGlobStyle(withoutProtocol);
     }
 
-    /** 解析GlobStyle */
+    /**
+     * 解析globstyle
+     *
+     * @param s s
+     * @return 解析globstyle的结果
+     */
     private LogQuery parseGlobStyle(String s) {
         int maxResults = 100;
         String order = LogQuery.ORDER_DESC;
@@ -138,7 +148,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
                 .build();
     }
 
-    /** 解析查询ParamStyle */
+    /**
+     * 解析查询参数style
+     *
+     * @param withGlob withglob
+     * @return 解析查询参数style的结果
+     */
     private LogQuery parseQueryParamStyle(String withGlob) {
         String queryString;
         int qmarkIdx = withGlob.indexOf('?');
@@ -193,7 +208,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
         return builder.build();
     }
 
-    /** 获取Or创建Provider */
+    /**
+     * 获取或创建提供者
+     *
+     * @return 获取或创建提供者的结果
+     */
     private SystemLogProvider getOrCreateProvider() {
         if (provider != null) {
             return provider;
@@ -202,7 +221,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
             if (provider != null) {
                 return provider;
             }
-            // Try SPI discovery via ServiceLoader
+ // 尝试 SPI discovery via 服务加载
             ServiceLoader<SystemLogProvider> loader = ServiceLoader.load(SystemLogProvider.class);
             Optional<SystemLogProvider> found = loader.stream()
                     .map(ServiceLoader.Provider::get)
@@ -211,7 +230,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
             if (found.isPresent()) {
                 provider = found.get();
             } else {
-                // Fallback to bridge creation
+ // 降级 转为 bridge 创建
                 SystemLogBridge bridge = SystemLogBridge.getInstance();
                 bridge.initialize();
                 provider = bridge.createProvider();
@@ -220,7 +239,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
         }
     }
 
-    /** ToResource */
+    /**
+     * 转为resource
+     *
+     * @param entry entry
+     * @return 转为resource的结果
+     */
     private Resource toResource(LogEntry entry) {
         String content = String.format("[%s] [%s] [%s] %s",
                 entry.timestamp(),
@@ -232,17 +256,23 @@ public class SystemLogResourceFinder implements ResourceFinder {
         return new VirtualResourceImpl(entry, bytes);
     }
 
-    /** VirtualResourceImpl */
+    /**
+     * 虚拟resourceimpl
+     *
+     * @param entry entry
+     * @param content 内容
+     * @return 虚拟resourceimpl的结果
+     */
     private record VirtualResourceImpl(LogEntry entry, byte[] content) implements Resource {
 
         @Override
-        /** 打开Stream */
+        /** 打开流 */
         public InputStream openStream() throws IOException {
             return new ByteArrayInputStream(content);
         }
 
         @Override
-        /** 获取UrlPath */
+        /** 获取url路径 */
         public String getUrlPath() {
         
             return "syslog-" + entry.timestamp() + "-" + entry.source();
@@ -260,7 +290,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
         }
 
         @Override
-        /** LastModified */
+        /** 最后一个modified */
         public long lastModified() {
         
             return 0;
@@ -268,7 +298,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
         @Override
-        /** ToString */
+        /** 转为字符串 */
         public String toString() {
         
             return new String(content, StandardCharsets.UTF_8);
@@ -276,7 +306,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
     }
 
-    /** Url解码 */
+    /**
+     * Url解码
+     *
+     * @param s s
+     * @return urlDecode的结果
+     */
     private static String urlDecode(String s) {
         if (s == null) {
             return null;

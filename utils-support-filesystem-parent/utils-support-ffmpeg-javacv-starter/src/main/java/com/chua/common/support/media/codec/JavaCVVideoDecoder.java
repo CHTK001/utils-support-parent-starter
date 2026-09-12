@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 基于 JavaCV FFmpeg 的视频解码器，支持 H.264、H.265、H.266。
+   * 基于 javacv ffmpeg 的视频解码器，支持 H.264、H.265、H.266。
  *
  * <p>使用 FFmpegFrameGrabber 逐包解码，输出 ARGB 格式的 ByteBuffer。</p>
  *
@@ -115,7 +115,7 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     }
 
     /**
-     * 根据 codecId 获取 FFmpeg 格式名称。
+      * 根据 codecid 获取 ffmpeg 格式名称。
      *
      * @param codecId 编解码器标识
      * @return FFmpeg 格式名称
@@ -161,10 +161,10 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     }
 
     /**
-     * 将 FFmpeg 帧转换为 ByteBuffer（ARGB 格式）。
+      * 将 ffmpeg 帧转换为 byte缓冲（ARGB 格式）。
      *
-     * @param frame FFmpeg 帧
-     * @return ARGB 格式的 ByteBuffer，转换失败返回 null
+     * @param frame ffmpeg 帧
+     * @return ARGB 格式的 byte缓冲，转换失败返回 空
      */
     private static ByteBuffer frameToByteBuffer(Frame frame) {
         if (frame.image == null || frame.image.length == 0) {

@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * SQLite 数据库 (SQLITE / DB / SQLITE3) 预览提供器。
+   * sqlite 数据库 (SQLITE / DB / SQLITE3) 预览提供器。
  * <p>SPI 类型：{@code preview-sqlite}。以只读方式连接数据库，
  * 展示表清单与各表前 100 行数据。</p>
  *
@@ -31,10 +31,10 @@ import java.util.Set;
 @Spi("preview-sqlite")
 public class SqlitePreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("sqlite", "sqlite3", "db");
-    private static final int MAX_ROWS = 100;
-    private static final int MAX_TABLES = 50;
-    private static final long MAX_FILE_SIZE = 512L * 1024 * 1024;
+    private static final Set<String> SUPPORTED_EXTS = Set.of("sqlite", "sqlite3", "db"); // 支持exts
+    private static final int MAX_ROWS = 100; // 最大rows
+    private static final int MAX_TABLES = 50; // 最大tables
+    private static final long MAX_FILE_SIZE = 512L * 1024 * 1024; // 最大文件大小
 
     static {
         if (ReflectUtils.forName("org.sqlite.JDBC") == null) {

@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @Builder
 public class MusicPlaylistDetail {
-    /** PlaylistID */
+    /** playlistid */
     private String playlistId;
     /** 来源 */
     private String source;
@@ -22,9 +22,9 @@ public class MusicPlaylistDetail {
     private String title;
     /** 描述 */
     private String description;
-    /** CoverURL */
+    /** coverurl */
     private String coverUrl;
-    /** Author */
+    /** 作者 */
     private String author;
     /** Track数量 */
     private Integer trackCount;

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 通用 OpenCV Haar/LBP 级联检测翻译器。
+   * 通用 打开cv Haar/LBP 级联检测翻译器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -91,7 +91,7 @@ public class OpencvCascadeDetector extends OpencvModelTranslator {
     }
 
     @Override
-    /** DoTranslate */
+    /** 执行translate */
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入，实际: "

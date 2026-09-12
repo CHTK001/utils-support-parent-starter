@@ -116,16 +116,16 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
         if (isDestroyed()) {
             return;
         }
-        // 调用父类销毁（执行 BeanDefinitionLifecycleManager.destroy 处理）
+ // 调用父类销毁（执行 Beandefinitionlifecycle管理器.销毁 处理）
         super.destroyBean();
         // 释放单例引用
         this.singletonInstance = null;
     }
 
     @Override
-    /** 是否Destroyed */
+    /** 是否销毁 */
     public boolean isDestroyed() {
-        // 父类 destroyed 标志即销毁完成
+ // 父类 销毁 标志即销毁完成
         return super.isDestroyed();
     }
 }

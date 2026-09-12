@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * YOLOv10 通用检测 Translator（COCO 80 类，640 输入）。
+   * yolov10 通用检测 Translator（COCO 80 类，640 输入）。
  *
  * <p>YOLOv10 推理后输出为 NMS 后置格式 {@code [1, num_boxes, 6]}：
  * {@code [x1, y1, x2, y2, confidence, class_id]}，复用 {@link DocLayoutYoloTranslator}

@@ -47,7 +47,7 @@ public interface OsgiLauncher {
      *
      * @param type 服务接口类型
      * @param <T>  服务类型
-     * @return 服务实例，未找到返回 null
+     * @return 服务实例，未找到返回 空
      */
     <T> T getService(Class<T> type);
 
@@ -61,8 +61,8 @@ public interface OsgiLauncher {
     /**
      * 安装指定 URL 的 bundle。
      *
-     * @param url bundle 的 jar 包路径或 maven URL
-     * @return 已安装的 OsgiBundle
+     * @param url bundle 的 jar 包路径或 Maven URL
+     * @return 已安装的 osgibundle
      */
     OsgiBundle installBundle(String url);
 

@@ -3,7 +3,7 @@ package com.chua.starter.datasync.agent;
 import com.chua.datasync.agent.support.DataSyncAgent;
 
 /**
- * Agent 服务器管理器，统一管理本地与远程 Agent。
+   * 智能体 服务器管理器，统一管理本地与远程 智能体。
  *
  * @author CH
  * @since 4.0.0.42
@@ -11,39 +11,39 @@ import com.chua.datasync.agent.support.DataSyncAgent;
 public interface AgentServerManager {
 
     /**
-     * 注册 Agent。
+      * 注册 智能体。
      *
-     * @param agent Agent 实例
+     * @param agent 智能体 实例
      */
     void register(DataSyncAgent agent);
 
     /**
-     * 注销 Agent。
+      * 注销 智能体。
      *
-     * @param agentId Agent ID
+     * @param agentId 智能体 标识
      */
     void unregister(String agentId);
 
     /**
-     * 获取 Agent。
+      * 获取 智能体。
      *
-     * @param agentId Agent ID
-     * @return Agent 实例，不存在返回 null
+     * @param agentId 智能体 标识
+     * @return Agent 实例，不存在返回 空
      */
     DataSyncAgent getAgent(String agentId);
 
     /**
-     * 获取所有已注册 Agent。
+      * 获取所有已注册 智能体。
      *
      * @return Agent 列表
      */
     java.util.List<DataSyncAgent> getAgents();
 
     /**
-     * 推送数据到 Agent 的 Sink。
+      * 推送数据到 智能体 的 Sink。
      *
-     * @param agentId Agent ID
-     * @param sinkId Sink ID
+     * @param agentId 智能体 标识
+     * @param sinkId Sink 标识
      * @param data 数据
      */
     void push(String agentId, String sinkId, java.util.List<java.util.Map<String, Object>> data);

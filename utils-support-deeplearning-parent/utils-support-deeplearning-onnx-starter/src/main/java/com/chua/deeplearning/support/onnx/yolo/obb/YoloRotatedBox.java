@@ -13,7 +13,7 @@ import java.util.List;
  *                                                       
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025-01-22
  */
 @Data
@@ -76,9 +76,9 @@ public class YoloRotatedBox {
     }
 
     /**
-     *                          ProbIoU          IoU   
+      * probiou          iou
      * <p>
-     * ProbIoU                             IoU                                     
+      * probiou                             iou
      *
      * @param b1             1
      * @param b2             2
@@ -108,7 +108,7 @@ public class YoloRotatedBox {
         var t3 = Math.log(((a1 + a2) * (b1v + b2v) - Math.pow(c1v + c2v, 2))
                 / (4 * Math.sqrt(a1 * b1v - Math.pow(c1v, 2)) * Math.sqrt(a2 * b2v - Math.pow(c2v, 2)) + eps) + eps);
 
-        // ProbIoU       
+ // probiou
         var bd = 0.25 * t1 + 0.5 * t2 + 0.5 * t3;
         bd = Math.max(Math.min(bd, 100.0), eps);
         var hd = Math.sqrt(1.0 - Math.exp(-bd) + eps);
@@ -171,6 +171,8 @@ public class YoloRotatedBox {
 
     /**
      * 2D       
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class Point2D {
@@ -184,7 +186,8 @@ public class YoloRotatedBox {
         /**
          * 创建 Point2D 实例
          * @param x x
-         * @param float float
+         * @param x float
+         * @param y y
          */
         public Point2D(float x, float y) {
             this.x = x;

@@ -39,13 +39,13 @@ public class OnlineHolidayProvider implements HolidayProvider {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(OnlineHolidayProvider.class);
 
-    /** Default_url */
+    /** 默认_url */
     private static final String DEFAULT_URL = "https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/%d.json";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** FALLBACK_2026 */
+    /** 降级_2026 */
     private static final Map<String, HolidayInfo> FALLBACK_2026 = build2026();
 
     /** URL模板 */
@@ -54,10 +54,10 @@ public class OnlineHolidayProvider implements HolidayProvider {
     /** HTTP客户端 */
     private final HttpClient httpClient;
 
-    /** cache */
+    /** 缓存 */
     private final Map<Integer, Map<String, HolidayInfo>> cache = new ConcurrentHashMap<>();
 
-    /** 创建 OnlineHolidayProvider 实例 */
+    /** 创建 online假日提供者 实例 */
     public OnlineHolidayProvider() {
         this(DEFAULT_URL);
     }
@@ -73,13 +73,13 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "online";
     }
 
     @Override
-    /** 是否Holiday */
+    /** 是否假日 */
     public boolean isHoliday(LocalDate date) {
         HolidayInfo info = resolve(date);
         return info != null && "holiday".equals(info.getType());
@@ -97,23 +97,33 @@ public class OnlineHolidayProvider implements HolidayProvider {
     }
 
     @Override
-    /** 获取Holiday */
+    /** 获取假日 */
     public HolidayInfo getHoliday(LocalDate date) {
         return resolve(date);
     }
 
     @Override
-    /** 获取Holidays */
+    /** 获取假日 */
     public List<HolidayInfo> getHolidays(int year) {
         return new ArrayList<>(load(year).values());
     }
 
-    /** 解析 */
+    /**
+     * 解析
+     *
+     * @param date 日期
+     * @return resolve的结果
+     */
     private HolidayInfo resolve(LocalDate date) {
         return load(date.getYear()).get(date.toString());
     }
 
-    /** 加载 */
+    /**
+     * 加载
+     *
+     * @param year year
+     * @return 加载的结果
+     */
     private Map<String, HolidayInfo> load(int year) {
         Map<String, HolidayInfo> cached = cache.get(year);
         if (cached != null) {
@@ -152,7 +162,13 @@ public class OnlineHolidayProvider implements HolidayProvider {
         return map;
     }
 
-    /** Text */
+    /**
+     * 文本
+     *
+     * @param n n
+     * @param k k
+     * @return 文本的结果
+     */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -160,6 +176,7 @@ public class OnlineHolidayProvider implements HolidayProvider {
 
     /**
      * 内置 2026 年法定节假日与调休补班（国务院办公厅 2025-11-04 发布）。
+     * @return build2026的结果
      */
     private static Map<String, HolidayInfo> build2026() {
         Map<String, HolidayInfo> m = new LinkedHashMap<>();
@@ -180,7 +197,15 @@ public class OnlineHolidayProvider implements HolidayProvider {
         return m;
     }
 
-    /** 添加 */
+    /**
+     * 添加
+     *
+     * @param m m
+     * @param start 启动
+     * @param end 结束
+     * @param name 名称
+     * @param type 类型
+     */
     private static void add(Map<String, HolidayInfo> m, String start, String end, String name, String type) {
         LocalDate s = LocalDate.parse(start);
         LocalDate e = LocalDate.parse(end);

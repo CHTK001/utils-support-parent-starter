@@ -16,7 +16,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * YOLOv8s COCO ͨ用Ŀ标检测 Translator。
+   * yolov8s COCO ͨ用Ŀ标检测 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,13 +42,13 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     );
 
     /** 输入尺寸 */
-    /** Input_size */
+    /** 输入_大小 */
     private static final int INPUT_SIZE = 640;
     /** 默认阈值 */
-    /** Default_threshold */
+    /** 默认_阈值 */
     private static final float DEFAULT_THRESHOLD = 0.25f;
     /** 默认 NMS 阈值 */
-    /** Default_nms_threshold */
+    /** 默认_nms_阈值 */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /** 阈值 */
@@ -67,13 +67,13 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     /** 图片高度 */
     private int imageHeight;
 
-    /** 创建 YoloV8sTranslator 实例 */
+    /** 创建 yolov8stranslator 实例 */
     public YoloV8sTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, CLASSES);
     }
 
     /**
-     * 创建 YoloV8sTranslator 实例（支持运行参数覆盖阈值）。
+      * 创建 yolov8stranslator 实例（支持运行参数覆盖阈值）。
      *
      * <p>支持的键：{@code threshold}（置信度，默认 0.25）、{@code iouThreshold}（默认 0.45），
      * 未提供的键使用内置准确默认值。</p>
@@ -91,11 +91,12 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
 
 
     /**
-     * 创建 YoloV8sTranslator 实例
-     * @param threshold threshold
-     * @param float float
-     * @param List List
+      * 创建 yolov8stranslator 实例
+     * @param threshold 阈值
+     * @param threshold float
+     * @param classes 列表
      * @param classes classes
+     * @param nmsThreshold nms阈值
      */
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {
         this.threshold = threshold;
@@ -105,7 +106,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -118,7 +119,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.get(0);
 
@@ -232,12 +233,23 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
         return null;
     }
 
-    /** Sigmoid */
+    /**
+     * Sigmoid
+     *
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
-    /** ToNormalizedChw */
+    /**
+     * 转为normalizedchw
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
+     */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

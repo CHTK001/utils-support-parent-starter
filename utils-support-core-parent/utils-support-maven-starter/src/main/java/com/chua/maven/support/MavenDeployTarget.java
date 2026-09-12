@@ -6,7 +6,7 @@ import java.util.List;
  * Maven 部署目标接口。
  * <p>
  * 定义部署的抽象目标，默认提供本地文件系统实现。
- * 通过 SPI 或直接实例化可扩展为其他部署方式（SSH、MinIO、Nexus 等）。
+   * 通过 SPI 或直接实例化可扩展为其他部署方式（SSH、最小io、Nexus 等）。
  * </p>
  *
  * <h2>设计原则</h2>

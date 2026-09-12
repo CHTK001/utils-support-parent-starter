@@ -59,8 +59,8 @@ public class KafkaDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-     * 创建 KafkaDispatcherProvider 实例
-     * @param config config
+      * 创建 kafkadispatcher提供者 实例
+     * @param config 配置
      */
     public KafkaDispatcherProvider(DispatcherConfig config) {
         super(config);

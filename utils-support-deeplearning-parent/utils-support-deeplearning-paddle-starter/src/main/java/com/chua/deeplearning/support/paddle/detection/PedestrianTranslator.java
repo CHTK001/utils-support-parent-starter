@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Paddle 行人检测 Translator。
+   * 飞桨 行人检测 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -35,7 +35,7 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
     private int height;
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDArray result = list.singletonOrThrow();
         float[] probabilities = result.get(":,1").toFloatArray();
@@ -56,7 +56,7 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, 608, 608);

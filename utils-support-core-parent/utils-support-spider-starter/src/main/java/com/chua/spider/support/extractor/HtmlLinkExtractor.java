@@ -18,7 +18,7 @@ import java.util.List;
  * HTML 链接提取器。
  *
  * <p>使用 JSoup 解析 HTML 内容，从 &lt;a href&gt; 标签中提取所有链接。
- * 自动处理相对路径转绝对路径，过滤无效链接（javascript:、mailto: 等）。
+   * 自动处理相对路径转绝对路径，过滤无效链接（JavaScript:、mailto: 等）。
  *
  * <p>SPI 名称：{@code extractor:html}
  *
@@ -74,7 +74,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     }
 
     @Override
-    /** SupportedContentTypes */
+    /** 支持内容类型 */
     public String[] supportedContentTypes() {
         return new String[]{"text/html", "application/xhtml+xml"};
     }
@@ -90,7 +90,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
             return false;
         }
 
-        // 排除 javascript:、mailto: 等协议
+ // 排除 JavaScript:、mailto: 等协议
         for (String protocol : EXCLUDED_PROTOCOLS) {
             if (href.startsWith(protocol)) {
                 return false;

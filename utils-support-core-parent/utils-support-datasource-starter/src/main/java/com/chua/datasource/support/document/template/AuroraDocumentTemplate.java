@@ -18,19 +18,19 @@ import com.chua.common.support.spi.annotations.Spi;
 public class AuroraDocumentTemplate extends AbstractClasspathDocumentTemplate {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "aurora";
     }
 
     @Override
-    /** HtmlTemplatePath */
+    /** htmltemplate路径 */
     protected String htmlTemplatePath() {
         return "document/templates/aurora/index.html";
     }
 
     @Override
-    /** MarkdownTemplatePath */
+    /** markdowntemplate路径 */
     protected String markdownTemplatePath() {
         return "document/templates/aurora/document.markdown";
     }

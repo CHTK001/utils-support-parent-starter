@@ -15,11 +15,16 @@ import java.util.Set;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param data 数据
+ * @return 解析blend的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-blender")
 public class BlenderPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("blend");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("blend"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -60,9 +65,23 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
         info.endian = endianChar == 'V' ? "Big" : "Little";
 
         // 版本号: 3 位数字
+    /**
+     * blend信息类。
+     *
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     * @return human大小的结果
+     */
         info.version = String.format(Locale.ENGLISH, "%c.%c.%c", data[9], data[10], data[11]);
 
         return info;
+    /**
+     * 构建html。
+     * @param info 信息
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     }
 
     private String buildHtml(BlendInfo info, long fileSize) {
@@ -98,22 +117,36 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
         sb.append("</div></body></html>");
 
         return sb.toString();
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     * @author CH
+     * @since 4.0.0
+     * @param bytes bytes
+     */
     }
 
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 
     private static class BlendInfo {
-        String version = "未知";
-        int pointerSize = 0;
-        String endian = "Unknown";
+        String version = "未知"; // 版本
+        int pointerSize = 0; // pointer大小
+        String endian = "Unknown"; // endian
     }
 }

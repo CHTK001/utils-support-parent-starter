@@ -6,17 +6,18 @@ import lombok.Data;
  * 进程信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class ProcessInfo {
 
     /**
-     * 进程 ID。
+      * 进程 标识。
      */
     private int pid;
 
     /**
-     * 父进程 ID。
+      * 父进程 标识。
      */
     private int parentPid;
 

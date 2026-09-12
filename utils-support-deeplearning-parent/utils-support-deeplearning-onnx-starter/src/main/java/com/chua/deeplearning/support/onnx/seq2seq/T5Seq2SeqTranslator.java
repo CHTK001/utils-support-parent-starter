@@ -22,14 +22,14 @@ import java.util.Arrays;
 /**
  * T5 Seq2Seq ONNX                 
  * <p>
- * T5 (Text-to-Text Transfer Transformer)                   
- *       translation、summarization、QA、text generation              
- *      encoder_model.onnx + decoder_with_past_model.onnx                   
+   * T5 (文本-转为-文本 调动 转换)
+   * 翻译、summarization、QA、文本 generation
+   * 编码器_模型.onnx + 解码器_with_past_模型.onnx
  * </p>
  * <p>
- *      : Xenova/t5-small / t5-base
- *      : encoder_model.onnx -> encoder_hidden_states
- *      : decoder_with_past_model.onnx -> autoregressive -> logits -> text
+   * : Xenova/t5-small / t5-基础
+   * : 编码器_模型.onnx -> 编码器_hidden_状态
+   * : 解码器_with_past_模型.onnx -> autoregressive -> logits -> 文本
  * </p>
  *
  * @author CH
@@ -39,13 +39,13 @@ import java.util.Arrays;
 public class T5Seq2SeqTranslator implements Translator<String, String> {
 
     /** 最大输入长度 */
-    /** Max_input_length */
+    /** 最大_输入_长度 */
     private static final int MAX_INPUT_LENGTH = 512;
     /** 最大输出长度 */
-    /** Max_output_length */
+    /** 最大_输出_长度 */
     private static final int MAX_OUTPUT_LENGTH = 128;
     /** 结束符标识 */
-    /** Eos_id */
+    /** Eos_标识 */
     private static final long EOS_ID = 1L;
 
     /** 分词器 */
@@ -73,7 +73,7 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String input) {
         if (tokenizer == null) {
             throw new IllegalStateException("T5Seq2Seq tokenizer not initialized");
@@ -94,7 +94,7 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public String processOutput(TranslatorContext ctx, NDList list) {
         NDArray logits = list.singletonOrThrow();
         NDArray tokenIds = logits.argMax(2);
@@ -119,7 +119,12 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
         return null;
     }
 
-    /** 解析ModelRoot */
+    /**
+     * 解析模型根
+     *
+     * @param modelPath 模型路径
+     * @return resolve模型根的结果
+     */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -130,7 +135,13 @@ public class T5Seq2SeqTranslator implements Translator<String, String> {
         return modelPath;
     }
 
-    /** 查找File */
+    /**
+     * 查找文件
+     *
+     * @param root 根
+     * @param name 名称
+     * @return find文件的结果
+     */
     private Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

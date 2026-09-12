@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
  * - 缩略图生成：减少细节以适应小尺寸显示
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Slf4j
@@ -182,7 +182,7 @@ public class ImageGaussianBlurFilter extends AbstractImageFilter {
         // 关闭线程池
         mExecutor.shutdown();
 
-        // 将处理后的RGB数据转换为BufferedImage
+ // 将处理后的RGB数据转换为缓冲镜像
         return toBitmap();
     }
 

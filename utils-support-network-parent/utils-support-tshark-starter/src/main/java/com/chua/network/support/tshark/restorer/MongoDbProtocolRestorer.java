@@ -1,11 +1,11 @@
 package com.chua.network.support.tshark.restorer;
 
 /**
- * MongoDB Wire Protocol 还原器。
+   * MongoDB Wire 协议 还原器。
  *
  * <p>MongoDB OP_MSG 报文：MessageHeader(16) + flagBits(4) + SectionKind(1) + Body。
- * Header: messageLength(4) + requestID(4) + responseTo(4) + opCode(4)。
- * opCode=2013 表示 OP_MSG。</p>
+   * 头部: 消息长度(4) + 请求id(4) + 响应转为(4) + op编码(4)。
+   * op编码=2013 表示 OP_MSG。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ package com.chua.network.support.tshark.restorer;
 public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "mongodb";
     }
@@ -63,7 +63,12 @@ public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToOpCodeName */
+    /**
+     * 转为op编码名称
+     *
+     * @param op op
+     * @return 转为op编码名称的结果
+     */
     private static String toOpCodeName(int op) {
         return switch (op) {
             case 2004 -> "OP_QUERY";

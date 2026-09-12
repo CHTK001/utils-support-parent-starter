@@ -9,11 +9,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * 基于 BouncyCastle 的 RSA 非对称加解密实现
+   * 基于 bouncycastle 的 RSA 非对称加解密实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
  * 实现 RSA 密钥生成、加密、解密、签名和验签。
- * 支持 1024/2048/4096 位密钥长度，签名算法采用 SHA256withRSA。
+   * 支持 1024/2048/4096 位密钥长度，签名算法采用 SHA256withrsa。
  *
  * @author CH
  * @since 2026/07/16
@@ -23,11 +23,11 @@ public class BcRsaCipher implements RsaCipher {
 
     /** 提供者 */
     private static final String PROVIDER = "BC";
-    /** Key_algorithm */
+    /** 键_algorithm */
     private static final String KEY_ALGORITHM = "RSA";
     /** Cipher_algorithm */
     private static final String CIPHER_ALGORITHM = "RSA/ECB/PKCS1Padding";
-    /** Signature_algorithm */
+    /** 签名_algorithm */
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     static {
@@ -37,7 +37,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
-    /** GenerateKeyPair */
+    /** generate键pair */
     public KeyPair generateKeyPair(int keySize) {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance(KEY_ALGORITHM, PROVIDER);
@@ -77,7 +77,7 @@ public class BcRsaCipher implements RsaCipher {
     }
 
     @Override
-    /** Sign */
+    /** 标志 */
     public byte[] sign(byte[] privateKey, byte[] data) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM, PROVIDER);

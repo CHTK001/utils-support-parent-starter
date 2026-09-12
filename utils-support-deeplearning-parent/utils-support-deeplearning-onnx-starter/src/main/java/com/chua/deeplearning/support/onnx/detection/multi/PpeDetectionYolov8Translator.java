@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 个人防护装备 (PPE) 多类检测 Translator（YOLOv8n @ 640, 3 类）。
+   * 个人防护装备 (PPE) 多类检测 Translator（yolov8n @ 640, 3 类）。
  *
  * <p>用于工地 / 工厂 / 物流场景的安全装备合规检测。
  *
@@ -29,7 +29,7 @@ import java.util.List;
 public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Translator {
 
     /**
-     * 类别资源路径（classpath）。
+      * 类别资源路径（类路径）。
      */
     public static final String CLASS_NAMES_RESOURCE = "vision/ppe/yolov8n/class.names.txt";
 
@@ -42,29 +42,31 @@ public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Transl
             "no-helmet"
     );
 
-    /** 创建 PpeDetectionYolov8Translator 实例 */
+    /** 创建 ppedetectionyolov8Translator 实例 */
     public PpeDetectionYolov8Translator() {
         super();
     }
 
     /**
-     * 创建 PpeDetectionYolov8Translator 实例
-     * @param inputSize inputSize
-     * @param float float
-     * @param float float
+      * 创建 ppedetectionyolov8Translator 实例
+     * @param inputSize 输入大小
+     * @param threshold float
+     * @param threshold float
+     * @param threshold 阈值
+     * @param nmsThreshold nms阈值
      */
     public PpeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }
 
     @Override
-    /** ClassNamesResourcePath */
+    /** 类名称resource路径 */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** DefaultClassNames */
+    /** 默认类名称 */
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

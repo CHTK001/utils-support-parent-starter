@@ -5,9 +5,10 @@ import lombok.Data;
 /**
  * 磁盘分区信息实体类。
  * <p>
- * 描述物理磁盘上的分区，区别于 SysFile（文件系统挂载点级别）。
+   * 描述物理磁盘上的分区，区别于 sys文件（文件系统挂载点级别）。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class HWPartition {

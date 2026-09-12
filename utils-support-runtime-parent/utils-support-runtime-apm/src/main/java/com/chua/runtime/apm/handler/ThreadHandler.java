@@ -10,7 +10,7 @@ import com.chua.runtime.spy.InterceptContext;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 线程追踪 Handler — 拦截线程池任务提交与线程创建，记录线程事件并支持跨线程追踪。
+   * 线程追踪 处理器 — 拦截线程池任务提交与线程创建，记录线程事件并支持跨线程追踪。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ThreadHandler extends AbstractAppHandler {
 
     /**
-     * ThreadPoolExecutor 类内部名
+      * thread游泳池执行器 类内部名
      */
     private static final String THREAD_POOL_EXECUTOR = "java/util/concurrent/ThreadPoolExecutor";
 
@@ -39,7 +39,7 @@ public class ThreadHandler extends AbstractAppHandler {
     private static final String THREAD_CLASS = "java/lang/Thread";
 
     /**
-     * CompletableFuture 类内部名
+      * completable期货 类内部名
      */
     private static final String COMPLETABLE_FUTURE = "java/util/concurrent/CompletableFuture";
 
@@ -54,7 +54,7 @@ public class ThreadHandler extends AbstractAppHandler {
     private static final String[] THREAD_METHODS = {"start"};
 
     /**
-     * CompletableFuture 异步编排方法集合
+      * completable期货 异步编排方法集合
      */
     private static final String[] FUTURE_METHODS = {"runAsync", "supplyAsync"};
 
@@ -68,20 +68,20 @@ public class ThreadHandler extends AbstractAppHandler {
      */
     private final AtomicBoolean started;
 
-    /** 创建 ThreadHandler 实例 */
+    /** 创建 thread处理器 实例 */
     public ThreadHandler() {
         super();
         this.started = new AtomicBoolean(false);
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "thread-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "thread.enabled";
     }
@@ -93,13 +93,13 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(THREAD_POOL_EXECUTOR, POOL_METHODS);
         registerAll(THREAD_CLASS, THREAD_METHODS);
@@ -107,7 +107,7 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** OnIntercept */
+    /** onintercept */
     public void onIntercept(InterceptContext ctx) {
         if (!enabled) {
             return;
@@ -116,7 +116,7 @@ public class ThreadHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** DeriveOperation */
+    /** deriveoperation */
     protected String deriveOperation(InterceptContext ctx) {
         String method = ctx.getMethodName();
         if ("execute".equals(method) || "submit".equals(method)) {

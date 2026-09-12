@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ComparisonResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 相似度分数（0.0 ~ 1.0，1.0 表示完全相同）。

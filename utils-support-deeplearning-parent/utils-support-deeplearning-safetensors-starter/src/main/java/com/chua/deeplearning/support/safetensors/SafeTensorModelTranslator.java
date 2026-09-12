@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 /**
- * SafeTensor 通用翻译器，按 modelType 派发到对应的输入构建/输出解析逻辑。
+   * safetensor 通用翻译器，按 模型类型 派发到对应的输入构建/输出解析逻辑。
  * <p>
- * 支持的 modelType：document_ocr / text_embedding / face_detection / detection / image_recognition /
- * llm / vlm / asr / tts / ocr / image_gen / image_enhance / matting / face_swap / tryon / music_gen。
+   * 支持的 模型类型：文档_ocr / 文本_嵌入 / face_detection / detection / 镜像_认可 /
+   * llm / vlm / asr / tts / ocr / 镜像_gen / 镜像_增强 / matting / face_掉期 / tryon / music_gen。
  * 推理走 {@link SafeTensorServiceClient} HTTP 调用远端推理服务。
  * </p>
  *
@@ -32,13 +32,13 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     private final String modelName;
 
     /**
-     * 模型类型（如 face_detection / text_embedding / ocr）
+      * 模型类型（如 face_detection / 文本_嵌入 / ocr）
      */
     private final String modelType;
 
     /**
-     * @param host      SafeTensorService 主机
-     * @param port      SafeTensorService 端口
+     * @param host      safetensor服务 主机
+     * @param port      safetensor服务 端口
      * @param modelName 模型名称
      * @param modelType 模型类型
      */
@@ -49,16 +49,16 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return modelName;
     }
 
     /**
-     * 构造请求并调用 SafeTensorService，按 modelType 解析响应。
+      * 构造请求并调用 safetensor服务，按 模型类型 解析响应。
      *
-     * @param input 输入（String / byte[] / Long / Map / 其他）
-     * @return 解析后的对象；失败返回 null
+     * @param input 输入（字符串 / byte[] / Long / 映射 / 其他）
+     * @return 解析后的对象；失败返回 空
      */
     @Override
     public Object translate(Object input) {
@@ -73,7 +73,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         }
     }
 
-    /** 构建Input */
+    /**
+     * 构建输入
+     *
+     * @param input 输入
+     * @return 构建输入的结果
+     */
     private Map<String, Object> buildInput(Object input) {
         if (input instanceof String text) {
             return Map.of("text", text);
@@ -102,7 +107,11 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return Map.of();
     }
 
-    /** 构建Params */
+    /**
+     * 构建参数
+     *
+     * @return 构建参数的结果
+     */
     private Map<String, Object> buildParams() {
         if ("document_ocr".equals(modelType)) {
             return Map.of("max_new_tokens", 2048);
@@ -110,7 +119,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return Map.of();
     }
 
-    /** ExtractOutput */
+    /**
+     * extract输出
+     *
+     * @param result 结果
+     * @return extract输出的结果
+     */
     private Object extractOutput(Map<String, Object> result) {
         if (result == null) {
             return null;
@@ -123,7 +137,9 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
             case "detection", "image_recognition" -> parseDetection(result);
             case "llm", "vlm", "asr", "tts", "ocr" -> {
                 Object text = result.get("output");
-                if (text == null) text = result.get("text");
+                if (text == null) {
+                    text = result.get("text");
+                }
                 yield text != null ? text.toString() : "";
             }
             case "image_gen", "image_enhance", "matting", "face_swap", "tryon" -> parseImageOutput(result);
@@ -132,7 +148,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         };
     }
 
-    /** 解析Embedding */
+    /**
+     * 解析嵌入
+     *
+     * @param result 结果
+     * @return 解析嵌入的结果
+     */
     private Object parseEmbedding(Map<String, Object> result) {
         Object emb = result.get("embedding");
         if (emb instanceof List<?> list) {
@@ -142,17 +163,28 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
             }
             return arr;
         }
-        if (emb instanceof float[] arr) return arr;
+        if (emb instanceof float[] arr) {
+            return arr;
+        }
         if (emb instanceof double[] arr) {
             float[] f = new float[arr.length];
-            for (int i = 0; i < arr.length; i++) f[i] = (float) arr[i];
+            for (int i = 0; i < arr.length; i++) {
+                f[i] = (float) arr[i];
+            }
             return f;
         }
-        if (emb instanceof Number n) return new float[]{n.floatValue()};
+        if (emb instanceof Number n) {
+            return new float[]{n.floatValue()};
+        }
         return null;
     }
 
-    /** 解析FaceDetection */
+    /**
+     * 解析facedetection
+     *
+     * @param result 结果
+     * @return 解析facedetection的结果
+     */
     private Object parseFaceDetection(Map<String, Object> result) {
         Object faces = result.get("faces");
         if (faces instanceof List<?> list) {
@@ -164,7 +196,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return List.of();
     }
 
-    /** 解析Detection */
+    /**
+     * 解析Detection
+     *
+     * @param result 结果
+     * @return 解析detection的结果
+     */
     private Object parseDetection(Map<String, Object> result) {
         Object items = result.get("items");
         if (items instanceof List<?> list) {
@@ -183,27 +220,46 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return List.of();
     }
 
-    /** 解析ImageOutput */
+    /**
+     * 解析镜像输出
+     *
+     * @param result 结果
+     * @return 解析镜像输出的结果
+     */
     private Object parseImageOutput(Map<String, Object> result) {
         Object image = result.get("image");
         if (image instanceof String base64) {
             return Base64.getDecoder().decode(base64);
         }
-        if (image instanceof byte[] bytes) return bytes;
+        if (image instanceof byte[] bytes) {
+            return bytes;
+        }
         return null;
     }
 
-    /** 解析AudioOutput */
+    /**
+     * 解析音频输出
+     *
+     * @param result 结果
+     * @return 解析音频输出的结果
+     */
     private Object parseAudioOutput(Map<String, Object> result) {
         Object audio = result.get("audio");
         if (audio instanceof String base64) {
             return Base64.getDecoder().decode(base64);
         }
-        if (audio instanceof byte[] bytes) return bytes;
+        if (audio instanceof byte[] bytes) {
+            return bytes;
+        }
         return null;
     }
 
-    /** ToPredictRectangle */
+    /**
+     * 转为predictrectangle
+     *
+     * @param faceMap face映射
+     * @return 转为predictrectangle的结果
+     */
     private PredictRectangle toPredictRectangle(Map<String, Object> faceMap) {
         float confidence = ((Number) faceMap.getOrDefault("confidence", 0f)).floatValue();
         float x = ((Number) faceMap.getOrDefault("x", 0f)).floatValue();
@@ -215,7 +271,12 @@ public class SafeTensorModelTranslator implements ITranslator<Object, Object> {
         return new PredictRectangle(x, y, width, height, confidence, label, labelName);
     }
 
-    /** ToDetectionInfo */
+    /**
+     * 转为detection信息
+     *
+     * @param itemMap item映射
+     * @return 转为detection信息的结果
+     */
     private DetectionInfo toDetectionInfo(Map<String, Object> itemMap) {
         String label = (String) itemMap.getOrDefault("label", "unknown");
         float confidence = ((Number) itemMap.getOrDefault("confidence", 0f)).floatValue();

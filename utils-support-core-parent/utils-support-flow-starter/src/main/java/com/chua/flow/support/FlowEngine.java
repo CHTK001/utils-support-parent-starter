@@ -34,6 +34,9 @@ import java.util.Map;
  *     .start("start").next("echo").next("end").end()
  *     .createInstance();
  * instance.run();
+ * }</pre>tart").next("echo").next("end").end()
+ *     .createInstance();
+ * instance.run();
  * }</pre>
  *
  * @author CH
@@ -55,7 +58,7 @@ public final class FlowEngine {
     /**
      * 创建空流程。
      *
-     * @param id 流程 ID
+     * @param id 流程 标识
      * @return 流程构建入口
      */
     public static Flow createFlow(String id) {

@@ -22,7 +22,7 @@ import java.util.function.Function;
 public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return method.isAnnotationPresent(AutoInject.class);
     }
@@ -30,11 +30,11 @@ public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethod
     @Override
     /**
      * Inject
-     * @param method method
+     * @param method 方法
      * @param instance instance
-     * @param beanDefinition beanDefinition
-     * @param beanProvider beanProvider
-     * @param typeProvider typeProvider
+     * @param beanDefinition Beandefinition
+     * @param beanProvider Bean提供者
+     * @param typeProvider 类型提供者
      */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,

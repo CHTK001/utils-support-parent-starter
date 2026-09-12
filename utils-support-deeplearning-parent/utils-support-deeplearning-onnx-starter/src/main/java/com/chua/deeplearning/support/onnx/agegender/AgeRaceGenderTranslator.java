@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * AgeRaceGenderNet          
+   * age竞争gendernet
  * <p>
- *              AgeRaceGenderNet                                              
+   * age竞争gendernet
  *                                                          
  * -                            0-116      117            
  * -                            
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  *                
  * -                       256x256
  * -              [0, 1]
- * - ImageNet             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+   * - 镜像net             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
  * -           NCHW       
  * <p>
  *                
@@ -35,13 +35,13 @@ import org.slf4j.LoggerFactory;
  * -          softmax                   White/Black/Asian/Indian/Others   
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictResult> {
 
     /** 日志记录器 */
-    /** Logger */
+    /** 日志记录器 */
     private static final Logger LOGGER = LoggerFactory.getLogger(AgeRaceGenderTranslator.class);
 
     /**
@@ -50,12 +50,12 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     private static final int INPUT_SIZE = 256;
 
     /**
-     * ImageNet       
+      * 镜像net
      */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
-     * ImageNet          
+      * 镜像net
      */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
@@ -81,7 +81,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     };
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -97,13 +97,13 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         array = array.div(255.0f);
 
         //           CHW       : [3, 256, 256]
-        //          NDImageUtils.normalize                       CHW       
+ // nd镜像工具.normalize                       CHW
         array = array.transpose(2, 0, 1);
 
-        // ImageNet                 CHW                   
+ // 镜像net                 CHW
         array = NDImageUtils.normalize(array, MEAN, STD);
 
-        //        batch       : [1, 3, 256, 256]
+ // 批量       : [1, 3, 256, 256]
         array = array.expandDims(0);
 
         if (LOGGER.isDebugEnabled()) {
@@ -113,7 +113,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public HumanPredictResult processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("                        : {}          ", list.size());
@@ -133,7 +133,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         float raceConfidence = 0.0f;
 
         if (list.size() >= 3) {
-            //                         [age, gender, race]
+ // [age, gender, 竞争]
             //                                              
 
             // 1.                                                             
@@ -143,7 +143,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             }
 
             //                                     shape     (1, num_ages)
-            //           squeeze        batch                       softmax
+ // squeeze        批量                       softmax
             NDArray ageLogits = ageOutput.squeeze(0);
             NDArray ageProbs = ageLogits.softmax(-1);
 
@@ -161,7 +161,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
                 LOGGER.debug("             shape: {}", genderOutput.getShape());
             }
 
-            //        batch                 softmax
+ // 批量                 softmax
             NDArray genderLogits = genderOutput.squeeze(0);
             NDArray genderProbs = genderLogits.softmax(-1);
             int genderIdx = (int) genderProbs.argMax().getLong();
@@ -178,7 +178,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
                 LOGGER.debug("             shape: {}", raceOutput.getShape());
             }
 
-            //        batch                 softmax
+ // 批量                 softmax
             NDArray raceLogits = raceOutput.squeeze(0);
             NDArray raceProbs = raceLogits.softmax(-1);
             int raceIdx = (int) raceProbs.argMax().getLong();
@@ -201,7 +201,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             long[] shape = output.getShape().getShape();
 
             if (shape.length >= 2 && shape[1] >= 7) {
-                //                      [batch, features]
+ // [批量, 特征]
                 // features                1          + 2          + 5          = 8         
 
                 //             
@@ -231,7 +231,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
         LOGGER.info("            :       ={},       ={},       ={},       ={}ms",
                 age, gender, race, processingTime);
 
-        //        HumanPredictResult                                                                
+ // humanpredict结果
         HumanPredictResult result = HumanPredictResult.builder()
                 .processingTimeMs(processingTime)
                 .confidence(Math.max(Math.max(ageConfidence, genderConfidence), raceConfidence))
@@ -283,7 +283,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        //           batchifier                         processInput                    batch       
+ // batchifier                         处理输入                    批量
         return null;
     }
 }

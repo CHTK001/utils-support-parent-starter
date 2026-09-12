@@ -43,6 +43,6 @@ public interface ConditionNode extends FlowNode {
      */
     @Override
     default void execute(FlowContext context) {
-        // 条件节点不做默认执行，判断逻辑按 test 契约处理
+ // 条件节点不做默认执行，判断逻辑按 测试 契约处理
     }
 }

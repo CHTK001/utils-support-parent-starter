@@ -12,7 +12,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
- * JSR 标准生命周期处理器，通过反射处理 @PostConstruct 和 @PreDestroy 注解。
+   * JSR 标准生命周期处理器，通过反射处理 @postconstruct 和 @pre销毁 注解。
  *
  * <p>支持的 JSR 标准：
  * <ul>
@@ -30,17 +30,17 @@ import java.lang.reflect.Method;
 @SpiDescribe("JSR 标准生命周期处理器（@PostConstruct、@PreDestroy）")
 public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
 
-    /** Post_construct_javax */
+    /** Post_Construct_javax */
     private static final String POST_CONSTRUCT_JAVAX = "javax.annotation.PostConstruct";
-    /** Post_construct_jakarta */
+    /** Post_Construct_jakarta */
     private static final String POST_CONSTRUCT_JAKARTA = "jakarta.annotation.PostConstruct";
-    /** Pre_destroy_javax */
+    /** Pre_销毁_javax */
     private static final String PRE_DESTROY_JAVAX = "javax.annotation.PreDestroy";
-    /** Pre_destroy_jakarta */
+    /** Pre_销毁_jakarta */
     private static final String PRE_DESTROY_JAKARTA = "jakarta.annotation.PreDestroy";
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
@@ -63,7 +63,12 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         invokeAnnotatedMethods(bean, PRE_DESTROY_JAVAX, PRE_DESTROY_JAKARTA);
     }
 
-    /** 调用AnnotatedMethods */
+    /**
+     * 调用annotated方法
+     *
+     * @param bean Bean
+     * @param annotationNames 注解名称
+     */
     private void invokeAnnotatedMethods(Object bean, String... annotationNames) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.getParameterCount() > 0) {
@@ -80,7 +85,13 @@ public class JsrBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
         }
     }
 
-    /** 是否拥有AnyAnnotation */
+    /**
+     * 是否拥有任意注解
+     *
+     * @param method 方法
+     * @param annotationNames 注解名称
+     * @return 是否包含任意注解的结果
+     */
     private boolean hasAnyAnnotation(Method method, String... annotationNames) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

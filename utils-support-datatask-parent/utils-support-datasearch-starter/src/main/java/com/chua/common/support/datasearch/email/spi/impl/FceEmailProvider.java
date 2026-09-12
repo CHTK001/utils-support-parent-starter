@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * FreeCustom.Email (FCE) 临时邮箱服务实现 — REST API 方式。
+   * free习俗.Email (FCE) 临时邮箱服务实现 — REST API 方式。
  *
  * <p>纯 REST API，无需浏览器，无需 IMAP：</p>
  * <ul>
@@ -33,9 +33,9 @@ import java.util.regex.Pattern;
 @Spi("fce")
 public class FceEmailProvider implements EmailProvider {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final String API_BASE = "https://api2.freecustom.email/v1";
-    private static final String[] DOMAINS = {"ditube.info", "ditapi.info"};
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
+    private static final String API_BASE = "https://api2.freecustom.email/v1"; // API_基础
+    private static final String[] DOMAINS = {"ditube.info", "ditapi.info"}; // DOMAINS
 
     /** OTP 验证码正则：3+3格式（如 ABC-123）或纯6位数字 */
     private static final Pattern OTP_PATTERN = Pattern.compile("\\b([A-Z0-9]{3})-?([A-Z0-9]{3})\\b");
@@ -43,6 +43,9 @@ public class FceEmailProvider implements EmailProvider {
 
     private final String apiKey;
 
+    /**
+     * fceemail提供者。
+     */
     public FceEmailProvider() {
         this.apiKey = resolveApiKey();
     }
@@ -125,9 +128,18 @@ public class FceEmailProvider implements EmailProvider {
 
     /**
      * 从邮件内容中提取 OTP 验证码。
+     * @return resolveapi键的结果
+     /**
+       * extractotp。
+      * @param text 文本
+      * @return extractOtp的结果
+      */
+     * @param length 长度
      */
     public static String extractOtp(String text) {
-        if (text == null) return null;
+        if (text == null) {
+            return null;
+        }
         Matcher m = OTP_PATTERN.matcher(text);
         if (m.find()) {
             return m.group(1) + m.group(2);
@@ -147,7 +159,9 @@ public class FceEmailProvider implements EmailProvider {
 
     private static String resolveApiKey() {
         String key = System.getProperty("fce.api.key");
-        if (key != null && !key.isBlank()) return key.trim();
+        if (key != null && !key.isBlank()) {
+            return key.trim();
+        }
         key = System.getenv("FCE_API_KEY");
         return key;
     }

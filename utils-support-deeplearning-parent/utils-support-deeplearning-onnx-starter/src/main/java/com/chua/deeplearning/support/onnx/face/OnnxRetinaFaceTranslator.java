@@ -17,17 +17,34 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+/**
+ * OnnxRetinaFaceTranslator类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjects> {
-    /**     * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值     */    public OnnxRetinaFaceTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {        this(configuration == null ? java.util.Collections.emptyMap() : configuration.systemOption());    }
+    /**
+     * * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值
+     *
+     * @param arguments 参数
+     */
     private static final int TOP_K = 200;
-    private static final double EYE_DIST_THRESHOLD = 5;
-    private static final double[] VARIANCE = {0.1, 0.2};
-    private static final int[][] SCALES = {{16, 32}, {64, 128}, {256, 512}};
-    private static final int[] STEPS = {8, 16, 32};
+    private static final double EYE_DIST_THRESHOLD = 5; // eyedist阈值
+    private static final double[] VARIANCE = {0.1, 0.2}; // VARIANCE
+    private static final int[][] SCALES = {{16, 32}, {64, 128}, {256, 512}}; // SCALES
+    private static final int[] STEPS = {8, 16, 32}; // STEPS
+/**
+   * onnxretinafacetranslator。
+ * @param arguments 参数
+ */
 
-    private double confThresh = 0.85;
-    private double nmsThresh = 0.45;
+    private double confThresh = 0.85; // confthresh
+    private double nmsThresh = 0.45; // nmsthresh
+/**
+ * OnnxRetinaFaceTranslator。
+ */
 
     public OnnxRetinaFaceTranslator() {
     }
@@ -56,7 +73,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     private int height;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -79,7 +96,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 3) {
             return empty();
@@ -136,7 +153,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             }
             // 眼睛距离过滤（关键点归一化，乘图像尺寸转像素）
             double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2))
-                    * Math.max(width, height);
+                     * Math.最大(width, height);
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }
@@ -144,7 +161,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             for (int j = 0; j < 5; j++) {
                 pts.add(new Point(c.kp[j * 2], c.kp[j * 2 + 1]));
             }
-            // bounds 与关键点均为归一化坐标（adaptOutput 统一乘图像尺寸转像素）
+ // bounds 与关键点均为归一化坐标（adapt输出 统一乘图像尺寸转像素）
             Landmark landmark = new Landmark(c.x, c.y, c.w, c.h, pts);
             names.add("face");
             probs.add(c.prob);
@@ -155,7 +172,10 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * 与原已加入框计算 IoU（归一化坐标域）。
+      * 与原已加入框计算 iou（归一化坐标域）。
+     * @param c c
+     * @param nb nb
+     * @return iouPixels的结果
      */
     private double iouPixels(Candidate c, Rectangle nb) {
         double s1 = c.w * c.h;
@@ -174,6 +194,11 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
 
     /**
      * 计算默认框（priors）。
+     * @param width width
+     * @param height height
+     * @param scales scales
+     * @param steps steps
+     * @return boxRecover的结果
      */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> boxes = new ArrayList<>();
@@ -196,7 +221,9 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     }
 
     /**
-     * NDArray 转二维 float 数组（处理 batch 维）。
+      * ndarray 转二维 float 数组（处理 批量 维）。
+     * @param array array
+     * @return to2d的结果
      */
     private static float[][] to2d(NDArray array) {
         Shape shape = array.getShape();
@@ -222,6 +249,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
 
     /**
      * 空结果。
+     * @return 空的结果
      */
     private static DetectedObjects empty() {
         return new DetectedObjects(List.of(), List.of(), List.of());

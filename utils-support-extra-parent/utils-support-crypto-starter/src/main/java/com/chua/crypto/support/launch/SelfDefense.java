@@ -12,11 +12,11 @@ import java.util.Locale;
  *
  * <h2>1. Agent 注入检测</h2>
  * 检查 JVM 输入参数中的 {@code -javaagent/-agentpath/-agentlib}；
- * 加密发行包正常启动不应携带任何 agent。
+   * 加密发行包正常启动不应携带任何 智能体。
  *
  * <h2>2. 字节码工具包加载扫描</h2>
  * 后台守护线程周期性扫描线程栈中已加载类的包名，命中已知注入/转储工具
- * （ByteBuddy、Javassist、Attach API、Jacoco 等）即判定为可疑注入。
+   * （bytebuddy、Javassist、Attach API、Jacoco 等）即判定为可疑注入。
  *
  * <h2>3. 防护模式</h2>
  * {@code -Dchua.crypto.guard=off|warn|strict}（默认 warn）：
@@ -58,7 +58,7 @@ public final class SelfDefense {
     }
 
     /**
-     * 安装防护：立即执行一次 agent 参数检测，并按需启动后台扫描线程
+      * 安装防护：立即执行一次 智能体 参数检测，并按需启动后台扫描线程
      */
     public static void install() {
         String mode = guardMode();
@@ -80,7 +80,7 @@ public final class SelfDefense {
     }
 
     /**
-     * 检测 JVM 输入参数中的 agent 注入
+      * 检测 JVM 输入参数中的 智能体 注入
      *
      * @param mode 防护模式
      */

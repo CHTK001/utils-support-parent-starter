@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
  * 码眼解析器
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 public interface CodeEyeResolver {

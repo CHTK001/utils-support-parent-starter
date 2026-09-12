@@ -7,19 +7,25 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 向量存储性能基准测试 - 独立运行入口。
+ * @author CH
+ * @since 4.0.0
  */
 public class VectorStorageBench {
 
-    private static final int DIMENSION = 128;
-    private static final int COUNT = 100_000;
-    private static final int TOP_K = 10;
-    private static final int WARMUP_ROUNDS = 3;
-    private static final int MEASURE_ROUNDS = 5;
-    private static final int FLUSH_BATCH = 10_000;
+    private static final int DIMENSION = 128; // 维度
+    private static final int COUNT = 100_000; // 数量
+    private static final int TOP_K = 10; // TOP_K
+    private static final int WARMUP_ROUNDS = 3; // WARMUP_ROUNDS
+    private static final int MEASURE_ROUNDS = 5; // 测量rounds
+    private static final int FLUSH_BATCH = 10_000; // FLUSH_批量
 
-    private static final Random RANDOM = ThreadLocalRandom.current();
-    private static Path testDir;
+    private static final Random RANDOM = ThreadLocalRandom.current(); // 随机
+    private static Path testDir; // 测试dir
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("vector-bench-");
         System.out.println("========================================");
@@ -41,16 +47,33 @@ public class VectorStorageBench {
 
     // ==================== 工具方法 ====================
 
+    /**
+     * 随机向量。
+     * @param dim dim
+     * @return 随机向量的结果
+     */
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
-        for (int i = 0; i < dim; i++) v[i] = RANDOM.nextFloat() * 2 - 1;
+        for (int i = 0; i < dim; i++) {
+            v[i] = RANDOM.nextFloat() * 2 - 1;
+        }
         float norm = 0f;
-        for (float f : v) norm += f * f;
+        for (float f : v) {
+            norm += f * f;
+        }
         norm = (float) Math.sqrt(norm);
-        if (norm > 0) for (int i = 0; i < dim; i++) v[i] /= norm;
+        if (norm > 0) {
+            for (int i = 0; i < dim; i++) {
+                v[i] /= norm;
+            }
+        }
         return v;
     }
 
+    /**
+     * 删除recursively。
+     * @param dir dir
+     */
     private static void deleteRecursively(Path dir) {
         try {
             Files.walk(dir)
@@ -59,6 +82,12 @@ public class VectorStorageBench {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * print吞吐量。
+     * @param label 标签
+     * @param ops ops
+     * @param ms ms
+     */
     private static void printThroughput(String label, long ops, long ms) {
         System.out.printf("[%s] %.0f ops/s (%.0f MSOPS)%n", label, ops * 1000.0 / Math.max(ms, 1),
                 ops * 1000.0 / Math.max(ms, 1) / 1_000_000.0);
@@ -66,6 +95,9 @@ public class VectorStorageBench {
 
     // ==================== MemoryVectorStorage ====================
 
+    /**
+     * 测试内存storage。
+     */
     private static void testMemoryStorage() {
         System.out.println("【1. MemoryVectorStorage】");
         int dim = DIMENSION;
@@ -74,14 +106,18 @@ public class VectorStorageBench {
         // 预热
         for (int round = 0; round < WARMUP_ROUNDS; round++) {
             MemoryVectorStorage s = new MemoryVectorStorage(dim, VectorCompareAlgorithm.cosine());
-            for (int i = 0; i < COUNT / 10; i++) s.add("id_" + i, randomVector(dim));
+            for (int i = 0; i < COUNT / 10; i++) {
+                s.add("id_" + i, randomVector(dim));
+            }
             s.search(randomVector(dim), TOP_K);
             s.close();
         }
 
         // 写入
         long writeStart = System.nanoTime();
-        for (int i = 0; i < COUNT; i++) storage.add("id_" + i, randomVector(dim));
+        for (int i = 0; i < COUNT; i++) {
+            storage.add("id_" + i, randomVector(dim));
+        }
         long writeMs = (System.nanoTime() - writeStart) / 1_000_000L;
         printThroughput("写入", COUNT, writeMs);
 
@@ -90,7 +126,9 @@ public class VectorStorageBench {
         long searchTotalNs = 0;
         for (int round = 0; round < MEASURE_ROUNDS; round++) {
             long start = System.nanoTime();
-            for (int i = 0; i < 100; i++) storage.search(query, TOP_K);
+            for (int i = 0; i < 100; i++) {
+                storage.search(query, TOP_K);
+            }
             searchTotalNs += (System.nanoTime() - start);
         }
         long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);
@@ -102,6 +140,9 @@ public class VectorStorageBench {
 
     // ==================== DefaultVectorStorage - HYBRID ====================
 
+    /**
+     * 测试默认hybrid。
+     */
     private static void testDefaultHybrid() throws Exception {
         System.out.println("【2. DefaultVectorStorage (HYBRID)】");
         int dim = DIMENSION;
@@ -110,7 +151,9 @@ public class VectorStorageBench {
         DefaultVectorStorage warmup = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("warmup"))
                 .mode(DefaultVectorStorage.Mode.HYBRID).shardSize(FLUSH_BATCH).build();
-        for (int i = 0; i < COUNT / 10; i++) warmup.add("id_" + i, randomVector(dim));
+        for (int i = 0; i < COUNT / 10; i++) {
+            warmup.add("id_" + i, randomVector(dim));
+        }
         warmup.flush(); warmup.close();
 
         // 写入 + 分批刷盘
@@ -121,7 +164,9 @@ public class VectorStorageBench {
         long writeStart = System.nanoTime();
         for (int i = 0; i < COUNT; i++) {
             storage.add("id_" + i, randomVector(dim));
-            if ((i + 1) % FLUSH_BATCH == 0) storage.flush();
+            if ((i + 1) % FLUSH_BATCH == 0) {
+                storage.flush();
+            }
         }
         storage.flush();
         long writeMs = (System.nanoTime() - writeStart) / 1_000_000L;
@@ -140,21 +185,25 @@ public class VectorStorageBench {
         long searchTotalNs = 0;
         for (int round = 0; round < MEASURE_ROUNDS; round++) {
             long start = System.nanoTime();
-            for (int i = 0; i < 100; i++) loaded.search(query, TOP_K);
+            for (int i = 0; i < 100; i++) {
+                loaded.search(query, TOP_K);
+            }
             searchTotalNs += (System.nanoTime() - start);
         }
         long nsPerCall = searchTotalNs / (MEASURE_ROUNDS * 100L);
         System.out.printf("  单次搜索 topK=%d (已缓存): %d us, %.0f QPS%n", TOP_K, nsPerCall / 1000,
                 1_000_000.0 / Math.max(nsPerCall, 1));
 
-        // 对比纯 FILE 模式（每次重读磁盘）
+ // 对比纯 文件 模式（每次重读磁盘）
         DefaultVectorStorage fileOnly = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("hybrid"))
                 .mode(DefaultVectorStorage.Mode.FILE).shardSize(FLUSH_BATCH).build();
         long fileTotalNs = 0;
         for (int round = 0; round < MEASURE_ROUNDS; round++) {
             long start = System.nanoTime();
-            for (int i = 0; i < 100; i++) fileOnly.search(query, TOP_K);
+            for (int i = 0; i < 100; i++) {
+                fileOnly.search(query, TOP_K);
+            }
             fileTotalNs += (System.nanoTime() - start);
         }
         long fileNsPerCall = fileTotalNs / (MEASURE_ROUNDS * 100L);
@@ -168,6 +217,9 @@ public class VectorStorageBench {
 
     // ==================== 大规模测试 ====================
 
+    /**
+     * 测试largescale。
+     */
     private static void testLargeScale() throws Exception {
         System.out.println("【3. 大规模 - 100万条向量】");
         int dim = DIMENSION;
@@ -182,7 +234,9 @@ public class VectorStorageBench {
         long t0 = System.nanoTime();
         for (int i = 0; i < largeCount; i++) {
             storage.add("id_" + i, randomVector(dim));
-            if ((i + 1) % largeFlushBatch == 0) storage.flush();
+            if ((i + 1) % largeFlushBatch == 0) {
+                storage.flush();
+            }
         }
         storage.flush();
         long writeMs = (System.nanoTime() - t0) / 1_000_000L;
@@ -206,21 +260,25 @@ public class VectorStorageBench {
         long searchTotalNs = 0;
         for (int round = 0; round < 5; round++) {
             long start = System.nanoTime();
-            for (int i = 0; i < 10; i++) loaded.search(query, 10);
+            for (int i = 0; i < 10; i++) {
+                loaded.search(query, 10);
+            }
             searchTotalNs += (System.nanoTime() - start);
         }
         long nsPerCall = searchTotalNs / 50L;
         System.out.printf("  单次搜索 topK=10: %d us, %.0f QPS%n", nsPerCall / 1000,
                 1_000_000.0 / Math.max(nsPerCall, 1));
 
-        // 纯 FILE 模式对比
+ // 纯 文件 模式对比
         DefaultVectorStorage fileOnly = DefaultVectorStorage.builder()
                 .dimension(dim).dir(testDir.resolve("large"))
                 .mode(DefaultVectorStorage.Mode.FILE).shardSize(largeFlushBatch).build();
         long fileTotalNs = 0;
         for (int round = 0; round < 5; round++) {
             long start = System.nanoTime();
-            for (int i = 0; i < 10; i++) fileOnly.search(query, 10);
+            for (int i = 0; i < 10; i++) {
+                fileOnly.search(query, 10);
+            }
             fileTotalNs += (System.nanoTime() - start);
         }
         long fileNsPerCall = fileTotalNs / 50L;

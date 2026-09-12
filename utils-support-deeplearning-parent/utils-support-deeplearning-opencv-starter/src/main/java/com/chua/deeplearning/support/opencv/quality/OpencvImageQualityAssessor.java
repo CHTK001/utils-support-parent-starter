@@ -10,7 +10,7 @@ import org.opencv.core.MatOfDouble;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * 纯 OpenCV 图像质量评估翻译器。
+   * 纯 打开cv 图像质量评估翻译器。
  * <p>基于 Laplacian 方差评估清晰度，基于灰度均值/标准差评估亮度与对比度。</p>
  *
  * @author CH
@@ -56,7 +56,7 @@ public class OpencvImageQualityAssessor extends OpencvModelTranslator {
     }
 
     @Override
-    /** DoTranslate */
+    /** 执行translate */
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {
             throw new IllegalArgumentException("仅支持 byte[] 输入");

@@ -46,9 +46,9 @@ public class DirectoryDataSyncMappingScanner {
     private WatchService watchService;
 
     /**
-     * 创建 DirectoryDataSyncMappingScanner 实例
-     * @param mappingManager mappingManager
-     * @param config config
+      * 创建 目录数据同步mappingscanner 实例
+     * @param mappingManager mapping管理器
+     * @param config 配置
      * @param parsers parsers
      */
     public DirectoryDataSyncMappingScanner(DataSyncMappingManager mappingManager,
@@ -91,7 +91,11 @@ public class DirectoryDataSyncMappingScanner {
         }
     }
 
-    /** 扫描All */
+    /**
+     * 扫描全部
+     *
+     * @param dir dir
+     */
     private void scanAll(Path dir) {
         try {
             Files.walk(dir).filter(Files::isRegularFile).forEach(file -> {
@@ -121,7 +125,11 @@ public class DirectoryDataSyncMappingScanner {
         }
     }
 
-    /** Watch */
+    /**
+     * Watch
+     *
+     * @param dir dir
+     */
     private void watch(Path dir) {
         try {
             watchService = FileSystems.getDefault().newWatchService();

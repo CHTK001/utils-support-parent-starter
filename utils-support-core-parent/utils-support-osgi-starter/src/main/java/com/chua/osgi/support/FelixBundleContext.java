@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Felix BundleContext 实现，包装 Felix 框架的 BundleContext。
+   * Felix bundle上下文 实现，包装 Felix 框架的 bundle上下文。
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,14 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FelixBundleContext implements com.chua.common.support.osgi.BundleContext {
 
     /**
-     * 被包装的 OSGI BundleContext
+      * 被包装的 OSGI bundle上下文
      */
     private final org.osgi.framework.BundleContext delegate;
 
     /**
-     * 注册跟踪表：ServiceReference → ServiceRegistration。
+      * 注册跟踪表：服务引用 → 服务registration。
      * <p>{@code unregisterService} 需经 {@link org.osgi.framework.ServiceRegistration#unregister()}
-     * 真正注销服务（仅 ungetService 只释放引用计数，服务仍留在注册表）。</p>
+      * 真正注销服务（仅 unget服务 只释放引用计数，服务仍留在注册表）。</p>
      */
     private final Map<org.osgi.framework.ServiceReference<?>, org.osgi.framework.ServiceRegistration<?>> registrations =
             new ConcurrentHashMap<>();
@@ -30,14 +30,14 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     /**
      * 构造函数。
      *
-     * @param delegate OSGI BundleContext
+     * @param delegate OSGI bundle上下文
      */
     public FelixBundleContext(org.osgi.framework.BundleContext delegate) {
         this.delegate = delegate;
     }
 
     @Override
-    /** 注册Service */
+    /** 注册服务 */
     public <T> void registerService(Class<T> type, T service) {
         org.osgi.framework.ServiceRegistration<?> reg =
                 delegate.registerService(type.getName(), service, null);
@@ -45,7 +45,7 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     @Override
-    /** 注销Service */
+    /** 注销服务 */
     public <T> void unregisterService(Class<T> type, T service) {
         for (Map.Entry<org.osgi.framework.ServiceReference<?>, org.osgi.framework.ServiceRegistration<?>> e
                 : registrations.entrySet()) {
@@ -75,7 +75,12 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取Services */
+    /**
+     * 获取服务
+     *
+     * @param type 类型
+     * @return 获取服务的结果
+     */
     public <T> List<T> getServices(Class<T> type) {
         try {
             org.osgi.framework.ServiceReference<?>[] refs =
@@ -98,7 +103,7 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     }
 
     @Override
-    /** 获取Service */
+    /** 获取服务 */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
         return services.isEmpty() ? null : services.get(0);

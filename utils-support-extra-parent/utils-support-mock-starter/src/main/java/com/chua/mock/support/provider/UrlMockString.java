@@ -26,6 +26,8 @@ public class UrlMockString implements MockString {
     private static final String[] PROTOCOLS = {"https", "http"};
     /**
      * 路径段池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String[] PATHS = {
             "api", "user", "order", "product", "login", "home", "detail", "search",

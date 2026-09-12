@@ -22,7 +22,7 @@ import java.util.List;
  * APM 命令 — 动态展示已加载的 APM 处理器及其数据。
  *
  * <p>子命令从 ApmBootstrap 实际加载的 Plugin 动态生成：
- * 主命令 {@code apm} 显示总览，{@code apm &lt;handler&gt;} 查看具体 handler 数据。</p>
+   * 主命令 {@code apm} 显示总览，{@code apm &lt;handler&gt;} 查看具体 处理器 数据。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,7 +30,7 @@ import java.util.List;
 public class ApmCommand implements Command {
 
     /**
-     * Handler 名称中的 "-handler" 后缀
+      * 处理器 名称中的 "-处理器" 后缀
      */
     private static final String HANDLER_SUFFIX = "-handler";
 
@@ -40,12 +40,12 @@ public class ApmCommand implements Command {
     private static final String CMD_NAME = "apm";
 
     /**
-     * "list" 子命令
+      * "列表" 子命令
      */
     private static final String SUB_LIST = "list";
 
     /**
-     * "status" 子命令
+      * "状态" 子命令
      */
     private static final String SUB_STATUS = "status";
 
@@ -55,7 +55,7 @@ public class ApmCommand implements Command {
     private static final String SUB_HELP = "help";
 
     /**
-     * "logs" 子命令（向后兼容别名）
+      * "日志" 子命令（向后兼容别名）
      */
     private static final String SUB_LOGS = "logs";
 
@@ -65,27 +65,27 @@ public class ApmCommand implements Command {
     private static final String SUB_NET = "net";
 
     /**
-     * "file" 子命令（向后兼容别名）
+      * "文件" 子命令（向后兼容别名）
      */
     private static final String SUB_FILE = "file";
 
     /**
-     * "trace" 子命令（向后兼容别名）
+      * "追踪" 子命令（向后兼容别名）
      */
     private static final String SUB_TRACE = "trace";
 
     /**
-     * Handler 运行状态字符串
+      * 处理器 运行状态字符串
      */
     private static final String STATUS_RUNNING = "RUNNING";
 
     /**
-     * Handler 停止状态字符串
+      * 处理器 停止状态字符串
      */
     private static final String STATUS_STOPPED = "STOPPED";
 
     /**
-     * 根 Span 标识（parentSpanId 为 null 时显示）
+      * 根 Span 标识（父spanid 为 空 时显示）
      */
     private static final String ROOT_SPAN = "(root)";
 
@@ -109,7 +109,7 @@ public class ApmCommand implements Command {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return CMD_NAME;
     }
@@ -117,7 +117,7 @@ public class ApmCommand implements Command {
     @Override
     /** Aliases */
     public String[] aliases() {
-        // 动态别名：handler 名称去除 -handler 后缀
+ // 动态别名：处理器 名称去除 -处理器 后缀
         List<String> aliases = new ArrayList<>();
         if (apm != null) {
             for (Plugin p : apm.getHandlers()) {
@@ -134,7 +134,7 @@ public class ApmCommand implements Command {
     }
 
     @Override
-    /** Complete */
+    /** 完成 */
     public List<String> complete(String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 0 || args.length == 1) {
@@ -224,7 +224,7 @@ public class ApmCommand implements Command {
     }
 
     /**
-     * 显示具体 handler 的数据。
+      * 显示具体 处理器 的数据。
      *
      * @param handler 处理器
      * @param console 控制台
@@ -239,8 +239,8 @@ public class ApmCommand implements Command {
             } catch (NumberFormatException ignored) {
             }
         }
-        // instanceof 路由不可迁移至 ServiceProvider：上述 7 个 Handler 均为具体实现类（非可扩展 SPI 接口），
-        // 各自持有不同的数据结构（LogEntry/NetRecord/FileRecord/Span/TransmissionRecord/DependencyEdge/HandleRecord），
+ // instanceof 路由不可迁移至 服务提供者：上述 7 个 处理器 均为具体实现类（非可扩展 SPI 接口），
+ // 各自持有不同的数据结构（日志entry/netrecord/文件record/Span/transmissionrecord/dependencyedge/处理record），
         // 分发逻辑为业务固定的类型路由，故保留。
         if (handler instanceof LogHandler) {
             showLogs((LogHandler) handler, console, limit);
@@ -446,10 +446,10 @@ public class ApmCommand implements Command {
     }
 
     /**
-     * 根据简称查找 handler。
+      * 根据简称查找 处理器。
      *
      * @param shortName 简称
-     * @return 处理器实例，未找到返回 null
+     * @return 处理器实例，未找到返回 空
      */
     private Plugin findHandler(String shortName) {
         if (apm == null) {
@@ -467,7 +467,7 @@ public class ApmCommand implements Command {
     }
 
     /**
-     * 获取所有 handler 的简称列表。
+      * 获取所有 处理器 的简称列表。
      *
      * @return 简称列表
      */
@@ -482,7 +482,7 @@ public class ApmCommand implements Command {
     }
 
     /**
-     * 去除 handler 名称中的 "-handler" 后缀得到简称。
+      * 去除 处理器 名称中的 "-处理器" 后缀得到简称。
      *
      * @param fullName 完整名称
      * @return 简称

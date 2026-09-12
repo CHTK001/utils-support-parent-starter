@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 基于 Kademlia DHT 协议的轮询目录实现。
  * <p>
- * 通过 DHT 定时查询指定键的值，检测变更后将 CREATE/DELETE 事件分发给监听器。
+   * 通过 DHT 定时查询指定键的值，检测变更后将 创建/删除 事件分发给监听器。
  * 支持通过 URL 格式配置 DHT 节点地址、监听键、种子节点等参数。
  * </p>
  *
@@ -73,7 +73,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     private ScheduledExecutorService scheduler;
 
     /**
-     * 定时轮询任务的 Future
+      * 定时轮询任务的 期货
      */
     private ScheduledFuture<?> pollingTask;
 
@@ -100,7 +100,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 是否DelegatedOperatingSystem */
+    /** 是否delegatedoperating系统 */
     public boolean isDelegatedOperatingSystem() {
         return false;
     }
@@ -155,7 +155,7 @@ public class DhtPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(PolledListener listener) {
         if (listener != null) {
             listeners.add(listener);

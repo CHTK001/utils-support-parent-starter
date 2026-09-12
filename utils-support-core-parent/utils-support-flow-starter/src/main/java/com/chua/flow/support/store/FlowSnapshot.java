@@ -12,8 +12,8 @@ import java.util.List;
  * <p>描述一次实例运行的执行结果，包含执行号、节点执行轨迹、最终状态与起止时间，
  * 供落库持久化、全链路追踪与前端重放使用。</p>
  *
- * @param executionNo 执行号（通常复用实例 ID）
- * @param flowId      流程 ID
+ * @param executionNo 执行号（通常复用实例 标识）
+ * @param flowId      流程 标识
  * @param traces      节点执行轨迹（输入/输出快照）
  * @param status      最终执行状态
  * @param startAt     开始时间戳（毫秒）

@@ -10,10 +10,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
 
 /**
- * SQLite 嵌入式数据库引擎。
+   * sqlite 嵌入式数据库引擎。
  * <p>
- * 继承自 {@link JdbcEngine}，提供 SQLite 特有的便捷数据源配置方法。
- * SQLite 是一种轻量级、零配置的嵌入式关系型数据库，
+   * 继承自 {@link JdbcEngine}，提供 sqlite 特有的便捷数据源配置方法。
+   * sqlite 是一种轻量级、零配置的嵌入式关系型数据库，
  * 适合本地数据存储、测试环境和移动端应用。
  * </p>
  * <p>
@@ -22,6 +22,7 @@ import javax.sql.DataSource;
  * SqliteEngine engine = new SqliteEngine();
  * engine.addDataSource("default", "data/mydb.sqlite");
  * List<User> users = engine.query(User.class).list();
+ * }</pre>r.class).list();
  * }</pre>
  * </p>
  *
@@ -32,13 +33,13 @@ import javax.sql.DataSource;
 public class SqliteEngine extends JdbcEngine {
 
     /**
-     * 添加一个 SQLite 数据源。
+      * 添加一个 sqlite 数据源。
      * <p>
-     * 使用 HikariCP 连接池，最大连接数为 5。
+      * 使用 hikaricp 连接池，最大连接数为 5。
      * </p>
      *
      * @param name     数据源名称
-     * @param filePath SQLite 数据库文件路径
+     * @param filePath sqlite 数据库文件路径
      * @return 当前引擎实例
      */
     public Engine addDataSource(String name, String filePath) {
@@ -48,25 +49,25 @@ public class SqliteEngine extends JdbcEngine {
         ds.setMaximumPoolSize(5);
         EngineDataSource<Object> dataSource = new EngineDataSource<Object>() {
             @Override
-            /** Name */
+            /** 名称 */
             public String name() {
                 return name;
             }
 
             @Override
-            /** 获取Source */
+            /** 获取源 */
             public Object getSource() {
                 return ds;
             }
 
             @Override
-            /** 获取Source */
+            /** 获取源 */
             public <R> R getSource(Class<R> type) {
                 return type.cast(ds);
             }
 
             @Override
-            /** 设置Source */
+            /** 设置源 */
             public EngineDataSource<Object> setSource(Object source) {
                 return this;
             }
@@ -90,13 +91,13 @@ public class SqliteEngine extends JdbcEngine {
             }
 
             @Override
-            /** Username */
+            /** 用户名 */
             public String username() {
                 return ds.getUsername();
             }
 
             @Override
-            /** Password */
+            /** 密码 */
             public String password() {
                 return ds.getPassword();
             }

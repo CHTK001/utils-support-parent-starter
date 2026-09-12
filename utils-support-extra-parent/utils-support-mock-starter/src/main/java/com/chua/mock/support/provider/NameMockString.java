@@ -32,6 +32,8 @@ public class NameMockString implements MockString {
             "虞万支柯昝管卢莫经房裘缪干解应宗丁宣贲邓郁单杭洪包诸左石崔吉钮龚";
     /**
      * 常用名用字池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final String GIVEN_NAMES =
             "伟芳娜敏静丽强磊军洋勇艳杰娟涛明超秀霞平刚桂英华金龙玉山" +

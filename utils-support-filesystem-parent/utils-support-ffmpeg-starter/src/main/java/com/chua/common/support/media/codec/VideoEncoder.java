@@ -41,17 +41,17 @@ public interface VideoEncoder {
     void forceKeyFrame();
 
     /**
-     * 编码单帧 YUV420P Frame。
+      * 编码单帧 YUV420P 帧。
      *
-     * @param frame YUV420P 格式的 Frame
+     * @param frame YUV420P 格式的 帧
      * @return 编码后的字节数组
      */
     byte[] encode(Frame frame);
 
     /**
-     * 编码单帧 BufferedImage（默认实现，转为 Frame 后编码）。
+      * 编码单帧 缓冲镜像（默认实现，转为 帧 后编码）。
      *
-     * @param image BufferedImage 格式的输入帧
+     * @param image 缓冲镜像 格式的输入帧
      * @return 编码后的字节数组
      */
     default byte[] encode(BufferedImage image) {
@@ -61,9 +61,9 @@ public interface VideoEncoder {
     }
 
     /**
-     * 编码单帧 BGR ByteBuffer（默认实现，转为 BufferedImage 后编码）。
+      * 编码单帧 BGR byte缓冲（默认实现，转为 缓冲镜像 后编码）。
      *
-     * @param bgrData BGR 格式的 DirectByteBuffer
+     * @param bgrData BGR 格式的 directbyte缓冲
      * @param width 帧宽度
      * @param height 帧高度
      * @return 编码后的字节数组

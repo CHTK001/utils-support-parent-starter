@@ -6,29 +6,52 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * playwright-java 回退引擎。<br>
- * 当 {@link PlaywrightNative} 无法加载 native 库时自动启用。
- * 内部维护自己的句柄→对象注册表，方法直接委托给官方 playwright-java API。
+   * playwright-Java 回退引擎。<br>
+   * 当 {@link PlaywrightNative} 无法加载 NAT 库时自动启用。
+   * 内部维护自己的句柄→对象注册表，方法直接委托给官方 playwright-Java API。
  * <p>
- * TODO: 更多方法的 playwright-java 映射
+   * TODO: 更多方法的 playwright-Java 映射
+ * @author CH
+ * @since 4.0.0
+ * @param handle 处理
+ * @param type 类型
+ * @return 获取的结果
  */
 public class JavaEngine implements Engine {
 
-    private com.microsoft.playwright.Playwright pw;
+    private com.microsoft.playwright.Playwright pw; // pw
+    /**
+     * alloc。
+     * @return alloc的结果
+     */
     final Map<Long, Object> registry = new ConcurrentHashMap<>();
-    private long nextHandle = 1;
+    private long nextHandle = 1; // 下一个处理
+/**
+ * playwright。
+ * @return playwright的结果
+ * @param handle 处理
+ * @param type 类型
+ /**
+   * alloc。
+   * @return alloc的结果
+  */
+ */
 
     private synchronized long alloc() { return nextHandle++; }
 
     synchronized com.microsoft.playwright.Playwright playwright() {
-        if (pw == null) pw = com.microsoft.playwright.Playwright.create();
+        if (pw == null) {
+            pw = com.microsoft.playwright.Playwright.create();
+        }
         return pw;
     }
 
     @SuppressWarnings("unchecked")
     private <T> T get(long handle, Class<T> type) {
         Object o = registry.get(handle);
-        if (!type.isInstance(o)) throw new PlaywrightException("handle " + handle + " 不是 " + type.getSimpleName());
+        if (!type.isInstance(o)) {
+            throw new PlaywrightException("handle " + handle + " 不是 " + type.getSimpleName());
+        }
         return (T) o;
     }
 
@@ -38,7 +61,9 @@ public class JavaEngine implements Engine {
     public long launch(boolean headless, String executablePath, List<String> args) {
         com.microsoft.playwright.BrowserType.LaunchOptions opts = new com.microsoft.playwright.BrowserType.LaunchOptions();
         opts.setHeadless(headless);
-        if (executablePath != null) opts.setExecutablePath(java.nio.file.Paths.get(executablePath));
+        if (executablePath != null) {
+            opts.setExecutablePath(java.nio.file.Paths.get(executablePath));
+        }
         com.microsoft.playwright.Browser browser = playwright().chromium().launch(opts);
         long h = alloc();
         registry.put(h, browser);
@@ -78,7 +103,9 @@ public class JavaEngine implements Engine {
         com.microsoft.playwright.Page.NavigateOptions opts = null;
         if (options != null) {
             opts = new com.microsoft.playwright.Page.NavigateOptions();
-            if (options.containsKey("timeout")) opts.setTimeout((Integer) options.get("timeout"));
+            if (options.containsKey("timeout")) {
+                opts.setTimeout((Integer) options.get("timeout"));
+            }
         }
         com.microsoft.playwright.Response resp = page.navigate(url, opts);
         return new ResponseData(resp.status(), resp.url());
@@ -128,7 +155,9 @@ public class JavaEngine implements Engine {
     public long querySelector(long handle, String selector) {
         com.microsoft.playwright.Page page = get(handle, com.microsoft.playwright.Page.class);
         com.microsoft.playwright.ElementHandle el = page.querySelector(selector);
-        if (el == null) return -1;
+        if (el == null) {
+            return -1;
+        }
         long h = alloc();
         registry.put(h, el);
         return h;
@@ -136,6 +165,12 @@ public class JavaEngine implements Engine {
 
     @Override
     @SuppressWarnings("unchecked")
+    /**
+     * 查询selector全部。
+     * @param handle 处理
+     * @param selector selector
+     * @return 查询selector全部的结果
+     */
     public List<Long> querySelectorAll(long handle, String selector) {
         com.microsoft.playwright.Page page = get(handle, com.microsoft.playwright.Page.class);
         List<com.microsoft.playwright.ElementHandle> els = page.querySelectorAll(selector);
@@ -176,8 +211,12 @@ public class JavaEngine implements Engine {
     @Override public void type(long handle, String selector, String text) { get(handle, com.microsoft.playwright.Page.class).type(selector, text); }
     @Override public void press(long handle, String selector, String key) { get(handle, com.microsoft.playwright.Page.class).press(selector, key); }
     @Override public void check(long handle, String selector, boolean checked) {
-        if (checked) get(handle, com.microsoft.playwright.Page.class).check(selector);
-        else get(handle, com.microsoft.playwright.Page.class).uncheck(selector);
+        if (checked) {
+            get(handle, com.microsoft.playwright.Page.class).check(selector);
+        }
+        else {
+            get(handle, com.microsoft.playwright.Page.class).uncheck(selector);
+        }
     }
     @Override public void hover(long handle, String selector) { get(handle, com.microsoft.playwright.Page.class).hover(selector); }
     @Override public String textContent(long handle, String selector) { return get(handle, com.microsoft.playwright.Page.class).textContent(selector); }
@@ -185,7 +224,9 @@ public class JavaEngine implements Engine {
     @Override public String inputValue(long handle, String selector) { return get(handle, com.microsoft.playwright.Page.class).inputValue(selector); }
     @Override public void waitForSelector(long handle, String selector, Long timeoutMs) {
         com.microsoft.playwright.Page.WaitForSelectorOptions opts = null;
-        if (timeoutMs != null) opts = new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(timeoutMs);
+        if (timeoutMs != null) {
+            opts = new com.microsoft.playwright.Page.WaitForSelectorOptions().setTimeout(timeoutMs);
+        }
         get(handle, com.microsoft.playwright.Page.class).waitForSelector(selector, opts);
     }
     @Override public void setViewportSize(long handle, int width, int height) { get(handle, com.microsoft.playwright.Page.class).setViewportSize(width, height); }

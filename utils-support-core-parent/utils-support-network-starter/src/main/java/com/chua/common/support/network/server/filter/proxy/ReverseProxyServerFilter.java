@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  * // WebSocket 代理
  * // Upgrade: websocket → ws://backend:8080/ws/chat
  * // 客户端 ←→ 后端 双向消息转发
- * }</pre>
+ * }</pre>e>
  *
  * @author CH
  * @since 4.0.0.42
@@ -55,40 +55,40 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
 
     /** 超时秒 */
     private final int timeoutSeconds;
-    /** httpClient */
+    /** HTTP客户端 */
     private volatile HttpClient httpClient;
     /** 异步执行器 */
     private ExecutorService asyncExecutor;
 
-    /** 创建 ReverseProxyServerFilter 实例 */
+    /** 创建 reverse代理服务端过滤器 实例 */
     public ReverseProxyServerFilter() {
         this(30);
     }
 
     /**
-     * 创建 ReverseProxyServerFilter 实例
-     * @param timeoutSeconds timeoutSeconds
+      * 创建 reverse代理服务端过滤器 实例
+     * @param timeoutSeconds 超时seconds
      */
     public ReverseProxyServerFilter(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Integer.MAX_VALUE - 40;
     }
 
     @Override
-    /** SupportPath */
+    /** 支持路径 */
     public String supportPath() {
-        // ServerFilter 与 ReactiveServerFilter 均有同名 default 方法,显式覆写消除接口冲突;
+ // 服务端过滤器 与 响应式服务端过滤器 均有同名 默认 方法,显式覆写消除接口冲突;
         // 返回 null = Access Filter,每次请求都触发代理判断
         return null;
     }
 
     @Override
-    /** SupportProtocols */
+    /** 支持协议 */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP, ProtocolType.WS};
     }
@@ -121,9 +121,9 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
 
     @Override
     /**
-     * Do过滤
-     * @param request request
-     * @param response response
+      * 执行过滤
+     * @param request 请求
+     * @param response 响应
      * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
@@ -163,9 +163,9 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-     * 响应式过滤器入口:适配 vertx-http 等响应式 Server 的过滤器链
+      * 响应式过滤器入口:适配 vertx-http 等响应式 服务端 的过滤器链
      * (其响应式链仅执行 {@link ReactiveServerFilter})。
-     * 返回转发完成的 stage,供响应式链等待真正写出响应,避免提前 endVertx 空响应。
+      * 返回转发完成的 Stage,供响应式链等待真正写出响应,避免提前 结束vertx 空响应。
      */
     @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
@@ -184,11 +184,11 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-     * 处理HttpProxyAsync
-     * @param request request
-     * @param response response
-     * @param host host
-     * @param port port
+      * 处理http代理异步
+     * @param request 请求
+     * @param response 响应
+     * @param host 主机
+     * @param port 端口
      * @param scheme scheme
      */
     private CompletableFuture<Void> handleHttpProxyAsync(ServerRequest request, ServerResponse response,
@@ -278,11 +278,11 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     }
 
     /**
-     * 处理HttpProxy
-     * @param request request
-     * @param response response
-     * @param host host
-     * @param port port
+      * 处理http代理
+     * @param request 请求
+     * @param response 响应
+     * @param host 主机
+     * @param port 端口
      * @param scheme scheme
      */
     private void handleHttpProxy(ServerRequest request, ServerResponse response,
@@ -290,7 +290,12 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
         handleHttpProxyAsync(request, response, host, port, scheme);
     }
 
-    /** Extract查询 */
+    /**
+     * Extract查询
+     *
+     * @param uri uri
+     * @return extract查询的结果
+     */
     private String extractQuery(String uri) {
         if (uri == null) {
             return null;

@@ -24,7 +24,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class SyncContext implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 输入源标识
@@ -35,7 +35,7 @@ public class SyncContext implements Serializable {
      * 数据行（字段名 → 字段值）
      */
     @Builder.Default
-    private Map<String, Object> data = new LinkedHashMap<>();
+    private Map<String, Object> data = new LinkedHashMap<>(); // 数据
 
     /**
      * 数据对应的位点
@@ -43,7 +43,7 @@ public class SyncContext implements Serializable {
     private Position position;
 
     /**
-     * 事件类型（INSERT / UPDATE / DELETE / SNAPSHOT）
+      * 事件类型（插入 / 更新 / 删除 / SNAPSHOT）
      */
     @Builder.Default
     /** 事件类型 */
@@ -60,7 +60,7 @@ public class SyncContext implements Serializable {
      * 扩展属性
      */
     @Builder.Default
-    private Map<String, Object> attributes = new LinkedHashMap<>();
+    private Map<String, Object> attributes = new LinkedHashMap<>(); // attributes
 
     /**
      * 创建同步上下文

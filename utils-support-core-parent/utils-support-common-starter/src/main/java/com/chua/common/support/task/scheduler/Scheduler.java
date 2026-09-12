@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * </ul>
  *
  * <p>优先级说明：当同时指定了 {@code cron}、{@code fixedRate} 和 {@code fixedDelay} 时，
- * 优先级为：cron {@literal >} fixedRate {@literal >} fixedDelay。
+   * 优先级为：cron {@literal >} fixedrate {@literal >} fixed延迟。
  *
  * <p>使用示例：
  * <pre>{@code
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * // 固定频率：每 5 秒执行一次（第一次延迟 1 秒）
  * @Scheduler(initialDelay = 1, fixedRate = 5, timeUnit = TimeUnit.SECONDS)
  * public void periodicTask() { }
- * }</pre>
+ * }</pre></pre>
  *
  * @author CH
  * @since 1.0.0

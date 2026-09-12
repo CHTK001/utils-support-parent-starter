@@ -17,7 +17,7 @@ import java.util.Map;
  * 传输事件 — 持久化用扁平 record。
  *
  * <p>从 {@code TransmissionRecord} 提取扁平字段，避免持久化层依赖 spy 模块；
- * 查询时再由 Controller 还原为 {@link com.chua.runtime.protocol.TransmissionRecord}。</p>
+   * 查询时再由 控制器 还原为 {@link com.chua.runtime.protocol.TransmissionRecord}。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -28,116 +28,118 @@ import java.util.Map;
 @AllArgsConstructor
 public class TransmissionEvent {
 
-    /** 内部 row id，存储层自增 */
+    /** 内部 row 标识，存储层自增 */
     private long id;
 
     /**
-     * trace Id
+      * 追踪 标识
      */
     private String traceId;
     /**
-     * span Id
+      * span 标识
      */
     private String spanId;
     /**
-     * parent Span Id
+      * 父 Span 标识
      */
     private String parentSpanId;
 
     /**
-     * source Protocol
+      * 源 协议
      */
     private String sourceProtocol;
     /**
-     * source Software
+      * 源 Software
      */
     private String sourceSoftware;
     /**
-     * source Host
+      * 源 主机
      */
     private String sourceHost;
     /**
-     * source Port
+      * 源 端口
      */
     private int sourcePort;
     /**
-     * source Path
+      * 源 路径
      */
     private String sourcePath;
 
     /**
-     * target Protocol
+      * Target 协议
      */
     private String targetProtocol;
     /**
-     * target Software
+      * Target Software
      */
     private String targetSoftware;
     /**
-     * target Host
+      * Target 主机
      */
     private String targetHost;
     /**
-     * target Port
+      * Target 端口
      */
     private int targetPort;
     /**
-     * target Path
+      * Target 路径
      */
     private String targetPath;
 
-    /** 协议名（HTTP/TCP/REDIS/...） */
+    /** 协议名（HTTP/TCP/Redis/...） */
     private String protocol;
 
-    /** 软件栈名（JEDIS/TOMCAT/...） */
+    /** 软件栈名（JEDIS/Tomcat/...） */
     private String software;
 
-    /** 操作描述（GET /api/order） */
+    /** 操作描述（获取 /api/订单） */
     private String operation;
 
-    /** 状态（OK/ERROR） */
+    /** 状态（OK/错误） */
     private StatusCode status;
 
     /** 响应码（HTTP 状态码 / ZK rc / Redis reply） */
     private int statusCode;
 
     /**
-     * start Time
+      * 启动 时间
      */
     private long startTime;
     /**
-     * end Time
+      * 结束 时间
      */
     private long endTime;
     /**
-     * duration
+      * 持续时间
      */
     private long duration;
 
     /**
-     * bytes Out
+      * bytes 出
      */
     private long bytesOut;
     /**
-     * bytes In
+      * bytes 入
      */
     private long bytesIn;
 
     /**
-     * error Type
+      * 错误 类型
      */
     private String errorType;
     /**
-     * error Message
+      * 错误 消息
      */
     private String errorMessage;
 
     /** 附加属性（懒填充） */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
      * 从 {@link com.chua.runtime.protocol.TransmissionRecord} 转扁平字段。
+     * @param record record
+     * @return 从record的结果
      */
     public static TransmissionEvent fromRecord(TransmissionRecord record) {
         if (record == null) {
@@ -179,7 +181,8 @@ public class TransmissionEvent {
     }
 
     /**
-     * 还原为 {@link TransmissionRecord} — Controller 序列化时调用。
+      * 还原为 {@link TransmissionRecord} — 控制器 序列化时调用。
+     * @return 转为record的结果
      */
     public TransmissionRecord toRecord() {
         TransmissionRecord r = new TransmissionRecord();
@@ -217,7 +220,12 @@ public class TransmissionEvent {
         return r;
     }
 
-    /** 解析Protocol */
+    /**
+     * 解析协议
+     *
+     * @param name 名称
+     * @return 解析协议的结果
+     */
     private static Protocol parseProtocol(String name) {
         if (name == null) {
             return Protocol.UNKNOWN;
@@ -229,7 +237,12 @@ public class TransmissionEvent {
         }
     }
 
-    /** 解析Software */
+    /**
+     * 解析Software
+     *
+     * @param name 名称
+     * @return 解析software的结果
+     */
     private static Software parseSoftware(String name) {
         if (name == null) {
             return Software.UNKNOWN;

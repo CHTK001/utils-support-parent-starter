@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 时间轮接口。文件名为 TimeWheel，接口名为 Timer（历史命名）。
+   * 时间轮接口。文件名为 时间wheel，接口名为 定时器（历史命名）。
  * 通过 {@code TimeWheel.newTimer()} 创建实例。
  *
  * <p>时间轮（Hashed Wheel Timer）是一种基于环形队列的高效定时任务调度数据结构，
@@ -39,6 +39,10 @@ import java.util.concurrent.TimeUnit;
  * // 手动管理 TimerTask
  * TimerTask task = new TimerTask("my-task", () -> log.info("exec"));
  * timer.schedule(task);
+ * timer.cancel(task);
+ *
+ * timer.shutdown();
+ * }</pre>edule(task);
  * timer.cancel(task);
  *
  * timer.shutdown();
@@ -109,7 +113,7 @@ public interface Timer {
      * @param task       任务逻辑
      * @param delay      延迟时长
      * @param timeUnit   时间单位
-     * @return 创建的 TimerTask 实例；时间轮已关闭（调度被拒绝）时返回 null
+     * @return 创建的 定时器任务 实例；时间轮已关闭（调度被拒绝）时返回 空
      */
     TimerTask schedule(Runnable task, long delay, TimeUnit timeUnit);
 
@@ -122,7 +126,7 @@ public interface Timer {
      * @param initialDelay 首次执行前的延迟
      * @param period       执行间隔
      * @param timeUnit     时间单位
-     * @return 创建的 TimerTask 实例；时间轮已关闭（调度被拒绝）时返回 null
+     * @return 创建的 定时器任务 实例；时间轮已关闭（调度被拒绝）时返回 空
      */
     TimerTask scheduleAtFixedRate(Runnable task, long initialDelay, long period, TimeUnit timeUnit);
 
@@ -154,7 +158,7 @@ public interface Timer {
     /**
      * 检查时间轮是否正在运行。
      *
-     * @return {@code true} 表示尚未 shutdown
+     * @return {@code true} 表示尚未 关闭
      */
     boolean isRunning();
 

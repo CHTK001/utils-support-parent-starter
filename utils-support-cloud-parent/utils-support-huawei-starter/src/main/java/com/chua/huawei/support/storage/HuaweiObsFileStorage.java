@@ -39,8 +39,8 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     private final ObsClient obsClient;
 
     /**
-     * 创建 HuaweiObsFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 huaweiobs文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public HuaweiObsFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -48,7 +48,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -68,7 +68,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -93,7 +93,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -101,7 +101,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             obsClient.deleteObject(bucket, key);
@@ -117,7 +117,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = obsClient.doesObjectExist(bucket, request.getKey());
@@ -134,13 +134,13 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             ListObjectsRequest listReq = new ListObjectsRequest(bucket);
             listReq.setPrefix(request.getFilePath());
             listReq.setMaxKeys(request.getLimit());
-            // 设置分页 marker
+ // 设置分页 记号笔
             if (request.getMarker() != null) {
                 listReq.setMarker(request.getMarker());
             }
@@ -155,7 +155,7 @@ public class HuaweiObsFileStorage extends AbstractFileStorage {
                         .build());
             }
 
-            // 分页：如果结果被截断，返回下一页的 marker
+ // 分页：如果结果被截断，返回下一页的 记号笔
             boolean truncated = listing.isTruncated();
             String nextMarker = truncated ? listing.getNextMarker() : null;
 

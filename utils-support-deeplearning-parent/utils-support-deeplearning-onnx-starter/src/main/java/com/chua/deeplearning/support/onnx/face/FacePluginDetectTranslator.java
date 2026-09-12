@@ -15,18 +15,18 @@ import java.util.List;
 import com.chua.deeplearning.support.ai.DetectionConfiguration;
 
 /**
- * FacePlugin SSD face detection Translator.
+   * faceplugin SSD face detection Translator.
  *
  * <p>Model: MobileNet Tiny SSD (slim or RFB variant)
- * Input:  1x3x320x240 RGB, normalized by (pixel - 127) / 128
- * Output: confidences [N, 2] (bg, face), locations [N, 4]
+   * 输入:  1x3x320x240 RGB, normalized by (pixel - 127) / 128
+   * 输出: 信心 [N, 2] (bg, face), 位置 [N, 4]
  *
  * <p>Post-processing: decode boxes from raw SSD outputs using prior anchors,
- * apply confidence threshold and NMS.
+   * apply 信心 阈值 和 NMS.
  *
  * <p>Prior anchors (image 320x240, computed like Python box_utils.generate_priors):
- * feature map sizes width  [40, 20, 10, 5], height [30, 15, 8, 4]
- * min boxes: [[10, 16, 24], [32, 48], [64, 96], [128, 192, 256]]
+   * 特征 映射 大小 width  [40, 20, 10, 5], height [30, 15, 8, 4]
+   * 最小 boxes: [[10, 16, 24], [32, 48], [64, 96], [128, 192, 256]]
  *
  * @author CH
  * @since 2026-08-08
@@ -34,37 +34,42 @@ import com.chua.deeplearning.support.ai.DetectionConfiguration;
 public class FacePluginDetectTranslator implements Translator<Image, DetectedObjects> {
 
     /** 输入宽度 */
-    /** Input_width */
+    /** 输入_width */
     private static final int INPUT_WIDTH = 320;
     /** 输入高度 */
-    /** Input_height */
+    /** 输入_height */
     private static final int INPUT_HEIGHT = 240;
     /** 置信度阈值 */
-    /** Confidence_threshold */
+    /** 信心_阈值 */
     private static final float CONFIDENCE_THRESHOLD = 0.6f;
     /** NMS 阈值 */
-    /** Nms_threshold */
+    /** Nms_阈值 */
     private static final double NMS_THRESHOLD = 0.3d;
     /** 最大候选数量 */
-    /** Max_candidates */
+    /** 最大_candidates */
     private static final int MAX_CANDIDATES = 1500;
     /** 中心点方差 */
     /** Center_variance */
     private static final float CENTER_VARIANCE = 0.1f;
     /** 尺寸方差 */
-    /** Size_variance */
+    /** 大小_variance */
     private static final float SIZE_VARIANCE = 0.2f;
     /** 图像均值 */
-    /** Image_mean */
+    /** 镜像_mean */
     private static final float IMAGE_MEAN = 127.0f;
     /** 图像标准差 */
-    /** Image_std */
+    /** 镜像_std */
     private static final float IMAGE_STD = 128.0f;
 
     /** 外部阈值覆盖（-1 表示未配置，使用内置默认值）。 */
     private float thresholdOverride = -1f;
 
-    /** 取生效阈值。 */
+    /**
+     * 取生效阈值。
+     *
+     * @param def def
+     * @return eff阈值的结果
+     */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -84,12 +89,12 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         }
     }
 
-/** 创建 FacePluginDetectTranslator 实例 */
+/** 创建 faceplugindetecttranslator 实例 */
     public FacePluginDetectTranslator() {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (input.getHeight() != INPUT_HEIGHT || input.getWidth() != INPUT_WIDTH) {
             input = input.resize(INPUT_WIDTH, INPUT_HEIGHT, false);
@@ -102,13 +107,13 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
 
-        // 直接读取 ONNX 引擎 NDArray 的 flat float[] 数据，避免不支持的 squeeze/transpose
+ // 直接读取 ONNX 引擎 ndarray 的 flat float[] 数据，避免不支持的 squeeze/transpose
         // 输出形状固定为 [1, num_priors, 2] 和 [1, num_priors, 4]
         float[] confData = list.get(0).toFloatArray();
         float[] locData = list.get(1).toFloatArray();
@@ -127,7 +132,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
             float expBg = (float) Math.exp(bg - maxVal);
             float expFg = (float) Math.exp(fg - maxVal);
             float faceScore = expFg / (expBg + expFg);
-            if (faceScore < effThreshold(CONFIDENCE_THRESHOLD)) continue;
+            if (faceScore < effThreshold(CONFIDENCE_THRESHOLD)) {
+                continue;
+            }
 
             float priorCx = priors[i * 4 + 0];
             float priorCy = priors[i * 4 + 1];
@@ -144,7 +151,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
             float x2 = clip(cx + w / 2);
             float y2 = clip(cy + h / 2);
 
-            if (x2 <= x1 || y2 <= y1) continue;
+            if (x2 <= x1 || y2 <= y1) {
+                continue;
+            }
 
             candidates.add(new Candidate(
                 new Rectangle(x1, y1, x2 - x1, y2 - y1), faceScore));
@@ -163,7 +172,9 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
                     break;
                 }
             }
-            if (!keep) continue;
+            if (!keep) {
+                continue;
+            }
             names.add("face");
             probs.add((double) c.score);
             boxes.add(c.rect);
@@ -172,14 +183,20 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         return new DetectedObjects(names, probs, boxes);
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param v v
+     * @return clip的结果
+     */
     private float clip(float v) {
         return Math.max(0f, Math.min(1f, v));
     }
 
     /**
-     * Generate default SSD priors for input 320x240.
-     * Mirrors box_utils.generate_priors(feature_map_w_h_list, shrinkage_list, image_size, min_boxes).
+      * Generate 默认 SSD priors for 输入 320x240.
+      * Mirrors box_工具.generate_priors(特征_映射_w_h_列表, shrinkage_列表, 镜像_大小, 最小_boxes).
+     * @return generatePriors的结果
      */
     private float[] generatePriors() {
         int[] featureW = {40, 20, 10, 5};
@@ -223,11 +240,17 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
 @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        // 输入已包含 batch 维（shape [1, C, H, W]），无需 batchifier 再次叠加
+ // 输入已包含 批量 维（shape [1, C, H, W]），无需 batchifier 再次叠加
         return null;
     }
 
-    /** Candidate */
+    /**
+     * Candidate
+     *
+     * @param rect rect
+     * @param score score
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rect, float score) {
     }
 }

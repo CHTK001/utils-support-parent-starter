@@ -21,7 +21,7 @@ public class McpToolCall {
     /**
      * 创建 McpToolCall 实例
      * @param toolName toolName
-     * @param Map Map
+     * @param arguments Map
      * @param Object Object
      * @param arguments arguments
      */

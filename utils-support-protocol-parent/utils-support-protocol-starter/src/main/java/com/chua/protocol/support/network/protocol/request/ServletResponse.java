@@ -8,7 +8,7 @@ package com.chua.protocol.support.network.protocol.request;
  */
 public interface ServletResponse {
 
-    /** 设置响应 Content-Type */
+    /** 设置响应 内容-类型 */
     void setContentType(String contentType);
 
     /** 设置响应状态码 */

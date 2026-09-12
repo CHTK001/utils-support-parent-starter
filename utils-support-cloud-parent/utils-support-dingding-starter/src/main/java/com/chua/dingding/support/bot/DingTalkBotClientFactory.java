@@ -6,7 +6,7 @@ import com.chua.common.support.config.loader.ConfigSaveOrLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 钉钉 Bot 客户端工厂（SPI 实现）。
+   * 钉钉 机器人 客户端工厂（SPI 实现）。
  * <p>通过 SPI 机制注册到
  * {@code META-INF/extensions/com.chua.common.support.ai.bot.BotClient$Factory}，
  * 平台名称为 {@code dingtalk}。</p>
@@ -25,20 +25,22 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
     }
 
     @Override
-    /** Builder */
+    /** 构建器 */
     public BotClient.Builder builder() {
         log.debug("Creating DingTalk Bot client builder");
         return new DingTalkBuilder();
     }
 
     /**
-     * 钉钉 Builder 内部类
+      * 钉钉 构建器 内部类
      *
+     * @author CH
+     * @since 4.0.0
      */
     static class DingTalkBuilder implements BotClient.Builder {
 
         /**
-         * 平台凭证 token
+          * 平台凭证 令牌
          */
         private String token;
 
@@ -68,7 +70,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
-        /** Token */
+        /** 令牌 */
         public BotClient.Builder token(String token) {
             this.token = token;
             return this;
@@ -83,14 +85,14 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * EncodingAesKey
-         * @param encodingAesKey encodingAesKey
-         * @param baseUrl baseUrl
-         * @param connectTimeoutMillis connectTimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param token token
-         * @param baseUrl baseUrl
+          * 编码aes键
+         * @param encodingAesKey 编码aes键
+         * @param baseUrl baseurl
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
          */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
@@ -98,7 +100,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         }
 
         @Override
-        /** BaseUrl */
+        /** baseurl */
         public BotClient.Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -106,12 +108,12 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * 连接TimeoutMillis
-         * @param connectTimeoutMillis connectTimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param token token
-         * @param baseUrl baseUrl
+          * 连接超时millis
+         * @param connectTimeoutMillis 连接超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
          */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
@@ -121,11 +123,11 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * 读取TimeoutMillis
-         * @param readTimeoutMillis readTimeoutMillis
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param token token
-         * @param baseUrl baseUrl
+          * 读取超时millis
+         * @param readTimeoutMillis 读取超时millis
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
          */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
@@ -135,10 +137,10 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
 
         @Override
         /**
-         * Config保存OrLoader
-         * @param configSaveOrLoader configSaveOrLoader
-         * @param token token
-         * @param baseUrl baseUrl
+          * 配置保存或加载
+         * @param configSaveOrLoader 配置保存或加载
+         * @param token 令牌
+         * @param baseUrl baseurl
          */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {

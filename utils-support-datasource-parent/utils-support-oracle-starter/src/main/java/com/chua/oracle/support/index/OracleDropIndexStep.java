@@ -8,7 +8,7 @@ import javax.sql.DataSource;
  * Oracle 删除索引链式步骤实现。
  * <p>
  * 语法：{@code DROP INDEX 索引名}
- * Oracle 中 DROP INDEX 不需要指定表名。
+   * Oracle 中 掉落 索引 不需要指定表名。
  * </p>
  *
  * @author CH
@@ -29,7 +29,7 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
     }
 
     /**
-     * Oracle 中 DROP INDEX 不需要表名，但保留 onTable 方法以保持 API 一致。
+      * Oracle 中 掉落 索引 不需要表名，但保留 ontable 方法以保持 API 一致。
      *
      * @param table 表名（Oracle 忽略此参数）
      * @return this
@@ -41,7 +41,7 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
     }
 
     /**
-     * 执行 DROP INDEX 语句。
+      * 执行 掉落 索引 语句。
      */
     @Override
     public void execute() {

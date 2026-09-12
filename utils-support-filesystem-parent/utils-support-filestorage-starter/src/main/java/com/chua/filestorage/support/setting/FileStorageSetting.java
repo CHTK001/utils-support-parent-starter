@@ -30,11 +30,11 @@ public class FileStorageSetting {
      * 是否启用下载功能（总开关）。
      */
     @Builder.Default
-    /** Open下载 */
+    /** 打开下载 */
     private boolean openDownload = true;
 
     /**
-     * 是否启用 Range 断点续传。
+      * 是否启用 范围 断点续传。
      */
     @Builder.Default
     /** Openrange */
@@ -51,7 +51,7 @@ public class FileStorageSetting {
      * 是否启用远程文件访问。
      */
     @Builder.Default
-    /** Open远程文件 */
+    /** 打开远程文件 */
     private boolean openRemoteFile = false;
 
     /**
@@ -76,28 +76,28 @@ public class FileStorageSetting {
     private FileStorageWatermarkSetting watermark = new FileStorageWatermarkSetting();
 
     /**
-     * FileStorageFileSetting SPI 实现名称。
+      * 文件storage文件setting SPI 实现名称。
      * <p>默认为空（使用 JDK 默认实现）。
      * 可设置为 {@code "native"} 使用 Rust 实现。</p>
      */
     private String fileSettingKey;
 
     /**
-     * FileStorageFilterSetting SPI 实现名称。
+      * 文件storage过滤器setting SPI 实现名称。
      * <p>默认为空（使用 JDK 默认实现）。
      * 可设置为 {@code "native"} 使用 Rust 实现。</p>
      */
     private String filterSettingKey;
 
     /**
-     * ImageFilter SPI 实现名称。
+      * 镜像过滤器 SPI 实现名称。
      * <p>默认为空（按 SPI 加载顺序）。
      * 建议设置为 {@code "native"} 使用 Rust 高性能实现。</p>
      */
     private String imageFilterKey;
 
     /**
-     * 是否启用全局图片滤镜（基于 FileStorageFilterSetting）。
+      * 是否启用全局图片滤镜（基于 文件storage过滤器setting）。
      */
     @Builder.Default
     /** 图片过滤器是否启用 */

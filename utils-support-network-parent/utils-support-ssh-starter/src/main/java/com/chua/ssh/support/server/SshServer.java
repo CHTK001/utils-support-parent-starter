@@ -36,6 +36,8 @@ import java.util.List;
  *     .build();
  * server.registerBean(new BuiltinShellCommands());
  * server.start();
+ * }</pre>ShellCommands());
+ * server.start();
  * }</pre>
  *
  * @author CH
@@ -91,7 +93,7 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.SSH;
     }
@@ -153,11 +155,11 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         try {
             sshd = org.apache.sshd.server.SshServer.setUpDefaultServer();
-            // MINA 服务端必须配置主机密钥, 否则 checkConfig 抛 HostKeyProvider not set;
+ // MINA 服务端必须配置主机密钥, 否则 检查配置 抛 主机键提供者 not 设置;
             // 未指定持久化路径时每次启动内存生成
             org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider keyProvider =
                     new org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider();
@@ -184,7 +186,7 @@ public class SshServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         try {
             if (sshd != null) {
@@ -198,6 +200,8 @@ public class SshServer extends AbstractServer {
 
     /**
      * 交互式 Shell 会话，为每个 SSH 客户端处理命令输入。
+     * @author CH
+     * @since 4.0.0
      */
     private class InteractiveShell implements Command, Runnable {
 
@@ -227,25 +231,25 @@ public class SshServer extends AbstractServer {
         private Thread thread;
 
         @Override
-        /** 设置InputStream */
+        /** 设置输入流 */
         public void setInputStream(InputStream in) {
             this.in = in;
         }
 
         @Override
-        /** 设置OutputStream */
+        /** 设置输出流 */
         public void setOutputStream(OutputStream out) {
             this.out = out;
         }
 
         @Override
-        /** 设置记录错误Stream */
+        /** 设置记录错误流 */
         public void setErrorStream(OutputStream err) {
             this.err = err;
         }
 
         @Override
-        /** 设置ExitCallback */
+        /** 设置exitcallback */
         public void setExitCallback(ExitCallback callback) {
             this.exitCallback = callback;
         }
@@ -330,6 +334,8 @@ public class SshServer extends AbstractServer {
 
     /**
      * Shell 工厂，为每个会话创建交互式 Shell。
+     * @author CH
+     * @since 4.0.0
      */
     private class InteractiveShellFactory implements ShellFactory {
 
@@ -341,7 +347,7 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * 创建 SshServer 构建器。
+      * 创建 ssh服务端 构建器。
      *
      * @return 构建器实例
      */
@@ -350,7 +356,9 @@ public class SshServer extends AbstractServer {
     }
 
     /**
-     * SshServer 构建器。
+      * ssh服务端 构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Builder {
 
@@ -419,7 +427,7 @@ public class SshServer extends AbstractServer {
         }
 
         /**
-         * 构建 SshServer 实例。
+          * 构建 ssh服务端 实例。
          *
          * @return SshServer 实例
          */

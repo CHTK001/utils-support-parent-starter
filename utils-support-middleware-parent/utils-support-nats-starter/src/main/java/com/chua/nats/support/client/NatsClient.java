@@ -45,6 +45,7 @@ import java.util.function.Consumer;
  *
  * // --- Object Store ---
  * client.objectStore("files").put("doc.pdf", pdfBytes);
+ * }</pre>储("文件").放入("doc.pdf", pdfbytes);
  * }</pre>
  *
  * @author CH
@@ -59,7 +60,7 @@ public class NatsClient implements AutoCloseable {
 
     /** URL */
     private final String url;
-    /** Username */
+    /** 用户名 */
     private final String username;
     /** 密码 */
     private final String password;
@@ -87,7 +88,7 @@ public class NatsClient implements AutoCloseable {
     private final List<DispatchedSubscription> subscriptions = new ArrayList<>();
 
     /**
-     * 创建 NatsClient 实例
+      * 创建 NATS客户端 实例
      * @param b b
      */
     private NatsClient(Builder b) {
@@ -103,17 +104,30 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @return 创建的结果
+     */
     public static NatsClient create() {
         return builder().build();
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param url url
+     * @return 创建的结果
+     */
     public static NatsClient create(String url) {
         return builder().url(url).build();
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -323,7 +337,7 @@ public class NatsClient implements AutoCloseable {
     // ==================== Key-Value Store ====================
 
     /**
-     * 获取 Key-Value Store 操作构建器。
+      * 获取 键-值 存储 操作构建器。
      *
      * @param bucketName 存储桶名称
      * @return KvOperation
@@ -335,7 +349,7 @@ public class NatsClient implements AutoCloseable {
     // ==================== Object Store ====================
 
     /**
-     * 获取 Object Store 操作构建器。
+      * 获取 对象 存储 操作构建器。
      *
      * @param bucketName 存储桶名称
      * @return ObjectStoreOperation
@@ -345,11 +359,17 @@ public class NatsClient implements AutoCloseable {
     }
 
     // ==================== Builder ====================
+    /**
+     * 构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class Builder {
         /** URL */
         private String url = DEFAULT_URL;
-        /** Username */
+        /** 用户名 */
         private String username;
         /** 密码 */
         private String password;
@@ -364,104 +384,181 @@ public class NatsClient implements AutoCloseable {
         /** Pedantic */
         private boolean pedantic;
 
-        /** Url */
+        /**
+         * Url
+         *
+         * @param url url
+         * @return url的结果
+         */
         public Builder url(String url) {
             this.url = url;
             return this;
         }
 
-        /** Credentials */
+        /**
+         * 凭证
+         *
+         * @param username 用户名
+         * @param password 密码
+         * @return 凭证的结果
+         */
         public Builder credentials(String username, String password) {
             this.username = username;
             this.password = password;
             return this;
         }
 
-        /** Token */
+        /**
+         * 令牌
+         *
+         * @param token 令牌
+         * @return 令牌的结果
+         */
         public Builder token(String token) {
             this.token = token;
             return this;
         }
 
-        /** ConnectionTimeout */
+        /**
+         * connection超时
+         *
+         * @param timeout 超时
+         * @return connection超时的结果
+         */
         public Builder connectionTimeout(Duration timeout) {
             this.connectionTimeout = timeout;
             return this;
         }
 
-        /** ConnectionTimeoutMillis */
+        /**
+         * connection超时millis
+         *
+         * @param ms ms
+         * @return connection超时millis的结果
+         */
         public Builder connectionTimeoutMillis(long ms) {
             this.connectionTimeout = Duration.ofMillis(ms);
             return this;
         }
 
-        /** ReconnectWait */
+        /**
+         * reconnectwait
+         *
+         * @param wait wait
+         * @return reconnectWait的结果
+         */
         public Builder reconnectWait(Duration wait) {
             this.reconnectWait = wait;
             return this;
         }
 
-        /** 最大值Reconnects */
+        /**
+         * 最大值Reconnects
+         *
+         * @param max 最大
+         * @return 最大reconnects的结果
+         */
         public Builder maxReconnects(int max) {
             this.maxReconnects = max;
             return this;
         }
 
-        /** Pedantic */
+        /**
+         * Pedantic
+         *
+         * @param pedantic pedantic
+         * @return pedantic的结果
+         */
         public Builder pedantic(boolean pedantic) {
             this.pedantic = pedantic;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public NatsClient build() {
             return new NatsClient(this);
         }
     }
 
     // ==================== 发布操作 ====================
+    /**
+     * 发布operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class PublishOperation {
         /** 客户端 */
         private final NatsClient client;
-        /** Subject */
+        /** 主题 */
         private String subject;
         /** 请求体 */
         private byte[] body;
-        /** ReplyTO */
+        /** reply转为 */
         private String replyTo;
-        /** headers */
+        /** 头部 */
         private Map<String, String> headers;
 
         PublishOperation(NatsClient client) {
             this.client = client;
         }
 
-        /** Subject */
+        /**
+         * 主题
+         *
+         * @param s s
+         * @return 主题的结果
+         */
         public PublishOperation subject(String s) {
             this.subject = s;
             return this;
         }
 
-        /** Body */
+        /**
+         * 主体
+         *
+         * @param b b
+         * @return 主体的结果
+         */
         public PublishOperation body(byte[] b) {
             this.body = b;
             return this;
         }
 
-        /** Body */
+        /**
+         * 主体
+         *
+         * @param s s
+         * @return 主体的结果
+         */
         public PublishOperation body(String s) {
             this.body = toBytes(s);
             return this;
         }
 
-        /** ReplyTo */
+        /**
+         * reply转为
+         *
+         * @param r r
+         * @return reply转为的结果
+         */
         public PublishOperation replyTo(String r) {
             this.replyTo = r;
             return this;
         }
 
-        /** Header */
+        /**
+         * 头部
+         *
+         * @param key 键
+         * @param value 值
+         * @return 头部的结果
+         */
         public PublishOperation header(String key, String value) {
             if (headers == null) {
                 headers = new LinkedHashMap<>();
@@ -470,7 +567,12 @@ public class NatsClient implements AutoCloseable {
             return this;
         }
 
-        /** Headers */
+        /**
+         * 头部
+         *
+         * @param h h
+         * @return 头部的结果
+         */
         public PublishOperation headers(Map<String, String> h) {
             this.headers = h;
             return this;
@@ -493,7 +595,11 @@ public class NatsClient implements AutoCloseable {
             return CompletableFuture.runAsync(this::send);
         }
 
-        /** 构建Message */
+        /**
+         * 构建消息
+         *
+         * @return 构建消息的结果
+         */
         private Message buildMessage() {
             io.nats.client.impl.NatsMessage.Builder builder = io.nats.client.impl.NatsMessage.builder()
                     .subject(subject)
@@ -509,36 +615,57 @@ public class NatsClient implements AutoCloseable {
     }
 
     // ==================== 订阅操作 ====================
+    /**
+     * 订阅operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class SubscribeOperation {
         /** 客户端 */
         private final NatsClient client;
-        /** Subject */
+        /** 主题 */
         private String subject;
         /** 队列 */
         private String queue;
         /** 处理器 */
         private Consumer<io.nats.client.Message> handler;
-        /** AutoACK */
+        /** autoACK */
         private boolean autoAck = true;
 
         SubscribeOperation(NatsClient client) {
             this.client = client;
         }
 
-        /** Subject */
+        /**
+         * 主题
+         *
+         * @param s s
+         * @return 主题的结果
+         */
         public SubscribeOperation subject(String s) {
             this.subject = s;
             return this;
         }
 
-        /** Queue */
+        /**
+         * 队列
+         *
+         * @param q q
+         * @return 队列的结果
+         */
         public SubscribeOperation queue(String q) {
             this.queue = q;
             return this;
         }
 
-        /** AutoAck */
+        /**
+         * autoACK
+         *
+         * @param a a
+         * @return autoACK的结果
+         */
         public SubscribeOperation autoAck(boolean a) {
             this.autoAck = a;
             return this;
@@ -546,6 +673,8 @@ public class NatsClient implements AutoCloseable {
 
         /**
          * 设置消息处理器。
+         * @param h h
+         * @return 处理器的结果
          */
         public SubscribeOperation handler(Consumer<io.nats.client.Message> h) {
             this.handler = h;
@@ -553,7 +682,9 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 设置简单消息处理器（仅处理 data）。
+          * 设置简单消息处理器（仅处理 数据）。
+         * @param h h
+         * @return on消息的结果
          */
         public SubscribeOperation onMessage(Consumer<byte[]> h) {
             this.handler = msg -> h.accept(msg.getData());
@@ -562,6 +693,8 @@ public class NatsClient implements AutoCloseable {
 
         /**
          * 设置字符串消息处理器。
+         * @param h h
+         * @return on字符串的结果
          */
         public SubscribeOperation onString(Consumer<String> h) {
             this.handler = msg -> h.accept(new String(msg.getData(), StandardCharsets.UTF_8));
@@ -592,6 +725,9 @@ public class NatsClient implements AutoCloseable {
 
     /**
      * 为订阅创建消息分发器。
+     * @param handler 处理器
+     * @param autoAck autoACK
+     * @return 创建dispatcher的结果
      */
     private Dispatcher createDispatcher(Consumer<io.nats.client.Message> handler, boolean autoAck) {
         return connection.createDispatcher(msg -> {
@@ -607,6 +743,12 @@ public class NatsClient implements AutoCloseable {
     }
 
     // ==================== JetStream 操作 ====================
+    /**
+     * jet流operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class JetStreamOperation {
         /** 客户端 */
@@ -683,6 +825,8 @@ public class NatsClient implements AutoCloseable {
 
     /**
      * JetStream 流操作。
+     * @author CH
+     * @since 4.0.0
      */
     public static class StreamOperation {
         /** 客户端 */
@@ -699,6 +843,8 @@ public class NatsClient implements AutoCloseable {
 
         /**
          * 设置流配置。
+         * @param config 配置
+         * @return 配置的结果
          */
         public StreamOperation config(StreamConfiguration config) {
             this.config = config;
@@ -825,6 +971,12 @@ public class NatsClient implements AutoCloseable {
     }
 
     // ==================== Key-Value Store 操作 ====================
+    /**
+     * KvOperation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class KvOperation {
         /** 客户端 */
@@ -841,6 +993,8 @@ public class NatsClient implements AutoCloseable {
 
         /**
          * 设置 KV 存储配置。
+         * @param config 配置
+         * @return 配置的结果
          */
         public KvOperation config(KeyValueConfiguration config) {
             this.config = config;
@@ -848,7 +1002,7 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 创建或获取 Key-Value 存储桶。
+          * 创建或获取 键-值 存储桶。
          *
          * @return KeyValue
          */
@@ -963,6 +1117,12 @@ public class NatsClient implements AutoCloseable {
     }
 
     // ==================== Object Store 操作 ====================
+    /**
+     * 对象存储operation类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class ObjectStoreOperation {
         /** 客户端 */
@@ -976,7 +1136,7 @@ public class NatsClient implements AutoCloseable {
         }
 
         /**
-         * 创建或获取 Object Store 存储桶。
+          * 创建或获取 对象 存储 存储桶。
          *
          * @return ObjectStore
          */
@@ -1074,12 +1234,14 @@ public class NatsClient implements AutoCloseable {
 
     /**
      * 已分发的订阅。
+     * @author CH
+     * @since 4.0.0
      */
     @Getter
     public static class DispatchedSubscription {
         /** Coresubscription */
         private final io.nats.client.Subscription coreSubscription;
-        /** JSsubscription */
+        /** jssubscription */
         private final io.nats.client.JetStreamSubscription jsSubscription;
         /** ISJET流 */
         private final boolean isJetStream;
@@ -1131,7 +1293,12 @@ public class NatsClient implements AutoCloseable {
 
     // ==================== 工具方法 ====================
 
-    /** ToBytes */
+    /**
+     * 转为bytes
+     *
+     * @param s s
+     * @return 转为bytes的结果
+     */
     private static byte[] toBytes(String s) {
         return s != null ? s.getBytes(StandardCharsets.UTF_8) : new byte[0];
     }
@@ -1140,20 +1307,23 @@ public class NatsClient implements AutoCloseable {
 
     /**
      * NATS 客户端异常。
+     * @author CH
+     * @since 4.0.0
      */
     public static class NatsClientException extends RuntimeException {
         /**
-         * 创建 NatsClientException 实例
-         * @param message message
-         * @param Throwable Throwable
+          * 创建 NATS客户端异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
          */
         public NatsClientException(String message, Throwable cause) {
             super(message, cause);
         }
 
         /**
-         * 创建 NatsClientException 实例
-         * @param message message
+          * 创建 NATS客户端异常 实例
+         * @param message 消息
          */
         public NatsClientException(String message) {
             super(message);

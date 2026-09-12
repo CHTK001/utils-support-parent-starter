@@ -16,8 +16,8 @@ import java.util.Set;
 /**
  * {@link DefaultValue} 注解的 AST 处理器
  * <p>
- * 在编译期扫描标注了 {@code @DefaultValue} 注解的方法参数，通过 javac Tree API
- * 在方法体开头插入 null 检查 + 默认值赋值的代码。
+   * 在编译期扫描标注了 {@code @DefaultValue} 注解的方法参数，通过 javac 树 API
+   * 在方法体开头插入 空 检查 + 默认值赋值的代码。
  * </p>
  * <p>
  * 转换示例：
@@ -42,10 +42,12 @@ import java.util.Set;
  *     if (level == null) { level = LogLevel.HIGH; }
  *     ...original body...
  * }
+ * }</pre> * }
  * }</pre>
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.DefaultValue")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -109,7 +111,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 应用 DefaultValue 编译期转换，在方法体开头插入默认值赋值代码
+      * 应用 默认值 编译期转换，在方法体开头插入默认值赋值代码
      *
      * @param methodTree 方法树节点
      * @param paramName 参数名称
@@ -149,12 +151,12 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
             var ifStmt = maker.If(condition, thenBlock, null);
             AstUtils.prependToMethodBody(jcMethod, ifStmt);
         } else if (paramType.getKind().isPrimitive()) {
-            // 基本类型无法为 null，直接赋值默认值
+ // 基本类型无法为 空，直接赋值默认值
             var defaultExpr = AstUtils.makeLiteral(maker, defaultValues[0], paramType);
             var assignStmt = AstUtils.makeAssign(maker, paramIdent, defaultExpr);
             AstUtils.prependToMethodBody(jcMethod, assignStmt);
         } else if (isStringType(paramType)) {
-            // String 类型：直接使用字符串值，不走类型转换
+ // 字符串 类型：直接使用字符串值，不走类型转换
             var defaultExpr = maker.Literal(com.sun.tools.javac.code.TypeTag.CLASS, defaultValues[0]);
             var assignStmt = AstUtils.makeAssign(maker, paramIdent, defaultExpr);
             var nullLit = AstUtils.makeNullLiteral(maker);
@@ -204,8 +206,8 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     /**
      * 构建数组赋值语句：{@code param = new ElementType[]{v1, v2, ...};}
      *
-     * @param maker TreeMaker 实例
-     * @param names Names 实例
+     * @param maker 树maker 实例
+     * @param names 名称 实例
      * @param paramIdent 参数标识符
      * @param defaultValues 默认值数组
      * @param arrayType 数组类型
@@ -221,13 +223,13 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
         TypeMirror componentType = arrayType.getComponentType();
         String componentTypeName = componentType.toString();
 
-        // 构造数组元素类型表达式：new ComponentType[]{v1, v2, ...}
-        // 对于 String 和 CharSequence 使用简单名称
+ // 构造数组元素类型表达式：新 组件类型[]{v1, v2, ...}
+ // 对于 字符串 和 charsequence 使用简单名称
         com.sun.tools.javac.tree.JCTree.JCExpression componentTypeExpr;
         if ("java.lang.String".equals(componentTypeName) || "java.lang.CharSequence".equals(componentTypeName)) {
             componentTypeExpr = maker.Ident(names.fromString("String"));
         } else {
-            // 其他类型使用全限定名构建 Select 表达式
+ // 其他类型使用全限定名构建 选择 表达式
             componentTypeExpr = buildQualifiedIdent(maker, names, componentTypeName);
         }
 
@@ -238,7 +240,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
             elements[i] = AstUtils.makeLiteral(maker, defaultValues[i], componentType);
         }
 
-        // new ComponentType[]{v1, v2, ...}
+ // 新 组件类型[]{v1, v2, ...}
         var newArrayExpr = maker.NewArray(componentTypeExpr,
                 com.sun.tools.javac.util.List.nil(),
                 com.sun.tools.javac.util.List.from(elements));
@@ -249,11 +251,11 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     /**
      * 构建枚举赋值语句：{@code param = EnumType.VALUE;}
      * <p>
-     * 支持全限定枚举类型名，例如 java.lang.Thread.State 会自动解析为 Select(Select(Ident("java"), "lang"), "Thread") 后 Select "State"。
+      * 支持全限定枚举类型名，例如 Java.lang.Thread.状态 会自动解析为 选择(选择(Ident("Java"), "lang"), "Thread") 后 选择 "状态"。
      * </p>
      *
-     * @param maker TreeMaker 实例
-     * @param names Names 实例
+     * @param maker 树maker 实例
+     * @param names 名称 实例
      * @param paramIdent 参数标识符
      * @param enumValue 枚举常量名称
      * @param paramType 参数类型
@@ -265,7 +267,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
             String enumValue,
             TypeMirror paramType) {
 
-        // 解析全限定枚举类型名，例如 java.lang.Thread.State
+ // 解析全限定枚举类型名，例如 Java.lang.Thread.状态
         String enumTypeQualifiedName = paramType.toString();
         var typeIdent = buildQualifiedIdent(maker, names, enumTypeQualifiedName);
         var valueIdent = maker.Select(typeIdent, names.fromString(enumValue));
@@ -274,10 +276,10 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建全限定名标识符表达式：java.lang.String 将生成为 Select(Select(Ident("java"), "lang"), "String")
+      * 构建全限定名标识符表达式：Java.lang.字符串 将生成为 选择(选择(Ident("Java"), "lang"), "字符串")
      *
-     * @param maker TreeMaker 实例
-     * @param names Names 实例
+     * @param maker 树maker 实例
+     * @param names 名称 实例
      * @param qualifiedName 全限定类名
      * @return 全限定名标识符表达式
      */

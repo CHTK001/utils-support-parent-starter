@@ -42,7 +42,7 @@ public class PaymentResponse {
     private String codeUrl;
 
     /**
-     * app_auth_url（APP 支付签约跳转）
+      * app_认证_url（APP 支付签约跳转）
      */
     private String appAuthUrl;
 

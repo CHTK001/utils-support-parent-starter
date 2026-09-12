@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Spring Bean 定义生成器，处理 Spring 注解（@Component、@Service、@Repository、@Controller 等）的类。
+   * Spring Bean 定义生成器，处理 Spring 注解（@组件、@服务、@仓库、@控制器 等）的类。
  *
  * <p>通过反射按类名字符串检测 Spring 注解，不依赖 Spring 编译时注解 API，
  * 实现与 Spring 框架的解耦。</p>
@@ -27,7 +27,7 @@ import java.util.Set;
 @SpiDescribe("Spring Bean 定义生成器")
 public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
 
-    /** Spring_annotations */
+    /** Spring_注解 */
     private static final Set<String> SPRING_ANNOTATIONS = Set.of(
             "org.springframework.stereotype.Component",
             "org.springframework.stereotype.Service",
@@ -46,7 +46,7 @@ public class SpringBeanDefinitionGenerator implements BeanDefinitionGenerator {
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public Boolean isSupport(Class<?> beanClass) {
         if (beanClass == null || beanClass.isInterface() || beanClass.isEnum()
                 || beanClass.isAnnotation() || Modifier.isAbstract(beanClass.getModifiers())) {

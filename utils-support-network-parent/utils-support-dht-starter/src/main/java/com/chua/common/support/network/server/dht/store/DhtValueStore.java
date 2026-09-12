@@ -65,7 +65,7 @@ public class DhtValueStore {
      * 根据键获取值。
      *
      * @param key 键
-     * @return 值，如果键不存在或已过期返回 null
+     * @return 值，如果键不存在或已过期返回 空
      */
     public String get(String key) {
         DhtValueEntry entry = store.get(key);
@@ -82,7 +82,7 @@ public class DhtValueStore {
     /**
      * 获取所有未过期的键值对。
      *
-     * @return 未过期的键值 Map
+     * @return 未过期的键值 映射
      */
     public Map<String, String> getAll() {
         expire();
@@ -137,6 +137,9 @@ public class DhtValueStore {
 
     /**
      * 值条目，携带值和过期时间。
+     * @param value 值
+     * @param expiresAt expiresat
+     * @return dht值entry的结果
      */
     private record DhtValueEntry(String value, long expiresAt) {
 

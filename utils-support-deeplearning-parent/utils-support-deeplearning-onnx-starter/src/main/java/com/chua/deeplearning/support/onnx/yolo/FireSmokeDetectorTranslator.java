@@ -12,13 +12,26 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param arguments 参数
+ * @return resolve输入大小的结果
  */
 public class FireSmokeDetectorTranslator extends YoloTranslator {
 
+    /**
+      * firesmokedetectortranslator。
+     */
     private static final List<String> FIRE_SMOKE_2_CLASSES = Arrays.asList("fire", "smoke");
 
+    /**
+     * FireSmokeDetectorTranslator。
+     */
     public FireSmokeDetectorTranslator() {
         this(null);
+    /**
+      * firesmokedetectortranslator。
+     * @param arguments 参数
+     * @return resolve输入大小的结果
+     */
     }
 
     public FireSmokeDetectorTranslator(Map<String, ?> arguments) {
@@ -33,6 +46,11 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
         return 640;
     }
 
+    /**
+     * resolve阈值。
+     * @param arguments 参数
+     * @return resolve阈值的结果
+     */
     private static float resolveThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("confThreshold")) {
             return Float.parseFloat(arguments.get("confThreshold").toString());
@@ -40,6 +58,11 @@ public class FireSmokeDetectorTranslator extends YoloTranslator {
         return 0.45f;
     }
 
+    /**
+     * resolvenms阈值。
+     * @param arguments 参数
+     * @return resolvenms阈值的结果
+     */
     private static float resolveNmsThreshold(Map<String, ?> arguments) {
         if (arguments != null && arguments.containsKey("iouThreshold")) {
             return Float.parseFloat(arguments.get("iouThreshold").toString());

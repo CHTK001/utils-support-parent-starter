@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>用真实浏览器驱动执行业务流程（打开页面 / 填写 / 点击 / 等待 / 断言 / 截图），
  * 支持配置并发用户数与每用户迭代次数，统计吞吐量与延迟分位数，输出包含
- * 业务截图（Base64 内嵌）、测试点清单、测试参数的业务 HTML 压测报告。</p>
+   * 业务截图（基础64 内嵌）、测试点清单、测试参数的业务 HTML 压测报告。</p>
  *
  * <p>并发与吞吐量指标口径与接口压测一致：总执行数 / 错误率 / RPS / p50 / p95 / p99 / max。</p>
  *
@@ -51,6 +51,11 @@ import java.util.concurrent.atomic.AtomicLong;
  *         .reportPath("target/playwright-business.html")
  *         .build();
  * benchmark.run();
+ * }</pre>rency(4)
+ *         .iterations(10)
+ *         .reportPath("target/playwright-business.html")
+ *         .build();
+ * benchmark.run();
  * }</pre>
  *
  * @author CH
@@ -61,17 +66,17 @@ public class PlaywrightBusinessBenchmark {
 
     /** 业务测试点类型 */
     public enum StepType {
-        /** 打开页面（url 为相对路径，拼接 baseUrl） */
+        /** 打开页面（url 为相对路径，拼接 baseurl） */
         OPEN,
-        /** 填充表单（selector + value） */
+        /** 填充表单（selector + 值） */
         FILL,
         /** 点击（selector） */
         CLICK,
-        /** 等待元素出现（selector + timeoutMs） */
+        /** 等待元素出现（selector + 超时ms） */
         WAIT_FOR,
-        /** 断言文本包含（selector + value） */
+        /** 断言文本包含（selector + 值） */
         ASSERT_TEXT,
-        /** 截图（value 为截图说明） */
+        /** 截图（值 为截图说明） */
         SCREENSHOT
     }
 
@@ -99,12 +104,17 @@ public class PlaywrightBusinessBenchmark {
         private final long timeoutMs;
 
         /**
-         * 创建 BusinessStep 实例
-         * @param name name
-         * @param StepType StepType
-         * @param String String
-         * @param String String
-         * @param long long
+          * 创建 业务step 实例
+         * @param name 名称
+         * @param type step类型
+         * @param name 字符串
+         * @param name 字符串
+         * @param timeoutMs long
+         * @param type 类型
+         * @param selector selector
+         * @param value 值
+         * @param timeoutMs 超时ms
+         * @return 业务step的结果
          */
         private BusinessStep(String name, StepType type, String selector, String value, long timeoutMs) {
             this.name = name;
@@ -114,57 +124,115 @@ public class PlaywrightBusinessBenchmark {
             this.timeoutMs = timeoutMs;
         }
 
-        /** 获取Name */
+        /**
+         * 获取名称
+         *
+         * @return 获取名称的结果
+         */
         public String getName() {
             return name;
         }
 
-        /** 获取Type */
+        /**
+         * 获取类型
+         *
+         * @return 获取类型的结果
+         */
         public StepType getType() {
             return type;
         }
 
-        /** 获取Selector */
+        /**
+         * 获取Selector
+         *
+         * @return 获取selector的结果
+         */
         public String getSelector() {
             return selector;
         }
 
-        /** 获取Value */
+        /**
+         * 获取值
+         *
+         * @return 获取值的结果
+         */
         public String getValue() {
             return value;
         }
 
-        /** 获取TimeoutMs */
+        /**
+         * 获取超时ms
+         *
+         * @return 获取超时ms的结果
+         */
         public long getTimeoutMs() {
             return timeoutMs;
         }
 
-        /** 打开 */
+        /**
+         * 打开
+         *
+         * @param name 名称
+         * @param url url
+         * @return 打开的结果
+         */
         public static BusinessStep open(String name, String url) {
             return new BusinessStep(name, StepType.OPEN, null, url, 30000);
         }
 
-        /** Fill */
+        /**
+         * Fill
+         *
+         * @param name 名称
+         * @param selector selector
+         * @param value 值
+         * @return fill的结果
+         */
         public static BusinessStep fill(String name, String selector, String value) {
             return new BusinessStep(name, StepType.FILL, selector, value, 10000);
         }
 
-        /** Click */
+        /**
+         * Click
+         *
+         * @param name 名称
+         * @param selector selector
+         * @return click的结果
+         */
         public static BusinessStep click(String name, String selector) {
             return new BusinessStep(name, StepType.CLICK, selector, null, 10000);
         }
 
-        /** WaitFor */
+        /**
+         * waitfor
+         *
+         * @param name 名称
+         * @param selector selector
+         * @param timeoutMs 超时ms
+         * @return waitFor的结果
+         */
         public static BusinessStep waitFor(String name, String selector, long timeoutMs) {
             return new BusinessStep(name, StepType.WAIT_FOR, selector, null, timeoutMs);
         }
 
-        /** AssertText */
+        /**
+         * 断言文本
+         *
+         * @param name 名称
+         * @param selector selector
+         * @param expected 期望
+         * @return 断言文本的结果
+         */
         public static BusinessStep assertText(String name, String selector, String expected) {
             return new BusinessStep(name, StepType.ASSERT_TEXT, selector, expected, 10000);
         }
 
-        /** Screenshot */
+        /**
+         * Screenshot
+         *
+         * @param name 名称
+         * @return screenshot的结果
+         */
         public static BusinessStep screenshot(String name) {
             return new BusinessStep(name, StepType.SCREENSHOT, null, null, 0);
         }
@@ -201,27 +269,47 @@ public class PlaywrightBusinessBenchmark {
             this.detail = detail;
         }
 
-        /** 获取Name */
+        /**
+         * 获取名称
+         *
+         * @return 获取名称的结果
+         */
         public String getName() {
             return name;
         }
 
-        /** 获取Type */
+        /**
+         * 获取类型
+         *
+         * @return 获取类型的结果
+         */
         public StepType getType() {
             return type;
         }
 
-        /** 是否Success */
+        /**
+         * 是否成功
+         *
+         * @return 是否成功的结果
+         */
         public boolean isSuccess() {
             return success;
         }
 
-        /** 获取LatencyMs */
+        /**
+         * 获取延迟ms
+         *
+         * @return 获取延迟ms的结果
+         */
         public long getLatencyMs() {
             return latencyMs;
         }
 
-        /** 获取Detail */
+        /**
+         * 获取Detail
+         *
+         * @return 获取detail的结果
+         */
         public String getDetail() {
             return detail;
         }
@@ -242,7 +330,7 @@ public class PlaywrightBusinessBenchmark {
          */
         private final boolean success;
         /**
-         * 截图 Base64 编码
+          * 截图 基础64 编码
          */
         private final String screenshotBase64;
 
@@ -253,22 +341,38 @@ public class PlaywrightBusinessBenchmark {
             this.screenshotBase64 = screenshotBase64;
         }
 
-        /** 获取StepResults */
+        /**
+         * 获取step结果
+         *
+         * @return 获取step结果的结果
+         */
         public List<StepResult> getStepResults() {
             return stepResults;
         }
 
-        /** 获取总计LatencyMs */
+        /**
+         * 获取总计延迟ms
+         *
+         * @return 获取total延迟ms的结果
+         */
         public long getTotalLatencyMs() {
             return totalLatencyMs;
         }
 
-        /** 是否Success */
+        /**
+         * 是否成功
+         *
+         * @return 是否成功的结果
+         */
         public boolean isSuccess() {
             return success;
         }
 
-        /** 获取ScreenshotBase */
+        /**
+         * 获取screenshotbase
+         *
+         * @return 获取screenshotbase64的结果
+         */
         public String getScreenshotBase64() {
             return screenshotBase64;
         }
@@ -310,15 +414,15 @@ public class PlaywrightBusinessBenchmark {
     private final long waitAfterStepMs;
 
     /**
-     * 创建 PlaywrightBusinessBenchmark 实例
-     * @param baseUrl baseUrl
+      * 创建 playwright业务benchmark 实例
+     * @param baseUrl baseurl
      * @param steps steps
      * @param concurrency concurrency
      * @param iterations iterations
-     * @param reportPath reportPath
+     * @param reportPath report路径
      * @param headless headless
-     * @param executablePath executablePath
-     * @param waitAfterStepMs waitAfterStepMs
+     * @param executablePath executable路径
+     * @param waitAfterStepMs wait之后stepms
      */
     private PlaywrightBusinessBenchmark(String baseUrl, List<BusinessStep> steps, int concurrency,
                                         int iterations, String reportPath, boolean headless,
@@ -333,7 +437,11 @@ public class PlaywrightBusinessBenchmark {
         this.waitAfterStepMs = waitAfterStepMs;
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -372,61 +480,110 @@ public class PlaywrightBusinessBenchmark {
          */
         private long waitAfterStepMs = 0;
 
-        /** BaseUrl */
+        /**
+         * baseurl
+         *
+         * @param baseUrl baseurl
+         * @return baseUrl的结果
+         */
         public Builder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
         }
 
-        /** Step */
+        /**
+         * Step
+         *
+         * @param step step
+         * @return step的结果
+         */
         public Builder step(BusinessStep step) {
             this.steps.add(step);
             return this;
         }
 
-        /** Steps */
+        /**
+         * Steps
+         *
+         * @param steps steps
+         * @return steps的结果
+         */
         public Builder steps(List<BusinessStep> steps) {
             this.steps.addAll(steps);
             return this;
         }
 
-        /** Concurrency */
+        /**
+         * Concurrency
+         *
+         * @param concurrency concurrency
+         * @return concurrency的结果
+         */
         public Builder concurrency(int concurrency) {
             this.concurrency = concurrency;
             return this;
         }
 
-        /** Iterations */
+        /**
+         * Iterations
+         *
+         * @param iterations iterations
+         * @return iterations的结果
+         */
         public Builder iterations(int iterations) {
             this.iterations = iterations;
             return this;
         }
 
-        /** ReportPath */
+        /**
+         * report路径
+         *
+         * @param reportPath report路径
+         * @return report路径的结果
+         */
         public Builder reportPath(String reportPath) {
             this.reportPath = reportPath;
             return this;
         }
 
-        /** Headless */
+        /**
+         * Headless
+         *
+         * @param headless headless
+         * @return headless的结果
+         */
         public Builder headless(boolean headless) {
             this.headless = headless;
             return this;
         }
 
-        /** ExecutablePath */
+        /**
+         * executable路径
+         *
+         * @param executablePath executable路径
+         * @return executable路径的结果
+         */
         public Builder executablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;
         }
 
-        /** WaitAfterStepMs */
+        /**
+         * wait之后stepms
+         *
+         * @param waitAfterStepMs wait之后stepms
+         * @return wait之后stepms的结果
+         */
         public Builder waitAfterStepMs(long waitAfterStepMs) {
             this.waitAfterStepMs = waitAfterStepMs;
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public PlaywrightBusinessBenchmark build() {
             if (steps.isEmpty()) {
                 throw new IllegalArgumentException("至少需要一个业务测试点");
@@ -512,6 +669,10 @@ public class PlaywrightBusinessBenchmark {
 
     /**
      * 执行单个用户的单次业务流程。
+     * @param page page
+     * @param workerIdx 工人idx
+     * @param iterIdx iteridx
+     * @return 执行业务的结果
      */
     private BusinessRun executeBusiness(Page page, int workerIdx, int iterIdx) {
         List<StepResult> results = new ArrayList<>();
@@ -640,82 +801,148 @@ public class PlaywrightBusinessBenchmark {
             this.stddev = stddev(lat, mean);
         }
 
-        /** 获取Runs */
+        /**
+         * 获取运行
+         *
+         * @return 获取运行的结果
+         */
         public List<BusinessRun> getRuns() {
             return runs;
         }
 
-        /** 获取ElapsedMs */
+        /**
+         * 获取elapsedms
+         *
+         * @return 获取elapsedms的结果
+         */
         public long getElapsedMs() {
             return elapsedMs;
         }
 
-        /** 获取总计 */
+        /**
+         * 获取总计
+         *
+         * @return 获取total的结果
+         */
         public long getTotal() {
             return total;
         }
 
-        /** 获取Errors */
+        /**
+         * 获取错误
+         *
+         * @return 获取错误的结果
+         */
         public long getErrors() {
             return errors;
         }
 
-        /** 获取SuccessRate */
+        /**
+         * 获取成功rate
+         *
+         * @return 获取成功rate的结果
+         */
         public double getSuccessRate() {
             return total > 0 ? (total - errors) * 100.0 / total : 0;
         }
 
-        /** Rps */
+        /**
+         * Rps
+         *
+         * @return rps的结果
+         */
         public double rps() {
             return elapsedMs > 0 ? total * 1000.0 / elapsedMs : 0;
         }
 
-        /** 获取 */
+        /**
+         * 获取
+         *
+         * @return 获取p50的结果
+         */
         public double getP50() {
             return p50;
         }
 
-        /** 获取 */
+        /**
+         * 获取
+         *
+         * @return 获取p95的结果
+         */
         public double getP95() {
             return p95;
         }
 
-        /** 获取 */
+        /**
+         * 获取
+         *
+         * @return 获取p99的结果
+         */
         public double getP99() {
             return p99;
         }
 
-        /** 获取 */
+        /**
+         * 获取
+         *
+         * @return 获取p999的结果
+         */
         public double getP999() {
             return p999;
         }
 
-        /** 获取最大值 */
+        /**
+         * 获取最大值
+         *
+         * @return 获取最大的结果
+         */
         public double getMax() {
             return max;
         }
 
-        /** 获取Mean */
+        /**
+         * 获取Mean
+         *
+         * @return 获取mean的结果
+         */
         public double getMean() {
             return mean;
         }
 
-        /** 获取Stddev */
+        /**
+         * 获取Stddev
+         *
+         * @return 获取stddev的结果
+         */
         public double getStddev() {
             return stddev;
         }
 
-        /** 获取Concurrency */
+        /**
+         * 获取Concurrency
+         *
+         * @return 获取concurrency的结果
+         */
         public int getConcurrency() {
             return concurrency;
         }
 
-        /** 获取Iterations */
+        /**
+         * 获取Iterations
+         *
+         * @return 获取iterations的结果
+         */
         public int getIterations() {
             return iterations;
         }
 
-        /** Percentile */
+        /**
+         * Percentile
+         *
+         * @param sortedMs 排序ms
+         * @param p p
+         * @return percentile的结果
+         */
         private static double percentile(long[] sortedMs, double p) {
             if (sortedMs.length == 0) {
                 return 0;
@@ -725,7 +952,13 @@ public class PlaywrightBusinessBenchmark {
             return sortedMs[idx];
         }
 
-        /** Stddev */
+        /**
+         * Stddev
+         *
+         * @param sortedMs 排序ms
+         * @param meanMs meanms
+         * @return stddev的结果
+         */
         private static double stddev(long[] sortedMs, double meanMs) {
             if (sortedMs.length == 0) {
                 return 0;
@@ -741,6 +974,7 @@ public class PlaywrightBusinessBenchmark {
 
     /**
      * 生成业务压测 HTML 报告（含截图、测试点、测试参数、结果）。
+     * @param summary summary
      */
     private void writeReport(BenchmarkSummary summary) {
         StringBuilder sb = new StringBuilder();
@@ -785,7 +1019,7 @@ public class PlaywrightBusinessBenchmark {
         }
         sb.append("</table>\n");
 
-        // 压测结果（与接口压测对齐：总执行/成功率/RPS/p50/p95/p99/max/平均）
+ // 压测结果（与接口压测对齐：总执行/成功率/RPS/p50/p95/p99/最大/平均）
         sb.append("<h2>压测结果</h2>\n<table>\n");
         sb.append("<tr><th>指标</th><th>值</th></tr>\n");
         sb.append("<tr><td>总执行次数</td><td>").append(summary.total).append("</td></tr>\n");
@@ -853,7 +1087,12 @@ public class PlaywrightBusinessBenchmark {
         }
     }
 
-    /** Esc */
+    /**
+     * Esc
+     *
+     * @param s s
+     * @return esc的结果
+     */
     private static String esc(String s) {
         if (s == null) {
             return "";

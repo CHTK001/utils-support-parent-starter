@@ -23,26 +23,29 @@ import java.util.List;
 public class MysqlMetaTrigger extends AbstractMetaTrigger {
 
     /**
-     * 创建 MysqlMetaTrigger 实例
-     * @param metaData metaData
-     * @param Engine Engine
+      * 创建 mysqlmetatrigger 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param engine engine
      */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
 
     /**
-     * 创建 MysqlMetaTrigger 实例
-     * @param metaData metaData
-     * @param Engine Engine
-     * @param String String
+      * 创建 mysqlmetatrigger 实例
+     * @param metaData meta数据
+     * @param engine Engine
+     * @param triggerName 字符串
+     * @param engine engine
+     * @param triggerName trigger名称
      */
     protected MysqlMetaTrigger(AbstractMetaData metaData, Engine engine, String triggerName) {
         super(metaData, engine, triggerName);
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<TriggerDef> list() {
         List<TriggerDef> result = new ArrayList<>();
         try (Connection conn = getConnection()) {
@@ -81,7 +84,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String triggerName) {
         return executeUpdate("DROP TRIGGER IF EXISTS " + quote(triggerName));
     }
@@ -98,7 +101,11 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         return executeUpdate("ALTER TABLE " + quote(tableName) + " DISABLE TRIGGER `" + triggerName + "`");
     }
 
-    /** 获取Connection */
+    /**
+     * 获取Connection
+     *
+     * @return 获取connection的结果
+     */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -111,7 +118,14 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         throw new IllegalStateException("数据源类型不支持 JDBC 连接获取: " + source.getClass().getName());
     }
 
-    /** 获取TriggerDefinition */
+    /**
+     * 获取triggerdefinition
+     *
+     * @param conn conn
+     * @param triggerSchema trigger模式
+     * @param triggerName trigger名称
+     * @return 获取triggerdefinition的结果
+     */
     private TriggerDef getTriggerDefinition(Connection conn, String triggerSchema, String triggerName) throws Exception {
         String sql = "SHOW CREATE TRIGGER " + quote(triggerSchema != null ? triggerSchema + "." + triggerName : triggerName);
         try (java.sql.Statement stmt = conn.createStatement();
@@ -141,7 +155,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
                 return def;
             }
         } catch (SQLException e) {
-            // 豁免：INFORMATION_SCHEMA 回退查询，triggerName/triggerSchema 为系统触发器标识（由应用自身创建），非外部用户输入
+ // 豁免：信息_模式 回退查询，trigger名称/trigger模式 为系统触发器标识（由应用自身创建），非外部用户输入
             String infoSchemaSql = "SELECT * FROM INFORMATION_SCHEMA.TRIGGERS WHERE TRIGGER_NAME = '" + triggerName + "'";
             if (triggerSchema != null) {
                 infoSchemaSql += " AND TRIGGER_SCHEMA = '" + triggerSchema + "'";
@@ -164,12 +178,24 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         return null;
     }
 
-    /** Quote */
+    /**
+     * 引述
+     *
+     * @param name 名称
+     * @return 引述的结果
+     */
     private String quote(String name) {
         return "`" + name + "`";
     }
 
-    /** 执行更新 */
+    /**
+     * 执行更新
+     *
+     * @param sql SQL
+     * @return 执行更新的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -192,13 +218,13 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         private String timing;
         /** 事件 */
         private String event;
-        /** FOReach行 */
+        /** foreach行 */
         private boolean forEachRow = true;
         /** 请求体 */
         private String body;
         /** Enable */
         private boolean enable = true;
-        /** Comment */
+        /** 评论 */
         private String comment;
 
         MysqlTriggerCreateBuilder(MysqlMetaTrigger metaTrigger, String triggerName) {
@@ -207,14 +233,14 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
-        /** OnTable */
+        /** ontable */
         public TriggerCreateBuilder onTable(String tableName) {
             this.tableName = tableName;
             return this;
         }
 
         @Override
-        /** Before */
+        /** 之前 */
         public TriggerCreateBuilder before(String event) {
             this.timing = "BEFORE";
             this.event = event;
@@ -222,7 +248,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
-        /** After */
+        /** 之后 */
         public TriggerCreateBuilder after(String event) {
             this.timing = "AFTER";
             this.event = event;
@@ -230,27 +256,27 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
-        /** InsteadOf */
+        /** instead的 */
         public TriggerCreateBuilder insteadOf(String event) {
             throw new UnsupportedOperationException("MySQL 不支持 INSTEAD OF 触发器");
         }
 
         @Override
-        /** ForEachRow */
+        /** foreachrow */
         public TriggerCreateBuilder forEachRow() {
             this.forEachRow = true;
             return this;
         }
 
         @Override
-        /** ForEachStatement */
+        /** foreach对账单 */
         public TriggerCreateBuilder forEachStatement() {
             this.forEachRow = false;
             return this;
         }
 
         @Override
-        /** Body */
+        /** 主体 */
         public TriggerCreateBuilder body(String body) {
             this.body = body;
             return this;
@@ -271,7 +297,7 @@ public class MysqlMetaTrigger extends AbstractMetaTrigger {
         }
 
         @Override
-        /** Comment */
+        /** 评论 */
         public TriggerCreateBuilder comment(String comment) {
             this.comment = comment;
             return this;

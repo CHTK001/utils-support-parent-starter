@@ -28,9 +28,9 @@ public final class MimeTypeUtils {
     private static final Set<String> BROWSER_PREVIEW_MIMES;
     /** 可转换为 PDF 的扩展名集合 */
     private static final Set<String> CONVERTABLE_TO_PDF_EXTENSIONS;
-    /** 前端插件可预览的扩展名集合（如 Office、CAD 等） */
+    /** 前端插件可预览的扩展名集合（如 办公室、CAD 等） */
     private static final Set<String> PLUGIN_PREVIEW_EXTENSIONS;
-    /** 支持 Range 断点续传的 MIME 类型 */
+    /** 支持 范围 断点续传的 MIME 类型 */
     private static final Set<String> RANGE_SUPPORTED_MIMES;
     /** 扩展名到 MIME 的映射 */
     private static final Map<String, String> EXTENSION_TO_MIME;
@@ -142,7 +142,7 @@ public final class MimeTypeUtils {
         convertable.add("htm");
         CONVERTABLE_TO_PDF_EXTENSIONS = Collections.unmodifiableSet(convertable);
 
-        // 前端插件可预览（Office 等）
+ // 前端插件可预览（办公室 等）
         Set<String> plugin = new HashSet<>();
         plugin.add("doc");
         plugin.add("docx");
@@ -171,7 +171,7 @@ public final class MimeTypeUtils {
         plugin.add("xz");
         PLUGIN_PREVIEW_EXTENSIONS = Collections.unmodifiableSet(plugin);
 
-        // 支持 Range 的 MIME（通常是流媒体或大文件）
+ // 支持 范围 的 MIME（通常是流媒体或大文件）
         Set<String> range = new HashSet<>();
         range.add("video/mp4");
         range.add("video/webm");
@@ -190,7 +190,7 @@ public final class MimeTypeUtils {
         RANGE_SUPPORTED_MIMES = Collections.unmodifiableSet(range);
     }
 
-    /** 创建 MimeTypeUtils 实例 */
+    /** 创建 mime类型工具 实例 */
     private MimeTypeUtils() {
         throw new AssertionError("No com.chua.filestorage.support.utils.MimeTypeUtils instances for you!");
     }
@@ -199,7 +199,7 @@ public final class MimeTypeUtils {
      * 根据扩展名获取 MIME 类型（小写）。
      *
      * @param extension 扩展名（不带点，如 "pdf"）
-     * @return MIME 类型，找不到返回 "application/octet-stream"
+     * @return MIME 类型，找不到返回 "application/octet-流"
      */
     public static String getMimeType(String extension) {
         if (extension == null) {
@@ -254,7 +254,7 @@ public final class MimeTypeUtils {
     }
 
     /**
-     * 判断 MIME 是否支持 Range 范围请求。
+      * 判断 MIME 是否支持 范围 范围请求。
      *
      * @param mime MIME 类型
      * @return true 表示支持

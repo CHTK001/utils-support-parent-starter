@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * GraphQL Handler — intercepts GraphQL execution.
+   * 图计算ql 处理器 — intercepts 图计算ql 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class GraphQLHandler extends AbstractAppHandler {
      */
     private static final String GRAPHQL = "graphql/GraphQL";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute", "executeAsync"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "graphql-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "graphql.enabled";
     }
@@ -42,13 +42,13 @@ public class GraphQLHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(GRAPHQL, EXECUTE_METHODS);
     }

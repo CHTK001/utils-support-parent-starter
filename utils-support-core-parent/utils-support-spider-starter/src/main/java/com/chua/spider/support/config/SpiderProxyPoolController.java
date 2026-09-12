@@ -34,9 +34,10 @@ public class SpiderProxyPoolController {
     private final SpiderProxyProbe tester;
 
     /**
-     * 创建 SpiderProxyPoolController 实例
-     * @param store store
-     * @param SpiderProxyProbe SpiderProxyProbe
+      * 创建 蜘蛛代理游泳池控制器 实例
+     * @param store 存储
+     * @param tester 蜘蛛代理探针
+     * @param tester 测试
      */
     public SpiderProxyPoolController(SpiderProxyPoolStore store, SpiderProxyProbe tester) {
         this.store = store;
@@ -46,19 +47,19 @@ public class SpiderProxyPoolController {
     @GetMapping("/page")
     /**
      * Page
-     * @param pageNo pageNo
-     * @param pageSize pageSize
+     * @param pageNo pageno
+     * @param pageSize page大小
      * @param keyword keyword
-     * @param pageSize pageSize
+     * @param pageSize page大小
      * @param keyword keyword
-     * @param poolCode poolCode
-     * @param pool pool
-     * @param poolCode poolCode
-     * @param poolCode poolCode
-     * @param poolStatus poolStatus
+     * @param poolCode 游泳池编码
+     * @param pool 游泳池
+     * @param poolCode 游泳池编码
+     * @param poolCode 游泳池编码
+     * @param poolStatus 游泳池状态
      * @param true true
      * @param false false
-     * @param poolCode poolCode
+     * @param poolCode 游泳池编码
      */
     public SpiderProxyPoolStore.PageResult<SpiderProxyPool> page(
             @RequestParam(defaultValue = "1") int pageNo,
@@ -68,19 +69,34 @@ public class SpiderProxyPoolController {
     }
 
     @GetMapping("/detail")
-    /** Detail */
+    /**
+     * Detail
+     *
+     * @param poolCode 游泳池编码
+     * @return detail的结果
+     */
     public SpiderProxyPool detail(@RequestParam String poolCode) {
         return store.get(poolCode);
     }
 
     @PostMapping("/save")
-    /** 保存 */
+    /**
+     * 保存
+     *
+     * @param pool 游泳池
+     * @return 保存的结果
+     */
     public SpiderProxyPool save(@RequestBody SpiderProxyPool pool) {
         return store.save(pool);
     }
 
     @DeleteMapping("/delete")
-    /** 删除 */
+    /**
+     * 删除
+     *
+     * @param poolCode 游泳池编码
+     * @return 删除的结果
+     */
     public Map<String, Object> delete(@RequestParam String poolCode) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("deleted", store.remove(poolCode));
@@ -89,9 +105,9 @@ public class SpiderProxyPoolController {
 
     @PostMapping("/status")
     /**
-     * Status
-     * @param poolCode poolCode
-     * @param poolStatus poolStatus
+      * 状态
+     * @param poolCode 游泳池编码
+     * @param poolStatus 游泳池状态
      */
     public Map<String, Object> status(@RequestParam String poolCode,
                                        @RequestParam int poolStatus) {

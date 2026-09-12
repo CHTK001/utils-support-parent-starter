@@ -18,7 +18,7 @@ public enum Software {
     JDK_HTTP_SERVER("JDK HttpServer"),
 
     /**
-     * JDK 内置 HTTP 客户端（HttpURLConnection）
+      * JDK 内置 HTTP 客户端（httpurlconnection）
      */
     JDK_HTTP_CLIENT("JDK HttpURLConnection"),
 
@@ -43,7 +43,7 @@ public enum Software {
     UNDERTOW("Undertow"),
 
     /**
-     * Apache HttpClient
+      * Apache HTTP客户端
      */
     APACHE_HTTPCLIENT("Apache HttpClient"),
 
@@ -123,12 +123,12 @@ public enum Software {
     EUREKA("Eureka"),
 
     /**
-     * HashiCorp Consul
+      * hashicorp Consul
      */
     CONSUL("Consul"),
 
     /**
-     * Spring WebClient（响应式 HTTP 客户端）
+      * Spring Web客户端（响应式 HTTP 客户端）
      */
     WEB_CLIENT("Spring WebClient"),
 
@@ -138,7 +138,7 @@ public enum Software {
     ORACLE_DRIVER("Oracle JDBC"),
 
     /**
-     * Microsoft SQL Server JDBC 驱动
+      * Microsoft SQL 服务端 JDBC 驱动
      */
     SQLSERVER_DRIVER("SQL Server JDBC"),
 
@@ -148,7 +148,7 @@ public enum Software {
     DB2_DRIVER("DB2 JDBC"),
 
     /**
-     * ClickHouse JDBC 驱动
+      * click房子 JDBC 驱动
      */
     CLICKHOUSE_DRIVER("ClickHouse JDBC"),
 
@@ -158,7 +158,7 @@ public enum Software {
     DAMENG_DRIVER("达梦 JDBC"),
 
     /**
-     * KingbaseES JDBC 驱动
+      * kingbasees JDBC 驱动
      */
     KINGBASE_DRIVER("金仓 JDBC"),
 
@@ -168,12 +168,12 @@ public enum Software {
     CASSANDRA_DRIVER("Cassandra Driver"),
 
     /**
-     * Apache HBase Client
+      * Apache HBase 客户端
      */
     HBASE_CLIENT("HBase Client"),
 
     /**
-     * Apache Pulsar Client
+      * Apache Pulsar 客户端
      */
     PULSAR("Pulsar"),
 
@@ -183,7 +183,7 @@ public enum Software {
     THRIFT("Thrift"),
 
     /**
-     * Apache ShardingSphere
+      * Apache 分库分表sphere
      */
     SHARDING_SPHERE("ShardingSphere"),
 
@@ -193,47 +193,47 @@ public enum Software {
     NEO4J_DRIVER("Neo4j Driver"),
 
     /**
-     * Hazelcast Client
+      * Hazelcast 客户端
      */
     HAZELCAST("Hazelcast"),
 
     /**
-     * Apache Solr Client
+      * Apache Solr 客户端
      */
     SOLR("Solr"),
 
     /**
-     * JMS Client (ActiveMQ/Artemis)
+      * JMS 客户端 (ActiveMQ/Artemis)
      */
     JMS_CLIENT("JMS Client"),
 
     /**
-     * Couchbase Client
+      * Couchbase 客户端
      */
     COUCHBASE("Couchbase"),
 
     /**
-     * Etcd Client
+      * Etcd 客户端
      */
     ETCD("Etcd"),
 
     /**
-     * Apache Ignite Client
+      * Apache Ignite 客户端
      */
     IGNITE("Ignite"),
 
     /**
-     * RSocket Client
+      * r套接字 客户端
      */
     RSOCKET("RSocket"),
 
     /**
-     * NATS Client
+      * NATS 客户端
      */
     NATS("NATS"),
 
     /**
-     * GraphQL Java
+      * 图计算ql Java
      */
     GRAPHQL_JAVA("GraphQL Java"),
 
@@ -243,17 +243,17 @@ public enum Software {
     SPRING_CLOUD_GATEWAY("Spring Cloud Gateway"),
 
     /**
-     * AsyncHttpClient
+      * 异步http客户端
      */
     ASYNC_HTTP_CLIENT("AsyncHttpClient"),
 
     /**
-     * InfluxDB Java Client
+      * influxdb Java 客户端
      */
     INFLUXDB_CLIENT("InfluxDB Client"),
 
     /**
-     * RabbitMQ Java Client
+      * RabbitMQ Java 客户端
      */
     RABBITMQ_CLIENT("RabbitMQ Client"),
 
@@ -263,7 +263,7 @@ public enum Software {
     PAHO_MQTT("Eclipse Paho MQTT"),
 
     /**
-     * OpenFeign（Spring Cloud 声明式 HTTP 客户端）
+      * 打开Feign（Spring Cloud 声明式 HTTP 客户端）
      */
     FEIGN("OpenFeign"),
 
@@ -283,12 +283,12 @@ public enum Software {
     GRPC("gRPC"),
 
     /**
-     * Memcached Java Client
+      * Memcached Java 客户端
      */
     MEMCACHED("Memcached"),
 
     /**
-     * Elasticsearch Client
+      * Elasticsearch 客户端
      */
     ELASTICSEARCH("Elasticsearch"),
 
@@ -313,7 +313,7 @@ public enum Software {
     HIBERNATE("Hibernate"),
 
     /**
-     * Spring Cloud Stream
+      * Spring Cloud 流
      */
     SPRING_CLOUD_STREAM("Spring Cloud Stream"),
 
@@ -323,22 +323,22 @@ public enum Software {
     VERTX("Vert.x"),
 
     /**
-     * Play Framework
+      * Play 框架
      */
     PLAY("Play Framework"),
 
     /**
-     * Spring Data JPA
+      * Spring 数据 JPA
      */
     SPRING_DATA_JPA("Spring Data JPA"),
 
     /**
-     * Reactive Streams
+      * 响应式 流
      */
     REACTIVE_STREAMS("Reactive Streams"),
 
     /**
-     * XXL-Job（分布式任务调度）
+      * XXL-作业（分布式任务调度）
      */
     XXL_JOB("XXL-Job"),
 
@@ -353,12 +353,12 @@ public enum Software {
     SEATA("Seata"),
 
     /**
-     * Apache CXF / JAX-WS WebService
+      * Apache CXF / JAX-WS web服务
      */
     CXF("Apache CXF"),
 
     /**
-     * OpenSearch
+      * 打开搜索
      */
     OPENSEARCH("OpenSearch"),
 
@@ -383,7 +383,7 @@ public enum Software {
     SPRING_INTEGRATION("Spring Integration"),
 
     /**
-     * Kubernetes Client
+      * Kubernetes 客户端
      */
     KUBERNETES("Kubernetes"),
 
@@ -398,12 +398,12 @@ public enum Software {
     H2_DRIVER("H2 JDBC"),
 
     /**
-     * Quartz Scheduler
+      * 石英石 调度器
      */
     QUARTZ("Quartz"),
 
     /**
-     * Spring Batch
+      * Spring 批量
      */
     SPRING_BATCH("Spring Batch"),
 
@@ -418,7 +418,7 @@ public enum Software {
     UNKNOWN("Unknown");
 
     /**
-     * display Name
+      * display 名称
      */
     private final String displayName;
 

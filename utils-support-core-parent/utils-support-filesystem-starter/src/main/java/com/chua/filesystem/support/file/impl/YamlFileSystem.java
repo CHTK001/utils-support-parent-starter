@@ -23,6 +23,7 @@ import java.io.File;
  * // 写入
  * YamlWriteBuilder wb = (YamlWriteBuilder) fs.write(new File("output.yml"));
  * wb.write(Map.of("name", "张三", "age", 25));
+ * }</pre> wb.write(Map.of("name", "张三", "age", 25));
  * }</pre>
  *
  * @author CH
@@ -32,7 +33,7 @@ import java.io.File;
 public class YamlFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         
         return "yaml";

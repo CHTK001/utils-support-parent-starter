@@ -23,6 +23,9 @@ import java.util.List;
  * if (info.sharpnessOk()) {
  *     // 图片清晰
  * }
+ * }</pre>k()) {
+ *     // 图片清晰
+ * }
  * }</pre>
  *
  * @author CH
@@ -31,9 +34,9 @@ import java.util.List;
 public interface ImageClarityDetector {
 
     /**
-     * 通过 SPI 创建实例（provider="opencv"/"onnx" 等）。
+      * 通过 SPI 创建实例（提供者="opencv"/"onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -43,9 +46,9 @@ public interface ImageClarityDetector {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default ImageClarityDetector provider(String provider) {
@@ -65,7 +68,7 @@ public interface ImageClarityDetector {
     /**
      * 通过引擎创建实例（引擎自动发现已注册的模型）。
      *
-     * @param name 模型名称（如 "opencv-image-quality"、"nima"）
+     * @param name 模型名称（如 "opencv-镜像-quality"、"nima"）
      * @return 实例
      */
     static ImageClarityDetector create(String name) {
@@ -75,7 +78,7 @@ public interface ImageClarityDetector {
     /**
      * 查询该能力下全部可用模型。
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry
@@ -168,7 +171,7 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
      * 模型配置
      */
     @SuppressWarnings("unused")
-    private final ModelSetting setting;
+    private final ModelSetting setting; // setting
 
     /**
      * 模糊度阈值
@@ -198,14 +201,14 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public ImageClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -220,7 +223,12 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Assess */
+    /**
+     * 评定
+     *
+     * @param imageData 镜像数据
+     * @return 评定的结果
+     */
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

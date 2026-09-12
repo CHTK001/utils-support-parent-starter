@@ -11,13 +11,16 @@ import com.chua.datasource.support.engine.MemorySqlLex.RowAccessor;
 /**
  * SQL AST 节点与执行计划定义。
  * <p>表达式以二叉树组织：逻辑节点（AND/OR/NOT）为分支，
- * 比较节点（=/LIKE/IN/BETWEEN 等）为叶子谓词，求值自顶向下递归。</p>
+   * 比较节点（=/LIKE/入/BETWEEN 等）为叶子谓词，求值自顶向下递归。</p>
  *
  * @author CH
  * @since 4.0.0.42
  */
 final class MemorySqlAst {
 
+    /**
+     * 内存sqlast。
+     */
     private MemorySqlAst() {
     }
 
@@ -29,14 +32,14 @@ final class MemorySqlAst {
         /**
          * 对行求值。
          *
-         * @param row 行对象（Map 或 bean）
+         * @param row 行对象（映射 或 Bean）
          * @param p   参数提供器
          * @return 布真
          */
         /**
          * 对行求值。
          *
-         * @param row 行对象（Map 或 bean）
+         * @param row 行对象（映射 或 Bean）
          * @param p   参数游标
          * @return 布真结果
          */
@@ -52,7 +55,7 @@ final class MemorySqlAst {
         /**
          * 构造二元节点。
          *
-         * @param op    运算符（AND/OR/= /!=/<>/</<=/>/>=）
+         * @param op    运算符（和/或/= /!=/<>/</<=/>/>=）
          * @param left  左子树
          * @param right 右子树
          */
@@ -151,7 +154,7 @@ final class MemorySqlAst {
         /**
          * 构造字面量节点。
          *
-         * @param value 字面值或 ParamMarker 占位
+         * @param value 字面值或 参数记号笔 占位
          */
         LiteralNode(Object value) {
             this.value = value;
@@ -165,7 +168,7 @@ final class MemorySqlAst {
         /**
          * 获取内部原始值。
          *
-         * @return 原始值（可能为 ParamMarker）
+         * @return 原始值（可能为 参数记号笔）
          */
         Object value() {
             return value;
@@ -174,8 +177,8 @@ final class MemorySqlAst {
         /**
      * 解析字面量或参数占位为实际值。
      *
-     * @param v 待解析对象（LiteralNode / ParamMarker / 原始值）
-     * @param p 参数游标，null 时占位返回 null
+     * @param v 待解析对象（字面量节点 / 参数记号笔 / 原始值）
+     * @param p 参数游标，空 时占位返回 空
      * @return 解析后的值
      */
     static Object unwrap(Object v, ParamProvider p) {
@@ -189,7 +192,7 @@ final class MemorySqlAst {
         }
     }
 
-    /** IS [NOT] NULL */
+    /** 是否 [NOT] 空 */
     static final class IsNullNode extends Node {
         private final ColumnNode col;
         private final boolean notNull;
@@ -198,7 +201,7 @@ final class MemorySqlAst {
          * 构造空值判断节点。
          *
          * @param col     目标列
-         * @param notNull true 表示 IS NOT NULL
+         * @param notNull true 表示 是否 NOT 空
          */
         IsNullNode(ColumnNode col, boolean notNull) {
             this.col = col;
@@ -212,7 +215,7 @@ final class MemorySqlAst {
         }
     }
 
-    /** BETWEEN a AND b（闭区间） */
+    /** BETWEEN a 和 b（闭区间） */
     static final class BetweenNode extends Node {
         private final ColumnNode col;
         private final Object lo;
@@ -242,13 +245,13 @@ final class MemorySqlAst {
         }
     }
 
-    /** IN 列表 */
+    /** 入 列表 */
     static final class InNode extends Node {
         private final ColumnNode col;
         private final List<Object> values;
 
         /**
-         * 构造 IN 列表节点。
+          * 构造 入 列表节点。
          *
          * @param col    目标列
          * @param values 候选值集合（元素可为占位）
@@ -313,7 +316,7 @@ final class MemorySqlAst {
 
     /* ==================== SELECT 语句 ==================== */
 
-    /** ORDER BY 项 */
+    /** 订单 BY 项 */
     static final class OrderItem {
 
         /** 排序列名 */
@@ -344,27 +347,27 @@ final class MemorySqlAst {
         /**
          * 消费下一个绑定参数。
          *
-         * @return 参数值，耗尽返回 null
+         * @return 参数值，耗尽返回 空
          */
         Object next();
     }
 
-    /** SELECT 语句：FROM 表行引用 + WHERE 树 + 投影/排序/截断 */
+    /** 选择 语句：从 表行引用 + WHERE 树 + 投影/排序/截断 */
     static final class SelectStmt {
 
-        /** 是否为 COUNT(*) 聚合 */
+        /** 是否为 数量(*) 聚合 */
         boolean countStar;
 
-        /** 是否 SELECT ALL */
+        /** 是否 选择 全部 */
         boolean selectAll;
 
         /** 投影列清单 */
         final List<String> selectColumns = new ArrayList<>();
 
-        /** FROM 表名 */
+        /** 从 表名 */
         String table;
 
-        /** WHERE 表达式树根节点，null 表示无条件 */
+        /** WHERE 表达式树根节点，空 表示无条件 */
         Node where;
 
         /** 排序项列表 */
@@ -382,7 +385,7 @@ final class MemorySqlAst {
         /**
          * 绑定 ? 参数列表。
          *
-         * @param params 参数值集合，null 视为空集
+         * @param params 参数值集合，空 视为空集
          */
         void bind(List<Object> params) {
             this.boundParams = params == null ? List.of() : params;
@@ -443,7 +446,7 @@ final class MemorySqlAst {
         }
 
         /**
-         * 依据 orderBys 构建多列比较器（null 值排最前）。
+          * 依据 订单bys 构建多列比较器（空 值排最前）。
          *
          * @return 行比较器
          */
@@ -510,14 +513,14 @@ final class MemorySqlAst {
         /**
          * 匹配谓词。
          *
-         * @return WHERE 树或 null
+         * @return WHERE 树或 空
          */
         public Node where() {
             return where;
         }
     }
 
-    /** INSERT 计划 */
+    /** 插入 计划 */
     static final class InsertPlan extends DmlPlan {
 
         /** 显式列清单，未指定时由首行推断 */
@@ -545,14 +548,14 @@ final class MemorySqlAst {
         }
     }
 
-    /** UPDATE 计划 */
+    /** 更新 计划 */
     static final class UpdatePlan extends DmlPlan {
 
-        /** SET 赋值映射（保持语句顺序） */
+        /** 设置 赋值映射（保持语句顺序） */
         final Map<String, Object> sets = new LinkedHashMap<>();
 
         /**
-         * SET 赋值。
+          * 设置 赋值。
          *
          * @return 列到值的映射
          */
@@ -561,7 +564,7 @@ final class MemorySqlAst {
         }
     }
 
-    /** DELETE 计划 */
+    /** 删除 计划 */
     static final class DeletePlan extends DmlPlan {
     }
 
@@ -602,7 +605,7 @@ final class MemorySqlAst {
 
 
     /**
-     * 将解析期收集的 INSERT / UPDATE SET 参数占位按序绑定。
+      * 将解析期收集的 插入 / 更新 设置 参数占位按序绑定。
      *
      * @param plan     DML 计划
      * @param provider 共享参数游标
@@ -629,7 +632,7 @@ final class MemorySqlAst {
     }
 
     /**
-     * 对行引用列表应用 INSERT 计划。
+      * 对行引用列表应用 插入 计划。
      *
      * @param plan 插入计划
      * @param rows 目标行引用
@@ -658,7 +661,7 @@ final class MemorySqlAst {
     }
 
     /**
-     * 对行引用列表应用 UPDATE 计划。
+      * 对行引用列表应用 更新 计划。
      *
      * @param plan   更新计划
      * @param rows   目标行引用
@@ -684,7 +687,7 @@ final class MemorySqlAst {
     }
 
     /**
-     * 对行引用列表应用 DELETE 计划。
+      * 对行引用列表应用 删除 计划。
      *
      * @param plan   删除计划
      * @param rows   目标行引用

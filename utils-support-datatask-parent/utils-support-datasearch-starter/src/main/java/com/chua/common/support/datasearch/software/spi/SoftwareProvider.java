@@ -9,7 +9,7 @@ import java.util.List;
  *
  * <p>定义软件搜索的统一入口，支持搜索、安装、卸载软件包。
  * 各实现通过 SPI 机制注册，如系统包管理器（winget/brew/apt）、
- * 软件市场（Chocolatey/npm/pip）等。
+   * 软件市场（Chocolatey/NPM/pip）等。
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,7 +34,7 @@ public interface SoftwareProvider {
     /**
      * 安装软件包
      *
-     * @param packageId 包 ID
+     * @param packageId 包 标识
      * @return 是否安装成功
      */
     default boolean install(String packageId) {
@@ -44,7 +44,7 @@ public interface SoftwareProvider {
     /**
      * 卸载软件包
      *
-     * @param packageId 包 ID
+     * @param packageId 包 标识
      * @return 是否卸载成功
      */
     default boolean uninstall(String packageId) {

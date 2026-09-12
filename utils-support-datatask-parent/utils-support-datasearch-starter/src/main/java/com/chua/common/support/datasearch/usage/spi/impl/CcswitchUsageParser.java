@@ -15,10 +15,10 @@ import java.util.Map;
  * CC Switch usage parser.
  *
  * <p>CC Switch (github.com/farion1231/cc-switch) is a Tauri desktop manager
- * for Claude Code / Codex / Gemini CLI providers. It keeps a SQLite database
+   * for Claude 编码 / Codex / Gemini CLI 提供者. It keeps a sqlite database
  * at {@code ~/.cc-switch/cc-switch.db} whose {@code proxy_request_logs}
- * table records every routed request (proxy interception or CLI session
- * import) with full token, cost and latency detail.</p>
+   * table records every routed 请求 (代理 interception 或 CLI 会话
+   * 导入) with 完整 令牌, cost 和 延迟 detail.</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -37,9 +37,9 @@ public class CcswitchUsageParser extends BaseUsageParser {
                     + "WHERE input_tokens > 0 OR output_tokens > 0 "
                     + "ORDER BY created_at ASC";
 
-    private static final String PROVIDER_CC_SWITCH = "cc-switch";
-    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
-    private static final int HTTP_OK = 200;
+    private static final String PROVIDER_CC_SWITCH = "cc-switch"; // 提供者ccswitch
+    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
+    private static final int HTTP_OK = 200; // HTTP_OK
 
     /**
      * 返回 SPI 名称。
@@ -52,7 +52,14 @@ public class CcswitchUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 响应式流式入口：通过 SqliteReactorEngine 流出请求日志。
+      * 响应式流式入口：通过 sqlitereactorengine 流出请求日志。
+     * @param row row
+     * @return 转为AIusage的结果
+     /**
+      * 流全部。
+      * @return 流全部的结果
+      */
+      * @param row row
      */
     @Override
     public Flux<AiUsage> streamAll() {

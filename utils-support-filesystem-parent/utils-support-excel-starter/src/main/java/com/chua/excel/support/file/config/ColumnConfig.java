@@ -11,6 +11,7 @@ package com.chua.excel.support.file.config;
  *     .displayName("用户ID")
  *     .width(15)
  *     .style(headerStyle);
+ * }</pre>yle);
  * }</pre>
  *
  * @author CH
@@ -18,7 +19,7 @@ package com.chua.excel.support.file.config;
  */
 public class ColumnConfig {
 
-    /** 字段名（数据 Map 中的 key） */
+    /** 字段名（数据 映射 中的 键） */
     private final String fieldName;
 
     /** 列显示名（默认为字段名） */
@@ -39,7 +40,7 @@ public class ColumnConfig {
     /**
      * 使用字段名创建列配置。
      *
-     * @param fieldName 数据 Map 中的 key
+     * @param fieldName 数据 映射 中的 键
      */
     private ColumnConfig(String fieldName) {
         this.fieldName = fieldName;
@@ -113,32 +114,56 @@ public class ColumnConfig {
 
     // ==================== Getter ====================
 
-    /** 获取FieldName */
+    /**
+     * 获取字段名称
+     *
+     * @return 获取字段名称的结果
+     */
     public String getFieldName() {
         return fieldName;
     }
 
-    /** 获取DisplayName */
+    /**
+     * 获取display名称
+     *
+     * @return 获取display名称的结果
+     */
     public String getDisplayName() {
         return displayName != null ? displayName : fieldName;
     }
 
-    /** 获取Width */
+    /**
+     * 获取Width
+     *
+     * @return 获取width的结果
+     */
     public Integer getWidth() {
         return width;
     }
 
-    /** 获取Style */
+    /**
+     * 获取Style
+     *
+     * @return 获取style的结果
+     */
     public CellStyleConfig getStyle() {
         return style;
     }
 
-    /** 获取HeaderStyle */
+    /**
+     * 获取头部style
+     *
+     * @return 获取头部style的结果
+     */
     public CellStyleConfig getHeaderStyle() {
         return headerStyle;
     }
 
-    /** 是否Hidden */
+    /**
+     * 是否Hidden
+     *
+     * @return 是否hidden的结果
+     */
     public boolean isHidden() {
         return hidden;
     }

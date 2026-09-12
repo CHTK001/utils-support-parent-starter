@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  *                            ONNX          Translator
  * <p>
- *        ModelScope        {@code msocoder/image-to-line-drawing-onnx}   
+   * 模型scope        {@code msocoder/image-to-line-drawing-onnx}
  *                                                                   
  * </p>
  * <p>
@@ -76,7 +76,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
 
         var manager = ctx.getNDManager();
 
-        //        NDArray   HWC   RGB   
+ // ndarray   HWC   RGB
         NDArray array = input.toNDArray(manager, Image.Flag.COLOR);
 
         //                            
@@ -127,7 +127,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
             if (channelSize == 1L) {
                 //             1 x H x W -> H x W x 1
                 output = output.squeeze(0).expandDims(-1);
-                // BufferedImageFactory                                   3              RGB
+ // 缓冲镜像工厂                                   3              RGB
                 output = output.concat(output, -1).concat(output, -1);
             } else {
                 //             C x H x W -> H x W x C

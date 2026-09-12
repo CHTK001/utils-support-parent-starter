@@ -12,7 +12,7 @@ import java.util.Map;
  * 调用方依赖本接口即可解耦具体算法实现（Weka 随机森林等模块提供实现）。
  * 行数据以「列名 -> 值」传递，特征列类型由实现从数据自动推断
  * （非空值均可解析为数值时为数值列，否则为类别列）。
- * 行数据属运行时动态 schema（各调用方列结构不同），故以 {@code Map} 承载（P3C 动态场景豁免）。</p>
+   * 行数据属运行时动态 模式（各调用方列结构不同），故以 {@code Map} 承载（P3C 动态场景豁免）。</p>
  *
  * <p>使用流程：
  * <ol>
@@ -56,7 +56,7 @@ public interface ClassifierTask {
         /**
          * 预测单行数据。
          *
-         * @param row 预测数据行（列名 -> 值，可缺省标签列），不能为 null
+         * @param row 预测数据行（列名 -> 值，可缺省标签列），不能为 空
          * @return 预测结果（标签 + 置信度 + 概率分布）
          * @throws RuntimeException 实现对应的运行时异常（模型未训练或预测失败）
          */
@@ -65,7 +65,7 @@ public interface ClassifierTask {
         /**
          * 批量预测。
          *
-         * @param rows 预测数据行（与输入顺序一致），不能为 null
+         * @param rows 预测数据行（与输入顺序一致），不能为 空
          * @return 预测结果列表（与输入顺序一致）
          * @throws RuntimeException 实现对应的运行时异常（模型未训练或预测失败）
          */
@@ -74,7 +74,7 @@ public interface ClassifierTask {
         /**
          * 评估模型（K 折交叉验证，数据须包含标签列）。
          *
-         * @param samples 评估数据行（列名 -> 值，须含标签列），不能为 null
+         * @param samples 评估数据行（列名 -> 值，须含标签列），不能为 空
          * @return 评估报告（实例数 / 折数 / 准确率 / Kappa）
          * @throws RuntimeException 实现对应的运行时异常（数据不足或评估失败）
          */
@@ -83,7 +83,7 @@ public interface ClassifierTask {
         /**
          * 保存模型到磁盘。
          *
-         * @param file 目标文件路径，不能为 null
+         * @param file 目标文件路径，不能为 空
          * @throws RuntimeException 实现对应的运行时异常（写入失败）
          */
         void save(Path file);
@@ -94,7 +94,7 @@ public interface ClassifierTask {
      *
      * @param label         预测标签
      * @param confidence    预测置信度（0.0 ~ 1.0）
-     * @param probabilities 各类别概率分布（可能为空 Map）
+     * @param probabilities 各类别概率分布（可能为空 映射）
      * @author CH
      * @since 4.0.0.42
      */

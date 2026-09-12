@@ -17,7 +17,7 @@ import java.lang.management.MemoryPoolMXBean;
 public class MemoryCommand implements Command {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "memory";
     }
@@ -64,12 +64,22 @@ public class MemoryCommand implements Command {
         return 0;
     }
 
-    /** ToMb */
+    /**
+     * 转为mb
+     *
+     * @param bytes bytes
+     * @return 转为mb的结果
+     */
     private String toMb(long bytes) {
         return String.valueOf(bytes / (1024L * 1024L));
     }
 
-    /** ToMs */
+    /**
+     * 转为ms
+     *
+     * @param ms ms
+     * @return 转为ms的结果
+     */
     private String toMs(long ms) {
         return String.valueOf(ms);
     }

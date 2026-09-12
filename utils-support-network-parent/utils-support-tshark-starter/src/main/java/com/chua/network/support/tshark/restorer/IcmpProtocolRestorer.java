@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "icmp";
     }
@@ -58,7 +58,12 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToTypeName */
+    /**
+     * 转为类型名称
+     *
+     * @param type 类型
+     * @return 转为类型名称的结果
+     */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "EchoReply";
@@ -78,7 +83,13 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
         };
     }
 
-    /** ToCodeName */
+    /**
+     * 转为编码名称
+     *
+     * @param type 类型
+     * @param code 编码
+     * @return 转为编码名称的结果
+     */
     private static String toCodeName(int type, int code) {
         if (type == 3) {
             return switch (code) {

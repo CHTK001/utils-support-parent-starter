@@ -39,6 +39,7 @@ import weka.core.Instance;
  * model.featureImportances(trainIns);  // 特征重要性排名
  * model.save(Path.of("model.ser"));    // 序列化保存
  * RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
+ * }</pre> RandomForestModel loaded = RandomForestModel.load(Path.of("model.ser"));
  * }</pre>
  *
  * @see <a href="https://www.cs.waikato.ac.nz/ml/weka/">Weka 官方文档</a>
@@ -48,7 +49,7 @@ import weka.core.Instance;
 @Getter
 public final class RandomForestModel implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /** 底层 Weka 随机森林分类器 */
     private final RandomForest forest;
@@ -62,6 +63,12 @@ public final class RandomForestModel implements Serializable {
     /** 创建时间戳（毫秒） */
     private final long createdAtMillis;
 
+    /**
+     * 随机forest模型。
+     * @param forest forest
+     * @param options 期权
+     * @param domain domain
+     */
     private RandomForestModel(RandomForest forest, RandomForestOptions options, ModelDomain domain) {
         this.forest = forest;
         this.options = options;
@@ -72,8 +79,8 @@ public final class RandomForestModel implements Serializable {
     /**
      * 创建空壳（未训练）随机森林模型。
      *
-     * @param options 训练参数，不能为 null
-     * @param domain  建模域快照，不能为 null
+     * @param options 训练参数，不能为 空
+     * @param domain  建模域快照，不能为 空
      * @return 模型实例
      */
     public static RandomForestModel create(RandomForestOptions options, ModelDomain domain) {
@@ -99,7 +106,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 训练模型。
      *
-     * @param trainingData 训练实例，不能为 null
+     * @param trainingData 训练实例，不能为 空
      * @throws WekaException 训练失败
      */
     public void train(Instances trainingData) {
@@ -114,7 +121,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 按建模域快照构建预测实例。
      *
-     * @param rows 预测数据行，不能为 null
+     * @param rows 预测数据行，不能为 空
      * @return 实例容器
      */
     public Instances instancesFor(List<Map<String, Object>> rows) {
@@ -145,7 +152,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 单条原始预测。
      *
-     * @param instance 预测实例，不能为 null
+     * @param instance 预测实例，不能为 空
      * @return 分类场景为标签索引，回归场景为预测值
      * @throws WekaException 预测失败
      */
@@ -161,7 +168,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 单条预测的概率分布。
      *
-     * @param instance 预测实例，不能为 null
+     * @param instance 预测实例，不能为 空
      * @return 类别概率分布；回归场景无分布，返回 {@link Optional#empty()}
      * @throws WekaException 预测失败
      */
@@ -177,7 +184,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 计算特征重要性（平均不纯度下降，并按排名归一化）。
      *
-     * @param trainingData 训练实例，不能为 null
+     * @param trainingData 训练实例，不能为 空
      * @return 按重要性降序排列的重要性列表
      * @throws WekaException 计算失败
      */
@@ -187,7 +194,7 @@ public final class RandomForestModel implements Serializable {
         try {
             raw = forest.computeAverageImpurityDecreasePerAttribute(new double[trainingData.numAttributes()]);
         } catch (weka.core.WekaException e) {
-            // 与模块 WekaException 同名冲突，此处仅捕获 Weka 原生异常
+ // 与模块 weka异常 同名冲突，此处仅捕获 Weka 原生异常
             throw new WekaException("特征重要性计算失败: " + e.getMessage(), e);
         }
         double max = 0;
@@ -212,7 +219,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 保存模型到磁盘（JDK 序列化）。
      *
-     * @param file 目标文件，不能为 null
+     * @param file 目标文件，不能为 空
      * @throws WekaException 写入失败
      */
     public void save(Path file) {
@@ -227,7 +234,7 @@ public final class RandomForestModel implements Serializable {
     /**
      * 从磁盘加载模型。
      *
-     * @param file 模型文件，不能为 null
+     * @param file 模型文件，不能为 空
      * @return 模型实例
      * @throws WekaException 读取失败或文件不是本模块序列化的模型
      */

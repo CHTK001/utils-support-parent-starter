@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 /**
  * H2 搜索引擎元数据操作实现（H2 2.x）。
  * <p>
- * H2 2.x 已移除内置全文检索引擎（TEXT INDEX / CATSEARCH），
+   * H2 2.x 已移除内置全文检索引擎（文本 索引 / CATSEARCH），
  * 检索门面降级为普通索引管理：索引通过 {@code CREATE INDEX} 创建，
  * 关键字查询由调用方以 {@code LIKE} 方式执行。
  * </p>
@@ -30,8 +30,8 @@ import java.util.function.Consumer;
  */
 public class H2MetaSearch extends AbstractMetaSearch {
 
-    private final H2Engine engine;
-    private final H2SearchEngineImpl searchEngine;
+    private final H2Engine engine; // engine
+    private final H2SearchEngineImpl searchEngine; // 搜索engine
 
     /**
      * 构造方法。
@@ -51,7 +51,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
         List<SearchIndexDef> result = new ArrayList<>();
         for (String name : names) {
             SearchIndexDef def = searchEngine.getIndex(name);
-            if (def != null) result.add(def);
+            if (def != null) {
+                result.add(def);
+            }
         }
         return result;
     }
@@ -83,29 +85,57 @@ public class H2MetaSearch extends AbstractMetaSearch {
     }
 
     // ==================== 内部构建器 ====================
+     /**
+      * h2创建索引构建器类。
+      *
+      * @author CH
+      * @since 4.0.0
+      */
+     * 搜索字段构建器impl类。
+     *
+      * @param type 类型
+      * @return normalize字段类型的结果
+      * @param mappings mappings
+     */
 
     private class H2CreateIndexBuilder implements SearchIndexCreateBuilder {
 
-        private final String indexName;
-        private final List<SearchFieldDef> fields = new ArrayList<>();
-        private final Map<String, Object> settings = new LinkedHashMap<>();
-        private int shards = 1;
-        private int replicas = 1;
+        private final String indexName; // 索引名称
+        private final List<SearchFieldDef> fields = new ArrayList<>(); // 字段
+        private final Map<String, Object> settings = new LinkedHashMap<>(); // settings
+        private int shards = 1; // shards
+        private int replicas = 1; // replicas
 
         H2CreateIndexBuilder(String indexName) {
             this.indexName = indexName;
+        /**
+         * shards。
+         * @param shards shards
+         * @return shards的结果
+         */
         }
 
         @Override
         public SearchIndexCreateBuilder shards(int shards) {
             this.shards = shards;
             return this;
+        /**
+         * replicas。
+         * @param replicas replicas
+         * @return replicas的结果
+         */
         }
 
         @Override
         public SearchIndexCreateBuilder replicas(int replicas) {
             this.replicas = replicas;
             return this;
+        /**
+         * 字段。
+         * @param name 名称
+         * @param type 类型
+         * @return 字段的结果
+         */
         }
 
         @Override
@@ -115,6 +145,13 @@ public class H2MetaSearch extends AbstractMetaSearch {
             field.setType(normalizeFieldType(type));
             fields.add(field);
             return this;
+        /**
+         * 字段。
+         * @param name 名称
+         * @param type 类型
+         * @param config 配置
+         * @return 字段的结果
+         */
         }
 
         @Override
@@ -130,12 +167,26 @@ public class H2MetaSearch extends AbstractMetaSearch {
             }
             fields.add(field);
             return this;
+        /**
+         * 字段。
+         * @param fields 字段
+         * @return 字段的结果
+         */
         }
 
         @Override
         public SearchIndexCreateBuilder fields(List<SearchFieldDef> fields) {
             this.fields.addAll(fields);
             return this;
+        /**
+         * settings。
+         * @param settings settings
+         * @return settings的结果
+         * @author CH
+         * @since 4.0.0
+         * @param type 类型
+         * @param mappings mappings
+         */
         }
 
         @Override
@@ -160,7 +211,9 @@ public class H2MetaSearch extends AbstractMetaSearch {
         }
 
         private String normalizeFieldType(String type) {
-            if (type == null) return "text";
+            if (type == null) {
+                return "text";
+            }
             String t = type.toLowerCase();
             if (t.startsWith("text") || t.equals("string") || t.equals("keyword")) {
                 return "text";
@@ -170,8 +223,8 @@ public class H2MetaSearch extends AbstractMetaSearch {
     }
 
     private static class SearchFieldBuilderImpl implements SearchFieldBuilder {
-        private boolean indexed = true;
-        private boolean stored = false;
+        private boolean indexed = true; // 索引
+        private boolean stored = false; // 存储
 
         @Override public SearchFieldBuilder analyzer(String analyzer) { return this; }
         @Override public SearchFieldBuilder searchAnalyzer(String searchAnalyzer) { return this; }

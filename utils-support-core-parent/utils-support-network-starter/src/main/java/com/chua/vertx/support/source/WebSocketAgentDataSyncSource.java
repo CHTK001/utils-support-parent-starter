@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * WebSocket Agent 数据源
+   * WebSocket 智能体 数据源
  * <p>Server 侧通过 WebSocket 与 Agent 交互，支持拉取和推送。</p>
  *
  * @author CH
@@ -20,13 +20,14 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
 
     /** Connection */
     private final com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection;
-    /** 来源ID */
+    /** 来源标识 */
     private final String sourceId;
 
     /**
-     * 创建 WebSocketAgentDataSyncSource 实例
+      * 创建 web套接字智能体数据同步源 实例
      * @param connection connection
-     * @param String String
+     * @param sourceId 字符串
+     * @param sourceId 源标识
      */
     public WebSocketAgentDataSyncSource(com.chua.vertx.support.server.WebSocketDataSyncAgentServer.Connection connection, String sourceId) {
         this.connection = connection;
@@ -40,13 +41,13 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源标识 */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体标识 */
     public String agentId() {
         return connection.getAgentId();
     }
@@ -74,7 +75,7 @@ public class WebSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

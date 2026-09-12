@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * 任务定义 — TaskRunner 中单个任务节点的声明式配置。
+   * 任务定义 — 任务runner 中单个任务节点的声明式配置。
  *
  * <p>通过 {@code TaskRunner#task(String, Function)} 注册并返回本实例，
  * 以链式调用完成依赖、超时、重试、熔断降级等配置：</p>
@@ -24,13 +24,15 @@ import java.util.function.Function;
  *         .waitDuration(10_000)             // 熔断打开后半开等待毫秒
  *         .circuitBreaker()                 // 启用熔断（与上述参数同级）
  *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
+ * }</pre>           // 启用熔断（与上述参数同级）
+ *         .fallback(ctx -> cachedValue());  // 失败或熔断打开时的降级兜底
  * }</pre>
  *
  * <p>依赖语义：</p>
  * <ul>
  *   <li>{@link #afterNode(String...)} — 纯控制流依赖：前置完成后即触发，不读取其结果</li>
  *   <li>{@link #dependsNode(String...)} — 数据依赖：前置完成后校验其结果非 null，
- *       缺失则本节点判失败（可被 fallback 兜底）；隐含控制流语义</li>
+   * 缺失则本节点判失败（可被 降级 兜底）；隐含控制流语义</li>
  * </ul>
  *
  * @author CH
@@ -54,7 +56,7 @@ public final class TaskDefinition {
     private final TaskRunner owner;
 
     /**
-     * 节点 ID，运行内唯一
+      * 节点 标识，运行内唯一
      */
     private final String id;
 
@@ -64,22 +66,22 @@ public final class TaskDefinition {
     private final Function<RunnerContext, Object> action;
 
     /**
-     * 控制流依赖的前置节点 ID 集合（保持注册顺序）
+      * 控制流依赖的前置节点 标识 集合（保持注册顺序）
      */
     private final List<String> dependencies = new ArrayList<>();
 
     /**
-     * 数据依赖的前置节点 ID 集合（requires 非 null 结果）
+      * 数据依赖的前置节点 标识 集合（requires 非 空 结果）
      */
     private final Set<String> dataDependencies = new LinkedHashSet<>();
 
     /**
-     * 单独超时，null 表示使用 runner 全局值
+      * 单独超时，空 表示使用 runner 全局值
      */
     private Duration timeout;
 
     /**
-     * 单独重试次数，null 表示使用 runner 全局值
+      * 单独重试次数，空 表示使用 runner 全局值
      */
     private Integer retryCount;
 
@@ -104,16 +106,16 @@ public final class TaskDefinition {
     private boolean circuitBreakerEnabled;
 
     /**
-     * 降级兜底函数，null 表示无降级
+      * 降级兜底函数，空 表示无降级
      */
     private Function<RunnerContext, Object> fallback;
 
     /**
-     * 创建任务定义（由 TaskRunner#task 调用）。
+      * 创建任务定义（由 任务runner#任务 调用）。
      *
      * @param owner  所属运行器
-     * @param id     节点 ID，不为空
-     * @param action 执行函数，不为 null
+     * @param id     节点 标识，不为空
+     * @param action 执行函数，不为 空
      */
     TaskDefinition(TaskRunner owner, String id, Function<RunnerContext, Object> action) {
         if (id == null || id.isBlank()) {
@@ -127,7 +129,7 @@ public final class TaskDefinition {
     /**
      * 继续注册下一个任务节点（委托给所属运行器）。
      *
-     * @param id     节点 ID，运行内唯一且非空
+     * @param id     节点 标识，运行内唯一且非空
      * @param action 执行函数
      * @return 新任务定义
      */
@@ -138,7 +140,7 @@ public final class TaskDefinition {
     /**
      * 设置完成策略（委托给所属运行器）。
      *
-     * @param p 完成策略，不为 null
+     * @param p 完成策略，不为 空
      * @return 所属运行器
      */
     public TaskRunner policy(CompletionPolicy p) {
@@ -148,7 +150,7 @@ public final class TaskDefinition {
     /**
      * 注册事件监听器（委托给所属运行器）。
      *
-     * @param l 监听器，不为 null
+     * @param l 监听器，不为 空
      * @return 所属运行器
      */
     public TaskRunner listener(RunnerListener l) {
@@ -158,7 +160,7 @@ public final class TaskDefinition {
     /**
      * 同步执行整个拓扑图（委托给所属运行器）。
      *
-     * @param input 初始输入，可为 null
+     * @param input 初始输入，可为 空
      * @return 整体结果
      */
     public RunResult executeSync(Object input) {
@@ -168,8 +170,8 @@ public final class TaskDefinition {
     /**
      * 异步执行整个拓扑图（委托给所属运行器）。
      *
-     * @param input 初始输入，可为 null
-     * @return 整体结果 Future
+     * @param input 初始输入，可为 空
+     * @return 整体结果 期货
      */
     public CompletableFuture<RunResult> execute(Object input) {
         return owner.execute(input);
@@ -178,7 +180,7 @@ public final class TaskDefinition {
     /**
      * 响应式执行整个拓扑图（委托给所属运行器）。
      *
-     * @param input 初始输入，可为 null
+     * @param input 初始输入，可为 空
      * @return 整体结果 Mono
      */
     public reactor.core.publisher.Mono<RunResult> executeReactor(Object input) {
@@ -197,7 +199,7 @@ public final class TaskDefinition {
     /**
      * 追加控制流依赖：声明的全部前置节点完成后才执行本节点。
      *
-     * @param ids 前置节点 ID，至少一个且不能为空
+     * @param ids 前置节点 标识，至少一个且不能为空
      * @return 当前定义
      */
     public TaskDefinition afterNode(String... ids) {
@@ -207,11 +209,11 @@ public final class TaskDefinition {
     }
 
     /**
-     * 追加数据依赖：前置节点完成后校验其结果非 null，缺失则本节点判失败。
+      * 追加数据依赖：前置节点完成后校验其结果非 空，缺失则本节点判失败。
      *
      * <p>同时具备 {@link #afterNode(String...)} 的控制流语义。</p>
      *
-     * @param ids 前置节点 ID，至少一个且不能为空
+     * @param ids 前置节点 标识，至少一个且不能为空
      * @return 当前定义
      */
     public TaskDefinition dependsNode(String... ids) {
@@ -303,7 +305,7 @@ public final class TaskDefinition {
      * 启用熔断保护。
      *
      * <p>未显式设置的阈值参数取默认值：failureThreshold=5、successThreshold=2、
-     * waitDuration=60000ms。熔断状态按节点 ID 跨多次 run 持久生效。</p>
+      * wait持续时间=60000ms。熔断状态按节点 标识 跨多次 运行 持久生效。</p>
      *
      * @return 当前定义
      */
@@ -327,7 +329,7 @@ public final class TaskDefinition {
      * 设置降级兜底函数：任务失败（重试耗尽）、超时或熔断拒绝时，
      * 以降级返回值作为本节点的成功结果。
      *
-     * @param f 降级函数，不为 null
+     * @param f 降级函数，不为 空
      * @return 当前定义
      */
     public TaskDefinition fallback(Function<RunnerContext, Object> f) {
@@ -338,8 +340,8 @@ public final class TaskDefinition {
     /**
      * 解析实际生效的超时时长。
      *
-     * @param globalTimeout runner 全局超时，可为 null
-     * @return 实际超时；两者均未设置时为 null（不限时）
+     * @param globalTimeout runner 全局超时，可为 空
+     * @return 实际超时；两者均未设置时为 空（不限时）
      */
     Duration resolveTimeout(Duration globalTimeout) {
         return timeout != null ? timeout : globalTimeout;
@@ -356,7 +358,7 @@ public final class TaskDefinition {
     }
 
     /**
-     * 计算第 attempt 次失败后的退避间隔（指数增长，封顶 2 秒）。
+      * 计算第 尝试 次失败后的退避间隔（指数增长，封顶 2 秒）。
      *
      * @param attempt 从 0 开始的失败序号
      * @return 退避毫秒数
@@ -367,7 +369,7 @@ public final class TaskDefinition {
     }
 
     /**
-     * 校验依赖 ID 数组合法性。
+      * 校验依赖 标识 数组合法性。
      *
      * @param ids 待校验数组
      */
@@ -384,9 +386,9 @@ public final class TaskDefinition {
     }
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
-     * @return 注册时声明的节点 ID
+     * @return 注册时声明的节点 标识
      */
     public String getId() {
         return id;
@@ -402,7 +404,7 @@ public final class TaskDefinition {
     }
 
     /**
-     * 获取控制流依赖的前置节点 ID 列表。
+      * 获取控制流依赖的前置节点 标识 列表。
      *
      * @return 不可变快照，保持注册顺序
      */
@@ -411,9 +413,9 @@ public final class TaskDefinition {
     }
 
     /**
-     * 获取数据依赖的前置节点 ID 集合。
+      * 获取数据依赖的前置节点 标识 集合。
      *
-     * @return 不可变快照，执行前会校验这些节点的结果非 null
+     * @return 不可变快照，执行前会校验这些节点的结果非 空
      */
     public Set<String> getDataDependencies() {
         return Set.copyOf(dataDependencies);
@@ -422,7 +424,7 @@ public final class TaskDefinition {
     /**
      * 判断是否配置了降级兜底函数。
      *
-     * @return true 表示失败时可走 fallback
+     * @return true 表示失败时可走 降级
      */
     public boolean hasFallback() {
         return fallback != null;
@@ -431,7 +433,7 @@ public final class TaskDefinition {
     /**
      * 获取降级兜底函数。
      *
-     * @return 降级函数；未配置时为 null
+     * @return 降级函数；未配置时为 空
      */
     public Function<RunnerContext, Object> getFallback() {
         return fallback;
@@ -440,7 +442,7 @@ public final class TaskDefinition {
     /**
      * 判断是否启用熔断保护。
      *
-     * @return true 表示已调用 circuitBreaker() 启用
+     * @return true 表示已调用 熔断中断() 启用
      */
     public boolean isCircuitBreakerEnabled() {
         return circuitBreakerEnabled;

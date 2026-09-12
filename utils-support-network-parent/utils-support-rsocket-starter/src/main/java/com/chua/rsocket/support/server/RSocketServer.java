@@ -29,13 +29,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * RSocket 嵌入式服务器，轻量级实现。
+   * r套接字 嵌入式服务器，轻量级实现。
  * <p>
  * 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
  * {@link com.chua.common.support.objects.annotation.OnOpen @OnOpen}、
  * {@link com.chua.common.support.objects.annotation.OnClose @OnClose}、
  * {@link com.chua.common.support.objects.annotation.OnMessage @OnMessage} 注解处理。
- * 基于 RSocket Java 实现，支持 requestResponse、fireAndForget、requestStream 模型。
+   * 基于 r套接字 Java 实现，支持 请求响应、fire和forget、请求流 模型。
  * </p>
  *
  * <h2>使用方式</h2>
@@ -59,6 +59,9 @@ import java.util.function.Consumer;
  * server.publish("order", "hello");
  * server.stop();
  * }</pre>
+   * 服务端.发布("订单", "hello");
+   * 服务端.停止();
+ * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -68,28 +71,28 @@ import java.util.function.Consumer;
 public class RSocketServer extends AbstractServer {
 
     /**
-     * RSocket 服务器 disposable
+      * r套接字 服务器 disposable
      */
     private Disposable serverDisposable;
 
     /**
-     * 主题到订阅者 FluxSink 列表的映射
+      * 主题到订阅者 fluxsink 列表的映射
      */
     private final Map<String, List<FluxSinkWrapper>> topicSubscribers = new ConcurrentHashMap<>();
 
     /**
-     * 主题到 ServerHandler 的映射
+      * 主题到 服务端处理器 的映射
      */
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
     /**
-     * 虚拟线程执行器(异步派发 requestResponse/fireAndForget 业务,避免阻塞连接 event loop)
+      * 虚拟线程执行器(异步派发 请求响应/fire和forget 业务,避免阻塞连接 事件 循环)
      */
     private final java.util.concurrent.ExecutorService bizExecutor =
             ThreadUtils.newVirtualThreadPerTaskExecutor();
 
     /**
-     * 创建 RSocketServer 实例
+      * 创建 r套接字服务端 实例
      * @param setting setting
      */
     public RSocketServer(ServerSetting setting) {
@@ -97,19 +100,19 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
-        // 增加 Netty worker 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
+ // 增加 Netty 工人 线程数,避免 1000 并发短连接 SETUP 握手溢出默认 4 线程
         int workers = Math.max(4, Runtime.getRuntime().availableProcessors() * 2);
         System.setProperty("reactor.netty.ioWorkerCount", String.valueOf(workers));
         serverDisposable = io.rsocket.core.RSocketServer.create((setup, sendingSocket) -> {
             return Mono.just(new io.rsocket.RSocket() {
 
                 @Override
-                /** RequestResponse */
+                /** 请求响应 */
                 public Mono<io.rsocket.Payload> requestResponse(io.rsocket.Payload payload) {
                     // 虚拟线程异步派发,避免同步认证(DB/Redis)阻塞连接 event loop,
-                    // 否则同一条长连接的并发 stream 会全部串行排队导致超时
+ // 否则同一条长连接的并发 流 会全部串行排队导致超时
                     return Mono.fromCallable(() -> {
                         String topic = extractTopic(payload);
                         String data = payload.getDataUtf8();
@@ -148,9 +151,9 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
-                /** FireAndForget */
+                /** fire和forget */
                 public Mono<Void> fireAndForget(io.rsocket.Payload payload) {
-                    // 虚拟线程异步执行,业务不阻塞连接 event loop
+ // 虚拟线程异步执行,业务不阻塞连接 事件 循环
                     return Mono.<Void>fromRunnable(() -> {
                         String topic = extractTopic(payload);
                         String data = payload.getDataUtf8();
@@ -180,7 +183,7 @@ public class RSocketServer extends AbstractServer {
                 }
 
                 @Override
-                /** RequestStream */
+                /** 请求流 */
                 public Flux<io.rsocket.Payload> requestStream(io.rsocket.Payload payload) {
                     String topic = extractTopic(payload);
                     if (topic == null || topic.isEmpty()) {
@@ -210,7 +213,7 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         if (serverDisposable != null) {
             serverDisposable.dispose();
@@ -233,7 +236,7 @@ public class RSocketServer extends AbstractServer {
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }
@@ -289,7 +292,7 @@ public class RSocketServer extends AbstractServer {
      * 注册主题对应的 {@link ServerHandler} 处理器。
      *
      * <p>与 {@link #onSubscribe(String, Consumer)} 不同,此处直接注册请求-响应处理器,
-     * 处理器写入 {@link ServerResponse} 的内容会作为 requestResponse 的响应返回。</p>
+      * 处理器写入 {@link ServerResponse} 的内容会作为 请求响应 的响应返回。</p>
      *
      * @param topic   主题名称
      * @param handler 请求-响应处理器
@@ -321,10 +324,10 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * 从 RSocket Payload 中提取 topic。
+      * 从 r套接字 Payload 中提取 topic。
      *
-     * @param payload RSocket 负载
-     * @return topic 名称，提取失败返回 null
+     * @param payload r套接字 负载
+     * @return topic 名称，提取失败返回 空
      */
     private String extractTopic(io.rsocket.Payload payload) {
         if (payload == null) {
@@ -340,7 +343,7 @@ public class RSocketServer extends AbstractServer {
                 return map.get("topic").toString();
             }
         } catch (Exception ignored) {
-            // JSON 解析失败时返回 null
+ // JSON 解析失败时返回 空
         }
         // 兼容从 metadata 中读取 route(oauth client 将路由放在 metadata 中)
         try {
@@ -352,7 +355,7 @@ public class RSocketServer extends AbstractServer {
                 }
             }
         } catch (Exception ignored) {
-            // metadata 解析失败时返回 null
+ // metadata 解析失败时返回 空
         }
         return null;
     }
@@ -430,7 +433,9 @@ public class RSocketServer extends AbstractServer {
     // ==================== 轻量请求/响应适配 ====================
 
     /**
-     * 轻量 RSocket 请求适配。
+      * 轻量 r套接字 请求适配。
+     * @author CH
+     * @since 4.0.0
      */
     private static class SimpleServerRequest extends com.chua.common.support.network.server.request.AbstractServerRequest {
 
@@ -449,7 +454,7 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 读取Body */
+        /** 读取主体 */
         protected byte[] readBody() {
             return body;
         }
@@ -461,49 +466,51 @@ public class RSocketServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public com.chua.common.support.network.http.HttpMethod getMethod() {
             return com.chua.common.support.network.http.HttpMethod.POST;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public com.chua.common.support.network.http.HttpHeader getHeaders() {
             return com.chua.common.support.network.http.HttpHeader.create();
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return "127.0.0.1";
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return 0;
         }
     }
 
     /**
-     * 轻量 RSocket 响应适配。
+      * 轻量 r套接字 响应适配。
+     * @author CH
+     * @since 4.0.0
      */
     private static class SimpleServerResponse extends com.chua.common.support.network.server.response.AbstractServerResponse {
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public java.io.OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
@@ -516,7 +523,9 @@ public class RSocketServer extends AbstractServer {
     }
 
     /**
-     * FluxSink 包装器。
+      * fluxsink 包装器。
+     * @param sink sink
+     * @return fluxsink包装器的结果
      */
     private record FluxSinkWrapper(reactor.core.publisher.FluxSink<io.rsocket.Payload> sink) {
     }

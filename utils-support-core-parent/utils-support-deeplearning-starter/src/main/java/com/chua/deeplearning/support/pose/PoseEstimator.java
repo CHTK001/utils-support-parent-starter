@@ -24,9 +24,9 @@ public interface PoseEstimator {
      */
 
     /**
-     * 通过 SPI 创建实例（provider="onnx" 等）。
+      * 通过 SPI 创建实例（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 实例
      */
@@ -36,9 +36,9 @@ public interface PoseEstimator {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default PoseEstimator provider(String provider) {
@@ -55,7 +55,12 @@ public interface PoseEstimator {
         return this;
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param name 名称
+     * @return 创建的结果
+     */
     static PoseEstimator create(String name) {
         return new DefaultPoseEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +71,7 @@ public interface PoseEstimator {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.pose.PoseEstimator.class);
@@ -195,14 +200,14 @@ class DefaultPoseEstimator implements PoseEstimator {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public PoseEstimator threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public PoseEstimator modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -217,7 +222,12 @@ class DefaultPoseEstimator implements PoseEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Estimate */
+    /**
+     * Estimate
+     *
+     * @param imageData 镜像数据
+     * @return estimate的结果
+     */
     public List<PoseKeypoint> estimate(byte[] imageData) {
         ITranslator<byte[], List<PoseKeypoint>> t =
                 (ITranslator<byte[], List<PoseKeypoint>>) engine.get(modelName, ITranslator.class);
@@ -229,7 +239,12 @@ class DefaultPoseEstimator implements PoseEstimator {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** EstimateMulti */
+    /**
+     * estimatemulti
+     *
+     * @param imageData 镜像数据
+     * @return estimateMulti的结果
+     */
     public List<List<PoseKeypoint>> estimateMulti(byte[] imageData) {
         ITranslator<byte[], List<List<PoseKeypoint>>> t =
                 (ITranslator<byte[], List<List<PoseKeypoint>>>) engine.get(modelName, ITranslator.class);

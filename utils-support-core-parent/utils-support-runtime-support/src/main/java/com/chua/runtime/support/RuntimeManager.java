@@ -46,6 +46,11 @@ import java.util.concurrent.CompletableFuture;
  *
  * // 停止
  * manager.stop("my-app");
+ * }</pre>日志
+ * manager.tailLog("my-app", line -> System.out.println("[LOG] " + line));
+ *
+ * // 停止
+ * manager.stop("my-app");
  * }</pre>
  *
  * @author CH
@@ -58,7 +63,7 @@ public interface RuntimeManager extends AutoCloseable {
      *
      * @param artifact 工件描述
      * @return 已注册的工件
-     * @throws IllegalArgumentException 如果 ID 已存在
+     * @throws IllegalArgumentException 如果 标识 已存在
      */
     RuntimeArtifact register(RuntimeArtifact artifact);
 
@@ -75,16 +80,16 @@ public interface RuntimeManager extends AutoCloseable {
      *
      * <p>如果工件正在运行，会先停止再注销。</p>
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 如果存在并成功注销返回 true
      */
     boolean unregister(String id);
 
     /**
-     * 根据 ID 获取工件。
+      * 根据 标识 获取工件。
      *
-     * @param id 工件 ID
-     * @return 工件描述，不存在返回 null
+     * @param id 工件 标识
+     * @return 工件描述，不存在返回 空
      */
     RuntimeArtifact getArtifact(String id);
 
@@ -94,16 +99,16 @@ public interface RuntimeManager extends AutoCloseable {
      * <p>根据工件的 downloadUrl 下载到 executable 路径。
      * 支持进度回调，可自动解压。</p>
      *
-     * @param id       工件 ID
+     * @param id       工件 标识
      * @param callback 下载进度回调
-     * @return 下载完成后的 Future
+     * @return 下载完成后的 期货
      */
     CompletableFuture<Boolean> download(String id, LineCallback callback);
 
     /**
      * 启动指定工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      * @throws IllegalArgumentException 如果工件不存在
      */
@@ -112,7 +117,7 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 停止指定工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      * @throws IllegalArgumentException 如果工件不存在
      */
@@ -121,7 +126,7 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 重启指定工件。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时实例
      * @throws IllegalArgumentException 如果工件不存在
      */
@@ -130,7 +135,7 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 获取指定工件的运行状态。
      *
-     * @param id 工件 ID
+     * @param id 工件 标识
      * @return 运行时状态，工件不存在返回 UNKNOWN
      */
     RuntimeStatus status(String id);
@@ -138,16 +143,16 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 订阅指定工件的实时日志。
      *
-     * @param id       工件 ID
+     * @param id       工件 标识
      * @param callback 日志行回调
      * @throws IllegalArgumentException 如果工件不存在或未启动
      */
     void tailLog(String id, LineCallback callback);
 
     /**
-     * 获取所有已注册的工件 ID。
+      * 获取所有已注册的工件 标识。
      *
-     * @return 工件 ID 列表
+     * @return 工件 标识 列表
      */
     List<String> getArtifactIds();
 
@@ -161,8 +166,8 @@ public interface RuntimeManager extends AutoCloseable {
     /**
      * 获取指定工件的运行时实例。
      *
-     * @param id 工件 ID
-     * @return 运行时实例，未启动返回 null
+     * @param id 工件 标识
+     * @return 运行时实例，未启动返回 空
      */
     RuntimeInstance getInstance(String id);
 
@@ -172,9 +177,9 @@ public interface RuntimeManager extends AutoCloseable {
      * 获取当前平台可用的系统服务管理器。
      *
      * <p>自动检测当前操作系统支持的 ServiceManager 实现。
-     * Windows 返回 {@code WindowsServiceManager}，Linux 返回 {@code SystemdServiceManager}。</p>
+      * 窗口 返回 {@code WindowsServiceManager}，Linux 返回 {@code SystemdServiceManager}。</p>
      *
-     * @return 服务管理器，无可用实现返回 null
+     * @return 服务管理器，无可用实现返回 空
      */
     ServiceManager getServiceManager();
 
@@ -184,7 +189,7 @@ public interface RuntimeManager extends AutoCloseable {
      * <p>根据当前平台自动选择服务管理器，将工件注册为系统级服务。
      * 安装后可通过 OS 工具（如 sc.exe、systemctl）管理。</p>
      *
-     * @param id      工件 ID
+     * @param id      工件 标识
      * @param service 服务配置
      * @return 安装结果
      * @throws IllegalArgumentException 如果工件不存在或无可用服务管理器
@@ -250,22 +255,22 @@ public interface RuntimeManager extends AutoCloseable {
     // ==================== Java Agent ====================
 
     /**
-     * 获取 Java Agent 管理器。
+      * 获取 Java 智能体 管理器。
      *
      * <p>用于将运行时管理器作为 Java Agent 注入到目标 JVM，
-     * 或在运行时管理 Agent 的附加和卸载。</p>
+      * 或在运行时管理 智能体 的附加和卸载。</p>
      *
-     * @return Java Agent 管理器
+     * @return Java 智能体 管理器
      */
     JavaAgentManager getJavaAgentManager();
 
     /**
-     * 将运行时管理器作为 Agent 注入到目标 JVM。
+      * 将运行时管理器作为 智能体 注入到目标 JVM。
      *
      * <p>这是 {@link #getJavaAgentManager()} 的快捷方法。</p>
      *
-     * @param pid       目标进程 ID
-     * @param options   Agent 参数
+     * @param pid       目标进程 标识
+     * @param options   智能体 参数
      * @return 注入结果
      */
     CmdResult attachToJvm(int pid, String options);

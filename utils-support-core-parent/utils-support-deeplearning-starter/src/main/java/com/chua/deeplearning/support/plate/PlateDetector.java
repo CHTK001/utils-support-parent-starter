@@ -35,7 +35,7 @@ public interface PlateDetector {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.plate.PlateDetector.class);
@@ -171,14 +171,14 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public PlateDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public PlateDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -193,7 +193,12 @@ class DefaultPlateDetector implements PlateDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Detect */
+    /**
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -204,7 +209,7 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** DetectInfo */
+    /** detect信息 */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         return detect(imageData).stream()
                 .map(r -> new DetectionInfo(
@@ -216,7 +221,7 @@ class DefaultPlateDetector implements PlateDetector {
     }
 
     @Override
-    /** Plate计算数量 */
+    /** 铭牌计算数量 */
     public int plateCount(byte[] imageData) {
         return detect(imageData).size();
     }

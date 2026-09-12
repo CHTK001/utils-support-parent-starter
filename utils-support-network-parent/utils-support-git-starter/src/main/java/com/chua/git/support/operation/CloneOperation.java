@@ -11,7 +11,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 克隆操作（git clone），将远程仓库克隆到本地磁盘。
+   * 克隆操作（Git clone），将远程仓库克隆到本地磁盘。
  *
  * <p>克隆前必须通过 {@link GitClient.Builder} 设置 remoteUrl 和 localPath。
  * 操作完成后返回一个新的 {@link GitClient} 实例，指向刚克隆下来的本地仓库。</p>
@@ -32,6 +32,9 @@ import java.util.concurrent.CompletableFuture;
  * CompletableFuture<GitClient> f = (CompletableFuture<GitClient>) src.cloneOp()
  *         .async()
  *         .execute();
+ * }</pre>t> f = (CompletableFuture<GitClient>) src.cloneOp()
+ *         .async()
+ *         .execute();
  * }</pre>
  *
  * @author CH
@@ -41,24 +44,24 @@ import java.util.concurrent.CompletableFuture;
 public class CloneOperation {
 
     /**
-     * 源 GitClient（携带 remoteUrl、localPath、凭证）。
+      * 源 git客户端（携带 远程url、本地路径、凭证）。
      */
     private final GitClient client;
 
     /**
-     * 异步标记：为 true 时 {@link #execute()} 返回 CompletableFuture。
+      * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
      */
     private boolean asyncMode;
 
     /**
-     * 进度监听器，非空时会附加到 clone 命令的 ProgressMonitor。
+      * 进度监听器，非空时会附加到 clone 命令的 进步监控。
      */
     private GitProgressListener progressListener;
 
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 源 GitClient
+     * @param client 源 Git客户端
      */
     public CloneOperation(GitClient client) {
         this.client = client;
@@ -107,7 +110,7 @@ public class CloneOperation {
      *
      * <p>先校验 remoteUrl 不为空，构造 JGit CloneCommand、设置进度监视器，
      * 调用 {@link CloneCommand#call()} 下载仓库。完成后关闭临时 Git 对象，
-     * 返回新的 GitClient 实例（因为克隆后本地是不同仓库）。</p>
+      * 返回新的 git客户端 实例（因为克隆后本地是不同仓库）。</p>
      *
      * @return 新克隆的 Git 仓库客户端
      */
@@ -137,7 +140,7 @@ public class CloneOperation {
                 progressListener.onEnd();
             }
 
-            // 新仓库使用新的 GitClient 实例
+ // 新仓库使用新的 Git客户端 实例
             return GitClient.ofLocal(localPath);
         } catch (Exception e) {
             throw new GitClientException("Clone 失败: " + e.getMessage(), e);

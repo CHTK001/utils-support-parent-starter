@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
  * <p>
  *                      
  * -                         
- * -                             NDList   shape: [1, 77, 768]     [1, 768]   
+   * -                             nd列表   shape: [1, 77, 768]     [1, 768]
  * </p>
  *
  * @author CH
@@ -43,7 +43,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-     * HuggingFace          
+      * huggingface
      */
     private HuggingFaceTokenizer tokenizer;
 
@@ -96,7 +96,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
      *                   
      * <p>
      * Small Stable Diffusion v0                               
-     * - input_ids: token ID          shape: [1, 77]   
+      * - 输入_标识: 令牌 标识          shape: [1, 77]
      * </p>
      *
      * @param ctx                     
@@ -114,7 +114,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
         Encoding encoding = tokenizer.encode(input);
         long[] tokenIds = encoding.getIds();
 
-        //        input_ids       
+ // 输入_标识
         var inputIds = ctx.getNDManager().create(tokenIds);
         if (!inputIds.getDataType().equals(DataType.INT64)) {
             inputIds = inputIds.toType(DataType.INT64, false);
@@ -135,8 +135,8 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
      *                   
      * <p>
      * Small Stable Diffusion v0                         
-     * - last_hidden_state:                         shape: [1, 77, 768]   
-     * -     pooler_output:                shape: [1, 768]   
+      * - 最后一个_hidden_状态:                         shape: [1, 77, 768]
+      * -     游泳池_输出:                shape: [1, 768]
      * </p>
      *
      * @param ctx                    
@@ -148,7 +148,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) throws Exception {
         var encoderOutput = new NDList();
 
-        //                          last_hidden_state     pooler_output
+ // 最后一个_hidden_状态     游泳池_输出
         if (list.size() > 0) {
             var output = list.get(0);
             encoderOutput.add(output);

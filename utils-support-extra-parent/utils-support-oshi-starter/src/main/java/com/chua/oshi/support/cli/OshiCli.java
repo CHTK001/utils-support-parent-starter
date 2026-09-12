@@ -22,6 +22,9 @@ import com.chua.oshi.support.cli.command.*;
  */
 public final class OshiCli {
 
+    /**
+      * oshicli。
+     */
     private OshiCli() {
     }
 
@@ -79,6 +82,9 @@ public final class OshiCli {
         System.exit(1);
     }
 
+    /**
+      * printusage。
+     */
     private static void printUsage() {
         System.out.println(PROGRAM + " — OSHI CLI dashboard (v" + VERSION + ")\n");
         System.out.printf("  %-10s  %s%n", "command", "description");

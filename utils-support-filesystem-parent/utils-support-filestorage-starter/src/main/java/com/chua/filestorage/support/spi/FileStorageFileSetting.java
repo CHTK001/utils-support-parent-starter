@@ -30,6 +30,10 @@ import java.util.List;
  *             .build();
  *     }
  * }
+ * }</pre>"))
+   * .构建();
+ *     }
+ * }
  * }</pre>
  *
  * @author CH
@@ -62,7 +66,7 @@ public interface FileStorageFileSetting {
      * </p>
      *
      * @param request HTTP 请求对象
-     * @return 解析后的文件操作配置，永不为 null
+     * @return 解析后的文件操作配置，永不为 空
      */
     FileOperationSetting parse(ServerRequest request);
 }

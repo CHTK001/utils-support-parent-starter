@@ -27,6 +27,9 @@ import static com.chua.common.support.constant.NumberConstant.NUMBER_2;
  */
 public class FileUtils {
 
+    /**
+     * 文件工具。
+     */
     private FileUtils() {
     }
 
@@ -433,7 +436,7 @@ public class FileUtils {
      * 判断是否未找到分隔符
      *
      * @param posUnix Unix分隔符位置
-     * @param posWin  Windows分隔符位置
+     * @param posWin  窗口分隔符位置
      * @return 如果未找到则返回true，否则返回false
      */
     private static boolean isNotFound(int posUnix, int posWin) {
@@ -485,7 +488,7 @@ public class FileUtils {
      * <p>当文件为 null、无父目录或父目录已存在时直接返回，不进行任何操作；
      * 父目录不存在时调用 {@link File#mkdirs()} 递归创建。
      *
-     * @param file 文件对象，允许为 null
+     * @param file 文件对象，允许为 空
      */
     public static void mkParentDirs(final File file) {
         if (file == null) {
@@ -597,19 +600,19 @@ public class FileUtils {
             return null;
         }
 
-        // Spring ClassPath
+ // Spring 类路径
         String pathToUse = StringUtils.removePrefixIgnoreCase(path, CLASSPATH_URL_PREFIX);
-        // file:
+ // 文件:
         pathToUse = StringUtils.removePrefixIgnoreCase(pathToUse, FILE_URL_PREFIX);
 
-        // home
+ // Home
         if (pathToUse.startsWith(SYMBOL_WAVY_LINE)) {
             pathToUse = pathToUse.replace(SYMBOL_WAVY_LINE, Projects.getUserHomePath());
         }
 
         // 统一分隔符
         pathToUse = pathToUse.replaceAll("[/\\\\]+", SYMBOL_LEFT_SLASH).trim();
-        // Windows \\
+ // 窗口 \\
         if (path.startsWith(SYMBOL_RIGHT_SLASH + SYMBOL_RIGHT_SLASH)) {
             pathToUse = SYMBOL_RIGHT_SLASH + pathToUse;
         }
@@ -617,7 +620,7 @@ public class FileUtils {
         String prefix = "";
         int prefixIndex = pathToUse.indexOf(SYMBOL_COLON);
         if (prefixIndex > -1) {
-            // Windows
+ // 窗口
             prefix = pathToUse.substring(0, prefixIndex + 1);
             if (prefix.startsWith(SYMBOL_LEFT_SLASH)) {
                 // /C:
@@ -626,7 +629,7 @@ public class FileUtils {
             if (!prefix.contains(SYMBOL_LEFT_SLASH)) {
                 pathToUse = pathToUse.substring(prefixIndex + 1);
             } else {
-                // /, Windows path
+ // /, 窗口 路径
                 prefix = SYMBOL_EMPTY;
             }
         }
@@ -650,7 +653,7 @@ public class FileUtils {
                     if (tops > 0) {
                         tops--;
                     } else {
-                        // Normal path element found.
+ // Normal 路径 element found.
                         pathElements.add(0, element);
                     }
                 }
@@ -661,10 +664,10 @@ public class FileUtils {
     }
 
     /**
-     * 静默删除文件或目录（吞掉所有异常，常用于 finally 块的最佳努力清理）。
-     * 支持 java.io.File 和 java.nio.file.Path 两种入参；递归删除目录及其内容。
+      * 静默删除文件或目录（吞掉所有异常，常用于 最终 块的最佳努力清理）。
+      * 支持 Java.io.文件 和 Java.nio.文件.路径 两种入参；递归删除目录及其内容。
      *
-     * @param target 待删除的文件或目录，允许为 null；为 null 时直接返回 true
+     * @param target 待删除的文件或目录，允许为 空；为 空 时直接返回 true
      * @return true 表示目标已不存在（删除成功或本来就不存在）；false 表示删除失败且文件仍存在
      * @since 4.0.0.44
      */
@@ -691,10 +694,10 @@ public class FileUtils {
     }
 
     /**
-     * 静默删除文件或目录（Path 版本）。
+      * 静默删除文件或目录（路径 版本）。
      * 仅删除最外层条目；如需递归请使用 {@link #deleteQuietly(File)}。
      *
-     * @param target 待删除的路径，允许为 null；为 null 时直接返回 true
+     * @param target 待删除的路径，允许为 空；为 空 时直接返回 true
      * @return true 表示目标已不存在；false 表示删除失败
      * @since 4.0.0.44
      */
@@ -711,11 +714,11 @@ public class FileUtils {
     }
 
     /**
-     * 静默删除并把内部异常抛出（与 deleteQuietly 行为一致，但通过 Supplier 暴露被吞掉的异常）。
-     * 调用方可通过 supplier 记录或断言是否真的清理成功。
+      * 静默删除并把内部异常抛出（与 删除quietly 行为一致，但通过 供应商 暴露被吞掉的异常）。
+      * 调用方可通过 供应商 记录或断言是否真的清理成功。
      *
-     * @param target    待删除的路径，允许为 null
-     * @param errorSink 异常接收器，接收被吞掉的 Throwable；允许为 null 表示仍按静默处理
+     * @param target    待删除的路径，允许为 空
+     * @param errorSink 异常接收器，接收被吞掉的 抛出；允许为 空 表示仍按静默处理
      * @return true 表示目标已不存在
      * @since 4.0.0.44
      */
@@ -732,7 +735,7 @@ public class FileUtils {
                 try {
                     errorSink.accept(t);
                 } catch (Throwable ignoredSink) {
-                    // best-effort: sink failure does not change outcome
+ // best-effort: sink 失败 执行 not 改变 outcome
                 }
             }
             return !java.nio.file.Files.exists(target);

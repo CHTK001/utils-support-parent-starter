@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Bean 定义注册中心，统一管理所有 BeanDefinitionRegister。
+   * Bean 定义注册中心，统一管理所有 Beandefinition注册。
  *
  * @author CH
  * @since 2024/12/20
@@ -23,17 +23,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BeanDefinitionRegistry {
 
     /**
-     * 存储所有已注册的 BeanDefinitionRegister 实现类的列表，保持插入顺序且线程安全。
+      * 存储所有已注册的 Beandefinition注册 实现类的列表，保持插入顺序且线程安全。
      */
     private final List<BeanDefinitionRegister> registers = new CopyOnWriteArrayList<>();
 
     /**
-     * 存储以名称为键的 BeanDefinitionRegister 映射，用于快速查找特定注册器。
+      * 存储以名称为键的 Beandefinition注册 映射，用于快速查找特定注册器。
      */
     private final Map<String, BeanDefinitionRegister> registerMap = new ConcurrentHashMap<>();
 
     /**
-     * 缓存 BeanName 到其所属 Register 的映射，减少重复遍历查找。
+      * 缓存 Bean名称 到其所属 注册 的映射，减少重复遍历查找。
      */
     private final Map<String, BeanDefinitionRegister> beanNameCache = new ConcurrentHashMap<>();
 
@@ -52,10 +52,10 @@ public class BeanDefinitionRegistry {
      * 标记注册中心是否已完成初始化状态。
      */
     @Getter
-    private volatile boolean initialized;
+    private volatile boolean initialized; // 初始化
 
     /**
-     * BeanDefinition 总数缓存，避免每次 {@link #getBeanDefinitionNames()} 遍历。
+      * Beandefinition 总数缓存，避免每次 {@link #getBeanDefinitionNames()} 遍历。
      * <p>在 register/unregister 中维护，{@link #getBeanDefinitionCount()} 直接读取无需遍历。</p>
      */
     private final AtomicInteger beanDefinitionCount = new AtomicInteger(0);
@@ -70,7 +70,7 @@ public class BeanDefinitionRegistry {
     /**
      * 初始化注册中心。
      *
-     * @param spiEnabled 是否通过 SPI 发现并加载 BeanDefinitionRegister 实现
+     * @param spiEnabled 是否通过 SPI 发现并加载 Beandefinition注册 实现
      */
     public void initialize(boolean spiEnabled) {
         if (initialized) {
@@ -100,12 +100,12 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 编程式添加一个 BeanDefinitionRegister（绕过 SPI）。
+      * 编程式添加一个 Beandefinition注册（绕过 SPI）。
      *
      * <p>用于外部容器（如 Spring）将受管之外的注册器（例如 OSGi、远程节点）
      * 直接挂接到本注册中心。该方法线程安全，重复添加同名注册器将被忽略。</p>
      *
-     * @param register 待注册的 BeanDefinitionRegister
+     * @param register 待注册的 Beandefinition注册
      * @return true 表示新增成功；false 表示入参为空或同名注册器已存在
      */
     public boolean addRegister(BeanDefinitionRegister register) {
@@ -133,11 +133,11 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 获取指定 BeanName 对应的 BeanDefinition。
+      * 获取指定 Bean名称 对应的 Beandefinition。
      * 优先从缓存中获取，若未命中则遍历所有注册器查找。
      *
      * @param beanName Bean 的唯一标识名称
-     * @return 找到的 BeanDefinition，否则返回 null
+     * @return 找到的 Beandefinition，否则返回 空
      */
     public BeanDefinition getBeanDefinition(String beanName) {
         if (beanName == null) {
@@ -162,7 +162,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 注册一个新的 BeanDefinition。
+      * 注册一个新的 Beandefinition。
      * 如果 Bean 已存在或无法找到合适的注册器，则注册失败。
      *
      * @param beanDefinition 待注册的 Bean 定义对象
@@ -198,7 +198,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 注销指定的 BeanDefinition。
+      * 注销指定的 Beandefinition。
      * 从所有关联的注册器中移除该 Bean，并清理相关缓存。
      *
      * @param beanDefinition 待注销的 Bean 定义对象
@@ -296,9 +296,9 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 获取所有已注册的 BeanDefinition 对象集合。
+      * 获取所有已注册的 Beandefinition 对象集合。
      *
-     * @return 所有 BeanDefinition 的集合
+     * @return 所有 Beandefinition 的集合
      */
     public Collection<BeanDefinition> getAllBeanDefinitions() {
         Set<BeanDefinition> definitions = new LinkedHashSet<>();
@@ -314,10 +314,10 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 根据类型名称获取所有匹配的 BeanDefinition。
+      * 根据类型名称获取所有匹配的 Beandefinition。
      *
      * @param typeName 类型的完整类名
-     * @return 匹配类型的 BeanDefinition 集合
+     * @return 匹配类型的 Beandefinition 集合
      */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null) {
@@ -336,11 +336,11 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 根据 Java 类型获取所有匹配的 BeanDefinition。
+      * 根据 Java 类型获取所有匹配的 Beandefinition。
      * 优先使用类型缓存，若缓存无数据则回退到按类型名查询。
      *
      * @param type 目标类型
-     * @return 匹配类型的 BeanDefinition 集合
+     * @return 匹配类型的 Beandefinition 集合
      */
     public Collection<BeanDefinition> getBeanDefinitionOfType(Class<?> type) {
         if (type == null) {
@@ -372,7 +372,7 @@ public class BeanDefinitionRegistry {
      * 获取所有标注了指定注解的 Bean。
      *
      * @param annotationType 注解类型
-     * @return 注解名称到 BeanDefinition 的映射
+     * @return 注解名称到 Beandefinition 的映射
      */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null) {
@@ -389,7 +389,7 @@ public class BeanDefinitionRegistry {
      * @param name Bean 名称
      * @param type 目标类型
      * @param <T>  泛型类型
-     * @return 找到的 Bean 实例，未找到则返回 null
+     * @return 找到的 Bean 实例，未找到则返回 空
      */
     public <T> T getBean(String name, Class<T> type) {
         if (name == null || type == null) {
@@ -417,7 +417,7 @@ public class BeanDefinitionRegistry {
      *
      * @param type 目标类型
      * @param <T>  泛型类型
-     * @return 首个匹配的 Bean 实例，未找到则返回 null
+     * @return 首个匹配的 Bean 实例，未找到则返回 空
      */
     public <T> T getBeanOfType(Class<T> type) {
         if (type == null) {
@@ -439,11 +439,11 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 按类型查找所有 Bean，返回 name -> bean 映射。
+      * 按类型查找所有 Bean，返回 名称 -> Bean 映射。
      *
      * @param type 目标类型
      * @param <T>  泛型类型
-     * @return name 到 bean 的映射
+     * @return name 到 Bean 的映射
      */
     public <T> Map<String, T> getBeansOfType(Class<T> type) {
         if (type == null) {
@@ -515,10 +515,10 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 获取所有方法上标注了指定注解的 Bean 映射（聚合所有 register）。
+      * 获取所有方法上标注了指定注解的 Bean 映射（聚合所有 注册）。
      *
      * @param annotationType 注解类型
-     * @return Bean 名称到 BeanDefinition 的映射
+     * @return Bean 名称到 Beandefinition 的映射
      */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         Map<String, BeanDefinition> result = new LinkedHashMap<>();
@@ -539,7 +539,7 @@ public class BeanDefinitionRegistry {
      * 获取所有标注了指定注解的 Bean（通过注解类名）。
      *
      * @param annotationTypeName 注解的完整类名
-     * @return 注解名称到 BeanDefinition 的映射
+     * @return 注解名称到 Beandefinition 的映射
      */
     public Map<String, BeanDefinition> getBeansWithAnnotation(String annotationTypeName) {
         if (annotationTypeName == null || annotationTypeName.isEmpty()) {
@@ -562,11 +562,11 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 根据 Class 对象自动注册 Bean。
-     * 利用 SPI 发现的生成器创建 BeanDefinition，并尝试注册到支持的注册器中。
+      * 根据 类 对象自动注册 Bean。
+      * 利用 SPI 发现的生成器创建 Beandefinition，并尝试注册到支持的注册器中。
      *
      * @param beanClass 待注册的类
-     * @return true 表示至少有一个 BeanDefinition 注册成功
+     * @return true 表示至少有一个 Beandefinition 注册成功
      */
     public boolean registerBeanFromClass(Class<?> beanClass) {
         if (beanClass == null) {
@@ -641,7 +641,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 清空注册中心（不销毁 BeanDefinition）。
+      * 清空注册中心（不销毁 Beandefinition）。
      * <p>遍历所有 register 注销已注册的 BeanDefinition，但保留 register 列表本身（SPI 已加载的 register 保留）。
      * 与 {@link #close()} 的区别：本方法不调用 {@link BeanDefinitionRegister#close()}。</p>
      */
@@ -664,7 +664,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 获取已注册的 BeanDefinition 总数（O(1) 缓存读取）。
+      * 获取已注册的 Beandefinition 总数（O(1) 缓存读取）。
      * <p>由 register / unregister 维护，与 {@link #getBeanDefinitionNames()} 语义一致但性能更高。</p>
      *
      * @return BeanDefinition 总数
@@ -674,12 +674,12 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 根据 BeanDefinition 寻找支持的注册器。
+      * 根据 Beandefinition 寻找支持的注册器。
      * <p>按 register 的优先级（数值越小优先级越高）排序后依次查找首个支持目标 BeanDefinition 的可写注册器，
      * 避免依赖列表顺序导致的结果不稳定。</p>
      *
      * @param beanDefinition 待注册的 Bean 定义
-     * @return 支持的注册器，若不支持则返回 null
+     * @return 支持的注册器，若不支持则返回 空
      */
     private BeanDefinitionRegister support(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
@@ -697,7 +697,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 更新类型缓存，将 BeanName 添加到对应类型及其父类、接口的缓存中。
+      * 更新类型缓存，将 Bean名称 添加到对应类型及其父类、接口的缓存中。
      * <p>通过写锁保护复合写操作，避免并发更新丢失中间状态。</p>
      *
      * @param beanClass Bean 的类对象
@@ -726,7 +726,7 @@ public class BeanDefinitionRegistry {
     }
 
     /**
-     * 从类型缓存中移除指定的 BeanName。
+      * 从类型缓存中移除指定的 Bean名称。
      * <p>仅遍历 beanClass 自身及其父类、接口的缓存集合，避免全量遍历。</p>
      *
      * @param beanClass Bean 的类对象

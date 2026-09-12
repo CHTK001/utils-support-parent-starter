@@ -44,10 +44,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * OpenAI 大模型对话客户端
+   * 打开AI 大模型对话客户端
  *
  * <p>基于 OpenAI Java SDK 的 {@link ChatClient} 实现，支持 OpenAI 兼容接口的
- * 所有服务商（如 OpenAI、SiliconFlow、SenseTime 等）。
+   * 所有服务商（如 打开AI、silicon流、sense时间 等）。
  *
  * <p>通过 SPI 机制注册以下别名：
  * <ul>
@@ -68,6 +68,9 @@ import java.util.function.Consumer;
  *               System.out.print(response.getContent());
  *           }
  *       });
+ * }</pre>*               System.out.print(response.getContent());
+ *           }
+ *       });
  * }</pre>
  *
  * @author CH
@@ -78,7 +81,7 @@ import java.util.function.Consumer;
 public class OpenAiChatClient implements ChatClient {
 
     /**
-     * OpenAI 默认 API 地址
+      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
@@ -98,7 +101,7 @@ public class OpenAiChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 Token 数
+      * 当前最大 令牌 数
      */
     private Integer maxTokens;
 
@@ -108,7 +111,7 @@ public class OpenAiChatClient implements ChatClient {
     private String system;
 
     /**
-     * 当前会话 ID
+      * 当前会话 标识
      */
     private String sessionId;
 
@@ -128,7 +131,7 @@ public class OpenAiChatClient implements ChatClient {
     private final List<ChatTool> tools = new ArrayList<>();
 
     /**
-     * 工具选择策略（tool_choice）：auto / none / required / 指定工具名称
+      * 工具选择策略（tool_choice）：auto / 无 / required / 指定工具名称
      */
     private String toolChoice;
 
@@ -148,7 +151,7 @@ public class OpenAiChatClient implements ChatClient {
     private Long seed;
 
     /**
-     * 响应格式：text / json_object
+      * 响应格式：文本 / json_对象
      */
     private String responseFormat;
 
@@ -202,7 +205,7 @@ public class OpenAiChatClient implements ChatClient {
     private OpenAiProbeStation probeStation;
 
     /**
-     * 构造 OpenAI 对话客户端
+      * 构造 打开AI 对话客户端
      *
      * @param setting 客户端配置
      */
@@ -223,7 +226,7 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -237,21 +240,21 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -265,42 +268,42 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -329,14 +332,14 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** ToolChoice */
+    /** toolchoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** TopP */
+    /** topp */
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
@@ -357,21 +360,21 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Response格式化 */
+    /** 响应格式化 */
     public ChatClient responseFormat(String responseFormat) {
         this.responseFormat = responseFormat;
         return this;
     }
 
     @Override
-    /** ExtraBody */
+    /** extra主体 */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody != null ? extraBody : new HashMap<>();
         return this;
     }
 
     @Override
-    /** ExtraHeaders */
+    /** extra头部 */
     public ChatClient extraHeaders(Map<String, String> headers) {
         this.extraHeaders = headers;
         return this;
@@ -385,14 +388,14 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** ThinkingEffort */
+    /** thinkingeffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
     }
 
     @Override
-    /** Stream */
+    /** 流 */
     public ChatClient stream(boolean stream) {
         this.stream = stream;
         return this;
@@ -413,7 +416,7 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         StringBuilder reasoning = new StringBuilder();
@@ -435,7 +438,7 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -446,17 +449,17 @@ public class OpenAiChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();
         String actualApiKey = setting.getAppKey();
 
-        // 构建 OpenAI 请求参数
+ // 构建 打开AI 请求参数
         ChatCompletionCreateParams.Builder paramsBuilder = ChatCompletionCreateParams.builder()
                 .model(model != null ? model : "gpt-3.5-turbo")
                 .temperature(temperature != null ? temperature : 0.3)
@@ -539,7 +542,7 @@ public class OpenAiChatClient implements ChatClient {
         OpenAIClient client = null;
         StreamResponse<ChatCompletionChunk> streamResponse = null;
         try {
-            // 构建 OpenAI HTTP 客户端
+ // 构建 打开AI HTTP 客户端
             OpenAIOkHttpClient.Builder clientBuilder = OpenAIOkHttpClient.builder()
                     .apiKey(actualApiKey)
                     .baseUrl(actualBaseUrl)
@@ -700,10 +703,10 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 将统一的 {@link ChatTool} 定义转换为 OpenAI 的 {@link ChatCompletionTool}。
+      * 将统一的 {@link ChatTool} 定义转换为 打开AI 的 {@link ChatCompletionTool}。
      *
      * @param tool 工具定义
-     * @return OpenAI 工具对象，工具名称为空时返回 null
+     * @return OpenAI 工具对象，工具名称为空时返回 空
      */
     private static ChatCompletionTool toOpenAiTool(ChatTool tool) {
         if (tool == null || tool.getName() == null || tool.getName().isBlank()) {
@@ -724,10 +727,10 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 将字符串形式的 tool_choice 转换为 OpenAI 工具选择对象。
+      * 将字符串形式的 tool_choice 转换为 打开AI 工具选择对象。
      *
      * @param toolChoice tool_choice 取值
-     * @return OpenAI 工具选择对象，无法识别时返回 null
+     * @return OpenAI 工具选择对象，无法识别时返回 空
      */
     private static ChatCompletionToolChoiceOption toToolChoice(String toolChoice) {
         if (toolChoice == null || toolChoice.isBlank()) {
@@ -746,9 +749,9 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 将统一 JSON Schema（Map 形式）转换为 OpenAI JsonValue 映射。
+      * 将统一 JSON 模式（映射 形式）转换为 打开AI json值 映射。
      *
-     * @param params 参数 Schema
+     * @param params 参数 模式
      * @return JsonValue 映射
      */
     private static Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
@@ -764,11 +767,11 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 应用响应格式（response_format）。
+      * 应用响应格式（响应_格式化）。
      *
      * <p>当前支持 text 与 json_object，json_schema 需要额外 schema 定义，暂不自动生成。
      *
-     * @param builder        OpenAI 请求参数构建器
+     * @param builder        打开AI 请求参数构建器
      * @param responseFormat 响应格式取值
      */
     private static void applyResponseFormat(ChatCompletionCreateParams.Builder builder, String responseFormat) {
@@ -786,12 +789,12 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 应用额外请求体参数，将通用 key 映射到 OpenAI 标准字段。
+      * 应用额外请求体参数，将通用 键 映射到 打开AI 标准字段。
      *
      * <p>支持的 key：frequency_penalty、presence_penalty、max_completion_tokens、user。
-     * 未识别 key 忽略（保证向后兼容）。
+      * 未识别 键 忽略（保证向后兼容）。
      *
-     * @param builder   OpenAI 请求参数构建器
+     * @param builder   打开AI 请求参数构建器
      * @param extraBody 额外请求体参数
      */
     private static void applyExtraBody(ChatCompletionCreateParams.Builder builder, Map<String, Object> extraBody) {
@@ -847,7 +850,7 @@ public class OpenAiChatClient implements ChatClient {
      * 解析代理地址字符串
      *
      * @param proxyStr 代理地址字符串，支持 http://、socks5:// 格式
-     * @return Proxy 对象，解析失败时返回 null
+     * @return Proxy 对象，解析失败时返回 空
      */
     private static Proxy resolveProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
@@ -874,6 +877,8 @@ public class OpenAiChatClient implements ChatClient {
     /**
      * 附加
      * @param  附加
+     * @param additionalProps additionalprops
+     * @return extractReasonML的结果
      */
     private static String extractReasoning(Map<String, JsonValue> additionalProps) {
         if (additionalProps == null || additionalProps.isEmpty()) {
@@ -892,12 +897,12 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-     * 从 {@link CompletionUsage} 中提取缓存命中 Token 数。
+      * 从 {@link CompletionUsage} 中提取缓存命中 令牌 数。
      *
      * <p>OpenAI Prompt Caching 功能会在 {@code prompt_tokens_details.cached_tokens} 中返回缓存命中的 Token 数。
      *
      * @param usage 完成用量
-     * @return 缓存命中 Token 数，不可用时返回 0
+     * @return 缓存命中 令牌 数，不可用时返回 0
      */
     private static int extractCacheTokens(CompletionUsage usage) {
         if (usage == null) {
@@ -915,7 +920,7 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     @Override
-    /** Probe */
+    /** 探针 */
     public ProbeReport probe() {
         if (probeStation == null) {
             probeStation = new OpenAiProbeStation(setting);

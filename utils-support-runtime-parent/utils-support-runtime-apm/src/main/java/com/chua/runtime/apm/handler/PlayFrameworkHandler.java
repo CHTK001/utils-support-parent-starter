@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Play Framework Handler — intercepts Play HTTP request handling.
+   * Play 框架 处理器 — intercepts Play HTTP 请求 处理.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,26 +19,26 @@ public class PlayFrameworkHandler extends AbstractAppHandler {
      */
     private static final String ROUTER = "play/core/routing/Router";
     /**
-     * 请求 handler
+      * 请求 处理器
      */
     private static final String REQUEST_HANDLER = "play/http/RequestHandler";
     /**
-     * router methods
+      * router 方法
      */
     private static final String[] ROUTER_METHODS = {"routeRequest"};
     /**
-     * handler methods
+      * 处理器 方法
      */
     private static final String[] HANDLER_METHODS = {"handlerForRequest", "handleRequest"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "play-framework-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "play-framework.enabled";
     }
@@ -50,13 +50,13 @@ public class PlayFrameworkHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(ROUTER, ROUTER_METHODS);
         registerAll(REQUEST_HANDLER, HANDLER_METHODS);

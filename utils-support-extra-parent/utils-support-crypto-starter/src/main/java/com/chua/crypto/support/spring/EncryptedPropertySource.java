@@ -6,7 +6,7 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 
 /**
- * 支持 ENC(...) 透明解密的 PropertySource 装饰器
+   * 支持 ENC(...) 透明解密的 财产源 装饰器
  *
  * <p>包装既有枚举型 PropertySource：读取属性时若值形如 {@code ENC(Base64密文)}，
  * 则经 {@link ConfigFileCipher#decryptValue(String, Crypto)} 解密后返回，
@@ -25,7 +25,7 @@ public class EncryptedPropertySource extends EnumerablePropertySource<PropertySo
     /**
      * 构造装饰器
      *
-     * @param delegate 被包装的 PropertySource
+     * @param delegate 被包装的 财产源
      * @param crypto   已初始化的加密门面
      */
     public EncryptedPropertySource(PropertySource<?> delegate, Crypto crypto) {

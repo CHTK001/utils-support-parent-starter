@@ -20,6 +20,9 @@ import java.awt.image.BufferedImage;
  *
  *   // 搴旂敤婊ら暅
  *   BufferedImage result = filter.converter(sourceImage);
+ * }</pre> *
+ *   // 搴旂敤婊ら暅
+ *   BufferedImage result = filter.converter(sourceImage);
  * }</pre>
  *
  * <p>瀛愮被鐨勫吀鍨嬪疄鐜?
@@ -34,6 +37,11 @@ import java.awt.image.BufferedImage;
  *                    .generate();
  *       }
  *   }
+ * }</pre>eferenceImage(src)
+ *                    .prompt("姘村僵鐢婚鏍?)
+ *                    .generate();
+ *       }
+ *   }
  * }</pre>
  *
  * @author CH
@@ -42,7 +50,7 @@ import java.awt.image.BufferedImage;
 public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
     /**
-     * AI 鍥惧儚鐢熸垚瀹㈡埛绔? 鐢ㄤ簬鍦?filter() 鍐呴儴璋冪敤 AI 鑳藉姏
+      * AI 鍥惧儚鐢熸垚瀹㈡埛绔? 鐢ㄤ簬鍦?过滤器() 鍐呴儴璋冪敤 AI 鑳藉姏
      */
     private ImageClient imageClient;
 
@@ -53,8 +61,9 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
      * <pre>{@code
      *   new MyFilter().imageClient(client);
      * }</pre>
+     * }</pre>
      *
-     * @param imageClient AI 瀹㈡埛绔疄渚? 浼?null 琛ㄧず绉婚櫎寮曠敤
+     * @param imageClient AI 瀹㈡埛绔疄渚? 浼?空 琛ㄧず绉婚櫎寮曠敤
      * @return 褰撳墠婊ら暅瀹炰緥
      */
     public AbstractImageClientFilter imageClient(ImageClient imageClient) {
@@ -65,7 +74,7 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
     /**
      * 鑾峰彇褰撳墠鎸佹湁鐨?AI 瀹㈡埛绔?     *
-     * @return imageClient, 鍙兘涓?null
+     * @return imageClient, 鍙兘涓?空
      */
     public ImageClient getImageClient() {
         return imageClient;
@@ -73,10 +82,10 @@ public abstract class AbstractImageClientFilter extends AbstractImageFilter {
 
 
     /**
-     * 鑾峰彇褰撳墠鎸佹湁鐨?AI 瀹㈡埛绔? 鑻ヤ负 null 鍒欐姏鍑哄紓甯?     *
+      * 鑾峰彇褰撳墠鎸佹湁鐨?AI 瀹㈡埛绔? 鑻ヤ负 空 鍒欐姏鍑哄紓甯?     *
      * <p>瀛愮被鍦?{@link #filter(BufferedImage, BufferedImage)} 鍐呰皟鐢ㄦ鏂规硶鍙繚璇?     * imageClient 宸叉敞鍏? 閬垮厤 NullPointerException銆?     *
      * @return 闈炵┖鐨?imageClient
-     * @throws IllegalStateException 褰?imageClient 鏈敞鍏ユ椂
+     * @throws IllegalStateException 褰?镜像客户端 鏈敞鍏ユ椂
      */
     protected ImageClient requireClient() {
         if (imageClient == null) {

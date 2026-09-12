@@ -18,7 +18,7 @@ import java.io.IOException;
  * 文件存储下载过滤器。
  *
  * <p>拦截 {@code ?download} 和 {@code ?flash} flag 形式的请求。
- * 文件路径从 URL path 解析：{@code /{bucket}/{filepath}?download}。
+   * 文件路径从 URL 路径 解析：{@code /{bucket}/{filepath}?download}。
  * 当 {@link FileStorageSetting#isOpenDownload()} 为 false 时拒绝。</p>
  *
  * <p>支持：
@@ -37,7 +37,7 @@ import java.io.IOException;
 public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFilter {
 
     /**
-     * 创建 FileStorageDownloadServerFilter 实例
+      * 创建 文件storagedownload服务端过滤器 实例
      * @param setting setting
      */
     public FileStorageDownloadServerFilter(FileStorageSetting setting) {
@@ -45,17 +45,17 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 创建 FileStorageDownloadServerFilter 实例
+      * 创建 文件storagedownload服务端过滤器 实例
      * @param setting setting
-     * @param java java
-     * @param cacheDir cacheDir
+     * @param java Java
+     * @param cacheDir 缓存dir
      */
     public FileStorageDownloadServerFilter(FileStorageSetting setting, java.nio.file.Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
     }
 
     @Override
-    /** Do过滤 */
+    /** 执行过滤 */
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String download = request.getParam("download");
         String flash = request.getParam("flash");
@@ -81,9 +81,14 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
     }
 
-    /** 处理Download */
+    /**
+     * 处理Download
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
-        // 从 path 解析文件路径：/{bucket}/{filepath}
+ // 从 路径 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
         if (key == null || key.isEmpty()) {
             response.setStatus(400).end("Missing file path in URL");
@@ -124,12 +129,18 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
                 .end(bytes);
     }
 
-    /** 处理Flash */
+    /**
+     * 处理Flash
+     *
+     * @param request 请求
+     * @param response 响应
+     * @param flashTokenOrCmd flash令牌或CMD
+     */
     private void handleFlash(ServerRequest request, ServerResponse response, String flashTokenOrCmd) throws Exception {
         FlashTokenService svc = getFlashService();
 
         if ("create".equalsIgnoreCase(flashTokenOrCmd) || "1".equals(flashTokenOrCmd)) {
-            // 创建闪图 token（不需要文件路径）
+ // 创建闪图 令牌（不需要文件路径）
             String token = svc.createToken();
             response.setStatus(201)
                     .setContentType("application/json")
@@ -146,7 +157,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
 
         String key = resolveFilepath(request);
         if (key == null || key.isEmpty()) {
-            // 兼容旧版：从 query param key 获取
+ // 兼容旧版：从 查询 参数 键 获取
             key = request.getParam("key");
         }
         if (key == null || key.isEmpty()) {
@@ -178,7 +189,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
                 .setHeader("Content-Length", String.valueOf(bytes.length))
                 .end(bytes);
 
-        // 消费后删除 marker 文件
+ // 消费后删除 记号笔 文件
         svc.consumeToken(flashTokenOrCmd);
 
         // 闪图模式下可选删除原文件
@@ -193,13 +204,13 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     }
 
     /**
-     * 处理Range
-     * @param request request
-     * @param response response
-     * @param getResult getResult
+      * 处理范围
+     * @param request 请求
+     * @param response 响应
+     * @param getResult 获取结果
      * @param mime mime
-     * @param fileName fileName
-     * @param rangeHeader rangeHeader
+     * @param fileName 文件名
+     * @param rangeHeader 范围头部
      */
     private void handleRange(ServerRequest request, ServerResponse response,
                              com.chua.common.support.storage.result.GetObjectResult getResult,
@@ -227,7 +238,13 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
                 .end(part);
     }
 
-    /** 解析FileName */
+    /**
+     * 解析文件名
+     *
+     * @param request 请求
+     * @param key 键
+     * @return resolve文件名称的结果
+     */
     private static String resolveFileName(ServerRequest request, String key) {
         String filename = request.getParam("filename");
         if (!StringUtils.isEmpty(filename)) {
@@ -239,7 +256,12 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         return key;
     }
 
-    /** 获取Ext */
+    /**
+     * 获取Ext
+     *
+     * @param key 键
+     * @return 获取ext的结果
+     */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -247,7 +269,13 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         return key.substring(key.lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ENGLISH);
     }
 
-    /** 解析Range */
+    /**
+     * 解析范围
+     *
+     * @param header 头部
+     * @param len len
+     * @return 解析范围的结果
+     */
     private static Range parseRange(String header, long len) {
         String h = header.trim();
         if (!h.startsWith("bytes=")) {
@@ -269,7 +297,13 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
         }
     }
 
-    /** Range */
+    /**
+     * 范围
+     *
+     * @param start 启动
+     * @param end 结束
+     * @return 范围的结果
+     */
     private record Range(long start, long end) {
     }
 }

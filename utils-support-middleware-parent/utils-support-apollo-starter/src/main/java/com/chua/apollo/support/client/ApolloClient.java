@@ -38,6 +38,8 @@ import java.util.function.Consumer;
  *
  * // 获取命名空间的所有配置
  * Map<String, String> all = client.config().namespace("application").getProperties();
+ * }</pre> // 获取命名空间的所有配置
+   * 映射<String, String> 全部 = 客户端.配置().namespace("application").获取属性();
  * }</pre>
  *
  * @author CH
@@ -53,15 +55,16 @@ public class ApolloClient implements AutoCloseable {
     private final String meta;
     /** Namespaces */
     private final List<String> namespaces;
-    /** configCache */
+    /** 配置缓存 */
     private final Map<String, Config> configCache = new ConcurrentHashMap<>();
 
     /**
-     * 创建 ApolloClient 实例
-     * @param appId appId
-     * @param String String
-     * @param List List
+      * 创建 apollo客户端 实例
+     * @param appId appid
+     * @param appId 字符串
+     * @param namespaces 列表
      * @param namespaces namespaces
+     * @param meta meta
      */
     private ApolloClient(String appId, String meta, List<String> namespaces) {
         this.appId = appId;
@@ -71,19 +74,33 @@ public class ApolloClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param appId appid
+     * @param meta meta
+     * @return 创建的结果
+     */
     public static ApolloClient create(String appId, String meta) {
         return builder().appId(appId).meta(meta).build();
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     // ==================== 启动/停止 ====================
 
-    /** 开始 */
+    /**
+     * 开始
+     *
+     * @return 启动的结果
+     */
     public ApolloClient start() {
         System.setProperty("app.id", appId);
         if (meta != null && !meta.isEmpty()) {
@@ -101,6 +118,7 @@ public class ApolloClient implements AutoCloseable {
 
     /**
      * 获取配置操作构建器。
+     * @return 配置的结果
      */
     public ConfigOperation config() {
         return new ConfigOperation(this);
@@ -114,6 +132,12 @@ public class ApolloClient implements AutoCloseable {
     }
 
     // ==================== Builder ====================
+    /**
+     * 构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class Builder {
         /** APPID */
@@ -123,30 +147,59 @@ public class ApolloClient implements AutoCloseable {
         /** Namespaces */
         private List<String> namespaces = new ArrayList<>(List.of("application"));
 
-        /** AppId */
+        /**
+         * appid
+         *
+         * @param appId appid
+         * @return appId的结果
+         */
         public Builder appId(String appId) { this.appId = appId; return this; }
-        /** Meta */
+        /**
+         * Meta
+         *
+         * @param meta meta
+         * @return meta的结果
+         */
         public Builder meta(String meta) { this.meta = meta; return this; }
 
-        /** Namespaces */
+        /**
+         * Namespaces
+         *
+         * @param namespaces namespaces
+         * @return namespaces的结果
+         */
         public Builder namespaces(String... namespaces) {
             this.namespaces = new ArrayList<>(List.of(namespaces));
             return this;
         }
 
-        /** Namespaces */
+        /**
+         * Namespaces
+         *
+         * @param namespaces namespaces
+         * @return namespaces的结果
+         */
         public Builder namespaces(List<String> namespaces) {
             this.namespaces = new ArrayList<>(namespaces);
             return this;
         }
 
-        /** 添加Namespace */
+        /**
+         * 添加Namespace
+         *
+         * @param namespace namespace
+         * @return 添加namespace的结果
+         */
         public Builder addNamespace(String namespace) {
             this.namespaces.add(namespace);
             return this;
         }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public ApolloClient build() {
             if (appId == null || appId.isEmpty()) {
                 throw new IllegalArgumentException("appId 不能为空");
@@ -159,6 +212,8 @@ public class ApolloClient implements AutoCloseable {
 
     /**
      * Apollo 配置操作构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class ConfigOperation {
         /** 客户端 */
@@ -170,6 +225,8 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 指定命名空间。
+         * @param namespace namespace
+         * @return namespace的结果
          */
         public ConfigOperation namespace(String namespace) {
             this.namespace = namespace;
@@ -178,6 +235,8 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 获取配置值。
+         * @param key 键
+         * @return 获取财产的结果
          */
         public String getProperty(String key) {
             return getProperty(key, null);
@@ -185,6 +244,9 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 获取配置值，不存在返回默认值。
+         * @param key 键
+         * @param defaultValue 默认值
+         * @return 获取财产的结果
          */
         public String getProperty(String key, String defaultValue) {
             Config config = getConfig();
@@ -193,6 +255,10 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 获取指定类型的配置值。
+         * @param key 键
+         * @param defaultValue 默认值
+         * @param type 类型
+         * @return 获取财产的结果
          */
         @SuppressWarnings("unchecked")
         public <T> T getProperty(String key, T defaultValue, Class<T> type) {
@@ -218,6 +284,7 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 获取所有配置属性。
+         * @return 获取属性的结果
          */
         public Properties getProperties() {
             Config config = getConfig();
@@ -232,7 +299,8 @@ public class ApolloClient implements AutoCloseable {
         }
 
         /**
-         * 获取所有配置（Map 格式）。
+          * 获取所有配置（映射 格式）。
+         * @return 获取属性映射的结果
          */
         public Map<String, String> getPropertiesMap() {
             Map<String, String> map = new LinkedHashMap<>();
@@ -243,6 +311,8 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 判断配置键是否存在。
+         * @param key 键
+         * @return contains财产的结果
          */
         public boolean containsProperty(String key) {
             Config config = getConfig();
@@ -251,6 +321,7 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 监听整个命名空间的配置变更。
+         * @param listener 监听器
          */
         public void onChange(Consumer<ConfigChangeEvent> listener) {
             Config config = getConfig();
@@ -259,6 +330,8 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 监听指定键的配置变更。
+         * @param key 键
+         * @param listener 监听器
          */
         public void onChange(String key, Consumer<String> listener) {
             Config config = getConfig();
@@ -272,6 +345,7 @@ public class ApolloClient implements AutoCloseable {
 
         /**
          * 监听多个键的配置变更。
+         * @param listener 监听器
          */
         public void onChangeKeys(Consumer<Map<String, String>> listener) {
             Config config = getConfig();
@@ -284,7 +358,11 @@ public class ApolloClient implements AutoCloseable {
             });
         }
 
-        /** 获取Config */
+        /**
+         * 获取配置
+         *
+         * @return 获取配置的结果
+         */
         private Config getConfig() {
             Config config = client.configCache.get(namespace);
             if (config == null) {
@@ -300,20 +378,27 @@ public class ApolloClient implements AutoCloseable {
     }
 
     // ==================== 异常类 ====================
+    /**
+     * apollo客户端异常类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class ApolloClientException extends RuntimeException {
         /**
-         * 创建 ApolloClientException 实例
-         * @param message message
+          * 创建 apollo客户端异常 实例
+         * @param message 消息
          */
         public ApolloClientException(String message) {
             super(message);
         }
 
         /**
-         * 创建 ApolloClientException 实例
-         * @param message message
-         * @param Throwable Throwable
+          * 创建 apollo客户端异常 实例
+         * @param message 消息
+         * @param cause Throwable
+         * @param cause cause
          */
         public ApolloClientException(String message, Throwable cause) {
             super(message, cause);

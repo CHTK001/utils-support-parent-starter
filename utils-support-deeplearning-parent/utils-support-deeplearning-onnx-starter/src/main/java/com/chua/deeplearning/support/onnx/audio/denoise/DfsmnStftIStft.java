@@ -1,13 +1,13 @@
 package com.chua.deeplearning.support.onnx.audio.denoise;
 
 /**
- * STFT / ISTFT（复刻 ModelScope DFSMN pipeline 使用的 torch.stft + librosa.istft）。
+   * STFT / ISTFT（复刻 模型scope DFSMN pipeline 使用的 torch.stft + librosa.istft）。
  * <p>
- * STFT：n_fft=1920、hop=960、win_length=1920、center=False、hamming(periodic=False)，
- * 输出频谱布局 [freq=961][frames][2]（{real, imag}），与 torch.stft(return_complex=False) 一致。
+   * STFT：n_fft=1920、hop=960、win_长度=1920、center=False、hamming(periodic=False)，
+   * 输出频谱布局 [freq=961][帧][2]（{real, imag}），与 torch.stft(返回_复杂=False) 一致。
  * </p>
  * <p>
- * ISTFT：复刻 librosa.istft（window=hamming、center=False、length），
+   * ISTFT：复刻 librosa.istft（窗口=hamming、center=False、长度），
  * 使用 ifftshift(librosa hamming periodic) 窗与重叠相加归一化。
  * </p>
  *
@@ -31,7 +31,7 @@ class DfsmnStftIStft {
     /** librosa 合成窗（hamming periodic，unshifted，与 librosa.istft 一致） */
     private final float[] synthWindow;
 
-    /** 创建 DfsmnStftIStft 实例 */
+    /** 创建 dfsmnstftistft 实例 */
     DfsmnStftIStft() {
         this.analysisWindow = buildTorchHammingWindow();
         this.synthWindow = buildLibrosaIfftShiftWindow();
@@ -41,7 +41,7 @@ class DfsmnStftIStft {
      * 前向 STFT。
      *
      * @param signal 单声道时域信号
-     * @return 频谱 [frames][961][2]，每帧每频点 {real, imag}
+     * @return 频谱 [帧][961][2]，每帧每频点 {real, imag}
      */
     float[][][] stft(float[] signal) {
         int frames = numFrames(signal.length);
@@ -62,10 +62,10 @@ class DfsmnStftIStft {
     }
 
     /**
-     * 矩阵乘 mask 后逆 STFT：spectrum[frame][freq][2] 乘 mask[frame][freq]。
+      * 矩阵乘 mask 后逆 STFT：spectrum[帧][freq][2] 乘 mask[帧][freq]。
      *
-     * @param spectrum 频谱 [frames][961][2]
-     * @param masks    mask [frames][961]
+     * @param spectrum 频谱 [帧][961][2]
+     * @param masks    mask [帧][961]
      * @param length   输出信号长度
      * @return 时域信号
      */
@@ -94,7 +94,7 @@ class DfsmnStftIStft {
         for (int i = 0; i < expectedLen; i++) {
             signal[i] = winSum[i] > 1e-15f ? y[i] / winSum[i] : 0f;
         }
-        // length 裁剪或补零
+ // 长度 裁剪或补零
         if (length != signal.length) {
             float[] out = new float[length];
             System.arraycopy(signal, 0, out, 0, Math.min(length, signal.length));
@@ -117,7 +117,8 @@ class DfsmnStftIStft {
     }
 
     /**
-     * torch.hamming_window(N, periodic=false)：0.54 - 0.46·cos(2πn/(N-1))。
+      * torch.hamming_窗口(N, periodic=false)：0.54 - 0.46·COS(2πn/(N-1))。
+     * @return 构建torchhamming窗口的结果
      */
     private static float[] buildTorchHammingWindow() {
         float[] w = new float[N_FFT];
@@ -129,9 +130,10 @@ class DfsmnStftIStft {
     }
 
     /**
-     * librosa.get_window('hamming')（periodic，unshifted）窗。
+      * librosa.获取_窗口('hamming')（periodic，unshifted）窗。
      * <p>periodic hamming：0.54 - 0.46·cos(2πn/N)。与 librosa.istft 内部
-     * get_window(window, win_length, fftbins=True) 一致，不做 ifftshift。</p>
+      * 获取_窗口(窗口, win_长度, fftbins=True) 一致，不做 ifftshift。</p>
+     * @return 构建librosaifftShift窗口的结果
      */
     private static float[] buildLibrosaIfftShiftWindow() {
         float[] w = new float[N_FFT];

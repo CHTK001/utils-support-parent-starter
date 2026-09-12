@@ -38,6 +38,7 @@ import java.util.Map;
  *   String answer = ChatClient.create("needle", "")
  *       .system("date: 2026-07-21 Tue 14:30")
  *       .chatSync("你好，今天星期几？");
+ * }</pre>tSync("你好，今天星期几？");
  * }</pre>
  * </p>
  *
@@ -49,7 +50,7 @@ import java.util.Map;
 public class NeedleChatClient implements ChatClient {
 
     /**
-     * 默认最大生成 token 数
+      * 默认最大生成 令牌 数
      */
     private static final int DEFAULT_MAX_TOKENS = 256;
 
@@ -64,14 +65,14 @@ public class NeedleChatClient implements ChatClient {
     private String model;
 
     /**
-     * 最大生成 token 数
+      * 最大生成 令牌 数
      */
     private int maxTokens = DEFAULT_MAX_TOKENS;
 
     /**
      * 构造 Needle 对话客户端。
      *
-     * @param setting 客户端配置（可为 null）
+     * @param setting 客户端配置（可为 空）
      */
     public NeedleChatClient(ChatClientSetting setting) {
         if (setting != null) {
@@ -84,14 +85,14 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -105,14 +106,20 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         return chatSync(prompt, 0);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** ChatSync */
+    /**
+     * 对话同步
+     *
+     * @param prompt 提示符
+     * @param timeoutMillis 超时millis
+     * @return 对话同步的结果
+     */
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
         String raw = NeedleNative.complete(prompt, maxTokens);
@@ -120,7 +127,7 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSyncWithResponse */
+    /** 对话同步with响应 */
     public ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -129,13 +136,13 @@ public class NeedleChatClient implements ChatClient {
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         return this;
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         ModelDefinition definition = ModelDefinition.builder()
                 .id(model != null ? model : "needle2")
@@ -180,7 +187,7 @@ public class NeedleChatClient implements ChatClient {
                 if (reasoning != null && !String.valueOf(reasoning).isBlank()) {
                     return String.valueOf(reasoning);
                 }
-                // 有 function_calls 但无 reasoning，返回原始 JSON
+ // 有 function_calls 但无 ReasonMLML，返回原始 JSON
                 return raw;
             }
 

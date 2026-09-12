@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * APM 持久化存储 SPI 接口 — ApmStorage。
+   * APM 持久化存储 SPI 接口 — apmstorage。
  *
  * <p>由各 Handler 在 {@code addRecord / record / recordOpen} 后调用
  * {@link #appendTransmission}、{@link #appendLeak} 等方法写入数据。
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public interface ApmStorage {
 
-    /** SPI 默认实现 key — 当未配置 / SPI 找不到实现时，使用 NoopStorage。 */
+    /** SPI 默认实现 键 — 当未配置 / SPI 找不到实现时，使用 noopstorage。 */
     String DEFAULT_NAME = "noop";
 
     /** 启动存储 — 初始化连接池 / 打开文件 / 建表。 */
@@ -69,7 +69,7 @@ public interface ApmStorage {
     /** 查询日志。 */
     List<LogRecord> queryLogs(Query query);
 
-    /** 统计 — 各类型当前总数 / 命中 query 的数量。 */
+    /** 统计 — 各类型当前总数 / 命中 查询 的数量。 */
     Map<String, Long> stats();
 
     /** 清理过期数据 — 由实现决定触发时机（定时 / 容量超限）。 */

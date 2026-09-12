@@ -39,6 +39,10 @@ import java.util.Objects;
  *   .threshold(0.80)
  *   .query(queryWav)
  *   .execute();
+ * }</pre>   .topK(5)
+ *   .threshold(0.80)
+ *   .query(queryWav)
+ *   .execute();
  * }</pre>
  *
  * <p><b>模型零配置</b>：CAM++（26MB）内嵌于 sensevoice jar，首次调用自动解压。</p>
@@ -55,16 +59,16 @@ public class VoiceprintPipeline implements AutoCloseable {
     /** CAM++ 神经声纹特征提取器（传统方式）。 */
     private final CampplusEmbedding campplus;
 
-    /** 声纹嵌入翻译器（ModelRegistry 方式）。 */
+    /** 声纹嵌入翻译器（模型registry 方式）。 */
     private final com.chua.deeplearning.support.translator.ITranslator<byte[], float[]> embedderTranslator;
 
-    /** 检索结果上限（与 search 的 topK 取 min）。 */
+    /** 检索结果上限（与 搜索 的 topk 取 最小）。 */
     private final int maxResults;
 
-    /** 降噪增强器（null 表示不降噪）。 */
+    /** 降噪增强器（空 表示不降噪）。 */
     private final SpeechEnhancer denoiseEnhancer;
 
-    /** VAD 类型（null 表示不做 VAD）。 */
+    /** VAD 类型（空 表示不做 VAD）。 */
     private final String vadType;
 
     private VoiceprintPipeline(VectorStorage storage, CampplusEmbedding embedder, int maxResults,
@@ -96,22 +100,38 @@ public class VoiceprintPipeline implements AutoCloseable {
                 vadType != null ? vadType : "off");
     }
 
-    /** 创建 Builder。 */
+    /**
+     * 创建 构建器。
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
 
-    /** 创建默认管线实例（文件持久化）。 */
+    /**
+     * 创建默认管线实例（文件持久化）。
+     *
+     * @return 创建的结果
+     */
     public static VoiceprintPipeline create() {
         return builder().build();
     }
 
-    /** 创建链式入库操作。 */
+    /**
+     * 创建链式入库操作。
+     *
+     * @return 创建enroll的结果
+     */
     public EnrollConfig createEnroll() {
         return new EnrollConfig(this);
     }
 
-    /** 创建链式检索操作。 */
+    /**
+     * 创建链式检索操作。
+     *
+     * @return 创建搜索的结果
+     */
     public SearchConfig createSearch() {
         return new SearchConfig(this);
     }
@@ -135,7 +155,7 @@ public class VoiceprintPipeline implements AutoCloseable {
             }
         }
         if (embedderTranslator != null) {
-            // ModelRegistry 方式：将 float[] 转为 WAV 字节后传给翻译器
+ // 模型registry 方式：将 float[] 转为 WAV 字节后传给翻译器
             byte[] wavBytes = AudioUtils.toWavBytes(samples, 16000);
             return embedderTranslator.translate(wavBytes);
         }
@@ -143,9 +163,9 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 降噪预处理（委托给 SpeechEnhancer）。
+      * 降噪预处理（委托给 语音enhancer）。
      *
-     * @param s 16kHz 采样
+     * @param s 16khz 采样
      * @return 增强后采样
      */
     private float[] denoise(float[] s) {
@@ -167,7 +187,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     /**
      * 按类型创建 VAD 切分。
      *
-     * @param s    16kHz 采样
+     * @param s    16khz 采样
      * @param type VAD 类型（"energy" / "silero" 等）
      * @return 语音段列表
      */
@@ -179,13 +199,32 @@ public class VoiceprintPipeline implements AutoCloseable {
     }
 
     /**
-     * 能量 VAD 切分（通用实现，可复用于 AsrPipeline）。
+      * 能量 VAD 切分（通用实现，可复用于 asrpipeline）。
      *
-     * @param s           16kHz 单声道采样
+     * @param s           16khz 单声道采样
      * @param silenceRms  静音 RMS 门限
      * @param minSegSec   最短语音段秒数
      * @param maxSegSec   最大段长秒数
      * @return 语音段列表
+     * @param off off
+     /**
+      * 分割byenergy。
+      * @param s s
+      * @param silenceRms silencerms
+      * @param minSegSec 最小segsec
+      * @param maxSegSec 最大segsec
+      * @return 分割byenergy的结果
+      */
+     * @param len len
+      * @param off off
+     /**
+      * 分割byenergy。
+      * @param s s
+      * @param silenceRms silenceRms
+      * @param minSegSec 最小segsec
+      * @param maxSegSec 最大segsec
+      * @return 分割byenergy的结果
+      */
      */
     static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * 16000);
@@ -246,7 +285,11 @@ public class VoiceprintPipeline implements AutoCloseable {
         return maxResults;
     }
 
-    /** 已注册声纹数量。 */
+    /**
+     * 已注册声纹数量。
+     *
+     * @return 大小的结果
+     */
     public int size() {
         return storage.size();
     }
@@ -262,15 +305,33 @@ public class VoiceprintPipeline implements AutoCloseable {
 
     // ==================== 入库链 ====================
 
-    /** 入库配置器：id → label → audio → execute。 */
+    /**
+     * 入库配置器：标识 → 标签 → 音频 → 执行。
+     *
+     * @param audioPath 音频路径
+     * @return 音频的结果
+     * @param label 标签
+     */
     public static final class EnrollConfig {
         private final VoiceprintPipeline parent;
         private String id;
         private String label;
+        /**
+          * 标识。
+         * @param speakerId speakerid
+         * @return id的结果
+         * @param audioPath 音频路径
+         * @param label 标签
+         */
         private Path audioPath;
 
         EnrollConfig(VoiceprintPipeline parent) {
             this.parent = parent;
+        /**
+         * id。
+         * @param speakerId speakerId
+         * @return id的结果
+         */
         }
 
         public EnrollConfig id(String speakerId) {
@@ -288,7 +349,11 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /** 执行入库并返回管线实例（可继续链式）。 */
+        /**
+         * 执行入库并返回管线实例（可继续链式）。
+         *
+         * @return 执行的结果
+         */
         public VoiceprintPipeline execute() throws Exception {
             if (id == null || audioPath == null) {
                 throw new IllegalStateException("id 和 audio 均为必填");
@@ -306,15 +371,33 @@ public class VoiceprintPipeline implements AutoCloseable {
 
     // ==================== 检索链 ====================
 
-    /** 检索配置器：topK → threshold → query → execute。 */
+    /**
+     * 检索配置器：topk → 阈值 → 查询 → 执行。
+     *
+     * @param queryPath 查询路径
+     * @return 查询的结果
+     * @param t t
+     */
     public static final class SearchConfig {
         private final VoiceprintPipeline parent;
         private int topK = 5;
         private double threshold;
+        /**
+          * topk。
+         * @param k k
+         * @return topK的结果
+         * @param queryPath 查询路径
+         * @param t t
+         */
         private Path queryPath;
 
         SearchConfig(VoiceprintPipeline parent) {
             this.parent = parent;
+        /**
+         * topK。
+         * @param k k
+         * @return topK的结果
+         */
         }
 
         public SearchConfig topK(int k) {
@@ -332,7 +415,11 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /** 执行检索，返回匹配结果。 */
+        /**
+         * 执行检索，返回匹配结果。
+         *
+         * @return 执行的结果
+         */
         public List<Match> execute() throws Exception {
             if (queryPath == null) {
                 throw new IllegalStateException("query 为必填");
@@ -352,11 +439,22 @@ public class VoiceprintPipeline implements AutoCloseable {
         }
     }
 
-    /** 匹配结果。 */
+    /**
+     * 匹配结果。
+     *
+     * @param speakerId speakerid
+     * @param similarity 相似度
+     * @param metadata metadata
+     * @return 匹配的结果
+     */
     public record Match(String speakerId, double similarity, Map<String, Object> metadata) {
     }
 
-    /** 声纹库默认持久化目录。 */
+    /**
+     * 声纹库默认持久化目录。
+     *
+     * @return 默认目录的结果
+     */
     private static Path defaultDirectory() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         Path base = (prop != null && !prop.isBlank())
@@ -374,22 +472,35 @@ public class VoiceprintPipeline implements AutoCloseable {
         private SpeechEnhancer denoiseEnhancer;
         private String vadType;
 
+        /**
+         * embedder。
+         * @param e e
+         * @return embedder的结果
+         */
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
             return this;
         }
 
         /**
-         * 设置声纹嵌入模型 ID（从 ModelRegistry 加载）。
+          * 设置声纹嵌入模型 标识（从 模型registry 加载）。
          *
          * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
          * <pre>{@code
          * .model("campplus-voiceprint")   // CAM++ 192维声纹
          * .model("wespeaker-resnet34")    // Wespeaker 512维说话人嵌入
-         * }</pre>
+         * }</pre>pre>
          *
-         * @param modelId 模型 ID（对应 AudioFingerprinter 注册表）
+         * @param modelId 模型 标识（对应 音频fingerprinter 注册表）
          * @return this
+         * @param dir dir
+         /**
+          * 模型。
+          * @param modelId 模型标识
+          * @return 模型的结果
+          */
+         * @param provider 提供者
+         * @param config 配置
          */
         public Builder model(String modelId) {
             if (modelId == null || modelId.isBlank()) {
@@ -401,6 +512,14 @@ public class VoiceprintPipeline implements AutoCloseable {
                 throw new IllegalArgumentException("声纹模型未注册: " + modelId);
             }
             log.info("[Voiceprint] 使用 ModelRegistry 加载模型: {}", modelId);
+            /**
+             * 向量storage。
+             * @param s s
+             * @return 向量storage的结果
+             * @param dir dir
+             * @param provider 提供者
+             * @param config 配置
+             */
             return this;
         }
 
@@ -465,21 +584,26 @@ public class VoiceprintPipeline implements AutoCloseable {
             return this;
         }
 
-        /** 检索结果上限（与 search 的 topK 取 min）。 */
+        /**
+         * 检索结果上限（与 搜索 的 topk 取 最小）。
+         *
+         * @param maxResults 最大结果
+         * @return 最大的结果
+         */
         public Builder max(int maxResults) {
             this.maxResults = Math.max(1, maxResults);
             return this;
         }
 
         /**
-         * 设置降噪模型 ID（null 表示不降噪）。
+          * 设置降噪模型 标识（空 表示不降噪）。
          *
          * <p>统一 provider 模式（与 FacePipeline 一致），按模型 ID 从 ModelRegistry 解析：
          * <pre>{@code
          * .denoise("dfsmn-ans")  // DFSMN 单麦近场降噪
          * }</pre>
          *
-         * @param modelId 模型 ID（对应 {@link SpeechEnhancer} 注册表）
+         * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表）
          * @return this
          */
         public Builder denoise(String modelId) {
@@ -488,7 +612,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         }
 
         /**
-         * 设置 VAD 类型（null 表示不做 VAD）。
+          * 设置 VAD 类型（空 表示不做 VAD）。
          *
          * <p>统一 provider 模式（与 FacePipeline 一致），按类型字符串选择切分策略：
          * <pre>{@code
@@ -497,6 +621,18 @@ public class VoiceprintPipeline implements AutoCloseable {
          *
          * @param type VAD 类型（"energy" 等）
          * @return this
+         * @param v v
+         /**
+          * vad。
+          * @param type 类型
+          * @return vad的结果
+          */
+          * @param v v
+         /**
+          * vad。
+          * @param type 类型
+          * @return vad的结果
+          */
          */
         public Builder vad(String type) {
             this.vadType = type;

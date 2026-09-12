@@ -56,24 +56,25 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     private String root;
 
     /**
-     * 创建 ZookeeperServiceDiscovery 实例
-     * @param discoveryOption discoveryOption
+      * 创建 zookeeper服务discovery 实例
+     * @param discoveryOption discovery期权
      */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
 
     /**
-     * 创建 ZookeeperServiceDiscovery 实例
-     * @param discoveryOption discoveryOption
-     * @param String String
+      * 创建 zookeeper服务discovery 实例
+     * @param discoveryOption discovery期权
+     * @param clusterName 字符串
+     * @param clusterName cluster名称
      */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
 
     @Override
-    /** 注册Service */
+    /** 注册服务 */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
         discovery.setUriSpec(prefixed);
@@ -95,11 +96,11 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** Do注销 */
+    /** 执行注销 */
     protected void doUnregister(String path, Discovery discovery) {
         String host = discovery.getHost();
         int port = discovery.getPort();
-        // 如果 host/port 为空，从 ZK 直接扫描获取
+ // 如果 主机/端口 为空，从 ZK 直接扫描获取
         if (host == null || port <= 0) {
             String zkPath = root + path;
             try {
@@ -141,7 +142,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** Do更新 */
+    /** 执行更新 */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         String zkPath = root + path + "/" + newDiscovery.getHost() + ":" + newDiscovery.getPort();
         try {
@@ -183,7 +184,11 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         watchChildren(root);
     }
 
-    /** WatchChildren */
+    /**
+     * watchchildren
+     *
+     * @param zkPath zk路径
+     */
     private void watchChildren(String zkPath) {
         try {
             List<String> children = client.getChildren()
@@ -206,7 +211,11 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
-    /** RefreshPath */
+    /**
+     * refresh路径
+     *
+     * @param zkPath zk路径
+     */
     private void refreshPath(String zkPath) {
         String discoveryPath = zkPath.substring(root.length());
         if (discoveryPath.isEmpty()) {
@@ -232,7 +241,12 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         }
     }
 
-    /** FetchAllInstances */
+    /**
+     * 获取全部instances
+     *
+     * @param zkPath zk路径
+     * @return 获取全部instances的结果
+     */
     private List<Discovery> fetchAllInstances(String zkPath) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {
@@ -284,7 +298,13 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
         return null;
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param path 路径
+     * @param oldSet 旧设置
+     * @param newList 新列表
+     */
     private void notifyListeners(String path, Set<Discovery> oldSet, List<Discovery> newList) {
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
         if (pathListeners == null || pathListeners.isEmpty()) {
@@ -315,7 +335,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 是否Support订阅 */
+    /** 是否支持订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }

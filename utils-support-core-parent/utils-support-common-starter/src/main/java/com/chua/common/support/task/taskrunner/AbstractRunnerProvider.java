@@ -84,7 +84,7 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-     * 为未启用熔断的节点追加统一的降级兜底：执行异常且定义了 fallback 时，
+      * 为未启用熔断的节点追加统一的降级兜底：执行异常且定义了 降级 时，
      * 以降级返回值作为成功结果。
      *
      * <p>Error 及其包装因果链上的 Error 不走降级，原样向上传播。</p>
@@ -112,10 +112,10 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-     * 判断异常因果链上是否携带 Error。
+      * 判断异常因果链上是否携带 错误。
      *
      * @param t 待检查异常
-     * @return true 表示链上存在 Error（如 OOM/StackOverflow）
+     * @return true 表示链上存在 错误（如 OOM/stackoverflow）
      */
     private static boolean containsError(Throwable t) {
         var current = t;
@@ -129,7 +129,7 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-     * 重试包装：共 attempts 次尝试，失败间隔按指数退避。
+      * 重试包装：共 尝试 次尝试，失败间隔按指数退避。
      *
      * <p>预算感知：配置了 timeout 时维护整体截止时间，
      * 剩余预算不足以容纳"下一次退避 + 最小执行窗"时提前放弃重试，
@@ -137,7 +137,7 @@ public abstract class AbstractRunnerProvider {
      *
      * @param core     核心逻辑
      * @param attempts 总尝试次数，必须 ≥ 1
-     * @param timeout  整体时限，null 表示不限时
+     * @param timeout  整体时限，空 表示不限时
      * @return 包装后的执行链
      */
     private Callable<Object> wrapResilience(Callable<Object> core, int attempts, java.time.Duration timeout) {
@@ -203,7 +203,7 @@ public abstract class AbstractRunnerProvider {
     }
 
     /**
-     * 校验数据依赖的前置节点均已有非 null 结果。
+      * 校验数据依赖的前置节点均已有非 空 结果。
      *
      * @param def     节点定义
      * @param context 运行上下文

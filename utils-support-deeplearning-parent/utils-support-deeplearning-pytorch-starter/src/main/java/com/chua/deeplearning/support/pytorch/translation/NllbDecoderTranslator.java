@@ -6,7 +6,7 @@ import ai.djl.translate.NoBatchifyTranslator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * NLLB 解码器 Translator（含 pastKeyValues）。
+   * NLLB 解码器 Translator（含 past键值）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -24,17 +24,17 @@ public class NllbDecoderTranslator implements NoBatchifyTranslator<NDList, Causa
     private static final int NUM_KV = 4;
 
     /**
-     * past_key_values 元组名。
+      * past_键_值 元组名。
      */
     private final String tupleName;
 
-    /** 创建 NllbDecoderTranslator 实例 */
+    /** 创建 nllb解码器translator 实例 */
     public NllbDecoderTranslator() {
         this.tupleName = "past_key_values(" + NUM_LAYERS + ',' + NUM_KV + ')';
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray placeholder = ctx.getNDManager().create(0);
         placeholder.setName("module_method:decoder");
@@ -43,7 +43,7 @@ public class NllbDecoderTranslator implements NoBatchifyTranslator<NDList, Causa
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public CausalLMOutput processOutput(TranslatorContext ctx, NDList output) {
         NDArray logitsOutput = output.get(0);
         NDList pastKeyValuesOutput = output.subNDList(1, NUM_LAYERS * NUM_KV + 1);

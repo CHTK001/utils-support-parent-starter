@@ -12,7 +12,7 @@ import com.chua.deeplearning.support.utils.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * AnimeGANv2 Face Portrait V2 Translator（NCHW 布局）。
+   * animeganv2 Face Portrait V2 Translator（NCHW 布局）。
  *
  * <p>Face Portrait V2 模型的 ONNX 导出为 NCHW 布局 {@code [1,3,512,512]}，
  * 与 Hayao/Shinkai/Paprika 的 NHWC {@code [1,512,512,3]} 不同，需独立处理。</p>
@@ -39,7 +39,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     private int originalHeight;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
         originalHeight = input.getHeight();
@@ -61,7 +61,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         Shape outShape = output.getShape();
@@ -91,12 +91,22 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         return Batchifier.fromString("none");
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param v v
+     * @return clip的结果
+     */
     private static int clip(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
 
-    /** HwcPixels */
+    /**
+     * hwcpixels
+     *
+     * @param input 输入
+     * @return hwcPixels的结果
+     */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof java.awt.image.BufferedImage bi) {
@@ -114,7 +124,16 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         throw new IllegalStateException("无法提取 BufferedImage 像素");
     }
 
-    /** 调整大小Hwc */
+    /**
+     * 调整大小Hwc
+     *
+     * @param src src
+     * @param sw sw
+     * @param sh sh
+     * @param dw dw
+     * @param dh dh
+     * @return resizeHwc的结果
+     */
     private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
         float[] out = new float[dw * dh * 3];
         float xs = (float) sw / dw;
@@ -133,7 +152,14 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         return out;
     }
 
-    /** 调整大小Buffered */
+    /**
+     * 调整大小缓冲
+     *
+     * @param src src
+     * @param dw dw
+     * @param dh dh
+     * @return resize缓冲的结果
+     */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
         return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }

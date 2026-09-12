@@ -8,7 +8,7 @@ import com.chua.ast.support.annotation.AutoSpi;
 import javax.annotation.Nonnull;
 
 /**
- * IPv6 Mock 生成器
+   * ipv6 Mock 生成器
  *
  * <p>生成 8 组十六进制段的完整 IPv6 地址，如
  * {@code 2001:0db8:85a3:0000:0000:8a2e:0370:7334}。</p>
@@ -22,6 +22,8 @@ public class Ipv6MockString implements MockString {
 
     /**
      * 十六进制字符池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final char[] HEX = "0123456789abcdef".toCharArray();
 

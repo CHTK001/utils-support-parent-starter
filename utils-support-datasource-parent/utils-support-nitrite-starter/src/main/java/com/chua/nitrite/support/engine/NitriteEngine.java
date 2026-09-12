@@ -74,7 +74,7 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 获取 ObjectRepository。
+      * 获取 对象仓库。
      *
      * @param name 数据源名称
      * @param entityClass 实体类
@@ -91,7 +91,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 执行New查询 */
+    /**
+     * 执行新查询
+     *
+     * @param where where
+     * @param params 参数
+     * @param entityClass 实体类
+     * @param limit 限制
+     * @param offset 偏移量
+     * @return 执行新查询的结果
+     */
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> memoryData = getData(entityClass);
         if (!memoryData.isEmpty()) {
@@ -110,7 +119,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 创建FulltextIndex */
+    /**
+     * 创建fulltext索引
+     *
+     * @param entityClass 实体类
+     * @param fieldNames 字段名称
+     * @return 创建fulltext索引的结果
+     */
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -129,14 +144,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param query 查询
+     * @param entityClass 实体类
+     * @return 搜索的结果
+     */
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param query 查询
+     * @param entityClass 实体类
+     * @param limit 限制
+     * @return 搜索的结果
+     */
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -162,7 +190,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** DropFulltextIndex */
+    /**
+     * 掉落fulltext索引
+     *
+     * @param entityClass 实体类
+     * @param fieldNames 字段名称
+     * @return 掉落fulltext索引的结果
+     */
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -181,7 +215,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 插入 */
+    /**
+     * 插入
+     *
+     * @param collection 集合
+     * @param document 文档
+     * @return 插入的结果
+     */
     public <T> T insert(String collection, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -195,7 +235,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 查找ById */
+    /**
+     * 查找byid
+     *
+     * @param collection 集合
+     * @param id 标识
+     * @param documentClass 文档类
+     * @return findById的结果
+     */
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -206,14 +253,21 @@ import java.util.concurrent.ConcurrentHashMap;
             Document doc = nitriteCollection.getById(nitriteId);
             return doc == null ? null : fromDocument(doc, documentClass);
         }
-        // 按业务 id 字段（字符串比较）匹配，规避数值类型与字符串过滤不匹配
+ // 按业务 标识 字段（字符串比较）匹配，规避数值类型与字符串过滤不匹配
         Document found = findDocByIdField(nitriteCollection, id);
         return found == null ? null : fromDocument(found, documentClass);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 更新 */
+    /**
+     * 更新
+     *
+     * @param collection 集合
+     * @param id 标识
+     * @param document 文档
+     * @return 更新的结果
+     */
     public <T> T update(String collection, Object id, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -258,7 +312,7 @@ import java.util.concurrent.ConcurrentHashMap;
             nitriteCollection.remove(org.dizitart.no2.filters.FluentFilter.where("_id").eq(nitriteId));
             return true;
         }
-        // 按业务 id 字段匹配后删除（使用原始类型值，规避数值/字符串过滤类型不匹配）
+ // 按业务 标识 字段匹配后删除（使用原始类型值，规避数值/字符串过滤类型不匹配）
         Document found = findDocByIdField(nitriteCollection, id);
         if (found == null) {
             return false;
@@ -269,11 +323,11 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 按业务 id 字段查找文档（字符串比较，兼容数值与字符串类型）。
+      * 按业务 标识 字段查找文档（字符串比较，兼容数值与字符串类型）。
      *
      * @param collection 集合
-     * @param businessId 业务 id
-     * @return 匹配的文档，未找到返回 null
+     * @param businessId 业务 标识
+     * @return 匹配的文档，未找到返回 空
      */
     private static Document findDocByIdField(NitriteCollection collection, Object businessId) {
         for (Document doc : collection.find()) {
@@ -287,7 +341,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 查找All */
+    /**
+     * 查找全部
+     *
+     * @param collection 集合
+     * @param documentClass 文档类
+     * @return find全部的结果
+     */
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -319,11 +379,11 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 将通用对象转换为 Nitrite Document。
+      * 将通用对象转换为 Nitrite 文档。
      * <p>如果对象本身就是 Document 则直接返回；否则将其作为 Map 处理。</p>
      *
      * @param source 源对象
-     * @return Nitrite Document
+     * @return Nitrite 文档
      */
     private static Document toDocument(Object source) {
         if (source instanceof Document doc) {
@@ -340,9 +400,9 @@ import java.util.concurrent.ConcurrentHashMap;
     }
 
     /**
-     * 将 Nitrite Document 转换为目标类型。
+      * 将 Nitrite 文档 转换为目标类型。
      *
-     * @param document Nitrite Document
+     * @param document Nitrite 文档
      * @param documentClass 目标类型
      * @param <T> 目标泛型
      * @return 目标类型实例

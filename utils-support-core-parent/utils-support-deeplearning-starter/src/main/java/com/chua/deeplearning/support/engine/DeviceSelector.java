@@ -33,7 +33,7 @@ public final class DeviceSelector {
     public static final String PROP = "deeplearning.device";
 
     /**
-     * onnxruntime_gpu 独有原生库（CPU 版构件不含 CUDA/TensorRT provider）
+      * onnxruntime_gpu 独有原生库（CPU 版构件不含 CUDA/tensorrt 提供者）
      */
     private static final String[] ORT_GPU_MARKERS = {
             "ai/onnxruntime/native/win-x64/onnxruntime_providers_cuda.dll",
@@ -46,17 +46,20 @@ public final class DeviceSelector {
     private static final int DETECT_TIMEOUT_SECONDS = 3;
 
     /**
-     * 探测结果缓存：null=未探测，"gpu"/"cpu"=已探测
+      * 探测结果缓存：空=未探测，"gpu"/"cpu"=已探测
      */
     private static final AtomicReference<String> DETECTED = new AtomicReference<>();
 
+    /**
+      * deviceselector。
+     */
     private DeviceSelector() {
     }
 
     /**
      * 解析设备意图为实际设备。
      *
-     * @param setting 调用方显式设备设置，可为 null
+     * @param setting 调用方显式设备设置，可为 空
      * @return "gpu" 或 "cpu"（auto 模式下保证返回本机可用的设备）
      */
     public static String resolve(String setting) {
@@ -74,7 +77,7 @@ public final class DeviceSelector {
     /**
      * 归一化设备设置。
      *
-     * @param setting 显式设置，可为 null
+     * @param setting 显式设置，可为 空
      * @return cpu / gpu / auto（缺省）
      */
     private static String normalize(String setting) {
@@ -118,15 +121,16 @@ public final class DeviceSelector {
     }
 
     /**
-     * NVIDIA GPU 探测结果缓存：null=未探测
+      * NVIDIA GPU 探测结果缓存：空=未探测
      */
     private static final AtomicReference<GpuInfo> GPU_INFO = new AtomicReference<>();
 
     /**
      * NVIDIA GPU 基本信息（型号与显存）。
      *
-     * @param name          显卡型号，如 "NVIDIA GeForce GTX 1650"
+     * @param name          显卡型号，如 "NVIDIA geforce GTX 1650"
      * @param totalVramMb   总显存（MB），未知为 -1
+     * @return gpu信息的结果
      */
     public record GpuInfo(String name, long totalVramMb) {
     }
@@ -142,7 +146,7 @@ public final class DeviceSelector {
     /**
      * 探测本机 NVIDIA GPU 型号与总显存。
      *
-     * @return GPU 信息；无 NVIDIA GPU 或探测失败返回 null
+     * @return GPU 信息；无 NVIDIA GPU 或探测失败返回 空
      */
     public static GpuInfo detectGpu() {
         if (!isGpuUsable()) {
@@ -208,7 +212,7 @@ public final class DeviceSelector {
     /**
      * 获取本机 GPU 型号名称。
      *
-     * @return 型号名；无 GPU 返回 null
+     * @return 型号名；无 GPU 返回 空
      */
     public static String gpuName() {
         GpuInfo info = detectGpu();
@@ -245,7 +249,7 @@ public final class DeviceSelector {
     }
 
     /**
-     * 检测 classpath 是否为 onnxruntime_gpu 构件。
+      * 检测 类路径 是否为 onnxruntime_gpu 构件。
      *
      * <p>判定依据：GPU 版构件独带的 CUDA/TensorRT provider 原生库
      * （CPU 版构件不含，API 类则两个构件都有、不可作标记）。</p>

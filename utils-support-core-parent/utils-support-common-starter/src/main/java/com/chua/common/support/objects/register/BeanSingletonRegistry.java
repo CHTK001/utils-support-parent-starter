@@ -17,13 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public abstract class BeanSingletonRegistry {
 
-    /** singletonBeans */
+    /** 单例Bean */
     private final Map<String, BeanDefinition> singletonBeans = new ConcurrentHashMap<>();
-    /** singletonInstances */
+    /** 单例instances */
     private final Map<String, Object> singletonInstances = new ConcurrentHashMap<>();
 
     /**
      * 获取或创建单例 Bean
+     * @param beanName Bean名称
+     * @return 获取单例的结果
      */
     public Object getSingleton(String beanName) {
         if (beanName == null) {
@@ -48,6 +50,8 @@ public abstract class BeanSingletonRegistry {
 
     /**
      * 注册单例 Bean
+     * @param beanName Bean名称
+     * @param bean Bean
      */
     public void registerSingleton(String beanName, Object bean) {
         if (beanName == null || bean == null) {
@@ -59,7 +63,8 @@ public abstract class BeanSingletonRegistry {
     }
 
     /**
-     * 注册单例 BeanDefinition
+      * 注册单例 Beandefinition
+     * @param beanDefinition Beandefinition
      */
     public void registerSingleton(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
@@ -74,7 +79,9 @@ public abstract class BeanSingletonRegistry {
     }
 
     /**
-     * 获取单例 BeanDefinition
+      * 获取单例 Beandefinition
+     * @param beanName Bean名称
+     * @return 获取单例Beandefinition的结果
      */
     public BeanDefinition getSingletonBeanDefinition(String beanName) {
         return beanName != null ? singletonBeans.get(beanName) : null;
@@ -82,6 +89,8 @@ public abstract class BeanSingletonRegistry {
 
     /**
      * 是否包含单例 Bean
+     * @param beanName Bean名称
+     * @return contains单例的结果
      */
     public boolean containsSingleton(String beanName) {
         return beanName != null && singletonInstances.containsKey(beanName);

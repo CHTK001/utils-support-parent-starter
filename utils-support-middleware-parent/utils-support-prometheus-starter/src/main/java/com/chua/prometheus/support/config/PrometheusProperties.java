@@ -27,7 +27,7 @@ public class PrometheusProperties {
     private String url = "http://localhost:9090";
 
     /**
-     * 用户名(可选, 用于 Basic Auth)
+      * 用户名(可选, 用于 基础 认证)
      */
     private String username;
 

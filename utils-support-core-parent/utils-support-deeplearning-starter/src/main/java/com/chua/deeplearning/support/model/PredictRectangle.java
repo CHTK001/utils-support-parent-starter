@@ -27,6 +27,14 @@ public record PredictRectangle(
 
     /**
      * 兼容无关键点的构造。
+     * @param x x
+     * @param y y
+     * @param width width
+     * @param height height
+     * @param confidence 信心
+     * @param label 标签
+     * @param labelName 标签名称
+     * @return PredictRectangle的结果
      */
     public PredictRectangle(float x, float y, float width, float height, float confidence, int label, String labelName) {
         this(x, y, width, height, confidence, label, labelName, java.util.List.of());

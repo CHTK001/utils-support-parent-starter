@@ -290,6 +290,7 @@ public class HttpServerResponse implements ServerResponse {
                 try {
                     responseBody.close();
                 } catch (IOException ignored) {
+                    // NOTHING
                 }
             }
         }
@@ -301,6 +302,7 @@ public class HttpServerResponse implements ServerResponse {
             try {
                 sseOutputStream.close();
             } catch (IOException ignored) {
+                // NOTHING
             }
             sseOutputStream = null;
         }

@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  * 方法执行耗时统计注解，编译期自动注入计时逻辑
  *
  * <p>该注解会在编译期在方法开头插入计时开始代码，在 finally 块中计算耗时并输出。
- * 支持两种输出方式：通过 SLF4J 日志输出（配合 @Slf4j 注解），或通过 System.err 打印。</p>
+   * 支持两种输出方式：通过 SLF4J 日志输出（配合 @Slf4j 注解），或通过 系统.err 打印。</p>
  *
  * <p>配合 @Trace 注解可同时实现链路追踪和耗时统计。</p>
  * <ul>
@@ -48,7 +48,7 @@ import java.lang.annotation.*;
  *         System.err.println("process 执行耗时: " + (_timedElapsed / 1_000_000L) + " ms");
  *     }
  * }
- * }</pre>
+ * }</pre>re>
  *
  * <p>耗时单位为毫秒，使用 {@code System.nanoTime()} 保证高精度计时。</p>
  *

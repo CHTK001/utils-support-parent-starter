@@ -41,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * try (ZookeeperClient c = ZookeeperClient.create()) {
  *     c.create().path("/test").data("value").forPath();
  * }
+ * }</pre>// 自动资源管理
+   * 尝试 (zookeeper客户端 C = zookeeper客户端.创建()) {
+   * C.创建().路径("/测试").数据("值").for路径();
+ * }
  * }</pre>
  *
  * @author CH
@@ -60,9 +64,10 @@ public class ZookeeperClient implements AutoCloseable {
     private final String connectString;
 
     /**
-     * 创建 ZookeeperClient 实例
+      * 创建 zookeeper客户端 实例
      * @param curator curator
-     * @param String String
+     * @param connectString 字符串
+     * @param connectString 连接字符串
      */
     private ZookeeperClient(CuratorFramework curator, String connectString) {
         this.curator = curator;
@@ -71,17 +76,32 @@ public class ZookeeperClient implements AutoCloseable {
 
     // ==================== 工厂方法 ====================
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param connectString 连接字符串
+     * @return 创建的结果
+     */
     public static ZookeeperClient create(String connectString) {
         return builder().connectString(connectString).build();
     }
 
-    /** 创建 */
+    /**
+     * 创建
+     *
+     * @param connectString 连接字符串
+     * @param sessionTimeoutMs 会话超时ms
+     * @return 创建的结果
+     */
     public static ZookeeperClient create(String connectString, int sessionTimeoutMs) {
         return builder().connectString(connectString).sessionTimeoutMs(sessionTimeoutMs).build();
     }
 
-    /** Builder */
+    /**
+     * 构建器
+     *
+     * @return 构建器的结果
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -90,6 +110,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 启动连接。
+     * @return 启动的结果
      */
     public ZookeeperClient start() {
         curator.start();
@@ -99,6 +120,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 等待连接就绪。
+     * @return blockuntil连接的结果
      */
     public ZookeeperClient blockUntilConnected() throws InterruptedException {
         curator.blockUntilConnected();
@@ -107,6 +129,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 获取 Curator 客户端。
+     * @return 获取curator的结果
      */
     public CuratorFramework getCurator() {
         return curator;
@@ -116,6 +139,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 创建节点构建器。
+     * @return 创建的结果
      */
     public CreateBuilder create() {
         return new CreateBuilder(curator);
@@ -123,6 +147,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 删除节点构建器。
+     * @return 删除的结果
      */
     public DeleteBuilder delete() {
         return new DeleteBuilder(curator);
@@ -130,6 +155,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 获取数据构建器。
+     * @return 获取数据的结果
      */
     public GetDataBuilder getData() {
         return new GetDataBuilder(curator);
@@ -137,6 +163,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 设置数据构建器。
+     * @return 设置数据的结果
      */
     public SetDataBuilder setData() {
         return new SetDataBuilder(curator);
@@ -144,6 +171,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 判断节点是否存在构建器。
+     * @return 检查exists的结果
      */
     public CheckExistsBuilder checkExists() {
         return new CheckExistsBuilder(curator);
@@ -151,6 +179,7 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 获取子节点构建器。
+     * @return 获取children的结果
      */
     public GetChildrenBuilder getChildren() {
         return new GetChildrenBuilder(curator);
@@ -165,6 +194,12 @@ public class ZookeeperClient implements AutoCloseable {
     }
 
     // ==================== Builder ====================
+    /**
+     * 构建器类。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
 
     public static class Builder {
         /**
@@ -192,20 +227,54 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private String namespace;
 
-        /** 连接String */
+        /**
+         * 连接字符串
+         *
+         * @param connectString 连接字符串
+         * @return 连接字符串的结果
+         */
         public Builder connectString(String connectString) { this.connectString = connectString; return this; }
-        /** SessionTimeoutMs */
+        /**
+         * 会话超时ms
+         *
+         * @param ms ms
+         * @return 会话超时ms的结果
+         */
         public Builder sessionTimeoutMs(int ms) { this.sessionTimeoutMs = ms; return this; }
-        /** ConnectionTimeoutMs */
+        /**
+         * connection超时ms
+         *
+         * @param ms ms
+         * @return connection超时ms的结果
+         */
         public Builder connectionTimeoutMs(int ms) { this.connectionTimeoutMs = ms; return this; }
-        /** RetryBaseSleepMs */
+        /**
+         * 重试basesleepms
+         *
+         * @param ms ms
+         * @return 重试basesleepms的结果
+         */
         public Builder retryBaseSleepMs(int ms) { this.retryBaseSleepMs = ms; return this; }
-        /** Retry最大值Retries */
+        /**
+         * 重试最大值重试
+         *
+         * @param max 最大
+         * @return 重试最大重试的结果
+         */
         public Builder retryMaxRetries(int max) { this.retryMaxRetries = max; return this; }
-        /** Namespace */
+        /**
+         * Namespace
+         *
+         * @param namespace namespace
+         * @return namespace的结果
+         */
         public Builder namespace(String namespace) { this.namespace = namespace; return this; }
 
-        /** 构建 */
+        /**
+         * 构建
+         *
+         * @return 构建的结果
+         */
         public ZookeeperClient build() {
             CuratorFrameworkFactory.Builder factoryBuilder = CuratorFrameworkFactory.builder()
                     .connectString(connectString)
@@ -233,6 +302,8 @@ public class ZookeeperClient implements AutoCloseable {
      *   <li><b>临时节点</b> — 客户端断开后自动删除</li>
      *   <li><b>临时顺序节点</b> — 自动追加递增序号</li>
      * </ul>
+     * @author CH
+     * @since 4.0.0
      */
     public static class CreateBuilder {
         /**
@@ -256,45 +327,76 @@ public class ZookeeperClient implements AutoCloseable {
          */
         private org.apache.zookeeper.CreateMode mode = org.apache.zookeeper.CreateMode.PERSISTENT;
         /**
-         * ACL 权限映射
+          * 访问控制列表 权限映射
          */
         private Map<String, byte[]> acl;
 
         CreateBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public CreateBuilder path(String path) { this.path = path; return this; }
-        /** Data */
+        /**
+         * 数据
+         *
+         * @param data 数据
+         * @return 数据的结果
+         */
         public CreateBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
-        /** Data */
+        /**
+         * 数据
+         *
+         * @param data 数据
+         * @return 数据的结果
+         */
         public CreateBuilder data(byte[] data) { this.data = data; return this; }
-        /** CreatingParentsIfNeeded */
+        /**
+         * 创建父ifneeded
+         *
+         * @param flag flag
+         * @return 创建父ifneeded的结果
+         */
         public CreateBuilder creatingParentsIfNeeded(boolean flag) { this.creatingParentsIfNeeded = flag; return this; }
-        /** WithACL */
+        /**
+         * withacl
+         *
+         * @param acl 访问控制列表
+         * @return withACL的结果
+         */
         public CreateBuilder withACL(Map<String, byte[]> acl) { this.acl = acl; return this; }
 
         /**
          * 设置为持久节点（默认）。
+         * @return persistent的结果
          */
         public CreateBuilder persistent() { this.mode = org.apache.zookeeper.CreateMode.PERSISTENT; return this; }
 
         /**
          * 设置为持久顺序节点。
+         * @return persistentSequential的结果
          */
         public CreateBuilder persistentSequential() { this.mode = org.apache.zookeeper.CreateMode.PERSISTENT_SEQUENTIAL; return this; }
 
         /**
          * 设置为临时节点，客户端断开后自动删除。
+         * @return ephemeral的结果
          */
         public CreateBuilder ephemeral() { this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL; return this; }
 
         /**
          * 设置为临时顺序节点，自动追加递增序号。
+         * @return ephemeralSequential的结果
          */
         public CreateBuilder ephemeralSequential() { this.mode = org.apache.zookeeper.CreateMode.EPHEMERAL_SEQUENTIAL; return this; }
 
         /**
          * 兼容旧 API：设置为临时节点。
+         * @param flag flag
+         * @return forEphemeral的结果
          */
         public CreateBuilder forEphemeral(boolean flag) {
             this.mode = flag ? org.apache.zookeeper.CreateMode.EPHEMERAL : org.apache.zookeeper.CreateMode.PERSISTENT;
@@ -303,6 +405,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 执行创建，返回创建的路径。
+         * @return for路径的结果
          */
         public String forPath() throws Exception {
             var op = curator.create();
@@ -316,6 +419,8 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 删除节点构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class DeleteBuilder {
         /**
@@ -337,11 +442,26 @@ public class ZookeeperClient implements AutoCloseable {
 
         DeleteBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public DeleteBuilder path(String path) { this.path = path; return this; }
-        /** DeletingChildrenIfNeeded */
+        /**
+         * 删除childrenifneeded
+         *
+         * @param flag flag
+         * @return 删除childrenifneeded的结果
+         */
         public DeleteBuilder deletingChildrenIfNeeded(boolean flag) { this.deletingChildrenIfNeeded = flag; return this; }
-        /** Quiet */
+        /**
+         * Quiet
+         *
+         * @param flag flag
+         * @return quiet的结果
+         */
         public DeleteBuilder quiet(boolean flag) { this.quiet = flag; return this; }
 
         /**
@@ -361,6 +481,8 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 获取数据构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class GetDataBuilder {
         /**
@@ -374,11 +496,17 @@ public class ZookeeperClient implements AutoCloseable {
 
         GetDataBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public GetDataBuilder path(String path) { this.path = path; return this; }
 
         /**
          * 获取数据（字节数组）。
+         * @return forBytes的结果
          */
         public byte[] forBytes() throws Exception {
             return curator.getData().forPath(path);
@@ -386,6 +514,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 获取数据（字符串）。
+         * @return for字符串的结果
          */
         public String forString() throws Exception {
             byte[] data = forBytes();
@@ -394,6 +523,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 获取数据长度（-1 表示节点不存在）。
+         * @return forStat的结果
          */
         public int forStat() throws Exception {
             var stat = curator.checkExists().forPath(path);
@@ -403,6 +533,8 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 设置数据构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class SetDataBuilder {
         /**
@@ -420,11 +552,26 @@ public class ZookeeperClient implements AutoCloseable {
 
         SetDataBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public SetDataBuilder path(String path) { this.path = path; return this; }
-        /** Data */
+        /**
+         * 数据
+         *
+         * @param data 数据
+         * @return 数据的结果
+         */
         public SetDataBuilder data(String data) { this.data = data != null ? data.getBytes() : null; return this; }
-        /** Data */
+        /**
+         * 数据
+         *
+         * @param data 数据
+         * @return 数据的结果
+         */
         public SetDataBuilder data(byte[] data) { this.data = data; return this; }
 
         /**
@@ -437,6 +584,8 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 判断节点是否存在构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class CheckExistsBuilder {
         /**
@@ -450,11 +599,17 @@ public class ZookeeperClient implements AutoCloseable {
 
         CheckExistsBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public CheckExistsBuilder path(String path) { this.path = path; return this; }
 
         /**
          * 判断是否存在。
+         * @return forBool的结果
          */
         public boolean forBool() throws Exception {
             return curator.checkExists().forPath(path) != null;
@@ -463,6 +618,8 @@ public class ZookeeperClient implements AutoCloseable {
 
     /**
      * 获取子节点构建器。
+     * @author CH
+     * @since 4.0.0
      */
     public static class GetChildrenBuilder {
         /**
@@ -476,11 +633,17 @@ public class ZookeeperClient implements AutoCloseable {
 
         GetChildrenBuilder(CuratorFramework curator) { this.curator = curator; }
 
-        /** Path */
+        /**
+         * 路径
+         *
+         * @param path 路径
+         * @return 路径的结果
+         */
         public GetChildrenBuilder path(String path) { this.path = path; return this; }
 
         /**
          * 获取子节点列表。
+         * @return for列表的结果
          */
         public List<String> forList() throws Exception {
             return curator.getChildren().forPath(path);
@@ -488,6 +651,7 @@ public class ZookeeperClient implements AutoCloseable {
 
         /**
          * 获取子节点数量。
+         * @return for数量的结果
          */
         public int forCount() throws Exception {
             return forList().size();

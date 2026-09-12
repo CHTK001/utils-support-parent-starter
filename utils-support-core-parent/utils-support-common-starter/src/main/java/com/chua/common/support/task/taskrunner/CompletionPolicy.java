@@ -22,17 +22,25 @@ package com.chua.common.support.task.taskrunner;
  *         .task("a", ctx -> callA())
  *         .task("b", ctx -> callB())
  *         .execute(input);
+ * }</pre>-> callB())
+ *         .execute(input);
  * }</pre>
  *
  * <p>实例为不可变 record，可安全跨线程共享。</p>
  *
  * @author CH
  * @since 4.0.0.42
+ * @param mode mode
+ * @param n n
+ * @param rate rate
+ * @return 完成policy的结果
  */
 public record CompletionPolicy(Mode mode, int n, double rate) {
 
     /**
      * 策略模式枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum Mode {
         /**

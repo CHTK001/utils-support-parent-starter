@@ -35,7 +35,7 @@ public abstract class AbstractMetaData implements MetaData {
     protected String catalog;
 
     /**
-     * 当前 schema
+      * 当前 模式
      */
     protected String schema;
 
@@ -65,11 +65,11 @@ public abstract class AbstractMetaData implements MetaData {
     public abstract MetaView view(String viewName);
 
     @Override
-    /** Index */
+    /** 索引 */
     public abstract MetaIndex index();
 
     @Override
-    /** Index */
+    /** 索引 */
     public abstract MetaIndex index(String indexName);
 
     @Override
@@ -97,11 +97,11 @@ public abstract class AbstractMetaData implements MetaData {
     public abstract MetaForeignKey fk(String fkName);
 
     @Override
-    /** User */
+    /** 用户 */
     public abstract MetaUser user();
 
     @Override
-    /** Permission */
+    /** 权限 */
     public abstract MetaPermission permission();
 
     @Override
@@ -122,7 +122,7 @@ public abstract class AbstractMetaData implements MetaData {
     }
 
     /**
-     * 获取当前 schema。
+      * 获取当前 模式。
      *
      * @return schema 名称
      */

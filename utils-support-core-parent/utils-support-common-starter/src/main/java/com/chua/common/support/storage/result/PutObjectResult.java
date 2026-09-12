@@ -23,7 +23,7 @@ public class PutObjectResult extends ObjectResult {
     private String url;
 
     /**
-     * 文件的唯一 Key。
+      * 文件的唯一 键。
      */
     private String key;
 }

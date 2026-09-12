@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Parquet 列式数据文件 (PARQUET) 预览提供器。
  * <p>SPI 类型：{@code preview-parquet}。通过 Apache Parquet 读取列式数据，
- * 展示 schema 与前 100 行数据。</p>
+   * 展示 模式 与前 100 行数据。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,9 +32,9 @@ import java.util.Set;
 @Spi("preview-parquet")
 public class ParquetPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("parquet", "pq");
-    private static final int MAX_ROWS = 100;
-    private static final long MAX_FILE_SIZE = 512L * 1024 * 1024;
+    private static final Set<String> SUPPORTED_EXTS = Set.of("parquet", "pq"); // 支持exts
+    private static final int MAX_ROWS = 100; // 最大rows
+    private static final long MAX_FILE_SIZE = 512L * 1024 * 1024; // 最大文件大小
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -106,8 +106,8 @@ public class ParquetPreviewProvider implements FileStoragePreviewProvider {
     /**
      * 统计 Parquet 文件总行数。
      *
-     * @param path hadoop 路径
-     * @param conf hadoop 配置
+     * @param path Hadoop 路径
+     * @param conf Hadoop 配置
      * @return 总行数；统计失败时返回 -1
      */
     private long rowCount(org.apache.hadoop.fs.Path path, Configuration conf) {

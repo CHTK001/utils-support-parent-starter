@@ -20,24 +20,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NettyHttpSyncClient implements com.chua.common.support.network.sync.SyncClient {
 
-    /** 客户端ID */
+    /** 客户端标识 */
     private final String clientId = UUID.randomUUID().toString();
     /** 服务器URL */
     private final String serverUrl;
     /** HTTP客户端 */
     private final HttpClient httpClient;
-    /** connected */
+    /** 连接 */
     private volatile boolean connected;
     /** subscriptions */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
-    /** Listeners */
+    /** 监听器 */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
-    /** Pull线程 */
+    /** 拉手线程 */
     private Thread pullThread;
 
     /**
-     * 创建 NettyHttpSyncClient 实例
-     * @param serverUrl serverUrl
+      * 创建 nettyhttp同步客户端 实例
+     * @param serverUrl 服务端url
      */
     public NettyHttpSyncClient(String serverUrl) {
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;
@@ -71,13 +71,13 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 是否Connected */
+    /** 是否连接 */
     public boolean isConnected() {
         return connected;
     }
 
     @Override
-    /** 获取ClientId */
+    /** 获取客户端标识 */
     public String getClientId() {
         return clientId;
     }
@@ -114,13 +114,13 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
@@ -168,7 +168,7 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    /** 拉取Messages */
+    /** 拉取消息 */
     private void pullMessages() throws Exception {
         if (subscriptions.isEmpty()) {
             Thread.sleep(500);
@@ -203,7 +203,11 @@ public class NettyHttpSyncClient implements com.chua.common.support.network.sync
         }
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

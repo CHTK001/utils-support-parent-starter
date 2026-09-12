@@ -50,6 +50,11 @@ import java.io.File;
  *         .write("这是一条日志")
  *         .write("另一条日志")
  *         .finish();
+ * }</pre>     .append()              // 追加模式
+ *         .withTimestamp(true)   // 自动添加时间戳
+ *         .write("这是一条日志")
+ *         .write("另一条日志")
+ *         .finish();
  * }</pre>
  *
  * @author CH
@@ -59,7 +64,7 @@ import java.io.File;
 public class LogFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         return "log";
     }

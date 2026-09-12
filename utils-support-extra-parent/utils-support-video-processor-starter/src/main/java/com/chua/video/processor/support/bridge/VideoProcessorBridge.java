@@ -5,15 +5,16 @@ import com.chua.common.support.utils.NativeUtils;
 import java.nio.file.Path;
 /**
  * @author CH
+ * @since 4.0.0
  */
 
 public class VideoProcessorBridge {
 
-    /** Library_name */
+    /** 图书馆_名称 */
     private static final String LIBRARY_NAME = "video_processor";
-    /** loaded */
+    /** 加载 */
     private static volatile boolean loaded = false;
-    /** loadError */
+    /** 加载错误 */
     private static volatile Throwable loadError = null;
 
     static {
@@ -31,17 +32,25 @@ public class VideoProcessorBridge {
         }
     }
 
-    /** 是否Loaded */
+    /**
+     * 是否加载
+     *
+     * @return 是否加载的结果
+     */
     public static boolean isLoaded() {
         return loaded;
     }
 
-    /** 获取加载记录错误 */
+    /**
+     * 获取加载记录错误
+     *
+     * @return 获取加载错误的结果
+     */
     public static Throwable getLoadError() {
         return loadError;
     }
 
-    /** EnsureLoaded */
+    /** ensure加载 */
     public static void ensureLoaded() {
         if (!loaded) {
             throw new UnsupportedOperationException(
@@ -50,9 +59,19 @@ public class VideoProcessorBridge {
         }
     }
 
-    /** TranscodeToHls */
+    /**
+     * transcode转为hls
+     *
+     * @param inputPath 输入路径
+     * @param outputDir 输出dir
+     * @return transcode转为hls的结果
+     */
     public static native boolean transcodeToHls(String inputPath, String outputDir);
 
-    /** 获取Version */
+    /**
+     * 获取版本
+     *
+     * @return 获取版本的结果
+     */
     public static native String getVersion();
 }

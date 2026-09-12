@@ -9,13 +9,13 @@ import java.awt.image.WritableRaster;
  * 点滤镜抽象基类
  *
  * 提供基于像素点的图像滤镜处理功能。此类专门用于处理每个像素点独立的滤镜效果，
- * 如颜色调整、亮度对比度调整、色彩变换等。接口设计与传统的RGBImageFilter兼容。
+   * 如颜色调整、亮度对比度调整、色彩变换等。接口设计与传统的rgb镜像过滤器兼容。
  *
  * 主要特点：
  * - 逐像素处理：对每个像素点独立进行滤镜处理
  * - 高性能优化：针对不同图像类型进行优化处理
  * - 内存友好：避免不必要的图像格式转换
- * - 易于扩展：子类只需实现filterRgb方法即可
+   * - 易于扩展：子类只需实现过滤器rgb方法即可
  *
  * 适用场景：
  * - 颜色调整滤镜（亮度、对比度、饱和度）
@@ -24,7 +24,7 @@ import java.awt.image.WritableRaster;
  * - 简单特效滤镜（像素化、马赛克等）
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 public abstract class AbstractImagePointFilter extends AbstractImageFilter {
@@ -52,11 +52,11 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     /**
      * 执行点滤镜处理
      *
-     * 逐行逐像素地处理图像，对每个像素调用filterRgb方法进行处理。
+      * 逐行逐像素地处理图像，对每个像素调用过滤器rgb方法进行处理。
      * 针对不同的图像类型进行了性能优化，避免不必要的格式转换。
      *
      * @param src 源图像
-     * @param dst 目标图像，可以为null
+     * @param dst 目标图像，可以为空
      * @return 处理后的图像
      */
     @Override
@@ -75,7 +75,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 
         int[] inPixels = new int[width];
         for (int y = 0; y < height; y++) {
-            // 针对ARGB类型图像进行优化，避免调用getRGB导致的性能问题
+ // 针对ARGB类型图像进行优化，避免调用获取rgb导致的性能问题
             if (type == BufferedImage.TYPE_INT_ARGB) {
                 srcRaster.getDataElements(0, y, width, 1, inPixels);
                 for (int x = 0; x < width; x++) {
@@ -83,7 +83,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
                 }
                 dstRaster.setDataElements(0, y, width, 1, inPixels);
             } else {
-                // 对于其他类型的图像，使用标准的getRGB/setRGB方法
+ // 对于其他类型的图像，使用标准的获取rgb/设置rgb方法
                 src.getRGB(0, y, width, 1, inPixels, 0, width);
                 for (int x = 0; x < width; x++) {
                     inPixels[x] = filterRgb(x, y, inPixels[x]);

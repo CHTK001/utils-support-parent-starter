@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 基于 ONNX Runtime 的本地文本嵌入客户端。
  * <p>
- * 调度 onnx 引擎下已注册的文本嵌入模型（如 bge、minilm、clip-text 等），
+   * 调度 onnx 引擎下已注册的文本嵌入模型（如 bge、minilm、clip-文本 等），
  * 统一以 {@link EmbeddingClient} 对外提供向量化能力。
  * </p>
  *
@@ -21,6 +21,7 @@ import java.util.List;
  *   float[] vector = EmbeddingClient.create("onnx", "")
  *       .model("bge-small-zh")
  *       .embedding("要向量化的文本");
+ * }</pre>   .embedding("要向量化的文本");
  * }</pre>
  *
  * @author CH
@@ -39,7 +40,7 @@ public class OnnxEmbeddingClient extends AbstractLocalEmbeddingClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine, String.class, float[].class);
     }

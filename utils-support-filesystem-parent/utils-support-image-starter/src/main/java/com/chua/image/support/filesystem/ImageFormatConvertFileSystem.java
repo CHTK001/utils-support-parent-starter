@@ -21,7 +21,7 @@ import java.util.Set;
  * 图片格式互转转换器。
  *
  * <p>支持常见图片格式之间的相互转换，通过 {@link ImageSupportUtils} 动态发现
- * 当前 JVM 中 ImageIO 注册的所有读写格式，无需硬编码格式列表。
+   * 当前 JVM 中 镜像io 注册的所有读写格式，无需硬编码格式列表。
  *
  * <h3>支持的格式</h3>
  * <ul>
@@ -72,18 +72,18 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "image";
     }
 
     @Override
     /**
-     * Do转换
-     * @param inputStream inputStream
-     * @param outputStream outputStream
-     * @param sourceFile sourceFile
-     * @param targetFile targetFile
+      * 执行转换
+     * @param inputStream 输入流
+     * @param outputStream 输出流
+     * @param sourceFile 源文件
+     * @param targetFile Target文件
      */
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
@@ -103,7 +103,13 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
         }
     }
 
-    /** 是否Support格式化 */
+    /**
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
         if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {
@@ -116,7 +122,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
             return false;
         }
 
-        // 通过 ImageIO 动态检测
+ // 通过 镜像io 动态检测
         String normalizedSource = ImageSupportUtils.normalizeFormat(sourceFormat);
         String normalizedTarget = ImageSupportUtils.normalizeFormat(targetFormat);
 
@@ -125,7 +131,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** SupportedTypes */
+    /** 支持类型 */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         Set<String> formats = ImageSupportUtils.getAllSupportedFormats();
         List<String> formatList = new ArrayList<>(formats);

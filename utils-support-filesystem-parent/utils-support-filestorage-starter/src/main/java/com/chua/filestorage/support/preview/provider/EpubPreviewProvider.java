@@ -20,11 +20,16 @@ import java.util.zip.ZipInputStream;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param html HTML
+ * @return extract文本从html的结果
+ * @param content 内容
+ * @param ext ext
+ * @param mime mime
  */
 @Spi("preview-epub")
 public class EpubPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("epub");
+    private static final Set<String> SUPPORTED_EXTS = Set.of("epub"); // 支持exts
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -39,6 +44,12 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder()
                 .htmlContent(html)
                 .build();
+    /**
+      * extractchapters。
+     * @param epubBytes epubbytes
+     * @return extractChapters的结果
+     * @param html html
+     */
     }
 
     private List<String> extractChapters(byte[] epubBytes) throws IOException {
@@ -71,7 +82,9 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
             if (c == '<') {
                 inTag = true;
                 String tag = html.substring(i, Math.min(i + 7, html.length())).toLowerCase(Locale.ROOT);
-                if (tag.startsWith("<script")) inScript = true;
+                if (tag.startsWith("<script")) {
+                    inScript = true;
+                }
                 continue;
             }
 
@@ -103,6 +116,12 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString().trim();
     }
 
+    /**
+     * 构建html。
+     * @param chapters chapters
+     * @param fileSize 文件大小
+     * @return 构建html的结果
+     */
     private String buildHtml(List<String> chapters, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -145,19 +164,43 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
         return sb.toString();
     }
 
+    /**
+     * truncate。
+     * @param text 文本
+     * @param maxLen 最大len
+     * @return truncate的结果
+     */
     private String truncate(String text, int maxLen) {
-        if (text.length() <= maxLen) return text;
+        if (text.length() <= maxLen) {
+            return text;
+        }
         return text.substring(0, maxLen) + "...";
     }
 
+    /**
+      * escapehtml。
+     * @param text 文本
+     * @return escapeHtml的结果
+     */
     private String escapeHtml(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * human大小。
+     * @param bytes bytes
+     * @return human大小的结果
+     */
     private String humanSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return String.format(Locale.ENGLISH, "%.1f KB", bytes / 1024.0);
+        }
         return String.format(Locale.ENGLISH, "%.1f MB", bytes / (1024.0 * 1024));
     }
 }

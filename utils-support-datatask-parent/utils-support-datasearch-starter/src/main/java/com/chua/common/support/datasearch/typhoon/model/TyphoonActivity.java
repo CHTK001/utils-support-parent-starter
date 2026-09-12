@@ -36,7 +36,7 @@ public class TyphoonActivity {
     /** 风力（级） */
     private String power;
 
-    /** 中心气压（hPa） */
+    /** 中心气压（hpa） */
     private String pressure;
 
     /** 风速（米/秒） */

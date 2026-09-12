@@ -108,12 +108,12 @@ private Integer spiderProxyPoolEnable;
 private String spiderProxyPoolCode;
 
 /**
- * 公共 Cookie（JSON 数组字符串 [{"name":"sid","value":"abc","domain":".example.com"}]）
+   * 公共 Cookie（JSON 数组字符串 [{"名称":"sid","值":"abc","domain":".example.com"}]）
  */
 private String spiderCookies;
 
 /**
- * 公共请求头（JSON 字符串 {"User-Agent":"..."}）
+   * 公共请求头（JSON 字符串 {"用户-智能体":"..."}）
  */
 private String spiderHeaders;
 

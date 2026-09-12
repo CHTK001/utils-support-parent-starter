@@ -19,26 +19,26 @@ import javax.annotation.Nonnull;
 public class GzipCompressInputStreamProvider implements CompressInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(@Nonnull File file) {
         if (file == null) {
             return false;
         }
         String fileName = file.getName().toLowerCase();
-        // 支持 .gz 和 .gzip，但不包括 .tar.gz 和 .tgz（这些应该走归档流程）
+ // 支持 .gz 和 .gzip，但不包括 .焦油.gz 和 .tgz（这些应该走归档流程）
         return (fileName.endsWith(".gz") || fileName.endsWith(".gzip"))
                 && !fileName.endsWith(".tar.gz")
                 && !fileName.endsWith(".tgz");
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public Object createInputStream(@Nonnull InputStream inputStream, @Nonnull File file) throws IOException {
         return new GzipCompressorInputStream(inputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "gz";
     }

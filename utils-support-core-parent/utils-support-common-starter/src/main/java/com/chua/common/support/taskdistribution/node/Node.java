@@ -19,14 +19,14 @@ public interface Node {
     /**
      * 获取节点唯一标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     String nodeId();
 
     /**
      * 获取节点能力标签。
      *
-     * @return 标签映射，示例：{"cap": "cpu", "group": "prod"}
+     * @return 标签映射，示例：{"cap": "cpu", "群体": "prod"}
      */
     default Map<String, String> tags() {
         return Collections.emptyMap();

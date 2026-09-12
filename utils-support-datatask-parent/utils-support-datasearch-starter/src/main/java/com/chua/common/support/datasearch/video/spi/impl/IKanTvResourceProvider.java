@@ -18,14 +18,21 @@ import java.util.List;
 
 /**
  * I看TV (ikantv) 影视搜索提供器
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("ikantv")
 public class IKanTvResourceProvider extends AbstractResourceProvider {
+    /**
+     * ikantvresource提供者。
+     */
     public IKanTvResourceProvider() { super(); }
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
-        if (!StringUtils.hasText(kw)) return ReturnPageResult.error("关键词不能为空");
+        if (!StringUtils.hasText(kw)) {
+            return ReturnPageResult.error("关键词不能为空");
+        }
         try {
             HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NORMAL).build();
             HttpRequest req = HttpRequest.newBuilder().uri(URI.create("https://www.ikantv.com/?s=" + java.net.URLEncoder.encode(kw, "UTF-8")))

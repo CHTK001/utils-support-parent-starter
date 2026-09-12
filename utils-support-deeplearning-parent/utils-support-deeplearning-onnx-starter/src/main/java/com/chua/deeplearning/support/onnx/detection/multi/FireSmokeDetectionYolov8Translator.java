@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 火灾烟雾检测 Translator（YOLOv8n @ 640, 2 类 fire/smoke）。
+   * 火灾烟雾检测 Translator（yolov8n @ 640, 2 类 fire/smoke）。
  *
  * <p>用于早期火灾预警与烟雾识别。
  *
@@ -29,7 +29,7 @@ import java.util.List;
 public class FireSmokeDetectionYolov8Translator extends AbstractMultiClassYolov8Translator {
 
     /**
-     * 类别资源路径（classpath）。
+      * 类别资源路径（类路径）。
      */
     public static final String CLASS_NAMES_RESOURCE = "vision/fire-smoke/yolov8n/class.names.txt";
 
@@ -41,29 +41,31 @@ public class FireSmokeDetectionYolov8Translator extends AbstractMultiClassYolov8
             "smoke"
     );
 
-    /** 创建 FireSmokeDetectionYolov8Translator 实例 */
+    /** 创建 firesmokedetectionyolov8Translator 实例 */
     public FireSmokeDetectionYolov8Translator() {
         super();
     }
 
     /**
-     * 创建 FireSmokeDetectionYolov8Translator 实例
-     * @param inputSize inputSize
-     * @param float float
-     * @param float float
+      * 创建 firesmokedetectionyolov8Translator 实例
+     * @param inputSize 输入大小
+     * @param threshold float
+     * @param threshold float
+     * @param threshold 阈值
+     * @param nmsThreshold nms阈值
      */
     public FireSmokeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }
 
     @Override
-    /** ClassNamesResourcePath */
+    /** 类名称resource路径 */
     protected String classNamesResourcePath() {
         return CLASS_NAMES_RESOURCE;
     }
 
     @Override
-    /** DefaultClassNames */
+    /** 默认类名称 */
     protected List<String> defaultClassNames() {
         return DEFAULT_CLASSES;
     }

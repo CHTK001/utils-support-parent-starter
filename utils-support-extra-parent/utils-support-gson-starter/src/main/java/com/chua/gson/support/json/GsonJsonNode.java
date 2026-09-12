@@ -15,7 +15,7 @@ import com.chua.common.support.lang.json.JsonNode;
 public class GsonJsonNode extends JsonNode {
 
     /**
-     * 使用原始值构造 GsonJsonNode。
+      * 使用原始值构造 gsonjson节点。
      *
      * @param value 原始 JSON 值
      */

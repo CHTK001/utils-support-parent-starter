@@ -29,6 +29,7 @@ import java.util.function.Consumer;
  *     .start()                    // 子流水线起始节点
  *     .taskEnd()                  // 结束定义
  *     .build();
+ * }</pre>   * .构建();
  * }</pre>
  *
  * <p><strong>便捷方法：</strong></p>
@@ -78,6 +79,7 @@ import java.util.function.Consumer;
  *     .exit()
  *     .taskEnd()
  *     .build();
+ * }</pre>   * .构建();
  * }</pre>
  *
  * @author CH
@@ -86,7 +88,7 @@ import java.util.function.Consumer;
  */
 public class TaskSubPipelineDefinition {
 
-    /** ID */
+    /** 标识 */
     private final String id;
     /** PRE处理器 */
     private PipelineNode preHandler;
@@ -98,7 +100,7 @@ public class TaskSubPipelineDefinition {
     private boolean endAfterExecute;
     /** 开始节点 */
     private String startNode;
-    /** params */
+    /** 参数 */
     private Map<String, Object> params;
     /** env */
     private Map<String, Object> env;
@@ -120,7 +122,7 @@ public class TaskSubPipelineDefinition {
      * 完成定义，将子流水线节点添加到流水线，返回构建器继续链式配置。
      *
      * <p>与 {@link TaskDefinition#subPipeline(Pipeline)} 配对使用，
-     * 构成完整的子流水线定义：task → subPipeline → ... → taskEnd。</p>
+      * 构成完整的子流水线定义：任务 → subpipeline → ... → 任务结束。</p>
      *
      * @return PipelineBuilder
      */
@@ -176,11 +178,11 @@ public class TaskSubPipelineDefinition {
     }
 
     /**
-     * 设置子流水线起始节点 ID。
+      * 设置子流水线起始节点 标识。
      *
      * <p>如果不设置，子流水线将使用其自身的默认起始节点。</p>
      *
-     * @param startNodeId 子流水线中的起始节点 ID
+     * @param startNodeId 子流水线中的起始节点 标识
      * @return this
      */
     public TaskSubPipelineDefinition start(String startNodeId) {
@@ -240,7 +242,7 @@ public class TaskSubPipelineDefinition {
      * 设置无返回值的步骤处理器（Consumer 模式）。
      *
      * <p>适用于子流水线执行前需要执行副作用的场景。
-     * 自动将 Consumer 包装为返回 null 的 PipelineNode。</p>
+      * 自动将 Consumer 包装为返回 空 的 pipeline节点。</p>
      *
      * @param action Consumer 回调
      * @return this
@@ -262,7 +264,7 @@ public class TaskSubPipelineDefinition {
      *
      * <p>适用于子流水线执行前需要根据条件决定路由的场景。</p>
      *
-     * @param handler PipelineNode 处理器
+     * @param handler pipeline节点 处理器
      * @return this
      */
     public TaskSubPipelineDefinition step(PipelineNode handler) {
@@ -271,7 +273,7 @@ public class TaskSubPipelineDefinition {
     }
 
     /**
-     * 便捷方法：执行后自动终止流水线（等价于 action=EXIT）。
+      * 便捷方法：执行后自动终止流水线（等价于 动作=EXIT）。
      *
      * <p>子流水线执行完毕后，主流水线将终止。</p>
      *
@@ -297,7 +299,9 @@ public class TaskSubPipelineDefinition {
     }
 
     /**
-     * 包装 handler：执行后设置 EXIT 动作。
+      * 包装 处理器：执行后设置 EXIT 动作。
+     * @param original 原始
+     * @return wrapwith结束的结果
      */
     private static PipelineNode wrapWithEnd(PipelineNode original) {
         if (original == null) {

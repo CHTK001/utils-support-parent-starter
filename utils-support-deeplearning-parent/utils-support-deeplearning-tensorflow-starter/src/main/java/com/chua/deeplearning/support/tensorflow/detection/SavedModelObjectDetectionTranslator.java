@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TensorFlow Object Detection SavedModel Translator。
+   * tensor流 对象 Detection 保存模型 Translator。
  * <p>输入 [1,H,W,C] UINT8；解析 detection_boxes / scores / classes。</p>
  *
  * @author CH
@@ -78,7 +78,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
      * @param maxBoxes  最大检测框数
      * @param threshold 置信度阈值
      * @param inputSize 输入图像边长（像素）
-     * @param classes   类别 ID 到名称的映射
+     * @param classes   类别 标识 到名称的映射
      */
     public SavedModelObjectDetectionTranslator(int maxBoxes, float threshold, int inputSize,
                                                Map<Integer, String> classes) {
@@ -89,7 +89,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, inputSize, inputSize);
@@ -99,7 +99,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         int[] classIds = null;
         float[] probabilities = null;
@@ -156,7 +156,7 @@ public class SavedModelObjectDetectionTranslator implements NoBatchifyTranslator
     /**
      * 构建 COCO 数据集默认类别映射。
      *
-     * @return 类别 ID 到名称的映射
+     * @return 类别 标识 到名称的映射
      */
     private static Map<Integer, String> defaultCocoClasses() {
         Map<Integer, String> map = new HashMap<>();

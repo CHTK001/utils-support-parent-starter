@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Paho MQTT Handler — intercepts Eclipse Paho MQTT client operations.
+   * Paho MQTT 处理器 — intercepts Eclipse Paho MQTT 客户端 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,7 +15,7 @@ import com.chua.runtime.protocol.Software;
 public class PahoMqttHandler extends AbstractAppHandler {
 
     /**
-     * mqtt 客户端
+      * MQTT 客户端
      */
     private static final String MQTT_CLIENT = "org/eclipse/paho/client/mqttv3/MqttClient";
     /**
@@ -24,13 +24,13 @@ public class PahoMqttHandler extends AbstractAppHandler {
     private static final String[] OPERATIONS = {"connect", "publish", "subscribe", "unsubscribe", "disconnect"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "paho-mqtt-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "paho-mqtt.enabled";
     }
@@ -42,13 +42,13 @@ public class PahoMqttHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MQTT;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(MQTT_CLIENT, OPERATIONS);
     }

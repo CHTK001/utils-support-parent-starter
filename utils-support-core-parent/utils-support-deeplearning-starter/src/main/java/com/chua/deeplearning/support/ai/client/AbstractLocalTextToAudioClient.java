@@ -14,7 +14,7 @@ import java.util.List;
  * 本地引擎文字转语音（TTS）客户端抽象基类。
  * <p>
  * 统一实现 {@link TextToAudioClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
- * 已注册的 String→byte[] 翻译器执行语音合成，并提供该引擎的模型列表。
+   * 已注册的 字符串→byte[] 翻译器执行语音合成，并提供该引擎的模型列表。
  * 子类只需指定引擎名称（如 "onnx"、"llama"）。
  * </p>
  *
@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class AbstractLocalTextToAudioClient implements TextToAudioClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -56,14 +56,14 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public TextToAudioClient model(String model) {
         this.model = model;
         return this;
     }
 
     @Override
-    /** Text */
+    /** 文本 */
     public TextToAudioClient text(String text) {
         this.text = text;
         return this;
@@ -93,7 +93,7 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** Synthesize */
+    /** 综合 */
     public byte[] synthesize(String text) {
         if (text != null) {
             this.text = text;
@@ -113,19 +113,19 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String text) {
         throw new UnsupportedOperationException("本地 TTS 不支持异步任务模式");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public TextToAudioResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("本地 TTS 不支持异步任务模式");
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

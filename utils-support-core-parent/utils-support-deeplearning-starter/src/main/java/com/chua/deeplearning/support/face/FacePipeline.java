@@ -62,6 +62,8 @@ import java.util.Objects;
  *
  * List&lt;FaceDetectionHit&gt; faces = pipeline.detectPipeline(imageBytes);
  * byte[] enhanced = pipeline.superResolution(imageBytes);
+ * }</pre>ne(imageBytes);
+ * byte[] enhanced = pipeline.superResolution(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -126,67 +128,67 @@ public class FacePipeline {
     private final FaceDetector detector;
 
     /**
-     * 活体检测器，可为 null。
+      * 活体检测器，可为 空。
      */
     private final LivenessDetector liveness;
 
     /**
-     * 特征提取器，可为 null（识别链路需要）。
+      * 特征提取器，可为 空（识别链路需要）。
      */
     private final FeatureExtractor featureExtractor;
 
     /**
-     * 人脸向量库，可为 null（识别链路需要）。
+      * 人脸向量库，可为 空（识别链路需要）。
      */
     private final VectorStorage vectorStorage;
 
     /**
-     * 动漫人脸检测器，可为 null。
+      * 动漫人脸检测器，可为 空。
      */
     private final FaceDetector animeDetector;
 
     /**
-     * 人脸超分器，可为 null。
+      * 人脸超分器，可为 空。
      */
     private final ImageEnhancer superResolution;
 
     /**
-     * 人脸修复器，可为 null。
+      * 人脸修复器，可为 空。
      */
     private final ImageEnhancer restorer;
 
     /**
-     * 人脸分割器（ParseNet），用于生成软mask贴回，可为 null。
+      * 人脸分割器（解析net），用于生成软mask贴回，可为 空。
      */
     private final ImageEnhancer faceSeg;
 
     /**
-     * 人脸管线回调，可为 null（测试时注入用于捕获中间图片）。
+      * 人脸管线回调，可为 空（测试时注入用于捕获中间图片）。
      */
     private FacePipelineCallback callback;
 
     /**
-     * 属性分类器，可为 null。
+      * 属性分类器，可为 空。
      */
     private final ImageClassifier attributeClassifier;
 
     /**
-     * 表情分类器，可为 null。
+      * 表情分类器，可为 空。
      */
     private final ImageClassifier emotionClassifier;
 
     /**
-     * 关键点提取器，可为 null。
+      * 关键点提取器，可为 空。
      */
     private final FeatureExtractor landmarkExtractor;
 
     /**
-     * 质量评估器，可为 null。
+      * 质量评估器，可为 空。
      */
     private final FaceQualityAssessor qualityAssessor;
 
     /**
-     * 换脸检测分类器，可为 null。
+      * 换脸检测分类器，可为 空。
      */
     private final ImageClassifier deepfakeClassifier;
 
@@ -201,7 +203,7 @@ public class FacePipeline {
     private final boolean requireLive;
 
 /**
-     * 搜索 threshold
+      * 搜索 阈值
      */
     private final float livenessThreshold;
 
@@ -239,18 +241,18 @@ public class FacePipeline {
      * 全量构造。
      *
      * @param detector            检测器
-     * @param liveness            活体，可为 null
-     * @param featureExtractor    特征，可为 null
-     * @param vectorStorage       向量库，可为 null
-     * @param animeDetector       动漫检测器，可为 null
-     * @param superResolution     超分器，可为 null
-     * @param restorer            修复器，可为 null
-     * @param faceSeg             人脸分割器，可为 null
-     * @param attributeClassifier 属性分类器，可为 null
-     * @param emotionClassifier   表情分类器，可为 null
-     * @param landmarkExtractor   关键点提取器，可为 null
-     * @param qualityAssessor     质量评估器，可为 null
-     * @param deepfakeClassifier  换脸分类器，可为 null
+     * @param liveness            活体，可为 空
+     * @param featureExtractor    特征，可为 空
+     * @param vectorStorage       向量库，可为 空
+     * @param animeDetector       动漫检测器，可为 空
+     * @param superResolution     超分器，可为 空
+     * @param restorer            修复器，可为 空
+     * @param faceSeg             人脸分割器，可为 空
+     * @param attributeClassifier 属性分类器，可为 空
+     * @param emotionClassifier   表情分类器，可为 空
+     * @param landmarkExtractor   关键点提取器，可为 空
+     * @param qualityAssessor     质量评估器，可为 空
+     * @param deepfakeClassifier  换脸分类器，可为 空
      * @param topK                Top-K
      * @param requireLive         是否过滤非活体
      * @param livenessThreshold   活体阈值
@@ -351,7 +353,7 @@ public class FacePipeline {
         private ImageEnhancer restorer;
 
         /**
-         * 人脸分割增强器（ParseNet）
+          * 人脸分割增强器（解析net）
          */
         private ImageEnhancer faceSeg;
 
@@ -427,9 +429,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建检测器。
+          * 按模型 标识 创建检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder detector(String modelId) {
@@ -449,9 +451,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建活体检测器。
+          * 按模型 标识 创建活体检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder liveness(String modelId) {
@@ -471,9 +473,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建特征提取器。
+          * 按模型 标识 创建特征提取器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder feature(String modelId) {
@@ -504,9 +506,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建动漫人脸检测器。
+          * 按模型 标识 创建动漫人脸检测器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder anime(String modelId) {
@@ -526,9 +528,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建人脸超分器。
+          * 按模型 标识 创建人脸超分器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder superResolution(String modelId) {
@@ -548,9 +550,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建人脸修复器。
+          * 按模型 标识 创建人脸修复器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder restore(String modelId) {
@@ -570,9 +572,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建人脸分割器。
+          * 按模型 标识 创建人脸分割器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder faceSeg(String modelId) {
@@ -592,9 +594,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建属性分类器。
+          * 按模型 标识 创建属性分类器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder attribute(String modelId) {
@@ -614,9 +616,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建表情分类器。
+          * 按模型 标识 创建表情分类器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder emotion(String modelId) {
@@ -636,9 +638,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建关键点提取器。
+          * 按模型 标识 创建关键点提取器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder landmark(String modelId) {
@@ -669,9 +671,9 @@ public class FacePipeline {
         }
 
         /**
-         * 按模型 ID 创建换脸检测分类器。
+          * 按模型 标识 创建换脸检测分类器。
          *
-         * @param modelId 模型 ID
+         * @param modelId 模型 标识
          * @return this
          */
         public Builder deepfake(String modelId) {
@@ -957,7 +959,7 @@ public class FacePipeline {
      * 识别管线：取最大人脸。
      *
      * @param imageData 场景图
-     * @return 识别命中，无则 null
+     * @return 识别命中，无则 空
      */
     public FaceIdentifyHit identifyPipelineLargest(byte[] imageData) {
         List<PredictRectangle> boxes = detectBoxes(imageData);
@@ -974,7 +976,7 @@ public class FacePipeline {
     /**
      * 登记管线：取最大人脸 → 特征 → 入库。
      *
-     * @param id        人脸 ID
+     * @param id        人脸 标识
      * @param imageData 场景图
      * @param metadata  元数据
      * @return 是否成功
@@ -1036,7 +1038,7 @@ public class FacePipeline {
      * 检测最大人脸（可要求活体）。
      *
      * @param imageData 场景图
-     * @return 命中，无则 null
+     * @return 命中，无则 空
      */
     public FaceDetectionHit detectLargest(byte[] imageData) {
         List<PredictRectangle> boxes = detectBoxes(imageData);
@@ -1068,10 +1070,12 @@ public class FacePipeline {
 
     /**
      * 检测框内部实现。
+     * @param imageData 镜像数据
+     * @return detectboxes内部的结果
      */
     private List<PredictRectangle> detectBoxesInner(byte[] imageData) {
-        // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 Branch 降级为空，
-        // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 labelName 判断。
+ // 双检测器互补：常规模型检真人、动漫模型检动漫脸；各自异常经 分支 降级为空，
+ // 合并后跨模型 NMS 去重。动漫/真人的逐脸区分在裁剪之后由 标签名称 判断。
         List<PredictRectangle> regular = Branch.ofBytes(imageData)
                 .when(v -> true, detector::detect)
                 .recover(e -> {
@@ -1125,7 +1129,7 @@ public class FacePipeline {
     }
 
     /**
-     * 计算两框 IoU。
+      * 计算两框 iou。
      *
      * @param a 框 a
      * @param b 框 b
@@ -1184,7 +1188,7 @@ public class FacePipeline {
      * <p>未配置关键点模型时 alignedFace 等同于 faceImage（不旋转）。</p>
      *
      * @param imageData 场景图
-     * @return 对齐结果，无人脸返回 null
+     * @return 对齐结果，无人脸返回 空
      */
     public FaceAlignResult align(byte[] imageData) {
         long t0 = System.currentTimeMillis();
@@ -1210,12 +1214,12 @@ public class FacePipeline {
     }
 
     /**
-     * 特征提取完整管线（最大人脸）：detect → crop → liveness → align → feature。
+      * 特征提取完整管线（最大人脸）：detect → crop → liveness → align → 特征。
      *
      * <p>返回检测框、裁剪图、对齐图、活体、特征向量与耗时，活体失败时 feature 为 null。</p>
      *
      * @param imageData 场景图
-     * @return 特征管线结果，无人脸返回 null
+     * @return 特征管线结果，无人脸返回 空
      */
     public FaceFeaturePipelineResult extractFeatureWithMeta(byte[] imageData) {
         long t0 = System.currentTimeMillis();
@@ -1252,11 +1256,11 @@ public class FacePipeline {
     }
 
     /**
-     * 1:1 比对完整管线：两侧都跑 detect→crop→liveness→align→feature，再余弦比对。
+      * 1:1 比对完整管线：两侧都跑 detect→crop→liveness→align→特征，再余弦比对。
      *
      * @param imageA 图片 A
      * @param imageB 图片 B
-     * @return 比对结果（相似度 + A/B 特征管线结果 + 耗时），任一侧无人脸返回 null
+     * @return 比对结果（相似度 + A/B 特征管线结果 + 耗时），任一侧无人脸返回 空
      */
     public FaceCompareResult compareWithMeta(byte[] imageA, byte[] imageB) {
         long t0 = System.currentTimeMillis();
@@ -1274,6 +1278,7 @@ public class FacePipeline {
      *
      * @param feature 查询特征
      * @return 命中列表
+     * @param k k
      */
     public List<FaceSearchHit> search(float[] feature, int k) {
         return searchFeature(feature, k);
@@ -1282,7 +1287,7 @@ public class FacePipeline {
     /**
      * 特征入库（单独能力，直接写特征）。
      *
-     * @param id        人脸 ID
+     * @param id        人脸 标识
      * @param feature   特征向量
      * @param metadata  元数据
      * @param content   附加内容
@@ -1374,6 +1379,7 @@ public class FacePipeline {
      *
      * @param imageData 图片
      * @return 超分后图片，未配置超分模型时原样返回
+     * @param callback callback
      */
     public void setCallback(FacePipelineCallback callback) {
         this.callback = callback;
@@ -1383,7 +1389,7 @@ public class FacePipeline {
      * 人脸修复管线：检测 → 人脸裁剪 + 5点对齐 → 修复。
      *
      * <p>对场景图中每张检出的人脸执行：5点仿射对齐到 FFHQ 512×512 标准位置，
-     * 然后运行修复模型（GFPGAN/CodeFormer），返回各张人脸的对齐图与修复图。
+      * 然后运行修复模型（GFPGAN/编码former），返回各张人脸的对齐图与修复图。
      * 修复结果不贴回原图，调用方自行决定后续处理。</p>
      *
      * @param imageData 场景图
@@ -1397,7 +1403,7 @@ public class FacePipeline {
      * 人脸修复管线（带回调）。
      *
      * @param imageData 场景图
-     * @param callback  回调，可为 null
+     * @param callback  回调，可为 空
      * @return 修复结果列表
      */
     public List<FaceRestoreResult> restoreWithAlign(byte[] imageData, FacePipelineCallback callback) {
@@ -1454,7 +1460,7 @@ public class FacePipeline {
                 cb.onAlign(i, box, alignedBytes);
             }
 
-            // 3. 修复（GFPGAN 或 CodeFormer）
+ // 3. 修复（GFPGAN 或 编码former）
             byte[] restoredBytes;
             if (restorer == null) {
                 log.debug("[face-pipeline] #{} 未配置修复模型，返回对齐图", i);
@@ -1525,7 +1531,7 @@ public class FacePipeline {
      * 人脸质量评估（辅助能力）。
      *
      * @param imageData 图片
-     * @return 质量信息，未配置时返回 null
+     * @return 质量信息，未配置时返回 空
      */
     public FaceQualityInfo quality(byte[] imageData) {
         if (qualityAssessor == null) {
@@ -1556,9 +1562,9 @@ public class FacePipeline {
      * 枚举可用模型清单。
      *
      * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按能力接口（capabilityInterface）
-     * 与模型名称约定归类，不再硬编码模型 ID 清单；新增模型注册后自动出现在对应分组。</p>
+      * 与模型名称约定归类，不再硬编码模型 标识 清单；新增模型注册后自动出现在对应分组。</p>
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {
@@ -1587,7 +1593,7 @@ public class FacePipeline {
      * 按能力接口与名称约定归类模型。
      *
      * @param entry 注册表条目
-     * @return 能力分组；无法识别时返回 null
+     * @return 能力分组；无法识别时返回 空
      */
     private static String groupOf(ModelRegistry.Entry entry) {
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
@@ -1609,7 +1615,7 @@ public class FacePipeline {
             return name.contains("codeformer") || name.contains("restore") ? "restore" : "superResolution";
         }
         if (cap == com.chua.deeplearning.support.image.ImageClassifier.class) {
-            // 部分活体模型注册为 ImageClassifier，按名称关键字识别
+ // 部分活体模型注册为 镜像classifier，按名称关键字识别
             if (nameContains(name, "spoof", "liveness")) {
                 return "liveness";
             }
@@ -1775,7 +1781,7 @@ public class FacePipeline {
      * @param pupilIdx2 瞳孔索引2（如 75）
      * @param ringStart 眼眶起点
      * @param ringEnd   眼眶终点
-     * @return 眼睛中心，数据不足返回 null
+     * @return 眼睛中心，数据不足返回 空
      */
     private static Point eyeCenter(float[] landmark, int pupilIdx, int pupilIdx2, int ringStart, int ringEnd) {
         int n = landmark.length / 2;
@@ -1805,7 +1811,7 @@ public class FacePipeline {
      *
      * @param imageData 原图
      * @param box       人脸框（像素）
-     * @return 外扩裁剪图，越界或失败返回 null
+     * @return 外扩裁剪图，越界或失败返回 空
      */
     private static byte[] expandFaceCrop(byte[] imageData, PredictRectangle box) {
         if (imageData == null || box == null) {
@@ -1872,7 +1878,7 @@ public class FacePipeline {
     /**
      * 活体检测器。
      *
-     * @return LivenessDetector 或 null
+     * @return LivenessDetector 或 空
      */
     public LivenessDetector liveness() {
         return liveness;
@@ -1881,7 +1887,7 @@ public class FacePipeline {
     /**
      * 特征提取器。
      *
-     * @return FeatureExtractor 或 null
+     * @return FeatureExtractor 或 空
      */
     public FeatureExtractor featureExtractor() {
         return featureExtractor;
@@ -1890,7 +1896,7 @@ public class FacePipeline {
     /**
      * 向量库。
      *
-     * @return VectorStorage 或 null
+     * @return VectorStorage 或 空
      */
     public VectorStorage vectorStorage() {
         return vectorStorage;
@@ -1899,13 +1905,19 @@ public class FacePipeline {
     /**
      * 人脸分割器。
      *
-     * @return ImageEnhancer 或 null
+     * @return ImageEnhancer 或 空
      */
     public ImageEnhancer faceSeg() {
         return faceSeg;
     }
 
-    /** LivenessResult */
+    /**
+     * liveness结果
+     *
+     * @param live live
+     * @param score score
+     * @return liveness结果的结果
+     */
     private record LivenessResult(boolean live, float score) {
     }
 

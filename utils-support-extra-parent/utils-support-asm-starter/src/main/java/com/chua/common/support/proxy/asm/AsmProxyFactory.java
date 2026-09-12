@@ -38,10 +38,10 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
     @Override
     @SneakyThrows
     /**
-     * 创建Proxy
-     * @param target target
-     * @param interfaces interfaces
-     * @param classLoader classLoader
+      * 创建代理
+     * @param target Target
+     * @param interfaces 接口
+     * @param classLoader 类加载
      * @param intercept intercept
      */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
@@ -93,7 +93,7 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
             // 第一个参数：this
             mv.visitVarInsn(Opcodes.ALOAD, 0);
 
-            // 构建 Method 对象
+ // 构建 方法 对象
             mv.visitLdcInsn(Type.getObjectType(proxyInternalName));
             mv.visitLdcInsn(method.getName());
             mv.visitIntInsn(Opcodes.BIPUSH, paramTypes.length);
@@ -107,7 +107,7 @@ public class AsmProxyFactory<T> implements ProxyFactory<T> {
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/reflect/Proxy", "getMethod",
                     "(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", false);
 
-            // 第三个参数：args 数组
+ // 第三个参数：参数 数组
             mv.visitIntInsn(Opcodes.BIPUSH, paramTypes.length);
             mv.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
             for (int i = 0; i < paramTypes.length; i++) {

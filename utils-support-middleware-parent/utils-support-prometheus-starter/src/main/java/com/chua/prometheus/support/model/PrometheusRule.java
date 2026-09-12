@@ -26,7 +26,7 @@ public class PrometheusRule {
     private String name;
 
     /**
-     * PromQL 表达式
+      * promql 表达式
      */
     private String query;
 

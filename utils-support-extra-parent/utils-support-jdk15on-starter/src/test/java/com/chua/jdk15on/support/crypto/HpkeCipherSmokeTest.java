@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
- * HPKE / CipherFlow / HpkeFlow 冒烟测试。
+   * HPKE / cipher流 / hpke流 冒烟测试。
  *
  * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
  * <pre>
@@ -29,6 +29,10 @@ public class HpkeCipherSmokeTest {
     /** 成功计数 */
     private static int passCount = 0;
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         testKeyPair();
         testPrimitivesRoundTrip();
@@ -73,7 +77,7 @@ public class HpkeCipherSmokeTest {
         check(ct.length > plain.length, "密文含 GCM 标签（比明文长）");
     }
 
-    /** HpkeFlow 链式 */
+    /** hpke流 链式 */
     static void testFlowChain() {
         byte[][] keys = HpkeFlow.of().keys();
         byte[] plain = "flow".getBytes(StandardCharsets.UTF_8);
@@ -147,7 +151,7 @@ public class HpkeCipherSmokeTest {
         check(ekA.length == 44, "派生密钥材料为 key(32)+nonce(12)=44 字节");
     }
 
-    /** CipherFlow 统一入口 */
+    /** cipher流 统一入口 */
     static void testCipherFlowEntry() {
         HpkeFlow hf = CipherFlow.of("hpke").hpkeFlow();
         byte[][] keys = hf.keys();
@@ -170,7 +174,12 @@ public class HpkeCipherSmokeTest {
         check(Arrays.equals(data, pt), "CipherFlow.aes() round-trip 一致");
     }
 
-    /** 校验并计数 */
+    /**
+     * 校验并计数
+     *
+     * @param condition 条件
+     * @param message 消息
+     */
     private static void check(boolean condition, String message) {
         if (condition) {
             passCount++;

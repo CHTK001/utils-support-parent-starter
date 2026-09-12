@@ -24,7 +24,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 /**
- * macOS 系统日志提供者 - log show 命令 + /var/log 文件回退
+   * macOS 系统日志提供者 - 日志 show 命令 + /var/日志 文件回退
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,22 +34,22 @@ import java.util.stream.Stream;
 @Slf4j
 public class MacOSUnifiedLogProvider implements SystemLogProvider {
 
-    /** Sources */
+    /** 源 */
     private static final List<String> SOURCES = Arrays.asList(
             "unified", "system", "install", "kernel"
     );
 
-    /** Var_log_files */
+    /** Var_日志_文件 */
     private static final List<String> VAR_LOG_FILES = Arrays.asList(
             "/var/log/system.log",
             "/var/log/install.log"
     );
 
-    /** Log_show_cmd */
+    /** 日志_show_CMD */
     private static final String LOG_SHOW_CMD = "/usr/bin/log";
 
     @Override
-    /** 是否PlatformSupported */
+    /** 是否platform支持 */
     public boolean isPlatformSupported() {
         
         return PlatformSystems.isMacOs();
@@ -57,7 +57,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     }
 
     @Override
-    /** 获取Sources */
+    /** 获取源 */
     public List<String> getSources() {
         
         return SOURCES;
@@ -83,7 +83,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         return searchViaVarLog(query);
     }
 
-    /** 搜索Via记录日志Show */
+    /**
+     * 搜索Via记录日志Show
+     *
+     * @param query 查询
+     * @return 搜索via日志show的结果
+     */
     private List<LogEntry> searchViaLogShow(LogQuery query) {
         List<String> args = new ArrayList<>();
         args.add(LOG_SHOW_CMD);
@@ -144,7 +149,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         return results;
     }
 
-    /** 构建Predicate */
+    /**
+     * 构建Predicate
+     *
+     * @param query 查询
+     * @return 构建predicate的结果
+     */
     private String buildPredicate(LogQuery query) {
         StringBuilder sb = new StringBuilder();
         String p = query.pattern() != null ? query.pattern() : "";
@@ -169,7 +179,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         return sb.toString();
     }
 
-    /** 解析记录日志ShowLine */
+    /**
+     * 解析记录日志show线
+     *
+     * @param line 线
+     * @return 解析日志show线的结果
+     */
     private LogEntry parseLogShowLine(String line) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -204,7 +219,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         }
     }
 
-    /** 搜索ViaVar记录日志 */
+    /**
+     * 搜索viavar记录日志
+     *
+     * @param query 查询
+     * @return 搜索viavar日志的结果
+     */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         Pattern regex = compilePattern(query.pattern());
@@ -241,7 +261,13 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         return results;
     }
 
-    /** 解析Var记录日志Line */
+    /**
+     * 解析Var记录日志线
+     *
+     * @param line 线
+     * @param source 源
+     * @return 解析var日志线的结果
+     */
     private LogEntry parseVarLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         String timestamp = "unknown";
@@ -254,7 +280,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
                 line, "macos", null);
     }
 
-    /** DetectLevelFromMessage */
+    /**
+     * detect级别从消息
+     *
+     * @param line 线
+     * @return detect级别从消息的结果
+     */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -275,7 +306,12 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
         return LogLevel.INFO;
     }
 
-    /** CompilePattern */
+    /**
+     * compile模式
+     *
+     * @param glob glob
+     * @return compile模式的结果
+     */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {

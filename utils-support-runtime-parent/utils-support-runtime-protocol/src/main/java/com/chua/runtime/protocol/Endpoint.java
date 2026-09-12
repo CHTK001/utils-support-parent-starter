@@ -47,7 +47,7 @@ public class Endpoint {
     private Software software;
 
     /**
-     * 主机名或 IP（server 端）
+      * 主机名或 IP（服务端 端）
      */
     private String host;
 
@@ -57,7 +57,7 @@ public class Endpoint {
     private int port;
 
     /**
-     * 路径 / URL（HTTP path 或 ZK znode 或 Redis key）
+      * 路径 / URL（HTTP 路径 或 ZK znode 或 Redis 键）
      */
     private String path;
 
@@ -67,7 +67,7 @@ public class Endpoint {
     private boolean ssl;
 
     /**
-     * 实例 ID（同一进程的多个实例区分，如 worker thread）
+      * 实例 标识（同一进程的多个实例区分，如 工人 thread）
      */
     private String instanceId;
 
@@ -75,15 +75,15 @@ public class Endpoint {
      * 附加属性（动态标签，懒填充）
      */
     @Builder.Default
-    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, String> attributes = new HashMap<>(); // attributes
 
     /**
-     * 端点的稳定唯一 ID（用于依赖图节点去重）。
+      * 端点的稳定唯一 标识（用于依赖图节点去重）。
      *
      * <p>组成：protocol + software + host + port + path。
-     * 同一进程同 endpoint 多次出现视为同一节点。</p>
+      * 同一进程同 端点 多次出现视为同一节点。</p>
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String nodeId() {
         StringBuilder sb = new StringBuilder();
@@ -96,7 +96,7 @@ public class Endpoint {
     }
 
     /**
-     * 端点的展示描述，用于依赖图节点 label。
+      * 端点的展示描述，用于依赖图节点 标签。
      *
      * @return 展示描述
      */

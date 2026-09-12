@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * KingbaseES（金仓）应用层 Handler — 拦截金仓 JDBC 驱动关键调用并生成应用语义传输记录。
+   * kingbasees（金仓）应用层 处理器 — 拦截金仓 JDBC 驱动关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -24,22 +24,22 @@ import com.chua.runtime.protocol.Software;
 public class KingbaseHandler extends AbstractAppHandler {
 
     /**
-     * KbConnection 类内部名
+      * kbconnection 类内部名
      */
     private static final String KINGBASE_CONNECTION_CLASS = "com/kingbase8/KbConnection";
 
     /**
-     * KbStatement 类内部名
+      * kb对账单 类内部名
      */
     private static final String KINGBASE_STATEMENT_CLASS = "com/kingbase8/KbStatement";
 
     /**
-     * KbPreparedStatement 类内部名
+      * kbprepared对账单 类内部名
      */
     private static final String KINGBASE_PREPARED_STATEMENT_CLASS = "com/kingbase8/KbPreparedStatement";
 
     /**
-     * SQL 执行方法集合（Statement / PreparedStatement 共有）
+      * SQL 执行方法集合（对账单 / prepared对账单 共有）
      */
     private static final String[] SQL_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
@@ -49,13 +49,13 @@ public class KingbaseHandler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "kingbase-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "kingbase.enabled";
     }
@@ -67,13 +67,13 @@ public class KingbaseHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.KINGBASE;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAllEntryExit(KINGBASE_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(KINGBASE_PREPARED_STATEMENT_CLASS, SQL_METHODS);

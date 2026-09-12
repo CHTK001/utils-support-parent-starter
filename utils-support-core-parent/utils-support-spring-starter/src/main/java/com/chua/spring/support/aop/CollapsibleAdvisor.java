@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
-     * 创建 CollapsibleAdvisor 实例。
+      * 创建 collapsibleadvisor 实例。
      *
      * @param intercept 折叠拦截器实例
      */
@@ -44,8 +44,8 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
      * （接口方法 → 实现类方法、代理方法 → 原方法）后再次查找。</p>
      *
      * @param method      候选方法（可能是接口方法或代理方法）
-     * @param targetClass 目标类型（可为代理类，内部还原为用户类），可为 null
-     * @return 折叠注解，未标注返回 null
+     * @param targetClass 目标类型（可为代理类，内部还原为用户类），可为 空
+     * @return 折叠注解，未标注返回 空
      */
     private static Collapsible findCollapsible(Method method, Class<?> targetClass) {
         Collapsible annotation = method.getAnnotation(Collapsible.class);
@@ -63,6 +63,8 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
 
     /**
      * 折叠通知，将 AOP 调用适配为折叠拦截器的统一入参。
+     * @author CH
+     * @since 4.0.0
      */
     private static class CollapsibleAdvice implements MethodInterceptor {
 
@@ -71,6 +73,10 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
          */
         private final CollapsibleIntercept intercept;
 
+        /**
+          * collapsibleadvice。
+         * @param intercept intercept
+         */
         private CollapsibleAdvice(CollapsibleIntercept intercept) {
             this.intercept = intercept;
         }
@@ -98,8 +104,8 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
          * <p>JDK 动态代理与 CGLIB 代理均实现 {@link org.springframework.aop.framework.Advised}，
          * 经 {@code getTargetSource().getTargetClass()} 拿到真实目标类，用于查找实现类方法上的注解。</p>
          *
-         * @param target 代理对象（可为 null）
-         * @return 目标用户类，无法解析时返回 null
+         * @param target 代理对象（可为 空）
+         * @return 目标用户类，无法解析时返回 空
          */
         private static Class<?> resolveTargetClass(Object target) {
             if (target instanceof org.springframework.aop.framework.Advised) {

@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 @Spi("json")
 public class JsonSerializer<T extends Serializable> implements Serializer<T> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 类型
@@ -23,7 +23,7 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
     private final Type type;
 
     /**
-     * 创建 JsonSerializer 实例
+      * 创建 json序列化器 实例
      * @param clazz clazz
      */
     public JsonSerializer(Class<T> clazz) {
@@ -31,8 +31,8 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
     }
 
     /**
-     * 创建 JsonSerializer 实例
-     * @param type type
+      * 创建 json序列化器 实例
+     * @param type 类型
      */
     public JsonSerializer(Type type) {
         this.type = type;
@@ -46,7 +46,12 @@ public class JsonSerializer<T extends Serializable> implements Serializer<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 反序列化 */
+    /**
+     * 反序列化
+     *
+     * @param bytes bytes
+     * @return deserialize的结果
+     */
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;

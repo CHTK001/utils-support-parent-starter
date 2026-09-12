@@ -21,47 +21,96 @@ import com.chua.common.support.scatter.node.UdpScatterNodeServer;
  * @param <B> 构建器自身类型
  * @author CH
  * @since 4.0.0.42
+ * @param servicePath 服务路径
+ * @return 服务路径的结果
  */
 @SuppressWarnings("unchecked")
 public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
 
+    /**
+     * scatter构建器。
+     * @param protocol 协议
+     */
     protected final ScatterSetting setting;
 
+    /**
+     * scatter构建器。
+     * @param protocol 协议
+     */
     protected ScatterBuilder(String protocol) {
         this(protocol, new ScatterSetting());
+    /**
+     * scatter构建器。
+     * @param protocol 协议
+     * @param setting setting
+     */
     }
 
     protected ScatterBuilder(String protocol, ScatterSetting setting) {
         this.setting = setting == null ? new ScatterSetting() : setting;
         this.setting.setProtocol(protocol);
+    /**
+     * udp。
+     * @return udp的结果
+     */
     }
 
     public static UdpScatterBuilder udp() {
         return new UdpScatterBuilder();
+    /**
+     * tcp。
+     * @return tcp的结果
+     */
     }
 
     public static TcpScatterBuilder tcp() {
         return new TcpScatterBuilder();
+    /**
+     * 节点id。
+     * @param nodeId 节点标识
+     * @return 节点id的结果
+     */
     }
 
     public B nodeId(String nodeId) {
         setting.setNodeId(nodeId);
         return (B) this;
+    /**
+     * 群体id。
+     * @param groupId 群体标识
+     * @return 群体id的结果
+     */
     }
 
     public B groupId(String groupId) {
         setting.setGroupId(groupId);
         return (B) this;
+    /**
+     * 主机。
+     * @param host 主机
+     * @return 主机的结果
+     */
     }
 
     public B host(String host) {
         setting.setHost(host);
         return (B) this;
+    /**
+     * 端口。
+     * @param port 端口
+     * @return 端口的结果
+     */
     }
 
     public B port(int port) {
         setting.setPort(port);
         return (B) this;
+    /**
+     * announce主机。
+     * @param announceHost announce主机
+     * @return announce主机的结果
+     * @param servicePath 服务路径
+     */
     }
 
     public B announceHost(String announceHost) {
@@ -74,13 +123,27 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return (B) this;
     }
 
-    /** 路由模式：设置网段（如 "192.168.1.0/24"）。 */
+    /**
+     * 路由模式：设置网段（如 "192.168.1.0/24"）。
+     *
+     * @param subnet 子网
+     * @return 子网的结果
+     */
     public B subnet(String subnet) {
         setting.setSubnet(subnet);
         return (B) this;
     }
 
-    /** seed 引导模式：设置 seed 地址列表。 */
+     /**
+      * seeds。
+      * @param addresses 地址
+      * @return seeds的结果
+      */
+     * seed 引导模式：设置 seed 地址列表。
+     *
+     * @param addresses 地址
+     * @return seeds的结果
+     */
     public B seeds(String... addresses) {
         setting.setSeeds(java.util.Arrays.asList(addresses));
         return (B) this;
@@ -91,27 +154,66 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return (B) this;
     }
 
-    /** SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。 */
+    /**
+     * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。
+     *
+     * @param spiName spi名称
+     * @return spi名称的结果
+     */
     public B spiName(String spiName) {
         setting.setSpiName(spiName);
         return (B) this;
     }
 
-    /** 直接注入服务端实现对象（未启动）。 */
+    /**
+     * 直接注入服务端实现对象（未启动）。
+     *
+     * @param server 服务端
+     * @return 服务端的结果
+     */
     public B server(TcpServer server) {
         setting.setServer(server);
         return (B) this;
     }
 
-    /** 直接注入客户端实现对象（未启动）。 */
+     /**
+      * 客户端。
+      * @param client 客户端
+      * @return 客户端的结果
+      */
+     * 直接注入客户端实现对象（未启动）。
+     *
+     * @param enabled 已启用
+     * @return persistence已启用的结果
+     * @param millis millis
+     /**
+      * autodiscovery间隔。
+      * @param millis millis
+      * @return autodiscovery间隔的结果
+      */
+     * @param count 数量
+      * @param client 客户端
+     */
     public B client(TcpClient client) {
         setting.setClient(client);
         return (B) this;
+    /**
+     * 心跳间隔。
+     * @param millis millis
+     * @return 心跳间隔的结果
+     * @param enabled 已启用
+     * @param count 数量
+     */
     }
 
     public B autoDiscoveryInterval(long millis) {
         setting.setAutoDiscoveryIntervalMillis(millis);
         return (B) this;
+    /**
+     * 心跳间隔。
+     * @param millis millis
+     * @return 心跳间隔的结果
+     */
     }
 
     public B heartbeatInterval(long millis) {
@@ -134,7 +236,12 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return (B) this;
     }
 
-    /** 持久化文件路径。 */
+    /**
+     * 持久化文件路径。
+     *
+     * @param file 文件
+     * @return persistence文件的结果
+     */
     public B persistenceFile(String file) {
         setting.setPersistenceFile(file);
         return (B) this;
@@ -152,7 +259,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         serverSetting.setPort(setting.getPort());
         serverSetting.setProtocol(setting.getProtocol());
         serverSetting.setBacklog(2048);
-        // 缩短 readTimeout：与 scatter timeoutMillis 一致，确保健康检查能快速检测到对端下线
+ // 缩短 读取超时：与 scatter 超时millis 一致，确保健康检查能快速检测到对端下线
         serverSetting.setReadTimeout((int) Math.min(setting.getTimeoutMillis(), 3000L));
         if ("udp".equalsIgnoreCase(setting.getProtocol())) {
             return new ScatterNodeServerWrapper(
@@ -198,7 +305,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 聚合入口：构建完整 scatter（discovery + nodeServer 组装）。
+      * 聚合入口：构建完整 scatter（discovery + 节点服务端 组装）。
      *
      * @return Scatter 聚合实例
      */
@@ -206,7 +313,7 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return new DefaultScatter(this);
     }
 
-    /** 节点服务端包装：桥接 ScatterNodeServer 接口。 */
+    /** 节点服务端包装：桥接 scatter节点服务端 接口。 */
     private static final class ScatterNodeServerWrapper implements ScatterNodeServer {
         private final AutoCloseable delegate;
         private final ScatterSetting setting;

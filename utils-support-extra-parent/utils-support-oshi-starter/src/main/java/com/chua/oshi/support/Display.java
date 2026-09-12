@@ -6,6 +6,7 @@ import lombok.Data;
  * 显示器信息实体类。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class Display {

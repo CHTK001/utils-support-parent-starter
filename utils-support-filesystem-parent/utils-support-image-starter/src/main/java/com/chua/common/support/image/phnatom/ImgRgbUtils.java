@@ -56,7 +56,11 @@ public class ImgRgbUtils {
     }
 
     /**
-     * 通过BufferedImage图片流调整图片大小
+      * 通过缓冲镜像图片流调整图片大小
+     * @param originalImage 原始镜像
+     * @param targetWidth Targetwidth
+     * @param targetHeight Targetheight
+     * @return resize镜像的结果
      */
     public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
         Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_AREA_AVERAGING);

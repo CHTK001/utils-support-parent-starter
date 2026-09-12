@@ -40,7 +40,7 @@ import java.util.List;
  * <h2>说话人数量估算</h2>
  * <p>本实现采用<b>静音分割启发式</b>估算说话人数量：
  * 当两个语音片段之间出现超过 {@code silenceThresholdMs} 的静音间隔时，
- * 认为可能是不同说话人在交替发言，分配新的说话人 ID。
+   * 认为可能是不同说话人在交替发言，分配新的说话人 标识。
  * 此策略在双人对讲场景（如电话会议）中效果较好，但在多人同时发言时可能不够准确。</p>
  *
  * <h2>后续升级路径</h2>
@@ -61,9 +61,9 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     /** 默认推理设备：CPU */
     private static final String DEFAULT_DEVICE = "cpu";
-    /** 默认目标采样率：16kHz（语音处理标准） */
+    /** 默认目标采样率：16khz（语音处理标准） */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
-    /** 每帧分析时长：25ms（约 400 个 16kHz 采样点，语音处理的行业标准帧长） */
+    /** 每帧分析时长：25ms（约 400 个 16khz 采样点，语音处理的行业标准帧长） */
     private static final long DEFAULT_SEGMENT_MS = 25L;
     /**
      * 能量阈值：短时能量低于此值判定为静音。
@@ -84,11 +84,11 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     /** 推理引擎实例（全局单例） */
     private final IdentificationEngine engine;
-    /** 模型 ID（本实现在当前版本中主要用于日志输出，VAD 逻辑不依赖具体模型） */
+    /** 模型 标识（本实现在当前版本中主要用于日志输出，VAD 逻辑不依赖具体模型） */
     private final String modelName;
     /** 模型配置（保留字段，供后续升级至模型驱动方案时复用） */
     @SuppressWarnings("unused")
-    private final ModelSetting setting;
+    private final ModelSetting setting; // setting
 
     /** 自定义模型路径（预留，当前 VAD 方案不使用） */
     private String modelPath;
@@ -96,7 +96,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     private String device = DEFAULT_DEVICE;
     /** 目标采样率（Hz） */
     private int sampleRate = DEFAULT_SAMPLE_RATE;
-    /** 最大说话人数限制，null 表示不限制 */
+    /** 最大说话人数限制，空 表示不限制 */
     private Integer maxSpeakers;
 
     // ==================== VAD 算法参数（可调优） ====================
@@ -107,14 +107,14 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     private double energyThreshold = DEFAULT_energy_THRESHOLD;
     /** 最小语音片段时长（毫秒），短于此值的静音间隙不被计入 */
     private long minSpeechMs = DEFAULT_MIN_SPEECH_MS;
-    /** 静音分割阈值（毫秒），超过此值的静音间隔触发新说话人 ID */
+    /** 静音分割阈值（毫秒），超过此值的静音间隔触发新说话人 标识 */
     private long silenceThresholdMs = DEFAULT_SILENCE_THRESHOLD_MS;
 
     /**
      * 构造默认说话人分离实例。
      *
      * @param engine    推理引擎（预留，当前 VAD 不直接使用）
-     * @param modelName 模型 ID（当前版本仅作日志标记）
+     * @param modelName 模型 标识（当前版本仅作日志标记）
      * @param setting   模型配置（当前版本不使用，保留以兼容未来扩展）
      */
     public DefaultSpeakerDiarizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -215,7 +215,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
             isSpeech[i] = energy > energyThreshold;
         }
 
-        // 步骤 4：合并连续语音帧为语音片段，并根据静音间隔分配说话人 ID
+ // 步骤 4：合并连续语音帧为语音片段，并根据静音间隔分配说话人 标识
         List<SpeakerSegment> segments = new ArrayList<>();
         int speakerCounter = 0;
         long segmentMs = segmentDurationMs;
@@ -236,7 +236,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
             if (duration >= minSpeechMs) {
                 long startTime = (long) segStart * segmentMs;
                 long endTime = startTime + duration;
-                // 分配说话人 ID
+ // 分配说话人 标识
                 String speakerId = "speaker_" + speakerCounter;
                 if (maxSpeakers != null && speakerCounter >= maxSpeakers) {
                     speakerId = "speaker_" + (maxSpeakers - 1);
@@ -283,7 +283,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
      * 自动处理多声道混缩为单声道，结果采样值范围 [-1.0, 1.0]。</p>
      *
      * @param wavData WAV 文件字节数组
-     * @return PCM float 数组；若格式不支持或解析失败返回 null
+     * @return PCM float 数组；若格式不支持或解析失败返回 空
      */
     static float[] decodePcmWav(byte[] wavData) {
         // 基本合法性检查：WAV 文件头至少 44 字节
@@ -308,12 +308,12 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
         if (dataOffset < 0) {
             return null;
         }
-        int dataLen = readLeInt(wavData, dataOffset + 4); // data 块数据长度
+        int dataLen = readLeInt(wavData, dataOffset + 4); // 数据 块数据长度
         int frameSize = bitsPerSample / 8 * channels;     // 每帧字节数
         int totalSamples = dataLen / frameSize;           // 总采样点数
 
         float[] pcm = new float[totalSamples];
-        int srcIdx = dataOffset + 8; // data 块实际数据起始偏移
+        int srcIdx = dataOffset + 8; // 数据 块实际数据起始偏移
         for (int i = 0; i < totalSamples; i++) {
             float sum = 0f;
             // 多声道混缩为单声道（等权平均）
@@ -321,16 +321,16 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
                 int si = srcIdx + i * frameSize + c * (bitsPerSample / 8);
                 float s;
                 if (bitsPerSample == 16) {
-                    // 16-bit PCM：小端序有符号整数，映射到 [-1, 1]
+ // 16-钻头 PCM：小端序有符号整数，映射到 [-1, 1]
                     int b0 = wavData[si] & 0xff;
                     int b1 = wavData[si + 1] & 0xff;
                     int v = (b1 << 8) | b0;
                     s = v / 32768.0f;
                 } else if (bitsPerSample == 8) {
-                    // 8-bit PCM：无符号整数，映射到 [-1, 1]（中心在 128）
+ // 8-钻头 PCM：无符号整数，映射到 [-1, 1]（中心在 128）
                     s = (wavData[si] - 128) / 128.0f;
                 } else if (bitsPerSample == 32 && audioFormat == 3) {
-                    // 32-bit float PCM：直接转换 IEEE 754 浮点数
+ // 32-钻头 float PCM：直接转换 IEEE 754 浮点数
                     s = Float.intBitsToFloat(
                             (wavData[si] & 0xff) | ((wavData[si + 1] & 0xff) << 8) |
                                     ((wavData[si + 2] & 0xff) << 16) | ((wavData[si + 3] & 0xff) << 24));
@@ -345,7 +345,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     }
 
     /**
-     * 在 WAV 字节流中查找 "data" 块标识的位置。
+      * 在 WAV 字节流中查找 "数据" 块标识的位置。
      *
      * @param data WAV 字节数组
      * @return "data" 在数组中的偏移量；未找到返回 -1
@@ -358,6 +358,9 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     /**
      * 读取小端序 32 位整数。
+     * @param b b
+     * @param off off
+     * @return 读取leint的结果
      */
     private static int readLeInt(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8) |
@@ -366,6 +369,9 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
 
     /**
      * 读取小端序 16 位整数。
+     * @param b b
+     * @param off off
+     * @return 读取leshort的结果
      */
     private static int readLeShort(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
@@ -381,11 +387,11 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
      * <p>解码后自动重采样至 16kHz 单声道，与主解码路径保持一致。</p>
      *
      * @param bytes WAV 字节数组
-     * @return 16kHz 单声道 float 采样数组；解析失败返回 null
+     * @return 16kHz 单声道 float 采样数组；解析失败返回 空
      */
     static float[] wavBytesToPcm(byte[] bytes) {
         try {
-            // 使用 ByteArrayInputStream 包装字节数组，避免创建临时文件
+ // 使用 bytearray输入流 包装字节数组，避免创建临时文件
             javax.sound.sampled.AudioInputStream ais =
                     javax.sound.sampled.AudioSystem.getAudioInputStream(new java.io.ByteArrayInputStream(bytes));
             javax.sound.sampled.AudioFormat fmt = ais.getFormat();
@@ -426,7 +432,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
                 }
                 mono[i] = sum / channels;
             }
-            // 重采样至 16kHz（线性插值）
+ // 重采样至 16khz（线性插值）
             if (Math.abs(sampleRate - 16000.0f) < 1.0f) {
                 return mono;
             }

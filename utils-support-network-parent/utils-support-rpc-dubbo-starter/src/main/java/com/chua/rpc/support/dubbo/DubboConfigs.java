@@ -90,7 +90,7 @@ final class DubboConfigs {
     }
 
     /**
-     * 创建并初始化共享的 {@link ApplicationConfig}（关闭 QoS，避免端口冲突）。
+      * 创建并初始化共享的 {@link ApplicationConfig}（关闭 qos，避免端口冲突）。
      *
      * @param name 应用名
      * @return 初始化后的配置实例

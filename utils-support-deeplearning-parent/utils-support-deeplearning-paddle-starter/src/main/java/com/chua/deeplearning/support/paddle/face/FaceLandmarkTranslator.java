@@ -9,7 +9,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * Paddle 人脸关键点 Translator。
+   * 飞桨 人脸关键点 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -17,7 +17,7 @@ import ai.djl.translate.TranslatorContext;
 public class FaceLandmarkTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
         if (array.getShape().dimension() > 1 && array.getShape().get(0) == 1) {
@@ -27,7 +27,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.GRAYSCALE);
         array = NDImageUtils.resize(array, 60, 60, Image.Interpolation.BICUBIC);
@@ -37,7 +37,12 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
         return new NDList(array);
     }
 
-    /** Std */
+    /**
+     * Std
+     *
+     * @param points points
+     * @return std的结果
+     */
     private float std(NDArray points) {
         float[] arr = points.toType(ai.djl.ndarray.types.DataType.FLOAT32, false).toFloatArray();
         double sum = 0;

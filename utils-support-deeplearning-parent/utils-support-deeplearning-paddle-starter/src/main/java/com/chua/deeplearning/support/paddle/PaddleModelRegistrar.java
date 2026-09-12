@@ -11,8 +11,8 @@ import com.chua.deeplearning.support.nlp.TextTranslator;
  * PaddlePaddle 模块模型集中注册器。
  * <p>
  * 通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
- * relativePath 相对 models 根目录，统一 paddle/ 前缀。
- * 模型一般为 inference.pdmodel + .pdiparams。
+   * relative路径 相对 模型 根目录，统一 飞桨/ 前缀。
+   * 模型一般为 推理.pdmodel + .pdiparams。
  * </p>
  *
  * @author CH
@@ -30,7 +30,7 @@ public class PaddleModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    /** 注册All */
+    /** 注册全部 */
     private static void registerAll() {
         // 分类
         reg("paddle-animal",
@@ -106,12 +106,12 @@ public class PaddleModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
+     * @param relativePath relative路径
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

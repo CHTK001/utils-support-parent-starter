@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * TShark 数据包轮询目录。
+   * tshark 数据包轮询目录。
  *
  * <p>基于 {@link DiffPolledDirectory} 的差异对比型目录监听器，监听 TShark 抓包输出目录。</p>
  * <p>新文件出现时自动调用 TShark 进程将其转换为 JSON 格式，并使用 {@link PacketParserService}
@@ -45,6 +45,7 @@ import java.util.function.Consumer;
  * DirectoryPollerEnvironment env = new DirectoryPollerEnvironment(
  *     Set.of(WatcherEvent.CREATE, WatcherEvent.MODIFY, WatcherEvent.DELETE), 5, TimeUnit.SECONDS);
  * poller.start(env);
+ * }</pre>* poller.启动(env);
  * }</pre>
  *
  * @author CH
@@ -54,7 +55,7 @@ import java.util.function.Consumer;
 public class TsharkPolledDirectory implements PolledDirectory {
 
     /**
-     * object mapper
+      * 对象 映射器
      */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
@@ -102,7 +103,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     private DirectoryPollerExecutor executor;
 
     /**
-     * 构造 TShark 轮询目录监听器。
+      * 构造 tshark 轮询目录监听器。
      *
      * @param listenPath 被监听的目录路径
      */
@@ -136,7 +137,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(PolledListener listener) {
         listeners.add(listener);
     }
@@ -243,7 +244,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
      * 处理新增或修改的 pcap 文件。
      *
      * <p>调用 TShark 解析为 JSON，逐行解析为 {@link PacketRecord} 列表，
-     * 触发 packetListener 回调（即使解析失败也会以空列表回调一次）。</p>
+      * 触发 数据包监听器 回调（即使解析失败也会以空列表回调一次）。</p>
      *
      * @param fileName 文件名
      */
@@ -265,7 +266,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 调用 TShark 进程将 pcap 文件解析为 JSON，并逐包转换为 {@link PacketRecord}。
+      * 调用 tshark 进程将 pcap 文件解析为 JSON，并逐包转换为 {@link PacketRecord}。
      *
      * @param fileName pcap 文件名
      * @return 解析出的数据包记录列表
@@ -325,7 +326,13 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
-    /** TryRestoreProtocol */
+    /**
+     * 尝试restore协议
+     *
+     * @param packetJson 数据包json
+     * @param record record
+     * @return 尝试restore协议的结果
+     */
     private static String tryRestoreProtocol(String packetJson, PacketRecord record) {
         if (RESTORERS.isEmpty()) {
             return null;
@@ -362,9 +369,14 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
-    /** ExtractRawBytes */
+    /**
+     * extractrawbytes
+     *
+     * @param layers layers
+     * @return extractRawBytes的结果
+     */
     private static byte[] extractRawBytes(Map<String, Object> layers) {
-        // tshark -T json -x 输出 frame_raw: [hex, offset, length]，第一个元素是 hex 字符串
+ // tshark -T json -x 输出 帧_raw: [hex, 偏移量, 长度]，第一个元素是 hex 字符串
         Object frameRaw = findDeep(layers, "frame_raw");
         if (frameRaw instanceof List<?> list && !list.isEmpty()) {
             Object first = list.get(0);
@@ -397,7 +409,13 @@ public class TsharkPolledDirectory implements PolledDirectory {
     }
 
     @SuppressWarnings("unchecked")
-    /** 查找Deep */
+    /**
+     * 查找Deep
+     *
+     * @param map 映射
+     * @param key 键
+     * @return findDeep的结果
+     */
     private static Object findDeep(Map<String, Object> map, String key) {
         if (map == null) {
             return null;

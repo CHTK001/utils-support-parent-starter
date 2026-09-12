@@ -25,6 +25,8 @@ import java.util.List;
  *
  *   // 使用轮询目录备份
  *   BackupResult result = manager.backupPolledDirectory(config);
+ * }</pre>*   // 使用轮询目录备份
+ *   BackupResult result = manager.backupPolledDirectory(config);
  * }</pre>
  *
  * @author CH
@@ -168,6 +170,8 @@ public class BackupManager {
 
     /**
      * 通过 SPI 查找策略实现
+     * @param type 类型
+     * @return findStrategy的结果
      */
     private BackupStrategy findStrategy(String type) {
         try {

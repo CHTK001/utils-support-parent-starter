@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 依赖图 Handler — 聚合传输事件生成节点-边图。
+   * 依赖图 处理器 — 聚合传输事件生成节点-边图。
  *
  * <p>节点 = Endpoint（host:port + protocol + software）；
- * 边 = DependencyEdge（source → target + callCount + avgDuration）。
+   * 边 = dependencyedge（源 → Target + call数量 + avg持续时间）。
  * 数据来源：</p>
  * <ul>
  *   <li>订阅 TransmissionHandler 的 TransmissionRecord（Socket 层）</li>
@@ -36,7 +36,7 @@ public class DependencyGraphHandler implements Plugin {
 
 
     /**
-     * LOG
+      * 日志
      */
     private static final Logger LOG = Logger.getLogger(DependencyGraphHandler.class.getName());
     /**
@@ -50,7 +50,7 @@ public class DependencyGraphHandler implements Plugin {
     private static final String HANDLER_VERSION = "1.0.0";
 
     /**
-     * 启用配置属性 key
+      * 启用配置属性 键
      */
     private static final String PROP_DEP_ENABLED = "dependency.enabled";
 
@@ -60,12 +60,12 @@ public class DependencyGraphHandler implements Plugin {
     private static final String DEFAULT_ENABLED = "true";
 
     /**
-     * 边集合（edgeId → DependencyEdge）
+      * 边集合（edgeid → dependencyedge）
      */
     private final Map<String, DependencyEdge> edges;
 
     /**
-     * 节点集合（nodeId → Endpoint）
+      * 节点集合（节点id → 端点）
      */
     private final Map<String, Endpoint> nodes;
 
@@ -79,7 +79,7 @@ public class DependencyGraphHandler implements Plugin {
      */
     private final AtomicBoolean started;
 
-    /** 创建 DependencyGraphHandler 实例 */
+    /** 创建 dependency图计算处理器 实例 */
     public DependencyGraphHandler() {
         this.edges = new ConcurrentHashMap<>();
         this.nodes = new ConcurrentHashMap<>();
@@ -87,13 +87,13 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return HANDLER_NAME;
     }
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         return HANDLER_VERSION;
     }
@@ -124,7 +124,7 @@ public class DependencyGraphHandler implements Plugin {
     }
 
     @Override
-    /** Status */
+    /** 状态 */
     public String status() {
         return String.format("DependencyGraphHandler[enabled=%s, edges=%d, nodes=%d]",
                 enabled, edges.size(), nodes.size());
@@ -162,7 +162,7 @@ public class DependencyGraphHandler implements Plugin {
                 .software(software)
                 .build());
         edge.record(duration, isError, error);
-        // 持久化：每次事件单独落盘（不共享 edge 对象，避免 storage 累计覆盖 handler 内存态）
+ // 持久化：每次事件单独落盘（不共享 edge 对象，避免 storage 累计覆盖 处理器 内存态）
         try {
             com.chua.runtime.apm.storage.StorageManager.get().appendDependency(
                     DependencyEdge.builder()

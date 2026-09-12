@@ -24,9 +24,9 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * 老版 Microsoft Office (.DOC / .XLS / .PPT) 预览提供器。
+   * 老版 Microsoft 办公室 (.DOC / .XLS / .PPT) 预览提供器。
  * <p>SPI 类型：{@code preview-poi-old}。使用 Apache POI 解析旧版二进制格式：
- * Word 抽取段落文本，Excel 渲染工作表表格，PowerPoint 抽取每页文本。</p>
+   * Word 抽取段落文本，Excel 渲染工作表表格，powerpoint 抽取每页文本。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,10 +34,10 @@ import java.util.Set;
 @Spi("preview-poi-old")
 public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("doc", "xls", "ppt");
-    private static final int MAX_ROWS = 200;
-    private static final int MAX_SHEETS = 20;
-    private static final long MAX_FILE_SIZE = 64L * 1024 * 1024;
+    private static final Set<String> SUPPORTED_EXTS = Set.of("doc", "xls", "ppt"); // 支持exts
+    private static final int MAX_ROWS = 200; // 最大rows
+    private static final int MAX_SHEETS = 20; // 最大sheets
+    private static final long MAX_FILE_SIZE = 64L * 1024 * 1024; // 最大文件大小
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -182,7 +182,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 预览 PowerPoint 演示文稿，抽取每页文本。
+      * 预览 powerpoint 演示文稿，抽取每页文本。
      *
      * @param content 演示文稿字节
      * @return 预览结果

@@ -35,11 +35,16 @@ import java.util.List;
  */
 public class BufferedImageUtils {
 
+    /**
+     * 缓冲镜像工具。
+     */
     private BufferedImageUtils() {}
 
     /**
-     * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 TYPE_CUSTOM(0) 替换为 TYPE_INT_RGB，
-     * 避免 new BufferedImage(w, h, 0) 抛出 IllegalArgumentException。
+      * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 类型_习俗(0) 替换为 类型_INT_RGB，
+      * 避免 新 缓冲镜像(w, h, 0) 抛出 illegal参数异常。
+     * @param src src
+     * @return safe类型的结果
      */
     public static int safeType(BufferedImage src) {
         int t = src.getType();
@@ -51,7 +56,12 @@ public class BufferedImageUtils {
      */
     private static final String DEFAULT_ASCII_CHARS = "@%#*+=-:. ";
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param obj obj
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(Object obj) {
         if (obj instanceof BufferedImage) {
             return (BufferedImage) obj;
@@ -74,7 +84,12 @@ public class BufferedImageUtils {
         throw new IllegalArgumentException("Unsupported image type: " + (obj != null ? obj.getClass() : "null"));
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param file 文件
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(File file) {
         try {
             return ImageIO.read(file);
@@ -83,7 +98,12 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param inputStream 输入流
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(InputStream inputStream) {
         try {
             return ImageIO.read(inputStream);
@@ -92,7 +112,12 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param bytes bytes
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(byte[] bytes) {
         try {
             return ImageIO.read(new ByteArrayInputStream(bytes));
@@ -101,7 +126,12 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param path 路径
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(String path) {
         try {
             File file = new File(path);
@@ -114,7 +144,12 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ToBufferedImage */
+    /**
+     * 转为缓冲镜像
+     *
+     * @param url url
+     * @return 转为缓冲镜像的结果
+     */
     public static BufferedImage toBufferedImage(URL url) {
         try {
             return ImageIO.read(url);
@@ -123,7 +158,14 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ScaleImage */
+    /**
+     * scale镜像
+     *
+     * @param image 镜像
+     * @param width width
+     * @param height height
+     * @return scale镜像的结果
+     */
     public static BufferedImage scaleImage(BufferedImage image, int width, int height) {
         BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = scaled.createGraphics();
@@ -133,7 +175,13 @@ public class BufferedImageUtils {
         return scaled;
     }
 
-    /** ScaleImage */
+    /**
+     * scale镜像
+     *
+     * @param image 镜像
+     * @param scale scale
+     * @return scale镜像的结果
+     */
     public static BufferedImage scaleImage(BufferedImage image, float scale) {
         int width = Math.round(image.getWidth() * scale);
         int height = Math.round(image.getHeight() * scale);
@@ -300,10 +348,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将 GIF 图片按帧拆分为 BufferedImage 数组。
+      * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
      *
      * @param file GIF 文件
-     * @return 每帧一张 BufferedImage，非 GIF 返回单帧数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(File file) {
         if (file == null || !file.exists()) {
@@ -318,10 +366,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将 GIF 图片按帧拆分为 BufferedImage 数组。
+      * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
      *
      * @param inputStream GIF 输入流
-     * @return 每帧一张 BufferedImage，非 GIF 返回单帧数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(InputStream inputStream) {
         if (inputStream == null) {
@@ -336,10 +384,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将 GIF 图片按帧拆分为 BufferedImage 数组。
+      * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
      *
      * @param bytes GIF 字节数组
-     * @return 每帧一张 BufferedImage，非 GIF 返回单帧数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
@@ -349,10 +397,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将 GIF 图片按帧拆分为 BufferedImage 数组。
+      * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
      *
      * @param path GIF 文件路径
-     * @return 每帧一张 BufferedImage，非 GIF 返回单帧数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(String path) {
         if (path == null || path.isEmpty()) {
@@ -370,10 +418,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将 GIF 图片按帧拆分为 BufferedImage 数组。
+      * 将 GIF 图片按帧拆分为 缓冲镜像 数组。
      *
      * @param url GIF URL
-     * @return 每帧一张 BufferedImage，非 GIF 返回单帧数组
+     * @return 每帧一张 缓冲镜像，非 GIF 返回单帧数组
      */
     public static BufferedImage[] readGifFrames(URL url) {
         if (url == null) {
@@ -387,10 +435,10 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 通过 ImageInputStream 读取 GIF 帧。
+      * 通过 镜像输入流 读取 GIF 帧。
      *
      * @param iis GIF 图片输入流
-     * @return 每帧一张 BufferedImage
+     * @return 每帧一张 缓冲镜像
      * @throws IOException 读取失败时抛出
      */
     private static BufferedImage[] readGifFrames(ImageInputStream iis) throws IOException {
@@ -568,11 +616,11 @@ public class BufferedImageUtils {
     }
 
     /**
-     * 将图片转为 Base64 字符串。
+      * 将图片转为 基础64 字符串。
      *
      * @param image  图片
      * @param format 图片格式（png、jpg、gif 等）
-     * @return data:image/xxx;base64, 开头的 Base64 字符串
+     * @return data:image/xxx;base64, 开头的 基础64 字符串
      */
     public static String toBase64(BufferedImage image, String format) {
         if (image == null) {
@@ -705,7 +753,13 @@ public class BufferedImageUtils {
         return result;
     }
 
-    /** 写入ToStream */
+    /**
+     * 写入转为流
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param outputStream 输出流
+     */
     public static void writeToStream(BufferedImage image, String format, OutputStream outputStream) {
         try {
             ImageIO.write(image, format, outputStream);
@@ -714,7 +768,17 @@ public class BufferedImageUtils {
         }
     }
 
-    /** FillShape */
+    /**
+     * fillshape
+     *
+     * @param g g
+     * @param style style
+     * @param unitWidth unitwidth
+     * @param arg2 参数2
+     * @param arg3 参数3
+     * @param i i
+     * @param j j
+     */
     public static void fillShape(Graphics2D g, CodePointStyle style, int unitWidth, int arg2, int arg3, int i, int j) {
         int x = unitWidth + i * unitWidth;
         int y = unitWidth + j * unitWidth;
@@ -731,7 +795,12 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ChangeColor */
+    /**
+     * 改变color
+     *
+     * @param image 镜像
+     * @param newColor 新color
+     */
     public static void changeColor(BufferedImage image, Color newColor) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -747,7 +816,14 @@ public class BufferedImageUtils {
         }
     }
 
-    /** 获取GradientColor */
+    /**
+     * 获取梯度color
+     *
+     * @param from 从
+     * @param to 转为
+     * @param steps steps
+     * @return 获取梯度color的结果
+     */
     public static Color[] getGradientColor(Color from, Color to, int steps) {
         Color[] gradient = new Color[steps];
         float[] fromComponents = from.getRGBColorComponents(null);
@@ -762,7 +838,13 @@ public class BufferedImageUtils {
         return gradient;
     }
 
-    /** 处理GradientQRCodeOblique */
+    /**
+     * 处理梯度qr编码oblique
+     *
+     * @param image 镜像
+     * @param gradient 梯度
+     * @return 处理梯度qr编码oblique的结果
+     */
     public static BufferedImage handleGradientQRCodeOblique(BufferedImage image, Color[] gradient) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -778,7 +860,12 @@ public class BufferedImageUtils {
         return result;
     }
 
-    /** 获取BufferedImage */
+    /**
+     * 获取缓冲镜像
+     *
+     * @param bytes bytes
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(byte[] bytes) throws IOException {
         if (bytes == null) {
             return null;
@@ -786,7 +873,12 @@ public class BufferedImageUtils {
         return ImageIO.read(new ByteArrayInputStream(bytes));
     }
 
-    /** 获取BufferedImage */
+    /**
+     * 获取缓冲镜像
+     *
+     * @param file 文件
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(File file) throws IOException {
         if (file == null) {
             return null;
@@ -794,7 +886,12 @@ public class BufferedImageUtils {
         return ImageIO.read(file);
     }
 
-    /** 获取BufferedImage */
+    /**
+     * 获取缓冲镜像
+     *
+     * @param inputStream 输入流
+     * @return 获取缓冲镜像的结果
+     */
     public static BufferedImage getBufferedImage(InputStream inputStream) throws IOException {
         if (inputStream == null) {
             return null;
@@ -802,12 +899,23 @@ public class BufferedImageUtils {
         return ImageIO.read(inputStream);
     }
 
-    /** ToBufferedImageArray */
+    /**
+     * 转为缓冲镜像array
+     *
+     * @param bufferedImage 缓冲镜像
+     * @return 转为缓冲镜像array的结果
+     */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage) throws IOException {
         return toBufferedImageArray(bufferedImage, "png");
     }
 
-    /** ToBufferedImageArray */
+    /**
+     * 转为缓冲镜像array
+     *
+     * @param bufferedImage 缓冲镜像
+     * @param format 格式化
+     * @return 转为缓冲镜像array的结果
+     */
     public static byte[] toBufferedImageArray(BufferedImage bufferedImage, String format) throws IOException {
         if (bufferedImage == null || format == null) {
             return new byte[0];
@@ -818,12 +926,24 @@ public class BufferedImageUtils {
         }
     }
 
-    /** ZoomImage */
+    /**
+     * zoom镜像
+     *
+     * @param src src
+     * @param width width
+     * @param height height
+     * @return zoom镜像的结果
+     */
     public static BufferedImage zoomImage(BufferedImage src, int width, int height) {
         return scaleImage(src, width, height);
     }
 
-    /** 获取SubImage */
+    /**
+     * 获取sub镜像
+     *
+     * @param options 期权
+     * @return 获取sub镜像的结果
+     */
     public static BufferedImage getSubImage(SubImageOptions options) {
         if (options == null || options.bufferedImage() == null) {
             return null;
@@ -831,7 +951,13 @@ public class BufferedImageUtils {
         return options.bufferedImage().getSubimage(options.x(), options.y(), options.width(), options.height());
     }
 
-    /** Rotate */
+    /**
+     * Rotate
+     *
+     * @param src src
+     * @param angle angle
+     * @return rotate的结果
+     */
     public static BufferedImage rotate(BufferedImage src, int angle) {
         if (src == null) {
             return null;
@@ -850,7 +976,12 @@ public class BufferedImageUtils {
         return result;
     }
 
-    /** GrayImage */
+    /**
+     * gray镜像
+     *
+     * @param src src
+     * @return gray镜像的结果
+     */
     public static BufferedImage grayImage(BufferedImage src) {
         if (src == null) {
             return null;
@@ -862,7 +993,13 @@ public class BufferedImageUtils {
         return grayImage;
     }
 
-    /** BrightnessImage */
+    /**
+     * brightness镜像
+     *
+     * @param src src
+     * @param brightness brightness
+     * @return brightness镜像的结果
+     */
     public static BufferedImage brightnessImage(BufferedImage src, float brightness) {
         if (src == null || brightness == 1.0f) {
             return src;
@@ -883,7 +1020,13 @@ public class BufferedImageUtils {
         return dest;
     }
 
-    /** BlurImage */
+    /**
+     * blur镜像
+     *
+     * @param src src
+     * @param radius radius
+     * @return blur镜像的结果
+     */
     public static BufferedImage blurImage(BufferedImage src, float radius) {
         if (src == null || radius <= 0) {
             return src;
@@ -898,7 +1041,12 @@ public class BufferedImageUtils {
         return dest;
     }
 
-    /** Clamp */
+    /**
+     * Clamp
+     *
+     * @param value 值
+     * @return clamp的结果
+     */
     public static int clamp(float value) {
         return Math.min(255, Math.max(0, (int) value));
     }
@@ -922,7 +1070,7 @@ public class BufferedImageUtils {
      * <p>使用 ITU-R BT.601 标准权重系数：
      * <pre>Y = 0.299 × R + 0.587 × G + 0.114 × B</pre>
      *
-     * @param rgb ARGB 像素值（格式：0xAARRGGBB）
+     * @param rgb ARGB 像素值（格式：0xaarrggbb）
      * @return 亮度值，范围 [0, 255]
      */
     public static int luminance(int rgb) {
@@ -931,7 +1079,12 @@ public class BufferedImageUtils {
                 + 0.114 * (rgb & 0xFF));
     }
 
-    /** 获取Rgb */
+    /**
+     * 获取Rgb
+     *
+     * @param options 期权
+     * @return 获取rgb的结果
+     */
     public static int[] getRgb(RgbOptions options) {
         if (options == null || options.image() == null) {
             return null;
@@ -944,7 +1097,13 @@ public class BufferedImageUtils {
         return image.getRGB(options.x(), options.y(), options.width(), options.height(), options.pixels(), 0, options.width());
     }
 
-    /** 写入ToFile */
+    /**
+     * 写入转为文件
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param file 文件
+     */
     public static void writeToFile(BufferedImage image, String format, File file) {
         try {
             ImageIO.write(image, format, file);
@@ -953,7 +1112,13 @@ public class BufferedImageUtils {
         }
     }
 
-    /** 保存ToStream */
+    /**
+     * 保存转为流
+     *
+     * @param image 镜像
+     * @param format 格式化
+     * @param outputStream 输出流
+     */
     public static void saveToStream(BufferedImage image, String format, OutputStream outputStream) {
         writeToStream(image, format, outputStream);
     }

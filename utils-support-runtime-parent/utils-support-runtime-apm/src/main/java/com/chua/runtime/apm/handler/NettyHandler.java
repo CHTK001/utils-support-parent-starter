@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Netty Handler — intercepts Netty channel operations.
+   * Netty 处理器 — intercepts Netty 通道 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,30 +15,30 @@ import com.chua.runtime.protocol.Software;
 public class NettyHandler extends AbstractAppHandler {
 
     /**
-     * CHANNEL
+      * 通道
      */
     private static final String CHANNEL = "io/netty/channel/Channel";
     /**
-     * channel handler context
+      * 通道 处理器 上下文
      */
     private static final String CHANNEL_HANDLER_CONTEXT = "io/netty/channel/ChannelHandlerContext";
     /**
-     * channel methods
+      * 通道 方法
      */
     private static final String[] CHANNEL_METHODS = {"write", "writeAndFlush", "read"};
     /**
-     * context methods
+      * 上下文 方法
      */
     private static final String[] CONTEXT_METHODS = {"fireChannelRead", "fireChannelActive", "fireChannelInactive"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "netty-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "netty.enabled";
     }
@@ -50,13 +50,13 @@ public class NettyHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.TCP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(CHANNEL, CHANNEL_METHODS);
         registerAll(CHANNEL_HANDLER_CONTEXT, CONTEXT_METHODS);

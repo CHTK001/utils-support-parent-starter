@@ -1,7 +1,7 @@
 package com.chua.common.support.image.png;
 
 /**
- * 类RowFilter用于对PNG图像的行数据进行过滤处理，以优化压缩效率
+   * 类row过滤器用于对PNG图像的行数据进行过滤处理，以优化压缩效率
  *
  * @author CH
  * @since 4.0.0.42
@@ -116,7 +116,7 @@ final class RowFilter {
                          int bytesPerRow,
                          int bytesPerPixel) {
 
-        // Use type 0 for palette images
+ // Use 类型 0 for palette 镜像
         if (colorType != PNG.PNG_COLOR_PALETTE) {
             System.arraycopy(currRow, bytesPerPixel,
                              scratchRows[0], bytesPerPixel,

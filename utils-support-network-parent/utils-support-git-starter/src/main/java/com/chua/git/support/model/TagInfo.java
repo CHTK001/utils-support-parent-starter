@@ -12,6 +12,7 @@ package com.chua.git.support.model;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 标签信息的结果
  */
 public record TagInfo(String name, String sha, String message, boolean annotated) {
 }

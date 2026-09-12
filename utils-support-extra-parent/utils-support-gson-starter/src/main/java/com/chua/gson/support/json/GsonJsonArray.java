@@ -17,15 +17,15 @@ import java.util.Collection;
 public class GsonJsonArray extends JsonArray {
 
     /**
-     * 默认构造函数，创建一个新的空 GsonJsonArray。
+      * 默认构造函数，创建一个新的空 gsonjsonarray。
      */
     public GsonJsonArray() {
     }
 
     /**
-     * 从 Collection 构造 GsonJsonArray，将集合中的所有元素添加到当前数组中。
+      * 从 集合 构造 gsonjsonarray，将集合中的所有元素添加到当前数组中。
      *
-     * @param collection 源 Collection
+     * @param collection 源 集合
      */
     public GsonJsonArray(Collection collection) {
         super(collection);

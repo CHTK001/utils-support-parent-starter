@@ -12,12 +12,12 @@ import java.util.Map;
 /**
  * Paraformer 词表解析与结果解码（纯 Java）。
  * <p>
- * tokens.txt 每行格式：{@code token<空格>id}，共 8359 个 token，
- * 其中前 4 个为特殊 token：0=blank、1=&lt;s&gt;、2=&lt;/s&gt;、3=OOV。
+   * 令牌.txt 每行格式：{@code token<空格>id}，共 8359 个 令牌，
+   * 其中前 4 个为特殊 令牌：0=blank、1=&lt;s&gt;、2=&lt;/s&gt;、3=OOV。
  * </p>
  * <p>
  * 解码逻辑复刻 sherpa-onnx {@code OfflineRecognizerParaformerImpl::Convert}：
- * 以 "@@" 结尾的 token 为子词（去 "@@" 后与前词合并），
+   * 以 "@@" 结尾的 令牌 为子词（去 "@@" 后与前词合并），
  * ascii 与 ascii 之间补空格，ascii 与非 ascii 之间也补空格，
  * 连续非 ascii 直接拼接；遇到 EOS（&lt;/s&gt;=2）终止。
  * </p>
@@ -27,38 +27,38 @@ import java.util.Map;
  */
 public class ParaformerTokenizer {
 
-    /** EOS token 名 */
+    /** EOS 令牌 名 */
     /** Eos */
     private static final String EOS_TOKEN = "</s>";
 
     /** BPE 合并标记后缀 */
-    /** Merge_suffix */
+    /** 合并_后缀 */
     private static final String MERGE_SUFFIX = "@@";
 
     /** BPE 合并标记后缀长度 */
-    /** Merge_suffix_len */
+    /** 合并_后缀_len */
     private static final int MERGE_SUFFIX_LEN = 2;
 
-    /** token id → token 字符串 */
-    /** IdToToken */
+    /** 令牌 标识 → 令牌 字符串 */
+    /** id转为令牌 */
     private final String[] idToToken;
 
-    /** token 字符串 → token id */
-    /** TokenToId */
+    /** 令牌 字符串 → 令牌 标识 */
+    /** 令牌转为id */
     private final Map<String, Integer> tokenToId;
 
     /** 词表大小 */
-    /** Vocab_size */
+    /** Vocab_大小 */
     private final int vocabSize;
 
-    /** EOS token id */
-    /** Eos_id */
+    /** EOS 令牌 标识 */
+    /** Eos_标识 */
     private final int eosId;
 
     /**
      * 构造词表。
      *
-     * @param idToToken token id → 字符串映射
+     * @param idToToken 令牌 标识 → 字符串映射
      */
     private ParaformerTokenizer(String[] idToToken) {
         this.idToToken = idToToken;
@@ -71,9 +71,9 @@ public class ParaformerTokenizer {
     }
 
     /**
-     * 从 tokens.txt 文件加载词表。
+      * 从 令牌.txt 文件加载词表。
      *
-     * @param tokensPath tokens.txt 路径
+     * @param tokensPath 令牌.txt 路径
      * @return 词表实例
      * @throws IOException 文件读取失败
      */
@@ -86,7 +86,7 @@ public class ParaformerTokenizer {
     /**
      * 从输入流加载词表。
      *
-     * @param in tokens.txt 输入流
+     * @param in 令牌.txt 输入流
      * @return 词表实例
      * @throws IOException 读取失败
      */
@@ -135,18 +135,18 @@ public class ParaformerTokenizer {
     }
 
     /**
-     * EOS token id。
+      * EOS 令牌 标识。
      *
-     * @return EOS id
+     * @return EOS 标识
      */
     public int eosId() {
         return eosId;
     }
 
     /**
-     * 解码 token id 序列为文本（sherpa-onnx Convert 逻辑）。
+      * 解码 令牌 标识 序列为文本（sherpa-onnx 转换 逻辑）。
      *
-     * @param tokenIds token id 序列（不含 EOS）
+     * @param tokenIds 令牌 标识 序列（不含 EOS）
      * @return 识别文本
      */
     public String decode(List<Integer> tokenIds) {

@@ -25,27 +25,29 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SofaRpcClient implements RpcClient {
 
     /**
-     * registry Configs
+      * registry 配置
      */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
-     * rpc Consumer Config
+      * rpc Consumer 配置
      */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
-     * application Config
+      * application 配置
      */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
     /**
-     * consumer Cache
+      * consumer 缓存
      */
     private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
 
     /**
-     * 创建 SofaRpcClient 实例
-     * @param rpcRegistryConfigs rpcRegistryConfigs
-     * @param RpcConsumerConfig RpcConsumerConfig
-     * @param String String
+      * 创建 sofarpc客户端 实例
+     * @param rpcRegistryConfigs rpcregistry配置
+     * @param consumerConfig rpcconsumer配置
+     * @param name 字符串
+     * @param consumerConfig consumer配置
+     * @param name 名称
      */
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.rpcConsumerConfig = consumerConfig;
@@ -56,7 +58,7 @@ public class SofaRpcClient implements RpcClient {
             if (config.getAddress() != null)  { item.setAddress(config.getAddress()); }
             if (config.getTimeout() != null)  { item.setTimeout(config.getTimeout()); }
             if ("local".equals(config.getProtocol())) {
-                // 与 SofaRpcServer 使用同一注册文件路径（按应用名），保证同机跨进程也能互相发现
+ // 与 sofarpc服务端 使用同一注册文件路径（按应用名），保证同机跨进程也能互相发现
                 item.setFile(SofaRpcServer.localRegistryFile(name));
             }
             registryConfigs.add(item);
@@ -67,7 +69,12 @@ public class SofaRpcClient implements RpcClient {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 获取 */
+    /**
+     * 获取
+     *
+     * @param targetType Target类型
+     * @return 获取的结果
+     */
     public <T> T get(Class<T> targetType) {
         ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
             ConsumerConfig<T> c = new ConsumerConfig<>();

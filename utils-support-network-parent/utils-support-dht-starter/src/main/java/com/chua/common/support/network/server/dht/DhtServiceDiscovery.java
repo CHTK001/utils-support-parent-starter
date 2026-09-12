@@ -79,7 +79,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     /**
      * 设置 DHT 协议引擎。
      *
-     * @param protocol DhtProtocol 实例
+     * @param protocol dht协议 实例
      */
     public void setProtocol(DhtProtocol protocol) {
         this.protocol = protocol;
@@ -96,7 +96,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 注册Service */
+    /** 注册服务 */
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         registeredServices.computeIfAbsent(fullPath, k -> ConcurrentHashMap.newKeySet()).add(discovery);
@@ -109,7 +109,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 获取Service */
+    /** 获取服务 */
     public Discovery getService(String path, String balance, String protocolType) {
         Set<Discovery> all = getServiceAll(path);
         if (all.isEmpty()) {
@@ -119,7 +119,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 获取ServiceAll */
+    /** 获取服务全部 */
     public Set<Discovery> getServiceAll(String path) {
         String fullPath = addClusterPrefix(DHT_PREFIX + path);
         Set<Discovery> cached = registeredServices.get(fullPath);
@@ -143,7 +143,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     @Override
-    /** 是否Support订阅 */
+    /** 是否支持订阅 */
     public boolean isSupportSubscribe() {
         return true;
     }
@@ -173,7 +173,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
      *
      * @param path       服务路径
      * @param discovery  服务发现信息
-     * @param event      事件类型（ADD/REMOVE/UPDATE）
+     * @param event      事件类型（添加/移除/更新）
      */
     private void notifyListeners(String path, Discovery discovery, Event event) {
         for (ServiceDiscoveryListener l : listeners) {
@@ -189,7 +189,7 @@ public class DhtServiceDiscovery extends AbstractServiceDiscovery {
      * 根据负载均衡策略选择一个服务。
      *
      * @param services 服务集合
-     * @param balance  负载均衡策略（"round" 或 "weight"）
+     * @param balance  负载均衡策略（"round" 或 "权重"）
      * @return 选中的服务
      */
     private Discovery selectByBalance(Set<Discovery> services, String balance) {

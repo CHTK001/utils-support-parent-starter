@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  * 大小滤镜
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
@@ -35,8 +35,8 @@ public class ImageSizedFilter extends AbstractImageFilter {
     private double size = 0.5d;
 
     /**
-     * 创建 ImageSizedFilter 实例
-     * @param size size
+      * 创建 镜像大小过滤器 实例
+     * @param size 大小
      */
     public ImageSizedFilter(double size) {
         this.size = size;
@@ -55,19 +55,20 @@ public class ImageSizedFilter extends AbstractImageFilter {
      * 按比例对图片进行缩放.
      *
      * @param scale 缩放比率
-     * @param img   BufferedImage
+     * @param img   缓冲镜像
+     * @return zoomByScale的结果
      */
     public static BufferedImage zoomByScale(double scale, BufferedImage img) {
         //获取缩放后的长和宽
         int width = (int) (scale * img.getWidth());
         int height = (int) (scale * img.getHeight());
-        //获取缩放后的Image对象
+ // 获取缩放后的镜像对象
         Image img1 = img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
-        //新建一个和Image对象相同大小的画布
+ // 新建一个和镜像对象相同大小的画布
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         //获取画笔
         Graphics2D graphics = image.createGraphics();
-        //将Image对象画在画布上,最后一个参数,ImageObserver:接收有关 Image 信息通知的异步更新接口,没用到直接传空
+ // 将镜像对象画在画布上,最后一个参数,镜像observer:接收有关 镜像 信息通知的异步更新接口,没用到直接传空
         graphics.drawImage(img1, 0, 0, null);
         //释放资源
         graphics.dispose();

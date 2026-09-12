@@ -27,6 +27,8 @@ import com.chua.common.support.concurrent.pool.ObjectPool;
  *
  *   // 关闭池化
  *   client.pool(0);
+ * }</pre>池化
+ *   client.pool(0);
  * }</pre>
  *
  * @param <T> 客户端自身类型, 用于链式调用
@@ -45,7 +47,7 @@ public interface PooledObjectClient<T> {
      *   <li>{@code 0}: 关闭池化, 每次访问创建新实例</li>
      * </ul>
      *
-     * @param size 池大小, 传 null 视为 1
+     * @param size 池大小, 传 空 视为 1
      * @return 当前客户端实例, 支持链式调用
      */
     @SuppressWarnings("unchecked")
@@ -69,7 +71,7 @@ public interface PooledObjectClient<T> {
      *
      * <p>单例模式下返回 null (因为没有池, 只有共享实例), 池化模式下返回实际对象池。
      *
-     * @return 对象池, 单例或无池化时返回 null
+     * @return 对象池, 单例或无池化时返回 空
      */
     default ObjectPool<?> getPool() {
         return null;

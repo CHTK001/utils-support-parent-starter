@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 查询 Engine — 通过 HttpClient 调用 datalake-starter 的 ApiServer，
+   * 查询 Engine — 通过 HTTP客户端 调用 数据湖-启动 的 api服务端，
  * 实现标准 {@link com.chua.common.support.lang.datasource.engine.Engine} 接口。
  *
  * <p>使用时注入 baseUrl 即可，运行时 HTTP 调用。</p>
@@ -38,50 +38,50 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     /**
      * 构造。
      *
-     * @param baseUrl datalake-starter 提供的 API 服务地址
+     * @param baseUrl 数据湖-启动 提供的 API 服务地址
      */
     public HttpDatalakeQueryEngine(String baseUrl) {
         this.client = new DatalakeHttpClient(baseUrl);
     }
 
     @Override
-    /** 添加DataSource */
+    /** 添加数据源 */
     public <T> com.chua.common.support.lang.datasource.engine.Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         return this;
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> com.chua.common.support.lang.datasource.engine.Engine store(String name, List<T> data) {
         return this;
     }
 
     @Override
-    /** 设置DefaultDataSourceName */
+    /** 设置默认数据源名称 */
     public com.chua.common.support.lang.datasource.engine.Engine setDefaultDataSourceName(String name) {
         return this;
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor(String dataSourceName) {
         return new HttpSqlExecutor();
     }
 
     @Override
-    /** 获取Executor */
+    /** 获取执行器 */
     public SqlExecutor getExecutor() {
         return getExecutor(defaultName);
     }
 
     @Override
-    /** 获取DataSource */
+    /** 获取数据源 */
     public <T> EngineDataSource<T> getDataSource(String name) {
         return null;
     }
 
     @Override
-    /** 获取DataSource */
+    /** 获取数据源 */
     public <T> EngineDataSource<T> getDataSource() {
         return getDataSource(defaultName);
     }
@@ -111,7 +111,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     }
 
     @Override
-    /** 获取DefaultDataSourceName */
+    /** 获取默认数据源名称 */
     public String getDefaultDataSourceName() {
         return defaultName;
     }
@@ -130,6 +130,8 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
 
     /**
      * SQL 执行器：内部委托 HTTP 客户端。
+     * @author CH
+     * @since 4.0.0
      */
     private class HttpSqlExecutor implements SqlExecutor {
 
@@ -172,7 +174,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
         }
 
         @Override
-        /** Batch */
+        /** 批量 */
         public int[] batch(String sql, List<Object[]> batchParams) {
             return new int[0];
         }

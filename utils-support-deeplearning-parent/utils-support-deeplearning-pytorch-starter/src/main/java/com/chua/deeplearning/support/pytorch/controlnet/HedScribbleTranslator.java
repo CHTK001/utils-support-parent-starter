@@ -34,13 +34,13 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 HedScribbleTranslator 实例 */
+    /** 创建 hedscribbletranslator 实例 */
     public HedScribbleTranslator() {
         this(512);
     }
 
     /**
-     * 创建 HedScribbleTranslator 实例
+      * 创建 hedscribbletranslator 实例
      * @param resolution resolution
      */
     public HedScribbleTranslator(int resolution) {
@@ -48,7 +48,7 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -59,7 +59,7 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray out = list.singletonOrThrow();
         if (out.getShape().dimension() == 4 && out.getShape().get(0) == 1) {

@@ -8,7 +8,7 @@ import com.chua.common.support.vector.VectorStorageProvider;
 import javax.sql.DataSource;
 
 /**
- * MySQL 向量存储 SPI 实现，基于 MySQL 8.0.31+ 原生 VECTOR 类型。
+   * MySQL 向量存储 SPI 实现，基于 MySQL 8.0.31+ 原生 向量 类型。
  * <p>
  * 通过 {@code properties} 参数传入 {@link DataSource}：
  * <pre>{@code
@@ -23,6 +23,10 @@ import javax.sql.DataSource;
  * var props = new MysqlVectorStorageProperties("my_vectors", "vid", "embedding");
  * VectorStorage storage = VectorStorageProvider.of("mysql")
  *         .dimension(768)
+ *         .algorithm("cosine")
+ *         .properties(new MysqlVectorStorageProps(dataSource, props))
+ *         .build();
+ * }</pre>ension(768)
  *         .algorithm("cosine")
  *         .properties(new MysqlVectorStorageProps(dataSource, props))
  *         .build();
@@ -51,14 +55,17 @@ public class MysqlVectorStorageProvider implements VectorStorageProvider {
     }
 
     /**
-     * 包装属性，持有 DataSource 和向量存储配置。
+      * 包装属性，持有 数据源 和向量存储配置。
      *
      * @param dataSource  JDBC 数据源
      * @param properties  向量存储配置
+     * @return mysql向量storageprops的结果
      */
     public record MysqlVectorStorageProps(DataSource dataSource, MysqlVectorStorageProperties properties) {
         /**
          * 便捷构造。
+         * @param dataSource 数据源
+         * @return mysql向量storageprops的结果
          */
         public MysqlVectorStorageProps(DataSource dataSource) {
             this(dataSource, new MysqlVectorStorageProperties());

@@ -38,12 +38,12 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     private final Storage storage;
 
     /**
-     * 创建 GoogleCloudFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 googlecloud文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public GoogleCloudFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
-        // 凭据解析策略：优先使用 accessKeySecret 作为服务账号 JSON 密钥，失败时降级为 ADC
+ // 凭据解析策略：优先使用 access键secret 作为服务账号 JSON 密钥，失败时降级为 ADC
         Credentials credentials = resolveCredentials(accessKeySecret);
         this.storage = StorageOptions.newBuilder()
                 .setCredentials(credentials)
@@ -69,7 +69,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
      * </ul>
      *
      * @param secret 密钥内容（JSON 字符串或任意字符串）
-     * @return 解析后的凭据，不会为 null
+     * @return 解析后的凭据，不会为 空
      */
     private static Credentials resolveCredentials(String secret) {
         // 尝试将 secret 作为服务账号 JSON 密钥解析
@@ -86,7 +86,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
             }
         }
 
-        // 降级：使用 Application Default Credentials
+ // 降级：使用 Application 默认 凭证
         try {
             return GoogleCredentials.getApplicationDefault();
         } catch (Exception e) {
@@ -98,8 +98,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * PutObject
-     * @param request request
+      * 放入对象
+     * @param request 请求
      */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
@@ -124,8 +124,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 获取Object
-     * @param request request
+      * 获取对象
+     * @param request 请求
      */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
@@ -158,8 +158,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 获取Object
-     * @param key key
+      * 获取对象
+     * @param key 键
      */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
@@ -169,8 +169,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * 删除Object
-     * @param key key
+      * 删除对象
+     * @param key 键
      */
     public DeleteObjectResult deleteObject(String key) {
         try {
@@ -188,8 +188,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * ExistObject
-     * @param request request
+      * exist对象
+     * @param request 请求
      */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
@@ -208,8 +208,8 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
 
     @Override
     /**
-     * ListObject
-     * @param request request
+      * 列表对象
+     * @param request 请求
      */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
@@ -240,7 +240,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
                         .build());
             }
 
-            // 分页：返回下一页的 pageToken
+ // 分页：返回下一页的 page令牌
             String nextMarker = result.getNextPageToken();
 
             return ListObjectResult.builder()

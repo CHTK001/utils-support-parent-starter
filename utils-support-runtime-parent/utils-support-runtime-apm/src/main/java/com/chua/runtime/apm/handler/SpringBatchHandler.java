@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spring Batch Handler — intercepts batch step execution.
+   * Spring 批量 处理器 — intercepts 批量 step 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class SpringBatchHandler extends AbstractAppHandler {
      */
     private static final String STEP = "org/springframework/batch/core/step/Step";
     /**
-     * execute methods
+      * 执行 方法
      */
     private static final String[] EXECUTE_METHODS = {"execute"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "spring-batch-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "spring-batch.enabled";
     }
@@ -42,13 +42,13 @@ public class SpringBatchHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.INTERNAL;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(STEP, EXECUTE_METHODS);
     }

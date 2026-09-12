@@ -43,7 +43,7 @@ public final class ServerFingerprint {
      */
     private static final String SEPARATOR = "|";
 
-    private final String fingerprint;
+    private final String fingerprint; // fingerprint
 
     /**
      * 私有构造，由工厂方法创建
@@ -55,7 +55,7 @@ public final class ServerFingerprint {
     }
 
     /**
-     * 采集当前服务器指纹。优先使用显式固定的 serverId，否则自动采集硬件特征。
+      * 采集当前服务器指纹。优先使用显式固定的 服务端id，否则自动采集硬件特征。
      *
      * @return 服务器指纹
      */

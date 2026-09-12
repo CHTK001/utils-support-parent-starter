@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TShark JSON 数据包解析工具。
+   * tshark JSON 数据包解析工具。
  *
  * <p>负责将 TShark 命令行输出的 JSON 格式单包数据解析为结构化对象。</p>
  * <p>支持帧层、IP层、传输层协议检测，以及 TCP flags/lifecycle 计算。</p>
@@ -112,14 +112,14 @@ public final class PacketParserService {
      * 禁止实例化
      */
     private PacketParserService() {
-        // utility class
+ // 工具 类
     }
 
     /**
-     * 解析 TShark 单条 JSON 数据为结构化对象。
+      * 解析 tshark 单条 JSON 数据为结构化对象。
      *
-     * @param jsonLine TShark 输出的单包 JSON 字符串
-     * @return 解析后的数据包记录，解析失败返回 null
+     * @param jsonLine tshark 输出的单包 JSON 字符串
+     * @return 解析后的数据包记录，解析失败返回 空
      */
     public static PacketRecord parse(String jsonLine) {
         try {
@@ -160,13 +160,13 @@ public final class PacketParserService {
     // ==================== 协议还原 ====================
 
     /**
-     * 调用 SPI 注册的 {@link ProtocolRestorer} 对单个 packet 进行协议还原。
+      * 调用 SPI 注册的 {@link ProtocolRestorer} 对单个 数据包 进行协议还原。
      *
      * <p>遍历所有 {@link RESTORERS}，第一个能匹配的还原器负责还原，
      * 还原结果填入 {@link PacketRecord#restoredText()}。</p>
      *
      * @param layers tshark JSON 中 {@code _source.layers} 节点
-     * @return 还原后的人类可读文本，无匹配返回 null
+     * @return 还原后的人类可读文本，无匹配返回 空
      */
     @SuppressWarnings("unchecked")
     private static String restoreProtocol(Map<String, Object> layers) {
@@ -196,7 +196,7 @@ public final class PacketParserService {
      * 其次按需尝试其他常见字段名。</p>
      *
      * @param layers layers 节点
-     * @return 字节数组，无法提取返回 null
+     * @return 字节数组，无法提取返回 空
      */
     @SuppressWarnings("unchecked")
     private static byte[] extractRawBytesFromLayers(Map<String, Object> layers) {
@@ -228,11 +228,11 @@ public final class PacketParserService {
     }
 
     /**
-     * 深度查找指定 key。
+      * 深度查找指定 键。
      *
-     * @param map 起始 map
-     * @param key 待查找的 key
-     * @return 找到的值，未找到返回 null
+     * @param map 起始 映射
+     * @param key 待查找的 键
+     * @return 找到的值，未找到返回 空
      */
     @SuppressWarnings("unchecked")
     private static Object findDeep(Map<String, Object> map, String key) {
@@ -259,7 +259,7 @@ public final class PacketParserService {
      * 从根JSON中提取 layers 节点。
      *
      * @param root JSON根对象
-     * @return layers 节点，缺失返回 null
+     * @return layers 节点，缺失返回 空
      */
     @SuppressWarnings("unchecked")
     private static Map<String, Object> extractLayers(Map<String, Object> root) {
@@ -294,7 +294,7 @@ public final class PacketParserService {
      *
      * @param layers 所有层数据
      * @param role "src" 或 "dst"
-     * @return 端口号，不存在返回 null
+     * @return 端口号，不存在返回 空
      */
     @SuppressWarnings("unchecked")
     private static Integer extractPort(Map<String, Object> layers, String role) {
@@ -312,7 +312,7 @@ public final class PacketParserService {
      * 从帧层提取数据包长度。
      *
      * @param layers 所有层数据
-     * @return 长度值，不存在返回 null
+     * @return 长度值，不存在返回 空
      */
     @SuppressWarnings("unchecked")
     private static Integer extractLength(Map<String, Object> layers) {
@@ -441,9 +441,9 @@ public final class PacketParserService {
     }
 
     /**
-     * 拼接地址:端口到StringBuilder。
+      * 拼接地址:端口到字符串构建器。
      *
-     * @param sb   目标StringBuilder
+     * @param sb   目标字符串构建器
      * @param ip   IP地址
      * @param port 端口号
      */
@@ -459,7 +459,7 @@ public final class PacketParserService {
     /**
      * 追加HTTP协议信息（方法/URI/状态码）。
      *
-     * @param sb     目标StringBuilder
+     * @param sb     目标字符串构建器
      * @param layers 所有层数据
      */
     @SuppressWarnings("unchecked")
@@ -514,7 +514,7 @@ public final class PacketParserService {
      * 安全解析整数字符串。
      *
      * @param value 原始值
-     * @return 解析后的整数，解析失败返回 null
+     * @return 解析后的整数，解析失败返回 空
      */
     private static Integer parseInteger(Object value) {
         if (value == null) {

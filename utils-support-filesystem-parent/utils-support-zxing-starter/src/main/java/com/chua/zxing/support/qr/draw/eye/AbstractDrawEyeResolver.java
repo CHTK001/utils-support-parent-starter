@@ -10,38 +10,38 @@ import java.awt.*;
 import static com.chua.zxing.support.qr.toolkit.QrCodeRenderUtils.inOuterDetectCornerArea;
 
 /**
- * DrawEyeResolver接口定义了绘制眼睛图形的方法。
+   * draweye解析器接口定义了绘制眼睛图形的方法。
  * @author CH
  * @since 4.0.0.42
  */
 public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
-    QrCodeOptions qrCodeConfig;
-    Graphics2D g2;
-    BitMatrixEx bitMatrix;
-    int matrixW;
-    int matrixH;
-    int leftPadding;
-    int topPadding;
-    int infoSize;
-    int detectCornerSize;
-    Color detectOutColor;
-    Color detectInnerColor;
-    CodeEyeSetting codeEyeSetting;
+    QrCodeOptions qrCodeConfig; // qr编码配置
+    Graphics2D g2; // g2
+    BitMatrixEx bitMatrix; // 钻头matrix
+    int matrixW; // matrixw
+    int matrixH; // matrixh
+    int leftPadding; // leftpadding
+    int topPadding; // toppadding
+    int infoSize; // 信息大小
+    int detectCornerSize; // detectcorner大小
+    Color detectOutColor; // detect出color
+    Color detectInnerColor; // detect内部color
+    CodeEyeSetting codeEyeSetting; // 编码eyesetting
 
     /**
-     * 创建 AbstractDrawEyeResolver 实例
-     * @param qrCodeConfig qrCodeConfig
+      * 创建 抽象draweye解析器 实例
+     * @param qrCodeConfig qr编码配置
      * @param g2 g2
-     * @param bitMatrix bitMatrix
-     * @param matrixW matrixW
-     * @param matrixH matrixH
-     * @param leftPadding leftPadding
-     * @param topPadding topPadding
-     * @param infoSize infoSize
-     * @param detectCornerSize detectCornerSize
-     * @param detectOutColor detectOutColor
-     * @param detectInnerColor detectInnerColor
-     * @param codeEyeSetting codeEyeSetting
+     * @param bitMatrix 钻头matrix
+     * @param matrixW matrixw
+     * @param matrixH matrixh
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
+     * @param detectCornerSize detectcorner大小
+     * @param detectOutColor detect出color
+     * @param detectInnerColor detect内部color
+     * @param codeEyeSetting 编码eyesetting
      */
     public AbstractDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                    Graphics2D g2,

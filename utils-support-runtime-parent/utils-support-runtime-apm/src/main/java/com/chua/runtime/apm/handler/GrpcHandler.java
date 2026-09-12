@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * gRPC Handler — intercepts gRPC client/server calls.
+   * gRPC 处理器 — intercepts gRPC 客户端/服务端 calls.
  *
  * @author CH
  * @since 4.0.0.42
@@ -23,22 +23,22 @@ public class GrpcHandler extends AbstractAppHandler {
      */
     private static final String SERVER_CALL = "io/grpc/ServerCall";
     /**
-     * 客户端 methods
+      * 客户端 方法
      */
     private static final String[] CLIENT_METHODS = {"start", "sendMessage", "request", "halfClose"};
     /**
-     * 服务器 methods
+      * 服务器 方法
      */
     private static final String[] SERVER_METHODS = {"sendMessage", "close"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "grpc-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "grpc.enabled";
     }
@@ -50,13 +50,13 @@ public class GrpcHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.GRPC;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(CLIENT_CALL, CLIENT_METHODS);
         registerAll(SERVER_CALL, SERVER_METHODS);

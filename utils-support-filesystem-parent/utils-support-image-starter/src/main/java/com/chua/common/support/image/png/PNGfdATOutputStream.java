@@ -15,7 +15,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 /**
- * PNG fdAT chunk（APNG 帧数据块）写入流，在 chunk header 后附加 4 字节大端序号。
+   * PNG fdat chunk（APNG 帧数据块）写入流，在 chunk 头部 后附加 4 字节大端序号。
  *
  * @author CH
  * @since 4.0.0.42
@@ -44,7 +44,7 @@ final class PNGfdATOutputStream extends PNGImageOutputStream {
     protected void startChunk() throws IOException {
         crc.reset();
         this.startPos = stream.getStreamPosition();
-        // length, will backpatch
+ // 长度, will backpatch
         // (-1);
         stream.writeInt(-1);
 

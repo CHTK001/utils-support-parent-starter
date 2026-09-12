@@ -19,9 +19,9 @@ public interface DslManager {
      * 获取表定义。
      *
      * @param catalogName catalog 名称
-     * @param schemaName  schema 名称
+     * @param schemaName  模式 名称
      * @param tableName   表名
-     * @return 表定义，不存在返回 null
+     * @return 表定义，不存在返回 空
      */
     TableDef getTable(String catalogName, String schemaName, String tableName);
 
@@ -29,7 +29,7 @@ public interface DslManager {
      * 生成建表 DDL。
      *
      * @param catalogName catalog 名称
-     * @param schemaName  schema 名称
+     * @param schemaName  模式 名称
      * @param tableName   表名
      * @return CREATE TABLE SQL
      */
@@ -38,7 +38,7 @@ public interface DslManager {
     /**
      * 生成重命名表 DDL。
      *
-     * @param schemaName   schema 名称
+     * @param schemaName   模式 名称
      * @param oldTableName 原表名
      * @param newTableName 新表名
      * @return RENAME TABLE SQL
@@ -48,7 +48,7 @@ public interface DslManager {
     /**
      * 生成复制表结构 DDL。
      *
-     * @param schemaName      schema 名称
+     * @param schemaName      模式 名称
      * @param sourceTableName 源表名
      * @param targetTableName 目标表名
      * @return 复制结构 SQL
@@ -59,7 +59,7 @@ public interface DslManager {
      * 列出表定义。
      *
      * @param catalogName catalog 名称
-     * @param schemaName  schema 名称
+     * @param schemaName  模式 名称
      * @return 表定义列表
      */
     List<TableDef> listTables(String catalogName, String schemaName);

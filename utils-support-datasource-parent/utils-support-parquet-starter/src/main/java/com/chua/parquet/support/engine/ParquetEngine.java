@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Parquet 列式存储引擎实现（真实文件读写）。
  * <p>
- * 数据以 {@code <baseDir>/<table>.parquet} 真实落盘（Avro schema 按实体字段推断）；
- * 查询读取真实文件后条件过滤；UPDATE/DELETE 以"读-改-写回文件"实现并返回真实行数。
+   * 数据以 {@code <baseDir>/<table>.parquet} 真实落盘（Avro 模式 按实体字段推断）；
+   * 查询读取真实文件后条件过滤；更新/删除 以"读-改-写回文件"实现并返回真实行数。
  * 通过 parquet 的 {@link OutputFile}/{@link InputFile} 抽象直连本地文件，
  * 不引入任何 Hadoop 运行时依赖。SPI 键 {@code "parquet"}；
  * 使用前需 {@code addDataSource(name, baseDir)} 指定目录。
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ParquetEngine extends AbstractEngine {
 
     /**
-     * 实体字段映射缓存：类 -> (snake_case 列名 -> Field)
+      * 实体字段映射缓存：类 -> (snake_大小写 列名 -> 字段)
      */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
@@ -61,7 +61,7 @@ public class ParquetEngine extends AbstractEngine {
             float.class, Float.class, double.class, Double.class);
 
     /**
-     * 基础目录；addDataSource 后赋值
+      * 基础目录；添加数据源 后赋值
      */
     private volatile String baseDir;
 
@@ -69,7 +69,7 @@ public class ParquetEngine extends AbstractEngine {
      * 注册数据源：传入 Parquet 文件基础目录。
      *
      * @param name       数据源名称
-     * @param dataSource 目录路径字符串或 File
+     * @param dataSource 目录路径字符串或 文件
      * @param <T>        底层类型
      * @return this
      */
@@ -100,6 +100,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 初始化并校验基础目录。
+     * @param dirPath dir路径
      */
     private void setBaseDir(String dirPath) {
         baseDir = dirPath;
@@ -252,6 +253,8 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 读取整表实体列表（文件不存在时返回空表）。
+     * @param entityClass 实体类
+     * @return 执行读取的结果
      */
     private <T> List<T> doRead(Class<T> entityClass) {
         return executeNewQuery("", new Object[0], entityClass, 0, 0);
@@ -260,6 +263,10 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 覆盖写入整表数据到 Parquet 文件（先写临时文件再原子改名）。
+     * @param table table
+     * @param entityClass 实体类
+     * @param data 数据
+     * @return 写入全部的结果
      */
     private <T> void writeAll(String table, Class<?> entityClass, List<?> data) throws IOException {
         Schema schema = schemaFor(entityClass);
@@ -296,6 +303,8 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 读取整表 Parquet 文件（不存在返回空表）。
+     * @param table table
+     * @return 读取全部的结果
      */
     private List<GenericRecord> readAll(String table) {
         File file = new File(baseDir, table + ".parquet");
@@ -316,7 +325,9 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 本地文件 OutputFile 实现。
+      * 本地文件 输出文件 实现。
+     * @param file 文件
+     * @return 本地输出的结果
      */
     private static OutputFile localOutput(File file) {
         return new OutputFile() {
@@ -344,6 +355,9 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 本地文件输入流包装。
+     * @param file 文件
+     * @param overwrite overwrite
+     * @return 流的结果
      */
     private static PositionOutputStream stream(File file, boolean overwrite) throws IOException {
         if (file.exists() && !overwrite) {
@@ -385,7 +399,9 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 本地文件 InputFile 实现。
+      * 本地文件 输入文件 实现。
+     * @param file 文件
+     * @return 本地输入的结果
      */
     private static InputFile localInput(File file) {
         return new InputFile() {
@@ -463,7 +479,9 @@ public class ParquetEngine extends AbstractEngine {
     // ==================== 元信息与工具 ====================
 
     /**
-     * 按实体受支持字段构建 Avro Schema（忽略不支持类型字段）。
+      * 按实体受支持字段构建 Avro 模式（忽略不支持类型字段）。
+     * @param clazz clazz
+     * @return 模式for的结果
      */
     private Schema schemaFor(Class<?> clazz) {
         List<Schema.Field> fields = new ArrayList<>();
@@ -495,7 +513,9 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 实体字段 -> snake_case 列名映射缓存。
+      * 实体字段 -> snake_大小写 列名映射缓存。
+     * @param clazz clazz
+     * @return 字段的的结果
      */
     private static Map<String, Field> fieldsOf(Class<?> clazz) {
         return FIELD_CACHE.computeIfAbsent(clazz, c -> {
@@ -513,7 +533,9 @@ public class ParquetEngine extends AbstractEngine {
     }
 
     /**
-     * 驼峰转 snake_case。
+      * 驼峰转 snake_大小写。
+     * @param name 名称
+     * @return camel转为snake的结果
      */
     private static String camelToSnake(String name) {
         StringBuilder sb = new StringBuilder();
@@ -529,6 +551,9 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 归一化表达式中的列名（驼峰/去下划线变体 -> 真实列名）。
+     * @param expr expr
+     * @param entityClass 实体类
+     * @return normalizeColumns的结果
      */
     private String normalizeColumns(String expr, Class<?> entityClass) {
         if (expr == null || expr.isEmpty()) {
@@ -553,6 +578,9 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * 追加别名规则（去重、忽略同名词）。
+     * @param rules rules
+     * @param variant variant
+     * @param canonical canonical
      */
     private void addRule(List<String[]> rules, String variant, String canonical) {
         if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
@@ -563,6 +591,9 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
      * Avro 取值按目标类型转换（Utf8/数值/布尔）。
+     * @param v v
+     * @param type 类型
+     * @return 转换的结果
      */
     private static Object convert(Object v, Class<?> type) {
         if (type == String.class) {

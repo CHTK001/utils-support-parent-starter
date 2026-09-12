@@ -26,11 +26,11 @@ import lombok.extern.slf4j.Slf4j;
  * <p>
  *                
  * -        3D                   
- * -                    TranslatorContext                   
- * -              Image                      Context          
+   * -                    translator上下文
+   * -              镜像                      上下文
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
@@ -42,12 +42,12 @@ public class VggtTranslator implements Translator<Image, Image> {
     private static final int INPUT_SIZE = 512;
 
     /**
-     * Context           3D             
+      * 上下文           3D
      */
     public static final String VGGT_OUTPUT_KEY = "vggt_3d_output";
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -61,7 +61,7 @@ public class VggtTranslator implements Translator<Image, Image> {
         //              [0, 1]
         array = array.div(255.0f);
 
-        //             ImageNet          
+ // 镜像net
         float[] mean = {0.485f, 0.456f, 0.406f};
         float[] std = {0.229f, 0.224f, 0.225f};
         array = NDImageUtils.normalize(array, mean, std);
@@ -76,7 +76,7 @@ public class VggtTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}          ", list.size());
@@ -100,17 +100,17 @@ public class VggtTranslator implements Translator<Image, Image> {
         log.info("       3D             : {}    float   ,       : {}",
                 gaussianData.length, java.util.Arrays.toString(outputShape));
 
-        //        VggtOutput       
+ // vggt输出
         VggtOutput vggtOutput = new VggtOutput(gaussianData, outputShape);
 
-        //     3D                 Context    
-        //                                                     Translator                          Image
+ // 3D                 上下文
+ // Translator                          镜像
         ctx.setAttachment(VGGT_OUTPUT_KEY, vggtOutput);
 
         log.info("3D                : {}                ,                   : {}",
                 vggtOutput.getNumGaussians(), vggtOutput.getFeatureDimension());
 
-        //                                            Context          
+ // 上下文
         return createPlaceholderImage(ctx.getNDManager());
     }
 
@@ -118,9 +118,9 @@ public class VggtTranslator implements Translator<Image, Image> {
      *                   
      * <p>
      *        3D                                                                
-     *           3D              TranslatorContext          
+      * 3D              translator上下文
      *
-     * @param manager NDManager
+     * @param manager nd管理器
      * @return             
      */
     private Image createPlaceholderImage(NDManager manager) {

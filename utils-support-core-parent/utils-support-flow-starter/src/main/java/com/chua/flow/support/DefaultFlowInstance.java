@@ -27,7 +27,7 @@ import java.util.UUID;
  *
  * <p>实例执行驱动：采用待执行队列模型，从起始节点开始按图连线调度节点。
  * 节点可产出一个或多个后续节点（条件节点按 {@link ConditionNode#test} 结果
- * 走 true/false 分支，vue-flow 中一个 sourceHandle 连多条边对应多目标串行执行），
+   * 走 true/false 分支，vue-流 中一个 源处理 连多条边对应多目标串行执行），
  * 全部进入队列依次消费。节点可调用上下文 {@link FlowContext#waitForResume()} 挂起、
  * {@link FlowContext#exit()} 终止流程。</p>
  *
@@ -61,7 +61,7 @@ public class DefaultFlowInstance implements FlowInstance {
     private final DefaultFlow flow;
 
     /**
-     * 起始节点 ID
+      * 起始节点 标识
      */
     private final String startNodeId;
 
@@ -91,7 +91,7 @@ public class DefaultFlowInstance implements FlowInstance {
     private final Map<String, Object> initialParams;
 
     /**
-     * 单节点最大执行次数上限，run 创建上下文时应用
+      * 单节点最大执行次数上限，运行 创建上下文时应用
      */
     private int maxLoopCount = DEFAULT_MAX_LOOP_COUNT;
 
@@ -99,7 +99,7 @@ public class DefaultFlowInstance implements FlowInstance {
      * 构造流程实例。
      *
      * @param flow          所属流程
-     * @param startNodeId   起始节点 ID
+     * @param startNodeId   起始节点 标识
      * @param initialParams 初始参数
      */
     public DefaultFlowInstance(DefaultFlow flow, String startNodeId,
@@ -128,19 +128,19 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
-    /** 获取InstanceId */
+    /** 获取instanceid */
     public String getInstanceId() {
         return instanceId;
     }
 
     @Override
-    /** 获取FlowId */
+    /** 获取流标识 */
     public String getFlowId() {
         return flow.getId();
     }
 
     @Override
-    /** 获取Status */
+    /** 获取状态 */
     public FlowStatus getStatus() {
         return status;
     }
@@ -199,7 +199,7 @@ public class DefaultFlowInstance implements FlowInstance {
     }
 
     @Override
-    /** 获取Context */
+    /** 获取上下文 */
     public FlowContext getContext() {
         return context;
     }
@@ -303,7 +303,7 @@ public class DefaultFlowInstance implements FlowInstance {
     /**
      * 将目标节点按顺序放入队列尾部。
      *
-     * @param targets 目标节点 ID 列表
+     * @param targets 目标节点 标识 列表
      */
     private void enqueue(List<String> targets) {
         for (String target : targets) {
@@ -314,9 +314,9 @@ public class DefaultFlowInstance implements FlowInstance {
     /**
      * 查找条件节点按判断结果走向的全部目标节点。
      *
-     * @param nodeId 条件节点 ID
+     * @param nodeId 条件节点 标识
      * @param result 判断结果
-     * @return 目标节点 ID 列表，未配置分支时返回空列表
+     * @return 目标节点 标识 列表，未配置分支时返回空列表
      */
     private List<String> branchTargets(String nodeId, boolean result) {
         String label = result ? "true" : "false";
@@ -326,8 +326,8 @@ public class DefaultFlowInstance implements FlowInstance {
     /**
      * 查找普通节点的默认顺序边目标节点。
      *
-     * @param nodeId 节点 ID
-     * @return 目标节点 ID 列表，无顺序边时返回空列表
+     * @param nodeId 节点 标识
+     * @return 目标节点 标识 列表，无顺序边时返回空列表
      */
     private List<String> orderTargets(String nodeId) {
         return targetsOf(nodeId, DEFAULT_EDGE_LABEL);
@@ -336,9 +336,9 @@ public class DefaultFlowInstance implements FlowInstance {
     /**
      * 查找节点指定标签边对应的全部目标节点。
      *
-     * @param nodeId 源节点 ID
+     * @param nodeId 源节点 标识
      * @param label  边标签
-     * @return 目标节点 ID 列表
+     * @return 目标节点 标识 列表
      */
     private List<String> targetsOf(String nodeId, String label) {
         List<String> result = new ArrayList<>();

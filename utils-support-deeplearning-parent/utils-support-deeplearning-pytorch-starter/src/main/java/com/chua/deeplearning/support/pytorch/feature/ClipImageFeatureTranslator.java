@@ -24,21 +24,21 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
      */
     private final int imageSize;
 
-    /** 创建 ClipImageFeatureTranslator 实例 */
+    /** 创建 clip镜像特征translator 实例 */
     public ClipImageFeatureTranslator() {
         this(224);
     }
 
     /**
-     * 创建 ClipImageFeatureTranslator 实例
-     * @param imageSize imageSize
+      * 创建 clip镜像特征translator 实例
+     * @param imageSize 镜像大小
      */
     public ClipImageFeatureTranslator(int imageSize) {
         this.imageSize = imageSize;
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR)
                 .toType(DataType.FLOAT32, false);
@@ -51,7 +51,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray emb = list.get(0);
         if (emb.getShape().dimension() > 1 && emb.getShape().get(0) == 1) {

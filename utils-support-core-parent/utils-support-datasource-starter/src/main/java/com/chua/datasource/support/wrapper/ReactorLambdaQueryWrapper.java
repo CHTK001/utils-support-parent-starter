@@ -28,6 +28,7 @@ import java.util.List;
  *     .eq(User::getName, "张三")
  *     .gt(User::getAge, 18)
  *     .list();
+ * }</pre> *     .list();
  * }</pre>
  *
  * @param <T> 实体类型
@@ -65,7 +66,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     // ==================== SELECT / GROUP BY ====================
 
     /**
-     * 添加 SELECT 列。
+      * 添加 选择 列。
+     * @param column column
+     * @return 选择的结果
      */
     public ReactorLambdaQueryWrapper<T> select(SFunction<T, ?> column) {
         selectColumns.add(resolveColumn(column));
@@ -73,7 +76,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 批量添加 SELECT 列。
+      * 批量添加 选择 列。
+     * @param columns columns
+     * @return 选择的结果
      */
     @SafeVarargs
     public final ReactorLambdaQueryWrapper<T> select(SFunction<T, ?>... columns) {
@@ -84,7 +89,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 以字符串形式添加 SELECT 列。
+      * 以字符串形式添加 选择 列。
+     * @param columns columns
+     * @return 选择的结果
      */
     public ReactorLambdaQueryWrapper<T> select(String... columns) {
         selectColumns.addAll(List.of(columns));
@@ -92,7 +99,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     }
 
     /**
-     * 添加 GROUP BY 列。
+      * 添加 群体 BY 列。
+     * @param column column
+     * @return 群体by的结果
      */
     public ReactorLambdaQueryWrapper<T> groupBy(SFunction<T, ?> column) {
         this.groupByColumn = resolveColumn(column);
@@ -103,6 +112,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
      * 构建查询 SQL 信息。
+     * @return 构建sql的结果
      */
     public QuerySql<T> buildSql() {
         StringBuilder where = new StringBuilder();
@@ -157,6 +167,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
      * 同步执行查询（内部使用，供响应式方法在 boundedElastic 线程调用）。
+     * @return 执行列表的结果
      */
     private List<T> doList() {
         QuerySql<T> sql = buildSql();
@@ -194,6 +205,8 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
      * 构建 WHERE 子句和参数列表。
+     * @param sb sb
+     * @param params 参数
      */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
@@ -206,6 +219,9 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
      * 渲染单个条件为 SQL 片段。
+     * @param sb sb
+     * @param params 参数
+     * @param c c
      */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {

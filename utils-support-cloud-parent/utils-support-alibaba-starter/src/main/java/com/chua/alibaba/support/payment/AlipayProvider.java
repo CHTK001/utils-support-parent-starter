@@ -42,14 +42,14 @@ public class AlipayProvider implements PaymentChannel {
     /** 配置对象 */
     private final AlipayConfig config;
 
-    /** 创建 AlipayProvider 实例 */
+    /** 创建 alipay提供者 实例 */
     public AlipayProvider() {
         this(null);
     }
 
     /**
-     * 创建 AlipayProvider 实例
-     * @param config config
+      * 创建 alipay提供者 实例
+     * @param config 配置
      */
     public AlipayProvider(AlipayConfig config) {
         this.config = config;
@@ -57,7 +57,7 @@ public class AlipayProvider implements PaymentChannel {
     }
 
     @Override
-    /** Pay */
+    /** 薪酬 */
     public PaymentResponse pay(PaymentRequest request) {
         switch (request.getScene()) {
             case APP:
@@ -74,7 +74,11 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** 构建Client */
+    /**
+     * 构建客户端
+     *
+     * @return 构建客户端的结果
+     */
     private AlipayClient buildClient() {
         if (config == null) {
             return null;
@@ -90,7 +94,12 @@ public class AlipayProvider implements PaymentChannel {
         );
     }
 
-    /** AppPay */
+    /**
+     * app薪酬
+     *
+     * @param request 请求
+     * @return app薪酬的结果
+     */
     private PaymentResponse appPay(PaymentRequest request) {
         AlipayTradeAppPayRequest payRequest = new AlipayTradeAppPayRequest();
         setNotifyUrl(payRequest, request);
@@ -137,7 +146,12 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** WapPay */
+    /**
+     * wap薪酬
+     *
+     * @param request 请求
+     * @return wap薪酬的结果
+     */
     private PaymentResponse wapPay(PaymentRequest request) {
         AlipayTradeWapPayRequest payRequest = new AlipayTradeWapPayRequest();
         setNotifyUrl(payRequest, request);
@@ -175,7 +189,12 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** BarCodePay */
+    /**
+     * bar编码薪酬
+     *
+     * @param request 请求
+     * @return bar编码薪酬的结果
+     */
     private PaymentResponse barCodePay(PaymentRequest request) {
         AlipayTradePayRequest payRequest = new AlipayTradePayRequest();
         setNotifyUrl(payRequest, request);
@@ -214,7 +233,12 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** Precreate */
+    /**
+     * Precreate
+     *
+     * @param request 请求
+     * @return precreate的结果
+     */
     private PaymentResponse precreate(PaymentRequest request) {
         AlipayTradePrecreateRequest payRequest = new AlipayTradePrecreateRequest();
         setNotifyUrl(payRequest, request);
@@ -249,7 +273,12 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** 设置通知Url */
+    /**
+     * 设置通知Url
+     *
+     * @param payRequest 薪酬请求
+     * @param request 请求
+     */
     private void setNotifyUrl(com.alipay.api.AlipayRequest<?> payRequest, PaymentRequest request) {
         if (config != null && config.getNotifyUrl() != null) {
             payRequest.setNotifyUrl(config.getNotifyUrl());
@@ -259,7 +288,12 @@ public class AlipayProvider implements PaymentChannel {
         }
     }
 
-    /** ToUrlStr */
+    /**
+     * 转为urlstr
+     *
+     * @param params 参数
+     * @return 转为urlstr的结果
+     */
     private static String toUrlStr(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return null;

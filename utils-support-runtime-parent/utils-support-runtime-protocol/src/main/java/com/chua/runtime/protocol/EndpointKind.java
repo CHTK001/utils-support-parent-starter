@@ -1,7 +1,7 @@
 package com.chua.runtime.protocol;
 
 /**
- * 端点角色（OpenTelemetry 语义）。
+   * 端点角色（打开telemetry 语义）。
  *
  * @author CH
  * @since 4.0.0.42

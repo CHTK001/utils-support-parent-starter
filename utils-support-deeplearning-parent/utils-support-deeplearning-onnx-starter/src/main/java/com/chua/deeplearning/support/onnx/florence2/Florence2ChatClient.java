@@ -20,6 +20,10 @@ import java.util.List;
 @Spi("florence2")
 public class Florence2ChatClient extends AbstractLocalChatClient {
 
+    /**
+     * florence2对话客户端。
+     * @param setting setting
+     */
     public Florence2ChatClient(ChatClientSetting setting) {
         super("florence2", setting);
     }

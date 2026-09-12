@@ -68,7 +68,7 @@ public class RuntimeArtifact {
      * 环境变量
      */
     @Builder.Default
-    private Map<String, String> env = new LinkedHashMap<>();
+    private Map<String, String> env = new LinkedHashMap<>(); // env
 
     /**
      * 启动超时时间（毫秒）

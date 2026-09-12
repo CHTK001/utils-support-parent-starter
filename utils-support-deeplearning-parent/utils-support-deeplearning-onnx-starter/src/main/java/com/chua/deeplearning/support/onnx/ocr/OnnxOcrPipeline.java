@@ -8,7 +8,7 @@ import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 
 /**
- * ONNX OCR 管线（委托给 core 模块的 OcrPipeline）。
+   * ONNX OCR 管线（委托给 核心 模块的 ocrpipeline）。
  *
  * <p>保持包名兼容性，实际逻辑由 {@link com.chua.deeplearning.support.ocr.OcrPipeline} 实现。</p>
  *
@@ -22,21 +22,21 @@ public class OnnxOcrPipeline {
     private final OcrPipeline delegate;
 
     /**
-     * 创建 OnnxOcrPipeline 实例
+      * 创建 onnxocrpipeline 实例
      * @param detector detector
      * @param recognizer recognizer
      * @param direction direction
      * @param enhancer enhancer
-     * @param enhanceInPipeline enhanceInPipeline
-     * @param sortReadingOrder sortReadingOrder
-     * @param minConfidence minConfidence
-     * @param cropPadding cropPadding
-     * @param cropMinHeight cropMinHeight
-     * @param cropRotateThreshold cropRotateThreshold
-     * @param qualityGate qualityGate
-     * @param blurThreshold blurThreshold
-     * @param sigmoidDetect sigmoidDetect
-     * @param sigmoidRecognize sigmoidRecognize
+     * @param enhanceInPipeline 增强入pipeline
+     * @param sortReadingOrder 排序读取订单
+     * @param minConfidence 最小信心
+     * @param cropPadding croppadding
+     * @param cropMinHeight crop最小height
+     * @param cropRotateThreshold croprotate阈值
+     * @param qualityGate qualitygate
+     * @param blurThreshold blur阈值
+     * @param sigmoidDetect sigmoiddetect
+     * @param sigmoidRecognize sigmoidrecognize
      */
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                            ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
@@ -50,37 +50,70 @@ public class OnnxOcrPipeline {
                 sigmoidDetect, sigmoidRecognize);
     }
 
-    /** Recognize */
+    /**
+     * Recognize
+     *
+     * @param imageData 镜像数据
+     * @return recognize的结果
+     */
     public String recognize(byte[] imageData) {
         return delegate.recognize(imageData);
     }
 
-    /** RecognizeDetail */
+    /**
+     * recognizedetail
+     *
+     * @param imageData 镜像数据
+     * @return recognizeDetail的结果
+     */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return delegate.recognizeDetail(imageData);
     }
 
-    /** RecognizeDetailWithImage */
+    /**
+     * recognizedetailwith镜像
+     *
+     * @param imageData 镜像数据
+     * @return recognizedetailwith镜像的结果
+     */
     public OcrPipeline.OcrRecognizeResult recognizeDetailWithImage(byte[] imageData) {
         return delegate.recognizeDetailWithImage(imageData);
     }
 
-    /** Correct */
+    /**
+     * Correct
+     *
+     * @param imageData 镜像数据
+     * @return correct的结果
+     */
     public byte[] correct(byte[] imageData) {
         return delegate.correct(imageData);
     }
 
-    /** Enhance */
+    /**
+     * 增强
+     *
+     * @param imageData 镜像数据
+     * @return 增强的结果
+     */
     public byte[] enhance(byte[] imageData) {
         return delegate.enhance(imageData);
     }
 
-    /** Detector */
+    /**
+     * Detector
+     *
+     * @return detector的结果
+     */
     public ImageDetector detector() {
         return delegate.detector();
     }
 
-    /** Recognizer */
+    /**
+     * Recognizer
+     *
+     * @return recognizer的结果
+     */
     public OcrRecognizer recognizer() {
         return delegate.recognizer();
     }

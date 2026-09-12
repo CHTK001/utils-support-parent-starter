@@ -11,9 +11,9 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * WinRM 文件客户端 SPI 实现。
+   * winrm 文件客户端 SPI 实现。
  * <p>
- * 当前为占位实现，所有 IO 操作返回空 / false。实际 WinRM 文件传输需通过 wsman shell 命令或 SMT/HTTP 通道扩展实现。
+   * 当前为占位实现，所有 IO 操作返回空 / false。实际 winrm 文件传输需通过 wsman Shell 命令或 SMT/HTTP 通道扩展实现。
  * 连接生命周期由 SPI 框架管理，{@link #connect()} 与 {@link #closeQuietly()} 均无操作。
  * </p>
  *
@@ -58,7 +58,7 @@ public class WinRmFileClientSpi implements FileClient {
      */
     @Override
     public void uploadFile(InputStream inputStream, String path) throws IOException {
-        // WinRM 文件上传暂未实现
+ // winrm 文件上传暂未实现
     }
 
     /**
@@ -69,14 +69,14 @@ public class WinRmFileClientSpi implements FileClient {
      */
     @Override
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
-        // WinRM 文件下载暂未实现
+ // winrm 文件下载暂未实现
     }
 
     /**
      * 读取远端文件全部内容（暂未实现）。
      *
      * @param path 远端文件路径
-     * @return 当前返回 null
+     * @return 当前返回 空
      */
     @Override
     public String readFile(String path) throws IOException {

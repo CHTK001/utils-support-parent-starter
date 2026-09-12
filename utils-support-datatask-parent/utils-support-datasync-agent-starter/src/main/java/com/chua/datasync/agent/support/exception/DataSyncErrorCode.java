@@ -35,16 +35,16 @@ public enum DataSyncErrorCode {
     TRIGGER_INVALID(2004, "触发器配置无效: {0}"),
 
     // ==================== Source 错误 (3xxx) ====================
-    /** Source 未找到 */
+    /** 源 未找到 */
     SOURCE_NOT_FOUND(3001, "未找到 Source: {0}"),
 
-    /** Source 读取失败 */
+    /** 源 读取失败 */
     SOURCE_READ_FAILED(3002, "Source 读取失败: {0}, 原因: {1}"),
 
-    /** Source 连接失败 */
+    /** 源 连接失败 */
     SOURCE_CONNECT_FAILED(3003, "Source 连接失败: {0}, 原因: {1}"),
 
-    /** Source 资源未找到 */
+    /** 源 资源未找到 */
     SOURCE_RESOURCE_NOT_FOUND(3004, "Source 资源不存在: {0}"),
 
     // ==================== Sink 错误 (4xxx) ====================
@@ -107,7 +107,7 @@ public enum DataSyncErrorCode {
     MAPPING_TYPE_MISMATCH(8003, "字段类型不匹配: {0}, 期望: {1}, 实际: {2}"),
 
     // ==================== 方向约束错误 (9xxx) ====================
-    /** Source 方向错误 */
+    /** 源 方向错误 */
     SOURCE_DIRECTION_ERROR(9001, "Source 方向错误，应为 INPUT: sourceId={0}, direction={1}"),
 
     /** Sink 方向错误 */

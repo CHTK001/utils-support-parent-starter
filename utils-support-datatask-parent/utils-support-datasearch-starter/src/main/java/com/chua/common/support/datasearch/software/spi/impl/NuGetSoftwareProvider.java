@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * NuGet 软件包管理器提供器。
  *
  * <p>通过 dotnet / nuget CLI 搜索、安装和卸载 .NET 全局工具与包。
- * 搜索使用 <code>dotnet nuget search</code>，安装/卸载使用
+   * 搜索使用 <code>dotnet NuGet 搜索</code>，安装/卸载使用
  * <code>dotnet tool install/uninstall --global</code>。
  *
  * @author CH
@@ -33,7 +33,7 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "nuget";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("nuget 搜索完成, exitCode={}", exitCode);
             }
@@ -89,17 +89,24 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -115,7 +122,12 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析NugetOutput */
+    /**
+     * 解析nuget输出
+     *
+     * @param output 输出
+     * @return 解析nuget输出的结果
+     */
     private List<SoftwareInfo> parseNugetOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -126,12 +138,13 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
                         || trimmed.contains("Package")
                         && trimmed.contains("Latest Version")
                         || trimmed.startsWith("---")
-                        || trimmed.startsWith("The"))
-                {
+                        || trimmed.startsWith("The")) {
+                    {
                     continue;
+                    }
+                    // 表格列: 包  Latest 版本  Owners  Downloads  Verified
+                    String[] tokens = trimmed.split("\\s+");
                 }
-                // 表格列: Package  Latest Version  Owners  Downloads  Verified
-                String[] tokens = trimmed.split("\\s+");
                 if (tokens.length < 2) {
                     continue;
                 }
@@ -147,7 +160,12 @@ public class NuGetSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
-    /** LooksLikeVersion */
+    /**
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         if (s == null || s.isEmpty()) {
             return false;

@@ -5,7 +5,7 @@ import io.greptime.models.AuthInfo;
 import io.greptime.options.GreptimeOptions;
 
 /**
- * GreptimeDB 客户端工厂，基于官方 gRPC Ingester SDK 创建 {@link GreptimeDB} 实例。
+   * greptimedb 客户端工厂，基于官方 gRPC Ingester SDK 创建 {@link GreptimeDB} 实例。
  * <p>
  * 客户端为线程安全的全局单例，应使用 {@link #create(String, String, String, String)} 创建后复用。
  * </p>
@@ -15,14 +15,17 @@ import io.greptime.options.GreptimeOptions;
  */
 public final class GreptimeDbClient {
 
+    /**
+     * greptimedb客户端。
+     */
     private GreptimeDbClient() {
     }
 
     /**
-     * 创建 GreptimeDB 客户端。
+      * 创建 greptimedb 客户端。
      * <p>默认使用 gRPC 协议连接 4001 端口，支持无 schema 写入（自动建表）。</p>
      *
-     * @param endpoint  GreptimeDB gRPC 端点，如 {@code 127.0.0.1:4001}
+     * @param endpoint  greptimedb gRPC 端点，如 {@code 127.0.0.1:4001}
      * @param database  目标数据库名（默认 {@code public}）
      * @param username  用户名（为空表示无鉴权）
      * @param password  密码
@@ -39,7 +42,7 @@ public final class GreptimeDbClient {
     }
 
     /**
-     * 关闭 GreptimeDB 客户端并释放资源。
+      * 关闭 greptimedb 客户端并释放资源。
      *
      * @param client 客户端实例
      */

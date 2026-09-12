@@ -20,6 +20,7 @@ import java.util.List;
  * // 工作日每 5 分钟执行一次
  * CronTrigger trigger = new CronTrigger("0 0/5 * * * MON-FRI");
  * List<LocalDateTime> times = trigger.getFireTimes(5);
+ * }</pre>ireTimes(5);
  * }</pre>
  *
  * @author CH

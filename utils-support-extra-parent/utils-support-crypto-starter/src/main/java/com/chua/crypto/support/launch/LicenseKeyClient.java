@@ -10,7 +10,7 @@ import java.util.Base64;
 import java.util.regex.Pattern;
 
 /**
- * 校验服务器密钥下发客户端（零依赖，基于 JDK HttpClient）
+   * 校验服务器密钥下发客户端（零依赖，基于 JDK HTTP客户端）
  *
  * <h2>协议 v1</h2>
  * <pre>
@@ -61,8 +61,8 @@ public final class LicenseKeyClient {
      * @param licenseUrl  校验服务器地址
      * @param appId       应用标识
      * @param fingerprint 本机指纹十六进制串
-     * @param secret      响应签名密钥（可为 null；生产环境必须配置并与服务端一致）
-     * @return 封装块字节（交由 unwrapMaster 解封）
+     * @param secret      响应签名密钥（可为 空；生产环境必须配置并与服务端一致）
+     * @return 封装块字节（交由 unwrapmaster 解封）
      * @throws IllegalStateException 未注册/签名校验失败/网络失败
      */
     public static byte[] fetch(String licenseUrl, String appId, String fingerprint, char[] secret) {
@@ -126,7 +126,7 @@ public final class LicenseKeyClient {
     }
 
     /**
-     * 解析响应：兼容 无签名(base64) 与 签名(v1.blob.hmac) 两种形态；
+      * 解析响应：兼容 无签名(基础64) 与 签名(v1.blob.hmac) 两种形态；
      * 客户端配置了 secret 时必须携带合法签名
      *
      * @param body   响应体
@@ -173,7 +173,7 @@ public final class LicenseKeyClient {
     }
 
     /**
-     * HmacSHA256
+      * hmacsha256
      *
      * @param secret 密钥
      * @param data   数据
@@ -203,6 +203,8 @@ public final class LicenseKeyClient {
 
     /**
      * JSON 字符串转义
+     * @param value 值
+     * @return escape的结果
      */
     private static String escape(String value) {
         return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");

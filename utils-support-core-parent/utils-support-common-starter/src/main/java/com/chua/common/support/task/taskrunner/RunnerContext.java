@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 运行上下文 — 贯穿一次 TaskRunner 执行的数据载体。
+   * 运行上下文 — 贯穿一次 任务runner 执行的数据载体。
  *
  * <p>职责：</p>
  * <ul>
@@ -23,17 +23,17 @@ import java.util.concurrent.ConcurrentMap;
 public final class RunnerContext {
 
     /**
-     * null 结果哨兵：允许任务成功但返回 null，同时保证 hasResult 语义正确
+      * 空 结果哨兵：允许任务成功但返回 空，同时保证 是否包含结果 语义正确
      */
     private static final Object NULL_VALUE = new Object();
 
     /**
-     * 初始输入，可能为 null
+      * 初始输入，可能为 空
      */
     private final Object input;
 
     /**
-     * 节点结果存储：nodeId -> 返回值（null 结果以哨兵存储）
+      * 节点结果存储：节点id -> 返回值（空 结果以哨兵存储）
      */
     private final ConcurrentMap<String, Object> results = new ConcurrentHashMap<>();
 
@@ -45,7 +45,7 @@ public final class RunnerContext {
     /**
      * 创建运行上下文。
      *
-     * @param input 初始输入，允许为 null
+     * @param input 初始输入，允许为 空
      */
     public RunnerContext(Object input) {
         this.input = input;
@@ -55,7 +55,7 @@ public final class RunnerContext {
      * 获取初始输入。
      *
      * @param <T> 期望类型
-     * @return 初始输入，可能为 null
+     * @return 初始输入，可能为 空
      */
     @SuppressWarnings("unchecked")
     public <T> T getInput() {
@@ -65,8 +65,8 @@ public final class RunnerContext {
     /**
      * 写入节点执行结果（由调度器调用，业务代码一般无需直接使用）。
      *
-     * @param nodeId 节点 ID，不为 null
-     * @param value  执行结果值，允许为 null（以内部哨兵记录）
+     * @param nodeId 节点 标识，不为 空
+     * @param value  执行结果值，允许为 空（以内部哨兵记录）
      */
     public void putResult(String nodeId, Object value) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
@@ -76,8 +76,8 @@ public final class RunnerContext {
     /**
      * 读取指定节点的执行结果原始值。
      *
-     * @param nodeId 节点 ID，不为 null
-     * @return 结果值；节点未执行或执行结果本身为 null 时返回 null
+     * @param nodeId 节点 标识，不为 空
+     * @return 结果值；节点未执行或执行结果本身为 空 时返回 空
      */
     public Object get(String nodeId) {
         Objects.requireNonNull(nodeId, "nodeId must not be null");
@@ -87,10 +87,10 @@ public final class RunnerContext {
     /**
      * 按类型读取指定节点的执行结果。
      *
-     * @param nodeId 节点 ID，不为 null
-     * @param type   期望类型，不为 null
+     * @param nodeId 节点 标识，不为 空
+     * @param type   期望类型，不为 空
      * @param <T>    期望类型
-     * @return 类型化结果；节点未执行或结果为 null 时返回 null
+     * @return 类型化结果；节点未执行或结果为 空 时返回 空
      * @throws IllegalStateException 当实际类型与期望不一致时
      */
     @SuppressWarnings("unchecked")
@@ -113,9 +113,9 @@ public final class RunnerContext {
      * 判断指定节点是否已有执行结果记录。
      *
      * <p>{@code dependsNode} 数据依赖基于此判定：前置节点执行成功即视为有结果，
-     * 即使其返回值为 null。</p>
+      * 即使其返回值为 空。</p>
      *
-     * @param nodeId 节点 ID，不为 null
+     * @param nodeId 节点 标识，不为 空
      * @return true 表示该节点已成功执行并写入结果
      */
     public boolean hasResult(String nodeId) {
@@ -126,7 +126,7 @@ public final class RunnerContext {
     /**
      * 写入自定义属性。
      *
-     * @param key   属性键，不为 null
+     * @param key   属性键，不为 空
      * @param value 属性值
      */
     public void setAttribute(String key, Object value) {
@@ -137,8 +137,8 @@ public final class RunnerContext {
     /**
      * 读取自定义属性。
      *
-     * @param key 属性键，不为 null
-     * @return 属性值，不存在时为 null
+     * @param key 属性键，不为 空
+     * @return 属性值，不存在时为 空
      */
     public Object getAttribute(String key) {
         Objects.requireNonNull(key, "key must not be null");
@@ -148,8 +148,8 @@ public final class RunnerContext {
     /**
      * 删除自定义属性。
      *
-     * @param key 属性键，不为 null
-     * @return 被删除的属性值，不存在时为 null
+     * @param key 属性键，不为 空
+     * @return 被删除的属性值，不存在时为 空
      */
     public Object removeAttribute(String key) {
         Objects.requireNonNull(key, "key must not be null");
@@ -157,7 +157,7 @@ public final class RunnerContext {
     }
 
     /**
-     * 解包内部 null 哨兵。
+      * 解包内部 空 哨兵。
      *
      * @param stored 存储值
      * @return 业务原始值

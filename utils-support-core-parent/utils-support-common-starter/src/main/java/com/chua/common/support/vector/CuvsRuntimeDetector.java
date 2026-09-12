@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * cuVS GPU 环境检测器，按层级检测 NVIDIA 驱动、CUDA Toolkit、GPU 设备可用性。
+   * cuvs GPU 环境检测器，按层级检测 NVIDIA 驱动、CUDA Toolkit、GPU 设备可用性。
  *
  * <p>检测流程（逐级失败则停止并打印安装指引）：
  * <ol>
@@ -34,7 +34,7 @@ import java.util.List;
 @Slf4j
 public class CuvsRuntimeDetector implements RuntimeDetector {
 
-    /** cuVS Java API 类名前缀，用于检测包是否已加载 */
+    /** cuvs Java API 类名前缀，用于检测包是否已加载 */
     private static final String CUVS_PACKAGE_PREFIX = "com.nvidia.cuvs.";
 
     @Override
@@ -44,7 +44,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
 
     @Override
     public boolean isAvailable() {
-        // Step 1: cuVS Java API 是否在 classpath
+ // Step 1: cuvs Java API 是否在 类路径
         if (!checkCuvsApiPresent()) {
             log.warn("[vector-runtime] cuVS Java API not found in classpath. "
                     + "Install via: conda install -c rapidsai -c conda-forge libcuvs cuda-version=12.9\n"
@@ -72,7 +72,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
             return false;
         }
 
-        // Step 4: 创建 CuVSResources 验证 cuVS native 库
+ // Step 4: 创建 cuvsresources 验证 cuvs NAT 库
         try {
             Object resources = ReflectUtils.invokeStatic("com.nvidia.cuvs.CuVSResources",
                     "create", Object.class);
@@ -106,7 +106,8 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     // ==================== 内部检测方法 ====================
 
     /**
-     * 检查 cuVS Java API 是否在 classpath 中。
+      * 检查 cuvs Java API 是否在 类路径 中。
+     * @return 检查cuvsapipresent的结果
      */
     private boolean checkCuvsApiPresent() {
         // 通过反射尝试加载核心类来判断
@@ -128,13 +129,14 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
      *
      * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
      * Linux：检查 /proc/driver/nvidia 是否存在。</p>
+     * @return 检查nvidiadriver的结果
      */
     private boolean checkNvidiaDriver() {
-        // Windows registry fallback
+ // 窗口 registry 降级
         if (isWindows() && checkNvidiaRegistry()) {
             return true;
         }
-        // Linux /proc fallback
+ // Linux /proc 降级
         if (isLinux() && Files.exists(Paths.get("/proc/driver/nvidia"))) {
             return true;
         }
@@ -143,6 +145,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
 
     /**
      * 检测可用的 GPU 设备列表（通过 nvidia-smi）。
+     * @return detectGpus的结果
      */
     private List<String> detectGpus() {
         List<String> gpus = new ArrayList<>();
@@ -172,7 +175,12 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     }
 
     /**
-     * Windows 注册表检查 NVIDIA 驱动。
+      * 窗口 注册表检查 NVIDIA 驱动。
+     * @return 是否Linux的结果
+     /**
+      * 检查nvidiaregistry。
+      * @return 检查nvidiaregistry的结果
+      */
      */
     private boolean checkNvidiaRegistry() {
         try {

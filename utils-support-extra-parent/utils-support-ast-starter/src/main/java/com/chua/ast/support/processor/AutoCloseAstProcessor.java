@@ -13,8 +13,8 @@ import java.util.Set;
 /**
  * {@link AutoClose} 注解的 AST 处理器
  * <p>
- * 在编译期扫描标注了 {@code @AutoClose} 注解的方法参数，通过 javac Tree API
- * 在方法外部包裹 try-finally 块，在 finally 中实现 null 检查 + close() 调用。
+   * 在编译期扫描标注了 {@code @AutoClose} 注解的方法参数，通过 javac 树 API
+   * 在方法外部包裹 尝试-最终 块，在 最终 中实现 空 检查 + 关闭() 调用。
  * </p>
  * <p>
  * 转换示例：
@@ -30,10 +30,12 @@ import java.util.Set;
  *         }
  *     }
  * }
+ * }</pre>* }
  * }</pre>
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @SupportedAnnotationTypes("com.chua.ast.support.annotation.AutoClose")
 @SupportedSourceVersion(SourceVersion.RELEASE_25)
@@ -76,7 +78,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
                 continue;
             }
 
-            // 检查参数类型是否实现了 AutoCloseable
+ // 检查参数类型是否实现了 auto关闭
             TypeMirror paramType = paramElement.asType();
             if (!isAutoCloseable(paramType)) {
                 messager.printMessage(Diagnostic.Kind.WARNING,
@@ -107,10 +109,10 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 判断 TypeMirror 是否为 AutoCloseable 类型
+      * 判断 类型mirror 是否为 auto关闭 类型
      *
      * @param type 类型镜像
-     * @return 如果是 AutoCloseable 返回 true，否则返回 false
+     * @return 如果是 auto关闭 返回 true，否则返回 false
      */
     private boolean isAutoCloseable(TypeMirror type) {
         TypeElement autoCloseableElement = pe.getElementUtils()
@@ -124,7 +126,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 应用 AutoClose 编译期转换，将方法体包裹进 try-finally 块
+      * 应用 auto关闭 编译期转换，将方法体包裹进 尝试-最终 块
      * <pre>{@code
      * try {
      *     // 原始方法体
@@ -133,8 +135,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
      *         try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
      *     }
      * }
-     * }</pre>
-     *
+     * }</pre>     *
      * @param methodTree 方法树节点
      * @param paramName  参数名称
      */
@@ -156,7 +157,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
         // 构建 finally 块：if (param != null) { try { param.close(); } catch (Exception e) {} }
         var finallyBlock = buildFinallyBlock(maker, names, paramName);
 
-        // 构建 try-finally: try { originalStats } finally { finallyBlock }
+ // 构建 尝试-最终: 尝试 { 原始stats } 最终 { 最终block }
         var tryBody = maker.Block(0, originalStats);
         var tryFinally = maker.Try(tryBody,
                 com.sun.tools.javac.util.List.nil(),
@@ -167,15 +168,16 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     }
 
     /**
-     * 构建 finally 块中的关闭逻辑
+      * 构建 最终 块中的关闭逻辑
      * <pre>{@code
      * if (param != null) {
      *     try { param.close(); } catch (Exception e) { /* suppressed *&#47; }
      * }
      * }</pre>
+     * }</pre>
      *
-     * @param maker     TreeMaker 实例
-     * @param names     Names 实例
+     * @param maker     树maker 实例
+     * @param names     名称 实例
      * @param paramName 参数名称
      * @return finally 代码块
      */

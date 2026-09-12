@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 阿里云通义千问大模型对话客户端
  *
  * <p>基于 DashScope SDK 的 {@link ChatClient} 实现，通过 Generation API
- * 调用阿里云模型服务灵积（DashScope）的对话接口。
+   * 调用阿里云模型服务灵积（百炼）的对话接口。
  *
  * @author CH
  * @since 4.0.0.42
@@ -60,7 +60,7 @@ public class AlibabaChatClient implements ChatClient {
     private Integer maxTokens;
     /** 系统提示 */
     private String system;
-    /** 会话 ID */
+    /** 会话 标识 */
     private String sessionId;
     /** 对话历史消息 */
     private final List<ChatMessage> history = new ArrayList<>(HISTORY_CAPACITY);
@@ -78,7 +78,7 @@ public class AlibabaChatClient implements ChatClient {
     private SkillManager skillManager;
 
     /**
-     * 创建 AlibabaChatClient 实例
+      * 创建 alibaba对话客户端 实例
      * @param setting setting
      */
     public AlibabaChatClient(ChatClientSetting setting) {
@@ -90,7 +90,12 @@ public class AlibabaChatClient implements ChatClient {
         this.generation = buildGeneration(setting);
     }
 
-    /** 构建Generation */
+    /**
+     * 构建Generation
+     *
+     * @param setting setting
+     * @return 构建generation的结果
+     */
     private static Generation buildGeneration(ChatClientSetting setting) {
         var proxyStr = setting.getProxy();
         if (proxyStr == null || proxyStr.isBlank()) {
@@ -100,7 +105,12 @@ public class AlibabaChatClient implements ChatClient {
         return new Generation(setting.getAppKey(), null, connOpts);
     }
 
-    /** 构建ConnectionOptions */
+    /**
+     * 构建connection期权
+     *
+     * @param proxyStr 代理str
+     * @return 构建connection期权的结果
+     */
     private static ConnectionOptions buildConnectionOptions(String proxyStr) {
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
@@ -119,7 +129,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -133,14 +143,14 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
@@ -154,7 +164,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** ThinkingEffort */
+    /** thinkingeffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
@@ -175,35 +185,35 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role(Role.USER.getValue()).content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role(Role.ASSISTANT.getValue()).content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.sessionId = sessionId;
         return this;
@@ -216,13 +226,13 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         throw new UnsupportedOperationException("该服务商不支持远程文件附件");
     }
 
     @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.imageUrls.clear();
@@ -231,7 +241,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         var result = new StringBuilder();
         chat(prompt, response -> {
@@ -244,7 +254,7 @@ public class AlibabaChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -255,10 +265,10 @@ public class AlibabaChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -365,7 +375,13 @@ public class AlibabaChatClient implements ChatClient {
         }
     }
 
-    /** 构建Messages */
+    /**
+     * 构建消息
+     *
+     * @param prompt 提示符
+     * @param actualSystem actual系统
+     * @return 构建消息的结果
+     */
     private List<Message> buildMessages(String prompt, String actualSystem) {
         var messages = new ArrayList<Message>();
         if (actualSystem != null && !actualSystem.isEmpty()) {

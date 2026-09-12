@@ -43,7 +43,7 @@ public class EngineUpdateWrapper<T> extends LambdaUpdateWrapper<T> {
     }
 
     @Override
-    /** NewInstance */
+    /** 新instance */
     protected LambdaUpdateWrapper<T> newInstance() {
         return new EngineUpdateWrapper<>(engine, entityClass);
     }

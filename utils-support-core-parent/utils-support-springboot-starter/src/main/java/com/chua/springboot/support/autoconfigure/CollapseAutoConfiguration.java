@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Bean;
  * （合并拆分 / 同参折叠，见 {@link Collapsible} 语义说明）。</p>
  *
  * <p>总开关：{@code collapse.executor.enabled=false} 可关闭（默认开启）；
- * 折叠执行器实现（utils-support-collapse-starter）缺失时自动降级为直接执行。</p>
+   * 折叠执行器实现（utils-support-collapse-starter）缺失时自动降级为直接执行。</p>
  *
  * @author CH
  * @since 2026/09/03

@@ -90,13 +90,13 @@ public final class SysCommand extends AbstractCommand {
                 )
         );
 
-        // ── Memory summary ──
+ // ── 内存 summary ──
         GlobalMemory mem = hw.getMemory();
         System.out.println();
         System.out.println("Memory: " + Formatter.formatBytes(mem.getTotal()) + " total, "
                 + Formatter.formatBytes(mem.getAvailable()) + " available");
 
-        // ── Process stats ──
+ // ── 处理 stats ──
         System.out.println();
         int totalProcs = os.getProcessCount();
         int running = 0;
@@ -124,11 +124,11 @@ public final class SysCommand extends AbstractCommand {
                 )
         );
 
-        // ── System uptime ──
+ // ── 系统 uptime ──
         System.out.println("Uptime: " + formatDuration(os.getSystemUptime()));
         System.out.println("Boot Time: " + os.getSystemBootTime());
 
-        // ── Display adapters ──
+ // ── Display 适配器 ──
         List<oshi.hardware.Display> displays = hw.getDisplays();
         if (displays != null && !displays.isEmpty()) {
             System.out.println();
@@ -145,7 +145,7 @@ public final class SysCommand extends AbstractCommand {
             }
         }
 
-        // ── Sound cards ──
+ // ── Sound 卡片 ──
         List<SoundCard> sounds = hw.getSoundCards();
         if (sounds != null && !sounds.isEmpty()) {
             System.out.println();
@@ -167,7 +167,7 @@ public final class SysCommand extends AbstractCommand {
             }
         }
 
-        // ── Services ──
+ // ── 服务 ──
         if (options.has("services")) {
             List<OSService> svcs = os.getServices();
             if (svcs != null && !svcs.isEmpty()) {
@@ -193,6 +193,11 @@ public final class SysCommand extends AbstractCommand {
         System.out.println();
     }
 
+    /**
+     * 格式化hz。
+     * @param hz hz
+     * @return 格式化hz的结果
+     */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
             return String.format("%.2f GHz", hz / 1_000_000_000.0);
@@ -203,6 +208,11 @@ public final class SysCommand extends AbstractCommand {
         return hz + " Hz";
     }
 
+    /**
+     * 格式化持续时间。
+     * @param seconds seconds
+     * @return 格式化持续时间的结果
+     */
     private static String formatDuration(long seconds) {
         if (seconds < 0) {
             return "N/A";

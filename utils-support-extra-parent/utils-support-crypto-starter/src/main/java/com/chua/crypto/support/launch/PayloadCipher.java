@@ -55,7 +55,7 @@ public final class PayloadCipher {
     private static final byte FLAG_SERVER_BOUND = 0x01;
 
     /**
-     * 头部长度：魔数4+版本1+标志1+密钥ID8+盐16+IV12
+      * 头部长度：魔数4+版本1+标志1+密钥标识8+盐16+IV12
      */
     private static final int BLOB_PREFIX = 6 + 8 + 16 + 12;
 
@@ -75,12 +75,12 @@ public final class PayloadCipher {
     private static final int IV_LEN = 12;
 
     /**
-     * 密钥 ID 长度
+      * 密钥 标识 长度
      */
     private static final int KEY_ID_LEN = 8;
 
     /**
-     * PBKDF2 迭代次数（与主模块 KeyProtector 一致）
+      * PBKDF2 迭代次数（与主模块 键protector 一致）
      */
     private static final int PBKDF2_ITERATIONS = 210_000;
 
@@ -125,7 +125,7 @@ public final class PayloadCipher {
      *
      * @param expectedMagic 期望魔数
      * @param blob          封装块字节
-     * @param pin           口令（CUSTOM 必需；SERVER_BOUND 可选作 pepper）
+     * @param pin           口令（习俗 必需；服务端_BOUND 可选作 pepper）
      * @param serverId      固定服务器标识（可空；覆盖自动指纹）
      * @return 32 字节主密钥
      */
@@ -149,7 +149,7 @@ public final class PayloadCipher {
     }
 
     /**
-     * 派生 KEK：SERVER_BOUND 由服务器指纹派生（口令作 pepper），否则由口令直接派生。
+      * 派生 KEK：服务端_BOUND 由服务器指纹派生（口令作 pepper），否则由口令直接派生。
      * 与主模块 {@code KeyProtector.deriveKek} 完全对齐。
      *
      * @param serverBound 是否服务器绑定策略
@@ -184,7 +184,7 @@ public final class PayloadCipher {
     }
 
     /**
-     * 计算服务器指纹（与主模块 ServerFingerprint 特征集合一致）：
+      * 计算服务器指纹（与主模块 服务端fingerprint 特征集合一致）：
      * OS、架构、CPU 核数、主机名、非回环物理网卡 MAC（排序）
      *
      * @param pinned 固定标识（非空时直接哈希该值）
@@ -249,7 +249,7 @@ public final class PayloadCipher {
     }
 
     /**
-     * HmacSHA256
+      * hmacsha256
      *
      * @param key  密钥
      * @param data 数据
@@ -287,6 +287,9 @@ public final class PayloadCipher {
 
     /**
      * 前缀匹配
+     * @param data 数据
+     * @param magic 魔法
+     * @return 启动with的结果
      */
     private static boolean startsWith(byte[] data, byte[] magic) {
         if (data == null || data.length < magic.length) {
@@ -302,6 +305,9 @@ public final class PayloadCipher {
 
     /**
      * 校验魔数
+     * @param data 数据
+     * @param magic 魔法
+     * @param message 消息
      */
     private static void requireMagic(byte[] data, byte[] magic, String message) {
         if (!startsWith(data, magic)) {
@@ -311,6 +317,9 @@ public final class PayloadCipher {
 
     /**
      * 校验最小长度
+     * @param data 数据
+     * @param min 最小
+     * @param message 消息
      */
     private static void requireLength(byte[] data, int min, String message) {
         if (data == null || data.length < min) {
@@ -320,6 +329,10 @@ public final class PayloadCipher {
 
     /**
      * 截取副本
+     * @param source 源
+     * @param from 从
+     * @param length 长度
+     * @return slice的结果
      */
     private static byte[] slice(byte[] source, int from, int length) {
         return Arrays.copyOfRange(source, from, from + length);

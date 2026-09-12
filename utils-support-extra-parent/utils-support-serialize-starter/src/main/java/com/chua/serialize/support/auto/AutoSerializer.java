@@ -29,11 +29,12 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @param <T> 可序列化的目标类型
  * @author CH
+ * @since 4.0.0
  */
 @Spi("auto")
 @Slf4j
 public class AutoSerializer<T extends Serializable> implements Serializer<T> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 序列化器降级链
@@ -52,7 +53,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
      * 创建自动降级序列化器。
      * <p>
      * 默认降级链：Kryo → JSON → Java。
-     * 可通过 fallbackSerializers 参数添加额外的降级序列化器。
+      * 可通过 降级序列化器 参数添加额外的降级序列化器。
      * </p>
      *
      * @param clazz              目标实体类类型
@@ -93,7 +94,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
      * 序列化对象为字节数组。
      * <p>
      * 按降级链依次尝试，第一个成功的序列化器返回结果。
-     * 所有序列化器均失败时抛出 RuntimeException。
+      * 所有序列化器均失败时抛出 runtime异常。
      * </p>
      *
      * @param object 待序列化的对象
@@ -121,7 +122,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
      * 将字节数组反序列化为对象。
      * <p>
      * 按降级链依次尝试，第一个成功的反序列化器返回结果。
-     * 所有反序列化器均失败时抛出 RuntimeException。
+      * 所有反序列化器均失败时抛出 runtime异常。
      * </p>
      *
      * @param bytes 序列化后的字节数组

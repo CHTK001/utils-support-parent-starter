@@ -20,7 +20,7 @@ import com.chua.solr.support.engine.SolrEngine;
 public class SolrMetaData extends DefaultMetaData {
 
     /**
-     * 创建 SolrMetaData 实例
+      * 创建 Solrmeta数据 实例
      * @param engine engine
      */
     public SolrMetaData(SolrEngine engine) {

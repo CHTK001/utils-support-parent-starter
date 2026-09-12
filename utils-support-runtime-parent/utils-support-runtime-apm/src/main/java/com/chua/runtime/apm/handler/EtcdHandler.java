@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Etcd Handler — intercepts Etcd KV operations.
+   * Etcd 处理器 — intercepts Etcd KV operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,18 +19,18 @@ public class EtcdHandler extends AbstractAppHandler {
      */
     private static final String KV_CLIENT = "io/etcd/jetcd/KV";
     /**
-     * kv methods
+      * kv 方法
      */
     private static final String[] KV_METHODS = {"put", "get", "delete", "compact"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "etcd-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "etcd.enabled";
     }
@@ -42,13 +42,13 @@ public class EtcdHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.ETCD;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(KV_CLIENT, KV_METHODS);
     }

@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SpiderDefinitionStore {
 
     /**
-     * 自增 ID 生成器
+      * 自增 标识 生成器
      */
     private final AtomicLong idGenerator = new AtomicLong(1);
 
@@ -66,7 +66,7 @@ public class SpiderDefinitionStore {
      * 按编码查询爬虫定义。
      *
      * @param spiderCode 爬虫编码
-     * @return 爬虫定义，不存在时返回 null
+     * @return 爬虫定义，不存在时返回 空
      */
     public SpiderDefinition get(String spiderCode) {
         return storage.get(spiderCode);

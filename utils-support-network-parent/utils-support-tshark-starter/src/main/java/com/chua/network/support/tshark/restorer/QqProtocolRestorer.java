@@ -5,7 +5,7 @@ package com.chua.network.support.tshark.restorer;
  *
  * <p>QQ 协议基于 UDP，默认端口 8000。
  * 识别 QQ 协议头：第 1 字节为 0x02 表示 OICQ 协议版本，
- * 后跟 2 字节 command（如 0x00 0x06 = Login Request，0x00 0x01 = Login Confirm）。</p>
+   * 后跟 2 字节 命令（如 0x00 0x06 = Login 请求，0x00 0x01 = Login Confirm）。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -13,7 +13,7 @@ package com.chua.network.support.tshark.restorer;
 public class QqProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "qq";
     }
@@ -64,7 +64,12 @@ public class QqProtocolRestorer extends AbstractProtocolRestorer {
         return sb.toString();
     }
 
-    /** ToCommandName */
+    /**
+     * 转为命令名称
+     *
+     * @param command 命令
+     * @return 转为命令名称的结果
+     */
     private static String toCommandName(int command) {
         return switch (command) {
             case 0x0001 -> "LoginConfirm";

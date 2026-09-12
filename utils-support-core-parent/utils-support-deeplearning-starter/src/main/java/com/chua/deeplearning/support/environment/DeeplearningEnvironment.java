@@ -10,7 +10,7 @@ package com.chua.deeplearning.support.environment;
 public class DeeplearningEnvironment {
 
     /**
-     * Provider 名称
+      * 提供者 名称
      */
     private final String provider;
 
@@ -40,7 +40,7 @@ public class DeeplearningEnvironment {
     private static final String PREFIX_DEEPLEARNING = "deeplearning.";
 
     /**
-     * 配置键：app-id
+      * 配置键：app-标识
      */
     private static final String KEY_APP_ID = "app-id";
 
@@ -50,12 +50,12 @@ public class DeeplearningEnvironment {
     private static final String KEY_APP_SECRET = "app-secret";
 
     /**
-     * 配置键：active-key
+      * 配置键：活跃-键
      */
     private static final String KEY_ACTIVE_KEY = "active-key";
 
     /**
-     * 配置键：model-path
+      * 配置键：模型-路径
      */
     private static final String KEY_MODEL_PATH = "model-path";
 
@@ -67,7 +67,7 @@ public class DeeplearningEnvironment {
     /**
      * 构造环境解析器。
      *
-     * @param provider Provider 名称
+     * @param provider 提供者 名称
      */
     public DeeplearningEnvironment(String provider) {
         this.provider = provider;
@@ -146,7 +146,7 @@ public class DeeplearningEnvironment {
     /**
      * 创建环境解析器实例。
      *
-     * @param provider Provider 名称
+     * @param provider 提供者 名称
      * @return DeeplearningEnvironment 实例
      */
     public static DeeplearningEnvironment of(String provider) {

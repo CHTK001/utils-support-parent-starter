@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
  */
 public class CnIdCardParser {
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("姓名\\s*[:：]\\s*(\\S+)");
-    private static final Pattern GENDER_PATTERN = Pattern.compile("性别\\s*[:：]\\s*(\\S+)");
-    private static final Pattern ETHNICITY_PATTERN = Pattern.compile("民族\\s*[:：]\\s*(\\S+)");
+    private static final Pattern NAME_PATTERN = Pattern.compile("姓名\\s*[:：]\\s*(\\S+)"); // 名称模式
+    private static final Pattern GENDER_PATTERN = Pattern.compile("性别\\s*[:：]\\s*(\\S+)"); // gender模式
+    private static final Pattern ETHNICITY_PATTERN = Pattern.compile("民族\\s*[:：]\\s*(\\S+)"); // ethnicity模式
     private static final Pattern BIRTH_PATTERN = Pattern.compile("出生\\s*[:：]\\s*(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日");
     private static final Pattern BIRTH_SHORT_PATTERN = Pattern.compile("出生\\s*[:：]\\s*(\\d{4})[^\\d]{1,3}(\\d{1,2})[^\\d]{1,3}(\\d{1,2})");
     private static final Pattern ID_PATTERN = Pattern.compile("公民身份号码\\s*[:：]\\s*([0-9Xx]{17}[0-9Xx])");
@@ -44,15 +44,21 @@ public class CnIdCardParser {
 
         // 姓名
         m = NAME_PATTERN.matcher(text);
-        if (m.find()) result.setName(m.group(1).trim());
+        if (m.find()) {
+            result.setName(m.group(1).trim());
+        }
 
         // 性别
         m = GENDER_PATTERN.matcher(text);
-        if (m.find()) result.setGender(m.group(1).trim());
+        if (m.find()) {
+            result.setGender(m.group(1).trim());
+        }
 
         // 民族
         m = ETHNICITY_PATTERN.matcher(text);
-        if (m.find()) result.setEthnicity(m.group(1).trim());
+        if (m.find()) {
+            result.setEthnicity(m.group(1).trim());
+        }
 
         // 出生日期（带"年/月/日"格式）
         m = BIRTH_PATTERN.matcher(text);
@@ -67,15 +73,21 @@ public class CnIdCardParser {
 
         // 身份证号
         m = ID_PATTERN.matcher(text);
-        if (m.find()) result.setIdNumber(m.group(1).toUpperCase().trim());
+        if (m.find()) {
+            result.setIdNumber(m.group(1).toUpperCase().trim());
+        }
 
         // 住址
         m = ADDRESS_PATTERN.matcher(text);
-        if (m.find()) result.setAddress(m.group(1).trim());
+        if (m.find()) {
+            result.setAddress(m.group(1).trim());
+        }
 
         // 签发机关
         m = ISSUE_PATTERN.matcher(text);
-        if (m.find()) result.setIssueAuthority(m.group(1).trim());
+        if (m.find()) {
+            result.setIssueAuthority(m.group(1).trim());
+        }
 
         // 有效期限（完整格式）
         m = VALID_LONG_PATTERN.matcher(text);
@@ -103,6 +115,24 @@ public class CnIdCardParser {
      *
      * @param lines OCR 识别的每一行文字
      * @return 解析结果
+     * @param s s
+     /**
+      * 解析线。
+      * @param lines 线
+      * @return 解析线的结果
+      */
+      * @param s s
+     /**
+      * 解析线。
+      * @param lines 线
+      * @return 解析线的结果
+      */
+      * @param s s
+     /**
+      * 解析线。
+      * @param lines 线
+      * @return 解析线的结果
+      */
      */
     public CnIdCardResult parseLines(String... lines) {
         StringBuilder sb = new StringBuilder();

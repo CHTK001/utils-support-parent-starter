@@ -4,7 +4,7 @@ package com.chua.git.support.listener;
  * Git 操作进度监听器。
  *
  * <p>适用于 clone/pull/push 等需要网络传输或大量对象计算的长时间操作。
- * 回调遵循 JGit {@link org.eclipse.jgit.lib.ProgressMonitor} 的生命周期：</p>
+   * 回调遵循 jgit {@link org.eclipse.jgit.lib.ProgressMonitor} 的生命周期：</p>
  *
  * <ol>
  *   <li>{@link #onBegin(int)} —— 操作启动，传入总任务数</li>
@@ -27,6 +27,9 @@ package com.chua.git.support.listener;
  *             // ... 其他方法
  *         })
  *         .execute();
+ * }</pre> *             // ... 其他方法
+ *         })
+   * .执行();
  * }</pre>
  *
  * @author CH
@@ -48,7 +51,7 @@ public interface GitProgressListener {
      * 当前具体任务开始时回调。
      *
      * <p>与 {@code and} 的区别在于此回调里的 taskName 可能是
-     * "remote: Counting objects"、"remote: Compressing objects"、"Receiving objects" 等，
+      * "远程: 数量 对象"、"远程: Compressing 对象"、"接收 对象" 等，
      * 便于 UI 显示当前正在做的工作。</p>
      *
      * @param taskName  任务名称，通常来自远端服务器

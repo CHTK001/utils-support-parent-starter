@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.face.FaceClarityDetector;
 import com.chua.deeplearning.support.model.FaceQualityInfo;
 
 /**
- * ONNX 人脸清晰度检测器（SPI provider="onnx"）。
+   * ONNX 人脸清晰度检测器（SPI 提供者="onnx"）。
  *
  * <p>注册表中无匹配的人脸清晰度模型，必须通过 {@code .model("模型ID")} 显式指定
  * 已注册模型，否则抛出异常。</p>
@@ -48,13 +48,17 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public FaceClarityDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: "
@@ -64,21 +68,21 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** BlurThreshold */
+    /** blur阈值 */
     public FaceClarityDetector blurThreshold(double threshold) {
         this.blurThreshold = threshold;
         return this;
     }
 
     @Override
-    /** 最小值FaceRatio */
+    /** 最小值faceratio */
     public FaceClarityDetector minFaceRatio(float ratio) {
         this.minFaceRatio = ratio;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceClarityDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -92,7 +96,7 @@ public class OnnxFaceClarityDetector implements FaceClarityDetector {
     }
 
     @Override
-    /** Assess */
+    /** 评定 */
     public FaceQualityInfo assess(byte[] imageData) {
         return FaceClarityDetector.create(resolveModel())
                 .blurThreshold(blurThreshold)

@@ -69,7 +69,7 @@ public class ScheduledTask {
     /**
      * 获取任务唯一标识
      *
-     * @return 任务 ID
+     * @return 任务 标识
      */
     public String getId() {
         return id;

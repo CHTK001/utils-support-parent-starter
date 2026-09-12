@@ -10,12 +10,13 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
  * 复用 {@link PostgresqlEngine} 的数据源配置能力，提供响应式访问入口。
  * 如需真正非阻塞路径（含 R2DBC {@code $n} 占位符），可直接使用父类的
  * {@code addDataSource(name, "jdbc:postgresql://...", user, pwd)}
- * 自动转换为 R2DBC 连接（需 classpath 存在 r2dbc-postgresql 驱动）。</p>
+   * 自动转换为 R2DBC 连接（需 类路径 存在 R2dbc-PostgreSQL 驱动）。</p>
  *
  * <pre>{@code
  * PostgresqlReactorEngine engine = new PostgresqlReactorEngine();
  * engine.addDataSource("default", "localhost", 5432, "testdb", "postgres", "password");
  * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
+ * }</pre>:getName, "张三").list();
  * }</pre>
  *
  * @author CH

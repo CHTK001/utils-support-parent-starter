@@ -16,23 +16,23 @@ import java.awt.image.BufferedImage;
 
 
 /**
- * 4xNomos2 ESRGAN                            
+   * 4xnomos2 ESRGAN
  * <p>
  *                                                                   
  * <p>
  *                
  * -           float32       
  * -              [0, 1]
- * -           CHW          Channel, Height, Width   
+   * -           CHW          通道, Height, Width
  * <p>
  *                
  * -           [0, 1]       
  * -           [0, 255]
  * -           UINT8       
- * -           Image       
+   * -           镜像
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
@@ -41,7 +41,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
     /**
      *                                                    {@link NDList}   
      *
-     * @param ctx TranslatorContext          
+     * @param ctx translator上下文
      * @param input                       
      * @return NDList               
      * @throws Exception                
@@ -79,8 +79,8 @@ public class Nomos2Translator implements Translator<Image, Image> {
     /**
      *                                                  {@link Image}   
      *
-     * @param ctx TranslatorContext          
-     * @param list NDList               
+     * @param ctx translator上下文
+     * @param list nd列表
      * @return Image               
      * @throws Exception                
      */
@@ -96,7 +96,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
             log.debug("       shape: {}, dtype: {}", array.getShape(), array.getDataType());
         }
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
         int off = shape.length == 4 ? 1 : 0;
         int h = (int) shape[off + 1];
         int w = (int) shape[off + 2];

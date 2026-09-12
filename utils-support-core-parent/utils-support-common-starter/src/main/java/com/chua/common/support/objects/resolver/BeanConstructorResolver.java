@@ -26,7 +26,7 @@ public interface BeanConstructorResolver {
      * @param typeProvider 按类型查找 Bean 的回调
      * @param nameProvider 按名称查找 Bean 的回调
      * @param beanDefinition 当前 Bean 定义
-     * @return 解析后的参数值，无法解析返回 null
+     * @return 解析后的参数值，无法解析返回 空
      */
     Object resolve(
             Class<?> paramType,

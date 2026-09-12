@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 public interface Restore extends AutoCloseable {
@@ -53,7 +53,7 @@ public interface Restore extends AutoCloseable {
      * 通过SPI机制创建指定名称的恢复实例。
      * </p>
      *
-     * @param name            恢复的名称（如"mysql"、"postgresql"等）
+     * @param name            恢复的名称（如"MySQL"、"PostgreSQL"等）
      * @param databaseOptions 数据库选项，定义了与数据库相关的配置
      * @param restoreSetting  恢复选项，定义了恢复操作的特定配置
      * @return 恢复对象实例

@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 基于 Armeria 的 HTTP 服务器实现。
  *
  * <p>继承 {@link AbstractServer}，通过 SPI 以键 {@code armeria-http} 注册。
- * Armeria 是一款高性能异步 HTTP 服务器，相比 JDK HttpServer 具备更高的并发能力。</p>
+   * Armeria 是一款高性能异步 HTTP 服务器，相比 JDK http服务端 具备更高的并发能力。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -47,7 +47,7 @@ public class ArmeriaHttpServer extends AbstractServer {
     private com.linecorp.armeria.server.Server server;
 
     /**
-     * 创建 ArmeriaHttpServer 实例
+      * 创建 armeriahttp服务端 实例
      * @param setting setting
      */
     public ArmeriaHttpServer(ServerSetting setting) {
@@ -55,25 +55,25 @@ public class ArmeriaHttpServer extends AbstractServer {
     }
 
     @Override
-    /** SupportsReactor */
+    /** 支持reactor */
     public boolean supportsReactor() {
         return true;
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.HTTP;
     }
 
     /**
-     * 请求处理线程池，使用虚拟线程避免阻塞 event loop
+      * 请求处理线程池，使用虚拟线程避免阻塞 事件 循环
      */
     private final java.util.concurrent.ExecutorService requestExecutor =
             java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         ServerBuilder sb = com.linecorp.armeria.server.Server.builder();
 
@@ -126,7 +126,7 @@ public class ArmeriaHttpServer extends AbstractServer {
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         requestExecutor.shutdown();
         if (server != null) {
@@ -143,6 +143,8 @@ public class ArmeriaHttpServer extends AbstractServer {
      * <p>内部维护响应状态、头、体，最终由 {@link #buildAggregatedResponse()} 生成
      * Armeria 的 {@link AggregatedHttpResponse} 对象。</p>
      *
+     * @author CH
+     * @since 4.0.0
      */
     static class ArmeriaServerResponse implements ServerResponse {
 
@@ -167,7 +169,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
 
         /**
-         * Content-Type 值
+          * 内容-类型 值
          */
         private String contentType;
 
@@ -191,7 +193,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public ServerResponse setStatus(int code) {
             if (!committed) {
                 this.status = code;
@@ -200,13 +202,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public ServerResponse setHeader(String name, String value) {
             if (!committed) {
                 headers.put(name, value);
@@ -215,13 +217,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             headers.forEach(h::add);
@@ -229,20 +231,20 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置ContentType */
+        /** 设置内容类型 */
         public ServerResponse setContentType(String ct) {
             this.contentType = ct;
             return this;
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             return contentType;
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(byte[] b) {
             if (!committed) {
                 this.body = b;
@@ -251,7 +253,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 设置Body */
+        /** 设置主体 */
         public ServerResponse setBody(String b) {
             if (!committed) {
                 this.body = b != null ? b.getBytes(StandardCharsets.UTF_8) : null;
@@ -260,26 +262,26 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return body;
         }
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public OutputStream getOutputStream() {
             return new java.io.ByteArrayOutputStream();
         }
 
         @Override
-        /** 设置Result */
+        /** 设置结果 */
         public ServerResponse setResult(Object r) {
             this.result = r;
             return this;
         }
 
         @Override
-        /** 获取Result */
+        /** 获取结果 */
         public Object getResult() {
             return result;
         }
@@ -319,13 +321,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 是否Ended */
+        /** 是否结束 */
         public boolean isEnded() {
             return ended;
         }
 
         @Override
-        /** End */
+        /** 结束 */
         public void end() {
             if (ended) {
                 return;
@@ -380,11 +382,11 @@ public class ArmeriaHttpServer extends AbstractServer {
 
         /**
          * 由 {@code setResult} 设置的结果对象派生出响应体字节（对齐 {@code AbstractServer#convertResult} 语义）：
-         * String → UTF-8 字节、byte[] → 原样、其他 → toString() 字节。
+          * 字符串 → UTF-8 字节、byte[] → 原样、其他 → 转为字符串() 字节。
          * 仅在 {@code body} 未显式设置时生效，避免覆盖 {@code setBody} 结果。
          *
-         * @param r handler 通过 setResult 设置的结果对象
-         * @return 派生的响应体字节；r 为 null 返回 null
+         * @param r 处理器 通过 设置结果 设置的结果对象
+         * @return 派生的响应体字节；r 为 空 返回 空
          */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
@@ -411,6 +413,8 @@ public class ArmeriaHttpServer extends AbstractServer {
      * <p>包装 Armeria 的 {@link com.linecorp.armeria.common.AggregatedHttpRequest}，
      * 提供统一的请求属性、参数、表单、文件上传等访问能力。</p>
      *
+     * @author CH
+     * @since 4.0.0
      */
     static class ArmeriaServerRequest implements ServerRequest {
 
@@ -452,25 +456,25 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return ctx.path();
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public HttpMethod getMethod() {
             return HttpMethod.valueOf(ctx.method().name());
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return aggReq.headers().get(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public HttpHeader getHeaders() {
             HttpHeader h = HttpHeader.create();
             aggReq.headers().forEach(e -> h.add(e.getKey().toString(), e.getValue()));
@@ -478,7 +482,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Params */
+        /** 获取参数 */
         public Map<String, String> getParams() {
             Map<String, String> result = new java.util.LinkedHashMap<>();
             ctx.queryParams().forEach((k, v) -> result.put(k, v));
@@ -486,13 +490,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Param */
+        /** 获取参数 */
         public String getParam(String name) {
             return ctx.queryParam(name);
         }
 
         @Override
-        /** 获取ContentType */
+        /** 获取内容类型 */
         public String getContentType() {
             var ct = aggReq.headers().contentType();
             if (ct != null) {
@@ -502,7 +506,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Content获取长度 */
+        /** 获取内容获取长度 */
         public long getContentLength() {
             if (bodyBytes != null) {
                 return bodyBytes.length;
@@ -511,13 +515,13 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Body */
+        /** 获取主体 */
         public byte[] getBody() {
             return bodyBytes;
         }
 
         @Override
-        /** 获取BodyString */
+        /** 获取主体字符串 */
         public String getBodyString() {
             if (bodyBytes != null) {
                 return new String(bodyBytes, StandardCharsets.UTF_8);
@@ -526,19 +530,19 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取InputStream */
+        /** 获取输入流 */
         public InputStream getInputStream() {
             return new java.io.ByteArrayInputStream(getBody());
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return ctx.remoteAddress().getAddress().getHostAddress();
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return ctx.remoteAddress().getPort();
         }
@@ -562,7 +566,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取FormData */
+        /** 获取form数据 */
         public Map<String, String> getFormData() {
             String ct = getContentType();
             if (ct == null) {
@@ -601,7 +605,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         }
 
         @Override
-        /** 获取Files */
+        /** 获取文件 */
         public List<FormFile> getFiles() {
             String ct = getContentType();
             if (ct == null || !ct.toLowerCase().startsWith("multipart/form-data")) {

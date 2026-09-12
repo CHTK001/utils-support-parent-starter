@@ -6,6 +6,7 @@ import lombok.Data;
  * 传感器内部信息类，封装单个传感器的读数。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class SensorInfo {
@@ -18,9 +19,9 @@ public class SensorInfo {
     private double currentTemperature;
     /** 最大值temperature */
     private double maxTemperature;
-    /** 当前FANspeed */
+    /** 当前fanspeed */
     private double currentFanSpeed;
-    /** 最大值FANspeed */
+    /** 最大值fanspeed */
     private double maxFanSpeed;
     /** 当前voltage */
     private double currentVoltage;

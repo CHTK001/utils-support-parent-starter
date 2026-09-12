@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import javax.annotation.Nonnull;
 
 /**
- * Small Stable Diffusion v0 UNet          
+   * Small st Diffusion v0 unet
  * <p>
- *              Small Stable Diffusion v0           UNet       
+   * Small st Diffusion v0           unet
  *                                  
  * </p>
  * <p>
@@ -21,10 +21,10 @@ import javax.annotation.Nonnull;
  * </p>
  * <p>
  *                      
- * -          NDList        [latent, timestep, text_embeddings]
+   * -          nd列表        [latent, timestep, 文本_嵌入]
  *   - latent:                      shape: [1, 4, H/8, W/8]   
  *   - timestep:             shape: [1]   
- *   - text_embeddings:                      shape: [1, 77, 768]   
+   * - 文本_嵌入:                      shape: [1, 77, 768]
  * -                                           shape: [1, 4, H/8, W/8]   
  * </p>
  *
@@ -80,14 +80,14 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     /**
      *                   
      * <p>
-     * UNet                
-     * - sample:                      latent   
+      * unet
+      * - 样本:                      latent
      * - timestep:          
-     * - encoder_hidden_states:                   
+      * - 编码器_hidden_状态:
      * </p>
      *
      * @param ctx                     
-     * @param input        NDList
+     * @param input        nd列表
      * @return                         
      */
     @Override
@@ -108,7 +108,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
             modelInput.add(timestep);
         }
 
-        //                   text_embeddings                        
+ // 文本_嵌入
         if (input.size() > 2) {
             var textEmbeddings = input.get(2);
             textEmbeddings.setName("encoder_hidden_states");
@@ -125,7 +125,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     /**
      *                   
      * <p>
-     * UNet          
+      * unet
      * - noise_pred:                   shape: [1, 4, H/8, W/8]   
      * </p>
      *

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SentencePiece BPE 分词器的纯 Java 最小实现。
+   * sentencepiece BPE 分词器的纯 Java 最小实现。
  *
  * <p>针对 MOSS-TTS-Nano 的 {@code tokenizer.model}（ModelProto 格式）设计，
  * 算法与 sentencepiece 官方 {@code bpe_model.cc} 一致：
@@ -27,23 +27,23 @@ import java.util.Map;
  */
 public class MossSentencePieceBpe implements AutoCloseable {
 
-    private static final String SPACE_MARK = "\u2581";
+    private static final String SPACE_MARK = "\u2581"; // SPACE_MARK
 
     /** piece 类型常量（对应 protobuf enum）。 */
     private static final int TYPE_NORMAL = 1;
-    private static final int TYPE_UNKNOWN = 2;
-    private static final int TYPE_CONTROL = 3;
-    private static final int TYPE_USER_DEFINED = 4;
+    private static final int TYPE_UNKNOWN = 2; // 类型unknown
+    private static final int TYPE_CONTROL = 3; // 类型control
+    private static final int TYPE_USER_DEFINED = 4; // 类型用户defined
 
-    private final List<String> idToPiece = new ArrayList<>();
-    private final Map<String, Integer> pieceToId = new HashMap<>();
-    private final Map<String, Float> pieceScore = new HashMap<>();
-    private final List<Integer> userDefinedIds = new ArrayList<>();
+    private final List<String> idToPiece = new ArrayList<>(); // 标识转为piece
+    private final Map<String, Integer> pieceToId = new HashMap<>(); // piece转为标识
+    private final Map<String, Float> pieceScore = new HashMap<>(); // piecescore
+    private final List<Integer> userDefinedIds = new ArrayList<>(); // 用户defined标识
 
     /**
-     * 从 .model 文件加载词表。
+      * 从 .模型 文件加载词表。
      *
-     * @param modelPath SentencePiece 模型路径
+     * @param modelPath sentencepiece 模型路径
      * @throws IOException 解析失败
      */
     public void load(Path modelPath) throws IOException {
@@ -55,7 +55,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     /**
      * 从字节数组加载词表。
      *
-     * @param proto ModelProto 原始字节
+     * @param proto 模型Proto.io 原始字节
      */
     public void load(byte[] proto) {
         int offset = 0;
@@ -90,10 +90,10 @@ public class MossSentencePieceBpe implements AutoCloseable {
     }
 
     /**
-     * 编码文本为 token id 序列。
+      * 编码文本为 令牌 标识 序列。
      *
      * @param text 输入文本
-     * @return token id 数组
+     * @return token 标识 数组
      */
     public int[] encode(String text) {
         List<String> segments = splitUserDefined(text);
@@ -125,6 +125,21 @@ public class MossSentencePieceBpe implements AutoCloseable {
      * 查询词表大小。
      *
      * @return 词表大小
+     * @param data 数据
+     /**
+      * 大小。
+      * @return 大小的结果
+      */
+     * @param offset 偏移量
+     * @param text 文本
+     * @param symbol symbol
+     * @param out 出
+     /**
+       * encodenormalized。
+      * @param normalized normalized
+      * @param out 出
+      */
+      * @return 大小的结果
      */
     public int size() {
         return idToPiece.size();
@@ -144,6 +159,14 @@ public class MossSentencePieceBpe implements AutoCloseable {
                 pos = nextSpace;
             }
             if (!word.isEmpty()) {
+                /**
+                  * encodeword。
+                 * @param word word
+                 * @param out 出
+                 * @param text 文本
+                 * @return 分割用户defined的结果
+                 * @param symbol symbol
+                 */
                 encodeWord(word, out);
             }
         }
@@ -230,11 +253,23 @@ public class MossSentencePieceBpe implements AutoCloseable {
             start = nearestEnd;
         }
         return segments;
+    /**
+     * 是否用户defined。
+     * @param segment segment
+     * @return 是否用户defined的结果
+     */
     }
 
     private boolean isUserDefined(String segment) {
         Integer id = pieceToId.get(segment);
         return id != null && userDefinedIds.contains(id);
+    /**
+     * 解析piece。
+     * @param data 数据
+     * @param offset 偏移量
+     * @param length 长度
+     * @return 读取intle的结果
+     */
     }
 
     private void parsePiece(byte[] data, int offset, int length) {

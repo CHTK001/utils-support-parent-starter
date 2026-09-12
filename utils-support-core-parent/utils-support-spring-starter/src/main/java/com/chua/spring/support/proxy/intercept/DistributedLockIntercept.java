@@ -13,18 +13,19 @@ import com.chua.common.support.spi.annotations.Spi;
  * <p>基于 {@link LockFlow} 门面，通过链式 API 获取锁。</p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Spi("com.chua.common.support.concurrent.lock.annotation.DistributedLock")
 public class DistributedLockIntercept implements MethodAnnotationIntercept<DistributedLock> {
 
     @Override
-    /** AnnotationType */
+    /** 注解类型 */
     public Class<DistributedLock> annotationType() {
         return DistributedLock.class;
     }
 
     @Override
-    /** Order */
+    /** 订单 */
     public int order() {
         return 100;
     }

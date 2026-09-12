@@ -18,7 +18,7 @@ import java.util.List;
 public class PackageManagerSoftwareProvider extends PackageManagerProvider implements SoftwareProvider {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }

@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 public interface Value<T> extends Serializable {
 
     /**
-     * 创建 Value 实例。
+      * 创建 值 实例。
      * <p>值为 null 时返回 {@link NullValue} 单例，否则返回 {@link DefaultValue} 实例。</p>
      *
      * @param value 值
@@ -51,10 +51,10 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 从 {@link Optional} 创建 Value 实例。
+      * 从 {@link Optional} 创建 值 实例。
      * <p>Optional 为空（或本身为 null）时返回 {@link NullValue} 单例，否则包装其中的值。</p>
      *
-     * @param optional Optional，可为 null
+     * @param optional 期权，可为 空
      * @param <T> 值类型
      * @return Value 实例
      */
@@ -66,12 +66,12 @@ public interface Value<T> extends Serializable {
     /**
      * 获取原始值。
      *
-     * @return 原始值，可能为 null
+     * @return 原始值，可能为 空
      */
     T getValue();
 
     /**
-     * 获取值，如果为 null 则返回默认值。
+      * 获取值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 值或默认值
@@ -98,14 +98,14 @@ public interface Value<T> extends Serializable {
     /**
      * 获取转换过程中产生的异常。
      *
-     * @return 异常，可能为 null
+     * @return 异常，可能为 空
      */
     Throwable getThrowable();
 
     /**
-     * 判断当前值是否为 null。
+      * 判断当前值是否为 空。
      *
-     * @return true 表示为 null
+     * @return true 表示为 空
      */
     boolean isNull();
 
@@ -127,7 +127,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取字符串值，如果为 null 则返回默认值。
+      * 获取字符串值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 字符串值或默认值
@@ -155,7 +155,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Integer 值，如果为 null 则返回默认值。
+      * 获取 Integer 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 整数值或默认值
@@ -165,7 +165,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Boolean 值（通过类型转换）。
+      * 获取 布尔值 值（通过类型转换）。
      *
      * @return 布尔值
      */
@@ -174,7 +174,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Boolean 值，如果为 null 则返回默认值。
+      * 获取 布尔值 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 布尔值或默认值
@@ -193,7 +193,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Long 值，如果为 null 则返回默认值。
+      * 获取 Long 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 长整数值或默认值
@@ -212,7 +212,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Float 值，如果为 null 则返回默认值。
+      * 获取 Float 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 浮点值或默认值
@@ -231,7 +231,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Double 值，如果为 null 则返回默认值。
+      * 获取 Double 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 双精度值或默认值
@@ -250,7 +250,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 Byte 值，如果为 null 则返回默认值。
+      * 获取 Byte 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return 字节值或默认值
@@ -260,7 +260,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 BigDecimal 值（通过类型转换）。
+      * 获取 bigdecimal 值（通过类型转换）。
      *
      * @return BigDecimal 值
      */
@@ -269,7 +269,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 BigDecimal 值，如果为 null 则返回默认值。
+      * 获取 bigdecimal 值，如果为 空 则返回默认值。
      *
      * @param defaultValue 默认值
      * @return BigDecimal 值或默认值
@@ -279,7 +279,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取 BigDecimal 值，如果为 null 则返回 {@link BigDecimal#ZERO}。
+      * 获取 bigdecimal 值，如果为 空 则返回 {@link BigDecimal#ZERO}。
      *
      * @return BigDecimal 值或 0
      */
@@ -288,7 +288,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取单元素列表；值为 null 时返回空列表（而非 null）。
+      * 获取单元素列表；值为 空 时返回空列表（而非 空）。
      *
      * @return 只含该值的不可变列表，或空列表
      */
@@ -298,9 +298,9 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取单元素集合；值为 null 时返回空集合（而非 null）。
+      * 获取单元素集合；值为 空 时返回空集合（而非 空）。
      *
-     * @return 只含该值的不可变 Set，或空集合
+     * @return 只含该值的不可变 设置，或空集合
      */
     default Set<T> asSet() {
         T value = getValue();
@@ -308,7 +308,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则返回该值；否则返回 {@code other}。
+      * 如果当前值不为 空，则返回该值；否则返回 {@code other}。
      *
      * @param other 备用值
      * @return 值或备用值
@@ -318,7 +318,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则返回该值；否则返回 {@code other} 提供的值。
+      * 如果当前值不为 空，则返回该值；否则返回 {@code other} 提供的值。
      *
      * @param other 备用值提供者
      * @return 值或备用值
@@ -333,12 +333,12 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则返回该值；否则抛出指定异常。
+      * 如果当前值不为 空，则返回该值；否则抛出指定异常。
      *
      * @param exceptionSupplier 异常提供者
      * @param <X>             异常类型
      * @return 值
-     * @throws X 如果值为 null
+     * @throws X 如果值为 空
      */
     default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         T value = getValue();
@@ -352,11 +352,11 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则将其转换为新的 {@link Value}。
+      * 如果当前值不为 空，则将其转换为新的 {@link Value}。
      *
      * @param mapper 转换函数
      * @param <R>    转换后的值类型
-     * @return 转换后的 Value
+     * @return 转换后的 值
      */
     @SuppressWarnings({"unchecked", "NullAway"})
     default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
@@ -368,11 +368,11 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则将其转换为新的 {@link Value}。
+      * 如果当前值不为 空，则将其转换为新的 {@link Value}。
      *
-     * @param mapper 转换函数，返回一个新的 Value
+     * @param mapper 转换函数，返回一个新的 值
      * @param <R>    转换后的值类型
-     * @return 转换后的 Value
+     * @return 转换后的 值
      */
     @SuppressWarnings({"all", "unchecked", "NullAway"})
     default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
@@ -388,7 +388,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，则执行指定的消费行为。
+      * 如果当前值不为 空，则执行指定的消费行为。
      *
      * @param consumer 消费行为
      */
@@ -400,10 +400,10 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null 且满足谓词，则返回当前 Value；否则返回 {@link NullValue}。
+      * 如果当前值不为 空 且满足谓词，则返回当前 值；否则返回 {@link NullValue}。
      *
-     * @param predicate 谓词，不能为 null
-     * @return 过滤后的 Value
+     * @param predicate 谓词，不能为 空
+     * @return 过滤后的 值
      */
     @SuppressWarnings({"all", "unchecked"})
     default Value<T> filter(Predicate<? super T> predicate) {
@@ -418,7 +418,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 获取值的 Stream；值为 null 时返回空流（而非 null）。
+      * 获取值的 流；值为 空 时返回空流（而非 空）。
      *
      * @return 含该值的单元素流，或空流
      */
@@ -427,7 +427,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 转换为 JDK {@link Optional}；值为 null 时得到空 Optional。
+      * 转换为 JDK {@link Optional}；值为 空 时得到空 期权。
      *
      * @return 包装该值的 Optional
      */
@@ -436,10 +436,10 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 如果当前值不为 null，执行副作用后返回当前 Value（链式窥视，不改变值）。
+      * 如果当前值不为 空，执行副作用后返回当前 值（链式窥视，不改变值）。
      *
-     * @param action 副作用行为，不能为 null
-     * @return 当前 Value
+     * @param action 副作用行为，不能为 空
+     * @return 当前 值
      */
     default Value<T> peek(Consumer<? super T> action) {
         T value = getValue();
@@ -450,7 +450,7 @@ public interface Value<T> extends Serializable {
     }
 
     /**
-     * 判断当前值是否为空（null）。
+      * 判断当前值是否为空（空）。
      *
      * @return true 表示为空值
      */

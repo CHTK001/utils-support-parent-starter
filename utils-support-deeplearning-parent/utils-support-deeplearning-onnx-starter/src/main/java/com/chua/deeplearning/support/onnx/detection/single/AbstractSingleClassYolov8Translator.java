@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 单类 YOLOv8 通用目标检测 Translator 抽象基类。
+   * 单类 yolov8 通用目标检测 Translator 抽象基类。
  *
  * <p>用于表格检测、印章检测、单一物体检测等场景。
  * 子类提供 {@link #className()} 与 {@link #classNamesResourcePath()}。
@@ -46,7 +46,7 @@ import java.util.List;
 public abstract class AbstractSingleClassYolov8Translator implements Translator<Image, DetectedObjects> {
 
     /**
-     * 默认输入尺寸：YOLOv8 @ 640。
+      * 默认输入尺寸：yolov8 @ 640。
      */
     protected static final int DEFAULT_INPUT_SIZE = 640;
 
@@ -56,7 +56,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     protected static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
-     * 默认 NMS IoU 阈值。
+      * 默认 NMS iou 阈值。
      */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
@@ -78,16 +78,18 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     /** 图片高度 */
     private int imageHeight;
 
-    /** 创建 AbstractSingleClassYolov8Translator 实例 */
+    /** 创建 抽象单个类yolov8Translator 实例 */
     protected AbstractSingleClassYolov8Translator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD);
     }
 
     /**
-     * 创建 AbstractSingleClassYolov8Translator 实例
-     * @param inputSize inputSize
-     * @param float float
-     * @param float float
+      * 创建 抽象单个类yolov8Translator 实例
+     * @param inputSize 输入大小
+     * @param threshold float
+     * @param threshold float
+     * @param threshold 阈值
+     * @param nmsThreshold nms阈值
      */
     protected AbstractSingleClassYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         if (inputSize <= 0) {
@@ -108,23 +110,30 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     /**
-     * classpath 资源路径，例如 {@code vision/table/yolov8n/class.names.txt}。
+      * 类路径 资源路径，例如 {@code vision/table/yolov8n/class.names.txt}。
+     * @return 类名称resource路径的结果
      */
     protected abstract String classNamesResourcePath();
 
     /**
      * 资源缺失或解析失败时回退的类别名。
+     * @return 默认类名称的结果
      */
     protected abstract String defaultClassName();
 
     /**
      * 单类名（子类可重写以支持多类别，但本基类约定单类）。
+     * @return 类名称的结果
      */
     public String className() {
         return classes.get(0);
     }
 
-    /** 加载ClassName */
+    /**
+     * 加载类名称
+     *
+     * @return 加载类名称的结果
+     */
     private String loadClassName() {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
             if (is == null) {
@@ -148,7 +157,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         imageWidth = input.getWidth();
         imageHeight = input.getHeight();
@@ -161,7 +170,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         NDArray output = list.get(0);
 
@@ -278,6 +287,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
 
     /**
      * 当前 Translator 实际加载的类别名。
+     * @return actual类名称的结果
      */
     public String actualClassName() {
         return classes.get(0);
@@ -285,17 +295,29 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
 
     /**
      * 默认输入尺寸。
+     * @return 获取输入大小的结果
      */
     public int getInputSize() {
         return inputSize;
     }
 
-    /** Sigmoid */
+    /**
+     * Sigmoid
+     *
+     * @param x x
+     * @return sigmoid的结果
+     */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
 
-    /** ToNormalizedChw */
+    /**
+     * 转为normalizedchw
+     *
+     * @param ctx ctx
+     * @param array array
+     * @return 转为normalizedchw的结果
+     */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

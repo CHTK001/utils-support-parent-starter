@@ -3,13 +3,13 @@ package com.chua.deeplearning.support.onnx.text;
 /**
  * tokenizer                       
  * <p>
- * token IDs         attention mask              
+   * 令牌 ids         attention mask
  * <p>
- * inputIds: token IDs              
- * attentionMask:                     mask              
- * validTokenCount:                 token                
- * sequenceLength: inputIds                      
- * isValid:                   
+   * 输入标识: 令牌 ids
+   * attentionmask:                     mask
+   * valid令牌数量:                 令牌
+   * sequence长度: 输入标识
+   * 是否valid:
  *
  * @author CH
  * @since 2024-11-14
@@ -23,7 +23,7 @@ public record TokenizerResult(
 ) {
 
     /**
-     * inputIds                      
+      * 输入标识
      *
      * @return inputIds              
      */
@@ -32,7 +32,7 @@ public record TokenizerResult(
     }
 
     /**
-     * attentionMask                     mask              
+      * attentionmask                     mask
      *
      * @return attentionMask          
      */
@@ -41,7 +41,7 @@ public record TokenizerResult(
     }
 
     /**
-     *                 token                
+      * 令牌
      *
      * @return validTokenCount         
      */
@@ -50,7 +50,7 @@ public record TokenizerResult(
     }
 
     /**
-     * inputIds                       
+      * 输入标识
      *
      * @return                     
      */

@@ -25,30 +25,30 @@ import java.util.Map;
 public interface FlowContext {
 
     /**
-     * 获取所属流程定义 ID。
+      * 获取所属流程定义 标识。
      *
-     * @return 流程 ID
+     * @return 流程 标识
      */
     String getFlowId();
 
     /**
-     * 获取当前正在执行的节点 ID。
+      * 获取当前正在执行的节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     String getCurrentNodeId();
 
     /**
-     * 设置当前正在执行的节点 ID。
+      * 设置当前正在执行的节点 标识。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      */
     void setCurrentNodeId(String nodeId);
 
     /**
      * 获取当前处理数据。
      *
-     * @return 当前数据，可能为 null
+     * @return 当前数据，可能为 空
      */
     Object getData();
 
@@ -83,7 +83,7 @@ public interface FlowContext {
      *
      * @param key 属性键
      * @param <T> 属性值类型
-     * @return 属性值，不存在时返回 null
+     * @return 属性值，不存在时返回 空
      */
     <T> T getAttribute(String key);
 
@@ -97,19 +97,19 @@ public interface FlowContext {
     FlowProps currentNodeProps();
 
     /**
-     * 获取当前节点下一节点 ID。
+      * 获取当前节点下一节点 标识。
      *
-     * @return 下一节点 ID，未指定时返回 null
+     * @return 下一节点 标识，未指定时返回 空
      */
     String getNextNodeId();
 
     /**
-     * 指定下一节点 ID。
+      * 指定下一节点 标识。
      *
      * <p>节点可手动指定下一节点覆盖默认顺序边的走向，
      * 用于实现跳转、循环等自定义流转。</p>
      *
-     * @param nodeId 下一节点 ID
+     * @param nodeId 下一节点 标识
      */
     void setNextNodeId(String nodeId);
 
@@ -134,7 +134,7 @@ public interface FlowContext {
      *
      * <p>按执行顺序记录全部已执行节点 ID，供回放、审计与前端展示使用。</p>
      *
-     * @return 执行轨迹（节点 ID 序列）
+     * @return 执行轨迹（节点 标识 序列）
      */
     List<String> getExecutionTrace();
 
@@ -153,7 +153,7 @@ public interface FlowContext {
      *
      * <p>用于检测循环执行与死循环防护，结合 {@link #getMaxLoopCount()} 使用。</p>
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @return 执行次数
      */
     int getExecuteCount(String nodeId);
@@ -176,12 +176,12 @@ public interface FlowContext {
     void setMaxLoopCount(int maxLoopCount);
 
     /**
-     * 获取挂起时待执行的后续节点 ID 快照。
+      * 获取挂起时待执行的后续节点 标识 快照。
      *
      * <p>供暂停/恢复时查看"当前节点之后的待执行目标"，
      * 结合 {@link #getCurrentNodeId()} 恢复精确续跑。</p>
      *
-     * @return 待执行节点 ID 列表
+     * @return 待执行节点 标识 列表
      */
     List<String> getPendingNodeIds();
 }

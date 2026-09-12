@@ -37,14 +37,14 @@ public class DefaultFlow implements Flow {
     private final FlowDefinition definition;
 
     /**
-     * 节点 ID 到节点实例的映射
+      * 节点 标识 到节点实例的映射
      */
     private final Map<String, FlowNode> nodes = new LinkedHashMap<>();
 
     /**
-     * 以指定 ID 创建流程。
+      * 以指定 标识 创建流程。
      *
-     * @param id 流程 ID
+     * @param id 流程 标识
      */
     public DefaultFlow(String id) {
         this.definition = new FlowDefinition();
@@ -71,19 +71,19 @@ public class DefaultFlow implements Flow {
     }
 
     @Override
-    /** 获取Id */
+    /** 获取标识 */
     public String getId() {
         return definition.getId();
     }
 
     @Override
-    /** 添加Node */
+    /** 添加节点 */
     public Flow addNode(String id, FlowNode node) {
         return addNode(id, node, Collections.emptyMap());
     }
 
     @Override
-    /** 添加Node */
+    /** 添加节点 */
     public Flow addNode(String id, FlowNode node, Map<String, Object> props) {
         if (node == null) {
             throw new FlowException("节点实例不能为空: " + id);
@@ -98,37 +98,37 @@ public class DefaultFlow implements Flow {
     }
 
     @Override
-    /** 获取Node */
+    /** 获取节点 */
     public FlowNode getNode(String id) {
         return nodes.get(id);
     }
 
     @Override
-    /** ContainsNode */
+    /** contains节点 */
     public boolean containsNode(String id) {
         return nodes.containsKey(id);
     }
 
     @Override
-    /** ListNodes */
+    /** 列表节点 */
     public List<FlowNode> listNodes() {
         return new ArrayList<>(nodes.values());
     }
 
     @Override
-    /** 创建Graph */
+    /** 创建图计算 */
     public FlowGraph createGraph() {
         return new DefaultFlowGraph(this);
     }
 
     @Override
-    /** ExportJson */
+    /** 导出json */
     public String exportJson() {
         return FlowJson.toJson(definition);
     }
 
     @Override
-    /** ImportJson */
+    /** 导入json */
     public Flow importJson(String json) {
         FlowDefinition parsed = FlowJson.fromJson(json);
         return new DefaultFlow(parsed);
@@ -146,7 +146,7 @@ public class DefaultFlow implements Flow {
     /**
      * 获取指定节点的配置属性。
      *
-     * @param nodeId 节点 ID
+     * @param nodeId 节点 标识
      * @return 节点属性，节点不存在时返回空属性
      */
     public FlowProps nodeProps(String nodeId) {
@@ -158,12 +158,12 @@ public class DefaultFlow implements Flow {
     }
 
     /**
-     * 解析起始节点 ID。
+      * 解析起始节点 标识。
      *
      * <p>取第一个无入边的节点作为起始节点；
      * 全部节点都有入边时回退取第一个节点。</p>
      *
-     * @return 起始节点 ID，无节点时返回 null
+     * @return 起始节点 标识，无节点时返回 空
      */
     String resolveStartNodeId() {
         if (definition.getNodes().isEmpty()) {

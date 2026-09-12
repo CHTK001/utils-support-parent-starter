@@ -13,7 +13,7 @@ import ai.djl.translate.TranslatorContext;
 import com.chua.deeplearning.support.pytorch.diffusion.DiffusionResizeHelper;
 
 /**
- * Diffusion 深度条件图 Translator（MiDaS 风格）。
+   * Diffusion 深度条件图 Translator（midas 风格）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -40,15 +40,16 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
      */
     private int height;
 
-    /** 创建 DiffusionDepthTranslator 实例 */
+    /** 创建 diffusion深度translator 实例 */
     public DiffusionDepthTranslator() {
         this(512, 512);
     }
 
     /**
-     * 创建 DiffusionDepthTranslator 实例
-     * @param imageResolution imageResolution
-     * @param int int
+      * 创建 diffusion深度translator 实例
+     * @param imageResolution 镜像resolution
+     * @param imageResolution int
+     * @param detectResolution detectresolution
      */
     public DiffusionDepthTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
@@ -56,7 +57,7 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -72,7 +73,7 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depthPt = list.singletonOrThrow();
         if (depthPt.getShape().dimension() == 4 && depthPt.getShape().get(0) == 1) {
@@ -89,7 +90,12 @@ public class DiffusionDepthTranslator implements Translator<Image, Image> {
         return ImageFactory.getInstance().fromNDArray(display);
     }
 
-    /** ToDisplay */
+    /**
+     * 转为display
+     *
+     * @param depthPt 深度pt
+     * @return 转为display的结果
+     */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) {

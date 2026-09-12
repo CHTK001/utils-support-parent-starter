@@ -23,7 +23,7 @@ public class AutoServiceAutowire implements ServiceAutowire {
     public static ServiceAutowire INSTANCE = new AutoServiceAutowire();
     
     /**
-     * Spring ApplicationContext 的全限定类名，用于检测 Spring 环境
+      * Spring application上下文 的全限定类名，用于检测 Spring 环境
      */
     static final String APPLICATION_CONTEXT = "org.springframework.context.ApplicationContext";
     
@@ -49,7 +49,7 @@ public class AutoServiceAutowire implements ServiceAutowire {
 
     /**
      * 静态初始化块：
-     * 1. 检测并加载 Spring 自动装配器（如果 classpath 中存在）。
+      * 1. 检测并加载 Spring 自动装配器（如果 类路径 中存在）。
      * 2. 注册默认的初始化感知自动装配器。
      */
     static {
@@ -64,7 +64,7 @@ public class AutoServiceAutowire implements ServiceAutowire {
      * 优先执行 Spring 环境的装配，然后依次执行注册的自定义装配器链。
      *
      * @param object 需要被装配的目标对象
-     * @return 装配完成后的对象，如果传入对象为 null 则返回 null
+     * @return 装配完成后的对象，如果传入对象为 空 则返回 空
      */
     @Override
     public Object autowire(Object object) {
@@ -84,10 +84,10 @@ public class AutoServiceAutowire implements ServiceAutowire {
 
     /**
      * 根据指定的实现类创建并装配 Bean 实例。
-     * 当前实现暂不支持直接创建，返回 null。
+      * 当前实现暂不支持直接创建，返回 空。
      *
      * @param implClass Bean 的实现类
-     * @return 创建并装配后的 Bean 实例，当前默认返回 null
+     * @return 创建并装配后的 Bean 实例，当前默认返回 空
      */
     @Override
     public Object createBean(Class<?> implClass) {

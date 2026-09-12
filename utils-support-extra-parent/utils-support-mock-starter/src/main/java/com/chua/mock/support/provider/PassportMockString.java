@@ -22,6 +22,8 @@ public class PassportMockString implements MockString {
 
     /**
      * 护照前缀字母池
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final char[] PREFIXES = {'E', 'G', 'D', 'P'};
 

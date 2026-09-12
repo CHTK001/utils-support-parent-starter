@@ -36,9 +36,10 @@ public class VideoWriteBuilder extends WriteBuilder {
     private Integer quality;
 
     /**
-     * 创建 VideoWriteBuilder 实例
-     * @param file file
-     * @param FFmpegProcessor FFmpegProcessor
+      * 创建 视频写入构建器 实例
+     * @param file 文件
+     * @param processor ffmpeg处理器
+     * @param processor 处理器
      */
     public VideoWriteBuilder(File file, FFmpegProcessor processor) {
         super(file);
@@ -47,6 +48,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置视频编码器（libx264, libx265, h264_nvenc）
+     * @param codec codec
+     * @return 视频codec的结果
      */
     public VideoWriteBuilder videoCodec(String codec) {
         this.videoCodec = codec;
@@ -55,6 +58,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置音频编码器（aac, mp3, libopus）
+     * @param codec codec
+     * @return 音频codec的结果
      */
     public VideoWriteBuilder audioCodec(String codec) {
         this.audioCodec = codec;
@@ -63,6 +68,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置视频码率（如 "2M", "5000k"）
+     * @param bitrate bitrate
+     * @return 视频bitrate的结果
      */
     public VideoWriteBuilder videoBitrate(String bitrate) {
         this.videoBitrate = bitrate;
@@ -71,6 +78,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置音频码率（如 "128k", "320k"）
+     * @param bitrate bitrate
+     * @return 音频bitrate的结果
      */
     public VideoWriteBuilder audioBitrate(String bitrate) {
         this.audioBitrate = bitrate;
@@ -79,6 +88,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置帧率
+     * @param fps fps
+     * @return fps的结果
      */
     public VideoWriteBuilder fps(int fps) {
         this.fps = fps;
@@ -87,6 +98,9 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置分辨率
+     * @param width width
+     * @param height height
+     * @return resolution的结果
      */
     public VideoWriteBuilder resolution(int width, int height) {
         this.width = width;
@@ -96,6 +110,8 @@ public class VideoWriteBuilder extends WriteBuilder {
 
     /**
      * 设置 CRF 质量（0-51，越小质量越高）
+     * @param quality quality
+     * @return quality的结果
      */
     public VideoWriteBuilder quality(int quality) {
         this.quality = quality;

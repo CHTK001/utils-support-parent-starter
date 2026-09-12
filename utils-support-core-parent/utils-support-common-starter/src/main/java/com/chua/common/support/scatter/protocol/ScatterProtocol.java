@@ -25,7 +25,7 @@ public final class ScatterProtocol {
 
     /** 类型：拉取服务表（请求） */
     public static final byte TYPE_REQ = 0x01;
-    /** 类型：推送服务 hash（扩散） */
+    /** 类型：推送服务 哈希（扩散） */
     public static final byte TYPE_PUSH = 0x02;
     /** 类型：响应（服务表/ACK） */
     public static final byte TYPE_RESP = 0x03;
@@ -34,6 +34,9 @@ public final class ScatterProtocol {
     /** 类型：选举通知 */
     public static final byte TYPE_ELEC = 0x05;
 
+    /**
+     * scatter协议。
+     */
     private ScatterProtocol() {
     }
 }

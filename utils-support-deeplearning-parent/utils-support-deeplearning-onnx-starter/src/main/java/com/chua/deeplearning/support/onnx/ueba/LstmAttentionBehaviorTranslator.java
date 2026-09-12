@@ -19,7 +19,7 @@ import java.util.Map;
  * 用户操作行为序列分析 LSTM/GRU + Attention Translator。
  *
  * <p>底层模型为通过 Python/PyTorch 训练的序列分类模型（Embedding + GRU/LSTM +
- * Attention + Dense），导出为 ONNX（opset ≥ 14, fp32, batch=1）：</p>
+   * Attention + Dense），导出为 ONNX（opset ≥ 14, fp32, 批量=1）：</p>
  * <ul>
  *   <li>输入（按位置约定，顺序不可颠倒）：
  *     <ol>
@@ -49,7 +49,7 @@ public class LstmAttentionBehaviorTranslator {
     /** 默认模型文件名 */
     public static final String DEFAULT_MODEL_FILE = "lstm_attention_behavior.onnx";
 
-    /** classpath 资源基础路径 */
+    /** 类路径 资源基础路径 */
     private static final String RESOURCE_BASE = "models/ueba/";
 
     /** ONNX Runtime 单次推理使用的最多线程数 */
@@ -79,8 +79,9 @@ public class LstmAttentionBehaviorTranslator {
     /**
      * 行为预测结果。
      *
-     * @param classIndex   预测类别下标，范围 [0, numClasses)
-     * @param probabilities softmax 后的各类别概率，长度等于 numClasses，和为 1
+     * @param classIndex   预测类别下标，范围 [0, num类)
+     * @param probabilities softmax 后的各类别概率，长度等于 num类，和为 1
+     * @return 预测的结果
      */
     public record Prediction(int classIndex, float[] probabilities) {
     }
@@ -102,8 +103,8 @@ public class LstmAttentionBehaviorTranslator {
      * @param seqLen       序列长度，必须大于 0，与训练模型输入一致
      * @param numNumeric   每步数值特征数量，必须大于 0，与训练模型输入一致
      * @param numClasses   类别数量，必须大于 0，与训练模型输出一致
-     * @param modelFile    模型文件名，不能为 null 或空字符串
-     * @param explicitPath 显式模型文件路径，允许为 null
+     * @param modelFile    模型文件名，不能为 空 或空字符串
+     * @param explicitPath 显式模型文件路径，允许为 空
      */
     public LstmAttentionBehaviorTranslator(int seqLen, int numNumeric, int numClasses,
                                            String modelFile, String explicitPath) {
@@ -151,8 +152,8 @@ public class LstmAttentionBehaviorTranslator {
     /**
      * 按优先级解析模型文件路径。
      *
-     * @return 模型文件路径；未找到时返回 null
-     * @throws IOException 当临时目录创建失败或 classpath 资源提取失败时
+     * @return 模型文件路径；未找到时返回 空
+     * @throws IOException 当临时目录创建失败或 类路径 资源提取失败时
      */
     private Path resolveModelPath() throws IOException {
         if (explicitPath != null) {
@@ -214,8 +215,8 @@ public class LstmAttentionBehaviorTranslator {
     /**
      * 对行为序列进行预测。
      *
-     * @param sequenceIds     类别特征编码序列，长度必须等于 seqLen（不足时左端零填充由调用方完成）
-     * @param sequenceNumeric 数值特征序列，长度必须等于 seqLen，每个元素长度必须等于 numNumeric
+     * @param sequenceIds     类别特征编码序列，长度必须等于 seqlen（不足时左端零填充由调用方完成）
+     * @param sequenceNumeric 数值特征序列，长度必须等于 seqlen，每个元素长度必须等于 numnumeric
      * @return 预测结果，包含类别下标与各类别概率
      * @throws Exception 当模型不可用、输入维度不匹配或推理失败时
      */
@@ -257,11 +258,11 @@ public class LstmAttentionBehaviorTranslator {
     }
 
     /**
-     * 将输入张量按模型输入名装配，兼容单输入（仅 ID 序列）与双输入（ID + 数值）两种导出。
+      * 将输入张量按模型输入名装配，兼容单输入（仅 标识 序列）与双输入（标识 + 数值）两种导出。
      *
-     * @param inputs        输入张量 Map，会被写入
+     * @param inputs        输入张量 映射，会被写入
      * @param inputNames    模型输入名列表，顺序与导出一致
-     * @param idsTensor     ID 序列张量
+     * @param idsTensor     标识 序列张量
      * @param numericTensor 数值序列张量
      */
     private void putInputs(Map<String, OnnxTensor> inputs, String[] inputNames,

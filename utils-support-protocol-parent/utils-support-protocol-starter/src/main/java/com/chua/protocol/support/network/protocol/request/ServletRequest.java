@@ -24,7 +24,7 @@ public interface ServletRequest {
     int getRemotePort();
 
     /**
-     * 获取所有请求头（key → value）。
+      * 获取所有请求头（键 → 值）。
      *
      * @return 请求头映射，大小写不敏感
      */
@@ -41,7 +41,7 @@ public interface ServletRequest {
      */
     String getHeader(String name);
 
-    /** 获取 HTTP 方法（如 GET / POST） */
+    /** 获取 HTTP 方法（如 获取 / POST） */
     String getMethod();
 
     /** 获取请求 URI 路径 */

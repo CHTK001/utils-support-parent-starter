@@ -24,7 +24,7 @@ public interface ObjectProvider<T> {
     /**
      * 获取对象实例。
      *
-     * @return 对象实例，不存在时返回 null
+     * @return 对象实例，不存在时返回 空
      */
     T getObject();
 

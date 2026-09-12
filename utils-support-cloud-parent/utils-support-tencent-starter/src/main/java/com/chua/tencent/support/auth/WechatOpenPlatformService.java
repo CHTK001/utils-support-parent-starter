@@ -65,11 +65,11 @@ public interface WechatOpenPlatformService {
     String convertToOfficialOpenId(String miniAppOpenId);
 
     /**
-     * 通过小程序appId+openid获取公众号openid
+      * 通过小程序appid+openid获取公众号openid
      * <p>
      * 先调用微信开放平台API获取unionid，再从本地映射中查找公众号openid
      *
-     * @param miniAppId     小程序appId
+     * @param miniAppId     小程序appid
      * @param miniAppOpenId 小程序openid
      * @return 公众号openid，不存在则返回null
      */

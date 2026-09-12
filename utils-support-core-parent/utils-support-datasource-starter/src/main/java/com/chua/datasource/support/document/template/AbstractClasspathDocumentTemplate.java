@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 基于 classpath 模板文件的文档模板基类。
+   * 基于 类路径 模板文件的文档模板基类。
  *
  * <p>占位符格式：{@code #key#}。复杂结构通过 {@code #dataJson#} / {@code #tablesMarkdown#} 注入。</p>
  *
@@ -94,7 +94,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-     * DocumentData → 前端 JSON（E10 / Swagger 壳共用）
+      * 文档数据 → 前端 JSON（E10 / Swagger 壳共用）
      *
      * @param data 文档数据
      * @return JSON
@@ -302,7 +302,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-     * 加载 classpath 模板
+      * 加载 类路径 模板
      *
      * @param path 资源路径
      * @return 模板文本
@@ -327,7 +327,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     }
 
     /**
-     * 替换 #key# 占位符
+      * 替换 #键# 占位符
      *
      * @param template 模板
      * @param vars     变量
@@ -345,12 +345,23 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
         return sb.toString();
     }
 
-    /** NullToEmpty */
+    /**
+     * 空转为空
+     *
+     * @param value 值
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
 
-    /** NullToEmpty */
+    /**
+     * 空转为空
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 空转为空的结果
+     */
     private static String nullToEmpty(String value, String defaultValue) {
         return (value == null || value.isBlank()) ? defaultValue : value;
     }

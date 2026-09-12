@@ -25,6 +25,8 @@ public class ChineseMockString implements MockString {
     private static final int CJK_START = 0x4E00;
     /**
      * CJK 统一表意文字区结束码点（不包含）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int CJK_END = 0x9FA5;
 

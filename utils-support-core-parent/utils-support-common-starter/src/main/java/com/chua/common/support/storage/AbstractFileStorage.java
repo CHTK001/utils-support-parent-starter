@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
  *
  * @since 1.0
+ * @author CH
  */
 public abstract class AbstractFileStorage implements FileStorage {
 
@@ -38,11 +39,11 @@ public abstract class AbstractFileStorage implements FileStorage {
      */
     protected final String endpoint;
     /**
-     * AccessKey ID
+      * 访问密钥 标识
      */
     protected final String accessKeyId;
     /**
-     * AccessKey Secret
+      * 访问密钥 Secret
      */
     protected final String accessKeySecret;
 
@@ -83,12 +84,13 @@ public abstract class AbstractFileStorage implements FileStorage {
      *
      * <p>分片暂存在本地临时目录，完成时合并为完整字节数组后调用 {@link #putObject(PutObjectRequest)}。</p>
  * @author CH
+     * @since 4.0.0
      */
     private static class LocalTmpMultipartStorage implements MultipartStorage {
 
         /** 文件存储 */
         private final FileStorage fileStorage;
-        /** contexts */
+        /** 上下文 */
         private final Map<String, MultipartContext> contexts;
 
         LocalTmpMultipartStorage(FileStorage fileStorage) {
@@ -99,7 +101,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         @Override
         /**
          * Initiate
-         * @param request request
+         * @param request 请求
          */
         public MultipartPartResult initiate(PutObjectRequest request) {
             String uploadId = IdUtils.simpleUuid();
@@ -120,8 +122,8 @@ public abstract class AbstractFileStorage implements FileStorage {
 
         @Override
         /**
-         * UploadPart
-         * @param request request
+          * uploadpart
+         * @param request 请求
          */
         public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
@@ -151,7 +153,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         @Override
         /**
          * 完成
-         * @param uploadId uploadId
+         * @param uploadId uploadid
          * @param parts parts
          */
         public PutObjectResult complete(String uploadId, List<PartETag> parts) {
@@ -186,7 +188,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         @Override
         /**
          * Abort
-         * @param uploadId uploadId
+         * @param uploadId uploadid
          */
         public DeleteObjectResult abort(String uploadId) {
             MultipartContext ctx = contexts.remove(uploadId);
@@ -205,6 +207,7 @@ public abstract class AbstractFileStorage implements FileStorage {
          * 合并Parts
          * @param ctx ctx
          * @param parts parts
+         * @return 合并parts的结果
          */
         private byte[] mergeParts(MultipartContext ctx, List<PartETag> parts) throws IOException {
             parts.sort((a, b) -> Integer.compare(a.getPartNumber(), b.getPartNumber()));
@@ -227,8 +230,8 @@ public abstract class AbstractFileStorage implements FileStorage {
         }
 
         /**
-         * 删除TempDir
-         * @param tempDir tempDir
+          * 删除tempdir
+         * @param tempDir tempdir
          */
         private void deleteTempDir(Path tempDir) {
             try {
@@ -248,10 +251,13 @@ public abstract class AbstractFileStorage implements FileStorage {
             }
         }
         /**
-         * private record MultipartContext(PutObjectRequest request, Path tempDir) {
+          * 私募 record multipart上下文(放入对象请求 请求, 路径 tempdir) {
          *
          * @author CH
          * @since 4.0.0.42
+         * @param request 请求
+         * @param tempDir tempdir
+         * @return multipart上下文的结果
          */
 
         private record MultipartContext(PutObjectRequest request, Path tempDir) {

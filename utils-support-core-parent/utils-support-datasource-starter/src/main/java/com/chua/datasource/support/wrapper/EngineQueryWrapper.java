@@ -48,7 +48,7 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
-    /** NewInstance */
+    /** 新instance */
     protected LambdaQueryWrapper<T> newInstance() {
         return new EngineQueryWrapper<>(engine, entityClass);
     }
@@ -103,42 +103,42 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
-    /** LikeLeft */
+    /** likeleft */
     public EngineQueryWrapper<T> likeLeft(SFunction<T, ?> column, Object value) {
         super.likeLeft(column, value);
         return this;
     }
 
     @Override
-    /** LikeRight */
+    /** likeright */
     public EngineQueryWrapper<T> likeRight(SFunction<T, ?> column, Object value) {
         super.likeRight(column, value);
         return this;
     }
 
     @Override
-    /** In */
+    /** 入 */
     public EngineQueryWrapper<T> in(SFunction<T, ?> column, Collection<?> values) {
         super.in(column, values);
         return this;
     }
 
     @Override
-    /** NotIn */
+    /** not入 */
     public EngineQueryWrapper<T> notIn(SFunction<T, ?> column, Collection<?> values) {
         super.notIn(column, values);
         return this;
     }
 
     @Override
-    /** 是否Null */
+    /** 是否空 */
     public EngineQueryWrapper<T> isNull(SFunction<T, ?> column) {
         super.isNull(column);
         return this;
     }
 
     @Override
-    /** 是否NotNull */
+    /** 是否not空 */
     public EngineQueryWrapper<T> isNotNull(SFunction<T, ?> column) {
         super.isNotNull(column);
         return this;
@@ -152,28 +152,28 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @Override
-    /** OrderByAsc */
+    /** 订单byasc */
     public EngineQueryWrapper<T> orderByAsc(SFunction<T, ?> column) {
         super.orderByAsc(column);
         return this;
     }
 
     @Override
-    /** OrderByDesc */
+    /** 订单bydesc */
     public EngineQueryWrapper<T> orderByDesc(SFunction<T, ?> column) {
         super.orderByDesc(column);
         return this;
     }
 
     @Override
-    /** TableAlias */
+    /** table别名 */
     public EngineQueryWrapper<T> tableAlias(String alias) {
         super.tableAlias(alias);
         return this;
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<T> list() {
         return engine.executeQuery(this, entityClass);
     }

@@ -20,7 +20,7 @@ import java.io.*;
 public class OfdFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
          return "ofd"; 
     }

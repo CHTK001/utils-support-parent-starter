@@ -6,7 +6,7 @@ import com.chua.common.support.spi.annotations.Spi;
  * SPI 接口：服务生命周期管理器（进程级）。
  *
  * <p>支持 {@code start / stop / restart / status / install / uninstall} 操作。
- * 实现类通过 {@link Spi} 注解指定名称，默认实现为 "process"（本地进程管理）。</p>
+   * 实现类通过 {@link Spi} 注解指定名称，默认实现为 "处理"（本地进程管理）。</p>
  *
  * <h3>命名空间</h3>
  * <ul>
@@ -25,7 +25,7 @@ public interface ServiceManager {
      * 启动服务，返回进程 PID；未跟踪时返回 -1。
      *
      * @param jarPath  jar 文件路径
-     * @param startCmd 启动命令（含 java -jar 等）
+     * @param startCmd 启动命令（含 Java -jar 等）
      * @return 进程 PID，启动失败返回 -1
      */
     long start(String jarPath, String startCmd);
@@ -35,7 +35,7 @@ public interface ServiceManager {
      *
      * @param jarPath  jar 文件路径
      * @param startCmd 启动命令
-     * @param pidFile  PID 文件路径，null 则使用默认路径
+     * @param pidFile  PID 文件路径，空 则使用默认路径
      * @return 进程 PID，启动失败返回 -1
      */
     long start(String jarPath, String startCmd, String pidFile);
@@ -53,13 +53,13 @@ public interface ServiceManager {
     /**
      * 查询服务状态。
      *
-     * @param pid 进程 PID，-1 时按 serviceName 查找
+     * @param pid 进程 PID，-1 时按 服务名称 查找
      * @return true 表示正在运行
      */
     boolean isRunning(long pid);
 
     /**
-     * 按服务名称查找 PID（供 status 查询使用）。
+      * 按服务名称查找 PID（供 状态 查询使用）。
      *
      * @param serviceName 服务名称
      * @return 进程 PID，未找到返回 -1

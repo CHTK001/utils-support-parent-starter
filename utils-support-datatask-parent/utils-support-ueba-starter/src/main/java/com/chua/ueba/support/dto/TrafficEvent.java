@@ -22,7 +22,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class TrafficEvent implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 请求来源 IP 地址
@@ -30,12 +30,12 @@ public class TrafficEvent implements Serializable {
     private String ip;
 
     /**
-     * 请求路径（URI path）
+      * 请求路径（URI 路径）
      */
     private String path;
 
     /**
-     * HTTP 方法（GET/POST/PUT/DELETE 等）
+      * HTTP 方法（获取/POST/放入/删除 等）
      */
     private String method;
 
@@ -45,7 +45,7 @@ public class TrafficEvent implements Serializable {
     private int statusCode;
 
     /**
-     * User-Agent 字符串
+      * 用户-智能体 字符串
      */
     private String userAgent;
 
@@ -65,7 +65,7 @@ public class TrafficEvent implements Serializable {
     private long responseSizeBytes;
 
     /**
-     * Session ID（可选，用于同一会话关联）
+      * 会话 标识（可选，用于同一会话关联）
      */
     private String sessionId;
 

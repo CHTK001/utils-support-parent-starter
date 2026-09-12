@@ -24,9 +24,9 @@ import java.util.concurrent.TimeUnit;
  * 训练管线。
  * <p>
  * 职责：将训练契约（同一份 {@code ueba-config.yaml} + 超参数）落盘，生成并（可选）
- * 执行调用 {@code train_ueba.py} 的 Python 命令。Python 脚本训练 AutoEncoder 与
+   * 执行调用 {@code train_ueba.py} 的 Python 命令。Python 脚本训练 auto编码器 与
  * LSTM/GRU+Attention，导出 ONNX 模型，并将归一化参数与类别词表回写到训练配置，
- * 随模型一起输出到 outputDir。调用方将回写后的配置复制回 {@code ueba-config.yaml}
+   * 随模型一起输出到 输出dir。调用方将回写后的配置复制回 {@code ueba-config.yaml}
  * 即可让推理端（{@code UebaEngine}）与训练端完全兼容。</p>
  *
  * <p>由 {@code Ueba.training().build()} 构造，勿直接 new。</p>
@@ -52,7 +52,7 @@ public class UebaTrainer {
     /** UEBA 配置 */
     private final UebaConfig config;
 
-    /** 配置源文件（config(Path) 时非 null） */
+    /** 配置源文件（配置(路径) 时非 空） */
     private final Path configSource;
 
     /** 训练数据 CSV 路径 */
@@ -73,21 +73,21 @@ public class UebaTrainer {
     /** Python 解释器命令 */
     private final String pythonCommand;
 
-    /** 续训来源目录（已有模型或 checkpoint），null 表示从零训练 */
+    /** 续训来源目录（已有模型或 checkpoint），空 表示从零训练 */
     private final Path resumeDir;
 
     /**
      * 构造训练管线。
      *
-     * @param config         UEBA 配置，不能为 null
-     * @param configSource   配置源文件路径，允许为 null
-     * @param dataCsv        训练数据 CSV 路径，不能为 null
-     * @param outputDir      输出目录，不能为 null
+     * @param config         UEBA 配置，不能为 空
+     * @param configSource   配置源文件路径，允许为 空
+     * @param dataCsv        训练数据 CSV 路径，不能为 空
+     * @param outputDir      输出目录，不能为 空
      * @param epochs         训练轮数，必须大于 0
      * @param batchSize      批大小，必须大于 0
      * @param learningRate   学习率，必须大于 0
-     * @param pythonCommand  Python 解释器，不能为 null 或空白
-     * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 null（null 表示从零训练）
+     * @param pythonCommand  Python 解释器，不能为 空 或空白
+     * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 空（空 表示从零训练）
      * @throws IllegalArgumentException 当任一参数不合法时
      */
     public UebaTrainer(UebaConfig config, Path configSource, Path dataCsv, Path outputDir,

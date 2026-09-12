@@ -17,10 +17,11 @@ import java.util.Map;
  * ASM 动态编译器实现
  *
  * 该实现通过 JDK 编译器 API 将 Java 源码编译为字节码，再使用 ASM 对字节码进行二次处理，
- * 确保生成的字节码包含完整的 StackMapTable 帧信息，提升运行时类加载的兼容性。
- * 与 JdkCompiler 的区别在于增加了 ASM 字节码后处理环节。
+   * 确保生成的字节码包含完整的 stack映射table 帧信息，提升运行时类加载的兼容性。
+   * 与 jdkcompiler 的区别在于增加了 ASM 字节码后处理环节。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Spi("asm")
 public class AsmCompiler implements Compiler {
@@ -77,7 +78,9 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-     * 字符串源文件对象，将 Java 源码字符串包装为 JavaFileObject
+      * 字符串源文件对象，将 Java 源码字符串包装为 java文件对象
+     * @author CH
+     * @since 4.0.0
      */
     static class StringSource extends SimpleJavaFileObject {
         /** 代码 */
@@ -89,14 +92,16 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 获取CharContent */
+        /** 获取char内容 */
         public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             return code;
         }
     }
 
     /**
-     * 内存字节码对象，将编译后的 .class 字节码保存在内存中
+      * 内存字节码对象，将编译后的 .类 字节码保存在内存中
+     * @author CH
+     * @since 4.0.0
      */
     static class InMemoryByteCode extends SimpleJavaFileObject {
         /** 字节数组输出流 */
@@ -118,14 +123,16 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 打开OutputStream */
+        /** 打开输出流 */
         public OutputStream openOutputStream() {
             return baos;
         }
     }
 
     /**
-     * 内存类加载器，负责将内存中的字节码定义为 Class 对象
+      * 内存类加载器，负责将内存中的字节码定义为 类 对象
+     * @author CH
+     * @since 4.0.0
      */
     static class InMemoryClassLoader extends ClassLoader {
         /** 字节码缓存映射 */
@@ -164,6 +171,8 @@ public class AsmCompiler implements Compiler {
 
     /**
      * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
+     * @author CH
+     * @since 4.0.0
      */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         /** 类加载器 */
@@ -175,17 +184,17 @@ public class AsmCompiler implements Compiler {
         }
 
         @Override
-        /** 获取ClassLoader */
+        /** 获取类加载 */
         public ClassLoader getClassLoader(Location location) {
             return classLoader;
         }
 
         @Override
         /**
-         * 获取JavaFileForOutput
-         * @param location location
-         * @param className className
-         * @param kind kind
+          * 获取java文件for输出
+         * @param location 位置
+         * @param className 类名称
+         * @param kind 种类
          * @param sibling sibling
          */
         public JavaFileObject getJavaFileForOutput(Location location, String className,

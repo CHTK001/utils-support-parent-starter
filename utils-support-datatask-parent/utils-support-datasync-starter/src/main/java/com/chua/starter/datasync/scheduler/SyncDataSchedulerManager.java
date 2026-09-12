@@ -20,14 +20,14 @@ public interface SyncDataSchedulerManager {
     /**
      * 移除映射。
      *
-     * @param mappingId 映射 ID
+     * @param mappingId 映射 标识
      */
     void removeMapping(String mappingId);
 
     /**
      * 获取映射。
      *
-     * @param mappingId 映射 ID
+     * @param mappingId 映射 标识
      * @return 映射配置
      */
     DataSyncMapping getMapping(String mappingId);
@@ -53,9 +53,9 @@ public interface SyncDataSchedulerManager {
      * 手动触发单个映射立即执行。
      *
      * <p>默认实现抛 {@link UnsupportedOperationException}，支持手动触发的实现可覆盖。
-     * 用于一次性任务、NONE 型调度或测试驱动。</p>
+      * 用于一次性任务、无 型调度或测试驱动。</p>
      *
-     * @param mappingId 映射 ID
+     * @param mappingId 映射 标识
      */
     default void trigger(String mappingId) {
         throw new UnsupportedOperationException("当前调度器不支持手动触发: " + mappingId);

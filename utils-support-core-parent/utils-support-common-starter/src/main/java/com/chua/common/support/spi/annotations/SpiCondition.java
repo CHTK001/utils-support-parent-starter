@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * SPI 条件注解
  * <p>
- *     用于 SPI (Service Provider Interface) 的条件装配，
+   * 用于 SPI (服务 提供者 接口) 的条件装配，
  *     可以根据类路径中是否存在指定的类，或者自定义条件是否满足，
  *     来决定是否加载该 SPI 实现。
  * </p>
@@ -36,12 +36,16 @@ import java.lang.annotation.*;
  * public class CustomService implements Service {
  *     // 当 CustomCondition.isCondition() 返回 true 时，该实现才会被加载
  * }
+ * }</pre>{
+   * // 当 习俗条件.是否条件() 返回 true 时，该实现才会被加载
+ * }
  * }</pre>
  * </p>
  *
  * @since 2024-01-01
- * @version 1.0.0
+   * @版本 1.0.0
  * @see SpiCondition.Condition
+ * @author CH
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -50,7 +54,7 @@ public @interface SpiCondition {
     /**
      * 指定的类名
      * <p>
-     *     当指定的类存在于 classpath 中时，该 SPI 实现才会被加载。
+      * 当指定的类存在于 类路径 中时，该 SPI 实现才会被加载。
      *     可以指定多个类，通常要求全部存在才会生效。
      * </p>
      *

@@ -1,7 +1,7 @@
 package com.chua.winrm.support.client;
 
 /**
- * WinRM 操作异常。
+   * winrm 操作异常。
  *
  * @author CH
  * @since 4.0.0.42
@@ -9,17 +9,18 @@ package com.chua.winrm.support.client;
 public class WinRMException extends RuntimeException {
 
     /**
-     * 创建 WinRMException 实例
-     * @param message message
-     * @param Throwable Throwable
+      * 创建 winrm异常 实例
+     * @param message 消息
+     * @param cause Throwable
+     * @param cause cause
      */
     public WinRMException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * 创建 WinRMException 实例
-     * @param message message
+      * 创建 winrm异常 实例
+     * @param message 消息
      */
     public WinRMException(String message) {
         super(message);

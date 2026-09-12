@@ -23,11 +23,11 @@ public interface ExchangeRateProvider {
     String name();
 
     /**
-     * 获取指定币种汇率（1 单位 from = ? 单位 to）。
+      * 获取指定币种汇率（1 单位 从 = ? 单位 转为）。
      *
      * @param from 源币种（ISO 4217，如 USD、CNY）
      * @param to   目标币种（ISO 4217，如 USD、CNY）
-     * @return 汇率；数据源不可达或币种不存在时返回 null
+     * @return 汇率；数据源不可达或币种不存在时返回 空
      */
     BigDecimal getRate(String from, String to);
 
@@ -35,7 +35,7 @@ public interface ExchangeRateProvider {
      * 获取以指定币种为基准的全量汇率表。
      *
      * @param base 基准币种（ISO 4217）
-     * @return 币种 -> 汇率（1 单位 base 可兑换的数量）；失败返回空表
+     * @return 币种 -> 汇率（1 单位 基础 可兑换的数量）；失败返回空表
      */
     Map<String, Double> getRates(String base);
 }

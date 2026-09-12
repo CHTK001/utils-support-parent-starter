@@ -24,8 +24,8 @@ public interface ServiceProcessTracker {
      * 启动进程并返回 PID；同时将 PID 写入 PID 文件（如配置）。
      *
      * @param serviceName 服务名称
-     * @param startCmd    启动命令（包含 java -jar ...）
-     * @param pidFile     PID 文件路径（可为 null，不使用 PID 文件时）
+     * @param startCmd    启动命令（包含 Java -jar ...）
+     * @param pidFile     PID 文件路径（可为 空，不使用 PID 文件时）
      * @return 进程 PID
      */
     long startProcess(String serviceName, String startCmd, String pidFile);

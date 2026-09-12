@@ -20,22 +20,23 @@ public class SshProgressBarConsumer implements ProgressBarConsumer {
      */
     private final SshCommandResponse response;
     /**
-     * max Rendered Length
+      * 最大 Rendered 长度
      */
     private final int maxRenderedLength;
 
     /**
-     * 创建 SshProgressBarConsumer 实例
-     * @param response response
+      * 创建 ssh进步barconsumer 实例
+     * @param response 响应
      */
     public SshProgressBarConsumer(SshCommandResponse response) {
         this(response, DEFAULT_WIDTH);
     }
 
     /**
-     * 创建 SshProgressBarConsumer 实例
-     * @param response response
-     * @param int int
+      * 创建 ssh进步barconsumer 实例
+     * @param response 响应
+     * @param maxRenderedLength int
+     * @param maxRenderedLength 最大rendered长度
      */
     public SshProgressBarConsumer(SshCommandResponse response, int maxRenderedLength) {
         this.response = response;

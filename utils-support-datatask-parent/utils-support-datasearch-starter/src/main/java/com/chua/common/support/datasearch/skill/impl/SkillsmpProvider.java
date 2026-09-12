@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SkillsMP 技能市场搜索基础提供器，封装 MCP 和 Skill 的公共能力。
+   * skillsmp 技能市场搜索基础提供器，封装 MCP 和 Skill 的公共能力。
  *
  * <p>通过 SkillsMP 公开 API 搜索技能市场中的 AI 技能，支持按关键词、页码、排序方式查询。
  * API 地址：{@code https://skillsmp.com/api/skills}
@@ -36,20 +36,24 @@ public class SkillsmpProvider {
 
     /** 名称 */
     protected static final String NAME = "skillsmp";
-    /** Prefix */
+    /** 前缀 */
     protected static final String PREFIX = "";
-    /** Api_base */
+    /** Api_基础 */
     protected static final String API_BASE = "https://skillsmp.com/api/skills";
 
     /**
      * 获取提供者名称
+     * @return 名称的结果
      */
     public String name() {
         return NAME;
     }
 
     /**
-     * 安装（MCP/Skill 通用），SkillsMP 为远程服务，无需本地安装
+      * 安装（MCP/Skill 通用），skillsmp 为远程服务，无需本地安装
+     * @param clientId 客户端标识
+     * @param skillId skillid
+     * @return install的结果
      */
     public boolean install(String clientId, String skillId) {
         log.info("SkillsMP 安装请求: clientId={}, skillOrToolId={}", clientId, skillId);
@@ -58,6 +62,9 @@ public class SkillsmpProvider {
 
     /**
      * 卸载（MCP/Skill 通用）
+     * @param clientId 客户端标识
+     * @param skillId skillid
+     * @return uninstall的结果
      */
     public boolean uninstall(String clientId, String skillId) {
         log.info("SkillsMP 卸载请求: clientId={}, skillOrToolId={}", clientId, skillId);
@@ -66,6 +73,7 @@ public class SkillsmpProvider {
 
     /**
      * 获取 MCP 工具描述符列表
+     * @return toolDescriptors的结果
      */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
@@ -80,7 +88,8 @@ public class SkillsmpProvider {
     }
 
     /**
-     * 构建搜索 SkillDefinition
+      * 构建搜索 skilldefinition
+     * @return 搜索skill的结果
      */
     protected SkillDefinition searchSkill() {
         return new SkillDefinition(
@@ -98,6 +107,8 @@ public class SkillsmpProvider {
 
     /**
      * 处理搜索工具调用
+     * @param args 参数
+     * @return 处理搜索的结果
      */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
@@ -115,7 +126,12 @@ public class SkillsmpProvider {
     }
 
     /**
-     * 调用 SkillsMP API
+      * 调用 skillsmp API
+     * @param search 搜索
+     * @param page page
+     * @param limit 限制
+     * @param sortBy 排序by
+     * @return callApi的结果
      */
     @SuppressWarnings("unchecked")
     protected Map<String, Object> callApi(String search, int page, int limit, String sortBy) throws Exception {
@@ -159,6 +175,8 @@ public class SkillsmpProvider {
 
     /**
      * 将 MCP 工具调用结果转换为 Skill 调用结果
+     * @param mcpResult mcp结果
+     * @return 转为skill结果的结果
      */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
@@ -168,7 +186,9 @@ public class SkillsmpProvider {
     }
 
     /**
-     * SkillsMP MCP 客户端实现
+      * skillsmp MCP 客户端实现
+     * @author CH
+     * @since 4.0.0
      */
     protected class SkillsmpMcpClient implements McpClient {
         /** initialized */
@@ -182,7 +202,7 @@ public class SkillsmpProvider {
         }
 
         @Override
-        /** ListTools */
+        /** 列表tools */
         public List<McpToolDescriptor> listTools() {
             return toolDescriptors();
         }

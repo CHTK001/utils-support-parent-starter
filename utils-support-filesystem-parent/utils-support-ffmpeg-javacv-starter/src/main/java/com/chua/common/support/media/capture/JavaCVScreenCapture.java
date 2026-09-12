@@ -8,12 +8,12 @@ import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 
 /**
- * 基于 JavaCV(FFmpeg) 的屏幕采集器。
+   * 基于 javacv(ffmpeg) 的屏幕采集器。
  *
  * <p>使用 gdigrab 采集桌面，直接返回 grabber 帧（单平面 BGR/BGRA），由下游
  * {@link com.chua.common.support.media.codec.VideoEncoder#encode(Frame)}
  * 内部的 {@link org.bytedeco.javacv.FFmpegFrameRecorder#record(Frame)} 完成
- * BGR→YUV420P 转换（JavaCV 自带的 sws_scale 路径，稳定无崩溃）。</p>
+   * BGR→YUV420P 转换（javacv 自带的 sws_scale 路径，稳定无崩溃）。</p>
  *
  * <p>gdigrab 设备不支持 {@code setPixelFormat}，会在返回像素格式上保持默认
  * （BGR24/BGRA）。由于 grabber 复用内部缓冲区，本采集器对单平面数据做一次
@@ -41,18 +41,18 @@ public class JavaCVScreenCapture implements ScreenCature {
 
     /**
      * 复用的 BGR/BGRA 字节数组，避免每帧分配 2.7MB 堆内存造成 GC 压力。
-     * 在 init() 中按 (width * channels * height) 分配，copyFrame 复用同一份。
+      * 在 初始化() 中按 (width * 通道 * height) 分配，副本帧 复用同一份。
      * 仅本线程访问，但加 volatile 保证可见性。
      */
     private volatile byte[] reusableBgrBuf;
 
     /**
-     * 复用的 ByteBuffer 视图，持有对 {@link #reusableBgrBuf} 的引用。
+      * 复用的 byte缓冲 视图，持有对 {@link #reusableBgrBuf} 的引用。
      */
     private volatile java.nio.ByteBuffer reusableBgrByteBuffer;
 
     /**
-     * 复用的 Frame 对象，避免每帧 new Frame() 带来的分配。
+      * 复用的 帧 对象，避免每帧 新 帧() 带来的分配。
      */
     private volatile Frame reusableResultFrame;
 
@@ -98,7 +98,7 @@ public class JavaCVScreenCapture implements ScreenCature {
     }
 
     @Override
-    /** GrabFrame */
+    /** grab帧 */
     public Frame grabFrame() {
         if (!initialized || grabber == null) {
             return null;
@@ -130,7 +130,9 @@ public class JavaCVScreenCapture implements ScreenCature {
      * 深度复制 grabber 帧到复用的缓冲区，避免每帧分配 ~2.7MB 堆内存。
      * <p>支持单平面 BGR/BGRA，由 FFmpegFrameRecorder 自动识别格式。</p>
      * <p>使用堆上 byte[]（通过 ByteBuffer 视图）避免 JDK25 的 {@code jlong_disjoint_arraycopy}
-     * 在非 8 字节对齐的 allocateDirect 缓冲区上崩溃。</p>
+      * 在非 8 字节对齐的 allocatedirect 缓冲区上崩溃。</p>
+     * @param src src
+     * @return 副本帧的结果
      */
     private Frame copyFrame(Frame src) {
         try {
@@ -138,7 +140,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             int stride = src.imageStride > 0 ? src.imageStride : width * channels;
             int rowBytes = stride * src.imageHeight;
 
-            // 复用 buffer：尺寸变化（理论上不应发生）时才重新分配
+ // 复用 缓冲：尺寸变化（理论上不应发生）时才重新分配
             byte[] dstBuf = reusableBgrBuf;
             java.nio.ByteBuffer dstView = reusableBgrByteBuffer;
             Frame result = reusableResultFrame;
@@ -157,7 +159,7 @@ public class JavaCVScreenCapture implements ScreenCature {
             Object srcObj = src.image[0];
             int toCopy = Math.min(rowBytes, dstBuf.length);
             if (srcObj instanceof java.nio.ByteBuffer buf) {
-                // 在堆 buffer 之间直接拷贝，无 native 调用
+ // 在堆 缓冲 之间直接拷贝，无 NAT 调用
                 int srcRemaining = buf.remaining();
                 int copyLen = Math.min(toCopy, srcRemaining);
                 buf.position(0);
@@ -173,7 +175,7 @@ public class JavaCVScreenCapture implements ScreenCature {
                     java.util.Arrays.fill(dstBuf, copyLen, toCopy, (byte) 0);
                 }
             } else if (srcObj instanceof org.bytedeco.javacpp.Pointer ptr) {
-                // 单次拷贝：BytePointer → 堆 byte[]
+ // 单次拷贝：bytepointer → 堆 byte[]
                 org.bytedeco.javacpp.BytePointer bp = new org.bytedeco.javacpp.BytePointer(ptr);
                 bp.get(dstBuf, 0, toCopy);
             } else {

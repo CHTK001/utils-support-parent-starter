@@ -1,7 +1,7 @@
 package com.chua.playwright.support.qwen;
 
 /**
- * 通义千问 (Qwen) Web 反向代理协议常量。
+   * 通义千问 (通义千问) Web 反向代理协议常量。
  *
  * <p>基于 Qwen2API 逆向实现，参考 https://github.com/Rfym21/Qwen2API
  *
@@ -38,7 +38,7 @@ public final class QwenConstants {
      */
     public static final String COOKIE_TOKEN = "token";
 
-    /** 创建 QwenConstants 实例 */
+    /** 创建 通义千问常量 实例 */
     private QwenConstants() {
     }
 }

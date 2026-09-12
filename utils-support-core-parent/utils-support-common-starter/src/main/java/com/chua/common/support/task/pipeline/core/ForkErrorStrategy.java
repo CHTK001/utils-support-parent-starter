@@ -26,6 +26,8 @@ package com.chua.common.support.task.pipeline.core;
  *         .errorStrategy(ForkErrorStrategy.FAIL_FAST)
  *     .taskEnd()
  *     .build();
+ * }</pre>结束()
+   * .构建();
  * }</pre>
  *
  * @author CH

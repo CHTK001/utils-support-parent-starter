@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spring Cloud Gateway Handler — intercepts gateway filter chain execution.
+   * Spring Cloud Gateway 处理器 — intercepts gateway 过滤器 chain 执行.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class SpringCloudGatewayHandler extends AbstractAppHandler {
 
     /**
-     * filtering handler
+      * 过滤器 处理器
      */
     private static final String FILTERING_HANDLER = "org/springframework/cloud/gateway/handler/FilteringWebHandler";
     /**
-     * handle methods
+      * 处理 方法
      */
     private static final String[] HANDLE_METHODS = {"handle"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "spring-cloud-gateway-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "spring-cloud-gateway.enabled";
     }
@@ -42,13 +42,13 @@ public class SpringCloudGatewayHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HTTP;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(FILTERING_HANDLER, HANDLE_METHODS);
     }

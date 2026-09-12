@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * 系统日志服务门面 - 跨平台系统日志检索的统一入口
  * <p>
- * 自动检测当前运行平台并选择对应的 SystemLogProvider 实现：
+   * 自动检测当前运行平台并选择对应的 系统日志提供者 实现：
  * <ul>
  *   <li>Windows : WindowsEventLogProvider (advapi32 FFM)</li>
  *   <li>Linux   : LinuxJournaldProvider (libsystemd FFM + /var/log)</li>
@@ -35,6 +35,9 @@ import java.util.*;
  *         .maxResults(100)
  *         .build();
  * List<LogEntry> results = SystemLogService.getInstance().search(query);
+ * }</pre>        .maxResults(100)
+ *         .build();
+ * List<LogEntry> results = SystemLogService.getInstance().search(query);
  * }</pre>
  *
  * @author CH
@@ -52,11 +55,11 @@ public class SystemLogService {
     /** initialized */
     private volatile boolean initialized;
 
-    /** 创建 SystemLogService 实例 */
+    /** 创建 系统日志服务 实例 */
     public SystemLogService() {
         SystemLogProvider p = null;
 
-        // 1. 尝试通过 ServiceLoader 发现
+ // 1. 尝试通过 服务加载 发现
         try {
             ServiceLoader<SystemLogProvider> loader = ServiceLoader.load(SystemLogProvider.class);
             Optional<SystemLogProvider> found = loader.stream()
@@ -87,7 +90,11 @@ public class SystemLogService {
         this.initialized = true;
     }
 
-    /** 获取Instance */
+    /**
+     * 获取Instance
+     *
+     * @return 获取instance的结果
+     */
     public static SystemLogService getInstance() {
         if (INSTANCE == null) {
             synchronized (SystemLogService.class) {
@@ -99,22 +106,44 @@ public class SystemLogService {
         return INSTANCE;
     }
 
-    /** 是否Available */
+    /**
+     * 是否可用
+     *
+     * @return 是否可用的结果
+     */
     public boolean isAvailable() {
         return provider != null && provider.isPlatformSupported();
     }
 
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param pattern 模式
+     * @return 搜索的结果
+     */
     public List<LogEntry> search(String pattern) {
         return search(pattern, null);
     }
 
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param pattern 模式
+     * @param minLevel 最小级别
+     * @return 搜索的结果
+     */
     public List<LogEntry> search(String pattern, LogLevel minLevel) {
         return search(pattern, minLevel, 100);
     }
 
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param pattern 模式
+     * @param minLevel 最小级别
+     * @param maxResults 最大结果
+     * @return 搜索的结果
+     */
     public List<LogEntry> search(String pattern, LogLevel minLevel, int maxResults) {
         LogQuery query = LogQuery.builder()
                 .pattern(pattern)
@@ -124,7 +153,12 @@ public class SystemLogService {
         return search(query);
     }
 
-    /** 搜索 */
+    /**
+     * 搜索
+     *
+     * @param query 查询
+     * @return 搜索的结果
+     */
     public List<LogEntry> search(LogQuery query) {
         if (!isAvailable()) {
             log.warn("SystemLogService not available on {}", PlatformSystems.getOsName());
@@ -138,7 +172,11 @@ public class SystemLogService {
         }
     }
 
-    /** 获取Sources */
+    /**
+     * 获取源
+     *
+     * @return 获取源的结果
+     */
     public List<String> getSources() {
         if (!isAvailable()) {
             return Collections.emptyList();
@@ -146,7 +184,11 @@ public class SystemLogService {
         return provider.getSources();
     }
 
-    /** 获取Provider */
+    /**
+     * 获取提供者
+     *
+     * @return 获取提供者的结果
+     */
     public SystemLogProvider getProvider() {
         return provider;
     }

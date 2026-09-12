@@ -1,7 +1,7 @@
 package com.chua.common.support.shmqueue;
 
 /**
- * ShmQueue 的 SPI 提供者接口。
+   * shm队列 的 SPI 提供者接口。
  *
  * <p>具体实现放在独立的 native 模块中，通过
  * {@code META-INF/services/com.chua.common.support.shmqueue.ShmQueueProvider}

@@ -13,7 +13,7 @@ import com.chua.common.support.lang.datasource.meta.MetaUser;
 import com.chua.common.support.lang.datasource.meta.MetaView;
 
 /**
- * 默认元数据实现，所有操作抛出 UnsupportedOperationException。
+   * 默认元数据实现，所有操作抛出 unsupportedoperation异常。
  * <p>
  * 作为 {@link AbstractEngine#meta()} 的默认返回，非 SQL 引擎可使用此实现。
  * SQL 引擎应返回数据库特定的 {@link AbstractMetaData} 子类（如 {@link MysqlMetaData}）。
@@ -58,13 +58,13 @@ public class DefaultMetaData extends AbstractMetaData {
     }
 
     @Override
-    /** Index */
+    /** 索引 */
     public MetaIndex index() {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
 
     @Override
-    /** Index */
+    /** 索引 */
     public MetaIndex index(String indexName) {
         throw new UnsupportedOperationException("当前引擎不支持索引入口操作");
     }
@@ -106,13 +106,13 @@ public class DefaultMetaData extends AbstractMetaData {
     }
 
     @Override
-    /** User */
+    /** 用户 */
     public MetaUser user() {
         throw new UnsupportedOperationException("当前引擎不支持用户元数据操作");
     }
 
     @Override
-    /** Permission */
+    /** 权限 */
     public MetaPermission permission() {
         throw new UnsupportedOperationException("当前引擎不支持权限元数据操作");
     }

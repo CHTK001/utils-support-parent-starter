@@ -8,7 +8,7 @@ package com.chua.common.support.wal;
  * {@link WalLog#loadCheckpoint()} 加载，避免重复应用已 checkpoint 的记录。</p>
  *
  * @param checkpointLsn      已 checkpoint 的最大 LSN（含），初始 0
- * @param checkpointSegmentNo 对应分片序号（SIMPLE 固定为 1）
+ * @param checkpointSegmentNo 对应分片序号（简单 固定为 1）
  * @param checkpointOffset    分片内字节偏移（精确恢复点）
  * @param timestamp           checkpoint 时间戳（毫秒）
  * @author CH

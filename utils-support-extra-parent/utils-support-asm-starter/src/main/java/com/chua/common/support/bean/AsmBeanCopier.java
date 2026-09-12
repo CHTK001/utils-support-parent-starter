@@ -42,13 +42,13 @@ public class AsmBeanCopier implements BeanCopier {
     private static final BeanCopier FALLBACK = new JdkBeanCopier();
 
     @Override
-    /** 复制Properties */
+    /** 复制属性 */
     public void copyProperties(Object source, Object target) {
         copyProperties(source, target, (String[]) null);
     }
 
     @Override
-    /** 复制Properties */
+    /** 复制属性 */
     public void copyProperties(Object source, Object target, String... ignoreProperties) {
         if (source == null || target == null) {
             return;
@@ -65,18 +65,24 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** 复制Properties */
+    /** 复制属性 */
     public void copyProperties(Map<String, Object> sourceMap, Object target) {
         FALLBACK.copyProperties(sourceMap, target);
     }
 
     @Override
-    /** 复制Properties */
+    /** 复制属性 */
     public void copyProperties(Object source, Map<String, Object> target) {
         FALLBACK.copyProperties(source, target);
     }
 
-    /** GenerateCopier */
+    /**
+     * generatecopier
+     *
+     * @param sourceClass 源类
+     * @param targetClass Target类
+     * @return generateCopier的结果
+     */
     private BeanCopier generateCopier(Class<?> sourceClass, Class<?> targetClass) {
         try {
             Map<String, PropertyDescriptor> sourceReads = new LinkedHashMap<>();
@@ -107,10 +113,10 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     /**
-     * 创建CopierClass
-     * @param sourceClass sourceClass
-     * @param targetClass targetClass
-     * @param matched matched
+      * 创建copier类
+     * @param sourceClass 源类
+     * @param targetClass Target类
+     * @param matched 匹配
      */
     private BeanCopier createCopierClass(Class<?> sourceClass, Class<?> targetClass,
                                           List<PropertyPair> matched) throws Exception {
@@ -164,7 +170,7 @@ public class AsmBeanCopier implements BeanCopier {
         mv.visitVarInsn(Opcodes.ALOAD, 2);
         mv.visitJumpInsn(Opcodes.IFNULL, ifNull);
 
-        // 构建 ignore Set
+ // 构建 ignore 设置
         mv.visitVarInsn(Opcodes.ALOAD, 3);
         Label noIgnores = new Label();
         mv.visitJumpInsn(Opcodes.IFNULL, noIgnores);
@@ -189,7 +195,7 @@ public class AsmBeanCopier implements BeanCopier {
 
         mv.visitLabel(afterIgnores);
 
-        // 强制转换 source 和 target
+ // 强制转换 源 和 Target
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitTypeInsn(Opcodes.CHECKCAST, sourceInternal);
         mv.visitVarInsn(Opcodes.ASTORE, 5);
@@ -213,7 +219,7 @@ public class AsmBeanCopier implements BeanCopier {
                 "(Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Set;)V", null, null);
         mv.visitCode();
 
-        // local 变量分配:
+ // 本地 变量分配:
         // 0 = source (Object), 1 = target (Object), 2 = ignoreSet (Set)
         // 需要重新加载并转换
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -270,7 +276,7 @@ public class AsmBeanCopier implements BeanCopier {
                 mv.visitVarInsn(Opcodes.ASTORE, tempVar);
             }
 
-            // 加载 target
+ // 加载 Target
             mv.visitVarInsn(Opcodes.ALOAD, 4);
 
             // 加载 getter 返回值
@@ -314,10 +320,10 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     /**
-     * 解析Properties
+      * 解析属性
      * @param clazz clazz
-     * @param reads reads
-     * @param writes writes
+     * @param reads 读取
+     * @param writes 写入
      */
     private void resolveProperties(Class<?> clazz,
                                     Map<String, PropertyDescriptor> reads,
@@ -336,7 +342,14 @@ public class AsmBeanCopier implements BeanCopier {
         }
     }
 
-    /** 获取PropertyName */
+    /**
+     * 获取财产名称
+     *
+     * @param getter getter
+     * @return 获取财产名称的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private static String getPropertyName(Method getter) {
         String name = getter.getName();
         if (name.startsWith("get") && name.length() > 3) {
@@ -349,8 +362,8 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     static class PropertyPair {
-        final Method getter;
-        final Method setter;
+        final Method getter; // getter
+        final Method setter; // setter
 
         PropertyPair(Method getter, Method setter) {
             this.getter = getter;
@@ -360,6 +373,8 @@ public class AsmBeanCopier implements BeanCopier {
 
     /**
      * 生成的字节码类的类加载器。
+     * @author CH
+     * @since 4.0.0
      */
     static class GeneratedClassLoader extends ClassLoader {
         GeneratedClassLoader(ClassLoader parent) {
@@ -381,7 +396,7 @@ public class AsmBeanCopier implements BeanCopier {
     }
 
     @Override
-    /** HashCode */
+    /** 哈希编码 */
     public int hashCode() {
         return getClass().hashCode();
     }

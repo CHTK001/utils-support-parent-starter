@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * CaptchaRun 验证码解析服务客户端
+   * captcha运行 验证码解析服务客户端
  *
  * @author CH
  * @since 2026-03-14
@@ -30,14 +30,19 @@ public class CaptchaRunClient implements CaptchaParser {
     private TaskPersistence taskPersistence;
 
     /**
-     * 创建 CaptchaRunClient 实例
+      * 创建 captcha运行客户端 实例
      * @param setting setting
      */
     public CaptchaRunClient(CaptchaSetting setting) {
         this.setting = setting;
     }
 
-    /** WithPersistence */
+    /**
+     * withpersistence
+     *
+     * @param taskPersistence 任务persistence
+     * @return withPersistence的结果
+     */
     public CaptchaRunClient withPersistence(TaskPersistence taskPersistence) {
         this.taskPersistence = taskPersistence;
         return this;
@@ -74,7 +79,7 @@ public class CaptchaRunClient implements CaptchaParser {
     }
 
     @Override
-    /** 查询Result */
+    /** 查询结果 */
     public CaptchaResponse queryResult(String taskId) {
         if (taskPersistence != null) {
             var cached = taskPersistence.query(taskId);
@@ -85,7 +90,11 @@ public class CaptchaRunClient implements CaptchaParser {
         return getTaskResult(taskId);
     }
 
-    /** 获取UserInfo */
+    /**
+     * 获取用户信息
+     *
+     * @return 获取用户信息的结果
+     */
     public Map<String, Object> getUserInfo() {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/users/self");
@@ -99,7 +108,11 @@ public class CaptchaRunClient implements CaptchaParser {
     }
 
     @SuppressWarnings("unchecked")
-    /** 获取Balance */
+    /**
+     * 获取Balance
+     *
+     * @return 获取balance的结果
+     */
     public double getBalance() {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/users/self/wallet");
@@ -119,7 +132,12 @@ public class CaptchaRunClient implements CaptchaParser {
         return 0.0;
     }
 
-    /** Do获取 */
+    /**
+     * 执行获取
+     *
+     * @param url url
+     * @return 执行获取的结果
+     */
     private String doGet(String url) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
@@ -140,7 +158,13 @@ public class CaptchaRunClient implements CaptchaParser {
         return null;
     }
 
-    /** DoPost */
+    /**
+     * 执行post
+     *
+     * @param url url
+     * @param body 主体
+     * @return 执行post的结果
+     */
     private String doPost(String url, Map<String, Object> body) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
@@ -162,7 +186,12 @@ public class CaptchaRunClient implements CaptchaParser {
         return null;
     }
 
-    /** 创建Task */
+    /**
+     * 创建任务
+     *
+     * @param body 主体
+     * @return 创建任务的结果
+     */
     private String createTask(Map<String, Object> body) {
         try {
             String json = doPost(setting.getApiUrl() + "/v2/tasks", body);
@@ -176,7 +205,12 @@ public class CaptchaRunClient implements CaptchaParser {
         return null;
     }
 
-    /** 获取TaskResult */
+    /**
+     * 获取任务结果
+     *
+     * @param taskId 任务标识
+     * @return 获取任务结果的结果
+     */
     private CaptchaResponse getTaskResult(String taskId) {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/tasks/" + taskId);
@@ -230,7 +264,13 @@ public class CaptchaRunClient implements CaptchaParser {
                 .build();
     }
 
-    /** PutIfNotBlank */
+    /**
+     * 放入ifnotblank
+     *
+     * @param map 映射
+     * @param key 键
+     * @param value 值
+     */
     private static void putIfNotBlank(Map<String, Object> map, String key, String value) {
         if (StringUtils.isNotBlank(value)) {
             map.put(key, value);

@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 /**
- * 内存引擎实现，基于 ConcurrentHashMap 提供表级别的轻量数据存储与查询。
+   * 内存引擎实现，基于 并发哈希映射 提供表级别的轻量数据存储与查询。
  * <p>
  * 支持二级索引加速等值查询（{@code =} 条件走索引，否则回退全表扫描）。
  * 通过 SPI 注册为 {@code "memory"}，可作为单元测试或无持久化场景下的默认 Engine。
@@ -43,7 +43,7 @@ public class InMemoryEngine extends AbstractEngine {
     private final Map<String, Map<String, Map<Object, List<Object>>>> indexes = new ConcurrentHashMap<>();
 
     @Override
-    /** Store */
+    /** 存储 */
     public <T> Engine store(String name, List<T> data) {
         super.store(name, data);
         return this;
@@ -61,7 +61,13 @@ public class InMemoryEngine extends AbstractEngine {
         return this;
     }
 
-    /** 构建Index */
+    /**
+     * 构建索引
+     *
+     * @param name 名称
+     * @param data 数据
+     * @return 构建索引的结果
+     */
     private <T> void buildIndex(String name, List<T> data) {
         if (data == null || data.isEmpty()) {
             return;
@@ -83,7 +89,12 @@ public class InMemoryEngine extends AbstractEngine {
         }
     }
 
-    /** 获取Getters */
+    /**
+     * 获取Getters
+     *
+     * @param clazz clazz
+     * @return 获取getters的结果
+     */
     private static List<String> getGetters(Class<?> clazz) {
         List<String> fields = new ArrayList<>();
         for (var m : clazz.getMethods()) {
@@ -122,15 +133,15 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @Override
-    /** 执行New查询 */
+    /** 执行新查询 */
     protected <T> List<T> executeNewQuery(String where, Object[] args, Class<T> clazz, int limit, int offset) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * 执行原生 SELECT：SQL 编译为 AST 后在表行引用上求值。
+      * 执行原生 选择：SQL 编译为 AST 后在表行引用上求值。
      *
-     * @param sql    SELECT 语句（支持 WHERE/ORDER BY/LIMIT/COUNT(*)）
+     * @param sql    选择 语句（支持 WHERE/订单 BY/限制/数量(*)）
      * @param params ? 绑定参数
      * @return 结果行
      */
@@ -141,7 +152,7 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     /**
-     * 执行原生 DML：INSERT / UPDATE / DELETE 直接作用于表行引用。
+      * 执行原生 DML：插入 / 更新 / 删除 直接作用于表行引用。
      *
      * @param sql    DML 语句
      * @param params ? 绑定参数
@@ -169,11 +180,11 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     /**
-     * 提取 FROM 子句后的表名，供 SELECT 定位数据。
+      * 提取 从 子句后的表名，供 选择 定位数据。
      *
-     * @param sql SELECT 语句
+     * @param sql 选择 语句
      * @return 表名
-     * @throws IllegalArgumentException 缺少 FROM 子句时抛出
+     * @throws IllegalArgumentException 缺少 从 子句时抛出
      */
     private static String extractTable(String sql) {
         java.util.regex.Matcher m = java.util.regex.Pattern
@@ -211,7 +222,14 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
-    /** TryIndexLookup */
+    /**
+     * 尝试索引lookup
+     *
+     * @param clazz clazz
+     * @param conditions 条件
+     * @param data 数据
+     * @return 尝试索引lookup的结果
+     */
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
         Condition first = conditions.get(0);
         if (!"=".equals(first.getOperator())) {
@@ -238,7 +256,12 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings("unchecked")
-    /** 查找IndexForData */
+    /**
+     * 查找索引for数据
+     *
+     * @param data 数据
+     * @return find索引for数据的结果
+     */
     private <T> Map<String, Map<Object, List<Object>>> findIndexForData(List<T> data) {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
@@ -303,7 +326,12 @@ public class InMemoryEngine extends AbstractEngine {
         return removed;
     }
 
-    /** 构建Predicate */
+    /**
+     * 构建Predicate
+     *
+     * @param conditions 条件
+     * @return 构建predicate的结果
+     */
     private static <T> Predicate<T> buildPredicate(List<Condition> conditions) {
         Predicate<T> result = t -> true;
         for (Condition c : conditions) {
@@ -313,7 +341,12 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** ToPredicate */
+    /**
+     * 转为predicate
+     *
+     * @param c c
+     * @return 转为predicate的结果
+     */
     private static <T> Predicate<T> toPredicate(Condition c) {
         String field = c.getColumnName();
         String op = c.getOperator();
@@ -346,7 +379,13 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 比较 */
+    /**
+     * 比较
+     *
+     * @param fieldVal 字段val
+     * @param paramVal 参数val
+     * @return compare的结果
+     */
     private static int compare(Comparable fieldVal, Object paramVal) {
         if (fieldVal == null) {
             return -1;
@@ -355,7 +394,13 @@ public class InMemoryEngine extends AbstractEngine {
         return fieldVal.compareTo(cv);
     }
 
-    /** Like */
+    /**
+     * Like
+     *
+     * @param fieldVal 字段val
+     * @param patternVal 模式val
+     * @return like的结果
+     */
     private static boolean like(Object fieldVal, Object patternVal) {
         if (fieldVal == null || patternVal == null) {
             return false;
@@ -365,7 +410,13 @@ public class InMemoryEngine extends AbstractEngine {
         return val.contains(pattern);
     }
 
-    /** 转换ToMatch */
+    /**
+     * 转换转为匹配
+     *
+     * @param fieldValue 字段值
+     * @param paramValue 参数值
+     * @return 转换转为匹配的结果
+     */
     private static Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
             return paramValue;
@@ -404,7 +455,16 @@ public class InMemoryEngine extends AbstractEngine {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    /** 比较Ordered */
+    /**
+     * 比较订单
+     *
+     * @param a a
+     * @param b b
+     * @param orderBys 订单bys
+     * @return compare订单的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private static <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
             String[] parts = ob.trim().split("\\s+");
@@ -437,7 +497,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
-        /** List */
+        /** 列表 */
         public List<T> list() {
             return evaluateQuery(this);
         }
@@ -450,7 +510,15 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
-        /** Page */
+        /**
+         * Page
+         *
+         * @param pn pn
+         * @param ps ps
+         * @return page的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public Page<T> page(int pn, int ps) {
             return evaluatePage(this, pn, ps);
         }
@@ -462,7 +530,13 @@ public class InMemoryEngine extends AbstractEngine {
         }
 
         @Override
-        /** 更新 */
+        /**
+         * 更新
+         *
+         * @return 更新的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public int update() {
             return evaluateUpdate(this);
         }

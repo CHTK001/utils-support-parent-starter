@@ -29,20 +29,21 @@ import java.util.logging.Level;
 public final class StorageManager {
 
     /**
-     * GLOBAL
+      * 全局
      */
     private static final AtomicReference<ApmStorage> GLOBAL = new AtomicReference<>(new NoopStorage());
     /**
-     * REGISTERED
+      * 注册
      */
     private static final Map<String, ApmStorage> REGISTERED = new ConcurrentHashMap<>();
 
-    /** 创建 StorageManager 实例 */
+    /** 创建 storage管理器 实例 */
     private StorageManager() {
     }
 
     /**
      * 初始化全局存储。
+     * @param config 配置
      */
     public static synchronized void init(StorageConfig config) {
         ApmStorage resolved = resolve(config);
@@ -73,6 +74,7 @@ public final class StorageManager {
 
     /**
      * 获取当前全局存储。
+     * @return 获取的结果
      */
     public static ApmStorage get() {
         return GLOBAL.get();
@@ -80,6 +82,7 @@ public final class StorageManager {
 
     /**
      * 注册自定义存储（可绕过 SPI 直接注入）。
+     * @param storage storage
      */
     public static void register(ApmStorage storage) {
         if (storage != null) {
@@ -91,6 +94,7 @@ public final class StorageManager {
 
     /**
      * 从 {@link TransmissionRecord} 转扁平并写入。
+     * @param record record
      */
     public static void appendTransmission(TransmissionRecord record) {
         ApmStorage s = GLOBAL.get();
@@ -113,9 +117,11 @@ public final class StorageManager {
      *   <li>SPI 加载 + 按 type 精确匹配</li>
      *   <li>找不到 type 时,使用 NoopStorage(不盲选第一个 SPI 实现,避免配置与实际不一致)</li>
      * </ol>
+     * @param config 配置
+     * @return resolve的结果
      */
     private static ApmStorage resolve(StorageConfig config) {
-        // 1. 先按 type 字段精确匹配
+ // 1. 先按 类型 字段精确匹配
         String type = config.get("apm.storage.type", ApmStorage.DEFAULT_NAME);
         ApmStorage explicit = REGISTERED.get(type);
         if (explicit != null) {
@@ -135,7 +141,7 @@ public final class StorageManager {
         }
 
         // 3. 找不到指定 type — 不盲选第一个 SPI(避免用户配置 "sqlite" 但实际用 "inmemory"),
-        //    返回 NoopStorage 让 handler 安全退化
+ // 返回 noopstorage 让 处理器 安全退化
         log.warning("未找到 " + type + " 存储实现,使用 NoopStorage");
         return new NoopStorage();
     }

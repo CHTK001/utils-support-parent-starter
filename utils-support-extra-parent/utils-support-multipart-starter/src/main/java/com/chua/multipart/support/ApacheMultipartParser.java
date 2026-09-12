@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 Apache Commons FileUpload2 的 multipart/form-data 解析器。
+   * 基于 Apache Commons 文件upload2 的 multipart/form-数据 解析器。
  *
  * @author CH
  * @since 2026/07/17
@@ -32,7 +32,7 @@ import java.util.Map;
 public class ApacheMultipartParser implements MultipartParser {
 
     @Override
-    /** Support */
+    /** 支持 */
     public boolean support(String contentType) {
         return contentType != null && contentType.toLowerCase().startsWith("multipart/form-data");
     }
@@ -53,16 +53,16 @@ public class ApacheMultipartParser implements MultipartParser {
                     new JakartaServletFileUpload<>(factory);
             RequestContext ctx = new RequestContext() {
                 @Override
-                /** 获取ContentType */
+                /** 获取内容类型 */
                 public String getContentType() { return contentType; }
                 @Override
-                /** 获取CharacterEncoding */
+                /** 获取character编码 */
                 public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
                 @Override
-                /** 获取Content获取长度 */
+                /** 获取内容获取长度 */
                 public long getContentLength() { return body.length; }
                 @Override
-                /** 获取InputStream */
+                /** 获取输入流 */
                 public InputStream getInputStream() { return new ByteArrayInputStream(body); }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);
@@ -84,7 +84,7 @@ public class ApacheMultipartParser implements MultipartParser {
     }
 
     @Override
-    /** 解析FormFields */
+    /** 解析form字段 */
     public Map<String, String> parseFormFields(byte[] body, String contentType) {
         if (body == null || body.length == 0 || contentType == null) {
             return Map.of();
@@ -99,16 +99,16 @@ public class ApacheMultipartParser implements MultipartParser {
                     new JakartaServletFileUpload<>(factory);
             RequestContext ctx = new RequestContext() {
                 @Override
-                /** 获取ContentType */
+                /** 获取内容类型 */
                 public String getContentType() { return contentType; }
                 @Override
-                /** 获取CharacterEncoding */
+                /** 获取character编码 */
                 public String getCharacterEncoding() { return StandardCharsets.UTF_8.name(); }
                 @Override
-                /** 获取Content获取长度 */
+                /** 获取内容获取长度 */
                 public long getContentLength() { return body.length; }
                 @Override
-                /** 获取InputStream */
+                /** 获取输入流 */
                 public InputStream getInputStream() { return new ByteArrayInputStream(body); }
             };
             FileItemInputIterator iter = upload.getItemIterator(ctx);
@@ -126,7 +126,12 @@ public class ApacheMultipartParser implements MultipartParser {
         return fields;
     }
 
-    /** 读取AllBytes */
+    /**
+     * 读取全部bytes
+     *
+     * @param in 入
+     * @return 读取全部bytes的结果
+     */
     private byte[] readAllBytes(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];

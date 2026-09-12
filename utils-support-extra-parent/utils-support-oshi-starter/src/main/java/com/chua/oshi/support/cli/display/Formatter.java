@@ -12,6 +12,9 @@ import java.util.List;
  */
 public final class Formatter {
 
+    /**
+     * Formatter。
+     */
     private Formatter() {
     }
 
@@ -38,7 +41,7 @@ public final class Formatter {
      * 渲染键值面板（顶部带标题）。
      *
      * @param title 面板标题
-     * @param rows  交替的 key,value
+     * @param rows  交替的 键,值
      * @return 面板字符串
      */
     public static String panel(String title, String... rows) {
@@ -130,7 +133,21 @@ public final class Formatter {
         return sb.toString();
     }
 
-    /** 构建百分比进度条。 */
+     /**
+      * bar。
+      * @param pct pct
+      * @param length 长度
+      * @return bar的结果
+      */
+     * 构建百分比进度条。
+     *
+     * @param s s
+     * @param n n
+     * @return repeat的结果
+     * @param sb sb
+     * @param headers 头部
+     * @param widths widths
+     */
     public static String bar(double pct, int length) {
         int filled = (int) Math.round(pct / 100.0 * length);
         filled = Math.max(0, Math.min(length, filled));
@@ -140,6 +157,12 @@ public final class Formatter {
     private static void header(StringBuilder sb, String[] headers, int[] widths) {
         sb.append("┃");
         for (int c = 0; c < headers.length; c++) {
+            /**
+             * row。
+             * @param sb sb
+             * @param cells cells
+             * @param widths widths
+             */
             String h = headers[c];
             sb.append(' ').append(h).append(repeat(" ", widths[c] - width(h))).append("  ┃");
         }
@@ -149,6 +172,14 @@ public final class Formatter {
     private static void row(StringBuilder sb, String[] cells, int[] widths) {
         sb.append("│");
         for (int c = 0; c < cells.length; c++) {
+            /**
+             * sep。
+             * @param sb sb
+             * @param widths widths
+             * @param l l
+             * @param m m
+             * @param r r
+             */
             String cell = cells[c] == null ? "" : cells[c];
             sb.append(' ').append(cell).append(repeat(" ", widths[c] - width(cell))).append("  │");
         }
@@ -160,6 +191,12 @@ public final class Formatter {
         for (int c = 0; c < widths.length; c++) {
             sb.append(repeat("━", widths[c] + 3));
             if (c < widths.length - 1) {
+                /**
+                 * width。
+                 * @param s s
+                 * @return width的结果
+                 * @param n n
+                 */
                 sb.append(m);
             }
         }

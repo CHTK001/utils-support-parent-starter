@@ -18,7 +18,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * <h2>适用模型</h2>
  * <ul>
  *   <li><b>wav2vec2</b> — Facebook AI 预训练自监督语音模型，最后一层 hidden state 或
- *       通过 pooling 聚合后可作为高质量音频特征向量（768/1024 维）。</li>
+   * 通过 游泳池 聚合后可作为高质量音频特征向量（768/1024 维）。</li>
  *   <li><b>Hubert</b> — 类似 wav2vec2，由 Google 提出，同样适用于语音特征提取。</li>
  *   <li><b>Wespeaker</b> — 专门用于说话人验证的 ResNet+LM 架构，输出 512 维 x-vector。</li>
  * </ul>
@@ -26,7 +26,7 @@ import com.chua.common.support.spi.ServiceProvider;
  * <h2>与 FeatureExtractor 的区别</h2>
  * <p>本接口与 {@link com.chua.deeplearning.support.feature.FeatureExtractor} 的职责相似，
  * 但专针对于<b>音频领域</b>：输入类型为 {@code byte[]}（音频原始字节，通常为 WAV/PCM），
- * 而非图像字节或文本字符串；内部自动处理采样率重采样（默认目标 16kHz）。</p>
+   * 而非图像字节或文本字符串；内部自动处理采样率重采样（默认目标 16khz）。</p>
  *
  * <h2>典型用法</h2>
  * <pre>{@code
@@ -41,6 +41,7 @@ import com.chua.common.support.spi.ServiceProvider;
  *
  * // 批量检索：以查询向量匹配数据库中的指纹库
  * List<Float> scores = fingerprintLibrary.batchCompare(queryVec);
+ * }</pre>erprintLibrary.batchCompare(queryVec);
  * }</pre>
  *
  * <h2>特征归一化</h2>
@@ -54,15 +55,15 @@ import com.chua.common.support.spi.ServiceProvider;
 public interface AudioFingerprinter {
 
     /**
-     * 通过 SPI（Service Provider Interface）创建实例。
+      * 通过 SPI（服务 提供者 接口）创建实例。
      *
      * <p>系统会扫描 classpath 下 META-INF/extensions 中注册的实现类，
      * 选取与 {@code provider} 匹配的类进行实例化。</p>
      *
      * @param provider 引擎提供商标识，如 "onnx"、"pytorch"
-     * @param apiKey   API 密钥；本地引擎（ONNX/PyTorch）可传入空字符串
+     * @param apiKey   API 密钥；本地引擎（ONNX/pytorch）可传入空字符串
      * @return 新建的指纹提取器实例
-     * @throws IllegalArgumentException 若未找到对应 provider 的实现
+     * @throws IllegalArgumentException 若未找到对应 提供者 的实现
      */
     static AudioFingerprinter create(String provider, String apiKey) {
         return ServiceProvider.of(AudioFingerprinter.class)
@@ -70,9 +71,9 @@ public interface AudioFingerprinter {
     }
 
     /**
-     * 设置 SPI provider 名称（链式调用）。
+      * 设置 SPI 提供者 名称（链式调用）。
      *
-     * @param provider provider 标识
+     * @param provider 提供者 标识
      * @return this
      */
     default AudioFingerprinter provider(String provider) {
@@ -80,7 +81,7 @@ public interface AudioFingerprinter {
     }
 
     /**
-     * 设置要使用的模型 ID（链式调用）。
+      * 设置要使用的模型 标识（链式调用）。
      *
      * <p>模型 ID 须在 {@link com.chua.deeplearning.support.engine.ModelRegistry}
      * 中提前注册，可通过 {@link #listModels()} 查询可用列表。</p>
@@ -103,13 +104,13 @@ public interface AudioFingerprinter {
     }
 
     /**
-     * 查询当前引擎下所有已注册的音频指纹模型 ID 列表。
+      * 查询当前引擎下所有已注册的音频指纹模型 标识 列表。
      *
      * <p>该方法通过 {@link com.chua.deeplearning.support.engine.ModelRegistry}
      * 按 {@link AudioFingerprinter} 能力接口过滤已注册模型，
      * 常用于前端下拉框或能力清单展示。</p>
      *
-     * @return 模型 ID 列表，如 ["wav2vec2-zh", "wespeaker-resnet34"]
+     * @return 模型 标识 列表，如 ["wav2vec2-zh", "wespeaker-resnet34"]
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.AudioFingerprinter.class);
@@ -140,7 +141,7 @@ public interface AudioFingerprinter {
      * 设置推理设备。
      *
      * <p>可选值："cpu"（默认）、"cuda"（NVIDIA GPU，需安装 CUDA 运行时）等。
-     * ONNX Runtime 同时支持 "cpu"、"cuda"、"directml"（Windows GPU）。</p>
+      * ONNX Runtime 同时支持 "cpu"、"cuda"、"directml"（窗口 GPU）。</p>
      *
      * @param device 设备标识
      * @return this
@@ -177,7 +178,7 @@ public interface AudioFingerprinter {
      *   <li>WAV 文件字节流（自动解析 RIFF 头，支持 16-bit/8-bit PCM 及 float32）</li>
      *   <li>纯 PCM 字节流（已为 16kHz 单声道 float -1~1）</li>
      * </ul>
-     * 若输入非 16kHz，将自动重采样至目标采样率。</p>
+      * 若输入非 16khz，将自动重采样至目标采样率。</p>
      *
      * @param audioData 音频原始字节数据
      * @return 特征向量，L2 归一化后模长为 1；若归一化关闭则返回原始向量

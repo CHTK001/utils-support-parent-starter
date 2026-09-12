@@ -8,7 +8,7 @@ import com.chua.common.support.network.server.SyncServer;
 import java.util.*;
 
 /**
- * RSocket 同步流程管理器。
+   * r套接字 同步流程管理器。
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,9 +33,10 @@ public class RSocketSyncFlow implements SyncFlow {
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-     * 创建 RSocketSyncFlow 实例
+      * 创建 r套接字同步流 实例
      * @param setting setting
-     * @param String String
+     * @param serverUrl 字符串
+     * @param serverUrl 服务端url
      */
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new RSocketSyncServer(setting);
@@ -43,8 +44,8 @@ public class RSocketSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 RSocketSyncFlow 实例
-     * @param serverUrl serverUrl
+      * 创建 r套接字同步流 实例
+     * @param serverUrl 服务端url
      */
     public RSocketSyncFlow(String serverUrl) {
         this.server = null;
@@ -52,7 +53,7 @@ public class RSocketSyncFlow implements SyncFlow {
     }
 
     /**
-     * 创建 RSocketSyncFlow 实例
+      * 创建 r套接字同步流 实例
      * @param setting setting
      */
     public RSocketSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
@@ -99,37 +100,37 @@ public class RSocketSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 获取Server */
+    /** 获取服务端 */
     public SyncServer getServer() {
         return server;
     }
 
     @Override
-    /** 获取Client */
+    /** 获取客户端 */
     public SyncClient getClient() {
         return client;
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
         if (server != null) {
             server.addListener(new com.chua.common.support.network.server.SyncServerListener() {
                 @Override
-                /** OnClientConnected */
+                /** on客户端连接 */
                 public void onClientConnected(String clientId, Map<String, Object> metadata) {
                     listener.onClientConnected(clientId);
                 }
 
                 @Override
-                /** OnClientDisconnected */
+                /** on客户端断开连接 */
                 public void onClientDisconnected(String clientId) {
                     listener.onClientDisconnected(clientId);
                 }
 
                 @Override
-                /** OnMessage */
+                /** on消息 */
                 public void onMessage(String clientId, String topic, Object message) {
                     listener.onMessage(topic, message);
                 }
@@ -147,7 +148,7 @@ public class RSocketSyncFlow implements SyncFlow {
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
         if (client != null) {
@@ -161,7 +162,11 @@ public class RSocketSyncFlow implements SyncFlow {
         stop();
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

@@ -210,10 +210,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 判断是否解析全部 schema（配置项 all = true）。
+      * 判断是否解析全部 模式（配置项 全部 = true）。
      *
      * @param config 文档配置
-     * @return true 表示解析全部 schema
+     * @return true 表示解析全部 模式
      */
     private static boolean isAllMode(DocumentConfig config) {
         if (config.getOptions() == null) {
@@ -230,10 +230,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 解析需要导出的 schema 列表，未配置时导出全部。
+      * 解析需要导出的 模式 列表，未配置时导出全部。
      *
      * @param config 文档配置
-     * @return schema 名称集合，null 表示全部
+     * @return schema 名称集合，空 表示全部
      */
     private static Set<String> resolveSchemas(DocumentConfig config) {
         if (config.getOptions() == null) {
@@ -278,7 +278,7 @@ public class DatabaseDocumentParser implements DocumentParser {
      * 从 JDBC URL 中提取数据库名。
      *
      * @param url JDBC 连接 URL
-     * @return 数据库名，无法提取返回 null
+     * @return 数据库名，无法提取返回 空
      */
     private static String extractCatalog(String url) {
         int idx = url.indexOf('?');
@@ -297,7 +297,7 @@ public class DatabaseDocumentParser implements DocumentParser {
      * 生成数据库文档名称。
      *
      * @param catalog 数据库目录
-     * @param schemas schema 名称集合
+     * @param schemas 模式 名称集合
      * @return 数据库名称
      */
     private static String buildDbName(String catalog, Set<String> schemas) {
@@ -311,10 +311,10 @@ public class DatabaseDocumentParser implements DocumentParser {
     }
 
     /**
-     * 复用已有列数据构建便于修改的 Builder。
+      * 复用已有列数据构建便于修改的 构建器。
      *
      * @param c 列数据
-     * @return 列 Builder
+     * @return 列 构建器
      */
     private static ColumnData.ColumnDataBuilder toBuilder(ColumnData c) {
         return ColumnData.builder()

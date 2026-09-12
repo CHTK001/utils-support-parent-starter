@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Cassandra 应用层 Handler — 拦截 Cassandra Java Driver 关键调用并生成应用语义传输记录。
+   * Cassandra 应用层 处理器 — 拦截 Cassandra Java Driver 关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,28 +23,28 @@ import com.chua.runtime.protocol.Software;
 public class CassandraHandler extends AbstractAppHandler {
 
     /**
-     * CqlSession 接口类内部名
+      * cql会话 接口类内部名
      */
     private static final String CQL_SESSION = "com/datastax/oss/driver/api/core/CqlSession";
 
     /**
-     * DefaultSession 实现类内部名
+      * 默认会话 实现类内部名
      */
     private static final String DEFAULT_SESSION = "com/datastax/oss/driver/internal/core/session/DefaultSession";
 
     /**
-     * Session 方法集合（同步 + 异步执行）
+      * 会话 方法集合（同步 + 异步执行）
      */
     private static final String[] SESSION_METHODS = {"execute", "executeAsync", "prepare", "prepareAsync"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "cassandra-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "cassandra.enabled";
     }
@@ -56,13 +56,13 @@ public class CassandraHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.CASSANDRA;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(CQL_SESSION, SESSION_METHODS);
         registerAll(DEFAULT_SESSION, SESSION_METHODS);

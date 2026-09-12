@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DenseNet 表情识别 Translator。
+   * densenet 表情识别 Translator。
  * <p>7 类：angry / disgust / fear / happy / sad / surprise / neutral。</p>
  *
  * @author CH
@@ -24,7 +24,7 @@ import java.util.List;
 public class DenseNetExpressionTranslator implements Translator<Image, Classifications> {
 
     /** 标签列表 */
-    /** Labels */
+    /** 标签 */
     private static final List<String> LABELS = List.of(
             "angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"
     );
@@ -33,21 +33,21 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     /** 图片尺寸 */
     private final int imageSize;
 
-    /** 创建 DenseNetExpressionTranslator 实例 */
+    /** 创建 densenetexpressiontranslator 实例 */
     public DenseNetExpressionTranslator() {
         this(224);
     }
 
     /**
-     * 创建 DenseNetExpressionTranslator 实例
-     * @param imageSize imageSize
+      * 创建 densenetexpressiontranslator 实例
+     * @param imageSize 镜像大小
      */
     public DenseNetExpressionTranslator(int imageSize) {
         this.imageSize = imageSize;
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         Shape shape = array.getShape();
@@ -65,7 +65,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Classifications processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
         if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
@@ -89,7 +89,12 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
         return Batchifier.STACK;
     }
 
-    /** DefaultLabels */
+    /**
+     * 默认标签
+     *
+     * @param size 大小
+     * @return 默认标签的结果
+     */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {

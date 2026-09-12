@@ -12,9 +12,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Socket.IO 同步服务端实现。
+   * 套接字.IO 同步服务端实现。
  * <p>
- * 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 Socket.IO 通信。
+   * 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 套接字.IO 通信。
  * </p>
  *
  * @author CH
@@ -24,26 +24,26 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketIOSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer, SyncProtocol {
 
     @Override
-    /** 获取Protocol */
+    /** 获取协议 */
     public String getProtocol() {
         return "socketio";
     }
 
     @Override
-    /** 创建Server */
+    /** 创建服务端 */
     public SyncServer createServer(ServerSetting setting) {
         return new SocketIOSyncServer(setting);
     }
 
     @Override
-    /** 创建Client */
+    /** 创建客户端 */
     public SyncClient createClient(Object setting) {
         String url = "http://" + (setting instanceof String ? (String) setting : "127.0.0.1:19380");
         return new SocketIOSyncClient(url);
     }
 
     /**
-     * clients
+      * 客户端
      */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
@@ -56,7 +56,7 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
     private final com.chua.socketio.support.server.SocketIOServer delegate;
 
     /**
-     * 创建 SocketIOSyncServer 实例
+      * 创建 套接字io同步服务端 实例
      * @param setting setting
      */
     public SocketIOSyncServer(ServerSetting setting) {
@@ -65,13 +65,13 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
     }
 
     @Override
-    /** Do开始 */
+    /** 执行开始 */
     protected void doStart() {
         delegate.start();
     }
 
     @Override
-    /** Do停止 */
+    /** 执行停止 */
     protected void doStop() {
         delegate.stop();
         clients.clear();
@@ -92,37 +92,41 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
     }
 
     @Override
-    /** 获取ConnectedClients */
+    /** 获取连接客户端 */
     public List<String> getConnectedClients() {
         return new ArrayList<>(clients.keySet());
     }
 
     @Override
-    /** 获取ClientMetadata */
+    /** 获取客户端metadata */
     public Map<String, Object> getClientMetadata(String clientId) {
         Map<String, Object> meta = clients.get(clientId);
         return meta != null ? Collections.unmodifiableMap(meta) : Collections.emptyMap();
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncServerListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncServerListener listener) {
         listeners.remove(listener);
     }
 
     @Override
-    /** 获取ProtocolType */
+    /** 获取协议类型 */
     public ProtocolType getProtocolType() {
         return ProtocolType.UNKNOWN;
     }
 
-    /** 通知Listener */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

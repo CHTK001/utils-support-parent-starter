@@ -21,7 +21,7 @@ import java.util.Arrays;
  * <p>实现"密钥隐私存储"的核心机制：
  * <ol>
  *   <li><b>KEK 派生</b> — 依据密钥策略派生密钥加密密钥(KEK)：
- *       CUSTOM 策略由口令 PBKDF2 派生；SERVER_BOUND 策略由服务器指纹 PBKDF2 派生（口令可选叠加为 pepper）</li>
+   * 习俗 策略由口令 PBKDF2 派生；服务端_BOUND 策略由服务器指纹 PBKDF2 派生（口令可选叠加为 pepper）</li>
  *   <li><b>密钥封装/解封</b> — 主密钥永远以 AES-GCM 密文形态存在于载体（密钥文件/打包内嵌块），明文仅存于内存</li>
  *   <li><b>完整性校验</b> — HmacSHA256 防篡改，比较采用常量时间算法防时序侧信道</li>
  * </ol>
@@ -67,7 +67,7 @@ public final class KeyProtector {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * 口令拼接分隔符（SERVER_BOUND 策略下指纹与 pepper 的连接符）
+      * 口令拼接分隔符（服务端_BOUND 策略下指纹与 pepper 的连接符）
      */
     private static final String SEP = "::";
 
@@ -99,7 +99,7 @@ public final class KeyProtector {
     }
 
     /**
-     * 构造 PBKDF2 口令输入：CUSTOM 为纯口令；SERVER_BOUND 为指纹+可选 pepper
+      * 构造 PBKDF2 口令输入：习俗 为纯口令；服务端_BOUND 为指纹+可选 pepper
      *
      * @param policy  密钥策略
      * @param setting 加密配置
@@ -123,7 +123,7 @@ public final class KeyProtector {
     }
 
     /**
-     * 校验 CUSTOM 策略必须提供口令
+      * 校验 习俗 策略必须提供口令
      *
      * @param setting 加密配置
      */
@@ -199,7 +199,7 @@ public final class KeyProtector {
     }
 
     /**
-     * 计算 HmacSHA256 完整性摘要
+      * 计算 hmacsha256 完整性摘要
      *
      * @param kek  作为 HMAC 密钥的 KEK
      * @param data 待校验数据

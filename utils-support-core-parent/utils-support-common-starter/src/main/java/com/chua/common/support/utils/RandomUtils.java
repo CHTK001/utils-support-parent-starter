@@ -50,7 +50,7 @@ public final class RandomUtils {
      *
      * @param enumClass 枚举类对象
      * @param <E>       枚举类型
-     * @return 随机选中的枚举常量；当枚举类为 null 或无常量时返回 null
+     * @return 随机选中的枚举常量；当枚举类为 空 或无常量时返回 空
      */
     public static <E extends Enum<E>> E randomEnum(Class<E> enumClass) {
         if (enumClass == null) {

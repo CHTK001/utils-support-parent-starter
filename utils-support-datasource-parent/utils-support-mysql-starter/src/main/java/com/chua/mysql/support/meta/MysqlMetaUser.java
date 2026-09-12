@@ -18,12 +18,25 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param ds ds
+ * @param sql SQL
+ * @param username 用户名
+ * @return 方法的结果
+ * @param dataSource 数据源
  */
 public class MysqlMetaUser implements MetaUser {
 
-    private final DataSource dataSource;
+    private final DataSource dataSource; // 数据源
 
+    /**
+     * mysqlmeta用户。
+     * @param dataSource 数据源
+     */
     public MysqlMetaUser(DataSource dataSource) {
+        /**
+         * 列表。
+         * @return 列表的结果
+         */
         this.dataSource = dataSource;
     }
 
@@ -51,6 +64,13 @@ public class MysqlMetaUser implements MetaUser {
 
     @Override
     public UserCreateBuilder create(String username) {
+        /**
+         * alter。
+         * @param username 用户名
+         * @return alter的结果
+         * @param ds ds
+         * @param sql sql
+         */
         return new CreateStep(dataSource, username);
     }
 
@@ -75,12 +95,21 @@ public class MysqlMetaUser implements MetaUser {
     }
 
     // ==================== Inner Steps ====================
+     /**
+      * 创建step类。
+      *
+      * @author CH
+      * @since 4.0.0
+      */
+     * AlterStep类。
+     *
+     */
 
     private static class CreateStep implements UserCreateBuilder {
-        private final DataSource dataSource;
-        private final String username;
-        private String password = "123456";
-        private String host = "%";
+        private final DataSource dataSource; // 数据源
+        private final String username; // 用户名
+        private String password = "123456"; // 密码
+        private String host = "%"; // 主机
 
         CreateStep(DataSource dataSource, String username) {
             this.dataSource = dataSource;
@@ -109,9 +138,9 @@ public class MysqlMetaUser implements MetaUser {
     }
 
     private static class AlterStep implements UserAlterBuilder {
-        private final DataSource dataSource;
-        private final String username;
-        private String password = null;
+        private final DataSource dataSource; // 数据源
+        private final String username; // 用户名
+        private String password = null; // 密码
 
         AlterStep(DataSource dataSource, String username) {
             this.dataSource = dataSource;

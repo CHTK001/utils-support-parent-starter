@@ -3,9 +3,9 @@ package com.chua.deeplearning.support.opencv;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * OpenCV 原生库加载工具。
+   * 打开cv 原生库加载工具。
  * <p>
- * 使用 openpnp OpenCV 包内置的 {@code nu.pattern.OpenCV#loadLocally()} 加载本地动态库，
+   * 使用 openpnp 打开cv 包内置的 {@code nu.pattern.OpenCV#loadLocally()} 加载本地动态库，
  * 保证 Haar/LBP 级联与图像编解码在 JVM 中可用。
  * </p>
  *
@@ -20,12 +20,12 @@ public final class OpencvNative {
      */
     private static volatile boolean loaded = false;
 
-    /** 创建 OpencvNative 实例 */
+    /** 创建 opencvNAT 实例 */
     private OpencvNative() {
     }
 
     /**
-     * 确保 OpenCV 原生库已加载。
+      * 确保 打开cv 原生库已加载。
      * <p>线程安全，可重复调用。</p>
      */
     public static void ensureLoaded() {

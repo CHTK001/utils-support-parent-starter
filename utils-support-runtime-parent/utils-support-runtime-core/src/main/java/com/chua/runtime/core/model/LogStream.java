@@ -39,14 +39,14 @@ public class LogStream implements LineCallback, AutoCloseable {
      */
     private volatile boolean closed;
 
-    /** 创建 LogStream 实例 */
+    /** 创建 日志流 实例 */
     public LogStream() {
         this(DEFAULT_MAX_LINES);
     }
 
     /**
-     * 创建 LogStream 实例
-     * @param maxLines maxLines
+      * 创建 日志流 实例
+     * @param maxLines 最大线
      */
     public LogStream(int maxLines) {
         this.maxLines = maxLines;
@@ -55,7 +55,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** OnLine */
+    /** on线 */
     public synchronized void onLine(String line) {
         if (closed) {
             return;
@@ -70,7 +70,7 @@ public class LogStream implements LineCallback, AutoCloseable {
     }
 
     @Override
-    /** OnComplete */
+    /** on完成 */
     public synchronized void onComplete(int exitCode) {
         if (closed) {
             return;
@@ -91,24 +91,41 @@ public class LogStream implements LineCallback, AutoCloseable {
         }
     }
 
-    /** 订阅 */
+    /**
+     * 订阅
+     *
+     * @param callback callback
+     */
     public void subscribe(LineCallback callback) {
         if (!closed) {
             subscribers.add(callback);
         }
     }
 
-    /** 取消订阅 */
+    /**
+     * 取消订阅
+     *
+     * @param callback callback
+     */
     public void unsubscribe(LineCallback callback) {
         subscribers.remove(callback);
     }
 
-    /** 获取Buffer */
+    /**
+     * 获取缓冲
+     *
+     * @return 获取缓冲的结果
+     */
     public synchronized List<String> getBuffer() {
         return new LinkedList<>(buffer);
     }
 
-    /** Tail */
+    /**
+     * Tail
+     *
+     * @param n n
+     * @return tail的结果
+     */
     public synchronized List<String> tail(int n) {
         int size = buffer.size();
         if (n >= size) {
@@ -130,7 +147,11 @@ public class LogStream implements LineCallback, AutoCloseable {
         buffer.clear();
     }
 
-    /** 是否Closed */
+    /**
+     * 是否Closed
+     *
+     * @return 是否关闭的结果
+     */
     public boolean isClosed() {
         return closed;
     }

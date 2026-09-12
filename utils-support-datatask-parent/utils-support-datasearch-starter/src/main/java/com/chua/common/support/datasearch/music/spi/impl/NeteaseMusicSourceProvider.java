@@ -22,7 +22,7 @@ import java.util.Map;
  * 网易云音乐数据源实现。
  *
  * <p>通过 weapi 加密请求 {@code https://music.163.com/weapi/cloudsearch/get/web}
- * 搜索歌曲（type=1）与歌单（type=1000），加密由 {@link NeteaseCryptoSupport} 完成。</p>
+   * 搜索歌曲（类型=1）与歌单（类型=1000），加密由 {@link NeteaseCryptoSupport} 完成。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -34,7 +34,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     private static final String SEARCH_URL = "https://music.163.com/weapi/cloudsearch/get/web?csrf_token=";
 
     @Override
-    /** 获取Source */
+    /** 获取源 */
     public MusicSourceOption getSource() {
         return MusicSourceOption.builder()
                 .code("netease")
@@ -132,7 +132,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
      * 歌曲节点转摘要。
      *
      * @param item 歌曲节点
-     * @return 摘要；缺 id 时返回 null
+     * @return 摘要；缺 标识 时返回 空
      */
     private MusicTrackSummary toTrackSummary(JsonNode item) {
         String trackId = text(item, "id");

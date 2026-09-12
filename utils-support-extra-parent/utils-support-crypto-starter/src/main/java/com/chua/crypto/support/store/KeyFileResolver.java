@@ -44,7 +44,7 @@ public final class KeyFileResolver {
     /**
      * 解析密钥文件最终路径
      *
-     * @param configured 配置的路径（允许 null/空白）
+     * @param configured 配置的路径（允许 空/空白）
      * @return 规范化绝对路径
      */
     public static Path resolve(String configured) {
@@ -93,7 +93,7 @@ public final class KeyFileResolver {
     }
 
     /**
-     * 获取当前应用 Jar 所在目录（FatJar 支持核心逻辑）
+      * 获取当前应用 Jar 所在目录（fatjar 支持核心逻辑）
      *
      * <p>兼容三种形态：
      * <ul>
@@ -102,7 +102,7 @@ public final class KeyFileResolver {
      *   <li>嵌套结构（如 SpringBoot nested URL）— 截断 "!" 后解析</li>
      * </ul>
      *
-     * @return Jar 目录；无法确定时返回 null
+     * @return Jar 目录；无法确定时返回 空
      */
     static Path jarDirectory() {
         try {

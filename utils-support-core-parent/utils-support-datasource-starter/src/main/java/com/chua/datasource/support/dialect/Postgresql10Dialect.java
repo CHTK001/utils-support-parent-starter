@@ -10,9 +10,23 @@ import java.util.Properties;
  */
 public class Postgresql10Dialect extends SqlDialect {
 
-    /** 支持版本 */
+    /**
+     * 支持版本
+     *
+     /**
+       * PostgreSQL10Dialect。
+      */
+     * @param properties 属性
+     */
     public static final String VERSION = "PostgreSQL 10+";
 
+    /**
+      * PostgreSQL10Dialect。
+     * @param properties 属性
+     /**
+      * Postgresql10Dialect。
+      */
+     */
     public Postgresql10Dialect() {
         super("postgresql10");
     }

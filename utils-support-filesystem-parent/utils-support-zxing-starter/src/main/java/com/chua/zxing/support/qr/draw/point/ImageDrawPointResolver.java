@@ -12,8 +12,8 @@ import javax.annotation.Nullable;
 
 
 /**
- * ImageDrawPointResolver，解析并处理图片绘制点的问题。
- * 继承自AbstractDrawPointResolver，提供具体的绘制点的解析实现。
+   * 镜像drawpoint解析器，解析并处理图片绘制点的问题。
+   * 继承自抽象drawpoint解析器，提供具体的绘制点的解析实现。
  *
  * @author CH
  * @since 4.0.0.42
@@ -21,13 +21,18 @@ import javax.annotation.Nullable;
 @Spi("image")
 public class ImageDrawPointResolver extends AbstractDrawPointResolver {
     /**
-     * 创建 ImageDrawPointResolver 实例
-     * @param qrCodeConfig qrCodeConfig
-     * @param Graphics2D Graphics2D
-     * @param BitMatrixEx BitMatrixEx
-     * @param int int
-     * @param int int
-     * @param int int
+      * 创建 镜像drawpoint解析器 实例
+     * @param qrCodeConfig qr编码配置
+     * @param g2 Graphics2D
+     * @param bitMatrix 钻头matrixex
+     * @param leftPadding int
+     * @param leftPadding int
+     * @param leftPadding int
+     * @param g2 g2
+     * @param bitMatrix 钻头matrix
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
      */
     public ImageDrawPointResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize) {
         super(qrCodeConfig, g2, bitMatrix, leftPadding, topPadding, infoSize);

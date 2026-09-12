@@ -326,6 +326,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                 acceptSelector.close();
             }
         } catch (IOException ignored) {
+            // NOTHING
         }
         if (ioSelectors != null) {
             for (Selector ioSelector : ioSelectors) {
@@ -335,6 +336,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
                         ioSelector.close();
                     }
                 } catch (IOException ignored) {
+                    // NOTHING
                 }
             }
         }
@@ -511,6 +513,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             java.net.Socket socket = sc.socket();
             remoteAddr = (InetSocketAddress) socket.getRemoteSocketAddress();
         } catch (Exception ignored) {
+            // NOTHING
         }
         TcpServerRequest request = new TcpServerRequest(reqData, remoteAddr, StandardCharsets.UTF_8);
         TcpServerResponse response = new TcpServerResponse();
@@ -588,6 +591,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             try {
                 key.channel().close();
             } catch (IOException ignored) {
+                // NOTHING
             }
             key.cancel();
         }
@@ -631,6 +635,7 @@ public class JdkTcpServer extends AbstractServer implements TcpServer {
             try {
                 socket.close();
             } catch (IOException ignored) {
+                // NOTHING
             }
         }
     }

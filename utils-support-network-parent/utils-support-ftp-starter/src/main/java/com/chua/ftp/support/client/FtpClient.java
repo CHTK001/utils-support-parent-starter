@@ -43,6 +43,10 @@ import java.util.*;
  * ftp.rename().from("/data/a.txt").to("/data/b.txt").exec();
  * ftp.exists("/data/file.txt");
  * ftp.size("/data/file.txt");
+ * }</pre>ir().path("/data/empty-dir").exec();
+ * ftp.rename().from("/data/a.txt").to("/data/b.txt").exec();
+ * ftp.exists("/data/file.txt");
+ * ftp.size("/data/file.txt");
  * }</pre>
  *
  * @author CH
@@ -103,7 +107,7 @@ public class FtpClient implements AutoCloseable {
     private final boolean ssl;
 
     /**
-     * 是否隐式 SSL 模式（true=端口 990 直接 TLS，false=显式 AUTH TLS）
+      * 是否隐式 SSL 模式（true=端口 990 直接 TLS，false=显式 认证 TLS）
      */
     private final boolean implicit;
 
@@ -113,7 +117,7 @@ public class FtpClient implements AutoCloseable {
     private FTPClient ftpClient;
 
     /**
-     * 创建 FtpClient 实例。
+      * 创建 ftp客户端 实例。
      *
      * @param b 构建器
      */
@@ -209,7 +213,7 @@ public class FtpClient implements AutoCloseable {
 
     @Override
     /**
-     * 关闭连接（AutoCloseable 实现）。
+      * 关闭连接（auto关闭 实现）。
      */
     public void close() {
         disconnect();
@@ -347,9 +351,9 @@ public class FtpClient implements AutoCloseable {
     }
 
     /**
-     * 获取底层 FTPClient（高级用法）。
+      * 获取底层 ftp客户端（高级用法）。
      *
-     * @return Apache Commons Net FTPClient 实例
+     * @return Apache Commons Net ftp客户端 实例
      */
     FTPClient getFtpClient() {
         return ftpClient;
@@ -384,7 +388,7 @@ public class FtpClient implements AutoCloseable {
         private String remotePath;
 
         /**
-         * 本地输入流（与 localPath 二选一）
+          * 本地输入流（与 本地路径 二选一）
          */
         private InputStream inputStream;
 
@@ -415,7 +419,7 @@ public class FtpClient implements AutoCloseable {
         }
 
         /**
-         * 使用输入流上传（与 local 二选一）。
+          * 使用输入流上传（与 本地 二选一）。
          *
          * @param in 输入流
          * @return 当前操作实例
@@ -479,7 +483,7 @@ public class FtpClient implements AutoCloseable {
         private String localPath;
 
         /**
-         * 本地输出流（与 localPath 二选一）
+          * 本地输出流（与 本地路径 二选一）
          */
         private OutputStream outputStream;
 
@@ -510,7 +514,7 @@ public class FtpClient implements AutoCloseable {
         }
 
         /**
-         * 使用输出流下载（与 local 二选一）。
+          * 使用输出流下载（与 本地 二选一）。
          *
          * @param out 输出流
          * @return 当前操作实例
@@ -1060,7 +1064,7 @@ public class FtpClient implements AutoCloseable {
     public static class FtpClientException extends RuntimeException {
 
         /**
-         * 创建 FtpClientException 实例。
+          * 创建 ftp客户端异常 实例。
          *
          * @param msg   异常消息
          * @param cause 原始异常

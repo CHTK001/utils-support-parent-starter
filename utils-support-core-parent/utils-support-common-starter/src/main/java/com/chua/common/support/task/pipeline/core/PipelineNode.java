@@ -56,6 +56,7 @@ import java.util.Set;
  *
  * // 判断分支
  * .decision("check", ctx -> ctx.getData() != null ? "process" : "error")
+ * }</pre>)
  * }</pre>
  *
  * <p><strong>内置节点实现：</strong></p>
@@ -80,18 +81,18 @@ import java.util.Set;
 public interface PipelineNode {
 
     /**
-     * 获取节点 ID。
+      * 获取节点 标识。
      *
      * <p>默认返回 null，具体节点类（TaskNode、DecisionNode 等）应覆盖此方法。</p>
      *
-     * @return 节点 ID，lambda 实现时返回 null
+     * @return 节点 标识，lambda 实现时返回 空
      */
     default String getId() {
         return null;
     }
 
     /**
-     * 执行节点逻辑并返回下一节点 ID。
+      * 执行节点逻辑并返回下一节点 标识。
      *
      * <p>节点在此方法中实现具体业务逻辑，可通过 {@link PipelineContext}
      * 读取/修改数据、控制执行流程。</p>
@@ -106,7 +107,7 @@ public interface PipelineNode {
      * 则返回值的路由效果会被动作覆盖。</p>
      *
      * @param context 流水线上下文
-     * @return 下一节点 ID，返回 null 表示按默认顺序执行
+     * @return 下一节点 标识，返回 空 表示按默认顺序执行
      */
     String execute(PipelineContext<?> context);
 
@@ -134,7 +135,7 @@ public interface PipelineNode {
      * 获取节点参数映射。
      *
      * <p>节点参数用于 JSON 构建时传递节点级配置。
-     * 执行时，引擎会将 params 中的所有键值对注入到 {@link PipelineContext#getNodeLocalData()}，
+      * 执行时，引擎会将 参数 中的所有键值对注入到 {@link PipelineContext#getNodeLocalData()}，
      * 节点内部可通过 {@code ctx.getNodeLocalValue("key")} 获取。</p>
      *
      * <p>默认返回空 Map。内置节点实现中，仅 JSON 构建的节点会携带 params。</p>
@@ -203,10 +204,13 @@ public interface PipelineNode {
      *     })
      *     .taskEnd()
      * }</pre>
+     *     })
+      * .任务结束()
+     * }</pre>
      *
      * <p>默认返回空集合，表示无数据依赖。通过 Definition API 的 {@code .unit()} 方法设置。</p>
      *
-     * @return 依赖的节点 ID 集合，空集合表示无依赖
+     * @return 依赖的节点 标识 集合，空集合表示无依赖
      */
     default Set<String> getUnits() {
         return Collections.emptySet();

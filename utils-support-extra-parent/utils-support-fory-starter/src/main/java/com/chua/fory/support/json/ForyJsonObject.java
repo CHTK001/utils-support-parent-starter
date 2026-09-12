@@ -17,15 +17,15 @@ import java.util.Map;
 public class ForyJsonObject extends JsonObject {
 
     /**
-     * 构造一个空的 ForyJsonObject。
+      * 构造一个空的 foryjson对象。
      */
     public ForyJsonObject() {
     }
 
     /**
-     * 通过指定的 Map 构造 ForyJsonObject。
+      * 通过指定的 映射 构造 foryjson对象。
      *
-     * @param m 包含初始数据的 Map，如果为 null 则不做任何操作。
+     * @param m 包含初始数据的 映射，如果为 空 则不做任何操作。
      */
     public ForyJsonObject(Map m) {
         super(m);

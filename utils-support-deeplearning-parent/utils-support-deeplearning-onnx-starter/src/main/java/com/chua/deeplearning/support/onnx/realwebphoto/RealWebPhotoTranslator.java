@@ -16,23 +16,23 @@ import java.awt.image.BufferedImage;
 
 
 /**
- * 4xRealWebPhoto_v4                            
+   * 4xrealwebphoto_v4
  * <p>
- *              RealWebPhoto                                              
+   * realwebphoto
  *                                                                                     
  * <p>
  *                
  * -           float32       
  * -              [0, 1]
- * -           CHW          Channel, Height, Width   
- * -        batch          [1, C, H, W]
+   * -           CHW          通道, Height, Width
+   * -        批量          [1, C, H, W]
  * <p>
  *                
- * -        batch          [1, C, H, W]     [C, H, W]
+   * -        批量          [1, C, H, W]     [C, H, W]
  * -           [0, 1]       
  * -           [0, 255]
  * -           UINT8       
- * -           Image       
+   * -           镜像
  * <p>
  *                
  * -        ESRGAN       
@@ -41,14 +41,14 @@ import java.awt.image.BufferedImage;
  * -                                        
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2024/11/08
  */
 @Slf4j
 public class RealWebPhotoTranslator implements Translator<Image, Image> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        : {}x{}", input.getWidth(), input.getHeight());
@@ -79,7 +79,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("                        ");
@@ -91,7 +91,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
             log.debug("       shape: {}, dtype: {}", array.getShape(), array.getDataType());
         }
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
         int off = shape.length == 4 ? 1 : 0;
         int h = (int) shape[off + 1];
         int w = (int) shape[off + 2];
@@ -130,7 +130,7 @@ public class RealWebPhotoTranslator implements Translator<Image, Image> {
     @Override
     /** 获取Batchifier */
     public Batchifier getBatchifier() {
-        //           batchifier                         processInput                    batch       
+ // batchifier                         处理输入                    批量
         return null;
     }
 }

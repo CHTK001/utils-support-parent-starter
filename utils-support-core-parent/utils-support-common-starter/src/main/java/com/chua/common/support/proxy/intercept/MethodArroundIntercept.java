@@ -29,7 +29,7 @@ import com.chua.common.support.spi.annotations.Spi;
  *
  * @author CH
  * @since 2025/11/26
- * @version 1.1.0
+   * @版本 1.1.0
  * @see MethodInvocation
  * @see ProxyMethod
  * @see Around
@@ -45,7 +45,7 @@ public interface MethodArroundIntercept {
      * 也可以包装/替换/捕获 proceed() 抛出的异常。</p>
      *
      * @param proxyMethod 代理方法信息，包含目标对象、方法、参数、对象上下文等
-     * @param invocation 方法调用链，用于继续执行下一层 interceptor 或目标方法
+     * @param invocation 方法调用链，用于继续执行下一层 拦截器 或目标方法
      * @return 方法执行结果
      * @throws Throwable 如果执行过程中发生异常
      */

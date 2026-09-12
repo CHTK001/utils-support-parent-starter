@@ -39,14 +39,14 @@ public class WechatLoginProvider implements LoginChannel {
     /** 配置对象 */
     private final TenpayConfig config;
 
-    /** 创建 WechatLoginProvider 实例 */
+    /** 创建 wechatlogin提供者 实例 */
     public WechatLoginProvider() {
         this(null);
     }
 
     /**
-     * 创建 WechatLoginProvider 实例
-     * @param config config
+      * 创建 wechatlogin提供者 实例
+     * @param config 配置
      */
     public WechatLoginProvider(TenpayConfig config) {
         this.config = config;
@@ -54,7 +54,11 @@ public class WechatLoginProvider implements LoginChannel {
         this.wxMpService = buildMpService();
     }
 
-    /** 构建MaService */
+    /**
+     * 构建ma服务
+     *
+     * @return 构建ma服务的结果
+     */
     private WxMaService buildMaService() {
         if (config == null || config.getAppId() == null || config.getAppSecret() == null) {
             return null;
@@ -67,7 +71,11 @@ public class WechatLoginProvider implements LoginChannel {
         return service;
     }
 
-    /** 构建MpService */
+    /**
+     * 构建mp服务
+     *
+     * @return 构建mp服务的结果
+     */
     private WxMpService buildMpService() {
         if (config == null || config.getAppId() == null || config.getAppSecret() == null) {
             return null;
@@ -107,7 +115,12 @@ public class WechatLoginProvider implements LoginChannel {
         }
     }
 
-    /** MaLogin */
+    /**
+     * malogin
+     *
+     * @param code 编码
+     * @return maLogin的结果
+     */
     private LoginResponse maLogin(String code) {
         if (wxMaService == null) {
             throw new LoginException("小程序/APP 登录服务未初始化");
@@ -124,7 +137,12 @@ public class WechatLoginProvider implements LoginChannel {
         }
     }
 
-    /** MpLogin */
+    /**
+     * mplogin
+     *
+     * @param code 编码
+     * @return mpLogin的结果
+     */
     private LoginResponse mpLogin(String code) {
         if (wxMpService == null) {
             throw new LoginException("公众号/H5/开放平台登录服务未初始化");
@@ -147,7 +165,7 @@ public class WechatLoginProvider implements LoginChannel {
     }
 
     @Override
-    /** RefreshToken */
+    /** refresh令牌 */
     public LoginResponse refreshToken(String refreshToken) {
         if (StringUtils.isEmpty(refreshToken)) {
             throw new LoginException("缺少刷新令牌 refreshToken");

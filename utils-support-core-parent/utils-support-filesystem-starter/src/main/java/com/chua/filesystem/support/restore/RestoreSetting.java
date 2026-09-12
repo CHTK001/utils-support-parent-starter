@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 4.0.0.42
  */
 @Data
@@ -42,7 +42,7 @@ public class RestoreSetting {
      * 是否在恢复前删除已存在的表
      */
     @Builder.Default
-    /** DropIFexists */
+    /** 掉落ifexists */
     private boolean dropIfExists = false;
 
     /**
@@ -56,28 +56,28 @@ public class RestoreSetting {
      * 批量插入大小
      */
     @Builder.Default
-    /** Batch尺寸 */
+    /** 批量尺寸 */
     private int batchSize = 1000;
 
     /**
      * 是否使用事务
      */
     @Builder.Default
-    /** USEtransaction */
+    /** usetransaction */
     private boolean useTransaction = true;
 
     /**
      * 是否忽略错误继续执行
      */
     @Builder.Default
-    /** ContinueON错误 */
+    /** 继续on错误 */
     private boolean continueOnError = false;
 
     /**
-     * 是否使用LOAD DATA快速导入（仅MySQL支持）
+      * 是否使用加载 数据快速导入（仅MySQL支持）
      */
     @Builder.Default
-    /** USEload数据 */
+    /** useload数据 */
     private boolean useLoadData = true;
 
     /**
@@ -96,7 +96,7 @@ public class RestoreSetting {
      * 是否为MySQL 5.7版本（IBD文件解析）
      */
     @Builder.Default
-    /** Mysql5 */
+    /** MySQL5 */
     private boolean mysql5 = false;
 
     /**
@@ -120,6 +120,8 @@ public class RestoreSetting {
 
     /**
      * 恢复类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum RestoreType {
         /**

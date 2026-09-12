@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * UltraFace 人脸检测 Translator（PyTorch TorchScript）。
+   * ultraface 人脸检测 Translator（pytorch torchscript）。
  *
  * @author CH
  * @since 4.0.0.42
@@ -73,15 +73,16 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
      */
     private final int[] steps;
 
-    /** 创建 UltraFaceTranslator 实例 */
+    /** 创建 ultrafacetranslator 实例 */
     public UltraFaceTranslator() {
         this(0.7d, 0.3d);
     }
 
     /**
-     * 创建 UltraFaceTranslator 实例
-     * @param confThresh confThresh
-     * @param double double
+      * 创建 ultrafacetranslator 实例
+     * @param confThresh confthresh
+     * @param confThresh double
+     * @param nmsThresh nmsthresh
      */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
@@ -95,7 +96,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         long height = array.getShape().get(0);
@@ -113,7 +114,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
@@ -175,7 +176,12 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return new DetectedObjects(names, probs, boxes);
     }
 
-    /** SqueezeBatch */
+    /**
+     * squeezebatch
+     *
+     * @param array array
+     * @return squeezeBatch的结果
+     */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
             return array.squeeze(0);
@@ -183,7 +189,15 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return array;
     }
 
-    /** BoxRecover */
+    /**
+     * boxrecover
+     *
+     * @param width width
+     * @param height height
+     * @param scales scales
+     * @param steps steps
+     * @return boxRecover的结果
+     */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
         for (int index = 0; index < steps.length; index++) {
@@ -209,12 +223,23 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return boxes;
     }
 
-    /** Clip */
+    /**
+     * Clip
+     *
+     * @param value 值
+     * @return clip的结果
+     */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
 
-    /** Clip获取大小 */
+    /**
+     * Clip获取大小
+     *
+     * @param origin origin
+     * @param size 大小
+     * @return clip大小的结果
+     */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
@@ -225,7 +250,13 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         return Batchifier.STACK;
     }
 
-    /** Candidate */
+    /**
+     * Candidate
+     *
+     * @param rectangle rectangle
+     * @param probability probability
+     * @return Candidate的结果
+     */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

@@ -4,7 +4,7 @@ import com.chua.deeplearning.support.image.ImageDetector;
 import com.chua.deeplearning.support.model.DetectionInfo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxImageDetector implements ImageDetector {
@@ -23,26 +23,30 @@ public class OnnxImageDetector implements ImageDetector {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxImageDetector 实例
-     * @param apiKey apiKey
+      * 创建 onnx镜像detector 实例
+     * @param apiKey API密钥
      */
     public OnnxImageDetector(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageDetector model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8s";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public ImageDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
@@ -56,7 +60,7 @@ public class OnnxImageDetector implements ImageDetector {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public ImageDetector modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;

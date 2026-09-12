@@ -45,7 +45,13 @@ public class MethodDefinition extends AbstractBeanDefinition {
         setPriority(parentBeanDefinition.getPriority());
     }
 
-    /** 构建Name */
+    /**
+     * 构建名称
+     *
+     * @param parentBeanDefinition 父Beandefinition
+     * @param method 方法
+     * @return 构建名称的结果
+     */
     private static String buildName(BeanDefinition parentBeanDefinition, Method method) {
         return parentBeanDefinition.getName() + "." + method.getName();
     }
@@ -100,7 +106,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** Do获取Bean */
+    /** 执行获取Bean */
     protected Object doGetBean() {
         return result;
     }
@@ -136,7 +142,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     }
 
     @Override
-    /** 是否Destroyed */
+    /** 是否销毁 */
     public boolean isDestroyed() {
         return super.isDestroyed();
     }

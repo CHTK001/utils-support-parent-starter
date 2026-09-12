@@ -51,9 +51,9 @@ public interface FaceDetector {
     }
 
     /**
-     * 通过 SPI 创建人脸检测器（provider="onnx" 等）。
+      * 通过 SPI 创建人脸检测器（提供者="onnx" 等）。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥（本地引擎可空）
      * @return 检测器
      */
@@ -63,9 +63,9 @@ public interface FaceDetector {
     }
 
     /**
-     * 通过 SPI 创建人脸检测器，带 baseUrl。
+      * 通过 SPI 创建人脸检测器，带 baseurl。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @param apiKey   API 密钥
      * @param baseUrl  自定义地址
      * @return 检测器
@@ -76,9 +76,9 @@ public interface FaceDetector {
     }
 
     /**
-     * 设置 provider。
+      * 设置 提供者。
      *
-     * @param provider provider 名称
+     * @param provider 提供者 名称
      * @return this
      */
     default FaceDetector provider(String provider) {
@@ -101,7 +101,7 @@ public interface FaceDetector {
      * <p>按能力接口从 {@link com.chua.deeplearning.support.engine.ModelRegistry} 枚举
      * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
      *
-     * @return 模型 ID 列表
+     * @return 模型 标识 列表
      */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceDetector.class);
@@ -257,7 +257,7 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public FaceDetector threshold(float threshold) {
         this.threshold = threshold;
         return this;
@@ -278,7 +278,7 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public FaceDetector modelPath(String path) {
         this.modelPath = path;
         return this;
@@ -293,7 +293,12 @@ class DefaultFaceDetector implements FaceDetector {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** Detect */
+    /**
+     * Detect
+     *
+     * @param imageData 镜像数据
+     * @return detect的结果
+     */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -304,7 +309,7 @@ class DefaultFaceDetector implements FaceDetector {
     }
 
     @Override
-    /** DetectInfo */
+    /** detect信息 */
     public List<DetectionInfo> detectInfo(byte[] imageData) {
         List<PredictRectangle> raw = detect(imageData);
         if (raw == null) {

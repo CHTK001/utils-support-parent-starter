@@ -8,7 +8,7 @@ import com.chua.deeplearning.support.plate.PlateResult;
 import com.chua.deeplearning.support.translator.ITranslator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
@@ -24,49 +24,69 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     private String device = "cpu";
 
     /**
-     * 创建 OnnxLicensePlateRecognizer 实例
-     * @param apiKey apiKey
+      * 创建 onnx执照铭牌recognizer 实例
+     * @param apiKey API密钥
      */
     public OnnxLicensePlateRecognizer(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public LicensePlateRecognizer model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov5-plate-detect";
     }
 
-    /** PlateDetectModel */
+    /**
+     * 铭牌detect模型
+     *
+     * @return 铭牌detect模型的结果
+     */
     private String plateDetectModel() {
         String m = resolveModel();
-        if (m.contains("-detect")) return m;
-        if (m.contains("-recognize")) return m.replace("-recognize", "-detect");
+        if (m.contains("-detect")) {
+            return m;
+        }
+        if (m.contains("-recognize")) {
+            return m.replace("-recognize", "-detect");
+        }
         return m + "-detect";
     }
 
-    /** PlateRecModel */
+    /**
+     * 铭牌rec模型
+     *
+     * @return 铭牌rec模型的结果
+     */
     private String plateRecModel() {
         String m = resolveModel();
-        if (m.contains("-recognize")) return m;
-        if (m.contains("-detect")) return m.replace("-detect", "-recognize");
+        if (m.contains("-recognize")) {
+            return m;
+        }
+        if (m.contains("-detect")) {
+            return m.replace("-detect", "-recognize");
+        }
         return "crnn-plate-rec";
     }
 
     @Override
-    /** Threshold */
+    /** 阈值 */
     public LicensePlateRecognizer threshold(float threshold) {
         this.threshold = threshold;
         return this;
     }
 
     @Override
-    /** ModelPath */
+    /** 模型路径 */
     public LicensePlateRecognizer modelPath(String modelPath) {
         this.modelPath = modelPath;
         return this;
@@ -88,7 +108,12 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** RecognizeDetail */
+    /**
+     * recognizedetail
+     *
+     * @param imageData 镜像数据
+     * @return recognizeDetail的结果
+     */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         return ImageDetector.create(plateDetectModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
@@ -96,7 +121,12 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** RecognizePlate */
+    /**
+     * recognize铭牌
+     *
+     * @param imageData 镜像数据
+     * @return recognize铭牌的结果
+     */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) AbstractIdentificationEngine.getInstance()

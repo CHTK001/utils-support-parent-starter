@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * RSocket 协议下的 SyncClient 实现，基于 fireAndForget + requestStream 模型。
+   * r套接字 协议下的 同步客户端 实现，基于 fire和forget + 请求流 模型。
  * <p>支持断开后重连（默认无限次）与按 topic 的流订阅。</p>
  *
  * @author CH
@@ -58,7 +58,7 @@ public class RSocketSyncClient implements SyncClient {
     private final Map<String, Disposable> streamDisposables = new ConcurrentHashMap<>();
 
     /**
-     * 当前 RSocket 连接
+      * 当前 r套接字 连接
      */
     private RSocket socket;
 
@@ -85,7 +85,7 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-     * 连接到 RSocket 服务端并启动所有已订阅 topic。
+      * 连接到 r套接字 服务端并启动所有已订阅 topic。
      */
     @Override
     public void connect() {
@@ -103,7 +103,7 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-     * 断开连接：释放所有流订阅、关闭 socket。
+      * 断开连接：释放所有流订阅、关闭 套接字。
      */
     @Override
     public void disconnect() {
@@ -140,10 +140,10 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-     * 通过 fireAndForget 发送消息，载荷格式为 {@code topic:message}。
+      * 通过 fire和forget 发送消息，载荷格式为 {@code topic:message}。
      *
      * @param topic   主题
-     * @param message 消息内容（调用 toString）
+     * @param message 消息内容（调用 转为字符串）
      */
     @Override
     public void send(String topic, Object message) {
@@ -190,13 +190,13 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     @Override
-    /** 添加Listener */
+    /** 添加监听器 */
     public void addListener(SyncFlowListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    /** 移除Listener */
+    /** 移除监听器 */
     public void removeListener(SyncFlowListener listener) {
         listeners.remove(listener);
     }
@@ -208,7 +208,7 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-     * 关闭客户端（等价 disconnect）。
+      * 关闭客户端（等价 断开连接）。
      */
     @Override
     public void close() {
@@ -216,7 +216,7 @@ public class RSocketSyncClient implements SyncClient {
     }
 
     /**
-     * 实际执行 RSocketConnector 建立连接，连接成功后会为每个已订阅 topic 启动流。
+      * 实际执行 r套接字connector 建立连接，连接成功后会为每个已订阅 topic 启动流。
      */
     private void doConnect() {
         URI uri = URI.create(serverUrl);
@@ -233,7 +233,11 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
-    /** 开始Stream */
+    /**
+     * 开始流
+     *
+     * @param topic topic
+     */
     private void startStream(String topic) {
         if (socket == null || socket.isDisposed()) {
             return;
@@ -255,7 +259,7 @@ public class RSocketSyncClient implements SyncClient {
         streamDisposables.put(topic, disposable);
     }
 
-    /** AttemptReconnect */
+    /** 尝试reconnect */
     private void attemptReconnect() {
         if (MAX_RECONNECT > 0 && reconnectCount.incrementAndGet() > MAX_RECONNECT) {
             return;
@@ -279,7 +283,11 @@ public class RSocketSyncClient implements SyncClient {
         }
     }
 
-    /** 通知Listeners */
+    /**
+     * 通知监听器
+     *
+     * @param action 动作
+     */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

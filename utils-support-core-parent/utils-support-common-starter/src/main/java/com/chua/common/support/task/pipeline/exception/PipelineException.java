@@ -19,12 +19,12 @@ package com.chua.common.support.task.pipeline.exception;
 public class PipelineException extends RuntimeException {
 
     /**
-     * 异常发生时的节点 ID
+      * 异常发生时的节点 标识
      */
     private final String nodeId;
 
     /**
-     * 异常发生时的流水线 ID
+      * 异常发生时的流水线 标识
      */
     private final String pipelineId;
 
@@ -51,8 +51,8 @@ public class PipelineException extends RuntimeException {
      * 构造带上下文信息的流水线异常。
      *
      * @param message    异常描述
-     * @param nodeId     异常发生时的节点 ID
-     * @param pipelineId 异常发生时的流水线 ID
+     * @param nodeId     异常发生时的节点 标识
+     * @param pipelineId 异常发生时的流水线 标识
      */
     public PipelineException(String message, String nodeId, String pipelineId) {
         this(message, nodeId, pipelineId, null);
@@ -62,8 +62,8 @@ public class PipelineException extends RuntimeException {
      * 构造带上下文信息和原始异常的流水线异常。
      *
      * @param message    异常描述
-     * @param nodeId     异常发生时的节点 ID
-     * @param pipelineId 异常发生时的流水线 ID
+     * @param nodeId     异常发生时的节点 标识
+     * @param pipelineId 异常发生时的流水线 标识
      * @param cause      原始异常
      */
     public PipelineException(String message, String nodeId, String pipelineId, Throwable cause) {
@@ -73,18 +73,18 @@ public class PipelineException extends RuntimeException {
     }
 
     /**
-     * 获取异常发生时的节点 ID。
+      * 获取异常发生时的节点 标识。
      *
-     * @return 节点 ID，可能为 null
+     * @return 节点 标识，可能为 空
      */
     public String getNodeId() {
         return nodeId;
     }
 
     /**
-     * 获取异常发生时的流水线 ID。
+      * 获取异常发生时的流水线 标识。
      *
-     * @return 流水线 ID，可能为 null
+     * @return 流水线 标识，可能为 空
      */
     public String getPipelineId() {
         return pipelineId;
@@ -94,8 +94,8 @@ public class PipelineException extends RuntimeException {
      * 格式化异常消息，附带上下文信息。
      *
      * @param message    原始消息
-     * @param nodeId     节点 ID
-     * @param pipelineId 流水线 ID
+     * @param nodeId     节点 标识
+     * @param pipelineId 流水线 标识
      * @return 格式化后的消息
      */
     private static String formatMessage(String message, String nodeId, String pipelineId) {

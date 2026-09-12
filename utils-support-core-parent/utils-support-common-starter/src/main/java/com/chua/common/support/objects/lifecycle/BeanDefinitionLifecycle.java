@@ -43,7 +43,7 @@ public interface BeanDefinitionLifecycle {
      * 判断指定的 Bean 定义是否为单例模式。
      *
      * @param beanDefinition 需要检查的 Bean 定义对象
-     * @return 如果是单例或 scope 为 null 则返回 true，否则返回 false
+     * @return 如果是单例或 scope 为 空 则返回 true，否则返回 false
      */
     default boolean isSingleton(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {

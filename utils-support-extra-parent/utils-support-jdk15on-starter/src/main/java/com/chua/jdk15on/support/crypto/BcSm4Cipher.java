@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Security;
 
 /**
- * 基于 BouncyCastle 的 SM4 对称加解密实现
+   * 基于 bouncycastle 的 SM4 对称加解密实现
  *
  * <p>通过 SPI 机制以 "bc" 名称注册，使用 BouncyCastle 提供者
  * 实现 SM4/ECB/PKCS7Padding 模式的加密与解密。
@@ -28,7 +28,7 @@ public class BcSm4Cipher implements Sm4Cipher {
 
     /** 算法 */
     private static final String ALGORITHM = "SM4";
-    /** Transformation */
+    /** 转变 */
     private static final String TRANSFORMATION = "SM4/ECB/PKCS7Padding";
 
     @Override

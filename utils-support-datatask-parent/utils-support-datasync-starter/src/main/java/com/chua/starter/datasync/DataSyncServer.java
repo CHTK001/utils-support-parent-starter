@@ -11,7 +11,7 @@ import com.chua.starter.datasync.scheduler.SyncDataSchedulerManager;
 import java.util.List;
 
 /**
- * 数据同步服务器总接口，聚合映射管理、调度管理、Agent 管理与执行器管理。
+   * 数据同步服务器总接口，聚合映射管理、调度管理、智能体 管理与执行器管理。
  *
  * @author CH
  * @since 4.0.0.42
@@ -33,7 +33,7 @@ public interface DataSyncServer {
     SyncDataSchedulerManager schedulerManager();
 
     /**
-     * 获取 Agent 服务器管理器。
+      * 获取 智能体 服务器管理器。
      *
      * @return Agent 管理器
      */
@@ -63,7 +63,7 @@ public interface DataSyncServer {
     /**
      * 注销数据源。
      *
-     * @param sourceId 数据源实例 ID
+     * @param sourceId 数据源实例 标识
      */
     default void unregisterSource(String sourceId) {}
 
@@ -77,25 +77,25 @@ public interface DataSyncServer {
     /**
      * 注销数据写入目标。
      *
-     * @param sinkId 数据写入目标实例 ID
+     * @param sinkId 数据写入目标实例 标识
      */
     default void unregisterSink(String sinkId) {}
 
     /**
-     * 根据 sourceId 获取数据源。
+      * 根据 源id 获取数据源。
      *
-     * @param sourceId Source 实例 ID
-     * @return 数据源实例，不存在返回 null
+     * @param sourceId 源 实例 标识
+     * @return 数据源实例，不存在返回 空
      */
     default DataSyncAgentSource getSource(String sourceId) {
         return null;
     }
 
     /**
-     * 根据 sinkId 获取数据写入目标。
+      * 根据 sinkid 获取数据写入目标。
      *
-     * @param sinkId Sink 实例 ID
-     * @return Sink 实例，不存在返回 null
+     * @param sinkId Sink 实例 标识
+     * @return Sink 实例，不存在返回 空
      */
     default DataSyncAgentSink getSink(String sinkId) {
         return null;
@@ -120,31 +120,31 @@ public interface DataSyncServer {
     }
 
     /**
-     * 注册 Agent。
+      * 注册 智能体。
      *
-     * @param agent Agent 实例
+     * @param agent 智能体 实例
      */
     default void registerAgent(DataSyncAgent agent) {}
 
     /**
-     * 注销 Agent。
+      * 注销 智能体。
      *
-     * @param agentId Agent ID
+     * @param agentId 智能体 标识
      */
     default void unregisterAgent(String agentId) {}
 
     /**
-     * 获取 Agent。
+      * 获取 智能体。
      *
-     * @param agentId Agent ID
-     * @return Agent 实例，不存在返回 null
+     * @param agentId 智能体 标识
+     * @return Agent 实例，不存在返回 空
      */
     default DataSyncAgent getAgent(String agentId) {
         return null;
     }
 
     /**
-     * 获取所有已注册 Agent。
+      * 获取所有已注册 智能体。
      *
      * @return Agent 列表
      */

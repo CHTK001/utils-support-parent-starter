@@ -14,7 +14,7 @@ import java.util.Map;
  * <pre>{@code
  * Runnable decorated = MdcDecorator.decorate(original, "taskId", task.getTaskId());
  * decorated.run();
- * }</pre>
+ * }</pre> * }</pre>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,16 +22,16 @@ import java.util.Map;
 public final class MdcDecorator {
 
     /**
-     * 任务 ID 键。
+      * 任务 标识 键。
      */
     public static final String KEY_TASK_ID = "taskId";
 
     /**
-     * 链路追踪 ID 键。
+      * 链路追踪 标识 键。
      */
     public static final String KEY_TRACE_ID = "traceId";
 
-    /** 创建 MdcDecorator 实例 */
+    /** 创建 mdcdecorator 实例 */
     private MdcDecorator() {
     }
 

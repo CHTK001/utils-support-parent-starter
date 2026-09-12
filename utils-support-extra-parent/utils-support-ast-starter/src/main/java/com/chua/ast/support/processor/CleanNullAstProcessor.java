@@ -42,7 +42,11 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         return false;
     }
 
-    /** 处理Parameter */
+    /**
+     * 处理参数
+     *
+     * @param paramElement 参数element
+     */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -87,7 +91,12 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         }
     }
 
-    /** 是否StringType */
+    /**
+     * 是否字符串类型
+     *
+     * @param element element
+     * @return 是否字符串类型的结果
+     */
     private boolean isStringType(VariableElement element) {
         TypeMirror type = element.asType();
         if (type.getKind() != TypeKind.DECLARED) {
@@ -98,18 +107,18 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     }
 
     /**
-     * 构建CleanStatement
+      * 构建clean对账单
      * @param maker maker
-     * @param names names
-     * @param paramName paramName
+     * @param names 名称
+     * @param paramName 参数名称
      * @param keywords keywords
-     * @param isString isString
+     * @param isString 是否字符串
      */
     private JCTree.JCStatement buildCleanStatement(TreeMaker maker, Names names,
                                                      String paramName, String[] keywords, boolean isString) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
 
-        // 只有引用类型需要 null 检查，基本类型不需要
+ // 只有引用类型需要 空 检查，基本类型不需要
         JCTree.JCExpression condition = null;
         for (String keyword : keywords) {
             if (keyword == null || keyword.isEmpty()) {
@@ -156,7 +165,12 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
         return maker.If(condition, assignStmt, null);
     }
 
-    /** 前置Statement */
+    /**
+     * 前置对账单
+     *
+     * @param body 主体
+     * @param stmt stmt
+     */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

@@ -51,7 +51,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
-     * FFmpeg 帧录制器
+      * ffmpeg 帧录制器
      */
     private FFmpegFrameRecorder recorder;
 
@@ -66,7 +66,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     private SwsContext swsCtx;
 
     /**
-     * 缩放后的 AVFrame
+      * 缩放后的 av帧
      */
     private org.bytedeco.ffmpeg.avutil.AVFrame swsFrame;
 
@@ -164,25 +164,25 @@ public class H264SoftwareEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 获取CodecName */
+    /** 获取codec名称 */
     public String getCodecName() {
         return "libx264";
     }
 
     @Override
-    /** 获取CodecId */
+    /** 获取codecid */
     public int getCodecId() {
         return avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
-    /** 是否HardwareAccelerated */
+    /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** ForceKeyFrame */
+    /** force键帧 */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
     }
@@ -215,7 +215,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     /**
      * 编码单帧 YUV420P 数据。
      *
-     * @param frame 输入 YUV Frame
+     * @param frame 输入 YUV 帧
      * @return 编码后的 H264 数据
      * @throws Exception 编码异常
      */
@@ -253,7 +253,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
         var dstSlice = new PointerPointer(scaled);
         sws_scale(sws, srcSlice, new IntPointer(srcStride), 0, inH, dstSlice, scaled.linesize());
 
-        // 包装成 JavaCV Frame 供 recorder 使用
+ // 包装成 javacv 帧 供 recorder 使用
         Frame scaledFrame = new Frame(encWidth, encHeight, Frame.DEPTH_UBYTE, 2);
         scaledFrame.imageWidth = encWidth;
         scaledFrame.imageHeight = encHeight;

@@ -64,7 +64,7 @@ public class SentenceTextSplitter implements TextSplitter {
     /**
      * 创建 SentenceTextSplitter 实例
      * @param maxChunkSize maxChunkSize
-     * @param int int
+     * @param maxChunkSize int
      */
     public SentenceTextSplitter(int maxChunkSize, int chunkOverlap) {
         this.maxChunkSize = Math.max(1, maxChunkSize);

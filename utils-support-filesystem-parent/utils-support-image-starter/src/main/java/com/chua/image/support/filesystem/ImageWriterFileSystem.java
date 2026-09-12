@@ -17,10 +17,10 @@ import java.util.Map;
  * 图片写入文件系统
  * <p>
  * - bytes 写入：直接覆盖写入文件；
- * - Map 写入：支持以下字段（优先级从高到低）：
+   * - 映射 写入：支持以下字段（优先级从高到低）：
  *   - bytes: byte[]
- *   - base64: String（Base64）
- *   - image: BufferedImage
+   * - 基础64: 字符串（基础64）
+   * - 镜像: 缓冲镜像
  * </p>
  *
  * @author CH
@@ -30,43 +30,48 @@ import java.util.Map;
 @Spi({"jpg", "jpeg", "png", "bmp", "gif", "webp", "tiff", "tif", "ico", "apng", "heic", "heif", "cr2", "nef", "arw", "raf", "orf", "rw2", "image"})
 public class ImageWriterFileSystem extends AbstractWriter {
 
-    /** Key_bytes */
+    /** 键_bytes */
     private static final String KEY_BYTES = "bytes";
-    /** Key_base64 */
+    /** 键_基础64 */
     private static final String KEY_BASE64 = "base64";
-    /** Key_image */
+    /** 键_镜像 */
     private static final String KEY_IMAGE = "image";
 
-    /** 创建 ImageWriterFileSystem 实例 */
+    /** 创建 镜像writer文件系统 实例 */
     public ImageWriterFileSystem() {
         super();
     }
 
     /**
-     * 创建 ImageWriterFileSystem 实例
-     * @param file file
+      * 创建 镜像writer文件系统 实例
+     * @param file 文件
      */
     public ImageWriterFileSystem(File file) {
         super(file);
     }
 
     /**
-     * 创建 ImageWriterFileSystem 实例
-     * @param filePath filePath
+      * 创建 镜像writer文件系统 实例
+     * @param filePath 文件路径
      */
     public ImageWriterFileSystem(String filePath) {
         super(filePath);
     }
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         
         return "image";
     
     }
 
-    /** 是否Support */
+    /**
+     * 是否支持
+     *
+     * @param file 文件
+     * @return 是否支持的结果
+     */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -96,7 +101,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** Do初始化 */
+    /** 执行初始化 */
     protected void doInitialize() throws IOException {
         if (file == null) {
             throw new IOException("文件对象为null");
@@ -107,23 +112,23 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** Do写入Line */
+    /** 执行写入线 */
     protected void doWriteLine(String line) throws IOException {
         throw new UnsupportedOperationException("图片文件系统不支持按行写入");
     }
 
     @Override
-    /** Do写入Text */
+    /** 执行写入文本 */
     protected void doWriteText(String text) throws IOException {
         if (text == null || text.isEmpty()) {
             return;
         }
-        // 尝试按 base64 写入
+ // 尝试按 基础64 写入
         doWrite(Map.of(KEY_BASE64, text));
     }
 
     @Override
-    /** Do写入Bytes */
+    /** 执行写入Bytes */
     protected void doWriteBytes(byte[] bytes) throws IOException {
         if (bytes == null || bytes.length == 0) {
             return;
@@ -132,7 +137,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** Do写入 */
+    /** 执行写入 */
     protected void doWrite(Map<String, Object> data) throws IOException {
         if (data == null || data.isEmpty()) {
             return;
@@ -165,18 +170,22 @@ public class ImageWriterFileSystem extends AbstractWriter {
     }
 
     @Override
-    /** Do刷新 */
+    /** 执行刷新 */
     protected void doFlush() throws IOException {
         // 文件写入为一次性覆盖，flush 由底层 NIO 处理
     }
 
     @Override
-    /** DoFinish */
+    /** 执行饰面 */
     protected void doFinish() throws IOException {
         // 无需额外收尾
     }
 
-    /** 解析格式化 */
+    /**
+     * 解析格式化
+     *
+     * @return resolve格式化的结果
+     */
     private String resolveFormat() {
         if (file == null) {
             return "png";

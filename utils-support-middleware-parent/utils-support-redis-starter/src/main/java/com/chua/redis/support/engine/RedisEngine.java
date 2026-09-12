@@ -42,6 +42,7 @@ public class RedisEngine {
      * @param name        数据源名称
      * @param dataSource  数据源封装
      * @param <T>         底层源类型
+     * @return 执行添加数据源的结果
      */
     protected <T> void doAddDataSource(String name, EngineDataSource<T> dataSource) {
         Object src = dataSource.getSource();
@@ -246,9 +247,9 @@ public class RedisEngine {
     }
 
     /**
-     * 将 Redis Hash 映射为 Java 实体。
+      * 将 Redis 哈希 映射为 Java 实体。
      *
-     * @param hash         Hash 字段映射
+     * @param hash         哈希 字段映射
      * @param entityClass  实体类型
      * @param <T>          实体泛型
      * @return 实体实例
@@ -272,7 +273,12 @@ public class RedisEngine {
         }
     }
 
-    /** ToCamelCase */
+    /**
+     * 转为camel大小写
+     *
+     * @param name 名称
+     * @return 转为camel大小写的结果
+     */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -292,7 +298,13 @@ public class RedisEngine {
         return sb.toString();
     }
 
-    /** 转换Value */
+    /**
+     * 转换值
+     *
+     * @param value 值
+     * @param targetType Target类型
+     * @return 转换值的结果
+     */
     private Object convertValue(String value, Class<?> targetType) {
         if (value == null) {
             return null;

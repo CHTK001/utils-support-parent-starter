@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 /**
  * JAR格式归档输入流提供者
  * <p>
- * JAR（Java Archive）格式基于ZIP格式，用于Java应用程序打包
+   * JAR（Java Arch Linux Linux）格式基于压缩格式，用于Java应用程序打包
  * </p>
  *
  * @author CH
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class JarCompressArchiveInputStream implements CompressArchiveInputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -33,14 +33,14 @@ public class JarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     @Override
-    /** 创建InputStream */
+    /** 创建输入流 */
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         var jarInputStream = new JarArchiveInputStream(inputStream);
         return new ArchiveInputStreamAdapter(jarInputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "jar";
     }

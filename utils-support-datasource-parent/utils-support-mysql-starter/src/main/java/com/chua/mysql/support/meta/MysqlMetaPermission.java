@@ -18,13 +18,27 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param ds ds
+ * @param sql SQL
+ * @param privileges privileges
+ * @return 方法的结果
+ * @param username 用户名
  */
 public class MysqlMetaPermission implements MetaPermission {
+/**
+ * mysqlmeta权限。
+ * @param dataSource 数据源
+ */
 
-    private final DataSource dataSource;
-    private String user;
-    private String table;
+    private final DataSource dataSource; // 数据源
+    private String user; // 用户
+    private String table; // table
 
+    /**
+     * 列表。
+     * @return 列表的结果
+     * @param dataSource 数据源
+     */
     public MysqlMetaPermission(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -55,23 +69,44 @@ public class MysqlMetaPermission implements MetaPermission {
     public List<PermissionDef> listByUser(String username) {
         return list().stream()
                 .filter(p -> username.equals(p.getUser()))
+                /**
+                 * 转为用户。
+                 * @param username 用户名
+                 * @return 转为用户的结果
+                 */
                 .toList();
     }
 
     @Override
     public MetaPermission toUser(String username) {
         this.user = username;
+        /**
+          * ontable。
+         * @param tableName table名称
+         * @return onTable的结果
+         */
         return this;
     }
 
     @Override
     public MetaPermission onTable(String tableName) {
         this.table = tableName;
+        /**
+          * oncolumn。
+         * @param tableName table名称
+         * @param columnName column名称
+         * @return onColumn的结果
+         */
         return this;
     }
 
     @Override
     public MetaPermission onColumn(String tableName, String columnName) {
+        /**
+         * grant。
+         * @param privileges privileges
+         * @return grant的结果
+         */
         return this;
     }
 
@@ -83,10 +118,19 @@ public class MysqlMetaPermission implements MetaPermission {
     @Override
     public RevokeBuilder revoke(String privileges) {
         return new RevokeStep(dataSource, privileges, user);
+    /**
+     * strip引述。
+     * @param raw raw
+     * @return strip引述的结果
+     * @param ds ds
+     * @param sql sql
+     */
     }
 
     private static String stripQuote(String raw) {
-        if (raw == null || !raw.contains("@")) return raw;
+        if (raw == null || !raw.contains("@")) {
+            return raw;
+        }
         int at = raw.indexOf('@');
         String u = raw.substring(0, at);
         return u.startsWith("'") ? u.substring(1) : u;
@@ -102,11 +146,20 @@ public class MysqlMetaPermission implements MetaPermission {
     }
 
     // ==================== Inner Steps ====================
+     /**
+      * GrantStep类。
+      *
+      * @author CH
+      * @since 4.0.0
+      */
+     * RevokeStep类。
+     *
+     */
 
     private static class GrantStep implements GrantBuilder {
-        private final DataSource dataSource;
-        private final String privileges;
-        private String user = null;
+        private final DataSource dataSource; // 数据源
+        private final String privileges; // privileges
+        private String user = null; // 用户
 
         GrantStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
@@ -122,16 +175,18 @@ public class MysqlMetaPermission implements MetaPermission {
 
         @Override
         public boolean execute() {
-            if (user == null) throw new IllegalStateException("必须指定 toUser()");
+            if (user == null) {
+                throw new IllegalStateException("必须指定 toUser()");
+            }
             execSql(dataSource, "GRANT " + privileges + " ON *.* TO '" + StringUtils.replace(user, "'", "''") + "'@'%'");
             return true;
         }
     }
 
     private static class RevokeStep implements RevokeBuilder {
-        private final DataSource dataSource;
-        private final String privileges;
-        private String user = null;
+        private final DataSource dataSource; // 数据源
+        private final String privileges; // privileges
+        private String user = null; // 用户
 
         RevokeStep(DataSource dataSource, String privileges, String user) {
             this.dataSource = dataSource;
@@ -147,7 +202,9 @@ public class MysqlMetaPermission implements MetaPermission {
 
         @Override
         public boolean execute() {
-            if (user == null) throw new IllegalStateException("未指定 fromUser()");
+            if (user == null) {
+                throw new IllegalStateException("未指定 fromUser()");
+            }
             execSql(dataSource, "REVOKE " + privileges + " ON *.* FROM '" + StringUtils.replace(user, "'", "''") + "'@'%'");
             return true;
         }

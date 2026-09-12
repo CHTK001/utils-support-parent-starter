@@ -14,13 +14,14 @@ import com.zaxxer.hikari.HikariDataSource;
  * PostgreSQL 数据库引擎。
  *
  * <p>继承自 {@link JdbcEngine}，提供 PostgreSQL 特有的便捷数据源配置方法。
- * 使用 HikariCP 连接池，默认最大连接数为 10。</p>
+   * 使用 hikaricp 连接池，默认最大连接数为 10。</p>
  *
  * <p>使用示例：
  * <pre>{@code
  * PostgresqlEngine engine = new PostgresqlEngine();
  * engine.addDataSource(new DataSourceOptions("default", "localhost", 5432, "testdb", "postgres", "password", null));
  * List<User> users = engine.query(User.class).list();
+ * }</pre>rs = engine.query(User.class).list();
  * }</pre>
  * </p>
  *

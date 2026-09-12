@@ -18,6 +18,12 @@ public class ScatterContext {
     /** 超时毫秒 */
     private final long timeoutMillis;
 
+    /**
+     * scatter上下文。
+     * @param requestId 请求标识
+     * @param path 路径
+     * @param timeoutMillis 超时millis
+     */
     public ScatterContext(String requestId, String path, long timeoutMillis) {
         this.requestId = requestId;
         this.path = path;

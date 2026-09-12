@@ -117,6 +117,8 @@ public class Ip2regionIpPosition implements IpPosition {
 
     /**
      * 读取 4 字节无符号整数（小端序）。
+     * @param offset 偏移量
+     * @return 读取int的结果
      */
     private long readInt(int offset) {
         return (data[offset] & 0xFFL)
@@ -127,6 +129,9 @@ public class Ip2regionIpPosition implements IpPosition {
 
     /**
      * 读取以 \0 结尾的字符串（GBK 编码）。
+     * @param offset 偏移量
+     * @param buffer 缓冲
+     * @return 读取字符串的结果
      */
     private String readString(int offset, byte[] buffer) {
         int end = offset;
@@ -138,6 +143,8 @@ public class Ip2regionIpPosition implements IpPosition {
 
     /**
      * 将 IP 地址转换为长整型。
+     * @param ip ip
+     * @return ip转为long的结果
      */
     private static long ipToLong(String ip) {
         String[] parts = ip.split("\\.");

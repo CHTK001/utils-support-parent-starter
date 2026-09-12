@@ -34,7 +34,7 @@ public class FormatterConfiguration implements WebMvcConfigurer {
     private final String timePattern;
 
     /**
-     * 日期时间格式，默认使用 ISO 本地日期时间格式（yyyy-MM-ddTHH:mm:ss）
+      * 日期时间格式，默认使用 ISO 本地日期时间格式（yyyy-MM-ddthh:mm:ss）
      */
     private final String dateTimePattern;
 
@@ -61,7 +61,7 @@ public class FormatterConfiguration implements WebMvcConfigurer {
     /**
      * 注册日期时间格式化器
      *
-     * @param registry FormatterRegistry
+     * @param registry formatterregistry
      */
     @Override
     public void addFormatters(FormatterRegistry registry) {

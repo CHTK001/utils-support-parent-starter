@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
- * 注解 Bean 定义注册器，按注解对 BeanDefinition 进行索引和注册。
+   * 注解 Bean 定义注册器，按注解对 Beandefinition 进行索引和注册。
  *
  * @author CH
  * @since 2024/12/20
@@ -22,13 +22,13 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @SpiDescribe("注解 Bean 定义注册器")
 public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry implements BeanDefinitionRegister {
 
-    /** beanDefinitions */
+    /** Beandefinitions */
     private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentSkipListMap<>();
     /** closed */
     private volatile boolean closed;
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "annotation";
     }
@@ -40,7 +40,7 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(BeanDefinition beanDefinition) {
         return true;
     }
@@ -86,13 +86,13 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取BeanDefinition */
+    /** 获取Beandefinition */
     public BeanDefinition getBeanDefinition(String beanName) {
         return beanName != null && !closed ? beanDefinitions.get(beanName) : null;
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -110,7 +110,7 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取BeanDefinitionOfType */
+    /** 获取Beandefinition的类型 */
     public Collection<BeanDefinition> getBeanDefinitionOfType(String name, String typeName) {
         if (typeName == null || closed) {
             return Collections.emptyList();
@@ -127,19 +127,19 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** ContainsBean */
+    /** containsBean */
     public boolean containsBean(String beanName) {
         return beanName != null && !closed && beanDefinitions.containsKey(beanName);
     }
 
     @Override
-    /** 获取BeanDefinitionNames */
+    /** 获取Beandefinition名称 */
     public Collection<String> getBeanDefinitionNames() {
         return closed ? Collections.emptyList() : new ArrayList<>(beanDefinitions.keySet());
     }
 
     @Override
-    /** 获取BeansWithAnnotation */
+    /** 获取Beanwith注解 */
     public Map<String, BeanDefinition> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();
@@ -160,7 +160,7 @@ public class AnnotationBeanDefinitionRegister extends BeanSingletonRegistry impl
     }
 
     @Override
-    /** 获取BeansWithMethodAnnotation */
+    /** 获取Beanwith方法注解 */
     public Map<String, BeanDefinition> getBeansWithMethodAnnotation(Class<? extends Annotation> annotationType) {
         if (annotationType == null || closed) {
             return Collections.emptyMap();

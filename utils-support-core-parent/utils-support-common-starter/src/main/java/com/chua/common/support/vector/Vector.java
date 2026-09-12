@@ -3,7 +3,7 @@ package com.chua.common.support.vector;
 import java.util.Map;
 
 /**
- * 向量数据模型，包含向量 ID、浮点数组、元数据和原文内容。
+   * 向量数据模型，包含向量 标识、浮点数组、元数据和原文内容。
  *
  * @param id       向量唯一标识
  * @param data     向量浮点数组
@@ -23,6 +23,7 @@ public record Vector(
      *
      * @param id   向量唯一标识
      * @param data 向量浮点数组
+     * @return 向量的结果
      */
     public Vector(String id, float[] data) {
         this(id, data, Map.of(), null);
@@ -34,6 +35,7 @@ public record Vector(
      * @param id       向量唯一标识
      * @param data     向量浮点数组
      * @param metadata 元数据映射
+     * @return 向量的结果
      */
     public Vector(String id, float[] data, Map<String, Object> metadata) {
         this(id, data, metadata, null);

@@ -24,9 +24,9 @@ import java.util.List;
 public final class LocationUtils {
 
     /**
-     * NDArray 转 Image。
+      * ndarray 转 镜像。
      *
-     * @param array NDArray
+     * @param array ndarray
      * @return Image
      */
     public static Image getImage(NDArray array) {

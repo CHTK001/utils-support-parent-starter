@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Continue conversation parser.
+   * 继续 conversation parser.
  *
  * <p>Continue CLI stores each session at
  * {@code ~/.continue/sessions/<uuid>.json} with a {@code history} array:</p>
@@ -32,6 +32,9 @@ import java.util.List;
  *                    "usage": { "model": "gemini-3.6-flash", ... } } }
  *   ]
  * }
+ * }</pre>} }
+ *   ]
+ * }
  * }</pre>
  *
  * @author CH
@@ -40,12 +43,12 @@ import java.util.List;
 @Spi("continue")
 public class ContinueConversationParser implements ConversationParser {
 
-    private static final Logger log = LoggerFactory.getLogger(ContinueConversationParser.class);
+    private static final Logger log = LoggerFactory.getLogger(ContinueConversationParser.class); // 日志
 
     private static final Path SESSIONS_DIR = Path.of(
             System.getProperty("user.home"), ".continue", "sessions");
 
-    private static final String INDEX_FILE = "sessions.json";
+    private static final String INDEX_FILE = "sessions.json"; // 索引文件
 
     /**
      * 返回 SPI 名称。
@@ -59,6 +62,13 @@ public class ContinueConversationParser implements ConversationParser {
 
     /**
      * 流式解析全部会话消息：每个会话文件一个惰性任务。
+     * @param entry entry
+     * @param sessionId 会话标识
+     /**
+      * 流消息。
+      * @return 流消息的结果
+      */
+     * @return 解析entry的结果
      */
     @Override
     public Flux<ConversationMessage> streamMessages() {
@@ -72,6 +82,10 @@ public class ContinueConversationParser implements ConversationParser {
                 .flatMap(file -> Mono.fromCallable(() -> parseFile(file))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMapMany(Flux::fromIterable),
+                        /**
+                         * 列表会话文件。
+                         * @return 列表会话文件的结果
+                         */
                         4);
     }
 
@@ -87,6 +101,13 @@ public class ContinueConversationParser implements ConversationParser {
         } catch (IOException e) {
             log.warn("[continue] list failed: {}", e.getMessage(), e);
             return List.of();
+        /**
+         * 解析文件。
+         * @param file 文件
+         * @return 解析文件的结果
+         * @param entry entry
+         * @param sessionId 会话id
+         */
         }
     }
 

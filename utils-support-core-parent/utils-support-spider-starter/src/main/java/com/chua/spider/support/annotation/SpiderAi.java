@@ -32,6 +32,10 @@ import java.lang.annotation.Target;
  *         System.out.println(article.getTitle());
  *     }))
  *     .run();
+ * }</pre>-> {
+   * 系统.出.println(article.获取title());
+ *     }))
+   * .运行();
  * }</pre>
  *
  * @author CH
@@ -46,7 +50,7 @@ public @interface SpiderAi {
      * AI 提取指令。
      *
      * <p>描述希望 AI 从页面内容中提取哪些信息，
-     * 作为 ChatClient 的 system prompt 发送给 AI 模型。
+      * 作为 对话客户端 的 系统 提示符 发送给 AI 模型。
      *
      * <p>例如：{@code "从新闻文章中提取标题、作者、发布时间和正文内容"}。
      * AI 会根据这个指令 + 每个字段的 {@link SpiderField#ai()} 描述，
@@ -60,7 +64,7 @@ public @interface SpiderAi {
      * AI 模型名称。
      *
      * <p>可选，指定使用的 AI 模型，如 {@code "gpt-4o"}、{@code "deepseek-chat"}。
-     * 不指定时使用 ChatClient 默认模型。
+      * 不指定时使用 对话客户端 默认模型。
      *
      * @return 模型名称
      */

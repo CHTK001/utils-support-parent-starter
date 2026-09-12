@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * WeMM-Embedding 多模态文本嵌入 Translator（文本 → Matryoshka 嵌入向量）。
+   * wemm-嵌入 多模态文本嵌入 Translator（文本 → Matryoshka 嵌入向量）。
  *
  * <p>WeMM-Embedding 是腾讯微信视觉团队开发的多模态嵌入模型系列，
  * 支持 2B / 4B / 9B 三种规格。文本分支仅接收 {@code input_ids}（int64），
@@ -31,7 +31,7 @@ import java.util.Map;
  * </p>
  *
  * <p>资源加载：模型 + tokenizer.json 由 models jar
- * （utils-support-models-onnx-wemm-embedding-{2b|4b|9b}）提供，
+   * （utils-support-onnx-wemm）提供，
  * 由 {@link NativeLoader} 解压到临时目录后加载。</p>
  *
  * @author CH
@@ -53,7 +53,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     private final String tokenizerFile;
     /** 默认输出维度 */
     private final int defaultDim;
-    /** 本地模型目录（downloadUrl 缓存注入） */
+    /** 本地模型目录（downloadurl 缓存注入） */
     private volatile Path localModelDir;
 
     /** ONNX 运行时环境 */
@@ -66,14 +66,14 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     private volatile boolean loaded;
 
     /**
-     * 创建 WeMM-Embedding-2B 文本嵌入 Translator（默认 2048 维）。
+      * 创建 wemm-嵌入-2B 文本嵌入 Translator（默认 2048 维）。
      */
     public WeMMEmbeddingTranslator() {
         this("wemm-embedding-2b", "nlp/embedding/wemm-embedding-2b/", "model.onnx", "tokenizer.json", 2048);
     }
 
     /**
-     * 创建指定规格的 WeMM-Embedding Translator。
+      * 创建指定规格的 wemm-嵌入 Translator。
      *
      * @param name         模型标识
      * @param resourceBase jar 内资源目录
@@ -91,7 +91,8 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 创建 WeMM-Embedding-4B 文本嵌入 Translator（默认 2560 维）。
+      * 创建 wemm-嵌入-4B 文本嵌入 Translator（默认 2560 维）。
+     * @return embedding4b的结果
      */
     public static WeMMEmbeddingTranslator embedding4b() {
         return new WeMMEmbeddingTranslator(
@@ -99,7 +100,8 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 创建 WeMM-Embedding-9B 文本嵌入 Translator（默认 4096 维）。
+      * 创建 wemm-嵌入-9B 文本嵌入 Translator（默认 4096 维）。
+     * @return embedding9b的结果
      */
     public static WeMMEmbeddingTranslator embedding9b() {
         return new WeMMEmbeddingTranslator(
@@ -107,9 +109,9 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 设置本地模型目录（downloadUrl 缓存由 ModelRegistry 注入）。
+      * 设置本地模型目录（downloadurl 缓存由 模型registry 注入）。
      *
-     * @param dir 包含 model.onnx + model.onnx_data + tokenizer.json 的目录
+     * @param dir 包含 模型.onnx + 模型.onnx_数据 + tokenizer.json 的目录
      */
     public void setModelPath(Path dir) {
         this.localModelDir = dir;
@@ -117,7 +119,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 设置本地模型路径（字符串形式，由 ModelRegistry 反射注入）。
+      * 设置本地模型路径（字符串形式，由 模型registry 反射注入）。
      *
      * @param path 模型文件或目录路径
      */
@@ -132,7 +134,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
             return;
         }
 
-        // 1. 优先使用本地模型目录（downloadUrl 缓存）
+ // 1. 优先使用本地模型目录（downloadurl 缓存）
         Path modelDir;
         if (localModelDir != null && Files.isDirectory(localModelDir)) {
             modelDir = localModelDir;
@@ -194,7 +196,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
     /**
      * Translate
-     * @param input input
+     * @param input 输入
      * @return float[]
      */
     @Override
@@ -238,7 +240,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
                 if (val instanceof float[][]) {
                     fullVec = ((float[][]) val)[0];
                 } else if (val instanceof float[][][]) {
-                    // [batch, seq, dim] → take last hidden state
+ // [批量, seq, dim] → 取 最后一个 hidden 状态
                     float[][][] hidden = (float[][][]) val;
                     fullVec = hidden[0][hidden[0].length - 1];
                 } else {
@@ -268,7 +270,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     }
 
     /**
-     * 关闭底层 ONNX Session。
+      * 关闭底层 ONNX 会话。
      */
     public synchronized void close() {
         try {

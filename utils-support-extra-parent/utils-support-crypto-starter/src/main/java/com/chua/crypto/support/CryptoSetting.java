@@ -45,28 +45,28 @@ public class CryptoSetting {
     private KeyStoreType storeType = KeyStoreType.FILE;
 
     /**
-     * 密钥文件路径（storeType=FILE 时生效），支持相对路径（自动按 工作目录 → FatJar 所在目录 → 用户目录 顺序解析）
+      * 密钥文件路径（存储类型=文件 时生效），支持相对路径（自动按 工作目录 → fatjar 所在目录 → 用户目录 顺序解析）
      */
     private String keyFile;
 
     /**
-     * 自定义口令（CUSTOM 策略必填；SERVER_BOUND 策略可选，作为 pepper 叠加），使用后可安全擦除
+      * 自定义口令（习俗 策略必填；服务端_BOUND 策略可选，作为 pepper 叠加），使用后可安全擦除
      */
     private char[] secret;
 
     /**
-     * 固定服务器指纹（SERVER_BOUND 策略下用于容灾迁移；缺省自动采集本机指纹，
-     * 亦可通过环境变量 CHUA_CRYPTO_SERVER_ID 或系统属性 chua.crypto.server-id 指定）
+      * 固定服务器指纹（服务端_BOUND 策略下用于容灾迁移；缺省自动采集本机指纹，
+      * 亦可通过环境变量 CHUA_加密货币_服务端_标识 或系统属性 chua.加密货币.服务端-标识 指定）
      */
     private String serverId;
 
     /**
-     * 数据加密算法，默认 AES/GCM/NoPadding
+      * 数据加密算法，默认 AES/GCM/nopadding
      */
     private String algorithm = "AES/GCM/NoPadding";
 
     /**
-     * 配置文件是否随系统一起加密（true 时 encryptConfigFiles/decryptConfigFiles 可批量处理 configFiles）
+      * 配置文件是否随系统一起加密（true 时 encrypt配置文件/decrypt配置文件 可批量处理 配置文件）
      */
     private boolean encryptConfigFiles = false;
 

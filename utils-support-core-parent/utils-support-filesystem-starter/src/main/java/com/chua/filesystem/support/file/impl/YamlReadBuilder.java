@@ -18,24 +18,24 @@ import java.util.Map;
 public class YamlReadBuilder extends ReadBuilder {
 
     /**
-     * 创建 YamlReadBuilder 实例
-     * @param file file
+      * 创建 yaml读取构建器 实例
+     * @param file 文件
      */
     public YamlReadBuilder(File file) {
         super(file);
     }
 
     @Override
-    /** WithCharset */
+    /** with字符集 */
     public YamlReadBuilder withCharset(String charset) {
         super.withCharset(charset);
         return this;
     }
 
     /**
-     * 读取 YAML 文件并返回 Map 格式的数据。
+      * 读取 YAML 文件并返回 映射 格式的数据。
      *
-     * @return 解析后的 Map，空文件或读取失败时返回空 Map
+     * @return 解析后的 映射，空文件或读取失败时返回空 映射
      */
     public Map<String, Object> toMap() {
         try (Reader reader = new InputStreamReader(new FileInputStream(file), charset)) {

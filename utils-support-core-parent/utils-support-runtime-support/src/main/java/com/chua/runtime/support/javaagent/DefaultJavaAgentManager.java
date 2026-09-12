@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 默认 Java Agent 管理器实现 — 基于 {@link AgentInjector} 和 JDK VirtualMachine API。
+   * 默认 Java 智能体 管理器实现 — 基于 {@link AgentInjector} 和 JDK 虚拟machine API。
  *
  * <p>提供 Java Agent 的注入、卸载、进程列表和 JVM 检查功能。</p>
  *
@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  *
  * // 检查 JVM
  * agentMgr.inspectJvm(12345);
+ * }</pre> agentMgr.inspectJvm(12345);
  * }</pre>
  *
  * @author CH
@@ -48,24 +49,24 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     private static final int CMD_TIMEOUT_SECONDS = 30;
 
     /**
-     * 默认 Agent 类名
+      * 默认 智能体 类名
      */
     private static final String DEFAULT_AGENT_CLASS = "com.chua.runtime.support.javaagent.RuntimeAgent";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "javaagent";
     }
 
     @Override
-    /** ListPids */
+    /** 列表pids */
     public java.util.Map<Integer, String> listPids() {
         return AgentInjector.listJavaProcesses();
     }
 
     @Override
-    /** InspectJvm */
+    /** inspectjvm */
     public CmdResult inspectJvm(int pid) {
         log.info("[runtime-javaagent] 检查 JVM[{}] 的运行时信息", pid);
 
@@ -109,7 +110,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     }
 
     @Override
-    /** AttachByPort */
+    /** attachby端口 */
     public CmdResult attachByPort(int port, Path agentPath, String options) {
         // 端口通常与 PID 相同，使用相同的注入方式
         return attach(port, agentPath, options);
@@ -129,7 +130,7 @@ public class DefaultJavaAgentManager implements JavaAgentManager {
     /**
      * 获取目标 JVM 的主类名。
      *
-     * @param pid 目标进程 ID
+     * @param pid 目标进程 标识
      * @return 主类名
      */
     private String getMainClassName(int pid) {

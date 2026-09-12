@@ -26,17 +26,17 @@ public final class NeteaseCryptoSupport {
 
     /** IV */
     private static final byte[] IV = "0102030405060708".getBytes(StandardCharsets.UTF_8);
-    /** Preset_key */
+    /** Preset_键 */
     private static final byte[] PRESET_KEY = "0CoJUm6Qyw8W8jud".getBytes(StandardCharsets.UTF_8);
-    /** Linux_api_key，由配置文件 plugin.datasearch.music.linux-api-key 覆盖，默认为空 */
+    /** Linux_api_键，由配置文件 plugin.datasearch.music.Linux-api-键 覆盖，默认为空 */
     private static final String LINUX_API_KEY_STR = "";
-    private static final byte[] LINUX_API_KEY = LINUX_API_KEY_STR.getBytes(StandardCharsets.UTF_8);
-    /** Eapi_key，由配置文件 plugin.datasearch.music.eapi-key 覆盖，默认为空 */
+    private static final byte[] LINUX_API_KEY = LINUX_API_KEY_STR.getBytes(StandardCharsets.UTF_8); // Linuxapi键
+    /** Eapi_键，由配置文件 plugin.datasearch.music.eapi-键 覆盖，默认为空 */
     private static final String EAPI_KEY_STR = "";
-    private static final byte[] EAPI_KEY = EAPI_KEY_STR.getBytes(StandardCharsets.UTF_8);
-    /** Base62 */
+    private static final byte[] EAPI_KEY = EAPI_KEY_STR.getBytes(StandardCharsets.UTF_8); // eapi键
+    /** 基础62 */
     private static final String BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    /** Public_key_pem */
+    /** 公共_键_pem */
     private static final String PUBLIC_KEY_PEM =
             "-----BEGIN PUBLIC KEY-----\n" +
                     "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUr\n" +
@@ -45,14 +45,19 @@ public final class NeteaseCryptoSupport {
                     "CiK45wIDAQAB\n" +
                     "-----END PUBLIC KEY-----";
 
-    /** Mapper */
+    /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 创建 NeteaseCryptoSupport 实例 */
+    /** 创建 netease加密货币支持 实例 */
     private NeteaseCryptoSupport() {
     }
 
-    /** Weapi */
+    /**
+     * Weapi
+     *
+     * @param payload payload
+     * @return weapi的结果
+     */
     public static Map<String, String> weapi(Object payload) {
         byte[] secretKey = randomSecretKey();
         String text = toJson(payload);
@@ -68,7 +73,12 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
-    /** Linuxapi */
+    /**
+     * Linuxapi
+     *
+     * @param payload payload
+     * @return linuxapi的结果
+     */
     public static Map<String, String> linuxapi(Object payload) {
         String text = toJson(payload);
         byte[] encrypted = aes("AES/ECB/PKCS5Padding",
@@ -81,7 +91,13 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
-    /** Eapi */
+    /**
+     * Eapi
+     *
+     * @param url url
+     * @param payload payload
+     * @return eapi的结果
+     */
     public static Map<String, String> eapi(String url, Object payload) {
         String text = payload instanceof String ? payload.toString() : toJson(payload);
         String message = "nobody" + url + "use" + text + "md5forencrypt";
@@ -97,7 +113,12 @@ public final class NeteaseCryptoSupport {
         return result;
     }
 
-    /** ToJson */
+    /**
+     * 转为json
+     *
+     * @param payload payload
+     * @return 转为json的结果
+     */
     private static String toJson(Object payload) {
         try {
             return MAPPER.writeValueAsString(payload);
@@ -106,7 +127,11 @@ public final class NeteaseCryptoSupport {
         }
     }
 
-    /** RandomSecretKey */
+    /**
+     * 随机secret键
+     *
+     * @return 随机secret键的结果
+     */
     private static byte[] randomSecretKey() {
         byte[] secret = new byte[16];
         for (int index = 0; index < secret.length; index++) {
@@ -115,7 +140,12 @@ public final class NeteaseCryptoSupport {
         return secret;
     }
 
-    /** RsaNoPadding */
+    /**
+     * rsanopadding
+     *
+     * @param text 文本
+     * @return rsaNoPadding的结果
+     */
     private static String rsaNoPadding(byte[] text) {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -136,7 +166,16 @@ public final class NeteaseCryptoSupport {
         }
     }
 
-    /** Aes */
+    /**
+     * Aes
+     *
+     * @param transformation 转变
+     * @param content 内容
+     * @param key 键
+     * @param iv iv
+     * @param mode mode
+     * @return aes的结果
+     */
     private static byte[] aes(String transformation, byte[] content, byte[] key, byte[] iv, int mode) {
         try {
             Cipher cipher = Cipher.getInstance(transformation);
@@ -152,7 +191,12 @@ public final class NeteaseCryptoSupport {
         }
     }
 
-    /** Md */
+    /**
+     * Md
+     *
+     * @param text 文本
+     * @return md5的结果
+     */
     private static String md5(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -162,7 +206,12 @@ public final class NeteaseCryptoSupport {
         }
     }
 
-    /** ToHex */
+    /**
+     * 转为hex
+     *
+     * @param bytes bytes
+     * @return 转为hex的结果
+     */
     private static String toHex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte value : bytes) {
@@ -171,7 +220,12 @@ public final class NeteaseCryptoSupport {
         return builder.toString();
     }
 
-    /** Reverse */
+    /**
+     * Reverse
+     *
+     * @param value 值
+     * @return reverse的结果
+     */
     private static byte[] reverse(byte[] value) {
         byte[] result = value.clone();
         for (int left = 0, right = result.length - 1; left < right; left++, right--) {

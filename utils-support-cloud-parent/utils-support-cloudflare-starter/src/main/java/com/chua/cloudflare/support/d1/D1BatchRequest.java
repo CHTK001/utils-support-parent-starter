@@ -9,13 +9,16 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param statements 对账单
+ * @param sequential sequential
+ * @return d1batch请求的结果
  */
 public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
 
     /**
      * 构造批量请求。
      *
-     * @param databaseId 数据库 ID（可空，使用默认）
+     * @param databaseId 数据库 标识（可空，使用默认）
      * @param statements 多条语句
      * @return 请求对象
      */

@@ -53,7 +53,13 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
                 .build();
     }
 
-    /** 获取First */
+    /**
+     * 获取第一个
+     *
+     * @param request 请求
+     * @param names 名称
+     * @return 获取第一个的结果
+     */
     private String getFirst(ServerRequest request, String... names) {
         for (String name : names) {
             String v = request.getParam(name);
@@ -64,7 +70,13 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         return null;
     }
 
-    /** 解析Int */
+    /**
+     * 解析Int
+     *
+     * @param request 请求
+     * @param names 名称
+     * @return 解析int的结果
+     */
     private Integer parseInt(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -78,7 +90,13 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
-    /** 解析Long */
+    /**
+     * 解析Long
+     *
+     * @param request 请求
+     * @param names 名称
+     * @return 解析long的结果
+     */
     private Long parseLong(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -91,7 +109,13 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
-    /** 解析Float */
+    /**
+     * 解析Float
+     *
+     * @param request 请求
+     * @param names 名称
+     * @return 解析float的结果
+     */
     private Float parseFloat(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {
@@ -104,7 +128,13 @@ public class JdkFileStorageFileSetting implements FileStorageFileSetting {
         }
     }
 
-    /** 解析Bool */
+    /**
+     * 解析Bool
+     *
+     * @param request 请求
+     * @param names 名称
+     * @return 解析bool的结果
+     */
     private Boolean parseBool(ServerRequest request, String... names) {
         String v = getFirst(request, names);
         if (v == null) {

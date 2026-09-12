@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
  *
  * // 使用Java原生序列化
  * byte[] javaBytes = flow.use(new JavaSerializer<>()).serialize(object);
+ * }</pre> JavaSerializer<>()).serialize(object);
  * }</pre>
  *
  * @author CH
@@ -32,7 +33,7 @@ import java.lang.reflect.Type;
  */
 public class SerializerFlow {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 底层序列化提供者
@@ -141,17 +142,27 @@ public class SerializerFlow {
      * 配置构建器
      *
      * <p>支持链式调用风格的序列化器配置，通过 {@link #done()} 返回上一级管理器。
+     * @author CH
+     * @since 4.0.0
      */
     public class SerializerConfigBuilder {
-        private Serializer<? extends Serializable> serializer;
+        private Serializer<? extends Serializable> serializer; // 序列化器
 
-        /** Json */
+        /**
+         * Json
+         *
+         * @return json的结果
+         */
         public SerializerConfigBuilder json() {
             this.serializer = new JsonSerializer<>(Object.class);
             return this;
         }
 
-        /** Java */
+        /**
+         * Java
+         *
+         * @return java的结果
+         */
         public SerializerConfigBuilder java() {
             this.serializer = new JavaSerializer<>();
             return this;

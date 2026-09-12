@@ -24,6 +24,8 @@ public class Md5MockString implements MockString {
 
     /**
      * 随机内容长度
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int CONTENT_LENGTH = 16;
 

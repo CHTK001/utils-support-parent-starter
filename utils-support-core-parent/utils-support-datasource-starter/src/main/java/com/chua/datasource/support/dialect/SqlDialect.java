@@ -42,7 +42,7 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-     * 构造 SQL 方言，加载默认 env 并用外部 properties 覆盖。
+      * 构造 SQL 方言，加载默认 env 并用外部 属性 覆盖。
      *
      * @param protocol     协议名
      * @param properties   外部属性（优先级高于 .env）
@@ -106,10 +106,10 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-     * 读取布尔型配置，key 不存在时返回 null。
+      * 读取布尔型配置，键 不存在时返回 空。
      *
      * @param key 配置键
-     * @return 解析后的布尔值，key 不存在返回 null
+     * @return 解析后的布尔值，key 不存在返回 空
      */
     private Boolean configBool(String key) {
         String v = config(key, null);
@@ -121,7 +121,7 @@ public class SqlDialect extends AbstractDialect {
 
     @Override
     public String processSql(String sql, Pagination pagination) {
-        // 优先读自定义分页模板（支持 {sql} {offset} {limit} 占位符）
+ // 优先读自定义分页模板（支持 {SQL} {偏移量} {限制} 占位符）
         String template = config("pagination-sql", null);
         if (template != null) {
             return template
@@ -129,7 +129,7 @@ public class SqlDialect extends AbstractDialect {
                     .replace("{offset}", String.valueOf(pagination.getOffset()))
                     .replace("{limit}", String.valueOf(pagination.getLimit()));
         }
-        // 默认 LIMIT/OFFSET
+ // 默认 限制/偏移量
         return sql + " LIMIT " + pagination.getLimit() + " OFFSET " + pagination.getOffset();
     }
 
@@ -318,11 +318,11 @@ public class SqlDialect extends AbstractDialect {
     }
 
     /**
-     * 在模板末尾追加 schema 过滤条件。
+      * 在模板末尾追加 模式 过滤条件。
      *
      * @param template       SQL 模板
-     * @param schema         schema 名称，null 或空时不追加
-     * @param schemaColumn   schema 列名
+     * @param schema         模式 名称，空 或空时不追加
+     * @param schemaColumn   模式 列名
      * @return 追加条件后的 SQL
      */
     private String buildWithSchema(String template, String schema, String schemaColumn) {
@@ -340,7 +340,25 @@ public class SqlDialect extends AbstractDialect {
     /**
      * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
      *
-     * @return 加载后的 Properties，文件不存在时返回空 Properties
+     * @return 加载后的 属性，文件不存在时返回空 属性
+     * @param defaults 默认
+     * @param overrides overrides
+     /**
+      * 加载默认env。
+      * @return 加载默认env的结果
+      */
+      * @param defaults 默认
+      * @param overrides overrides
+     /**
+      * 加载默认env。
+      * @return 加载默认env的结果
+      */
+      * @param defaults 默认
+      * @param overrides overrides
+     /**
+      * 加载默认env。
+      * @return 加载默认env的结果
+      */
      */
     @Override
     protected Properties loadDefaultEnv() {

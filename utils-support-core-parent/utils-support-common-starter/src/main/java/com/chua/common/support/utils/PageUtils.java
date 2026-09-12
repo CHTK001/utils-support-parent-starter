@@ -14,6 +14,9 @@ import lombok.Getter;
  */
 public class PageUtils {
 
+    /**
+     * page工具。
+     */
     private PageUtils() {}
 
     /**
@@ -33,7 +36,7 @@ public class PageUtils {
     }
 
     /**
-     * 计算分页的起始索引（Offset）
+      * 计算分页的起始索引（偏移量）
      *
      * @param pageNo   当前页码
      * @param pageSize 每页大小
@@ -77,7 +80,7 @@ public class PageUtils {
      *
      * @param pageNo   当前页码
      * @param pageSize 每页大小
-     * @return 包含起始索引和结束索引的数组，格式为 [start, end]
+     * @return 包含起始索引和结束索引的数组，格式为 [启动, 结束]
      */
     public static int[] transToStartEnd(int pageNo, int pageSize) {
         int start = getStart(pageNo, pageSize);

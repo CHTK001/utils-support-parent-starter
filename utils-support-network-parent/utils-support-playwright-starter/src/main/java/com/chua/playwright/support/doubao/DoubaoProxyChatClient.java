@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * 豆包逆向代理对话客户端。
  *
  * <p>基于 {@link DoubaoBrowserSession} 在 Playwright 浏览器页面内发起
- * 原生 fetch 请求，借助字节跳动前端 JS hook 自动注入 {@code a_bogus} +
+   * 原生 获取 请求，借助字节跳动前端 JS hook 自动注入 {@code a_bogus} +
  * {@code msToken} 签名，绕过反爬虫墙，实现 Cookie 认证的豆包免费对话。
  *
  * <p>SPI 名称：{@code doubao-proxy}，appKey 为 Cookie 串
@@ -41,6 +41,7 @@ import java.util.function.Consumer;
  * ChatClient client = ChatClient.create("doubao-proxy",
  *     "sessionid=abc; ttwid=def; passport_csrf_token=ghi");
  * String answer = client.model("doubao-think").chatSync("你好");
+ * }</pre>oubao-think").chatSync("你好");
  * }</pre>
  *
  * @author CH
@@ -77,7 +78,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     private Double temperature;
 
     /**
-     * 当前最大 Token 数。
+      * 当前最大 令牌 数。
      */
     private Integer maxTokens;
 
@@ -87,12 +88,12 @@ public class DoubaoProxyChatClient implements ChatClient {
     private String system;
 
     /**
-     * 当前会话 ID。
+      * 当前会话 标识。
      */
     private String conversationId;
 
     /**
-     * extra Body
+      * extra 主体
      */
     private Map<String, Object> extraBody;
 
@@ -101,7 +102,7 @@ public class DoubaoProxyChatClient implements ChatClient {
      */
     private Double topP;
     /**
-     * stop
+      * 停止
      */
     private List<String> stop;
     /**
@@ -109,11 +110,11 @@ public class DoubaoProxyChatClient implements ChatClient {
      */
     private Long seed;
     /**
-     * response Format
+      * 响应 格式化
      */
     private String responseFormat;
     /**
-     * image Urls
+      * 镜像 Urls
      */
     private final List<String> imageUrls = new ArrayList<>();
     /**
@@ -145,7 +146,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     private boolean smartSearch;
 
     /**
-     * 技能管理器（用于 prompt 注入）。
+      * 技能管理器（用于 提示符 注入）。
      */
     private SkillManager skillManager;
 
@@ -162,7 +163,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     /**
      * 构造豆包逆向代理对话客户端。
      *
-     * @param setting 客户端配置，其中 appKey 为 Cookie 串
+     * @param setting 客户端配置，其中 app键 为 Cookie 串
      */
     public DoubaoProxyChatClient(ChatClientSetting setting) {
         this.setting = setting;
@@ -175,7 +176,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ChatClient model(String model) {
         this.model = model;
         return this;
@@ -189,21 +190,21 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 最大值Tokens */
+    /** 最大值令牌 */
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
     }
 
     @Override
-    /** System */
+    /** 系统 */
     public ChatClient system(String system) {
         this.system = system;
         return this;
     }
 
     @Override
-    /** ExtraBody */
+    /** extra主体 */
     public ChatClient extraBody(Map<String, Object> extraBody) {
         this.extraBody = extraBody;
         return this;
@@ -217,7 +218,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** ThinkingEffort */
+    /** thinkingeffort */
     public ChatClient thinkingEffort(String effort) {
         this.thinkingEffort = effort;
         return this;
@@ -238,7 +239,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** TopP */
+    /** topp */
     public ChatClient topP(Double topP) { this.topP = topP; return this; }
 
     @Override
@@ -250,11 +251,11 @@ public class DoubaoProxyChatClient implements ChatClient {
     public ChatClient seed(Long seed) { this.seed = seed; return this; }
 
     @Override
-    /** Response格式化 */
+    /** 响应格式化 */
     public ChatClient responseFormat(String responseFormat) { this.responseFormat = responseFormat; return this; }
 
     @Override
-    /** 添加Image */
+    /** 添加镜像 */
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
@@ -268,7 +269,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** 添加AttachmentUrl */
+    /** 添加attachmenturl */
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
@@ -294,42 +295,42 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** ToolChoice */
+    /** toolchoice */
     public ChatClient toolChoice(String toolChoice) {
         this.toolChoice = toolChoice;
         return this;
     }
 
     @Override
-    /** 添加UserHistory */
+    /** 添加用户历史 */
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
     }
 
     @Override
-    /** 添加AssistantHistory */
+    /** 添加assistant历史 */
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
     }
 
     @Override
-    /** History */
+    /** 历史 */
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
     }
 
     @Override
-    /** Session */
+    /** 会话 */
     public ChatClient session(String sessionId) {
         this.conversationId = sessionId;
         return this;
     }
 
 @Override
-    /** NewChat */
+    /** 新对话 */
     public ChatClient newChat() {
         this.history.clear();
         this.externalHistory = null;
@@ -341,7 +342,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** ChatSync */
+    /** 对话同步 */
     public String chatSync(String prompt) {
         StringBuilder result = new StringBuilder();
         chat(prompt, response -> {
@@ -354,7 +355,7 @@ public class DoubaoProxyChatClient implements ChatClient {
     }
 
     @Override
-    /** Chat */
+    /** 对话 */
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, e -> {
@@ -365,10 +366,10 @@ public class DoubaoProxyChatClient implements ChatClient {
     @Override
     /**
      * 对话
-     * @param prompt prompt
+     * @param prompt 提示符
      * @param consumer consumer
-     * @param onComplete onComplete
-     * @param onError onError
+     * @param onComplete on完成
+     * @param onError on错误
      */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -577,14 +578,14 @@ return body.toJSONString();
 
     @Override
     /**
-     * GenerateImage
-     * @param prompt prompt
+      * generate镜像
+     * @param prompt 提示符
      * @param ratio ratio
      * @param n n
      * @param width width
      * @param height height
      * @param quality quality
-     * @param refImageKey refImageKey
+     * @param refImageKey ref镜像键
      */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
@@ -593,12 +594,19 @@ return body.toJSONString();
     }
 
     @Override
-    /** GenerateImage */
+    /** generate镜像 */
     public ImageGenerationResult generateImage(String prompt, String ratio) {
         return doGenerateImage(prompt, ratio, null);
     }
 
-    /** DoGenerateImage */
+    /**
+     * 执行generate镜像
+     *
+     * @param prompt 提示符
+     * @param ratio ratio
+     * @param refImageKey ref镜像键
+     * @return 执行generate镜像的结果
+     */
     private ImageGenerationResult doGenerateImage(String prompt, String ratio, String refImageKey) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
                 ? setting.getBaseUrl() : DEFAULT_BASE_URL;
@@ -662,12 +670,12 @@ return parseImageResult(result, prompt);
 
     @Override
     /**
-     * GenerateVideo
-     * @param prompt prompt
+      * generate视频
+     * @param prompt 提示符
      * @param ratio ratio
-     * @param cameraMovement cameraMovement
-     * @param refImageKey refImageKey
-     * @param timeoutSeconds timeoutSeconds
+     * @param cameraMovement 摄像头移动
+     * @param refImageKey ref镜像键
+     * @param timeoutSeconds 超时seconds
      */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
@@ -676,17 +684,17 @@ return parseImageResult(result, prompt);
     }
 
     @Override
-    /** GenerateVideo */
+    /** generate视频 */
     public VideoGenerationResult generateVideo(String prompt, String ratio) {
         return doGenerateVideo(prompt, ratio, null, null);
     }
 
     /**
-     * DoGenerateVideo
-     * @param prompt prompt
+      * 执行generate视频
+     * @param prompt 提示符
      * @param ratio ratio
-     * @param cameraMovement cameraMovement
-     * @param refImageKey refImageKey
+     * @param cameraMovement 摄像头移动
+     * @param refImageKey ref镜像键
      */
     private VideoGenerationResult doGenerateVideo(String prompt, String ratio,
                                                    String cameraMovement, String refImageKey) {
@@ -748,7 +756,7 @@ return parseImageResult(result, prompt);
             throw new RuntimeException("视频生成失败: " + result.errorMessage());
         }
 
-        // 提取异步任务 ID
+ // 提取异步任务 标识
         String taskId = extractAsyncTaskId(result);
         if (taskId != null) {
             return pollAsyncVideo(taskId, prompt);
@@ -759,7 +767,9 @@ return parseImageResult(result, prompt);
     }
 
     /**
-     * 从 SSE 事件中提取异步任务 ID。
+      * 从 SSE 事件中提取异步任务 标识。
+     * @param result 结果
+     * @return extract异步任务id的结果
      */
     private String extractAsyncTaskId(DoubaoChatResult result) {
         List<Map<String, Object>> rawEvents = result.rawEvents();
@@ -796,6 +806,9 @@ return parseImageResult(result, prompt);
 
     /**
      * 轮询异步视频生成结果。
+     * @param taskId 任务标识
+     * @param prompt 提示符
+     * @return poll异步视频的结果
      */
     private VideoGenerationResult pollAsyncVideo(String taskId, String prompt) {
         String baseUrl = setting.getBaseUrl() != null && !setting.getBaseUrl().isBlank()
@@ -810,6 +823,9 @@ return parseImageResult(result, prompt);
 
     /**
      * 解析图像生成结果。
+     * @param result 结果
+     * @param prompt 提示符
+     * @return 解析镜像结果的结果
      */
     private ImageGenerationResult parseImageResult(DoubaoChatResult result, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
@@ -869,6 +885,9 @@ return parseImageResult(result, prompt);
 
     /**
      * 解析视频生成结果。
+     * @param result 结果
+     * @param prompt 提示符
+     * @return 解析视频结果的结果
      */
     private VideoGenerationResult parseVideoResult(DoubaoChatResult result, String prompt) {
         List<VideoGenerationResult.GeneratedVideo> videos = new ArrayList<>();
@@ -931,14 +950,30 @@ return parseImageResult(result, prompt);
         return new VideoGenerationResult(videos, prompt);
     }
 
-/** ArrayOf */
+/**
+ * array的
+ *
+ * @param obj obj
+ * @return array的的结果
+ */
 private static JsonArray arrayOf(JsonObject obj) {
         JsonArray arr = new JsonArray();
         arr.add(obj);
         return arr;
     }
 
-    /** 获取Str */
+     /**
+      * 获取str。
+      * @param map 映射
+      * @param keys 键
+      * @return 获取str的结果
+      */
+     * 获取Str
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 获取映射的结果
+     */
     private static String getStr(Map<?, ?> map, String... keys) {
         if (map == null) {
             return null;
@@ -957,7 +992,15 @@ private static JsonArray arrayOf(JsonObject obj) {
         return val instanceof Map<?, ?> m ? m : null;
     }
 
-    /** IntVal */
+    /**
+     * intval
+     *
+     * @param first 第一个
+     * @param firstKey 第一个键
+     * @param second second
+     * @param secondKey second键
+     * @return intVal的结果
+     */
     private static int intVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -974,7 +1017,15 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
-    /** StrVal */
+    /**
+     * strval
+     *
+     * @param first 第一个
+     * @param firstKey 第一个键
+     * @param second second
+     * @param secondKey second键
+     * @return strVal的结果
+     */
     private static String strVal(Map<?, ?> first, String firstKey, Map<?, ?> second, String secondKey) {
         if (first != null) {
             Object v = first.get(firstKey);
@@ -991,7 +1042,13 @@ private static JsonArray arrayOf(JsonObject obj) {
         return null;
     }
 
-    /** ToInt */
+    /**
+     * 转为int
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 转为int的结果
+     */
     private static int toInt(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -1000,7 +1057,13 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0;
     }
 
-    /** ToDouble */
+    /**
+     * 转为double
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 转为double的结果
+     */
     private static double toDouble(Map<?, ?> map, String key) {
         Object val = map != null ? map.get(key) : null;
         if (val instanceof Number n) {
@@ -1009,7 +1072,12 @@ private static JsonArray arrayOf(JsonObject obj) {
         return 0.0;
     }
 
-    /** ExtractVideoUrlFromModel */
+    /**
+     * extract视频url从模型
+     *
+     * @param item item
+     * @return extract视频url从模型的结果
+     */
     private static String extractVideoUrlFromModel(Map<?, ?> item) {
         try {
             Object vmStr = item.get("video_model");

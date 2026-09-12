@@ -25,6 +25,7 @@ import java.util.Map;
  * FlowInstance instance = flow.createGraph().createInstance();
  * instance.run(Map.of("bizId", "1"));
  * instance.run(Map.of("bizId", "2"));
+ * }</pre>2"));
  * }</pre>
  *
  * @author CH
@@ -35,14 +36,14 @@ public interface FlowInstance {
     /**
      * 获取实例唯一标识。
      *
-     * @return 实例 ID
+     * @return 实例 标识
      */
     String getInstanceId();
 
     /**
-     * 获取所属流程定义 ID。
+      * 获取所属流程定义 标识。
      *
-     * @return 流程 ID
+     * @return 流程 标识
      */
     String getFlowId();
 

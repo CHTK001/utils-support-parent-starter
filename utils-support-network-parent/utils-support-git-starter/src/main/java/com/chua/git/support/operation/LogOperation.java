@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 提交日志查询操作（git log）。
+   * 提交日志查询操作（Git 日志）。
  *
  * <p>对已打开的本地仓库，提供以下查询：</p>
  * <ul>
@@ -32,6 +32,7 @@ import java.util.List;
  *
  * // 两个版本之间的日志
  * List<LogEntry> between = client.log().listBetween("v1.0", "v0.9");
+ * }</pre> "v0.9");
  * }</pre>
  *
  * @author CH
@@ -41,7 +42,7 @@ import java.util.List;
 public class LogOperation {
 
     /**
-     * 所属 GitClient。
+      * 所属 git客户端。
      */
     private final GitClient client;
 
@@ -53,7 +54,7 @@ public class LogOperation {
     /**
      * 构建操作实例（仅框架内部调用）。
      *
-     * @param client 所属 GitClient
+     * @param client 所属 Git客户端
      */
     public LogOperation(GitClient client) {
         this.client = client;
@@ -93,7 +94,7 @@ public class LogOperation {
     }
 
     /**
-     * 查询两个引用之间的提交日志（不含 toRef）。
+      * 查询两个引用之间的提交日志（不含 转为ref）。
      *
      * @param fromRef 起点引用（较新，如 "v1.0"、"HEAD"）
      * @param toRef   终点引用（较旧，如 "v0.9"）
@@ -105,6 +106,12 @@ public class LogOperation {
 
     // ==================== 内部方法 ====================
 
+    /**
+     * 执行列表。
+     * @param fromRef 从ref
+     * @param toRef 转为ref
+     * @return 执行列表的结果
+     */
     private List<LogEntry> doList(String fromRef, String toRef) {
         try {
             client.open();
@@ -147,6 +154,12 @@ public class LogOperation {
         }
     }
 
+    /**
+      * resolveref。
+     * @param repo repo
+     * @param ref ref
+     * @return resolveRef的结果
+     */
     private ObjectId resolveRef(Repository repo, String ref) throws Exception {
         ObjectId oid = repo.resolve(ref);
         if (oid == null) {

@@ -29,7 +29,7 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     byte[] MAGIC = new byte[]{'W', 'A', 'L', '1'};
     /** 当前版本 */
     int VERSION = 1;
-    /** 文件头固定大小（magic+version+flags+crc = 16B）*/
+    /** 文件头固定大小（魔法+版本+flags+crc = 16B） */
     int HEADER_SIZE = 16;
 
     // ==================== WAL 核心操作 ====================
@@ -50,7 +50,9 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
      * @return 最后一条的 LSN
      */
     default long appendBatch(java.util.List<WalBatchEntry> entries) throws java.io.IOException {
-        if (entries == null || entries.isEmpty()) return 0L;
+        if (entries == null || entries.isEmpty()) {
+            return 0L;
+        }
         long lastLsn = 0;
         for (WalBatchEntry e : entries) {
             lastLsn = append(e.op(), e.payload());
@@ -62,12 +64,12 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
      * 按 LSN 精确读取单条记录。
      *
      * @param lsn 目标 LSN
-     * @return 记录（不存在返回 empty）
+     * @return 记录（不存在返回 空）
      */
     java.util.Optional<WalRecord> readByLsn(long lsn) throws java.io.IOException;
 
     /**
-     * 按文件内偏移读取（用于 B+Tree 索引跳转）。
+      * 按文件内偏移读取（用于 B+树 索引跳转）。
      *
      * @param segmentNo 分片序号
      * @param offset    文件内字节偏移
@@ -125,9 +127,15 @@ public interface WalFileSystem extends com.chua.common.support.file.FileSystem {
     void close() throws java.io.IOException;
 
     /**
-     * 批量条目（用于 appendBatch）。
+       * 批量条目（用于 追加批量）。
      */
     record WalBatchEntry(byte op, byte[] payload) {
+        /**
+         * 的。
+         * @param op op
+         * @param payload payload
+         * @return 的的结果
+         */
         public static WalBatchEntry of(byte op, byte[] payload) {
             return new WalBatchEntry(op, payload == null ? new byte[0] : payload.clone());
         }

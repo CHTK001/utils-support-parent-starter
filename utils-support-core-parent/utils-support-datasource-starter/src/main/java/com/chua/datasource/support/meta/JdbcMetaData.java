@@ -32,6 +32,7 @@ import java.util.List;
  *
  * // 列出索引
  * List<IndexMetadata> indexes = engine.meta().index().onTable("user").list();
+ * }</pre>ist();
  * }</pre>
  * </p>
  *
@@ -40,7 +41,7 @@ import java.util.List;
  */
 public abstract class JdbcMetaData extends AbstractMetaData implements DataSourceAware {
 
-    /** 当前连接的 DataSource（由引擎注入） */
+    /** 当前连接的 数据源（由引擎注入） */
     protected DataSource dataSource;
 
     /**
@@ -59,6 +60,7 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
 
     /**
      * 获取当前方言实例。
+     * @return dialect的结果
      */
     protected Dialect dialect() {
         com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
@@ -82,6 +84,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
 
     /**
      * 从 {@link DatabaseMetaData} 中列出所有表名。
+     * @param catalog catalog
+     * @param schemaPattern 模式模式
+     * @return 列表table名称的结果
      */
     protected List<String> listTableNames(String catalog, String schemaPattern) throws Exception {
         List<String> result = new ArrayList<>();
@@ -91,7 +96,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
                     new String[]{"TABLE", "VIEW"})) {
                 while (rs.next()) {
                     String name = rs.getString("TABLE_NAME");
-                    if (name != null) result.add(name);
+                    if (name != null) {
+                        result.add(name);
+                    }
                 }
             }
         }
@@ -100,6 +107,10 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
 
     /**
      * 从 {@link DatabaseMetaData} 中列出指定表的所有列。
+     * @param catalog catalog
+     * @param schema 模式
+     * @param tableName table名称
+     * @return 列表column名称的结果
      */
     protected List<String> listColumnNames(String catalog, String schema, String tableName) throws Exception {
         List<String> result = new ArrayList<>();
@@ -108,7 +119,9 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
             try (ResultSet rs = dbmd.getColumns(catalog, schema, tableName, "%")) {
                 while (rs.next()) {
                     String col = rs.getString("COLUMN_NAME");
-                    if (col != null) result.add(col);
+                    if (col != null) {
+                        result.add(col);
+                    }
                 }
             }
         }
@@ -117,6 +130,8 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
 
     /**
      * 执行方言提供的 SQL 并返回结果集行列表。
+     * @param sql SQL
+     * @return 查询dialectsql的结果
      */
     protected List<String[]> queryDialectSql(String sql) {
         List<String[]> result = new ArrayList<>();
@@ -139,11 +154,14 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 获取当前默认数据源的 JDBC DataSource。
-     * 优先从 EngineDataSource 接口获取，失败时回退到 Connection.unwrap。
+      * 获取当前默认数据源的 JDBC 数据源。
+      * 优先从 engine数据源 接口获取，失败时回退到 Connection.unwrap。
+     * @return 获取数据源的结果
      */
     protected DataSource getDataSource() {
-        if (dataSource != null) return dataSource;
+        if (dataSource != null) {
+            return dataSource;
+        }
         try {
             com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
                     engine.getDataSource(engine.getDefaultDataSourceName());
@@ -161,14 +179,19 @@ public abstract class JdbcMetaData extends AbstractMetaData implements DataSourc
     }
 
     /**
-     * 获取 JDBC 连接（与 JdbcEngine 同模式）。
+      * 获取 JDBC 连接（与 jdbcengine 同模式）。
+     * @return 获取jdbcconnection的结果
      */
     protected Connection getJdbcConnection() throws Exception {
         com.chua.common.support.lang.datasource.engine.EngineDataSource<?> eds =
                 engine.getDataSource(engine.getDefaultDataSourceName());
-        if (eds == null) throw new IllegalStateException("默认数据源未配置");
+        if (eds == null) {
+            throw new IllegalStateException("默认数据源未配置");
+        }
         Object source = eds.getSource();
-        if (source instanceof DataSource ds) return ds.getConnection();
+        if (source instanceof DataSource ds) {
+            return ds.getConnection();
+        }
         throw new IllegalStateException("数据源类型不支持 JDBC: " + source.getClass().getName());
     }
 }

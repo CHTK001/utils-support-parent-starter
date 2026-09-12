@@ -62,7 +62,7 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-     * 按指定日期恢复：优先原始目录，回退 ZIP 压缩包。
+      * 按指定日期恢复：优先原始目录，回退 压缩 压缩包。
      */
     @Override
     public RestoreResult restoreByDate(RestoreConfig config, LocalDate date) {
@@ -80,7 +80,7 @@ public class DefaultBackupRestore implements BackupRestore {
                         calcTotalSize(restored), System.currentTimeMillis() - start);
             }
 
-            // 回退到 ZIP 压缩包
+ // 回退到 压缩 压缩包
             Path zipFile = config.getBackupDir().resolve(ARCHIVE_DIR).resolve(dateStr + ".zip");
             if (Files.exists(zipFile)) {
                 List<Path> restored = restoreFromZip(zipFile, config);
@@ -95,7 +95,7 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-     * 列出备份目录下全部可用日期（原始目录 + ZIP 压缩包，去重升序）。
+      * 列出备份目录下全部可用日期（原始目录 + 压缩 压缩包，去重升序）。
      */
     @Override
     public List<LocalDate> listAvailableDates(Path backupDir) {
@@ -118,7 +118,7 @@ public class DefaultBackupRestore implements BackupRestore {
             }
         }
 
-        // 扫描 ZIP 压缩包
+ // 扫描 压缩 压缩包
         Path archiveDir = backupDir.resolve(ARCHIVE_DIR);
         if (Files.exists(archiveDir)) {
             try (var stream = Files.list(archiveDir)) {
@@ -145,6 +145,9 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 从目录恢复文件
+     * @param source 源
+     * @param config 配置
+     * @return restore从目录的结果
      */
     private List<Path> restoreFromDirectory(Path source, RestoreConfig config) throws IOException {
         List<Path> restored = new ArrayList<>();
@@ -179,7 +182,10 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-     * 从 ZIP 恢复文件
+      * 从 压缩 恢复文件
+     * @param zipFile 压缩文件
+     * @param config 配置
+     * @return restore从压缩的结果
      */
     private List<Path> restoreFromZip(Path zipFile, RestoreConfig config) throws IOException {
         List<Path> restored = new ArrayList<>();
@@ -207,6 +213,8 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 计算文件列表的总大小（字节）；无法读取的文件按 0 计。
+     * @param files 文件
+     * @return calctotal大小的结果
      */
     private long calcTotalSize(List<Path> files) {
         return files.stream()
@@ -216,6 +224,7 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 递归删除目录及其全部内容。
+     * @param dir dir
      */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
@@ -240,6 +249,9 @@ public class DefaultBackupRestore implements BackupRestore {
 
     /**
      * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
+     * @param fileName 文件名称
+     * @param pattern 模式
+     * @return 匹配模式的结果
      */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {

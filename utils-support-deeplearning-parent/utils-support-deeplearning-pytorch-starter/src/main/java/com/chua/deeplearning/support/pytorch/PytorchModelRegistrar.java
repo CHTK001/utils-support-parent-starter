@@ -11,11 +11,11 @@ import com.chua.deeplearning.support.image.ImageGenerator;
 import com.chua.deeplearning.support.nlp.TextTranslator;
 
 /**
- * PyTorch 模块模型集中注册器。
+   * pytorch 模块模型集中注册器。
  * <p>
  * 通过 SPI 被主框架加载；类名字符串注册 + 懒加载 Translator。
- * relativePath 相对 models 根目录，支持 pytorch/ 前缀。
- * 模型文件为 TorchScript（.pt / .pth），由 DJL PyTorch 引擎加载。
+   * relative路径 相对 模型 根目录，支持 pytorch/ 前缀。
+   * 模型文件为 torchscript（.pt / .pth），由 DJL pytorch 引擎加载。
  * </p>
  *
  * @author CH
@@ -33,7 +33,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
         registerAll();
     }
 
-    /** 注册All */
+    /** 注册全部 */
     private static void registerAll() {
         // 图像分类
         reg("pytorch-resnet18",
@@ -137,7 +137,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                 Long.class, ai.djl.modality.cv.Image.class,
                 ImageGenerator.class, "generation/biggan_512.pt");
 
-        // Diffusion 条件图 / ControlNet 预处理
+ // Diffusion 条件图 / controlnet 预处理
         reg("pytorch-lineart",
                 "com.chua.deeplearning.support.pytorch.diffusion.lineart.LineArtTranslator",
                 ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class,
@@ -173,7 +173,7 @@ public class PytorchModelRegistrar implements ModelRegistrar {
                 String.class, float[].class,
                 FeatureExtractor.class, "feature/text_feature.pt");
 
-        // NLLB / 翻译子模块（encoder/decoder 分片，供流水线组合）
+ // NLLB / 翻译子模块（编码器/解码器 分片，供流水线组合）
         reg("pytorch-nllb-encoder",
                 "com.chua.deeplearning.support.pytorch.translation.NllbEncoderTranslator",
                 long[].class, ai.djl.ndarray.NDArray.class,
@@ -267,12 +267,12 @@ public class PytorchModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
+     * @param relativePath relative路径
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
@@ -285,15 +285,15 @@ public class PytorchModelRegistrar implements ModelRegistrar {
 
     /**
      * Reg
-     * @param modelId modelId
-     * @param translatorClassName translatorClassName
-     * @param inputType inputType
-     * @param outputType outputType
+     * @param modelId 模型标识
+     * @param translatorClassName translator类名称
+     * @param inputType 输入类型
+     * @param outputType 输出类型
      * @param capability capability
-     * @param relativePath relativePath
-     * @param downloadUrl downloadUrl
+     * @param relativePath relative路径
+     * @param downloadUrl downloadurl
      * @param compress compress
-     * @param downloadFileName downloadFileName
+     * @param downloadFileName download文件名称
      */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,

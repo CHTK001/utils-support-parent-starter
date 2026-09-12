@@ -43,11 +43,11 @@ import javax.annotation.Nullable;
 @Slf4j
 @Spi({"zxing", DEFAULT})
 public class DefaultQrCode extends AbstractQrCode {
-    /** Quiet_zone_size */
+    /** Quiet_zone_大小 */
     private static final int QUIET_ZONE_SIZE = 4;
 
     /**
-     * 创建 DefaultQrCode 实例
+      * 创建 默认qr编码 实例
      * @param setting setting
      */
     public DefaultQrCode(QrSetting setting) {
@@ -55,7 +55,7 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     @Override
-    /** Out */
+    /** 出 */
     public void out(String content, OutputStream outputStream) {
         QrCodeGenWrapper.Builder builder = QrCodeGenWrapper.of(content);
 
@@ -103,7 +103,7 @@ public class DefaultQrCode extends AbstractQrCode {
 
 
     /**
-     * 对 zxing 的 QRCodeWriter 进行扩展, 解决白边过多的问题
+      * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
      * <p/>
      * 源码参考 {@link com.google.zxing.qrcode.QRCodeWriter#encode(String, BarcodeFormat, int, int, Map)}
      */
@@ -118,10 +118,10 @@ public class DefaultQrCode extends AbstractQrCode {
         return Encoder.encode(qrCodeConfig.getMsg(), errorCorrectionLevel, qrCodeConfig.getHints());
     }
     /**
-     * 将 QR 码编码为 BitMatrixEx 对象，支持自定义大小和边框。
+      * 将 QR 码编码为 钻头matrixex 对象，支持自定义大小和边框。
      *
-     * @param code QRCode对象，包含编码内容
-     * @param codeOptions QrCodeOptions对象，包含QR码的自定义选项如大小、边框和Logo
+     * @param code qr编码对象，包含编码内容
+     * @param codeOptions qr编码期权对象，包含QR码的自定义选项如大小、边框和Logo
      * @return BitMatrixEx对象，包含编码后的QR码图像
      * @throws WriterException 如果编码过程中发生错误。
      */
@@ -148,7 +148,7 @@ public class DefaultQrCode extends AbstractQrCode {
     /**
      * 清除Logo区域，避免渲染时被覆盖。
      *
-     * @param bitMatrixEx BitMatrixEx对象，包含QR码图像
+     * @param bitMatrixEx 钻头matrixex对象，包含QR码图像
      * @param logoOptions Logo选项，如果存在，则清除相应区域
      */
     private static void clearLogo(BitMatrixEx bitMatrixEx, QrCodeOptions.LogoOptions logoOptions) {
@@ -171,10 +171,10 @@ public class DefaultQrCode extends AbstractQrCode {
     }
 
     /**
-     * 对 zxing 的 QRCodeWriter 进行扩展, 解决白边过多的问题
+      * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
      * <p/>
      *
-     * @param code QRCode对象，包含编码内容
+     * @param code qr编码对象，包含编码内容
      * @param width 目标宽度
      * @param height 目标高度
      * @param quietZone 安静区大小，取值范围 [0, 4]

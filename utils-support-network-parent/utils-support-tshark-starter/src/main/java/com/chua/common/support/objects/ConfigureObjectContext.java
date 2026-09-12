@@ -1,7 +1,7 @@
 package com.chua.common.support.objects;
 
 /**
- * 配置型对象上下文接口，封装 Bean 查找、初始化与 BeanDefinition 注册等能力。
+   * 配置型对象上下文接口，封装 Bean 查找、初始化与 Beandefinition 注册等能力。
  *
  * @author CH
  * @since 4.0.0.42

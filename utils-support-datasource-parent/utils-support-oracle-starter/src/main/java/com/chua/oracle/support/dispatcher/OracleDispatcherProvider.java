@@ -13,11 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Oracle CDC 分发器提供者，模拟 Oracle LogMiner 变更数据捕获事件流。
+   * Oracle CDC 分发器提供者，模拟 Oracle 日志最小 变更数据捕获事件流。
  * <p>
  * 基于 Reactor Sinks 实现进程内发布订阅，主题约定为：
  * {@code oracle.cdc.<schema>.<table>}，消息体为 JSON 格式的变更事件，
- * 包含操作类型（INSERT/UPDATE/DELETE）、变更前后数据等信息。
+   * 包含操作类型（插入/更新/删除）、变更前后数据等信息。
  * </p>
  *
  * @author CH
@@ -43,8 +43,8 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     private volatile boolean closed = false;
 
     /**
-     * 创建 OracleDispatcherProvider 实例
-     * @param config config
+      * 创建 oracledispatcher提供者 实例
+     * @param config 配置
      */
     public OracleDispatcherProvider(DispatcherConfig config) {
         super(config);

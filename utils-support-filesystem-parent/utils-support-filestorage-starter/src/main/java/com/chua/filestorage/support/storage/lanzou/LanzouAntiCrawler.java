@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 final class LanzouAntiCrawler {
 
     /**
-     * 位置置换表，长度 40，对应 arg1 的 40 个十六进制字符。
+      * 位置置换表，长度 40，对应 参数1 的 40 个十六进制字符。
      */
     private static final int[] POSITION_TABLE = {
             0xF, 0x23, 0x1D, 0x18, 0x21, 0x10, 0x1, 0x26,
@@ -44,12 +44,12 @@ final class LanzouAntiCrawler {
     private static final String XOR_KEY = "3000176000856006061501533003690027800375";
 
     /**
-     * arg1 提取正则，兼容单双引号。
+      * 参数1 提取正则，兼容单双引号。
      */
     private static final Pattern ARG1_PATTERN =
             Pattern.compile("arg1\\s*=\\s*['\"]([0-9A-Fa-f]+)['\"]");
 
-    /** 创建 LanzouAntiCrawler 实例 */
+    /** 创建 lanzouanti爬虫 实例 */
     private LanzouAntiCrawler() {
     }
 
@@ -70,7 +70,7 @@ final class LanzouAntiCrawler {
      * 求解挑战，返回 acw_sc__v2 Cookie 值。
      *
      * @param html 挑战页 HTML
-     * @return acw_sc__v2 值；无法解析时返回 null
+     * @return acw_sc__v2 值；无法解析时返回 空
      */
     static String resolve(String html) {
         if (html == null) {

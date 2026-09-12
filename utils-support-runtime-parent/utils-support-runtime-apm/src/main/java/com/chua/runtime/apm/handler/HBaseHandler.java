@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * HBase 应用层 Handler — 拦截 HBase Java Client 关键调用并生成应用语义传输记录。
+   * HBase 应用层 处理器 — 拦截 HBase Java 客户端 关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -22,12 +22,12 @@ import com.chua.runtime.protocol.Software;
 public class HBaseHandler extends AbstractAppHandler {
 
     /**
-     * Table 接口 / HTable 实现类内部名
+      * Table 接口 / htable 实现类内部名
      */
     private static final String TABLE_CLASS = "org/apache/hadoop/hbase/client/Table";
 
     /**
-     * HTable 实现类内部名
+      * htable 实现类内部名
      */
     private static final String HTABLE_CLASS = "org/apache/hadoop/hbase/client/HTable";
 
@@ -37,13 +37,13 @@ public class HBaseHandler extends AbstractAppHandler {
     private static final String[] TABLE_METHODS = {"get", "put", "delete", "scan", "increment", "append"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "hbase-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "hbase.enabled";
     }
@@ -55,13 +55,13 @@ public class HBaseHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.HBASE;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(TABLE_CLASS, TABLE_METHODS);
         registerAll(HTABLE_CLASS, TABLE_METHODS);

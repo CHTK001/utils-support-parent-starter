@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SafeTensor 本地对话客户端（HTTP 网关）。
+   * safetensor 本地对话客户端（HTTP 网关）。
  * <p>
- * 通过本地 SafeTensorService（localhost:8765）调度 LLM / VLM 类模型，
+   * 通过本地 safetensor服务（localhost:8765）调度 LLM / VLM 类模型，
  * 统一以 {@link ChatClient} 对外提供对话能力。
  * </p>
  *
@@ -23,7 +23,7 @@ import java.util.List;
 public class SafeTensorChatClient extends AbstractLocalChatClient {
 
     /**
-     * 构造 SafeTensor 对话客户端。
+      * 构造 safetensor 对话客户端。
      *
      * @param setting 客户端配置
      */
@@ -32,25 +32,27 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return SafeTensorModels.ofType("llm", "vlm");
     }
 }
 
 /**
- * SafeTensor 模型列表辅助。
+   * safetensor 模型列表辅助。
+ * @author CH
+ * @since 4.0.0
  */
 final class SafeTensorModels {
 
-    /** 创建 SafeTensorModels 实例 */
+    /** 创建 safetensor模型 实例 */
     private SafeTensorModels() {
     }
 
     /**
      * 按模型类型过滤模型定义。
      *
-     * @param types 模型类型（llm / vlm / image_gen / text_embedding / asr / tts 等）
+     * @param types 模型类型（llm / vlm / 镜像_gen / 文本_嵌入 / asr / tts 等）
      * @return 模型定义列表
      */
     static List<ModelDefinition> ofType(String... types) {

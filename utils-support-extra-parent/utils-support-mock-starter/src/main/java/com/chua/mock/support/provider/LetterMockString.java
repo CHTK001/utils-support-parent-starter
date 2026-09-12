@@ -21,6 +21,8 @@ public class LetterMockString implements MockString {
 
     /**
      * 英文字母池（大小写）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final char[] LETTERS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();

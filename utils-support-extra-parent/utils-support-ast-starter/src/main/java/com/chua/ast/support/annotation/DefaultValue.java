@@ -4,10 +4,10 @@
 import java.lang.annotation.*;
 
 /**
- * 参数默认值注解，编译期利用 AST 技术在方法体开头插入 null 检查及默认值赋值代码
+   * 参数默认值注解，编译期利用 AST 技术在方法体开头插入 空 检查及默认值赋值代码
  *
  * <p>该注解会在编译期解析 {@code @DefaultValue} 注解的值，生成对应的 null 检查 + 默认值赋值语句。
- * 支持多种数据类型：String、基本类型及其包装类、枚举、数组等。</p>
+   * 支持多种数据类型：字符串、基本类型及其包装类、枚举、数组等。</p>
  *
  * <p>使用示例：</p>
  * <pre>{@code
@@ -30,6 +30,8 @@ import java.lang.annotation.*;
  * // 枚举类型
  * public void setLevel(@DefaultValue("HIGH") LogLevel level) {
  *     // 转换后：if (level == null) { level = LogLevel.HIGH; }
+ * }
+ * }</pre>空) { 级别 = 日志级别.HIGH; }
  * }
  * }</pre>
  *

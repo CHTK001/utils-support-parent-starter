@@ -23,11 +23,14 @@ public class SyncDataOffset implements Serializable {
     private final String mappingId;
 
     /**
-     * 创建 SyncDataOffset 实例
-     * @param sourceId sourceId
-     * @param Object Object
-     * @param long long
-     * @param String String
+      * 创建 同步数据偏移量 实例
+     * @param sourceId 源标识
+     * @param offsetValue 对象
+     * @param timestamp long
+     * @param sourceId 字符串
+     * @param offsetValue 偏移量值
+     * @param timestamp 时间戳
+     * @param mappingId mappingid
      */
     public SyncDataOffset(String sourceId, Object offsetValue, long timestamp, String mappingId) {
         this.sourceId = sourceId;
@@ -36,28 +39,44 @@ public class SyncDataOffset implements Serializable {
         this.mappingId = mappingId;
     }
 
-    /** SourceId */
+    /**
+     * 源id
+     *
+     * @return 源id的结果
+     */
     public String sourceId() {
         return sourceId;
     }
 
-    /** OffsetValue */
+    /**
+     * 偏移量值
+     *
+     * @return 偏移量值的结果
+     */
     public Object offsetValue() {
         return offsetValue;
     }
 
-    /** Timestamp */
+    /**
+     * 时间戳
+     *
+     * @return 时间戳的结果
+     */
     public long timestamp() {
         return timestamp;
     }
 
-    /** MappingId */
+    /**
+     * mappingid
+     *
+     * @return mappingId的结果
+     */
     public String mappingId() {
         return mappingId;
     }
 
     @Override
-    /** ToString */
+    /** 转为字符串 */
     public String toString() {
         return "SyncDataOffset{sourceId=" + sourceId + ", offset=" + offsetValue + ", ts=" + timestamp + ", mapping=" + mappingId + "}";
     }

@@ -21,11 +21,11 @@ import java.util.List;
  *
  * @param key          字段键，对应节点配置 JSON 中的属性名
  * @param label        字段展示名
- * @param type         字段类型（input/textarea/select/switch/number/kv）
+ * @param type         字段类型（输入/textarea/选择/switch/数字/kv）
  * @param required     是否必填
  * @param placeholder  占位提示
  * @param defaultValue 默认值
- * @param options      select 类型的候选选项
+ * @param options      选择 类型的候选选项
  * @author CH
  * @since 4.0.0.42
  */

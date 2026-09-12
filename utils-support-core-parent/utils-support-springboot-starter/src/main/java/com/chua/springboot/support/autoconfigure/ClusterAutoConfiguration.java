@@ -35,10 +35,10 @@ import java.util.stream.Collectors;
 public class ClusterAutoConfiguration {
 
     @Autowired
-    private ClusterProperties clusterProperties;
+    private ClusterProperties clusterProperties; // cluster属性
 
     @Autowired
-    private org.springframework.core.env.Environment environment;
+    private org.springframework.core.env.Environment environment; // 环境
 
     /**
      * 零配置增强：未显式配置时自动从 Spring 环境推导。
@@ -67,7 +67,7 @@ public class ClusterAutoConfiguration {
             }
         }
 
-        // 3. nodeId: ip:port（保证同机多实例唯一）
+ // 3. 节点标识: ip:端口（保证同机多实例唯一）
         if (clusterProperties.getNodeId() == null || clusterProperties.getNodeId().isBlank()) {
             String rawId = clusterProperties.getHost() + ":" + clusterProperties.getPort();
             clusterProperties.setNodeId(
@@ -77,11 +77,15 @@ public class ClusterAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    /**
+     * cluster服务端。
+     * @return cluster服务端的结果
+     */
     public ClusterServer clusterServer() throws Exception {
         autoDetect();
         ClusterProperties props = clusterProperties;
 
-        // 构建 ClusterSetting
+ // 构建 clustersetting
         ClusterSetting setting = new ClusterSetting();
         setting.setNodeId(props.getNodeId());
         setting.setHost(props.getHost());
@@ -97,7 +101,7 @@ public class ClusterAutoConfiguration {
         setting.setTimeoutMillis(props.getTimeoutMillis());
         setting.setAutoDiscoveryIntervalMillis(props.getAutoDiscoveryIntervalMillis());
 
-        // 转换 serverEntries
+ // 转换 服务端entries
         List<ServerEntry> entries = props.getServerEntries().stream()
                 .map(e -> new ServerEntry(
                         e.getServicePath(),
@@ -108,7 +112,7 @@ public class ClusterAutoConfiguration {
                 .collect(Collectors.toList());
         setting.setServerEntries(entries);
 
-        // 构建 ClusterServer（未启动，由 ApplicationContext 管理生命周期）
+ // 构建 cluster服务端（未启动，由 application上下文 管理生命周期）
         ClusterServer server = ClusterServer.builder()
                 .nodeId(props.getNodeId())
                 .host(props.getHost())

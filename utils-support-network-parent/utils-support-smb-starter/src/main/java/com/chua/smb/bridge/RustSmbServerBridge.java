@@ -29,7 +29,7 @@ import java.nio.file.Path;
 public final class RustSmbServerBridge {
 
     /**
-     * lib target dir
+      * lib Target dir
      */
     private static final String LIB_TARGET_DIR =
             NativeUtils.tempRoot().resolve("rust_smb_server").toString();
@@ -39,7 +39,7 @@ public final class RustSmbServerBridge {
      */
     private static Arena ARENA;
     /**
-     * LIBRARY
+      * 图书馆
      */
     private static SymbolLookup LIBRARY;
     /**
@@ -48,24 +48,24 @@ public final class RustSmbServerBridge {
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
-     * start Handle
+      * 启动 处理
      */
     private static MethodHandle startHandle;
     /**
-     * stop Handle
+      * 停止 处理
      */
     private static MethodHandle stopHandle;
     /**
-     * 列表 Shares Handle
+      * 列表 共享 处理
      */
     private static MethodHandle listSharesHandle;
     /**
-     * free String Handle
+      * free 字符串 处理
      */
     private static MethodHandle freeStringHandle;
 
     /**
-     * loaded
+      * 加载
      */
     private static volatile boolean loaded = false;
     /**
@@ -75,12 +75,12 @@ public final class RustSmbServerBridge {
 
     static { loadLibrary(); }
 
-    /** 创建 RustSmbServerBridge 实例 */
+    /** 创建 rustsmb服务端bridge 实例 */
     private RustSmbServerBridge() { throw new UnsupportedOperationException("Utility class"); }
 
     // ==================== 生命周期 ====================
 
-    /** 加载Library */
+    /** 加载图书馆 */
     public static void loadLibrary() {
         if (loaded) {
             return;
@@ -156,9 +156,9 @@ public final class RustSmbServerBridge {
      * @param port      监听端口
      * @param shareName 共享目录名称
      * @param rootPath  本地根路径
-     * @param user      用户名 (可为 null 或空，表示匿名)
-     * @param password  密码 (可为 null 或空)
-     * @return 正数 handle，失败抛异常
+     * @param user      用户名 (可为 空 或空，表示匿名)
+     * @param password  密码 (可为 空 或空)
+     * @return 正数 处理，失败抛异常
      */
     public static long start(String bindAddr, int port, String shareName, String rootPath,
                              String user, String password) {
@@ -184,7 +184,7 @@ public final class RustSmbServerBridge {
     /**
      * 停止 SMB 服务器。
      *
-     * @param handle smb_server_start 返回的句柄
+     * @param handle smb_服务端_启动 返回的句柄
      */
     public static void stop(long handle) {
         if (!loaded || handle <= 0) {
@@ -201,9 +201,9 @@ public final class RustSmbServerBridge {
     }
 
     /**
-     * 列出 share 名称。
+      * 列出 共享 名称。
      *
-     * @param handle smb_server_start 返回的句柄
+     * @param handle smb_服务端_启动 返回的句柄
      * @return share 名称数组
      */
     public static String[] listShares(long handle) {
@@ -224,12 +224,13 @@ public final class RustSmbServerBridge {
 
     /**
      * 原生库是否已加载。
+     * @return 是否加载的结果
      */
     public static boolean isLoaded() {
         return loaded;
     }
 
-    /** 校验Loaded */
+    /** 校验加载 */
     private static void checkLoaded() {
         if (!loaded) {
             throw new IllegalStateException(

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 数据源转换器 SPI 接口。
  * <p>
- * 将多个物理数据源转换为统一的逻辑数据源（如 Calcite 联邦查询、ShardingSphere 分片等）。
+   * 将多个物理数据源转换为统一的逻辑数据源（如 Calcite 联邦查询、分库分表sphere 分片等）。
  * </p>
  *
  * @author CH

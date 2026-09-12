@@ -17,11 +17,15 @@ import java.util.Arrays;
  */
 public class HEICImageReader extends ImageReader {
 
-    private ImageInputStream input;
-    private boolean decoded = false;
-    private BufferedImage image;
-    private int width, height;
+    private ImageInputStream input; // 输入
+    private boolean decoded = false; // decoded
+    private BufferedImage image; // 镜像
+    private int width, height; // height
 
+    /**
+     * heic镜像读取。
+     * @param spi spi
+     */
     public HEICImageReader(HEICImageReaderSpi spi) {
         super(spi);
     }
@@ -85,8 +89,12 @@ public class HEICImageReader extends ImageReader {
     }
 
     private void ensureDecoded() throws IOException {
-        if (decoded) return;
-        if (input == null) throw new IOException("Input not set");
+        if (decoded) {
+            return;
+        }
+        if (input == null) {
+            throw new IOException("Input not set");
+        }
         try {
             byte[] rgba = HeifNativeDecoder.decode(input);
             if (rgba != null && rgba.length >= 4) {
@@ -107,7 +115,7 @@ public class HEICImageReader extends ImageReader {
                 return;
             }
         } catch (Throwable e) {
-            // native unavailable
+ // NAT 不可用
         }
         throw new IOException("HEIC decoder not available");
     }

@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import javax.annotation.Nullable;
 
 /**
- * TAR.GZ格式归档输出流提供者
+   * 焦油.GZ格式归档输出流提供者
  *
  * @author CH
  * @since 4.0.0.42
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputStream {
 
     @Override
-    /** 是否Support */
+    /** 是否支持 */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -30,14 +30,14 @@ public class TarGzArchiveOutputStreamProvider implements CompressArchiveOutputSt
     }
 
     @Override
-    /** 创建OutputStream */
+    /** 创建输出流 */
     public Object createOutputStream(OutputStream outputStream, File file, @Nullable char[] password) throws IOException {
         var gzipOutputStream = new GzipCompressorOutputStream(outputStream);
         return new TarArchiveOutputStream(gzipOutputStream);
     }
 
     @Override
-    /** 获取格式化Name */
+    /** 获取格式化名称 */
     public String getFormatName() {
         return "tar.gz";
     }

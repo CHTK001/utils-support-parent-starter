@@ -14,6 +14,9 @@ package com.chua.git.support.listener;
  *             System.out.println("文件 [" + event.changeType() + "]: " + event.filePath());
  *         })
  *         .start();
+ * }</pre>+ "]: " + event.filePath());
+ *         })
+   * .启动();
  * }</pre>
  *
  * @author CH
@@ -25,7 +28,7 @@ public interface GitFileListener {
      * 文件发生变更时调用。
      *
      * <p>注意：此方法是在拉取后 diff 的结果中调用，重复拉取可能对已存在的变更再报告一次。
-     * 若需去重，监听者可自行维护已处理文件的 set。</p>
+      * 若需去重，监听者可自行维护已处理文件的 设置。</p>
      *
      * @param event 变更事件详情
      */

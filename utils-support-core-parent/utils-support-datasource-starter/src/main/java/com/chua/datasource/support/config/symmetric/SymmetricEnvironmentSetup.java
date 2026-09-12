@@ -3,7 +3,7 @@ package com.chua.datasource.support.config.symmetric;
 import com.chua.common.support.lang.directory.environment.DirectoryPollerEnvironment;
 
 /**
- * SymmetricDS 数据库环境自动配置 SPI 接口。
+   * symmetricds 数据库环境自动配置 SPI 接口。
  *
  * @author CH
  * @since 4.0.0.42

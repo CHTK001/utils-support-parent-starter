@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 基于 MySQL 8.0.31+ 原生 VECTOR 类型的向量存储实现。
+   * 基于 MySQL 8.0.31+ 原生 向量 类型的向量存储实现。
  * <p>
  * MySQL 8.0.31+ 支持 {@code VECTOR} 数据类型及内置相似度函数：
  * <ul>
@@ -21,11 +21,13 @@ import java.util.Map;
  * </ul>
  * </p>
  * <p>
- * 表结构（首次 add 时自动创建）：
+   * 表结构（首次 添加 时自动创建）：
  * <pre>{@code
  * CREATE TABLE IF NOT EXISTS vector_store (
  *     id   VARCHAR(255) PRIMARY KEY,
  *     vec  VECTOR(128)  NOT NULL   -- 维度由首次 add 决定
+ * );
+ * }</pre>add 决定
  * );
  * }</pre>
  * </p>
@@ -36,6 +38,7 @@ import java.util.Map;
  * VectorStorage storage = new MysqlVectorStorage(ds, 128, VectorCompareAlgorithm.cosine());
  * storage.add("id1", new float[]{...});
  * List<Vector> results = storage.search(query, 10);
+ * }</pre>ge.搜索(查询, 10);
  * }</pre>
  * </p>
  *
@@ -49,7 +52,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     private final DataSource dataSource;
     /** 表名 */
     private final String tableName;
-    /** ID 列名 */
+    /** 标识 列名 */
     private final String idColumn;
     /** 向量列名 */
     private final String vectorColumn;
@@ -131,7 +134,9 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
      * 确保向量表已创建；失败时自动降级到内存存储。
      */
     private synchronized void ensureSchema() {
-        if (schemaInitialized) return;
+        if (schemaInitialized) {
+            return;
+        }
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " ("
                    + idColumn + " VARCHAR(255) PRIMARY KEY, "
                    + vectorColumn + " JSON NOT NULL"
@@ -141,24 +146,28 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
             stmt.execute(sql);
             schemaInitialized = true;
         } catch (SQLException e) {
-            // MySQL 不支持 JSON / VECTOR，降级到内存存储
+ // MySQL 不支持 JSON / 向量，降级到内存存储
             fallback = new com.chua.common.support.vector.MemoryVectorStorage(dimension(), getAlgorithm());
-            schemaInitialized = true; // 标记，后续请求走 fallback
+            schemaInitialized = true; // 标记，后续请求走 降级
         }
     }
 
     /**
      * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
+     * @return resolved的结果
      */
     private com.chua.common.support.vector.VectorStorage resolved() {
-        if (fallback != null) return fallback;
+        if (fallback != null) {
+            return fallback;
+        }
         ensureSchema();
         return this;
     }
 
     /**
-     * 根据当前算法构建 SQL ORDER BY 子句。
+      * 根据当前算法构建 SQL 订单 BY 子句。
      * <p>使用 MySQL 内置向量函数，对 JSON 存储的向量进行相似度排序。</p>
+     * @return 构建订单clause的结果
      */
     private String buildOrderClause() {
         String algoName = getAlgorithm().name().toUpperCase();
@@ -174,13 +183,19 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
 
     /**
      * 将 float 数组序列化为 MySQL JSON 数组字符串。
+     * @param vector 向量
+     * @return floatarray转为json的结果
      */
     private static String floatArrayToJson(float[] vector) {
-        if (vector == null || vector.length == 0) return "[]";
+        if (vector == null || vector.length == 0) {
+            return "[]";
+        }
         StringBuilder sb = new StringBuilder(vector.length * 8);
         sb.append('[');
         for (int i = 0; i < vector.length; i++) {
-            if (i > 0) sb.append(',');
+            if (i > 0) {
+                sb.append(',');
+            }
             sb.append(vector[i]);
         }
         sb.append(']');
@@ -189,13 +204,21 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
 
     /**
      * 将 MySQL JSON 数组字符串反序列化为 float 数组。
+     * @param json json
+     * @return jsonarray转为floatarray的结果
      */
     private static float[] jsonArrayToFloatArray(String json) {
-        if (json == null || json.isBlank()) return null;
+        if (json == null || json.isBlank()) {
+            return null;
+        }
         String trimmed = json.trim();
-        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return null;
+        if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+            return null;
+        }
         String inner = trimmed.substring(1, trimmed.length() - 1).trim();
-        if (inner.isEmpty()) return new float[0];
+        if (inner.isEmpty()) {
+            return new float[0];
+        }
         String[] parts = inner.split(",");
         float[] result = new float[parts.length];
         for (int i = 0; i < parts.length; i++) {

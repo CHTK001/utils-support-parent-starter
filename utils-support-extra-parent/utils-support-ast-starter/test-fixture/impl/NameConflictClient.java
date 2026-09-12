@@ -5,9 +5,9 @@ import com.chua.common.support.spi.annotations.Extension;
 import com.chua.test.spi.EmbeddingClient;
 
 /**
- * Explicit {@code @AutoSpi(name = ...)} + {@code @Extension} coexist: the explicit name is ignored
- * at runtime (annotation names win), so a compile-time warning is expected and only a bare
- * discovery line is generated.
+   * Explicit {@code @AutoSpi(name = ...)} + {@code @Extension} coexist: the explicit 名称 是否 ignored
+   * at runtime (注解 名称 win), so a compile-时间 警告 是否 期望 和 only a bare
+   * discovery 线 是否 generated.
  *
  * @author CH
  * @since 4.0.0.42
@@ -17,7 +17,7 @@ import com.chua.test.spi.EmbeddingClient;
 public class NameConflictClient implements EmbeddingClient {
 
     @Override
-    /** Embedding */
+    /** 嵌入 */
     public float[] embedding(String text) {
         return new float[0];
     }

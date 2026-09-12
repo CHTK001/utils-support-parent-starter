@@ -49,7 +49,7 @@ public class CommandRegistry {
      * 按名称或别名查找命令。
      *
      * @param name 命令名称
-     * @return 命令实例，不存在返回 null
+     * @return 命令实例，不存在返回 空
      */
     public Command find(String name) {
         if (StringUtils.isEmpty(name)) {

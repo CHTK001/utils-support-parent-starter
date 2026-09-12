@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 /**
  * DHT 远端对等节点。
  * <p>
- * 表示 DHT 网络中的一个节点，包含节点 ID、网络地址以及与当前节点的交互状态。
+   * 表示 DHT 网络中的一个节点，包含节点 标识、网络地址以及与当前节点的交互状态。
  * </p>
  *
  * @author CH
@@ -18,7 +18,7 @@ import java.net.InetSocketAddress;
 @Builder(toBuilder = true)
 public record DhtPeer(
         /**
-         * 节点的 160 位 Kademlia 节点 ID（十六进制字符串）
+          * 节点的 160 位 Kademlia 节点 标识（十六进制字符串）
          */
         String nodeId,
         /**
@@ -45,9 +45,9 @@ public record DhtPeer(
     private static final long serialVersionUID = 1L;
 
     /**
-     * 获取节点的 160 位 Kademlia 节点 ID。
+      * 获取节点的 160 位 Kademlia 节点 标识。
      *
-     * @return 节点 ID
+     * @return 节点 标识
      */
     public String getNodeId() {
         return nodeId;
@@ -93,7 +93,7 @@ public record DhtPeer(
      * 判断节点在指定超时时间内是否可达。
      *
      * @param timeoutMs 超时时间（毫秒）
-     * @return 如果 lastSeen 在 timeoutMs 内返回 true，否则 false
+     * @return 如果 最后一个seen 在 超时ms 内返回 true，否则 false
      */
     public boolean isReachable(long timeoutMs) {
         return System.currentTimeMillis() - lastSeen < timeoutMs;
@@ -109,7 +109,7 @@ public record DhtPeer(
     }
 
     /**
-     * 将当前节点转换为 InetSocketAddress 用于网络通信。
+      * 将当前节点转换为 inet套接字地址 用于网络通信。
      *
      * @return InetSocketAddress 实例
      */

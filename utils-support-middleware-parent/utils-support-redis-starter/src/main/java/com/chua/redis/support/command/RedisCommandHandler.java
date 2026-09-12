@@ -8,7 +8,7 @@ import java.util.List;
  * Redis 命令处理器 SPI 接口。
  *
  * <p>通过 {@link com.chua.common.support.spi.ServiceProvider} 按命令名（大写）加载对应实现，
- * 例如 {@code "SET"} → SetCommandHandler，{@code "DEL"} → DelCommandHandler。</p>
+   * 例如 {@code "SET"} → 设置命令处理器，{@code "DEL"} → del命令处理器。</p>
  *
  * <p>每个处理器负责一条 Redis 命令的解析与执行，返回"受影响行数"语义的整数结果：
  * 写命令返回受影响数量，读命令返回命中数量（0 或 1）。</p>

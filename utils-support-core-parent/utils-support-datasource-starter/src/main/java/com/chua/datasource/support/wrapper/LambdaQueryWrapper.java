@@ -27,8 +27,8 @@ public class LambdaQueryWrapper<T> {
     private Object[] paramValues;
 
     /**
-     * 创建 LambdaQueryWrapper 实例
-     * @param entityClass entityClass
+      * 创建 lambda查询包装器 实例
+     * @param entityClass 实体类
      */
     public LambdaQueryWrapper(Class<T> entityClass) {
         this.entityClass = entityClass;

@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Photoshop (PSD) 图片预览提供器。
  * <p>SPI 类型：{@code preview-psd}。通过 TwelveMonkeys ImageIO 插件解码 PSD，
- * 转为 PNG 并以 data URI 内嵌展示。</p>
+   * 转为 PNG 并以 数据 URI 内嵌展示。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -25,8 +25,8 @@ import java.util.Set;
 @Spi("preview-psd")
 public class PsdPreviewProvider implements FileStoragePreviewProvider {
 
-    private static final Set<String> SUPPORTED_EXTS = Set.of("psd", "psb");
-    private static final long MAX_FILE_SIZE = 128L * 1024 * 1024;
+    private static final Set<String> SUPPORTED_EXTS = Set.of("psd", "psb"); // 支持exts
+    private static final long MAX_FILE_SIZE = 128L * 1024 * 1024; // 最大文件大小
 
     @Override
     public boolean supports(String ext, String mime) {
@@ -71,7 +71,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 将 BufferedImage 编码为 PNG 字节。
+      * 将 缓冲镜像 编码为 PNG 字节。
      *
      * @param image 源图像
      * @return PNG 字节

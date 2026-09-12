@@ -22,15 +22,15 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class TrainArgument implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 迭代周期（epochs）。
+      * 迭代周期（轮次）。
      */
     private Integer epoch;
 
     /**
-     * 批次大小（batch size）。
+      * 批次大小（批量 大小）。
      */
     private Integer batchSize;
 

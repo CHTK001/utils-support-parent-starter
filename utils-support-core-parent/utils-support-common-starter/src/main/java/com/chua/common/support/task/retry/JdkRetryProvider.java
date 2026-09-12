@@ -95,6 +95,8 @@ public class JdkRetryProvider extends AbstractRetryProvider {
 
     /**
      * 计算斐波那契数列第 n 项
+     * @param n n
+     * @return fib的结果
      */
     private static long fib(int n) {
         if (n <= 1) {

@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
- * LocalDate 格式化器
+   * 本地日期 格式化器
  * 用于 Spring MVC 参数绑定，支持 {@link LocalDate} 类型的自动格式化与解析
  *
  * @author CH
@@ -49,10 +49,10 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
     }
 
     /**
-     * 将字符串解析为 LocalDate
+      * 将字符串解析为 本地日期
      *
      * @param source 源字符串
-     * @param locale  locale
+     * @param locale  区域
      * @return LocalDate 对象
      */
     @Override
@@ -69,10 +69,10 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
     }
 
     /**
-     * 将 LocalDate 格式化为字符串
+      * 将 本地日期 格式化为字符串
      *
-     * @param source 源 LocalDate 对象
-     * @param locale  locale
+     * @param source 源 本地日期 对象
+     * @param locale  区域
      * @return 格式化后的日期字符串
      */
     @Override

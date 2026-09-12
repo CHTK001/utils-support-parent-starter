@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RetinaFace 人脸检测 Translator（AIAS face_restoration_sdk 同款）。
+   * retinaface 人脸检测 Translator（AIAS face_restoration_sdk 同款）。
  *
  * <p>PyTorch TorchScript 模型（retinaface_traced_model.pt），输出 3 个 tensor：
  * loc（框回归）、conf（分类）、landms（5 关键点，10 维）。关键点顺序：
@@ -33,7 +33,7 @@ import java.util.List;
 public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /**
-     * TopK。
+      * topk。
      */
     private static final int TOP_K = 200;
 
@@ -58,7 +58,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     private static final double[] VARIANCE = {0.1, 0.2};
 
     /**
-     * 每层 anchor 尺寸。
+      * 每层 锚栓 尺寸。
      */
     private static final int[][] SCALES = {{16, 32}, {64, 128}, {256, 512}};
 
@@ -78,7 +78,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     private int height;
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
         height = input.getHeight();
@@ -96,7 +96,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
         NDManager manager = ctx.getNDManager();
         double scaleXY = VARIANCE[0];
@@ -158,7 +158,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
                 for (int j = 0; j < 5; j++) {
                     double x = landmsArr[j * 2];
                     double y = landmsArr[j * 2 + 1];
-                    // 输出归一化坐标（DJL DetectedObjects 约定），由 adaptOutput 统一乘图像尺寸转像素
+ // 输出归一化坐标（DJL detected对象 约定），由 adapt输出 统一乘图像尺寸转像素
                     keyPoints.add(new Point(x, y));
                 }
                 Point leftEye = keyPoints.get(0);
@@ -181,6 +181,12 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
 
     /**
      * 计算默认框。
+     * @param manager 管理器
+     * @param width width
+     * @param height height
+     * @param scales scales
+     * @param steps steps
+     * @return boxRecover的结果
      */
     private NDArray boxRecover(NDManager manager, int width, int height, int[][] scales, int[] steps) {
         int[][] aspectRatio = new int[steps.length][2];
@@ -213,6 +219,10 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
 
     /**
      * 解码 5 点关键点。
+     * @param pre pre
+     * @param priors priors
+     * @param scaleXY scalexy
+     * @return decodeLandm的结果
      */
     private NDArray decodeLandm(NDArray pre, NDArray priors, double scaleXY) {
         NDArray point1 = pre.get(":, :2").mul(scaleXY).mul(priors.get(":, 2:")).add(priors.get(":, :2"));
@@ -224,7 +234,10 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     /**
-     * 计算 IoU。
+      * 计算 iou。
+     * @param rec1 rec1
+     * @param rec2 rec2
+     * @return 获取iou的结果
      */
     private double getIoU(Rectangle rec1, Rectangle rec2) {
         double s1 = rec1.getWidth() * rec1.getHeight();
@@ -242,7 +255,9 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     /**
-     * 去除 batch 维度（模型输出可能带 [1,N,...]）。
+      * 去除 批量 维度（模型输出可能带 [1,N,...]）。
+     * @param array array
+     * @return squeeze的结果
      */
     private NDArray squeeze(NDArray array) {
         if (array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
@@ -252,7 +267,9 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     }
 
     /**
-     * 计算 NDArray 的 min/max（调试用）。
+      * 计算 ndarray 的 最小/最大（调试用）。
+     * @param array array
+     * @return 最小最大的结果
      */
     private String minMax(NDArray array) {
         try {

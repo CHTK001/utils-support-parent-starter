@@ -33,7 +33,7 @@ public class PeerWireClient implements AutoCloseable {
     private static final byte[] RESERVED = new byte[]{0, 0, 0, 0, 0, 0x10, 0, 0};
 
     /**
-     * 扩展消息 ID（用于 ut_metadata）。
+      * 扩展消息 标识（用于 ut_metadata）。
      */
     private static final int EXTENDED_MSG_ID = 20;
 
@@ -58,7 +58,7 @@ public class PeerWireClient implements AutoCloseable {
     private final long deadline;
 
     /**
-     * ut_metadata 扩展消息 ID（由对等体分配，-1 表示未知）。
+      * ut_metadata 扩展消息 标识（由对等体分配，-1 表示未知）。
      */
     private int utMetadataId = -1;
 
@@ -94,7 +94,7 @@ public class PeerWireClient implements AutoCloseable {
      * 执行 BT 协议握手。
      *
      * @param infoHash 本地 infohash
-     * @param peerId   本地 peer ID
+     * @param peerId   本地 peer 标识
      * @throws IOException 握手失败
      */
     private void doHandshake(byte[] infoHash, byte[] peerId) throws IOException {
@@ -169,9 +169,9 @@ public class PeerWireClient implements AutoCloseable {
     }
 
     /**
-     * 获取 ut_metadata 扩展消息 ID。
+      * 获取 ut_metadata 扩展消息 标识。
      *
-     * @return 扩展消息 ID，-1 表示未知
+     * @return 扩展消息 标识，-1 表示未知
      */
     public int getUtMetadataId() {
         return utMetadataId;
@@ -189,7 +189,7 @@ public class PeerWireClient implements AutoCloseable {
     /**
      * 发送扩展消息。
      *
-     * @param extMsgId 扩展消息 ID
+     * @param extMsgId 扩展消息 标识
      * @param payload  消息负载
      * @throws IOException 发送失败
      */
@@ -218,7 +218,7 @@ public class PeerWireClient implements AutoCloseable {
     /**
      * 读取一条 BT 消息帧。
      *
-     * @return Frame 实例，超时或连接关闭返回 null
+     * @return Frame 实例，超时或连接关闭返回 空
      * @throws IOException 读取失败
      */
     public Frame readFrame() throws IOException {
@@ -244,7 +244,7 @@ public class PeerWireClient implements AutoCloseable {
     /**
      * 写入 BT 消息帧。
      *
-     * @param id     消息 ID
+     * @param id     消息 标识
      * @param payload 消息负载
      * @throws IOException 写入失败
      */
@@ -279,7 +279,7 @@ public class PeerWireClient implements AutoCloseable {
     /**
      * 读取单个字节。
      *
-     * @return 字节值，连接关闭抛出 EOFException
+     * @return 字节值，连接关闭抛出 eof异常
      * @throws IOException 读取失败
      */
     private int checkedRead() throws IOException {
@@ -351,11 +351,13 @@ public class PeerWireClient implements AutoCloseable {
 
     /**
      * BT 消息帧。
+     * @author CH
+     * @since 4.0.0
      */
     public static class Frame {
 
         /**
-         * 消息 ID。
+          * 消息 标识。
          */
         public final int id;
 
@@ -367,7 +369,7 @@ public class PeerWireClient implements AutoCloseable {
         /**
          * 构造消息帧。
          *
-         * @param id     消息 ID
+         * @param id     消息 标识
          * @param payload 消息负载
          */
         Frame(int id, byte[] payload) {

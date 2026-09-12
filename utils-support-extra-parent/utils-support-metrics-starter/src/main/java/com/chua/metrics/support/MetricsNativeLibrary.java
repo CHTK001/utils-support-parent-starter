@@ -16,9 +16,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Metrics native 库（metrics_native）Java 侧封装，基于 JDK Panama FFI 调用系统采样器。
+   * 指标 NAT 库（指标_NAT）Java 侧封装，基于 JDK Panama FFI 调用系统采样器。
  * <p>
- * 通过 {@link NativeLoader} 加载 {@code metrics_native} 库，提供 start/poll/stop 三个原语以及 AutoCloseable 支持。
+   * 通过 {@link NativeLoader} 加载 {@code metrics_native} 库，提供 启动/poll/停止 三个原语以及 auto关闭 支持。
  * </p>
  *
  * @author CH
@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
-     * 当前 native 库的 SymbolLookup（Panama loaderLookup）
+      * 当前 NAT 库的 symbollookup（Panama 加载lookup）
      */
     private static final SymbolLookup LOADER_LOOKUP;
 
@@ -89,9 +89,9 @@ public class MetricsNativeLibrary implements AutoCloseable {
     private volatile boolean started;
 
     /**
-     * 尝试加载 native 库并返回实例；加载失败时返回 null 并记录错误日志。
+      * 尝试加载 NAT 库并返回实例；加载失败时返回 空 并记录错误日志。
      *
-     * @return MetricsNativeLibrary 实例（失败时为 null）
+     * @return MetricsNativeLibrary 实例（失败时为 空）
      */
     public static MetricsNativeLibrary create() {
         try {
@@ -113,7 +113,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
      * 启动采样器。
      *
      * @param intervalMs 采样间隔（毫秒），必须大于 0
-     * @throws IllegalArgumentException 当 intervalMs &lt;= 0
+     * @throws IllegalArgumentException 当 间隔ms &lt;= 0
      */
     public void start(long intervalMs) {
         if (started) {
@@ -133,7 +133,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
     /**
      * 拉取当前快照的 UTF-8 字符串表示。
      *
-     * @return 快照内容；未启动或拉取失败返回 null
+     * @return 快照内容；未启动或拉取失败返回 空
      */
     public String poll() {
         if (!started) {

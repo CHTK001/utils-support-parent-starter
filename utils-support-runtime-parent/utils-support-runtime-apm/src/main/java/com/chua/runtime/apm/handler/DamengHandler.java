@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * 达梦（DM）应用层 Handler — 拦截达梦 JDBC 驱动关键调用并生成应用语义传输记录。
+   * 达梦（DM）应用层 处理器 — 拦截达梦 JDBC 驱动关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -24,22 +24,22 @@ import com.chua.runtime.protocol.Software;
 public class DamengHandler extends AbstractAppHandler {
 
     /**
-     * DmConnection 类内部名
+      * dmconnection 类内部名
      */
     private static final String DAMENG_CONNECTION_CLASS = "dm/jdbc/driver/DmConnection";
 
     /**
-     * DmStatement 类内部名
+      * dm对账单 类内部名
      */
     private static final String DAMENG_STATEMENT_CLASS = "dm/jdbc/driver/DmStatement";
 
     /**
-     * DmPreparedStatement 类内部名
+      * dmprepared对账单 类内部名
      */
     private static final String DAMENG_PREPARED_STATEMENT_CLASS = "dm/jdbc/driver/DmPreparedStatement";
 
     /**
-     * SQL 执行方法集合（Statement / PreparedStatement 共有）
+      * SQL 执行方法集合（对账单 / prepared对账单 共有）
      */
     private static final String[] SQL_METHODS = {"execute", "executeQuery", "executeUpdate"};
 
@@ -49,13 +49,13 @@ public class DamengHandler extends AbstractAppHandler {
     private static final String[] CONNECTION_METHODS = {"prepareStatement", "prepareCall", "createStatement"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "dameng-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "dameng.enabled";
     }
@@ -67,13 +67,13 @@ public class DamengHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.DAMENG;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAllEntryExit(DAMENG_STATEMENT_CLASS, SQL_METHODS);
         registerAllEntryExit(DAMENG_PREPARED_STATEMENT_CLASS, SQL_METHODS);

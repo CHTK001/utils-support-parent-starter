@@ -25,6 +25,8 @@ public class PortMockString implements MockString {
     private static final int PORT_MIN = 1024;
     /**
      * 端口上界（包含）
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int PORT_MAX = 65535;
 

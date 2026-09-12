@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p><b>路由</b>：每个注册的服务对应一个独立的 {@link JsonRpcBasicServer}（单服务 handler）。
  * 客户端通过在 JSON-RPC 请求体中携带 {@code service} 字段（接口全限定名）选择目标服务，
- * 服务端据此路由到对应的 handler。当且仅当只注册了一个服务时，兼容「裸方法名」调用
+   * 服务端据此路由到对应的 处理器。当且仅当只注册了一个服务时，兼容「裸方法名」调用
  * （不带 {@code service} 字段），保持旧客户端与跨语言客户端的互通。</p>
  *
  * <p><b>服务治理</b>：若注册的 bean 标注了 {@link RpcService} 注解并配置了
@@ -177,7 +177,7 @@ public class JsonRpcServer implements RpcServer {
     }
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() {
         if (state.compareAndSet(false, true)) {
             try {

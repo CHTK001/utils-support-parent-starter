@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 闪图（一次性预览/下载）Token 服务。
+   * 闪图（一次性预览/下载）令牌 服务。
  *
  * <p>使用 0 字节 marker 文件存储 Token。
  * 文件路径 = {@code <flashDir>/<token>}。</p>
@@ -36,9 +36,10 @@ public class FlashTokenService {
     private final long expireSeconds;
 
     /**
-     * 创建 FlashTokenService 实例
-     * @param flashDir flashDir
-     * @param long long
+      * 创建 flash令牌服务 实例
+     * @param flashDir flashdir
+     * @param expireSeconds long
+     * @param expireSeconds expireseconds
      */
     public FlashTokenService(Path flashDir, long expireSeconds) {
         this.flashDir = flashDir;
@@ -51,7 +52,7 @@ public class FlashTokenService {
     }
 
     /**
-     * 创建一个闪图 Token，返回生成的 token 字符串。
+      * 创建一个闪图 令牌，返回生成的 令牌 字符串。
      *
      * @return token
      */
@@ -64,9 +65,9 @@ public class FlashTokenService {
     }
 
     /**
-     * 验证 token 是否存在且未过期。
+      * 验证 令牌 是否存在且未过期。
      *
-     * @param token token 字符串
+     * @param token 令牌 字符串
      * @return true 表示有效
      */
     public boolean validateToken(String token) {
@@ -86,9 +87,9 @@ public class FlashTokenService {
     }
 
     /**
-     * 消费 token：验证并删除 marker 文件。
+      * 消费 令牌：验证并删除 记号笔 文件。
      *
-     * @param token token 字符串
+     * @param token 令牌 字符串
      * @return true 表示消费成功（删除成功）
      */
     public boolean consumeToken(String token) {
@@ -108,7 +109,7 @@ public class FlashTokenService {
     }
 
     /**
-     * 清理所有过期的 marker 文件。
+      * 清理所有过期的 记号笔 文件。
      */
     public void cleanExpired() {
         long cutoff = System.currentTimeMillis() - expireSeconds * 1000;

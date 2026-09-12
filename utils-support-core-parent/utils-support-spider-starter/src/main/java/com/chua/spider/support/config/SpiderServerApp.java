@@ -14,7 +14,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpiderServerApp {
 
-    /** Main */
+    /**
+     * Main
+     *
+     * @param args 参数
+     */
     public static void main(String[] args) {
         System.setProperty("logging.config", "");
         SpringApplication app = new SpringApplication(SpiderServerApp.class);

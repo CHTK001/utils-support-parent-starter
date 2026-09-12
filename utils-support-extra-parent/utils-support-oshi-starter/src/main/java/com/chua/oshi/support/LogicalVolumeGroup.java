@@ -6,6 +6,7 @@ import lombok.Data;
  * 逻辑卷组信息实体类（LVM）。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class LogicalVolumeGroup {

@@ -21,7 +21,7 @@ public interface ConfigSourceProvider {
     /**
      * 获取配置源列表。
      *
-     * @return 配置源列表，不会为 null
+     * @return 配置源列表，不会为 空
      */
     List<PropertySource> getPropertySources();
 }

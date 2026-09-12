@@ -11,7 +11,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * Paddle 人脸特征 Translator。
+   * 飞桨 人脸特征 Translator。
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ import ai.djl.translate.TranslatorContext;
 public class PaddleFaceFeatureTranslator implements Translator<Image, float[]> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
         array = NDImageUtils.resize(array, 112, 112);
@@ -34,7 +34,7 @@ public class PaddleFaceFeatureTranslator implements Translator<Image, float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray emb = list.singletonOrThrow();
         if (emb.getShape().dimension() > 1 && emb.getShape().get(0) == 1) {

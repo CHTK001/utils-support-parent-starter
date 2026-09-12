@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * KV cache 版 ONNX decoder 通用推理解码器。
+   * KV 缓存 版 ONNX 解码器 通用推理解码器。
  *
  * <p>适用于 transformers.js / optimum 导出的带 past/present 缓存的 decoder 模型
- * （如 gemma/qwen/llama 系列的 ONNX 导出）。此类模型输入含
+   * （如 gemma/通义千问/llama 系列的 ONNX 导出）。此类模型输入含
  * {@code past_key_values.N.key/value}（N = 层数），输出含 {@code present.N.key/value}，
- * 每步只需传入 1 个新 token 与上一步缓存，避免重复计算整个上下文。</p>
+   * 每步只需传入 1 个新 令牌 与上一步缓存，避免重复计算整个上下文。</p>
  *
  * <p>使用方式：
  * <pre>{@code
@@ -38,6 +38,11 @@ import java.util.Map;
  *         ...
  *     }
  * }
+ * }</pre>len()));
+   * 下一个 = argmax(logits);
+ *         ...
+ *     }
+ * }
  * }</pre>
  * </p>
  *
@@ -50,20 +55,28 @@ import java.util.Map;
 @Slf4j
 public final class KvCacheDecoder implements AutoCloseable {
 
-    /** 空 past 的 batch / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256） */
+    /** 空 past 的 批量 / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256） */
     private static final long BATCH = 1L;
 
-    private final OrtEnvironment env;
-    private final OrtSession session;
-    private final int numLayers;
-    private final long kvHeads;
-    private final long headDim;
+    private final OrtEnvironment env; // env
+    private final OrtSession session; // 会话
+    private final int numLayers; // numlayers
+    private final long kvHeads; // kvheads
+    private final long headDim; // headdim
 
-    /** 当前 past 张量（每层 key/value 各一个，顺序 key0,value0,key1,value1,...），null=首步 */
+    /** 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步 */
     private List<OnnxTensor> past;
-    /** 已缓存的 token 数（首步为 0） */
+    /** 已缓存的 令牌 数（首步为 0） */
     private int pastSeqLen;
 
+    /**
+     * kv缓存解码器。
+     * @param env env
+     * @param session 会话
+     * @param numLayers numlayers
+     * @param kvHeads kvheads
+     * @param headDim headdim
+     */
     private KvCacheDecoder(OrtEnvironment env, OrtSession session, int numLayers, long kvHeads, long headDim) {
         this.env = env;
         this.session = session;
@@ -73,10 +86,10 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 判断 session 是否为 KV cache 版模型（输入含 {@code past_key_values.0.key}）。
+      * 判断 会话 是否为 KV 缓存 版模型（输入含 {@code past_key_values.0.key}）。
      *
      * @param session ORT 会话
-     * @return true 表示 KV cache 版
+     * @return true 表示 KV 缓存 版
      */
     public static boolean isKvCacheModel(OrtSession session) {
         try {
@@ -92,12 +105,12 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 创建 KV cache 解码器（自动探测层数 / kv-heads / head_dim）。
+      * 创建 KV 缓存 解码器（自动探测层数 / kv-heads / head_dim）。
      *
      * @param env     ORT 环境
-     * @param session ORT 会话（须为 KV cache 版，否则抛异常）
+     * @param session ORT 会话（须为 KV 缓存 版，否则抛异常）
      * @return 解码器实例
-     * @throws OrtException 非 KV cache 版或探测失败
+     * @throws OrtException 非 KV 缓存 版或探测失败
      */
     public static KvCacheDecoder of(OrtEnvironment env, OrtSession session) throws OrtException {
         int layers = 0;
@@ -134,8 +147,8 @@ public final class KvCacheDecoder implements AutoCloseable {
     /**
      * 执行一步推理。
      *
-     * @param inputIds       本次输入 token（首步=完整 prompt；后续步=1 个新 token）
-     * @param attentionMask  注意力掩码（长度 = inputIds.length + pastSeqLen，全 1）
+     * @param inputIds       本次输入 令牌（首步=完整 提示符；后续步=1 个新 令牌）
+     * @param attentionMask  注意力掩码（长度 = 输入标识.长度 + pastseqlen，全 1）
      * @return 最后位置的 logits（词表大小）
      * @throws OrtException 推理异常
      */
@@ -157,7 +170,7 @@ public final class KvCacheDecoder implements AutoCloseable {
 
         try (OrtSession.Result result = session.run(inputs)) {
             // it 版为 fp16 模型：输出 logits 是 FLOAT16，ORT 的 getValue() 在转 ShortBuffer 时
-            // 会抛 HeapByteBuffer cast 异常，因此直接从张量读原始字节并手动解码 half → float
+ // 会抛 heapbyte缓冲 cast 异常，因此直接从张量读原始字节并手动解码 half → float
             OnnxTensor outTensor = (OnnxTensor) result.get(0);
             long[] outShape = outTensor.getInfo().getShape();
             int seq = (int) outShape[1];
@@ -173,7 +186,7 @@ public final class KvCacheDecoder implements AutoCloseable {
             int last = seq - 1;
             float[] lastLogits = logits[0][last];
 
-            // 重建 past：从 present 复制 fp16 数据（result 关闭后张量不可用，故拷贝）
+ // 重建 past：从 present 复制 fp16 数据（结果 关闭后张量不可用，故拷贝）
             List<OnnxTensor> newPast = new ArrayList<>(numLayers * 2);
             for (int l = 0; l < numLayers; l++) {
                 int layerIdx = l;
@@ -197,9 +210,9 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 当前上下文总长度（pastSeqLen + 本次输入长度）。
+      * 当前上下文总长度（pastseqlen + 本次输入长度）。
      *
-     * @return 总 token 数
+     * @return 总 令牌 数
      */
     public int totalSeqLen() {
         return pastSeqLen;
@@ -221,8 +234,10 @@ public final class KvCacheDecoder implements AutoCloseable {
     /**
      * 创建空 fp16 张量（首步 past 占位）。
      * <p>ORT Java API 对 FLOAT16 类型要求用 {@code ShortBuffer} 创建
-     * （每元素 2 字节 = 1 个 short），传 ByteBuffer 会在 OrtUtil.prepareBuffer
-     * 抛 HeapByteBuffer→ShortBuffer 强转异常。</p>
+      * （每元素 2 字节 = 1 个 short），传 byte缓冲 会在 ortutil.prepare缓冲
+      * 抛 heapbyte缓冲→short缓冲 强转异常。</p>
+     * @param shape shape
+     * @return 创建空fp16的结果
      */
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
         int elems = (int) (shape[0] * shape[1] * shape[2] * shape[3]);
@@ -258,10 +273,12 @@ public final class KvCacheDecoder implements AutoCloseable {
     }
 
     /**
-     * 复制 fp16 张量数据到新张量（避免 result 关闭后数据失效）。
+      * 复制 fp16 张量数据到新张量（避免 结果 关闭后数据失效）。
      * <p>ORT Java API 对 FLOAT16 输出张量的 {@code getValue()} 返回 float 多维数组
-     * （自动转换），需转回 half 位模式后用 ShortBuffer 重建 FLOAT16 张量；
-     * 部分版本直接返回 ShortBuffer，也一并兼容。</p>
+      * （自动转换），需转回 half 位模式后用 short缓冲 重建 FLOAT16 张量；
+      * 部分版本直接返回 short缓冲，也一并兼容。</p>
+     * @param src src
+     * @return 副本fp16的结果
      */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
@@ -304,7 +321,7 @@ public final class KvCacheDecoder implements AutoCloseable {
         int mant = bits & 0x7FFFFF;
         int halfExp = exp - 127 + 15;
         if (exp == 0xFF) {
-            // inf / NaN
+ // inf / nan
             return (short) (sign | 0x7C00 | (mant == 0 ? 0 : 0x200));
         }
         if (halfExp >= 31) {

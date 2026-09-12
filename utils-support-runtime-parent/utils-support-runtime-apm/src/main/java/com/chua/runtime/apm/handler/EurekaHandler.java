@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Eureka 应用层 Handler — 拦截 Netflix Eureka 客户端关键调用并生成应用语义传输记录。
+   * Eureka 应用层 处理器 — 拦截 Netflix Eureka 客户端关键调用并生成应用语义传输记录。
  *
  * <p>拦截目标：</p>
  * <ul>
@@ -23,17 +23,17 @@ import com.chua.runtime.protocol.Software;
 public class EurekaHandler extends AbstractAppHandler {
 
     /**
-     * DiscoveryClient 类内部名
+      * discovery客户端 类内部名
      */
     private static final String DISCOVERY_CLIENT = "com/netflix/discovery/DiscoveryClient";
 
     /**
-     * EurekaClient 接口类内部名
+      * eureka客户端 接口类内部名
      */
     private static final String EUREKA_CLIENT = "com/netflix/discovery/shared/DiscoveryClient";
 
     /**
-     * DiscoveryClient 方法集合
+      * discovery客户端 方法集合
      */
     private static final String[] DISCOVERY_METHODS = {
             "register", "registerHealthCheck", "fetchRegistry", "getApplications",
@@ -41,13 +41,13 @@ public class EurekaHandler extends AbstractAppHandler {
     };
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "eureka-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "eureka.enabled";
     }
@@ -59,13 +59,13 @@ public class EurekaHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.EUREKA;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(DISCOVERY_CLIENT, DISCOVERY_METHODS);
         registerAll(EUREKA_CLIENT, DISCOVERY_METHODS);

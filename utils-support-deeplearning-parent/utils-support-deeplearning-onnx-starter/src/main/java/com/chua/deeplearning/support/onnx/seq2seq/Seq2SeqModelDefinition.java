@@ -5,8 +5,8 @@ import java.util.List;
 /**
  * Seq2Seq 模型定义。
  * <p>描述一个 encoder-decoder 自回归模型的资源布局与解码器架构参数：
- * classpath 嵌入式资源路径（优先）、modelscope 下载文件清单（备用）、
- * 层数 / 注意力头数 / 单头维度 / EOS / decoder 起始 token。</p>
+   * 类路径 嵌入式资源路径（优先）、modelscope 下载文件清单（备用）、
+   * 层数 / 注意力头数 / 单头维度 / EOS / 解码器 起始 令牌。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -19,7 +19,7 @@ public record Seq2SeqModelDefinition(
         String modelId,
 
         /**
-         * classpath 嵌入式资源根路径（目录，以 / 结尾），为空表示无嵌入式模型。
+          * 类路径 嵌入式资源根路径（目录，以 / 结尾），为空表示无嵌入式模型。
          */
         String classpathBase,
 
@@ -54,12 +54,12 @@ public record Seq2SeqModelDefinition(
         int headDim,
 
         /**
-         * EOS token id。
+          * EOS 令牌 标识。
          */
         long eosId,
 
         /**
-         * decoder 起始 token id。
+          * 解码器 起始 令牌 标识。
          */
         long decoderStartId) {
 
@@ -88,7 +88,7 @@ public record Seq2SeqModelDefinition(
             0L);
 
     /**
-     * t5-base 模型定义（modelscope: Xenova/t5-base，int8 量化，12 层 12 头 768 维，词表 32128）。
+      * t5-基础 模型定义（modelscope: Xenova/t5-基础，int8 量化，12 层 12 头 768 维，词表 32128）。
      * <p>英文摘要/生成质量优于 t5-small；官方推荐摘要参数：num_beams=4、min_length=30、max_length=200。
      * 内存限制下使用 int8 全套（非 fp16）。</p>
      */
@@ -115,7 +115,7 @@ public record Seq2SeqModelDefinition(
     /**
      * mt5-small 模型定义（modelscope: Xenova/mt5-small，多语言 T5，支持中文）。
      * <p>8 层 6 头（实际解码参数由模型输出维度动态解析，此处仅作文档参考）；词表 250112。
-     * fp16 编码器 + int8 解码器（int8 编码器在 mT5 上输出 &lt;extra_id_0&gt; 退化；全 fp16 体积大易内存不足）。</p>
+      * fp16 编码器 + int8 解码器（int8 编码器在 mt5 上输出 &lt;extra_标识_0&gt; 退化；全 fp16 体积大易内存不足）。</p>
      */
     public static final Seq2SeqModelDefinition MT5_SMALL = new Seq2SeqModelDefinition(
             "mt5-seq2seq",
@@ -138,9 +138,9 @@ public record Seq2SeqModelDefinition(
             0L);
 
     /**
-     * mt5-base 模型定义（modelscope: Xenova/mt5-base，多语言 T5，中文摘要效果优于 small）。
+      * mt5-基础 模型定义（modelscope: Xenova/mt5-基础，多语言 T5，中文摘要效果优于 small）。
      * <p>12 层 12 头（实际解码参数由模型输出维度动态解析）；d_model=768、词表 250112。
-     * int8 全套（fp16 在 onnxruntime 1.26 的 LayerNorm 优化上会触发 SimplifiedLayerNormFusion 报错）。</p>
+      * int8 全套（fp16 在 onnxruntime 1.26 的 layernorm 优化上会触发 simplifiedlayernormfusion 报错）。</p>
      */
     public static final Seq2SeqModelDefinition MT5_BASE = new Seq2SeqModelDefinition(
             "mt5-base-seq2seq",
@@ -163,7 +163,7 @@ public record Seq2SeqModelDefinition(
             0L);
 
     /**
-         * 达摩院中文 mT5-base 模型定义（iic/nlp_mt5_dialogue-rewriting_chinese-base，中文微调）。
+          * 达摩院中文 mt5-基础 模型定义（iic/nlp_mt5_dialogue-rewriting_chinese-基础，中文微调）。
          * <p>12 层 12 头 d_model=768，中文对话改写/摘要能力优于原版 mT5。
          * 由达摩院中文对话改写模型转 int8 ONNX（optimum 导出 + onnxruntime 量化）；
          * 首次运行需将 ONNX 文件放入缓存目录（int8：264+475+461MB）。</p>
@@ -179,7 +179,7 @@ public record Seq2SeqModelDefinition(
     /**
      * 中文 BART-large 模型定义（fnlp/bart-large-chinese，400M，中文 LCSTS 书面语训练）。
      * <p>12 层 16 头 d_model=1024，int8 量化后体积约 760MB（195+309+283）。
-     * 官方未在 modelscope 发布 ONNX，通过 hf-mirror 下载；写入与 existing 一致的四文件 downloadUrl 模式。</p>
+      * 官方未在 modelscope 发布 ONNX，通过 hf-mirror 下载；写入与 existing 一致的四文件 downloadurl 模式。</p>
      */
     public static final Seq2SeqModelDefinition BART_ZH = new Seq2SeqModelDefinition(
             "bart-zh-seq2seq",

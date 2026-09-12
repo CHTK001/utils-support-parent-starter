@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>政府官方数据（完全免费，无 key）：</p>
  * <ul>
  *   <li>活跃台风列表 {@code /Api/TyhoonActivity}：HttpClient 实体请求
- *       （HttpInvoker 声明式代理不支持泛型 List 返回，故用 TypeReference 解析）</li>
+   * （httpinvoker 声明式代理不支持泛型 列表 返回，故用 类型引用 解析）</li>
  *   <li>单个台风详情 {@code /Api/TyphoonInfo/{tfid}}：HttpClient 动态路径请求，
  *       含历史路径与 4 家机构（中国/日本/美国等）预报</li>
  * </ul>
@@ -34,9 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Spi("zhejiang-typhoon")
 public class ZhejiangTyphoonProvider implements TyphoonProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(ZhejiangTyphoonProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(ZhejiangTyphoonProvider.class); // 日志
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
     /** 活跃台风列表地址 */
     private static final String ACTIVITY_URL = "https://typhoon.slt.zj.gov.cn/Api/TyhoonActivity";
@@ -52,11 +52,11 @@ public class ZhejiangTyphoonProvider implements TyphoonProvider {
 
     /** 活跃列表缓存 */
     private volatile List<TyphoonActivity> cachedList;
-    private volatile long listCachedAt;
+    private volatile long listCachedAt; // 列表缓存at
 
     /** 详情缓存（tfid -> 详情） */
     private final Map<String, TyphoonDetail> cachedDetail = new ConcurrentHashMap<>();
-    private final Map<String, Long> detailCachedAt = new ConcurrentHashMap<>();
+    private final Map<String, Long> detailCachedAt = new ConcurrentHashMap<>(); // detail缓存at
 
     @Override
     public String name() {

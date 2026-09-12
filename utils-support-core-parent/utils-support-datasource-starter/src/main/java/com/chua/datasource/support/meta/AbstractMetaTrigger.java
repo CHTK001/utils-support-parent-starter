@@ -65,14 +65,14 @@ public abstract class AbstractMetaTrigger implements MetaTrigger {
     }
 
     @Override
-    /** OnTable */
+    /** ontable */
     public MetaTrigger onTable(String tableName) {
         this.tableName = tableName;
         return this;
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public List<TriggerDef> list() {
         throw new UnsupportedOperationException("请实现 list() 方法");
     }
@@ -90,7 +90,7 @@ public abstract class AbstractMetaTrigger implements MetaTrigger {
     }
 
     @Override
-    /** Drop */
+    /** 掉落 */
     public boolean drop(String triggerName) {
         throw new UnsupportedOperationException("请实现 drop() 方法");
     }

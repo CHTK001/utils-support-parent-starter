@@ -1,7 +1,7 @@
 package com.chua.deeplearning.support.onnx.seq2seq;
 
 /**
- * mT5-small 多语言 Seq2Seq 翻译器（ORT 原生，支持中文摘要/生成）。
+   * mt5-small 多语言 Seq2Seq 翻译器（ORT 原生，支持中文摘要/生成）。
  *
  * <p>复用 {@link T5Seq2SeqOrtTranslator} 的自回归实现，仅替换模型定义为
  * {@link Seq2SeqModelDefinition#MT5_SMALL}（modelscope 下载，词表 250112，8 层 6 头多语言 T5）。

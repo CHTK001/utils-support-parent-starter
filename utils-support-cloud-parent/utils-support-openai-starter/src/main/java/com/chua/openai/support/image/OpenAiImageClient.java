@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * OpenAI 图片生成客户端。
+   * 打开AI 图片生成客户端。
  *
  * <p>基于 OpenAI DALL-E API 的 {@link ImageClient} 实现，支持 OpenAI 兼容接口的
- * 所有服务商（如 OpenAI、SiliconFlow、SenseTime 等）。
+   * 所有服务商（如 打开AI、silicon流、sense时间 等）。
  *
  * <p>通过 HTTP 协议直接调用 {@code /images/generations} 接口生成图片，
  * 返回的图片 URL 会被自动下载并解析为 {@link BufferedImage}。
@@ -40,6 +40,8 @@ import java.util.Map;
  *       .prompt("一只可爱的猫")
  *       .size(1024, 1024)
  *       .generate();
+ * }</pre>24, 1024)
+ *       .generate();
  * }</pre>
  *
  * @author CH
@@ -50,7 +52,7 @@ import java.util.Map;
 public class OpenAiImageClient implements ImageClient {
 
     /**
-     * OpenAI 默认 API 地址
+      * 打开AI 默认 API 地址
      */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
@@ -80,7 +82,7 @@ public class OpenAiImageClient implements ImageClient {
     private String prompt;
 
     /**
-     * 图片质量（如 "standard"、"hd"），仅 DALL-E 3 支持
+      * 图片质量（如 "标准"、"hd"），仅 DALL-E 3 支持
      */
     private String quality;
 
@@ -90,7 +92,7 @@ public class OpenAiImageClient implements ImageClient {
     private String style;
 
     /**
-     * 构造 OpenAI 图片生成客户端。
+      * 构造 打开AI 图片生成客户端。
      *
      * @param setting 客户端配置
      */
@@ -102,7 +104,7 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public ImageClient model(String model) {
         this.model = model;
         return this;
@@ -115,7 +117,7 @@ public class OpenAiImageClient implements ImageClient {
         return this;
     }
     @Override
-    /** Prompt */
+    /** 提示符 */
     public ImageClient prompt(String prompt) {
         this.prompt = prompt;
         return this;
@@ -127,16 +129,16 @@ public class OpenAiImageClient implements ImageClient {
     /** Style */
     public ImageClient style(String style) { this.style = style; return this; }
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(byte[] image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
-    /** ReferenceImage */
+    /** 引用镜像 */
     public ImageClient referenceImage(BufferedImage image) { throw new UnsupportedOperationException("该服务商不支持参考图"); }
     @Override
-    /** ImageStrength */
+    /** 镜像strength */
     public ImageClient imageStrength(double strength) { throw new UnsupportedOperationException("该服务商不支持参考图强度"); }
     @Override
-    /** ControlType */
+    /** control类型 */
     public ImageClient controlType(String controlType) { throw new UnsupportedOperationException("该服务商不支持ControlNet"); }
 
     @Override
@@ -148,7 +150,7 @@ public class OpenAiImageClient implements ImageClient {
             throw new IllegalArgumentException("提示词不能为空");
         }
 
-        // 构建 OpenAI 图片生成请求体
+ // 构建 打开AI 图片生成请求体
         String requestBody = JsonObject.create()
                 .fluentPut("model", model != null ? model : "dall-e-3")
                 .fluentPut("prompt", actualPrompt)
@@ -171,12 +173,12 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     /**
-     * 解析 OpenAI 图片生成响应并下载图片。
+      * 解析 打开AI 图片生成响应并下载图片。
      *
      * <p>从 JSON 响应中提取图片 URL，然后通过 HTTP GET 下载图片数据，
      * 最后解析为 {@link BufferedImage} 对象。
      *
-     * @param json OpenAI 返回的 JSON 响应字符串
+     * @param json 打开AI 返回的 JSON 响应字符串
      * @return 生成的图片
      * @throws RuntimeException 图片数据为空、URL 为空、下载失败或解析失败时抛出
      */
@@ -201,7 +203,7 @@ public class OpenAiImageClient implements ImageClient {
             throw new RuntimeException("下载图片失败: " + imgResp.getStatusCode());
         }
 
-        // 解析为 BufferedImage
+ // 解析为 缓冲镜像
         try {
             return ImageIO.read(new ByteArrayInputStream(imgResp.getBody()));
         } catch (Exception e) {
@@ -210,13 +212,13 @@ public class OpenAiImageClient implements ImageClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(String prompt) {
         throw new UnsupportedOperationException("请使用 generate() 方法同步生成图片");
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public ImageResponse queryTask(String taskId) {
         throw new UnsupportedOperationException("不支持异步任务查询，请使用 generate() 方法同步生成");
     }
@@ -224,7 +226,7 @@ public class OpenAiImageClient implements ImageClient {
     @Override
     /** 关闭 */
     public void close() {
-        // 使用 HttpClientFactory 创建的 HTTP 客户端由框架自动管理，无需手动关闭
+ // 使用 http客户端工厂 创建的 HTTP 客户端由框架自动管理，无需手动关闭
     }
 
     /**

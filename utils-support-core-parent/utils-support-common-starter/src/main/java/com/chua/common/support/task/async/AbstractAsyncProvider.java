@@ -35,6 +35,8 @@ public abstract class AbstractAsyncProvider implements AsyncProvider {
     /**
      * 批量异步执行并聚合全部结果：并发提交所有任务，
      * 全部完成后按提交顺序返回结果列表。
+     * @param suppliers 供应商
+     * @return supply全部的结果
      */
     @Override
     @SafeVarargs

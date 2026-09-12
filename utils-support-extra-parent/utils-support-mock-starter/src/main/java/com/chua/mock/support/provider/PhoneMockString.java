@@ -26,6 +26,8 @@ public class PhoneMockString implements MockString {
     private static final int SECOND_DIGIT_MIN = 3;
     /**
      * 第二位号码取值区间上界
+     * @param environment 环境
+     * @return 获取字符串的结果
      */
     private static final int SECOND_DIGIT_MAX = 10;
 

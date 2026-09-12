@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ProcessInfo {
     /**
-     * 进程 ID（PID）
+      * 进程 标识（PID）
      */
     private int pid;
 

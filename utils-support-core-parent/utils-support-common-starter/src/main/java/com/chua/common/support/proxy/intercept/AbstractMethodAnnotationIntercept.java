@@ -17,7 +17,7 @@ import java.util.Map;
  * <p><b>属性解析链（按优先级）：</b></p>
  * <ol>
  *   <li>{@code #{...}} 表达式，通过 {@link ExpressionResolvers} SPI 链解析，
- *       支持默认变量访问（common）和 SpEL 全特性（spring 增强）</li>
+   * 支持默认变量访问（通用）和 spel 全特性（spring 增强）</li>
  *   <li>{@code ${...}} 占位符，通过 {@link StringValuePropertyResolver} 从配置源读取</li>
  *   <li>普通字面量，直接使用</li>
  * </ol>
@@ -112,9 +112,9 @@ public abstract class AbstractMethodAnnotationIntercept {
      * 解析名称属性，支持表达式和占位符。
      *
      * <p>标注的 name 为空时，使用 {@code 目标类全限定名.方法名} 作为兜底唯一标识。
-     * name 支持表达式时，可实现参数级动态隔离（如 {@code #{method.name + '-' + args[0]}}）。</p>
+      * 名称 支持表达式时，可实现参数级动态隔离（如 {@code #{method.name + '-' + args[0]}}）。</p>
      *
-     * @param annotatedName 注解中的 name 值
+     * @param annotatedName 注解中的 名称 值
      * @param proxyMethod   被拦截方法信息
      * @return 解析后的名称
      */
@@ -137,7 +137,7 @@ public abstract class AbstractMethodAnnotationIntercept {
      *
      * @param text        注解属性原始文本
      * @param proxyMethod 被拦截方法信息
-     * @return 解析后的值，无法解析时返回 null
+     * @return 解析后的值，无法解析时返回 空
      */
     protected String resolve(String text, ProxyMethod proxyMethod) {
         if (!StringUtils.hasText(text)) {

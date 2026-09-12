@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 简单 WebDAV 文件存储实现。
+   * 简单 webdav 文件存储实现。
  *
  * <p>基于 Sardine WebDAV 库实现 {@link FileStorage} SPI 接口。
- * 支持通过 WebDAV 协议与各种 WebDAV 服务器（如 Nginx WebDAV、Apache mod_dav、
- * NextCloud、ownCloud 等）进行文件存储操作。</p>
+   * 支持通过 webdav 协议与各种 webdav 服务器（如 Nginx webdav、Apache mod_dav、
+   * 下一个cloud、owncloud 等）进行文件存储操作。</p>
  *
  * <p>配置示例：</p>
  * <pre>{@code
@@ -35,6 +35,7 @@ import java.util.List;
  *     .build();
  *
  * FileStorage storage = new SWebdavFileStorage(setting);
+ * }</pre> = new SWebdavFileStorage(setting);
  * }</pre>
  *
  * @author CH
@@ -53,8 +54,8 @@ public class WebdavFileStorage extends AbstractFileStorage {
     private final String baseUrl;
 
     /**
-     * 创建 WebdavFileStorage 实例
-     * @param bucketSetting bucketSetting
+      * 创建 webdav文件storage 实例
+     * @param bucketSetting bucketsetting
      */
     public WebdavFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
@@ -63,13 +64,18 @@ public class WebdavFileStorage extends AbstractFileStorage {
         this.baseUrl = bucket != null && !bucket.isEmpty() ? url + bucket + "/" : url;
     }
 
-    /** FullUrl */
+    /**
+     * 完整url
+     *
+     * @param key 键
+     * @return 完整url的结果
+     */
     private String fullUrl(String key) {
         return baseUrl + key;
     }
 
     @Override
-    /** PutObject */
+    /** 放入对象 */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -94,6 +100,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
 
     /**
      * 确保父目录存在，不存在则递归创建。
+     * @param key 键
      */
     private void ensureParentPath(String key) throws IOException {
         if (!key.contains("/")) {
@@ -111,7 +118,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -133,7 +140,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 获取Object */
+    /** 获取对象 */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -141,7 +148,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** 删除Object */
+    /** 删除对象 */
     public DeleteObjectResult deleteObject(String key) {
         try {
             sardine.delete(fullUrl(key));
@@ -157,7 +164,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ExistObject */
+    /** exist对象 */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             boolean exists = sardine.exists(fullUrl(request.getKey()));
@@ -174,11 +181,11 @@ public class WebdavFileStorage extends AbstractFileStorage {
     }
 
     @Override
-    /** ListObject */
+    /** 列表对象 */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             String path = request.getFilePath() != null ? request.getFilePath() : "";
-            // WebDAV 协议原生不支持分页，忽略 marker 参数
+ // webdav 协议原生不支持分页，忽略 记号笔 参数
             List<DavResource> resources = sardine.list(fullUrl(path));
             List<Metadata> metadataList = new ArrayList<>();
 

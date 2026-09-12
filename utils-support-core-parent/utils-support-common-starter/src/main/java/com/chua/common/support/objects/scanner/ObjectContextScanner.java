@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * ObjectContext 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
+   * 对象上下文 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
  * <p>
  * 支持从文件系统目录和 JAR 包中扫描类文件，并过滤掉无法实例化的类（如接口、枚举、注解等）。
  *
@@ -33,10 +33,10 @@ public final class ObjectContextScanner {
     }
 
     /**
-     * 扫描指定包路径下的所有类并注册到 ObjectContext。
+      * 扫描指定包路径下的所有类并注册到 对象上下文。
      *
-     * @param context     ObjectContext 实例，用于注册扫描到的 Bean。
-     * @param basePackage 基包路径，例如 "com.example.service"。
+     * @param context     对象上下文 实例，用于注册扫描到的 Bean。
+     * @param basePackage 基包路径，例如 "com.example.服务"。
      */
     public static void scan(ObjectContext context, String basePackage) {
         if (context == null || basePackage == null || basePackage.isEmpty()) {
@@ -56,7 +56,7 @@ public final class ObjectContextScanner {
     /**
      * 扫描多个包路径下的所有类。
      *
-     * @param context      ObjectContext 实例，用于注册扫描到的 Bean。
+     * @param context      对象上下文 实例，用于注册扫描到的 Bean。
      * @param basePackages 基包路径列表，包含多个需要扫描的包名。
      */
     public static void scan(ObjectContext context, List<String> basePackages) {

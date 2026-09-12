@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * D1 SQLite 引擎客户端。
+   * D1 sqlite 引擎客户端。
  *
  * <p>封装 Cloudflare D1 SQL 查询能力，提供参数绑定、批量查询、事务等高级 API。
  * 本类是薄壳委托 + 结果映射层：所有执行均通过 {@link CloudflareClient#post}
- * 提交到 {@code /accounts/{account_id}/d1/database/{db_id}/query}。</p>
+   * 提交到 {@code /accounts/{account_id}/d1/database/{db_标识}/查询}。</p>
  *
  * <h2>使用示例</h2>
  * <pre>{@code
@@ -37,6 +37,10 @@ import java.util.Map;
  *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Bob"),
  *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Carol")
  * ));
+ * }</pre>t.of(
+ *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Bob"),
+ *     new D1Statement("INSERT INTO users(name) VALUES(?)", "Carol")
+ * ));
  * }</pre>
  *
  * @author CH
@@ -50,12 +54,12 @@ public class CloudflareD1Engine {
     private final CloudflareClient client;
 
     /**
-     * 默认数据库 ID（优先取 {@code client.getConfig().getDatabaseId()}，单库场景免传）
+      * 默认数据库 标识（优先取 {@code client.getConfig().getDatabaseId()}，单库场景免传）
      */
     private final String defaultDatabaseId;
 
     /**
-     * 用 Cloudflare 客户端构造，自动使用配置中的默认 databaseId。
+      * 用 Cloudflare 客户端构造，自动使用配置中的默认 databaseid。
      *
      * @param client Cloudflare 客户端
      */
@@ -64,10 +68,10 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * 用 Cloudflare 客户端和显式 databaseId 构造。
+      * 用 Cloudflare 客户端和显式 databaseid 构造。
      *
      * @param client         Cloudflare 客户端
-     * @param databaseId     数据库 ID，传 null 使用 config 中的 databaseId
+     * @param databaseId     数据库 标识，传 空 使用 配置 中的 databaseid
      */
     public CloudflareD1Engine(CloudflareClient client, String databaseId) {
         if (client == null) {
@@ -78,11 +82,11 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * 执行 SQL（无返回结果，如 INSERT/UPDATE/CREATE）。
+      * 执行 SQL（无返回结果，如 插入/更新/创建）。
      *
-     * @param sql   SQL 语句，可含 ? 占位符或 :name 命名参数
-     * @param params 参数值，按出现顺序绑定 ?；或 Map 用于 :name
-     * @return D1 元数据（含 last_row_id、changes 等）
+     * @param sql   SQL 语句，可含 ? 占位符或 :名称 命名参数
+     * @param params 参数值，按出现顺序绑定 ?；或 映射 用于 :名称
+     * @return D1 元数据（含 最后一个_row_标识、改变 等）
      */
     public D1Result execute(String sql, Object... params) {
         return executeWithParams(sql, D1SqlParameter.ofPositional(params));
@@ -100,10 +104,10 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * 执行单条 SQL 并返回结果列表（每行一个 Map，列名为键）。
+      * 执行单条 SQL 并返回结果列表（每行一个 映射，列名为键）。
      *
      * @param sql   SQL 语句
-     * @param params 参数（同 execute）
+     * @param params 参数（同 执行）
      * @param <T>   返回类型
      * @return 结果列表
      */
@@ -154,12 +158,15 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * 执行 SQL 并返回 D1Result（含元数据 + 行集）。
+      * 执行 SQL 并返回 D1结果（含元数据 + 行集）。
+     * @param sql SQL
+     * @param params 参数
+     * @return 执行with参数的结果
      */
     private D1Result executeWithParams(String sql, D1SqlParameter params) {
         var stmt = new D1Statement(sql, params);
         Object raw = client.post(d1QueryPath(), stmt.toJson());
-        // D1 单条响应 result 是数组，取第一个元素
+ // D1 单条响应 结果 是数组，取第一个元素
         if (raw instanceof List<?> list && !list.isEmpty()) {
             return D1Result.parse(list.get(0));
         }
@@ -167,7 +174,8 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * 解析实际使用的 databaseId。
+      * 解析实际使用的 databaseid。
+     * @return resolveDatabaseId的结果
      */
     private String resolveDatabaseId() {
         String id = defaultDatabaseId != null
@@ -180,7 +188,8 @@ public class CloudflareD1Engine {
     }
 
     /**
-     * D1 query API 路径（占位符由 accountId 填充）。
+      * D1 查询 API 路径（占位符由 账户id 填充）。
+     * @return d1查询路径的结果
      */
     private String d1QueryPath() {
         return "/accounts/" + client.getConfig().getAccountId() + "/d1/database/"

@@ -24,48 +24,76 @@ import java.util.function.Function;
  */
 public class JsoupResponse {
 
-    final Document document;
+    final Document document; // 文档
 
     /** Mappings */
     private final Mappings mappings;
 
     /**
-     * 创建 JsoupResponse 实例
-     * @param html html
-     * @param Mappings Mappings
+      * 创建 jsoup响应 实例
+     * @param html HTML
+     * @param mappings Mappings
+     * @param mappings mappings
      */
     public JsoupResponse(String html, Mappings mappings) {
         this.document = Jsoup.parse(html);
         this.mappings = mappings;
     }
 
-    /** 获取Document */
+    /**
+     * 获取文档
+     *
+     * @return 获取文档的结果
+     */
     public Document getDocument() {
         return document;
     }
 
-    /** 获取Mappings */
+    /**
+     * 获取Mappings
+     *
+     * @return 获取mappings的结果
+     */
     public Mappings getMappings() {
         return mappings;
     }
 
-    /** 查看 */
+    /**
+     * 查看
+     *
+     * @param consumer consumer
+     * @return peek的结果
+     */
     public JsoupResponse peek(Consumer<Document> consumer) {
         consumer.accept(document);
         return this;
     }
 
-    /** Map */
+    /**
+     * 映射
+     *
+     * @param mapper 映射器
+     * @return 映射的结果
+     */
     public <R> R map(Function<Document, R> mapper) {
         return mapper.apply(document);
     }
 
-    /** View */
+    /**
+     * View
+     *
+     * @return view的结果
+     */
     public View view() {
         return new View(document);
     }
 
-    /** Eval */
+    /**
+     * Eval
+     *
+     * @param targetClass Target类
+     * @return eval的结果
+     */
     public <T> List<T> eval(Class<T> targetClass) {
         String parentXpath = mappings.getParentXpath();
         List<MappingsPath> mapping = mappings.getMapping();
@@ -76,7 +104,14 @@ public class JsoupResponse {
         return Collections.singletonList(createResult(targetClass, (Map<String, Object>) item));
     }
 
-    /** 创建Result */
+    /**
+     * 创建结果
+     *
+     * @param targetClass Target类
+     * @param parentXpath 父xpath
+     * @param mapping mapping
+     * @return 创建结果的结果
+     */
     private <T> List<T> createResult(Class<T> targetClass, String parentXpath, List<MappingsPath> mapping) {
         List<T> result = new ArrayList<>();
         Elements elements = document.selectXpath(parentXpath);
@@ -88,7 +123,13 @@ public class JsoupResponse {
         return result;
     }
 
-    /** 创建Result */
+    /**
+     * 创建结果
+     *
+     * @param targetClass Target类
+     * @param item item
+     * @return 创建结果的结果
+     */
     private <T> T createResult(Class<T> targetClass, Map<String, Object> item) {
         T result;
         try {
@@ -100,7 +141,13 @@ public class JsoupResponse {
         return result;
     }
 
-    /** 创建Item */
+    /**
+     * 创建Item
+     *
+     * @param element element
+     * @param mapping mapping
+     * @return 创建item的结果
+     */
     private Map<String, Object> createItem(Element element, List<MappingsPath> mapping) {
         Map<String, Object> item = new HashMap<>();
         for (MappingsPath mappingsPath : mapping) {
@@ -119,7 +166,13 @@ public class JsoupResponse {
         return item;
     }
 
-    /** 获取Value */
+    /**
+     * 获取值
+     *
+     * @param element element
+     * @param mappingsPath mappings路径
+     * @return 获取值的结果
+     */
     private Object getValue(Elements element, MappingsPath mappingsPath) {
         if (mappingsPath.isFirst()) {
             return getItemValue(element.first(), mappingsPath);
@@ -137,7 +190,13 @@ public class JsoupResponse {
         return element.text();
     }
 
-    /** 获取ItemValue */
+    /**
+     * 获取item值
+     *
+     * @param element element
+     * @param mappingsPath mappings路径
+     * @return 获取item值的结果
+     */
     private String getItemValue(Element element, MappingsPath mappingsPath) {
         if (null == element) {
             return null;
@@ -149,9 +208,20 @@ public class JsoupResponse {
         return element.text();
     }
 
-    /** Eval */
+    /**
+     * Eval
+     *
+     * @param mappingsPath mappings路径
+     * @return eval的结果
+     */
     public Map<String, Object> eval(MappingsPath mappingsPath) {
         return createItem(document, Collections.singletonList(mappingsPath));
+    /**
+     * 路径类型枚举。
+     *
+     * @author CH
+     * @since 4.0.0
+     */
     }
 
     public enum PathType {
@@ -184,10 +254,16 @@ public class JsoupResponse {
         private Function<Element, String> function;
         /** 类型 */
         private PathType type = PathType.XPATH;
-        /** Field */
+        /** 字段 */
         private String field;
 
-        /** Builder */
+        /**
+         * 构建器
+         *
+         * @return 构建器的结果
+         * @author CH
+         * @since 4.0.0
+         */
         public static MappingsPathBuilder builder() {
             return new MappingsPathBuilder();
         }
@@ -205,37 +281,100 @@ public class JsoupResponse {
             private Function<Element, String> function;
             /** 类型 */
             private PathType type = PathType.XPATH;
-            /** Field */
+            /** 字段 */
             private String field;
 
-            /** Path */
+            /**
+             * 路径
+             *
+             * @param path 路径
+             * @return 路径的结果
+             */
             public MappingsPathBuilder path(String path) { this.path = path; return this; }
-            /** Attribute */
+            /**
+             * Attribute
+             *
+             * @param attribute attribute
+             * @return attribute的结果
+             */
             public MappingsPathBuilder attribute(String attribute) { this.attribute = attribute; return this; }
-            /** First */
+            /**
+             * 第一个
+             *
+             * @param first 第一个
+             * @return 第一个的结果
+             */
             public MappingsPathBuilder first(boolean first) { this.first = first; return this; }
-            /** Last */
+            /**
+             * 最后一个
+             *
+             * @param last 最后一个
+             * @return 最后一个的结果
+             */
             public MappingsPathBuilder last(boolean last) { this.last = last; return this; }
-            /** Function */
+            /**
+             * Function
+             *
+             * @param function function
+             * @return function的结果
+             */
             public MappingsPathBuilder function(Function<Element, String> function) { this.function = function; return this; }
-            /** Type */
+            /**
+             * 类型
+             *
+             * @param type 类型
+             * @return 类型的结果
+             */
             public MappingsPathBuilder type(PathType type) { this.type = type; return this; }
-            /** Field */
+            /**
+             * 字段
+             *
+             * @param field 字段
+             * @return 字段的结果
+             */
             public MappingsPathBuilder field(String field) { this.field = field; return this; }
-            /** Href */
+            /**
+             * Href
+             *
+             * @return href的结果
+             */
             public MappingsPathBuilder href() { this.attribute("href"); return this; }
-            /** Src */
+            /**
+             * Src
+             *
+             * @return src的结果
+             */
             public MappingsPathBuilder src() { this.attribute("src"); return this; }
-            /** 是否First */
+            /**
+             * 是否第一个
+             *
+             * @return 是否第一个的结果
+             */
             public MappingsPathBuilder isFirst() { this.first(true); return this; }
-            /** 是否Last */
+            /**
+             * 是否最后一个
+             *
+             * @return 是否最后一个的结果
+             */
             public MappingsPathBuilder isLast() { this.last(true); return this; }
-            /** Css */
+            /**
+             * CSS
+             *
+             * @return css的结果
+             */
             public MappingsPathBuilder css() { this.type(PathType.CSS); return this; }
-            /** Function */
+            /**
+             * Function
+             *
+             * @return function的结果
+             */
             public MappingsPathBuilder function() { this.type(PathType.XPATH_FUNCTION); return this; }
 
-            /** 构建 */
+            /**
+             * 构建
+             *
+             * @return 构建的结果
+             */
             public MappingsPath build() {
                 MappingsPath mappingsPath = new MappingsPath();
                 mappingsPath.path = this.path;
@@ -257,17 +396,29 @@ public class JsoupResponse {
         /**
          * 创建 View 实例
          * @param elements elements
+         * @return View的结果
          */
         private View(Elements elements) { this.elements = elements; }
         /**
          * 创建 View 实例
-         * @param document document
+         * @param document 文档
+         * @return View的结果
          */
         private View(Document document) { this.elements = document.getAllElements(); }
 
-        /** Css */
+        /**
+         * CSS
+         *
+         * @param selector selector
+         * @return css的结果
+         */
         public View css(String selector) { return new View(elements.select(selector)); }
-        /** Xpath */
+        /**
+         * Xpath
+         *
+         * @param xpath xpath
+         * @return xpath的结果
+         */
         public View xpath(String xpath) {
             Elements result = new Elements();
             for (Element element : elements) {
@@ -275,17 +426,46 @@ public class JsoupResponse {
             }
             return new View(result);
         }
-        /** 查看 */
+        /**
+         * 查看
+         *
+         * @param consumer consumer
+         * @return peek的结果
+         */
         public View peek(Consumer<Elements> consumer) { consumer.accept(elements); return this; }
-        /** Map */
+        /**
+         * 映射
+         *
+         * @param mapper 映射器
+         * @return 映射的结果
+         */
         public <R> R map(Function<Elements, R> mapper) { return mapper.apply(elements); }
-        /** MapList */
+        /**
+         * 映射列表
+         *
+         * @param mapper 映射器
+         * @return 映射列表的结果
+         */
         public <R> List<R> mapList(Function<Element, R> mapper) { return elements.stream().map(mapper).toList(); }
-        /** First */
+        /**
+         * 第一个
+         *
+         * @param mapper 映射器
+         * @return 第一个的结果
+         */
         public <R> R first(Function<Element, R> mapper) { Element first = elements.first(); return first == null ? null : mapper.apply(first); }
-        /** Last */
+        /**
+         * 最后一个
+         *
+         * @param mapper 映射器
+         * @return 最后一个的结果
+         */
         public <R> R last(Function<Element, R> mapper) { Element last = elements.last(); return last == null ? null : mapper.apply(last); }
-        /** 获取Elements */
+        /**
+         * 获取Elements
+         *
+         * @return 获取elements的结果
+         */
         public Elements getElements() { return elements; }
     }
 }

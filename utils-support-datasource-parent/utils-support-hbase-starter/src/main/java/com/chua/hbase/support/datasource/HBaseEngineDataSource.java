@@ -58,7 +58,7 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
         return this;
     }
 
-    /** 非 SQL 方言返回 null */
+    /** 非 SQL 方言返回 空 */
     @Override
     public Dialect getDialect() {
         return null;

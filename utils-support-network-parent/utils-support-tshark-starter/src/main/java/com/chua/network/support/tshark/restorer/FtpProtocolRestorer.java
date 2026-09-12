@@ -11,7 +11,7 @@ package com.chua.network.support.tshark.restorer;
 public class FtpProtocolRestorer extends AbstractProtocolRestorer {
 
     @Override
-    /** 获取ProtocolName */
+    /** 获取协议名称 */
     public String getProtocolName() {
         return "ftp";
     }
@@ -60,6 +60,8 @@ public class FtpProtocolRestorer extends AbstractProtocolRestorer {
 
     /**
      * 判断是否为 FTP 响应（3 位数字 + 空格 + 文本）。
+     * @param text 文本
+     * @return 是否ftp响应的结果
      */
     private static boolean isFtpResponse(String text) {
         return text.length() >= 4

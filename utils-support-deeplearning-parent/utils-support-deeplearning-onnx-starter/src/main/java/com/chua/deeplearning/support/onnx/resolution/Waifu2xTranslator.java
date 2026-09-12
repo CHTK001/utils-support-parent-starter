@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
 public class Waifu2xTranslator implements Translator<Image, Image> {
 
     /**
-     * waifu2x ONNX NDManager                                                      
+      * waifu2x ONNX nd管理器
      */
     private NDManager manager;
 
@@ -37,7 +37,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
      * 最近一次输入的 padding（输出侧裁剪用）
      */
     private int lastPadH;
-    private int lastPadW;
+    private int lastPadW; // 最后一个padw
 
     @Override
     /** Prepare */
@@ -49,13 +49,13 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         BufferedImage buffered = (BufferedImage) input.getWrappedImage();
         int h = buffered.getHeight();
         int w = buffered.getWidth();
 
-        // swin_unet 内部存在下采样，输入尺寸必须为 8 的倍数，否则 Add 广播报错；不足处右侧/底部用 0 填充
+ // swin_unet 内部存在下采样，输入尺寸必须为 8 的倍数，否则 添加 广播报错；不足处右侧/底部用 0 填充
         int padH = (8 - h % 8) % 8;
         int padW = (8 - w % 8) % 8;
         int ph = h + padH;
@@ -83,12 +83,12 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray outputImg = list.singletonOrThrow();
         long[] shape = outputImg.getShape().getShape();
 
-        // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX NDArray 会递归崩溃）
+ // 兼容 [1, C, H, W] 与 [C, H, W]，不调用 squeeze（ONNX ndarray 会递归崩溃）
         int off = shape.length == 4 ? 1 : 0;
         int oh = (int) shape[off + 1];   // 输出全高 = 4 * (h + padH)
         int ow = (int) shape[off + 2];   // 输出全宽 = 4 * (w + padW)

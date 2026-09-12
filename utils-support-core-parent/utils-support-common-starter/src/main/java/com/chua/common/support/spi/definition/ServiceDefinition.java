@@ -177,102 +177,185 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return implClass;
     }
 
-    /** 获取Describe */
+    /**
+     * 获取Describe
+     *
+     * @return 获取describe的结果
+     */
     public String getDescribe() {
         return describe;
     }
 
-    /** 设置Describe */
+    /**
+     * 设置Describe
+     *
+     * @param describe describe
+     */
     public void setDescribe(String describe) {
         this.describe = describe;
     }
 
-    /** 获取DescribeType */
+    /**
+     * 获取describe类型
+     *
+     * @return 获取describe类型的结果
+     */
     public String getDescribeType() {
         return describeType;
     }
 
-    /** 设置DescribeType */
+    /**
+     * 设置describe类型
+     *
+     * @param describeType describe类型
+     */
     public void setDescribeType(String describeType) {
         this.describeType = describeType;
     }
 
-    /** 获取DescribeDetail */
+    /**
+     * 获取describedetail
+     *
+     * @return 获取describedetail的结果
+     */
     public String getDescribeDetail() {
         return describeDetail;
     }
 
-    /** 设置DescribeDetail */
+    /**
+     * 设置describedetail
+     *
+     * @param describeDetail describedetail
+     */
     public void setDescribeDetail(String describeDetail) {
         this.describeDetail = describeDetail;
     }
 
-    /** 获取SupportedTypes */
+    /**
+     * 获取支持类型
+     *
+     * @return 获取支持类型的结果
+     */
     public String[] getSupportedTypes() {
         return supportedTypes;
     }
 
-    /** 设置SupportedTypes */
+    /**
+     * 设置支持类型
+     *
+     * @param supportedTypes 支持类型
+     */
     public void setSupportedTypes(String[] supportedTypes) {
         this.supportedTypes = supportedTypes;
     }
 
-    /** 获取DescribeOptional */
+    /**
+     * 获取describe期权
+     *
+     * @return 获取describe期权的结果
+     */
     public List<DescribeOptional> getDescribeOptional() {
         return describeOptional;
     }
 
-    /** 设置DescribeOptional */
+    /**
+     * 设置describe期权
+     *
+     * @param describeOptional describe期权
+     */
     public void setDescribeOptional(List<DescribeOptional> describeOptional) {
         this.describeOptional = describeOptional;
     }
 
-    /** 获取Name */
+    /**
+     * 获取名称
+     *
+     * @return 获取名称的结果
+     */
     public String getName() {
         return name;
     }
 
-    /** 设置Name */
+    /**
+     * 设置名称
+     *
+     * @param name 名称
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /** 获取Order */
+    /**
+     * 获取订单
+     *
+     * @return 获取订单的结果
+     */
     public int getOrder() {
         return order;
     }
 
-    /** 设置Order */
+    /**
+     * 设置订单
+     *
+     * @param order 订单
+     */
     public void setOrder(int order) {
         this.order = order;
     }
 
-    /** 获取Url */
+    /**
+     * 获取Url
+     *
+     * @return 获取url的结果
+     */
     public URL getUrl() {
         return url;
     }
 
-    /** 设置Url */
+    /**
+     * 设置Url
+     *
+     * @param url url
+     */
     public void setUrl(URL url) {
         this.url = url;
     }
 
-    /** 获取加载Time */
+    /**
+     * 获取加载时间
+     *
+     * @return 获取加载时间的结果
+     */
     public long getLoadTime() {
         return loadTime;
     }
 
-    /** 设置加载Time */
+    /**
+     * 设置加载时间
+     *
+     * @param loadTime 加载时间
+     */
     public void setLoadTime(long loadTime) {
         this.loadTime = loadTime;
     }
 
-    /** 获取ClassLoader */
+    /**
+     * 获取类加载
+     *
+     * @return 获取类加载的结果
+     */
     public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    /** 设置ClassLoader */
+     /**
+      * 设置类加载。
+      * @param classLoader 类加载
+      */
+     * 设置类加载
+     *
+     * @return 获取类型的结果
+     */
     public void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
@@ -281,47 +364,86 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return type;
     }
 
-    /** 设置Type */
+    /**
+     * 设置类型
+     *
+     * @param type 类型
+     */
     public void setType(Class<?> type) {
         this.type = type;
     }
 
-    /** 是否Default */
+    /**
+     * 是否默认
+     *
+     * @return 是否默认的结果
+     */
     public boolean isDefault() {
         return isDefault;
     }
 
-    /** 设置Default */
+    /**
+     * 设置默认
+     *
+     * @param isDefault 是否默认
+     */
     public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
     }
 
-    /** 获取Obj */
+    /**
+     * 获取Obj
+     *
+     * @return 获取obj的结果
+     */
     public Object getObj() {
         return obj;
     }
 
-    /** 设置Obj */
+    /**
+     * 设置Obj
+     *
+     * @param obj obj
+     */
     public void setObj(Object obj) {
         this.obj = obj;
     }
 
-    /** 是否Loaded */
+    /**
+     * 是否加载
+     *
+     * @return 是否加载的结果
+     */
     public boolean isLoaded() {
         return isLoaded;
     }
 
-    /** 设置Loaded */
+    /**
+     * 设置加载
+     *
+     * @param loaded 加载
+     */
     public void setLoaded(boolean loaded) {
         isLoaded = loaded;
     }
 
-    /** 获取Ex */
+    /**
+     * 获取Ex
+     *
+     * @return 获取ex的结果
+     */
     public Throwable getEx() {
         return ex;
     }
 
-    /** 设置Ex */
+     /**
+      * 设置ex。
+      * @param ex ex
+      */
+     * 设置Ex
+     *
+     * @return 获取查找类型的结果
+     */
     public void setEx(Throwable ex) {
         this.ex = ex;
     }
@@ -330,17 +452,29 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return finderType;
     }
 
-    /** 设置FinderType */
+    /**
+     * 设置查找类型
+     *
+     * @param finderType 查找类型
+     */
     public void setFinderType(Class<?> finderType) {
         this.finderType = finderType;
     }
 
-    /** 获取Stack */
+    /**
+     * 获取Stack
+     *
+     * @return 获取stack的结果
+     */
     public StackTraceElement[] getStack() {
         return stack;
     }
 
-    /** 设置Stack */
+    /**
+     * 设置Stack
+     *
+     * @param stack stack
+     */
     public void setStack(StackTraceElement[] stack) {
         this.stack = stack;
     }
@@ -502,7 +636,13 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return ClassUtils.newInstance(constructor, args1);
     }
 
-    /** 获取Value */
+    /**
+     * 获取值
+     *
+     * @param parameterType 参数类型
+     * @param args 参数
+     * @return 获取值的结果
+     */
     private Object getValue(Class<?> parameterType, Object[] args) {
         for (Object arg : args) {
             Object necessary = Converter.convertIfNecessary(arg, parameterType);
@@ -562,7 +702,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
         return null != parentType && parentType.isAssignableFrom(implClass);
     }
     @Override
-    /** 比较To */
+    /** 比较转为 */
     public int compareTo(ServiceDefinition o) {
         return Integer.compare(o.order, this.order);
     }

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Helm 软件包管理器提供器。
  *
  * <p>通过 helm CLI 在 Artifact Hub 中搜索、安装和卸载 Kubernetes Helm Chart。
- * 搜索使用 <code>helm search hub</code>，安装/卸载使用
+   * 搜索使用 <code>Helm 搜索 hub</code>，安装/卸载使用
  * <code>helm install/uninstall</code>（release 名称由包标识派生）。
  *
  * @author CH
@@ -33,7 +33,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
     private static final String NAME = "helm";
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -48,13 +48,13 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         StringBuilder outputBuffer = new StringBuilder();
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 30, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 outputBuffer.append(line).append("\n");
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("helm 搜索完成, exitCode={}", exitCode);
             }
@@ -91,17 +91,24 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         return executeCommand(cmd, "卸载", packageId);
     }
 
-    /** 执行Command */
+    /**
+     * 执行命令
+     *
+     * @param cmd CMD
+     * @param action 动作
+     * @param packageId 包标识
+     * @return 执行命令的结果
+     */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
-            /** OnLine */
+            /** on线 */
             public void onLine(String line) {
                 log.info("  [{}] {}", action, line);
             }
 
             @Override
-            /** OnComplete */
+            /** on完成 */
             public void onComplete(int exitCode) {
                 log.info("  [{}] 完成, exitCode={}", action, exitCode);
             }
@@ -117,7 +124,12 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         return ok;
     }
 
-    /** 解析HelmOutput */
+    /**
+     * 解析helm输出
+     *
+     * @param output 输出
+     * @return 解析helm输出的结果
+     */
     private List<SoftwareInfo> parseHelmOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -130,7 +142,7 @@ public class HelmSoftwareProvider implements SoftwareProvider {
                         || trimmed.startsWith("---")) {
                     continue;
                 }
-                // 列格式: URL  CHART VERSION  APP VERSION  DESCRIPTION
+ // 列格式: URL  CHART 版本  APP 版本  DESCRIPTION
                 String[] tokens = trimmed.split("\\s+");
                 if (tokens.length < 2) {
                     continue;
@@ -148,7 +160,12 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         return results;
     }
 
-    /** ExtractChartName */
+    /**
+     * extractchart名称
+     *
+     * @param url url
+     * @return extractchart名称的结果
+     */
     private String extractChartName(String url) {
         if (url == null || url.isEmpty()) {
             return "";
@@ -164,12 +181,22 @@ public class HelmSoftwareProvider implements SoftwareProvider {
         return name.isEmpty() ? url : name;
     }
 
-    /** LooksLikeVersion */
+    /**
+     * lookslike版本
+     *
+     * @param s s
+     * @return lookslike版本的结果
+     */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.equalsIgnoreCase("true");
     }
 
-    /** Sanitize */
+    /**
+     * Sanitize
+     *
+     * @param packageId 包标识
+     * @return sanitize的结果
+     */
     private String sanitize(String packageId) {
         if (packageId == null) {
             return "release";

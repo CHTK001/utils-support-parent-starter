@@ -73,7 +73,7 @@ public class UsagePersistChatClient implements ChatClient {
     /**
      * 创建 UsagePersistChatClient 实例
      * @param delegate delegate
-     * @param Engine Engine
+     * @param engine Engine
      */
     private UsagePersistChatClient(ChatClient delegate, Engine engine) {
         this.delegate = delegate;

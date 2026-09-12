@@ -16,7 +16,7 @@ public class MetricsTable {
     private long timestamp;
 
     /**
-     * 表格名称（对应指标类型，如 cpu、memory、disk 等）
+      * 表格名称（对应指标类型，如 cpu、内存、disk 等）
      */
     private String table;
 }

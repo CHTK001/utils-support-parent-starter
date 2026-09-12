@@ -19,22 +19,22 @@ import java.util.Map;
 public class Task<T> {
 
     /**
-     * 全局唯一任务 ID（由 TaskIdGenerator 自动生成）
+      * 全局唯一任务 标识（由 任务id生成器 自动生成）
      */
     private String taskId;
 
     /**
-     * 链路追踪 ID（贯穿整个任务链，子任务继承父任务的 traceId）
+      * 链路追踪 标识（贯穿整个任务链，子任务继承父任务的 追踪id）
      */
     private String traceId;
 
     /**
-     * 父任务 ID（子任务链时记录来源，根任务为 null）
+      * 父任务 标识（子任务链时记录来源，根任务为 空）
      */
     private String parentTaskId;
 
     /**
-     * 任务类型（用于匹配 TaskExecutor）
+      * 任务类型（用于匹配 任务执行器）
      */
     private String taskType;
 
@@ -47,7 +47,7 @@ public class Task<T> {
      * 任务标签（用于能力匹配和路由）
      */
     @Builder.Default
-    private Map<String, String> tags = new HashMap<>();
+    private Map<String, String> tags = new HashMap<>(); // 标签
 
     /**
      * 分片数量（>1 表示需要分片执行）
@@ -97,7 +97,7 @@ public class Task<T> {
     private boolean paused = false;
 
     /**
-     * 发布端节点 ID
+      * 发布端节点 标识
      */
     private String sourceNodeId;
 }

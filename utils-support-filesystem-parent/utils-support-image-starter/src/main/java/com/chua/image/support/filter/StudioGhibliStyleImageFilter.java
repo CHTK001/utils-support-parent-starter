@@ -92,7 +92,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     private double dreamyEffectStrength = 0.2;
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat() {
         
         return "jpeg";
@@ -100,7 +100,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** 获取Image格式化 */
+    /** 获取镜像格式化 */
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -154,6 +154,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用暖色调效果
+     * @param src src
+     * @return applyWarmTone的结果
      */
     private BufferedImage applyWarmTone(BufferedImage src) {
         int width = src.getWidth();
@@ -184,6 +186,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 增强饱和度
+     * @param src src
+     * @return 增强saturation的结果
      */
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
@@ -216,6 +220,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用柔光效果
+     * @param src src
+     * @return applySoftLight的结果
      */
     private BufferedImage applySoftLight(BufferedImage src) {
         int width = src.getWidth();
@@ -247,6 +253,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 调整对比度和亮度
+     * @param src src
+     * @return adjustcontrast和brightness的结果
      */
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
@@ -277,6 +285,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用边缘柔化
+     * @param src src
+     * @return applySoftEdges的结果
      */
     private BufferedImage applySoftEdges(BufferedImage src) {
         int width = src.getWidth();
@@ -340,6 +350,8 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * 应用梦幻效果
+     * @param src src
+     * @return applyDreamyEffect的结果
      */
     private BufferedImage applyDreamyEffect(BufferedImage src) {
         int width = src.getWidth();
@@ -375,7 +387,7 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
     }
 
     @Override
-    /** Converter */
+    /** 转换器 */
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
@@ -399,6 +411,10 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * RGB转HSV色彩空间
+     * @param r r
+     * @param g g
+     * @param b b
+     * @return rgb转为hsv的结果
      */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
@@ -432,6 +448,10 @@ public class StudioGhibliStyleImageFilter extends AbstractImageFilter {
 
     /**
      * HSV转RGB色彩空间
+     * @param h h
+     * @param s s
+     * @param v v
+     * @return hsv转为rgb的结果
      */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;

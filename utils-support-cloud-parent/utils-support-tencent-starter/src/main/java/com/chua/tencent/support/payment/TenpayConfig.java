@@ -14,7 +14,7 @@ import lombok.Data;
 public class TenpayConfig {
 
     /**
-     * 应用ID
+      * 应用标识
      */
     private String appId;
 
@@ -29,7 +29,7 @@ public class TenpayConfig {
     private String mchKey;
 
     /**
-     * 服务商模式下的子应用ID
+      * 服务商模式下的子应用标识
      */
     private String subAppId;
 
@@ -59,7 +59,7 @@ public class TenpayConfig {
     private String apiV3Key;
 
     /**
-     * 应用密钥（小程序/公众号 AppSecret）
+      * 应用密钥（小程序/公众号 appsecret）
      */
     private String appSecret;
 }

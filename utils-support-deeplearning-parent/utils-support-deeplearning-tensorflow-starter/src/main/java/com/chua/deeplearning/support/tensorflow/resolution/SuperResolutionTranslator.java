@@ -10,7 +10,7 @@ import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
 /**
- * TensorFlow 超分辨率 Translator。
+   * tensor流 超分辨率 Translator。
  * <p>输入 FLOAT32 HWC；输出 clip 到 [0,255] 后还原 Image。</p>
  *
  * @author CH
@@ -19,14 +19,14 @@ import ai.djl.translate.TranslatorContext;
 public class SuperResolutionTranslator implements Translator<Image, Image> {
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager()).toType(DataType.FLOAT32, false);
         return new NDList(array);
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.get(0).clip(0, 255).toType(DataType.UINT8, false);
         if (output.getShape().dimension() == 4 && output.getShape().get(0) == 1) {

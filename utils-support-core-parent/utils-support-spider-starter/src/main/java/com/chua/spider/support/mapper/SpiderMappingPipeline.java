@@ -28,6 +28,9 @@ import java.util.function.Consumer;
  *         System.out.println(article.getTitle());
  *     })
  *     .run();
+ * }</pre>le());
+ *     })
+   * .运行();
  * }</pre>
  *
  * @author CH
@@ -37,11 +40,11 @@ import java.util.function.Consumer;
 @ConditionalOnClass("org.jsoup.Jsoup")
 public class SpiderMappingPipeline<T> implements SpiderPipeline {
 
-    /** 目标class */
+    /** 目标类 */
     private final Class<T> targetClass;
     /** 消费者 */
     private final Consumer<T> consumer;
-    /** Mapper */
+    /** 映射器 */
     private final SpiderFieldMapper mapper;
 
     /**
@@ -62,7 +65,7 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
      * @param targetClass 目标 POJO 类型
      * @param consumer    类型化回调
      * @param aiProvider  AI 服务商
-     * @param aiApiKey    API Key
+     * @param aiApiKey    API 键
      * @param <T>         POJO 类型
      * @return 映射管道实例
      */

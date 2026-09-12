@@ -63,7 +63,7 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
     }
 
     @Override
-    /** Do转换 */
+    /** 执行转换 */
     protected void doConvert(InputStream inputStream, OutputStream outputStream, File sourceFile, File targetFile) throws IOException {
         try {
             // 读取 APNG 文件
@@ -145,7 +145,7 @@ public class ApngToGifConvertFileSystem extends AbstractConvertFileSystem {
 if (metadata != null) {
                 // 这里可以解析 APNG 特定的元数据
                 // 由于 APNG 元数据解析比较复杂，这里使用默认值
-                // return 100;
+ // 返回 100;
                 // 默认 100ms
             }
         } catch (Exception e) {
@@ -247,7 +247,7 @@ if (metadata != null) {
             String metadataFormat = metadata.getNativeMetadataFormatName();
             org.w3c.dom.Node root = metadata.getAsTree(metadataFormat);
 
-            // 查找或创建 GraphicControlExtension 节点
+ // 查找或创建 graphiccontrol延伸 节点
             org.w3c.dom.Node gce = findOrCreateNode(root, "GraphicControlExtension");
             if (gce != null) {
                 // 设置延迟时间
@@ -278,6 +278,9 @@ if (metadata != null) {
 
     /**
      * 查找或创建节点
+     * @param parent 父
+     * @param nodeName 节点名称
+     * @return find或创建节点的结果
      */
     private org.w3c.dom.Node findOrCreateNode(org.w3c.dom.Node parent, String nodeName) {
         org.w3c.dom.NodeList children = parent.getChildNodes();
@@ -295,6 +298,9 @@ if (metadata != null) {
 
     /**
      * 设置节点属性
+     * @param node 节点
+     * @param attributeName attribute名称
+     * @param value 值
      */
     private void setNodeAttribute(org.w3c.dom.Node node, String attributeName, String value) {
         org.w3c.dom.NamedNodeMap attributes = node.getAttributes();
@@ -304,21 +310,27 @@ if (metadata != null) {
     }
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         
         return "gif";
     
     }
 
-    /** 是否Support格式化 */
+    /**
+     * 是否支持格式化
+     *
+     * @param sourceFormat 源格式化
+     * @param targetFormat Target格式化
+     * @return 是否支持格式化的结果
+     */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         return ("apng".equalsIgnoreCase(sourceFormat) || "png".equalsIgnoreCase(sourceFormat)) &&
                 "gif".equalsIgnoreCase(targetFormat);
     }
 
     @Override
-    /** SupportedTypes */
+    /** 支持类型 */
     public ConvertFileSystem.ConvertSupport[] supportedTypes() {
         return new ConvertFileSystem.ConvertSupport[]{
                 new ConvertFileSystem.ConvertSupport("apng", "gif"),
@@ -328,29 +340,40 @@ if (metadata != null) {
 
     /**
      * 动画帧数据类
+     * @author CH
+     * @since 4.0.0
      */
     private static class AnimationFrame {
         /** 图片 */
         private final BufferedImage image;
-        /** Delay */
+        /** 延迟 */
         private final int delay;
 
         /**
-         * 创建 AnimationFrame 实例
-         * @param image image
-         * @param int int
+          * 创建 animation帧 实例
+         * @param image 镜像
+         * @param delay int
+         * @param delay 延迟
          */
         public AnimationFrame(BufferedImage image, int delay) {
             this.image = image;
             this.delay = delay;
         }
 
-        /** 获取Image */
+        /**
+         * 获取镜像
+         *
+         * @return 获取镜像的结果
+         */
         public BufferedImage getImage() {
             return image;
         }
 
-        /** 获取Delay */
+        /**
+         * 获取延迟
+         *
+         * @return 获取延迟的结果
+         */
         public int getDelay() {
             return delay;
         }

@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import java.util.*;
 
 /**
- * Elasticsearch 引擎的 DataSync OUTPUT Provider。
+   * Elasticsearch 引擎的 数据同步 输出 提供者。
  * <p>将 {@link Flux}&lt;Map&gt; 逐条写入 ES Index，使用文档内 id 保证幂等。</p>
  *
  * @author CH
@@ -25,7 +25,7 @@ public class EsDataSyncSource implements DataSyncSource {
     private static final int DEFAULT_BATCH = 1000;
 
     /**
-     * id 字段名
+      * 标识 字段名
      */
     private static final String ID = "id";
 
@@ -45,7 +45,7 @@ public class EsDataSyncSource implements DataSyncSource {
     private final String sourceId;
 
     /**
-     * Agent 标识
+      * 智能体 标识
      */
     private final String agentId;
 
@@ -60,7 +60,7 @@ public class EsDataSyncSource implements DataSyncSource {
      * @param engine    ES 引擎
      * @param indexName 索引名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @param batchSize 批大小
      */
     private EsDataSyncSource(ElasticsearchEngine engine, String indexName,
@@ -78,7 +78,7 @@ public class EsDataSyncSource implements DataSyncSource {
      * @param engine    ES 引擎
      * @param indexName 索引名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @return 实例
      */
     public static EsDataSyncSource output(ElasticsearchEngine engine, String indexName,
@@ -92,7 +92,7 @@ public class EsDataSyncSource implements DataSyncSource {
      * @param engine    ES 引擎
      * @param indexName 索引名
      * @param sourceId  源标识
-     * @param agentId   Agent 标识
+     * @param agentId   智能体 标识
      * @param batchSize 批大小
      * @return 实例
      */
@@ -108,13 +108,13 @@ public class EsDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** SourceId */
+    /** 源id */
     public String sourceId() {
         return sourceId;
     }
 
     @Override
-    /** AgentId */
+    /** 智能体id */
     public String agentId() {
         return agentId;
     }
@@ -126,7 +126,7 @@ public class EsDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** CurrentOffset */
+    /** 当前偏移量 */
     public SyncDataOffset currentOffset() {
         return null;
     }

@@ -8,6 +8,9 @@ import java.util.Map;
  *
  * @author CH
  * @since 4.0.0.42
+ * @param sql SQL
+ * @param params 参数
+ * @return d1对账单的结果
  */
 public record D1Statement(String sql, D1SqlParameter params) {
 
@@ -32,7 +35,7 @@ public record D1Statement(String sql, D1SqlParameter params) {
      * <p>{@code {"sql": "...", "params": [...]}}；无参数时省略 params。
      * 命名参数（{@code :name}）按 SQL 中出现顺序转换为数组。</p>
      *
-     * @return JSON 节点（Map 形式）
+     * @return JSON 节点（映射 形式）
      */
     public Map<String, Object> toJson() {
         var map = new LinkedHashMap<String, Object>();

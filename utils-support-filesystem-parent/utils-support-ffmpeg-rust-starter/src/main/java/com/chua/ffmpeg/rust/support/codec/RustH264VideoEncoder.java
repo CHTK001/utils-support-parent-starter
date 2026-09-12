@@ -64,7 +64,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     private static final int DEFAULT_PRESET = 1;
 
     /**
-     * 默认 profile 值
+      * 默认 配置文件 值
      */
     private static final int DEFAULT_PROFILE = 1;
 
@@ -86,7 +86,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 使用包装类型宽高和帧率构造，null 时跳过初始化。
+      * 使用包装类型宽高和帧率构造，空 时跳过初始化。
      *
      * @param width 视频宽度
      * @param height 视频高度
@@ -114,7 +114,13 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
         }
     }
 
-    /** 初始化 */
+    /**
+     * 初始化
+     *
+     * @param width width
+     * @param height height
+     * @param fps fps
+     */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = width;
@@ -126,29 +132,35 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     @Override
-    /** 获取CodecName */
+    /** 获取codec名称 */
     public String getCodecName() {
         return "h264";
     }
 
     @Override
-    /** 获取CodecId */
+    /** 获取codecid */
     public int getCodecId() {
         return 27;
     }
 
     @Override
-    /** 是否HardwareAccelerated */
+    /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return false;
     }
 
     @Override
-    /** ForceKeyFrame */
+    /** force键帧 */
     public void forceKeyFrame() {
     }
 
-    /** EnsureInitialized */
+    /**
+     * ensure初始化
+     *
+     * @param w w
+     * @param h h
+     * @param f f
+     */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || encoderHandle == 0) {
             init(w, h, f);
@@ -207,7 +219,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     }
 
     /**
-     * 确保 BufferedImage 转换为 BGR24 字节数组。
+      * 确保 缓冲镜像 转换为 BGR24 字节数组。
      *
      * @param image 源图像
      * @return BGR24 字节数组

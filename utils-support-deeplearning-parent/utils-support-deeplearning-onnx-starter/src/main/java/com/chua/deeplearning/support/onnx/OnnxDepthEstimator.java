@@ -2,7 +2,7 @@ package com.chua.deeplearning.support.onnx;
 
 import com.chua.deeplearning.support.image.DepthEstimator;
 import lombok.extern.slf4j.Slf4j;
-/** @author CH */
+/** @作者 CH */
 
 @Slf4j
 public class OnnxDepthEstimator implements DepthEstimator {
@@ -11,20 +11,24 @@ public class OnnxDepthEstimator implements DepthEstimator {
     private String modelName;
 
     /**
-     * 创建 OnnxDepthEstimator 实例
-     * @param apiKey apiKey
+      * 创建 onnx深度estimator 实例
+     * @param apiKey API密钥
      */
     public OnnxDepthEstimator(String apiKey) {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public DepthEstimator model(String model) {
         this.modelName = model;
         return this;
     }
 
-    /** 解析Model */
+    /**
+     * 解析模型
+     *
+     * @return resolve模型的结果
+     */
     private String resolveModel() {
         return modelName != null ? modelName : "depth-anything";
     }

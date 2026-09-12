@@ -7,7 +7,7 @@ import com.chua.runtime.protocol.Protocol;
 import com.chua.runtime.protocol.Software;
 
 /**
- * Spring Integration Handler — intercepts message channel send operations.
+   * Spring Integration 处理器 — intercepts 消息 通道 发送 operations.
  *
  * @author CH
  * @since 4.0.0.42
@@ -15,22 +15,22 @@ import com.chua.runtime.protocol.Software;
 public class SpringIntegrationHandler extends AbstractAppHandler {
 
     /**
-     * 消息 channel
+      * 消息 通道
      */
     private static final String MESSAGE_CHANNEL = "org/springframework/integration/channel/AbstractMessageChannel";
     /**
-     * send methods
+      * 发送 方法
      */
     private static final String[] SEND_METHODS = {"send", "receive"};
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "spring-integration-handler";
     }
 
     @Override
-    /** EnabledKey */
+    /** 已启用键 */
     protected String enabledKey() {
         return "spring-integration.enabled";
     }
@@ -42,13 +42,13 @@ public class SpringIntegrationHandler extends AbstractAppHandler {
     }
 
     @Override
-    /** Protocol */
+    /** 协议 */
     protected Protocol protocol() {
         return Protocol.MESSAGE;
     }
 
     @Override
-    /** 注册Interceptors */
+    /** 注册拦截器 */
     protected void registerInterceptors() {
         registerAll(MESSAGE_CHANNEL, SEND_METHODS);
     }

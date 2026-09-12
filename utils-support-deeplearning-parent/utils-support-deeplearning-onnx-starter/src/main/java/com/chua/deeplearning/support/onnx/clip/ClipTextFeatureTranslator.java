@@ -22,21 +22,21 @@ import javax.annotation.Nullable;
  * CLIP                      
  * <p>
  * CLIP                                     
- *   CLIP-ViT-B-16-TEXT     CLIP-ViT-B-32-TEXT          
+   * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
  * </p>
  * <p>
  *                  
- * 1.        HuggingFace Tokenizer                      
- * 2.     token IDs                            
+   * 1.        huggingface Tokenizer
+   * 2.     令牌 ids
  * 3.                                     77       
  * </p>
  * <p>
  *                            
- * -          input_ids (shape: [batch_size, sequence_length], max_length=77)
- * -          text_embeds (shape: [batch_size, 512])
+   * -          输入_标识 (shape: [批量_大小, sequence_长度], 最大_长度=77)
+   * -          文本_embeds (shape: [批量_大小, 512])
  * </p>
  * <p>
- *   CLIP-ViT-B-16-TEXT     CLIP-ViT-B-32-TEXT                                     
+   * CLIP-vit-B-16-文本     CLIP-vit-B-32-文本
  *    512                                                                   
  * </p>
  *
@@ -53,12 +53,12 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
-     * token IDs                 
+      * 令牌 ids
      */
     private static final long DEFAULT_PAD_TOKEN_ID = 1L;
 
     /**
-     * HuggingFace          
+      * huggingface
      */
     private HuggingFaceTokenizer tokenizer;
 
@@ -112,13 +112,13 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
      * <p>
      *                                                 
      * 1.        Tokenizer                      
-     * 2.        token IDs
+      * 2.        令牌 ids
      * 3.                                              
      * </p>
      *
      * @param ctx                     
      * @param input             
-     * @return              NDList                   [1, sequence_length]     input_ids       
+     * @return              NDList                   [1, sequence_长度]     输入_标识
      * @throws Exception                   
      */
     @Override
@@ -132,8 +132,8 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
         Encoding encoding = tokenizer.encode(input);
         long[] tokenIds = normalizeTokenIds(encoding.getIds());
 
-        //        input_ids       
-        // ONNX                       [batch_size, sequence_length]                   
+ // 输入_标识
+ // ONNX                       [批量_大小, sequence_长度]
         var inputIds = ctx.getNDManager().create(tokenIds);
         //                       INT64               
         if (!inputIds.getDataType().equals(DataType.INT64)) {
@@ -150,11 +150,11 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
      *                   
      * <p>
      *                                                       
-     * CLIP ViT-B/16     ViT-B/32                       512                   
+      * CLIP vit-B/16     vit-B/32                       512
      * </p>
      *
      * @param ctx                    
-     * @param list                 NDList          text_embeds
+     * @param list                 nd列表          文本_embeds
      * @return                            512       
      */
     @Override
@@ -173,11 +173,11 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     /**
      *                                      
      * <p>
-     *           : text_embeds / pooler_output / sentence_embedding               
+      * : 文本_embeds / 游泳池_输出 / sentence_嵌入
      *                                     
      * </p>
      *
-     * @param list NDList                        
+     * @param list nd列表
      * @return                               
      */
     private NDArray selectEmbeddingOutput(NDList list) {
@@ -214,7 +214,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     }
 
     /**
-     * token IDs                           
+      * 令牌 ids
      *
      * @param tokenIds                  
      * @return                            MAX_SEQUENCE_LENGTH       

@@ -21,10 +21,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * Command Code usage parser - parses token usage and cost from local session transcripts.
+   * 命令 编码 usage parser - 解析 令牌 usage 和 cost 从 本地 会话 transcripts.
  *
  * <p>Data source is {@code ~/.commandcode/projects/<project-slug>/<session-id>.jsonl}.
- * Each session is an append-only JSONL transcript; assistant messages carry a top-level
+   * Each 会话 是否 an 追加-only JSONL transcript; assistant 消息 carry a top-级别
  * {@code usage} block and a top-level {@code model} ({@code provider/model}):</p>
  *
  * <pre>{@code
@@ -41,6 +41,8 @@ import reactor.core.scheduler.Schedulers;
  *   },
  *   "model": "deepseek/deepseek-v4-flash"
  * }
+ * }</pre>ash"
+ * }
  * }</pre>
  *
  * <p>Sidecar files ({@code *.checkpoints.jsonl}, {@code *.prompts.jsonl}, ...) are
@@ -52,14 +54,14 @@ import reactor.core.scheduler.Schedulers;
 @Spi("command-code")
 public class CommandCodeUsageParser extends BaseUsageParser {
 
-    private static final Logger log = LoggerFactory.getLogger(CommandCodeUsageParser.class);
+    private static final Logger log = LoggerFactory.getLogger(CommandCodeUsageParser.class); // 日志
 
-    /** Session transcripts root: ~/.commandcode/projects */
+    /** 会话 transcripts 根: ~/.commandcode/projects */
     private static final Path PROJECTS_DIR = Path.of(
             System.getProperty("user.home"), ".commandcode", "projects");
 
-    private static final String PROVIDER_COMMAND_CODE = "command-code";
-    private static final String UNKNOWN_MODEL = "unknown";
+    private static final String PROVIDER_COMMAND_CODE = "command-code"; // 提供者命令编码
+    private static final String UNKNOWN_MODEL = "unknown"; // unknown模型
 
     @Override
     public String name() {
@@ -67,7 +69,7 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析全部 session 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
+      * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -91,7 +93,9 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 仅扫描主转录文件，跳过 checkpoints/prompts 等 sidecar。
+      * 仅扫描主转录文件，跳过 checkpoints/提示符 等 sidecar。
+     * @param file 文件
+     * @return 是否transcript的结果
      */
     private static boolean isTranscript(Path file) {
         String name = file.getFileName().toString();
@@ -100,6 +104,8 @@ public class CommandCodeUsageParser extends BaseUsageParser {
 
     /**
      * 单个 JSONL 文件的行流（惰性 + 背压）。
+     * @param file 文件
+     * @return 流jsonl文件的结果
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
@@ -110,7 +116,9 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 安全解析单行，失败返回 empty。
+      * 安全解析单行，失败返回 空。
+     * @param line 线
+     * @return 解析线safe的结果
      */
     private java.util.Optional<AiUsage> parseLineSafe(String line) {
         try {
@@ -122,9 +130,11 @@ public class CommandCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将一条转录行转换为 AiUsage 记录。
+      * 将一条转录行转换为 AIusage 记录。
      *
      * <p>仅接受带顶层 {@code usage} 且含有效 token/费用的 assistant 消息行。</p>
+     * @param node 节点
+     * @return 解析节点的结果
      */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         JsonNode type = node.get("type");

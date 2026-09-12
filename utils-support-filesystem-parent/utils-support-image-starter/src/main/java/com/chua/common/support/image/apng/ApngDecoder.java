@@ -14,7 +14,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
- * APNG（Animated PNG）解析器：读取 acTL/fcTL/fdAT/IDAT 块并还原动画帧。
+   * APNG（Animated PNG）解析器：读取 actl/函数计算tl/fdat/IDAT 块并还原动画帧。
  *
  * <p>对齐 {@code GifDecoder} 的调用风格：
  * <pre>{@code
@@ -24,10 +24,13 @@ import java.util.zip.Inflater;
  *     BufferedImage frame = decoder.getFrame(i);
  *     int delayMs = decoder.getDelay(i);
  * }
+ * }</pre>.getFrame(i);
+ *     int delayMs = decoder.getDelay(i);
+ * }
  * }</pre>
  *
  * <p>支持标准 APNG 特性：帧偏移（fcTL x/y）、处置操作（dispose_op）、
- * 混合操作（blend_op，SOURCE/OVER）、循环次数（acTL num_plays）。
+   * 混合操作（blend_op，源/OVER）、循环次数（actl num_plays）。
  * 帧数据统一解码为 RGBA 颜色类型。</p>
  *
  * @author CH
@@ -42,10 +45,10 @@ public class ApngDecoder {
 
     /** 块类型字节（大端 int） */
     private static final int CHUNK_IHDR = 0x49484452; // IHDR
-    private static final int CHUNK_acTL = 0x6163544C; // acTL
-    private static final int CHUNK_fcTL = 0x6663544C; // fcTL
+    private static final int CHUNK_acTL = 0x6163544C; // actl
+    private static final int CHUNK_fcTL = 0x6663544C; // 函数计算tl
     private static final int CHUNK_IDAT = 0x49444154; // IDAT
-    private static final int CHUNK_fdAT = 0x66644154; // fdAT
+    private static final int CHUNK_fdAT = 0x66644154; // fdat
     private static final int CHUNK_IEND = 0x49454E44; // IEND
 
     /** 解码后的帧列表 */
@@ -54,7 +57,7 @@ public class ApngDecoder {
     /** 每帧延迟（毫秒） */
     private final List<Integer> delays = new ArrayList<>();
 
-    /** 循环次数（acTL num_plays），0 表示无限循环 */
+    /** 循环次数（actl num_plays），0 表示无限循环 */
     private int loopCount;
 
     /** 画布宽度 */
@@ -63,7 +66,7 @@ public class ApngDecoder {
     /** 画布高度 */
     private int height;
 
-    /** 是否为 APNG（含 acTL 块） */
+    /** 是否为 APNG（含 actl 块） */
     private boolean animated;
 
     /** 是否已解析 */
@@ -121,7 +124,7 @@ public class ApngDecoder {
 
                 case CHUNK_IDAT:
                     if (current == null) {
-                        // 无 fcTL 的 IDAT：静态 PNG 或首帧数据
+ // 无 函数计算tl 的 IDAT：静态 PNG 或首帧数据
                         current = new FrameData();
                         current.control = null; // 首帧使用全画布
                         current.data = new ByteArrayOutputStream();
@@ -137,7 +140,7 @@ public class ApngDecoder {
                     if (current == null) {
                         throw new IOException("fdAT 块出现在帧数据之前");
                     }
-                    // fdAT: 4 字节 sequence + 压缩数据
+ // fdat: 4 字节 sequence + 压缩数据
                     current.data.write(data, 4, data.length - 4);
                     break;
 
@@ -150,7 +153,7 @@ public class ApngDecoder {
                     return;
 
                 default:
-                    // 其他块（PLTE/tEXt 等）忽略
+ // 其他块（PLTE/文本 等）忽略
                     break;
             }
         }
@@ -159,7 +162,8 @@ public class ApngDecoder {
     // ==================== 帧合成 ====================
 
     /**
-     * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 fcTL 合成到画布。
+      * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 函数计算tl 合成到画布。
+     * @param frameDataList 帧数据列表
      */
     private void decodeFrames(List<FrameData> frameDataList) throws IOException {
         if (frameDataList.isEmpty()) {
@@ -174,7 +178,7 @@ public class ApngDecoder {
 
         for (FrameData fd : frameDataList) {
             if (fd.control == null) {
-                // 首帧（无 fcTL）：整幅画布
+ // 首帧（无 函数计算tl）：整幅画布
                 BufferedImage frameImage = decodeFrameData(fd.data.toByteArray(), canvasW, canvasH);
                 frames.add(frameImage);
                 delays.add(0);
@@ -204,7 +208,7 @@ public class ApngDecoder {
     /**
      * 解码单帧数据：zlib 解压后按 PNG 扫描线格式还原像素。
      *
-     * @param rawData 压缩的帧数据（IDAT/fdAT 内容）
+     * @param rawData 压缩的帧数据（IDAT/fdat 内容）
      * @param w       帧宽
      * @param h       帧高
      * @return RGBA 图像
@@ -242,6 +246,8 @@ public class ApngDecoder {
 
     /**
      * zlib 解压。
+     * @param data 数据
+     * @return inflate的结果
      */
     private static byte[] inflate(byte[] data) throws IOException {
         Inflater inflater = new Inflater();
@@ -269,6 +275,27 @@ public class ApngDecoder {
 
     /**
      * PNG 行过滤器逆变换（unfilter）。
+     * @param a a
+     /**
+      * un过滤器row。
+      * @param filterType 过滤器类型
+      * @param curr curr
+      * @param prev prev
+      * @param stride stride
+      * @param bpp bpp
+      */
+     * @param b b
+     * @param c c
+     * @return paethPredictor的结果
+      * @param a a
+     /**
+      * un过滤器row。
+      * @param filterType 过滤器类型
+      * @param curr curr
+      * @param prev prev
+      * @param stride stride
+      * @param bpp bpp
+      */
      */
     private static void unFilterRow(int filterType, byte[] curr, byte[] prev, int stride, int bpp) {
         switch (filterType) {
@@ -320,15 +347,33 @@ public class ApngDecoder {
 
     // ==================== 画布操作 ====================
 
+    /**
+     * 新Canvas。
+     * @param w w
+     * @param h h
+     * @return 新Canvas的结果
+     */
     private static BufferedImage newCanvas(int w, int h) {
         return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     }
 
+    /**
+     * clearCanvas。
+     * @param image 镜像
+     */
     private static void clearCanvas(BufferedImage image) {
         int[] pixels = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
         java.util.Arrays.fill(pixels, 0);
     }
 
+    /**
+      * clearregion。
+     * @param image 镜像
+     * @param x x
+     * @param y y
+     * @param w w
+     * @param h h
+     */
     private static void clearRegion(BufferedImage image, int x, int y, int w, int h) {
         for (int yy = y; yy < y + h && yy < image.getHeight(); yy++) {
             for (int xx = x; xx < x + w && xx < image.getWidth(); xx++) {
@@ -337,6 +382,11 @@ public class ApngDecoder {
         }
     }
 
+    /**
+     * 副本镜像。
+     * @param src src
+     * @return 副本镜像的结果
+     */
     private static BufferedImage copyImage(BufferedImage src) {
         BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
         int[] pixels = ((java.awt.image.DataBufferInt) dst.getRaster().getDataBuffer()).getData();
@@ -352,7 +402,11 @@ public class ApngDecoder {
      * @param frame  帧图像
      * @param x      水平偏移
      * @param y      垂直偏移
-     * @param blend  混合方式（SOURCE=覆盖，OVER=Alpha 混合）
+     * @param blend  混合方式（源=覆盖，OVER=Alpha 混合）
+     * @param dst dst
+     * @param src src
+     * @param srcAlpha srcalpha
+     * @return blendOver的结果
      */
     private static void compositeFrame(BufferedImage canvas, BufferedImage frame,
                                        int x, int y, int blendOp) {
@@ -392,7 +446,7 @@ public class ApngDecoder {
     // ==================== 数据类 ====================
 
     /**
-     * fcTL 帧控制块。
+      * 函数计算tl 帧控制块。
      */
     private static final class FrameControl {
         int width;
@@ -419,7 +473,12 @@ public class ApngDecoder {
     private static final class FrameData {
         FrameControl control;
         ByteArrayOutputStream data = new ByteArrayOutputStream();
-        /** 是否已加入帧列表（防止重复添加） */
+        /**
+         * 是否已加入帧列表（防止重复添加）
+         *
+         * @param data 数据
+         * @return 解析帧control的结果
+         */
         boolean added;
     }
 
@@ -449,6 +508,12 @@ public class ApngDecoder {
         return ctrl;
     }
 
+    /**
+     * 读取intbe。
+     * @param data 数据
+     * @param offset 偏移量
+     * @return 读取intbe的结果
+     */
     private static int readIntBE(byte[] data, int offset) {
         return ((data[offset] & 0xFF) << 24)
                 | ((data[offset + 1] & 0xFF) << 16)
@@ -516,7 +581,7 @@ public class ApngDecoder {
     }
 
     /**
-     * 判断是否为动画（含 acTL 块）。
+      * 判断是否为动画（含 actl 块）。
      *
      * @return true 表示 APNG
      */

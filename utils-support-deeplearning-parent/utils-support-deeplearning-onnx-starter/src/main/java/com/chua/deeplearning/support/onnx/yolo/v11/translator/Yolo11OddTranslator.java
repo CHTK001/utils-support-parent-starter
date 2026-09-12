@@ -18,37 +18,37 @@ import java.util.stream.IntStream;
 
 
 /**
- * YOLOv11 OBB                
+   * yolov11 OBB
  * <p>
- *        YOLOv11                               OBB - Oriented Bounding Box                  
+   * yolov11                               OBB - Oriented Bounding Box
  *                                                                                              
  * <p>
  *                
  * -                                       +        +          
- * -            ProbIoU                 NMS
+   * -            probiou                 NMS
  * -                          
  * -                                
- * -     LetterBox          
+   * -     letterbox
  * <p>
  *                
- * [cx, cy, w, h, class_scores..., angle]
+   * [cx, cy, w, h, 类_scores..., angle]
  * - cx, cy:                
  * - w, h:                
- * - class_scores:                
+   * - 类_scores:
  * - angle:                         
  * <p>
  *                
- * ```java
+   * ```Java
  * //                   
- * List<String> classes = Arrays.asList("text", "vehicle");
- * Yolo11OddTranslator translator = new Yolo11OddTranslator(classes);
+   * 列表<String> 类 = Arrays.as列表("文本", "vehicle");
+   * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(类);
  *
  * //                
- * Yolo11OddTranslator translator = new Yolo11OddTranslator(640, 0.25f, 0.45f, classes);
+   * Yolo11oddtranslator translator = 新 Yolo11oddtranslator(640, 0.25f, 0.45f, 类);
  * ```
  *
  * @author CH
- * @version 4.0.0.32
+   * @版本 4.0.0.32
  * @since 2025-01-22
  */
 @Slf4j
@@ -95,7 +95,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     * 创建 Yolo11OddTranslator 实例
+      * 创建 Yolo11oddtranslator 实例
      * @param classes classes
      */
     public Yolo11OddTranslator(List<String> classes) {
@@ -149,7 +149,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
 
-        // LetterBox          
+ // letterbox
         var letterBoxResult = LetterBoxUtils.letterbox(manager, array, width, height, 114f,
                                                        LetterBoxUtils.PaddingPosition.CENTER);
         array = letterBoxResult.image;
@@ -179,7 +179,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      *                   
      *
      * @param ctx                    
-     * @param list              NDList
+     * @param list              nd列表
      * @return OBB             
      */
     @Override
@@ -210,7 +210,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                            float scale, int left, int top, NDList list) {
-        //                [cx, cy, w, h, class_scores..., angle]
+ // [cx, cy, w, h, 类_scores..., angle]
         var rawResult = list.get(0);
         var reshapedResult = rawResult.transpose();
         var shape = reshapedResult.getShape();
@@ -263,10 +263,10 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     }
 
     /**
-     *           NMS          ProbIoU   
+      * NMS          probiou
      *
      * @param boxes                       
-     * @param iouThreshold IoU       
+     * @param iouThreshold iou
      * @return                         
      */
     private List<YoloRotatedBox> rotatedNMS(List<YoloRotatedBox> boxes, double iouThreshold) {
@@ -314,6 +314,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
      *                   
      *
      * @return STACK             
+     * @param size 大小
      */
     @Override
     public Batchifier getBatchifier() {

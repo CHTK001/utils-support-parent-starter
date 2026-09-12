@@ -11,7 +11,7 @@ import java.util.List;
 public interface PermissionManager {
 
     /**
-     * 返回 SPI 扩展键（如 "mysql"、"postgresql"）。
+      * 返回 SPI 扩展键（如 "MySQL"、"PostgreSQL"）。
      */
     String type();
 
@@ -32,6 +32,8 @@ public interface PermissionManager {
 
     /**
      * 授予权限步骤接口。
+     * @author CH
+     * @since 4.0.0
      */
     interface GrantStep {
         GrantStep toUser(String username);
@@ -44,6 +46,8 @@ public interface PermissionManager {
 
     /**
      * 撤销权限步骤接口。
+     * @author CH
+     * @since 4.0.0
      */
     interface RevokeStep {
         RevokeStep fromUser(String username);

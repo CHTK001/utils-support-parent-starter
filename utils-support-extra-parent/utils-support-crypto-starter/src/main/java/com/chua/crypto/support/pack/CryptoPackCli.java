@@ -87,7 +87,7 @@ public final class CryptoPackCli {
     }
 
     /**
-     * 解析 "--key value" 与布尔开关参数
+      * 解析 "--键 值" 与布尔开关参数
      *
      * @param args 原始参数
      * @return 键值表（布尔开关值为 "true"）

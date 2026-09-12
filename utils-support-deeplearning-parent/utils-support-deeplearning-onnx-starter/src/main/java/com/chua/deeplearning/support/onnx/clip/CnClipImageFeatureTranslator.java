@@ -14,7 +14,7 @@ import java.nio.file.Path;
  * CN-CLIP                 Translator   
  *
  * <p>CN-CLIP        Chinese-CLIP ViT-B/16 image encoder ONNX                       
- *  input [N,3,224,224] float32  unnorm_image_features [N,512]           </p>
+   * 输入 [N,3,224,224] float32  unnorm_镜像_特征 [N,512]           </p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,7 +22,7 @@ import java.nio.file.Path;
 public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.cv.Image, float[]> {
 
     /** 图像尺寸 */
-    /** Image_size */
+    /** 镜像_大小 */
     private static final int IMAGE_SIZE = 224;
     /** 均值数组 */
     /** Mean */
@@ -32,7 +32,7 @@ public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.
     private static final float[] STD = new float[]{0.26862954f, 0.26130258f, 0.27577711f};
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, ai.djl.modality.cv.Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), ai.djl.modality.cv.Image.Flag.COLOR);
         array = ai.djl.modality.cv.util.NDImageUtils.resize(array, IMAGE_SIZE, IMAGE_SIZE);
@@ -58,7 +58,7 @@ public class CnClipImageFeatureTranslator implements Translator<ai.djl.modality.
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray imageEmbeds = list.singletonOrThrow();
         return imageEmbeds.squeeze().toFloatArray();

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * SubHD 字幕搜索提供者 — 从 subhd.tv 接口检索真实字幕数据
+   * subhd 字幕搜索提供者 — 从 subhd.tv 接口检索真实字幕数据
  *
  * @author CH
  * @since 4.0.0.42
@@ -30,7 +30,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     /** 日志记录器 */
     private static final Logger log = LoggerFactory.getLogger(DemoSubtitleSearchProvider.class);
 
-    /** SubHD 搜索接口地址 */
+    /** subhd 搜索接口地址 */
     private static final String SUBHD_SEARCH_URL = "https://subhd.tv/api/search";
     /** JSON 对象映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -69,9 +69,9 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-     * 解析SubHdResponse
-     * @param body body
-     * @param request request
+      * 解析subhd响应
+     * @param body 主体
+     * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> parseSubHdResponse(String body,
                                                                       SubtitleSearchRequest request) {
@@ -105,7 +105,7 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-     * fallback: 通过 SubHD HTML 搜索页面抓取字幕
+      * 降级: 通过 subhd HTML 搜索页面抓取字幕
      */
     private ReturnPageResult<SubtitleSearchResult> fallbackSearch(String keyword,
                                                                    SubtitleSearchRequest request) {
@@ -128,10 +128,10 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-     * 解析HtmlFallback
-     * @param html html
+      * 解析html降级
+     * @param html HTML
      * @param keyword keyword
-     * @param request request
+     * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> parseHtmlFallback(String html,
                                                                       String keyword,
@@ -160,9 +160,9 @@ public class DemoSubtitleSearchProvider implements SubtitleSearchProvider {
     }
 
     /**
-     * 构建分页Result
+      * 构建分页结果
      * @param items items
-     * @param request request
+     * @param request 请求
      */
     private ReturnPageResult<SubtitleSearchResult> buildPageResult(List<SubtitleSearchResult> items,
                                                                     SubtitleSearchRequest request) {

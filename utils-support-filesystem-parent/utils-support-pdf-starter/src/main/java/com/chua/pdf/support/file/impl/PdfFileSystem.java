@@ -23,6 +23,8 @@ import java.io.File;
  * // 写入文本 PDF
  * PdfWriteBuilder wb = (PdfWriteBuilder) fs.write(new File("out.pdf"));
  * wb.writeText(List.of("第一行", "第二行"));
+ * }</pre>pdf"));
+ * wb.writeText(List.of("第一行", "第二行"));
  * }</pre>
  *
  * @author CH
@@ -32,7 +34,7 @@ import java.io.File;
 public class PdfFileSystem implements FileSystem {
 
     @Override
-    /** 获取Type */
+    /** 获取类型 */
     public String getType() {
         
         return "pdf";

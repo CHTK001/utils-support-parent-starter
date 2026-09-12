@@ -18,13 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Wespeaker ResNet34 说话人嵌入提取翻译器（纯 ONNX Runtime 实现）。
+   * Wespeaker Rnet34 说话人嵌入提取翻译器（纯 ONNX Runtime 实现）。
  *
  * <h2>模型说明</h2>
  * <p>wespeaker-resnet34 是专用于说话人验证的 ResNet34+LM 架构：
  * <ul>
  *   <li><b>输入</b>：16kHz 单声道 PCM float 音频，先经 Kaldi-style 80 维 fbank 特征提取（预加重 0.97 / 去直流 /
- *       Povey 窗^0.85 / 512 点功率谱 / HTK-mel 0~8kHz / log）。</li>
+   * Povey 窗^0.85 / 512 点功率谱 / HTK-mel 0~8khz / 日志）。</li>
  *   <li><b>ONNX 期望</b>：rank=3 张量 [1, num_frames, 80]。</li>
  *   <li><b>输出</b>：512 维 L2 归一化嵌入向量（x-vector）。</li>
  *   <li><b>用途</b>：说话人验证、声纹识别、说话人分离。</li>
@@ -37,21 +37,22 @@ import java.util.Map;
 @Slf4j
 public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]> {
 
-    private OrtEnvironment ortEnv;
-    private OrtSession session;
-    private String modelPath;
-    private int targetSampleRate = 16000;
-    private volatile boolean prepared = false;
+    private OrtEnvironment ortEnv; // ortenv
+    private OrtSession session; // 会话
+    private String modelPath; // 模型路径
+    private int targetSampleRate = 16000; // Target样本rate
+    private volatile boolean prepared = false; // prepared
 
     // fbank 提取参数（与 sherpa-onnx / kaldi-native-fbank 一致）
     private static final int SAMPLE_RATE = 16000;
-    private static final int FFT_N = 512;
-    private static final int FRAME_LEN = 400;  // 25ms @ 16kHz
-    private static final int FRAME_SHIFT = 160; // 10ms @ 16kHz
-    private static final int FEATURE_DIM = 80;
+    private static final int FFT_N = 512; // FFT_N
+    private static final int FRAME_LEN = 400; // 25ms @ 16khz
+    private static final int FRAME_SHIFT = 160; // 10ms @ 16khz
+    private static final int FEATURE_DIM = 80; // 特征dim
 
     /**
-     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+      * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
+     * @param modelPath 模型路径
      */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
@@ -101,7 +102,9 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
 
                 // L2 归一化
                 double norm = 0.0;
-                for (float v : embedding) norm += v * v;
+                for (float v : embedding) {
+                    norm += v * v;
+                }
                 norm = Math.sqrt(norm);
                 if (norm > 0) {
                     for (int i = 0; i < embedding.length; i++) {
@@ -115,10 +118,17 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         }
     }
 
+    /**
+      * ensureprepared。
+     */
     private void ensurePrepared() throws Exception {
-        if (prepared) return;
+        if (prepared) {
+            return;
+        }
         synchronized (this) {
-            if (prepared) return;
+            if (prepared) {
+                return;
+            }
             ortEnv = OrtEnvironment.getEnvironment();
             Path modelFile = resolveModelPath(modelPath);
             if (modelFile == null || !Files.exists(modelFile)) {
@@ -133,10 +143,19 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         }
     }
 
+    /**
+     * resolve模型路径。
+     * @param pathStr 路径str
+     * @return resolve模型路径的结果
+     */
     private static Path resolveModelPath(String pathStr) {
-        if (pathStr == null || pathStr.isBlank()) return null;
+        if (pathStr == null || pathStr.isBlank()) {
+            return null;
+        }
         Path abs = Path.of(pathStr);
-        if (Files.exists(abs)) return abs;
+        if (Files.exists(abs)) {
+            return abs;
+        }
         try {
             var is = WespeakerEmbeddingTranslator.class.getClassLoader()
                     .getResourceAsStream(pathStr.startsWith("/") ? pathStr.substring(1) : pathStr);
@@ -151,6 +170,11 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         return null;
     }
 
+    /**
+     * decode转为pcm。
+     * @param audioData 音频数据
+     * @return decode转为pcm的结果
+     */
     private float[] decodeToPcm(byte[] audioData) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(
@@ -180,7 +204,12 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         }
     }
 
-    /** Kaldi-style fbank 80 维特征提取 */
+    /**
+     * Kaldi-style fbank 80 维特征提取
+     *
+     * @param samples 样本
+     * @return computeFbank80的结果
+     */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -205,7 +234,9 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
             double mean = 0;
             for (int j = 0; j < FRAME_LEN; j++) {
                 int idx = off + j;
-                if (idx >= samples.length) break;
+                if (idx >= samples.length) {
+                    break;
+                }
                 float cur = samples[idx];
                 frame[j] = (j == 0) ? cur : (cur - 0.97F * samples[idx - 1]);
                 mean += frame[j];
@@ -229,6 +260,11 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
         return feat;
     }
 
+    /**
+     * 构建kaldimel过滤器。
+     * @param nFreq nfreq
+     * @return 构建kaldimel过滤器的结果
+     */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
 
@@ -250,27 +286,47 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
             for (int k = left; k < center && k < nFreq; k++) {
                 if (k >= 0) {
                     double w = (k - binPoints[m]) / (binPoints[m + 1] - binPoints[m]);
-                    if (w > 0) filters[k][m] = w;
+                    if (w > 0) {
+                        filters[k][m] = w;
+                    }
                 }
             }
             for (int k = center; k < right && k < nFreq; k++) {
                 if (k >= 0) {
                     double w = (binPoints[m + 2] - k) / (binPoints[m + 2] - binPoints[m + 1]);
-                    if (w > 0 && filters[k][m] < w) filters[k][m] = w;
+                    if (w > 0 && filters[k][m] < w) {
+                        filters[k][m] = w;
+                    }
                 }
             }
         }
         return filters;
     }
 
+    /**
+     * hz转为mel。
+     * @param hz hz
+     * @return hz转为mel的结果
+     */
     private static double hzToMel(double hz) {
         return 2595.0 * Math.log10(1.0 + hz / 700.0);
     }
 
+    /**
+     * mel转为hertz。
+     * @param mel mel
+     * @return mel转为hertz的结果
+     */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
     }
 
+    /**
+      * fftradix2。
+     * @param inRe 入re
+     * @param outRe 出re
+     * @param outIm 出im
+     */
     private static void fftRadix2(double[] inRe, double[] outRe, double[] outIm) {
         int n = inRe.length;
         for (int i = 0; i < n; i++) {

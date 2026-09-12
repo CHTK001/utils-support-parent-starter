@@ -25,19 +25,19 @@ import javax.annotation.Nullable;
 public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
 
     /**
-     * 创建 RoundRectDotDrawEyeResolver 实例
-     * @param qrCodeConfig qrCodeConfig
+      * 创建 roundrectdotdraweye解析器 实例
+     * @param qrCodeConfig qr编码配置
      * @param g2 g2
-     * @param bitMatrix bitMatrix
-     * @param matrixW matrixW
-     * @param matrixH matrixH
-     * @param leftPadding leftPadding
-     * @param topPadding topPadding
-     * @param infoSize infoSize
-     * @param detectCornerSize detectCornerSize
-     * @param detectOutColor detectOutColor
-     * @param detectInnerColor detectInnerColor
-     * @param codeEyeSetting codeEyeSetting
+     * @param bitMatrix 钻头matrix
+     * @param matrixW matrixw
+     * @param matrixH matrixh
+     * @param leftPadding leftpadding
+     * @param topPadding toppadding
+     * @param infoSize 信息大小
+     * @param detectCornerSize detectcorner大小
+     * @param detectOutColor detect出color
+     * @param detectInnerColor detect内部color
+     * @param codeEyeSetting 编码eyesetting
      */
     public RoundRectDotDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                        Graphics2D g2,
@@ -57,7 +57,7 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     @Override
     /** Draw */
     public void draw(int x, int y, QrCodeRenderHelper.DetectLocation detectLocation) {
-        // 外层圆角方框（实心），再清空内层形成 ring
+ // 外层圆角方框（实心），再清空内层形成 R
         double outerArc = infoSize * detectCornerSize / 2D;
         int sx = leftPadding + x * infoSize;
         int sy = topPadding + y * infoSize;
@@ -90,7 +90,7 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     }
 
     @Override
-    /** Finish */
+    /** 饰面 */
     public void finish() {
         // 无需额外操作
     }

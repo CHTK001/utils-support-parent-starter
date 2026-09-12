@@ -37,7 +37,7 @@ public class SpiderProxyConfig {
      * <p>HTTP / HTTPS / SOCKS5，默认 HTTP。</p>
      */
     @Builder.Default
-    /** Proxy协议 */
+    /** 代理协议 */
     private String proxyProtocol = "HTTP";
 
     /**

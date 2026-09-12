@@ -27,6 +27,7 @@ import java.util.Objects;
  *         .model("pp-word-rotate")
  *         .build();
  * Object result = pipeline.recognizeSingle(imageBytes);
+ * }</pre>cognizeSingle(imageBytes);
  * }</pre>
  *
  * @author CH
@@ -187,7 +188,7 @@ public class TextDirectionPipeline {
     /**
      * 枚举可用文字方向模型。
      *
-     * @return 能力分组 → 模型 ID 列表
+     * @return 能力分组 → 模型 标识 列表
      */
     public Map<String, List<String>> listModels() {
         try {

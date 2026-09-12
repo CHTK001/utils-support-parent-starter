@@ -35,6 +35,7 @@ import java.util.concurrent.CompletionStage;
  * <pre>{@code
  * HttpReverseProxyFilter proxy = new HttpReverseProxyFilter();
  * server.addFilter(proxy);
+ * }</pre>lter(proxy);
  * }</pre>
  *
  * @author CH
@@ -50,19 +51,19 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     private HttpClient httpClient;
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Integer.MAX_VALUE - 50;
     }
 
     @Override
-    /** SupportPath */
+    /** 支持路径 */
     public String supportPath() {
         return null;
     }
 
     @Override
-    /** SupportProtocols */
+    /** 支持协议 */
     public ProtocolType[] supportProtocols() {
         return new ProtocolType[]{ProtocolType.HTTP};
     }
@@ -90,9 +91,9 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
     @Override
     /**
-     * Do过滤
-     * @param request request
-     * @param response response
+      * 执行过滤
+     * @param request 请求
+     * @param response 响应
      * @param chain chain
      */
     public void doFilter(ServerRequest request, ServerResponse response,
@@ -107,9 +108,9 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
 
     @Override
     /**
-     * Do过滤
-     * @param request request
-     * @param response response
+      * 执行过滤
+     * @param request 请求
+     * @param response 响应
      * @param chain chain
      */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
@@ -124,11 +125,11 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * ProxyAsync
+      * 代理异步
      * @param discovery discovery
-     * @param request request
-     * @param response response
-     * @param completionFuture completionFuture
+     * @param request 请求
+     * @param response 响应
+     * @param completionFuture 完成期货
      */
     private void proxyAsync(Discovery discovery, ServerRequest request, ServerResponse response,
                             CompletableFuture<Void> completionFuture) {
@@ -163,7 +164,12 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                 });
     }
 
-    /** 复制Headers */
+    /**
+     * 复制头部
+     *
+     * @param request 请求
+     * @param req req
+     */
     private void copyHeaders(ServerRequest request, HttpClientRequest req) {
         if (request.getHeaders() != null) {
             for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
@@ -178,10 +184,10 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     }
 
     /**
-     * 处理BackendResponse
+      * 处理backend响应
      * @param resp resp
-     * @param response response
-     * @param completionFuture completionFuture
+     * @param response 响应
+     * @param completionFuture 完成期货
      */
     private void handleBackendResponse(HttpClientResponse resp, ServerResponse response,
                                        CompletableFuture<Void> completionFuture) {
@@ -216,7 +222,12 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
                 });
     }
 
-    /** ExtractPath */
+    /**
+     * extract路径
+     *
+     * @param request 请求
+     * @return extract路径的结果
+     */
     private String extractPath(ServerRequest request) {
         String path = request.getPath();
         if (path == null) {
@@ -229,7 +240,13 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         return path;
     }
 
-    /** 发送记录错误 */
+    /**
+     * 发送记录错误
+     *
+     * @param response 响应
+     * @param code 编码
+     * @param msg msg
+     */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);
@@ -238,14 +255,24 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
         }
     }
 
-    /** Complete */
+    /**
+     * 完成
+     *
+     * @param future 期货
+     * @param value 值
+     */
     private static void complete(CompletableFuture<Void> future, Void value) {
         if (future != null) {
             future.complete(value);
         }
     }
 
-    /** CompleteExceptionally */
+    /**
+     * 完成exceptionally
+     *
+     * @param future 期货
+     * @param cause cause
+     */
     private static void completeExceptionally(CompletableFuture<Void> future, Throwable cause) {
         if (future != null) {
             future.completeExceptionally(cause);

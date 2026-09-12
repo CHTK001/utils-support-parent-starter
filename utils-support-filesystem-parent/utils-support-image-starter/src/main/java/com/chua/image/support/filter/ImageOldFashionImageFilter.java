@@ -46,10 +46,10 @@ import javax.annotation.Nullable;
  * - 效果稳定：对不同类型的图像都有一致的效果
  *
  * 注意：当前实现创建的是灰度图像，如需保持彩色复古效果，
- * 应使用TYPE_INT_RGB而不是TYPE_BYTE_GRAY。
+   * 应使用类型_INT_RGB而不是类型_BYTE_GRAY。
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2021/6/11
  */
 @SpiDescribe("复古怀旧风格滤镜")
@@ -68,7 +68,7 @@ public class ImageOldFashionImageFilter extends AbstractImageFilter {
      */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
-        // 注意：这里应该使用TYPE_INT_RGB来保持彩色复古效果
+ // 注意：这里应该使用类型_INT_RGB来保持彩色复古效果
         BufferedImage vintageImage = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         int width = src.getWidth();

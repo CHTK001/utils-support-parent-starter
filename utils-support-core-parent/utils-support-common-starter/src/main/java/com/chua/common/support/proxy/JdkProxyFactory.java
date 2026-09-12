@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
  *         ├── intercept.invoke(obj, method, args, proxy)    ← 方法调用
  *         ├── intercept.handleException(...)                 ← 异常处理
  *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
+ * }</pre>n(...)                 ← 异常处理
+ *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
  * }</pre>
  *
  * @param <T> 代理接口类型
@@ -76,9 +78,11 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
      * <p>实现了 {@link InvocationHandler} 接口，在代理方法被调用时执行完整的拦截生命周期：
      * 前置处理 → 方法调用 → 异常处理（可选） → 后置处理。
      * 如果 {@link MethodIntercept#handleException(Object, Method, Object[], Object, Throwable)}
-     * 返回非 null 值，则该值作为方法调用结果返回，异常不再传播。</p>
+      * 返回非 空 值，则该值作为方法调用结果返回，异常不再传播。</p>
      *
      * @param <T> 代理接口类型
+     * @author CH
+     * @since 4.0.0
      */
     public static class JdkInvocationHandler<T> implements InvocationHandler {
 
@@ -124,7 +128,7 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
                 // 执行方法调用
                 return intercept.invoke(proxy, method, args, (T) proxy);
             } catch (Exception e) {
-                // 执行异常处理，如果返回非 null 值则作为结果返回
+ // 执行异常处理，如果返回非 空 值则作为结果返回
                 Object result = intercept.handleException(proxy, method, args, (T) proxy, e);
                 if (result != null) {
                     return result;

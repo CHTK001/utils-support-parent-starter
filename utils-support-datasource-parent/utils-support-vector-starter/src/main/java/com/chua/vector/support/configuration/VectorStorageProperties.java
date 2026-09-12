@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * 向量存储统一配置属性，支持 cuVS (GPU) 和 jvector (CPU) 双后端。
+   * 向量存储统一配置属性，支持 cuvs (GPU) 和 jvector (CPU) 双后端。
  *
  * <p>通过 {@link com.chua.common.support.vector.VectorStorageProvider} 链式构建器传入，
  * 或绑定到 Spring Boot {@code application.yml}。</p>
@@ -31,6 +31,11 @@ import java.io.Serializable;
  *                 .forceCpu(false)
  *                 .requireGpu(true))
  *         .build();
+ * }</pre>Storage storage = VectorStorageProvider.of("vector")
+ *         .properties(new VectorStorageProperties()
+ *                 .forceCpu(false)
+ *                 .requireGpu(true))
+ *         .build();
  * }</pre>
  *
  * @author CH
@@ -41,7 +46,7 @@ import java.io.Serializable;
 @Accessors(chain = true, fluent = true)
 public class VectorStorageProperties implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     // ---- 后端选择 ----
 
@@ -63,25 +68,25 @@ public class VectorStorageProperties implements Serializable {
      */
     private boolean requireGpu = false;
 
-    // ---- cuVS GPU 参数 ----
+ // ---- cuvs GPU 参数 ----
 
     /**
-     * CUDA 设备 ID，默认 0。
+      * CUDA 设备 标识，默认 0。
      */
     private int deviceId = 0;
 
     /**
-     * cuVS 索引类型，默认 CAGRA。
+      * cuvs 索引类型，默认 CAGRA。
      */
     private CuvsIndexType indexType = CuvsIndexType.CAGRA;
 
     /**
-     * CAGRA/HNSW 图度（output graph degree），默认 64。
+      * CAGRA/HNSW 图度（输出 图计算 学位），默认 64。
      */
     private int graphDegree = 64;
 
     /**
-     * CAGRA 中间图度（intermediate graph degree），默认 128。
+      * CAGRA 中间图度（intermediate 图计算 学位），默认 128。
      */
     private int intermediateGraphDegree = 128;
 
@@ -91,14 +96,14 @@ public class VectorStorageProperties implements Serializable {
     private int searchEf = 100;
 
     /**
-     * BruteForce 模式下额外取候选倍数（内部使用，搜索时多取）。
+      * bruteforce 模式下额外取候选倍数（内部使用，搜索时多取）。
      */
     private int bruteForceFetchFactor = 3;
 
     // ---- jvector CPU 参数 ----
 
     /**
-     * jvector 存储模式，默认 MEMORY。
+      * jvector 存储模式，默认 内存。
      */
     private JvectorMode jvectorMode = JvectorMode.MEMORY;
 
@@ -108,21 +113,23 @@ public class VectorStorageProperties implements Serializable {
     private int jvectorGraphM = 32;
 
     /**
-     * jvector 建图时搜索深度 efConstruction，默认 100。
+      * jvector 建图时搜索深度 efconstruction，默认 100。
      */
     private int jvectorEfConstruction = 100;
 
     /**
-     * jvector 磁盘索引路径（ON_DISK / LARGER_THAN_MEMORY 模式）。
+      * jvector 磁盘索引路径（ON_DISK / LARGER_THAN_内存 模式）。
      */
     private String jvectorIndexPath = "./vector-index";
 
     /**
      * 后端类型枚举。
+     * @author CH
+     * @since 4.0.0
      */
     public enum Backend {
         /**
-         * 使用 NVIDIA cuVS GPU 加速。
+          * 使用 NVIDIA cuvs GPU 加速。
          */
         CUVS,
         /**
@@ -130,13 +137,15 @@ public class VectorStorageProperties implements Serializable {
          */
         JVECTOR,
         /**
-         * 自动检测：有 cuVS native 库则用 GPU，否则用 jvector。
+          * 自动检测：有 cuvs NAT 库则用 GPU，否则用 jvector。
          */
         AUTO
     }
 
     /**
-     * cuVS 支持的索引类型。
+      * cuvs 支持的索引类型。
+     * @author CH
+     * @since 4.0.0
      */
     public enum CuvsIndexType {
         /**
@@ -144,7 +153,7 @@ public class VectorStorageProperties implements Serializable {
          */
         CAGRA,
         /**
-         * BruteForce：精确暴力搜索，适合小数据集或验证基准。
+          * bruteforce：精确暴力搜索，适合小数据集或验证基准。
          */
         BRUTE_FORCE,
         /**
@@ -155,6 +164,8 @@ public class VectorStorageProperties implements Serializable {
 
     /**
      * jvector 存储模式。
+     * @author CH
+     * @since 4.0.0
      */
     public enum JvectorMode {
         /**

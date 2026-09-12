@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 微信开放平台服务默认实现
  * <p>
- * 使用 FileEngine 存储 openid 映射关系，支持自动持久化到 JSON 文件。
+   * 使用 文件engine 存储 openid 映射关系，支持自动持久化到 JSON 文件。
  *
  * @author CH
  * @since 4.0.0.42
@@ -48,18 +48,20 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
 
     /** 微信开放平台服务 */
     private final WxOpenService wxOpenService;
-    /** 第三方平台应用 AppId */
+    /** 第三方平台应用 appid */
     private final String componentAppId;
     /** 引擎实例 */
     private final WechatFileEngine engine;
-    /** ID 序列号 */
+    /** 标识 序列号 */
     private long idSequence = 0;
 
     /**
-     * 创建 DefaultWechatOpenPlatformService 实例
-     * @param componentAppId componentAppId
-     * @param String String
-     * @param String String
+      * 创建 默认wechat打开platform服务 实例
+     * @param componentAppId 组件appid
+     * @param componentAppId 字符串
+     * @param componentAppId 字符串
+     * @param componentAppSecret 组件appsecret
+     * @param storagePath storage路径
      */
     public DefaultWechatOpenPlatformService(String componentAppId, String componentAppSecret, String storagePath) {
         this.componentAppId = componentAppId;
@@ -68,7 +70,13 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         loadFromEngine();
     }
 
-    /** 构建Wx打开Service */
+    /**
+     * 构建Wx打开服务
+     *
+     * @param componentAppId 组件appid
+     * @param componentAppSecret 组件appsecret
+     * @return 构建wx打开服务的结果
+     */
     private WxOpenService buildWxOpenService(String componentAppId, String componentAppSecret) {
         WxOpenInMemoryConfigStorage config = new WxOpenInMemoryConfigStorage();
         config.setWxOpenInfo(componentAppId, componentAppSecret, null, null);
@@ -77,7 +85,12 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         return service;
     }
 
-    /** 初始化Engine */
+    /**
+     * 初始化Engine
+     *
+     * @param storagePath storage路径
+     * @return 初始化engine的结果
+     */
     private WechatFileEngine initEngine(String storagePath) {
         WechatFileEngine fileEngine = new WechatFileEngine();
         fileEngine.load(TABLE_NAME, storagePath, "json");
@@ -103,7 +116,11 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         log.info("从持久化文件加载 {} 条用户映射", users.size());
     }
 
-    /** 构建Index */
+    /**
+     * 构建索引
+     *
+     * @param user 用户
+     */
     private void buildIndex(WechatPlatformUser user) {
         // 更新unionid索引
         unionUserMap.compute(user.getUnionId(), (key, list) -> {
@@ -120,7 +137,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
-    /** 获取All打开IdsByUnionId */
+    /** 获取全部打开标识byunionid */
     public List<WechatPlatformUser> getAllOpenIdsByUnionId(String unionId) {
         if (StringUtils.isEmpty(unionId)) {
             return Collections.emptyList();
@@ -130,7 +147,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
-    /** 获取打开IdByUnionId */
+    /** 获取打开idbyunionid */
     public WechatPlatformUser getOpenIdByUnionId(String unionId, WechatPlatformUser.PlatformType platformType) {
         List<WechatPlatformUser> users = getAllOpenIdsByUnionId(unionId);
         return users.stream()
@@ -140,21 +157,21 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
-    /** 获取OfficialAccount打开Id */
+    /** 获取official账户打开标识 */
     public String getOfficialAccountOpenId(String unionId) {
         WechatPlatformUser user = getOpenIdByUnionId(unionId, WechatPlatformUser.PlatformType.OFFICIAL_ACCOUNT);
         return user != null ? user.getOpenId() : null;
     }
 
     @Override
-    /** 获取MiniApp打开Id */
+    /** 获取miniapp打开标识 */
     public String getMiniAppOpenId(String unionId) {
         WechatPlatformUser user = getOpenIdByUnionId(unionId, WechatPlatformUser.PlatformType.MINI_APP);
         return user != null ? user.getOpenId() : null;
     }
 
     @Override
-    /** 保存Or更新 */
+    /** 保存或更新 */
     public void saveOrUpdate(WechatPlatformUser user) {
         if (user == null || user.getUnionId() == null || user.getOpenId() == null) {
             return;
@@ -193,7 +210,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
-    /** 转换ToOfficial打开Id */
+    /** 转换转为official打开标识 */
     public String convertToOfficialOpenId(String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppOpenId)) {
             return null;
@@ -209,7 +226,7 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
     }
 
     @Override
-    /** 转换ToOfficial打开Id */
+    /** 转换转为official打开标识 */
     public String convertToOfficialOpenId(String miniAppId, String miniAppOpenId) {
         if (StringUtils.isEmpty(miniAppId) || StringUtils.isEmpty(miniAppOpenId)) {
             return null;
@@ -241,7 +258,13 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         return null;
     }
 
-    /** 获取UnionIdFromWechatApi */
+    /**
+     * 获取unionid从wechatapi
+     *
+     * @param authorizerAppId authorizerappid
+     * @param openid openid
+     * @return 获取unionid从wechatapi的结果
+     */
     private String getUnionIdFromWechatApi(String authorizerAppId, String openid) {
         try {
             WxOpenComponentService componentService = wxOpenService.getWxOpenComponentService();
@@ -272,7 +295,13 @@ public class DefaultWechatOpenPlatformService implements WechatOpenPlatformServi
         }
     }
 
-    /** DoPost */
+    /**
+     * 执行post
+     *
+     * @param urlStr urlstr
+     * @param body 主体
+     * @return 执行post的结果
+     */
     private String doPost(String urlStr, String body) throws Exception {
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

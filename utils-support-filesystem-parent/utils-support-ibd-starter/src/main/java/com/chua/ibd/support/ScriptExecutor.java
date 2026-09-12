@@ -25,7 +25,7 @@ public interface ScriptExecutor {
     /**
      * 获取支持的脚本扩展名
      *
-     * @return 扩展名（如 ".py"、".groovy"）
+     * @return 扩展名（如 ".py"、".Groovy"）
      */
     String getExtension();
 }

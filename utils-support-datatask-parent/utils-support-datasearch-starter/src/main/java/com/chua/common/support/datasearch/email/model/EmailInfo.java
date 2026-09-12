@@ -14,7 +14,7 @@ import lombok.Data;
 public class EmailInfo {
 
     /**
-     * 邮件 ID
+      * 邮件 标识
      */
     private String id;
 

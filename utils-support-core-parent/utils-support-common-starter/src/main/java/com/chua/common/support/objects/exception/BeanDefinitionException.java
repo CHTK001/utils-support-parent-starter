@@ -10,17 +10,18 @@ package com.chua.common.support.objects.exception;
 public class BeanDefinitionException extends RuntimeException {
 
     /**
-     * 创建 BeanDefinitionException 实例
-     * @param message message
+      * 创建 Beandefinition异常 实例
+     * @param message 消息
      */
     public BeanDefinitionException(String message) {
         super(message);
     }
 
     /**
-     * 创建 BeanDefinitionException 实例
-     * @param message message
-     * @param Throwable Throwable
+      * 创建 Beandefinition异常 实例
+     * @param message 消息
+     * @param cause Throwable
+     * @param cause cause
      */
     public BeanDefinitionException(String message, Throwable cause) {
         super(message, cause);

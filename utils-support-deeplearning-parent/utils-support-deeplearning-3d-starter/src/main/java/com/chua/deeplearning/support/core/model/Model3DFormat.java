@@ -9,12 +9,12 @@ package com.chua.deeplearning.support.core.model;
 public enum Model3DFormat {
 
     /**
-     * GLB 格式（glTF 二进制）
+      * GLB 格式（gltf 二进制）
      */
     GLB("glb", "model/gltf-binary"),
 
     /**
-     * GLTF 格式（glTF JSON + 资源文件）
+      * GLTF 格式（gltf JSON + 资源文件）
      */
     GLTF("gltf", "model/gltf+json"),
 
@@ -29,7 +29,7 @@ public enum Model3DFormat {
     FBX("fbx", "model/fbx"),
 
     /**
-     * PLY 格式（Polygon File Format）
+      * PLY 格式（Polygon 文件 格式化）
      */
     PLY("ply", "model/ply"),
 
@@ -39,7 +39,7 @@ public enum Model3DFormat {
     STL("stl", "model/stl");
 
     /** 扩展名 */
-    /** Extension */
+    /** 延伸 */
     private final String extension;
     /** MIME 类型 */
     /** Mime类型 */

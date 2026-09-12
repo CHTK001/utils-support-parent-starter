@@ -31,31 +31,31 @@ public interface ScriptDefinition extends BeanDefinition {
      */
     ScriptDefinition EMPTY_SCRIPT_DEFINITION = new AbstractScriptDefinition() {
         @Override
-        /** 获取Name */
+        /** 获取名称 */
         public String getName() {
             return "";
         }
 
         @Override
-        /** 获取Type */
+        /** 获取类型 */
         public String getType() {
             return "";
         }
 
         @Override
-        /** 获取ScriptClassLoader */
+        /** 获取script类加载 */
         public ClassLoader getScriptClassLoader() {
             return null;
         }
 
         @Override
-        /** 获取ScriptMarker */
+        /** 获取script记号笔 */
         public ScriptMarker getScriptMarker() {
             return null;
         }
 
         @Override
-        /** 获取Listener */
+        /** 获取监听器 */
         public Listener getListener() {
             return null;
         }

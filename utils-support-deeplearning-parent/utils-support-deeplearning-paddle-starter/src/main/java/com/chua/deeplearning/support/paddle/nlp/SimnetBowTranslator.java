@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Paddle SimNet BOW 文本相似度 Translator。
+   * 飞桨 simnet BOW 文本相似度 Translator。
  * <p>输入 [query tokens, title tokens]，输出相似度分数。</p>
  *
  * @author CH
@@ -62,7 +62,12 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
         unkId = word2Id.getOrDefault("<unk>", (long) word2Id.size());
     }
 
-    /** 打开 */
+    /**
+     * 打开
+     *
+     * @param model 模型
+     * @return 打开的结果
+     */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
         for (String n : names) {
@@ -75,7 +80,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
-    /** 处理Input */
+    /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, String[][] input) {
         NDManager manager = ctx.getNDManager();
         String[] query = input != null && input.length > 0 ? input[0] : new String[0];
@@ -85,7 +90,14 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
         return new NDList(q, t);
     }
 
-    /** ToIds */
+    /**
+     * 转为标识
+     *
+     * @param manager 管理器
+     * @param tokens 令牌
+     * @param name 名称
+     * @return 转为标识的结果
+     */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
         List<Long> ids = new ArrayList<>();
         if (tokens != null) {
@@ -103,7 +115,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     }
 
     @Override
-    /** 处理Output */
+    /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         return list.get(0).toFloatArray();
     }

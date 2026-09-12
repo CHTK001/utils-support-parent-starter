@@ -15,10 +15,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 /**
- * Chronicle Queue 主动采集器。
+   * Chronicle 队列 主动采集器。
  *
  * <p>监听 Chronicle Queue 中的消息，将数据推入 Pipeline 处理。
- * Chronicle Queue 是低延迟、持久化的消息队列，适合金融交易等高性能场景。</p>
+   * Chronicle 队列 是低延迟、持久化的消息队列，适合金融交易等高性能场景。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -38,7 +38,7 @@ public class ChronicleActiveCollector implements ActiveCollector {
     private DataHandler handler;
 
     /**
-     * Topic 与 Pipeline ID 映射
+      * Topic 与 Pipeline 标识 映射
      */
     protected final Map<String, String> topicToPipeline = new ConcurrentHashMap<>();
 
@@ -53,13 +53,13 @@ public class ChronicleActiveCollector implements ActiveCollector {
     private Thread collectorThread;
 
     @Override
-    /** Protocol */
+    /** 协议 */
     public String protocol() {
         return "CHRONICLE";
     }
 
     @Override
-    /** DefaultPort */
+    /** 默认端口 */
     public int defaultPort() {
         return 0;
     }
@@ -78,13 +78,13 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     /**
-     * 轮询 Chronicle Queue 并处理消息。
+      * 轮询 Chronicle 队列 并处理消息。
      */
     private void pollLoop() {
         while (running) {
             try {
                 /*
-                 * 实际实现中，此处应读取 Chronicle Queue 的新消息。
+                  * 实际实现中，此处应读取 Chronicle 队列 的新消息。
                  * 此处模拟轮询逻辑。
                  */
                 Thread.sleep(1000);
@@ -142,19 +142,19 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     @Override
-    /** SubscribedTopics */
+    /** 订阅topics */
     public Set<String> subscribedTopics() {
         return Set.copyOf(subscribedTopics);
     }
 
     @Override
-    /** 设置Handler */
+    /** 设置处理器 */
     public void setHandler(DataHandler handler) {
         this.handler = handler;
     }
 
     @Override
-    /** 获取Status */
+    /** 获取状态 */
     public Map<String, Object> getStatus() {
         return Map.of(
                 "protocol", protocol(),
@@ -165,7 +165,7 @@ public class ChronicleActiveCollector implements ActiveCollector {
     }
 
     /**
-     * 模拟接收到 Chronicle Queue 消息。
+      * 模拟接收到 Chronicle 队列 消息。
      * <p>用于测试或手动触发数据采集。</p>
      *
      * @param topic   主题

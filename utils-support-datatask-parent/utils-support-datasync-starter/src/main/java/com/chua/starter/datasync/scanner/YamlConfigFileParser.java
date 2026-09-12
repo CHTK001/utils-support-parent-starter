@@ -25,7 +25,7 @@ import java.util.Map;
 public class YamlConfigFileParser implements ConfigFileParser {
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(Path file) {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".yaml") || name.endsWith(".yml");
@@ -114,13 +114,26 @@ public class YamlConfigFileParser implements ConfigFileParser {
         );
     }
 
-    /** 获取String */
+    /**
+     * 获取字符串
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 获取字符串的结果
+     */
     private static String getString(Map<String, Object> map, String key) {
         Object v = map.get(key);
         return v != null ? String.valueOf(v) : null;
     }
 
-    /** 获取Int */
+    /**
+     * 获取Int
+     *
+     * @param map 映射
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 获取int的结果
+     */
     private static int getInt(Map<String, Object> map, String key, int defaultValue) {
         Object v = map.get(key);
         if (v instanceof Number n) {
@@ -141,19 +154,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
     private record DefaultDataSyncFieldMapping(String sourceField, String targetField, String converter)
             implements DataSyncFieldMapping {
         @Override
-        /** SourceField */
+        /** 源字段 */
         public String sourceField() {
             return sourceField;
         }
 
         @Override
-        /** TargetField */
+        /** Target字段 */
         public String targetField() {
             return targetField;
         }
 
         @Override
-        /** Converter */
+        /** 转换器 */
         public String converter() {
             return converter;
         }
@@ -176,19 +189,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String directoryPath
     ) implements DirectoryConfigDefinition {
         @Override
-        /** SourceId */
+        /** 源id */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
-        /** OutputId */
+        /** 输出id */
         public String outputId() {
             return outputId;
         }
 
         @Override
-        /** SinkId */
+        /** sinkid */
         public String sinkId() {
             return sinkId;
         }
@@ -200,13 +213,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Batch */
+        /** 批量 */
         public int batch() {
             return batch;
         }
 
         @Override
-        /** CronType */
+        /** cron类型 */
         public String cronType() {
             return cronType;
         }
@@ -218,13 +231,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Params */
+        /** 参数 */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
-        /** DirectoryPath */
+        /** 目录路径 */
         public String directoryPath() {
             return directoryPath;
         }
@@ -247,19 +260,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String filePath
     ) implements FileConfigDefinition {
         @Override
-        /** SourceId */
+        /** 源id */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
-        /** OutputId */
+        /** 输出id */
         public String outputId() {
             return outputId;
         }
 
         @Override
-        /** SinkId */
+        /** sinkid */
         public String sinkId() {
             return sinkId;
         }
@@ -271,13 +284,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Batch */
+        /** 批量 */
         public int batch() {
             return batch;
         }
 
         @Override
-        /** CronType */
+        /** cron类型 */
         public String cronType() {
             return cronType;
         }
@@ -289,13 +302,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Params */
+        /** 参数 */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
-        /** FilePath */
+        /** 文件路径 */
         public String filePath() {
             return filePath;
         }
@@ -318,19 +331,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
             String text
     ) implements TextConfigDefinition {
         @Override
-        /** SourceId */
+        /** 源id */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
-        /** OutputId */
+        /** 输出id */
         public String outputId() {
             return outputId;
         }
 
         @Override
-        /** SinkId */
+        /** sinkid */
         public String sinkId() {
             return sinkId;
         }
@@ -342,13 +355,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Batch */
+        /** 批量 */
         public int batch() {
             return batch;
         }
 
         @Override
-        /** CronType */
+        /** cron类型 */
         public String cronType() {
             return cronType;
         }
@@ -360,13 +373,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Params */
+        /** 参数 */
         public Map<String, Object> params() {
             return params;
         }
 
         @Override
-        /** Text */
+        /** 文本 */
         public String text() {
             return text;
         }
@@ -387,19 +400,19 @@ public class YamlConfigFileParser implements ConfigFileParser {
             Map<String, Object> params
     ) implements DataSyncConfigDefinition {
         @Override
-        /** SourceId */
+        /** 源id */
         public String sourceId() {
             return sourceId;
         }
 
         @Override
-        /** OutputId */
+        /** 输出id */
         public String outputId() {
             return outputId;
         }
 
         @Override
-        /** SinkId */
+        /** sinkid */
         public String sinkId() {
             return sinkId;
         }
@@ -411,13 +424,13 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Batch */
+        /** 批量 */
         public int batch() {
             return batch;
         }
 
         @Override
-        /** CronType */
+        /** cron类型 */
         public String cronType() {
             return cronType;
         }
@@ -429,7 +442,7 @@ public class YamlConfigFileParser implements ConfigFileParser {
         }
 
         @Override
-        /** Params */
+        /** 参数 */
         public Map<String, Object> params() {
             return params;
         }

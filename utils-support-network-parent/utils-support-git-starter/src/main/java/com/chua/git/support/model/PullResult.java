@@ -1,7 +1,7 @@
 package com.chua.git.support.model;
 
 /**
- * Git 拉取（fetch + merge）结果记录。
+   * Git 拉取（获取 + 合并）结果记录。
  *
  * <p>由 {@link com.chua.git.support.GitClient#pull()} 操作返回，字段含义如下：</p>
  * <ul>
@@ -16,22 +16,23 @@ package com.chua.git.support.model;
  *
  * @author CH
  * @since 4.0.0.42
+ * @return 拉手结果的结果
  */
 public record PullResult(boolean updated, int fetchedRefs, String messages) {
 
     /**
      * 快速创建"最新"结果。
      *
-     * @return 一个指示无更新需要的 PullResult
+     * @return 一个指示无更新需要的 拉手结果
      */
     public static PullResult noUpdate() {
         return new PullResult(false, 0, "Already up to date.");
     }
 
     /**
-     * 根据 success 状态总结一句话输出。
+      * 根据 成功 状态总结一句话输出。
      *
-     * @return 内容概述："Updated." 或 "No update."
+     * @return 内容概述："Updated." 或 "No 更新."
      */
     @Override
     public String toString() {

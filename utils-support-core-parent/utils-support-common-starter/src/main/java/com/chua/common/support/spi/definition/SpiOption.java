@@ -50,7 +50,7 @@ public class SpiOption {
     }
 
     /**
-     * 工厂方法，快速创建 SpiOption 实例。
+      * 工厂方法，快速创建 spi期权 实例。
      *
      * @param name           选项名称
      * @param describe       选项描述

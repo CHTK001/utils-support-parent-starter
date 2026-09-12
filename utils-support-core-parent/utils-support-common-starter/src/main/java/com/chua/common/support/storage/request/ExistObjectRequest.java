@@ -25,9 +25,9 @@ public class ExistObjectRequest {
     private String filePath;
 
     /**
-     * 获取完整的对象 Key。
+      * 获取完整的对象 键。
      *
-     * @return 完整的 Key（路径 + 文件名）
+     * @return 完整的 键（路径 + 文件名）
      */
     public String getKey() {
         if (StringUtils.isBlank(filePath)) {

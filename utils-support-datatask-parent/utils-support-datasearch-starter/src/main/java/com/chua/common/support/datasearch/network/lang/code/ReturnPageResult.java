@@ -18,31 +18,50 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ReturnPageResult<T> implements Serializable {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
     /** 数据 */
     private PageResult<T> data;
     /** 消息 */
     private String message;
-    /** Success */
+    /** 成功 */
     private boolean success;
 
-    /** Of */
+    /**
+     * 的
+     *
+     * @param data 数据
+     * @return 的的结果
+     */
     public static <T> ReturnPageResult<T> of(PageResult<T> data) {
         return new ReturnPageResult<>(data, null, true);
     }
 
-    /** Ok */
+    /**
+     * Ok
+     *
+     * @param data 数据
+     * @return ok的结果
+     */
     public static <T> ReturnPageResult<T> ok(PageResult<T> data) {
         return of(data);
     }
 
-    /** 记录错误 */
+    /**
+     * 记录错误
+     *
+     * @param message 消息
+     * @return 错误的结果
+     */
     public static <T> ReturnPageResult<T> error(String message) {
         return new ReturnPageResult<T>(null, message, false);
     }
 
-    /** Empty */
+    /**
+     * 空
+     *
+     * @return 空的结果
+     */
     public static <T> ReturnPageResult<T> empty() {
         return new ReturnPageResult<T>(PageResult.<T>empty(), null, true);
     }

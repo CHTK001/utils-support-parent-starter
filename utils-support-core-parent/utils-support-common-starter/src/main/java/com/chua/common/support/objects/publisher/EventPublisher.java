@@ -21,6 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       System.out.println("用户登录: " + event);
  *   });
  *   publisher.publish(new UserLoginEvent("admin"));
+ * }</pre>: " + event);
+ *   });
+   * 发布.发布(新 用户login事件("admin"));
  * }</pre>
  *
  * @author CH
@@ -30,7 +33,7 @@ public class EventPublisher {
 
     /**
      * 监听器注册表，按事件类型分组。
-     * key 为事件类型，value 为该类型对应的监听器列表。
+      * 键 为事件类型，值 为该类型对应的监听器列表。
      */
     private final Map<Class<?>, List<EventListener>> listeners = new ConcurrentHashMap<>();
 
@@ -38,8 +41,9 @@ public class EventPublisher {
      * 注册事件监听器。
      *
      * @param <T>      事件类型泛型
-     * @param type     事件类型，不可为 null
-     * @param listener 事件监听器，不可为 null
+     * @param type     事件类型，不可为 空
+     * @param listener 事件监听器，不可为 空
+     * @return 注册的结果
      */
     public <T> void register(Class<T> type, EventListener listener) {
         if (type == null || listener == null) {
@@ -88,7 +92,7 @@ public class EventPublisher {
      * <p>遍历所有已注册的监听器，将事件分发给匹配的监听器。
      * 事件类型匹配规则：监听器注册的类型是事件类型的父类或相同类型。</p>
      *
-     * @param event 事件对象，null 时不处理
+     * @param event 事件对象，空 时不处理
      * @return 本次分发调用的监听器数量
      */
     public int publish(Object event) {
@@ -143,6 +147,8 @@ public class EventPublisher {
 
     /**
      * 事件监听器函数式接口。
+     * @author CH
+     * @since 4.0.0
      */
     @FunctionalInterface
     public interface EventListener {

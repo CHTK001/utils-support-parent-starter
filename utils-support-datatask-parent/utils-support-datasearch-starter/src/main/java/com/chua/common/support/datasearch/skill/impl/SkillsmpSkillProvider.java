@@ -7,7 +7,7 @@ import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
 import java.util.List;
 
 /**
- * SkillsMP 技能市场在线提供器。
+   * skillsmp 技能市场在线提供器。
  *
  * <p>通过 SkillsMP 公开 API 搜索技能市场，以 Skill 形式暴露给 AI 技能系统。
  *
@@ -18,7 +18,7 @@ import java.util.List;
 public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnlineProvider {
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return NAME;
     }
@@ -30,7 +30,7 @@ public class SkillsmpSkillProvider extends SkillsmpProvider implements SkillOnli
     }
 
     @Override
-    /** Search */
+    /** 搜索 */
     public List<SkillDefinition> search(String keyword) {
         return List.of(searchSkill());
     }

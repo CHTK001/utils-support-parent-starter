@@ -9,7 +9,7 @@ import java.io.Serializable;
  * 训练进度状态，用于训练过程中的进度上报与查询。
  *
  * <p>训练平台通过 {@link TrainListener} 实时回调更新该对象，前端轮询接口读取它
- * 即可展示训练进度、当前 epoch、最佳评分等。</p>
+   * 即可展示训练进度、当前 轮次、最佳评分等。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Accessors(chain = true)
 public class TrainProgress implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
      * 训练状态。
@@ -26,12 +26,12 @@ public class TrainProgress implements Serializable {
     private TrainStatus status;
 
     /**
-     * 当前 epoch（从 0 开始）。
+      * 当前 轮次（从 0 开始）。
      */
     private int currentEpoch;
 
     /**
-     * 总 epoch 数。
+      * 总 轮次 数。
      */
     private int totalEpochs;
 

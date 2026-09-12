@@ -18,7 +18,7 @@ import java.util.UUID;
  * 本地引擎语音识别（ASR）客户端抽象基类。
  * <p>
  * 统一实现 {@link VirtualClient} 的公共逻辑：通过 {@link IdentificationEngine} 获取
- * 已注册的 byte[]→String 翻译器执行语音转写，并提供该引擎的模型列表。
+   * 已注册的 byte[]→字符串 翻译器执行语音转写，并提供该引擎的模型列表。
  * 子类只需指定引擎名称（如 "onnx"）。
  * </p>
  *
@@ -28,7 +28,7 @@ import java.util.UUID;
 public abstract class AbstractLocalAudioClient implements VirtualClient {
 
     /**
-     * 引擎名称（provider）
+      * 引擎名称（提供者）
      */
     protected final String engine;
 
@@ -71,7 +71,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Model */
+    /** 模型 */
     public VirtualClient model(String model) {
         this.model = model;
         return this;
@@ -85,7 +85,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(Path path) {
         this.audioPath = path;
         this.audio = null;
@@ -93,7 +93,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(byte[] audio) {
         this.audio = audio;
         this.audioPath = null;
@@ -101,7 +101,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Audio */
+    /** 音频 */
     public VirtualClient audio(InputStream input) {
         try {
             this.audio = input != null ? input.readAllBytes() : null;
@@ -174,13 +174,13 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** 创建Task */
+    /** 创建任务 */
     public String createTask(Path path) {
         return "asr-" + UUID.randomUUID();
     }
 
     @Override
-    /** 查询Task */
+    /** 查询任务 */
     public AudioResponse queryTask(String taskId) {
         try {
             String transcript = transcribe(audioPath);
@@ -199,7 +199,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     }
 
     @Override
-    /** Models */
+    /** 模型 */
     public List<ModelDefinition> models() {
         return DeeplearningModels.models(engine);
     }

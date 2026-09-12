@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 基于虹软 ArcSoft SDK 的人脸特征相似度比较算法
+   * 基于虹软 arcsoft SDK 的人脸特征相似度比较算法
  *
  * @author CH
  * @since 4.0.0.42
@@ -32,7 +32,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     /** Face引擎 */
     private final FaceEngine faceEngine;
 
-    /** 创建 FaceFeatureCompareAlgorithm 实例 */
+    /** 创建 face特征comparealgorithm 实例 */
     public FaceFeatureCompareAlgorithm() {
         DeeplearningEnvironment env = DeeplearningEnvironment.of("arcsoft");
         String modelPath = env.getModelPath();
@@ -95,7 +95,7 @@ public class FaceFeatureCompareAlgorithm implements VectorCompareAlgorithm, Auto
     }
 
     @Override
-    /** Name */
+    /** 名称 */
     public String name() {
         return "FACE_COMPARE";
     }

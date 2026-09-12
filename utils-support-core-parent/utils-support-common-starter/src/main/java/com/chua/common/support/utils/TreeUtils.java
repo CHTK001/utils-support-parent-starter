@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * 树操作工具集 — 提供平铺列表与树结构互转、查找、路径、兄弟、排序、扁平化的通用能力。
  *
  * <p>设计为<strong>函数式访问器</strong>风格：不绑定任何具体节点模型，
- * 通过 {@link Function}/{@link BiConsumer} 访问任意节点的 ID、父 ID 与子节点列表，
+   * 通过 {@link Function}/{@link BiConsumer} 访问任意节点的 标识、父 标识 与子节点列表，
  * 可直接适配实体类、DTO、record 等任意结构。</p>
  *
  * <p>核心能力：</p>
@@ -47,11 +47,12 @@ import java.util.function.Predicate;
  * Dept found = TreeUtils.findById(roots, 42L, d -> d.id, d -> d.children);
  * List<Dept> ancestors = TreeUtils.getParents(roots, found, d -> d.children);
  * }</pre>
+ * }</pre>
  *
  * <p>约定与限制：</p>
  * <ul>
  *   <li>路径/父链/兄弟类方法对<strong>目标节点按引用（==）定位</strong>；
- *       按 ID 定位请先使用 {@link #findById}</li>
+   * 按 标识 定位请先使用 {@link #findById}</li>
  *   <li>全部遍历均为显式栈迭代实现，不受树深限制；
  *       但传入含环结构时行为未定义（可能死循环）——
  *       请保证数据无环，{@link #build} 已内置环检测</li>
@@ -86,14 +87,14 @@ public final class TreeUtils {
      * （孤儿节点归根，便于容忍残缺数据）。各层子节点保持入参相对顺序，
      * 通过 {@code childrenSetter} 写回节点本体。</p>
      *
-     * @param items          平铺节点列表，不为 null
-     * @param idGetter       节点 ID 访问器
-     * @param parentIdGetter 父 ID 访问器
+     * @param items          平铺节点列表，不为 空
+     * @param idGetter       节点 标识 访问器
+     * @param parentIdGetter 父 标识 访问器
      * @param childrenSetter 子节点列表写入器（把构建好的 children 挂到节点上）
      * @param <T>            节点类型
-     * @param <I>            ID 类型
+     * @param <I>            标识 类型
      * @return 根节点列表（保持入参中的相对顺序）
-     * @throws IllegalArgumentException 当存在重复节点 ID 时
+     * @throws IllegalArgumentException 当存在重复节点 标识 时
      * @throws IllegalStateException    当存在循环引用导致部分节点不可达时
      */
     public static <T, I> List<T> build(Collection<T> items,
@@ -125,7 +126,7 @@ public final class TreeUtils {
             }
         }
 
-        // 写回 children：按父 ID 分组，依序挂载到节点本体
+ // 写回 children：按父 标识 分组，依序挂载到节点本体
         var roots = new ArrayList<T>(rootIds.size());
         for (var rootId : rootIds) {
             roots.add(idIndex.get(rootId));
@@ -177,7 +178,7 @@ public final class TreeUtils {
      * @param matcher        匹配条件
      * @param childrenGetter 子节点访问器
      * @param <T>            节点类型
-     * @return 命中的节点；未命中返回 null
+     * @return 命中的节点；未命中返回 空
      */
     public static <T> T findNode(Collection<T> roots, Predicate<? super T> matcher,
                                  Function<T, List<T>> childrenGetter) {
@@ -193,15 +194,15 @@ public final class TreeUtils {
     }
 
     /**
-     * 按 ID 查找节点（ID 使用 equals 比较）。
+      * 按 标识 查找节点（标识 使用 equals 比较）。
      *
      * @param roots          根节点集合
-     * @param targetId       目标 ID
-     * @param idGetter       ID 访问器
+     * @param targetId       目标 标识
+     * @param idGetter       标识 访问器
      * @param childrenGetter 子节点访问器
      * @param <T>            节点类型
-     * @param <I>            ID 类型
-     * @return 命中的节点；未命中返回 null
+     * @param <I>            标识 类型
+     * @return 命中的节点；未命中返回 空
      */
     public static <T, I> T findById(Collection<T> roots, I targetId,
                                     Function<T, I> idGetter,
@@ -266,6 +267,9 @@ public final class TreeUtils {
 
     /**
      * 逆序压栈以保持 DFS 前序顺序。
+     * @param stack stack
+     * @param children children
+     * @return pushReversed的结果
      */
     private static <T> void pushReversed(Deque<T> stack, List<T> children) {
         for (var i = children.size() - 1; i >= 0; i--) {
@@ -444,7 +448,10 @@ public final class TreeUtils {
     // ==================== 内部辅助 ====================
 
     /**
-     * 空安全的子节点读取：访问器返回 null 时视为空列表。
+      * 空安全的子节点读取：访问器返回 空 时视为空列表。
+     * @param node 节点
+     * @param childrenGetter childrengetter
+     * @return children的的结果
      */
     private static <T> List<T> childrenOf(T node, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(childrenGetter, "childrenGetter must not be null");

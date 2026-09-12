@@ -180,7 +180,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
      * 使用方言生成分页 SQL，无方言时直接返回原 SQL（由调用方自行截取）。
      *
      * @param sql        原始 SQL
-     * @param pagination 分页参数（含 offset / limit）
+     * @param pagination 分页参数（含 偏移量 / 限制）
      * @return 分页 SQL
      */
     private String buildPageSql(String sql, Pagination pagination) {
@@ -232,7 +232,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
                     continue;
                 }
                 field.setAccessible(true);
-                // 复用 Converter 完成类型转换
+ // 复用 转换器 完成类型转换
                 Object converted = Converter.convertIfNecessary(value, field.getType());
                 if (converted != null) {
                     field.set(instance, converted);
@@ -249,7 +249,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
      *
      * @param clazz 目标类
      * @param name  字段名
-     * @return 字段，未找到返回 null
+     * @return 字段，未找到返回 空
      */
     private static Field findField(Class<?> clazz, String name) {
         Class<?> current = clazz;
@@ -266,8 +266,8 @@ public class JdbcSqlExecutor implements SqlExecutor {
     /**
      * 将下划线命名转换为驼峰命名。
      *
-     * @param name 原始名称（如 user_name）
-     * @return 驼峰命名（如 userName）
+     * @param name 原始名称（如 用户_名称）
+     * @return 驼峰命名（如 用户名）
      */
     private static String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {

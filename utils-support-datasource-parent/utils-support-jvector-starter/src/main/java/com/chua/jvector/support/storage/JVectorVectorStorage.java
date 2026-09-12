@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
 /**
- * JVector 向量存储门面，根据 {@link JVectorStorageProperties} 的 mode 选择底层策略。
+   * j向量 向量存储门面，根据 {@link JVectorStorageProperties} 的 mode 选择底层策略。
  *
  * @author CH
  * @since 2025/01/15
@@ -48,7 +48,7 @@ import java.util.concurrent.ForkJoinPool;
 public class JVectorVectorStorage extends AbstractVectorStorage {
 
     /**
-     * JVector 向量类型支持实例
+      * j向量 向量类型支持实例
      */
     private static final VectorTypeSupport VTS =
             VectorizationProvider.getInstance().getVectorTypeSupport();
@@ -108,13 +108,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     @Override
-    /** Do添加 */
+    /** 执行添加 */
     protected synchronized boolean doAdd(String id, float[] vector) {
         return delegate.doAdd(id, vector);
     }
 
     @Override
-    /** Do搜索 */
+    /** 执行搜索 */
     protected synchronized List<Vector> doSearch(float[] query, int topK) {
         return delegate.doSearch(query, topK);
     }
@@ -162,7 +162,14 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         return delegate.doUpdate(id, vector);
     }
 
-    /** ToJVectorSim */
+    /**
+     * 转为j向量sim
+     *
+     * @param algo algo
+     * @return 转为j向量sim的结果
+     * @author CH
+     * @since 4.0.0
+     */
     private static VectorSimilarityFunction toJVectorSim(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return VectorSimilarityFunction.EUCLIDEAN;
@@ -194,11 +201,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final JVectorStorageProperties properties;
         /** 比较算法 */
         private final VectorCompareAlgorithm algorithm;
-        /** 内存图索引；构建前为 null */
+        /** 内存图索引；构建前为 空 */
         private ImmutableGraphIndex graph;
         /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** JVector 向量视图 */
+        /** j向量 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
 
         EagerMemoryStrategy(int dimension, VectorSimilarityFunction similarity,
@@ -219,7 +226,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do添加 */
+        /** 执行添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -235,13 +242,41 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do搜索 */
+         /**
+          * 执行搜索。
+          * @param query 查询
+          * @param topK topk
+          * @return 执行搜索的结果
+          */
+         * 执行搜索
+         *
+         * @param candidates candidates
+         * @param query 查询
+         * @param algo algo
+         * @param topK topk
+         * @return reRank的结果
+         */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
+            /**
+             * 图计算搜索。
+             * @param query 查询
+             * @param fetchK 获取k
+             * @return 图计算搜索的结果
+             * @param candidates candidates
+             * @param algo algo
+             * @param topK topK
+             */
             if (vectors.isEmpty()) {
                 return List.of();
             }
             var algo = algorithm;
             List<Vector> graphResults = graphSearch(query, topK * 5);
+            /**
+             * 图计算搜索。
+             * @param query 查询
+             * @param fetchK 获取k
+             * @return 图计算搜索的结果
+             */
             return algo != null ? reRank(graphResults, query, algo, topK) : graphResults;
         }
 
@@ -263,7 +298,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                         var id = idOf(n.node);
                         float[] vd = n.node < rawVectors.size() ? rawVectors.get(n.node) : new float[0];
                         list.add(new Vector(id, vd, Map.of("score", (double) n.score)));
-                        if (list.size() >= fetchK) break;
+                        if (list.size() >= fetchK) {
+                            break;
+                        }
                     }
                     return list;
                 }
@@ -285,7 +322,16 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         /**
-         * 暴力线性扫描，使用当前配置的算法计算距离并选出 topK。
+          * 暴力线性扫描，使用当前配置的算法计算距离并选出 topk。
+         * @param query 查询
+         /**
+          * bruteforce搜索。
+          * @param query 查询
+          * @param topK topk
+          * @return bruteforce搜索的结果
+          */
+         * @param topK topk
+         * @return bruteForceCosine的结果
          */
         private List<Vector> bruteForceSearch(float[] query, int topK) {
             var algo = algorithm;
@@ -311,9 +357,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             var result = new ArrayList<Vector>();
             for (int i = 0; i < k; i++) {
-                if (topIds[i] == null) break;
+                if (topIds[i] == null) {
+                    break;
+                }
                 int idx = ordinalOf(topIds[i]);
-                if (idx < 0 || idx >= rawVectors.size()) continue;
+                if (idx < 0 || idx >= rawVectors.size()) {
+                    continue;
+                }
                 result.add(new Vector(topIds[i], rawVectors.get(idx),
                         Map.of("score", (double) topScores[i])));
             }
@@ -329,7 +379,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             double qNorm = 0;
             for (float f : query) { qNorm += f * f; }
             qNorm = Math.sqrt(qNorm);
-            if (qNorm == 0) return List.of();
+            if (qNorm == 0) {
+                return List.of();
+            }
             for (int i = 0; i < n; i++) {
                 float[] vec = rawVectors.get(i);
                 double dot = 0, vNorm = 0;
@@ -338,7 +390,9 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                     vNorm += (double) vec[d] * vec[d];
                 }
                 vNorm = Math.sqrt(vNorm);
-                if (vNorm == 0) continue;
+                if (vNorm == 0) {
+                    continue;
+                }
                 float sim = (float) (dot / (qNorm * vNorm));
                 int pos = k - 1;
                 while (pos >= 0 && topScores[pos] < sim) {
@@ -351,9 +405,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
             var result = new ArrayList<Vector>();
             for (int i = 0; i < k; i++) {
-                if (topIds[i] == null) break;
+                if (topIds[i] == null) {
+                    break;
+                }
                 int idx = ordinalOf(topIds[i]);
-                if (idx < 0 || idx >= rawVectors.size()) continue;
+                if (idx < 0 || idx >= rawVectors.size()) {
+                    continue;
+                }
                 result.add(new Vector(topIds[i], rawVectors.get(idx),
                         Map.of("score", (double) topScores[i])));
             }
@@ -361,7 +419,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do移除 */
+        /** 执行移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -390,7 +448,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do更新 */
+        /** 执行更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -429,7 +487,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 构建Graph */
+        /** 构建图计算 */
         private void buildGraph() {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try (var builder = new GraphIndexBuilder(
@@ -448,8 +506,10 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
     /**
-     * DiskStrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
+      * diskstrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
      *
+     * @author CH
+     * @since 4.0.0
      */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
@@ -460,11 +520,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final JVectorStorageProperties properties;
         /** 磁盘索引文件路径 */
         private final Path indexPath;
-        /** 磁盘图索引；构建前为 null */
+        /** 磁盘图索引；构建前为 空 */
         private OnDiskGraphIndex diskGraph;
         /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** JVector 向量视图 */
+        /** j向量 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
         /** 向量持久化文件路径 */
         private final Path vectorDataPath;
@@ -485,7 +545,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             tryLoadExistingIndex();
         }
 
-        /** Try加载ExistingIndex */
+        /** 尝试加载existing索引 */
         private void tryLoadExistingIndex() {
             if (!Files.exists(indexPath)) {
                 return;
@@ -500,7 +560,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 加载Vectors */
+        /** 加载向量 */
         private void loadVectors() {
             if (!Files.exists(vectorDataPath)) {
                 return;
@@ -530,7 +590,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             }
         }
 
-        /** 保存Vectors */
+        /** 保存向量 */
         private void saveVectors() {
             try {
                 Files.createDirectories(vectorDataPath.getParent());
@@ -559,7 +619,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
         @Override
-        /** Do添加 */
+        /** 执行添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -574,7 +634,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do搜索 */
+        /** 执行搜索 */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (diskGraph != null && vectors.isEmpty()) {
                 loadVectors();
@@ -587,7 +647,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
                 return List.of();
             }
 
-            // 使用 jvector 内置精确分数（与建图时的 VectorSimilarityFunction 一致）
+ // 使用 jvector 内置精确分数（与建图时的 向量相似度function 一致）
             var queryVec = VTS.createFloatVector(query);
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             SearchScoreProvider ssp = DefaultSearchScoreProvider.exact(queryVec, similarity, rav);
@@ -611,7 +671,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do移除 */
+        /** 执行移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -637,7 +697,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do更新 */
+        /** 执行更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -693,7 +753,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             ensureGraphBuilt();
         }
 
-        /** EnsureGraphBuilt */
+        /** ensure图计算built */
         private void ensureGraphBuilt() {
             if (diskGraph != null) {
                 return;
@@ -720,9 +780,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * LargerThanMemoryStrategy: LARGER_THAN_MEMORY 模式，使用 PQ 压缩向量构建图，
+      * largerthan内存strategy: LARGER_THAN_内存 模式，使用 PQ 压缩向量构建图，
      * 搜索时使用两阶段策略（粗排 + 精排）。
      *
+     * @author CH
+     * @since 4.0.0
      */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
@@ -733,13 +795,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         private final JVectorStorageProperties properties;
         /** PQ 索引持久化路径 */
         private final Path indexPath;
-        /** 内存图索引；构建前为 null */
+        /** 内存图索引；构建前为 空 */
         private ImmutableGraphIndex graph;
-        /** PQ 压缩向量；训练前为 null */
+        /** PQ 压缩向量；训练前为 空 */
         private PQVectors pqVectors;
         /** 原始向量深拷贝（防御调用者后续修改） */
         private final List<float[]> rawVectors = new ArrayList<>();
-        /** JVector 向量视图 */
+        /** j向量 向量视图 */
         private final List<VectorFloat<?>> vectors = new ArrayList<>();
         /** 比较算法 */
         private final VectorCompareAlgorithm algorithm;
@@ -764,7 +826,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do添加 */
+        /** 执行添加 */
         public synchronized boolean doAdd(String id, float[] vector) {
             int ord = vectors.size();
             if (!tryRegister(id, ord)) {
@@ -779,7 +841,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do搜索 */
+        /** 执行搜索 */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
             if (vectors.isEmpty()) {
                 return List.of();
@@ -822,7 +884,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do移除 */
+        /** 执行移除 */
         public synchronized boolean doRemove(String id) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -848,7 +910,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-        /** Do更新 */
+        /** 执行更新 */
         public synchronized boolean doUpdate(String id, float[] vector) {
             Integer ord = ordinalOf(id);
             if (ord == null) {
@@ -887,7 +949,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             pqVectors = null;
         }
 
-        /** EnsureGraphBuilt */
+        /** ensure图计算built */
         private void ensureGraphBuilt() {
             if (graph != null && pqVectors != null) {
                 return;
@@ -895,7 +957,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
             var rav = new ListRandomAccessVectorValues(vectors, dimension);
             try {
                 // 防御性钳制：jvector 要求子空间数 ≤ 维度、每个子空间码本数 ≤ 向量条数，
-                // 小数据集（示例仅 10~100 条）下默认值 64/256 会导致 KMeans 抛
+ // 小数据集（示例仅 10~100 条）下默认值 64/256 会导致 kmeans 抛
                 // "Number of clusters N cannot exceed number of points M"。
                 int numVectors = vectors.size();
                 int subspaces = Math.max(1, Math.min(properties.getPqSubspaces(), dimension));

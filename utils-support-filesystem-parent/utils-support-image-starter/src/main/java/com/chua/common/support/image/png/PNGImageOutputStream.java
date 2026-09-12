@@ -25,7 +25,7 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
 
     /** 流 */
     protected ImageOutputStream stream;
-    /** 开始POS */
+    /** 开始采购订单 */
     protected long startPos;
     /** Chunk长度 */
     protected final int chunkLength;
@@ -49,32 +49,32 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
         this.chunkLength = chunkLength;
         this.def = new Deflater(deflaterLevel);
 
-        // start chunk later
+ // 启动 chunk later
         //startChunk();
     }
 
     /** 开始Chunk */
     protected abstract void startChunk() throws IOException;
 
-    /** FinishChunk */
+    /** 饰面chunk */
     protected void finishChunk() throws IOException {
-        // Write CRC
+ // 写入 CRC
         stream.writeInt(crc.getValue());
 
-        // Write length
+ // 写入 长度
         long pos = stream.getStreamPosition();
         stream.seek(startPos);
         stream.writeInt((int)(pos - startPos) - 12);
 
-        // Return to end of chunk and flush to minimize buffering
+ // 返回 转为 结束 的 chunk 和 flush 转为 最小化 缓冲
         stream.seek(pos);
         try {
             stream.flushBefore(pos);
         } catch (IOException e) {
             /*
-             * If flushBefore() fails we try to access startPos in finally
-             * block of write_IDAT(). We should update startPos to avoid
-             * IndexOutOfBoundException while seek() is happening.
+              * If flush之前() 失败 we 尝试 转为 access 启动采购订单 入 最终
+              * block 的 写入_IDAT(). We should 更新 启动采购订单 转为 avoid
+              * 索引出的bound异常 while seek() 是否 happening.
              */
             this.startPos = stream.getStreamPosition();
             throw e;

@@ -34,6 +34,9 @@ import java.util.concurrent.TimeUnit;
  *         provider.unlock();
  *     }
  * }
+ * }</pre>.unlock();
+ *     }
+ * }
  * }</pre>
  *
  * @author CH
@@ -66,7 +69,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     /**
      * 创建 Redisson 分布式锁提供者
      *
-     * @param redisUri Redis 连接 URI，如 redis://127.0.0.1:6379
+     * @param redisUri Redis 连接 URI，如 Redis://127.0.0.1:6379
      */
     public RedissonLockProvider(String redisUri) {
         this("redis-lock", redisUri);
@@ -116,7 +119,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** Do解锁 */
+    /** 执行解锁 */
     protected void doUnlock() {
         if (lock.isHeldByCurrentThread()) {
             lock.unlock();
@@ -124,13 +127,13 @@ public class RedissonLockProvider extends AbstractLockProvider {
     }
 
     @Override
-    /** Do获取Name */
+    /** 执行获取名称 */
     protected String doGetName() {
         return name;
     }
 
     @Override
-    /** Do获取Type */
+    /** 执行获取类型 */
     protected String doGetType() {
         return "redis";
     }
