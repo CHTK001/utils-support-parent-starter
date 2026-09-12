@@ -45,6 +45,9 @@ public interface ClassifierTask {
      *
      * <p>模型由 {@link #train} 产出，可预测、评估、保存；
      * 实现类须声明 {@code serialVersionUID} 支持落盘序列化。</p>
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     interface Model extends Serializable {
 
@@ -90,6 +93,8 @@ public interface ClassifierTask {
      * @param label         预测标签
      * @param confidence    预测置信度（0.0 ~ 1.0）
      * @param probabilities 各类别概率分布（可能为空 Map）
+     * @author CH
+     * @since 4.0.0.42
      */
     record Result(String label, double confidence, Map<String, Double> probabilities) {
     }
@@ -101,6 +106,8 @@ public interface ClassifierTask {
      * @param numFolds     交叉验证折数
      * @param accuracyPct  准确率（%）
      * @param kappa        Kappa 一致性系数
+     * @author CH
+     * @since 4.0.0.42
      */
     record Report(int numInstances, int numFolds, double accuracyPct, double kappa) {
     }

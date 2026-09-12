@@ -1,7 +1,6 @@
 package com.chua.common.support.collection;
 
 import java.util.AbstractQueue;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -286,8 +285,10 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
                 return true;
             }
             case EVICT_NEWEST -> {
-                lastEvicted = (E) elements[tail];
-                elements[tail] = null;
+                int newestSlot = (tail - 1 + capacity) % capacity;
+                lastEvicted = (E) elements[newestSlot];
+                elements[newestSlot] = null;
+                tail = newestSlot;
                 elements[tail] = e;
                 tail = (tail + 1) % capacity;
                 return true;
