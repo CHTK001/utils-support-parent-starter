@@ -65,6 +65,7 @@ public final class WekaInstanceData {
     /** 行数据，每行为「列名 -> 值」，值可为 Number / String / null（缺失） */
     private final List<Map<String, Object>> rows;
 
+    /** 内部构造器：校验特征列非空、标签/目标列名非空白，固化不可变特征与行数据副本 */
     private WekaInstanceData(List<FeatureColumn> features, String labelColumn, String targetColumn,
             List<Map<String, Object>> rows) {
         Objects.requireNonNull(features, "features must not be null");

@@ -1,0 +1,30 @@
+[package]
+name = "rust_nmap"
+version = "0.1.0"
+edition = "2021"
+authors = ["CH <ch@utils.com>"]
+license = "Apache-2.0"
+description = "High-performance network scanner with JNI bindings"
+
+[lib]
+name = "rust_nmap"
+crate-type = ["cdylib"]
+
+[dependencies]
+jni = "0.21"
+dns-lookup = "2.0"
+log = "0.4"
+env_logger = "0.10"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.52", features = [
+    "Win32_Foundation",
+    "Win32_Networking_WinSock",
+    "Win32_System_IO",
+] }
+
+[features]
+default = []
