@@ -17,71 +17,66 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
-* WebSocket 数据同步 智能体
-* <p>通过 WebSocket 与 DataSyncServer 保持长连接，支持双向数据拉取和推送。</p>
-*
-* <pre>{@code
-* WebSocketDataSyncAgent agent = new WebSocketDataSyncAgent(
-*         "agent-1", "source-1", "ws://server:8080/ws/datasync");
-* agent.start();
-* }</pre>atasync");
-* agent.start();
-* }</pre>
-*
-* @author CH
-* @since 2026-07-20
+ * WebSocket 数据同步 Agent
+ * <p>通过 WebSocket 与 DataSyncServer 保持长连接，支持双向数据拉取和推送。</p>
+ *
+ * <pre>{@code
+ * WebSocketDataSyncAgent agent = new WebSocketDataSyncAgent(
+ *         "agent-1", "source-1", "ws://server:8080/ws/datasync");
+ * agent.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026-07-20
  */
 public class WebSocketDataSyncAgent implements DataSyncAgent {
 
     /**
-    * 智能体 标识
+     * Agent ID
      */
     private final String agentId;
 
     /**
-    * 数据源 标识
+     * 数据源 ID
      */
     private final String sourceId;
 
     /**
-    * 服务端 WebSocket 地址
+     * Server WebSocket 地址
      */
     private final String serverUri;
 
     /**
-    * 数据源
+     * 数据源
      */
     private final DataSyncSource source;
 
     /**
-    * WebSocket 连接
+     * WebSocket 连接
      */
     private WebSocket webSocket;
 
     /**
-    * HTTP 客户端
+     * HTTP 客户端
      */
     private HttpClient httpClient;
 
     /**
-    * 运行标志
+     * 运行标志
      */
     private volatile boolean running = false;
 
     /**
-    * 消息监听队列
+     * 消息监听队列
      */
     private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-    * 创建 web套接字数据同步智能体 实例
-    * @param agentId 智能体标识
-    * @param agentId 字符串
-    * @param agentId 字符串
-    * @param source 数据同步源
-    * @param sourceId 源标识
-    * @param serverUri 服务端uri
-    * @param source 源
+     * 创建 WebSocketDataSyncAgent 实例
+     * @param agentId agentId
+     * @param String String
+     * @param String String
+     * @param DataSyncSource DataSyncSource
      */
     public WebSocketDataSyncAgent(String agentId, String sourceId, String serverUri, DataSyncSource source) {
         this.agentId = agentId;
@@ -138,13 +133,13 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 智能体标识 */
+    /** AgentId */
     public String agentId() {
         return agentId;
     }
 
     @Override
-    /** 转为源 */
+    /** ToSource */
     public DataSyncSource toSource() {
         return source;
     }
@@ -156,7 +151,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
     }
 
     @Override
-    /** 数据url */
+    /** DataUrl */
     public String dataUrl() {
         return "";
     }
@@ -171,7 +166,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         ));
     }
 
-    /** 开始消息循环 */
+    /** 开始MessageLoop */
     private void startMessageLoop() {
         Thread t = new Thread(() -> {
             while (running && !Thread.currentThread().isInterrupted()) {
@@ -188,11 +183,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         t.start();
     }
 
-    /**
-    * 处理服务端消息
-    *
-    * @param msg msg
-     */
+    /** 处理ServerMessage */
     private void handleServerMessage(String msg) {
         try {
             Map<String, Object> map = Json.fromJson(msg, Map.class);
@@ -223,11 +214,7 @@ public class WebSocketDataSyncAgent implements DataSyncAgent {
         }
     }
 
-    /**
-    * 发送Json
-    *
-    * @param body 主体
-     */
+    /** 发送Json */
     private void sendJson(Map<String, Object> body) {
         if (webSocket == null) {
             return;

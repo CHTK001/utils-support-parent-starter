@@ -3,10 +3,10 @@ package com.chua.common.support.scatter;
 import lombok.Data;
 
 /**
-* scatter 节点信息（对端地址 + 协议）。
-*
-* @author CH
-* @since 4.0.0.42
+ * scatter 节点信息（对端地址 + 协议）。
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Data
 public class ScatterNode {
@@ -35,9 +35,9 @@ public class ScatterNode {
     }
 
     /**
-    * 端点描述。
-    *
-    * @return 如 tcp://127.0.0.1:19000
+     * 端点描述。
+     *
+     * @return 如 tcp://127.0.0.1:19000
      */
     public String getEndpoint() {
         return protocol + "://" + host + ":" + port;

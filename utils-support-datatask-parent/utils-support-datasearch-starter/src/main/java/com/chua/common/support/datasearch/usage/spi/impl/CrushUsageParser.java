@@ -16,23 +16,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Crush usage parser.
-*
-* <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
-* at {@code <project>/.crush/crush.db}, 索引 by
-* {@code ~/.local/share/crush/projects.json}. The {@code sessions} table holds
-* 会话-级别 令牌 和 cost aggregates:</p>
-*
-* <pre>{@code
-* CREATE TABLE sessions (
-*   id, title, message_count,
-*   prompt_tokens INTEGER, completion_tokens INTEGER, cost REAL,
-*   created_at, updated_at, ... )   -- timestamps in epoch seconds
-* }</pre>ed_at, ... )   -- timestamps in epoch seconds
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * Crush usage parser.
+ *
+ * <p>Crush (github.com/charmbracelet/crush) keeps per-project SQLite databases
+ * at {@code <project>/.crush/crush.db}, indexed by
+ * {@code ~/.local/share/crush/projects.json} (or
+ * {@code %USERPROFILE%\AppData\Local\crush\projects.json} on Windows).
+ * The {@code sessions} table holds session-level token and cost aggregates:</p>
+ *
+ * <pre>{@code
+ * CREATE TABLE sessions (
+ *   id, title, message_count,
+ *   prompt_tokens INTEGER, completion_tokens INTEGER, cost REAL,
+ *   created_at, updated_at, ... )   -- timestamps in epoch seconds
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("crush")
 public class CrushUsageParser extends BaseUsageParser {
@@ -46,20 +46,22 @@ public class CrushUsageParser extends BaseUsageParser {
                     + "WHERE prompt_tokens > 0 OR completion_tokens > 0 "
                     + "ORDER BY created_at ASC";
 
-    private static final String PROVIDER_CRUSH = "crush"; // 提供者crush
-    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L; // 轮次seconds转为millis
+    private static final String PROVIDER_CRUSH = "crush";
+
+    private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
 
     /**
-    * 返回 SPI 名称。
-    *
-    * @return {@code "crush"}
+     * 返回 SPI 名称。
+     *
+     * @return {@code "crush"}
      */
+    @Override
     public String name() {
-        return "crush";
+        return PROVIDER_CRUSH;
     }
 
     /**
-    * 流式解析全部项目的会话用量。
+     * 流式解析全部项目的会话用量。
      */
     @Override
     public Flux<AiUsage> streamAll() {
@@ -74,19 +76,9 @@ public class CrushUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
-    * @param row row
-     /**
-      * 列表projectdatabases。
-      * @return 列表projectdatabases的结果
-      */
-     * @param db db
-     * @return 转为AIusage的结果
-      * @param row row
-     /**
-     * 列表projectdatabases。
-     * @return 列表projectdatabases的结果
-      */
+     * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
+     *
+     * @return crush.db 文件列表；索引缺失或无有效条目时为空
      */
     private List<Path> listProjectDatabases() {
         List<Path> result = new ArrayList<>();
@@ -115,6 +107,12 @@ public class CrushUsageParser extends BaseUsageParser {
         return result;
     }
 
+    /**
+     * 流式解析单个项目数据库的会话聚合用量。
+     *
+     * @param db crush.db 文件路径
+     * @return 用量记录流
+     */
     private Flux<AiUsage> streamDatabase(Path db) {
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("crush-" + System.identityHashCode(db), db.toString());
@@ -126,6 +124,13 @@ public class CrushUsageParser extends BaseUsageParser {
                 });
     }
 
+    /**
+     * 将 sessions 表行映射为会话级聚合用量记录。
+     *
+     * @param row sessions 行
+     * @param db  来源数据库路径
+     * @return 用量记录
+     */
     private AiUsage toAiUsage(Map<String, Object> row, Path db) {
         int promptTokens = asInt(row.get("prompt_tokens"));
         int completionTokens = asInt(row.get("completion_tokens"));
@@ -134,7 +139,7 @@ public class CrushUsageParser extends BaseUsageParser {
 
         return AiUsage.builder()
                 .provider(PROVIDER_CRUSH)
-                .model("session-total")
+                .model("crush-session")
                 .requestId(asStr(row.get("id")))
                 .inputTokens(promptTokens)
                 .outputTokens(completionTokens)

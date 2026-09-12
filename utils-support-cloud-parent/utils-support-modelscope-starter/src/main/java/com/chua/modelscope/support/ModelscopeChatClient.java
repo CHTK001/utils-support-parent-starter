@@ -22,208 +22,130 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 模型scope 对话客户端（SPI 提供者="modelscope"）。
-*
-* <p>调用 ModelScope API-Inference 的 OpenAI 兼容 chat 端点
-* {@code POST {baseUrl}/v1/chat/completions}，支持纯文本对话、多轮历史、
-* 图片（镜像_url，多模态模型）与文件附件。鉴权使用 Bearer 令牌
-* （{@code MODELSCOPE_TOKEN}，从魔搭个人中心获取）。
-*
-* <p>调用示例：
-* <pre>{@code
-*   // 纯文本对话
-*   String answer = ChatClient.create("modelscope", "ms-xxx")
-*       .model("Qwen/Qwen2.5-7B-Instruct")
-*       .temperature(0.7)
-*       .maxTokens(2048)
-*       .chatSync("你好，介绍下 ModelScope");
-*
-*   // 多模态：图片+文本
-*   String reply = ChatClient.create("modelscope", "ms-xxx")
-*       .model("Qwen/Qwen2-VL-7B-Instruct")
-*       .addImage("https://example.com/cat.jpg")
-*       .chatSync("描述这张图");
-*
-*   // 多轮历史
-*   String reply = ChatClient.create("modelscope", "ms-xxx")
-*       .model("Qwen/Qwen2.5-7B-Instruct")
-*       .system("你是助手")
-*       .addUserHistory("我叫小明")
-*       .chatSync("你还记得我叫什么吗？");
-* }</pre>n2.5-7B-Instruct")
-*       .system("你是助手")
-*       .addUserHistory("我叫小明")
-*       .chatSync("你还记得我叫什么吗？");
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * ModelScope 对话客户端（SPI provider="modelscope"）。
+ *
+ * <p>调用 ModelScope API-Inference 的 OpenAI 兼容 chat 端点
+ * {@code POST {baseUrl}/v1/chat/completions}，支持纯文本对话、多轮历史、
+ * 图片（image_url，多模态模型）与文件附件。鉴权使用 Bearer Token
+ * （{@code MODELSCOPE_TOKEN}，从魔搭个人中心获取）。
+ *
+ * <p>调用示例：
+ * <pre>{@code
+ *   // 纯文本对话
+ *   String answer = ChatClient.create("modelscope", "ms-xxx")
+ *       .model("Qwen/Qwen2.5-7B-Instruct")
+ *       .temperature(0.7)
+ *       .maxTokens(2048)
+ *       .chatSync("你好，介绍下 ModelScope");
+ *
+ *   // 多模态：图片+文本
+ *   String reply = ChatClient.create("modelscope", "ms-xxx")
+ *       .model("Qwen/Qwen2-VL-7B-Instruct")
+ *       .addImage("https://example.com/cat.jpg")
+ *       .chatSync("描述这张图");
+ *
+ *   // 多轮历史
+ *   String reply = ChatClient.create("modelscope", "ms-xxx")
+ *       .model("Qwen/Qwen2.5-7B-Instruct")
+ *       .system("你是助手")
+ *       .addUserHistory("我叫小明")
+ *       .chatSync("你还记得我叫什么吗？");
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 @Spi("modelscope")
 public class ModelscopeChatClient implements ChatClient {
 
     /**
-    * 默认对话模型
-    * @param obj obj
-    * @return asInteger的结果
-    * @param prompt 提示符
+     * 默认对话模型
      */
     private static final String DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
-    private final ChatClientSetting setting; // setting
+    private final ChatClientSetting setting;
 
-    private String model; // 模型
-    private String system; // 系统
-    private Double temperature; // temperature
-    private Integer maxTokens; // 最大令牌
-    private Double topP; // topp
-    private final List<ChatMessage> history = new ArrayList<>(); // 历史
-    private List<ChatMessage> externalHistory; // 外部历史
-    /**
-    * modelscope对话客户端。
-    * @param setting setting
-     */
+    private String model;
+    private String system;
+    private Double temperature;
+    private Integer maxTokens;
+    private Double topP;
+    private final List<ChatMessage> history = new ArrayList<>();
+    private List<ChatMessage> externalHistory;
     private final List<String> imageUrls = new ArrayList<>();
-    private final List<Attachment> attachments = new ArrayList<>(); // attachments
+    private final List<Attachment> attachments = new ArrayList<>();
 
-    /**
-    * modelscope对话客户端。
-    * @param setting setting
-     */
     public ModelscopeChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
         this.system = setting.getSystem();
-    /**
-    * 模型。
-    * @param model 模型
-    * @return 模型的结果
-     */
     }
 
     @Override
     public ChatClient model(String model) {
         this.model = model;
         return this;
-    /**
-    * 系统。
-    * @param system 系统
-    * @return 系统的结果
-     */
     }
 
     @Override
     public ChatClient system(String system) {
         this.system = system;
         return this;
-    /**
-    * temperature。
-    * @param temperature temperature
-    * @return temperature的结果
-     */
     }
 
     @Override
     public ChatClient temperature(double temperature) {
         this.temperature = temperature;
         return this;
-    /**
-    * 最大令牌。
-    * @param maxTokens 最大令牌
-    * @return 最大令牌的结果
-     */
     }
 
     @Override
     public ChatClient maxTokens(int maxTokens) {
         this.maxTokens = maxTokens;
         return this;
-    /**
-    * topp。
-    * @param topP topp
-    * @return topP的结果
-     */
     }
 
     @Override
     public ChatClient topP(Double topP) {
         this.topP = topP;
         return this;
-    /**
-    * 添加镜像。
-    * @param imageUrl 镜像url
-    * @return 添加镜像的结果
-     */
     }
 
     @Override
     public ChatClient addImage(String imageUrl) {
         this.imageUrls.add(imageUrl);
         return this;
-    /**
-    * 添加attachment。
-    * @param name 名称
-    * @param data 数据
-    * @param mimeType mime类型
-    * @return 添加attachment的结果
-     */
     }
 
     @Override
     public ChatClient addAttachment(String name, byte[] data, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).data(data).mimeType(mimeType).build());
         return this;
-    /**
-    * 添加attachmenturl。
-    * @param name 名称
-    * @param url url
-    * @param mimeType mime类型
-    * @return 添加attachmenturl的结果
-     */
     }
 
     @Override
     public ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         this.attachments.add(Attachment.builder().name(name).url(url).mimeType(mimeType).build());
         return this;
-    /**
-    * 添加用户历史。
-    * @param content 内容
-    * @return 添加用户历史的结果
-     */
     }
 
     @Override
     public ChatClient addUserHistory(String content) {
         history.add(ChatMessage.builder().role("user").content(content).build());
         return this;
-    /**
-    * 添加assistant历史。
-    * @param content 内容
-    * @return 添加assistant历史的结果
-     */
     }
 
     @Override
     public ChatClient addAssistantHistory(String content) {
         history.add(ChatMessage.builder().role("assistant").content(content).build());
         return this;
-    /**
-    * 历史。
-    * @param messages 消息
-    * @return 历史的结果
-     */
     }
 
     @Override
     public ChatClient history(List<ChatMessage> messages) {
         this.externalHistory = messages;
         return this;
-    /**
-    * 新对话。
-    * @return 新对话的结果
-     */
     }
 
     @Override
@@ -233,21 +155,11 @@ public class ModelscopeChatClient implements ChatClient {
         this.attachments.clear();
         this.externalHistory = null;
         return this;
-    /**
-    * 对话同步。
-    * @param prompt 提示符
-    * @return 对话同步的结果
-     */
     }
 
     @Override
     public String chatSync(String prompt) {
         return chatSyncWithResponse(prompt).getText();
-    /**
-    * 对话同步with响应。
-    * @param prompt 提示符
-    * @return 对话同步with响应的结果
-     */
     }
 
     @Override
@@ -267,27 +179,15 @@ public class ModelscopeChatClient implements ChatClient {
             throw new RuntimeException("ModelScope chat 响应解析失败: " + root, e);
         }
         return ChatSyncResponse.builder().text(text).usage(usage).build();
-    /**
-    * 模型。
-    * @return 模型的结果
-     */
     }
 
     @Override
     public List<ModelDefinition> models() {
         return MODELS;
-    /**
-    * 关闭。
-     */
     }
 
     @Override
     public void close() {
-        /**
-        * post对话completions。
-        * @param prompt 提示符
-        * @return post对话completions的结果
-         */
         newChat();
     }
 
@@ -342,11 +242,6 @@ public class ModelscopeChatClient implements ChatClient {
         }
         messages.add(buildUserMessage(prompt));
         return messages;
-    /**
-    * 构建用户消息。
-    * @param prompt 提示符
-    * @return 构建用户消息的结果
-     */
     }
 
     private JsonObject buildUserMessage(String prompt) {
@@ -381,11 +276,6 @@ public class ModelscopeChatClient implements ChatClient {
         return JsonObject.create()
                 .fluentPut("role", "user")
                 .fluentPut("content", parts);
-    /**
-    * 转为请求url。
-    * @param url url
-    * @return 转为请求url的结果
-     */
     }
 
     private String toRequestUrl(String url) {
@@ -399,11 +289,6 @@ public class ModelscopeChatClient implements ChatClient {
             return url;
         }
         return Path.of(url).toAbsolutePath().toUri().toString();
-    /**
-    * 解析usage。
-    * @param usageObj usageobj
-    * @return 解析usage的结果
-     */
     }
 
     private AiUsage parseUsage(Object usageObj) {
@@ -418,10 +303,6 @@ public class ModelscopeChatClient implements ChatClient {
                 .model(model)
                 .provider("modelscope")
                 .build();
-    /**
-    * 构建认证头部。
-    * @return 构建认证头部的结果
-     */
     }
 
     private String buildAuthHeader() {
@@ -430,11 +311,6 @@ public class ModelscopeChatClient implements ChatClient {
             throw new IllegalStateException("ModelScope provider 需要设置 API Token（魔搭个人中心 -> 访问令牌）");
         }
         return "Bearer " + appKey;
-    /**
-    * normalizebaseurl。
-    * @return normalizeBaseUrl的结果
-    * @param obj obj
-     */
     }
 
     private String normalizeBaseUrl() {
@@ -473,7 +349,7 @@ public class ModelscopeChatClient implements ChatClient {
     }
 
     /**
-    * 模型scope 知名对话模型清单（节选）。
+     * ModelScope 知名对话模型清单（节选）。
      */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()

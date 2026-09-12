@@ -15,38 +15,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 继续 usage parser.
-*
-* <p>Continue CLI stores one session JSON per run under
-* {@code ~/.continue/sessions/<uuid>.json}, containing real token usage
-* reported by the upstream 提供者:</p>
-*
-* <pre>{@code
-* {
-*   "sessionId": "82848f56-...",
-*   "usage": {
-*     "totalCost": 0.001199,
-*     "promptTokens": 1197,
-*     "completionTokens": 1,
-*     "promptTokensDetails": {
-*       "cachedTokens": 0,
-*       "cacheWriteTokens": 0
-*     }
-*   },
-*   "history": [...]
-* }
-* }</pre>WriteTokens": 0
-*     }
-*   },
-* "历史": [...]
-* }
-* }</pre>
-*
-* <p>Session start times come from the {@code sessions.json} index file,
-* which 映射 会话id 转为 a 创建 时间戳 入 轮次 milliseconds.</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * Continue usage parser.
+ *
+ * <p>Continue CLI stores one session JSON per run under
+ * {@code ~/.continue/sessions/<uuid>.json}, containing real token usage
+ * reported by the upstream provider:</p>
+ *
+ * <pre>{@code
+ * {
+ *   "sessionId": "82848f56-...",
+ *   "usage": {
+ *     "totalCost": 0.001199,
+ *     "promptTokens": 1197,
+ *     "completionTokens": 1,
+ *     "promptTokensDetails": {
+ *       "cachedTokens": 0,
+ *       "cacheWriteTokens": 0
+ *     }
+ *   },
+ *   "history": [...]
+ * }
+ * }</pre>
+ *
+ * <p>Session start times come from the {@code sessions.json} index file,
+ * which maps sessionId to a creation timestamp in epoch milliseconds.</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Spi("continue")
 public class ContinueUsageParser extends BaseUsageParser {
@@ -54,32 +49,34 @@ public class ContinueUsageParser extends BaseUsageParser {
     private static final Path SESSIONS_DIR = Path.of(
             System.getProperty("user.home"), ".continue", "sessions");
 
-    private static final String INDEX_FILE = "sessions.json"; // 索引文件
+    private static final String INDEX_FILE = "sessions.json";
 
     /**
-    * 返回 the SPI 名称 for 继续.
-    *
-    * @return {@code "continue"}
+     * 返回 SPI 名称。
+     *
+     * @return {@code "continue"}
      */
-    /**
-    * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
-     */
-    @Override
-    public reactor.core.publisher.Flux<AiUsage> streamAll() {
-        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
-                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
-    }
     @Override
     public String name() {
         return "continue";
     }
 
     /**
-    * 解析 全部 继续 会话 文件 和 extracts 令牌 usage.
-    *
-    * @return list 的 aiusage records, one per 会话 with usage 数据
+     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
      */
-    @Override protected List<AiUsage> parseAll() {
+    @Override
+    public reactor.core.publisher.Flux<AiUsage> streamAll() {
+        return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
+                .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
+    }
+
+    /**
+     * 解析全部 Continue 会话文件并提取令牌用量。
+     *
+     * @return 用量记录列表，每个含 usage 数据的会话一条
+     */
+    @Override
+    protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[continue] sessions dir not found: {}", SESSIONS_DIR);
             return List.of();
@@ -99,9 +96,9 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 加载 the 会话id 转为 创建-时间 mapping 从 the 索引 文件.
-    *
-    * @return map 的 会话标识 转为 轮次 milliseconds
+     * 从索引文件加载 sessionId 到创建时间（epoch 毫秒）映射。
+     *
+     * @return sessionId 到创建时间的映射；文件缺失时返回空表
      */
     private Map<String, Long> loadDateIndex() {
         Map<String, Long> index = new HashMap<>();
@@ -127,25 +124,11 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 解析 a 单个 继续 会话 文件 into an AIusage record.
-    *
-    * @param file 路径 转为 the 会话 JSON 文件
-    * @param dateIndex 会话标识 转为 创建 时间 mapping
-    * @return the 解析 aiusage, 或 空 if the 文件 是否包含 no usage 数据
-    * @param history 历史
-     /**
-      * 解析会话。
-      * @param file 文件
-      * @param dateIndex 日期索引
-      * @return 解析会话的结果
-      */
-      * @param history 历史
-     /**
-     * 解析会话。
-     * @param file 文件
-     * @param dateIndex 日期索引
-     * @return 解析会话的结果
-      */
+     * 解析单个 Continue 会话文件为一条 AiUsage 记录。
+     *
+     * @param file      会话 JSON 文件路径
+     * @param dateIndex sessionId 到创建时间（epoch 毫秒）映射
+     * @return 解析结果；无 usage 数据时为空
      */
     private java.util.Optional<AiUsage> parseSession(Path file, Map<String, Long> dateIndex) {
         try {
@@ -182,6 +165,12 @@ public class ContinueUsageParser extends BaseUsageParser {
         }
     }
 
+    /**
+     * 从会话 history 中提取首条 assistant 消息的模型名。
+     *
+     * @param history history 数组节点
+     * @return 模型名；无时返回 null
+     */
     private String firstModel(JsonNode history) {
         if (history.isMissingValue() || !history.isArray()) {
             return null;

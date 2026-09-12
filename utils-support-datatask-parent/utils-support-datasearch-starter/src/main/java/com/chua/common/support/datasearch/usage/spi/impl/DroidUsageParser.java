@@ -17,22 +17,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-* Droid (Factory) usage parser.
-*
-* <p>Droid (Factory's CLI) persists session settings under
-* {@code ~/.factory/sessions/**/  } — each session keeps a
-* {@code *.settings.json} with accumulated token totals and a session
-* header carrying the model + provider. The file is also a JSONL
-* event log: lines carrying {@code tokenUsage} / {@code usage} blocks
-* report per-turn real usage.</p>
-*
-* <p>This parser reads both the settings.json cumulative counters and
-* the per-turn usage blocks, normalizing Droid's model names
-* (e.g. {@code "custom:GLM-5.1-[Proxy]-0"} → {@code "glm-5-1-0"})
-* for cross-tool comparison.</p>
-*
-* @author CH
-* @since 4.0.0.43
+ * Droid (Factory) usage parser.
+ *
+ * <p>Droid (Factory's CLI) persists session settings under
+ * {@code ~/.factory/sessions/}: each session keeps a
+ * {@code settings.json} with accumulated token totals and a session
+ * header carrying the model + provider. The session file is also a
+ * JSONL event log: lines carrying {@code tokenUsage} / {@code usage}
+ * blocks report per-turn real usage.</p>
+ *
+ * <p>This parser reads both the settings.json cumulative counters and
+ * the per-turn usage blocks, normalizing Droid's model names
+ * (e.g. {@code "custom:GLM-5.1-[Proxy]-0"} becomes {@code "glm-5-1-0"})
+ * for cross-tool comparison.</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
  */
 @Spi("droid")
 public class DroidUsageParser extends BaseUsageParser {
@@ -75,7 +75,7 @@ public class DroidUsageParser extends BaseUsageParser {
     }
 
     /**
-    * 枚举 {@code ~/.factory/sessions/**} 下的会话文件
+    * 枚举 {@code ~/.factory/sessions} 下的会话文件
     * （*.settings.json 与事件 JSONL）。
     *
     * @return 会话文件列表

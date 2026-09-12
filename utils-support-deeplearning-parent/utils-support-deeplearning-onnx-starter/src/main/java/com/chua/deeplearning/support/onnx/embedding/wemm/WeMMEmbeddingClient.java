@@ -11,31 +11,29 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* wemm-嵌入 本地离线嵌入客户端（SPI 提供者="wemm"）。
-*
-* <p>腾讯微信视觉团队开发的多模态嵌入模型，文本分支支持
-* 2B / 4B / 9B 三档。输出 L2 归一化嵌入向量，可直接用于
-* 余弦相似度 / 向量检索 / 语义搜索。</p>
-*
-* <p>用法（与云端 EmbeddingClient 完全一致）：
-* <pre>{@code
-*   float[] v = EmbeddingClient.create("wemm", "")
-*       .model("wemm-embedding-2b")
-*       .embedding("你好世界");
-*
-*   EmbeddingClient client = EmbeddingClient.create("wemm", "")
-*       .model("wemm-embedding-4b");
-*   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
-* }</pre>dding-4b");
-*   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
-* }</pre>
-* </p>
-*
-* <p>资源位于 {@code nlp/embedding/wemm-embedding-{2b|4b|9b}/}，
-* 由 jar {@code utils-support-models-onnx-wemm-embedding-*} 提供。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * WeMM-Embedding 本地离线嵌入客户端（SPI provider="wemm"）。
+ *
+ * <p>腾讯微信视觉团队开发的多模态嵌入模型，文本分支支持
+ * 2B / 4B / 9B 三档。输出 L2 归一化嵌入向量，可直接用于
+ * 余弦相似度 / 向量检索 / 语义搜索。</p>
+ *
+ * <p>用法（与云端 EmbeddingClient 完全一致）：
+ * <pre>{@code
+ *   float[] v = EmbeddingClient.create("wemm", "")
+ *       .model("wemm-embedding-2b")
+ *       .embedding("你好世界");
+ *
+ *   EmbeddingClient client = EmbeddingClient.create("wemm", "")
+ *       .model("wemm-embedding-4b");
+ *   float[][] vs = client.embeddingBatch(new String[]{"doc1", "doc2"});
+ * }</pre>
+ * </p>
+ *
+ * <p>资源位于 {@code nlp/embedding/wemm-embedding-{2b|4b|9b}/}，
+ * 由 jar {@code utils-support-models-onnx-wemm-embedding-*} 提供。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class WeMMEmbeddingClient implements EmbeddingClient {
@@ -48,19 +46,14 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     private volatile String resolvedModel;
 
     /**
-    * 创建 wemm嵌入客户端 实例
-    * @param setting setting
+     * 创建 WeMMEmbeddingClient 实例
+     * @param setting setting
      */
     public WeMMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
     }
 
-    /**
-    * 解析模型标识为资源基础路径
-    *
-    * @param model 模型
-    * @return 创建translator的结果
-     */
+    /** 解析模型标识为资源基础路径 */
     private WeMMEmbeddingTranslator createTranslator(String model) {
         String m = model == null ? "" : model.toLowerCase();
         if (m.contains("9b")) {
@@ -69,19 +62,19 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
         if (m.contains("4b")) {
             return WeMMEmbeddingTranslator.embedding4b();
         }
- // 默认: 2b
+        // default: 2b
         return new WeMMEmbeddingTranslator();
     }
 
     @Override
-    /** 提供者 */
+    /** Provider */
     public EmbeddingClient provider(String provider) {
         setting.setProvider(provider);
         return this;
     }
 
     @Override
-    /** 模型 */
+    /** Model */
     public EmbeddingClient model(String model) {
         setting.setModel(model);
         this.resolvedModel = null;
@@ -89,17 +82,13 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 维度 */
+    /** Dimensions */
     public EmbeddingClient dimensions(int dimensions) {
         setting.setDimensions(dimensions);
         return this;
     }
 
-    /**
-    * 获取翻译器
-    *
-    * @return translator的结果
-     */
+    /** 获取翻译器 */
     private WeMMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() ? "wemm-embedding-2b" : model;
@@ -122,7 +111,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入 */
+    /** Embedding */
     public float[] embedding(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -141,7 +130,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batch */
+    /** EmbeddingBatch */
     public float[][] embeddingBatch(String[] texts) {
         if (texts == null || texts.length == 0) {
             return new float[0][];
@@ -154,7 +143,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入with响应 */
+    /** EmbeddingWithResponse */
     public EmbeddingResponse embeddingWithResponse(String text) {
         float[] v = embedding(text);
         return EmbeddingResponse.builder()
@@ -164,7 +153,7 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入batchwith响应 */
+    /** EmbeddingBatchWithResponse */
     public EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vs = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -177,13 +166,13 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     }
 
     @Override
-    /** 嵌入异步 */
+    /** EmbeddingAsync */
     public CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
 
     @Override
-    /** 嵌入batch异步 */
+    /** EmbeddingBatchAsync */
     public CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
