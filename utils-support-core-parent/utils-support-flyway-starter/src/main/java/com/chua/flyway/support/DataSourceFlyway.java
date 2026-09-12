@@ -85,7 +85,7 @@ public class DataSourceFlyway implements Flyway {
 
     @Override
     public List<MigrationInfo> info() {
-        Set<String> applied = loadAppliedVersions();
+        Set<Long> applied = loadAppliedVersions();
         List<MigrationInfo> result = new ArrayList<>();
         for (ScriptFile script : scanScripts()) {
             result.add(new MigrationInfo(
@@ -94,14 +94,14 @@ public class DataSourceFlyway implements Flyway {
                     script.fileName,
                     applied.contains(script.version)));
         }
-        result.sort(Comparator.comparing(MigrationInfo::version, Comparator.comparingLong(Long::parseLong)));
+        result.sort(Comparator.comparingLong(MigrationInfo::version));
         return result;
     }
 
     @Override
     public int migrate() {
         ensureHistoryTable();
-        Set<String> applied = loadAppliedVersions();
+        Set<Long> applied = loadAppliedVersions();
         int executed = 0;
         for (ScriptFile script : scanScripts()) {
             if (applied.contains(script.version)) {
@@ -126,15 +126,15 @@ public class DataSourceFlyway implements Flyway {
     // ==================== 版本记录 ====================
 
     /**
-    * 确保版本记录表 {@code flyway_schema_history} 存在。
-    *
-    * <p>使用 {@code CREATE TABLE IF NOT EXISTS} 建表，含 5 列：
-    * {@code version}（主键，迁移版本号）、{@code description}（脚本描述）、
-    * {@code script}（脚本文件名）、{@code checksum}（脚本内容 MD5 校验和）、
-    * {@code applied_at}（应用时间戳）。该表是幂等迁移的依据：每次执行前都会查它，
-    * 已存在的版本会被跳过。</p>
-    *
-    * <p>失败时（建表 SQLException）包装为 {@link RuntimeException} 抛出，消息形如"创建版本记录表失败"。</p>
+     * 确保版本记录表 {@code flyway_schema_history} 存在。
+     *
+     * <p>使用 {@code CREATE TABLE IF NOT EXISTS} 建表，含 5 列：
+     * {@code version}（主键，迁移版本号）、{@code description}（脚本描述）、
+     * {@code script}（脚本文件名）、{@code checksum}（脚本内容 MD5 校验和）、
+     * {@code applied_at}（应用时间戳）。该表是幂等迁移的依据：每次执行前都会查它，
+     * 已存在的版本会被跳过。</p>
+     *
+     * <p>失败时（建表 SQLException）包装为 {@link RuntimeException} 抛出，消息形如"创建版本记录表失败"。</p>
      */
     private void ensureHistoryTable() {
         String sql = "CREATE TABLE IF NOT EXISTS " + HISTORY_TABLE + " ("
@@ -159,14 +159,14 @@ public class DataSourceFlyway implements Flyway {
     * @return 已应用版本号集合；表为空或尚无记录时返回空集合，不为 null。
     *         查询失败（SQLException）时抛出 {@link RuntimeException}，消息为"读取已应用版本失败"。
      */
-    private Set<String> loadAppliedVersions() {
-        Set<String> versions = new HashSet<>();
+    private Set<Long> loadAppliedVersions() {
+        Set<Long> versions = new HashSet<>();
         String sql = "SELECT version FROM " + HISTORY_TABLE;
         try (Connection conn = dataSource.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                versions.add(rs.getString(1));
+                versions.add(rs.getLong(1));
             }
         } catch (SQLException e) {
             throw new RuntimeException("读取已应用版本失败", e);
@@ -186,11 +186,11 @@ public class DataSourceFlyway implements Flyway {
     * @param script      脚本文件全名（如 {@code V1__init.sql}），用于追溯
     * @param checksum    脚本内容的 MD5 校验和（见 {@link #checksum(String)}）
      */
-    private void recordApplied(String version, String description, String script, String checksum) {
+    private void recordApplied(long version, String description, String script, String checksum) {
         String sql = "INSERT INTO " + HISTORY_TABLE
                 + " (version, description, script, checksum, applied_at) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = dataSource.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, version);
+            ps.setLong(1, version);
             ps.setString(2, description);
             ps.setString(3, script);
             ps.setString(4, checksum);
@@ -239,7 +239,7 @@ public class DataSourceFlyway implements Flyway {
     * @return 按版本升序排列的 {@link ScriptFile} 列表；无脚本时返回空列表
      */
     private List<ScriptFile> scanScripts() {
-        Map<String, ScriptFile> byVersion = new TreeMap<>(Comparator.comparingLong(Long::parseLong));
+        Map<Long, ScriptFile> byVersion = new TreeMap<>();
         for (String location : locations) {
             if (location.startsWith("classpath:")) {
                 scanClasspath(location.substring("classpath:".length()), byVersion);
@@ -260,7 +260,7 @@ public class DataSourceFlyway implements Flyway {
     * @param dirPath 文件系统目录路径（绝对或相对）
     * @param target  收集脚本的映射表（按版本号去重，由调用方保证同版本只保留一份）
      */
-    private void scanDirectory(String dirPath, Map<String, ScriptFile> target) {
+    private void scanDirectory(String dirPath, Map<Long, ScriptFile> target) {
         File dir = new File(dirPath);
         if (!dir.isDirectory()) {
             return;
@@ -287,7 +287,7 @@ public class DataSourceFlyway implements Flyway {
     * @param resourcePath 类路径资源位置（不带 {@code classpath:} 前缀，由调用方剥离）
     * @param target       收集脚本的映射表（按版本号去重）
      */
-    private void scanClasspath(String resourcePath, Map<String, ScriptFile> target) {
+    private void scanClasspath(String resourcePath, Map<Long, ScriptFile> target) {
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             if (classLoader == null) {
@@ -316,12 +316,12 @@ public class DataSourceFlyway implements Flyway {
     * @param fileName  脚本文件全名（如 {@code V1__init.sql}）
     * @param target     收集脚本的映射表，键为版本号
      */
-    private void addScript(Path path, String fileName, Map<String, ScriptFile> target) {
+    private void addScript(Path path, String fileName, Map<Long, ScriptFile> target) {
         Matcher matcher = SCRIPT_PATTERN.matcher(fileName);
         if (!matcher.matches()) {
             return;
         }
-        String version = matcher.group(1);
+        long version = Long.parseLong(matcher.group(1));
         String description = matcher.group(2);
         target.putIfAbsent(version, new ScriptFile(version, description, fileName, path));
     }
@@ -429,6 +429,6 @@ public class DataSourceFlyway implements Flyway {
     * @param fileName    脚本文件全名（如 {@code V1__init.sql}），写入版本记录表以便追溯
     * @param path        脚本绝对路径，执行时据此读取内容
      */
-    private record ScriptFile(String version, String description, String fileName, Path path) {
+    private record ScriptFile(long version, String description, String fileName, Path path) {
     }
 }
