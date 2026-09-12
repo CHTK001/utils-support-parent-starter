@@ -126,15 +126,15 @@ public class DataSourceFlyway implements Flyway {
     // ==================== 版本记录 ====================
 
     /**
-     * 确保版本记录表 {@code flyway_schema_history} 存在。
-     *
-     * <p>使用 {@code CREATE TABLE IF NOT EXISTS} 建表，含 5 列：
-     * {@code version}（主键，迁移版本号）、{@code description}（脚本描述）、
-     * {@code script}（脚本文件名）、{@code checksum}（脚本内容 MD5 校验和）、
-     * {@code applied_at}（应用时间戳）。该表是幂等迁移的依据：每次执行前都会查它，
-     * 已存在的版本会被跳过。</p>
-     *
-     * <p>失败时（建表 SQLException）包装为 {@link RuntimeException} 抛出，消息形如"创建版本记录表失败"。</p>
+    * 确保版本记录表 {@code flyway_schema_history} 存在。
+    *
+    * <p>使用 {@code CREATE TABLE IF NOT EXISTS} 建表，含 5 列：
+    * {@code version}（主键，迁移版本号）、{@code description}（脚本描述）、
+    * {@code script}（脚本文件名）、{@code checksum}（脚本内容 MD5 校验和）、
+    * {@code applied_at}（应用时间戳）。该表是幂等迁移的依据：每次执行前都会查它，
+    * 已存在的版本会被跳过。</p>
+    *
+    * <p>失败时（建表 SQLException）包装为 {@link RuntimeException} 抛出，消息形如"创建版本记录表失败"。</p>
      */
     private void ensureHistoryTable() {
         String sql = "CREATE TABLE IF NOT EXISTS " + HISTORY_TABLE + " ("
