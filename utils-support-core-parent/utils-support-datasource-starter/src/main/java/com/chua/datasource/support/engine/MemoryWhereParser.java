@@ -31,7 +31,7 @@ public class MemoryWhereParser {
         if (whereClause == null || whereClause.trim().isEmpty()) {
             return t -> true;
         }
-        return parseConditions(whereClause.trim(), params, 0);
+        return parseConditions(whereClause.trim(), params, new int[]{0});
     }
 
     @SuppressWarnings("unchecked")
@@ -40,13 +40,12 @@ public class MemoryWhereParser {
     *
     * @param where where
     * @param params 参数
-    * @param startIdx 启动idx
+    * @param idxHolder 参数索引持有者（int[0]），子分组递归时共享推进
     * @return 解析条件的结果
      */
-    private <T> Predicate<T> parseConditions(String where, List<Object> params, int startIdx) {
+    private <T> Predicate<T> parseConditions(String where, List<Object> params, int[] idxHolder) {
         Predicate<T> result = t -> true;
         String remaining = where.trim();
-        int idx = startIdx;
         String lastConnector = "AND";
 
         while (!remaining.isEmpty()) {
@@ -67,7 +66,8 @@ public class MemoryWhereParser {
                 }
                 String inner = remaining.substring(1, end - 1).trim();
                 remaining = remaining.substring(end).trim();
-                Predicate<T> subPredicate = parseConditions(inner, params, idx);
+                // 子分组通过共享的 idxHolder 消费参数，天然推进父级索引
+                Predicate<T> subPredicate = parseConditions(inner, params, idxHolder);
                 if ("OR".equalsIgnoreCase(lastConnector)) {
                     result = result.or(subPredicate);
                 } else {
@@ -90,8 +90,8 @@ public class MemoryWhereParser {
                 }
                 int secondQ = remaining.indexOf('?', end);
                 if (secondQ > 0) {
-                    Object startVal = params.get(idx++);
-                    Object endVal = params.get(idx++);
+                    Object startVal = params.get(idxHolder[0]++);
+                    Object endVal = params.get(idxHolder[0]++);
                     Object sv = startVal;
                     Object ev = endVal;
                     Predicate<T> pred = t -> {
@@ -122,7 +122,7 @@ public class MemoryWhereParser {
                 }
                 int qPos = remaining.indexOf('?', idxLike);
                 if (qPos > 0) {
-                    String pattern = String.valueOf(params.get(idx++));
+                    String pattern = String.valueOf(params.get(idxHolder[0]++));
                     Predicate<T> pred = t -> {
                         String val = String.valueOf(getFieldValue(t, field));
                         return val.toLowerCase().contains(
@@ -174,7 +174,7 @@ public class MemoryWhereParser {
                 int count = placeholders.split(",").length;
                 Collection<Object> values = new ArrayList<>();
                 for (int i = 0; i < count; i++) {
-                    values.add(params.get(idx++));
+                    values.add(params.get(idxHolder[0]++));
                 }
                 Collection<Object> fv = values;
                 Predicate<T> pred = t -> !fv.contains(getFieldValue(t, field));
@@ -200,7 +200,7 @@ public class MemoryWhereParser {
                 int count = placeholders.split(",").length;
                 Collection<Object> values = new ArrayList<>();
                 for (int i = 0; i < count; i++) {
-                    values.add(params.get(idx++));
+                    values.add(params.get(idxHolder[0]++));
                 }
                 Collection<Object> fv = values;
                 Predicate<T> pred = t -> fv.contains(getFieldValue(t, field));
@@ -219,14 +219,14 @@ public class MemoryWhereParser {
             if (m.find()) {
                 String field = m.group(1);
                 String op = m.group(2);
-                Object val = params.get(idx++);
+                Object val = params.get(idxHolder[0]++);
                 Object matchedVal = val;
                 Predicate<T> pred = t -> {
                     Object fv = getFieldValue(t, field);
                     Object cv = convertToMatch(fv, matchedVal);
                     return switch (op) {
-                        case "=" -> fv != null && fv.equals(matchedVal);
-                        case "!=", "<>" -> fv != null && !fv.equals(matchedVal);
+                        case "=" -> fv != null && fv.equals(cv);
+                        case "!=", "<>" -> fv != null && !fv.equals(cv);
                         case ">" -> fv instanceof Comparable c && c.compareTo(cv) > 0;
                         case ">=" -> fv instanceof Comparable c && c.compareTo(cv) >= 0;
                         case "<" -> fv instanceof Comparable c && c.compareTo(cv) < 0;

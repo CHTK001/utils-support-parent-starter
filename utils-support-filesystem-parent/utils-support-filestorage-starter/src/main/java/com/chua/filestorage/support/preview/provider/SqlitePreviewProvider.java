@@ -5,6 +5,7 @@ import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,26 +30,33 @@ import java.util.Set;
 * @since 4.0.0.42
  */
 @Spi("preview-sqlite")
+@Slf4j
 public class SqlitePreviewProvider implements FileStoragePreviewProvider {
 
     private static final Set<String> SUPPORTED_EXTS = Set.of("sqlite", "sqlite3", "db"); // 支持exts
     private static final int MAX_ROWS = 100; // 最大rows
     private static final int MAX_TABLES = 50; // 最大tables
     private static final long MAX_FILE_SIZE = 512L * 1024 * 1024; // 最大文件大小
-
-    static {
-        if (ReflectUtils.forName("org.sqlite.JDBC") == null) {
-            throw new IllegalStateException("sqlite-jdbc driver not found");
-        }
-    }
+    private static final String SQLITE_DRIVER_CLASS = "org.sqlite.JDBC"; // 驱动类
 
     @Override
     public boolean supports(String ext, String mime) {
-        return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase(Locale.ENGLISH));
+        if (ext == null) {
+            return false;
+        }
+        // 运行期惰性探测驱动，避免类加载即抛异常拖垮整批 SPI 扩展
+        if (ReflectUtils.forName(SQLITE_DRIVER_CLASS) == null) {
+            log.warn("sqlite-jdbc 驱动缺失，sqlite 预览不可用: {}", ext);
+            return false;
+        }
+        return SUPPORTED_EXTS.contains(ext.toLowerCase(Locale.ENGLISH));
     }
 
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
+        if (ReflectUtils.forName(SQLITE_DRIVER_CLASS) == null) {
+            return PreviewResult.builder().htmlContent(emptyHtml("sqlite-jdbc 驱动缺失，无法预览数据库文件")).build();
+        }
         if (content.length == 0) {
             return PreviewResult.builder().htmlContent(emptyHtml("数据库文件为空")).build();
         }

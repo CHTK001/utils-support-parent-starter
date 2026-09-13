@@ -13,6 +13,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -45,6 +46,11 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * 纯压缩流扩展名（不视为容器，无条目概念）
      */
     private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst", "lz4", "lzma");
+
+    /**
+    * 单条目解压结果最大字节数，防御 7z/压缩条目解压炸弹拖垮内存
+     */
+    private static final int MAX_EXTRACT_ENTRY_BYTES = 128 * 1024 * 1024;
 
     /**
     * @param ext  文件扩展名
@@ -197,7 +203,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
                     continue;
                 }
                 if (path.equals(entry.getName())) {
-                    return ais.readAllBytes();
+                    return readEntryLimited(ais, MAX_EXTRACT_ENTRY_BYTES);
                 }
             }
             return null;
@@ -220,16 +226,21 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             Files.write(tmp, content);
             try (SevenZFile sz = SevenZFile.builder().setPath(tmp).get()) {
                 org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
-                byte[] buffer = new byte[8192];
                 while ((entry = sz.getNextEntry()) != null) {
                     if (entry.isDirectory()) {
                         continue;
                     }
                     if (path.equals(entry.getName())) {
-                        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
+                        try (ByteArrayOutputStream baos = new ByteArrayOutputStream(MAX_EXTRACT_ENTRY_BYTES)) {
+                            byte[] buffer = new byte[8192];
+                            int total = 0;
                             int len;
-                            while ((len = sz.read(buffer)) > 0) {
+                            while ((len = sz.read(buffer, 0, Math.min(buffer.length, MAX_EXTRACT_ENTRY_BYTES - total))) > 0) {
                                 baos.write(buffer, 0, len);
+                                total += len;
+                                if (total >= MAX_EXTRACT_ENTRY_BYTES) {
+                                    break;
+                                }
                             }
                             return baos.toByteArray();
                         }
@@ -261,6 +272,29 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
             return entry.getLastModifiedDate();
         } catch (UnsupportedOperationException e) {
             return null;
+        }
+    }
+
+    /**
+    * 带大小上限地读取压缩条目内容，超过上限时截断返回。
+    *
+    * @param in     压缩条目输入流
+    * @param limit  最大字节数
+    * @return 条目内容字节；超过上限时仅返回前 limit 字节
+     */
+    private static byte[] readEntryLimited(InputStream in, int limit) throws IOException {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream(limit)) {
+            byte[] buffer = new byte[8192];
+            int len;
+            int total = 0;
+            while ((len = in.read(buffer, 0, Math.min(buffer.length, limit - total))) > 0) {
+                baos.write(buffer, 0, len);
+                total += len;
+                if (total >= limit) {
+                    break;
+                }
+            }
+            return baos.toByteArray();
         }
     }
 

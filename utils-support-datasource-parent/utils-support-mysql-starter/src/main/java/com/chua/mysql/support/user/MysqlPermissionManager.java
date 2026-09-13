@@ -188,14 +188,11 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     // ==================== Inner Actions ====================
-     /**
+    /**
      * grant动作类。
      *
      * @author CH
      * @since 4.0.0
-      */
-     * revoke动作类。
-     *
      */
 
     private static class GrantAction implements GrantStep {
@@ -240,6 +237,9 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
         }
     }
 
+    /**
+     * revoke动作类。
+     */
     private static class RevokeAction implements RevokeStep {
         private final DataSource dataSource;
         private final String privileges;

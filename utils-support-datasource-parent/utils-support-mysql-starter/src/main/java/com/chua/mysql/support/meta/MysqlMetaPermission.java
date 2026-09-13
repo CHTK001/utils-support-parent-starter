@@ -146,14 +146,11 @@ public class MysqlMetaPermission implements MetaPermission {
     }
 
     // ==================== Inner Steps ====================
-     /**
+    /**
      * GrantStep类。
      *
      * @author CH
      * @since 4.0.0
-      */
-     * RevokeStep类。
-     *
      */
 
     private static class GrantStep implements GrantBuilder {
@@ -183,6 +180,9 @@ public class MysqlMetaPermission implements MetaPermission {
         }
     }
 
+    /**
+     * RevokeStep类。
+     */
     private static class RevokeStep implements RevokeBuilder {
         private final DataSource dataSource; // 数据源
         private final String privileges; // privileges

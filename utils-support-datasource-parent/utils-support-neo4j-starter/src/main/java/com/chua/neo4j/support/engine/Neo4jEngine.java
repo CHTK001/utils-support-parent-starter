@@ -278,66 +278,10 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-            * 解析Column
-            * @param col col
-            * @param col col
-            * @param pn pn
-            * @param ps ps
-            * @param ps ps
-            * @param ps ps
-            * @param to 转为
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param entityClass 实体类
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param setValues 设置值
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param conditions 条件
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param sb sb
-            * @param c c
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param props props
-            * @param entityClass 实体类
-            * @param paramType 参数类型
-            * @param value 值
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType Target类型
-            * @param Number 数字
+             * 解析属性函数引用的列名。
+             *
+             * @param col 属性函数引用
+             * @return 解析后的列名
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -351,65 +295,10 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                    * 解析Column
-                    * @param col col
-                    * @param pn pn
-                    * @param ps ps
-                    * @param ps ps
-                    * @param ps ps
-                    * @param to 转为
-                    * @param entityClass 实体类
-                    * @param col col
-                    * @param col col
-                    * @param entityClass 实体类
-                    * @param col col
-                    * @param col col
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param entityClass 实体类
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param setValues 设置值
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param sb sb
-                    * @param c c
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param props props
-                    * @param entityClass 实体类
-                    * @param paramType 参数类型
-                    * @param value 值
-                    * @param e e
-                    * @param e e
-                    * @param value 值
-                    * @param targetType Target类型
-                    * @param Number 数字
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -464,58 +353,10 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-            * 解析Column
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param entityClass 实体类
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param setValues 设置值
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param conditions 条件
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param sb sb
-            * @param c c
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param props props
-            * @param entityClass 实体类
-            * @param paramType 参数类型
-            * @param value 值
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType Target类型
-            * @param Number 数字
+             * 解析属性函数引用的列名。
+             *
+             * @param col 属性函数引用
+             * @return 解析后的列名
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -529,57 +370,10 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                    * 解析Column
-                    * @param col col
-                    * @param entityClass 实体类
-                    * @param col col
-                    * @param col col
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param entityClass 实体类
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param setValues 设置值
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param sb sb
-                    * @param c c
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param props props
-                    * @param entityClass 实体类
-                    * @param paramType 参数类型
-                    * @param value 值
-                    * @param e e
-                    * @param e e
-                    * @param value 值
-                    * @param targetType Target类型
-                    * @param Number 数字
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -603,55 +397,10 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-            * 解析Column
-            * @param col col
-            * @param col col
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param entityClass 实体类
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param setValues 设置值
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param entityClass 实体类
-            * @param conditions 条件
-            * @param params 参数
-            * @param params 参数
-            * @param e e
-            * @param conditions 条件
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param sb sb
-            * @param c c
-            * @param params 参数
-            * @param alias 别名
-            * @param 0 0
-            * @param params 参数
-            * @param alias 别名
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param val val
-            * @param props props
-            * @param entityClass 实体类
-            * @param paramType 参数类型
-            * @param value 值
-            * @param e e
-            * @param e e
-            * @param value 值
-            * @param targetType Target类型
-            * @param Number 数字
+             * 解析属性函数引用的列名。
+             *
+             * @param col 属性函数引用
+             * @return 解析后的列名
              */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
@@ -665,54 +414,10 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                    * 解析Column
-                    * @param col col
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param entityClass 实体类
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param setValues 设置值
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param entityClass 实体类
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param params 参数
-                    * @param e e
-                    * @param conditions 条件
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param sb sb
-                    * @param c c
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param 0 0
-                    * @param params 参数
-                    * @param alias 别名
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param val val
-                    * @param props props
-                    * @param entityClass 实体类
-                    * @param paramType 参数类型
-                    * @param value 值
-                    * @param e e
-                    * @param e e
-                    * @param value 值
-                    * @param targetType Target类型
-                    * @param Number 数字
+                     * 解析属性函数引用的列名。
+                     *
+                     * @param col 属性函数引用
+                     * @return 解析后的列名
                      */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {

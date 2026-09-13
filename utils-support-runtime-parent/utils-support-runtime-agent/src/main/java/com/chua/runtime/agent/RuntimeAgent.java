@@ -84,6 +84,16 @@ public class RuntimeAgent {
             }
             ApmBootstrap apm = new ApmBootstrap(Paths.get(System.getProperty("java.io.tmpdir")));
             apm.start();
+            // 关键：attach 场景下 Tomcat/Logback/JDBC 等目标类在本方法执行前就已加载，
+            // 而 handler 的插桩规则在 apm.start() 才注册 —— 必须对已加载类补一次
+            // retransform，否则规则永远命中不了已加载类，APM 采集恒为零。
+            if (SpyBootstrap.getTransformer() != null) {
+                try {
+                    SpyBootstrap.getTransformer().retransformLoadedClasses(inst);
+                } catch (Throwable t) {
+                    LOG.log(Level.WARNING, "已加载类 retransform 失败（增量类仍会正常插桩）", t);
+                }
+            }
             started = true;
             LOG.info("Runtime Agent 启动成功");
         } catch (Exception e) {

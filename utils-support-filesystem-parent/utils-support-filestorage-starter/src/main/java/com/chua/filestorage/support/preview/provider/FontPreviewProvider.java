@@ -25,6 +25,11 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
     private static final Set<String> SUPPORTED_EXTS = Set.of("ttf", "otf", "woff", "woff2", "eot");
 
     /**
+    * Base64 内嵌字体预览允许的最大字节数（约 10 MB）
+     */
+    private static final long MAX_FONT_PREVIEW_BYTES = 10L * 1024 * 1024;
+
+    /**
     * 扩展名 → MIME 类型映射
     * @param bytes bytes
     * @return human大小的结果
@@ -58,6 +63,15 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
 
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
+        if (content.length > MAX_FONT_PREVIEW_BYTES) {
+            return PreviewResult.builder()
+                    .htmlContent("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"></head>"
+                            + "<body style=\"display:flex;justify-content:center;align-items:center;"
+                            + "min-height:100vh;font-family:sans-serif;color:#666\">"
+                            + "<div>字体文件过大（超过 10 MB），暂不支持内嵌预览</div>"
+                            + "</body></html>")
+                    .build();
+        }
         String e = ext.toLowerCase(Locale.ENGLISH);
         String mimeType = MIME_MAP.getOrDefault(e, "font/" + e);
         String b64 = java.util.Base64.getEncoder().encodeToString(content);

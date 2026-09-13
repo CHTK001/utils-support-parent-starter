@@ -171,7 +171,13 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
                 sb.append("<div class=\"name\">").append(escapeHtml(displayName)).append("</div>");
 
                 if (contact.organization != null && !contact.organization.isEmpty()) {
-                    sb.append("<div class=\"org\">").append(escapeHtml(contact.organization)).append("</div>");
+                    sb.append("<div class=\"org\">").append(escapeHtml(contact.organization));
+                    if (contact.title != null && !contact.title.isEmpty()) {
+                        sb.append(" · ").append(escapeHtml(contact.title));
+                    }
+                    sb.append("</div>");
+                } else if (contact.title != null && !contact.title.isEmpty()) {
+                    sb.append("<div class=\"org\">").append(escapeHtml(contact.title)).append("</div>");
                 }
 
                 for (String phone : contact.phones) {

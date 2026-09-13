@@ -23,8 +23,7 @@ import javax.sql.DataSource;
 * <pre>{@code
 * MysqlEngine engine = new MysqlEngine();
 * engine.addDataSource(new DataSourceOptions("default", "localhost", 3306, "mydb", "root", "password", null));
-* List<User> users = engine.query(User.class).list();
-* }</pre>users = engine.query(User.class).list();
+* List&lt;User&gt; users = engine.query(User.class).list();
 * }</pre>
 * </p>
 *

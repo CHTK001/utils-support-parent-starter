@@ -15,7 +15,6 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 * OracleReactorEngine engine = new OracleReactorEngine();
 * engine.addDataSource("default", "localhost", 1521, "orcl", "system", "password");
 * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
-* }</pre>ser::getName, "张三").list();
 * }</pre>
 *
 * @author CH

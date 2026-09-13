@@ -33,6 +33,16 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
     /** 已有专门 SPI 提供者抢跑的扩展名，编码preview提供者 不应匹配 */
     private static final Set<String> BYPASS_EXTS = Set.of("html", "htm", "csv", "md", "svg");
 
+    /**
+    * highlight.js 主库路径（由宿主服务从同源 /preview-vendor/hljs 提供，避免依赖公网 CDN）
+    */
+    private static final String HIGHLIGHT_JS = "/preview-vendor/hljs/highlight.min.js";
+
+    /**
+    * atom-one-dark 主题样式表路径
+    */
+    private static final String HIGHLIGHT_CSS = "/preview-vendor/hljs/atom-one-dark.min.css";
+
     @Override
     /** 支持 */
     public boolean supports(String extension, String mimeType) {
@@ -69,8 +79,8 @@ public class CodePreviewProvider implements FileStoragePreviewProvider {
                 + ".hljs{padding:0!important;background:transparent!important}";
         String html = "<div class=\"lang-badge\">" + escapeHtml(lang) + "</div><pre><code class=\"hljs language-"
                 + escapeHtml(lang) + "\">" + escapeHtml(code) + "</code></pre>"
-                + "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css\">"
-                + "<script src=\"https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js\"></script>"
+                + "<link rel=\"stylesheet\" href=\"" + HIGHLIGHT_CSS + "\">"
+                + "<script src=\"" + HIGHLIGHT_JS + "\"></script>"
                 + "<script>hljs.highlightAll()</script>";
         return PreviewResult.builder().htmlContent(html).embeddedCss(css).build();
     }

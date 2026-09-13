@@ -426,12 +426,20 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
 
     /**
     * 构建 WHERE 子句和参数列表。
-    * <p>遍历所有条件，用 AND 连接。</p>
-     */
+    * <p>遍历所有条件，普通条件之间以 AND 连接；若当前条件为 OR 嵌套分组，
+    * 则该分组与前文之间以 OR 连接（AND 嵌套分组仍以 AND 连接）。</p>
+    *
+    * @param sb     WHERE 片段缓冲
+    * @param params 参数收集列表
+    */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) {
-                sb.append(" AND ");
+                Condition current = conditions.get(i);
+                // OR 嵌套分组需要与前文以 OR 连接，其余条件统一 AND
+                boolean leadingOr = current.isNested()
+                        && "OR".equalsIgnoreCase(current.getNestedOperator());
+                sb.append(leadingOr ? " OR " : " AND ");
             }
             renderCondition(sb, params, conditions.get(i));
         }

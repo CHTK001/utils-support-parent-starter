@@ -17,7 +17,6 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 * SqlServerReactorEngine engine = new SqlServerReactorEngine();
 * engine.addDataSource("default", "localhost", 1433, "master", "sa", "password");
 * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
-* }</pre>(User::getName, "张三").list();
 * }</pre>
 *
 * @author CH

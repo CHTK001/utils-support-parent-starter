@@ -13,7 +13,6 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 * DuckDBReactorEngine engine = new DuckDBReactorEngine();
 * engine.addDataSource("default", "jdbc:duckdb:");
 * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
-* }</pre>me, "张三").list();
 * }</pre>
 *
 * @author CH

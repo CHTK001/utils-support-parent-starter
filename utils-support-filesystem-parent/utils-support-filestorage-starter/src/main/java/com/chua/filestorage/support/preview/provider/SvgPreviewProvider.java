@@ -25,19 +25,43 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
      */
     private static final Set<String> SUPPORTED_EXTS = Set.of("svg");
 
+    /** Base64 内嵌 SVG 预览允许的最大字节数（约 8 MB，避免生成超大 HTML 页面） */
+    private static final long MAX_SVG_PREVIEW_BYTES = 8L * 1024 * 1024;
+
     /**
-    * @param ext  文件扩展名
-    * @param mime MIME 类型（当前忽略）
-    * @return true 表示支持预览
+     * 判断是否支持指定扩展名的文件预览。
+     *
+     * @param ext  文件扩展名
+     * @param mime MIME 类型（当前忽略）
+     * @return true 表示支持 SVG 预览
      */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());
     }
 
+    /**
+     * 生成 SVG 文件的增强预览页面。
+     *
+     * <p>将 SVG 内容以 Base64 内嵌到 data-URI 图片中，通过缩放工具栏实现矢量图形交互预览。
+     * 超过 {@link #MAX_SVG_PREVIEW_BYTES} 时返回提示页面，避免生成超大 HTML。</p>
+     *
+     * @param content 原始字节
+     * @param ext     扩展名
+     * @param mime    MIME 类型（当前忽略）
+     * @return 预览结果，含 HTML 内容 + 内嵌 CSS
+     */
     @Override
-    /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) {
+        if (content.length > MAX_SVG_PREVIEW_BYTES) {
+            return PreviewResult.builder()
+                    .htmlContent("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"></head>"
+                            + "<body style=\"display:flex;justify-content:center;align-items:center;"
+                            + "min-height:100vh;font-family:sans-serif;color:#666\">"
+                            + "<div>SVG 文件过大（超过 8 MB），暂不支持内嵌预览</div>"
+                            + "</body></html>")
+                    .build();
+        }
         String svgContent = new String(content, StandardCharsets.UTF_8);
         String b64 = Base64.getEncoder().encodeToString(content);
 
@@ -48,6 +72,8 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
                 .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}" +
                         "#svg-container{overflow:auto;background:#fafafa}" +
                         "#svg-container img{display:block;transition:transform .2s ease}")
+                // SVG 内容为不可信输入，统一沙箱隔离以防御可能携带的脚本
+                .requiresSandbox(true)
                 .build();
     }
 

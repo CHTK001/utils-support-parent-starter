@@ -38,6 +38,12 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     private static final Pattern RTF_GROUP = Pattern.compile("\\\\[a-z]+\\d*\\s?");
     private static final Pattern RTF_SPECIAL = Pattern.compile("\\\\['{}\\\\~_-]");
     private static final Pattern RTF_CONTROL = Pattern.compile("\\\\[a-zA-Z]+\\d*\\s?");
+
+    /**
+     * 不含正文的 RTF 目标组：字体表、颜色表、样式表、文档元信息、图片数据等
+     */
+    private static final Set<String> SKIP_GROUPS = Set.of(
+            "fonttbl", "colortbl", "stylesheet", "info", "pict", "filetbl", "datastore");
 /**
 * 支持。
 * @param ext ext
@@ -62,6 +68,9 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     private String extractText(String rtf) {
+        // 先按花括号配对剔除字体表、颜色表等非正文目标组，避免字体名泄漏到正文
+        rtf = stripDestinationGroups(rtf);
+
         // 移除 RTF 头部
         int docStart = rtf.indexOf("\\pard");
         if (docStart < 0) {
@@ -103,11 +112,83 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
+    * 按花括号配对剔除 RTF 非正文目标组。
+    * <p>命中 {@code {\fonttbl...}}、{@code {\colortbl...}} 等目标组，
+    * 以及所有 {@code {\*\xxx}} 形式的忽略目标组时，跳过整组（含嵌套花括号）；
+    * 其余内容原样保留。</p>
+    *
+    * @param rtf 原始 RTF 文本
+    * @return 剔除目标组后的 RTF 文本
+    */
+    private String stripDestinationGroups(String rtf) {
+        StringBuilder out = new StringBuilder(rtf.length());
+        int i = 0;
+        int length = rtf.length();
+
+        while (i < length) {
+            char current = rtf.charAt(i);
+            if (current != '{') {
+                out.append(current);
+                i++;
+                continue;
+            }
+
+            // 解析组首关键字：跳过空白、可选的 '*' 忽略目标标记以及前导反斜杠
+            int cursor = i + 1;
+            while (cursor < length && Character.isWhitespace(rtf.charAt(cursor))) {
+                cursor++;
+            }
+            boolean ignored = false;
+            if (cursor < length && rtf.charAt(cursor) == '*') {
+                ignored = true;
+                cursor++;
+                while (cursor < length && Character.isWhitespace(rtf.charAt(cursor))) {
+                    cursor++;
+                }
+            }
+            if (cursor < length && rtf.charAt(cursor) == '\\') {
+                cursor++;
+            }
+            int keywordStart = cursor;
+            while (cursor < length && Character.isLetter(rtf.charAt(cursor))) {
+                cursor++;
+            }
+            String keyword = rtf.substring(keywordStart, cursor);
+
+            if (ignored || SKIP_GROUPS.contains(keyword)) {
+                int depth = 1;
+                while (cursor < length && depth > 0) {
+                    char c = rtf.charAt(cursor);
+                    // 转义的 \{ 与 \} 是字面量，不参与花括号配对
+                    boolean escaped = c == '\\' && cursor + 1 < length
+                            && (rtf.charAt(cursor + 1) == '{' || rtf.charAt(cursor + 1) == '}');
+                    if (escaped) {
+                        cursor += 2;
+                        continue;
+                    }
+                    if (c == '{') {
+                        depth++;
+                    } else if (c == '}') {
+                        depth--;
+                    }
+                    cursor++;
+                }
+                i = cursor;
+            } else {
+                out.append(current);
+                i++;
+            }
+        }
+
+        return out.toString();
+    }
+
+    /**
     * 构建html。
     * @param text 文本
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     private String buildHtml(String text, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
