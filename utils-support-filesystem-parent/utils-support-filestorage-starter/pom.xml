@@ -80,22 +80,11 @@
             <artifactId>imageio-psd</artifactId>
             <version>3.12.0</version>
         </dependency>
-        <!-- Parquet 列存文件预览（ParquetPreviewProvider 依赖） -->
+        <!-- Parquet 列存文件预览（ParquetPreviewProvider，DuckDB JDBC，无需 Hadoop） -->
         <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-avro</artifactId>
-            <version>1.16.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>3.4.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-reload4j</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.duckdb</groupId>
+            <artifactId>duckdb_jdbc</artifactId>
+            <version>1.2.0</version>
         </dependency>
           <!-- Rust native 实现已移除，仅保留 JDK 实现 -->
      </dependencies>
