@@ -162,6 +162,11 @@ public class GlobalSettingFactory {
         }
     }
 
+    /** 通用设置：兼容旧版调用，直接存储原始值 */
+    public synchronized void set(String key, Object value) {
+        CONFIG.put(PREFIX + key, value == null ? CommonConstant.SYMBOL_EMPTY : value);
+    }
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     /** 设置 */
     public synchronized <T> void set(String group, String name, Object value) {
