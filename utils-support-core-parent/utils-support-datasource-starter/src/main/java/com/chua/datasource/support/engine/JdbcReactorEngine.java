@@ -58,6 +58,28 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 @Spi("jdbc")
 public class JdbcReactorEngine implements ReactorEngine {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(JdbcReactorEngine.class);
+
+    /** 同步委托引擎（伪响应式模式使用，可空） */
+    protected final Engine delegate;
+
+    /**
+     * 默认构造器，纯 R2DBC / 联邦模式使用。
+     */
+    public JdbcReactorEngine() {
+        this(null);
+    }
+
+    /**
+     * 伪响应式模式构造器，内部持有同步 {@link Engine}。
+     *
+     * @param delegate 同步委托引擎
+     */
+    protected JdbcReactorEngine(Engine delegate) {
+        this.delegate = delegate;
+    }
+
     /** 默认数据源名称 */
     private String defaultDataSourceName;
 
@@ -91,13 +113,22 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (jdbcUrl.startsWith("r2dbc:")) {
             r2dbcFactories.put(name, buildConnectionFactory(jdbcUrl, username, password));
         } else {
-            // JDBC URL → R2DBC URL 转换
+            // JDBC URL → R2DBC URL 转换；无对应 r2dbc 驱动（如 sqlite）时
+            // 静默降级为纯 JDBC 路径，由 query() 按 jdbcDataSources 兜底
             String r2dbcUrl = convertJdbcToR2dbc(jdbcUrl);
-            r2dbcFactories.put(name, buildConnectionFactory(r2dbcUrl, username, password));
+            try {
+                r2dbcFactories.put(name, buildConnectionFactory(r2dbcUrl, username, password));
+            } catch (Exception e) {
+                log.debug("数据源 {} 无 r2dbc 驱动（{}），降级为纯 JDBC 路径: {}",
+                        name, e.getMessage(), jdbcUrl);
+            }
             jdbcDataSources.put(name, createJdbcDataSource(jdbcUrl, username, password));
         }
 
-        dialects.put(name, detectDialect(jdbcUrl));
+        Dialect dialect = detectDialect(jdbcUrl);
+        if (dialect != null) {
+            dialects.put(name, dialect);
+        }
 
         if (defaultDataSourceName == null) {
             defaultDataSourceName = name;
@@ -109,6 +140,18 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
 
         return this;
+    }
+
+    /**
+     * 注册 JDBC 数据源到响应式路径（伪响应式模式，boundedElastic 上执行）。
+     *
+     * @param name     数据源名称
+     * @param jdbcUrl  JDBC URL（如 jdbc:mysql://localhost:3306/mydb）
+     * @param username 用户名
+     * @param password 密码
+     */
+    protected void registerJdbcDataSource(String name, String jdbcUrl, String username, String password) {
+        addDataSource(name, jdbcUrl, username, password);
     }
 
     /**
@@ -401,6 +444,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
         }
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)
+                && jdbcDataSources.containsKey(defaultDataSourceName)) {
+            return queryViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, params);
+        }
         return queryViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -411,6 +458,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         if (defaultDataSourceName == null) {
             return Flux.error(new IllegalStateException("未配置数据源，无法执行查询"));
+        }
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)
+                && jdbcDataSources.containsKey(defaultDataSourceName)) {
+            return queryTypedViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, rowType, params);
         }
         return queryTypedViaR2dbc(defaultDataSourceName, sql, rowType, params);
     }
@@ -423,6 +474,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         if (defaultDataSourceName == null) {
             return Mono.error(new IllegalStateException("未配置数据源，无法执行语句"));
         }
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)
+                && jdbcDataSources.containsKey(defaultDataSourceName)) {
+            return executeViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, params);
+        }
         return executeViaR2dbc(defaultDataSourceName, sql, params);
     }
 
@@ -433,6 +488,10 @@ public class JdbcReactorEngine implements ReactorEngine {
         }
         if (defaultDataSourceName == null) {
             throw new IllegalStateException("未配置数据源，无法执行批次");
+        }
+        if (!r2dbcFactories.containsKey(defaultDataSourceName)
+                && jdbcDataSources.containsKey(defaultDataSourceName)) {
+            return batchViaJdbc(jdbcDataSources.get(defaultDataSourceName), sql, batchParams);
         }
         return batchViaR2dbc(defaultDataSourceName, sql, batchParams);
     }
