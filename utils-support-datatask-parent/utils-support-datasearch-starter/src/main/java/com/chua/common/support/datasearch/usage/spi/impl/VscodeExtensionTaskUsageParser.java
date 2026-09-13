@@ -73,7 +73,17 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     /**
     * 默认响应式流式入口：扫描全部 IDE 安装，惰性解析任务文件。
     *
-    * <p>子类覆写 {@link #streamAll()} 直接调用此方法即可获得完整行为。</p>
+    * <p>子类无需再自行覆写转接 {@link #fromTaskFiles()}。</p>
+    *
+    * @return 用量记录流
+     */
+    @Override
+    public Flux<AiUsage> streamAll() {
+        return fromTaskFiles();
+    }
+
+    /**
+    * 扫描全部 IDE 安装并解析任务文件（子类可直接复用）。
     *
     * @return 用量记录流
      */

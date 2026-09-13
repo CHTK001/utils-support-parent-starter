@@ -179,7 +179,9 @@ public class SamePackageServiceResolver implements ServiceResolver {
             log.trace("[SPI] 找到 {} 个资源路径，包名：{}", urlList.size(), packageName);
         }
 
-        urlList.parallelStream().forEachOrdered(url -> {
+        // 顺序扫描：parallel 版本经 ForkJoinPool 加载类时，可能触发
+        // 其他类的 <clinit>（如 Json）反过来调用 SPI 初始化，形成死锁环
+        urlList.forEach(url -> {
             doAnalysisUrl(result, url, packageName, packageDirName, service, classLoader);
         });
 
@@ -260,7 +262,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
         }
 
         try {
-            List<String> classNames = jarFile.stream().parallel()
+            List<String> classNames = jarFile.stream()
                     .filter(jarEntry -> {
                         String entryName = jarEntry.getName();
                         return entryName.endsWith(".class") 
@@ -310,7 +312,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
             }
 
             try (Stream<Path> paths = Files.walk(packagePath)) {
-                List<String> classNames = paths.parallel()
+                List<String> classNames = paths.sequential()
                         .filter(Files::isRegularFile)
                         .filter(path -> {
                             String fileName = path.getFileName().toString();

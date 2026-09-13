@@ -123,19 +123,30 @@ public class CopilotCliUsageParser extends BaseUsageParser {
      */
     private Flux<AiUsage> streamEventFile(Path file) {
         return streamLines(file)
-                .map(line -> parseLineSafe(line, file))
+                .map(line -> parseLineSafe(line, sessionKey(file)))
                 .filter(r -> !r.isEmpty())
                 .flatMapIterable(r -> r);
     }
 
     /**
+     * 会话标识：session-state 下的会话目录名。
+     *
+     * @param file events.jsonl 文件
+     * @return 会话目录名
+     */
+    private String sessionKey(Path file) {
+        Path parent = file.getParent();
+        return parent != null ? parent.getFileName().toString() : file.toString();
+    }
+
+    /**
      * 解析单行；session.shutdown 事件产出 per-model 用量记录。
      *
-     * @param line 单行 JSON
-     * @param file 来源事件文件（作为 requestId 前缀）
+     * @param line           单行 JSON
+     * @param sessionFileKey 会话标识（session-state 目录名）
      * @return 用量记录列表（多模型会话逐模型各一条）
      */
-    private List<AiUsage> parseLineSafe(String line, Path file) {
+    private List<AiUsage> parseLineSafe(String line, String sessionFileKey) {
         if (line.isBlank()) {
             return List.of();
         }
@@ -171,7 +182,7 @@ public class CopilotCliUsageParser extends BaseUsageParser {
                 });
                 AiUsage record = toAiUsage(modelId, metrics,
                         totalNanoAiu, totalApiDurationMs, startTime,
-                        file.getFileName().toString());
+                        sessionFileKey);
                 if (record != null) {
                     result.add(record);
                 }
