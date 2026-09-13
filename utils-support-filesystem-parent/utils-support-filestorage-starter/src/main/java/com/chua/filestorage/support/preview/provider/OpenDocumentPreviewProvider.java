@@ -23,6 +23,9 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
      */
     private static final Set<String> SUPPORTED_EXTS = Set.of("odt", "ods", "odp");
 
+    /** Base64 内嵌 打开文档 预览允许的最大字节数（约 20 MB） */
+    private static final long MAX_OD_PREVIEW_BYTES = 20L * 1024 * 1024;
+
     /**
     * @param ext  文件扩展名
     * @param mime MIME 类型（当前忽略）
@@ -36,6 +39,15 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     @Override
     /** Preview */
     public PreviewResult preview(byte[] content, String ext, String mime) {
+        if (content.length > MAX_OD_PREVIEW_BYTES) {
+            return PreviewResult.builder()
+                    .htmlContent("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"></head>"
+                            + "<body style=\"display:flex;justify-content:center;align-items:center;"
+                            + "min-height:100vh;font-family:sans-serif;color:#666\">"
+                            + "<div>打开文档文件过大（超过 20 MB），暂不支持内嵌预览</div>"
+                            + "</body></html>")
+                    .build();
+        }
         String b64 = Base64.getEncoder().encodeToString(content);
         String type = ext.toLowerCase();
 

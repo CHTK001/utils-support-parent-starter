@@ -320,35 +320,14 @@ public class QuickTest {
     /**
     * 测试用用户类
     *
-    * @param age age
-    * @return 设置名称的结果
-     /**
-      * 获取名称。
-      * @return 获取名称的结果
-      */
-     */
+    * @author CH
+    */
     public static class User {
         private String name; // 名称
         private int age; // age
-/**
-* 设置名称。
-* @param name 名称
-* @param age age
-* @return 方法的结果
- /**
-   * 获取名称。
-   * @return 获取名称的结果
-  */
- */
 
         public String getName() {
             return name;
-        /**
-        * 设置名称。
-        * @param name 名称
-        * @param age age
-        * @return 方法的结果
-         */
         }
 
         public void setName(String name) {

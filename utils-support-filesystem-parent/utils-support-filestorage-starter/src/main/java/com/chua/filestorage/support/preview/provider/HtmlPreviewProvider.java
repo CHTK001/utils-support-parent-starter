@@ -60,6 +60,8 @@ public class HtmlPreviewProvider implements FileStoragePreviewProvider {
         return PreviewResult.builder()
                 .htmlContent(wrapperHtml)
                 .embeddedCss("html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;font-family:system-ui}")
+                // 内容源自用户上传的原始 HTML，即使经 sanitize 仍可能被绕过，必须沙箱隔离
+                .requiresSandbox(true)
                 .build();
     }
 

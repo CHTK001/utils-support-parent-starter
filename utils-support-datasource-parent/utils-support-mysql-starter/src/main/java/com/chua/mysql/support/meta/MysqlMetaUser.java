@@ -95,14 +95,11 @@ public class MysqlMetaUser implements MetaUser {
     }
 
     // ==================== Inner Steps ====================
-     /**
+    /**
      * 创建step类。
      *
      * @author CH
      * @since 4.0.0
-      */
-     * AlterStep类。
-     *
      */
 
     private static class CreateStep implements UserCreateBuilder {
@@ -137,6 +134,9 @@ public class MysqlMetaUser implements MetaUser {
         }
     }
 
+    /**
+     * AlterStep类。
+     */
     private static class AlterStep implements UserAlterBuilder {
         private final DataSource dataSource; // 数据源
         private final String username; // 用户名

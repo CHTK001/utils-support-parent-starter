@@ -50,29 +50,41 @@ public class InfluxDbEngine extends AbstractEngine {
         return store(DEFAULT_NAME, data);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     /**
-     * 执行New查询
-     * @param where where
-     * @param params params
-     * @param entityClass entityClass
-     * @param paramList paramList
+     * 执行内存过滤查询。
+     *
+     * @param where       WHERE 条件
+     * @param params      参数数组
+     * @param entityClass 实体类
+     * @param limit       返回条数上限，0 或负数表示不限
+     * @param offset      跳过的条数，0 表示不跳过
+     * @param <T>         数据类型
+     * @return 过滤并分页后的数据
      */
+    @Override
     protected <T> List<T> executeNewQuery(
-            String where, Object[] params, Class<T> entityClass) {
+            String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> data = getData(entityClass);
         if (data.isEmpty()) {
             return data;
         }
-        if (where == null || where.trim().isEmpty()) {
-            return data;
-        }
-        MemoryWhereParser parser = new MemoryWhereParser();
         List<Object> paramList = (params != null)
                 ? Arrays.asList(params)
                 : Collections.emptyList();
-        var predicate = parser.parse(where, paramList);
-        return data.stream().filter(predicate).toList();
+        java.util.stream.Stream<T> stream;
+        if (where == null || where.trim().isEmpty()) {
+            stream = data.stream();
+        } else {
+            MemoryWhereParser parser = new MemoryWhereParser();
+            var predicate = parser.parse(where, paramList);
+            stream = data.stream().filter(predicate);
+        }
+        if (offset > 0) {
+            stream = stream.skip(offset);
+        }
+        if (limit > 0) {
+            stream = stream.limit(limit);
+        }
+        return stream.toList();
     }
 }

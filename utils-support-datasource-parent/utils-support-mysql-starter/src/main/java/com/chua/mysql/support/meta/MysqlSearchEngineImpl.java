@@ -18,17 +18,16 @@ import java.util.List;
 *
 * @author CH
 * @since 4.0.0.42
-* @return 列表索引的结果
  */
 public class MysqlSearchEngineImpl implements SearchEngine {
 
     private final DataSource dataSource; // 数据源
-/**
-* mysql搜索engineimpl。
-* @param dataSource 数据源
-* @return 列表索引的结果
- */
 
+    /**
+     * mysql搜索engineimpl。
+     *
+     * @param dataSource 数据源
+     */
     public MysqlSearchEngineImpl(DataSource dataSource) {
         this.dataSource = dataSource;
     }

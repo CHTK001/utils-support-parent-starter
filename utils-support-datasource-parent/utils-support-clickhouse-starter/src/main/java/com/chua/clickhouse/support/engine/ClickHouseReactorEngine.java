@@ -16,7 +16,6 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 * ClickHouseReactorEngine engine = new ClickHouseReactorEngine();
 * engine.addDataSource("default", "localhost", 8123, "default", "default", "");
 * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
-* }</pre>).eq(User::getName, "张三").list();
 * }</pre>
 *
 * @author CH

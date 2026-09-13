@@ -39,18 +39,11 @@ public class MysqlMetaTable extends AbstractMetaTable {
     }
 
     /**
-    * 创建 mysqlmetatable 实例
-    * @param metaData meta数据
-    * @param engine Engine
-    * @param tableName 字符串
-    * @param tableName table名称
-     /**
-       * mysqlmetatable。
-      * @param metaData meta数据
-      * @param engine engine
-      * @param tableName table名称
-      */
-     * @return 创建的结果
+     * 创建 mysqlmetatable 实例
+     *
+     * @param metaData  meta数据
+     * @param engine    Engine
+     * @param tableName table名称
      */
     protected MysqlMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);

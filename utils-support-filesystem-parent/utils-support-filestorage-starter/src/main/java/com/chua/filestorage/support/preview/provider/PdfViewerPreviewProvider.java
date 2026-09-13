@@ -15,11 +15,34 @@ import java.util.Locale;
 * <p>PDF 字节以 base64 嵌入 HTML，适合中小文件（&lt;10MB）。
 * 大文件场景建议配合分块加载。</p>
 *
+* <p>PDF.js 主库与 Worker 由宿主服务从同源路径 {@code /preview-vendor/pdf/}
+* 提供，不依赖公网 CDN，保证内网部署可用。</p>
+*
 * @author CH
 * @since 4.0.0.42
- */
+*/
 @Spi("preview-pdf")
 public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
+
+    /**
+    * 本地预览资源根路径（由宿主服务以 classpath:/static/preview-vendor 同源提供，避免依赖公网 CDN）
+    */
+    private static final String VENDOR_BASE = "/preview-vendor/pdf/";
+
+    /**
+    * PDF.js 主库（UMD）
+    */
+    private static final String PDF_JS = VENDOR_BASE + "pdf.min.js";
+
+    /**
+    * PDF.js  Worker 脚本（UMD）
+    */
+    private static final String PDF_WORKER_JS = VENDOR_BASE + "pdf.worker.min.js";
+
+    /**
+    * Base64 内嵌 PDF 预览允许的最大字节数（约 10 MB，避免生成超大 HTML 页面拖垮浏览器）
+    */
+    private static final long MAX_PDF_PREVIEW_BYTES = 10L * 1024 * 1024;
 
     @Override
     /** 支持 */
@@ -31,6 +54,15 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
     @Override
     /** Preview */
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
+        if (content.length > MAX_PDF_PREVIEW_BYTES) {
+            return PreviewResult.builder()
+                    .htmlContent("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"></head>"
+                            + "<body style=\"display:flex;justify-content:center;align-items:center;"
+                            + "min-height:100vh;font-family:sans-serif;color:#666\">"
+                            + "<div>PDF 文件过大（超过 10 MB），暂不支持内嵌预览，请下载后查看</div>"
+                            + "</body></html>")
+                    .build();
+        }
         String b64 = Base64.getEncoder().encodeToString(content);
         String html = "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
@@ -45,9 +77,9 @@ public class PdfViewerPreviewProvider implements FileStoragePreviewProvider {
                 + ".loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:18px}"
                 + "</style></head><body>"
                 + "<div id=\"pdf-container\"><div class=\"loading\">正在加载 PDF...</div></div>"
-                + "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js\"></script>"
+                + "<script src=\"" + PDF_JS + "\"></script>"
                 + "<script>"
-                + "pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';"
+                + "pdfjsLib.GlobalWorkerOptions.workerSrc='" + PDF_WORKER_JS + "';"
                 + "const pdfData=atob('" + b64 + "'.replace(/\\s/g,''));"
                 + "const loadingTask=pdfjsLib.getDocument({data:pdfData});"
                 + "loadingTask.promise.then(function(pdf){"

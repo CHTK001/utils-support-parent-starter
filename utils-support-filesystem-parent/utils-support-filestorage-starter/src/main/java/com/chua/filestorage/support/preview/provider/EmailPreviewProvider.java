@@ -5,8 +5,10 @@ import com.chua.filestorage.support.preview.FileStoragePreviewProvider;
 import com.chua.filestorage.support.preview.PreviewResult;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -30,6 +32,16 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
 
     private static final Set<String> SUPPORTED_EXTS = Set.of("eml", "msg"); // 支持exts
 
+    /**
+     * RFC 2047 编码词正则：=?字符集?B/Q?编码内容?=
+     */
+    private static final Pattern ENCODED_WORD_PATTERN = Pattern.compile("=\\?([^?]+)\\?([BbQq])\\?([^?]*)\\?=");
+
+    /**
+     * 匹配仅包含空白（含折叠换行）的字符串
+     */
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
+
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase(Locale.ENGLISH));
@@ -49,8 +61,11 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     private EmailInfo parseEml(String eml) {
         EmailInfo info = new EmailInfo();
 
+        // 展开 RFC 2822 折叠头：续行以空白开头时合并为单行
+        String unfolded = eml.replaceAll("\\r?\\n[ \\t]+", " ");
+
         // 解析头部
-        String[] lines = eml.split("\r?\n");
+        String[] lines = unfolded.split("\r?\n");
         StringBuilder body = new StringBuilder();
         boolean inBody = false;
         boolean isMultipart = false;
@@ -71,11 +86,11 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
             }
 
             if (line.startsWith("Subject:")) {
-                info.subject = line.substring(8).trim();
+                info.subject = decodeHeader(line.substring(8).trim());
             } else if (line.startsWith("From:")) {
-                info.from = line.substring(5).trim();
+                info.from = decodeHeader(line.substring(5).trim());
             } else if (line.startsWith("To:")) {
-                info.to = line.substring(3).trim();
+                info.to = decodeHeader(line.substring(3).trim());
             } else if (line.startsWith("Date:")) {
                 info.date = line.substring(5).trim();
             } else if (line.startsWith("Content-Type:")) {
@@ -173,6 +188,99 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
      */
+    }
+
+    /**
+     * 解码 RFC 2047 编码的邮件头。
+     * <p>形如 {@code =?UTF-8?B?5rWL6K+V?=} 的编码词会被还原为原文；
+     * 相邻编码词之间仅存在折叠空白时直接拼接（RFC 2047 规则）。</p>
+     *
+     * @param header 原始邮件头
+     * @return 解码后的邮件头
+     */
+    private String decodeHeader(String header) {
+        if (header == null || header.indexOf("=?") < 0) {
+            return header;
+        }
+
+        Matcher matcher = ENCODED_WORD_PATTERN.matcher(header);
+        StringBuilder result = new StringBuilder();
+        int lastEnd = 0;
+        int previousWordEnd = -1;
+
+        while (matcher.find()) {
+            String between = header.substring(lastEnd, matcher.start());
+            // 两个相邻编码词之间的纯空白是折叠产生的，丢弃空白直接拼接
+            if (previousWordEnd >= 0 && WHITESPACE_PATTERN.matcher(between).matches()) {
+                between = "";
+            }
+            result.append(between);
+            result.append(decodeEncodedWord(matcher.group(1), matcher.group(2), matcher.group(3)));
+            previousWordEnd = matcher.end();
+            lastEnd = matcher.end();
+        }
+
+        if (lastEnd == 0) {
+            return header;
+        }
+        result.append(header.substring(lastEnd));
+        return result.toString();
+    }
+
+    /**
+     * 解码单个 RFC 2047 编码词。
+     *
+     * @param charsetName 声明的字符集
+     * @param encoding B 表示 Base64，Q 表示 Quoted-Printable
+     * @param encoded 编码内容
+     * @return 解码文本；解码失败时原样返回
+     */
+    private String decodeEncodedWord(String charsetName, String encoding, String encoded) {
+        Charset charset;
+        try {
+            charset = Charset.forName(charsetName.trim());
+        } catch (Exception e) {
+            charset = StandardCharsets.UTF_8;
+        }
+
+        try {
+            byte[] bytes;
+            if (encoding.equalsIgnoreCase("B")) {
+                bytes = Base64.getMimeDecoder().decode(encoded);
+            } else {
+                bytes = decodeQuotedPrintable(encoded);
+            }
+            return new String(bytes, charset);
+        } catch (Exception e) {
+            return "=?" + charsetName + "?" + encoding + "?" + encoded + "?=";
+        }
+    }
+
+    /**
+     * 解码 RFC 2047 Q 编码（下划线表示空格，=XX 表示字节）。
+     *
+     * @param encoded Q 编码内容
+     * @return 原始字节
+     */
+    private byte[] decodeQuotedPrintable(String encoded) {
+        String normalized = encoded.replace('_', ' ');
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+
+        for (int i = 0; i < normalized.length(); i++) {
+            char c = normalized.charAt(i);
+            if (c == '=' && i + 2 < normalized.length()) {
+                int high = Character.digit(normalized.charAt(i + 1), 16);
+                int low = Character.digit(normalized.charAt(i + 2), 16);
+                if (high >= 0 && low >= 0) {
+                    out.write((high << 4) | low);
+                    i += 2;
+                    continue;
+                }
+            }
+            out.write(c & 0xFF);
+        }
+
+        return out.toByteArray();
     }
 
     private String escapeHtml(String text) {

@@ -73,6 +73,9 @@ public class PreviewPdfCache {
     /** 后台清理调度器 */
     private final ScheduledExecutorService cleanupScheduler;
 
+    /** 独立转换线程池，隔离 PDF 转换任务，避免占用公共 ForkJoin 池 */
+    private final java.util.concurrent.ExecutorService convertExecutor;
+
     /** 缓存统计：命中次数 */
     private final AtomicLong hitCount = new AtomicLong(0);
 
@@ -149,6 +152,13 @@ public class PreviewPdfCache {
             this.cleanupScheduler.scheduleAtFixedRate(this::cleanupExpired, 1, 1, TimeUnit.HOURS);
         }
 
+        // 独立转换线程池：单线程串行执行转换，隔离于公共池，避免阻塞核心业务线程
+        this.convertExecutor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "preview-pdf-convert");
+            t.setDaemon(true);
+            return t;
+        });
+
         log.info("PreviewPdfCache 初始化: dir={}, ttl={}s, memoryCapacity={}, maxMemoryFileSize={}",
                 cacheDir, ttlSeconds, memoryCapacity, maxMemoryFileSize);
     }
@@ -173,7 +183,8 @@ public class PreviewPdfCache {
             if (cached != null) {
                 hitCount.incrementAndGet();
                 log.debug("内存缓存命中: key={}, size={}", key, cached.length);
-                return cached;
+                // 返回副本，防止调用方修改共享的内存缓存数组
+                return cached.clone();
             }
         }
 
@@ -284,7 +295,7 @@ public class PreviewPdfCache {
                 } finally {
                     inflightMap.remove(k);
                 }
-            });
+            }, convertExecutor);
         });
 
         try {
@@ -493,6 +504,7 @@ public class PreviewPdfCache {
             cleanupScheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
+        convertExecutor.shutdownNow();
         log.info("PreviewPdfCache 已关闭: {}", getStats());
     }
 }

@@ -11,8 +11,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -37,13 +41,20 @@ import reactor.core.scheduler.Schedulers;
 *   "tools": [...],
 *   "usage": { "prompt": 46135, "completion": 9507, "cached": 45824 }
 * }
-* }</pre>824 }
-* }
 * }</pre>
 *
-* <p>Unlike Command Code transcripts, AtomCode turn lines carry no
-* {@code model}/{@code provider}/{@code costUsd} fields; only token counts are
-* extracted, so no cost estimation 是否 执行 here.</p>
+* <p>AtomCode turn lines carry no {@code model}/{@code provider}/{@code costUsd}
+* fields. The serving model is resolved from the sibling {@code <session-id>.meta}
+* file ({@code turn_stats[].model_usage[]} keyed by {@code turn_id}, taking the
+* {@code model_id} of the entry with the largest token share); when the meta file
+* is absent or the turn is missing from it, the parser falls back to the
+* {@code default_model} declared in {@code ~/.atomcode/config.toml} (mapped to
+* the real model name via its {@code [models."..."]} section). The
+* {@code prompt} count is inclusive of cached input, so {@code inputTokens}
+* is stored as the non-cached portion ({@code prompt - cached}) and the
+* cached amount is reported separately via {@code cacheTokens} to avoid
+* double counting. Only token counts are extracted, so no cost estimation
+* 是否 执行 here.</p>
 *
 * @author CH
 * @since 4.0.0.42
@@ -63,6 +74,24 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     private static final Path SESSIONS_DIR;
 
     private static final String PROVIDER_ATOMCODE = "atomcode"; // 提供者atomcode
+
+    /** config.toml 的 default_model 声明行 */
+    private static final Pattern DEFAULT_MODEL_PATTERN =
+            Pattern.compile("^\\s*default_model\\s*=\\s*\"([^\"]+)\"");
+
+    /** config.toml 的 [models."xxx"] 小节头（键名可带引号） */
+    private static final Pattern MODELS_SECTION_PATTERN =
+            Pattern.compile("^\\s*\\[models\\.\"?([^\"\\]]+)\"?\\]\\s*$");
+
+    /** config.toml 小节内的 model = "xxx" 声明行 */
+    private static final Pattern SECTION_MODEL_PATTERN =
+            Pattern.compile("^\\s*model\\s*=\\s*\"([^\"]+)\"");
+
+    /**
+    * config.toml 的兜底模型名（已映射为真实 model 名）。
+    * 空串表示解析过但无结果，避免重复读盘。
+     */
+    private static volatile String CONFIG_DEFAULT_MODEL;
 
     static {
         String envHome = System.getenv("ATOMCODE_HOME");
@@ -106,25 +135,171 @@ public class AtomCodeUsageParser extends BaseUsageParser {
 
     /**
     * 单个 JSONL 文件的行流（惰性 + 背压）。
+    * 模型名取自同目录同名 {@code .meta} 的 turn_stats.model_usage，
+    * meta 缺失或该 turn 无记录时回退 config.toml 的 default_model。
     * @param file 文件
     * @return 流jsonl文件的结果
      */
     private Flux<AiUsage> streamJsonlFile(Path file) {
+        Map<Integer, String> turnModels = loadTurnModels(metaFileOf(file));
+        String fallbackModel = configDefaultModel();
         return streamLines(file)
                 .filter(line -> !line.isBlank())
-                .map(this::parseLineSafe)
+                .map(line -> parseLineSafe(line, turnModels, fallbackModel))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
     }
 
     /**
+    * 由 JSONL 文件路径推导同目录同名 .meta 文件路径。
+    * @param file 会话 JSONL 文件
+    * @return 对应的 .meta 文件
+     */
+    private Path metaFileOf(Path file) {
+        String name = file.getFileName().toString();
+        return file.resolveSibling(name.substring(0, name.length() - ".jsonl".length()) + ".meta");
+    }
+
+    /**
+    * 读取会话 meta 文件，建立 turn_id 到模型名的映射。
+    * 每个 turn 的 model_usage 可能含多个模型条目，取 token 总量最大者。
+    * @param metaFile meta 文件
+    * @return turn_id 到模型名的映射；文件缺失或解析失败时为空映射
+     */
+    private Map<Integer, String> loadTurnModels(Path metaFile) {
+        if (!Files.isRegularFile(metaFile)) {
+            return Map.of();
+        }
+        try {
+            JsonNode turnStats = Json.parse(Files.readString(metaFile)).get("turn_stats");
+            if (turnStats.isMissingValue() || !turnStats.isArray()) {
+                return Map.of();
+            }
+            Map<Integer, String> models = new HashMap<>();
+            int count = turnStats.size();
+            for (int i = 0; i < count; i++) {
+                JsonNode turn = turnStats.get(i);
+                int turnId = turn.get("turn_id").toIntValue(-1);
+                if (turnId < 0) {
+                    continue;
+                }
+                String model = pickDominantModel(turn.get("model_usage"));
+                if (model != null) {
+                    models.put(turnId, model);
+                }
+            }
+            return models;
+        } catch (Exception e) {
+            log.debug("[atomcode] meta parse failed {}: {}", metaFile, e.getMessage());
+            return Map.of();
+        }
+    }
+
+    /**
+    * 从一个 turn 的 model_usage 数组中选出 token 占比最大的模型。
+    * @param modelUsage model_usage 数组节点
+    * @return 模型名（model_id 优先，provider_id 兜底）；无有效条目时返回 null
+     */
+    private String pickDominantModel(JsonNode modelUsage) {
+        if (modelUsage.isMissingValue() || !modelUsage.isArray()) {
+            return null;
+        }
+        String best = null;
+        long bestTokens = -1;
+        int count = modelUsage.size();
+        for (int i = 0; i < count; i++) {
+            JsonNode entry = modelUsage.get(i);
+            JsonNode tokens = entry.get("tokens");
+            long total = tokens.get("input").toLongValue(0L)
+                    + tokens.get("output").toLongValue(0L)
+                    + tokens.get("cached_input").toLongValue(0L);
+            if (total <= bestTokens) {
+                continue;
+            }
+            String modelId = entry.get("model_id").toStringValue("");
+            String candidate = !modelId.isBlank()
+                    ? modelId
+                    : entry.get("provider_id").toStringValue("");
+            if (candidate.isBlank()) {
+                continue;
+            }
+            bestTokens = total;
+            best = candidate;
+        }
+        return best;
+    }
+
+    /**
+    * config.toml 的 default_model 兜底值（懒加载，结果缓存）。
+    * @return 真实模型名；无法解析时返回 null
+     */
+    private String configDefaultModel() {
+        String cached = CONFIG_DEFAULT_MODEL;
+        if (cached == null) {
+            synchronized (AtomCodeUsageParser.class) {
+                if (CONFIG_DEFAULT_MODEL == null) {
+                    CONFIG_DEFAULT_MODEL = resolveConfigDefaultModel();
+                }
+                cached = CONFIG_DEFAULT_MODEL;
+            }
+        }
+        return cached.isBlank() ? null : cached;
+    }
+
+    /**
+    * 解析 config.toml：先取 default_model 声明，再映射到
+    * 对应 [models."xxx"] 小节内的真实 model 名。
+    * @return 真实模型名；声明缺失或映射不到时返回声明原值，读盘失败返回空串
+     */
+    private String resolveConfigDefaultModel() {
+        Path config = ATOMCODE_HOME.resolve("config.toml");
+        if (!Files.isRegularFile(config)) {
+            return "";
+        }
+        try {
+            List<String> lines = Files.readAllLines(config);
+            String declared = null;
+            for (String line : lines) {
+                Matcher matcher = DEFAULT_MODEL_PATTERN.matcher(line);
+                if (matcher.find()) {
+                    declared = matcher.group(1);
+                    break;
+                }
+            }
+            if (declared == null) {
+                return "";
+            }
+            boolean inSection = false;
+            for (String line : lines) {
+                Matcher section = MODELS_SECTION_PATTERN.matcher(line);
+                if (section.find()) {
+                    inSection = declared.equals(section.group(1));
+                    continue;
+                }
+                if (inSection) {
+                    Matcher model = SECTION_MODEL_PATTERN.matcher(line);
+                    if (model.find()) {
+                        return model.group(1);
+                    }
+                }
+            }
+            return declared;
+        } catch (Exception e) {
+            log.debug("[atomcode] config.toml parse failed: {}", e.getMessage());
+            return "";
+        }
+    }
+
+    /**
     * 安全解析单行，失败返回 空。
     * @param line 线
+    * @param turnModels turn_id 到模型名的映射
+    * @param fallbackModel 兜底模型名
     * @return 解析线safe的结果
      */
-    private Optional<AiUsage> parseLineSafe(String line) {
+    private Optional<AiUsage> parseLineSafe(String line, Map<Integer, String> turnModels, String fallbackModel) {
         try {
-            return parseNode(Json.parse(line));
+            return parseNode(Json.parse(line), turnModels, fallbackModel);
         } catch (Exception e) {
             log.debug("[atomcode] line parse failed: {}", e.getMessage());
             return Optional.empty();
@@ -134,11 +309,14 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     /**
     * 将一条转录行转换为 AIusage 记录。
     *
-    * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。</p>
+    * <p>仅接受带顶层 {@code usage} 且含有效 token 数的 turn 记录。
+    * 模型名按 turn_id 查 meta 映射，查不到用 config 兜底值。</p>
     * @param node 节点
+    * @param turnModels turn_id 到模型名的映射
+    * @param fallbackModel 兜底模型名
     * @return 解析节点的结果
      */
-    private Optional<AiUsage> parseNode(JsonNode node) {
+    private Optional<AiUsage> parseNode(JsonNode node, Map<Integer, String> turnModels, String fallbackModel) {
         JsonNode usage = node.get("usage");
         if (usage.isMissingValue()) {
             return Optional.empty();
@@ -148,22 +326,25 @@ public class AtomCodeUsageParser extends BaseUsageParser {
         if (inputTokens <= 0 && outputTokens <= 0) {
             return Optional.empty();
         }
-        int cached = usage.get("cached").toIntValue(0);
+        int cached = Math.max(usage.get("cached").toIntValue(0), 0);
         long startTime = node.get("ts").toLongValue(0L);
         String sessionId = node.get("session_id").toStringValue("unknown");
         int turnId = node.get("turn_id").toIntValue(-1);
 
+        // prompt 口径含缓存输入；非缓存输入 = 全量输入 - 缓存，缓存单列防双计。
+        int nonCachedInput = Math.max(0, inputTokens - cached);
         AiUsage.AiUsageBuilder builder = AiUsage.builder()
                 .provider(PROVIDER_ATOMCODE)
+                .model(turnModels.getOrDefault(turnId, fallbackModel))
                 .requestId(sessionId + "-" + turnId)
                 .startTime(startTime > 0 ? startTime : null);
-        if (inputTokens > 0) {
-            builder.inputTokens(inputTokens);
+        if (nonCachedInput > 0) {
+            builder.inputTokens(nonCachedInput);
         }
         if (outputTokens > 0) {
             builder.outputTokens(outputTokens);
         }
-        builder.totalTokens(Math.max(inputTokens, 0) + Math.max(outputTokens, 0));
+        builder.totalTokens(nonCachedInput + Math.max(outputTokens, 0));
         if (cached > 0) {
             builder.cacheTokens(cached);
         }

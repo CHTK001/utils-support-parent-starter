@@ -6,6 +6,7 @@ import com.chua.common.support.lang.datasource.dialect.StorageEngine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Types;
@@ -39,6 +40,9 @@ public class SqlDialect extends AbstractDialect {
      */
     public SqlDialect(String protocol) {
         this.protocol = protocol;
+        // AbstractDialect 无参构造器先于本构造器执行并虚调用 loadDefaultEnv()，此时 protocol 为空，
+        // 因此此处必须在 protocol 赋值后显式重新加载 .env 配置
+        this.properties = loadDefaultEnv();
     }
 
     /**
@@ -345,22 +349,27 @@ public class SqlDialect extends AbstractDialect {
     @Override
     protected Properties loadDefaultEnv() {
         String resourceName = "META-INF/dialect-env/" + protocol + ".env";
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(getClass().getClassLoader().getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
-            Properties props = new Properties();
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-                int idx = line.indexOf('=');
-                if (idx < 0) {
-                    continue;
-                }
-                props.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
+            // 资源不存在时直接返回空属性，避免 null 流导致 NPE
+            if (is == null) {
+                return new Properties();
             }
-            return props;
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                Properties props = new Properties();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        continue;
+                    }
+                    int idx = line.indexOf('=');
+                    if (idx < 0) {
+                        continue;
+                    }
+                    props.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+                }
+                return props;
+            }
         } catch (IOException e) {
             return new Properties();
         }

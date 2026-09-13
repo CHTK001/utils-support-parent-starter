@@ -7,6 +7,8 @@ import com.chua.common.support.network.server.request.ServerRequest;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.storage.FileStorage;
+import com.chua.common.support.storage.metadata.Metadata;
+import com.chua.common.support.storage.result.GetObjectResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.filestorage.support.cache.PreviewPdfCache;
 import com.chua.filestorage.support.operation.FileOperationSetting;
@@ -51,17 +53,12 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     private static final Set<String> COMPOUND_EXTS = Set.of(
             "tar.gz", "tar.bz2", "tar.xz", "tar.zst", "tar.lz4", "tar.lzma", "tar.sz");
 
-    /** 文本预览最大读取字节数，超出后截断并提示 */
-    private static final long MAX_TEXT_PREVIEW_BYTES = 2L * 1024 * 1024;
+    /** 预览请求允许读取的最大内容字节数（防止超大文件拖垮内存与转换线程） */
+    private static final long MAX_PREVIEW_CONTENT_BYTES = 512L * 1024 * 1024;
 
-    /** 文本类扩展名（可安全截断预览） */
-    private static final Set<String> TEXT_EXTS = Set.of(
-            "txt", "md", "csv", "log", "properties", "ini", "conf", "yaml", "yml",
-            "json", "xml", "html", "htm", "js", "ts", "java", "py", "c", "cpp", "h",
-            "go", "rs", "sh", "bat", "sql", "css", "toml", "gradle", "kt", "scala",
-            "groovy", "php", "rb", "lua", "r", "gitignore", "makefile");
-
-    /** 文件预览提供者列表 */
+    /**
+     * 文件预览提供者列表
+     */
     private final List<FileStoragePreviewProvider> previewProviders;
 
     /**
@@ -146,20 +143,29 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         }
 
         // --- 2. SPI 预览提供者 ---
+        boolean spiHit = false;
         for (FileStoragePreviewProvider provider : previewProviders) {
-            if (provider.supports(ext, mime)) {
-                try {
-                    PreviewResult result = provider.preview(content, ext, mime);
-                    String page = wrapPreviewPage(result);
-                    response.setStatus(200)
-                            .setContentType("text/html;charset=utf-8")
-                            .setHeader("X-FileStorage-Preview", "spi:" + provider.getClass().getSimpleName())
-                            .end(page.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                    return;
-                } catch (Exception e) {
-                    log.warn("预览提供者 {} 失败: {}", provider.getClass().getSimpleName(), e.getMessage());
-                }
+            if (!provider.supports(ext, mime)) {
+                continue;
             }
+            spiHit = true;
+            try {
+                PreviewResult result = provider.preview(content, ext, mime);
+                String page = wrapPreviewPage(result);
+                response.setStatus(200)
+                        .setContentType("text/html;charset=utf-8")
+                        .setHeader("X-FileStorage-Preview", "spi:" + provider.getClass().getSimpleName())
+                        .end(page.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                return;
+            } catch (Exception e) {
+                log.warn("预览提供者 {} 失败: {}", provider.getClass().getSimpleName(), e.getMessage());
+            }
+        }
+        if (spiHit) {
+            response.setStatus(502)
+                    .setContentType("text/plain;charset=utf-8")
+                    .end("All preview providers failed for: " + ext);
+            return;
         }
 
  // --- 3. PDF 转换（办公室 等） → 经 PDF.js 渲染 ---
@@ -236,16 +242,20 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             response.setStatus(404).end("File not found");
             return null;
         }
-        byte[] original = getResult.getInputStream().readAllBytes();
+        byte[] original = readWithLimit(getResult);
+        if (original == null) {
+            response.setStatus(413).end("File too large for preview");
+            return null;
+        }
         return applyImageFilter(original, ops, key, ext);
     }
 
     /**
-    * 读取存储对象的内容字节。
+    * 读取存储对象的内容字节，超过最大预览内容上限时拒绝。
     *
     * @param storage 文件存储
     * @param key     对象键
-    * @return 内容字节；对象不存在时返回 空
+    * @return 内容字节；对象不存在返回 空；超过上限返回 空
     * @throws Exception 读取失败
      */
     private byte[] readContent(FileStorage storage, String key) throws Exception {
@@ -253,7 +263,35 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
         if (getResult == null || getResult.getInputStream() == null) {
             return null;
         }
-        return getResult.getInputStream().readAllBytes();
+        return readWithLimit(getResult);
+    }
+
+    /**
+    * 带大小上限地读取对象内容字节。
+    *
+    * <p>先通过 {@link com.chua.common.support.storage.metadata.Metadata#getSize()}
+    * 预检文件元数据大小，超过上限直接拒绝；再对实际流读取做二次校验，
+    * 防止元数据缺失或谎报导致的超大读取。</p>
+    *
+    * @param getResult 存储对象读取结果
+    * @return 内容字节；超过上限或文件不存在返回 空
+    * @throws IOException 读取失败
+     */
+    private byte[] readWithLimit(GetObjectResult getResult)
+            throws IOException {
+        if (getResult.getMetadata() != null
+                && getResult.getMetadata().getSize() > MAX_PREVIEW_CONTENT_BYTES) {
+            log.warn("预览拒绝：文件大小 {} 字节超过上限 {} 字节",
+                    getResult.getMetadata().getSize(), MAX_PREVIEW_CONTENT_BYTES);
+            return null;
+        }
+        byte[] bytes = getResult.getInputStream().readNBytes((int) (MAX_PREVIEW_CONTENT_BYTES + 1));
+        if (bytes.length > MAX_PREVIEW_CONTENT_BYTES) {
+            log.warn("预览拒绝：实际读取字节 {} 超过上限 {} 字节",
+                    bytes.length, MAX_PREVIEW_CONTENT_BYTES);
+            return null;
+        }
+        return bytes;
     }
 
     /**
@@ -274,7 +312,11 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
                 if (getResult == null || getResult.getInputStream() == null) {
                     return null;
                 }
-                byte[] originalBytes = getResult.getInputStream().readAllBytes();
+                byte[] originalBytes = readWithLimit(getResult);
+                if (originalBytes == null) {
+                    log.warn("PDF 转换拒绝：文件 {} 超过最大预览内容上限", key);
+                    return null;
+                }
                 Path tempPdf = Files.createTempFile("preview-", ".pdf");
                 try {
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(originalBytes);
@@ -314,6 +356,10 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     /**
     * 将预览结果包装为完整 HTML 页面。
     *
+    * <p>当 {@link PreviewResult#requiresSandbox()} 为真时，将 provider 产出的
+    * 内容放入带沙箱属性的 iframe，并注入受限的 CSP，以隔离其中可能携带的脚本，
+    * 降低跨源内容带来的 XSS 风险；否则直接平铺渲染。</p>
+    *
     * @param result 预览结果
     * @return 完整 HTML 页面字符串
      */
@@ -330,19 +376,54 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
             }
         }
         sb.append("</head><body>");
-        if (result.getHtmlContent() != null) {
-            sb.append(result.getHtmlContent());
-        }
-        if (result.getEmbeddedJs() != null) {
-            sb.append("<script>").append(result.getEmbeddedJs()).append("</script>");
-        }
-        if (result.getJsUrls() != null) {
-            for (String url : result.getJsUrls()) {
-                sb.append("<script src=\"").append(StringUtils.escapeAttr(url)).append("\"></script>");
+        if (result.isRequiresSandbox()) {
+            // 沙箱隔离：将 provider 产出的不可信内容放入带 sandbox 的 iframe，
+            // 并通过 srcdoc 注入受限 CSP，隔离脚本与外层页面 DOM / Cookie 访问
+            sb.append(buildSandboxedIframe(result));
+        } else {
+            if (result.getHtmlContent() != null) {
+                sb.append(result.getHtmlContent());
+            }
+            if (result.getEmbeddedJs() != null) {
+                sb.append("<script>").append(result.getEmbeddedJs()).append("</script>");
+            }
+            if (result.getJsUrls() != null) {
+                for (String url : result.getJsUrls()) {
+                    sb.append("<script src=\"").append(StringUtils.escapeAttr(url)).append("\"></script>");
+                }
             }
         }
         sb.append("</body></html>");
         return sb.toString();
+    }
+
+    /**
+    * 构建沙箱 iframe：以 srcdoc 承载完整文档，注入受限 CSP 并启用 sandbox。
+    *
+    * <p>srcdoc 属性值整体经 {@link StringUtils#escapeAttr} 转义，
+    * 内容中携带的脚本即使被执行也受 CSP 与沙箱双重限制，无法访问外层页面。</p>
+    *
+    * @param result 预览结果
+    * @return 沙箱 iframe HTML
+     */
+    private String buildSandboxedIframe(PreviewResult result) {
+        StringBuilder inner = new StringBuilder();
+        inner.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\">")
+                .append("<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; ")
+                .append("style-src 'unsafe-inline'; img-src data:; script-src 'unsafe-inline'\">");
+        if (result.getEmbeddedCss() != null) {
+            inner.append("<style>").append(result.getEmbeddedCss()).append("</style>");
+        }
+        inner.append("</head><body>");
+        if (result.getHtmlContent() != null) {
+            inner.append(result.getHtmlContent());
+        }
+        if (result.getEmbeddedJs() != null) {
+            inner.append("<script>").append(result.getEmbeddedJs()).append("</script>");
+        }
+        inner.append("</body></html>");
+        return "<iframe sandbox=\"allow-scripts\" style=\"width:100%;height:100vh;border:0\" srcdoc=\""
+                + StringUtils.escapeAttr(inner.toString()) + "\"></iframe>";
     }
 
     /**

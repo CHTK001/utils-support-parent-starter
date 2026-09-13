@@ -23,3 +23,6 @@ com.chua.filestorage.support.preview.provider.BlenderPreviewProvider
 com.chua.filestorage.support.preview.provider.ShapefilePreviewProvider
 com.chua.filestorage.support.preview.provider.JupyterPreviewProvider
 com.chua.filestorage.support.preview.provider.SqlitePreviewProvider
+com.chua.filestorage.support.preview.provider.OldOfficePreviewProvider
+com.chua.filestorage.support.preview.provider.ParquetPreviewProvider
+com.chua.filestorage.support.preview.provider.PsdPreviewProvider

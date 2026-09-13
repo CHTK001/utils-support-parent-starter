@@ -16,7 +16,6 @@ import com.chua.datasource.support.engine.JdbcReactorEngine;
 * PostgresqlReactorEngine engine = new PostgresqlReactorEngine();
 * engine.addDataSource("default", "localhost", 5432, "testdb", "postgres", "password");
 * Flux<User> users = engine.query(User.class).eq(User::getName, "张三").list();
-* }</pre>:getName, "张三").list();
 * }</pre>
 *
 * @author CH
