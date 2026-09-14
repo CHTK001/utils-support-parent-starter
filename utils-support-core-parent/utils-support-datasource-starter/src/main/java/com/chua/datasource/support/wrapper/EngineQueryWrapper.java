@@ -44,7 +44,7 @@ public class EngineQueryWrapper<T> extends LambdaQueryWrapper<T> {
     @Override
     /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> col) {
-        return LambdaUtils.resolveObject(col);
+        return LambdaUtils.resolveColumn(col);
     }
 
     @Override

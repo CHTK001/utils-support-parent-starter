@@ -92,7 +92,7 @@ public class ReactorLambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, Reac
 
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
-        return LambdaUtils.resolveObject(column);
+        return LambdaUtils.resolveColumn(column);
     }
 
     /**
