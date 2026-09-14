@@ -39,7 +39,7 @@ public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
     @Override
     /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> col) {
-        return LambdaUtils.resolveObject(col);
+        return LambdaUtils.resolveColumn(col);
     }
 
     @Override

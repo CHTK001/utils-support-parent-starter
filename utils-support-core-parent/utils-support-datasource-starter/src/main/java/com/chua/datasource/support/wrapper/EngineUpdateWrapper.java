@@ -39,7 +39,7 @@ public class EngineUpdateWrapper<T> extends LambdaUpdateWrapper<T> {
     @Override
     /** 解析Column */
     protected String resolveColumn(SFunction<T, ?> col) {
-        return LambdaUtils.resolveObject(col);
+        return LambdaUtils.resolveColumn(col);
     }
 
     @Override

@@ -554,7 +554,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
-        return LambdaUtils.resolveObject(column);
+        return LambdaUtils.resolveColumn(column);
     }
 
     /**

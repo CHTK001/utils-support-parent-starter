@@ -45,4 +45,36 @@ public class LambdaUtils {
             return null;
         }
     }
+
+    /**
+    * 解析 sfunction 方法引用为数据库列名（下划线风格）。
+    *
+    * <p>先解析出驼峰属性名（如 {@code deptId}），再转为数据库列名
+    * （如 {@code dept_id}），供 JDBC 引擎的 wrapper 直接作为 SQL 列名使用。
+    * 非关系型引擎（如 Solr/Elasticsearch/Redis/Neo4j）字段名保持驼峰，
+    * 应继续使用 {@link #resolveObject(SFunction)}。</p>
+    *
+    * @param func 方法引用
+    * @param <T>  实体类型
+    * @return 数据库列名（下划线），解析失败返回 空
+     */
+    public static <T> String resolveColumn(SFunction<T, ?> func) {
+        String field = resolveObject(func);
+        if (field == null || field.isEmpty()) {
+            return field;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < field.length(); i++) {
+            char ch = field.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                if (i > 0) {
+                    sb.append('_');
+                }
+                sb.append(Character.toLowerCase(ch));
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
+    }
 }

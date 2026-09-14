@@ -13,6 +13,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper
 import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.datasource.support.index.IndexManager;
@@ -406,7 +407,11 @@ public abstract class JdbcEngine extends AbstractEngine {
                     if (field.getType().isPrimitive() && value == null) {
                         return;
                     }
-                    field.set(instance, value);
+                    // 复用 转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
+                    Object converted = Converter.convertIfNecessary(value, field.getType());
+                    if (converted != null) {
+                        field.set(instance, converted);
+                    }
                     return;
                 } catch (NoSuchFieldException ignore) {
                     // 尝试下一个候选字段名
@@ -420,7 +425,10 @@ public abstract class JdbcEngine extends AbstractEngine {
             if (loose != null) {
                 try {
                     loose.setAccessible(true);
-                    loose.set(instance, value);
+                    Object converted = Converter.convertIfNecessary(value, loose.getType());
+                    if (converted != null) {
+                        loose.set(instance, converted);
+                    }
                 } catch (IllegalAccessException e) {
                     // 无法写入时静默跳过该列
                 }
