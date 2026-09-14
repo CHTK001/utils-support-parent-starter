@@ -5,3 +5,4 @@ com.chua.common.support.datasearch.video.spi.impl.PanSouResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.TmdbResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WanouResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WuJiResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.MacCmsResourceProvider
