@@ -269,17 +269,8 @@ public final class TraceContext {
     }
 
     /**
-    * 设置最大追踪层级
-    * @return 是否已启用的结果
-     /**
-      * 设置最大深度。
-      * @param depth 深度
-      */
-      * @return 是否已启用的结果
-     /**
      * 设置最大深度。
      * @param depth 深度
-      */
      */
     public static void setMaxDepth(int depth) {
         MAX_DEPTH.set(depth);
