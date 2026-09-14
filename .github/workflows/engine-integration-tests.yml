@@ -95,6 +95,11 @@ jobs:
       - name: Install bundled vector-api
         run: mvn install:install-file -q -Dfile=libs/vector-api-4.0.0.42.jar -DpomFile=libs/vector-api-4.0.0.42.pom
 
+      # datalake-sink-api-starter 同样是未发布到任何远程仓库的内部包，
+      # chronicle-starter 依赖它（provided）；用 generatePom 避免 parent 解析
+      - name: Install bundled datalake-sink-api-starter
+        run: mvn install:install-file -q -Dfile=libs/utils-support-datalake-sink-api-starter-4.0.0.42.jar -DgroupId=com.chua -DartifactId=utils-support-datalake-sink-api-starter -Dversion=4.0.0.42 -Dpackaging=jar
+
       - name: Compile targets (+ dependencies)
         run: mvn test-compile -q -pl "${{ env.TARGET_MODULES }}" -am
 
@@ -149,6 +154,11 @@ jobs:
       # 随仓库 libs/ 提交，编译前先本地安装到 .m2
       - name: Install bundled vector-api
         run: mvn install:install-file -q -Dfile=libs/vector-api-4.0.0.42.jar -DpomFile=libs/vector-api-4.0.0.42.pom
+
+      # datalake-sink-api-starter 同样是未发布到任何远程仓库的内部包，
+      # chronicle-starter 依赖它（provided）；用 generatePom 避免 parent 解析
+      - name: Install bundled datalake-sink-api-starter
+        run: mvn install:install-file -q -Dfile=libs/utils-support-datalake-sink-api-starter-4.0.0.42.jar -DgroupId=com.chua -DartifactId=utils-support-datalake-sink-api-starter -Dversion=4.0.0.42 -Dpackaging=jar
 
       # Elasticsearch 8.x 要求 vm.max_map_count >= 262144
       - name: Increase vm.max_map_count
