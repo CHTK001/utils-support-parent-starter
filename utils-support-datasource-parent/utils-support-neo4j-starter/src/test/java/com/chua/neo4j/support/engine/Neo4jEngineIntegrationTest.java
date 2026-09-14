@@ -27,9 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class Neo4jEngineIntegrationTest {
 
-    /** 真实 Neo4j 5 Community 容器（固定密码） */
+    /** 真实 Neo4j 5 Community 容器（固定密码，限制 JVM 内存避免 CI 上 OOM 导致 exit 70） */
     static final Neo4jContainer<?> NEO4J = new Neo4jContainer<>(DockerImageName.parse("neo4j:5-community"))
-            .withAdminPassword("test");
+            .withAdminPassword("test")
+            .withEnv("NEO4J_server_memory_heap_initial__size", "256m")
+            .withEnv("NEO4J_server_memory_heap_max__size", "512m")
+            .withEnv("NEO4J_server_memory_pagecache_size", "256m")
+            .withLogConsumer(outputFrame -> System.out.print("[NEO4J] " + outputFrame.getUtf8String()));
 
     private Neo4jEngine engine;
 
