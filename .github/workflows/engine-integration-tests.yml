@@ -8,7 +8,11 @@
 #   - Docker（ubuntu-latest 自带）
 #   - vm.max_map_count >= 262144（Elasticsearch 8.x 要求）
 #
-# 注意：根 pom skipTests=true，CI 必须显式 -DskipTests=false
+# 注意：
+#   - 根 pom skipTests=true，CI 必须显式 -DskipTests=false
+#   - 不做全仓库编译/测试：仓库中 utils-support-ast-starter 等无关模块存在
+#     历史编译问题（JDK 25 下 javadoc 损坏），为避免被牵连，只对目标模块
+#     及其依赖链（-am）执行编译与测试
 
 name: Engine Integration Tests
 
@@ -27,12 +31,22 @@ on:
       - ".github/workflows/**"
   workflow_dispatch:
 
+env:
+  TARGET_MODULES: >-
+    utils-support-datasource-parent/utils-support-mysql-starter,
+    utils-support-datasource-parent/utils-support-oracle-starter,
+    utils-support-middleware-parent/utils-support-redis-starter,
+    utils-support-datasource-parent/utils-support-neo4j-starter,
+    utils-support-datasource-parent/utils-support-elasticsearch-starter,
+    utils-support-datasource-parent/utils-support-hbase-starter,
+    utils-support-datasource-parent/utils-support-influxdb-starter
+
 jobs:
   # ──────────────────────────────────────────────────────
-  # Job 1: 全模块编译验证（快速门禁）
+  # Job 1: 目标模块编译验证（快速门禁）
   # ──────────────────────────────────────────────────────
   build:
-    name: Compile All Modules
+    name: Compile Target Modules
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,8 +57,35 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Compile (test-compile)
-        run: mvn test-compile -q
+      # setup-java 只生成 server-id=github 的 settings.xml，
+      # 覆盖补上 github-resource（根 pom 里 GitHub Packages 私有仓库需要凭据）
+      - name: Configure Maven servers
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<'EOF'
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ github.token }}</password>
+              </server>
+              <server>
+                <id>github-resource</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ github.token }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      # vector-api 是 JDK 25 Vector API 的 plain jar，未发布到远程仓库，
+      # 随仓库 libs/ 提交，编译前先本地安装到 .m2
+      - name: Install bundled vector-api
+        run: mvn install:install-file -q -Dfile=libs/vector-api-4.0.0.42.jar -DpomFile=libs/vector-api-4.0.0.42.pom
+
+      - name: Compile targets (+ dependencies)
+        run: mvn test-compile -q -pl "${{ env.TARGET_MODULES }}" -am
 
   # ──────────────────────────────────────────────────────
   # Job 2: Testcontainers 集成测试（真实容器）
@@ -62,27 +103,22 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
+      # vector-api 是 JDK 25 Vector API 的 plain jar，未发布到远程仓库，
+      # 随仓库 libs/ 提交，编译前先本地安装到 .m2
+      - name: Install bundled vector-api
+        run: mvn install:install-file -q -Dfile=libs/vector-api-4.0.0.42.jar -DpomFile=libs/vector-api-4.0.0.42.pom
+
       # Elasticsearch 8.x 要求 vm.max_map_count >= 262144
       - name: Increase vm.max_map_count
         run: sudo sysctl -w vm.max_map_count=262144
 
-      # 先把所有依赖模块安装到 .m2，再单独跑目标模块测试
-      # （根 pom skipTests=true，install 不会执行测试）
-      - name: Install dependencies
-        run: mvn install -q
+      # 安装目标模块及其依赖链到 .m2（skipTests=true 的仓库，install 不跑测试）
+      - name: Install target modules (+ dependencies)
+        run: mvn install -q -pl "${{ env.TARGET_MODULES }}" -am
 
       - name: Run engine integration tests
         run: |
-          MODULES=(
-            utils-support-datasource-parent/utils-support-mysql-starter
-            utils-support-datasource-parent/utils-support-oracle-starter
-            utils-support-middleware-parent/utils-support-redis-starter
-            utils-support-datasource-parent/utils-support-neo4j-starter
-            utils-support-datasource-parent/utils-support-elasticsearch-starter
-            utils-support-datasource-parent/utils-support-hbase-starter
-            utils-support-datasource-parent/utils-support-influxdb-starter
-          )
           mvn test \
-            -pl $(IFS=,; echo "${MODULES[*]}") \
+            -pl "${{ env.TARGET_MODULES }}" \
             -DskipTests=false \
             -DfailIfNoTests=false
