@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class Neo4jEngineIntegrationTest {
 
-    /** 真实 Neo4j 5 Community 容器（固定密码，限制 JVM 内存避免 CI 上 OOM 导致 exit 70） */
+    /** 真实 Neo4j 5 Community 容器（固定密码需 >= 8 位，限制 JVM 内存） */
     static final Neo4jContainer<?> NEO4J = new Neo4jContainer<>(DockerImageName.parse("neo4j:5-community"))
-            .withAdminPassword("test")
+            .withAdminPassword("test1234")
             .withEnv("NEO4J_server_memory_heap_initial__size", "256m")
             .withEnv("NEO4J_server_memory_heap_max__size", "512m")
             .withEnv("NEO4J_server_memory_pagecache_size", "256m")
@@ -50,7 +50,7 @@ public class Neo4jEngineIntegrationTest {
     @BeforeEach
     void setUp() {
         engine = new Neo4jEngine();
-        engine.connect(NEO4J.getBoltUrl(), "neo4j", "test");
+        engine.connect(NEO4J.getBoltUrl(), "neo4j", "test1234");
 
         // 清理旧数据
         engine.execute("MATCH (n:Person) DETACH DELETE n");
@@ -225,7 +225,7 @@ public class Neo4jEngineIntegrationTest {
     @Test
     void testClose() {
         Neo4jEngine temp = new Neo4jEngine();
-        temp.connect(NEO4J.getBoltUrl(), "neo4j", "test");
+        temp.connect(NEO4J.getBoltUrl(), "neo4j", "test1234");
         assertDoesNotThrow(temp::close);
     }
 }
