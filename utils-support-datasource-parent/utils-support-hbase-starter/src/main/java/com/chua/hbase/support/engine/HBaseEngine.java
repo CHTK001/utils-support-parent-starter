@@ -91,13 +91,10 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-    * 由 quorum 串创建真实连接。
-    * @return conn的结果
-     /**
-      * 连接。
-      * @param quorum quorum
-      * @return 连接的结果
-      */
+     * 由 quorum 串创建真实连接。
+     *
+     * @param quorum ZK 地址串，形如 {@code host:port}
+     * @return 连接的结果
      */
     private static Connection connect(String quorum) {
         String host = quorum;
