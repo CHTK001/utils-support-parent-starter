@@ -36,12 +36,16 @@ import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskE
  * <ul>
  *   <li><b>文件级</b> — 每个文件一条独立 TCP 连接，由虚拟线程池并发执行
  *       （默认 CPU × 4，上限 256），通过 {@link Semaphore} 限流避免压垮服务端。</li>
+ *   <li><b>连接复用（可选）</b> — {@code filesPerConnection(N)}（N&gt;1）时按 N 个文件一组
+ *       复用同一条连接，省掉每个文件的建连 + 握手 + 收尾往返；服务端协议 v1 起原生支持
+ *       {@code fileCount&gt;1}，无需改动。</li>
  *   <li><b>文件内分片</b> — 单文件按 {@code chunkSize}（默认 1 MB）切分为多帧，
  *       连接内按序传输（保持分片顺序，服务端按序落盘）。</li>
  * </ul>
  *
- * <p><b>协议</b>与 {@link FilePushServer} 一致：连接握手（MAGIC + VERSION + fileCount=1）
- * → BEGIN（文件元数据）→ 若干 CHUNK → END → 等待 ACK 后关闭连接。</p>
+ * <p><b>协议</b>与 {@link FilePushServer} 一致：连接握手（MAGIC + VERSION + fileCount）
+ * → BEGIN（文件元数据）→ 若干 CHUNK → END → 等待 ACK；
+ * {@code fileCount&gt;1} 的连接在全部文件之后补发 {@code MSG_DONE} 并等 ACK 收尾。</p>
  *
  * <p><b>推送流程</b>：</p>
  * <pre>
@@ -49,7 +53,9 @@ import static com.chua.common.support.utils.ThreadUtils.newVirtualThreadPerTaskE
  *   ├── 扫描 sourceDir，按 includes/excludes 过滤，生成文件清单
  *   ├── 若 config.incremental=true：开一条控制连接索取服务端清单（MANIFEST），
  *   │     跳过 size 与 mtime 均未变化的文件
- *   ├── 并发（clientFileParallelism）每条连接推送一个文件
+ *   ├── 并发（clientFileParallelism）
+ *   │     ├── 默认：每条连接推送一个文件
+ *   │     └── filesPerConnection>1：每条连接推送 N 个文件，末尾补 MSG_DONE 收尾
  *   │     握手 → BEGIN(meta) → CHUNK(idx, data) × N → END → ACK
  *   ├── 若 config.cleanup=true：发一条 CLEANUP 控制连接，携带<b>完整</b>扫描清单
  *   │     （含增量跳过的文件），服务端删除清单之外的旧文件
@@ -79,6 +85,9 @@ public class FilePushClient implements AutoCloseable {
     /** SLF4J 日志（手写，避免 Lombok 注解处理器缺失时编译失败） */
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(FilePushClient.class);
+
+    /** 连接复用模式下，一条连接中途断开后最多重试几次（用尽后剩余文件降级为单文件连接） */
+    private static final int MAX_BATCH_ATTEMPTS = 3;
 
     /** 客户端配置 */
     private final FilePushConfig config;
@@ -181,6 +190,25 @@ public class FilePushClient implements AutoCloseable {
      */
     public FilePushClient chunkSize(int chunkSize) {
         config.setChunkSize(chunkSize);
+        return this;
+    }
+
+    /**
+     * 设置每条连接承载的文件数（连接复用），链式调用。
+     *
+     * <p>默认 1（一文件一连接）。设为 N&gt;1 后，待推文件按 N 个一组轮转分组，
+     * 每组复用同一条 TCP 连接（握手 {@code fileCount=N}），省掉每个文件的
+     * 建连、握手、收尾往返。服务端自协议 v1 起即支持，无需改动。</p>
+     *
+     * <p>连接数 = {@code min(ceil(文件数 / N), 并行度)}：连接内同一时刻只有一个文件在途，
+     * 故「在途文件数 = 连接数」，用连接数封顶并行度即可。N 取大只会让连接更少、
+     * 每连接承载更多文件，不会退化成串行。</p>
+     *
+     * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
+     * @return this
+     */
+    public FilePushClient filesPerConnection(int filesPerConnection) {
+        config.setFilesPerConnection(filesPerConnection);
         return this;
     }
 
@@ -320,18 +348,40 @@ public class FilePushClient implements AutoCloseable {
             }
         }
 
-        log.info("FilePushClient 开始推送 {} → {}:{}，共 {} 个文件，待推 {} 个，跳过 {} 个，并发 {}，分片 {}KB",
+        int perConn = config.effectiveFilesPerConnection();
+        log.info("FilePushClient 开始推送 {} → {}:{}，共 {} 个文件，待推 {} 个，跳过 {} 个，"
+                        + "并发 {}，分片 {}KB，每连接 {} 个文件",
                 sourceDir.toAbsolutePath(), config.getHost(), config.getPort(),
                 files.size(), pending.size(), skipped,
-                config.effectiveClientParallelism(), config.effectiveChunkSize() / 1024);
+                config.effectiveClientParallelism(), config.effectiveChunkSize() / 1024, perConn);
 
-        List<CompletableFuture<FileTaskResult>> futures = new ArrayList<>(pending.size());
-        for (Path file : pending) {
-            futures.add(CompletableFuture.supplyAsync(() -> {
-                FileTaskResult result = pushFile(sourceDir, file);
-                notifyProgress(result);
-                return result;
-            }, executor));
+        // 连接复用：perConn>1 时按轮转分组，每组一条连接承载 perConn 个文件
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+        if (perConn > 1 && pending.size() > 1) {
+            // 连接数 = 按 perConn 分组所需的条数，但不超过并行度。
+            // 连接内同一时刻只有一个文件在途，故「在途文件数 == 连接数」，
+            // 用连接数封顶并行度即可，而不是让连接数 = 并行度 / perConn
+            //（后者在 perConn > 并行度 时会退化成 1 条连接串行，吞吐断崖）。
+            int groups = Math.max(1, Math.min(
+                    (pending.size() + perConn - 1) / perConn,
+                    config.effectiveClientParallelism()));
+            List<List<Path>> batches = partitionRoundRobin(pending, groups);
+            Semaphore batchLimiter = new Semaphore(groups);
+            log.info("连接复用已启用：{} 条连接，每条约 {} 个文件（上限 {}），并发连接 {}",
+                    batches.size(), (pending.size() + groups - 1) / groups,
+                    perConn, batchLimiter.availablePermits());
+            for (List<Path> batch : batches) {
+                futures.add(CompletableFuture.supplyAsync(
+                        () -> pushBatch(sourceDir, batch, batchLimiter), executor));
+            }
+        } else {
+            for (Path file : pending) {
+                futures.add(CompletableFuture.supplyAsync(() -> {
+                    FileTaskResult result = pushFile(sourceDir, file);
+                    notifyProgress(result);
+                    return result;
+                }, executor));
+            }
         }
 
         // 等待所有文件推送完成
@@ -348,7 +398,18 @@ public class FilePushClient implements AutoCloseable {
             }
         }
         long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
-        List<FileTaskResult> results = futures.stream().map(CompletableFuture::join).toList();
+        // 连接复用路径的任务返回的是「一组文件的结果」，这里统一摊平为单文件结果
+        List<FileTaskResult> results = new ArrayList<>(pending.size());
+        for (CompletableFuture<?> future : futures) {
+            Object value = future.join();
+            if (value instanceof List<?> group) {
+                for (Object item : group) {
+                    results.add((FileTaskResult) item);
+                }
+            } else {
+                results.add((FileTaskResult) value);
+            }
+        }
         long success = results.stream().filter(t -> t.success()).count();
         long failed = results.size() - success;
         double mbs = elapsedMs > 0
@@ -504,94 +565,80 @@ public class FilePushClient implements AutoCloseable {
     }
 
     /**
-     * 推送单个文件到服务端。
+     * 计算相对路径（{@code /} 分隔），供协议上报使用。
+     *
+     * @param sourceDir 源目录
+     * @param file      文件绝对路径
+     * @return 相对路径
+     */
+    private static String relativeOf(Path sourceDir, Path file) {
+        return sourceDir.relativize(file).toString().replace('\\', '/');
+    }
+
+    /**
+     * 按轮转（round-robin）把文件均分成 {@code groups} 组。
+     *
+     * <p>轮转而非连续切分：扫描结果大致按目录顺序排列，大文件容易连成一片；
+     * 轮转可把大文件摊到不同连接上，避免某条连接被大文件拖住而其他连接提前空转。</p>
+     *
+     * @param files  文件列表
+     * @param groups 目标组数（会收敛到 {@code [1, files.size()]}）
+     * @return 分组结果，组数不超过 {@code files.size()}
+     */
+    private static List<List<Path>> partitionRoundRobin(List<Path> files, int groups) {
+        int g = Math.max(1, Math.min(groups, files.size()));
+        List<List<Path>> batches = new ArrayList<>(g);
+        int per = (files.size() + g - 1) / g;
+        for (int i = 0; i < g; i++) {
+            batches.add(new ArrayList<>(per));
+        }
+        for (int i = 0; i < files.size(); i++) {
+            batches.get(i % g).add(files.get(i));
+        }
+        return batches;
+    }
+
+    /**
+     * 在一条已握手的连接上发送握手帧。
+     *
+     * @param out       连接输出流
+     * @param in        连接输入流
+     * @param fileCount 该连接承载的文件数（0=控制连接，1=单文件，&gt;1=多文件）
+     * @throws IOException 握手失败
+     */
+    private void handshake(DataOutputStream out, DataInputStream in, int fileCount)
+            throws IOException {
+        out.writeInt(MAGIC);
+        out.writeByte(PROTOCOL_VERSION);
+        out.writeInt(fileCount);
+        out.flush();
+        int ack = in.readUnsignedByte();
+        if (ack != FilePushConfig.MSG_ACK) {
+            throw new IOException("握手失败，服务端回 0x" + Integer.toHexString(ack));
+        }
+    }
+
+    /**
+     * 推送单个文件到服务端（独立连接）。
      *
      * @param sourceDir 源目录（用于计算相对路径）
      * @param file 文件绝对路径
      * @return 单文件任务结果
      */
     private FileTaskResult pushFile(Path sourceDir, Path file) {
-        String relativePath = sourceDir.relativize(file).toString().replace('\\', '/');
+        String relativePath = relativeOf(sourceDir, file);
         boolean acquired = false;
         try {
             fileLimiter.acquire();
             acquired = true;
-            long fileSize = Files.size(file);
-            long mtimeMillis = Files.getLastModifiedTime(file).toMillis();
-            int chunkSize = config.effectiveChunkSize();
-            int lastChunk = fileSize == 0 ? 0 : (int) (fileSize - 1) / chunkSize;
-
             try (Socket socket = openSocket()) {
-                DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                DataInputStream in = new DataInputStream(
+                        new BufferedInputStream(socket.getInputStream()));
                 DataOutputStream out = new DataOutputStream(
-                        new BufferedOutputStream(socket.getOutputStream(), config.effectiveIoBufferSize()));
-
-                // 握手
-                out.writeInt(MAGIC);
-                out.writeByte(PROTOCOL_VERSION);
-                out.writeInt(1);
-                out.flush();
-                int ack = in.readUnsignedByte();
-                if (ack != FilePushConfig.MSG_ACK) {
-                    throw new IOException("握手失败，服务端回 0x" + Integer.toHexString(ack));
-                }
-
-                // BEGIN：meta = relativePath \0 fileSize \0 lastChunk \0 mtimeMillis \0
-                String meta = relativePath + "\0" + fileSize + "\0" + lastChunk + "\0"
-                        + mtimeMillis + "\0";
-                byte[] metaBytes = meta.getBytes(StandardCharsets.UTF_8);
-                out.writeByte(FilePushConfig.MSG_BEGIN);
-                out.writeInt(metaBytes.length);
-                out.write(metaBytes);
-
-                // CHUNK 分片（连接内按序）
-                int ioBuffer = config.effectiveIoBufferSize();
-                int chunkIndex = 0;
-                try (InputStream fis = new BufferedInputStream(Files.newInputStream(file), ioBuffer)) {
-                    int total = 0;
-                    while (total < fileSize) {
-                        int remaining = (int) Math.min(chunkSize, fileSize - total);
-                        int read = 0;
-                        byte[] chunkData = new byte[remaining];
-                        while (read < remaining) {
-                            int n = fis.read(chunkData, read, remaining - read);
-                            if (n == -1) {
-                                throw new IOException("源文件读取意外结束: " + relativePath
-                                        + "（期望 " + fileSize + " 字节）");
-                            }
-                            read += n;
-                        }
-                        out.writeByte(FilePushConfig.MSG_CHUNK);
-                        out.writeInt(chunkIndex);
-                        out.writeInt(remaining);
-                        out.write(chunkData);
-                        chunkIndex++;
-                        total += remaining;
-                    }
-                }
-                // END
-                out.writeByte(FilePushConfig.MSG_END);
-                out.flush();
-
-                // 等待 ACK
-                int resp = in.readUnsignedByte();
-                if (resp == FilePushConfig.MSG_ERROR) {
-                    int errLen = in.readInt();
-                    byte[] errBytes = new byte[errLen];
-                    in.readFully(errBytes);
-                    String errMsg = new String(errBytes, StandardCharsets.UTF_8);
-                    throw new IOException("服务端拒绝文件 " + relativePath + ": " + errMsg);
-                }
-                if (resp != FilePushConfig.MSG_ACK) {
-                    throw new IOException("文件 " + relativePath + " 等待 ACK 失败（回 0x"
-                            + Integer.toHexString(resp) + "）");
-                }
-
-                out.flush();
-                filesPushed.incrementAndGet();
-                bytesPushed.addAndGet(fileSize);
-                log.debug("文件推送完成 {} ({} 字节, {} 分片)", relativePath, fileSize, lastChunk + 1);
-                return new FileTaskResult(relativePath, true, fileSize, null);
+                        new BufferedOutputStream(socket.getOutputStream(),
+                                config.effectiveIoBufferSize()));
+                handshake(out, in, 1);
+                return transferOneFile(sourceDir, file, in, out);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -604,6 +651,230 @@ public class FilePushClient implements AutoCloseable {
                 fileLimiter.release();
             }
         }
+    }
+
+    /**
+     * 连接复用模式：一条连接承载一组文件（握手 {@code fileCount=N}）。
+     *
+     * <p>连接中途失败时，从<b>失败的那个文件</b>开始用新连接重试（已 ACK 的文件不重传），
+     * 重试 {@link #MAX_BATCH_ATTEMPTS} 次仍失败则把剩余文件降级为单文件连接逐个推送，
+     * 避免一个坏文件连累整批。</p>
+     *
+     * @param sourceDir 源目录
+     * @param files     该连接承载的文件（有序）
+     * @param limiter   并发批次限流信号量
+     * @return 与 {@code files} 等长、顺序一致的单文件结果列表
+     */
+    private List<FileTaskResult> pushBatch(Path sourceDir, List<Path> files, Semaphore limiter) {
+        FileTaskResult[] slot = new FileTaskResult[files.size()];
+        // 连接内串行传输，分片缓冲跨文件复用
+        ChunkBuffer buffer = new ChunkBuffer();
+        int next = 0;
+        int attempt = 0;
+        while (next < files.size() && attempt < MAX_BATCH_ATTEMPTS) {
+            attempt++;
+            int batchCount = files.size() - next;
+            int done = 0;
+            boolean acquired = false;
+            try {
+                limiter.acquire();
+                acquired = true;
+                try (Socket socket = openSocket()) {
+                    DataInputStream in = new DataInputStream(
+                            new BufferedInputStream(socket.getInputStream()));
+                    DataOutputStream out = new DataOutputStream(
+                            new BufferedOutputStream(socket.getOutputStream(),
+                                    config.effectiveIoBufferSize()));
+                    handshake(out, in, batchCount);
+
+                    for (int i = next; i < files.size(); i++) {
+                        FileTaskResult result =
+                                transferOneFile(sourceDir, files.get(i), in, out, buffer);
+                        if (!result.success()) {
+                            throw new IOException("组内文件失败，重启连接: " + result.error());
+                        }
+                        slot[i] = result;
+                        done++;
+                        notifyProgress(result);
+                    }
+
+                    // 多文件连接收尾：MSG_DONE → ACK。
+                    // 注意 batchCount==1 时服务端按「单文件连接」处理，发完 ACK 即关连接，
+                    // 不会再等 DONE，此时多写一个字节会撞上已关闭的连接。
+                    if (batchCount > 1) {
+                        out.writeByte(FilePushConfig.MSG_DONE);
+                        out.flush();
+                        int resp = in.readUnsignedByte();
+                        if (resp == FilePushConfig.MSG_ERROR) {
+                            int errLen = in.readInt();
+                            byte[] errBytes = new byte[errLen];
+                            in.readFully(errBytes);
+                            throw new IOException("服务端收尾失败: "
+                                    + new String(errBytes, StandardCharsets.UTF_8));
+                        }
+                        if (resp != FilePushConfig.MSG_ACK) {
+                            throw new IOException("连接收尾等待 ACK 失败（回 0x"
+                                    + Integer.toHexString(resp) + "）");
+                        }
+                    }
+                }
+                next += done;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                for (int i = next + done; i < files.size(); i++) {
+                    slot[i] = new FileTaskResult(relativeOf(sourceDir, files.get(i)),
+                            false, 0, "被中断");
+                }
+                next = files.size();
+            } catch (Exception e) {
+                next += done;
+                if (attempt >= MAX_BATCH_ATTEMPTS) {
+                    log.warn("连接复用组重试 {} 次仍失败（已完成 {}/{}），剩余 {} 个文件降级为单文件连接: {}",
+                            attempt, next, files.size(), files.size() - next, e.getMessage());
+                    for (int i = next; i < files.size(); i++) {
+                        slot[i] = pushFile(sourceDir, files.get(i));
+                        notifyProgress(slot[i]);
+                    }
+                    next = files.size();
+                } else {
+                    log.warn("连接复用组中断（第 {} 次，已完成 {}/{}），重建连接重试剩余 {} 个文件: {}",
+                            attempt, next, files.size(), files.size() - next, e.getMessage());
+                    ThreadUtils.sleep(300L * attempt);
+                }
+            } finally {
+                if (acquired) {
+                    limiter.release();
+                }
+            }
+        }
+        return Arrays.asList(slot);
+    }
+
+    /**
+     * 连接内复用的分片读缓冲。
+     *
+     * <p>同一连接内文件是串行传输的，故一个连接共用一个分片缓冲即可。
+     * 原实现每读一个分片就 {@code new byte[chunkSize]}（默认 1 MB），
+     * 推 128 MB 文件会白白产生 128 MB 分配churn。</p>
+     */
+    private static final class ChunkBuffer {
+
+        /** 缓冲区，按需增长到「本次请求的字节数」，不会一次就按 chunkSize 顶格分配 */
+        private byte[] buf;
+
+        /**
+         * 取一块至少 {@code size} 字节的缓冲。
+         *
+         * @param size 需要的字节数
+         * @return 缓冲数组（长度 &ge; size）
+         */
+        byte[] get(int size) {
+            byte[] cur = buf;
+            if (cur == null || cur.length < size) {
+                cur = new byte[size];
+                buf = cur;
+            }
+            return cur;
+        }
+    }
+
+    /**
+     * 在已握手的连接上传输一个文件：BEGIN → CHUNK×N → END → 等 ACK。
+     *
+     * <p>失败时抛 {@link IOException}（连接流状态已不可信，由调用方决定重建连接）。</p>
+     *
+     * @param sourceDir 源目录（用于计算相对路径）
+     * @param file      文件绝对路径
+     * @param in        连接输入流
+     * @param out       连接输出流
+     * @return 单文件任务结果（成功）
+     * @throws IOException 读取源文件或协议失败
+     */
+    private FileTaskResult transferOneFile(Path sourceDir, Path file,
+                                           DataInputStream in, DataOutputStream out)
+            throws IOException {
+        return transferOneFile(sourceDir, file, in, out, new ChunkBuffer());
+    }
+
+    /**
+     * 在已握手的连接上传输一个文件（可复用分片缓冲）。
+     *
+     * @param sourceDir 源目录（用于计算相对路径）
+     * @param file      文件绝对路径
+     * @param in        连接输入流
+     * @param out       连接输出流
+     * @param buffer    连接内复用的分片缓冲
+     * @return 单文件任务结果（成功）
+     * @throws IOException 读取源文件或协议失败
+     */
+    private FileTaskResult transferOneFile(Path sourceDir, Path file,
+                                           DataInputStream in, DataOutputStream out,
+                                           ChunkBuffer buffer) throws IOException {
+        String relativePath = relativeOf(sourceDir, file);
+        long fileSize = Files.size(file);
+        long mtimeMillis = Files.getLastModifiedTime(file).toMillis();
+        int chunkSize = config.effectiveChunkSize();
+        int lastChunk = fileSize == 0 ? 0 : (int) (fileSize - 1) / chunkSize;
+
+        // BEGIN：meta = relativePath \0 fileSize \0 lastChunk \0 mtimeMillis \0
+        // mtime 必须带：服务端落盘后据此还原时间戳，缺省会让增量同步退化为全量重推
+        String meta = relativePath + "\0" + fileSize + "\0" + lastChunk + "\0"
+                + mtimeMillis + "\0";
+        byte[] metaBytes = meta.getBytes(StandardCharsets.UTF_8);
+        out.writeByte(FilePushConfig.MSG_BEGIN);
+        out.writeInt(metaBytes.length);
+        out.write(metaBytes);
+
+        // CHUNK 分片（连接内按序）
+        // 文件读缓冲按文件大小收敛：小文件不必为了读 4 KB 而分配 64 KB 缓冲
+        int ioBuffer = config.effectiveIoBufferSize();
+        int fileBuffer = Math.min(ioBuffer, Math.max(8192, (int) Math.min(fileSize, ioBuffer)));
+        int chunkIndex = 0;
+        try (InputStream fis = new BufferedInputStream(Files.newInputStream(file), fileBuffer)) {
+            int total = 0;
+            while (total < fileSize) {
+                int remaining = (int) Math.min(chunkSize, fileSize - total);
+                byte[] chunkData = buffer.get(remaining);
+                int read = 0;
+                while (read < remaining) {
+                    int n = fis.read(chunkData, read, remaining - read);
+                    if (n == -1) {
+                        throw new IOException("源文件读取意外结束: " + relativePath
+                                + "（期望 " + fileSize + " 字节）");
+                    }
+                    read += n;
+                }
+                out.writeByte(FilePushConfig.MSG_CHUNK);
+                out.writeInt(chunkIndex);
+                out.writeInt(remaining);
+                // 缓冲可能大于本分片，必须带上长度，不能整块写出
+                out.write(chunkData, 0, remaining);
+                chunkIndex++;
+                total += remaining;
+            }
+        }
+        // END
+        out.writeByte(FilePushConfig.MSG_END);
+        out.flush();
+
+        // 等待 ACK
+        int resp = in.readUnsignedByte();
+        if (resp == FilePushConfig.MSG_ERROR) {
+            int errLen = in.readInt();
+            byte[] errBytes = new byte[errLen];
+            in.readFully(errBytes);
+            String errMsg = new String(errBytes, StandardCharsets.UTF_8);
+            throw new IOException("服务端拒绝文件 " + relativePath + ": " + errMsg);
+        }
+        if (resp != FilePushConfig.MSG_ACK) {
+            throw new IOException("文件 " + relativePath + " 等待 ACK 失败（回 0x"
+                    + Integer.toHexString(resp) + "）");
+        }
+
+        filesPushed.incrementAndGet();
+        bytesPushed.addAndGet(fileSize);
+        log.debug("文件推送完成 {} ({} 字节, {} 分片)", relativePath, fileSize, lastChunk + 1);
+        return new FileTaskResult(relativePath, true, fileSize, null);
     }
 
     /** 打开到服务端的 TCP 连接（带重连重试） */

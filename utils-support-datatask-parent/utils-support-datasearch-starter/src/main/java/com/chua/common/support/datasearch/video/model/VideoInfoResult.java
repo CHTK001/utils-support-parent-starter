@@ -87,6 +87,8 @@ public class VideoInfoResult {
     private String downloadUrls;
     /** 标签 */
     private String tags;
+    /** 视频备注（如 vod_remarks） */
+    private String videoRemark;
     /** 是否被封 (true=该站点已封/过期，无需重试) */
     private boolean blocked;
     /** 被封原因 */
@@ -574,5 +576,18 @@ public class VideoInfoResult {
     * @param tags 标签
      */
     public void setTags(String tags) { this.tags = tags; }
+
+    /**
+    * 获取视频备注。
+    *
+    * @return 视频备注
+     */
+    public String getVideoRemark() { return videoRemark; }
+    /**
+    * 设置视频备注。
+    *
+    * @param videoRemark 视频备注
+     */
+    public void setVideoRemark(String videoRemark) { this.videoRemark = videoRemark; }
 }
 

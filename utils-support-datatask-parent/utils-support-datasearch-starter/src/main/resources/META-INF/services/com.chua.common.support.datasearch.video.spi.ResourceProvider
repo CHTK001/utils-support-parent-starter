@@ -1,8 +1,11 @@
 com.chua.common.support.datasearch.video.spi.impl.BilibiliResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.DoubanResourceProvider
-com.chua.common.support.datasearch.video.spi.impl.PanSearchResourceProvider
-com.chua.common.support.datasearch.video.spi.impl.PanSouResourceProvider
-com.chua.common.support.datasearch.video.spi.impl.TmdbResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.Douban2ResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.DuanJuWangResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.IKanTvResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.MacCmsResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.MuouResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.QuarkResourceProvider
+com.chua.common.support.datasearch.video.spi.impl.QuarktvResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WanouResourceProvider
 com.chua.common.support.datasearch.video.spi.impl.WuJiResourceProvider
-com.chua.common.support.datasearch.video.spi.impl.MacCmsResourceProvider

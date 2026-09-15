@@ -1,0 +1,43 @@
+package com.chua.common.support.network.filepush;
+
+import com.chua.winrm.support.client.WinRmExecClient;
+
+/**
+ * 检查远程 Java 安装位置。
+ */
+public class FpWinRmJavaCheck {
+    public static void main(String[] args) throws Exception {
+        WinRmExecClient winrm = WinRmExecClient.builder()
+                .host("172.16.9.194").port(5985)
+                .username("lenovo").password("123")
+                .authenticationScheme("NTLM")
+                .build();
+        winrm.connect();
+        System.out.println("=== WinRM 连接成功 ===");
+
+        // 检查常见 Java 安装目录
+        String[] checks = {
+                "Get-ChildItem 'C:\\Program Files\\Java' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName",
+                "Get-ChildItem 'C:\\Program Files (x86)\\Java' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName",
+                "Test-Path 'C:\\jdk'",
+                "Test-Path 'C:\\Program Files\\jdk*'",
+                "Get-Command javaw -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source",
+                "Get-ChildItem Env:JAVA_HOME -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Value",
+                "Get-ChildItem 'C:\\work' -ErrorAction SilentlyContinue | Select-Object -First 5 -ExpandProperty Name",
+                "(Get-ChildItem 'C:\\' -Directory -ErrorAction SilentlyContinue).Name",
+                "Get-CimInstance Win32_Processor | Select-Object -ExpandProperty NumberOfLogicalProcessors",
+                "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize"
+        };
+
+        for (int i = 0; i < checks.length; i++) {
+            String cmd = checks[i];
+            String result = winrm.exec().command(cmd).executeAndGetOutput();
+            System.out.println("[" + (i+1) + "] " + cmd);
+            System.out.println("    -> " + result.replaceAll("\n", "\n    -> "));
+        }
+
+        winrm.close();
+        System.out.println("=== 检查完成 ===");
+        System.exit(0);
+    }
+}

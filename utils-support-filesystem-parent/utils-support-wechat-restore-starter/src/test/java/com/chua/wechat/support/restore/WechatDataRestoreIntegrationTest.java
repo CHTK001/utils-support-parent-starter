@@ -108,6 +108,9 @@ class WechatDataRestoreIntegrationTest {
         options.put("runtime.dir", runtimeDir.getAbsolutePath());
         options.put("key", "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
         options.put("data.dir", sessionDb.getParentFile().getAbsolutePath());
+        // 禁用内存明文页路径：否则本机微信运行时会接管 auto 降级并成功，
+        // 就验证不到「缺少原生库时必须失败」这个前提了
+        options.put(WechatDataRestore.OPTION_MEMORY_ENABLED, Boolean.FALSE);
 
         DataRestoreConfig config = DataRestoreConfig.builder()
                 .format(ExportFormat.EXCEL)

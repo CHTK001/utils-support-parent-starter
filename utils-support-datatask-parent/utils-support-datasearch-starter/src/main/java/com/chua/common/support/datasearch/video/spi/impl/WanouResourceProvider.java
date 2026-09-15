@@ -54,11 +54,19 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     @Override
     /** 搜索Resource */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        if (!StringUtils.hasText(videoSearch.getKeyword())) {
+            return ReturnPageResult.error("关键词不能为空");
+        }
         try {
             String url = getUrl();
             url = String.format(url, videoSearch.getKeyword());
             ClientResponse response = HttpClientFactory.of(url).get();
-            VideoList content = Json.fromJson(response.getBodyString(), VideoList.class);
+            String body = response.getBodyString();
+            if (body == null || !body.trim().startsWith("{")) {
+                return ReturnPageResult.error("Wanou 资源站不可用(非JSON响应): "
+                        + StringUtils.defaultString(body, "").substring(0, Math.min(60, body.length())));
+            }
+            VideoList content = Json.fromJson(body, VideoList.class);
             if (content == null) {
                 return ReturnPageResult.empty();
             }

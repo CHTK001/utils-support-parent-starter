@@ -120,11 +120,11 @@ public class Json {
     }
 
     /**
-    * 基于已有 Map 创建 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
-    *
-    * @param map 源数据 Map，可为 null
-    * @return 包含源数据的 JsonObject 节点
-    * @since 4.0.0.42
+     * 基于已有 Map 创建 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
+     *
+     * @param map 源数据 Map，可以为 null（null 时创建空 JsonObject）
+     * @return 包含源数据的 JsonObject 节点
+     * @since 4.0.0.42
      */
     public static JsonObject createJsonObject(Map map) {
         return implementation.createJsonObject(map);

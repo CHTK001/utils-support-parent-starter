@@ -107,6 +107,9 @@ public class FilePushServer implements AutoCloseable {
     /** 清单条数上限，防止损坏或恶意的 count 值导致巨额预分配 */
     private static final int MAX_MANIFEST_ENTRIES = 2_000_000;
 
+    /** 单个分片字节数上限，防止损坏或恶意的 len 值导致巨额预分配 */
+    private static final int MAX_CHUNK_BYTES = 256 * 1024 * 1024;
+
     /** 服务端配置 */
     private final FilePushConfig config;
 
@@ -531,6 +534,12 @@ public class FilePushServer implements AutoCloseable {
         if (fileSize < 0 || lastChunk < 0) {
             throw new IOException("非法文件参数: fileSize=" + fileSize + ", lastChunk=" + lastChunk);
         }
+        // 分片数上限：每个非空分片至少 1 字节，故 lastChunk+1 不应超过 fileSize（空文件恒为 1）。
+        // 没有这道校验时，一个伪造的巨额 lastChunk 会让下面的 CountDownLatch 与补齐循环空转。
+        if ((long) lastChunk + 1 > Math.max(fileSize, 1)) {
+            throw new IOException("非法文件参数: lastChunk=" + lastChunk
+                    + " 与 fileSize=" + fileSize + " 不匹配");
+        }
 
         Path target = resolveSafePath(relativePath);
         Files.createDirectories(target.getParent());
@@ -538,33 +547,28 @@ public class FilePushServer implements AutoCloseable {
                 target.getFileName() + ".push-" + System.nanoTime());
         Files.createFile(tempPath);
 
-        // 分片大小 = 除最后一片外的固定值（客户端按 chunkSize 切分）
-        int chunkSize = config.effectiveChunkSize();
-        int lastSize;
-        if (fileSize == 0) {
-            // 空文件：无分片数据
-            lastSize = 0;
-        } else {
-            lastSize = (int) (fileSize - (long) lastChunk * chunkSize);
-        }
-
         // 落盘：整个文件只开一个 FileChannel，各分片用带 position 的定位写。
         // 定位写不改变通道位置且各分片区间互不重叠，业务侧无需加锁；但 JDK 会在通道内部
         // positionLock 上串行化定位写，故写盘池的收益是与网络读重叠，而非写盘并行。
         final long size = fileSize;
         final int chunks = lastChunk + 1;
-        final int fixedChunk = chunkSize;
         ExecutorService pool = writeExecutor;
 
         CountDownLatch chunksDone = new CountDownLatch(chunks);
         AtomicInteger writeFailed = new AtomicInteger();
+        // 已「结清」的分片数：空分片在此直接结清，非空分片由写盘任务结清。
+        // 异常提前退出时用它补齐剩余许可，否则 finally 里的 await() 会永久阻塞。
+        int settled = 0;
+        // 分片偏移按顺序累加推算，而非 chunkIndex × 服务端 chunkSize：
+        // 协议 meta 只带 lastChunk、不带 chunkSize，客户端分片大小可能与服务端配置不同，
+        // 用服务端配置反推会算错偏移。同一连接内分片严格有序，累加即可得到正确偏移。
+        long runningOffset = 0L;
         try (FileChannel channel = FileChannel.open(tempPath, StandardOpenOption.WRITE)) {
             try {
                 for (int idx = 0; idx < chunks; idx++) {
-                    final int chunkIndex = idx;
-                    int expectedLen = (idx == lastChunk) ? lastSize : fixedChunk;
-                    if (expectedLen == 0) {
-                        // 空文件：客户端不发送数据分片，直接跳过
+                    if (fileSize == 0) {
+                        // 空文件：客户端不发送数据分片，直接结清
+                        settled++;
                         chunksDone.countDown();
                         continue;
                     }
@@ -574,15 +578,21 @@ public class FilePushServer implements AutoCloseable {
                     }
                     int chunkIndexMsg = in.readInt();
                     int len = in.readInt();
-                    if (chunkIndexMsg != chunkIndex || len != expectedLen) {
+                    if (chunkIndexMsg != idx) {
                         throw new IOException(String.format(
-                                "分片不匹配: 期望 idx=%d len=%d, 实际 idx=%d len=%d",
-                                chunkIndex, expectedLen, chunkIndexMsg, len));
+                                "分片序号不匹配: 期望 idx=%d, 实际 idx=%d", idx, chunkIndexMsg));
+                    }
+                    if (len < 0 || len > MAX_CHUNK_BYTES || runningOffset + len > fileSize) {
+                        throw new IOException(String.format(
+                                "分片长度非法: idx=%d len=%d（已收 %d 字节，文件共 %d 字节）",
+                                idx, len, runningOffset, fileSize));
                     }
                     byte[] data = new byte[len];
                     in.readFully(data);
+                    final long offset = runningOffset;
+                    runningOffset += len;
+                    settled++;
                     pool.execute(() -> {
-                        long offset = (long) chunkIndex * fixedChunk;
                         try {
                             writeFully(channel, ByteBuffer.wrap(data), offset);
                         } catch (IOException e) {
@@ -595,9 +605,19 @@ public class FilePushServer implements AutoCloseable {
                     });
                 }
             } finally {
-                // 协议异常时也必须等已派发的写盘任务落地，否则关闭通道会触发 ClosedChannelException
+                // 协议异常时也必须等已派发的写盘任务落地，否则关闭通道会触发 ClosedChannelException；
+                // 同时把「未派发」的分片许可补齐，避免 await() 永久阻塞（旧实现会让连接线程永久挂起，
+                // 既不回错误也不关连接，客户端写满缓冲区后一直等到读超时）。
+                for (int i = settled; i < chunks; i++) {
+                    chunksDone.countDown();
+                }
                 chunksDone.await();
             }
+        }
+        if (runningOffset != fileSize) {
+            Files.deleteIfExists(tempPath);
+            throw new IOException("文件 " + relativePath + " 数据不完整: 收到 "
+                    + runningOffset + " 字节，期望 " + fileSize + " 字节");
         }
         if (writeFailed.get() > 0) {
             Files.deleteIfExists(tempPath);

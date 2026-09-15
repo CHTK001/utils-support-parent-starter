@@ -1,0 +1,5 @@
+com.chua.common.support.datasearch.plugin.impl.OpenVsxPluginOnlineProvider
+com.chua.common.support.datasearch.plugin.impl.VscodeMarketplacePluginOnlineProvider
+com.chua.common.support.datasearch.plugin.impl.GitHubPluginOnlineProvider
+com.chua.common.support.datasearch.plugin.impl.ClawHubPluginOnlineProvider
+com.chua.common.support.datasearch.plugin.impl.SkillHubPluginOnlineProvider

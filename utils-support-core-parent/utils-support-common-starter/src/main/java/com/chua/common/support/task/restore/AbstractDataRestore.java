@@ -57,6 +57,17 @@ public abstract class AbstractDataRestore implements DataRestore {
         return restore(source, defaultConfig);
     }
 
+    /**
+    * 执行还原：校验源、兜底输出目录、统计耗时并包装异常。
+    *
+    * <p>本实现要求源是<b>单个文件</b>。数据天然是目录的子类（如微信）可重写本方法，
+    * 自行处理目录源后再调用 {@link #doRestore(File, DataRestoreConfig)}。</p>
+    *
+    * @param source 数据源文件
+    * @param config 还原配置
+    * @return 还原结果
+    * @throws Exception 源校验失败或创建输出目录失败
+     */
     @Override
     public DataRestoreResult restore(File source, DataRestoreConfig config) throws Exception {
         // 校验源文件

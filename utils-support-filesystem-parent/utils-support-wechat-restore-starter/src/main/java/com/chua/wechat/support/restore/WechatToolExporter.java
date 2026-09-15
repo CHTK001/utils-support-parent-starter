@@ -278,9 +278,10 @@ public final class WechatToolExporter {
     /**
      * 解析微信数据目录。
      *
-     * <p>options 中的 {@code data.dir} 优先；缺省取源文件所在目录。</p>
+     * <p>options 中的 {@code data.dir} 优先；缺省时源是目录就取它本身，
+     * 源是文件才退到它所在目录。</p>
      *
-     * @param source 源文件
+     * @param source 源文件或源目录
      * @param config 还原配置
      * @return 微信数据目录
      */
@@ -292,6 +293,9 @@ public final class WechatToolExporter {
                 throw new IllegalArgumentException("微信数据目录不存在或不是目录: " + dataDir.getAbsolutePath());
             }
             return dataDir;
+        }
+        if (source.isDirectory()) {
+            return source;
         }
         File parent = source.getParentFile();
         if (parent == null || !parent.isDirectory()) {

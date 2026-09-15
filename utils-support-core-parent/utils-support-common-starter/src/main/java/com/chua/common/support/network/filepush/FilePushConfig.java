@@ -79,6 +79,17 @@ public class FilePushConfig {
     /** 文件总数，占 4 字节 */
     private int fileCount = -1;
 
+    /**
+     * 每条 TCP 连接承载的文件数（连接复用）。
+     *
+     * <p>{@code 1}（默认）= 一文件一连接，保持既有行为；{@code >1} = 客户端把待推文件按
+     * 该数量分组，每组复用同一条连接（握手 {@code fileCount=N}），省掉每文件的
+     * 建连 + 握手 + 收尾往返。实测小文件场景可提升约 1.8×。</p>
+     *
+     * <p>服务端自协议 v1 起即支持 {@code fileCount>1}，无需任何服务端改动。</p>
+     */
+    private int filesPerConnection = 1;
+
     /** 源目录（客户端推送目录） */
     private Path sourceDir;
 
@@ -148,6 +159,15 @@ public class FilePushConfig {
     }
 
     /**
+     * 归一化「每条连接承载的文件数」。
+     *
+     * @return 有效文件数，至少 1（即默认一文件一连接）
+     */
+    public int effectiveFilesPerConnection() {
+        return filesPerConnection > 1 ? filesPerConnection : 1;
+    }
+
+    /**
      * 归一化客户端并发文件数。
      *
      * @return 有效并发数
@@ -194,6 +214,7 @@ public class FilePushConfig {
      *   <li>{@code filepush.host} / {@code filepush.port}</li>
      *   <li>{@code filepush.source-dir} / {@code filepush.target-dir}</li>
      *   <li>{@code filepush.chunk-size} / {@code filepush.io-buffer-size}</li>
+     *   <li>{@code filepush.files-per-connection}（>1 启用连接复用）</li>
      *   <li>{@code filepush.client-parallelism} / {@code filepush.server-parallelism}</li>
      *   <li>{@code filepush.cleanup} / {@code filepush.incremental}</li>
      *   <li>{@code filepush.excludes} / {@code filepush.includes}（逗号分隔的子串模式）</li>
@@ -226,6 +247,10 @@ public class FilePushConfig {
         String ioBuffer = System.getProperty("filepush.io-buffer-size");
         if (ioBuffer != null && !ioBuffer.isBlank()) {
             config.setIoBufferSize(Integer.parseInt(ioBuffer.trim()));
+        }
+        String filesPerConn = System.getProperty("filepush.files-per-connection");
+        if (filesPerConn != null && !filesPerConn.isBlank()) {
+            config.setFilesPerConnection(Integer.parseInt(filesPerConn.trim()));
         }
         String clientP = System.getProperty("filepush.client-parallelism");
         if (clientP != null && !clientP.isBlank()) {
@@ -450,6 +475,22 @@ public class FilePushConfig {
         return this;
     }
 
+    /** @return 每条连接承载的文件数（1 = 一文件一连接） */
+    public int getFilesPerConnection() {
+        return filesPerConnection;
+    }
+
+    /**
+     * 设置每条连接承载的文件数（连接复用）。
+     *
+     * @param filesPerConnection 每条连接的文件数，小于等于 1 表示禁用复用
+     * @return this
+     */
+    public FilePushConfig setFilesPerConnection(int filesPerConnection) {
+        this.filesPerConnection = filesPerConnection;
+        return this;
+    }
+
     /** @return 是否清理旧文件 */
     public boolean isCleanup() {
         return cleanup;
@@ -513,6 +554,7 @@ public class FilePushConfig {
                 + ", chunkSize=" + effectiveChunkSize()
                 + ", clientParallelism=" + effectiveClientParallelism()
                 + ", serverParallelism=" + effectiveServerParallelism()
+                + ", filesPerConnection=" + effectiveFilesPerConnection()
                 + ", cleanup=" + cleanup
                 + ", incremental=" + incremental + '}';
     }
