@@ -1697,7 +1697,7 @@ public class AgentEditorProvider {
     * @param indent 当前缩进层级（每级 2 个空格）
     * @return JSON 对象字符串
      */
-    private static String mapToJson(Map<String, Object> map, int indent) {
+    protected static String mapToJson(Map<String, Object> map, int indent) {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         List<Map.Entry<String, Object>> entries = new ArrayList<>(map.entrySet());

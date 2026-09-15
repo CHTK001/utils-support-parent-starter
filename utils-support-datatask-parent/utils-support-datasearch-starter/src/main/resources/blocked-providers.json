@@ -1,0 +1,40 @@
+{
+  "blocked": [
+    {
+      "name": "duanjuw",
+      "reason": "UNREACHABLE",
+      "blockedAt": "2026-09-15",
+      "note": "www.duanjuw.com 域名被 PP电子(四维图新) 占用，非短剧站点"
+    },
+    {
+      "name": "ikantv",
+      "reason": "UNREACHABLE",
+      "blockedAt": "2026-09-15",
+      "note": "www.ikantv.com HTTP connect timed out"
+    },
+    {
+      "name": "muou",
+      "reason": "UNREACHABLE",
+      "blockedAt": "2026-09-15",
+      "note": "666.666291.xyz 已停服（页面公告：我们跑路了），代理隧道超时"
+    },
+    {
+      "name": "quark",
+      "reason": "API_CHANGED",
+      "blockedAt": "2026-09-15",
+      "note": "pan.quark.cn/s/search 为纯 JS 渲染(ice-container)壳页，无服务端结果数据"
+    },
+    {
+      "name": "quarktv",
+      "reason": "UNREACHABLE",
+      "blockedAt": "2026-09-15",
+      "note": "www.quarktv.com 返回 403 Forbidden"
+    },
+    {
+      "name": "wanou",
+      "reason": "UNREACHABLE",
+      "blockedAt": "2026-09-15",
+      "note": "woog.nxog.eu.org 返回 403 Forbidden，站点失效"
+    }
+  ]
+}

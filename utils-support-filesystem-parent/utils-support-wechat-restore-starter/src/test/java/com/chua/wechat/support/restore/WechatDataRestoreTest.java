@@ -68,6 +68,9 @@ class WechatDataRestoreTest {
         WechatDataRestore restore = new WechatDataRestore();
         File source = new File("session.db");
         Map<String, Object> options = new HashMap<>();
+        // 内存明文页路径不需要任何配置，本机微信运行时它会接管 auto 降级；
+        // 这里禁用它，才能验证「auto 模式下缺配置时必须抛异常」
+        options.put(WechatDataRestore.OPTION_MEMORY_ENABLED, Boolean.FALSE);
 
         assertThrows(IllegalArgumentException.class, () -> restore.doRestore(source, createConfig(options)));
     }

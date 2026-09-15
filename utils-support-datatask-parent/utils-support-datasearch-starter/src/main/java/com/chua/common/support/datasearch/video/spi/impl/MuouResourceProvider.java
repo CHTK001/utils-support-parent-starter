@@ -5,6 +5,7 @@ import com.chua.common.support.datasearch.video.model.VideoInfoResult;
 import com.chua.common.support.datasearch.video.model.VideoSearch;
 import com.chua.common.support.datasearch.video.model.VideoSource;
 import com.chua.common.support.datasearch.video.spi.AbstractResourceProvider;
+import com.chua.common.support.datasearch.video.spi.VideoProviderRegistry;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
@@ -76,7 +77,21 @@ public class MuouResourceProvider extends AbstractResourceProvider {
                     .timeout(Duration.ofSeconds(12))
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
                     .header("Referer", "https://666.666291.xyz/").GET().build();
-            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> resp;
+            try {
+                resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            } catch (java.net.http.HttpTimeoutException e) {
+                // 海外站连接超时，自动标记为被封，避免后续重复长等待
+                VideoProviderRegistry.block("muou", VideoProviderRegistry.BlockReason.TIMEOUT);
+                return ReturnPageResult.error("muou 连接超时，站点不可达");
+            }
+            String body = resp.body();
+
+            // 跑路页检测：站点停服后会展示公告并返回 0 条结果
+            if (body.contains("跑路")) {
+                VideoProviderRegistry.block("muou", VideoProviderRegistry.BlockReason.UNREACHABLE);
+                return ReturnPageResult.error("muou 站点已停服(跑路)，请更换站点");
+            }
 
  // 收集不重复的视频 标识
             Set<String> ids = new LinkedHashSet<>();

@@ -35,6 +35,21 @@ import com.chua.common.support.lang.cmd.CmdResult;
  *   <li>EXCEL — Excel 工作簿，每条数据一行，表头加粗冻结</li>
  * </ul>
  *
+ * <h3>前置条件</h3>
+ * <p>本实现<b>不是零依赖</b>：它靠外部 Python 工具链解析 {@code .ibd}，因此需要</p>
+ * <ol>
+ *   <li>系统上有可用的 Python（{@code python} / {@code python3} / {@code py} 之一在 PATH 上）；</li>
+ *   <li>该 Python 能调到 ibd2sql。注意 <b>ibd2sql 没有发布到 PyPI</b>，只能从
+ *       <a href="https://github.com/ddcw/ibd2sql">github.com/ddcw/ibd2sql</a>
+ *       获取（纯 Python3、无第三方依赖，下载即用）；而且仓库 v2.x 是<b>包</b>、
+ *       没有 {@code __main__.py}，所以 {@code python -m ibd2sql} <b>跑不通</b>，
+ *       真正的入口是仓库根目录的 {@code main.py}。</li>
+ * </ol>
+ * <p>接法任选其一：把仓库根目录放进 {@code PYTHONPATH}（本实现会自动定位其中的
+ * {@code main.py}），或通过 {@code options['ibd2sql.path']} 指定 {@code main.py} 或其所在目录。
+ * 两者都没有时会抛出<b>可直接照做</b>的提示（见
+ * {@link #executeIbd2Sql(File, DataRestoreConfig)}）。</p>
+ *
  * <h3>使用示例</h3>
  * <pre>{@code
  * // 还原 IBD 文件为 CSV
@@ -63,9 +78,31 @@ public class IbdDataRestore extends AbstractDataRestore {
     private static final String SPI_TYPE = "ibd";
 
     /**
+     * options 键：ibd2sql 入口路径（{@code main.py} / {@code ibd2sql.py}，或包含它们的目录）。
+     *
+     * <p>ibd2sql <b>没有发布到 PyPI</b>，只能从
+     * <a href="https://github.com/ddcw/ibd2sql">github.com/ddcw/ibd2sql</a> 获取；
+     * 仓库版本（v2.x）是个<b>包</b>且没有 {@code __main__.py}，所以
+     * {@code python -m ibd2sql} 是跑不通的，必须走它的 {@code main.py}。
+     * 本实现会按「显式配置 → {@code -m ibd2sql} → 自动定位包旁的 main.py」依次探测，
+     * 都找不到时给出明确提示。</p>
+     */
+    public static final String OPTION_IBD2SQL_PATH = "ibd2sql.path";
+
+    /**
      * 命令执行超时时间（秒）
      */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
+
+    /**
+     * ibd2sql 仓库入口脚本名（v2.x 布局：仓库根目录下的 main.py）
+     */
+    private static final String IBD2SQL_MAIN = "main.py";
+
+    /**
+     * ibd2sql 单文件模块名（v1.x 布局，可直接 {@code -m ibd2sql}）
+     */
+    private static final String IBD2SQL_MODULE = "ibd2sql.py";
 
     /**
      * 使用默认配置创建。
@@ -121,7 +158,7 @@ public class IbdDataRestore extends AbstractDataRestore {
         }
 
         // 执行 ibd2sql 获取原始 SQL
-        String rawSql = executeIbd2Sql(source);
+        String rawSql = executeIbd2Sql(source, config);
 
         // 解析 SQL 为行数据
         List<Map<String, Object>> rows = parseSqlToRows(rawSql);
@@ -165,7 +202,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      */
     private DataRestoreResult doRestoreSql(File source, DataRestoreConfig config) throws Exception {
         // 执行 ibd2sql 获取原始 SQL（已包含 DDL + INSERT）
-        String rawSql = executeIbd2Sql(source);
+        String rawSql = executeIbd2Sql(source, config);
 
         // 按目标库表名调整 SQL
         String tableName = config.getTargetTable();
@@ -216,7 +253,7 @@ public class IbdDataRestore extends AbstractDataRestore {
         }
 
         // 执行 ibd2sql 获取原始 SQL
-        String rawSql = executeIbd2Sql(source);
+        String rawSql = executeIbd2Sql(source, config);
 
         // 解析为行数据
         List<Map<String, Object>> rows = parseSqlToRows(rawSql);
@@ -242,30 +279,143 @@ public class IbdDataRestore extends AbstractDataRestore {
     // ==================== 私有工具方法 ====================
 
     /**
-     * 执行外部 Python ibd2sql 命令以生成 SQL 内容。
+     * 执行外部 ibd2sql 命令以生成 SQL 内容。
      *
-     * <p>命令格式：python -m ibd2sql "path.ibd" --ddl --sql</p>
+     * <p>注意<b>不能写死 {@code python -m ibd2sql}</b>：ibd2sql 没有发布到 PyPI，
+     * 仓库 v2.x 是个<b>包</b>且没有 {@code __main__.py}，{@code -m ibd2sql} 必然失败
+     * （报 {@code No module named ibd2sql.__main__}），真正的入口是仓库根目录的
+     * {@code main.py}。所以这里按下面的顺序探测实际可用的调用方式：</p>
+     * <ol>
+     *   <li>{@code options['ibd2sql.path']} 显式指定（文件 = 入口脚本；目录 = 在其中找
+     *       {@code main.py} / {@code ibd2sql.py}）；</li>
+     *   <li>{@code python -m ibd2sql --help} 可用（v1.x 单文件布局 / 用户自行做了
+     *       {@code __main__} 垫片）；</li>
+     *   <li>自动定位：{@code python -c "import ibd2sql,os;print(...)"} 拿到包所在目录，
+     *       若其父目录有 {@code main.py} 就用它（用户只要把仓库根目录放进
+     *       {@code PYTHONPATH} 即可）。</li>
+     * </ol>
      *
      * @param ibdFile 待解析的 IBD 文件
+     * @param config  还原配置（读取 {@code ibd2sql.path}）
      * @return 生成的 SQL 字符串
-     * @throws Exception 执行失败时抛出
+     * @throws Exception 前置条件缺失或执行失败时抛出
      */
-    private String executeIbd2Sql(File ibdFile) throws Exception {
+    private String executeIbd2Sql(File ibdFile, DataRestoreConfig config) throws Exception {
         String python = findPython();
-        String command = python + " -m ibd2sql \"" + ibdFile.getAbsolutePath() + "\" --ddl --sql";
+        if (python == null) {
+            throw new IllegalStateException("IBD 还原需要 Python 运行时：请安装 Python 并确保 "
+                    + "python / python3 / py 之一在 PATH 上（本模块通过外部 ibd2sql 解析 .ibd）");
+        }
+        List<String> invocation = resolveIbd2SqlInvocation(python, config);
+        if (invocation == null) {
+            throw new IllegalStateException("IBD 还原缺少 ibd2sql：该工具**没有发布到 PyPI**，"
+                    + "需从 https://github.com/ddcw/ibd2sql 获取（纯 Python3、无第三方依赖，下载即用）。"
+                    + "它没有 __main__.py，`" + python + " -m ibd2sql` 是跑不通的，两种接法任选其一："
+                    + "① 把仓库根目录放进 PYTHONPATH（本实现会自动定位其中的 main.py）；"
+                    + "② 通过 options['" + OPTION_IBD2SQL_PATH + "'] 直接指定 main.py 或其所在目录");
+        }
+        List<String> command = new ArrayList<>(invocation);
+        command.add(ibdFile.getAbsolutePath());
+        command.add("--ddl");
+        command.add("--sql");
         log.debug("执行 ibd2sql: {}", command);
-        CmdResult result = CmdExecutors.execute(command, COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        CmdResult result = CmdExecutors.execute(command.toArray(new String[0]),
+                COMMAND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
         if (!result.isSuccess()) {
-            throw new RuntimeException("ibd2sql 执行失败, exit=" + result.getExitCode()
-                    + ", error: " + result.getStderr());
+            String stderr = result.getStderr() == null ? "" : result.getStderr();
+            throw new RuntimeException("ibd2sql 执行失败, 命令: " + String.join(" ", command)
+                    + ", exit=" + result.getExitCode() + ", error: " + stderr);
         }
         return result.getStdout();
     }
 
     /**
+     * 探测 ibd2sql 的实际调用方式。
+     *
+     * @param python Python 命令名
+     * @param config 还原配置（读取 {@code ibd2sql.path}）
+     * @return 命令前缀（如 {@code [python, -m, ibd2sql]} 或 {@code [python, /path/main.py]}）；
+     *         都探测不到时返回 {@code null}
+     */
+    private static List<String> resolveIbd2SqlInvocation(String python, DataRestoreConfig config) {
+        // 1) 显式配置优先
+        Object option = config.getOptions().get(OPTION_IBD2SQL_PATH);
+        if (option != null && !String.valueOf(option).isBlank()) {
+            File entry = new File(String.valueOf(option));
+            if (entry.isFile()) {
+                return List.of(python, entry.getAbsolutePath());
+            }
+            if (entry.isDirectory()) {
+                for (String name : new String[]{IBD2SQL_MAIN, IBD2SQL_MODULE}) {
+                    File candidate = new File(entry, name);
+                    if (candidate.isFile()) {
+                        return List.of(python, candidate.getAbsolutePath());
+                    }
+                }
+                // 目录本身可能就是一个包目录（内含 ibd2sql/），退到自动定位
+            } else {
+                log.warn("options['{}'] 指向的路径不存在: {}", OPTION_IBD2SQL_PATH, entry.getAbsolutePath());
+            }
+        }
+        // 2) v1.x 单文件布局 / 用户自行做了 __main__ 垫片
+        if (isIbd2SqlModuleAvailable(python)) {
+            return List.of(python, "-m", "ibd2sql");
+        }
+        // 3) 自动定位包旁的 main.py
+        String main = locateIbd2SqlMain(python);
+        if (main != null) {
+            return List.of(python, main);
+        }
+        return null;
+    }
+
+    /**
+     * 探测 {@code python -m ibd2sql} 是否可用。
+     *
+     * @param python Python 命令名
+     * @return 可用返回 true
+     */
+    private static boolean isIbd2SqlModuleAvailable(String python) {
+        try {
+            CmdResult result = CmdExecutors.execute(
+                    new String[]{python, "-m", "ibd2sql", "--help"}, 15, TimeUnit.SECONDS);
+            return result.isSuccess();
+        } catch (Exception e) {
+            log.debug("探测 `-m ibd2sql` 失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 自动定位 ibd2sql 仓库根目录下的 {@code main.py}。
+     *
+     * <p>只依赖 {@code import ibd2sql} —— 用户把仓库根目录放进 {@code PYTHONPATH} 就够，
+     * 不需要再配任何选项。</p>
+     *
+     * @param python Python 命令名
+     * @return main.py 的绝对路径；定位不到返回 {@code null}
+     */
+    private static String locateIbd2SqlMain(String python) {
+        String probe = "import ibd2sql,os,sys;p=os.path.dirname(os.path.dirname(ibd2sql.__file__));"
+                + "m=os.path.join(p,'" + IBD2SQL_MAIN + "');sys.stdout.write(m if os.path.isfile(m) else '')";
+        try {
+            CmdResult result = CmdExecutors.execute(
+                    new String[]{python, "-c", probe}, 15, TimeUnit.SECONDS);
+            if (!result.isSuccess()) {
+                return null;
+            }
+            String path = result.getStdout() == null ? "" : result.getStdout().trim();
+            return path.isEmpty() ? null : path;
+        } catch (Exception e) {
+            log.debug("自动定位 ibd2sql main.py 失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 在系统中查找可用的 Python 可执行文件。
      *
-     * @return 找到的 Python 命令名称
+     * @return 找到的 Python 命令名称；一个都不可用时返回 {@code null}
      */
     private static String findPython() {
         String osName = System.getProperty("os.name").toLowerCase();
@@ -282,7 +432,9 @@ public class IbdDataRestore extends AbstractDataRestore {
                 log.warn("尝试 Python 命令失败: {}", cmd, e);
             }
         }
-        return "python";
+        // 不再兜底返回 "python"：一个候选都不可用时返回 null，
+        // 由调用方给出「请安装 Python」的明确提示，而不是让下游报一个看不懂的进程启动错误
+        return null;
     }
 
     /**

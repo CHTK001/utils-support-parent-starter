@@ -14,7 +14,10 @@ import java.util.Objects;
 *   <li>wechat-starter — 解析本机微信数据库，还原聊天记录为 CSV / SQL / Excel</li>
 * </ul>
 *
-* <p>使用示例：</p>
+* <p>契约默认以「单个文件」为源（{@link AbstractDataRestore} 会校验 {@code source.isFile()}），
+* 但<b>数据天然是目录</b>的实现可以重写 {@code restore(File, DataRestoreConfig)} 接受目录，
+* 例如微信的数据分散在 {@code db_storage} 下的二十来个库里，传目录比逐个传文件更贴近真实用法：</p>
+*
 * <pre>{@code
 * // 按类型创建还原器，输出默认 CSV
 * DataRestore restore = DataRestore.create("idb");
@@ -27,6 +30,10 @@ import java.util.Objects;
 *         .build();
 * DataRestore restore = DataRestore.create("wechat", config);
 * DataRestoreResult result = restore.restore(new File("EnMicroMsg.db"));
+*
+* // 目录源同样一键：微信实现接受账号目录 / db_storage / xwechat_files
+* DataRestoreResult result = DataRestore.create("wechat")
+*         .restore(new File("E:/微信/xwechat_files"));
 * }</pre>
 *
 * @author CH
@@ -77,7 +84,7 @@ public interface DataRestore {
     /**
     * 还原数据源文件为数据文件（使用默认配置）。
     *
-    * @param source 数据源文件
+    * @param source 数据源文件（实现支持时也可传目录，见 {@link #restore(File, DataRestoreConfig)}）
     * @return 还原结果
     * @throws Exception 还原过程中可能抛出的异常
      */
@@ -86,7 +93,10 @@ public interface DataRestore {
     /**
     * 按指定配置还原数据源文件为数据文件。
     *
-    * @param source 数据源文件
+    * <p>默认契约要求 {@code source} 是单个文件；数据天然是目录的实现
+    * （如微信）可以重写本方法接受目录，语义与文件源一致。</p>
+    *
+    * @param source 数据源文件或目录
     * @param config 还原配置
     * @return 还原结果
     * @throws Exception 还原过程中可能抛出的异常

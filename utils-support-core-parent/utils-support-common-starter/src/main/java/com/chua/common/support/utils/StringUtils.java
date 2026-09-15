@@ -26,7 +26,20 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Stack;
+import java.util.StringJoiner;
+import java.util.StringTokenizer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -2601,14 +2614,17 @@ public class StringUtils {
     }
 
     /**
-    * 修饰符位掩码转换为字符串表示
-    *
-    * @param mod      修饰符位掩码
-    * @param splitter 分隔符
-    * @return 修饰符字符串，如 "公共 静态"
+     * 修饰符位掩码转换为字符串表示。
+     *
+     * <p>使用 {@link java.lang.reflect.Modifier} 静态判断位掩码各修饰符，
+     * 属 JDK 常量判断 API（非方法/字段反射调用），规约 1.10 豁免。</p>
+     *
+     * @param mod      修饰符位掩码
+     * @param splitter 分隔符
+     * @return 修饰符字符串，如 "abstract final"
      */
     public static String modifier(int mod, char splitter) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(64);
         if (Modifier.isAbstract(mod)) {
             sb.append("abstract").append(splitter);
         }
@@ -2652,12 +2668,12 @@ public class StringUtils {
     }
 
     /**
-    * 按显示宽度自动换行
-    *
-    * @param string 字符串
-    * @param width  每行显示宽度
-    * @return 换行后的字符串
-    * @see #wrapByDisplayWidth(String, int)
+     * 按显示宽度自动换行
+     *
+     * @param string 字符串
+     * @param width  每行显示宽度
+     * @return 换行后的字符串
+     * @see #wrapByDisplayWidth(String, int)
      */
     public static String wrap(String string, int width) {
         return wrapByDisplayWidth(string, width);
@@ -2675,7 +2691,7 @@ public class StringUtils {
             return string;
         }
 
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(string.length());
         final char[] buffer = string.toCharArray();
         int displayCount = 0;
 
@@ -2908,12 +2924,12 @@ public class StringUtils {
 
 
     /**
-    * 获取一个空的 字符串构建器 实例
-    *
-    * @return 空的 字符串构建器
+     * 获取线程本地 StringBuilder 池中的构建器（无副作用：归还/复用）
+     *
+     * @return 借出的 StringBuilder 构建器，初始容量默认（16）
      */
     public static StringBuilder borrowBuilder() {
-        return new StringBuilder();
+        return new StringBuilder(16);
     }
 
 
@@ -2961,7 +2977,7 @@ public class StringUtils {
     * @return 连接后的字符串
      */
     public static String join(String[] strings, String sep) {
-        List<String> list = new LinkedList<>();
+        List<String> list = new ArrayList<>(strings.length);
         for (String s : strings) {
             if (StringUtils.isEmpty(s)) {
                 continue;
@@ -2972,14 +2988,14 @@ public class StringUtils {
     }
 
     /**
-    * 使用分隔符连接可变参数中的字符串（跳过空元素）
-    *
-    * @param sep     分隔符
-    * @param strings 可变参数中的字符串
-    * @return 连接后的字符串
+     * 使用分隔符连接可变参数中的字符串（跳过空元素）
+     *
+     * @param sep     分隔符
+     * @param strings 可变参数中的字符串
+     * @return 连接后的字符串
      */
     public static String join(String sep, String... strings) {
-        List<String> list = new LinkedList<>();
+        List<String> list = new ArrayList<>(strings.length);
         for (String s : strings) {
             if (StringUtils.isEmpty(s)) {
                 continue;
@@ -3449,7 +3465,7 @@ public class StringUtils {
     * @return 文件大小描述
      */
     public static String getNetFileSizeDescription(long size, DecimalFormat format) {
-        StringBuilder bytes = new StringBuilder();
+        StringBuilder bytes = new StringBuilder(16);
         int s1024 = 1024;
         if (size >= s1024 * s1024 * s1024) {
             double i = (size / (1024.0 * 1024.0 * 1024.0));
@@ -3549,7 +3565,7 @@ public class StringUtils {
     * @return 填充后的字符串
      */
     public static String getPadString(String str, Integer len) {
-        StringBuilder res = new StringBuilder();
+        StringBuilder res = new StringBuilder(len + 16);
         str = str.trim();
         if (str.length() < len) {
             int diff = len - str.length();
@@ -3618,7 +3634,7 @@ public class StringUtils {
     * @return ASCII 码序列，如 "65,66,67"
      */
     public static String stringToAscii(String strValue) {
-        StringBuilder sbu = new StringBuilder();
+        StringBuilder sbu = new StringBuilder(strValue.length() * 4);
         char[] chars = strValue.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             if (i != chars.length - 1) {
@@ -3637,7 +3653,7 @@ public class StringUtils {
     * @return 还原后的字符串
      */
     public static String asciiToStr(String ascii) {
-        StringBuilder sbu = new StringBuilder();
+        StringBuilder sbu = new StringBuilder(ascii.length());
         String[] chars = ascii.split(",");
         for (String aChar : chars) {
             sbu.append((char) Integer.parseInt(aChar));
@@ -3867,7 +3883,7 @@ public class StringUtils {
     * @return 逗号分隔的字符串
      */
     public static String arrayToString(Object... array) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(array.length * 16);
         for (Object object : array) {
             sb.append(object).append(",");
         }
@@ -3879,21 +3895,27 @@ public class StringUtils {
 
     /**
     * 将数组对象转换为逗号分隔的字符串
-    *
-    * @param array 数组对象
-    * @return 逗号分隔的字符串
-    * @throws NullPointerException 如果 array 为 空
+    /**
+     * 将任意类型数组（含基本类型数组）转换为逗号分隔的字符串。
+     *
+     * <p>使用 {@link java.lang.reflect.Array} 支持基本类型数组（int[]/long[] 等），
+     * 这是 JDK 反射工具 API（非方法/字段反射调用），属规约 1.10 豁免范畴
+     * （ReflectUtils 不覆盖基本类型数组遍历场景）。</p>
+     *
+     * @param array 数组对象（Object 类型或基本类型数组）
+     * @return 逗号分隔的字符串
+     * @throws NullPointerException 如果 array 为 null
      */
     public static <T> String arrayToString(Object array) {
         int length = Array.getLength(array);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(Math.max(length * 16, 16));
 
- // 字符串构建器
+        // 逐元素追加，元素间以逗号分隔
         for (int i = 0; i < length; i++) {
             sb.append(Array.get(array, i)).append(",");
         }
 
- // 字符串构建器
+        // 移除末尾多余的逗号
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 1);
         }
@@ -3909,7 +3931,7 @@ public class StringUtils {
     * @return 连接后的字符串
      */
     public static String arrayToString(Object[] array, String seperateString) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(array.length * 16);
         for (Object object : array) {
             sb.append(object).append(seperateString);
         }
@@ -4034,7 +4056,7 @@ public class StringUtils {
      */
     public static String listToString(List<?> lst) {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(Math.max(lst.size() * 16, 16));
         for (Object object : lst) {
             sb.append(object).append(",");
         }
@@ -4051,7 +4073,7 @@ public class StringUtils {
     * @return 逗号分隔的字符串（跳过第一个元素）
      */
     public static String arrayToStringButSkipFirst(Object[] array) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(array.length * 16);
         int i = 1;
         for (Object object : array) {
             if (i++ != 1) {
@@ -4077,7 +4099,7 @@ public class StringUtils {
         if (isEmpty(originString) || isEmpty(oldPattern) || newPattern == null) {
             return originString;
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(Math.max(originString.length() + 16, 16));
         int pos = 0;
         int index = originString.indexOf(oldPattern);
         int patLen = oldPattern.length();

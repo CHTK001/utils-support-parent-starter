@@ -21,10 +21,15 @@ public final class VideoProviderRegistry {
     private static final ConcurrentHashMap<String, BlockReason> BLOCKED_PROVIDERS = new ConcurrentHashMap<>(); // blocked提供者
     private static final ObjectMapper MAPPER = new ObjectMapper(); // 映射器
 
-    /**
-    * 视频提供者registry。
-     */
+    /** 视频提供者registry。 */
     private VideoProviderRegistry() {}
+
+    /**
+     * 构造函数中自动加载封禁名单（资源文件缺失时忽略）。
+     */
+    static {
+        initBlockedResources();
+    }
     /**
     * blockReasonML枚举。
     *
@@ -57,37 +62,49 @@ public final class VideoProviderRegistry {
         private String reason;
         @JsonProperty("blockedAt")
         private String blockedAt;
+        @JsonProperty("note")
+        private String note;
 
         /**
-        * 获取名称。
-        * @return 获取名称的结果
+         * 获取名称。
+         * @return 获取名称的结果
          */
         public String getName() { return name; }
         /**
-        * 设置名称。
-        * @param name 名称
+         * 设置名称。
+         * @param name 名称
          */
         public void setName(String name) { this.name = name; }
         /**
-        * 获取ReasonML。
-        * @return 获取ReasonML的结果
+         * 获取ReasonML。
+         * @return 获取ReasonML的结果
          */
         public String getReason() { return reason; }
         /**
-        * 设置ReasonML。
-        * @param reason ReasonMLML
+         * 设置ReasonML。
+         * @param reason 原因
          */
         public void setReason(String reason) { this.reason = reason; }
         /**
-        * 获取blockedat。
-        * @return 获取blockedat的结果
+         * 获取blockedat。
+         * @return 获取blockedat的结果
          */
         public String getBlockedAt() { return blockedAt; }
         /**
-        * 设置blockedat。
-        * @param blockedAt blockedat
+         * 设置blockedat。
+         * @param blockedAt 封禁时间
          */
         public void setBlockedAt(String blockedAt) { this.blockedAt = blockedAt; }
+        /**
+         * 获取备注。
+         * @return 获取备注的结果
+         */
+        public String getNote() { return note; }
+        /**
+         * 设置备注。
+         * @param note 备注
+         */
+        public void setNote(String note) { this.note = note; }
     }
 
     /** 初始化已封禁列表（从资源文件） */

@@ -1,0 +1,12 @@
+com.chua.common.support.datasearch.plugin.impl.ClaudePluginOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.TraeCnPluginOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.TraeExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.VscodeExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.CursorExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.WindsurfExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.ClineExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.RooCodeExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.KiloCodeExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.CopilotExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.ZedExtensionsOfflineProvider
+com.chua.common.support.datasearch.plugin.impl.OpenClawPluginOfflineProvider

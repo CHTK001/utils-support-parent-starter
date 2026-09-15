@@ -31,6 +31,12 @@
             <artifactId>zstd-jni</artifactId>
             <version>${zstd-jni.version}</version>
         </dependency>
+
+        <!-- 重建出的明文库 / SQLCipher 解密结果走 JDBC 导出，需要 SQLite 驱动（SQLiteConfig 调 PRAGMA） -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

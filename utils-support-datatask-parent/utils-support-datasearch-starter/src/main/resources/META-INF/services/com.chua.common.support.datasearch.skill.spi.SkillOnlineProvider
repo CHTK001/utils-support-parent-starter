@@ -1,1 +1,7 @@
 com.chua.common.support.datasearch.skill.impl.SkillsmpSkillProvider
+com.chua.common.support.datasearch.skill.impl.SkillShSkillProvider
+com.chua.common.support.datasearch.skill.impl.GithubSkillOnlineProvider
+com.chua.common.support.datasearch.skill.impl.ClawHubSkillOnlineProvider
+com.chua.common.support.datasearch.skill.impl.LoopHubSkillOnlineProvider
+com.chua.common.support.datasearch.skill.impl.SkillHubSkillOnlineProvider
+com.chua.common.support.datasearch.skill.impl.McpWorldSkillOnlineProvider

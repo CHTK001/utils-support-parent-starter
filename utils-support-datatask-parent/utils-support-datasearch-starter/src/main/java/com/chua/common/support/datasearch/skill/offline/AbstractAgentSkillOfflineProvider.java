@@ -44,27 +44,38 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
         return false;
     }
 
+    /**
+     * 技能扫描根目录列表。
+     *
+     * <p>默认返回 {@code USER_HOME/&#60;configDir&#62;)} 目录；
+     * workspaceBased 的智能体返回工作区目录。</p>
+     *
+     * @return 技能根目录列表
+     */
+    protected List<Path> skillRoots() {
+        if (workspaceBased()) {
+            Path base = findWorkspaceConfig();
+            return base == null ? List.of() : List.of(base);
+        }
+        return List.of(USER_HOME.resolve(configDir()));
+    }
+
     @Override
     public boolean isInstalled() {
-        if (workspaceBased()) {
-            return findWorkspaceConfig() != null;
+        for (Path root : skillRoots()) {
+            if (Files.isDirectory(root)) {
+                return true;
+            }
         }
-        return Files.isDirectory(USER_HOME.resolve(configDir()));
+        return false;
     }
 
     @Override
     public List<SkillDefinition> listAgentSkills() {
         List<SkillDefinition> result = new ArrayList<>();
-        if (workspaceBased()) {
-            Path base = findWorkspaceConfig();
-            if (base == null) {
-                return result;
-            }
+        for (Path base : skillRoots()) {
             scanDirs(base, result);
-            return result;
         }
-        Path base = USER_HOME.resolve(configDir());
-        scanDirs(base, result);
         return result;
     }
 
@@ -171,10 +182,26 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
         if (skillName == null || skillName.isBlank()) {
             return null;
         }
-        Path base = workspaceBased() ? findWorkspaceConfig() : USER_HOME.resolve(configDir());
-        if (base == null) {
-            return null;
+        for (Path base : skillRoots()) {
+            if (base == null) {
+                continue;
+            }
+            Path result = findSkillInBase(base, skillName);
+            if (result != null) {
+                return result;
+            }
         }
+        return null;
+    }
+
+    /**
+    * 在单个配置根目录下查找指定技能。
+     *
+     * @param base      配置根目录
+     * @param skillName 技能名
+     * @return 匹配路径；不存在返回 null
+     */
+    private Path findSkillInBase(Path base, String skillName) {
         for (String sub : new String[]{"skills", "rules", "commands"}) {
             Path dir = base.resolve(sub);
             if (!Files.isDirectory(dir)) {

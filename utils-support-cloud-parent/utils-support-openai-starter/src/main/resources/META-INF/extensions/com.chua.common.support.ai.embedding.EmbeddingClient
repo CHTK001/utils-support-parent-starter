@@ -1,0 +1,5 @@
+openai=com.chua.openai.support.OpenAiEmbeddingClient
+siliconflow=com.chua.openai.support.OpenAiEmbeddingClient
+sensetime=com.chua.openai.support.OpenAiEmbeddingClient
+github=com.chua.openai.support.OpenAiEmbeddingClient
+gitee=com.chua.openai.support.OpenAiEmbeddingClient
