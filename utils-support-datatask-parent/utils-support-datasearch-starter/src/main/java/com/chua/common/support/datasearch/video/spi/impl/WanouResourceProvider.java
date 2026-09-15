@@ -52,7 +52,14 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     }
 
     @Override
-    /** 搜索Resource */
+    /**
+     * 搜索Resource。
+     * <p>请求 MacCMS v1 采集接口（ac=detail），解析 JSON 为视频列表。
+     * 响应非 JSON（如 403 HTML）时快速返回不可用错误，避免解析异常。</p>
+     *
+     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+     * @return 搜索Resource的结果；列表为空时返回空结果，响应异常时返回错误结果
+     */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         if (!StringUtils.hasText(videoSearch.getKeyword())) {
             return ReturnPageResult.error("关键词不能为空");
@@ -62,9 +69,11 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             url = String.format(url, videoSearch.getKeyword());
             ClientResponse response = HttpClientFactory.of(url).get();
             String body = response.getBodyString();
+            // 非 JSON 响应（如 403 HTML）快速失败，避免 Jackson 解析炸裂
             if (body == null || !body.trim().startsWith("{")) {
-                return ReturnPageResult.error("Wanou 资源站不可用(非JSON响应): "
-                        + StringUtils.defaultString(body, "").substring(0, Math.min(60, body.length())));
+                String preview = body == null ? "空响应"
+                        : body.substring(0, Math.min(60, body.length()));
+                return ReturnPageResult.error("Wanou 资源站不可用(非JSON响应): " + preview);
             }
             VideoList content = Json.fromJson(body, VideoList.class);
             if (content == null) {

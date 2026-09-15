@@ -251,7 +251,14 @@ public final class WechatJdbcExporter {
 
         switch (format) {
             case EXCEL:
+                // FileSystem.create 对未知类型返回 null 而不是抛异常，必须自己判空，
+                // 否则用户只会看到一句无从下手的 NullPointerException
                 FileSystem excelFs = FileSystem.create("excel");
+                if (excelFs == null) {
+                    throw new IllegalStateException("Excel 导出不可用：类路径上找不到 SPI 名称为 'excel' 的 FileSystem 实现"
+                            + "（需要 utils-support-excel-starter 及其 POI 依赖）。"
+                            + "请补上该依赖，或改用 format=csv / format=sql 导出");
+                }
                 excelFs.write(outputFile)
                         .withHeaders(columns)
                         .write(rows)
