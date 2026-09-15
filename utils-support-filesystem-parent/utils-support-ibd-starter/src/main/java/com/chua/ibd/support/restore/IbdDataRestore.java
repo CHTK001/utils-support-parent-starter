@@ -16,9 +16,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.chua.common.support.lang.cmd.CmdExecutors;
 import com.chua.common.support.lang.cmd.CmdResult;
 
@@ -105,6 +109,31 @@ public class IbdDataRestore extends AbstractDataRestore {
     private static final String IBD2SQL_MODULE = "ibd2sql.py";
 
     /**
+     * 表名引用（可带库名限定）：{@code `db`.`tbl`} 或 {@code `tbl`} 或裸名 {@code tbl}。
+     */
+    private static final String TABLE_REFERENCE =
+            "(`[^`]+`(?:\\s*\\.\\s*`[^`]+`)?|[A-Za-z0-9_$]+)";
+
+    /**
+     * {@code CREATE TABLE [IF NOT EXISTS] <表名引用>}。
+     *
+     * <p>{@code IF NOT EXISTS} 必须留在捕获组 1 里原样保留 —— 早先的实现用
+     * {@code \S+} 匹配表名，会把 {@code IF} 当成表名吃掉，产出
+     * {@code CREATE TABLE `t` NOT EXISTS ...} 这种语法错误的 DDL。</p>
+     */
+    private static final Pattern CREATE_TABLE_PATTERN = Pattern.compile(
+            "(?i)(CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?)" + TABLE_REFERENCE);
+
+    /**
+     * {@code INSERT INTO <表名引用>}。
+     *
+     * <p>必须<b>全局</b>替换：ibd2sql 每条记录输出一条 INSERT，一张 200 行的表就有
+     * 200 条语句，早先用 {@code replaceFirst} 只会改中第一条。</p>
+     */
+    private static final Pattern INSERT_INTO_PATTERN = Pattern.compile(
+            "(?i)(INSERT\\s+INTO\\s+)" + TABLE_REFERENCE);
+
+    /**
      * 使用默认配置创建。
      */
     public IbdDataRestore() {
@@ -162,7 +191,11 @@ public class IbdDataRestore extends AbstractDataRestore {
 
         // 解析 SQL 为行数据
         List<Map<String, Object>> rows = parseSqlToRows(rawSql);
-        List<String> columns = extractColumns(rows);
+        // 表头优先用 DDL 里的真实列名；DDL 缺失时才退化为行数据的 key
+        List<String> columns = parseCreateTableColumns(rawSql);
+        if (columns.isEmpty()) {
+            columns = extractColumns(rows);
+        }
 
         // 构造输出文件路径
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
@@ -204,15 +237,10 @@ public class IbdDataRestore extends AbstractDataRestore {
         // 执行 ibd2sql 获取原始 SQL（已包含 DDL + INSERT）
         String rawSql = executeIbd2Sql(source, config);
 
-        // 按目标库表名调整 SQL
+        // 按目标库表名调整 SQL（表名 / 库名分别按需替换，全部 CREATE TABLE 与 INSERT INTO 都要覆盖）
         String tableName = config.getTargetTable();
         String schemaName = config.getTargetSchema();
-        String adjustedSql;
-        if (tableName != null && !tableName.isBlank()) {
-            adjustedSql = replaceTableNames(rawSql, tableName);
-        } else {
-            adjustedSql = rawSql;
-        }
+        String adjustedSql = replaceTableNames(rawSql, schemaName, tableName);
         if (schemaName != null && !schemaName.isBlank()) {
             adjustedSql = "USE `" + schemaName + "`;\n" + adjustedSql;
         }
@@ -257,7 +285,11 @@ public class IbdDataRestore extends AbstractDataRestore {
 
         // 解析为行数据
         List<Map<String, Object>> rows = parseSqlToRows(rawSql);
-        List<String> columns = extractColumns(rows);
+        // 表头优先用 DDL 里的真实列名；DDL 缺失时才退化为行数据的 key
+        List<String> columns = parseCreateTableColumns(rawSql);
+        if (columns.isEmpty()) {
+            columns = extractColumns(rows);
+        }
 
         // 构造输出文件路径
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
@@ -265,7 +297,14 @@ public class IbdDataRestore extends AbstractDataRestore {
         ensureDir(excelFile.getParentFile());
 
         // 通过 FileSystem SPI 写入 Excel
+        // 注意 FileSystem.create 对未知类型**不抛异常而是返回 null**（见本仓库踩坑记录），
+        // 所以必须自己判空，否则用户只会看到一句无从下手的 NullPointerException
         FileSystem excelFs = FileSystem.create("excel");
+        if (excelFs == null) {
+            throw new IllegalStateException("Excel 导出不可用：类路径上找不到 SPI 名称为 'excel' 的 FileSystem 实现"
+                    + "（需要 utils-support-excel-starter 及其 POI 依赖）。"
+                    + "请补上该依赖，或改用 format=CSV / format=SQL 导出");
+        }
         excelFs.write(excelFile)
                 .withHeaders(columns)
                 .write(rows)
@@ -440,58 +479,203 @@ public class IbdDataRestore extends AbstractDataRestore {
     /**
      * 将 ibd2sql 输出的 SQL 解析为行数据列表。
      *
-     * <p>解析 CREATE TABLE 提取列名，解析 INSERT INTO 提取数据值。</p>
+     * <p>ibd2sql 每条记录输出一行 {@code INSERT INTO `库`.`表` VALUES (...);}，
+     * 因此按行扫描 VALUES 子句即可。列名取自 CREATE TABLE 的列定义，
+     * 与值一一对应；列定义缺失时才退化为下标列名。</p>
+     *
+     * <p><b>两个必须处理的坑</b>（都是实测踩出来的）：</p>
+     * <ol>
+     *   <li>VALUES 子句末尾带 {@code ;}，必须先去掉再判断外层括号，否则
+     *       {@code endsWith(")")} 不成立、括号剥不掉，深度恒为 1，整行会被当成<b>一个值</b>；</li>
+     *   <li>列名必须真的从 DDL 里取出来，否则表头是 {@code 0,1,2,...} 这种下标，毫无可读性。</li>
+     * </ol>
      *
      * @param rawSql 原始 SQL 文本
      * @return 行数据列表
+     *
+     * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
      */
-    private List<Map<String, Object>> parseSqlToRows(String rawSql) {
+    List<Map<String, Object>> parseSqlToRows(String rawSql) {
         List<Map<String, Object>> rows = new ArrayList<>();
-        String normalized = rawSql.toUpperCase();
-
-        // 解析 CREATE TABLE 获取列名（用于表头）
-        int createIdx = normalized.indexOf("CREATE TABLE");
-        int insertStart = normalized.indexOf("INSERT INTO");
-        if (insertStart == -1) {
-            // 无数据，仅 DDL
-            return rows;
-        }
-
-        String insertSection = rawSql.substring(insertStart);
-        // 逐行解析 INSERT 语句
-        String[] lines = insertSection.split("\n");
-        for (String line : lines) {
-            String trimmed = line.trim();
-            if (trimmed.isEmpty() || trimmed.endsWith(";")) {
-                // 提取 INSERT ... VALUES (...)
-                int valuesIdx = trimmed.toUpperCase().indexOf("VALUES");
-                if (valuesIdx == -1) {
-                    continue;
+        List<String> columns = parseCreateTableColumns(rawSql);
+        for (String line : rawSql.split("\n")) {
+            int valuesIdx = indexOfIgnoreCase(line, "VALUES");
+            if (valuesIdx < 0) {
+                continue;
+            }
+            String clause = line.substring(valuesIdx + "VALUES".length()).trim();
+            for (List<String> values : splitValueGroups(clause)) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                for (int i = 0; i < values.size(); i++) {
+                    String key = i < columns.size() ? columns.get(i) : String.valueOf(i);
+                    row.put(key, values.get(i));
                 }
-                String valuesStr = trimmed.substring(valuesIdx + 6).trim();
-                // 去掉外层括号（如有）
-                if (valuesStr.startsWith("(") && valuesStr.endsWith(")")) {
-                    valuesStr = valuesStr.substring(1, valuesStr.length() - 1);
-                }
-                // 解析值列表（逗号分隔，考虑括号嵌套和引号）
-                List<String> values = splitValues(valuesStr);
-                if (rows.isEmpty()) {
-                    // 第一行：用列名索引占位（此时列名为 0,1,2...）
-                    Map<String, Object> row = new java.util.LinkedHashMap<>();
-                    for (int i = 0; i < values.size(); i++) {
-                        row.put(String.valueOf(i), values.get(i));
-                    }
-                    rows.add(row);
-                } else {
-                    Map<String, Object> row = new java.util.LinkedHashMap<>();
-                    for (int i = 0; i < values.size(); i++) {
-                        row.put(String.valueOf(i), values.get(i));
-                    }
-                    rows.add(row);
-                }
+                rows.add(row);
             }
         }
         return rows;
+    }
+
+    /**
+     * 从 CREATE TABLE 语句中提取列名。
+     *
+     * <p>跳过 PRIMARY KEY / KEY / INDEX / CONSTRAINT / FOREIGN KEY / CHECK 等表级约束行。</p>
+     *
+     * @param rawSql 原始 SQL 文本
+     * @return 列名列表；解析不到返回空列表
+     *
+     * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
+     */
+    List<String> parseCreateTableColumns(String rawSql) {
+        List<String> columns = new ArrayList<>();
+        int createIdx = indexOfIgnoreCase(rawSql, "CREATE TABLE");
+        if (createIdx < 0) {
+            return columns;
+        }
+        int open = rawSql.indexOf('(', createIdx);
+        if (open < 0) {
+            return columns;
+        }
+        int end = matchingParen(rawSql, open);
+        if (end < 0) {
+            return columns;
+        }
+        for (String rawLine : rawSql.substring(open + 1, end).split("\n")) {
+            String line = rawLine.trim();
+            if (line.isEmpty() || isTableLevelConstraint(line)) {
+                continue;
+            }
+            String name = columnNameOf(line);
+            if (!name.isEmpty()) {
+                columns.add(name);
+            }
+        }
+        return columns;
+    }
+
+    /**
+     * 判断某行列定义是否为表级约束（不是列）。
+     *
+     * @param line 已 trim 的行
+     * @return 是表级约束返回 true
+     */
+    private static boolean isTableLevelConstraint(String line) {
+        String upper = line.toUpperCase(Locale.ROOT);
+        for (String prefix : new String[]{"PRIMARY KEY", "UNIQUE", "KEY ", "KEY`", "INDEX ",
+                "CONSTRAINT", "FOREIGN KEY", "FULLTEXT", "SPATIAL", "CHECK"}) {
+            if (upper.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 取列定义行里的列名（支持反引号与裸列名）。
+     *
+     * @param line 已 trim 的列定义行
+     * @return 列名；识别不出返回空串
+     */
+    private static String columnNameOf(String line) {
+        if (line.startsWith("`")) {
+            int close = line.indexOf('`', 1);
+            return close < 0 ? "" : line.substring(1, close);
+        }
+        int space = line.indexOf(' ');
+        return space <= 0 ? "" : line.substring(0, space);
+    }
+
+    /**
+     * 找与指定左括号配对的右括号位置。
+     *
+     * @param text 文本
+     * @param open 左括号下标
+     * @return 右括号下标；找不到返回 -1
+     */
+    private static int matchingParen(String text, int open) {
+        int depth = 0;
+        for (int i = open; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\'') {
+                i = skipQuoted(text, i);
+                continue;
+            }
+            if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+                if (depth == 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 跳过一段单引号字符串（含 {@code ''} 与 {@code \'} 两种转义），返回收尾引号的下标。
+     *
+     * @param text  文本
+     * @param start 起始引号下标
+     * @return 收尾引号下标；未闭合时返回文本末尾
+     */
+    private static int skipQuoted(String text, int start) {
+        for (int i = start + 1; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\\') {
+                i++;
+            } else if (c == '\'') {
+                if (i + 1 < text.length() && text.charAt(i + 1) == '\'') {
+                    i++;
+                } else {
+                    return i;
+                }
+            }
+        }
+        return text.length() - 1;
+    }
+
+    /**
+     * 拆分 VALUES 子句里的多个值分组（{@code (...),(...)} 形式）。
+     *
+     * @param clause VALUES 关键字之后的内容
+     * @return 每个分组的取值列表
+     */
+    private List<List<String>> splitValueGroups(String clause) {
+        List<List<String>> groups = new ArrayList<>();
+        int depth = 0;
+        int start = -1;
+        for (int i = 0; i < clause.length(); i++) {
+            char c = clause.charAt(i);
+            if (c == '\'') {
+                i = skipQuoted(clause, i);
+                continue;
+            }
+            if (c == '(') {
+                if (depth == 0) {
+                    start = i + 1;
+                }
+                depth++;
+            } else if (c == ')') {
+                depth--;
+                if (depth == 0 && start >= 0) {
+                    groups.add(splitValues(clause.substring(start, i)));
+                    start = -1;
+                }
+            }
+        }
+        return groups;
+    }
+
+    /**
+     * 不区分大小写查找子串。
+     *
+     * @param text      文本
+     * @param searchFor 目标子串
+     * @return 下标；找不到返回 -1
+     */
+    private static int indexOfIgnoreCase(String text, String searchFor) {
+        return text.toUpperCase(Locale.ROOT).indexOf(searchFor.toUpperCase(Locale.ROOT));
     }
 
     /**
@@ -508,60 +692,211 @@ public class IbdDataRestore extends AbstractDataRestore {
     }
 
     /**
-     * 替换 SQL 中的表名。
+     * 替换 SQL 中的表名为指定名称（不改库名）。
      *
      * @param rawSql  原始 SQL
-     * @param newName 新表名
+     * @param newName 新表名；为空表示保持原表名
      * @return 替换后的 SQL
      */
-    private String replaceTableNames(String rawSql, String newName) {
-        // 简单替换 CREATE TABLE 和 INSERT INTO 中的表名
-        String result = rawSql;
-        // 替换 CREATE TABLE `xxx`
-        result = result.replaceFirst("(?i)CREATE\\s+TABLE\\s+(?:`[^`]+`|\\S+)",
-                "CREATE TABLE `" + newName + "`");
-        // 替换 INSERT INTO `xxx`
-        result = result.replaceFirst("(?i)INSERT\\s+INTO\\s+(?:`[^`]+`|\\S+)",
-                "INSERT INTO `" + newName + "`");
-        return result;
+    String replaceTableNames(String rawSql, String newName) {
+        return replaceTableNames(rawSql, null, newName);
     }
 
     /**
-     * 拆分 VALUES 子句中的值列表。
+     * 替换 SQL 中的库名 / 表名。
      *
-     * <p>处理引号内的逗号和嵌套括号。</p>
+     * <p>按「只改用户显式指定的那一段」处理，因此四种组合都成立：只给 {@code targetTable}
+     * 就只换表名、只给 {@code targetSchema} 就只换库名、两者都给就都换、都不给则原样返回。
+     * 原 SQL 里的库名（如 ibd2sql 输出的 {@code `sakila`.`actor`}）在用户未指定时保留。</p>
      *
-     * @param valuesStr VALUES 子句内容（不含 VALUES 关键字）
-     * @return 拆分后的值列表
+     * <p>同时替换 {@code CREATE TABLE} 与<b>所有</b> {@code INSERT INTO}；外键定义里的
+     * {@code REFERENCES `other_table`} <b>不</b>改（那是另一张表，单表还原时不该动）。</p>
+     *
+     * @param rawSql     原始 SQL
+     * @param schemaName 新库名；为空表示保持原库名
+     * @param newName    新表名；为空表示保持原表名
+     * @return 替换后的 SQL
      */
-    private List<String> splitValues(String valuesStr) {
+    String replaceTableNames(String rawSql, String schemaName, String newName) {
+        if (rawSql == null || rawSql.isEmpty()) {
+            return rawSql;
+        }
+        boolean schemaBlank = schemaName == null || schemaName.isBlank();
+        boolean tableBlank = newName == null || newName.isBlank();
+        if (schemaBlank && tableBlank) {
+            return rawSql;
+        }
+        String result = replaceTableReferences(rawSql, CREATE_TABLE_PATTERN, schemaName, newName);
+        return replaceTableReferences(result, INSERT_INTO_PATTERN, schemaName, newName);
+    }
+
+    /**
+     * 按给定模式全局替换表名引用，保留语句前缀（如 {@code CREATE TABLE IF NOT EXISTS}）。
+     *
+     * <p>替换是<b>引号感知</b>的：落在单引号字符串字面量里的命中会被跳过。
+     * 否则数据本身含 {@code INSERT INTO `x`.`y`} 这类文本时（例如某行的
+     * {@code description} 列存了一段 SQL），字面量里的表名会被误改。</p>
+     *
+     * @param sql        待处理的 SQL
+     * @param pattern    语句模式，捕获组 1 = 语句前缀，捕获组 2 = 表名引用
+     * @param schemaName 新库名；为空表示保留原库名
+     * @param newName    新表名；为空表示保留原表名
+     * @return 替换后的 SQL
+     */
+    private static String replaceTableReferences(String sql, Pattern pattern,
+                                                 String schemaName, String newName) {
+        boolean[] literal = markStringLiterals(sql);
+        Matcher matcher = pattern.matcher(sql);
+        StringBuilder sb = new StringBuilder(sql.length());
+        int copied = 0;
+        while (matcher.find()) {
+            if (literal[matcher.start()]) {
+                continue;
+            }
+            String[] parts = splitQualifiedName(matcher.group(2));
+            String schema = (schemaName == null || schemaName.isBlank()) ? parts[0] : schemaName;
+            String table = (newName == null || newName.isBlank()) ? parts[1] : newName;
+            sb.append(sql, copied, matcher.start());
+            sb.append(matcher.group(1)).append(qualifyName(schema, table));
+            copied = matcher.end();
+        }
+        if (copied == 0) {
+            return sql;
+        }
+        sb.append(sql, copied, sql.length());
+        return sb.toString();
+    }
+
+    /**
+     * 标记 SQL 中属于单引号字符串字面量的字符位置。
+     *
+     * @param sql 待扫描的 SQL
+     * @return 与 SQL 等长的标记数组，{@code true} 表示该下标位于字符串字面量内（含引号本身）
+     */
+    private static boolean[] markStringLiterals(String sql) {
+        boolean[] marks = new boolean[sql.length()];
+        for (int i = 0; i < sql.length(); i++) {
+            if (sql.charAt(i) != '\'') {
+                continue;
+            }
+            int end = skipQuoted(sql, i);
+            for (int j = i; j <= end && j < sql.length(); j++) {
+                marks[j] = true;
+            }
+            i = end;
+        }
+        return marks;
+    }
+
+    /**
+     * 拆分（可能带反引号的）库名限定引用。
+     *
+     * @param reference {@code `db`.`tbl`} / {@code `tbl`} / 裸名
+     * @return 长度为 2 的数组，[0] = 库名（无库名限定时为 {@code null}），[1] = 表名
+     */
+    private static String[] splitQualifiedName(String reference) {
+        String cleaned = reference.trim();
+        boolean inBacktick = false;
+        for (int i = 0; i < cleaned.length(); i++) {
+            char c = cleaned.charAt(i);
+            if (c == '`') {
+                inBacktick = !inBacktick;
+            } else if (c == '.' && !inBacktick) {
+                return new String[]{
+                        stripBackticks(cleaned.substring(0, i)),
+                        stripBackticks(cleaned.substring(i + 1))};
+            }
+        }
+        return new String[]{null, stripBackticks(cleaned)};
+    }
+
+    /**
+     * 去掉外层反引号。
+     *
+     * @param value 原值
+     * @return 去引号后的值
+     */
+    private static String stripBackticks(String value) {
+        String trimmed = value.trim();
+        if (trimmed.length() >= 2 && trimmed.charAt(0) == '`' && trimmed.charAt(trimmed.length() - 1) == '`') {
+            return trimmed.substring(1, trimmed.length() - 1);
+        }
+        return trimmed;
+    }
+
+    /**
+     * 拼装（可能带库名的）反引号限定名。
+     *
+     * @param schema 库名，可为空
+     * @param table  表名
+     * @return {@code `db`.`tbl`} 或 {@code `tbl`}
+     */
+    private static String qualifyName(String schema, String table) {
+        return (schema == null || schema.isBlank()) ? "`" + table + "`" : "`" + schema + "`.`" + table + "`";
+    }
+
+    /**
+     * 拆分单个值分组里的取值列表。
+     *
+     * <p>处理引号内的逗号、嵌套括号（如 {@code point(1,2)}）、
+     * 以及 {@code ''} / {@code \'} 两种引号转义；字符串值会去掉外层单引号并还原转义。</p>
+     *
+     * @param valuesStr 分组内容（不含外层括号）
+     * @return 拆分后的值列表
+     *
+     * <p>包级可见，便于单测直接喂 SQL 文本校验解析结果（不需要装 ibd2sql）。</p>
+     */
+    List<String> splitValues(String valuesStr) {
         List<String> values = new ArrayList<>();
         int depth = 0;
-        boolean inSingleQuote = false;
-        boolean inDoubleQuote = false;
         int start = 0;
         for (int i = 0; i < valuesStr.length(); i++) {
             char c = valuesStr.charAt(i);
-            if (c == '\'' && !inDoubleQuote) {
-                inSingleQuote = !inSingleQuote;
-            } else if (c == '"' && !inSingleQuote) {
-                inDoubleQuote = !inDoubleQuote;
-            } else if (!inSingleQuote && !inDoubleQuote) {
-                if (c == '(') {
-                    depth++;
-                } else if (c == ')') {
-                    depth--;
-                } else if (c == ',' && depth == 0) {
-                    values.add(valuesStr.substring(start, i).trim());
-                    start = i + 1;
-                }
+            if (c == '\'') {
+                i = skipQuoted(valuesStr, i);
+                continue;
+            }
+            if (c == '(') {
+                depth++;
+            } else if (c == ')') {
+                depth--;
+            } else if (c == ',' && depth == 0) {
+                values.add(unquote(valuesStr.substring(start, i).trim()));
+                start = i + 1;
             }
         }
-        // 最后一个值
         if (start < valuesStr.length()) {
-            values.add(valuesStr.substring(start).trim());
+            values.add(unquote(valuesStr.substring(start).trim()));
         }
         return values;
+    }
+
+    /**
+     * 去掉 SQL 字符串字面量的外层单引号并还原转义。
+     *
+     * <p>非字符串字面量（数字、{@code NULL}、{@code 0x...}、函数调用等）原样返回。</p>
+     *
+     * @param value 原始值文本
+     * @return 可读值
+     */
+    private static String unquote(String value) {
+        if (value.length() < 2 || value.charAt(0) != '\'' || value.charAt(value.length() - 1) != '\'') {
+            return value;
+        }
+        String body = value.substring(1, value.length() - 1);
+        StringBuilder sb = new StringBuilder(body.length());
+        for (int i = 0; i < body.length(); i++) {
+            char c = body.charAt(i);
+            if (c == '\'' && i + 1 < body.length() && body.charAt(i + 1) == '\'') {
+                sb.append('\'');
+                i++;
+            } else if (c == '\\' && i + 1 < body.length()) {
+                sb.append(body.charAt(++i));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**

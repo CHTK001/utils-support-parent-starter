@@ -24,6 +24,14 @@
             <artifactId>utils-support-excel-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- SQL 文本解析（parseSqlToRows / parseCreateTableColumns）的回归测试：
+             这些方法可以直接喂 SQL 字符串校验，不需要装外部 ibd2sql -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
 
