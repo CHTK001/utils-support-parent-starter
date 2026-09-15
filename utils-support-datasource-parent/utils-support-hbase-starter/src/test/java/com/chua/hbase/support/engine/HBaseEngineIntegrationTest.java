@@ -8,6 +8,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * HBase 引擎集成测试。
  *
- * <p>基于 Testcontainers：自动拉起 {@code apache/hbase:2.5.10} 容器（standalone 单机模式，
+ * <p>基于 Testcontainers：自动拉起 {@code harisekhon/hbase:2.1} 容器（standalone 单机模式，
  * 含 ZooKeeper），无需外部服务与环境变量。</p>
  *
  * <p>测试覆盖 HBase 原生领域 API（createTable / put / get / scan / deleteRow），
@@ -32,10 +33,10 @@ public class HBaseEngineIntegrationTest {
     private static final String TABLE = "hbase_itest";
     private static final String FAMILY = HBaseEngine.DEFAULT_FAMILY;
 
-    /** 真实 HBase 2.5 standalone 容器（ZK 2181 + master/regionserver RPC 16000/16020） */
-    static final GenericContainer<?> HBASE = new GenericContainer<>(DockerImageName.parse("apache/hbase:2.5.10"))
+    /** 真实 HBase standalone 容器（ZK 2181 + master/regionserver RPC 16000/16020） */
+    static final GenericContainer<?> HBASE = new GenericContainer<>(DockerImageName.parse("harisekhon/hbase:2.1"))
             .withExposedPorts(2181, 16000, 16010, 16020, 16030)
-            .waitingFor(Wait.forListeningPort());
+            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(5)));
 
     private HBaseEngine engine;
 
