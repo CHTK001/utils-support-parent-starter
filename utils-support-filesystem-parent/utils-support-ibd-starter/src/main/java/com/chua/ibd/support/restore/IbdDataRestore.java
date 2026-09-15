@@ -240,10 +240,7 @@ public class IbdDataRestore extends AbstractDataRestore {
         // 按目标库表名调整 SQL（表名 / 库名分别按需替换，全部 CREATE TABLE 与 INSERT INTO 都要覆盖）
         String tableName = config.getTargetTable();
         String schemaName = config.getTargetSchema();
-        String adjustedSql = replaceTableNames(rawSql, schemaName, tableName);
-        if (schemaName != null && !schemaName.isBlank()) {
-            adjustedSql = "USE `" + schemaName + "`;\n" + adjustedSql;
-        }
+        String adjustedSql = schemaPrologue(schemaName) + replaceTableNames(rawSql, schemaName, tableName);
 
         // 构造输出文件路径
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
@@ -689,6 +686,26 @@ public class IbdDataRestore extends AbstractDataRestore {
             return List.of();
         }
         return new ArrayList<>(rows.get(0).keySet());
+    }
+
+    /**
+     * 生成 SQL 脚本开头「建库 + 切库」的引导语句。
+     *
+     * <p>{@code DataRestoreConfig.targetSchema} 的契约是<b>建库语句</b>，所以这里必须真的建库：
+     * 只发 {@code USE `x`;} 的话，目标库不存在时脚本一执行就报
+     * {@code ERROR 1049 (42000): Unknown database 'x'}，用户还得手动先建库 —— 那就不是「一键」了。
+     * 用 {@code IF NOT EXISTS} 保证重复执行安全；只指定字符集不指定排序规则，
+     * 免得写死一个旧版本 MySQL 上不存在的 collation。</p>
+     *
+     * @param schemaName 目标库名，为空时返回空串
+     * @return 引导语句（含结尾换行），或空串
+     */
+    static String schemaPrologue(String schemaName) {
+        if (schemaName == null || schemaName.isBlank()) {
+            return "";
+        }
+        return "CREATE DATABASE IF NOT EXISTS `" + schemaName + "` DEFAULT CHARACTER SET utf8mb4;\n"
+                + "USE `" + schemaName + "`;\n";
     }
 
     /**

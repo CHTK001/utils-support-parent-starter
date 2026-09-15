@@ -301,8 +301,12 @@ public final class WechatExportUtils {
         Set<String> columns = inferColumns(rows);
         StringBuilder sql = new StringBuilder(rows.size() * 64);
 
-        // 目标库
+        // 目标库：targetSchema 的契约是「建库语句」，所以必须真的建库 ——
+        // 只发 USE 的话，目标库不存在时脚本一执行就报 ERROR 1049 Unknown database，
+        // 用户还得手动先建库，那就不是「一键」了。IF NOT EXISTS 保证重复执行安全。
         if (targetSchema != null && !targetSchema.isBlank()) {
+            sql.append("CREATE DATABASE IF NOT EXISTS `").append(targetSchema)
+                    .append("` DEFAULT CHARACTER SET utf8mb4;\n");
             sql.append("USE `").append(targetSchema).append("`;\n\n");
         }
 

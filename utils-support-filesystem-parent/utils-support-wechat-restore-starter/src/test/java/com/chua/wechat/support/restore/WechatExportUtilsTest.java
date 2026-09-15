@@ -111,6 +111,22 @@ class WechatExportUtilsTest {
 
         String sql = WechatExportUtils.buildSqlScript(rows, "msgs", "wechat_db", false);
         assertTrue(sql.contains("USE `wechat_db`"));
+        // targetSchema 的契约是「建库语句」：只发 USE 的话，库不存在时脚本一执行就报
+        // ERROR 1049 Unknown database，用户还得手动建库
+        assertTrue(sql.startsWith("CREATE DATABASE IF NOT EXISTS `wechat_db`"), "实际开头: " + sql);
+    }
+
+    @Test
+    void testBuildSqlScriptWithoutSchemaHasNoPrologue() {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        Map<String, Object> row = new HashMap<>();
+        row.put("msg", "test");
+        rows.add(row);
+
+        String sql = WechatExportUtils.buildSqlScript(rows, "msgs", null, false);
+        assertFalse(sql.contains("CREATE DATABASE"), "实际: " + sql);
+        assertFalse(sql.contains("USE "), "实际: " + sql);
+        assertTrue(sql.startsWith("INSERT INTO `msgs`"), "实际开头: " + sql);
     }
 
     @Test

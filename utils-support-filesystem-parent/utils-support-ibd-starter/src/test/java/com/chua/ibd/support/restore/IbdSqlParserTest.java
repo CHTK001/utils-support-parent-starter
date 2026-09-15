@@ -261,6 +261,27 @@ class IbdSqlParserTest {
                 + " VALUES (1,'INSERT INTO `fake`.`t` VALUES (9)');", result);
     }
 
+    // ==================== 建库引导语句 ====================
+
+    /**
+     * {@code targetSchema} 的契约是「建库语句」——只发 {@code USE} 的话，
+     * 目标库不存在时脚本一执行就报 {@code ERROR 1049 Unknown database}。
+     */
+    @Test
+    void shouldEmitCreateDatabaseWhenTargetSchemaGiven() {
+        String prologue = IbdDataRestore.schemaPrologue("sakila_new");
+
+        assertEquals("CREATE DATABASE IF NOT EXISTS `sakila_new` DEFAULT CHARACTER SET utf8mb4;\n"
+                + "USE `sakila_new`;\n", prologue);
+    }
+
+    @Test
+    void shouldEmitEmptyPrologueWhenTargetSchemaBlank() {
+        assertEquals("", IbdDataRestore.schemaPrologue(null));
+        assertEquals("", IbdDataRestore.schemaPrologue(""));
+        assertEquals("", IbdDataRestore.schemaPrologue("   "));
+    }
+
     private static int countOccurrences(String text, String needle) {
         int count = 0;
         int index = text.indexOf(needle);
