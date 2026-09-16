@@ -2,21 +2,21 @@ package com.chua.rocksdb.support.datasource;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
-import org.rocksdb.DB;
+import org.rocksdb.RocksDB;
 
 /**
- * RocksDB 数据源封装，持有真实 {@link DB} 实例（嵌入式本地文件目录）。
+ * RocksDB 数据源封装，持有真实 {@link RocksDB} 实例（嵌入式本地文件目录）。
  *
  * @author CH
  * @since 4.0.0.42
  */
-public class RocksDbEngineDataSource implements EngineDataSource<DB> {
+public class RocksDbEngineDataSource implements EngineDataSource<RocksDB> {
 
     /** 数据源名称 */
     private final String name;
 
     /** RocksDB 数据库实例 */
-    private final DB source;
+    private final RocksDB source;
 
     /** 数据库目录路径 */
     private final String url;
@@ -28,7 +28,7 @@ public class RocksDbEngineDataSource implements EngineDataSource<DB> {
      * @param url    数据库目录路径
      * @param source RocksDB 数据库实例
      */
-    public RocksDbEngineDataSource(String name, String url, DB source) {
+    public RocksDbEngineDataSource(String name, String url, RocksDB source) {
         this.name = name;
         this.url = url;
         this.source = source;
@@ -42,7 +42,7 @@ public class RocksDbEngineDataSource implements EngineDataSource<DB> {
 
     /** 获取数据库实例 */
     @Override
-    public DB getSource() {
+    public RocksDB getSource() {
         return source;
     }
 
@@ -54,7 +54,7 @@ public class RocksDbEngineDataSource implements EngineDataSource<DB> {
 
     /** 不支持运行期替换连接 */
     @Override
-    public EngineDataSource<DB> setSource(Object source) {
+    public EngineDataSource<RocksDB> setSource(Object source) {
         return this;
     }
 
@@ -66,7 +66,7 @@ public class RocksDbEngineDataSource implements EngineDataSource<DB> {
 
     /** 忽略方言设置 */
     @Override
-    public EngineDataSource<DB> setDialect(Dialect dialect) {
+    public EngineDataSource<RocksDB> setDialect(Dialect dialect) {
         return this;
     }
 

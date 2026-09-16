@@ -520,7 +520,7 @@ public class NeuQuant {
 
 
     /**
-    * Move.com adjacent neurons by precomputed alpha*(1-((i-j)^2/[R]^2)) 入 radpower[|i-j|]
+    * 将相邻神经元按预计算的 alpha*(1-((i-j)^2/[R]^2)) 移入 radpower[|i-j|]
     * ---------------------------------------------------------------------------------
     * @param rad rad
     * @param i i
@@ -570,7 +570,7 @@ public class NeuQuant {
 
 
     /**
-    * Move.com neuron i towards 偏置 (b,g,R) by factor alpha
+    * 将神经元 i 以系数 alpha 向 (b,g,R) 移动
     * ----------------------------------------------------
     * @param alpha alpha
     * @param i i

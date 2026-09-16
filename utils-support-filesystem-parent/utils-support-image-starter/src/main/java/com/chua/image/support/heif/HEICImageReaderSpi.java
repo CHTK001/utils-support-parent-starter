@@ -17,7 +17,7 @@ import java.util.Locale;
  */
 public class HEICImageReaderSpi extends ImageReaderSpi {
 
-    private static final String VENDOR = "com.chua"; // 供应商
+    private static final String VENDOR = "com.chua"; // 厂商
     private static final String VERSION = "1.0.0"; // 版本
     private static final String[] NAMES = {"heic", "HEIC", "heif", "HEIF"}; // 名称
     private static final String[] SUFFIXES = {"heic", "heif"}; // 后缀

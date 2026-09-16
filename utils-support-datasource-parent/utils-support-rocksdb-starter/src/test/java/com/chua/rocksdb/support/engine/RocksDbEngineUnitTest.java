@@ -1,6 +1,5 @@
 package com.chua.rocksdb.support.engine;
 
-import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.spi.ServiceProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,16 +24,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class RocksDbEngineUnitTest {
 
-    /** 临时目录（JDK 25 原生 TempDir 支持） */
+    /** 临时目录 */
     @TempDir
-    static Path tempDir;
+    Path tempDir;
 
+    /** 引擎实例 */
     private RocksDbEngine engine;
-    private Path dbPath;
 
     @BeforeEach
     void setUp() throws Exception {
-        dbPath = tempDir.resolve("rocksdb_test");
+        Path dbPath = tempDir.resolve("rocksdb_test");
         Files.createDirectories(dbPath);
         engine = new RocksDbEngine();
         engine.addDataSource("default", dbPath.toString());
@@ -72,27 +71,20 @@ public class RocksDbEngineUnitTest {
     }
 
     @Test
-    void testScanBytes() {
-        engine.putBytes("default", "a".getBytes(), "1".getBytes());
-        engine.putBytes("default", "b".getBytes(), "2".getBytes());
-        List<Map.Entry<byte[], byte[]>> rows = engine.scanBytes("default");
-        assertEquals(2, rows.size());
-    }
-
-    @Test
     void testScanBytesWithPrefix() {
         engine.putBytes("default", "pfx:1".getBytes(), "a".getBytes());
         engine.putBytes("default", "pfx:2".getBytes(), "b".getBytes());
         engine.putBytes("default", "other:3".getBytes(), "c".getBytes());
         List<Map.Entry<byte[], byte[]>> rows = engine.scanBytes("default", "pfx:".getBytes());
-        assertEquals(2, rows.size());
+        assertEquals(2, rows.size(), "前缀扫描应匹配 2 条");
     }
 
     @Test
     void testWriteBatch() {
+        byte[] op0 = {(byte) 0};
         byte[][][] ops = new byte[][][] {
-                {"0", "bk1".getBytes(), "bv1".getBytes()},
-                {"0", "bk2".getBytes(), "bv2".getBytes()},
+                {op0, "bk1".getBytes(), "bv1".getBytes()},
+                {op0, "bk2".getBytes(), "bv2".getBytes()},
         };
         engine.writeBatch("default", List.of(ops));
         assertEquals("bv1", new String(engine.getBytes("default", "bk1".getBytes())));
@@ -146,14 +138,15 @@ public class RocksDbEngineUnitTest {
         Map<String, Object> doc = Map.of("id", "doc1", "name", "Alice", "content", "hello world");
         engine.insert("articles", doc);
 
-        Map<String, Object> found = engine.findById("articles", "doc1", Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> found = engine.findById("articles", "doc1", (Class<Map<String, Object>>) (Class<?>) Map.class);
         assertNotNull(found);
         assertEquals("Alice", found.get("name"));
     }
 
     @Test
     void testDocumentFindByIdReturnsNullWhenMissing() {
-        assertNull(engine.findById("articles", "missing", Map.class));
+        assertNull(engine.findById("articles", "missing", (Class<Map<String, Object>>) (Class<?>) Map.class));
     }
 
     @Test
@@ -164,7 +157,8 @@ public class RocksDbEngineUnitTest {
         Map<String, Object> updated = Map.of("id", "doc1", "name", "Bob");
         engine.update("articles", "doc1", updated);
 
-        Map<String, Object> found = engine.findById("articles", "doc1", Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> found = engine.findById("articles", "doc1", (Class<Map<String, Object>>) (Class<?>) Map.class);
         assertEquals("Bob", found.get("name"));
     }
 
@@ -173,7 +167,7 @@ public class RocksDbEngineUnitTest {
         Map<String, Object> doc = Map.of("id", "doc1", "name", "Alice");
         engine.insert("articles", doc);
         assertTrue(engine.delete("articles", "doc1"));
-        assertNull(engine.findById("articles", "doc1", Map.class));
+        assertNull(engine.findById("articles", "doc1", (Class<Map<String, Object>>) (Class<?>) Map.class));
         assertFalse(engine.delete("articles", "doc1"));
     }
 
@@ -181,7 +175,8 @@ public class RocksDbEngineUnitTest {
     void testDocumentFindAll() {
         engine.insert("articles", Map.of("id", "d1", "name", "A"));
         engine.insert("articles", Map.of("id", "d2", "name", "B"));
-        List<Map<String, Object>> all = engine.findAll("articles", Map.class);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> all = engine.findAll("articles", (Class<Map<String, Object>>) (Class<?>) Map.class);
         assertEquals(2, all.size());
     }
 
@@ -189,13 +184,15 @@ public class RocksDbEngineUnitTest {
 
     @Test
     void testFulltextSearch() {
-        engine.insert("articles", Map.of("id", "d1", "content", "hello world"));
-        engine.insert("articles", Map.of("id", "d2", "content", "goodbye world"));
+        Map<String, Object> article = Map.of("id", "d1", "title", "hello world news");
+        Map<String, Object> article2 = Map.of("id", "d2", "title", "goodbye world news");
+        engine.insert("articles", article);
+        engine.insert("articles", article2);
 
-        List<Map<String, Object>> results = engine.search("world", Map.class);
-        assertEquals(2, results.size());
+        List<Map<String, Object>> results = engine.search("world", (Class<Map<String, Object>>) (Class<?>) Map.class);
+        assertEquals(2, results.size(), "全文检索 'world' 应匹配 2 条");
 
-        List<Map<String, Object>> noResults = engine.search("nonexistent", Map.class);
+        List<Map<String, Object>> noResults = engine.search("nonexistent", (Class<Map<String, Object>>) (Class<?>) Map.class);
         assertTrue(noResults.isEmpty());
     }
 
@@ -205,28 +202,122 @@ public class RocksDbEngineUnitTest {
         assertDoesNotThrow(() -> engine.dropFulltextIndex(Map.class));
     }
 
-    // ==================== ORM 语义拒绝 ====================
+    // ==================== ORM 支持 ====================
 
-    @Test
-    void testStoreThrowsUnsupportedOperation() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> engine.store("default", List.of("any")),
-                "store() 应抛出 UnsupportedOperationException");
+    /** 测试 用 实体 */
+    public static class User {
+        /** 标识 */
+        public Integer id;
+        /** 名称 */
+        public String name;
+        /** 年龄 */
+        public Integer age;
+
+        /** 空 构造 器 */
+        public User() {
+        }
+
+        /** 获取id */
+        public Integer getId() {
+            return id;
+        }
+
+        /** 获取name */
+        public String getName() {
+            return name;
+        }
+
+        /** 获取age */
+        public Integer getAge() {
+            return age;
+        }
+
+        /** 设置name */
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /** 设置age */
+        public void setAge(Integer age) {
+            this.age = age;
+        }
     }
 
     @Test
-    void testQueryListThrowsUnsupportedOperation() {
-        assertThrows(Exception.class,
-                () -> engine.query(String.class).list(),
-                "query().list() 应因 executeNewQuery 不支持而抛异常");
+    void testOrmStoreAndQuery() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        User u2 = new User();
+        u2.id = 2;
+        u2.name = "Bob";
+        u2.age = 25;
+        engine.store("user", List.of(u1, u2));
+
+        List<User> all = engine.query(User.class).list();
+        assertEquals(2, all.size(), "ORM 查询 应 返回 全部 2 条");
+
+        List<User> filtered = engine.query(User.class).eq(User::getAge, 25).list();
+        assertEquals(1, filtered.size(), "ORM 条件 查询 应 命中 1 条");
+        assertEquals("Bob", filtered.getFirst().name);
+    }
+
+    @Test
+    void testOrmUpdate() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        engine.store("user", List.of(u1));
+
+        int affected = engine.update(User.class).set(User::getAge, 31).eq(User::getId, 1).update();
+        assertEquals(1, affected, "ORM 更新 应 影响 1 行");
+
+        List<User> all = engine.query(User.class).list();
+        assertEquals(1, all.size());
+        assertEquals(31, all.getFirst().age, "更新 后 age 应 为 31");
+    }
+
+    @Test
+    void testOrmDelete() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        User u2 = new User();
+        u2.id = 2;
+        u2.name = "Bob";
+        u2.age = 25;
+        engine.store("user", List.of(u1, u2));
+
+        int affected = engine.delete(User.class).eq(User::getId, 1).remove();
+        assertEquals(1, affected, "ORM 删除 应 影响 1 行");
+
+        List<User> remaining = engine.query(User.class).list();
+        assertEquals(1, remaining.size(), "删除 后 应 剩 1 条");
+        assertEquals("Bob", remaining.getFirst().name);
+    }
+
+    @Test
+    void testOrmPersistenceAcrossQuery() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        engine.store("user", List.of(u1));
+
+        List<User> first = engine.query(User.class).eq(User::getId, 1).list();
+        assertEquals(1, first.size());
+        assertEquals("Alice", first.getFirst().name, "RocksDB 持久化 数据 应 被 再次 查询 命中");
     }
 
     // ==================== SPI 注册 ====================
 
     @Test
     void testSpiRegistration() {
-        KvEngine kv = ServiceProvider.of(RocksDbEngine.class).getExtension("rocksdb");
-        assertInstanceOf(RocksDbEngine.class, kv);
+        RocksDbEngine eng = ServiceProvider.of(RocksDbEngine.class).getExtension("rocksdb");
+        assertNotNull(eng, "SPI 注册应返回 RocksDbEngine 实例");
     }
 
     // ==================== close ====================

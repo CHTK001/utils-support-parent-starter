@@ -2,6 +2,8 @@
 #
 # 覆盖模块（6 外部容器 + 1 内存引擎）：
 #   MySQL / Oracle / Redis / Neo4j / Elasticsearch / HBase / InfluxDB
+# RocksDB 为嵌入式本地引擎，单元测试使用 @TempDir，不依赖 Docker，
+# 由常规 mvn test 覆盖，不列入 Testcontainers 集成测试。
 #
 # 需求：
 #   - JDK 25 (temurin)
@@ -38,8 +40,8 @@ env:
     utils-support-middleware-parent/utils-support-redis-starter,
     utils-support-datasource-parent/utils-support-neo4j-starter,
     utils-support-datasource-parent/utils-support-elasticsearch-starter,
-    utils-support-datasource-parent/utils-support-hbase-starter,
-    utils-support-datasource-parent/utils-support-influxdb-starter
+     utils-support-datasource-parent/utils-support-hbase-starter,
+     utils-support-datasource-parent/utils-support-influxdb-starter
 
 jobs:
   # ──────────────────────────────────────────────────────

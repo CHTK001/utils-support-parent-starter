@@ -1,7 +1,6 @@
 package com.chua.common.support.ai.rag;
 
 import com.chua.common.support.ai.chat.ChatClient;
-import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.ai.chat.MemoryChatClient;
 import com.chua.common.support.ai.embedding.EmbeddingClient;
 import com.chua.common.support.ai.embedding.EmbeddingClientSetting;
@@ -11,10 +10,12 @@ import com.chua.common.support.vector.MemoryVectorStorage;
 import com.chua.common.support.vector.VectorCompareAlgorithm;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * RagPipeline 生命周期冒烟测试（update / delete / list / read / reindex）。
+ * RagPipeline 生命周期冒烟测试（upload / update / delete / list / read / reindex / 分块器）。
  *
  * <p>遵循项目约定使用 {@code main} 方法直接运行（本模块无 JUnit 依赖）：</p>
  * <pre>
@@ -27,9 +28,19 @@ import java.util.List;
  */
 public class RagPipelineLifecycleTest {
 
+    /** 通过断言计数 */
     private static int passed = 0;
+    /** 失败断言计数 */
     private static int failed = 0;
+    /** 测试临时上传目录根（统一输出到 test-output/，避免散落系统临时目录） */
+    private static final String UPLOAD_DIR_ROOT = Paths.get(System.getProperty("java.io.tmpdir"),
+            "test-output", "rag-lifecycle").toAbsolutePath().toString();
 
+    /**
+     * 测试入口：顺序执行全部生命周期用例并汇总结果。
+     *
+     * @param args 命令行参数（本测试未使用，保留占位）
+     */
     public static void main(String[] args) {
         testUploadAndCount();
         testUpdateKeepsDocId();
@@ -46,6 +57,9 @@ public class RagPipelineLifecycleTest {
         System.exit(failed == 0 ? 0 : 1);
     }
 
+    /**
+     * 上传单文档后校验状态与数量。
+     */
     static void testUploadAndCount() {
         RagPipeline p = newPipeline();
         RagDocument d1 = p.uploadDocument("a.txt", "first document content".getBytes(StandardCharsets.UTF_8));
@@ -54,6 +68,9 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 更新文档保留原 docId 且不产生重复记录。
+     */
     static void testUpdateKeepsDocId() {
         RagPipeline p = newPipeline();
         RagDocument d1 = p.uploadDocument("a.txt", "first version of document content".getBytes(StandardCharsets.UTF_8));
@@ -64,6 +81,9 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 删除文档后向量/文件/缓存同步清理，其它文档不受影响。
+     */
     static void testDeleteRemovesFromVectorAndDocs() {
         RagPipeline p = newPipeline();
         RagDocument d1 = p.uploadDocument("a.txt", "hello world, this is a test document about RAG".getBytes(StandardCharsets.UTF_8));
@@ -76,12 +96,18 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 删除不存在的文档返回 false。
+     */
     static void testDeleteNonexistentReturnsFalse() {
         RagPipeline p = newPipeline();
         check(!p.deleteDocument("nonexistent-doc-id"), "deleteDocument returns false for unknown docId");
         p.close();
     }
 
+    /**
+     * 分页列表的边界正确性（page1/page2/page3）。
+     */
     static void testListDocumentsPagination() {
         RagPipeline p = newPipeline();
         for (int i = 0; i < 5; i++) {
@@ -97,6 +123,9 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 原文回读与上传内容一致。
+     */
     static void testReadDocumentContent() {
         RagPipeline p = newPipeline();
         byte[] data = "readable content here".getBytes(StandardCharsets.UTF_8);
@@ -106,6 +135,9 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 重新索引全部 READY 文档（验证 CME 修复）。
+     */
     static void testReindex() {
         RagPipeline p = newPipeline();
         p.uploadDocument("a.txt", "reindex test document about RAG".getBytes(StandardCharsets.UTF_8));
@@ -116,6 +148,9 @@ public class RagPipelineLifecycleTest {
         p.close();
     }
 
+    /**
+     * 分块器产出至少 1 个分块且首块序号为 0。
+     */
     static void testSplitterProducesChunks() {
         SentenceTextSplitter splitter = new SentenceTextSplitter(100, 20);
         List<TextChunk> chunks = splitter.split(
@@ -126,11 +161,13 @@ public class RagPipelineLifecycleTest {
         check(chunks.get(0).index() == 0, "first chunk index is 0");
     }
 
-    // ── helpers ──────────────────────────────────────────────────────────
+    // ── 辅助方法 ─────────────────────────────────────────────────────────
 
-    private static final String UPLOAD_DIR = System.getProperty("java.io.tmpdir")
-            + "rag-lifecycle-" + System.nanoTime();
-
+    /**
+     * 构建内存组件管道（不依赖真实模型与外部服务）。
+     *
+     * @return 配置完成的 RagPipeline 实例
+     */
     static RagPipeline newPipeline() {
         MemoryVectorStorage storage = new MemoryVectorStorage(1536, VectorCompareAlgorithm.cosine());
         EmbeddingClient emb = EmbeddingClient.create(EmbeddingClientSetting.builder().provider("memory").build())
@@ -141,12 +178,18 @@ public class RagPipelineLifecycleTest {
                 .embeddingClient(emb)
                 .textSplitter(new SentenceTextSplitter(100, 20))
                 .vectorStorage(storage)
-                .uploadDir(UPLOAD_DIR)
+                .uploadDir(UPLOAD_DIR_ROOT + System.nanoTime())
                 .topK(5)
                 .similarityThreshold(0.0)
                 .build();
     }
 
+    /**
+     * 断言并计数。
+     *
+     * @param ok      断言条件
+     * @param message 断言说明（[PASS]/[FAIL] 输出内容）
+     */
     static void check(boolean ok, String message) {
         if (ok) {
             passed++;

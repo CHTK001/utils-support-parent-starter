@@ -16,8 +16,8 @@ import javax.annotation.Nullable;
 * @since 4.0.0.42
 */
 public class PNGImageReaderSpi extends ImageReaderSpi {
-    // 定义供应商名称
-    /** 供应商名称 */
+    // 定义厂商名称
+    /** 厂商名称 */
     private static final String vendorName = "Karstian Lee";
 
     // 定义版本号
