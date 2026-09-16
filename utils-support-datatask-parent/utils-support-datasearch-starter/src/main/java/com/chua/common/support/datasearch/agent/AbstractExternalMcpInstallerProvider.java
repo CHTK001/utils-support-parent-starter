@@ -111,7 +111,7 @@ public abstract class AbstractExternalMcpInstallerProvider extends AgentEditorPr
                     log.warn("[{}] 未发现工作区，无法安装: {}", mcpServerKey(), editor.getName());
                     return false;
                 }
-                configFile = workspaces.get(0).resolve(editor.getMcpConfigPath());
+                configFile = workspaces.getFirst().resolve(editor.getMcpConfigPath());
             } else {
                 configFile = editor.getMcpConfigFilePath();
             }

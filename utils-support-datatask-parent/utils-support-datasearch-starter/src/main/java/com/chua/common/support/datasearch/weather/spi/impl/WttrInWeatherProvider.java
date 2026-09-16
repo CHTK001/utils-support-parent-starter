@@ -121,8 +121,8 @@ public class WttrInWeatherProvider implements WeatherProvider {
             // 未来数日预报(3 天)与当天逐小时采样
             info.setForecast(parseForecast(root.path("weather")));
             if (info.getForecast() != null && !info.getForecast().isEmpty()
-                    && info.getForecast().get(0).getHourly() != null) {
-                info.setHourly(info.getForecast().get(0).getHourly());
+                    && info.getForecast().getFirst().getHourly() != null) {
+                info.setHourly(info.getForecast().getFirst().getHourly());
             }
             return info;
         } catch (Exception e) {

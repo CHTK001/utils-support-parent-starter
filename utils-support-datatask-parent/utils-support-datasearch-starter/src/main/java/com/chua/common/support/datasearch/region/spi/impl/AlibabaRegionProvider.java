@@ -246,6 +246,6 @@ public class AlibabaRegionProvider implements RegionProvider {
         if (c == null || !c.isArray() || c.size() < 2) {
             return new double[]{0, 0};
         }
-        return new double[]{c.get(0).asDouble(), c.get(1).asDouble()};
+        return new double[]{c.get(0).asDouble(), c.get(1).asDouble()}; // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List 集合取首）
     }
 }

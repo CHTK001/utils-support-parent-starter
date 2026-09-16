@@ -46,6 +46,6 @@ public interface EmailProvider {
      */
     default EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
-        return emails != null && !emails.isEmpty() ? emails.get(0) : null;
+        return emails != null && !emails.isEmpty() ? emails.getFirst() : null;
     }
 }
