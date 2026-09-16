@@ -112,6 +112,11 @@ public class MuouResourceProvider extends AbstractResourceProvider {
         if (!StringUtils.hasText(kw)) {
             return ReturnPageResult.error("关键词不能为空");
         }
+        // 已封禁站点直接跳过，避免海外代理长等待（67s 级）
+        ReturnPageResult<VideoInfoResult> blocked = checkBlocked("muou");
+        if (blocked != null) {
+            return blocked;
+        }
         try {
             // 海外站(666.666291.xyz),走代理客户端(ProxyFetcherFlow 获取代理,失败则无代理兜底)
             HttpClient client = ProxyHttpClient.get();
@@ -128,6 +133,10 @@ public class MuouResourceProvider extends AbstractResourceProvider {
                 // 海外站连接超时，自动标记为被封，避免后续重复长等待
                 VideoProviderRegistry.block("muou", VideoProviderRegistry.BlockReason.TIMEOUT);
                 return ReturnPageResult.error("muou 连接超时，站点不可达");
+            } catch (java.io.IOException e) {
+                // 代理隧道协议错误（RST_STREAM 等）同样标记，避免下次再等 60+s
+                VideoProviderRegistry.block("muou", VideoProviderRegistry.BlockReason.TIMEOUT);
+                return ReturnPageResult.error("muou 代理连接失败: " + e.getMessage());
             }
             String body = resp.body();
 

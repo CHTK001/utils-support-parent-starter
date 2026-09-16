@@ -72,7 +72,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
             // 非 JSON 响应（如 403 HTML）快速失败，避免 Jackson 解析炸裂
             if (body == null || !body.trim().startsWith("{")) {
                 String preview = body == null ? "空响应"
-                        : body.substring(0, Math.min(60, body.length()));
+                        : body.replaceAll("\\s+", " ").substring(0, Math.min(60, body.length()));
                 return ReturnPageResult.error("Wanou 资源站不可用(非JSON响应): " + preview);
             }
             VideoList content = Json.fromJson(body, VideoList.class);
