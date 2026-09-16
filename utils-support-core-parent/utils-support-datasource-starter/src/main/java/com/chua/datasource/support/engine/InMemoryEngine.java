@@ -74,7 +74,7 @@ public class InMemoryEngine extends AbstractEngine {
         }
         @SuppressWarnings("unchecked")
         List<Object> rows = (List<Object>) data;
-        T first = data.get(0);
+        T first = data.getFirst();
         Map<String, Map<Object, List<Object>>> tableIdx = indexes.computeIfAbsent(
                 name, k -> new ConcurrentHashMap<>());
         tableIdx.clear();
@@ -231,7 +231,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @return 尝试索引lookup的结果
      */
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
-        Condition first = conditions.get(0);
+        Condition first = conditions.getFirst();
         if (!"=".equals(first.getOperator())) {
             return data;
         }
@@ -266,7 +266,7 @@ public class InMemoryEngine extends AbstractEngine {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
                 for (List<Object> rows : fe.getValue().values()) {
-                    if (!rows.isEmpty() && rows.get(0) != null && rows.get(0).getClass() == data.get(0).getClass()) {
+                    if (!rows.isEmpty() && rows.getFirst() != null && rows.getFirst().getClass() == data.getFirst().getClass()) {
                         return e.getValue();
                     }
                 }
@@ -506,7 +506,7 @@ public class InMemoryEngine extends AbstractEngine {
         /** One */
         public T one() {
             List<T> list = list();
-            return list.isEmpty() ? null : list.get(0);
+            return list.isEmpty() ? null : list.getFirst();
         }
 
         @Override

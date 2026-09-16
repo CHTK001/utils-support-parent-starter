@@ -57,7 +57,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         }
         this.resolvers = new ArrayList<>(resolvers);
         // 默认以第一个解析器的配置作为主配置
-        this.primaryPlaceholderSupport = resolvers.get(0).getPlaceholderSupport();
+        this.primaryPlaceholderSupport = resolvers.getFirst().getPlaceholderSupport();
     }
 
     /**

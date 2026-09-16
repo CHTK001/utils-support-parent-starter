@@ -247,7 +247,7 @@ public class FileEngine extends AbstractEngine {
         }
 
         List<Map<String, Object>> maps;
-        if (raw.get(0) instanceof Map) {
+        if (raw.getFirst() instanceof Map) {
             maps = (List<Map<String, Object>>) raw;
         } else {
             maps = entitiesToMaps((List<Object>) raw);
@@ -290,7 +290,7 @@ public class FileEngine extends AbstractEngine {
         if (raw == null && !dataStores.isEmpty()) {
  // 优先取实体列表（非 映射 行）
             for (List<?> list : dataStores.values()) {
-                if (list != null && !list.isEmpty() && !(list.get(0) instanceof Map)) {
+                if (list != null && !list.isEmpty() && !(list.getFirst() instanceof Map)) {
                     return list;
                 }
             }
@@ -372,7 +372,7 @@ public class FileEngine extends AbstractEngine {
             return Collections.emptyList();
         }
 
-        if (!data.isEmpty() && data.get(0) instanceof Map) {
+        if (!data.isEmpty() && data.getFirst() instanceof Map) {
             List<T> entities = new ArrayList<>(data.size());
             for (Object item : data) {
                 entities.add(mapToEntity((Map<String, Object>) item, entityClass));

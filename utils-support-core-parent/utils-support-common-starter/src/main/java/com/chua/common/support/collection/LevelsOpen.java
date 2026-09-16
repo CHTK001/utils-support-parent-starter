@@ -180,7 +180,7 @@ public class LevelsOpen implements Levels {
     * @param list   源列表
      */
     private void intoTemp(int offset, List<Object> temp, List<Object> list) {
-        Object o3 = list.get(0);
+        Object o3 = list.getFirst();
         Object o2 = temp.get(offset);
         if (isAllMap(o2, o3)) {
             Map<String, Object> o2Temp = (Map<String, Object>) o2;

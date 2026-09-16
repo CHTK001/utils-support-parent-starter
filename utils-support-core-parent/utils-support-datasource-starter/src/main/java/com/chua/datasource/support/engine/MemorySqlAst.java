@@ -644,7 +644,7 @@ final class MemorySqlAst {
             List<String> cols = !plan.columns().isEmpty() ? plan.columns()
                     : (rows.isEmpty()
                             ? List.of()
-                            : new ArrayList<>(RowAccessor.allColumns(rows.get(0)).keySet()));
+                            : new ArrayList<>(RowAccessor.allColumns(rows.getFirst()).keySet()));
             if (cols.isEmpty()) {
                 throw new IllegalStateException("无法推断插入列，请显式指定列清单");
             }

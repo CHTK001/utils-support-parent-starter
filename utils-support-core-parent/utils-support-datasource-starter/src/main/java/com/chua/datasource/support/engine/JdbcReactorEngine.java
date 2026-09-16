@@ -213,7 +213,7 @@ public class JdbcReactorEngine implements ReactorEngine {
             unifiedDataSource = conversion.convert(sources, new DataSourceEnvironment("jdbc-reactor", null, null, null));
         } else {
             // 无 Conversion SPI，退回第一个数据源
-            unifiedDataSource = sources.get(0);
+            unifiedDataSource = sources.getFirst();
         }
     }
 
@@ -891,7 +891,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {
-                    Object val = rows.get(0).values().iterator().next();
+                    Object val = rows.getFirst().values().iterator().next();
                     if (val instanceof Number n) total = n.longValue();
                 }
             } catch (Exception ignored) {}
@@ -978,7 +978,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                 String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") t";
                 List<Map<String, Object>> rows = query(countSql, params);
                 if (!rows.isEmpty()) {
-                    Object val = rows.get(0).values().iterator().next();
+                    Object val = rows.getFirst().values().iterator().next();
                     if (val instanceof Number n) total = n.longValue();
                 }
             } catch (Exception ignored) {}
