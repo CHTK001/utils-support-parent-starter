@@ -129,6 +129,50 @@ class WechatExportUtilsTest {
         assertTrue(sql.startsWith("INSERT INTO `msgs`"), "实际开头: " + sql);
     }
 
+    /**
+     * 源表自带 {@code id} 列时**不能**再补自增代理主键 —— 否则 DDL 里会出现两个 {@code `id`}，
+     * 导入直接报 {@code ERROR 1060 (42S21): Duplicate column name 'id'}。
+     * 微信的 {@code contact} / {@code chat_room} 等表都有 {@code id} 列，实测踩到过。
+     */
+    @Test
+    void testBuildSqlScriptShouldNotDuplicateIdColumn() {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("id", 1);
+        row.put("username", "wxid_test");
+        rows.add(row);
+
+        String sql = WechatExportUtils.buildSqlScript(rows, "contact", null, true);
+
+        String ddl = sql.contains("INSERT INTO") ? sql.substring(0, sql.indexOf("INSERT INTO")) : sql;
+        assertEquals(1, countOccurrences(ddl, "`id`"), "DDL 里应只有一个 id 列，实际: \n" + sql);
+        assertFalse(ddl.contains("AUTO_INCREMENT"), "源表有 id 时不该补代理主键，实际: \n" + sql);
+    }
+
+    @Test
+    void testBuildSqlScriptShouldAddSurrogateKeyWhenNoIdColumn() {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("msg", "hi");
+        rows.add(row);
+
+        String sql = WechatExportUtils.buildSqlScript(rows, "msgs", null, true);
+
+        String ddl = sql.contains("INSERT INTO") ? sql.substring(0, sql.indexOf("INSERT INTO")) : sql;
+        assertTrue(ddl.contains("`id` BIGINT AUTO_INCREMENT PRIMARY KEY"), "实际: \n" + sql);
+        assertEquals(1, countOccurrences(ddl, "`id`"), "实际: \n" + sql);
+    }
+
+    private static int countOccurrences(String text, String needle) {
+        int count = 0;
+        int index = text.indexOf(needle);
+        while (index >= 0) {
+            count++;
+            index = text.indexOf(needle, index + needle.length());
+        }
+        return count;
+    }
+
     @Test
     void testParseJsonToRows() throws Exception {
         String json = "[{\"username\":\"wxid_test\",\"message\":\"hello\"}]";
