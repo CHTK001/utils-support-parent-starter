@@ -279,7 +279,6 @@ public class MqttClientWrapper implements AutoCloseable {
         boolean found = false;
 
         for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
 
             if (method.isAnnotationPresent(OnOpen.class)) {
                 connectListeners.add(() -> invokeMethod(handler, method));
@@ -299,7 +298,6 @@ public class MqttClientWrapper implements AutoCloseable {
             } else if (method.isAnnotationPresent(OnError.class)) {
                 errorListeners.add(t -> {
                     try {
-                method.setAccessible(true);
                         ReflectUtils.invoke(handler, method.getName(), method.getReturnType(), method.getParameterTypes(), t);
                     } catch (Exception e) {
                         log.error("MQTT 客户端 @OnError 方法执行异常", e);

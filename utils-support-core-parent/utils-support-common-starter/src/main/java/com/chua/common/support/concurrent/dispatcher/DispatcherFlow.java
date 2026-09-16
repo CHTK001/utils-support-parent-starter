@@ -151,7 +151,7 @@ public class DispatcherFlow {
      */
     private List<DispatcherProvider> resolveProviders(String type) {
         if (type == null || type.isEmpty()) {
-            return providers.isEmpty() ? List.of() : List.of(providers.get(0));
+            return providers.isEmpty() ? List.of() : List.of(providers.getFirst());
         }
         var result = new ArrayList<DispatcherProvider>();
         for (var provider : providers) {

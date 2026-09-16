@@ -25,6 +25,6 @@ public class FailoverRouterStrategy implements RouterStrategy {
         if (clients.isEmpty()) {
             throw new IllegalArgumentException("No clients available");
         }
-        return clients.get(0);
+        return clients.getFirst();
     }
 }

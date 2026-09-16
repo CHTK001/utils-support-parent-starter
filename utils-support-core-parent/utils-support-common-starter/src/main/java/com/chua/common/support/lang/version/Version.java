@@ -318,7 +318,7 @@ public class Version implements Comparable<Version> {
     public long getMajor() {
         // 返回第一个子版本号，如果没有则返回 0
         if (!trimmedSubversionNumbers.isEmpty()) {
-            return trimmedSubversionNumbers.get(0);
+            return trimmedSubversionNumbers.getFirst();
         }
         return 0L;
     }

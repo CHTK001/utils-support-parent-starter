@@ -170,7 +170,7 @@ public class ModelscopeChatClient implements ChatClient {
         try {
             List<Map<String, Object>> choices = castList(root.get("choices"));
             if (choices != null && !choices.isEmpty()) {
-                Map<String, Object> message = castMap(choices.get(0).get("message"));
+                Map<String, Object> message = castMap(choices.getFirst().get("message"));
                 Object content = message != null ? message.get("content") : null;
                 text = content != null ? content.toString() : null;
             }

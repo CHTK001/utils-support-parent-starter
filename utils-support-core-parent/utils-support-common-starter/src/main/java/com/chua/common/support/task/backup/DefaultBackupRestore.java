@@ -58,7 +58,7 @@ public class DefaultBackupRestore implements BackupRestore {
         if (dates.isEmpty()) {
             return RestoreResult.failure("没有可用的备份");
         }
-        return restoreByDate(config, dates.get(0));
+        return restoreByDate(config, dates.getFirst());
     }
 
     /**

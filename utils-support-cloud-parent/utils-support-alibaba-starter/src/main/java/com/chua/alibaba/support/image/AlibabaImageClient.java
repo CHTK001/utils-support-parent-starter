@@ -315,7 +315,7 @@ public class AlibabaImageClient implements ImageClient {
             if ("SUCCEEDED".equals(taskStatus)) {
                 List<Map<String, Object>> results = (List<Map<String, Object>>) output.get("results");
                 if (results != null && !results.isEmpty()) {
-                    String imageUrl = (String) results.get(0).get("url");
+                    String imageUrl = (String) results.getFirst().get("url");
                     return ImageResponse.builder()
                             .taskId(taskId)
                             .status(ImageResponse.Status.SUCCESS)

@@ -134,6 +134,6 @@ public interface Tokenizer {
         if (result == null || result.isEmpty()) {
             return null;
         }
-        return result.get(0).getWord();
+        return result.getFirst().getWord();
     }
 }

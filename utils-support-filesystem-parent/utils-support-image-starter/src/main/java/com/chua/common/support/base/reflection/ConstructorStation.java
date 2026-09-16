@@ -1,5 +1,7 @@
 package com.chua.common.support.base.reflection;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.reflect.Constructor;
 /**
 * @author CH
@@ -16,12 +18,7 @@ public class ConstructorStation {
     * @return 新instance的结果
      */
     public static <T> T newInstance(Constructor<T> constructor) {
-        try {
-            constructor.setAccessible(true);
-            return constructor.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance via constructor", e);
-        }
+        return newInstance(constructor, new Object[0]);
     }
 
     @SuppressWarnings("unchecked")
@@ -33,11 +30,13 @@ public class ConstructorStation {
     * @return 新instance的结果
      */
     public static <T> T newInstance(Constructor<T> constructor, Object... args) {
-        try {
-            constructor.setAccessible(true);
-            return constructor.newInstance(args);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance via constructor", e);
+        if (constructor == null) {
+            throw new IllegalArgumentException("constructor 不能为 null");
         }
+        T instance = ReflectUtils.instantiate(constructor.getDeclaringClass(), args);
+        if (instance == null) {
+            throw new RuntimeException("Failed to create instance via constructor");
+        }
+        return instance;
     }
 }

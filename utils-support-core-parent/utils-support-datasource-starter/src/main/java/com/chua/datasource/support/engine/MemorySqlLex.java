@@ -199,8 +199,6 @@ final class MemorySqlLex {
                 }
                 String n = m.getName();
                 try {
-                    /* 行实现类可能为包私有：跨包反射需显式放开可访问性 */
-                    m.setAccessible(true);
                     if (n.startsWith("get") && n.length() > 3) {
                         out.put(Character.toLowerCase(n.charAt(3)) + n.substring(4), ReflectUtils.invoke(row, n, Object.class));
                     } else if (n.startsWith("is") && n.length() > 2) {
@@ -278,7 +276,7 @@ final class MemorySqlLex {
          */
         static <T> T toBean(Map<String, Object> row, Class<T> rowType) {
             try {
-                T instance = rowType.getDeclaredConstructor().newInstance();
+                T instance = ReflectUtils.instantiate(rowType);
                 for (Map.Entry<String, Object> e : row.entrySet()) {
                     setValue(instance, e.getKey(), e.getValue());
                 }

@@ -141,7 +141,7 @@ public class CampplusEmbedding {
         try (OnnxTensor t = OnnxTensor.createTensor(ortEnv,
                 FloatBuffer.wrap(flat), shape);
              OrtSession.Result r = session.run(Map.of(inputName, t))) {
-            float[] emb = toFloatArray((OnnxTensor) r.get(0));
+            float[] emb = toFloatArray((OnnxTensor) r.get(0)); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             l2Normalize(emb);
             return emb;
         } catch (Exception e) {

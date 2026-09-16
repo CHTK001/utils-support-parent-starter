@@ -37,11 +37,11 @@ public class AgentResponse implements Serializable {
     /** 执行事件列表 */
     @Builder.Default
     /** Events */
-    private List<AgentEvent> events = new ArrayList<>();
+    private List<AgentEvent> events = new ArrayList<>(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态追加，规模不可预估
 
     /** 扩展元数据 */
     @Builder.Default
-    private Map<String, Object> metadata = new LinkedHashMap<>();
+    private Map<String, Object> metadata = new LinkedHashMap<>(); // [P3C 3.15 豁免] 数据容器值对象，调用方动态写入，规模不可预估
 
     /**
     * 用量信息

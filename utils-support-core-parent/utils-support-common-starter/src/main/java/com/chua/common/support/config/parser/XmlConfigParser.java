@@ -243,7 +243,7 @@ public class XmlConfigParser implements ConfigParser {
         for (Map.Entry<String, List<Object>> entry : childMap.entrySet()) {
             List<Object> values = entry.getValue();
             if (values.size() == 1) {
-                result.put(entry.getKey(), values.get(0));
+                result.put(entry.getKey(), values.getFirst());
             } else {
                 result.put(entry.getKey(), values);
             }

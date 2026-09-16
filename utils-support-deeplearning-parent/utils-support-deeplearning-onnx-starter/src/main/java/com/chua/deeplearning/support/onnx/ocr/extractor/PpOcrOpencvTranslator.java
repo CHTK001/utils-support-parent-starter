@@ -137,7 +137,7 @@ public class PpOcrOpencvTranslator {
             if (outputs.isEmpty()) {
                 throw new RuntimeException("模型无输出");
             }
-            Mat result = outputs.get(0);
+            Mat result = outputs.getFirst();
 
             // Decode CTC
             String text = ctcDecode(result);

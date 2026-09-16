@@ -176,7 +176,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
             return;
         }
         Path modelDir = Seq2SeqModelResources.resolve(def);
-        Path encoderPath = modelDir.resolve(def.requiredFiles().get(0));
+        Path encoderPath = modelDir.resolve(def.requiredFiles().getFirst());
         Path decoderPath = modelDir.resolve(def.requiredFiles().get(1));
         Path decoderPastPath = modelDir.resolve(def.requiredFiles().get(2));
         Path tokenizerPath = modelDir.resolve(def.requiredFiles().get(3));
@@ -599,11 +599,11 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
         if (!finished.isEmpty()) {
             finished.sort((a, b) -> Float.compare(b.score, a.score));
-            return finished.get(0).ids;
+            return finished.getFirst().ids;
         }
         if (!beams.isEmpty()) {
             beams.sort((a, b) -> Float.compare(b.score, a.score));
-            return beams.get(0).ids;
+            return beams.getFirst().ids;
         }
         return List.of();
     }

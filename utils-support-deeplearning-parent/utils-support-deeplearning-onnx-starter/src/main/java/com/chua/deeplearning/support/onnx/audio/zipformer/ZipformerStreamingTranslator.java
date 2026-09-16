@@ -477,7 +477,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         try (OnnxTensor tensor = OnnxTensor.createTensor(env, new long[][]{y});
              OrtSession.Result result =
                      decoderSession.run(Collections.singletonMap("y", tensor))) {
-            return ((float[][]) result.get(0).getValue())[0];
+            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         }
     }
 
@@ -493,7 +493,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
              OrtSession.Result result = joinerSession.run(Map.of(
                      "encoder_out", encTensor,
                      "decoder_out", decTensor))) {
-            return ((float[][]) result.get(0).getValue())[0];
+            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         }
     }
 

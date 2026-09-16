@@ -9,6 +9,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
@@ -869,22 +870,10 @@ public class ElasticsearchEngine implements Engine {
         if (targetType.isInstance(value)) {
             return value;
         }
-        if (targetType == String.class) {
-            return String.valueOf(value);
-        }
-        if (value instanceof Number num) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return num.intValue();
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return num.longValue();
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return num.doubleValue();
-            }
-            if (targetType == Float.class || targetType == float.class) {
-                return num.floatValue();
-            }
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(value, targetType);
+        if (converted != null) {
+            return converted;
         }
         return value;
     }

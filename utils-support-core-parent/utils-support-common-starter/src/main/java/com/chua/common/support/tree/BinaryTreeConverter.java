@@ -34,7 +34,7 @@ public final class BinaryTreeConverter {
         if (entries.isEmpty()) {
             return new TreeNode<>();
         }
-        TreeNode<K, V> root = new TreeNode<>(entries.get(0).key, entries.get(0).value);
+        TreeNode<K, V> root = new TreeNode<>(entries.getFirst().key, entries.getFirst().value);
         TreeNode<K, V> cur = root;
         for (int i = 1; i < entries.size(); i++) {
             TreeNode<K, V> next = new TreeNode<>(entries.get(i).key, entries.get(i).value);
@@ -77,7 +77,7 @@ public final class BinaryTreeConverter {
         if (entries.isEmpty()) {
             return new TreeNode<>();
         }
-        TreeNode<K, V> root = new TreeNode<>(entries.get(0).key, entries.get(0).value);
+        TreeNode<K, V> root = new TreeNode<>(entries.getFirst().key, entries.getFirst().value);
         TreeNode<K, V> cur = root;
         for (int i = 1; i < entries.size(); i++) {
             TreeNode<K, V> next = new TreeNode<>(entries.get(i).key, entries.get(i).value);
@@ -119,7 +119,7 @@ public final class BinaryTreeConverter {
         List<Entry<K, V>> result = new ArrayList<>();
         BPlusTreeNode<K, V> cur = tree.getRoot();
         while (cur != null && !cur.leaf) {
-            cur = cur.children.get(0);
+            cur = cur.children.getFirst();
         }
         while (cur != null) {
             for (int i = 0; i < cur.keys.size(); i++) {

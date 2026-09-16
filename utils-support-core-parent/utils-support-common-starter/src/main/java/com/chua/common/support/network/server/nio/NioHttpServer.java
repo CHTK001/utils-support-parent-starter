@@ -2,6 +2,7 @@ package com.chua.common.support.network.server.nio;
 
 import com.chua.common.support.network.ProtocolType;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.network.http.HttpHeader;
 import com.chua.common.support.network.http.HttpMethod;
@@ -889,7 +890,7 @@ public class NioHttpServer extends AbstractServer {
         // 扫描 @OnMessage 注解方法注册为 WebSocket 主题处理器
         for (Method method : handler.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(OnMessage.class)) {
-                method.setAccessible(true);
+                ClassUtils.setAccessible(method);
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
                 if (topic == null || topic.isEmpty()) {

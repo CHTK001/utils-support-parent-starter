@@ -1,5 +1,6 @@
 package com.chua.redis.support.engine;
 
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
@@ -309,23 +310,11 @@ public class RedisEngine {
         if (value == null) {
             return null;
         }
-        if (targetType == String.class) {
-            return value;
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(value, targetType);
+        if (converted != null) {
+            return converted;
         }
-        try {
-            if (targetType == Integer.class || targetType == int.class) {
-                return Integer.parseInt(value);
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return Long.parseLong(value);
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return Double.parseDouble(value);
-            }
-            if (targetType == Boolean.class || targetType == boolean.class) {
-                return Boolean.parseBoolean(value);
-            }
-        } catch (Exception e) { /* ignore */ }
         return value;
     }
 

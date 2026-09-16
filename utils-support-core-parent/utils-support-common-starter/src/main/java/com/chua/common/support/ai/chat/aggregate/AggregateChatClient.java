@@ -876,8 +876,8 @@ public class AggregateChatClient implements ChatClient {
     * @return 解析结果，包含所有客户端和分组路由器
      */
     private AllParsed parseGroups(AggregateChatClientSetting config) {
-        List<RouterStrategy.WeightedClient> allClients = new ArrayList<>();
-        List<HybridStrategy.GroupRouter> groupRouters = new ArrayList<>();
+        List<RouterStrategy.WeightedClient> allClients = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析动态聚合多组客户端，规模运行期决定
+        List<HybridStrategy.GroupRouter> groupRouters = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析，组数量运行期决定
 
         List<AggregateChatClientSetting.GroupConfig> groups = config.getGroups();
         if (groups == null || groups.isEmpty()) {
@@ -935,7 +935,7 @@ public class AggregateChatClient implements ChatClient {
     private static List<RouterStrategy.WeightedClient> buildClients(
             List<AggregateChatClientSetting.ClientConfig> configs,
             SkillManager skillManager) {
-        List<RouterStrategy.WeightedClient> result = new ArrayList<>();
+        List<RouterStrategy.WeightedClient> result = new ArrayList<>(configs.size());
         for (AggregateChatClientSetting.ClientConfig cc : configs) {
             if (cc.getProvider() == null || cc.getApiKey() == null) {
                 log.warn("[Aggregate] client missing provider/apiKey, skipping");

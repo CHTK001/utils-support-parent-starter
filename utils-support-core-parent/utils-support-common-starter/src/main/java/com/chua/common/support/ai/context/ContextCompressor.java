@@ -156,7 +156,7 @@ public final class ContextCompressor {
         if (compressed == null || compressed.isEmpty()) {
             return prompt;
         }
-        return compressed.get(0).getContent();
+        return compressed.getFirst().getContent();
     }
 
     /** 是否BaselineSaved */

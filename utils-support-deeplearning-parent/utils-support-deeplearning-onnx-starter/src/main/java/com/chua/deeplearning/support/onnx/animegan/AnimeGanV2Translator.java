@@ -91,8 +91,8 @@ public class AnimeGanV2Translator implements Translator<Image, Image> {
         // 输出 NHWC float，手动反归一化 + clip（规避 onnxruntime 不支持的 op）
         Shape outShape = output.getShape();
         int dim = outShape.dimension();
-        int h = dim >= 3 ? (int) outShape.get(dim - 3) : (int) outShape.get(0);
-        int w = dim >= 3 ? (int) outShape.get(dim - 2) : (int) outShape.get(0);
+        int h = dim >= 3 ? (int) outShape.get(dim - 3) : (int) outShape.get(0); // [P3C 3.7 豁免] 张量形状维度下标
+        int w = dim >= 3 ? (int) outShape.get(dim - 2) : (int) outShape.get(0); // [P3C 3.7 豁免] 张量形状维度下标
         float[] data = output.toFloatArray();
         int wh = w * h;
         int[] rgb = new int[wh];

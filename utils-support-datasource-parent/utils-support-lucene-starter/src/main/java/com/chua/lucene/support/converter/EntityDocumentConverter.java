@@ -1,6 +1,7 @@
 package com.chua.lucene.support.converter;
 
 import com.chua.lucene.support.engine.LuceneFields;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.reflection.ReflectUtils;
 import org.apache.lucene.document.*;
 
@@ -89,23 +90,19 @@ public final class EntityDocumentConverter {
         if (doc == null || entityClass == null) {
             return null;
         }
-        try {
- // 使用无参构造反射实例化，避免 方法处理 对部分类的访问限制
-            java.lang.reflect.Constructor<T> constructor = entityClass.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            T entity = constructor.newInstance();
-            for (Field field : entityClass.getDeclaredFields()) {
-                field.setAccessible(true);
-                String fieldName = field.getName();
-                String valueStr = doc.getField(fieldName) != null ? doc.getField(fieldName).stringValue() : null;
-                if (valueStr != null) {
-                    setFieldValue(entity, field, valueStr, field.getType());
-                }
-            }
-            return entity;
-        } catch (Exception e) {
+ // 使用 ReflectUtils 无参构造反射实例化，避免 方法处理 对部分类的访问限制
+        T entity = ReflectUtils.instantiate(entityClass);
+        if (entity == null) {
             return null;
         }
+        for (Field field : entityClass.getDeclaredFields()) {
+            String fieldName = field.getName();
+            String valueStr = doc.getField(fieldName) != null ? doc.getField(fieldName).stringValue() : null;
+            if (valueStr != null) {
+                setFieldValue(entity, fieldName, valueStr, field.getType());
+            }
+        }
+        return entity;
     }
 
     /**
@@ -163,39 +160,15 @@ public final class EntityDocumentConverter {
     * 设置字段值。
     *
     * @param entity   实体对象
-    * @param field    字段
+    * @param fieldName 字段名
     * @param valueStr 字符串值
     * @param fieldType 字段类型
      */
-    private static void setFieldValue(Object entity, Field field, String valueStr, Class<?> fieldType) {
-        try {
-            if (fieldType == String.class) {
-                field.set(entity, valueStr);
-            } else if (fieldType == Long.class || fieldType == long.class) {
-                field.set(entity, Long.parseLong(valueStr));
-            } else if (fieldType == Integer.class || fieldType == int.class) {
-                field.set(entity, Integer.parseInt(valueStr));
-            } else if (fieldType == Short.class || fieldType == short.class) {
-                field.set(entity, Short.parseShort(valueStr));
-            } else if (fieldType == Byte.class || fieldType == byte.class) {
-                field.set(entity, Byte.parseByte(valueStr));
-            } else if (fieldType == Float.class || fieldType == float.class) {
-                field.set(entity, Float.parseFloat(valueStr));
-            } else if (fieldType == Double.class || fieldType == double.class) {
-                field.set(entity, Double.parseDouble(valueStr));
-            } else if (fieldType == Boolean.class || fieldType == boolean.class) {
-                field.set(entity, Boolean.parseBoolean(valueStr));
-            } else if (fieldType == Date.class) {
-                field.set(entity, new Date(Long.parseLong(valueStr)));
-            } else if (fieldType == LocalDateTime.class) {
-                field.set(entity, LocalDateTime.parse(valueStr));
-            } else if (fieldType == LocalDate.class) {
-                field.set(entity, LocalDate.parse(valueStr));
-            } else if (Number.class.isAssignableFrom(fieldType)) {
-                field.set(entity, ReflectUtils.invokeStatic(fieldType, "valueOf", fieldType, new Class[]{String.class}, valueStr));
-            }
-        } catch (Exception e) {
-            // ignore
+    private static void setFieldValue(Object entity, String fieldName, String valueStr, Class<?> fieldType) {
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(valueStr, fieldType);
+        if (converted != null) {
+            ReflectUtils.setField(entity, fieldName, converted);
         }
     }
 }

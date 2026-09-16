@@ -214,7 +214,7 @@ public class ZipFileSystem implements FileSystem {
             MergedInputStream(List<File> files) throws FileNotFoundException {
                 this.files = files;
                 if (!files.isEmpty()) {
-                    this.currentStream = new FileInputStream(files.get(0));
+                    this.currentStream = new FileInputStream(files.getFirst());
                 }
             }
 

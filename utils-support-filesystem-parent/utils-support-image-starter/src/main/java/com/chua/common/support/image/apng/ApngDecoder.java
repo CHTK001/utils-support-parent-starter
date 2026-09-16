@@ -273,30 +273,14 @@ public class ApngDecoder {
         }
     }
 
-    /**
+/**
     * PNG 行过滤器逆变换（unfilter）。
-    * @param a a
-     /**
-      * un过滤器row。
-      * @param filterType 过滤器类型
-      * @param curr curr
-      * @param prev prev
-      * @param stride stride
-      * @param bpp bpp
-      */
-     * @param b b
-     * @param c c
-     * @return paethPredictor的结果
-      * @param a a
-     /**
-     * un过滤器row。
-     * @param filterType 过滤器类型
-     * @param curr curr
-     * @param prev prev
-     * @param stride stride
-     * @param bpp bpp
-      */
-     */
+    * @param filterType 过滤器类型
+    * @param curr curr
+    * @param prev prev
+    * @param stride stride
+    * @param bpp bpp
+    */
     private static void unFilterRow(int filterType, byte[] curr, byte[] prev, int stride, int bpp) {
         switch (filterType) {
             case PNG.PNG_FILTER_NONE:

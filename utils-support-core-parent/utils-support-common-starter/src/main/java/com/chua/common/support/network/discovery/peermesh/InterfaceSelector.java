@@ -72,7 +72,7 @@ public class InterfaceSelector {
         }
         if (!privateIps.isEmpty()) {
             log.debug("找到私网 IPv4 地址集合: {}", privateIps);
-            return privateIps.get(0);
+            return privateIps.getFirst();
         }
 
         // 4. 退回首个可用的非环回 IPv4（即使公网）

@@ -97,7 +97,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
             try (OnnxTensor inputTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flat), shape);
                  OrtSession.Result results = session.run(Map.of(inputName, inputTensor))) {
 
-                float[][] output = (float[][]) results.get(0).getValue();
+                float[][] output = (float[][]) results.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[] embedding = output[0];
 
                 // L2 归一化

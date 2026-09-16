@@ -630,7 +630,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @throws Exception 处理异常
      */
     private void handleModels(ServerRequest request, ServerResponse response) throws Exception {
-        List<Map<String, Object>> data = new ArrayList<>();
+        List<Map<String, Object>> data = new ArrayList<>(); // [P3C 3.15 豁免] 模型列表遍历自框架动态 models()，数量运行期不可预估
         try {
             chatClient.models().forEach(md -> {
                 data.add(Map.of(
@@ -762,7 +762,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
             }
             writeJson(response, buildResponsesResponse(result, model));
         } catch (Exception ex) {
-            Map<String, Object> errorResult = new LinkedHashMap<>();
+            Map<String, Object> errorResult = new LinkedHashMap<>(2);
             errorResult.put(KEY_TEXT, ex.getMessage());
             if (stream) {
                 handleResponsesStream(response, errorResult, model);
@@ -885,9 +885,9 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
                 return;
             }
 
-            Map<String, Object> geminiResp = new LinkedHashMap<>();
+            Map<String, Object> geminiResp = new LinkedHashMap<>(3);
             geminiResp.put("candidates", List.of(buildGeminiCandidate(model, text)));
-            Map<String, Object> usage = new LinkedHashMap<>();
+            Map<String, Object> usage = new LinkedHashMap<>(5);
             usage.put("promptTokenCount", 0);
             usage.put("candidatesTokenCount", 0);
             usage.put("totalTokenCount", 0);
@@ -1110,16 +1110,16 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String text = result != null ? result.getText() : "";
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
 
-        Map<String, Object> message = new LinkedHashMap<>();
+        Map<String, Object> message = new LinkedHashMap<>(3);
         message.put(KEY_ROLE, ROLE_ASSISTANT);
         message.put(KEY_CONTENT, text != null ? text : "");
 
-        Map<String, Object> choice = new LinkedHashMap<>();
+        Map<String, Object> choice = new LinkedHashMap<>(5);
         choice.put(KEY_INDEX, 0);
         choice.put(KEY_MESSAGE, message);
         choice.put(KEY_FINISH_REASON, FINISH_STOP);
 
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(9);
         body.put(KEY_ID, id);
         body.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION);
         body.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
@@ -1145,14 +1145,14 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private Map<String, Object> buildOpenAiChatError(String model, String errorMessage) {
         String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
-        Map<String, Object> message = new LinkedHashMap<>();
+        Map<String, Object> message = new LinkedHashMap<>(3);
         message.put(KEY_ROLE, ROLE_ASSISTANT);
         message.put(KEY_CONTENT, errorMessage);
-        Map<String, Object> choice = new LinkedHashMap<>();
+        Map<String, Object> choice = new LinkedHashMap<>(5);
         choice.put(KEY_INDEX, 0);
         choice.put(KEY_MESSAGE, message);
         choice.put(KEY_FINISH_REASON, FINISH_STOP);
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(7);
         body.put(KEY_ID, id);
         body.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION);
         body.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
@@ -1169,12 +1169,12 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @return 增量块体
      */
     private Map<String, Object> buildOpenAiStreamDelta(String chunk, String model) {
-        Map<String, Object> delta = new LinkedHashMap<>();
+        Map<String, Object> delta = new LinkedHashMap<>(6);
         delta.put(KEY_ID, PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
         delta.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION_CHUNK);
         delta.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
         delta.put(KEY_MODEL, model != null ? model : DEFAULT_MODEL);
-        Map<String, Object> choice = new LinkedHashMap<>();
+        Map<String, Object> choice = new LinkedHashMap<>(5);
         choice.put(KEY_INDEX, 0);
         choice.put("delta", Map.of(KEY_CONTENT, chunk));
         choice.put(KEY_FINISH_REASON, null);
@@ -1195,12 +1195,12 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String text = result != null ? result.getText() : "";
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
 
-        Map<String, Object> choice = new LinkedHashMap<>();
+        Map<String, Object> choice = new LinkedHashMap<>(5);
         choice.put(KEY_TEXT, text != null ? text : "");
         choice.put(KEY_INDEX, 0);
         choice.put(KEY_FINISH_REASON, FINISH_STOP);
 
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(9);
         body.put(KEY_ID, id);
         body.put(KEY_OBJECT, OBJECT_TEXT_COMPLETION);
         body.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
@@ -1226,13 +1226,13 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private Map<String, Object> buildOpenAiCompletionError(String model, String prompt, String errorMessage) {
         String id = PREFIX_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
-        Map<String, Object> choice = new LinkedHashMap<>();
+        Map<String, Object> choice = new LinkedHashMap<>(5);
         choice.put(KEY_TEXT, errorMessage);
-        choice.put(KEY_INDEX, 0);
+choice.put(KEY_INDEX, 0);
         choice.put(KEY_FINISH_REASON, FINISH_STOP);
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(7);
         body.put(KEY_ID, id);
-        body.put(KEY_OBJECT, OBJECT_TEXT_COMPLETION);
+        body.put(KEY_OBJECT, OBJECT_CHAT_COMPLETION);
         body.put(KEY_CREATED, (int) (System.currentTimeMillis() / 1000));
         body.put(KEY_MODEL, model != null ? model : DEFAULT_MODEL);
         body.put(KEY_CHOICES, List.of(choice));
@@ -1251,7 +1251,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
         String text = result != null ? result.getText() : "";
         String resolvedModel = model != null ? model : DEFAULT_CLAUDE_MODEL;
 
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(11);
         body.put(KEY_ID, id);
         body.put(KEY_TYPE, OBJECT_MESSAGE);
         body.put(KEY_ROLE, ROLE_ASSISTANT);
@@ -1275,7 +1275,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private Map<String, Object> buildClaudeStartResponse(String model) {
         String id = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
         String resolvedModel = model != null ? model : DEFAULT_CLAUDE_MODEL;
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(10);
         body.put(KEY_ID, id);
         body.put(KEY_TYPE, OBJECT_MESSAGE);
         body.put(KEY_ROLE, ROLE_ASSISTANT);
@@ -1297,7 +1297,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private Map<String, Object> buildClaudeError(String model, String errorMessage) {
         String id = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
         String resolvedModel = model != null ? model : DEFAULT_CLAUDE_MODEL;
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(9);
         body.put(KEY_ID, id);
         body.put(KEY_TYPE, OBJECT_MESSAGE);
         body.put(KEY_ROLE, ROLE_ASSISTANT);
@@ -1339,7 +1339,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
      */
     private Map<String, Object> buildCcsResponse(String responseId, String messageId, String model, String text, String status) {
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
-        Map<String, Object> body = new LinkedHashMap<>();
+        Map<String, Object> body = new LinkedHashMap<>(13);
         body.put(KEY_ID, responseId);
         body.put(KEY_OBJECT, OBJECT_RESPONSE);
         body.put("created_at", (int) (System.currentTimeMillis() / 1000));
@@ -1361,7 +1361,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @return 消息体
      */
     private Map<String, Object> buildCcsMessage(String messageId, String text, String status) {
-        Map<String, Object> message = new LinkedHashMap<>();
+        Map<String, Object> message = new LinkedHashMap<>(7);
         message.put(KEY_ID, messageId);
         message.put(KEY_TYPE, OBJECT_MESSAGE);
         message.put(KEY_STATUS, status);
@@ -1382,10 +1382,10 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @return 候选响应体
      */
     private Map<String, Object> buildGeminiCandidate(String role, String text) {
-        Map<String, Object> content = new LinkedHashMap<>();
+        Map<String, Object> content = new LinkedHashMap<>(3);
         content.put(KEY_ROLE, role);
         content.put("parts", List.of(Map.of(KEY_TEXT, text != null ? text : "")));
-        Map<String, Object> candidate = new LinkedHashMap<>();
+        Map<String, Object> candidate = new LinkedHashMap<>(5);
         candidate.put("content", content);
         candidate.put("finishReason", GEMINI_FINISH_STOP);
         candidate.put(KEY_INDEX, 0);
@@ -1403,13 +1403,13 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     private Map<String, Object> parseBody(ServerRequest request) {
         String bodyStr = request.getBodyString();
         if (StringUtils.isNullOrEmpty(bodyStr)) {
-            return new LinkedHashMap<>();
+            return new LinkedHashMap<>(); // [P3C 3.15 豁免] 空集合归还语义，无填充，无容量需求
         }
         try {
             return Json.fromJson(bodyStr, LinkedHashMap.class);
         } catch (Exception ex) {
             log.warn("{}parse-body-failed: {}", LOG_PROTOCOL_PREFIX, ex.getMessage());
-            return new LinkedHashMap<>();
+            return new LinkedHashMap<>(); // [P3C 3.15 豁免] 空集合归还语义，无填充，无容量需求
         }
     }
 

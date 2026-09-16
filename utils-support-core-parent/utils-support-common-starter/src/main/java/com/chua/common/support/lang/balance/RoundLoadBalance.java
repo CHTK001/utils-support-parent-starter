@@ -68,7 +68,7 @@ public class RoundLoadBalance implements LoadBalance {
  return null;
  }
  if (values.size() == 1) {
- return values.get(0);
+ return values.getFirst();
  }
  int index = count.getAndIncrement();
  if (index < 0) {

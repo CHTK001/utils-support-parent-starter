@@ -96,7 +96,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
 
         //                   latent                        
         if (input.size() > 0) {
-            var latent = input.get(0);
+            var latent = input.getFirst();
             latent.setName("sample");
             modelInput.add(latent);
         }
@@ -139,13 +139,13 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
 
         //                                        
         if (list.size() > 0) {
-            var noisePred = list.get(0);
+            var noisePred = list.getFirst();
             unetOutput.add(noisePred);
         }
 
         if (log.isDebugEnabled()) {
             log.debug("[Small SD v0][UNet]                   : output shape={}", 
-                    list.size() > 0 ? list.get(0).getShape() : "empty");
+                    list.size() > 0 ? list.getFirst().getShape() : "empty");
         }
 
         return unetOutput;

@@ -109,7 +109,7 @@ public class WeightLoadBalance implements LoadBalance {
  }
  int index = nodes.indexOf(node);
  if (index < 0 || index >= values.size()) {
- return values.get(0);
+ return values.getFirst();
  }
  return values.get(index);
  }

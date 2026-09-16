@@ -99,7 +99,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
 
         //                   latent                        
         if (input.size() > 0) {
-            var latent = input.get(0);
+            var latent = input.getFirst();
             
             //        VAE                Stable Diffusion                
             latent = latent.div(VAE_SCALE_FACTOR);
@@ -109,7 +109,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
 
         if (log.isDebugEnabled()) {
             log.debug("[Small SD v0][VAE Decoder]                   : input shape={}", 
-                    input.size() > 0 ? input.get(0).getShape() : "empty");
+                    input.size() > 0 ? input.getFirst().getShape() : "empty");
         }
 
         return modelInput;

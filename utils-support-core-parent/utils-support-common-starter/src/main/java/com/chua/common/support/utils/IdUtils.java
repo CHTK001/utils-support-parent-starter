@@ -3,6 +3,7 @@ package com.chua.common.support.utils;
 import com.chua.common.support.lang.algorithm.KafkaSequenceGenerator;
 import com.chua.common.support.lang.algorithm.MacSequenceGenerator;
 import com.chua.common.support.lang.algorithm.SnowflakeIdGenerator;
+import com.chua.common.support.reflection.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -472,11 +473,10 @@ public class IdUtils {
             if (h > threshold) {
                 continue;
             }
-            field.setAccessible(true);
             try {
-                Object value = field.get(obj);
+                Object value = ReflectUtils.getField(obj, field.getName());
                 sb.append(field.getName()).append('=').append(normalizeValue(value)).append('|');
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 sb.append(field.getName()).append("=ACCESS_ERROR|");
             }
         }
@@ -541,11 +541,10 @@ public class IdUtils {
         }
         StringBuilder sb = new StringBuilder();
         for (Field field : fields) {
-            field.setAccessible(true);
             try {
-                Object value = field.get(obj);
+                Object value = ReflectUtils.getField(obj, field.getName());
                 sb.append(field.getName()).append('=').append(normalizeValue(value)).append('|');
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 sb.append(field.getName()).append("=ERROR|");
             }
         }

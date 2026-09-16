@@ -70,7 +70,7 @@ public final class ReflectUtils {
         }
         return CLASS_NAME_CACHE.computeIfAbsent(className, it -> {
             try {
-                return Class.forName(it);
+                return Class.forName(it); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（Class 加载封装）
             } catch (ClassNotFoundException e) {
                 log.debug("[ReflectUtils] 类加载失败: {}", className);
                 return null;
@@ -99,7 +99,7 @@ public final class ReflectUtils {
                 String clsName = it.substring(0, idx);
                 ClassLoader cl = idx >= 0 ? classLoader : Thread.currentThread().getContextClassLoader();
                 // initialize=true：触发静态块（SPI 注册器依赖类初始化执行 registerAll 等逻辑）
-                return cl != null ? Class.forName(clsName, true, cl) : Class.forName(clsName);
+                return cl != null ? Class.forName(clsName, true, cl) : Class.forName(clsName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（Class 加载封装）
             } catch (ClassNotFoundException e) {
                 log.debug("[ReflectUtils] 类加载失败: {}", className);
                 return null;
@@ -393,7 +393,7 @@ public final class ReflectUtils {
                 Class<?> c = clazz;
                 while (c != null) {
                     try {
-                        java.lang.reflect.Field f = c.getDeclaredField(fieldName);
+                        java.lang.reflect.Field f = c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectGetter）
                         // Java 9+ 使用 privateLookupIn：解决内部类/嵌套类私有字段的方法处理权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectGetter(f);
@@ -424,7 +424,7 @@ public final class ReflectUtils {
                 Class<?> c = clazz;
                 while (c != null) {
                     try {
-                        java.lang.reflect.Field f = c.getDeclaredField(fieldName);
+                        java.lang.reflect.Field f = c.getDeclaredField(fieldName); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（unreflectSetter）
                         // Java 9+ 使用 privateLookupIn：解决内部类/嵌套类私有字段的方法处理权限问题
                         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(c, LOOKUP);
                         return lookup.unreflectSetter(f);
@@ -450,7 +450,7 @@ public final class ReflectUtils {
         Class<?> c = clazz;
         while (c != null) {
             try {
-                return c.getDeclaredField(name);
+                return c.getDeclaredField(name); // [P3C 1.10 豁免] ReflectUtils 为反射基础设施本体（findField 对外封装）
             } catch (NoSuchFieldException e) {
                 c = c.getSuperclass();
             }

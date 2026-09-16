@@ -11,6 +11,7 @@ import com.chua.common.support.proxy.ProxyUtils;
 import com.chua.common.support.proxy.ProxyMethod;
 import com.chua.common.support.proxy.intercept.DelegateMethodIntercept;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -206,7 +207,7 @@ public class NativeRpcClient implements RpcClient {
             Exception last = null;
             // 按负载均衡策略选择第一个尝试端点；无均衡器或选择失败时退化为顺序遍历
             String first = selectFirst(targets);
-            if (first != null && !first.equals(targets.isEmpty() ? null : targets.get(0))) {
+            if (first != null && !first.equals(targets.isEmpty() ? null : targets.getFirst())) {
                 targets.remove(first);
                 targets.add(0, first);
             }
@@ -258,7 +259,7 @@ public class NativeRpcClient implements RpcClient {
         private Object invokeLocal(Object localService, ProxyMethod pm) {
             try {
                 java.lang.reflect.Method m = pm.getMethod();
-                m.setAccessible(true);
+                ClassUtils.setAccessible(m);
                 Object result = ReflectUtils.invoke(localService, m.getName(), Object.class, m.getParameterTypes(), pm.getArgs());
                 // 语义对齐：服务端通过 RpcServer 返回 Future 时也做同样解包
                 if (result instanceof java.util.concurrent.Future) {

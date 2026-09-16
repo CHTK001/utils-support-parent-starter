@@ -117,11 +117,11 @@ public class ModuleLoader {
         try {
             for (Module target : targets) {
                 if (target != null && target != source) {
-                    addExports.invoke(source, pkg, target);
+                    addExports.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
                 }
             }
             if (unnamed != null) {
-                addExports.invoke(source, pkg, unnamed);
+                addExports.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
             }
         } catch (Exception e) {
             log.trace("导出包 {} 失败: {}", pkg, e.getMessage());
@@ -142,11 +142,11 @@ public class ModuleLoader {
         try {
             for (Module target : targets) {
                 if (target != null && target != source) {
-                    addOpens.invoke(source, pkg, target);
+                    addOpens.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
                 }
             }
             if (unnamed != null) {
-                addOpens.invoke(source, pkg, unnamed);
+                addOpens.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
             }
         } catch (Exception e) {
             log.trace("开放包 {} 失败: {}", pkg, e.getMessage());
@@ -261,7 +261,7 @@ public class ModuleLoader {
     private static void exportPackageToUnnamed(Module source, String pkg,
                                                Module unnamed, Method addExports) {
         try {
-            addExports.invoke(source, pkg, unnamed);
+            addExports.invoke(source, pkg, unnamed); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
         } catch (Exception e) {
             log.trace("导出包 {} 到未命名模块失败: {}", pkg, e.getMessage());
         }
@@ -279,8 +279,8 @@ public class ModuleLoader {
     private static void invokeReflectively(Module source, String pkg, Module target,
                                            Method addExports, Method addOpens) {
         try {
-            addExports.invoke(source, pkg, target);
-            addOpens.invoke(source, pkg, target);
+            addExports.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
+            addOpens.invoke(source, pkg, target); // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports/implAddOpens），无法用 ReflectUtils 替代
         } catch (Exception e) {
             log.trace("对模块 {} 导出/开放包 {} 失败: {}", target, pkg, e.getMessage());
         }
@@ -372,7 +372,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddExportsMethod == null) {
                     try {
-                        // [反射豁免] JDK 模块系统内部私有方法，ReflectUtils 基于 MethodHandles.Lookup 无法访问 private 方法
+                        // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddExports），无法用 ReflectUtils 替代
                         implAddExportsMethod = Module.class.getDeclaredMethod(
                                 "implAddExports", String.class, Module.class);
                         implAddExportsMethod.setAccessible(true);
@@ -400,7 +400,7 @@ public class ModuleLoader {
             synchronized (METHOD_LOCK) {
                 if (implAddOpensMethod == null) {
                     try {
-                        // [反射豁免] JDK 模块系统内部私有方法，ReflectUtils 基于 MethodHandles.Lookup 无法访问 private 方法
+                        // [P3C 1.10 豁免] JDK Module 内部私有 API（implAddOpens），无法用 ReflectUtils 替代
                         implAddOpensMethod = Module.class.getDeclaredMethod(
                                 "implAddOpens", String.class, Module.class);
                         implAddOpensMethod.setAccessible(true);

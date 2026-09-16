@@ -1,5 +1,6 @@
 package com.chua.common.support.datasource.wal;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.tree.BPlusTree;
 import com.chua.common.support.utils.ThreadUtils;
 import com.chua.common.support.wal.*;
@@ -207,10 +208,10 @@ public abstract class AbstractWalStoreSystem<K extends Comparable<K>> implements
     @SuppressWarnings("unchecked")
     public static <K extends Comparable<K>> WalStoreSystem<K> create(
             Class<? extends WalStoreSystem<K>> clazz, WalStoreConfig config) {
-        try {
-            return (WalStoreSystem<K>) clazz.getConstructor(WalStoreConfig.class).newInstance(config);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create store: " + clazz.getSimpleName(), e);
+        WalStoreSystem<K> store = ReflectUtils.instantiate(clazz, config);
+        if (store == null) {
+            throw new RuntimeException("Failed to create store: " + clazz.getSimpleName());
         }
+        return store;
     }
 }

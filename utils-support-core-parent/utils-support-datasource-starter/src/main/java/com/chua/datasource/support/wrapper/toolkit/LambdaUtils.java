@@ -28,6 +28,7 @@ public class LambdaUtils {
      */
     public static <T> String resolveObject(SFunction<T, ?> func) {
         try {
+            // [P3C 1.10 豁免] 序列化 writeReplace 方法句柄
             var writeReplace = func.getClass().getDeclaredMethod("writeReplace");
             writeReplace.setAccessible(true);
             var lambda = (SerializedLambda) writeReplace.invoke(func);

@@ -1,5 +1,6 @@
 package com.chua.common.support.objects.definition;
 
+import com.chua.common.support.reflection.ReflectUtils;
 
 /**
 * 单例 Bean 定义。
@@ -91,7 +92,7 @@ public class SingletonBeanDefinition extends AbstractBeanDefinition {
             return singletonInstance;
         }
         try {
-            return getBeanClass().getDeclaredConstructor().newInstance();
+            return ReflectUtils.instantiate(getBeanClass());
         } catch (Exception e) {
             throw new RuntimeException("创建 Bean 失败: " + getName(), e);
         }

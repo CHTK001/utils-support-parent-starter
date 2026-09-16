@@ -20,6 +20,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.SFunction;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
@@ -1146,39 +1147,10 @@ public class SolrEngine extends AbstractEngine {
         if (targetType.isInstance(value)) {
             return value;
         }
-        if (targetType == String.class) {
-            return String.valueOf(value);
-        }
-        if (value instanceof Number num) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return num.intValue();
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return num.longValue();
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return num.doubleValue();
-            }
-            if (targetType == Float.class || targetType == float.class) {
-                return num.floatValue();
-            }
-        }
-        if (value instanceof String str) {
-            try {
-                if (targetType == Integer.class || targetType == int.class) {
-                    return Integer.parseInt(str);
-                }
-                if (targetType == Long.class || targetType == long.class) {
-                    return Long.parseLong(str);
-                }
-                if (targetType == Double.class || targetType == double.class) {
-                    return Double.parseDouble(str);
-                }
-                if (targetType == Float.class || targetType == float.class) {
-                    return Float.parseFloat(str);
-                }
-            } catch (NumberFormatException ignored) {
-            }
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(value, targetType);
+        if (converted != null) {
+            return converted;
         }
         return value;
     }

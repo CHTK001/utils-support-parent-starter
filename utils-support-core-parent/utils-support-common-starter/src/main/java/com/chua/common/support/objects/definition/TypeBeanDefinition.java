@@ -173,8 +173,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
                 log.warn("类没有声明构造器: {}", bc.getName());
                 return null;
             }
-            ClassUtils.setAccessible(constructor);
-            Object instance = constructor.newInstance(resolveConstructorArgs(constructor));
+            Object instance = ClassUtils.newInstance(constructor, resolveConstructorArgs(constructor));
 
             injectAndAssemble(instance);
             BeanDefinitionLifecycleManager.init(this, instance);

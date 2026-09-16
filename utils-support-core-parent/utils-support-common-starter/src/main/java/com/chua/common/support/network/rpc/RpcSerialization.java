@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -158,9 +157,7 @@ public final class RpcSerialization {
             }
             try {
                 Class<?> implClass = ReflectUtils.forName(supported[1]);
-                Constructor<?> constructor = implClass.getDeclaredConstructor();
-                constructor.setAccessible(true);
-                return (Serialization) constructor.newInstance();
+                return (Serialization) ReflectUtils.instantiate(implClass);
             } catch (Exception e) {
                 return null;
             }

@@ -151,7 +151,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
         }
 
         if (!dataset.isEmpty()) {
-            double[] first = dataset.get(0);
+            double[] first = dataset.getFirst();
             if (first.length != target.length) {
                 throw new IllegalArgumentException(String.format(
                         "目标向量维度 (%d) 与数据集特征维度 (%d) 不一致",

@@ -325,7 +325,7 @@ public class VitsTtsTranslator {
             inputs.put("noise_scale_dur", noiseScaleDur);
             inputs.put("speaker", speaker);
             try (OrtSession.Result result = session.run(inputs)) {
-                OnnxTensor audioTensor = (OnnxTensor) result.get(0);
+                OnnxTensor audioTensor = (OnnxTensor) result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 FloatBuffer fb = audioTensor.getFloatBuffer();
                 float[] out = new float[fb.remaining()];
                 fb.get(out);

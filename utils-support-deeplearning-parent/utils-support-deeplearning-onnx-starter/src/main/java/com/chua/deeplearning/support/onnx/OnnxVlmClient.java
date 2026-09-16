@@ -1,5 +1,6 @@
 package com.chua.deeplearning.support.onnx;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.deeplearning.support.engine.ModelRegistry;
 import com.chua.deeplearning.support.image.UnderstandResult;
 import com.chua.deeplearning.support.image.UnderstandTask;
@@ -52,9 +53,11 @@ public class OnnxVlmClient implements VlmClient {
             if (entry == null) {
                 throw new IllegalStateException("Model not registered: " + modelName);
             }
-            ITranslator<Object[], String> t =
-                    (ITranslator<Object[], String>) Class.forName(entry.translatorClassName())
-                            .getDeclaredConstructor().newInstance();
+            Object translator = ReflectUtils.instantiate(entry.translatorClassName());
+            if (translator == null) {
+                throw new IllegalStateException("Translator 实例化失败: " + entry.translatorClassName());
+            }
+            ITranslator<Object[], String> t = (ITranslator<Object[], String>) translator;
             String result = t.translate(new Object[]{imageData, task.prompt()});
             return new UnderstandResult(task, result);
         } catch (Exception e) {

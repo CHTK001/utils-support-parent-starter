@@ -70,7 +70,7 @@ public class RealIoRunner {
                 },
                 reasoning -> System.out.println("\n[reasoning] " + reasoning),
                 resp -> {
-                    System.out.println("\n[done] finish=" + resp.choices().get(0).finishReason());
+                    System.out.println("\n[done] finish=" + resp.choices().getFirst().finishReason());
                     if (resp.usage() != null) {
                         System.out.println("[usage] prompt=" + resp.usage().promptTokens()
                             + " completion=" + resp.usage().completionTokens());

@@ -1,6 +1,7 @@
 package com.chua.tablesaw.support.engine;
 
 import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
@@ -488,8 +489,6 @@ public class TablesawEngine implements Engine {
             return null;
         }
         try {
-            Method writeReplace = column.getClass().getDeclaredMethod("writeReplace");
-            writeReplace.setAccessible(true);
             SerializedLambda lambda = (SerializedLambda) ReflectUtils.invoke(column, "writeReplace", SerializedLambda.class);
             String name = lambda.getImplMethodName();
             if (name.startsWith("is")) {
@@ -879,30 +878,6 @@ public class TablesawEngine implements Engine {
         if (row.isMissing(column)) {
             return null;
         }
-        if (targetType == String.class) {
-            return row.getString(column);
-        }
-        if (targetType == Integer.class || targetType == int.class) {
-            return row.getInt(column);
-        }
-        if (targetType == Long.class || targetType == long.class) {
-            return row.getLong(column);
-        }
-        if (targetType == Double.class || targetType == double.class) {
-            return row.getDouble(column);
-        }
-        if (targetType == Float.class || targetType == float.class) {
-            return (float) row.getDouble(column);
-        }
-        if (targetType == Boolean.class || targetType == boolean.class) {
-            return row.getBoolean(column);
-        }
-        if (targetType == LocalDate.class) {
-            return LocalDate.parse(row.getString(column), DateTimeFormatter.ISO_LOCAL_DATE);
-        }
-        if (targetType == LocalDateTime.class) {
-            return LocalDateTime.parse(row.getString(column), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        }
         if (targetType.isEnum()) {
             String str = row.getString(column);
             if (str == null) {
@@ -913,6 +888,11 @@ public class TablesawEngine implements Engine {
                     return c;
                 }
             }
+        }
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(row.getObject(column), targetType);
+        if (converted != null) {
+            return converted;
         }
         return row.getObject(column);
     }

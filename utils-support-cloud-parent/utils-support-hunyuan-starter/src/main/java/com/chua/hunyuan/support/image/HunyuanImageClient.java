@@ -205,7 +205,7 @@ public BufferedImage generate(String prompt) {
         if (choices == null || choices.isEmpty()) {
             throw new RuntimeException("混元生图返回的结果为空");
         }
-        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+        Map<String, Object> message = (Map<String, Object>) choices.getFirst().get("message");
         if (message == null) {
             throw new RuntimeException("混元生图返回的 message 为空");
         }

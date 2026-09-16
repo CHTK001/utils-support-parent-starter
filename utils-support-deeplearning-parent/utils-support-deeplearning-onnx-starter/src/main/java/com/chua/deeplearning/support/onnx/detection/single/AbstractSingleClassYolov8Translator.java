@@ -126,7 +126,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     * @return 类名称的结果
      */
     public String className() {
-        return classes.get(0);
+        return classes.getFirst();
     }
 
     /**
@@ -290,7 +290,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     * @return actual类名称的结果
      */
     public String actualClassName() {
-        return classes.get(0);
+        return classes.getFirst();
     }
 
     /**
@@ -324,7 +324,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
             throw new IllegalArgumentException(getClass().getSimpleName() + " 仅支持 HWC 格式, shape=" + shape);
         }
 
-        int height = (int) shape.get(0);
+        int height = (int) shape.get(0); // [P3C 3.7 豁免] 张量形状维度下标
         int width = (int) shape.get(1);
         int channels = (int) shape.get(2);
         float[] source = array.toType(DataType.FLOAT32, false).toFloatArray();

@@ -204,7 +204,7 @@ public class ParaformerTranslator {
                         IntBuffer.wrap(new int[]{inputFrames}), new long[]{1});
              OrtSession.Result result = session.run(Map.of(
                      INPUT_SPEECH, speech, INPUT_SPEECH_LENGTHS, lengths))) {
-            OnnxTensor logitsTensor = (OnnxTensor) result.get(0);
+            OnnxTensor logitsTensor = (OnnxTensor) result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             logits = logitsTensor.getFloatBuffer().array();
             long[] shape = logitsTensor.getInfo().getShape();
             seqLen = (int) shape[1];

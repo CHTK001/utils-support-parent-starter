@@ -517,26 +517,10 @@ public class RedisReactorEngine implements ReactorEngine {
         if (rowType.isInstance(result)) {
             return (T) result;
         }
-        if (rowType == String.class) {
-            return (T) result.toString();
-        }
-        if (rowType == Integer.class || rowType == int.class) {
-            if (result instanceof Number num) {
-                return (T) Integer.valueOf(num.intValue());
-            }
-            return (T) Integer.valueOf(result.toString());
-        }
-        if (rowType == Long.class || rowType == long.class) {
-            if (result instanceof Number num) {
-                return (T) Long.valueOf(num.longValue());
-            }
-            return (T) Long.valueOf(result.toString());
-        }
-        if (rowType == Boolean.class || rowType == boolean.class) {
-            if (result instanceof Number num) {
-                return (T) Boolean.valueOf(num.intValue() != 0);
-            }
-            return (T) Boolean.valueOf(result.toString());
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(result, rowType);
+        if (converted != null) {
+            return (T) converted;
         }
         throw new IllegalStateException("无法将结果转换为 " + rowType.getName() + ": " + result);
     }

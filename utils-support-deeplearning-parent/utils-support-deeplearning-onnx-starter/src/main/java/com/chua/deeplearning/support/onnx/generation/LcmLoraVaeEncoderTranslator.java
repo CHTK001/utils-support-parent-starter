@@ -107,7 +107,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
         //                          latent
         if (list.size() > 0) {
-            var latent = list.get(0);
+            var latent = list.getFirst();
             output.add(latent);
         }
 

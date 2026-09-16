@@ -3,6 +3,7 @@ package com.chua.common.support.network.server.parser.listener;
 import com.chua.common.support.network.annotations.ListenerParser;
 
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -54,7 +55,7 @@ public class JavaxListenerParser implements ListenerParser {
                 event = matchJakartaAnnotation(method);
             }
             if (event != null) {
-                method.setAccessible(true);
+                ClassUtils.setAccessible(method);
                 result.put(event, method);
             }
         }

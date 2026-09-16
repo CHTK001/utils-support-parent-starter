@@ -598,13 +598,9 @@ public class FileEngine extends AbstractEngine {
      */
     private static void collectFields(Object bean, Class<?> clazz, Map<String, Object> map) {
         for (Field field : clazz.getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                Object value = field.get(bean);
-                if (!map.containsKey(field.getName())) {
-                    map.put(field.getName(), value);
-                }
-            } catch (IllegalAccessException ignored) {
+            Object value = ReflectUtils.getField(bean, field.getName());
+            if (!map.containsKey(field.getName())) {
+                map.put(field.getName(), value);
             }
         }
         Class<?> superclass = clazz.getSuperclass();

@@ -159,7 +159,7 @@ public class CloudflareDnsProvider implements DnsProvider {
         }
         Object result = client.get("/zones?name=" + zoneName);
         if (result instanceof List<?> list && !list.isEmpty()) {
-            Object first = list.get(0);
+            Object first = list.getFirst();
             if (first instanceof Map<?, ?> map) {
                 Object id = map.get("id");
                 if (id != null) {

@@ -11,6 +11,7 @@ import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -118,7 +119,7 @@ public class JdkWebSocketServer extends AbstractServer {
         }
         Class<?> clazz = handler.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
+            ClassUtils.setAccessible(method);
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
@@ -351,7 +352,7 @@ public class JdkWebSocketServer extends AbstractServer {
 
     /** 创建MessageHandler */
     private ServerHandler createMessageHandler(Object bean, Method method) {
-        method.setAccessible(true);
+        ClassUtils.setAccessible(method);
         return (request, response) -> {
             try {
                 Class<?>[] paramTypes = method.getParameterTypes();
@@ -414,7 +415,7 @@ public class JdkWebSocketServer extends AbstractServer {
             }
             for (Method method : bean.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(annotationType)) {
-                    method.setAccessible(true);
+                    ClassUtils.setAccessible(method);
                     try {
                         ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
                     } catch (Exception e) {

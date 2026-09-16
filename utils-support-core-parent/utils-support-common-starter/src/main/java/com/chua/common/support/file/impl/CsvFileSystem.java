@@ -289,7 +289,7 @@ public class CsvFileSystem implements FileSystem {
                     new OutputStreamWriter(new FileOutputStream(file), charset))) {
                 List<String> cols = headerColumns;
                 if (cols == null && !rows.isEmpty()) {
-                    cols = CollectionUtils.newArrayList(rows.get(0).keySet());
+                    cols = CollectionUtils.newArrayList(rows.getFirst().keySet());
                 }
                 long written = 0L;
                 if (withHeader && cols != null && !cols.isEmpty()) {
@@ -334,7 +334,7 @@ public class CsvFileSystem implements FileSystem {
                         if (list.isEmpty()) {
                             continue;
                         }
-                        if (list.get(0) instanceof Map) {
+                        if (list.getFirst() instanceof Map) {
                             if (withHeader && !headerWritten && cols != null) {
                                 String headerLine = String.join(String.valueOf(delimiter), cols);
                                 writer.write(headerLine);
@@ -385,9 +385,9 @@ public class CsvFileSystem implements FileSystem {
             for (Object entry : pending) {
                 if (entry instanceof List) {
                     List<?> list = (List<?>) entry;
-                    if (!list.isEmpty() && list.get(0) instanceof Map) {
+                    if (!list.isEmpty() && list.getFirst() instanceof Map) {
                         @SuppressWarnings("unchecked")
-                        Map<String, Object> first = (Map<String, Object>) list.get(0);
+                        Map<String, Object> first = (Map<String, Object>) list.getFirst();
                         return CollectionUtils.newArrayList(first.keySet());
                     }
                 }

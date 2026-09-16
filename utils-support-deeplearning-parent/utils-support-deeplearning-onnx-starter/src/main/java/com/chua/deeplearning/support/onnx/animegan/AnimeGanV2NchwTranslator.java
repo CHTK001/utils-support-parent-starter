@@ -66,8 +66,8 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
         NDArray output = list.singletonOrThrow();
         Shape outShape = output.getShape();
         int dim = outShape.dimension();
-        int h = dim >= 3 ? (int) outShape.get(dim - 2) : (int) outShape.get(0);
-        int w = dim >= 3 ? (int) outShape.get(dim - 1) : (int) outShape.get(0);
+        int h = dim >= 3 ? (int) outShape.get(dim - 2) : (int) outShape.get(0); // [P3C 3.7 豁免] 张量形状维度下标
+        int w = dim >= 3 ? (int) outShape.get(dim - 1) : (int) outShape.get(0); // [P3C 3.7 豁免] 张量形状维度下标
         float[] data = output.toFloatArray();
         int wh = w * h;
         int[] rgb = new int[wh];

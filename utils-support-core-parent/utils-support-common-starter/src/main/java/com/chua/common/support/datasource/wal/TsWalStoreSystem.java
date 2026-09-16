@@ -116,7 +116,7 @@ public class TsWalStoreSystem implements WalStoreSystem<String> {
 
     public Optional<TsPoint> latest(String measure) throws IOException {
         List<TsPoint> pts = queryRange(measure, Long.MIN_VALUE, Long.MAX_VALUE, 0, 1);
-        return pts.isEmpty() ? Optional.empty() : Optional.of(pts.get(0));
+        return pts.isEmpty() ? Optional.empty() : Optional.of(pts.getFirst());
     }
 
     private TsPoint decodeTs(byte[] payload) {

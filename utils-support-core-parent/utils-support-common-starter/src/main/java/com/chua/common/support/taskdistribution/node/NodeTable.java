@@ -210,11 +210,11 @@ public class NodeTable {
             return null;
         }
         if (candidates.size() == 1) {
-            return candidates.get(0);
+            return candidates.getFirst();
         }
         switch (strategy) {
             case FIRST:
-                return candidates.get(0);
+                return candidates.getFirst();
             case LAST:
                 return candidates.get(candidates.size() - 1);
             case RANDOM:
@@ -224,7 +224,7 @@ public class NodeTable {
             case WEIGHT:
                 return weightedRandomSelect(candidates);
             default:
-                return candidates.get(0);
+                return candidates.getFirst();
         }
     }
 

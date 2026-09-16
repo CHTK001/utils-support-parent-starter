@@ -1,5 +1,6 @@
 package com.chua.apollo.support.client;
 
+import com.chua.common.support.converter.Converter;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
@@ -263,23 +264,16 @@ public class ApolloClient implements AutoCloseable {
         @SuppressWarnings("unchecked")
         public <T> T getProperty(String key, T defaultValue, Class<T> type) {
             Config config = getConfig();
-            if (type == Integer.class || type == int.class) {
-                return (T) Integer.valueOf(config.getIntProperty(key, (Integer) defaultValue));
-            }
-            if (type == Long.class || type == long.class) {
-                return (T) Long.valueOf(config.getLongProperty(key, (Long) defaultValue));
-            }
-            if (type == Boolean.class || type == boolean.class) {
-                return (T) Boolean.valueOf(config.getBooleanProperty(key, (Boolean) defaultValue));
-            }
-            if (type == Double.class || type == double.class) {
-                return (T) Double.valueOf(config.getDoubleProperty(key, (Double) defaultValue));
-            }
-            if (type == Float.class || type == float.class) {
-                return (T) Float.valueOf(config.getFloatProperty(key, (Float) defaultValue));
-            }
             String value = config.getProperty(key, defaultValue != null ? defaultValue.toString() : null);
-            return value != null ? (T) value : defaultValue;
+            if (value == null) {
+                return defaultValue;
+            }
+            // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+            Object converted = Converter.convertIfNecessary(value, type);
+            if (converted != null) {
+                return (T) converted;
+            }
+            return defaultValue;
         }
 
         /**

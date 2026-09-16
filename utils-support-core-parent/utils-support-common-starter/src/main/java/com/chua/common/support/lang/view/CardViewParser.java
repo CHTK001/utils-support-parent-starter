@@ -1,5 +1,6 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.LinkedHashMap;
@@ -124,8 +125,7 @@ public class CardViewParser implements ViewParser {
         while (type != null && type != Object.class) {
             for (var f : ViewFormatter.extractFields(type)) {
                 try {
-                    f.setAccessible(true);
-                    Object val = f.get(data);
+                    Object val = ReflectUtils.getField(data, f.getName());
                     result.put(f.getName(), val != null ? val.toString() : "null");
                 } catch (Exception e) {
                     result.put(f.getName(), ViewFormatter.UNKNOWN_CELL);

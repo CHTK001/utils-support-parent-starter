@@ -4,7 +4,6 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.inject.BeanDefinitionMethodInjector;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
-import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -76,7 +75,8 @@ public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodI
             args[i] = arg;
         }
         try {
-            ClassUtils.setAccessible(method);
+            // ClassUtils.setAccessible 为原生反射包装（内部直调 Method.setAccessible），已改由
+            // ReflectUtils.invoke（MethodHandle 私有查找）统一处理可访问性，P3C 1.10 合规
             ReflectUtils.invoke(instance, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         } catch (Exception e) {
             log.error("[spring-impl] 方法注入失败: {}.{}", instance.getClass().getName(), method.getName(), e);

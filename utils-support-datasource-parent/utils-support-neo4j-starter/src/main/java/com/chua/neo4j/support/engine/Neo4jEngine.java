@@ -11,6 +11,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrappe
 import com.chua.common.support.lang.datasource.page.Page;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.datasource.support.wrapper.toolkit.LambdaUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -716,24 +717,10 @@ public class Neo4jEngine implements Engine {
         if (!(value instanceof Number)) {
             return value;
         }
-        Number n = (Number) value;
-        if (targetType == int.class || targetType == Integer.class) {
-            return n.intValue();
-        }
-        if (targetType == long.class || targetType == Long.class) {
-            return n.longValue();
-        }
-        if (targetType == short.class || targetType == Short.class) {
-            return n.shortValue();
-        }
-        if (targetType == byte.class || targetType == Byte.class) {
-            return n.byteValue();
-        }
-        if (targetType == float.class || targetType == Float.class) {
-            return n.floatValue();
-        }
-        if (targetType == double.class || targetType == Double.class) {
-            return n.doubleValue();
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(value, targetType);
+        if (converted != null) {
+            return converted;
         }
         return value;
     }

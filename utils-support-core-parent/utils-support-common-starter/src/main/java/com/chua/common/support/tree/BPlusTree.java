@@ -318,7 +318,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
             node.keys.remove(i);
             node.children.remove(i);
             if (!node.children.isEmpty()) {
-                node.keys.add(i, node.children.get(i).keys.get(0));
+                node.keys.add(i, node.children.get(i).keys.getFirst());
             }
         }
     }
@@ -352,7 +352,7 @@ public class BPlusTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
         List<Map.Entry<K, V>> result = new ArrayList<>(size);
         BPlusTreeNode<K, V> cur = root;
         while (cur != null && !cur.leaf) {
-            cur = cur.children.get(0);
+            cur = cur.children.getFirst();
         }
         while (cur != null) {
             for (int i = 0; i < cur.keys.size(); i++) {

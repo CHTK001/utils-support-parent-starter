@@ -114,7 +114,7 @@ public final class LocalServiceRegistry {
         if (list == null || list.isEmpty()) {
             return null;
         }
-        return list.get(0);
+        return list.getFirst();
     }
 
     /**

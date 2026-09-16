@@ -256,7 +256,7 @@ public BufferedImage generate(String prompt) {
         if (CollectionUtils.isEmpty(images)) {
             throw new RuntimeException("Amazon Bedrock 返回的图片数据为空");
         }
-        String base64Data = images.get(0);
+        String base64Data = images.getFirst();
         byte[] imageBytes = Base64.getDecoder().decode(base64Data);
         ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
         return ImageIO.read(bais);

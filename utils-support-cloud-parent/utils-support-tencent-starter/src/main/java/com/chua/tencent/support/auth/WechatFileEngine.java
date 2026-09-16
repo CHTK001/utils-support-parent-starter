@@ -60,14 +60,14 @@ public class WechatFileEngine extends FileEngine {
             }
 
  // 检查是否为二维数组格式（文件engine 默认格式）
-            if (raw.get(0) instanceof List) {
+            if (raw.getFirst() instanceof List) {
                 List<List<?>> rows = (List<List<?>>) raw;
                 if (rows.size() < 2) {
                     return new ArrayList<>();
                 }
 
                 // 第一行为列名
-                List<?> headerRow = rows.get(0);
+                List<?> headerRow = rows.getFirst();
                 List<String> columns = new ArrayList<>();
                 for (Object col : headerRow) {
                     columns.add(col != null ? col.toString() : null);

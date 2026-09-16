@@ -157,7 +157,7 @@ public class AlibabaCasProvider implements AcmeProvider {
             log.warn("域名列表为空");
             return Collections.emptyList();
         }
-        String domain = domains.get(0);
+        String domain = domains.getFirst();
         try {
             Long orderId = createOrderId(domain, null);
             DescribeCertificateStateRequest request = new DescribeCertificateStateRequest();
@@ -216,7 +216,7 @@ public class AlibabaCasProvider implements AcmeProvider {
         if (domains == null || domains.isEmpty()) {
             return AcmeCertificateResult.fail("域名列表为空");
         }
-        String domain = domains.get(0);
+        String domain = domains.getFirst();
         String csr = isCsrPem(challengeType) ? challengeType : null;
         try {
             Long orderId = createOrderId(domain, csr);
@@ -280,7 +280,7 @@ public class AlibabaCasProvider implements AcmeProvider {
         if (!isCsrPem(challengeType)) {
             return AcmeCertificateResult.fail("续签需要传入 CSR PEM 作为 challengeType");
         }
-        String domain = domains.get(0);
+        String domain = domains.getFirst();
         try {
             Long orderId = createOrderId(domain, challengeType);
             csrCache.put(orderId, challengeType);

@@ -62,7 +62,7 @@ public class RandomRoundLoadBalance implements LoadBalance {
  return null;
  }
  if (values.size() == 1) {
- return values.get(0);
+ return values.getFirst();
  }
  return values.get(ThreadLocalRandom.current().nextInt(values.size()));
  }

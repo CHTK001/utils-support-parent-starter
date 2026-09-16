@@ -76,7 +76,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
 
         //                          latent
         if (input.size() > 0) {
-            var latent = input.get(0);
+            var latent = input.getFirst();
             modelInput.add(latent);
         }
 

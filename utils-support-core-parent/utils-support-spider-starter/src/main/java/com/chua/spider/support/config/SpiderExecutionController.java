@@ -1,5 +1,6 @@
 package com.chua.spider.support.config;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.config.model.SpiderDefinition;
 import com.chua.spider.support.config.model.SpiderExecutionRecord;
 import com.chua.spider.support.config.store.SpiderDefinitionStore;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -180,9 +182,8 @@ public class SpiderExecutionController {
      */
     private Object readField(Object target, String name) {
         try {
-            var f = target.getClass().getDeclaredField(name);
-            f.setAccessible(true);
-            return f.get(target);
+            Field f = ReflectUtils.findField(target.getClass(), name);
+            return ReflectUtils.getField(target, f.getName());
         } catch (Exception e) {
             return "<err:" + e.getMessage() + ">";
         }

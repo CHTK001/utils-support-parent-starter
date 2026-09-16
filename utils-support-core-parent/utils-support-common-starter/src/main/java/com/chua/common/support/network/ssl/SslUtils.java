@@ -224,7 +224,7 @@ public final class SslUtils {
             log.info("自签名证书生成成功，域名: {}，有效期: {} ~ {}",
                     certResult.getPrimaryDomain(), certResult.getNotBefore(), certResult.getNotAfter());
 
-            String keystoreFile = provider.getKeystorePath(domains.get(0));
+            String keystoreFile = provider.getKeystorePath(domains.getFirst());
             String keystorePassword = ssl.getKeyStorePassword() != null ? ssl.getKeyStorePassword() : "changeit";
             KeyStore ks = KeyStore.getInstance("PKCS12");
             try (FileInputStream in = new FileInputStream(keystoreFile)) {

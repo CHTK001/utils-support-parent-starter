@@ -3,6 +3,7 @@ package com.chua.common.support.utils;
 import com.chua.common.support.collection.MultiLinkedValueMap;
 import com.chua.common.support.collection.MultiValueMap;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -2423,7 +2424,7 @@ public class MapUtils {
             java.beans.BeanInfo beanInfo = java.beans.Introspector.getBeanInfo(bean.getClass());
             for (java.beans.PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
                 if (!"class".equals(pd.getName()) && pd.getReadMethod() != null) {
-                    result.put(pd.getName(), pd.getReadMethod().invoke(bean));
+                    result.put(pd.getName(), ReflectUtils.invoke(bean, pd.getReadMethod().getName(), pd.getReadMethod().getReturnType()));
                 }
             }
         } catch (Exception ignored) {

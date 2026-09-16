@@ -195,7 +195,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         // Object 类方法直接透传
         if (method.getDeclaringClass() == Object.class) {
-            return method.invoke(this, args);
+            return ReflectUtils.invoke(this, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
         }
         // 命中缓存则复用，否则解析并存入缓存
         MethodMetadata meta = methodCache.computeIfAbsent(method, this::parseMethod);

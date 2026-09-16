@@ -118,7 +118,7 @@ public class JdkBeanCopier implements BeanCopier {
                 }
                 Object value = entry.getValue();
                 if (value != null) {
-                    writeMethod.invoke(target, convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
+                    ReflectUtils.invoke(target, writeMethod.getName(), void.class, writeMethod.getParameterTypes(), convertIfNeeded(value, writeMethod.getParameterTypes()[0]));
                 }
             } catch (Exception ignored) {
             }

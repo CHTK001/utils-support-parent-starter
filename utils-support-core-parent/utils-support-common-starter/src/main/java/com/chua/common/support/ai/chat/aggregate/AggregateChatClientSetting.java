@@ -145,7 +145,7 @@ public class AggregateChatClientSetting {
         if (tokens == null || tokens.isEmpty()) {
             return Map.of();
         }
-        Map<String, AiToken> map = new LinkedHashMap<>();
+        Map<String, AiToken> map = new LinkedHashMap<>((int) (tokens.size() / 0.75f) + 1);
         for (TokenConfig tc : tokens) {
             if (tc.getToken() == null || tc.getToken().isBlank()) {
                 continue;
