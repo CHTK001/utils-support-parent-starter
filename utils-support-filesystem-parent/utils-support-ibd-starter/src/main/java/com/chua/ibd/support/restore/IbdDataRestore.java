@@ -1,11 +1,15 @@
 package com.chua.ibd.support.restore;
 
 import com.chua.common.support.file.FileSystem;
+import com.chua.common.support.lang.cmd.CmdExecutors;
+import com.chua.common.support.lang.cmd.CmdResult;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.task.restore.AbstractDataRestore;
 import com.chua.common.support.task.restore.DataRestoreConfig;
 import com.chua.common.support.task.restore.DataRestoreResult;
 import com.chua.common.support.task.restore.ExportFormat;
+import com.chua.ibd.support.innodb.IbdTableDefinition;
+import com.chua.ibd.support.innodb.IbdTableReader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -13,8 +17,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,50 +26,48 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.chua.common.support.lang.cmd.CmdExecutors;
-import com.chua.common.support.lang.cmd.CmdResult;
 
 /**
  * IBD 数据还原器。
  *
- * <p>将 MySQL InnoDB 表空间文件（.ibd）还原为可读数据文件（CSV / SQL / Excel）。
- * 底层通过 Python ibd2sql 工具解析 IBD 文件，再将解析结果按指定格式导出。</p>
+ * <p>把 MySQL InnoDB 表空间文件（{@code .ibd}）还原成可读数据文件（CSV / SQL / Excel）。</p>
  *
  * <h3>输出格式</h3>
  * <ul>
  *   <li>CSV — 逗号分隔文本，每行一条数据，首行为表头</li>
- *   <li>SQL — 完整 SQL 脚本，含 DDL（建表）和 INSERT 数据</li>
+ *   <li>SQL — 完整 SQL 脚本，含 DDL（建库建表）和 INSERT 数据</li>
  *   <li>EXCEL — Excel 工作簿，每条数据一行，表头加粗冻结</li>
  * </ul>
  *
- * <h3>前置条件</h3>
- * <p>本实现<b>不是零依赖</b>：它靠外部 Python 工具链解析 {@code .ibd}，因此需要</p>
+ * <h3>两种解析引擎</h3>
+ * <p>{@code options['engine']} 控制走哪条路：</p>
  * <ol>
- *   <li>系统上有可用的 Python（{@code python} / {@code python3} / {@code py} 之一在 PATH 上）；</li>
- *   <li>该 Python 能调到 ibd2sql。注意 <b>ibd2sql 没有发布到 PyPI</b>，只能从
- *       <a href="https://github.com/ddcw/ibd2sql">github.com/ddcw/ibd2sql</a>
- *       获取（纯 Python3、无第三方依赖，下载即用）；而且仓库 v2.x 是<b>包</b>、
- *       没有 {@code __main__.py}，所以 {@code python -m ibd2sql} <b>跑不通</b>，
- *       真正的入口是仓库根目录的 {@code main.py}。</li>
+ *   <li><b>{@code native}（默认）</b> —— 本模块自带的纯 Java 解析器
+ *       （{@code com.chua.ibd.support.innodb}），直接读页：第 0 页拿页大小、
+ *       SDI 页拿表结构 JSON、叶子页拿行数据。表结构来自 SDI，
+ *       所以<b>不需要 Python、不需要 ibd2sql、也不需要连 MySQL Server</b>。
+ *       结构信息足够时还能自己生成 DDL。</li>
+ *   <li><b>{@code ibd2sql}</b> —— 调外部 Python 工具
+ *       <a href="https://github.com/ddcw/ibd2sql">ibd2sql</a> 拿它生成的 SQL 文本再解析。
+ *       注意该工具<b>没有发布到 PyPI</b>，需要手动获取并把仓库根目录放进
+ *       {@code PYTHONPATH}（或用 {@code options['ibd2sql.path']} 指定入口）。</li>
+ *   <li><b>{@code auto}</b> —— 先试 {@code native}，失败再退到 {@code ibd2sql}，
+ *       两条都失败时抛出同时包含两个原因的错误。</li>
  * </ol>
- * <p>接法任选其一：把仓库根目录放进 {@code PYTHONPATH}（本实现会自动定位其中的
- * {@code main.py}），或通过 {@code options['ibd2sql.path']} 指定 {@code main.py} 或其所在目录。
- * 两者都没有时会抛出<b>可直接照做</b>的提示（见
- * {@link #executeIbd2Sql(File, DataRestoreConfig)}）。</p>
  *
  * <h3>使用示例</h3>
  * <pre>{@code
- * // 还原 IBD 文件为 CSV
- * DataRestore restore = DataRestore.create("ibd");
- * DataRestoreResult result = restore.restore(new File("users.ibd"));
+ * // 一行链式还原为 CSV（零外部依赖）
+ * DataRestoreResult result = DataRestore.create("ibd").restore(new File("users.ibd"));
  *
- * // 还原为 Excel，指定输出目录
+ * // 还原为 SQL，指定目标库表名
  * DataRestoreConfig config = DataRestoreConfig.builder()
- *         .format(ExportFormat.EXCEL)
+ *         .format(ExportFormat.SQL)
+ *         .targetSchema("mydb")
+ *         .targetTable("users")
  *         .outputDir(new File("out"))
  *         .build();
- * DataRestore restore = DataRestore.create("ibd", config);
- * DataRestoreResult result = restore.restore(new File("orders.ibd"));
+ * DataRestoreResult result = DataRestore.create("ibd", config).restore(new File("users.ibd"));
  * }</pre>
  *
  * @author CH
@@ -77,9 +78,34 @@ import com.chua.common.support.lang.cmd.CmdResult;
 public class IbdDataRestore extends AbstractDataRestore {
 
     /**
-     * IBD 还原器 SPI 类型名
+     * IBD 还原器 SPI 类型名。
      */
     private static final String SPI_TYPE = "ibd";
+
+    /**
+     * options 键：解析引擎，取值 {@code native} / {@code ibd2sql} / {@code auto}。
+     */
+    public static final String OPTION_ENGINE = "engine";
+
+    /**
+     * options 键：渲染 {@code TIMESTAMP} 用的时区 id（如 {@code Asia/Shanghai}），默认取本机时区。
+     */
+    public static final String OPTION_TIME_ZONE = "time.zone";
+
+    /**
+     * 引擎名：纯 Java 解析（默认）。
+     */
+    public static final String ENGINE_NATIVE = "native";
+
+    /**
+     * 引擎名：外部 Python ibd2sql。
+     */
+    public static final String ENGINE_IBD2SQL = "ibd2sql";
+
+    /**
+     * 引擎名：先 native 后 ibd2sql。
+     */
+    public static final String ENGINE_AUTO = "auto";
 
     /**
      * options 键：ibd2sql 入口路径（{@code main.py} / {@code ibd2sql.py}，或包含它们的目录）。
@@ -94,17 +120,17 @@ public class IbdDataRestore extends AbstractDataRestore {
     public static final String OPTION_IBD2SQL_PATH = "ibd2sql.path";
 
     /**
-     * 命令执行超时时间（秒）
+     * 命令执行超时时间（秒）。
      */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     /**
-     * ibd2sql 仓库入口脚本名（v2.x 布局：仓库根目录下的 main.py）
+     * ibd2sql 仓库入口脚本名（v2.x 布局：仓库根目录下的 main.py）。
      */
     private static final String IBD2SQL_MAIN = "main.py";
 
     /**
-     * ibd2sql 单文件模块名（v1.x 布局，可直接 {@code -m ibd2sql}）
+     * ibd2sql 单文件模块名（v1.x 布局，可直接 {@code -m ibd2sql}）。
      */
     private static final String IBD2SQL_MODULE = "ibd2sql.py";
 
@@ -177,51 +203,30 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @throws Exception 执行异常
      */
     private DataRestoreResult doRestoreCsv(File source, DataRestoreConfig config) throws Exception {
-        // 获取表名
-        String tableName = config.getTargetTable();
-        if (tableName == null || tableName.isBlank()) {
-            tableName = source.getName().replace(".ibd", "").replaceFirst("^\\d+", "");
-            if (tableName.isBlank()) {
-                tableName = source.getName();
-            }
-        }
+        TableData data = extract(source, config);
+        String tableName = resolveTableName(source, config, data);
 
-        // 执行 ibd2sql 获取原始 SQL
-        String rawSql = executeIbd2Sql(source, config);
-
-        // 解析 SQL 为行数据
-        List<Map<String, Object>> rows = parseSqlToRows(rawSql);
-        // 表头优先用 DDL 里的真实列名；DDL 缺失时才退化为行数据的 key
-        List<String> columns = parseCreateTableColumns(rawSql);
-        if (columns.isEmpty()) {
-            columns = extractColumns(rows);
-        }
-
-        // 构造输出文件路径
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
         File csvFile = new File(outputDir, tableName + ".csv");
         ensureDir(csvFile.getParentFile());
 
-        // 写入 CSV
         String charset = config.getCharset();
         try (Writer writer = new OutputStreamWriter(
                 new FileOutputStream(csvFile), Charset.forName(charset))) {
-            // 表头
             if (config.isIncludeStructure()) {
-                writer.write(String.join(",", columns) + "\n");
+                writer.write(String.join(",", data.columns) + "\n");
             }
-            // 数据行
-            for (Map<String, Object> row : rows) {
-                List<String> values = new ArrayList<>(columns.size());
-                for (String col : columns) {
+            for (Map<String, Object> row : data.rows) {
+                List<String> values = new ArrayList<>(data.columns.size());
+                for (String col : data.columns) {
                     values.add(escapeCsvField(row.get(col)));
                 }
                 writer.write(String.join(",", values) + "\n");
             }
         }
 
-        log.info("IBD 还原为 CSV 完成: {} -> {} ({} 行)",
-                source.getName(), csvFile.getName(), rows.size());
+        log.info("IBD 还原为 CSV 完成: {} -> {} ({} 行, 引擎={})",
+                source.getName(), csvFile.getName(), data.rows.size(), data.engine);
         return DataRestoreResult.success(List.of(csvFile), csvFile.length(), 0);
     }
 
@@ -234,28 +239,26 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @throws Exception 执行异常
      */
     private DataRestoreResult doRestoreSql(File source, DataRestoreConfig config) throws Exception {
-        // 执行 ibd2sql 获取原始 SQL（已包含 DDL + INSERT）
-        String rawSql = executeIbd2Sql(source, config);
-
-        // 按目标库表名调整 SQL（表名 / 库名分别按需替换，全部 CREATE TABLE 与 INSERT INTO 都要覆盖）
-        String tableName = config.getTargetTable();
+        TableData data = extract(source, config);
+        String tableName = resolveTableName(source, config, data);
         String schemaName = config.getTargetSchema();
-        String adjustedSql = schemaPrologue(schemaName) + replaceTableNames(rawSql, schemaName, tableName);
 
-        // 构造输出文件路径
+        String script = data.rawSql != null
+                ? schemaPrologue(schemaName) + replaceTableNames(data.rawSql, schemaName, config.getTargetTable())
+                : buildSqlScript(data, schemaName, tableName, config.isIncludeStructure());
+
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
-        String fileName = (tableName != null ? tableName : source.getName()) + ".sql";
-        File sqlFile = new File(outputDir, fileName);
+        File sqlFile = new File(outputDir, tableName + ".sql");
         ensureDir(sqlFile.getParentFile());
 
-        // 写入 SQL
         String charset = config.getCharset();
         try (Writer writer = new OutputStreamWriter(
                 new FileOutputStream(sqlFile), Charset.forName(charset))) {
-            writer.write(adjustedSql);
+            writer.write(script);
         }
 
-        log.info("IBD 还原为 SQL 完成: {} -> {}", source.getName(), sqlFile.getName());
+        log.info("IBD 还原为 SQL 完成: {} -> {} ({} 行, 引擎={})",
+                source.getName(), sqlFile.getName(), data.rows.size(), data.engine);
         return DataRestoreResult.success(List.of(sqlFile), sqlFile.length(), 0);
     }
 
@@ -268,32 +271,13 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @throws Exception 执行异常
      */
     private DataRestoreResult doRestoreExcel(File source, DataRestoreConfig config) throws Exception {
-        // 获取表名
-        String tableName = config.getTargetTable();
-        if (tableName == null || tableName.isBlank()) {
-            tableName = source.getName().replace(".ibd", "").replaceFirst("^\\d+", "");
-            if (tableName.isBlank()) {
-                tableName = source.getName();
-            }
-        }
+        TableData data = extract(source, config);
+        String tableName = resolveTableName(source, config, data);
 
-        // 执行 ibd2sql 获取原始 SQL
-        String rawSql = executeIbd2Sql(source, config);
-
-        // 解析为行数据
-        List<Map<String, Object>> rows = parseSqlToRows(rawSql);
-        // 表头优先用 DDL 里的真实列名；DDL 缺失时才退化为行数据的 key
-        List<String> columns = parseCreateTableColumns(rawSql);
-        if (columns.isEmpty()) {
-            columns = extractColumns(rows);
-        }
-
-        // 构造输出文件路径
         File outputDir = config.getOutputDir() != null ? config.getOutputDir() : source.getParentFile();
         File excelFile = new File(outputDir, tableName + ".xlsx");
         ensureDir(excelFile.getParentFile());
 
-        // 通过 FileSystem SPI 写入 Excel
         // 注意 FileSystem.create 对未知类型**不抛异常而是返回 null**（见本仓库踩坑记录），
         // 所以必须自己判空，否则用户只会看到一句无从下手的 NullPointerException
         FileSystem excelFs = FileSystem.create("excel");
@@ -303,16 +287,212 @@ public class IbdDataRestore extends AbstractDataRestore {
                     + "请补上该依赖，或改用 format=CSV / format=SQL 导出");
         }
         excelFs.write(excelFile)
-                .withHeaders(columns)
-                .write(rows)
+                .withHeaders(data.columns)
+                .write(data.rows)
                 .finish();
 
-        log.info("IBD 还原为 Excel 完成: {} -> {} ({} 行)",
-                source.getName(), excelFile.getName(), rows.size());
+        log.info("IBD 还原为 Excel 完成: {} -> {} ({} 行, 引擎={})",
+                source.getName(), excelFile.getName(), data.rows.size(), data.engine);
         return DataRestoreResult.success(List.of(excelFile), excelFile.length(), 0);
     }
 
-    // ==================== 私有工具方法 ====================
+    // ==================== 数据提取（两种引擎） ====================
+
+    /**
+     * 一次还原过程中提取出来的表格数据。
+     */
+    private static final class TableData {
+
+        /**
+         * 实际使用的引擎名。
+         */
+        private final String engine;
+
+        /**
+         * 输出列名。
+         */
+        private final List<String> columns;
+
+        /**
+         * 行数据。
+         */
+        private final List<Map<String, Object>> rows;
+
+        /**
+         * 表定义（仅 native 引擎有）。
+         */
+        private final IbdTableDefinition definition;
+
+        /**
+         * ibd2sql 原始 SQL（仅 ibd2sql 引擎有）。
+         */
+        private final String rawSql;
+
+        /**
+         * 构造。
+         *
+         * @param engine     引擎名
+         * @param columns    输出列名
+         * @param rows       行数据
+         * @param definition 表定义
+         * @param rawSql     ibd2sql 原始 SQL
+         */
+        private TableData(String engine, List<String> columns, List<Map<String, Object>> rows,
+                          IbdTableDefinition definition, String rawSql) {
+            this.engine = engine;
+            this.columns = columns;
+            this.rows = rows;
+            this.definition = definition;
+            this.rawSql = rawSql;
+        }
+    }
+
+    /**
+     * 按配置选择引擎并提取数据。
+     *
+     * @param source 源 IBD 文件
+     * @param config 还原配置
+     * @return 提取结果
+     * @throws Exception 两条路都失败时抛出
+     */
+    private TableData extract(File source, DataRestoreConfig config) throws Exception {
+        String engine = engineOf(config);
+        if (ENGINE_IBD2SQL.equals(engine)) {
+            return extractViaIbd2Sql(source, config);
+        }
+        try {
+            return extractNative(source, config);
+        } catch (Exception e) {
+            if (!ENGINE_AUTO.equals(engine)) {
+                throw e;
+            }
+            log.warn("纯 Java 解析失败，回退 ibd2sql: {}", e.getMessage());
+            try {
+                return extractViaIbd2Sql(source, config);
+            } catch (Exception fallback) {
+                throw new IllegalStateException("两种解析引擎都失败。纯 Java: " + e.getMessage()
+                        + "；ibd2sql: " + fallback.getMessage(), fallback);
+            }
+        }
+    }
+
+    /**
+     * 取配置里的引擎名。
+     *
+     * @param config 还原配置
+     * @return 引擎名（默认 {@code native}）
+     */
+    private static String engineOf(DataRestoreConfig config) {
+        Object option = config.getOptions().get(OPTION_ENGINE);
+        if (option == null) {
+            return ENGINE_NATIVE;
+        }
+        String engine = String.valueOf(option).trim().toLowerCase(Locale.ROOT);
+        return engine.isEmpty() ? ENGINE_NATIVE : engine;
+    }
+
+    /**
+     * 用纯 Java 解析器提取数据。
+     *
+     * @param source 源 IBD 文件
+     * @param config 还原配置
+     * @return 提取结果
+     * @throws Exception 解析失败
+     */
+    private TableData extractNative(File source, DataRestoreConfig config) throws Exception {
+        ZoneId zone = resolveZone(config);
+        try (IbdTableReader reader = IbdTableReader.open(source, zone)) {
+            List<Map<String, Object>> rows = reader.readAll();
+            IbdTableDefinition definition = reader.definition();
+            log.debug("纯 Java 解析: {} -> {}.{} 共 {} 行（删除标记 {} 条）",
+                    source.getName(), definition.schema(), definition.name(),
+                    rows.size(), reader.deletedRows());
+            return new TableData(ENGINE_NATIVE, reader.columnNames(), rows, definition, null);
+        }
+    }
+
+    /**
+     * 取渲染时区。
+     *
+     * @param config 还原配置
+     * @return 时区（默认本机时区）
+     */
+    private static ZoneId resolveZone(DataRestoreConfig config) {
+        Object option = config.getOptions().get(OPTION_TIME_ZONE);
+        if (option == null || String.valueOf(option).isBlank()) {
+            return ZoneId.systemDefault();
+        }
+        try {
+            return ZoneId.of(String.valueOf(option).trim());
+        } catch (Exception e) {
+            log.warn("options['{}'] 不是合法时区 id: {}，改用本机时区", OPTION_TIME_ZONE, option);
+            return ZoneId.systemDefault();
+        }
+    }
+
+    /**
+     * 用外部 ibd2sql 提取数据。
+     *
+     * @param source 源 IBD 文件
+     * @param config 还原配置
+     * @return 提取结果
+     * @throws Exception 执行失败
+     */
+    private TableData extractViaIbd2Sql(File source, DataRestoreConfig config) throws Exception {
+        String rawSql = executeIbd2Sql(source, config);
+        List<Map<String, Object>> rows = parseSqlToRows(rawSql);
+        List<String> columns = parseCreateTableColumns(rawSql);
+        if (columns.isEmpty()) {
+            columns = extractColumns(rows);
+        }
+        return new TableData(ENGINE_IBD2SQL, columns, rows, null, rawSql);
+    }
+
+    /**
+     * 取输出用的表名：优先用户显式指定，其次 SDI 里的真实表名，最后退回文件名。
+     *
+     * @param source 源文件
+     * @param config 还原配置
+     * @param data   提取结果
+     * @return 表名
+     */
+    private static String resolveTableName(File source, DataRestoreConfig config, TableData data) {
+        String tableName = config.getTargetTable();
+        if (tableName != null && !tableName.isBlank()) {
+            return tableName;
+        }
+        if (data.definition != null && data.definition.name() != null && !data.definition.name().isBlank()) {
+            return data.definition.name();
+        }
+        tableName = source.getName().replace(".ibd", "").replaceFirst("^\\d+", "");
+        return tableName.isBlank() ? source.getName() : tableName;
+    }
+
+    /**
+     * 用表定义 + 行数据拼出完整 SQL 脚本（native 引擎专用）。
+     *
+     * @param data             提取结果
+     * @param schemaName       目标库名
+     * @param tableName        目标表名
+     * @param includeStructure 是否包含建表语句
+     * @return SQL 脚本
+     */
+    private static String buildSqlScript(TableData data, String schemaName,
+                                         String tableName, boolean includeStructure) {
+        StringBuilder sb = new StringBuilder(1024);
+        sb.append(schemaPrologue(schemaName));
+        if (includeStructure && data.definition != null) {
+            sb.append(com.chua.ibd.support.innodb.IbdSqlWriter
+                    .createTable(data.definition, schemaName, tableName)).append('\n');
+        }
+        for (String statement : com.chua.ibd.support.innodb.IbdSqlWriter
+                .insertStatements(data.definition, data.rows, schemaName, tableName, data.columns)) {
+            sb.append(statement).append('\n');
+        }
+        return sb.toString();
+    }
+
+    // ==================== ibd2sql 调用 ====================
 
     /**
      * 执行外部 ibd2sql 命令以生成 SQL 内容。
@@ -374,7 +554,6 @@ public class IbdDataRestore extends AbstractDataRestore {
      *         都探测不到时返回 {@code null}
      */
     private static List<String> resolveIbd2SqlInvocation(String python, DataRestoreConfig config) {
-        // 1) 显式配置优先
         Object option = config.getOptions().get(OPTION_IBD2SQL_PATH);
         if (option != null && !String.valueOf(option).isBlank()) {
             File entry = new File(String.valueOf(option));
@@ -388,16 +567,13 @@ public class IbdDataRestore extends AbstractDataRestore {
                         return List.of(python, candidate.getAbsolutePath());
                     }
                 }
-                // 目录本身可能就是一个包目录（内含 ibd2sql/），退到自动定位
             } else {
                 log.warn("options['{}'] 指向的路径不存在: {}", OPTION_IBD2SQL_PATH, entry.getAbsolutePath());
             }
         }
-        // 2) v1.x 单文件布局 / 用户自行做了 __main__ 垫片
         if (isIbd2SqlModuleAvailable(python)) {
             return List.of(python, "-m", "ibd2sql");
         }
-        // 3) 自动定位包旁的 main.py
         String main = locateIbd2SqlMain(python);
         if (main != null) {
             return List.of(python, main);
@@ -454,7 +630,7 @@ public class IbdDataRestore extends AbstractDataRestore {
      * @return 找到的 Python 命令名称；一个都不可用时返回 {@code null}
      */
     private static String findPython() {
-        String osName = System.getProperty("os.name").toLowerCase();
+        String osName = System.getProperty("os.name").toLowerCase(Locale.ROOT);
         String[] candidates = osName.contains("win")
                 ? new String[]{"python", "python3", "py"}
                 : new String[]{"python3", "python"};
@@ -472,6 +648,8 @@ public class IbdDataRestore extends AbstractDataRestore {
         // 由调用方给出「请安装 Python」的明确提示，而不是让下游报一个看不懂的进程启动错误
         return null;
     }
+
+    // ==================== ibd2sql 输出解析 ====================
 
     /**
      * 将 ibd2sql 输出的 SQL 解析为行数据列表。

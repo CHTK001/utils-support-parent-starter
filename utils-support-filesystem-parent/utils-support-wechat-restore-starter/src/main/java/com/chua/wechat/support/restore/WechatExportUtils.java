@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -313,7 +314,12 @@ public final class WechatExportUtils {
         // 建表语句
         if (includeStructure) {
             sql.append("CREATE TABLE IF NOT EXISTS `").append(tableName).append("` (\n");
-            sql.append("  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,\n");
+            // 源表自身已经带 id 列时**不要**再补代理主键：否则 DDL 里会出现两个 `id`，
+            // 导入直接报 ERROR 1060 (42S21): Duplicate column name 'id'。
+            // （微信的 contact / chat_room 等表都有 id 列，实测踩到过。）
+            if (!hasColumn(columns, "id")) {
+                sql.append("  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,\n");
+            }
             int index = 0;
             int lastIndex = columns.size() - 1;
             for (String column : columns) {
@@ -355,6 +361,27 @@ public final class WechatExportUtils {
             columns.addAll(row.keySet());
         }
         return columns;
+    }
+
+    /**
+     * 判断列名集合里是否已有某一列（不区分大小写）。
+     *
+     * <p>用来避免「源表自带 {@code id} 时又补一个代理主键」导致 DDL 出现重复列。</p>
+     *
+     * @param columns 列名集合
+     * @param name    待查列名
+     * @return 存在返回 {@code true}
+     */
+    static boolean hasColumn(Collection<String> columns, String name) {
+        if (columns == null || name == null) {
+            return false;
+        }
+        for (String column : columns) {
+            if (name.equalsIgnoreCase(column)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
