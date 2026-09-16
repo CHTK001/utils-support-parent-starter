@@ -374,7 +374,7 @@ public class PackageManagerProvider {
             log.warn("未检测到可用的包管理器");
             return false;
         }
-        PackageManager.Type pm = availablePms.get(0);
+        PackageManager.Type pm = availablePms.getFirst();
         String cmd = getUninstallCommand(pm, packageId);
         log.info("使用 {} 卸载: {}", pm.getCommand(), cmd);
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 300, TimeUnit.SECONDS, new LineCallback() {

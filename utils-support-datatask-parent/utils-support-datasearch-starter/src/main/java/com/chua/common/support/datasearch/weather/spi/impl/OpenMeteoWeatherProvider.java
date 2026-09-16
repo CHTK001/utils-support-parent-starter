@@ -166,7 +166,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
         List<DailyForecast> forecast = new ArrayList<>(byDay.values());
         info.setForecast(forecast);
         if (!forecast.isEmpty()) {
-            info.setHourly(forecast.get(0).getHourly());
+            info.setHourly(forecast.getFirst().getHourly());
         }
         return info;
     }

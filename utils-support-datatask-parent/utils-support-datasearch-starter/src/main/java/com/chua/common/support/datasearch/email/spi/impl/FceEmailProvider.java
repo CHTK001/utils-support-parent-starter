@@ -123,7 +123,7 @@ public class FceEmailProvider implements EmailProvider {
     @Override
     public EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
-        return emails.isEmpty() ? null : emails.get(0);
+        return emails.isEmpty() ? null : emails.getFirst();
     }
 
     /**

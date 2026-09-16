@@ -49,7 +49,7 @@ public class MailTmEmailProvider implements EmailProvider {
                 log.warn("[MailTM] 无可用域名");
                 return null;
             }
-            String domain = members.get(0).path("domain").asText();
+            String domain = members.get(0).path("domain").asText(); // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List/Collection）
             if (domain.isBlank()) {
                 log.warn("[MailTM] 域名解析失败");
                 return null;
@@ -159,7 +159,7 @@ public class MailTmEmailProvider implements EmailProvider {
     @Override
     public EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
-        return emails.isEmpty() ? null : emails.get(0);
+        return emails.isEmpty() ? null : emails.getFirst();
     }
 
     /**

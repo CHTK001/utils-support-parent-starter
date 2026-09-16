@@ -61,7 +61,7 @@ public class MailNestEmailProvider implements EmailProvider {
                     .getBodyString();
             JsonNode root = MAPPER.readTree(resp);
             if (root.isArray() && !root.isEmpty()) {
-                String email = root.get(0).path("email").asText("");
+                String email = root.get(0).path("email").asText(""); // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List/Collection）
                 if (!email.isBlank()) {
                     log.info("[MailNest] 创建邮箱成功: {}", email);
                     return email;
@@ -76,7 +76,7 @@ public class MailNestEmailProvider implements EmailProvider {
                     .getBodyString();
             root = MAPPER.readTree(resp);
             if (root.isArray() && !root.isEmpty()) {
-                String email = root.get(0).path("email").asText("");
+                String email = root.get(0).path("email").asText(""); // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List/Collection）
                 if (!email.isBlank()) {
                     log.info("[MailNest] 创建独占邮箱成功: {}", email);
                     return email;
@@ -125,7 +125,7 @@ public class MailNestEmailProvider implements EmailProvider {
     @Override
     public EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
-        return emails.isEmpty() ? null : emails.get(0);
+        return emails.isEmpty() ? null : emails.getFirst();
     }
 
     /**

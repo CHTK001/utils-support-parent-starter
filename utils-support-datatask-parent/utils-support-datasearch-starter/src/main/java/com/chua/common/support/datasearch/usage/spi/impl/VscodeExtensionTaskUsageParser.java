@@ -159,7 +159,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
                                 dirName.startsWith(prefix.toLowerCase()));
                     })
                     .toList();
-            return candidates.isEmpty() ? null : candidates.get(0);
+            return candidates.isEmpty() ? null : candidates.getFirst();
         } catch (IOException e) {
             return null;
         }
