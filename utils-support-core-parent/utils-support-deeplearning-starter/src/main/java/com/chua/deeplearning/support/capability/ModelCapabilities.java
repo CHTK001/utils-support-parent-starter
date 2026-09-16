@@ -80,9 +80,6 @@ public final class ModelCapabilities {
     /** 图像增强（超分/上色/风格等 镜像→镜像） */
     /** 增强 */
     public static final String ENHANCE = "enhance";
-    /** 图像修复（inpainting，去水印/去杂物/划痕，带掩码 镜像→镜像） */
-    /** 修复 */
-    public static final String INPAINT = "inpaint";
     /** 图像分割 */
     /** Segment */
     public static final String SEGMENT = "segment";
@@ -199,8 +196,7 @@ public final class ModelCapabilities {
             Map.entry(TextToAudioClient.class, TTS),
             Map.entry(FeatureClient.class, FEATURE),
             Map.entry(AudioFingerprinter.class, AUDIO_FINGERPRINT),
-            Map.entry(SpeakerDiarizer.class, SPEAKER_DIARIZATION),
-            Map.entry(com.chua.deeplearning.support.image.ImageInpainter.class, INPAINT)
+            Map.entry(SpeakerDiarizer.class, SPEAKER_DIARIZATION)
     );
 
     /** 创建 模型capabilities 实例 */

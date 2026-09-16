@@ -312,7 +312,19 @@ public class RagPipeline implements RagClient {
         if (data == null) {
             return EMPTY;
         }
-        TextExtractor extractor = setting.getTextExtractor();
+        String lower = fileName == null ? "" : fileName.toLowerCase();
+        TextExtractor extractor;
+        if (isImage(lower)) {
+            // 图片：使用 OCR 提取器（detector+recognizer）
+            extractor = setting.getTextExtractor();
+        } else {
+            // 非图片：按扩展名自动分发（pdf/docx/xlsx/csv/txt），无匹配时为空
+            try {
+                extractor = TextExtractor.auto(tempFileOf(data, fileName));
+            } catch (Exception e) {
+                extractor = null;
+            }
+        }
         if (extractor != null) {
             Path tempFile = filesDir.resolve("_temp_" + fileName);
             try {
@@ -327,6 +339,21 @@ public class RagPipeline implements RagClient {
             }
         }
         return new String(data, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * 判断是否为图片文件。
+     */
+    private static boolean isImage(String name) {
+        return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png")
+                || name.endsWith(".bmp") || name.endsWith(".webp") || name.endsWith(".gif");
+    }
+
+    /**
+     * 生成临时文件用于扩展名识别。
+     */
+    private java.io.File tempFileOf(byte[] data, String fileName) {
+        return filesDir.resolve("_temp_" + fileName).toFile();
     }
 
     private void runIngest(RagContext rc) {

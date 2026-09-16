@@ -4,9 +4,7 @@ import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
-import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
-import ai.djl.ndarray.types.Shape;
 import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
@@ -14,23 +12,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderableImage;
 
 /**
  * MiGAN 图像修复（Inpainting）Translator。
  * <p>
- * MiGAN 是一个生成式图像修复模型，支持 <b>动态 H/W 尺寸</b>（无需固定 512），
- * 输入为 uint8 NCHW 双通道拼接：{@code image [1,3,H,W]}（0~255 像素值）
+ * MiGAN（MultImeGAN）是支持任意尺寸输入的生成式图像修复模型，
+ * 输入为 uint8 NCHW 双输入：{@code image [1,3,H,W]}（0~255 像素值）
  * 与 {@code mask [1,1,H,W]}（0=保留，255=需修复区域），
  * 输出 {@code [1,3,H,W]} uint8 修复结果。
  * </p>
  * <p>
- * 输入约定与项目 inpainting 模型一致：传入 RGBA 图像，RGB=待修复图像，
- * Alpha=掩码（255=需修复区域，0=保留区域）。
+ * 输入约定：传入 RGBA 图像，RGB=待修复图像，Alpha=掩码（255=需修复区域，0=保留区域）。
  * 若输入为纯 RGB（无 Alpha），则整图作为修复区域。
  * </p>
  * <p>
- * ONNX 张量序为 NCHW（C 轴在前），因此输入需按
- * {@code [batch,3,height,width]} 与 {@code [batch,1,height,width]} 布局。
+ * ONNX 模型支持动态 H/W，无需固定 512 尺寸，自动适配输入尺寸。
  * </p>
  *
  * @author CH
@@ -40,10 +37,10 @@ import java.awt.image.BufferedImage;
 public class MiganInpaintingTranslator implements Translator<Image, Image> {
 
     /**
-     * 构造双 uint8 NCHW 输入（image + mask）。
+     * 处理输入：构造双 uint8 NCHW 输入（image + mask）。
      *
      * @param ctx   翻译上下文
-     * @param input 输入 RGBA 图像（RGB=图像，A=修复掩码，255=需修复）
+     * @param input 输入 RGBA 图像（RGB=图像，A=修复掩码）
      * @return 双输入 NDList（顺序：image, mask）
      */
     @Override
@@ -78,9 +75,10 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
             }
         }
 
-        NDManager manager = ctx.getNDManager();
-        NDArray image = manager.create(imgData, new Shape(1, 3, height, width)).toType(DataType.UINT8, false);
-        NDArray mask = manager.create(maskData, new Shape(1, 1, height, width)).toType(DataType.UINT8, false);
+        NDArray image = ctx.getNDManager().create(imgData, new ai.djl.ndarray.types.Shape(1, 3, height, width))
+                .toType(DataType.UINT8, false);
+        NDArray mask = ctx.getNDManager().create(maskData, new ai.djl.ndarray.types.Shape(1, 1, height, width))
+                .toType(DataType.UINT8, false);
         image.setName("image");
         mask.setName("mask");
 
@@ -89,7 +87,7 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     }
 
     /**
-     * uint8 NCHW [1,3,H,W] 输出转 RGB 图像。
+     * 处理输出：uint8 NCHW [1,3,H,W] 转 RGB 图像。
      *
      * @param ctx  翻译上下文
      * @param list 输出张量列表
