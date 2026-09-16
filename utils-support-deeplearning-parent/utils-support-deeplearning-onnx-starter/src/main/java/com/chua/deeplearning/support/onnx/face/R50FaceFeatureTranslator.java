@@ -56,7 +56,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // 输出形状 [1, N]，取第一行作为特征向量
         NDArray output = list.singletonOrThrow();
-        long rows = output.getShape().get(0);
+        long rows = output.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long cols = output.getShape().get(1);
         Object arr = output.toArray();
         float[] feature;

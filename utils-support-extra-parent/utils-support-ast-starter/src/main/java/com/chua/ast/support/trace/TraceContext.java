@@ -399,7 +399,7 @@ public final class TraceContext {
             if (n.isRoot) { rootElapsed = n.elapsed; break; }
         }
         if (rootElapsed == 0 && !nodes.isEmpty()) {
-            rootElapsed = nodes.get(0).elapsed;
+            rootElapsed = nodes.getFirst().elapsed;
         }
 
         Integer maxDepth = MAX_DEPTH.get();

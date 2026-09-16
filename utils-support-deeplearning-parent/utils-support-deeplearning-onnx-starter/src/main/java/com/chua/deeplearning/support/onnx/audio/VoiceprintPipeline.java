@@ -145,7 +145,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         if (vadType != null) {
             List<float[]> segments = splitByVad(samples, vadType);
             if (!segments.isEmpty()) {
-                float[] longest = segments.getFirst();
+                float[] longest = segments.get(0);
                 for (float[] seg : segments) {
                     if (seg.length > longest.length) {
                         longest = seg;
@@ -207,25 +207,8 @@ public class VoiceprintPipeline implements AutoCloseable {
     * @param maxSegSec   最大段长秒数
     * @return 语音段列表
     * @param off off
-     /**
-      * 分割byenergy。
-      * @param s s
-      * @param silenceRms silencerms
-      * @param minSegSec 最小segsec
-      * @param maxSegSec 最大segsec
-      * @return 分割byenergy的结果
-      */
-     * @param len len
-      * @param off off
-     /**
-     * 分割byenergy。
-     * @param s s
-     * @param silenceRms silenceRms
-     * @param minSegSec 最小segsec
-     * @param maxSegSec 最大segsec
-     * @return 分割byenergy的结果
-      */
-     */
+    * @param len len
+    */
     static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * 16000);
         int minSeg = (int) (minSegSec * 16000);
@@ -494,14 +477,9 @@ public class VoiceprintPipeline implements AutoCloseable {
         * @param modelId 模型 标识（对应 音频fingerprinter 注册表）
         * @return this
         * @param dir dir
-         /**
-          * 模型。
-          * @param modelId 模型标识
-          * @return 模型的结果
-          */
-         * @param provider 提供者
-         * @param config 配置
-         */
+        * @param provider 提供者
+        * @param config 配置
+        */
         public Builder model(String modelId) {
             if (modelId == null || modelId.isBlank()) {
                 return this;
@@ -512,14 +490,6 @@ public class VoiceprintPipeline implements AutoCloseable {
                 throw new IllegalArgumentException("声纹模型未注册: " + modelId);
             }
             log.info("[Voiceprint] 使用 ModelRegistry 加载模型: {}", modelId);
-            /**
-            * 向量storage。
-            * @param s s
-            * @return 向量storage的结果
-            * @param dir dir
-            * @param provider 提供者
-            * @param config 配置
-             */
             return this;
         }
 
@@ -622,18 +592,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * @param type VAD 类型（"energy" 等）
         * @return this
         * @param v v
-         /**
-          * vad。
-          * @param type 类型
-          * @return vad的结果
-          */
-          * @param v v
-         /**
-         * vad。
-         * @param type 类型
-         * @return vad的结果
-          */
-         */
+        */
         public Builder vad(String type) {
             this.vadType = type;
             return this;

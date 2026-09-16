@@ -168,15 +168,10 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-    * 根据名称选择对应后端（内部方法，不抛异常）。
-    * @param properties 属性
-    * @return 转为属性的结果
-     /**
-      * 选择backend。
-      * @param name 名称
-      * @return 选择backend的结果
-      */
-      * @param properties 属性
+     * 根据名称选择对应后端（内部方法，不抛异常）。
+     *
+     * @param properties 属性
+     * @return 转为属性的结果
      */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {

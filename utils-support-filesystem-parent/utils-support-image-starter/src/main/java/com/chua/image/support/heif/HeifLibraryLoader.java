@@ -20,11 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class HeifLibraryLoader {
 
-    private static final String LIBRARY_NAME = "chua_native_heif"; // 图书馆名称
+    private static final String LIBRARY_NAME = "chua_native_heif"; // 库名称
     private static volatile boolean loaded = false; // 加载
 
     /**
-    * heif图书馆加载。
+    * heif 库加载。
      */
     private HeifLibraryLoader() {
     }

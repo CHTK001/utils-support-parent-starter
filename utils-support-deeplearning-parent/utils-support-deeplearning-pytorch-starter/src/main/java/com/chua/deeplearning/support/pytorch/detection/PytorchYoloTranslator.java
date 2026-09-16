@@ -138,17 +138,17 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
         NDArray output = list.singletonOrThrow();
         // 统一为 [N, C]：可能是 [1, C, N] 或 [1, N, C]
         if (output.getShape().dimension() == 3) {
-            if (output.getShape().get(0) == 1) {
+            if (output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
                 output = output.squeeze(0);
             }
             // [C, N] -> [N, C]
-            if (output.getShape().get(0) < output.getShape().get(1)
-                    && output.getShape().get(0) <= 84) {
+            if (output.getShape().get(0) < output.getShape().get(1) // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+                    && output.getShape().get(0) <= 84) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
                 output = output.transpose();
             }
         }
 
-        long rows = output.getShape().get(0);
+        long rows = output.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long cols = output.getShape().dimension() > 1 ? output.getShape().get(1) : 0;
         if (rows == 0 || cols < 5) {
             return new DetectedObjects(List.of(), List.of(), List.of());

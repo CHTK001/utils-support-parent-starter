@@ -127,7 +127,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
         if (dataList.isEmpty()) {
             return null;
         }
-        return dataList.get(0).getSnapshot();
+        return dataList.getFirst().getSnapshot();
     }
 
     @Override

@@ -87,7 +87,7 @@ public class NMSUtils {
         List<NDArray> keepList = new ArrayList<>();
 
  // 获取唯一的 批量 标识 列表
-        NDArray uniqueIdxs = idxs.unique().get(0);
+        NDArray uniqueIdxs = idxs.unique().get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
 
         for (long batchId : uniqueIdxs.toLongArray()) {
  // 筛选出属于当前 批量 的框
@@ -100,7 +100,7 @@ public class NMSUtils {
 
             if (keepIndices.length > 0) {
  // 将 批量 内索引映射为全局索引
-                NDArray globalIndices = manager.arange(boxes.getShape().get(0))
+                NDArray globalIndices = manager.arange(boxes.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
                         .get(mask)
                         .toType(DataType.INT64, false)
                         .get(manager.create(keepIndices));

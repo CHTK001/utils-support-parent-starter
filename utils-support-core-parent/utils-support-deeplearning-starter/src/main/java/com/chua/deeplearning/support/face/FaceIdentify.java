@@ -453,7 +453,7 @@ public class FaceIdentify {
     * @return 最大框
      */
     private static PredictRectangle pickLargest(List<PredictRectangle> boxes) {
-        PredictRectangle largest = boxes.get(0);
+        PredictRectangle largest = boxes.getFirst();
         float maxArea = largest.width() * largest.height();
         for (int i = 1; i < boxes.size(); i++) {
             PredictRectangle b = boxes.get(i);

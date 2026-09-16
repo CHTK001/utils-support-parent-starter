@@ -221,7 +221,7 @@ public class ChatClientModelAdapter implements Model {
         log.debug("[ChatClientModelAdapter] Sending {} tools to model {}", toolDefs.size(), modelId);
         ChatCompletion completion = getOpenAiClient().chat().completions().create(paramsBuilder.build());
 
-        var message = completion.choices().get(0).message();
+        var message = completion.choices().getFirst().message();
 
         if (message.toolCalls().isPresent() && !message.toolCalls().get().isEmpty()) {
             List<ContentBlock> blocks = new ArrayList<>();

@@ -100,7 +100,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         NDManager manager = ctx.getNDManager();
 
         NDArray depthPt = list.singletonOrThrow();
-        if (depthPt.getShape().dimension() > 2 && depthPt.getShape().get(0) == 1) {
+        if (depthPt.getShape().dimension() > 2 && depthPt.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             depthPt = depthPt.squeeze(0);
         }
         
@@ -115,7 +115,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
         depthPt = depthPt.div(maxValue);
         depthPt = depthPt.mul(255.0).clip(0, 255).toType(DataType.UINT8, false);
 
-        int outHeight = (int) depthPt.getShape().get(0);
+        int outHeight = (int) depthPt.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int outWidth = (int) depthPt.getShape().get(1);
         byte[] values = depthPt.toByteArray();
         BufferedImage bufferedImage = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_3BYTE_BGR);

@@ -167,7 +167,7 @@ public class ActionsOperationTest {
             List<WorkflowRun> runs = op.listRuns();
             assertOk("公开仓库 listRuns", runs != null && !runs.isEmpty());
             if (runs != null && !runs.isEmpty()) {
-                WorkflowRun first = runs.get(0);
+                WorkflowRun first = runs.getFirst();
                 assertOk("公开仓库运行字段", first.id() > 0 && first.status() != null);
                 WorkflowRun detail = op.getRun(first.id());
                 assertOk("公开仓库 getRun", detail != null && detail.id() == first.id());

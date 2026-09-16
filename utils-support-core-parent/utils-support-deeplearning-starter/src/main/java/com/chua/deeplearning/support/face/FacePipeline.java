@@ -970,7 +970,7 @@ public class FacePipeline {
         FaceContext fc = new FaceContext(imageData, List.of(largest));
         fc.advance();
         runSingle(fc, identifyPipeline);
-        return fc.identifyHits().isEmpty() ? null : fc.identifyHits().get(0);
+        return fc.identifyHits().isEmpty() ? null : fc.identifyHits().getFirst();
     }
 
     /**
@@ -1852,7 +1852,7 @@ public class FacePipeline {
     * @return 面积最大的检测框
      */
     private static PredictRectangle pickLargest(List<PredictRectangle> boxes) {
-        PredictRectangle largest = boxes.get(0);
+        PredictRectangle largest = boxes.getFirst();
         float maxArea = largest.width() * largest.height();
         for (int i = 1; i < boxes.size(); i++) {
             PredictRectangle b = boxes.get(i);

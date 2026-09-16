@@ -151,7 +151,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
      */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray alpha = list.get(0);
+        NDArray alpha = list.getFirst();
 
         // Flatten to float[] and reconstruct as 2D (avoid NDArray.get which ORT engine doesn't support)
         Shape shape = alpha.getShape();

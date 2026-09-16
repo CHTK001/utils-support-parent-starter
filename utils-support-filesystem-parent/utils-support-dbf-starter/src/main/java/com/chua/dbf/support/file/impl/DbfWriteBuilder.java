@@ -56,7 +56,7 @@ public class DbfWriteBuilder extends WriteBuilder {
             for (Object entry : pending) {
                 if (entry instanceof List) {
                     List<?> list = (List<?>) entry;
-                    if (list.isEmpty() || !(list.get(0) instanceof Map)) {
+                    if (list.isEmpty() || !(list.getFirst() instanceof Map)) {
                         continue;
                     }
                     @SuppressWarnings("unchecked")
@@ -109,6 +109,6 @@ public class DbfWriteBuilder extends WriteBuilder {
         if (rows.isEmpty()) {
             return List.of();
         }
-        return new ArrayList<>(rows.get(0).keySet());
+        return new ArrayList<>(rows.getFirst().keySet());
     }
 }

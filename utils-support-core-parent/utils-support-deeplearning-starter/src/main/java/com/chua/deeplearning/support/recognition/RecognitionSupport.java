@@ -58,7 +58,7 @@ final class RecognitionSupport {
             return List.of();
         }
         if (boxes instanceof List<?> list) {
-            if (!list.isEmpty() && list.get(0) instanceof PredictRectangle) {
+            if (!list.isEmpty() && list.getFirst() instanceof PredictRectangle) {
                 return (List<PredictRectangle>) list;
             }
         }

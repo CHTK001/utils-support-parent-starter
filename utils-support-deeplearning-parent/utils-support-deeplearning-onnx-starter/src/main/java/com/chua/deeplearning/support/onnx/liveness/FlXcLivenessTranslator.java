@@ -61,7 +61,7 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
     @Override
     /** 处理输出 */
     public Float processOutput(TranslatorContext ctx, NDList list) {
-        NDArray out = list.get(0);
+        NDArray out = list.getFirst();
         float[] values = out.toFloatArray();
         if (values.length < 1) {
             log.warn("[liveness] FLXC 输出为空");

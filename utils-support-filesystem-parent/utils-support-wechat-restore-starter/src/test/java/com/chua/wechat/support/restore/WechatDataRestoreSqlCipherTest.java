@@ -220,7 +220,7 @@ class WechatDataRestoreSqlCipherTest {
         File plain = WechatRestoreTestSupport.createReservedLayoutSqliteDatabase(new File(dataDir, "seed.db"));
         File encrypted = new File(dataDir, "session.db");
         WechatRestoreTestSupport.encrypt(plain, encrypted,
-                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().get(0));
+                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().getFirst());
         Files.deleteIfExists(plain.toPath());
         return encrypted;
     }

@@ -64,7 +64,7 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
                 return new float[0];
             }
 
-            FaceInfo faceInfo = faceInfoList.get(0);
+            FaceInfo faceInfo = faceInfoList.getFirst();
             com.arcsoft.face.FaceFeature faceFeature = new com.arcsoft.face.FaceFeature();
             faceEngine.extractFaceFeature(
                 imageInfo.getImageData(),

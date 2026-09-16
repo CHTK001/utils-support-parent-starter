@@ -175,9 +175,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
      /**
-     * ensureprepared。
-      */
-     * 从 类路径 嵌入资源或 HF 下载模型到缓存目录
+     * ensureprepared。从 类路径 嵌入资源或 HF 下载模型到缓存目录
      *
      * @param modelDir 模型dir
      */
@@ -292,7 +290,9 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
     @Override public void close() {
-        if (translator != null) { try { translator.close(); } catch (Exception ignore) {} }
+        if (translator != null) {
+            try { translator.close(); } catch (Exception ignore) {}
+        }
         prepared = false;
     }
 }

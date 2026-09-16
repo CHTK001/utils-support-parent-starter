@@ -45,7 +45,7 @@ public class NDArrayUtils {
     * @return 转换后的 float[][] 二维数组
      */
     public static float[][] floatNDArrayToArray(NDArray ndArray) {
-        int rows = (int) (ndArray.getShape().get(0));
+        int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
         float[][] arr = new float[rows][cols];
 
@@ -129,7 +129,7 @@ public class NDArrayUtils {
     * @return 转换后的 打开cv Mat 对象
      */
     public static Mat floatNDArrayToMat(NDArray ndArray, int cvType) {
-        int rows = (int) (ndArray.getShape().get(0));
+        int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
         Mat mat = new Mat(rows, cols, cvType);
 
@@ -149,7 +149,7 @@ public class NDArrayUtils {
     * @return 转换后的 CV_32F 类型 Mat 对象
      */
     public static Mat floatNDArrayToMat(NDArray ndArray) {
-        int rows = (int) (ndArray.getShape().get(0));
+        int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
         Mat mat = new Mat(rows, cols, CvType.CV_32F);
 
@@ -171,7 +171,7 @@ public class NDArrayUtils {
     * @return 转换后的 CV_8U 类型 Mat 对象
      */
     public static Mat uint8NDArrayToMat(NDArray ndArray) {
-        int rows = (int) (ndArray.getShape().get(0));
+        int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
         Mat mat = new Mat(rows, cols, CvType.CV_8U);
 

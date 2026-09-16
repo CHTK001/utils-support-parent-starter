@@ -1082,14 +1082,7 @@ public class PocketTtsTranslator {
     /**
     * 关闭资源。
     * @param s s
-     /**
-      * 关闭。
-      */
-      * @param s s
-     /**
-     * 关闭。
-      */
-     */
+    */
     public void close() {
         closeQuietly(textEncoderSession);
         closeQuietly(flowSession);

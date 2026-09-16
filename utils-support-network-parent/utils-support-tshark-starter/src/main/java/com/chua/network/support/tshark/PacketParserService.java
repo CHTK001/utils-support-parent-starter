@@ -202,7 +202,7 @@ public final class PacketParserService {
     private static byte[] extractRawBytesFromLayers(Map<String, Object> layers) {
         Object frameRaw = findDeep(layers, "frame_raw");
         if (frameRaw instanceof java.util.List<?> list && !list.isEmpty()) {
-            Object first = list.get(0);
+            Object first = list.getFirst();
             if (first instanceof String hex && !hex.isEmpty()) {
                 try {
                     return Hex.decodeHex(hex.replaceAll(":", ""));

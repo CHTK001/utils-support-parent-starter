@@ -24,7 +24,7 @@ public class SetCommandHandler implements RedisCommandHandler {
         if (args.size() < 2) {
             throw new IllegalArgumentException("SET 需要 key 和 value");
         }
-        jedis.set(args.get(0), args.get(1));
+        jedis.set(args.getFirst(), args.get(1));
         return 1;
     }
 }

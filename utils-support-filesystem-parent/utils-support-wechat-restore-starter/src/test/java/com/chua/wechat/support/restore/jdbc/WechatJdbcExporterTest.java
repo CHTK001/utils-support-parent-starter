@@ -62,14 +62,14 @@ class WechatJdbcExporterTest {
         assertTrue(msg.isFile(), "缺少 MSG 表导出文件");
 
         List<String> msgLines = Files.readAllLines(msg.toPath(), StandardCharsets.UTF_8);
-        assertEquals("id,talker,content,create_time", msgLines.get(0));
+        assertEquals("id,talker,content,create_time", msgLines.getFirst());
         assertEquals(4, msgLines.size(), "表头 + 3 行数据");
         assertTrue(msgLines.get(1).contains("hello wechat"));
         assertTrue(msgLines.get(2).contains("你好，微信"));
         assertTrue(msgLines.get(3).contains("\"line1,with comma\""), "含逗号的字段应被双引号包裹");
 
         List<String> contactLines = Files.readAllLines(contact.toPath(), StandardCharsets.UTF_8);
-        assertEquals("id,name", contactLines.get(0));
+        assertEquals("id,name", contactLines.getFirst());
         assertEquals("1,Alice", contactLines.get(1));
     }
 

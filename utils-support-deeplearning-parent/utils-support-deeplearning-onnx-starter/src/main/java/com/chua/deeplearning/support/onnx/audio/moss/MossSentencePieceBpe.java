@@ -126,21 +126,11 @@ public class MossSentencePieceBpe implements AutoCloseable {
     *
     * @return 词表大小
     * @param data 数据
-     /**
-      * 大小。
-      * @return 大小的结果
-      */
-     * @param offset 偏移量
-     * @param text 文本
-     * @param symbol symbol
-     * @param out 出
-     /**
-     * encodenormalized。
-     * @param normalized normalized
-     * @param out 出
-      */
-      * @return 大小的结果
-     */
+    * @param offset 偏移量
+    * @param text 文本
+    * @param symbol symbol
+    * @param out 出
+    */
     public int size() {
         return idToPiece.size();
     }
@@ -159,14 +149,6 @@ public class MossSentencePieceBpe implements AutoCloseable {
                 pos = nextSpace;
             }
             if (!word.isEmpty()) {
-                /**
-                * encodeword。
-                * @param word word
-                * @param out 出
-                * @param text 文本
-                * @return 分割用户defined的结果
-                * @param symbol symbol
-                 */
                 encodeWord(word, out);
             }
         }

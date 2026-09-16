@@ -153,7 +153,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             }
             // 眼睛距离过滤（关键点归一化，乘图像尺寸转像素）
             double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2))
-    * Math.最大(width, height);
+                    * Math.max(width, height);
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }

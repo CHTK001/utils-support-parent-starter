@@ -189,7 +189,7 @@ public class RuleBasedScorer {
             return BehaviorProfile.builder()
                     .entityId(entityId)
                     .predictedClass(0)
-                    .label(configClassLabels().get(0))
+                    .label(configClassLabels().getFirst())
                     .confidence(0.0d)
                     .recentPaths(List.of())
                     .riskScore(0.0d)

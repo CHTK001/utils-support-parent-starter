@@ -247,7 +247,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         if (kind == SqlKind.NOT) {
             RexCall call = (RexCall) node;
             if (call.getOperands().size() == 1) {
-                Condition inner = translateCondition(call.getOperands().get(0), columnNames);
+                Condition inner = translateCondition(call.getOperands().getFirst(), columnNames);
                 if (inner != null) {
                     return Condition.of(inner.getColumnName(), negateOp(inner.getOperator()), inner.getValue());
                 }
@@ -257,7 +257,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
 
         if (kind == SqlKind.IS_NULL || kind == SqlKind.IS_NOT_NULL) {
             RexCall call = (RexCall) node;
-            String col = extractColumn(call.getOperands().get(0), columnNames);
+            String col = extractColumn(call.getOperands().getFirst(), columnNames);
             return col == null ? null :
                     Condition.of(col, kind == SqlKind.IS_NULL ? "IS NULL" : "IS NOT NULL", null);
         }
@@ -273,7 +273,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
             return null;
         }
 
-        RexNode left = operands.get(0);
+        RexNode left = operands.getFirst();
         RexNode right = operands.get(1);
 
         String colName;
@@ -460,7 +460,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         if (CollectionUtils.isEmpty(entities)) {
             return Collections.emptyList();
         }
-        List<Method> getters = resolveGetters(entities.get(0).getClass());
+        List<Method> getters = resolveGetters(entities.getFirst().getClass());
         Map<String, Method> getterMap = toGetterMap(getters);
         List<Object[]> result = new ArrayList<>(entities.size());
         for (Object entity : entities) {
@@ -909,7 +909,7 @@ public class CalciteDataTableAdapter extends AbstractTable implements Filterable
         if (CollectionUtils.isEmpty(data)) {
             return Collections.emptyList();
         }
-        Map<String, Object> first = data.get(0);
+        Map<String, Object> first = data.getFirst();
         List<Class<?>> types = new ArrayList<>(first.size());
         for (Map.Entry<String, Object> entry : first.entrySet()) {
             if (entry.getValue() != null) {

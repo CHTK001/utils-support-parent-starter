@@ -221,7 +221,7 @@ public class AutoEncoderIpTranslator {
     * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
      */
     private float[] readOutput(OrtSession.Result result, int dim) throws Exception {
-        Object value = result.get(0).getValue();
+        Object value = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         if (value instanceof float[][] matrix) {
             float[] vector = matrix[0];
             if (vector.length != dim) {

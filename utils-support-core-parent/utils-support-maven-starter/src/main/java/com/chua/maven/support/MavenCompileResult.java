@@ -209,7 +209,7 @@ public class MavenCompileResult {
      */
     public String getMainArtifact() {
         if (artifacts != null && !artifacts.isEmpty()) {
-            return artifacts.get(0);
+            return artifacts.getFirst();
         }
         return null;
     }

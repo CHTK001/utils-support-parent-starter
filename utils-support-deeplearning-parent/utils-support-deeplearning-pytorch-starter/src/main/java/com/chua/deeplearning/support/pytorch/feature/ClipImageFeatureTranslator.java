@@ -53,8 +53,8 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     @Override
     /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
-        NDArray emb = list.get(0);
-        if (emb.getShape().dimension() > 1 && emb.getShape().get(0) == 1) {
+        NDArray emb = list.getFirst();
+        if (emb.getShape().dimension() > 1 && emb.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             emb = emb.squeeze(0);
         }
         float[] values = emb.toFloatArray();

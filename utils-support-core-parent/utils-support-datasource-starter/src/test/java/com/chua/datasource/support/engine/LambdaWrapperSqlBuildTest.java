@@ -53,13 +53,13 @@ class LambdaWrapperSqlBuildTest {
     void testLikeVariants() {
         QuerySql<FixtureUser> full = wrapper().like(FixtureUser::getName, "张").buildSql();
         assertEquals("name LIKE ?", full.whereClause());
-        assertEquals("%张%", full.params().get(0));
+        assertEquals("%张%", full.params().getFirst());
 
         QuerySql<FixtureUser> left = wrapper().likeLeft(FixtureUser::getName, "三").buildSql();
-        assertEquals("%三", left.params().get(0));
+        assertEquals("%三", left.params().getFirst());
 
         QuerySql<FixtureUser> right = wrapper().likeRight(FixtureUser::getName, "张").buildSql();
-        assertEquals("张%", right.params().get(0));
+        assertEquals("张%", right.params().getFirst());
     }
 
     @Test
@@ -162,9 +162,9 @@ class LambdaWrapperSqlBuildTest {
                 .leftJoin("fixture_dept", "d", "fixture_user.dept_id = d.id")
                 .buildSql();
         assertEquals(2, sql.joins().size());
-        assertEquals("INNER", sql.joins().get(0).joinType());
-        assertEquals("fixture_order o", sql.joins().get(0).renderTable());
-        assertEquals("fixture_user.id = o.user_id", sql.joins().get(0).onCondition());
+        assertEquals("INNER", sql.joins().getFirst().joinType());
+        assertEquals("fixture_order o", sql.joins().getFirst().renderTable());
+        assertEquals("fixture_user.id = o.user_id", sql.joins().getFirst().onCondition());
         assertEquals("LEFT", sql.joins().get(1).joinType());
         assertEquals("d", sql.joins().get(1).alias());
         assertTrue(sql.hasJoins());

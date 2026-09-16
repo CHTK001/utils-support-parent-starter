@@ -68,16 +68,13 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
      */
     
     private ClipTextFeatureTranslator clipTextTranslator; // clip文本translator
-/**
-* yoloworlddetectortranslator。
-* @param config 配置
-* @param raw raw
-* @return 解析类的结果
- /**
-   * YoloWorldDetectorTranslator。
-  */
- * @param ctx ctx
- */
+    /**
+    * yoloworlddetectortranslator。
+    * @param config 配置
+    * @param raw raw
+    * @param ctx ctx
+    * @return 解析类的结果
+    */
 
     public YoloWorldDetectorTranslator() { this(null); }
 
@@ -126,7 +123,8 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         
         for (int i = 0; i < numClasses; i++) {
             String className = classes.isEmpty() ? COCO_80[i] : classes.get(i);
-            NDList input = clipTextTranslator.processInput(ctx, className); float[] emb = clipTextTranslator.processOutput(ctx, input);
+            NDList input = clipTextTranslator.processInput(ctx, className);
+            float[] emb = clipTextTranslator.processOutput(ctx, input);
             if (emb != null) {
                 embeds[i] = emb;
             } else {
@@ -217,7 +215,10 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
             int bestClass = -1;
             for (int c = 0; c < numClasses; c++) {
                 float s = data[(4 + c) * numAnchors + i];
-                if (s > bestLogit) { bestLogit = s; bestClass = c; }
+                if (s > bestLogit) {
+                    bestLogit = s;
+                    bestClass = c;
+                }
             }
             if (bestLogit < threshold || bestClass < 0) {
                 continue;
@@ -254,7 +255,11 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         List<Integer> keep = nms(boxes, probs, nmsThreshold);
         List<String> fn = new ArrayList<>(), fp = new ArrayList<>();
         List<BoundingBox> fb = new ArrayList<>();
-        for (int idx : keep) { fn.add(names.get(idx)); probs.add(probs.get(idx)); fb.add(boxes.get(idx)); }
+        for (int idx : keep) {
+            fn.add(names.get(idx));
+            probs.add(probs.get(idx));
+            fb.add(boxes.get(idx));
+        }
         log.info("[YOLO-World] {} -> {} boxes", names.size(), fn.size());
         return new DetectedObjects(fn, probs, fb);
     }
@@ -330,7 +335,9 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
         g.setColor(new Color(114, 114, 114));
         g.fillRect(0, 0, tw, th);
         int px = (tw - nw) / 2, py = (th - nh) / 2;
-        this.letterPadX = px; this.letterPadY = py; this.letterScale = scale;
+        this.letterPadX = px;
+        this.letterPadY = py;
+        this.letterScale = scale;
         g.drawImage(src, px, py, nw, nh, null);
         g.dispose();
         return padded;

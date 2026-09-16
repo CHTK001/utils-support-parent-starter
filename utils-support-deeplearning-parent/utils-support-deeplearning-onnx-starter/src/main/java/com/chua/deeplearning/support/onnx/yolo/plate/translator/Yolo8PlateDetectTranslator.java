@@ -147,7 +147,7 @@ public class Yolo8PlateDetectTranslator implements Translator<Image, DetectedObj
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
         imageWidth = (int) array.getShape().get(1);
-        imageHeight = (int) array.getShape().get(0);
+        imageHeight = (int) array.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
 
         // Letter box resize 640x640 with padding (                        )
         letterBoxResult = LetterBoxUtils.letterbox(manager, array, inputSize, inputSize, 114f, LetterBoxUtils.PaddingPosition.CENTER);

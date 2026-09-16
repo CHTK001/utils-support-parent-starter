@@ -227,16 +227,16 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
             throw new IllegalStateException("OWLv2                                         logits     pred_boxes");
         }
 
-        NDArray logitsArray = list.get(0);
+        NDArray logitsArray = list.getFirst();
         NDArray boxesArray = list.get(1);
-        if (logitsArray.getShape().dimension() == 3 && logitsArray.getShape().get(0) == 1) {
+        if (logitsArray.getShape().dimension() == 3 && logitsArray.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             logitsArray = logitsArray.squeeze(0);
         }
-        if (boxesArray.getShape().dimension() == 3 && boxesArray.getShape().get(0) == 1) {
+        if (boxesArray.getShape().dimension() == 3 && boxesArray.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             boxesArray = boxesArray.squeeze(0);
         }
 
-        long numBoxes = logitsArray.getShape().get(0);
+        long numBoxes = logitsArray.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int numQueries = (int) logitsArray.getShape().get(1);
         if (numBoxes <= 0 || numQueries <= 0) {
             return emptyDetections();

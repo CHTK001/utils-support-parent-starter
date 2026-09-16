@@ -16,7 +16,7 @@ class SqlCipherProfileTest {
 
     @Test
     void candidatesShouldStartWithWechat4() {
-        SqlCipherProfile first = SqlCipherProfile.candidates().get(0);
+        SqlCipherProfile first = SqlCipherProfile.candidates().getFirst();
         assertEquals("wechat-4", first.name());
         assertEquals(4096, first.pageSize());
         assertEquals(256000, first.kdfIterations());
@@ -26,7 +26,7 @@ class SqlCipherProfileTest {
 
     @Test
     void wechat4LayoutShouldMatchSqlCipherReserve() {
-        SqlCipherProfile profile = SqlCipherProfile.candidates().get(0);
+        SqlCipherProfile profile = SqlCipherProfile.candidates().getFirst();
         assertEquals(80, profile.reserveSize());
         assertEquals(4016, profile.cipherSize());
         assertEquals(4000, profile.cipherSize(true));

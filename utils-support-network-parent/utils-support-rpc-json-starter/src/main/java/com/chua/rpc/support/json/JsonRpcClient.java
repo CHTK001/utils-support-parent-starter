@@ -70,7 +70,7 @@ public class JsonRpcClient implements RpcClient {
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
         String address = rpcRegistryConfigs != null && !rpcRegistryConfigs.isEmpty()
-                ? rpcRegistryConfigs.get(0).getAddress() : "http://localhost:8080";
+                ? rpcRegistryConfigs.getFirst().getAddress() : "http://localhost:8080";
         String urlStr = address.startsWith("http") ? address : "http://" + address;
         try {
             this.serviceUrl = new URL(urlStr);

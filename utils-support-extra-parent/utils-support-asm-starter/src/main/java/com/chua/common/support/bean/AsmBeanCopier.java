@@ -55,7 +55,7 @@ public class AsmBeanCopier implements BeanCopier {
         }
 
         List<Class<?>> key = Arrays.asList(source.getClass(), target.getClass());
-        BeanCopier generated = GENERATED_CACHE.computeIfAbsent(key, k -> generateCopier(k.get(0), k.get(1)));
+        BeanCopier generated = GENERATED_CACHE.computeIfAbsent(key, k -> generateCopier(k.getFirst(), k.get(1)));
 
         if (generated != null) {
             generated.copyProperties(source, target, ignoreProperties);

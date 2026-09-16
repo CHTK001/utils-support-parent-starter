@@ -206,7 +206,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         }
 
         // 直读 flat float[]，避免 ORT 引擎不支持的 squeeze（会递归 StackOverflow）
-        NDArray rawScores = list.get(0);   // scores [1,4420,2]
+        NDArray rawScores = list.getFirst();   // scores [1,4420,2]
         NDArray rawBoxes = list.get(1);    // boxes  [1,4420,4]
         float[] boxArray = rawBoxes.toFloatArray();
         float[] scoreArray = rawScores.toFloatArray();
@@ -285,7 +285,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @return squeezeBatch的结果
      */
     private NDArray squeezeBatch(NDArray array) {
-        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
+        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             return array.squeeze(0);
         }
         return array;

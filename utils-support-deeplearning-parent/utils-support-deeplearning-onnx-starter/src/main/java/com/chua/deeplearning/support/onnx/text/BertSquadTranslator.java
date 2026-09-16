@@ -125,7 +125,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
             return "";
         }
         
-        NDArray startLogits = list.get(0);
+        NDArray startLogits = list.getFirst();
         NDArray endLogits = list.get(1);
         
         float[] startScores = startLogits.toFloatArray();

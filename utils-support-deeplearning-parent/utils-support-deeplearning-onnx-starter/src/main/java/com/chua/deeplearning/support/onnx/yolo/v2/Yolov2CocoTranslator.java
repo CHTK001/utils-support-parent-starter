@@ -166,7 +166,7 @@ private static final float[][] ANCHORS = {
 
         //                [1, 125, 13, 13]
         // 125 = 5 anchors * (5 + 80) = 5 * (tx, ty, tw, th, confidence + 80 classes)
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         if (log.isDebugEnabled()) {
             log.debug("       shape: {}", output.getShape());
         }

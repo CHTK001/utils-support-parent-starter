@@ -106,6 +106,6 @@ public class FelixBundleContext implements com.chua.common.support.osgi.BundleCo
     /** 获取服务 */
     public <T> T getService(Class<T> type) {
         List<T> services = getServices(type);
-        return services.isEmpty() ? null : services.get(0);
+        return services.isEmpty() ? null : services.getFirst();
     }
 }

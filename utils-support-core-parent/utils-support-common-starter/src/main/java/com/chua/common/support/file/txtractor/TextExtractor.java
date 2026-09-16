@@ -57,7 +57,8 @@ public interface TextExtractor {
         String name = file.getName().toLowerCase();
 
         if (name.endsWith(".xlsx") || name.endsWith(".xls") || name.endsWith(".xlsm")) {
-            return create("excel");
+            // excel-starter 暂无 TextExtractor SPI，Excel 由 Tika 通用解析（AutoDetectParser）
+            return create("tika");
         } else if (name.endsWith(".pdf")) {
             return create("pdf");
         } else if (name.endsWith(".docx") || name.endsWith(".doc")) {

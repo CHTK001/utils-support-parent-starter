@@ -45,7 +45,7 @@ public record FaceIdentifyHit(
         if (hits == null || hits.isEmpty()) {
             return null;
         }
-        return hits.get(0).id();
+        return hits.getFirst().id();
     }
 
     /**
@@ -57,7 +57,7 @@ public record FaceIdentifyHit(
         if (hits == null || hits.isEmpty()) {
             return 0d;
         }
-        return hits.get(0).score();
+        return hits.getFirst().score();
     }
 
     /**
@@ -66,9 +66,9 @@ public record FaceIdentifyHit(
     * @return metadata
      */
     public Map<String, Object> bestMetadata() {
-        if (hits == null || hits.isEmpty() || hits.get(0).metadata() == null) {
+        if (hits == null || hits.isEmpty() || hits.getFirst().metadata() == null) {
             return Collections.emptyMap();
         }
-        return hits.get(0).metadata();
+        return hits.getFirst().metadata();
     }
 }

@@ -128,34 +128,34 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 sr = k0 * ((pixels[offset - width + col - 1] >> 16) & 0xff)
                         + k1 * ((pixels[offset - width + col] >> 16) & 0xff)
                         + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 16) & 0xff)
+                         * ((pixels[offset - width + col + 1] >> 16) & 0xff)
                         + k3 * ((pixels[offset + col - 1] >> 16) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 16) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 16) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 16) & 0xff)
+                         * ((pixels[offset + col] >> 16) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 16) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 16) & 0xff)
                         + k7 * ((pixels[offset + width + col] >> 16) & 0xff)
                         + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 16) & 0xff);
+                         * ((pixels[offset + width + col + 1] >> 16) & 0xff);
                 // green
                 sg = k0 * ((pixels[offset - width + col - 1] >> 8) & 0xff) + k1
-                         * ((pixels[偏移量 - width + col] >> 8) & 0xff) + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 8) & 0xff) + k3
-                         * ((pixels[偏移量 + col - 1] >> 8) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 8) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 8) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 8) & 0xff) + k7
-                         * ((pixels[偏移量 + width + col] >> 8) & 0xff) + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 8) & 0xff);
+                         * ((pixels[offset - width + col] >> 8) & 0xff) + k2
+                         * ((pixels[offset - width + col + 1] >> 8) & 0xff) + k3
+                         * ((pixels[offset + col - 1] >> 8) & 0xff) + k4
+                         * ((pixels[offset + col] >> 8) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 8) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 8) & 0xff) + k7
+                         * ((pixels[offset + width + col] >> 8) & 0xff) + k8
+                         * ((pixels[offset + width + col + 1] >> 8) & 0xff);
                 // blue
                 sb = k0 * (pixels[offset - width + col - 1] & 0xff) + k1
-                         * (pixels[偏移量 - width + col] & 0xff) + k2
-                         * (pixels[偏移量 - width + col + 1] & 0xff) + k3
-                         * (pixels[偏移量 + col - 1] & 0xff) + k4
-                         * (pixels[偏移量 + col] & 0xff) + k5
-                         * (pixels[偏移量 + col + 1] & 0xff) + k6
-                         * (pixels[偏移量 + width + col - 1] & 0xff) + k7
-                         * (pixels[偏移量 + width + col] & 0xff) + k8
-                         * (pixels[偏移量 + width + col + 1] & 0xff);
+                         * (pixels[offset - width + col] & 0xff) + k2
+                         * (pixels[offset - width + col + 1] & 0xff) + k3
+                         * (pixels[offset + col - 1] & 0xff) + k4
+                         * (pixels[offset + col] & 0xff) + k5
+                         * (pixels[offset + col + 1] & 0xff) + k6
+                         * (pixels[offset + width + col - 1] & 0xff) + k7
+                         * (pixels[offset + width + col] & 0xff) + k8
+                         * (pixels[offset + width + col + 1] & 0xff);
                 r = sr;
                 g = sg;
                 b = sb;
@@ -239,34 +239,34 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 sr = k0 * ((pixels[offset - width + col - 1] >> 16) & 0xff)
                         + k1 * ((pixels[offset - width + col] >> 16) & 0xff)
                         + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 16) & 0xff)
+                         * ((pixels[offset - width + col + 1] >> 16) & 0xff)
                         + k3 * ((pixels[offset + col - 1] >> 16) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 16) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 16) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 16) & 0xff)
+                         * ((pixels[offset + col] >> 16) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 16) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 16) & 0xff)
                         + k7 * ((pixels[offset + width + col] >> 16) & 0xff)
                         + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 16) & 0xff);
+                         * ((pixels[offset + width + col + 1] >> 16) & 0xff);
                 // green
                 sg = k0 * ((pixels[offset - width + col - 1] >> 8) & 0xff) + k1
-                         * ((pixels[偏移量 - width + col] >> 8) & 0xff) + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 8) & 0xff) + k3
-                         * ((pixels[偏移量 + col - 1] >> 8) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 8) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 8) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 8) & 0xff) + k7
-                         * ((pixels[偏移量 + width + col] >> 8) & 0xff) + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 8) & 0xff);
+                         * ((pixels[offset - width + col] >> 8) & 0xff) + k2
+                         * ((pixels[offset - width + col + 1] >> 8) & 0xff) + k3
+                         * ((pixels[offset + col - 1] >> 8) & 0xff) + k4
+                         * ((pixels[offset + col] >> 8) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 8) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 8) & 0xff) + k7
+                         * ((pixels[offset + width + col] >> 8) & 0xff) + k8
+                         * ((pixels[offset + width + col + 1] >> 8) & 0xff);
                 // blue
                 sb = k0 * (pixels[offset - width + col - 1] & 0xff) + k1
-                         * (pixels[偏移量 - width + col] & 0xff) + k2
-                         * (pixels[偏移量 - width + col + 1] & 0xff) + k3
-                         * (pixels[偏移量 + col - 1] & 0xff) + k4
-                         * (pixels[偏移量 + col] & 0xff) + k5
-                         * (pixels[偏移量 + col + 1] & 0xff) + k6
-                         * (pixels[偏移量 + width + col - 1] & 0xff) + k7
-                         * (pixels[偏移量 + width + col] & 0xff) + k8
-                         * (pixels[偏移量 + width + col + 1] & 0xff);
+                         * (pixels[offset - width + col] & 0xff) + k2
+                         * (pixels[offset - width + col + 1] & 0xff) + k3
+                         * (pixels[offset + col - 1] & 0xff) + k4
+                         * (pixels[offset + col] & 0xff) + k5
+                         * (pixels[offset + col + 1] & 0xff) + k6
+                         * (pixels[offset + width + col - 1] & 0xff) + k7
+                         * (pixels[offset + width + col] & 0xff) + k8
+                         * (pixels[offset + width + col + 1] & 0xff);
                 // 运算后的像素值和原图像素叠加
                 r += sr;
                 g += sg;
@@ -350,67 +350,67 @@ public class LaplaceImageFilter extends AbstractImageFilter{
                 yr = k0 * ((pixels[offset - width + col - 1] >> 16) & 0xff)
                         + k1 * ((pixels[offset - width + col] >> 16) & 0xff)
                         + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 16) & 0xff)
+                         * ((pixels[offset - width + col + 1] >> 16) & 0xff)
                         + k3 * ((pixels[offset + col - 1] >> 16) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 16) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 16) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 16) & 0xff)
+                         * ((pixels[offset + col] >> 16) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 16) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 16) & 0xff)
                         + k7 * ((pixels[offset + width + col] >> 16) & 0xff)
                         + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 16) & 0xff);
+                         * ((pixels[offset + width + col + 1] >> 16) & 0xff);
 
                 xr = x0 * ((pixels[offset - width + col - 1] >> 16) & 0xff)
                         + x1 * ((pixels[offset - width + col] >> 16) & 0xff)
                         + x2
-                         * ((pixels[偏移量 - width + col + 1] >> 16) & 0xff)
+                         * ((pixels[offset - width + col + 1] >> 16) & 0xff)
                         + x3 * ((pixels[offset + col - 1] >> 16) & 0xff) + x4
-                         * ((pixels[偏移量 + col] >> 16) & 0xff) + x5
-                         * ((pixels[偏移量 + col + 1] >> 16) & 0xff) + x6
-                         * ((pixels[偏移量 + width + col - 1] >> 16) & 0xff)
+                         * ((pixels[offset + col] >> 16) & 0xff) + x5
+                         * ((pixels[offset + col + 1] >> 16) & 0xff) + x6
+                         * ((pixels[offset + width + col - 1] >> 16) & 0xff)
                         + x7 * ((pixels[offset + width + col] >> 16) & 0xff)
                         + x8
-                         * ((pixels[偏移量 + width + col + 1] >> 16) & 0xff);
+                         * ((pixels[offset + width + col + 1] >> 16) & 0xff);
 
                 // green
                 yg = k0 * ((pixels[offset - width + col - 1] >> 8) & 0xff) + k1
-                         * ((pixels[偏移量 - width + col] >> 8) & 0xff) + k2
-                         * ((pixels[偏移量 - width + col + 1] >> 8) & 0xff) + k3
-                         * ((pixels[偏移量 + col - 1] >> 8) & 0xff) + k4
-                         * ((pixels[偏移量 + col] >> 8) & 0xff) + k5
-                         * ((pixels[偏移量 + col + 1] >> 8) & 0xff) + k6
-                         * ((pixels[偏移量 + width + col - 1] >> 8) & 0xff) + k7
-                         * ((pixels[偏移量 + width + col] >> 8) & 0xff) + k8
-                         * ((pixels[偏移量 + width + col + 1] >> 8) & 0xff);
+                         * ((pixels[offset - width + col] >> 8) & 0xff) + k2
+                         * ((pixels[offset - width + col + 1] >> 8) & 0xff) + k3
+                         * ((pixels[offset + col - 1] >> 8) & 0xff) + k4
+                         * ((pixels[offset + col] >> 8) & 0xff) + k5
+                         * ((pixels[offset + col + 1] >> 8) & 0xff) + k6
+                         * ((pixels[offset + width + col - 1] >> 8) & 0xff) + k7
+                         * ((pixels[offset + width + col] >> 8) & 0xff) + k8
+                         * ((pixels[offset + width + col + 1] >> 8) & 0xff);
 
                 xg = x0 * ((pixels[offset - width + col - 1] >> 8) & 0xff) + x1
-                         * ((pixels[偏移量 - width + col] >> 8) & 0xff) + x2
-                         * ((pixels[偏移量 - width + col + 1] >> 8) & 0xff) + x3
-                         * ((pixels[偏移量 + col - 1] >> 8) & 0xff) + x4
-                         * ((pixels[偏移量 + col] >> 8) & 0xff) + x5
-                         * ((pixels[偏移量 + col + 1] >> 8) & 0xff) + x6
-                         * ((pixels[偏移量 + width + col - 1] >> 8) & 0xff) + x7
-                         * ((pixels[偏移量 + width + col] >> 8) & 0xff) + x8
-                         * ((pixels[偏移量 + width + col + 1] >> 8) & 0xff);
+                         * ((pixels[offset - width + col] >> 8) & 0xff) + x2
+                         * ((pixels[offset - width + col + 1] >> 8) & 0xff) + x3
+                         * ((pixels[offset + col - 1] >> 8) & 0xff) + x4
+                         * ((pixels[offset + col] >> 8) & 0xff) + x5
+                         * ((pixels[offset + col + 1] >> 8) & 0xff) + x6
+                         * ((pixels[offset + width + col - 1] >> 8) & 0xff) + x7
+                         * ((pixels[offset + width + col] >> 8) & 0xff) + x8
+                         * ((pixels[offset + width + col + 1] >> 8) & 0xff);
                 // blue
                 yb = k0 * (pixels[offset - width + col - 1] & 0xff) + k1
-                         * (pixels[偏移量 - width + col] & 0xff) + k2
-                         * (pixels[偏移量 - width + col + 1] & 0xff) + k3
-                         * (pixels[偏移量 + col - 1] & 0xff) + k4
-                         * (pixels[偏移量 + col] & 0xff) + k5
-                         * (pixels[偏移量 + col + 1] & 0xff) + k6
-                         * (pixels[偏移量 + width + col - 1] & 0xff) + k7
-                         * (pixels[偏移量 + width + col] & 0xff) + k8
-                         * (pixels[偏移量 + width + col + 1] & 0xff);
+                         * (pixels[offset - width + col] & 0xff) + k2
+                         * (pixels[offset - width + col + 1] & 0xff) + k3
+                         * (pixels[offset + col - 1] & 0xff) + k4
+                         * (pixels[offset + col] & 0xff) + k5
+                         * (pixels[offset + col + 1] & 0xff) + k6
+                         * (pixels[offset + width + col - 1] & 0xff) + k7
+                         * (pixels[offset + width + col] & 0xff) + k8
+                         * (pixels[offset + width + col + 1] & 0xff);
 
                 xb = x0 * (pixels[offset - width + col - 1] & 0xff) + x1
-                         * (pixels[偏移量 - width + col] & 0xff) + x2
-                         * (pixels[偏移量 - width + col + 1] & 0xff) + x3
-                         * (pixels[偏移量 + col - 1] & 0xff) + x4
-                         * (pixels[偏移量 + col] & 0xff) + x5
-                         * (pixels[偏移量 + col + 1] & 0xff) + x6
-                         * (pixels[偏移量 + width + col - 1] & 0xff) + x7
-                         * (pixels[偏移量 + width + col] & 0xff) + x8
-                         * (pixels[偏移量 + width + col + 1] & 0xff);
+                         * (pixels[offset - width + col] & 0xff) + x2
+                         * (pixels[offset - width + col + 1] & 0xff) + x3
+                         * (pixels[offset + col - 1] & 0xff) + x4
+                         * (pixels[offset + col] & 0xff) + x5
+                         * (pixels[offset + col + 1] & 0xff) + x6
+                         * (pixels[offset + width + col - 1] & 0xff) + x7
+                         * (pixels[offset + width + col] & 0xff) + x8
+                         * (pixels[offset + width + col + 1] & 0xff);
 
                 // 索贝尔梯度
                 r = (int) Math.sqrt(yr * yr + xr * xr);

@@ -168,9 +168,9 @@ public class WordDocumentRenderer implements DocumentProvider {
             if (cell == null) {
                 continue;
             }
-            XWPFParagraph para = cell.getParagraphs().get(0);
+            XWPFParagraph para = cell.getParagraphs().getFirst();
             para.setAlignment(ParagraphAlignment.CENTER);
-            XWPFRun run = para.getRuns().isEmpty() ? para.createRun() : para.getRuns().get(0);
+            XWPFRun run = para.getRuns().isEmpty() ? para.createRun() : para.getRuns().getFirst();
             run.setBold(true);
             run.setFontSize(10);
             run.setFontFamily("微软雅黑");

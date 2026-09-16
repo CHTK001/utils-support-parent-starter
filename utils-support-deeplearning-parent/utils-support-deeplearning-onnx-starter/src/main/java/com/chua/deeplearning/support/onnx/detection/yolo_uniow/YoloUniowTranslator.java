@@ -370,19 +370,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     /**
     * 从外部文件加载文本嵌入（float32 数组）。
     * @param is 是否
-     /**
-      * 加载嵌入。
-      * @param path 路径
-      * @return 加载嵌入的结果
-      */
-     * @return 读取floats的结果
-      * @param is 是否
-     /**
-     * 加载嵌入。
-     * @param path 路径
-     * @return 加载嵌入的结果
-      */
-     */
+    * @param path 路径
+    * @return 加载嵌入的结果
+    */
     private float[] loadEmbeddings(Path path) {
         try (InputStream is = Files.newInputStream(path)) {
             return readFloats(is);

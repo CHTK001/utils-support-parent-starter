@@ -117,7 +117,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     @Override
     /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
-        return list.get(0).toFloatArray();
+        return list.getFirst().toFloatArray();
     }
 
     @Override

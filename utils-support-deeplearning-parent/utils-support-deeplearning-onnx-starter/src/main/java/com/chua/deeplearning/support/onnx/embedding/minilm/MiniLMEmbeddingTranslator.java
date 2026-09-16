@@ -189,7 +189,7 @@ public class MiniLMEmbeddingTranslator {
             inputs.put("token_type_ids", tokenTypeIds);
 
             try (OrtSession.Result result = session.run(inputs)) {
-                float[][][] hidden = (float[][][]) result.get(0).getValue();
+                float[][][] hidden = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (hidden == null || hidden.length == 0 || hidden[0].length == 0) {
                     throw new IOException("MiniLM 输出为空");
                 }

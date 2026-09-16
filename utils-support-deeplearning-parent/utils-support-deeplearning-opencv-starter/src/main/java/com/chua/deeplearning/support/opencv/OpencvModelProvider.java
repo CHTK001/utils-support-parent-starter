@@ -63,7 +63,7 @@ public class OpencvModelProvider implements BulkModelProvider {
     /** 获取Definition */
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
-        return all.isEmpty() ? null : all.get(0);
+        return all.isEmpty() ? null : all.getFirst();
     }
 
     @Override

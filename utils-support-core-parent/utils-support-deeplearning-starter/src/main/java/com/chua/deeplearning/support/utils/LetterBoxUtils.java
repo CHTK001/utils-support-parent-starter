@@ -109,7 +109,7 @@ public class LetterBoxUtils {
     * @param ndManager nd管理器
      */
     public static ResizeResult letterbox(NDManager ndManager, NDArray img, int targetW, int targetH, float padColor, PaddingPosition position) {
-        long origH = img.getShape().get(0);
+        long origH = img.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long origW = img.getShape().get(1);
 
         float r = Math.min(targetW / (float) origW, targetH / (float) origH);

@@ -41,7 +41,7 @@ class WechatMemoryMessagesTest {
         List<String> lines = Files.readAllLines(
                 new File(tempDir, WechatMemoryMessages.FILE_NAME).toPath(), StandardCharsets.UTF_8);
         assertEquals(3, lines.size());
-        assertTrue(lines.get(0).startsWith("page,cluster,sender_id,sender_username,sender_name,"));
+        assertTrue(lines.getFirst().startsWith("page,cluster,sender_id,sender_username,sender_name,"));
         // 按时间升序
         assertTrue(lines.get(1).contains("wxid_self"));
         assertTrue(lines.get(1).contains("你增加了我的工作量"));

@@ -121,9 +121,9 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
 
-        long batchSize = output.getShape().get(0);
+        long batchSize = output.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long f0 = output.getShape().get(1);
         long f1 = output.getShape().get(2);
 
@@ -256,7 +256,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
             throw new IllegalArgumentException("YOLO 仅支鎸?HWC 格式，shape=" + shape);
         }
 
-        int height = (int) shape.get(0);
+        int height = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int width = (int) shape.get(1);
         int channels = (int) shape.get(2);
         float[] source = array.toType(DataType.FLOAT32, false).toFloatArray();

@@ -335,7 +335,7 @@ public class MageImageClient implements ImageClient {
         if (!(dataObj instanceof List) || ((List<Object>) dataObj).isEmpty()) {
             throw new RuntimeException("Mage " + path + " 返回的图片数据为空: " + json);
         }
-        Map<String, Object> first = (Map<String, Object>) ((List<Object>) dataObj).get(0);
+        Map<String, Object> first = (Map<String, Object>) ((List<Object>) dataObj).getFirst();
         Object b64 = first.get("b64_json");
         if (b64 == null || b64.toString().isBlank()) {
             throw new RuntimeException("Mage 响应缺少 b64_json 字段: " + json);

@@ -203,7 +203,7 @@ public class EfficientSamSegmentTranslator {
             Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("batched_images", imageTensor);
             try (OrtSession.Result result = encoderSession.run(inputs)) {
-                return (float[][][][]) result.get(0).getValue();
+                return (float[][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             }
         } catch (Exception e) {
             throw new RuntimeException("[EfficientSAM] encoder failed: " + e.getMessage(), e);
@@ -234,7 +234,7 @@ public class EfficientSamSegmentTranslator {
             inputs.put("batched_point_labels", labelTensor);
             inputs.put("orig_im_size", origTensor);
             try (OrtSession.Result result = decoderSession.run(inputs)) {
-                float[][][][][] masks = (float[][][][][]) result.get(0).getValue();
+                float[][][][][] masks = (float[][][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[][][] iou = (float[][][]) result.get(1).getValue();
                 for (int i = 0; i < Math.min(iou[0][0].length, iouOut.length); i++) {
                     iouOut[i] = iou[0][0][i];

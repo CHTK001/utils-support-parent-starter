@@ -273,7 +273,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
             try {
                 if (frames.size() == 1) {
                     // 单帧，写入静态 PNG
-                    writer.write(frames.get(0).getImage());
+                    writer.write(frames.getFirst().getImage());
                 } else {
                     // 多帧，尝试写入动画
                     writeAnimatedPng(writer, frames);
@@ -320,7 +320,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
         } catch (Exception e) {
             log.warn("[APNG转换][写入动画]写入动画 PNG 失败，尝试写入静态 PNG", e);
             // 如果动画写入失败，写入第一帧作为静态图像
-            writer.write(frames.get(0).getImage());
+            writer.write(frames.getFirst().getImage());
         }
     }
 

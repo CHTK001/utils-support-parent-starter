@@ -80,10 +80,10 @@ public final class WekaCsvLoader {
                 cellRows.add(splitLine(lines.get(i)));
             }
         }
-        int numCols = cellRows.get(0).size();
+        int numCols = cellRows.getFirst().size();
         var names = new ArrayList<String>(numCols);
         if (hasHeader) {
-            var header = splitLine(stripBom(lines.get(0)));
+            var header = splitLine(stripBom(lines.getFirst()));
             for (int i = 0; i < numCols; i++) {
                 var name = i < header.size() ? header.get(i) : "col_" + i;
                 names.add(name.trim());

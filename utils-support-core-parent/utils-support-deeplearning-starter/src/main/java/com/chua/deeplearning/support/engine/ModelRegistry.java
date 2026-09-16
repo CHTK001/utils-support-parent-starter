@@ -622,7 +622,7 @@ public final class ModelRegistry {
         try {
             if (Files.exists(target) && Files.size(target) > 0) {
                 log.info("[deeplearning-engine] 模型已存在缓存，跳过下载: {} -> {}", modelId, target);
-                return finishDownload(modelId, entry, urls.get(0), target, downloadDir);
+                return finishDownload(modelId, entry, urls.getFirst(), target, downloadDir);
             }
         } catch (IOException e) {
             log.debug("[deeplearning-engine] 模型缓存检查失败: {} -> {}", modelId, e.getMessage());

@@ -155,7 +155,7 @@ public class Neo4jEngine implements Engine {
         if (driver == null || CollectionUtils.isEmpty(data)) {
             return this;
         }
-        Class<T> entityClass = (Class<T>) data.get(0).getClass();
+        Class<T> entityClass = (Class<T>) data.getFirst().getClass();
         String label = entityClass.getSimpleName();
         try (var session = driver.session()) {
             for (T entity : data) {
@@ -321,7 +321,7 @@ public class Neo4jEngine implements Engine {
                 if (r.isEmpty()) {
                     return null;
                 }
-                return r.get(0);
+                return r.getFirst();
             }
 
             @Override

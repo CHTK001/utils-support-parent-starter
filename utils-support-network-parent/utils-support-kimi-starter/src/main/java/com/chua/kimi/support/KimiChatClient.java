@@ -636,7 +636,7 @@ try {
         if (stagesObj instanceof JsonObject multiStage) {
             Object stagesList = multiStage.getObject("stages");
             if (stagesList instanceof JsonArray stages && !stages.isEmpty()) {
-                Object first = stages.get(0);
+                Object first = stages.get(0); // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
                 if (first instanceof JsonObject stage) {
                     boolean thinkingStage = STAGE_NAME_THINKING.equals(stage.getObject("name"));
                     boolean completed = "completed".equals(stage.getObject("status"));

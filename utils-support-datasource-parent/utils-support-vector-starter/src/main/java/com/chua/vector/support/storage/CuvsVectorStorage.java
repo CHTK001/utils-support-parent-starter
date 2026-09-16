@@ -226,7 +226,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
                 List<Vector> candidates = new ArrayList<>();
                 if (!hits.isEmpty()) {
-                    Map<Integer, Float> hit = hits.get(0);
+                    Map<Integer, Float> hit = hits.getFirst();
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
@@ -317,21 +317,9 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
 
         /**
-        * 根据算法映射 cuvs 距离类型。
-        *
-        * @return cuVS 距离类型枚举值
-        * @param constants 常量
-        * @param name 名称
-         /**
-          * cuvs距离类型。
-          * @return cuvs距离类型的结果
-          */
-          * @param constants 常量
-          * @param name 名称
-         /**
-         * cuvs距离类型。
-         * @return cuvs距离类型的结果
-          */
+         * 根据算法映射 cuvs 距离类型。
+         *
+         * @return cuVS 距离类型枚举值
          */
         @SuppressWarnings("unchecked")
         private Object cuvsDistanceType() throws Exception {
@@ -465,7 +453,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                 List<Map<Integer, Float>> hits = (List<Map<Integer, Float>>) invoke(results, "getResults", List.class);
                 List<Vector> candidates = new ArrayList<>();
                 if (!hits.isEmpty()) {
-                    Map<Integer, Float> hit = hits.get(0);
+                    Map<Integer, Float> hit = hits.getFirst();
                     for (Map.Entry<Integer, Float> e : hit.entrySet()) {
                         int ord = e.getKey();
                         if (ord < rawVectors.size()) {
@@ -629,25 +617,12 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 两阶段重排序：先用 cuvs 原生算法粗筛 topk×5，再用自定义算法精排取 topk。
-    * @param ord ord
-     /**
-       * rerank。
-      * @param candidates candidates
-      * @param query 查询
-      * @param topK topk
-      * @return reRank的结果
-      */
-     * @param idToOrd 标识转为ord
-     * @return findIdByOrd的结果
-      * @param ord ord
-     /**
-     * reRank。
-     * @param candidates candidates
-     * @param query 查询
-     * @param topK topK
-     * @return reRank的结果
-      */
+     * 两阶段重排序：先用 cuvs 原生算法粗筛 topk×5，再用自定义算法精排取 topk。
+     *
+     * @param candidates 候选向量
+     * @param query 查询向量
+     * @param topK 取 topK
+     * @return 重排序结果
      */
     private List<Vector> reRank(List<Vector> candidates, float[] query, int topK) {
         var algo = getAlgorithm();

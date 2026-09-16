@@ -236,7 +236,7 @@ public class EmojiUtils extends AbstractEmoji {
 
         for (Emoji emoji : EmojiManager.data()) {
             StringBuilder shortCodeBuilder = new StringBuilder();
-            shortCodeBuilder.append(":").append(emoji.getAliases().get(0)).append(":");
+            shortCodeBuilder.append(":").append(emoji.getAliases().getFirst()).append(":");
 
             emojifiedText = emojifiedText.replace(emoji.getEmojiChar(), shortCodeBuilder.toString());
         }

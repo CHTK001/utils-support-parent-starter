@@ -60,8 +60,8 @@ public class TomcatRuntimeLauncher implements RuntimeLauncher {
             }
 
             List<String> args = artifact.getArgs();
-            String contextPath = (args != null && args.size() > 0 && args.get(0) != null)
-                    ? args.get(0) : "/";
+            String contextPath = (args != null && args.size() > 0 && args.getFirst() != null)
+                    ? args.getFirst() : "/";
             int port = (args != null && args.size() > 1 && args.get(1) != null)
                     ? Integer.parseInt(args.get(1)) : 8080;
             String containerName = (args != null && args.size() > 2 && args.get(2) != null)

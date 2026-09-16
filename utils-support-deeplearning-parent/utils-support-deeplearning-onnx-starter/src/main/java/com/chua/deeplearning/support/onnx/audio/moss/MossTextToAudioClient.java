@@ -200,13 +200,11 @@ public class MossTextToAudioClient implements TextToAudioClient {
         }
     }
 
-     /**
-     * ensureprepared。
-      */
-     * 确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
-     *
-     * @return 缓存根的结果
-     */
+    /**
+    * ensureprepared。确保模型目录就绪：优先系统属性指定目录，否则缓存目录缺失时自动下载。
+    *
+    * @return 缓存根的结果
+    */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -230,10 +228,6 @@ public class MossTextToAudioClient implements TextToAudioClient {
         Path dir = (prop != null && !prop.isBlank())
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-tts-nano");
-        /**
-        * codecdir。
-        * @return codecDir的结果
-         */
         Files.createDirectories(dir);
         return dir;
     }
@@ -243,13 +237,6 @@ public class MossTextToAudioClient implements TextToAudioClient {
         Path dir = (prop != null && !prop.isBlank())
                 ? Path.of(prop.trim())
                 : Path.of(cacheRoot(), "audio", "tts", "moss-audio-tokenizer");
-        /**
-        * downloadmissing。
-        * @param dir dir
-        * @param files 文件
-        * @param mirrorBase mirrorbase
-        * @return 缓存根的结果
-         */
         Files.createDirectories(dir);
         return dir;
     }

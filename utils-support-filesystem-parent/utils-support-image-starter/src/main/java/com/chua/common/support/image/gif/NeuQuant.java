@@ -122,7 +122,7 @@ public class NeuQuant {
      */
     protected static final int RADIUSBIASSHIFT = 6;
     /**
-    * at 32.0 偏置 by 6 钻头
+    * 从 32.0 半径开始，偏置 6 位
      */
     protected static final int RADIUSBIAS = (1 << RADIUSBIASSHIFT);
     /** Initradius */
@@ -145,7 +145,7 @@ public class NeuQuant {
 
     /** Alphadec */
     protected int alphadec;
-/** 偏置 by 10 钻头 */
+/** 偏置 10 位 */
 
 
     /**

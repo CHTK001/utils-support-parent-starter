@@ -36,7 +36,7 @@ public class EncoderTranslator implements NoBatchifyTranslator<long[], NDArray> 
     @Override
     /** 处理输出 */
     public NDArray processOutput(TranslatorContext ctx, NDList list) {
-        NDArray encoderHiddenStates = list.get(0);
+        NDArray encoderHiddenStates = list.getFirst();
         encoderHiddenStates.detach();
         return encoderHiddenStates;
     }

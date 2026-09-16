@@ -50,13 +50,8 @@ public class ZipformerFbank {
     * @param samples 16 khz 单声道 PCM [-1,1]
     * @return [帧数][80] 二维特征
     * @param hz hz
-     /**
-      * extract。
-      * @param samples 样本
-      * @return extract的结果
-      */
-     * @param mel mel
-     */
+    * @param mel mel
+    */
     public float[][] extract(float[] samples) {
         if (samples == null || samples.length < FRAME_LENGTH) {
             return new float[0][NUM_MELS];

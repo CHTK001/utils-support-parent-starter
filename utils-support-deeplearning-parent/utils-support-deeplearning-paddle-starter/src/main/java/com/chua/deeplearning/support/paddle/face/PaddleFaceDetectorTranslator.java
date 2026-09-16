@@ -95,7 +95,7 @@ public class PaddleFaceDetectorTranslator implements Translator<Image, DetectedO
     private NDList processImageInput(NDManager manager, Image input, float currentShrink) {
         NDArray array = input.toNDArray(manager);
         Shape shape = array.getShape();
-        array = NDImageUtils.resize(array, (int) (shape.get(1) * currentShrink), (int) (shape.get(0) * currentShrink));
+        array = NDImageUtils.resize(array, (int) (shape.get(1) * currentShrink), (int) (shape.get(0) * currentShrink)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         array = array.transpose(2, 0, 1).flip(0);
         NDArray mean = manager.create(new float[]{104f, 117f, 123f}, new Shape(3, 1, 1));
         array = array.sub(mean).mul(0.007843f).expandDims(0);

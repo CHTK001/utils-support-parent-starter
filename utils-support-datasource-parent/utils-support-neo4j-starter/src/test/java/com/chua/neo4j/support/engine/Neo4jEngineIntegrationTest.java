@@ -89,8 +89,8 @@ public class Neo4jEngineIntegrationTest {
                 .eq(Person::getName, "Bob")
                 .list();
         assertEquals(1, list.size());
-        assertEquals("Bob", list.get(0).getName());
-        assertEquals(2L, list.get(0).getId());
+        assertEquals("Bob", list.getFirst().getName());
+        assertEquals(2L, list.getFirst().getId());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class Neo4jEngineIntegrationTest {
                 .like(Person::getName, "%li%")
                 .list();
         assertEquals(1, list.size());
-        assertEquals("Alice", list.get(0).getName());
+        assertEquals("Alice", list.getFirst().getName());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class Neo4jEngineIntegrationTest {
         // Native paging: total = all.size() for the result set
         assertNotNull(page);
         assertEquals(1, page.getRecords().size(), "分页应返回 1 条 Bob");
-        assertEquals("Bob", page.getRecords().get(0).getName());
+        assertEquals("Bob", page.getRecords().getFirst().getName());
     }
 
     // ==================== count（通过 list().size() 验证）====================
@@ -203,7 +203,7 @@ public class Neo4jEngineIntegrationTest {
                 .eq(Person::getName, "Carol")
                 .list();
         assertEquals(1, list.size());
-        assertEquals("Carol", list.get(0).getName());
+        assertEquals("Carol", list.getFirst().getName());
 
         // execute 返回 counters 总和，对于查询不产生写操作
         int result = engine.execute("MATCH (n:Person {name: $p0}) RETURN n", "Carol");

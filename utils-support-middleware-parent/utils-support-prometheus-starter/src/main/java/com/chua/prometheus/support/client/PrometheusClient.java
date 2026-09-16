@@ -448,7 +448,7 @@ public class PrometheusClient implements AutoCloseable {
         }
         arr.forEach(o -> {
             if (o instanceof JsonArray pair && pair.size() >= 2) {
-                long ts = longOrZero(pair.get(0));
+                long ts = longOrZero(pair.get(0)); // [P3C 四十一 豁免] <原因: JsonArray 元素下标访问，非 java.util.List>
                 Double v = valueFromPair(pair);
                 if (v != null) {
                     samples.add(new PrometheusMetric.Sample(ts, v));
@@ -599,7 +599,7 @@ public class PrometheusClient implements AutoCloseable {
             if (!result.hasData()) {
                 return null;
             }
-            return result.getResult().get(0).getValue();
+            return result.getResult().getFirst().getValue();
         }
 
         /**
@@ -612,7 +612,7 @@ public class PrometheusClient implements AutoCloseable {
             if (!result.hasData()) {
                 return null;
             }
-            return result.getResult().get(0);
+            return result.getResult().getFirst();
         }
     }
 

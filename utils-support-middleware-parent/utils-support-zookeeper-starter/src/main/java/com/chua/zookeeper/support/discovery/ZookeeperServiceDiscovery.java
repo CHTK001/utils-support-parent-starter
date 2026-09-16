@@ -255,7 +255,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
                     return new LinkedList<>();
                 }
                 // 验证第一个子节点是否有数据（区分实例路径与容器路径）
-                byte[] firstData = client.getData().forPath(zkPath + "/" + children.get(0));
+                byte[] firstData = client.getData().forPath(zkPath + "/" + children.getFirst());
                 if (firstData == null || firstData.length == 0) {
                     return new LinkedList<>();
                 }

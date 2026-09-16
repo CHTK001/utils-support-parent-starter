@@ -193,7 +193,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
                 long[] shape = {1, 3, inH, inW};
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
                     try (OrtSession.Result result = session.run(java.util.Map.of("input", tensor))) {
-                        Object out = result.get(0).getValue();
+                        Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[][][][] output;
                         if (out instanceof float[][][][]) {
                             output = (float[][][][]) out;

@@ -379,7 +379,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
  // tshark -T json -x 输出 帧_raw: [hex, 偏移量, 长度]，第一个元素是 hex 字符串
         Object frameRaw = findDeep(layers, "frame_raw");
         if (frameRaw instanceof List<?> list && !list.isEmpty()) {
-            Object first = list.get(0);
+            Object first = list.getFirst();
             if (first instanceof String hex && !hex.isEmpty()) {
                 try {
                     return Hex.decodeHex(hex.replaceAll(":", ""));

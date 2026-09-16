@@ -115,7 +115,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
 
  // 直接读取 ONNX 引擎 ndarray 的 flat float[] 数据，避免不支持的 squeeze/transpose
         // 输出形状固定为 [1, num_priors, 2] 和 [1, num_priors, 4]
-        float[] confData = list.get(0).toFloatArray();
+        float[] confData = list.getFirst().toFloatArray();
         float[] locData = list.get(1).toFloatArray();
 
         // 推断 num_priors（confData 长度 = 2 * num_priors）

@@ -81,10 +81,10 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray depth = list.singletonOrThrow();
 
-        if (depth.getShape().dimension() > 3 && depth.getShape().get(0) == 1) {
+        if (depth.getShape().dimension() > 3 && depth.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             depth = depth.squeeze(0);
         }
-        if (depth.getShape().dimension() == 3 && depth.getShape().get(0) == 1) {
+        if (depth.getShape().dimension() == 3 && depth.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             depth = depth.squeeze(0);
         }
 
@@ -97,7 +97,7 @@ public class DepthAnythingTranslator implements Translator<Image, Image> {
         }
         depth = depth.div(maxValue).mul(255.0f).clip(0, 255).toType(DataType.UINT8, false);
 
-        int outH = (int) depth.getShape().get(0);
+        int outH = (int) depth.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int outW = (int) depth.getShape().get(1);
         byte[] values = depth.toByteArray();
 

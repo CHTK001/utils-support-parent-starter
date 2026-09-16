@@ -105,7 +105,7 @@ class OracleEngineIntegrationTest {
         List<OracleUser> list = engine.query(OracleUser.class).list();
         assertEquals(4, list.size());
         // 首行应完整映射驼峰字段（deptId ← DEPT_ID，Oracle 未加引号标识符统一大写）
-        OracleUser first = list.get(0);
+        OracleUser first = list.getFirst();
         assertNotNull(first.getId());
         assertNotNull(first.getName());
         assertNotNull(first.getAge());
@@ -123,7 +123,7 @@ class OracleEngineIntegrationTest {
                 .eq(OracleUser::getName, "Alice")
                 .list();
         assertEquals(1, byName.size());
-        assertEquals("Alice", byName.get(0).getName());
+        assertEquals("Alice", byName.getFirst().getName());
 
         // 驼峰字段条件 → 应解析为 dept_id = ?
         List<OracleUser> byDept = engine.query(OracleUser.class)
@@ -137,7 +137,7 @@ class OracleEngineIntegrationTest {
                 .gt(OracleUser::getAge, 26)
                 .list();
         assertEquals(1, compound.size());
-        assertEquals("Carol", compound.get(0).getName());
+        assertEquals("Carol", compound.getFirst().getName());
     }
 
     /**
@@ -240,7 +240,7 @@ class OracleEngineIntegrationTest {
                 OracleUser.class,
                 101L);
         assertEquals(2, users.size());
-        OracleUser first = users.get(0);
+        OracleUser first = users.getFirst();
         assertNotNull(first.getId());
         assertNotNull(first.getDeptId());
     }

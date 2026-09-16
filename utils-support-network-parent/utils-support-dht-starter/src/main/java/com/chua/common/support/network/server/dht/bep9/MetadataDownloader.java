@@ -250,7 +250,7 @@ public class MetadataDownloader {
                 if (filesObj instanceof java.util.List) {
                     java.util.List<Map<String, Object>> files = (java.util.List<Map<String, Object>>) filesObj;
                     if (!files.isEmpty()) {
-                        Object pathObj = files.get(0).get("path");
+                        Object pathObj = files.getFirst().get("path");
                         if (pathObj instanceof java.util.List) {
                             java.util.List<byte[]> parts = (java.util.List<byte[]>) pathObj;
                             StringBuilder sb = new StringBuilder();

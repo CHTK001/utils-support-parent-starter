@@ -218,7 +218,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
                     Map<String, OnnxTensor> inputs = new HashMap<>();
                     inputs.put("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
-                        Object out = result.get(0).getValue();
+                        Object out = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[][][] probs;
                         if (out instanceof float[][][]) {
                             probs = (float[][][]) out;

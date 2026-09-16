@@ -35,7 +35,7 @@ public class DecoderTranslator implements NoBatchifyTranslator<NDList, CausalLMO
     @Override
     /** 处理输出 */
     public CausalLMOutput processOutput(TranslatorContext ctx, NDList output) {
-        NDArray logitsOutput = output.get(0);
+        NDArray logitsOutput = output.get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
         NDList pastKeyValuesOutput = output.subNDList(1, 12 * 4 + 1);
         for (NDArray array : pastKeyValuesOutput) {
             array.setName(tupleName);

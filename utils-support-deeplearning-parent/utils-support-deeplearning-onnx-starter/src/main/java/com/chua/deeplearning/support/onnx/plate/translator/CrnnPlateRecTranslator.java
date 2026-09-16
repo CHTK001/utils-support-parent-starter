@@ -76,7 +76,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     public PlateResult processOutput(TranslatorContext ctx, NDList list) {
  // 铭牌 logits + color logits
         // (0);  // shape: [1, T, num_classes]
-        NDArray plateOutput = list.get(0);  // shape: [1, T, num_classes]
+        NDArray plateOutput = list.getFirst();  // shape: [1, T, num_classes]
         // ull;  // shape: [1, num_colors]
         NDArray colorOutput = list.size() > 1 ? list.get(1) : null;
 

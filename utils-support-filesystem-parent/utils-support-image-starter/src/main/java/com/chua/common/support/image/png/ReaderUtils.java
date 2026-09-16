@@ -51,14 +51,13 @@ final class ReaderUtils {
         // dst = destinationOffset + (src - sourceOffset)/sourceSubsampling
         //
         // For now we use a brute-force approach although we could
- // 尝试 转为 分析 the congruences.  If 通过周期 和
- // 源subsamling are relatively prime, the 周期 will be
- // their product.  If they 共享 a 通用 factor, either the
- // 周期 will be equal 转为 the larger 值, 或 the sequences
-        // will be completely disjoint, depending on the relationship
- // between 通过启动 和 源偏移量.  自 we only have 转为 执行 this
-        // twice per image (once each for X and Y), it seems cheap enough
- // 转为 执行 it the straightforward way.
+ // 尝试分析同余关系：若 passPeriod 与 sourceSubsampling
+ // 互质，则周期为二者之积；若存在公因子，
+ // 则周期等于较大值，或两个序列完全不相交，
+        // 具体取决于它们之间的关系，
+ // 即 passStart 与 sourceOffset 之间的关系。由于
+        // 每幅图像只需处理两次（X 和 Y 各一次），
+ // 因此用最直接的方式处理也已足够廉价。
 
         boolean gotPixel = false;
         int firstDst = -1;
@@ -113,47 +112,33 @@ final class ReaderUtils {
     }
 
     /**
-    * A 工具 方法 that computes the exact 设置 的 目标
-    * pixels that will be written 期间 a particular decoding 通过.
-    * The intent 是否 转为 simplify the work done by readers 入 组合
-    * the 源 region, 源 subsampling, 和 目标 偏移量
-    * 信息 obtained 从 the {@code ImageReadParam} with
-    * the 偏移量 和 周期 的 a 进步 或 interlaced decoding
-    * 通过.
+    * 一个工具方法，用于计算在特定解码过程中将被写入的
+    * 目标像素集合。其目的是简化读取器合并
+    * 源区域、源子采样和目标偏移量信息的操作，
+    * 这些信息从 {@code ImageReadParam} 中获得，并与
+    * 渐进式或隔行解码过程中每一步的偏移量和周期
+    * 相结合。
     *
-    * @param sourceRegion a {@code Rectangle} containing the
-    * 源 region 存在 读取, 偏移量 by the 源 subsampling
-    * 偏移量, 和 clipped against the 源 bounds, as 返回 by
-    * the {@code getSourceRegion} 方法.
-    * @param destinationOffset a {@code Point} containing the
-    * coordinates 的 the 大写-left pixel 转为 be written 入 the
-    * 目标.
-    * @param dstMinX the smallest X coordinate (inclusive) 的 the
-    * 目标 {@code Raster}.
-    * @param dstMinY the smallest Y coordinate (inclusive) 的 the
-    * 目标 {@code Raster}.
-    * @param dstMaxX the largest X coordinate (inclusive) 的 the 目标
-    * {@code Raster}.
-    * @param dstMaxY the largest Y coordinate (inclusive) 的 the 目标
-    * {@code Raster}.
-    * @param sourceXSubsampling the X subsampling factor.
-    * @param sourceYSubsampling the Y subsampling factor.
-    * @param passXStart the smallest 源 X coordinate (inclusive)
-    * 的 the 当前 进步 通过.
-    * @param passYStart the smallest 源 Y coordinate (inclusive)
-    * 的 the 当前 进步 通过.
-    * @param passWidth the width 入 pixels 的 the 当前 进步
-    * 通过.
-    * @param passHeight the height 入 pixels 的 the 当前 进步
-    * 通过.
-    * @param passPeriodX the X 周期 (horizontal spacing between
-    * pixels) 的 the 当前 进步 通过.
-    * @param passPeriodY the Y 周期 (vertical spacing between
-    * pixels) 的 the 当前 进步 通过.
+    * @param sourceRegion 包含待读取源区域的 {@code Rectangle}，
+    * 按源子采样偏移，并针对源边界裁剪，由
+    * {@code getSourceRegion} 方法返回。
+    * @param destinationOffset 包含目标区域左上角像素坐标的
+    * {@code Point}。
+    * @param dstMinX 目标 {@code Raster} 的最小 X 坐标（含）。
+    * @param dstMinY 目标 {@code Raster} 的最小 Y 坐标（含）。
+    * @param dstMaxX 目标 {@code Raster} 的最大 X 坐标（含）。
+    * @param dstMaxY 目标 {@code Raster} 的最大 Y 坐标（含）。
+    * @param sourceXSubsampling X 方向子采样因子。
+    * @param sourceYSubsampling Y 方向子采样因子。
+    * @param passXStart 当前解码步骤中最小的源 X 坐标（含）。
+    * @param passYStart 当前解码步骤中最小的源 Y 坐标（含）。
+    * @param passWidth 当前解码步骤以像素为单位的宽度。
+    * @param passHeight 当前解码步骤以像素为单位的高度。
+    * @param passPeriodX 当前解码步骤的 X 周期（像素间水平间距）。
+    * @param passPeriodY 当前解码步骤的 Y 周期（像素间垂直间距）。
     *
-    * @return an array 的 6 {@code int}s containing the
-    * 目标 最小 X, 最小 Y, width, height, X 周期 和 Y 周期
-    * 的 the region that will be 更新.
+    * @return 一个包含 6 个 {@code int} 的数组，表示将被更新区域的
+    * 目标最小 X、最小 Y、宽度、高度、X 周期和 Y 周期。
      */
     public static int[] computeUpdatedPixels(Rectangle sourceRegion,
                                              Point destinationOffset,

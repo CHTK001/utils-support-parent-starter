@@ -102,7 +102,7 @@ class MysqlEngineIntegrationTest {
         List<MysqlUser> list = engine.query(MysqlUser.class).list();
         assertEquals(4, list.size());
         // 首行应完整映射驼峰字段（deptId ← dept_id）
-        MysqlUser first = list.get(0);
+        MysqlUser first = list.getFirst();
         assertNotNull(first.getId());
         assertNotNull(first.getName());
         assertNotNull(first.getAge());
@@ -120,7 +120,7 @@ class MysqlEngineIntegrationTest {
                 .eq(MysqlUser::getName, "Alice")
                 .list();
         assertEquals(1, byName.size());
-        assertEquals("Alice", byName.get(0).getName());
+        assertEquals("Alice", byName.getFirst().getName());
 
         // 驼峰字段条件 → 应解析为 dept_id = ?
         List<MysqlUser> byDept = engine.query(MysqlUser.class)
@@ -134,7 +134,7 @@ class MysqlEngineIntegrationTest {
                 .gt(MysqlUser::getAge, 26)
                 .list();
         assertEquals(1, compound.size());
-        assertEquals("Carol", compound.get(0).getName());
+        assertEquals("Carol", compound.getFirst().getName());
     }
 
     /**
@@ -237,7 +237,7 @@ class MysqlEngineIntegrationTest {
                 MysqlUser.class,
                 101L);
         assertEquals(2, users.size());
-        MysqlUser first = users.get(0);
+        MysqlUser first = users.getFirst();
         assertNotNull(first.getId());
         assertNotNull(first.getDeptId());
     }

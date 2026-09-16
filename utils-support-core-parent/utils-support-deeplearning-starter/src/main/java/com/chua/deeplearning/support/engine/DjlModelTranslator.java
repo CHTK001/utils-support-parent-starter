@@ -221,7 +221,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
  // 分类输出 → 最可能类别名（业务接口 镜像classifier 期望 字符串）
             List<ai.djl.modality.Classifications.Classification> items = classifications.items();
             if (items != null && !items.isEmpty()) {
-                String top = String.valueOf(items.get(0).getClassName());
+                String top = String.valueOf(items.getFirst().getClassName());
                 log.debug("[deeplearning-engine] DJL 模型 {} 分类结果: {}", modelName, top);
                 return top;
             }

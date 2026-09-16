@@ -45,19 +45,9 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     * @param modelDir 含 编码器/解码器/连接 int8 onnx 与 令牌.txt
     * @throws Exception 加载异常
     * @param tokensFile 令牌文件
-     /**
-      * prepare。
-      * @param modelDir 模型dir
-      */
-     * @param dir dir
-     * @param prefix 前缀
-     * @return 方法的结果
-      * @param tokensFile 令牌文件
-     /**
-     * prepare。
-     * @param modelDir 模型dir
-      */
-     */
+    * @param dir dir
+    * @param prefix 前缀
+    */
     public void prepare(Path modelDir) throws Exception {
         encoderSession = env.createSession(
                 resolve(modelDir, "encoder"), new OrtSession.SessionOptions());
@@ -105,19 +95,8 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
     * @return 识别文本
     * @throws Exception 推理异常
     * @param encoderOut 编码器出
-     /**
-      * transcribe。
-      * @param wavPath wav路径
-      * @return transcribe的结果
-      */
-     * @param features 特征
-      * @param encoderOut 编码器出
-     /**
-     * transcribe。
-     * @param wavPath wav路径
-     * @return transcribe的结果
-      */
-     */
+    * @param features 特征
+    */
     public String transcribe(Path wavPath) throws Exception {
         float[] samples = AudioUtils.loadMono16k(wavPath);
         float[][] features = new ZipformerFbank().extract(samples);
@@ -132,7 +111,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
              OnnxTensor xLens = OnnxTensor.createTensor(env,
                      new long[]{frames});
              OrtSession.Result result = encoderSession.run(Map.of("x", x, "x_lens", xLens))) {
-            float[][][] raw = (float[][][]) result.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            float[][][] raw = (float[][][]) result.get(0).getValue();
             return raw[0];
         }
     }
@@ -159,17 +138,11 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
         return sb.toString().trim();
     }
 
-     /**
-     * decodepiece。
-     * @param piece piece
-     * @return decodePiece的结果
-      */
-     * BPE 词片转可读文本：▁ 还原为空格。
-     *
-     * @param session 会话
-     * @param y y
-     * @return decodePiece的结果
-     */
+    /**
+    * decodepiece。BPE 词片转可读文本：▁ 还原为空格。
+    * @param piece piece
+    * @return decodePiece的结果
+    */
     private String decodePiece(String piece) {
         return piece.replace('\u2581', ' ');
     }
@@ -179,13 +152,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
                 new long[][]{y});
              OrtSession.Result result =
                      decoderSession.run(Collections.singletonMap("y", tensor))) {
-            /**
-            * 运行连接。
-            * @param encFrame enc帧
-            * @param decOut dec出
-            * @return 运行连接的结果
-             */
-            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            return ((float[][]) result.get(0).getValue())[0];
         }
     }
 
@@ -197,13 +164,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
              OrtSession.Result result = joinerSession.run(Map.of(
                      "encoder_out", encTensor,
                      "decoder_out", decTensor))) {
-            /**
-            * argmax。
-            * @param arr arr
-            * @return argmax的结果
-            * @param session 会话
-             */
-            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            return ((float[][]) result.get(0).getValue())[0];
         }
     }
 

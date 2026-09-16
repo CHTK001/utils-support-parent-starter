@@ -29,7 +29,7 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
     public NDList processInput(TranslatorContext ctx, NDList input) {
         NDArray latent = input.singletonOrThrow();
  // Batchifier.STACK                 批量                          批量 dim
-        if (latent.getShape().dimension() >= 4 && latent.getShape().get(0) == 1) {
+        if (latent.getShape().dimension() >= 4 && latent.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             latent = latent.squeeze(0);
         }
         return new NDList(latent);
@@ -42,7 +42,7 @@ public class TaesdDecoderTranslator implements Translator<NDList, Image> {
             NDArray output = list.singletonOrThrow();
 
             // TAESD           (1, 3, h*8, w*8)          batch       
-            if (output.getShape().dimension() >= 4 && output.getShape().get(0) == 1) {
+            if (output.getShape().dimension() >= 4 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
                 output = output.squeeze(0);
             }
 
