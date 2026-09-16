@@ -6,6 +6,7 @@ import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.datasearch.skill.spi.SkillOfflineProvider;
 import com.chua.common.support.datasearch.skill.spi.SkillOnlineProvider;
 import com.chua.common.support.datasearch.usage.spi.UsageParser;
+import com.chua.common.support.datasearch.video.spi.VipParser;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.util.Map;
@@ -98,6 +99,10 @@ public class NewProviderSmokeTest {
             checkProvider(PluginOnlineProvider.class, key, "PluginOnlineProvider");
         }
 
+        // VipParser 新实现
+        checkProvider(VipParser.class, "direct", "VipParser");
+        checkProvider(VipParser.class, "json", "VipParser");
+
         // 全量统计
         Map<String, UsageParser> usages = ServiceProvider.of(UsageParser.class).list();
         Map<String, SkillOfflineProvider> skills = ServiceProvider.of(SkillOfflineProvider.class).list();
@@ -105,12 +110,14 @@ public class NewProviderSmokeTest {
         Map<String, McpProvider> mcps = ServiceProvider.of(McpProvider.class).list();
         Map<String, PluginOfflineProvider> plugins = ServiceProvider.of(PluginOfflineProvider.class).list();
         Map<String, PluginOnlineProvider> onlinePluginMap = ServiceProvider.of(PluginOnlineProvider.class).list();
+        Map<String, VipParser> vipParsers = ServiceProvider.of(VipParser.class).list();
         System.out.println("UsageParser total: " + (usages == null ? 0 : usages.size()));
         System.out.println("SkillOfflineProvider total: " + (skills == null ? 0 : skills.size()));
         System.out.println("SkillOnlineProvider total: " + (onlineSkills == null ? 0 : onlineSkills.size()));
         System.out.println("McpProvider total: " + (mcps == null ? 0 : mcps.size()));
         System.out.println("PluginOfflineProvider total: " + (plugins == null ? 0 : plugins.size()));
         System.out.println("PluginOnlineProvider total: " + (onlinePluginMap == null ? 0 : onlinePluginMap.size()));
+        System.out.println("VipParser total: " + (vipParsers == null ? 0 : vipParsers.size()));
 
         System.out.println("PASS " + passCount + " checks, " + failureCount + " failures");
         if (failureCount > 0) {
