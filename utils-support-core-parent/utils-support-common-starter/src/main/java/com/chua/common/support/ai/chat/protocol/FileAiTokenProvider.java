@@ -105,7 +105,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
         }
         try {
             List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
-            Map<String, AiToken> newMap = new LinkedHashMap<>();
+            Map<String, AiToken> newMap = new LinkedHashMap<>((int) (lines.size() / 0.75f) + 1);
             int count = 0;
             for (String line : lines) {
                 String trimmed = line.trim();
@@ -148,7 +148,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     private void flushToFile() {
         synchronized (this) {
         try {
-            List<String> lines = new ArrayList<>();
+            List<String> lines = new ArrayList<>(tokenMap.size() + 3);
             lines.add("# AI Token File");
             lines.add("# format: token [group] [expire_time(yyyy-MM-dd)]");
             lines.add("");

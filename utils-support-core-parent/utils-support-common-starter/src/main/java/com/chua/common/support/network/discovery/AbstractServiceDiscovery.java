@@ -242,7 +242,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         if (lb == null) {
             // 如果找不到指定的负载均衡策略，直接返回列表中的第一个
             List<Discovery> list = new ArrayList<>(services);
-            return list.isEmpty() ? null : list.get(0);
+            return list.isEmpty() ? null : list.getFirst();
         }
         LoadBalance balancer = lb.create();
         for (Discovery d : services) {

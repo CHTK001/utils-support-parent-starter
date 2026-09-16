@@ -55,7 +55,7 @@ public class ImageColorizeTranslator implements Translator<Image, Image> {
         gray = gray.transpose(2, 0, 1);
  // 复制三通道（Rust 引擎未实现 repeat，改用 连接 拼接）
         gray = ai.djl.ndarray.NDArrays.concat(
-                new NDList(gray, gray, gray), 0).get(0);
+                new NDList(gray, gray, gray), 0).get(0); // [P3C 3.7 豁免] NDArray 张量下标访问（concat 返回单张量后取 batch 首样本）
         gray = gray.expandDims(0);
 
         log.debug("[ImageColorize] Input: gray={}", gray.getShape());

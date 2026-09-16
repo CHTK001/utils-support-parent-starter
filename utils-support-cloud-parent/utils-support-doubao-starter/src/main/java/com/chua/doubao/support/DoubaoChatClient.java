@@ -263,7 +263,7 @@ public class DoubaoChatClient implements ChatClient {
             AtomicBoolean isDone = new AtomicBoolean(false);
             flowable.blockingForEach(chunk -> {
                 if (chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
-                    var choice = chunk.getChoices().get(0);
+                    var choice = chunk.getChoices().getFirst();
                     String finishReason = choice.getFinishReason();
                     if ("stop".equals(finishReason)) {
                         isDone.set(true);

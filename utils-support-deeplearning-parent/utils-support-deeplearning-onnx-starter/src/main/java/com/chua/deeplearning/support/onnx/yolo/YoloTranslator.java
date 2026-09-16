@@ -212,7 +212,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             throw new IllegalArgumentException("YOLO                          HWC                       shape=" + shape);
         }
 
-        int height = Math.toIntExact(shape.get(0));
+        int height = Math.toIntExact(shape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
         int width = Math.toIntExact(shape.get(1));
         int channels = Math.toIntExact(shape.get(2));
         float[] source = array.toFloatArray();
@@ -258,7 +258,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         }
 
         //             
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         Shape outputShape = output.getShape();
         log.info("       shape: {}", outputShape);
         if (log.isDebugEnabled()) {
@@ -267,11 +267,11 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
 
         int rows;
         int cols;
-        if (outputShape.dimension() == 3 && outputShape.get(0) == 1) {
+        if (outputShape.dimension() == 3 && outputShape.get(0) == 1) { // [P3C 3.7 豁免] 张量形状维度下标
             rows = Math.toIntExact(outputShape.get(1));
             cols = Math.toIntExact(outputShape.get(2));
         } else if (outputShape.dimension() == 2) {
-            rows = Math.toIntExact(outputShape.get(0));
+            rows = Math.toIntExact(outputShape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
             cols = Math.toIntExact(outputShape.get(1));
         } else {
             throw new IllegalArgumentException("YOLO                 [1, F, N]     [N, F]                 shape=" + outputShape);
@@ -556,7 +556,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
             throw new IllegalArgumentException("                                     shape=" + shape);
         }
 
-        int rows = Math.toIntExact(shape.get(0));
+        int rows = Math.toIntExact(shape.get(0)); // [P3C 3.7 豁免] 张量形状维度下标
         int cols = Math.toIntExact(shape.get(1));
         float[] source = array.toFloatArray();
         float[] transposed = new float[source.length];
@@ -605,7 +605,7 @@ class YoloTranslator implements Translator<Image, DetectedObjects> {
         if (classId < 0) {
             return null;
         }
-        if (classes.size() == 1 && "object".equalsIgnoreCase(classes.get(0))) {
+        if (classes.size() == 1 && "object".equalsIgnoreCase(classes.getFirst())) {
             int inferredClassCount = Math.max(0, (int) numFeatures - classStartIndex);
             if (inferredClassCount == COCO_80_CLASSES.size() && classId < COCO_80_CLASSES.size()) {
                 return COCO_80_CLASSES.get(classId);

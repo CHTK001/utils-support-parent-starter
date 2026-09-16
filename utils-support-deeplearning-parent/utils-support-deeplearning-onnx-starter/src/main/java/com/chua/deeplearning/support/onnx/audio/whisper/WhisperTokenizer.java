@@ -79,7 +79,7 @@ public class WhisperTokenizer {
             JsonNode root = MAPPER.readTree(in);
             List<Map.Entry<String, JsonNode>> entries = new ArrayList<>();
             root.fields().forEachRemaining(entries::add);
-            boolean idKeyed = !entries.isEmpty() && isIntKey(entries.get(0).getKey());
+            boolean idKeyed = !entries.isEmpty() && isIntKey(entries.getFirst().getKey());
             for (Map.Entry<String, JsonNode> e : entries) {
                 if (idKeyed) {
                     try {

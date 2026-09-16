@@ -1,5 +1,6 @@
 package com.chua.calcite.support.datasource;
 
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.datasource.support.datasource.MutableDataTable;
@@ -58,19 +59,11 @@ public class SourceDataTable extends MutableDataTable {
     * @param engine      引擎实例
     * @param entityClass 实体类型
     * @return 获取column类型的结果
-     /**
-      * 源数据table。
-      * @param name 名称
-      * @param engine engine
-      * @param entityClass 实体类
-      */
-      * @return 获取column类型的结果
-     /**
-     * 源数据table。
-     * @param name 名称
-     * @param engine engine
-     * @param entityClass 实体类
-      */
+/**
+    * 源数据table。
+    * @param name 名称
+    * @param engine engine
+    * @param entityClass 实体类
      */
     public SourceDataTable(String name, Engine engine, Class<?> entityClass) {
         super(name);
@@ -89,12 +82,8 @@ public class SourceDataTable extends MutableDataTable {
     }
 
      /**
-     * 获取engine。
-     * @return 获取engine的结果
-      */
-     * 获取Engine
-     *
-     * @return 获取实体类的结果
+    * 获取engine。
+    * @return 获取engine的结果
      */
     public Engine getEngine() {
         return engine;
@@ -309,14 +298,9 @@ public class SourceDataTable extends MutableDataTable {
     }
 
      /**
-     * 转为column名称。
-     * @param getters getters
-     * @return 转为column名称的结果
-      */
-     * 转为column名称
-     *
-     * @param getters getters
-     * @return 转为column类型的结果
+    * 转为column名称。
+    * @param getters getters
+    * @return 转为column名称的结果
      */
     private static List<String> toColumnNames(List<Method> getters) {
         List<String> names = new ArrayList<>(getters.size());
@@ -360,33 +344,10 @@ public class SourceDataTable extends MutableDataTable {
         if (value == null || targetType.isInstance(value)) {
             return value;
         }
-        if (targetType == String.class) {
-            return String.valueOf(value);
-        }
-        if (value instanceof Number num) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return num.intValue();
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return num.longValue();
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return num.doubleValue();
-            }
-            if (targetType == Float.class || targetType == float.class) {
-                return num.floatValue();
-            }
-        }
-        if (value instanceof String str && !str.isBlank()) {
-            if (targetType == Integer.class || targetType == int.class) {
-                return Integer.valueOf(str);
-            }
-            if (targetType == Long.class || targetType == long.class) {
-                return Long.valueOf(str);
-            }
-            if (targetType == Double.class || targetType == double.class) {
-                return Double.valueOf(str);
-            }
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(value, targetType);
+        if (converted != null) {
+            return converted;
         }
         return value;
     }

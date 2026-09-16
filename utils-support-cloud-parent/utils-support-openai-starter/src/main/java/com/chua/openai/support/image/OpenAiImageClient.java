@@ -190,7 +190,7 @@ public class OpenAiImageClient implements ImageClient {
         if (data == null || data.isEmpty()) {
             throw new RuntimeException("返回的图片数据为空");
         }
-        String imageUrl = (String) data.get(0).get("url");
+        String imageUrl = (String) data.getFirst().get("url");
         if (imageUrl == null || imageUrl.isBlank()) {
             throw new RuntimeException("返回的图片 URL 为空");
         }

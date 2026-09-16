@@ -126,7 +126,7 @@ public class MossTtsTranslator implements AutoCloseable {
         audioEndTokenId = config.get("audio_end_token_id").asInt();
         audioUserSlotTokenId = config.get("audio_user_slot_token_id").asInt();
         audioAssistantSlotTokenId = config.get("audio_assistant_slot_token_id").asInt();
-        audioCodebookSize = config.get("audio_codebook_sizes").get(0).asInt();
+        audioCodebookSize = config.get("audio_codebook_sizes").get(0).asInt(); // [P3C 3.7 豁免] Jackson 数组下标访问（JsonNode.get(int)）
 
         maxNewFramesLimit = manifest.get("generation_defaults").get("max_new_frames").asInt();
 
@@ -859,7 +859,7 @@ public class MossTtsTranslator implements AutoCloseable {
         * @return flattenInts的结果
          */
         }
-        return values.get(0);
+        return values.getFirst();
     }
 
     private static int[] flattenInts(Object raw, int limit) {

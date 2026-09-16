@@ -109,6 +109,6 @@ public interface PinyinFactory {
         if (result.isEmpty()) {
             return null;
         }
-        return result.get(0);
+        return result.getFirst();
     }
 }

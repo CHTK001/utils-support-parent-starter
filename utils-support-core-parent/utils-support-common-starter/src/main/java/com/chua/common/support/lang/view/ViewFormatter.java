@@ -1,5 +1,7 @@
 package com.chua.common.support.lang.view;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.temporal.Temporal;
@@ -76,7 +78,7 @@ public final class ViewFormatter {
         if (items.isEmpty()) {
             return List.of();
         }
-        Object first = items.get(0);
+        Object first = items.getFirst();
         if (first instanceof Map) {
             return extractFromMapList(items);
         }
@@ -169,7 +171,7 @@ public final class ViewFormatter {
     * @return 反射得到的多列表格行集合
      */
     public static List<String[]> extractFromBeanList(List<Object> items) {
-        List<Field> fields = extractFields(items.get(0).getClass());
+        List<Field> fields = extractFields(items.getFirst().getClass());
         List<String> cols = fields.stream().map(Field::getName).collect(Collectors.toList());
         if (cols.isEmpty()) {
             return extractFromSimpleList(items);
@@ -181,8 +183,7 @@ public final class ViewFormatter {
             for (int i = 0; i < cols.size(); i++) {
                 try {
                     Field f = fields.get(i);
-                    f.setAccessible(true);
-                    Object v = f.get(bean);
+                    Object v = ReflectUtils.getField(bean, f.getName());
                     vals[i] = v != null ? v.toString() : "";
                 } catch (Exception e) {
                     vals[i] = UNKNOWN_CELL;
@@ -305,7 +306,7 @@ public final class ViewFormatter {
         }
         StringBuilder sb = new StringBuilder();
         sb.append(hLine(widths, '┌', '┬', '┐')).append('\n');
-        appendRow(sb, rows.get(0), widths, '│');
+        appendRow(sb, rows.getFirst(), widths, '│');
         sb.append(hLine(widths, '├', '┼', '┤')).append('\n');
         for (int i = 1; i < rows.size(); i++) {
             appendRow(sb, padRow(rows.get(i), widths.length), widths, '│');
@@ -330,7 +331,7 @@ public final class ViewFormatter {
             widths[i] += pad;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(plainRow(rows.get(0), widths));
+        sb.append(plainRow(rows.getFirst(), widths));
         for (int i = 1; i < rows.size(); i++) {
             sb.append('\n').append(plainRow(padRow(rows.get(i), widths.length), widths));
         }
@@ -351,7 +352,7 @@ public final class ViewFormatter {
         int colCount = rows.stream().mapToInt(r -> r.length).max().orElse(1);
         int[] widths = calcColumnWidths(rows);
         StringBuilder sb = new StringBuilder();
-        appendMdRow(sb, rows.get(0), widths, pad);
+        appendMdRow(sb, rows.getFirst(), widths, pad);
         sb.append('|');
         for (int w : widths) {
             sb.append("-".repeat(w + pad * 2)).append('|');

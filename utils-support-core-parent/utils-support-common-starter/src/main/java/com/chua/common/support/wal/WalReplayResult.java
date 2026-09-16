@@ -35,7 +35,7 @@ public record WalReplayResult(
         if (records == null || records.isEmpty()) {
             return 0L;
         }
-        return records.get(0).lsn();
+        return records.getFirst().lsn();
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.chua.parquet.support.engine;
 
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -147,21 +148,19 @@ public class ParquetEngine extends AbstractEngine {
         List<T> out = new ArrayList<>(records.size());
         Map<String, Field> fields = fieldsOf(entityClass);
         for (GenericRecord rec : records) {
-            try {
-                T inst = ReflectUtils.instantiate(entityClass);
-                for (Schema.Field sf : rec.getSchema().getFields()) {
-                    Field f = fields.get(sf.name());
-                    Object v = rec.get(sf.name());
-                    if (f == null || v == null) {
-                        continue;
-                    }
-                    f.setAccessible(true);
-                    f.set(inst, convert(v, f.getType()));
-                }
-                out.add(inst);
-            } catch (ReflectiveOperationException e) {
-                throw new IllegalStateException("Parquet 行映射失败: " + entityClass.getName(), e);
+            T inst = ReflectUtils.instantiate(entityClass);
+            if (inst == null) {
+                throw new IllegalStateException("Parquet 行映射失败: " + entityClass.getName());
             }
+            for (Schema.Field sf : rec.getSchema().getFields()) {
+                Field f = fields.get(sf.name());
+                Object v = rec.get(sf.name());
+                if (f == null || v == null) {
+                    continue;
+                }
+                ReflectUtils.setField(inst, f.getName(), convert(v, f.getType()));
+            }
+            out.add(inst);
         }
         if (where == null || where.trim().isEmpty()) {
             return out;
@@ -196,7 +195,6 @@ public class ParquetEngine extends AbstractEngine {
                 String col = eq > 0 ? part.substring(0, eq).trim() : part.trim();
                 Field f = fields.get(col);
                 if (f != null) {
-                    f.setAccessible(true);
                     sets.put(f, convert(params.get(i), f.getType()));
                 }
             }
@@ -211,12 +209,12 @@ public class ParquetEngine extends AbstractEngine {
                 }
                 affected++;
                 for (Map.Entry<Field, Object> e : sets.entrySet()) {
-                    e.getKey().set(row, e.getValue());
+                    ReflectUtils.setField(row, e.getKey().getName(), e.getValue());
                 }
             }
             writeAll(getTableName(ec), ec, whole);
             return affected;
-        } catch (IOException | IllegalAccessException e) {
+        } catch (IOException e) {
             throw new IllegalStateException("Parquet 更新写回失败", e);
         }
     }
@@ -282,14 +280,11 @@ public class ParquetEngine extends AbstractEngine {
                 GenericRecord rec = new GenericData.Record(schema);
                 for (Schema.Field sf : schema.getFields()) {
                     Field f = fields.get(sf.name());
-                    f.setAccessible(true);
-                    Object v = f.get(item);
+                    Object v = ReflectUtils.getField(item, f.getName());
                     rec.put(sf.name(), v instanceof String s ? s : v);
                 }
                 writer.write(rec);
             }
-        } catch (IllegalAccessException e) {
-            throw new IOException("字段读取失败", e);
         } finally {
             writer.close();
         }
@@ -596,33 +591,10 @@ public class ParquetEngine extends AbstractEngine {
     * @return 转换的结果
      */
     private static Object convert(Object v, Class<?> type) {
-        if (type == String.class) {
-            return v.toString();
-        }
-        if (v instanceof Boolean b) {
-            return b;
-        }
-        long asLong;
-        double asDouble;
-        if (v instanceof Number num) {
-            asLong = num.longValue();
-            asDouble = num.doubleValue();
-        } else {
-            BigDecimal bd = new BigDecimal(v.toString());
-            asLong = bd.longValue();
-            asDouble = bd.doubleValue();
-        }
-        if (type == int.class || type == Integer.class) {
-            return (int) asLong;
-        }
-        if (type == long.class || type == Long.class) {
-            return asLong;
-        }
-        if (type == double.class || type == Double.class) {
-            return asDouble;
-        }
-        if (type == float.class || type == Float.class) {
-            return (float) asDouble;
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(v, type);
+        if (converted != null) {
+            return converted;
         }
         return v.toString();
     }

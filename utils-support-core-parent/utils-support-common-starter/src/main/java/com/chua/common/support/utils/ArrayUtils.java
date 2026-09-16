@@ -1080,7 +1080,7 @@ public class ArrayUtils {
         if (null == ts || ts.isEmpty()) {
             return null;
         }
-        return ts.toArray((T[]) Array.newInstance(ts.get(0).getClass(), 0));
+        return ts.toArray((T[]) Array.newInstance(ts.getFirst().getClass(), 0));
     }
 
     /**
@@ -1749,7 +1749,7 @@ public class ArrayUtils {
         if (result.isEmpty()) {
             return (R[]) ArrayUtils.newArray(0);
         }
-        return (R[]) result.toArray(ArrayUtils.newArray(result.get(0).getClass(), 0));
+        return (R[]) result.toArray(ArrayUtils.newArray(result.getFirst().getClass(), 0));
     }
 
     /**

@@ -8,6 +8,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaUpdateWrapper;
 import com.chua.common.support.lang.datasource.engine.wrapper.LambdaDeleteWrapper;
 import com.chua.common.support.network.net.NetAddress;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.wrapper.ReactorLambdaDeleteWrapper;
@@ -625,7 +626,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        T instance = rowType.getDeclaredConstructor().newInstance();
+                        T instance = ReflectUtils.instantiate(rowType);
                         for (int i = 1; i <= colCount; i++) {
                             String label = meta.getColumnLabel(i);
                             Object value = rs.getObject(i);
@@ -706,7 +707,7 @@ public class JdbcReactorEngine implements ReactorEngine {
     @SuppressWarnings("unchecked")
     private <T> T toObject(Row row, Class<T> rowType) {
         try {
-            T instance = rowType.getDeclaredConstructor().newInstance();
+            T instance = ReflectUtils.instantiate(rowType);
             row.getMetadata().getColumnMetadatas().forEach(cm -> {
                 String name = cm.getName();
                 if (name != null && !name.isEmpty()) {
@@ -725,22 +726,14 @@ public class JdbcReactorEngine implements ReactorEngine {
         for (String candidate : candidates) {
             java.lang.reflect.Field field = findField(instance.getClass(), candidate);
             if (field == null) continue;
-            try {
-                field.setAccessible(true);
-                Object converted = com.chua.common.support.converter.Converter.convertIfNecessary(value, field.getType());
-                if (converted != null) field.set(instance, converted);
-                return;
-            } catch (IllegalAccessException ignored) {}
+            Object converted = com.chua.common.support.converter.Converter.convertIfNecessary(value, field.getType());
+            if (converted != null) ReflectUtils.setField(instance, candidate, converted);
+            return;
         }
     }
 
     private static java.lang.reflect.Field findField(Class<?> clazz, String name) {
-        Class<?> current = clazz;
-        while (current != null) {
-            try { return current.getDeclaredField(name); }
-            catch (NoSuchFieldException ignored) { current = current.getSuperclass(); }
-        }
-        return null;
+        return ReflectUtils.findField(clazz, name);
     }
 
     private static String toCamelCase(String name) {
@@ -966,7 +959,7 @@ public class JdbcReactorEngine implements ReactorEngine {
                     java.sql.ResultSetMetaData meta = rs.getMetaData();
                     int colCount = meta.getColumnCount();
                     while (rs.next()) {
-                        T instance = rowType.getDeclaredConstructor().newInstance();
+                        T instance = ReflectUtils.instantiate(rowType);
                         for (int i = 1; i <= colCount; i++) {
                             String label = meta.getColumnLabel(i);
                             Object value = rs.getObject(i);

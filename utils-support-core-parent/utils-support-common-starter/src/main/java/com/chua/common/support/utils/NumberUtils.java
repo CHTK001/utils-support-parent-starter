@@ -2630,11 +2630,11 @@ public class NumberUtils {
                 lists.add(chinese.substring(0, levelIndex));
                 chinese = chinese.substring(levelIndex + 1);
             } else if (levelIndex == -1) {
-                lists.add(NumberValue.NUMBER.get(0));
+                lists.add(NumberValue.NUMBER.getFirst());
             } else if (levelIndex == 0) {
                 while (levelIndex > 1) {
                     levelIndex--;
-                    lists.add(NumberValue.NUMBER.get(0));
+                    lists.add(NumberValue.NUMBER.getFirst());
                 }
                 lists.add(chinese);
             }
@@ -2787,7 +2787,7 @@ public class NumberUtils {
                         chinese.append(NumberValue.NUMBER.get(number)).append(NumberValue.LEVEL.get(singleNumList.size() - j - 1));
                     }
                 }
-                if (index == lists.size() && chinese.substring(0, 1).equals(NumberValue.NUMBER.get(0))) {
+                if (index == lists.size() && chinese.substring(0, 1).equals(NumberValue.NUMBER.getFirst())) {
                     chinese = new StringBuilder(chinese.substring(1));
                 }
                 if (chinese.length() > 0 && !NumberValue.HIGH_LEVEL.contains(chinese.substring(chinese.length() - 1))) {

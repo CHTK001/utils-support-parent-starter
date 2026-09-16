@@ -177,7 +177,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
                     ortEnv, FloatBuffer.wrap(dummyInput), new long[]{1, probeSeq});
                  OrtSession.Result result = session.run(Map.of(inputName, inputTensor))) {
 
-                ai.onnxruntime.OnnxValue outVal = result.get(0);
+                ai.onnxruntime.OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (outVal instanceof OnnxTensor outTensor) {
                     long[] shape = outTensor.getInfo().getShape();
                     // shape 通常为 [1, seq_len, hidden_size] 或 [1, hidden_size]
@@ -290,7 +290,7 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
             feed.put(inputName, inputTensor);
             try (OrtSession.Result result = session.run(feed)) {
                 // 步骤 5：从输出张量中提取 hidden state
-                ai.onnxruntime.OnnxValue outVal = result.get(0);
+                ai.onnxruntime.OnnxValue outVal = result.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (!(outVal instanceof OnnxTensor outTensor)) {
                     throw new RuntimeException("模型输出类型不兼容: " + outVal.getClass().getSimpleName());
                 }

@@ -176,7 +176,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
                 roundsAfterBaseline = 0;
             }
             ChatMessage compressedMsg = new ChatMessage("system", "[COMPRESSED_CONTEXT] " + summary);
-            List<ChatMessage> result = new ArrayList<>();
+            List<ChatMessage> result = new ArrayList<>(retained.size());
             result.add(compressedMsg);
             result.addAll(retained);
             return result;
@@ -186,7 +186,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
         String compressedText = buildCompressedText(toCompress);
         ChatMessage compressedMsg = new ChatMessage("system", "[COMPRESSED_CONTEXT] " + compressedText);
 
-        List<ChatMessage> result = new ArrayList<>();
+        List<ChatMessage> result = new ArrayList<>(retained.size());
         result.add(compressedMsg);
         result.addAll(retained);
         return result;
@@ -245,7 +245,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             List<MemoryEntry> entries = memoryManager.getStore().listByType(BASELINE_TYPE, 1);
             memoryManager.close();
             if (entries != null && !entries.isEmpty()) {
-                String json = entries.get(0).getContent();
+                String json = entries.getFirst().getContent();
                 List<ChatMessage> result = Json.fromJsonToList(json, ChatMessage.class);
                 if (result != null) {
                     return result;
@@ -287,7 +287,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             List<MemoryEntry> entries = memoryManager.getStore().listByType(BASELINE_SUMMARY_TYPE, 1);
             memoryManager.close();
             if (entries != null && !entries.isEmpty()) {
-                return entries.get(0).getContent();
+                return entries.getFirst().getContent();
             }
         } catch (Exception e) {
             log.error("[Compression] Load baseline summary failed", e);
@@ -325,7 +325,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             List<MemoryEntry> entries = memoryManager.getStore().listByType(ROUNDS_COUNTER_TYPE, 1);
             memoryManager.close();
             if (entries != null && !entries.isEmpty()) {
-                String value = entries.get(0).getContent();
+                String value = entries.getFirst().getContent();
                 try {
                     return Integer.parseInt(value);
                 } catch (NumberFormatException ignored) {
@@ -408,7 +408,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
             return fallback;
         }
 
-        List<ChatMessage> result = new ArrayList<>();
+        List<ChatMessage> result = new ArrayList<>(); // [P3C 3.15 豁免] 文本按行解析，行数不可预判
         String[] lines = correctedText.split("\n");
         for (String line : lines) {
             line = line.trim();

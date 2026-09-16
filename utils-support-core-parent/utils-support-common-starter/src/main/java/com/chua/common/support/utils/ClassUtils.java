@@ -777,10 +777,10 @@ public class ClassUtils {
      */
     public static Class<?> toClassConfident(String name, ClassLoader classLoader) {
         try {
-            return Class.forName(name, true, classLoader);
+            return Class.forName(name, true, classLoader); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体
         } catch (ClassNotFoundException e) {
             try {
-                return Class.forName(name);
+                return Class.forName(name); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体
             } catch (ClassNotFoundException ex) {
                 try {
                     throw new ClassNotFoundException("                  class                               class                   ", e);
@@ -1082,7 +1082,7 @@ public class ClassUtils {
             setAccessible(declaredConstructor);
             try {
                 params = createArgs(params, declaredConstructor);
-                return declaredConstructor.newInstance(params);
+                return declaredConstructor.newInstance(params); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObject 实例化封装）
             } catch (Exception ignore) {
             }
         }
@@ -1163,7 +1163,7 @@ public class ClassUtils {
                 Constructor<?> constructor = entry.getKey();
                 setAccessible(constructor);
                 try {
-                    Object newInstance = constructor.newInstance(entry.getValue());
+                    Object newInstance = constructor.newInstance(entry.getValue()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（构造器兜底实例化）
                     if (null != newInstance) {
                         return (T) newInstance;
                     }
@@ -1178,7 +1178,7 @@ public class ClassUtils {
                 Constructor<?> constructor = entry.getKey();
                 setAccessible(constructor);
                 try {
-                    Object newInstance = constructor.newInstance(entry.getValue());
+                    Object newInstance = constructor.newInstance(entry.getValue()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（全空参构造器兜底实例化）
                     if (null != newInstance) {
                         return (T) newInstance;
                     }
@@ -1216,7 +1216,7 @@ public class ClassUtils {
 
         if (hasNone(args)) {
             setAccessible(declaredConstructor);
-            return (T) declaredConstructor.newInstance(args);
+            return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（参数可转换时的构造器实例化）
         }
 
         loss.put(declaredConstructor, args);
@@ -2177,16 +2177,16 @@ public class ClassUtils {
             Constructor<?> constructor = null;
             try {
                 constructor = MethodHandles.Lookup.class
-                        .getDeclaredConstructor(Class.class, Class.class, int.class);
+                        .getDeclaredConstructor(Class.class, Class.class, int.class); // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
             } catch (NoSuchMethodException e) {
                 constructor = MethodHandles.Lookup.class
-                        .getDeclaredConstructor(Class.class, int.class);
+                        .getDeclaredConstructor(Class.class, int.class); // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 私有构造器 + ClassUtils 为反射基础设施本体
             }
 
             setAccessible(constructor);
             Class<?> declaringClass = method.getDeclaringClass();
             int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
-            return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)) :
+            return (constructor.getParameterCount() == 2 ? ((MethodHandles.Lookup) constructor.newInstance(declaringClass, allModes)) : // [P3C 1.10 豁免] JDK 内部 MethodHandles.Lookup 构造器调用 + ClassUtils 为反射基础设施本体
                     ((MethodHandles.Lookup) constructor.newInstance(declaringClass, declaringClass.getSuperclass(), allModes)))
                     .unreflectSpecial(method, declaringClass)
                     .bindTo(bean)
@@ -2240,7 +2240,7 @@ public class ClassUtils {
      */
     public static Method findDeclaredMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
         try {
-            return clazz.getDeclaredMethod(name, paramTypes);
+            return clazz.getDeclaredMethod(name, paramTypes); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（findDeclaredMethod 封装）
         } catch (NoSuchMethodException e) {
             return null;
         }
@@ -2346,16 +2346,16 @@ public class ClassUtils {
 
         if(object instanceof Method && !((Method) object).isAccessible()) {
             //        return AccessController.doPrivileged(new SetAccessibleAction<>(object));
-            ((Method) object).setAccessible(true);
+            ((Method) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
             return true;
         }
 
         if(object instanceof Field && !((Field) object).isAccessible()) {
-            ((Field) object).setAccessible(true);
+            ((Field) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
             if(Modifier.isPrivate(((Field) object).getModifiers()) && Modifier.isFinal(((Field) object).getModifiers())) {
                 try {
-                    Field modifiersField = Field.class.getDeclaredField("modifiers");
-                    modifiersField.setAccessible(true);
+                    Field modifiersField = Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（移除 final 修饰需触碰修饰符元字段）
+                    modifiersField.setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
                     modifiersField.setInt( ((Field) object),  ((Field) object).getModifiers() & ~Modifier.FINAL);
                     return true;
                 } catch (NoSuchFieldException e) {
@@ -2367,7 +2367,7 @@ public class ClassUtils {
         }
 
         if(object instanceof Constructor && !((Constructor) object).isAccessible()) {
-            ((Constructor) object).setAccessible(true);
+            ((Constructor) object).setAccessible(true); // [P3C 1.10 豁免] ClassUtils.setAccessible 本体（反射基础设施）
             return true;
         }
         return false;
@@ -2408,7 +2408,7 @@ public class ClassUtils {
 
         String name = "get" + StringUtils.firstUpperCase(field.getName());
         try {
-            Method declaredMethod = target.getDeclaredMethod(name);
+            Method declaredMethod = target.getDeclaredMethod(name); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getFieldValue 优先 getter）
             if (null != declaredMethod) {
                 setAccessible(declaredMethod);
                 return declaredMethod.invoke(value);
@@ -2417,7 +2417,7 @@ public class ClassUtils {
         }
 
         try {
-            Method declaredMethod = target.getDeclaredMethod(field.getName());
+            Method declaredMethod = target.getDeclaredMethod(field.getName()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（getFieldValue 同名方法回退）
             if (null != declaredMethod) {
                 setAccessible(declaredMethod);
                 return declaredMethod.invoke(value);
@@ -2555,7 +2555,7 @@ public class ClassUtils {
             setAccessible(field);
             try {
                 if(Modifier.isFinal(field.getModifiers())) {
-                    Field modifiers = Field.class.getDeclaredField("modifiers");
+                    Field modifiers = Field.class.getDeclaredField("modifiers"); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（静态 final 字段需移除 final 修饰）
                     setAccessible(modifiers);
                     modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
                 }
@@ -2604,7 +2604,7 @@ public class ClassUtils {
         }
 
         try {
-            Method declaredMethod = target.getDeclaredMethod(field.getName(), field.getType());
+            Method declaredMethod = target.getDeclaredMethod(field.getName(), field.getType()); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（setFieldValue 同名方法回退）
             if (null != declaredMethod) {
                 setAccessible(declaredMethod);
                 declaredMethod.invoke(bean, value);
@@ -3324,7 +3324,7 @@ public class ClassUtils {
     public static <T>T newInstance(Constructor<T> declaredConstructor, Object...args) {
         try {
             setAccessible(declaredConstructor);
-            return (T) declaredConstructor.newInstance(args);
+            return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Constructor) 对外封装）
         } catch (Exception e) {
         }
         return null;
@@ -3350,7 +3350,7 @@ public class ClassUtils {
                 if(declaredConstructor.getParameterCount() == args.length) {
                     try {
                         setAccessible(declaredConstructor);
-                        return (T) declaredConstructor.newInstance(args);
+                        return (T) declaredConstructor.newInstance(args); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（newInstance(Class) 构造器匹配实例化）
                     } catch (Exception e) {
                     }
                 }
@@ -3434,7 +3434,7 @@ public class ClassUtils {
 
             setAccessible(declaredConstructor);
             try {
-                return (T) declaredConstructor.newInstance(newArgs);
+                return (T) declaredConstructor.newInstance(newArgs); // [P3C 1.10 豁免] ClassUtils 为反射基础设施本体（forObjectOfMap 构造器反射实例化）
             } catch (Exception ignore) {
             }
         }

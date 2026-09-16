@@ -331,7 +331,7 @@ public class SenseVoiceTranslator {
             feed.put("text_norm", tnT);
 
             try (OrtSession.Result r = session.run(feed)) {
-                OnnxTensor logits = (OnnxTensor) r.get(0);
+                OnnxTensor logits = (OnnxTensor) r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[] buf = toFloatArray(logits);
                 int vocabSize = (int) logits.getInfo().getShape()[2];
                 List<Integer> ids = greedyCtc(buf, vocabSize);

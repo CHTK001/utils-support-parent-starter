@@ -329,7 +329,7 @@ public class ForkNode implements PipelineNode {
                             .collect(Collectors.joining(", "));
                     throw new PipelineException(
                             "Fork branches failed: [" + errorBranches + "] (WAIT_ALL)",
-                            id, context.getPipelineId(), errors.get(0));
+                            id, context.getPipelineId(), errors.getFirst());
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

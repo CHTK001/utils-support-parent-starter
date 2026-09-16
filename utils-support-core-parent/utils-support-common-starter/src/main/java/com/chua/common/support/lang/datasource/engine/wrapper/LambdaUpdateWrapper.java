@@ -138,10 +138,11 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     @Override
     protected String resolveColumn(SFunction<T, ?> column) {
         try {
-            java.lang.reflect.Method writeReplace = column.getClass().getDeclaredMethod("writeReplace");
+            java.lang.reflect.Method writeReplace = column.getClass().getDeclaredMethod("writeReplace"); // [P3C 1.10 豁免] 序列化 writeReplace 为 lambda 私有方法，需精确方法句柄，无法用 ReflectUtils 替代
+            // [P3C 1.10 豁免] 序列化 writeReplace 需精确方法句柄（SerializedLambda），无法用 ReflectUtils 替代
             writeReplace.setAccessible(true);
             java.lang.invoke.SerializedLambda lambda =
-                    (java.lang.invoke.SerializedLambda) writeReplace.invoke(column);
+                    (java.lang.invoke.SerializedLambda) writeReplace.invoke(column); // [P3C 1.10 豁免] 同上：writeReplace 为 lambda 私有方法，ReflectUtils 公共 LOOKUP 无法访问
             String methodName = lambda.getImplMethodName();
             String field = methodName.startsWith("is") ? methodName.substring(2)
                     : methodName.startsWith("get") ? methodName.substring(3) : methodName;

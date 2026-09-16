@@ -265,7 +265,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
             }
             String taskId = client.createTask(prompt);
             tasks.put(taskId, new TaskEntry(taskId, type, System.currentTimeMillis(), client));
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = new LinkedHashMap<>(3);
             result.put(FIELD_TASK_ID, taskId);
             result.put(FIELD_STATUS, STATUS_PENDING);
             writeJson(res, result);
@@ -299,7 +299,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
             }
             ImageClient client = entry.client;
             ImageResponse ir = client.queryTask(taskId);
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = new LinkedHashMap<>(7);
             result.put(FIELD_TASK_ID, taskId);
             result.put(FIELD_STATUS, ir.getStatus() != null ? ir.getStatus().name() : STATUS_PENDING);
             result.put(FIELD_PROGRESS, ir.getProgress() != null ? ir.getProgress() : PROGRESS_DEFAULT);
@@ -320,19 +320,19 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
      */
     private void handleHistory(ServerRequest req, ServerResponse res) {
         try {
-            List<Map<String, Object>> list = new ArrayList<>();
+            List<Map<String, Object>> list = new ArrayList<>(tasks.size());
             long now = System.currentTimeMillis();
             for (TaskEntry entry : tasks.values()) {
                 if (now - entry.createTime > HISTORY_TTL_MILLIS) {
                     continue;
                 }
-                Map<String, Object> item = new LinkedHashMap<>();
+                Map<String, Object> item = new LinkedHashMap<>(5);
                 item.put(FIELD_TASK_ID, entry.taskId);
                 item.put(FIELD_TYPE, entry.type);
                 item.put(FIELD_CREATE_TIME, entry.createTime);
                 list.add(item);
             }
-            Map<String, Object> result = new LinkedHashMap<>();
+            Map<String, Object> result = new LinkedHashMap<>(2);
             result.put(FIELD_LIST, list);
             writeJson(res, result);
         } catch (Exception e) {
@@ -379,7 +379,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     * @param msg 错误描述
      */
     private static void writeFail(ServerResponse res, String msg) {
-        Map<String, Object> err = new LinkedHashMap<>();
+        Map<String, Object> err = new LinkedHashMap<>(3);
         err.put(FIELD_SUCCESS, false);
         err.put(FIELD_ERROR, msg);
         writeJson(res, err);

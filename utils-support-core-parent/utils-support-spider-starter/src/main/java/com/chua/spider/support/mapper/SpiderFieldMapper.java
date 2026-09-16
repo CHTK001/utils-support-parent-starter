@@ -1,19 +1,13 @@
 package com.chua.spider.support.mapper;
 
 import com.chua.common.support.ai.chat.ChatClient;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.ai.chat.ChatClientSetting;
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.ConditionalOnClass;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.annotation.SpiderAi;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.annotation.SpiderField;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spider.support.model.SpiderResult;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -88,7 +82,6 @@ public class SpiderFieldMapper {
                 if (annotation == null) {
                     continue;
                 }
-                field.setAccessible(true);
                 String value = null;
 
                 // 方式1：CSS 选择器提取（优先级高）
@@ -112,13 +105,11 @@ public class SpiderFieldMapper {
             if (!aiFields.isEmpty() && chatClient != null) {
                 Map<String, String> aiResults = extractByAi(result, clazz, aiFields);
                 for (Map.Entry<String, String> entry : aiResults.entrySet()) {
-                    try {
-                        Field field = clazz.getDeclaredField(entry.getKey());
-                        field.setAccessible(true);
-                        setFieldValue(instance, field, entry.getValue());
-                    } catch (NoSuchFieldException e) {
-                        // ignore
+                    Field field = ReflectUtils.findField(clazz, entry.getKey());
+                    if (field == null) {
+                        continue;
                     }
+                    setFieldValue(instance, field, entry.getValue());
                 }
             }
 
@@ -265,17 +256,17 @@ public class SpiderFieldMapper {
         try {
             Class<?> type = field.getType();
             if (type == String.class) {
-                field.set(instance, value);
+                ReflectUtils.setField(instance, field.getName(), value);
             } else if (type == int.class || type == Integer.class) {
-                field.set(instance, Integer.parseInt(value));
+                ReflectUtils.setField(instance, field.getName(), Integer.parseInt(value));
             } else if (type == long.class || type == Long.class) {
-                field.set(instance, Long.parseLong(value));
+                ReflectUtils.setField(instance, field.getName(), Long.parseLong(value));
             } else if (type == double.class || type == Double.class) {
-                field.set(instance, Double.parseDouble(value));
+                ReflectUtils.setField(instance, field.getName(), Double.parseDouble(value));
             } else if (type == boolean.class || type == Boolean.class) {
-                field.set(instance, Boolean.parseBoolean(value));
+                ReflectUtils.setField(instance, field.getName(), Boolean.parseBoolean(value));
             } else {
-                field.set(instance, value);
+                ReflectUtils.setField(instance, field.getName(), value);
             }
         } catch (Exception e) {
             log.warn("[spider-mapper] 字段赋值失败: {}.{}",

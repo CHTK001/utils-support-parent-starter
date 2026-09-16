@@ -13,6 +13,7 @@ import com.chua.common.support.network.server.websocket.WebSocketProtocol;
 import com.chua.common.support.network.ssl.SslUtils;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
@@ -1185,7 +1186,7 @@ public class AioHttpServer extends AbstractServer {
         // 扫描 @OnMessage 注解方法注册为 WebSocket 主题处理器(与 NIO 版一致)
         for (Method method : handler.getClass().getDeclaredMethods()) {
             if (method.isAnnotationPresent(OnMessage.class)) {
-                method.setAccessible(true);
+                ClassUtils.setAccessible(method);
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
                 if (topic == null || topic.isEmpty()) {

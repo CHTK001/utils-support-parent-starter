@@ -8,6 +8,7 @@ import com.chua.common.support.network.server.parser.ServerHandlerAnnotationPars
 import com.chua.common.support.objects.ObjectContext;
 import com.chua.common.support.objects.definition.MethodDefinition;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.utils.ClassUtils;
 import com.chua.common.support.utils.UrlUtils;
 
 import java.lang.reflect.Method;
@@ -73,7 +74,7 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
                         continue;
                     }
                     String fullPath = joinPath(basePath, ann.value().trim());
-                    method.setAccessible(true);
+                    ClassUtils.setAccessible(method);
                     result.add(new IpcMethodServerHandler(objectContext, clazz, method, UrlUtils.normalizePath(fullPath)));
                 }
             }

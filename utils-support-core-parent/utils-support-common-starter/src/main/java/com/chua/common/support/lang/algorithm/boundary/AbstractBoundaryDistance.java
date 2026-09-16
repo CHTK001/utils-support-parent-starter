@@ -83,7 +83,7 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
     public double extent(List<double[]> points) {
         validatePoints(points, MIN_POINTS_FOR_EXTENT);
 
-        int dimension = points.get(0).length;
+        int dimension = points.getFirst().length;
         double[] center = computeCenter(points, dimension);
 
         double maxRadius = 0.0;
@@ -131,7 +131,7 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
             throw new IllegalArgumentException(String.format(
                     "数据点数量不足，至少需要 %d 个点，当前: %d", minSize, points.size()));
         }
-        int dimension = points.get(0).length;
+        int dimension = points.getFirst().length;
         for (int i = 1; i < points.size(); i++) {
             if (points.get(i).length != dimension) {
                 throw new IllegalArgumentException(String.format(

@@ -206,7 +206,7 @@ public class ProxyMethod {
     * @return 方法执行结果
      */
     public Object execute(Object bean) {
-        method.setAccessible(true);
+        ClassUtils.setAccessible(method);
         return ClassUtils.invokeMethod(method, bean, args);
     }
 

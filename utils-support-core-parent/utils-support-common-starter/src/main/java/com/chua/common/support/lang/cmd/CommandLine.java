@@ -983,7 +983,7 @@ public final class CommandLine {
          */
         @Nullable
         public String firstPositional() {
-            return positionalArgs.isEmpty() ? null : positionalArgs.get(0);
+            return positionalArgs.isEmpty() ? null : positionalArgs.getFirst();
         }
 
         /**

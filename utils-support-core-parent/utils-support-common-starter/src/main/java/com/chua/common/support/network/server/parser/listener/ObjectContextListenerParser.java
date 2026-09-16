@@ -5,6 +5,7 @@ import com.chua.common.support.objects.annotation.OnClose;
 import com.chua.common.support.objects.annotation.OnError;
 import com.chua.common.support.objects.annotation.OnMessage;
 import com.chua.common.support.objects.annotation.OnOpen;
+import com.chua.common.support.utils.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -37,7 +38,7 @@ public class ObjectContextListenerParser implements ListenerParser {
         for (Method method : clazz.getDeclaredMethods()) {
             String event = matchAnnotation(method);
             if (event != null) {
-                method.setAccessible(true);
+                ClassUtils.setAccessible(method);
                 result.put(event, method);
             }
         }

@@ -1,6 +1,7 @@
 package com.chua.spring.support.proxy.intercept;
 
 import com.chua.common.support.proxy.ProxyMethod;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spring.support.configuration.SpringBeanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -152,10 +153,8 @@ public final class FallbackResolver {
             log.warn("未找到降级方法: ownerClass={}, methodName={}", owner.getClass().getName(), methodName);
             return null;
         }
-        if (!method.canAccess(owner)) {
-            method.setAccessible(true);
-        }
-        return method.invoke(owner, args);
+        // 可访问性由 ReflectUtils.invoke（MethodHandle 私有查找）统一处理，不再原生 setAccessible/method.invoke
+        return ReflectUtils.invoke(owner, method.getName(), method.getReturnType(), method.getParameterTypes(), args);
     }
 
     /**

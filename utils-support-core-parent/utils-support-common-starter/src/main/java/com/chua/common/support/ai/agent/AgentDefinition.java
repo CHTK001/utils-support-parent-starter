@@ -410,7 +410,7 @@ public class AgentDefinition {
         /**
         * 已注册的子 Agent 定义列表
          */
-        private final List<AgentDefinition> agents = new ArrayList<>();
+        private final List<AgentDefinition> agents = new ArrayList<>(); // [P3C 3.15 豁免] Builder 累积器，子 Agent 数量运行期动态，规模不可预估
         /**
         * Agent 专属的 MCP 管理器
          */

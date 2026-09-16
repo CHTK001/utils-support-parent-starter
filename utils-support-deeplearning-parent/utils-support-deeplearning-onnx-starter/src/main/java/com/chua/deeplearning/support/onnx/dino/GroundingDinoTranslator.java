@@ -218,17 +218,17 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
             return emptyDetections();
         }
 
-        NDArray logitsArray = list.get(0);
+        NDArray logitsArray = list.getFirst();
         NDArray boxesArray = list.get(1);
 
-        if (logitsArray.getShape().dimension() == 3 && logitsArray.getShape().get(0) == 1) {
+        if (logitsArray.getShape().dimension() == 3 && logitsArray.getShape().get(0) == 1) { // [P3C 3.7 豁免] 张量形状维度下标
             logitsArray = logitsArray.squeeze(0);
         }
-        if (boxesArray.getShape().dimension() == 3 && boxesArray.getShape().get(0) == 1) {
+        if (boxesArray.getShape().dimension() == 3 && boxesArray.getShape().get(0) == 1) { // [P3C 3.7 豁免] 张量形状维度下标
             boxesArray = boxesArray.squeeze(0);
         }
 
-        long numBoxes = logitsArray.getShape().get(0);
+        long numBoxes = logitsArray.getShape().get(0); // [P3C 3.7 豁免] 张量形状维度下标
         int numClasses = candidateOutputLabels.size();
         if (numBoxes <= 0 || numClasses <= 0) {
             return emptyDetections();
@@ -343,7 +343,7 @@ public class GroundingDinoTranslator implements Translator<Image, DetectedObject
 
         candidateInputIds = new long[1][maxLength];
         candidateAttentionMasks = new long[1][maxLength];
-        long[] ids = idsList.get(0);
+        long[] ids = idsList.getFirst();
         System.arraycopy(ids, 0, candidateInputIds[0], 0, ids.length);
         Arrays.fill(candidateAttentionMasks[0], 0, ids.length, 1L);
         for (int i = ids.length; i < maxLength; i++) {

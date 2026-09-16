@@ -1118,38 +1118,29 @@ public final class ModelRegistry {
                 throw new ClassNotFoundException(translatorClassName);
             }
             if (options != null && !options.isEmpty()) {
-                try {
-                    java.lang.reflect.Constructor<?> cfgCtor =
-                            translatorClass.getDeclaredConstructor(com.chua.deeplearning.support.ai.DetectionConfiguration.class);
-                    com.chua.deeplearning.support.ai.DetectionConfiguration cfg =
-                            new com.chua.deeplearning.support.ai.DetectionConfiguration.DetectionConfigurationBuilder()
-                                    .systemOption(new java.util.LinkedHashMap<>(options))
-                                    .build();
-                    return cfgCtor.newInstance(cfg);
-                } catch (ReflectiveOperationException noCfgCtor) {
-                    try {
-                        java.lang.reflect.Constructor<?> mapCtor =
-                                translatorClass.getDeclaredConstructor(java.util.Map.class);
-                        return mapCtor.newInstance(new java.util.LinkedHashMap<>(options));
-                    } catch (ReflectiveOperationException noMapCtor) {
-                        log.warn("[deeplearning-engine] Translator {} 不支持运行参数注入（缺少 DetectionConfiguration/Map 构造），使用默认值: {}",
-                                translatorClassName, options.keySet());
-                    }
+                com.chua.deeplearning.support.ai.DetectionConfiguration cfg =
+                        new com.chua.deeplearning.support.ai.DetectionConfiguration.DetectionConfigurationBuilder()
+                                .systemOption(new java.util.LinkedHashMap<>(options))
+                                .build();
+                // 优先带参构造：ctor(DetectionConfiguration) → ctor(Map)，均不可用则回退无参默认值
+                Object cfgInstance = ReflectUtils.instantiate(translatorClass, cfg);
+                if (cfgInstance != null) {
+                    return cfgInstance;
                 }
-            }
-            try {
- // 优先标准反射：JDK 17+ 方法处理 受模块访问限制，reflect工具.instantiate 可能静默返回 空
-                return translatorClass.getDeclaredConstructor().newInstance();
-            } catch (ReflectiveOperationException reflectionEx) {
-                Object fallback = ReflectUtils.instantiate(translatorClass);
-                if (fallback == null) {
-                    throw new IllegalStateException(
-                            "实例化 Translator 失败: " + translatorClassName
-                                    + "（若提示缺少无参构造，请补充 public XxxTranslator() 或默认参数构造）",
-                            reflectionEx);
+                Object mapInstance = ReflectUtils.instantiate(translatorClass, new java.util.LinkedHashMap<>(options));
+                if (mapInstance != null) {
+                    return mapInstance;
                 }
-                return fallback;
+                log.warn("[deeplearning-engine] Translator {} 不支持运行参数注入（缺少 DetectionConfiguration/Map 构造），使用默认值: {}",
+                        translatorClassName, options.keySet());
             }
+            Object instance = ReflectUtils.instantiate(translatorClass);
+            if (instance == null) {
+                throw new IllegalStateException(
+                        "实例化 Translator 失败: " + translatorClassName
+                                + "（若提示缺少无参构造，请补充 public XxxTranslator() 或默认参数构造）");
+            }
+            return instance;
         } catch (ClassNotFoundException ex) {
             throw new IllegalStateException("Translator 类不可用: " + translatorClassName, ex);
         }

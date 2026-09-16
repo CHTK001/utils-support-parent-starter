@@ -190,7 +190,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
                 if (quads.isEmpty()) {
                     return null;
                 }
-                float[][] quad = quads.get(0);
+                float[][] quad = quads.getFirst();
                 // 4 角点按左上/右上/右下/左下排序（模型输出顺序：0 右下,1 左下,2 左上,3 右上）
                 org.opencv.core.MatOfPoint2f srcPts = new org.opencv.core.MatOfPoint2f(
                         new org.opencv.core.Point(quad[2][0], quad[2][1]), // 左上

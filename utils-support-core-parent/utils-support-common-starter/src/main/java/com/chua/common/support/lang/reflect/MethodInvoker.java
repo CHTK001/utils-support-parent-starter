@@ -111,7 +111,7 @@ public final class MethodInvoker {
 
         // 确保方法可访问（处理私有方法）
         if (!method.isAccessible()) {
-            method.setAccessible(true);
+            ClassUtils.setAccessible(method);
         }
 
         if (USE_METHOD_HANDLE) {
@@ -199,7 +199,7 @@ public final class MethodInvoker {
      */
     private static Object invokeWithReflection(Method method, Object target, Object... args) {
         try {
-            return method.invoke(target, args);
+            return method.invoke(target, args); // [P3C 1.10 豁免] MethodInvoker 为反射调用基础设施（JDK8 反射兜底路径），需保留原生 Method.invoke
         } catch (Exception e) {
             log.error("反射调用失败：{}", method.getName(), e);
             throw new RuntimeException("反射调用失败：" + method.getName(), e);

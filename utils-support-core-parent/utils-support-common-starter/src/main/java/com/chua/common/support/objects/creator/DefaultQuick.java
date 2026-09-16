@@ -11,6 +11,7 @@ import com.chua.common.support.objects.ObjectContextConfig;
 import com.chua.common.support.objects.definition.SingletonBeanDefinition;
 import com.chua.common.support.objects.register.BeanDefinitionRegister;
 import com.chua.common.support.objects.register.BeanDefinitionRegistry;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.ClassUtils;
@@ -587,7 +588,7 @@ public class DefaultQuick implements Quick {
                 try {
                     Method method = clazz.getMethod(methodName);
                     if (method.getParameterCount() == 0) {
-                        return method.invoke(instance);
+                        return ReflectUtils.invoke(instance, methodName, method.getReturnType());
                     }
                 } catch (NoSuchMethodException ignored) {
                     // 继续尝试下一个方法
@@ -596,7 +597,7 @@ public class DefaultQuick implements Quick {
             try {
                 Method main = clazz.getMethod("main", String[].class);
                 if (Modifier.isStatic(main.getModifiers())) {
-                    main.invoke(null, (Object) new String[0]);
+                    ReflectUtils.invokeStatic(clazz, "main", void.class, new Class<?>[]{String[].class}, (Object) new String[0]);
                 }
             } catch (NoSuchMethodException ignored) {
                 // 无 main 方法
@@ -677,7 +678,7 @@ public class DefaultQuick implements Quick {
             }
             List<Compiler> all = provider.collect();
             if (all != null && !all.isEmpty()) {
-                return all.get(0);
+                return all.getFirst();
             }
         } catch (Exception e) {
             log.debug("Compiler SPI 解析失败，回退 JdkCompiler", e);
@@ -802,7 +803,7 @@ public class DefaultQuick implements Quick {
         }
         for (Map.Entry<String, List<Object>> entry : grouped.entrySet()) {
             if (entry.getValue().size() == 1) {
-                result.put(entry.getKey(), entry.getValue().get(0));
+                result.put(entry.getKey(), entry.getValue().getFirst());
             } else {
                 result.put(entry.getKey(), entry.getValue());
             }

@@ -233,9 +233,8 @@ public class ConfigValueBindingManager implements ConfigListener {
     private void injectFieldValue(ConfigValueBinding binding, String value) {
         try {
             Field field = binding.getField();
-            field.setAccessible(true);
             Object convertedValue = convertValue(value, binding.getTargetType());
-            field.set(binding.getBean(), convertedValue);
+            ReflectUtils.setField(binding.getBean(), field.getName(), convertedValue);
             binding.setCurrentValue(convertedValue);
         } catch (Exception e) {
             log.error("注入字段配置值失败: {}", binding, e);

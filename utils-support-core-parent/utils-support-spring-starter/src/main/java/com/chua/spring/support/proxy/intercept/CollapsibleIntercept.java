@@ -10,6 +10,7 @@ import com.chua.common.support.proxy.annotation.MethodAnnotationIntercept;
 import com.chua.common.support.proxy.intercept.MethodInvocation;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.spring.support.annotation.Collapsible;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -20,7 +21,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -352,15 +352,13 @@ public class CollapsibleIntercept
      */
     private Object invokeCore(InvocationKey key, Object mergedArg) throws Throwable {
         Method method = key.method;
-        // 合并批核心调用在原始目标对象上反射执行：接口方法 / 包私有声明类方法跨包受访问限制，
- // 统一放行访问检查（CGLIB 覆写方法为 公共，设置accessible 为无害操作）
-        method.setAccessible(true);
+        // 合并批核心调用在目标对象上统一经 ReflectUtils.invoke（MethodHandle 私有查找）执行，
+        // 接口/包私有声明类方法跨包访问亦无障碍，不再原生 setAccessible/method.invoke
         Set<Method> methods = collapsingMethods.get();
         methods.add(method);
         try {
-            return method.invoke(key.proxyMethod.getTarget(), mergedArg);
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
+            return ReflectUtils.invoke(key.proxyMethod.getTarget(), method.getName(),
+                    method.getReturnType(), method.getParameterTypes(), mergedArg);
         } finally {
             methods.remove(method);
         }

@@ -249,7 +249,7 @@ public BufferedImage generate(String prompt) {
         if (CollectionUtils.isEmpty(predictions)) {
             throw new RuntimeException("Google Imagen 返回的预测结果为空");
         }
-        String base64Data = (String) predictions.get(0).get("bytesBase64Encoded");
+        String base64Data = (String) predictions.getFirst().get("bytesBase64Encoded");
         if (base64Data == null || base64Data.isBlank()) {
             throw new RuntimeException("Google Imagen 返回的图片数据为空");
         }

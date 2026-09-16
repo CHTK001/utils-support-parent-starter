@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 public class AgentChatClient implements ChatClient {
 
     /** 从模型注册表，键为 Agent 标识 */
-    private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>();
+    private final Map<String, SlaveConfig> slaves = new LinkedHashMap<>(); // [P3C 3.15 豁免] 运行期 slave() 动态注册，规模不可预估
 
     /** 主模型客户端（负责路由决策） */
     private ChatClient masterClient;

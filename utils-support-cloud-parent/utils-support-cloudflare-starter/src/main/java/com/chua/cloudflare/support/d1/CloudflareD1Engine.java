@@ -168,7 +168,7 @@ public class CloudflareD1Engine {
         Object raw = client.post(d1QueryPath(), stmt.toJson());
  // D1 单条响应 结果 是数组，取第一个元素
         if (raw instanceof List<?> list && !list.isEmpty()) {
-            return D1Result.parse(list.get(0));
+            return D1Result.parse(list.getFirst());
         }
         return D1Result.parse(raw);
     }

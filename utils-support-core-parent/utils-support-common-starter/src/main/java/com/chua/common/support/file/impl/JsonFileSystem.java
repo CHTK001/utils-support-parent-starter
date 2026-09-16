@@ -99,7 +99,7 @@ public class JsonFileSystem implements FileSystem {
                     }
                     return result;
                 }
-                if (raw.get(0) instanceof Map) {
+                if (raw.getFirst() instanceof Map) {
                     /* 对象数组形态：[{"k":v,...},...]，每个元素即一行 */
                     for (Object item : raw) {
                         Map<String, Object> map = new LinkedHashMap<>((Map<String, Object>) item);
@@ -116,7 +116,7 @@ public class JsonFileSystem implements FileSystem {
                     return result;
                 }
                 // 二维数组形态：[[header,...],[val,...],...]，首行为表头
-                List<Object> headerRow = (List<Object>) raw.get(0);
+                List<Object> headerRow = (List<Object>) raw.getFirst();
                 List<String> headers = new ArrayList<>();
                 for (Object h : headerRow) {
                     headers.add(h == null ? EMPTY_HEADER_PLACEHOLDER : h.toString());
@@ -275,7 +275,7 @@ public class JsonFileSystem implements FileSystem {
             try {
                 Object data;
                 if (pending.size() == 1) {
-                    data = pending.get(0);
+                    data = pending.getFirst();
                 } else {
                     data = pending;
                 }

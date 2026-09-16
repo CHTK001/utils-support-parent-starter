@@ -1,5 +1,6 @@
 package com.chua.greptimedb.support.engine;
 
+import com.chua.common.support.converter.Converter;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
@@ -551,21 +552,19 @@ public class GreptimeDbEngine extends AbstractEngine {
     @SuppressWarnings("unchecked")
     private static <T> T mapRow(Class<T> clazz, Map<String, Field> fields,
                                 List<String> columns, Object[] row) {
-        try {
-            T instance = ReflectUtils.instantiate(clazz);
-            for (int i = 0; i < columns.size() && i < row.length; i++) {
-                Field field = fields.get(columns.get(i));
-                if (field == null || row[i] == null) {
-                    continue;
-                }
-                field.setAccessible(true);
-                field.set(instance, convert(row[i], field.getType()));
-            }
-            return instance;
-        } catch (ReflectiveOperationException e) {
+        T instance = ReflectUtils.instantiate(clazz);
+        if (instance == null) {
             throw new IllegalStateException("GreptimeDB 行映射失败: " + clazz.getName()
-                    + " 需要无参构造器", e);
+                    + " 需要无参构造器");
         }
+        for (int i = 0; i < columns.size() && i < row.length; i++) {
+            Field field = fields.get(columns.get(i));
+            if (field == null || row[i] == null) {
+                continue;
+            }
+            ReflectUtils.setField(instance, field.getName(), convert(row[i], field.getType()));
+        }
+        return instance;
     }
 
     /**
@@ -576,65 +575,10 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @return 转换后的值
      */
     private static Object convert(Object v, Class<?> type) {
-        long asLong = Long.MIN_VALUE;
-        double asDouble = Double.NaN;
-        boolean numericResolved = false;
-
-        if (v instanceof Number num) {
-            asLong = num.longValue();
-            asDouble = num.doubleValue();
-            numericResolved = true;
-        } else if (v instanceof java.util.Date || v instanceof LocalDateTime
-                || v instanceof OffsetDateTime || v instanceof Instant) {
-            asLong = toEpochMilli(v);
-            numericResolved = true;
-        }
-
-        if (type == String.class) {
-            return v instanceof byte[] b ? new String(b) : v.toString();
-        }
-        if (type == boolean.class || type == Boolean.class) {
-            return v instanceof Boolean b ? b : Boolean.parseBoolean(v.toString());
-        }
-        if (!numericResolved) {
-            String s = v.toString().trim();
-            BigDecimal bd = null;
-            try {
-                bd = new BigDecimal(s);
-            } catch (NumberFormatException ignored) {
-                asLong = toEpochMilli(s);
-            }
-            if (bd != null) {
-                asLong = bd.longValue();
-                asDouble = bd.doubleValue();
-            }
-        }
-        if (type == int.class || type == Integer.class) {
-            return (int) asLong;
-        }
-        if (type == long.class || type == Long.class) {
-            return asLong;
-        }
-        if (type == double.class || type == Double.class) {
-            return asDouble;
-        }
-        if (type == float.class || type == Float.class) {
-            return (float) asDouble;
-        }
-        if (type == short.class || type == Short.class) {
-            return (short) asLong;
-        }
-        if (type == byte.class || type == Byte.class) {
-            return (byte) asLong;
-        }
-        if (type == BigDecimal.class) {
-            return new BigDecimal(v.toString());
-        }
-        if (type == java.util.Date.class) {
-            return new java.util.Date(asLong);
-        }
-        if (type == Timestamp.class) {
-            return new Timestamp(asLong);
+        // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
+        Object converted = Converter.convertIfNecessary(v, type);
+        if (converted != null) {
+            return converted;
         }
         return v.toString();
     }

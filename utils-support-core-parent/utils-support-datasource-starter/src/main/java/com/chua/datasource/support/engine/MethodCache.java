@@ -1,7 +1,8 @@
 package com.chua.datasource.support.engine;
 
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,27 +42,19 @@ final class MethodCache {
  // 方法处理 调用失败，降级到直接反射
             }
         }
-        /* 降级：MethodHandle 跨模块受限时直接反射 */
-        try {
-            String camel = toCamelCase(field);
-            String getterName = "get" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            for (var m : obj.getClass().getMethods()) {
-                if (m.getParameterCount() == 0
-                        && (m.getName().equals(getterName) || m.getName().equals(field))) {
-                    m.setAccessible(true);
-                    return m.invoke(obj);
-                }
-            }
-            String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            for (var m : obj.getClass().getMethods()) {
-                if (m.getParameterCount() == 0 && m.getName().equals(isGetter)) {
-                    m.setAccessible(true);
-                    return m.invoke(obj);
-                }
-            }
-        } catch (Exception ignored) {
+        /* 降级：MethodHandle 跨模块受限时走 ReflectUtils */
+        String camel = toCamelCase(field);
+        String getterName = "get" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        Object value = ReflectUtils.invoke(obj, getterName, Object.class);
+        if (value != null) {
+            return value;
         }
-        return null;
+        value = ReflectUtils.invoke(obj, field, Object.class);
+        if (value != null) {
+            return value;
+        }
+        String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        return ReflectUtils.invoke(obj, isGetter, Object.class);
     }
 
     /**
@@ -81,18 +74,14 @@ final class MethodCache {
  // 方法处理 调用失败，降级到直接反射
             }
         }
-        /* 降级：MethodHandle 跨模块受限时直接反射 */
-        try {
-            String camel = toCamelCase(field);
-            String setterName = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            for (var m : obj.getClass().getMethods()) {
-                if (m.getParameterCount() == 1 && m.getName().equals(setterName)) {
-                    m.setAccessible(true);
-                    m.invoke(obj, value);
-                    return;
-                }
+        /* 降级：MethodHandle 跨模块受限时走 ReflectUtils */
+        String camel = toCamelCase(field);
+        String setterName = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        for (var m : obj.getClass().getMethods()) {
+            if (m.getParameterCount() == 1 && m.getName().equals(setterName)) {
+                ReflectUtils.invoke(obj, setterName, void.class, new Class<?>[]{m.getParameterTypes()[0]}, value);
+                return;
             }
-        } catch (Exception ignored) {
         }
     }
 
@@ -128,25 +117,22 @@ final class MethodCache {
     * @return findGetter的结果
      */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
-        try {
-            String camel = toCamelCase(field);
-            MethodType mt = MethodType.methodType(Object.class, Object.class);
-            String getter = "get" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            for (var m : clazz.getMethods()) {
-                if (m.getParameterCount() == 0
-                        && (m.getName().equals(getter) || m.getName().equals(field))) {
-                    m.setAccessible(true);
-                    return MethodHandles.lookup().unreflect(m).asType(mt);
-                }
+        String camel = toCamelCase(field);
+        MethodType mt = MethodType.methodType(Object.class, Object.class);
+        String getter = "get" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        for (var m : clazz.getMethods()) {
+            if (m.getParameterCount() == 0
+                    && (m.getName().equals(getter) || m.getName().equals(field))) {
+                MethodHandle mh = ReflectUtils.findMethodHandle(clazz, m.getName(), m.getReturnType());
+                return mh != null ? mh.asType(mt) : null;
             }
-            String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            for (var m : clazz.getMethods()) {
-                if (m.getParameterCount() == 0 && m.getName().equals(isGetter)) {
-                    m.setAccessible(true);
-                    return MethodHandles.lookup().unreflect(m).asType(mt);
-                }
+        }
+        String isGetter = "is" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        for (var m : clazz.getMethods()) {
+            if (m.getParameterCount() == 0 && m.getName().equals(isGetter)) {
+                MethodHandle mh = ReflectUtils.findMethodHandle(clazz, m.getName(), m.getReturnType());
+                return mh != null ? mh.asType(mt) : null;
             }
-        } catch (IllegalAccessException ignored) {
         }
         return null;
     }
@@ -159,16 +145,14 @@ final class MethodCache {
     * @return findSetter的结果
      */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
-        try {
-            String camel = toCamelCase(field);
-            String setter = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
-            MethodType mt = MethodType.methodType(void.class, Object.class, Object.class);
-            for (var m : clazz.getMethods()) {
-                if (m.getParameterCount() == 1 && m.getName().equals(setter)) {
-                    return MethodHandles.lookup().unreflect(m).asType(mt);
-                }
+        String camel = toCamelCase(field);
+        String setter = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
+        MethodType mt = MethodType.methodType(void.class, Object.class, Object.class);
+        for (var m : clazz.getMethods()) {
+            if (m.getParameterCount() == 1 && m.getName().equals(setter)) {
+                MethodHandle mh = ReflectUtils.findMethodHandle(clazz, setter, void.class, m.getParameterTypes()[0]);
+                return mh != null ? mh.asType(mt) : null;
             }
-        } catch (IllegalAccessException ignored) {
         }
         return null;
     }

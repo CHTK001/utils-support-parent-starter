@@ -229,7 +229,7 @@ public class NativeRpcServer implements RpcServer {
         }
         Class<?>[] paramTypes = resolveParamTypes(typeNames);
         method = service.getClass().getMethod(request.getMethod(), paramTypes);
-        method.setAccessible(true);
+        ClassUtils.setAccessible(method);
         methodCache.putIfAbsent(key, method);
         return method;
     }

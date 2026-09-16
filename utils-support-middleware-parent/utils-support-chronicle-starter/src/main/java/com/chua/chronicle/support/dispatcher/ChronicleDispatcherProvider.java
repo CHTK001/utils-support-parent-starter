@@ -4,6 +4,7 @@ import com.chua.common.support.concurrent.dispatcher.DispatcherConfig;
 import com.chua.common.support.concurrent.dispatcher.ConsumerDispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.DispatcherDefinition;
 import com.chua.common.support.concurrent.dispatcher.provider.AbstractDispatcherProvider;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.queue.ChronicleQueue;
@@ -247,8 +248,7 @@ executor.submit(() -> {
             Class<?> current = definition.getClass();
             while (current != null && current != Object.class) {
                 try {
-                    var field = current.getDeclaredField("consumer");
-                    field.setAccessible(true);
+                    var field = ReflectUtils.findField(current, "consumer");
                     java.lang.reflect.Type fieldGenericType = field.getGenericType();
                     if (fieldGenericType instanceof java.lang.reflect.ParameterizedType pt) {
                         java.lang.reflect.Type[] args = pt.getActualTypeArguments();

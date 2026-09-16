@@ -245,7 +245,10 @@ public final class WxKeyNativeBridge implements AutoCloseable {
         try (Arena confined = Arena.ofConfined()) {
             MemorySegment keyBuffer = confined.allocate(KEY_BUFFER_SIZE);
             MemorySegment statusBuffer = confined.allocate(STATUS_BUFFER_SIZE);
-            MemorySegment levelOut = confined.allocate(ValueLayout.JAVA_INT, 0);
+            // 注意：Arena.allocate(layout, count) 的第二个参数是「元素个数」而非初始值。
+            // 写成 allocate(ValueLayout.JAVA_INT, 0) 会分配 0 个 int（0 字节），
+            // 随后 levelOut.get(...) 直接抛 IndexOutOfBoundsException（byteSize: 0）。
+            MemorySegment levelOut = confined.allocate(ValueLayout.JAVA_INT);
 
             for (int round = 0; round < POLL_KEY_ROUNDS; round++) {
                 drainStatusMessages(statusBuffer, levelOut);

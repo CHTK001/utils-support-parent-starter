@@ -681,7 +681,7 @@ public class ChatClient implements AutoCloseable {
                 log.warn("[queue] model {} is queued, no fallback available", request.model());
                 return;
             }
-            String next = fallbacks.get(0);
+            String next = fallbacks.getFirst();
             log.info("[queue] model {} is queued, falling back to {}", request.model(), next);
             ChatRequest nextReq = withModel(request, next);
             StreamCollector nextCollector = new StreamCollector(nextReq, onText, onReasoning, onComplete, onError);

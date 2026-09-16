@@ -227,7 +227,7 @@ public class XmlFileSystem implements FileSystem {
                 }
 
                 if (!result.isEmpty() && callback != null) {
-                    List<String> headers = new ArrayList<>(result.get(0).keySet());
+                    List<String> headers = new ArrayList<>(result.getFirst().keySet());
                     callback.onHeader(headers);
                     for (Map<String, Object> row : result) {
                         if (columnMapping != null) {

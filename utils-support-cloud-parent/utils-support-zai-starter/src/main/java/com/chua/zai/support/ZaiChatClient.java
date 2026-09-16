@@ -338,7 +338,7 @@ public class ZaiChatClient implements ChatClient {
 
                 String content = "";
                 if (response.getData().getChoices() != null && !response.getData().getChoices().isEmpty()) {
-                    Choice choice = response.getData().getChoices().get(0);
+                    Choice choice = response.getData().getChoices().getFirst();
                     if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
                         content = choice.getMessage().getContent().toString();
                     }

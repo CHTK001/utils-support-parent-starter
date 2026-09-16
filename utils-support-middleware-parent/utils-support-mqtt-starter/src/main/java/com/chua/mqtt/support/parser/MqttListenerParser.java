@@ -33,7 +33,6 @@ public class MqttListenerParser implements ListenerParser {
         for (Method method : clazz.getDeclaredMethods()) {
             String event = matchAnnotation(method);
             if (event != null) {
-                method.setAccessible(true);
                 result.put(event, method);
             }
         }

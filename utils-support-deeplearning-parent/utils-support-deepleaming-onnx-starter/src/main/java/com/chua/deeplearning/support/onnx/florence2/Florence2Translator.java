@@ -4,6 +4,7 @@ import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtSession;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.deeplearning.support.translator.ITranslator;
 import com.chua.deeplearning.support.utils.ImageUtils;
 import org.slf4j.Logger;
@@ -217,9 +218,8 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static float[] floatArrayFrom2D(float[][] m) { int r = m.length, c = m[0].length; float[] flat = new float[r * c]; for (int i = 0; i < r; i++) System.arraycopy(m[i], 0, flat, i * c, c); return flat; }
     private static int argmax(float[] logits, int offset, int vocabSize) { int maxIdx = 0; float maxVal = Float.NEGATIVE_INFINITY; for (int i = 0; i < vocabSize; i++) { float v = logits[offset + i]; if (v > maxVal) { maxVal = v; maxIdx = i; } } return maxIdx; }
     private static OnnxTensor createBoolTensor(OrtEnvironment env, boolean val) throws Exception {
-        java.lang.reflect.Method m = OnnxTensor.class.getDeclaredMethod("createTensor", OrtEnvironment.class, Object.class, long[].class);
-        m.setAccessible(true);
-        return (OnnxTensor) m.invoke(null, env, new boolean[]{val}, new long[]{1});
+        return (OnnxTensor) ReflectUtils.invokeStatic(OnnxTensor.class, "createTensor", OnnxTensor.class,
+                new Class<?>[]{OrtEnvironment.class, Object.class, long[].class}, env, new boolean[]{val}, new long[]{1});
     }
 
     @Override

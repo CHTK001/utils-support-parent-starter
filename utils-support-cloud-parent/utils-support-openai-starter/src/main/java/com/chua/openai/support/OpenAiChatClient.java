@@ -587,7 +587,7 @@ public class OpenAiChatClient implements ChatClient {
                     ChatCompletionChunk chunk = it.next();
                     List<ChatCompletionChunk.Choice> choices = chunk.choices();
                     if (choices != null && !choices.isEmpty()) {
-                        ChatCompletionChunk.Choice choice = choices.get(0);
+                        ChatCompletionChunk.Choice choice = choices.getFirst();
 
                         // 检查是否完成
                         Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = choice.finishReason();
@@ -635,7 +635,7 @@ public class OpenAiChatClient implements ChatClient {
                 // 非流式请求：一次返回完整结果，避免部分中转服务商流式长连接挂起
                 ChatCompletion completion = client.chat().completions().create(params);
                 if (completion.choices() != null && !completion.choices().isEmpty()) {
-                    ChatCompletion.Choice choice = completion.choices().get(0);
+                    ChatCompletion.Choice choice = completion.choices().getFirst();
                     ChatCompletionMessage message = choice.message();
                     if (message != null) {
                         String reasoning = extractReasoning(message._additionalProperties());

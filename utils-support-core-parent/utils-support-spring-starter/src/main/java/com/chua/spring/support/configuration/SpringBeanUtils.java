@@ -253,7 +253,6 @@ public class SpringBeanUtils {
         try {
             Method method = findMethod(requestMappingHandlerMapping.getClass(), "detectHandlerMethods", Object.class);
             if (method != null) {
-                method.setAccessible(true);
                 ReflectUtils.invoke(requestMappingHandlerMapping, method.getName(), method.getReturnType(), controllerBeanName);
             }
         } catch (Exception e) {
@@ -283,7 +282,6 @@ public class SpringBeanUtils {
             try {
                 Method createMappingMethod = findMethod(requestMappingHandlerMapping.getClass(), "getMappingForMethod", Method.class, Class.class);
                 if (createMappingMethod != null) {
-                    createMappingMethod.setAccessible(true);
                     Object requestMappingInfo = ReflectUtils.invoke(requestMappingHandlerMapping, createMappingMethod.getName(), createMappingMethod.getReturnType(), method, targetClass);
                     if (requestMappingInfo != null && requestMappingInfo instanceof RequestMappingInfo) {
                         requestMappingHandlerMapping.unregisterMapping((RequestMappingInfo) requestMappingInfo);
@@ -455,7 +453,6 @@ public class SpringBeanUtils {
             try {
                 Method method = findMethod(DefaultSingletonBeanRegistry.class, "getSingletonMutex");
                 if (method != null) {
-                    method.setAccessible(true);
                     return ReflectUtils.invoke(autowireCapableBeanFactory, method.getName(), method.getReturnType());
                 }
             } catch (Throwable t2) {

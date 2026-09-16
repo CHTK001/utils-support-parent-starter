@@ -31,15 +31,7 @@ public final class HeifLibraryLoader {
 
     /**
     * 加载原生库。线程安全，可重复调用。
-    * @return 是否加载的结果
-     /**
-      * 加载。
-      */
-      * @return 是否加载的结果
-     /**
-     * 加载。
-      */
-     */
+    */
     public static synchronized void load() {
         if (loaded) {
             return;

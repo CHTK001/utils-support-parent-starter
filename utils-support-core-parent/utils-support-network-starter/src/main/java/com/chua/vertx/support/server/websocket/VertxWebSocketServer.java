@@ -179,7 +179,7 @@ public class VertxWebSocketServer extends AbstractServer {
         }
         Class<?> clazz = handler.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
+            // 可访问性由下方 ReflectUtils.invoke（MethodHandle 私有查找）统一处理，不再原生 setAccessible
             if (method.isAnnotationPresent(OnMessage.class)) {
                 OnMessage ann = method.getAnnotation(OnMessage.class);
                 String topic = ann.value();
@@ -228,7 +228,7 @@ public class VertxWebSocketServer extends AbstractServer {
     * @return 创建消息处理器的结果
      */
     private ServerHandler createMessageHandler(Object bean, Method method) {
-        method.setAccessible(true);
+        // 可访问性由下方 ReflectUtils.invoke（MethodHandle 私有查找）统一处理，不再原生 setAccessible
         return (request, response) -> {
             try {
                 Class<?>[] paramTypes = method.getParameterTypes();
@@ -279,9 +279,8 @@ public class VertxWebSocketServer extends AbstractServer {
             }
             for (Method method : bean.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(annotationType)) {
-                    method.setAccessible(true);
                     try {
-                        method.invoke(bean);
+                        ReflectUtils.invoke(bean, method.getName(), method.getReturnType());
                     } catch (Exception e) {
                         log.error("Invoke {} error: {}.{}", annotationType.getSimpleName(),
                                 bean.getClass().getSimpleName(), method.getName(), e);

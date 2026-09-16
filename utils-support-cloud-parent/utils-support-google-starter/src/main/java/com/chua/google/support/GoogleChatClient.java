@@ -345,7 +345,7 @@ public class GoogleChatClient implements ChatClient {
                 String chunkText = null;
                 String chunkReasoning = null;
                 if (chunk.candidates().isPresent()) {
-                    var candidate = chunk.candidates().get().get(0);
+                    var candidate = chunk.candidates().get().getFirst();
                     if (candidate.content().isPresent() && candidate.content().get().parts().isPresent()) {
                         for (Part part : candidate.content().get().parts().get()) {
                             String text = part.text().orElse(null);

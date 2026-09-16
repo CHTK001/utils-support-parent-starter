@@ -155,7 +155,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
         var manager = ctx.getNDManager();
         var array = input.toNDArray(manager, Image.Flag.COLOR);
         imageWidth = (int) array.getShape().get(1);
-        imageHeight = (int) array.getShape().get(0);
+        imageHeight = (int) array.getShape().get(0); // [P3C 3.7 豁免] 张量形状维度下标
 
         // Letter box resize 640x640 with padding (                        )
         letterBoxResult = LetterBoxUtils.letterbox(manager, array, inputSize, inputSize, 114f, LetterBoxUtils.PaddingPosition.CENTER);
@@ -173,7 +173,7 @@ public class Yolo7PlateDetectTranslator implements Translator<Image, DetectedObj
         int numCls = 2;
  // [x_center, y_center, w, h, obj_conf, 类1_conf, 类2_conf, 8 keypoints]
         var dets = list.singletonOrThrow();
-        var dets0 = dets.get(0);
+        var dets0 = dets.get(0); // [P3C 3.7 豁免] NDArray 张量下标访问
         var conf = dets0.get(":4");
         var mask = conf.gt(minConfThreshold);
         var detsFiltered = dets0.get(mask);

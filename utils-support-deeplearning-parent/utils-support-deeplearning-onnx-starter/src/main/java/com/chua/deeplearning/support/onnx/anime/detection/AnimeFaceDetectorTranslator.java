@@ -138,7 +138,7 @@ private float confThreshold = 0.45f; // conf阈值
     @Override
     /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         long[] shape = output.getShape().getShape();
         // 直接读 flat float 数组，避免 ORT 引擎不支持的 squeeze/transpose（会递归 StackOverflow）
         float[] data = output.toFloatArray();

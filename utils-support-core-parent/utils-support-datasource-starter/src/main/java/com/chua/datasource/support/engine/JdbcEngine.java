@@ -14,6 +14,7 @@ import com.chua.common.support.lang.datasource.engine.wrapper.QuerySql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
 import com.chua.common.support.lang.datasource.meta.MetaData;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.datasource.support.index.IndexManager;
@@ -23,9 +24,7 @@ import com.chua.datasource.support.user.DataSourceAware;
 import com.chua.datasource.support.user.UserManager;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -287,10 +286,8 @@ public abstract class JdbcEngine extends AbstractEngine {
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         while (rs.next()) {
-            // 使用反射无参构造实例化，避免构造器访问限制
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            T instance = (T) constructor.newInstance();
+            // 统一走 ReflectUtils 实例化，避免原生反射
+            T instance = ReflectUtils.instantiate(clazz);
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnLabel(i);
                 if (columnName == null || columnName.isEmpty()) {
@@ -401,36 +398,27 @@ public abstract class JdbcEngine extends AbstractEngine {
         Class<?> current = instance.getClass();
         while (current != null) {
             for (String candidate : candidates) {
-                try {
-                    Field field = current.getDeclaredField(candidate);
-                    field.setAccessible(true);
-                    if (field.getType().isPrimitive() && value == null) {
-                        return;
-                    }
-                    // 复用 转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
-                    Object converted = Converter.convertIfNecessary(value, field.getType());
-                    if (converted != null) {
-                        field.set(instance, converted);
-                    }
-                    return;
-                } catch (NoSuchFieldException ignore) {
-                    // 尝试下一个候选字段名
-                } catch (IllegalAccessException e) {
+                Field field = ReflectUtils.findField(current, candidate);
+                if (field == null) {
+                    continue;
+                }
+                if (field.getType().isPrimitive() && value == null) {
                     return;
                 }
+                // 复用 转换器 完成类型转换（如 Oracle NUMBER → BigDecimal 赋给 Long 字段）
+                Object converted = Converter.convertIfNecessary(value, field.getType());
+                if (converted != null) {
+                    ReflectUtils.setField(instance, candidate, converted);
+                }
+                return;
             }
             // 兜底：忽略大小写与下划线的宽松匹配，覆盖 H2/Oracle 大写蛇形标签
             // （如 DEPT_ID → 字段 deptId、TOTAL_SALARY → totalSalary）
             Field loose = findFieldLoose(current, columnName);
             if (loose != null) {
-                try {
-                    loose.setAccessible(true);
-                    Object converted = Converter.convertIfNecessary(value, loose.getType());
-                    if (converted != null) {
-                        loose.set(instance, converted);
-                    }
-                } catch (IllegalAccessException e) {
-                    // 无法写入时静默跳过该列
+                Object converted = Converter.convertIfNecessary(value, loose.getType());
+                if (converted != null) {
+                    ReflectUtils.setField(instance, loose.getName(), converted);
                 }
             }
             current = current.getSuperclass();

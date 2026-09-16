@@ -211,7 +211,7 @@ public BufferedImage generate(String prompt) {
         if (CollectionUtils.isEmpty(data)) {
             throw new RuntimeException("智谱 CogView 返回的图片数据为空");
         }
-        String imageUrl = (String) data.get(0).get("url");
+        String imageUrl = (String) data.getFirst().get("url");
         if (imageUrl == null || imageUrl.isBlank()) {
             throw new RuntimeException("智谱 CogView 返回的图片 URL 为空");
         }

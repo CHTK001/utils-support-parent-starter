@@ -298,9 +298,9 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
      */
     private K findSuccessor(BTreeNode<K, V> node) {
         while (!node.leaf) {
-            node = node.children.get(0);
+            node = node.children.getFirst();
         }
-        return node.keys.get(0);
+        return node.keys.getFirst();
     }
 
     @Override

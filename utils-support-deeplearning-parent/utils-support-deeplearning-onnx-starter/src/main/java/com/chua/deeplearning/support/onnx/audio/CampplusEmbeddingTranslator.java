@@ -95,7 +95,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
 
             try (OrtSession.Result results = session.run(inputs)) {
  // 输出 shape: [1, 192]
-                float[][] output = (float[][]) results.get(0).getValue();
+                float[][] output = (float[][]) results.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[] embedding = output[0];
 
                 // L2 normalize

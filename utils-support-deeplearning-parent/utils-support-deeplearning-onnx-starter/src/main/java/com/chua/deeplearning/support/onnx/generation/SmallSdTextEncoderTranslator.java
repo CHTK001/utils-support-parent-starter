@@ -150,13 +150,13 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
 
  // 最后一个_hidden_状态     游泳池_输出
         if (list.size() > 0) {
-            var output = list.get(0);
+            var output = list.getFirst();
             encoderOutput.add(output);
         }
 
         if (log.isDebugEnabled()) {
             log.debug("[Small SD v0][Text Encoder]                   : output shape={}", 
-                    list.size() > 0 ? list.get(0).getShape() : "empty");
+                    list.size() > 0 ? list.getFirst().getShape() : "empty");
         }
 
         return encoderOutput;

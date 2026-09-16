@@ -1,11 +1,11 @@
 package com.chua.wechat.support.restore.nativebridge;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -195,11 +195,13 @@ public final class WechatNativeLauncher {
      * @throws Exception 主类加载或执行失败
      */
     private static void invokeTarget(String className, String[] allArgs) throws Exception {
-        Class<?> targetClass = Class.forName(className);
-        Method mainMethod = targetClass.getMethod("main", String[].class);
+        Class<?> targetClass = ReflectUtils.forName(className);
+        if (targetClass == null) {
+            throw new ClassNotFoundException(className);
+        }
         String[] targetArgs = new String[allArgs.length - 1];
         System.arraycopy(allArgs, 1, targetArgs, 0, targetArgs.length);
-        mainMethod.invoke(null, (Object) targetArgs);
+        ReflectUtils.invokeStatic(targetClass, "main", void.class, new Class<?>[]{String[].class}, (Object) targetArgs);
     }
 
     /**

@@ -1,11 +1,8 @@
 package com.chua.datasource.support.engine;
 
 import com.chua.common.support.converter.Converter;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Dialect;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.dialect.Pagination;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.lang.datasource.engine.executor.SqlExecutor;
 import com.chua.common.support.reflection.ReflectUtils;
 
@@ -227,35 +224,25 @@ public class JdbcSqlExecutor implements SqlExecutor {
                 toCamelCase(columnName)
         };
         for (String candidate : candidates) {
-            try {
-                Field field = findField(clazz, candidate);
-                if (field == null) {
-                    continue;
-                }
-                field.setAccessible(true);
- // 复用 转换器 完成类型转换
-                Object converted = Converter.convertIfNecessary(value, field.getType());
-                if (converted != null) {
-                    field.set(instance, converted);
-                }
-                return;
-            } catch (IllegalAccessException ignored) {
-                // 忽略访问异常，尝试下一个候选
+            Field field = findField(clazz, candidate);
+            if (field == null) {
+                continue;
             }
+            // 复用 转换器 完成类型转换
+            Object converted = Converter.convertIfNecessary(value, field.getType());
+            if (converted != null) {
+                ReflectUtils.setField(instance, candidate, converted);
+            }
+            return;
         }
         // 兜底：忽略大小写与下划线的宽松匹配（DEPT_ID → deptId、CNT → cnt）
         Field loose = findFieldLoose(clazz, columnName);
         if (loose == null) {
             return;
         }
-        try {
-            loose.setAccessible(true);
-            Object converted = Converter.convertIfNecessary(value, loose.getType());
-            if (converted != null) {
-                loose.set(instance, converted);
-            }
-        } catch (IllegalAccessException ignored) {
-            // 忽略访问异常，放弃该列
+        Object converted = Converter.convertIfNecessary(value, loose.getType());
+        if (converted != null) {
+            ReflectUtils.setField(instance, loose.getName(), converted);
         }
     }
 
@@ -292,15 +279,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @return 字段，未找到返回 空
      */
     private static Field findField(Class<?> clazz, String name) {
-        Class<?> current = clazz;
-        while (current != null) {
-            try {
-                return current.getDeclaredField(name);
-            } catch (NoSuchFieldException ignored) {
-                current = current.getSuperclass();
-            }
-        }
-        return null;
+        return ReflectUtils.findField(clazz, name);
     }
 
     /**

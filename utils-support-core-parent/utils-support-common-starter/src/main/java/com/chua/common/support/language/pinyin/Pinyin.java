@@ -89,7 +89,7 @@ public class Pinyin {
         if (null == items || items.isEmpty()) {
             return null;
         }
-        return items.get(0).first();
+        return items.getFirst().first();
     }
 
     /**
@@ -102,6 +102,6 @@ public class Pinyin {
         if (null == items || items.isEmpty()) {
             return null;
         }
-        return items.get(0).name();
+        return items.getFirst().name();
     }
 }

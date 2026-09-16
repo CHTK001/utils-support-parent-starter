@@ -220,25 +220,11 @@ public class ApngEncoder {
 
     /**
     * 压缩一帧为 PNG 扫描线数据：每行 过滤器=0 + RGBA 像素，zlib 压缩。
-    * @param data 数据
-     /**
-      * compress帧。
-      * @param frame 帧
-      * @param canvasW Canvasw
-      * @param canvasH Canvash
-      * @return compress帧的结果
-      */
-     * @param offset 偏移量
-     * @param value 值
-      * @param data 数据
-     /**
-     * compress帧。
-     * @param frame 帧
-     * @param canvasW Canvasw
-     * @param canvasH Canvash
-     * @return compress帧的结果
-      */
-     */
+    * @param frame 帧
+    * @param canvasW Canvasw
+    * @param canvasH Canvash
+    * @return compress帧的结果
+    */
     private static byte[] compressFrame(BufferedImage frame, int canvasW, int canvasH) throws IOException {
         int w = frame.getWidth();
         int h = frame.getHeight();

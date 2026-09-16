@@ -319,7 +319,7 @@ public class AlibabaChatClient implements ChatClient {
 
                 var choices = chunk.getOutput().getChoices();
                 if (choices != null && !choices.isEmpty()) {
-                    var choice = choices.get(0);
+                    var choice = choices.getFirst();
                     var message = choice.getMessage();
                     if (message != null) {
                         var content = message.getContent();

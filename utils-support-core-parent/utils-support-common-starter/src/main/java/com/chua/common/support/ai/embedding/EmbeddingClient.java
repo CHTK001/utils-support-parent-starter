@@ -169,7 +169,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     default EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vectors = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
-        List<EmbeddingResponse.Embedding> embeddings = new ArrayList<>();
+        List<EmbeddingResponse.Embedding> embeddings = new ArrayList<>(vectors.length);
         for (float[] v : vectors) {
             embeddings.add(EmbeddingResponse.Embedding.builder()
                     .vector(v)

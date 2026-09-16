@@ -132,7 +132,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
              OnnxTensor xLens = OnnxTensor.createTensor(env,
                      new long[]{frames});
              OrtSession.Result result = encoderSession.run(Map.of("x", x, "x_lens", xLens))) {
-            float[][][] raw = (float[][][]) result.get(0).getValue();
+            float[][][] raw = (float[][][]) result.get(0).getValue(); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             return raw[0];
         }
     }
@@ -185,7 +185,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
             * @param decOut dec出
             * @return 运行连接的结果
              */
-            return ((float[][]) result.get(0).getValue())[0];
+            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         }
     }
 
@@ -203,7 +203,7 @@ public class ZipformerEnOfflineTranslator implements AutoCloseable {
             * @return argmax的结果
             * @param session 会话
              */
-            return ((float[][]) result.get(0).getValue())[0];
+            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         }
     }
 

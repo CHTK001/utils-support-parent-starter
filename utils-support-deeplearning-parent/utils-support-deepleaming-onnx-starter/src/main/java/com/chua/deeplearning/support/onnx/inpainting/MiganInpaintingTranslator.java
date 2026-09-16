@@ -94,7 +94,7 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
      */
     @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         byte[] data = output.toByteArray();
         int h = (int) output.getShape().get(2);
         int w = (int) output.getShape().get(3);

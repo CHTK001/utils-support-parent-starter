@@ -137,7 +137,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
             //                                              
 
             // 1.                                                             
-            NDArray ageOutput = list.get(0);
+            NDArray ageOutput = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("             shape: {}", ageOutput.getShape());
             }
@@ -191,7 +191,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
         } else if(list.size() == 1) {
             //                                                          
-            NDArray output = list.get(0);
+            NDArray output = list.getFirst();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("             shape: {}", output.getShape());
             }

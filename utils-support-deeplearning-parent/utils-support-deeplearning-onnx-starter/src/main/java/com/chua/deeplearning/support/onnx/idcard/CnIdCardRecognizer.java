@@ -6,6 +6,7 @@ import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.translate.Translator;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.deeplearning.support.idcard.CnIdCardParser;
 import com.chua.deeplearning.support.idcard.CnIdCardResult;
 import com.chua.deeplearning.support.translator.ITranslator;
@@ -15,7 +16,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,8 +165,11 @@ public class CnIdCardRecognizer {
             if (entry == null) {
                 return null;
             }
-            return (ITranslator<I, O>) Class.forName(entry.translatorClassName())
-                    .getDeclaredConstructor().newInstance();
+            Object translator = ReflectUtils.instantiate(entry.translatorClassName());
+            if (translator == null) {
+                throw new IllegalStateException("Translator 实例化失败: " + entry.translatorClassName());
+            }
+            return (ITranslator<I, O>) translator;
         } catch (Exception e) {
             log.error("[CnIdCard] 创建 translator 失败: {}", e.getMessage(), e);
             return null;
@@ -174,9 +177,8 @@ public class CnIdCardRecognizer {
     }
 
     private List<BoundingBox> getBoundingBoxes(DetectedObjects cards) throws Exception {
-        Field f = cards.getClass().getDeclaredField("boundingBoxes");
-        f.setAccessible(true);
-        return (List<BoundingBox>) f.get(cards);
+        Object value = ReflectUtils.getField(cards, "boundingBoxes");
+        return (List<BoundingBox>) value;
     /**
     * 获取probabilities。
     * @param cards 卡片
@@ -187,9 +189,8 @@ public class CnIdCardRecognizer {
     }
 
     private List<Double> getProbabilities(DetectedObjects cards) throws Exception {
-        Field f = cards.getClass().getSuperclass().getDeclaredField("probabilities");
-        f.setAccessible(true);
-        return (List<Double>) f.get(cards);
+        Object value = ReflectUtils.getField(cards, "probabilities");
+        return (List<Double>) value;
     }
 
     private byte[] toByteArray(BufferedImage img) throws Exception {

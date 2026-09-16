@@ -498,7 +498,7 @@ public class HuggingfaceHubClient {
         if (!(objects instanceof List<?> list) || list.isEmpty()) {
             throw new RuntimeException("LFS batch 响应缺少 objects: " + resp.getBodyString());
         }
-        Map<String, Object> obj = (Map<String, Object>) list.get(0);
+        Map<String, Object> obj = (Map<String, Object>) list.getFirst();
         Object actions = obj.get("actions");
         if (actions == null) {
             // 对象已存在于 HF 存储，无需 PUT

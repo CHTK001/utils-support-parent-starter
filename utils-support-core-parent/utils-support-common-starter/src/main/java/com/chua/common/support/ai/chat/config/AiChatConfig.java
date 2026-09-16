@@ -343,7 +343,7 @@ public class AiChatConfig {
             if (CollectionUtils.isEmpty(groupBindings)) {
                 return;
             }
-            AiChatClientBindingEntity first = groupBindings.get(0);
+            AiChatClientBindingEntity first = groupBindings.getFirst();
             GroupBuilder gb = config.group(first.getGroupName())
                     .strategy(first.getGroupStrategy());
             if (first.getGroupCondition() != null) {

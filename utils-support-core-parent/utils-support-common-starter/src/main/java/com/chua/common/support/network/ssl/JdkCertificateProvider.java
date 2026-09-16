@@ -105,7 +105,7 @@ public class JdkCertificateProvider implements AcmeProvider {
             return AcmeCertificateResult.fail("域名列表不能为空");
         }
 
-        String primaryDomain = domains.get(0);
+        String primaryDomain = domains.getFirst();
         String san = String.join(",", domains);
 
         try {

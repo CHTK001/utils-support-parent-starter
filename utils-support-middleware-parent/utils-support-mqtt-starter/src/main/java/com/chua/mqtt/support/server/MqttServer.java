@@ -232,7 +232,6 @@ public class MqttServer extends AbstractServer {
         }
         Class<?> clazz = handler.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
-            method.setAccessible(true);
             if (method.isAnnotationPresent(OnOpen.class)) {
                 onOpenMethods.add(new AnnotatedMethod(clazz, method));
             }

@@ -369,7 +369,7 @@ public class ModelscopeImageClient implements ImageClient {
             outputsObj = root.get("data");
         }
         if (outputsObj instanceof List<?> list && !list.isEmpty()) {
-            Object first = list.get(0);
+            Object first = list.getFirst();
             if (first instanceof Map<?, ?> map) {
                 Object url = map.get("url");
                 Object b64 = map.get("b64_json");
@@ -412,7 +412,7 @@ public class ModelscopeImageClient implements ImageClient {
         if (!(dataObj instanceof List) || ((List<Object>) dataObj).isEmpty()) {
             throw new RuntimeException("ModelScope 图像返回数据为空: " + json);
         }
-        Map<String, Object> first = (Map<String, Object>) ((List<Object>) dataObj).get(0);
+        Map<String, Object> first = (Map<String, Object>) ((List<Object>) dataObj).getFirst();
         Object b64 = first.get("b64_json");
         if (b64 != null && !b64.toString().isBlank()) {
             try {

@@ -9,7 +9,6 @@ import com.chua.common.support.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
@@ -518,7 +517,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
             Constructor<?> declaredConstructor = ClassUtils.getConstructor(implClass, ClassUtils.toType(args));
             if(null != declaredConstructor) {
                 ClassUtils.setAccessible(declaredConstructor);
-                T instance = (T) serviceAutowire.autowire(declaredConstructor.newInstance(args));
+                T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(declaredConstructor, args));
                 if (instance != null && !checkSpiCondition(instance)) {
                     return null;
                 }
@@ -546,7 +545,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
             ClassUtils.setAccessible(constructor);
             try {
                 if(ArrayUtils.isEquals(constructor.getParameterTypes(), args)) {
-                    T instance = (T) serviceAutowire.autowire(constructor.newInstance(args));
+                    T instance = (T) serviceAutowire.autowire(ClassUtils.newInstance(constructor, args));
                     if (instance != null && !checkSpiCondition(instance)) {
                         return null;
                     }
@@ -556,15 +555,7 @@ public class ServiceDefinition implements Comparable<ServiceDefinition> {
                 T bean = (T) serviceAutowire.createBean(implClass);
                 if(null == bean) {
                     log.error("", e);
-                    try {
-                        throw e;
-                    } catch (InstantiationException exc) {
-                        throw new RuntimeException(exc);
-                    } catch (IllegalAccessException exc) {
-                        throw new RuntimeException(exc);
-                    } catch (InvocationTargetException exc) {
-                        throw new RuntimeException(exc);
-                    }
+                    throw new RuntimeException(e);
                 }
                 if (bean != null && !checkSpiCondition(bean)) {
                     return null;

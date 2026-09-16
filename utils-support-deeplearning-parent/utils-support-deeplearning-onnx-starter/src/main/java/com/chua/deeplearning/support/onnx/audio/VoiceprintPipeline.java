@@ -145,7 +145,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         if (vadType != null) {
             List<float[]> segments = splitByVad(samples, vadType);
             if (!segments.isEmpty()) {
-                float[] longest = segments.get(0);
+                float[] longest = segments.getFirst();
                 for (float[] seg : segments) {
                     if (seg.length > longest.length) {
                         longest = seg;

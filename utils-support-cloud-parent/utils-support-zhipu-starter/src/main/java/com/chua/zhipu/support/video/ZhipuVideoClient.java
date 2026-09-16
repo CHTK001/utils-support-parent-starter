@@ -197,7 +197,7 @@ public class ZhipuVideoClient implements VideoClient {
                 List<Map<String, Object>> results = root.containsKey("video_result")
                         ? (List<Map<String, Object>>) root.get("video_result") : null;
                 if (results != null && !results.isEmpty()) {
-                    builder.videoUrl((String) results.get(0).get("url"));
+                    builder.videoUrl((String) results.getFirst().get("url"));
                 }
                 if (builder.build().getVideoUrl() == null && root.containsKey("url")) {
                     builder.videoUrl((String) root.get("url"));

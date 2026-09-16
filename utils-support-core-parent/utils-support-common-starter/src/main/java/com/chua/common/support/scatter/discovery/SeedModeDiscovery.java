@@ -174,7 +174,7 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
             // 无其他存活节点：自己是唯一节点，无需广播
             return;
         }
-        Discovery minRemote = candidates.get(0); // 已按 nodeId 排序（最小优先）
+        Discovery minRemote = candidates.getFirst(); // 已按 nodeId 排序（最小优先）
         String selfId = setting.getNodeId();
         // 自己 vs 远端最小 nodeId：自己更小则自己成为新引导并广播
         if (selfId.compareTo(minRemote.getServerId()) < 0) {

@@ -294,7 +294,7 @@ public class CollectionUtils {
             return null;
         }
         if (source instanceof List) {
-            return ((List<T>) source).get(0);
+            return ((List<T>) source).getFirst();
         }
         Iterator<T> iterator = source.iterator();
         return iterator.next();

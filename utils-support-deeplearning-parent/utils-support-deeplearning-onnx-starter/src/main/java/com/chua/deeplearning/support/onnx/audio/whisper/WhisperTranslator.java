@@ -246,7 +246,7 @@ public class WhisperTranslator {
         try (OnnxTensor ft = OnnxTensor.createTensor(ortEnv,
                 FloatBuffer.wrap(melFlat), new long[]{1, N_MELS, N_FRAMES});
              OrtSession.Result r = encoderSession.run(Map.of("input_features", ft))) {
-            ai.onnxruntime.OnnxValue encVal = r.get(0);
+            ai.onnxruntime.OnnxValue encVal = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             OnnxTensor encOut = (OnnxTensor) encVal;
             encoderHidden = encOut.getFloatBuffer().array();
                         long[] shape = encOut.getInfo().getShape();
@@ -307,7 +307,7 @@ public class WhisperTranslator {
                         new long[]{1, ENC_SEQ_OUT, HIDDEN_SIZE}));
 
                 try (OrtSession.Result r = decoderSession.run(feed)) {
-                    ai.onnxruntime.OnnxValue logitsValue = r.get(0);
+                    ai.onnxruntime.OnnxValue logitsValue = r.get(0); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                     float[] logits;
                     long[] shape;
                     if (logitsValue instanceof OnnxTensor) {

@@ -627,13 +627,8 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
      /**
-     * 写入unknownchunks。
-      */
-     * 写入unknownchunks
-     *
-     * @param typeString 类型字符串
-     * @return chunk类型的结果
-     */
+    * 写入unknownchunks。
+    */
     private void writeUnknownChunks() throws IOException {
         Iterator<String> typeIter = metadata.unknownChunkType.iterator();
         Iterator<byte[]> dataIter = metadata.unknownChunkData.iterator();
