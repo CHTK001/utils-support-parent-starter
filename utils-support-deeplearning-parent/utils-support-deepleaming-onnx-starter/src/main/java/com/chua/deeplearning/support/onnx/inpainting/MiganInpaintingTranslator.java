@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderableImage;
 
 /**
  * MiGAN 图像修复（Inpainting）Translator。
@@ -96,7 +95,7 @@ public class MiganInpaintingTranslator implements Translator<Image, Image> {
     @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray output = list.get(0);
-        byte[] data = output.toByteData();
+        byte[] data = output.toByteArray();
         int h = (int) output.getShape().get(2);
         int w = (int) output.getShape().get(3);
         int plane = h * w;

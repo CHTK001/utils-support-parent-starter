@@ -67,7 +67,8 @@ public interface TextExtractor {
         } else if (name.endsWith(".txt")) {
             return create("txt");
         } else {
-            throw new IllegalArgumentException("不支持的文件类型: " + name);
+            // 其余格式（pptx/ppt/html/xml/rtf/epub/msg/eml 等）兜底走 Tika 通用提取
+            return create("tika");
         }
     }
 

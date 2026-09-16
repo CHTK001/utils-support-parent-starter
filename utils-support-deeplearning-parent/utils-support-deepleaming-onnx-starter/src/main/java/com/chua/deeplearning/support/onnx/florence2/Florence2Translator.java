@@ -152,7 +152,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                 decoderInputs.put("inputs_embeds", embedsTensor);
                 decoderInputs.put("encoder_hidden_states", encoderHiddenTensor);
                 decoderInputs.put("encoder_attention_mask", encoderMaskTensor);
-                decoderInputs.put("use_cache_branch", createBoolTensor(ortEnv, false);
+                decoderInputs.put("use_cache_branch", createBoolTensor(ortEnv, false));
                 try (OrtSession.Result decodeResult = decoderSession.run(decoderInputs)) {
                     OnnxTensor logitsTensor = (OnnxTensor) decodeResult.get("logits").get();
                     float[] logits = logitsTensor.getFloatBuffer().array();
@@ -182,7 +182,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
                             stepDecoderInputs.put("inputs_embeds", stepEmbedsTensor);
                             stepDecoderInputs.put("encoder_hidden_states", stepEncoderHiddenTensor);
                             stepDecoderInputs.put("encoder_attention_mask", encoderMaskTensor);
-                            stepDecoderInputs.put("use_cache_branch", createBoolTensor(ortEnv, true);
+                            stepDecoderInputs.put("use_cache_branch", createBoolTensor(ortEnv, true));
                             for (int l = 0; l < NUM_LAYERS; l++) {
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.key", pastKV[l][0]);
                                 stepDecoderInputs.put("past_key_values." + l + ".decoder.value", pastKV[l][1]);
@@ -216,6 +216,17 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private static String joinTokens(List<Long> tokens) { StringBuilder sb = new StringBuilder(); for (long t : tokens) sb.append((char) Math.min(t, 0x10FFFFL)); return sb.toString(); }
     private static float[] floatArrayFrom2D(float[][] m) { int r = m.length, c = m[0].length; float[] flat = new float[r * c]; for (int i = 0; i < r; i++) System.arraycopy(m[i], 0, flat, i * c, c); return flat; }
     private static int argmax(float[] logits, int offset, int vocabSize) { int maxIdx = 0; float maxVal = Float.NEGATIVE_INFINITY; for (int i = 0; i < vocabSize; i++) { float v = logits[offset + i]; if (v > maxVal) { maxVal = v; maxIdx = i; } } return maxIdx; }
-        private static OnnxTensor createBoolTensor(OrtEnvironment env, boolean val) throws Exception {`r`n        java.lang.reflect.Method m = OnnxTensor.class.getDeclaredMethod("createTensor", OrtEnvironment.class, Object.class, long[].class);`r`n        m.setAccessible(true);`r`n        return (OnnxTensor) m.invoke(null, env, new boolean[]{val}, new long[]{1});`r`n    }`r`r`n    public void close() { prepared = false; if (tokenizer != null) { try { tokenizer.close(); } catch (Exception ignored) {} tokenizer = null; } closeS(visionSession); closeS(embedSession); closeS(decoderSession); }
+    private static OnnxTensor createBoolTensor(OrtEnvironment env, boolean val) throws Exception {
+        java.lang.reflect.Method m = OnnxTensor.class.getDeclaredMethod("createTensor", OrtEnvironment.class, Object.class, long[].class);
+        m.setAccessible(true);
+        return (OnnxTensor) m.invoke(null, env, new boolean[]{val}, new long[]{1});
+    }
+
+    @Override
+    public void close() {
+        prepared = false;
+        if (tokenizer != null) { try { tokenizer.close(); } catch (Exception ignored) {} tokenizer = null; }
+        closeS(visionSession); closeS(embedSession); closeS(decoderSession);
+    }
     private static void closeS(OrtSession s) { if (s != null) { try { s.close(); } catch (Exception ignored) {} } }
 }
