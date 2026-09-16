@@ -1,0 +1,35 @@
+{
+  "files": [
+    "META-INF/extensions/com.chua.common.support.lang.datasource.engine.Engine"
+  ],
+  "jsonConfigs": [
+    {
+      "name": "utils-support-rocksdb-starter",
+      "uses": [
+        {
+          "type": "reflection",
+          "annotation": "com.chua.common.support.spi.annotations.Spi",
+          "methods": [
+            { "name": "executeNewQuery", "argumentTypes": [ "java.lang.String", "java.lang.Object[]", "java.lang.Class", "int", "int" ] },
+            { "name": "store", "argumentTypes": [ "java.lang.String", "java.util.List" ] },
+            { "name": "executeUpdate", "argumentTypes": [ "com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql" ] },
+            { "name": "executeDelete", "argumentTypes": [ "com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql" ] },
+            { "name": "get", "argumentTypes": [ "java.lang.String" ] },
+            { "name": "put", "argumentTypes": [ "java.lang.String", "java.lang.String" ] },
+            { "name": "containsKey", "argumentTypes": [ "java.lang.String" ] },
+            { "name": "delete", "argumentTypes": [ "java.lang.String" ] },
+            { "name": "incr", "argumentTypes": [ "java.lang.String" ] },
+            { "name": "findAllByPrefix", "argumentTypes": [ "java.lang.String" ] },
+            { "name": "insert", "argumentTypes": [ "java.lang.String", "java.lang.Object" ] },
+            { "name": "findById", "argumentTypes": [ "java.lang.String", "java.lang.Object", "java.lang.Class" ] },
+            { "name": "update", "argumentTypes": [ "java.lang.String", "java.lang.Object", "java.lang.Object" ] },
+            { "name": "findAll", "argumentTypes": [ "java.lang.String", "java.lang.Class" ] },
+            { "name": "createFulltextIndex", "argumentTypes": [ "java.lang.Class", "java.lang.String[]" ] },
+            { "name": "search", "argumentTypes": [ "java.lang.String", "java.lang.Class" ] },
+            { "name": "dropFulltextIndex", "argumentTypes": [ "java.lang.Class", "java.lang.String[]" ] }
+          ]
+        }
+      ]
+    }
+  ]
+}
