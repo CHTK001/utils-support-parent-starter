@@ -181,8 +181,8 @@ class WechatExportUtilsTest {
 
         List<Map<String, Object>> rows = WechatExportUtils.parseJsonToRows(List.of(jsonFile));
         assertEquals(1, rows.size());
-        assertEquals("wxid_test", rows.get(0).get("username"));
-        assertEquals("hello", rows.get(0).get("message"));
+        assertEquals("wxid_test", rows.getFirst().get("username"));
+        assertEquals("hello", rows.getFirst().get("message"));
 
         jsonFile.delete();
     }
@@ -195,7 +195,7 @@ class WechatExportUtilsTest {
 
         List<Map<String, Object>> rows = WechatExportUtils.parseJsonToRows(List.of(jsonFile));
         assertEquals(1, rows.size());
-        assertEquals("wxid_test", rows.get(0).get("username"));
+        assertEquals("wxid_test", rows.getFirst().get("username"));
 
         jsonFile.delete();
     }

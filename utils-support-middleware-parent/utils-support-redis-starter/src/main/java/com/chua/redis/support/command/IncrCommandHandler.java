@@ -26,7 +26,7 @@ public class IncrCommandHandler implements RedisCommandHandler {
         if (args.isEmpty()) {
             throw new IllegalArgumentException("INCR 需要一个 key");
         }
-        Long value = jedis.incr(args.get(0));
+        Long value = jedis.incr(args.getFirst());
         return value.intValue();
     }
 }

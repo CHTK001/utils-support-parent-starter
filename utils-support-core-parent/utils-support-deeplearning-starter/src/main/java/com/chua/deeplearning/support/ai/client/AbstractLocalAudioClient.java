@@ -132,7 +132,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
         if (defs.isEmpty()) {
             throw new IllegalStateException("引擎[" + engine + "]没有可用的 ASR 模型");
         }
-        return defs.get(0).getId();
+        return defs.getFirst().getId();
     }
 
     @Override

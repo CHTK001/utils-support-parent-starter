@@ -116,7 +116,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
         //                                     
         if (shape.dimension() == 3) {
  // logits        [批量_大小, sequence_长度, vocab_大小]
-            var batchSize = (int) shape.get(0);
+            var batchSize = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             var sequenceLength = (int) shape.get(1);
             var vocabSize = (int) shape.get(2);
 
@@ -144,7 +144,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
 
         } else if(shape.dimension() == 2) {
  // [sequence_长度, vocab_大小]     [批量_大小, sequence_长度]
-            var dim1 = (int) shape.get(0);
+            var dim1 = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             var dim2 = (int) shape.get(1);
 
             if (dim2 > 1000) {

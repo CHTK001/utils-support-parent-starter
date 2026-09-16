@@ -332,7 +332,7 @@ class SqlCipherDecryptorTest {
     private File encrypt(File plain, String name) throws Exception {
         File target = new File(tempDir.toFile(), name);
         WechatRestoreTestSupport.encrypt(plain, target, SqlCipherDecryptor.parseHexKey(KEY_HEX),
-                SqlCipherProfile.candidates().get(0));
+                SqlCipherProfile.candidates().getFirst());
         return target;
     }
 

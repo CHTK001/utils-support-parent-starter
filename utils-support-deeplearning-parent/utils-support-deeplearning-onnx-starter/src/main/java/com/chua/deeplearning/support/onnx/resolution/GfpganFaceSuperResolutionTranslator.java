@@ -48,7 +48,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
 
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray array = list.get(0);
+        NDArray array = list.getFirst();
         long[] shape = array.getShape().getShape();
         if (shape.length == 4) {
             array = array.squeeze(0);

@@ -146,7 +146,7 @@ public class PandocEnvironment {
                 log.warn("未检测到任何包管理器，尝试直接下载安装");
                 return installFromDirectDownload();
             }
-            PackageManager.Type pm = pms.get(0);
+            PackageManager.Type pm = pms.getFirst();
             log.info("使用 {} 安装 Pandoc...", pm.getCommand());
             CmdResult result = CmdExecutors.installPackageWith(pm, "pandoc");
             if (result.isSuccess()) {

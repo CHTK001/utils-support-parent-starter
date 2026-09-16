@@ -87,7 +87,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
         if (defs.isEmpty()) {
             throw new IllegalStateException("引擎[" + engine + "]没有可用的对话模型");
         }
-        return defs.get(0).getId();
+        return defs.getFirst().getId();
     }
 
     @Override

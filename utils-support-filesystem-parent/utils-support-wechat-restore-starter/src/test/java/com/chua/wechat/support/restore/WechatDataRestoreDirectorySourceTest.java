@@ -76,7 +76,7 @@ class WechatDataRestoreDirectorySourceTest {
         File dataDir = newDir("data");
         File plain = WechatRestoreTestSupport.createReservedLayoutSqliteDatabase(new File(dataDir, "seed.db"));
         WechatRestoreTestSupport.encrypt(plain, new File(dataDir, "session.db"),
-                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().get(0));
+                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().getFirst());
         Files.deleteIfExists(plain.toPath());
 
         DataRestoreResult result = new WechatDataRestore().restore(dataDir, sqlCipherConfig(null));
@@ -108,7 +108,7 @@ class WechatDataRestoreDirectorySourceTest {
         File dataDir = newDir("data");
         File plain = WechatRestoreTestSupport.createReservedLayoutSqliteDatabase(new File(dataDir, "seed.db"));
         WechatRestoreTestSupport.encrypt(plain, new File(dataDir, "session.db"),
-                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().get(0));
+                SqlCipherDecryptor.parseHexKey(KEY_HEX), SqlCipherProfile.candidates().getFirst());
         Files.deleteIfExists(plain.toPath());
 
         WechatDataRestore restore = new WechatDataRestore();
@@ -177,7 +177,7 @@ class WechatDataRestoreDirectorySourceTest {
         List<File> found = WechatRestoreCli.collectDatabases(dataDir);
 
         assertEquals(1, found.size(), "产物目录里的库不应被当成数据源: " + found);
-        assertEquals(dataDir.getAbsolutePath(), found.get(0).getParentFile().getAbsolutePath());
+        assertEquals(dataDir.getAbsolutePath(), found.getFirst().getParentFile().getAbsolutePath());
     }
 
     // ==================== 缺省配置补齐 ====================

@@ -120,7 +120,7 @@ public class TablesawEngine implements Engine {
         if (CollectionUtils.isEmpty(data)) {
             return this;
         }
-        Class<T> entityClass = (Class<T>) data.get(0).getClass();
+        Class<T> entityClass = (Class<T>) data.getFirst().getClass();
         // 收集实体类的 getter 属性（get/is 前缀，无参方法）
         Map<String, Method> getters = new LinkedHashMap<>();
         for (Method method : entityClass.getMethods()) {
@@ -400,7 +400,7 @@ public class TablesawEngine implements Engine {
                 if (r.isEmpty()) {
                     return null;
                 }
-                return r.get(0);
+                return r.getFirst();
             }
 
             @Override

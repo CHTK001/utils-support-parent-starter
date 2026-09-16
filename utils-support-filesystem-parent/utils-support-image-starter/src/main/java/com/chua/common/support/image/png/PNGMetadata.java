@@ -54,7 +54,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         1, 0, 3, 3, 2, 0, 4
     };
 
- // 钻头 深度 for IHDR chunk
+ // 位深度 for IHDR chunk
     static final String[] IHDR_bitDepths = {
         "1", "2", "4", "8", "16"
     };
@@ -133,7 +133,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public int IHDR_width;
     /** Ihdr_height */
     public int IHDR_height;
-    /** Ihdr_钻头深度 */
+    /** IHDR 位深度 */
     public int IHDR_bitDepth;
     /** Ihdr_color类型 */
     public int IHDR_colorType;
@@ -156,11 +156,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     /** Plte_blue */
     public byte[] PLTE_blue;
 
- // If non-空, used 转为 reorder palette entries 期间 编码 入
- // 订单 转为 最小化 the 大小 的 the trns chunk.  Thus an 索引 的
+ // 若非 null,则在编码过程中用于对调色板条目重新排序
+ // 排序以最小化 trns 块的大小。因此,源中的某个索引
     // 'i' in the source should be encoded as index 'PLTE_order[i]'.
     // PLTE_order will be null unless 'initialize' is called with an
- // 索引color模型 镜像 类型.
+ // 索引颜色模型镜像类型。
     /** Plte_订单 */
     public int[] PLTE_order = null;
 
@@ -270,7 +270,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
         /** Phys_unitspecifier */
         public int pHYs_unitSpecifier;
 
- // s钻头 chunk
+ // sBIT chunk
     /** Sbit_present */
     public boolean sBIT_present;
         // PNG_COLOR_GRAY, _GRAY_ALPHA, _RGB, _RGB_ALPHA
@@ -340,11 +340,11 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     /** 时间_second */
     public int tIME_second;
 
- // Specifies whether metadata contains 标准/文档/镜像创建时间
+ // 指定元数据是否包含镜像创建时间
     /** 创建_时间_present */
     public boolean creation_time_present;
 
- // 值 that make up 标准/文档/镜像创建时间
+ // 构成标准/文档/镜像创建时间的各个字段值。
     /** 创建_时间_year */
     public int creation_time_year;
     /** 创建_时间_month */
@@ -357,7 +357,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public int creation_time_minute;
     /** 创建_时间_second */
     public int creation_time_second;
-    /** 创建_时间_偏移量 */
+    /** 创建_时间_偏移 */
     public ZoneOffset creation_time_offset;
 
     /*
@@ -366,7 +366,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * 转为 the 最后一个 decoded 文本 chunk with 创建 时间 是否 indicated by the
     * 迭代器- 文本_创建_时间_iter.
     *
-    * 任意 更新 转为 the 文本 chunks with 创建 时间 是否 reflected on
+    * 对含创建时间的文本块所做的任何更新，都会反映到
     * 标准/文档/镜像创建时间 之后 retrieving 时间 从 the 文本
     * chunk. If there are 多个 文本 chunks with 创建 时间, the 时间
     * retrieved 从 the 最后一个 decoded 文本 chunk will be used. A point 转为 笔记
@@ -423,7 +423,7 @@ public boolean tRNS_present;
     /** actl_num_plays */
     public int acTL_num_plays;
 
- // 函数计算tl chunk
+ // fcTL chunk
     /** fctl_present */
     public boolean fcTL_present;
     /** fctl_sequence_数字 */
@@ -432,9 +432,9 @@ public boolean tRNS_present;
     public int fcTL_width;
     /** fctl_height */
     public int fcTL_height;
-    /** fctl_x_偏移量 */
+    /** fcTL x 偏移量 */
     public int fcTL_x_offset;
-    /** fctl_y_偏移量 */
+    /** fcTL y 偏移量 */
     public int fcTL_y_offset;
     /** fctl_延迟_num */
     public int fcTL_delay_num;
@@ -509,7 +509,7 @@ public boolean tRNS_present;
     }
 
     /**
-    * 设置 the IHDR_钻头深度 和 IHDR_color类型 变量.
+    * 设置 IHDR_bitDepth 和 IHDR_colorType 变量。
     * The {@code numBands} 参数 是否 necessary 自
     * we may only be 写入 a subset 的 the 镜像 bands.
     * @param colorModel color模型
@@ -518,22 +518,22 @@ public boolean tRNS_present;
      */
     public void initialize(ColorModel colorModel, SampleModel sampleModel, int numBands) {
 
- // 初始化 IHDR_钻头深度
+ // 初始化 IHDR_bitDepth
         int[] sampleSize = sampleModel.getSampleSize();
         int bitDepth = sampleSize[0];
- // Choose 最大 钻头 深度 over 全部 通道
+ // 在所有通道中选择最大的位深
         // Fixes bug 4413109
         for (int i = 1; i < sampleSize.length; i++) {
             if (sampleSize[i] > bitDepth) {
                 bitDepth = sampleSize[i];
             }
         }
- // Multi-通道 镜像 must have a 钻头 深度 的 8 或 16
+ // 多通道图像必须具有 8 或 16 的位深
         if (sampleSize.length > 1 && bitDepth < 8) {
             bitDepth = 8;
         }
 
- // Round 钻头 深度 up 转为 a power 的 2
+ // 将位深向上取整为 2 的幂
         if (bitDepth > 2 && bitDepth < 4) {
             bitDepth = 4;
         } else if (bitDepth > 4 && bitDepth < 8) {
@@ -929,7 +929,7 @@ public boolean tRNS_present;
             root.appendChild(pHYs_node);
         }
 
- // s钻头
+ // sBIT
         if (sBIT_present) {
             IIOMetadataNode sBIT_node = new IIOMetadataNode("sBIT");
 
@@ -1092,7 +1092,7 @@ public boolean tRNS_present;
             root.appendChild(acTL_node);
         }
 
- // 函数计算tl
+ // fcTL
         if (fcTL_present) {
             node = new IIOMetadataNode("fcTL");
             node.setAttribute("sequence_number",
@@ -2680,9 +2680,9 @@ public boolean tRNS_present;
     void initImageCreationTime(int year, int month, int day,
             int hour, int min,int second) {
         /*
-          * Though 本地日期时间 suffices the need 转为 存储 标准/文档/
-          * 镜像创建时间, we require the zone 偏移量 转为 encode the same
-          * 入 the 文本 chunk 基础 on RFC1123 格式化.
+          * 虽然本地日期时间足以存储标准/文档/
+          * 镜像创建时间，但我们还需要时区偏移量来将该时间按 RFC1123 格式
+          * 编码到文本块中。
          */
         LocalDateTime locDT = LocalDateTime.of(year, month, day, hour, min, second);
         ZoneOffset offset = ZoneId.systemDefault()
@@ -2812,12 +2812,12 @@ public boolean tRNS_present;
                         OffsetDateTime::from, LocalDateTime::from);
 
                 if (dt instanceof OffsetDateTime) {
- // Encoded 时间 contains 日期 时间 和 zone 偏移量
+ // 编码的时间包含日期、时间和时区偏移量
                     retVal = (OffsetDateTime) dt;
                 } else if (dt instanceof LocalDateTime locDT) {
                     /*
-                      * Encoded 时间 contains only 日期 和 时间. 自 zone
-                      * 偏移量 信息 isn't 可用, we 设置 转为 the 默认
+                      * 编码的时间仅包含日期和时间。由于时区
+                      * 偏移量信息不可用，我们将其设置为默认
                      */
                     retVal = OffsetDateTime.of(locDT, ZoneOffset.UTC);
                 }

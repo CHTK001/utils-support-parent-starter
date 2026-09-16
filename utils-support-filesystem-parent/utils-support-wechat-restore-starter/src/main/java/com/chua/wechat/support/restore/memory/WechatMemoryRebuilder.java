@@ -130,11 +130,11 @@ public final class WechatMemoryRebuilder {
                                                WechatMemoryExtractor.ExtractResult result) {
         String table = tableKey.substring(0, tableKey.lastIndexOf('#'));
         WechatMemoryPageParser.TableSchema schema = findSchema(table, result);
-        if (schema != null && schema.columns().size() == records.get(0).values().length) {
+        if (schema != null && schema.columns().size() == records.getFirst().values().length) {
             return schema.columns();
         }
         // 没有可用 schema 时退化为 column1..columnN，保证数据不丢
-        int count = records.get(0).values().length;
+        int count = records.getFirst().values().length;
         List<String> fallback = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             fallback.add("column" + (i + 1));

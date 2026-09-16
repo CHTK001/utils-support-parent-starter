@@ -89,7 +89,7 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
         if (defs.isEmpty()) {
             throw new IllegalStateException("引擎[" + engine + "]没有可用的 TTS 模型");
         }
-        return defs.get(0).getId();
+        return defs.getFirst().getId();
     }
 
     @Override

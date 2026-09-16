@@ -70,25 +70,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
     * 创建 tinafacetranslator 实例
     * @param arguments 参数（阈值 默认 0.4，nms 默认 0.45）
-    * @param candidates candidates
-     /**
-       * tinafacetranslator。
-      * @param arguments 参数
-      */
-     * @param clsArray clsarray
-     * @param regArray regarray
-     * @param iouArray iouarray
-     * @param stride stride
-     * @param ctx ctx
-     * @param list 列表
-     * @return 获取nd管理器的结果
-     * @param input 输入
-      * @param candidates candidates
-     /**
-     * TinaFaceTranslator。
-     * @param arguments 参数
-      */
-     */
+    */
     public TinaFaceTranslator(Map<String, ?> arguments) {
         if (arguments != null) {
             Object threshold = arguments.get("threshold");

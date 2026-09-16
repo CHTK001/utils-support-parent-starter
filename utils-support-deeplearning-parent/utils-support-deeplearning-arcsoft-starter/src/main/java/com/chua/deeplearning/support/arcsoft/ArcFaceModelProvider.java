@@ -85,6 +85,6 @@ public class ArcFaceModelProvider implements BulkModelProvider {
     /** 获取Definition */
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
-        return all != null && !all.isEmpty() ? all.get(0) : null;
+        return all != null && !all.isEmpty() ? all.getFirst() : null;
     }
 }

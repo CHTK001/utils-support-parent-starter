@@ -127,7 +127,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
         if (defs.isEmpty()) {
             throw new IllegalStateException("引擎[" + engine + "]没有可用的图像生成模型");
         }
-        return defs.get(0).getId();
+        return defs.getFirst().getId();
     }
 
     @Override

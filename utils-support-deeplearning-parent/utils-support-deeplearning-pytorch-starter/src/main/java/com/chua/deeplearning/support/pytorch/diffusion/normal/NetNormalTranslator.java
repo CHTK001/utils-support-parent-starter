@@ -76,10 +76,10 @@ public class NetNormalTranslator implements Translator<Image, Image> {
     /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray normal = list.singletonOrThrow();
-        if (normal.getShape().dimension() == 4 && normal.getShape().get(0) == 1) {
+        if (normal.getShape().dimension() == 4 && normal.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             normal = normal.squeeze(0);
         }
-        if (normal.getShape().dimension() == 3 && normal.getShape().get(0) >= 3) {
+        if (normal.getShape().dimension() == 3 && normal.getShape().get(0) >= 3) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             normal = normal.get(new NDIndex(":3"));
         }
         normal = normal.add(1).sub(0.5).clip(0, 1);

@@ -103,7 +103,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
         double scaleWH = VARIANCE[1];
 
         NDArray boxRecover = boxRecover(manager, width, height, SCALES, STEPS);
-        NDArray boundingBoxes = squeeze(list.get(0));
+        NDArray boundingBoxes = squeeze(list.getFirst());
         NDArray rawConf = squeeze(list.get(1));
         NDArray landms = squeeze(list.get(2));
 
@@ -161,7 +161,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
  // 输出归一化坐标（DJL detected对象 约定），由 adapt输出 统一乘图像尺寸转像素
                     keyPoints.add(new Point(x, y));
                 }
-                Point leftEye = keyPoints.get(0);
+                Point leftEye = keyPoints.getFirst();
                 Point rightEye = keyPoints.get(1);
                 double eyeDist = Math.sqrt(Math.pow(leftEye.getX() - rightEye.getX(), 2)
                         + Math.pow(leftEye.getY() - rightEye.getY(), 2));
@@ -210,7 +210,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
                 }
             }
         }
-        double[][] boxes = new double[defaultBoxes.size()][defaultBoxes.get(0).length];
+        double[][] boxes = new double[defaultBoxes.size()][defaultBoxes.getFirst().length];
         for (int i = 0; i < defaultBoxes.size(); i++) {
             boxes[i] = defaultBoxes.get(i);
         }
@@ -260,7 +260,7 @@ public class RetinaFaceTranslator implements Translator<Image, DetectedObjects> 
     * @return squeeze的结果
      */
     private NDArray squeeze(NDArray array) {
-        if (array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
+        if (array.getShape().dimension() == 3 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             return array.squeeze(0);
         }
         return array;

@@ -425,7 +425,7 @@ public class ExcelFileSystem implements FileSystem {
                     return headerColumns;
                 }
                 if (!rows.isEmpty()) {
-                    return new ArrayList<>(rows.get(0).keySet());
+                    return new ArrayList<>(rows.getFirst().keySet());
                 }
                 return List.of();
             }

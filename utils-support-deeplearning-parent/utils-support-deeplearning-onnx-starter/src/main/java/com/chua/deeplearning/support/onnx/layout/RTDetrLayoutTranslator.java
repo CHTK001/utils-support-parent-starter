@@ -79,9 +79,9 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
                 // 仅 /255 缩放（preprocessor_config.json: do_normalize=false）
                 chw[idx++] = ((rgb >> (16 - 8 * c)) & 0xff) / 255.0f;
                 }
-                NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
             }
         }
+        NDArray images = manager.create(chw, new Shape(1, 3, INPUT_SIZE, INPUT_SIZE));
         images.setName("images");
         NDArray sizes = manager.create(new long[][]{{imgHeight, imgWidth}});
         sizes.setName("orig_target_sizes");

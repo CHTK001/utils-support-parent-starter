@@ -212,7 +212,7 @@ public class MageChatClient implements ChatClient {
             if (choices == null || choices.isEmpty()) {
                 throw new RuntimeException("Mage chat/completions 返回的 choices 为空: " + root);
             }
-            Map<String, Object> message = castMap(choices.get(0).get("message"));
+            Map<String, Object> message = castMap(choices.getFirst().get("message"));
             Object content = message != null ? message.get("content") : null;
             if (content == null) {
                 throw new RuntimeException("Mage 响应缺少 message.content: " + root);
@@ -234,7 +234,7 @@ public class MageChatClient implements ChatClient {
         try {
             List<Map<String, Object>> choices = castList(root.get("choices"));
             Map<String, Object> message = (choices == null || choices.isEmpty())
-                    ? null : castMap(choices.get(0).get("message"));
+                    ? null : castMap(choices.getFirst().get("message"));
             Object content = message != null ? message.get("content") : null;
             text = content != null ? content.toString() : null;
             usage = parseUsage(root.get("usage"));

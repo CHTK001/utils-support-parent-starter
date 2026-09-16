@@ -337,7 +337,7 @@ public class ElasticsearchEngine implements Engine {
                 if (results.isEmpty()) {
                     return null;
                 }
-                return results.get(0);
+                return results.getFirst();
             }
 
             @Override
@@ -638,7 +638,7 @@ public class ElasticsearchEngine implements Engine {
             return Query.of(q -> q.matchAll(m -> m));
         }
         if (conditions.size() == 1) {
-            return buildConditionQuery(conditions.get(0));
+            return buildConditionQuery(conditions.getFirst());
         }
         List<Query> mustQueries = new ArrayList<>(conditions.size());
         for (Condition c : conditions) {

@@ -151,7 +151,7 @@ public class YoloClsTranslator implements Translator<Image, Classifications> {
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
         var probabilitiesNd = list.singletonOrThrow();
-        if (probabilitiesNd.getShape().dimension() > 1 && probabilitiesNd.getShape().get(0) == 1) {
+        if (probabilitiesNd.getShape().dimension() > 1 && probabilitiesNd.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             probabilitiesNd = probabilitiesNd.squeeze(0);
         }
 

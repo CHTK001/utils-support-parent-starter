@@ -99,7 +99,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /** 处理输入 */
     public NDList processInput(TranslatorContext ctx, Image input) {
         NDArray array = input.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
-        long height = array.getShape().get(0);
+        long height = array.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long width = array.getShape().get(1);
         if (height != inputHeight || width != inputWidth) {
             array = NDImageUtils.resize(array, inputWidth, inputHeight);
@@ -119,7 +119,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         if (list == null || list.size() < 2) {
             return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
-        NDArray rawBoxes = squeezeBatch(list.get(0));
+        NDArray rawBoxes = squeezeBatch(list.getFirst());
         NDArray rawScores = squeezeBatch(list.get(1));
         List<String> names = new ArrayList<>();
         List<Double> probs = new ArrayList<>();
@@ -128,7 +128,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
         double[][] priors = boxRecover(inputWidth, inputHeight, scales, steps);
         float[] boxArray = rawBoxes.toFloatArray();
         float[] scoreArray = rawScores.toFloatArray();
-        int candidateCount = (int) rawBoxes.getShape().get(0);
+        int candidateCount = (int) rawBoxes.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
 
         for (int i = 0; i < candidateCount; i++) {
             double probability = scoreArray[i * 2 + 1];
@@ -183,7 +183,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @return squeezeBatch的结果
      */
     private NDArray squeezeBatch(NDArray array) {
-        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) {
+        if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             return array.squeeze(0);
         }
         return array;

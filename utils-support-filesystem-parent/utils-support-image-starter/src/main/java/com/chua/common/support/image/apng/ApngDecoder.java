@@ -14,7 +14,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 /**
-* APNG（Animated PNG）解析器：读取 actl/函数计算tl/fdat/IDAT 块并还原动画帧。
+* APNG（Animated PNG）解析器：读取 actl/fcTL/fdat/IDAT 块并还原动画帧。
 *
 * <p>对齐 {@code GifDecoder} 的调用风格：
 * <pre>{@code
@@ -46,7 +46,7 @@ public class ApngDecoder {
     /** 块类型字节（大端 int） */
     private static final int CHUNK_IHDR = 0x49484452; // IHDR
     private static final int CHUNK_acTL = 0x6163544C; // actl
-    private static final int CHUNK_fcTL = 0x6663544C; // 函数计算tl
+    private static final int CHUNK_fcTL = 0x6663544C; // fcTL
     private static final int CHUNK_IDAT = 0x49444154; // IDAT
     private static final int CHUNK_fdAT = 0x66644154; // fdat
     private static final int CHUNK_IEND = 0x49454E44; // IEND
@@ -124,7 +124,7 @@ public class ApngDecoder {
 
                 case CHUNK_IDAT:
                     if (current == null) {
- // 无 函数计算tl 的 IDAT：静态 PNG 或首帧数据
+ // 无 fcTL 的 IDAT：静态 PNG 或首帧数据
                         current = new FrameData();
                         current.control = null; // 首帧使用全画布
                         current.data = new ByteArrayOutputStream();
@@ -162,7 +162,7 @@ public class ApngDecoder {
     // ==================== 帧合成 ====================
 
     /**
-    * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 函数计算tl 合成到画布。
+    * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 fcTL 合成到画布。
     * @param frameDataList 帧数据列表
      */
     private void decodeFrames(List<FrameData> frameDataList) throws IOException {
@@ -178,7 +178,7 @@ public class ApngDecoder {
 
         for (FrameData fd : frameDataList) {
             if (fd.control == null) {
- // 首帧（无 函数计算tl）：整幅画布
+ // 首帧（无 fcTL）：整幅画布
                 BufferedImage frameImage = decodeFrameData(fd.data.toByteArray(), canvasW, canvasH);
                 frames.add(frameImage);
                 delays.add(0);
@@ -430,7 +430,7 @@ public class ApngDecoder {
     // ==================== 数据类 ====================
 
     /**
-    * 函数计算tl 帧控制块。
+    * fcTL 帧控制块。
      */
     private static final class FrameControl {
         int width;

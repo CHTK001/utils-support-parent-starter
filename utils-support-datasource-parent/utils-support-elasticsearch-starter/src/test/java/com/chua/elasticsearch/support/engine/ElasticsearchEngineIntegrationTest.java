@@ -153,8 +153,8 @@ public class ElasticsearchEngineIntegrationTest {
                 .eq(EsDoc::getTitle, "Java 并发编程")
                 .list();
         assertEquals(1, list.size());
-        assertEquals("Java 并发编程", list.get(0).getTitle());
-        assertEquals(2L, list.get(0).getId());
+        assertEquals("Java 并发编程", list.getFirst().getTitle());
+        assertEquals(2L, list.getFirst().getId());
     }
 
     @Test

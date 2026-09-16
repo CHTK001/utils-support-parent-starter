@@ -13,52 +13,41 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 工作区状态查询操作（Git 状态）。
-*
-* <p>对已打开的本地仓库，查询暂存区、工作区、未跟踪文件状态。</p>
-*
-* <pre>示例：
-* {@code
-* StatusResult status = client.status().execute();
-* boolean clean = status.isClean();
-* List<String> untracked = status.untracked();
-* }</pre>= status.untracked();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
+ * 工作区状态查询操作（git status）。
+ *
+ * <p>对已打开的本地仓库，查询暂存区、工作区、未跟踪文件状态。</p>
+ *
+ * <pre>示例：
+ * {@code
+ * StatusResult status = client.status().execute();
+ * boolean clean = status.isClean();
+ * List<String> untracked = status.untracked();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Slf4j
 public class StatusOperation {
 
     /**
-    * 所属 git客户端。
+     * 所属 GitClient。
      */
     private final GitClient client;
 
     /**
-    * 构建操作实例（仅框架内部调用）。
-    *
-    * @param client 所属 Git客户端
+     * 构建操作实例（仅框架内部调用）。
+     *
+     * @param client 所属 GitClient
      */
     public StatusOperation(GitClient client) {
         this.client = client;
     }
 
     /**
-    * 执行状态查询。
-    *
-    * @return 工作区状态
-    * @param set 设置
-     /**
-      * 执行。
-      * @return 执行的结果
-      */
-      * @param set 设置
-     /**
-     * 执行。
-     * @return 执行的结果
-      */
+     * 执行状态查询。
+     *
+     * @return 工作区状态
      */
     public StatusResult execute() {
         try {

@@ -225,7 +225,7 @@ public class NetHandler implements Plugin, RuntimeSpy.Interceptor {
         if (tail.isEmpty()) {
             return;
         }
-        NetRecord record = tail.get(0);
+        NetRecord record = tail.getFirst();
         action.apply(record);
         LOG.log(Level.FINE, String.format("[Net] %s %s 字节计数更新", ctx.getReadableClassName(), ctx.getMethodName()));
     }

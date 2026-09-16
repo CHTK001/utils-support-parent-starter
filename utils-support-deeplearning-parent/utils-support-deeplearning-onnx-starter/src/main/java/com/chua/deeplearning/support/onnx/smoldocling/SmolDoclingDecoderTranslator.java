@@ -147,7 +147,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         }
 
         //                    logits
-        NDArray logits = list.get(0);
+        NDArray logits = list.getFirst();
         long[] logitsShape = logits.getShape().getShape();
 
         if (log.isDebugEnabled()) {

@@ -88,7 +88,7 @@ public class VggtTranslator implements Translator<Image, Image> {
         }
 
         //                      3D                
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         long[] outputShape = output.getShape().getShape();
 
         log.info("VGGT             : shape={}, dtype={}",

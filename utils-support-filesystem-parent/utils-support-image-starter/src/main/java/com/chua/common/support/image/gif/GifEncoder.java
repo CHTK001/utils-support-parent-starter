@@ -635,9 +635,9 @@ public class GifEncoder {
     }
 
     /**
-    * 写入 16-钻头 值 转为 输出 流, LSB 第一个
+    * 将 16 位值写入输出流，LSB 在前
     *
-    * @param value 16-钻头 值
+    * @param value 16 位值
     * @throws IOException IO异常
      */
     protected void writeShort(int value) throws IOException {

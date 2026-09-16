@@ -62,7 +62,7 @@ public final class KeyFileResolver {
             }
         }
         // 全部不存在时，落在工作目录下（首次生成场景）
-        return candidates.get(0).toAbsolutePath().normalize();
+        return candidates.getFirst().toAbsolutePath().normalize();
     }
 
     /**

@@ -29,7 +29,7 @@ import java.util.zip.Deflater;
 * }</pre>
 *
 * <p>输出格式：8-bit RGBA（颜色类型 6），首帧数据写入 IDAT，后续帧写入 fdAT，
-* 帧控制信息写入 函数计算tl（整帧绘制：x/y=0，dispose=无，blend=源）。</p>
+* 帧控制信息写入 fcTL（整帧绘制：x/y=0，dispose=无，blend=源）。</p>
 *
 * @author CH
 * @since 4.0.0.42
@@ -121,7 +121,7 @@ public class ApngEncoder {
             throw new IOException("没有帧数据，请先调用 addFrame");
         }
 
-        BufferedImage first = frames.get(0);
+        BufferedImage first = frames.getFirst();
         int width = first.getWidth();
         int height = first.getHeight();
 
@@ -161,7 +161,7 @@ public class ApngEncoder {
     // ==================== 块写入 ====================
 
     /**
-    * 写入 IHDR 块：8-钻头 RGBA（颜色类型 6），无隔行。
+    * 写入 IHDR 块：8 位 RGBA（颜色类型 6），无隔行。
     * @param width width
     * @param height height
      */
@@ -169,7 +169,7 @@ public class ApngEncoder {
         byte[] ihdr = new byte[13];
         putIntBE(ihdr, 0, width);
         putIntBE(ihdr, 4, height);
-        ihdr[8] = 8; // 钻头 深度
+        ihdr[8] = 8; // 位深度
         ihdr[9] = PNG.PNG_COLOR_RGB_ALPHA; // color 类型 6
         ihdr[10] = 0;                 // compression
         ihdr[11] = 0; // 过滤器
@@ -178,21 +178,21 @@ public class ApngEncoder {
     }
 
     /**
-    * 构建 函数计算tl 块数据（30 字节）：sequence(4) + width/height/x/y/延迟(20) + dispose/blend(2)。
+    * 构建 fcTL 块数据（30 字节）：sequence(4) + width/height/x/y/延迟(20) + dispose/blend(2)。
     * 整帧绘制（x/y=0），dispose=无，blend=源。
     * @param sequence sequence
     * @param width width
     * @param height height
     * @param delayMillis 延迟millis
-    * @return 构建函数计算tl的结果
+    * @return 构建 fcTL 的结果
      */
     private static byte[] buildFcTL(int sequence, int width, int height, int delayMillis) {
         byte[] fcTL = new byte[30];
         putIntBE(fcTL, 0, sequence);
         putIntBE(fcTL, 4, width);
         putIntBE(fcTL, 8, height);
-        putIntBE(fcTL, 12, 0); // x_偏移量
-        putIntBE(fcTL, 16, 0); // y_偏移量
+        putIntBE(fcTL, 12, 0); // x 偏移量
+        putIntBE(fcTL, 16, 0); // y 偏移量
         // delay：delay_num = 毫秒，delay_den = 1000 → 精确毫秒
         putIntBE(fcTL, 20, delayMillis);
         putIntBE(fcTL, 24, 1000);

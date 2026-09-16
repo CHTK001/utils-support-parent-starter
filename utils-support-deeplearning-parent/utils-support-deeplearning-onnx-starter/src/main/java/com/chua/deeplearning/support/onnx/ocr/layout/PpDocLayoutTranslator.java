@@ -173,11 +173,11 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
             return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         }
 
-        NDArray rows = list.get(0);
+        NDArray rows = list.getFirst();
         if (rows == null || rows.isEmpty()) {
             return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         }
-        if (rows.getShape().dimension() == 3 && rows.getShape().get(0) == 1) {
+        if (rows.getShape().dimension() == 3 && rows.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             rows = rows.squeeze(0);
         }
         if (rows.getShape().dimension() == 1) {
@@ -245,7 +245,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     * @return determine数量的结果
      */
     private int determineCount(NDList list, NDArray rows) {
-        int maxCount = (int) rows.getShape().get(0);
+        int maxCount = (int) rows.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         if (list.size() < 2 || list.get(1) == null || list.get(1).isEmpty()) {
             return maxCount;
         }

@@ -122,7 +122,7 @@ public class ClusterNode implements AutoCloseable {
             ServerSetting proxySetting = ServerSetting.defaults();
             proxySetting.setHost(clusterSetting.getHost());
             proxySetting.setPort(clusterSetting.getPort() > 0 ? clusterSetting.getPort() + 1 : 0);
-            String servicePath = resolveServicePaths().isEmpty() ? "/" : resolveServicePaths().get(0);
+            String servicePath = resolveServicePaths().isEmpty() ? "/" : resolveServicePaths().getFirst();
             tcpProxy = new TcpProxyServer(proxySetting,
                     new DiscoveryProxyTargetResolver(discovery, servicePath, scatterId, clusterSetting.getBalance()));
             tcpProxy.start();

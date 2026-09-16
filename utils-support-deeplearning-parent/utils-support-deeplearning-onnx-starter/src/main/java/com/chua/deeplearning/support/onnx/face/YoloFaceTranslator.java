@@ -140,7 +140,7 @@ public class YoloFaceTranslator implements Translator<Image, DetectedObjects> {
     @Override
     /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         long[] shape = output.getShape().getShape();
         // 兼容 [1,C,N] / [1,N,C]，直读 flat 避免 ORT 不支持的 squeeze/transpose
         float[] data = output.toFloatArray();

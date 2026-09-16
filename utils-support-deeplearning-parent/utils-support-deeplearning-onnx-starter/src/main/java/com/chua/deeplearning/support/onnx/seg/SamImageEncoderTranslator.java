@@ -69,7 +69,7 @@ public class SamImageEncoderTranslator implements Translator<Image, float[]> {
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray embedding = list.singletonOrThrow();
 
-        if (embedding.getShape().dimension() == 4 && embedding.getShape().get(0) == 1) {
+        if (embedding.getShape().dimension() == 4 && embedding.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             embedding = embedding.squeeze(0);
         }
 

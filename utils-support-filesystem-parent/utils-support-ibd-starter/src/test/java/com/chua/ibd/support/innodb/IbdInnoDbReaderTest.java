@@ -83,7 +83,7 @@ class IbdInnoDbReaderTest {
             List<Map<String, Object>> rows = reader.readAll();
 
             assertEquals(200, rows.size());
-            Map<String, Object> first = rows.get(0);
+            Map<String, Object> first = rows.getFirst();
             assertEquals(1L, first.get("actor_id"));
             assertEquals("PENELOPE", first.get("first_name"));
             assertEquals("GUINESS", first.get("last_name"));
@@ -101,7 +101,7 @@ class IbdInnoDbReaderTest {
             List<Map<String, Object>> rows = reader.readAll();
 
             assertEquals(1000, rows.size());
-            Map<String, Object> first = rows.get(0);
+            Map<String, Object> first = rows.getFirst();
             assertEquals(1L, first.get("film_id"));
             assertEquals("ACADEMY DINOSAUR", first.get("title"));
             assertEquals(2006L, first.get("release_year"));
@@ -124,7 +124,7 @@ class IbdInnoDbReaderTest {
 
             assertEquals(603, rows.size());
             assertEquals("0x0000000001010000003e0a325d63345cc0761fdb8d99d94840",
-                    rows.get(0).get("location"),
+                    rows.getFirst().get("location"),
                     "与官方 sakila 数据集里的 /*!50705 0x0000000001010000003E0A325D...*/ 逐字节一致");
         }
     }
@@ -138,7 +138,7 @@ class IbdInnoDbReaderTest {
             List<Map<String, Object>> rows = reader.readAll();
 
             assertEquals(2, rows.size());
-            String picture = String.valueOf(rows.get(0).get("picture"));
+            String picture = String.valueOf(rows.getFirst().get("picture"));
             assertTrue(picture.startsWith("0x89504e470d0a1a0a"), "PNG 魔数，说明溢出页拼接正确");
             assertEquals(36365 * 2 + 2, picture.length(),
                     "长度必须等于行内 20 字节引用里记录的长度（3 个溢出页 15680+16327+4358）");
@@ -149,7 +149,7 @@ class IbdInnoDbReaderTest {
     @DisplayName("staff.ibd：active 列的有符号 TINYINT 符号位被翻转（0x81 -> 1）")
     void shouldDecodeSignedTinyInt() throws Exception {
         try (IbdTableReader reader = IbdTableReader.open(fixture("staff.ibd"), SHANGHAI)) {
-            assertEquals(1L, reader.readAll().get(0).get("active"));
+            assertEquals(1L, reader.readAll().getFirst().get("active"));
         }
     }
 }

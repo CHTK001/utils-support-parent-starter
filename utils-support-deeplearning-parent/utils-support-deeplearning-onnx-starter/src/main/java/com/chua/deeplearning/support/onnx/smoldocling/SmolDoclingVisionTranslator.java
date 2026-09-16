@@ -275,7 +275,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
         }
 
         //                   
-        NDArray imageFeatures = list.get(0);
+        NDArray imageFeatures = list.getFirst();
         long[] outputShape = imageFeatures.getShape().getShape();
 
         if (log.isDebugEnabled()) {

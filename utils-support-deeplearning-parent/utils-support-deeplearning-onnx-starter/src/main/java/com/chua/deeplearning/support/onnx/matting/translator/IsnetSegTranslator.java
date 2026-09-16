@@ -88,7 +88,7 @@ public final class IsnetSegTranslator implements Translator<Image, Image> {
 
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray alpha = list.get(0);
+        NDArray alpha = list.getFirst();
         Shape shape = alpha.getShape();
         long[] sh = shape.getShape();
         int h = (int) sh[sh.length - 2];

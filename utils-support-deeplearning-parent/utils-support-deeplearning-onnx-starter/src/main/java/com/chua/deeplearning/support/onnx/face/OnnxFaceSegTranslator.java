@@ -77,7 +77,7 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
     @Override
     /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray out = list.get(0);
+        NDArray out = list.getFirst();
         long[] shape = out.getShape().getShape();
         if (shape.length == 4) {
             out = out.squeeze(0);

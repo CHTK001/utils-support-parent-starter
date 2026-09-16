@@ -236,7 +236,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
         try (OnnxTensor inputIdsTensor = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(idsTrim), shape)) {
             inputs.put("input_ids", inputIdsTensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                Object val = result.get(0).getValue();
+                Object val = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 if (val instanceof float[][]) {
                     fullVec = ((float[][]) val)[0];
                 } else if (val instanceof float[][][]) {

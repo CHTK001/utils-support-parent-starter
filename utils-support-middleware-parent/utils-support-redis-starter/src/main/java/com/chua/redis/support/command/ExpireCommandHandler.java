@@ -25,7 +25,7 @@ public class ExpireCommandHandler implements RedisCommandHandler {
             throw new IllegalArgumentException("EXPIRE 需要 key 和 seconds");
         }
         long seconds = Long.parseLong(args.get(1));
-        Long result = jedis.expire(args.get(0), seconds);
+        Long result = jedis.expire(args.getFirst(), seconds);
         return result.intValue();
     }
 }

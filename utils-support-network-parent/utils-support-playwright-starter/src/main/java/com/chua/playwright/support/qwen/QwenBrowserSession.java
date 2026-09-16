@@ -162,7 +162,7 @@ public class QwenBrowserSession implements AutoCloseable {
                         if (choices == null || choices.isEmpty()) {
                             continue;
                         }
-                        Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
+                        Map<String, Object> delta = (Map<String, Object>) choices.getFirst().get("delta");
                         if (delta == null) {
                             continue;
                         }

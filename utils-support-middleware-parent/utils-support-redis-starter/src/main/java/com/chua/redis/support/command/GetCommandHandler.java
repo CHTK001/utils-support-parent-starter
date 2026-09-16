@@ -26,6 +26,6 @@ public class GetCommandHandler implements RedisCommandHandler {
         if (args.isEmpty()) {
             throw new IllegalArgumentException("GET 需要一个 key");
         }
-        return jedis.get(args.get(0)) != null ? 1 : 0;
+        return jedis.get(args.getFirst()) != null ? 1 : 0;
     }
 }

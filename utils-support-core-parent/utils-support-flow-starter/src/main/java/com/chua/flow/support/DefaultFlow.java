@@ -177,8 +177,8 @@ public class DefaultFlow implements Flow {
             all.remove(edge.to());
         }
         if (!all.isEmpty()) {
-            return all.get(0);
+            return all.getFirst();
         }
-        return definition.getNodes().get(0).id();
+        return definition.getNodes().getFirst().id();
     }
 }

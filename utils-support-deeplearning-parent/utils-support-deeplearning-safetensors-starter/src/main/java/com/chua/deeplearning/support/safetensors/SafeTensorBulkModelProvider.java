@@ -39,7 +39,7 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
     @Override
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
-        return all.isEmpty() ? null : all.get(0);
+        return all.isEmpty() ? null : all.getFirst();
     }
 
     /**

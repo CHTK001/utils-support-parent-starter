@@ -211,11 +211,11 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                            float scale, int left, int top, NDList list) {
  // [cx, cy, w, h, 类_scores..., angle]
-        var rawResult = list.get(0);
+        var rawResult = list.getFirst();
         var reshapedResult = rawResult.transpose();
         var shape = reshapedResult.getShape();
         var buf = reshapedResult.toFloatArray();
-        var numberRows = Math.toIntExact(shape.get(0));
+        var numberRows = Math.toIntExact(shape.get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         var nClasses = Math.toIntExact(shape.get(1));
 
         //                   

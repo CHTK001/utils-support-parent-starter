@@ -67,19 +67,9 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     * @param modelDir 模型目录
     * @throws Exception 加载异常
     * @param is 是否
-     /**
-    * prepare。
-    * @param modelDir 模型dir
-      */
-     * @param dir dir
-     * @param prefix 前缀
-     * @return 方法的结果
-      * @param is 是否
-     /**
-     * prepare。
-     * @param modelDir 模型dir
-      */
-     */
+    * @param dir dir
+    * @param prefix 前缀
+    */
     public void prepare(Path modelDir) throws Exception {
         Path encoderPath = resolveModel(modelDir, "encoder");
         Path decoderPath = resolveModel(modelDir, "decoder");
@@ -260,16 +250,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
     *
     * @return 完整识别文本
     * @param features 特征
-     /**
-      * 完成。
-      * @return 完成的结果
-      */
-      * @param features 特征
-     /**
-     * 完成。
-     * @return 完成的结果
-      */
-     */
+    */
     public String complete() {
         String result = getResult();
         resetStreaming();
@@ -477,7 +458,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
         try (OnnxTensor tensor = OnnxTensor.createTensor(env, new long[][]{y});
              OrtSession.Result result =
                      decoderSession.run(Collections.singletonMap("y", tensor))) {
-            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            return ((float[][]) result.get(0).getValue())[0];
         }
     }
 
@@ -493,7 +474,7 @@ public class ZipformerStreamingTranslator implements AutoCloseable {
              OrtSession.Result result = joinerSession.run(Map.of(
                      "encoder_out", encTensor,
                      "decoder_out", decTensor))) {
-            return ((float[][]) result.get(0).getValue())[0]; // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            return ((float[][]) result.get(0).getValue())[0];
         }
     }
 

@@ -24,6 +24,6 @@ public class HsetCommandHandler implements RedisCommandHandler {
         if (args.size() < 3) {
             throw new IllegalArgumentException("HSET 需要 key、field 和 value");
         }
-        return (int) jedis.hset(args.get(0), args.get(1), args.get(2));
+        return (int) jedis.hset(args.getFirst(), args.get(1), args.get(2));
     }
 }

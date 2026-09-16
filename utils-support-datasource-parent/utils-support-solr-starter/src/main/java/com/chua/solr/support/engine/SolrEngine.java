@@ -202,7 +202,7 @@ public class SolrEngine extends AbstractEngine {
                 for (String field : doc.getFieldNames()) {
                     Object value = doc.getFieldValue(field);
                     if (value instanceof List<?> list && !list.isEmpty()) {
-                        value = list.get(0);
+                        value = list.getFirst();
                     }
                     String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
                     for (var method : entityClass.getMethods()) {
@@ -272,7 +272,7 @@ public class SolrEngine extends AbstractEngine {
                 if (results.isEmpty()) {
                     return null;
                 }
-                return results.get(0);
+                return results.getFirst();
             }
 
             @Override
@@ -882,7 +882,7 @@ public class SolrEngine extends AbstractEngine {
                 for (String field : doc.getFieldNames()) {
                     Object value = doc.getFieldValue(field);
                     if (value instanceof List<?> list && !list.isEmpty()) {
-                        value = list.get(0);
+                        value = list.getFirst();
                     }
                     String setterName = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
                     for (var method : entityClass.getMethods()) {

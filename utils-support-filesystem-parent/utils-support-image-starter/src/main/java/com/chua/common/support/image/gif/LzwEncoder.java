@@ -32,9 +32,9 @@ class LzwEncoder {
     private int curPixel;
 
 
-    static final int BITS = 12; // 钻头
+    static final int BITS = 12; // 位
     static final int HSIZE = 5003; // HSIZE
-    int nBits; // n钻头
+    int nBits; // 位数
     int maxbits = BITS; // maxbits
     int maxcode; // maxcode
     int maxmaxcode = 1 << BITS; // maxmaxcode
@@ -48,12 +48,12 @@ class LzwEncoder {
 
     boolean clearFlg = false; // clearflg
 
-    int gInitBits; // g初始化钻头
+    int gInitBits; // g 初始位数
 
     int clearCode; // clear编码
     int eofCode; // eof编码
     int curAccum = 0; // curaccum
-    int curBits = 0; // cur钻头
+    int curBits = 0; // 当前位数
 
     final int[] masks =
             {
@@ -208,7 +208,7 @@ class LzwEncoder {
     /**
     * Maxcode
     *
-    * @param nBits n钻头
+    * @param nBits 位数
     * @return maxcode的结果
      */
     final int maxcode(int nBits) {

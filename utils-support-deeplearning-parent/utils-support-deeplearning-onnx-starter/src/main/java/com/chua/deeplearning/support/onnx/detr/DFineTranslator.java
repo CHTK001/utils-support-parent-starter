@@ -106,7 +106,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
             }
         }
         if (logits == null) {
-            logits = list.get(0);
+            logits = list.getFirst();
         }
         if (boxesNd == null) {
             boxesNd = list.size() > 1 ? list.get(1) : null;

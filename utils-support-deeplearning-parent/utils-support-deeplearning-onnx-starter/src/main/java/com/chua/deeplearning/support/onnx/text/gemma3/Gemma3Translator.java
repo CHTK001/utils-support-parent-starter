@@ -306,7 +306,7 @@ public class Gemma3Translator implements ITranslator<String, String>, AutoClosea
                 inputs.put("position_ids", OnnxTensor.createTensor(ortEnv, java.nio.LongBuffer.wrap(range(ids.length)), new long[]{1, ids.length}));
 
                 try (OrtSession.Result result = session.run(inputs)) {
-                    float[][][] logits = (float[][][]) result.get(0).getValue();
+                    float[][][] logits = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                     int last = logits[0].length - 1;
                     int next = nextToken(logits[0][last], tokens, promptLen);
 

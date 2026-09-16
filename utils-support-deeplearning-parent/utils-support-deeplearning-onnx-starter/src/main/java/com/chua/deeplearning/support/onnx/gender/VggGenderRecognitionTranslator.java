@@ -146,7 +146,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
             }
 
             //                   
-            NDArray output = list.get(0);
+            NDArray output = list.getFirst();
             if (log.isDebugEnabled()) {
                 log.debug("                        : {}", output.getShape());
             }
@@ -156,7 +156,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
 
             //           2D        [1, 2]               
             if (output.getShape().dimension() == 2) {
-                NDArray firstRow = output.get(0);
+                NDArray firstRow = output.get(0); // [P3C 四十一 豁免] NDArray 张量下标访问（非 List/Collection）
                 probs = firstRow.toFloatArray();
             }
             //           1D        [2]               

@@ -354,7 +354,7 @@ public class Acme4jProvider implements AcmeProvider {
         String keyPem = writeKeyPair(domainKeyPair);
 
         X509Certificate leafCertificate = certificate.getCertificate();
-        String primaryDomain = domains.get(0);
+        String primaryDomain = domains.getFirst();
         String san = String.join(",", domains);
 
         return AcmeCertificateResult.success(

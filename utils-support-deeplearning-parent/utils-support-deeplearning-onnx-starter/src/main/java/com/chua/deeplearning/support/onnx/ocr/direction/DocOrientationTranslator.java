@@ -115,7 +115,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
                 try (OnnxTensor tensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(pixels), shape)) {
                     Map<String, OnnxTensor> inputs = Map.of("x", tensor);
                     try (OrtSession.Result result = session.run(inputs)) {
-                        float[][] output = (float[][]) result.get(0).getValue();
+                        float[][] output = (float[][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                         float[] scores = output[0];
                         int maxIdx = 0;
                         float maxVal = scores[0];

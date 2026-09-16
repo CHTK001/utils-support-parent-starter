@@ -335,7 +335,7 @@ public class AudioRecognitionPipeline {
         K = Math.max(1, K);
 
         // 初始化聚类中心（随机选取 K 个有效向量）
-        int dim = embeddings[validIndices.get(0)].length;
+        int dim = embeddings[validIndices.getFirst()].length;
         float[][] centers = new float[K][dim];
         java.util.Random rand = new java.util.Random(42);
         List<Integer> shuffled = new ArrayList<>(validIndices);

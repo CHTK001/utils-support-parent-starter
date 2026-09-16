@@ -338,6 +338,11 @@ public class RagPipeline implements RagClient {
                 log.warn("[RagPipeline] TextExtractor 抽取失败, 降级为 UTF-8 读取: {}", e.getMessage());
             }
         }
+        // 大文件（>1MB）无合适提取器时，跳过 UTF-8 解码以避免 OOM（二进制乱码产生海量无意义 chunk）
+        if (data.length > 1_048_576) {
+            log.warn("[RagPipeline] 文件 {} 超过 1MB 且无匹配提取器, 跳过文本抽取", fileName);
+            return EMPTY;
+        }
         return new String(data, StandardCharsets.UTF_8);
     }
 
@@ -497,10 +502,14 @@ public class RagPipeline implements RagClient {
 
     @Override
     public int reindex() {
+        // 快照迭代前文档列表，避免 ingest 的 collect 节点向 documents 追加导致
+        // "ConcurrentModificationException: arraycopy during iteration"
+        List<RagDocument> snapshot = new java.util.ArrayList<>(documents);
         vectorStorage.clear();
         chunkContentCache.clear();
+        documents.clear();
         int count = 0;
-        for (RagDocument doc : documents) {
+        for (RagDocument doc : snapshot) {
             if (!STATUS_READY.equals(doc.status())) {
                 continue;
             }

@@ -242,7 +242,7 @@ public class EdgeSamSegmentTranslator {
             Map<String, OnnxTensor> inputs = new HashMap<>();
             inputs.put("image", imageTensor);
             try (OrtSession.Result result = encoderSession.run(inputs)) {
-                return (float[][][][]) result.get(0).getValue();
+                return (float[][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             }
         } catch (Exception e) {
             throw new RuntimeException("[EdgeSAM] encoder failed: " + e.getMessage(), e);
@@ -269,7 +269,7 @@ public class EdgeSamSegmentTranslator {
             inputs.put("point_coords", coordTensor);
             inputs.put("point_labels", labelTensor);
             try (OrtSession.Result result = decoderSession.run(inputs)) {
-                float[][] scores = (float[][]) result.get(0).getValue();
+                float[][] scores = (float[][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 float[][][][] masks = (float[][][][]) result.get(1).getValue();
                 for (int i = 0; i < Math.min(scores[0].length, scoresOut.length); i++) {
                     scoresOut[i] = scores[0][i];

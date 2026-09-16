@@ -73,28 +73,28 @@ public final class PNGImageWriter extends ImageWriter {
 
     // Per-band scaling tables
     //
- // 之后 the 第一个 call 转为 初始化scaletables, either scale 和 scale0
- // will be valid, 或 scaleh 和 scalel will be valid, but not both.
+ // 首次调用 initializeScaleTables 后，scale 和 scale0
+ // 或 scaleh 和 scalel 将有效，但不会同时有效。
     //
- // The tables will be designed for use with a 设置 的 输入 but 深度
- // given by 样本大小, 和 an 输出 钻头 深度 given by scaling钻头深度.
+ // 这些表将用于配合由 sampleSize 给定的输入位深，
+ // 以及由 scalingBitDepth 给定的输出位深。
     //
- // 样本 大小 per band, 入 钻头
+ // 每个波段的样本大小（以位为单位）
     // ;
     int[] sampleSize = null;
- // 输出 钻头 深度 的 the scaling tables
+ // 缩放表的输出位深
     // ;
     int scalingBitDepth = 0;
 
- // Tables for 1, 2, 4, 或 8 钻头 输出
- // 8 钻头 table
+ // 1、2、4 或 8 位输出的缩放表
+ // 8 位表
     // ;
     byte[][] scale = null;
  // equivalent 转为 scale[0]
     // ;
     byte[] scale0 = null;
 
- // Tables for 16 钻头 输出
+ // 16 位输出的缩放表
  // High bytes 的 输出
     // ;
     byte[][] scaleh = null;
@@ -284,7 +284,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
-    /** 写入s钻头 */
+    /** 写入 sBIT */
     private void write_sBIT() throws IOException {
         if (metadata.sBIT_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.sBIT_TYPE, stream);
@@ -670,7 +670,7 @@ public final class PNGImageWriter extends ImageWriter {
         int width = sourceWidth;
         int height = sourceHeight;
 
- // Adjust 偏移量 和 跳过 基础 on 源 subsampling factors
+ // 根据源子采样因子调整偏移量和跳过
         xOffset *= periodX;
         xSkip *= periodX;
         yOffset *= periodY;
@@ -683,7 +683,7 @@ public final class PNGImageWriter extends ImageWriter {
             return;
         }
 
- // 转换 X 偏移量 和 跳过 从 pixels 转为 样本
+ // 将 X 偏移量和跳过从像素转换为样本
         xOffset *= numBands;
         xSkip *= numBands;
 
@@ -825,7 +825,7 @@ public final class PNGImageWriter extends ImageWriter {
         }
     }
 
- // Use 源x偏移量, etc.
+ // 使用源 x 偏移量等
     /**
     * 写入IDAT
     * @param image 镜像
@@ -885,9 +885,8 @@ public final class PNGImageWriter extends ImageWriter {
         return true;
     }
 
- // 初始化 the scale/scale0 或 scaleh/scalel arrays 转为
- // hold the 结果 的 scaling an 输入 值 转为 the desired
- // 输出 钻头 深度
+ // 初始化 scale/scale0 或 scaleh/scalel 数组，
+ // 用于将输入值缩放到所需的输出位深
     /**
     * 初始化scaletables
     * @param sampleSize 样本大小
@@ -1012,7 +1011,7 @@ public final class PNGImageWriter extends ImageWriter {
     }
 
     /**
-    * 写入函数计算tl
+    * 写入 fcTL
     * @param metadata metadata
      */
     private void write_fcTL(PNGMetadata metadata) throws IOException {
@@ -1106,7 +1105,7 @@ public final class PNGImageWriter extends ImageWriter {
                 sourceHeight = sourceRegion.height;
             }
 
- // Adjust for subsampling 偏移量
+ // 针对子采样偏移量进行调整
             int gridX = param.getSubsamplingXOffset();
             int gridY = param.getSubsamplingYOffset();
             sourceXOffset += gridX;
@@ -1181,7 +1180,7 @@ public final class PNGImageWriter extends ImageWriter {
             }
         }
 
- // 初始化 钻头深度 和 color类型
+ // 初始化位深度和颜色类型
         metadata.initialize(new ImageTypeSpecifier(im), numBands);
 
  // Overwrite IHDR width 和 height 值 with 值 从 镜像

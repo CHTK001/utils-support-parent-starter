@@ -95,7 +95,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
         if (defs.isEmpty()) {
             throw new IllegalStateException("引擎[" + engine + "]没有可用的特征模型");
         }
-        return defs.get(0).getId();
+        return defs.getFirst().getId();
     }
 
     @Override

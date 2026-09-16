@@ -556,7 +556,7 @@ import java.util.concurrent.ConcurrentHashMap;
             };
 
             if (groupByCols.size() == 1) {
-                String col = groupByCols.get(0);
+                String col = groupByCols.getFirst();
                 Map<Object, Long> counts = new TreeMap<>();
                 for (T entity : entities) {
                     Object val = getFieldValue(entity, col);

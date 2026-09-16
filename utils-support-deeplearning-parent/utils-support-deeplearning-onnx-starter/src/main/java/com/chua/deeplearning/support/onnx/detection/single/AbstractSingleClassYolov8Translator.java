@@ -172,7 +172,7 @@ public abstract class AbstractSingleClassYolov8Translator implements Translator<
     @Override
     /** 处理输出 */
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
 
         long f0 = output.getShape().get(1);
         long f1 = output.getShape().get(2);

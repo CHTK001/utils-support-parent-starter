@@ -20,7 +20,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         NDArray array = list.singletonOrThrow();
-        if (array.getShape().dimension() > 1 && array.getShape().get(0) == 1) {
+        if (array.getShape().dimension() > 1 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             array = array.squeeze(0);
         }
         return array.toFloatArray();

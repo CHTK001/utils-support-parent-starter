@@ -202,12 +202,12 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
      */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                           float scale, int left, int top, NDList list) {
-        var rawResult = list.get(0);
+        var rawResult = list.getFirst();
         var reshaped = reshapeToBoxesFirst(rawResult);
         var shape = reshaped.getShape();
         var buf = reshaped.toFloatArray();
 
-        var numberRows = Math.toIntExact(shape.get(0));
+        var numberRows = Math.toIntExact(shape.get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         var nFeatures = Math.toIntExact(shape.get(1));
 
         var rotatedBoxes = new ArrayList<YoloRotatedBox>();
@@ -255,7 +255,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
         var shape = rawResult.getShape();
         if (shape.dimension() == 2) {
  // [boxes, 特征]     [特征, boxes]
-            var boxes = shape.get(0);
+            var boxes = shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             var features = shape.get(1);
             if (features < boxes) {
                 return rawResult;

@@ -185,7 +185,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
             /** One */
             public T one() {
                 List<T> r = executeQuery(this, entityClass);
-                return r.isEmpty() ? null : r.get(0);
+                return r.isEmpty() ? null : r.getFirst();
             }
 
             @Override

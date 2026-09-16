@@ -50,7 +50,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
         result = result.squeeze().mul(255f).toType(DataType.UINT8, true).gt(0.3);
         boolean[] flattened = result.toBooleanArray();
         Shape shape = result.getShape();
-        int w = (int) shape.get(0);
+        int w = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int h = (int) shape.get(1);
         boolean[][] grid = new boolean[w][h];
         IntStream.range(0, flattened.length)

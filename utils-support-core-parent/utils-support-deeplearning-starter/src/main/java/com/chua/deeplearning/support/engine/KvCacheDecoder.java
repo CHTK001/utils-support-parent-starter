@@ -171,7 +171,7 @@ public final class KvCacheDecoder implements AutoCloseable {
         try (OrtSession.Result result = session.run(inputs)) {
             // it 版为 fp16 模型：输出 logits 是 FLOAT16，ORT 的 getValue() 在转 ShortBuffer 时
  // 会抛 heapbyte缓冲 cast 异常，因此直接从张量读原始字节并手动解码 half → float
-            OnnxTensor outTensor = (OnnxTensor) result.get(0);
+            OnnxTensor outTensor = (OnnxTensor) result.get(0); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             long[] outShape = outTensor.getInfo().getShape();
             int seq = (int) outShape[1];
             int vocab = (int) outShape[2];

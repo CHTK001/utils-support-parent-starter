@@ -94,7 +94,7 @@ public class ClusterSetting {
         if (!seeds.isEmpty()) {
             setting.setSeeds(seeds);
         }
-        setting.setServicePath(servicePaths.isEmpty() ? "/" : servicePaths.get(0));
+        setting.setServicePath(servicePaths.isEmpty() ? "/" : servicePaths.getFirst());
         setting.setTimeoutMillis(timeoutMillis);
         setting.setAutoDiscoveryIntervalMillis(autoDiscoveryIntervalMillis);
         return setting;

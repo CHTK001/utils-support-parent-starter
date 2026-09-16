@@ -89,7 +89,7 @@ public class OsnetReidTranslator implements Translator<Image, float[]> {
         NDArray output = list.singletonOrThrow();
 
  // 批量
-        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) {
+        if (output.getShape().dimension() > 1 && output.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             output = output.squeeze(0);
         }
 

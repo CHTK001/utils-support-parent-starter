@@ -187,7 +187,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     @Override
     /** 处理输出 */
     public String[][] processOutput(TranslatorContext ctx, NDList list) {
-        NDArray tags = list.get(0);
+        NDArray tags = list.getFirst();
         long[] tagIds = tags.toLongArray();
         List<String> tokens = new ArrayList<>();
         List<String> labels = new ArrayList<>();

@@ -133,7 +133,7 @@ public final class SqlCipherDecryptor {
      * @throws IOException 读取文件失败
      */
     public static KeyProbe keyProbe(File source) throws IOException {
-        return keyProbe(source, SqlCipherProfile.candidates().get(0));
+        return keyProbe(source, SqlCipherProfile.candidates().getFirst());
     }
 
     /**

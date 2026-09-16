@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 *
 * <p>继承自 {@link javax.imageio.metadata.IIOMetadataFormatImpl}，
 * 定义 PNG 原生元数据格式的结构，包括所有 PNG 块（IHDR、PLTE、trns、gama 等）以及
-* APNG 动画块（actl、函数计算tl、fdat）的元素和属性约束。</p>
+* APNG 动画块（actl、fcTL、fdat）的元素和属性约束。</p>
 *
 * @author CH
 * @since 4.0.0.42

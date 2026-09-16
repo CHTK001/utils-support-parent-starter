@@ -102,7 +102,7 @@ public final class ModelSelector {
             }
         }
         // 阶段3：无推荐命中，退化候选列表第一个（注册顺序）
-        String fallback = candidates.get(0);
+        String fallback = candidates.getFirst();
         log.debug("[deeplearning-engine] ModelSelector 无推荐命中，退化首选: {} (device={}, vram={}MB)", fallback, device, vramMb);
         return fallback;
     }

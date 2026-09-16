@@ -716,7 +716,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
              OrtSession.Result result = textEncoderSession.run(
                      java.util.Map.of("input_ids", t),
                      Set.of(textEncoderOutput))) {
-            float[][][] out = (float[][][]) result.get(0).getValue();
+            float[][][] out = (float[][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[out[0].length * out[0][0].length];
             int k = 0;
             for (float[] row : out[0]) {
@@ -750,7 +750,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
                      new long[]{1, MAX_SEQUENCE_LENGTH, emb.length / MAX_SEQUENCE_LENGTH});
              OrtSession.Result r = unetSession.run(java.util.Map.of(
                      "sample", x, "timestep", tT, "encoder_hidden_states", e))) {
-            float[][][][] out = (float[][][][]) r.get(0).getValue();
+            float[][][][] out = (float[][][][]) r.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             float[] flat = new float[LATENT_CHANNELS * latentH * latentW];
             int k = 0;
             for (int c = 0; c < LATENT_CHANNELS; c++) {
@@ -798,7 +798,7 @@ public class SmallStableDiffusionCombinedTranslator implements ITranslator<Objec
         try (OnnxTensor t = OnnxTensor.createTensor(env, java.nio.FloatBuffer.wrap(scaled),
                      new long[]{1, LATENT_CHANNELS, latentH, latentW});
              OrtSession.Result r = vaeSession.run(java.util.Map.of("latent_sample", t))) {
-            Object raw = r.get(0).getValue();
+            Object raw = r.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
             int imgH = height;
             int imgW = width;
             float[] rr = null, gg = null, bb = null;

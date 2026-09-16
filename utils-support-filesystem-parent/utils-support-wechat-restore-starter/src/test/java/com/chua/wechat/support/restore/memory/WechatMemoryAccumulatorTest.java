@@ -46,7 +46,7 @@ class WechatMemoryAccumulatorTest {
         WechatMemoryAccumulator.Snapshot snapshot =
                 WechatMemoryAccumulator.merge(result(msg(100, 0x5000L, 1, "2000", "new")), store, false);
         assertEquals(1, snapshot.messages().size());
-        assertEquals("new", snapshot.messages().get(0).content());
+        assertEquals("new", snapshot.messages().getFirst().content());
     }
 
     @Test
@@ -74,7 +74,7 @@ class WechatMemoryAccumulatorTest {
         assertEquals(1, second.addedMessages());
         assertEquals(2, second.messages().size());
         // 按时间升序
-        assertEquals("第一条", second.messages().get(0).content());
+        assertEquals("第一条", second.messages().getFirst().content());
         assertEquals("第二条", second.messages().get(1).content());
     }
 
@@ -94,7 +94,7 @@ class WechatMemoryAccumulatorTest {
         WechatMemoryAccumulator.Snapshot reloaded = WechatMemoryAccumulator.merge(
                 result(contact(100, 0x7000L)), store, true);
         assertEquals(1, reloaded.messages().size());
-        assertEquals(nasty, reloaded.messages().get(0).content());
+        assertEquals(nasty, reloaded.messages().getFirst().content());
     }
 
     @Test
@@ -183,7 +183,7 @@ class WechatMemoryAccumulatorTest {
                 result(cluster(100, 0x1000L, 1, 2, 3), msg(100, 0x5000L, 9, "1000", "hello")),
                 store, true);
         assertEquals(1, first.messages().size());
-        assertEquals("", first.messages().get(0).username());
+        assertEquals("", first.messages().getFirst().username());
 
         // 第二次扫描：同一个库簇这次带上了 id=9，同一条消息解析出了发送者。
         // 指纹相同 → 不能新增一条，而要「原地覆盖」掉那条没有发送者的，
@@ -194,7 +194,7 @@ class WechatMemoryAccumulatorTest {
                 store, true);
         assertEquals(0, second.addedMessages());
         assertEquals(1, second.messages().size());
-        assertEquals("wxid_9", second.messages().get(0).username());
+        assertEquals("wxid_9", second.messages().getFirst().username());
     }
 
     @Test
@@ -226,7 +226,7 @@ class WechatMemoryAccumulatorTest {
         List<WechatMemoryExtractor.ExtractResult> seen = new ArrayList<>();
         WechatMemoryExtractor.extractEach(List.of(), List.of(), false, seen::add);
         assertEquals(1, seen.size());
-        assertTrue(seen.get(0).records().isEmpty());
+        assertTrue(seen.getFirst().records().isEmpty());
     }
 
     /**

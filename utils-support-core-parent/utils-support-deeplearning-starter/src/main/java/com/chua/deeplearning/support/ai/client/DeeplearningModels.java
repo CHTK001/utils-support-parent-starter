@@ -143,6 +143,6 @@ public final class DeeplearningModels {
             return null;
         }
         String selected = com.chua.deeplearning.support.engine.ModelSelector.selectRecommended(ids, deviceSetting);
-        return selected != null ? selected : ids.get(0);
+        return selected != null ? selected : ids.getFirst();
     }
 }

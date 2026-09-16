@@ -75,7 +75,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
                             Object attr = attrs.get(j);
                             if (attr instanceof List<?> attrList && attrList.size() >= 2) {
                                 SearchFieldDef field = new SearchFieldDef();
-                                field.setName(attrList.get(0).toString());
+                                field.setName(attrList.getFirst().toString());
                                 field.setType(attrList.get(1).toString());
                                 if (attrList.size() > 2) {
                                     field.setWeight(Double.parseDouble(attrList.get(2).toString()));

@@ -83,7 +83,7 @@ class IbdSqlParserTest {
         List<Map<String, Object>> rows = new IbdDataRestore().parseSqlToRows(ACTOR_SQL);
 
         assertEquals(2, rows.size());
-        Map<String, Object> first = rows.get(0);
+        Map<String, Object> first = rows.getFirst();
         assertEquals(List.of("actor_id", "first_name", "last_name", "last_update"),
                 List.copyOf(first.keySet()));
         // 关键：值必须按列拆开，且字符串字面量的引号被去掉
@@ -98,7 +98,7 @@ class IbdSqlParserTest {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` varchar(50),\n  `c` int\n) ENGINE=InnoDB;"
                 + "\nINSERT INTO `t` VALUES (1,'a,b',2);";
 
-        Map<String, Object> row = new IbdDataRestore().parseSqlToRows(sql).get(0);
+        Map<String, Object> row = new IbdDataRestore().parseSqlToRows(sql).getFirst();
 
         assertEquals("a,b", row.get("b"), "引号内的逗号不能被当成字段分隔符");
         assertEquals("2", row.get("c"));
@@ -109,7 +109,7 @@ class IbdSqlParserTest {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` varchar(50)\n) ENGINE=InnoDB;"
                 + "\nINSERT INTO `t` VALUES (1,'it''s ok');";
 
-        assertEquals("it's ok", new IbdDataRestore().parseSqlToRows(sql).get(0).get("b"));
+        assertEquals("it's ok", new IbdDataRestore().parseSqlToRows(sql).getFirst().get("b"));
     }
 
     @Test
@@ -117,7 +117,7 @@ class IbdSqlParserTest {
         String sql = "CREATE TABLE t (\n  `a` int,\n  `b` point,\n  `c` int\n) ENGINE=InnoDB;"
                 + "\nINSERT INTO `t` VALUES (1,point(1,2),null);";
 
-        Map<String, Object> row = new IbdDataRestore().parseSqlToRows(sql).get(0);
+        Map<String, Object> row = new IbdDataRestore().parseSqlToRows(sql).getFirst();
 
         assertEquals("point(1,2)", row.get("b"), "函数调用里的逗号不能拆列");
         assertEquals("null", row.get("c"));
@@ -140,8 +140,8 @@ class IbdSqlParserTest {
                 "INSERT INTO `t` VALUES (1,'x');");
 
         assertEquals(1, rows.size());
-        assertEquals("1", rows.get(0).get("0"));
-        assertEquals("x", rows.get(0).get("1"));
+        assertEquals("1", rows.getFirst().get("0"));
+        assertEquals("x", rows.getFirst().get("1"));
     }
 
     @Test

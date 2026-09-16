@@ -39,9 +39,11 @@
       <module>utils-support-nitrite-starter</module>
       <module>utils-support-vector-starter</module>
       <module>utils-support-h2-starter</module>
+      <module>utils-support-rocksdb-starter</module>
     </modules>
     <properties>
         <nitrite.version>4.4.3</nitrite.version>
+        <rocksdb.version>9.7.3</rocksdb.version>
         <!-- SQL Server JDBC 驱动版本策略：mssql-jdbc 支持 SQL Server 2008 R2+ -->
         <mssql-jdbc.version>12.6.1.jre11</mssql-jdbc.version>
         <!-- jTDS 兼容层：支持 SQL Server 2000/2005 等老版本 -->

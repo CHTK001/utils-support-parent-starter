@@ -207,7 +207,7 @@ public class ApngUtils {
             try {
                 if (frames.size() == 1) {
                     // 单帧
-                    writer.write(frames.get(0));
+                    writer.write(frames.getFirst());
                 } else {
                     // 多帧动画
                     writer.prepareWriteSequence(null);

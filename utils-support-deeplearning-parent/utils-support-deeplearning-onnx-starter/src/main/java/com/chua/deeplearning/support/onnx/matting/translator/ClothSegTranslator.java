@@ -58,7 +58,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
 
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray raw = list.get(0); // [1, 4, 768, 768]
+        NDArray raw = list.getFirst(); // [1, 4, 768, 768]
         Shape s = raw.getShape();
         int h = (int) s.get(2);
         int w = (int) s.get(3);

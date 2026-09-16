@@ -166,20 +166,6 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         reg("face-anti-spoof", "com.chua.deeplearning.support.onnx.liveness.FlRgbLivenessTranslator", ai.djl.modality.cv.Image.class, Float.class, com.chua.deeplearning.support.liveness.LivenessDetector.class, "face/liveness/flrgb/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/face/liveness/flrgb/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/face/liveness/flrgb/model.onnx"), false, null);
         // 抠图(U2Net)：通用前景抠图，输出 alpha 通道（RGBA）；适用证件照处理、背景替换、电商抠图
         reg("matting", "com.chua.deeplearning.support.onnx.matting.translator.MattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/enhancement/seg_unet_sdk/u2net.onnx", "https://huggingface.co/onnx-community/u2net/resolve/main/onnx/model.onnx", false, null);
-        // 抠图(BiRefNet 小)：Swin-Tiny ~44M 参数 512×512，DIS SOTA 轻量版，嵌入式 + downloadUrl
-        reg("birefnet", "com.chua.deeplearning.support.onnx.matting.translator.BiRefNetTranslator",
-                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class,
-                "seg/birefnet/birefnet_small_512.onnx",
-                "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/birefnet/birefnet_small_512.onnx",
-                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/birefnet/birefnet_small_512.onnx"),
-                false, null);
-        // 抠图(BiRefNet 大)：Swin-Large ~0.2B 参数 1024×1024，DIS SOTA 高质量版，downloadUrl
-        reg("birefnet-large", "com.chua.deeplearning.support.onnx.matting.translator.BiRefNetTranslator",
-                ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class,
-                "seg/birefnet/birefnet_large_1024.onnx",
-                "https://huggingface.co/chtk/chua-dl-models/resolve/main/seg/birefnet/birefnet_large_1024.onnx",
-                java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/seg/birefnet/birefnet_large_1024.onnx"),
-                false, null);
         // 抠图(MODNet)：人像抠图/前景分割（~25MB），嵌入式 jar 版，来自 ModelScope；适用人像抠图、视频会议背景替换
         reg("modnet", "com.chua.deeplearning.support.onnx.matting.translator.DjlMattingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/matting/modnet/onnx/model.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/matting/modnet/onnx/model.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/matting/modnet/onnx/model.onnx"), false, null);
         // 抠图(RMBG-2.0)：BRIA 背景移除 v2.0，高质量抠图，需自动下载；适用电商图片、人像抠图
@@ -324,11 +310,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
         // 自动分割(FastSAM-s)：YOLOv8-seg 架构，自动检测并分割所有物体（~45MB，类无关）；适用全自动物体分割
         reg("fastsam", "com.chua.deeplearning.support.onnx.seg.FastSamSegmentTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/seg/fastsam/onnx/fastsam_s.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/seg/fastsam/onnx/fastsam_s.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/seg/fastsam/onnx/fastsam_s.onnx"), false, null);
         // 图像修复(LaMa)：去除图像中不需要的物体/水印，智能填充背景；适用图片修复、水印去除、物体移除
-        reg("lama-inpainting", "com.chua.deeplearning.support.onnx.inpainting.LamaInpaintingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageInpainter.class, "vision/inpainting/lama/model.onnx", "https://huggingface.co/onnx-community/lama-inpainting-ONNX/resolve/main/onnx/model.onnx", false, null);
-        // 图像修复(MiGAN-perf)：动态 H/W uint8 双输入（image+mask），28MB，支持任意尺寸修复；适用图片修复、水印去除、物体移除
-        reg("migan-perf", "com.chua.deeplearning.support.onnx.inpainting.MiganInpaintingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageInpainter.class, "vision/inpainting/migan/migan_perf.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/inpainting/migan/migan_perf.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/inpainting/migan/migan_perf.onnx"), false, null);
-        // 图像修复(MiGAN-pipeline-v2)：动态 H/W uint8 双输入（image+mask），27MB，效果与 perf 版几乎一致；适用图片修复、水印去除、物体移除
-        reg("migan-pipeline-v2", "com.chua.deeplearning.support.onnx.inpainting.MiganInpaintingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, com.chua.deeplearning.support.image.ImageInpainter.class, "vision/inpainting/migan/migan_pipeline_v2.onnx", "https://huggingface.co/chtk/chua-dl-models/resolve/main/vision/inpainting/migan/migan_pipeline_v2.onnx", java.util.List.of("https://hf-mirror.com/chtk/chua-dl-models/resolve/main/vision/inpainting/migan/migan_pipeline_v2.onnx"), false, null);
+        reg("lama-inpainting", "com.chua.deeplearning.support.onnx.inpainting.LamaInpaintingTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/inpainting/lama/model.onnx", "https://huggingface.co/onnx-community/lama-inpainting-ONNX/resolve/main/onnx/model.onnx", false, null);
         // 图像着色(DeOldify)：给黑白照片/视频自动上色，还原真实色彩；适用老照片修复、历史影像着色
         reg("image-colorize", "com.chua.deeplearning.support.onnx.colorize.ImageColorizeTranslator", ai.djl.modality.cv.Image.class, ai.djl.modality.cv.Image.class, Object.class, "vision/colorization/deoldify/model.onnx", "https://huggingface.co/bluefoxcreation/DeOldify-ONNX/resolve/main/DeOldify.onnx", false, null);
         // 动漫人脸检测(YOLOv8)：YOLOv8 架构的动漫人脸检测，精度更高；适用动漫人脸检测、二次元内容分析

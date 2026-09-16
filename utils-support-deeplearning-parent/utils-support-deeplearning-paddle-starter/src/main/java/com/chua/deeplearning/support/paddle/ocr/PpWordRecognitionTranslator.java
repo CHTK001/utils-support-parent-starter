@@ -93,7 +93,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     public String processOutput(TranslatorContext ctx, NDList list) {
         StringBuilder sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
-        long[] indices = tokens.get(0).argMax(1).toLongArray();
+        long[] indices = tokens.getFirst().argMax(1).toLongArray();
         boolean[] selection = new boolean[indices.length];
         Arrays.fill(selection, true);
         for (int i = 1; i < indices.length; i++) {

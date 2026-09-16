@@ -64,7 +64,7 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
                 return image;
             }
 
-            FaceInfo faceInfo = faceInfoList.get(0);
+            FaceInfo faceInfo = faceInfoList.getFirst();
             var rect = faceInfo.getRect();
             
             if (rect == null) {

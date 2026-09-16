@@ -40,18 +40,8 @@ public class OnnxSpeechSynthesizer implements SpeechSynthesizer {
     * 创建 onnx语音synthesizer 实例。
     *
     * @param apiKey API 密钥（本地引擎可留空）
-    * @return resolve模型的结果
-     /**
-    * onnx语音synthesizer。
-    * @param apiKey api键
-      */
-     * @param model 模型
-      * @return resolve模型的结果
-     /**
-     * onnx语音synthesizer。
-     * @param apiKey api键
-      */
-     */
+    * @param model 模型
+    */
     public OnnxSpeechSynthesizer(String apiKey) {
     }
 

@@ -6,16 +6,17 @@ import ai.djl.modality.cv.output.BoundingBox;
 import ai.djl.modality.cv.output.DetectedObjects;
 import ai.djl.modality.cv.output.Rectangle;
 import ai.djl.translate.Translator;
-import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.deeplearning.support.idcard.CnIdCardParser;
 import com.chua.deeplearning.support.idcard.CnIdCardResult;
 import com.chua.deeplearning.support.translator.ITranslator;
+import com.chua.common.support.reflection.ReflectUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,16 +58,7 @@ public class CnIdCardRecognizer {
     *
     * @param imageData 身份证正面或反面图片（JPG/PNG）
     * @return 解析结果列表（通常 1 条）
-    * @param data 数据
-     /**
-      * recognize。
-      * @param imageData 镜像数据
-      * @return recognize的结果
-      */
-     * @param img img
-     * @param cards 卡片
-     * @param modelId 模型标识
-     */
+    */
     public List<CnIdCardResult> recognize(byte[] imageData) {
         List<CnIdCardResult> results = new ArrayList<>();
         try {
@@ -165,11 +157,7 @@ public class CnIdCardRecognizer {
             if (entry == null) {
                 return null;
             }
-            Object translator = ReflectUtils.instantiate(entry.translatorClassName());
-            if (translator == null) {
-                throw new IllegalStateException("Translator 实例化失败: " + entry.translatorClassName());
-            }
-            return (ITranslator<I, O>) translator;
+            return ReflectUtils.instantiate(entry.translatorClassName());
         } catch (Exception e) {
             log.error("[CnIdCard] 创建 translator 失败: {}", e.getMessage(), e);
             return null;
@@ -177,8 +165,9 @@ public class CnIdCardRecognizer {
     }
 
     private List<BoundingBox> getBoundingBoxes(DetectedObjects cards) throws Exception {
-        Object value = ReflectUtils.getField(cards, "boundingBoxes");
-        return (List<BoundingBox>) value;
+        Field f = cards.getClass().getDeclaredField("boundingBoxes");
+        f.setAccessible(true);
+        return (List<BoundingBox>) f.get(cards);
     /**
     * 获取probabilities。
     * @param cards 卡片
@@ -189,8 +178,9 @@ public class CnIdCardRecognizer {
     }
 
     private List<Double> getProbabilities(DetectedObjects cards) throws Exception {
-        Object value = ReflectUtils.getField(cards, "probabilities");
-        return (List<Double>) value;
+        Field f = cards.getClass().getSuperclass().getDeclaredField("probabilities");
+        f.setAccessible(true);
+        return (List<Double>) f.get(cards);
     }
 
     private byte[] toByteArray(BufferedImage img) throws Exception {

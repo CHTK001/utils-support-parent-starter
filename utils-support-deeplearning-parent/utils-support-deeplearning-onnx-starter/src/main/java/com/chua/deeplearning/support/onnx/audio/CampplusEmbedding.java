@@ -141,7 +141,7 @@ public class CampplusEmbedding {
         try (OnnxTensor t = OnnxTensor.createTensor(ortEnv,
                 FloatBuffer.wrap(flat), shape);
              OrtSession.Result r = session.run(Map.of(inputName, t))) {
-            float[] emb = toFloatArray((OnnxTensor) r.get(0)); // [P3C 3.7 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
+            float[] emb = toFloatArray((OnnxTensor) r.get(0));
             l2Normalize(emb);
             return emb;
         } catch (Exception e) {
@@ -260,13 +260,10 @@ public class CampplusEmbedding {
     }
 
      /**
-     * fftradix2。
+     * fftradix2。Radix-2 迭代 FFT
      * @param frameSamples 帧样本
      * @param re re
      * @param im im
-      */
-     * Radix-2 迭代 FFT
-     *
      * @param mel mel
      * @return mel转为hertz的结果
      */
@@ -279,11 +276,18 @@ public class CampplusEmbedding {
         int j = 0;
         for (int i = 1; i < n; i++) {
             int bit = n >> 1;
-            while ((j & bit) != 0) { j ^= bit; bit >>= 1; }
+            while ((j & bit) != 0) {
+                j ^= bit;
+                bit >>= 1;
+            }
             j ^= bit;
             if (i < j) {
-                double tr = re[i]; re[i] = re[j]; re[j] = tr;
-                double ti = im[i]; im[i] = im[j]; im[j] = ti;
+                double tr = re[i];
+                re[i] = re[j];
+                re[j] = tr;
+                double ti = im[i];
+                im[i] = im[j];
+                im[j] = ti;
             }
         }
         for (int len = 2; len <= n; len <<= 1) {
@@ -296,11 +300,14 @@ public class CampplusEmbedding {
                     int u = i + jj, v = u + half;
                     double tR = cr * re[v] - ci * im[v];
                     double tI = cr * im[v] + ci * re[v];
-                    re[v] = re[u] - tR; im[v] = im[u] - tI;
-                    re[u] += tR; im[u] += tI;
+                    re[v] = re[u] - tR;
+                    im[v] = im[u] - tI;
+                    re[u] += tR;
+                    im[u] += tI;
                     double nr = cr * wr - ci * wi;
                     double ni = cr * wi + ci * wr;
-                    cr = nr; ci = ni;
+                    cr = nr;
+                    ci = ni;
                 /**
                 * 转为floatarray。
                 * @param t t

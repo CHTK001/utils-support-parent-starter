@@ -241,7 +241,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
         }
 
  // 输出 [1, num_boxes, 6]，用 转为floatarray 手动索引（规避 squeeze/获取 不支持）
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         long[] shape = output.getShape().getShape();
         int dims = shape.length;
         long numBoxes = dims >= 3 ? shape[1] : (dims >= 2 ? shape[0] : 1);

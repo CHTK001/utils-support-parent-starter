@@ -42,23 +42,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     private int kvDim = 128; // kvdim
     /**
     * 隐藏层数（从模型输入动态解析，0.5B=24 / 1.5B=28）
-    *
-     /**
-      * onnx通义千问translator。
-      */
-     * @param modelId 模型标识
-     * @param useGpu usegpu
-     * @param temperature temperature
-     * @param repeatPenalty repeat罚款
-     /**
-     * onnx通义千问translator。
-     * @param modelId 模型标识
-     * @param useGpu usegpu
-      */
-     * @param topK topk
-      * @param temperature temperature
-      * @param repeatPenalty repeat罚款
-     */
+    * @param modelId 模型标识
+    * @param useGpu usegpu
+    * @param temperature temperature
+    * @param repeatPenalty repeat罚款
+    * @param topK topk
+    */
     private int nLayers = 24;
 
     public OnnxQwenTranslator() {
@@ -257,12 +246,16 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 int next = nextToken(logits[0][last], tokens, promptLen);
 
                 if (isEos(next)) {
-                    for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                    for (OnnxTensor t : past.values()) {
+                        try { t.close(); } catch (Exception ignore) {}
+                    }
                     break;
                 }
                 String tokText = tokenizer.decode(new long[]{next});
                 if (tokText.contains("<|im_end|>") || tokText.contains("<|endoftext|>")) {
-                    for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                    for (OnnxTensor t : past.values()) {
+                        try { t.close(); } catch (Exception ignore) {}
+                    }
                     break;
                 }
                 out.append(tokText);
@@ -277,7 +270,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 // 收集 present -> 新 past（仅在被裁剪前）
                 // position_ids：新 token 的位置 = 当前已处理总长度（0-indexed）
                 long nextPos = totalSteps;
-                for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+                for (OnnxTensor t : past.values()) {
+                    try { t.close(); } catch (Exception ignore) {}
+                }
                 past = collectPast(result);
                 inputIds = new long[]{next};
                 attMask = new long[]{1L};
@@ -286,7 +281,9 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
                 first = false;
             }
         }
-        for (OnnxTensor t : past.values()) { try { t.close(); } catch (Exception ignore) {} }
+        for (OnnxTensor t : past.values()) {
+            try { t.close(); } catch (Exception ignore) {}
+        }
         return out.toString().trim();
     }
 
@@ -335,16 +332,12 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     /**
     * 检测已生成片段是否陷入退化解（重复/循环），用于提前终止。
     * @param logits logits
-     /**
-      * 是否degenerate。
-      * @param tokens 令牌
-      * @param promptLen 提示符len
-      * @return 是否degenerate的结果
-      */
-     * @return argmax的结果
-     * @param n n
-     * @param token 令牌
-     */
+    * @param tokens 令牌
+    * @param promptLen 提示符len
+    * @param n n
+    * @param token 令牌
+    * @return 是否degenerate的结果
+    */
     private static boolean isDegenerate(java.util.List<Long> tokens, int promptLen) {
         int gen = tokens.size() - promptLen;
         if (gen < 8) {

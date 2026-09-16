@@ -204,7 +204,7 @@ public class ApmCommand implements Command {
                     p.status()));
         }
         console.blank();
-        console.println("提示: 输入 'apm " + handlerNames().get(0) + "' 查看详细数据");
+        console.println("提示: 输入 'apm " + handlerNames().getFirst() + "' 查看详细数据");
     }
 
     /**

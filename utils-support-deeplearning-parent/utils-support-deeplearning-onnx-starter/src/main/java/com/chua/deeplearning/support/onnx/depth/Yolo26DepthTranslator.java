@@ -135,7 +135,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
                 new long[]{1, 3, MODEL_SIZE, MODEL_SIZE})) {
             var inputs = java.util.Map.of("images", inputTensor);
             try (OrtSession.Result result = session.run(inputs)) {
-                float[][][][] depthMap = (float[][][][]) result.get(0).getValue();
+                float[][][][] depthMap = (float[][][][]) result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
                 int h = depthMap[0][0].length;
                 int w = depthMap[0][0][0].length;
                 float[][] depth = depthMap[0][0];

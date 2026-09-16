@@ -58,7 +58,7 @@ public class SmolDoclingEmbedTranslator implements Translator<long[], SmolDoclin
         }
 
         //                   
-        NDArray embeddings = list.get(0);
+        NDArray embeddings = list.getFirst();
         long[] outputShape = embeddings.getShape().getShape();
 
         if (log.isDebugEnabled()) {

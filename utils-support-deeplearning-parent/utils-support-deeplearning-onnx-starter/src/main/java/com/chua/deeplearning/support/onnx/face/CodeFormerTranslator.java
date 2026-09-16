@@ -78,7 +78,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     /** 处理输出 */
     public Image processOutput(TranslatorContext ctx, NDList list) {
         // 模型输出 3 个：y(修复图) / logits / style_feat，取第一个 y
-        NDArray outputImg = list.get(0);
+        NDArray outputImg = list.getFirst();
 
         // 输出为 [1, 3, H, W] float，纯 Java 还原为 [0,255] RGB 图像
         Object arr = outputImg.toArray();

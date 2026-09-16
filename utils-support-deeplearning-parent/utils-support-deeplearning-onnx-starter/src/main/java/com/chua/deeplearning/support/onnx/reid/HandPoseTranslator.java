@@ -73,7 +73,7 @@ public class HandPoseTranslator implements Translator<Image, float[]> {
     /** 处理输出 */
     public float[] processOutput(TranslatorContext ctx, NDList list) {
         // Identity: [1, 63]     21              3 (x,y,z)
-        NDArray landmarks = list.get(0);
+        NDArray landmarks = list.getFirst();
         float[] landmarkData = landmarks.toFloatArray();
 
         // Identity_1: [1, 1]              

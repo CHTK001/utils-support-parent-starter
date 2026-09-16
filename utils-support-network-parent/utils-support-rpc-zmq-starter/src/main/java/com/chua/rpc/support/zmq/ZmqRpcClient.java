@@ -141,7 +141,7 @@ public class ZmqRpcClient implements RpcClient {
         this.appName = name;
         this.inlineEnabled = consumerConfig != null && Boolean.TRUE.equals(consumerConfig.getInline());
         String address = registryConfigs != null && !registryConfigs.isEmpty()
-                ? registryConfigs.get(0).getAddress() : null;
+                ? registryConfigs.getFirst().getAddress() : null;
         this.serviceDiscovery = initServiceDiscovery();
         // 直连地址仅在无服务发现或地址显式指定时使用；服务发现模式下地址可为空
         this.serverAddress = address != null && !address.isBlank()

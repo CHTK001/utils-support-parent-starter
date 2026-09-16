@@ -34,8 +34,8 @@ class WechatMemoryClusterTest {
         }
         List<WechatMemoryExtractor.IdCluster> clusters = WechatMemoryExtractor.buildClusters(records);
         assertEquals(1, clusters.size());
-        assertEquals(3, clusters.get(0).idMap().size());
-        assertEquals("wxid_user2", clusters.get(0).idMap().get(2));
+        assertEquals(3, clusters.getFirst().idMap().size());
+        assertEquals("wxid_user2", clusters.getFirst().idMap().get(2));
     }
 
     @Test
@@ -45,8 +45,8 @@ class WechatMemoryClusterTest {
         records.add(record(100, 0x2000L, "Name2Id", 2, "gh_official", "1"));
         List<WechatMemoryExtractor.IdCluster> clusters = WechatMemoryExtractor.buildClusters(records);
         assertEquals(1, clusters.size());
-        assertEquals(2, clusters.get(0).idMap().size());
-        assertEquals("gh_official", clusters.get(0).idMap().get(2));
+        assertEquals(2, clusters.getFirst().idMap().size());
+        assertEquals("gh_official", clusters.getFirst().idMap().get(2));
     }
 
     @Test
@@ -65,11 +65,11 @@ class WechatMemoryClusterTest {
         clusters.add(cluster(200, 0x8000000L, "wxid_other", 4, 5, 6));
         List<WechatMemoryExtractor.IdCluster> merged = WechatMemoryExtractor.mergeContiguous(clusters);
         assertEquals(1, merged.size());
-        assertEquals(6, merged.get(0).idMap().size());
+        assertEquals(6, merged.getFirst().idMap().size());
         // 合并后 id 空间连续覆盖 1..6，两端的名字都在
-        assertEquals("wxid_self", merged.get(0).idMap().get(1));
-        assertEquals("user6", merged.get(0).idMap().get(6));
-        assertEquals(2, merged.get(0).pages().size());
+        assertEquals("wxid_self", merged.getFirst().idMap().get(1));
+        assertEquals("user6", merged.getFirst().idMap().get(6));
+        assertEquals(2, merged.getFirst().pages().size());
     }
 
     @Test
@@ -98,7 +98,7 @@ class WechatMemoryClusterTest {
         clusters.add(cluster(300, 0xF000000L, "wxid_c", 5, 6));
         List<WechatMemoryExtractor.IdCluster> merged = WechatMemoryExtractor.mergeContiguous(clusters);
         assertEquals(1, merged.size());
-        assertEquals(6, merged.get(0).idMap().size());
+        assertEquals(6, merged.getFirst().idMap().size());
     }
 
     @Test

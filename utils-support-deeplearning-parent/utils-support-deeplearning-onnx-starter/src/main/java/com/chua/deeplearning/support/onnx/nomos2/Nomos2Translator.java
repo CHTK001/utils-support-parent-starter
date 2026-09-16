@@ -90,7 +90,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
             log.debug("                        ");
         }
 
-        NDArray array = list.get(0);
+        NDArray array = list.getFirst();
         long[] shape = array.getShape().getShape();
         if (log.isDebugEnabled()) {
             log.debug("       shape: {}, dtype: {}", array.getShape(), array.getDataType());

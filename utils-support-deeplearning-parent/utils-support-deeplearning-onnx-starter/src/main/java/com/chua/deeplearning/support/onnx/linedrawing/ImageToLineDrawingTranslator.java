@@ -123,7 +123,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
 
         //                                                       
         if (output.getShape().dimension() == 3) {
-            long channelSize = output.getShape().get(0);
+            long channelSize = output.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             if (channelSize == 1L) {
                 //             1 x H x W -> H x W x 1
                 output = output.squeeze(0).expandDims(-1);

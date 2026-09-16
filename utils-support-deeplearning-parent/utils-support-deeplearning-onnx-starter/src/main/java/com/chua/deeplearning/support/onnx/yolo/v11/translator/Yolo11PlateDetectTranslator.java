@@ -140,7 +140,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
 
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         long f0 = output.getShape().get(1);
         long f1 = output.getShape().get(2);
         boolean transposed = f0 < f1;
@@ -208,7 +208,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
      */
     private static NDArray toNormalizedChw(NDManager manager, NDArray hwc) {
         Shape shape = hwc.getShape();
-        int height = (int) shape.get(0);
+        int height = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int width = (int) shape.get(1);
         int channels = (int) shape.get(2);
         float[] source = hwc.toType(DataType.FLOAT32, false).toFloatArray();

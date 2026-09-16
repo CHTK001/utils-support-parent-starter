@@ -136,7 +136,7 @@ public class GitClientTest {
         }
         System.out.println("  区间日志条数: " + between.size());
 
-        LogEntry latest = all.get(0);
+        LogEntry latest = all.getFirst();
         assertOk("log 最新条目", latest.sha() != null && latest.author() != null);
     }
 
@@ -205,7 +205,7 @@ public class GitClientTest {
         List<TagInfo> afterCreate = client.tag().list();
         assertOk("tag create", afterCreate.size() == before + 1);
 
-        String tagName = afterCreate.get(0).name();
+        String tagName = afterCreate.getFirst().name();
         assertOk("tag name", "v1.0".equals(tagName));
 
         client.tag().delete("v1.0");

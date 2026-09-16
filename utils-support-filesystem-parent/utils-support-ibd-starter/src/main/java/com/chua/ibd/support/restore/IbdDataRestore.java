@@ -863,7 +863,7 @@ public class IbdDataRestore extends AbstractDataRestore {
         if (rows.isEmpty()) {
             return List.of();
         }
-        return new ArrayList<>(rows.get(0).keySet());
+        return new ArrayList<>(rows.getFirst().keySet());
     }
 
     /**

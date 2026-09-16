@@ -144,7 +144,7 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
-        NDArray output = list.get(0);
+        NDArray output = list.getFirst();
         float[] values = output.toFloatArray();
         long[] shape = output.getShape().getShape();
         int h = shape.length >= 2 ? (int) shape[shape.length - 2] : 1;
