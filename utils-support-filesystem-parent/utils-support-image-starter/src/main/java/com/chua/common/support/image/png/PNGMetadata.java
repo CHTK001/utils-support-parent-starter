@@ -324,7 +324,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     /** 文本_文本 */
     public ArrayList<String> tEXt_text = new ArrayList<String>();
 
- // 时间 chunk. Gives the 镜像 修改 时间.
+ // 时间块。给出图像的修改时间。
     /** 时间_present */
     public boolean tIME_present;
     /** 时间_year */
@@ -361,23 +361,23 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     public ZoneOffset creation_time_offset;
 
     /*
-    * 文本_创建_时间_present- Specifies whether 任意 文本 chunk (文本, itxt,
-    * ztxt) exists with 镜像 创建 时间. The 数据 结构 corresponding
-    * 转为 the 最后一个 decoded 文本 chunk with 创建 时间 是否 indicated by the
-    * 迭代器- 文本_创建_时间_iter.
+    * 文本_创建_时间_present - 指定是否存在任意文本块(文本、itxt、
+    * ztxt)含有图像创建时间。与之对应的数据结构
+    * 指向最后一个解码的文本块,由迭代器
+    *  文本_创建_时间_iter 指示。
     *
     * 对含创建时间的文本块所做的任何更新，都会反映到
-    * 标准/文档/镜像创建时间 之后 retrieving 时间 从 the 文本
-    * chunk. If there are 多个 文本 chunks with 创建 时间, the 时间
-    * retrieved 从 the 最后一个 decoded 文本 chunk will be used. A point 转为 笔记
-    * 是否 that, retrieval 的 时间 从 文本 chunks 是否 possible only if the
-    * encoded 时间 入 the chunk confirms 转为 either the recommended RFC1123
-    * 格式化 或 ISO 格式化.
+    * 标准/文档/图像创建时间的检索时间上。
+    * 若存在多个含创建时间的文本块,则使用
+    * 最后一个解码文本块的时间。注意:
+    * 仅当编码入文本块的时间符合
+    * 推荐的 RFC1123
+    * 格式化或 ISO 格式化时,才能检索该时间。
     *
-    * Similarly, 任意 更新 转为 标准/文档/镜像创建时间 是否 reflected
-    * on the 最后一个 decoded 文本 chunk's 数据 结构 with 时间 encoded 入
-    * RFC1123 格式化. By 更新 the 文本 chunk's 数据 结构, we also
-    * ensure that png镜像writer will 写入 镜像 创建 时间 on the 输出.
+    * 同理,对标准/文档/图像创建时间的任意更新,都会反映到
+    * 最后一个解码文本块的数据结构上,其中时间以
+    * RFC1123 格式化编码。通过更新文本块的数据结构,
+    * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
      */
     public boolean tEXt_creation_time_present;
     /** 文本_创建_时间_iter */
@@ -418,7 +418,7 @@ public boolean tRNS_present;
  // actl chunk
     /** actl_present */
     public boolean acTL_present;
-    /** actl_num_帧 */
+    /** actl_num_frames */
     public int acTL_num_frames;
     /** actl_num_plays */
     public int acTL_num_plays;
@@ -432,9 +432,9 @@ public boolean tRNS_present;
     public int fcTL_width;
     /** fctl_height */
     public int fcTL_height;
-    /** fcTL x 偏移量 */
+    /** fcTL x 偏移 */
     public int fcTL_x_offset;
-    /** fcTL y 偏移量 */
+    /** fcTL y 偏移 */
     public int fcTL_y_offset;
     /** fctl_延迟_num */
     public int fcTL_delay_num;
@@ -501,7 +501,7 @@ public boolean tRNS_present;
     /**
     * 初始化
     *
-    * @param imageType 镜像类型
+    * @param imageType 图像类型
     * @param numBands numbands
      */
     public void initialize(ImageTypeSpecifier imageType, int numBands) {
@@ -511,7 +511,7 @@ public boolean tRNS_present;
     /**
     * 设置 IHDR_bitDepth 和 IHDR_colorType 变量。
     * The {@code numBands} 参数 是否 necessary 自
-    * we may only be 写入 a subset 的 the 镜像 bands.
+    * 可能仅写入图像波段的一个子集。
     * @param colorModel color模型
     * @param sampleModel 样本模型
     * @param numBands numbands
@@ -584,12 +584,12 @@ public boolean tRNS_present;
             }
 
             /*
-              * NB: PNG_COLOR_GRAY_ALPHA color 类型 may be not optimal for 镜像
+              * 注意: PNG_COLOR_GRAY_ALPHA 颜色类型可能不适合用于图像
               * contained more than 1024 pixels (或 even than 768 pixels 入 大小写 的
               * 单个 transparent pixel 入 palette).
-              * For such 镜像 alpha 样本 入 raster will occupy more space than
-              * it 是否 required 转为 存储 palette so it could be ReasonML 转为
-              * use PNG_COLOR_PALETTE color 类型 for large 镜像.
+              * 对于此类图像, alpha 样本在光栅中将占用比
+              * 所需更多的空间来存储调色板,因此可以考虑
+              * 对大图像使用 PNG_COLOR_PALETTE 颜色类型。
              */
 
             if (isGray && hasAlpha && (bitDepth == 8 || bitDepth == 16)) {
@@ -614,8 +614,8 @@ public boolean tRNS_present;
  // come 第一个.  自 the trns chunk 执行 not have
                     // to store trailing 255's, this can save a
  // considerable amount 的 space When.js.js 编码
- // 镜像 with only one transparent pixel 值,
- // e.g., 镜像 从 GIF 源.
+ // 仅含一个透明像素值的图像,
+ // 例如来自 GIF 源的图像。
 
                     byte[] newAlpha = new byte[alpha.length];
 
@@ -681,7 +681,7 @@ public boolean tRNS_present;
     /**
     * 是否读取Only
     *
-    * @return 是否读取only的结果
+    * @return 是否仅读取的结果
      */
     public boolean isReadOnly() {
         return false;
@@ -1386,12 +1386,12 @@ public boolean tRNS_present;
     public IIOMetadataNode getStandardDocumentNode() {
         IIOMetadataNode document_node = null;
 
- // 检查 if 镜像 修改 时间 exists
+ // 检查图像修改时间是否存在
         if (tIME_present) {
  // 创建 新 文档 节点
             document_node = new IIOMetadataNode("Document");
 
- // 节点 转为 hold 镜像 修改 时间
+ // 保存图像修改时间的节点
             IIOMetadataNode node = new IIOMetadataNode("ImageModificationTime");
             node.setAttribute("year", Integer.toString(tIME_year));
             node.setAttribute("month", Integer.toString(tIME_month));
@@ -1402,14 +1402,14 @@ public boolean tRNS_present;
             document_node.appendChild(node);
         }
 
- // 检查 if 镜像 创建 时间 exists
+ // 检查图像创建时间是否存在
         if (creation_time_present) {
             if (document_node == null) {
  // 创建 新 文档 节点
                 document_node = new IIOMetadataNode("Document");
             }
 
- // 节点 转为 hold 镜像 创建 时间
+ // 保存图像创建时间的节点
             IIOMetadataNode node = new IIOMetadataNode("ImageCreationTime");
             node.setAttribute("year", Integer.toString(creation_time_year));
             node.setAttribute("month", Integer.toString(creation_time_month));
@@ -1964,9 +1964,9 @@ public boolean tRNS_present;
                         String text = getAttribute(iTXt_node, "text");
                         iTXt_text.add(text);
 
- // 检查 if the 文本 chunk contains 镜像 创建 时间
+ // 检查文本块是否包含图像创建时间
                         if (keyword.equals(PNGMetadata.tEXt_creationTimeKey)) {
- // 更新 标准/文档/镜像创建时间
+ // 更新标准/文档/图像创建时间
                             int index = iTXt_text.size()-1;
                             decodeImageCreationTimeFromTextChunk(
                                     iTXt_text.listIterator(index));
@@ -2100,9 +2100,9 @@ public boolean tRNS_present;
                     String text = getAttribute(tEXt_node, "value");
                     tEXt_text.add(text);
 
- // 检查 if the 文本 chunk contains 镜像 创建 时间
+ // 检查文本块是否包含图像创建时间
                     if (keyword.equals(PNGMetadata.tEXt_creationTimeKey)) {
- // 更新 标准/文档/镜像创建时间
+ // 更新标准/文档/图像创建时间
                         int index = tEXt_text.size()-1;
                         decodeImageCreationTimeFromTextChunk(
                                 tEXt_text.listIterator(index));
@@ -2197,9 +2197,9 @@ public boolean tRNS_present;
                     String text = getAttribute(zTXt_node, "text");
                     zTXt_text.add(text);
 
- // 检查 if the 文本 chunk contains 镜像 创建 时间
+ // 检查文本块是否包含图像创建时间
                     if (keyword.equals(PNGMetadata.tEXt_creationTimeKey)) {
- // 更新 标准/文档/镜像创建时间
+ // 更新标准/文档/图像创建时间
                         int index = zTXt_text.size()-1;
                         decodeImageCreationTimeFromTextChunk(
                                 zTXt_text.listIterator(index));
@@ -2307,9 +2307,9 @@ public boolean tRNS_present;
     * 参见: http://www.w3.org/TR/PNG/#11keywords
      */
     /**
-    * 是否validkeyword。
+    * 是否为有效关键字。
     * @param s s
-    * @return 是否validkeyword的结果
+    * @return 是否为有效关键字的结果
      */
     private boolean isValidKeyword(String s) {
         int len = s.length();
@@ -2335,7 +2335,7 @@ public boolean tRNS_present;
     * 是否isolatin。
     * @param s s
     * @param isLineFeedAllowed 是否线feedallowed
-    * @return 是否isolatin的结果
+    * @return 是否为 ISO 拉丁字符的结果
      */
     private boolean isISOLatin(String s, boolean isLineFeedAllowed) {
         int len = s.length();
@@ -2555,7 +2555,7 @@ public boolean tRNS_present;
                     pHYs_present = true;
                     pHYs_unitSpecifier = 0;
 
- // 查找 a ReasonMLML 理性的 approximation
+ // 查找合理的近似值
                     int denom = 1;
                     for (; denom < 100; denom++) {
                         int num = (int)(aspectRatio*denom);
@@ -2592,8 +2592,8 @@ public boolean tRNS_present;
                         int sec   = getIntAttribute(child, "second", 0, false);
 
                         /*
-    * 更新 标准/文档/镜像创建时间 和 encode
-    * the same 入 the 最后一个 decoded 文本 chunk with 创建
+    * 更新标准/文档/图像创建时间并编码
+    * 与最后一个解码的含创建时间的文本块相同
     * 时间
                          */
                         initImageCreationTime(year, month, day, hour, mins, sec);
@@ -2665,7 +2665,7 @@ public boolean tRNS_present;
     void initImageCreationTime(OffsetDateTime offsetDateTime) {
  // 检查 for 收入 参数
         if (offsetDateTime != null) {
- // 设置 值 that make up 标准/文档/镜像创建时间
+ // 设置构成标准/文档/图像创建时间的各个值
             creation_time_present = true;
             creation_time_year    = offsetDateTime.getYear();
             creation_time_month   = offsetDateTime.getMonthValue();
@@ -2681,7 +2681,7 @@ public boolean tRNS_present;
             int hour, int min,int second) {
         /*
           * 虽然本地日期时间足以存储标准/文档/
-          * 镜像创建时间，但我们还需要时区偏移量来将该时间按 RFC1123 格式
+          * 图像创建时间,但我们还需要时区偏移量来将该时间按 RFC1123 格式
           * 编码到文本块中。
          */
         LocalDateTime locDT = LocalDateTime.of(year, month, day, hour, min, second);
@@ -2696,25 +2696,25 @@ public boolean tRNS_present;
  // 检查 for 收入 参数
         if (iterChunk != null && iterChunk.hasNext()) {
             /*
-              * 保存 the 迭代器 转为 mark the 最后一个 decoded 文本 chunk with
+              * 保存迭代器,以标记最后一个解码的含创建时间的文本块
               * 创建 时间. The 内容 的 this chunk will be 更新 When.js
               * 用户 provides 创建 时间 by 合并 a 标准 树 with
               * 标准/文档/镜像创建时间.
              */
             setCreationTimeChunk(iterChunk);
 
- // 解析 encoded 时间 和 设置 标准/文档/镜像创建时间.
+ // 解析编码时间并设置标准/文档/图像创建时间。
             String encodedTime = getEncodedTime();
             initImageCreationTime(parseEncodedTime(encodedTime));
         }
     }
 
     void encodeImageCreationTimeToTextChunk() {
- // 检查 if 标准/文档/镜像创建时间 exists.
+ // 检查标准/文档/图像创建时间是否存在。
         if (creation_time_present) {
  // 检查 if a 文本 chunk with 创建 时间 exists.
             if (!tEXt_creation_time_present) {
- // No 文本 chunk exists with 镜像 创建 时间. 添加 an entry.
+ // 不存在包含图像创建时间的文本块。添加一项。
                 this.tEXt_keyword.add(tEXt_creationTimeKey);
                 this.tEXt_text.add("Creation Time Place Holder");
 
@@ -2723,7 +2723,7 @@ public boolean tRNS_present;
                 setCreationTimeChunk(tEXt_text.listIterator(index));
             }
 
- // Encode 镜像 创建 时间 with RFC1123 formatter
+ // 使用 RFC1123 格式化器编码图像创建时间
             OffsetDateTime offDateTime = OffsetDateTime.of(creation_time_year,
                     creation_time_month, creation_time_day,
                     creation_time_hour, creation_time_minute,
@@ -2790,7 +2790,7 @@ public boolean tRNS_present;
         boolean timeDecoded = false;
 
         /*
-          * PNG specification recommends that 镜像 编码器 use RFC1123 格式化
+          * PNG 规范建议图像编码器使用 RFC1123 格式化
           * 转为 represent 时间 入 字符串 but doesn't mandate. 编码器 could
           * use 任意 convenient 格式化. Hence, we extract 时间 provided the
           * encoded 时间 complies with either RFC1123 或 ISO 标准.
@@ -2834,7 +2834,7 @@ public boolean tRNS_present;
                tRNS_colorType == PNG.PNG_COLOR_GRAY);
     }
 
- // Reset 全部 instance 变量 转为 their initial 状态
+ // 将所有实例变量重置为初始状态
     /** 重置 */
     public void reset() {
         IHDR_present = false;
@@ -2858,9 +2858,9 @@ public boolean tRNS_present;
         sRGB_present = false;
         tEXt_keyword = new ArrayList<String>();
         tEXt_text = new ArrayList<String>();
- // 时间 chunk with 镜像 修改 时间
+ // 时间块(含图像修改时间)
         tIME_present = false;
- // 文本 chunk with 镜像 创建 时间
+ // 文本块(含图像创建时间)
         tEXt_creation_time_present = false;
         tEXt_creation_time_iter = null;
         creation_time_present = false;

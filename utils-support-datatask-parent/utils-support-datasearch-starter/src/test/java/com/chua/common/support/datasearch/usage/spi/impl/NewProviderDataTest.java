@@ -10,6 +10,8 @@ import com.chua.common.support.datasearch.plugin.spi.PluginOfflineProvider;
 import com.chua.common.support.datasearch.plugin.spi.PluginOnlineProvider;
 import com.chua.common.support.datasearch.skill.spi.SkillOfflineProvider;
 import com.chua.common.support.datasearch.usage.spi.UsageParser;
+import com.chua.common.support.datasearch.video.model.VipParseResult;
+import com.chua.common.support.datasearch.video.spi.VipParseService;
 import com.chua.common.support.spi.ServiceProvider;
 
 import java.io.File;
@@ -85,6 +87,7 @@ public final class NewProviderDataTest {
             hermeticPlugin(key);
         }
         verifyMcpProviders();
+        verifyVipParsers();
     }
 
     private static void hermeticUsage(String key, FixtureWriter writer, Map<String, String> envSuffix) {
@@ -284,6 +287,68 @@ public final class NewProviderDataTest {
             verifyRealPlugin(key);
         }
         verifyMcpProviders();
+        verifyVipParsers();
+    }
+
+    /**
+     * VIP 解析体系 hermetic 验收：验证 VipParseService 来源路由、
+     * DirectVipParser 直链正例/非直链反例、JsonApiVipParser 路由可达。
+     */
+    private static void verifyVipParsers() {
+        VipParseService svc = new VipParseService();
+
+        // 直链正例：.mp4 / .m3u8 / .ts 各一条
+        VipParseResult mp4 = svc.parse("direct", "https://cdn.example.com/v/2026/sample.mp4");
+        check(mp4.isSuccess(), "vip[direct] .mp4 直链解析成功");
+        check(mp4.getPlayAddresses() != null && mp4.getPlayAddresses().size() == 1,
+                "vip[direct] 返回 1 条播放地址");
+        if (mp4.getPlayAddresses() != null && !mp4.getPlayAddresses().isEmpty()) {
+            var addr = mp4.getPlayAddresses().get(0);
+            check("direct".equals(addr.getVideoPlayAddressCode()), "vip[direct] 播放地址 code=direct");
+            check(addr.getVideoPlayAddressChannels() != null && addr.getVideoPlayAddressChannels().size() == 1,
+                    "vip[direct] 渠道列表含 1 条线路");
+            check("https://cdn.example.com/v/2026/sample.mp4".equals(
+                    addr.getVideoPlayAddressChannels().get(0).getVideoPlayAddressUrl()),
+                    "vip[direct] 线路 URL 回传正确");
+        }
+
+        VipParseResult m3u8 = svc.parse("direct", "https://hls.example.com/live/index.m3u8");
+        check(m3u8.isSuccess(), "vip[direct] .m3u8 直链解析成功");
+
+        VipParseResult ts = svc.parse("direct", "https://hls.example.com/seg/001.ts");
+        check(ts.isSuccess(), "vip[direct] .ts 直链解析成功");
+
+        // 非直链反例：视频页 URL 不应被 direct 解析器接受
+        VipParseResult page = svc.parse("direct", "https://www.bilibili.com/video/BV1xx411c7mD");
+        check(!page.isSuccess(), "vip[direct] 视频页 URL 解析失败（非直链）");
+        check(page.getErrorMessage() != null && page.getErrorMessage().contains("非直链"),
+                "vip[direct] 失败信息说明非直链格式");
+
+        // 带 query 的直链：.mp4? 仍识别
+        VipParseResult query = svc.parse("direct", "https://cdn.example.com/v/a.mp4?sign=abc&expires=1700");
+        check(query.isSuccess(), "vip[direct] .mp4?query 直链解析成功");
+
+        // 空 URL 边界
+        VipParseResult empty = svc.parse("direct", "");
+        check(!empty.isSuccess(), "vip[direct] 空 URL 解析失败");
+
+        // 未知来源：无匹配解析器
+        VipParseResult unknown = svc.parse("no-such-source", "https://cdn.example.com/a.mp4");
+        check(!unknown.isSuccess(), "vip[unknown] 未知来源解析失败");
+        check(unknown.getErrorMessage() != null && unknown.getErrorMessage().contains("无匹配来源"),
+                "vip[unknown] 失败信息说明无匹配来源");
+
+        // JsonApiVipParser 注册可达（仅验证路由，不触发真实 HTTP 网络调用）
+        com.chua.common.support.datasearch.video.spi.VipParser jsonParser =
+                com.chua.common.support.spi.ServiceProvider
+                        .of(com.chua.common.support.datasearch.video.spi.VipParser.class)
+                        .getExtension("json");
+        check(jsonParser != null, "vip[json] JsonApiVipParser SPI 注册存在");
+        if (jsonParser != null) {
+            check(jsonParser.supports("json"), "vip[json] supports(json)=true");
+            check(jsonParser.supports("generic"), "vip[json] supports(generic)=true");
+            check(!jsonParser.supports("direct"), "vip[json] supports(direct)=false");
+        }
     }
 
     private static void verifyRealPlugin(String key) {

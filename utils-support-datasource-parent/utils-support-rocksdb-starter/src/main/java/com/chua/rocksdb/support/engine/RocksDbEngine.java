@@ -1,41 +1,45 @@
 package com.chua.rocksdb.support.engine;
 
-import com.chua.common.support.lang.datasource.search.DocumentStore;
-import com.chua.common.support.lang.datasource.search.FulltextSearch;
-import com.chua.common.support.lang.datasource.kv.KvEngine;
 import com.chua.common.support.lang.datasource.engine.Engine;
 import com.chua.common.support.lang.datasource.engine.EngineDataSource;
 import com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql;
 import com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql;
+import com.chua.common.support.lang.datasource.kv.KvEngine;
+import com.chua.common.support.lang.datasource.search.DocumentStore;
+import com.chua.common.support.lang.datasource.search.FulltextSearch;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.datasource.support.engine.AbstractEngine;
 import com.chua.rocksdb.support.datasource.RocksDbEngineDataSource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.rocksdb.Options;
+import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
+import org.rocksdb.WriteBatch;
 import org.rocksdb.WriteOptions;
-import org.rocksdb.DB;
-import org.rocksdb.Options;
-import org.rocksdb.RBatch;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RocksDB 引擎实现（嵌入式本地文件目录）。
  * <p>
- * RocksDB 为 LSM-Tree 键值数据库，本引擎不伪装 ORM，而是暴露真实领域 API：
+ * RocksDB 为 LSM-Tree 键值数据库，本引擎暴露真实领域 API：
  * 字节 KV（{@link #putBytes} / {@link #getBytes} / {@link #deleteBytes} / {@link #scanBytes}）、
  * 字符串 KV（{@link KvEngine}）、批量写入（{@link #writeBatch}）、
- * 文档存储（{@link DocumentStore}，JSON 序列化）、全文检索（{@link FulltextSearch}，倒排索引）。
- * Lambda 查询/存储等接口按语义显式拒绝（与 hbaseengine 同风格）。
- * SPI 键 {@code "rocksdb"}；数据源支持传入目录路径或现成 {@code DB} 实例。
+ * 文档存储（{@link DocumentStore}，JSON 序列化）、全文检索（{@link FulltextSearch}，倒排索引），
+ * 以及 Lambda ORM（{@link #executeNewQuery} / {@link #executeUpdate} / {@link #executeDelete} /
+ * {@link #store}，基于 {@code RocksDbOrmStore} 前缀扫描 + 内存 WHERE 过滤，键 布局
+ * {@code ORM:<table>:<id>}，实体 JSON 序列化，行 级 原子 批量 回写）。
+ * SPI 键 {@code "rocksdb"}；数据源支持传入目录路径或现成 {@code RocksDB} 实例。
  * </p>
  *
  * @author CH
@@ -56,7 +60,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     /** 字符串键值映射表，键为数据源名称 */
     private final ConcurrentHashMap<String, Map<String, String>> stringStores = new ConcurrentHashMap<>();
     /** RocksDB 数据库映射表，键为数据源名称 */
-    private final ConcurrentHashMap<String, DB> databases = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, RocksDB> databases = new ConcurrentHashMap<>();
 
     /**
      * 添加一个 RocksDB 数据源。
@@ -66,7 +70,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return this
      */
     public RocksDbEngine addDataSource(String name, String path) {
-        DB db;
+        RocksDB db;
         try {
             db = openDatabase(path);
         } catch (RocksDBException e) {
@@ -84,7 +88,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @param path 数据库目录路径
      * @return this
      */
-    public RocksDbEngine addDataSource(String name, DB db, String path) {
+    public RocksDbEngine addDataSource(String name, RocksDB db, String path) {
         register(name, db, path);
         return this;
     }
@@ -97,7 +101,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @param path 数据库目录路径
      * @return this
      */
-    private RocksDbEngine register(String name, DB db, String path) {
+    private RocksDbEngine register(String name, RocksDB db, String path) {
         databases.put(name, db);
         stringStores.put(name, new ConcurrentHashMap<>());
         super.addDataSource(name, new RocksDbEngineDataSource(name, path, db));
@@ -111,9 +115,10 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 打开的数据库实例
      * @throws RocksDBException 打开失败
      */
-    private static DB openDatabase(String path) throws RocksDBException {
+    private static RocksDB openDatabase(String path) throws RocksDBException {
         RocksDB.loadLibrary();
         try (Options options = new Options()) {
+            options.setCreateIfMissing(true);
             return RocksDB.open(options, path);
         }
     }
@@ -124,7 +129,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @param name 数据源名称
      * @return 数据库实例
      */
-    public DB getDB(String name) {
+    public RocksDB getDB(String name) {
         return databases.get(name);
     }
 
@@ -133,7 +138,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      *
      * @return 数据库实例
      */
-    private DB currentDB() {
+    private RocksDB currentDB() {
         if (defaultDataSourceName == null) {
             if (databases.isEmpty()) {
                 return null;
@@ -163,13 +168,13 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     /**
      * 字节写入（真实 放入）。
      *
-     * @param name    数据源名称
-     * @param key     键（字节）
-     * @param value   值（字节）
+     * @param name  数据源名称
+     * @param key   键（字节）
+     * @param value 值（字节）
      * @return this
      */
     public RocksDbEngine putBytes(String name, byte[] key, byte[] value) {
-        DB db = requireDB(name);
+        RocksDB db = requireDB(name);
         try {
             db.put(key, value);
             return this;
@@ -186,7 +191,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 值字节，不存在返回 空
      */
     public byte[] getBytes(String name, byte[] key) {
-        DB db = requireDB(name);
+        RocksDB db = requireDB(name);
         try {
             return db.get(key);
         } catch (RocksDBException e) {
@@ -202,7 +207,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return this
      */
     public RocksDbEngine deleteBytes(String name, byte[] key) {
-        DB db = requireDB(name);
+        RocksDB db = requireDB(name);
         try {
             db.delete(key);
             return this;
@@ -218,7 +223,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 键值对列表
      */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name) {
-        DB db = requireDB(name);
+        RocksDB db = requireDB(name);
         List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -236,7 +241,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return 匹配前缀的键值对列表
      */
     public List<Map.Entry<byte[], byte[]>> scanBytes(String name, byte[] prefix) {
-        DB db = requireDB(name);
+        RocksDB db = requireDB(name);
         List<Map.Entry<byte[], byte[]>> rows = new ArrayList<>();
         try (RocksIterator iter = db.newIterator()) {
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
@@ -254,8 +259,9 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @return this
      */
     public RocksDbEngine writeBatch(String name, List<byte[][]> ops) {
-        DB db = requireDB(name);
-        try (RBatch batch = db.batch()) {
+        RocksDB db = requireDB(name);
+        WriteBatch batch = new WriteBatch();
+        try {
             for (byte[][] op : ops) {
                 if (op[0][0] == 0) {
                     batch.put(op[1], op[2]);
@@ -269,6 +275,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             return this;
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB writeBatch 失败", e);
+        } finally {
+            batch.close();
         }
     }
 
@@ -278,8 +286,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @param name 数据源名称
      * @return 数据库实例
      */
-    private DB requireDB(String name) {
-        DB db = databases.get(name);
+    private RocksDB requireDB(String name) {
+        RocksDB db = databases.get(name);
         if (db == null) {
             throw new IllegalArgumentException(ERROR_DATASOURCE_NOT_FOUND + name);
         }
@@ -377,9 +385,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /** 插入 */
-    @SuppressWarnings("unchecked")
     public <T> T insert(String collection, T document) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             throw new IllegalStateException("RocksDB 数据源未连接");
         }
@@ -391,15 +398,14 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB 文档插入失败: " + key, e);
         }
-        buildFtsIndex(db, collection, docMap);
+        buildFtsIndex(db, collection, docMap, key);
         return document;
     }
 
     @Override
     /** 查找byid */
-    @SuppressWarnings("unchecked")
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             return null;
         }
@@ -417,9 +423,8 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /** 更新 */
-    @SuppressWarnings("unchecked")
     public <T> T update(String collection, Object id, T document) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             return null;
         }
@@ -431,18 +436,21 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             }
             Map<String, Object> docMap = toDocumentMap(document);
             db.put(key.getBytes(StandardCharsets.UTF_8), toJson(docMap).getBytes(StandardCharsets.UTF_8));
-            removeFtsIndex(db, collection, new String(existing, StandardCharsets.UTF_8));
-            buildFtsIndex(db, collection, docMap);
+            Map<String, Object> oldDoc = MAPPER.readValue(new String(existing, StandardCharsets.UTF_8), Map.class);
+            removeFtsIndex(db, collection, oldDoc, key);
+            buildFtsIndex(db, collection, docMap, key);
             return document;
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB 文档更新失败: " + key, e);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("RocksDB 文档更新失败: 反序列化旧文档", e);
         }
     }
 
     @Override
     /** 删除 */
     public boolean delete(String collection, Object id) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             return false;
         }
@@ -453,18 +461,20 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
                 return false;
             }
             db.delete(key.getBytes(StandardCharsets.UTF_8));
-            removeFtsIndex(db, collection, new String(existing, StandardCharsets.UTF_8));
+            Map<String, Object> oldDoc = MAPPER.readValue(new String(existing, StandardCharsets.UTF_8), Map.class);
+            removeFtsIndex(db, collection, oldDoc, key);
             return true;
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB 文档删除失败: " + key, e);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("RocksDB 文档删除失败: 反序列化旧文档", e);
         }
     }
 
     @Override
     /** 查找全部 */
-    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             return Collections.emptyList();
         }
@@ -489,30 +499,45 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
 
     @Override
     /** 搜索 */
-    @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
 
     @Override
     /** 搜索 */
-    @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null || query == null || query.isBlank()) {
             return Collections.emptyList();
         }
-        String collection = resolveCollection(entityClass);
-        byte[] ftsKey = (FTS_PREFIX + collection + ":" + normalizeToken(query)).getBytes(StandardCharsets.UTF_8);
+        String token = normalizeToken(query);
+        byte[] ftsPrefix = FTS_PREFIX.getBytes(StandardCharsets.UTF_8);
         List<T> results = new ArrayList<>();
         try (RocksIterator iter = db.newIterator()) {
-            for (iter.seek(ftsKey); iter.isValid() && startsWith(iter.key(), ftsKey) && results.size() < limit; iter.next()) {
-                String docKey = new String(iter.value(), StandardCharsets.UTF_8);
-                byte[] docValue = db.get(docKey.getBytes(StandardCharsets.UTF_8));
-                if (docValue != null) {
-                    results.add(fromJson(new String(docValue, StandardCharsets.UTF_8), entityClass));
+            for (iter.seek(ftsPrefix); iter.isValid() && startsWith(iter.key(), ftsPrefix); iter.next()) {
+                byte[] ftsKeyBytes = iter.key();
+                String keyStr = new String(ftsKeyBytes, StandardCharsets.UTF_8);
+                // 精确匹配 FTS_<collection>:<token>
+                if (!keyStr.endsWith(":" + token)) {
+                    continue;
+                }
+                String rawValue = new String(iter.value(), StandardCharsets.UTF_8);
+                // 值可能是逗号分隔的多个文档键
+                for (String docKeyStr : rawValue.split(",")) {
+                    if (docKeyStr.isEmpty()) {
+                        continue;
+                    }
+                    byte[] docValue = db.get(docKeyStr.getBytes(StandardCharsets.UTF_8));
+                    if (docValue != null) {
+                        results.add(fromJson(new String(docValue, StandardCharsets.UTF_8), entityClass));
+                        if (results.size() >= limit) {
+                            return results;
+                        }
+                    }
                 }
             }
+        } catch (RocksDBException e) {
+            throw new IllegalStateException("RocksDB 全文检索失败: " + query, e);
         }
         return results;
     }
@@ -520,24 +545,27 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     @Override
     /** 删除全文索引 */
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
-        DB db = currentDB();
+        RocksDB db = currentDB();
         if (db == null) {
             return;
         }
         String collection = resolveCollection(entityClass);
         byte[] prefix = (FTS_PREFIX + collection + ":").getBytes(StandardCharsets.UTF_8);
+        List<byte[]> keys = new ArrayList<>();
         try (RocksIterator iter = db.newIterator()) {
-            List<byte[]> keys = new ArrayList<>();
             for (iter.seek(prefix); iter.isValid() && startsWith(iter.key(), prefix); iter.next()) {
                 keys.add(iter.key());
             }
-            try (RBatch batch = db.batch()) {
-                for (byte[] key : keys) {
-                    batch.delete(key);
-                }
-                try (WriteOptions writeOptions = new WriteOptions()) {
-                    db.write(writeOptions, batch);
-                }
+        }
+        if (keys.isEmpty()) {
+            return;
+        }
+        try (WriteBatch batch = new WriteBatch()) {
+            for (byte[] key : keys) {
+                batch.delete(key);
+            }
+            try (WriteOptions writeOptions = new WriteOptions()) {
+                db.write(writeOptions, batch);
             }
         } catch (RocksDBException e) {
             throw new IllegalStateException("RocksDB 全文索引删除失败: " + collection, e);
@@ -547,22 +575,42 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     // ==================== 全文索引辅助方法 ====================
 
     /**
-     * 为文档构建全文倒排索引。
+     * 为文档构建全文倒排索引（原子批量写入）。
+     * <p>FTS 键格式：{@code FTS_<collection>:<token>}，值为文档键（支持多值：逗号分隔）。</p>
      *
      * @param db         数据库实例
      * @param collection 集合名
      * @param docMap     文档映射
+     * @param docKey     文档键
      */
-    private void buildFtsIndex(DB db, String collection, Map<String, Object> docMap) {
-        try (RBatch batch = db.batch()) {
-            for (Map.Entry<String, Object> entry : docMap.entrySet()) {
-                if (entry.getValue() instanceof String text) {
-                    for (String token : tokenize(text)) {
-                        byte[] ftsKey = (FTS_PREFIX + collection + ":" + token).getBytes(StandardCharsets.UTF_8);
-                        byte[] docKey = (DOC_PREFIX + collection + ":" + docMap.get("id")).getBytes(StandardCharsets.UTF_8);
-                        batch.put(ftsKey, docKey);
-                    }
+    private void buildFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey) {
+        Set<String> tokenSet = new LinkedHashSet<>();
+        for (Map.Entry<String, Object> entry : docMap.entrySet()) {
+            if (entry.getValue() instanceof String text) {
+                for (String token : tokenize(text)) {
+                    tokenSet.add(collection + ":" + token);
                 }
+            }
+        }
+        if (tokenSet.isEmpty()) {
+            return;
+        }
+        try (WriteBatch batch = new WriteBatch()) {
+            for (String ck : tokenSet) {
+                byte[] ftsKey = (FTS_PREFIX + ck).getBytes(StandardCharsets.UTF_8);
+                // 读取已有值并追加当前文档键（逗号分隔）
+                byte[] existing = db.get(ftsKey);
+                String newVal;
+                if (existing == null || existing.length == 0) {
+                    newVal = docKey;
+                } else {
+                    String existingStr = new String(existing, StandardCharsets.UTF_8);
+                    if (existingStr.contains(docKey)) {
+                        continue;
+                    }
+                    newVal = existingStr + "," + docKey;
+                }
+                batch.put(ftsKey, newVal.getBytes(StandardCharsets.UTF_8));
             }
             try (WriteOptions writeOptions = new WriteOptions()) {
                 db.write(writeOptions, batch);
@@ -573,31 +621,51 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
     }
 
     /**
-     * 移除文档的全文倒排索引。
+     * 移除文档的全文倒排索引（原子批量删除）。
+     * <p>从多值 FTS 条目中移除指定文档键，条目为空时删除整个 FTS 键。</p>
      *
      * @param db         数据库实例
      * @param collection 集合名
-     * @param json       文档 JSON
+     * @param docMap     文档映射
+     * @param docKey     文档键
      */
-    private void removeFtsIndex(DB db, String collection, String json) {
-        try {
-            Map<String, Object> docMap = MAPPER.readValue(json, Map.class);
-            byte[] docKey = (DOC_PREFIX + collection + ":" + docMap.get("id")).getBytes(StandardCharsets.UTF_8);
-            try (RBatch batch = db.batch()) {
-                for (Map.Entry<String, Object> entry : docMap.entrySet()) {
-                    if (entry.getValue() instanceof String text) {
-                        for (String token : tokenize(text)) {
-                            byte[] ftsKey = (FTS_PREFIX + collection + ":" + token).getBytes(StandardCharsets.UTF_8);
-                            batch.delete(ftsKey);
-                        }
-                    }
-                }
-                try (WriteOptions writeOptions = new WriteOptions()) {
-                    db.write(writeOptions, batch);
+    private void removeFtsIndex(RocksDB db, String collection, Map<String, Object> docMap, String docKey) {
+        Set<String> tokenSet = new LinkedHashSet<>();
+        for (Map.Entry<String, Object> entry : docMap.entrySet()) {
+            if (entry.getValue() instanceof String text) {
+                for (String token : tokenize(text)) {
+                    tokenSet.add(collection + ":" + token);
                 }
             }
-        } catch (Exception ignored) {
-            // 索引清理失败不影响主流程
+        }
+        if (tokenSet.isEmpty()) {
+            return;
+        }
+        try (WriteBatch batch = new WriteBatch()) {
+            for (String ck : tokenSet) {
+                byte[] ftsKey = (FTS_PREFIX + ck).getBytes(StandardCharsets.UTF_8);
+                byte[] existing = db.get(ftsKey);
+                if (existing == null) {
+                    continue;
+                }
+                String existingStr = new String(existing, StandardCharsets.UTF_8);
+                List<String> remaining = new ArrayList<>();
+                for (String dk : existingStr.split(",")) {
+                    if (!dk.equals(docKey)) {
+                        remaining.add(dk);
+                    }
+                }
+                if (remaining.isEmpty()) {
+                    batch.delete(ftsKey);
+                } else {
+                    batch.put(ftsKey, String.join(",", remaining).getBytes(StandardCharsets.UTF_8));
+                }
+            }
+            try (WriteOptions writeOptions = new WriteOptions()) {
+                db.write(writeOptions, batch);
+            }
+        } catch (RocksDBException e) {
+            throw new IllegalStateException("RocksDB 全文索引移除失败: " + collection, e);
         }
     }
 
@@ -638,6 +706,17 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
         return AbstractEngine.resolveTableName(entityClass);
     }
 
+    /**
+     * 解析实体类对应的表名（委托基类静态方法，供 ORM 存储复用）。
+     *
+     * @param entityClass 实体类
+     * @param <T> 实体类型
+     * @return 表名
+     */
+    public static <T> String resolveTableName(Class<T> entityClass) {
+        return AbstractEngine.resolveTableName(entityClass);
+    }
+
     // ==================== 文档序列化辅助方法 ====================
 
     /**
@@ -646,6 +725,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      * @param source 源对象
      * @return 文档映射
      */
+    @SuppressWarnings("unchecked")
     private static Map<String, Object> toDocumentMap(Object source) {
         if (source instanceof Map<?, ?> map) {
             Map<String, Object> result = new LinkedHashMap<>();
@@ -654,11 +734,7 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
             }
             return result;
         }
-        try {
-            return MAPPER.convertValue(source, Map.class);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("不支持的文档类型: " + source.getClass().getName(), e);
-        }
+        return MAPPER.convertValue(source, Map.class);
     }
 
     /**
@@ -685,62 +761,197 @@ public class RocksDbEngine extends AbstractEngine implements KvEngine, DocumentS
      */
     @SuppressWarnings("unchecked")
     private static <T> T fromJson(String json, Class<T> documentClass) {
-        if (documentClass == Map.class) {
-            try {
-                return documentClass.cast(MAPPER.readValue(json, Map.class));
-            } catch (JsonProcessingException e) {
-                throw new IllegalStateException("文档反序列化失败", e);
-            }
-        }
         try {
+            if (documentClass == Map.class) {
+                return (T) MAPPER.readValue(json, Map.class);
+            }
             return MAPPER.readValue(json, documentClass);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("文档反序列化失败: " + documentClass.getName(), e);
         }
     }
 
-    // ==================== 接口语义：显式拒绝 ====================
+    // ==================== Lambda ORM 支持 ====================
 
     /**
-     * RocksDB 无 ORM：请使用 putBytes()/getBytes()/insert() 等真实领域 API。
+     * RocksDB ORM 走 内存 分页（前缀 扫描 后 截取），不支持 数据库 物理 分页 计数。
+     *
+     * @param entityClass 实体 类 类型
+     * @return false
+     */
+    @Override
+    protected boolean supportsNativePaging(Class<?> entityClass) {
+        return false;
+    }
+
+    /**
+     * 获取当前默认数据源对应的 ORM 存储。
+     *
+     * @return ORM 存储实例，未连接时返回 空
+     */
+    private RocksDbOrmStore ormStore() {
+        RocksDB db = currentDB();
+        return db == null ? null : new RocksDbOrmStore(db);
+    }
+
+    /**
+     * 持久化 实体 列表 到 RocksDB（表名 取 {@code name}，行 键 按 实体 id 或 自增 序号 分配）。
+     *
+     * @param name 表名
+     * @param data 实体 列表
+     * @param <T>  实体 类型
+     * @return this
      */
     @Override
     public <T> Engine store(String name, List<T> data) {
-        throw new UnsupportedOperationException(
-                "RocksDbEngine 不支持内存存储/ORM。请使用 putBytes()/getBytes()/insert() 等真实领域 API。");
+        RocksDbOrmStore store = ormStore();
+        if (store == null) {
+            throw new IllegalStateException("RocksDB 数据源未连接");
+        }
+        store.store(name, data);
+        return this;
     }
 
     /**
-     * RocksDB 无 SQL 查询：请使用 scanBytes() 或 查找全部()。
+     * 执行 实体 查询：RocksDB 前缀 扫描 + 可选 WHERE 内存 过滤。
+     *
+     * @param where       WHERE 子句
+     * @param params      参数 数组
+     * @param entityClass 实体 类 类型
+     * @param limit       限制
+     * @param offset      偏移 量
+     * @param <T>         实体 类型
+     * @return 查询 结果
      */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
-        throw new UnsupportedOperationException(
-                "RocksDB 无 SQL 查询。请使用 scanBytes() 或 findAll(collection, class) 真实 API。");
+        RocksDbOrmStore store = ormStore();
+        if (store == null) {
+            return Collections.emptyList();
+        }
+        List<Object> paramList = params != null ? java.util.Arrays.asList(params) : Collections.emptyList();
+        return store.query(where, paramList, entityClass, limit, offset);
     }
 
     /**
-     * RocksDB 无 更新：请使用 update() 文档 API 或 放入 覆盖写。
+     * 执行 实体 更新：WHERE 过滤 命中 行，应用 SET 字段 后 原子 回写 RocksDB。
+     * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
+     * {@code beforeUpdate / afterUpdate / onError}。</p>
+     *
+     * @param sql 更新 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
      */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
-        throw new UnsupportedOperationException(
-                "RocksDB 无 UPDATE。覆盖写使用 putBytes() 相同键即可，文档更新使用 update()。");
+        String ql = sql.whereClause();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
+        for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            interceptor.beforeUpdate(ql, params);
+        }
+        try {
+            int affected = executeUpdateInRocks(sql);
+            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+                interceptor.afterUpdate(ql, params, affected);
+            }
+            return affected;
+        } catch (RuntimeException re) {
+            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
     }
 
     /**
-     * RocksDB 无 SQL 删除：请使用 deleteBytes() 或 删除()。
+     * RocksDB ORM 更新 核心 逻辑（解析 SET 子句 + WHERE 参数，回写 命中 行）。
+     *
+     * @param sql 更新 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
+    private <T> int executeUpdateInRocks(UpdateSql<T> sql) {
+        RocksDbOrmStore store = ormStore();
+        if (store == null) {
+            throw new IllegalStateException("RocksDB 数据源未连接");
+        }
+        // 解析 SET 子句 与 WHERE 参数 边界（与 基类 内存 实现 同 语法）
+        java.util.Map<String, Object> setValues = new java.util.LinkedHashMap<>();
+        String setClause = sql.setClause();
+        int setCount = 0;
+        if (setClause != null && !setClause.isEmpty()) {
+            String[] setParts = setClause.split(", ");
+            setCount = setParts.length;
+            java.util.List<Object> allParams = sql.params();
+            for (int i = 0; i < setCount; i++) {
+                int eqIdx = setParts[i].indexOf(" = ");
+                if (eqIdx > 0) {
+                    setValues.put(setParts[i].substring(0, eqIdx), allParams.get(i));
+                }
+            }
+        }
+        java.util.List<Object> whereParams;
+        java.util.List<Object> allParams = sql.params() == null ? java.util.Collections.emptyList() : sql.params();
+        if (allParams.size() > setCount) {
+            whereParams = allParams.subList(setCount, allParams.size());
+        } else {
+            whereParams = java.util.Collections.emptyList();
+        }
+        return store.update(sql.whereClause(), whereParams, setValues, sql.entityClass());
+    }
+
+    /**
+     * 执行 实体 删除：WHERE 过滤 命中 行，原子 移除 RocksDB 对应 键。
+     * <p>执行前后 依次 回调 {@code EngineInterceptor} 扩展 的
+     * {@code beforeUpdate / afterUpdate / onError}。</p>
+     *
+     * @param sql 删除 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
      */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
-        throw new UnsupportedOperationException(
-                "RocksDB 无 SQL DELETE。请使用 deleteBytes() 或 delete(collection, id) 真实 API。");
+        String ql = sql.whereClause();
+        Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
+        List<com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor> interceptorList = interceptors();
+        for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+            interceptor.beforeUpdate(ql, params);
+        }
+        try {
+            int affected = executeDeleteInRocks(sql);
+            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+                interceptor.afterUpdate(ql, params, affected);
+            }
+            return affected;
+        } catch (RuntimeException re) {
+            for (com.chua.common.support.lang.datasource.engine.interceptor.EngineInterceptor interceptor : interceptorList) {
+                interceptor.onError(ql, params, re);
+            }
+            throw re;
+        }
+    }
+
+    /**
+     * RocksDB ORM 删除 核心 逻辑（WHERE 过滤 命中 行，原子 移除 键）。
+     *
+     * @param sql 删除 SQL 信息
+     * @param <T> 实体 类型
+     * @return 影响 行数
+     */
+    private <T> int executeDeleteInRocks(DeleteSql<T> sql) {
+        RocksDbOrmStore store = ormStore();
+        if (store == null) {
+            throw new IllegalStateException("RocksDB 数据源未连接");
+        }
+        java.util.List<Object> paramList = sql.params() == null ? java.util.Collections.emptyList() : sql.params();
+        return store.delete(sql.whereClause(), paramList, sql.entityClass());
     }
 
     /** 关闭所有数据源连接 */
     @Override
     public void close() {
-        for (DB db : databases.values()) {
+        for (RocksDB db : databases.values()) {
             try {
                 db.close();
             } catch (Exception ignored) {

@@ -1,6 +1,7 @@
 {
   "files": [
-    "META-INF/extensions/com.chua.common.support.lang.datasource.engine.Engine"
+    "META-INF/extensions/com.chua.common.support.lang.datasource.engine.Engine",
+    "META-INF/extensions/com.chua.common.support.lang.datasource.kv.KvEngine"
   ],
   "jsonConfigs": [
     {

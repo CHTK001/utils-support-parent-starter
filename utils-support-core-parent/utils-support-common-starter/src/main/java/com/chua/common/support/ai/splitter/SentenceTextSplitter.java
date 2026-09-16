@@ -44,27 +44,36 @@ public class SentenceTextSplitter implements TextSplitter {
     private final int maxChunkSize;
 
     /**
-    * 块重叠大小
+     * 分块类型标识：句子边界分块。
+     */
+    private static final String CHUNK_TYPE_SENTENCE = "sentence";
+
+    /**
+     * 块重叠大小
      */
     private final int chunkOverlap;
 
-    /** 创建 SentenceTextSplitter 实例 */
+    /**
+     * 使用默认块大小创建实例。
+     */
     public SentenceTextSplitter() {
         this(DEFAULT_MAX_CHUNK_SIZE, 0);
     }
 
     /**
-    * 创建 SentenceTextSplitter 实例
-    * @param maxChunkSize maxChunkSize
+     * 使用指定最大块大小创建实例（无重叠）。
+     *
+     * @param maxChunkSize 最大块大小（字符），最小为 1，小于 1 时按 1 处理
      */
     public SentenceTextSplitter(int maxChunkSize) {
         this(maxChunkSize, 0);
     }
 
     /**
-    * 创建 SentenceTextSplitter 实例
-    * @param maxChunkSize maxChunkSize
-    * @param maxChunkSize int
+     * 使用指定最大块大小与重叠大小创建实例。
+     *
+     * @param maxChunkSize 最大块大小（字符），最小为 1，小于 1 时按 1 处理
+     * @param chunkOverlap 相邻块重叠字符数，最小为 0，负值按 0 处理
      */
     public SentenceTextSplitter(int maxChunkSize, int chunkOverlap) {
         this.maxChunkSize = Math.max(1, maxChunkSize);
@@ -73,14 +82,19 @@ public class SentenceTextSplitter implements TextSplitter {
 
     @Override
     @Nonnull
-    /** 分割 */
+    /**
+     * 按句子边界切分文本为若干块。
+     *
+     * @param text 待切分文本，不能为 null；空白文本返回空列表
+     * @return 分块列表（不可变），空文本时返回空列表；非空时至少 1 个分块
+     */
     public List<TextChunk> split(@Nonnull String text) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
 
         if (text.length() <= maxChunkSize) {
-            return List.of(new TextChunk(0, 0, text.length(), text.strip(), "sentence"));
+            return List.of(new TextChunk(0, 0, text.length(), text.strip(), CHUNK_TYPE_SENTENCE));
         }
 
         int cursor = 0;
@@ -91,17 +105,20 @@ public class SentenceTextSplitter implements TextSplitter {
         while (cursor < len) {
             int end = Math.min(cursor + maxChunkSize, len);
             int cut = findSentenceBoundary(text, cursor, end);
+            // 防死循环：cut 必须严格大于 cursor（句界不得紧贴 cursor，否则 cursor 原地踏步）
             if (cut <= cursor) {
                 cut = end;
             }
             String segment = text.substring(cursor, cut).strip();
             if (!segment.isEmpty()) {
-                result.add(new TextChunk(index++, cursor, cut, segment, "sentence"));
+                result.add(new TextChunk(index++, cursor, cut, segment, CHUNK_TYPE_SENTENCE));
             }
-            cursor = cut - chunkOverlap;
-            if (cursor < 0) {
-                cursor = cut;
+            int nextCursor = cut - chunkOverlap;
+            // 防死循环：overlap 不得使 cursor 回退到不前进的位置
+            if (nextCursor <= cursor) {
+                nextCursor = cut;
             }
+            cursor = nextCursor;
         }
 
         return Collections.unmodifiableList(result);
@@ -121,7 +138,8 @@ public class SentenceTextSplitter implements TextSplitter {
             int idx = text.lastIndexOf(delim, hardEnd - 1);
             if (idx >= start) {
                 int end = idx + delim.length();
-                if (end > best && end <= hardEnd) {
+                // 仅当句界严格落在 (start, hardEnd] 区间内才考虑，且需让 cursor 严格前进
+                if (end > best && end <= hardEnd && end > start) {
                     best = end;
                 }
             }
