@@ -182,7 +182,7 @@ public class FilePushBenchmark {
         push(source, target, FilePushConfig.DEFAULT_CHUNK_SIZE, 0, true, true);
 
         // 改动 1 个、删除 1 个：二次扫描到 199 个，其中 1 个需重推、198 个未变更
-        Files.write(source.resolve(names.get(0)), randomBytes(8192));
+        Files.write(source.resolve(names.getFirst()), randomBytes(8192));
         Files.delete(source.resolve(names.get(1)));
 
         PushResult result = push(source, target, FilePushConfig.DEFAULT_CHUNK_SIZE, 0, true, true);
@@ -195,8 +195,8 @@ public class FilePushBenchmark {
                 names.get(5) + " 应存在");
         ok &= check("cleanup: 源端已删文件被清理", !Files.exists(target.resolve(names.get(1))),
                 names.get(1) + " 应被删除");
-        ok &= check("cleanup: 变更文件内容已更新", Files.size(target.resolve(names.get(0))) == 8192,
-                "size=" + safeSize(target.resolve(names.get(0))));
+        ok &= check("cleanup: 变更文件内容已更新", Files.size(target.resolve(names.getFirst())) == 8192,
+                "size=" + safeSize(target.resolve(names.getFirst())));
         record("增量 + 清理共存", result, ok);
     }
 

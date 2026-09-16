@@ -453,7 +453,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
         if (rows == null || rows.isEmpty()) {
             return 0L;
         }
-        Object value = rows.get(0).values().iterator().next();
+        Object value = rows.getFirst().values().iterator().next();
         return value instanceof Number number ? number.longValue() : Long.parseLong(String.valueOf(value));
     }
 

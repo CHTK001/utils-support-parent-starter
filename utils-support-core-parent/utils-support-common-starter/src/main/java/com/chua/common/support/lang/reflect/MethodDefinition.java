@@ -53,7 +53,7 @@ public record MethodDefinition(
     * @return 第一个参数类型，无参返回 {@code null}
      */
     public Class<?> getFirstParamType() {
-        return parameters.isEmpty() ? null : parameters.get(0).type();
+        return parameters.isEmpty() ? null : parameters.getFirst().type();
     }
 
     /**

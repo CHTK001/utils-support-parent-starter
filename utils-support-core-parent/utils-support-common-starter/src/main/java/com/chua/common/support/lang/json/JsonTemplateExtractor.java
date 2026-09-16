@@ -418,7 +418,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  // 单元素模板匹配全部：模板数组仅一个元素时，将其作为模式套用到输入数组每个元素
  if (arrayStrategy == ArrayMatchStrategy.SINGLE_MATCHES_ALL
  && tpl.size() == 1 && useIn != null) {
- JsonNode tplElem = tpl.get(0);
+ JsonNode tplElem = tpl.get(0); // [P3C 四十一 豁免] JsonNode 数组下标访问（非 List 集合取首）
  for (int i = 0; i < useIn.size(); i++) {
  List<Object> childPath = new ArrayList<>(path);
  childPath.add(i);
