@@ -80,14 +80,14 @@ public class SentenceTextSplitter implements TextSplitter {
         this.chunkOverlap = Math.max(0, chunkOverlap);
     }
 
-    @Override
-    @Nonnull
     /**
      * 按句子边界切分文本为若干块。
      *
      * @param text 待切分文本，不能为 null；空白文本返回空列表
      * @return 分块列表（不可变），空文本时返回空列表；非空时至少 1 个分块
      */
+    @Override
+    @Nonnull
     public List<TextChunk> split(@Nonnull String text) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();

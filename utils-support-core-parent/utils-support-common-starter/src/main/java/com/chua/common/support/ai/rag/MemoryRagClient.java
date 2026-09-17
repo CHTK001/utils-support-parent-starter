@@ -517,29 +517,46 @@ public class MemoryRagClient implements RagClient {
     }
 
     /**
-    * 读取指定文档的原始文件内容。
-    *
-    * @param docId 文档 ID
-    * @return 文档文本；文档不存在或文件丢失时返回 {@code null}
+     * 读取指定文档的原始文件内容。
+     *
+     * @param docId 文档 ID
+     * @return 文档文本；文档不存在或文件丢失时返回空字符串（不为 null）
      */
     @Override
     public String readDocumentContent(String docId) {
         Optional<RagDocument> opt = documents.stream().filter(d -> d.id().equals(docId)).findFirst();
         if (opt.isEmpty()) {
-            return null;
+            return "";
         }
         try {
             byte[] data = uploadProvider.read(docId);
-            return data != null ? new String(data, StandardCharsets.UTF_8) : null;
+            return data != null ? new String(data, StandardCharsets.UTF_8) : "";
         } catch (Exception e) {
-            return null;
+            return "";
         }
     }
 
     /**
-    * 获取客户端配置。
-    *
-    * @return 配置对象
+     * 读取指定文档的原始字节（图片二进制等，供前端渲染）。
+     * <p>从上传落盘位置读取原文件，文档不存在或读取失败时返回长度为 0 的数组（不为 null）。</p>
+     *
+     * @param docId 文档 ID
+     * @return 文档原始字节；不存在或读取失败时返回空数组
+     */
+    @Override
+    public byte[] readDocumentBytes(String docId) {
+        try {
+            byte[] data = uploadProvider.read(docId);
+            return data != null ? data : new byte[0];
+        } catch (Exception e) {
+            return new byte[0];
+        }
+    }
+
+    /**
+     * 获取客户端配置。
+     *
+     * @return 配置对象
      */
     @Override
     public RagClientSetting getSetting() {
