@@ -23,7 +23,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     * 使用指定比较器创建排序列表。
     *
     * @param comparator 用于排序的比较器
-     */
+    */
     public SortedArrayList(Comparator<? super E> comparator) {
         this.comparator = comparator;
     }
@@ -33,7 +33,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param comparator      用于排序的比较器
     * @param initialCapacity 初始容量
-     */
+    */
     public SortedArrayList(Comparator<? super E> comparator, int initialCapacity) {
         super(initialCapacity);
         this.comparator = comparator;
@@ -44,7 +44,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param comparator 用于排序的比较器
     * @param c          初始集合，其中的元素会被排序
-     */
+    */
     public SortedArrayList(Comparator<? super E> comparator, Collection<? extends E> c) {
         super(c);
         this.comparator = comparator;
@@ -56,7 +56,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @return 第一个元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     @Override
     public E first() {
         if (isEmpty()) {
@@ -70,7 +70,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @return 最后一个元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     @Override
     public E last() {
         if (isEmpty()) {
@@ -84,7 +84,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param e 要添加的元素
     * @return true
-     */
+    */
     @Override
     public boolean add(E e) {
         int index = findInsertionIndex(e);
@@ -97,7 +97,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param index   忽略，实际插入位置由排序决定
     * @param element 要添加的元素
-     */
+    */
     @Override
     public void add(int index, E element) {
         int insertIndex = findInsertionIndex(element);
@@ -109,7 +109,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param c 要添加的集合
     * @return 如果集合非空返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean addAll(Collection<? extends E> c) {
         for (E e : c) {
@@ -124,7 +124,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     * @param index 忽略
     * @param c     要添加的集合
     * @return 如果集合非空返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         for (E e : c) {
@@ -139,7 +139,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     * @param index   要替换的位置索引
     * @param element 新元素
     * @return 被替换的旧元素
-     */
+    */
     @Override
     public E set(int index, E element) {
         E old = remove(index);
@@ -151,7 +151,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     * 使用指定比较器重新排序列表（覆盖 {@link ArrayList#sort}）。
     *
     * @param c 用于排序的比较器
-     */
+    */
     @Override
     public void sort(Comparator<? super E> c) {
         super.sort(c);
@@ -166,7 +166,7 @@ public class SortedArrayList<E> extends ArrayList<E> implements SortedList<E> {
     *
     * @param e 要插入的元素
     * @return 插入位置的索引（始终为非负数）
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private int findInsertionIndex(E e) {
         if (comparator != null) {

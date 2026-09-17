@@ -25,17 +25,17 @@ public class DispatcherFlow {
 
     /**
     * 已注册的分发器提供者列表
-     */
+    */
     private final List<DispatcherProvider> providers = new CopyOnWriteArrayList<>();
 
     /**
     * 订阅者对象与其注册定义列表的映射，用于卸载
-     */
+    */
     private final Map<Object, List<DispatcherDefinition>> subscriberDefinitions = new ConcurrentHashMap<>();
 
     /**
     * 创建一个分发器入口，自动注册默认的内存分发器。
-     */
+    */
     public DispatcherFlow() {
         this(true);
     }
@@ -44,7 +44,7 @@ public class DispatcherFlow {
     * 创建一个分发器入口。
     *
     * @param withDefault 是否注册默认的内存分发器
-     */
+    */
     public DispatcherFlow(boolean withDefault) {
         if (withDefault) {
             register(new MemoryDispatcherProvider(DispatcherConfig.builder().build()));
@@ -55,7 +55,7 @@ public class DispatcherFlow {
     * 注册一个分发器提供者。
     *
     * @param provider 分发器提供者实例
-     */
+    */
     public void register(DispatcherProvider provider) {
         providers.add(provider);
         log.info("已注册分发器：{}", provider.getClass().getSimpleName());
@@ -66,7 +66,7 @@ public class DispatcherFlow {
     *
     * @param topic 目标主题
     * @param body  消息体
-     */
+    */
     public void publish(String topic, Object body) {
         for (var provider : providers) {
             provider.publish(topic, body);
@@ -87,7 +87,7 @@ public class DispatcherFlow {
     * @param subscriber 订阅者实例对象
     * @return 注册定义列表
     * @throws IllegalArgumentException 当 subscriber 为 Class 或接口时抛出
-     */
+    */
     public List<DispatcherDefinition> register(Object subscriber) {
         if (subscriber instanceof Class) {
             throw new IllegalArgumentException("不支持注册 Class 类型，请传入实例对象");
@@ -129,7 +129,7 @@ public class DispatcherFlow {
     * 卸载订阅者对象，遍历所有定义并调用每个 Provider 的 unsubscribe。
     *
     * @param subscriber 订阅者对象
-     */
+    */
     public void unregister(Object subscriber) {
         var definitions = subscriberDefinitions.remove(subscriber);
         if (definitions == null) {
@@ -148,7 +148,7 @@ public class DispatcherFlow {
     *
     * @param type SPI 类型标识，为空时返回第一个 Provider
     * @return 匹配的 Provider 列表
-     */
+    */
     private List<DispatcherProvider> resolveProviders(String type) {
         if (type == null || type.isEmpty()) {
             return providers.isEmpty() ? List.of() : List.of(providers.getFirst());
@@ -170,7 +170,7 @@ public class DispatcherFlow {
 
     /**
     * 关闭所有已注册的分发器提供者。
-     */
+    */
     public void close() {
         for (var provider : providers) {
             try {

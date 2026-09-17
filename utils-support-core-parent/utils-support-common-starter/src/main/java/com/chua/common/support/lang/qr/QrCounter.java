@@ -20,6 +20,6 @@ public interface QrCounter {
     * @param bufferedImage 待处理的图像对象，不能为 null
     * @return 包含二维码识别结果的数组；如果未检测到任何二维码，则返回空数组
     * @throws IllegalArgumentException 当输入图像为 null 时抛出
-     */
+    */
     QrResult[] countQr(BufferedImage bufferedImage);
 }

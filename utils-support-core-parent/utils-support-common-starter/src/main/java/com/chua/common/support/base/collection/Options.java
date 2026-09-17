@@ -19,7 +19,7 @@ public class Options {
     *
     * @param options 变长字符串参数
     * @return Options 实例
-     */
+    */
     public static Options of(String... options) {
         Options o = new Options();
         for (String opt : options) {
@@ -30,7 +30,7 @@ public class Options {
 
     /**
     * @return 内部字符串列表
-     */
+    */
     public List<String> getOptions() {
         return options;
     }
@@ -39,7 +39,7 @@ public class Options {
     * 按 (index, value) 形式遍历所有选项。
     *
     * @param consumer 下标 + 字符串消费者
-     */
+    */
     public void forEach(java.util.function.BiConsumer<Integer, String> consumer) {
         int i = 0;
         for (String opt : options) {

@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /** seed 元数据键 */
@@ -43,7 +43,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
 
     /** 已扩散过的新节点（去重） */
     private final java.util.Set<String> announcedSeeds = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    /** 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool） */
+    /**
+    * 降级同步专用线程池（固定大小，与 RouteModeDiscovery 隔离，不占用 commonPool）
+    */
     private static final ExecutorService DEGRADE_SYNC_EXECUTOR = Executors.newFixedThreadPool(
             4, r -> {
                 Thread t = new Thread(r, "scatter-degrade-sync");
@@ -116,7 +118,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** seed 全掉线：标记本地 seed 引导条目降级（不依赖 announcedSeeds——其会在同步失败时被清空）。 */
+    /**
+    * seed 全掉线：标记本地 seed 引导条目降级（不依赖 announcedSeeds——其会在同步失败时被清空）。
+    */
     private void markSeedDown() {
         for (Discovery d : getServiceAll(setting.getServicePath())) {
             if (d.getServerId() == null) {
@@ -136,7 +140,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         }
     }
 
-    /** 降级：与已发现的老节点（非 seed）互相同步，保证 seed 掉线时集群仍可收敛。 */
+    /**
+    * 降级：与已发现的老节点（非 seed）互相同步，保证 seed 掉线时集群仍可收敛。
+    */
     private void degradeSync() {
         Set<Discovery> services = getServiceAll(setting.getServicePath());
         List<Discovery> candidates = new ArrayList<>();
@@ -168,7 +174,9 @@ public class SeedModeDiscovery extends AbstractScatterDiscovery {
         electNewSeed(candidates);
     }
 
-    /** 选举：seed 全掉线时，最小 nodeId 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。 */
+    /**
+    * 选举：seed 全掉线时，最小 nodeId 的节点成为新引导并广播 ELEC（自己参与比较，非仅远端）。
+    */
     private void electNewSeed(List<Discovery> candidates) {
         if (candidates.isEmpty()) {
             // 无其他存活节点：自己是唯一节点，无需广播

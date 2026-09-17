@@ -43,11 +43,11 @@ public class Page<T> {
     private final int pageNum;
     /**
     * 每页大小
-     */
+    */
     private final int pageSize;
     /**
     * 总数
-     */
+    */
     private final long total;
     /** Records */
     private final List<T> records;
@@ -59,7 +59,7 @@ public class Page<T> {
     * @param pageSize 每页记录数
     * @param total    总记录数
     * @param records  当前页数据列表（null 视为空列表）
-     */
+    */
     public Page(int pageNum, int pageSize, long total, List<T> records) {
         this.pageNum = pageNum;
         this.pageSize = pageSize;
@@ -87,7 +87,7 @@ public class Page<T> {
     * <p>根据总记录数和每页记录数自动计算。</p>
     *
     * @return 总页数，pageSize ≤ 0 时返回 0
-     */
+    */
     public long getPages() {
         return pageSize > 0 ? (total + pageSize - 1) / pageSize : 0;
     }

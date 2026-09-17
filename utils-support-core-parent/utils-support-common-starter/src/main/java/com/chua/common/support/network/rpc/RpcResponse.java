@@ -39,7 +39,7 @@ public class RpcResponse implements Serializable {
     * </ul>
     *
     * <p>客户端应先检查此字段，再决定读取 {@code result} 还是处理 {@code error}。</p>
-     */
+    */
     private boolean success;
 
     /**
@@ -52,7 +52,7 @@ public class RpcResponse implements Serializable {
     *   <li>如果目标方法返回基本类型（如 {@code int}），值为对应的包装类型（如 {@code Integer}）</li>
     *   <li>返回对象类型必须可被序列化框架处理（如实现 {@link Serializable}）</li>
     * </ul>
-     */
+    */
     private Object result;
 
     /** 异常类型全限定名，用于客户端精确识别异常种类 */

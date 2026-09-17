@@ -37,24 +37,24 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
 
     /**
     * 内部 long 数组
-     */
+    */
     private long[] elements;
 
     /**
     * 当前元素数量
-     */
+    */
     private int size;
 
     /**
     * 默认初始容量
-     */
+    */
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
     * 创建空长整数列表。
     *
     * @return LongList 实例
-     */
+    */
     public static LongList of() {
         return new LongList();
     }
@@ -64,7 +64,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @param capacity 初始容量，必须大于等于 0
     * @return LongList 实例
-     */
+    */
     public static LongList of(int capacity) {
         return new LongList(capacity);
     }
@@ -74,7 +74,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @param values long 数组
     * @return LongList 实例
-     */
+    */
     public static LongList of(long[] values) {
         LongList list = new LongList(values.length);
         list.addAll(values);
@@ -86,7 +86,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @param values 长整数集合
     * @return LongList 实例
-     */
+    */
     public static LongList of(Collection<Long> values) {
         LongList list = new LongList(values.size());
         list.addAll(values);
@@ -95,7 +95,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
 
     /**
     * 构造方法，创建默认容量的长整数列表。
-     */
+    */
     public LongList() {
         this(DEFAULT_CAPACITY);
     }
@@ -104,7 +104,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 构造方法，创建指定初始容量的长整数列表。
     *
     * @param capacity 初始容量
-     */
+    */
     public LongList(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("容量不能为负数: " + capacity);
@@ -339,7 +339,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @param index 索引
     * @return long 值
-     */
+    */
     public long getLong(int index) {
         checkElementIndex(index);
         return elements[index];
@@ -350,7 +350,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @param index 索引
     * @param value long 值
-     */
+    */
     public void setLong(int index, long value) {
         checkElementIndex(index);
         elements[index] = value;
@@ -360,7 +360,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 追加一个 long 值（避免自动装箱）。
     *
     * @param value long 值
-     */
+    */
     public void addLong(long value) {
         ensureCapacity(size + 1);
         elements[size++] = value;
@@ -370,7 +370,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 批量追加 long 值（避免自动装箱）。
     *
     * @param values long 数组
-     */
+    */
     public void addAll(long[] values) {
         ensureCapacity(size + values.length);
         System.arraycopy(values, 0, elements, size, values.length);
@@ -381,7 +381,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 计算所有元素的和。
     *
     * @return 元素总和
-     */
+    */
     public long sum() {
         long sum = 0L;
         for (int i = 0; i < size; i++) {
@@ -394,7 +394,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 计算所有元素的平均值。
     *
     * @return 元素平均值
-     */
+    */
     public double average() {
         if (size == 0) {
             return 0.0;
@@ -407,7 +407,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @return 最大元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     public long max() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -426,7 +426,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     *
     * @return 最小元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     public long min() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -444,7 +444,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 将列表转换为基本类型 long 数组。
     *
     * @return long 数组
-     */
+    */
     public long[] toLongArray() {
         return Arrays.copyOf(elements, size);
     }
@@ -455,7 +455,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 确保容量足够。
     *
     * @param minCapacity 最小容量
-     */
+    */
     private void ensureCapacity(int minCapacity) {
         if (minCapacity > elements.length) {
             int newCapacity = Math.max(elements.length * 2, minCapacity);
@@ -467,7 +467,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 检查元素索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);
@@ -478,7 +478,7 @@ public class LongList extends AbstractList<Long> implements RandomAccess {
     * 检查位置索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);

@@ -22,17 +22,17 @@ public class ListViewParser implements ViewParser {
 
     /**
     * 空数据占位文本
-     */
+    */
     private static final String EMPTY_PLACEHOLDER = "(empty)";
 
     /**
     * 编号后缀分隔符
-     */
+    */
     private static final String NUMBER_SUFFIX = ". ";
 
     /**
     * 换行符
-     */
+    */
     private static final char NEWLINE = '\n';
 
     /**
@@ -40,7 +40,7 @@ public class ListViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return {@link Iterable} 或数组返回 true，其它返回 false
-     */
+    */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -54,7 +54,7 @@ public class ListViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 带编号的列表字符串；空数据返回 {@value #EMPTY_PLACEHOLDER}
-     */
+    */
     @Override
     public String render(Object data) {
         List<Object> items = toList(data);
@@ -81,7 +81,7 @@ public class ListViewParser implements ViewParser {
     *
     * @param data 待转换的数据
     * @return 元素列表（标量会被包装为单元素列表）
-     */
+    */
     private static List<Object> toList(Object data) {
         if (data instanceof Iterable) {
             List<Object> result = new ArrayList<>();
@@ -98,7 +98,7 @@ public class ListViewParser implements ViewParser {
     * 获取解析器顺序。
     *
     * @return 顺序值
-     */
+    */
     @Override
     public int getOrder() {
         return 5;

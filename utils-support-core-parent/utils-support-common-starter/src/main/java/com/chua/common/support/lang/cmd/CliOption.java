@@ -65,7 +65,7 @@ public final class CliOption {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public enum OptionType {
         STRING,
         INTEGER,
@@ -100,7 +100,7 @@ public final class CliOption {
     /**
     * 创建 CliOption 实例
     * @param builder builder
-     */
+    */
     private CliOption(Builder builder) {
         this.longName = builder.longName;
         this.shortName = builder.shortName;
@@ -118,7 +118,7 @@ public final class CliOption {
     * 创建新的 {@link Builder} 实例。
     *
     * @return Builder
-     */
+    */
     @Nonnull
     public static Builder builder() {
         return new Builder();
@@ -129,7 +129,7 @@ public final class CliOption {
     *
     * @param enumClass 枚举类
     * @return 枚举常量名称数组
-     */
+    */
     @Nonnull
 @SuppressWarnings({"rawtypes", "unchecked"})
     private static String[] buildEnumConstants(Class<? extends Enum> enumClass) {
@@ -151,7 +151,7 @@ public final class CliOption {
     * @param shortName 短选项名称
     * @param description 选项描述
     * @return CliOption 实例
-     */
+    */
     @Nonnull
     public static CliOption of(@Nonnull String longName, @Nullable String shortName, @Nonnull String description) {
         return builder()
@@ -168,7 +168,7 @@ public final class CliOption {
     * @param longName  长选项名称
     * @param description 选项描述
     * @return CliOption 实例
-     */
+    */
     @Nonnull
     public static CliOption of(@Nonnull String longName, @Nonnull String description) {
         return of(longName, null, description);
@@ -180,7 +180,7 @@ public final class CliOption {
     * 获取长选项名称（如 "port"）。
     *
     * @return 长选项名称
-     */
+    */
     @Nonnull
     public String longName() {
         return longName;
@@ -190,7 +190,7 @@ public final class CliOption {
     * 获取短选项名称（如 "p"），可能为 null。
     *
     * @return 短选项名称，可能为 null
-     */
+    */
     @Nullable
     public String shortName() {
         return shortName;
@@ -200,7 +200,7 @@ public final class CliOption {
     * 获取选项描述。
     *
     * @return 选项描述
-     */
+    */
     @Nonnull
     public String description() {
         return description;
@@ -210,7 +210,7 @@ public final class CliOption {
     * 获取选项值的类型。
     *
     * @return 选项类型
-     */
+    */
     @Nonnull
     public OptionType type() {
         return type;
@@ -220,7 +220,7 @@ public final class CliOption {
     * 判断此选项是否为必需的。
     *
     * @return 如果为必需返回 true
-     */
+    */
     public boolean required() {
         return required;
     }
@@ -229,7 +229,7 @@ public final class CliOption {
     * 判断此选项是否为布尔标志（无值）。
     *
     * @return 如果是标志返回 true
-     */
+    */
     public boolean flag() {
         return flag;
     }
@@ -238,7 +238,7 @@ public final class CliOption {
     * 获取默认值。
     *
     * @return 默认值，可能为 null
-     */
+    */
     @Nullable
     public Object defaultValue() {
         return defaultValue;
@@ -248,7 +248,7 @@ public final class CliOption {
     * 获取枚举类型（仅当 {@link #type()} 为 {@link OptionType#ENUM} 时有意义）。
     *
     * @return 枚举 Class，非 ENUM 类型返回 null
-     */
+    */
     @Nullable
     public Class<? extends Enum<?>> enumType() {
         return enumType;
@@ -258,7 +258,7 @@ public final class CliOption {
     * 获取枚举常量名称列表（仅当 {@link #type()} 为 {@link OptionType#ENUM} 时有意义）。
     *
     * @return 枚举常量名称数组
-     */
+    */
     @Nonnull
     public String[] enumConstants() {
         return enumConstants;
@@ -268,7 +268,7 @@ public final class CliOption {
     * 获取枚举是否忽略大小写。
     *
     * @return 如果忽略大小写返回 true
-     */
+    */
     public boolean enumIgnoreCase() {
         return enumIgnoreCase;
     }
@@ -277,7 +277,7 @@ public final class CliOption {
     /**
     * 判断相等
     * @param o o
-     */
+    */
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -313,7 +313,7 @@ public final class CliOption {
 
     /**
     * {@link CliOption} 构建器。
-     */
+    */
     public static final class Builder {
         /** 长选项名称 */
         private String longName;
@@ -346,7 +346,7 @@ public final class CliOption {
         *
         * @param longName 长选项名称
         * @return this
-         */
+        */
         @Nonnull
         public Builder longName(@Nonnull String longName) {
             this.longName = longName;
@@ -358,7 +358,7 @@ public final class CliOption {
         *
         * @param shortName 短选项名称
         * @return this
-         */
+        */
         @Nonnull
         public Builder shortName(@Nullable String shortName) {
             this.shortName = shortName;
@@ -370,7 +370,7 @@ public final class CliOption {
         *
         * @param description 选项描述
         * @return this
-         */
+        */
         @Nonnull
         public Builder description(@Nonnull String description) {
             this.description = description;
@@ -382,7 +382,7 @@ public final class CliOption {
         *
         * @param type 选项类型
         * @return this
-         */
+        */
         @Nonnull
         public Builder type(@Nonnull OptionType type) {
             this.type = type;
@@ -395,7 +395,7 @@ public final class CliOption {
         * @param typeClass 值类型 Class
         * @return this
         * @throws IllegalArgumentException 不支持的参数类型
-         */
+        */
         @Nonnull
         public Builder type(@Nonnull Class<?> typeClass) {
             if (typeClass == String.class) {
@@ -427,7 +427,7 @@ public final class CliOption {
         * 设置此选项为必需。
         *
         * @return this
-         */
+        */
         @Nonnull
         public Builder required() {
             this.required = true;
@@ -438,7 +438,7 @@ public final class CliOption {
         * 设置此选项为可选。
         *
         * @return this
-         */
+        */
         @Nonnull
         public Builder optional() {
             this.required = false;
@@ -450,7 +450,7 @@ public final class CliOption {
         *
         * @param flag 如果为 true 则此选项不需要值
         * @return this
-         */
+        */
         @Nonnull
         public Builder flag(boolean flag) {
             this.flag = flag;
@@ -465,7 +465,7 @@ public final class CliOption {
         *
         * @param defaultValue 默认值
         * @return this
-         */
+        */
         @Nonnull
         public Builder defaultValue(@Nullable Object defaultValue) {
             this.defaultValue = defaultValue;
@@ -477,7 +477,7 @@ public final class CliOption {
         *
         * @param ignoreCase 是否忽略大小写
         * @return this
-         */
+        */
         @Nonnull
         public Builder enumIgnoreCase(boolean ignoreCase) {
             this.enumIgnoreCase = ignoreCase;
@@ -489,7 +489,7 @@ public final class CliOption {
         *
         * @return CliOption 实例
         * @throws IllegalStateException 如果长选项名称为空，或 ENUM 类型未指定枚举类
-         */
+        */
         @Nonnull
         public CliOption build() {
             if (StringUtils.isBlank(longName)) {

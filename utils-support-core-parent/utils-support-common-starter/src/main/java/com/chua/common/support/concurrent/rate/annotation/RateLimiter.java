@@ -26,7 +26,7 @@ public @interface RateLimiter {
     * 限流器名称（唯一标识）。
     *
     * @return 限流器名称
-     */
+    */
     String name();
 
     /**
@@ -35,7 +35,7 @@ public @interface RateLimiter {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 许可数
-     */
+    */
     String permitsPerSecond() default "1";
 
     /**
@@ -44,7 +44,7 @@ public @interface RateLimiter {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 等待时间
-     */
+    */
     String waitTime() default "0";
 
     /**
@@ -53,7 +53,7 @@ public @interface RateLimiter {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 预热时间
-     */
+    */
     String warmupPeriod() default "0";
 
     /**
@@ -68,6 +68,6 @@ public @interface RateLimiter {
     * <p>若为空字符串，则抛出限流异常。</p>
     *
     * @return 回退方法名
-     */
+    */
     String fallback() default "";
 }

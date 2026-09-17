@@ -23,7 +23,7 @@ public class EmptyPropertySource implements PropertySource {
     *
     * @param key 要查询的配置键名
     * @return 永远为 null，表示不存在该属性
-     */
+    */
     @Override
     public Object getProperty(String key) {
         return null;
@@ -36,7 +36,7 @@ public class EmptyPropertySource implements PropertySource {
     * </p>
     *
     * @return 属性源名称
-     */
+    */
     @Override
     public String getName() {
         return "empty";

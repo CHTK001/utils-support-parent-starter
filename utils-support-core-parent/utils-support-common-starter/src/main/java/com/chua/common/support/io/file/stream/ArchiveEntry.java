@@ -15,20 +15,20 @@ public interface ArchiveEntry {
     * 获取条目名称。
     *
     * @return 条目名称
-     */
+    */
     String getName();
 
     /**
     * 判断是否为目录。
     *
     * @return true 表示为目录
-     */
+    */
     boolean isDirectory();
 
     /**
     * 获取条目大小（字节）。
     *
     * @return 条目大小，-1 表示未知
-     */
+    */
     long getSize();
 }

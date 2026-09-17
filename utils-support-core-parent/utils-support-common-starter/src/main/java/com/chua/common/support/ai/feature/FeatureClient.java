@@ -39,7 +39,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     * @param provider AI 服务商名称，如 "onnx"、"pytorch" 等
     * @param apiKey   API 密钥（本地模型可留空）
     * @return FeatureClient 实例
-     */
+    */
     static FeatureClient create(String provider, String apiKey) {
         return ServiceProvider.of(FeatureClient.class)
                 .getNewExtension(provider, FeatureClientSetting.builder()
@@ -51,7 +51,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl、model 等
     * @return FeatureClient 实例
-     */
+    */
     static FeatureClient create(FeatureClientSetting setting) {
         return ServiceProvider.of(FeatureClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -64,7 +64,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 地址
     * @return FeatureClient 实例
-     */
+    */
     static FeatureClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(FeatureClient.class)
                 .getNewExtension(provider, FeatureClientSetting.builder()
@@ -76,7 +76,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default FeatureClient provider(String provider) {
         return this;
     }
@@ -86,7 +86,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param model 模型名称，如 "bge-small-zh"、"clip-image-feature" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default FeatureClient model(String model) {
         return this;
     }
@@ -96,7 +96,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param dimensions 向量维度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default FeatureClient dimensions(int dimensions) {
         return this;
     }
@@ -106,7 +106,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param text 待提取特征的文本
     * @return 浮点数向量
-     */
+    */
     float[] extract(String text);
 
     /**
@@ -114,7 +114,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param imageData 图像字节数据
     * @return 浮点数向量
-     */
+    */
     default float[] extractImage(byte[] imageData) {
         throw new UnsupportedOperationException("当前 FeatureClient 实现不支持图像特征提取");
     }
@@ -124,7 +124,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     *
     * @param text 待提取特征的文本
     * @return 异步任务，完成时返回浮点数向量
-     */
+    */
     default CompletableFuture<float[]> extractAsync(String text) {
         return CompletableFuture.supplyAsync(() -> extract(text));
     }
@@ -133,7 +133,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     * 获取服务商支持的模型列表。
     *
     * @return 可用模型定义列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -144,7 +144,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {
@@ -158,7 +158,7 @@ public interface FeatureClient extends AutoCloseable, PooledObjectClient<Feature
 
     /**
     * 关闭客户端，释放底层资源。
-     */
+    */
     @Override
     default void close() {
     }

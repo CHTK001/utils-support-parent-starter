@@ -35,7 +35,7 @@ public interface TextExtractor {
     * @param type 文件类型 SPI 名称（如 "excel"、"pdf"、"docx"）
     * @return TextExtractor 实例
     * @throws IllegalArgumentException 当找不到对应 SPI 实现时抛出
-     */
+    */
     static TextExtractor create(String type) {
         TextExtractor extractor = ServiceProvider.of(TextExtractor.class)
                 .getExtension(type);
@@ -51,7 +51,7 @@ public interface TextExtractor {
     * @param file 文件对象
     * @return TextExtractor 实例
     * @throws IllegalArgumentException 当文件类型不支持时抛出
-     */
+    */
     static TextExtractor auto(File file) {
         Objects.requireNonNull(file, "file must not be null");
         String name = file.getName().toLowerCase();
@@ -82,7 +82,7 @@ public interface TextExtractor {
     *
     * @param file 待提取的文件
     * @return 结构化文本结果列表
-     */
+    */
     List<TextExtractResult> extractText(File file);
 
     /**
@@ -90,7 +90,7 @@ public interface TextExtractor {
     *
     * @param file 待提取的文件
     * @return 合并后的纯文本内容
-     */
+    */
     default String extractFullText(File file) {
         List<TextExtractResult> results = extractText(file);
         if (results == null || results.isEmpty()) {
@@ -110,6 +110,6 @@ public interface TextExtractor {
     * 获取当前提取器支持的 SPI 类型名称（如 "pdf"、"docx"）。
     *
     * @return 类型名称
-     */
+    */
     String type();
 }

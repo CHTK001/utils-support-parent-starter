@@ -9,58 +9,58 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
-* 脚本 Bean 定义抽象基类。
-*
-* <p>提供 {@link ScriptDefinition} 的通用实现，管理脚本标记器、源码监听器和类加载器生命周期。
-* 子类只需关注具体脚本语言的编译和实例化细节。</p>
-*
-* <p>热重载流程：
-* <ol>
-*   <li>{@link #createInstance()} 调用 {@link Listener#isChange()} 检测源码变化</li>
-*   <li>若变化，调用 {@link #destroyScriptClassLoader()} 销毁旧 ClassLoader</li>
-*   <li>调用 {@link ScriptMarker#createObject(Listener, ClassLoader, Object[])} 重新编译</li>
-*   <li>保存新的 ClassLoader 供下次热重载使用</li>
-* </ol></p>
-*
-* <p>线程安全说明：{@link #createInstance()} 使用 {@code synchronized} 保护热重载流程，
-* 避免多线程并发检测变更和编译导致的 类加载 泄漏。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see ScriptDefinition
-* @see AbstractBeanDefinition
- */
+ * 脚本 Bean 定义抽象基类。
+ *
+ * <p>提供 {@link ScriptDefinition} 的通用实现，管理脚本标记器、源码监听器和类加载器生命周期。
+ * 子类只需关注具体脚本语言的编译和实例化细节。</p>
+ *
+ * <p>热重载流程：
+ * <ol>
+ *   <li>{@link #createInstance()} 调用 {@link Listener#isChange()} 检测源码变化</li>
+ *   <li>若变化，调用 {@link #destroyScriptClassLoader()} 销毁旧 ClassLoader</li>
+ *   <li>调用 {@link ScriptMarker#createObject(Listener, ClassLoader, Object[])} 重新编译</li>
+ *   <li>保存新的 ClassLoader 供下次热重载使用</li>
+ * </ol></p>
+ *
+ * <p>线程安全说明：{@link #createInstance()} 使用 {@code synchronized} 保护热重载流程，
+ * 避免多线程并发检测变更和编译导致的 类加载 泄漏。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see ScriptDefinition
+ * @see AbstractBeanDefinition
+*/
 @Slf4j
 public abstract class AbstractScriptDefinition extends AbstractBeanDefinition implements ScriptDefinition {
 
     /**
     * 脚本类加载器引用，热重载时替换
-     */
+    */
     private final AtomicReference<ClassLoader> scriptClassLoader = new AtomicReference<>();
 
     /**
     * 热重载锁，保护 创建instance() 中的变更检测 → 销毁 → 编译流程
-     */
+    */
     private final Object hotReloadLock = new Object();
 
     /**
     * 脚本标记器，负责脚本编译和对象创建
-     */
+    */
     private ScriptMarker scriptMarker;
 
     /**
     * 脚本源码监听器，负责检测源码变更
-     */
+    */
     private Listener listener;
 
     /**
     * 缓存的脚本实例，避免每次调用 获取Bean() 都重新编译
-     */
+    */
     private Object scriptInstance;
 
     /**
     * 构造空的脚本定义。
-     */
+    */
     protected AbstractScriptDefinition() {
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * @param name      Bean 名称
     * @param beanClass Bean 类
     * @param scope     Bean 作用域
-     */
+    */
     protected AbstractScriptDefinition(String name, Class<?> beanClass, BeanScope scope) {
         super(name, beanClass, scope);
     }
@@ -97,7 +97,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * 设置脚本标记器。
     *
     * @param scriptMarker 脚本标记器实例
-     */
+    */
     public void setScriptMarker(ScriptMarker scriptMarker) {
         this.scriptMarker = scriptMarker;
     }
@@ -112,7 +112,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * 设置脚本源码监听器。
     *
     * @param listener 脚本源码监听器实例
-     */
+    */
     public void setListener(Listener listener) {
         this.listener = listener;
     }
@@ -125,7 +125,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * 导致 类加载 泄漏或重复创建。</p>
     *
     * <p>热重载时，先断开旧实例引用再编译新实例，确保旧实例及其关联的类可被 GC 回收。</p>
-     */
+    */
     public Object createInstance() {
         if (listener == null || scriptMarker == null) {
             return null;
@@ -207,7 +207,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * @param source    源类
     * @param targetName 目标类全限定名
     * @return true 表示类型层次中存在匹配
-     */
+    */
     private boolean isAssignableFromTypeHierarchy(Class<?> source, String targetName) {
         if (source == null || source == Object.class) {
             return false;
@@ -245,7 +245,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * <p>异常安全保证：即使 close() 失败，也会兜底调用
     * {@link ClassUtils#unregisterClassLoader(ClassLoader)} 尝试从全局注册表移除，
     * 避免 类加载 成为孤儿对象。</p>
-     */
+    */
     public void destroyScriptClassLoader() {
         ClassLoader classLoader = this.scriptClassLoader.getAndSet(null);
         if (classLoader == null) {
@@ -282,7 +282,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     * 在 关闭() 之前释放 源缓存 和 类信息 反射缓存，
     * 帮助 Metaspace 内存回收。仅当 类加载 是 groovy类加载 实例时执行。</p>
     * @param classLoader 类加载
-     */
+    */
     private void clearGroovyCache(ClassLoader classLoader) {
         if (classLoader == null) {
             return;
@@ -302,7 +302,7 @@ public abstract class AbstractScriptDefinition extends AbstractBeanDefinition im
     *
     * <p>除执行父类生命周期销毁外，额外释放脚本 ClassLoader，
     * 避免脚本引擎产生的 类加载 内存泄漏被忽略。</p>
-     */
+    */
     @Override
     public void destroyBean() {
         try {

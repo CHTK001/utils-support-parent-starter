@@ -45,14 +45,14 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
 
     /**
     * 文件树遍历默认最大深度。
-     */
+    */
     private static final int DEFAULT_MAX_DEPTH = 128;
 
     /**
     * 使用指定配置构造查找器。
     *
     * @param configuration 查找配置
-     */
+    */
     public ClassPathResourceFinder(ResourceConfiguration configuration) {
         super(configuration);
     }
@@ -72,7 +72,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     *
     * @param name 含 {@code classpath:} 前缀的完整模式
     * @return 匹配资源集合
-     */
+    */
     private Set<Resource> findPathMatchingResources(String name) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
 
@@ -99,7 +99,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     * @param name         完整模式（用于日志）
     * @param subPath      通配子路径
     * @param result       匹配结果收集集合
-     */
+    */
     private void analysisResources(Set<Resource> resources, String name, String subPath, Set<Resource> result) {
         long startTime = System.currentTimeMillis();
         AtomicLong scannedCount = new AtomicLong(0);
@@ -149,7 +149,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     * @param subPath      通配子路径
     * @param result       匹配结果收集集合
     * @param scannedCount 已扫描计数器
-     */
+    */
     private void doFindPathMatchingJarResources(URL url, String subPath, Set<Resource> result,
                                                 AtomicLong scannedCount) {
         ZipFile jarFile;
@@ -219,7 +219,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     * @param rootDir      根目录
     * @param result       匹配结果收集集合
     * @param scannedCount 已扫描计数器
-     */
+    */
     private void doFindPathMatchingResources(String matcherPath, File rootDir, Set<Resource> result,
                                              AtomicLong scannedCount) {
         if (!rootDir.exists() || !rootDir.isDirectory()) {
@@ -244,7 +244,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     *
     * @param matchPath 通配模式
     * @return 最大深度
-     */
+    */
     private int calculateMaxDepth(String matchPath) {
         if (StringUtils.isEmpty(matchPath)) {
             return 1;
@@ -260,7 +260,7 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
     *
     * @param name 含 {@code classpath:} 前缀的完整路径
     * @return 单元素集合，未找到时为空集合
-     */
+    */
     private Set<Resource> findAllClassPathResources(String name) {
         String path = name.substring(CLASSPATH_URL_PREFIX.length()).trim();
         URL resource = classLoader.getResource(path);
@@ -275,14 +275,14 @@ public class ClassPathResourceFinder extends AbstractResourceFinder {
 
     /**
     * NIO 文件树访问器，按完整模式匹配文件并收集命中结果。
-     */
+    */
     private class ClassPathFileVisitor extends SimpleFileVisitor<Path> {
 
         /** 完整匹配模式 */
         private final String fullPattern;
         /**
         * 结果
-         */
+        */
         private final Set<Resource> result;
         /** 已扫描计数 */
         private final AtomicLong scannedCount;

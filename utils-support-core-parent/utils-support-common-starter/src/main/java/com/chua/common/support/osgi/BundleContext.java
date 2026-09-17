@@ -3,14 +3,14 @@ package com.chua.common.support.osgi;
 import java.util.List;
 
 /**
-* OSGI Bundle 上下文，提供服务注册和获取的能力。
-* <p>
-* 由 OSGI 启动器实现，通过 {@link BundleApplication#onBundleStart(BundleContext)} 回调传给声明方。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * OSGI Bundle 上下文，提供服务注册和获取的能力。
+ * <p>
+ * 由 OSGI 启动器实现，通过 {@link BundleApplication#onBundleStart(BundleContext)} 回调传给声明方。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public interface BundleContext {
 
     /**
@@ -19,7 +19,7 @@ public interface BundleContext {
     * @param type    服务接口类型
     * @param service 服务实例
     * @param <T>     服务类型
-     */
+    */
     <T> void registerService(Class<T> type, T service);
 
     /**
@@ -28,7 +28,7 @@ public interface BundleContext {
     * @param type    服务接口类型
     * @param service 服务实例
     * @param <T>     服务类型
-     */
+    */
     <T> void unregisterService(Class<T> type, T service);
 
     /**
@@ -37,7 +37,7 @@ public interface BundleContext {
     * @param type 服务接口类型
     * @param <T>  服务类型
     * @return 服务实例列表
-     */
+    */
     <T> List<T> getServices(Class<T> type);
 
     /**
@@ -46,6 +46,6 @@ public interface BundleContext {
     * @param type 服务接口类型
     * @param <T>  服务类型
     * @return 服务实例，未找到返回 空
-     */
+    */
     <T> T getService(Class<T> type);
 }

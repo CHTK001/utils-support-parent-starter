@@ -23,7 +23,7 @@ public interface SafeSupplier<T> extends Supplier<T> {
     * </p>
     *
     * @return 结果，如果发生异常则返回 null
-     */
+    */
     @Override
     default T get() {
         try {
@@ -38,6 +38,6 @@ public interface SafeSupplier<T> extends Supplier<T> {
     *
     * @return 结果
     * @throws Throwable 如果获取过程中发生异常
-     */
+    */
     T safeGet() throws Throwable;
 }

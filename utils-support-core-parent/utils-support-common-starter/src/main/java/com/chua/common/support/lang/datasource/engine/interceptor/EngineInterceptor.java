@@ -34,7 +34,7 @@ public interface EngineInterceptor {
 
     /**
     * 拦截器 SPI 扩展名。
-     */
+    */
     String SPI_NAME = "engine-interceptor";
 
     /**
@@ -42,7 +42,7 @@ public interface EngineInterceptor {
     *
     * @param ql     查询语句或 WHERE 条件子句
     * @param params 参数列表
-     */
+    */
     default void beforeQuery(String ql, Object[] params) {
     }
 
@@ -52,7 +52,7 @@ public interface EngineInterceptor {
     * @param ql     查询语句或 WHERE 条件子句
     * @param params 参数列表
     * @param result 查询结果列表
-     */
+    */
     default void afterQuery(String ql, Object[] params, List<?> result) {
     }
 
@@ -61,7 +61,7 @@ public interface EngineInterceptor {
     *
     * @param ql     更新语句或 WHERE 条件子句
     * @param params 参数列表
-     */
+    */
     default void beforeUpdate(String ql, Object[] params) {
     }
 
@@ -71,7 +71,7 @@ public interface EngineInterceptor {
     * @param ql       更新语句或 WHERE 条件子句
     * @param params   参数列表
     * @param affected 受影响行数
-     */
+    */
     default void afterUpdate(String ql, Object[] params, int affected) {
     }
 
@@ -81,7 +81,7 @@ public interface EngineInterceptor {
     * @param ql 语句或 WHERE 条件子句
     * @param params 参数列表
     * @param e 抛出的运行时异常
-     */
+    */
     default void onError(String ql, Object[] params, RuntimeException e) {
     }
 }

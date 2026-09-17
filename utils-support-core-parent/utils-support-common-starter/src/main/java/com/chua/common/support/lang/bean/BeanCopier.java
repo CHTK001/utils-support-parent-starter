@@ -34,7 +34,7 @@ public interface BeanCopier {
     * @param source 源对象
     * @param target 目标对象
     * @throws IllegalArgumentException 如果 source 或 target 为 null
-     */
+    */
     void copyProperties(Object source, Object target);
 
     /**
@@ -47,7 +47,7 @@ public interface BeanCopier {
     * @param target           目标对象
     * @param ignoreProperties 要忽略的属性名数组
     * @throws IllegalArgumentException 如果 source 或 target 为 null
-     */
+    */
     void copyProperties(Object source, Object target, String... ignoreProperties);
 
     /**
@@ -59,7 +59,7 @@ public interface BeanCopier {
     * @param sourceMap 源 Map
     * @param target    目标对象
     * @throws IllegalArgumentException 如果 sourceMap 或 target 为 null
-     */
+    */
     void copyProperties(Map<String, Object> sourceMap, Object target);
 
     /**
@@ -71,6 +71,6 @@ public interface BeanCopier {
     * @param source 源对象
     * @param target 目标 Map
     * @throws IllegalArgumentException 如果 source 或 target 为 null
-     */
+    */
     void copyProperties(Object source, Map<String, Object> target);
 }

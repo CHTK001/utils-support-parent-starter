@@ -83,7 +83,7 @@ public interface Engine extends AutoCloseable {
 
     /**
     * Engine SPI 扩展名，用于 {@code META-INF/extensions/} 注册与 SPI 查找。
-     */
+    */
     String SPI_NAME = "engine";
 
     /**
@@ -95,7 +95,7 @@ public interface Engine extends AutoCloseable {
     * @param dataSource 数据源封装实例
     * @param <T>        底层源类型
     * @return this
-     */
+    */
     <T> Engine addDataSource(String name, EngineDataSource<T> dataSource);
 
     /**
@@ -106,7 +106,7 @@ public interface Engine extends AutoCloseable {
     * @param data 数据列表
     * @param <T>  数据类型
     * @return this
-     */
+    */
     <T> Engine store(String name, List<T> data);
 
     /**
@@ -115,7 +115,7 @@ public interface Engine extends AutoCloseable {
     *
     * @param name 数据源名称
     * @return this
-     */
+    */
     Engine setDefaultDataSourceName(String name);
 
     /**
@@ -125,7 +125,7 @@ public interface Engine extends AutoCloseable {
     * @param dataSourceName 数据源名称
     * @return SQL 执行器
     * @deprecated 请使用 {@link #execute(String, Object...)} 或 {@link #query(String, Object...)} 代替
-     */
+    */
     @Deprecated
     SqlExecutor getExecutor(String dataSourceName);
 
@@ -136,7 +136,7 @@ public interface Engine extends AutoCloseable {
     * @param dataSourceName 数据源名称
     * @param tunnel 隧道实例
     * @return this
-     */
+    */
     default Engine setTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         return this;
     }
@@ -148,7 +148,7 @@ public interface Engine extends AutoCloseable {
     * @param dataSourceName 数据源名称
     * @param tunnel 隧道实例
     * @return 隧道实际绑定的本地端口，开启失败返回 -1
-     */
+    */
     default int openTunnel(String dataSourceName, com.chua.common.support.network.tunnel.Tunnel tunnel) {
         return -1;
     }
@@ -158,7 +158,7 @@ public interface Engine extends AutoCloseable {
     *
     * @param dataSourceName 数据源名称
     * @return this
-     */
+    */
     default Engine closeTunnel(String dataSourceName) {
         return this;
     }
@@ -168,7 +168,7 @@ public interface Engine extends AutoCloseable {
     *
     * @return SQL 执行器
     * @deprecated 请使用 {@link #execute(String, Object...)} 或 {@link #query(String, Object...)} 代替
-     */
+    */
     @Deprecated
     SqlExecutor getExecutor();
 
@@ -182,7 +182,7 @@ public interface Engine extends AutoCloseable {
     * @param ql     数据操作语句
     * @param params 参数
     * @return 受影响行数
-     */
+    */
     default int execute(String ql, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
@@ -219,7 +219,7 @@ public interface Engine extends AutoCloseable {
     * @param ql     查询语句
     * @param params 参数
     * @return 查询结果行列表
-     */
+    */
     default List<Map<String, Object>> query(String ql, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
@@ -257,7 +257,7 @@ public interface Engine extends AutoCloseable {
     * @param params  参数
     * @param <T>     行类型参数
     * @return 类型化结果列表
-     */
+    */
     default <T> List<T> query(String ql, Class<T> rowType, Object... params) {
         SqlExecutor e = getExecutor();
         if (e == null) {
@@ -288,7 +288,7 @@ public interface Engine extends AutoCloseable {
     * 判断当前引擎是否支持原生 SQL/方言语句执行。
     *
     * @return true 表示 {@link #getExecutor()} 返回有效执行器
-     */
+    */
     default boolean supportsSql() {
         return getExecutor() != null;
     }
@@ -298,7 +298,7 @@ public interface Engine extends AutoCloseable {
     * <p>不支持元数据操作的引擎（如 Prometheus）应覆盖返回 false。</p>
     *
     * @return 默认返回 true
-     */
+    */
     default boolean supportsMeta() {
         return true;
     }
@@ -309,7 +309,7 @@ public interface Engine extends AutoCloseable {
     * 结果按 order 降序排列，无注册实现时返回空列表。</p>
     *
     * @return 拦截器列表（非 null）
-     */
+    */
     private List<EngineInterceptor> getInterceptors() {
         List<EngineInterceptor> interceptors = ServiceProvider.of(EngineInterceptor.class)
                 .getNewExtensions(EngineInterceptor.SPI_NAME, this);
@@ -325,7 +325,7 @@ public interface Engine extends AutoCloseable {
     * 默认实现 {@link DefaultFlyway}。</p>
     *
     * @return 迁移工具（非 null：SPI 扩展或默认实现二选一）
-     */
+    */
     default Flyway flyway() {
         for (Flyway f : ServiceProvider.of(Flyway.class)
                 .getNewExtensions(Flyway.SPI_NAME, this)) {
@@ -340,7 +340,7 @@ public interface Engine extends AutoCloseable {
     * @param name 数据源名称
     * @param <T> 底层源类型
     * @return 数据源封装实例
-     */
+    */
     <T> EngineDataSource<T> getDataSource(String name);
 
     /**
@@ -348,7 +348,7 @@ public interface Engine extends AutoCloseable {
     *
     * @param <T> 底层源类型
     * @return 数据源封装实例
-     */
+    */
     <T> EngineDataSource<T> getDataSource();
 
     /**
@@ -360,7 +360,7 @@ public interface Engine extends AutoCloseable {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 查询包装器
-     */
+    */
     <T> LambdaQueryWrapper<T> query(Class<T> entityClass);
 
     /**
@@ -369,7 +369,7 @@ public interface Engine extends AutoCloseable {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 更新包装器
-     */
+    */
     <T> LambdaUpdateWrapper<T> update(Class<T> entityClass);
 
     /**
@@ -378,7 +378,7 @@ public interface Engine extends AutoCloseable {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 删除包装器
-     */
+    */
     <T> LambdaDeleteWrapper<T> delete(Class<T> entityClass);
 
     /**
@@ -386,14 +386,14 @@ public interface Engine extends AutoCloseable {
     *
     * @param dataSourceName 数据源名称
     * @return 方言实例，非 SQL 数据源返回 null
-     */
+    */
     Dialect getDialect(String dataSourceName);
 
     /**
     * 获取默认数据源名称。
     *
     * @return 默认数据源名称
-     */
+    */
     default String getDefaultDataSourceName() {
         return null;
     }
@@ -403,7 +403,7 @@ public interface Engine extends AutoCloseable {
     * <p>通过该入口可以执行表、视图、索引、触发器、存储过程、外键、搜索引擎索引的 CRUD 操作。</p>
     *
     * @return 元数据操作接口
-     */
+    */
     default MetaData meta() {
         throw new UnsupportedOperationException("该引擎不支持元数据操作");
     }
@@ -413,14 +413,14 @@ public interface Engine extends AutoCloseable {
     *
     * @param type SPI 扩展键（如 "jdbc"）
     * @return 引擎实例
-     */
+    */
     static Engine create(String type) {
         return com.chua.common.support.spi.ServiceProvider.of(Engine.class).getExtension(type);
     }
 
     /**
     * 关闭引擎，释放所有已注册数据源的资源。
-     */
+    */
     @Override
     void close();
 }

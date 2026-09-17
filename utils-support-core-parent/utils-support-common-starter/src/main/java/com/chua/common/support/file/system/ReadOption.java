@@ -20,14 +20,14 @@ public class ReadOption {
     /** 最大读取行数，0 表示不限制 */
     /**
     * 限制
-     */
+    */
     private int limit;
 
     /**
     * 创建以 Map 格式返回的读取选项。
     *
     * @return 读取选项
-     */
+    */
     public static ReadOption maps() {
         ReadOption option = new ReadOption();
         option.asMap = true;
@@ -38,7 +38,7 @@ public class ReadOption {
     * 创建默认读取选项。
     *
     * @return 读取选项
-     */
+    */
     public static ReadOption of() {
         return new ReadOption();
     }
@@ -58,7 +58,7 @@ public class ReadOption {
     *
     * @param startRow 起始行号
     * @return 当前选项
-     */
+    */
     public ReadOption startRow(int startRow) {
         this.startRow = startRow;
         return this;
@@ -74,7 +74,7 @@ public class ReadOption {
     *
     * @param limit 最大行数，0 为不限制
     * @return 当前选项
-     */
+    */
     public ReadOption limit(int limit) {
         this.limit = limit;
         return this;

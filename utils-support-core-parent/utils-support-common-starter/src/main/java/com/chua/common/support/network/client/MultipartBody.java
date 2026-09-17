@@ -44,12 +44,12 @@ public class MultipartBody {
 
     /**
     * 文本字段的默认 Content-Type
-     */
+    */
     private static final String DEFAULT_TEXT_CONTENT_TYPE = "text/plain; charset=UTF-8";
 
     /**
     * 所有表单部件（文本字段 + 文件）
-     */
+    */
     private final List<Part> parts = new ArrayList<>();
 
     /**
@@ -57,14 +57,14 @@ public class MultipartBody {
     * -- GETTER --
     *  获取当前使用的 boundary 分隔符。
 
-     */
+    */
     @Getter
     /** Boundary */
     private final String boundary;
 
     /**
     * 创建空的 multipart 请求体，自动生成随机 boundary。
-     */
+    */
     public MultipartBody() {
         this.boundary = "----FormBoundary" + Long.toHexString(System.nanoTime())
                 + Long.toHexString(Thread.currentThread().getId());
@@ -77,7 +77,7 @@ public class MultipartBody {
     * 例如 {@code "multipart/form-data; boundary=----FormBoundaryxxx"}。
     *
     * @return Content-Type 头值
-     */
+    */
     public String getContentType() {
         return "multipart/form-data; boundary=" + boundary;
     }
@@ -90,7 +90,7 @@ public class MultipartBody {
     *
     * @param name  字段名，不能为 null
     * @param value 字段值，为 null 时视为空字符串
-     */
+    */
     public void addField(String name, String value) {
         byte[] content = (value != null ? value : "").getBytes(StandardCharsets.UTF_8);
         parts.add(new Part(name, content, DEFAULT_TEXT_CONTENT_TYPE, null));
@@ -106,7 +106,7 @@ public class MultipartBody {
     * @param content     文件内容的字节数组
     * @param contentType 文件的 MIME 类型，如 {@code "image/png"}、{@code "application/pdf"}
     * @param filename    上传的文件名，如 {@code "photo.png"}、{@code "report.pdf"}
-     */
+    */
     public void addFile(String name, byte[] content, String contentType, String filename) {
         parts.add(new Part(name, content != null ? content : new byte[0],
                 contentType != null ? contentType : "application/octet-stream", filename));
@@ -116,7 +116,7 @@ public class MultipartBody {
     * 判断是否没有任何字段或文件。
     *
     * @return 空返回 true
-     */
+    */
     public boolean isEmpty() {
         return parts.isEmpty();
     }
@@ -129,7 +129,7 @@ public class MultipartBody {
     * Content-Type 头和内容体。
     *
     * @return 字节数组表示，空体返回空数组
-     */
+    */
     public byte[] toBytes() {
         if (parts.isEmpty()) {
             return new byte[0];
@@ -188,27 +188,27 @@ public class MultipartBody {
 
     /**
     * Multipart 中的单个部件，可以是文本字段或文件。
-     */
+    */
     static class Part {
 
         /**
         * 表单字段名
-         */
+        */
         final String name;
 
         /**
         * 内容字节数组
-         */
+        */
         final byte[] content;
 
         /**
         * 内容的 MIME 类型，如 {@code text/plain}、{@code image/png}
-         */
+        */
         final String contentType;
 
         /**
         * 文件名（仅文件部件有值，文本字段为 null）
-         */
+        */
         final String filename;
 
         /**
@@ -218,7 +218,7 @@ public class MultipartBody {
         * @param content     内容字节数组
         * @param contentType 内容类型
         * @param filename    文件名（文件上传时使用，文本字段传 null）
-         */
+        */
         Part(String name, byte[] content, String contentType, String filename) {
             this.name = name;
             this.content = content;

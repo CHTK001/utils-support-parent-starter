@@ -46,7 +46,7 @@ public @interface RemoteInject {
     * </ul>
     *
     * @return 目标路径
-     */
+    */
     String target();
 
     /**
@@ -60,7 +60,7 @@ public @interface RemoteInject {
     * </ul>
     *
     * @return 来源路径
-     */
+    */
     String source();
 
     /**
@@ -69,6 +69,6 @@ public @interface RemoteInject {
     * <p>例如 {@code "Bearer {0}"} 将来源值包装为 Bearer token 格式。</p>
     *
     * @return 格式化模板，为空时直接使用来源值
-     */
+    */
     String format() default "";
 }

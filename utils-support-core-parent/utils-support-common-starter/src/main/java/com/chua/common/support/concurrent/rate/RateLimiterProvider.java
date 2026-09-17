@@ -16,7 +16,7 @@ public interface RateLimiterProvider {
     * 尝试获取一个许可。
     *
     * @return 获取成功返回 true，否则返回 false
-     */
+    */
     boolean tryAcquire();
 
     /**
@@ -25,14 +25,14 @@ public interface RateLimiterProvider {
     * @param timeout  超时时间
     * @param timeUnit 时间单位
     * @return 获取成功返回 true，否则返回 false
-     */
+    */
     boolean tryAcquire(long timeout, java.util.concurrent.TimeUnit timeUnit);
 
     /**
     * 获取当前可用的许可数。
     *
     * @return 可用许可数，-1 表示不支持查询
-     */
+    */
     default int availablePermits() {
         return -1;
     }
@@ -41,6 +41,6 @@ public interface RateLimiterProvider {
     * 获取限流器名称。
     *
     * @return 名称
-     */
+    */
     String getName();
 }

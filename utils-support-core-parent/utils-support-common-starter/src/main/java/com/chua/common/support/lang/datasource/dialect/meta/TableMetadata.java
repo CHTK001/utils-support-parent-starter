@@ -19,12 +19,12 @@ public class TableMetadata {
     /** 表名 */
     /**
     * 名称
-     */
+    */
     private String name;
     /** 所属 Schema */
     /**
     * Schema 名
-     */
+    */
     private String schema;
     /** 列元数据列表 */
     private List<ColumnMetadata> columns;
@@ -33,7 +33,7 @@ public class TableMetadata {
     /** 表类型 */
     /**
     * 类型
-     */
+    */
     private String type = "TABLE";
     /** 表注释 */
     private String comment;

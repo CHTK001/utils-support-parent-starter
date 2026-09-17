@@ -18,46 +18,46 @@ public class YunxiaoRepository {
 
     /**
     * 公开性，PRIVATE：私有仓库；INTERNAL：组织内可见
-     */
+    */
     private String accessLevel;
 
     /**
     * 最近更新时间（毫秒时间戳字符串）
-     */
+    */
     private String latestUpdate;
 
     /**
     * 仓库模式，可选值：Hybrid / Local / Proxy / ProxyCache / Group
-     */
+    */
     private String repoCategory;
 
     /**
     * 仓库描述
-     */
+    */
     private String repoDesc;
 
     /**
     * 仓库描述文件（JSON 字符串）
-     */
+    */
     private String repoDescriptor;
 
     /**
     * 仓库 Id
-     */
+    */
     private String repoId;
 
     /**
     * 仓库名称
-     */
+    */
     private String repoName;
 
     /**
     * 仓库类型，可选值：GENERIC / DOCKER / MAVEN / NPM / NUGET / PYPI
-     */
+    */
     private String repoType;
 
     /**
     * 是否收藏
-     */
+    */
     private Boolean star;
 }

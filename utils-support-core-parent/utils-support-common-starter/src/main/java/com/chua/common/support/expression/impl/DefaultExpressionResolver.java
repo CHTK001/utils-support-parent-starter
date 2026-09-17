@@ -26,12 +26,12 @@ public class DefaultExpressionResolver implements ExpressionResolver {
 
     /**
     * SpEL 表达式前缀标识
-     */
+    */
     private static final String PREFIX = "#{";
 
     /**
     * SpEL 表达式后缀标识
-     */
+    */
     private static final String SUFFIX = "}";
 
     @Override

@@ -30,28 +30,28 @@ public record RagDocument(
 ) {
     /**
     * 创建处理中的文档记录。
-     */
+    */
     public static RagDocument processing(String id, String fileName, String fileType, long fileSize) {
         return new RagDocument(id, fileName, fileType, fileSize, 0, "PROCESSING", null, System.currentTimeMillis(), Map.of());
     }
 
     /**
     * 返回带错误状态的文档记录。
-     */
+    */
     public RagDocument withError(String errorMessage) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "FAILED", errorMessage, createTime, metadata);
     }
 
     /**
     * 返回带分块数的文档记录（状态置为 READY）。
-     */
+    */
     public RagDocument withChunkCount(int chunkCount) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, "READY", null, createTime, metadata);
     }
 
     /**
     * 返回带指定状态的文档记录。
-     */
+    */
     public RagDocument withStatus(String status) {
         return new RagDocument(id, fileName, fileType, fileSize, chunkCount, status, errorMessage, createTime, metadata);
     }

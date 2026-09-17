@@ -7,91 +7,91 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Quick 快速创建门面接口。
-*
-* <p>提供「脚本式 DSL 门面」能力，一条链式调用即可完成：包导入、常量/变量/环境绑定、
-* 类初始化、XML/JSON 数据导入、映射/列表/Table 集合构造、动态类生成与脚本执行。</p>
-*
-* <p>每个 {@link Quick} 实例内部持有<b>独立的 {@link ObjectContext}</b>（轻量 IoC 容器），
-* 互不干扰，关闭后自动释放资源。</p>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* // 基本链式创建
-* Quick quick = Quick.create()
-*     .importPackage("java.time", "java.util")
-*     .constant("PI", 3.14)
-*     .variable("name", "zhang")
-*     .env("server.port", "8080");
-*
-* // 集合构造器（与动态类不同的链式构造器）
-* Map<String, Object> map = quick.map().put("a", 1).put("b", 2).build();
-* List<Object> list = quick.list().add("x").add("y").build();
-* Table<String, String, Object> table = quick.table()
-*     .put("r1", "c1", 1)
-*     .put("r1", "c2", 2)
-*     .build();
-*
-* // 脚本执行（Java 源码，Compiler SPI 自动发现 asm/groovy 等实现）
-* Object result = quick.execute("1 + 2");
-*
-* // 动态类生成（Compiler SPI：asm/javassist/jdk）
-* Runnable task = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"hi\"); }");
-*
-* // XML/JSON 导入数据
-* quick.fromJson("{\"name\":\"zhang\",\"age\":25}");
-* quick.fromXml("<user><name>li</name><age>30</age></user>");
-* }</pre>age\":25}");
-* quick.从xml("<user><name>li</name><age>30</age></user>");
-* }</pre>
-*
-* <h2>完整链式调用示例（importPackage + fromXml + dynamic + execute 组合）</h2>
-* <pre>{@code
-* // 1. 链式初始化：包导入 + 常量/变量/环境绑定 + XML 数据导入（这些方法均返回 Quick）
-* Quick quick = Quick.create()
-*     .importPackage("java.time", "java.util")
-*     .constant("PI", 3.14)
-*     .variable("factor", 2)
-*     .env("server.port", "8080")
-*     .fromXml("<config><name>zhang</name><age>25</age></config>");
-*
-* // 2. 导入的数据可直接用于类初始化（init 优先消费 fromXml/fromJson 导入的数据）
-* User user = quick.init(User.class);      // 假设存在 User 业务实体类：name=zhang, age=25
-*
-* // 3. 动态类生成：为接口/类生成子类并实例化，源码自动带导入包（java.time.*）
-* Runnable task = quick.dynamic(Runnable.class,
-*         "public void run() { System.out.println(\"today=\" + LocalDate.now()); }");
-* task.run();                              // today=<运行当天日期>
-*
-* // 4. 脚本执行：代码片段内可访问 quick（当前实例）与 variables（绑定变量快照）
-* Object sum = quick.execute(
-*         "return ((Number) variables.get(\"factor\")).intValue() + 1;");   // 3
-*
-* // 5. 脚本执行：类型化返回
-* Double area = quick.execute("2 * Math.PI", Double.class);                  // 6.283...
-*
-* // 6. 脚本执行：完整类源码（实现 QuickScript，run 接收 quick 与 variables）
-* Object name = quick.execute(
-*         "public class MyScript implements com.chua.common.support.objects.creator.QuickScript {"
-*       + "  public Object run(Quick quick, Map<String, Object> variables) {"
-*       + "    return variables.get(\"name\");"                             // zhang
-*       + "  }"
-*       + "}");
-*
-* // 7. 用完释放内部上下文
-* quick.close();
-* }</pre>*       + "  }"
-*       + "}");
-*
-* // 7. 用完释放内部上下文
-* quick.关闭();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
-* @see DefaultQuick
-* @see ObjectContext
- */
+ * Quick 快速创建门面接口。
+ *
+ * <p>提供「脚本式 DSL 门面」能力，一条链式调用即可完成：包导入、常量/变量/环境绑定、
+ * 类初始化、XML/JSON 数据导入、映射/列表/Table 集合构造、动态类生成与脚本执行。</p>
+ *
+ * <p>每个 {@link Quick} 实例内部持有<b>独立的 {@link ObjectContext}</b>（轻量 IoC 容器），
+ * 互不干扰，关闭后自动释放资源。</p>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * // 基本链式创建
+ * Quick quick = Quick.create()
+ *     .importPackage("java.time", "java.util")
+ *     .constant("PI", 3.14)
+ *     .variable("name", "zhang")
+ *     .env("server.port", "8080");
+ *
+ * // 集合构造器（与动态类不同的链式构造器）
+ * Map<String, Object> map = quick.map().put("a", 1).put("b", 2).build();
+ * List<Object> list = quick.list().add("x").add("y").build();
+ * Table<String, String, Object> table = quick.table()
+ *     .put("r1", "c1", 1)
+ *     .put("r1", "c2", 2)
+ *     .build();
+ *
+ * // 脚本执行（Java 源码，Compiler SPI 自动发现 asm/groovy 等实现）
+ * Object result = quick.execute("1 + 2");
+ *
+ * // 动态类生成（Compiler SPI：asm/javassist/jdk）
+ * Runnable task = quick.dynamic(Runnable.class, "public void run() { System.out.println(\"hi\"); }");
+ *
+ * // XML/JSON 导入数据
+ * quick.fromJson("{\"name\":\"zhang\",\"age\":25}");
+ * quick.fromXml("<user><name>li</name><age>30</age></user>");
+ * }</pre>age\":25}");
+ * quick.从xml("<user><name>li</name><age>30</age></user>");
+ * }</pre>
+ *
+ * <h2>完整链式调用示例（importPackage + fromXml + dynamic + execute 组合）</h2>
+ * <pre>{@code
+ * // 1. 链式初始化：包导入 + 常量/变量/环境绑定 + XML 数据导入（这些方法均返回 Quick）
+ * Quick quick = Quick.create()
+ *     .importPackage("java.time", "java.util")
+ *     .constant("PI", 3.14)
+ *     .variable("factor", 2)
+ *     .env("server.port", "8080")
+ *     .fromXml("<config><name>zhang</name><age>25</age></config>");
+ *
+ * // 2. 导入的数据可直接用于类初始化（init 优先消费 fromXml/fromJson 导入的数据）
+ * User user = quick.init(User.class);      // 假设存在 User 业务实体类：name=zhang, age=25
+ *
+ * // 3. 动态类生成：为接口/类生成子类并实例化，源码自动带导入包（java.time.*）
+ * Runnable task = quick.dynamic(Runnable.class,
+ *         "public void run() { System.out.println(\"today=\" + LocalDate.now()); }");
+ * task.run();                              // today=<运行当天日期>
+ *
+ * // 4. 脚本执行：代码片段内可访问 quick（当前实例）与 variables（绑定变量快照）
+ * Object sum = quick.execute(
+ *         "return ((Number) variables.get(\"factor\")).intValue() + 1;");   // 3
+ *
+ * // 5. 脚本执行：类型化返回
+ * Double area = quick.execute("2 * Math.PI", Double.class);                  // 6.283...
+ *
+ * // 6. 脚本执行：完整类源码（实现 QuickScript，run 接收 quick 与 variables）
+ * Object name = quick.execute(
+ *         "public class MyScript implements com.chua.common.support.objects.creator.QuickScript {"
+ *       + "  public Object run(Quick quick, Map<String, Object> variables) {"
+ *       + "    return variables.get(\"name\");"                             // zhang
+ *       + "  }"
+ *       + "}");
+ *
+ * // 7. 用完释放内部上下文
+ * quick.close();
+ * }</pre>*       + "  }"
+ *       + "}");
+ *
+ * // 7. 用完释放内部上下文
+ * quick.关闭();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see DefaultQuick
+ * @see ObjectContext
+*/
 public interface Quick extends AutoCloseable {
 
     // ==================== 创建 ====================
@@ -100,7 +100,7 @@ public interface Quick extends AutoCloseable {
     * 创建 Quick 实例（内部独立 对象上下文，默认配置）。
     *
     * @return Quick 实例
-     */
+    */
     static Quick create() {
         return new DefaultQuick();
     }
@@ -110,7 +110,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param classLoader 类加载器，空 时使用线程上下文类加载器
     * @return Quick 实例
-     */
+    */
     static Quick create(ClassLoader classLoader) {
         return new DefaultQuick(classLoader);
     }
@@ -120,7 +120,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param context 外部对象容器，空 时创建独立容器
     * @return Quick 实例
-     */
+    */
     static Quick create(ObjectContext context) {
         return new DefaultQuick(context);
     }
@@ -133,7 +133,7 @@ public interface Quick extends AutoCloseable {
     * <p>每个 Quick 实例持有独立的轻量 IoC 容器，用于变量/常量/Bean 的注册与查找。</p>
     *
     * @return ObjectContext 实例
-     */
+    */
     ObjectContext context();
 
     // ==================== 脚本绑定 ====================
@@ -143,7 +143,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param packages 包名数组，如 {@code "java.time"}、{@code "java.util"}
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick importPackage(String... packages);
 
     /**
@@ -152,7 +152,7 @@ public interface Quick extends AutoCloseable {
     * @param name  常量名
     * @param value 常量值
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick constant(String name, Object value);
 
     /**
@@ -161,7 +161,7 @@ public interface Quick extends AutoCloseable {
     * @param name  变量名
     * @param value 变量值
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick variable(String name, Object value);
 
     /**
@@ -169,7 +169,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param name 变量名
     * @return 变量值，不存在返回 空
-     */
+    */
     Object variable(String name);
 
     /**
@@ -178,7 +178,7 @@ public interface Quick extends AutoCloseable {
     * @param key   属性键
     * @param value 属性值
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick env(String key, Object value);
 
     // ==================== 数据导入 ====================
@@ -188,7 +188,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param json JSON 字符串
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick fromJson(String json);
 
     /**
@@ -196,7 +196,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param xml XML 字符串
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick fromXml(String xml);
 
     /**
@@ -206,7 +206,7 @@ public interface Quick extends AutoCloseable {
     * @param type 目标类型
     * @param <T>  泛型类型
     * @return 转换后的对象
-     */
+    */
     <T> T fromJson(String json, Class<T> type);
 
     /**
@@ -216,7 +216,7 @@ public interface Quick extends AutoCloseable {
     * @param type 目标类型
     * @param <T>  泛型类型
     * @return 转换后的对象
-     */
+    */
     <T> T fromXml(String xml, Class<T> type);
 
     // ==================== 类初始化 ====================
@@ -230,7 +230,7 @@ public interface Quick extends AutoCloseable {
     * @param type 目标类型
     * @param <T>  泛型类型
     * @return 初始化后的对象
-     */
+    */
     <T> T init(Class<T> type);
 
     /**
@@ -239,7 +239,7 @@ public interface Quick extends AutoCloseable {
     * @param className 类全限定名或简单名（简单名将按导入包解析）
     * @param <T>       泛型类型
     * @return 初始化后的对象
-     */
+    */
     <T> T init(String className);
 
     // ==================== 集合构造器 ====================
@@ -250,7 +250,7 @@ public interface Quick extends AutoCloseable {
     * @param <K> 键类型
     * @param <V> 值类型
     * @return Map 构造器
-     */
+    */
     <K, V> MapBuilder<K, V> map();
 
     /**
@@ -258,7 +258,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param <E> 元素类型
     * @return List 构造器
-     */
+    */
     <E> ListBuilder<E> list();
 
     /**
@@ -268,7 +268,7 @@ public interface Quick extends AutoCloseable {
     * @param <C> 列类型（需 {@link Comparable}，用于 树基础table）
     * @param <V> 值类型
     * @return Table 构造器
-     */
+    */
     <R extends Comparable<? super R>, C extends Comparable<? super C>, V> TableBuilder<R, C, V> table();
 
     // ==================== 动态类 ====================
@@ -278,7 +278,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param source Java 源码字符串
     * @return 编译后的 类
-     */
+    */
     Class<?> compile(String source);
 
     /**
@@ -291,7 +291,7 @@ public interface Quick extends AutoCloseable {
     * @param source    子类成员源码（方法体），如 {@code "public void run() { ... }"}
     * @param <T>       泛型类型
     * @return 子类实例
-     */
+    */
     <T> T dynamic(Class<T> superType, String source);
 
     // ==================== 脚本执行 ====================
@@ -313,7 +313,7 @@ public interface Quick extends AutoCloseable {
     *
     * @param script Java 脚本源码或代码片段
     * @return 执行结果
-     */
+    */
     Object execute(String script);
 
     /**
@@ -323,7 +323,7 @@ public interface Quick extends AutoCloseable {
     * @param returnType 返回类型
     * @param <T>        泛型类型
     * @return 类型化执行结果
-     */
+    */
     <T> T execute(String script, Class<T> returnType);
 
     // ==================== Bean 访问 ====================
@@ -334,7 +334,7 @@ public interface Quick extends AutoCloseable {
     * @param name Bean 名称
     * @param bean Bean 实例
     * @return 当前 Quick 实例（链式）
-     */
+    */
     Quick register(String name, Object bean);
 
     /**
@@ -343,7 +343,7 @@ public interface Quick extends AutoCloseable {
     * @param name Bean 名称
     * @param <T>  泛型类型
     * @return Bean 实例，不存在返回 空
-     */
+    */
     <T> T get(String name);
 
     /**
@@ -352,12 +352,12 @@ public interface Quick extends AutoCloseable {
     * @param type Bean 类型
     * @param <T>  泛型类型
     * @return Bean 实例，不存在返回 空
-     */
+    */
     <T> T get(Class<T> type);
 
     /**
     * 关闭 Quick，释放内部上下文资源。
-     */
+    */
     @Override
     void close();
 
@@ -370,7 +370,7 @@ public interface Quick extends AutoCloseable {
     * @param <V> 值类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface MapBuilder<K, V> {
 
         /**
@@ -379,7 +379,7 @@ public interface Quick extends AutoCloseable {
         * @param key   键
         * @param value 值
         * @return 当前构造器（链式）
-         */
+        */
         MapBuilder<K, V> put(K key, V value);
 
         /**
@@ -388,14 +388,14 @@ public interface Quick extends AutoCloseable {
         * @param type 实现类型：{@code hash}（哈希映射 默认）、{@code linked}（链接哈希映射）、
         *             {@code tree}（TreeMap）、{@code concurrent}（ConcurrentHashMap）
         * @return 当前构造器（链式）
-         */
+        */
         MapBuilder<K, V> type(String type);
 
         /**
         * 构建 映射。
         *
         * @return Map 实例
-         */
+        */
         Map<K, V> build();
     }
 
@@ -405,7 +405,7 @@ public interface Quick extends AutoCloseable {
     * @param <E> 元素类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface ListBuilder<E> {
 
         /**
@@ -413,7 +413,7 @@ public interface Quick extends AutoCloseable {
         *
         * @param value 元素
         * @return 当前构造器（链式）
-         */
+        */
         ListBuilder<E> add(E value);
 
         /**
@@ -422,14 +422,14 @@ public interface Quick extends AutoCloseable {
         * @param type 实现类型：{@code array}（array列表 默认）、{@code linked}（链接列表）、
         *             {@code sorted}（SortedArrayList）、{@code sync}（CopyOnWriteArrayList）
         * @return 当前构造器（链式）
-         */
+        */
         ListBuilder<E> type(String type);
 
         /**
         * 构建 列表。
         *
         * @return List 实例
-         */
+        */
         List<E> build();
     }
 
@@ -441,7 +441,7 @@ public interface Quick extends AutoCloseable {
     * @param <V> 值类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface TableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> {
 
         /**
@@ -451,7 +451,7 @@ public interface Quick extends AutoCloseable {
         * @param columnKey 列键
         * @param value     值
         * @return 当前构造器（链式）
-         */
+        */
         TableBuilder<R, C, V> put(R rowKey, C columnKey, V value);
 
         /**
@@ -459,14 +459,14 @@ public interface Quick extends AutoCloseable {
         *
         * @param type 实现类型：{@code hash}（哈希基础table 默认）、{@code tree}（树基础table）
         * @return 当前构造器（链式）
-         */
+        */
         TableBuilder<R, C, V> type(String type);
 
         /**
         * 构建 Table。
         *
         * @return Table 实例
-         */
+        */
         Table<R, C, V> build();
     }
 }

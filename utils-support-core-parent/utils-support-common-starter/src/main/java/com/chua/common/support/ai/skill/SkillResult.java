@@ -14,13 +14,13 @@ public class SkillResult {
     /** 是否成功 */
     /**
     * 是否成功
-     */
+    */
     private final boolean success;
 
     /** 结果内容 */
     /**
     * 内容
-     */
+    */
     private final Object content;
 
     /** 错误信息 */
@@ -31,7 +31,7 @@ public class SkillResult {
     * @param success success
     * @param content Object
     * @param errorMessage String
-     */
+    */
     public SkillResult(boolean success, Object content, String errorMessage) {
         this.success = success;
         this.content = content;

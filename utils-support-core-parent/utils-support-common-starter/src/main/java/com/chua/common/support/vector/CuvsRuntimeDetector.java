@@ -13,24 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* cuvs GPU 环境检测器，按层级检测 NVIDIA 驱动、CUDA Toolkit、GPU 设备可用性。
-*
-* <p>检测流程（逐级失败则停止并打印安装指引）：
-* <ol>
-*   <li>检查 cuVS Java API 是否在 classpath 中（{@code com.nvidia.cuvs.*}）</li>
-*   <li>检查 NVIDIA 驱动是否安装（Windows: registry；Linux: {@code /proc/driver/nvidia}）</li>
-*   <li>检查 CUDA Driver API 是否可用（尝试加载 nvcuda.dll / libcuda.so）</li>
-*   <li>检查 GPU 设备是否可访问（nvidia-smi 或 CUDA runtime）</li>
-*   <li>尝试创建 {@code CuVSResources}（验证 cuVS native 库可用性）</li>
-* </ol>
-* </p>
-*
-* <p>失败时会在日志中打印详细的安装指引。</p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see RuntimeDetector
- */
+ * cuvs GPU 环境检测器，按层级检测 NVIDIA 驱动、CUDA Toolkit、GPU 设备可用性。
+ *
+ * <p>检测流程（逐级失败则停止并打印安装指引）：
+ * <ol>
+ *   <li>检查 cuVS Java API 是否在 classpath 中（{@code com.nvidia.cuvs.*}）</li>
+ *   <li>检查 NVIDIA 驱动是否安装（Windows: registry；Linux: {@code /proc/driver/nvidia}）</li>
+ *   <li>检查 CUDA Driver API 是否可用（尝试加载 nvcuda.dll / libcuda.so）</li>
+ *   <li>检查 GPU 设备是否可访问（nvidia-smi 或 CUDA runtime）</li>
+ *   <li>尝试创建 {@code CuVSResources}（验证 cuVS native 库可用性）</li>
+ * </ol>
+ * </p>
+ *
+ * <p>失败时会在日志中打印详细的安装指引。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see RuntimeDetector
+*/
 @Slf4j
 public class CuvsRuntimeDetector implements RuntimeDetector {
 
@@ -108,7 +108,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     /**
     * 检查 cuvs Java API 是否在 类路径 中。
     * @return 检查cuvsapipresent的结果
-     */
+    */
     private boolean checkCuvsApiPresent() {
         // 通过反射尝试加载核心类来判断
         String[] testClasses = {
@@ -130,7 +130,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
     * Linux：检查 /proc/driver/nvidia 是否存在。</p>
     * @return 检查nvidiadriver的结果
-     */
+    */
     private boolean checkNvidiaDriver() {
  // 窗口 registry 降级
         if (isWindows() && checkNvidiaRegistry()) {
@@ -146,7 +146,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     /**
     * 检测可用的 GPU 设备列表（通过 nvidia-smi）。
     * @return detectGpus的结果
-     */
+    */
     private List<String> detectGpus() {
         List<String> gpus = new ArrayList<>();
         try {
@@ -177,7 +177,7 @@ public class CuvsRuntimeDetector implements RuntimeDetector {
     /**
     * Windows 注册表检查 NVIDIA 驱动。
     * @return 检查nvidiaregistry的结果
-     */
+    */
     private boolean checkNvidiaRegistry() {
         try {
             ProcessBuilder pb = new ProcessBuilder(

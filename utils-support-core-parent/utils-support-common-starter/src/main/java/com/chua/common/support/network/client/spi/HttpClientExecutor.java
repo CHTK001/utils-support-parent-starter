@@ -54,7 +54,7 @@ public interface HttpClientExecutor {
     * @param request 封装好的请求对象，包含 URL、方法、请求头、请求体、超时等参数
     * @return 响应对象 {@link ClientResponse}，包含状态码、响应头和响应体
     * @throws Exception 网络异常、超时、URI 格式错误等，由调用方统一处理
-     */
+    */
     ClientResponse execute(ClientRequest request) throws Exception;
 
     /**
@@ -72,7 +72,7 @@ public interface HttpClientExecutor {
     * </ul>
     *
     * @return SPI 名称，用于执行器查找和选择
-     */
+    */
     String getName();
 
     /**
@@ -86,7 +86,7 @@ public interface HttpClientExecutor {
     * SPI 实现中自动选择可用的执行器。不可用的执行器会被跳过。</p>
     *
     * @return 当前环境可用返回 true，否则返回 false
-     */
+    */
     boolean isAvailable();
 
     /**
@@ -101,7 +101,7 @@ public interface HttpClientExecutor {
     *
     * @param request 封装好的请求对象
     * @return 响应 Mono，完成时包含 {@link ClientResponse}
-     */
+    */
     default Mono<ClientResponse> executeAsync(ClientRequest request) {
         return Mono.fromFuture(java.util.concurrent.CompletableFuture.supplyAsync(() -> {
             try {
@@ -125,7 +125,7 @@ public interface HttpClientExecutor {
     * </ul>
     *
     * @return 排序值，默认 100
-     */
+    */
     default int getOrder() {
         return 100;
     }
@@ -147,7 +147,7 @@ public interface HttpClientExecutor {
     *
     * @return 支持的 HTTP 版本列表，默认包含 HTTP/1.1 和 HTTP/2
     * @see HttpVersion
-     */
+    */
     default List<HttpVersion> supportedVersions() {
         return List.of(HttpVersion.HTTP_1_1, HttpVersion.HTTP_2);
     }
@@ -160,7 +160,7 @@ public interface HttpClientExecutor {
     *
     * <p><b>默认实现：</b>不执行任何操作。持有底层资源的执行器（如 Netty、OkHttp）
     * 应覆写此方法以正确释放资源。</p>
-     */
+    */
     default void close() {
         // 默认无操作，由持有资源的实现类覆写
     }

@@ -19,44 +19,44 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
-* 支持链式、任务标识、MD5校验、固定目录的原生库加载器。
-* <p>
-* 从 类路径:/NAT/{platformdir}/ 抽取原生库到目标目录。
-* 默认抽取后 系统.加载；可通过 {@link #extractOnly(boolean)} 仅抽取（如 faceengine 自行加载）。
-* </p>
-* <p>
-* 也支持通过 {@link #basePath(String)} 指定任意 类路径 路径，
-* 用于抽取模型目录等非原生库资源（如 模型/minimind/ 下的 模型.onnx + tokenizer.json）。
-* </p>
-* <p>
-* 用法：
-* <pre>
-* // 抽取并加载原生库
-* NativeLoader.of("rust-module")
-*     .toTarget(modelPath + "/rust")
-*     .glob("libxxx*")
-*     .load();
-*
-* // 仅抽取原生库（ArcSoft FaceEngine 等）
-* NativeLoader.of("arcsoft")
-*     .toTarget(modelPath + "/arcsoft")
-*     .glob("libarcsoft_face*.dll")
-*     .extractOnly(true)
-*     .load();
-*
-* // 抽取模型目录资源（tokenizer.json 等附加文件）
-* NativeLoader.of("minimind-resources")
-*     .basePath("models/minimind/")
-*     .toTarget(modelRoot)
-*     .glob("*")
-*     .extractOnly(true)
-*     .load();
-* </pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 支持链式、任务标识、MD5校验、固定目录的原生库加载器。
+ * <p>
+ * 从 类路径:/NAT/{platformdir}/ 抽取原生库到目标目录。
+ * 默认抽取后 系统.加载；可通过 {@link #extractOnly(boolean)} 仅抽取（如 faceengine 自行加载）。
+ * </p>
+ * <p>
+ * 也支持通过 {@link #basePath(String)} 指定任意 类路径 路径，
+ * 用于抽取模型目录等非原生库资源（如 模型/minimind/ 下的 模型.onnx + tokenizer.json）。
+ * </p>
+ * <p>
+ * 用法：
+ * <pre>
+ * // 抽取并加载原生库
+ * NativeLoader.of("rust-module")
+ *     .toTarget(modelPath + "/rust")
+ *     .glob("libxxx*")
+ *     .load();
+ *
+ * // 仅抽取原生库（ArcSoft FaceEngine 等）
+ * NativeLoader.of("arcsoft")
+ *     .toTarget(modelPath + "/arcsoft")
+ *     .glob("libarcsoft_face*.dll")
+ *     .extractOnly(true)
+ *     .load();
+ *
+ * // 抽取模型目录资源（tokenizer.json 等附加文件）
+ * NativeLoader.of("minimind-resources")
+ *     .basePath("models/minimind/")
+ *     .toTarget(modelRoot)
+ *     .glob("*")
+ *     .extractOnly(true)
+ *     .load();
+ * </pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class NativeLoader {
 
     /** 加载 */
@@ -74,18 +74,20 @@ public class NativeLoader {
     private boolean md5;
     /** Extractonly */
     private boolean extractOnly;
-    /** 是否启用全局 任务id 缓存（默认 true；同一 JVM 内同 任务id 只提取一次） */
+    /**
+    * 是否启用全局 任务id 缓存（默认 true；同一 JVM 内同 任务id 只提取一次）
+    */
     private boolean useCache;
     /**
     * 自定义 类路径 基础路径，覆盖默认的 NAT/{platformdir}/。
     * 设置后从指定路径抽取任意资源文件（如模型目录 模型/minimind/）。
-     */
+    */
     private String basePath;
 
     /**
     * 创建 NAT加载 实例
     * @param taskId 任务标识
-     */
+    */
     private NativeLoader(String taskId) {
         this.taskId = taskId;
         this.classLoader = Thread.currentThread().getContextClassLoader();
@@ -99,7 +101,7 @@ public class NativeLoader {
     * 创建加载器
     * @param taskId 任务标识
     * @return 的的结果
-     */
+    */
     public static NativeLoader of(String taskId) {
         return new NativeLoader(taskId);
     }
@@ -108,7 +110,7 @@ public class NativeLoader {
     * 设置加载源 classloader，默认当前线程上下文 classloader
     * @param classLoader 类加载
     * @return 从的结果
-     */
+    */
     public NativeLoader from(ClassLoader classLoader) {
         this.classLoader = classLoader != null ? classLoader : this.classLoader;
         return this;
@@ -118,7 +120,7 @@ public class NativeLoader {
     * 设置目标目录（必填）。所有匹配的原生库将拷贝到该目录。
     * @param targetDir Targetdir
     * @return 转为Target的结果
-     */
+    */
     public NativeLoader toTarget(String targetDir) {
         this.targetDir = Path.of(targetDir);
         return this;
@@ -128,7 +130,7 @@ public class NativeLoader {
     * 设置目标目录（必填）。
     * @param targetDir Targetdir
     * @return 转为Target的结果
-     */
+    */
     public NativeLoader toTarget(Path targetDir) {
         this.targetDir = targetDir;
         return this;
@@ -138,7 +140,7 @@ public class NativeLoader {
     * 设置加载通配符，如 libarcsoft_face*.dll，默认 *.dll
     * @param glob glob
     * @return glob的结果
-     */
+    */
     public NativeLoader glob(String glob) {
         this.glob = glob;
         return this;
@@ -148,7 +150,7 @@ public class NativeLoader {
     * 是否启用 MD5 校验（默认 true）。启用时只有内容变化才重新拷贝。
     * @param md5 md5
     * @return withMd5的结果
-     */
+    */
     public NativeLoader withMd5(boolean md5) {
         this.md5 = md5;
         return this;
@@ -159,7 +161,7 @@ public class NativeLoader {
     * faceengine 等 SDK 自行加载 DLL 时使用。
     * @param extractOnly extractonly
     * @return extractOnly的结果
-     */
+    */
     public NativeLoader extractOnly(boolean extractOnly) {
         this.extractOnly = extractOnly;
         return this;
@@ -175,7 +177,7 @@ public class NativeLoader {
     *
     * @param useCache {@code true} 启用缓存（默认）；{@code false} 每次执行都重新提取
     * @return this
-     */
+    */
     public NativeLoader cacheable(boolean useCache) {
         this.useCache = useCache;
         return this;
@@ -190,7 +192,7 @@ public class NativeLoader {
     *
     * @param basePath 类路径 路径，如 "模型/minimind/"
     * @return this
-     */
+    */
     public NativeLoader basePath(String basePath) {
         this.basePath = basePath;
         return this;
@@ -201,7 +203,7 @@ public class NativeLoader {
     * 拷贝到 Targetdir；非 extractonly 时再按文件名排序 系统.加载。
     * <p>
     * 同一 任务id 只会执行一次，后续直接返回。
-     */
+    */
     public void load() {
         if (useCache && LOADED.containsKey(taskId)) {
             return;
@@ -220,7 +222,7 @@ public class NativeLoader {
     /**
     * 返回目标目录（绝对路径字符串），便于 faceengine(lib路径) 使用。
     * @return 获取Targetdir的结果
-     */
+    */
     public String getTargetDir() {
         if (targetDir == null) {
             return null;
@@ -278,7 +280,7 @@ public class NativeLoader {
     *
     * @param resourceBase resourcebase
     * @return 列表类路径resources的结果
-     */
+    */
     private List<ResourceItem> listClasspathResources(String resourceBase) throws Exception {
         List<ResourceItem> result = new ArrayList<>();
         // 原生镜像内不存在目录资源条目，getResources(目录) 无法枚举，直接走精确路径探测
@@ -331,7 +333,7 @@ public class NativeLoader {
     * 是否运行在 graalvm NAT 镜像 可执行文件中。
     *
     * @return true 表示当前是原生镜像运行期
-     */
+    */
     private static boolean isNativeImageRuntime() {
         try {
             String code = System.getProperty("org.graalvm.nativeimage.imagecode");
@@ -351,7 +353,7 @@ public class NativeLoader {
     *
     * @param resourceBase 默认 类路径 基础路径（如 NAT/窗口-x86_64/）
     * @param result       输出集合
-     */
+    */
     private void probeClasspathResources(String resourceBase, List<ResourceItem> result) {
         List<String> basePaths = new ArrayList<>();
         if (resourceBase != null && !resourceBase.isEmpty()) {
@@ -382,7 +384,7 @@ public class NativeLoader {
     * 由 glob 与 任务id 派生候选文件名。
     *
     * @return 候选文件名列表
-     */
+    */
     private List<String> probeCandidateNames() {
         Set<String> bases = new LinkedHashSet<>();
         if (!glob.contains("*") && !glob.contains("?")) {
@@ -419,7 +421,7 @@ public class NativeLoader {
     * @param name 名称
     * @param glob glob
     * @return 匹配的结果
-     */
+    */
     private static boolean match(String name, String glob) {
         if (name == null) {
             return false;
@@ -435,7 +437,7 @@ public class NativeLoader {
     *
     * @param items items
     * @return computeResourcesMd5的结果
-     */
+    */
     private static String computeResourcesMd5(List<ResourceItem> items) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         List<ResourceItem> sorted = new ArrayList<>(items);
@@ -454,7 +456,7 @@ public class NativeLoader {
     * @return bytes转为hex的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (byte b : bytes) {
@@ -484,7 +486,7 @@ public class NativeLoader {
         * @param size 大小
         * @param supplier 供应商
         * @return ResourceItem的结果
-         */
+        */
         private ResourceItem(String name, long size, StreamSupplier supplier) {
             this.name = name;
             this.size = size;
@@ -495,7 +497,7 @@ public class NativeLoader {
         * 打开
         *
         * @return 打开的结果
-         */
+        */
         private InputStream open() throws Exception {
             InputStream in = supplier.open();
             if (in == null) {

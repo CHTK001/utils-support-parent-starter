@@ -29,7 +29,7 @@ public record ProbeProgress(
     * @param message 状态消息
     * @param dimension 当前维度
     * @return ProbeProgress 实例
-     */
+    */
     public static ProbeProgress inProgress(int progress, String message, ProbeDimension dimension) {
         return new ProbeProgress(progress, message, System.currentTimeMillis(), dimension, null);
     }
@@ -42,7 +42,7 @@ public record ProbeProgress(
     * @param dimension 当前维度
     * @param result 探测结果
     * @return ProbeProgress 实例
-     */
+    */
     public static ProbeProgress completed(int progress, String message, ProbeDimension dimension, ProbeResult result) {
         return new ProbeProgress(progress, message, System.currentTimeMillis(), dimension, result);
     }

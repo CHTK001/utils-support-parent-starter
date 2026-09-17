@@ -35,7 +35,7 @@ public interface DocumentParser {
     *
     * @param type 数据源类型（"database"、"swagger" 等）
     * @return DocumentParser 实例
-     */
+    */
     static DocumentParser create(String type) {
         return ServiceProvider.of(DocumentParser.class).getExtension(type);
     }
@@ -45,6 +45,6 @@ public interface DocumentParser {
     *
     * @param config 文档配置
     * @return 文档数据
-     */
+    */
     DocumentData parse(DocumentConfig config);
 }

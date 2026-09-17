@@ -79,13 +79,13 @@ public class JacksonJsonProvider implements JsonProvider {
 
     /**
     * 懒加载普通 ObjectMapper 实例，默认配置为宽松模式（JSON5 风格）。
-     */
+    */
     private static final SupplierLazyLoader<ObjectMapper> MAPPER_LOADER =
             SupplierLazyLoader.of(JacksonJsonProvider::createJson5Mapper);
 
     /**
     * 懒加载美化输出格式的 ObjectMapper 实例，用于生成缩进友好的 JSON 字符串。
-     */
+    */
     private static final SupplierLazyLoader<ObjectMapper> PRETTY_FORMAT_MAPPER_LOADER =
             SupplierLazyLoader.of(JacksonJsonProvider::createPrettyFormatMapper);
 
@@ -93,7 +93,7 @@ public class JacksonJsonProvider implements JsonProvider {
     * 创建并返回配置了美化输出的 ObjectMapper 实例。
     *
     * @return 配置好的 ObjectMapper
-     */
+    */
     private static ObjectMapper createPrettyFormatMapper() {
         ObjectMapper mapper = createJson5Mapper();
         // 启用输出缩进，使生成的 JSON 更易读
@@ -107,7 +107,7 @@ public class JacksonJsonProvider implements JsonProvider {
     * 获取默认的 ObjectMapper 实例（懒加载）。
     *
     * @return ObjectMapper 实例
-     */
+    */
     public static ObjectMapper getMapper() {
         return MAPPER_LOADER.get();
     }
@@ -116,7 +116,7 @@ public class JacksonJsonProvider implements JsonProvider {
     * 获取用于美化输出的 ObjectMapper 实例（懒加载）。
     *
     * @return 配置了缩进的 ObjectMapper 实例
-     */
+    */
     private static ObjectMapper getPrettyFormatMapper() {
         return PRETTY_FORMAT_MAPPER_LOADER.get();
     }
@@ -126,7 +126,7 @@ public class JacksonJsonProvider implements JsonProvider {
     * 配置包括：忽略未知属性、允许单引号/注释/未加引号字段名等。
     *
     * @return 配置好的 ObjectMapper
-     */
+    */
     private static ObjectMapper createJson5Mapper() {
         ObjectMapper objectMapper = JsonMapper.builder()
                 // --- 解析特性配置 (Parser Features) ---
@@ -403,7 +403,7 @@ public class JacksonJsonProvider implements JsonProvider {
 
                 /**
                 * 判断字段是否应该作为属性序列化
-                 */
+                */
                 @Override
                 public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws IOException {
                     // 如果字段名在忽略列表中，则跳过该字段
@@ -420,7 +420,7 @@ public class JacksonJsonProvider implements JsonProvider {
 
                 /**
                 * 判断元素是否应该作为数组元素序列化
-                 */
+                */
                 @Override
                 public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws IOException {
                     // 如果字段名在忽略列表中，则跳过该元素

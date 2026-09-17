@@ -64,7 +64,7 @@ public @interface RemoteService {
     * <p>优先级低于 {@code @RequestMapping} 和 {@code @RequestMethod} 类级注解。</p>
     *
     * @return 基础 URL
-     */
+    */
     String url() default "";
 
     /**
@@ -73,7 +73,7 @@ public @interface RemoteService {
     * <p>优先级低于 {@code @GetMapping}、{@code @PostMapping} 等协议私有注解中的路径。</p>
     *
     * @return 路径前缀
-     */
+    */
     String path() default "";
 
     /**
@@ -87,7 +87,7 @@ public @interface RemoteService {
     * </ul>
     *
     * @return 协议名称
-     */
+    */
     String protocol() default "http";
 
     /**
@@ -107,7 +107,7 @@ public @interface RemoteService {
     * }</pre>
     *
     * @return RPC 客户端协议名
-     */
+    */
     String client() default "";
 
     /**
@@ -121,6 +121,6 @@ public @interface RemoteService {
     * </ul>
     *
     * @return 负载均衡策略名称
-     */
+    */
     String balance() default "random";
 }

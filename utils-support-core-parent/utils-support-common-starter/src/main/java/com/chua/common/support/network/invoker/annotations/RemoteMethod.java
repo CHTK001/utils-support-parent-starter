@@ -35,7 +35,7 @@ public @interface RemoteMethod {
     * 方法路径，与类级别 {@link RemoteService#path()} 组合成完整地址。
     *
     * @return 路径
-     */
+    */
     String value();
 
     /**
@@ -44,6 +44,6 @@ public @interface RemoteMethod {
     * <p>仅对 HTTP 协议有效。为空时由 Invoker 实现自行推断（如根据方法名或默认值）。</p>
     *
     * @return HTTP 方法
-     */
+    */
     String method() default "";
 }

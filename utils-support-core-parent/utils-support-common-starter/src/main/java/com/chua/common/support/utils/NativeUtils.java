@@ -9,11 +9,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 本地库工具类。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 本地库工具类。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class NativeUtils {
 
     /** 操作系统名称（小写） */
@@ -42,7 +42,7 @@ public class NativeUtils {
     * 获取 NAT 库抽取统一临时根目录（{@code java.io.tmpdir/chua-native}）。
     *
     * @return 统一临时根目录 路径
-     */
+    */
     public static Path tempRoot() {
         return Path.of(System.getProperty("java.io.tmpdir"), NATIVE_TMP_ROOT);
     }
@@ -51,7 +51,7 @@ public class NativeUtils {
     * 获取 JVM 临时目录（{@code java.io.tmpdir}）。
     *
     * @return 临时目录 路径
-     */
+    */
     public static Path tmpDir() {
         return Path.of(System.getProperty("java.io.tmpdir"));
     }
@@ -63,7 +63,7 @@ public class NativeUtils {
     *
     * @param arch Arch Linux Linux
     * @return normalizeArch Linux的结果
-     */
+    */
     private static String normalizeArch(String arch) {
         return switch (arch) {
             case "amd64", "x86_64", "x64", "em64t", "k8" -> "x86_64";
@@ -87,7 +87,7 @@ public class NativeUtils {
     * 获取os前缀
     *
     * @return 获取os前缀的结果
-     */
+    */
     private static String getOsPrefix() {
         if (OS_NAME.contains("linux")) {
             return "linux";
@@ -117,7 +117,7 @@ public class NativeUtils {
     * 构建降级Arch Linux
     *
     * @return 构建降级Arch Linux的结果
-     */
+    */
     private static String[] buildFallbackArches() {
         Set<String> arches = new LinkedHashSet<>();
         arches.add(OS_ARCH);
@@ -138,7 +138,7 @@ public class NativeUtils {
     * 获取os前缀名称
     *
     * @return 获取os前缀名称的结果
-     */
+    */
     public static String getOsPrefixName() {
         return OS_PREFIX;
     }
@@ -147,7 +147,7 @@ public class NativeUtils {
     * 获取Arch Linux名称
     *
     * @return 获取Arch Linux名称的结果
-     */
+    */
     public static String getArchName() {
         return OS_ARCH;
     }
@@ -155,7 +155,7 @@ public class NativeUtils {
     /**
     * 获取当前平台的目录名（如 窗口-x86_64、Linux-aarch64、darwin-aarch64）
     * @return 获取platformdir的结果
-     */
+    */
     public static String getPlatformDir() {
         return OS_PREFIX + "-" + OS_ARCH;
     }
@@ -163,7 +163,7 @@ public class NativeUtils {
     /**
     * 获取当前平台的所有候选目录名（按优先级排序）
     * @return 获取platformdircandidates的结果
-     */
+    */
     public static List<String> getPlatformDirCandidates() {
         List<String> result = new ArrayList<>();
         for (String arch : FALLBACK_ARCHES) {
@@ -177,7 +177,7 @@ public class NativeUtils {
     * 获取当前平台的动态库文件名（带 lib 前缀）
     * @param libraryName 图书馆名称
     * @return 获取图书馆文件名称的结果
-     */
+    */
     public static String getLibraryFileName(String libraryName) {
         return switch (OS_PREFIX) {
             case "linux", "freebsd", "openbsd", "solaris", "aix" -> "lib" + libraryName + ".so";
@@ -192,7 +192,7 @@ public class NativeUtils {
     * @param libraryName 图书馆名称
     * @param withPrefix with前缀
     * @return 获取图书馆文件名称的结果
-     */
+    */
     public static String getLibraryFileName(String libraryName, boolean withPrefix) {
         if (withPrefix) {
             return getLibraryFileName(libraryName);
@@ -220,7 +220,7 @@ public class NativeUtils {
     * @param baseDir     备用搜索目录（可空）
     * @return true 表示加载成功（或已加载过）
     * @throws UnsatisfiedLinkError 所有方式均失败
-     */
+    */
     public static synchronized boolean load(String libraryName, String baseDir) {
         String key = libraryName + "|" + (baseDir != null ? baseDir : "");
         if (LOADED.containsKey(key)) {
@@ -328,7 +328,7 @@ public class NativeUtils {
     /**
     * 从 类路径 加载（兼容旧调用）
     * @param libraryName 图书馆名称
-     */
+    */
     public static void loadFromClasspath(String libraryName) {
         load(libraryName, null);
     }
@@ -337,7 +337,7 @@ public class NativeUtils {
     * 从指定路径加载（兼容旧调用）
     * @param libraryName 图书馆名称
     * @param baseDir basedir
-     */
+    */
     public static void loadFromPath(String libraryName, String baseDir) {
         String libFileName = getLibraryFileName(libraryName);
         String libPath = baseDir + "/" + getPlatformDir() + "/" + libFileName;
@@ -352,7 +352,7 @@ public class NativeUtils {
     * @param libraryName 图书馆名称
     * @param subDir subdir
     * @param libFileName lib文件名称
-     */
+    */
     private static void loadFromClasspathInternal(String libraryName, String subDir, String libFileName) {
         String classpathLib = subDir != null ? "/native/" + subDir + "/" + libFileName : "/native/" + libFileName;
         InputStream is = NativeUtils.class.getResourceAsStream(classpathLib);
@@ -376,7 +376,7 @@ public class NativeUtils {
     *
     * @param libraryName 图书馆名称
     * @param libPath lib路径
-     */
+    */
     static void loadFromPathInternal(String libraryName, String libPath) {
         File libFile = new File(libPath);
         if (!libFile.exists()) {
@@ -398,7 +398,7 @@ public class NativeUtils {
     * @param key 键
     * @param libraryName 图书馆名称
     * @param source 源
-     */
+    */
     private static void markLoaded(String key, String libraryName, String source) {
         LOADED.put(key, true);
     }
@@ -407,7 +407,7 @@ public class NativeUtils {
     * 是否已加载指定库
     * @param libraryName 图书馆名称
     * @return 是否加载的结果
-     */
+    */
     public static boolean isLoaded(String libraryName) {
         return LOADED.containsKey(libraryName + "|") ||
                LOADED.containsKey(libraryName + "|" + "");
@@ -417,14 +417,14 @@ public class NativeUtils {
     /**
     * 获取已加载的库路径列表
     * @return 获取加载路径的结果
-     */
+    */
     public static Set<String> getLoadedPaths() {
         return new LinkedHashSet<>(LOADED_PATHS);
     }
 
     /**
     * 清理临时文件
-     */
+    */
     public static void cleanTempFiles() {
         for (String path : LOADED_PATHS) {
             File f = new File(path);

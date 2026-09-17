@@ -20,7 +20,7 @@ public interface FulltextSearch {
     * @param entityClass 实体类类型
     * @param fieldNames 需要创建全文索引的字段名列表
     * @param <T> 实体类型
-     */
+    */
     <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames);
 
     /**
@@ -30,7 +30,7 @@ public interface FulltextSearch {
     * @param entityClass 实体类类型
     * @param <T>        实体类型
     * @return 匹配的实体列表
-     */
+    */
     <T> List<T> search(String query, Class<T> entityClass);
 
     /**
@@ -41,7 +41,7 @@ public interface FulltextSearch {
     * @param limit      最大返回条数
     * @param <T>        实体类型
     * @return 匹配的实体列表
-     */
+    */
     <T> List<T> search(String query, Class<T> entityClass, int limit);
 
     /**
@@ -50,6 +50,6 @@ public interface FulltextSearch {
     * @param entityClass 实体类类型
     * @param fieldNames 需要删除索引的字段名列表
     * @param <T> 实体类型
-     */
+    */
     <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames);
 }

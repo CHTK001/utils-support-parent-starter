@@ -37,7 +37,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     private static final int DEFAULT_OTP_LENGTH = 6;
     /**
     * TOTP 时间步长，单位为秒
-     */
+    */
     private static final int INTERVAL = 30;
     /** 密钥字节数组 */
     private final byte[] secret;
@@ -49,7 +49,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 构造方法，使用默认 UTC 时区。
     *
     * @param secret 共享密钥字节数组
-     */
+    */
     public DefaultTotpGenerator(byte[] secret) {
         this(secret, ZoneOffset.UTC);
     }
@@ -59,7 +59,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param secret  共享密钥字节数组
     * @param zoneId  时区标识符
-     */
+    */
     public DefaultTotpGenerator(byte[] secret, ZoneId zoneId) {
         this.secret = secret;
         this.zoneId = zoneId;
@@ -73,7 +73,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * @param secret    用于生成的共享密钥
     * @param otpLength OTP 码长度（通常为 6 或 8）
     * @return 生成的 OTP 字符串
-     */
+    */
     public String generateTOTP(byte[] secret, int otpLength) {
         long currentTimeSeconds = getCurrentTimeSeconds();
         long counter = currentTimeSeconds / INTERVAL;
@@ -84,7 +84,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 获取当前系统时间在指定时区下的秒数时间戳。
     *
     * @return 当前时间的秒级时间戳
-     */
+    */
     private long getCurrentTimeSeconds() {
         return ZonedDateTime.now(zoneId).toEpochSecond();
     }
@@ -102,7 +102,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * @param counter   计数器值
     * @param otpLength OTP 码长度
     * @return 生成的 HOTP 字符串
-     */
+    */
     private String generateHOTP(byte[] secret, long counter, int otpLength) {
         try {
             // 将计数器转换为 8 字节的大端序数组
@@ -148,7 +148,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 获取当前的 TOTP 码。
     *
     * @return 当前时刻的 OTP 字符串
-     */
+    */
     @Override
     public String now() {
         return generateTOTP(secret, DEFAULT_OTP_LENGTH);
@@ -159,7 +159,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param date 指定的时间点
     * @return 该时间点对应的 OTP 字符串
-     */
+    */
     @Override
     public String at(Date date) {
         long time = date.getTime();
@@ -173,7 +173,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param date 指定的日期
     * @return 该日期开始时刻对应的 OTP 字符串
-     */
+    */
     @Override
     public String at(LocalDate date) {
         long time = date.atStartOfDay(zoneId).toInstant().toEpochMilli();
@@ -185,7 +185,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param instant 指定的瞬间
     * @return 该瞬间对应的 OTP 字符串
-     */
+    */
     @Override
     public String at(Instant instant) {
         return generateTOTPAtTime(instant.toEpochMilli());
@@ -196,7 +196,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param time 毫秒时间戳
     * @return 该时间点对应的 OTP 字符串
-     */
+    */
     @Override
     public String at(long time) {
         return generateTOTPAtTime(time);
@@ -209,7 +209,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param time 毫秒时间戳
     * @return 生成的 OTP 字符串
-     */
+    */
     private String generateTOTPAtTime(long time) {
         long currentTimeSeconds = time / 1000L;
         long counter = currentTimeSeconds / INTERVAL;
@@ -223,7 +223,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     *
     * @param code 用户提供的验证码
     * @return 如果匹配返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean verify(String code) {
         String currentCode = now();
@@ -239,7 +239,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * @param account 账户名称（如用户名）
     * @return 构建好的 URI 对象
     * @throws URISyntaxException 如果 URI 格式错误
-     */
+    */
     @Override
     public URI getUri(String issuer, String account) throws URISyntaxException {
         // 将二进制密钥编码为 Base32 字符串
@@ -259,7 +259,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 获取默认的密码长度。
     *
     * @return 密码长度，默认为 6
-     */
+    */
     @Override
     public int getPasswordLength() {
         return DEFAULT_OTP_LENGTH;
@@ -269,7 +269,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 获取内部的共享密钥。
     *
     * @return 密钥字节数组
-     */
+    */
     @Override
     public byte[] getSecret() {
         return secret;
@@ -279,7 +279,7 @@ public class DefaultTotpGenerator implements TotpGenerator {
     * 获取使用的哈希算法名称。
     *
     * @return 算法名称，即 "HmacSHA1"
-     */
+    */
     @Override
     public String getAlgorithm() {
         return HMAC_SHA1;

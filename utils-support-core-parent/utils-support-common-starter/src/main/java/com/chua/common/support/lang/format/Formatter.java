@@ -15,6 +15,6 @@ public interface Formatter {
     *
     * @param source 待格式化的原始字符串
     * @return 格式化后的字符串
-     */
+    */
     String format(String source);
 }

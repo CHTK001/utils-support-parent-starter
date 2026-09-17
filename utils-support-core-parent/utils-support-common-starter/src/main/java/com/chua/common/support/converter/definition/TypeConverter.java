@@ -50,7 +50,7 @@ public interface TypeConverter<O> {
     /**
     * 初始化存储容量单位映射表。
     * <p>预定义 B、KB/K、MB/M、GB/G、PB/P 与字节数的对应关系。</p>
-     */
+    */
     static void initial() {
         MAPPING.put("B", 1L);
         MAPPING.put("KB", 1024L);
@@ -67,7 +67,7 @@ public interface TypeConverter<O> {
     * 获取当前转换器支持的目标类型。
     *
     * @return 目标类型的 Class 对象
-     */
+    */
     Class<O> getType();
 
     /**
@@ -75,7 +75,7 @@ public interface TypeConverter<O> {
     *
     * @param value 源值
     * @return 转换后的值，如果无法转换则返回 null
-     */
+    */
     O convert(Object value);
 
     /**
@@ -84,7 +84,7 @@ public interface TypeConverter<O> {
     * @param value 源值
     * @param type  目标类型
     * @return 如果 value 是 type 的实例返回 true
-     */
+    */
     default boolean isAssignableFrom(Object value, Class<?> type) {
         return type.isAssignableFrom(value.getClass());
     }
@@ -95,7 +95,7 @@ public interface TypeConverter<O> {
     *
     * @param value 源值
     * @return 转换后的值，默认返回 null
-     */
+    */
     default O convertIfNecessary(Object value) {
         return null;
     }
@@ -107,7 +107,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     @SuppressWarnings("all")
     default <T> T[] transToArray(List value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
@@ -120,7 +120,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(Object[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -133,7 +133,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组，如果无法转换则返回空数组
-     */
+    */
     default <T> T[] transToArray(Object value, Class<T> type) {
 
         if (value instanceof Byte[]) {
@@ -201,7 +201,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(byte[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -213,7 +213,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(long[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -225,7 +225,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(boolean[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -237,7 +237,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(short[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -249,7 +249,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(int[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -261,7 +261,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(double[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -273,7 +273,7 @@ public interface TypeConverter<O> {
     * @param type  目标元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的数组
-     */
+    */
     default <T> T[] transToArray(float[] value, Class<T> type) {
         return ArrayUtils.transToArray(value, type);
     }
@@ -293,7 +293,7 @@ public interface TypeConverter<O> {
     *
     * @param value 源值
     * @return BigDecimal 值，如果无法转换则返回 null
-     */
+    */
     default BigDecimal transToBigDecimal(Object value) {
         if (isAssignableFrom(value, Number.class)) {
             return new BigDecimal(value.toString());
@@ -368,7 +368,7 @@ public interface TypeConverter<O> {
     *
     * @param value 字符串
     * @return BigDecimal 值，如果无法解析则返回 null
-     */
+    */
     static BigDecimal stringTransToBigDecimal(String value) {
         if (NumberUtils.isNumber(value)) {
             return new BigDecimal(value);
@@ -434,7 +434,7 @@ public interface TypeConverter<O> {
     *
     * @param valueStr 带有单位后缀的字符串
     * @return 去除单位后缀后的字符串
-     */
+    */
     static String clearSize(String valueStr) {
         if (MAPPING.isEmpty()) {
             initial();
@@ -455,7 +455,7 @@ public interface TypeConverter<O> {
     *
     * @param valueStr 带有单位后缀的字符串
     * @return 对应的字节数，如果没有匹配的单位则返回 0
-     */
+    */
     static long isSize(String valueStr) {
         if (MAPPING.isEmpty()) {
             initial();

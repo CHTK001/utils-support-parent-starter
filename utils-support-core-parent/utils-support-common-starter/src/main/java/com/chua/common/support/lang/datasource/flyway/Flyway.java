@@ -45,7 +45,7 @@ public interface Flyway {
     *
     * @param location 脚本位置
     * @return this
-     */
+    */
     Flyway location(String location);
 
     /**
@@ -53,21 +53,21 @@ public interface Flyway {
     *
     * @param separator 分隔符
     * @return this
-     */
+    */
     Flyway separator(String separator);
 
     /**
     * 获取迁移信息，包含已应用与待应用的脚本。
     *
     * @return 迁移信息列表（按版本升序）
-     */
+    */
     java.util.List<MigrationInfo> info();
 
     /**
     * 执行所有未应用的迁移脚本。
     *
     * @return 本次执行的脚本数量
-     */
+    */
     int migrate();
 
     /**
@@ -75,6 +75,6 @@ public interface Flyway {
     *
     * @param script 脚本文件
     * @return 执行语句数量
-     */
+    */
     int execute(Path script);
 }

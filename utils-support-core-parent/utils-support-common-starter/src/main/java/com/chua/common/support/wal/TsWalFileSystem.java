@@ -9,21 +9,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 /**
-* TS（时序）格式 WAL 文件系统实现。
-* payload: int32 键len + 键(utf8) + int64 ts + double 值 + [int32 ttlsec]
-* @author CH
-* @since 4.0.0
-* @param now now
-* @return 是否expired的结果
-* @param config 配置
- */
+ * TS（时序）格式 WAL 文件系统实现。
+ * payload: int32 键len + 键(utf8) + int64 ts + double 值 + [int32 ttlsec]
+ * @author CH
+ * @since 4.0.0
+ * @param now now
+ * @return 是否expired的结果
+ * @param config 配置
+*/
 @Spi("wal-ts")
 public class TsWalFileSystem extends AbstractWalFileSystem {
 
     /**
     * tswal文件系统。
     * @param config 配置
-     */
+    */
     public TsWalFileSystem(WalStoreConfig config) throws IOException {
         super(config);
     }
@@ -31,10 +31,10 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     @Override
     protected byte opType() { return 0x02; }
 /**
-* decode键。
-* @param payload payload
-* @return decode键的结果
- */
+ * decode键。
+ * @param payload payload
+ * @return decode键的结果
+*/
 
     @Override
     protected String decodeKey(byte[] payload) {
@@ -52,7 +52,7 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     * @param ts ts
     * @param value 值
     * @return encode的结果
-     */
+    */
     }
 
     public static byte[] encode(String measure, long ts, double value) {
@@ -67,7 +67,7 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     * @param value 值
     * @param ttlSec ttlsec
     * @return encodeWithTtl的结果
-     */
+    */
     }
 
     public static byte[] encodeWithTtl(String measure, long ts, double value, int ttlSec) {
@@ -79,7 +79,7 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     * decode。
     * @param payload payload
     * @return decode的结果
-     */
+    */
     }
 
     public static Optional<TsRecord> decode(byte[] payload) {
@@ -108,14 +108,14 @@ public class TsWalFileSystem extends AbstractWalFileSystem {
     * @param ttlSec ttlsec
     * @return TsRecord的结果
     * @param now now
-     */
+    */
     }
 
     public record TsRecord(String measure, long ts, double value, Integer ttlSec) {
         /**
         * expireAt。
         * @return expireAt的结果
-         */
+        */
         public long expireAt() {
             return ttlSec == null ? Long.MAX_VALUE : ts + (long) ttlSec * 1000L;
         }

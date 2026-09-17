@@ -37,24 +37,24 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
 
     /**
     * 内部 int 数组
-     */
+    */
     private int[] elements;
 
     /**
     * 当前元素数量
-     */
+    */
     private int size;
 
     /**
     * 默认初始容量
-     */
+    */
     private static final int DEFAULT_CAPACITY = 10;
 
     /**
     * 创建空整数列表。
     *
     * @return IntList 实例
-     */
+    */
     public static IntList of() {
         return new IntList();
     }
@@ -64,7 +64,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @param capacity 初始容量，必须大于等于 0
     * @return IntList 实例
-     */
+    */
     public static IntList of(int capacity) {
         return new IntList(capacity);
     }
@@ -74,7 +74,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @param values int 数组
     * @return IntList 实例
-     */
+    */
     public static IntList of(int[] values) {
         IntList list = new IntList(values.length);
         list.addAll(values);
@@ -86,7 +86,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @param values 整数集合
     * @return IntList 实例
-     */
+    */
     public static IntList of(Collection<Integer> values) {
         IntList list = new IntList(values.size());
         list.addAll(values);
@@ -95,7 +95,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
 
     /**
     * 构造方法，创建默认容量的整数列表。
-     */
+    */
     public IntList() {
         this(DEFAULT_CAPACITY);
     }
@@ -104,7 +104,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 构造方法，创建指定初始容量的整数列表。
     *
     * @param capacity 初始容量
-     */
+    */
     public IntList(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("容量不能为负数: " + capacity);
@@ -339,7 +339,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @param index 索引
     * @return int 值
-     */
+    */
     public int getInt(int index) {
         checkElementIndex(index);
         return elements[index];
@@ -350,7 +350,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @param index 索引
     * @param value int 值
-     */
+    */
     public void setInt(int index, int value) {
         checkElementIndex(index);
         elements[index] = value;
@@ -360,7 +360,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 追加一个 int 值（避免自动装箱）。
     *
     * @param value int 值
-     */
+    */
     public void addInt(int value) {
         ensureCapacity(size + 1);
         elements[size++] = value;
@@ -370,7 +370,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 批量追加 int 值（避免自动装箱）。
     *
     * @param values int 数组
-     */
+    */
     public void addAll(int[] values) {
         ensureCapacity(size + values.length);
         System.arraycopy(values, 0, elements, size, values.length);
@@ -381,7 +381,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 计算所有元素的和。
     *
     * @return 元素总和
-     */
+    */
     public int sum() {
         int sum = 0;
         for (int i = 0; i < size; i++) {
@@ -394,7 +394,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 计算所有元素的平均值。
     *
     * @return 元素平均值
-     */
+    */
     public double average() {
         if (size == 0) {
             return 0.0;
@@ -407,7 +407,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @return 最大元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     public int max() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -426,7 +426,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     *
     * @return 最小元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     public int min() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -444,7 +444,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 将列表转换为基本类型 int 数组。
     *
     * @return int 数组
-     */
+    */
     public int[] toIntArray() {
         return Arrays.copyOf(elements, size);
     }
@@ -455,7 +455,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 确保容量足够。
     *
     * @param minCapacity 最小容量
-     */
+    */
     private void ensureCapacity(int minCapacity) {
         if (minCapacity > elements.length) {
             int newCapacity = Math.max(elements.length * 2, minCapacity);
@@ -467,7 +467,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 检查元素索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);
@@ -478,7 +478,7 @@ public class IntList extends AbstractList<Integer> implements RandomAccess {
     * 检查位置索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);

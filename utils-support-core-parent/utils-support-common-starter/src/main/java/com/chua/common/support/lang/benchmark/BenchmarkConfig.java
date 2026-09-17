@@ -28,41 +28,41 @@ public class BenchmarkConfig {
 
     /**
     * 压测模式。
-     */
+    */
     public enum Mode {
         /**
         * 并发模式：N 虚拟用户同时各发 1 次请求。
-         */
+        */
         CONCURRENCY,
         /**
         * 吞吐模式：固定连接数 × 每连接多请求（持续吞吐）。
-         */
+        */
         THROUGHPUT
     }
 
     /**
     * 报告指标项。
-     */
+    */
     public enum Metric {
         SUCCESS_RATE, RPS, P50, P95, P99, P999, MAX
     }
 
     /**
     * 压测模式，默认并发。
-     */
+    */
     @Builder.Default
     /** 模式 */
     private Mode mode = Mode.CONCURRENCY;
 
     /**
     * 目标 URL（必填），如 {@code http://127.0.0.1:8100/echo}。
-     */
+    */
     private String targetUrl;
 
     /**
     * 并发等级数组（VUS / 连接数）。
     * <p>并发模式：VUS 数；吞吐模式：同时连接数。</p>
-     */
+    */
     @Builder.Default
     /** Concurrencylevels */
     private int[] concurrencyLevels = {100, 500, 1000, 2000, 5000};
@@ -73,70 +73,70 @@ public class BenchmarkConfig {
     *   <li>并发模式：默认 1（flash，每 VU 各发 1 次）</li>
     *   <li>吞吐模式：每连接请求数，如 500</li>
     * </ul>
-     */
+    */
     @Builder.Default
     /** IterationsPERVUS */
     private int iterationsPerVus = 1;
 
     /**
     * 压测时长（秒），吞吐模式可选（>0 时按时长而非迭代数压测）。
-     */
+    */
     @Builder.Default
     /** 持续时间秒 */
     private int durationSeconds = 0;
 
     /**
     * 报告指标列表，动态控制报告中展示的指标。
-     */
+    */
     @Builder.Default
     /** Metrics */
     private Metric[] metrics = {Metric.SUCCESS_RATE, Metric.RPS, Metric.P95, Metric.P99};
 
     /**
     * 服务器实现名称（报告分组用），如 jdk / nio / netty。
-     */
+    */
     private String implementation;
 
     /**
     * 报告标题。
-     */
+    */
     private String title;
 
     /**
     * 环境描述（OS / JDK / CPU / 内存）。
-     */
+    */
     private String environment;
 
     /**
     * 压测工具描述。
-     */
+    */
     private String tool;
 
     /**
     * 场景说明。
-     */
+    */
     private String scenario;
 
     /**
     * 报告输出路径。
-     */
+    */
     @Builder.Default
     /** Report路径 */
     private String reportPath = "target/http-server-benchmark.html";
 
     /**
     * k6 可执行文件路径；为空时使用系统 PATH 中的 "k6"。
-     */
+    */
     private String k6Binary;
 
     /**
     * 输出目录（k6 summary JSON 临时文件目录），为空时使用系统临时目录。
-     */
+    */
     private String workDir;
 
     /**
     * 是否保留 k6 summary JSON 中间文件。
-     */
+    */
     @Builder.Default
     /** KeepsummaryJSON */
     private boolean keepSummaryJson = false;
@@ -146,7 +146,7 @@ public class BenchmarkConfig {
     *
     * @param metric 指标
     * @return true 表示展示
-     */
+    */
     public boolean shows(Metric metric) {
         if (metrics == null) {
             return true;

@@ -47,7 +47,7 @@ public interface DnsProvider {
     *
     * @param name 服务商名称（如 cloudflare、dnspod、aliyun）
     * @return DNS 提供者实例，未找到时返回 null
-     */
+    */
     static DnsProvider create(String name) {
         return ServiceProvider.of(DnsProvider.class).getNewExtension(name);
     }
@@ -57,7 +57,7 @@ public interface DnsProvider {
     *
     * @param config DNS 配置
     * @return 当前实例，支持链式调用
-     */
+    */
     DnsProvider config(DnsConfig config);
 
     /**
@@ -65,7 +65,7 @@ public interface DnsProvider {
     *
     * @param record DNS 记录
     * @return 当前实例，支持链式调用
-     */
+    */
     DnsProvider addRecord(DnsRecord record);
 
     /**
@@ -73,7 +73,7 @@ public interface DnsProvider {
     *
     * @param record DNS 记录（按 name + type 匹配）
     * @return 当前实例，支持链式调用
-     */
+    */
     DnsProvider removeRecord(DnsRecord record);
 
     /**
@@ -82,6 +82,6 @@ public interface DnsProvider {
     * @param name 记录名称（完整域名，如 _acme-challenge.example.com）
     * @param type 记录类型（A、AAAA、TXT、CNAME 等）
     * @return 匹配的记录列表，可能为空但不为 null
-     */
+    */
     List<DnsRecord> listRecords(String name, String type);
 }

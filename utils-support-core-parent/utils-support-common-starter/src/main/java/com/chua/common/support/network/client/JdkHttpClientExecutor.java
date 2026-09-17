@@ -44,7 +44,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * <p>配置了自动跟随标准重定向（NORMAL 模式：跟随 HTTP→HTTP 和 HTTPS→HTTPS 的重定向，
     * 但不跟随 HTTP→HTTPS 的协议降级重定向）。客户端实例是线程安全的，可被多个请求共享。</p>
-     */
+    */
     private final HttpClient redirectClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(Duration.ofSeconds(30))
@@ -55,7 +55,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * <p>配置为从不跟随重定向（NEVER 模式）。当请求设置了自定义重定向处理器
     * 或显式禁用了自动跟随重定向时使用此客户端，以便执行器收到原始的 3xx 响应。</p>
-     */
+    */
     private final HttpClient noRedirectClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NEVER)
             .connectTimeout(Duration.ofSeconds(30))
@@ -69,7 +69,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * @param request 请求对象，包含代理和重定向配置
     * @return 适合当前请求的 JDK HttpClient 实例
-     */
+    */
     private HttpClient resolveHttpClient(com.chua.common.support.network.client.ClientRequest request) {
         // 检查是否需要自定义配置的客户端
         boolean needsCustomClient = (request.getProxyHost() != null && !request.getProxyHost().isEmpty())
@@ -107,7 +107,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     * @param request 封装好的请求对象
     * @return 响应对象 {@link ClientResponse}
     * @throws Exception 网络异常、超时、URI 格式错误等
-     */
+    */
     @Override
     public ClientResponse execute(com.chua.common.support.network.client.ClientRequest request) throws Exception {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -186,7 +186,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * @param request 请求对象
     * @return 对应的 BodyPublisher
-     */
+    */
     private HttpRequest.BodyPublisher bodyPublisher(com.chua.common.support.network.client.ClientRequest request) {
         Object body = request.getBody();
         if (body == null) {
@@ -206,7 +206,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * @param statusCode HTTP 状态码
     * @return true 表示是重定向状态码
-     */
+    */
     private static boolean isRedirect(int statusCode) {
         return statusCode >= 300 && statusCode < 400;
     }
@@ -227,7 +227,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     *
     * @param request 封装好的请求对象
     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
-     */
+    */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
         try {
@@ -280,7 +280,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     * 获取执行器名称。
     *
     * @return 固定返回 {@code "jdk"}
-     */
+    */
     @Override
     public String getName() {
         return "jdk";
@@ -292,7 +292,7 @@ public class JdkHttpClientExecutor implements HttpClientExecutor {
     * <p>JDK 内置执行器始终可用，无需外部依赖。</p>
     *
     * @return 始终返回 true
-     */
+    */
     @Override
     public boolean isAvailable() {
         return true;

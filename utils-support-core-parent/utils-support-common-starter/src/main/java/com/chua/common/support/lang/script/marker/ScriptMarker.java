@@ -52,7 +52,7 @@ public interface ScriptMarker {
     * 保存和销毁旧的类加载器，释放 Metaspace 内存。</p>
     *
     * @return 最后一次使用的类加载器，未编译时返回 {@code null}
-     */
+    */
     default ClassLoader getScriptClassLoader() {
         return null;
     }
@@ -68,13 +68,13 @@ public interface ScriptMarker {
     * @param classLoader 父类加载器，未指定时为 {@code null}
     * @param args        构造器参数
     * @return 创建的对象实例，编译/加载失败时返回 {@code null}
-     */
+    */
     Object createObject(Listener listener, ClassLoader classLoader, Object... args);
 
     /**
     * 获取最后一次编译生成的脚本类的 Class 对象。
     *
     * @return 最近编译的类类型，未编译时返回 {@code null}
-     */
+    */
     Class<?> getType();
 }

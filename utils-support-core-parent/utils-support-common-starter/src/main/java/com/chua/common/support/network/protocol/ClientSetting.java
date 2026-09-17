@@ -27,7 +27,7 @@ public class ClientSetting {
     /**
     * 创建 ClientSetting 实例
     * @param b b
-     */
+    */
     private ClientSetting(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -42,7 +42,7 @@ public class ClientSetting {
     * 获取主机地址。
     *
     * @return 主机地址
-     */
+    */
     public String getHost() {
         return host;
     }
@@ -51,7 +51,7 @@ public class ClientSetting {
     * 获取端口号。
     *
     * @return 端口号
-     */
+    */
     public int getPort() {
         return port;
     }
@@ -60,7 +60,7 @@ public class ClientSetting {
     * 获取用户名。
     *
     * @return 用户名
-     */
+    */
     public String getUsername() {
         return username;
     }
@@ -69,7 +69,7 @@ public class ClientSetting {
     * 获取密码。
     *
     * @return 密码
-     */
+    */
     public String getPassword() {
         return password;
     }
@@ -78,7 +78,7 @@ public class ClientSetting {
     * 获取连接超时（毫秒）。
     *
     * @return 连接超时
-     */
+    */
     public long getConnectTimeout() {
         return connectTimeout;
     }
@@ -87,7 +87,7 @@ public class ClientSetting {
     * 获取读取超时（毫秒）。
     *
     * @return 读取超时
-     */
+    */
     public long getReadTimeout() {
         return readTimeout;
     }
@@ -96,7 +96,7 @@ public class ClientSetting {
     * 获取写入超时（毫秒）。
     *
     * @return 写入超时
-     */
+    */
     public long getWriteTimeout() {
         return writeTimeout;
     }
@@ -105,14 +105,14 @@ public class ClientSetting {
     * 创建新的 Builder。
     *
     * @return Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
     * 构建器类。
-     */
+    */
     public static class Builder {
         /** 主机 */
         private String host;

@@ -47,74 +47,74 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* Quick 默认实现。
-*
-* <p>核心设计：</p>
-* <ul>
-*   <li><b>独立上下文</b> — 每个实例持有独立的 {@link DefaultObjectContext}，
-*       变量/常量/Bean 互不干扰，{@link #close()} 释放容器资源。</li>
-*   <li><b>动态类 SPI</b> — {@link #compile(String)} / {@link #dynamic(Class, String)}
-* 通过 {@link Compiler} SPI 解析编译器：common-starter 自带 {@link JdkCompiler} 兜底，
-* 引入 utils-support-asm-starter 后自动使用 ASM（含字节码 stack映射table 后处理）。</li>
-*   <li><b>脚本执行</b> — 完整类源码直接编译运行；代码片段包装为 {@link QuickScript}
-*       实现类后编译执行，片段内可访问 {@code quick} 与 {@code variables}。</li>
-*   <li><b>XML/JSON 导入</b> — DOM 解析 XML、{@link Json} 解析 JSON，统一转为 Map 并绑定为变量。</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
-* @see Quick
-* @see Compiler
-* @see QuickScript
- */
+ * Quick 默认实现。
+ *
+ * <p>核心设计：</p>
+ * <ul>
+ *   <li><b>独立上下文</b> — 每个实例持有独立的 {@link DefaultObjectContext}，
+ *       变量/常量/Bean 互不干扰，{@link #close()} 释放容器资源。</li>
+ *   <li><b>动态类 SPI</b> — {@link #compile(String)} / {@link #dynamic(Class, String)}
+ * 通过 {@link Compiler} SPI 解析编译器：common-starter 自带 {@link JdkCompiler} 兜底，
+ * 引入 utils-support-asm-starter 后自动使用 ASM（含字节码 stack映射table 后处理）。</li>
+ *   <li><b>脚本执行</b> — 完整类源码直接编译运行；代码片段包装为 {@link QuickScript}
+ *       实现类后编译执行，片段内可访问 {@code quick} 与 {@code variables}。</li>
+ *   <li><b>XML/JSON 导入</b> — DOM 解析 XML、{@link Json} 解析 JSON，统一转为 Map 并绑定为变量。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see Quick
+ * @see Compiler
+ * @see QuickScript
+*/
 @Spi("quick")
 @Slf4j
 public class DefaultQuick implements Quick {
 
     /**
     * 动态脚本类名计数器，保证生成的类名唯一
-     */
+    */
     private static final AtomicInteger SCRIPT_SEQ = new AtomicInteger(0);
 
     /**
     * 动态类默认包名
-     */
+    */
     private static final String SCRIPT_PACKAGE = "com.chua.common.support.objects.creator.script";
     private static final String DYNAMIC_PACKAGE = "com.chua.common.support.objects.creator.dynamic"; // dynamic包
 
     /**
     * 内部独立的 对象上下文（轻量 IOC 容器）
-     */
+    */
     private final ObjectContext context;
 
     /**
     * 导入的包路径集合
-     */
+    */
     private final Set<String> importPackages = new LinkedHashSet<>();
 
     /**
     * 常量绑定（不可变）
-     */
+    */
     private final Map<String, Object> constants = new LinkedHashMap<>();
 
     /**
     * 变量绑定（可变）
-     */
+    */
     private final Map<String, Object> variables = new ConcurrentHashMap<>();
 
     /**
     * 最近一次导入的数据（从xml / 从json）
-     */
+    */
     private Object data;
 
     /**
     * 类加载器
-     */
+    */
     private final ClassLoader classLoader;
 
     /**
     * 创建 Quick 实例（内部独立 对象上下文）。
-     */
+    */
     public DefaultQuick() {
         this(ClassUtils.getDefaultClassLoader());
     }
@@ -123,7 +123,7 @@ public class DefaultQuick implements Quick {
     * 创建 Quick 实例，指定类加载器。
     *
     * @param classLoader 类加载器
-     */
+    */
     public DefaultQuick(ClassLoader classLoader) {
         this.classLoader = classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader();
         this.context = createIsolatedContext();
@@ -137,7 +137,7 @@ public class DefaultQuick implements Quick {
     * 需由调用方保证隔离性。</p>
     *
     * @param context 外部对象容器，空 时创建隔离容器
-     */
+    */
     public DefaultQuick(ObjectContext context) {
         this.classLoader = ClassUtils.getDefaultClassLoader();
         if (context != null) {
@@ -156,7 +156,7 @@ public class DefaultQuick implements Quick {
     * 再按实现类逐一创建<b>全新实例</b>并注册，保证每个 Quick 拥有完全独立的注册中心。</p>
     *
     * @return 隔离的 对象上下文
-     */
+    */
     private static ObjectContext createIsolatedContext() {
         DefaultObjectContext context = new DefaultObjectContext();
         context.init(ObjectContextConfig.builder().spiEnabled(false).build());
@@ -486,7 +486,7 @@ public class DefaultQuick implements Quick {
     *
     * @param name Bean 名称
     * @param bean Bean 实例
-     */
+    */
     private void registerNamedBean(String name, Object bean) {
         if (name == null || bean == null || context.isClosed()) {
             return;
@@ -504,7 +504,7 @@ public class DefaultQuick implements Quick {
     * 将导入的 映射 数据绑定为变量。
     *
     * @param map 数据 映射
-     */
+    */
     private void bindData(Map<String, Object> map) {
         if (map == null) {
             return;
@@ -519,7 +519,7 @@ public class DefaultQuick implements Quick {
     * 构建脚本公共 导入 语句（Quick 包 + JDK 集合 + 用户导入包）。
     *
     * @return import 语句字符串
-     */
+    */
     private String buildScriptImports() {
         return "import " + Quick.class.getPackageName() + ".*;\n"
                 + "import java.util.*;\n"
@@ -531,7 +531,7 @@ public class DefaultQuick implements Quick {
     * 构建导入包对应的 导入 语句。
     *
     * @return import 语句字符串
-     */
+    */
     private String buildImports() {
         StringBuilder sb = new StringBuilder();
         for (String pkg : importPackages) {
@@ -545,7 +545,7 @@ public class DefaultQuick implements Quick {
     *
     * @param trimmed 去除首尾空白的脚本
     * @return true 表示完整类源码
-     */
+    */
     private boolean looksLikeFullClass(String trimmed) {
         return trimmed.startsWith("package ")
                 || trimmed.contains(" class ")
@@ -568,7 +568,7 @@ public class DefaultQuick implements Quick {
     *
     * @param source 完整类源码
     * @return 执行结果
-     */
+    */
     private Object executeFullClass(String source) {
         String processed = source;
  // 无 包 声明的完整类源码：自动注入公共 导入（Quick 包 + JDK 集合 + 用户导入包）
@@ -615,7 +615,7 @@ public class DefaultQuick implements Quick {
     *
     * @param snippet 代码片段
     * @return 执行结果
-     */
+    */
     private Object executeSnippet(String snippet) {
         String body;
         if (snippet.endsWith(";") || snippet.contains(";")) {
@@ -650,7 +650,7 @@ public class DefaultQuick implements Quick {
     * 构建绑定变量快照（常量 + 变量）。
     *
     * @return 绑定变量 映射
-     */
+    */
     private Map<String, Object> bindings() {
         Map<String, Object> result = new LinkedHashMap<>(constants);
         result.putAll(variables);
@@ -664,7 +664,7 @@ public class DefaultQuick implements Quick {
     * 最后回退到 common-starter 自带的 {@link JdkCompiler}。</p>
     *
     * @return Compiler 实例
-     */
+    */
     private Compiler resolveCompiler() {
         try {
             ServiceProvider<Compiler> provider = ServiceProvider.of(Compiler.class);
@@ -691,7 +691,7 @@ public class DefaultQuick implements Quick {
     *
     * @param className 类名（全限定名或简单名）
     * @return Class，解析失败返回 空
-     */
+    */
     private Class<?> resolveClass(String className) {
         Class<?> type = ClassUtils.forName(className, classLoader);
         if (type != null) {
@@ -715,7 +715,7 @@ public class DefaultQuick implements Quick {
     * @param type 目标类型
     * @param <T>  泛型类型
     * @return 转换后的对象，字段值无法转换时跳过该字段
-     */
+    */
     private <T> T mapToBean(Map<String, Object> map, Class<T> type) {
         if (map == null || type == null) {
             return null;
@@ -751,7 +751,7 @@ public class DefaultQuick implements Quick {
     *
     * @param xml XML 字符串
     * @return Map 结构，解析失败返回空 映射
-     */
+    */
     private Map<String, Object> xmlToMap(String xml) {
         if (xml == null || xml.isBlank()) {
             return Collections.emptyMap();
@@ -778,7 +778,7 @@ public class DefaultQuick implements Quick {
     *
     * @param element DOM 元素
     * @return Map 结构
-     */
+    */
     private Map<String, Object> elementToMap(Element element) {
         Map<String, Object> result = new LinkedHashMap<>();
         NamedNodeMap attributes = element.getAttributes();
@@ -816,7 +816,7 @@ public class DefaultQuick implements Quick {
     *
     * @param element DOM 元素
     * @return true 表示无子元素
-     */
+    */
     private boolean hasOnlyTextContent(Element element) {
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -836,17 +836,17 @@ public class DefaultQuick implements Quick {
     * @param <V> 值类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class DefaultMapBuilder<K, V> implements MapBuilder<K, V> {
 
         /**
         * 中间存储（保持插入顺序）
-         */
+        */
         private final Map<K, V> values = new LinkedHashMap<>();
 
         /**
         * 目标实现类型
-         */
+        */
         private String type = "hash";
 
         @Override
@@ -883,17 +883,17 @@ public class DefaultQuick implements Quick {
     * @param <E> 元素类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class DefaultListBuilder<E> implements ListBuilder<E> {
 
         /**
         * 中间存储
-         */
+        */
         private final List<E> values = new ArrayList<>();
 
         /**
         * 目标实现类型
-         */
+        */
         private String type = "array";
 
         @Override
@@ -936,22 +936,22 @@ public class DefaultQuick implements Quick {
     * @param <V> 值类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class DefaultTableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> implements TableBuilder<R, C, V> {
 
         /**
         * 目标实现类型
-         */
+        */
         private String type = "hash";
 
         /**
         * 哈希基础table 中间存储
-         */
+        */
         private final Table<R, C, V> hashValues = HashBasedTable.create();
 
         /**
         * 树基础table 中间存储
-         */
+        */
         private final Table<R, C, V> treeValues = TreeBasedTable.create();
 
         @Override

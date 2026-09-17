@@ -28,7 +28,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param content  文档内容
     * @param metadata 扩展元数据
     * @param embedding 向量（为 null 时由 VectorService 计算）
-     */
+    */
     record Document(String id, String content, Map<String, Object> metadata, float[] embedding) {}
 
     /**
@@ -37,12 +37,12 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param documentId 文档 ID
     * @param document   文档内容
     * @param score      相似度分数
-     */
+    */
     record QueryResult(String documentId, Document document, double score) {}
 
     /**
     * SPI 工厂接口。
-     */
+    */
     interface Factory {
         /**
         * 组装 KnowledgeClient 实例。
@@ -51,7 +51,7 @@ public interface KnowledgeClient extends AutoCloseable {
         * @param vectorStorage  向量存储
         * @param textSplitter   文本分块器（为 null 则不分块）
         * @return KnowledgeClient 实例
-         */
+        */
         KnowledgeClient assemble(VectorService vectorService, VectorStorage vectorStorage, TextSplitter textSplitter);
     }
 
@@ -62,7 +62,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param vectorStorage  向量存储
     * @param textSplitter   文本分块器
     * @return KnowledgeClient 实例
-     */
+    */
     static KnowledgeClient assemble(VectorService vectorService, VectorStorage vectorStorage, TextSplitter textSplitter) {
         return ServiceProvider.of(Factory.class).getDefault().assemble(vectorService, vectorStorage, textSplitter);
     }
@@ -71,7 +71,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * 索引文档。
     *
     * @param document 待索引的文档
-     */
+    */
     void upsert(Document document);
 
     /**
@@ -80,7 +80,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param documentId 文档 ID
     * @param content    文档内容
     * @param metadata   扩展元数据
-     */
+    */
     default void upsert(String documentId, String content, Map<String, Object> metadata) {
         upsert(new Document(documentId, content, metadata, null));
     }
@@ -92,7 +92,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param content    文档内容
     * @param metadata   扩展元数据
     * @param chunks     预分块结果
-     */
+    */
     void upsert(String documentId, String content, Map<String, Object> metadata, List<TextChunk> chunks);
 
     /**
@@ -100,12 +100,12 @@ public interface KnowledgeClient extends AutoCloseable {
     *
     * @param documentId 文档 ID
     * @return 是否成功
-     */
+    */
     boolean remove(String documentId);
 
     /**
     * 清空知识库中的所有文档。
-     */
+    */
     void clear();
 
     /**
@@ -114,7 +114,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param queryText 查询文本
     * @param topK      返回结果数量
     * @return 按相似度排序的检索结果
-     */
+    */
     List<QueryResult> search(String queryText, int topK);
 
     /**
@@ -123,7 +123,7 @@ public interface KnowledgeClient extends AutoCloseable {
     * @param vector 查询向量
     * @param topK   返回结果数量
     * @return 按相似度排序的检索结果
-     */
+    */
     List<QueryResult> search(float[] vector, int topK);
 
     @Override

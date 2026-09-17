@@ -41,7 +41,7 @@ public interface DocumentProvider {
     *
     * @param type 文档类型名称（如 "word"、"pdf"、"markdown"、"image"）
     * @return DocumentProvider 实例
-     */
+    */
     static DocumentProvider create(String type) {
         return com.chua.common.support.spi.ServiceProvider.of(DocumentProvider.class)
                 .getExtension(type);
@@ -51,14 +51,14 @@ public interface DocumentProvider {
     * 获取文档类型名称。
     *
     * @return 类型名称（如 "word"、"pdf"、"markdown"、"image"）
-     */
+    */
     String getType();
 
     /**
     * 获取支持的文件扩展名。
     *
     * @return 扩展名数组（如 [".docx", ".doc"]）
-     */
+    */
     String[] getExtensions();
 
     /**
@@ -66,6 +66,6 @@ public interface DocumentProvider {
     *
     * @param request 生成请求
     * @return 生成结果
-     */
+    */
     GenerateResult generate(GenerateRequest request);
 }

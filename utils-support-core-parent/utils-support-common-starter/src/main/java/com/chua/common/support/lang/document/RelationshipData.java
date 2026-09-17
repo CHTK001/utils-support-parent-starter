@@ -22,7 +22,9 @@ public record RelationshipData(
     String pkTableName,
     /** 目标列名（被引用列） */
     String pkColumnName,
-    /** 更新规则（CASCADE / SET NULL / NO ACTION / RESTRICT） */
+    /**
+    * 更新规则（CASCADE / SET NULL / NO ACTION / RESTRICT）
+    */
     String updateRule,
     /** 删除规则 */
     String deleteRule

@@ -20,12 +20,12 @@ public class ConfigSaveResult {
 
     /**
     * 操作是否成功
-     */
+    */
     private boolean success;
 
     /**
     * 配置的键（Key）
-     */
+    */
     private String key;
 
     /**
@@ -33,12 +33,12 @@ public class ConfigSaveResult {
     * <p>
     * 例如：文件路径或数据库连接字符串等。
     * </p>
-     */
+    */
     private String location;
 
     /**
     * 保存后的文件大小（字节）
-     */
+    */
     private long size;
 
     /**
@@ -46,7 +46,7 @@ public class ConfigSaveResult {
     * <p>
     * 默认为当前时间。
     * </p>
-     */
+    */
     @Builder.Default
     /** Update时间 */
     private LocalDateTime updateTime = LocalDateTime.now();
@@ -56,7 +56,7 @@ public class ConfigSaveResult {
     * <p>
     * 成功时通常为 {@code "success"}，失败时为具体的错误描述。
     * </p>
-     */
+    */
     private String message;
 
     /**
@@ -66,7 +66,7 @@ public class ConfigSaveResult {
     * @param location 存储位置
     * @param size     文件大小
     * @return 成功的配置保存结果对象
-     */
+    */
     public static ConfigSaveResult success(String key, String location, long size) {
         return ConfigSaveResult.builder()
                 .success(true)
@@ -83,7 +83,7 @@ public class ConfigSaveResult {
     * @param key     配置的键
     * @param message 失败原因描述
     * @return 失败的配置保存结果对象
-     */
+    */
     public static ConfigSaveResult failure(String key, String message) {
         return ConfigSaveResult.builder()
                 .success(false)

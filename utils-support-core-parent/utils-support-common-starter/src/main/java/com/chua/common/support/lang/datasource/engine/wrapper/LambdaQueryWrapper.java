@@ -48,7 +48,9 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     private int offset;
     /** JOIN 关联子句列表 */
     private final List<JoinClause> joins = new ArrayList<>();
-    /** HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤 */
+    /**
+    * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
+    */
     private String havingClause;
     /** HAVING 条件参数列表（与 ? 占位符顺序一致） */
     private final List<Object> havingParams = new ArrayList<>();
@@ -56,7 +58,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
     * 创建 LambdaQueryWrapper 实例
     * @param entityClass entityClass
-     */
+    */
     public LambdaQueryWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -68,7 +70,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     *
     * @param column Lambda 方法引用
     * @return this
-     */
+    */
     public LambdaQueryWrapper<T> select(SFunction<T, ?> column) {
         selectColumns.add(resolveColumn(column));
         return this;
@@ -79,7 +81,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     *
     * @param columns Lambda 方法引用数组
     * @return this
-     */
+    */
     @SafeVarargs
     public final LambdaQueryWrapper<T> select(SFunction<T, ?>... columns) {
         for (SFunction<T, ?> c : columns) {
@@ -93,7 +95,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     *
     * @param columns 列名数组
     * @return this
-     */
+    */
     public LambdaQueryWrapper<T> select(String... columns) {
         selectColumns.addAll(List.of(columns));
         return this;
@@ -378,7 +380,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     * </p>
     *
     * @return 查询 SQL 信息
-     */
+    */
     public QuerySql buildSql() {
         StringBuilder where = new StringBuilder();
         List<Object> params = new ArrayList<>();
@@ -449,7 +451,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     /**
     * 渲染单个条件为 SQL 片段。
     * <p>处理嵌套条件（括号包裹）、IN/BETWEEN 等特殊语法。</p>
-     */
+    */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             sb.append("(");
@@ -506,7 +508,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     * <p>由 {@code Engine} 实现类重写，实际执行 SQL 并映射结果。</p>
     *
     * @return 实体列表
-     */
+    */
     public List<T> list() {
         throw new UnsupportedOperationException("list() 需由引擎实现类重写");
     }
@@ -516,7 +518,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     * <p>由 {@code Engine} 实现类重写。如果结果多于一条，返回第一条。</p>
     *
     * @return 实体，不存在返回 null
-     */
+    */
     public T one() {
         throw new UnsupportedOperationException("one() 需由引擎实现类重写");
     }
@@ -528,7 +530,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     * @param pageNum  页码
     * @param pageSize 每页条数
     * @return 分页结果
-     */
+    */
     public Page<T> page(int pageNum, int pageSize) {
         throw new UnsupportedOperationException("page() 需由引擎实现类重写");
     }
@@ -539,7 +541,7 @@ public class LambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, LambdaQueryW
     * 内存引擎回退为全量查询后计数。</p>
     *
     * @return 总行数
-     */
+    */
     public long count() {
         throw new UnsupportedOperationException("count() 需由引擎实现类重写");
     }

@@ -34,7 +34,7 @@ public interface FileConvertSystem {
     * @param sourceType 源文件格式（如 docx, xls, pdf）
     * @param targetType 目标文件格式（如 pdf, html, csv）
     * @return 如果支持该转换路径则返回 true
-     */
+    */
     boolean isSupported(String sourceType, String targetType);
 
     /**
@@ -43,7 +43,7 @@ public interface FileConvertSystem {
     * @param source  输入源，包含待转换文件路径或输入流
     * @param target  输出目标，包含转换后文件路径或输出流
     * @param setting 转换参数设置
-     */
+    */
     void convert(FileSource source, FileSource target, ConvertSetting setting);
 
     /**
@@ -51,7 +51,7 @@ public interface FileConvertSystem {
     *
     * @param source 源文件格式
     * @param target 目标文件格式
-     */
+    */
     record ConvertPair(String source, String target) {
     }
 }

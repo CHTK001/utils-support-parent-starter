@@ -19,14 +19,14 @@ public abstract class AbstractDispatcherProvider implements DispatcherProvider {
 
     /**
     * 当前分发器提供者使用的配置对象。
-     */
+    */
     protected final DispatcherConfig config;
 
     /**
     * 创建抽象分发器提供者实例。
     *
     * @param config 分发器配置对象
-     */
+    */
     protected AbstractDispatcherProvider(DispatcherConfig config) {
         this.config = config;
     }

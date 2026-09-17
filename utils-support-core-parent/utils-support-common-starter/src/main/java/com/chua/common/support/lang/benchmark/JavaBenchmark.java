@@ -113,7 +113,7 @@ public class JavaBenchmark implements Benchmark {
 
     /**
     * 执行单档压测。
-     */
+    */
     private BenchmarkDocumentData.BenchmarkRow runLevel(HttpClient client, URI uri, int vus) throws Exception {
         int perVus = Math.max(1, config.getIterationsPerVus());
         long totalTarget = (long) vus * perVus;
@@ -200,7 +200,7 @@ public class JavaBenchmark implements Benchmark {
 
     /**
     * 分位数（毫秒）。
-     */
+    */
     private static double percentile(long[] sortedMs, double p) {
         int idx = (int) Math.ceil(p * sortedMs.length) - 1;
         if (idx < 0) {

@@ -233,7 +233,7 @@ public class JsonObject extends LinkedHashMap<String, Object> {
     *
     * @param bean 源 Bean 对象
     * @return 转换后的 JsonObject
-     */
+    */
     public static JsonObject create(Object bean) {
         return Json.createJsonObject(BeanUtils.objectToMap(bean));
     }
@@ -333,35 +333,37 @@ public class JsonObject extends LinkedHashMap<String, Object> {
  return toByteArray();
  }
 
- /**
- * 重写 forEach 方法，在遍历过程中自动将内部的 Map 转换为 JsonObject，
- * 将 Collection 转换为 JsonArray，确保回调函数接收到的都是统一的 JSON 类型对象。
- *
- * @param action 要执行的消费操作
- */    @Override
-    public void forEach(BiConsumer<? super String, ? super Object> action) {
-        super.forEach(new BiConsumer<String, Object>() {
-            @Override
-            /**
-            * Accept
-            * @param s s
-            * @param o o
-             */
-            public void accept(String s, Object o) {
-                if (o instanceof Map) {
-                    action.accept(s, Json.createJsonObject((Map) o));
-                    return;
-                }
+  /**
+  * 重写 forEach 方法，在遍历过程中自动将内部的 Map 转换为 JsonObject，
+  * 将 Collection 转换为 JsonArray，确保回调函数接收到的都是统一的 JSON 类型对象。
+  *
+  * @param action 要执行的消费操作
+  */
+  @Override
+  public void forEach(BiConsumer<? super String, ? super Object> action) {
+    super.forEach(new BiConsumer<String, Object>() {
+      @Override
+      /**
+      * 接受键值对并执行消费操作。
+      *
+      * @param s 键
+      * @param o 值
+      */
+      public void accept(String s, Object o) {
+        if (o instanceof Map) {
+          action.accept(s, Json.createJsonObject((Map) o));
+          return;
+        }
 
-                if (o instanceof Collection) {
-                    action.accept(s, Json.createJsonArray((Collection) o));
-                    return;
-                }
+        if (o instanceof Collection) {
+          action.accept(s, Json.createJsonArray((Collection) o));
+          return;
+        }
 
-                action.accept(s, o);
-            }
-        });
-    }
+        action.accept(s, o);
+      }
+    });
+  }
 
  /**
  * 将当前的 JsonObject 序列化为 JSON 字符串后，反序列化为指定的 Java 类型对象。

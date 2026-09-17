@@ -26,7 +26,9 @@ public final class ScatterSyncHelper {
     private static final int MAX_RETRIES = 3;
     /** 请求 ID 原子计数（线程安全，按目标节点隔离） */
     private static final ConcurrentHashMap<String, Integer> REQUEST_ID_SEQ = new ConcurrentHashMap<>();
-    /** 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建 */
+    /**
+    * 可注入的自定义 TCP 客户端（SPI/测试场景），null 时自动创建
+    */
     private static volatile TcpClient customClient;
 
     private ScatterSyncHelper() {
@@ -44,13 +46,13 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 拉取目标节点的服务表（带超时 + 重试）。
-     *
-     * @param context        请求上下文
-     * @param node           目标节点
-     * @param timeoutMillis  单次超时毫秒
-     * @return 同步结果（失败时返回 null）
-     */
+    * 拉取目标节点的服务表（带超时 + 重试）。
+    *
+    * @param context       请求上下文
+    * @param node          目标节点
+    * @param timeoutMillis 单次超时毫秒
+    * @return 同步结果（失败时返回 null）
+    */
     public static ScatterResult<List<Discovery>> fetch(ScatterContext context, ScatterNode node,
                                                        long timeoutMillis) {
         return fetchWithRetry(context, node, timeoutMillis, MAX_RETRIES);
@@ -89,13 +91,13 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 向节点推送数据（带超时，无响应值场景）。
-     *
-     * @param node          目标节点
-     * @param frame         帧
-     * @param timeoutMillis 超时毫秒
-     * @return true=收到 ACK
-     */
+    * 向节点推送数据（带超时，无响应值场景）。
+    *
+    * @param node          目标节点
+    * @param frame         帧
+    * @param timeoutMillis 超时毫秒
+    * @return true=收到 ACK
+    */
     public static boolean push(ScatterNode node, ScatterFrame frame, long timeoutMillis) {
         try {
             byte[] response;
@@ -116,12 +118,12 @@ public final class ScatterSyncHelper {
     }
 
     /**
-     * 批量广播帧（逐个节点，失败不中断）。
-     *
-     * @param nodes         目标节点列表
-     * @param frame         帧
-     * @param timeoutMillis 超时毫秒
-     */
+    * 批量广播帧（逐个节点，失败不中断）。
+    *
+    * @param nodes         目标节点列表
+    * @param frame         帧
+    * @param timeoutMillis 超时毫秒
+    */
     public static void broadcast(List<ScatterNode> nodes, ScatterFrame frame, long timeoutMillis) {
         if (nodes == null || nodes.isEmpty()) {
             return;

@@ -15,100 +15,100 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
-* 任务节点定义 — 类型安全的流水线节点构建器。
-*
-* <p>由 {@link PipelineBuilder#task(String, PipelineNode)} 或
-* {@link PipelineBuilder#taskStart(String, PipelineNode)} 创建（开始定义），
-* 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
-*
-* <p><strong>完整模式：taskStart → ... → taskEnd</strong></p>
-* <pre>{@code
-* .taskStart("name", handler)   // 开始定义
-*     .onStep(...)              // 配置步骤
-*     .exit()                    // 便捷方法
-*     .taskEnd()                // 结束定义，返回 builder
-* }</pre>回 builder
-* }</pre>
-*
-* <p><strong>核心设计：</strong></p>
-* <ul>
-*   <li>所有节点统一通过 {@code task()/taskStart()} 创建，避免类型混乱</li>
-*   <li>通过类型转换方法（{@link #decision()}、{@link #subPipeline(Pipeline)}）切换到专属定义</li>
-*   <li>每种定义有专属便捷方法，防止用户写错</li>
-* </ul>
-*
-* <p><strong>类型转换：</strong></p>
-* <ul>
-*   <li>{@link #decision()} → {@link TaskDecisionDefinition}（判断节点定义，支持分支配置）</li>
-*   <li>{@link #subPipeline(Pipeline)} → {@link TaskSubPipelineDefinition}（子流水线定义）</li>
-* </ul>
-*
-* <p><strong>便捷方法：</strong></p>
-* <ul>
-*   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式，自动返回 null）</li>
-*   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式，可路由到其他节点）</li>
-*   <li>{@link #ext()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
-*   <li>{@link #end()} — 同 {@link #ext()}，执行后终止流水线</li>
-*   <li>{@link #start()} — 标记为起始节点</li>
-*   <li>{@link #params(Map)} — 设置节点参数（JSON 构建时传入）</li>
-*   <li>{@link #env(Map)} / {@link #env(String, Object)} — 设置环境参数（运行时配置，如模型路径、阈值）</li>
-*   <li>{@link #pipelineEnd()} — 结束当前节点定义并完成整个流水线构建</li>
-* </ul>
-*
-* <p><strong>用法示例：</strong></p>
-* <pre>{@code
-* // 基本任务
-* PipelineBuilder.newBuilder("flow")
-*     .task("step1", ctx -> { doWork(ctx); return null; })
-*     .taskEnd()
-*     .build();
-*
-* // taskStart...taskEnd 完整模式
-* PipelineBuilder.newBuilder("flow")
-*     .taskStart("init", ctx -> { init(ctx); return null; })
-*     .taskEnd()
-*     .build();
-*
-* // 使用 onStep（无返回值）
-* PipelineBuilder.newBuilder("flow")
-*     .taskStart("init")
-*     .onStep(ctx -> init(ctx))
-*     .taskEnd()
-*     .build();
-*
-* // 使用 step（有返回值，可路由）
-* PipelineBuilder.newBuilder("flow")
-*     .taskStart("route")
-*     .step(ctx -> condition ? "nodeA" : "nodeB")
-*     .taskEnd()
-*     .build();
-*
-* // 带便捷方法
-* PipelineBuilder.newBuilder("flow")
-*     .task("init", ctx -> { init(ctx); return null; })
-*     .start()       // 标记为起始节点
-*     .taskEnd()
-*     .task("done", ctx -> { cleanup(ctx); return null; })
-*     .exit()         // 执行后终止流水线
-*     .taskEnd()
-*     .build();
-*
-* // 转为判断节点
-* PipelineBuilder.newBuilder("flow")
-*     .task("check", ctx -> condition ? "yes" : "no")
-*     .decision()    // → TaskDecisionDefinition
-*     .branch("yes", "processNode")
-*     .branch("no", "errorNode")
-*     .taskEnd()
-*     .build();
-* }</pre>   * .构建();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
-* @see TaskDecisionDefinition
-* @see TaskSubPipelineDefinition
- */
+ * 任务节点定义 — 类型安全的流水线节点构建器。
+ *
+ * <p>由 {@link PipelineBuilder#task(String, PipelineNode)} 或
+ * {@link PipelineBuilder#taskStart(String, PipelineNode)} 创建（开始定义），
+ * 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
+ *
+ * <p><strong>完整模式：taskStart → ... → taskEnd</strong></p>
+ * <pre>{@code
+ * .taskStart("name", handler)   // 开始定义
+ *     .onStep(...)              // 配置步骤
+ *     .exit()                    // 便捷方法
+ *     .taskEnd()                // 结束定义，返回 builder
+ * }</pre>回 builder
+ * }</pre>
+ *
+ * <p><strong>核心设计：</strong></p>
+ * <ul>
+ *   <li>所有节点统一通过 {@code task()/taskStart()} 创建，避免类型混乱</li>
+ *   <li>通过类型转换方法（{@link #decision()}、{@link #subPipeline(Pipeline)}）切换到专属定义</li>
+ *   <li>每种定义有专属便捷方法，防止用户写错</li>
+ * </ul>
+ *
+ * <p><strong>类型转换：</strong></p>
+ * <ul>
+ *   <li>{@link #decision()} → {@link TaskDecisionDefinition}（判断节点定义，支持分支配置）</li>
+ *   <li>{@link #subPipeline(Pipeline)} → {@link TaskSubPipelineDefinition}（子流水线定义）</li>
+ * </ul>
+ *
+ * <p><strong>便捷方法：</strong></p>
+ * <ul>
+ *   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式，自动返回 null）</li>
+ *   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式，可路由到其他节点）</li>
+ *   <li>{@link #ext()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
+ *   <li>{@link #end()} — 同 {@link #ext()}，执行后终止流水线</li>
+ *   <li>{@link #start()} — 标记为起始节点</li>
+ *   <li>{@link #params(Map)} — 设置节点参数（JSON 构建时传入）</li>
+ *   <li>{@link #env(Map)} / {@link #env(String, Object)} — 设置环境参数（运行时配置，如模型路径、阈值）</li>
+ *   <li>{@link #pipelineEnd()} — 结束当前节点定义并完成整个流水线构建</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
+ * <pre>{@code
+ * // 基本任务
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("step1", ctx -> { doWork(ctx); return null; })
+ *     .taskEnd()
+ *     .build();
+ *
+ * // taskStart...taskEnd 完整模式
+ * PipelineBuilder.newBuilder("flow")
+ *     .taskStart("init", ctx -> { init(ctx); return null; })
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 使用 onStep（无返回值）
+ * PipelineBuilder.newBuilder("flow")
+ *     .taskStart("init")
+ *     .onStep(ctx -> init(ctx))
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 使用 step（有返回值，可路由）
+ * PipelineBuilder.newBuilder("flow")
+ *     .taskStart("route")
+ *     .step(ctx -> condition ? "nodeA" : "nodeB")
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 带便捷方法
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("init", ctx -> { init(ctx); return null; })
+ *     .start()       // 标记为起始节点
+ *     .taskEnd()
+ *     .task("done", ctx -> { cleanup(ctx); return null; })
+ *     .exit()         // 执行后终止流水线
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 转为判断节点
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("check", ctx -> condition ? "yes" : "no")
+ *     .decision()    // → TaskDecisionDefinition
+ *     .branch("yes", "processNode")
+ *     .branch("no", "errorNode")
+ *     .taskEnd()
+ *     .build();
+ * }</pre>   * .构建();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see TaskDecisionDefinition
+ * @see TaskSubPipelineDefinition
+*/
 public class TaskDefinition {
 
     /** 标识 */
@@ -134,7 +134,7 @@ public class TaskDefinition {
     * @param id      节点唯一标识
     * @param handler 业务逻辑处理器
     * @param builder 流水线构建器
-     */
+    */
     TaskDefinition(String id, PipelineNode handler, PipelineBuilder builder) {
         this.id = id;
         this.handler = handler;
@@ -148,7 +148,7 @@ public class TaskDefinition {
     * 构成完整的任务定义：任务启动 → ... → 任务结束。</p>
     *
     * @return PipelineBuilder
-     */
+    */
     public PipelineBuilder taskEnd() {
         PipelineNode effectiveHandler = endAfterExecute ? wrapWithEnd(handler) : handler;
         TaskNode node = new TaskNode(id, effectiveHandler);
@@ -192,7 +192,7 @@ public class TaskDefinition {
     * }</pre>
     *
     * @return 构建完成的 Pipeline 实例
-     */
+    */
     public Pipeline pipelineEnd() {
         taskEnd();
         builder.end(id);
@@ -224,7 +224,7 @@ public class TaskDefinition {
     *
     * @param action Consumer 回调，无返回值
     * @return this
-     */
+    */
     public TaskDefinition onStep(Consumer<PipelineContext<?>> action) {
         PipelineNode original = this.handler;
         this.handler = ctx -> {
@@ -260,7 +260,7 @@ public class TaskDefinition {
     *
     * @param handler pipeline节点 处理器，返回值决定路由
     * @return this
-     */
+    */
     public TaskDefinition step(PipelineNode handler) {
         this.handler = handler;
         return this;
@@ -285,7 +285,7 @@ public class TaskDefinition {
     * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
     *
     * @return this
-     */
+    */
     public TaskDefinition exit() {
         this.endAfterExecute = true;
         return this;
@@ -315,7 +315,7 @@ public class TaskDefinition {
     * @return this
     * @see com.chua.common.support.task.retry.RetryConfig
     * @see com.chua.common.support.task.retry.RetryFlow
-     */
+    */
     public TaskDefinition retry(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
         return this;
@@ -368,7 +368,7 @@ public class TaskDefinition {
     * @return this
     * @see PipelineContext#getData(String)
     * @see PipelineContext#getNodeOutput(String)
-     */
+    */
     public TaskDefinition unit(String... unitIds) {
         this.units = new LinkedHashSet<>(Arrays.asList(unitIds));
         return this;
@@ -391,7 +391,7 @@ public class TaskDefinition {
     * }</pre>
     *
     * @return TaskDecisionDefinition
-     */
+    */
     public TaskDecisionDefinition decision() {
         return new TaskDecisionDefinition(id, handler, builder);
     }
@@ -403,7 +403,7 @@ public class TaskDefinition {
     *
     * @param subPipeline 子流水线实例
     * @return TaskSubPipelineDefinition
-     */
+    */
     public TaskSubPipelineDefinition subPipeline(Pipeline subPipeline) {
         return new TaskSubPipelineDefinition(id, builder, subPipeline);
     }
@@ -439,7 +439,7 @@ public class TaskDefinition {
     * @return TaskForkDefinition
     * @see TaskForkDefinition
     * @see com.chua.common.support.task.pipeline.node.ForkNode
-     */
+    */
     public TaskForkDefinition fork() {
         TaskForkDefinition def = new TaskForkDefinition(id, builder);
         if (handler != null) {
@@ -475,7 +475,7 @@ public class TaskDefinition {
     * @return TaskParallelDefinition
     * @see TaskParallelDefinition
     * @see com.chua.common.support.task.pipeline.node.ParallelNode
-     */
+    */
     public TaskParallelDefinition parallel(Pipeline subPipeline) {
         return new TaskParallelDefinition(id, builder, subPipeline);
     }
@@ -499,7 +499,7 @@ public class TaskDefinition {
     * <p>与 {@link #ext()} 完全等价。</p>
     *
     * @return this
-     */
+    */
     public TaskDefinition end() {
         this.endAfterExecute = true;
         return this;
@@ -511,7 +511,7 @@ public class TaskDefinition {
     * <p>等价于在 PipelineBuilder 上调用 {@code .start(id)}。</p>
     *
     * @return this
-     */
+    */
     public TaskDefinition start() {
         this.startNode = true;
         return this;
@@ -522,7 +522,7 @@ public class TaskDefinition {
     *
     * @param params 节点参数映射
     * @return this
-     */
+    */
     public TaskDefinition params(Map<String, Object> params) {
         PipelineNode original = this.handler;
         this.handler = new PipelineNode() {
@@ -568,7 +568,7 @@ public class TaskDefinition {
     *
     * @param env 环境参数映射
     * @return this
-     */
+    */
     public TaskDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;
@@ -590,7 +590,7 @@ public class TaskDefinition {
     * @param key   参数键
     * @param value 参数值
     * @return this
-     */
+    */
     public TaskDefinition env(String key, Object value) {
         if (this.env == null) {
             this.env = new LinkedHashMap<>();
@@ -603,7 +603,7 @@ public class TaskDefinition {
     * 包装 处理器：执行后设置 EXIT 动作。
     * @param original 原始
     * @return wrapwith结束的结果
-     */
+    */
     private static PipelineNode wrapWithEnd(PipelineNode original) {
         return ctx -> {
             String result = original.execute(ctx);

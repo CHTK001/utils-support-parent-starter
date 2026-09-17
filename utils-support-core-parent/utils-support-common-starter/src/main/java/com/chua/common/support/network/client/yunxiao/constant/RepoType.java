@@ -13,31 +13,31 @@ public enum RepoType {
 
     /**
     * 通用制品仓库
-     */
+    */
     GENERIC,
 
     /**
     * Docker 镜像仓库
-     */
+    */
     DOCKER,
 
     /**
     * Maven 制品仓库
-     */
+    */
     MAVEN,
 
     /**
     * NPM 制品仓库
-     */
+    */
     NPM,
 
     /**
     * NuGet 制品仓库
-     */
+    */
     NUGET,
 
     /**
     * PyPI 制品仓库
-     */
+    */
     PYPI
 }

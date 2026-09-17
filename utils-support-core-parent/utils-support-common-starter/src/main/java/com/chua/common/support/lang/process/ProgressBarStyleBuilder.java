@@ -17,20 +17,20 @@ public class ProgressBarStyleBuilder {
 
     /**
     * ANSI 转义码前缀常量。
-     */
+    */
     private static final String ESC_CODE = "\u001b[";
 
     /**
     * 默认进度条样式实例。
     * 初始化为：刷新提示符"\r"，左括号"["，定界序列""，右括号"]"，块字符'='，空格字符' '，
     * 右侧分数符号'>'，右侧空格字符' '。
-     */
+    */
     private final ProgressBarStyle style = new ProgressBarStyle("\r", "[", "", "]", '=', ' ', ">", ' ');
 
     /**
     * ANSI 颜色代码。
     * 值为 0 表示未设置颜色，非 0 值表示具体的颜色编号（0-255）。
-     */
+    */
     private byte colorCode = 0;
 
     /**
@@ -38,7 +38,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param refreshPrompt 刷新提示符字符串，默认为"\r"。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder refreshPrompt(String refreshPrompt) {
         style.setRefreshPrompt(refreshPrompt);
         return this;
@@ -49,7 +49,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param leftBracket 左括号字符串，支持 ANSI 或 Unicode 字符，默认为"["。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder leftBracket(String leftBracket) {
         style.setLeftBracket(leftBracket);
         return this;
@@ -60,7 +60,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param delimitingSequence 定界序列字符串，默认为空字符串""。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder delimitingSequence(String delimitingSequence) {
         style.setDelimitingSequence(delimitingSequence);
         return this;
@@ -71,7 +71,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param rightBracket 右括号字符串，支持 ANSI 或 Unicode 字符，默认为"]"。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder rightBracket(String rightBracket) {
         style.setRightBracket(rightBracket);
         return this;
@@ -82,7 +82,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param block 进度块字符，默认为'='。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder block(char block) {
         style.setBlock(block);
         return this;
@@ -93,7 +93,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param space 空白填充字符，默认为' '。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder space(char space) {
         style.setSpace(space);
         return this;
@@ -104,7 +104,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param fractionSymbols 分数符号字符串，默认为多个空格。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder fractionSymbols(String fractionSymbols) {
         style.setFractionSymbols(fractionSymbols);
         return this;
@@ -115,7 +115,7 @@ public class ProgressBarStyleBuilder {
     *
     * @param rightSideFractionSymbol 右侧分数符号字符，默认为' '。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder rightSideFractionSymbol(char rightSideFractionSymbol) {
         style.setRightSideFractionSymbol(rightSideFractionSymbol);
         return this;
@@ -127,7 +127,7 @@ public class ProgressBarStyleBuilder {
     * @param code ANSI 颜色代码，范围在 0 到 255 之间。
     *             值为 0 表示不启用颜色。
     * @return 当前 Builder 实例，用于链式调用。
-     */
+    */
     public ProgressBarStyleBuilder colorCode(byte code) {
         this.colorCode = code;
         return this;
@@ -141,7 +141,7 @@ public class ProgressBarStyleBuilder {
     *
     * @return 构建完成的 ProgressBarStyle 对象。
     * @throws IllegalArgumentException 当颜色已定义但左括号已包含 ANSI 转义码时抛出。
-     */
+    */
     public ProgressBarStyle build() {
         boolean colorDefined = colorCode != 0;
 

@@ -20,17 +20,17 @@ public class VirtualThreadStructuredConcurrencyProvider implements StructuredCon
 
     /**
     * 虚拟线程执行器
-     */
+    */
     private final ExecutorService executor;
 
     /**
     * 是否已关闭
-     */
+    */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
     * 创建默认虚拟线程结构化并发器。
-     */
+    */
     public VirtualThreadStructuredConcurrencyProvider() {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
@@ -38,7 +38,7 @@ public class VirtualThreadStructuredConcurrencyProvider implements StructuredCon
     /**
     * 创建 VirtualThreadStructuredConcurrencyProvider 实例
     * @param executor executor
-     */
+    */
     public VirtualThreadStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }

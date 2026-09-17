@@ -24,7 +24,7 @@ public @interface Subscribe {
     * </p>
     *
     * @return 主题名称数组
-     */
+    */
     String[] topic();
 
     /**
@@ -34,6 +34,6 @@ public @interface Subscribe {
     * </p>
     *
     * @return SPI 类型标识
-     */
+    */
     String type() default "";
 }

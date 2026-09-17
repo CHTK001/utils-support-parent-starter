@@ -21,30 +21,30 @@ public class NodeTable {
 
     /**
     * 节点条目：包含发现信息、最后见到时间和 epoch。
-     */
+    */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NodeEntry {
         /**
         * 发现信息
-         */
+        */
         private Discovery discovery;
 
         /**
         * 最后见到时间戳（毫秒）
-         */
+        */
         private long lastSeen;
 
         /**
         * 节点 epoch（越大越新）
-         */
+        */
         private int epoch;
     }
 
     /**
     * 内部存储：key = serverId，value = NodeEntry。
-     */
+    */
     private final ConcurrentHashMap<String, NodeEntry> nodes = new ConcurrentHashMap<>();
 
     /**
@@ -55,7 +55,7 @@ public class NodeTable {
     * @param discovery 发现信息
     * @param epoch 节点 epoch（越大越新）
     * @param nowMs 当前时间戳（毫秒）
-     */
+    */
     public void upsert(String serverId, Discovery discovery, int epoch, long nowMs) {
         Objects.requireNonNull(serverId, "serverId must not be null");
         Objects.requireNonNull(discovery, "discovery must not be null");
@@ -76,7 +76,7 @@ public class NodeTable {
     *
     * @param serverId 节点唯一标识
     * @return 移除的节点条目，若不存在则返回 null
-     */
+    */
     public NodeEntry remove(String serverId) {
         return nodes.remove(serverId);
     }
@@ -86,7 +86,7 @@ public class NodeTable {
     *
     * @param serverId 节点唯一标识
     * @return 节点条目，若不存在则返回 null
-     */
+    */
     public NodeEntry get(String serverId) {
         return nodes.get(serverId);
     }
@@ -95,7 +95,7 @@ public class NodeTable {
     * 获取所有节点的发现信息副本。
     *
     * @return 不可变的 Discovery 集合
-     */
+    */
     public Collection<Discovery> getAllDiscoveries() {
         return Collections.unmodifiableCollection(
                 nodes.values().stream()
@@ -108,7 +108,7 @@ public class NodeTable {
     * 获取所有节点条目的映射（只读）。
     *
     * @return 不可变的 serverId -> NodeEntry 映射
-     */
+    */
     public Map<String, NodeEntry> getAllEntries() {
         return Collections.unmodifiableMap(nodes);
     }
@@ -118,7 +118,7 @@ public class NodeTable {
     *
     * @param other 另一个节点表
     * @param nowMs 当前时间戳（毫秒），用于更新 lastSeen
-     */
+    */
     public void mergeFrom(NodeTable other, long nowMs) {
         Objects.requireNonNull(other, "other must not be null");
         other.nodes.forEach((serverId, entry) -> {
@@ -128,7 +128,7 @@ public class NodeTable {
 
     /**
     * 清空所有节点。
-     */
+    */
     public void clear() {
         nodes.clear();
     }
@@ -137,7 +137,7 @@ public class NodeTable {
     * 获取当前节点数量。
     *
     * @return 节点数量
-     */
+    */
     public int size() {
         return nodes.size();
     }
@@ -146,7 +146,7 @@ public class NodeTable {
     * 判断节点表是否为空。
     *
     * @return 为空返回 true
-     */
+    */
     public boolean isEmpty() {
         return nodes.isEmpty();
     }

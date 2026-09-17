@@ -48,7 +48,7 @@ public interface MetaSearch {
     * 列出当前数据源下的所有搜索引擎索引。
     *
     * @return 索引定义列表
-     */
+    */
     List<SearchIndexDef> list();
 
     /**
@@ -56,7 +56,7 @@ public interface MetaSearch {
     *
     * @param indexName 索引名
     * @return 索引定义
-     */
+    */
     SearchIndexDef get(String indexName);
 
     /**
@@ -64,7 +64,7 @@ public interface MetaSearch {
     *
     * @param indexName 索引名
     * @return 创建索引构建器
-     */
+    */
     SearchIndexCreateBuilder create(String indexName);
 
     /**
@@ -72,7 +72,7 @@ public interface MetaSearch {
     *
     * @param indexName 索引名
     * @return true 删除成功
-     */
+    */
     boolean drop(String indexName);
 
     /**
@@ -80,7 +80,7 @@ public interface MetaSearch {
     *
     * @param indexName 索引名
     * @return true 操作成功
-     */
+    */
     boolean refresh(String indexName);
 
     /**
@@ -88,6 +88,6 @@ public interface MetaSearch {
     *
     * @param indexName 索引名
     * @return true 操作成功
-     */
+    */
     boolean optimize(String indexName);
 }

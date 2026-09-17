@@ -15,6 +15,6 @@ public interface ServiceDiscoveryListener {
     * @param serverName 服务名称
     * @param discovery  发现的服务信息对象
     * @param event      触发的事件类型（如注册、注销、更新等）
-     */
+    */
     void listen(String serverName, Discovery discovery, Event event);
 }

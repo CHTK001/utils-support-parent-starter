@@ -19,7 +19,7 @@ public final class ExpressionResolvers {
 
     /**
     * 解析器列表，按优先级排序（值大优先）
-     */
+    */
     private static final List<ExpressionResolver> RESOLVERS;
 
     static {
@@ -39,7 +39,7 @@ public final class ExpressionResolvers {
     * @param root       根对象
     * @param variables  上下文变量
     * @return 解析后的值，无法解析返回 null
-     */
+    */
     public static String resolve(String expression, Object root, Map<String, Object> variables) {
         for (ExpressionResolver resolver : RESOLVERS) {
             if (resolver.isSupport(expression)) {

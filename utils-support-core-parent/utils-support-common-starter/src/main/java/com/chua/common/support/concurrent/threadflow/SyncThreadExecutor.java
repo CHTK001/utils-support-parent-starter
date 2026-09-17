@@ -24,7 +24,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     * @param int int
     * @param long long
     * @param TimeUnit TimeUnit
-     */
+    */
     public SyncThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         super(strategy, threshold, timeout, timeUnit);
     }
@@ -52,7 +52,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
 
     /**
     * 已完成 Future 包装。
-     */
+    */
     private static final class CompletedFuture implements Future<Object> {
         /** 结果对象 */
         private final Object result;
@@ -94,7 +94,7 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
 
     /**
     * 失败 Future 包装。
-     */
+    */
     private static final class FailedFuture implements Future<Object> {
         /** 异常对象 */
         private final Exception exception;

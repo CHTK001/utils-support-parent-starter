@@ -6,10 +6,10 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
-* 向量存储性能基准测试 - 独立运行入口。
-* @author CH
-* @since 4.0.0
- */
+ * 向量存储性能基准测试 - 独立运行入口。
+ * @author CH
+ * @since 4.0.0
+*/
 public class VectorStorageBench {
 
     private static final int DIMENSION = 128; // 维度
@@ -25,7 +25,7 @@ public class VectorStorageBench {
     /**
     * main。
     * @param args 参数
-     */
+    */
     public static void main(String[] args) throws Exception {
         testDir = Files.createTempDirectory("vector-bench-");
         System.out.println("========================================");
@@ -51,7 +51,7 @@ public class VectorStorageBench {
     * 随机向量。
     * @param dim dim
     * @return 随机向量的结果
-     */
+    */
     private static float[] randomVector(int dim) {
         float[] v = new float[dim];
         for (int i = 0; i < dim; i++) {
@@ -73,7 +73,7 @@ public class VectorStorageBench {
     /**
     * 删除recursively。
     * @param dir dir
-     */
+    */
     private static void deleteRecursively(Path dir) {
         try {
             Files.walk(dir)
@@ -87,7 +87,7 @@ public class VectorStorageBench {
     * @param label 标签
     * @param ops ops
     * @param ms ms
-     */
+    */
     private static void printThroughput(String label, long ops, long ms) {
         System.out.printf("[%s] %.0f ops/s (%.0f MSOPS)%n", label, ops * 1000.0 / Math.max(ms, 1),
                 ops * 1000.0 / Math.max(ms, 1) / 1_000_000.0);
@@ -97,7 +97,7 @@ public class VectorStorageBench {
 
     /**
     * 测试内存storage。
-     */
+    */
     private static void testMemoryStorage() {
         System.out.println("【1. MemoryVectorStorage】");
         int dim = DIMENSION;
@@ -142,7 +142,7 @@ public class VectorStorageBench {
 
     /**
     * 测试默认hybrid。
-     */
+    */
     private static void testDefaultHybrid() throws Exception {
         System.out.println("【2. DefaultVectorStorage (HYBRID)】");
         int dim = DIMENSION;
@@ -219,7 +219,7 @@ public class VectorStorageBench {
 
     /**
     * 测试largescale。
-     */
+    */
     private static void testLargeScale() throws Exception {
         System.out.println("【3. 大规模 - 100万条向量】");
         int dim = DIMENSION;

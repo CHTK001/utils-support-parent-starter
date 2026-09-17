@@ -19,54 +19,54 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 任务管理器响应式门面，将 {@link TaskManager} 的回调式 API 包装为 Reactor 响应式 API。
-*
-* <p>底层使用 {@code CompletableFuture} 桥接回调机制，再通过 {@code Mono.fromFuture()}
-* 转换为 Reactor 响应式流，避免直接使用 Sinks 在测试环境中的调度竞争问题。</p>
-*
-* <h2>使用示例</h2>
-* <pre>{@code
-* TaskManager manager = new TaskManager();
-* ReactiveTaskManager reactive = new ReactiveTaskManager(manager);
-*
-* // 提交任务并等待结果
-* Task<String> task = Task.<String>builder()
-*         .taskType("data-process")
-*         .payload("input-data")
-*         .build();
-* Mono<TaskResult<String>> result = reactive.submit(task);
-*
-* // 订阅状态变更流
-* Flux<TaskResult<String>> watch = reactive.watch(task.getTaskId());
-*
-* // 取消任务
-* Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
-* }</pre>ive.watch(task.getTaskId());
-*
-* // 取消任务
-* Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.43
- */
+ * 任务管理器响应式门面，将 {@link TaskManager} 的回调式 API 包装为 Reactor 响应式 API。
+ *
+ * <p>底层使用 {@code CompletableFuture} 桥接回调机制，再通过 {@code Mono.fromFuture()}
+ * 转换为 Reactor 响应式流，避免直接使用 Sinks 在测试环境中的调度竞争问题。</p>
+ *
+ * <h2>使用示例</h2>
+ * <pre>{@code
+ * TaskManager manager = new TaskManager();
+ * ReactiveTaskManager reactive = new ReactiveTaskManager(manager);
+ *
+ * // 提交任务并等待结果
+ * Task<String> task = Task.<String>builder()
+ *         .taskType("data-process")
+ *         .payload("input-data")
+ *         .build();
+ * Mono<TaskResult<String>> result = reactive.submit(task);
+ *
+ * // 订阅状态变更流
+ * Flux<TaskResult<String>> watch = reactive.watch(task.getTaskId());
+ *
+ * // 取消任务
+ * Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
+ * }</pre>ive.watch(task.getTaskId());
+ *
+ * // 取消任务
+ * Mono<Boolean> cancelled = reactive.cancel(task.getTaskId());
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
+*/
 @Slf4j
 public class ReactiveTaskManager {
 
     /**
     * 底层同步任务管理器
-     */
+    */
     private final TaskManager manager;
 
     /**
     * 任务id -> completable期货（submit 单次等待）
-     */
+    */
     private final ConcurrentHashMap<String, CompletableFuture<TaskResult<?>>> submitFutures =
             new ConcurrentHashMap<>();
 
     /**
     * 任务id -> 监听器列表（用于清理）
-     */
+    */
     private final ConcurrentHashMap<String, List<TaskStateListener>> watchListeners =
             new ConcurrentHashMap<>();
 
@@ -74,7 +74,7 @@ public class ReactiveTaskManager {
     * 构造响应式门面，包装指定任务管理器。
     *
     * @param manager 底层同步任务管理器，不可为 空
-     */
+    */
     public ReactiveTaskManager(TaskManager manager) {
         if (manager == null) {
             throw new IllegalArgumentException("TaskManager must not be null");
@@ -86,7 +86,7 @@ public class ReactiveTaskManager {
     * 获取底层任务管理器实例。
     *
     * @return 底层 任务管理器
-     */
+    */
     public TaskManager getManager() {
         return manager;
     }
@@ -102,7 +102,7 @@ public class ReactiveTaskManager {
     * @param task 任务，任务标识 必须已设置
     * @param <T>  负载数据类型
     * @return 任务结果 Mono，任务不存在时发射错误
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> Mono<TaskResult<T>> submit(Task<T> task) {
         String taskId = task.getTaskId();
@@ -151,7 +151,7 @@ public class ReactiveTaskManager {
     *
     * @param taskId 任务 标识
     * @return 任务状态 Mono，不存在返回空 Mono
-     */
+    */
     public Mono<TaskStatus> getStatus(String taskId) {
         return Mono.fromCallable(() -> manager.getStatus(taskId))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
@@ -163,7 +163,7 @@ public class ReactiveTaskManager {
     *
     * @param taskId 任务 标识
     * @return 任务结果 Mono，不存在或未完成返回空 Mono
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> Mono<TaskResult<T>> getResult(String taskId) {
         return Mono.fromCallable(() -> (TaskResult<T>) manager.getResult(taskId))
@@ -182,7 +182,7 @@ public class ReactiveTaskManager {
     * @param taskId 任务 标识
     * @param <T>    结果类型
     * @return 任务结果流
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> Flux<TaskResult<T>> watch(String taskId) {
         Sinks.Many<TaskResult<?>> sink = Sinks.many().multicast().onBackpressureBuffer();
@@ -218,7 +218,7 @@ public class ReactiveTaskManager {
     * 取消对指定任务的状态监听。
     *
     * @param taskId 任务 标识
-     */
+    */
     public void unwatch(String taskId) {
         List<TaskStateListener> listeners = watchListeners.remove(taskId);
         if (listeners != null) {
@@ -235,7 +235,7 @@ public class ReactiveTaskManager {
     *
     * @param taskId 任务 标识
     * @return 取消成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> cancel(String taskId) {
         return Mono.fromCallable(() -> manager.cancel(taskId))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic())
@@ -255,7 +255,7 @@ public class ReactiveTaskManager {
     *
     * @param taskId 任务 标识
     * @return 暂停成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> pause(String taskId) {
         return Mono.fromCallable(() -> manager.pause(taskId))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
@@ -266,7 +266,7 @@ public class ReactiveTaskManager {
     *
     * @param taskId 任务 标识
     * @return 恢复成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> resume(String taskId) {
         return Mono.fromCallable(() -> manager.resume(taskId))
                 .subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic());
@@ -274,7 +274,7 @@ public class ReactiveTaskManager {
 
     /**
     * 关闭响应式门面，清理所有监听器和 期货。
-     */
+    */
     public void close() {
         watchListeners.clear();
         submitFutures.forEach((id, future) -> {
@@ -307,7 +307,7 @@ public class ReactiveTaskManager {
     * @param payload  负载数据
     * @param <T>      负载类型
     * @return 链式构建器
-     */
+    */
     public <T> TaskFluent<T> task(String taskType, T payload) {
         return new TaskFluent<>(this, taskType, payload);
     }
@@ -318,67 +318,67 @@ public class ReactiveTaskManager {
     * @param <T> 负载数据类型
     * @author CH
     * @since 4.0.0.43
-     */
+    */
     public static class TaskFluent<T> {
 
         /**
         * 目标响应式门面
-         */
+        */
         private final ReactiveTaskManager owner;
 
         /**
         * 任务类型
-         */
+        */
         private final String taskType;
 
         /**
         * 负载数据
-         */
+        */
         private final T payload;
 
         /**
         * 自动生成的任务 标识
-         */
+        */
         private final String taskId = TaskIdGenerator.generateId();
 
         /**
         * 链路追踪 标识（默认与 任务id 相同）
-         */
+        */
         private String traceId;
 
         /**
         * 父任务 标识
-         */
+        */
         private String parentTaskId;
 
         /**
         * 任务标签
-         */
+        */
         private final Map<String, String> tags = new HashMap<>();
 
         /**
         * 分片数量
-         */
+        */
         private int shardCount = 1;
 
         /**
         * 分片键
-         */
+        */
         private String shardKey;
 
         /**
         * 超时毫秒数
-         */
+        */
         private long timeoutMs = 30000;
 
         /**
         * 最大重试次数
-         */
+        */
         private int maxRetries = 3;
 
         /**
         * 任务优先级
-         */
+        */
         private TaskPriority priority = TaskPriority.MEDIUM;
 
         /**
@@ -387,7 +387,7 @@ public class ReactiveTaskManager {
         * @param owner    目标门面
         * @param taskType 任务类型
         * @param payload  负载数据
-         */
+        */
         TaskFluent(ReactiveTaskManager owner, String taskType, T payload) {
             this.owner = owner;
             this.taskType = taskType;
@@ -400,7 +400,7 @@ public class ReactiveTaskManager {
         *
         * @param traceId 追踪 标识
         * @return this
-         */
+        */
         public TaskFluent<T> traceId(String traceId) {
             this.traceId = traceId;
             return this;
@@ -411,7 +411,7 @@ public class ReactiveTaskManager {
         *
         * @param parentTaskId 父任务 标识
         * @return this
-         */
+        */
         public TaskFluent<T> parentTaskId(String parentTaskId) {
             this.parentTaskId = parentTaskId;
             return this;
@@ -423,7 +423,7 @@ public class ReactiveTaskManager {
         * @param key   标签键
         * @param value 标签值
         * @return this
-         */
+        */
         public TaskFluent<T> tag(String key, String value) {
             tags.put(key, value);
             return this;
@@ -434,7 +434,7 @@ public class ReactiveTaskManager {
         *
         * @param tags 标签映射
         * @return this
-         */
+        */
         public TaskFluent<T> tags(Map<String, String> tags) {
             if (tags != null) {
                 this.tags.putAll(tags);
@@ -448,7 +448,7 @@ public class ReactiveTaskManager {
         * @param count    分片数量
         * @param shardKey 分片键
         * @return this
-         */
+        */
         public TaskFluent<T> shard(int count, String shardKey) {
             this.shardCount = Math.max(1, count);
             this.shardKey = shardKey;
@@ -460,7 +460,7 @@ public class ReactiveTaskManager {
         *
         * @param timeout 超时时长
         * @return this
-         */
+        */
         public TaskFluent<T> timeout(Duration timeout) {
             this.timeoutMs = timeout != null ? timeout.toMillis() : 30000L;
             return this;
@@ -471,7 +471,7 @@ public class ReactiveTaskManager {
         *
         * @param maxRetries 重试次数
         * @return this
-         */
+        */
         public TaskFluent<T> maxRetries(int maxRetries) {
             this.maxRetries = Math.max(0, maxRetries);
             return this;
@@ -482,7 +482,7 @@ public class ReactiveTaskManager {
         *
         * @param priority 优先级
         * @return this
-         */
+        */
         public TaskFluent<T> priority(TaskPriority priority) {
             this.priority = priority != null ? priority : TaskPriority.MEDIUM;
             return this;
@@ -492,7 +492,7 @@ public class ReactiveTaskManager {
         * 构建任务对象（不提交）。
         *
         * @return 任务实例
-         */
+        */
         public Task<T> build() {
             return Task.<T>builder()
                     .taskId(taskId)
@@ -513,7 +513,7 @@ public class ReactiveTaskManager {
         * 构建并提交任务，返回结果 Mono。
         *
         * @return 任务结果 Mono
-         */
+        */
         public Mono<TaskResult<T>> submit() {
             return owner.submit(build());
         }
@@ -522,7 +522,7 @@ public class ReactiveTaskManager {
         * 构建并提交任务，同时订阅完成事件流。
         *
         * @return 结果与监听流的元组（Mono 结果 + Flux 流）
-         */
+        */
         public reactor.util.function.Tuple2<Mono<TaskResult<T>>, Flux<TaskResult<T>>> submitAndWatch() {
             Task<T> built = build();
             return reactor.util.function.Tuples.of(

@@ -43,7 +43,7 @@ public interface CmdExecutor extends AutoCloseable {
     * 获取执行器名称
     *
     * @return 执行器名称
-     */
+    */
     String getName();
 
     /**
@@ -51,7 +51,7 @@ public interface CmdExecutor extends AutoCloseable {
     *
     * @param command 要执行的命令字符串
     * @return 命令执行结果
-     */
+    */
     CmdResult execute(String command);
 
     /**
@@ -63,7 +63,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param timeout 超时时间值
     * @param unit    超时时间单位
     * @return 命令执行结果（可能标记为超时）
-     */
+    */
     CmdResult execute(String command, long timeout, TimeUnit unit);
 
     /**
@@ -73,7 +73,7 @@ public interface CmdExecutor extends AutoCloseable {
     *
     * @param command  要执行的命令字符串
     * @param callback 结果回调
-     */
+    */
     void executeAsync(String command, CmdCallback callback);
 
     /**
@@ -83,7 +83,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param timeout  超时时间值
     * @param unit     超时时间单位
     * @param callback 结果回调
-     */
+    */
     void executeAsync(String command, long timeout, TimeUnit unit, CmdCallback callback);
 
     // ==================== 数组形式执行 ====================
@@ -103,7 +103,7 @@ public interface CmdExecutor extends AutoCloseable {
     *
     * @param command 程序名与参数数组
     * @return 命令执行结果
-     */
+    */
     default CmdResult execute(String[] command) {
         return execute(joinCommand(command));
     }
@@ -115,7 +115,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param timeout 超时时间值
     * @param unit    超时时间单位
     * @return 命令执行结果（可能标记为超时）
-     */
+    */
     default CmdResult execute(String[] command, long timeout, TimeUnit unit) {
         return execute(joinCommand(command), timeout, unit);
     }
@@ -125,7 +125,7 @@ public interface CmdExecutor extends AutoCloseable {
     *
     * @param command  程序名与参数数组
     * @param callback 结果回调
-     */
+    */
     default void executeAsync(String[] command, CmdCallback callback) {
         executeAsync(joinCommand(command), callback);
     }
@@ -137,7 +137,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param timeout  超时时间值
     * @param unit     超时时间单位
     * @param callback 结果回调
-     */
+    */
     default void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
         executeAsync(joinCommand(command), timeout, unit, callback);
     }
@@ -148,7 +148,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param command  程序名与参数数组
     * @param callback 逐行输出回调
     * @return 命令执行结果
-     */
+    */
     default CmdResult executeWithOutput(String[] command, LineCallback callback) {
         return executeWithOutput(joinCommand(command), 0, null, callback);
     }
@@ -161,7 +161,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param unit     超时时间单位
     * @param callback 逐行输出回调
     * @return 命令执行结果
-     */
+    */
     default CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback) {
         return executeWithOutput(joinCommand(command), timeout, unit, callback);
     }
@@ -181,7 +181,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
     * @return 命令执行结果
-     */
+    */
     default CmdResult execute(String[] command, long timeout, TimeUnit unit,
                               File workingDirectory, Map<String, String> environment, String input) {
         return execute(command, timeout, unit);
@@ -201,7 +201,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
     * @return 命令执行结果
-     */
+    */
     default CmdResult executeWithOutput(String[] command, long timeout, TimeUnit unit, LineCallback callback,
                                         File workingDirectory, Map<String, String> environment, String input) {
         return executeWithOutput(command, timeout, unit, callback);
@@ -220,7 +220,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param workingDirectory 工作目录，可为 null
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
-     */
+    */
     default void executeAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback,
                               File workingDirectory, Map<String, String> environment, String input) {
         executeAsync(command, timeout, unit, callback);
@@ -234,7 +234,7 @@ public interface CmdExecutor extends AutoCloseable {
     *
     * @param command 参数数组
     * @return 拼接后的命令字符串
-     */
+    */
     private static String joinCommand(String[] command) {
         if (command == null || command.length == 0) {
             return "";
@@ -256,7 +256,7 @@ public interface CmdExecutor extends AutoCloseable {
     * 释放执行器占用的资源。
     *
     * <p>实现类应在此方法中关闭线程池、清理临时文件等。
-     */
+    */
     @Override
     default void close() throws Exception {
         // 默认无操作，子类按需重写
@@ -271,7 +271,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param command  要执行的命令字符串
     * @param callback 逐行输出回调
     * @return 命令执行结果
-     */
+    */
     default CmdResult executeWithOutput(String command, LineCallback callback) {
         return executeWithOutput(command, 0, null, callback);
     }
@@ -284,7 +284,7 @@ public interface CmdExecutor extends AutoCloseable {
     * @param unit     超时时间单位
     * @param callback 逐行输出回调
     * @return 命令执行结果
-     */
+    */
     default CmdResult executeWithOutput(String command, long timeout, TimeUnit unit, LineCallback callback) {
         CmdResult[] result = new CmdResult[1];
         Object lock = new Object();

@@ -15,7 +15,7 @@ public interface QrCode {
 
     /**
     * 编码类型：二维码 / 条形码
-     */
+    */
     enum BarcodeType {
         /** 二维码（QR Code） */
         QR_CODE,
@@ -33,7 +33,7 @@ public interface QrCode {
     * @param format   图片格式（如 png、jpg）
     * @param output   输出文件
     * @throws Exception 生成失败
-     */
+    */
     void encode(String content, BarcodeType type, int width, int height,
                 String format, File output) throws Exception;
 
@@ -47,7 +47,7 @@ public interface QrCode {
     * @param format   图片格式（如 png、jpg）
     * @param output   输出流
     * @throws Exception 生成失败
-     */
+    */
     void encode(String content, BarcodeType type, int width, int height,
                 String format, OutputStream output) throws Exception;
 
@@ -57,7 +57,7 @@ public interface QrCode {
     * @param input 图片输入流
     * @return 解码内容
     * @throws Exception 解码失败
-     */
+    */
     String decode(InputStream input) throws Exception;
 
     /**
@@ -66,6 +66,6 @@ public interface QrCode {
     * @param file 图片文件
     * @return 解码内容
     * @throws Exception 解码失败
-     */
+    */
     String decode(File file) throws Exception;
 }

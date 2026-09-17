@@ -14,7 +14,7 @@ public class NotSupportedException extends RuntimeException {
 
     /**
     * 构造一个不带详细消息的 {@code NotSupportedException}。
-     */
+    */
     public NotSupportedException() {
         super();
     }
@@ -23,7 +23,7 @@ public class NotSupportedException extends RuntimeException {
     * 构造一个带有详细错误消息的 {@code NotSupportedException}。
     *
     * @param message 描述异常原因的错误消息。
-     */
+    */
     public NotSupportedException(String message) {
         super(message);
     }
@@ -34,7 +34,7 @@ public class NotSupportedException extends RuntimeException {
     *
     * @param message 包含占位符（如 "{}"）的错误消息模板。
     * @param args    用于替换消息模板中占位符的参数数组。
-     */
+    */
     public NotSupportedException(String message, Object... args) {
         super(StringUtils.format(message, args));
     }
@@ -44,7 +44,7 @@ public class NotSupportedException extends RuntimeException {
     *
     * @param message 描述异常原因的错误消息。
     * @param cause   导致此异常的底层原因（通常由其他异常封装而来）。
-     */
+    */
     public NotSupportedException(String message, Throwable cause) {
         super(message, cause);
     }

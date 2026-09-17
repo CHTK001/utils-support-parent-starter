@@ -20,7 +20,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     * <p>
     * 使用默认的 {@link DiscoveryOption} 配置初始化服务发现实例。
     * </p>
-     */
+    */
     public DefaultServiceDiscovery() {
         this(new DiscoveryOption());
     }
@@ -31,7 +31,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     * 根据指定的 {@link DiscoveryOption} 配置初始化服务发现实例。
     *
     * @param discoveryOption 服务发现配置选项，包含协议、超时等参数设置。
-     */
+    */
     public DefaultServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
@@ -43,7 +43,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param discoveryOption 服务发现配置选项。
     * @param clusterName     集群名称，用于生成带有前缀的服务路径。
-     */
+    */
     public DefaultServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
@@ -54,7 +54,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     * 当前实现为无操作（NOP），因为本类主要依赖本地缓存，不涉及异步监听或网络轮询。
     * 子类若需扩展动态发现逻辑，可在此处重写。
     * </p>
-     */
+    */
     @Override
     public void start() {
         // 默认实现为空，无需执行额外启动逻辑
@@ -68,7 +68,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     * @param path      服务的相对路径，例如 "/api/user"。
     * @param discovery 具体的服务发现对象，包含服务的元数据和连接信息。
     * @return 当前 {@link ServiceDiscovery} 实例，支持链式调用。
-     */
+    */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         // 为路径添加集群前缀，确保服务路径的唯一性和隔离性
@@ -87,7 +87,7 @@ public class DefaultServiceDiscovery extends AbstractServiceDiscovery {
     * <p>
     * 清除所有已缓存的服务信息，释放相关资源。
     * </p>
-     */
+    */
     @Override
     public void close() {
         clearCache();

@@ -52,7 +52,9 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     /** 序列化器，将对象与字节数组互转 */
     private final Serializer<E> serializer;
 
-    /** 共享 Arena，管理所有 native 内存段的生命周期，close 时一次性释放 */
+    /**
+    * 共享 Arena，管理所有 native 内存段的生命周期，close 时一次性释放
+    */
     private final Arena arena;
 
     /**
@@ -60,7 +62,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     *
     * <p>每次写操作（append/appendAll/clear）都会创建新的不可变列表并赋值给此字段，
     * 读操作读取此字段获取一致性快照。</p>
-     */
+    */
     private volatile List<MemorySegment> segments = Collections.emptyList();
 
     /**
@@ -68,7 +70,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     *
     * <p>使用 {@link LongAdder} 避免写操作的 CAS 竞争，
     * 读取时通过 {@link LongAdder#sum()} 获取近似值。</p>
-     */
+    */
     private final LongAdder totalBytes = new LongAdder();
 
     /** 关闭标志，volatile 保证可见性 */
@@ -79,14 +81,14 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     *
     * <p>使用 synchronized 而非 ReentrantLock 以减少内存开销，
     * 因为写操作频率通常远低于读操作。</p>
-     */
+    */
     private final Object writeLock = new Object();
 
     /**
     * 构造堆外存储实例。
     *
     * @param serializer 序列化器，用于对象与字节数组的互转
-     */
+    */
     public OffHeapDataStore(Serializer<E> serializer) {
         this.serializer = serializer;
         this.arena = Arena.ofShared();
@@ -99,7 +101,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * 避免持锁时间过长。</p>
     *
     * @throws IllegalArgumentException 如果序列化结果为空
-     */
+    */
     @Override
     public int append(E element) {
         ensureOpen();
@@ -131,7 +133,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * 将 O(n) 序列化开销移出临界区，大幅提升并发吞吐。</p>
     *
     * @throws IllegalArgumentException 如果任一元素序列化结果为空
-     */
+    */
     @Override
     public int appendAll(Collection<? extends E> elements) {
         ensureOpen();
@@ -176,7 +178,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * 读操作完全无锁。</p>
     *
     * @throws IndexOutOfBoundsException 如果索引越界
-     */
+    */
     @Override
     public E get(int index) {
         ensureOpen();
@@ -196,7 +198,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * {@inheritDoc}
     *
     * <p>基于 volatile 快照读取，无锁。</p>
-     */
+    */
     @Override
     public int size() {
         return segments.size();
@@ -206,7 +208,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * {@inheritDoc}
     *
     * <p>基于 volatile 快照读取，无锁。</p>
-     */
+    */
     @Override
     public boolean isEmpty() {
         return segments.isEmpty();
@@ -217,7 +219,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     *
     * <p>清空快照引用并将 totalBytes 归零。注意：已分配的 MemorySegment
     * 仍由 Arena 持有，直到 {@link #close()} 才真正释放 native 内存。</p>
-     */
+    */
     @Override
     public void clear() {
         synchronized (writeLock) {
@@ -235,7 +237,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     *
     * <p>关闭 {@link Arena} 确定性释放所有 native 内存，不等 GC。
     * 关闭后任何访问操作将抛出 {@link IllegalStateException}。</p>
-     */
+    */
     @Override
     public void close() {
         synchronized (writeLock) {
@@ -259,7 +261,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * {@inheritDoc}
     *
     * <p>堆外存储当前不支持只读模式，始终返回 {@code false}。</p>
-     */
+    */
     @Override
     public boolean isReadOnly() {
         return false;
@@ -269,7 +271,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * {@inheritDoc}
     *
     * <p>堆外存储始终返回 {@code true}。</p>
-     */
+    */
     @Override
     public boolean isOffHeap() {
         return true;
@@ -279,7 +281,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * {@inheritDoc}
     *
     * <p>使用 {@link LongAdder#sum()} 返回近似值，适用于监控和日志场景。</p>
-     */
+    */
     @Override
     public long getOffHeapBytes() {
         return totalBytes.sum();
@@ -291,7 +293,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * <p>保留此方法以兼容旧版 API，新代码请使用 {@link #size()}。</p>
     *
     * @return 元素数量
-     */
+    */
     public int elementCount() {
         return segments.size();
     }
@@ -300,7 +302,7 @@ public class OffHeapDataStore<E extends Serializable> implements DataStore<E> {
     * 检查存储是否已关闭，若已关闭则抛出异常。
     *
     * @throws IllegalStateException 如果存储已关闭
-     */
+    */
     private void ensureOpen() {
         if (closed) {
             throw new IllegalStateException("OffHeapDataStore 已关闭，不可再访问");

@@ -36,7 +36,7 @@ public class RpcRequest implements Serializable {
     *
     * <p>示例：</p>
     * <pre>{@code "com.example.service.UserService"}</pre>
-     */
+    */
     private String service;
 
     /**
@@ -47,7 +47,7 @@ public class RpcRequest implements Serializable {
     *
     * <p>示例值：</p>
     * <pre>{@code "findById", "update", "delete"}</pre>
-     */
+    */
     private String method;
 
     /**
@@ -60,7 +60,7 @@ public class RpcRequest implements Serializable {
     *
     * <p>示例值：</p>
     * <pre>{@code ["java.lang.String", "java.lang.Integer"]}</pre>
-     */
+    */
     private String[] paramTypes;
 
     /**
@@ -70,6 +70,6 @@ public class RpcRequest implements Serializable {
     * 参数值将通过 Java 反射 {@code Method.invoke(bean, args)} 传递给目标方法。</p>
     *
     * <p>参数对象必须实现 {@link Serializable} 或其实际类型可被底层序列化框架处理。</p>
-     */
+    */
     private Object[] args;
 }

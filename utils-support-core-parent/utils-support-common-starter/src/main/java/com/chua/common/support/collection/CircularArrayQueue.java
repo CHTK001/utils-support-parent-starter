@@ -42,37 +42,37 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
 
     /**
     * 内部存储数组
-     */
+    */
     private final Object[] elements;
 
     /**
     * 队首索引，指向最早入队的元素
-     */
+    */
     private int head;
 
     /**
     * 队尾索引，指向下一个入队的位置
-     */
+    */
     private int tail;
 
     /**
     * 当前元素数量
-     */
+    */
     private int size;
 
     /**
     * 队列固定容量
-     */
+    */
     private final int capacity;
 
     /**
     * 当前溢出策略
-     */
+    */
     private OverflowPolicy policy;
 
     /**
     * 最近一次因容量满而被淘汰的元素，未触发淘汰时为 null
-     */
+    */
     private E lastEvicted;
 
     /**
@@ -82,7 +82,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     * @param <E>      元素类型
     * @return 环状队列实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularArrayQueue<E> of(int capacity) {
         return new CircularArrayQueue<>(capacity, OverflowPolicy.EVICT_ELDEST);
     }
@@ -96,7 +96,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     * @param <E>      元素类型
     * @return 环状队列实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularArrayQueue<E> of(int capacity, Collection<? extends E> c) {
         CircularArrayQueue<E> queue = new CircularArrayQueue<>(capacity, OverflowPolicy.EVICT_ELDEST);
         if (c != null) {
@@ -111,7 +111,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     * 构造方法。
     *
     * @param capacity 队列容量，必须大于 0
-     */
+    */
     public CircularArrayQueue(int capacity) {
         this(capacity, OverflowPolicy.EVICT_ELDEST);
     }
@@ -123,7 +123,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     * @param policy   溢出策略，不允许为 null
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
     * @throws NullPointerException     如果 policy 为 null
-     */
+    */
     public CircularArrayQueue(int capacity, OverflowPolicy policy) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -247,7 +247,9 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     }
 
     @Override
-    /** 查看队首（FIFO 头部），覆盖 AbstractQueue 默认实现 */
+    /**
+    * 查看队首（FIFO 头部），覆盖 AbstractQueue 默认实现
+    */
     public E peek() {
         if (isEmpty()) {
             throw new NoSuchElementException("环状队列为空");
@@ -273,7 +275,7 @@ public class CircularArrayQueue<E> extends AbstractQueue<E> implements CircularQ
     *
     * @param e 待入队的新元素
     * @return 是否成功入队
-     */
+    */
     private boolean handleOverflow(E e) {
         switch (policy) {
             case EVICT_ELDEST -> {

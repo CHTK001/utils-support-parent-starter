@@ -29,7 +29,7 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
     *             
     *
     * @return Locale.class
-     */
+    */
     @Override
     public Class<Locale> getType() {
         return Locale.class;
@@ -40,7 +40,7 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
     *
     * @param value    
     * @return Locale     null
-     */
+    */
     @Override
     public Locale convert(Object value) {
         if (null == value) {
@@ -116,7 +116,7 @@ public class LocaleTypeConverter implements TypeConverter<Locale> {
     * @param map   map
     * @param key      
     * @return    
-     */
+    */
     private Object getIgnoreCase(Map map, String key) {
         if (map.containsKey(key)) {
             return map.get(key);

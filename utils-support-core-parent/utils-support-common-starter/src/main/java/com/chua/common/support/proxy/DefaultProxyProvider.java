@@ -27,92 +27,92 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 默认代理提供者实现，采用建造者模式构建代理对象。
-* <p>
-* 本类实现了 {@link ProxyProvider} 接口，提供了完整的代理构建流程，
-* 包括类加载器设置、接口配置、方法拦截器注册、注解扫描、环绕拦截等功能。
-* 内部通过组合拦截器模式将用户自定义拦截器、注解扫描拦截器和环绕拦截器
-* 整合为统一的拦截链。
-* </p>
-* <p>
-* 代理构建流程：
-* </p>
-* <ol>
-*   <li>配置阶段 — 通过链式方法配置类加载器、接口、目标对象、拦截器等参数</li>
-*   <li>组合拦截器 — 通过 {@link #createCompositeIntercept(MethodIntercept)} 将多种拦截器整合为调用链</li>
-*   <li>代理创建 — 根据目标类型选择 JDK 动态代理或 Javassist 代理</li>
-* </ol>
-* <p>
-* 拦截器执行顺序：
-* </p>
-* <pre>{@code
-* before(obj, method, args, proxy)           ← 前置处理
-*   └── invoke(obj, method, args, proxy)     ← 方法调用
-*         ├── 注解拦截器链（按注解类型匹配，按 SPI 注解全名查找）
-*         ├── 环绕拦截器链（按方法签名匹配）
-*         └── 用户自定义拦截器
-* after(obj, method, args, proxy)            ← 后置处理（finally 中执行）
-* handleException(...)                       ← 异常处理
-* }</pre>...)                       ← 异常处理
-* }</pre>
-* <p>
-* 注解扫描 SPI 约定：
-* </p>
-* <p>{@link MethodAnnotationIntercept} 实现类必须使用 {@code @Spi("被拦截注解的全限定类名")}
-* 标记，代理框架在运行时按方法上注解的全类名去 SPI 注册表中查找拦截器，
-* 确保实现类可放置在任意包而无需被同包扫描器发现。</p>
-*
-* @param <T> 代理接口类型
-* @author CH
-* @since 2025/11/26
-* @版本 1.1.0
- */
+ * 默认代理提供者实现，采用建造者模式构建代理对象。
+ * <p>
+ * 本类实现了 {@link ProxyProvider} 接口，提供了完整的代理构建流程，
+ * 包括类加载器设置、接口配置、方法拦截器注册、注解扫描、环绕拦截等功能。
+ * 内部通过组合拦截器模式将用户自定义拦截器、注解扫描拦截器和环绕拦截器
+ * 整合为统一的拦截链。
+ * </p>
+ * <p>
+ * 代理构建流程：
+ * </p>
+ * <ol>
+ *   <li>配置阶段 — 通过链式方法配置类加载器、接口、目标对象、拦截器等参数</li>
+ *   <li>组合拦截器 — 通过 {@link #createCompositeIntercept(MethodIntercept)} 将多种拦截器整合为调用链</li>
+ *   <li>代理创建 — 根据目标类型选择 JDK 动态代理或 Javassist 代理</li>
+ * </ol>
+ * <p>
+ * 拦截器执行顺序：
+ * </p>
+ * <pre>{@code
+ * before(obj, method, args, proxy)           ← 前置处理
+ *   └── invoke(obj, method, args, proxy)     ← 方法调用
+ *         ├── 注解拦截器链（按注解类型匹配，按 SPI 注解全名查找）
+ *         ├── 环绕拦截器链（按方法签名匹配）
+ *         └── 用户自定义拦截器
+ * after(obj, method, args, proxy)            ← 后置处理（finally 中执行）
+ * handleException(...)                       ← 异常处理
+ * }</pre>...)                       ← 异常处理
+ * }</pre>
+ * <p>
+ * 注解扫描 SPI 约定：
+ * </p>
+ * <p>{@link MethodAnnotationIntercept} 实现类必须使用 {@code @Spi("被拦截注解的全限定类名")}
+ * 标记，代理框架在运行时按方法上注解的全类名去 SPI 注册表中查找拦截器，
+ * 确保实现类可放置在任意包而无需被同包扫描器发现。</p>
+ *
+ * @param <T> 代理接口类型
+ * @author CH
+ * @since 2025/11/26
+ * @版本 1.1.0
+*/
 @SuppressWarnings({"unchecked", "rawtypes"})
 class DefaultProxyProvider<T> implements ProxyProvider<T> {
 
     /**
     * 目标接口类型。
-     */
+    */
     private final Class<T> type;
 
     /**
     * 类加载器。
-     */
+    */
     private ClassLoader classLoader;
 
     /**
     * 要代理的额外接口。
-     */
+    */
     private Class<?>[] interfaces = ValueConstant.SYMBOL_EMPTY_CLASS;
 
     /**
     * 方法拦截器。
-     */
+    */
     private MethodIntercept<T> methodIntercept = new VoidMethodIntercept<>();
 
     /**
     * 是否启用注解扫描。
-     */
+    */
     private boolean enableAnnotationScan = true;
 
     /**
     * 是否启用环绕拦截。
-     */
+    */
     private boolean enableArround = true;
 
     /**
     * 是否优先尝试 ASM 代理。
-     */
+    */
     private boolean tryAsm = true;
 
     /**
     * 是否使用 Javassist 代理。
-     */
+    */
     private boolean tryJavassist = true;
 
     /**
     * 目标对象（用于委托调用）。
-     */
+    */
     private Object target;
 
     /**
@@ -120,7 +120,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * <p>
     * 用于与 IOC 容器集成，提供 Bean 的查找和注入能力。
     * </p>
-     */
+    */
     @Getter
     /** 对象上下文 */
     private ObjectContext objectContext;
@@ -131,34 +131,34 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * 按需懒加载，避免每次方法调用重复扫描 SPI。
     * 使用 volatile + 双重检查锁保证线程安全。
     * </p>
-     */
+    */
     private volatile Map<String, List<MethodAnnotationIntercept<Annotation>>> annotationInterceptCache;
 
     /**
     * 注解拦截器缓存初始化的锁标志。
-     */
+    */
     private volatile boolean annotationCacheInit = false;
 
     /**
     * 环绕处理器缓存（懒加载）。
-     */
+    */
     private volatile List<ArroundHandler> aroundHandlers;
 
     /**
     * SPI 提供者实例（懒加载）。
-     */
+    */
     private volatile ServiceProvider<MethodAnnotationIntercept> annotationSpiProvider;
 
     /**
     * SPI 提供者实例（懒加载）。
-     */
+    */
     private volatile ServiceProvider<MethodArroundIntercept> aroundSpiProvider;
 
     /**
     * 创建默认代理提供者实例。
     *
     * @param type 目标接口类型，不能为 空
-     */
+    */
     DefaultProxyProvider(Class<T> type) {
         this.type = type;
     }
@@ -168,7 +168,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param classLoader 类加载器
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> classLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -180,7 +180,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param interfaces 要代理的额外接口数组
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> interfaces(Class<?>... interfaces) {
         if (interfaces == null || interfaces.length == 0) {
@@ -196,7 +196,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param target 目标对象实例
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> target(Object target) {
         this.target = target;
@@ -208,7 +208,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param enable 是否启用注解扫描
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> enableAnnotationScan(boolean enable) {
         this.enableAnnotationScan = enable;
@@ -220,7 +220,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param enable 是否启用环绕拦截
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> enableArround(boolean enable) {
         this.enableArround = enable;
@@ -246,7 +246,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param objectContext 对象上下文实例
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> objectContext(ObjectContext objectContext) {
         this.objectContext = objectContext;
@@ -258,7 +258,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param methodIntercept 方法拦截器实例
     * @return 当前代理提供者实例
-     */
+    */
     @Override
     public ProxyProvider<T> methodIntercept(MethodIntercept<T> methodIntercept) {
         this.methodIntercept = Optional.ofNullable(methodIntercept).orElse(new VoidMethodIntercept<>());
@@ -269,7 +269,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * 构建代理对象。
     *
     * @return 代理对象实例
-     */
+    */
     @Override
     public T build() {
         MethodIntercept<T> delegate = Optional.ofNullable(methodIntercept).orElse(new VoidMethodIntercept<>());
@@ -307,7 +307,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * @param loader   类加载器
     * @param intercept 组合后的方法拦截器
     * @return ASM 创建的代理对象，如果失败则返回 空
-     */
+    */
     private T tryAsm(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
             ProxyFactory<?> factory = ServiceProvider.of(ProxyFactory.class).getExtension("asm");
@@ -332,7 +332,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * @param loader   类加载器
     * @param intercept 组合后的方法拦截器
     * @return Javassist 创建的代理对象，如果失败则返回 空
-     */
+    */
     private T tryJavassist(Class<T> type, Class<?>[] ifaces, ClassLoader loader, MethodIntercept<T> intercept) {
         try {
             ProxyFactory<?> factory = ServiceProvider.of(ProxyFactory.class).getExtension("javassist");
@@ -350,7 +350,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param delegate 用户自定义的委托拦截器
     * @return 组合后的完整拦截器
-     */
+    */
     private MethodIntercept<T> createCompositeIntercept(MethodIntercept<T> delegate) {
         if (!enableAnnotationScan && !enableArround) {
             return delegate;
@@ -413,7 +413,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * @param proxyMethod 代理方法的封装信息
     * @param next        下一个调用环节
     * @return 包装后的调用链
-     */
+    */
     private MethodInvocation wrapAnnotations(Method method, ProxyMethod proxyMethod, MethodInvocation next) {
         Annotation[] annotations = method.getAnnotations();
         if (annotations.length == 0) {
@@ -450,7 +450,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param annotationTypeName 注解全限定类名
     * @return 匹配的拦截器列表，不会为 空
-     */
+    */
     private List<MethodAnnotationIntercept<Annotation>> findAnnotationIntercepts(String annotationTypeName) {
         if (!enableAnnotationScan) {
             return List.of();
@@ -518,7 +518,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * 获取 SPI 提供者（注解拦截器），懒加载。
     *
     * @return ServiceProvider 实例
-     */
+    */
     private ServiceProvider<MethodAnnotationIntercept> getAnnotationSpiProvider() {
         if (annotationSpiProvider == null) {
             synchronized (this) {
@@ -541,7 +541,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * @param proxyMethod 代理方法的封装信息
     * @param next        下一个调用环节
     * @return 包装后的调用链
-     */
+    */
     private MethodInvocation wrapAround(Method method, ProxyMethod proxyMethod, MethodInvocation next) {
         List<ArroundHandler> handlers = aroundHandlers();
         if (handlers.isEmpty()) {
@@ -575,7 +575,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     *
     * @param method 方法对象
     * @return 方法签名字符串
-     */
+    */
     private String buildSignature(Method method) {
         StringBuilder builder = new StringBuilder(type.getName())
                 .append('#')
@@ -599,7 +599,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * </p>
     *
     * @return 环绕处理器列表
-     */
+    */
     private List<ArroundHandler> aroundHandlers() {
         if (!enableArround) {
             return List.of();
@@ -624,7 +624,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * 获取 SPI 提供者（环绕拦截器），懒加载。
     *
     * @return ServiceProvider 实例
-     */
+    */
     private ServiceProvider<MethodArroundIntercept> getAroundSpiProvider() {
         if (aroundSpiProvider == null) {
             synchronized (this) {
@@ -645,7 +645,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     * </p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class ArroundHandler {
         /** Intercept */
         private final MethodArroundIntercept intercept;
@@ -663,7 +663,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         * @param patterns  方法签名匹配模式数组（空 或空数组表示全方法匹配）
         * @param matchType 匹配类型
         * @param order     执行顺序值
-         */
+        */
         private ArroundHandler(MethodArroundIntercept intercept, String[] patterns,
                                MatchUtils.MatchType matchType, int order) {
             this.intercept = intercept;
@@ -681,7 +681,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         *
         * @param intercept 环绕拦截器实例
         * @return ArroundHandler 实例，如果无法创建则返回 空
-         */
+        */
         static ArroundHandler of(MethodArroundIntercept intercept) {
             Around mapping = intercept.getClass().getAnnotation(Around.class);
             if (mapping == null) {
@@ -712,7 +712,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         * @param signature 方法签名
         * @param method    方法对象
         * @return 如果匹配则返回 true
-         */
+        */
         boolean matches(String signature, Method method) {
  // 模式 为 空 表示全方法匹配
             if (patterns == null) {
@@ -734,7 +734,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         * @param invocation  下一个调用环节
         * @return 方法执行结果
         * @throws Throwable 如果执行过程中发生异常
-         */
+        */
         Object invoke(ProxyMethod proxyMethod, MethodInvocation invocation) throws Throwable {
             return intercept.invoke(proxyMethod, invocation);
         }
@@ -743,7 +743,7 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
         * 获取此处理器的执行顺序值。
         *
         * @return 执行顺序值
-         */
+        */
         int order() {
             return order;
         }

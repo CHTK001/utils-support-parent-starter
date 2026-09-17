@@ -6,15 +6,15 @@ import com.chua.common.support.network.discovery.ServiceDiscovery;
 import java.net.InetSocketAddress;
 
 /**
-* 基于 {@link ServiceDiscovery} 的 TCP 代理目标解析器。
-*
-* <p>将 TCP 代理的前端连接解析为注册中心中的后端地址:
-* 按服务路径 + scatterId(业务分组) + 协议(tcp) 查询,并走负载均衡选择目标节点,
-* 实现"TCP 代理接入发现服务、自动负载均衡、故障节点自动剔除后不再被路由"。</p>
-*
-* @author CH
-* @since 2026/08/16
- */
+ * 基于 {@link ServiceDiscovery} 的 TCP 代理目标解析器。
+ *
+ * <p>将 TCP 代理的前端连接解析为注册中心中的后端地址:
+ * 按服务路径 + scatterId(业务分组) + 协议(tcp) 查询,并走负载均衡选择目标节点,
+ * 实现"TCP 代理接入发现服务、自动负载均衡、故障节点自动剔除后不再被路由"。</p>
+ *
+ * @author CH
+ * @since 2026/08/16
+*/
 public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSocketAddress> {
 
     /** 服务discovery */
@@ -30,7 +30,7 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     * 创建 DiscoveryProxyTargetResolver 实例
     * @param serviceDiscovery serviceDiscovery
     * @param String String
-     */
+    */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath) {
         this(serviceDiscovery, servicePath, null, "weight");
     }
@@ -40,7 +40,7 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     * @param serviceDiscovery serviceDiscovery
     * @param String String
     * @param String String
-     */
+    */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath, String scatterId) {
         this(serviceDiscovery, servicePath, scatterId, "weight");
     }
@@ -51,7 +51,7 @@ public class DiscoveryProxyTargetResolver implements ProxyTargetResolver<InetSoc
     * @param servicePath servicePath
     * @param scatterId scatterId
     * @param balance balance
-     */
+    */
     public DiscoveryProxyTargetResolver(ServiceDiscovery serviceDiscovery, String servicePath,
                                         String scatterId, String balance) {
         this.serviceDiscovery = serviceDiscovery;

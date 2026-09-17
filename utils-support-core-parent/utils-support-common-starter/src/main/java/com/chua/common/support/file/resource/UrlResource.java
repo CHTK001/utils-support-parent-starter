@@ -17,14 +17,14 @@ public class UrlResource implements Resource {
 
     /**
     * 资源对应的 URL。
-     */
+    */
     private final URL url;
 
     /**
     * 使用指定 URL 构造资源。
     *
     * @param url 资源 URL
-     */
+    */
     public UrlResource(URL url) {
         this.url = url;
     }

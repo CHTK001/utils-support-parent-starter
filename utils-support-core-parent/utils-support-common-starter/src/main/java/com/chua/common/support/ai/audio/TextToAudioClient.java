@@ -44,7 +44,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     * @param provider AI 服务商名称，如 "openai-tts"、"edge-tts"、"piper" 等
     * @param apiKey   API 密钥（本地 ONNX 模型可留空）
     * @return TextToAudioClient 实例
-     */
+    */
     static TextToAudioClient create(String provider, String apiKey) {
         return ServiceProvider.of(TextToAudioClient.class)
                 .getNewExtension(provider, TextToAudioClientSetting.builder()
@@ -56,7 +56,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param setting 客户端配置
     * @return TextToAudioClient 实例
-     */
+    */
     static TextToAudioClient create(TextToAudioClientSetting setting) {
         return ServiceProvider.of(TextToAudioClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -69,7 +69,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 基地址
     * @return TextToAudioClient 实例
-     */
+    */
     static TextToAudioClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(TextToAudioClient.class)
                 .getNewExtension(provider, TextToAudioClientSetting.builder()
@@ -81,7 +81,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient provider(String provider) {
         return this;
     }
@@ -91,7 +91,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param model 模型名称，如 "tts-1"、"tts-1-hd"、"piper-zh_CN-huayan-medium"
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient model(String model) {
         return this;
     }
@@ -108,7 +108,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param voice 发音人 ID
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient voice(String voice) {
         return this;
     }
@@ -121,7 +121,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param language 语言代码
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient language(String language) {
         return this;
     }
@@ -134,7 +134,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param format 音频格式
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient format(String format) {
         return this;
     }
@@ -147,7 +147,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param speed 语速倍率
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient speed(Double speed) {
         return this;
     }
@@ -160,7 +160,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param sampleRate 采样率（Hz）
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient sampleRate(Integer sampleRate) {
         return this;
     }
@@ -173,7 +173,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param temperature 温度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient temperature(Double temperature) {
         return this;
     }
@@ -183,7 +183,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param seed 随机种子
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient seed(Long seed) {
         return this;
     }
@@ -193,7 +193,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param text 输入文本
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default TextToAudioClient text(String text) {
         return this;
     }
@@ -205,14 +205,14 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param text 要合成的文本
     * @return 音频字节（格式由 {@link #format(String)} 指定，默认为 provider 默认）
-     */
+    */
     byte[] synthesize(String text);
 
     /**
     * 同步合成语音（使用已配置的 text）
     *
     * @return 音频字节
-     */
+    */
     default byte[] synthesize() {
         return synthesize(null);
     }
@@ -224,7 +224,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param text 要合成的文本
     * @return 任务 ID，用于后续查询任务状态和结果
-     */
+    */
     String createTask(String text);
 
     /**
@@ -232,12 +232,12 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     *
     * @param taskId 任务 ID，由 {@link #createTask(String)} 返回
     * @return 任务状态及结果
-     */
+    */
     TextToAudioResponse queryTask(String taskId);
 
     /**
     * 关闭客户端，释放底层资源
-     */
+    */
     @Override
     default void close() {
     }
@@ -246,7 +246,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     * 获取服务商支持的模型列表
     *
     * @return 可用模型定义列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -257,7 +257,7 @@ public interface TextToAudioClient extends AutoCloseable, PooledObjectClient<Tex
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {

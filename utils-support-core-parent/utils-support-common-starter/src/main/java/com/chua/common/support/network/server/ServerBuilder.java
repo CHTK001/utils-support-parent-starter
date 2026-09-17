@@ -28,7 +28,7 @@ public class ServerBuilder {
     private ServerSetting setting;
     /**
     * 类型
-     */
+    */
     private String type = "jdk";
     /** Object上下文 */
     private ObjectContext objectContext;
@@ -43,7 +43,7 @@ public class ServerBuilder {
     * 创建构建器实例。
     *
     * @return ServerBuilder
-     */
+    */
     public static ServerBuilder create() {
         return new ServerBuilder();
     }
@@ -53,7 +53,7 @@ public class ServerBuilder {
     *
     * @param type 类型，如 {@code "jdk"}、{@code "netty"}、{@code "vertx"} 等
     * @return this
-     */
+    */
     public ServerBuilder type(String type) {
         this.type = type;
         return this;
@@ -64,7 +64,7 @@ public class ServerBuilder {
     *
     * @param port 端口号
     * @return this
-     */
+    */
     public ServerBuilder port(int port) {
         if (this.setting == null) {
             this.setting = ServerSetting.defaults();
@@ -78,7 +78,7 @@ public class ServerBuilder {
     *
     * @param host 主机名或 IP
     * @return this
-     */
+    */
     public ServerBuilder host(String host) {
         if (this.setting == null) {
             this.setting = ServerSetting.defaults();
@@ -95,7 +95,7 @@ public class ServerBuilder {
     *
     * @param objectContext IOC 上下文
     * @return this
-     */
+    */
     public ServerBuilder objectContext(ObjectContext objectContext) {
         this.objectContext = objectContext;
         return this;
@@ -108,7 +108,7 @@ public class ServerBuilder {
     * @param method  HTTP 方法
     * @param handler 处理器
     * @return this
-     */
+    */
     public ServerBuilder mapping(String path, HttpMethod method, ServerHandler handler) {
         ensureServer();
         if (server instanceof AbstractServer abstractServer) {
@@ -125,7 +125,7 @@ public class ServerBuilder {
     * @param path    路径
     * @param handler 处理器
     * @return this
-     */
+    */
     public ServerBuilder mapping(String path, ServerHandler handler) {
         ensureServer();
         if (server instanceof AbstractServer abstractServer) {
@@ -140,7 +140,7 @@ public class ServerBuilder {
     * 构建 Server 实例。
     *
     * @return Server
-     */
+    */
     public Server build() {
         ensureServer();
         if (objectContext != null && server instanceof AbstractServer abstractServer) {

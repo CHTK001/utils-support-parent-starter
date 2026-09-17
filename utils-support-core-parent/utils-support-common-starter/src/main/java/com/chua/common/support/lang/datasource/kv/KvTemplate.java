@@ -18,14 +18,14 @@ public class KvTemplate {
 
     /**
     * 底层 KV 引擎实现
-     */
+    */
     private final KvEngine engine;
 
     /**
     * 根据底层引擎构造链式模板。
     *
     * @param engine 底层 KV 引擎实现，不可为 null
-     */
+    */
     @Deprecated(forRemoval = true, since = "4.0.0.42")
     public KvTemplate(KvEngine engine) {
         this.engine = engine;
@@ -36,7 +36,7 @@ public class KvTemplate {
     *
     * @param key 目标键，不可为 null
     * @return 键级操作器
-     */
+    */
     public KvKeyOps key(String key) {
         return new KvKeyOps(engine, key);
     }
@@ -45,7 +45,7 @@ public class KvTemplate {
     * 获取底层原始 KV 引擎实现。
     *
     * @return 底层 KvEngine 实例
-     */
+    */
     public KvEngine raw() {
         return engine;
     }

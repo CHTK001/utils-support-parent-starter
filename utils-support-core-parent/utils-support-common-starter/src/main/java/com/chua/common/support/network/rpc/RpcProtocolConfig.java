@@ -52,7 +52,7 @@ public record RpcProtocolConfig(String name, String host, Integer port, Integer 
     * @param name 协议名称
     * @param port 监听端口
     * @return 自动调优的协议配置
-     */
+    */
     public static RpcProtocolConfig auto(String name, int port) {
         int cpus = Runtime.getRuntime().availableProcessors();
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);

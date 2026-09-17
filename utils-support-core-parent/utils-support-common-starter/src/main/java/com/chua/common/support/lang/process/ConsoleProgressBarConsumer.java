@@ -17,26 +17,26 @@ public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
 
     /**
     * 控制台右侧边距，用于计算实际可用显示宽度。
-     */
+    */
     private static final int CONSOLE_RIGHT_MARGIN = 1;
 
     /**
     * 最大渲染长度。
     * <p>
     * 如果小于等于 0，则自动检测终端宽度并减去右侧边距。
-     */
+    */
     private int maxRenderedLength = -1;
 
     /**
     * 目标输出流，用于打印进度信息。
-     */
+    */
     private final PrintStream out;
 
     /**
     * 构造函数，初始化输出流。
     *
     * @param out 输出流实例。
-     */
+    */
     public ConsoleProgressBarConsumer(PrintStream out) {
         this.out = out;
     }
@@ -46,7 +46,7 @@ public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
     *
     * @param out             输出流实例。
     * @param maxRenderedLength 最大渲染长度，小于等于 0 时自动检测终端宽度。
-     */
+    */
     public ConsoleProgressBarConsumer(PrintStream out, int maxRenderedLength) {
         this.maxRenderedLength = maxRenderedLength;
         this.out = out;
@@ -56,7 +56,7 @@ public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
     * 获取当前允许的最大渲染长度。
     *
     * @return 最大渲染长度，若未设置则返回终端宽度减去边距。
-     */
+    */
     @Override
     public int getMaxRenderedLength() {
         if (maxRenderedLength <= 0) {
@@ -72,7 +72,7 @@ public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
     * 该方法会先清除当前行，然后输出截断后的字符串。
     *
     * @param str 需要输出的进度字符串。
-     */
+    */
     @Override
     public void accept(String str) {
         String trimmedStr = StringDisplayUtils.trimDisplayLength(str, getMaxRenderedLength());
@@ -81,7 +81,7 @@ public class ConsoleProgressBarConsumer implements ProgressBarConsumer {
 
     /**
     * 关闭消费者，输出换行符并刷新缓冲区。
-     */
+    */
     @Override
     public void close() {
         out.println();

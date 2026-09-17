@@ -36,7 +36,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
     *
     * @param value 源值
     * @return byte[] 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public byte[] convert(Object value) {
         if(value instanceof byte[]) {
@@ -104,7 +104,7 @@ public class ByteSourceTypeConverter implements TypeConverter<byte[]> {
     * @param is 输入流
     * @return 字节数组
     * @throws IOException 读取异常
-     */
+    */
     private byte[] readBytes(InputStream is) throws IOException {
         java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         byte[] buffer = new byte[8192];

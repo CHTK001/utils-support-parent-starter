@@ -22,33 +22,33 @@ public final class BulkheadFlow {
 
     /**
     * 默认最大并发数
-     */
+    */
     private static final int DEFAULT_MAX_CONCURRENT = 10;
 
     /**
     * 并发隔离名称
-     */
+    */
     private final String name;
 
     /**
     * 最大并发数，默认 10
-     */
+    */
     private int maxConcurrent = DEFAULT_MAX_CONCURRENT;
 
     /**
     * 是否公平模式，默认公平
-     */
+    */
     private boolean fair = true;
 
     /**
     * 到达并发上限时的降级回调
-     */
+    */
     private Supplier<Object> fallback;
 
     /**
     * 创建 BulkheadFlow 实例
     * @param name name
-     */
+    */
     private BulkheadFlow(String name) {
         this.name = name;
     }
@@ -58,7 +58,7 @@ public final class BulkheadFlow {
     *
     * @param name 名称
     * @return 门面实例
-     */
+    */
     public static BulkheadFlow of(String name) {
         return new BulkheadFlow(name);
     }
@@ -68,7 +68,7 @@ public final class BulkheadFlow {
     *
     * @param maxConcurrent 最大并发数
     * @return 当前门面
-     */
+    */
     public BulkheadFlow maxConcurrent(int maxConcurrent) {
         this.maxConcurrent = maxConcurrent;
         return this;
@@ -79,7 +79,7 @@ public final class BulkheadFlow {
     *
     * @param fair true 公平，false 非公平
     * @return 当前门面
-     */
+    */
     public BulkheadFlow fair(boolean fair) {
         this.fair = fair;
         return this;
@@ -90,7 +90,7 @@ public final class BulkheadFlow {
     *
     * @param fallback 降级回调
     * @return 当前门面
-     */
+    */
     public BulkheadFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
@@ -102,7 +102,7 @@ public final class BulkheadFlow {
     * @param callable 要执行的任务
     * @param <T>      返回值类型
     * @return 任务执行结果，并发满时返回降级结果
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> T execute(Callable<T> callable) {
         Semaphore semaphore = SemaphoreRegistry.acquire(name, maxConcurrent, fair);

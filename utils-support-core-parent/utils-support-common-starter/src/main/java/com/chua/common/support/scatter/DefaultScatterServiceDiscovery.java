@@ -7,7 +7,7 @@ import com.chua.common.support.scatter.discovery.SeedModeDiscovery;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class DefaultScatterServiceDiscovery extends SeedModeDiscovery {
 
     public DefaultScatterServiceDiscovery(ScatterSetting setting) {

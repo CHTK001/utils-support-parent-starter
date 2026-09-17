@@ -13,46 +13,46 @@ public enum RuntimeType {
 
     /**
     * 可执行 JAR 包（java -jar xxx.jar）
-     */
+    */
     JAR,
 
     /**
     * AppImage 格式的 Linux 应用
-     */
+    */
     APPIMAGE,
 
     /**
     * 原生可执行二进制文件（exe、bin、elf 等）
-     */
+    */
     NATIVE,
 
     /**
     * Node.js 包（npm start / node xxx.js）
-     */
+    */
     NPM,
 
     /**
     * Python 脚本（python xxx.py）
-     */
+    */
     PYTHON,
 
     /**
     * 通用脚本（sh、bat、ps1 等）
-     */
+    */
     SCRIPT,
 
     /**
     * Docker 容器（docker run）
-     */
+    */
     DOCKER,
 
     /**
     * Apache Tomcat 服务器
-     */
+    */
     TOMCAT,
 
     /**
     * 未知/自动检测类型
-     */
+    */
     UNKNOWN
 }

@@ -19,46 +19,46 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
-* 服务器处理器工厂。
-*
-* <p>负责管理 URL 路由注册与匹配，并支持通过 SPI 发现
-* {@link ServerHandlerAnnotationParser} 实现来扫描注解 Bean。</p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 服务器处理器工厂。
+ *
+ * <p>负责管理 URL 路由注册与匹配，并支持通过 SPI 发现
+ * {@link ServerHandlerAnnotationParser} 实现来扫描注解 Bean。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
 
     /**
     * Ant 风格路径匹配器
-     */
+    */
     private final PathMatcher pathMatcher = PathMatcher.INSTANCE;
 
     /**
     * 对象上下文，用于访问 IOC 容器中的 Bean
-     */
+    */
     private final ObjectContext objectContext;
 
     /**
     * 按 HTTP 方法区分的路由表（路径 -> 方法 -> 处理器）
-     */
+    */
     private final Map<String, Map<HttpMethod, ServerHandler>> routes = new LinkedHashMap<>();
 
     /**
     * 不区分 HTTP 方法的路由表（路径 -> 处理器）
-     */
+    */
     private final Map<String, ServerHandler> anyMethodRoutes = new LinkedHashMap<>();
 
     /**
     * 路由表读写锁
-     */
+    */
     private final ReentrantReadWriteLock routeLock = new ReentrantReadWriteLock();
 
     /**
     * 创建 ServerHandlerFactory 实例
     * @param objectContext objectContext
-     */
+    */
     public ServerHandlerFactory(ObjectContext objectContext) {
         this.objectContext = objectContext;
     }
@@ -68,7 +68,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param parserType             解析器接口类型
     * @param serverFilter 服务器过滤器
-     */
+    */
     public void initialize(Class<T> parserType, ServerFilter serverFilter) {
         Map<String, T> parsers = new LinkedHashMap<>(ServiceProvider.of(parserType).list());
         Map<String, T> iocParsers = objectContext.getBeanOfTypes(parserType);
@@ -96,7 +96,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * 将处理器注册到路由表
     *
     * @param handler 处理器
-     */
+    */
     private void registerFromHandler(ServerHandler handler) {
         if (handler instanceof HttpDefaultServerHandler httpHandler) {
             HttpMethod method = httpHandler.method();
@@ -115,7 +115,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * @param method  HTTP 方法
     * @param handler 处理器
     * @return 当前工厂实例
-     */
+    */
     public ServerHandlerFactory<T> route(String path, HttpMethod method, ServerHandler handler) {
         validateRoute(path, handler);
         routeLock.writeLock().lock();
@@ -133,7 +133,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * @param path    请求路径
     * @param handler 处理器
     * @return 当前工厂实例
-     */
+    */
     public ServerHandlerFactory<T> route(String path, ServerHandler handler) {
         validateRoute(path, handler);
         routeLock.writeLock().lock();
@@ -150,7 +150,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param routes 路由映射表
     * @return 当前工厂实例
-     */
+    */
     public ServerHandlerFactory<T> routes(LinkedHashMap<String, ServerHandler> routes) {
         for (Map.Entry<String, ServerHandler> entry : routes.entrySet()) {
             route(entry.getKey(), entry.getValue());
@@ -163,7 +163,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param path 请求路径
     * @return 当前工厂实例
-     */
+    */
     public ServerHandlerFactory<T> removeRoute(String path) {
         if (path == null || path.isBlank()) {
             return this;
@@ -182,7 +182,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * 获取路由总数。
     *
     * @return 路由总数
-     */
+    */
     public int routeCount() {
         routeLock.readLock().lock();
         try {
@@ -197,7 +197,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param request 请求
     * @return 匹配的处理器，未匹配返回 null
-     */
+    */
     public ServerHandler resolveHandler(ServerRequest request) {
         String path = request.getPath();
         HttpMethod method = request.getMethod();
@@ -216,7 +216,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param path 路径字符串
     * @return 匹配的处理器，未匹配返回 null
-     */
+    */
     public ServerHandler resolveHandler(String path) {
         if (path == null || path.isBlank()) {
             return null;
@@ -247,7 +247,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * @param method  HTTP 方法
     * @param request 请求对象
     * @return 匹配的处理器，未匹配返回 null
-     */
+    */
     private ServerHandler resolveHandlerLocked(String path, HttpMethod method, ServerRequest request) {
         Map<HttpMethod, ServerHandler> methodMap = routes.get(path);
         if (methodMap != null) {
@@ -292,7 +292,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * @param request 请求对象
     * @param pattern 匹配的路由模式
     * @param path    实际请求路径
-     */
+    */
     private void setPathAttributes(ServerRequest request, String pattern, String path) {
         Map<String, String> variables = pathMatcher.extractUriTemplateVariables(pattern, path);
         ServerAttribute.setPathVariables(request, variables);
@@ -304,7 +304,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     *
     * @param path    请求路径
     * @param handler 处理器
-     */
+    */
     private void validateRoute(String path, ServerHandler handler) {
         if (path == null || path.isBlank() || !path.startsWith("/")) {
             throw new IllegalArgumentException("路由路径必须以 / 开头");
@@ -318,7 +318,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * 获取所有按 HTTP 方法区分的路由表快照。
     *
     * @return 只读路由表
-     */
+    */
     public Map<String, Map<HttpMethod, ServerHandler>> getRoutes() {
         routeLock.readLock().lock();
         try {
@@ -332,7 +332,7 @@ public class ServerHandlerFactory<T extends ServerHandlerAnnotationParser> {
     * 获取所有不区分 HTTP 方法的路由表快照。
     *
     * @return 只读路由表
-     */
+    */
     public Map<String, ServerHandler> getAnyMethodRoutes() {
         routeLock.readLock().lock();
         try {

@@ -94,23 +94,23 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 默认读缓冲区大小(字节):与 NIO 版一致取 32KB,
     * 减少大请求体场景的系统调用次数,小请求仅按需 flip 无额外开销
-     */
+    */
     private static final int READ_BUFFER_SIZE = 32768;
 
     /**
     * 并发 accept 重叠深度:IOCP 支持多个重叠 AcceptEx 同时等待,
     * 高并发短连接突发下提升接纳吞吐,避免单 accept 间隙
-     */
+    */
     private static final int ACCEPT_DEPTH = 2;
 
     /**
     * 最小 backlog:高并发连接突发下避免内核因队列满拒绝连接(与 NIO 版对齐)
-     */
+    */
     private static final int MIN_BACKLOG = 65536;
 
     /**
     * 最小接收缓冲(字节):SO_RCVBUF 下限,保证突发吞吐
-     */
+    */
     private static final int MIN_SO_RCVBUF = 16384;
 
     /** 合并缓冲池:复用直接内存,消除每响应分配 */
@@ -143,15 +143,19 @@ public class AioHttpServer extends AbstractServer {
     /**
     * IOCP 完成端口线程组:线程数即内核并发收割度,
     * 仅执行轻量回调(read 完成 → feed → 提交 worker),少量线程即可驱动海量连接
-     */
+    */
     private AsynchronousChannelGroup group;
 
 
 
-    /** SSL 上下文(配置了 selfSigned/KeyStore/PEM 时非 null,每连接派生 SSLEngine) */
+    /**
+    * SSL 上下文(配置了 selfSigned/KeyStore/PEM 时非 null,每连接派生 SSLEngine)
+    */
     private SSLContext sslContext;
 
-    /** WebSocket 主题处理器映射(topic -> handlers),与 NIO 版同构 */
+    /**
+    * WebSocket 主题处理器映射(topic -> handlers),与 NIO 版同构
+    */
     private final Map<String, List<ServerHandler>> wsTopicHandlers = new ConcurrentHashMap<>();
 
     /** 当前活跃的 WebSocket 连接 */
@@ -160,7 +164,9 @@ public class AioHttpServer extends AbstractServer {
     /** 当前活跃连接数(观测用,验证高并发连接目标) */
     private final AtomicInteger activeConnections = new AtomicInteger();
 
-    /** 读完成处理器(单例复用:attachment 携带连接状态,无 per-read 分配) */
+    /**
+    * 读完成处理器(单例复用:attachment 携带连接状态,无 per-read 分配)
+    */
     private final ReadHandler readHandler = new ReadHandler();
 
     /** 写完成处理器(单例复用) */
@@ -173,7 +179,7 @@ public class AioHttpServer extends AbstractServer {
     * 创建 AioHttpServer 实例
     *
     * @param setting 服务器配置
-     */
+    */
     public AioHttpServer(ServerSetting setting) {
         super(setting);
     }
@@ -235,7 +241,7 @@ public class AioHttpServer extends AbstractServer {
     * (与 NIO 版事件循环"抢跑于 running 置位前"的坑同源)。
     * 生命周期由 serverChannel 开关驱动:doStopAccepting 关闭通道后,
     * 未完成的 accept 进入 failed 回调自然终止。</p>
-     */
+    */
     private void issueAccept() {
         if (serverChannel == null || !serverChannel.isOpen()) {
             return;
@@ -257,7 +263,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private class AcceptHandler implements CompletionHandler<AsynchronousSocketChannel, Void> {
 
         @Override
@@ -281,7 +287,7 @@ public class AioHttpServer extends AbstractServer {
     * 新连接初始化:关闭 Nagle、注册活跃计数、发起首个读。
     *
     * @param channel 新接入的通道
-     */
+    */
     private void handleNewConnection(AsynchronousSocketChannel channel) {
         try {
             channel.setOption(StandardSocketOptions.TCP_NODELAY, setting.isTcpNoDelay());
@@ -314,7 +320,7 @@ public class AioHttpServer extends AbstractServer {
     * 超时参数兼做空闲连接回收(Keep-Alive 连接无新数据自动断开)。
     *
     * @param state 连接状态
-     */
+    */
     private void issueRead(ConnState state) {
         if (state.closed.get() || !running) {
             return;
@@ -344,7 +350,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private class ReadHandler implements CompletionHandler<Integer, ConnState> {
 
         @Override
@@ -403,7 +409,7 @@ public class AioHttpServer extends AbstractServer {
     * 将已解析完整的请求提交虚拟线程 worker 执行 handler 链。
     *
     * @param state 连接状态
-     */
+    */
     private void dispatchToWorker(ConnState state) {
         // 纯响应式:IOCP 回调线程内联执行(handler 契约要求非阻塞)
         processRequest(state);
@@ -414,7 +420,7 @@ public class AioHttpServer extends AbstractServer {
     * complete() 构建报文字节入队 → 启动串行异步写循环。
     *
     * @param state 连接状态
-     */
+    */
     private void processRequest(ConnState state) {
         try {
             // WebSocket 升级:回握手响应后进入帧协议循环(当前虚拟线程内)
@@ -472,7 +478,7 @@ public class AioHttpServer extends AbstractServer {
     * @param request  请求
     * @param response 响应
     * @return true 表示保持连接
-     */
+    */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {
             return false;
@@ -490,7 +496,7 @@ public class AioHttpServer extends AbstractServer {
     * @param state  连接状态
     * @param header 响应头字节
     * @param body   响应体字节(可为 null)
-     */
+    */
     private void enqueueWrite(ConnState state, ByteBuffer header, ByteBuffer body) {
         {
             if (state.tls == null) {
@@ -547,7 +553,7 @@ public class AioHttpServer extends AbstractServer {
     * 队列空则在锁内置 writing=false(持锁置位杜绝丢唤醒)并收尾。</p>
     *
     * @param state 连接状态
-     */
+    */
     private void continueWrite(ConnState state) {
         if (state.closed.get()) {
             return;
@@ -584,7 +590,7 @@ public class AioHttpServer extends AbstractServer {
     * 否则关闭连接。
     *
     * @param state 连接状态
-     */
+    */
     private void finishResponseCycle(ConnState state) {
         if (state.wsMode && running && !state.closed.get()) {
             wsIssueRead(state);
@@ -603,7 +609,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private class WriteHandler implements CompletionHandler<Integer, ConnState> {
 
         @Override
@@ -645,7 +651,7 @@ public class AioHttpServer extends AbstractServer {
     * CompletionHandler 回调再次进入,直至 NOT_HANDSHAKING 进入数据面。
     *
     * @param state 连接状态
-     */
+    */
     private void tlsDrive(ConnState state) {
         TlsState tls = state.tls;
         SSLEngineResult.HandshakeStatus hs = tls.engine.getHandshakeStatus();
@@ -694,7 +700,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 单步解密:flip → unwrap → compact;UNDERFLOW 置强制读标志后继续驱动。
-     */
+    */
     private void tlsUnwrapStep(ConnState state) {
         TlsState tls = state.tls;
         tls.netIn.flip();
@@ -720,7 +726,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 异步读网络(握手期),完成后回调续接。
-     */
+    */
     private void readNetAsync(ConnState state, ByteBuffer dst,
                               Runnable onDone, java.util.function.Consumer<Throwable> onFail) {
         try {
@@ -746,7 +752,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 异步写网络直至排空(握手期),完成后回调续接。
-     */
+    */
     private void writeNetAsync(ConnState state, ByteBuffer src,
                                Runnable onDone, java.util.function.Consumer<Throwable> onFail) {
         try {
@@ -837,7 +843,9 @@ public class AioHttpServer extends AbstractServer {
         }
     }
 
-    /** Future 阻塞读网络(握手与 WS 帧循环使用,虚拟线程阻塞零平台线程占用)。 */
+    /**
+    * Future 阻塞读网络(握手与 WS 帧循环使用,虚拟线程阻塞零平台线程占用)。
+    */
     private void readNetBlocking(ConnState state, ByteBuffer dst, long timeoutMs) throws Exception {
         Integer n;
         try {
@@ -873,7 +881,7 @@ public class AioHttpServer extends AbstractServer {
     * 异步回调 —— 增量帧解码器消化掩码/分片,完整帧交虚拟线程分发。
     *
     * @param state 连接状态
-     */
+    */
     private void handleWebSocketUpgrade(ConnState state) {
         String key = state.request.getHeader("Sec-WebSocket-Key");
         if (key == null || key.isBlank()) {
@@ -898,7 +906,7 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 启动一轮异步明文读取并喂给 WS 帧解码器。
     * 明文来源:明文连接读 readBuf;TLS 连接经数据面 unwrap 产出的 plain。
-     */
+    */
     private void wsIssueRead(ConnState state) {
         if (!running || state.closed.get()) {
             return;
@@ -966,7 +974,7 @@ public class AioHttpServer extends AbstractServer {
     * 喂一个明文分片给 WS 帧解码器。
     *
     * @return true=连接继续;false=连接应终止(已关闭/关闭中)
-     */
+    */
     private boolean wsFeed(ConnState state, ByteBuffer src) {
         WsDecoder d = state.wsDecoder();
         while (src.hasRemaining()) {
@@ -998,7 +1006,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * RFC 6455 增量帧解码器(服务端视角:客户端帧必须掩码)。
-     */
+    */
     private static final class WsDecoder {
 
         /** 阶段 */
@@ -1019,7 +1027,7 @@ public class AioHttpServer extends AbstractServer {
 
         /**
         * 消费输入;返回 false 表示连接终止(非法长度)。
-         */
+        */
         boolean step(ByteBuffer in) {
             while (in.hasRemaining()) {
                 switch (stage) {
@@ -1088,7 +1096,7 @@ public class AioHttpServer extends AbstractServer {
 
         /**
         * 进入载荷阶段(按需补掩码键)。
-         */
+        */
         private void enterPayload(boolean masked) {
             if (masked && mask == null) {
                 mask = new byte[4];
@@ -1103,7 +1111,7 @@ public class AioHttpServer extends AbstractServer {
 
         /**
         * 复位以接收下一帧。
-         */
+        */
         void reset() {
             stage = Stage.LEN0;
             opcode = 0;
@@ -1117,7 +1125,7 @@ public class AioHttpServer extends AbstractServer {
     }
     /**
     * 按主题分发 WebSocket 消息({@code topic\nbody} 约定,与 NIO 版一致)。
-     */
+    */
     private void dispatchWsMessage(WebSocketProtocol.Frame frame, AioWsConnection conn) {
         String text = new String(frame.payload(), StandardCharsets.UTF_8);
         String topic = "default";
@@ -1156,7 +1164,7 @@ public class AioHttpServer extends AbstractServer {
     * @param topic   主题
     * @param handler 消息处理器
     * @return 当前服务器实例
-     */
+    */
     public AioHttpServer onSubscribe(String topic, ServerHandler handler) {
         wsTopicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
@@ -1167,7 +1175,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @param topic   主题
     * @param payload 消息内容
-     */
+    */
     public void publish(String topic, String payload) {
         String message = topic + "\n" + payload;
         byte[] frame = WebSocketProtocol.textFrame(message);
@@ -1201,7 +1209,7 @@ public class AioHttpServer extends AbstractServer {
 
     /**
     * 构建基于 {@code @OnMessage} 注解方法的处理器。
-     */
+    */
     private ServerHandler createWsMessageHandler(Object bean, Method method) {
         return (request, response) -> {
             try {
@@ -1239,7 +1247,7 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 打开原始读取流:明文连接直读通道;TLS 连接经引擎解密,
     * 供 WS 帧循环在虚拟线程上以阻塞方式消费。
-     */
+    */
     private InputStream openRawReader(ConnState state) {
         TlsState tls = state.tls;
         long timeoutMs = Math.max(setting.getReadTimeout(), 10_000L);
@@ -1315,7 +1323,7 @@ public class AioHttpServer extends AbstractServer {
     /**
     * 打开原始写入流:明文连接直写通道;TLS 连接 wrap 后写出,
     * 供 WS 握手响应与帧发送在虚拟线程上以阻塞方式写。
-     */
+    */
     private OutputStream openRawWriter(ConnState state) {
         TlsState tls = state.tls;
         long timeoutMs = Math.max(setting.getReadTimeout(), 10_000L);
@@ -1367,7 +1375,7 @@ public class AioHttpServer extends AbstractServer {
     * 由 closed 标志短路,不会产生级联副作用。
     *
     * @param state 连接状态
-     */
+    */
     private void closeConn(ConnState state) {
         if (!state.closed.getAndSet(true)) {
             activeConnections.decrementAndGet();
@@ -1412,7 +1420,7 @@ public class AioHttpServer extends AbstractServer {
     * 获取当前活跃连接数(观测高并发连接目标进度)。
     *
     * @return 活跃连接数
-     */
+    */
     public int getActiveConnections() {
         return activeConnections.get();
     }
@@ -1423,7 +1431,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private final class ConnState {
 
         /** 底层异步通道 */
@@ -1444,13 +1452,19 @@ public class AioHttpServer extends AbstractServer {
         /** WS 帧解码器(懒建) */
         private WsDecoder wsDec;
 
-        /** TLS 状态(null 表示明文连接),握手线程启动前赋值,happens-before 保证可见 */
+        /**
+        * TLS 状态(null 表示明文连接),握手线程启动前赋值,happens-before 保证可见
+        */
         volatile TlsState tls;
 
-        /** 增量 HTTP 请求解析器(传输无关构造:远端地址预存,与 NIO 版共用状态机) */
+        /**
+        * 增量 HTTP 请求解析器(传输无关构造:远端地址预存,与 NIO 版共用状态机)
+        */
         final NioServerRequest request;
 
-        /** 待写队列:ArrayDeque + synchronized,NIO 版实测同构下吞吐最优 */
+        /**
+        * 待写队列:ArrayDeque + synchronized,NIO 版实测同构下吞吐最优
+        */
         final java.util.concurrent.ConcurrentLinkedQueue<ByteBuffer> writeQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
 
         /** 懒分配 direct 读缓冲(首次读到数据才分配) */
@@ -1462,7 +1476,7 @@ public class AioHttpServer extends AbstractServer {
         /**
         * 串行写权标志:true 表示已有 outstanding write,
         * CAS 抢占保证单连接同一时刻至多一个写操作(AIO 无 OP_WRITE,靠此模拟背压续写)
-         */
+        */
         final AtomicBoolean writing = new AtomicBoolean(false);
 
         /** 连接关闭标志(幂等关闭) */
@@ -1472,7 +1486,7 @@ public class AioHttpServer extends AbstractServer {
         * 创建连接状态。
         *
         * @param channel 异步通道
-         */
+        */
         ConnState(AsynchronousSocketChannel channel) {
             this.channel = channel;
             // 远端地址一次性预存:热路径(getRemoteAddress/IP 限流)零系统调用;
@@ -1487,7 +1501,7 @@ public class AioHttpServer extends AbstractServer {
         *
         * @param channel 异步通道
         * @return 远端地址或 null
-         */
+        */
         WsDecoder wsDecoder() {
             if (wsDec == null) {
                 wsDec = new WsDecoder();
@@ -1511,7 +1525,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private static final class TlsState {
 
         /** 每连接 SSL 引擎(服务端模式) */
@@ -1523,7 +1537,9 @@ public class AioHttpServer extends AbstractServer {
         /** 握手期网络密文写缓冲(direct,容量=会话包大小) */
         final ByteBuffer netOut;
 
-        /** 解密后明文累积缓冲(语义对齐非 TLS 的 readBuf,flip/feed/compact) */
+        /**
+        * 解密后明文累积缓冲(语义对齐非 TLS 的 readBuf,flip/feed/compact)
+        */
         volatile ByteBuffer plain;
 
         /** 会话密文包大小(WS/数据面加密分片依据) */
@@ -1549,7 +1565,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private static final class AioWsConnection {
 
         /** OUT */
@@ -1561,14 +1577,14 @@ public class AioHttpServer extends AbstractServer {
 
         /**
         * 发送文本消息。
-         */
+        */
         void send(String text) {
             sendRaw(WebSocketProtocol.textFrame(text));
         }
 
         /**
         * 发送原始帧数据。
-         */
+        */
         void sendRaw(byte[] frame) {
             sender.accept(frame);
         }
@@ -1579,7 +1595,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private static final class AioWsRequest implements ServerRequest {
         /** Topic */
         private final String topic;
@@ -1625,7 +1641,7 @@ public class AioHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 2026/08/24
-     */
+    */
     private static final class AioWsResponse implements ServerResponse {
         /** Connection */
         private final AioWsConnection connection;

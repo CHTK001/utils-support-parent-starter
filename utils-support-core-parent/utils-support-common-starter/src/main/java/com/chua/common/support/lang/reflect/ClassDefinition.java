@@ -32,7 +32,7 @@ public record ClassDefinition(
     * 判断是否为公开类。
     *
     * @return {@code true} 如果类为 public
-     */
+    */
     public boolean isPublic() {
         return java.lang.reflect.Modifier.isPublic(modifiers);
     }
@@ -41,7 +41,7 @@ public record ClassDefinition(
     * 判断是否为抽象类。
     *
     * @return {@code true} 如果类为 abstract
-     */
+    */
     public boolean isAbstract() {
         return java.lang.reflect.Modifier.isAbstract(modifiers);
     }
@@ -50,7 +50,7 @@ public record ClassDefinition(
     * 判断是否为 final 类。
     *
     * @return {@code true} 如果类为 final
-     */
+    */
     public boolean isFinal() {
         return java.lang.reflect.Modifier.isFinal(modifiers);
     }
@@ -59,7 +59,7 @@ public record ClassDefinition(
     * 判断是否为接口。
     *
     * @return {@code true} 如果为接口
-     */
+    */
     public boolean isInterface() {
         return clazz.isInterface();
     }
@@ -68,7 +68,7 @@ public record ClassDefinition(
     * 判断是否为枚举。
     *
     * @return {@code true} 如果为枚举
-     */
+    */
     public boolean isEnum() {
         return clazz.isEnum();
     }
@@ -77,7 +77,7 @@ public record ClassDefinition(
     * 判断是否为注解类型。
     *
     * @return {@code true} 如果为注解
-     */
+    */
     public boolean isAnnotation() {
         return clazz.isAnnotation();
     }
@@ -87,7 +87,7 @@ public record ClassDefinition(
     *
     * @param annotationClass 注解类
     * @return 是否包含
-     */
+    */
     public boolean hasAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass) {
         for (AnnotationDefinition def : annotations) {
             if (def.annotationClass().isAssignableFrom(annotationClass)) {
@@ -102,7 +102,7 @@ public record ClassDefinition(
     *
     * @param methodName 方法名
     * @return 找到的方法定义，未找到返回 {@code null}
-     */
+    */
     public MethodDefinition findMethod(String methodName) {
         for (MethodDefinition md : methods) {
             if (md.methodName().equals(methodName)) {
@@ -117,7 +117,7 @@ public record ClassDefinition(
     *
     * @param fieldName 字段名
     * @return 找到的字段定义，未找到返回 {@code null}
-     */
+    */
     public FieldDefinition findField(String fieldName) {
         for (FieldDefinition fd : fields) {
             if (fd.fieldName().equals(fieldName)) {
@@ -133,7 +133,7 @@ public record ClassDefinition(
     * @param methodName 方法名
     * @param paramCount 参数个数
     * @return 匹配的方法定义，未找到返回 {@code null}
-     */
+    */
     public MethodDefinition findMethod(String methodName, int paramCount) {
         for (MethodDefinition md : methods) {
             if (md.methodName().equals(methodName) && md.parameters().size() == paramCount) {
@@ -145,7 +145,7 @@ public record ClassDefinition(
 
     /**
     * 将定义转为字符串形式。
-     */
+    */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

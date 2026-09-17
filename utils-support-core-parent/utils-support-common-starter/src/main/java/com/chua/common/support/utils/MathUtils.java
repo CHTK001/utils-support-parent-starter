@@ -6,42 +6,42 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* 数学工具类，提供常用的数学/统计算法。
-*
-* <p>包含以下功能：
-* <ul>
-*   <li>钟状图算法 — 高斯（正态）分布概率密度函数（PDF）曲线采样</li>
-*   <li>线性回归 — 一元线性回归最小二乘拟合，返回斜率、截距、相关系数</li>
-*   <li>移动平均 — 简单移动平均（SMA），常用于时间序列平滑</li>
-*   <li>激活函数 — Sigmoid 函数及其导数，适用于概率映射与神经网络反向传播</li>
-*   <li>归一化与相似度 — L2 归一化、Min-Max 归一化、余弦相似度（float/double）、L2 余弦相似度与余弦距离</li>
-* </ul>
-*
-* <p>所有方法均无副作用，输入数组不会被修改；空数组或长度为 0 的输入将返回合理的默认值（详见各方法 Javadoc）。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 数学工具类，提供常用的数学/统计算法。
+ *
+ * <p>包含以下功能：
+ * <ul>
+ *   <li>钟状图算法 — 高斯（正态）分布概率密度函数（PDF）曲线采样</li>
+ *   <li>线性回归 — 一元线性回归最小二乘拟合，返回斜率、截距、相关系数</li>
+ *   <li>移动平均 — 简单移动平均（SMA），常用于时间序列平滑</li>
+ *   <li>激活函数 — Sigmoid 函数及其导数，适用于概率映射与神经网络反向传播</li>
+ *   <li>归一化与相似度 — L2 归一化、Min-Max 归一化、余弦相似度（float/double）、L2 余弦相似度与余弦距离</li>
+ * </ul>
+ *
+ * <p>所有方法均无副作用，输入数组不会被修改；空数组或长度为 0 的输入将返回合理的默认值（详见各方法 Javadoc）。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class MathUtils {
 
     /**
     * 2π，常用于高斯分布归一化系数
-     */
+    */
     private static final double TWO_PI = 2.0 * Math.PI;
 
     /**
     * 默认钟状图采样点数（横坐标点数）
-     */
+    */
     private static final int DEFAULT_SAMPLE_SIZE = 100;
 
     /**
     * 默认钟状图横坐标范围相对标准差的倍数（左右各取 {@value} 倍 σ）
-     */
+    */
     private static final double DEFAULT_RANGE_MULTIPLIER = 4.0;
 
     /**
     * 私有构造，禁止实例化
-     */
+    */
     private MathUtils() {
     }
 
@@ -55,7 +55,7 @@ public class MathUtils {
     * @author CH
     * @since 4.0.0.42
     * @return 样本point的结果
-     */
+    */
     public record SamplePoint(double x, double y) {
     }
 
@@ -68,7 +68,7 @@ public class MathUtils {
     * @param mean   均值 μ
     * @param stdDev 标准差 σ（必须大于 0）
     * @return x 处的概率密度 f(x)
-     */
+    */
     public static double gaussianPdf(double x, double mean, double stdDev) {
         // 标准差必须为正
         if (stdDev <= 0.0) {
@@ -95,7 +95,7 @@ public class MathUtils {
     * @param mean   均值 μ
     * @param stdDev 标准差 σ（必须大于 0）
     * @return 采样点列表（按 x 升序排列）
-     */
+    */
     public static List<SamplePoint> gaussianSample(double mean, double stdDev) {
         return gaussianSample(mean, stdDev, DEFAULT_SAMPLE_SIZE, DEFAULT_RANGE_MULTIPLIER);
     }
@@ -110,7 +110,7 @@ public class MathUtils {
     * @param sampleSize      采样点数（必须 ≥ 2）
     * @param rangeMultiplier 横坐标范围相对标准差的倍数（必须 &gt; 0，常用 3 ~ 6）
     * @return 采样点列表（按 x 升序排列）
-     */
+    */
     public static List<SamplePoint> gaussianSample(
             double mean,
             double stdDev,
@@ -152,7 +152,7 @@ public class MathUtils {
     * @param mean 均值 μ
     * @param stdDev 标准差 σ（必须大于 0）
     * @return x 处的累积概率 Φ(x)
-     */
+    */
     public static double gaussianCdf(double x, double mean, double stdDev) {
         // 标准差必须为正
         if (stdDev <= 0.0) {
@@ -191,7 +191,7 @@ public class MathUtils {
     * @param pearson          皮尔逊相关系数 r，取值范围 [-1, 1]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record LinearRegression(
             double slope,
             double intercept,
@@ -215,7 +215,7 @@ public class MathUtils {
     * @param x 自变量序列（长度 ≥ 2）
     * @param y 因变量序列（长度与 x 一致）
     * @return 线性回归结果
-     */
+    */
     public static LinearRegression linearRegression(double[] x, double[] y) {
         // 基本校验
         if (x == null || y == null || x.length != y.length || x.length < 2) {
@@ -271,7 +271,7 @@ public class MathUtils {
     * @param y 因变量序列
     * @param predictX 待预测的自变量序列
     * @return 预测 y 值序列（长度与 predictx 一致）
-     */
+    */
     public static double[] linearPredict(double[] x, double[] y, double[] predictX) {
         // 参数校验
         if (predictX == null || predictX.length == 0) {
@@ -310,7 +310,7 @@ public class MathUtils {
     * @param values 输入序列
     * @param window 窗口大小（必须 ≥ 1）
     * @return 平滑后的序列（长度与输入一致）
-     */
+    */
     public static double[] simpleMovingAverage(double[] values, int window) {
         // 空输入保护
         if (values == null || values.length == 0) {
@@ -347,7 +347,7 @@ public class MathUtils {
     * @param values 输入序列
     * @param window 窗口大小（必须 ≥ 1）
     * @return 平滑后的数组
-     */
+    */
     public static double[] simpleMovingAverage(List<? extends Number> values, int window) {
         // 空输入保护
         if (values == null || values.isEmpty()) {
@@ -382,7 +382,7 @@ public class MathUtils {
     * @return σ(x) ∈ (0, 1)
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double sigmoid(double x) {
         // 极端值保护：避免 Math.exp 溢出
         if (x < -709.0) {
@@ -403,7 +403,7 @@ public class MathUtils {
     * @return 逐元素 sigmoid 结果
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double[] sigmoid(double[] values) {
         if (values == null || values.length == 0) {
             return new double[0];
@@ -424,7 +424,7 @@ public class MathUtils {
     * @return σ'(x) ∈ [0, 0.25]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double sigmoidDerivative(double x) {
         double s = sigmoid(x);
         return s * (1.0 - s);
@@ -440,7 +440,7 @@ public class MathUtils {
     * @return σ'(x) ∈ [0, 0.25]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double sigmoidDerivativeFromOutput(double s) {
         return s * (1.0 - s);
     }
@@ -458,7 +458,7 @@ public class MathUtils {
     * @return L2 归一化后的向量（新数组，不修改输入）
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double[] normalize(double[] vector) {
         if (vector == null || vector.length == 0) {
             return new double[0];
@@ -487,7 +487,7 @@ public class MathUtils {
     * @return 归一化后的值 ∈ [0, 1]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double normalizeMinMax(double value, double min, double max) {
         double range = max - min;
         if (range == 0.0) {
@@ -505,7 +505,7 @@ public class MathUtils {
     * @return L2 范数（≥ 0）
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double l2Norm(double[] vector) {
         if (vector == null || vector.length == 0) {
             return 0.0;
@@ -536,7 +536,7 @@ public class MathUtils {
     * @return 余弦相似度 ∈ [-1, 1]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double cosineSimilarity(double[] a, double[] b) {
         if (a == null || b == null || a.length == 0 || a.length != b.length) {
             return 0.0;
@@ -570,7 +570,7 @@ public class MathUtils {
     * @throws IllegalArgumentException 维度不匹配时抛出
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static float cosineSimilarity(float[] a, float[] b) {
         if (a == null || b == null || a.length == 0) {
             return 0.0f;
@@ -608,7 +608,7 @@ public class MathUtils {
     * @throws IllegalArgumentException 维度不匹配时抛出
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static float l2CosineSimilarity(float[] a, float[] b) {
         if (a == null || b == null || a.length == 0) {
             return 0.0f;
@@ -646,7 +646,7 @@ public class MathUtils {
     * @return L2 归一化余弦相似度 ∈ [-1, 1]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double l2CosineSimilarity(double[] a, double[] b) {
         if (a == null || b == null || a.length == 0 || a.length != b.length) {
             return 0.0;
@@ -686,7 +686,7 @@ public class MathUtils {
     * @return 余弦距离 ∈ [0, 2]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static double cosineDistance(double[] a, double[] b) {
         return 1.0 - cosineSimilarity(a, b);
     }
@@ -699,7 +699,7 @@ public class MathUtils {
     * @return 余弦距离 ∈ [0, 2]
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static float cosineDistance(float[] a, float[] b) {
         return 1.0f - cosineSimilarity(a, b);
     }
@@ -713,7 +713,7 @@ public class MathUtils {
     * @param min   下界
     * @param max   上界
     * @return 截断后的值
-     */
+    */
     private static double clamp(double value, double min, double max) {
         if (Double.isNaN(value)) {
             return 0.0;
@@ -733,7 +733,7 @@ public class MathUtils {
     * @param value    输入值
     * @param maxValue |值| 的最大绝对值
     * @return 限幅后的值
-     */
+    */
     private static double clampAbs(double value, double maxValue) {
         if (Double.isNaN(value)) {
             return 0.0;

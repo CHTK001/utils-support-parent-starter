@@ -43,7 +43,7 @@ public interface ObjectPool<T> extends AutoCloseable {
     * @throws PoolTimeoutException  等待超时
     * @throws PoolExhaustedException 池已耗尽
     * @throws Exception              创建对象失败
-     */
+    */
     T borrow() throws Exception;
 
     /**
@@ -52,7 +52,7 @@ public interface ObjectPool<T> extends AutoCloseable {
     * <p>归还前会验证对象有效性（取决于配置）。无效对象直接销毁。
     *
     * @param object 要归还的对象
-     */
+    */
     void returnObject(T object);
 
     /**
@@ -61,26 +61,26 @@ public interface ObjectPool<T> extends AutoCloseable {
     * <p>当对象确认不可用时调用，释放资源后从池中移除。
     *
     * @param object 要销毁的对象
-     */
+    */
     void invalidateObject(T object);
 
     /**
     * 获取池中空闲对象数
     *
     * @return 空闲对象数量
-     */
+    */
     int getNumIdle();
 
     /**
     * 获取已借出对象数
     *
     * @return 已借出对象数量
-     */
+    */
     int getNumActive();
 
     /**
     * 清空池中所有空闲对象
-     */
+    */
     void clear();
 
     /**
@@ -96,7 +96,7 @@ public interface ObjectPool<T> extends AutoCloseable {
     *
     * @return 对象池守卫
     * @throws Exception 借出失败
-     */
+    */
     default PoolGuard<T> guard() throws Exception {
         return new PoolGuard<>(this, borrow());
     }

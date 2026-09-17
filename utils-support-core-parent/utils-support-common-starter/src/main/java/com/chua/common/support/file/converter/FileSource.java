@@ -40,33 +40,33 @@ public class FileSource {
 
     /**
     * 文件系统路径（当通过路径创建时非空）
-     */
+    */
     private final String path;
 
     /**
     * 网络地址（当通过 URL 创建时非空）
-     */
+    */
     private final URL url;
 
     /**
     * 输入数据流（当作为输入源时非空）
-     */
+    */
     private final InputStream inputStream;
 
     /**
     * 输出数据流（当作为输出目标时非空）
-     */
+    */
     private final OutputStream outputStream;
 
     /**
     * 文件格式类型标识（如 csv, xlsx, pdf, json）
-     */
+    */
     private final String type;
 
     /**
     * 创建 FileSource 实例
     * @param path path
-     */
+    */
     private FileSource(String path) {
         this(path, null, null, null, null);
     }
@@ -77,7 +77,7 @@ public class FileSource {
     * @param InputStream InputStream
     * @param OutputStream OutputStream
     * @param String String
-     */
+    */
     private FileSource(String path, InputStream inputStream, OutputStream outputStream, String type) {
         this(path, null, inputStream, outputStream, type);
     }
@@ -89,7 +89,7 @@ public class FileSource {
     * @param InputStream InputStream
     * @param OutputStream OutputStream
     * @param String String
-     */
+    */
     private FileSource(String path, URL url, InputStream inputStream, OutputStream outputStream, String type) {
         this.path = path;
         this.url = url;
@@ -100,7 +100,7 @@ public class FileSource {
 
     /**
     * 通过文件路径创建输入源
-     */
+    */
     public static FileSource of(String path) {
         return new FileSource(path);
     }
@@ -110,7 +110,7 @@ public class FileSource {
     *
     * @param url  源地址
     * @param type 文件格式类型（用于 SPI 查找转换器，当无法从 URL 推断时使用）
-     */
+    */
     public static FileSource of(URL url, String type) {
         return new FileSource(null, url, null, null, type);
     }
@@ -119,7 +119,7 @@ public class FileSource {
     * 通过 URL 创建输入源（自动从 URL 路径推断文件类型）
     *
     * @param url 源地址
-     */
+    */
     public static FileSource of(URL url) {
         String path = url.getPath();
         String ext = "";
@@ -131,14 +131,14 @@ public class FileSource {
 
     /**
     * 通过输入流 + 文件类型创建输入源（类型用于 SPI 查找对应的转换器实现）
-     */
+    */
     public static FileSource of(InputStream inputStream, String type) {
         return new FileSource(null, null, inputStream, null, type);
     }
 
     /**
     * 通过输出流 + 文件类型创建输出目标（类型用于 SPI 查找对应的转换器实现）
-     */
+    */
     public static FileSource of(OutputStream outputStream, String type) {
         return new FileSource(null, null, null, outputStream, type);
     }

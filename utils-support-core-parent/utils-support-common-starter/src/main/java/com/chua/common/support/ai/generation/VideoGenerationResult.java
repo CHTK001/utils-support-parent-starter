@@ -20,7 +20,7 @@ public record VideoGenerationResult(java.util.List<GeneratedVideo> videos, Strin
     * @param width    宽度
     * @param height   高度
     * @param duration 时长（秒）
-     */
+    */
     public record GeneratedVideo(String videoUrl, String coverUrl,
                                  int width, int height, double duration) {
     }

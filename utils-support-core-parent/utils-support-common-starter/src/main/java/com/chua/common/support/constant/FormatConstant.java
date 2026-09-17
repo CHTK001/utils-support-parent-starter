@@ -27,144 +27,144 @@ public final class FormatConstant {
 
     /**
     * 日期格式：{@code yyyy-MM-dd}，示例：2024-01-15。
-     */
+    */
     public static final String yyyy_MM_dd = "yyyy-MM-dd";
     /**
     * 日期格式（大写别名，兼容旧版引用）。
-     */
+    */
     public static final String YYYY_MM_DD = yyyy_MM_dd;
     /**
     * 日期格式：{@code yyyy/MM/dd}，示例：2024/01/15。
-     */
+    */
     public static final String yyyy_MM_dd_SLASH = "yyyy/MM/dd";
     /**
     * 日期格式：{@code yyyyMMdd}，示例：20240115。
-     */
+    */
     public static final String yyyyMMdd = "yyyyMMdd";
     /**
     * 日期格式：{@code yyyy年MM月dd日}，示例：2024年01月15日。
-     */
+    */
     public static final String yyyy_MM_dd_CN = "yyyy年MM月dd日";
     /**
     * 日期格式：{@code yyMMdd}，示例：240115。
-     */
+    */
     public static final String yyMMdd = "yyMMdd";
 
     // ========================== 时间格式 ==========================
 
     /**
     * 时间格式：{@code HH:mm:ss}，示例：14:30:00。
-     */
+    */
     public static final String HH_mm_ss = "HH:mm:ss";
     /**
     * 时间格式（大写别名，兼容旧版引用）。
-     */
+    */
     public static final String HH_MM_SS = HH_mm_ss;
     /**
     * 时间格式：{@code HH:mm}，示例：14:30。
-     */
+    */
     public static final String HH_mm = "HH:mm";
     /**
     * 时间格式：{@code HHmmss}，示例：143000。
-     */
+    */
     public static final String HHmmss = "HHmmss";
 
     // ========================== 日期时间格式 ==========================
 
     /**
     * 日期时间格式：{@code yyyy-MM-dd HH:mm:ss}，示例：2024-01-15 14:30:00。
-     */
+    */
     public static final String yyyy_MM_dd_HH_mm_ss = "yyyy-MM-dd HH:mm:ss";
     /**
     * 日期时间格式（大写别名，兼容旧版引用）。
-     */
+    */
     public static final String YYYY_MM_DD_HH_MM_SS = yyyy_MM_dd_HH_mm_ss;
     /**
     * 日期时间格式（毫秒，逗号分隔）：{@code yyyy-MM-dd HH:mm:ss,SSS}，示例：2024-01-15 14:30:00,123。
-     */
+    */
     public static final String yyyy_MM_dd_HH_mm_ss_SSS_COMMA = "yyyy-MM-dd HH:mm:ss,SSS";
     /**
     * 日期时间格式（毫秒，点分隔）：{@code yyyy-MM-dd HH:mm:ss.SSS}，示例：2024-01-15 14:30:00.123。
-     */
+    */
     public static final String yyyy_MM_dd_HH_mm_ss_SSS_DOT = "yyyy-MM-dd HH:mm:ss.SSS";
     /**
     * 日期时间格式（无分隔符）：{@code yyyyMMddHHmmss}，示例：20240115143000。
-     */
+    */
     public static final String yyyyMMddHHmmss = "yyyyMMddHHmmss";
     /**
     * 日期时间格式（含毫秒无分隔符）：{@code yyyyMMddHHmmssSSS}，示例：20240115143000123。
-     */
+    */
     public static final String yyyyMMddHHmmssSSS = "yyyyMMddHHmmssSSS";
 
     // ========================== HTTP / 协议日期格式 ==========================
 
     /**
     * HTTP 日期格式（RFC 1123）：{@code EEE, dd MMM yyyy HH:mm:ss zzz}，示例：Mon, 15 Jan 2024 14:30:00 GMT。
-     */
+    */
     public static final String RFC_1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
     /**
     * Java 默认日期格式（CTT）：{@code EEE MMM dd HH:mm:ss z yyyy}，示例：Mon Jan 15 14:30:00 CST 2024。
-     */
+    */
     public static final String CTT_DATE = "EEE MMM dd HH:mm:ss z yyyy";
 
     // ========================== 数字格式 ==========================
 
     /**
     * 整数格式（至少 1 位）：{@code #}。
-     */
+    */
     public static final String INTEGER = "#";
     /**
     * 整数格式（至少 1 位，补零至 2 位）：{@code 00}。
-     */
+    */
     public static final String INTEGER_PADDING_2 = "00";
     /**
     * 整数格式（至少 1 位，补零至 3 位）：{@code 000}。
-     */
+    */
     public static final String INTEGER_PADDING_3 = "000";
     /**
     * 整数格式（至少 1 位，补零至 4 位）：{@code 0000}。
-     */
+    */
     public static final String INTEGER_PADDING_4 = "0000";
 
     /**
     * 小数格式（1 位整数 + 2 位小数）：{@code #.##}。
-     */
+    */
     public static final String DECIMAL_1_2 = "#.##";
     /**
     * 小数格式（1 位整数 + 3 位小数）：{@code #.###}。
-     */
+    */
     public static final String DECIMAL_1_3 = "#.###";
     /**
     * 小数格式（至少 1 位整数 + 3 位小数，不足补零）：{@code ##0.000}。
-     */
+    */
     public static final String DECIMAL_AT_LEAST_1_3 = "##0.000";
     /**
     * 小数格式（至少 1 位整数 + 3 位小数，不足补零）：{@code ###.000}。
-     */
+    */
     public static final String DECIMAL_AT_LEAST_0_3 = "###.000";
 
     /**
     * 百分比格式：{@code #.##%}。
-     */
+    */
     public static final String PERCENT = "#.##%";
 
     /**
     * 金额格式（千分位 + 2 位小数）：{@code #,##0.00}。
-     */
+    */
     public static final String MONEY = "#,##0.00";
 
     // ========================== 国际化 ==========================
 
     /**
     * 国际化资源文件基名 {@code language/message}。
-     */
+    */
     public static final String RESOURCE_MESSAGE = "language/message";
 
     // ========================== 预编译格式化对象 ==========================
 
     /**
     * DecimalFormat 实例（格式：{@value DECIMAL_AT_LEAST_1_3}）。
-     */
+    */
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(DECIMAL_AT_LEAST_1_3);
 
 }

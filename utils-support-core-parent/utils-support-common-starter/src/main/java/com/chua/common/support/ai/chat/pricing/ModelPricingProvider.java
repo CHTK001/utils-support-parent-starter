@@ -18,6 +18,6 @@ public interface ModelPricingProvider {
     * @param provider 厂商名称（如 openai, deepseek）
     * @param model    模型名称
     * @return 定价定义，若未找到返回 null
-     */
+    */
     ModelDefinition getModelPricing(String provider, String model);
 }

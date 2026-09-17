@@ -31,7 +31,7 @@ public class IntegerTypeConverter implements TypeConverter<Integer> {
     *
     * @param value 源值
     * @return Integer 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Integer convert(Object value) {
         if (null == value) {
@@ -57,7 +57,7 @@ public class IntegerTypeConverter implements TypeConverter<Integer> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Integer.class
-     */
+    */
     @Override
     public Class<Integer> getType() {
         return Integer.class;

@@ -27,7 +27,7 @@ public class ZipExtractor implements Extractor {
     * 获取支持的扩展名列表
     *
     * @return 支持的扩展名数组，仅包含 ".zip"
-     */
+    */
     @Override
     public String[] supportedExtensions() {
         return new String[]{".zip"};
@@ -39,7 +39,7 @@ public class ZipExtractor implements Extractor {
     * @param sourceFile 源 ZIP 文件对象
     * @param targetDir  目标解压目录对象
     * @return 如果解压成功返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean extract(File sourceFile, File targetDir) {
         if (sourceFile == null || !sourceFile.exists()) {

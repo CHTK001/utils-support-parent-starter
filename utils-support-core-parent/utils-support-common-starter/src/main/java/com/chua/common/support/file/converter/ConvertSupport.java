@@ -26,34 +26,34 @@ public class ConvertSupport {
 
     /**
     * 源文件格式类型标识。
-     */
+    */
     private final String sourceType;
 
     /**
     * 目标文件格式类型标识。
-     */
+    */
     private final String targetType;
 
     /**
     * 源文件数据源。
-     */
+    */
     private FileSource source;
 
     /**
     * 目标文件数据源。
-     */
+    */
     private FileSource target;
 
     /**
     * 转换设置参数。
-     */
+    */
     private ConvertSetting setting = new ConvertSetting();
 
     /**
     * 创建 ConvertSupport 实例
     * @param sourceType sourceType
     * @param String String
-     */
+    */
     private ConvertSupport(String sourceType, String targetType) {
         this.sourceType = sourceType;
         this.targetType = targetType;
@@ -65,7 +65,7 @@ public class ConvertSupport {
     * @param sourceType  源文件格式类型
     * @param targetType  目标文件格式类型
     * @return 返回新的转换构建器实例
-     */
+    */
     public static ConvertSupport convert(String sourceType, String targetType) {
         return new ConvertSupport(sourceType, targetType);
     }
@@ -75,7 +75,7 @@ public class ConvertSupport {
     *
     * @param path 源文件路径
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport from(String path) {
         this.source = FileSource.of(path);
         return this;
@@ -87,7 +87,7 @@ public class ConvertSupport {
     * @param is   输入流对象
     * @param type 输入流的格式类型
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport from(InputStream is, String type) {
         this.source = FileSource.of(is, type);
         return this;
@@ -98,7 +98,7 @@ public class ConvertSupport {
     *
     * @param src 源文件源对象
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport from(FileSource src) {
         this.source = src;
         return this;
@@ -109,7 +109,7 @@ public class ConvertSupport {
     *
     * @param path 目标文件路径
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport to(String path) {
         this.target = FileSource.of(path);
         return this;
@@ -121,7 +121,7 @@ public class ConvertSupport {
     * @param os   输出流对象
     * @param type 输出流的格式类型
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport to(OutputStream os, String type) {
         this.target = FileSource.of(os, type);
         return this;
@@ -132,7 +132,7 @@ public class ConvertSupport {
     *
     * @param tgt 目标文件源对象
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport to(FileSource tgt) {
         this.target = tgt;
         return this;
@@ -143,7 +143,7 @@ public class ConvertSupport {
     *
     * @param s 转换设置对象
     * @return 返回当前构建器实例以支持链式调用
-     */
+    */
     public ConvertSupport setting(ConvertSetting s) {
         this.setting = s;
         return this;
@@ -158,7 +158,7 @@ public class ConvertSupport {
     * </p>
     *
     * @throws UnsupportedOperationException 当没有找到支持的转换器时抛出此异常
-     */
+    */
     public void convert() {
         ServiceProvider<FileConvertSystem> sp = ServiceProvider.of(FileConvertSystem.class);
         for (FileConvertSystem converter : sp.getNewExtensions(null)) {

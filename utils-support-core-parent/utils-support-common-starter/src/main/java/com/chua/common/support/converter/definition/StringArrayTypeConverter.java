@@ -33,7 +33,7 @@ public class StringArrayTypeConverter implements TypeConverter<String[]> {
     *
     * @param value 源值
     * @return String[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public String[] convert(Object value) {
         if (null == value) {
@@ -84,7 +84,7 @@ public class StringArrayTypeConverter implements TypeConverter<String[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return String[].class
-     */
+    */
     @Override
     public Class<String[]> getType() {
         return String[].class;

@@ -49,7 +49,7 @@ public interface HpkeCipher extends Cipher {
     * @param provider 提供者名称，如 "bc"
     * @return HpkeCipher 实例
     * @throws com.chua.common.support.spi.ExtensionNotFoundException 当指定提供者不存在时抛出
-     */
+    */
     static HpkeCipher create(String provider) {
         return ServiceProvider.of(HpkeCipher.class).getNewExtension(provider);
     }
@@ -60,7 +60,7 @@ public interface HpkeCipher extends Cipher {
     * 生成 KEM 密钥对。
     *
     * @return 长度 2 的数组：{@code [0]} 为公钥（32 字节），{@code [1]} 为私钥（32 字节）
-     */
+    */
     byte[][] generateKeyPair();
 
     /**
@@ -73,7 +73,7 @@ public interface HpkeCipher extends Cipher {
     * @param ikm 可选输入密钥材料，可为 null
     * @return 长度 2 的数组：{@code [0]} 为封装密钥 enc（发送方随密文发给接收方），
     *         {@code [1]} 为对称密钥 ek（发送方保留用于 {@link #seal}）
-     */
+    */
     byte[][] encap(byte[] receiverPublicKey, byte[] ikm);
 
     /**
@@ -85,7 +85,7 @@ public interface HpkeCipher extends Cipher {
     * @param enc 发送方的封装密钥，见 {@link #encap} 返回值的 {@code [0]}
     * @param ikm 可选输入密钥材料，须与发送方 {@link #encap} 一致，可为 null
     * @return 对称密钥 ek，供 {@link #open} 使用
-     */
+    */
     byte[] recoverKey(byte[] receiverPrivateKey, byte[] enc, byte[] ikm);
 
     /**
@@ -95,7 +95,7 @@ public interface HpkeCipher extends Cipher {
     * @param aad 可选附加认证数据，可为 null
     * @param plaintext 待加密明文
     * @return 密文（含 16 字节认证标签）
-     */
+    */
     byte[] seal(byte[] ek, byte[] aad, byte[] plaintext);
 
     /**
@@ -105,6 +105,6 @@ public interface HpkeCipher extends Cipher {
     * @param aad 可选附加认证数据，须与加密时一致，可为 null
     * @param ciphertext 待解密密文（含 16 字节认证标签）
     * @return 解密后的明文
-     */
+    */
     byte[] open(byte[] ek, byte[] aad, byte[] ciphertext);
 }

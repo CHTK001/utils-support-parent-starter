@@ -35,6 +35,6 @@ public interface FieldConverter {
     * @param source  源值（字段原始值或字符串值）
     * @param context 转换上下文（包含格式化配置、上下文数据等）
     * @return 转换后的值
-     */
+    */
     Object convert(Object source, FieldMappingContext context);
 }

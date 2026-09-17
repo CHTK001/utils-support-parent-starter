@@ -21,7 +21,7 @@ import com.chua.common.support.scatter.node.UdpScatterNodeServer;
  * @param <B> 构建器自身类型
  * @author CH
  * @since 4.0.0.42
- */
+*/
 @SuppressWarnings("unchecked")
 public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
 
@@ -91,7 +91,9 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
         return (B) this;
     }
 
-    /** SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。 */
+    /**
+    * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk。
+    */
     public B spiName(String spiName) {
         setting.setSpiName(spiName);
         return (B) this;
@@ -141,11 +143,11 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 构建节点服务端。
-     *
-     * @param handler 帧处理器（discovery）
-     * @return 节点服务端
-     */
+    * 构建节点服务端。
+    *
+    * @param handler 帧处理器（discovery）
+    * @return 节点服务端
+    */
     public ScatterNodeServer buildNodeServer(ScatterNodeHandler handler) {
         ServerSetting serverSetting = ServerSetting.defaults();
         serverSetting.setHost(setting.getHost());
@@ -163,10 +165,10 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 构建远程客户端（短连接）。
-     *
-     * @return 远程客户端
-     */
+    * 构建远程客户端（短连接）。
+    *
+    * @return 远程客户端
+    */
     public ScatterRemoteClient buildRemoteClient() {
         if (setting.getClient() != null) {
             ScatterSyncHelper.setCustomClient(setting.getClient());
@@ -182,10 +184,10 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 构建发现服务（按模式选择路由/seed）。
-     *
-     * @return 发现服务
-     */
+    * 构建发现服务（按模式选择路由/seed）。
+    *
+    * @return 发现服务
+    */
     public AbstractScatterDiscovery buildDiscovery() {
         AbstractScatterDiscovery discovery;
         if (setting.getSubnet() != null && !setting.getSubnet().isBlank()) {
@@ -198,10 +200,10 @@ public abstract class ScatterBuilder<B extends ScatterBuilder<B>> {
     }
 
     /**
-     * 聚合入口：构建完整 scatter（discovery + nodeServer 组装）。
-     *
-     * @return Scatter 聚合实例
-     */
+    * 聚合入口：构建完整 scatter（discovery + nodeServer 组装）。
+    *
+    * @return Scatter 聚合实例
+    */
     public Scatter build() {
         return new DefaultScatter(this);
     }

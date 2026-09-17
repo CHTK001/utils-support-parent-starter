@@ -8,16 +8,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
-* B 树实现（优化版）。
-*
-* <p>与 B+ 树不同，B 树的键值对可存储于内部节点和叶子节点；
-* 查找时可能在任意层命中，平均比较次数略低于 B+ 树。适合点查密集型场景。</p>
-*
-* @param <K> 键类型，须实现 {@link Comparable}
-* @param <V> 值类型
-* @author CH
-* @since 4.0.0.42
- */
+ * B 树实现（优化版）。
+ *
+ * <p>与 B+ 树不同，B 树的键值对可存储于内部节点和叶子节点；
+ * 查找时可能在任意层命中，平均比较次数略低于 B+ 树。适合点查密集型场景。</p>
+ *
+ * @param <K> 键类型，须实现 {@link Comparable}
+ * @param <V> 值类型
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
 
     private final int order; // 订单
@@ -27,7 +27,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     /**
     * b树。
     * @param order 订单
-     */
+    */
     public BTree(int order) {
         if (order < 3) {
             throw new IllegalArgumentException("B tree order must be >= 3, got: " + order);
@@ -72,7 +72,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * @param keys 键
     * @param key 键
     * @return binary搜索的结果
-     */
+    */
     private static <K extends Comparable<K>> int binarySearch(List<K> keys, K key) {
         int lo = 0, hi = keys.size() - 1;
         while (lo <= hi) {
@@ -110,7 +110,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * @param from 从
     * @param to 转为
     * @param result 结果
-     */
+    */
     private void collectRange(BTreeNode<K, V> node, K from, K to, List<Map.Entry<K, V>> result) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -159,7 +159,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * @param key 键
     * @param value 值
     * @return 分割插入的结果
-     */
+    */
     private SplitResult<K, V> splitInsert(BTreeNode<K, V> node, K key, V value) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -201,7 +201,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * 执行分割。
     * @param node 节点
     * @return 执行分割的结果
-     */
+    */
     private SplitResult<K, V> doSplit(BTreeNode<K, V> node) {
         List<K> keys = node.keys;
         List<V> values = node.values;
@@ -251,7 +251,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * 删除。
     * @param node 节点
     * @param key 键
-     */
+    */
     private void delete(BTreeNode<K, V> node, K key) {
         List<K> keys = node.keys;
         int i = binarySearch(keys, key);
@@ -283,7 +283,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * findpredecessor。
     * @param node 节点
     * @return findPredecessor的结果
-     */
+    */
     private K findPredecessor(BTreeNode<K, V> node) {
         while (!node.leaf) {
             node = node.children.get(node.keys.size());
@@ -295,7 +295,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     * findsuccessor。
     * @param node 节点
     * @return findSuccessor的结果
-     */
+    */
     private K findSuccessor(BTreeNode<K, V> node) {
         while (!node.leaf) {
             node = node.children.getFirst();
@@ -320,7 +320,7 @@ public class BTree<K extends Comparable<K>, V> implements TreeEngine<K, V> {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     private static class SplitResult<K, V> {
         final K promotedKey;

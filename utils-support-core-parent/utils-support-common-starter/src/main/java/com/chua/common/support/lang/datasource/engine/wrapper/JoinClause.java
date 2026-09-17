@@ -24,7 +24,7 @@ public record JoinClause(String joinType, String table, String alias, String onC
     * 表名本身也允许携带别名（如 {@code "order o"}），此时 alias 参数应传 null。</p>
     *
     * @return 表片段，如 {@code "user u"}
-     */
+    */
     public String renderTable() {
         if (alias == null || alias.isBlank()) {
             return table;

@@ -10,62 +10,62 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
-* 池化客户端抽象基类 (包装器风格)
-*
-* <p>为 {@code XxClient} 提供统一的池化能力, 通过持有一个底层客户端工厂实现。
-* 适用于已有客户端接口 (如 {@code ImageClient}, {@code ChatClient}) 的场景,
-* 子类只需在调用底层方法前通过 {@link #borrowClient()} 获取实例,
-* 调用后通过 {@link #returnClient(Object)} 归还。
-*
-* <p>数量语义 (与 {@link PooledObjectClient#pool(Number)} 保持一致):
-* <ul>
-*   <li>{@code null} 或 {@code <= 1}: 单例模式, 第一次访问时创建并复用同一实例 (默认)</li>
-*   <li>{@code > 1}: 池化模式, 创建指定大小的对象池</li>
-*   <li>{@code 0}: 关闭池化, 每次 {@link #borrowClient()} 都通过 factory 创建新实例并直接返回</li>
-* </ul>
-*
-* <p>线程安全: 内部使用 synchronized 保证池/单例的原子创建。
-*
-* @param <T> 客户端类型
-* @author CH
-* @since 4.0.0.42
- */
+ * 池化客户端抽象基类 (包装器风格)
+ *
+ * <p>为 {@code XxClient} 提供统一的池化能力, 通过持有一个底层客户端工厂实现。
+ * 适用于已有客户端接口 (如 {@code ImageClient}, {@code ChatClient}) 的场景,
+ * 子类只需在调用底层方法前通过 {@link #borrowClient()} 获取实例,
+ * 调用后通过 {@link #returnClient(Object)} 归还。
+ *
+ * <p>数量语义 (与 {@link PooledObjectClient#pool(Number)} 保持一致):
+ * <ul>
+ *   <li>{@code null} 或 {@code <= 1}: 单例模式, 第一次访问时创建并复用同一实例 (默认)</li>
+ *   <li>{@code > 1}: 池化模式, 创建指定大小的对象池</li>
+ *   <li>{@code 0}: 关闭池化, 每次 {@link #borrowClient()} 都通过 factory 创建新实例并直接返回</li>
+ * </ul>
+ *
+ * <p>线程安全: 内部使用 synchronized 保证池/单例的原子创建。
+ *
+ * @param <T> 客户端类型
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
     * 池化模式: 0 (无池, 每次新建)
-     */
+    */
     protected static final int MODE_DISABLED = 0;
 
     /**
     * 单例模式: 1
-     */
+    */
     protected static final int MODE_SINGLETON = 1;
 
     /**
     * 当前模式: 0=无池, 1=单例, >1=池化大小
-     */
+    */
     private volatile int poolMode = MODE_SINGLETON;
 
     /**
     * 单例实例
-     */
+    */
     private volatile T singleton;
 
     /**
     * 对象池 (仅在池化模式下非空)
-     */
+    */
     private volatile ObjectPool<T> objectPool;
 
     /**
     * 新实例工厂
-     */
+    */
     private final Supplier<T> factory;
 
     /**
     * 实例配置回调 (用于在 borrow 后应用最新配置)
-     */
+    */
     private final Function<T, T> configurator;
 
 
@@ -74,7 +74,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     *
     * @param factory     创建新实例的工厂, 必填
     * @param configurator 实例配置回调, 可为 空 (表示无配置)
-     */
+    */
     protected AbstractPooledClient(Supplier<T> factory, Function<T, T> configurator) {
         this.factory = factory;
         this.configurator = configurator;
@@ -85,7 +85,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     * 构造方法 (无配置回调)
     *
     * @param factory 创建新实例的工厂
-     */
+    */
     protected AbstractPooledClient(Supplier<T> factory) {
         this(factory, null);
     }
@@ -98,7 +98,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     * 可通过此构造方法直接使用, 内部 borrow客户端 会返回 this。
     *
     * @param selfMarker 仅用于区分重载, 传任意非 空 值
-     */
+    */
     protected AbstractPooledClient(Object selfMarker) {
         this.factory = null;
         this.configurator = null;
@@ -144,7 +144,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     * </ul>
     *
     * @return 客户端实例
-     */
+    */
     @SuppressWarnings("unchecked")
     protected T borrowClient() {
         int mode = poolMode;
@@ -196,7 +196,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     * <p>仅在池化模式下生效; 单例/无池化模式下为 no-op。
     *
     * @param client 要归还的实例
-     */
+    */
     protected void returnClient(T client) {
         if (client == null) {
             return;
@@ -211,7 +211,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     /**
     * 创建并配置新实例
     * @return 创建和configure的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private T createAndConfigure() {
         if (factory == null) {
@@ -232,7 +232,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
     * 创建对象池
     * @param maxTotal 最大total
     * @return 创建游泳池的结果
-     */
+    */
     private ObjectPool<T> createPool(int maxTotal) {
         ObjectPoolConfig config = ObjectPoolConfig.builder()
                 .maxTotal(maxTotal)
@@ -270,7 +270,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
     * 关闭并清理池
-     */
+    */
     private void closePool() {
         if (objectPool != null) {
             try {
@@ -286,7 +286,7 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
     /**
     * 关闭客户端, 释放所有池化资源
-     */
+    */
     public void shutdown() {
         synchronized (this) {
             closePool();

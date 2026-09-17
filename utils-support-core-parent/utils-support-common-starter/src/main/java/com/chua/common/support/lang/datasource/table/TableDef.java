@@ -45,71 +45,71 @@ public class TableDef {
 
     /**
     * 表名
-     */
+    */
     private String name;
 
     /**
     * catalog 名称
-     */
+    */
     private String catalog;
 
     /**
     * 数据库模式名（Schema）
-     */
+    */
     private String schema;
 
     /**
     * 表类型（TABLE / VIEW / SYSTEM TABLE 等）
-     */
+    */
     private String type = "TABLE";
 
     /**
     * 表注释
-     */
+    */
     private String comment;
 
     /**
     * 数据库引擎（如 InnoDB）
-     */
+    */
     private String engine;
 
     /**
     * 字符集（如 utf8mb4）
-     */
+    */
     private String charset;
 
     /**
     * 排序规则（如 utf8mb4_general_ci）
-     */
+    */
     private String collate;
 
     /**
     * 列定义列表
-     */
+    */
     private List<ColumnDef> columns = new ArrayList<>();
 
     /**
     * 联合主键的列名数组
-     */
+    */
     private String[] primaryKeys;
 
     /**
     * 索引元数据列表
-     */
+    */
     private List<IndexMetadata> indexes = new ArrayList<>();
 
     /**
     * 创建时间
-     */
+    */
     private Date createTime;
 
     /**
     * 更新时间
-     */
+    */
     private Date updateTime;
 
     /**
     * 近似行数
-     */
+    */
     private Long rowCount;
 }

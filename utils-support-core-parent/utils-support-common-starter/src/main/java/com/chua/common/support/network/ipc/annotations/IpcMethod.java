@@ -28,6 +28,6 @@ public @interface IpcMethod {
     * </p>
     *
     * @return 方法名称字符串
-     */
+    */
     String value();
 }

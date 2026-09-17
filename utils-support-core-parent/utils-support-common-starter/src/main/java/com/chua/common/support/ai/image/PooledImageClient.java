@@ -34,17 +34,17 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
     /**
     * 服务商名称
-     */
+    */
     private final String provider;
 
     /**
     * 供应商配置 (创建底层客户端时使用)
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 链式配置回调 (可选, 每次 borrow 后应用最新配置)
-     */
+    */
     private final java.util.function.Function<ImageClient, ImageClient> chainConfigurer;
 
 
@@ -53,7 +53,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     *
     * @param provider 服务商
     * @param setting  配置
-     */
+    */
     public PooledImageClient(String provider, ImageClientSetting setting) {
         this(provider, setting, null);
     }
@@ -65,7 +65,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     * @param provider        服务商
     * @param setting         配置
     * @param chainConfigurer 链式配置回调, 在 borrow 后应用, 可为 null
-     */
+    */
     public PooledImageClient(String provider, ImageClientSetting setting,
                              java.util.function.Function<ImageClient, ImageClient> chainConfigurer) {
         super(() -> ImageClient.create(setting), null);
@@ -79,7 +79,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     * 构造方法 (自定义工厂)
     *
     * @param factory 创建底层 ImageClient 的工厂
-     */
+    */
     public PooledImageClient(Supplier<ImageClient> factory) {
         super(factory, null);
         this.provider = null;
@@ -93,7 +93,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     *
     * @param factory         创建底层 ImageClient 的工厂
     * @param chainConfigurer 链式配置回调
-     */
+    */
     public PooledImageClient(Supplier<ImageClient> factory,
                              java.util.function.Function<ImageClient, ImageClient> chainConfigurer) {
         super(factory, chainConfigurer);
@@ -268,7 +268,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
 
     /**
     * 应用链式配置到借出的实例
-     */
+    */
     private void applyChain(ImageClient inner) {
         if (chainConfigurer != null) {
             chainConfigurer.apply(inner);
@@ -280,7 +280,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     * 获取服务商名称
     *
     * @return provider
-     */
+    */
     public String getProvider() {
         return provider;
     }
@@ -290,7 +290,7 @@ public class PooledImageClient extends AbstractPooledClient<ImageClient> impleme
     * 获取客户端配置
     *
     * @return setting
-     */
+    */
     public ImageClientSetting getSetting() {
         return setting;
     }

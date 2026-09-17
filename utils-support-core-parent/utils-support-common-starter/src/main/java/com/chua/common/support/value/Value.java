@@ -16,25 +16,25 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
-* 值包装接口，提供统一的值访问和类型转换能力。
-* <p>
-* 该接口定义了从值容器中安全获取各种类型数据的契约，支持以下特性：
-* <ul>
-*   <li><b>类型转换</b>：通过 {@link #getValue(Class)} 获取指定类型的值，底层使用 {@link com.chua.common.support.converter.Converter} 进行自动类型转换</li>
-*   <li><b>默认值</b>：所有 {@code asXXX(defaultValue)} 方法在值为 null 时返回指定的默认值</li>
-*   <li><b>空值安全</b>：{@link #of(Object)} 工厂方法在值 null 时返回 {@link NullValue} 单例，避免空指针</li>
-*   <li><b>异常承载</b>：{@link #getThrowable()} 支持携带转换过程中产生的异常信息</li>
-*   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent}, {@link #filter}, {@link #peek} 提供安全的链式操作，避免空指针</li>
-*   <li><b>空值安全集合/流</b>：{@link #asList}, {@link #asSet}, {@link #stream} 在值为 null 时返回空集合/空流而非 null</li>
-*   <li><b>Optional 桥接</b>：{@link #toOptional} / {@link #ofOptional} 与 JDK {@link Optional} 互转</li>
-*   <li><b>空判断</b>：{@link #isEmpty} 判断是否为空值</li>
-* </ul>
-* </p>
-*
-* @param <T> 值类型
-* @author CH
-* @since 2020/12/19
- */
+ * 值包装接口，提供统一的值访问和类型转换能力。
+ * <p>
+ * 该接口定义了从值容器中安全获取各种类型数据的契约，支持以下特性：
+ * <ul>
+ *   <li><b>类型转换</b>：通过 {@link #getValue(Class)} 获取指定类型的值，底层使用 {@link com.chua.common.support.converter.Converter} 进行自动类型转换</li>
+ *   <li><b>默认值</b>：所有 {@code asXXX(defaultValue)} 方法在值为 null 时返回指定的默认值</li>
+ *   <li><b>空值安全</b>：{@link #of(Object)} 工厂方法在值 null 时返回 {@link NullValue} 单例，避免空指针</li>
+ *   <li><b>异常承载</b>：{@link #getThrowable()} 支持携带转换过程中产生的异常信息</li>
+ *   <li><b>函数式增强</b>：{@link #orElse}, {@link #orElseGet}, {@link #orElseThrow}, {@link #map}, {@link #flatMap}, {@link #ifPresent}, {@link #filter}, {@link #peek} 提供安全的链式操作，避免空指针</li>
+ *   <li><b>空值安全集合/流</b>：{@link #asList}, {@link #asSet}, {@link #stream} 在值为 null 时返回空集合/空流而非 null</li>
+ *   <li><b>Optional 桥接</b>：{@link #toOptional} / {@link #ofOptional} 与 JDK {@link Optional} 互转</li>
+ *   <li><b>空判断</b>：{@link #isEmpty} 判断是否为空值</li>
+ * </ul>
+ * </p>
+ *
+ * @param <T> 值类型
+ * @author CH
+ * @since 2020/12/19
+*/
 public interface Value<T> extends Serializable {
 
     /**
@@ -44,7 +44,7 @@ public interface Value<T> extends Serializable {
     * @param value 值
     * @param <T> 值类型
     * @return Value 实例
-     */
+    */
 @SuppressWarnings("ALL")
     static <T> Value<T> of(T value) {
         return null == value ? (Value<T>) NullValue.INSTANCE : new DefaultValue<>(value);
@@ -57,7 +57,7 @@ public interface Value<T> extends Serializable {
     * @param optional 期权，可为 空
     * @param <T> 值类型
     * @return Value 实例
-     */
+    */
     @SuppressWarnings("ALL")
     static <T> Value<T> ofOptional(Optional<? extends T> optional) {
         return of(optional == null ? null : optional.orElse(null));
@@ -67,7 +67,7 @@ public interface Value<T> extends Serializable {
     * 获取原始值。
     *
     * @return 原始值，可能为 空
-     */
+    */
     T getValue();
 
     /**
@@ -75,7 +75,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 值或默认值
-     */
+    */
     default T getDefaultValue(Object defaultValue) {
         return Optional.ofNullable(getValue()).orElse((T) defaultValue);
     }
@@ -87,7 +87,7 @@ public interface Value<T> extends Serializable {
     * @param target 目标类型
     * @param <E> 目标类型
     * @return 转换后的值
-     */
+    */
     default <E> E getValue(Class<E> target) {
         if (target == null || target == Object.class) {
             return (E) getValue();
@@ -99,14 +99,14 @@ public interface Value<T> extends Serializable {
     * 获取转换过程中产生的异常。
     *
     * @return 异常，可能为 空
-     */
+    */
     Throwable getThrowable();
 
     /**
     * 判断当前值是否为 空。
     *
     * @return true 表示为 空
-     */
+    */
     boolean isNull();
 
     /**
@@ -114,14 +114,14 @@ public interface Value<T> extends Serializable {
     *
     * @param value 指定值
     * @return true 表示相等
-     */
+    */
     boolean is(T value);
 
     /**
     * 获取字符串值（通过类型转换）。
     *
     * @return 字符串值
-     */
+    */
     default String getStringValue() {
         return getValue(String.class);
     }
@@ -131,7 +131,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 字符串值或默认值
-     */
+    */
     default String asString(String defaultValue) {
         return ObjectUtils.defaultIfNull(asString(), defaultValue);
     }
@@ -140,7 +140,7 @@ public interface Value<T> extends Serializable {
     * 获取字符串值（同 {@link #getStringValue()}）。
     *
     * @return 字符串值
-     */
+    */
     default String asString() {
         return getStringValue();
     }
@@ -149,7 +149,7 @@ public interface Value<T> extends Serializable {
     * 获取 Integer 值（通过类型转换）。
     *
     * @return 整数值
-     */
+    */
     default Integer asInteger() {
         return getValue(Integer.class);
     }
@@ -159,7 +159,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 整数值或默认值
-     */
+    */
     default Integer asInteger(Integer defaultValue) {
         return ObjectUtils.defaultIfNull(asInteger(), defaultValue);
     }
@@ -168,7 +168,7 @@ public interface Value<T> extends Serializable {
     * 获取 布尔值 值（通过类型转换）。
     *
     * @return 布尔值
-     */
+    */
     default Boolean asBoolean() {
         return getValue(Boolean.class);
     }
@@ -178,7 +178,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 布尔值或默认值
-     */
+    */
     default Boolean asBoolean(Boolean defaultValue) {
         return ObjectUtils.defaultIfNull(asBoolean(), defaultValue);
     }
@@ -187,7 +187,7 @@ public interface Value<T> extends Serializable {
     * 获取 Long 值（通过类型转换）。
     *
     * @return 长整数值
-     */
+    */
     default Long asLong() {
         return getValue(Long.class);
     }
@@ -197,7 +197,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 长整数值或默认值
-     */
+    */
     default Long asLong(Long defaultValue) {
         return ObjectUtils.defaultIfNull(asLong(), defaultValue);
     }
@@ -206,7 +206,7 @@ public interface Value<T> extends Serializable {
     * 获取 Float 值（通过类型转换）。
     *
     * @return 浮点值
-     */
+    */
     default Float asFloat() {
         return getValue(Float.class);
     }
@@ -216,7 +216,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 浮点值或默认值
-     */
+    */
     default Float asFloat(Float defaultValue) {
         return ObjectUtils.defaultIfNull(asFloat(), defaultValue);
     }
@@ -225,7 +225,7 @@ public interface Value<T> extends Serializable {
     * 获取 Double 值（通过类型转换）。
     *
     * @return 双精度值
-     */
+    */
     default Double asDouble() {
         return getValue(Double.class);
     }
@@ -235,7 +235,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 双精度值或默认值
-     */
+    */
     default Double asDouble(Double defaultValue) {
         return ObjectUtils.defaultIfNull(asDouble(), defaultValue);
     }
@@ -244,7 +244,7 @@ public interface Value<T> extends Serializable {
     * 获取 Byte 值（通过类型转换）。
     *
     * @return 字节值
-     */
+    */
     default Byte asByte() {
         return getValue(Byte.class);
     }
@@ -254,7 +254,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return 字节值或默认值
-     */
+    */
     default Byte asByte(Byte defaultValue) {
         return ObjectUtils.defaultIfNull(asByte(), defaultValue);
     }
@@ -263,7 +263,7 @@ public interface Value<T> extends Serializable {
     * 获取 bigdecimal 值（通过类型转换）。
     *
     * @return BigDecimal 值
-     */
+    */
     default BigDecimal asBigDecimal() {
         return getValue(BigDecimal.class);
     }
@@ -273,7 +273,7 @@ public interface Value<T> extends Serializable {
     *
     * @param defaultValue 默认值
     * @return BigDecimal 值或默认值
-     */
+    */
     default BigDecimal asBigDecimal(BigDecimal defaultValue) {
         return ObjectUtils.defaultIfNull(asBigDecimal(), defaultValue);
     }
@@ -282,7 +282,7 @@ public interface Value<T> extends Serializable {
     * 获取 bigdecimal 值，如果为 空 则返回 {@link BigDecimal#ZERO}。
     *
     * @return BigDecimal 值或 0
-     */
+    */
     default BigDecimal asBigDecimalOrZero() {
         return asBigDecimal(BigDecimal.ZERO);
     }
@@ -291,7 +291,7 @@ public interface Value<T> extends Serializable {
     * 获取单元素列表；值为 空 时返回空列表（而非 空）。
     *
     * @return 只含该值的不可变列表，或空列表
-     */
+    */
     default List<T> asList() {
         T value = getValue();
         return value == null ? List.of() : List.of(value);
@@ -301,7 +301,7 @@ public interface Value<T> extends Serializable {
     * 获取单元素集合；值为 空 时返回空集合（而非 空）。
     *
     * @return 只含该值的不可变 设置，或空集合
-     */
+    */
     default Set<T> asSet() {
         T value = getValue();
         return value == null ? Set.of() : Set.of(value);
@@ -312,7 +312,7 @@ public interface Value<T> extends Serializable {
     *
     * @param other 备用值
     * @return 值或备用值
-     */
+    */
     default T orElse(T other) {
         return getValue() != null ? getValue() : other;
     }
@@ -322,7 +322,7 @@ public interface Value<T> extends Serializable {
     *
     * @param other 备用值提供者
     * @return 值或备用值
-     */
+    */
     @SuppressWarnings("NullAway")
     default T orElseGet(Supplier<? extends T> other) {
         T value = getValue();
@@ -339,7 +339,7 @@ public interface Value<T> extends Serializable {
     * @param <X>             异常类型
     * @return 值
     * @throws X 如果值为 空
-     */
+    */
     default <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         T value = getValue();
         if (value != null) {
@@ -357,7 +357,7 @@ public interface Value<T> extends Serializable {
     * @param mapper 转换函数
     * @param <R>    转换后的值类型
     * @return 转换后的 值
-     */
+    */
     @SuppressWarnings({"unchecked", "NullAway"})
     default <R> Value<R> map(Function<? super T, ? extends R> mapper) {
         T v = getValue();
@@ -373,7 +373,7 @@ public interface Value<T> extends Serializable {
     * @param mapper 转换函数，返回一个新的 值
     * @param <R>    转换后的值类型
     * @return 转换后的 值
-     */
+    */
     @SuppressWarnings({"all", "unchecked", "NullAway"})
     default <R> Value<R> flatMap(Function<? super T, ? extends Value<? extends R>> mapper) {
         T v = getValue();
@@ -391,7 +391,7 @@ public interface Value<T> extends Serializable {
     * 如果当前值不为 空，则执行指定的消费行为。
     *
     * @param consumer 消费行为
-     */
+    */
     default void ifPresent(Consumer<? super T> consumer) {
         T value = getValue();
         if (value != null && consumer != null) {
@@ -404,7 +404,7 @@ public interface Value<T> extends Serializable {
     *
     * @param predicate 谓词，不能为 空
     * @return 过滤后的 值
-     */
+    */
     @SuppressWarnings({"all", "unchecked"})
     default Value<T> filter(Predicate<? super T> predicate) {
         T value = getValue();
@@ -421,7 +421,7 @@ public interface Value<T> extends Serializable {
     * 获取值的 流；值为 空 时返回空流（而非 空）。
     *
     * @return 含该值的单元素流，或空流
-     */
+    */
     default Stream<T> stream() {
         return Stream.ofNullable(getValue());
     }
@@ -430,7 +430,7 @@ public interface Value<T> extends Serializable {
     * 转换为 JDK {@link Optional}；值为 空 时得到空 期权。
     *
     * @return 包装该值的 Optional
-     */
+    */
     default Optional<T> toOptional() {
         return Optional.ofNullable(getValue());
     }
@@ -440,7 +440,7 @@ public interface Value<T> extends Serializable {
     *
     * @param action 副作用行为，不能为 空
     * @return 当前 值
-     */
+    */
     default Value<T> peek(Consumer<? super T> action) {
         T value = getValue();
         if (value != null && action != null) {
@@ -453,7 +453,7 @@ public interface Value<T> extends Serializable {
     * 判断当前值是否为空（空）。
     *
     * @return true 表示为空值
-     */
+    */
     default boolean isEmpty() {
         return isNull();
     }

@@ -23,7 +23,7 @@ public class ConfigSaveLoadSetting {
     * 配置存储根路径。
     *
     * <p>本地文件存储时的根目录，默认为 ${user.home}/.config。</p>
-     */
+    */
     @Builder.Default
     /** 根级路径 */
     private String rootPath = System.getProperty("user.home", ".") + "/.config";
@@ -32,38 +32,38 @@ public class ConfigSaveLoadSetting {
     * 字符编码。
     *
     * <p>读写配置文件时使用的字符集，默认为 UTF-8。</p>
-     */
+    */
     @Builder.Default
     /**
     * 字符集
-     */
+    */
     private Charset charset = StandardCharsets.UTF_8;
 
     /**
     * 远程配置中心端点地址。
-     */
+    */
     private String endpoint;
 
     /**
     * 基础路径前缀。
-     */
+    */
     private String basePath;
 
     /**
     * 认证用户名。
-     */
+    */
     private String username;
 
     /**
     * 认证密码。
-     */
+    */
     private String password;
 
     /**
     * 连接超时时间（毫秒）。
     *
     * <p>与远程配置中心建立连接的最大等待时间，默认 5000ms。</p>
-     */
+    */
     @Builder.Default
     /** Connect超时毫秒 */
     private long connectTimeoutMillis = 5000;
@@ -72,7 +72,7 @@ public class ConfigSaveLoadSetting {
     * 读取超时时间（毫秒）。
     *
     * <p>等待远程配置中心返回数据的最大时间，默认 5000ms。</p>
-     */
+    */
     @Builder.Default
     /** Read超时毫秒 */
     private long readTimeoutMillis = 5000;
@@ -81,7 +81,7 @@ public class ConfigSaveLoadSetting {
     * 内容类型。
     *
     * <p>配置数据传输时的 Content-Type 头，默认 "application/octet-stream"。</p>
-     */
+    */
     @Builder.Default
     /** 内容类型 */
     private String contentType = "application/octet-stream";

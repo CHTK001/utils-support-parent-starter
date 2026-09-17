@@ -17,14 +17,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 解析 {@link RequestMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
-*
-* <p>从 {@link ObjectContext} 中查找类或方法上标注了 {@link RequestMethod} 的 Bean，
-* 生成 HTTP 路由处理器。类级注解作为公共前缀，方法级注解定义具体路径和 HTTP 方法。</p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 解析 {@link RequestMethod} 注解的 {@link ServerHandlerAnnotationParser} 实现。
+ *
+ * <p>从 {@link ObjectContext} 中查找类或方法上标注了 {@link RequestMethod} 的 Bean，
+ * 生成 HTTP 路由处理器。类级注解作为公共前缀，方法级注解定义具体路径和 HTTP 方法。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Spi("request-method")
 @Slf4j
 public class RequestMethodServerHandlerParser implements ServerHandlerAnnotationParser {
@@ -100,7 +100,7 @@ public class RequestMethodServerHandlerParser implements ServerHandlerAnnotation
     * @param method method
     * @param paths paths
     * @param httpMethods httpMethods
-     */
+    */
     private static void addReflectiveHandlers(List<ServerHandler> result, Object bean, Method method,
                                               String[] paths, HttpMethod[] httpMethods) {
         for (String path : paths) {

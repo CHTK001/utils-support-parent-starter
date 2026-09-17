@@ -26,7 +26,7 @@ public class MembershipPropagation {
     private final PeerMeshDiscovery discovery;
     /**
     * 是否为 UDP 通信模式
-     */
+    */
     private final boolean udp;
 
     /**
@@ -36,7 +36,7 @@ public class MembershipPropagation {
     * @param nodeTable 节点表
     * @param localServerId 本地 serverId
     * @param discovery PeerMeshDiscovery 实例，用于发送消息
-     */
+    */
     public MembershipPropagation(MeshConfig config, NodeTable nodeTable,
                                  String localServerId, PeerMeshDiscovery discovery) {
         this.config = config;
@@ -48,7 +48,7 @@ public class MembershipPropagation {
 
     /**
     * 发送心跳至所有已知节点。
-     */
+    */
     public void sendHeartbeat() {
         List<NodeTable.NodeEntry> known = new ArrayList<>(nodeTable.getAllEntries().values());
         String payload = Json.toJson(known);
@@ -73,7 +73,7 @@ public class MembershipPropagation {
     * 推送新节点到所有已知节点。
     *
     * @param newEntry 新节点条目
-     */
+    */
     public void pushNewPeer(NodeTable.NodeEntry newEntry) {
         if (newEntry == null) {
             return;

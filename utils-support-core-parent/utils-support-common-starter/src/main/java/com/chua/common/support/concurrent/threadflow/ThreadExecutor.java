@@ -19,7 +19,7 @@ public interface ThreadExecutor<T> {
     *
     * @param runnable 待执行任务
     * @return 当前执行器，支持链式调用
-     */
+    */
     ThreadExecutor<T> addTask(Runnable runnable);
 
     /**
@@ -27,7 +27,7 @@ public interface ThreadExecutor<T> {
     *
     * @param callable 待执行任务
     * @return 当前执行器，支持链式调用
-     */
+    */
     ThreadExecutor<T> addCallable(Callable<T> callable);
 
     /**
@@ -35,7 +35,7 @@ public interface ThreadExecutor<T> {
     *
     * @param listener 事件回调，见 {@link ThreadFlowListener}
     * @return 当前执行器，支持链式调用
-     */
+    */
     ThreadExecutor<T> listener(ThreadFlowListener listener);
 
     /**
@@ -43,11 +43,11 @@ public interface ThreadExecutor<T> {
     *
     * @return 合并后的执行结果
     * @throws Exception 任务执行异常
-     */
+    */
     ThreadFlowResult<T> execute() throws Exception;
 
     /**
     * 关闭执行器，释放底层资源。
-     */
+    */
     void close();
 }

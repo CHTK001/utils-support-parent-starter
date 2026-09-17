@@ -21,13 +21,13 @@ public class ConfigSaveResult {
     /**
     * 表示配置保存操作是否成功
     * true 表示成功，false 表示失败
-     */
+    */
     private boolean success;
 
     /**
     * 配置的键名
     * 用于唯一标识该配置项
-     */
+    */
     private String key;
 
     /**
@@ -35,13 +35,13 @@ public class ConfigSaveResult {
     * <p>
     * 例如：文件路径或数据库表名等
     * </p>
-     */
+    */
     private String location;
 
     /**
     * 配置文件的大小（单位：字节）
     * 仅在保存成功时有效
-     */
+    */
     private long size;
 
     /**
@@ -49,7 +49,7 @@ public class ConfigSaveResult {
     * <p>
     * 默认值为当前系统时间
     * </p>
-     */
+    */
     @Builder.Default
     /** Update时间 */
     private LocalDateTime updateTime = LocalDateTime.now();
@@ -59,7 +59,7 @@ public class ConfigSaveResult {
     * <p>
     * 成功时通常为 "success"，失败时为具体的错误描述
     * </p>
-     */
+    */
     private String message;
 
     /**
@@ -69,7 +69,7 @@ public class ConfigSaveResult {
     * @param location 配置文件的存储位置
     * @param size     配置文件的大小（单位：字节）
     * @return 配置保存结果对象
-     */
+    */
     public static ConfigSaveResult success(String key, String location, long size) {
         return ConfigSaveResult.builder()
                 .success(true)
@@ -86,7 +86,7 @@ public class ConfigSaveResult {
     * @param key     配置的键名
     * @param message 失败原因的描述信息
     * @return 配置保存结果对象
-     */
+    */
     public static ConfigSaveResult failure(String key, String message) {
         return ConfigSaveResult.builder()
                 .success(false)

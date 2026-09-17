@@ -41,7 +41,7 @@ public enum OsFamily {
     * 检测当前操作系统族。
     *
     * @return 当前操作系统族，不会返回 {@code null}
-     */
+    */
     private static OsFamily detect() {
         if (OS_NAME.contains("win")) {
             return WINDOWS;
@@ -59,7 +59,7 @@ public enum OsFamily {
     * 获取当前操作系统族。
     *
     * @return 当前操作系统族
-     */
+    */
     public static OsFamily current() {
         return CURRENT;
     }
@@ -68,7 +68,7 @@ public enum OsFamily {
     * 判断是否为 Windows。
     *
     * @return 是 Windows 返回 true
-     */
+    */
     public boolean isWindows() {
         return this == WINDOWS;
     }
@@ -77,7 +77,7 @@ public enum OsFamily {
     * 判断是否为 macOS。
     *
     * @return 是 macOS 返回 true
-     */
+    */
     public boolean isMacOs() {
         return this == MACOS;
     }
@@ -86,7 +86,7 @@ public enum OsFamily {
     * 判断是否为 Linux 或无法识别的系统（按类 Unix 处理）。
     *
     * @return 是类 Unix 系统返回 true
-     */
+    */
     public boolean isUnixLike() {
         return this == LINUX || this == UNKNOWN;
     }
@@ -98,7 +98,7 @@ public enum OsFamily {
     * 该后缀只用于拼装候选文件名，若可执行文件本身已带扩展名则调用方无需追加。</p>
     *
     * @return 可执行文件扩展名，非 Windows 返回空字符串
-     */
+    */
     public String executableSuffix() {
         return this == WINDOWS ? ".exe" : "";
     }
@@ -110,7 +110,7 @@ public enum OsFamily {
     * 其余平台只包含空后缀，表示只匹配无扩展名的可执行文件。</p>
     *
     * @return 候选扩展名数组
-     */
+    */
     public String[] executableSuffixes() {
         if (this == WINDOWS) {
             return new String[]{".exe", ".bat", ".cmd", ""};

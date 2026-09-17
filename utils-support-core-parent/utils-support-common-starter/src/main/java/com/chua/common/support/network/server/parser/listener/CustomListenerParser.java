@@ -12,22 +12,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 自定义事件注解的监听解析器实现。
-*
-* <p>解析 {@code @OnEventOpen}、{@code @OnEventMessage}、{@code @OnEventClose}、{@code @OnEventError}
-* 四个自定义注解，将方法映射为对应的事件类型。
-*
-* <h2>事件类型映射</h2>
-* <ul>
-*   <li>{@code @OnEventOpen} → "open"</li>
-*   <li>{@code @OnEventMessage} → "message"</li>
-*   <li>{@code @OnEventClose} → "close"</li>
-*   <li>{@code @OnEventError} → "error"</li>
-* </ul>
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 自定义事件注解的监听解析器实现。
+ *
+ * <p>解析 {@code @OnEventOpen}、{@code @OnEventMessage}、{@code @OnEventClose}、{@code @OnEventError}
+ * 四个自定义注解，将方法映射为对应的事件类型。
+ *
+ * <h2>事件类型映射</h2>
+ * <ul>
+ *   <li>{@code @OnEventOpen} → "open"</li>
+ *   <li>{@code @OnEventMessage} → "message"</li>
+ *   <li>{@code @OnEventClose} → "close"</li>
+ *   <li>{@code @OnEventError} → "error"</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 public class CustomListenerParser implements ListenerParser {
 
     @Override

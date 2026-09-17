@@ -25,7 +25,7 @@ public @interface CircuitBreaker {
     * <p>不填默认使用 {@code 类名.方法名} 作为熔断器名称。</p>
     *
     * @return 熔断器名称
-     */
+    */
     String name() default "";
 
     /**
@@ -34,7 +34,7 @@ public @interface CircuitBreaker {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 失败次数，默认 5
-     */
+    */
     String failureThreshold() default "5";
 
     /**
@@ -43,7 +43,7 @@ public @interface CircuitBreaker {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 成功次数，默认 2
-     */
+    */
     String successThreshold() default "2";
 
     /**
@@ -52,14 +52,14 @@ public @interface CircuitBreaker {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 等待时间，默认 60000
-     */
+    */
     String waitDuration() default "60000";
 
     /**
     * 恢复时间（毫秒），与 {@link #waitDuration()} 相同，语义别名。
     *
     * @return 恢复时间，默认 ""
-     */
+    */
     String recoveryTime() default "";
 
     /**
@@ -73,6 +73,6 @@ public @interface CircuitBreaker {
     * </ul>
     *
     * @return 回退方法名，为空时抛出熔断异常
-     */
+    */
     String fallback() default "";
 }

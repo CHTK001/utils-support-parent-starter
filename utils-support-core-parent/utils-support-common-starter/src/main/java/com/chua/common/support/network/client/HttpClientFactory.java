@@ -53,14 +53,14 @@ public class HttpClientFactory {
     *
     * <p>使用 {@link AtomicReference} 保证线程安全的懒加载单例。
     * 仅通过 {@link #getClient()} 访问，通过 {@code CAS} 操作确保只创建一次。
-     */
+    */
     private static final AtomicReference<HttpClient> CLIENT_REF = new AtomicReference<>();
 
     /**
     * 私有构造方法，防止外部实例化。
     *
     * <p>本类为静态工具类，所有方法均为静态方法，无需实例化。
-     */
+    */
     private HttpClientFactory() {
     }
 
@@ -75,7 +75,7 @@ public class HttpClientFactory {
     * {@code get(url)}、{@code post(url, body)} 等快捷方法。</p>
     *
     * @return HttpClient 全局单例实例
-     */
+    */
     public static HttpClient getClient() {
         HttpClient client = CLIENT_REF.get();
         if (client != null) {
@@ -104,7 +104,7 @@ public class HttpClientFactory {
     * <p>底层执行器按<b> okhttp &gt; httpclient5 &gt; httpclient &gt; jdk</b> 优先级自动选择。</p>
     *
     * @return 新的 HttpClient 实例
-     */
+    */
     public static HttpClient newClient() {
         return new DefaultHttpClient(findAvailableExecutor());
     }
@@ -130,7 +130,7 @@ public class HttpClientFactory {
     * @param executorName 执行器 SPI 名称，可选值：{@code "okhttp"}、{@code "httpclient5"}、
     *                     {@code "httpclient"}、{@code "jdk"}
     * @return HttpClient 实例
-     */
+    */
     public static HttpClient getClient(String executorName) {
         HttpClientExecutor executor = ServiceProvider.of(HttpClientExecutor.class).getExtension(executorName);
         if (executor != null && executor.isAvailable()) {
@@ -148,7 +148,7 @@ public class HttpClientFactory {
     *
     * @return 响应式 HTTP 客户端
     * @see ReactiveHttpClient
-     */
+    */
     public static ReactiveHttpClient getReactiveClient() {
         return new ReactiveHttpClient(getClient());
     }
@@ -161,7 +161,7 @@ public class HttpClientFactory {
     *
     * @param delegate 底层 HTTP 客户端，不可为空
     * @return 折叠 HTTP 客户端
-     */
+    */
     public static HttpClient collapse(HttpClient delegate) {
         // 包装外部客户端时默认不级联关闭，避免关闭折叠客户端误关共享底层实例
         return new CollapseHttpClient(delegate, null, false);
@@ -176,7 +176,7 @@ public class HttpClientFactory {
     * @param delegate 底层 HTTP 客户端，不可为空
     * @param config   折叠配置，可为空（使用默认配置）
     * @return 折叠 HTTP 客户端
-     */
+    */
     public static HttpClient collapse(HttpClient delegate, CollapseConfig config) {
         // 包装外部客户端时默认不级联关闭，避免关闭折叠客户端误关共享底层实例
         return new CollapseHttpClient(delegate, config, false);
@@ -189,7 +189,7 @@ public class HttpClientFactory {
     *
     * @param curl curl 命令字符串
     * @return 构建好的 HttpClientBuilder
-     */
+    */
     public static HttpClientBuilder fromCurl(String curl) {
         return CurlParser.fromCurl(curl);
     }
@@ -201,7 +201,7 @@ public class HttpClientFactory {
     *
     * @param curl curl 命令字符串
     * @return HTTP 响应
-     */
+    */
     public static ClientResponse curl(String curl) {
         return CurlParser.curl(curl);
     }
@@ -223,7 +223,7 @@ public class HttpClientFactory {
     *
     * @param baseUrl 基础 URL，如 {@code "http://localhost:8080"} 或 {@code "http://localhost:8080/"}
     * @return {@link HttpClientBuilder} 构建器实例，用于链式设置请求参数
-     */
+    */
     public static HttpClientBuilder of(String baseUrl) {
         return new HttpClientBuilder(baseUrl);
     }
@@ -238,7 +238,7 @@ public class HttpClientFactory {
     * {@link JdkHttpClientExecutor}（始终可用，无需外部依赖）。</p>
     *
     * @return 可用的 HttpClientExecutor 实例，不会返回 null
-     */
+    */
     private static HttpClientExecutor findAvailableExecutor() {
         String[] names = {"okhttp", "httpclient5", "httpclient", "jdk"};
         for (String name : names) {

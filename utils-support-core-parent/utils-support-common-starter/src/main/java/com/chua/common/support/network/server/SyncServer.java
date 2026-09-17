@@ -19,7 +19,7 @@ public interface SyncServer extends Server {
     *
     * @param topic   主题
     * @param message 消息内容
-     */
+    */
     void publish(String topic, Object message);
 
     /**
@@ -28,14 +28,14 @@ public interface SyncServer extends Server {
     * @param clientId 客户端标识
     * @param topic    主题
     * @param message  消息内容
-     */
+    */
     void send(String clientId, String topic, Object message);
 
     /**
     * 获取当前所有已连接的客户端标识列表。
     *
     * @return 客户端标识列表
-     */
+    */
     List<String> getConnectedClients();
 
     /**
@@ -43,20 +43,20 @@ public interface SyncServer extends Server {
     *
     * @param clientId 客户端标识
     * @return 元数据映射，不存在时返回空 Map
-     */
+    */
     Map<String, Object> getClientMetadata(String clientId);
 
     /**
     * 添加同步事件监听器。
     *
     * @param listener 监听器
-     */
+    */
     void addListener(SyncServerListener listener);
 
     /**
     * 移除同步事件监听器。
     *
     * @param listener 监听器
-     */
+    */
     void removeListener(SyncServerListener listener);
 }

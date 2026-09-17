@@ -64,7 +64,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * 渲染 HTML 报告。
-     */
+    */
     private String render(BenchmarkDocumentData data) {
         List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>(data.getRows());
         rows.sort(Comparator.comparing(BenchmarkDocumentData.BenchmarkRow::getImplementation)
@@ -299,7 +299,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * 查找指定实现 + 并发等级的行。
-     */
+    */
     private BenchmarkDocumentData.BenchmarkRow find(List<BenchmarkDocumentData.BenchmarkRow> rows,
                                                     String impl, int concurrency) {
         for (BenchmarkDocumentData.BenchmarkRow r : rows) {
@@ -312,7 +312,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * HTML 转义。
-     */
+    */
     private static String escape(String s) {
         if (s == null) {
             return "";
@@ -323,7 +323,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * JS 字符串转义。
-     */
+    */
     private static String escapeJs(String s) {
         if (s == null) {
             return "";
@@ -334,7 +334,7 @@ public class BenchmarkHtmlProvider implements DocumentProvider {
 
     /**
     * 写入文件。
-     */
+    */
     private void write(File outputFile, String content) {
         try {
             File parent = outputFile.getParentFile();

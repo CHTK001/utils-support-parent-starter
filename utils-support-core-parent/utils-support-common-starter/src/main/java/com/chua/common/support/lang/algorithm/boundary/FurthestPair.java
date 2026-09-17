@@ -38,7 +38,7 @@ public class FurthestPair {
     * @param firstVector 第一个点向量
     * @param secondVector 第二个点向量
     * @param distance    距离值
-     */
+    */
     public FurthestPair(int firstIndex, int secondIndex, double[] firstVector, double[] secondVector, double distance) {
         this.firstIndex = firstIndex;
         this.secondIndex = secondIndex;
@@ -51,7 +51,7 @@ public class FurthestPair {
     * 获取第一个点的索引
     *
     * @return 第一个点在数据集中的索引
-     */
+    */
     public int getFirstIndex() {
         return firstIndex;
     }
@@ -60,7 +60,7 @@ public class FurthestPair {
     * 获取第二个点的索引
     *
     * @return 第二个点在数据集中的索引
-     */
+    */
     public int getSecondIndex() {
         return secondIndex;
     }
@@ -69,7 +69,7 @@ public class FurthestPair {
     * 获取第一个点的特征向量
     *
     * @return 第一个点的 N 维向量
-     */
+    */
     public double[] getFirstVector() {
         return firstVector;
     }
@@ -78,7 +78,7 @@ public class FurthestPair {
     * 获取第二个点的特征向量
     *
     * @return 第二个点的 N 维向量
-     */
+    */
     public double[] getSecondVector() {
         return secondVector;
     }
@@ -87,7 +87,7 @@ public class FurthestPair {
     * 获取两点间的距离
     *
     * @return 距离值，无效结果时为 NaN
-     */
+    */
     public double getDistance() {
         return distance;
     }
@@ -96,7 +96,7 @@ public class FurthestPair {
     * 是否为有效的最远点对
     *
     * @return 如果两个索引均 >= 0 则为有效结果
-     */
+    */
     public boolean isValid() {
         return firstIndex >= 0 && secondIndex >= 0;
     }

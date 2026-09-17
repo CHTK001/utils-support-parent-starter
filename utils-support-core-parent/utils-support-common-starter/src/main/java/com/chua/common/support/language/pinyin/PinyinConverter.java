@@ -25,6 +25,6 @@ public interface PinyinConverter {
     *
     * @param word 待转换的汉字字符串
     * @return 拼音列表，每个元素对应一个汉字的拼音结果
-     */
+    */
     List<Pinyin> transfer(String word);
 }

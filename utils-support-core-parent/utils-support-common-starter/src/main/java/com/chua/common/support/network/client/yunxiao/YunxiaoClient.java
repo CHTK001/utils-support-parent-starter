@@ -65,24 +65,24 @@ public class YunxiaoClient {
 
     /**
     * 云效客户端配置
-     */
+    */
     private final YunxiaoClientSetting setting;
 
     /**
     * 云效 OpenAPI 基础路径前缀
-     */
+    */
     private static final String API_PREFIX = "/oapi/v1/packages";
 
     /**
     * 个人访问令牌请求头名称
-     */
+    */
     private static final String HEADER_TOKEN = "x-yunxiao-token";
 
     /**
     * 构造云效客户端。
     *
     * @param setting 客户端配置，不能为 null
-     */
+    */
     public YunxiaoClient(YunxiaoClientSetting setting) {
         this.setting = setting;
     }
@@ -94,7 +94,7 @@ public class YunxiaoClient {
     *
     * @param setting 客户端配置，不能为 null
     * @return 云效客户端实例
-     */
+    */
     public static YunxiaoClient create(YunxiaoClientSetting setting) {
         return new YunxiaoClient(setting);
     }
@@ -106,7 +106,7 @@ public class YunxiaoClient {
     * 最后调用 {@link RepositoryQuery#list()} 触发请求。</p>
     *
     * @return 制品仓库查询构建器
-     */
+    */
     public RepositoryQuery repositories() {
         return new RepositoryQuery();
     }
@@ -121,7 +121,7 @@ public class YunxiaoClient {
     *
     * @param repoId 仓库 Id，不能为空
     * @return 制品查询构建器
-     */
+    */
     public ArtifactQuery artifacts(String repoId) {
         return new ArtifactQuery(repoId);
     }
@@ -131,7 +131,7 @@ public class YunxiaoClient {
     *
     * @param path 相对路径，如 {@code "/repositories/{repoId}/artifacts"}
     * @return 完整请求地址
-     */
+    */
     private String resolveUrl(String path) {
         StringBuilder url = new StringBuilder();
         url.append("https://").append(setting.getDomain()).append(API_PREFIX);
@@ -147,7 +147,7 @@ public class YunxiaoClient {
     *
     * @param path 相对路径
     * @return 已注入 x-yunxiao-token 请求头的 {@link HttpClientBuilder}
-     */
+    */
     private HttpClientBuilder request(String path) {
         return HttpClientFactory.of(resolveUrl(path)).header(HEADER_TOKEN, setting.getToken());
     }
@@ -159,27 +159,27 @@ public class YunxiaoClient {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public class RepositoryQuery {
 
         /**
         * 仓库类型过滤，多个以逗号分割，如 {@code "MAVEN,NPM"}
-         */
+        */
         private String repoTypes;
 
         /**
         * 仓库模式过滤，多个以逗号分割，如 {@code "Hybrid,Local"}
-         */
+        */
         private String repoCategories;
 
         /**
         * 当前页码
-         */
+        */
         private Integer page;
 
         /**
         * 每页数据量
-         */
+        */
         private Integer perPage;
 
         /**
@@ -187,7 +187,7 @@ public class YunxiaoClient {
         *
         * @param repoTypes 仓库类型，如 {@code "MAVEN,NPM"}
         * @return 当前构建器，支持链式调用
-         */
+        */
         public RepositoryQuery repoTypes(String repoTypes) {
             this.repoTypes = repoTypes;
             return this;
@@ -198,7 +198,7 @@ public class YunxiaoClient {
         *
         * @param repoTypes 仓库类型数组
         * @return 当前构建器，支持链式调用
-         */
+        */
         public RepositoryQuery repoTypes(String... repoTypes) {
             this.repoTypes = String.join(",", repoTypes);
             return this;
@@ -209,7 +209,7 @@ public class YunxiaoClient {
         *
         * @param repoCategories 仓库模式，如 {@code "Hybrid,Local"}
         * @return 当前构建器，支持链式调用
-         */
+        */
         public RepositoryQuery repoCategories(String repoCategories) {
             this.repoCategories = repoCategories;
             return this;
@@ -220,7 +220,7 @@ public class YunxiaoClient {
         *
         * @param page 页码
         * @return 当前构建器，支持链式调用
-         */
+        */
         public RepositoryQuery page(int page) {
             this.page = page;
             return this;
@@ -231,7 +231,7 @@ public class YunxiaoClient {
         *
         * @param perPage 每页数据量
         * @return 当前构建器，支持链式调用
-         */
+        */
         public RepositoryQuery perPage(int perPage) {
             this.perPage = perPage;
             return this;
@@ -241,7 +241,7 @@ public class YunxiaoClient {
         * 执行查询并返回制品仓库列表。
         *
         * @return 制品仓库列表，请求失败或响应异常时返回空列表
-         */
+        */
         public List<YunxiaoRepository> list() {
             HttpClientBuilder builder = request("/repositories");
             if (repoTypes != null) {
@@ -268,49 +268,49 @@ public class YunxiaoClient {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public class ArtifactQuery {
 
         /**
         * 仓库 Id
-         */
+        */
         private final String repoId;
 
         /**
         * 仓库类型（必填），取值见 {@link RepoType}
-         */
+        */
         private String repoType;
 
         /**
         * 当前页码
-         */
+        */
         private Integer page;
 
         /**
         * 每页数据量，默认值 10
-         */
+        */
         private Integer perPage;
 
         /**
         * 根据包名检索
-         */
+        */
         private String search;
 
         /**
         * 排序字段，latestUpdate：按最近更新时间排序；gmtDownload：按最近下载时间排序
-         */
+        */
         private String orderBy;
 
         /**
         * 排序顺序，asc：从小到大；desc：从大到小
-         */
+        */
         private String sort;
 
         /**
         * 构造制品查询构建器。
         *
         * @param repoId 仓库 Id
-         */
+        */
         ArtifactQuery(String repoId) {
             this.repoId = repoId;
         }
@@ -320,7 +320,7 @@ public class YunxiaoClient {
         *
         * @param repoType 仓库类型，如 {@code "MAVEN"}、{@code "GENERIC"}
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery repoType(String repoType) {
             this.repoType = repoType;
             return this;
@@ -331,7 +331,7 @@ public class YunxiaoClient {
         *
         * @param repoType 仓库类型枚举
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery repoType(RepoType repoType) {
             this.repoType = repoType.name();
             return this;
@@ -342,7 +342,7 @@ public class YunxiaoClient {
         *
         * @param page 页码
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery page(int page) {
             this.page = page;
             return this;
@@ -353,7 +353,7 @@ public class YunxiaoClient {
         *
         * @param perPage 每页数据量
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery perPage(int perPage) {
             this.perPage = perPage;
             return this;
@@ -364,7 +364,7 @@ public class YunxiaoClient {
         *
         * @param search 包名关键字
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery search(String search) {
             this.search = search;
             return this;
@@ -375,7 +375,7 @@ public class YunxiaoClient {
         *
         * @param orderBy 排序字段，latestUpdate 或 gmtDownload
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery orderBy(String orderBy) {
             this.orderBy = orderBy;
             return this;
@@ -386,7 +386,7 @@ public class YunxiaoClient {
         *
         * @param sort 排序顺序，asc 或 desc
         * @return 当前构建器，支持链式调用
-         */
+        */
         public ArtifactQuery sort(String sort) {
             this.sort = sort;
             return this;
@@ -396,7 +396,7 @@ public class YunxiaoClient {
         * 拼接制品列表请求的相对路径。
         *
         * @return 制品列表相对路径，如 {@code "/repositories/my-repo/artifacts"}
-         */
+        */
         private String artifactsPath() {
             return "/repositories/" + repoId + "/artifacts";
         }
@@ -405,7 +405,7 @@ public class YunxiaoClient {
         * 为制品相关请求注入公共查询参数（仓库类型、分页、检索、排序）。
         *
         * @param builder 请求构建器
-         */
+        */
         private void applyCommonParams(HttpClientBuilder builder) {
             builder.query("repoType", repoType);
             if (page != null) {
@@ -429,7 +429,7 @@ public class YunxiaoClient {
         * 查询制品列表。
         *
         * @return 制品列表，请求失败或响应异常时返回空列表
-         */
+        */
         public List<YunxiaoArtifact> list() {
             HttpClientBuilder builder = request(artifactsPath());
             applyCommonParams(builder);
@@ -441,7 +441,7 @@ public class YunxiaoClient {
         *
         * @param artifactId 制品 Id
         * @return 制品信息，请求失败或响应异常时返回 null
-         */
+        */
         public YunxiaoArtifact get(long artifactId) {
             HttpClientBuilder builder = request(artifactsPath() + "/" + artifactId);
             builder.query("repoType", repoType);
@@ -453,7 +453,7 @@ public class YunxiaoClient {
         *
         * @param artifactId 制品 Id
         * @return 删除任务结果，请求失败或响应异常时返回 null
-         */
+        */
         public YunxiaoDeleteResult delete(long artifactId) {
             HttpClientBuilder builder = request(artifactsPath() + "/" + artifactId);
             builder.query("repoType", repoType);
@@ -466,7 +466,7 @@ public class YunxiaoClient {
         * @param artifactId 制品 Id
         * @param versionId  制品版本 Id
         * @return 是否删除成功；请求失败时返回 false
-         */
+        */
         public boolean deleteVersion(long artifactId, long versionId) {
             HttpClientBuilder builder = request(artifactsPath() + "/" + artifactId + "/" + versionId);
             builder.query("repoType", repoType);
@@ -485,7 +485,7 @@ public class YunxiaoClient {
     * @param targetClass  目标元素类型
     * @param <T>          目标元素泛型
     * @return 反序列化后的对象列表；请求失败、响应异常或解析失败时返回空列表
-     */
+    */
     private static <T> List<T> parseList(ClientResponse response, Class<T> targetClass) {
         if (response == null || !response.isSuccess()) {
             return Collections.emptyList();
@@ -506,7 +506,7 @@ public class YunxiaoClient {
     * @param targetClass 目标类型
     * @param <T>         目标泛型
     * @return 反序列化后的对象；请求失败、响应异常或解析失败时返回 null
-     */
+    */
     private static <T> T parseObject(ClientResponse response, Class<T> targetClass) {
         if (response == null || !response.isSuccess()) {
             return null;

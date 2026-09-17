@@ -4,11 +4,11 @@ import javax.annotation.Nullable;
 
 
 /**
-* 服务自动装配接口
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 服务自动装配接口
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public interface ServiceAutowire {
 
     /**
@@ -16,7 +16,7 @@ public interface ServiceAutowire {
     *
     * @param object 需要装配的目标对象
     * @return 装配后的对象
-     */
+    */
     Object autowire(Object object);
 
     /**
@@ -24,6 +24,6 @@ public interface ServiceAutowire {
     *
     * @param implClass Bean的实现类
     * @return 创建并装配完成的Bean实例
-     */
+    */
     Object createBean(Class<?> implClass);
 }

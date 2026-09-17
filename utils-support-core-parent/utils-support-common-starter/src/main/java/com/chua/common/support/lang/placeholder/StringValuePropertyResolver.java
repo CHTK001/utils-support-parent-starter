@@ -24,7 +24,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
 
     /**
     * 定义右括号到左括号的映射关系，用于处理简单的嵌套前缀匹配
-     */
+    */
     private static final Map<String, String> STRING_STRING_HASH_MAP = new HashMap<>(4);
 
     static {
@@ -35,21 +35,21 @@ public class StringValuePropertyResolver implements PropertyResolver {
 
     /**
     * 简化的前缀，用于检测嵌套占位符（例如：${...} 中的 ${）
-     */
+    */
     private final String simplePrefix;
     /**
     * 实际的占位符解析器实例
-     */
+    */
     private final PlaceholderResolver placeholderResolver;
     /**
     * 用于检测循环引用的集合，记录当前正在解析的占位符键
-     */
+    */
     private Set<String> visitedPlaceholders;
 
     /**
     * 创建 StringValuePropertyResolver 实例
     * @param placeholderSupport placeholderSupport
-     */
+    */
     public StringValuePropertyResolver(PlaceholderSupport placeholderSupport) {
         this.placeholderSupport = placeholderSupport;
         if (placeholderSupport == null) {
@@ -81,7 +81,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     *
     * @param value 待解析的原始字符串
     * @return 解析后的字符串
-     */
+    */
     @Override
     public String resolvePlaceholders(String value) {
         if (placeholderSupport == null) {
@@ -163,7 +163,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     *
     * @param name  属性名称
     * @param value 属性值
-     */
+    */
     @Override
     public void add(String name, Object value) {
         if (placeholderResolver instanceof PlaceholderDynamicResolver) {
@@ -175,7 +175,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     * 从动态解析器中移除指定的属性。
     *
     * @param name 属性名称
-     */
+    */
     @Override
     public void remove(String name) {
         if (placeholderResolver instanceof PlaceholderDynamicResolver) {
@@ -187,7 +187,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     * 设置占位符解析器（当前实现为空，保留接口扩展性）。
     *
     * @param placeholderResolver 新的占位符解析器
-     */
+    */
     @Override
     public void setPlaceholderResolver(PlaceholderResolver placeholderResolver) {
 
@@ -201,7 +201,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     * @param placeholderResolver   占位符解析器
     * @param visitedPlaceholders   已访问的占位符集合，用于防止循环引用
     * @return 解析后的字符串
-     */
+    */
     protected String parseStringValue(
             String value, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
 
@@ -272,7 +272,7 @@ public class StringValuePropertyResolver implements PropertyResolver {
     * @param buf      字符序列
     * @param startIndex 占位符开始索引
     * @return 占位符结束索引，若未找到则返回 -1
-     */
+    */
     private int findPlaceholderEndIndex(CharSequence buf, int startIndex) {
         int index = startIndex + placeholderSupport.getPlaceholderPrefix().length();
         int withinNestedPlaceholder = 0;

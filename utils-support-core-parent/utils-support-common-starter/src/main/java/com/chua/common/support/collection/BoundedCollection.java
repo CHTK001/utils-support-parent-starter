@@ -27,21 +27,21 @@ public interface BoundedCollection<E> extends Collection<E> {
     * 返回集合的固定容量（最大可容纳元素数量）。
     *
     * @return 集合容量
-     */
+    */
     int capacity();
 
     /**
     * 返回当前溢出策略。
     *
     * @return 溢出策略
-     */
+    */
     OverflowPolicy policy();
 
     /**
     * 修改溢出策略。
     *
     * @param policy 新的溢出策略，不允许为 null
-     */
+    */
     void setPolicy(OverflowPolicy policy);
 
     /**
@@ -49,7 +49,7 @@ public interface BoundedCollection<E> extends Collection<E> {
     *
     * @return 最早加入的元素
     * @throws java.util.NoSuchElementException 如果集合为空
-     */
+    */
     E peekEldest();
 
     /**
@@ -57,6 +57,6 @@ public interface BoundedCollection<E> extends Collection<E> {
     *
     * @return 被移除的最早元素
     * @throws java.util.NoSuchElementException 如果集合为空
-     */
+    */
     E pollEldest();
 }

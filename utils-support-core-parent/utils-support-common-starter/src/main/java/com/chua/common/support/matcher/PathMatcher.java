@@ -13,7 +13,7 @@ public interface PathMatcher {
     /**
     * 默认实例
     * 使用 Ant 风格的路径匹配器
-     */
+    */
     static PathMatcher INSTANCE = new AntPathMatcher();
     
     /**
@@ -22,7 +22,7 @@ public interface PathMatcher {
     *
     * @param path 给定的路径
     * @return 如果是模式字符串返回 true，否则返回 false
-     */
+    */
     boolean isPattern(String path);
 
     /**
@@ -31,7 +31,7 @@ public interface PathMatcher {
     * @param pattern 匹配模式
     * @param path 给定的路径
     * @return 如果匹配返回 true，否则返回 false
-     */
+    */
     boolean match(String pattern, String path);
 
     /**
@@ -40,7 +40,7 @@ public interface PathMatcher {
     * @param pattern 匹配模式
     * @param path 给定的路径
     * @return 如果匹配返回 true，否则返回 false
-     */
+    */
     boolean matchStart(String pattern, String path);
 
     /**
@@ -49,6 +49,6 @@ public interface PathMatcher {
     * @param pattern 匹配模式
     * @param path 给定的路径
     * @return 变量名到值的映射
-     */
+    */
     Map<String, String> extractUriTemplateVariables(String pattern, String path);
 }

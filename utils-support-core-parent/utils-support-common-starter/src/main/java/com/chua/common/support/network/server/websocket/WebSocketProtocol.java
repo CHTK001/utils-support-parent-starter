@@ -10,20 +10,20 @@ import java.security.MessageDigest;
 import java.util.Base64;
 
 /**
-* WebSocket 协议工具类（RFC 6455）。
-*
-* <p>抽取自 {@link JdkWebSocketServer}，提供握手、帧编解码等协议级能力，
-* 供任何持有原始连接（{@link java.io.InputStream}/{@link java.io.OutputStream}）的
-* 服务器复用，例如 {@code NioHttpServer} 在请求头携带
-* {@code Upgrade: websocket} 时将连接升级为 WebSocket。</p>
-*
-* @since 2026/08/15
- */
+ * WebSocket 协议工具类（RFC 6455）。
+ *
+ * <p>抽取自 {@link JdkWebSocketServer}，提供握手、帧编解码等协议级能力，
+ * 供任何持有原始连接（{@link java.io.InputStream}/{@link java.io.OutputStream}）的
+ * 服务器复用，例如 {@code NioHttpServer} 在请求头携带
+ * {@code Upgrade: websocket} 时将连接升级为 WebSocket。</p>
+ *
+ * @since 2026/08/15
+*/
 public final class WebSocketProtocol {
 
     /**
     * RFC 6455 规定的握手 GUID。
-     */
+    */
     private static final String WS_MAGIC = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
     /** 创建 WebSocketProtocol 实例 */
@@ -35,7 +35,7 @@ public final class WebSocketProtocol {
     *
     * @param request 服务器请求
     * @return true 表示携带 {@code Upgrade: websocket} 头
-     */
+    */
     public static boolean isUpgradeRequest(ServerRequest request) {
         String upgrade = request.getHeader("Upgrade");
         if (upgrade == null || !"websocket".equalsIgnoreCase(upgrade.trim())) {
@@ -58,7 +58,7 @@ public final class WebSocketProtocol {
     *
     * @param key 请求头 Sec-WebSocket-Key
     * @return accept 值
-     */
+    */
     public static String computeAccept(String key) {
         try {
             String combined = key + WS_MAGIC;
@@ -75,7 +75,7 @@ public final class WebSocketProtocol {
     *
     * @param accept Sec-WebSocket-Accept 值
     * @return 握手响应字节
-     */
+    */
     public static byte[] handshakeResponse(String accept) {
         return ("HTTP/1.1 101 Switching Protocols\r\n"
                 + "Upgrade: websocket\r\n"
@@ -89,7 +89,7 @@ public final class WebSocketProtocol {
     *
     * @param payload 文本内容
     * @return 完整帧字节
-     */
+    */
     public static byte[] textFrame(String payload) {
         return buildFrame((byte) 0x81, payload.getBytes(StandardCharsets.UTF_8));
     }
@@ -99,7 +99,7 @@ public final class WebSocketProtocol {
     *
     * @param reason 关闭原因，可为 null
     * @return 完整帧字节
-     */
+    */
     public static byte[] closeFrame(String reason) {
         byte[] reasonBytes = reason != null ? reason.getBytes(StandardCharsets.UTF_8) : new byte[0];
         byte[] frame = buildFrame((byte) 0x88, reasonBytes);
@@ -112,7 +112,7 @@ public final class WebSocketProtocol {
 
     /**
     * 构建指定 opcode 的帧（服务端发送，不掩码，FIN=1）。
-     */
+    */
     private static byte[] buildFrame(byte opcode, byte[] data) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(data.length + 10);
         out.write(opcode);
@@ -139,7 +139,7 @@ public final class WebSocketProtocol {
     * @param in 连接输入流
     * @return 帧数据；EOF 时返回 null
     * @throws IOException 读取失败
-     */
+    */
     public static Frame readFrame(InputStream in) throws IOException {
         int b0 = in.read();
         if (b0 < 0) {
@@ -179,7 +179,7 @@ public final class WebSocketProtocol {
 
     /**
     * 读取完整数据到目标数组。
-     */
+    */
     private static void readFully(InputStream in, byte[] target) throws IOException {
         int off = 0;
         while (off < target.length) {
@@ -197,7 +197,7 @@ public final class WebSocketProtocol {
     * @param opcode  操作码（0x1 文本、0x2 二进制、0x8 关闭、0x9 ping、0xA pong）
     * @author CH
     * @param payload 载荷
-     */
+    */
     public record Frame(int opcode, byte[] payload) {
     }
 }

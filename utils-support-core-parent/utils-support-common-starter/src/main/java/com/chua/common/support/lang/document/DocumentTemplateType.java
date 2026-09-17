@@ -15,24 +15,24 @@ public enum DocumentTemplateType {
     /**
     * 默认数据库文档模板。
     * <p>简洁表格风格，适用于数据库设计文档导出。</p>
-     */
+    */
     DEFAULT,
 
     /**
     * Swagger / OpenAPI 风格模板。
     * <p>侧边导航 + 分组展示，视觉接近 Swagger UI / Knife4j 文档页。</p>
-     */
+    */
     SWAGGER,
 
     /**
     * Aurora 现代化惊艳模板。
     * <p>深色玻璃拟态 + 渐变光晕 + 侧栏双行导航与实时检索，适合对外展示与分享。</p>
-     */
+    */
     AURORA,
 
     /**
     * Stripe 开发者文档风格模板。
     * <p>左侧表导航 + 语义色标签（PK/FK/可空）、深色 SQL 代码块、搜索过滤、响应式布局。</p>
-     */
+    */
     STRIPE
 }

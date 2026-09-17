@@ -48,7 +48,7 @@ public class HttpHeader {
     *
     * <p>键为请求头名称（String），值为请求头值（String）。
     * 如果通过 {@link #add(String, String)} 添加同名请求头，新值会覆盖旧值。
-     */
+    */
     private final Map<String, String> headers = new LinkedHashMap<>();
 
     /**
@@ -57,7 +57,7 @@ public class HttpHeader {
     * <p>等效于 {@code new HttpHeader()}，提供更语义化的工厂方法命名。
     *
     * @return 新的空 HttpHeader 实例
-     */
+    */
     public static HttpHeader create() {
         return new HttpHeader();
     }
@@ -75,7 +75,7 @@ public class HttpHeader {
     * @param key   请求头名称，如 {@code "Content-Type"}、{@code "Authorization"}
     * @param value 请求头值，如 {@code "application/json"}、{@code "Bearer token"}
     * @return 包含指定键值对的 HttpHeader 实例
-     */
+    */
     public static HttpHeader of(String key, String value) {
         return create().add(key, value);
     }
@@ -91,7 +91,7 @@ public class HttpHeader {
     * @param name  请求头名称，如 {@code "Content-Type"}；为 null 时忽略此次操作
     * @param value 请求头值，如 {@code "application/json"}；为 null 时忽略此次操作
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpHeader add(String name, String value) {
         if (name != null && value != null) {
             headers.put(name, value);
@@ -106,7 +106,7 @@ public class HttpHeader {
     *
     * @param name 请求头名称
     * @return 请求头值，不存在返回 null
-     */
+    */
     public String get(String name) {
         return headers.get(name);
     }
@@ -118,7 +118,7 @@ public class HttpHeader {
     * 修改返回的 Map 不会影响原始的 HttpHeader 实例。
     *
     * @return 包含所有请求头键值对的 Map（保持插入顺序）
-     */
+    */
     public Map<String, String> toMap() {
         return new LinkedHashMap<>(headers);
     }
@@ -130,7 +130,7 @@ public class HttpHeader {
     *
     * @param name 请求头名称
     * @return 包含返回 true，否则返回 false
-     */
+    */
     public boolean contains(String name) {
         return headers.containsKey(name);
     }
@@ -139,7 +139,7 @@ public class HttpHeader {
     * 获取当前请求头的数量。
     *
     * @return 请求头数量
-     */
+    */
     public int size() {
         return headers.size();
     }
@@ -158,7 +158,7 @@ public class HttpHeader {
     * </ul>
     *
     * @return 新的 HttpHeader 实例，包含当前所有请求头的副本
-     */
+    */
     public HttpHeader copy() {
         HttpHeader copy = new HttpHeader();
         copy.headers.putAll(this.headers);

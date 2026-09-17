@@ -32,7 +32,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
     *
     * @param value 源值
     * @return Date 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Date convert(Object value) {
         Date date = convertIfNecessary(value);
@@ -72,7 +72,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Date.class
-     */
+    */
     @Override
     public Class<Date> getType() {
         return Date.class;

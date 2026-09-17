@@ -48,6 +48,6 @@ public class AgentResponse implements Serializable {
     *
     * <p>包含本次 Agent 执行的 Token 用量、费用和性能指标。
     * 若 Agent 内部调用了多次 LLM，此处为所有调用的汇总数据。
-     */
+    */
     private AiUsage usage;
 }

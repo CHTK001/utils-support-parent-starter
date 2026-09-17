@@ -37,7 +37,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
     *
     * @param value 源值
     * @return byte[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public byte[] convert(Object value) {
         if (null == value) {
@@ -83,7 +83,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
     * @param is 输入流
     * @return 字节数组
     * @throws IOException 读取异常
-     */
+    */
     private byte[] readBytes(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[8192];
@@ -98,7 +98,7 @@ public class BytesTypeConverter implements TypeConverter<byte[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return byte[].class
-     */
+    */
     @Override
     public Class<byte[]> getType() {
         return byte[].class;

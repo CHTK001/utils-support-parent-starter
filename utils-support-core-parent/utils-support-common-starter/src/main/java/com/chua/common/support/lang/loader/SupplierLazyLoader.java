@@ -29,7 +29,7 @@ public class SupplierLazyLoader<T> extends LazyLoader<T> {
 
     /**
     * 用于提供初始化实例的函数式接口。
-     */
+    */
     private final Supplier<T> supplier;
 
     /**
@@ -37,7 +37,7 @@ public class SupplierLazyLoader<T> extends LazyLoader<T> {
     *
     * @param supplier 必须非空，用于在需要时提供初始化实例的供应商
     * @throws IllegalArgumentException 如果 {@code supplier} 为 null
-     */
+    */
     public SupplierLazyLoader(Supplier<T> supplier) {
         if (supplier == null) {
             throw new IllegalArgumentException("Supplier cannot be null");
@@ -51,7 +51,7 @@ public class SupplierLazyLoader<T> extends LazyLoader<T> {
     * @param supplier 用于提供初始化值的供应商，不能为 null
     * @param <T>      目标对象类型
     * @return 新创建的 {@link SupplierLazyLoader} 实例
-     */
+    */
     public static <T> SupplierLazyLoader<T> of(Supplier<T> supplier) {
         return new SupplierLazyLoader<>(supplier);
     }
@@ -61,7 +61,7 @@ public class SupplierLazyLoader<T> extends LazyLoader<T> {
     * 此方法由父类 {@link LazyLoader} 在首次需要时调用。
     *
     * @return 由 supplier 提供的初始化实例
-     */
+    */
     @Override
     public T init() {
         return supplier.get();

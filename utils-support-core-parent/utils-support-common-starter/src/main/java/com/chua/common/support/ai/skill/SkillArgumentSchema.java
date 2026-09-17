@@ -17,25 +17,27 @@ public class SkillArgumentSchema {
     /** 参数名称 */
     /**
     * 名称
-     */
+    */
     private final String name;
 
     /** 参数描述 */
     /**
     * 描述
-     */
+    */
     private final String description;
 
-    /** 参数类型（string、number、boolean、enum 等） */
+    /**
+    * 参数类型（string、number、boolean、enum 等）
+    */
     /**
     * 类型
-     */
+    */
     private final String type;
 
     /** 是否必填 */
     /**
     * 是否必填
-     */
+    */
     private final boolean required;
 
     /** 枚举值列表（仅 type=enum 时有效） */
@@ -49,7 +51,7 @@ public class SkillArgumentSchema {
     * @param required boolean
     * @param enumValues List
     * @param enumValues enumValues
-     */
+    */
     public SkillArgumentSchema(String name, String description, String type, boolean required, List<String> enumValues) {
         this.name = name;
         this.description = description;

@@ -16,34 +16,34 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
-* 基于 JDK {@link HttpClient} 的 SSE 客户端实现
-*
-* <p>使用 Java 标准库中的 {@link HttpClient} 建立 HTTP 连接，
-* 通过 {@link HttpResponse.BodyHandlers#ofInputStream()} 逐行读取 SSE 事件流，
-* 解析 {@code data:} 前缀并回调 {@link SseListener}。
-*
-* <p>无需任何第三方依赖，作为 {@link SseClient} SPI 的默认实现。
-*
-* @author CH
-* @since 2026/07/21
- */
+ * 基于 JDK {@link HttpClient} 的 SSE 客户端实现
+ *
+ * <p>使用 Java 标准库中的 {@link HttpClient} 建立 HTTP 连接，
+ * 通过 {@link HttpResponse.BodyHandlers#ofInputStream()} 逐行读取 SSE 事件流，
+ * 解析 {@code data:} 前缀并回调 {@link SseListener}。
+ *
+ * <p>无需任何第三方依赖，作为 {@link SseClient} SPI 的默认实现。
+ *
+ * @author CH
+ * @since 2026/07/21
+*/
 @Slf4j
 @Spi("jdk")
 public class JdkSseClient implements SseClient {
 
     /**
     * SSE 数据行前缀
-     */
+    */
     private static final String DATA_PREFIX = "data: ";
 
     /**
     * SSE 结束标记
-     */
+    */
     private static final String DONE_MARKER = "[DONE]";
 
     /**
     * 共享的 JDK HttpClient 实例（线程安全）
-     */
+    */
     private static final HttpClient SHARED_HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
             .build();
@@ -142,17 +142,17 @@ public class JdkSseClient implements SseClient {
 
     /**
     * JDK SSE 连接实现，跟踪连接状态
-     */
+    */
     private static class JdkSseConnection implements SseConnection {
 
         /**
         * 读取线程
-         */
+        */
         private volatile Thread readerThread;
 
         /**
         * 连接是否已关闭
-         */
+        */
         private volatile boolean closed;
 
         @Override
@@ -173,12 +173,12 @@ public class JdkSseClient implements SseClient {
 
     /**
     * 已关闭的空连接（用于错误路径）
-     */
+    */
     private static final class ClosedSseConnection implements SseConnection {
 
         /**
         * 单例实例
-         */
+        */
         static final ClosedSseConnection INSTANCE = new ClosedSseConnection();
 
         @Override
@@ -198,7 +198,7 @@ public class JdkSseClient implements SseClient {
     *
     * @param request SSE 请求参数
     * @return BodyPublisher
-     */
+    */
     private static HttpRequest.BodyPublisher bodyPublisher(SseRequest request) {
         String body = request.getBody();
         if (body == null || body.isEmpty()) {
@@ -215,7 +215,7 @@ public class JdkSseClient implements SseClient {
     *
     * @param request SSE 请求参数
     * @return Duration，0 返回 null（JDK HttpClient null = 不超时）
-     */
+    */
     private static Duration readTimeout(SseRequest request) {
         long timeout = request.getReadTimeout();
         return timeout > 0 ? Duration.ofMillis(timeout) : null;

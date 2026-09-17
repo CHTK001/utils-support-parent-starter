@@ -40,7 +40,7 @@ public class ListTypeConverter implements TypeConverter<List> {
     *
     * @param value 源值
     * @return List 值，如果为 null 则返回 null
-     */
+    */
     @Override
     public List convert(Object value) {
         if (null == value) {
@@ -95,7 +95,7 @@ public class ListTypeConverter implements TypeConverter<List> {
     * 获取当前转换器支持的目标类型。
     *
     * @return List.class
-     */
+    */
     @Override
     public Class<List> getType() {
         return List.class;

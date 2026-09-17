@@ -45,7 +45,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     * @param provider AI 服务商名称，如 "openai"、"deepseek" 等
     * @param apiKey   API 密钥
     * @return EmbeddingClient 实例
-     */
+    */
     static EmbeddingClient create(String provider, String apiKey) {
         return ServiceProvider.of(EmbeddingClient.class)
                 .getNewExtension(provider, EmbeddingClientSetting.builder()
@@ -57,7 +57,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl 等
     * @return EmbeddingClient 实例
-     */
+    */
     static EmbeddingClient create(EmbeddingClientSetting setting) {
         return ServiceProvider.of(EmbeddingClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -70,7 +70,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 地址
     * @return EmbeddingClient 实例
-     */
+    */
     static EmbeddingClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(EmbeddingClient.class)
                 .getNewExtension(provider, EmbeddingClientSetting.builder()
@@ -84,7 +84,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default EmbeddingClient provider(String provider) {
         return this;
     }
@@ -94,7 +94,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param model 模型名称，如 "text-embedding-3-small"
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default EmbeddingClient model(String model) {
         return this;
     }
@@ -108,7 +108,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param dimensions 向量维度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default EmbeddingClient dimensions(int dimensions) {
         return this;
     }
@@ -123,7 +123,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param text 待向量化的文本
     * @return 浮点数向量
-     */
+    */
     float[] embedding(String text);
 
     /**
@@ -134,7 +134,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param text 待向量化的文本
     * @return 包含向量和用量信息的完整响应
-     */
+    */
     default EmbeddingResponse embeddingWithResponse(String text) {
         float[] vector = embedding(text);
         return EmbeddingResponse.builder()
@@ -154,7 +154,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param texts 待向量化的文本列表
     * @return 浮点数向量数组，顺序与输入一致
-     */
+    */
     float[][] embeddingBatch(String[] texts);
 
     /**
@@ -165,7 +165,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param texts 待向量化的文本列表
     * @return 包含向量和用量信息的完整响应
-     */
+    */
     default EmbeddingResponse embeddingBatchWithResponse(String[] texts) {
         float[][] vectors = embeddingBatch(texts);
         AtomicInteger idx = new AtomicInteger(0);
@@ -190,7 +190,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param text 待向量化的文本
     * @return 异步任务，完成时返回浮点数向量
-     */
+    */
     default CompletableFuture<float[]> embeddingAsync(String text) {
         return CompletableFuture.supplyAsync(() -> embedding(text));
     }
@@ -203,14 +203,14 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     *
     * @param texts 待向量化的文本列表
     * @return 异步任务，完成时返回浮点数向量数组
-     */
+    */
     default CompletableFuture<float[][]> embeddingBatchAsync(String[] texts) {
         return CompletableFuture.supplyAsync(() -> embeddingBatch(texts));
     }
 
     /**
     * 关闭客户端，释放底层资源。
-     */
+    */
     @Override
     default void close() {
     }
@@ -219,7 +219,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     * 获取服务商支持的模型列表。
     *
     * @return 可用模型定义列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -230,7 +230,7 @@ public interface EmbeddingClient extends AutoCloseable, PooledObjectClient<Embed
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {

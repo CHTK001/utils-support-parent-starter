@@ -19,14 +19,14 @@ public interface BackoffProvider {
     *
     * @param attempt 当前尝试次数（从 0 开始）
     * @return 等待时间（毫秒）
-     */
+    */
     long nextDelay(int attempt);
 
     /**
     * 执行避让休眠。
     *
     * @param attempt 当前尝试次数（从 0 开始）
-     */
+    */
     default void sleep(int attempt) {
         // ThreadUtils.sleep(long) 不抛 checked 异常（内部吞掉 InterruptedException），
         // 直接调用即可，避免 javac 不可达 catch 编译错误
@@ -35,7 +35,7 @@ public interface BackoffProvider {
 
     /**
     * 重置内部状态。
-     */
+    */
     default void reset() {
     }
 }

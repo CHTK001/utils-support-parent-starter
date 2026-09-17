@@ -45,21 +45,21 @@ import java.util.*;
 public class DmlFormatter extends SqlFormatter {
     /**
     * 无参构造器（默认配置）
-     */
+    */
     public DmlFormatter() {
         super();
     }
 
     /**
     * 带参构造器（自定义配置）
-     */
+    */
     public DmlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         super(keepComments, upperCaseKeywords);
     }
 
     /**
     * 全参构造器
-     */
+    */
     public DmlFormatter(boolean keepComments, boolean upperCaseKeywords, boolean compressWhitespace) {
         super(keepComments, upperCaseKeywords, compressWhitespace);
     }
@@ -70,7 +70,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * <p>这些关键字表示SELECT语句中各个子句的开始位置，
     * 用于将完整的SELECT语句拆分为多个逻辑部分。
-     */
+    */
     private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
             // 查询核心子句
             "SELECT", "FROM", "WHERE",
@@ -89,7 +89,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * <p>这些关键字在格式化时会放在行首，
     * 而其他关键字（如AND、OR）会跟随在上一行之后。
-     */
+    */
     private static final Set<String> MAJOR_CLAUSE = new HashSet<>(Arrays.asList(
             "SELECT", "FROM", "WHERE", "GROUP", "ORDER", "HAVING", "LIMIT", "OFFSET"
     ));
@@ -98,7 +98,7 @@ public class DmlFormatter extends SqlFormatter {
     * 连接关键字（JOIN相关）。
     *
     * <p>这些关键字在FROM子句中控制连接行为。
-     */
+    */
     private static final Set<String> JOIN_KEYWORDS = new HashSet<>(Arrays.asList(
             "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "ON", "USING"
     ));
@@ -118,7 +118,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param source 预处理后的SQL字符串
     * @return 格式化后的DML语句
-     */
+    */
     @Override
     protected String doFormat(String source) {
         // 1. 清理输入
@@ -164,7 +164,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param sql 原始SELECT语句
     * @return 格式化后的SELECT语句
-     */
+    */
     private String formatSelect(String sql) {
         // 1. 按主要子句分割
         List<String> clauses = splitByKeywords(sql, MAJOR_CLAUSE);
@@ -262,7 +262,7 @@ public class DmlFormatter extends SqlFormatter {
     * @param sql SQL字符串
     * @param keywords 目标关键字集合
     * @return 分割后的子句列表
-     */
+    */
     private List<String> splitByKeywords(String sql, Set<String> keywords) {
         List<String> result = new ArrayList<>();
         if (sql == null || sql.isEmpty()) {
@@ -326,7 +326,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause SELECT子句字符串
     * @return 格式化后的SELECT子句
-     */
+    */
     private String formatSelectClause(String clause) {
         if (clause == null) {
             return "";
@@ -388,7 +388,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause FROM子句字符串
     * @return 格式化后的FROM子句
-     */
+    */
     private String formatFromClause(String clause) {
         if (clause == null) {
             return "";
@@ -428,7 +428,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause WHERE子句字符串
     * @return 格式化后的WHERE子句
-     */
+    */
     private String formatWhereClause(String clause) {
         if (clause == null) {
             return "";
@@ -451,7 +451,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause GROUP BY子句字符串
     * @return 格式化后的GROUP BY子句
-     */
+    */
     private String formatGroupByClause(String clause) {
         if (clause == null) {
             return "";
@@ -467,7 +467,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause ORDER BY子句字符串
     * @return 格式化后的ORDER BY子句
-     */
+    */
     private String formatOrderByClause(String clause) {
         if (clause == null) {
             return "";
@@ -485,7 +485,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause HAVING子句字符串
     * @return 格式化后的HAVING子句
-     */
+    */
     private String formatHavingClause(String clause) {
         if (clause == null) {
             return "";
@@ -499,7 +499,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause LIMIT或OFFSET子句字符串
     * @return 格式化后的子句
-     */
+    */
     private String formatLimitClause(String clause) {
         if (clause == null) {
             return "";
@@ -516,7 +516,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param clause 其他子句字符串
     * @return 格式化后的子句
-     */
+    */
     private String formatOtherClause(String clause) {
         if (clause == null) {
             return "";
@@ -549,7 +549,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param sql 原始INSERT语句
     * @return 格式化后的INSERT语句
-     */
+    */
     private String formatInsert(String sql) {
         if (sql == null) {
             return null;
@@ -604,7 +604,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param sql 原始UPDATE语句
     * @return 格式化后的UPDATE语句
-     */
+    */
     private String formatUpdate(String sql) {
         if (sql == null) {
             return null;
@@ -642,7 +642,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param sql 原始DELETE语句
     * @return 格式化后的DELETE语句
-     */
+    */
     private String formatDelete(String sql) {
         if (sql == null) {
             return null;
@@ -667,7 +667,7 @@ public class DmlFormatter extends SqlFormatter {
     *
     * @param sql 原始WITH语句
     * @return 格式化后的WITH语句
-     */
+    */
     private String formatWithClause(String sql) {
         if (sql == null) {
             return null;

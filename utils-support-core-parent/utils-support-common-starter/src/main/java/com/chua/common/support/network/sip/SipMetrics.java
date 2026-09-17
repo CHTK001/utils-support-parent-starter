@@ -7,18 +7,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-* SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
-*
-* <p>提供关键计数用于：</p>
-* <ul>
-*   <li>运行时健康监控（活跃隧道/客户端/帧率）</li>
-*   <li>故障定位（错误分类计数）</li>
-*   <li>容量规划（认证/注册/隧道累计）</li>
-* </ul>
-*
-* <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
-* 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
- */
+ * SIP 服务器/客户端运行时指标（轻量级、无外部依赖）。
+ *
+ * <p>提供关键计数用于：</p>
+ * <ul>
+ *   <li>运行时健康监控（活跃隧道/客户端/帧率）</li>
+ *   <li>故障定位（错误分类计数）</li>
+ *   <li>容量规划（认证/注册/隧道累计）</li>
+ * </ul>
+ *
+ * <p>使用 {@link ConcurrentHashMap} 支持并发安全的多维度错误计数，
+ * 指标读取使用 {@link #snapshot()} 返回一致性弱快照。</p>
+*/
 public class SipMetrics {
 
     private static final SipMetrics INSTANCE = new SipMetrics();
@@ -42,7 +42,9 @@ public class SipMetrics {
     private final AtomicInteger activeTunnels = new AtomicInteger();
     private final AtomicInteger activeClients = new AtomicInteger();
 
-    /** 错误分类计数（key = 错误类别，例 "auth.bad_sig"/"mux.unknown_channel"） */
+    /**
+    * 错误分类计数（key = 错误类别，例 "auth.bad_sig"/"mux.unknown_channel"）
+    */
     private final Map<String, AtomicLong> errorsByCategory = new ConcurrentHashMap<>();
 
     public void onAuthAccept() { authAcceptTotal.incrementAndGet(); }
@@ -74,7 +76,7 @@ public class SipMetrics {
 
     /**
     * 返回当前指标的弱一致性快照（用于日志或 /metrics 端点）。
-     */
+    */
     public Map<String, Object> snapshot() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("auth_accept_total", authAcceptTotal.get());
@@ -102,7 +104,7 @@ public class SipMetrics {
     *
     * @param prefix 日志前缀（如 "sip-metrics"）
     * @return 单行字符串
-     */
+    */
     public String formatOneLine(String prefix) {
         Map<String, Object> s = snapshot();
         StringBuilder sb = new StringBuilder();

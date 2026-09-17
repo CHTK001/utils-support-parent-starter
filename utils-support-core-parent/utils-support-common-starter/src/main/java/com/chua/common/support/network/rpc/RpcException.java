@@ -17,21 +17,21 @@ public class RpcException extends RuntimeException {
 
     /**
     * 异常类型：业务 / 传输
-     */
+    */
     public enum Type {
         /**
         * 业务异常：服务端执行业务方法时抛错
-         */
+        */
         BUSINESS,
         /**
         * 传输异常：网络、连接、序列化、报文等传输层失败
-         */
+        */
         TRANSPORT
     }
 
     /**
     * 异常类型
-     */
+    */
     private final Type type;
 
     /**
@@ -39,7 +39,7 @@ public class RpcException extends RuntimeException {
     *
     * @param type    异常类型
     * @param message 异常消息
-     */
+    */
     public RpcException(Type type, String message) {
         super(message);
         this.type = type;
@@ -51,7 +51,7 @@ public class RpcException extends RuntimeException {
     * @param type    异常类型
     * @param message 异常消息
     * @param cause   根因
-     */
+    */
     public RpcException(Type type, String message, Throwable cause) {
         super(message, cause);
         this.type = type;
@@ -62,7 +62,7 @@ public class RpcException extends RuntimeException {
     *
     * @param message 异常消息
     * @return 业务异常实例
-     */
+    */
     public static RpcException business(String message) {
         return new RpcException(Type.BUSINESS, message);
     }
@@ -73,7 +73,7 @@ public class RpcException extends RuntimeException {
     * @param message 异常消息
     * @param cause   根因
     * @return 业务异常实例
-     */
+    */
     public static RpcException business(String message, Throwable cause) {
         return new RpcException(Type.BUSINESS, message, cause);
     }
@@ -83,7 +83,7 @@ public class RpcException extends RuntimeException {
     *
     * @param message 异常消息
     * @return 传输异常实例
-     */
+    */
     public static RpcException transport(String message) {
         return new RpcException(Type.TRANSPORT, message);
     }
@@ -94,7 +94,7 @@ public class RpcException extends RuntimeException {
     * @param message 异常消息
     * @param cause   根因
     * @return 传输异常实例
-     */
+    */
     public static RpcException transport(String message, Throwable cause) {
         return new RpcException(Type.TRANSPORT, message, cause);
     }
@@ -103,7 +103,7 @@ public class RpcException extends RuntimeException {
     * 获取异常类型。
     *
     * @return 异常类型
-     */
+    */
     public Type getType() {
         return type;
     }
@@ -112,7 +112,7 @@ public class RpcException extends RuntimeException {
     * 是否业务异常。
     *
     * @return 业务异常返回 {@code true}
-     */
+    */
     public boolean isBusiness() {
         return type == Type.BUSINESS;
     }
@@ -121,7 +121,7 @@ public class RpcException extends RuntimeException {
     * 是否传输异常。
     *
     * @return 传输异常返回 {@code true}
-     */
+    */
     public boolean isTransport() {
         return type == Type.TRANSPORT;
     }

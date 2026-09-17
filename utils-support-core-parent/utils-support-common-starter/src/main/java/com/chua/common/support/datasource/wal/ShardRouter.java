@@ -20,7 +20,7 @@ public final class ShardRouter {
 
     /**
     * 根据 key 计算所属分片序号（0 ~ shardCount-1）。
-     */
+    */
     public int shardOf(Object key) {
         int hash = key == null ? 0 : key.hashCode();
         // 避免负数
@@ -29,14 +29,14 @@ public final class ShardRouter {
 
     /**
     * 返回分片数量。
-     */
+    */
     public int shardCount() {
         return shardCount;
     }
 
     /**
     * 返回分片名称（用于文件命名）。
-     */
+    */
     public String shardName(int idx) {
         return String.format("shard_%04d", idx);
     }

@@ -21,42 +21,42 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
 
     /**
     * 待执行任务列表
-     */
+    */
     protected final List<Callable<Object>> tasks = new ArrayList<>();
 
     /**
     * 合并策略
-     */
+    */
     protected final ThreadStrategy strategy;
 
     /**
     * 阈值（用于 N_FAIL / N_SUCCESS）
-     */
+    */
     protected final int threshold;
 
     /**
     * 超时时间，0 表示无限等待
-     */
+    */
     protected final long timeout;
 
     /**
     * 超时时间单位
-     */
+    */
     protected final TimeUnit timeUnit;
 
     /**
     * 并发上限，小于 1 表示不限
-     */
+    */
     protected final int maxConcurrent;
 
     /**
     * 并发信号量，限制同时执行的任务数
-     */
+    */
     protected final Semaphore semaphore;
 
     /**
     * 生命周期事件回调
-     */
+    */
     protected ThreadFlowListener listener;
 
     /**
@@ -65,7 +65,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     * @param int int
     * @param long long
     * @param TimeUnit TimeUnit
-     */
+    */
     protected AbstractThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
@@ -77,7 +77,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     * @param timeout timeout
     * @param timeUnit timeUnit
     * @param maxConcurrent maxConcurrent
-     */
+    */
     protected AbstractThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                      int maxConcurrent) {
         this.strategy = strategy;
@@ -184,7 +184,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     * @param failCount    已失败数
     * @param total        总任务数
     * @return true 可提前结束并取消剩余任务
-     */
+    */
     private boolean canShortCircuit(ThreadStrategy strategy, int successCount, int failCount, int total) {
         return switch (strategy) {
             case ANY_SUCCESS -> successCount >= 1;
@@ -200,7 +200,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     *
     * @param futures    任务 Future 列表
     * @param fromIndex  开始取消的下标
-     */
+    */
     private void cancelRemaining(List<Future<Object>> futures, int fromIndex) {
         for (int i = fromIndex; i < futures.size(); i++) {
             futures.get(i).cancel(true);
@@ -212,7 +212,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     *
     * @param callable 原始任务
     * @return 受限任务
-     */
+    */
     private Callable<Object> wrapWithConcurrency(Callable<Object> callable) {
         if (semaphore == null) {
             return callable;
@@ -235,7 +235,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     *
     * @param callable 原始任务
     * @return 上下文感知任务
-     */
+    */
     private Callable<Object> wrapWithContext(Callable<Object> callable) {
         ThreadContext parent = ThreadContext.currentOrNull();
         if (parent == null) {
@@ -260,7 +260,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     * @throws InterruptedException 中断异常
     * @throws ExecutionException 执行异常
     * @throws TimeoutException 超时异常
-     */
+    */
     protected Object getFutureResult(Future<Object> future) throws InterruptedException, ExecutionException, TimeoutException {
         if (timeout > 0) {
             return future.get(timeout, timeUnit);
@@ -273,7 +273,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     *
     * @return Future 列表
     * @throws Exception 提交异常
-     */
+    */
     protected abstract List<Future<Object>> submitTasks() throws Exception;
 
     /**
@@ -284,7 +284,7 @@ public abstract class AbstractThreadExecutor implements ThreadExecutor<Object> {
     * @param failCount    失败数
     * @param total        总任务数
     * @return true 整体成功
-     */
+    */
     private boolean evaluate(ThreadStrategy strategy, int successCount, int failCount, int total) {
         return switch (strategy) {
             case ANY_SUCCESS -> successCount > 0;

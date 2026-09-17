@@ -15,7 +15,7 @@ public interface AlterForeignKeyBuilder {
     * @param table  引用表名
     * @param column 引用列名
     * @return this
-     */
+    */
     AlterForeignKeyBuilder references(String table, String column);
 
     /**
@@ -23,7 +23,7 @@ public interface AlterForeignKeyBuilder {
     *
     * @param action 删除规则
     * @return this
-     */
+    */
     AlterForeignKeyBuilder onDelete(String action);
 
     /**
@@ -31,13 +31,13 @@ public interface AlterForeignKeyBuilder {
     *
     * @param action 更新规则
     * @return this
-     */
+    */
     AlterForeignKeyBuilder onUpdate(String action);
 
     /**
     * 执行外键添加。
     *
     * @return this
-     */
+    */
     TableAlterBuilder execute();
 }

@@ -23,7 +23,7 @@ public enum RpcType {
     *
     * <p>业界广泛使用的高性能 Java RPC 框架，提供丰富的服务治理能力。
     * 支持多种协议（Dubbo、gRPC、Thrift、REST）和注册中心集成。</p>
-     */
+    */
     DUBBO,
 
     /**
@@ -31,7 +31,7 @@ public enum RpcType {
     *
     * <p>蚂蚁集团开源的金融级 RPC 框架，原生采用 Bolt 协议（基于 Netty 的二进制协议），
     * 具备高吞吐、低延迟的特点，经过历年双十一大促流量验证。</p>
-     */
+    */
     SOFA,
 
     /**
@@ -39,13 +39,13 @@ public enum RpcType {
     *
     * <p>基于 JSON 序列化和 HTTP 传输的轻量级 RPC 协议，
     * 最大的优点是语言无关性，任何语言平台都可以消费 JSON-RPC 服务。</p>
-     */
+    */
     JSON,
 
     /**
     * 未指定的空值占位
     *
     * <p>用于表示未设置或待填充的协议类型，系统内部使用。</p>
-     */
+    */
     NONE
 }

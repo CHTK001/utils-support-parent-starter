@@ -20,7 +20,7 @@ public interface StructuredConcurrencyProvider {
     * @param task 待执行任务
     * @return 任务结果
     * @throws Exception 任务执行异常
-     */
+    */
     <T> T submit(Callable<T> task) throws Exception;
 
     /**
@@ -28,20 +28,20 @@ public interface StructuredConcurrencyProvider {
     *
     * @param task 待执行任务
     * @throws Exception 任务执行异常
-     */
+    */
     void submit(Runnable task) throws Exception;
 
     /**
     * 等待所有任务完成。
     *
     * @throws Exception 等待异常
-     */
+    */
     void join() throws Exception;
 
     /**
     * 关闭并等待所有任务完成。
     *
     * @throws Exception 关闭异常
-     */
+    */
     void close() throws Exception;
 }

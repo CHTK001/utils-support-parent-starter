@@ -33,7 +33,7 @@ public interface FlatMap extends Map<String, Object> {
     * <p>实体对象的每个属性会被转换为一个键值对，键名为属性路径（如 "user.name"）。</p>
     *
     * @param entity 实体对象
-     */
+    */
     void put(Object entity);
 
     /**
@@ -46,7 +46,7 @@ public interface FlatMap extends Map<String, Object> {
     *
     * @param key 通配符键，如 "user.*"、"data?.name"
     * @return 匹配的值列表，如果没有匹配则返回空列表
-     */
+    */
     List<Object> wildcard(String key);
 
     /**
@@ -59,7 +59,7 @@ public interface FlatMap extends Map<String, Object> {
     * @param type 目标类型
     * @param <R>  泛型类型
     * @return 转换后的值列表
-     */
+    */
     default <R> List<R> wildcard(String key, Class<R> type) {
         List<Object> read = wildcard(key);
         List<R> result = new ArrayList<>(read.size());
@@ -78,7 +78,7 @@ public interface FlatMap extends Map<String, Object> {
     * 创建一个空的 FlatMap 实例。
     *
     * @return 空的 FlatMap 实例
-     */
+    */
     static FlatMap create() {
         return new FlatHashMap();
     }
@@ -88,7 +88,7 @@ public interface FlatMap extends Map<String, Object> {
     *
     * @param entity 实体对象
     * @return 包含实体对象属性的 FlatMap 实例
-     */
+    */
     static FlatMap create(Object entity) {
         return new FlatHashMap(BeanUtils.objectToMap(entity));
     }
@@ -98,7 +98,7 @@ public interface FlatMap extends Map<String, Object> {
     *
     * @param map 现有 Map，可能包含嵌套结构
     * @return 展平后的 FlatMap 实例
-     */
+    */
     static FlatMap create(Map<String, Object> map) {
         return new FlatHashMap(map);
     }

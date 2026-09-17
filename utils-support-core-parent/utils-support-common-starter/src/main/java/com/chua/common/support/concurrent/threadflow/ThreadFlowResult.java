@@ -17,42 +17,42 @@ public class ThreadFlowResult<T> {
 
     /**
     * 是否整体成功
-     */
+    */
     private final boolean success;
 
     /**
     * 合并后的 Callable 结果列表（按完成顺序）
-     */
+    */
     private final List<T> results;
 
     /**
     * 失败异常列表
-     */
+    */
     private final List<Throwable> errors;
 
     /**
     * 任务总数
-     */
+    */
     private final int totalCount;
 
     /**
     * 成功任务数
-     */
+    */
     private final int successCount;
 
     /**
     * 失败任务数
-     */
+    */
     private final int failCount;
 
     /**
     * 总耗时（毫秒）
-     */
+    */
     private final long costMillis;
 
     /**
     * 触发整体完成的策略
-     */
+    */
     private final ThreadStrategy strategy;
 
     /**
@@ -65,7 +65,7 @@ public class ThreadFlowResult<T> {
     * @param failCount failCount
     * @param costMillis costMillis
     * @param strategy strategy
-     */
+    */
     public ThreadFlowResult(boolean success, List<T> results, List<Throwable> errors,
                             int totalCount, int successCount, int failCount,
                             long costMillis, ThreadStrategy strategy) {
@@ -83,7 +83,7 @@ public class ThreadFlowResult<T> {
     * 是否整体成功。
     *
     * @return true 成功
-     */
+    */
     public boolean isSuccess() {
         return success;
     }
@@ -92,7 +92,7 @@ public class ThreadFlowResult<T> {
     * 获取合并后的 Callable 结果列表。
     *
     * @return 结果列表
-     */
+    */
     public List<T> getResults() {
         return results;
     }
@@ -101,7 +101,7 @@ public class ThreadFlowResult<T> {
     * 获取失败异常列表。
     *
     * @return 异常列表
-     */
+    */
     public List<Throwable> getErrors() {
         return errors;
     }
@@ -110,7 +110,7 @@ public class ThreadFlowResult<T> {
     * 获取任务总数。
     *
     * @return 任务总数
-     */
+    */
     public int getTotalCount() {
         return totalCount;
     }
@@ -119,7 +119,7 @@ public class ThreadFlowResult<T> {
     * 获取成功任务数。
     *
     * @return 成功任务数
-     */
+    */
     public int getSuccessCount() {
         return successCount;
     }
@@ -128,7 +128,7 @@ public class ThreadFlowResult<T> {
     * 获取失败任务数。
     *
     * @return 失败任务数
-     */
+    */
     public int getFailCount() {
         return failCount;
     }
@@ -137,7 +137,7 @@ public class ThreadFlowResult<T> {
     * 获取总耗时（毫秒）。
     *
     * @return 耗时
-     */
+    */
     public long getCostMillis() {
         return costMillis;
     }
@@ -146,7 +146,7 @@ public class ThreadFlowResult<T> {
     * 获取触发整体完成的策略。
     *
     * @return 策略
-     */
+    */
     public ThreadStrategy getStrategy() {
         return strategy;
     }
@@ -155,7 +155,7 @@ public class ThreadFlowResult<T> {
     * 获取首个失败异常。
     *
     * @return 首个异常，无失败时返回 null
-     */
+    */
     public Throwable firstError() {
         return errors.isEmpty() ? null : errors.getFirst();
     }
@@ -164,7 +164,7 @@ public class ThreadFlowResult<T> {
     * 获取首个成功结果。
     *
     * @return 首个结果，无成功时返回 null
-     */
+    */
     public T firstResult() {
         return results.isEmpty() ? null : results.getFirst();
     }
@@ -173,7 +173,7 @@ public class ThreadFlowResult<T> {
     * 转为 Map 快照，便于日志输出。
     *
     * @return 快照 Map
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new ConcurrentHashMap<>(16);
         map.put("success", success);

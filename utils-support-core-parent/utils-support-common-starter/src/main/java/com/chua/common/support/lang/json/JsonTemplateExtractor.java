@@ -135,7 +135,7 @@ public class JsonTemplateExtractor implements TemplateExtractor {
  * @param lenient lenient
  * @param arrayStrategy arrayStrategy
  * @param tolerantType tolerantType
-  */
+ */
  private JsonTemplateExtractor(String prefix, String suffix, boolean lenient,
  ArrayMatchStrategy arrayStrategy, boolean tolerantType) {
  this.prefix = prefix;

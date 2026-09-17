@@ -20,7 +20,7 @@ public class RpcServiceScanner {
     /**
     * 创建 RpcServiceScanner 实例
     * @param server server
-     */
+    */
     private RpcServiceScanner(RpcServer server) {
         this.server = server;
     }

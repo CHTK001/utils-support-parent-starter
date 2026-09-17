@@ -15,19 +15,19 @@ import lombok.Builder;
 public record Attachment(
         /**
         * 附件名称
-         */
+        */
         String name,
         /**
         * 附件二进制数据
-         */
+        */
         byte[] data,
         /**
         * MIME 类型
-         */
+        */
         String mimeType,
         /**
         * 附件 URL
-         */
+        */
         String url
 ) {
 }

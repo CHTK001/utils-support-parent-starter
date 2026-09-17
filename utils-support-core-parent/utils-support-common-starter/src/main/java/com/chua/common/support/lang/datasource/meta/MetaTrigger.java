@@ -44,14 +44,14 @@ public interface MetaTrigger {
     *
     * @param tableName 表名
     * @return this
-     */
+    */
     MetaTrigger onTable(String tableName);
 
     /**
     * 列出当前表的所有触发器。
     *
     * @return 触发器定义列表
-     */
+    */
     List<TriggerDef> list();
 
     /**
@@ -59,7 +59,7 @@ public interface MetaTrigger {
     *
     * @param triggerName 触发器名
     * @return 触发器定义
-     */
+    */
     TriggerDef get(String triggerName);
 
     /**
@@ -67,7 +67,7 @@ public interface MetaTrigger {
     *
     * @param triggerName 触发器名
     * @return 创建触发器构建器
-     */
+    */
     TriggerCreateBuilder create(String triggerName);
 
     /**
@@ -79,7 +79,7 @@ public interface MetaTrigger {
     * @param tableName   表名
     * @param columnName  自增列名
     * @return 创建触发器构建器（body 已由方言填充）
-     */
+    */
     default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName) {
         String seqName = "seq_" + tableName;
         return create(triggerName)
@@ -96,7 +96,7 @@ public interface MetaTrigger {
     * @param columnName   自增列名
     * @param sequenceName 序列名
     * @return 创建触发器构建器（body 已由方言填充）
-     */
+    */
     default TriggerCreateBuilder createAutoIncrement(String triggerName, String tableName, String columnName, String sequenceName) {
         return create(triggerName)
                 .before("INSERT")
@@ -109,7 +109,7 @@ public interface MetaTrigger {
     *
     * @param triggerName 触发器名
     * @return true 删除成功
-     */
+    */
     boolean drop(String triggerName);
 
     /**
@@ -117,7 +117,7 @@ public interface MetaTrigger {
     *
     * @param triggerName 触发器名
     * @return true 操作成功
-     */
+    */
     boolean enable(String triggerName);
 
     /**
@@ -125,13 +125,13 @@ public interface MetaTrigger {
     *
     * @param triggerName 触发器名
     * @return true 操作成功
-     */
+    */
     boolean disable(String triggerName);
 
     /**
     * 获取当前数据库方言（用于生成自增触发器体）。
     *
     * @return 方言实例
-     */
+    */
     com.chua.common.support.lang.datasource.dialect.Dialect resolveDialect();
 }

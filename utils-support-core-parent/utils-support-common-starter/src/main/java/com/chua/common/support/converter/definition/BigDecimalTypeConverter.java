@@ -29,7 +29,7 @@ public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
     *
     * @param value 源值
     * @return BigDecimal 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public BigDecimal convert(Object value) {
         if (null == value) {
@@ -72,7 +72,7 @@ public class BigDecimalTypeConverter implements TypeConverter<BigDecimal> {
     * 获取当前转换器支持的目标类型。
     *
     * @return BigDecimal.class
-     */
+    */
     @Override
     public Class<BigDecimal> getType() {
         return BigDecimal.class;

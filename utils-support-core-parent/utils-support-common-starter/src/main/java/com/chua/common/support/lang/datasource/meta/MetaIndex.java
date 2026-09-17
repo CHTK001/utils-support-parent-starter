@@ -38,14 +38,14 @@ public interface MetaIndex {
     *
     * @param tableName 表名
     * @return this
-     */
+    */
     MetaIndex onTable(String tableName);
 
     /**
     * 列出当前表的所有索引。
     *
     * @return 索引定义列表
-     */
+    */
     List<IndexMetadata> list();
 
     /**
@@ -53,7 +53,7 @@ public interface MetaIndex {
     *
     * @param indexName 索引名
     * @return 索引定义
-     */
+    */
     IndexMetadata get(String indexName);
 
     /**
@@ -61,7 +61,7 @@ public interface MetaIndex {
     *
     * @param indexName 索引名
     * @return 创建索引构建器
-     */
+    */
     IndexCreateBuilder create(String indexName);
 
     /**
@@ -69,6 +69,6 @@ public interface MetaIndex {
     *
     * @param indexName 索引名
     * @return true 删除成功
-     */
+    */
     boolean drop(String indexName);
 }

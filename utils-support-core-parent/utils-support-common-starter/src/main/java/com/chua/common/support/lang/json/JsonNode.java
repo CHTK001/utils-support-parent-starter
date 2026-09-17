@@ -44,24 +44,24 @@ public class JsonNode {
 
     /**
     * 空值/缺失节点的单例，表示路径不存在或值为 null。
-     */
+    */
     static final JsonNode MISSING = new JsonNode(null, true);
 
     /**
     * 节点持有的原始值，可能是 Map、List、String、Number、Boolean 或 null。
-     */
+    */
     private final Object value;
 
     /**
     * 是否为"缺失"节点（路径不存在），与值为 null 的节点区分。
-     */
+    */
     private final boolean missing;
 
     /**
     * 父级节点引用，用于链式构建时通过 {@link #end()} 返回父级。
     * 仅在 {@link #putObject(String)} 和 {@link #putArray(String)} 创建的子节点上设置，
     * 根节点和解析产生的节点此字段为 null。
-     */
+    */
     private final JsonNode parent;
 
     // ==================== 构造方法 ====================
@@ -72,7 +72,7 @@ public class JsonNode {
     * <p>供各 {@link JsonProvider} 实现（Jackson / Gson / Fory 等）跨包构造节点使用。</p>
     *
     * @param value 原始 JSON 值
-     */
+    */
     public JsonNode(Object value) {
         this.value = value;
         this.missing = false;
@@ -84,7 +84,7 @@ public class JsonNode {
     *
     * @param value   原始值
     * @param missing 是否为缺失节点
-     */
+    */
     private JsonNode(Object value, boolean missing) {
         this.value = value;
         this.missing = missing;
@@ -96,7 +96,7 @@ public class JsonNode {
     *
     * @param value  原始值
     * @param parent 父级 JsonNode
-     */
+    */
     private JsonNode(Object value, JsonNode parent) {
         this.value = value;
         this.missing = false;
@@ -115,7 +115,7 @@ public class JsonNode {
     *
     * @param value 原始值
     * @return JsonNode 实例
-     */
+    */
     public static JsonNode valueOf(Object value) {
         if (value == null) {
             return MISSING;
@@ -135,7 +135,7 @@ public class JsonNode {
     *
     * @param key 键名
     * @return 子节点
-     */
+    */
     public JsonNode get(String key) {
         if (missing || value == null) {
             return MISSING;
@@ -154,7 +154,7 @@ public class JsonNode {
     *
     * @param index 索引（从 0 开始）
     * @return 子节点
-     */
+    */
     public JsonNode get(int index) {
         if (missing || value == null) {
             return MISSING;
@@ -175,7 +175,7 @@ public class JsonNode {
     *
     * @param jsonPath JSONPath 表达式，如 {@code "$.store.book[0].title"}
     * @return 匹配的子节点，路径不存在返回 {@link #MISSING}
-     */
+    */
     public JsonNode path(String jsonPath) {
         if (missing || value == null) {
             return MISSING;
@@ -200,7 +200,7 @@ public class JsonNode {
     * 判断当前节点是否为缺失节点（路径不存在）。
     *
     * @return 缺失返回 true
-     */
+    */
     public boolean isMissingValue() {
         return missing;
     }
@@ -212,7 +212,7 @@ public class JsonNode {
     * JSON 中的 {@code {"key": null}} 会产生一个 isNull()=true 但 isMissingValue()=false 的节点。</p>
     *
     * @return 值为 null 返回 true
-     */
+    */
     public boolean isNull() {
         return !missing && value == null;
     }
@@ -221,7 +221,7 @@ public class JsonNode {
     * 判断当前节点是否为 JSON 对象（Map）。
     *
     * @return 是对象返回 true
-     */
+    */
     public boolean isObject() {
         return !missing && value instanceof Map;
     }
@@ -230,7 +230,7 @@ public class JsonNode {
     * 判断当前节点是否为 JSON 数组（List）。
     *
     * @return 是数组返回 true
-     */
+    */
     public boolean isArray() {
         return !missing && value instanceof List;
     }
@@ -239,7 +239,7 @@ public class JsonNode {
     * 判断当前节点是否为容器节点（对象或数组）。
     *
     * @return 是容器返回 true
-     */
+    */
     public boolean isContainerNode() {
         return isObject() || isArray();
     }
@@ -248,7 +248,7 @@ public class JsonNode {
     * 判断当前节点是否为值节点（非容器、非缺失、非 null）。
     *
     * @return 是值节点返回 true
-     */
+    */
     public boolean isValueNode() {
         return !missing && value != null && !isContainerNode();
     }
@@ -257,7 +257,7 @@ public class JsonNode {
     * 判断当前节点是否为字符串类型。
     *
     * @return 是字符串返回 true
-     */
+    */
     public boolean isString() {
         return !missing && value instanceof String;
     }
@@ -266,7 +266,7 @@ public class JsonNode {
     * 判断当前节点是否为数字类型。
     *
     * @return 是数字返回 true
-     */
+    */
     public boolean isNumber() {
         return !missing && value instanceof Number;
     }
@@ -275,7 +275,7 @@ public class JsonNode {
     * 判断当前节点是否为布尔类型。
     *
     * @return 是布尔值返回 true
-     */
+    */
     public boolean isBoolean() {
         return !missing && value instanceof Boolean;
     }
@@ -286,7 +286,7 @@ public class JsonNode {
     * 获取节点的原始值。
     *
     * @return 原始值，缺失或 null 返回 null
-     */
+    */
     public Object getValue() {
         return missing ? null : value;
     }
@@ -295,7 +295,7 @@ public class JsonNode {
     * 将节点值转换为 String。
     *
     * @return 字符串值，缺失或 null 返回 null
-     */
+    */
     public String toStringValue() {
         if (missing || value == null) {
             return null;
@@ -311,7 +311,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return 字符串值
-     */
+    */
     public String toStringValue(String defaultValue) {
         String result = toStringValue();
         return result != null ? result : defaultValue;
@@ -321,7 +321,7 @@ public class JsonNode {
     * 将节点值转换为 int。
     *
     * @return int 值，缺失或转换失败返回 0
-     */
+    */
     public int toIntValue() {
         if (missing || value == null) {
             return 0;
@@ -338,7 +338,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return int 值
-     */
+    */
     public int toIntValue(int defaultValue) {
         if (missing || value == null) {
             return defaultValue;
@@ -354,7 +354,7 @@ public class JsonNode {
     * 将节点值转换为 long。
     *
     * @return long 值，缺失或转换失败返回 0L
-     */
+    */
     public long toLongValue() {
         if (missing || value == null) {
             return 0L;
@@ -371,7 +371,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return long 值
-     */
+    */
     public long toLongValue(long defaultValue) {
         if (missing || value == null) {
             return defaultValue;
@@ -387,7 +387,7 @@ public class JsonNode {
     * 将节点值转换为 double。
     *
     * @return double 值，缺失或转换失败返回 0.0
-     */
+    */
     public double toDoubleValue() {
         if (missing || value == null) {
             return 0.0;
@@ -404,7 +404,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return double 值
-     */
+    */
     public double toDoubleValue(double defaultValue) {
         if (missing || value == null) {
             return defaultValue;
@@ -420,7 +420,7 @@ public class JsonNode {
     * 将节点值转换为 float。
     *
     * @return float 值，缺失或转换失败返回 0.0f
-     */
+    */
     public float toFloatValue() {
         if (missing || value == null) {
             return 0.0f;
@@ -437,7 +437,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return float 值
-     */
+    */
     public float toFloatValue(float defaultValue) {
         if (missing || value == null) {
             return defaultValue;
@@ -460,7 +460,7 @@ public class JsonNode {
     * </ul>
     *
     * @return boolean 值，缺失或转换失败返回 false
-     */
+    */
     public boolean toBooleanValue() {
         if (missing || value == null) {
             return false;
@@ -483,7 +483,7 @@ public class JsonNode {
     *
     * @param defaultValue 默认值
     * @return boolean 值
-     */
+    */
     public boolean toBooleanValue(boolean defaultValue) {
         if (missing || value == null) {
             return defaultValue;
@@ -495,7 +495,7 @@ public class JsonNode {
     * 将节点值转换为 BigDecimal。
     *
     * @return BigDecimal 值，缺失或转换失败返回 null
-     */
+    */
     public BigDecimal toBigDecimal() {
         if (missing || value == null) {
             return null;
@@ -510,7 +510,7 @@ public class JsonNode {
     * 将节点值转换为 BigInteger。
     *
     * @return BigInteger 值，缺失或转换失败返回 null
-     */
+    */
     public BigInteger toBigInteger() {
         if (missing || value == null) {
             return null;
@@ -529,7 +529,7 @@ public class JsonNode {
     * @param type 目标类型
     * @param <T>  泛型类型
     * @return 转换后的值，缺失或转换失败返回 null
-     */
+    */
     public <T> T toValue(Class<T> type) {
         if (missing || value == null) {
             return null;
@@ -547,7 +547,7 @@ public class JsonNode {
     * @param defaultValue 默认值
     * @param <T>          泛型类型
     * @return 转换后的值
-     */
+    */
     public <T> T toValue(Class<T> type, T defaultValue) {
         T result = toValue(type);
         return result != null ? result : defaultValue;
@@ -559,7 +559,7 @@ public class JsonNode {
     * 将节点值作为 JsonObject 返回。
     *
     * @return JsonObject，非对象类型返回空 JsonObject
-     */
+    */
     public JsonObject toJsonObject() {
         if (missing || value == null) {
             return JsonObject.empty();
@@ -577,7 +577,7 @@ public class JsonNode {
     * 将节点值作为 JsonArray 返回。
     *
     * @return JsonArray，非数组类型返回空 JsonArray
-     */
+    */
     public JsonArray toJsonArray() {
         if (missing || value == null) {
             return JsonArray.empty();
@@ -595,7 +595,7 @@ public class JsonNode {
     * 获取数组节点的元素个数。
     *
     * @return 元素个数，非数组返回 0
-     */
+    */
     public int size() {
         if (missing || value == null) {
             return 0;
@@ -629,7 +629,7 @@ public class JsonNode {
     * @param key   键名
     * @param value 值（可以为 null、String、Number、Boolean、Map、List 等）
     * @return 当前 JsonNode 实例，支持链式调用
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode put(String key, Object value) {
         if (this.value instanceof Map) {
@@ -645,7 +645,7 @@ public class JsonNode {
     * @param key       键名
     * @param value     值
     * @return 当前 JsonNode 实例
-     */
+    */
     public JsonNode put(boolean condition, String key, Object value) {
         if (condition) {
             put(key, value);
@@ -658,7 +658,7 @@ public class JsonNode {
     *
     * @param map 键值对集合
     * @return 当前 JsonNode 实例
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode putAll(Map<String, ?> map) {
         if (this.value instanceof Map && map != null) {
@@ -683,7 +683,7 @@ public class JsonNode {
     * @param key      键名
     * @param elements 数组元素
     * @return 当前 JsonNode 实例，支持链式调用
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode putArray(String key, Object... elements) {
         if (this.value instanceof Map) {
@@ -718,7 +718,7 @@ public class JsonNode {
     *
     * @param key 键名
     * @return 嵌套对象的 JsonNode，支持继续链式构建
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode startObject(String key) {
         if (this.value instanceof Map) {
@@ -748,7 +748,7 @@ public class JsonNode {
     *
     * @param key 键名
     * @return 嵌套数组的 JsonNode，支持继续链式构建
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode startArray(String key) {
         if (this.value instanceof Map) {
@@ -771,7 +771,7 @@ public class JsonNode {
     * @see #startArray(String)
     * @see #endObject()
     * @see #endArray()
-     */
+    */
     public JsonNode end() {
         return parent != null ? parent : this;
     }
@@ -795,7 +795,7 @@ public class JsonNode {
     *
     * @return 父级 JsonNode，若无父级则返回自身
     * @see #startObject(String)
-     */
+    */
     public JsonNode endObject() {
         return end();
     }
@@ -818,7 +818,7 @@ public class JsonNode {
     *
     * @return 父级 JsonNode，若无父级则返回自身
     * @see #startArray(String)
-     */
+    */
     public JsonNode endArray() {
         return end();
     }
@@ -840,7 +840,7 @@ public class JsonNode {
     *
     * @param element 元素值
     * @return 当前 JsonNode 实例，支持链式调用
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode add(Object element) {
         if (this.value instanceof List) {
@@ -855,7 +855,7 @@ public class JsonNode {
     * @param condition 执行条件
     * @param element   元素值
     * @return 当前 JsonNode 实例
-     */
+    */
     public JsonNode add(boolean condition, Object element) {
         if (condition) {
             add(element);
@@ -869,7 +869,7 @@ public class JsonNode {
     * @param index   插入位置
     * @param element 元素值
     * @return 当前 JsonNode 实例
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode add(int index, Object element) {
         if (this.value instanceof List) {
@@ -883,7 +883,7 @@ public class JsonNode {
     *
     * @param elements 元素集合
     * @return 当前 JsonNode 实例
-     */
+    */
     @SuppressWarnings("unchecked")
     public JsonNode addAll(Collection<?> elements) {
         if (this.value instanceof List && elements != null) {
@@ -897,7 +897,7 @@ public class JsonNode {
     *
     * @param key 键名
     * @return 当前 JsonNode 实例
-     */
+    */
     public JsonNode remove(String key) {
         if (this.value instanceof Map) {
             ((Map<?, ?>) this.value).remove(key);
@@ -910,7 +910,7 @@ public class JsonNode {
     *
     * @param index 索引
     * @return 当前 JsonNode 实例
-     */
+    */
     public JsonNode remove(int index) {
         if (this.value instanceof List) {
             List<?> list = (List<?>) this.value;
@@ -927,7 +927,7 @@ public class JsonNode {
     * @param condition 执行条件
     * @param key       键名
     * @return 当前 JsonNode 实例
-     */
+    */
     public JsonNode remove(boolean condition, String key) {
         if (condition) {
             remove(key);

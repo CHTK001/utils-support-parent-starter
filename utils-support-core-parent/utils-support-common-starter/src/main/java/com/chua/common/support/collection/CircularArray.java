@@ -33,7 +33,7 @@ public interface CircularArray<E> extends List<E> {
     *
     * @return 头部元素
     * @throws NoSuchElementException 如果数组为空
-     */
+    */
     E peek();
 
     /**
@@ -41,7 +41,7 @@ public interface CircularArray<E> extends List<E> {
     *
     * @return 头部元素
     * @throws NoSuchElementException 如果数组为空
-     */
+    */
     E poll();
 
     /**
@@ -50,7 +50,7 @@ public interface CircularArray<E> extends List<E> {
     * 旋转后，原头部元素变为尾部元素，第二个元素成为新的头部元素。
     * 如果数组为空或只有一个元素，此方法不产生效果。
     * </p>
-     */
+    */
     void rotate();
 
     /**
@@ -63,13 +63,13 @@ public interface CircularArray<E> extends List<E> {
     *
     * @param distance 旋转步数
     * @throws IllegalArgumentException 如果数组为空且 distance 不为 0
-     */
+    */
     void rotate(int distance);
 
     /**
     * 返回数组的固定容量（最大可容纳元素数量）。
     *
     * @return 数组容量
-     */
+    */
     int capacity();
 }

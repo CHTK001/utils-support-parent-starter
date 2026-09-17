@@ -22,102 +22,102 @@ public class ProgressBarBuilder {
 
     /**
     * 任务名称
-     */
+    */
     private String task = "";
 
     /**
     * 初始最大值，-1 表示未知
-     */
+    */
     private long initialMax = -1;
 
     /**
     * 更新间隔（毫秒）
-     */
+    */
     private int updateIntervalMillis = 1000;
 
     /**
     * 是否持续更新
-     */
+    */
     private boolean continuousUpdate = false;
 
     /**
     * 进度条样式
-     */
+    */
     private ProgressBarStyle style = ProgressBarStyle.COLORFUL_UNICODE_BLOCK;
 
     /**
     * 进度单位
-     */
+    */
     private ProgressUnit unit = ProgressUnitType.ORIGINAL;
 
     /**
     * 进度条消费者
-     */
+    */
     private ProgressBarConsumer consumer = null;
 
     /**
     * 完成后是否清除显示
-     */
+    */
     private boolean clearDisplayOnFinish = false;
 
     /**
     * 单位名称
-     */
+    */
     private String unitName = "B";
 
     /**
     * 单位大小
-     */
+    */
     private long unitSize = 1;
 
     /**
     * 是否显示速度
-     */
+    */
     private boolean showSpeed = true;
 
     /**
     * 是否隐藏预计剩余时间
-     */
+    */
     private boolean hideEta = false;
 
     /**
     * 预计剩余时间计算函数
-     */
+    */
     private Function<ProgressState, Optional<Duration>> eta = Util::linearEta;
 
     /**
     * 速度格式
-     */
+    */
     private DecimalFormat speedFormat;
 
     /**
     * 速度单位
-     */
+    */
     private ChronoUnit speedUnit = ChronoUnit.SECONDS;
 
     /**
     * 已处理数量
-     */
+    */
     private long processed = 0;
 
     /**
     * 已消耗时间
-     */
+    */
     private Duration elapsed = Duration.ZERO;
 
     /**
     * 最大渲染长度
-     */
+    */
     private int maxRenderedLength = -1;
 
     /**
     * 进度条渲染器
-     */
+    */
     private ProgressBarRenderer renderer = null;
 
     /**
     * 创建一个进度条构建器
-     */
+    */
     public ProgressBarBuilder() {
     }
 
@@ -125,7 +125,7 @@ public class ProgressBarBuilder {
     * 创建一个进度条构建器
     *
     * @return 进度条构建器实例
-     */
+    */
     public static ProgressBarBuilder builder() {
         return new ProgressBarBuilder();
     }
@@ -134,7 +134,7 @@ public class ProgressBarBuilder {
     * 创建一个进度条构建器
     *
     * @return 进度条构建器实例
-     */
+    */
     public static ProgressBarBuilder newBuilder() {
         return new ProgressBarBuilder();
     }
@@ -144,7 +144,7 @@ public class ProgressBarBuilder {
     *
     * @param task 任务名称
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setTaskName(String task) {
         this.task = task;
         return this;
@@ -155,7 +155,7 @@ public class ProgressBarBuilder {
     *
     * @param unit 进度单位
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setUnit(ProgressUnit unit) {
         this.unit = unit;
         return this;
@@ -165,7 +165,7 @@ public class ProgressBarBuilder {
     * 检查是否已设置初始最大值
     *
     * @return true 表示已设置，false 表示未设置
-     */
+    */
     boolean initialMaxIsSet() {
         return this.initialMax != -1;
     }
@@ -175,7 +175,7 @@ public class ProgressBarBuilder {
     *
     * @param initialMax 最大进度值（-1 表示未知）
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setInitialMax(long initialMax) {
         this.initialMax = initialMax;
         return this;
@@ -186,7 +186,7 @@ public class ProgressBarBuilder {
     *
     * @param style 进度条样式
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setStyle(ProgressBarStyle style) {
         this.style = style;
         return this;
@@ -196,7 +196,7 @@ public class ProgressBarBuilder {
     * 设置为 Python 下载风格
     * 使用 Python 风格的下载进度条渲染
     * 内部使用 PythonDownloadProgressBarRenderer
-     */
+    */
     public ProgressBarBuilder setPythonDownloadStyle() {
         this.style = ProgressBarStyle.PYTHON_DOWNLOAD;
         this.renderer = PythonDownloadProgressBarRenderer.create(
@@ -214,7 +214,7 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为彩虹风格
-     */
+    */
     public ProgressBarBuilder setRainbowStyle() {
         this.style = ProgressBarStyle.RAINBOW;
         this.renderer = GradientProgressBarRenderer.createRainbowStyle(
@@ -227,7 +227,7 @@ public class ProgressBarBuilder {
     * 设置渐变色风格
     *
     * @param gradientType 渐变色类型
-     */
+    */
     public ProgressBarBuilder setGradientStyle(GradientProgressBarRenderer.GradientType gradientType) {
         ProgressBarStyle gradientStyle;
         switch (gradientType) {
@@ -274,35 +274,35 @@ public class ProgressBarBuilder {
     
     /**
     * 设置为矩阵风格
-     */
+    */
     public ProgressBarBuilder setMatrixStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.MATRIX);
     }
     
     /**
     * 设置为火焰风格
-     */
+    */
     public ProgressBarBuilder setFireStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.FIRE);
     }
     
     /**
     * 设置为海洋风格
-     */
+    */
     public ProgressBarBuilder setOceanStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.OCEAN);
     }
     
     /**
     * 设置为霓虹风格
-     */
+    */
     public ProgressBarBuilder setNeonStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.NEON);
     }
     
     /**
     * 设置为日落风格
-     */
+    */
     public ProgressBarBuilder setSunsetStyle() {
         return setGradientStyle(GradientProgressBarRenderer.GradientType.SUNSET);
     }
@@ -311,7 +311,7 @@ public class ProgressBarBuilder {
     * 设置为 Python 加载风格
     * 类似 Python alive_progress 库的风格
     * 使用 PythonLoadingProgressBarRenderer
-     */
+    */
     public ProgressBarBuilder setPythonLoadingStyle() {
         this.style = ProgressBarStyle.PYTHON_LOADING;
         this.renderer = PythonLoadingProgressBarRenderer.create(
@@ -332,7 +332,7 @@ public class ProgressBarBuilder {
     *
     * @param updateIntervalMillis 更新间隔（毫秒）
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setUpdateIntervalMillis(int updateIntervalMillis) {
         this.updateIntervalMillis = updateIntervalMillis;
         return this;
@@ -342,7 +342,7 @@ public class ProgressBarBuilder {
     * 启用持续更新模式
     *
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder continuousUpdate() {
         this.continuousUpdate = true;
         return this;
@@ -353,7 +353,7 @@ public class ProgressBarBuilder {
     *
     * @param consumer 进度条消费者
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setConsumer(ProgressBarConsumer consumer) {
         this.consumer = consumer;
         return this;
@@ -363,7 +363,7 @@ public class ProgressBarBuilder {
     * 完成后清除显示
     *
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder clearDisplayOnFinish() {
         this.clearDisplayOnFinish = true;
         return this;
@@ -375,7 +375,7 @@ public class ProgressBarBuilder {
     * @param unitName 单位名称
     * @param unitSize 单位大小
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setUnit(String unitName, long unitSize) {
         this.unitName = unitName;
         this.unitSize = unitSize;
@@ -387,7 +387,7 @@ public class ProgressBarBuilder {
     *
     * @param maxRenderedLength 最大渲染长度
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setMaxRenderedLength(int maxRenderedLength) {
         this.maxRenderedLength = maxRenderedLength;
         return this;
@@ -398,7 +398,7 @@ public class ProgressBarBuilder {
     *
     * @param renderer 进度条渲染器
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setRenderer(ProgressBarRenderer renderer) {
         this.renderer = renderer;
         return this;
@@ -408,7 +408,7 @@ public class ProgressBarBuilder {
     * 显示速度
     *
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder showSpeed() {
         return showSpeed(new DecimalFormat("#.0"));
     }
@@ -418,7 +418,7 @@ public class ProgressBarBuilder {
     *
     * @param speedFormat 速度格式
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder showSpeed(DecimalFormat speedFormat) {
         this.showSpeed = true;
         this.speedFormat = speedFormat;
@@ -429,7 +429,7 @@ public class ProgressBarBuilder {
     * 隐藏预计剩余时间
     *
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder hideEta() {
         this.hideEta = true;
         return this;
@@ -440,7 +440,7 @@ public class ProgressBarBuilder {
     *
     * @param eta 预计剩余时间计算函数
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setEtaFunction(Function<ProgressState, Optional<Duration>> eta) {
         this.hideEta = false;
         this.eta = eta;
@@ -452,7 +452,7 @@ public class ProgressBarBuilder {
     *
     * @param speedUnit 速度单位
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder setSpeedUnit(ChronoUnit speedUnit) {
         this.speedUnit = speedUnit;
         return this;
@@ -466,7 +466,7 @@ public class ProgressBarBuilder {
     * @param processed 已处理数量
     * @param elapsed 已消耗时间
     * @return 当前构建器实例
-     */
+    */
     public ProgressBarBuilder startsFrom(long processed, Duration elapsed) {
         this.processed = processed;
         this.elapsed = elapsed;
@@ -477,7 +477,7 @@ public class ProgressBarBuilder {
     * 构建进度条实例
     *
     * @return 构建完成的 ProgressBar 实例
-     */
+    */
     public ProgressBar build() {
         return new ProgressBar(
                 task,

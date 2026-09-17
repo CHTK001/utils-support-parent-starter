@@ -25,7 +25,7 @@ public class ContextCompressionConfig {
     @Builder.Default
     /**
     * 是否启用
-     */
+    */
     private boolean enabled = false;
 
     /** 消息数达到此值触发首次压缩并保存基线 */

@@ -20,7 +20,7 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
 
     /**
     * 虚拟线程执行器
-     */
+    */
     private final ExecutorService executor;
 
     /**
@@ -29,7 +29,7 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     * @param int int
     * @param long long
     * @param TimeUnit TimeUnit
-     */
+    */
     public VirtualThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
@@ -41,7 +41,7 @@ public class VirtualThreadExecutor extends AbstractThreadExecutor {
     * @param timeout timeout
     * @param timeUnit timeUnit
     * @param maxConcurrent maxConcurrent
-     */
+    */
     public VirtualThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                  int maxConcurrent) {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);

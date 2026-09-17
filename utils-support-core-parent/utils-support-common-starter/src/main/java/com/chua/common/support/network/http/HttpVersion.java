@@ -43,7 +43,7 @@ public enum HttpVersion {
     *
     * <p>经典的 HTTP 协议版本，基于文本协议，支持持久连接（Keep-Alive）。
     * 所有 HTTP 库均支持此版本，兼容性最佳。</p>
-     */
+    */
     HTTP_1_1(1, 1),
 
     /**
@@ -51,7 +51,7 @@ public enum HttpVersion {
     *
     * <p>基于二进制帧的多路复用协议，支持头部压缩（HPACK）、服务器推送等特性。
     * 在 HTTPS 连接中可获得更好的性能。需要 TLS 加密连接。</p>
-     */
+    */
     HTTP_2(2, 0),
 
     /**
@@ -70,7 +70,7 @@ public enum HttpVersion {
     * Cloudflare quiche-java 或 Netty 的 netty-incubator-codec-http3）。</p>
     *
     * <p>当请求指定 HTTP/3 但执行器不支持时，执行器会自动降级到 HTTP/2。</p>
-     */
+    */
     HTTP_3(3, 0);
 
     /** Major */
@@ -87,20 +87,20 @@ public enum HttpVersion {
     * 获取主版本号。
     *
     * @return 主版本号，如 HTTP/1.1 返回 1，HTTP/2 返回 2，HTTP/3 返回 3
-     */
+    */
     public int getMajor() { return major; }
 
     /**
     * 获取次版本号。
     *
     * @return 次版本号，如 HTTP/1.1 返回 1，HTTP/2 返回 0
-     */
+    */
     public int getMinor() { return minor; }
 
     /**
     * 判断此版本是否为 HTTP/3（基于 QUIC 传输）。
     *
     * @return HTTP/3 返回 true
-     */
+    */
     public boolean isQuic() { return this == HTTP_3; }
 }

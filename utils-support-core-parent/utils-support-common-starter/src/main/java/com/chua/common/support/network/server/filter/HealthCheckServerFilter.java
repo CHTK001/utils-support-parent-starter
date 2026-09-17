@@ -25,13 +25,13 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
 
     /**
     * 默认健康检查路径集合
-     */
+    */
     private static final Set<String> DEFAULT_HEALTH_PATHS =
             Set.of("/healthz", "/ping", "/readyz");
 
     /**
     * HTTP 200 状态码
-     */
+    */
     private static final int STATUS_OK = 200;
 
     /** 健康检查路径集合(精确匹配) */
@@ -39,7 +39,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
 
     /**
     * 创建健康检查过滤器(使用默认路径:/healthz、/ping、/readyz)。
-     */
+    */
     public HealthCheckServerFilter() {
         this.healthPaths = DEFAULT_HEALTH_PATHS;
     }
@@ -48,7 +48,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     * 创建健康检查过滤器(自定义路径)。
     *
     * @param healthPaths 健康检查路径集合(精确匹配)
-     */
+    */
     public HealthCheckServerFilter(Set<String> healthPaths) {
         this.healthPaths = Set.copyOf(healthPaths);
     }
@@ -60,7 +60,9 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     }
 
     @Override
-    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    /**
+    * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
+    */
     public String supportPath() {
         return null;
     }
@@ -78,7 +80,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         // 探针路径命中:直接响应并终止链,不进入路由与业务处理
@@ -96,7 +98,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (isHealthPath(request)) {
@@ -111,7 +113,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     *
     * @param request 请求对象
     * @return true 表示命中探针路径
-     */
+    */
     private boolean isHealthPath(ServerRequest request) {
         return healthPaths.contains(request.getPath());
     }
@@ -120,7 +122,7 @@ public class HealthCheckServerFilter implements ServerFilter, ReactiveServerFilt
     * 输出 200 OK 探针响应。
     *
     * @param response 响应对象
-     */
+    */
     private void respondOk(ServerResponse response) {
         if (!response.isEnded()) {
             response.setStatus(STATUS_OK);

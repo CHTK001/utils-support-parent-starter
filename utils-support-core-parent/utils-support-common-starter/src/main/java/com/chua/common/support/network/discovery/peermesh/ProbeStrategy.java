@@ -14,18 +14,18 @@ public interface ProbeStrategy {
     * 启动探针，开始扫描或连接种子。
     *
     * @throws Exception 启动失败时抛出异常
-     */
+    */
     void start() throws Exception;
 
     /**
     * 停止探针，释放资源。
-     */
+    */
     void stop() throws Exception;
 
     /**
     * 获取本次探针发现的所有节点条目。
     *
     * @return 节点条目列表（只读）
-     */
+    */
     List<NodeTable.NodeEntry> getDiscoveredNodes();
 }

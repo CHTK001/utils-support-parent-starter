@@ -78,7 +78,7 @@ public final class CliToolDescriptor {
     * 创建描述实例
     *
     * @param builder 构建器
-     */
+    */
     private CliToolDescriptor(Builder builder) {
         this.name = builder.name;
         this.displayName = builder.displayName != null ? builder.displayName : builder.name;
@@ -102,7 +102,7 @@ public final class CliToolDescriptor {
     *
     * @param name 工具唯一标识，同时作为默认可执行文件名
     * @return 构建器
-     */
+    */
     @Nonnull
     public static Builder builder(@Nonnull String name) {
         return new Builder(name);
@@ -112,7 +112,7 @@ public final class CliToolDescriptor {
     * 获取工具唯一标识。
     *
     * @return 工具名称
-     */
+    */
     @Nonnull
     public String name() {
         return name;
@@ -122,7 +122,7 @@ public final class CliToolDescriptor {
     * 获取展示名称。
     *
     * @return 展示名称
-     */
+    */
     @Nonnull
     public String displayName() {
         return displayName;
@@ -132,7 +132,7 @@ public final class CliToolDescriptor {
     * 获取当前平台下的可执行文件名。
     *
     * @return 可执行文件名
-     */
+    */
     @Nonnull
     public String executableName() {
         return OsFamily.current().isWindows() ? windowsExecutable : unixExecutable;
@@ -142,7 +142,7 @@ public final class CliToolDescriptor {
     * 获取通用可执行文件名（不分平台）。
     *
     * @return 可执行文件名
-     */
+    */
     @Nonnull
     public String executable() {
         return executable;
@@ -152,7 +152,7 @@ public final class CliToolDescriptor {
     * 获取用于覆盖定位结果的环境变量名。
     *
     * @return 环境变量名，未设置返回 null
-     */
+    */
     @Nullable
     public String envKey() {
         return envKey;
@@ -162,7 +162,7 @@ public final class CliToolDescriptor {
     * 获取候选安装目录。
     *
     * @return 候选目录列表
-     */
+    */
     @Nonnull
     public List<String> candidateDirs() {
         return candidateDirs;
@@ -172,7 +172,7 @@ public final class CliToolDescriptor {
     * 获取版本探测参数。
     *
     * @return 参数列表，默认 {@code --version}
-     */
+    */
     @Nonnull
     public List<String> versionArgs() {
         return versionArgs;
@@ -182,7 +182,7 @@ public final class CliToolDescriptor {
     * 获取版本提取正则。
     *
     * @return 正则对象，未设置返回 null
-     */
+    */
     @Nullable
     public Pattern versionPattern() {
         return versionPattern;
@@ -192,7 +192,7 @@ public final class CliToolDescriptor {
     * 获取最低版本要求。
     *
     * @return 最低版本，未设置返回 null
-     */
+    */
     @Nullable
     public CliVersion minVersion() {
         return minVersion;
@@ -202,7 +202,7 @@ public final class CliToolDescriptor {
     * 获取默认超时时间。
     *
     * @return 超时秒数
-     */
+    */
     public long defaultTimeoutSeconds() {
         return defaultTimeoutSeconds;
     }
@@ -211,7 +211,7 @@ public final class CliToolDescriptor {
     * 获取包管理器安装用的包 ID。
     *
     * @return 包 ID，未设置返回 null
-     */
+    */
     @Nullable
     public String installPackageId() {
         return installPackageId;
@@ -221,7 +221,7 @@ public final class CliToolDescriptor {
     * 获取选项契约。
     *
     * @return 选项定义列表
-     */
+    */
     @Nonnull
     public List<CliOption> options() {
         return options;
@@ -232,7 +232,7 @@ public final class CliToolDescriptor {
     *
     * @param explicitPath 显式指定的路径，可为 null
     * @return 查找请求
-     */
+    */
     @Nonnull
     public ExecutableLocator.LocateRequest locateRequest(@Nullable String explicitPath) {
         ExecutableLocator.LocateRequest.Builder builder =
@@ -254,7 +254,7 @@ public final class CliToolDescriptor {
 
     /**
     * {@link CliToolDescriptor} 构建器。
-     */
+    */
     public static final class Builder {
 
         /** 工具唯一标识 */
@@ -288,7 +288,7 @@ public final class CliToolDescriptor {
         * 创建构建器
         *
         * @param name 工具唯一标识
-         */
+        */
         private Builder(String name) {
             this.name = name;
             this.executable = name;
@@ -299,7 +299,7 @@ public final class CliToolDescriptor {
         *
         * @param displayName 展示名称
         * @return this
-         */
+        */
         @Nonnull
         public Builder displayName(@Nonnull String displayName) {
             this.displayName = displayName;
@@ -311,7 +311,7 @@ public final class CliToolDescriptor {
         *
         * @param executable 可执行文件名
         * @return this
-         */
+        */
         @Nonnull
         public Builder executable(@Nonnull String executable) {
             this.executable = executable;
@@ -323,7 +323,7 @@ public final class CliToolDescriptor {
         *
         * @param windowsExecutable Windows 可执行名
         * @return this
-         */
+        */
         @Nonnull
         public Builder windowsExecutable(@Nonnull String windowsExecutable) {
             this.windowsExecutable = windowsExecutable;
@@ -335,7 +335,7 @@ public final class CliToolDescriptor {
         *
         * @param unixExecutable Unix 可执行名
         * @return this
-         */
+        */
         @Nonnull
         public Builder unixExecutable(@Nonnull String unixExecutable) {
             this.unixExecutable = unixExecutable;
@@ -347,7 +347,7 @@ public final class CliToolDescriptor {
         *
         * @param envKey 环境变量名
         * @return this
-         */
+        */
         @Nonnull
         public Builder envKey(@Nullable String envKey) {
             this.envKey = envKey;
@@ -359,7 +359,7 @@ public final class CliToolDescriptor {
         *
         * @param dirs 候选目录
         * @return this
-         */
+        */
         @Nonnull
         public Builder candidateDirs(@Nonnull String... dirs) {
             for (String dir : dirs) {
@@ -377,7 +377,7 @@ public final class CliToolDescriptor {
         *
         * @param args 版本参数
         * @return this
-         */
+        */
         @Nonnull
         public Builder versionArgs(@Nonnull String... args) {
             this.versionArgs.clear();
@@ -390,7 +390,7 @@ public final class CliToolDescriptor {
         *
         * @param versionPattern 版本正则
         * @return this
-         */
+        */
         @Nonnull
         public Builder versionPattern(@Nullable Pattern versionPattern) {
             this.versionPattern = versionPattern;
@@ -402,7 +402,7 @@ public final class CliToolDescriptor {
         *
         * @param minVersion 最低版本
         * @return this
-         */
+        */
         @Nonnull
         public Builder minVersion(@Nullable CliVersion minVersion) {
             this.minVersion = minVersion;
@@ -415,7 +415,7 @@ public final class CliToolDescriptor {
         * @param timeout 超时值
         * @param unit    时间单位
         * @return this
-         */
+        */
         @Nonnull
         public Builder defaultTimeout(long timeout, @Nonnull TimeUnit unit) {
             this.defaultTimeoutSeconds = unit.toSeconds(timeout);
@@ -427,7 +427,7 @@ public final class CliToolDescriptor {
         *
         * @param installPackageId 包 ID
         * @return this
-         */
+        */
         @Nonnull
         public Builder installPackage(@Nullable String installPackageId) {
             this.installPackageId = installPackageId;
@@ -439,7 +439,7 @@ public final class CliToolDescriptor {
         *
         * @param options 选项定义
         * @return this
-         */
+        */
         @Nonnull
         public Builder options(@Nonnull CliOption... options) {
             Collections.addAll(this.options, options);
@@ -451,7 +451,7 @@ public final class CliToolDescriptor {
         *
         * @return 描述实例
         * @throws IllegalStateException 工具名称为空时抛出
-         */
+        */
         @Nonnull
         public CliToolDescriptor build() {
             if (StringUtils.isNullOrEmpty(name)) {

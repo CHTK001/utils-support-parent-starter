@@ -22,7 +22,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     /**
     * 创建 AbstractConfigSaveOrLoader 实例
     * @param setting setting
-     */
+    */
     protected AbstractConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         this.setting = setting == null ? ConfigSaveLoadSetting.builder().build() : setting;
     }
@@ -38,7 +38,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     *
     * @param key 原始配置键
     * @return 规范化后的相对路径
-     */
+    */
     protected String normalizeKey(String key) {
         Objects.requireNonNull(key, "config key must not be null");
         String normalized = key.replace('\\', '/');
@@ -58,7 +58,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     * @param location 存储位置
     * @param size     数据大小
     * @return 成功结果
-     */
+    */
     protected ConfigSaveResult success(String key, String location, long size) {
         return ConfigSaveResult.success(key, location, size);
     }
@@ -69,7 +69,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     * @param key     配置键
     * @param message 失败信息
     * @return 失败结果
-     */
+    */
     protected ConfigSaveResult failure(String key, String message) {
         return ConfigSaveResult.failure(key, message);
     }
@@ -79,7 +79,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     *
     * @param parts 路径片段
     * @return 拼接后的路径
-     */
+    */
     protected String joinPath(String... parts) {
         StringBuilder builder = new StringBuilder();
         for (String part : parts) {

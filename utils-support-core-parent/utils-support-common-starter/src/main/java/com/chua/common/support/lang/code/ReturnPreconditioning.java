@@ -31,40 +31,40 @@ public class ReturnPreconditioning<T> {
 
     /**
     * 非空条件
-     */
+    */
     public static final Predicate<Object> NOT_NULL = data -> null != data;
     /**
     * 布尔条件(为真)
-     */
+    */
     public static final Predicate<Boolean> BOOLEAN = data -> null != data && data;
     /**
     * 数值条件(大于 0)
-     */
+    */
     public static final Predicate<Number> NUMBER = data -> null != data && data.intValue() > 0;
 
     /**
     * 数据
-     */
+    */
     private final T data;
     /**
     * 成功条件
-     */
+    */
     private Predicate<T> condition;
     /**
     * 成功消息
-     */
+    */
     private String successMessage;
     /**
     * 失败消息
-     */
+    */
     private String errorMessage = "服务器异常, 请稍后重试!";
     /**
     * 异常
-     */
+    */
     private Throwable throwable;
     /**
     * 失败 code
-     */
+    */
     private ResultCode errorCode;
 
     /**
@@ -72,7 +72,7 @@ public class ReturnPreconditioning<T> {
     * @param data data
     * @param Predicate Predicate
     * @param condition condition
-     */
+    */
     protected ReturnPreconditioning(T data, Predicate<T> condition) {
         this.data = data;
         this.condition = condition;
@@ -86,7 +86,7 @@ public class ReturnPreconditioning<T> {
     * @param data 数据
     * @param <T>  类型
     * @return 前置条件
-     */
+    */
     public static <T> ReturnPreconditioning<T> of(T data) {
         Predicate<T> condition;
         if (data instanceof Boolean) {
@@ -105,7 +105,7 @@ public class ReturnPreconditioning<T> {
     * @param supplier 供给
     * @param <T>      类型
     * @return 前置条件
-     */
+    */
     public static <T> ReturnPreconditioning<T> of(Supplier<T> supplier) {
         return of(null == supplier ? null : supplier.get());
     }
@@ -116,7 +116,7 @@ public class ReturnPreconditioning<T> {
     * @param callable callable
     * @param <T>      类型
     * @return 前置条件
-     */
+    */
     public static <T> ReturnPreconditioning<T> ofCallable(Callable<T> callable) {
         try {
             return of(null == callable ? null : callable.call());
@@ -132,7 +132,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param condition 条件
     * @return this
-     */
+    */
     public ReturnPreconditioning<T> withCondition(Predicate<T> condition) {
         this.condition = condition;
         return this;
@@ -143,7 +143,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param message 消息
     * @return this
-     */
+    */
     public ReturnPreconditioning<T> withSuccessMessage(String message) {
         this.successMessage = message;
         return this;
@@ -154,7 +154,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param message 消息
     * @return this
-     */
+    */
     public ReturnPreconditioning<T> withErrorMessage(String message) {
         this.errorMessage = message;
         return this;
@@ -166,7 +166,7 @@ public class ReturnPreconditioning<T> {
     * @param function 转换函数
     * @param <R>      目标类型
     * @return 新的前置条件
-     */
+    */
     public <R> ReturnPreconditioning<R> withConverter(Function<T, R> function) {
         return of(function.apply(data));
     }
@@ -176,7 +176,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param throwable 异常
     * @return this
-     */
+    */
     public ReturnPreconditioning<T> withThrowable(Throwable throwable) {
         this.throwable = throwable;
         return this;
@@ -187,7 +187,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param errorCode 状态码
     * @return this
-     */
+    */
     public ReturnPreconditioning<T> withErrorCode(ResultCode errorCode) {
         this.errorCode = errorCode;
         return this;
@@ -202,7 +202,7 @@ public class ReturnPreconditioning<T> {
     * @param onFailure 不成立时的处理
     * @param <R>       返回类型
     * @return 分支结果
-     */
+    */
     public <R> R when(Function<T, R> onSuccess, Supplier<R> onFailure) {
         if (isSuccessful()) {
             return onSuccess.apply(data);
@@ -216,7 +216,7 @@ public class ReturnPreconditioning<T> {
     * @param onSuccess 成立时的处理
     * @param <R>       返回类型
     * @return 结果
-     */
+    */
     public <R> ReturnResult<R> then(Function<T, R> onSuccess) {
         if (isSuccessful()) {
             return ReturnResult.ok(onSuccess.apply(data), successMessage);
@@ -229,7 +229,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param other 默认值
     * @return 数据或默认值
-     */
+    */
     public T otherwise(T other) {
         return isSuccessful() ? data : other;
     }
@@ -239,7 +239,7 @@ public class ReturnPreconditioning<T> {
     *
     * @param supplier 默认值供给
     * @return 数据或默认值
-     */
+    */
     public T otherwiseGet(Supplier<T> supplier) {
         return isSuccessful() ? data : supplier.get();
     }
@@ -250,7 +250,7 @@ public class ReturnPreconditioning<T> {
     * 是否成功
     *
     * @return 是否成功
-     */
+    */
     public boolean isSuccessful() {
         return null != condition && condition.test(data);
     }
@@ -259,7 +259,7 @@ public class ReturnPreconditioning<T> {
     * 转换为结果
     *
     * @return 结果
-     */
+    */
     public ReturnResult<T> asResult() {
         if (isSuccessful()) {
             return ReturnResult.ok(data, successMessage);

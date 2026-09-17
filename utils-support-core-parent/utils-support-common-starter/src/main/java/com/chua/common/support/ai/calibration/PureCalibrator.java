@@ -16,7 +16,7 @@ public interface PureCalibrator {
     *
     * @param rawScore 原始相似度分数，取值范围通常在0~1之间
     * @return 校准后的分数，取值范围0~100
-     */
+    */
     double calibrate(double rawScore);
 
     /**
@@ -24,7 +24,7 @@ public interface PureCalibrator {
     *
     * @param rawScores 原始分数数组，每个元素取值范围通常在0~1之间
     * @return 校准后的分数数组，每个元素取值范围0~100
-     */
+    */
     default double[] calibrateBatch(double[] rawScores) {
         double[] result = new double[rawScores.length];
         for (int i = 0; i < rawScores.length; i++) {
@@ -37,13 +37,13 @@ public interface PureCalibrator {
     * 获取校准器名称
     *
     * @return 校准器名称字符串
-     */
+    */
     String getName();
 
     /**
     * 获取校准器描述
     *
     * @return 校准器功能描述字符串
-     */
+    */
     String getDescription();
 }

@@ -38,7 +38,7 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
 
     /**
     * 算法名称
-     */
+    */
     private static final String ALGORITHM = "AES";
     /** 加密转换算法 */
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
@@ -49,7 +49,7 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key  加密密钥，支持 16 字节（128 位）、24 字节（192 位）或 32 字节（256 位）
     * @param data 待加密的明文数据
     * @return 加密后的密文数据（前 16 字节为随机 IV）
-     */
+    */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[16];
@@ -75,7 +75,7 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key  加密密钥
     * @param data 待加密的明文字符串
     * @return Base64 编码的密文字符串
-     */
+    */
     public String encryptToString(byte[] key, String data) {
         return getEncoder().encodeToString(
                 encrypt(key, data.getBytes(StandardCharsets.UTF_8)));
@@ -87,7 +87,7 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key        解密密钥，必须与加密时使用的密钥一致
     * @param ciphertext 待解密的密文数据（前 16 字节为随机 IV）
     * @return 解密后的明文数据
-     */
+    */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[16];
@@ -108,7 +108,7 @@ public class AesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key          解密密钥，必须与加密时使用的密钥一致
     * @param ciphertext64 Base64 编码的密文字符串
     * @return 解密后的明文字符串
-     */
+    */
     public String decryptToString(byte[] key, String ciphertext64) {
         return new String(
                 decrypt(key, getDecoder().decode(ciphertext64)),

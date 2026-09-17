@@ -43,17 +43,17 @@ public class JavaScriptMarker extends AbstractScriptMarker {
 
     /**
     * JDK 动态编译器实例
-     */
+    */
     private final Compiler compiler = new JdkCompiler();
 
     /**
     * 最后一次编译生成的 Class 类型
-     */
+    */
     private Class<?> compiledClass;
 
     /**
     * 最后一次编译脚本时使用的类加载器
-     */
+    */
     private volatile ClassLoader lastClassLoader;
 
     @Override

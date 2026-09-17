@@ -19,62 +19,62 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-* 基于 JDK DatagramSocket 的 UDP 同步客户端实现。
-* <p>
-* 通过数据报与服务端双向同步,支持注册、主题订阅与消息收发。
-* </p>
-*
-* @author CH
-* @since 2026-07-25
- */
+ * 基于 JDK DatagramSocket 的 UDP 同步客户端实现。
+ * <p>
+ * 通过数据报与服务端双向同步,支持注册、主题订阅与消息收发。
+ * </p>
+ *
+ * @author CH
+ * @since 2026-07-25
+*/
 @Spi("udp")
 public class UdpSyncClient implements SyncClient {
 
     /**
     * 客户端标识
-     */
+    */
     private final String clientId;
 
     /**
     * 服务端地址
-     */
+    */
     private final String serverUrl;
 
     /**
     * 底层 DatagramSocket
-     */
+    */
     private DatagramSocket socket;
 
     /**
     * 服务端地址
-     */
+    */
     private InetSocketAddress serverAddress;
 
     /**
     * 是否已连接
-     */
+    */
     private volatile boolean connected;
 
     /**
     * 订阅的主题映射（topic -> handler）
-     */
+    */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
 
     /**
     * 监听器列表
-     */
+    */
     private final List<SyncFlowListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
     * 接收线程
-     */
+    */
     private Thread receiveThread;
 
     /**
     * 创建 UDP 同步客户端。
     *
     * @param serverUrl 服务端地址，如 udp://localhost:19391
-     */
+    */
     public UdpSyncClient(String serverUrl) {
         this(UUID.randomUUID().toString(), serverUrl);
     }
@@ -84,7 +84,7 @@ public class UdpSyncClient implements SyncClient {
     *
     * @param clientId  客户端标识
     * @param serverUrl 服务端地址
-     */
+    */
     public UdpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl;
@@ -184,7 +184,7 @@ public class UdpSyncClient implements SyncClient {
 
     /**
     * 启动接收线程。
-     */
+    */
     private void startReceive() {
         receiveThread = ThreadUtils.newThread(() -> {
             byte[] buffer = new byte[8192];
@@ -209,7 +209,7 @@ public class UdpSyncClient implements SyncClient {
     * 处理数据报。
     *
     * @param packet 数据报
-     */
+    */
     private void handlePacket(DatagramPacket packet) {
         String message = new String(packet.getData(), packet.getOffset(), packet.getLength(), StandardCharsets.UTF_8).trim();
         int colon = message.indexOf(':');
@@ -226,7 +226,7 @@ public class UdpSyncClient implements SyncClient {
     * 发送数据报。
     *
     * @param payload 消息内容
-     */
+    */
     private void sendData(String payload) {
         try {
             byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
@@ -239,7 +239,7 @@ public class UdpSyncClient implements SyncClient {
 
     /**
     * 校验连接状态。
-     */
+    */
     private void checkConnected() {
         if (!connected) {
             throw new IllegalStateException("客户端未连接");
@@ -251,7 +251,7 @@ public class UdpSyncClient implements SyncClient {
     *
     * @param url 地址
     * @return SocketAddress
-     */
+    */
     private InetSocketAddress parseAddress(String url) {
         String address = url;
         if (address.startsWith("udp://")) {
@@ -270,7 +270,7 @@ public class UdpSyncClient implements SyncClient {
     * 通知监听器。
     *
     * @param action 动作
-     */
+    */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

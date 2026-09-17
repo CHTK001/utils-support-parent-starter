@@ -61,7 +61,7 @@ public final class CliRequest {
     * 创建请求实例
     *
     * @param tool 所属的 CLI 工具
-     */
+    */
     CliRequest(@Nonnull CliTool tool) {
         this.tool = tool;
         this.timeout = tool.descriptor().defaultTimeoutSeconds();
@@ -73,7 +73,7 @@ public final class CliRequest {
     *
     * @param arg 参数
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest arg(@Nonnull String arg) {
         if (arg != null) {
@@ -87,7 +87,7 @@ public final class CliRequest {
     *
     * @param args 参数数组
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest args(@Nonnull String... args) {
         if (args != null) {
@@ -101,7 +101,7 @@ public final class CliRequest {
     *
     * @param args 参数集合
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest args(@Nonnull Collection<String> args) {
         if (args != null) {
@@ -116,7 +116,7 @@ public final class CliRequest {
     * @param timeout 超时值
     * @param unit    时间单位
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest timeout(long timeout, @Nonnull TimeUnit unit) {
         this.timeout = timeout;
@@ -130,7 +130,7 @@ public final class CliRequest {
     * <p>请谨慎使用：被调程序若永不退出，当前线程会一直阻塞。</p>
     *
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest noTimeout() {
         this.timeout = 0;
@@ -145,7 +145,7 @@ public final class CliRequest {
     *
     * @param dir 工作目录，null 清除
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest workingDirectory(@Nullable Path dir) {
         this.workingDirectory = dir == null ? null : dir.toFile();
@@ -157,7 +157,7 @@ public final class CliRequest {
     *
     * @param dir 工作目录，null 清除
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest workingDirectory(@Nullable File dir) {
         this.workingDirectory = dir;
@@ -170,7 +170,7 @@ public final class CliRequest {
     * @param key   变量名
     * @param value 变量值
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest env(@Nonnull String key, @Nonnull String value) {
         if (environment == null) {
@@ -185,7 +185,7 @@ public final class CliRequest {
     *
     * @param env 环境变量集合，null 忽略
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest envs(@Nullable Map<String, String> env) {
         if (env != null) {
@@ -202,7 +202,7 @@ public final class CliRequest {
     *
     * @param input 标准输入内容，null 清除
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest input(@Nullable String input) {
         this.input = input;
@@ -217,7 +217,7 @@ public final class CliRequest {
     *
     * @param options 键值对参数
     * @return this
-     */
+    */
     @Nonnull
     public CliRequest args(@Nonnull Map<String, Object> options) {
         if (options != null) {
@@ -240,7 +240,7 @@ public final class CliRequest {
     * 获取当前累积的参数列表。
     *
     * @return 参数列表副本
-     */
+    */
     @Nonnull
     public List<String> args() {
         return Collections.unmodifiableList(new ArrayList<>(args));
@@ -250,7 +250,7 @@ public final class CliRequest {
     * 获取超时值。
     *
     * @return 超时值，小于等于 0 表示不超时
-     */
+    */
     public long timeout() {
         return timeout;
     }
@@ -259,7 +259,7 @@ public final class CliRequest {
     * 获取超时单位。
     *
     * @return 时间单位
-     */
+    */
     @Nonnull
     public TimeUnit unit() {
         return unit;
@@ -270,7 +270,7 @@ public final class CliRequest {
     *
     * @return 命令行数组
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public String[] commandLine() {
         return tool.buildCommandLine(toArgArray());
@@ -281,7 +281,7 @@ public final class CliRequest {
     *
     * @return 执行结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CmdResult execute() {
         if (workingDirectory == null && environment == null && input == null) {
@@ -296,7 +296,7 @@ public final class CliRequest {
     * @param callback 逐行输出回调
     * @return 执行结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CmdResult executeWithOutput(@Nonnull LineCallback callback) {
         if (workingDirectory == null && environment == null && input == null) {
@@ -311,7 +311,7 @@ public final class CliRequest {
     *
     * @return 异步结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CompletableFuture<CmdResult> executeAsync() {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
@@ -351,7 +351,7 @@ public final class CliRequest {
     * 把累积的参数转换为数组。
     *
     * @return 参数数组
-     */
+    */
     @Nonnull
     private String[] toArgArray() {
         return args.toArray(new String[0]);

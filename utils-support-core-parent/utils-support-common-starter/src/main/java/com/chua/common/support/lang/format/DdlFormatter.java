@@ -44,21 +44,21 @@ import java.util.regex.Pattern;
 public class DdlFormatter extends SqlFormatter {
     /**
     * 无参构造器（默认配置）
-     */
+    */
     public DdlFormatter() {
         super();
     }
 
     /**
     * 带参构造器（自定义配置）
-     */
+    */
     public DdlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         super(keepComments, upperCaseKeywords);
     }
 
     /**
     * 全参构造器（自定义所有配置）
-     */
+    */
     public DdlFormatter(boolean keepComments, boolean upperCaseKeywords, boolean compressWhitespace) {
         super(keepComments, upperCaseKeywords, compressWhitespace);
     }
@@ -76,7 +76,7 @@ public class DdlFormatter extends SqlFormatter {
     * <p><b>匹配示例：</b>
     * {@code CREATE TABLE users (id INT, name VARCHAR(50));}
     * → group(1) = "users", group(2) = "id INT, name VARCHAR(50)"
-     */
+    */
     private static final Pattern CREATE_TABLE_PATTERN =
             Pattern.compile("(?i)CREATE\\s+TABLE\\s+(\\w+)\\s*\\((.*)\\)\\s*;?\\s*$", Pattern.DOTALL);
 
@@ -88,13 +88,13 @@ public class DdlFormatter extends SqlFormatter {
     *   <li>group(1)：表名</li>
     *   <li>group(2)：操作部分（ADD、DROP、MODIFY等）</li>
     * </ul>
-     */
+    */
     private static final Pattern ALTER_TABLE_PATTERN =
             Pattern.compile("(?i)ALTER\\s+TABLE\\s+(\\w+)\\s+(.*?);?\\s*$", Pattern.DOTALL);
 
     /**
     * 匹配 CREATE INDEX 语句的正则表达式。
-     */
+    */
     private static final Pattern CREATE_INDEX_PATTERN =
             Pattern.compile("(?i)CREATE\\s+(UNIQUE\\s+)?INDEX\\s+(\\w+)\\s+ON\\s+(\\w+)\\s*\\((.*?)\\)\\s*;?\\s*$", Pattern.DOTALL);
 
@@ -109,7 +109,7 @@ public class DdlFormatter extends SqlFormatter {
     *   <li>CHECK（检查约束）</li>
     *   <li>CONSTRAINT（命名约束）</li>
     * </ul>
-     */
+    */
     private static final Pattern CONSTRAINT_PATTERN =
             Pattern.compile("(?i)(CONSTRAINT\\s+\\w+\\s+)?(PRIMARY\\s+KEY|FOREIGN\\s+KEY|UNIQUE|CHECK)", Pattern.CASE_INSENSITIVE);
 
@@ -136,7 +136,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param source 预处理后的SQL字符串
     * @return 格式化后的DDL语句
-     */
+    */
     @Override
     protected String doFormat(String source) {
         // 1. 清理输入：去除多余空白，规范化空格
@@ -197,7 +197,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param sql 原始 CREATE TABLE 语句
     * @return 格式化后的 CREATE TABLE 语句
-     */
+    */
     private String formatCreateTable(String sql) {
         // 1. 使用正则匹配
         Matcher matcher = CREATE_TABLE_PATTERN.matcher(sql);
@@ -296,7 +296,7 @@ public class DdlFormatter extends SqlFormatter {
     * @param columnsPart 列定义部分的原始字符串（括号内的内容）
     * @param columnDefs 输出参数：存储解析出的列定义
     * @param constraintDefs 输出参数：存储解析出的约束定义
-     */
+    */
     private void parseColumnDefinitions(String columnsPart,
                                         List<String> columnDefs,
                                         List<String> constraintDefs) {
@@ -403,7 +403,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param part 定义字符串
     * @return 如果是约束定义返回true，否则返回false
-     */
+    */
     private boolean isConstraint(String part) {
         if (part == null || part.isEmpty()) {
             return false;
@@ -428,7 +428,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param def 原始列定义字符串
     * @return 格式化后的列定义
-     */
+    */
     private String formatColumnDefinition(String def) {
         if (def == null) {
             return "";
@@ -455,7 +455,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param def 原始约束定义字符串
     * @return 格式化后的约束定义
-     */
+    */
     private String formatConstraintDefinition(String def) {
         if (def == null) {
             return "";
@@ -498,7 +498,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param sql 原始 ALTER TABLE 语句
     * @return 格式化后的 ALTER TABLE 语句
-     */
+    */
     private String formatAlterTable(String sql) {
         // 1. 正则匹配
         Matcher matcher = ALTER_TABLE_PATTERN.matcher(sql);
@@ -554,7 +554,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param sql 原始 DROP TABLE 语句
     * @return 格式化后的 DROP TABLE 语句
-     */
+    */
     private String formatDropTable(String sql) {
         if (sql == null) {
             return null;
@@ -580,7 +580,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param sql 原始 CREATE INDEX 语句
     * @return 格式化后的 CREATE INDEX 语句
-     */
+    */
     private String formatCreateIndex(String sql) {
         if (sql == null) {
             return null;
@@ -606,7 +606,7 @@ public class DdlFormatter extends SqlFormatter {
     *
     * @param sql 原始 TRUNCATE TABLE 语句
     * @return 格式化后的 TRUNCATE TABLE 语句
-     */
+    */
     private String formatTruncateTable(String sql) {
         if (sql == null) {
             return null;

@@ -17,31 +17,31 @@ import static java.util.concurrent.Executors.newThreadPerTaskExecutor;
 
 
 /**
-* 线程工具类，提供线程池创建、线程管理、休眠等常用操作。
-*
-* <p>支持虚拟线程、固定线程池、缓存线程池、定时任务线程池等多种线程模型，
-* 以及线程工厂、安全关闭、JVM 钩子注册等辅助功能。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 线程工具类，提供线程池创建、线程管理、休眠等常用操作。
+ *
+ * <p>支持虚拟线程、固定线程池、缓存线程池、定时任务线程池等多种线程模型，
+ * 以及线程工厂、安全关闭、JVM 钩子注册等辅助功能。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public class ThreadUtils {
     /**
     * 无效退出状态码标记。
-     */
+    */
     public static final int INVALID_EXITVALUE = 0xdeadbeef;
     /** 全局_执行器 */
     public static final Executor GLOBAL_EXECUTOR = newVirtualThreadExecutor();
 
     /**
     * 单例线程数。
-     */
+    */
     private static final int SINGLETON = 1;
 
     /**
     * 空闲线程存活时间（0 表示不回收）。
-     */
+    */
     private static final long KEEP_ALIVE_TIME = 0L;
 
     /** 处理器 */
@@ -63,7 +63,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param executor 待关闭的执行器
-     */
+    */
     public static void closeQuietly(final Executor executor) {
         if (executor instanceof ExecutorService executorService) {
             executorService.shutdownNow();
@@ -77,7 +77,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param closeable 待关闭的资源
-     */
+    */
     public static void closeQuietly(final Closeable closeable) {
         if (closeable != null) {
             try {
@@ -95,7 +95,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param thread 待中断的线程
-     */
+    */
     public static void closeQuietly(final Thread thread) {
         if (thread != null) {
             thread.interrupt();
@@ -109,7 +109,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param runnable 待执行的任务
-     */
+    */
     public static void newAndRunThread(final Runnable runnable) {
         var executorService = newSingleThreadExecutor();
         executorService.execute(runnable);
@@ -122,7 +122,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 缓存线程池
-     */
+    */
     public static ExecutorService newCachedThreadPool() {
         return newCachedThreadPool("global-" + DEFAULT + "-cached-pool");
     }
@@ -135,7 +135,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 缓存线程池
-     */
+    */
     public static ExecutorService newCachedThreadPool(final String name) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), newThreadFactory(name));
@@ -150,7 +150,7 @@ public class ThreadUtils {
     * @param name     线程名称前缀
     * @param supplier 任务提供者
     * @return 缓存线程池
-     */
+    */
     public static ExecutorService newCachedThreadPool(String name, Supplier<Runnable> supplier) {
         var executorService = newCachedThreadPool(name);
         executorService.execute(supplier.get());
@@ -165,7 +165,7 @@ public class ThreadUtils {
     *
     * @param threadFactory 线程工厂
     * @return 缓存线程池
-     */
+    */
     public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), threadFactory);
@@ -179,7 +179,7 @@ public class ThreadUtils {
     *
     * @param <T> 结果类型
     * @return 新的 completable期货 实例
-     */
+    */
     public static <T> CompletableFuture<T> newCompletableFuture() {
         return new CompletableFuture<>();
     }
@@ -193,7 +193,7 @@ public class ThreadUtils {
     * @param threadFactory 线程工厂
     * @param executor      现有执行器（可为 空）
     * @return 执行器实例
-     */
+    */
     public static Executor newExecutor(ThreadFactory threadFactory, Executor executor) {
         return newExecutor(threadFactory, executor, processor());
     }
@@ -208,7 +208,7 @@ public class ThreadUtils {
     * @param executor      现有执行器（可为 空）
     * @param size          线程池大小
     * @return 执行器实例
-     */
+    */
     public static Executor newExecutor(ThreadFactory threadFactory, Executor executor, int size) {
         return Optional.ofNullable(executor).orElse(newFixedThreadExecutor(size, threadFactory));
     }
@@ -221,7 +221,7 @@ public class ThreadUtils {
     *
     * @param max 最大线程数
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadExecutor(final int max) {
         return newFixedThreadExecutor(max, "com-ch-global-" + DEFAULT + "-fixed-{" + max + "}-pool");
     }
@@ -233,7 +233,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 虚拟线程池
-     */
+    */
     public static ExecutorService newVirtualThreadExecutor() {
         return newThreadPerTaskExecutor(Thread.ofVirtual()
                 .name("com-ch-virtual-" + DEFAULT + "-virtual-{1000}-pool")
@@ -249,7 +249,7 @@ public class ThreadUtils {
     * @param thread 线程数
     * @param name   线程名称前缀
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadExecutor(int thread, String name) {
         return new ThreadPoolExecutor(thread, thread,
                 0L, TimeUnit.MILLISECONDS,
@@ -267,7 +267,7 @@ public class ThreadUtils {
     * @param name     线程名称前缀
     * @param supplier 任务提供者
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadExecutor(int thread, String name, Supplier<Runnable> supplier) {
         var executorService = newFixedThreadExecutor(thread, name);
         for (int i = 0; i < thread; i++) {
@@ -285,7 +285,7 @@ public class ThreadUtils {
     * @param thread        线程数
     * @param threadFactory 线程工厂
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadExecutor(int thread, ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(thread, thread,
                 0L, TimeUnit.MILLISECONDS,
@@ -301,7 +301,7 @@ public class ThreadUtils {
     *
     * @param nThreads 线程数
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadPool(int nThreads) {
         return newFixedThreadPool(nThreads, "global-" + DEFAULT + "-fixed-pool");
     }
@@ -315,7 +315,7 @@ public class ThreadUtils {
     * @param nThreads 线程数
     * @param name     线程名称前缀
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadPool(int nThreads, String name) {
         return new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
@@ -332,7 +332,7 @@ public class ThreadUtils {
     * @param nThreads      线程数
     * @param threadFactory 线程工厂
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
@@ -347,7 +347,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return ForkJoin 公共线程池
-     */
+    */
     public static ExecutorService newForkJoinPool() {
         return ForkJoinPool.commonPool();
     }
@@ -361,7 +361,7 @@ public class ThreadUtils {
     * @param value1 候选值 1
     * @param value2 候选值 2
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newMaxThreadExecutor(final int value1, final int value2) {
         return newFixedThreadExecutor(Math.max(value1, value2));
     }
@@ -376,7 +376,7 @@ public class ThreadUtils {
     * @param value2 候选值 2
     * @param name   线程名称前缀
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newMaxThreadExecutor(final int value1, final int value2, final String name) {
         return newFixedThreadExecutor(Math.max(value1, value2), name);
     }
@@ -390,7 +390,7 @@ public class ThreadUtils {
     * @param value1 候选值 1
     * @param value2 候选值 2
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newMinThreadExecutor(final int value1, final int value2) {
         return newFixedThreadExecutor(Math.min(value1, value2));
     }
@@ -405,7 +405,7 @@ public class ThreadUtils {
     * @param value2 候选值 2
     * @param name   线程名称前缀
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newMinThreadExecutor(final int value1, final int value2, final String name) {
         return newFixedThreadExecutor(Math.min(value1, value2), name);
     }
@@ -417,7 +417,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newProcessorThreadExecutor() {
         return newFixedThreadExecutor(PROCESSOR);
     }
@@ -430,7 +430,7 @@ public class ThreadUtils {
     *
     * @param core 期望线程数
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newProcessorThreadExecutor(final int core) {
         return newFixedThreadExecutor(Math.min(core, PROCESSOR));
     }
@@ -443,7 +443,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 固定大小线程池
-     */
+    */
     public static ExecutorService newProcessorThreadExecutor(final String name) {
         return newFixedThreadExecutor(PROCESSOR, name);
     }
@@ -456,7 +456,7 @@ public class ThreadUtils {
     *
     * @param thread 核心线程数
     * @return 定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread) {
         return new ScheduledThreadPoolExecutor(thread, newThreadFactory("GLOBAL-" + DEFAULT + "-SCHEDULE-POOL"));
     }
@@ -472,7 +472,7 @@ public class ThreadUtils {
     * @param delay        每次执行后的延迟
     * @param unit         时间单位
     * @return 调度结果 期货
-     */
+    */
     public static ScheduledFuture<?> newScheduleWithFixedDelay(final Runnable runnable, long initialDelay,
                                                                 long delay, TimeUnit unit) {
         return newScheduleWithFixedDelay("GLOBAL-" + DEFAULT + "-SCHEDULED-2-POOL", runnable, initialDelay, delay, unit);
@@ -490,7 +490,7 @@ public class ThreadUtils {
     * @param delay        每次执行后的延迟
     * @param unit         时间单位
     * @return 调度结果 期货
-     */
+    */
     public static ScheduledFuture<?> newScheduleWithFixedDelay(final String threadName, final Runnable runnable,
                                                                 long initialDelay, long delay, TimeUnit unit) {
         return newScheduledThreadPoolExecutor(1, newThreadFactory(threadName))
@@ -506,7 +506,7 @@ public class ThreadUtils {
     * @param thread 核心线程数
     * @param name   线程名称前缀
     * @return 定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread, final String name) {
         return new ScheduledThreadPoolExecutor(thread, newThreadFactory(name));
     }
@@ -520,7 +520,7 @@ public class ThreadUtils {
     * @param thread        核心线程数
     * @param threadFactory 线程工厂
     * @return 定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final int thread, final ThreadFactory threadFactory) {
         return new ScheduledThreadPoolExecutor(thread, threadFactory);
     }
@@ -533,7 +533,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newScheduledThreadPoolExecutor(final String name) {
         return new ScheduledThreadPoolExecutor(1, newThreadFactory(name));
     }
@@ -545,7 +545,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 单线程执行器
-     */
+    */
     public static ExecutorService newSingleThreadExecutor() {
         return newSingleThreadExecutor("global-" + DEFAULT + "-single-pool");
     }
@@ -557,7 +557,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 单线程执行器
-     */
+    */
     public static ExecutorService newSingleWorkThreadExecutor() {
         return newSingleThreadExecutor("global-" + DEFAULT + "-single-pool");
     }
@@ -570,7 +570,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 单线程执行器
-     */
+    */
     public static ExecutorService newSingleWorkThreadExecutor(String name) {
         return newSingleThreadExecutor(name);
     }
@@ -583,7 +583,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 单线程执行器
-     */
+    */
     public static ExecutorService newSingleThreadExecutor(String name) {
         return new ThreadPoolExecutor(
                 SINGLETON,
@@ -604,7 +604,7 @@ public class ThreadUtils {
     *
     * @param name 虚拟线程名称
     * @return 虚拟线程执行器
-     */
+    */
     public static ExecutorService newVirtualThreadPerTaskExecutor(String name) {
         var factory = Thread.ofVirtual()
                 .name(name)
@@ -620,7 +620,7 @@ public class ThreadUtils {
     *
     * @param threadFactory 线程工厂
     * @return 单线程执行器
-     */
+    */
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(
                 SINGLETON,
@@ -640,7 +640,7 @@ public class ThreadUtils {
     *
     * @param runnable 待执行的任务
     * @return 新线程
-     */
+    */
     public static Thread newThread(final Runnable runnable) {
         return new Thread(runnable);
     }
@@ -654,7 +654,7 @@ public class ThreadUtils {
     * @param runnable 待执行的任务
     * @param name     线程名称
     * @return 新线程
-     */
+    */
     public static Thread newThread(final Runnable runnable, final String name) {
         var thread = newThread(runnable);
         thread.setName(name);
@@ -668,7 +668,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 虚拟线程构建器
-     */
+    */
     public static Thread.Builder.OfVirtual ofVirtual() {
         return Thread.ofVirtual();
     }
@@ -680,7 +680,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 平台线程构建器
-     */
+    */
     public static Thread.Builder.OfPlatform ofPlatform() {
         return Thread.ofPlatform();
     }
@@ -693,7 +693,7 @@ public class ThreadUtils {
     * @param name     虚拟线程名称
     * @param runnable 待执行的任务
     * @return 已启动的虚拟线程
-     */
+    */
     public static Thread startVirtualThread(String name, Runnable runnable) {
         var stackTrace = Thread.currentThread().getStackTrace();
         var caller = stackTrace.length > 2 ? stackTrace[2].toString() : "unknown";
@@ -714,7 +714,7 @@ public class ThreadUtils {
     * @param name     虚拟线程名称
     * @param runnable 待执行的任务
     * @return 未启动的虚拟线程
-     */
+    */
     public static Thread newVirtualThread(String name, Runnable runnable) {
         var stackTrace = Thread.currentThread().getStackTrace();
         var caller = stackTrace.length > 2 ? stackTrace[2].toString() : "unknown";
@@ -734,7 +734,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 线程工厂
-     */
+    */
     public static ThreadFactory newThreadFactory(final String name) {
         return newThreadFactory(name, 0);
     }
@@ -748,7 +748,7 @@ public class ThreadUtils {
     * @param name  线程名称前缀
     * @param index 池索引起始值
     * @return 线程工厂
-     */
+    */
     public static ThreadFactory newThreadFactory(final String name, final int index) {
         return new DefaultThreadFactory(name, index);
     }
@@ -761,7 +761,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 守护线程工厂
-     */
+    */
     public static ThreadFactory newDaemonThreadFactory(final String name) {
         return new NamedThreadFactory(name, true);
     }
@@ -774,7 +774,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 守护型缓存线程池
-     */
+    */
     public static ExecutorService newDaemonCachedThreadPool(final String name) {
         return newCachedThreadPool(newDaemonThreadFactory(name));
     }
@@ -788,7 +788,7 @@ public class ThreadUtils {
     * @param nThreads 线程数
     * @param name     线程名称前缀
     * @return 守护型固定大小线程池
-     */
+    */
     public static ExecutorService newDaemonFixedThreadPool(int nThreads, String name) {
         return newFixedThreadPool(nThreads, newDaemonThreadFactory(name));
     }
@@ -801,7 +801,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 守护型单线程执行器
-     */
+    */
     public static ExecutorService newDaemonSingleThreadExecutor(String name) {
         return newSingleThreadExecutor(newDaemonThreadFactory(name));
     }
@@ -814,7 +814,7 @@ public class ThreadUtils {
     *
     * @param name 线程名称前缀
     * @return 守护型单线程定时任务执行器
-     */
+    */
     public static ScheduledExecutorService newDaemonSingleThreadScheduledExecutor(String name) {
         return newSingleThreadScheduledExecutor(newDaemonThreadFactory(name));
     }
@@ -826,7 +826,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 推荐线程数
-     */
+    */
     public static int processor() {
         return Runtime.getRuntime().availableProcessors() * 2 - 1;
     }
@@ -838,7 +838,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param executor 待关闭的执行器
-     */
+    */
     public static void shutdownNow(final Executor executor) {
         if (executor instanceof ExecutorService executorService) {
             executorService.shutdownNow();
@@ -853,7 +853,7 @@ public class ThreadUtils {
     *
     * @param millis 休眠毫秒数
     * @throws InterruptedException 线程被中断
-     */
+    */
     public static void sleepOfUnSafe(long millis) throws InterruptedException {
         Thread.sleep(millis);
     }
@@ -865,7 +865,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param millis 休眠毫秒数
-     */
+    */
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -882,7 +882,7 @@ public class ThreadUtils {
     *
     * @param millis 休眠毫秒数
     * @throws RuntimeException 线程被中断
-     */
+    */
     public static void sleepOfInterrupt(int millis) {
         try {
             sleepOfUnSafe(millis);
@@ -901,7 +901,7 @@ public class ThreadUtils {
     * @param time     休眠时长
     * @param timeUnit 时间单位
     * @throws InterruptedException 线程被中断
-     */
+    */
     public static void sleep(long time, TimeUnit timeUnit) throws InterruptedException {
         var unit = timeUnit.toMillis(time);
         ThreadUtils.sleep(unit);
@@ -914,7 +914,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param millis 休眠毫秒数
-     */
+    */
     public static void sleepMillisecondsQuietly(long millis) {
         sleepQuietly(millis, TimeUnit.MILLISECONDS);
     }
@@ -927,7 +927,7 @@ public class ThreadUtils {
     *
     * @param time     休眠时长
     * @param timeUnit 时间单位
-     */
+    */
     public static void sleepQuietly(long time, TimeUnit timeUnit) {
         if (time < 0L) {
             return;
@@ -947,7 +947,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param time 休眠秒数
-     */
+    */
     public static void sleepSecondsQuietly(long time) {
         sleepQuietly(time, TimeUnit.SECONDS);
     }
@@ -959,7 +959,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param time 休眠分钟数
-     */
+    */
     public static void sleepMinutesQuietly(long time) {
         sleepQuietly(time, TimeUnit.MINUTES);
     }
@@ -971,7 +971,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 全局线程池
-     */
+    */
     public static ExecutorService newStaticThreadPool() {
         return THREAD_POOL;
     }
@@ -983,7 +983,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 全局定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newStaticScheduledThreadPoolExecutor() {
         return SCHEDULED_EXECUTOR_SERVICE;
     }
@@ -995,7 +995,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param runnable JVM 关闭时要执行的任务
-     */
+    */
     public static void addShutdownHook(Runnable runnable) {
         var thread = ThreadUtils.newThread(runnable);
         thread.setDaemon(true);
@@ -1010,7 +1010,7 @@ public class ThreadUtils {
     *
     * @param threadFactory 线程工厂
     * @return 单线程定时任务执行器
-     */
+    */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
         return new DelegatedScheduledExecutorServiceImpl(new ScheduledThreadPoolExecutor(1, threadFactory));
     }
@@ -1022,7 +1022,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 单线程定时任务执行器
-     */
+    */
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
         return newSingleThreadScheduledExecutor(new NamedThreadFactory("schedule"));
     }
@@ -1034,7 +1034,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 默认线程池
-     */
+    */
     public static Executor getDefaultThreadPool() {
         return newStaticThreadPool();
     }
@@ -1046,7 +1046,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param runnable 待执行的任务
-     */
+    */
     public static void execute(Runnable runnable) {
         newStaticThreadPool().execute(runnable);
     }
@@ -1058,7 +1058,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param obj 要等待的对象
-     */
+    */
     public static void sync(Object obj) {
         synchronized (obj) {
             try {
@@ -1078,7 +1078,7 @@ public class ThreadUtils {
     * @param numThreads 核心线程数
     * @param name       线程名称前缀
     * @return 定时任务线程池
-     */
+    */
     public static ScheduledExecutorService newScheduledThreadPool(int numThreads, String name) {
         return new ScheduledThreadPoolExecutor(numThreads, new NamedThreadFactory(name));
     }
@@ -1090,7 +1090,7 @@ public class ThreadUtils {
     * </p>
     *
     * @return 虚拟线程执行器
-     */
+    */
     public static ExecutorService newVirtualThreadPerTaskExecutor() {
         return newThreadPerTaskExecutor(Thread.ofVirtual().factory());
     }
@@ -1102,7 +1102,7 @@ public class ThreadUtils {
     * 委托模式的定时任务执行器，将 调度执行器服务 的方法委托给内部实例。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @SuppressWarnings("ALL")
     static class DelegatedScheduledExecutorServiceImpl
             extends DelegatedExecutorService
@@ -1137,7 +1137,7 @@ public class ThreadUtils {
     * 委托模式的执行器，将 执行器服务 的方法委托给内部实例。
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class DelegatedExecutorService extends AbstractExecutorService {
         /** E */
         private final ExecutorService e;
@@ -1189,7 +1189,7 @@ public class ThreadUtils {
         * @param tasks 任务
         * @param timeout 超时
         * @param unit unit
-         */
+        */
         public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                              long timeout, TimeUnit unit)
                 throws InterruptedException {
@@ -1207,7 +1207,7 @@ public class ThreadUtils {
         * @param tasks 任务
         * @param timeout 超时
         * @param unit unit
-         */
+        */
         public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                                long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -1216,13 +1216,13 @@ public class ThreadUtils {
     }
     /**
     * 默认线程工厂实现，支持命名前缀和线程编号。
-     */
+    */
     public static final class DefaultThreadFactory implements ThreadFactory {
         /** 游泳池_数字 */
         private static final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
         /**
         * 用户组
-         */
+        */
         private final ThreadGroup group;
         /** 线程数字 */
         private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -1233,7 +1233,7 @@ public class ThreadUtils {
         * 创建 默认thread工厂 实例
         *
         * @return 默认thread工厂的结果
-         */
+        */
         public DefaultThreadFactory() {
             group = Thread.currentThread().getThreadGroup();
             namePrefix = "pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
@@ -1243,7 +1243,7 @@ public class ThreadUtils {
         * 创建 默认thread工厂 实例
         * @param name 名称
         * @return 默认thread工厂的结果
-         */
+        */
         public DefaultThreadFactory(String name) {
             group = Thread.currentThread().getThreadGroup();
             namePrefix = name + "-" + POOL_NUMBER.getAndIncrement() + "-";
@@ -1255,7 +1255,7 @@ public class ThreadUtils {
         * @param index int
         * @param index 索引
         * @return 默认thread工厂的结果
-         */
+        */
         public DefaultThreadFactory(String name, int index) {
             POOL_NUMBER.set(index);
             group = Thread.currentThread().getThreadGroup();
@@ -1284,7 +1284,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param executorService 待关闭的线程池
-     */
+    */
     public static void shutdownNow(ExecutorService executorService) {
         if (executorService != null) {
             executorService.shutdownNow();
@@ -1298,7 +1298,7 @@ public class ThreadUtils {
     * </p>
     *
     * @param executorService 待关闭的线程池
-     */
+    */
     public static void shutdown(ExecutorService executorService) {
         if (executorService != null) {
             executorService.shutdown();

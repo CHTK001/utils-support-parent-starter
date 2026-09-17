@@ -20,7 +20,7 @@ public interface ConfigCenter extends AutoCloseable {
     *
     * @param dataId 配置的 dataId，如 "application.yml"
     * @return 配置项映射表，不存在时返回空 Map
-     */
+    */
     Map<String, Object> get(String dataId);
 
     /**
@@ -29,7 +29,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param dataId 配置的 dataId
     * @param group  配置分组，如 "dev"、"prod"、"DEFAULT_GROUP"
     * @return 配置项映射表，不存在时返回空 Map
-     */
+    */
     Map<String, Object> get(String dataId, String group);
 
     /**
@@ -38,7 +38,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param dataId 配置的 dataId
     * @param key    配置项的 key
     * @return 配置项的值，不存在时返回 null
-     */
+    */
     default String getValue(String dataId, String key) {
         Map<String, Object> config = get(dataId);
         if (config == null || config.isEmpty()) {
@@ -55,7 +55,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param key    配置项的 key
     * @param value  配置项的值
     * @return true-发布成功
-     */
+    */
     boolean publish(String dataId, String key, String value);
 
     /**
@@ -66,7 +66,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param key    配置项的 key
     * @param value  配置项的值
     * @return true-发布成功
-     */
+    */
     boolean publish(String dataId, String group, String key, String value);
 
     /**
@@ -76,7 +76,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param key    配置项的 key
     * @param value  配置项的值
     * @return true-发布成功，false-配置已存在或发布失败
-     */
+    */
     default boolean publishIfAbsent(String dataId, String key, String value) {
         String existingValue = getValue(dataId, key);
         if (existingValue != null) {
@@ -93,7 +93,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param key    配置项的 key
     * @param value  配置项的值
     * @return true-发布成功，false-配置已存在或发布失败
-     */
+    */
     default boolean publishIfAbsent(String dataId, String group, String key, String value) {
         Map<String, Object> config = get(dataId, group);
         if (config != null && config.containsKey(key)) {
@@ -108,7 +108,7 @@ public interface ConfigCenter extends AutoCloseable {
     * @param dataId  配置的 dataId
     * @param configs 配置项映射表
     * @return true-全部发布成功
-     */
+    */
     boolean publishBatch(String dataId, Map<String, String> configs);
 
     /**
@@ -117,21 +117,21 @@ public interface ConfigCenter extends AutoCloseable {
     * @param dataId 配置的 dataId
     * @param key    配置项的 key
     * @return true-删除成功
-     */
+    */
     boolean remove(String dataId, String key);
 
     /**
     * 是否支持发布操作。
     *
     * @return true-支持发布
-     */
+    */
     boolean isSupportPublish();
 
     /**
     * 启动配置中心。
     *
     * <p>初始化连接、加载配置等启动操作。</p>
-     */
+    */
     void start();
 
     /**
@@ -140,28 +140,28 @@ public interface ConfigCenter extends AutoCloseable {
     * <p>释放连接、清理资源等关闭操作。</p>
     *
     * @throws Exception 关闭过程中的异常
-     */
+    */
     @Override
     void close() throws Exception;
 
     /**
     * 是否支持监听器。
     * @return true-支持监听
-     */
+    */
     boolean isSupportListener();
 
     /**
     * 添加配置变更监听器。
     * @param dataId   配置的 dataId
     * @param listener 配置变更监听器
-     */
+    */
     void addListener(String dataId, ConfigListener listener);
 
     /**
     * 获取默认的 dataId。
     *
     * @return 默认 dataId，为 "application"
-     */
+    */
     default String getDefaultDataId() {
         return "application";
     }
@@ -170,7 +170,7 @@ public interface ConfigCenter extends AutoCloseable {
     * 获取默认的分组名称。
     *
     * @return 默认分组，为 "DEFAULT_GROUP"
-     */
+    */
     default String getDefaultGroup() {
         return "DEFAULT_GROUP";
     }

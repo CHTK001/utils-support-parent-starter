@@ -27,7 +27,7 @@ public class InstantTypeConverter implements TypeConverter<Instant>{
     * 获取当前转换器支持的目标类型。
     *
     * @return Instant.class
-     */
+    */
     @Override
     public Class<Instant> getType() {
         return Instant.class;
@@ -38,7 +38,7 @@ public class InstantTypeConverter implements TypeConverter<Instant>{
     *
     * @param value 源值
     * @return Instant 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Instant convert(Object value) {
         if(value instanceof Date) {

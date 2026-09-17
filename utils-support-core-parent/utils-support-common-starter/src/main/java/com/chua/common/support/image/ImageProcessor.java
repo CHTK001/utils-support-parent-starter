@@ -63,7 +63,7 @@ public interface ImageProcessor {
     * @param params    操作参数，如 resize 的 width/height、rotate 的 angle、输出 format 等；
     *                  参数值类型为 Object，内部通过 {@link ImageProcessorUtils#toInt(Object, int)} 转换
     * @return 处理后的图像字节
-     */
+    */
     byte[] process(byte[] imageData, String operation, Map<String, Object> params);
 
     /**
@@ -76,7 +76,7 @@ public interface ImageProcessor {
     * @param operation 操作类型
     * @param params    操作参数
     * @return 处理后的图像字节数组
-     */
+    */
     default byte[][] processBatch(byte[][] images, String operation, Map<String, Object> params) {
         byte[][] results = new byte[images.length][];
         for (int i = 0; i < images.length; i++) {
@@ -89,7 +89,7 @@ public interface ImageProcessor {
     * 处理器名称，用于日志与优先级判断
     *
     * @return 处理器名称，如 "rust" / "opencv" / "jdk"
-     */
+    */
     String name();
 
     /**
@@ -99,6 +99,6 @@ public interface ImageProcessor {
     * JDK AWT 实现始终返回 true。</p>
     *
     * @return true 可用
-     */
+    */
     boolean available();
 }

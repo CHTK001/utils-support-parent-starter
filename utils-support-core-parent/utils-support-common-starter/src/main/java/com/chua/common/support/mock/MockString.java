@@ -39,7 +39,7 @@ public interface MockString {
     *
     * @param environment Mock 环境/上下文，提供随机数源、长度区间、地区等参数
     * @return 生成的字符串数据
-     */
+    */
     @Nonnull
     String getString(@Nonnull MockEnvironment environment);
 
@@ -47,7 +47,7 @@ public interface MockString {
     * 使用默认 Mock 环境/上下文生成字符串数据。
     *
     * @return 生成的字符串数据
-     */
+    */
     @Nonnull
     default String getString() {
         return getString(MockEnvironment.of());

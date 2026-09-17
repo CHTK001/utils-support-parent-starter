@@ -56,19 +56,19 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
     /**
     * Spring MVC 方法级注解 → HTTP 方法映射
-     */
+    */
     private static final Map<String, HttpMethod> SPRING_METHOD_ANNOTATIONS = new LinkedHashMap<>();
 
     /**
     * Spring MVC 类级注解（提取 baseUrl）
-     */
+    */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
 
     /**
     * Spring 参数注解类名
-     */
+    */
     private static final String SPRING_PATH_VARIABLE = "org.springframework.web.bind.annotation.PathVariable";
     /** Spring_request_param */
     private static final String SPRING_REQUEST_PARAM = "org.springframework.web.bind.annotation.RequestParam";
@@ -81,7 +81,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
     /**
     * 反射访问的注解属性名
-     */
+    */
     private static final String ANN_ATTR_VALUE = "value";
     /** Ann_attr_name */
     private static final String ANN_ATTR_NAME = "name";
@@ -94,12 +94,12 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
     /**
     * 默认 baseUrl（未声明类级注解时）
-     */
+    */
     private static final String DEFAULT_BASE_URL = "";
 
     /**
     * 路径模板默认值
-     */
+    */
     private static final String DEFAULT_PATH_TEMPLATE = "";
 
     static {
@@ -113,27 +113,27 @@ public class HttpApiInvocationHandler implements InvocationHandler {
 
     /**
     * 要代理的接口类
-     */
+    */
     private final Class<?> apiClass;
 
     /**
     * 基础 URL（解析自类级注解）
-     */
+    */
     private final String baseUrl;
 
     /**
     * 占位符解析器
-     */
+    */
     private final StringValuePropertyResolver propertyResolver;
 
     /**
     * 方法元数据缓存（按 Method 去重解析）
-     */
+    */
     private final ConcurrentMap<Method, MethodMetadata> methodCache = new ConcurrentHashMap<>();
 
     /**
     * HTTP 客户端
-     */
+    */
     private final HttpClient httpClient;
 
     /**
@@ -141,7 +141,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * <p>由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册，每次远程调用前执行，
     * 将回调返回值注入到请求头或共享属性。不可变，构造时确定。</p>
-     */
+    */
     private final List<SharedInvocationContext.InjectRule> injectRules;
 
     /**
@@ -149,14 +149,14 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * <p>由 {@link HttpInvoker} 链式方法配置，每次远程调用前应用到 {@link RequestSpec}。
     * 可为 null（表示无额外默认配置）。</p>
-     */
+    */
     private final HttpApiOptions options;
 
     /**
     * 构造处理器并预解析 baseUrl
     *
     * @param apiClass 要代理的接口类
-     */
+    */
     public HttpApiInvocationHandler(Class<?> apiClass) {
         this(apiClass, null);
     }
@@ -169,7 +169,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * @param apiClass 要代理的接口类
     * @param options  自定义配置（baseUrl/客户端/拦截器/注入规则/请求级默认配置），可为 null
-     */
+    */
     public HttpApiInvocationHandler(Class<?> apiClass, HttpApiOptions options) {
         this.apiClass = apiClass;
 
@@ -190,7 +190,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param args   方法参数
     * @return HTTP 响应转换后的结果
     * @throws Throwable 反射或 HTTP 调用异常
-     */
+    */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         // Object 类方法直接透传
@@ -206,7 +206,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * 代理对象的字符串表示
     *
     * @return 包含接口名与 baseUrl 的描述
-     */
+    */
     @Override
     public String toString() {
         return "HttpApiProxy{" + apiClass.getSimpleName() + ", baseUrl='" + baseUrl + "'}";
@@ -220,7 +220,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param meta 方法元数据
     * @param args 实际入参
     * @return 转换后的响应结果
-     */
+    */
     private Object execute(MethodMetadata meta, Object[] args) {
         // 1. 解析路径模板中的占位符（支持 ${...} 环境变量/系统属性）
         String path = propertyResolver.resolvePlaceholders(meta.pathTemplate);
@@ -300,7 +300,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param meta    方法元数据
     * @param args    方法入参
     * @param headers 请求头容器（就地修改）
-     */
+    */
     private void applyMethodAnnotations(MethodMetadata meta, Object[] args, Map<String, String> headers) {
         // 方法级 @RemoteHeader：静态请求头
         RemoteHeader[] staticHeaders = meta.method.getAnnotationsByType(RemoteHeader.class);
@@ -343,7 +343,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param args     方法入参
     * @param beanPath BeanPath 实例
     * @return 来源值，解析不到返回 null
-     */
+    */
     private Object resolveRemoteSource(String source, MethodMetadata meta, Object[] args, BeanPath beanPath) {
         if (source.startsWith("result.")) {
             return beanPath.getValue(meta.result, source.substring(7));
@@ -373,7 +373,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * @param text 原始文本
     * @return 解析后的文本
-     */
+    */
     private String resolvePlaceholders(String text) {
         if (StringUtils.isEmpty(text) || !text.contains("${")) {
             return text;
@@ -391,7 +391,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param meta    方法元数据
     * @param args    方法入参
     * @param headers 请求头容器（就地修改）
-     */
+    */
     private void applyInjectRules(MethodMetadata meta, Object[] args, Map<String, String> headers) {
         if (injectRules.isEmpty()) {
             return;
@@ -428,7 +428,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param clazz   接口类
     * @param options 自定义配置，可为 null
     * @return 解析后的 baseUrl
-     */
+    */
     private String resolveBaseUrl(Class<?> clazz, HttpApiOptions options) {
         // 优先使用自定义配置中的 baseUrl
         if (options != null) {
@@ -476,7 +476,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * @param method 方法
     * @return 方法元数据
-     */
+    */
     private MethodMetadata parseMethod(Method method) {
         HttpMethod httpMethod = null;
         String pathTemplate = DEFAULT_PATH_TEMPLATE;
@@ -560,7 +560,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * @param param 形参
     * @return 参数注解信息
-     */
+    */
     private ParamAnnotation resolveParamAnnotation(Parameter param) {
         ParamAnnotation pa;
 
@@ -629,7 +629,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param resp HTTP 响应
     * @param meta 方法元数据
     * @return 转换后的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private Object convertResponse(ClientResponse resp, MethodMetadata meta) {
         Object converted = convertResponseValue(resp, meta);
@@ -644,7 +644,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     * @param resp HTTP 响应
     * @param meta 方法元数据
     * @return 转换后的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private Object convertResponseValue(ClientResponse resp, MethodMetadata meta) {
         Class<?> returnType = meta.method.getReturnType();
@@ -693,7 +693,7 @@ public class HttpApiInvocationHandler implements InvocationHandler {
     *
     * @param ann 注解实例
     * @return value 值，无值返回空串
-     */
+    */
     private static String extractAnnotationValue(Annotation ann) {
         try {
 Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class, new Class<?>[0], new Object[0], new Object[0]);
@@ -714,7 +714,7 @@ Object r = ReflectUtils.invoke(ann, ANN_ATTR_VALUE, Object.class, new Class<?>[0
     *
     * @param ann @RequestMapping 注解实例
     * @return 解析到的 HTTP 方法，默认 GET
-     */
+    */
     private static HttpMethod extractRequestMappingMethod(Annotation ann) {
         try {
 Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class, new Class<?>[0], new Object[0], new Object[0]);
@@ -736,7 +736,7 @@ Object r = ReflectUtils.invoke(ann, ANN_ATTR_METHOD, Object.class, new Class<?>[
     * @param attr 属性名
     * @param def  默认值
     * @return 属性值或默认值
-     */
+    */
     private static String getString(Annotation ann, String attr, String def) {
         try {
 Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Object[0], new Object[0]);
@@ -753,7 +753,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
     * @param attr 属性名
     * @param def  默认值
     * @return 属性值或默认值
-     */
+    */
     private static boolean getBoolean(Annotation ann, String attr, boolean def) {
         try {
 Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Object[0], new Object[0]);
@@ -770,7 +770,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
     * @param className 注解类全限定名
     * @param resolver  注解 → ParamAnnotation 转换器
     * @return 解析结果，未声明该注解返回 null
-     */
+    */
     private ParamAnnotation resolveSpringParam(Parameter param, String className, AnnResolver resolver) {
         try {
             Class<?> ac = ReflectUtils.forName(className);
@@ -793,7 +793,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
     *
     * @param s 原始字符串
     * @return 编码后的路径段
-     */
+    */
     private static String encodePathSegment(String s) {
         return URLEncoder.encode(s, StandardCharsets.UTF_8)
                 .replace("+", "%20")
@@ -805,7 +805,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
     *
     * @param s 输入字符串
     * @return 处理后的字符串
-     */
+    */
     private static String trimSlash(String s) {
         return (s != null && s.endsWith("/")) ? s.substring(0, s.length() - 1) : s;
     }
@@ -814,49 +814,49 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
 
     /**
     * 参数注解类型枚举
-     */
+    */
     enum ParamType {
         /**
         * 路径变量
-         */
+        */
         PATH_VARIABLE,
         /**
         * 查询参数
-         */
+        */
         REQUEST_PARAM,
         /**
         * 请求体
-         */
+        */
         REQUEST_BODY,
         /**
         * 请求头
-         */
+        */
         REQUEST_HEADER,
         /**
         * 未识别
-         */
+        */
         UNKNOWN
     }
 
     /**
     * 参数注解解析结果
-     */
+    */
     static class ParamAnnotation {
         /**
         * 注解类型
-         */
+        */
         final ParamType type;
         /**
         * 参数名（来自注解 value/name，否则取形参名）
-         */
+        */
         final String name;
         /**
         * 是否必传（仅 @RequestParam 有效）
-         */
+        */
         final boolean required;
         /**
         * 默认值（仅 @RequestParam 有效）
-         */
+        */
         final String defaultValue;
 
         /**
@@ -864,7 +864,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         *
         * @param type 注解类型
         * @param name 参数名
-         */
+        */
         ParamAnnotation(ParamType type, String name) {
             this(type, name, true, "");
         }
@@ -876,7 +876,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         * @param name         参数名
         * @param required     是否必传
         * @param defaultValue 默认值
-         */
+        */
         ParamAnnotation(ParamType type, String name, boolean required, String defaultValue) {
             this.type = type;
             this.name = name;
@@ -887,34 +887,34 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
 
     /**
     * 方法元数据缓存对象
-     */
+    */
     static class MethodMetadata {
         /**
         * Java Method 引用
-         */
+        */
         final Method method;
         /**
         * HTTP 方法
-         */
+        */
         final HttpMethod httpMethod;
         /**
         * 路径模板（含占位符）
-         */
+        */
         final String pathTemplate;
         /**
         * 形参注解解析结果数组
-         */
+        */
         final ParamAnnotation[] paramAnnotations;
         /**
         * 方法级注入产生的共享属性（@RemoteInject 与编程式注入规则共用）。
         *
         * <p>本次调用内有效，供链式注入（attributes.X → headers.Y）与
         * {@code @RemoteInject(source="attributes.X")} 读取。使用并发容器保证线程安全。</p>
-         */
+        */
         final Map<String, Object> attributes = new ConcurrentHashMap<>();
         /**
         * 本次调用的响应转换结果，供 {@code @RemoteInject(source="result.X")} 读取。
-         */
+        */
         volatile Object result;
 
         /**
@@ -924,7 +924,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         * @param httpMethod      HTTP 方法
         * @param pathTemplate    路径模板
         * @param paramAnnotations 形参注解数组
-         */
+        */
         MethodMetadata(Method method, HttpMethod httpMethod, String pathTemplate,
                        ParamAnnotation[] paramAnnotations) {
             this.method = method;
@@ -936,7 +936,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
 
     /**
     * 注解 → ParamAnnotation 转换函数式接口
-     */
+    */
     @FunctionalInterface
     interface AnnResolver {
         /**
@@ -945,7 +945,7 @@ Object r = ReflectUtils.invoke(ann, attr, Object.class, new Class<?>[0], new Obj
         * @param annotation 注解实例
         * @param name       解析后的参数名（可能为 null）
         * @return ParamAnnotation
-         */
+        */
         ParamAnnotation resolve(Annotation annotation, String name);
     }
 }

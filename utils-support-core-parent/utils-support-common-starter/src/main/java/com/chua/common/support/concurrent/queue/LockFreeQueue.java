@@ -34,28 +34,28 @@ public interface LockFreeQueue<E> {
     * @param element 待入队元素，禁止为 null
     * @return 入队成功返回 true；有界队列已满时返回 false
     * @throws NullPointerException 元素为 null 时抛出
-     */
+    */
     boolean offer(E element);
 
     /**
     * 出队并移除队首元素。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     E poll();
 
     /**
     * 查看队首元素但不移除。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     E peek();
 
     /**
     * 判断队列是否为空。
     *
     * @return 队列为空返回 true
-     */
+    */
     boolean isEmpty();
 
     /**
@@ -63,12 +63,12 @@ public interface LockFreeQueue<E> {
     * <p>无锁队列的 size 通常是近似值（O(1) 基于索引差），仅供参考。</p>
     *
     * @return 元素数量估计值
-     */
+    */
     int size();
 
     /**
     * 清空队列中的所有元素。
-     */
+    */
     void clear();
 
     /**
@@ -76,7 +76,7 @@ public interface LockFreeQueue<E> {
     * <p>有界环形队列返回固定容量；无界队列返回 {@link Integer#MAX_VALUE}。</p>
     *
     * @return 队列容量
-     */
+    */
     default int capacity() {
         return Integer.MAX_VALUE;
     }

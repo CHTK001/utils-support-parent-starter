@@ -19,137 +19,137 @@ import java.util.Optional;
 import java.util.zip.CRC32;
 
 /**
-* 单文件 WAL 实现，不分片。
-*
-* <p>适合小数据量场景（&lt; 10w 条记录）。大数据量请使用 {@link SegmentWalLog}。</p>
-*
-* <h2>文件格式</h2>
-* <pre>
-* Header（一次写入后不再追加）:
-*   magic[N]
-* Records（顺序追加）:
-*   [crc32(4)][lsn(8)][op(1)][len(4)][payload(len)]
-* </pre>
-*
-* <h2>checkpoint 文件</h2>
-* <pre>
-* ${walDir}/checkpoint.meta:
-*   magic[4] = "CKPT"
-*   checkpointLsn[8]
-*   segmentNo[4]（固定 1）
-*   offset[8]
-*   timestamp[8]
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 单文件 WAL 实现，不分片。
+ *
+ * <p>适合小数据量场景（&lt; 10w 条记录）。大数据量请使用 {@link SegmentWalLog}。</p>
+ *
+ * <h2>文件格式</h2>
+ * <pre>
+ * Header（一次写入后不再追加）:
+ *   magic[N]
+ * Records（顺序追加）:
+ *   [crc32(4)][lsn(8)][op(1)][len(4)][payload(len)]
+ * </pre>
+ *
+ * <h2>checkpoint 文件</h2>
+ * <pre>
+ * ${walDir}/checkpoint.meta:
+ *   magic[4] = "CKPT"
+ *   checkpointLsn[8]
+ *   segmentNo[4]（固定 1）
+ *   offset[8]
+ *   timestamp[8]
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class SimpleWalLog implements WalLog {
 
     /**
     * WAL 文件名
-     */
+    */
     private static final String WAL_FILE_NAME = "wal.log";
 
     /**
     * checkpoint 文件名
-     */
+    */
     private static final String CHECKPOINT_FILE_NAME = "checkpoint.meta";
 
     /**
     * checkpoint 文件魔数
-     */
+    */
     private static final byte[] CHECKPOINT_MAGIC = new byte[]{'C', 'K', 'P', 'T'};
 
     /**
     * checkpoint 元信息固定大小
-     */
+    */
     private static final int CHECKPOINT_META_SIZE = 4 + 8 + 4 + 8 + 8;
 
     /**
     * WAL 单文件路径
-     */
+    */
     private final Path walFile;
 
     /**
     * checkpoint 文件路径
-     */
+    */
     private final Path checkpointFile;
 
     /**
     * 配置
-     */
+    */
     private final WalConfig config;
 
     /**
     * 随机access文件（提供 文件通道 以支持 fsync 和 mmap）
-     */
+    */
     private RandomAccessFile raf;
 
     /**
     * 文件通道
-     */
+    */
     private FileChannel channel;
 
     /**
     * 写入通道：mmap 模式下为 mappedbyte缓冲，否则为 数据输出流（包装 文件通道）
-     */
+    */
     private DataOutputStream out;
 
     /**
     * mmap 缓冲区
-     */
+    */
     private MappedByteBuffer mmapBuffer;
 
     /**
     * mmap 模式下当前写位置
-     */
+    */
     private long mmapWritePos;
 
     /**
     * mmap 缓冲区大小（固定 16MB，超出需扩容）
-     */
+    */
     private static final long MMAP_SIZE = 16L * 1024L * 1024L;
 
     /**
     * 当前最大 LSN
-     */
+    */
     private long currentLsn;
 
     /**
     * 当前 checkpoint LSN
-     */
+    */
     private long checkpointLsn;
 
     /**
     * 已 checkpoint 段内偏移
-     */
+    */
     private long checkpointOffset;
 
     /**
     * 已写入字节数
-     */
+    */
     private long writtenBytes;
 
     /**
     * 已写入记录数
-     */
+    */
     private int recordCount;
 
     /**
     * 自上次 fsync 起累计写入条数
-     */
+    */
     private int pendingFsyncOps;
 
     /**
     * 是否已关闭
-     */
+    */
     private boolean closed;
 
     /**
     * 创建 简单wal日志 实例
     * @param config 配置
-     */
+    */
     public SimpleWalLog(WalConfig config) throws IOException {
         this.config = config;
         this.walFile = config.walDir().resolve(WAL_FILE_NAME);
@@ -212,7 +212,7 @@ public class SimpleWalLog implements WalLog {
     * 扫描Tail
     *
     * @param len len
-     */
+    */
     private void scanTail(long len) throws IOException {
         if (len <= config.magic().length) {
             this.currentLsn = 0L;
@@ -289,7 +289,7 @@ public class SimpleWalLog implements WalLog {
     * ensuremmap容量
     *
     * @param needed needed
-     */
+    */
     private void ensureMmapCapacity(long needed) throws IOException {
         if (mmapBuffer == null) {
             return;
@@ -305,7 +305,7 @@ public class SimpleWalLog implements WalLog {
 
     /**
     * 反射 unmap mappedbyte缓冲，兼容 JDK 9+ 模块系统。
-     */
+    */
     private void unmapMmap() {
         if (mmapBuffer == null || mmapBufferRef == null) {
             return;
@@ -360,7 +360,7 @@ public class SimpleWalLog implements WalLog {
     * 真正 fsync：调用 文件通道.force(true)。
     *
     * @throws IOException IO 异常
-     */
+    */
     private void force() throws IOException {
         if (config.useMemoryMap() && mmapBuffer != null) {
             mmapBuffer.force();
@@ -391,7 +391,7 @@ public class SimpleWalLog implements WalLog {
     * 读取checkpoint从disk
     *
     * @return 读取checkpoint从disk的结果
-     */
+    */
     private CheckpointMeta readCheckpointFromDisk() throws IOException {
         if (!Files.exists(checkpointFile)) {
             return CheckpointMeta.empty();
@@ -425,7 +425,7 @@ public class SimpleWalLog implements WalLog {
     * 写入checkpoint转为disk
     *
     * @param meta meta
-     */
+    */
     private void writeCheckpointToDisk(CheckpointMeta meta) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(CHECKPOINT_META_SIZE);
         buf.put(CHECKPOINT_MAGIC);
@@ -686,7 +686,7 @@ public class SimpleWalLog implements WalLog {
     * @param op op
     * @param payload payload
     * @return 构建主体的结果
-     */
+    */
     private byte[] buildBody(long lsn, byte op, byte[] payload) {
         CRC32 crc = new CRC32();
         crc.update(op);
@@ -707,7 +707,7 @@ public class SimpleWalLog implements WalLog {
     * @param op op
     * @param payload payload
     * @return crc32的结果
-     */
+    */
     private long crc32(byte op, byte[] payload) {
         CRC32 crc = new CRC32();
         crc.update(op);
@@ -721,7 +721,7 @@ public class SimpleWalLog implements WalLog {
     * @param dst dst
     * @param offset 偏移量
     * @param value 值
-     */
+    */
     private static void writeInt(byte[] dst, int offset, int value) {
         dst[offset] = (byte) ((value >>> 24) & 0xFF);
         dst[offset + 1] = (byte) ((value >>> 16) & 0xFF);
@@ -735,7 +735,7 @@ public class SimpleWalLog implements WalLog {
     * @param dst dst
     * @param offset 偏移量
     * @param value 值
-     */
+    */
     private static void writeLong(byte[] dst, int offset, long value) {
         dst[offset] = (byte) ((value >>> 56) & 0xFF);
         dst[offset + 1] = (byte) ((value >>> 48) & 0xFF);
@@ -753,7 +753,7 @@ public class SimpleWalLog implements WalLog {
     * @param src src
     * @param offset 偏移量
     * @return 读取int的结果
-     */
+    */
     private static int readInt(byte[] src, int offset) {
         return ((src[offset] & 0xFF) << 24)
                 | ((src[offset + 1] & 0xFF) << 16)
@@ -767,7 +767,7 @@ public class SimpleWalLog implements WalLog {
     * @param src src
     * @param offset 偏移量
     * @return 读取long的结果
-     */
+    */
     private static long readLong(byte[] src, int offset) {
         return ((long) (src[offset] & 0xFF) << 56)
                 | ((long) (src[offset + 1] & 0xFF) << 48)
@@ -781,7 +781,7 @@ public class SimpleWalLog implements WalLog {
 
     /**
     * 链式写入实现。
-     */
+    */
     private static final class WalChainImpl implements WalChain {
 
         /** OPS */

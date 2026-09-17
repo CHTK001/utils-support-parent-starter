@@ -23,27 +23,27 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_OBJECT
 import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING;
 
 /**
-* 对象工具类，提供对象操作的核心工具方法。
-*
-* <p>包含以下功能：
-* <ul>
-*   <li>空安全比较（{@link #nullSafeEquals} / {@link #nullSafeHashCode}）</li>
-*   <li>空值处理（{@link #defaultIfNull} / {@link #firstNonNull} / {@link #isNull}）</li>
-*   <li>三目运算简化（{@link #optional}）</li>
-*   <li>对象判空（{@link #isEmpty} / {@link #isNotEmpty} / {@link #isAnyEmpty}）</li>
-*   <li>类型转换（{@link #to} / {@link #toObjectArray} / {@link #utf8Bytes}）</li>
-*   <li>身份字符串（{@link #identityToString} / {@link #nullSafeToString}）</li>
-*   <li>BigDecimal 安全比较（{@link #equals} / {@link #equal}）</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0
- */
+ * 对象工具类，提供对象操作的核心工具方法。
+ *
+ * <p>包含以下功能：
+ * <ul>
+ *   <li>空安全比较（{@link #nullSafeEquals} / {@link #nullSafeHashCode}）</li>
+ *   <li>空值处理（{@link #defaultIfNull} / {@link #firstNonNull} / {@link #isNull}）</li>
+ *   <li>三目运算简化（{@link #optional}）</li>
+ *   <li>对象判空（{@link #isEmpty} / {@link #isNotEmpty} / {@link #isAnyEmpty}）</li>
+ *   <li>类型转换（{@link #to} / {@link #toObjectArray} / {@link #utf8Bytes}）</li>
+ *   <li>身份字符串（{@link #identityToString} / {@link #nullSafeToString}）</li>
+ *   <li>BigDecimal 安全比较（{@link #equals} / {@link #equal}）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0
+*/
 public class ObjectUtils {
 
     /**
     * 对象工具。
-     */
+    */
     private ObjectUtils() {
     }
 
@@ -81,7 +81,7 @@ public class ObjectUtils {
     * @param trueValue  条件为 true 时返回的值
     * @param falseValue 条件为 false 时返回的值
     * @return 根据条件返回 true值 或 false值
-     */
+    */
     @Nullable
     public static <O, T> T optional(boolean value, @Nullable T trueValue, @Nullable T falseValue) {
         return value ? trueValue : falseValue;
@@ -98,7 +98,7 @@ public class ObjectUtils {
     * @param trueOrNoneValue  对象非空时返回的值
     * @param falseOrNullValue 对象为空时返回的值
     * @return 根据 值 是否为空返回对应的值
-     */
+    */
     @Nullable
     public static <O, T> T optional(@Nullable O value, @Nullable T trueOrNoneValue, @Nullable T falseOrNullValue) {
         return null == value ? falseOrNullValue : trueOrNoneValue;
@@ -115,7 +115,7 @@ public class ObjectUtils {
     * @param otFunction      对象非空时的转换函数
     * @param falseOrNullValue 对象为空时的默认值
     * @return 转换后的值或默认值
-     */
+    */
     public static <O, T> T optional(O value, Function<O, T> otFunction, T falseOrNullValue) {
         return null == value ? falseOrNullValue : otFunction.apply(value);
     }
@@ -135,7 +135,7 @@ public class ObjectUtils {
     * @param o1 对象 1，可为 空
     * @param o2 对象 2，可为 空
     * @return 两个对象相等返回 true，否则返回 false
-     */
+    */
     public static boolean nullSafeEquals(@Nullable Object o1, @Nullable Object o2) {
         if (o1 == o2) {
             return true;
@@ -161,7 +161,7 @@ public class ObjectUtils {
     * @param o1 数组 1
     * @param o2 数组 2
     * @return 两个数组相等返回 true，否则返回 false
-     */
+    */
     private static boolean arrayEquals(Object o1, Object o2) {
         if (o1 instanceof Object[] && o2 instanceof Object[]) {
             return Arrays.equals((Object[]) o1, (Object[]) o2);
@@ -213,7 +213,7 @@ public class ObjectUtils {
     * @see #nullSafeHashCode(short[])
     * @param obj obj
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(Object obj) {
         if (obj == null) {
             return 0;
@@ -256,7 +256,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(Object[] array) {
         if (array == null) {
             return 0;
@@ -273,7 +273,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(boolean[] array) {
         if (array == null) {
             return 0;
@@ -290,7 +290,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(byte[] array) {
         if (array == null) {
             return 0;
@@ -307,7 +307,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(char[] array) {
         if (array == null) {
             return 0;
@@ -324,7 +324,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(double[] array) {
         if (array == null) {
             return 0;
@@ -341,7 +341,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(float[] array) {
         if (array == null) {
             return 0;
@@ -358,7 +358,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(int[] array) {
         if (array == null) {
             return 0;
@@ -375,7 +375,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(long[] array) {
         if (array == null) {
             return 0;
@@ -392,7 +392,7 @@ public class ObjectUtils {
     * If {@code array} 是否 {@code null}, this 方法 返回 0.
     * @param array array
     * @return 空safe哈希编码的结果
-     */
+    */
     public static int nullSafeHashCode(short[] array) {
         if (array == null) {
             return 0;
@@ -411,7 +411,7 @@ public class ObjectUtils {
     *
     * @param objects 对象数组
     * @return 哈希码
-     */
+    */
     public static int hashCode(Object... objects) {
         return Arrays.hashCode(objects);
     }
@@ -425,7 +425,7 @@ public class ObjectUtils {
     * @param v2 值 2
     * @param <T> 值类型
     * @return 第一个非空的值，如果都为空则返回 空
-     */
+    */
 @SuppressWarnings("ALL")
     public static <T>T firstNonNull(T v1, T v2) {
         if(v1 instanceof Optional<?> optionalO) {
@@ -445,7 +445,7 @@ public class ObjectUtils {
     *
     * @param args 待检查的参数数组
     * @return 任意一个为空返回 true，否则返回 false
-     */
+    */
     public static boolean isAnyEmpty(Object... args) {
         for (Object arg : args) {
             if(null == arg) {
@@ -468,7 +468,7 @@ public class ObjectUtils {
     * @param defaultValue 值为空时的默认值
     * @param <T>          值类型
     * @return 非空时返回原值，否则返回默认值
-     */
+    */
     public static <T>T defaultIfNull(T value, T defaultValue) {
         return Optional.ofNullable(value).orElse(defaultValue);
     }
@@ -481,7 +481,7 @@ public class ObjectUtils {
     * @param defaultValue 默认 类
     * @param <T>          类型
     * @return 有效的 类 或默认值
-     */
+    */
     public static <T> Class<T> defaultIfNull(Class<?> value, Class<?> defaultValue) {
         if (null == value || void.class.isAssignableFrom(value) || Void.class.isAssignableFrom(value)) {
             return (Class<T>) defaultValue;
@@ -500,7 +500,7 @@ public class ObjectUtils {
     * @param <T>             输入类型
     * @param <E>             输出类型
     * @return 转换后的值，值为空时返回 空
-     */
+    */
     public static <T, E>E defaultIfNull(T value, Function<T, E> successFunction) {
         return defaultIfNull(value, successFunction, null);
     }
@@ -516,7 +516,7 @@ public class ObjectUtils {
     * @param <T>             输入类型
     * @param <E>             输出类型
     * @return 转换后的值或回调结果
-     */
+    */
     public static <T, E>E defaultIfNull(T value, Function<T, E> successFunction, Supplier<E> nullFunction) {
         return Optional.ofNullable(value).map(successFunction).orElse(null == nullFunction ? null : nullFunction.get());
     }
@@ -528,7 +528,7 @@ public class ObjectUtils {
     * @param value        待检查的对象
     * @param defaultValue 对象为空的默认字符串
     * @return 对象的字符串表示或默认值
-     */
+    */
     public static String defaultIfStringNull(Object value, String defaultValue) {
         if(null == value) {
             return defaultValue;
@@ -544,7 +544,7 @@ public class ObjectUtils {
     *
     * @param obj the 对象 转为 构建 a 字符串 representation for
     * @return a 字符串 representation 的 {@code obj}
-     */
+    */
     public static String nullSafeToString(Object obj) {
         if (obj == null) {
             return SYMBOL_EMPTY;
@@ -593,7 +593,7 @@ public class ObjectUtils {
     * @param source the (potentially primitive) array
     * @return the corresponding 对象 array (从不 {@code null})
     * @throws IllegalArgumentException if the 参数 是否 not an array
-     */
+    */
     public static Object[] toObjectArray(Object source) {
         if (source instanceof Object[]) {
             return (Object[]) source;
@@ -626,7 +626,7 @@ public class ObjectUtils {
     * @return 相等返回 true，否则返回 false
     * @see #equal(Object, Object)
     * @since 5.4.3
-     */
+    */
     public static boolean equals(Object obj1, Object obj2) {
         return equal(obj1, obj2);
     }
@@ -641,7 +641,7 @@ public class ObjectUtils {
     * @param obj2 Integer 2
     * @return 相等返回 true，否则返回 false
     * @see Objects#equals(Object, Object)
-     */
+    */
     public static boolean equals(Integer obj1, Integer obj2) {
         if(null == obj1) {
             obj1 = 0;
@@ -666,7 +666,7 @@ public class ObjectUtils {
     * @param obj2 对象 2
     * @return 相等返回 true，否则返回 false
     * @see Objects#equals(Object, Object)
-     */
+    */
     public static boolean equal(Object obj1, Object obj2) {
         if (obj1 instanceof BigDecimal && obj2 instanceof BigDecimal) {
             return NumberUtils.equals((BigDecimal) obj1, (BigDecimal) obj2);
@@ -688,7 +688,7 @@ public class ObjectUtils {
     * @param obj2 对象 2
     * @return 相等返回 true，否则返回 false
     * @see Object
-     */
+    */
     public static boolean equalsIgnore(Object obj1, Object obj2) {
         if (obj1 instanceof BigDecimal && obj2 instanceof BigDecimal) {
             return NumberUtils.equals((BigDecimal) obj1, (BigDecimal) obj2);
@@ -708,7 +708,7 @@ public class ObjectUtils {
     * @param nullCallback 值为空时的回调
     * @param function    值非空时的转换函数
     * @return 回调或转换结果
-     */
+    */
     public static Object withNull(Object value, SafeSupplier<Object> nullCallback, SafeFunction<Object, Object> function) {
         if (null == value) {
             return nullCallback.get();
@@ -725,7 +725,7 @@ public class ObjectUtils {
     * @param <E>      输出类型
     * @param <T>      输入类型
     * @return 转换后的值或 空
-     */
+    */
     public static <E, T>E withNull(T value,  SafeFunction<T, E> function) {
         if (null == value) {
             return null;
@@ -740,7 +740,7 @@ public class ObjectUtils {
     *
     * @param value    待检查的值
     * @param consumer 值非空时的消费操作
-     */
+    */
     public static void ifValidate(Object value, SafeConsumer<Object> consumer) {
         if (null == value) {
             return;
@@ -762,7 +762,7 @@ public class ObjectUtils {
     *
     * @param reference 待检查的对象
     * @return 为空返回 true，否则返回 false
-     */
+    */
     public static boolean isEmpty(Object reference) {
         if(null == reference) {
             return true;
@@ -794,7 +794,7 @@ public class ObjectUtils {
     * @param target 目标类型
     * @param <T>    目标类型
     * @return 类型兼容时返回原值，否则返回 空
-     */
+    */
     public static <T> T withAssignableFrom(Object value, Class<T> target) {
         if (null == value && ClassUtils.isVoid(target)) {
             return null;
@@ -813,7 +813,7 @@ public class ObjectUtils {
     * @param <T>      输出类型
     * @param <E>      输入类型
     * @return 转换后的值或 空
-     */
+    */
     public static <T, E> T ifValid(E value, Function<E, T> function) {
         boolean rs = null == value || (value instanceof String && "".equals(value));
         if (rs) {
@@ -827,7 +827,7 @@ public class ObjectUtils {
     *
     * @param value 待检查的对象
     * @return 为 空 返回 true，否则返回 false
-     */
+    */
     public static boolean isNull(Object value) {
         return null == value;
     }
@@ -847,7 +847,7 @@ public class ObjectUtils {
     * @param object     对象
     * @throws IOException 写入异常
     * @since 3.2
-     */
+    */
     public static void identityToString(final Appendable appendable, final Object object) throws IOException {
         appendable.append(object.getClass().getName())
                 .append(AT_SIGN)
@@ -867,7 +867,7 @@ public class ObjectUtils {
     * @param buffer 追加的目标 字符串缓冲
     * @param object 对象
     * @since 2.4
-     */
+    */
     public static void identityToString(final StringBuffer buffer, final Object object) {
         final String name = object.getClass().getName();
         final String hexString = Integer.toHexString(System.identityHashCode(object));
@@ -887,7 +887,7 @@ public class ObjectUtils {
     * @param supplier   不匹配时的回调
     * @param <T>        目标类型
     * @return 匹配时返回原值，否则返回回调结果
-     */
+    */
     public static <T> T isPresent(Class<? extends T> targetType, Object value, Supplier<T> supplier) {
         if (null == value || !(targetType.isAssignableFrom(value.getClass()))) {
             return supplier.get();
@@ -905,7 +905,7 @@ public class ObjectUtils {
     * @param targetType 目标类型
     * @param <T>        目标类型
     * @return 目标类型的实例
-     */
+    */
     public static <T> T to(Object source, Class<T> targetType) {
         return BeanUtils.copyProperties(source, targetType);
     }
@@ -917,7 +917,7 @@ public class ObjectUtils {
     *
     * @param serializable 可序列化对象
     * @return 转换后的对象
-     */
+    */
     public static Object toObject(Serializable serializable) {
         if(null == serializable) {
             return null;
@@ -943,7 +943,7 @@ public class ObjectUtils {
     * @param obj 待检查的对象
     * @return 非空返回 true，否则返回 false
     * @since 4.5.7
-     */
+    */
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
@@ -954,7 +954,7 @@ public class ObjectUtils {
     *
     * @param obj 待转换的对象
     * @return UTF-8 字节数组
-     */
+    */
     public static byte[] utf8Bytes(Object obj) {
         return Converter.convertIfNecessary(obj, byte[].class);
     }
@@ -965,7 +965,7 @@ public class ObjectUtils {
     *
     * @param objs 待检查的对象数组
     * @return 全部非空返回 true，否则返回 false
-     */
+    */
     public static boolean isAllNotEmpty(Object... objs) {
         return ArrayUtils.isAllNotEmpty(objs);
     }
@@ -975,7 +975,7 @@ public class ObjectUtils {
     *
     * @param value 对象
     * @return 字符串表示，为 空 时返回 空
-     */
+    */
     public static String toString(Object value) {
         return value == null ? null : value.toString();
     }
@@ -990,7 +990,7 @@ public class ObjectUtils {
     * @param value 待包装的值
     * @param <E>   值类型
     * @return Comparable 实例
-     */
+    */
     public static <E>Comparable<E> newComparable(E value) {
         if(value == null) {
             return o -> 0;

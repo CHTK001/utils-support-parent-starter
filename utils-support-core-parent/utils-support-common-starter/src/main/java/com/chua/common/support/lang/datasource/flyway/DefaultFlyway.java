@@ -44,32 +44,32 @@ public class DefaultFlyway implements Flyway {
 
     /**
     * 迁移脚本文件扩展名
-     */
+    */
     private static final String SQL_EXTENSION = "sql";
 
     /**
     * 默认版本与描述分隔符
-     */
+    */
     private static final String DEFAULT_SEPARATOR = "__";
 
     /**
     * classpath 前缀
-     */
+    */
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
     * 匹配 {@code V{N}__{描述}.sql} 的脚本名
-     */
+    */
     private static final Pattern SCRIPT_PATTERN = Pattern.compile("^V(\\d+)__([^\\s]+)\\.sql$", Pattern.CASE_INSENSITIVE);
 
     /**
     * 版本记录表名
-     */
+    */
     private static final String HISTORY_TABLE = "flyway_schema_history";
 
     /**
     * 创建版本记录表 SQL
-     */
+    */
     private static final String CREATE_HISTORY_SQL =
             "CREATE TABLE IF NOT EXISTS " + HISTORY_TABLE + " ("
                     + "version BIGINT PRIMARY KEY, "
@@ -79,36 +79,36 @@ public class DefaultFlyway implements Flyway {
 
     /**
     * 插入版本记录 SQL
-     */
+    */
     private static final String INSERT_HISTORY_SQL =
             "INSERT INTO " + HISTORY_TABLE + " (version, description, script, applied_at) VALUES (?, ?, ?, ?)";
 
     /**
     * 查询已应用版本 SQL
-     */
+    */
     private static final String SELECT_VERSIONS_SQL =
             "SELECT version FROM " + HISTORY_TABLE;
 
     /**
     * 所属引擎，用于执行迁移 SQL
-     */
+    */
     private final Engine engine;
 
     /**
     * 脚本位置列表
-     */
+    */
     private final List<String> locations = new ArrayList<>();
 
     /**
     * 版本与描述分隔符
-     */
+    */
     private String separator = DEFAULT_SEPARATOR;
 
     /**
     * 构造迁移执行器。
     *
     * @param engine 引擎实例
-     */
+    */
     public DefaultFlyway(Engine engine) {
         this.engine = engine;
     }
@@ -176,7 +176,7 @@ public class DefaultFlyway implements Flyway {
 
     /**
     * 确保版本记录表存在。
-     */
+    */
     private void ensureHistoryTable() {
         engine.execute(CREATE_HISTORY_SQL);
     }
@@ -185,7 +185,7 @@ public class DefaultFlyway implements Flyway {
     * 加载已应用版本集合。
     *
     * @return 已应用版本集合
-     */
+    */
     @SuppressWarnings("deprecation")
     private Set<Long> loadAppliedVersions() {
         Set<Long> versions = new HashSet<>();
@@ -208,7 +208,7 @@ public class DefaultFlyway implements Flyway {
     * @param version     版本号
     * @param description 描述
     * @param script      脚本文件名
-     */
+    */
     private void recordApplied(long version, String description, String script) {
         engine.execute(INSERT_HISTORY_SQL, version, description, script, System.currentTimeMillis());
     }
@@ -219,7 +219,7 @@ public class DefaultFlyway implements Flyway {
     * 扫描所有位置的迁移脚本。
     *
     * @return 脚本列表（按版本升序）
-     */
+    */
     private List<ScriptFile> scanScripts() {
         List<ScriptFile> scripts = new ArrayList<>();
         for (String location : locations) {
@@ -238,7 +238,7 @@ public class DefaultFlyway implements Flyway {
     *
     * @param dirPath 目录路径
     * @param target  结果集合
-     */
+    */
     private void scanDirectory(String dirPath, List<ScriptFile> target) {
         File dir = new File(dirPath);
         if (!dir.isDirectory()) {
@@ -258,7 +258,7 @@ public class DefaultFlyway implements Flyway {
     *
     * @param resourcePath classpath 路径
     * @param target       结果集合
-     */
+    */
     private void scanClasspath(String resourcePath, List<ScriptFile> target) {
         try {
             ClassLoader classLoader = defaultClassLoader();
@@ -280,7 +280,7 @@ public class DefaultFlyway implements Flyway {
     * @param path     脚本路径
     * @param fileName 脚本文件名
     * @param target   结果集合
-     */
+    */
     private void addScript(Path path, String fileName, List<ScriptFile> target) {
         Matcher matcher = SCRIPT_PATTERN.matcher(fileName);
         if (!matcher.matches()) {
@@ -298,7 +298,7 @@ public class DefaultFlyway implements Flyway {
     *
     * @param sql 脚本 SQL 内容
     * @return 语句数量
-     */
+    */
     private int executeScriptContent(String sql) {
         List<String> statements = splitStatements(sql);
         if (statements.isEmpty()) {
@@ -320,7 +320,7 @@ public class DefaultFlyway implements Flyway {
     *
     * @param sql 原始 SQL
     * @return 语句列表
-     */
+    */
     private static List<String> splitStatements(String sql) {
         List<String> statements = new ArrayList<>();
         StringBuilder current = new StringBuilder();
@@ -354,7 +354,7 @@ public class DefaultFlyway implements Flyway {
     * 获取默认类加载器。
     *
     * @return 类加载器
-     */
+    */
     private static ClassLoader defaultClassLoader() {
         ClassLoader context = Thread.currentThread().getContextClassLoader();
         if (context != null) {
@@ -369,7 +369,7 @@ public class DefaultFlyway implements Flyway {
     *
     * @param path 脚本路径
     * @return 文件内容
-     */
+    */
     private static String readContent(Path path) {
         try {
             return Files.readString(path, StandardCharsets.UTF_8);
@@ -387,7 +387,7 @@ public class DefaultFlyway implements Flyway {
     * @param path        文件路径
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     private record ScriptFile(
             long version,
             String description,

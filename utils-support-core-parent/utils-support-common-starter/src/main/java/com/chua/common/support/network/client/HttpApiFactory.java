@@ -54,7 +54,7 @@ public class HttpApiFactory {
     * @param apiClass 接口类，方法上标注 {@code @GetMapping}、{@code @PostMapping}、
     *                 {@code @RequestMapping} 或 {@code @RequestMethod} 等注解
     * @return 动态代理实现
-     */
+    */
 @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> apiClass) {
         return create(apiClass, null);
@@ -74,7 +74,7 @@ public class HttpApiFactory {
     * @param apiClass 接口类
     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null 表示使用默认配置
     * @return 动态代理实现
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> apiClass, HttpApiOptions options) {
         checkInterface(apiClass);
@@ -91,7 +91,7 @@ public class HttpApiFactory {
     * @param <T>      接口类型
     * @param apiClass 接口类
     * @return 新的动态代理实例
-     */
+    */
     public static <T> T createNew(Class<T> apiClass) {
         return createNew(apiClass, null);
     }
@@ -106,7 +106,7 @@ public class HttpApiFactory {
     * @param apiClass 接口类
     * @param options  自定义配置（baseUrl/客户端/拦截器），可为 null 表示使用默认配置
     * @return 新的动态代理实例
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T createNew(Class<T> apiClass, HttpApiOptions options) {
         checkInterface(apiClass);
@@ -120,7 +120,7 @@ public class HttpApiFactory {
     * 校验接口类型。
     *
     * @param apiClass 接口类
-     */
+    */
     private static void checkInterface(Class<?> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -133,7 +133,7 @@ public class HttpApiFactory {
     * @param clazz   接口类
     * @param options 自定义配置
     * @return 动态代理实例
-     */
+    */
     private static Object newProxy(Class<?> clazz, HttpApiOptions options) {
         return ReflectUtils.newProxy(
                 clazz.getClassLoader(),
@@ -144,7 +144,7 @@ public class HttpApiFactory {
 
     /**
     * 清空代理缓存。
-     */
+    */
     public static void clearCache() {
         PROXY_CACHE.clear();
     }

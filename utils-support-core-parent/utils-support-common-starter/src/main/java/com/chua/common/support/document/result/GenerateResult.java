@@ -13,14 +13,14 @@ public class GenerateResult {
 
     /**
     * 文件字节内容
-     */
+    */
     private byte[] data;
 
     /**
     * 获取文件字节内容
     *
     * @return 字节数组
-     */
+    */
     public byte[] getData() {
         return data;
     }
@@ -29,7 +29,7 @@ public class GenerateResult {
     * 设置文件字节内容
     *
     * @param data 字节数组
-     */
+    */
     public void setData(byte[] data) {
         this.data = data;
     }

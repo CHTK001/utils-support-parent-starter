@@ -15,7 +15,7 @@ public interface TriggerCreateBuilder {
     *
     * @param tableName 表名
     * @return this
-     */
+    */
     TriggerCreateBuilder onTable(String tableName);
 
     /**
@@ -23,7 +23,7 @@ public interface TriggerCreateBuilder {
     *
     * @param event 触发事件（INSERT / UPDATE / DELETE）
     * @return this
-     */
+    */
     TriggerCreateBuilder before(String event);
 
     /**
@@ -31,7 +31,7 @@ public interface TriggerCreateBuilder {
     *
     * @param event 触发事件（INSERT / UPDATE / DELETE）
     * @return this
-     */
+    */
     TriggerCreateBuilder after(String event);
 
     /**
@@ -39,21 +39,21 @@ public interface TriggerCreateBuilder {
     *
     * @param event 触发事件（INSERT / UPDATE / DELETE）
     * @return this
-     */
+    */
     TriggerCreateBuilder insteadOf(String event);
 
     /**
     * 设置为逐行触发（FOR EACH ROW）。
     *
     * @return this
-     */
+    */
     TriggerCreateBuilder forEachRow();
 
     /**
     * 设置为语句级触发（FOR EACH STATEMENT，默认）。
     *
     * @return this
-     */
+    */
     TriggerCreateBuilder forEachStatement();
 
     /**
@@ -61,21 +61,21 @@ public interface TriggerCreateBuilder {
     *
     * @param body 触发器体
     * @return this
-     */
+    */
     TriggerCreateBuilder body(String body);
 
     /**
     * 设置触发器为启用状态。
     *
     * @return this
-     */
+    */
     TriggerCreateBuilder enable();
 
     /**
     * 设置触发器为禁用状态。
     *
     * @return this
-     */
+    */
     TriggerCreateBuilder disable();
 
     /**
@@ -83,13 +83,13 @@ public interface TriggerCreateBuilder {
     *
     * @param comment 注释内容
     * @return this
-     */
+    */
     TriggerCreateBuilder comment(String comment);
 
     /**
     * 执行建触发器语句。
     *
     * @return 触发器定义
-     */
+    */
     TriggerDef execute();
 }

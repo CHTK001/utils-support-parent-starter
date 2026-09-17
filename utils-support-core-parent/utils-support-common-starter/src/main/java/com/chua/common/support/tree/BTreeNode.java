@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* B 树节点（数据存储在内部节点，允许节点存储键值对）。
-*
-* @param <K> 键类型
-* @param <V> 值类型
-* @author CH
-* @since 4.0.0.42
- */
+ * B 树节点（数据存储在内部节点，允许节点存储键值对）。
+ *
+ * @param <K> 键类型
+ * @param <V> 值类型
+ * @author CH
+ * @since 4.0.0.42
+*/
 class BTreeNode<K, V> {
 
     List<K> keys = new ArrayList<>(); // 键

@@ -17,35 +17,35 @@ public interface CircuitBreakerProvider {
     * 熔断器处于打开状态时返回 false，拒绝执行触发降级。</p>
     *
     * @return 获取成功返回 true，拒绝执行返回 false
-     */
+    */
     boolean tryAcquire();
 
     /**
     * 记录执行成功，熔断器根据成功次数决定是否关闭熔断。
-     */
+    */
     void recordSuccess();
 
     /**
     * 记录执行失败，熔断器根据失败次数和阈值决定是否打开熔断。
-     */
+    */
     void recordFailure();
 
     /**
     * 重置熔断器到初始关闭状态。
-     */
+    */
     void reset();
 
     /**
     * 判断熔断器当前是否处于打开状态。
     *
     * @return 打开返回 true
-     */
+    */
     boolean isOpen();
 
     /**
     * 获取熔断器名称。
     *
     * @return 名称
-     */
+    */
     String getName();
 }

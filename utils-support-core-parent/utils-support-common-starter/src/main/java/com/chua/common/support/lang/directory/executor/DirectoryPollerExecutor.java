@@ -19,12 +19,12 @@ public interface DirectoryPollerExecutor extends AutoCloseable {
 
     /**
     * 启动轮询任务。
-     */
+    */
     void start();
 
     /**
     * 停止轮询任务并释放资源。
-     */
+    */
     @Override
     void close();
 }

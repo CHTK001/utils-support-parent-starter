@@ -40,7 +40,7 @@ public abstract class SqlFormatter implements Formatter {
     * <p><b>注意事项：</b>
     * 该集合用于识别SQL关键字，进行大小写统一和格式化。
     * 实际SQL解析时会忽略字符串字面量和标识符中的关键字。
-     */
+    */
     protected static final Set<String> KEYWORDS;
 
     /**
@@ -52,7 +52,7 @@ public abstract class SqlFormatter implements Formatter {
     *   <li>算术操作符：+, -, *, /</li>
     *   <li>分隔符：(, ), ,, ;</li>
     * </ul>
-     */
+    */
     protected static final Set<Character> OPERATORS;
 
     /**
@@ -60,7 +60,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * <p>参考了主流代码风格（如Google Java Style Guide）。
     * 可根据团队规范通过构造函数调整。
-     */
+    */
     protected static final int INDENT_SIZE = 4;
 
     /**
@@ -68,7 +68,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * <p>值为120字符，参考了现代IDE的默认折行设置。
     * 该值为建议值，具体实现可能会根据语法结构进行折行。
-     */
+    */
     protected static final int MAX_LINE_LENGTH = 120;
 
     // ==================== 实例配置属性 ====================
@@ -79,7 +79,7 @@ public abstract class SqlFormatter implements Formatter {
     * <p>如果为true，格式化时会保留 -- 和 /* *\/ 风格的注释；
     * 如果为false，则会移除所有注释。
     * 默认值为true。
-     */
+    */
     protected boolean keepComments = true;
 
     /**
@@ -88,7 +88,7 @@ public abstract class SqlFormatter implements Formatter {
     * <p>如果为true，所有关键字将被转换为大写（如 SELECT）；
     * 如果为false，保留原始大小写或转换为小写。
     * 默认值为true，符合SQL标准书写习惯。
-     */
+    */
     protected boolean upperCaseKeywords = true;
 
     /**
@@ -97,7 +97,7 @@ public abstract class SqlFormatter implements Formatter {
     * <p>如果为true，将多个空格、换行等压缩为单个空格；
     * 如果为false，保留原始空白字符。
     * 默认值为true。
-     */
+    */
     protected boolean compressWhitespace = true;
 
     // ==================== 静态初始化块 ====================
@@ -148,7 +148,7 @@ public abstract class SqlFormatter implements Formatter {
     *   <li>关键字大写：true</li>
     *   <li>压缩空白：true</li>
     * </ul>
-     */
+    */
     public SqlFormatter() {
     }
 
@@ -157,7 +157,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param keepComments 是否保留注释
     * @param upperCaseKeywords 是否将关键字转换为大写
-     */
+    */
     public SqlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         this.keepComments = keepComments;
         this.upperCaseKeywords = upperCaseKeywords;
@@ -169,7 +169,7 @@ public abstract class SqlFormatter implements Formatter {
     * @param keepComments 是否保留注释
     * @param upperCaseKeywords 是否将关键字转换为大写
     * @param compressWhitespace 是否压缩空白字符
-     */
+    */
     public SqlFormatter(boolean keepComments, boolean upperCaseKeywords, boolean compressWhitespace) {
         this.keepComments = keepComments;
         this.upperCaseKeywords = upperCaseKeywords;
@@ -180,7 +180,7 @@ public abstract class SqlFormatter implements Formatter {
 
     /**
     * 启用高亮
-     */
+    */
     public SqlFormatter withHighlight(HighlightConfig config) {
         this.highlightConfig = config;
         return this;
@@ -198,7 +198,7 @@ public abstract class SqlFormatter implements Formatter {
     * @param source 待格式化的原始SQL字符串
     * @return 格式化后的SQL字符串，如果source为null则返回null
     * @see #doFormat(String)
-     */
+    */
     @Override
     public String format(String source) {
         // 空值安全检查
@@ -241,7 +241,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param source 预处理后的SQL字符串
     * @return 格式化后的SQL字符串
-     */
+    */
     protected abstract String doFormat(String source);
 
     // ==================== 工具方法 ====================
@@ -264,7 +264,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param word 待格式化的关键字
     * @return 格式化后的关键字
-     */
+    */
     protected String formatKeyword(String word) {
         // 防御性检查：如果word为null或空，直接返回
         if (word == null || word.isEmpty()) {
@@ -296,7 +296,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param word 待检测的单词
     * @return 如果是关键字返回true，否则返回false
-     */
+    */
     protected boolean isKeyword(String word) {
         // 空值安全检查
         if (word == null || word.isEmpty()) {
@@ -324,7 +324,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param level 缩进层级（从0开始）
     * @return 缩进字符串，如果level <= 0则返回空字符串
-     */
+    */
     protected String indent(int level) {
         // 边界检查：缩进层级小于等于0时返回空字符串
         if (level <= 0) {
@@ -349,7 +349,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param text 待分割的文本
     * @return 分割后的字符串列表
-     */
+    */
     protected List<String> splitPreservingParens(String text) {
         List<String> parts = new ArrayList<>();
         if (text == null || text.isEmpty()) {
@@ -424,7 +424,7 @@ public abstract class SqlFormatter implements Formatter {
     * @param text 待检查的文本
     * @param keyword 目标关键字
     * @return 如果文本以关键字开头（忽略大小写和前后空白）返回true，否则返回false
-     */
+    */
     protected boolean startsWithKeyword(String text, String keyword) {
         if (text == null || keyword == null) {
             return false;
@@ -451,7 +451,7 @@ public abstract class SqlFormatter implements Formatter {
     *
     * @param sql 原始SQL字符串
     * @return 清理后的SQL字符串
-     */
+    */
     protected String normalizeSql(String sql) {
         if (sql == null || sql.isEmpty()) {
             return sql;

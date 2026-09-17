@@ -20,7 +20,7 @@ public interface McpManager {
     * @param name   服务端名称
     * @param client MCP 客户端
     * @return 当前管理器，支持链式调用
-     */
+    */
     McpManager register(String name, McpClient client);
 
     /**
@@ -28,21 +28,21 @@ public interface McpManager {
     *
     * @param name 服务端名称
     * @return MCP 客户端，未找到返回 null
-     */
+    */
     McpClient get(String name);
 
     /**
     * 获取所有已注册的 MCP 客户端
     *
     * @return 名称到客户端的映射
-     */
+    */
     Map<String, McpClient> getAll();
 
     /**
     * 获取所有 MCP 服务端暴露的工具列表
     *
     * @return 工具描述符列表
-     */
+    */
     List<McpToolDescriptor> listAllTools();
 
     /**
@@ -51,16 +51,16 @@ public interface McpManager {
     * @param serverName 服务端名称
     * @param toolCall   工具调用请求
     * @return 工具调用结果
-     */
+    */
     McpToolResult callTool(String serverName, McpToolCall toolCall);
 
     /**
     * 初始化所有已注册的 MCP 客户端
-     */
+    */
     void initAll();
 
     /**
     * 关闭所有 MCP 客户端
-     */
+    */
     void closeAll();
 }

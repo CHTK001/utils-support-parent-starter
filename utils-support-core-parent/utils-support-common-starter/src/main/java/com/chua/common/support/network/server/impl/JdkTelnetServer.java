@@ -21,50 +21,50 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 JDK 的 Telnet 服务器实现。
-*
-* <p>支持 Telnet 协议协商、命令处理、会话管理。
-* 内置命令处理器，可通过 registerCommand 注册自定义命令。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* ServerSetting setting = ServerSetting.defaults();
-* setting.setPort(2323);
-* JdkTelnetServer server = new JdkTelnetServer(setting);
-*
-* // 注册命令
-* server.registerCommand("help", (session, args) -> {
-*     session.println("可用命令: help, whoami, time, echo");
-* });
-* server.registerCommand("whoami", (session, args) -> {
-*     session.println("你是: " + session.getClientId());
-* });
-* server.registerCommand("time", (session, args) -> {
-*     session.println("当前时间: " + java.time.LocalDateTime.now());
-* });
-* server.registerCommand("echo", (session, args) -> {
-*     session.println(String.join(" ", args));
-* });
-*
-* server.start();
-* }</pre>
-*
-* <h2>Telnet 客户端连接</h2>
-* <pre>{@code
-* telnet 127.0.0.1 2323
-* > help
-* 可用命令: help, whoami, time, echo
-* > whoami
-* 你是: /127.0.0.1:54321
-* > time
-* 当前时间: 2026-07-18T21:00:00
-* > echo Hello Telnet
-* Hello Telnet
-* </pre>
-*
-* @author CH
-* @since 2026/07/18
- */
+ * 基于 JDK 的 Telnet 服务器实现。
+ *
+ * <p>支持 Telnet 协议协商、命令处理、会话管理。
+ * 内置命令处理器，可通过 registerCommand 注册自定义命令。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * ServerSetting setting = ServerSetting.defaults();
+ * setting.setPort(2323);
+ * JdkTelnetServer server = new JdkTelnetServer(setting);
+ *
+ * // 注册命令
+ * server.registerCommand("help", (session, args) -> {
+ *     session.println("可用命令: help, whoami, time, echo");
+ * });
+ * server.registerCommand("whoami", (session, args) -> {
+ *     session.println("你是: " + session.getClientId());
+ * });
+ * server.registerCommand("time", (session, args) -> {
+ *     session.println("当前时间: " + java.time.LocalDateTime.now());
+ * });
+ * server.registerCommand("echo", (session, args) -> {
+ *     session.println(String.join(" ", args));
+ * });
+ *
+ * server.start();
+ * }</pre>
+ *
+ * <h2>Telnet 客户端连接</h2>
+ * <pre>{@code
+ * telnet 127.0.0.1 2323
+ * > help
+ * 可用命令: help, whoami, time, echo
+ * > whoami
+ * 你是: /127.0.0.1:54321
+ * > time
+ * 当前时间: 2026-07-18T21:00:00
+ * > echo Hello Telnet
+ * Hello Telnet
+ * </pre>
+ *
+ * @author CH
+ * @since 2026/07/18
+*/
 @Slf4j
 @Spi({"jdk-telnet"})
 public class JdkTelnetServer extends AbstractServer {
@@ -99,7 +99,7 @@ public class JdkTelnetServer extends AbstractServer {
     /**
     * 创建 JdkTelnetServer 实例
     * @param setting setting
-     */
+    */
     public JdkTelnetServer(ServerSetting setting) {
         super(setting);
     }
@@ -177,7 +177,7 @@ public class JdkTelnetServer extends AbstractServer {
     /**
     * 处理Connection
     * @param socket socket
-     */
+    */
     private void handleConnection(Socket socket) {
         String clientId = socket.getRemoteSocketAddress().toString();
         log.info("Telnet 连接: {}", clientId);
@@ -278,7 +278,7 @@ public class JdkTelnetServer extends AbstractServer {
     *
     * @param name    命令名称
     * @param command 命令处理器
-     */
+    */
     public JdkTelnetServer registerCommand(String name, TelnetCommand command) {
         commands.put(name.toLowerCase(), command);
         return this;
@@ -288,14 +288,14 @@ public class JdkTelnetServer extends AbstractServer {
     * 获取所有活跃会话。
     *
     * @return 会话 ID → 会话对象
-     */
+    */
     public Map<String, TelnetSession> getSessions() {
         return Map.copyOf(sessions);
     }
 
     /**
     * 获取会话数量。
-     */
+    */
     public int getSessionCount() {
         return sessions.size();
     }
@@ -304,7 +304,7 @@ public class JdkTelnetServer extends AbstractServer {
     * 广播消息到所有会话。
     *
     * @param message 消息内容
-     */
+    */
     public void broadcast(String message) {
         for (TelnetSession session : sessions.values()) {
             try {
@@ -317,7 +317,7 @@ public class JdkTelnetServer extends AbstractServer {
 
     /**
     * Telnet 命令接口。
-     */
+    */
     @FunctionalInterface
     public interface TelnetCommand {
         /**
@@ -325,17 +325,17 @@ public class JdkTelnetServer extends AbstractServer {
         *
         * @param session 当前会话
         * @param args    命令参数
-         */
+        */
         void execute(TelnetSession session, String[] args) throws Exception;
     }
 
     /**
     * Telnet 会话，封装客户端 Socket 和读写操作。
-     */
+    */
     public static class TelnetSession {
         /**
         * 客户端 ID
-         */
+        */
         private final String clientId;
         /** Socket */
         private final Socket socket;
@@ -355,14 +355,14 @@ public class JdkTelnetServer extends AbstractServer {
         * Telnet 协商（纯文本模式，不发送控制序列）。
         *
         * <p>直接使用原始文本模式，避免 Telnet 协商字节干扰 UTF-8 编码。</p>
-         */
+        */
         void negotiate() throws IOException {
             // 纯文本模式，不发送任何协商字节
         }
 
         /**
         * 读取一行（过滤 Telnet 控制序列，保留 UTF-8 文本）。
-         */
+        */
         String readLine() throws IOException {
             StringBuilder sb = new StringBuilder();
             while (true) {
@@ -402,7 +402,7 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
         * 输出文本（UTF-8 编码）。
-         */
+        */
         public void print(String text) throws IOException {
             writer.write(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
@@ -410,7 +410,7 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
         * 输出文本并换行（UTF-8 编码）。
-         */
+        */
         public void println(String text) throws IOException {
             writer.write((text + "\r\n").getBytes(java.nio.charset.StandardCharsets.UTF_8));
             writer.flush();
@@ -418,14 +418,14 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
         * 获取客户端 ID。
-         */
+        */
         public String getClientId() {
             return clientId;
         }
 
         /**
         * 关闭会话。
-         */
+        */
         public void close() {
             try {
                 socket.close();
@@ -436,7 +436,7 @@ public class JdkTelnetServer extends AbstractServer {
 
         /**
         * 判断会话是否活跃。
-         */
+        */
         public boolean isActive() {
             return socket != null && !socket.isClosed() && socket.isConnected();
         }

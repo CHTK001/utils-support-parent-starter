@@ -29,14 +29,14 @@ public class IpcServerFilter implements ServerFilter {
 
     /**
     * 处理器工厂，管理 IPC 方法路由
-     */
+    */
     private final ServerHandlerFactory<ServerHandlerAnnotationParser> factory;
 
     /**
     * 构造 IPC 服务器过滤器。
     *
     * @param objectContext 对象上下文
-     */
+    */
     public IpcServerFilter(ObjectContext objectContext) {
         this.factory = new ServerHandlerFactory<>(objectContext);
         this.factory.initialize(ServerHandlerAnnotationParser.class, this);

@@ -58,48 +58,48 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
 
     /**
     * JDBC URL
-     */
+    */
     private final String url;
 
     /**
     * 用户名
-     */
+    */
     private final String username;
 
     /**
     * 密码
-     */
+    */
     private final String password;
 
     /**
     * JDBC 驱动属性
-     */
+    */
     private final Properties driverProperties;
 
     /**
     * 验证 SQL（用于 testOnBorrow/testOnReturn 时检测连接有效性）
-     */
+    */
     private final String validationQuery;
 
     /**
     * 初始化 SQL 列表（每个新连接创建后执行）
-     */
+    */
     private final String[] initSqls;
 
     /**
     * 自动提交设置
-     */
+    */
     private final Boolean defaultAutoCommit;
 
     /**
     * 事务隔离级别
-     */
+    */
     private final Integer defaultTransactionIsolation;
 
     /**
     * 创建 ConnectionPool 实例
     * @param builder builder
-     */
+    */
     private ConnectionPool(Builder builder) {
         super(builder.buildConfig(), new ConnectionFactory(builder));
         this.url = builder.url;
@@ -116,7 +116,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     * 创建 Builder
     *
     * @return 新的 Builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -134,7 +134,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     * 连接工厂（内部类）
     *
     * <p>实现 ObjectFactory&lt;Connection&gt;，负责连接的创建、初始化、验证和销毁。
-     */
+    */
     private static class ConnectionFactory implements ObjectFactory<Connection> {
 
         /** 构建器 */
@@ -224,87 +224,87 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     * 连接池构建器
     *
     * <p>支持链式配置所有参数，必填参数为 url。
-     */
+    */
     public static class Builder {
 
         /**
         * JDBC URL（必填）
-         */
+        */
         private String url;
 
         /**
         * 用户名
-         */
+        */
         private String username;
 
         /**
         * 密码
-         */
+        */
         private String password;
 
         /**
         * JDBC 驱动属性
-         */
+        */
         private Properties driverProperties;
 
         /**
         * 验证 SQL
-         */
+        */
         private String validationQuery = "SELECT 1";
 
         /**
         * 初始化 SQL 列表
-         */
+        */
         private String[] initSqls;
 
         /**
         * 自动提交设置
-         */
+        */
         private Boolean defaultAutoCommit;
 
         /**
         * 事务隔离级别
-         */
+        */
         private Integer defaultTransactionIsolation;
 
         /**
         * 池最大容量
-         */
+        */
         private int maxTotal = 10;
 
         /**
         * 最大空闲数
-         */
+        */
         private int maxIdle;
 
         /**
         * 最小空闲数（预热）
-         */
+        */
         private int minIdle = 0;
 
         /**
         * 借出超时（毫秒）
-         */
+        */
         private long borrowTimeoutMillis = 3000;
 
         /**
         * 空闲超时（毫秒）
-         */
+        */
         private long idleTimeoutMillis = 600000;
 
         /**
         * 空闲检测间隔（毫秒）
-         */
+        */
         private long idleEvictionIntervalMillis = 30000;
 
         /**
         * 借出时验证
-         */
+        */
         private boolean testOnBorrow = true;
 
         /**
         * 归还时验证
-         */
+        */
         private boolean testOnReturn = true;
 
         Builder() {
@@ -315,7 +315,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param url JDBC 连接 URL
         * @return 当前 Builder
-         */
+        */
         public Builder url(String url) {
             this.url = url;
             return this;
@@ -326,7 +326,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param username 数据库用户名
         * @return 当前 Builder
-         */
+        */
         public Builder username(String username) {
             this.username = username;
             return this;
@@ -337,7 +337,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param password 数据库密码
         * @return 当前 Builder
-         */
+        */
         public Builder password(String password) {
             this.password = password;
             return this;
@@ -348,7 +348,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param properties 驱动属性（如 useSSL、serverTimezone 等）
         * @return 当前 Builder
-         */
+        */
         public Builder driverProperties(Properties properties) {
             this.driverProperties = properties;
             return this;
@@ -361,7 +361,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param validationQuery 验证 SQL
         * @return 当前 Builder
-         */
+        */
         public Builder validationQuery(String validationQuery) {
             this.validationQuery = validationQuery;
             return this;
@@ -374,7 +374,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param initSqls 初始化 SQL 数组
         * @return 当前 Builder
-         */
+        */
         public Builder initSqls(String... initSqls) {
             this.initSqls = initSqls;
             return this;
@@ -385,7 +385,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param autoCommit true=自动提交, false=手动提交, null=不设置
         * @return 当前 Builder
-         */
+        */
         public Builder defaultAutoCommit(Boolean autoCommit) {
             this.defaultAutoCommit = autoCommit;
             return this;
@@ -396,7 +396,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param level Connection.TRANSACTION_* 常量
         * @return 当前 Builder
-         */
+        */
         public Builder defaultTransactionIsolation(Integer level) {
             this.defaultTransactionIsolation = level;
             return this;
@@ -407,7 +407,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param maxTotal 最大容量
         * @return 当前 Builder
-         */
+        */
         public Builder maxTotal(int maxTotal) {
             this.maxTotal = maxTotal;
             return this;
@@ -418,7 +418,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param maxIdle 最大空闲数
         * @return 当前 Builder
-         */
+        */
         public Builder maxIdle(int maxIdle) {
             this.maxIdle = maxIdle;
             return this;
@@ -429,7 +429,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param minIdle 最小空闲数
         * @return 当前 Builder
-         */
+        */
         public Builder minIdle(int minIdle) {
             this.minIdle = minIdle;
             return this;
@@ -440,7 +440,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param borrowTimeoutMillis 超时时间
         * @return 当前 Builder
-         */
+        */
         public Builder borrowTimeoutMillis(long borrowTimeoutMillis) {
             this.borrowTimeoutMillis = borrowTimeoutMillis;
             return this;
@@ -451,7 +451,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param idleTimeoutMillis 超时时间
         * @return 当前 Builder
-         */
+        */
         public Builder idleTimeoutMillis(long idleTimeoutMillis) {
             this.idleTimeoutMillis = idleTimeoutMillis;
             return this;
@@ -462,7 +462,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param intervalMillis 检测间隔
         * @return 当前 Builder
-         */
+        */
         public Builder idleEvictionIntervalMillis(long intervalMillis) {
             this.idleEvictionIntervalMillis = intervalMillis;
             return this;
@@ -473,7 +473,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param testOnBorrow 是否验证
         * @return 当前 Builder
-         */
+        */
         public Builder testOnBorrow(boolean testOnBorrow) {
             this.testOnBorrow = testOnBorrow;
             return this;
@@ -484,7 +484,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         *
         * @param testOnReturn 是否验证
         * @return 当前 Builder
-         */
+        */
         public Builder testOnReturn(boolean testOnReturn) {
             this.testOnReturn = testOnReturn;
             return this;
@@ -494,7 +494,7 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
         * 构建连接池
         *
         * @return ConnectionPool 实例
-         */
+        */
         public ConnectionPool build() {
             if (url == null || url.isBlank()) {
                 throw new IllegalArgumentException("JDBC URL 不能为空");

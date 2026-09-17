@@ -33,19 +33,19 @@ public interface OpenApiDocumentProvider {
     *
     * @param type 导出格式（"html" / "markdown" / "word"）
     * @return 导出器实例
-     */
+    */
     static OpenApiDocumentProvider create(String type) {
         return ServiceProvider.of(OpenApiDocumentProvider.class).getExtension(type);
     }
 
     /**
     * 导出格式名称。
-     */
+    */
     String getType();
 
     /**
     * 支持的文件扩展名（[".html"] / [".md"] / [".docx"]）。
-     */
+    */
     String[] getExtensions();
 
     /**
@@ -53,6 +53,6 @@ public interface OpenApiDocumentProvider {
     *
     * @param data       OpenAPI 文档数据
     * @param outputFile 输出文件
-     */
+    */
     void export(OpenApiDocumentData data, File outputFile);
 }

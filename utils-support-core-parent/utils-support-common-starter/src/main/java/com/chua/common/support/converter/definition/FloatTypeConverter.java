@@ -22,7 +22,7 @@ public class FloatTypeConverter implements TypeConverter<Float> {
     *
     * @param value 源值
     * @return Float 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Float convert(Object value) {
         if (null == value) {
@@ -40,7 +40,7 @@ public class FloatTypeConverter implements TypeConverter<Float> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Float.class
-     */
+    */
     @Override
     public Class<Float> getType() {
         return Float.class;

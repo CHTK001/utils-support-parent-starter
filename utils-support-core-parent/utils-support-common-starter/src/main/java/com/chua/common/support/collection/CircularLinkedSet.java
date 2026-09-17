@@ -47,35 +47,35 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
 
     /**
     * 内部存储 Map
-     */
+    */
     private final LinkedHashMap<E, Object> delegate;
 
     /**
     * 标记值，用于 {@link LinkedHashMap} 的值
-     */
+    */
     private static final Object PRESENT = new Object();
 
     /**
     * 集合固定容量
-     */
+    */
     private final int capacity;
 
     /**
     * 当前溢出策略
-     */
+    */
     private OverflowPolicy policy;
 
     /**
     * 是否按访问顺序排序（true）或插入顺序排序（false）。
     * <p>true 时，最近访问的元素排在最前面，peekEldest() 返回最久未被访问的元素。</p>
-     */
+    */
     private final boolean accessOrder;
 
     /**
     * 最近一次因容量满而被淘汰的元素
     * <p>仅在 {@link #add(Object)} 真正触发淘汰时设置，其余情况为 null，
     * 便于调用方区分"本次 add 是否淘汰了元素"，避免读到陈旧淘汰值。</p>
-     */
+    */
     private volatile E lastEvicted;
 
     /**
@@ -85,7 +85,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * @param <E>      元素类型
     * @return 环状集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularLinkedSet<E> of(int capacity) {
         return new CircularLinkedSet<>(capacity);
     }
@@ -98,7 +98,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * @param <E>      元素类型
     * @return 环状集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularLinkedSet<E> of(int capacity, Collection<? extends E> c) {
         CircularLinkedSet<E> set = new CircularLinkedSet<>(capacity);
         if (c != null) {
@@ -115,7 +115,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * @param <E>      元素类型
     * @return 环状集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularLinkedSet<E> of(int capacity, OverflowPolicy policy) {
         return new CircularLinkedSet<>(capacity, false, policy);
     }
@@ -124,7 +124,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * 构造方法，按插入顺序排序，默认策略为删除最早。
     *
     * @param capacity 集合容量
-     */
+    */
     public CircularLinkedSet(int capacity) {
         this(capacity, false, OverflowPolicy.EVICT_ELDEST);
     }
@@ -134,7 +134,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     *
     * @param capacity    集合容量
     * @param accessOrder 是否按访问顺序排序
-     */
+    */
     public CircularLinkedSet(int capacity, boolean accessOrder) {
         this(capacity, accessOrder, OverflowPolicy.EVICT_ELDEST);
     }
@@ -146,7 +146,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * @param accessOrder 是否按访问顺序排序
     * @param policy      溢出策略，不允许为 null
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public CircularLinkedSet(int capacity, boolean accessOrder, OverflowPolicy policy) {
         super();
         if (capacity <= 0) {
@@ -346,7 +346,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * 处理容量已满时的溢出逻辑。
     *
     * @return 是否腾出了空间（可继续录入）
-     */
+    */
     private boolean handleOverflow() {
         switch (policy) {
             case REJECT -> {
@@ -373,7 +373,7 @@ public class CircularLinkedSet<E> extends AbstractSet<E> implements CircularSet<
     * 移除并返回最新的元素。
     *
     * @return 最新元素
-     */
+    */
     private E pollNewest() {
         Iterator<E> it = delegate.keySet().iterator();
         E newest = null;

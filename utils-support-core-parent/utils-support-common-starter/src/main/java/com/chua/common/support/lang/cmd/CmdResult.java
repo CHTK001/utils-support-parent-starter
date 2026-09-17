@@ -38,15 +38,15 @@ public class CmdResult {
     private final String command;
     /**
     * 开始时间
-     */
+    */
     private final long startTime;
     /**
     * 结束时间
-     */
+    */
     private final long endTime;
     /**
     * 超时时间（毫秒）
-     */
+    */
     private final boolean timeout;
     /** 异常对象 */
     private final Throwable throwable;
@@ -67,7 +67,7 @@ public class CmdResult {
     * 创建结果构建器
     *
     * @return CmdResultBuilder 实例
-     */
+    */
     public static CmdResultBuilder builder() {
         return new CmdResultBuilder();
     }
@@ -76,7 +76,7 @@ public class CmdResult {
     * 获取进程退出码
     *
     * @return 退出码，-1 表示超时，-2 表示执行异常
-     */
+    */
     public int getExitCode() {
         return exitCode;
     }
@@ -85,7 +85,7 @@ public class CmdResult {
     * 判断命令是否执行成功（退出码为 0）
     *
     * @return 成功返回 true
-     */
+    */
     public boolean isSuccess() {
         return exitCode == 0;
     }
@@ -94,7 +94,7 @@ public class CmdResult {
     * 获取标准输出内容
     *
     * @return stdout 字符串
-     */
+    */
     public String getStdout() {
         return stdout;
     }
@@ -103,7 +103,7 @@ public class CmdResult {
     * 获取错误输出内容
     *
     * @return stderr 字符串
-     */
+    */
     public String getStderr() {
         return stderr;
     }
@@ -112,7 +112,7 @@ public class CmdResult {
     * 获取执行的命令
     *
     * @return 命令字符串
-     */
+    */
     public String getCommand() {
         return command;
     }
@@ -121,7 +121,7 @@ public class CmdResult {
     * 获取执行开始时间戳（毫秒）
     *
     * @return 开始时间
-     */
+    */
     public long getStartTime() {
         return startTime;
     }
@@ -130,7 +130,7 @@ public class CmdResult {
     * 获取执行结束时间戳（毫秒）
     *
     * @return 结束时间
-     */
+    */
     public long getEndTime() {
         return endTime;
     }
@@ -139,7 +139,7 @@ public class CmdResult {
     * 获取执行耗时（毫秒）
     *
     * @return 耗时毫秒数
-     */
+    */
     public long getDuration() {
         return endTime - startTime;
     }
@@ -148,7 +148,7 @@ public class CmdResult {
     * 是否因超时而终止
     *
     * @return 超时返回 true
-     */
+    */
     public boolean isTimeout() {
         return timeout;
     }
@@ -157,7 +157,7 @@ public class CmdResult {
     * 获取执行过程中的异常（如果有）
     *
     * @return 异常对象，无异常则返回 null
-     */
+    */
     public Throwable getThrowable() {
         return throwable;
     }
@@ -185,7 +185,7 @@ public class CmdResult {
 
     /**
     * CmdResult 构建器
-     */
+    */
     public static class CmdResultBuilder {
         /** 退出码 */
         private int exitCode;
@@ -197,15 +197,15 @@ public class CmdResult {
         private String command;
         /**
         * 开始时间
-         */
+        */
         private long startTime;
         /**
         * 结束时间
-         */
+        */
         private long endTime;
         /**
         * 超时时间（毫秒）
-         */
+        */
         private boolean timeout;
         /** 异常对象 */
         private Throwable throwable;

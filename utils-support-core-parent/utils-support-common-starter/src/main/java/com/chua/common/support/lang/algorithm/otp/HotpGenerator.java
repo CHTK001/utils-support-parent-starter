@@ -19,7 +19,7 @@ public interface HotpGenerator extends OtpGenerator {
     *
     * @param length 生成的 OTP 字符串的长度（通常为 6 或 8）。
     * @return 生成的 OTP 字符串。
-     */
+    */
     String generate(int length);
 
     /**
@@ -32,6 +32,6 @@ public interface HotpGenerator extends OtpGenerator {
     * @param code   用户输入的一次性密码代码。
     * @param length 预期的 OTP 字符串长度。
     * @return 如果代码有效返回 true，否则返回 false。
-     */
+    */
     boolean verify(String code, int length);
 }

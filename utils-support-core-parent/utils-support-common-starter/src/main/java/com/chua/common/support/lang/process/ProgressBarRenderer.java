@@ -24,7 +24,7 @@ public interface ProgressBarRenderer {
     *                  例如 80 表示在 80 个字符宽度内渲染进度条
     * @return 渲染后的字符串
     *         示例："处理中 [==============>      ] 50/100 (50%)"
-     */
+    */
     String render(ProgressState progress, int maxLength);
 
 }

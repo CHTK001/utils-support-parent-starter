@@ -90,7 +90,7 @@ public class CorsFilter implements ServerFilter {
     * @param origin         请求源
     * @param allowedOrigins 允许的源列表
     * @return true 表示允许
-     */
+    */
     private boolean isOriginAllowed(String origin, String allowedOrigins) {
         if (allowedOrigins == null || allowedOrigins.isBlank()) {
             return false;

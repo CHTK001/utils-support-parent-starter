@@ -32,14 +32,14 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     private final List<FilterChainListener> listeners;
     /**
     * 索引名
-     */
+    */
     private int index;
 
     /**
     * 创建 DefaultServerFilterChain 实例
     * @param filters filters
     * @param ServerHandler ServerHandler
-     */
+    */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler) {
         this(filters, handler, null);
     }
@@ -50,7 +50,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     * @param ServerHandler ServerHandler
     * @param List List
     * @param listeners listeners
-     */
+    */
     public DefaultServerFilterChain(List<ServerFilter> filters, ServerHandler handler, List<FilterChainListener> listeners) {
         this.filters = filters;
         this.handler = handler;
@@ -94,7 +94,7 @@ public class DefaultServerFilterChain implements ServerFilterChain {
     * @param pattern   过滤器绑定的路径模式
     * @param requestPath 请求路径
     * @return 匹配返回 true
-     */
+    */
     private boolean matchPath(String pattern, String requestPath) {
         if (requestPath == null) {
             return false;

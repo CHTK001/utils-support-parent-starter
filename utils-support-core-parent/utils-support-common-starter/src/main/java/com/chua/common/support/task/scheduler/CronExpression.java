@@ -13,84 +13,84 @@ import java.util.Date;
 import java.util.List;
 
 /**
-* Cron 表达式解析引擎
-*
-* <p>负责解析标准的 6 字段 Cron 表达式（秒 分 时 日 月 周），并提供基于时间点的
-* 匹配和计算能力。该引擎通过将表达式编译为 {@link BitSet} 位图来实现高效的
-* 时间匹配判定。
-*
-* <p>支持的表达式语法：
-* <ul>
-*   <li>{@code *} — 所有值</li>
-*   <li>{@code ?} — 不指定值（仅用于日和周字段）</li>
-*   <li>{@code -} — 范围（如 1-5）</li>
-*   <li>{@code ,} — 列表（如 MON,WED,FRI）</li>
-*   <li>{@code /} - 步进（如 &#42;/5）</li>
-*   <li>{@code L} - 最后一天或最后一个工作日</li>
-*   <li>{@code W} - 最近的工作日</li>
-*   <li>{@code #} - 第 N 个星期几（如 3#2 表示第二个星期二）</li>
-* </ul>
-*
-* <p>匹配逻辑：
-* <ol>
-*   <li>按年-月-日-时-分-秒的层级逐级匹配</li>
-*   <li>日和周字段支持互斥匹配：当其中一个未设置时，另一个作为唯一判定条件</li>
-*   <li>支持月末（L）和最近工作日（W）等特殊语义</li>
-* </ol>
-*
-* @author CH
-* @since 1.0.0
- */
+ * Cron 表达式解析引擎
+ *
+ * <p>负责解析标准的 6 字段 Cron 表达式（秒 分 时 日 月 周），并提供基于时间点的
+ * 匹配和计算能力。该引擎通过将表达式编译为 {@link BitSet} 位图来实现高效的
+ * 时间匹配判定。
+ *
+ * <p>支持的表达式语法：
+ * <ul>
+ *   <li>{@code *} — 所有值</li>
+ *   <li>{@code ?} — 不指定值（仅用于日和周字段）</li>
+ *   <li>{@code -} — 范围（如 1-5）</li>
+ *   <li>{@code ,} — 列表（如 MON,WED,FRI）</li>
+ *   <li>{@code /} - 步进（如 &#42;/5）</li>
+ *   <li>{@code L} - 最后一天或最后一个工作日</li>
+ *   <li>{@code W} - 最近的工作日</li>
+ *   <li>{@code #} - 第 N 个星期几（如 3#2 表示第二个星期二）</li>
+ * </ul>
+ *
+ * <p>匹配逻辑：
+ * <ol>
+ *   <li>按年-月-日-时-分-秒的层级逐级匹配</li>
+ *   <li>日和周字段支持互斥匹配：当其中一个未设置时，另一个作为唯一判定条件</li>
+ *   <li>支持月末（L）和最近工作日（W）等特殊语义</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 1.0.0
+*/
 public class CronExpression {
 
     /**
     * 秒字段位图（0-59）
-     */
+    */
     private final BitSet seconds = new BitSet(60);
 
     /**
     * 分钟字段位图（0-59）
-     */
+    */
     private final BitSet minutes = new BitSet(60);
 
     /**
     * 小时字段位图（0-23）
-     */
+    */
     private final BitSet hours = new BitSet(24);
 
     /**
     * 日期字段位图（1-31）
-     */
+    */
     private final BitSet daysOfMonth = new BitSet(32);
 
     /**
     * 月份字段位图（1-12）
-     */
+    */
     private final BitSet months = new BitSet(13);
 
     /**
     * 星期字段位图（0-7，0 和 7 均表示周日）
-     */
+    */
     private final BitSet daysOfWeek = new BitSet(8);
 
     /**
     * 是否使用月末标记（L）
-     */
+    */
     private boolean lastDayOfMonth;
 
     /**
     * 是否使用最后一个工作日标记（L，星期字段）
-     */
+    */
     private boolean lastDayOfWeek;
 
     /**
     * 最近的工作日（W 修饰符）
-     */
+    */
     private Integer nearestWeekday;
 
     /**
     * 第 N 个星期几（如 3#2 表示第二个星期二，# 前的数字表示星期几，# 后的数字表示第几个）
-     */
+    */
     private Integer nthDayOfWeek;
 
     /**
@@ -101,7 +101,7 @@ public class CronExpression {
     *
     * @param expression 6 字段 Cron 表达式
     * @throws IllegalArgumentException 如果表达式格式不正确或字段数不为 6
-      */
+    */
     public CronExpression(String expression) {
         String[] fields = expression.trim().split("\\s+");
         if (fields.length != 6) {
@@ -118,7 +118,7 @@ public class CronExpression {
     /**
     * 解析秒字段（0-59）
     * @param field 字段
-     */
+    */
     private void parseSeconds(String field) {
         parseField(field, 0, 59, seconds);
     }
@@ -126,7 +126,7 @@ public class CronExpression {
     /**
     * 解析分钟字段（0-59）
     * @param field 字段
-     */
+    */
     private void parseMinutes(String field) {
         parseField(field, 0, 59, minutes);
     }
@@ -134,7 +134,7 @@ public class CronExpression {
     /**
     * 解析小时字段（0-23）
     * @param field 字段
-     */
+    */
     private void parseHours(String field) {
         parseField(field, 0, 23, hours);
     }
@@ -142,7 +142,7 @@ public class CronExpression {
     /**
     * 解析月份字段（1-12），支持 JAN-DEC 英文缩写
     * @param field 字段
-     */
+    */
     private void parseMonths(String field) {
         String resolved = resolveNames(field, "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC");
         parseField(resolved, 1, 12, months);
@@ -151,7 +151,7 @@ public class CronExpression {
     /**
     * 解析日期字段（1-31），支持 L、W 修饰符
     * @param field 字段
-     */
+    */
     private void parseDaysOfMonth(String field) {
         if ("?".equals(field)) {
             return;
@@ -174,7 +174,7 @@ public class CronExpression {
     /**
     * 解析星期字段（0-7），支持 L、# 修饰符和 SUN-SAT 英文缩写
     * @param field 字段
-     */
+    */
     private void parseDaysOfWeek(String field) {
         if ("?".equals(field)) {
             return;
@@ -203,7 +203,7 @@ public class CronExpression {
     * @param field 原始字段值
     * @param names 逗号分隔的名称列表
     * @return 将名称替换为数字后的字段值
-     */
+    */
     private String resolveNames(String field, String names) {
         String[] nameArr = names.split(",");
         String result = field.toUpperCase();
@@ -219,7 +219,7 @@ public class CronExpression {
     * @param min 最小
     * @param max 最大
     * @param bits 钻头
-     */
+    */
     private void parseField(String field, int min, int max, BitSet bits) {
         if ("*".equals(field)) {
             bits.set(min, max + 1);
@@ -236,7 +236,7 @@ public class CronExpression {
     * @param min 最小
     * @param max 最大
     * @param bits 钻头
-     */
+    */
     private void parseFieldPart(String part, int min, int max, BitSet bits) {
         int step = 1;
         int slash = part.indexOf('/');
@@ -278,7 +278,7 @@ public class CronExpression {
     *
     * @param from 基准时间
     * @return 下一个匹配的 Cron 时间点
-     */
+    */
     LocalDateTime nextExecutionTime(LocalDateTime from) {
         LocalDateTime candidate = from.truncatedTo(ChronoUnit.SECONDS).plusSeconds(1);
 
@@ -343,7 +343,7 @@ public class CronExpression {
     * @param count 需要获取的数量
     * @param from  基准时间
     * @return 执行时间点列表
-     */
+    */
     List<LocalDateTime> getFireTimes(int count, LocalDateTime from) {
         List<LocalDateTime> result = new ArrayList<>(count);
         LocalDateTime current = from;
@@ -363,7 +363,7 @@ public class CronExpression {
     * @param year year
     * @param month month
     * @return 长度的month的结果
-     */
+    */
     private int lengthOfMonth(int year, int month) {
         return LocalDate.of(year, month, 1).lengthOfMonth();
     }
@@ -372,7 +372,7 @@ public class CronExpression {
     * 判断是否为该月最后一个工作日（周五为最后一个工作日时，周六日往后顺延）
     * @param dt dt
     * @return 是否最后一个weekday的结果
-     */
+    */
     private boolean isLastWeekDay(LocalDateTime dt) {
         LocalDate date = dt.toLocalDate();
         LocalDate lastDay = date.with(TemporalAdjusters.lastDayOfMonth());
@@ -383,7 +383,7 @@ public class CronExpression {
     * 判断是否为第 N 个星期几
     * @param dt dt
     * @return 是否nthday的week的结果
-     */
+    */
     private boolean isNthDayOfWeek(LocalDateTime dt) {
         int weekOfMonth = (dt.getDayOfMonth() - 1) / 7 + 1;
         int dow = dt.getDayOfWeek().getValue() % 7;
@@ -395,7 +395,7 @@ public class CronExpression {
     *
     * @param fromTime 基准时间
     * @return 下一个有效时间，如果无法确定则返回 {@code null}
-     */
+    */
     public Date getNextValidTimeAfter(Date fromTime) {
         LocalDateTime fromLdt = fromTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         LocalDateTime next = nextExecutionTime(fromLdt);
@@ -411,7 +411,7 @@ public class CronExpression {
     * @param month month
     * @param dt dt
     * @return 是否nearestweekday的结果
-     */
+    */
     private boolean isNearestWeekday(int year, int month, LocalDateTime dt) {
         LocalDate target = LocalDate.of(year, month, nearestWeekday);
         LocalDate nearest = target;

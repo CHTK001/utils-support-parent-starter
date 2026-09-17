@@ -39,7 +39,7 @@ public class ModelHealthChecker {
     * @param healthCheckFunction Function
     * @param ModelHealthCheckResult ModelHealthCheckResult
     * @param healthCheckFunction healthCheckFunction
-     */
+    */
     public ModelHealthChecker(long checkIntervalMs, Function<ChatClient, ModelHealthCheckResult> healthCheckFunction) {
         this.checkIntervalMs = checkIntervalMs;
         this.healthCheckFunction = healthCheckFunction;
@@ -52,7 +52,7 @@ public class ModelHealthChecker {
     * @param client   ChatClient 实例
     * @param provider 提供商
     * @param model    模型名称
-     */
+    */
     public void register(ChatClient client, String provider, String model) {
         Objects.requireNonNull(client, "client must not be null");
         ModelHealth health = new ModelHealth(provider, model);
@@ -63,7 +63,7 @@ public class ModelHealthChecker {
 
     /**
     * 启动健康检查任务
-     */
+    */
     public void start() {
         if (running.compareAndSet(false, true)) {
             scheduler.scheduleFixedRate("model-health-check", this::checkAllClientsHealth, checkIntervalMs, java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -73,7 +73,7 @@ public class ModelHealthChecker {
 
     /**
     * 停止健康检查任务
-     */
+    */
     public void stop() {
         if (running.compareAndSet(true, false)) {
             scheduler.shutdown();
@@ -86,7 +86,7 @@ public class ModelHealthChecker {
     *
     * @param client ChatClient 实例
     * @return ModelHealth 如果不存在返回 null
-     */
+    */
     public ModelHealth getHealth(ChatClient client) {
         return clientHealthMap.get(client);
     }
@@ -96,7 +96,7 @@ public class ModelHealthChecker {
     *
     * @param client ChatClient 实例
     * @return true 如果健康或未注册
-     */
+    */
     public boolean isHealthy(ChatClient client) {
         ModelHealth health = clientHealthMap.get(client);
         return health == null || health.isHealthy();
@@ -107,7 +107,7 @@ public class ModelHealthChecker {
     *
     * @param client ChatClient 实例
     * @return true 如果限流
-     */
+    */
     public boolean isRateLimited(ChatClient client) {
         ModelHealth health = clientHealthMap.get(client);
         return health != null && health.isRateLimited();
@@ -118,7 +118,7 @@ public class ModelHealthChecker {
     *
     * @param client ChatClient 实例
     * @return true 如果余额不足
-     */
+    */
     public boolean isQuotaExhausted(ChatClient client) {
         ModelHealth health = clientHealthMap.get(client);
         return health != null && health.isQuotaExhausted();
@@ -126,7 +126,7 @@ public class ModelHealthChecker {
 
     /**
     * 执行健康检查
-     */
+    */
     private void checkAllClientsHealth() {
         if (!running.get()) {
             return;
@@ -184,7 +184,7 @@ public class ModelHealthChecker {
 
     /**
     * 模型健康检查结果
-     */
+    */
     public static class ModelHealthCheckResult {
         /** 是否健康 */
         private final boolean healthy;
@@ -198,7 +198,7 @@ public class ModelHealthChecker {
         * @param healthy healthy
         * @param issueType IssueType
         * @param message String
-         */
+        */
         public ModelHealthCheckResult(boolean healthy, IssueType issueType, String message) {
             this.healthy = healthy;
             this.issueType = issueType;

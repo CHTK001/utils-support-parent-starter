@@ -27,198 +27,198 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
 
     /**
     * 最小容量，避免构造 0/1 容量的非法队列
-     */
+    */
     private static final int MIN_CAPACITY = 2;
 
     /**
     * 最大容量，2^30，防止数组过大
-     */
+    */
     private static final int MAX_CAPACITY = 1 << 30;
 
     /**
     * 实际容量（2 的幂）
-     */
+    */
     private final int capacity;
 
     /**
     * 容量减一，用于槽位定位的掩码
-     */
+    */
     private final int mask;
 
     /**
     * 环形数组，槽位存真实元素，具体位置由索引与掩码运算得出
-     */
+    */
     private final Object[] buffer;
 
     // ==================== 生产者索引（独立缓存行） ====================
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad1;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad2;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad3;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad4;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad5;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad6;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad7;
 
     /**
     * 生产者索引，表示下一个待写入的槽位序号，仅由生产者写、消费者读
-     */
+    */
     private final AtomicLong producerIndex = new AtomicLong();
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad9;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad10;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad11;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad12;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad13;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad14;
 
     /**
     * 缓存行填充，隔离 producerIndex 与 consumerIndex
-     */
+    */
     private long producerPad15;
 
     // ==================== 消费者索引（独立缓存行） ====================
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad1;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad2;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad3;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad4;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad5;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad6;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad7;
 
     /**
     * 消费者索引，表示下一个待读取的槽位序号，仅由消费者写、生产者读
-     */
+    */
     private final AtomicLong consumerIndex = new AtomicLong();
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad9;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad10;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad11;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad12;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad13;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad14;
 
     /**
     * 缓存行填充，隔离 consumerIndex 与 producerIndex
-     */
+    */
     private long consumerPad15;
 
     /**
     * 生产者内部缓存的消费者索引，减少入队时对共享索引的读取
-     */
+    */
     private long consumerCached;
 
     /**
     * 消费者内部缓存的生产者索引，减少出队时对共享索引的读取
-     */
+    */
     private long producerCached;
 
     /**
     * 创建指定容量的 SPSC 无锁环形队列。
     *
     * @param requestedCapacity 期望容量，自动向上对齐为 2 的幂（至少 2）
-     */
+    */
     public SpscArrayQueue(int requestedCapacity) {
         this.capacity = alignToPowerOfTwo(requestedCapacity);
         this.mask = this.capacity - 1;
@@ -231,7 +231,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * @param element 待入队元素，禁止为 null
     * @return 入队成功返回 true；队列已满返回 false
     * @throws NullPointerException 元素为 null 时抛出
-     */
+    */
     @Override
     public boolean offer(E element) {
         if (element == null) {
@@ -258,7 +258,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * 出队并移除队首元素，由唯一的消费者线程调用。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public E poll() {
@@ -283,7 +283,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * 查看队首元素但不移除，由唯一的消费者线程调用。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public E peek() {
@@ -303,7 +303,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * 判断队列是否为空，由任意线程调用，允许轻微即时性偏差。
     *
     * @return 队列为空返回 true
-     */
+    */
     @Override
     public boolean isEmpty() {
         return consumerIndex.getPlain() >= producerIndex.getPlain();
@@ -313,7 +313,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * 返回队列中的元素数量（近似值）。
     *
     * @return 元素数量估计值
-     */
+    */
     @Override
     public int size() {
         long diff = producerIndex.getPlain() - consumerIndex.getPlain();
@@ -325,7 +325,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
 
     /**
     * 清空队列，持续出队直至为空。
-     */
+    */
     @Override
     public void clear() {
         while (poll() != null) {
@@ -337,7 +337,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * 返回队列容量（对齐后的 2 的幂）。
     *
     * @return 队列容量
-     */
+    */
     @Override
     public int capacity() {
         return capacity;
@@ -349,7 +349,7 @@ public class SpscArrayQueue<E> implements LockFreeQueue<E> {
     * @param requested 期望容量
     * @return 对齐后的容量（不小于 2）
     * @throws IllegalArgumentException 容量超过最大限制时抛出
-     */
+    */
     private static int alignToPowerOfTwo(int requested) {
         if (requested < MIN_CAPACITY) {
             requested = MIN_CAPACITY;

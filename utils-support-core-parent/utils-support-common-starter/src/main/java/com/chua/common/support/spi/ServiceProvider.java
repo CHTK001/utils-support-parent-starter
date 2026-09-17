@@ -26,61 +26,61 @@ import java.util.function.Function;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 服务提供者接口，提供 SPI（服务 提供者 接口）机制的核心功能。
-* <p>
-* 该接口是整个 SPI 框架的核心，提供了服务发现、注册、获取、管理等完整功能。
-* 支持通过名称获取服务实例、服务注册、服务发现、条件加载等高级特性。
-* </p>
-* <p>
-* 主要特点：
-* </p>
-* <ul>
-*   <li>支持按名称获取服务实例</li>
-*   <li>支持服务注册和发现</li>
-*   <li>支持条件加载（基于类存在性、属性配置等）</li>
-*   <li>支持服务优先级排序</li>
-*   <li>支持服务监控和生命周期管理</li>
-* </ul>
-* <p>
-* 使用示例：
-* </p>
-* <pre>{@code
-* // 获取服务提供者
-* ServiceProvider<DataProcessor> provider = ServiceProvider.of(DataProcessor.class);
-*
-* // 获取指定名称的服务
-* DataProcessor processor = provider.getExtension("json");
-*
-* // 获取所有服务
-* List<DataProcessor> processors = provider.collect();
-*
-* // 注册新服务
-* provider.register("custom", new CustomDataProcessor());
-* }</pre>ider.collect();
-*
-* // 注册新服务
-* provider.register("custom", new CustomDataProcessor());
-* }</pre>
-*
-* @param <T> 服务接口类型
-* @author CH
-* @since 1.0
-* @see DefaultServiceProvider
-* @see ServiceDefinition
- */
+ * 服务提供者接口，提供 SPI（服务 提供者 接口）机制的核心功能。
+ * <p>
+ * 该接口是整个 SPI 框架的核心，提供了服务发现、注册、获取、管理等完整功能。
+ * 支持通过名称获取服务实例、服务注册、服务发现、条件加载等高级特性。
+ * </p>
+ * <p>
+ * 主要特点：
+ * </p>
+ * <ul>
+ *   <li>支持按名称获取服务实例</li>
+ *   <li>支持服务注册和发现</li>
+ *   <li>支持条件加载（基于类存在性、属性配置等）</li>
+ *   <li>支持服务优先级排序</li>
+ *   <li>支持服务监控和生命周期管理</li>
+ * </ul>
+ * <p>
+ * 使用示例：
+ * </p>
+ * <pre>{@code
+ * // 获取服务提供者
+ * ServiceProvider<DataProcessor> provider = ServiceProvider.of(DataProcessor.class);
+ *
+ * // 获取指定名称的服务
+ * DataProcessor processor = provider.getExtension("json");
+ *
+ * // 获取所有服务
+ * List<DataProcessor> processors = provider.collect();
+ *
+ * // 注册新服务
+ * provider.register("custom", new CustomDataProcessor());
+ * }</pre>ider.collect();
+ *
+ * // 注册新服务
+ * provider.register("custom", new CustomDataProcessor());
+ * }</pre>
+ *
+ * @param <T> 服务接口类型
+ * @author CH
+ * @since 1.0
+ * @see DefaultServiceProvider
+ * @see ServiceDefinition
+*/
 @SuppressWarnings({"ALL", "unchecked"})
 public interface ServiceProvider<T> {
 
     /**
     * 空的服务提供者实例。
     * 用于在无法找到有效服务时返回的默认值。
-     */
+    */
     ServiceProvider<Void> EMPTY = new DefaultServiceProvider<>(Void.class, Thread.currentThread().getContextClassLoader());
 
     /**
     * 缓存已创建的服务提供者实例。
     * 使用弱引用映射以避免内存泄漏，初始容量为 256。
-     */
+    */
     Map<Class<?>, ServiceProvider<?>> CACHE = new ConcurrentReferenceHashMap<>(256);
 
     /**
@@ -90,7 +90,7 @@ public interface ServiceProvider<T> {
     * @param value 类的全限定名
     * @param <T>   服务类型
     * @return 服务提供者实例
-     */
+    */
     @Nonnull
     static <T> ServiceProvider<T> of(@Nullable String value) {
         if (!ClassUtils.isPresent(value)) {
@@ -106,7 +106,7 @@ public interface ServiceProvider<T> {
     * @param type 服务接口类型
     * @param <T>  服务类型
     * @return 服务提供者实例
-     */
+    */
     @Nonnull
     static <T> ServiceProvider<T> ofService(@Nonnull Class<T> type) {
         return of(type);
@@ -119,7 +119,7 @@ public interface ServiceProvider<T> {
     * @param type 服务接口类型
     * @param <T>  服务类型
     * @return 服务提供者实例
-     */
+    */
     @Nonnull
     static <T> ServiceProvider<T> of(@Nonnull Class<T> type) {
         return of(type, type.getClassLoader());
@@ -133,7 +133,7 @@ public interface ServiceProvider<T> {
     * @param classLoader 类加载器
     * @param <T>         服务类型
     * @return 服务提供者实例
-     */
+    */
     @Nonnull
     static <T> ServiceProvider<T> of(@Nonnull Class<T> type, @Nullable ClassLoader classLoader) {
         try {
@@ -153,7 +153,7 @@ public interface ServiceProvider<T> {
     * 获取所有已注册的扩展名称集合。
     *
     * @return 扩展名称集合
-     */
+    */
     @Nonnull
     Set<String> getExtensions();
 
@@ -164,7 +164,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务实例列表
-     */
+    */
     @Nonnull
     List<T> getNewExtensions(@Nullable String name, @Nonnull Object... args);
 
@@ -173,7 +173,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getExtension(@Nullable String name);
 
@@ -182,7 +182,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称数组
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getExtension(@Nonnull String... name);
 
@@ -191,7 +191,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 枚举值
     * @return 服务实例，如果未找到或值为 空 则返回 空
-     */
+    */
     @Nullable
     default T getExtension(@Nullable Enum name) {
         if (name == null) {
@@ -206,7 +206,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getNewExtension(@Nullable String name, @Nonnull Object... args);
 
@@ -216,7 +216,7 @@ public interface ServiceProvider<T> {
     * @param type 目标类型
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getNewExtension(@Nonnull Class<?> type, @Nonnull Object... args);
 
@@ -226,7 +226,7 @@ public interface ServiceProvider<T> {
     * @param name 枚举值
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     default T getNewExtension(@Nullable Enum name, @Nonnull Object... args) {
         if (name == null) {
@@ -240,7 +240,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     default T newExtension(@Nonnull Object... args) {
         return getNewExtension("", args);
@@ -252,7 +252,7 @@ public interface ServiceProvider<T> {
     * @param name 枚举值
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     default T getExtension(@Nullable Enum name, @Nonnull Object... args) {
         return getNewExtension(name, args);
@@ -264,7 +264,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getDeepNewExtension(@Nullable String name, @Nonnull Object... args);
 
@@ -275,7 +275,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务实例，如果未找到则返回 空
-     */
+    */
     @Nullable
     T getKeepExtension(@Nonnull String uid, @Nullable String name, @Nonnull Object... args);
 
@@ -283,7 +283,7 @@ public interface ServiceProvider<T> {
     * 关闭并清理指定唯一标识符保留的服务实例。
     *
     * @param uid 唯一标识符
-     */
+    */
     void closeKeepExtension(@Nonnull String uid);
 
     /**
@@ -291,7 +291,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 服务实例，如果无效则返回 空
-     */
+    */
     @Nullable
     T getValidProvider(@Nonnull Object... args);
 
@@ -300,7 +300,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称
     * @return 包含服务实例的 Optional
-     */
+    */
     @Nonnull
     Optional<T> getIfPresent(@Nullable String name);
 
@@ -308,7 +308,7 @@ public interface ServiceProvider<T> {
     * 收集所有可用的服务实例。
     *
     * @return 服务实例列表
-     */
+    */
     @Nonnull
     List<T> collect();
 
@@ -316,7 +316,7 @@ public interface ServiceProvider<T> {
     * 遍历所有可用的服务实例并执行操作。
     *
     * @param consumer 消费函数
-     */
+    */
     default void collect(@Nonnull Consumer<T> consumer) {
         List<T> list = collect();
         for (T item : list) {
@@ -328,7 +328,7 @@ public interface ServiceProvider<T> {
     * 获取服务名称到类型的映射关系。
     *
     * @return 映射表
-     */
+    */
     @Nonnull
     default Map<String, Class<T>> mapping() {
         return listType();
@@ -338,7 +338,7 @@ public interface ServiceProvider<T> {
     * 获取服务名称到类型的详细映射关系。
     *
     * @return 映射表
-     */
+    */
     @Nonnull
     Map<String, Class<T>> listType();
 
@@ -347,7 +347,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 服务实例列表
-     */
+    */
     @Nonnull
     List<T> collect(@Nonnull Object... args);
 
@@ -355,7 +355,7 @@ public interface ServiceProvider<T> {
     * 获取所有已注册服务的名称到实例的映射。
     *
     * @return 映射表
-     */
+    */
     @Nonnull
     Map<String, T> list();
 
@@ -364,7 +364,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 映射表
-     */
+    */
     @Nonnull
     Map<String, T> list(@Nonnull Object... args);
 
@@ -372,7 +372,7 @@ public interface ServiceProvider<T> {
     * 获取默认的 SPI 服务实例。
     *
     * @return SPI 服务实例
-     */
+    */
     @Nullable
     T getSpiService();
 
@@ -381,7 +381,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称
     * @return true 表示支持，false 表示不支持
-     */
+    */
     boolean isSupport(@Nullable String name);
 
     /**
@@ -389,7 +389,7 @@ public interface ServiceProvider<T> {
     *
     * @param extension 扩展名
     * @return true 表示包含，false 表示不包含
-     */
+    */
     default boolean has(@Nullable String extension) {
         return isSupport(extension);
     }
@@ -398,7 +398,7 @@ public interface ServiceProvider<T> {
     * 获取可用的选项列表。
     *
     * @return 选项列表
-     */
+    */
     @Nonnull
     default List<?> options() {
         return Collections.emptyList();
@@ -409,28 +409,28 @@ public interface ServiceProvider<T> {
     *
     * @param consumer 消费函数，接收名称和实例
     * @param args     构造参数
-     */
+    */
     void forEach(@Nonnull BiConsumer<String, T> consumer, @Nonnull Object... args);
 
     /**
     * 遍历所有服务定义并执行操作。
     *
     * @param consumer 消费函数
-     */
+    */
     void forDefinitionEach(@Nonnull Consumer<ServiceDefinition> consumer);
 
     /**
     * 遍历任意服务定义并执行操作。
     *
     * @param consumer 消费函数
-     */
+    */
     void forAnyDefinitionEach(@Nonnull Consumer<ServiceDefinition> consumer);
 
     /**
     * 更多遍历操作。
     *
     * @param consumer 消费函数
-     */
+    */
     void moreEach(@Nonnull BiConsumer<String, T> consumer);
 
     /**
@@ -438,7 +438,7 @@ public interface ServiceProvider<T> {
     *
     * @param showAll 是否显示所有选项
     * @return 选项列表
-     */
+    */
     @Nonnull
     List<?> options(boolean showAll);
 
@@ -446,7 +446,7 @@ public interface ServiceProvider<T> {
     * 注销指定的服务解析器。
     *
     * @param resolverType 解析器类型
-     */
+    */
     default void unregister(@Nonnull Class<? extends ServiceResolver> resolverType) {
         unregister(null, resolverType);
     }
@@ -456,21 +456,21 @@ public interface ServiceProvider<T> {
     *
     * @param baseName     基础名称
     * @param resolverType 解析器类型
-     */
+    */
     void unregister(@Nullable String baseName, @Nonnull Class<? extends ServiceResolver> resolverType);
 
     /**
     * 注册服务定义。
     *
     * @param definitions 服务定义数组
-     */
+    */
     void register(@Nonnull ServiceDefinition... definitions);
 
     /**
     * 注册服务解析器。
     *
     * @param resolver 服务解析器
-     */
+    */
     void register(@Nonnull ServiceResolver resolver);
 
     /**
@@ -478,7 +478,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 名称
     * @param ref  引用对象
-     */
+    */
     void register(@Nonnull String name, @Nonnull Object ref);
 
     /**
@@ -486,7 +486,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 名称
     * @param ref  引用类
-     */
+    */
     void register(@Nonnull String name, @Nonnull Class<T> ref);
 
     /**
@@ -495,7 +495,7 @@ public interface ServiceProvider<T> {
     * @param names 名称
     * @param args  构造参数
     * @return 服务实例
-     */
+    */
     @Nullable
     T getObjectProvider(@Nullable String names, @Nonnull Object... args);
 
@@ -504,7 +504,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称
     * @return 排序后的服务定义列表
-     */
+    */
     @Nonnull
     SortedList<ServiceDefinition> getDefinitions(@Nullable String name);
 
@@ -513,20 +513,20 @@ public interface ServiceProvider<T> {
     *
     * @param type 类型
     * @return 服务定义，如果未找到则返回 空
-     */
+    */
     @Nullable
     ServiceDefinition getDefinition(@Nullable String type);
 
     /**
     * 检查服务状态是否正常。
-     */
+    */
     void check();
 
     /**
     * 收集所有新的服务实例。
     *
     * @return 服务实例列表
-     */
+    */
     @Nonnull
     List<T> collectNew();
 
@@ -535,7 +535,7 @@ public interface ServiceProvider<T> {
     *
     * @param open 是否开启监控
     * @return 当前服务提供者实例
-     */
+    */
     @Nonnull
     ServiceProvider<T> monitor(boolean open);
 
@@ -543,7 +543,7 @@ public interface ServiceProvider<T> {
     * 检查服务提供者是否为空。
     *
     * @return true 表示为空，false 表示不为空
-     */
+    */
     boolean isEmpty();
 
     /**
@@ -552,7 +552,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务实例
-     */
+    */
     @Nullable
     T getIfAvailable(@Nullable String name, @Nonnull Object... args);
 
@@ -561,7 +561,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 服务实例
-     */
+    */
     @Nullable
     default T getIfAvailable(@Nonnull Object... args) {
         return getIfAvailable(null, args);
@@ -571,7 +571,7 @@ public interface ServiceProvider<T> {
     * 获取服务接口的类型。
     *
     * @return 服务类型
-     */
+    */
     @Nonnull
     Class<T> getType();
 
@@ -579,7 +579,7 @@ public interface ServiceProvider<T> {
     * 获取服务提供者使用的类加载器。
     *
     * @return 类加载器
-     */
+    */
     @Nonnull
     ClassLoader getClassLoader();
 
@@ -589,7 +589,7 @@ public interface ServiceProvider<T> {
     *
     * @param args 构造参数
     * @return 代理对象
-     */
+    */
     @Nullable
     default T getAllVailable(@Nonnull Object... args) {
         List<T> collect = collect(args);
@@ -625,7 +625,7 @@ public interface ServiceProvider<T> {
     *
     * @param name 服务名称
     * @return 服务代理，未找到任何实现时返回 空
-     */
+    */
     @Nullable
     default T getExtensionFactory(@Nullable String name) {
         List<T> instances = (name == null || name.isEmpty())
@@ -643,7 +643,7 @@ public interface ServiceProvider<T> {
     * @param name 服务名称
     * @param args 构造参数
     * @return 服务代理，未找到任何实现时返回 空
-     */
+    */
     @Nullable
     default T getNewExtensionFactory(@Nullable String name, @Nonnull Object... args) {
         List<T> instances = getNewExtensions(name, args);
@@ -655,7 +655,7 @@ public interface ServiceProvider<T> {
     *
     * @param instances 按优先级排序的服务实例列表（高优先级在前）
     * @return 服务代理，列表为空时返回 空
-     */
+    */
     @Nullable
     default T proxyFactory(@Nonnull List<T> instances) {
         if (instances == null || instances.isEmpty()) {
@@ -721,7 +721,7 @@ public interface ServiceProvider<T> {
     * @param instance 服务实例
     * @param proxyMethod 当前代理调用
     * @return true 表示可用
-     */
+    */
     default boolean isAvailable(@Nonnull T instance, @Nonnull ProxyMethod proxyMethod) {
         String methodName = proxyMethod.getMethodName();
         if (methodName == null || "available".equals(methodName)) {
@@ -742,7 +742,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取支持的类型集合。
     *
     * @return 支持的类型集合
-     */
+    */
     @Nonnull
     Set<String> supportedTypes();
 
@@ -751,7 +751,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     *
     * @param args 构造参数
     * @return 服务实例
-     */
+    */
     @Nullable
     T getNewDefaultExtension(@Nonnull Object... args);
 
@@ -759,7 +759,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取默认服务实例。
     *
     * @return 服务实例
-     */
+    */
     @Nullable
     T getDefault();
 
@@ -767,7 +767,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取最高优先级的服务定义。
     *
     * @return 服务定义
-     */
+    */
     @Nullable
     ServiceDefinition getPriorityServiceDefinition();
 
@@ -775,7 +775,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取最高优先级的服务实例。
     *
     * @return 服务实例
-     */
+    */
     @Nullable
     T getPriority();
 
@@ -783,7 +783,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取所有按优先级排序的服务定义。
     *
     * @return 服务定义列表
-     */
+    */
     @Nonnull
     List<ServiceDefinition> getPriorityServiceDefinitions();
 
@@ -791,7 +791,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取高优先级服务实例（别名方法）。
     *
     * @return 服务实例
-     */
+    */
     @Nullable
     default T getHighPriority() {
         return getPriority();
@@ -801,7 +801,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取排名第一的服务实例（别名方法）。
     *
     * @return 服务实例
-     */
+    */
     @Nullable
     default T top1() {
         return getPriority();
@@ -811,7 +811,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取所有服务的名称集合。
     *
     * @return 名称集合
-     */
+    */
     @Nonnull
     Set<String> names();
 
@@ -819,7 +819,7 @@ Boolean result = (Boolean) ReflectUtils.invoke(instance, "available", Object.cla
     * 获取服务自动注入器。
     *
     * @return 服务自动注入器
-     */
+    */
     @Nonnull
     ServiceAutowire getServiceAutowire();
 }

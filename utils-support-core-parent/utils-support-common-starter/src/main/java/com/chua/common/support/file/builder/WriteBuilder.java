@@ -22,7 +22,7 @@ public abstract class WriteBuilder {
     /** 待写入的文件 */
     /**
     * 文件路径
-     */
+    */
     protected final File file;
 
     /** 写入时使用的字符集编码，默认使用系统编码 */
@@ -60,7 +60,7 @@ public abstract class WriteBuilder {
     * 构造写入构建器。
     *
     * @param file 待写入的文件
-     */
+    */
     protected WriteBuilder(File file) {
         this.file = file;
     }
@@ -90,7 +90,7 @@ public abstract class WriteBuilder {
     *
     * @param charset 编码名称
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withCharset(String charset) {
         this.charset = Charset.forName(charset);
         return this;
@@ -101,7 +101,7 @@ public abstract class WriteBuilder {
     *
     * @param charset 编码对象
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withCharset(Charset charset) {
         this.charset = charset;
         return this;
@@ -112,7 +112,7 @@ public abstract class WriteBuilder {
     *
     * @param templateFile 模板文件
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withTemplate(File templateFile) {
         this.templateFile = templateFile;
         return this;
@@ -123,7 +123,7 @@ public abstract class WriteBuilder {
     *
     * @param data 填充数据，key 为模板变量名，value 为替换值
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withData(Map<String, Object> data) {
         this.templateData = data;
         return this;
@@ -134,7 +134,7 @@ public abstract class WriteBuilder {
     *
     * @param callback 回调实例
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withCallback(WriteCallback callback) {
         this.callback = callback;
         return this;
@@ -145,7 +145,7 @@ public abstract class WriteBuilder {
     *
     * @param columnMapping 映射表
     * @return 当前构建器
-     */
+    */
     public WriteBuilder columnMapping(Map<String, String> columnMapping) {
         this.columnMapping = columnMapping;
         return this;
@@ -156,7 +156,7 @@ public abstract class WriteBuilder {
     *
     * @param withHeader 是否写入
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withHeader(boolean withHeader) {
         this.withHeader = withHeader;
         return this;
@@ -167,7 +167,7 @@ public abstract class WriteBuilder {
     *
     * @param headerColumns 列名列表
     * @return 当前构建器
-     */
+    */
     public WriteBuilder withHeaders(List<String> headerColumns) {
         this.headerColumns = headerColumns;
         return this;
@@ -180,7 +180,7 @@ public abstract class WriteBuilder {
     *
     * @param filter 行过滤谓词（接收一行 Map 数据，返回 true 则写入）
     * @return 当前构建器
-     */
+    */
     public WriteBuilder filter(Predicate<Map<String, Object>> filter) {
         this.rowFilter = filter;
         return this;
@@ -192,7 +192,7 @@ public abstract class WriteBuilder {
     *
     * @param row 待写入的行数据
     * @return true 表示应写入，false 表示跳过
-     */
+    */
     protected boolean testRow(Map<String, Object> row) {
         return rowFilter == null || rowFilter.test(row);
     }
@@ -204,7 +204,7 @@ public abstract class WriteBuilder {
     *
     * @param data 待写入数据
     * @return 当前构建器
-     */
+    */
     public WriteBuilder write(Object data) {
         pending.add(data);
         return this;
@@ -216,7 +216,7 @@ public abstract class WriteBuilder {
     *
     * @param data 待写入的 POJO 对象
     * @return 转换后的 Map
-     */
+    */
 @SuppressWarnings("unchecked")
     protected Map<String, Object> toMap(Object data) {
         if (data instanceof Map) {
@@ -230,7 +230,7 @@ public abstract class WriteBuilder {
     *
     * @param data 待写入的 POJO 对象
     * @return 转换后的 Map 列表
-     */
+    */
     protected List<Map<String, Object>> toMapList(Object data) {
         if (data instanceof List) {
             return ((List<?>) data).stream()
@@ -244,7 +244,7 @@ public abstract class WriteBuilder {
     * 完成写入并释放资源。
     *
     * <p>在执行写入操作后调用此方法提交写入结果。</p>
-     */
+    */
     public void finish() {
     }
 }

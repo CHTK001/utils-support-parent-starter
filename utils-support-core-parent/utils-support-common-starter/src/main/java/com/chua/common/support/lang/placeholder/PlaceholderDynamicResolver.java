@@ -17,7 +17,7 @@ public interface PlaceholderDynamicResolver {
     * @param name  占位符的名称（例如：${name}中的"name"）
     * @param value 与名称关联的值
     * @return 当前实例，支持链式调用
-     */
+    */
     PlaceholderDynamicResolver add(String name, Object value);
 
     /**
@@ -25,7 +25,7 @@ public interface PlaceholderDynamicResolver {
     *
     * @param value 包含名称和值的映射表
     * @return 当前实例，支持链式调用
-     */
+    */
     default PlaceholderDynamicResolver add(Map<String, ?> value) {
         value.forEach(this::add);
         return this;
@@ -35,6 +35,6 @@ public interface PlaceholderDynamicResolver {
     * 从解析器中移除指定名称的占位符。
     *
     * @param name 要移除的占位符名称
-     */
+    */
     void remove(String name);
 }

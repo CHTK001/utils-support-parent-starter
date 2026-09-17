@@ -49,7 +49,7 @@ public class RateLimitFilter implements ServerFilter {
 
     /**
     * 限流 key 提取策略
-     */
+    */
     public enum KeyStrategy {
         /** 全局限流 */
         GLOBAL,
@@ -64,7 +64,7 @@ public class RateLimitFilter implements ServerFilter {
     *
     * @param providerName SPI 提供者名称（如 "guava"）
     * @param qps          每秒最大请求数
-     */
+    */
     public RateLimitFilter(String providerName, double qps) {
         this(providerName, qps, KeyStrategy.GLOBAL, null);
     }
@@ -75,7 +75,7 @@ public class RateLimitFilter implements ServerFilter {
     * @param double double
     * @param KeyStrategy KeyStrategy
     * @param String String
-     */
+    */
     private RateLimitFilter(String providerName, double qps, KeyStrategy keyStrategy, String pathPrefix) {
         this.providerName = providerName;
         this.qps = qps;
@@ -85,14 +85,14 @@ public class RateLimitFilter implements ServerFilter {
 
     /**
     * 按 IP 限流。
-     */
+    */
     public static RateLimitFilter byIp(String providerName, double qps) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_IP, null);
     }
 
     /**
     * 按路径限流。
-     */
+    */
     public static RateLimitFilter byPath(String providerName, double qps, String pathPrefix) {
         return new RateLimitFilter(providerName, qps, KeyStrategy.BY_PATH, pathPrefix);
     }
@@ -129,7 +129,7 @@ public class RateLimitFilter implements ServerFilter {
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (limiter == null) {

@@ -58,7 +58,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl 等
     * @return ChatClient 实例
-     */
+    */
     static ChatClient create(ChatClientSetting setting) {
         return ServiceProvider.of(ChatClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -70,7 +70,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param provider AI 服务商名称
     * @param apiKey   API 密钥
     * @return ChatClient 实例
-     */
+    */
     static ChatClient create(String provider, String apiKey) {
         return create(ChatClientSetting.builder()
                 .provider(provider).appKey(apiKey).build());
@@ -83,7 +83,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 地址
     * @return ChatClient 实例
-     */
+    */
     static ChatClient create(String provider, String apiKey, String baseUrl) {
         return create(ChatClientSetting.builder()
                 .provider(provider).appKey(apiKey).baseUrl(baseUrl).build());
@@ -98,7 +98,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param client 待包装的 ChatClient 实例
     * @param engine Engine 实例
     * @return 包装后的 ChatClient
-     */
+    */
     static ChatClient withUsagePersistence(ChatClient client, Engine engine) {
         return UsagePersistChatClient.wrap(client, engine);
     }
@@ -108,7 +108,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient provider(String provider) {
         return this;
     }
@@ -118,7 +118,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param model 模型名称，如 "gpt-4"、"deepseek-chat"
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient model(String model) {
         return this;
     }
@@ -128,7 +128,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param system 系统提示词内容
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient system(String system) {
         return this;
     }
@@ -141,7 +141,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param temperature 温度值
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient temperature(double temperature) {
         return this;
     }
@@ -151,7 +151,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param maxTokens 最大 Token 数量
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient maxTokens(int maxTokens) {
         return this;
     }
@@ -163,7 +163,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param imageUrl 图片 URL 或 Base64 数据 URI
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient addImage(String imageUrl) {
         return this;
     }
@@ -175,7 +175,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param content 消息内容
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient addUserHistory(String content) {
         return this;
     }
@@ -187,7 +187,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param content 消息内容
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient addAssistantHistory(String content) {
         return this;
     }
@@ -200,7 +200,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param messages 对话历史消息列表，按时间正序排列
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient history(List<ChatMessage> messages) {
         return this;
     }
@@ -213,7 +213,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param tools 工具定义列表
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient tools(List<ChatTool> tools) {
         return this;
     }
@@ -227,7 +227,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param thinking true 启用深度思考
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient thinking(boolean thinking) {
         return this;
     }
@@ -241,7 +241,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param stream true 使用流式，false 使用非流式
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient stream(boolean stream) {
         return this;
     }
@@ -261,7 +261,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param effort 思考强度级别（low / medium / high）
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient thinkingEffort(String effort) {
         return this;
     }
@@ -274,7 +274,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param smartSearch true 启用智能搜索
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient smartSearch(boolean smartSearch) {
         return this;
     }
@@ -296,7 +296,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param skillManager 技能管理器
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient skill(SkillManager skillManager) {
         return this;
     }
@@ -315,7 +315,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param skillDefinition 技能定义
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient skill(SkillDefinition skillDefinition) {
         if (skillDefinition == null) {
             return this;
@@ -330,7 +330,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param tool 工具定义
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient tool(ChatTool tool) {
         return this;
     }
@@ -348,7 +348,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param toolChoice 工具选择策略
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient toolChoice(String toolChoice) {
         return this;
     }
@@ -360,7 +360,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param topP Top-P 值
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient topP(Double topP) {
         return this;
     }
@@ -372,7 +372,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param stop 停止序列列表
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient stop(List<String> stop) {
         return this;
     }
@@ -384,7 +384,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param seed 随机种子
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient seed(Long seed) {
         return this;
     }
@@ -401,7 +401,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param responseFormat 响应格式
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient responseFormat(String responseFormat) {
         return this;
     }
@@ -414,7 +414,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param extraBody 额外请求体参数键值映射
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient extraBody(Map<String, Object> extraBody) {
         return this;
     }
@@ -427,7 +427,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param headers 自定义请求头键值映射
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient extraHeaders(Map<String, String> headers) {
         return this;
     }
@@ -442,7 +442,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param data     文件字节数据
     * @param mimeType MIME 类型，如 "image/png"、"application/pdf"
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient addAttachment(String name, byte[] data, String mimeType) {
         return this;
     }
@@ -456,7 +456,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param url      文件访问地址
     * @param mimeType MIME 类型
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient addAttachmentUrl(String name, String url, String mimeType) {
         return this;
     }
@@ -468,7 +468,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param sessionId 会话标识
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient session(String sessionId) {
         return this;
     }
@@ -479,7 +479,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * <p>清空当前对话历史，开始一个新的对话。
     *
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ChatClient newChat() {
         return this;
     }
@@ -498,7 +498,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param prompt   用户输入
     * @param consumer 流式响应回调，接收 {@link ChatResponse} 事件对象
-     */
+    */
     default void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
         }, throwable -> {
@@ -516,7 +516,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param consumer    流式响应回调
     * @param onComplete  完成回调，所有事件发送完毕后执行
     * @param onError     错误回调
-     */
+    */
     default void chat(String prompt, Consumer<ChatResponse> consumer,
                       Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -548,7 +548,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param prompt 用户输入
     * @return 完整响应文本
-     */
+    */
     String chatSync(String prompt);
 
     /**
@@ -560,7 +560,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param prompt         用户输入
     * @param timeoutMillis  超时时间（毫秒），小于等于 0 表示不超时
     * @return 完整响应文本
-     */
+    */
     default String chatSync(String prompt, long timeoutMillis) {
         return chatSync(prompt);
     }
@@ -577,7 +577,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param prompt 用户输入
     * @return 包含文本和用量信息的完整响应对象
-     */
+    */
     default ChatSyncResponse chatSyncWithResponse(String prompt) {
         String text = chatSync(prompt);
         return ChatSyncResponse.builder()
@@ -593,7 +593,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @param prompt 用户输入
     * @return 异步任务，完成时返回包含文本和用量信息的响应对象
-     */
+    */
     default CompletableFuture<ChatSyncResponse> chatAsync(String prompt) {
         return CompletableFuture.supplyAsync(() -> chatSyncWithResponse(prompt));
     }
@@ -602,7 +602,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 关闭客户端
     *
     * <p>释放底层资源，如 HTTP 连接池等。
-     */
+    */
     @Override
     default void close() {
     }
@@ -613,7 +613,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * <p>默认权重为 1，可由实现类覆盖以提供自定义权重。
     *
     * @return 权重值，必须大于等于 0
-     */
+    */
     default int weight() {
         return 1;
     }
@@ -626,7 +626,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 默认返回空列表，子类可按需覆写。
     *
     * @return 可用模型定义列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -637,7 +637,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {
@@ -656,7 +656,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 默认返回空列表，实现类可按需覆写。
     *
     * @return 模型定价列表
-     */
+    */
     default List<ModelDefinition> modelPricing() {
         return List.of();
     }
@@ -671,7 +671,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     *
     * @return 真伪探测综合报告
     * @throws UnsupportedOperationException 当前实现不支持探测功能
-     */
+    */
     default ProbeReport probe() {
         throw new UnsupportedOperationException("当前 ChatClient 实现不支持探测功能");
     }
@@ -691,7 +691,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param refImageKey  参考图标识（如豆包图生图），不支持时忽略
     * @return 图像生成结果
     * @throws UnsupportedOperationException 当前实现不支持图像生成
-     */
+    */
     default ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                 int width, int height, String quality,
                                                 String refImageKey) {
@@ -705,7 +705,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param ratio  宽高比，可为空
     * @return 图像生成结果
     * @see #generateImage(String, String, int, int, int, String, String)
-     */
+    */
     default ImageGenerationResult generateImage(String prompt, String ratio) {
         return generateImage(prompt, ratio, 1, 0, 0, null, null);
     }
@@ -723,7 +723,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * }</pre>
     *
     * @return 图像生成参数构建器
-     */
+    */
     default ImageGenerationSpec generateImage() {
         return new ImageGenerationSpec(this);
     }
@@ -741,7 +741,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param timeoutSeconds 超时秒数（用于异步轮询场景）
     * @return 视频生成结果
     * @throws UnsupportedOperationException 当前实现不支持视频生成
-     */
+    */
     default VideoGenerationResult generateVideo(String prompt, String ratio,
                                                 String cameraMovement, String refImageKey,
                                                 int timeoutSeconds) {
@@ -755,7 +755,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * @param ratio  宽高比，可为空
     * @return 视频生成结果
     * @see #generateVideo(String, String, String, String, int)
-     */
+    */
     default VideoGenerationResult generateVideo(String prompt, String ratio) {
         return generateVideo(prompt, ratio, null, null, 300);
     }
@@ -773,7 +773,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * }</pre>
     *
     * @return 视频生成参数构建器
-     */
+    */
     default VideoGenerationSpec generateVideo() {
         return new VideoGenerationSpec(this);
     }
@@ -781,7 +781,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 获取客户端配置
     *
     * @return ChatClientSetting 配置对象
-     */
+    */
     default ChatClientSetting getSetting() {
         return null;
     }
@@ -790,7 +790,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 获取当前模型名称
     *
     * @return 模型名称，未设置时返回 null
-     */
+    */
     default String getModel() {
         return null;
     }
@@ -799,7 +799,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 获取 API Key
     *
     * @return API 密钥
-     */
+    */
     default String getApiKey() {
         ChatClientSetting setting = getSetting();
         return setting != null ? setting.getAppKey() : null;
@@ -809,7 +809,7 @@ public interface ChatClient extends AutoCloseable, PooledObjectClient<ChatClient
     * 获取 API Base URL
     *
     * @return API 地址
-     */
+    */
     default String getBaseUrl() {
         ChatClientSetting setting = getSetting();
         return setting != null ? setting.getBaseUrl() : null;

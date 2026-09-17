@@ -47,7 +47,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param provider 实现提供者名称，如 "memory"
     * @param setting  客户端配置
     * @return RagClient 实例
-     */
+    */
     static RagClient create(String provider, RagClientSetting setting) {
         return ServiceProvider.of(RagClient.class)
                 .getNewExtension(provider, setting);
@@ -60,7 +60,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param topK 返回结果数量
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default RagClient topK(int topK) {
         return this;
     }
@@ -70,7 +70,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param threshold 相似度阈值 (0~1)，低于此值的结果被过滤
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default RagClient similarityThreshold(double threshold) {
         return this;
     }
@@ -83,7 +83,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param system 系统提示词内容
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default RagClient system(String system) {
         return this;
     }
@@ -93,7 +93,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param temperature 温度值，取值范围 [0.0, 2.0]
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default RagClient temperature(double temperature) {
         return this;
     }
@@ -103,7 +103,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param maxTokens 最大 Token 数量
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default RagClient maxTokens(int maxTokens) {
         return this;
     }
@@ -115,7 +115,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param query 用户查询文本
     * @return 查询响应（包含回答和命中文档）
-     */
+    */
     RagResponse query(String query);
 
     /**
@@ -125,7 +125,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param topK                检索数量
     * @param similarityThreshold 相似度阈值
     * @return 查询响应
-     */
+    */
     RagResponse query(String query, int topK, double similarityThreshold);
 
     /**
@@ -133,7 +133,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param query    用户查询文本
     * @param consumer 流式回答回调
-     */
+    */
     void queryStream(String query, Consumer<String> consumer);
 
     /**
@@ -143,7 +143,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param topK                检索数量
     * @param similarityThreshold 相似度阈值
     * @param consumer            流式回答回调
-     */
+    */
     void queryStream(String query, int topK, double similarityThreshold, Consumer<String> consumer);
 
     // ==================== 文档管理 ====================
@@ -154,7 +154,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param fileName 文件名
     * @param data     文件字节数据
     * @return 文档元数据（含 fileId）
-     */
+    */
     RagDocument uploadDocument(String fileName, byte[] data);
 
     /**
@@ -165,7 +165,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param fileName 文件名
     * @param data     文件字节数据
     * @return 文档元数据（含 fileId）
-     */
+    */
     default RagDocument upsertDocument(String docId, String fileName, byte[] data) {
         if (docId != null) {
             return uploadDocument(docId + "_ " + fileName, data);
@@ -181,7 +181,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param fileName 新文件名
     * @param data     新文件字节数据
     * @return 更新后的文档元数据
-     */
+    */
     default RagDocument updateDocument(String docId, String fileName, byte[] data) {
         deleteDocument(docId);
         return uploadDocument(fileName, data);
@@ -193,7 +193,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @param docId 文档 ID
     * @return 是否成功
-     */
+    */
     boolean deleteDocument(String docId);
 
     /**
@@ -202,39 +202,39 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * @param page     页码（从 1 开始）
     * @param pageSize 每页大小
     * @return 文档列表
-     */
+    */
     List<RagDocument> listDocuments(int page, int pageSize);
 
     /**
     * 获取文档总数。
     *
     * @return 文档数量
-     */
+    */
     int documentCount();
 
     /**
     * 重新索引所有 READY 状态的文档。
     *
     * @return 重新索引的文档数量
-     */
+    */
     int reindex();
 
     /**
-     * 读取文档原始内容。
-     *
-     * @param docId 文档 ID，不能为 null
-     * @return 文档内容（UTF-8 字符串），文档不存在或读取失败时返回空字符串（不为 null）
-     */
+    * 读取文档原始内容。
+    *
+    * @param docId 文档 ID，不能为 null
+    * @return 文档内容（UTF-8 字符串），文档不存在或读取失败时返回空字符串（不为 null）
+    */
     String readDocumentContent(String docId);
 
     /**
-     * 读取文档原始字节（图片二进制等，供前端渲染）。
-     * <p>图片类文档入库后，可通过此方法取回原图字节做缩略图 / 预览。
-     * 实现需从上传文件落盘位置读取，文档不存在或读取失败时返回 空 字节数组（不为 null）。</p>
-     *
-     * @param docId 文档 ID，不能为 null
-     * @return 文档原始字节，不存在或读取失败时返回长度为 0 的数组
-     */
+    * 读取文档原始字节（图片二进制等，供前端渲染）。
+    * <p>图片类文档入库后，可通过此方法取回原图字节做缩略图 / 预览。
+    * 实现需从上传文件落盘位置读取，文档不存在或读取失败时返回 空 字节数组（不为 null）。</p>
+    *
+    * @param docId 文档 ID，不能为 null
+    * @return 文档原始字节，不存在或读取失败时返回长度为 0 的数组
+    */
     byte[] readDocumentBytes(String docId);
 
     // ==================== 设置注入 ====================
@@ -248,7 +248,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     interface UploadProvider {
         /**
         * 上传文档到指定存储，返回文档唯一标识（fileId）。
@@ -257,7 +257,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
         * @param fileName 原始文件名
         * @param data     文件字节数据
         * @return fileId（用于后续删除/更新操作）
-         */
+        */
         String upload(String docId, String fileName, byte[] data);
 
         /**
@@ -265,7 +265,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
         *
         * @param fileId 文档 ID（upload 返回值）
         * @return 文件字节数据，不存在则返回 null
-         */
+        */
         byte[] read(String fileId);
 
         /**
@@ -273,7 +273,7 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
         *
         * @param fileId 文档 ID
         * @return 是否成功
-         */
+        */
         boolean delete(String fileId);
     }
 
@@ -283,21 +283,21 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     * 获取当前配置。
     *
     * @return 客户端配置
-     */
+    */
     RagClientSetting getSetting();
 
     /**
     * 运行时替换 ChatClient。
     *
     * @param chatClient 新的对话客户端
-     */
+    */
     void setChatClient(ChatClient chatClient);
 
     /**
     * 运行时替换 EmbeddingClient。
     *
     * @param embeddingClient 新的嵌入向量客户端
-     */
+    */
     void setEmbeddingClient(EmbeddingClient embeddingClient);
 
     @Override

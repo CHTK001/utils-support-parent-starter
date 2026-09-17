@@ -17,12 +17,12 @@ public class QrResult {
 
     /**
     * 二维码包含的文本内容。
-     */
+    */
     private String text;
 
     /**
     * 二维码在原始图像中的所有边界框列表。
     * 每个 Rectangle 对象表示一个二维码的位置和大小。
-     */
+    */
     private List<Rectangle> bounds;
 }

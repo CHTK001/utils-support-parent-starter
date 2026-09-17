@@ -30,7 +30,7 @@ public interface DataStore<E> extends AutoCloseable {
     * @param element 要追加的元素
     * @return 元素在存储中的索引位置
     * @throws IllegalStateException 如果存储已关闭
-     */
+    */
     int append(E element);
 
     /**
@@ -41,7 +41,7 @@ public interface DataStore<E> extends AutoCloseable {
     * @param elements 要追加的元素集合
     * @return 实际追加的元素数量
     * @throws IllegalStateException 如果存储已关闭
-     */
+    */
     default int appendAll(Collection<? extends E> elements) {
         int count = 0;
         for (E e : elements) {
@@ -58,21 +58,21 @@ public interface DataStore<E> extends AutoCloseable {
     * @return 索引位置的元素
     * @throws IndexOutOfBoundsException 如果索引越界
     * @throws IllegalStateException 如果存储已关闭
-     */
+    */
     E get(int index);
 
     /**
     * 获取存储中的元素数量。
     *
     * @return 元素数量
-     */
+    */
     int size();
 
     /**
     * 判断存储是否为空。
     *
     * @return 如果没有任何元素返回 {@code true}
-     */
+    */
     boolean isEmpty();
 
     /**
@@ -81,7 +81,7 @@ public interface DataStore<E> extends AutoCloseable {
     * <p>堆外模式下会释放已分配的 native 内存，堆内模式下仅清空列表。</p>
     *
     * @throws IllegalStateException 如果存储已关闭
-     */
+    */
     void clear();
 
     /**
@@ -89,7 +89,7 @@ public interface DataStore<E> extends AutoCloseable {
     *
     * <p>关闭后任何访问操作将抛出 {@link IllegalStateException}。</p>
     * <p>堆外模式下将调用 {@link java.lang.foreign.Arena#close()} 确定性释放 native 内存。</p>
-     */
+    */
     @Override
     void close();
 
@@ -97,14 +97,14 @@ public interface DataStore<E> extends AutoCloseable {
     * 判断存储是否为只读模式。
     *
     * @return 如果只读返回 {@code true}
-     */
+    */
     boolean isReadOnly();
 
     /**
     * 判断存储是否使用堆外内存。
     *
     * @return 堆外存储返回 {@code true}，堆内存储返回 {@code false}
-     */
+    */
     boolean isOffHeap();
 
     /**
@@ -113,6 +113,6 @@ public interface DataStore<E> extends AutoCloseable {
     * <p>仅堆外存储模式返回实际占用字节数，堆内模式始终返回 0。</p>
     *
     * @return 堆外内存字节数
-     */
+    */
     long getOffHeapBytes();
 }

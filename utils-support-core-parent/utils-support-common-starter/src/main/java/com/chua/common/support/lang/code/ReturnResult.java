@@ -34,24 +34,24 @@ public class ReturnResult<T> implements Serializable {
 
     /**
     * 序列化版本标识
-     */
+    */
     private static final long serialVersionUID = 1L;
 
     /**
     * 编码
-     */
+    */
     private String code;
     /**
     * 数据
-     */
+    */
     private T data;
     /**
     * 信息
-     */
+    */
     private String msg;
     /**
     * 临时字段(用于反射填充实体), 不参与序列化
-     */
+    */
     private transient volatile Map<String, Object> temp;
 
     /** 创建 ReturnResult 实例 */
@@ -63,7 +63,7 @@ public class ReturnResult<T> implements Serializable {
     * @param code code
     * @param T T
     * @param String String
-     */
+    */
     public ReturnResult(String code, T data, String msg) {
         this.code = code;
         this.data = data;
@@ -78,7 +78,7 @@ public class ReturnResult<T> implements Serializable {
     * @param data 数据
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> ok(T data) {
         return ok(data, ReturnCode.SUCCESS.getMsg());
     }
@@ -88,7 +88,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param <T> 类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> ok() {
         return ok(null);
     }
@@ -100,7 +100,7 @@ public class ReturnResult<T> implements Serializable {
     * @param msg  信息
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> ok(T data, String msg) {
         return new ReturnResult<>(ReturnCode.SUCCESS.getCode(), data, msg);
     }
@@ -110,7 +110,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param <T> 类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> success() {
         return ok(null);
     }
@@ -121,7 +121,7 @@ public class ReturnResult<T> implements Serializable {
     * @param data 数据
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> success(T data) {
         return ok(data);
     }
@@ -136,7 +136,7 @@ public class ReturnResult<T> implements Serializable {
     * @param data 数据或异常
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> of(Object data) {
         if (data instanceof Throwable) {
             return (ReturnResult<T>) error((Throwable) data);
@@ -150,7 +150,7 @@ public class ReturnResult<T> implements Serializable {
     * @param msg 信息
     * @param <T> 类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> error(String msg) {
         return error(ReturnCode.SYSTEM_SERVER_BUSINESS_ERROR.getCode(), msg);
     }
@@ -162,7 +162,7 @@ public class ReturnResult<T> implements Serializable {
     * @param msg  信息
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> error(String code, String msg) {
         return new ReturnResult<>(code, null, msg);
     }
@@ -173,7 +173,7 @@ public class ReturnResult<T> implements Serializable {
     * @param resultCode 状态码
     * @param <T>        类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> error(ResultCode resultCode) {
         return new ReturnResult<>(resultCode.getCode(), null, resultCode.getMsg());
     }
@@ -184,7 +184,7 @@ public class ReturnResult<T> implements Serializable {
     * @param throwable 异常
     * @param <T>       类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> error(Throwable throwable) {
         if (null == throwable) {
             return error(ReturnCode.SYSTEM_SERVER_OTHER_ERROR);
@@ -204,7 +204,7 @@ public class ReturnResult<T> implements Serializable {
     * @param defaultMsg 默认消息(异常 message 为空时使用)
     * @param <T>       类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> error(Throwable throwable, String defaultMsg) {
         if (null == throwable) {
             return error(ReturnCode.SYSTEM_SERVER_OTHER_ERROR);
@@ -223,7 +223,7 @@ public class ReturnResult<T> implements Serializable {
     * @param msg 信息
     * @param <T> 类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<T> illegal(String msg) {
         return error(ReturnCode.REQUEST_PARAM_ERROR.getCode(), msg);
     }
@@ -234,7 +234,7 @@ public class ReturnResult<T> implements Serializable {
     * @param data 列表
     * @param <T>  类型
     * @return 结果
-     */
+    */
     public static <T> ReturnResult<List<T>> list(List<T> data) {
         return ok(data);
     }
@@ -246,7 +246,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param code 编码
     * @return this
-     */
+    */
     public ReturnResult<T> code(String code) {
         this.code = code;
         return this;
@@ -257,7 +257,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param msg 信息
     * @return this
-     */
+    */
     public ReturnResult<T> msg(String msg) {
         this.msg = msg;
         return this;
@@ -268,7 +268,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param data 数据
     * @return this
-     */
+    */
     public ReturnResult<T> data(T data) {
         this.data = data;
         return this;
@@ -280,7 +280,7 @@ public class ReturnResult<T> implements Serializable {
     * @param field 字段
     * @param value 数据
     * @return this
-     */
+    */
     public ReturnResult<T> with(String field, Object value) {
         if (null == temp) {
             temp = new HashMap<>();
@@ -294,7 +294,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param target 类型
     * @return this
-     */
+    */
     public ReturnResult<T> build(Class<T> target) {
         if (null == data && null != temp && !temp.isEmpty() && null != target) {
             this.data = analysis(target);
@@ -310,7 +310,7 @@ public class ReturnResult<T> implements Serializable {
     * @param function 转换函数
     * @param <R>      目标类型
     * @return 新结果
-     */
+    */
     public <R> ReturnResult<R> map(Function<T, R> function) {
         if (!isOk()) {
             return ReturnResult.error(this.code, this.msg);
@@ -327,7 +327,7 @@ public class ReturnResult<T> implements Serializable {
     * @param function 转换函数
     * @param <R>      目标类型
     * @return 新结果
-     */
+    */
     public <R> ReturnResult<R> flatMap(Function<T, ReturnResult<R>> function) {
         if (!isOk()) {
             return ReturnResult.error(this.code, this.msg);
@@ -344,7 +344,7 @@ public class ReturnResult<T> implements Serializable {
     * @param predicate 条件
     * @param errorMsg  错误信息
     * @return this
-     */
+    */
     public ReturnResult<T> filter(Predicate<T> predicate, String errorMsg) {
         if (isOk() && null != data && !predicate.test(data)) {
             this.code = ReturnCode.REQUEST_PARAM_ERROR.getCode();
@@ -359,7 +359,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param consumer 消费函数
     * @return this
-     */
+    */
     public ReturnResult<T> peek(Consumer<T> consumer) {
         if (isOk() && null != data && null != consumer) {
             consumer.accept(data);
@@ -372,7 +372,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param consumer 消费函数
     * @return this
-     */
+    */
     public ReturnResult<T> ifOk(Consumer<T> consumer) {
         if (isOk() && null != consumer) {
             consumer.accept(data);
@@ -385,7 +385,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param consumer 消费函数
     * @return this
-     */
+    */
     public ReturnResult<T> ifError(Consumer<String> consumer) {
         if (!isOk() && null != consumer) {
             consumer.accept(this.msg);
@@ -398,7 +398,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param other 默认值
     * @return this
-     */
+    */
     public ReturnResult<T> orElse(T other) {
         if (!isOk()) {
             this.data = other;
@@ -413,7 +413,7 @@ public class ReturnResult<T> implements Serializable {
     *
     * @param supplier 默认值供给
     * @return this
-     */
+    */
     public ReturnResult<T> orElseGet(Supplier<T> supplier) {
         if (!isOk()) {
             this.data = supplier.get();
@@ -429,7 +429,7 @@ public class ReturnResult<T> implements Serializable {
     * 是否成功
     *
     * @return 是否成功
-     */
+    */
     public boolean isOk() {
         return ReturnCode.SUCCESS.getCode().equals(code) || ReturnCode.OK.getCode().equals(code);
     }
@@ -438,7 +438,7 @@ public class ReturnResult<T> implements Serializable {
     * 是否成功(isOk 的语义别名)
     *
     * @return 是否成功
-     */
+    */
     public boolean isSuccess() {
         return isOk();
     }

@@ -14,11 +14,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
-* 默认配置注入器，基于 @配置值 注解进行配置值注入。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 默认配置注入器，基于 @配置值 注解进行配置值注入。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认配置注入器（@ConfigValue）")
@@ -82,7 +82,7 @@ public class DefaultBeanDefinitionConfigInjector implements BeanDefinitionConfig
     * @param value 值
     * @param defaultValue 默认值
     * @return raw值的结果
-     */
+    */
     private static Object rawValue(String value, String defaultValue) {
         if (value != null && !value.isEmpty()) {
             return value;

@@ -33,58 +33,58 @@ public class ThreadFlow {
 
     /**
     * 流程名称
-     */
+    */
     private final String name;
 
     /**
     * 执行器类型，默认虚拟线程
-     */
+    */
     private ThreadExecutorType executorType = ThreadExecutorType.VIRTUAL;
 
     /**
     * 合并策略，默认全部成功
-     */
+    */
     private ThreadStrategy strategy = ThreadStrategy.ALL_SUCCESS;
 
     /**
     * 阈值（用于 N_FAIL / N_SUCCESS）
-     */
+    */
     private int threshold = 1;
 
     /**
     * 超时时间，0 表示无限等待
-     */
+    */
     private long timeout = 0;
 
     /**
     * 超时单位
-     */
+    */
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
     /**
     * 并发上限，小于 1 表示不限
-     */
+    */
     private int maxConcurrent = -1;
 
     /**
     * 生命周期事件回调
-     */
+    */
     private ThreadFlowListener listener;
 
     /**
     * Runnable 任务列表
-     */
+    */
     private final List<Runnable> runnableTasks = new ArrayList<>();
 
     /**
     * Callable 任务列表
-     */
+    */
     private final List<Callable<Object>> callableTasks = new ArrayList<>();
 
     /**
     * 创建 ThreadFlow 实例
     * @param name name
-     */
+    */
     private ThreadFlow(String name) {
         this.name = name;
     }
@@ -94,7 +94,7 @@ public class ThreadFlow {
     *
     * @param name 流程名称
     * @return ThreadFlow 实例
-     */
+    */
     public static ThreadFlow of(String name) {
         return new ThreadFlow(name);
     }
@@ -104,7 +104,7 @@ public class ThreadFlow {
     *
     * @param type 执行器类型
     * @return this
-     */
+    */
     public ThreadFlow executorType(ThreadExecutorType type) {
         this.executorType = type;
         return this;
@@ -115,7 +115,7 @@ public class ThreadFlow {
     *
     * @param strategy 策略
     * @return this
-     */
+    */
     public ThreadFlow strategy(ThreadStrategy strategy) {
         this.strategy = strategy;
         return this;
@@ -126,7 +126,7 @@ public class ThreadFlow {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     public ThreadFlow threshold(int threshold) {
         this.threshold = threshold;
         return this;
@@ -138,7 +138,7 @@ public class ThreadFlow {
     * @param timeout 超时值，0 表示无限等待
     * @param unit    时间单位
     * @return this
-     */
+    */
     public ThreadFlow timeout(long timeout, TimeUnit unit) {
         this.timeout = timeout;
         this.timeUnit = unit;
@@ -150,7 +150,7 @@ public class ThreadFlow {
     *
     * @param maxConcurrent 并发上限
     * @return this
-     */
+    */
     public ThreadFlow maxConcurrent(int maxConcurrent) {
         this.maxConcurrent = maxConcurrent;
         return this;
@@ -161,7 +161,7 @@ public class ThreadFlow {
     *
     * @param listener 事件回调，见 {@link ThreadFlowListener}
     * @return this
-     */
+    */
     public ThreadFlow listener(ThreadFlowListener listener) {
         this.listener = listener;
         return this;
@@ -172,7 +172,7 @@ public class ThreadFlow {
     *
     * @param task 任务
     * @return this
-     */
+    */
     public ThreadFlow addTask(Runnable task) {
         runnableTasks.add(task);
         return this;
@@ -183,7 +183,7 @@ public class ThreadFlow {
     *
     * @param task 任务
     * @return this
-     */
+    */
     public ThreadFlow addCallable(Callable<?> task) {
         callableTasks.add((Callable<Object>) task);
         return this;
@@ -194,7 +194,7 @@ public class ThreadFlow {
     *
     * @return 执行结果 {@link ThreadFlowResult}
     * @throws Exception 执行异常
-     */
+    */
     public ThreadFlowResult<Object> execute() throws Exception {
         AbstractThreadExecutor executor = createExecutor();
         try {
@@ -217,7 +217,7 @@ public class ThreadFlow {
     * 根据 executorType 创建对应的执行器。
     *
     * @return 执行器实例
-     */
+    */
     private AbstractThreadExecutor createExecutor() {
         return switch (executorType) {
             case PLATFORM -> new PlatformThreadExecutor(strategy, threshold, timeout, timeUnit, maxConcurrent);

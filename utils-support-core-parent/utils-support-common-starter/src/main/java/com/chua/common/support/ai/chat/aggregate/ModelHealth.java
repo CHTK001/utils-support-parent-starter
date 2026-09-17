@@ -35,7 +35,7 @@ public class ModelHealth {
     * 创建 ModelHealth 实例
     * @param provider provider
     * @param provider String
-     */
+    */
     public ModelHealth(String provider, String model) {
         this.provider = provider;
         this.model = model;
@@ -108,7 +108,7 @@ public class ModelHealth {
 
     /**
     * 重置模型健康状态
-     */
+    */
     public void reset() {
         this.rateLimited = false;
         this.quotaExhausted = false;
@@ -118,7 +118,7 @@ public class ModelHealth {
 
     /**
     * 模型是否健康（可用）
-     */
+    */
     public boolean isHealthy() {
         return !rateLimited && !quotaExhausted;
     }

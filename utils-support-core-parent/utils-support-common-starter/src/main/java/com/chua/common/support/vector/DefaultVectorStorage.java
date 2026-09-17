@@ -14,27 +14,27 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
-* 向量存储：冷热混合 + B+ 树 索引 + mappedbyte缓冲 零拷贝读取。
-*
-* <h3>三种模式</h3>
-* <ul>
-*   <li>{@code memory} — 纯内存，不落盘（重启丢失）</li>
-*   <li>{@code file} — 纯文件分片，B+ Tree 索引 + MappedByteBuffer 零拷贝</li>
-*   <li>{@code hybrid}（默认）— 热数据内存缓存 + 冷数据磁盘分片 + 定时刷盘</li>
-* </ul>
-*
-* <h3>B+ Tree 索引</h3>
-* <p>每个冷分片构建一棵 {@link BPlusTree}，key 为向量 id，value 为
-* {@link EntryLoc}（文件路径 + 起始偏移 + 字节长度）。
-* 检索时通过 B+ 树 精确跳转到指定记录的字节位置，避免全量顺序扫描。</p>
-*
-* <h3>MappedByteBuffer 零拷贝</h3>
-* <p>冷分片文件以 {@link FileChannel#map} 方式映射到堆外内存，
-* 读取单个向量时直接按 {@link EntryLoc} 偏移定位，无需逐条反序列化头部元数据。</p>
-*
-* @author chua
-* @since 4.0.0.42
- */
+ * 向量存储：冷热混合 + B+ 树 索引 + mappedbyte缓冲 零拷贝读取。
+ *
+ * <h3>三种模式</h3>
+ * <ul>
+ *   <li>{@code memory} — 纯内存，不落盘（重启丢失）</li>
+ *   <li>{@code file} — 纯文件分片，B+ Tree 索引 + MappedByteBuffer 零拷贝</li>
+ *   <li>{@code hybrid}（默认）— 热数据内存缓存 + 冷数据磁盘分片 + 定时刷盘</li>
+ * </ul>
+ *
+ * <h3>B+ Tree 索引</h3>
+ * <p>每个冷分片构建一棵 {@link BPlusTree}，key 为向量 id，value 为
+ * {@link EntryLoc}（文件路径 + 起始偏移 + 字节长度）。
+ * 检索时通过 B+ 树 精确跳转到指定记录的字节位置，避免全量顺序扫描。</p>
+ *
+ * <h3>MappedByteBuffer 零拷贝</h3>
+ * <p>冷分片文件以 {@link FileChannel#map} 方式映射到堆外内存，
+ * 读取单个向量时直接按 {@link EntryLoc} 偏移定位，无需逐条反序列化头部元数据。</p>
+ *
+ * @author chua
+ * @since 4.0.0.42
+*/
 public class DefaultVectorStorage implements VectorStorage {
 
     /** 存储模式。 */
@@ -47,7 +47,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param offset 偏移量
     * @param length 长度
     * @return EntryLoc的结果
-     */
+    */
     private record EntryLoc(Path path, long offset, int length) {
     }
 
@@ -57,7 +57,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param buf buf
     * @param fc 函数计算
     * @return shard缓冲的结果
-     */
+    */
     private record ShardBuffer(MappedByteBuffer buf, FileChannel fc) {
     }
 
@@ -67,7 +67,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param centroid centroid
     * @param maxNorm 最大norm
     * @return ShardMeta的结果
-     */
+    */
     private record ShardMeta(float[] centroid, float maxNorm) {
     }
 
@@ -82,23 +82,33 @@ public class DefaultVectorStorage implements VectorStorage {
     private final ConcurrentHashMap<String, Vector> hot = new ConcurrentHashMap<>();
     /** 冷数据分片列表（有序，用于定位文件路径）。 */
     private final TreeMap<Integer, Path> coldShards = new TreeMap<>();
-    /** 路径 → 分片序号的反向索引，O(1) 查找，避免每次 读取entry 线性扫描。 */
+    /**
+    * 路径 → 分片序号的反向索引，O(1) 查找，避免每次 读取entry 线性扫描。
+    */
     private final ConcurrentHashMap<Path, Integer> pathToShardIdx = new ConcurrentHashMap<>();
     /** 冷数据索引：标识 → entryloc，用于精确跳跃读取。 */
     private final ConcurrentHashMap<String, EntryLoc> coldIndex = new ConcurrentHashMap<>();
-    /** 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。 */
+    /**
+    * 已映射的分片缓冲，键 为分片序号，值 为 mappedbyte缓冲 + 文件通道。
+    */
     private final ConcurrentHashMap<Integer, ShardBuffer> shardBuffers = new ConcurrentHashMap<>();
     /** 分片元数据（centroid），键 为分片序号，用于剪枝。 */
     private final ConcurrentHashMap<Integer, ShardMeta> shardMetas = new ConcurrentHashMap<>();
-    /** 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。 */
+    /**
+    * 分片序号 → 该分片的 entryloc 列表，用于并行扫描时只遍历本分片条目。
+    */
     private final ConcurrentHashMap<Integer, List<EntryLoc>> shardToEntries = new ConcurrentHashMap<>();
 
-    /** 复用读缓冲：128维向量约 600B，thread本地 避免多线程竞争。 */
+    /**
+    * 复用读缓冲：128维向量约 600B，thread本地 避免多线程竞争。
+    */
     private static final int DEFAULT_READ_BUF = 4096;
     private final ThreadLocal<byte[]> threadLocalReadBuf = ThreadLocal.withInitial(() -> new byte[DEFAULT_READ_BUF]); // thread本地读取buf
     /** thread本地 float 缓冲：动态扩容，默认 128 维。 */
     private final ThreadLocal<float[]> vecBuf = ThreadLocal.withInitial(() -> new float[128]);
-    /** thread本地 向量累加器：用于计算 centroid，默认 128 维。 */
+    /**
+    * thread本地 向量累加器：用于计算 centroid，默认 128 维。
+    */
     private final ThreadLocal<float[]> centroidAcc = ThreadLocal.withInitial(() -> new float[128]);
 
     /** SIMD 分块宽度：每次处理 16 个 float。 */
@@ -114,7 +124,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param shardSize shard大小
     * @param algorithm algorithm
     * @return 默认向量storage的结果
-     */
+    */
     private DefaultVectorStorage(int dimension, Path dir, Mode mode, int shardSize, VectorCompareAlgorithm algorithm) {
         this.dimension = dimension;
         this.dir = dir;
@@ -133,7 +143,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param dimension 维度
     * @param mode mode
     * @return 创建的结果
-     */
+    */
     public static DefaultVectorStorage create(int dimension, Mode mode) {
         Path dir = Path.of(System.getProperty("java.io.tmpdir"), "default-vectors");
         return new DefaultVectorStorage(dimension, dir, mode, 10000, null);
@@ -145,7 +155,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param dimension 维度
     * @param dir dir
     * @return 创建的结果
-     */
+    */
     public static DefaultVectorStorage create(int dimension, Path dir) {
         return new DefaultVectorStorage(dimension, dir, Mode.HYBRID, 10000, null);
     }
@@ -157,7 +167,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param mode mode
     * @param algorithm algorithm
     * @return 创建的结果
-     */
+    */
     public static DefaultVectorStorage create(int dimension, Mode mode, VectorCompareAlgorithm algorithm) {
         Path dir = Path.of(System.getProperty("java.io.tmpdir"), "default-vectors");
         return new DefaultVectorStorage(dimension, dir, mode, 10000, algorithm);
@@ -170,7 +180,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param dir dir
     * @param algorithm algorithm
     * @return 创建的结果
-     */
+    */
     public static DefaultVectorStorage create(int dimension, Path dir, VectorCompareAlgorithm algorithm) {
         return new DefaultVectorStorage(dimension, dir, Mode.HYBRID, 10000, algorithm);
     }
@@ -179,7 +189,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 自定义构建器。
     *
     * @return 构建器的结果
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -188,7 +198,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 获取当前使用的比较算法。
     *
     * @return 获取algorithm的结果
-     */
+    */
     public VectorCompareAlgorithm getAlgorithm() {
         return algorithm;
     }
@@ -344,7 +354,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 写入shard。
     * @param path 路径
     * @param vectors 向量
-     */
+    */
     private void writeShard(Path path, List<Vector> vectors) throws IOException {
         try (DataOutputStream out = new DataOutputStream(
                 new BufferedOutputStream(Files.newOutputStream(path)))) {
@@ -366,7 +376,7 @@ public class DefaultVectorStorage implements VectorStorage {
 
     /**
     * 加载已有冷分片，同时构建 B+ 树 索引、路径→shardidx 反向索引、mappedbyte缓冲 缓存和 centroid 元数据。
-     */
+    */
     private void loadColdShards() {
         File[] files = dir.toFile().listFiles((d, n) -> n.matches("shard_\\d{4}\\.bin"));
         if (files == null) {
@@ -428,7 +438,7 @@ public class DefaultVectorStorage implements VectorStorage {
     *
     * @param idx idx
     * @param shardPath shard路径
-     */
+    */
     private void mmapShard(int idx, Path shardPath) {
         try {
             FileChannel fc = FileChannel.open(shardPath, java.nio.file.StandardOpenOption.READ);
@@ -444,7 +454,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 使用 重复() 创建独立视图，位置/限制 操作互不干扰原 缓冲。
     * @param loc loc
     * @return 读取entry的结果
-     */
+    */
     private Vector readEntry(EntryLoc loc) {
         Integer shardIdxObj = pathToShardIdx.get(loc.path());
         if (shardIdxObj == null) {
@@ -494,7 +504,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 解析 metadata 字符串（flush 时写入的是 映射.转为字符串()，此处简单解析）。
     * @param metaStr metastr
     * @return 解析metadata的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private static Map<String, Object> parseMetadata(String metaStr) {
         if (metaStr == null || metaStr.isEmpty()) {
@@ -522,7 +532,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 为指定 标识 驱逐对应的 shard缓冲（删除后不再需要）。
     *
     * @param id 标识
-     */
+    */
     private void evictShardBufferFor(String id) {
         EntryLoc loc = coldIndex.get(id);
         if (loc != null) {
@@ -542,7 +552,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param shardPath shard路径
     * @param headerSize 头部大小
     * @param count 数量
-     */
+    */
     private void buildShardIndex(int shardIdx, Path shardPath, long headerSize, int count) {
         long offset = headerSize;
         float[] centroid = new float[dimension];
@@ -593,7 +603,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 按分片并行扫描冷数据，带 centroid 剪枝：若 查询 与分片 centroid 相似度低于阈值则跳过整分片。
     * @param query 查询
     * @param candidates candidates
-     */
+    */
     private void scanColdCandidatesParallel(float[] query, List<VectorScored> candidates) {
         if (coldShards.isEmpty()) {
             return;
@@ -638,7 +648,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param loc loc
     * @param buf buf
     * @return 读取entry从buf的结果
-     */
+    */
     private Vector readEntryFromBuf(EntryLoc loc, MappedByteBuffer buf) {
         long off = loc.offset();
         int len = loc.length();
@@ -687,7 +697,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param candidates candidates
     * @param topK topk
     * @return topKHeap的结果
-     */
+    */
     private static List<Vector> topKHeap(List<VectorScored> candidates, int topK) {
         if (candidates.size() <= topK) {
             List<Vector> results = new ArrayList<>(candidates.size());
@@ -736,7 +746,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param heap heap
     * @param idx idx
     * @param size 大小
-     */
+    */
     private static void siftDown(VectorScored[] heap, int idx, int size) {
         while (true) {
             int left = 2 * idx + 1, right = left + 1, smallest = idx;
@@ -762,7 +772,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param a a
     * @param b b
     * @return cosineSIMD的结果
-     */
+    */
     private static float cosineSIMD(float[] a, float[] b) {
         int len = Math.min(a.length, b.length);
         int i = 0;
@@ -795,7 +805,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * @param score score
     * @param vector 向量
     * @return 向量scored的结果
-     */
+    */
     private record VectorScored(String id, float score, Vector vector) {
     }
 
@@ -803,7 +813,7 @@ public class DefaultVectorStorage implements VectorStorage {
     * 获取已加载的冷分片数量（供测试使用）。
     *
     * @return 获取shard数量的结果
-     */
+    */
     public int getShardCount() {
         return coldShards.size();
     }
@@ -823,7 +833,7 @@ public class DefaultVectorStorage implements VectorStorage {
         * 维度。
         * @param d d
         * @return 维度的结果
-         */
+        */
         public Builder dimension(int d) {
             this.dimension = d;
             return this;
@@ -833,7 +843,7 @@ public class DefaultVectorStorage implements VectorStorage {
         * dir。
         * @param dir dir
         * @return dir的结果
-         */
+        */
         public Builder dir(Path dir) {
             this.dir = dir;
             return this;
@@ -843,7 +853,7 @@ public class DefaultVectorStorage implements VectorStorage {
         * mode。
         * @param mode mode
         * @return mode的结果
-         */
+        */
         public Builder mode(Mode mode) {
             this.mode = mode;
             return this;
@@ -853,7 +863,7 @@ public class DefaultVectorStorage implements VectorStorage {
         * shard大小。
         * @param size 大小
         * @return shard大小的结果
-         */
+        */
         public Builder shardSize(int size) {
             this.shardSize = Math.max(100, size);
             return this;
@@ -863,7 +873,7 @@ public class DefaultVectorStorage implements VectorStorage {
         * algorithm。
         * @param algorithm algorithm
         * @return algorithm的结果
-         */
+        */
         public Builder algorithm(VectorCompareAlgorithm algorithm) {
             this.algorithm = algorithm;
             return this;
@@ -872,7 +882,7 @@ public class DefaultVectorStorage implements VectorStorage {
         /**
         * 构建。
         * @return 构建的结果
-         */
+        */
         public DefaultVectorStorage build() {
             if (dimension <= 0) {
                 throw new IllegalArgumentException("dimension 须 > 0");

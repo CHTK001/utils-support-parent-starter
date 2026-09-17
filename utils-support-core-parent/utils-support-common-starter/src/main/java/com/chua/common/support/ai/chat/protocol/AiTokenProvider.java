@@ -25,7 +25,7 @@ public interface AiTokenProvider {
     *
     * @param tokenValue 令牌值
     * @return 有效返回 true
-     */
+    */
     default boolean validate(String tokenValue) {
         return getValidToken(tokenValue) != null;
     }
@@ -35,21 +35,21 @@ public interface AiTokenProvider {
     *
     * @param tokenValue 令牌值
     * @return AiToken 对象，无效返回 null
-     */
+    */
     AiToken getValidToken(String tokenValue);
 
     /**
     * 获取所有令牌（不可变视图）。
     *
     * @return token → AiToken 映射
-     */
+    */
     Map<String, AiToken> allTokens();
 
     /**
     * 获取令牌总数。
     *
     * @return 令牌数量
-     */
+    */
     int count();
 
     // ======================== 增删改 ========================
@@ -58,14 +58,14 @@ public interface AiTokenProvider {
     * 添加或更新令牌。
     *
     * @param token AiToken 对象
-     */
+    */
     void put(AiToken token);
 
     /**
     * 批量添加或更新令牌。
     *
     * @param tokens 令牌列表
-     */
+    */
     void putAll(List<AiToken> tokens);
 
     /**
@@ -73,11 +73,11 @@ public interface AiTokenProvider {
     *
     * @param tokenValue 令牌值
     * @return 被移除的令牌，不存在返回 null
-     */
+    */
     AiToken remove(String tokenValue);
 
     /**
     * 清空所有令牌。
-     */
+    */
     void clear();
 }

@@ -13,26 +13,26 @@ import lombok.Data;
 public class CodePointSetting {
     /**
     * 码点样式枚举，控制码点的形状或风格。
-     */
+    */
     private CodePointStyle codePoint;
 
     /**
     * 码点的颜色值，支持十六进制字符串表示。
-     */
+    */
     private String codePointColor;
 
     /**
     * 是否启用缩放绘制功能。
-     */
+    */
     private boolean drawEnableScale;
 
     /**
     * 自定义码点图像的路径或资源标识。
-     */
+    */
     private String codePointImage;
 
     /**
     * 码点关联的文本描述或标识。
-     */
+    */
     private String codePointText;
 }

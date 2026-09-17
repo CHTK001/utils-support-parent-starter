@@ -48,7 +48,7 @@ public interface DocumentProvider {
     *
     * @param type 导出格式（"word"、"pdf"、"markdown"、"html"）
     * @return DocumentProvider 实例
-     */
+    */
     static DocumentProvider create(String type) {
         return ServiceProvider.of(DocumentProvider.class).getExtension(type);
     }
@@ -57,14 +57,14 @@ public interface DocumentProvider {
     * 获取导出格式名称。
     *
     * @return 格式名称
-     */
+    */
     String getType();
 
     /**
     * 获取支持的文件扩展名。
     *
     * @return 扩展名数组
-     */
+    */
     String[] getExtensions();
 
     /**
@@ -72,7 +72,7 @@ public interface DocumentProvider {
     *
     * @param data       文档数据
     * @param outputFile 输出文件
-     */
+    */
     default void export(DocumentData data, File outputFile) {
         export(data, outputFile, DocumentExportConfig.builder()
                 .format(getType())
@@ -87,7 +87,7 @@ public interface DocumentProvider {
     * @param data       文档数据
     * @param outputFile 输出文件
     * @param config     导出配置（模板类型、自定义模板等）
-     */
+    */
     void export(DocumentData data, File outputFile, DocumentExportConfig config);
 
     /**
@@ -98,7 +98,7 @@ public interface DocumentProvider {
     *
     * @param data 文档数据
     * @return 关系图 JSON 字符串
-     */
+    */
     static String toRelationshipJson(DocumentData data) {
         List<Map<String, Object>> nodes = new ArrayList<>();
         List<Map<String, Object>> edges = new ArrayList<>();

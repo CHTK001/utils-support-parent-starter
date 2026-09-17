@@ -41,7 +41,7 @@ public class InMemoryDispatcherProvider extends AbstractDispatcherProvider imple
     /**
     * 创建 InMemoryDispatcherProvider 实例
     * @param config config
-     */
+    */
     public InMemoryDispatcherProvider(DispatcherConfig config) {
         super(config);
     }

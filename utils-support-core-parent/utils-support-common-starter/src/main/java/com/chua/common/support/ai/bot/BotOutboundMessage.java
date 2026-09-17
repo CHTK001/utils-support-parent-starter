@@ -35,7 +35,7 @@ public class BotOutboundMessage {
     * @param toUser  目标用户 ID
     * @param content 消息内容
     * @return 出站消息
-     */
+    */
     public static BotOutboundMessage text(String toUser, String content) {
         return BotOutboundMessage.builder()
                 .toUser(toUser)
@@ -50,7 +50,7 @@ public class BotOutboundMessage {
     * @param groupId 群组 ID
     * @param content 消息内容
     * @return 出站消息
-     */
+    */
     public static BotOutboundMessage groupText(String groupId, String content) {
         return BotOutboundMessage.builder()
                 .toUser(groupId)
@@ -67,7 +67,7 @@ public class BotOutboundMessage {
     * @param content      消息内容
     * @param mentionedUsers @ 提及的用户 ID 列表
     * @return 出站消息
-     */
+    */
     public static BotOutboundMessage groupTextMention(
             String groupId,
             String content,
@@ -87,7 +87,7 @@ public class BotOutboundMessage {
     * @param toUser    目标用户 ID
     * @param mediaPath 图片本地路径
     * @return 出站消息
-     */
+    */
     public static BotOutboundMessage image(String toUser, String mediaPath) {
         return BotOutboundMessage.builder()
                 .toUser(toUser)
@@ -102,7 +102,7 @@ public class BotOutboundMessage {
     * @param toUser    目标用户 ID
     * @param mediaPath 语音文件路径
     * @return 出站消息
-     */
+    */
     public static BotOutboundMessage voice(String toUser, String mediaPath) {
         return BotOutboundMessage.builder()
                 .toUser(toUser)
@@ -114,7 +114,7 @@ public class BotOutboundMessage {
     /** 消息类型 */
     /**
     * 类型
-     */
+    */
     private BotInboundMessage.Type type;
 
     /** 目标用户 ID */
@@ -123,13 +123,13 @@ public class BotOutboundMessage {
     /**
     * 消息内容
     * <p>TEXT 类型时包含文本</p>
-     */
+    */
     private String content;
 
     /**
     * 媒体文件路径
     * <p>IMAGE/VOICE/VIDEO/FILE 类型时</p>
-     */
+    */
     private String mediaPath;
 
     /** 视频标题 */
@@ -138,13 +138,13 @@ public class BotOutboundMessage {
     /** 视频描述 */
     /**
     * 描述
-     */
+    */
     private String description;
 
     /**
     * 是否发送到群组
     * <p>true 时 {@code toUser} 为群组 ID</p>
-     */
+    */
     private boolean toGroup;
 
     /** @ 提及的用户 ID 列表 */
@@ -153,7 +153,7 @@ public class BotOutboundMessage {
     /**
     * 扩展字段
     * <p>如 "markdown" 等自定义参数</p>
-     */
+    */
     @Singular("extension")
     private Map<String, Object> extensions;
 
@@ -162,7 +162,7 @@ public class BotOutboundMessage {
     *
     * @param key 字段名
     * @return 字段值
-     */
+    */
     public <T> T extension(String key) {
         if (extensions == null) {
             return null;

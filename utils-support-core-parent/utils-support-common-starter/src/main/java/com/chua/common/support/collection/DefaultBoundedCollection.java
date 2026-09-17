@@ -32,17 +32,17 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
 
     /**
     * 内部存储双端队列
-     */
+    */
     private final Deque<E> delegate;
 
     /**
     * 集合固定容量
-     */
+    */
     private final int capacity;
 
     /**
     * 当前溢出策略
-     */
+    */
     private OverflowPolicy policy;
 
     /**
@@ -52,7 +52,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     * @param <E>      元素类型
     * @return 有界集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> BoundedCollection<E> of(int capacity) {
         return new DefaultBoundedCollection<>(capacity, OverflowPolicy.EVICT_ELDEST);
     }
@@ -65,7 +65,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     * @param <E>      元素类型
     * @return 有界集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> BoundedCollection<E> of(int capacity, Collection<? extends E> c) {
         DefaultBoundedCollection<E> result = new DefaultBoundedCollection<>(capacity, OverflowPolicy.EVICT_ELDEST);
         if (c != null) {
@@ -78,7 +78,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     * 使用指定容量创建有界集合。
     *
     * @param capacity 集合容量，必须大于 0
-     */
+    */
     public DefaultBoundedCollection(int capacity) {
         this(capacity, OverflowPolicy.EVICT_ELDEST);
     }
@@ -90,7 +90,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     * @param policy   溢出策略，不允许为 null
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
     * @throws NullPointerException     如果 policy 为 null
-     */
+    */
     public DefaultBoundedCollection(int capacity, OverflowPolicy policy) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -235,7 +235,7 @@ public class DefaultBoundedCollection<E> extends AbstractCollection<E> implement
     *
     * @param e 待添加的新元素
     * @return 是否成功录入
-     */
+    */
     private boolean handleOverflow(E e) {
         switch (policy) {
             case REJECT -> {

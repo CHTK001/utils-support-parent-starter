@@ -31,14 +31,14 @@ public interface TableCreateBuilder {
     * @param name 列名
     * @param type 数据库类型字符串（如 VARCHAR(100)、BIGINT）
     * @return this
-     */
+    */
     TableCreateBuilder column(String name, String type);
 
     /**
     * 将最后添加的列设为 NOT NULL。
     *
     * @return this
-     */
+    */
     TableCreateBuilder notNull();
 
     /**
@@ -46,21 +46,21 @@ public interface TableCreateBuilder {
     * <p>同时自动设置该列为 NOT NULL。</p>
     *
     * @return this
-     */
+    */
     TableCreateBuilder primaryKey();
 
     /**
     * 将最后添加的列设为自增。
     *
     * @return this
-     */
+    */
     TableCreateBuilder autoIncrement();
 
     /**
     * 将最后添加的列设为无符号（仅数值类型）。
     *
     * @return this
-     */
+    */
     TableCreateBuilder unsigned();
 
     /**
@@ -68,7 +68,7 @@ public interface TableCreateBuilder {
     *
     * @param val 默认值表达式
     * @return this
-     */
+    */
     TableCreateBuilder defaultValue(String val);
 
     /**
@@ -76,7 +76,7 @@ public interface TableCreateBuilder {
     *
     * @param val 列注释
     * @return this
-     */
+    */
     TableCreateBuilder comment(String val);
 
     /**
@@ -84,14 +84,14 @@ public interface TableCreateBuilder {
     *
     * @param columnName 前一列名
     * @return this
-     */
+    */
     TableCreateBuilder after(String columnName);
 
     /**
     * 将最后添加的列设为第一列。
     *
     * @return this
-     */
+    */
     TableCreateBuilder first();
 
     /**
@@ -99,7 +99,7 @@ public interface TableCreateBuilder {
     *
     * @param columns 主键列名
     * @return this
-     */
+    */
     TableCreateBuilder primaryKey(String... columns);
 
     /**
@@ -107,7 +107,7 @@ public interface TableCreateBuilder {
     *
     * @param comment 表注释
     * @return this
-     */
+    */
     TableCreateBuilder commentTable(String comment);
 
     /**
@@ -115,7 +115,7 @@ public interface TableCreateBuilder {
     *
     * @param engine 引擎名
     * @return this
-     */
+    */
     TableCreateBuilder engine(String engine);
 
     /**
@@ -123,7 +123,7 @@ public interface TableCreateBuilder {
     *
     * @param charset 字符集名
     * @return this
-     */
+    */
     TableCreateBuilder charset(String charset);
 
     /**
@@ -131,13 +131,13 @@ public interface TableCreateBuilder {
     *
     * @param collate 排序规则名
     * @return this
-     */
+    */
     TableCreateBuilder collate(String collate);
 
     /**
     * 执行建表语句。
     *
     * @return 建表后的表定义
-     */
+    */
     TableDef execute();
 }

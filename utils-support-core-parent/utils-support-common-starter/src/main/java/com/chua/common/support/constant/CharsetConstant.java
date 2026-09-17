@@ -31,7 +31,7 @@ public final class CharsetConstant {
     * UTF-8 是一种针对 Unicode 的可变长度字符编码。
     * 它是 Web 互联网中最常用的编码方式，能够表示 Unicode 标准中的任何字符。
     * </p>
-     */
+    */
     public static final Charset UTF_8 = StandardCharsets.UTF_8;
 
 
@@ -41,7 +41,7 @@ public final class CharsetConstant {
     * GBK 是一种中文字符编码，是中文信息交换码（GB 2312）的扩展，支持简体中文及繁体中文。
     * 它是双字节编码，能够表示 65536 个字符。
     * </p>
-     */
+    */
     public static final Charset GBK = Charset.forName("GBK");
     /**
     * ASCII 字符集
@@ -49,7 +49,7 @@ public final class CharsetConstant {
     * ASCII 是一种基于拉丁字母的电脑编码系统，共包含 128 个字符（0-127）。
     * 主要用于现代英语及其他西欧语言的控制字符和可打印字符表示。
     * </p>
-     */
+    */
     public static final Charset ASCII = Charset.forName("US-ASCII");
 
     /**
@@ -58,6 +58,6 @@ public final class CharsetConstant {
     * ISO-8859-1 又称 Latin-1，是单字节编码，共支持 256 个字符。
     * 它是 ISO/IEC 8859 标准的一部分，常用于早期 Web 页面及某些网络协议。
     * </p>
-     */
+    */
     public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 }

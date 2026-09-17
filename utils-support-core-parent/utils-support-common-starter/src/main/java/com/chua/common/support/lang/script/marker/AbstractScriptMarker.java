@@ -26,7 +26,7 @@ public abstract class AbstractScriptMarker implements ScriptMarker {
 
     /**
     * 最近一次编译生成的脚本类类型。
-     */
+    */
     protected volatile Class<?> type;
 
     @Override

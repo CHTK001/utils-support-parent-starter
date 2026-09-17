@@ -66,7 +66,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * <p>包含连接超时、读取超时、代理、重试等参数。
     * 子类在 {@link #doExecute(ClientRequest)} 中应使用此配置初始化底层 HTTP 客户端。
     * 如果构造时传入 null，会使用默认配置 {@link ClientSetting} 的无参构造。
-     */
+    */
     protected final ClientSetting setting;
 
     /**
@@ -74,7 +74,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * <p>最外层，适合统一加 Token、Header、日志、请求预处理、短路 Mock/缓存等。
     * 通过 {@link #addInterceptor(HttpInterceptor)} 注册。</p>
-     */
+    */
     private final List<HttpInterceptor> interceptors = new ArrayList<>();
 
     /**
@@ -82,14 +82,14 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * <p>紧贴网络调用，适合监控、错误码统一包装、网络层日志等。
     * 通过 {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
-     */
+    */
     private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
 
     /**
     * 使用指定配置创建抽象 HTTP 客户端。
     *
     * @param setting 客户端全局配置，为 null 时使用默认配置（超时 30s、不重试、无代理）
-     */
+    */
     protected AbstractHttpClient(ClientSetting setting) {
         this.setting = setting != null ? setting : new ClientSetting();
     }
@@ -98,7 +98,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * 获取已注册的应用层拦截器列表。
     *
     * @return 应用层拦截器列表（只读视图）
-     */
+    */
     @Override
     public List<HttpInterceptor> getInterceptors() {
         return Collections.unmodifiableList(interceptors);
@@ -108,7 +108,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * 获取已注册的网络层拦截器列表。
     *
     * @return 网络层拦截器列表（只读视图）
-     */
+    */
     @Override
     public List<HttpInterceptor> getNetworkInterceptors() {
         return Collections.unmodifiableList(networkInterceptors);
@@ -119,7 +119,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param interceptor 应用层拦截器，null 忽略
     * @return 当前客户端实例（链式调用）
-     */
+    */
     @Override
     public HttpClient addInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
@@ -133,7 +133,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param interceptor 网络层拦截器，null 忽略
     * @return 当前客户端实例（链式调用）
-     */
+    */
     @Override
     public HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
@@ -155,7 +155,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param request 请求对象
     * @return 响应对象
-     */
+    */
     @Override
     public ClientResponse execute(ClientRequest request) {
         return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
@@ -171,7 +171,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param request 请求对象
     * @return 响应对象
-     */
+    */
     private ClientResponse doExecuteWithHooks(ClientRequest request) {
         beforeExecute(request);
         try {
@@ -192,7 +192,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param request 封装好的请求对象
     * @return 响应对象
-     */
+    */
     protected abstract ClientResponse doExecute(ClientRequest request);
 
     /**
@@ -210,7 +210,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * <p>默认实现为空方法，子类按需覆盖。</p>
     *
     * @param request 即将执行的请求对象
-     */
+    */
     protected void beforeExecute(ClientRequest request) {
     }
 
@@ -229,7 +229,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * <p>默认实现为空方法，子类按需覆盖。</p>
     *
     * @param request 已执行的请求对象
-     */
+    */
     protected void afterExecute(ClientRequest request) {
     }
 
@@ -241,7 +241,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     *
     * @param request 封装好的请求对象
     * @return 响应 Mono
-     */
+    */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
         return Mono.fromCallable(() -> execute(request))
@@ -252,7 +252,7 @@ public abstract class AbstractHttpClient implements HttpClient {
     * 释放客户端资源。
     *
     * <p>默认实现为空，子类如有连接池或其他资源需要释放，应覆盖此方法。</p>
-     */
+    */
     @Override
     public void close() {
     }

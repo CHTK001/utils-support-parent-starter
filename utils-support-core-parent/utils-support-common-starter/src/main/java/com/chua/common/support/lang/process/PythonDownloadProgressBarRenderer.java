@@ -21,47 +21,47 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
 
     /**
     * 进度条样式
-     */
+    */
     private final ProgressBarStyle style;
 
     /**
     * 进度单位
-     */
+    */
     private final ProgressUnit unit;
 
     /**
     * 单位名称
-     */
+    */
     private final String unitName;
 
     /**
     * 单位大小
-     */
+    */
     private final long unitSize;
 
     /**
     * 是否显示速度
-     */
+    */
     private final boolean isSpeedShown;
 
     /**
     * 速度格式
-     */
+    */
     private final DecimalFormat speedFormat;
 
     /**
     * 速度单位
-     */
+    */
     private final ChronoUnit speedUnit;
 
     /**
     * 是否显示预计剩余时间
-     */
+    */
     private final boolean isEtaShown;
 
     /**
     * 预计剩余时间计算函数
-     */
+    */
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
@@ -76,7 +76,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     * @param speedUnit     速度单位
     * @param isEtaShown    是否显示预计剩余时间
     * @param eta           预计剩余时间计算函数
-     */
+    */
     public PythonDownloadProgressBarRenderer(
             ProgressBarStyle style,
             ProgressUnit unit,
@@ -105,7 +105,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param maxLength             
     * @return                               
-     */
+    */
     @Override
     public String render(ProgressState progress, int maxLength) {
         if (maxLength <= 0) {
@@ -154,7 +154,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                         
-     */
+    */
     private String formatDownloadInfo(ProgressState progress) {
         if (progress.max <= 0) {
             return formatFileSize(progress.current) + "/      ";
@@ -167,7 +167,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param bytes          
     * @return                                  
-     */
+    */
     private String formatFileSize(long bytes) {
         if (bytes < 1024) {
             return bytes + "B";
@@ -186,7 +186,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param length                
     * @return                   
-     */
+    */
     private String renderProgressBar(ProgressState progress, int length) {
         StringBuilder sb = new StringBuilder();
         
@@ -260,7 +260,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                      
-     */
+    */
     private String getDownloadSpeedString(ProgressState progress) {
         Duration elapsed = progress.getTotalElapsed();
         if (elapsed.isZero() || elapsed.toMillis() < 100) {
@@ -277,7 +277,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                            
-     */
+    */
     private String getEtaString(ProgressState progress) {
         if (eta == null) {
             return "--:--:--";
@@ -296,7 +296,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param str          
     * @return             
-     */
+    */
     private int getStringDisplayLength(String str) {
         if (str == null) {
             return 0;
@@ -318,7 +318,7 @@ public class PythonDownloadProgressBarRenderer implements ProgressBarRenderer {
     * @param showEta                               
     * @param eta                               
     * @return Python Download                     
-     */
+    */
     public static PythonDownloadProgressBarRenderer create(
             ProgressUnit unit,
             String unitName,

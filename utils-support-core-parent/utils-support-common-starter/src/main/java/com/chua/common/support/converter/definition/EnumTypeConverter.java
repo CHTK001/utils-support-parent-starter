@@ -21,7 +21,7 @@ public class EnumTypeConverter implements TypeConverter<Enum> {
     *
     * @param value 源值
     * @return Enum 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Enum convert(Object value) {
         if (null == value) {
@@ -39,7 +39,7 @@ public class EnumTypeConverter implements TypeConverter<Enum> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Enum.class
-     */
+    */
     @Override
     public Class<Enum> getType() {
         return Enum.class;
@@ -53,7 +53,7 @@ public class EnumTypeConverter implements TypeConverter<Enum> {
     * @param newType 目标枚举类型
     * @param <T>     枚举泛型类型
     * @return 枚举常量，如果无法匹配则返回 null
-     */
+    */
     public <T> T convertFor(Object value, Class<T> newType) {
         if (null == value) {
             return null;

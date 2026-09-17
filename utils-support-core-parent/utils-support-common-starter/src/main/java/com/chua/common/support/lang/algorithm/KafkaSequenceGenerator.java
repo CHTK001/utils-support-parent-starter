@@ -81,7 +81,9 @@ public class KafkaSequenceGenerator {
 
     // ==================== 默认值 ====================
 
-    /** 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位毫秒） */
+    /**
+    * 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位毫秒）
+    */
     private static final long DEFAULT_EPOCH = 1577836800000L;
 
     /** 默认数据中心 ID */
@@ -116,7 +118,7 @@ public class KafkaSequenceGenerator {
     * 使用默认配置创建 Kafka 自增序列 ID 生成器
     *
     * <p>数据中心 ID 为 0，工作节点 ID 为 0。</p>
-     */
+    */
     public KafkaSequenceGenerator() {
         this(DEFAULT_DATA_CENTER_ID, DEFAULT_WORKER_ID, DEFAULT_EPOCH,
                 DEFAULT_DATA_CENTER_BITS, DEFAULT_WORKER_ID_BITS,
@@ -129,7 +131,7 @@ public class KafkaSequenceGenerator {
     * @param dataCenterId 数据中心 ID
     * @param workerId     工作节点 ID
     * @throws IllegalArgumentException 当参数超出范围时
-     */
+    */
     public KafkaSequenceGenerator(long dataCenterId, long workerId) {
         this(dataCenterId, workerId, DEFAULT_EPOCH,
                 DEFAULT_DATA_CENTER_BITS, DEFAULT_WORKER_ID_BITS,
@@ -147,7 +149,7 @@ public class KafkaSequenceGenerator {
     * @param timestampBits    时间戳占用位数
     * @param sequenceBits     序列号占用位数
     * @throws IllegalArgumentException 当参数超出范围时
-     */
+    */
     public KafkaSequenceGenerator(long dataCenterId, long workerId, long epoch,
                                   long dataCenterBits, long workerIdBits,
                                   long timestampBits, long sequenceBits) {
@@ -184,7 +186,7 @@ public class KafkaSequenceGenerator {
     *
     * @return 64 位 Long 型唯一 ID
     * @throws IllegalStateException 如果系统时钟回拨或时间戳溢出
-     */
+    */
     public long nextId() {
         synchronized (lock) {
             long currentTimestamp = timestamp();
@@ -216,7 +218,7 @@ public class KafkaSequenceGenerator {
     * @return 唯一 ID 列表
     * @throws IllegalArgumentException 如果 count 小于 1
     * @throws IllegalStateException    如果系统时钟回拨
-     */
+    */
     public List<Long> nextIds(int count) {
         if (count < 1) {
             throw new IllegalArgumentException("生成数量必须大于 0，当前值: " + count);
@@ -254,7 +256,7 @@ public class KafkaSequenceGenerator {
     * 生成下一个唯一 ID 的字符串形式
     *
     * @return 十进制字符串表示的 ID
-     */
+    */
     public String nextIdString() {
         return String.valueOf(nextId());
     }
@@ -264,7 +266,7 @@ public class KafkaSequenceGenerator {
     *
     * @param id 序列 ID
     * @return 包含时间戳、数据中心 ID、工作节点 ID、序列号的数组 [timestamp, dataCenterId, workerId, sequence]
-     */
+    */
     public long[] parse(long id) {
         long sequence = id & sequenceMask;
         long workerId = (id >>> workerIdShift) & workerIdMask;
@@ -281,7 +283,7 @@ public class KafkaSequenceGenerator {
     *
     * @param currentTimestamp 当前时间戳
     * @return 组装后的 64 位 ID
-     */
+    */
     private long buildId(long currentTimestamp) {
         long relativeTimestamp = currentTimestamp - epoch;
 
@@ -301,7 +303,7 @@ public class KafkaSequenceGenerator {
     * 获取当前系统时间戳（毫秒）
     *
     * @return 当前时间戳（毫秒）
-     */
+    */
     private long timestamp() {
         return System.currentTimeMillis();
     }
@@ -311,7 +313,7 @@ public class KafkaSequenceGenerator {
     *
     * @param lastTimestamp 上次生成 ID 的时间戳
     * @return 下一毫秒的时间戳
-     */
+    */
     private long waitNextMillis(long lastTimestamp) {
         long currentTimestamp = timestamp();
         while (currentTimestamp <= lastTimestamp) {

@@ -49,114 +49,114 @@ public class AiUsageRecord {
 
     /**
     * Token 单价换算基数：1,000,000 Token = 1 个计价单位
-     */
+    */
     private static final long TOKENS_PER_UNIT = 1_000_000L;
 
     /**
     * 费用计算时保留的小数位数
-     */
+    */
     private static final int COST_SCALE = 10;
 
     /**
     * 主键字段名（用于 Engine 删除条件）
-     */
+    */
     private static final String FIELD_ID = "id";
 
     // ==================== 主键 ====================
 
     /**
     * 主键
-     */
+    */
     private Long id;
 
     // ==================== Token 用量 ====================
 
     /**
     * 输入 Token 数
-     */
+    */
     private Integer inputTokens;
 
     /**
     * 输出 Token 数
-     */
+    */
     private Integer outputTokens;
 
     /**
     * 总 Token 数
-     */
+    */
     private Integer totalTokens;
 
     /**
     * 缓存命中 Token 数
-     */
+    */
     private Integer cacheTokens;
 
     /**
     * 缓存名称（Cache Name / Prompt Cache Key）
-     */
+    */
     private String cacheName;
 
     /**
     * 推理 Token 数
-     */
+    */
     private Integer reasoningTokens;
 
     // ==================== 费用信息 ====================
 
     /**
     * 输入费用
-     */
+    */
     private BigDecimal inputCost;
 
     /**
     * 输出费用
-     */
+    */
     private BigDecimal outputCost;
 
     /**
     * 总费用
-     */
+    */
     private BigDecimal totalCost;
 
     /**
     * 货币（USD / CNY）
-     */
+    */
     private String currency;
 
     // ==================== 模型标识 ====================
 
     /**
     * 提供方标识
-     */
+    */
     private String provider;
 
     /**
     * 模型名称
-     */
+    */
     private String model;
 
     // ==================== 性能指标 ====================
 
     /**
     * 总耗时（毫秒）
-     */
+    */
     private Long durationMillis;
 
     /**
     * 首字耗时（毫秒）
-     */
+    */
     private Long firstTokenLatencyMillis;
 
     /**
     * 停止原因
-     */
+    */
     private String finishReason;
 
     // ==================== 基础信息 ====================
 
     /**
     * 创建时间（毫秒时间戳）
-     */
+    */
     private Long createdAt;
 
     // ======================== 链式 Builder ========================
@@ -165,7 +165,7 @@ public class AiUsageRecord {
     * 创建链式 Builder
     *
     * @return 新的 Builder 实例
-     */
+    */
     public static Builder create() {
         return new Builder();
     }
@@ -175,7 +175,7 @@ public class AiUsageRecord {
     *
     * @param usage AI 用量
     * @return 用量记录（未保存）；usage 为 null 时返回 null
-     */
+    */
     public static AiUsageRecord from(AiUsage usage) {
         if (usage == null) {
             return null;
@@ -213,7 +213,7 @@ public class AiUsageRecord {
     * 从 {@link ModelPricingProvider} 补齐费用与货币信息。
     *
     * @param record 待补齐的用量记录
-     */
+    */
     private static void enrichPricing(AiUsageRecord record) {
         try {
             ModelPricingProvider provider = ServiceProvider.of(ModelPricingProvider.class)
@@ -251,7 +251,7 @@ public class AiUsageRecord {
     * 转换为 {@link AiUsage}
     *
     * @return AiUsage 实例（标记为非估算）
-     */
+    */
     public AiUsage toAiUsage() {
         return AiUsage.builder()
                 .inputTokens(inputTokens)
@@ -282,7 +282,7 @@ public class AiUsageRecord {
     *
     * @param engine Engine 实例
     * @return 自身（支持链式）；engine 为 null 时直接返回 this 不做持久化
-     */
+    */
     public AiUsageRecord save(Engine engine) {
         if (engine == null) {
             return this;
@@ -300,7 +300,7 @@ public class AiUsageRecord {
     *
     * @param engine Engine 实例
     * @return CompletableFuture，完成时返回自身；engine 为 null 时立即返回已完成 Future
-     */
+    */
     public CompletableFuture<AiUsageRecord> asyncSave(Engine engine) {
         if (engine == null) {
             return CompletableFuture.completedFuture(this);
@@ -315,7 +315,7 @@ public class AiUsageRecord {
     * 执行实际的保存逻辑：补齐 createdAt 并通过 Engine 持久化。
     *
     * @param engine Engine 实例
-     */
+    */
     private void doSave(Engine engine) {
         if (createdAt == null) {
             createdAt = System.currentTimeMillis();
@@ -327,7 +327,7 @@ public class AiUsageRecord {
     * 通过 Engine ORM 删除本条记录
     *
     * @param engine Engine 实例；engine 为 null 或 id 为 null 时跳过
-     */
+    */
     public void delete(Engine engine) {
         if (engine == null || id == null) {
             return;
@@ -348,17 +348,17 @@ public class AiUsageRecord {
     *       .duration(1500L)
     *       .save(engine);
     * }</pre>
-     */
+    */
     public static class Builder {
 
         /**
         * 内部待构建的记录实例
-         */
+        */
         private final AiUsageRecord record = new AiUsageRecord();
 
         /**
         * 构造 Builder，初始化创建时间为当前毫秒
-         */
+        */
         Builder() {
             record.createdAt = System.currentTimeMillis();
         }
@@ -370,7 +370,7 @@ public class AiUsageRecord {
         *
         * @param inputTokens 输入 Token 数
         * @return Builder
-         */
+        */
         public Builder inputTokens(int inputTokens) {
             record.inputTokens = inputTokens;
             return this;
@@ -381,7 +381,7 @@ public class AiUsageRecord {
         *
         * @param outputTokens 输出 Token 数
         * @return Builder
-         */
+        */
         public Builder outputTokens(int outputTokens) {
             record.outputTokens = outputTokens;
             return this;
@@ -392,7 +392,7 @@ public class AiUsageRecord {
         *
         * @param totalTokens 总 Token 数
         * @return Builder
-         */
+        */
         public Builder totalTokens(int totalTokens) {
             record.totalTokens = totalTokens;
             return this;
@@ -405,7 +405,7 @@ public class AiUsageRecord {
         * @param output 输出 Token 数
         * @param total  总 Token 数
         * @return Builder
-         */
+        */
         public Builder tokens(int input, int output, int total) {
             record.inputTokens = input;
             record.outputTokens = output;
@@ -418,7 +418,7 @@ public class AiUsageRecord {
         *
         * @param cacheTokens 缓存命中 Token 数
         * @return Builder
-         */
+        */
         public Builder cacheTokens(int cacheTokens) {
             record.cacheTokens = cacheTokens;
             return this;
@@ -431,7 +431,7 @@ public class AiUsageRecord {
         *
         * @param cacheName 缓存名称，如 OpenAI 生成的缓存前缀 ID
         * @return Builder
-         */
+        */
         public Builder cacheName(String cacheName) {
             record.cacheName = cacheName;
             return this;
@@ -442,7 +442,7 @@ public class AiUsageRecord {
         *
         * @param reasoningTokens 推理 Token 数
         * @return Builder
-         */
+        */
         public Builder reasoningTokens(int reasoningTokens) {
             record.reasoningTokens = reasoningTokens;
             return this;
@@ -455,7 +455,7 @@ public class AiUsageRecord {
         *
         * @param inputCost 输入费用
         * @return Builder
-         */
+        */
         public Builder inputCost(BigDecimal inputCost) {
             record.inputCost = inputCost;
             return this;
@@ -466,7 +466,7 @@ public class AiUsageRecord {
         *
         * @param outputCost 输出费用
         * @return Builder
-         */
+        */
         public Builder outputCost(BigDecimal outputCost) {
             record.outputCost = outputCost;
             return this;
@@ -477,7 +477,7 @@ public class AiUsageRecord {
         *
         * @param totalCost 总费用
         * @return Builder
-         */
+        */
         public Builder totalCost(BigDecimal totalCost) {
             record.totalCost = totalCost;
             return this;
@@ -489,7 +489,7 @@ public class AiUsageRecord {
         * @param totalCost 总费用
         * @param currency  货币
         * @return Builder
-         */
+        */
         public Builder cost(BigDecimal totalCost, String currency) {
             record.totalCost = totalCost;
             record.currency = currency;
@@ -501,7 +501,7 @@ public class AiUsageRecord {
         *
         * @param currency 货币
         * @return Builder
-         */
+        */
         public Builder currency(String currency) {
             record.currency = currency;
             return this;
@@ -514,7 +514,7 @@ public class AiUsageRecord {
         *
         * @param provider 服务商名称
         * @return Builder
-         */
+        */
         public Builder provider(String provider) {
             record.provider = provider;
             return this;
@@ -525,7 +525,7 @@ public class AiUsageRecord {
         *
         * @param model 模型名称
         * @return Builder
-         */
+        */
         public Builder model(String model) {
             record.model = model;
             return this;
@@ -537,7 +537,7 @@ public class AiUsageRecord {
         * @param provider 服务商名称
         * @param model    模型名称
         * @return Builder
-         */
+        */
         public Builder providerAndModel(String provider, String model) {
             record.provider = provider;
             record.model = model;
@@ -551,7 +551,7 @@ public class AiUsageRecord {
         *
         * @param durationMillis 总耗时（毫秒）
         * @return Builder
-         */
+        */
         public Builder durationMillis(Long durationMillis) {
             record.durationMillis = durationMillis;
             return this;
@@ -562,7 +562,7 @@ public class AiUsageRecord {
         *
         * @param durationMillis 总耗时（毫秒）
         * @return Builder
-         */
+        */
         public Builder duration(Long durationMillis) {
             record.durationMillis = durationMillis;
             return this;
@@ -573,7 +573,7 @@ public class AiUsageRecord {
         *
         * @param firstTokenLatencyMillis 首字耗时（毫秒）
         * @return Builder
-         */
+        */
         public Builder firstTokenLatencyMillis(Long firstTokenLatencyMillis) {
             record.firstTokenLatencyMillis = firstTokenLatencyMillis;
             return this;
@@ -584,7 +584,7 @@ public class AiUsageRecord {
         *
         * @param finishReason 停止原因
         * @return Builder
-         */
+        */
         public Builder finishReason(String finishReason) {
             record.finishReason = finishReason;
             return this;
@@ -599,7 +599,7 @@ public class AiUsageRecord {
         * 当 totalCost 缺失但 input/output 都存在时自动求和。</p>
         *
         * @return 用量记录实例
-         */
+        */
         public AiUsageRecord build() {
             if (record.totalTokens == null && record.inputTokens != null && record.outputTokens != null) {
                 record.totalTokens = record.inputTokens + record.outputTokens;
@@ -615,7 +615,7 @@ public class AiUsageRecord {
         *
         * @param engine Engine 实例
         * @return 已保存的用量记录
-         */
+        */
         public AiUsageRecord save(Engine engine) {
             return build().save(engine);
         }
@@ -625,7 +625,7 @@ public class AiUsageRecord {
         *
         * @param engine Engine 实例
         * @return CompletableFuture，完成时返回已保存的用量记录
-         */
+        */
         public CompletableFuture<AiUsageRecord> asyncSave(Engine engine) {
             return build().asyncSave(engine);
         }

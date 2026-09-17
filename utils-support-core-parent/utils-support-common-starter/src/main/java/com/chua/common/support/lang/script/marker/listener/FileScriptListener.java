@@ -26,24 +26,24 @@ public class FileScriptListener implements Listener {
 
     /**
     * 脚本文件路径
-     */
+    */
     private final Path scriptPath;
 
     /**
     * 上次记录的文件最后修改时间戳（毫秒）
-     */
+    */
     private long lastModified;
 
     /**
     * 上次读取的脚本源码内容
-     */
+    */
     private String lastContent;
 
     /**
     * 构造文件脚本监听器。
     *
     * @param scriptPath 脚本文件路径
-     */
+    */
     public FileScriptListener(Path scriptPath) {
         this.scriptPath = scriptPath;
     }

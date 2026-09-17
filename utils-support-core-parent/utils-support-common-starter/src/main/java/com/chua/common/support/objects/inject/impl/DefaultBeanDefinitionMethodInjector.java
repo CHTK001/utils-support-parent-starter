@@ -12,11 +12,11 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
-* 默认方法注入器，处理 {@link AutoInject} 注解的 setter 方法。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 默认方法注入器，处理 {@link AutoInject} 注解的 setter 方法。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("default")
 public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
@@ -35,7 +35,7 @@ public class DefaultBeanDefinitionMethodInjector implements BeanDefinitionMethod
     * @param beanDefinition Beandefinition
     * @param beanProvider Bean提供者
     * @param typeProvider 类型提供者
-     */
+    */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {

@@ -39,32 +39,32 @@ public final class Converter {
 
     /**
     * 通过 SPI 机制加载的类型转换器映射表，Key 为目标类型，Value 为对应的 TypeConverter 实例
-     */
+    */
     private static final Map<Class<?>, TypeConverter> CONVERTER_MAP_LOADER = initConverterMap();
 
     /**
     * 枚举类型转换器实例（特殊处理）
-     */
+    */
     private static final EnumTypeConverter ENUM_TYPE_CONVERTER = new EnumTypeConverter();
 
     /**
     * 对象数组类型转换器实例（特殊处理）
-     */
+    */
     private static final ObjectArrayTypeConverter OBJECT_ARRAY_CONVERTER = new ObjectArrayTypeConverter();
 
     /**
     * Map 类型转换器实例（特殊处理）
-     */
+    */
     private static final MapTypeConverter MAP_TYPE_CONVERTER = new MapTypeConverter();
 
     /**
     * 用户自定义转换器缓存，Key 为目标类型，Value 为转换函数
-     */
+    */
     private static final Map<Class<?>, Function<Object, Object>> CUSTOM_CONVERTERS = new ConcurrentHashMap<>();
 
     /**
     * 基本类型的默认值映射，用于无法转换时返回各基本类型的零值
-     */
+    */
     private static final Map<Class<?>, Object> DEFAULT_VALUE = new HashMap<>() {{
         put(long.class, 0L);
         put(short.class, (short) 0);
@@ -85,7 +85,7 @@ public final class Converter {
     * <p>遍历 SPI 注册的所有 TypeConverter，按 {@link TypeConverter#getType()} 返回的目标类型建立映射关系。</p>
     *
     * @return 类型转换器映射表
-     */
+    */
     private static Map<Class<?>, TypeConverter> initConverterMap() {
         Map<Class<?>, TypeConverter> map = new ConcurrentHashMap<>();
         ServiceProvider.of(TypeConverter.class).forEach((name, converter) -> {
@@ -100,7 +100,7 @@ public final class Converter {
     *
     * @param targetType 目标类型
     * @param converter  转换函数，接收源对象，返回目标类型实例
-     */
+    */
     public static void registerConverter(Class<?> targetType, Function<Object, Object> converter) {
         CUSTOM_CONVERTERS.put(targetType, converter);
         log.debug("注册自定义转换器：{}", targetType.getSimpleName());
@@ -110,7 +110,7 @@ public final class Converter {
     * 移除指定目标类型的自定义转换器。
     *
     * @param targetType 目标类型
-     */
+    */
     public static void unregisterConverter(Class<?> targetType) {
         CUSTOM_CONVERTERS.remove(targetType);
     }
@@ -125,7 +125,7 @@ public final class Converter {
     * @param value 待转换的值
     * @param type  目标类型（支持 Class 和 ParameterizedType）
     * @return 转换后的值，如果无法转换则返回 null
-     */
+    */
     public static Object convertIfNecessary(Object value, Type type) {
         if (value == null || type == null) {
             return null;
@@ -154,7 +154,7 @@ public final class Converter {
     * @param type  目标类型
     * @param <E>   泛型类型
     * @return 转换后的值，如果无法转换则返回 null
-     */
+    */
     public static <E> E convertIfNecessary(Object value, Class<E> type) {
         if (value == null) {
             return null;
@@ -200,7 +200,7 @@ public final class Converter {
     * @param defaultValue 转换失败时返回的默认值
     * @param <E>          泛型类型
     * @return 转换后的值，如果无法转换则返回 {@code defaultValue}
-     */
+    */
     public static <E> E convertIfNecessary(Object value, Class<E> type, E defaultValue) {
         E result = convertIfNecessary(value, type);
         return result != null ? result : defaultValue;
@@ -213,7 +213,7 @@ public final class Converter {
     * @param type  目标类型
     * @param <E>   泛型类型
     * @return Optional 包装的转换结果，如果转换失败则返回 Optional.empty()
-     */
+    */
     public static <E> Optional<E> convertOptional(Object value, Class<E> type) {
         return Optional.ofNullable(convertIfNecessary(value, type));
     }
@@ -225,7 +225,7 @@ public final class Converter {
     * @param type   目标元素类型
     * @param <T>    泛型类型
     * @return 转换后的 List，如果 source 为 null 则返回空列表
-     */
+    */
     public static <T> List<T> convertList(Collection<?> source, Class<T> type) {
         if (source == null) {
             return Collections.emptyList();
@@ -253,7 +253,7 @@ public final class Converter {
     * @param types 目标元素类型（可选，最多取第一个）
     * @param <T>   泛型类型
     * @return 转换后的 List，值为 null 时返回空列表
-     */
+    */
     public static <T> List<T> convertIfListNecessary(Object value, Type... types) {
         if (value == null) {
             return Collections.emptyList();
@@ -290,7 +290,7 @@ public final class Converter {
     * @param types 目标元素类型（可选，最多取第一个）
     * @param <T>   泛型类型
     * @return 转换后的 Set，值为 null 时返回空 Set
-     */
+    */
     public static <T> Set<T> convertIfSetNecessary(Object value, Type... types) {
         if (value == null) {
             return Collections.emptySet();
@@ -326,7 +326,7 @@ public final class Converter {
     * @param value 源对象，可为 null（返回空集合）
     * @param <T>   泛型类型
     * @return 转换后的 Collection，值为 null 时返回空集合
-     */
+    */
     public static <T> Collection<T> convertIfCollectionNecessary(Object value) {
         if (value == null) {
             return Collections.emptyList();
@@ -352,7 +352,7 @@ public final class Converter {
     * @param <K>   Key 类型
     * @param <V>   Value 类型
     * @return 转换后的 Map，值为 null 时返回空 Map
-     */
+    */
     public static <K, V> Map<K, V> convertIfMapNecessary(Object value, Type... types) {
         if (value == null) {
             return Collections.emptyMap();
@@ -390,7 +390,7 @@ public final class Converter {
     * @param type  目标数组的元素类型
     * @param <T>   目标元素泛型类型
     * @return 转换后的目标类型数组，值为 null 时返回空数组
-     */
+    */
     public static <T> T[] convertIfArrayNecessary(Object value, Class<T> type) {
         if (value == null) {
             return (T[]) java.lang.reflect.Array.newInstance(type, 0);
@@ -405,7 +405,7 @@ public final class Converter {
     * @param type   目标元素类型
     * @param <T>    泛型类型
     * @return 转换后的 Set，如果 source 为 null 则返回空 Set
-     */
+    */
     public static <T> Set<T> convertSet(Collection<?> source, Class<T> type) {
         if (source == null) {
             return Collections.emptySet();
@@ -425,7 +425,7 @@ public final class Converter {
     * @param <K>       Key 类型
     * @param <V>       Value 类型
     * @return 转换后的 Map，如果 source 为 null 则返回空 Map
-     */
+    */
     public static <K, V> Map<K, V> convertMapValues(Map<K, ?> source, Class<V> valueType) {
         if (source == null) {
             return Collections.emptyMap();
@@ -444,7 +444,7 @@ public final class Converter {
     * @param type   目标元素类型
     * @param <T>    泛型类型
     * @return 转换后的目标类型数组，如果 source 为 null 则返回空数组
-     */
+    */
     public static <T> T[] convertArray(Object[] source, Class<T> type) {
         if (source == null) {
             return (T[]) java.lang.reflect.Array.newInstance(type, 0);
@@ -469,7 +469,7 @@ public final class Converter {
     * @param type  枚举类型
     * @param <E>   泛型类型
     * @return 枚举常量，如果无法匹配则返回 null
-     */
+    */
     public static <E extends Enum<E>> E toEnum(Object value, Class<E> type) {
         if (value == null) {
             return null;
@@ -503,7 +503,7 @@ public final class Converter {
     *
     * @param value 枚举常量
     * @return 枚举名称，如果 value 为 null 则返回 null
-     */
+    */
     public static String enumToString(Enum<?> value) {
         return value != null ? value.name() : null;
     }
@@ -513,7 +513,7 @@ public final class Converter {
     *
     * @param value 枚举常量
     * @return 枚举序号，如果 value 为 null 则返回 null
-     */
+    */
     public static Integer enumToInt(Enum<?> value) {
         return value != null ? value.ordinal() : null;
     }
@@ -524,7 +524,7 @@ public final class Converter {
     * @param value   日期字符串
     * @param pattern 格式
     * @return LocalDate
-     */
+    */
     public static LocalDate parseLocalDate(String value, String pattern) {
         if (value == null || pattern == null) {
             return null;
@@ -543,7 +543,7 @@ public final class Converter {
     * @param value   日期字符串
     * @param pattern 格式
     * @return LocalDateTime
-     */
+    */
     public static LocalDateTime parseLocalDateTime(String value, String pattern) {
         if (value == null || pattern == null) {
             return null;
@@ -558,7 +558,7 @@ public final class Converter {
 
     /**
     * 格式化 LocalDateTime
-     */
+    */
     public static String formatDate(LocalDateTime dateTime, String pattern) {
         if (dateTime == null || pattern == null) {
             return null;
@@ -572,7 +572,7 @@ public final class Converter {
     * @param sourceType 源类型
     * @param targetType 目标类型
     * @return true 如果可以转换
-     */
+    */
     public static boolean canConvert(Class<?> sourceType, Class<?> targetType) {
         if (sourceType == null || targetType == null) {
             return false;
@@ -597,7 +597,7 @@ public final class Converter {
 
     /**
     * 泛型参数类型的转换处理
-     */
+    */
     private static <E> E convertParameterized(Object value, ParameterizedType pt) {
         Class<?> rawClass = (Class<?>) pt.getRawType();
         Type[] args = pt.getActualTypeArguments();
@@ -622,14 +622,14 @@ public final class Converter {
 
     /**
     * 创建基本类型默认值
-     */
+    */
     private static <E> E createDefaultPrimitive(Class<?> type) {
         return (E) DEFAULT_VALUE.get(type);
     }
 
     /**
     * 转换为带类型的 List
-     */
+    */
     private static <E> List<E> convertToListWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         List<?> src = ListTypeConverter.INSTANCE.convert(value);
@@ -645,7 +645,7 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Set
-     */
+    */
     private static <E> Set<E> convertToSetWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         List<?> src = ListTypeConverter.INSTANCE.convert(value);
@@ -661,7 +661,7 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Optional
-     */
+    */
     private static <E> Optional<E> convertToOptionalWithType(Object value, Type[] args) {
         Type elemType = args.length > 0 ? args[0] : Object.class;
         if (elemType instanceof Class<?> elemClass) {
@@ -672,7 +672,7 @@ public final class Converter {
 
     /**
     * 转换为带类型的 Map
-     */
+    */
     private static <K, V> Map<K, V> convertToMapWithType(Object value, Type[] args) {
         Type keyType = args.length > 0 ? args[0] : Object.class;
         Type valType = args.length > 1 ? args[1] : Object.class;
@@ -692,7 +692,7 @@ public final class Converter {
 
     /**
     * 基本类型转包装类
-     */
+    */
     public static <T> Class<T> convertIfPrimitive(Class<T> target) {
         if (target == null || !target.isPrimitive()) {
             return target;
@@ -702,14 +702,14 @@ public final class Converter {
 
     /**
     * 创建 Integer 转换
-     */
+    */
     public static Integer createInteger(Object value) {
         return convertIfNecessary(value, Integer.class);
     }
 
     /**
     * 创建 Integer 转换并返回默认值
-     */
+    */
     public static int createInteger(Object value, int defaultValue) {
         Integer result = createInteger(value);
         return result != null ? result : defaultValue;
@@ -717,35 +717,35 @@ public final class Converter {
 
     /**
     * 创建 Float 转换
-     */
+    */
     public static Float createFloat(String value) {
         return convertIfNecessary(value, Float.class);
     }
 
     /**
     * 判断是否存在转换器
-     */
+    */
     public static boolean hasConverter(Class<?> returnType) {
         return CUSTOM_CONVERTERS.containsKey(returnType) || CONVERTER_MAP_LOADER.containsKey(returnType);
     }
 
     /**
     * 转换为 BigDecimal
-     */
+    */
     public static BigDecimal toBigDecimal(String num) {
         return convertIfNecessary(num, BigDecimal.class);
     }
 
     /**
     * 安全的 LocalDateTime 解析
-     */
+    */
     public static LocalDateTime parseLocalDateTimeSafe(Object o) {
         return convertIfNecessary(o, LocalDateTime.class);
     }
 
     /**
     * 转换为 BufferedImage
-     */
+    */
     public static BufferedImage toBufferedImage(Object predict) {
         return convertIfNecessary(predict, BufferedImage.class);
     }

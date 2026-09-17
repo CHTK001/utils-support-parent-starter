@@ -39,71 +39,71 @@ public class NativeRpcServer implements RpcServer {
 
     /**
     * 日志
-     */
+    */
 
     /**
     * 默认端口
-     */
+    */
     private static final int DEFAULT_PORT = 18866;
 
     /**
     * 默认工作线程数
-     */
+    */
     private static final int DEFAULT_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
 
     /**
     * 端口号
-     */
+    */
     private final int port;
 
     /**
     * 主机名
-     */
+    */
     private final String host;
 
     /**
     * Worker 线程数
-     */
+    */
     private final int workerThreads;
 
     /**
     * IO Selector 线程数
-     */
+    */
     private final int ioThreadsCount;
 
     /**
     * APP名称
-     */
+    */
     private final String appName;
 
     /**
     * 注册中心配置
-     */
+    */
     private final List<RpcRegistryConfig> registryConfigs;
 
     /**
     * 服务注册表
-     */
+    */
     private final Map<String, Object> services = new ConcurrentHashMap<>();
 
     /**
     * 底层 TCP 长度帧服务端（复用传输层）
-     */
+    */
     private TcpServer tcpServer;
 
     /**
     * 服务发现
-     */
+    */
     private ServiceDiscovery serviceDiscovery;
 
     /**
     * 服务方法缓存：避免每次请求都走 getMethod 反射查找（热路径开销）
-     */
+    */
     private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
 
     /**
     * 请求/响应编解码器（SPI 序列化，Fury 优先）
-     */
+    */
     private final RpcSerialization rpcSerialization;
 
     /**
@@ -112,7 +112,7 @@ public class NativeRpcServer implements RpcServer {
     * @param registryConfigs 注册中心配置列表
     * @param protocolConfig  协议配置
     * @param name            APP 名称
-     */
+    */
     public NativeRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {
         this.registryConfigs = registryConfigs;
         this.appName = name;
@@ -151,7 +151,7 @@ public class NativeRpcServer implements RpcServer {
     *
     * @param reqData 请求帧字节
     * @return 响应帧字节
-     */
+    */
     private byte[] handleRequest(byte[] reqData) throws Exception {
         try {
             RpcRequest request = rpcSerialization.deserializeRequest(reqData);
@@ -219,7 +219,7 @@ public class NativeRpcServer implements RpcServer {
     * @param request RPC 请求
     * @return 已解析的方法
     * @throws NoSuchMethodException 方法不存在时抛出
-     */
+    */
     private java.lang.reflect.Method resolveMethod(Object service, RpcRequest request) throws NoSuchMethodException {
         String[] typeNames = request.getParamTypes();
         MethodKey key = new MethodKey(request.getService(), request.getMethod(), typeNames);
@@ -302,7 +302,7 @@ public class NativeRpcServer implements RpcServer {
     * @param method     方法名
     * @param paramTypes 参数类型名数组
     * @since 4.0.0.42
-     */
+    */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override
         /** 判断相等 */

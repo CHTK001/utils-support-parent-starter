@@ -44,7 +44,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
 
     /**
     * 默认 SPI 名称
-     */
+    */
     public static final String NAME = "default";
 
     /** 等于操作符 */
@@ -141,7 +141,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     *   <li>COLUMN 节点：若 ctx 包含此列名则视为列引用（ctx.get(name)）；否则视为字面量</li>
     *   <li>其他：返回 null</li>
     * </ol>
-     */
+    */
     private static Object readValue(BTreeNode right, Map<String, Object> context) {
         if (right == null) {
             return null;
@@ -174,7 +174,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     *   <li>COLUMN：ctx 包含则 ctx.get(name)，否则视为字面量（取 operator）</li>
     *   <li>FUNCTION：暂返回 null（未来扩展）</li>
     * </ul>
-     */
+    */
     private static Object readNodeValue(BTreeNode node, Map<String, Object> context) {
         if (node == null) {
             return null;
@@ -191,7 +191,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     *   <li>String："true"/"1"/"yes"（忽略大小写）为 true，其他非空字符串为 true</li>
     *   <li>null：false</li>
     * </ul>
-     */
+    */
     private static boolean toBoolean(Object value) {
         if (value == null) {
             return false;
@@ -227,7 +227,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     *   <li>其他：按字符串比较</li>
     * </ul>
     * null 不参与比较。
-     */
+    */
     private static boolean equalsValue(Object actual, Object expected) {
         if (actual == null || expected == null) {
             return false;
@@ -246,7 +246,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     * 严格数值判断：避免 {@code "01"} 与 {@code 1} 误判。
     * - Number 实例直接通过
     * - 字符串必须完整匹配 double 格式（不允许前导 0 单独视为字符串）
-     */
+    */
     private static boolean isStrictNumber(Object value) {
         if (value instanceof Number) {
             return true;
@@ -270,7 +270,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     /**
     * 数值比较：返回 actual - expected 的符号。
     * 任一侧非数值时返回 Integer.MIN_VALUE（确保比较结果异常，让上层识别）。
-     */
+    */
     private static int compareNumber(Object actual, Object expected) {
         if (!isStrictNumber(actual) || !isStrictNumber(expected)) {
             return Integer.MIN_VALUE;
@@ -282,7 +282,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
 
     /**
     * 安全转 double，非数值返回 NaN（让 compareNumber 判定为非数值）
-     */
+    */
     private static double toDouble(Object value) {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
@@ -301,7 +301,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
 
     /**
     * IN 列表匹配：expected 支持 {@code (a, b, c)} 或 {@code a,b,c} 格式
-     */
+    */
     private static boolean matchIn(Object actual, Object expected) {
         if (expected == null) {
             return false;
@@ -341,7 +341,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     * @param right  BETWEEN 右节点（COMPARE("AND", low, high)）
     * @param context 上下文参数（用于解析边界列引用）
     * @return actual 是否在 [low, high] 闭区间内
-     */
+    */
     private static boolean matchBetween(Object actual, BTreeNode right, Map<String, Object> context) {
         if (right == null) {
             return false;
@@ -357,7 +357,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
     /**
     * LIKE 模糊匹配：通配符 {@code %}（任意长度）、{@code _}（单字符）。
     * 对特殊字符做正则转义。
-     */
+    */
     private static boolean matchLike(Object actual, Object expected) {
         if (actual == null || expected == null) {
             return false;
@@ -382,7 +382,7 @@ public class DefaultBreakerJudge implements BreakerJudge {
 
     /**
     * 空值检查：{@code context} 中列不存在或值为 null 即视为 NULL
-     */
+    */
     private static boolean isNullValue(Map<String, Object> context, BTreeNode columnNode) {
         if (columnNode == null) {
             return true;

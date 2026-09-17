@@ -52,7 +52,7 @@ public class ShardedIndex {
 
     /**
     * 按 key 精确查找，返回 EntryLoc。
-     */
+    */
     public Optional<EntryLoc> get(String key) {
         rwLock.readLock().lock();
         try {
@@ -65,7 +65,7 @@ public class ShardedIndex {
 
     /**
     * 判断 key 是否存在。
-     */
+    */
     public boolean contains(String key) {
         rwLock.readLock().lock();
         try {
@@ -80,7 +80,7 @@ public class ShardedIndex {
 
     /**
     * 写入索引（点查时调用，update 场景覆盖旧值）。
-     */
+    */
     public void put(String key, EntryLoc loc) {
         rwLock.writeLock().lock();
         try {
@@ -93,7 +93,7 @@ public class ShardedIndex {
 
     /**
     * 删除索引条目（tombstone 时调用）。
-     */
+    */
     public void remove(String key) {
         rwLock.writeLock().lock();
         try {
@@ -108,7 +108,7 @@ public class ShardedIndex {
 
     /**
     * 范围查询 [from, to)，合并所有分片结果并按 key 排序。
-     */
+    */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to) {
         rwLock.readLock().lock();
         try {
@@ -125,7 +125,7 @@ public class ShardedIndex {
 
     /**
     * 带分页的范围查询。
-     */
+    */
     public List<Map.Entry<String, EntryLoc>> range(String from, String to, int offset, int limit) {
         List<Map.Entry<String, EntryLoc>> all = range(from, to);
         int fromIdx = Math.min(offset, all.size());
@@ -137,7 +137,7 @@ public class ShardedIndex {
 
     /**
     * 批量写入索引（compaction 后重建时使用）。
-     */
+    */
     public void putAll(List<IndexEntry> entries) {
         rwLock.writeLock().lock();
         try {
@@ -152,7 +152,7 @@ public class ShardedIndex {
 
     /**
     * 清空所有分片。
-     */
+    */
     public void clear() {
         rwLock.writeLock().lock();
         try {
@@ -168,7 +168,7 @@ public class ShardedIndex {
 
     /**
     * 总索引条目数。
-     */
+    */
     public int size() {
         rwLock.readLock().lock();
         try {
@@ -184,7 +184,7 @@ public class ShardedIndex {
 
     /**
     * 分片数量。
-     */
+    */
     public int shardCount() {
         return shardCount;
     }

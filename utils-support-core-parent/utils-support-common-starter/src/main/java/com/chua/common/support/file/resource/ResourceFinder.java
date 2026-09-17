@@ -24,6 +24,6 @@ public interface ResourceFinder {
     *
     * @param name 资源路径模式
     * @return 匹配到的资源集合，无匹配时返回空集合
-     */
+    */
     Set<Resource> find(String name);
 }

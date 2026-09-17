@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class RouteModeDiscovery extends AbstractScatterDiscovery {
 
     /** 全量兜底周期（轮） */
@@ -77,10 +77,10 @@ public class RouteModeDiscovery extends AbstractScatterDiscovery {
     }
 
     /**
-     * 解析网段内所有可达主机（前 254 个地址，跳过网络/广播地址）。
-     *
-     * @return 网段节点列表
-     */
+    * 解析网段内所有可达主机（前 254 个地址，跳过网络/广播地址）。
+    *
+    * @return 网段节点列表
+    */
     private List<ScatterNode> resolveSubnetNodes() {
         String subnet = setting.getSubnet();
         if (subnet == null || subnet.isBlank()) {

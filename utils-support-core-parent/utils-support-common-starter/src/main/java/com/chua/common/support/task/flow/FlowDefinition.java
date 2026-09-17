@@ -8,52 +8,52 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 流程定义图模型。
-*
-* <p>前后端共享的流程 JSON 图格式载体，包含节点与连线集合。
-* 可序列化为 JSON 并在前端 re流 画布与后端引擎之间双向传递，
-* 是流程编排的核心数据契约。</p>
-*
-* <p>JSON 结构示例：</p>
-* <pre>{@code
-* {
-*   "id": "flow1",
-*   "name": "审批流程",
-*   "nodes": [
-*     { "id": "start", "type": "start", "props": {}, "x": 100, "y": 100 }
-*   ],
-*   "edges": [
-*     { "from": "start", "to": "end", "label": "" }
-*   ]
-* }
-* }</pre> ]
-* }
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 流程定义图模型。
+ *
+ * <p>前后端共享的流程 JSON 图格式载体，包含节点与连线集合。
+ * 可序列化为 JSON 并在前端 re流 画布与后端引擎之间双向传递，
+ * 是流程编排的核心数据契约。</p>
+ *
+ * <p>JSON 结构示例：</p>
+ * <pre>{@code
+ * {
+ *   "id": "flow1",
+ *   "name": "审批流程",
+ *   "nodes": [
+ *     { "id": "start", "type": "start", "props": {}, "x": 100, "y": 100 }
+ *   ],
+ *   "edges": [
+ *     { "from": "start", "to": "end", "label": "" }
+ *   ]
+ * }
+ * }</pre> ]
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Data
 public class FlowDefinition {
 
     /**
     * 流程定义 标识
-     */
+    */
     private String id;
 
     /**
     * 流程名称
-     */
+    */
     private String name;
 
     /**
     * 节点列表
-     */
+    */
     private List<FlowNodeDef> nodes = new ArrayList<>();
 
     /**
     * 连线列表
-     */
+    */
     private List<FlowEdgeDef> edges = new ArrayList<>();
 
     /**
@@ -61,7 +61,7 @@ public class FlowDefinition {
     *
     * @param nodeId 节点 标识
     * @return 节点定义，不存在时返回 空
-     */
+    */
     public FlowNodeDef findNode(String nodeId) {
         for (FlowNodeDef node : nodes) {
             if (node.id().equals(nodeId)) {
@@ -76,7 +76,7 @@ public class FlowDefinition {
     *
     * @param nodeId 节点 标识
     * @return 出边列表，不存在时返回空列表
-     */
+    */
     public List<FlowEdgeDef> findOutEdges(String nodeId) {
         List<FlowEdgeDef> result = new ArrayList<>();
         for (FlowEdgeDef edge : edges) {
@@ -99,7 +99,7 @@ public class FlowDefinition {
     * @param y     画布纵坐标，仅供前端渲染使用
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record FlowNodeDef(
             String id,
             String type,
@@ -115,7 +115,7 @@ public class FlowDefinition {
         * @param type  节点类型
         * @param props 节点配置参数
         * @return 节点定义实例
-         */
+        */
         public static FlowNodeDef of(String id, String type, Map<String, Object> props) {
             return new FlowNodeDef(id, type, props, 0, 0);
         }
@@ -126,7 +126,7 @@ public class FlowDefinition {
         * @param id   节点唯一标识
         * @param type 节点类型
         * @return 节点定义实例
-         */
+        */
         public static FlowNodeDef of(String id, String type) {
             return new FlowNodeDef(id, type, new LinkedHashMap<>(), 0, 0);
         }
@@ -143,7 +143,7 @@ public class FlowDefinition {
     * @param label 边标签
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record FlowEdgeDef(
             String from,
             String to,
@@ -156,7 +156,7 @@ public class FlowDefinition {
         * @param from 源节点 标识
         * @param to   目标节点 标识
         * @return 连线定义实例
-         */
+        */
         public static FlowEdgeDef of(String from, String to) {
             return new FlowEdgeDef(from, to, "");
         }

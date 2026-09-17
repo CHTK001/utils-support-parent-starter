@@ -21,7 +21,7 @@ public interface TotpGenerator extends OtpGenerator {
     * 使用系统当前时间戳生成一次性密码。
     *
     * @return 当前生成的验证码字符串
-     */
+    */
     String now();
 
     /**
@@ -29,7 +29,7 @@ public interface TotpGenerator extends OtpGenerator {
     *
     * @param date 用于计算验证码的时间点
     * @return 基于指定日期生成的验证码字符串
-     */
+    */
     String at(Date date);
 
     /**
@@ -38,7 +38,7 @@ public interface TotpGenerator extends OtpGenerator {
     *
     * @param date 用于计算验证码的日期
     * @return 基于指定日期生成的验证码字符串
-     */
+    */
     String at(LocalDate date);
 
     /**
@@ -46,7 +46,7 @@ public interface TotpGenerator extends OtpGenerator {
     *
     * @param instant 用于计算验证码的具体时间点
     * @return 基于指定时间点生成的验证码字符串
-     */
+    */
     String at(Instant instant);
 
     /**
@@ -54,7 +54,7 @@ public interface TotpGenerator extends OtpGenerator {
     *
     * @param time 自 1970 年以来的时间戳（毫秒）
     * @return 基于指定时间戳生成的验证码字符串
-     */
+    */
     String at(long time);
 
     /**
@@ -63,7 +63,7 @@ public interface TotpGenerator extends OtpGenerator {
     *
     * @param code 待验证的验证码字符串
     * @return 如果验证码有效返回 true，否则返回 false
-     */
+    */
     boolean verify(String code);
 
     /**
@@ -75,6 +75,6 @@ public interface TotpGenerator extends OtpGenerator {
     * @param account 用户的账号标识（例如：user@example.com）
     * @return 生成的 OTP Auth URI 对象
     * @throws URISyntaxException 当构建 URI 时发生语法错误时抛出
-     */
+    */
     URI getUri(String issuer, String account) throws URISyntaxException;
 }

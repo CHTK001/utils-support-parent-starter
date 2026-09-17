@@ -8,51 +8,51 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
-* JDK 默认调度器提供者实现
-*
-* <p>基于 JDK 内置的 {@link ScheduledThreadPoolExecutor} 和虚拟线程（Virtual Thread）实现的
-* 调度服务提供者。是 {@link SchedulerProvider} 接口的默认实现。
-*
-* <p>架构设计：
-* <ul>
-*   <li><strong>定时调度层</strong>：使用 {@link ScheduledExecutorService} 管理定时任务的触发时间点，
-*   根据 {@link Trigger} 计算的下一次执行时间进行延迟调度</li>
-*   <li><strong>任务执行层</strong>：使用线程池异步执行每个触发点的任务逻辑，实现高并发执行</li>
-*   <li><strong>链式调度</strong>：每次任务执行完成后，自动计算下一次触发时间并重新调度，
-*   形成持续的任务执行链</li>
-* </ul>
-*
-* <p>工作流程：
-* <ol>
-*   <li>调用 {@link #schedule(String, Runnable, Trigger)} 注册任务</li>
-*   <li>计算触发器的下一次执行时间，计算当前时间到触发时间的延迟</li>
-*   <li>通过 {@link ScheduledExecutorService#schedule(Runnable, long, TimeUnit)} 在指定延迟后触发</li>
-*   <li>触发后，通过线程池异步执行任务逻辑</li>
-*   <li>执行完成后（或在 {@link CompletableFuture#whenComplete} 回调中），计算下一次触发时间并重复步骤 2</li>
-*   <li>如果任务被取消或调度器关闭，终止链式调度</li>
-* </ol>
-*
-* <p>线程安全：使用 {@link ReentrantLock} 保护任务注册表的并发修改，
-* 使用 {@link ConcurrentHashMap} 存储任务和 期货 映射。
-*
-* @author CH
-* @since 1.0.0
- */
+ * JDK 默认调度器提供者实现
+ *
+ * <p>基于 JDK 内置的 {@link ScheduledThreadPoolExecutor} 和虚拟线程（Virtual Thread）实现的
+ * 调度服务提供者。是 {@link SchedulerProvider} 接口的默认实现。
+ *
+ * <p>架构设计：
+ * <ul>
+ *   <li><strong>定时调度层</strong>：使用 {@link ScheduledExecutorService} 管理定时任务的触发时间点，
+ *   根据 {@link Trigger} 计算的下一次执行时间进行延迟调度</li>
+ *   <li><strong>任务执行层</strong>：使用线程池异步执行每个触发点的任务逻辑，实现高并发执行</li>
+ *   <li><strong>链式调度</strong>：每次任务执行完成后，自动计算下一次触发时间并重新调度，
+ *   形成持续的任务执行链</li>
+ * </ul>
+ *
+ * <p>工作流程：
+ * <ol>
+ *   <li>调用 {@link #schedule(String, Runnable, Trigger)} 注册任务</li>
+ *   <li>计算触发器的下一次执行时间，计算当前时间到触发时间的延迟</li>
+ *   <li>通过 {@link ScheduledExecutorService#schedule(Runnable, long, TimeUnit)} 在指定延迟后触发</li>
+ *   <li>触发后，通过线程池异步执行任务逻辑</li>
+ *   <li>执行完成后（或在 {@link CompletableFuture#whenComplete} 回调中），计算下一次触发时间并重复步骤 2</li>
+ *   <li>如果任务被取消或调度器关闭，终止链式调度</li>
+ * </ol>
+ *
+ * <p>线程安全：使用 {@link ReentrantLock} 保护任务注册表的并发修改，
+ * 使用 {@link ConcurrentHashMap} 存储任务和 期货 映射。
+ *
+ * @author CH
+ * @since 1.0.0
+*/
 public class JdkSchedulerProvider extends AbstractSchedulerProvider {
 
     /**
     * 定时任务调度器，用于按延迟时间触发任务
-     */
+    */
     private final ScheduledExecutorService scheduler;
 
     /**
     * 线程池执行器，用于异步执行每个触发点的任务逻辑
-     */
+    */
     private final ExecutorService virtualThreadExecutor;
 
     /**
     * 调度 期货 注册表（任务 标识 → 调度 期货）
-     */
+    */
     private final ConcurrentHashMap<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
     /** 锁 */
@@ -62,7 +62,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     * 创建默认的 JDK 调度器提供者
     *
     * <p>核心线程数取 {@code max(2, CPU核心数)}。
-     */
+    */
     public JdkSchedulerProvider() {
         this(Math.max(2, Runtime.getRuntime().availableProcessors()));
     }
@@ -71,7 +71,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     * 创建指定核心线程数的 JDK 调度器提供者
     *
     * @param corePoolSize 定时调度器核心线程数
-     */
+    */
     public JdkSchedulerProvider(int corePoolSize) {
         this.scheduler = new ScheduledThreadPoolExecutor(corePoolSize, new NamedThreadFactory("scheduler"));
         this.virtualThreadExecutor = new ThreadPoolExecutor(
@@ -91,7 +91,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     * @param task    待执行的任务逻辑
     * @param trigger 触发策略
     * @return 已调度的任务实例
-     */
+    */
     @Override
     protected void doSchedule(String id, Runnable task, Trigger trigger) {
         lock.lock();
@@ -116,7 +116,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     * </ol>
     *
     * @param scheduledTask 需要调度下一次执行的调度任务
-     */
+    */
     private void scheduleNext(ScheduledTask scheduledTask) {
         if (!running || scheduledTask.isCancelled()) {
             return;
@@ -163,7 +163,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     * @param id      任务唯一标识
     * @param trigger 新的触发策略
     * @return 重新调度后的任务实例，不存在返回 {@code null}
-     */
+    */
     @Override
     protected void doReschedule(String id, Trigger trigger) {
         lock.lock();
@@ -183,7 +183,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     *
     * @param id 任务唯一标识
     * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
-     */
+    */
     @Override
     protected void doCancel(String id) {
         ScheduledFuture<?> future = futures.remove(id);
@@ -203,7 +203,7 @@ public class JdkSchedulerProvider extends AbstractSchedulerProvider {
     *   <li>关闭虚拟线程执行器</li>
     *   <li>关闭定时调度器，等待 5 秒内完成正在执行的任务，超时则强制关闭</li>
     * </ol>
-     */
+    */
     @Override
     protected void doShutdown() {
         lock.lock();

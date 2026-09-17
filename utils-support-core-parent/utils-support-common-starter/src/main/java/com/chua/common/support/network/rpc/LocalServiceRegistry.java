@@ -33,12 +33,12 @@ public final class LocalServiceRegistry {
 
     /**
     * 进程内共享注册表实例（inline 直调为进程内语义，多实例共享同一视图）
-     */
+    */
     public static final LocalServiceRegistry INSTANCE = new LocalServiceRegistry();
 
     /**
     * 服务名 → 已注册服务实例列表（保持注册顺序，支持同名多实例）
-     */
+    */
     private final Map<String, CopyOnWriteArrayList<Object>> services = new ConcurrentHashMap<>();
 
     private LocalServiceRegistry() {
@@ -52,7 +52,7 @@ public final class LocalServiceRegistry {
     *
     * @param name    服务接口全限定名
     * @param service 服务实现对象
-     */
+    */
     public void register(String name, Object service) {
         if (name == null || service == null) {
             return;
@@ -70,7 +70,7 @@ public final class LocalServiceRegistry {
     *
     * @param name    服务接口全限定名
     * @param service 待注销的服务实现对象
-     */
+    */
     public void unregister(String name, Object service) {
         if (name == null || service == null) {
             return;
@@ -91,7 +91,7 @@ public final class LocalServiceRegistry {
     * <p>适用于服务端整体关闭的场景：一次移除该服务名下所有实例。</p>
     *
     * @param name 服务接口全限定名
-     */
+    */
     public void unregisterAll(String name) {
         if (name == null) {
             return;
@@ -105,7 +105,7 @@ public final class LocalServiceRegistry {
     *
     * @param name 服务接口全限定名
     * @return 服务实例；未注册或已全部注销时返回 {@code null}
-     */
+    */
     public Object get(String name) {
         if (name == null) {
             return null;
@@ -122,7 +122,7 @@ public final class LocalServiceRegistry {
     *
     * @param name 服务接口全限定名
     * @return 存在可用实例返回 {@code true}
-     */
+    */
     public boolean contains(String name) {
         if (name == null) {
             return false;
@@ -135,14 +135,14 @@ public final class LocalServiceRegistry {
     * 当前注册的服务名集合（只读快照）。
     *
     * @return 服务名列表，按名称排序
-     */
+    */
     public List<String> names() {
         return new ArrayList<>(services.keySet());
     }
 
     /**
     * 清空注册表（主要用于测试隔离）。
-     */
+    */
     public void clear() {
         services.clear();
     }

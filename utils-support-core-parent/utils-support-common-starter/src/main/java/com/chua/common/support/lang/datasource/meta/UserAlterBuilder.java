@@ -13,7 +13,7 @@ public interface UserAlterBuilder {
     *
     * @param password 新密码
     * @return this
-     */
+    */
     UserAlterBuilder withPassword(String password);
 
     /**
@@ -21,13 +21,13 @@ public interface UserAlterBuilder {
     *
     * @param host 主机名或 IP
     * @return this
-     */
+    */
     UserAlterBuilder withHost(String host);
 
     /**
     * 执行修改用户语句。
     *
     * @return true 修改成功
-     */
+    */
     boolean execute();
 }

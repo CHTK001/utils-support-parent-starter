@@ -77,7 +77,9 @@ public class AgentDefinition {
     /** 是否允许启用规划 */
     private final boolean planning;
 
-    /** 是否启用 MCP 工具（默认开启，关闭后 Agent 退化为纯路由模型） */
+    /**
+    * 是否启用 MCP 工具（默认开启，关闭后 Agent 退化为纯路由模型）
+    */
     private final boolean mcp;
 
     /** 是否为主 Agent */
@@ -86,13 +88,17 @@ public class AgentDefinition {
     /** 已注册的子 Agent 定义列表（仅主 Agent 使用） */
     private final List<AgentDefinition> agents;
 
-    /** Agent 专属的 MCP 管理器（子 Agent 可独立配置工具集） */
+    /**
+    * Agent 专属的 MCP 管理器（子 Agent 可独立配置工具集）
+    */
     private final McpManager mcpManager;
 
     /** Agent 专属的技能管理器（子 Agent 可独立配置技能集） */
     private final SkillManager skillManager;
 
-    /** 自动生成的完整系统提示词（instruction + 子 Agent 路由描述） */
+    /**
+    * 自动生成的完整系统提示词（instruction + 子 Agent 路由描述）
+    */
     private final String systemPrompt;
 
     /** 是否启用记忆体（默认开启） */
@@ -109,7 +115,7 @@ public class AgentDefinition {
     *
     * <p>控制 LLM → 工具调用 → LLM 循环的最大轮数。达到上限后即使仍有工具调用请求
     * 也直接返回最终结果。0 或负数表示不限制（请谨慎使用）。默认 5 轮。
-     */
+    */
     private final int maxToolIterations;
 
     /** 上下文压缩配置 */
@@ -119,7 +125,7 @@ public class AgentDefinition {
     * 规划最大子任务数
     *
     * <p>Plan 模式下单次计划可拆分的最大子任务数。0 或负数表示使用框架默认值。
-     */
+    */
     private final int planMaxTask;
 
     /** 调试 Hook */
@@ -150,7 +156,7 @@ public class AgentDefinition {
     * @param planMaxTask       规划最大子任务数
     * @param debugHook         调试 Hook
     * @param planHook          规划 Hook
-     */
+    */
     public AgentDefinition(String id, String name, String description, String role,
                             String instruction, boolean planning, boolean mcp, boolean leader,
                             List<AgentDefinition> agents,
@@ -194,7 +200,7 @@ public class AgentDefinition {
     * 创建 Builder 实例
     *
     * @return 新的 Builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -233,7 +239,7 @@ public class AgentDefinition {
     * MCP 工具是否启用
     *
     * @return false 表示 Agent 退化为纯路由模型，不加载任何 MCP 工具
-     */
+    */
     public boolean isMcp() {
         return mcp;
     }
@@ -247,7 +253,7 @@ public class AgentDefinition {
     * 获取已注册的子 Agent 定义列表
     *
     * @return 子 Agent 列表，不可修改
-     */
+    */
     public List<AgentDefinition> getAgents() {
         return agents;
     }
@@ -256,7 +262,7 @@ public class AgentDefinition {
     * 获取 Agent 专属的 MCP 管理器
     *
     * @return MCP 管理器，未配置则返回 null
-     */
+    */
     public McpManager getMcpManager() {
         return mcpManager;
     }
@@ -265,7 +271,7 @@ public class AgentDefinition {
     * 获取 Agent 专属的技能管理器
     *
     * @return 技能管理器，未配置则返回 null
-     */
+    */
     public SkillManager getSkillManager() {
         return skillManager;
     }
@@ -276,7 +282,7 @@ public class AgentDefinition {
     * <p>默认开启。开启后 Agent 可通过 MCP 插件搜索、保存和管理长期记忆。
     *
     * @return 是否启用
-     */
+    */
     public boolean isMemory() {
         return memory;
     }
@@ -285,7 +291,7 @@ public class AgentDefinition {
     * 获取记忆体配置
     *
     * @return 记忆体配置，未设置则返回 null
-     */
+    */
     public MemoryConfig getMemoryConfig() {
         return memoryConfig;
     }
@@ -294,7 +300,7 @@ public class AgentDefinition {
     * 获取重试配置
     *
     * @return 重试配置，未设置则返回 null
-     */
+    */
     public AgentRetryConfig getRetryConfig() {
         return retryConfig;
     }
@@ -303,7 +309,7 @@ public class AgentDefinition {
     * 获取工具调用最大迭代次数（思考上限）
     *
     * @return 最大迭代次数，0 或负数表示不限制
-     */
+    */
     public int getMaxToolIterations() {
         return maxToolIterations;
     }
@@ -312,7 +318,7 @@ public class AgentDefinition {
     * 获取上下文压缩配置
     *
     * @return 压缩配置，未设置则返回 null
-     */
+    */
     public AgentCompressionConfig getCompressionConfig() {
         return compressionConfig;
     }
@@ -321,7 +327,7 @@ public class AgentDefinition {
     * 获取规划最大子任务数
     *
     * @return 最大子任务数，0 或负数表示使用框架默认
-     */
+    */
     public int getPlanMaxTask() {
         return planMaxTask;
     }
@@ -330,7 +336,7 @@ public class AgentDefinition {
     * 获取调试 Hook
     *
     * @return 调试 Hook，未设置则返回 null
-     */
+    */
     public AgentDebugHook getDebugHook() {
         return debugHook;
     }
@@ -339,7 +345,7 @@ public class AgentDefinition {
     * 获取规划 Hook
     *
     * @return 规划 Hook，未设置则返回 null
-     */
+    */
     public AgentPlanHook getPlanHook() {
         return planHook;
     }
@@ -359,7 +365,7 @@ public class AgentDefinition {
     * 无需手动拼接。
     *
     * @return 完整的系统提示词
-     */
+    */
     public String getSystemPrompt() {
         return systemPrompt;
     }
@@ -368,88 +374,88 @@ public class AgentDefinition {
     * Agent 定义构建器
     *
     * <p>支持链式设置所有属性，并可通过 {@link #subAgent(AgentDefinition)} 注册子 Agent。
-     */
+    */
     public static class Builder {
 
         /**
         * 标识
-         */
+        */
         private String id;
         /**
         * 名称
-         */
+        */
         private String name;
         /**
         * 描述
-         */
+        */
         private String description;
         /**
         * 角色
-         */
+        */
         private String role;
         /**
         * 系统指令（即 system prompt）
-         */
+        */
         private String instruction;
         /**
         * 自动生成的完整系统提示词
-         */
+        */
         private String systemPrompt;
         /**
         * 是否允许启用规划
-         */
+        */
         private boolean planning;
         /**
         * 是否启用 MCP 工具
-         */
+        */
         private boolean mcp = true;
         /**
         * 是否为主 Agent
-         */
+        */
         private boolean leader;
         /**
         * 已注册的子 Agent 定义列表
-         */
+        */
         private final List<AgentDefinition> agents = new ArrayList<>(); // [P3C 3.15 豁免] Builder 累积器，子 Agent 数量运行期动态，规模不可预估
         /**
         * Agent 专属的 MCP 管理器
-         */
+        */
         private McpManager mcpManager;
         /**
         * Agent 专属的技能管理器
-         */
+        */
         private SkillManager skillManager;
         /**
         * 是否启用记忆体
-         */
+        */
         private boolean memory = true;
         /**
         * 记忆体配置
-         */
+        */
         private MemoryConfig memoryConfig;
         /**
         * 重试配置
-         */
+        */
         private AgentRetryConfig retryConfig;
         /**
         * 工具调用最大迭代次数
-         */
+        */
         private int maxToolIterations;
         /**
         * 上下文压缩配置
-         */
+        */
         private AgentCompressionConfig compressionConfig;
         /**
         * 规划最大子任务数
-         */
+        */
         private int planMaxTask;
         /**
         * 调试 Hook
-         */
+        */
         private AgentDebugHook debugHook;
         /**
         * 规划 Hook
-         */
+        */
         private AgentPlanHook planHook;
 
         Builder() {
@@ -487,7 +493,7 @@ public class AgentDefinition {
         *
         * @param instruction 系统提示词内容
         * @return 当前 Builder
-         */
+        */
         public Builder instruction(String instruction) {
             this.instruction = instruction;
             return this;
@@ -504,7 +510,7 @@ public class AgentDefinition {
         *
         * @param systemPrompt 系统提示词
         * @return 当前 Builder
-         */
+        */
         public Builder systemPrompt(String systemPrompt) {
             this.systemPrompt = systemPrompt;
             return this;
@@ -521,7 +527,7 @@ public class AgentDefinition {
         *
         * @param plan 是否启用
         * @return 当前 Builder
-         */
+        */
         public Builder plan(boolean plan) {
             this.planning = plan;
             return this;
@@ -532,7 +538,7 @@ public class AgentDefinition {
         *
         * @param planMaxTask 最大子任务数，0 或负数表示使用框架默认
         * @return 当前 Builder
-         */
+        */
         public Builder planMaxTask(int planMaxTask) {
             this.planMaxTask = planMaxTask;
             return this;
@@ -543,7 +549,7 @@ public class AgentDefinition {
         *
         * @param debugHook 调试回调
         * @return 当前 Builder
-         */
+        */
         public Builder debugHook(AgentDebugHook debugHook) {
             this.debugHook = debugHook;
             return this;
@@ -554,7 +560,7 @@ public class AgentDefinition {
         *
         * @param planHook 规划回调
         * @return 当前 Builder
-         */
+        */
         public Builder planHook(AgentPlanHook planHook) {
             this.planHook = planHook;
             return this;
@@ -568,7 +574,7 @@ public class AgentDefinition {
         *
         * @param mcp 是否启用（默认 true）
         * @return 当前 Builder
-         */
+        */
         public Builder mcp(boolean mcp) {
             this.mcp = mcp;
             return this;
@@ -588,7 +594,7 @@ public class AgentDefinition {
         *
         * @param mcpManager MCP 管理器
         * @return 当前 Builder
-         */
+        */
         public Builder mcpManager(McpManager mcpManager) {
             this.mcpManager = mcpManager;
             return this;
@@ -601,7 +607,7 @@ public class AgentDefinition {
         *
         * @param skillManager 技能管理器
         * @return 当前 Builder
-         */
+        */
         public Builder skillManager(SkillManager skillManager) {
             this.skillManager = skillManager;
             return this;
@@ -614,7 +620,7 @@ public class AgentDefinition {
         *
         * @param memory 是否启用
         * @return 当前 Builder
-         */
+        */
         public Builder memory(boolean memory) {
             this.memory = memory;
             return this;
@@ -628,7 +634,7 @@ public class AgentDefinition {
         *
         * @param memoryConfig 记忆体配置
         * @return 当前 Builder
-         */
+        */
         public Builder memoryConfig(MemoryConfig memoryConfig) {
             this.memoryConfig = memoryConfig;
             return this;
@@ -642,7 +648,7 @@ public class AgentDefinition {
         *
         * @param compressionConfig 压缩配置
         * @return 当前 Builder
-         */
+        */
         public Builder compressionConfig(AgentCompressionConfig compressionConfig) {
             this.compressionConfig = compressionConfig;
             return this;
@@ -653,7 +659,7 @@ public class AgentDefinition {
         *
         * @param retryConfig 重试配置
         * @return 当前 Builder
-         */
+        */
         public Builder retryConfig(AgentRetryConfig retryConfig) {
             this.retryConfig = retryConfig;
             return this;
@@ -664,7 +670,7 @@ public class AgentDefinition {
         *
         * @param maxRetries 最大重试次数，-1=无限，0=不重试
         * @return 当前 Builder
-         */
+        */
         public Builder maxRetries(int maxRetries) {
             if (this.retryConfig == null) {
                 this.retryConfig = AgentRetryConfig.builder().build();
@@ -681,7 +687,7 @@ public class AgentDefinition {
         *
         * @param maxToolIterations 最大迭代次数
         * @return 当前 Builder
-         */
+        */
         public Builder maxToolIterations(int maxToolIterations) {
             this.maxToolIterations = maxToolIterations;
             return this;
@@ -692,7 +698,7 @@ public class AgentDefinition {
         *
         * @param subAgent 子 Agent 定义
         * @return 当前 Builder
-         */
+        */
         public Builder subAgent(AgentDefinition subAgent) {
             this.agents.add(subAgent);
             return this;
@@ -703,7 +709,7 @@ public class AgentDefinition {
         *
         * @param subAgents 子 Agent 定义列表
         * @return 当前 Builder
-         */
+        */
         public Builder subAgents(List<AgentDefinition> subAgents) {
             this.agents.addAll(subAgents);
             return this;
@@ -713,7 +719,7 @@ public class AgentDefinition {
         * 构建 AgentDefinition 实例
         *
         * @return AgentDefinition 对象
-         */
+        */
         public AgentDefinition build() {
             return new AgentDefinition(id, name, description, role,
                     instruction, planning, mcp, leader, agents,

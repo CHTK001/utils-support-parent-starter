@@ -114,11 +114,15 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
 
     // ==================== KV 专用 ====================
 
-    /** 可复用写缓冲，最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024 */
+    /**
+    * 可复用写缓冲，最大 key=128B + value=512B + 2个int长度头 = ~644B，对齐到 1024
+    */
     private static final int KV_WRITE_BUF_SIZE = 1024;
     private byte[] writeBuf = new byte[KV_WRITE_BUF_SIZE];
 
-    /** FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确 */
+    /**
+    * FNV-1a 一致性 hash，put 和 putFast 必须使用同一算法保证路由正确
+    */
     private static int shardHash(byte[] data) {
         int h = 0x811c9dc5;
         for (byte b : data) h = (h ^ b) * 0x01000193;
@@ -140,7 +144,9 @@ public class KvWalStoreSystem implements WalStoreSystem<String> {
         return lsn;
     }
 
-    /** 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串 */
+    /**
+    * 快速写入：key bytes 已由调用方预分配，避免循环中重复创建字符串
+    */
     public long putFast(byte[] key, byte[] value) throws IOException {
         int vlen = value == null ? 0 : value.length;
         int total = 4 + key.length + 4 + vlen;

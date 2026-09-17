@@ -18,37 +18,37 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* 类型 Bean 定义，统一处理单例和原型作用域。
-*
-* <p>基于 Java Class 的 BeanDefinition 实现，根据扫描注解自动判断作用域（默认单例）：
-* <ul>
-*   <li>单例：首次 {@link #getBean()} 创建实例并缓存，后续复用</li>
-*   <li>原型：每次 {@link #getBean()} 创建新实例</li>
-* </ul></p>
-*
-* <p>创建方式：
-* <ul>
-*   <li>{@link #of(Class)} — 从 Class 创建，自动检测作用域</li>
-*   <li>{@link #of(Class, String)} — 从 Class 创建并指定 Bean 名称</li>
-*   <li>{@link #of(Class, String, BeanDefinitionRegister)} — 创建并附加注册器</li>
-* </ul></p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 类型 Bean 定义，统一处理单例和原型作用域。
+ *
+ * <p>基于 Java Class 的 BeanDefinition 实现，根据扫描注解自动判断作用域（默认单例）：
+ * <ul>
+ *   <li>单例：首次 {@link #getBean()} 创建实例并缓存，后续复用</li>
+ *   <li>原型：每次 {@link #getBean()} 创建新实例</li>
+ * </ul></p>
+ *
+ * <p>创建方式：
+ * <ul>
+ *   <li>{@link #of(Class)} — 从 Class 创建，自动检测作用域</li>
+ *   <li>{@link #of(Class, String)} — 从 Class 创建并指定 Bean 名称</li>
+ *   <li>{@link #of(Class, String, BeanDefinitionRegister)} — 创建并附加注册器</li>
+ * </ul></p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     /**
     * 类加载器
-     */
+    */
     @Setter
     /** Classloader */
     private ClassLoader classLoader;
 
     /**
     * 单例缓存实例
-     */
+    */
     private volatile Object singletonInstance;
 
     // ==================== 工厂方法 ====================
@@ -61,7 +61,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     *
     * @param beanClass Bean 类
     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-     */
+    */
     public static TypeBeanDefinition of(Class<?> beanClass) {
         if (beanClass == null) {
             return null;
@@ -90,7 +90,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * @param beanClass Bean 类
     * @param beanName  Bean 名称
     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-     */
+    */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName) {
         if (beanClass == null) {
             return null;
@@ -111,7 +111,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * @param beanName  Bean 名称
     * @param register  注册器
     * @return TypeBeanDefinition 实例，Bean类 为 空 时返回 空
-     */
+    */
     public static TypeBeanDefinition of(Class<?> beanClass, String beanName, BeanDefinitionRegister register) {
         TypeBeanDefinition def = of(beanClass, beanName);
         if (def != null && register != null) {
@@ -125,7 +125,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     *
     * @param beanClass Bean 类
     * @return 检测到的作用域
-     */
+    */
     private static BeanScope detectScope(Class<?> beanClass) {
         for (BeanScopeDetector detector : ServiceProvider.of(BeanScopeDetector.class).collect()) {
             try {
@@ -190,7 +190,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * 选择参数最多的构造器。
     * @param beanClass Bean类
     * @return 选择最大参数constructor的结果
-     */
+    */
     private static Constructor<?> selectMaxParamConstructor(Class<?> beanClass) {
         Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
         if (constructors.length == 0) {
@@ -210,7 +210,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
 
     /**
     * SPI 解析器缓存（延迟加载）。
-     */
+    */
     private volatile List<BeanConstructorResolver> constructorResolvers;
 
     /**
@@ -225,7 +225,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * @param constructor 构造器
     * @return 参数值数组
     * @throws BeanDefinitionException 参数标记了 @Spi 但无法解析
-     */
+    */
     private Object[] resolveConstructorArgs(Constructor<?> constructor) {
         Class<?>[] paramTypes = constructor.getParameterTypes();
         if (paramTypes.length == 0) {
@@ -268,7 +268,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * 获取constructor解析器
     *
     * @return 获取constructor解析器的结果
-     */
+    */
     private List<BeanConstructorResolver> getConstructorResolvers() {
         if (constructorResolvers == null) {
             synchronized (this) {
@@ -286,7 +286,7 @@ public class TypeBeanDefinition extends AbstractBeanDefinition {
     * @param instance 原始实例
     * @param beanClass Bean 类
     * @return 代理实例
-     */
+    */
     @SuppressWarnings("unchecked")
     private Object wrapWithProxy(Object instance, Class<?> beanClass) {
         try {

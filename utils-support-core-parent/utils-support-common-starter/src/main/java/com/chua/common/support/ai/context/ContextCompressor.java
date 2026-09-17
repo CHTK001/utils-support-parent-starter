@@ -39,7 +39,7 @@ public final class ContextCompressor {
     * 创建 ContextCompressor 实例
     * @param config config
     * @param fallbackClient ChatClient
-     */
+    */
     private ContextCompressor(ContextCompressionConfig config, ChatClient fallbackClient) {
         this.config = config != null ? config : ContextCompressionConfig.builder().build();
         String workspace = this.config.getWorkspace() != null
@@ -54,14 +54,14 @@ public final class ContextCompressor {
 
     /**
     * 轻量配置创建。
-     */
+    */
     public static ContextCompressor create(ContextCompressionConfig config, ChatClient fallbackClient) {
         return new ContextCompressor(config, fallbackClient);
     }
 
     /**
     * 从 Agent 压缩配置创建（统一 Agent 与轻量入口）。
-     */
+    */
     public static ContextCompressor fromAgent(AgentCompressionConfig agentConfig,
                                               ChatClient fallbackClient,
                                               String workspace) {
@@ -91,7 +91,7 @@ public final class ContextCompressor {
     *   <li>已有基线且到偏差阈值：基线矫正</li>
     *   <li>已有基线但未到偏差阈值：原样返回</li>
     * </ul>
-     */
+    */
     public List<ChatMessage> maybeCompress(List<ChatMessage> messages) {
         if (!isEnabled() || messages == null) {
             return messages;
@@ -132,7 +132,7 @@ public final class ContextCompressor {
 
     /**
     * 强制压缩（忽略消息数阈值，仍尊重 enabled）。
-     */
+    */
     public List<ChatMessage> compress(List<ChatMessage> fullContext) {
         if (!config.isEnabled() || fullContext == null) {
             return fullContext;
@@ -147,7 +147,7 @@ public final class ContextCompressor {
     * 将 prompt 视为 {@code List<ChatMessage>} 的 user 消息，
     * 返回压缩后的内容（若未触发压缩则原样返回）。
     * </p>
-     */
+    */
     public String compressPrompt(String prompt) {
         if (!isEnabled() || prompt == null) {
             return prompt;
@@ -171,7 +171,7 @@ public final class ContextCompressor {
 
     /**
     * 底层服务（测试/高级场景）。
-     */
+    */
     public AgentContextCompressionService getService() {
         return delegate;
     }

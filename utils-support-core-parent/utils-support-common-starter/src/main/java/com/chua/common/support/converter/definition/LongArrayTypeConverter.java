@@ -24,7 +24,7 @@ public class LongArrayTypeConverter implements TypeConverter<Long[]> {
     *
     * @param value 源值
     * @return Long[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public Long[] convert(Object value) {
         if (null == value) {
@@ -51,7 +51,7 @@ public class LongArrayTypeConverter implements TypeConverter<Long[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Long[].class
-     */
+    */
     @Override
     public Class<Long[]> getType() {
         return Long[].class;

@@ -35,6 +35,6 @@ public interface TemplateFileSystem {
     * @param inputStream       输入流，包含待处理的模板内容。
     * @param outputStream      输出流，用于写入解析后的结果。
     * @param templateData      包含模板变量键值对的数据映射表。
-     */
+    */
     void resolve(InputStream inputStream, OutputStream outputStream, Map<String, Object> templateData);
 }

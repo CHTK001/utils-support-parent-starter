@@ -166,7 +166,7 @@ public enum FileType {
     * 获取文件类别。
     *
     * @return 文件类别（图片/文档/视频/音频/压缩包/代码/其他）
-     */
+    */
     public Category getCategory() {
         return category;
     }
@@ -175,7 +175,7 @@ public enum FileType {
     * 获取主扩展名（第一个注册的扩展名）。
     *
     * @return 扩展名（不含点）
-     */
+    */
     public String getPrimaryExtension() {
         return extensions[0];
     }
@@ -184,7 +184,7 @@ public enum FileType {
     * 获取所有支持的扩展名。
     *
     * @return 扩展名数组
-     */
+    */
     public String[] getExtensions() {
         return extensions;
     }
@@ -194,7 +194,7 @@ public enum FileType {
     *
     * @param filename 文件名（如 {@code "report.pdf"}）或扩展名（如 {@code "pdf"}）
     * @return 文件类型枚举，未识别返回 {@link #UNKNOWN}
-     */
+    */
     public static FileType detect(String filename) {
         if (filename == null || filename.isEmpty()) {
             return UNKNOWN;
@@ -219,7 +219,7 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是图片返回 {@code true}
-     */
+    */
     public static boolean isImage(String filename) {
         return detect(filename).category == Category.IMAGE;
     }
@@ -229,7 +229,7 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是文档返回 {@code true}
-     */
+    */
     public static boolean isDocument(String filename) {
         return detect(filename).category == Category.DOCUMENT;
     }
@@ -239,7 +239,7 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是视频返回 {@code true}
-     */
+    */
     public static boolean isVideo(String filename) {
         return detect(filename).category == Category.VIDEO;
     }
@@ -249,7 +249,7 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是音频返回 {@code true}
-     */
+    */
     public static boolean isAudio(String filename) {
         return detect(filename).category == Category.AUDIO;
     }
@@ -259,7 +259,7 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是压缩包返回 {@code true}
-     */
+    */
     public static boolean isArchive(String filename) {
         return detect(filename).category == Category.ARCHIVE;
     }
@@ -269,14 +269,14 @@ public enum FileType {
     *
     * @param filename 文件名
     * @return 如果是代码/配置文件返回 {@code true}
-     */
+    */
     public static boolean isCode(String filename) {
         return detect(filename).category == Category.CODE;
     }
 
     /**
     * 文件类别枚举。
-     */
+    */
     public enum Category {
         /** 图片 */
         IMAGE,

@@ -45,7 +45,7 @@ public class FileMemoryStore implements MemoryStore {
     /**
     * 创建 FileMemoryStore 实例
     * @param config config
-     */
+    */
     public FileMemoryStore(MemoryConfig config) {
         this.config = config;
         this.memoryDir = Paths.get(config.getWorkspace(), "memory");

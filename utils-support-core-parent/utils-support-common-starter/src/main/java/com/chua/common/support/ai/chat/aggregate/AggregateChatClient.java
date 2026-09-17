@@ -63,77 +63,77 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 聚合配置，包含路由策略、多组配置、客户端列表等
-     */
+    */
     private final AggregateChatClientSetting config;
 
     /**
     * 路由策略实例，负责从候选客户端中选择目标
-     */
+    */
     private final RouterStrategy router;
 
     /**
     * 所有已创建的客户端实例列表（并发安全，支持运行时增删实现热更新）
-     */
+    */
     private final CopyOnWriteArrayList<RouterStrategy.WeightedClient> allClients;
 
     /**
     * 模型健康检查器
-     */
+    */
     private final ModelHealthChecker healthChecker;
 
     /**
     * 健康过滤器：true 表示客户端可用
-     */
+    */
     private final Predicate<RouterStrategy.WeightedClient> healthFilter;
 
     /**
     * 是否启用自动切换
-     */
+    */
     private final boolean autoSwitchEnabled;
 
     /**
     * 内存中的用量记录列表
-     */
+    */
     private final List<AiUsage> usageRecords = new CopyOnWriteArrayList<>();
 
     /**
     * 待完成的异步用量持久化任务列表
-     */
+    */
     private final List<CompletableFuture<?>> pendingFutures = new CopyOnWriteArrayList<>();
 
     /**
     * 数据引擎，用于异步持久化用量记录
-     */
+    */
     private Engine engine;
 
     /**
     * 用量收集回调函数
-     */
+    */
     private final Consumer<AiUsage> usageCollector;
 
     /**
     * 上下文压缩器，用于压缩长对话
-     */
+    */
     private final ContextCompressor compressor;
 
     /**
     * Skill 管理器，用于注入 Skill 到 system prompt
-     */
+    */
     private final SkillManager skillManager;
 
     /**
     * 令牌提供者，用于 RESTful 接口的 Bearer Token 认证
-     */
+    */
     private AiTokenProvider tokenProvider;
 
     /**
     * 当前线程的 token 分组（用于模型分组路由）
-     */
+    */
     private static final ThreadLocal<String> CURRENT_TOKEN_GROUP = new ThreadLocal<>();
 
     /**
     * 客户端是否已关闭
-     */
+    */
     private volatile boolean closed = false;
 
     {
@@ -162,7 +162,7 @@ public class AggregateChatClient implements ChatClient {
     * 从 setting 的 appKey 或 model 字段读取 JSON 配置。
     *
     * @param setting 客户端配置
-     */
+    */
     public AggregateChatClient(ChatClientSetting setting) {
         this(parseConfig(setting), null);
     }
@@ -172,7 +172,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param setting 客户端配置
     * @param engine  数据引擎
-     */
+    */
     public AggregateChatClient(ChatClientSetting setting, Engine engine) {
         this(parseConfig(setting), engine);
     }
@@ -181,7 +181,7 @@ public class AggregateChatClient implements ChatClient {
     * 通过 JSON 配置字符串构造。
     *
     * @param jsonConfig JSON 配置字符串
-     */
+    */
     public AggregateChatClient(String jsonConfig) {
         this(jsonConfig, null);
     }
@@ -191,7 +191,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param jsonConfig JSON 配置字符串
     * @param engine     数据引擎
-     */
+    */
     public AggregateChatClient(String jsonConfig, Engine engine) {
         this(Json.fromJson(jsonConfig, AggregateChatClientSetting.class), engine);
     }
@@ -200,7 +200,7 @@ public class AggregateChatClient implements ChatClient {
     * 通过 AggregateChatClientSetting 构造。
     *
     * @param config 聚合配置
-     */
+    */
     public AggregateChatClient(AggregateChatClientSetting config) {
         this(config, null);
     }
@@ -210,7 +210,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param config 聚合配置
     * @param engine 数据引擎
-     */
+    */
     public AggregateChatClient(AggregateChatClientSetting config, Engine engine) {
         this.config = config;
         this.engine = engine;
@@ -261,7 +261,7 @@ public class AggregateChatClient implements ChatClient {
     * @param config 聚合配置
     * @param engine 数据引擎
     * @return Skill 管理器实例，无技能路径返回 null
-     */
+    */
     private static SkillManager buildSkillManager(AggregateChatClientSetting config, Engine engine) {
         List<String> paths = config.getSkillPaths();
         if (paths == null || paths.isEmpty()) {
@@ -284,7 +284,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param manager 目标 Skill 管理器
     * @param path    技能文件目录路径
-     */
+    */
     private static void loadSkillsFromPath(SkillManager manager, String path) {
         Path root = Path.of(path);
         if (!java.nio.file.Files.exists(root) || !java.nio.file.Files.isDirectory(root)) {
@@ -321,7 +321,7 @@ public class AggregateChatClient implements ChatClient {
     * @param prompt 用户输入
     * @return 响应文本
     * @throws RuntimeException 全部客户端失败时抛出
-     */
+    */
     @Override
     public String chatSync(String prompt) {
         checkClosed();
@@ -341,7 +341,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param prompt   用户输入
     * @param consumer 响应回调
-     */
+    */
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer) {
         chat(prompt, consumer, () -> {
@@ -357,7 +357,7 @@ public class AggregateChatClient implements ChatClient {
     * @param consumer   响应回调
     * @param onComplete 完成回调
     * @param onError    错误回调
-     */
+    */
     @Override
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
@@ -384,7 +384,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param prompt 原始用户输入
     * @return 处理后的提示词
-     */
+    */
     private String preparePrompt(String prompt) {
         if (prompt == null) {
             return null;
@@ -400,7 +400,7 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 过滤出健康的客户端列表
-     */
+    */
     private List<RouterStrategy.WeightedClient> filterHealthy(List<RouterStrategy.WeightedClient> clients) {
         if (!autoSwitchEnabled) {
             return clients;
@@ -416,7 +416,7 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 检查客户端健康状态（用于定时健康检查）
-     */
+    */
     private ModelHealthChecker.ModelHealthCheckResult checkClientHealth(ChatClient client) {
         try {
             client.chatSync("ping");
@@ -447,7 +447,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param prompt 用户输入
     * @return 异步响应
-     */
+    */
     @Override
     public CompletableFuture<ChatSyncResponse> chatAsync(String prompt) {
         return CompletableFuture.supplyAsync(() -> chatSyncWithResponse(prompt));
@@ -457,7 +457,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取所有已配置客户端的模型定义列表（去重）。
     *
     * @return 模型定义列表
-     */
+    */
     @Override
     public List<ModelDefinition> models() {
         checkClosed();
@@ -478,7 +478,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取所有已配置客户端的模型定价列表（去重）。
     *
     * @return 模型定价列表
-     */
+    */
     @Override
     public List<ModelDefinition> modelPricing() {
         checkClosed();
@@ -501,7 +501,7 @@ public class AggregateChatClient implements ChatClient {
     * 等待所有异步用量写入完成。
     * <p>
     * 在 {@link #close()} 前调用可确保所有待写入的用量记录已持久化。
-     */
+    */
     public void flush() {
         List<CompletableFuture<?>> pending = List.copyOf(pendingFutures);
         if (pending.isEmpty()) {
@@ -532,7 +532,7 @@ public class AggregateChatClient implements ChatClient {
     * }</pre>
     *
     * @param externalUsage 外部来源的用量数据列表
-     */
+    */
     public void syncUsage(List<AiUsage> externalUsage) {
         if (externalUsage == null || externalUsage.isEmpty()) {
             return;
@@ -570,7 +570,7 @@ public class AggregateChatClient implements ChatClient {
     /**
     * 关闭客户端，释放所有资源。
     * 先 flush 异步持久化任务，再逐个关闭各客户端。
-     */
+    */
     @Override
     public void close() {
         closed = true;
@@ -593,7 +593,7 @@ public class AggregateChatClient implements ChatClient {
     * 设置令牌提供者，用于 RESTful 接口的 Bearer Token 认证。
     *
     * @param tokenProvider 令牌提供者实例
-     */
+    */
     public void setTokenProvider(AiTokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
         log.info("[Aggregate] 令牌提供者已设置: {}", tokenProvider.getClass().getSimpleName());
@@ -603,7 +603,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取令牌提供者。
     *
     * @return AiTokenProvider，未设置返回 null
-     */
+    */
     public AiTokenProvider getTokenProvider() {
         return tokenProvider;
     }
@@ -612,7 +612,7 @@ public class AggregateChatClient implements ChatClient {
 
     /**
     * 协议服务过滤器实例（OpenAI/Claude/Gemini 三协议路由）
-     */
+    */
     private AiProtocolServerFilter protocolServerFilter;
 
     /**
@@ -622,7 +622,7 @@ public class AggregateChatClient implements ChatClient {
     * 内部统一走聚合路由。支持运行时重复绑定（幂等）。</p>
     *
     * @param server 协议服务实例
-     */
+    */
     public void bindServer(Server server) {
         if (server == null) {
             log.warn("[Aggregate] bindServer 忽略空 Server");
@@ -643,7 +643,7 @@ public class AggregateChatClient implements ChatClient {
     * 解绑协议 Server（移除已挂载的协议过滤器）。
     *
     * @param server 协议服务实例
-     */
+    */
     public void unbindServer(Server server) {
         if (server == null || protocolServerFilter == null) {
             return;
@@ -665,7 +665,7 @@ public class AggregateChatClient implements ChatClient {
     * @param model    模型名
     * @param weight   路由权重
     * @param client   底层 ChatClient 实例
-     */
+    */
     public void addClient(String provider, String model, int weight, ChatClient client) {
         if (client == null) {
             log.warn("[Aggregate] addClient 忽略空客户端: provider={}", provider);
@@ -684,7 +684,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param provider 提供商标识
     * @return 是否成功移除
-     */
+    */
     public boolean removeClient(String provider) {
         boolean removed = allClients.removeIf(wc -> provider != null && provider.equals(wc.provider()));
         if (removed) {
@@ -699,7 +699,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取当前全部底层客户端的只读快照。
     *
     * @return 客户端列表快照
-     */
+    */
     public List<RouterStrategy.WeightedClient> clients() {
         return List.copyOf(allClients);
     }
@@ -708,7 +708,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取当前底层客户端数量。
     *
     * @return 客户端数量
-     */
+    */
     public int clientCount() {
         return allClients.size();
     }
@@ -722,7 +722,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param tokenGroup token 分组名称，null 表示不限制
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     public AggregateChatClient withTokenGroup(String tokenGroup) {
         if (tokenGroup != null) {
             CURRENT_TOKEN_GROUP.set(tokenGroup);
@@ -736,14 +736,14 @@ public class AggregateChatClient implements ChatClient {
     * 获取当前线程的 token 分组。
     *
     * @return token 分组，未设置返回 null
-     */
+    */
     public static String getCurrentTokenGroup() {
         return CURRENT_TOKEN_GROUP.get();
     }
 
     /**
     * 清除当前线程的 token 分组。
-     */
+    */
     public static void clearTokenGroup() {
         CURRENT_TOKEN_GROUP.remove();
     }
@@ -754,7 +754,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取用量统计摘要。
     *
     * @return 用量统计，包含总调用数、总 Token 数、平均延迟
-     */
+    */
     public UsageStats stats() {
         List<AiUsage> records = List.copyOf(usageRecords);
         long total = records.size();
@@ -777,7 +777,7 @@ public class AggregateChatClient implements ChatClient {
     * 获取聚合后的用量信息。
     *
     * @return 聚合用量，无记录返回 null
-     */
+    */
     public AiUsage aggregateUsage() {
         List<AiUsage> records = List.copyOf(usageRecords);
         if (records.isEmpty()) {
@@ -803,7 +803,7 @@ public class AggregateChatClient implements ChatClient {
     * 检查客户端是否已关闭。
     *
     * @throws IllegalStateException 如果已关闭
-     */
+    */
     private void checkClosed() {
         if (closed) {
             throw new IllegalStateException("AggregateChatClient has been closed");
@@ -817,7 +817,7 @@ public class AggregateChatClient implements ChatClient {
     * @param setting 客户端配置
     * @return JSON 配置字符串
     * @throws IllegalArgumentException 如果无法从 setting 中提取 JSON 配置
-     */
+    */
     private static String parseConfig(ChatClientSetting setting) {
         if (setting == null) {
             throw new IllegalArgumentException("setting must not be null");
@@ -840,7 +840,7 @@ public class AggregateChatClient implements ChatClient {
     * @param strategyName 策略名称
     * @param parsed       解析后的配置
     * @return 路由策略实例
-     */
+    */
     private static RouterStrategy buildRouter(String strategyName, AllParsed parsed,
                                                 Predicate<RouterStrategy.WeightedClient> healthFilter) {
         if ("hybrid".equalsIgnoreCase(strategyName)) {
@@ -856,7 +856,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param name 策略名称，null 时默认使用 failover
     * @return 路由策略实例
-     */
+    */
     private static RouterStrategy createFlatStrategy(String name) {
         if (name == null) {
             name = "failover";
@@ -874,7 +874,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param config 聚合配置
     * @return 解析结果，包含所有客户端和分组路由器
-     */
+    */
     private AllParsed parseGroups(AggregateChatClientSetting config) {
         List<RouterStrategy.WeightedClient> allClients = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析动态聚合多组客户端，规模运行期决定
         List<HybridStrategy.GroupRouter> groupRouters = new ArrayList<>(); // [P3C 3.15 豁免] 配置解析，组数量运行期决定
@@ -918,7 +918,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param configs 客户端配置列表
     * @return 带权重的客户端列表
-     */
+    */
     private static List<RouterStrategy.WeightedClient> buildClients(
             List<AggregateChatClientSetting.ClientConfig> configs) {
         return buildClients(configs, null);
@@ -931,7 +931,7 @@ public class AggregateChatClient implements ChatClient {
     * @param configs      客户端配置列表
     * @param skillManager Skill 管理器
     * @return 带权重的客户端列表
-     */
+    */
     private static List<RouterStrategy.WeightedClient> buildClients(
             List<AggregateChatClientSetting.ClientConfig> configs,
             SkillManager skillManager) {
@@ -969,7 +969,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param condition 条件表达式字符串
     * @return 条件谓词，无法解析时返回 null
-     */
+    */
     private static Predicate<String> parseCondition(String condition) {
         if (condition == null || condition.isBlank()) {
             return null;
@@ -1000,7 +1000,7 @@ public class AggregateChatClient implements ChatClient {
     *
     * @param allClients   所有客户端实例
     * @param groupRouters 分组路由器列表
-     */
+    */
     private record AllParsed(
             List<RouterStrategy.WeightedClient> allClients,
             List<HybridStrategy.GroupRouter> groupRouters

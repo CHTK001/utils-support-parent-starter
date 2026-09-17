@@ -59,21 +59,21 @@ public class PlaceholderSupport {
 
     /**
     * 是否启用内置函数功能 (如 now, uuid, random 等)
-     */
+    */
     @Getter
     /** Function是否启用 */
     private boolean functionEnabled = true;
 
     /**
     * 是否启用三元表达式功能 (如 condition ? trueVal : falseVal)
-     */
+    */
     @Getter
     /** Ternary是否启用 */
     private boolean ternaryEnabled = true;
 
     /**
     * 是否启用数组和 Map 的方括号访问功能 (如 key[index])
-     */
+    */
     @Getter
     /** 数组access是否启用 */
     private boolean arrayAccessEnabled = true;
@@ -86,7 +86,7 @@ public class PlaceholderSupport {
 
     /**
     * 用户自定义函数的注册表
-     */
+    */
     private final Map<String, Function<String, String>> functions = new HashMap<>();
 
     /** 创建 PlaceholderSupport 实例 */
@@ -104,7 +104,7 @@ public class PlaceholderSupport {
     * @param placeholderPrefix placeholderPrefix
     * @param String String
     * @param String String
-     */
+    */
     public PlaceholderSupport(String placeholderPrefix, String placeholderSuffix, String valueSeparator) {
         this();
         this.placeholderPrefix = placeholderPrefix;
@@ -117,7 +117,7 @@ public class PlaceholderSupport {
     *
     * @param name    函数名称
     * @param function 函数实现
-     */
+    */
     public void registerFunction(String name, Function<String, String> function) {
         functions.put(name, function);
     }
@@ -127,7 +127,7 @@ public class PlaceholderSupport {
     *
     * @param placeholderName 占位符名称部分，例如 "key" 或 "now(date)"
     * @return 解析后的结果字符串，如果无法解析则返回 null
-     */
+    */
     public String resolvePlaceholder(String placeholderName) {
         // 1. 优先处理三元表达式：${condition ? 'true' : 'false'}
         if (ternaryEnabled && placeholderName.contains("?") && placeholderName.contains(":")) {
@@ -169,7 +169,7 @@ public class PlaceholderSupport {
     *
     * @param expr 表达式字符串，如 "status == 1 ? 'success' : 'failed'"
     * @return 计算结果，失败返回 null
-     */
+    */
     private String resolveTernary(String expr) {
         try {
             // 找到 '?' 的位置
@@ -202,7 +202,7 @@ public class PlaceholderSupport {
     * @param expr      表达式字符串
     * @param startIndex 开始搜索的位置
     * @return 冒号的索引，未找到返回 -1
-     */
+    */
     private int findColonIndex(String expr, int startIndex) {
         boolean inQuote = false;
         char quoteChar = 0;
@@ -231,7 +231,7 @@ public class PlaceholderSupport {
     *
     * @param condition 条件字符串
     * @return true 或 false
-     */
+    */
     private boolean evaluateCondition(String condition) {
         condition = condition.trim();
 
@@ -273,7 +273,7 @@ public class PlaceholderSupport {
     *
     * @param condition 包含运算符的条件字符串
     * @return 比较结果
-     */
+    */
     private boolean evaluateComparison(String condition) {
         String operator;
         String left;
@@ -333,7 +333,7 @@ public class PlaceholderSupport {
 
     /**
     * 解析变量值：如果是引号包裹则去引号，否则尝试通过 Resolver 解析
-     */
+    */
     private String resolveVariableValue(String value) {
         if (value.startsWith("'") || value.startsWith("\"")) {
             return removeQuotes(value);
@@ -349,7 +349,7 @@ public class PlaceholderSupport {
 
     /**
     * 数值比较辅助方法
-     */
+    */
     private boolean compareNumbers(double left, double right, String operator) {
         return switch (operator) {
             case ">" -> left > right;
@@ -364,7 +364,7 @@ public class PlaceholderSupport {
 
     /**
     * 字符串比较辅助方法
-     */
+    */
     private boolean compareStrings(String left, String right, String operator) {
         return switch (operator) {
             case "==" -> left.equals(right);
@@ -378,7 +378,7 @@ public class PlaceholderSupport {
     *
     * @param expr 表达式，如 "myList[0]" 或 "myMap[key]"
     * @return 解析结果
-     */
+    */
     private String resolveArrayAccess(String expr) {
         try {
             int bracketIndex = expr.indexOf('[');
@@ -413,7 +413,7 @@ public class PlaceholderSupport {
 
     /**
     * 从字符串形式的列表中根据索引取值
-     */
+    */
     private String resolveArrayIndex(String arrayStr, String indexStr) {
         try {
             int index = Integer.parseInt(indexStr);
@@ -429,7 +429,7 @@ public class PlaceholderSupport {
 
     /**
     * 从字符串形式的 Map 中根据 Key 取值
-     */
+    */
     private String resolveMapAccess(String mapStr, String key) {
         String content = mapStr.substring(1, mapStr.length() - 1);
         String[] entries = content.split(",");
@@ -447,7 +447,7 @@ public class PlaceholderSupport {
 
     /**
     * 移除字符串首尾的单引号或双引号
-     */
+    */
     private String removeQuotes(String str) {
         if (str == null) {
             return null;
@@ -463,7 +463,7 @@ public class PlaceholderSupport {
     /**
     * 获取当前时间格式化后的字符串
     * @param format 日期格式，默认为 "yyyy-MM-dd HH:mm:ss"
-     */
+    */
     private String nowFunction(String format) {
         if (format == null || format.isEmpty()) {
             format = "yyyy-MM-dd HH:mm:ss";
@@ -473,7 +473,7 @@ public class PlaceholderSupport {
 
     /**
     * 生成 UUID
-     */
+    */
     private String uuidFunction(String args) {
         return UUID.randomUUID().toString();
     }
@@ -481,7 +481,7 @@ public class PlaceholderSupport {
     /**
     * 生成随机整数
     * @param args 上界 (默认 100)
-     */
+    */
     private String randomFunction(String args) {
         int bound = 100;
         try {
@@ -494,7 +494,7 @@ public class PlaceholderSupport {
 
     /**
     * 转大写
-     */
+    */
     private String upperFunction(String args) {
         String value = removeQuotes(args);
         return value != null ? value.toUpperCase() : "";
@@ -502,7 +502,7 @@ public class PlaceholderSupport {
 
     /**
     * 转小写
-     */
+    */
     private String lowerFunction(String args) {
         String value = removeQuotes(args);
         return value != null ? value.toLowerCase() : "";
@@ -510,7 +510,7 @@ public class PlaceholderSupport {
 
     /**
     * 获取字符串长度
-     */
+    */
     private String lengthFunction(String args) {
         String value = removeQuotes(args);
         return value != null ? String.valueOf(value.length()) : "0";
@@ -520,7 +520,7 @@ public class PlaceholderSupport {
     // ==================== 链式配置方法 ====================
     /**
     * 启用函数功能
-     */
+    */
     public PlaceholderSupport functionEnable() {
         this.functionEnabled = true;
         return this;
@@ -528,7 +528,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用函数功能
-     */
+    */
     public PlaceholderSupport functionDisable() {
         this.functionEnabled = false;
         return this;
@@ -536,7 +536,7 @@ public class PlaceholderSupport {
 
     /**
     * 启用三元表达式功能
-     */
+    */
     public PlaceholderSupport ternary() {
         this.ternaryEnabled = true;
         return this;
@@ -544,7 +544,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用三元表达式功能
-     */
+    */
     public PlaceholderSupport ternaryDisable() {
         this.ternaryEnabled = false;
         return this;
@@ -552,7 +552,7 @@ public class PlaceholderSupport {
 
     /**
     * 启用数组/Map 访问功能
-     */
+    */
     public PlaceholderSupport arrayAccess() {
         this.arrayAccessEnabled = true;
         return this;
@@ -560,7 +560,7 @@ public class PlaceholderSupport {
 
     /**
     * 禁用数组/Map 访问功能
-     */
+    */
     public PlaceholderSupport arrayAccessDisable() {
         this.arrayAccessEnabled = false;
         return this;
@@ -568,7 +568,7 @@ public class PlaceholderSupport {
 
     /**
     * 设置忽略不可解析的占位符
-     */
+    */
     public PlaceholderSupport ignoreUnresolvable() {
         this.ignoreUnresolvablePlaceholders = true;
         return this;

@@ -21,19 +21,19 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
 
     /**
     * 存储自定义属性的核心容器。
-     */
+    */
     private final Properties props;
     
     /**
     * 用于解析系统属性的辅助解析器实例。
-     */
+    */
     private final SystemPropertyPlaceholderResolver placeholderResolver;
 
     /**
     * 构造函数，初始化自定义属性集合并创建系统属性解析器。
     *
     * @param props 需要被包含在解析逻辑中的自定义属性集合。
-     */
+    */
     public PropertiesMixSystemPlaceholderResolver(Properties props) {
         this.props = props;
         // 初始化内部使用的系统属性解析器
@@ -49,7 +49,7 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
     *
     * @param placeholderName 要解析的占位符名称（即属性键）。
     * @return 解析后的字符串值；如果均不存在，通常返回 null 或空字符串（取决于底层实现，此处返回 resolvePlaceholder 的结果）。
-     */
+    */
     @Override
     public String resolvePlaceholder(String placeholderName) {
         Object property = props.get(placeholderName);
@@ -69,7 +69,7 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
     *
     * @param key 属性键。
     * @return 对应的属性值字符串。
-     */
+    */
     @Override
     public String getProperty(String key) {
         return resolvePlaceholder(key);
@@ -83,7 +83,7 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
     * @param name  要添加的属性名。
     * @param value 要添加的属性值。
     * @return 返回当前实例本身，以支持链式调用。
-     */
+    */
     @Override
     public PlaceholderDynamicResolver add(String name, Object value) {
         if (null != value) {
@@ -96,7 +96,7 @@ public class PropertiesMixSystemPlaceholderResolver implements PlaceholderResolv
     * 从当前的自定义属性集中移除指定名称的属性。
     *
     * @param name 要移除的属性名。
-     */
+    */
     @Override
     public void remove(String name) {
         props.remove(name);

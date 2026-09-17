@@ -23,7 +23,7 @@ public class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
     *
     * @param placeholderName 要解析的占位符名称，通常对应于属性键或环境变量名。
     * @return 解析后的值；如果找不到对应的属性或环境变量，或者发生错误，则返回 null。
-     */
+    */
     @Override
     public String resolvePlaceholder(String placeholderName) {
         try {
@@ -49,7 +49,7 @@ public class SystemPropertyPlaceholderResolver implements PlaceholderResolver {
     *
     * @param key 要获取的属性键。
     * @return 对应的属性值；如果不存在则返回 null。
-     */
+    */
     @Override
     public String getProperty(String key) {
         return resolvePlaceholder(key);

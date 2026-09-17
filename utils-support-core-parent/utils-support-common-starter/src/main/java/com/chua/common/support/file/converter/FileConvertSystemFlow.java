@@ -22,19 +22,19 @@ public class FileConvertSystemFlow {
 
     /**
     * 数据源
-     */
+    */
     private final Object source;
 
     /**
     * 目标
-     */
+    */
     private final Object target;
 
     /**
     * 创建 FileConvertSystemFlow 实例
     * @param source source
     * @param Object Object
-     */
+    */
     private FileConvertSystemFlow(Object source, Object target) {
         this.source = source;
         this.target = target;
@@ -46,7 +46,7 @@ public class FileConvertSystemFlow {
     * @param source 源文件路径或 File
     * @param target 目标文件路径或 File
     * @return 当前流
-     */
+    */
     public static FileConvertSystemFlow of(Object source, Object target) {
         return new FileConvertSystemFlow(source, target);
     }
@@ -55,7 +55,7 @@ public class FileConvertSystemFlow {
     * 执行转换（自动推断格式，查找对应的 ConvertFileSystem SPI）
     *
     * @throws Exception 转换失败
-     */
+    */
     public void convert() throws Exception {
         File sourceFile = toFile(source);
         File targetFile = toFile(target);
@@ -77,7 +77,7 @@ public class FileConvertSystemFlow {
     *
     * @param spiName SPI 名称，如 "png2jpg"
     * @throws Exception 转换失败
-     */
+    */
     public void convert(String spiName) throws Exception {
         ConvertFileSystem converter = ServiceProvider.of(ConvertFileSystem.class)
                 .getExtension(spiName);
@@ -93,7 +93,7 @@ public class FileConvertSystemFlow {
     * @param obj 支持 String 路径或 File 对象
     * @return 转换后的 File
     * @throws IllegalArgumentException 参数类型不支持时抛出
-     */
+    */
     private static File toFile(Object obj) {
         if (obj instanceof File) {
             return (File) obj;
@@ -109,7 +109,7 @@ public class FileConvertSystemFlow {
     *
     * @param file 目标文件
     * @return 后缀名（不含点），无后缀时返回空字符串
-     */
+    */
     private static String extension(File file) {
         String name = file.getName();
         int dot = name.lastIndexOf('.');

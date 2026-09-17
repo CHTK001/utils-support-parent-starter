@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 @Data
 public class ScatterSetting {
 
@@ -31,25 +31,37 @@ public class ScatterSetting {
     private String groupId = "default";
     /** 监听地址 */
     private String host = "0.0.0.0";
-    /** 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中 */
+    /**
+    * 监听端口（0 = 系统分配）。注意：这是业务端口，scatter 通信端口 = 此值 + 2，存储在 scatterPort 字段中
+    */
     private int port;
-    /** scatter 通信端口（由 NodeServer 启动后自动填充） */
+    /**
+    * scatter 通信端口（由 NodeServer 启动后自动填充）
+    */
     private int scatterPort;
     /** 传输协议：tcp / udp */
     private String protocol = "tcp";
-    /** 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景） */
+    /**
+    * 对外宣告地址（announceHost 非空时优先用于注册，便于 NAT 场景）
+    */
     private String announceHost;
 
     /** 服务路径 */
     private String servicePath = "/scatter";
 
-    /** seed 引导模式：seed 地址列表（如 "192.168.1.10:19000"），非空即 seed 模式 */
+    /**
+    * seed 引导模式：seed 地址列表（如 "192.168.1.10:19000"），非空即 seed 模式
+    */
     private List<String> seeds = new ArrayList<>();
 
-    /** 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式 */
+    /**
+    * 路由模式：网段（如 "192.168.1.0/24"），非空即路由模式
+    */
     private String subnet;
 
-    /** SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk */
+    /**
+    * SPI 实现名（如 "tcp"/"vertx-tcp"），空则默认 jdk
+    */
     private String spiName;
     /** 直接注入服务端实现对象（未启动） */
     private TcpServer server;
@@ -64,7 +76,9 @@ public class ScatterSetting {
     private int failRemoveCount = 3;
     /** 单次同步超时毫秒 */
     private long timeoutMillis = 2000L;
-    /** 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度） */
+    /**
+    * 单次心跳超时毫秒（默认与 timeoutMillis 相同，可单独配置以加快剔除速度）
+    */
     private long heartbeatTimeoutMillis = 0L;
 
     /** 持久化开关 */
@@ -76,10 +90,10 @@ public class ScatterSetting {
     private int gossipTargetCount = 4;
 
     /**
-     * 对外宣告地址：announceHost 非空时优先，否则回落 host。
-     *
-     * @return 宣告地址
-     */
+    * 对外宣告地址：announceHost 非空时优先，否则回落 host。
+    *
+    * @return 宣告地址
+    */
     public String effectiveHost() {
         return announceHost == null || announceHost.isBlank() ? host : announceHost;
     }

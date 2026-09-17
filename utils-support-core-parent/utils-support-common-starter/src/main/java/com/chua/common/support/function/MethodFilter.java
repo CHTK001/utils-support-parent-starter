@@ -12,7 +12,7 @@ public interface MethodFilter {
     /**
     * 预定义的方法过滤器：匹配用户声明的方法。
     * <p>排除桥接方法、合成方法以及 {@link Object} 类中声明的方法。
-     */
+    */
     MethodFilter USER_DECLARED_METHODS =
             (method -> !method.isBridge() && !method.isSynthetic() && (method.getDeclaringClass() != Object.class));
 
@@ -21,7 +21,7 @@ public interface MethodFilter {
     *
     * @param method 要检查的方法
     * @return 如果方法匹配则返回 {@code true}，否则返回 {@code false}
-     */
+    */
     boolean matches(Method method);
 
     /**
@@ -32,7 +32,7 @@ public interface MethodFilter {
     * @return 一个组合的 {@code MethodFilter}
     * @throws IllegalArgumentException 如果 MethodFilter 参数为 {@code null}
     * @since 5.3.2
-     */
+    */
     default MethodFilter and(MethodFilter next) {
         return method -> matches(method) && next.matches(method);
     }

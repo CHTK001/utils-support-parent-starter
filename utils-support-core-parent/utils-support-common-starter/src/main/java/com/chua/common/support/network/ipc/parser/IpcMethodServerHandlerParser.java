@@ -35,7 +35,7 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     * 获取解析器的优先级。
     *
     * @return 优先级值
-     */
+    */
     @Override
     public int getPriority() {
         return 0;
@@ -47,7 +47,7 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     * @param objectContext   对象上下文，包含所有 Bean 和方法定义信息
     * @param serverFilter    服务器过滤器，用于过滤特定类型的处理请求
     * @return 生成的 {@link ServerHandler} 列表
-     */
+    */
     @Override
     public List<ServerHandler> parse(ObjectContext objectContext, ServerFilter serverFilter) {
         if (!(serverFilter instanceof IpcServerFilter)) {
@@ -105,7 +105,7 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     *
     * @param clazz 需要提取路径的类
     * @return 类上的路径值，若无则返回空字符串
-     */
+    */
     private static String extractClassPath(Class<?> clazz) {
         IpcMethod ann = clazz.getAnnotation(IpcMethod.class);
         if (ann != null) {
@@ -120,7 +120,7 @@ public class IpcMethodServerHandlerParser implements ServerHandlerAnnotationPars
     * @param basePath      基础路径
     * @param methodName    方法路径
     * @return 拼接后的完整路径
-     */
+    */
     private static String joinPath(String basePath, String methodName) {
         StringBuilder sb = new StringBuilder();
         if (basePath != null && !basePath.isEmpty()) {

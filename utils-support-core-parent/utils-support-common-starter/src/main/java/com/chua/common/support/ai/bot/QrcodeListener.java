@@ -22,14 +22,14 @@ public interface QrcodeListener {
     *
     * @param url 二维码 URL
     * @param key key（如 liteapp 的 appid）
-     */
+    */
     default void newQrcode(String url, String key) {
         // 默认空实现
     }
 
     /**
     * 二维码已被扫描
-     */
+    */
     default void scanned() {
         // 默认空实现
     }
@@ -40,14 +40,14 @@ public interface QrcodeListener {
     * @param token bot token
     * @param botId bot 唯一 ID
     * @param userId 用户 ID
-     */
+    */
     default void confirmed(String token, String botId, String userId) {
         // 默认空实现
     }
 
     /**
     * 二维码已过期
-     */
+    */
     default void expired() {
         // 默认空实现
     }
@@ -57,7 +57,7 @@ public interface QrcodeListener {
     *
     * @param reason 原因描述
     * @param e      异常（可能为 null）
-     */
+    */
     default void error(String reason, Throwable e) {
         // 默认空实现
     }

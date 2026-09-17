@@ -23,19 +23,19 @@ public class DispatcherDefinition {
 
     /**
     * 订阅者对象实例
-     */
+    */
     @Getter
     /** Subscriber */
     private final Object subscriber;
 
     /**
     * 目标方法
-     */
+    */
     private final Method method;
 
     /**
     * 订阅的主题列表。
-     */
+    */
     @Getter
     /** Topics */
     private final List<String> topics;
@@ -46,7 +46,7 @@ public class DispatcherDefinition {
     * @param subscriber 订阅者对象实例
     * @param method 目标订阅方法
     * @param topics 订阅主题列表
-     */
+    */
     public DispatcherDefinition(Object subscriber, Method method, List<String> topics) {
         this.subscriber = subscriber;
         this.method = method;
@@ -57,7 +57,7 @@ public class DispatcherDefinition {
     * 分派消息到目标方法，自动将 body 转换为方法参数类型。
     *
     * @param body 消息体
-     */
+    */
     public void dispatch(Object body) {
         try {
             var paramType = method.getParameterTypes()[0];

@@ -20,14 +20,14 @@ public class FileSystemResource implements Resource {
 
     /**
     * 资源对应的文件。
-     */
+    */
     private final File file;
 
     /**
     * 使用指定文件构造资源。
     *
     * @param file 文件对象
-     */
+    */
     public FileSystemResource(File file) {
         this.file = file;
     }

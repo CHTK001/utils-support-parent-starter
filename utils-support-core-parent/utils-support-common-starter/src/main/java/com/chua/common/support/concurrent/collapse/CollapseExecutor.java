@@ -30,12 +30,12 @@ public interface CollapseExecutor<INPUT, OUTPUT> extends Closeable {
     * @param input 单次调用的入参
     * @return 单次调用的返回结果
     * @throws Throwable 执行过程中发生的异常，异常同样按组广播
-     */
+    */
     OUTPUT execute(INPUT input) throws Throwable;
 
     /**
     * 关闭执行器，释放收集队列等资源。
-     */
+    */
     @Override
     default void close() {
         // 子类按需实现资源释放
@@ -48,7 +48,7 @@ public interface CollapseExecutor<INPUT, OUTPUT> extends Closeable {
     * {@code batchExecutionCount} 真实执行次数、{@code mergeRate} 合并率等）。</p>
     *
     * @return 指标映射
-     */
+    */
     default Map<String, Object> metrics() {
         return Collections.emptyMap();
     }

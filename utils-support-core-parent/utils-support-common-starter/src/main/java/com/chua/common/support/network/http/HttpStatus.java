@@ -41,34 +41,48 @@ public class HttpStatus {
 
     /** 200 OK — 请求成功。标准响应，表示请求已被成功处理。 */
     public static final int OK = 200;
-    /** 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。 */
+    /**
+    * 201 Created — 资源创建成功。通常在 POST 请求后返回，表示新资源已创建。
+    */
     public static final int CREATED = 201;
-    /** 204 No Content — 请求成功但无返回内容。常用于 DELETE 操作成功后返回。 */
+    /**
+    * 204 No Content — 请求成功但无返回内容。常用于 DELETE 操作成功后返回。
+    */
     public static final int NO_CONTENT = 204;
 
     // ==================== 4xx 客户端错误 ====================
 
-    /** 400 Bad Request — 请求参数错误。服务器无法理解请求的格式。 */
+    /**
+    * 400 Bad Request — 请求参数错误。服务器无法理解请求的格式。
+    */
     public static final int BAD_REQUEST = 400;
-    /** 401 Unauthorized — 未认证。请求需要用户身份验证。 */
+    /**
+    * 401 Unauthorized — 未认证。请求需要用户身份验证。
+    */
     public static final int UNAUTHORIZED = 401;
     /** 403 Forbidden — 无权限。服务器理解请求但拒绝执行。 */
     public static final int FORBIDDEN = 403;
-    /** 404 Not Found — 资源不存在。服务器找不到请求的资源。 */
+    /**
+    * 404 Not Found — 资源不存在。服务器找不到请求的资源。
+    */
     public static final int NOT_FOUND = 404;
 
     // ==================== 5xx 服务端错误 ====================
 
-    /** 500 Internal Server Error — 服务器内部错误。服务器遇到意外情况无法完成请求。 */
+    /**
+    * 500 Internal Server Error — 服务器内部错误。服务器遇到意外情况无法完成请求。
+    */
     public static final int INTERNAL_SERVER_ERROR = 500;
-    /** 503 Service Unavailable — 服务暂不可用。服务器当前无法处理请求（通常为过载或维护）。 */
+    /**
+    * 503 Service Unavailable — 服务暂不可用。服务器当前无法处理请求（通常为过载或维护）。
+    */
     public static final int SERVICE_UNAVAILABLE = 503;
 
     /**
     * 私有构造方法，防止外部实例化。
     *
     * <p>本类为静态工具类，所有方法均为静态方法，无需实例化。
-     */
+    */
     private HttpStatus() {}
 
     /**
@@ -79,7 +93,7 @@ public class HttpStatus {
     *
     * @param code HTTP 状态码
     * @return 状态码在 200-299 范围内返回 true，否则返回 false
-     */
+    */
     public static boolean isSuccess(int code) {
         return code >= 200 && code < 300;
     }
@@ -92,7 +106,7 @@ public class HttpStatus {
     *
     * @param code HTTP 状态码
     * @return 状态码在 300-399 范围内返回 true，否则返回 false
-     */
+    */
     public static boolean isRedirect(int code) {
         return code >= 300 && code < 400;
     }
@@ -106,7 +120,7 @@ public class HttpStatus {
     *
     * @param code HTTP 状态码
     * @return 状态码在 400-499 范围内返回 true，否则返回 false
-     */
+    */
     public static boolean isClientError(int code) {
         return code >= 400 && code < 500;
     }
@@ -120,7 +134,7 @@ public class HttpStatus {
     *
     * @param code HTTP 状态码
     * @return 状态码在 500-599 范围内返回 true，否则返回 false
-     */
+    */
     public static boolean isServerError(int code) {
         return code >= 500;
     }

@@ -22,7 +22,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
 
     /**
     * 配置中心连接设置。
-     */
+    */
     protected final ConfigCenterSetting configCenterSetting;
     /** 配置监听器列表 */
     protected List<ConfigListener> listeners;
@@ -31,7 +31,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     * 构造配置中心。
     *
     * @param configCenterSetting 配置中心连接设置
-     */
+    */
     public AbstractConfigCenter(ConfigCenterSetting configCenterSetting) {
         this.configCenterSetting = configCenterSetting;
         this.listeners = new ArrayList<>();
@@ -39,14 +39,14 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
 
     /**
     * 记录启动日志。
-     */
+    */
     protected void logStartup() {
         log.info("配置中心启动成功，地址: {}", configCenterSetting.getAddress());
     }
 
     /**
     * 记录关闭日志。
-     */
+    */
     protected void logShutdown() {
         log.info("配置中心已关闭，地址: {}", configCenterSetting.getAddress());
     }
@@ -109,7 +109,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     *
     * @param key      被删除的配置键
     * @param oldValue 被删除的旧值
-     */
+    */
     public void notifyListenerDelete(String key, String oldValue) {
         for (ConfigListener listener : listeners) {
             listener.onDelete(key, oldValue);
@@ -123,7 +123,7 @@ public abstract class AbstractConfigCenter implements ConfigCenter {
     * @param key      更新的配置键
     * @param newValue 更新后的新值
     * @param oldValue 更新前的旧值
-     */
+    */
     public void notifyListenerUpdate(String key, String newValue, String oldValue) {
         for (ConfigListener listener : listeners) {
             listener.onChange(key, oldValue, newValue);

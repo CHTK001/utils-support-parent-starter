@@ -48,29 +48,29 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
 
     /**
     * 条目名称 -> 修改时间戳 的缓存映射
-     */
+    */
     protected final Map<String, Long> cache = new ConcurrentHashMap<>();
 
     /**
     * 被监听的路径
-     */
+    */
     protected final String listenPath;
 
     /**
     * 事件监听器列表
-     */
+    */
     private final List<PolledListener> listeners = new ArrayList<>();
 
     /**
     * 环境配置
-     */
+    */
     protected DirectoryPollerEnvironment environment;
 
     /**
     * 构造差异对比轮询器。
     *
     * @param listenPath 被监听的路径
-     */
+    */
     public DiffPolledDirectory(String listenPath) {
         this.listenPath = listenPath;
     }
@@ -136,7 +136,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     *
     * @param event    事件类型
     * @param fileName 触发事件的文件名
-     */
+    */
     private void fire(WatcherEvent event, String fileName) {
         EventObserver observer = EventObserver.builder()
                 .currentPath(listenPath)
@@ -171,7 +171,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     *
     * @param path 路径
     * @return 条目列表，返回 null 表示获取失败
-     */
+    */
     protected abstract List<T> listAndModified(String path);
 
     /**
@@ -179,7 +179,7 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     *
     * @param item 条目
     * @return 条目名称
-     */
+    */
     protected abstract String getFileName(T item);
 
     /**
@@ -187,6 +187,6 @@ public abstract class DiffPolledDirectory<T> implements PolledDirectory {
     *
     * @param item 条目
     * @return 修改时间戳
-     */
+    */
     protected abstract Long getModified(T item);
 }

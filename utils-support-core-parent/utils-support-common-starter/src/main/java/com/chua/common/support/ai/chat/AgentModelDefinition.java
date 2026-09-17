@@ -45,7 +45,7 @@ public class AgentModelDefinition implements ChatClient {
     /**
     * 创建 AgentModelDefinition 实例
     * @param agent agent
-     */
+    */
     public AgentModelDefinition(Agent agent) {
         this.agent = agent;
     }
@@ -54,7 +54,7 @@ public class AgentModelDefinition implements ChatClient {
     * 获取内部 Agent 实例。
     *
     * @return Agent 实例
-     */
+    */
     public Agent getAgent() {
         return agent;
     }
@@ -86,7 +86,7 @@ public class AgentModelDefinition implements ChatClient {
     * @param consumer consumer
     * @param onComplete onComplete
     * @param onError onError
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

@@ -60,14 +60,16 @@ public class CliTool {
     /** 版本缓存 */
     private volatile CliVersion cachedVersion;
 
-    /** 固定参数模板（每次执行都会附加在可执行文件之后），null 表示未配置 */
+    /**
+    * 固定参数模板（每次执行都会附加在可执行文件之后），null 表示未配置
+    */
     private volatile List<String> fixedArgs;
 
     /**
     * 创建 CLI 工具实例。
     *
     * @param descriptor 工具描述
-     */
+    */
     public CliTool(@Nonnull CliToolDescriptor descriptor) {
         if (descriptor == null) {
             throw new IllegalArgumentException("CliToolDescriptor must not be null");
@@ -81,7 +83,7 @@ public class CliTool {
     * 获取工具唯一标识。
     *
     * @return 工具名称
-     */
+    */
     @Nonnull
     public String name() {
         return descriptor.name();
@@ -91,7 +93,7 @@ public class CliTool {
     * 获取工具展示名称。
     *
     * @return 展示名称
-     */
+    */
     @Nonnull
     public String displayName() {
         return descriptor.displayName();
@@ -101,7 +103,7 @@ public class CliTool {
     * 获取工具描述。
     *
     * @return 描述对象
-     */
+    */
     @Nonnull
     public CliToolDescriptor descriptor() {
         return descriptor;
@@ -112,7 +114,7 @@ public class CliTool {
     *
     * @param path 可执行文件完整路径
     * @return this，便于链式调用
-     */
+    */
     @Nonnull
     public CliTool withExecutablePath(@Nullable String path) {
         this.explicitPath = path;
@@ -131,7 +133,7 @@ public class CliTool {
     *
     * @param args 固定参数
     * @return this，便于链式调用
-     */
+    */
     @Nonnull
     public CliTool withFixedArgs(@Nullable String... args) {
         if (args == null || args.length == 0) {
@@ -150,7 +152,7 @@ public class CliTool {
     * <p>结果会被缓存，同一进程内重复调用不会重复扫描磁盘。</p>
     *
     * @return 可执行文件路径，未找到时返回 {@link Optional#empty()}
-     */
+    */
     @Nonnull
     public Optional<Path> locate() {
         Path cached = resolvedPath;
@@ -172,7 +174,7 @@ public class CliTool {
     * 版本探测结果同样会被缓存。</p>
     *
     * @return 可用返回 true
-     */
+    */
     public boolean isAvailable() {
         if (!locate().isPresent()) {
             return false;
@@ -191,7 +193,7 @@ public class CliTool {
     * 结果缓存。工具未安装时返回 {@link CliVersion#unknown()}。</p>
     *
     * @return 版本对象，不会返回 null
-     */
+    */
     @Nonnull
     public CliVersion version() {
         CliVersion cached = cachedVersion;
@@ -220,7 +222,7 @@ public class CliTool {
     * 安装完成后会清空定位缓存，使下一次调用重新查找。</p>
     *
     * @return 安装结果
-     */
+    */
     @Nonnull
     public CmdResult install() {
         String packageId = descriptor.installPackageId();
@@ -250,7 +252,7 @@ public class CliTool {
     * 创建链式调用请求，默认超时取描述中的配置。
     *
     * @return 请求对象
-     */
+    */
     @Nonnull
     public CliRequest request() {
         return new CliRequest(this);
@@ -262,7 +264,7 @@ public class CliTool {
     * @param args 命令行参数
     * @return 执行结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CmdResult execute(@Nonnull String... args) {
         return request().args(args).execute();
@@ -276,7 +278,7 @@ public class CliTool {
     * @param args    命令行参数
     * @return 执行结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CmdResult execute(long timeout, @Nonnull TimeUnit unit, @Nonnull String... args) {
         return request().args(args).timeout(timeout, unit).execute();
@@ -289,7 +291,7 @@ public class CliTool {
     * @param args     命令行参数
     * @return 执行结果
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     public CmdResult executeWithOutput(@Nonnull LineCallback callback, @Nonnull String... args) {
         return request().args(args).executeWithOutput(callback);
@@ -306,7 +308,7 @@ public class CliTool {
     *
     * @param result 版本探测的执行结果
     * @return 解析出的版本，解析失败返回 {@link CliVersion#unknown()}
-     */
+    */
     @Nonnull
     protected CliVersion parseVersion(@Nonnull CmdResult result) {
         String text = result.getStdout();
@@ -328,7 +330,7 @@ public class CliTool {
     * @param args 调用方传入的参数
     * @return 完整命令行数组
     * @throws IllegalStateException 工具不可用时抛出
-     */
+    */
     @Nonnull
     protected String[] buildCommandLine(@Nonnull String[] args) {
         Path executable = requireExecutable();
@@ -352,7 +354,7 @@ public class CliTool {
     *
     * @return 可执行文件路径
     * @throws IllegalStateException 未安装或定位失败时抛出
-     */
+    */
     @Nonnull
     private Path requireExecutable() {
         Optional<Path> found = locate();
@@ -372,7 +374,7 @@ public class CliTool {
     * @param timeout 超时值
     * @param unit    超时单位
     * @return 执行结果
-     */
+    */
     @Nonnull
     CmdResult executeInternal(@Nonnull String[] args, long timeout, @Nullable TimeUnit unit) {
         return executeInternal(args, timeout, unit, null, null, null);
@@ -388,7 +390,7 @@ public class CliTool {
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
     * @return 执行结果
-     */
+    */
     @Nonnull
     CmdResult executeInternal(@Nonnull String[] args, long timeout, @Nullable TimeUnit unit,
                               @Nullable File workingDirectory, @Nullable Map<String, String> environment,
@@ -408,7 +410,7 @@ public class CliTool {
     * @param unit     超时单位
     * @param callback 逐行回调
     * @return 执行结果
-     */
+    */
     @Nonnull
     CmdResult executeWithOutputInternal(@Nonnull String[] args, long timeout,
                                         @Nullable TimeUnit unit, @Nonnull LineCallback callback) {
@@ -426,7 +428,7 @@ public class CliTool {
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
     * @return 执行结果
-     */
+    */
     @Nonnull
     CmdResult executeWithOutputInternal(@Nonnull String[] args, long timeout,
                                         @Nullable TimeUnit unit, @Nonnull LineCallback callback,
@@ -448,7 +450,7 @@ public class CliTool {
     * @param timeout  超时值
     * @param unit     超时单位
     * @param callback 结果回调
-     */
+    */
     void executeAsyncInternal(@Nonnull String[] args, long timeout,
                               @Nullable TimeUnit unit, @Nonnull CmdCallback callback) {
         executeAsyncInternal(args, timeout, unit, callback, null, null, null);
@@ -464,7 +466,7 @@ public class CliTool {
     * @param workingDirectory 工作目录，可为 null
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
-     */
+    */
     void executeAsyncInternal(@Nonnull String[] args, long timeout,
                               @Nullable TimeUnit unit, @Nonnull CmdCallback callback,
                               @Nullable File workingDirectory, @Nullable Map<String, String> environment,

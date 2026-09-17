@@ -20,7 +20,7 @@ public interface DocumentTemplate {
     *
     * @param type 模板类型，对应枚举名小写：default、swagger
     * @return 模板实现
-     */
+    */
     static DocumentTemplate create(String type) {
         return ServiceProvider.of(DocumentTemplate.class).getExtension(type);
     }
@@ -30,7 +30,7 @@ public interface DocumentTemplate {
     *
     * @param type 模板类型
     * @return 模板实现
-     */
+    */
     static DocumentTemplate create(DocumentTemplateType type) {
         DocumentTemplateType resolved = type == null ? DocumentTemplateType.DEFAULT : type;
         return create(resolved.name().toLowerCase());
@@ -40,7 +40,7 @@ public interface DocumentTemplate {
     * 模板类型名称。
     *
     * @return 名称
-     */
+    */
     String getType();
 
     /**
@@ -49,7 +49,7 @@ public interface DocumentTemplate {
     * @param data   文档数据
     * @param config 导出配置
     * @return HTML 文本
-     */
+    */
     String renderHtml(DocumentData data, DocumentExportConfig config);
 
     /**
@@ -58,6 +58,6 @@ public interface DocumentTemplate {
     * @param data   文档数据
     * @param config 导出配置
     * @return Markdown 文本
-     */
+    */
     String renderMarkdown(DocumentData data, DocumentExportConfig config);
 }

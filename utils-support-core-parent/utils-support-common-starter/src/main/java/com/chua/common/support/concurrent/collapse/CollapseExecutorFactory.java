@@ -26,7 +26,7 @@ public interface CollapseExecutorFactory {
     * @param <INPUT>       单次调用的入参类型
     * @param <OUTPUT>      批量返回类型
     * @return 折叠执行器实例
-     */
+    */
     <INPUT, OUTPUT> CollapseExecutor<INPUT, OUTPUT> create(CollapseConfig config,
                                                            CollapseBatchFunction<INPUT, OUTPUT> batchFunction);
 
@@ -42,7 +42,7 @@ public interface CollapseExecutorFactory {
     * @param <INPUT>  单次调用的入参类型
     * @param <OUTPUT> 单次调用的返回类型
     * @return 折叠执行器实例
-     */
+    */
     default <INPUT, OUTPUT> CollapseExecutor<INPUT, OUTPUT> create(CollapseConfig config,
                                                                    CollapseResultMapper<INPUT, OUTPUT> mapper) {
         throw new UnsupportedOperationException("当前工厂实现不支持结果映射模式");

@@ -44,7 +44,7 @@ public final class CurlFormatter {
     *
     * @param request 请求对象
     * @return curl 命令字符串
-     */
+    */
     public static String format(ClientRequest request) {
         StringBuilder sb = new StringBuilder("curl");
         appendOptions(sb, request.getUrl(), request.getMethod(), request.getHeaders(),
@@ -59,7 +59,7 @@ public final class CurlFormatter {
     * @param builder HTTP 请求构建器
     * @param url     已拼接的完整 URL（baseUrl + path）
     * @return curl 命令字符串
-     */
+    */
     static String formatFromBuilder(HttpClientBuilder builder, String url) {
         Object body = builder._body();
         com.chua.common.support.network.http.HttpHeader headers = builder._headers();
@@ -92,7 +92,7 @@ public final class CurlFormatter {
 
     /**
     * 将各参数直接格式化为等价的 curl 命令字符串。
-     */
+    */
     public static String format(String url, com.chua.common.support.network.http.HttpMethod method,
                                 com.chua.common.support.network.http.HttpHeader headers, Object body,
                                 long connectTimeout, long readTimeout,

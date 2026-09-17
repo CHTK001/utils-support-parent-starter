@@ -36,13 +36,13 @@ public class CompositePropertyResolver implements PropertyResolver {
     /**
     * 包含的所有具体占位符解析器列表。
     * 解析过程将按顺序依次调用每个解析器。
-     */
+    */
     private final List<PropertyResolver> resolvers;
 
     /**
     * 主要的占位符配置支持对象（取第一个解析器的配置）。
     * 用于获取统一的占位符前缀、后缀等元数据信息。
-     */
+    */
     private final PlaceholderSupport primaryPlaceholderSupport;
 
     /**
@@ -50,7 +50,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param resolvers 必须非空且至少包含一个解析器
     * @throws IllegalArgumentException 当 resolvers 为 null 或为空时抛出
-     */
+    */
     private CompositePropertyResolver(List<PropertyResolver> resolvers) {
         if (resolvers == null || resolvers.isEmpty()) {
             throw new IllegalArgumentException("resolvers cannot be null or empty");
@@ -64,7 +64,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 可变参数构造函数，方便直接传入多个解析器实例。
     *
     * @param resolvers 一组具体的占位符解析器
-     */
+    */
     public CompositePropertyResolver(PropertyResolver... resolvers) {
         this(Arrays.asList(resolvers));
     }
@@ -73,7 +73,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 创建一个构建器实例，用于链式配置和构建复合解析器。
     *
     * @return 新的 Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -83,7 +83,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param placeholderResolver 实际的属性值提供者（如从系统属性、环境变量中获取）
     * @return 配置好的复合解析器实例
-     */
+    */
     public static CompositePropertyResolver createDefault(PlaceholderResolver placeholderResolver) {
         return builder()
                 .addResolver("${", "}", ":")
@@ -97,7 +97,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param placeholderResolver 实际的属性值提供者
     * @return 配置好的复合解析器实例
-     */
+    */
     public static CompositePropertyResolver createDefaultIgnoreUnresolvable(PlaceholderResolver placeholderResolver) {
         return builder()
                 .ignoreUnresolvablePlaceholders(true)
@@ -112,7 +112,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param text 待解析的原始文本
     * @return 解析后的文本，若输入为 null 或空则直接返回
-     */
+    */
     @Override
     public String resolvePlaceholders(String text) {
         if (text == null || text.isEmpty()) {
@@ -129,7 +129,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 获取主占位符支持配置（即第一个解析器的配置）。
     *
     * @return 主要占位符配置对象
-     */
+    */
     @Override
     public PlaceholderSupport getPlaceholderSupport() {
         return primaryPlaceholderSupport;
@@ -141,7 +141,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param name  属性名称
     * @param value 属性值
-     */
+    */
     @Override
     public void add(String name, Object value) {
         for (PropertyResolver resolver : resolvers) {
@@ -153,7 +153,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 从所有内部解析器中移除指定名称的属性。
     *
     * @param name 要移除的属性名称
-     */
+    */
     @Override
     public void remove(String name) {
         for (PropertyResolver resolver : resolvers) {
@@ -165,7 +165,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 为所有内部解析器设置统一的占位符值解析器。
     *
     * @param placeholderResolver 新的占位符值解析器
-     */
+    */
     @Override
     public void setPlaceholderResolver(PlaceholderResolver placeholderResolver) {
         for (PropertyResolver resolver : resolvers) {
@@ -177,7 +177,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     * 获取当前持有的所有解析器列表的副本（只读）。
     *
     * @return 解析器列表
-     */
+    */
     public List<PropertyResolver> getResolvers() {
         return new ArrayList<>(resolvers);
     }
@@ -188,7 +188,7 @@ public class CompositePropertyResolver implements PropertyResolver {
     *
     * @param resolver 要添加的解析器
     * @return 当前实例，支持链式调用
-     */
+    */
     public CompositePropertyResolver addResolver(PropertyResolver resolver) {
         if (resolver != null) {
             resolvers.add(resolver);
@@ -198,23 +198,23 @@ public class CompositePropertyResolver implements PropertyResolver {
 
     /**
     * 构建器类，用于灵活配置复合解析器。
-     */
+    */
     public static class Builder {
 
         /**
         * 存储配置的占位符分隔符规则列表。
-         */
+        */
         private final List<PlaceholderConfig> configs = new ArrayList<>();
 
         /**
         * 是否忽略无法解析的占位符。
         * 若为 true，无法匹配的占位符将保持原样；否则可能抛出异常。
-         */
+        */
         private boolean ignoreUnresolvablePlaceholders = false;
 
         /**
         * 是否在解析后自动去除值的空白字符。
-         */
+        */
         private boolean trimValues = true;
 
         /**
@@ -224,7 +224,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         * @param suffix    占位符后缀，例如 "}" 或 ">"
         * @param separator 键值分隔符，例如 ":"
         * @return 当前构建器实例
-         */
+        */
         public Builder addResolver(String prefix, String suffix, String separator) {
             configs.add(new PlaceholderConfig(prefix, suffix, separator));
             return this;
@@ -234,7 +234,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         * 快捷添加标准的美元符号占位符格式 (${key:default})。
         *
         * @return 当前构建器实例
-         */
+        */
         public Builder addDollarResolver() {
             return addResolver("${", "}", ":");
         }
@@ -243,7 +243,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         * 快捷添加尖括号占位符格式 (&lt;key:default&gt;)。
         *
         * @return 当前构建器实例
-         */
+        */
         public Builder addAngleResolver() {
             return addResolver("<", ">", ":");
         }
@@ -253,7 +253,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         *
         * @param ignore 若为 true 则忽略未找到的占位符
         * @return 当前构建器实例
-         */
+        */
         public Builder ignoreUnresolvablePlaceholders(boolean ignore) {
             this.ignoreUnresolvablePlaceholders = ignore;
             return this;
@@ -264,7 +264,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         *
         * @param trim 若为 true 则修剪空格
         * @return 当前构建器实例
-         */
+        */
         public Builder trimValues(boolean trim) {
             this.trimValues = trim;
             return this;
@@ -275,7 +275,7 @@ public class CompositePropertyResolver implements PropertyResolver {
         *
         * @param placeholderResolver 实际的属性值解析器
         * @return 构建完成的 CompositePropertyResolver 实例
-         */
+        */
         public CompositePropertyResolver build(PlaceholderResolver placeholderResolver) {
             // 如果没有显式添加任何解析器，默认添加美元符号解析器
             if (configs.isEmpty()) {
@@ -299,7 +299,7 @@ public class CompositePropertyResolver implements PropertyResolver {
 
         /**
         * 内部静态类，用于封装占位符的格式配置。
-         */
+        */
         private static class PlaceholderConfig {
             final String prefix;
             final String suffix;

@@ -32,6 +32,6 @@ public interface DownloadService {
     * @throws Downloader.DownloadException 当 URL 为空、HTTP 响应码非 200/206、
     *         MD5 校验失败、aria2c 进程不存在或下载被中断时抛出
     * @throws IOException 当文件系统操作（创建目录、写入文件、删除临时文件）失败时抛出
-     */
+    */
     DownloadResult execute(DownloadConfig config) throws DownloadException, IOException;
 }

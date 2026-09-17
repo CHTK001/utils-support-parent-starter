@@ -46,7 +46,7 @@ public interface MetaTable {
     *
     * @param catalog catalog 名称
     * @return this
-     */
+    */
     MetaTable catalog(String catalog);
 
     /**
@@ -54,14 +54,14 @@ public interface MetaTable {
     *
     * @param schema schema 名称
     * @return this
-     */
+    */
     MetaTable schema(String schema);
 
     /**
     * 列出当前 catalog/schema 下的所有表。
     *
     * @return 表定义列表
-     */
+    */
     List<TableDef> list();
 
     /**
@@ -70,7 +70,7 @@ public interface MetaTable {
     * <p>如果未指定表名，返回当前上下文对应的表结构。</p>
     *
     * @return 表定义
-     */
+    */
     TableDef get();
 
     /**
@@ -78,7 +78,7 @@ public interface MetaTable {
     *
     * @param tableName 表名
     * @return 建表构建器
-     */
+    */
     TableCreateBuilder create(String tableName);
 
     /**
@@ -86,14 +86,14 @@ public interface MetaTable {
     * <p>基于已有表结构进行变更，如新增列、删除列、修改列等。</p>
     *
     * @return 改表构建器
-     */
+    */
     TableAlterBuilder alter();
 
     /**
     * 删除表。
     *
     * @return true 删除成功
-     */
+    */
     boolean drop();
 
     /**
@@ -101,6 +101,6 @@ public interface MetaTable {
     *
     * @param newName 新表名
     * @return true 重命名成功
-     */
+    */
     boolean rename(String newName);
 }

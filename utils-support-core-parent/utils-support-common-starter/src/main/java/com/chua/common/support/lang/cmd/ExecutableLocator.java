@@ -72,7 +72,7 @@ public final class ExecutableLocator {
     *
     * @param executableName 可执行文件名，如 {@code ffmpeg}
     * @return 定位到的绝对路径，找不到时返回 {@link Optional#empty()}
-     */
+    */
     @Nonnull
     public static Optional<Path> locate(@Nonnull String executableName) {
         return locate(LocateRequest.of(executableName));
@@ -83,7 +83,7 @@ public final class ExecutableLocator {
     *
     * @param request 查找请求
     * @return 定位到的绝对路径，找不到时返回 {@link Optional#empty()}
-     */
+    */
     @Nonnull
     public static Optional<Path> locate(@Nonnull LocateRequest request) {
         String cacheKey = request.cacheKey();
@@ -101,7 +101,7 @@ public final class ExecutableLocator {
     *
     * <p>运行期新安装了 CLI 软件、或 PATH 发生变化后调用此方法，
     * 使下一次定位重新扫描磁盘。</p>
-     */
+    */
     public static void clearCache() {
         CACHE.clear();
     }
@@ -111,7 +111,7 @@ public final class ExecutableLocator {
     *
     * @param request 查找请求
     * @return 定位结果
-     */
+    */
     private static Optional<Path> doLocate(LocateRequest request) {
         if (request.explicitPath() != null) {
             Optional<Path> found = toExecutableFile(request.explicitPath());
@@ -160,7 +160,7 @@ public final class ExecutableLocator {
     * @param envKey 环境变量名
     * @param names  可执行文件名候选
     * @return 定位结果
-     */
+    */
     private static Optional<Path> locateFromEnv(String envKey, List<String> names) {
         String value = System.getenv(envKey);
         if (StringUtils.isNullOrEmpty(value)) {
@@ -187,7 +187,7 @@ public final class ExecutableLocator {
     *
     * @param executableName 可执行文件名
     * @return 定位结果
-     */
+    */
     private static Optional<Path> locateInPath(String executableName) {
         String pathEnv = System.getenv(PATH_ENV);
         if (StringUtils.isNullOrEmpty(pathEnv)) {
@@ -211,7 +211,7 @@ public final class ExecutableLocator {
     * @param executableName 可执行文件名
     * @param candidateDirs  候选目录
     * @return 定位结果
-     */
+    */
     private static Optional<Path> locateInDirectories(String executableName, List<String> candidateDirs) {
         for (String dir : candidateDirs) {
             if (StringUtils.isNullOrEmpty(dir)) {
@@ -233,7 +233,7 @@ public final class ExecutableLocator {
     *
     * @param executableName 可执行文件名
     * @return 定位结果
-     */
+    */
     private static Optional<Path> locateBySystemCommand(String executableName) {
         boolean windows = OsFamily.current().isWindows();
         String lookupCommand = windows ? "where" : "which";
@@ -274,7 +274,7 @@ public final class ExecutableLocator {
     * @param dir            目录路径
     * @param executableName 可执行文件名
     * @return 定位结果
-     */
+    */
     private static Optional<Path> matchInDirectory(String dir, String executableName) {
         Path directory = toPath(dir);
         if (directory == null) {
@@ -301,7 +301,7 @@ public final class ExecutableLocator {
     *
     * @param path 待校验路径
     * @return 可用时返回规范化后的绝对路径
-     */
+    */
     private static Optional<Path> toExecutableFile(String path) {
         Path candidate = toPath(path);
         if (candidate == null) {
@@ -321,7 +321,7 @@ public final class ExecutableLocator {
     *
     * @param path 路径字符串
     * @return 路径对象，非法时返回 null
-     */
+    */
     @Nullable
     private static Path toPath(String path) {
         if (StringUtils.isNullOrEmpty(path)) {
@@ -338,7 +338,7 @@ public final class ExecutableLocator {
     * 可执行文件查找请求。
     *
     * <p>通过 {@link #builder(String)} 创建，除可执行名外均为可选项。</p>
-     */
+    */
     public static final class LocateRequest {
 
         /** 候选可执行文件名，按优先级排序 */
@@ -358,7 +358,7 @@ public final class ExecutableLocator {
         * 创建查找请求
         *
         * @param builder 构建器
-         */
+        */
         private LocateRequest(Builder builder) {
             this.executableNames = Collections.unmodifiableList(new ArrayList<>(builder.executableNames));
             this.explicitPath = builder.explicitPath;
@@ -373,7 +373,7 @@ public final class ExecutableLocator {
         *
         * @param executableName 可执行文件名
         * @return 查找请求
-         */
+        */
         @Nonnull
         public static LocateRequest of(@Nonnull String executableName) {
             return builder(executableName).build();
@@ -384,7 +384,7 @@ public final class ExecutableLocator {
         *
         * @param executableName 主可执行文件名
         * @return 构建器
-         */
+        */
         @Nonnull
         public static Builder builder(@Nonnull String executableName) {
             return new Builder(executableName);
@@ -394,7 +394,7 @@ public final class ExecutableLocator {
         * 获取候选可执行文件名列表。
         *
         * @return 可执行文件名列表
-         */
+        */
         @Nonnull
         public List<String> executableNames() {
             return executableNames;
@@ -404,7 +404,7 @@ public final class ExecutableLocator {
         * 获取显式指定的路径。
         *
         * @return 显式路径，未指定返回 null
-         */
+        */
         @Nullable
         public String explicitPath() {
             return explicitPath;
@@ -414,7 +414,7 @@ public final class ExecutableLocator {
         * 获取环境变量键。
         *
         * @return 环境变量键，未指定返回 null
-         */
+        */
         @Nullable
         public String envKey() {
             return envKey;
@@ -424,7 +424,7 @@ public final class ExecutableLocator {
         * 获取候选安装目录。
         *
         * @return 候选目录列表
-         */
+        */
         @Nonnull
         public List<String> candidateDirs() {
             return candidateDirs;
@@ -434,7 +434,7 @@ public final class ExecutableLocator {
         * 是否扫描 PATH 环境变量。
         *
         * @return 扫描返回 true
-         */
+        */
         public boolean searchPath() {
             return searchPath;
         }
@@ -443,7 +443,7 @@ public final class ExecutableLocator {
         * 是否使用系统命令兜底查找。
         *
         * @return 启用返回 true
-         */
+        */
         public boolean systemLookup() {
             return systemLookup;
         }
@@ -452,7 +452,7 @@ public final class ExecutableLocator {
         * 生成缓存键，包含所有影响定位结果的字段。
         *
         * @return 缓存键
-         */
+        */
         @Nonnull
         String cacheKey() {
             return executableNames + "|" + explicitPath + "|" + envKey + "|"
@@ -461,7 +461,7 @@ public final class ExecutableLocator {
 
         /**
         * {@link LocateRequest} 构建器。
-         */
+        */
         public static final class Builder {
 
             /** 候选可执行文件名，去重且保持顺序 */
@@ -481,7 +481,7 @@ public final class ExecutableLocator {
             * 创建构建器
             *
             * @param executableName 主可执行文件名
-             */
+            */
             private Builder(String executableName) {
                 this.executableNames.add(executableName);
             }
@@ -491,7 +491,7 @@ public final class ExecutableLocator {
             *
             * @param name 备选可执行名
             * @return this
-             */
+            */
             @Nonnull
             public Builder alias(@Nonnull String name) {
                 if (!StringUtils.isNullOrEmpty(name)) {
@@ -505,7 +505,7 @@ public final class ExecutableLocator {
             *
             * @param path 可执行文件的完整路径
             * @return this
-             */
+            */
             @Nonnull
             public Builder explicitPath(@Nullable String path) {
                 this.explicitPath = path;
@@ -517,7 +517,7 @@ public final class ExecutableLocator {
             *
             * @param envKey 环境变量名
             * @return this
-             */
+            */
             @Nonnull
             public Builder envKey(@Nullable String envKey) {
                 this.envKey = envKey;
@@ -529,7 +529,7 @@ public final class ExecutableLocator {
             *
             * @param dirs 候选目录
             * @return this
-             */
+            */
             @Nonnull
             public Builder candidateDirs(@Nonnull String... dirs) {
                 for (String dir : dirs) {
@@ -545,7 +545,7 @@ public final class ExecutableLocator {
             *
             * @param dirs 候选目录列表
             * @return this
-             */
+            */
             @Nonnull
             public Builder candidateDirs(@Nonnull List<String> dirs) {
                 for (String dir : dirs) {
@@ -561,7 +561,7 @@ public final class ExecutableLocator {
             *
             * @param searchPath 开启返回 true
             * @return this
-             */
+            */
             @Nonnull
             public Builder searchPath(boolean searchPath) {
                 this.searchPath = searchPath;
@@ -573,7 +573,7 @@ public final class ExecutableLocator {
             *
             * @param systemLookup 开启返回 true
             * @return this
-             */
+            */
             @Nonnull
             public Builder systemLookup(boolean systemLookup) {
                 this.systemLookup = systemLookup;
@@ -584,7 +584,7 @@ public final class ExecutableLocator {
             * 构建查找请求。
             *
             * @return 查找请求
-             */
+            */
             @Nonnull
             public LocateRequest build() {
                 return new LocateRequest(this);

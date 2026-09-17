@@ -38,21 +38,21 @@ public final class ReactiveHttpClient implements HttpClient {
 
     /**
     * 获取响应式客户端（自动选择最优执行器）。
-     */
+    */
     public static ReactiveHttpClient of() {
         return new ReactiveHttpClient(HttpClientFactory.getClient());
     }
 
     /**
     * 获取指定执行器的响应式客户端。
-     */
+    */
     public static ReactiveHttpClient of(String executorName) {
         return new ReactiveHttpClient(HttpClientFactory.getClient(executorName));
     }
 
     /**
     * 获取底层委托的普通客户端。
-     */
+    */
     public HttpClient getDelegate() {
         return delegate;
     }
@@ -64,7 +64,7 @@ public final class ReactiveHttpClient implements HttpClient {
     *
     * @param interceptor 应用层拦截器
     * @return 当前响应式客户端实例（链式调用）
-     */
+    */
     @Override
     public ReactiveHttpClient addInterceptor(HttpInterceptor interceptor) {
         delegate.addInterceptor(interceptor);
@@ -76,7 +76,7 @@ public final class ReactiveHttpClient implements HttpClient {
     *
     * @param interceptor 网络层拦截器
     * @return 当前响应式客户端实例（链式调用）
-     */
+    */
     @Override
     public ReactiveHttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         delegate.addNetworkInterceptor(interceptor);
@@ -87,7 +87,7 @@ public final class ReactiveHttpClient implements HttpClient {
     * 获取底层客户端的应用层拦截器列表。
     *
     * @return 应用层拦截器列表
-     */
+    */
     @Override
     public List<HttpInterceptor> getInterceptors() {
         return delegate.getInterceptors();
@@ -97,7 +97,7 @@ public final class ReactiveHttpClient implements HttpClient {
     * 获取底层客户端的网络层拦截器列表。
     *
     * @return 网络层拦截器列表
-     */
+    */
     @Override
     public List<HttpInterceptor> getNetworkInterceptors() {
         return delegate.getNetworkInterceptors();
@@ -136,7 +136,7 @@ public final class ReactiveHttpClient implements HttpClient {
     * 异步执行 HTTP 请求，返回 {@link Mono}。
     *
     * <p>底层委托给执行器的 NIO sendAsync()，零线程切换。</p>
-     */
+    */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
         return delegate.executeAsync(request);
@@ -144,7 +144,7 @@ public final class ReactiveHttpClient implements HttpClient {
 
     /**
     * 异步执行 HTTP 请求，通过回调通知结果。
-     */
+    */
     @Override
     public void executeAsync(ClientRequest request, Callback<ClientResponse> callback) {
         delegate.executeAsync(request).subscribe(callback::onSuccess, callback::onError);

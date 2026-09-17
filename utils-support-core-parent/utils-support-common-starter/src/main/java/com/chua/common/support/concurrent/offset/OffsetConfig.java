@@ -12,22 +12,22 @@ public class OffsetConfig {
 
     /**
     * 是否持久化到文件
-     */
+    */
     private boolean persistent = true;
 
     /**
     * 文件存储根目录
-     */
+    */
     private Path basePath = Path.of(System.getProperty("java.io.tmpdir", "/tmp"), "datalake", "offset");
 
     /**
     * 字节缓存刷新间隔（毫秒）
-     */
+    */
     private long flushInterval = 5000L;
 
     /**
     * SPI provider 名称，默认 "file"
-     */
+    */
     private String provider = "file";
 
     OffsetConfig() {
@@ -63,7 +63,7 @@ public class OffsetConfig {
     *
     * @param basePath 根目录
     * @return this
-     */
+    */
     public OffsetConfig setBasePath(Path basePath) {
         this.basePath = basePath;
         return this;
@@ -74,7 +74,7 @@ public class OffsetConfig {
     *
     * @param persistent 持久化标志
     * @return this
-     */
+    */
     public OffsetConfig setPersistent(boolean persistent) {
         this.persistent = persistent;
         return this;
@@ -85,7 +85,7 @@ public class OffsetConfig {
     *
     * @param flushInterval 刷新间隔
     * @return this
-     */
+    */
     public OffsetConfig setFlushInterval(long flushInterval) {
         this.flushInterval = flushInterval;
         return this;
@@ -96,7 +96,7 @@ public class OffsetConfig {
     *
     * @param provider provider 名
     * @return this
-     */
+    */
     public OffsetConfig setProvider(String provider) {
         this.provider = provider;
         return this;
@@ -106,7 +106,7 @@ public class OffsetConfig {
     * 创建默认配置。
     *
     * @return 默认配置
-     */
+    */
     public static OffsetConfig createDefault() {
         return new OffsetConfig();
     }

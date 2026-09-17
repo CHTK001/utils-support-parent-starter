@@ -22,7 +22,7 @@ public class DoubleTypeConverter implements TypeConverter<Double> {
     *
     * @param value 源值
     * @return Double 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Double convert(Object value) {
         if (null == value) {
@@ -40,7 +40,7 @@ public class DoubleTypeConverter implements TypeConverter<Double> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Double.class
-     */
+    */
     @Override
     public Class<Double> getType() {
         return Double.class;

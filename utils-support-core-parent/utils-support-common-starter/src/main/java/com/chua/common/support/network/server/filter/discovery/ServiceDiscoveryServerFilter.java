@@ -21,12 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 /**
-* 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
-*
-* @author CH
-* @since 2026/07/18
-* @see ReverseProxyServerFilter
- */
+ * 服务发现过滤器，从 ServiceDiscovery 获取后端地址并存入请求属性。
+ *
+ * @author CH
+ * @since 2026/07/18
+ * @see ReverseProxyServerFilter
+*/
 @Slf4j
 public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServerFilter {
 
@@ -71,6 +71,24 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
 
     public void setExcludeServerId(String excludeServerId) {
         this.excludeServerId = excludeServerId;
+    }
+
+    /**
+    * 获取发现源名称
+    *
+    * @return 发现源名称（按名称创建时为 SPI 名，直接传入 ServiceDiscovery 时为 null）
+    */
+    public String getDiscoveryName() {
+        return discoveryName;
+    }
+
+    /**
+    * 获取当前持有的 ServiceDiscovery 实例（可能尚未 init 而为 null）
+    *
+    * @return ServiceDiscovery 实例或 null
+    */
+    public ServiceDiscovery getServiceDiscovery() {
+        return serviceDiscovery;
     }
 
     @Override
@@ -188,7 +206,7 @@ public class ServiceDiscoveryServerFilter implements ServerFilter, ReactiveServe
     * 判断是否排除（防止请求被转发回自身代理造成死循环/404）。
     * 同时匹配完整 serverId 和去除协议后缀后的基础 nodeId，
     * 以兼容 scatter 内部 serverId 格式（可能带 -http/-tcp 后缀或不带）。
-     */
+    */
     private boolean isExcluded(String serverId) {
         if (serverId == null) {
             return false;

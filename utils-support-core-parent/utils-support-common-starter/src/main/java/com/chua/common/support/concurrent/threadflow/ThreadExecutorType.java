@@ -18,21 +18,21 @@ public enum ThreadExecutorType {
 
     /**
     * 平台线程池执行器
-     */
+    */
     PLATFORM,
 
     /**
     * 虚拟线程执行器
-     */
+    */
     VIRTUAL,
 
     /**
     * 响应式流执行器
-     */
+    */
     REACTIVE,
 
     /**
     * 同步执行器（调用线程直接运行）
-     */
+    */
     SYNC
 }

@@ -28,47 +28,47 @@ public class MockEnvironment {
 
     /**
     * 默认生成长度下限
-     */
+    */
     public static final int DEFAULT_MIN_LENGTH = 1;
     /**
     * 默认生成长度上限
-     */
+    */
     public static final int DEFAULT_MAX_LENGTH = 64;
     /**
     * 默认字符集
-     */
+    */
     public static final String DEFAULT_CHARSET = "UTF-8";
 
     /**
     * 随机数源（为 null 时懒加载 {@link ThreadLocalRandom#current()}）
-     */
+    */
     private Random random;
     /**
     * 生成长度下限
-     */
+    */
     private int minLength = DEFAULT_MIN_LENGTH;
     /**
     * 生成长度上限
-     */
+    */
     private int maxLength = DEFAULT_MAX_LENGTH;
     /**
     * 生成数据对应的地区
-     */
+    */
     private Locale locale = Locale.CHINA;
     /**
     * 生成数据使用的字符集
-     */
+    */
     private String charset = DEFAULT_CHARSET;
     /**
     * 生成关键词（如按主题生成图片时使用的搜索词）
-     */
+    */
     private String keyword;
 
     /**
     * 创建默认 Mock 环境。
     *
     * @return 默认 Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment of() {
         return new MockEnvironment();
@@ -79,7 +79,7 @@ public class MockEnvironment {
     *
     * @param length 生成长度
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment of(int length) {
         return of(length, length);
@@ -91,7 +91,7 @@ public class MockEnvironment {
     * @param minLength 长度下限
     * @param maxLength 长度上限
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment of(int minLength, int maxLength) {
         MockEnvironment environment = new MockEnvironment();
@@ -105,7 +105,7 @@ public class MockEnvironment {
     *
     * @param seed 随机种子
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment of(long seed) {
         MockEnvironment environment = new MockEnvironment();
@@ -118,7 +118,7 @@ public class MockEnvironment {
     *
     * @param locale 地区
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment of(Locale locale) {
         MockEnvironment environment = new MockEnvironment();
@@ -131,7 +131,7 @@ public class MockEnvironment {
     *
     * @param keyword 生成关键词
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment ofKeyword(@Nonnull String keyword) {
         MockEnvironment environment = new MockEnvironment();
@@ -145,7 +145,7 @@ public class MockEnvironment {
     * @param keyword 生成关键词
     * @param length  生成长度
     * @return Mock 环境
-     */
+    */
     @Nonnull
     public static MockEnvironment ofKeyword(@Nonnull String keyword, int length) {
         MockEnvironment environment = of(length);
@@ -157,7 +157,7 @@ public class MockEnvironment {
     * 设置随机种子，创建可复现的随机数源。
     *
     * @param seed 随机种子
-     */
+    */
     public void setSeed(long seed) {
         this.random = new Random(seed);
     }
@@ -166,7 +166,7 @@ public class MockEnvironment {
     * 获取随机数源；未设置时懒加载线程本地随机数。
     *
     * @return 随机数源
-     */
+    */
     @Nonnull
     public Random random() {
         Random current = this.random;
@@ -181,7 +181,7 @@ public class MockEnvironment {
     *
     * @param bound 上界（不包含）
     * @return 随机整数
-     */
+    */
     public int nextInt(int bound) {
         if (bound <= 0) {
             return 0;
@@ -195,7 +195,7 @@ public class MockEnvironment {
     * @param origin 下界（包含）
     * @param bound  上界（不包含）
     * @return 随机整数
-     */
+    */
     public int nextInt(int origin, int bound) {
         if (bound <= origin) {
             return origin;
@@ -208,7 +208,7 @@ public class MockEnvironment {
     *
     * @param bound 上界（不包含）
     * @return 随机长整数
-     */
+    */
     public long nextLong(long bound) {
         if (bound <= 0) {
             return 0;
@@ -222,7 +222,7 @@ public class MockEnvironment {
     * @param origin 下界（包含）
     * @param bound  上界（不包含）
     * @return 随机长整数
-     */
+    */
     public long nextLong(long origin, long bound) {
         if (bound <= origin) {
             return origin;
@@ -236,7 +236,7 @@ public class MockEnvironment {
     * <p>当长度区间有效时返回区间内的随机长度，否则返回上下限矫正后的固定值。</p>
     *
     * @return 实际生成长度
-     */
+    */
     public int length() {
         int min = Math.min(minLength, maxLength);
         int max = Math.max(minLength, maxLength);
@@ -252,7 +252,7 @@ public class MockEnvironment {
     * @param values 元素数组
     * @param <T>    元素类型
     * @return 随机元素；数组为 null 或为空时返回 null
-     */
+    */
     @Nonnull
     public <T> T randomOf(T[] values) {
         if (null == values || values.length == 0) {
@@ -265,7 +265,7 @@ public class MockEnvironment {
     * 判断当前环境是否配置了预设的随机数源（固定种子）。
     *
     * @return true 表示配置了固定随机数源
-     */
+    */
     public boolean hasSeededRandom() {
         return null != this.random;
     }
@@ -274,7 +274,7 @@ public class MockEnvironment {
     * 校验并返回合法的字符集名称。
     *
     * @return 字符集名称，为空时返回默认字符集
-     */
+    */
     @Nonnull
     public String charset() {
         return StringUtils.isBlank(charset) ? DEFAULT_CHARSET : charset;

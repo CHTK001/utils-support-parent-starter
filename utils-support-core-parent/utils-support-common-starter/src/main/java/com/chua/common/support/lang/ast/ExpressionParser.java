@@ -42,7 +42,7 @@ public interface ExpressionParser {
     * </ul>
     *
     * @return 表达式类型标识
-     */
+    */
     String type();
 
     /**
@@ -53,7 +53,7 @@ public interface ExpressionParser {
     * @param expression 源表达式文本
     * @return B-Tree 根节点
     * @throws IllegalArgumentException 表达式语法错误时抛出
-     */
+    */
     BTreeNode parse(String expression);
 
     /**
@@ -63,6 +63,6 @@ public interface ExpressionParser {
     *
     * @param tree B-Tree 根节点
     * @return 源表达式文本
-     */
+    */
     String generate(BTreeNode tree);
 }

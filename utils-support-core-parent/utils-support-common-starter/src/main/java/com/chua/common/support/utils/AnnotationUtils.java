@@ -10,55 +10,55 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
-* 注解工具类，提供注解存在性判断（含继承链 + 别名穿透）、
-* 注解定义解析（SPI + 子类优先）等能力。
-*
-* <h3>别名穿透规则</h3>
-* <pre>
-*   {@code @GetMapping} 的元注解包含 {@code @RequestMapping}
-*   → isAnnotationPresent(clazz, GetMapping.class)          == true
-*   → isAnnotationPresent(clazz, RequestMapping.class)      == true   // 别名展开
-*   → isAnnotationPresent(clazz, PostMapping.class)         == false  // 不跨方法名
-* </pre>
-*
-* <h3>子类优先规则</h3>
-* <pre>
-*   class BaseController { @RequestMapping("/api") }
-*   class UserController extends BaseController { @GetMapping("/users") }
-*
-*   resolveAnnotationDefinition(UserController.class, RequestMapping.class)
-*     → source=DIRECT (UserController 直接声明，优先级高于父类)
-*   resolveAnnotationDefinition(BaseController.class, RequestMapping.class)
-*     → source=INHERITED (父类继承)
-* </pre>
-*
-* <h3>别名发现架构</h3>
-* <pre>
-*   common-starter:    AnnotationUtils        → 通过 ServiceProvider 消费 AnnotationDefinitionResolver
-*   spring-starter:    SpringMvcResolver      → 通过反射自动发现 Spring MVC 注解族别名
-*   other-framework:   XxxResolver (SPI)      → 自定义框架实现
-* </pre>
-*
-* @author CH
-* @since 4.0.0.43
- */
+ * 注解工具类，提供注解存在性判断（含继承链 + 别名穿透）、
+ * 注解定义解析（SPI + 子类优先）等能力。
+ *
+ * <h3>别名穿透规则</h3>
+ * <pre>
+ *   {@code @GetMapping} 的元注解包含 {@code @RequestMapping}
+ *   → isAnnotationPresent(clazz, GetMapping.class)          == true
+ *   → isAnnotationPresent(clazz, RequestMapping.class)      == true   // 别名展开
+ *   → isAnnotationPresent(clazz, PostMapping.class)         == false  // 不跨方法名
+ * </pre>
+ *
+ * <h3>子类优先规则</h3>
+ * <pre>
+ *   class BaseController { @RequestMapping("/api") }
+ *   class UserController extends BaseController { @GetMapping("/users") }
+ *
+ *   resolveAnnotationDefinition(UserController.class, RequestMapping.class)
+ *     → source=DIRECT (UserController 直接声明，优先级高于父类)
+ *   resolveAnnotationDefinition(BaseController.class, RequestMapping.class)
+ *     → source=INHERITED (父类继承)
+ * </pre>
+ *
+ * <h3>别名发现架构</h3>
+ * <pre>
+ *   common-starter:    AnnotationUtils        → 通过 ServiceProvider 消费 AnnotationDefinitionResolver
+ *   spring-starter:    SpringMvcResolver      → 通过反射自动发现 Spring MVC 注解族别名
+ *   other-framework:   XxxResolver (SPI)      → 自定义框架实现
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.43
+*/
 public class AnnotationUtils {
 
     /**
     * 注解工具。
-     */
+    */
     private AnnotationUtils() {}
 
     /**
     * 别名缓存：窄注解 类（weak哈希映射 键）→ 宽注解全限定名。
     * 使用 weak哈希映射 保证窄注解类被 GC 回收时缓存自动清理，防止类加载器泄漏。
-     */
+    */
     private static final Map<Class<? extends Annotation>, String> ALIAS_NARROW_TO_WIDE =
             new java.util.WeakHashMap<>();
 
     /**
     * 别名族标记集合（字符串全限定名），用于快速判断某注解是否属于某个别名族。
-     */
+    */
     private static final Set<String> ALIAS_SOURCE_SET = new HashSet<>();
 
     private static volatile boolean aliasesLoaded = false;
@@ -66,7 +66,7 @@ public class AnnotationUtils {
     /**
     * 懒加载别名映射：从所有 SPI 实现的 {@link AnnotationDefinitionResolver} 中收集别名。
     * common-starter 不包含任何具体框架的硬编码，别名发现完全由 SPI 承担。
-     */
+    */
     private static void ensureAliasesLoaded() {
         if (aliasesLoaded) {
             return;
@@ -83,7 +83,7 @@ public class AnnotationUtils {
     /**
     * 通过 SPI 加载所有 {@link AnnotationDefinitionResolver} 实现的别名映射，
     * 写入 {@link #ALIAS_NARROW_TO_WIDE} 和 {@link #ALIAS_SOURCE_SET}。
-     */
+    */
     private static void loadSpiAliases() {
         try {
             ServiceProvider<AnnotationDefinitionResolver> provider =
@@ -119,7 +119,7 @@ public class AnnotationUtils {
     * @param annotationClass 待检查的注解类型
     * @return 如果存在则返回 {@code true}
     * @since 4.0.0.43
-     */
+    */
     public static boolean isAnnotationPresent(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
         if (element == null || annotationClass == null) {
             return false;
@@ -151,7 +151,7 @@ public class AnnotationUtils {
     * @param clazz clazz
     * @param annotationClass 注解类
     * @return 是否注解present的结果
-     */
+    */
     public static boolean isAnnotationPresent(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         if (clazz == null || annotationClass == null) {
             return false;
@@ -164,7 +164,7 @@ public class AnnotationUtils {
     * @param method 方法
     * @param annotationClass 注解类
     * @return 是否注解present的结果
-     */
+    */
     public static boolean isAnnotationPresent(Method method, Class<? extends Annotation> annotationClass) {
         if (method == null || annotationClass == null) {
             return false;
@@ -182,7 +182,7 @@ public class AnnotationUtils {
     * @param <A>             注解泛型
     * @return 找到的注解实例，未找到返回 {@code null}
     * @since 4.0.0.43
-     */
+    */
     public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationClass) {
         if (element == null || annotationClass == null) {
             return null;
@@ -226,7 +226,7 @@ public class AnnotationUtils {
     * @param <A>             注解泛型
     * @return 注解定义，未找到返回 {@code null}
     * @since 4.0.0.43
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <A extends Annotation> AnnotationDefinition<A> resolveAnnotationDefinition(
             AnnotatedElement element, Class<A> annotationClass) {
@@ -290,7 +290,7 @@ public class AnnotationUtils {
     * @param clazz 目标类
     * @return 如果存在任意映射注解则返回 {@code true}
     * @since 4.0.0.43
-     */
+    */
     public static boolean isMappingAnnotation(Class<?> clazz) {
         if (clazz == null) {
             return false;
@@ -314,7 +314,7 @@ public class AnnotationUtils {
     * @param method 目标方法
     * @return 如果存在任意映射注解则返回 {@code true}
     * @since 4.0.0.43
-     */
+    */
     public static boolean isMappingAnnotation(Method method) {
         if (method == null) {
             return false;
@@ -338,7 +338,7 @@ public class AnnotationUtils {
     * @param annotationClass 窄注解类型
     * @return 对应的宽注解类型，无别名时返回原值
     * @since 4.0.0.43
-     */
+    */
     public static Class<? extends Annotation> resolveRequestMappingAlias(Class<? extends Annotation> annotationClass) {
         if (annotationClass == null) {
             return annotationClass;
@@ -361,7 +361,7 @@ public class AnnotationUtils {
     * @param annotationClassName 窄注解全限定名
     * @return 对应的宽注解全限定名，无别名时返回原值
     * @since 4.0.0.43
-     */
+    */
     public static String resolveRequestMappingAlias(String annotationClassName) {
         if (annotationClassName == null || annotationClassName.isEmpty()) {
             return annotationClassName;
@@ -376,7 +376,7 @@ public class AnnotationUtils {
     * 是否别名。
     * @param annotationClass 注解类
     * @return 是否别名的结果
-     */
+    */
     private static boolean isAlias(Class<? extends Annotation> annotationClass) {
         return ALIAS_SOURCE_SET.contains(annotationClass.getName());
     }
@@ -389,7 +389,7 @@ public class AnnotationUtils {
     * </pre>
     * @param target Target
     * @return 构建搜索设置的结果
-     */
+    */
     private static Set<Class<? extends Annotation>> buildSearchSet(Class<? extends Annotation> target) {
         Set<Class<? extends Annotation>> set = new LinkedHashSet<>();
         set.add(target);
@@ -420,7 +420,7 @@ public class AnnotationUtils {
     * @param element element
     * @param annotationClass 注解类
     * @return 是否包含别名匹配的结果
-     */
+    */
     private static boolean hasAliasMatch(AnnotatedElement element, Class<? extends Annotation> annotationClass) {
         for (Class<? extends Annotation> alt : buildSearchSet(annotationClass)) {
             if (!alt.equals(annotationClass) && element.isAnnotationPresent(alt)) {
@@ -452,7 +452,7 @@ public class AnnotationUtils {
     * @param clazz clazz
     * @param annotationClass 注解类
     * @return 是否包含inherited注解的结果
-     */
+    */
     private static boolean hasInheritedAnnotation(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -474,7 +474,7 @@ public class AnnotationUtils {
     * @param clazz clazz
     * @param annotationClass 注解类
     * @return findinherited注解的结果
-     */
+    */
     private static <A extends Annotation> A findInheritedAnnotation(Class<?> clazz, Class<A> annotationClass) {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null && superClass != Object.class) {
@@ -497,7 +497,7 @@ public class AnnotationUtils {
     * @param method 方法
     * @param annotationClass 注解类
     * @return 是否包含overridden注解的结果
-     */
+    */
     private static boolean hasOverriddenAnnotation(Method method, Class<? extends Annotation> annotationClass) {
         String name = method.getName();
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -524,7 +524,7 @@ public class AnnotationUtils {
     * @param method 方法
     * @param annotationClass 注解类
     * @return findoverridden注解的结果
-     */
+    */
     private static <A extends Annotation> A findOverriddenAnnotation(Method method, Class<A> annotationClass) {
         String name = method.getName();
         Class<?>[] paramTypes = method.getParameterTypes();
@@ -635,7 +635,7 @@ public class AnnotationUtils {
     * 获取父类。
     * @param clazz clazz
     * @return 获取父类的结果
-     */
+    */
     private static java.util.List<Class<?>> getSuperClasses(Class<?> clazz) {
         java.util.List<Class<?>> list = new java.util.ArrayList<>();
         Class<?> current = clazz.getSuperclass();
@@ -653,7 +653,7 @@ public class AnnotationUtils {
     * @param clazz clazz
     * @param annotationClass 注解类
     * @return 获取注解attributes的结果
-     */
+    */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new HashMap<>();
         Annotation annotation = clazz.getAnnotation(annotationClass);
@@ -676,7 +676,7 @@ public class AnnotationUtils {
     *
     * @param annotation 注解实例
     * @return 属性名 → 属性值 映射
-     */
+    */
     public static Map<String, Object> getAnnotationAttributes(Annotation annotation) {
         Map<String, Object> attributes = new HashMap<>();
         if (annotation == null) {

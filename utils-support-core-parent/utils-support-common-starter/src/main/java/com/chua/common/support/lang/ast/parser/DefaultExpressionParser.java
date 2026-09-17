@@ -33,142 +33,142 @@ public class DefaultExpressionParser implements ExpressionParser {
 
     /**
     * SPI 类型标识
-     */
+    */
     private static final String TYPE = "expr";
 
     /**
     * 表达式不能为空时的错误提示
-     */
+    */
     private static final String ERROR_EXPR_EMPTY = "表达式不能为空";
 
     /**
     * 表达式解析不完整时的错误前缀
-     */
+    */
     private static final String ERROR_EXPR_INCOMPLETE = "表达式解析不完整，剩余: ";
 
     /**
     * 期望字符时的错误提示前缀
-     */
+    */
     private static final String ERROR_EXPECT_CHAR_PREFIX = "期望 '";
 
     /**
     * 期望字符时的错误提示中段
-     */
+    */
     private static final String ERROR_EXPECT_CHAR_MIDDLE = "'，位置 ";
 
     /**
     * 期望字符时的错误提示后段
-     */
+    */
     private static final String ERROR_EXPECT_CHAR_SUFFIX = "，剩余: ";
 
     /**
     * 意外字符时的错误提示前缀
-     */
+    */
     private static final String ERROR_UNEXPECTED_PREFIX = "意外的字符: ";
 
     /**
     * IS NULL 运算符
-     */
+    */
     private static final String OP_IS_NULL = "IS NULL";
 
     /**
     * IS NOT NULL 运算符
-     */
+    */
     private static final String OP_IS_NOT_NULL = "IS NOT NULL";
 
     /**
     * IN 运算符
-     */
+    */
     private static final String OP_IN = "IN";
 
     /**
     * BETWEEN 运算符
-     */
+    */
     private static final String OP_BETWEEN = "BETWEEN";
 
     /**
     * BETWEEN 内部 AND 占位
-     */
+    */
     private static final String OP_AND_PLACEHOLDER = "AND";
 
     /**
     * 比较运算符：大于等于
-     */
+    */
     private static final String OP_GTE = ">=";
 
     /**
     * 比较运算符：小于等于
-     */
+    */
     private static final String OP_LTE = "<=";
 
     /**
     * 比较运算符：不等于
-     */
+    */
     private static final String OP_NE = "!=";
 
     /**
     * 比较运算符：等于
-     */
+    */
     private static final String OP_EQ = "=";
 
     /**
     * 比较运算符：大于
-     */
+    */
     private static final String OP_GT = ">";
 
     /**
     * 比较运算符：小于
-     */
+    */
     private static final String OP_LT = "<";
 
     /**
     * IS 关键字
-     */
+    */
     private static final String KW_IS = "IS";
 
     /**
     * LIKE 关键字
-     */
+    */
     private static final String KW_LIKE = "LIKE";
 
     /**
     * BETWEEN 关键字
-     */
+    */
     private static final String KW_BETWEEN = "BETWEEN";
 
     /**
     * IN 关键字
-     */
+    */
     private static final String KW_IN = "IN";
 
     /**
     * NULL 关键字
-     */
+    */
     private static final String KW_NULL = "NULL";
 
     /**
     * NOT 关键字
-     */
+    */
     private static final String KW_NOT = "NOT";
 
     /**
     * AND 关键字
-     */
+    */
     private static final String KW_AND = "AND";
 
     /**
     * OR 关键字
-     */
+    */
     private static final String KW_OR = "OR";
 
     /**
     * TRUE 关键字
-     */
+    */
     private static final String KW_TRUE = "TRUE";
 
     /**
     * FALSE 关键字
-     */
+    */
     private static final String KW_FALSE = "FALSE";
 
     @Override
@@ -222,7 +222,7 @@ public class DefaultExpressionParser implements ExpressionParser {
     *
     * @param tree 逻辑节点
     * @return 文本表示
-     */
+    */
     private String generateLogic(BTreeNode tree) {
         String left = generate(tree.getLeft());
         String right = generate(tree.getRight());
@@ -234,7 +234,7 @@ public class DefaultExpressionParser implements ExpressionParser {
     *
     * @param tree 比较节点
     * @return 文本表示
-     */
+    */
     private String generateCompare(BTreeNode tree) {
         String left = generate(tree.getLeft());
         String right = generate(tree.getRight());
@@ -246,7 +246,7 @@ public class DefaultExpressionParser implements ExpressionParser {
     *
     * @param tree 值节点
     * @return 文本表示
-     */
+    */
     private String generateValue(BTreeNode tree) {
         Object v = tree.getValue();
         if (v instanceof String s) {
@@ -260,7 +260,7 @@ public class DefaultExpressionParser implements ExpressionParser {
     *
     * @param tree 函数节点
     * @return 文本表示
-     */
+    */
     private String generateFunction(BTreeNode tree) {
         StringBuilder sb = new StringBuilder();
         sb.append(tree.getOperator());
@@ -284,17 +284,17 @@ public class DefaultExpressionParser implements ExpressionParser {
     * <p>解析优先级：OR &lt; AND &lt; NOT &lt; 比较 &lt; 原子</p>
     *
     * @since 4.0.0.42
-     */
+    */
     private static class Parser {
 
         /**
         * 输入表达式原文
-         */
+        */
         private final String input;
 
         /**
         * 当前解析位置
-         */
+        */
         private int pos;
 
         Parser(String input) {
@@ -306,7 +306,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析 OR 表达式（最低优先级）。
         *
         * @return OR 表达式根节点
-         */
+        */
         BTreeNode parseOr() {
             BTreeNode left = parseAnd();
             while (matchKeyword(KW_OR) || matchSymbol("||")) {
@@ -320,7 +320,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析 AND 表达式。
         *
         * @return AND 表达式根节点
-         */
+        */
         BTreeNode parseAnd() {
             BTreeNode left = parseNot();
             while (matchKeyword(KW_AND) || matchSymbol("&&")) {
@@ -334,7 +334,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析 NOT 表达式。
         *
         * @return NOT 表达式根节点
-         */
+        */
         BTreeNode parseNot() {
             if (matchKeyword(KW_NOT) || matchSymbol("!")) {
                 BTreeNode child = parseNot();
@@ -347,7 +347,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析比较表达式。
         *
         * @return 比较表达式根节点
-         */
+        */
         BTreeNode parseComparison() {
             BTreeNode left = parseAtom();
             String op = matchCompareOp();
@@ -373,7 +373,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param left 左子节点
         * @return IS NULL 表达式根节点
-         */
+        */
         BTreeNode parseIsNull(BTreeNode left) {
             if (matchKeyword(KW_NOT)) {
                 matchKeyword(KW_NULL);
@@ -388,7 +388,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param left 左子节点
         * @return BETWEEN 表达式根节点
-         */
+        */
         BTreeNode parseBetween(BTreeNode left) {
             BTreeNode low = parseAtom();
             matchKeyword(KW_AND);
@@ -401,7 +401,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析 IN 列表：(1, 2, 3) 或 (1,2,3)。
         *
         * @return IN 列表值节点
-         */
+        */
         BTreeNode parseInList() {
             expect('(');
             StringBuilder list = new StringBuilder();
@@ -425,7 +425,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析原子表达式（括号、列名、值、函数）。
         *
         * @return 原子表达式根节点
-         */
+        */
         BTreeNode parseAtom() {
             skipWhitespace();
             if (match('(')) {
@@ -445,7 +445,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析函数调用：funcName(arg1, arg2, ...)。
         *
         * @return 函数节点
-         */
+        */
         BTreeNode parseFunction() {
             String name = readIdentifier();
             expect('(');
@@ -467,7 +467,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 解析列名或值。
         *
         * @return 列节点或值节点
-         */
+        */
         BTreeNode parseColumnOrValue() {
             skipWhitespace();
             // 字符串值
@@ -503,7 +503,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 判断当前位置是否为数字（含负数）。
         *
         * @return true 表示是数字
-         */
+        */
         boolean isPeekNumber() {
             if (peekIsDigit()) {
                 return true;
@@ -524,7 +524,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param keyword 关键字
         * @return true 表示匹配成功并已消费
-         */
+        */
         boolean matchKeyword(String keyword) {
             skipWhitespace();
             if (pos + keyword.length() <= input.length()
@@ -545,7 +545,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param symbol 符号
         * @return true 表示匹配成功并已消费
-         */
+        */
         boolean matchSymbol(String symbol) {
             skipWhitespace();
             if (pos + symbol.length() <= input.length()
@@ -561,7 +561,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param c 目标字符
         * @return true 表示匹配成功并已消费
-         */
+        */
         boolean match(char c) {
             skipWhitespace();
             if (pos < input.length() && input.charAt(pos) == c) {
@@ -575,7 +575,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 期望匹配指定字符，否则抛出异常。
         *
         * @param c 目标字符
-         */
+        */
         void expect(char c) {
             if (!match(c)) {
                 throw new IllegalArgumentException(
@@ -589,7 +589,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 尝试匹配比较运算符。
         *
         * @return 比较运算符字符串，未匹配返回 null
-         */
+        */
         String matchCompareOp() {
             skipWhitespace();
             // 多字符运算符优先
@@ -635,7 +635,7 @@ public class DefaultExpressionParser implements ExpressionParser {
 
         /**
         * 跳过空白字符。
-         */
+        */
         void skipWhitespace() {
             while (pos < input.length() && Character.isWhitespace(input.charAt(pos))) {
                 pos++;
@@ -646,7 +646,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 读取标识符（字母数字下划线）。
         *
         * @return 标识符字符串
-         */
+        */
         String readIdentifier() {
             int start = pos;
             while (pos < input.length()
@@ -660,7 +660,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 读取 IN 列表中的字面值（带原始引号）。
         *
         * @return 列表元素文本
-         */
+        */
         String readValue() {
             skipWhitespace();
             if (match('\'') || match('"')) {
@@ -687,7 +687,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param quote 引号字符
         * @return 字符串内容
-         */
+        */
         String readQuoted(char quote) {
             int start = pos;
             while (pos < input.length() && input.charAt(pos) != quote) {
@@ -707,7 +707,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 读取数字（整数或浮点数）。
         *
         * @return Number 类型数字
-         */
+        */
         Number readNumber() {
             int start = pos;
             if (pos < input.length() && input.charAt(pos) == '-') {
@@ -734,7 +734,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 预读当前位置是否为字母。
         *
         * @return true 表示是字母
-         */
+        */
         boolean peekIsLetter() {
             return pos < input.length() && Character.isLetter(input.charAt(pos));
         }
@@ -743,7 +743,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 预读当前位置是否为数字。
         *
         * @return true 表示是数字
-         */
+        */
         boolean peekIsDigit() {
             return pos < input.length() && Character.isDigit(input.charAt(pos));
         }
@@ -753,7 +753,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param c 目标字符
         * @return true 表示匹配
-         */
+        */
         boolean peekIs(char c) {
             return pos < input.length() && input.charAt(pos) == c;
         }
@@ -763,7 +763,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         *
         * @param c 目标字符
         * @return true 表示匹配
-         */
+        */
         boolean peekNextIs(char c) {
             return pos + 1 < input.length() && input.charAt(pos + 1) == c;
         }
@@ -772,7 +772,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 判断是否解析到末尾。
         *
         * @return true 表示已到达末尾
-         */
+        */
         boolean isEnd() {
             skipWhitespace();
             return pos >= input.length();
@@ -782,7 +782,7 @@ public class DefaultExpressionParser implements ExpressionParser {
         * 获取尚未消费的剩余输入。
         *
         * @return 剩余字符串
-         */
+        */
         String remaining() {
             if (pos < input.length()) {
                 return input.substring(pos);

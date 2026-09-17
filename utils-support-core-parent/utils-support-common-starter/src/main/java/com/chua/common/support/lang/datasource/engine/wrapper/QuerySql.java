@@ -50,7 +50,7 @@ public record QuerySql<T>(
     * @param orderBys      ORDER BY 列表
     * @param limit         返回行数上限
     * @param offset        偏移行数
-     */
+    */
     public QuerySql(Class<T> entityClass, List<String> selectColumns, String whereClause,
                     List<Object> params, String groupByColumn, List<String> orderBys, int limit, int offset) {
         this(entityClass, selectColumns, whereClause, params, groupByColumn, orderBys,
@@ -66,7 +66,7 @@ public record QuerySql<T>(
     * @param params        WHERE 参数列表
     * @param groupByColumn GROUP BY 列
     * @param orderBys      ORDER BY 列表
-     */
+    */
     public QuerySql(Class<T> entityClass, List<String> selectColumns, String whereClause,
                     List<Object> params, String groupByColumn, List<String> orderBys) {
         this(entityClass, selectColumns, whereClause, params, groupByColumn, orderBys, 0, 0);
@@ -76,7 +76,7 @@ public record QuerySql<T>(
     * 判断是否包含 SELECT 投影列。
     *
     * @return true 表示设置了投影列
-     */
+    */
     public boolean hasSelect() {
         if (selectColumns == null) {
             return false;
@@ -88,7 +88,7 @@ public record QuerySql<T>(
     * 判断是否包含 WHERE 条件。
     *
     * @return true 表示设置了 WHERE 条件
-     */
+    */
     public boolean hasWhere() {
         if (whereClause == null) {
             return false;
@@ -100,7 +100,7 @@ public record QuerySql<T>(
     * 判断是否包含 GROUP BY 子句。
     *
     * @return true 表示设置了分组列
-     */
+    */
     public boolean hasGroupBy() {
         return groupByColumn != null;
     }
@@ -109,7 +109,7 @@ public record QuerySql<T>(
     * 判断是否包含 ORDER BY 子句。
     *
     * @return true 表示设置了排序列
-     */
+    */
     public boolean hasOrderBy() {
         if (orderBys == null) {
             return false;
@@ -121,7 +121,7 @@ public record QuerySql<T>(
     * 判断是否设置了 LIMIT。
     *
     * @return true 表示设置了行数上限
-     */
+    */
     public boolean hasLimit() {
         return limit > 0;
     }
@@ -130,7 +130,7 @@ public record QuerySql<T>(
     * 判断是否设置了 OFFSET。
     *
     * @return true 表示设置了偏移行数
-     */
+    */
     public boolean hasOffset() {
         return offset > 0;
     }
@@ -139,7 +139,7 @@ public record QuerySql<T>(
     * 判断是否包含 JOIN 关联子句。
     *
     * @return true 表示设置了表关联
-     */
+    */
     public boolean hasJoins() {
         if (joins == null) {
             return false;
@@ -151,7 +151,7 @@ public record QuerySql<T>(
     * 判断是否包含 HAVING 子句。
     *
     * @return true 表示设置了分组过滤条件
-     */
+    */
     public boolean hasHaving() {
         if (havingClause == null) {
             return false;

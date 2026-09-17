@@ -19,42 +19,42 @@ public class MessageProtocol {
 
     /**
     * 协议魔数
-     */
+    */
     public static final int MAGIC = 0x50454D48;
 
     /**
     * 消息类型：心跳
-     */
+    */
     public static final byte TYPE_HEARTBEAT = 1;
 
     /**
     * 消息类型：心跳响应
-     */
+    */
     public static final byte TYPE_PONG = 2;
 
     /**
     * 消息类型：新节点通知
-     */
+    */
     public static final byte TYPE_NEW_PEER = 3;
 
     /**
     * 消息类型：对等端列表
-     */
+    */
     public static final byte TYPE_PEER_LIST = 4;
 
     /**
     * 消息类型：确认
-     */
+    */
     public static final byte TYPE_ACK = 5;
 
     /**
     * 消息类型：探测（UDP 广播发现）
-     */
+    */
     public static final byte TYPE_PROBE = 6;
 
     /**
     * 协议头长度（魔数 4 + 类型 1 + 长度 4 = 9 字节）
-     */
+    */
     public static final int HEADER_SIZE = 9;
 
     /**
@@ -62,7 +62,7 @@ public class MessageProtocol {
     *
     * @param type 消息类型
     * @param payload 消息负载（JSON 字符串）
-     */
+    */
     public record PeerMeshMessage(byte type, String payload) {
     }
 
@@ -71,7 +71,7 @@ public class MessageProtocol {
     *
     * @param msg 消息对象
     * @return 字节数组
-     */
+    */
     public static byte[] encode(PeerMeshMessage msg) {
         byte[] payloadBytes = msg.payload() == null
                 ? new byte[0]
@@ -92,7 +92,7 @@ public class MessageProtocol {
     *
     * @param buffer 输入缓冲区
     * @return 解码后的消息，数据不足时返回 null
-     */
+    */
     public static PeerMeshMessage decode(ByteBuffer buffer) {
         if (buffer.remaining() < HEADER_SIZE) {
             return null;
@@ -122,7 +122,7 @@ public class MessageProtocol {
     * @param in 输入流
     * @return 消息对象
     * @throws IOException IO 异常
-     */
+    */
     public static PeerMeshMessage read(DataInputStream in) throws IOException {
         int magic = in.readInt();
         if (magic != MAGIC) {
@@ -148,7 +148,7 @@ public class MessageProtocol {
     * @param out 输出流
     * @param msg 消息对象
     * @throws IOException IO 异常
-     */
+    */
     public static void write(DataOutputStream out, PeerMeshMessage msg) throws IOException {
         byte[] payloadBytes = msg.payload() == null
                 ? new byte[0]

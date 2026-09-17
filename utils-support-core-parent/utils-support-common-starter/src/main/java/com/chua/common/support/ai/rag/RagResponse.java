@@ -19,14 +19,14 @@ public record RagResponse(
 ) {
 
     /**
-     * 命中的文档片段。
-     *
-     * @param documentId 文档 ID
-     * @param content    文档片段内容
-     * @param score      相似度分数
-     * @param isImage    来源是否为图片文件（前端据此渲染缩略图 / 预览）
-     * @param metadata   扩展元数据（含 fileName / fileType / docId）
-     */
+    * 命中的文档片段。
+    *
+    * @param documentId 文档 ID
+    * @param content    文档片段内容
+    * @param score      相似度分数
+    * @param isImage    来源是否为图片文件（前端据此渲染缩略图 / 预览）
+    * @param metadata   扩展元数据（含 fileName / fileType / docId）
+    */
     public record Source(
             String documentId,
             String content,
@@ -35,14 +35,14 @@ public record RagResponse(
             Map<String, Object> metadata
     ) {
         /**
-         * 兼容旧构造（不标记图片来源）。
-         *
-         * @param documentId 文档 ID
-         * @param content    文档片段内容
-         * @param score      相似度分数
-         * @param metadata   扩展元数据
-         * @return isImage=false 的 Source
-         */
+        * 兼容旧构造（不标记图片来源）。
+        *
+        * @param documentId 文档 ID
+        * @param content    文档片段内容
+        * @param score      相似度分数
+        * @param metadata   扩展元数据
+        * @return isImage=false 的 Source
+        */
         public Source(String documentId, String content, double score, Map<String, Object> metadata) {
             this(documentId, content, score, false, metadata);
         }

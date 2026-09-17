@@ -21,13 +21,13 @@ public record ChatSyncResponse(
         * 完整响应文本。
         *
         * <p>AI 模型返回的全部文本内容。
-         */
+        */
         String text,
         /**
         * 用量信息。
         *
         * <p>包含本次调用的 Token 用量和费用信息。
-         */
+        */
         AiUsage usage
 ) {
 
@@ -35,7 +35,7 @@ public record ChatSyncResponse(
     * 获取完整响应文本。
     *
     * @return 响应文本
-     */
+    */
     public String getText() {
         return text;
     }
@@ -44,7 +44,7 @@ public record ChatSyncResponse(
     * 获取用量信息。
     *
     * @return 用量信息
-     */
+    */
     public AiUsage getUsage() {
         return usage;
     }

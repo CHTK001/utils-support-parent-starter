@@ -22,7 +22,7 @@ public interface ListenerParser {
     *
     * @param clazz 监听器类
     * @return 事件类型到方法的映射
-     */
+    */
     Map<String, Method> parse(Class<?> clazz);
 
     /**
@@ -30,7 +30,7 @@ public interface ListenerParser {
     *
     * @param clazz 监听器类
     * @return 支持返回 true
-     */
+    */
     boolean support(Class<?> clazz);
 
     /**
@@ -39,7 +39,7 @@ public interface ListenerParser {
     * <p>值越小优先级越高。
     *
     * @return 排序值，默认 0
-     */
+    */
     default int getOrder() {
         return 0;
     }

@@ -45,7 +45,7 @@ public interface Tokenizer {
     *
     * @param word 待分词的文本
     * @return 分词后的词组列表
-     */
+    */
     static List<Word> segment(String word) {
         ServiceProvider<Tokenizer> serviceProvider = ServiceProvider.of(Tokenizer.class);
         Tokenizer tokenizer = serviceProvider.getSpiService();
@@ -64,7 +64,7 @@ public interface Tokenizer {
     * @param word 待分词的文本
     * @param type 分词器 SPI 别名，如 "hanlp"、"jieba" 等
     * @return 分词后的词组列表
-     */
+    */
     static List<Word> segment(String word, String type) {
         ServiceProvider<Tokenizer> serviceProvider = ServiceProvider.of(Tokenizer.class);
         Tokenizer tokenizer = serviceProvider.getExtension(type);
@@ -82,7 +82,7 @@ public interface Tokenizer {
     *
     * @param type 分词器 SPI 别名
     * @return 分词器实例；未找到对应实现时返回 {@code null}
-     */
+    */
     static Tokenizer of(String type) {
         ServiceProvider<Tokenizer> serviceProvider = ServiceProvider.of(Tokenizer.class);
         return serviceProvider.getNewExtension(type);
@@ -93,7 +93,7 @@ public interface Tokenizer {
     * <p>通过 SPI 查找默认实现并返回新实例，可用于需要多次独立使用分词器的场景。</p>
     *
     * @return 默认分词器实例；未找到时返回 {@code null}
-     */
+    */
     static Tokenizer newDefault() {
         ServiceProvider<Tokenizer> serviceProvider = ServiceProvider.of(Tokenizer.class);
         return serviceProvider.getSpiService();
@@ -106,7 +106,7 @@ public interface Tokenizer {
     *
     * @param word 待分词的文本
     * @return 分词后的词组列表
-     */
+    */
     List<Word> segments(String word);
 
     /**
@@ -115,7 +115,7 @@ public interface Tokenizer {
     *
     * @param word 待分词的文本
     * @return 空格分隔的分词结果字符串
-     */
+    */
     default String toSegment(String word) {
         return segments(word).stream()
                 .map(Word::getWord)
@@ -128,7 +128,7 @@ public interface Tokenizer {
     *
     * @param word 待分词的文本
     * @return 第一个词条的文字；如果分词结果为空则返回 {@code null}
-     */
+    */
     default String toFirstSegment(String word) {
         List<Word> result = segment(word);
         if (result == null || result.isEmpty()) {

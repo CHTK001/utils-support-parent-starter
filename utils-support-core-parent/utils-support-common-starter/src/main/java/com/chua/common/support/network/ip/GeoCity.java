@@ -92,7 +92,7 @@ public class GeoCity {
     * 获取完整地址字符串
     *
     * @return 国家+省份+城市
-     */
+    */
     public String getFullAddress() {
         StringBuilder sb = new StringBuilder();
         if (country != null) {

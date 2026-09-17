@@ -45,12 +45,12 @@ public class TableViewParser implements ViewParser {
 
     /**
     * 是否以无边框模式渲染：true 时不绘制框线字符，仅按列宽以空格对齐
-     */
+    */
     private final boolean borderless;
 
     /**
     * 默认构造器：框线模式。
-     */
+    */
     public TableViewParser() {
         this(false);
     }
@@ -59,7 +59,7 @@ public class TableViewParser implements ViewParser {
     * 构造器。
     *
     * @param borderless true 表示无边框模式，false 表示默认框线模式
-     */
+    */
     private TableViewParser(boolean borderless) {
         this.borderless = borderless;
     }
@@ -71,7 +71,7 @@ public class TableViewParser implements ViewParser {
     *
     * @param borderless true 表示无边框模式，false 表示默认框线模式
     * @return 新的 TableViewParser 实例
-     */
+    */
     public TableViewParser setBorderless(boolean borderless) {
         return new TableViewParser(borderless);
     }
@@ -81,7 +81,7 @@ public class TableViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return {@link Iterable} / {@link Map} / 数组 返回 true
-     */
+    */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -95,7 +95,7 @@ public class TableViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 表格字符串；空数据返回 {@link ViewFormatter#EMPTY_PLACEHOLDER}
-     */
+    */
     @Override
     public String render(Object data) {
         List<String[]> rows = ViewFormatter.extractRows(data);
@@ -109,7 +109,7 @@ public class TableViewParser implements ViewParser {
     * 获取解析器顺序。
     *
     * @return 顺序值
-     */
+    */
     @Override
     public int getOrder() {
         return 0;

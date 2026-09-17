@@ -26,7 +26,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
 
     /**
     * HTTP 413 状态码:请求体超限
-     */
+    */
     private static final int STATUS_PAYLOAD_TOO_LARGE = 413;
 
     /** 允许的最大请求体尺寸(字节) */
@@ -36,7 +36,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     * 创建请求体大小限制过滤器。
     *
     * @param maxBodyBytes 允许的最大请求体尺寸(字节)
-     */
+    */
     public BodySizeLimitServerFilter(long maxBodyBytes) {
         this.maxBodyBytes = maxBodyBytes;
     }
@@ -48,7 +48,9 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     }
 
     @Override
-    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    /**
+    * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
+    */
     public String supportPath() {
         return null;
     }
@@ -66,7 +68,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (exceedsLimit(request)) {
@@ -83,7 +85,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (exceedsLimit(request)) {
@@ -98,7 +100,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     *
     * @param request 请求对象
     * @return true 表示超限
-     */
+    */
     private boolean exceedsLimit(ServerRequest request) {
         long contentLength = request.getContentLength();
         // Content-Length 为 -1(chunked/无体)时交由解析器层的 maxRequestSize 兜底
@@ -109,7 +111,7 @@ public class BodySizeLimitServerFilter implements ServerFilter, ReactiveServerFi
     * 返回 413 标准错误响应并终止链。
     *
     * @param response 响应对象
-     */
+    */
     private void reject(ServerResponse response) {
         if (!response.isEnded()) {
             response.setStatus(STATUS_PAYLOAD_TOO_LARGE);

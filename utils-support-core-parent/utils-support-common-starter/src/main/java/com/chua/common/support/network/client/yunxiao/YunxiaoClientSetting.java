@@ -38,21 +38,21 @@ public class YunxiaoClientSetting {
 
     /**
     * 服务接入点域名，如 {@code "devops.cn-hangzhou.aliyuncs.com"}（不含协议前缀）
-     */
+    */
     private String domain;
 
     /**
     * 个人访问令牌（Personal Access Token，PAT），通过请求头 {@code x-yunxiao-token} 传递
-     */
+    */
     private String token;
 
     /**
     * 企业 Id（organizationId），仅中心版需要；Region 版可为空
-     */
+    */
     private String organizationId;
 
     /**
     * 是否为云效中心版（中心版请求路径含组织前缀）；false 表示 Region 版
-     */
+    */
     private boolean central;
 }

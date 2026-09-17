@@ -17,14 +17,16 @@ public class GeoSetting {
     /** 数据库文件路径 */
     private final String databaseFile;
 
-    /** MaxMind License Key（用于自动下载 GeoLite2 数据库） */
+    /**
+    * MaxMind License Key（用于自动下载 GeoLite2 数据库）
+    */
     private final String licenseKey;
 
     /**
     * 创建 GeoSetting 实例
     * @param databaseFile databaseFile
     * @param String String
-     */
+    */
     public GeoSetting(String databaseFile, String licenseKey) {
         this.databaseFile = databaseFile;
         this.licenseKey = licenseKey;
@@ -37,7 +39,7 @@ public class GeoSetting {
 
     /**
     * 创建 Builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }

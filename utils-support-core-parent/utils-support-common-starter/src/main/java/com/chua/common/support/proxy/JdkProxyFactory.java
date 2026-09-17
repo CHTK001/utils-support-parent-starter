@@ -10,36 +10,36 @@ import java.lang.reflect.Method;
 
 
 /**
-* JDK 动态代理工厂，基于 {@link java.lang.reflect.Proxy} 创建代理对象。
-*
-* <p>本类是 {@link ProxyFactory} 的 JDK 实现，使用 Java 标准库的反射机制创建代理对象。
-* 与 CGLIB 或 Javassist 等字节码增强技术相比，JDK 动态代理的特点是：</p>
-* <ul>
-*   <li><b>零依赖</b> — 仅使用 JDK 标准库，无需引入第三方 jar 包</li>
-*   <li><b>性能良好</b> — 调用性能稳定，JDK 8+ 有原生优化</li>
-*   <li><b>限制</b> — 只能代理接口类型，不能代理类</li>
-* </ul>
-*
-* <p>本类以单例模式提供，通过 {@link #INSTANCE} 访问。</p>
-*
-* <p><b>执行流程：</b></p>
-* <pre>{@code
-* Proxy.newProxyInstance(classLoader, interfaces, handler)
-*   └── JdkInvocationHandler.invoke(proxy, method, args)
-*         ├── intercept.before(obj, method, args, proxy)    ← 前置处理
-*         ├── intercept.invoke(obj, method, args, proxy)    ← 方法调用
-*         ├── intercept.handleException(...)                 ← 异常处理
-*         └── intercept.after(obj, method, args, proxy)     ← 后置处理
-* }</pre>n(...)                 ← 异常处理
-*         └── intercept.after(obj, method, args, proxy)     ← 后置处理
-* }</pre>
-*
-* @param <T> 代理接口类型
-* @author CH
-* @since 2025/7/20
-* @see java.lang.reflect.Proxy
-* @see java.lang.reflect.InvocationHandler
- */
+ * JDK 动态代理工厂，基于 {@link java.lang.reflect.Proxy} 创建代理对象。
+ *
+ * <p>本类是 {@link ProxyFactory} 的 JDK 实现，使用 Java 标准库的反射机制创建代理对象。
+ * 与 CGLIB 或 Javassist 等字节码增强技术相比，JDK 动态代理的特点是：</p>
+ * <ul>
+ *   <li><b>零依赖</b> — 仅使用 JDK 标准库，无需引入第三方 jar 包</li>
+ *   <li><b>性能良好</b> — 调用性能稳定，JDK 8+ 有原生优化</li>
+ *   <li><b>限制</b> — 只能代理接口类型，不能代理类</li>
+ * </ul>
+ *
+ * <p>本类以单例模式提供，通过 {@link #INSTANCE} 访问。</p>
+ *
+ * <p><b>执行流程：</b></p>
+ * <pre>{@code
+ * Proxy.newProxyInstance(classLoader, interfaces, handler)
+ *   └── JdkInvocationHandler.invoke(proxy, method, args)
+ *         ├── intercept.before(obj, method, args, proxy)    ← 前置处理
+ *         ├── intercept.invoke(obj, method, args, proxy)    ← 方法调用
+ *         ├── intercept.handleException(...)                 ← 异常处理
+ *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
+ * }</pre>n(...)                 ← 异常处理
+ *         └── intercept.after(obj, method, args, proxy)     ← 后置处理
+ * }</pre>
+ *
+ * @param <T> 代理接口类型
+ * @author CH
+ * @since 2025/7/20
+ * @see java.lang.reflect.Proxy
+ * @see java.lang.reflect.InvocationHandler
+*/
 @SuppressWarnings("all")
 @Spi("jdk")
 public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFactory<T> {
@@ -48,7 +48,7 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
     * 单例实例，全局共享。
     *
     * <p>由于 JDK 动态代理工厂是无状态的，使用单例模式避免重复创建实例。</p>
-     */
+    */
     public static final com.chua.common.support.proxy.ProxyFactory INSTANCE = new JdkProxyFactory();
 
     /**
@@ -63,7 +63,7 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
     * @param classLoader 类加载器
     * @param intercept   方法拦截器
     * @return 代理对象实例
-     */
+    */
     @Override
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
             MethodIntercept<T> intercept) {
@@ -83,21 +83,21 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
     * @param <T> 代理接口类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class JdkInvocationHandler<T> implements InvocationHandler {
 
         /**
         * 方法拦截器。
         *
         * <p>定义了代理方法调用的拦截逻辑，包括 before/invoke/after/handleException 四个扩展点。</p>
-         */
+        */
         final MethodIntercept<T> intercept;
 
         /**
         * 创建 JDK 调用处理器。
         *
         * @param intercept 方法拦截器，定义拦截逻辑
-         */
+        */
         public JdkInvocationHandler(MethodIntercept<T> intercept) {
             this.intercept = intercept;
         }
@@ -118,7 +118,7 @@ public class JdkProxyFactory<T> implements com.chua.common.support.proxy.ProxyFa
         * @param args   方法参数
         * @return 方法调用结果
         * @throws Throwable 如果执行过程中发生异常
-         */
+        */
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             // 执行前置处理

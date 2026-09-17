@@ -13,25 +13,25 @@ import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 结构化并发运行器提供者 — 基于 Java 25 {@link StructuredTaskScope} 的默认执行引擎。
-*
-* <p>调度模型（dataflow 就绪即跑）：</p>
-* <ol>
-*   <li>全部节点一次性 fork 进单个结构化作用域；每个节点先等待其全部前置完成，
-*       就绪即执行——无层间硬屏障，独立分支互不拖延</li>
-*   <li>节点间通过 {@link CompletableFuture} 传递结果；等待使用响应中断的
-*       {@code get()}，取消/关停时不会悬挂</li>
-*   <li>配合 {@code Joiner.allUntil} 实现策略驱动的提前终止：
-*       达到目标成功率/阈值即取消剩余任务，不可能达标时同样提前退出</li>
-*   <li>前置失败/跳过的节点级联 SKIPPED；SKIPPED 不计入完成策略分母</li>
-* </ol>
-*
-* <p>单节点链路（熔断降级 → 超时 → 预算感知重试）由 {@link AbstractRunnerProvider} 组装。
-* 本类无共享可变状态，实例可安全支撑并发的多次 运行。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 结构化并发运行器提供者 — 基于 Java 25 {@link StructuredTaskScope} 的默认执行引擎。
+ *
+ * <p>调度模型（dataflow 就绪即跑）：</p>
+ * <ol>
+ *   <li>全部节点一次性 fork 进单个结构化作用域；每个节点先等待其全部前置完成，
+ *       就绪即执行——无层间硬屏障，独立分支互不拖延</li>
+ *   <li>节点间通过 {@link CompletableFuture} 传递结果；等待使用响应中断的
+ *       {@code get()}，取消/关停时不会悬挂</li>
+ *   <li>配合 {@code Joiner.allUntil} 实现策略驱动的提前终止：
+ *       达到目标成功率/阈值即取消剩余任务，不可能达标时同样提前退出</li>
+ *   <li>前置失败/跳过的节点级联 SKIPPED；SKIPPED 不计入完成策略分母</li>
+ * </ol>
+ *
+ * <p>单节点链路（熔断降级 → 超时 → 预算感知重试）由 {@link AbstractRunnerProvider} 组装。
+ * 本类无共享可变状态，实例可安全支撑并发的多次 运行。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Spi("structured")
 public class StructuredRunnerProvider extends AbstractRunnerProvider implements RunnerProvider {
 
@@ -42,7 +42,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     * @param context 运行上下文
     * @param options 执行参数
     * @return 整体运行结果，失败时携带首个错误与 SKIPPED 明细
-     */
+    */
     @Override
     public RunResult run(TaskGraph graph, RunnerContext context, ExecutionOptions options) {
         var started = System.currentTimeMillis();
@@ -109,7 +109,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     *
     * <p>任何阶段抛出的异常都会转化为本节点的 FAILED 结果并完成槽位，
     * 保证后继节点永不悬挂。</p>
-     */
+    */
     private Object runNode(TaskDefinition def, RunnerContext context, ExecutionOptions options,
                            Map<String, CompletableFuture<TaskResult>> futures,
                            Map<String, Object> values, Map<String, Throwable> errors,
@@ -146,7 +146,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     *
     * @return SKIPPED 结果表示应级联跳过；空 表示前置全部就绪、可执行
     * @throws InterruptedException 等待期间被中断（仅发生在取消/关停路径）
-     */
+    */
     private TaskResult awaitDependenciesOrSkip(TaskDefinition def,
                                                Map<String, CompletableFuture<TaskResult>> futures,
                                                Map<String, String> skipReasons) throws Exception {
@@ -168,7 +168,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
 
     /**
     * 记录节点结果：维护计数、收集表与生命周期事件。
-     */
+    */
     private void record(String id, TaskResult result, ExecutionOptions options,
                         Map<String, Object> values, Map<String, Throwable> errors,
                         Map<String, String> skipReasons,
@@ -204,7 +204,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     * @param nodeDurations 耗时收集表
     * @param options       执行参数（用于被取消节点的事件发布）
     * @return 全量结果列表
-     */
+    */
     private List<TaskResult> assembleResults(List<TaskDefinition> ordered,
                                              Map<String, Object> values,
                                              Map<String, Throwable> errors,
@@ -240,7 +240,7 @@ public class StructuredRunnerProvider extends AbstractRunnerProvider implements 
     * @param successTarget 成功目标数
     * @param failLimit 失败上限（超过即不可能达标）
     * @return true 表示应取消剩余任务
-     */
+    */
     private boolean isEarlyExit(int success, int failed, int successTarget, int failLimit) {
         return success >= successTarget || failed >= failLimit;
     }

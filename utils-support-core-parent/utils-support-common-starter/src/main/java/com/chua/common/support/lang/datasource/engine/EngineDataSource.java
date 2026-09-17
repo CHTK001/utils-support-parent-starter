@@ -35,7 +35,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * 获取数据源名称，用于在 {@link Engine} 中唯一标识。
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -48,7 +48,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * </ul>
     *
     * @return 底层数据源实例
-     */
+    */
     T getSource();
 
     /**
@@ -58,7 +58,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * @param type 目标类型
     * @param <R>  类型参数
     * @return 类型匹配的实例，不匹配返回 null
-     */
+    */
     default <R> R getSource(Class<R> type) {
         T source = getSource();
         return type.isInstance(source) ? (R) source : null;
@@ -70,7 +70,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     *
     * @param source 新的数据源对象
     * @return this
-     */
+    */
     EngineDataSource<T> setSource(Object source);
 
     /**
@@ -79,7 +79,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * 非 SQL 类型（如 Redis、MongoDB）应返回 null。</p>
     *
     * @return 方言实例，非 SQL 数据源返回 null
-     */
+    */
     Dialect getDialect();
 
     /**
@@ -87,7 +87,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     *
     * @param dialect 方言实例
     * @return this
-     */
+    */
     EngineDataSource<T> setDialect(Dialect dialect);
 
     /**
@@ -96,28 +96,28 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * 非 SQL 数据源返回自定义连接串或 null。</p>
     *
     * @return 连接 URL 或 null
-     */
+    */
     String url();
 
     /**
     * 获取用户名。
     *
     * @return 用户名或 null
-     */
+    */
     String username();
 
     /**
     * 获取密码。
     *
     * @return 密码或 null
-     */
+    */
     String password();
 
     /**
     * 获取数据库名称（MongoDB 等非 JDBC 数据源使用）。
     *
     * @return 数据库名称或 null
-     */
+    */
     default String database() {
         return null;
     }
@@ -128,7 +128,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     * <p>默认值为 0，表示未启用隧道。</p>
     *
     * @return 隧道本地端口号，未启用隧道返回 0
-     */
+    */
     default int tunnelPort() {
         return 0;
     }
@@ -139,7 +139,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     *
     * @param tunnelPort 隧道本地端口号
     * @return this
-     */
+    */
     default EngineDataSource<T> setTunnelPort(int tunnelPort) {
         return this;
     }
@@ -147,7 +147,7 @@ public interface EngineDataSource<T> extends AutoCloseable {
     /**
     * 关闭数据源，释放底层资源。
     * <p>如果底层数据源实现了 {@link AutoCloseable}，则自动调用 close。</p>
-     */
+    */
     @Override
     default void close() {
         T source = getSource();

@@ -38,7 +38,7 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
     *
     * @param value 源值
     * @return InputStream 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public InputStream convert(Object value) {
         if (null == value) {
@@ -123,7 +123,7 @@ public class InputStreamTypeConverter implements TypeConverter<InputStream> {
     * 获取当前转换器支持的目标类型。
     *
     * @return InputStream.class
-     */
+    */
     @Override
     public Class<InputStream> getType() {
         return InputStream.class;

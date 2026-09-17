@@ -55,7 +55,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     /**
     * 创建 AbstractLambdaWrapper 实例
     * @param entityClass entityClass
-     */
+    */
     protected AbstractLambdaWrapper(Class<T> entityClass) {
         this.entityClass = entityClass;
     }
@@ -289,7 +289,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     * 创建同类型的新包装器实例，用于 and/or 嵌套条件。
     *
     * @return 新实例
-     */
+    */
     protected abstract C newInstance();
 
     /**
@@ -300,7 +300,7 @@ public abstract class AbstractLambdaWrapper<T, C extends AbstractLambdaWrapper<T
     *
     * @param column Lambda 方法引用
     * @return 数据库列名
-     */
+    */
     protected abstract String resolveColumn(SFunction<T, ?> column);
 
     // ==================== 访问器 ====================

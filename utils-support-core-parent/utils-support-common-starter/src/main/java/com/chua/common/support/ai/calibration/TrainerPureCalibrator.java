@@ -54,7 +54,7 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     * @param samePersonCount  本人目录的样本数量
     * @param seed             随机种子（保证可复现，传null则每次不同）
     * @return 自身，支持链式调用
-     */
+    */
     TrainerPureCalibrator generateTrainingData(int notSimilarCount,
                                                int lookSimilarCount,
                                                int samePersonCount,
@@ -70,7 +70,7 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     * @param lookSimilarScores 看似相似目录的原始分数列表
     * @param samePersonScores  本人目录的原始分数列表
     * @return 自身，支持链式调用
-     */
+    */
     TrainerPureCalibrator setTrainingData(List<Double> notSimilarScores,
                                           List<Double> lookSimilarScores,
                                           List<Double> samePersonScores);
@@ -86,7 +86,7 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     * 然后调用对应算法的拟合逻辑，更新内部参数。
     *
     * @return 自身，支持链式调用
-     */
+    */
     TrainerPureCalibrator train();
 
     // ==================== 模型保存与加载 ====================
@@ -96,7 +96,7 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     *
     * @param filePath 文件路径
     * @return 自身，支持链式调用
-     */
+    */
     TrainerPureCalibrator saveModel(String filePath);
 
     /**
@@ -104,7 +104,7 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     *
     * @param filePath 文件路径
     * @return 自身，支持链式调用
-     */
+    */
     TrainerPureCalibrator loadModel(String filePath);
 
     // ==================== 训练数据访问 ====================
@@ -113,13 +113,13 @@ public interface TrainerPureCalibrator extends PureCalibrator {
     * 获取训练数据（三个目录的分数）
     *
     * @return TrainingData 对象，包含三个目录的分数列表
-     */
+    */
     TrainingData getTrainingData();
 
     /**
     * 获取训练效果统计（校准前后对比）
     *
     * @return 统计信息对象
-     */
+    */
     TrainingStats getTrainingStats();
 }

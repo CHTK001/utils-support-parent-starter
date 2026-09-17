@@ -17,11 +17,11 @@ public class OpenApiSection {
 
     /**
     * 标题（侧边栏 & 页面 H2）。
-     */
+    */
     private String title;
 
     /**
     * Markdown 文本内容（支持 p / h3 / ul / li / code / pre / table 标签）。
-     */
+    */
     private String content;
 }

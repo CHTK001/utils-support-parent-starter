@@ -41,32 +41,32 @@ public class MultiProgressBar implements AutoCloseable {
 
     /**
     * 任务列表
-     */
+    */
     private final List<TaskProgress> tasks = new ArrayList<>();
 
     /**
     * 进度条消费者
-     */
+    */
     private final ProgressBarConsumer consumer;
 
     /**
     * 进度条渲染器
-     */
+    */
     private final ProgressBarRenderer renderer;
 
     /**
     * 更新间隔（毫秒）
-     */
+    */
     private final int updateIntervalMillis;
 
     /**
     * 定时刷新任务
-     */
+    */
     private final ScheduledFuture<?> scheduledTask;
 
     /**
     * 是否已首次渲染
-     */
+    */
     private boolean rendered;
 
     /**
@@ -74,7 +74,7 @@ public class MultiProgressBar implements AutoCloseable {
     *
     * @param consumer 进度条消费者
     * @param tasks    交替的任务名称和最大值（name1, max1, name2, max2, ...）
-     */
+    */
     public MultiProgressBar(ProgressBarConsumer consumer, Object... tasks) {
         this(consumer, new DefaultProgressBarRenderer(ProgressBarStyle.ASCII), 100, tasks);
     }
@@ -86,7 +86,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param renderer            进度条渲染器
     * @param updateIntervalMillis 刷新间隔（毫秒）
     * @param tasks               交替的任务名称和最大值（name1, max1, name2, max2, ...）
-     */
+    */
     public MultiProgressBar(
             ProgressBarConsumer consumer,
             ProgressBarRenderer renderer,
@@ -110,7 +110,7 @@ public class MultiProgressBar implements AutoCloseable {
     * 创建一个进度条构建器。
     *
     * @return 构建器
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -121,7 +121,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param index 任务索引
     * @param n     步进数
     * @return this
-     */
+    */
     public MultiProgressBar stepBy(int index, long n) {
         tasks.get(index).state.stepBy(n);
         refresh();
@@ -134,7 +134,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param name 任务名称
     * @param n    步进数
     * @return this
-     */
+    */
     public MultiProgressBar stepBy(String name, long n) {
         return stepBy(indexOf(name), n);
     }
@@ -144,7 +144,7 @@ public class MultiProgressBar implements AutoCloseable {
     *
     * @param index 任务索引
     * @return this
-     */
+    */
     public MultiProgressBar step(int index) {
         return stepBy(index, 1);
     }
@@ -154,7 +154,7 @@ public class MultiProgressBar implements AutoCloseable {
     *
     * @param name 任务名称
     * @return this
-     */
+    */
     public MultiProgressBar step(String name) {
         return stepBy(name, 1);
     }
@@ -165,7 +165,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param index 任务索引
     * @param value 目标进度
     * @return this
-     */
+    */
     public MultiProgressBar stepTo(int index, long value) {
         tasks.get(index).state.stepTo(value);
         refresh();
@@ -178,7 +178,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param name  任务名称
     * @param value 目标进度
     * @return this
-     */
+    */
     public MultiProgressBar stepTo(String name, long value) {
         return stepTo(indexOf(name), value);
     }
@@ -188,7 +188,7 @@ public class MultiProgressBar implements AutoCloseable {
     *
     * @param index 任务索引
     * @return 当前进度
-     */
+    */
     public long getCurrent(int index) {
         return tasks.get(index).state.getCurrent();
     }
@@ -198,7 +198,7 @@ public class MultiProgressBar implements AutoCloseable {
     *
     * @param name 任务名称
     * @return 当前进度
-     */
+    */
     public long getCurrent(String name) {
         return getCurrent(indexOf(name));
     }
@@ -207,7 +207,7 @@ public class MultiProgressBar implements AutoCloseable {
     * 判断所有任务是否已完成。
     *
     * @return true 全部完成
-     */
+    */
     public boolean isAllDone() {
         return tasks.stream().allMatch(t -> t.state.getCurrent() >= t.state.getMax());
     }
@@ -218,7 +218,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param index 任务索引
     * @param msg   附加消息
     * @return this
-     */
+    */
     public MultiProgressBar setExtraMessage(int index, String msg) {
         tasks.get(index).state.setExtraMessage(msg);
         refresh();
@@ -231,7 +231,7 @@ public class MultiProgressBar implements AutoCloseable {
     * @param name 任务名称
     * @param msg  附加消息
     * @return this
-     */
+    */
     public MultiProgressBar setExtraMessage(String name, String msg) {
         return setExtraMessage(indexOf(name), msg);
     }
@@ -283,7 +283,7 @@ public class MultiProgressBar implements AutoCloseable {
 
     /**
     * 任务进度内部包装
-     */
+    */
     static class TaskProgress {
         final ProgressState state;
 
@@ -294,7 +294,7 @@ public class MultiProgressBar implements AutoCloseable {
 
     /**
     * {@link MultiProgressBar} 构建器。
-     */
+    */
     public static class Builder {
 
         /** 任务names */
@@ -317,7 +317,7 @@ public class MultiProgressBar implements AutoCloseable {
         * @param name 任务名称
         * @param max  最大值
         * @return this
-         */
+        */
         public Builder addTask(String name, long max) {
             taskNames.add(name);
             taskMaxs.add(max);
@@ -329,7 +329,7 @@ public class MultiProgressBar implements AutoCloseable {
         *
         * @param consumer 消费者
         * @return this
-         */
+        */
         public Builder consumer(ProgressBarConsumer consumer) {
             this.consumer = consumer;
             return this;
@@ -340,7 +340,7 @@ public class MultiProgressBar implements AutoCloseable {
         *
         * @param renderer 渲染器
         * @return this
-         */
+        */
         public Builder renderer(ProgressBarRenderer renderer) {
             this.renderer = renderer;
             return this;
@@ -351,7 +351,7 @@ public class MultiProgressBar implements AutoCloseable {
         *
         * @param millis 毫秒
         * @return this
-         */
+        */
         public Builder updateIntervalMillis(int millis) {
             this.updateIntervalMillis = millis;
             return this;
@@ -361,7 +361,7 @@ public class MultiProgressBar implements AutoCloseable {
         * 构建 {@link MultiProgressBar} 实例。
         *
         * @return 多任务进度条
-         */
+        */
         public MultiProgressBar build() {
             if (taskNames.isEmpty()) {
                 throw new IllegalStateException("至少需要添加一个任务");

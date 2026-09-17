@@ -33,22 +33,22 @@ public class CircularArrayList<E> implements CircularArray<E> {
 
     /**
     * 内部存储数组
-     */
+    */
     private Object[] elements;
 
     /**
     * 头部索引，指向逻辑上的第一个元素
-     */
+    */
     private int head;
 
     /**
     * 当前元素数量
-     */
+    */
     private int size;
 
     /**
     * 数组固定容量
-     */
+    */
     private int capacity;
 
     /**
@@ -58,7 +58,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     * @param capacity  数组容量，必须大于 0
     * @return 环状数组实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularArrayList<E> of(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -77,7 +77,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     * @param <E>       元素类型
     * @return 环状数组实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularArrayList<E> of(int capacity, Collection<? extends E> c) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -95,7 +95,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     * 构造方法。
     *
     * @param capacity 数组容量
-     */
+    */
     public CircularArrayList(int capacity) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -533,7 +533,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     *
     * @param index 逻辑索引
     * @return 实际数组索引
-     */
+    */
     private int actualIndex(int index) {
         return (head + index) % capacity;
     }
@@ -542,7 +542,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     * 检查元素索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkElementIndex(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);
@@ -553,7 +553,7 @@ public class CircularArrayList<E> implements CircularArray<E> {
     * 检查位置索引是否合法。
     *
     * @param index 索引
-     */
+    */
     private void checkPositionIndex(int index) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("索引: " + index + ", 大小: " + size);

@@ -22,29 +22,29 @@ public class TarOutputStream extends OutputStream {
 
     /**
     * 底层的输出流。
-     */
+    */
     private final OutputStream out;
 
     /**
     * 已写入的总字节数。
-     */
+    */
     private long bytesWritten;
 
     /**
     * 当前条目的已写入字节数。
-     */
+    */
     private long currentFileSize;
 
     /**
     * 当前正在处理的 TAR 条目。
-     */
+    */
     private TarEntry currentEntry;
 
     /**
     * 使用指定的输出流创建新的 TAR 输出流。
     *
     * @param out 目标输出流
-     */
+    */
     public TarOutputStream(OutputStream out) {
         this.out = out;
         this.bytesWritten = 0;
@@ -56,7 +56,7 @@ public class TarOutputStream extends OutputStream {
     *
     * @param fout 目标文件
     * @throws FileNotFoundException 如果文件不存在且无法打开进行写入
-     */
+    */
     public TarOutputStream(final File fout) throws FileNotFoundException {
         this.out = new BufferedOutputStream(new FileOutputStream(fout));
         this.bytesWritten = 0;
@@ -70,7 +70,7 @@ public class TarOutputStream extends OutputStream {
     * @param fout   目标文件
     * @param append 如果为 true 则启用追加模式
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     public TarOutputStream(final File fout, final boolean append) throws IOException {
         @SuppressWarnings("resource")
         RandomAccessFile raf = new RandomAccessFile(fout, "rw");
@@ -85,7 +85,7 @@ public class TarOutputStream extends OutputStream {
     * 追加 EOF 记录并关闭流。
     *
     * @see java.io.FilterOutputStream#close()
-     */
+    */
     @Override
     public void close() throws IOException {
         closeCurrentEntry();
@@ -98,7 +98,7 @@ public class TarOutputStream extends OutputStream {
     *
     * @param b 要写入的字节
     * @see java.io.FilterOutputStream#write(int)
-     */
+    */
     @Override
     public void write(int b) throws IOException {
         out.write(b);
@@ -116,7 +116,7 @@ public class TarOutputStream extends OutputStream {
     * @param off 起始偏移量
     * @param len 要写入的字节数
     * @see java.io.FilterOutputStream#write(byte[], int, int)
-     */
+    */
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         if (currentEntry != null && !currentEntry.isDirectory()) {
@@ -142,7 +142,7 @@ public class TarOutputStream extends OutputStream {
     *
     * @param entry 要写入的 TAR 条目
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     public void putNextEntry(TarEntry entry) throws IOException {
         closeCurrentEntry();
 
@@ -158,7 +158,7 @@ public class TarOutputStream extends OutputStream {
     * 如果条目未完全写入，将抛出异常。
     *
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     protected void closeCurrentEntry() throws IOException {
         if (currentEntry != null) {
             if (currentEntry.getSize() > currentFileSize) {
@@ -179,7 +179,7 @@ public class TarOutputStream extends OutputStream {
     * 填充最后一个内容块，使其对齐到 TAR 块边界（通常为 512 字节）。
     *
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     protected void pad() throws IOException {
         if (bytesWritten > 0) {
             int extra = (int) (bytesWritten % TarConstants.DATA_BLOCK);

@@ -35,7 +35,7 @@ public interface RpcClient extends AutoCloseable {
     * @param registryConfig registryConfig
     * @param consumerConfig consumerConfig
     * @param appName appName
-     */
+    */
     static RpcClient createClient(String name, RpcRegistryConfig registryConfig,
                                   RpcConsumerConfig consumerConfig, String appName) {
         return createClient(name, Collections.singletonList(registryConfig), consumerConfig, appName);
@@ -49,7 +49,7 @@ public interface RpcClient extends AutoCloseable {
     * @param consumerConfig    消费者配置
     * @param appName           应用名称
     * @return RPC 客户端实例
-     */
+    */
     static RpcClient createClient(String name, List<RpcRegistryConfig> registryConfigs,
                                   RpcConsumerConfig consumerConfig, String appName) {
         return ServiceProvider.of(RpcClient.class)
@@ -63,6 +63,6 @@ public interface RpcClient extends AutoCloseable {
     * @param <T>        接口泛型
     * @return 远程服务的本地动态代理对象
     * @throws IllegalStateException 当注册中心无可用节点时抛出
-     */
+    */
     <T> T get(Class<T> targetType);
 }

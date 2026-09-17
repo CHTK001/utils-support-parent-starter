@@ -29,17 +29,17 @@ public class LatencyRouterStrategy implements RouterStrategy {
 
     /**
     * 同步执行最长等待时间（毫秒），超过此时间仍未返回则视为全部失败
-     */
+    */
     private static final long MAX_WAIT_MS = 60_000L;
 
     /**
     * 竞速轮询间隔（毫秒），每 {@value} 毫秒检查一次 future 状态
-     */
+    */
     private static final long POLL_INTERVAL_MS = 100L;
 
     /**
     * 空文本占位：当 provider 返回了响应但文本为 null 时使用
-     */
+    */
     private static final String EMPTY_TEXT = "";
 
     @Override
@@ -65,7 +65,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     * @throws IllegalArgumentException 当 {@code clients} 为空时抛出
     * @throws RuntimeException         当所有 provider 在超时时间内均失败时抛出
     * @throws Exception                provider 自身可能抛出的异常
-     */
+    */
     @Override
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {
@@ -133,7 +133,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     * @param prompt    用户输入
     * @param consumer  流式回调
     * @throws Exception provider 自身可能抛出的异常
-     */
+    */
     @Override
     public void executeStream(List<WeightedClient> clients, String prompt,
                               Consumer<ChatResponse> consumer) throws Exception {
@@ -146,7 +146,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     *
     * @param futures 待清理的 future 列表
     * @param keep    需要保留的 future（赢家）
-     */
+    */
     private void cancelOthers(List<CompletableFuture<Result>> futures, CompletableFuture<Result> keep) {
         for (CompletableFuture<Result> f : futures) {
             if (f != keep && !f.isDone()) {
@@ -159,7 +159,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     * 取消全部未完成 future，用于超时或异常路径下的资源回收。
     *
     * @param futures 待清理的 future 列表
-     */
+    */
     private void cancelAll(List<CompletableFuture<Result>> futures) {
         for (CompletableFuture<Result> f : futures) {
             if (!f.isDone()) {
@@ -176,7 +176,7 @@ public class LatencyRouterStrategy implements RouterStrategy {
     * @param elapsed 耗时（毫秒）
     * @param error   provider 抛出的异常（成功时为 null）
     * @since 4.0.0.42
-     */
+    */
     private record Result(WeightedClient client, String text, long elapsed, Exception error) {
     }
 }

@@ -18,32 +18,32 @@ import java.lang.reflect.Parameter;
 import java.util.Map;
 
 /**
-* HTTP 协议专用服务器接口，继承自协议无关的 {@link Server}。
-*
-* <p>提供 HTTP 路由注册、HTTP 方法快捷调用、IOC Handler 扫描等专有操作。
-* HTTP 服务器实现类应实现此接口而非直接实现 {@link Server}。
-*
-* <h2>路由注册</h2>
-* <pre>{@code
-* ConfigServer server = new NettyHttpServer(setting);
-* server.registerMapping("/api/users", HttpMethod.GET, handler);
-* server.registerMapping("/api/users", HttpMethod.POST, createHandler);
-* server.post("/api/login", loginHandler);
-* }</pre>
-*
-* <h2>HTTP 方法快捷注册</h2>
-* <ul>
-*   <li>{@link #get(String, ServerHandler)} — GET 方法快捷注册</li>
-*   <li>{@link #post(String, ServerHandler)} — POST 方法快捷注册</li>
-*   <li>{@link #put(String, ServerHandler)} — PUT 方法快捷注册</li>
-*   <li>{@link #delete(String, ServerHandler)} — DELETE 方法快捷注册</li>
-*   <li>{@link #patch(String, ServerHandler)} — PATCH 方法快捷注册</li>
-* </ul>
-*
-* @author CH
-* @version 2.0
-* @since 2026/07/16
- */
+ * HTTP 协议专用服务器接口，继承自协议无关的 {@link Server}。
+ *
+ * <p>提供 HTTP 路由注册、HTTP 方法快捷调用、IOC Handler 扫描等专有操作。
+ * HTTP 服务器实现类应实现此接口而非直接实现 {@link Server}。
+ *
+ * <h2>路由注册</h2>
+ * <pre>{@code
+ * ConfigServer server = new NettyHttpServer(setting);
+ * server.registerMapping("/api/users", HttpMethod.GET, handler);
+ * server.registerMapping("/api/users", HttpMethod.POST, createHandler);
+ * server.post("/api/login", loginHandler);
+ * }</pre>
+ *
+ * <h2>HTTP 方法快捷注册</h2>
+ * <ul>
+ *   <li>{@link #get(String, ServerHandler)} — GET 方法快捷注册</li>
+ *   <li>{@link #post(String, ServerHandler)} — POST 方法快捷注册</li>
+ *   <li>{@link #put(String, ServerHandler)} — PUT 方法快捷注册</li>
+ *   <li>{@link #delete(String, ServerHandler)} — DELETE 方法快捷注册</li>
+ *   <li>{@link #patch(String, ServerHandler)} — PATCH 方法快捷注册</li>
+ * </ul>
+ *
+ * @author CH
+ * @version 2.0
+ * @since 2026/07/16
+*/
 public interface ConfigServer extends Server {
 
     // ==================== 路由注册 ====================
@@ -55,7 +55,7 @@ public interface ConfigServer extends Server {
     * @param method  HTTP 方法
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server registerMapping(String path, HttpMethod method, ServerHandler handler);
 
     /**
@@ -64,7 +64,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server registerMapping(String path, ServerHandler handler);
 
     /**
@@ -72,7 +72,7 @@ public interface ConfigServer extends Server {
     *
     * @param path 请求路径
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server removeMapping(String path);
 
     // ==================== HTTP 方法快捷注册 ====================
@@ -83,7 +83,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server get(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.GET, handler);
     }
@@ -94,7 +94,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server post(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.POST, handler);
     }
@@ -105,7 +105,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server put(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.PUT, handler);
     }
@@ -116,7 +116,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server delete(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.DELETE, handler);
     }
@@ -127,7 +127,7 @@ public interface ConfigServer extends Server {
     * @param path    请求路径
     * @param handler 请求处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server patch(String path, ServerHandler handler) {
         return registerMapping(path, HttpMethod.PATCH, handler);
     }
@@ -151,7 +151,7 @@ public interface ConfigServer extends Server {
     *
     * @param handler 要注册的对象
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     default Server registerMapper(Object handler) {
         if (handler == null) {
             return this;
@@ -264,7 +264,7 @@ public interface ConfigServer extends Server {
     * <p>用于将 handler 返回对象转换为不同格式（JSON/XML/HTML）。</p>
     *
     * @return 名称到 ResponseConverter 的映射
-     */
+    */
     default Map<String, ResponseConverter> getResponseConverters() {
         return ServiceProvider.of(ResponseConverter.class).list();
     }

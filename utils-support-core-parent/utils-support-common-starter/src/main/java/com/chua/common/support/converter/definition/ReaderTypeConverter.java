@@ -49,7 +49,7 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
     *
     * @param value 源值
     * @return Reader 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Reader convert(Object value) {
         if (null == value) {
@@ -122,7 +122,7 @@ public class ReaderTypeConverter implements TypeConverter<Reader> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Reader.class
-     */
+    */
     @Override
     public Class<Reader> getType() {
         return Reader.class;

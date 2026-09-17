@@ -15,7 +15,7 @@ class PooledObject<T> {
 
     /**
     * 对象状态
-     */
+    */
     enum Status {
 
         /** 空闲，可被借出 */
@@ -33,8 +33,8 @@ class PooledObject<T> {
 
     /** 当前状态 */
     /**
-     * 状态
-     */
+    * 状态
+    */
     private volatile Status status;
 
     /** 最后一次借出时间（毫秒时间戳） */
@@ -80,7 +80,7 @@ class PooledObject<T> {
 
     /**
     * 标记为已借出
-     */
+    */
     void markBorrowed() {
         this.status = Status.BORROWED;
         this.lastBorrowTime = System.currentTimeMillis();
@@ -89,7 +89,7 @@ class PooledObject<T> {
 
     /**
     * 标记为已归还
-     */
+    */
     void markReturned() {
         this.status = Status.IDLE;
         this.lastReturnTime = System.currentTimeMillis();
@@ -99,7 +99,7 @@ class PooledObject<T> {
     * 计算空闲时长（毫秒）
     *
     * @return 从上次归还到当前的空闲时长
-     */
+    */
     long getIdleTimeMillis() {
         if (status != Status.IDLE) {
             return 0;

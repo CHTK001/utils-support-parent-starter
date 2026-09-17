@@ -19,6 +19,6 @@ public interface InitLoader<T> {
     * 加载并初始化相关资源或组件，返回初始化后的实例。
     *
     * @return 初始化后的结果对象
-     */
+    */
     T init();
 }

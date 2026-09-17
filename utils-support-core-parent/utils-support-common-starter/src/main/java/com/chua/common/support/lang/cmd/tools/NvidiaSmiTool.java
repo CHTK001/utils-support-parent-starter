@@ -34,13 +34,15 @@ import java.util.regex.Pattern;
 @Spi("nvidia-smi")
 public class NvidiaSmiTool extends CliTool {
 
-    /** 版本输出格式：{@code NVIDIA-SMI 535.104.05   Driver Version: 535.104.05} */
+    /**
+    * 版本输出格式：{@code NVIDIA-SMI 535.104.05   Driver Version: 535.104.05}
+    */
     private static final Pattern VERSION_PATTERN =
             Pattern.compile("NVIDIA-SMI[^0-9]*(\\d+\\.\\d+(?:\\.\\d+)?)");
 
     /**
     * 创建 nvidia-smi 工具实例，使用预置的工具描述。
-     */
+    */
     public NvidiaSmiTool() {
         super(CliToolDescriptor.builder("nvidia-smi")
                 .displayName("NVIDIA 显卡状态查询工具")
@@ -66,7 +68,7 @@ public class NvidiaSmiTool extends CliTool {
     * 并在此处完成 CSV 解析，调用方无需再处理输出格式。</p>
     *
     * @return GPU 名称列表，查询失败或未安装时返回空列表
-     */
+    */
     @Nonnull
     public List<String> queryGpuNames() {
         return queryGpuColumn("name");
@@ -80,7 +82,7 @@ public class NvidiaSmiTool extends CliTool {
     *
     * @param column GPU 属性名
     * @return 属性值列表，查询失败或未安装时返回空列表
-     */
+    */
     @Nonnull
     public List<String> queryGpuColumn(@Nonnull String column) {
         CmdResult result = execute("--query-gpu=" + column, "--format=csv,noheader");
@@ -105,7 +107,7 @@ public class NvidiaSmiTool extends CliTool {
     * 查询 GPU 显存总量，单位为 MiB。
     *
     * @return 每块显卡的显存总量列表，解析失败时该显卡对应位置为 null
-     */
+    */
     @Nonnull
     public List<Integer> queryGpuMemoryTotal() {
         List<String> raw = queryGpuColumn("memory.total");
@@ -121,7 +123,7 @@ public class NvidiaSmiTool extends CliTool {
     *
     * @param value 原始值
     * @return 显存数值，解析失败返回 null
-     */
+    */
     private static Integer parseMemory(String value) {
         if (StringUtils.isNullOrEmpty(value)) {
             return null;

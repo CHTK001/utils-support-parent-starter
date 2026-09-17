@@ -62,7 +62,7 @@ public class CsvTextExtractor implements TextExtractor {
 
     /**
     * 跳过 UTF-8 BOM 字节 (EF BB BF)。
-     */
+    */
     private InputStream skipBom(InputStream in) throws IOException {
         in.mark(3);
         int b1 = in.read();
@@ -76,7 +76,7 @@ public class CsvTextExtractor implements TextExtractor {
 
     /**
     * 解析 CSV 行，支持双引号转义。
-     */
+    */
     private String[] parseLine(String line, char delimiter) {
         List<String> parts = new ArrayList<>();
         StringBuilder sb = new StringBuilder();

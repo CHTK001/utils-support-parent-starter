@@ -38,7 +38,7 @@ public record ColumnData(
     * 获取列序号。
     *
     * @return 列序号
-     */
+    */
     public int getOrdinalPosition() {
         return ordinalPosition;
     }
@@ -47,7 +47,7 @@ public record ColumnData(
     * 获取列名。
     *
     * @return 列名
-     */
+    */
     public String getColumnName() {
         return columnName;
     }
@@ -56,7 +56,7 @@ public record ColumnData(
     * 获取数据类型名称。
     *
     * @return 类型名称
-     */
+    */
     public String getTypeName() {
         return typeName;
     }
@@ -65,7 +65,7 @@ public record ColumnData(
     * 获取列大小。
     *
     * @return 列大小
-     */
+    */
     public int getColumnSize() {
         return columnSize;
     }
@@ -74,7 +74,7 @@ public record ColumnData(
     * 获取小数位数。
     *
     * @return 小数位数
-     */
+    */
     public Integer getDecimalDigits() {
         return decimalDigits;
     }
@@ -83,7 +83,7 @@ public record ColumnData(
     * 获取是否允许为空。
     *
     * @return 是否允许为空
-     */
+    */
     public boolean isNullable() {
         return nullable;
     }
@@ -92,7 +92,7 @@ public record ColumnData(
     * 获取是否为主键。
     *
     * @return 是否为主键
-     */
+    */
     public boolean isPrimaryKey() {
         return primaryKey;
     }
@@ -101,7 +101,7 @@ public record ColumnData(
     * 获取默认值。
     *
     * @return 默认值
-     */
+    */
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -110,7 +110,7 @@ public record ColumnData(
     * 获取列备注。
     *
     * @return 列备注
-     */
+    */
     public String getRemark() {
         return remark;
     }

@@ -33,7 +33,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     /**
     * 创建 LambdaDeleteWrapper 实例
     * @param entityClass entityClass
-     */
+    */
     public LambdaDeleteWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -45,7 +45,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     * </p>
     *
     * @return 删除 SQL 信息
-     */
+    */
     public DeleteSql buildSql() {
         List<Object> params = new ArrayList<>();
         StringBuilder where = new StringBuilder();
@@ -65,7 +65,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
     * <p>由 {@code Engine} 实现类重写，生成 DELETE SQL 并执行。</p>
     *
     * @return 受影响行数
-     */
+    */
     public int remove() {
         throw new UnsupportedOperationException("remove() 需由引擎实现类重写");
     }
@@ -107,7 +107,7 @@ public class LambdaDeleteWrapper<T> extends AbstractLambdaWrapper<T, LambdaDelet
 
     /**
     * 渲染单个条件为 SQL 片段。
-     */
+    */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             sb.append("(");

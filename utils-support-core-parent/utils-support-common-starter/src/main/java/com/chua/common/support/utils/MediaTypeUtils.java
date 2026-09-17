@@ -7,43 +7,43 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* 媒体类型（MIME 类型）工具类，基于 Guava {@link com.google.common.net.MediaType} 提供文件名与 MIME 字符串之间的解析能力。
-*
-* <h3>支持的 MIME 类型</h3>
-* <ul>
-*   <li><b>图片类型：</b>image/jpeg、image/png、image/gif、image/bmp、image/webp、image/svg+xml、image/tiff 等</li>
-*   <li><b>文本类型：</b>text/html、text/plain、text/css、text/javascript、text/xml、text/csv 等</li>
-*   <li><b>应用类型：</b>application/json、application/xml、application/pdf、application/zip、application/octet-stream、
-*       application/x-www-form-urlencoded、application/msword、application/vnd.ms-excel 等</li>
-*   <li><b>音视频类型：</b>audio/mpeg、audio/ogg、video/mp4、video/webm 等</li>
-*   <li><b>多部分类型：</b>multipart/form-data、multipart/alternative 等</li>
-*   <li><b>其他类型：</b>font/woff、font/woff2、message/rfc822 等</li>
-*   <li><b>兜底类型：</b>{@link MediaType#ANY_TYPE} —— 表示未知或无法识别的媒体类型</li>
-* </ul>
-*
-* <h3>使用场景</h3>
-* <ul>
-*   <li><b>HTTP 响应头设置：</b>根据文件扩展名动态设置 Content-Type 响应头</li>
-*   <li><b>文件上传校验：</b>根据文件名判断用户上传文件的 MIME 类型，进行白名单/黑名单过滤</li>
-*   <li><b>资源路由分发：</b>根据请求的 Accept 头或文件扩展名匹配对应的处理器</li>
-*   <li><b>邮件附件标识：</b>设置邮件附件的 MIME 类型确保客户端正确渲染</li>
-*   <li><b>静态资源服务：</b>为 CDN 或 Web 服务器提供正确的 Content-Type 映射</li>
-* </ul>
-*
-* <h3>方法选择指南</h3>
-* <table border="1">
-*   <tr><th>方法</th><th>输入</th><th>失败行为</th><th>适用场景</th></tr>
-*   <tr><td>{@link #getMediaType(String)}</td><td>MIME 字符串</td><td>返回 Optional.empty()（实际不会失败，Guava 强制解析）</td><td>已知合法 MIME 字符串的解析</td></tr>
-*   <tr><td>{@link #getMediaTypeNullable(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>需要空安全的文件名推断</td></tr>
-*   <tr><td>{@link #getNoneMediaType(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>与 getMediaTypeNullable 行为等价，内部实现路径不同</td></tr>
-*   <tr><td>{@link #getMediaTypes(String)}</td><td>文件名</td><td>返回包含单个元素的列表（不是空列表）</td><td>需以 List 形式消费结果时使用</td></tr>
-*   <tr><td>{@link #parse(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>{@link #getMediaTypeNullable(String)} 的快捷别名</td></tr>
-* </table>
-*
-* @author CH
-* @since 1.0
-* @see com.google.common.net.MediaType
- */
+ * 媒体类型（MIME 类型）工具类，基于 Guava {@link com.google.common.net.MediaType} 提供文件名与 MIME 字符串之间的解析能力。
+ *
+ * <h3>支持的 MIME 类型</h3>
+ * <ul>
+ *   <li><b>图片类型：</b>image/jpeg、image/png、image/gif、image/bmp、image/webp、image/svg+xml、image/tiff 等</li>
+ *   <li><b>文本类型：</b>text/html、text/plain、text/css、text/javascript、text/xml、text/csv 等</li>
+ *   <li><b>应用类型：</b>application/json、application/xml、application/pdf、application/zip、application/octet-stream、
+ *       application/x-www-form-urlencoded、application/msword、application/vnd.ms-excel 等</li>
+ *   <li><b>音视频类型：</b>audio/mpeg、audio/ogg、video/mp4、video/webm 等</li>
+ *   <li><b>多部分类型：</b>multipart/form-data、multipart/alternative 等</li>
+ *   <li><b>其他类型：</b>font/woff、font/woff2、message/rfc822 等</li>
+ *   <li><b>兜底类型：</b>{@link MediaType#ANY_TYPE} —— 表示未知或无法识别的媒体类型</li>
+ * </ul>
+ *
+ * <h3>使用场景</h3>
+ * <ul>
+ *   <li><b>HTTP 响应头设置：</b>根据文件扩展名动态设置 Content-Type 响应头</li>
+ *   <li><b>文件上传校验：</b>根据文件名判断用户上传文件的 MIME 类型，进行白名单/黑名单过滤</li>
+ *   <li><b>资源路由分发：</b>根据请求的 Accept 头或文件扩展名匹配对应的处理器</li>
+ *   <li><b>邮件附件标识：</b>设置邮件附件的 MIME 类型确保客户端正确渲染</li>
+ *   <li><b>静态资源服务：</b>为 CDN 或 Web 服务器提供正确的 Content-Type 映射</li>
+ * </ul>
+ *
+ * <h3>方法选择指南</h3>
+ * <table border="1">
+ *   <tr><th>方法</th><th>输入</th><th>失败行为</th><th>适用场景</th></tr>
+ *   <tr><td>{@link #getMediaType(String)}</td><td>MIME 字符串</td><td>返回 Optional.empty()（实际不会失败，Guava 强制解析）</td><td>已知合法 MIME 字符串的解析</td></tr>
+ *   <tr><td>{@link #getMediaTypeNullable(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>需要空安全的文件名推断</td></tr>
+ *   <tr><td>{@link #getNoneMediaType(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>与 getMediaTypeNullable 行为等价，内部实现路径不同</td></tr>
+ *   <tr><td>{@link #getMediaTypes(String)}</td><td>文件名</td><td>返回包含单个元素的列表（不是空列表）</td><td>需以 List 形式消费结果时使用</td></tr>
+ *   <tr><td>{@link #parse(String)}</td><td>文件名</td><td>返回 {@link MediaType#ANY_TYPE}</td><td>{@link #getMediaTypeNullable(String)} 的快捷别名</td></tr>
+ * </table>
+ *
+ * @author CH
+ * @since 1.0
+ * @see com.google.common.net.MediaType
+*/
 public class MediaTypeUtils {
     /** 创建 media类型工具 实例 */
     private MediaTypeUtils() {
@@ -77,7 +77,7 @@ public class MediaTypeUtils {
     * 不允许为 {@code null}，Guava 解析 方法不接受 空 输入
     * @return 包含解析结果的 {@link Optional}；实际不会出现 {@code Optional.empty()}，
     *         但 API 设计保留了这个可能性以应对未来变化
-     */
+    */
     public static Optional<MediaType> getMediaType(String mediaType) {
         return Optional.of(MediaType.parse(mediaType));
     }
@@ -110,7 +110,7 @@ public class MediaTypeUtils {
     *                 或仅扩展名（如 {@code ".png"}）；不允许为 {@code null}
     * @return 匹配到的 {@link MediaType}；匹配失败时返回 {@link MediaType#ANY_TYPE}，
     *         该常量表示无法识别的任意类型，调用方可据此进行兜底处理
-     */
+    */
     public static MediaType getNoneMediaType(String filename) {
         return getMediaTypes(filename).stream().findFirst().orElse(MediaType.ANY_TYPE);
     }
@@ -142,53 +142,53 @@ public class MediaTypeUtils {
     * @param filename 文件名，格式为完整文件名（如 {@code "document.pdf"}）或带路径的文件名
     *                 （如 {@code "/docs/report.xlsx"}）；不允许为 {@code null}
     * @return 匹配到的 {@link MediaType}；匹配失败时返回 {@link MediaType#ANY_TYPE}，永不返回 {@code null}
-     */
+    */
     public static MediaType getMediaTypeNullable(String filename) {
         Optional<MediaType> mediaType = getMediaType(filename);
         return mediaType.orElse(MediaType.ANY_TYPE);
     }
 
 /**
-* 根据文件名解析并返回包含匹配 {@link MediaType} 的 {@link List}，始终返回单元素列表。
-*
-* <p>内部直接调用 {@link MediaType#parse(String)} 解析文件名，
-* 将结果包装为 {@link Collections#singletonList(Object)} 返回。
-* Guava 解析器不会失败，因此列表永远非空且恰好包含一个元素。
-*
-* <p><b>为什么返回 List 而非单个对象：</b>
-* <ul>
-*   <li><b>API 扩展预留：</b>List 返回类型为未来版本升级为真正的多类型匹配（如根据内容嗅探返回多个候选类型）
-*       保留了空间，无需破坏现有调用方签名</li>
-*   <li><b>流式操作兼容：</b>返回 List 允许调用方直接使用 {@code stream()}、{@code forEach()} 等
-* 集合操作，与 Java 流 API 的编程风格保持一致</li>
-*   <li><b>统一返回类型：</b>与 Guava 部分 API 的返回约定对齐，上层代码无需区分单结果与多结果的处理逻辑</li>
-* </ul>
-*
-* @param filename 文件名，格式为完整文件名（如 {@code "image.png"}）或带路径的文件名
-*                 （如 {@code "/assets/logo.svg"}）；不允许为 {@code null}
-* @return 包含单个匹配 {@link MediaType} 的不可变 {@link List}，永不为空；
-*         返回的是 {@link Collections#singletonList}，不可修改
-     */
+ * 根据文件名解析并返回包含匹配 {@link MediaType} 的 {@link List}，始终返回单元素列表。
+ *
+ * <p>内部直接调用 {@link MediaType#parse(String)} 解析文件名，
+ * 将结果包装为 {@link Collections#singletonList(Object)} 返回。
+ * Guava 解析器不会失败，因此列表永远非空且恰好包含一个元素。
+ *
+ * <p><b>为什么返回 List 而非单个对象：</b>
+ * <ul>
+ *   <li><b>API 扩展预留：</b>List 返回类型为未来版本升级为真正的多类型匹配（如根据内容嗅探返回多个候选类型）
+ *       保留了空间，无需破坏现有调用方签名</li>
+ *   <li><b>流式操作兼容：</b>返回 List 允许调用方直接使用 {@code stream()}、{@code forEach()} 等
+ * 集合操作，与 Java 流 API 的编程风格保持一致</li>
+ *   <li><b>统一返回类型：</b>与 Guava 部分 API 的返回约定对齐，上层代码无需区分单结果与多结果的处理逻辑</li>
+ * </ul>
+ *
+ * @param filename 文件名，格式为完整文件名（如 {@code "image.png"}）或带路径的文件名
+ *                 （如 {@code "/assets/logo.svg"}）；不允许为 {@code null}
+ * @return 包含单个匹配 {@link MediaType} 的不可变 {@link List}，永不为空；
+ *         返回的是 {@link Collections#singletonList}，不可修改
+*/
     public static List<MediaType> getMediaTypes(String filename) {
         MediaType parse = MediaType.parse(filename);
         return Collections.singletonList(parse);
     }
 
 /**
-* 根据文件名解析并返回 {@link MediaType}，是 {@link #getMediaTypeNullable(String)} 的快捷别名。
-*
-* <p>本方法直接委托给 {@link #getMediaTypeNullable(String)}，两者行为完全一致：
-* 匹配成功返回对应 {@link MediaType}，匹配失败返回 {@link MediaType#ANY_TYPE}。
-*
-* <p><b>废弃说明：</b>本方法名 {@code parse} 容易与 Guava 的 {@link MediaType#parse(String)} 混淆，
-* 且参数命名 {@code name} 不如 {@code filename} 语义明确。
-* 推荐新代码直接使用 {@link #getMediaTypeNullable(String)}。
-*
-* @param name 文件名，格式为完整文件名（如 {@code "archive.zip"}）
-*             或带路径的文件名（如 {@code "/downloads/archive.zip"}）；不允许为 {@code null}
-* @return 匹配到的 {@link MediaType}，匹配失败时返回 {@link MediaType#ANY_TYPE}，永不返回 {@code null}
-* @see #getMediaTypeNullable(String)
-     */
+ * 根据文件名解析并返回 {@link MediaType}，是 {@link #getMediaTypeNullable(String)} 的快捷别名。
+ *
+ * <p>本方法直接委托给 {@link #getMediaTypeNullable(String)}，两者行为完全一致：
+ * 匹配成功返回对应 {@link MediaType}，匹配失败返回 {@link MediaType#ANY_TYPE}。
+ *
+ * <p><b>废弃说明：</b>本方法名 {@code parse} 容易与 Guava 的 {@link MediaType#parse(String)} 混淆，
+ * 且参数命名 {@code name} 不如 {@code filename} 语义明确。
+ * 推荐新代码直接使用 {@link #getMediaTypeNullable(String)}。
+ *
+ * @param name 文件名，格式为完整文件名（如 {@code "archive.zip"}）
+ *             或带路径的文件名（如 {@code "/downloads/archive.zip"}）；不允许为 {@code null}
+ * @return 匹配到的 {@link MediaType}，匹配失败时返回 {@link MediaType#ANY_TYPE}，永不返回 {@code null}
+ * @see #getMediaTypeNullable(String)
+*/
     public static MediaType parse(String name) {
         return getMediaTypeNullable(name);
     }

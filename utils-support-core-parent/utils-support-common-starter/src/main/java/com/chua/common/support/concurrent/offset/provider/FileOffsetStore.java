@@ -28,28 +28,28 @@ public class FileOffsetStore implements OffsetStore {
 
     /**
     * offset 数据长度（字节）：8 字节 long
-     */
+    */
     private static final int OFFSET_BYTE_LENGTH = 8;
 
     /**
     * offset 缓存
-     */
+    */
     private final Map<String, Offset> cache = new ConcurrentHashMap<>();
 
     /**
     * 是否已启动
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
     * 配置
-     */
+    */
     private final OffsetConfig config;
 
     /**
     * 创建 FileOffsetStore 实例
     * @param config config
-     */
+    */
     public FileOffsetStore(OffsetConfig config) {
         this.config = config;
     }
@@ -125,27 +125,27 @@ public class FileOffsetStore implements OffsetStore {
 
     /**
     * 文件 offset 实现。
-     */
+    */
     private class FileOffset implements Offset {
 
         /**
         * 订阅器 ID
-         */
+        */
         private final String subscriberId;
 
         /**
         * offset 文件路径
-         */
+        */
         private final Path offsetPath;
 
         /**
         * 当前 offset 值（内存副本）
-         */
+        */
         private volatile long value;
 
         /**
         * 是否关闭
-         */
+        */
         private volatile boolean closed;
 
         FileOffset(String subscriberId) {

@@ -43,7 +43,7 @@ public interface MetaUser {
     * 列出当前数据库下的所有用户。
     *
     * @return 用户定义列表
-     */
+    */
     List<UserDef> list();
 
     /**
@@ -51,7 +51,7 @@ public interface MetaUser {
     *
     * @param username 用户名
     * @return 创建用户构建器
-     */
+    */
     UserCreateBuilder create(String username);
 
     /**
@@ -59,7 +59,7 @@ public interface MetaUser {
     *
     * @param username 用户名
     * @return 修改用户构建器
-     */
+    */
     UserAlterBuilder alter(String username);
 
     /**
@@ -67,6 +67,6 @@ public interface MetaUser {
     *
     * @param username 用户名
     * @return true 删除成功
-     */
+    */
     boolean drop(String username);
 }

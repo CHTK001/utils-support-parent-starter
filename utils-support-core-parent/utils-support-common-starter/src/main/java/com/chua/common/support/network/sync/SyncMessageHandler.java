@@ -2,11 +2,11 @@ package com.chua.common.support.network.sync;
 
 
 /**
-* 同步消息处理器，用于处理客户端订阅的特定主题消息。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 同步消息处理器，用于处理客户端订阅的特定主题消息。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @FunctionalInterface
 public interface SyncMessageHandler {
 
@@ -15,6 +15,6 @@ public interface SyncMessageHandler {
     *
     * @param topic   消息主题
     * @param message 消息内容
-     */
+    */
     void handle(String topic, Object message);
 }

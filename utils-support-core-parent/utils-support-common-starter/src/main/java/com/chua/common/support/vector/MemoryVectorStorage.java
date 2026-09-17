@@ -10,21 +10,25 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
-* 内存向量存储实现，适用于测试和小规模场景。
-* <p>
-* 使用 {@link BPlusTree} 作为主索引（O(日志 N) 查找），替代原 {@link ConcurrentHashMap}
-* 的线性遍历，同时保持线程安全的读写锁语义。搜索时遍历全部向量计算距离。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 内存向量存储实现，适用于测试和小规模场景。
+ * <p>
+ * 使用 {@link BPlusTree} 作为主索引（O(日志 N) 查找），替代原 {@link ConcurrentHashMap}
+ * 的线性遍历，同时保持线程安全的读写锁语义。搜索时遍历全部向量计算距离。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class MemoryVectorStorage extends AbstractVectorStorage {
 
-    /** B+ 树 主索引：标识 → 向量，提供 O(日志 N) 点查和有序遍历。 */
+    /**
+    * B+ 树 主索引：标识 → 向量，提供 O(日志 N) 点查和有序遍历。
+    */
     private final BPlusTree<String, Vector> store = new BPlusTree<>(128);
 
-    /** 读写锁：写操作（添加/移除/更新/clear）独占，读操作（搜索/大小）共享。 */
+    /**
+    * 读写锁：写操作（添加/移除/更新/clear）独占，读操作（搜索/大小）共享。
+    */
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     /**
@@ -32,7 +36,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     *
     * @param dimension 向量维度
     * @param algorithm 比较算法
-     */
+    */
     public MemoryVectorStorage(int dimension, VectorCompareAlgorithm algorithm) {
         super(dimension, algorithm);
     }
@@ -168,7 +172,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     * @param v v
     * @param score score
     * @return 合并metadata的结果
-     */
+    */
     private static Map<String, Object> mergeMetadata(Vector v, double score) {
         var meta = new java.util.LinkedHashMap<String, Object>();
         meta.put("score", score);
@@ -182,7 +186,7 @@ public class MemoryVectorStorage extends AbstractVectorStorage {
     * 遍历 B+ 树 全部条目（通过 范围 查询）。
     *
     * @return 全部entries的结果
-     */
+    */
     private List<Map.Entry<String, Vector>> allEntries() {
         return store.range(null, null);
     }

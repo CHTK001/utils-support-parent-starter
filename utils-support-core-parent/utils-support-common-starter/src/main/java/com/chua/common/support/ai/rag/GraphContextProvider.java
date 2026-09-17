@@ -22,6 +22,6 @@ public interface GraphContextProvider {
     * @param documentIds   命中的文档 ID 列表
     * @param chunkContents 命中的文档片段内容列表
     * @return Markdown 格式的知识图谱上下文，为 null 则忽略
-     */
+    */
     String getContext(String query, List<String> documentIds, List<String> chunkContents);
 }

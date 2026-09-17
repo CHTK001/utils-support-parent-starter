@@ -40,7 +40,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     * @param provider AI 服务商名称，如 "openai"、"runway" 等
     * @param apiKey   API 密钥
     * @return VideoClient 实例
-     */
+    */
     static VideoClient create(String provider, String apiKey) {
         return ServiceProvider.of(VideoClient.class)
                 .getNewExtension(provider, VideoClientSetting.builder()
@@ -52,7 +52,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl、model 等
     * @return VideoClient 实例
-     */
+    */
     static VideoClient create(VideoClientSetting setting) {
         return ServiceProvider.of(VideoClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -65,7 +65,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 基地址
     * @return VideoClient 实例
-     */
+    */
     static VideoClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(VideoClient.class)
                 .getNewExtension(provider, VideoClientSetting.builder()
@@ -77,7 +77,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient provider(String provider) {
         return this;
     }
@@ -87,7 +87,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param model 模型名称，如 "sora"、"gen-2" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient model(String model) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     * @param width  视频宽度（像素）
     * @param height 视频高度（像素）
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient size(int width, int height) {
         return this;
     }
@@ -108,7 +108,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param prompt 视频内容描述文本
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient prompt(String prompt) {
         return this;
     }
@@ -118,7 +118,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param negativePrompt 反向提示词
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient negativePrompt(String negativePrompt) {
         return this;
     }
@@ -128,7 +128,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param duration 视频时长，单位为秒
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient duration(Integer duration) {
         return this;
     }
@@ -138,7 +138,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param quality 质量等级
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient quality(String quality) {
         return this;
     }
@@ -148,7 +148,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param style 风格描述，如 "cinematic"、"anime"、"realistic" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient style(String style) {
         return this;
     }
@@ -158,7 +158,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param seed 随机种子值，固定种子可保证多次生成结果可复现
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient seed(Long seed) {
         return this;
     }
@@ -170,7 +170,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param image 参考图字节数据
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient referenceImage(byte[] image) {
         return this;
     }
@@ -182,7 +182,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param strength 影响强度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VideoClient imageStrength(double strength) {
         return this;
     }
@@ -194,7 +194,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param prompt 视频内容描述提示词
     * @return 任务 ID，用于后续查询任务状态和结果
-     */
+    */
     String createTask(String prompt);
 
     /**
@@ -202,12 +202,12 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     *
     * @param taskId 任务 ID，由 {@link #createTask(String)} 返回
     * @return 任务状态及结果，包含进度、视频 URL 等信息
-     */
+    */
     VideoResponse queryTask(String taskId);
 
     /**
     * 关闭客户端，释放底层资源
-     */
+    */
     @Override
     default void close() {
     }
@@ -219,7 +219,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     * 默认返回空列表，子类可按需覆写。
     *
     * @return 可用模型 ID 列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -230,7 +230,7 @@ public interface VideoClient extends AutoCloseable, PooledObjectClient<VideoClie
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {

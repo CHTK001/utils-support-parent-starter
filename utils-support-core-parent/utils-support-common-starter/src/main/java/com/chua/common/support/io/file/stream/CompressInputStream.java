@@ -19,7 +19,7 @@ public interface CompressInputStream {
     *
     * @param file 待处理的文件
     * @return true 表示支持
-     */
+    */
     boolean isSupport(File file);
 
     /**
@@ -29,13 +29,13 @@ public interface CompressInputStream {
     * @param file        原始文件
     * @return 解压缩后的输入流
     * @throws IOException IO 异常
-     */
+    */
     Object createInputStream(InputStream inputStream, File file) throws IOException;
 
     /**
     * 获取压缩格式名称。
     *
     * @return 格式名称
-     */
+    */
     String getFormatName();
 }

@@ -28,52 +28,52 @@ public class WalConfig {
 
     /**
     * 默认 mmap 初始文件大小：64 MB
-     */
+    */
     private static final int DEFAULT_INITIAL_FILE_SIZE = 64 * 1024 * 1024;
 
     /**
     * 默认异步刷盘间隔：100 毫秒
-     */
+    */
     private static final long DEFAULT_FLUSH_INTERVAL_MILLIS = 100L;
 
     /**
     * WAL 目录路径
-     */
+    */
     @Builder.Default
     /** WAL目录 */
     private String walDir = "./wal";
 
     /**
     * WAL 文件名
-     */
+    */
     @Builder.Default
     /** WAL文件 */
     private String walFile = "queue.wal";
 
     /**
     * 是否使用内存映射（mmap）写入，默认 true
-     */
+    */
     @Builder.Default
     /** Mmap */
     private boolean mmap = true;
 
     /**
     * 是否同步刷盘，默认 false（异步降级以提高吞吐）
-     */
+    */
     @Builder.Default
     /** 同步 */
     private boolean sync = false;
 
     /**
     * 异步刷盘后台线程刷新间隔（毫秒），仅 sync=false 时生效
-     */
+    */
     @Builder.Default
     /** Flush间隔毫秒 */
     private long flushIntervalMillis = DEFAULT_FLUSH_INTERVAL_MILLIS;
 
     /**
     * mmap 初始文件大小（字节）
-     */
+    */
     @Builder.Default
     /** Initial文件尺寸 */
     private int initialFileSize = DEFAULT_INITIAL_FILE_SIZE;

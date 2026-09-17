@@ -41,7 +41,7 @@ public interface Benchmark extends AutoCloseable {
     *
     * @param type 引擎类型（"k6" / "wrk" / "ab" ...）
     * @return Benchmark 实例
-     */
+    */
     static Benchmark create(String type) {
         return ServiceProvider.of(Benchmark.class).getExtension(type);
     }
@@ -50,7 +50,7 @@ public interface Benchmark extends AutoCloseable {
     * 获取压测引擎名称。
     *
     * @return 引擎名称
-     */
+    */
     String getType();
 
     /**
@@ -58,14 +58,14 @@ public interface Benchmark extends AutoCloseable {
     *
     * @param config 压测配置（并发档位、迭代数、URL、payload、报告指标等）
     * @return 当前实例（支持链式调用）
-     */
+    */
     Benchmark configure(BenchmarkConfig config);
 
     /**
     * 获取当前压测配置。
     *
     * @return 压测配置
-     */
+    */
     BenchmarkConfig config();
 
     /**
@@ -73,7 +73,7 @@ public interface Benchmark extends AutoCloseable {
     *
     * @return 压测结果（结构化指标行，兼容 {@code BenchmarkDocumentData}）
     * @throws Exception 压测执行失败
-     */
+    */
     BenchmarkResult run() throws Exception;
 
     /**
@@ -81,7 +81,7 @@ public interface Benchmark extends AutoCloseable {
     *
     * @return 报告文件
     * @throws Exception 报告生成失败
-     */
+    */
     default File report() throws Exception {
         return report(config().getReportPath());
     }
@@ -92,12 +92,12 @@ public interface Benchmark extends AutoCloseable {
     * @param reportPath 报告输出路径
     * @return 报告文件
     * @throws Exception 报告生成失败
-     */
+    */
     File report(String reportPath) throws Exception;
 
     /**
     * 释放压测引擎资源。
-     */
+    */
     @Override
     void close();
 }

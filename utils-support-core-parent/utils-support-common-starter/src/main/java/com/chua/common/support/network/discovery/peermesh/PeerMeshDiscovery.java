@@ -52,84 +52,84 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
     * 内存成员表
-     */
+    */
     private final NodeTable nodeTable = new NodeTable();
 
     /**
     * 磁盘持久化
-     */
+    */
     private DiskStore diskStore;
 
     /**
     * 本地 serverId
-     */
+    */
     private final String serverId = UUID.randomUUID().toString();
 
     /**
     * Mesh 配置
-     */
+    */
     private MeshConfig config = new MeshConfig();
 
     /**
     * 本地绑定 IP
-     */
+    */
     private String localIp;
 
     /**
     * 本地监听端口
-     */
+    */
     private int localPort;
 
     /**
     * 本地节点信息
-     */
+    */
     private Discovery self;
 
     /**
     * 服务器 Socket
-     */
+    */
     private ServerSocket serverSocket;
 
     /**
     * 连接处理线程池
-     */
+    */
     private ExecutorService executor;
 
     /**
     * 定时任务线程池
-     */
+    */
     private ScheduledExecutorService scheduler;
 
     /**
     * 心跳传播组件
-     */
+    */
     private MembershipPropagation membershipPropagation;
 
     /**
     * 超时剔除组件
-     */
+    */
     private EvictionManager evictionManager;
 
     /**
     * 运行状态标志
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
     * UDP 服务器 Socket（仅 mode=udp 时使用）
-     */
+    */
     private java.net.DatagramSocket udpSocket;
 
     /**
     * UDP 服务器执行器
-     */
+    */
     private ExecutorService udpExecutor;
 
     // ======================== 构造方法 ========================
 
     /**
     * 默认构造函数。
-     */
+    */
     public PeerMeshDiscovery() {
         this(new DiscoveryOption());
     }
@@ -138,7 +138,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 带选项的构造函数。
     *
     * @param discoveryOption 发现选项
-     */
+    */
     public PeerMeshDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
         this.diskStore = new DiskStore(config.getPeersFile());
@@ -196,7 +196,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 尝试绑定端口。
     *
     * @throws IOException IO 异常
-     */
+    */
     private void bindPort() throws IOException {
         int mainPort = config.getPort();
         int altPort = config.getAltPort();
@@ -219,7 +219,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
     * 启动连接接受线程。
-     */
+    */
     private void startAcceptor() {
         executor = Executors.newThreadPerTaskExecutor(ThreadUtils.newDaemonThreadFactory("peer-mesh-acceptor"));
         executor.submit(() -> {
@@ -238,7 +238,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
 
     /**
     * 启动调度器（心跳 + 剔除）。
-     */
+    */
     private void startScheduler() {
         scheduler = ThreadUtils.newDaemonSingleThreadScheduledExecutor("peer-mesh-scheduler");
 
@@ -269,7 +269,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 启动 UDP 服务器，监听发现消息。
     *
     * @throws IOException IO 异常
-     */
+    */
     private void startUdpServer() throws IOException {
         udpSocket = new DatagramSocket(null);
         udpSocket.setReuseAddress(true);
@@ -299,7 +299,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 处理收到的 UDP 数据包。
     *
     * @param packet 数据包
-     */
+    */
     private void handleUdpPacket(DatagramPacket packet) {
         try {
             ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
@@ -356,7 +356,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * @param addr 目标地址
     * @param port 目标端口
     * @param msg  消息体
-     */
+    */
     private void sendUdpResponse(java.net.InetAddress addr, int port,
                                  MessageProtocol.PeerMeshMessage msg) {
         try {
@@ -374,7 +374,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     *
     * @param target 目标节点
     * @param msg    消息体
-     */
+    */
     public void sendUdpMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
         if (udpSocket == null || udpSocket.isClosed() || target == null) {
             return;
@@ -398,7 +398,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * </p>
     *
     * @param config 新的配置
-     */
+    */
     public void setConfig(MeshConfig config) {
         this.config = config;
         this.diskStore = new DiskStore(config.getPeersFile());
@@ -447,7 +447,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 处理入站连接。
     *
     * @param socket 已接受的 Socket
-     */
+    */
     private void handleConnection(Socket socket) {
         try (socket;
              DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -488,7 +488,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * @param in  输入流
     * @param out 输出流
     * @param msg 消息体
-     */
+    */
     private void processMessage(DataInputStream in, DataOutputStream out,
                                 MessageProtocol.PeerMeshMessage msg) throws IOException {
         switch (msg.type()) {
@@ -507,7 +507,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     *
     * @param msg 消息
     * @param out 输出流
-     */
+    */
     private void handleHeartbeat(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
         if (entries != null) {
@@ -526,7 +526,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 处理 PONG 消息。
     *
     * @param msg 消息
-     */
+    */
     private void handlePong(MessageProtocol.PeerMeshMessage msg) {
         List<NodeTable.NodeEntry> entries = Json.fromJsonToList(msg.payload(), NodeTable.NodeEntry.class);
         if (entries != null) {
@@ -542,7 +542,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     *
     * @param msg 消息
     * @param out 输出流
-     */
+    */
     private void handleNewPeer(MessageProtocol.PeerMeshMessage msg, DataOutputStream out) throws IOException {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {
@@ -557,7 +557,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     *
     * @param entry 远程节点条目
     * @param nowMs 当前时间戳
-     */
+    */
     private void mergeNodeEntry(NodeTable.NodeEntry entry, long nowMs) {
         if (entry == null) {
             return;
@@ -595,7 +595,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * @param sid 节点 serverId
     * @param d   远程节点条目
     * @return 服务实例 discovery
-     */
+    */
     private Discovery resolveServiceInstance(String sid, Discovery d) {
         Map<String, String> meta = d.getMetadata();
         if (meta != null && meta.containsKey("svcHost") && meta.containsKey("svcPort")) {
@@ -626,7 +626,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     *
     * @param target 目标发现信息
     * @param msg    消息体
-     */
+    */
     public void sendMessage(Discovery target, MessageProtocol.PeerMeshMessage msg) {
         sendMessage(target, msg, false);
     }
@@ -637,7 +637,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * @param target 目标发现信息
     * @param msg 消息体
     * @param readResponse 是否读取响应（PONG/ACK/NEW_PEER），读取后由本类内部处理
-     */
+    */
     public void sendMessage(Discovery target, MessageProtocol.PeerMeshMessage msg, boolean readResponse) {
         if (target == null) {
             return;
@@ -684,7 +684,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 处理 NEW_PEER 响应（从出站连接读到的 NEW_PEER）。
     *
     * @param msg 消息
-     */
+    */
     private void handleNewPeerResponse(MessageProtocol.PeerMeshMessage msg) {
         NodeTable.NodeEntry entry = Json.fromJson(msg.payload(), NodeTable.NodeEntry.class);
         if (entry != null && !serverId.equals(entry.getDiscovery().getServerId())) {
@@ -703,7 +703,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * @param path      服务路径
     * @param discovery 服务发现信息
     * @return 当前实例
-     */
+    */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         if (discovery.getServerId() == null) {
@@ -757,7 +757,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 根据 serverId 移除该节点注册的所有服务。
     *
     * @param sid 节点唯一标识
-     */
+    */
     public void removeServicesByServerId(String sid) {
         for (List<Discovery> list : localCache.values()) {
             list.removeIf(d -> sid.equals(d.getServerId()));
@@ -774,7 +774,7 @@ public class PeerMeshDiscovery extends AbstractServiceDiscovery {
     * 获取内部节点表（仅用于测试和监控）。
     *
     * @return 节点表
-     */
+    */
     public NodeTable getNodeTable() {
         return nodeTable;
     }

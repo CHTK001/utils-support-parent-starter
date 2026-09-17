@@ -33,22 +33,22 @@ public class TxtFileSystem implements FileSystem {
 
     /**
     * 文本读取默认分隔符（Tab 字符）
-     */
+    */
     private static final char DEFAULT_DELIMITER = '\t';
 
     /**
     * 单行行内字段缺失表头时的列名前缀
-     */
+    */
     private static final String COLUMN_KEY_PREFIX = "col";
 
     /**
     * 写入时使用的默认单元格分隔符（Tab 字符）
-     */
+    */
     private static final String TAB_DELIMITER = "\t";
 
     /**
     * 多行拼接使用的换行符
-     */
+    */
     private static final String LINE_SEPARATOR = "\n";
 
     @Override
@@ -73,13 +73,13 @@ public class TxtFileSystem implements FileSystem {
     * TXT 文件读取构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     @Slf4j
     public static class TxtReadBuilder extends ReadBuilder {
 
         /**
         * 字段分隔符
-         */
+        */
         private char delimiter = DEFAULT_DELIMITER;
 
         TxtReadBuilder(File file) {
@@ -98,7 +98,7 @@ public class TxtFileSystem implements FileSystem {
         *
         * @param delimiter 分隔符字符
         * @return 当前构建器
-         */
+        */
         public TxtReadBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
             return this;
@@ -108,7 +108,7 @@ public class TxtFileSystem implements FileSystem {
         * 读取文件全部行。
         *
         * @return 行文本列表
-         */
+        */
         public List<String> lines() {
             List<String> result = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(
@@ -134,7 +134,7 @@ public class TxtFileSystem implements FileSystem {
         * 以表格形式读取（首行为表头，行数据转为 Map）。
         *
         * @return Map 行数据列表
-         */
+        */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = new ArrayList<>();
             List<String> headerRow = new ArrayList<>();
@@ -198,18 +198,18 @@ public class TxtFileSystem implements FileSystem {
     * TXT 文件写入构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     @Slf4j
     public static class TxtWriteBuilder extends WriteBuilder {
 
         /**
         * 是否已写入表头行
-         */
+        */
         private boolean txtHeaderDone;
 
         /**
         * 表头列列表
-         */
+        */
         private List<String> txtHeaderCols;
 
         TxtWriteBuilder(File file) {
@@ -240,7 +240,7 @@ public class TxtFileSystem implements FileSystem {
         *
         * @param lines 待写入的行列表
         * @return 当前构建器
-         */
+        */
         public TxtWriteBuilder write(List<String> lines) {
             pending.addAll(lines);
             return this;
@@ -274,7 +274,7 @@ public class TxtFileSystem implements FileSystem {
         * 将待写入数据解析为行字符串列表。
         *
         * @return 行字符串列表
-         */
+        */
         private List<String> resolveLines() {
             List<String> result = new ArrayList<>();
             for (Object entry : pending) {
@@ -300,7 +300,7 @@ public class TxtFileSystem implements FileSystem {
         *
         * @param result 收集行字符串的列表
         * @param map    单行数据
-         */
+        */
         private void appendMapRow(List<String> result, Map<String, Object> map) {
             // 应用行过滤谓词
             if (!testRow(map)) {

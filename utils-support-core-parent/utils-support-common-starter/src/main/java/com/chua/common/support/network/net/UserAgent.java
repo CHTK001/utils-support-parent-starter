@@ -47,7 +47,7 @@ public class UserAgent implements Serializable {
 
     /**
     * 序列化版本号，用于 {@link Serializable} 反序列化时的版本兼容性校验。
-     */
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -55,7 +55,7 @@ public class UserAgent implements Serializable {
     *
     * <p>任意浏览器发起的页面 / 子资源 / AJAX 请求都会携带这些头；
     * 缺失其中任意一项，通常意味着请求来自 API 客户端、脚本或爬虫。</p>
-     */
+    */
     private static final String[] BASIC_HEADERS = {
             "User-Agent", "Accept", "Accept-Language", "Accept-Encoding"
     };
@@ -67,7 +67,7 @@ public class UserAgent implements Serializable {
     * {@code Sec-Fetch-Site} / {@code Sec-Fetch-Mode} / {@code Sec-Fetch-Dest} 三个头，
     * 用于声明请求的发起方上下文。UA 自称 Chrome/Edge/Firefox 却缺少这些头，
     * 通常是脚本或爬虫伪造浏览器 UA 的特征。</p>
-     */
+    */
     private static final String[] SEC_FETCH_HEADERS = {
             "Sec-Fetch-Site", "Sec-Fetch-Mode", "Sec-Fetch-Dest"
     };
@@ -84,7 +84,7 @@ public class UserAgent implements Serializable {
     *   <li>无头浏览器 / 自动化工具 —— 如 {@code headlesschrome}、{@code phantomjs}、
     *       {@code scrapy}、{@code postman} 等</li>
     * </ul>
-     */
+    */
     private static final String[] CRAWLER_KEYWORDS = {
             "bot", "spider", "crawl", "slurp", "bingpreview", "yandex", "googlebot",
             "baiduspider", "sogou", "360spider", "bytespider", "petalbot", "applebot",
@@ -97,31 +97,31 @@ public class UserAgent implements Serializable {
     /**
     * 原始 User-Agent 字符串，即 {@link #parse(String)} 传入的原始值；
     * 未解析出有效 UA 时可能为 {@code null} 或空串。
-     */
+    */
     private final String raw;
     /**
     * 解析出的浏览器类型，无法识别时为 {@link Browser#UNKNOWN}。
-     */
+    */
     private final Browser browser;
     /**
     * 解析出的浏览器版本号（如 {@code "120.0.0.0"}），无法识别时为 {@code null}。
-     */
+    */
     private final String browserVersion;
     /**
     * 解析出的操作系统类型，无法识别时为 {@link OperatingSystem#UNKNOWN}。
-     */
+    */
     private final OperatingSystem operatingSystem;
     /**
     * 解析出的操作系统版本号（如 {@code "10.0"}、{@code "16.6"}），无法识别时为 {@code null}。
-     */
+    */
     private final String osVersion;
     /**
     * 解析出的设备类型，无法识别时为 {@link Device#UNKNOWN}。
-     */
+    */
     private final Device device;
     /**
     * 是否命中爬虫关键字（见 {@link #CRAWLER_KEYWORDS}）。
-     */
+    */
     private final boolean crawler;
 
     /**
@@ -139,7 +139,7 @@ public class UserAgent implements Serializable {
     * </ol>
     *
     * @param userAgent User-Agent 字符串，可为 {@code null} 或空（此时得到空解析结果）
-     */
+    */
     private UserAgent(String userAgent) {
         this.raw = userAgent;
         String ua = StringUtils.isNullOrEmpty(userAgent) ? "" : userAgent.toLowerCase(Locale.ROOT);
@@ -158,7 +158,7 @@ public class UserAgent implements Serializable {
     *
     * @param userAgent User-Agent 字符串，可为 {@code null} 或空
     * @return 解析后的 {@link UserAgent} 对象，不会返回 {@code null}
-     */
+    */
     public static UserAgent parse(String userAgent) {
         return new UserAgent(userAgent);
     }
@@ -168,7 +168,7 @@ public class UserAgent implements Serializable {
     *
     * @param userAgent User-Agent 字符串
     * @return 解析后的 {@link UserAgent} 对象
-     */
+    */
     public static UserAgent parseUserAgentString(String userAgent) {
         return parse(userAgent);
     }
@@ -181,7 +181,7 @@ public class UserAgent implements Serializable {
     *
     * @param userAgent User-Agent 字符串，可为 {@code null}
     * @return 命中爬虫关键字返回 {@code true}；{@code null} 或空串返回 {@code false}
-     */
+    */
     public static boolean isCrawler(String userAgent) {
         return parse(userAgent).isCrawler();
     }
@@ -193,7 +193,7 @@ public class UserAgent implements Serializable {
     *
     * @param userAgent User-Agent 字符串，可为 {@code null}
     * @return 识别为真实浏览器且非爬虫返回 {@code true}；否则返回 {@code false}
-     */
+    */
     public static boolean isBrowser(String userAgent) {
         return parse(userAgent).isBrowser();
     }
@@ -206,7 +206,7 @@ public class UserAgent implements Serializable {
     *
     * @param headers 请求头集合（键值对，键名忽略大小写），可为 {@code null}
     * @return 解析后的 {@link UserAgent} 对象，不会返回 {@code null}
-     */
+    */
     public static UserAgent parse(Map<String, String> headers) {
         return parse(getHeader(headers, "User-Agent"));
     }
@@ -219,7 +219,7 @@ public class UserAgent implements Serializable {
     *
     * @param headers 请求头集合（键名忽略大小写），可为 {@code null}
     * @return 缺少任意基础请求头返回 {@code true}；四项齐全返回 {@code false}
-     */
+    */
     public static boolean missingBasicHeaders(Map<String, String> headers) {
         if (headers == null || headers.isEmpty()) {
             return true;
@@ -240,7 +240,7 @@ public class UserAgent implements Serializable {
     *
     * @param headers 请求头集合（键名忽略大小写），可为 {@code null}
     * @return 缺少任意 Sec-Fetch 头返回 {@code true}；三项齐全返回 {@code false}
-     */
+    */
     public static boolean missingSecFetchHeaders(Map<String, String> headers) {
         if (headers == null || headers.isEmpty()) {
             return true;
@@ -268,7 +268,7 @@ public class UserAgent implements Serializable {
     * @return 是否爬虫 / 非浏览器客户端
     * @see #missingBasicHeaders(Map)
     * @see #missingSecFetchHeaders(Map)
-     */
+    */
     public static boolean isCrawler(Map<String, String> headers) {
         if (missingBasicHeaders(headers)) {
             return true;
@@ -290,7 +290,7 @@ public class UserAgent implements Serializable {
     * @param headers 请求头集合（键名忽略大小写），可为 {@code null}
     * @return 是否真实浏览器
     * @see #isCrawler(Map)
-     */
+    */
     public static boolean isBrowser(Map<String, String> headers) {
         if (missingBasicHeaders(headers)) {
             return false;
@@ -311,7 +311,7 @@ public class UserAgent implements Serializable {
     * （HeadlessChrome 等）与搜索引擎爬虫均返回 {@code false}。</p>
     *
     * @return 是否真实浏览器
-     */
+    */
     public boolean isBrowser() {
         return !crawler && browser != Browser.UNKNOWN;
     }
@@ -320,7 +320,7 @@ public class UserAgent implements Serializable {
     * 判断是否为爬虫（搜索引擎爬虫 / 命令行客户端 / 编程语言 HTTP 库 / 无头浏览器）。
     *
     * @return 是否爬虫
-     */
+    */
     public boolean isCrawler() {
         return crawler;
     }
@@ -331,7 +331,7 @@ public class UserAgent implements Serializable {
     * <p>判定依据见 {@link Device#MOBILE}。</p>
     *
     * @return 是否移动端
-     */
+    */
     public boolean isMobile() {
         return device == Device.MOBILE;
     }
@@ -342,7 +342,7 @@ public class UserAgent implements Serializable {
     * <p>判定依据见 {@link Device#TABLET}。</p>
     *
     * @return 是否平板
-     */
+    */
     public boolean isTablet() {
         return device == Device.TABLET;
     }
@@ -353,7 +353,7 @@ public class UserAgent implements Serializable {
     * <p>判定依据见 {@link Device#DESKTOP}。</p>
     *
     * @return 是否桌面
-     */
+    */
     public boolean isDesktop() {
         return device == Device.DESKTOP;
     }
@@ -362,7 +362,7 @@ public class UserAgent implements Serializable {
     * 判断是否为微信内置浏览器（MicroMessenger / X5 内核）。
     *
     * @return 是否微信
-     */
+    */
     public boolean isWechat() {
         return browser == Browser.WECHAT;
     }
@@ -371,7 +371,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Chrome 浏览器。
     *
     * @return 是否 Chrome
-     */
+    */
     public boolean isChrome() {
         return browser == Browser.CHROME;
     }
@@ -380,7 +380,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Firefox 浏览器。
     *
     * @return 是否 Firefox
-     */
+    */
     public boolean isFirefox() {
         return browser == Browser.FIREFOX;
     }
@@ -389,7 +389,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Safari 浏览器。
     *
     * @return 是否 Safari
-     */
+    */
     public boolean isSafari() {
         return browser == Browser.SAFARI;
     }
@@ -398,7 +398,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Edge 浏览器。
     *
     * @return 是否 Edge
-     */
+    */
     public boolean isEdge() {
         return browser == Browser.EDGE;
     }
@@ -407,7 +407,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Opera 浏览器。
     *
     * @return 是否 Opera
-     */
+    */
     public boolean isOpera() {
         return browser == Browser.OPERA;
     }
@@ -416,7 +416,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 IE 浏览器（含 Trident 内核）。
     *
     * @return 是否 IE
-     */
+    */
     public boolean isIe() {
         return browser == Browser.IE;
     }
@@ -425,7 +425,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Windows 操作系统。
     *
     * @return 是否 Windows
-     */
+    */
     public boolean isWindows() {
         return operatingSystem == OperatingSystem.WINDOWS;
     }
@@ -434,7 +434,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 macOS 操作系统。
     *
     * @return 是否 macOS
-     */
+    */
     public boolean isMacOs() {
         return operatingSystem == OperatingSystem.MACOS;
     }
@@ -443,7 +443,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Linux 操作系统（不含 Android）。
     *
     * @return 是否 Linux
-     */
+    */
     public boolean isLinux() {
         return operatingSystem == OperatingSystem.LINUX;
     }
@@ -452,7 +452,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 Android 操作系统。
     *
     * @return 是否 Android
-     */
+    */
     public boolean isAndroid() {
         return operatingSystem == OperatingSystem.ANDROID;
     }
@@ -461,7 +461,7 @@ public class UserAgent implements Serializable {
     * 判断是否为 iOS 操作系统（iPhone / iPad / iPod）。
     *
     * @return 是否 iOS
-     */
+    */
     public boolean isIos() {
         return operatingSystem == OperatingSystem.IOS;
     }
@@ -470,7 +470,7 @@ public class UserAgent implements Serializable {
     * 获取原始 User-Agent 字符串。
     *
     * @return 原始字符串，可能为 {@code null} 或空串
-     */
+    */
     public String getRaw() {
         return raw;
     }
@@ -479,7 +479,7 @@ public class UserAgent implements Serializable {
     * 获取浏览器类型。
     *
     * @return 浏览器类型，无法识别时为 {@link Browser#UNKNOWN}
-     */
+    */
     public Browser getBrowser() {
         return browser;
     }
@@ -488,7 +488,7 @@ public class UserAgent implements Serializable {
     * 获取浏览器版本号。
     *
     * @return 浏览器版本号，无法识别时为 {@code null}
-     */
+    */
     public String getBrowserVersion() {
         return browserVersion;
     }
@@ -497,7 +497,7 @@ public class UserAgent implements Serializable {
     * 获取操作系统类型。
     *
     * @return 操作系统类型，无法识别时为 {@link OperatingSystem#UNKNOWN}
-     */
+    */
     public OperatingSystem getOperatingSystem() {
         return operatingSystem;
     }
@@ -506,7 +506,7 @@ public class UserAgent implements Serializable {
     * 获取操作系统版本号。
     *
     * @return 操作系统版本号，无法识别时为 {@code null}
-     */
+    */
     public String getOsVersion() {
         return osVersion;
     }
@@ -515,7 +515,7 @@ public class UserAgent implements Serializable {
     * 获取设备类型。
     *
     * @return 设备类型，无法识别时为 {@link Device#UNKNOWN}
-     */
+    */
     public Device getDevice() {
         return device;
     }
@@ -524,7 +524,7 @@ public class UserAgent implements Serializable {
     * 返回原始 User-Agent 字符串。
     *
     * @return 原始字符串，可能为 {@code null}
-     */
+    */
     @Override
     public String toString() {
         return raw;
@@ -549,7 +549,7 @@ public class UserAgent implements Serializable {
     *
     * @param ua 已转为小写的 User-Agent 字符串（非空）
     * @return 识别出的浏览器类型
-     */
+    */
     private static Browser resolveBrowser(String ua) {
         if (ua.contains("micromessenger")) {
             return Browser.WECHAT;
@@ -596,7 +596,7 @@ public class UserAgent implements Serializable {
     * @param browser 已识别的浏览器类型
     * @param ua      已转为小写的 User-Agent 字符串（非空）
     * @return 浏览器版本号，无法提取时为 {@code null}
-     */
+    */
     private static String resolveBrowserVersion(Browser browser, String ua) {
         switch (browser) {
             case CHROME:
@@ -640,7 +640,7 @@ public class UserAgent implements Serializable {
     *
     * @param ua 已转为小写的 User-Agent 字符串（非空）
     * @return 识别出的操作系统类型
-     */
+    */
     private static OperatingSystem resolveOperatingSystem(String ua) {
         if (ua.contains("windows")) {
             return OperatingSystem.WINDOWS;
@@ -676,7 +676,7 @@ public class UserAgent implements Serializable {
     *
     * @param ua 已转为小写的 User-Agent 字符串（非空）
     * @return 操作系统版本号，无法提取时为 {@code null}
-     */
+    */
     private static String resolveOsVersion(String ua) {
         if (ua.contains("windows")) {
             return match(ua, "windows nt ([\\d.]+)");
@@ -710,7 +710,7 @@ public class UserAgent implements Serializable {
     *
     * @param ua 已转为小写的 User-Agent 字符串（非空）
     * @return 识别出的设备类型
-     */
+    */
     private static Device resolveDevice(String ua) {
         if (ua.contains("ipad") || ua.contains("tablet") || ua.contains("silk")) {
             return Device.TABLET;
@@ -735,7 +735,7 @@ public class UserAgent implements Serializable {
     *
     * @param browser 解析出的浏览器类型
     * @return 是否现代浏览器
-     */
+    */
     private static boolean isSecFetchBrowser(Browser browser) {
         return browser == Browser.CHROME
                 || browser == Browser.EDGE
@@ -752,7 +752,7 @@ public class UserAgent implements Serializable {
     * @param headers 请求头集合，可为 {@code null}
     * @param name    请求头名称，可为 {@code null}
     * @return 匹配到的请求头值；集合为空 / 未命中 / 名称为 {@code null} 时返回 {@code null}
-     */
+    */
     private static String getHeader(Map<String, String> headers, String name) {
         if (headers == null) {
             return null;
@@ -773,7 +773,7 @@ public class UserAgent implements Serializable {
     * @param ua       被检查的小写字符串（非空）
     * @param keywords 关键字表
     * @return 命中任意关键字返回 {@code true}；关键字表为空返回 {@code false}
-     */
+    */
     private static boolean containsAny(String ua, String[] keywords) {
         for (String keyword : keywords) {
             if (ua.contains(keyword)) {
@@ -791,7 +791,7 @@ public class UserAgent implements Serializable {
     * @param ua    被匹配的小写字符串（非空）
     * @param regex 含一个捕获组的正则表达式
     * @return 首个匹配的捕获组内容；无匹配时返回 {@code null}
-     */
+    */
     private static String match(String ua, String regex) {
         Matcher matcher = Pattern.compile(regex).matcher(ua);
         return matcher.find() ? matcher.group(1) : null;
@@ -799,84 +799,84 @@ public class UserAgent implements Serializable {
 
     /**
     * 浏览器类型枚举。
-     */
+    */
     public enum Browser {
         /**
         * Google Chrome（Blink 内核）
-         */
+        */
         CHROME,
         /**
         * Microsoft Edge（Chromium 内核）
-         */
+        */
         EDGE,
         /**
         * Mozilla Firefox（Gecko 内核）
-         */
+        */
         FIREFOX,
         /**
         * Apple Safari（WebKit 内核）
-         */
+        */
         SAFARI,
         /**
         * Opera（Chromium 内核）
-         */
+        */
         OPERA,
         /**
         * IE（含 Trident 内核的旧版 Edge）
-         */
+        */
         IE,
         /**
         * 微信内置浏览器（MicroMessenger / X5 内核）
-         */
+        */
         WECHAT,
         /**
         * UC 浏览器
-         */
+        */
         UC,
         /**
         * QQ 浏览器
-         */
+        */
         QQ,
         /**
         * 无法识别的浏览器
-         */
+        */
         UNKNOWN
     }
 
     /**
     * 操作系统类型枚举。
-     */
+    */
     public enum OperatingSystem {
         /**
         * Microsoft Windows
-         */
+        */
         WINDOWS,
         /**
         * Apple macOS
-         */
+        */
         MACOS,
         /**
         * Linux（不含 Android）
-         */
+        */
         LINUX,
         /**
         * Google Android
-         */
+        */
         ANDROID,
         /**
         * Apple iOS（iPhone / iPad / iPod）
-         */
+        */
         IOS,
     /**
     * 无法识别的操作系统
-     */
+    */
     UNKNOWN;
 
     /**
     * 获取操作系统友好名称。
     *
     * @return 名称字符串（如 "Windows"）
-     */
+    */
     public String getName() {
         return switch (this) {
             case WINDOWS -> "Windows";
@@ -891,23 +891,23 @@ public class UserAgent implements Serializable {
 
     /**
     * 设备类型枚举。
-     */
+    */
     public enum Device {
         /**
         * 桌面设备（台式机 / 笔记本）
-         */
+        */
         DESKTOP,
         /**
         * 移动设备（手机）
-         */
+        */
         MOBILE,
         /**
         * 平板设备
-         */
+        */
         TABLET,
         /**
         * 无法识别的设备
-         */
+        */
         UNKNOWN
     }
 }

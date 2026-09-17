@@ -38,7 +38,7 @@ public class FileTypeConverter implements TypeConverter<File> {
     private static final String[] TEMP = new String[]{"Documents", "Downloads", "Desktop"};
     /**
     * 数据
-     */
+    */
     private static final String DATA = "data:";
     /** base64 数据前缀 */
     private static final CharSequence BASE64 = "base64,";
@@ -54,7 +54,7 @@ public class FileTypeConverter implements TypeConverter<File> {
     *
     * @param value 源值
     * @return File 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public File convert(Object value) {
         switch (value) {
@@ -109,7 +109,7 @@ public class FileTypeConverter implements TypeConverter<File> {
     *   <li>Documents/Downloads/Desktop 子目录下查找</li>
     *   <li>直接作为文件路径</li>
     * </ol>
-     */
+    */
     private File stringToFile(String str) {
         if (str.startsWith(HTTP_PREFIX)) {
             try {
@@ -210,7 +210,7 @@ public class FileTypeConverter implements TypeConverter<File> {
     * 获取当前转换器支持的目标类型。
     *
     * @return File.class
-     */
+    */
     @Override
     public Class<File> getType() {
         return File.class;

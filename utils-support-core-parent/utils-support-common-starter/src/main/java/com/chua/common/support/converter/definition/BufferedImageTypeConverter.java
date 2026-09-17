@@ -43,7 +43,7 @@ public class BufferedImageTypeConverter implements TypeConverter<BufferedImage> 
     *
     * @param value 源值
     * @return BufferedImage 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public BufferedImage convert(Object value) {
         try {

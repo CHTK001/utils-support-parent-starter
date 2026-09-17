@@ -7,29 +7,29 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
-* Bean 方法定义，同时也是 {@link BeanDefinition} 子类。
-*
-* <p>作为方法级的 Bean 定义，对应工厂方法（如 {@code @Bean}）的返回结果。
-* {@link #getBean()} 通过调用所属 Bean 的工厂方法创建实例，跳过 Ioc 生命周期。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * Bean 方法定义，同时也是 {@link BeanDefinition} 子类。
+ *
+ * <p>作为方法级的 Bean 定义，对应工厂方法（如 {@code @Bean}）的返回结果。
+ * {@link #getBean()} 通过调用所属 Bean 的工厂方法创建实例，跳过 Ioc 生命周期。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class MethodDefinition extends AbstractBeanDefinition {
 
     /**
     * 父 Bean 定义（工厂方法所属的 Bean）。
-     */
+    */
     private final BeanDefinition parentBeanDefinition;
 
     /**
     * Java 反射方法。
-     */
+    */
     private final Method method;
 
     /**
     * 缓存的方法返回实例。
-     */
+    */
     private volatile Object result;
 
     /**
@@ -37,7 +37,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     *
     * @param parentBeanDefinition 所属 Bean 定义
     * @param method               Java 反射方法
-     */
+    */
     public MethodDefinition(BeanDefinition parentBeanDefinition, Method method) {
         super(buildName(parentBeanDefinition, method), method.getReturnType(), BeanScope.SINGLETON);
         this.parentBeanDefinition = parentBeanDefinition;
@@ -51,7 +51,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     * @param parentBeanDefinition 父Beandefinition
     * @param method 方法
     * @return 构建名称的结果
-     */
+    */
     private static String buildName(BeanDefinition parentBeanDefinition, Method method) {
         return parentBeanDefinition.getName() + "." + method.getName();
     }
@@ -60,7 +60,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     * 获取父 Bean 定义（工厂方法所属的 Bean）。
     *
     * @return 父 Bean 定义
-     */
+    */
     public BeanDefinition getParentBeanDefinition() {
         return parentBeanDefinition;
     }
@@ -69,7 +69,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     * 获取 Java 方法。
     *
     * @return Java 方法
-     */
+    */
     public Method getMethod() {
         return method;
     }
@@ -82,7 +82,7 @@ public class MethodDefinition extends AbstractBeanDefinition {
     * @return 方法返回值
     * @throws InvocationTargetException 业务方法抛出异常时抛出
     * @throws IllegalAccessException    方法不可访问时抛出
-     */
+    */
     public Object invoke(Object target, Object... args) throws InvocationTargetException, IllegalAccessException {
         if (target == null) {
             throw new IllegalStateException("Bean 实例不存在: " + getName());

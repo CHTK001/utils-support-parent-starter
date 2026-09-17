@@ -30,14 +30,14 @@ public class IpFilter implements ServerFilter {
 
     /**
     * 创建黑名单模式过滤器。
-     */
+    */
     public static IpFilter blacklist() {
         return new IpFilter(false);
     }
 
     /**
     * 创建白名单模式过滤器。
-     */
+    */
     public static IpFilter whitelist() {
         return new IpFilter(true);
     }
@@ -45,7 +45,7 @@ public class IpFilter implements ServerFilter {
     /**
     * 创建 IpFilter 实例
     * @param whitelistMode whitelistMode
-     */
+    */
     private IpFilter(boolean whitelistMode) {
         this.whitelistMode = whitelistMode;
     }
@@ -77,7 +77,7 @@ public class IpFilter implements ServerFilter {
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         String clientIp = extractIp(request.getRemoteAddress());
@@ -106,7 +106,7 @@ public class IpFilter implements ServerFilter {
 
     /**
     * 从 remoteAddress 提取 IP（去除端口）。
-     */
+    */
     private String extractIp(String remoteAddress) {
         if (remoteAddress == null) {
             return "";

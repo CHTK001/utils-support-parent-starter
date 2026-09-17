@@ -46,7 +46,7 @@ public class ImageGenerationSpec {
     /**
     * 创建 ImageGenerationSpec 实例
     * @param client client
-     */
+    */
     public ImageGenerationSpec(ChatClient client) {
         this.client = client;
     }

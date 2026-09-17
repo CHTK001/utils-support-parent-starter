@@ -17,7 +17,7 @@ public interface MemoryStore extends AutoCloseable {
     * 保存一条记忆
     *
     * @param entry 记忆条目
-     */
+    */
     void save(MemoryEntry entry);
 
     /**
@@ -28,7 +28,7 @@ public interface MemoryStore extends AutoCloseable {
     * @param keyword 搜索关键词
     * @param limit   最大返回数量
     * @return 匹配的记忆列表，按相关度降序
-     */
+    */
     List<MemoryEntry> search(String keyword, int limit);
 
     /**
@@ -37,7 +37,7 @@ public interface MemoryStore extends AutoCloseable {
     * @param type  记忆类型
     * @param limit 最大返回数量
     * @return 该类型的记忆列表
-     */
+    */
     List<MemoryEntry> listByType(String type, int limit);
 
     /**
@@ -45,7 +45,7 @@ public interface MemoryStore extends AutoCloseable {
     *
     * @param sessionId 会话 ID
     * @return 该会话产生的记忆列表
-     */
+    */
     List<MemoryEntry> listBySession(String sessionId);
 
     /**
@@ -53,28 +53,28 @@ public interface MemoryStore extends AutoCloseable {
     *
     * @param id 记忆 ID
     * @return 是否删除成功
-     */
+    */
     boolean delete(String id);
 
     /**
     * 获取记忆总数
     *
     * @return 当前存储的记忆条数
-     */
+    */
     int count();
 
     /**
     * 备份所有记忆到指定路径
     *
     * @param backupPath 备份目标路径
-     */
+    */
     void backup(String backupPath);
 
     /**
     * 从备份恢复记忆
     *
     * @param backupPath 备份文件路径
-     */
+    */
     void restore(String backupPath);
 
     @Override

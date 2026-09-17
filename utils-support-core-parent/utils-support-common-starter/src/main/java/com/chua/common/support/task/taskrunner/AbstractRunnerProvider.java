@@ -8,21 +8,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;
 
 /**
-* 运行器提供者模板基类 — 封装单节点执行链的通用组装逻辑。
-*
-* <p>提供三段式执行链包装（由外到内）：</p>
-* <ol>
-*   <li><strong>熔断降级</strong>：{@link CircuitBreakerFlow} 保护，拒绝或失败时走 fallback</li>
-*   <li><strong>超时</strong>：嵌套结构化并发作用域 + withTimeout 约束整个重试序列</li>
-*   <li><strong>重试</strong>：指数退避（200ms 起步、封顶 2s），仅对 Exception 重试；
-*       配置时限时预算感知——剩余预算不足以完成下一次尝试即提前放弃</li>
-* </ol>
-*
-* <p>同时提供数据依赖校验与事件发布辅助方法。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 运行器提供者模板基类 — 封装单节点执行链的通用组装逻辑。
+ *
+ * <p>提供三段式执行链包装（由外到内）：</p>
+ * <ol>
+ *   <li><strong>熔断降级</strong>：{@link CircuitBreakerFlow} 保护，拒绝或失败时走 fallback</li>
+ *   <li><strong>超时</strong>：嵌套结构化并发作用域 + withTimeout 约束整个重试序列</li>
+ *   <li><strong>重试</strong>：指数退避（200ms 起步、封顶 2s），仅对 Exception 重试；
+ *       配置时限时预算感知——剩余预算不足以完成下一次尝试即提前放弃</li>
+ * </ol>
+ *
+ * <p>同时提供数据依赖校验与事件发布辅助方法。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public abstract class AbstractRunnerProvider {
 
     /**
@@ -32,7 +32,7 @@ public abstract class AbstractRunnerProvider {
     * @param context 运行上下文
     * @param options 执行参数
     * @return 节点结果
-     */
+    */
     protected TaskResult executeNode(TaskDefinition def, RunnerContext context,
                                      RunnerProvider.ExecutionOptions options) {
         var started = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public abstract class AbstractRunnerProvider {
     * @param context 运行上下文
     * @param options 执行参数
     * @return 可调用执行链
-     */
+    */
     protected Callable<Object> buildChain(TaskDefinition def, RunnerContext context,
                                           RunnerProvider.ExecutionOptions options) {
         Callable<Object> core = () -> {
@@ -93,7 +93,7 @@ public abstract class AbstractRunnerProvider {
     * @param context 运行上下文
     * @param inner   内层执行链
     * @return 包装后的执行链
-     */
+    */
     private Callable<Object> applyFallbackOnFailure(TaskDefinition def, RunnerContext context,
                                                     Callable<Object> inner) {
         if (!def.hasFallback()) {
@@ -116,7 +116,7 @@ public abstract class AbstractRunnerProvider {
     *
     * @param t 待检查异常
     * @return true 表示链上存在 错误（如 OOM/stackoverflow）
-     */
+    */
     private static boolean containsError(Throwable t) {
         var current = t;
         while (current != null) {
@@ -139,7 +139,7 @@ public abstract class AbstractRunnerProvider {
     * @param attempts 总尝试次数，必须 ≥ 1
     * @param timeout  整体时限，空 表示不限时
     * @return 包装后的执行链
-     */
+    */
     private Callable<Object> wrapResilience(Callable<Object> core, int attempts, java.time.Duration timeout) {
         var times = Math.max(attempts, 1);
         return () -> {
@@ -170,7 +170,7 @@ public abstract class AbstractRunnerProvider {
 
     /**
     * 判定放弃重试的最小剩余执行窗毫秒数。
-     */
+    */
     private static final long MIN_EXECUTE_WINDOW_MS = 50L;
 
     /**
@@ -183,7 +183,7 @@ public abstract class AbstractRunnerProvider {
     * @param duration 时限
     * @return 包装后的执行链
     * @throws Exception 执行失败或超时
-     */
+    */
     private Callable<Object> wrapTimeout(Callable<Object> inner, Duration duration) {
         return () -> {
             try (var scope = StructuredTaskScope.open(
@@ -208,7 +208,7 @@ public abstract class AbstractRunnerProvider {
     * @param def     节点定义
     * @param context 运行上下文
     * @throws IllegalStateException 当任一前置节点无有效结果时
-     */
+    */
     protected void verifyDataDependencies(TaskDefinition def, RunnerContext context) {
         for (var dep : def.getDataDependencies()) {
             if (!context.hasResult(dep)) {
@@ -226,7 +226,7 @@ public abstract class AbstractRunnerProvider {
     *
     * @param t 待解包异常
     * @return 解包后的异常
-     */
+    */
     protected Throwable unwrap(Throwable t) {
         if (t.getClass() == RuntimeException.class && t.getCause() != null) {
             return unwrap(t.getCause());
@@ -239,7 +239,7 @@ public abstract class AbstractRunnerProvider {
     *
     * @param options 执行参数
     * @param event   事件
-     */
+    */
     protected void emit(RunnerProvider.ExecutionOptions options, RunnerEvent event) {
         for (var listener : options.listeners()) {
             listener.onEvent(event);

@@ -28,28 +28,30 @@ import java.util.Map;
 @Builder
 public class DocumentConfig {
 
-    /** 文档类型，@Spi 扩展名，如 "database"、"swagger" */
+    /**
+    * 文档类型，@Spi 扩展名，如 "database"、"swagger"
+    */
     /**
     * 类型
-     */
+    */
     private String type;
 
     /** JDBC URL 或 API 文档地址 */
     /**
     * 地址
-     */
+    */
     private String url;
 
     /** 数据库用户名 */
     /**
     * 用户名
-     */
+    */
     private String username;
 
     /** 数据库密码 */
     /**
     * 密码
-     */
+    */
     private String password;
 
     /** JDBC 驱动类全限定名 */

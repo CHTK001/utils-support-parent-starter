@@ -47,7 +47,7 @@ public final class CudaEnvLoader {
     *
     * @param key 配置键，如 {@code CUDA_MAJOR}
     * @return 配置值；缺失返回 null
-     */
+    */
     public static String get(String key) {
         return load().get(key);
     }
@@ -58,7 +58,7 @@ public final class CudaEnvLoader {
     * @param key          配置键
     * @param defaultValue 默认值
     * @return 配置值；缺失或为空返回默认值
-     */
+    */
     public static String get(String key, String defaultValue) {
         String v = load().get(key);
         return v == null || v.isBlank() ? defaultValue : v.trim();
@@ -70,7 +70,7 @@ public final class CudaEnvLoader {
     * @param key          配置键
     * @param defaultValue 默认值
     * @return int 配置值
-     */
+    */
     public static int getInt(String key, int defaultValue) {
         try {
             return Integer.parseInt(get(key, String.valueOf(defaultValue)).trim());
@@ -85,7 +85,7 @@ public final class CudaEnvLoader {
     * @param key          配置键
     * @param defaultValue 默认值
     * @return bool 配置值
-     */
+    */
     public static boolean getBool(String key, boolean defaultValue) {
         String v = get(key, String.valueOf(defaultValue)).trim();
         return "true".equalsIgnoreCase(v) || "1".equals(v);
@@ -95,14 +95,14 @@ public final class CudaEnvLoader {
     * 获取全部配置（只读视图）。
     *
     * @return 配置键值对
-     */
+    */
     public static Map<String, String> all() {
         return java.util.Collections.unmodifiableMap(load());
     }
 
     /**
     * 强制重载（清空缓存，下次访问重新读取）。
-     */
+    */
     public static synchronized void reload() {
         CACHE = null;
         load();
@@ -110,7 +110,7 @@ public final class CudaEnvLoader {
 
     /**
     * 懒加载单例：double-check，仅首次读取 .env。
-     */
+    */
     private static Map<String, String> load() {
         Map<String, String> cached = CACHE;
         if (cached != null) {

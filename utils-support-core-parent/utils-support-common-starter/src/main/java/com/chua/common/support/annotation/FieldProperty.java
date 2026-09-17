@@ -52,21 +52,21 @@ public @interface FieldProperty {
     * 映射后的列名（默认使用字段名）。
     *
     * @return 列名
-     */
+    */
     String value() default "";
 
     /**
     * 别名，同 {@link #value()}。
     *
     * @return 列名
-     */
+    */
     String name() default "";
 
     /**
     * 日期格式（如 {@code "yyyy-MM-dd HH:mm:ss"}）。
     *
     * @return 格式模式
-     */
+    */
     String fmt() default "";
 
     /**
@@ -75,14 +75,14 @@ public @interface FieldProperty {
     * {@link FieldMappingContext#getContext()} 中获取值。</p>
     *
     * @return 默认值
-     */
+    */
     String defaultValue() default "";
 
     /**
     * 读取转换器（读入场景：文件/数据库字符串 → 对象字段）。
     *
     * @return 读取转换器类型
-     */
+    */
     Class<? extends FieldConverter> reader() default FieldConverter.class;
 
     /**
@@ -90,6 +90,6 @@ public @interface FieldProperty {
     * <p>转换器输出优先级：converter 结果 > 上下文 #{key} 值 > 字段原始值</p>
     *
     * @return 写入转换器类型
-     */
+    */
     Class<? extends FieldConverter> writer() default FieldConverter.class;
 }

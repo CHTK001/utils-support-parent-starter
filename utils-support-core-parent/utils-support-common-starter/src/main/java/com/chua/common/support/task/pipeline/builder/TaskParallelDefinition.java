@@ -12,61 +12,61 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
-* 并行子流水线节点定义 — 类型安全的并行子流水线配置构建器。
-*
-* <p>通过 {@link TaskDefinition#parallel(Pipeline)} 从任务定义转换而来，
-* 或通过 {@link TaskForkDefinition#parallel(Pipeline)} 从分叉定义转换而来，
-* 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
-*
-* <p><strong>与 TaskSubPipelineDefinition 的核心区别：</strong></p>
-* <ul>
-*   <li>TaskSubPipelineDefinition — 同步执行，主干阻塞等待子流程完成</li>
-*   <li>TaskParallelDefinition — 并行执行，主干不等待，子流程在后台线程执行</li>
-* </ul>
-*
-* <p><strong>与 TaskForkDefinition 的核心区别：</strong></p>
-* <ul>
-*   <li>TaskForkDefinition — 分叉+阻塞，多分支并行执行，主干等待所有分支完成</li>
-*   <li>TaskParallelDefinition — 并行+不阻塞，单个子流程在后台执行，主干继续</li>
-* </ul>
-*
-* <p><strong>完整模式：task → parallel → ... → taskEnd</strong></p>
-* <pre>{@code
-* Pipeline parallelSub = PipelineBuilder.newBuilder("parallelSub")
-*     .task("a1", ctx -> { ...; return null; }).taskEnd()
-*     .task("a2", ctx -> { ...; return null; }).taskEnd()
-*     .build();
-*
-* PipelineBuilder.newBuilder("mainFlow")
-*     .task("parallelStep", ctx -> null)
-*     .parallel(parallelSub)                  // 转为并行子流水线定义
-*     .onComplete((ctx, result) -> {          // 完成回调
-*         log.info("Parallel completed: {}", result.getOutput());
-*     })
-*     .taskEnd()                              // 结束定义
-*     .build();
-* }</pre> // 结束定义
-* .构建();
-* }</pre>
-*
-* <p><strong>便捷方法：</strong></p>
-* <ul>
-*   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
-*   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
-*   <li>{@link #start(String)} — 设置子流水线起始节点 ID</li>
-*   <li>{@link #params(Map)} — 设置子流水线参数</li>
-*   <li>{@link #environment(Map)} — 设置节点自有变量</li>
-*   <li>{@link #mergeCurrentData(boolean)} — 完成后是否回写 currentData（默认 true）</li>
-*   <li>{@link #onComplete(BiConsumer)} — 并行完成回调</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
-* @see TaskDefinition#parallel(Pipeline)
-* @see TaskForkDefinition#parallel(Pipeline)
-* @see ParallelNode
-* @see AsyncResult
- */
+ * 并行子流水线节点定义 — 类型安全的并行子流水线配置构建器。
+ *
+ * <p>通过 {@link TaskDefinition#parallel(Pipeline)} 从任务定义转换而来，
+ * 或通过 {@link TaskForkDefinition#parallel(Pipeline)} 从分叉定义转换而来，
+ * 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
+ *
+ * <p><strong>与 TaskSubPipelineDefinition 的核心区别：</strong></p>
+ * <ul>
+ *   <li>TaskSubPipelineDefinition — 同步执行，主干阻塞等待子流程完成</li>
+ *   <li>TaskParallelDefinition — 并行执行，主干不等待，子流程在后台线程执行</li>
+ * </ul>
+ *
+ * <p><strong>与 TaskForkDefinition 的核心区别：</strong></p>
+ * <ul>
+ *   <li>TaskForkDefinition — 分叉+阻塞，多分支并行执行，主干等待所有分支完成</li>
+ *   <li>TaskParallelDefinition — 并行+不阻塞，单个子流程在后台执行，主干继续</li>
+ * </ul>
+ *
+ * <p><strong>完整模式：task → parallel → ... → taskEnd</strong></p>
+ * <pre>{@code
+ * Pipeline parallelSub = PipelineBuilder.newBuilder("parallelSub")
+ *     .task("a1", ctx -> { ...; return null; }).taskEnd()
+ *     .task("a2", ctx -> { ...; return null; }).taskEnd()
+ *     .build();
+ *
+ * PipelineBuilder.newBuilder("mainFlow")
+ *     .task("parallelStep", ctx -> null)
+ *     .parallel(parallelSub)                  // 转为并行子流水线定义
+ *     .onComplete((ctx, result) -> {          // 完成回调
+ *         log.info("Parallel completed: {}", result.getOutput());
+ *     })
+ *     .taskEnd()                              // 结束定义
+ *     .build();
+ * }</pre> // 结束定义
+ * .构建();
+ * }</pre>
+ *
+ * <p><strong>便捷方法：</strong></p>
+ * <ul>
+ *   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
+ *   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
+ *   <li>{@link #start(String)} — 设置子流水线起始节点 ID</li>
+ *   <li>{@link #params(Map)} — 设置子流水线参数</li>
+ *   <li>{@link #environment(Map)} — 设置节点自有变量</li>
+ *   <li>{@link #mergeCurrentData(boolean)} — 完成后是否回写 currentData（默认 true）</li>
+ *   <li>{@link #onComplete(BiConsumer)} — 并行完成回调</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see TaskDefinition#parallel(Pipeline)
+ * @see TaskForkDefinition#parallel(Pipeline)
+ * @see ParallelNode
+ * @see AsyncResult
+*/
 public class TaskParallelDefinition {
 
     /** 标识 */
@@ -95,7 +95,7 @@ public class TaskParallelDefinition {
     * @param id          节点唯一标识
     * @param builder     流水线构建器
     * @param subPipeline 并行子流水线实例
-     */
+    */
     TaskParallelDefinition(String id, PipelineBuilder builder, Pipeline subPipeline) {
         this.id = id;
         this.builder = builder;
@@ -109,7 +109,7 @@ public class TaskParallelDefinition {
     * 构成完整的并行子流水线定义：任务 → 并行 → ... → 任务结束。</p>
     *
     * @return PipelineBuilder
-     */
+    */
     public PipelineBuilder taskEnd() {
         ParallelNode node = new ParallelNode(id, subPipeline);
         if (preHandler != null) {
@@ -152,7 +152,7 @@ public class TaskParallelDefinition {
     * </ol>
     *
     * @return 构建完成的 Pipeline 实例
-     */
+    */
     public Pipeline pipelineEnd() {
         taskEnd();
         builder.end(id);
@@ -164,7 +164,7 @@ public class TaskParallelDefinition {
     *
     * @param handler 前置处理器
     * @return this
-     */
+    */
     public TaskParallelDefinition preHandler(PipelineNode handler) {
         this.preHandler = handler;
         return this;
@@ -175,7 +175,7 @@ public class TaskParallelDefinition {
     *
     * @param startNodeId 子流水线中的起始节点 标识
     * @return this
-     */
+    */
     public TaskParallelDefinition start(String startNodeId) {
         this.startNode = startNodeId;
         return this;
@@ -186,7 +186,7 @@ public class TaskParallelDefinition {
     *
     * @param params 参数映射
     * @return this
-     */
+    */
     public TaskParallelDefinition params(Map<String, Object> params) {
         this.params = params;
         return this;
@@ -204,7 +204,7 @@ public class TaskParallelDefinition {
     *
     * @param env 环境参数映射
     * @return this
-     */
+    */
     public TaskParallelDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;
@@ -218,7 +218,7 @@ public class TaskParallelDefinition {
     * @param key   参数键
     * @param value 参数值
     * @return this
-     */
+    */
     public TaskParallelDefinition env(String key, Object value) {
         if (this.env == null) {
             this.env = new LinkedHashMap<>();
@@ -240,7 +240,7 @@ public class TaskParallelDefinition {
     *
     * @param environment 节点自有变量映射
     * @return this
-     */
+    */
     public TaskParallelDefinition environment(Map<String, Object> environment) {
         this.environment = environment;
         return this;
@@ -254,7 +254,7 @@ public class TaskParallelDefinition {
     * @param key   变量键
     * @param value 变量值
     * @return this
-     */
+    */
     public TaskParallelDefinition environment(String key, Object value) {
         if (this.environment == null) {
             this.environment = new LinkedHashMap<>();
@@ -274,7 +274,7 @@ public class TaskParallelDefinition {
     *
     * @param mergeCurrentData true 表示并行完成后将输出写回父上下文的 当前数据
     * @return this
-     */
+    */
     public TaskParallelDefinition mergeCurrentData(boolean mergeCurrentData) {
         this.mergeCurrentData = mergeCurrentData;
         return this;
@@ -288,7 +288,7 @@ public class TaskParallelDefinition {
     *
     * @param completionHandler 完成回调
     * @return this
-     */
+    */
     public TaskParallelDefinition onComplete(BiConsumer<PipelineContext<?>, AsyncResult> completionHandler) {
         this.completionHandler = completionHandler;
         return this;
@@ -299,7 +299,7 @@ public class TaskParallelDefinition {
     *
     * @param action Consumer 回调
     * @return this
-     */
+    */
     public TaskParallelDefinition onStep(Consumer<PipelineContext<?>> action) {
         PipelineNode original = this.preHandler;
         this.preHandler = ctx -> {
@@ -317,7 +317,7 @@ public class TaskParallelDefinition {
     *
     * @param handler pipeline节点 处理器
     * @return this
-     */
+    */
     public TaskParallelDefinition step(PipelineNode handler) {
         this.preHandler = handler;
         return this;

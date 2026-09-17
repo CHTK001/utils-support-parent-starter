@@ -15,14 +15,14 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
 
     /**
     * 配置保存和加载的设置对象，包含字符集等配置信息。
-     */
+    */
     protected final ConfigSaveLoadSetting setting;
 
     /**
     * 构造函数。
     *
     * @param setting 配置设置对象，如果为 null 则使用默认设置。
-     */
+    */
     protected AbstractConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         this.setting = setting == null ? ConfigSaveLoadSetting.builder().build() : setting;
     }
@@ -43,7 +43,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     * @param key 原始配置键。
     * @return 标准化后的路径字符串。
     * @throws IllegalArgumentException 当 key 为空白时抛出。
-     */
+    */
     protected String normalizeKey(String key) {
         Objects.requireNonNull(key, "config key must not be null");
         // 统一路径分隔符为正斜杠
@@ -65,7 +65,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     * @param location 保存位置。
     * @param size     文件大小（字节）。
     * @return 成功的结果对象。
-     */
+    */
     protected ConfigSaveResult success(String key, String location, long size) {
         return ConfigSaveResult.success(key, location, size);
     }
@@ -76,7 +76,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     * @param key     配置键。
     * @param message 失败原因描述。
     * @return 失败的结果对象。
-     */
+    */
     protected ConfigSaveResult failure(String key, String message) {
         return ConfigSaveResult.failure(key, message);
     }
@@ -91,7 +91,7 @@ public abstract class AbstractConfigSaveOrLoader implements ConfigSaveOrLoader {
     *
     * @param parts 路径片段数组。
     * @return 拼接后的路径字符串。
-     */
+    */
     protected String joinPath(String... parts) {
         StringBuilder builder = new StringBuilder();
         for (String part : parts) {

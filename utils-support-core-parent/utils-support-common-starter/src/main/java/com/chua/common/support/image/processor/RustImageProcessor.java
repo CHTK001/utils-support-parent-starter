@@ -47,38 +47,38 @@ public class RustImageProcessor implements ImageProcessor {
 
     /**
     * 是否已成功加载原生库
-     */
+    */
     private static final AtomicBoolean LOADED = new AtomicBoolean(false);
 
     /**
     * 原生链接器
-     */
+    */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
     * process_image 函数句柄（malloc 版）
-     */
+    */
     private static MemorySegment processImage;
 
     /**
     * process_image_shared 函数句柄（共享内存版）
-     */
+    */
     private static MemorySegment processImageShared;
 
     /**
     * free_result 函数句柄
-     */
+    */
     private static MemorySegment freeResult;
 
     /**
     * 共享输出缓冲区（预分配，避免每次 malloc/free）
     * 初始 1MB，按需增长
-     */
+    */
     private static long sharedBufferCapacity = 1024 * 1024;
 
     /**
     * 是否使用共享内存协议
-     */
+    */
     private static boolean useSharedBuffer = false;
 
     static {
@@ -131,7 +131,7 @@ public class RustImageProcessor implements ImageProcessor {
     * @throws IllegalStateException 若原生库未加载，或原生函数返回空指针、非法长度、处理失败
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Override
     public byte[] process(byte[] imageData, String operation, Map<String, Object> params) {
         if (!LOADED.get()) {
@@ -160,7 +160,7 @@ public class RustImageProcessor implements ImageProcessor {
 
     /**
     * 使用 malloc 协议处理图像（v0.1 兼容模式）
-     */
+    */
     private byte[] processMalloc(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         MemorySegment result = (MemorySegment) LINKER.downcallHandle(
                 processImage,
@@ -179,7 +179,7 @@ public class RustImageProcessor implements ImageProcessor {
     * 3. 返回值 > 0 表示写入字节数，直接从缓冲区读取
     * 4. 返回值 < 0 表示容量不足，|返回值| 为所需字节数，扩容后重试
     * 5. 返回值 = 0 表示处理失败
-     */
+    */
     private byte[] processShared(Arena arena, MemorySegment input, long len, MemorySegment paramJson) throws Throwable {
         long capacity = sharedBufferCapacity;
         MemorySegment outputBuf = arena.allocate(capacity);
@@ -226,7 +226,7 @@ public class RustImageProcessor implements ImageProcessor {
     *
     * @param result 指向 malloc 内存的指针
     * @return 图像字节
-     */
+    */
     private byte[] readResult(MemorySegment result) {
         if (result == null || result.equals(MemorySegment.NULL)) {
             throw new IllegalStateException("Rust 返回空指针");
@@ -257,7 +257,7 @@ public class RustImageProcessor implements ImageProcessor {
     * @param operation 操作类型
     * @param params    参数
     * @return JSON 字符串
-     */
+    */
     private String toJson(String operation, Map<String, Object> params) {
         StringBuilder sb = new StringBuilder("{\"op\":\"");
         sb.append(operation).append('"');
@@ -284,7 +284,7 @@ public class RustImageProcessor implements ImageProcessor {
     * @return 处理器标识名称，固定为 {@code "rust"}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Override
     public String name() {
         return "rust";
@@ -300,7 +300,7 @@ public class RustImageProcessor implements ImageProcessor {
     * @return 原生库已加载且可用返回 {@code true}，否则返回 {@code false}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Override
     public boolean available() {
         return LOADED.get();

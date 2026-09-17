@@ -26,7 +26,7 @@ public class IpcServer extends AbstractServer {
     * 构造 IPC 服务器。
     *
     * @param setting 服务器配置
-     */
+    */
     public IpcServer(ServerSetting setting) {
         super(setting);
         addFilter(new IpcServerFilter(getObjectContext()));
@@ -56,7 +56,7 @@ public class IpcServer extends AbstractServer {
     * @param path   方法路径
     * @param body   请求体
     * @return JSON 响应字符串
-     */
+    */
     public String handleMessage(String source, String path, String body) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("source", source);

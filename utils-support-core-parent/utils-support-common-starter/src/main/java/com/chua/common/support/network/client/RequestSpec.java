@@ -73,89 +73,89 @@ public class RequestSpec {
 
     /**
     * 绑定的 HTTP 客户端实例，请求最终通过此客户端执行
-     */
+    */
     private final HttpClient client;
 
     /**
     * 请求 URL
-     */
+    */
     private String url;
 
     /**
     * HTTP 请求方法
-     */
+    */
     private HttpMethod method;
 
     /**
     * 请求头集合
-     */
+    */
     private final HttpHeader headers = HttpHeader.create();
 
     /**
     * 请求体
-     */
+    */
     private Object body;
 
     /**
     * URL 查询参数
-     */
+    */
     private Map<String, String> params;
 
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private long connectTimeout = 30000;
 
     /**
     * 读取超时时间（毫秒）
-     */
+    */
     private long readTimeout = 30000;
 
     /**
     * 写入超时时间（毫秒）
-     */
+    */
     private long writeTimeout = 30000;
 
     /**
     * 连接保活超时时间（毫秒）
-     */
+    */
     private long keepAliveTimeout = 60000;
 
     /**
     * HTTP 协议版本
-     */
+    */
     private HttpVersion version;
 
     /**
     * 响应缓存有效期（毫秒），0 表示不缓存
-     */
+    */
     private long cacheTtl;
 
     /**
     * 最大重试次数
-     */
+    */
     private int maxRetries;
 
     /**
     * 是否跟随重定向
-     */
+    */
     private boolean followRedirects = true;
 
     /**
     * 请求级拦截器（应用层，仅对当前请求生效）。
     *
     * <p>优先级低于客户端级应用层拦截器，高于网络层拦截器。null 表示不启用。</p>
-     */
+    */
     private HttpInterceptor interceptor;
 
     /**
     * 代理服务器主机名或 IP 地址，null 表示不使用代理。
-     */
+    */
     private String proxyHost;
 
     /**
     * 代理服务器端口号。
-     */
+    */
     private int proxyPort;
 
     /**
@@ -166,7 +166,7 @@ public class RequestSpec {
     * @param client 绑定的 HTTP 客户端
     * @param url    请求 URL
     * @param method HTTP 请求方法
-     */
+    */
     RequestSpec(HttpClient client, String url, HttpMethod method) {
         this.client = client;
         this.url = url;
@@ -182,7 +182,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec get(String url) {
         this.url = url;
         this.method = HttpMethod.GET;
@@ -194,7 +194,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec post(String url) {
         this.url = url;
         this.method = HttpMethod.POST;
@@ -206,7 +206,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec put(String url) {
         this.url = url;
         this.method = HttpMethod.PUT;
@@ -218,7 +218,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec delete(String url) {
         this.url = url;
         this.method = HttpMethod.DELETE;
@@ -230,7 +230,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec patch(String url) {
         this.url = url;
         this.method = HttpMethod.PATCH;
@@ -242,7 +242,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec head(String url) {
         this.url = url;
         this.method = HttpMethod.HEAD;
@@ -254,7 +254,7 @@ public class RequestSpec {
     *
     * @param url 请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec options(String url) {
         this.url = url;
         this.method = HttpMethod.OPTIONS;
@@ -267,7 +267,7 @@ public class RequestSpec {
     * @param method HTTP 请求方法
     * @param url    请求 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec method(HttpMethod method, String url) {
         this.url = url;
         this.method = method;
@@ -282,7 +282,7 @@ public class RequestSpec {
     * @param name  请求头名称，如 {@code "Content-Type"}、{@code "Authorization"}
     * @param value 请求头值，如 {@code "application/json"}、{@code "Bearer xxx"}
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec header(String name, String value) {
         this.headers.add(name, value);
         return this;
@@ -293,7 +293,7 @@ public class RequestSpec {
     *
     * @param headers 请求头 Map，键为请求头名称，值为请求头值
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec headers(Map<String, String> headers) {
         if (headers != null) {
             headers.forEach(this.headers::add);
@@ -306,7 +306,7 @@ public class RequestSpec {
     *
     * @param body 请求体字符串，如 JSON 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec body(String body) {
         this.body = body;
         return this;
@@ -317,7 +317,7 @@ public class RequestSpec {
     *
     * @param body 请求体字节数组
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec body(byte[] body) {
         this.body = body;
         return this;
@@ -331,7 +331,7 @@ public class RequestSpec {
     *
     * @param body 请求体对象
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec body(Object body) {
         this.body = body;
         return this;
@@ -346,7 +346,7 @@ public class RequestSpec {
     * @param key   参数名
     * @param value 参数值
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec query(String key, String value) {
         if (this.params == null) {
             this.params = new LinkedHashMap<>();
@@ -360,7 +360,7 @@ public class RequestSpec {
     *
     * @param timeout 连接超时时间（毫秒），默认 30000
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec connectTimeout(long timeout) {
         this.connectTimeout = timeout;
         return this;
@@ -371,7 +371,7 @@ public class RequestSpec {
     *
     * @param timeout 读取超时时间（毫秒），默认 30000
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec readTimeout(long timeout) {
         this.readTimeout = timeout;
         return this;
@@ -384,7 +384,7 @@ public class RequestSpec {
     *
     * @param timeout 写入超时时间（毫秒），默认 30000
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec writeTimeout(long timeout) {
         this.writeTimeout = timeout;
         return this;
@@ -395,7 +395,7 @@ public class RequestSpec {
     *
     * @param timeout 保活超时时间（毫秒），默认 60000
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec keepAliveTimeout(long timeout) {
         this.keepAliveTimeout = timeout;
         return this;
@@ -406,7 +406,7 @@ public class RequestSpec {
     *
     * @param version HTTP 协议版本（HTTP_1_1 / HTTP_2 / HTTP_3）
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec version(HttpVersion version) {
         this.version = version;
         return this;
@@ -419,7 +419,7 @@ public class RequestSpec {
     *
     * @param ttlMs 缓存有效期（毫秒），0 表示不缓存
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec cache(long ttlMs) {
         this.cacheTtl = ttlMs;
         return this;
@@ -432,7 +432,7 @@ public class RequestSpec {
     *
     * @param retries 最大重试次数，0 表示不重试
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec retry(int retries) {
         this.maxRetries = retries;
         return this;
@@ -443,7 +443,7 @@ public class RequestSpec {
     *
     * @param follow true 跟随重定向（默认），false 不跟随
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec followRedirects(boolean follow) {
         this.followRedirects = follow;
         return this;
@@ -467,7 +467,7 @@ public class RequestSpec {
     *
     * @param interceptor 请求级拦截器
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec interceptor(HttpInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
@@ -479,7 +479,7 @@ public class RequestSpec {
     * @param host 代理服务器主机名或 IP 地址
     * @param port 代理服务器端口号
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec proxy(String host, int port) {
         this.proxyHost = host;
         this.proxyPort = port;
@@ -490,7 +490,7 @@ public class RequestSpec {
     * 快捷设置 Content-Type 为 {@code application/json}。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec json() {
         this.headers.add("Content-Type", "application/json");
         return this;
@@ -500,7 +500,7 @@ public class RequestSpec {
     * 快捷设置 Content-Type 为 {@code application/x-www-form-urlencoded}。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec form() {
         this.headers.add("Content-Type", "application/x-www-form-urlencoded");
         return this;
@@ -511,7 +511,7 @@ public class RequestSpec {
     *
     * @param mimeType 期望的 MIME 类型
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec accept(String mimeType) {
         this.headers.add("Accept", mimeType);
         return this;
@@ -522,7 +522,7 @@ public class RequestSpec {
     *
     * @param token Bearer Token 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec auth(String token) {
         this.headers.add("Authorization", "Bearer " + token);
         return this;
@@ -533,7 +533,7 @@ public class RequestSpec {
     *
     * @param token Bearer Token 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec bearer(String token) {
         return auth(token);
     }
@@ -543,7 +543,7 @@ public class RequestSpec {
     *
     * @param value 完整的 Authorization 头值
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec authorization(String value) {
         this.headers.add("Authorization", value);
         return this;
@@ -555,7 +555,7 @@ public class RequestSpec {
     * @param username 认证用户名
     * @param password 认证密码
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec basicAuth(String username, String password) {
         return authBasic(username, password);
     }
@@ -569,7 +569,7 @@ public class RequestSpec {
     * @param username 认证用户名
     * @param password 认证密码
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec authBasic(String username, String password) {
         String encoded = Base64.getEncoder().encodeToString(
                 (username + ":" + password).getBytes(StandardCharsets.UTF_8));
@@ -582,7 +582,7 @@ public class RequestSpec {
     *
     * @param mimeType MIME 类型，如 {@code "application/xml"}、{@code "text/html"}
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec contentType(String mimeType) {
         this.headers.add("Content-Type", mimeType);
         return this;
@@ -593,7 +593,7 @@ public class RequestSpec {
     *
     * @param userAgent User-Agent 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec userAgent(String userAgent) {
         this.headers.add("User-Agent", userAgent);
         return this;
@@ -607,7 +607,7 @@ public class RequestSpec {
     * @param name  Cookie 名称
     * @param value Cookie 值
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec cookie(String name, String value) {
         String existing = this.headers.get("Cookie");
         String cookieEntry = name + "=" + value;
@@ -623,7 +623,7 @@ public class RequestSpec {
     * 快捷设置 Cache-Control 为 {@code no-cache}，禁止缓存。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec noCache() {
         this.headers.add("Cache-Control", "no-cache");
         return this;
@@ -633,7 +633,7 @@ public class RequestSpec {
     * 快捷设置不跟随重定向（等价于 {@code followRedirects(false)}）。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec noFollow() {
         this.followRedirects = false;
         return this;
@@ -644,7 +644,7 @@ public class RequestSpec {
     *
     * @param etag ETag 值
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec ifNoneMatch(String etag) {
         this.headers.add("If-None-Match", etag);
         return this;
@@ -655,7 +655,7 @@ public class RequestSpec {
     *
     * @param referer 来源页面 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public RequestSpec referer(String referer) {
         this.headers.add("Referer", referer);
         return this;
@@ -675,7 +675,7 @@ public class RequestSpec {
     *
     * @return 响应对象 {@link ClientResponse}
     * @throws RuntimeException 如果请求执行过程中发生异常
-     */
+    */
     public ClientResponse execute() {
         return client.execute(buildRequest());
     }
@@ -684,7 +684,7 @@ public class RequestSpec {
     * 异步执行请求，返回 {@link Mono}。
     *
     * @return 响应 Mono
-     */
+    */
     public Mono<ClientResponse> executeAsync() {
         return client.executeAsync(buildRequest());
     }
@@ -693,7 +693,7 @@ public class RequestSpec {
     * 异步执行请求，通过回调通知结果。
     *
     * @param callback 异步回调
-     */
+    */
     public void executeAsync(Callback<ClientResponse> callback) {
         executeAsync().subscribe(callback::onSuccess, callback::onError);
     }
@@ -716,7 +716,7 @@ public class RequestSpec {
     * }</pre>
     *
     * @return Mono 包装的响应
-     */
+    */
     public Mono<ClientResponse> executeMono() {
         return client.executeAsync(buildRequest());
     }
@@ -733,7 +733,7 @@ public class RequestSpec {
     * }</pre>
     *
     * @return Mono 包装的响应体字符串
-     */
+    */
     public Mono<String> executeMonoString() {
         return executeMono().map(ClientResponse::getBodyString);
     }
@@ -742,7 +742,7 @@ public class RequestSpec {
     * 以 Reactor {@link Mono} 方式异步执行请求，直接返回响应体字节数组。
     *
     * @return Mono 包装的响应体字节数组
-     */
+    */
     public Mono<byte[]> executeMonoBytes() {
         return executeMono().map(ClientResponse::getBody);
     }
@@ -762,7 +762,7 @@ public class RequestSpec {
     * }</pre>
     *
     * @return Flux 包装的逐行文本流
-     */
+    */
     public Flux<String> executeFlux() {
         return executeMono()
                 .map(ClientResponse::getBodyString)
@@ -800,7 +800,7 @@ public class RequestSpec {
     *
     * @param listener SSE 事件监听器
     * @return SSE 连接句柄，可用于主动关闭连接
-     */
+    */
     public SseConnection sse(SseListener listener) {
         return sse(listener, false);
     }
@@ -821,7 +821,7 @@ public class RequestSpec {
     * @param listener  SSE 事件监听器
     * @param reconnect 是否启用自动重连
     * @return SSE 连接句柄
-     */
+    */
     public SseConnection sse(SseListener listener, boolean reconnect) {
         SseClient sseClient = SseClient.create();
         SseRequest sseRequest = buildSseRequest(reconnect);
@@ -835,7 +835,7 @@ public class RequestSpec {
     *
     * @param listener SSE 事件监听器
     * @return 异步任务，完成时包含 {@link SseConnection}
-     */
+    */
     public CompletableFuture<SseConnection> sseAsync(SseListener listener) {
         return SseClient.connectAsync(buildSseRequest(false), listener);
     }
@@ -846,7 +846,7 @@ public class RequestSpec {
     * @param listener  SSE 事件监听器
     * @param reconnect 是否启用自动重连
     * @return 异步任务，完成时包含 {@link SseConnection}
-     */
+    */
     public CompletableFuture<SseConnection> sseAsync(SseListener listener, boolean reconnect) {
         return SseClient.connectAsync(buildSseRequest(reconnect), listener);
     }
@@ -860,7 +860,7 @@ public class RequestSpec {
     * 包括 URL 拼接查询参数、请求头、请求体、超时等。</p>
     *
     * @return 构建好的 ClientRequest 实例
-     */
+    */
     private ClientRequest buildRequest() {
         ClientRequest request = new ClientRequest();
         request.setUrl(buildUrl());
@@ -884,7 +884,7 @@ public class RequestSpec {
     * 构建完整 URL（拼接查询参数）。
     *
     * @return 完整的 URL 字符串
-     */
+    */
     private String buildUrl() {
         if (params == null || params.isEmpty()) {
             return url;
@@ -911,7 +911,7 @@ public class RequestSpec {
     *
     * @param reconnect 是否启用自动重连
     * @return SseRequest 实例
-     */
+    */
     private SseRequest buildSseRequest(boolean reconnect) {
         // 将 body 转为字符串（SSE 请求体通常为 JSON 字符串）
         String bodyStr = null;

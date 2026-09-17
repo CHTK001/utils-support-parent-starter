@@ -30,7 +30,7 @@ public interface CircularSet<E> extends Set<E> {
     *
     * @return 最早加入的元素
     * @throws java.util.NoSuchElementException 如果集合为空
-     */
+    */
     E peekEldest();
 
     /**
@@ -38,28 +38,28 @@ public interface CircularSet<E> extends Set<E> {
     *
     * @return 最早加入的元素
     * @throws java.util.NoSuchElementException 如果集合为空
-     */
+    */
     E pollEldest();
 
     /**
     * 返回集合的固定容量（最大可容纳元素数量）。
     *
     * @return 集合容量
-     */
+    */
     int capacity();
 
     /**
     * 返回当前溢出策略。
     *
     * @return 溢出策略
-     */
+    */
     OverflowPolicy policy();
 
     /**
     * 修改溢出策略。
     *
     * @param policy 新的溢出策略，不允许为 null
-     */
+    */
     void setPolicy(OverflowPolicy policy);
 
     /**
@@ -68,6 +68,6 @@ public interface CircularSet<E> extends Set<E> {
     * 若该次 add 未触发淘汰，则返回 null。适用于调用方判断"本次 add 是否淘汰了元素"。</p>
     *
     * @return 最近被淘汰的元素，本次 add 未触发淘汰时返回 null
-     */
+    */
     E lastEvicted();
 }

@@ -25,7 +25,7 @@ public class TableData {
     /** 模式名（schema） */
     /**
     * Schema 名
-     */
+    */
     private String schema;
 
     /** 表注释/备注 */
@@ -49,6 +49,6 @@ public class TableData {
     /** 对象类型：TABLE 或 VIEW */
     /**
     * 类型
-     */
+    */
     private String type;
 }

@@ -60,7 +60,7 @@ public interface SqlExecutor {
     * @param sql    SQL 语句（可使用 ? 占位符）
     * @param params 参数列表
     * @return 查询结果行列表
-     */
+    */
     List<Map<String, Object>> query(String sql, Object... params);
 
     /**
@@ -72,7 +72,7 @@ public interface SqlExecutor {
     * @param params  参数列表
     * @param <T>     行类型参数
     * @return 类型化结果列表
-     */
+    */
     <T> List<T> query(String sql, Class<T> rowType, Object... params);
 
     /**
@@ -83,7 +83,7 @@ public interface SqlExecutor {
     * @param pagination 分页参数
     * @param params     参数列表
     * @return 当前页的结果行列表
-     */
+    */
     List<Map<String, Object>> queryPage(String sql, Pagination pagination, Object... params);
 
     /**
@@ -92,7 +92,7 @@ public interface SqlExecutor {
     * @param sql    SQL 语句
     * @param params 参数列表
     * @return 受影响的行数
-     */
+    */
     int execute(String sql, Object... params);
 
     /**
@@ -102,6 +102,6 @@ public interface SqlExecutor {
     * @param sql          SQL 模板
     * @param batchParams  批量参数列表，每个元素是一组参数
     * @return 每批操作影响的行数数组
-     */
+    */
     int[] batch(String sql, List<Object[]> batchParams);
 }

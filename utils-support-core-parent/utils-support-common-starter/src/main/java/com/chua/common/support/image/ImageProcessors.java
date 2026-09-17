@@ -52,12 +52,12 @@ public final class ImageProcessors {
 
     /**
     * 处理器代理实例缓存
-     */
+    */
     private static volatile ImageProcessor processor;
 
     /**
     * 私有构造方法，防止实例化
-     */
+    */
     private ImageProcessors() {
     }
 
@@ -68,7 +68,7 @@ public final class ImageProcessors {
     * 当前实现执行失败自动降级到下一优先级实现。
     *
     * @return 图像处理器代理
-     */
+    */
     public static ImageProcessor getProcessor() {
         if (processor != null) {
             return processor;
@@ -91,7 +91,7 @@ public final class ImageProcessors {
     *
     * @param imageData 原始图像字节（PNG / JPEG 等格式）
     * @return 流畅处理器，可链式调用操作
-     */
+    */
     public static FluentProcessor from(byte[] imageData) {
         return new FluentProcessor(imageData, getProcessor());
     }
@@ -102,7 +102,7 @@ public final class ImageProcessors {
     * @param imageData 原始图像字节
     * @param processor 图像处理器实例
     * @return 流畅处理器，可链式调用操作
-     */
+    */
     public static FluentProcessor from(byte[] imageData, ImageProcessor processor) {
         return new FluentProcessor(imageData, processor);
     }
@@ -116,7 +116,7 @@ public final class ImageProcessors {
     * <p>最终通过 {@link #toBytes()} 或 {@link #toBytes(String)} 获取处理结果。</p>
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class FluentProcessor {
 
         /** 当前图像数据 */
@@ -131,7 +131,7 @@ public final class ImageProcessors {
         *
         * @param imageData 原始图像字节
         * @param processor 底层处理器
-         */
+        */
         private FluentProcessor(byte[] imageData, ImageProcessor processor) {
             this.imageData = imageData;
             this.processor = processor;
@@ -143,7 +143,7 @@ public final class ImageProcessors {
         * @param width  目标宽度
         * @param height 目标高度
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor resize(int width, int height) {
             Map<String, Object> params = newParams();
             params.put("width", width);
@@ -156,7 +156,7 @@ public final class ImageProcessors {
         * 转为灰度图像
         *
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor grayscale() {
             imageData = processor.process(imageData, "grayscale", newParams());
             return this;
@@ -167,7 +167,7 @@ public final class ImageProcessors {
         *
         * @param angle 旋转角度（度）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor rotate(int angle) {
             Map<String, Object> params = newParams();
             params.put("angle", angle);
@@ -183,7 +183,7 @@ public final class ImageProcessors {
         * @param width  裁剪宽度
         * @param height 裁剪高度
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor crop(int x, int y, int width, int height) {
             Map<String, Object> params = newParams();
             params.put("x", x);
@@ -199,7 +199,7 @@ public final class ImageProcessors {
         *
         * @param sigma 模糊半径
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor blur(int sigma) {
             Map<String, Object> params = newParams();
             params.put("sigma", sigma);
@@ -212,7 +212,7 @@ public final class ImageProcessors {
         *
         * @param axis 翻转轴：{@code "h"} 水平翻转 / {@code "v"} 垂直翻转
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor flip(String axis) {
             Map<String, Object> params = newParams();
             params.put("axis", axis);
@@ -224,7 +224,7 @@ public final class ImageProcessors {
         * 水平翻转（快捷方法）
         *
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor flipHorizontal() {
             return flip("h");
         }
@@ -233,7 +233,7 @@ public final class ImageProcessors {
         * 垂直翻转（快捷方法）
         *
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor flipVertical() {
             return flip("v");
         }
@@ -243,7 +243,7 @@ public final class ImageProcessors {
         *
         * @param value 亮度调整值（[-255, 255]，正数变亮）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor brightness(int value) {
             Map<String, Object> params = newParams();
             params.put("value", value);
@@ -256,7 +256,7 @@ public final class ImageProcessors {
         *
         * @param value 对比度调整值（[-100, 100]，正数增强）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor contrast(int value) {
             Map<String, Object> params = newParams();
             params.put("value", value);
@@ -270,7 +270,7 @@ public final class ImageProcessors {
         * @param width 边框宽度
         * @param color 边框颜色（#RRGGBB 或 r,g,b）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor border(int width, String color) {
             Map<String, Object> params = newParams();
             params.put("width", width);
@@ -284,7 +284,7 @@ public final class ImageProcessors {
         *
         * @param width 边框宽度
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor border(int width) {
             return border(width, "#000000");
         }
@@ -294,7 +294,7 @@ public final class ImageProcessors {
         *
         * @param threshold 阈值（0~255，默认 128）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor binarize(int threshold) {
             Map<String, Object> params = newParams();
             params.put("threshold", threshold);
@@ -307,7 +307,7 @@ public final class ImageProcessors {
         *
         * @param radius 邻域半径
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor denoise(int radius) {
             Map<String, Object> params = newParams();
             params.put("radius", radius);
@@ -320,7 +320,7 @@ public final class ImageProcessors {
         *
         * @param kernel 核尺寸（奇数，默认 3）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor erode(int kernel) {
             Map<String, Object> params = newParams();
             params.put("kernel", kernel);
@@ -333,7 +333,7 @@ public final class ImageProcessors {
         *
         * @param kernel 核尺寸（奇数，默认 3）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor dilate(int kernel) {
             Map<String, Object> params = newParams();
             params.put("kernel", kernel);
@@ -346,7 +346,7 @@ public final class ImageProcessors {
         *
         * @param direction 方向：{@code "h"} 水平 / {@code "v"} 垂直 / {@code "both"} 双向
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor edge(String direction) {
             Map<String, Object> params = newParams();
             params.put("direction", direction);
@@ -358,7 +358,7 @@ public final class ImageProcessors {
         * 边缘检测（双向，快捷方法）
         *
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor edge() {
             return edge("both");
         }
@@ -368,7 +368,7 @@ public final class ImageProcessors {
         *
         * @param format 输出格式（png / jpeg）
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor format(String format) {
             this.format = format;
             return this;
@@ -380,7 +380,7 @@ public final class ImageProcessors {
         * @param operation 操作类型
         * @param params    操作参数
         * @return {@code this}，支持链式调用
-         */
+        */
         public FluentProcessor apply(String operation, Map<String, Object> params) {
             imageData = processor.process(imageData, operation, params);
             return this;
@@ -390,7 +390,7 @@ public final class ImageProcessors {
         * 获取处理后的图像字节（使用当前设定的格式，默认 PNG）
         *
         * @return 处理后的图像字节
-         */
+        */
         public byte[] toBytes() {
             return imageData;
         }
@@ -402,7 +402,7 @@ public final class ImageProcessors {
         *
         * @param format 输出格式（png / jpeg）
         * @return 处理后的图像字节
-         */
+        */
         public byte[] toBytes(String format) {
             this.format = format;
             // 重新处理以应用新格式：对图像执行一次无损操作（grayscale→再grayscale）
@@ -415,7 +415,7 @@ public final class ImageProcessors {
         * 创建带格式参数的参数 Map
         *
         * @return 包含 format 参数的 Map
-         */
+        */
         private Map<String, Object> newParams() {
             Map<String, Object> params = new HashMap<>();
             if (!"png".equals(format)) {

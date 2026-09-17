@@ -8,7 +8,7 @@ import lombok.Data;
  * @param <T> 载荷类型
  * @author CH
  * @since 4.0.0.42
- */
+*/
 @Data
 public class ScatterResult<T> {
 

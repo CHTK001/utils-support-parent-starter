@@ -5,29 +5,29 @@ import static com.chua.common.support.utils.ByteUtils.*;
 
 
 /**
-* 位运算工具类，提供基础类型与二进制位字符串之间的转换与拼接能力。
-* <p>
-* 该类可将 {@code byte}、{@code short}、{@code int}、{@code long}、{@code float}、{@code double}
-* 转换为二进制位数组或位字符串，亦可对二进制字符串进行补齐、截断和分段拼接，适用于协议解析、调试和位运算场景。
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/3/3
- */
+ * 位运算工具类，提供基础类型与二进制位字符串之间的转换与拼接能力。
+ * <p>
+ * 该类可将 {@code byte}、{@code short}、{@code int}、{@code long}、{@code float}、{@code double}
+ * 转换为二进制位数组或位字符串，亦可对二进制字符串进行补齐、截断和分段拼接，适用于协议解析、调试和位运算场景。
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/3/3
+*/
 public class BitUtils {
 
     /**
     * 钻头工具。
-     */
+    */
     protected BitUtils() {}
 
     /**
     * 单个字节对应的二进制位数。
-     */
+    */
     public static final int BIT_LENGTH = 8;
     /**
     * 单个字节的长度，单位为字节。
-     */
+    */
     public static final int BYTE_LENGTH = 1;
     /** Byte_大小 */
     public static final int BYTE_SIZE = BYTE_LENGTH;
@@ -66,7 +66,7 @@ public class BitUtils {
     *
     * @param b 源字节值
     * @return 8 位二进制位数组
-     */
+    */
     public static byte[] asBit(byte b) {
         byte[] byteArr = new byte[8];
         int size = BYTE_BIT_SIZE - 1;
@@ -84,7 +84,7 @@ public class BitUtils {
     *
     * @param b 源字节数组
     * @return 对应的二进制位数组
-     */
+    */
     public static byte[] asBit(byte[] b) {
         int length = b.length;
         if (length == BYTE_SIZE) {
@@ -136,7 +136,7 @@ public class BitUtils {
     *
     * @param b 源字节值
     * @return 8 位二进制字符串
-     */
+    */
     public static String asBitString(byte b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -147,7 +147,7 @@ public class BitUtils {
     *
     * @param source 二进制字符串数组
     * @return 拼接后的位字符串
-     */
+    */
     public static String asBitString(String[] source) {
         return join(asStringBytes(source), 4);
     }
@@ -157,7 +157,7 @@ public class BitUtils {
     *
     * @param source 源二进制字符串
     * @return 32 位二进制字符串
-     */
+    */
     public static String asBitIntString(String source) {
         int length = source.length();
         if (length < INT_BIT_SIZE) {
@@ -173,7 +173,7 @@ public class BitUtils {
     *
     * @param source 源二进制字符串
     * @return 64 位二进制字符串
-     */
+    */
     public static String asBitLongString(String source) {
         int length = source.length();
         if (length < LONG_BIT_SIZE) {
@@ -189,7 +189,7 @@ public class BitUtils {
     *
     * @param source 源二进制字符串
     * @return 16 位二进制字符串
-     */
+    */
     public static String asBitShortString(String source) {
         int length = source.length();
         if (length < SHORT_BIT_SIZE) {
@@ -205,7 +205,7 @@ public class BitUtils {
     *
     * @param source 源二进制字符串
     * @return 8 位二进制字符串
-     */
+    */
     public static String asBitByteString(String source) {
         int length = source.length();
         if (length < BYTE_BIT_SIZE) {
@@ -221,7 +221,7 @@ public class BitUtils {
     *
     * @param b 源短整型值
     * @return 16 位二进制位数组
-     */
+    */
     public static byte[] asBit(short b) {
         byte[] bytes = asBytes(b);
         byte[] item = new byte[SHORT_BIT_SIZE];
@@ -238,7 +238,7 @@ public class BitUtils {
     *
     * @param b 源短整型值
     * @return 16 位二进制字符串
-     */
+    */
     public static String asBitString(short b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -249,7 +249,7 @@ public class BitUtils {
     *
     * @param b 源长整型值
     * @return 64 位二进制位数组
-     */
+    */
     public static byte[] asBit(long b) {
         byte[] bytes = asBytes(b);
         byte[] item = new byte[8 * 8];
@@ -266,7 +266,7 @@ public class BitUtils {
     *
     * @param b 源长整型值
     * @return 64 位二进制字符串
-     */
+    */
     public static String asBitString(long b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -277,7 +277,7 @@ public class BitUtils {
     *
     * @param b 源单精度浮点数
     * @return 32 位二进制位数组
-     */
+    */
     public static byte[] asBit(float b) {
         byte[] bytes = asBytes(b);
         byte[] item = new byte[4 * 8];
@@ -294,7 +294,7 @@ public class BitUtils {
     *
     * @param b 源单精度浮点数
     * @return 32 位二进制字符串
-     */
+    */
     public static String asBitString(float b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -305,7 +305,7 @@ public class BitUtils {
     *
     * @param b 源双精度浮点数
     * @return 64 位二进制位数组
-     */
+    */
     public static byte[] asBit(double b) {
         byte[] bytes = asBytes(b);
         byte[] item = new byte[8 * 8];
@@ -322,7 +322,7 @@ public class BitUtils {
     *
     * @param b 源双精度浮点数
     * @return 64 位二进制字符串
-     */
+    */
     public static String asBitString(double b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -333,7 +333,7 @@ public class BitUtils {
     *
     * @param b 源整型值
     * @return 32 位二进制位数组
-     */
+    */
     public static byte[] asBit(int b) {
         byte[] bytes = asBytes(b);
         byte[] item = new byte[4 * 8];
@@ -350,7 +350,7 @@ public class BitUtils {
     *
     * @param b 源整型值
     * @return 32 位二进制字符串
-     */
+    */
     public static String asBitString(int b) {
         byte[] bytes = asBit(b);
         return join(bytes, 8);
@@ -363,7 +363,7 @@ public class BitUtils {
     * @param bytes 源位数组
     * @param size 每段的长度
     * @return 拼接后的字符串
-     */
+    */
     public static String join(byte[] bytes, int size) {
         if (null == bytes || size < 0) {
             return "";
@@ -405,7 +405,7 @@ public class BitUtils {
     *
     * @param source 源字符串数组
     * @return 转换后的字节数组
-     */
+    */
     private static byte[] asStringBytes(String[] source) {
         byte[] result = new byte[source.length];
         for (int i = 0; i < source.length; i++) {

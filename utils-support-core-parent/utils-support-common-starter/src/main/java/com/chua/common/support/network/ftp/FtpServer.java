@@ -57,53 +57,53 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
     * FTP 默认控制端口
-     */
+    */
     private static final int DEFAULT_CONTROL_PORT = 21;
 
     /**
     * 控制连接接受线程名称前缀
-     */
+    */
     private static final String ACCEPT_THREAD_NAME = "ftp-accept";
 
     /**
     * FTP 配置
-     */
+    */
     private final FtpConfig ftpConfig;
 
     /**
     * 底层控制连接监听 Socket
-     */
+    */
     private volatile ServerSocket controlServerSocket;
 
     /**
     * 命令处理器（无状态，可复用）
-     */
+    */
     private final FtpCommandHandler commandHandler = new FtpCommandHandler();
 
     /**
     * 活跃会话表（clientId -> 会话）
-     */
+    */
     private final Map<String, FtpSession> sessions = new ConcurrentHashMap<>();
 
     /**
     * 虚拟线程执行器（每连接一虚拟线程，承载控制连接生命周期）
-     */
+    */
     private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
     * 接受连接线程
-     */
+    */
     private volatile Thread acceptThread;
 
     /**
     * 是否正在运行
-     */
+    */
     @Getter
     private volatile boolean running;
 
     /**
     * 创建使用默认配置的 FTP 服务器。
-     */
+    */
     public FtpServer() {
         this(FtpConfig.defaults());
     }
@@ -112,7 +112,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 创建使用指定配置的 FTP 服务器。
     *
     * @param config FTP 配置
-     */
+    */
     public FtpServer(FtpConfig config) {
         super(buildServerSetting(config));
         this.ftpConfig = config;
@@ -124,7 +124,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     *
     * @param config FTP 配置
     * @return 服务器配置
-     */
+    */
     private static ServerSetting buildServerSetting(FtpConfig config) {
         var setting = ServerSetting.defaults();
         setting.setHost(config.getHost());
@@ -137,7 +137,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
     * 确保根目录存在，不存在则创建。
-     */
+    */
     private void ensureHomeDirectory() {
         var homeDir = ftpConfig.getHomeDirectory();
         if (!homeDir.exists() && !homeDir.mkdirs()) {
@@ -147,7 +147,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
     * 启动 FTP 服务器：绑定控制端口并开始接受连接。
-     */
+    */
     @Override
     protected void doStart() {
         try {
@@ -165,7 +165,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
     * 接受连接主循环：每个控制连接派发到独立虚拟线程处理。
-     */
+    */
     private void acceptLoop() {
         while (running && !controlServerSocket.isClosed()) {
             try {
@@ -184,7 +184,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 处理控制连接：读取 FTP 命令、执行命令处理器、维护会话生命周期。
     *
     * @param socket 控制连接 Socket
-     */
+    */
     private void handleControlConnection(Socket socket) {
         FtpSession session = null;
         try {
@@ -219,7 +219,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
 
     /**
     * 停止 FTP 服务器：关闭所有会话与监听端口。
-     */
+    */
     @Override
     protected void doStop() {
         running = false;
@@ -239,7 +239,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取协议类型。
     *
     * @return TCP 协议类型
-     */
+    */
     @Override
     public ProtocolType getProtocolType() {
         return ProtocolType.TCP;
@@ -249,7 +249,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取监听端口。
     *
     * @return 控制端口
-     */
+    */
     @Override
     public int getPort() {
         return setting.getPort();
@@ -260,7 +260,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     *
     * @param handler 帧处理器
     * @return 当前实例
-     */
+    */
     @Override
     public FtpServer setHandler(TcpServerHandler handler) {
         return this;
@@ -270,7 +270,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取活跃会话数量。
     *
     * @return 会话数
-     */
+    */
     public int getActiveSessionCount() {
         return sessions.size();
     }
@@ -281,7 +281,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取活跃会话表（供子类访问）。
     *
     * @return 会话表
-     */
+    */
     protected Map<String, FtpSession> getSessionMap() {
         return sessions;
     }
@@ -290,7 +290,7 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取命令处理器（供子类访问）。
     *
     * @return 命令处理器
-     */
+    */
     protected FtpCommandHandler getCommandHandler() {
         return commandHandler;
     }
@@ -299,21 +299,21 @@ public class FtpServer extends AbstractServer implements TcpServer {
     * 获取虚拟线程执行器（供子类访问）。
     *
     * @return 执行器
-     */
+    */
     protected ExecutorService getVirtualExecutor() {
         return virtualExecutor;
     }
 
     /**
     * 设置服务器运行标志（供子类控制生命周期）。
-     */
+    */
     protected void markRunning() {
         this.running = true;
     }
 
     /**
     * 标记服务器停止（供子类控制生命周期）。
-     */
+    */
     protected void markStopped() {
         this.running = false;
     }

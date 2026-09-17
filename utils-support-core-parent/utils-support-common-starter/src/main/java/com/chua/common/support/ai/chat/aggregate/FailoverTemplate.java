@@ -36,7 +36,7 @@ public final class FailoverTemplate {
     * @param usageCallback 用量回调，每次成功调用时触发（可为 null）
     * @return 响应文本
     * @throws Exception 全部客户端失败时抛出
-     */
+    */
     public static String executeSync(
             RouterStrategy selector,
             List<RouterStrategy.WeightedClient> clients,
@@ -99,7 +99,7 @@ public final class FailoverTemplate {
     * @param prompt    用户输入
     * @param consumer  流式响应回调
     * @throws Exception 全部客户端失败时抛出
-     */
+    */
     public static void executeStream(
             RouterStrategy selector,
             List<RouterStrategy.WeightedClient> clients,

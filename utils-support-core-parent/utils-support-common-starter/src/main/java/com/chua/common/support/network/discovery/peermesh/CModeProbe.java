@@ -47,7 +47,7 @@ public class CModeProbe implements ProbeStrategy {
     *
     * @param config 配置
     * @param localServerId 本地 serverId（用于排除自身）
-     */
+    */
     public CModeProbe(MeshConfig config, String localServerId) {
         this.config = config;
         this.localServerId = localServerId;
@@ -101,7 +101,7 @@ public class CModeProbe implements ProbeStrategy {
     *
     * @param host 目标主机
     * @param port 目标端口
-     */
+    */
     private void probeHost(String host, int port) {
         if (stopped) {
             return;
@@ -147,7 +147,7 @@ public class CModeProbe implements ProbeStrategy {
     *
     * @param cidr CIDR 字符串，如 192.168.1.0/24
     * @return 主机 IP 列表
-     */
+    */
     private static List<String> parseCidrHosts(String cidr) {
         try {
             String[] parts = cidr.split("/");

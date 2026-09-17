@@ -17,13 +17,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 文件存储抽象基类。
-*
-* <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
-*
-* @since 1.0
-* @author CH
- */
+ * 文件存储抽象基类。
+ *
+ * <p>提供 Bucket 初始化、检查等公共逻辑，简化具体实现的开发。</p>
+ *
+ * @since 1.0
+ * @author CH
+*/
 public abstract class AbstractFileStorage implements FileStorage {
 
     /** 存储桶设置 */
@@ -32,26 +32,26 @@ public abstract class AbstractFileStorage implements FileStorage {
     protected final String bucket;
     /**
     * 区域
-     */
+    */
     protected final String region;
     /**
     * 服务端点
-     */
+    */
     protected final String endpoint;
     /**
     * 访问密钥 标识
-     */
+    */
     protected final String accessKeyId;
     /**
     * 访问密钥 Secret
-     */
+    */
     protected final String accessKeySecret;
 
     /**
     * 构造函数，接收 Bucket 配置。
     *
     * @param bucketSetting Bucket 配置
-     */
+    */
     protected AbstractFileStorage(BucketSetting bucketSetting) {
         this.bucketSetting = bucketSetting;
         this.bucket = bucketSetting.getBucket();
@@ -73,7 +73,7 @@ public abstract class AbstractFileStorage implements FileStorage {
     * <p>默认使用本地临时目录暂存分片，完成时合并为完整文件后调用 {@link #putObject(PutObjectRequest)}。</p>
     *
     * @return 分片上传存储实例
-     */
+    */
     @Override
     public MultipartStorage createMultipartStorage() {
         return new LocalTmpMultipartStorage(this);
@@ -85,7 +85,7 @@ public abstract class AbstractFileStorage implements FileStorage {
     * <p>分片暂存在本地临时目录，完成时合并为完整字节数组后调用 {@link #putObject(PutObjectRequest)}。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class LocalTmpMultipartStorage implements MultipartStorage {
 
         /** 文件存储 */
@@ -102,7 +102,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         /**
         * Initiate
         * @param request 请求
-         */
+        */
         public MultipartPartResult initiate(PutObjectRequest request) {
             String uploadId = IdUtils.simpleUuid();
             try {
@@ -124,7 +124,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         /**
         * uploadpart
         * @param request 请求
-         */
+        */
         public MultipartPartResult uploadPart(com.chua.common.support.storage.request.MultipartUploadPartRequest request) {
             MultipartContext ctx = contexts.get(request.getUploadId());
             if (ctx == null) {
@@ -155,7 +155,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         * 完成
         * @param uploadId uploadid
         * @param parts parts
-         */
+        */
         public PutObjectResult complete(String uploadId, List<PartETag> parts) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {
@@ -189,7 +189,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         /**
         * Abort
         * @param uploadId uploadid
-         */
+        */
         public DeleteObjectResult abort(String uploadId) {
             MultipartContext ctx = contexts.remove(uploadId);
             if (ctx == null) {
@@ -208,7 +208,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         * @param ctx ctx
         * @param parts parts
         * @return 合并parts的结果
-         */
+        */
         private byte[] mergeParts(MultipartContext ctx, List<PartETag> parts) throws IOException {
             parts.sort((a, b) -> Integer.compare(a.getPartNumber(), b.getPartNumber()));
             long totalSize = parts.stream().mapToLong(p -> {
@@ -232,7 +232,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         /**
         * 删除tempdir
         * @param tempDir tempdir
-         */
+        */
         private void deleteTempDir(Path tempDir) {
             try {
                 if (Files.exists(tempDir)) {
@@ -258,7 +258,7 @@ public abstract class AbstractFileStorage implements FileStorage {
         * @param request 请求
         * @param tempDir tempdir
         * @return multipart上下文的结果
-         */
+        */
 
         private record MultipartContext(PutObjectRequest request, Path tempDir) {
         }

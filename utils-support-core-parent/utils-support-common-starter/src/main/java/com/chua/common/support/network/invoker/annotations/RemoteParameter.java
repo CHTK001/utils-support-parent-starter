@@ -33,20 +33,20 @@ public @interface RemoteParameter {
     * 参数名称，用于远程调用时的参数映射。
     *
     * @return 参数名称
-     */
+    */
     String value();
 
     /**
     * 是否必传。
     *
     * @return 是否必传
-     */
+    */
     boolean required() default true;
 
     /**
     * 默认值。
     *
     * @return 默认值
-     */
+    */
     String defaultValue() default "";
 }

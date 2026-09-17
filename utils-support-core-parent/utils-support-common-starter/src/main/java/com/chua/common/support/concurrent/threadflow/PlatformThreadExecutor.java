@@ -20,7 +20,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
 
     /**
     * 线程池实例
-     */
+    */
     private final ExecutorService executor;
 
     /**
@@ -29,7 +29,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
     * @param int int
     * @param long long
     * @param TimeUnit TimeUnit
-     */
+    */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
     }
@@ -41,7 +41,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
     * @param timeout timeout
     * @param timeUnit timeUnit
     * @param maxConcurrent maxConcurrent
-     */
+    */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
         this(strategy, threshold, timeout, timeUnit, maxConcurrent, ThreadUtils.newCachedThreadPool("platform-thread-executor"));
@@ -55,7 +55,7 @@ public class PlatformThreadExecutor extends AbstractThreadExecutor {
     * @param timeUnit timeUnit
     * @param maxConcurrent maxConcurrent
     * @param executor executor
-     */
+    */
     public PlatformThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent, ExecutorService executor) {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);

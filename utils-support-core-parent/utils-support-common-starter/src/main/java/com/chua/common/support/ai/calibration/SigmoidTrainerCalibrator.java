@@ -56,22 +56,22 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 内部持有的 Sigmoid 纯校准器
-     */
+    */
     private final SigmoidPureCalibrator calibrator;
 
     /**
     * 训练数据（三个目录的分数）
-     */
+    */
     private TrainingData trainingData;
 
     /**
     * 训练效果统计
-     */
+    */
     private TrainingStats trainingStats;
 
     /**
     * 是否已训练
-     */
+    */
     private boolean trained = false;
 
     // ==================== 参数对象 ====================
@@ -81,7 +81,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     * <p>
     * 包含 Sigmoid 校准器的全部可调参数。
     * 用于替代 Map，明确告知用户有哪些参数可用。
-     */
+    */
     @lombok.Data
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
@@ -89,14 +89,14 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     public static class SigmoidParams {
         /**
         * 陡度参数，默认15.0
-         */
+        */
         @Builder.Default
         /** K */
         private double k = 15.0;
 
         /**
         * 阈值参数，默认0.75
-         */
+        */
         @Builder.Default
         /** T */
         private double t = 0.75;
@@ -104,14 +104,14 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 当前参数
-     */
+    */
     private final SigmoidParams params;
 
     // ==================== 构造方法 ====================
 
     /**
     * 私有构造方法，通过 Builder 创建
-     */
+    */
     private SigmoidTrainerCalibrator(SigmoidParams params,
                                      TrainingData trainingData,
                                      boolean trained) {
@@ -123,7 +123,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * Builder 类
-     */
+    */
     @lombok.Builder
     public static SigmoidTrainerCalibrator build(
             double k,
@@ -154,7 +154,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     * @param lookSimilarCount lookSimilarCount
     * @param samePersonCount samePersonCount
     * @param seed seed
-     */
+    */
     public TrainerPureCalibrator generateTrainingData(int notSimilarCount,
                                                       int lookSimilarCount,
                                                       int samePersonCount,
@@ -185,7 +185,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     * @param notSimilarScores notSimilarScores
     * @param lookSimilarScores lookSimilarScores
     * @param samePersonScores samePersonScores
-     */
+    */
     public TrainerPureCalibrator setTrainingData(List<Double> notSimilarScores,
                                                  List<Double> lookSimilarScores,
                                                  List<Double> samePersonScores) {
@@ -366,7 +366,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     * @param std   标准差
     * @param rng   随机数生成器
     * @return 分数列表
-     */
+    */
     private List<Double> generateNormalSamples(int count, double mean, double std, Random rng) {
         List<Double> samples = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -380,7 +380,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 计算标准差
-     */
+    */
     private double calculateStd(List<Double> values, double mean) {
         if (values.isEmpty()) {
             return 0.01;
@@ -393,7 +393,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 计算分离度（Cohen's d）
-     */
+    */
     private double calculateSeparation(double posMean, double negMean,
                                        double posStd, double negStd) {
         double pooledStd = Math.sqrt((posStd * posStd + negStd * negStd) / 2.0);
@@ -407,7 +407,7 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
 
     /**
     * 模型数据（用于 JSON 序列化/反序列化）
-     */
+    */
     @lombok.Data
     private static class ModelData {
         /** 算法名称 */

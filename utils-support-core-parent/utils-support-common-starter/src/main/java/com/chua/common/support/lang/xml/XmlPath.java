@@ -16,7 +16,7 @@ public interface XmlPath {
     * 获取默认 XmlPath 实例。
     *
     * @return XmlPath 实例
-     */
+    */
     static XmlPath getInstance() {
         return ServiceProvider.of(XmlPath.class).getPriority();
     }
@@ -27,7 +27,7 @@ public interface XmlPath {
     * @param xml  XML 字符串
     * @param path XPath 表达式
     * @return 路径对应的值，不存在返回 null
-     */
+    */
     String getValue(String xml, String path);
 
     /**
@@ -36,6 +36,6 @@ public interface XmlPath {
     * @param xml  XML 字符串
     * @param path XPath 表达式
     * @return 存在返回 true
-     */
+    */
     boolean exists(String xml, String path);
 }

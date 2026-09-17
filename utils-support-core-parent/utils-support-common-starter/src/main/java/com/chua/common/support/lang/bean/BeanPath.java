@@ -21,7 +21,7 @@ public interface BeanPath {
     /**
     * Value创建
     * @param source source
-     */
+    */
     static BeanPath valueOf(Object source) {
         if (source instanceof String s) {
             String trimmed = s.trim();
@@ -49,7 +49,7 @@ public interface BeanPath {
 
     /**
     * 设置是否忽略大小写匹配属性名。
-     */
+    */
     default BeanPath ignoreCase(boolean ignoreCase) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface BeanPath {
     *
     * <p>例如命名风格为 {@link NamingStyle#UNDERSCORE} 时，
     * 路径中的 {@code "user_name"} 会自动匹配对象的 {@code userName} 属性。</p>
-     */
+    */
     default BeanPath namingStyle(NamingStyle style) {
         return this;
     }

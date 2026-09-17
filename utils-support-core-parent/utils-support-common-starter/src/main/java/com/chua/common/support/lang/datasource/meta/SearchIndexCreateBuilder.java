@@ -20,7 +20,7 @@ public interface SearchIndexCreateBuilder {
     *
     * @param shards 分片数
     * @return this
-     */
+    */
     SearchIndexCreateBuilder shards(int shards);
 
     /**
@@ -28,7 +28,7 @@ public interface SearchIndexCreateBuilder {
     *
     * @param replicas 副本数
     * @return this
-     */
+    */
     SearchIndexCreateBuilder replicas(int replicas);
 
     /**
@@ -38,7 +38,7 @@ public interface SearchIndexCreateBuilder {
     * @param name 字段名
     * @param type 字段类型
     * @return this
-     */
+    */
     SearchIndexCreateBuilder field(String name, String type);
 
     /**
@@ -48,7 +48,7 @@ public interface SearchIndexCreateBuilder {
     * @param type   字段类型
     * @param config 字段配置消费者（可设置 analyzer、indexed、stored 等）
     * @return this
-     */
+    */
     SearchIndexCreateBuilder field(String name, String type, Consumer<SearchFieldBuilder> config);
 
     /**
@@ -56,7 +56,7 @@ public interface SearchIndexCreateBuilder {
     *
     * @param fields 字段定义列表
     * @return this
-     */
+    */
     SearchIndexCreateBuilder fields(List<SearchFieldDef> fields);
 
     /**
@@ -64,7 +64,7 @@ public interface SearchIndexCreateBuilder {
     *
     * @param settings 设置映射（如 refresh_interval、max_result_window 等）
     * @return this
-     */
+    */
     SearchIndexCreateBuilder settings(Map<String, Object> settings);
 
     /**
@@ -72,13 +72,13 @@ public interface SearchIndexCreateBuilder {
     *
     * @param mappings 映射 JSON 结构
     * @return this
-     */
+    */
     SearchIndexCreateBuilder mappings(Map<String, Object> mappings);
 
     /**
     * 执行建索引语句。
     *
     * @return 创建的索引定义
-     */
+    */
     SearchIndexDef execute();
 }

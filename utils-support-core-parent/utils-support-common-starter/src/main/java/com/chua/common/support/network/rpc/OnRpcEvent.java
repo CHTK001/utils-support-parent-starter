@@ -62,7 +62,7 @@ public @interface OnRpcEvent {
     * <p>客户端发送请求时需指定此路径，服务端根据路径匹配到对应方法并执行。</p>
     *
     * @return 事件路径字符串数组
-     */
+    */
     String[] value();
 
     /**
@@ -76,6 +76,6 @@ public @interface OnRpcEvent {
     * </ul>
     *
     * @return MIME 类型标识
-     */
+    */
     String produces() default "json";
 }

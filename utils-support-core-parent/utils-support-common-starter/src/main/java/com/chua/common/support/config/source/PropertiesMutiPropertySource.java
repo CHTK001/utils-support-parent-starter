@@ -20,7 +20,7 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
     /**
     * 存储多个属性集合的可迭代对象。
     * 每个元素通常是一个包含键值对的 Map。
-     */
+    */
     private final Iterable<?> properties;
 
     /**
@@ -28,7 +28,7 @@ public class PropertiesMutiPropertySource extends AbstractPropertySource impleme
     *
     * @param name       属性源的名称。
     * @param properties 包含多个属性集合的可迭代对象。
-     */
+    */
     public PropertiesMutiPropertySource(String name, Iterable<?> properties) {
         super(name);
         this.properties = properties;

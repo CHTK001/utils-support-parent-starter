@@ -25,7 +25,7 @@ public record TemplateVar(String name, Object value, String path) {
     * 以 Map 形态返回该变量。
     *
     * @return 含 name/value/path 三个键的有序映射
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("name", name);

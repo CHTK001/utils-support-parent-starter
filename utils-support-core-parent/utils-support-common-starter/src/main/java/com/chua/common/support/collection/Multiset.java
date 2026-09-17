@@ -31,7 +31,7 @@ public class Multiset<E> extends AbstractSet<E> {
 
     /**
     * 内部存储 Map
-     */
+    */
     private final HashMap<E, Integer> countMap;
 
     /**
@@ -39,7 +39,7 @@ public class Multiset<E> extends AbstractSet<E> {
     *
     * @param <E> 元素类型
     * @return Multiset 实例
-     */
+    */
     public static <E> Multiset<E> of() {
         return new Multiset<>();
     }
@@ -50,7 +50,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * @param c 初始集合
     * @param <E> 元素类型
     * @return Multiset 实例
-     */
+    */
     public static <E> Multiset<E> of(Collection<? extends E> c) {
         Multiset<E> bag = new Multiset<>();
         if (c != null) {
@@ -61,7 +61,7 @@ public class Multiset<E> extends AbstractSet<E> {
 
     /**
     * 构造方法，创建空 Multiset。
-     */
+    */
     public Multiset() {
         this.countMap = new HashMap<>();
     }
@@ -70,7 +70,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 构造方法，使用指定初始容量创建 Multiset。
     *
     * @param initialCapacity 初始容量
-     */
+    */
     public Multiset(int initialCapacity) {
         this.countMap = new HashMap<>(initialCapacity);
     }
@@ -82,7 +82,7 @@ public class Multiset<E> extends AbstractSet<E> {
     *
     * @param element 元素
     * @return 增加后的计数值
-     */
+    */
     public int increment(E element) {
         return countMap.merge(element, 1, Integer::sum);
     }
@@ -94,7 +94,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * @param count   增量，必须大于 0
     * @return 增加后的计数值
     * @throws IllegalArgumentException 如果 count 小于等于 0
-     */
+    */
     public int increment(E element, int count) {
         if (count <= 0) {
             throw new IllegalArgumentException("增量必须大于 0");
@@ -107,7 +107,7 @@ public class Multiset<E> extends AbstractSet<E> {
     *
     * @param element 元素
     * @return 减少后的计数值，如果元素不存在返回 0
-     */
+    */
     public int decrement(E element) {
         Integer count = countMap.get(element);
         if (count == null) {
@@ -126,7 +126,7 @@ public class Multiset<E> extends AbstractSet<E> {
     *
     * @param element 元素
     * @return 被移除的计数值，如果元素不存在返回 0
-     */
+    */
     public int removeAll(E element) {
         Integer count = countMap.remove(element);
         return count != null ? count : 0;
@@ -137,7 +137,7 @@ public class Multiset<E> extends AbstractSet<E> {
     *
     * @param element 元素
     * @return 计数值，如果元素不存在返回 0
-     */
+    */
     public int count(E element) {
         Integer count = countMap.get(element);
         return count != null ? count : 0;
@@ -147,7 +147,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回 Multiset 中不同元素的数量（基数）。
     *
     * @return 不同元素的数量
-     */
+    */
     @Override
     public int size() {
         return countMap.size();
@@ -157,7 +157,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回所有元素的总出现次数（含重复）。
     *
     * @return 元素总次数
-     */
+    */
     public int totalCount() {
         int total = 0;
         for (int count : countMap.values()) {
@@ -273,7 +273,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回所有唯一元素的集合（去重后的元素集合）。
     *
     * @return 唯一元素集合
-     */
+    */
     public Set<E> uniqueElements() {
         return Collections.unmodifiableSet(countMap.keySet());
     }
@@ -282,7 +282,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回所有元素的计数字典（元素 -> 出现次数）。
     *
     * @return 不可修改的计数字典
-     */
+    */
     public Map<E, Integer> entrySet() {
         return Collections.unmodifiableMap(countMap);
     }
@@ -291,7 +291,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回出现次数最多的元素集合（可能有多个元素并列最大）。
     *
     * @return 出现次数最多的元素集合
-     */
+    */
     public Set<E> maxElements() {
         int max = 0;
         for (int count : countMap.values()) {
@@ -315,7 +315,7 @@ public class Multiset<E> extends AbstractSet<E> {
     * 返回出现次数最少的元素集合（可能有多个元素并列最小）。
     *
     * @return 出现次数最少的元素集合
-     */
+    */
     public Set<E> minElements() {
         if (countMap.isEmpty()) {
             return Collections.emptySet();

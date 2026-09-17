@@ -19,7 +19,7 @@ public interface VectorService {
     *
     * @param embeddingClient 嵌入向量客户端
     * @return VectorService 实例
-     */
+    */
     static VectorService from(EmbeddingClient embeddingClient) {
         return new VectorService() {
             @Override
@@ -41,7 +41,7 @@ public interface VectorService {
     *
     * @param text 待向量化的文本
     * @return 浮点数向量
-     */
+    */
     float[] embed(String text);
 
     /**
@@ -49,6 +49,6 @@ public interface VectorService {
     *
     * @param texts 待向量化的文本数组
     * @return 浮点数向量数组，顺序与输入一致
-     */
+    */
     float[][] embedBatch(String[] texts);
 }

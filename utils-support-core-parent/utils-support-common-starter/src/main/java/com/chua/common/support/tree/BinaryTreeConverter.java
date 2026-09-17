@@ -5,19 +5,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* B+/B 树与二叉树之间双向转换工具。
-*
-* <p>转换策略采用前序展开：将有序遍历结果依次链接为右斜二叉树，
-* 恢复时通过右链遍历重建 B+ 树或 B 树。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * B+/B 树与二叉树之间双向转换工具。
+ *
+ * <p>转换策略采用前序展开：将有序遍历结果依次链接为右斜二叉树，
+ * 恢复时通过右链遍历重建 B+ 树或 B 树。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public final class BinaryTreeConverter {
 
     /**
     * binary树转换器。
-     */
+    */
     private BinaryTreeConverter() {
     }
 
@@ -28,7 +28,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 二叉树根节点
-     */
+    */
     public static <K extends Comparable<K>, V> TreeNode<K, V> bPlusToBinary(BPlusTree<K, V> tree) {
         List<Entry<K, V>> entries = collectEntries(tree);
         if (entries.isEmpty()) {
@@ -51,7 +51,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 重建的 B+ 树引擎
-     */
+    */
     public static <K extends Comparable<K>, V> BPlusTree<K, V> binaryToBPlusTree(TreeNode<K, V> root) {
         BPlusTree<K, V> tree = new BPlusTree<>(200);
         TreeNode<K, V> cur = root;
@@ -71,7 +71,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 二叉树根节点
-     */
+    */
     public static <K extends Comparable<K>, V> TreeNode<K, V> bTreeToBinary(BTree<K, V> tree) {
         List<Entry<K, V>> entries = collectEntriesFromBTree(tree);
         if (entries.isEmpty()) {
@@ -94,7 +94,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 重建的 B 树引擎
-     */
+    */
     public static <K extends Comparable<K>, V> BTree<K, V> binaryToBTree(TreeNode<K, V> root) {
         BTree<K, V> tree = new BTree<>(200);
         TreeNode<K, V> cur = root;
@@ -114,7 +114,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 有序条目列表
-     */
+    */
     private static <K extends Comparable<K>, V> List<Entry<K, V>> collectEntries(BPlusTree<K, V> tree) {
         List<Entry<K, V>> result = new ArrayList<>();
         BPlusTreeNode<K, V> cur = tree.getRoot();
@@ -137,7 +137,7 @@ public final class BinaryTreeConverter {
     * @param <K>  键类型
     * @param <V>  值类型
     * @return 有序条目列表
-     */
+    */
     private static <K extends Comparable<K>, V> List<Entry<K, V>> collectEntriesFromBTree(BTree<K, V> tree) {
         List<Entry<K, V>> result = new ArrayList<>();
         inOrderCollect(tree.root, result);
@@ -151,7 +151,7 @@ public final class BinaryTreeConverter {
     * @param result 结果收集列表
     * @param <K>    键类型
     * @param <V>    值类型
-     */
+    */
     private static <K extends Comparable<K>, V> void inOrderCollect(BTreeNode<K, V> node,
                                                                      List<Entry<K, V>> result) {
         if (node == null) {

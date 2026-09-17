@@ -36,7 +36,7 @@ public class DocumentData {
     /** JDBC 连接 URL */
     /**
     * 地址
-     */
+    */
     private String url;
 
     /** 文档标题，默认值为 "数据库设计文档" */
@@ -47,14 +47,14 @@ public class DocumentData {
     /** 文档描述说明 */
     /**
     * 描述
-     */
+    */
     private String description;
 
     /** 文档版本号，默认 "1.0.0" */
     @Builder.Default
     /**
     * 版本号
-     */
+    */
     private String version = "1.0.0";
 
     /** 所有表结构的集合 */

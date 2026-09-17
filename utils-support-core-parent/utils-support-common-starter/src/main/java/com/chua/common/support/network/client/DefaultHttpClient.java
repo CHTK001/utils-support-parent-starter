@@ -40,7 +40,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 底层 HTTP 执行器，负责实际的网络通信。
-     */
+    */
     private final HttpClientExecutor executor;
 
     /**
@@ -48,7 +48,7 @@ public class DefaultHttpClient implements HttpClient {
     *
     * <p>最外层，适合统一加 Token、Header、日志、请求预处理、短路 Mock/缓存等。
     * 通过 {@link #addInterceptor(HttpInterceptor)} 注册。</p>
-     */
+    */
     private final List<HttpInterceptor> interceptors = new ArrayList<>();
 
     /**
@@ -56,14 +56,14 @@ public class DefaultHttpClient implements HttpClient {
     *
     * <p>紧贴网络调用，适合监控、错误码统一包装、网络层日志等。
     * 通过 {@link #addNetworkInterceptor(HttpInterceptor)} 注册。</p>
-     */
+    */
     private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
 
     /**
     * 使用指定的 HTTP 执行器创建默认客户端。
     *
     * @param executor 底层 HTTP 执行器，通过 {@link HttpClientFactory} 获取
-     */
+    */
     public DefaultHttpClient(HttpClientExecutor executor) {
         this.executor = executor;
     }
@@ -72,7 +72,7 @@ public class DefaultHttpClient implements HttpClient {
     * 获取已注册的应用层拦截器列表。
     *
     * @return 应用层拦截器列表（只读视图）
-     */
+    */
     @Override
     public List<HttpInterceptor> getInterceptors() {
         return Collections.unmodifiableList(interceptors);
@@ -82,7 +82,7 @@ public class DefaultHttpClient implements HttpClient {
     * 获取已注册的网络层拦截器列表。
     *
     * @return 网络层拦截器列表（只读视图）
-     */
+    */
     @Override
     public List<HttpInterceptor> getNetworkInterceptors() {
         return Collections.unmodifiableList(networkInterceptors);
@@ -93,7 +93,7 @@ public class DefaultHttpClient implements HttpClient {
     *
     * @param interceptor 应用层拦截器，null 忽略
     * @return 当前客户端实例（链式调用）
-     */
+    */
     @Override
     public HttpClient addInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
@@ -107,7 +107,7 @@ public class DefaultHttpClient implements HttpClient {
     *
     * @param interceptor 网络层拦截器，null 忽略
     * @return 当前客户端实例（链式调用）
-     */
+    */
     @Override
     public HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
@@ -122,7 +122,7 @@ public class DefaultHttpClient implements HttpClient {
     * @param request 封装好的请求对象
     * @return 响应对象 {@link ClientResponse}
     * @throws RuntimeException 如果执行器抛出异常
-     */
+    */
     @Override
     public ClientResponse execute(ClientRequest request) {
         return new InterceptorChain(interceptors, request.getInterceptor(), networkInterceptors,
@@ -135,7 +135,7 @@ public class DefaultHttpClient implements HttpClient {
     *
     * @param request 请求对象（已被拦截器处理）
     * @return 响应对象
-     */
+    */
     private ClientResponse doExecute(ClientRequest request) {
         try {
             return executor.execute(request);
@@ -146,7 +146,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 快速执行 GET 请求。
-     */
+    */
     @Override
     public ClientResponse get(String url) {
         return execute(ClientRequest.of(url, HttpMethod.GET));
@@ -154,7 +154,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 快速执行 POST 请求。
-     */
+    */
     @Override
     public ClientResponse post(String url, Object body) {
         ClientRequest request = ClientRequest.of(url, HttpMethod.POST);
@@ -164,7 +164,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 快速执行 PUT 请求。
-     */
+    */
     @Override
     public ClientResponse put(String url, Object body) {
         ClientRequest request = ClientRequest.of(url, HttpMethod.PUT);
@@ -174,7 +174,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 快速执行 DELETE 请求。
-     */
+    */
     @Override
     public ClientResponse delete(String url) {
         return execute(ClientRequest.of(url, HttpMethod.DELETE));
@@ -196,7 +196,7 @@ public class DefaultHttpClient implements HttpClient {
     *
     * @param request 封装好的请求对象
     * @return 响应 Mono
-     */
+    */
     @Override
     public Mono<ClientResponse> executeAsync(ClientRequest request) {
         if (interceptors.isEmpty() && networkInterceptors.isEmpty() && request.getInterceptor() == null) {
@@ -211,7 +211,7 @@ public class DefaultHttpClient implements HttpClient {
 
     /**
     * 释放底层执行器资源。
-     */
+    */
     @Override
     public void close() {
         executor.close();

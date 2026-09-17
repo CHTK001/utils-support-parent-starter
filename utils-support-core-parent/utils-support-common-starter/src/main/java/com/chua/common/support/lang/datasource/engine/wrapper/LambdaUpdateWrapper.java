@@ -42,7 +42,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     /**
     * 创建 LambdaUpdateWrapper 实例
     * @param entityClass entityClass
-     */
+    */
     public LambdaUpdateWrapper(Class<T> entityClass) {
         super(entityClass);
     }
@@ -53,7 +53,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     * @param column 列的方法引用
     * @param value  新值
     * @return this
-     */
+    */
     public LambdaUpdateWrapper<T> set(SFunction<T, ?> column, Object value) {
         setValues.put(resolveColumn(column), value);
         return this;
@@ -65,7 +65,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     * @param column 列名
     * @param value  新值
     * @return this
-     */
+    */
     public LambdaUpdateWrapper<T> set(String column, Object value) {
         setValues.put(column, value);
         return this;
@@ -75,7 +75,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     * 获取 SET 值映射。
     *
     * @return SET 值映射（列名 → 新值）
-     */
+    */
     public Map<String, Object> getSetValues() {
         return setValues;
     }
@@ -88,7 +88,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     * </p>
     *
     * @return 更新 SQL 信息
-     */
+    */
     public UpdateSql buildSql() {
         List<Object> params = new ArrayList<>();
         StringBuilder setSb = new StringBuilder();
@@ -113,7 +113,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     * <p>由 {@code Engine} 实现类重写，生成 UPDATE SQL 并执行。</p>
     *
     * @return 受影响行数
-     */
+    */
     public int update() {
         throw new UnsupportedOperationException("update() 需由引擎实现类重写");
     }
@@ -124,7 +124,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     *
     * @param entity 实体实例
     * @return 受影响行数
-     */
+    */
     public int saveOrUpdate(T entity) {
         return update();
     }
@@ -167,7 +167,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
     /**
     * 构建 WHERE 子句和参数列表。
     * <p>遍历所有条件，用 AND 连接，参数追加到已有参数列表之后。</p>
-     */
+    */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) {
@@ -179,7 +179,7 @@ public class LambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, LambdaUpdat
 
     /**
     * 渲染单个条件为 SQL 片段。
-     */
+    */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             sb.append("(");

@@ -42,7 +42,7 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
     * 服务器配置设置。
-     */
+    */
     protected final ServerSetting setting;
 
     /**
@@ -53,43 +53,43 @@ public abstract class AbstractServer implements ConfigServer {
     * WebSocket Server 在会话建立时派发 "open" 事件等。</p>
     *
     * @return 监听器条目列表，可能为 null
-     */
+    */
     @Getter
     /** 过滤器管理器 */
     protected final ServerFilterManager filterManager;
 
     /**
     * URL映射过滤器，用于路由匹配。
-     */
+    */
     protected UrlMappingServerFilter urlMappingFilter;
 
     /**
     * 服务器运行指标统计。
-     */
+    */
     @Getter
     /** Metrics */
     protected final ServerMetrics metrics = new ServerMetrics();
 
     /**
     * 服务器是否正在运行。
-     */
+    */
     protected volatile boolean running;
 
     /**
     * 对象上下文，用于依赖注入和 Bean 管理。
-     */
+    */
     protected ObjectContext objectContext;
 
     /**
     * 并发限制信号量。
-     */
+    */
     private Semaphore concurrencyLimiter;
 
     /**
     * 构造函数，初始化服务器基础组件。
     *
     * @param setting 服务器配置
-     */
+    */
     protected AbstractServer(ServerSetting setting) {
         this.setting = setting != null ? setting : ServerSetting.defaults();
         // auto=true 时按当前系统自动调整最优参数（CPU 核数 / 堆内存 / 操作系统）
@@ -109,7 +109,7 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
     * 初始化内置过滤器。
-     */
+    */
     private void initBuiltinFilters() {
         addFilter(new GzipFilter());
         addFilter(new TracingFilter());
@@ -122,7 +122,7 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
     * 初始化并发限制器。
-     */
+    */
     private void initConcurrencyLimit() {
         int max = setting.getMaxConcurrency();
         if (max > 0) {
@@ -143,7 +143,7 @@ public abstract class AbstractServer implements ConfigServer {
     *
     * @param request  请求对象
     * @param response 响应对象
-     */
+    */
     protected void handleRequest(ServerRequest request, ServerResponse response) {
         // 同步便捷方法：统一走响应式链并等待完成，保证调用方(JDK/NIO 等 Server 实现)
         // 无需各自等待 stage 也能获得"响应完整后再返回"的语义
@@ -159,7 +159,7 @@ public abstract class AbstractServer implements ConfigServer {
     * @param request  请求对象
     * @param response 响应对象
     * @return 请求处理完成信号
-     */
+    */
     public CompletionStage<Void> handleRequestWithStage(ServerRequest request, ServerResponse response) {
         return handleRequestAsync(request, response);
     }
@@ -170,7 +170,7 @@ public abstract class AbstractServer implements ConfigServer {
     * @param request  请求对象
     * @param response 响应对象
     * @return 请求处理完成信号（异步阶段）
-     */
+    */
     protected CompletionStage<Void> handleRequestAsync(ServerRequest request, ServerResponse response) {
         metrics.incrementRequests();
         request.setAttribute("_server", this);
@@ -201,7 +201,7 @@ public abstract class AbstractServer implements ConfigServer {
     * @param request  请求
     * @param response 响应
     * @return 异步链完成信号,供调用方等待响应真正写完
-     */
+    */
     protected CompletionStage<Void> handleReactive(ServerRequest request, ServerResponse response) {
         @SuppressWarnings("unchecked")
         List<FilterChainListener> listeners = (List<FilterChainListener>) request.getAttribute("_chainListeners");
@@ -235,7 +235,7 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
     * 默认的 404 处理器。
-     */
+    */
     private static final ServerHandler DEFAULT_404_HANDLER = (req, res) -> {
         if (!res.isEnded()) {
             res.sendError(404, "Not Found");
@@ -246,11 +246,11 @@ public abstract class AbstractServer implements ConfigServer {
     * 将 response.getResult() 转换为响应体并 end()。
     * <p>优先走 {@link ResponseConverter} SPI，
     * 找不到则直接 toString()。</p>
-     */
+    */
     /**
     * 响应转换器缓存:SPI 列表在运行期稳定,首次加载后缓存,
     * 避免每个请求重复 SPI 扫描 + 排序(高并发热点)。
-     */
+    */
     private static volatile java.util.List<ResponseConverter> CONVERTER_CACHE;
 
     /** Converters */
@@ -329,7 +329,7 @@ public abstract class AbstractServer implements ConfigServer {
     /**
     * 启动服务器的逻辑。
     * <p>默认实现为空，由具体实现类完成启动逻辑。</p>
-     */
+    */
     protected abstract void doStart();
 
     @Override
@@ -362,14 +362,14 @@ public abstract class AbstractServer implements ConfigServer {
     /**
     * 停止服务器的逻辑。
     * <p>默认实现为空，由具体实现类完成停止逻辑。</p>
-     */
+    */
     protected abstract void doStop();
 
     /**
     * 停止接收新的请求。
     * <p>默认实现为空，传输层可在优雅关闭等待开始前关闭监听端口，
     * 避免等待活跃请求期间继续接收新请求。</p>
-     */
+    */
     protected void doStopAccepting() {
     }
 
@@ -491,7 +491,7 @@ public abstract class AbstractServer implements ConfigServer {
     /**
     * 通过 SPI 发现 {@link HandlerMethodArgumentResolver} 实现并注册到 {@link ObjectContext}，
     * 同时将 {@link UrlMappingServerFilter} 注入容器。
-     */
+    */
 
     @Override
     public Server unregisterBean(Object bean) {
@@ -504,7 +504,7 @@ public abstract class AbstractServer implements ConfigServer {
 
     /**
     * 简单的 ServerFilterConfig 实现，用于内置过滤器。
-     */
+    */
     private static class SimpleServerFilterConfig implements ServerFilterConfig {
         /** 设置 */
         private final ServerSetting setting;

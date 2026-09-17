@@ -33,7 +33,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param platform 平台名称（如 "dingtalk"、"feishu"、"qq"）
     * @return BotClient 实例
     * @throws IllegalStateException 如果未找到对应平台的 Factory
-     */
+    */
     static BotClient auto(String platform) {
         Factory factory = ServiceProvider.of(Factory.class)
                 .getExtension(platform);
@@ -51,7 +51,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param platform 平台名称
     * @return Builder 实例
     * @throws IllegalStateException 如果未找到对应平台的 Factory
-     */
+    */
     static BotClient.Builder builder(String platform) {
         Factory factory = ServiceProvider.of(Factory.class)
                 .getExtension(platform);
@@ -71,7 +71,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param secret         密钥（钉钉签名密钥 / 飞书 App Secret / QQ BotSecret）
     * @param encodingAesKey 加密密钥（飞书 Encrypt Key / QQ BotToken）
     * @return this
-     */
+    */
     BotClient configure(String token, String secret, String encodingAesKey);
 
     /**
@@ -79,7 +79,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param token 平台凭证
     * @return this
-     */
+    */
     BotClient token(String token);
 
     /**
@@ -87,7 +87,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param secret 密钥
     * @return this
-     */
+    */
     BotClient secret(String secret);
 
     /**
@@ -95,7 +95,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param encodingAesKey 加密密钥
     * @return this
-     */
+    */
     BotClient encodingAesKey(String encodingAesKey);
 
     /**
@@ -103,7 +103,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param baseUrl API 基础地址
     * @return this
-     */
+    */
     BotClient baseUrl(String baseUrl);
 
     /**
@@ -111,7 +111,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param connectTimeoutMillis 连接超时时间
     * @return this
-     */
+    */
     BotClient connectTimeoutMillis(long connectTimeoutMillis);
 
     /**
@@ -119,7 +119,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param readTimeoutMillis 读取超时时间
     * @return this
-     */
+    */
     BotClient readTimeoutMillis(long readTimeoutMillis);
 
     /**
@@ -127,7 +127,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param configSaveOrLoader 配置加载器
     * @return this
-     */
+    */
     BotClient configSaveOrLoader(
             com.chua.common.support.config.loader.ConfigSaveOrLoader configSaveOrLoader);
 
@@ -137,19 +137,19 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * 启动客户端
     *
     * @return this
-     */
+    */
     BotClient start();
 
     /**
     * 停止客户端
-     */
+    */
     void stop();
 
     /**
     * 是否运行中
     *
     * @return true 表示运行中
-     */
+    */
     boolean isRunning();
 
     // ── Message sending (sync) ───────────────────────────────────
@@ -160,7 +160,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser   目标用户 ID
     * @param content  消息内容
     * @return 发送结果
-     */
+    */
     BotSendResult sendText(String toUser, String content);
 
     /**
@@ -169,7 +169,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser     目标用户 ID
     * @param mediaPath  图片本地路径
     * @return 发送结果
-     */
+    */
     BotSendResult sendImage(String toUser, String mediaPath);
 
     /**
@@ -178,7 +178,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser     目标用户 ID
     * @param mediaPath  语音文件路径
     * @return 发送结果
-     */
+    */
     BotSendResult sendVoice(String toUser, String mediaPath);
 
     /**
@@ -189,7 +189,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param title      视频标题
     * @param desc       视频描述
     * @return 发送结果
-     */
+    */
     BotSendResult sendVideo(
             String toUser,
             String mediaPath,
@@ -202,7 +202,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser     目标用户 ID
     * @param mediaPath  文件本地路径
     * @return 发送结果
-     */
+    */
     BotSendResult sendFile(String toUser, String mediaPath);
 
     /**
@@ -210,7 +210,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param message 出站消息对象
     * @return 发送结果
-     */
+    */
     BotSendResult send(BotOutboundMessage message);
 
     // ── Message sending (async) ──────────────────────────────────
@@ -221,7 +221,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser   目标用户 ID
     * @param content  消息内容
     * @return 异步发送结果
-     */
+    */
     java.util.concurrent.CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content);
 
@@ -231,7 +231,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param toUser     目标用户 ID
     * @param mediaPath  图片本地路径
     * @return 异步发送结果
-     */
+    */
     java.util.concurrent.CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath);
 
@@ -240,7 +240,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param message 出站消息对象
     * @return 异步发送结果
-     */
+    */
     java.util.concurrent.CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message);
 
@@ -250,7 +250,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * 获取群列表
     *
     * @return 群组信息列表
-     */
+    */
     java.util.List<BotGroupInfo> listGroups();
 
     /**
@@ -259,7 +259,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param groupId 群组 ID
     * @param content 消息内容
     * @return 发送结果
-     */
+    */
     BotSendResult sendToGroup(String groupId, String content);
 
     /**
@@ -268,7 +268,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param groupId 群组 ID
     * @param content 消息内容
     * @return 异步发送结果
-     */
+    */
     java.util.concurrent.CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content);
 
@@ -279,7 +279,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param content        消息内容
     * @param mentionedUserIds 被 @ 的用户 ID 列表
     * @return 发送结果
-     */
+    */
     BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -292,7 +292,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * @param content        消息内容
     * @param mentionedUserIds 被 @ 的用户 ID 列表
     * @return 异步发送结果
-     */
+    */
     java.util.concurrent.CompletableFuture<BotSendResult>
     sendToGroupMentionAsync(
             String groupId,
@@ -306,14 +306,14 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param userStore 用户存储实例
     * @return this
-     */
+    */
     BotClient userStore(BotUserStore userStore);
 
     /**
     * 列出所有用户
     *
     * @return 用户信息列表
-     */
+    */
     java.util.List<BotUserInfo> listUsers();
 
     // ── Listeners ────────────────────────────────────────────────
@@ -323,7 +323,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param listener 消息监听器
     * @return this
-     */
+    */
     BotClient addMessageListener(BotMessageListener listener);
 
     /**
@@ -331,7 +331,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param listener 消息监听器
     * @return this
-     */
+    */
     BotClient removeMessageListener(BotMessageListener listener);
 
     /**
@@ -339,7 +339,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     *
     * @param listener 错误监听器
     * @return this
-     */
+    */
     BotClient addErrorListener(BotErrorListener listener);
 
     // ── Config ───────────────────────────────────────────────────
@@ -348,7 +348,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * 获取当前配置
     *
     * @return 配置 Map
-     */
+    */
     java.util.Map<String, Object> getConfig();
 
     // ── SPI Factory ──────────────────────────────────────────────
@@ -360,21 +360,21 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * 来实现自动加载。</p>
     *
     * @author CH
-     */
+    */
     interface Factory {
 
         /**
         * 创建 BotClient 实例
         *
         * @return BotClient 实例
-         */
+        */
         BotClient create();
 
         /**
         * 返回 Builder
         *
         * @return Builder 实例
-         */
+        */
         Builder builder();
     }
 
@@ -382,7 +382,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
     * BotClient 构建器
     *
     * @author CH
-     */
+    */
     interface Builder {
 
         /**
@@ -390,7 +390,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param token 平台凭证
         * @return this
-         */
+        */
         Builder token(String token);
 
         /**
@@ -398,7 +398,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param secret 密钥
         * @return this
-         */
+        */
         Builder secret(String secret);
 
         /**
@@ -406,7 +406,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param encodingAesKey 加密密钥
         * @return this
-         */
+        */
         Builder encodingAesKey(String encodingAesKey);
 
         /**
@@ -414,7 +414,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param baseUrl API 基础地址
         * @return this
-         */
+        */
         Builder baseUrl(String baseUrl);
 
         /**
@@ -422,7 +422,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param connectTimeoutMillis 连接超时毫秒数
         * @return this
-         */
+        */
         Builder connectTimeoutMillis(long connectTimeoutMillis);
 
         /**
@@ -430,7 +430,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param readTimeoutMillis 读取超时毫秒数
         * @return this
-         */
+        */
         Builder readTimeoutMillis(long readTimeoutMillis);
 
         /**
@@ -438,7 +438,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         *
         * @param configSaveOrLoader 配置加载器
         * @return this
-         */
+        */
         Builder configSaveOrLoader(
                 com.chua.common.support.config.loader.ConfigSaveOrLoader configSaveOrLoader);
 
@@ -446,7 +446,7 @@ public interface BotClient extends PooledObjectClient<BotClient> {
         * 构建 BotClient
         *
         * @return BotClient 实例
-         */
+        */
         BotClient build();
     }
 }

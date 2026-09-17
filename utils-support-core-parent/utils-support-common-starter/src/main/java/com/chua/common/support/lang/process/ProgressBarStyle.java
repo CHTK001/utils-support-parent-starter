@@ -18,49 +18,49 @@ public class ProgressBarStyle {
     /**
     * 刷新提示符，通常用于覆盖当前行。
     * 默认值为回车符 "\r"。
-     */
+    */
     private String refreshPrompt;
 
     /**
     * 左括号或起始标记。
     * 默认值为 "["，支持 ANSI 转义序列或 Unicode 字符。
-     */
+    */
     protected String leftBracket;
 
     /**
     * 分隔符序列，位于左右括号之间或特定元素之间。
     * 默认值为空字符串 ""。
-     */
+    */
     protected String delimitingSequence;
 
     /**
     * 右括号或结束标记。
     * 默认值为 "]"，支持 ANSI 转义序列或 Unicode 字符。
-     */
+    */
     protected String rightBracket;
 
     /**
     * 进度块字符，表示已完成的进度部分。
     * 默认值为 '='，也可使用 Unicode 块字符。
-     */
+    */
     protected char block;
 
     /**
     * 空白填充字符，表示未完成的进度部分。
     * 默认值为空格 ' '。
-     */
+    */
     protected char space;
 
     /**
     * 分数符号字符串，用于显示百分比或小数部分的视觉填充。
     * 默认值为 "                      " (16个空格)。
-     */
+    */
     protected String fractionSymbols;
 
     /**
     * 右侧分数符号，用于百分比后的单个字符。
     * 默认值为空格 ' '。
-     */
+    */
     protected char rightSideFractionSymbol;
 
     /**
@@ -74,7 +74,7 @@ public class ProgressBarStyle {
     * @param space                 空白填充字符，默认为 ' '
     * @param fractionSymbols       分数符号字符串，默认为 "                      "
     * @param rightSideFractionSymbol 右侧分数符号，默认为 ' '
-     */
+    */
     public ProgressBarStyle(String refreshPrompt, String leftBracket, String delimitingSequence, String rightBracket, char block, char space, String fractionSymbols, char rightSideFractionSymbol) {
         this.refreshPrompt = refreshPrompt;
         this.leftBracket = leftBracket;
@@ -89,7 +89,7 @@ public class ProgressBarStyle {
     /**
     * 多彩的 Unicode 块风格进度条。
     * 使用 Unicode 字符和 ANSI 高亮颜色。
-     */
+    */
     public static final ProgressBarStyle COLORFUL_UNICODE_BLOCK = new ProgressBarStyle(
             "\r",
             "\u001b[33m   ",
@@ -104,7 +104,7 @@ public class ProgressBarStyle {
     /**
     * 多彩的 Unicode 条形风格进度条。
     * 结合 ANSI 颜色和 Unicode 条形视觉效果。
-     */
+    */
     public static final ProgressBarStyle COLORFUL_UNICODE_BAR = new ProgressBarStyle(
             "\r",
             "\u001b[33m",
@@ -119,7 +119,7 @@ public class ProgressBarStyle {
     /**
     * Python 下载风格进度条。
     * 模拟 Python 下载工具的视觉效果。
-     */
+    */
     public static final ProgressBarStyle PYTHON_DOWNLOAD = new ProgressBarStyle(
             "\r",
             "\u001b[38;5;208m",
@@ -133,7 +133,7 @@ public class ProgressBarStyle {
 
     /**
     * 灰色到绿色渐变风格进度条。
-     */
+    */
     public static final ProgressBarStyle GRAY_TO_GREEN = new ProgressBarStyle(
             "\r",
             "\u001b[32m",
@@ -147,7 +147,7 @@ public class ProgressBarStyle {
 
     /**
     * 蓝色到青色渐变风格进度条。
-     */
+    */
     public static final ProgressBarStyle BLUE_TO_CYAN = new ProgressBarStyle(
             "\r",
             "\u001b[36m",
@@ -161,7 +161,7 @@ public class ProgressBarStyle {
 
     /**
     * 红色到黄色渐变风格进度条。
-     */
+    */
     public static final ProgressBarStyle RED_TO_YELLOW = new ProgressBarStyle(
             "\r",
             "\u001b[33m",
@@ -175,7 +175,7 @@ public class ProgressBarStyle {
 
     /**
     * 彩虹风格进度条。
-     */
+    */
     public static final ProgressBarStyle RAINBOW = new ProgressBarStyle(
             "\r",
             "\u001b[35m",
@@ -190,7 +190,7 @@ public class ProgressBarStyle {
     /**
     * 矩阵风格进度条。
     * 模仿电影《黑客帝国》的绿色数字雨风格。
-     */
+    */
     public static final ProgressBarStyle MATRIX = new ProgressBarStyle(
             "\r",
             "\u001b[92m",
@@ -205,7 +205,7 @@ public class ProgressBarStyle {
     /**
     * 火焰风格进度条。
     * 使用红色调模拟火焰效果。
-     */
+    */
     public static final ProgressBarStyle FIRE = new ProgressBarStyle(
             "\r",
             "\u001b[91m",
@@ -220,7 +220,7 @@ public class ProgressBarStyle {
     /**
     * 海洋风格进度条。
     * 使用蓝色调模拟海洋效果。
-     */
+    */
     public static final ProgressBarStyle OCEAN = new ProgressBarStyle(
             "\r",
             "\u001b[94m",
@@ -235,7 +235,7 @@ public class ProgressBarStyle {
     /**
     * 霓虹风格进度条。
     * 使用明亮的青色调模拟霓虹灯效果。
-     */
+    */
     public static final ProgressBarStyle NEON = new ProgressBarStyle(
             "\r",
             "\u001b[96m",
@@ -250,7 +250,7 @@ public class ProgressBarStyle {
     /**
     * 日落风格进度条。
     * 使用紫色/洋红色调模拟日落效果。
-     */
+    */
     public static final ProgressBarStyle SUNSET = new ProgressBarStyle(
             "\r",
             "\u001b[95m",
@@ -265,7 +265,7 @@ public class ProgressBarStyle {
     /**
     * 标准 Unicode 块风格进度条。
     * 使用简单的竖线 "|" 作为边界。
-     */
+    */
     public static final ProgressBarStyle UNICODE_BLOCK = new ProgressBarStyle(
             "\r",
             "|",
@@ -280,7 +280,7 @@ public class ProgressBarStyle {
     /**
     * ASCII 风格进度条。
     * 使用纯 ASCII 字符构建，兼容性最好。
-     */
+    */
     public static final ProgressBarStyle ASCII = new ProgressBarStyle(
             "\r",
             "[",
@@ -295,7 +295,7 @@ public class ProgressBarStyle {
     /**
     * Python Loading 风格进度条。
     * 模仿 Python alive_progress 库的加载动画风格。
-     */
+    */
     public static final ProgressBarStyle PYTHON_LOADING = new ProgressBarStyle(
             "\r",
             "\u001b[95m",
@@ -311,7 +311,7 @@ public class ProgressBarStyle {
     * 创建一个新的 {@link ProgressBarStyleBuilder} 实例。
     *
     * @return 返回一个进度条样式构建器对象
-     */
+    */
     public static ProgressBarStyleBuilder builder() {
         return new ProgressBarStyleBuilder();
     }

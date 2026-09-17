@@ -39,14 +39,14 @@ public interface MetaView {
     * 列出当前 catalog/schema 下的所有视图。
     *
     * @return 视图定义列表
-     */
+    */
     List<ViewDef> list();
 
     /**
     * 获取当前视图的定义。
     *
     * @return 视图定义
-     */
+    */
     ViewDef get();
 
     /**
@@ -54,20 +54,20 @@ public interface MetaView {
     *
     * @param viewName 视图名
     * @return 建视图构建器
-     */
+    */
     ViewCreateBuilder create(String viewName);
 
     /**
     * 修改视图（链式构建器）。
     *
     * @return 改视图构建器
-     */
+    */
     ViewAlterBuilder alter();
 
     /**
     * 删除视图。
     *
     * @return true 删除成功
-     */
+    */
     boolean drop();
 }

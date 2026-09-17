@@ -9,32 +9,32 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-* 链路追踪过滤器。
-*
-* <p>为每个请求生成唯一 traceId，通过 {@link FilterChainListener} 记录每个 filter 的执行耗时，
-* 请求结束时输出完整的链路追踪日志（包含 filter 执行顺序和各节点耗时）。</p>
-*
-* <p>使用方式：服务器端自动注册，通过 {@code _traceId} 请求属性传递。</p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 链路追踪过滤器。
+ *
+ * <p>为每个请求生成唯一 traceId，通过 {@link FilterChainListener} 记录每个 filter 的执行耗时，
+ * 请求结束时输出完整的链路追踪日志（包含 filter 执行顺序和各节点耗时）。</p>
+ *
+ * <p>使用方式：服务器端自动注册，通过 {@code _traceId} 请求属性传递。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 public class TracingFilter implements ServerFilter {
 
     /**
     * traceId 的请求属性键名。
-     */
+    */
     private static final String TRACE_ID_KEY = "_traceId";
 
     /**
     * 链监听器列表的请求属性键名。
-     */
+    */
     private static final String LISTENERS_KEY = "_chainListeners";
 
     /**
     * 链路日志列表的请求属性键名。
-     */
+    */
     private static final String TRACE_LOG_KEY = "_traceLog";
 
     @Override
@@ -84,7 +84,7 @@ public class TracingFilter implements ServerFilter {
     *
     * @param request 当前请求
     * @return traceId，不存在时返回 null
-     */
+    */
     public static String getTraceId(ServerRequest request) {
         Object value = request.getAttribute(TRACE_ID_KEY);
         if (value instanceof String) {

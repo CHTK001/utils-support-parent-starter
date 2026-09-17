@@ -16,7 +16,7 @@ public class Octal {
     * @param offset 从中开始解析的缓冲区偏移量。
     * @param length 要解析的头部字节数。
     * @return 八进制字符串对应的长整型值。
-     */
+    */
     public static long parseOctal(byte[] header, int offset, int length) {
         long result = 0;
         boolean stillPadding = true;
@@ -53,7 +53,7 @@ public class Octal {
     * @param offset 在缓冲区中的起始偏移量。
     * @param length 要写入的字节数。
     * @return 写入操作完成后的下一个位置索引。
-     */
+    */
     public static int getOctalBytes(long value, byte[] buf, int offset, int length) {
         int idx = length - 1;
 
@@ -87,7 +87,7 @@ public class Octal {
     * @param offset 在缓冲区中的起始偏移量。
     * @param length 要写入的字节数。
     * @return 条目校验和的整数值（实际返回的是写入结束的位置）。
-     */
+    */
     public static int getCheckSumOctalBytes(long value, byte[] buf, int offset, int length) {
         getOctalBytes(value, buf, offset, length);
         buf[offset + length - 1] = (byte) ' ';
@@ -103,7 +103,7 @@ public class Octal {
     * @param offset 在缓冲区中的起始偏移量。
     * @param length 要写入的字节数。
     * @return 写入操作完成后的下一个位置索引。
-     */
+    */
     public static int getLongOctalBytes(long value, byte[] buf, int offset, int length) {
         byte[] temp = new byte[length + 1];
         getOctalBytes(value, temp, 0, length + 1);

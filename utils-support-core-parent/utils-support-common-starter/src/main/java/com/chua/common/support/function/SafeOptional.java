@@ -20,19 +20,19 @@ public class SafeOptional<T, R> {
     
     /**
     * 标识当前是否已获取到有效值（true表示已匹配/有值，false表示空/未匹配）
-     */
+    */
     private final boolean isNone;
     
     /**
     * 存储转换后的结果值
-     */
+    */
     private final R apply;
 
     /**
     * 创建 SafeOptional 实例
     * @param isNone isNone
     * @param R R
-     */
+    */
     public SafeOptional(boolean isNone, R apply) {
         this.isNone = isNone;
         this.apply = apply;
@@ -42,7 +42,7 @@ public class SafeOptional<T, R> {
     * 获取结果值
     *
     * @return 结果值，如果未匹配则返回 null
-     */
+    */
     public R get() {
         return apply;
     }
@@ -54,7 +54,7 @@ public class SafeOptional<T, R> {
     * @param value    输入值
     * @param function 转换函数
     * @return 新的 SafeOptional 实例
-     */
+    */
     public SafeOptional<T, R> elseCapable(T value, Function<T, R> function) {
         if (isNone) {
             return new SafeOptional<>(true, apply);
@@ -70,7 +70,7 @@ public class SafeOptional<T, R> {
     * @param value     输入值
     * @param function  转换函数
     * @return 新的 SafeOptional 实例
-     */
+    */
     public SafeOptional<T, R> elseCapable(boolean condition, T value, Function<T, R> function) {
         if (isNone) {
             return new SafeOptional<>(true, apply);
@@ -87,7 +87,7 @@ public class SafeOptional<T, R> {
     *
     * @param function 结果提供者
     * @return 新的 SafeOptional 实例
-     */
+    */
     public SafeOptional<T, R> elseCapable(Supplier<R> function) {
         if (isNone) {
             return new SafeOptional<>(true, apply);
@@ -104,7 +104,7 @@ public class SafeOptional<T, R> {
     * @param <T>      输入类型
     * @param <R>      返回类型
     * @return SafeOptional 实例
-     */
+    */
     public static <T, R> SafeOptional<T, R> ifCapable(T value, Function<T, R> function) {
         if (null == value || ClassUtils.isVoid(value)) {
             return (SafeOptional<T, R>) SafeOptional.EMPTY;
@@ -121,7 +121,7 @@ public class SafeOptional<T, R> {
     * @param function 转换函数
     * @param <R>      返回类型
     * @return SafeOptional 实例
-     */
+    */
     public static <R> SafeOptional<Boolean, R> ifCapable(boolean value, Function<Boolean, R> function) {
         if (!value) {
             return (SafeOptional<Boolean, R>) SafeOptional.EMPTY;

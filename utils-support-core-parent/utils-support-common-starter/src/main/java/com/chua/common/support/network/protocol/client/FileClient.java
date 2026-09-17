@@ -17,12 +17,12 @@ public interface FileClient {
     * 连接文件服务。
     *
     * @throws IOException 连接失败时抛出
-     */
+    */
     void connect() throws IOException;
 
     /**
     * 快速关闭资源（不抛异常）。
-     */
+    */
     void closeQuietly();
 
     /**
@@ -31,7 +31,7 @@ public interface FileClient {
     * @param path 目录路径
     * @return 文件名列表
     * @throws IOException 列出失败时抛出
-     */
+    */
     List<String> listFiles(String path) throws IOException;
 
     /**
@@ -40,7 +40,7 @@ public interface FileClient {
     * @param inputStream 文件输入流
     * @param path      远程目标路径
     * @throws IOException 上传失败时抛出
-     */
+    */
     void uploadFile(InputStream inputStream, String path) throws IOException;
 
     /**
@@ -49,7 +49,7 @@ public interface FileClient {
     * @param path 远程源路径
     * @param outputStream 文件输出流
     * @throws IOException 下载失败时抛出
-     */
+    */
     void downloadFile(String path, OutputStream outputStream) throws IOException;
 
     /**
@@ -58,7 +58,7 @@ public interface FileClient {
     * @param path 文件路径
     * @return 文件内容字符串
     * @throws IOException 读取失败时抛出
-     */
+    */
     String readFile(String path) throws IOException;
 
     /**
@@ -67,7 +67,7 @@ public interface FileClient {
     * @param path     目录路径
     * @param recursive 是否递归创建父目录
     * @throws IOException 创建失败时抛出
-     */
+    */
     void createDirectory(String path, boolean recursive) throws IOException;
 
     /**
@@ -75,7 +75,7 @@ public interface FileClient {
     *
     * @param path 路径
     * @throws IOException 删除失败时抛出
-     */
+    */
     void delete(String path) throws IOException;
 
     /**
@@ -84,7 +84,7 @@ public interface FileClient {
     * @param oldPath 原路径
     * @param newPath 新路径
     * @throws IOException 重命名失败时抛出
-     */
+    */
     void rename(String oldPath, String newPath) throws IOException;
 
     /**
@@ -93,7 +93,7 @@ public interface FileClient {
     * @param path 路径
     * @return 如果存在返回 true
     * @throws IOException 检查失败时抛出
-     */
+    */
     boolean exists(String path) throws IOException;
 
     /**
@@ -102,6 +102,6 @@ public interface FileClient {
     * @param path 路径
     * @return 如果是目录返回 true
     * @throws IOException 检查失败时抛出
-     */
+    */
     boolean isDirectory(String path) throws IOException;
 }

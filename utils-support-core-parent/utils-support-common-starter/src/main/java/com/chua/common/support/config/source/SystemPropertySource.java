@@ -18,7 +18,7 @@ public class SystemPropertySource extends AbstractPropertySource {
     /**
     * 无参构造函数。
     * 初始化时设置源名称为 "system-property"。
-     */
+    */
     public SystemPropertySource() {
         super("system-property");
     }
@@ -29,7 +29,7 @@ public class SystemPropertySource extends AbstractPropertySource {
     *
     * @param key 要获取的属性键
     * @return 对应的属性值，如果不存在则返回 null
-     */
+    */
     @Override
     protected Object getRawProperty(String key) {
         return System.getProperty(key);
@@ -40,7 +40,7 @@ public class SystemPropertySource extends AbstractPropertySource {
     * 该方法将当前 JVM 的所有系统属性转换为 HashMap 形式并返回。
     *
     * @return 包含所有系统属性的 HashMap 对象
-     */
+    */
     @SuppressWarnings("all")
     @Override
     protected Object getSource() {

@@ -12,18 +12,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
-* SPI Bean 定义注册器（只读）。
-*
-* <p>该类仅作为 SPI 服务的只读索引，<strong>不</strong>提供手动注册/注销能力。
-* SPI Bean 由 {@link com.chua.common.support.spi.ServiceProvider ServiceProvider}
-* 通过类路径扫描自动发现并注册到对应的可写注册器（如 {@code DefaultBeanDefinitionRegister}）中。
-*
-* <p>调用 {@link #register(BeanDefinition)} 或 {@link #unregister(BeanDefinition)} 将抛出
-* {@link UnsupportedOperationException}。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * SPI Bean 定义注册器（只读）。
+ *
+ * <p>该类仅作为 SPI 服务的只读索引，<strong>不</strong>提供手动注册/注销能力。
+ * SPI Bean 由 {@link com.chua.common.support.spi.ServiceProvider ServiceProvider}
+ * 通过类路径扫描自动发现并注册到对应的可写注册器（如 {@code DefaultBeanDefinitionRegister}）中。
+ *
+ * <p>调用 {@link #register(BeanDefinition)} 或 {@link #unregister(BeanDefinition)} 将抛出
+ * {@link UnsupportedOperationException}。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("spi")
 @SpiDescribe("SPI Bean 定义注册器（只读，由 ServiceProvider 自动发现服务）")

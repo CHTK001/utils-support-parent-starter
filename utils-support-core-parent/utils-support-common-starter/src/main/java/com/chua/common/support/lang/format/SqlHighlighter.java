@@ -39,7 +39,7 @@ public class SqlHighlighter {
 
     /**
     * DDL关键词（数据定义语言）
-     */
+    */
     private static final Set<String> DDL_KEYWORDS = new HashSet<>(Arrays.asList(
             "CREATE", "ALTER", "DROP", "TRUNCATE", "RENAME",
             "TABLE", "VIEW", "INDEX", "SEQUENCE", "DATABASE", "SCHEMA"
@@ -47,14 +47,14 @@ public class SqlHighlighter {
 
     /**
     * DML关键词（数据操作语言）
-     */
+    */
     private static final Set<String> DML_KEYWORDS = new HashSet<>(Arrays.asList(
             "SELECT", "INSERT", "UPDATE", "DELETE", "MERGE"
     ));
 
     /**
     * 查询子句关键词
-     */
+    */
     private static final Set<String> CLAUSE_KEYWORDS = new HashSet<>(Arrays.asList(
             "FROM", "WHERE", "AND", "OR", "NOT", "NULL",
             "ORDER", "BY", "GROUP", "HAVING", "LIMIT", "OFFSET",
@@ -66,7 +66,7 @@ public class SqlHighlighter {
 
     /**
     * 数据类型关键词
-     */
+    */
     private static final Set<String> DATA_TYPE_KEYWORDS = new HashSet<>(Arrays.asList(
             "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT",
             "VARCHAR", "CHAR", "TEXT", "CLOB", "BLOB",
@@ -78,7 +78,7 @@ public class SqlHighlighter {
 
     /**
     * 函数关键词
-     */
+    */
     private static final Set<String> FUNCTION_KEYWORDS = new HashSet<>(Arrays.asList(
             "COUNT", "SUM", "AVG", "MAX", "MIN",
             "LENGTH", "UPPER", "LOWER", "TRIM", "SUBSTR", "SUBSTRING",
@@ -89,7 +89,7 @@ public class SqlHighlighter {
 
     /**
     * 操作符关键词
-     */
+    */
     private static final Set<String> OPERATOR_KEYWORDS = new HashSet<>(Arrays.asList(
             "IN", "EXISTS", "BETWEEN", "LIKE", "ESCAPE",
             "IS", "DISTINCT", "ALL", "ANY", "SOME"
@@ -97,7 +97,7 @@ public class SqlHighlighter {
 
     /**
     * 约束关键词
-     */
+    */
     private static final Set<String> CONSTRAINT_KEYWORDS = new HashSet<>(Arrays.asList(
             "PRIMARY", "KEY", "FOREIGN", "REFERENCES",
             "UNIQUE", "CHECK", "DEFAULT", "CONSTRAINT",
@@ -163,7 +163,7 @@ public class SqlHighlighter {
     * @param sql SQL语句
     * @param config 高亮配置
     * @return 高亮后的SQL字符串
-     */
+    */
     public static String highlight(String sql, HighlightConfig config) {
         // 空值检查
         if (sql == null || sql.isEmpty()) {
@@ -189,21 +189,21 @@ public class SqlHighlighter {
 
     /**
     * 使用ANSI颜色高亮（控制台）
-     */
+    */
     private static String highlightAnsi(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, false);
     }
 
     /**
     * 使用HTML颜色高亮（网页）
-     */
+    */
     private static String highlightHtml(String sql, HighlightConfig config) {
         return highlightInternal(sql, config, true);
     }
 
     /**
     * 内部高亮实现
-     */
+    */
     private static String highlightInternal(String sql, HighlightConfig config, boolean isHtml) {
         StringBuilder result = new StringBuilder();
         StringBuilder currentToken = new StringBuilder();
@@ -364,7 +364,7 @@ public class SqlHighlighter {
 
     /**
     * 判断是否为分隔符（括号、逗号、分号等）
-     */
+    */
     private static boolean isDelimiter(char c) {
         return c == '(' || c == ')' || c == ',' || c == ';' ||
                 c == '=' || c == '<' || c == '>' || c == '+' ||
@@ -373,7 +373,7 @@ public class SqlHighlighter {
 
     /**
     * 对单个Token应用高亮
-     */
+    */
     private static String applyHighlight(String token, HighlightConfig config, boolean isHtml) {
         if (token == null || token.isEmpty()) {
             return token;
@@ -410,7 +410,7 @@ public class SqlHighlighter {
 
     /**
     * 判断是否为数字（整数或小数）
-     */
+    */
     private static boolean isNumeric(String str) {
         if (str == null || str.isEmpty()) {
             return false;
@@ -425,7 +425,7 @@ public class SqlHighlighter {
 
     /**
     * HTML转义
-     */
+    */
     private static String escapeHtml(String text) {
         if (text == null) {
             return null;

@@ -19,36 +19,36 @@ public class ViewDef {
 
     /**
     * 视图名
-     */
+    */
     private String name;
 
     /**
     * catalog 名称
-     */
+    */
     private String catalog;
 
     /**
     * schema 名称
-     */
+    */
     private String schema;
 
     /**
     * 视图定义（SELECT 语句）
-     */
+    */
     private String definition;
 
     /**
     * 是否可更新
-     */
+    */
     private boolean updatable;
 
     /**
     * 检查选项（CASCADE / LOCAL / NONE 等，仅 Oracle）
-     */
+    */
     private String checkOption;
 
     /**
     * 视图注释
-     */
+    */
     private String comment;
 }

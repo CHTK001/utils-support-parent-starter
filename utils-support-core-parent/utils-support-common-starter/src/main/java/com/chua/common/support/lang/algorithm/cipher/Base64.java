@@ -34,7 +34,7 @@ public final class Base64 {
     *
     * @param data 待编码的字节数组
     * @return Base64 编码字符串
-     */
+    */
     public static String encode(byte[] data) {
         return java.util.Base64.getEncoder().encodeToString(data);
     }
@@ -44,7 +44,7 @@ public final class Base64 {
     *
     * @param data 待编码的字符串
     * @return Base64 编码字符串
-     */
+    */
     public static String encode(String data) {
         return encode(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
@@ -54,7 +54,7 @@ public final class Base64 {
     *
     * @param data Base64 编码字符串
     * @return 解码后的字节数组
-     */
+    */
     public static byte[] decode(String data) {
         return java.util.Base64.getDecoder().decode(data);
     }
@@ -64,7 +64,7 @@ public final class Base64 {
     *
     * @param data Base64 编码字符串
     * @return 解码后的原始字符串（UTF-8）
-     */
+    */
     public static String decodeToString(String data) {
         return new String(decode(data), java.nio.charset.StandardCharsets.UTF_8);
     }
@@ -76,7 +76,7 @@ public final class Base64 {
     *
     * @param data 待编码的字节数组
     * @return URL 安全 Base64 编码字符串
-     */
+    */
     public static String encodeUrlSafe(byte[] data) {
         return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(data);
     }
@@ -86,7 +86,7 @@ public final class Base64 {
     *
     * @param data 待编码的字符串
     * @return URL 安全 Base64 编码字符串
-     */
+    */
     public static String encodeUrlSafe(String data) {
         return encodeUrlSafe(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
@@ -96,7 +96,7 @@ public final class Base64 {
     *
     * @param data URL 安全 Base64 编码字符串
     * @return 解码后的字节数组
-     */
+    */
     public static byte[] decodeUrlSafe(String data) {
         return java.util.Base64.getUrlDecoder().decode(data);
     }
@@ -106,7 +106,7 @@ public final class Base64 {
     *
     * @param data URL 安全 Base64 编码字符串
     * @return 解码后的原始字符串（UTF-8）
-     */
+    */
     public static String decodeUrlSafeToString(String data) {
         return new String(decodeUrlSafe(data), java.nio.charset.StandardCharsets.UTF_8);
     }
@@ -118,7 +118,7 @@ public final class Base64 {
     *
     * @param data 待编码的字节数组
     * @return MIME Base64 编码字符串
-     */
+    */
     public static String encodeMime(byte[] data) {
         return java.util.Base64.getMimeEncoder().encodeToString(data);
     }
@@ -128,7 +128,7 @@ public final class Base64 {
     *
     * @param data MIME Base64 编码字符串
     * @return 解码后的字节数组
-     */
+    */
     public static byte[] decodeMime(String data) {
         return java.util.Base64.getMimeDecoder().decode(data);
     }

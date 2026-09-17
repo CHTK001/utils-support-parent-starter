@@ -34,7 +34,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
 
     /**
     * 算法名称
-     */
+    */
     private static final String ALGORITHM = "DES";
     /** 加密转换算法 */
     private static final String TRANSFORMATION = "DES/CBC/PKCS5Padding";
@@ -45,7 +45,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key  加密密钥，长度必须为 8 字节（56 位有效密钥）
     * @param data 待加密的明文数据
     * @return 加密后的密文数据（前 8 字节为随机 IV）
-     */
+    */
     public byte[] encrypt(byte[] key, byte[] data) {
         try {
             byte[] iv = new byte[8];
@@ -71,7 +71,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key  加密密钥，长度必须为 8 字节
     * @param data 待加密的明文字符串
     * @return Base64 编码的密文字符串
-     */
+    */
     public String encryptToString(byte[] key, String data) {
         return java.util.Base64.getEncoder().encodeToString(
                 encrypt(key, data.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
@@ -83,7 +83,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key        解密密钥，必须与加密时使用的密钥一致
     * @param ciphertext 待解密的密文数据（前 8 字节为随机 IV）
     * @return 解密后的明文数据
-     */
+    */
     public byte[] decrypt(byte[] key, byte[] ciphertext) {
         try {
             byte[] iv = new byte[8];
@@ -104,7 +104,7 @@ public class DesCipher implements com.chua.common.support.lang.algorithm.cipher.
     * @param key          解密密钥，必须与加密时使用的密钥一致
     * @param ciphertext64 Base64 编码的密文字符串
     * @return 解密后的明文字符串
-     */
+    */
     public String decryptToString(byte[] key, String ciphertext64) {
         return new String(
                 decrypt(key, java.util.Base64.getDecoder().decode(ciphertext64)),

@@ -23,7 +23,7 @@ public interface EndServerFilter extends ServerFilter {
     * @param request  当前请求对象
     * @param response 当前响应对象
     * @param chain    过滤器链
-     */
+    */
     @Override
     default void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         response.end();
@@ -33,7 +33,7 @@ public interface EndServerFilter extends ServerFilter {
     * 终结型过滤器默认排序值最大，确保最后执行。
     *
     * @return 排序值
-     */
+    */
     @Override
     default int getOrder() {
         return Integer.MAX_VALUE;

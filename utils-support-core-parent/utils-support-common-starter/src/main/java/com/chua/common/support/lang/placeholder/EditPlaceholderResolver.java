@@ -21,6 +21,6 @@ public interface EditPlaceholderResolver extends PlaceholderResolver {
     *
     * @param key   属性的键，不能为 null
     * @param value 属性的值，可以为 null
-     */
+    */
     void setProperty(@Nonnull String key, @Nullable String value);
 }

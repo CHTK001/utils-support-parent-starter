@@ -70,7 +70,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     * @param textSplitter    文本分块器
     * @param textExtractor   文本提取器（为 null 时纯文本直接读取）
     * @throws IOException 目录创建失败时抛出
-     */
+    */
     public RagDocumentLifeCycle(String uploadDir, KnowledgeClient knowledgeClient,
                                 TextSplitter textSplitter, TextExtractor textExtractor) throws IOException {
         this.uploadDir = Path.of(uploadDir);
@@ -94,7 +94,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     * @param fileName 文件名
     * @param data     文件字节数据
     * @return 文档元数据
-     */
+    */
     public RagDocument uploadDocument(String fileName, byte[] data) {
         String docId = UUID.randomUUID().toString().replace("-", "");
         String fileType = extractExtension(fileName);
@@ -143,7 +143,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     *
     * @param docId 文档 ID
     * @return 是否成功
-     */
+    */
     public boolean deleteDocument(String docId) {
         try {
             knowledgeClient.remove(docId);
@@ -177,7 +177,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     * @param page     页码（从 1 开始）
     * @param pageSize 每页大小
     * @return 文档列表
-     */
+    */
     public List<RagDocument> listDocuments(int page, int pageSize) {
         List<RagDocument> sorted = documents.stream()
                 .sorted((a, b) -> Long.compare(b.createTime(), a.createTime()))
@@ -194,7 +194,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     * 获取文档总数。
     *
     * @return 文档数量
-     */
+    */
     public int documentCount() {
         return documents.size();
     }
@@ -205,7 +205,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     * 清空知识库 + 重新索引所有 READY 状态的文档。
     *
     * @return 重新索引的文档数量
-     */
+    */
     public int reindex() {
         try {
             knowledgeClient.clear();
@@ -252,7 +252,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     *
     * @param docId 文档 ID
     * @return 文档内容，不存在则返回 null
-     */
+    */
     public String readDocumentContent(String docId) {
         Optional<RagDocument> opt = findDocument(docId);
         if (opt.isEmpty()) {
@@ -280,7 +280,7 @@ public class RagDocumentLifeCycle implements AutoCloseable {
     *
     * @param docId 文档 ID
     * @return 文档元数据
-     */
+    */
     public Optional<RagDocument> findDocument(String docId) {
         return documents.stream().filter(d -> d.id().equals(docId)).findFirst();
     }

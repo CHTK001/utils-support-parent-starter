@@ -20,12 +20,12 @@ public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
 
     /**
     * 消息体回调
-     */
+    */
     private final Consumer<T> consumer;
 
     /**
     * 消息体类型（泛型 T 的原始类型），用于反序列化还原
-     */
+    */
     @Getter
     private final Class<?> bodyType;
 
@@ -34,7 +34,7 @@ public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
     *
     * @param consumer 消息体回调
     * @param topics   订阅主题列表
-     */
+    */
     public ConsumerDispatcherDefinition(Consumer<T> consumer, List<String> topics) {
         this(consumer, null, topics);
     }
@@ -45,7 +45,7 @@ public class ConsumerDispatcherDefinition<T> extends DispatcherDefinition {
     * @param consumer 消息体回调
     * @param bodyType 消息体类型
     * @param topics   订阅主题列表
-     */
+    */
     public ConsumerDispatcherDefinition(Consumer<T> consumer, Class<?> bodyType, List<String> topics) {
         super(consumer, null, topics);
         this.consumer = consumer;

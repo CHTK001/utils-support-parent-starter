@@ -7,76 +7,76 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 流水线节点接口。
-*
-* <p>所有节点类型的统一抽象。task、decision、subPipeline、start、end 等都是节点的具体形态。</p>
-*
-* <p>这是一个函数式接口，可通过 Lambda 表达式实现自定义节点。
-* 同时提供 {@link #getType()} 和 {@link #getParams()} 默认方法，用于统一描述节点元信息。</p>
-*
-* <p><strong>返回值语义：</strong></p>
-* <ul>
-*   <li>返回 {@code null} — 按默认顺序继续执行（等同于 Consumer 模式）</li>
-*   <li>返回非 null 字符串 — 跳转到指定节点 ID（等同于 Function 路由模式，引擎自动设置 nextNodeId + action=JUMP）</li>
-* </ul>
-*
-* <p><strong>返回值与显式动作的优先级规则：</strong></p>
-* <ul>
-*   <li>显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT</li>
-*   <li>仅当 {@code ctx.getAction() == Action.NEXT} 时，返回值才触发 JUMP</li>
-*   <li>若节点已设置 {@code ctx.setAction(Action.EXIT)}，即使返回非 null 值也不会跳转</li>
-* </ul>
-*
-* <p><strong>路由策略（{@link RouteStrategy}）：</strong></p>
-* <p>当返回值指向的节点不存在时，引擎根据 {@link RouteStrategy} 处理：</p>
-* <ul>
-*   <li>{@link RouteStrategy#THROW} — 抛出 PipelineException（默认）</li>
-*   <li>{@link RouteStrategy#EXIT} — 优雅终止流水线</li>
-*   <li>{@link RouteStrategy#NEXT} — 跳过不存在的节点，按定义顺序继续</li>
-* </ul>
-*
-* <p><strong>用法示例：</strong></p>
-* <pre>{@code
-* // 顺序执行（返回 null）
-* .task("step1", ctx -> {
-*     doWork(ctx);
-*     return null;
-* })
-*
-* // 动态路由（返回目标节点 ID）
-* .task("route", ctx -> {
-*     return condition ? "nodeA" : "nodeB";
-* })
-*
-* // 显式动作优先于返回值
-* .task("end", ctx -> {
-*     ctx.setAction(Action.EXIT);  // EXIT 生效，返回值被忽略
-*     return "somewhere";          // 不会跳转
-* })
-*
-* // 判断分支
-* .decision("check", ctx -> ctx.getData() != null ? "process" : "error")
-* }</pre>)
-* }</pre>
-*
-* <p><strong>内置节点实现：</strong></p>
-* <ul>
-*   <li>{@link com.chua.common.support.task.pipeline.node.TaskNode} — 执行节点（type = "task"）</li>
-*   <li>{@link com.chua.common.support.task.pipeline.node.DecisionNode} — 判断节点（type = "decision"）</li>
-*   <li>{@link com.chua.common.support.task.pipeline.node.StartNode} — 起始节点（type = "start"）</li>
-*   <li>{@link com.chua.common.support.task.pipeline.node.EndNode} — 终止节点（type = "end"）</li>
-*   <li>{@link com.chua.common.support.task.pipeline.node.SubPipelineNode} — 子流水线节点（type = "subPipeline"）</li>
-* </ul>
-*
-* <p><strong>节点元信息：</strong></p>
-* <ul>
-*   <li>{@link #getType()} — 节点类型标识，如 "task"、"decision"、"start"、"end"、"subPipeline"</li>
-*   <li>{@link #getParams()} — 节点参数映射，用于 JSON 构建时传递节点级配置，执行时注入到 {@code ctx.nodeLocalData}</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 流水线节点接口。
+ *
+ * <p>所有节点类型的统一抽象。task、decision、subPipeline、start、end 等都是节点的具体形态。</p>
+ *
+ * <p>这是一个函数式接口，可通过 Lambda 表达式实现自定义节点。
+ * 同时提供 {@link #getType()} 和 {@link #getParams()} 默认方法，用于统一描述节点元信息。</p>
+ *
+ * <p><strong>返回值语义：</strong></p>
+ * <ul>
+ *   <li>返回 {@code null} — 按默认顺序继续执行（等同于 Consumer 模式）</li>
+ *   <li>返回非 null 字符串 — 跳转到指定节点 ID（等同于 Function 路由模式，引擎自动设置 nextNodeId + action=JUMP）</li>
+ * </ul>
+ *
+ * <p><strong>返回值与显式动作的优先级规则：</strong></p>
+ * <ul>
+ *   <li>显式动作（EXIT/WAIT/BREAK/REPLAY/PREV）> 返回值 > 默认 NEXT</li>
+ *   <li>仅当 {@code ctx.getAction() == Action.NEXT} 时，返回值才触发 JUMP</li>
+ *   <li>若节点已设置 {@code ctx.setAction(Action.EXIT)}，即使返回非 null 值也不会跳转</li>
+ * </ul>
+ *
+ * <p><strong>路由策略（{@link RouteStrategy}）：</strong></p>
+ * <p>当返回值指向的节点不存在时，引擎根据 {@link RouteStrategy} 处理：</p>
+ * <ul>
+ *   <li>{@link RouteStrategy#THROW} — 抛出 PipelineException（默认）</li>
+ *   <li>{@link RouteStrategy#EXIT} — 优雅终止流水线</li>
+ *   <li>{@link RouteStrategy#NEXT} — 跳过不存在的节点，按定义顺序继续</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
+ * <pre>{@code
+ * // 顺序执行（返回 null）
+ * .task("step1", ctx -> {
+ *     doWork(ctx);
+ *     return null;
+ * })
+ *
+ * // 动态路由（返回目标节点 ID）
+ * .task("route", ctx -> {
+ *     return condition ? "nodeA" : "nodeB";
+ * })
+ *
+ * // 显式动作优先于返回值
+ * .task("end", ctx -> {
+ *     ctx.setAction(Action.EXIT);  // EXIT 生效，返回值被忽略
+ *     return "somewhere";          // 不会跳转
+ * })
+ *
+ * // 判断分支
+ * .decision("check", ctx -> ctx.getData() != null ? "process" : "error")
+ * }</pre>)
+ * }</pre>
+ *
+ * <p><strong>内置节点实现：</strong></p>
+ * <ul>
+ *   <li>{@link com.chua.common.support.task.pipeline.node.TaskNode} — 执行节点（type = "task"）</li>
+ *   <li>{@link com.chua.common.support.task.pipeline.node.DecisionNode} — 判断节点（type = "decision"）</li>
+ *   <li>{@link com.chua.common.support.task.pipeline.node.StartNode} — 起始节点（type = "start"）</li>
+ *   <li>{@link com.chua.common.support.task.pipeline.node.EndNode} — 终止节点（type = "end"）</li>
+ *   <li>{@link com.chua.common.support.task.pipeline.node.SubPipelineNode} — 子流水线节点（type = "subPipeline"）</li>
+ * </ul>
+ *
+ * <p><strong>节点元信息：</strong></p>
+ * <ul>
+ *   <li>{@link #getType()} — 节点类型标识，如 "task"、"decision"、"start"、"end"、"subPipeline"</li>
+ *   <li>{@link #getParams()} — 节点参数映射，用于 JSON 构建时传递节点级配置，执行时注入到 {@code ctx.nodeLocalData}</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @FunctionalInterface
 public interface PipelineNode {
 
@@ -86,7 +86,7 @@ public interface PipelineNode {
     * <p>默认返回 null，具体节点类（TaskNode、DecisionNode 等）应覆盖此方法。</p>
     *
     * @return 节点 标识，lambda 实现时返回 空
-     */
+    */
     default String getId() {
         return null;
     }
@@ -108,7 +108,7 @@ public interface PipelineNode {
     *
     * @param context 流水线上下文
     * @return 下一节点 标识，返回 空 表示按默认顺序执行
-     */
+    */
     String execute(PipelineContext<?> context);
 
     /**
@@ -126,7 +126,7 @@ public interface PipelineNode {
     * <p>Lambda 实现的节点默认返回 "task"。</p>
     *
     * @return 节点类型标识
-     */
+    */
     default String getType() {
         return "task";
     }
@@ -141,7 +141,7 @@ public interface PipelineNode {
     * <p>默认返回空 Map。内置节点实现中，仅 JSON 构建的节点会携带 params。</p>
     *
     * @return 节点参数映射，不可变
-     */
+    */
     default Map<String, Object> getParams() {
         return Collections.emptyMap();
     }
@@ -160,7 +160,7 @@ public interface PipelineNode {
     * <p>默认返回空 Map。通过 Definition API 的 {@code .env()} 方法设置。</p>
     *
     * @return 节点环境参数映射，不可变
-     */
+    */
     default Map<String, Object> getEnv() {
         return Collections.emptyMap();
     }
@@ -182,7 +182,7 @@ public interface PipelineNode {
     * <p>默认返回 null，表示不重试。通过 Definition API 的 {@code .retry()} 方法设置。</p>
     *
     * @return 重试配置，null 表示不重试
-     */
+    */
     default RetryConfig getRetryConfig() {
         return null;
     }
@@ -211,7 +211,7 @@ public interface PipelineNode {
     * <p>默认返回空集合，表示无数据依赖。通过 Definition API 的 {@code .unit()} 方法设置。</p>
     *
     * @return 依赖的节点 标识 集合，空集合表示无依赖
-     */
+    */
     default Set<String> getUnits() {
         return Collections.emptySet();
     }

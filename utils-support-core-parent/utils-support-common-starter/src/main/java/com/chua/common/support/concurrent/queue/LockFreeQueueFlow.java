@@ -20,7 +20,7 @@ public final class LockFreeQueueFlow {
 
     /**
     * 私有构造，禁止实例化。
-     */
+    */
     private LockFreeQueueFlow() {
     }
 
@@ -31,7 +31,7 @@ public final class LockFreeQueueFlow {
     * @param <E>    队列元素类型
     * @return 无锁队列实例
     * @throws NullPointerException 配置为 null 时抛出
-     */
+    */
     public static <E> LockFreeQueue<E> create(QueueConfig config) {
         if (config == null) {
             throw new NullPointerException("config must not be null");
@@ -47,7 +47,7 @@ public final class LockFreeQueueFlow {
     * @param <E>      队列元素类型
     * @return 无锁队列实例
     * @throws NullPointerException 类型为 null 时抛出
-     */
+    */
     public static <E> LockFreeQueue<E> create(QueueType type, int capacity) {
         if (type == null) {
             throw new NullPointerException("type must not be null");
