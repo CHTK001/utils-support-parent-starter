@@ -129,7 +129,7 @@ public class MapUtils {
     * 计算适合指定预期大小的 哈希映射 初始容量。
     *
     * <p>根据负载因子 0.75 反推容量，确保在不超过 expectedSize 个元素时无需扩容。
-    * 期望大小 为负数时抛出 illegal参数异常。
+    * 期望大小 为负数时抛出 IllegalArgumentException。
     *
     * @param expectedSize 预期的元素数量
     * @return 适配 期望大小 的初始容量，最大为 Integer.最大_值

@@ -42,7 +42,7 @@ public class NumberUtils {
     private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
     /** A */
     private static final int A = 'A';
-    /** Z坐标 */
+    /** Z 轴 */
     private static final int Z = 'Z';
     /** 中文数字字符 → 数值映射（小写+大写+两） */
     private static final Map<Character, Integer> CN_DIGITS = new HashMap<>();
@@ -855,7 +855,7 @@ public class NumberUtils {
     *
     * @param <T>               
     * @param text 文本
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @return Number
     * @param number 数字
     */
@@ -902,7 +902,7 @@ public class NumberUtils {
         }
     }
     /**
-    * 加薪 an <em>overflow</em> 异常 for the given 数字 和 Target 类.
+    *  an <em>overflow</em> 异常 for the given 数字 和 Target 类.
     *
     * @param number      the 数字 we tried 转为 转换
     * @param targetClass the Target 类 we tried 转为 转换 转为
@@ -940,7 +940,7 @@ public class NumberUtils {
     *
     * @param <T>               
     * @param text 文本
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @return Number
     */
     public static <T extends Number> T converterNumber(String text, Class<T> targetClass) {

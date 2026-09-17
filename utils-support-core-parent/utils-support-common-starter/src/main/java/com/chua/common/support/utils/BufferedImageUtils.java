@@ -42,7 +42,7 @@ public class BufferedImageUtils {
 
     /**
     * 安全获取图像类型，将 JDK 内置 TIFF 插件返回的 类型_习俗(0) 替换为 类型_INT_RGB，
-    * 避免 新 缓冲镜像(w, h, 0) 抛出 illegal参数异常。
+    * 避免 新 缓冲镜像(w, h, 0) 抛出 IllegalArgumentException。
     * @param src src
     * @return safe类型的结果
     */
