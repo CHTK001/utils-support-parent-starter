@@ -24,28 +24,28 @@ public final class TimeoutFlow {
 
     /**
     * 默认超时时间（毫秒）
-     */
+    */
     private static final long DEFAULT_TIMEOUT = 3000;
 
     /**
     * 超时控制名称
-     */
+    */
     private final String name;
 
     /**
     * 超时时间（毫秒）
-     */
+    */
     private long timeoutMillis = DEFAULT_TIMEOUT;
 
     /**
     * 超时发生时的降级回调
-     */
+    */
     private Supplier<Object> fallback;
 
     /**
     * 创建 TimeoutFlow 实例
     * @param name name
-     */
+    */
     private TimeoutFlow(String name) {
         this.name = name;
     }
@@ -55,7 +55,7 @@ public final class TimeoutFlow {
     *
     * @param name 名称
     * @return 门面实例
-     */
+    */
     public static TimeoutFlow of(String name) {
         return new TimeoutFlow(name);
     }
@@ -65,7 +65,7 @@ public final class TimeoutFlow {
     *
     * @param timeoutMillis 超时毫秒数
     * @return 当前门面
-     */
+    */
     public TimeoutFlow timeout(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
         return this;
@@ -77,7 +77,7 @@ public final class TimeoutFlow {
     * @param timeout   超时数值
     * @param timeUnit  时间单位
     * @return 当前门面
-     */
+    */
     public TimeoutFlow timeout(long timeout, TimeUnit timeUnit) {
         this.timeoutMillis = timeUnit.toMillis(timeout);
         return this;
@@ -90,7 +90,7 @@ public final class TimeoutFlow {
     *
     * @param fallback 降级回调
     * @return 当前门面
-     */
+    */
     public TimeoutFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
@@ -104,7 +104,7 @@ public final class TimeoutFlow {
     * @return 任务执行结果，超时返回降级结果
     * @throws TimeoutException 超时且未配置降级时抛出
     * @throws java.util.concurrent.ExecutionException 任务执行失败时抛出（原因为 cause）
-     */
+    */
     public <T> T execute(Callable<T> callable) throws TimeoutException, java.util.concurrent.ExecutionException {
         CompletableFuture<T> future = CompletableFuture.supplyAsync(() -> {
             try {

@@ -54,379 +54,379 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     /**
     * 对话分隔符：连接 system 与 user 提示词
-     */
+    */
     private static final String PROMPT_SEPARATOR = "\n";
 
     /**
     * 默认模型名
-     */
+    */
     private static final String DEFAULT_MODEL = "unknown";
 
     /**
     * 默认 Claude 模型名
-     */
+    */
     private static final String DEFAULT_CLAUDE_MODEL = "claude-3-haiku-20240307";
 
     /**
     * OpenAI 默认模型名（路由解析兜底）
-     */
+    */
     private static final String DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 
     /**
     * 系统角色标识
-     */
+    */
     private static final String ROLE_SYSTEM = "system";
 
     /**
     * 用户角色标识
-     */
+    */
     private static final String ROLE_USER = "user";
 
     /**
     * 助手角色标识
-     */
+    */
     private static final String ROLE_ASSISTANT = "assistant";
 
     /**
     * 请求体中的模型字段名
-     */
+    */
     private static final String KEY_MODEL = "model";
 
     /**
     * 请求体中的流式标识字段名
-     */
+    */
     private static final String KEY_STREAM = "stream";
 
     /**
     * 请求体中的消息列表字段名
-     */
+    */
     private static final String KEY_MESSAGES = "messages";
 
     /**
     * 请求体中的角色字段名
-     */
+    */
     private static final String KEY_ROLE = "role";
 
     /**
     * 请求体/响应体中的内容字段名
-     */
+    */
     private static final String KEY_CONTENT = "content";
 
     /**
     * 请求体中的提示词字段名
-     */
+    */
     private static final String KEY_PROMPT = "prompt";
 
     /**
     * 响应体中的标识字段名
-     */
+    */
     private static final String KEY_ID = "id";
 
     /**
     * 响应体中的对象类型字段名
-     */
+    */
     private static final String KEY_OBJECT = "object";
 
     /**
     * 响应体中的创建时间字段名
-     */
+    */
     private static final String KEY_CREATED = "created";
 
     /**
     * 响应体中的选择列表字段名
-     */
+    */
     private static final String KEY_CHOICES = "choices";
 
     /**
     * 响应体中的索引字段名
-     */
+    */
     private static final String KEY_INDEX = "index";
 
     /**
     * 响应体中的消息字段名
-     */
+    */
     private static final String KEY_MESSAGE = "message";
 
     /**
     * 响应体中的结束原因字段名
-     */
+    */
     private static final String KEY_FINISH_REASON = "finish_reason";
 
     /**
     * 响应体中的用量字段名
-     */
+    */
     private static final String KEY_USAGE = "usage";
 
     /**
     * 响应体中的文本字段名
-     */
+    */
     private static final String KEY_TEXT = "text";
 
     /**
     * 响应体中的状态字段名
-     */
+    */
     private static final String KEY_STATUS = "status";
 
     /**
     * 响应体中的类型字段名
-     */
+    */
     private static final String KEY_TYPE = "type";
 
     /**
     * 响应体中的输出字段名
-     */
+    */
     private static final String KEY_OUTPUT = "output";
 
     /**
     * 响应体中的数据列表字段名
-     */
+    */
     private static final String KEY_DATA = "data";
 
     /**
     * 响应体中的错误字段名
-     */
+    */
     private static final String KEY_ERROR = "error";
 
     /**
     * 响应体中的错误码字段名
-     */
+    */
     private static final String KEY_CODE = "code";
 
     /**
     * 响应体中的错误信息字段名
-     */
+    */
     private static final String KEY_MESSAGE_ERROR = "message";
 
     /**
     * 响应体中的错误状态字段名
-     */
+    */
     private static final String KEY_ERROR_STATUS = "status";
 
     /**
     * OpenAI 聊天补全对象类型
-     */
+    */
     private static final String OBJECT_CHAT_COMPLETION = "chat.completion";
 
     /**
     * OpenAI 聊天补全流式块对象类型
-     */
+    */
     private static final String OBJECT_CHAT_COMPLETION_CHUNK = "chat.completion.chunk";
 
     /**
     * OpenAI 文本补全对象类型
-     */
+    */
     private static final String OBJECT_TEXT_COMPLETION = "text_completion";
 
     /**
     * OpenAI 模型列表对象类型
-     */
+    */
     private static final String OBJECT_LIST = "list";
 
     /**
     * OpenAI 模型对象类型
-     */
+    */
     private static final String OBJECT_MODEL = "model";
 
     /**
     * CCS 响应对象类型
-     */
+    */
     private static final String OBJECT_RESPONSE = "response";
 
     /**
     * Claude 消息对象类型
-     */
+    */
     private static final String OBJECT_MESSAGE = "message";
 
     /**
     * Claude 文本内容块类型
-     */
+    */
     private static final String CONTENT_BLOCK_TEXT = "text";
 
     /**
     * CCS 输出文本内容类型
-     */
+    */
     private static final String CONTENT_OUTPUT_TEXT = "output_text";
 
     /**
     * CCS 文本增量内容类型
-     */
+    */
     private static final String CONTENT_TEXT_DELTA = "text_delta";
 
     /**
     * 结束原因：stop
-     */
+    */
     private static final String FINISH_STOP = "stop";
 
     /**
     * 结束原因：end_turn
-     */
+    */
     private static final String FINISH_END_TURN = "end_turn";
 
     /**
     * 状态：进行中
-     */
+    */
     private static final String STATUS_IN_PROGRESS = "in_progress";
 
     /**
     * 状态：已完成
-     */
+    */
     private static final String STATUS_COMPLETED = "completed";
 
     /**
     * Gemini 结束原因：STOP
-     */
+    */
     private static final String GEMINI_FINISH_STOP = "STOP";
 
     /**
     * Gemini 路径前缀
-     */
+    */
     private static final String GEMINI_PATH_PREFIX = "/v1beta/models/";
 
     /**
     * Gemini 错误状态：非法参数
-     */
+    */
     private static final String GEMINI_STATUS_INVALID_ARGUMENT = "INVALID_ARGUMENT";
 
     /**
     * Gemini 错误状态：内部错误
-     */
+    */
     private static final String GEMINI_STATUS_INTERNAL = "INTERNAL";
 
     /**
     * SSE 事件：ready
-     */
+    */
     private static final String SSE_EVENT_READY = "ready";
 
     /**
     * SSE 结束标记
-     */
+    */
     private static final String SSE_DONE = "[DONE]";
 
     /**
     * OpenAI Chat 补全标识前缀
-     */
+    */
     private static final String PREFIX_CHAT_COMPLETION = "chatcmpl-";
 
     /**
     * OpenAI 文本补全标识前缀
-     */
+    */
     private static final String PREFIX_COMPLETION = "cmpl-";
 
     /**
     * 消息标识前缀
-     */
+    */
     private static final String PREFIX_MESSAGE = "msg_";
 
     /**
     * CCS 响应标识前缀
-     */
+    */
     private static final String PREFIX_RESPONSE = "resp_";
 
     /**
     * OpenAI 路由路径：Chat Completions
-     */
+    */
     private static final String ROUTE_CHAT_COMPLETIONS = "/v1/chat/completions";
 
     /**
     * OpenAI 路由路径：Completions
-     */
+    */
     private static final String ROUTE_COMPLETIONS = "/v1/completions";
 
     /**
     * OpenAI 路由路径：Models
-     */
+    */
     private static final String ROUTE_MODELS = "/v1/models";
 
     /**
     * Claude 路由路径：Messages
-     */
+    */
     private static final String ROUTE_MESSAGES = "/v1/messages";
 
     /**
     * CCS 路由路径：Responses（版本化）
-     */
+    */
     private static final String ROUTE_RESPONSES_V1 = "/v1/responses";
 
     /**
     * CCS 路由路径：Responses
-     */
+    */
     private static final String ROUTE_RESPONSES = "/responses";
 
     /**
     * Gemini 路由路径（Ant 风格通配匹配）
-     */
+    */
     private static final String ROUTE_GEMINI = "/v1beta/models/**";
 
     /**
     * Gemini 路由动作：流式生成内容
-     */
+    */
     private static final String GEMINI_ACTION_STREAM_GENERATE_CONTENT = "streamGenerateContent";
 
     /**
     * JSON 内容类型
-     */
+    */
     private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
     /**
     * 网关日志前缀
-     */
+    */
     private static final String LOG_PREFIX = "[AiProtocolServerFilter] ";
 
     /**
     * 协议日志前缀
-     */
+    */
     private static final String LOG_PROTOCOL_PREFIX = "[AiProtocol] ";
 
     /**
     * OpenAI 模型列表默认条目标识
-     */
+    */
     private static final String MODELS_FALLBACK_ID = "default";
 
     /**
     * 模型归属方
-     */
+    */
     private static final String OWNED_BY_SYSTEM = "system";
 
     /**
     * CCS 分块输出单块大小
-     */
+    */
     private static final int CCS_CHUNK_SIZE = 80;
 
     /**
     * 生成的标识截取长度
-     */
+    */
     private static final int ID_TRUNCATE_LENGTH = 12;
 
     /**
     * HTTP 状态码：400 参数错误
-     */
+    */
     private static final int HTTP_BAD_REQUEST = 400;
 
     /**
     * HTTP 状态码：500 服务器内部错误
-     */
+    */
     private static final int HTTP_INTERNAL_ERROR = 500;
 
     /**
     * 过滤器注册顺序
-     */
+    */
     private static final int FILTER_ORDER = 150;
 
     /**
     * 底层 AI 客户端
-     */
+    */
     private final ChatClient chatClient;
 
     /**
     * 关联的 AiTokenServerFilter（当 ChatClient 配置了 tokenProvider 时自动创建）
-     */
+    */
     private AiTokenServerFilter tokenFilter;
 
     /**
     * 构造 AiProtocolServerFilter，使用默认对象上下文。
     *
     * @param chatClient 底层 AI 客户端
-     */
+    */
     public AiProtocolServerFilter(ChatClient chatClient) {
         this(chatClient, new DefaultObjectContext());
     }
@@ -436,7 +436,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param chatClient    底层 AI 客户端
     * @param objectContext 对象上下文
-     */
+    */
     public AiProtocolServerFilter(ChatClient chatClient, ObjectContext objectContext) {
         super(objectContext);
         this.chatClient = chatClient;
@@ -449,7 +449,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * 自动创建 {@link AiTokenServerFilter}。
     *
     * @param client 底层 AI 客户端
-     */
+    */
     private void initTokenFilter(ChatClient client) {
         if (!(client instanceof AggregateChatClient)) {
             return;
@@ -465,7 +465,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * 获取自动创建的 AiTokenServerFilter，调用方需添加到 ProtocolServer。
     *
     * @return AiTokenServerFilter，未配置时返回 null
-     */
+    */
     public AiTokenServerFilter getTokenFilter() {
         return tokenFilter;
     }
@@ -475,7 +475,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * 调用完成后自动清除线程局部变量。
     *
     * @param request 当前请求
-     */
+    */
     private void applyTokenGroup(ServerRequest request) {
         if (!(chatClient instanceof AggregateChatClient)) {
             return;
@@ -488,7 +488,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     /**
     * 清除 token 分组线程局部变量。
-     */
+    */
     private void clearTokenGroup() {
         AggregateChatClient.clearTokenGroup();
     }
@@ -497,7 +497,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
 
     /**
     * 注册全部 AI 协议 RESTful 路由。
-     */
+    */
     private void registerRoutes() {
         // OpenAI
         route(ROUTE_CHAT_COMPLETIONS, HttpMethod.POST, this::handleChatCompletions);
@@ -525,7 +525,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleChatCompletions(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> body = parseBody(request);
         boolean stream = Boolean.TRUE.equals(body.get(KEY_STREAM));
@@ -560,7 +560,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param body     请求体
     * @param model    模型名
     * @throws Exception 处理异常
-     */
+    */
     private void handleOpenAiStream(ServerRequest request, ServerResponse response, Map<String, Object> body, String model) throws Exception {
         response.sse();
         String prompt = extractOpenAiPrompt(body);
@@ -603,7 +603,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleCompletions(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> body = parseBody(request);
         String model = (String) body.get(KEY_MODEL);
@@ -628,7 +628,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleModels(ServerRequest request, ServerResponse response) throws Exception {
         List<Map<String, Object>> data = new ArrayList<>(); // [P3C 3.15 豁免] 模型列表遍历自框架动态 models()，数量运行期不可预估
         try {
@@ -662,7 +662,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleMessages(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> body = parseBody(request);
         String model = (String) body.get(KEY_MODEL);
@@ -693,7 +693,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param body     请求体
     * @param model    模型名
     * @throws Exception 处理异常
-     */
+    */
     private void handleClaudeStream(ServerRequest request, ServerResponse response, Map<String, Object> body, String model) throws Exception {
         response.sse();
         String prompt = extractClaudePrompt(body);
@@ -745,7 +745,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleResponses(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> body = parseBody(request);
         String model = (String) body.get(KEY_MODEL);
@@ -781,7 +781,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param result   AI 调用结果（Map 时读取 text 字段）
     * @param model    模型名
     * @throws Exception 处理异常
-     */
+    */
     private void handleResponsesStream(ServerResponse response, Object result, String model) throws Exception {
         response.sse();
         String responseId = PREFIX_RESPONSE + UUID.randomUUID().toString().replace("-", "");
@@ -854,7 +854,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param request  请求对象
     * @param response 响应对象
     * @throws Exception 处理异常
-     */
+    */
     private void handleGemini(ServerRequest request, ServerResponse response) throws Exception {
         String fullPath = request.getPath();
         String rest = fullPath.startsWith(GEMINI_PATH_PREFIX) ? fullPath.substring(GEMINI_PATH_PREFIX.length()) : fullPath;
@@ -907,7 +907,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param body 请求体
     * @return 拼接后的提示词，无用户消息时返回空串
-     */
+    */
     private String extractOpenAiPrompt(Map<String, Object> body) {
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get(KEY_MESSAGES);
         if (messages == null) {
@@ -930,7 +930,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param body 请求体
     * @return 系统提示词，未配置时返回 null
-     */
+    */
     private String extractOpenAiSystem(Map<String, Object> body) {
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get(KEY_MESSAGES);
         if (messages == null) {
@@ -949,7 +949,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param body 请求体
     * @return 拼接后的提示词
-     */
+    */
     private String extractClaudePrompt(Map<String, Object> body) {
         String system = extractText(body.get(ROLE_SYSTEM));
         List<Map<String, Object>> messages = (List<Map<String, Object>>) body.get(KEY_MESSAGES);
@@ -972,7 +972,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param body 请求体
     * @return 拼接后的提示词
-     */
+    */
     private String extractResponsesPrompt(Map<String, Object> body) {
         StringBuilder sb = new StringBuilder();
         appendText(sb, body.get("instructions"));
@@ -995,7 +995,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param body 请求体
     * @return 拼接后的提示词
-     */
+    */
     private String extractGeminiPrompt(Map<String, Object> body) {
         StringBuilder sb = new StringBuilder();
         Object systemInstruction = body.get("systemInstruction");
@@ -1024,7 +1024,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param obj Gemini 内容对象
     * @return 第一个非空文本，不存在时返回 null
-     */
+    */
     private String extractPartsText(Map<?, ?> obj) {
         Object parts = obj.get("parts");
         if (parts instanceof List<?> list) {
@@ -1045,7 +1045,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param sb    字符串构建器
     * @param value 待提取文本的值
-     */
+    */
     private void appendText(StringBuilder sb, Object value) {
         String text = extractText(value);
         if (text != null && !text.isBlank()) {
@@ -1058,7 +1058,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     *
     * @param value 待提取的值
     * @return 提取后的文本，值为 null 时返回 null
-     */
+    */
     private String extractText(Object value) {
         if (value == null) {
             return null;
@@ -1104,7 +1104,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param result AI 同步调用结果
     * @param model  模型名
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildOpenAiChatResponse(ChatSyncResponse result, String model) {
         String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
         String text = result != null ? result.getText() : "";
@@ -1142,7 +1142,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param model        模型名
     * @param errorMessage 错误信息
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildOpenAiChatError(String model, String errorMessage) {
         String id = PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
         Map<String, Object> message = new LinkedHashMap<>(3);
@@ -1167,7 +1167,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param chunk 文本增量
     * @param model 模型名
     * @return 增量块体
-     */
+    */
     private Map<String, Object> buildOpenAiStreamDelta(String chunk, String model) {
         Map<String, Object> delta = new LinkedHashMap<>(6);
         delta.put(KEY_ID, PREFIX_CHAT_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH));
@@ -1189,7 +1189,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param model  模型名
     * @param prompt 原始提示词
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildOpenAiCompletionResponse(ChatSyncResponse result, String model, String prompt) {
         String id = PREFIX_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
         String text = result != null ? result.getText() : "";
@@ -1223,7 +1223,7 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     * @param prompt       原始提示词
     * @param errorMessage 错误信息
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildOpenAiCompletionError(String model, String prompt, String errorMessage) {
         String id = PREFIX_COMPLETION + UUID.randomUUID().toString().replace("-", "").substring(0, ID_TRUNCATE_LENGTH);
         Map<String, Object> choice = new LinkedHashMap<>(5);
@@ -1245,7 +1245,7 @@ choice.put(KEY_INDEX, 0);
     * @param result AI 同步调用结果
     * @param model  模型名
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildClaudeResponse(ChatSyncResponse result, String model) {
         String id = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
         String text = result != null ? result.getText() : "";
@@ -1271,7 +1271,7 @@ choice.put(KEY_INDEX, 0);
     *
     * @param model 模型名
     * @return 消息体
-     */
+    */
     private Map<String, Object> buildClaudeStartResponse(String model) {
         String id = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
         String resolvedModel = model != null ? model : DEFAULT_CLAUDE_MODEL;
@@ -1293,7 +1293,7 @@ choice.put(KEY_INDEX, 0);
     * @param model        模型名
     * @param errorMessage 错误信息
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildClaudeError(String model, String errorMessage) {
         String id = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
         String resolvedModel = model != null ? model : DEFAULT_CLAUDE_MODEL;
@@ -1314,7 +1314,7 @@ choice.put(KEY_INDEX, 0);
     * @param result AI 调用结果（Map 时读取 text 字段）
     * @param model  模型名
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildResponsesResponse(Object result, String model) {
         String responseId = PREFIX_RESPONSE + UUID.randomUUID().toString().replace("-", "");
         String messageId = PREFIX_MESSAGE + UUID.randomUUID().toString().replace("-", "");
@@ -1336,7 +1336,7 @@ choice.put(KEY_INDEX, 0);
     * @param text       文本内容
     * @param status     状态
     * @return 响应体
-     */
+    */
     private Map<String, Object> buildCcsResponse(String responseId, String messageId, String model, String text, String status) {
         String resolvedModel = model != null ? model : DEFAULT_MODEL;
         Map<String, Object> body = new LinkedHashMap<>(13);
@@ -1359,7 +1359,7 @@ choice.put(KEY_INDEX, 0);
     * @param text      文本内容
     * @param status    状态
     * @return 消息体
-     */
+    */
     private Map<String, Object> buildCcsMessage(String messageId, String text, String status) {
         Map<String, Object> message = new LinkedHashMap<>(7);
         message.put(KEY_ID, messageId);
@@ -1380,7 +1380,7 @@ choice.put(KEY_INDEX, 0);
     * @param role 模型名（Gemini 使用 role 承载模型标识）
     * @param text 文本内容
     * @return 候选响应体
-     */
+    */
     private Map<String, Object> buildGeminiCandidate(String role, String text) {
         Map<String, Object> content = new LinkedHashMap<>(3);
         content.put(KEY_ROLE, role);
@@ -1399,7 +1399,7 @@ choice.put(KEY_INDEX, 0);
     *
     * @param request 请求对象
     * @return 请求体 Map，解析失败或为空时返回空 Map
-     */
+    */
     private Map<String, Object> parseBody(ServerRequest request) {
         String bodyStr = request.getBodyString();
         if (StringUtils.isNullOrEmpty(bodyStr)) {
@@ -1418,7 +1418,7 @@ choice.put(KEY_INDEX, 0);
     *
     * @param response 响应对象
     * @param obj      待序列化对象
-     */
+    */
     private void writeJson(ServerResponse response, Object obj) {
         response.setContentType(CONTENT_TYPE_JSON);
         response.setBody(Json.toJson(obj));
@@ -1429,7 +1429,7 @@ choice.put(KEY_INDEX, 0);
     * 获取过滤器标识。
     *
     * @return 过滤器标识
-     */
+    */
     @Override
     public String getFilterId() {
         return "AiProtocolServerFilter";
@@ -1439,7 +1439,7 @@ choice.put(KEY_INDEX, 0);
     * 获取过滤器注册顺序。
     *
     * @return 注册顺序
-     */
+    */
     @Override
     public int getOrder() {
         return FILTER_ORDER;

@@ -34,147 +34,147 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     /**
     * 路径：图片任务创建与查询
-     */
+    */
     private static final String PATH_IMAGE_TASK = "/v2/ai/image/generations/task";
 
     /**
     * 路径：视频任务创建与查询
-     */
+    */
     private static final String PATH_VIDEO_TASK = "/v2/ai/video/generations/task";
 
     /**
     * 路径：图片历史记录查询
-     */
+    */
     private static final String PATH_IMAGE_HISTORY = "/v2/ai/image/generations/history";
 
     /**
     * 任务类型：图片
-     */
+    */
     private static final String TYPE_IMAGE = "IMAGE";
 
     /**
     * 任务类型：视频
-     */
+    */
     private static final String TYPE_VIDEO = "VIDEO";
 
     /**
     * 任务状态：等待中
-     */
+    */
     private static final String STATUS_PENDING = "PENDING";
 
     /**
     * 请求参数：提示词
-     */
+    */
     private static final String PARAM_PROMPT = "prompt";
 
     /**
     * 请求参数：任务 ID
-     */
+    */
     private static final String PARAM_TASK_ID = "taskId";
 
     /**
     * 请求参数：任务 ID（备选名称）
-     */
+    */
     private static final String PARAM_ID = "id";
 
     /**
     * 响应字段：任务 ID
-     */
+    */
     private static final String FIELD_TASK_ID = "taskId";
 
     /**
     * 响应字段：任务状态
-     */
+    */
     private static final String FIELD_STATUS = "status";
 
     /**
     * 响应字段：进度
-     */
+    */
     private static final String FIELD_PROGRESS = "progress";
 
     /**
     * 响应字段：图片地址
-     */
+    */
     private static final String FIELD_IMAGE_URL = "imageUrl";
 
     /**
     * 响应字段：错误信息
-     */
+    */
     private static final String FIELD_ERROR_MESSAGE = "errorMessage";
 
     /**
     * 响应字段：成功标识
-     */
+    */
     private static final String FIELD_SUCCESS = "success";
 
     /**
     * 响应字段：错误内容
-     */
+    */
     private static final String FIELD_ERROR = "error";
 
     /**
     * 响应字段：列表
-     */
+    */
     private static final String FIELD_LIST = "list";
 
     /**
     * 响应字段：任务类型
-     */
+    */
     private static final String FIELD_TYPE = "type";
 
     /**
     * 响应字段：创建时间
-     */
+    */
     private static final String FIELD_CREATE_TIME = "createTime";
 
     /**
     * JSON 响应内容类型
-     */
+    */
     private static final String CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
     /**
     * 轮询线程名称前缀
-     */
+    */
     private static final String POLL_THREAD_NAME = "com-ch-ai-image-poll";
 
     /**
     * 轮询线程核心数
-     */
+    */
     private static final int POLL_CORE_POOL_SIZE = 1;
 
     /**
     * 轮询首次延迟（秒）
-     */
+    */
     private static final long POLL_INITIAL_DELAY_SECONDS = 2L;
 
     /**
     * 轮询周期（秒）
-     */
+    */
     private static final long POLL_PERIOD_SECONDS = 2L;
 
     /**
     * 历史记录保留时长（毫秒），超过该时长的任务不再展示在历史中
-     */
+    */
     private static final long HISTORY_TTL_MILLIS = 24L * 60L * 60L * 1000L;
 
     /**
     * 进度字段为空时使用的默认值
-     */
+    */
     private static final int PROGRESS_DEFAULT = 0;
 
     /**
     * 业务客户端提供者，用于按需创建 {@link ImageClient}
-     */
+    */
     private final Supplier<ImageClient> clientSupplier;
 
     /**
     * 任务表：任务 ID → 任务条目
-     */
+    */
     private final Map<String, TaskEntry> tasks = new ConcurrentHashMap<>();
 
     /**
     * 任务轮询调度器
-     */
+    */
     private final ScheduledExecutorService scheduler =
             ThreadUtils.newScheduledThreadPool(POLL_CORE_POOL_SIZE, POLL_THREAD_NAME);
 
@@ -182,7 +182,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     * 构造过滤器，使用默认 {@link ObjectContext}。
     *
     * @param clientSupplier 业务客户端提供者
-     */
+    */
     public AiImageUrlServerFilter(Supplier<ImageClient> clientSupplier) {
         this(clientSupplier, new DefaultObjectContext());
     }
@@ -192,7 +192,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param clientSupplier 业务客户端提供者
     * @param objectContext  对象上下文
-     */
+    */
     public AiImageUrlServerFilter(Supplier<ImageClient> clientSupplier, ObjectContext objectContext) {
         super(objectContext);
         this.clientSupplier = clientSupplier;
@@ -207,7 +207,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     /**
     * 注册 URL 路由。
-     */
+    */
     private void registerRoutes() {
         route(PATH_IMAGE_TASK, this::handleImageTask);
         route(PATH_VIDEO_TASK, this::handleVideoTask);
@@ -219,7 +219,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param req 请求对象
     * @param res 响应对象
-     */
+    */
     private void handleImageTask(ServerRequest req, ServerResponse res) {
         if (HttpMethod.GET == req.getMethod()) {
             handleQueryTask(req, res, TYPE_IMAGE);
@@ -233,7 +233,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param req 请求对象
     * @param res 响应对象
-     */
+    */
     private void handleVideoTask(ServerRequest req, ServerResponse res) {
         if (HttpMethod.GET == req.getMethod()) {
             handleQueryTask(req, res, TYPE_VIDEO);
@@ -248,7 +248,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     * @param req  请求对象
     * @param res  响应对象
     * @param type 任务类型（图片/视频）
-     */
+    */
     private void handleCreateTask(ServerRequest req, ServerResponse res, String type) {
         try {
             Map<String, Object> body = Json.fromJson(req.getBodyString(), Map.class);
@@ -281,7 +281,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     * @param req          请求对象
     * @param res          响应对象
     * @param expectedType 期望的任务类型
-     */
+    */
     private void handleQueryTask(ServerRequest req, ServerResponse res, String expectedType) {
         try {
             String taskId = req.getParam(PARAM_TASK_ID);
@@ -317,7 +317,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param req 请求对象
     * @param res 响应对象
-     */
+    */
     private void handleHistory(ServerRequest req, ServerResponse res) {
         try {
             List<Map<String, Object>> list = new ArrayList<>(tasks.size());
@@ -343,7 +343,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     /**
     * 轮询所有任务，更新本地状态。终态任务仅记录日志。
-     */
+    */
     private void pollTasks() {
         for (TaskEntry entry : tasks.values()) {
             try {
@@ -362,7 +362,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param res  响应对象
     * @param data 待序列化数据
-     */
+    */
     private static void writeJson(ServerResponse res, Object data) {
         try {
             res.setContentType(CONTENT_TYPE_JSON);
@@ -377,7 +377,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
     *
     * @param res 响应对象
     * @param msg 错误描述
-     */
+    */
     private static void writeFail(ServerResponse res, String msg) {
         Map<String, Object> err = new LinkedHashMap<>(3);
         err.put(FIELD_SUCCESS, false);
@@ -387,23 +387,23 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
 
     /**
     * 任务条目，记录任务的客户端与创建时间，便于轮询时反查。
-     */
+    */
     private static class TaskEntry {
         /**
         * 任务 ID
-         */
+        */
         final String taskId;
         /**
         * 任务类型
-         */
+        */
         final String type;
         /**
         * 创建时间戳（毫秒）
-         */
+        */
         final long createTime;
         /**
         * 任务所属的客户端实例
-         */
+        */
         final ImageClient client;
 
         /**
@@ -413,7 +413,7 @@ public class AiImageUrlServerFilter extends UrlMappingServerFilter {
         * @param type       任务类型
         * @param createTime 创建时间戳
         * @param client     任务所属的客户端实例
-         */
+        */
         TaskEntry(String taskId, String type, long createTime, ImageClient client) {
             this.taskId = taskId;
             this.type = type;

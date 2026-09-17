@@ -50,7 +50,7 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     *
     * @param value 源值
     * @return Boolean 值，如果无法转换则返回 null（null 输入返回 false）
-     */
+    */
     @Override
     public Boolean convert(Object value) {
         if (null == value) {
@@ -81,7 +81,7 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     *
     * @param s 字符串
     * @return Boolean 值，如果无法识别则返回 null
-     */
+    */
     private Boolean parse(String s) {
         if (s == null) {
             return null;
@@ -111,7 +111,7 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Boolean.class
-     */
+    */
     @Override
     public Class<Boolean> getType() {
         return Boolean.class;

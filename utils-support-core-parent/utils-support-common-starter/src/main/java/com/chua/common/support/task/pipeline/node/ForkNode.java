@@ -14,97 +14,97 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
-* 分叉节点 — 多分支并行执行，阻塞等待所有分支完成。
-*
-* <p>将多个 {@link Pipeline} 分支并行执行，各分支通过 {@link PipelineContext#createBranchContext()}
-* 创建独立上下文，{@code currentData} 各分支独立（避免并发冲突），{@code nodeOutputs} 和
-* {@code attributes} 共享引用（方便跨分支/跨节点数据访问）。</p>
-*
-* <p><strong>与 ParallelNode（异步并行）的核心区别：</strong></p>
-* <ul>
-*   <li><strong>ForkNode</strong> — 分叉+阻塞，主干等待所有分支完成后才继续</li>
-*   <li><strong>ParallelNode</strong> — 并行+不阻塞，主干不等待，子流程在后台线程执行</li>
-* </ul>
-*
-* <p><strong>数据共享模型：</strong></p>
-* <ul>
-*   <li>{@code nodeOutputs} — 同一 ConcurrentHashMap 引用，各分支通过不同 key 写入各自结果</li>
-*   <li>{@code attributes} — 同一 Map 引用，所有分支读写同一 Map（线程安全需调用方保证）</li>
-*   <li>{@code currentData} — 各分支独立，修改互不影响（避免并发写入冲突）</li>
-*   <li>{@code originalData} — 只读共享</li>
-* </ul>
-*
-* <p><strong>分支结果存储：</strong></p>
-* <p>各分支执行完毕后，结果以 {@link ForkResult} 结构化对象存入父上下文的 {@code nodeOutputs}，
-* 键 为分叉节点的 节点id。后续节点可通过 {@code ctx.getData("fork1", ForkResult.class)}
-* 获取完整结果，再通过 {@link ForkResult#getBranch(String)} 获取指定分支的输出。</p>
-*
-* <pre>
-* nodeOutputs["fork1"] = ForkResult {
-*     nodeId: "fork1",
-*     branches: { "branchA": dataA, "branchB": dataB },
-*     histories: { "branchA": ["a1"], "branchB": ["b1"] }
-* }
-* </pre>
-*
-* <p><strong>错误处理策略：</strong></p>
-* <ul>
-*   <li>{@link ForkErrorStrategy#WAIT_ALL} — 等待所有分支完成，汇总异常（默认）</li>
-*   <li>{@link ForkErrorStrategy#FAIL_FAST} — 第一个失败时立即抛出，取消其他分支</li>
-* </ul>
-*
-* <p><strong>用法示例：</strong></p>
-* <pre>{@code
-* Pipeline branchA = PipelineBuilder.newBuilder("branchA")
-*     .task("a1", ctx -> { doA1(ctx); return null; }).taskEnd()
-*     .build();
-*
-* Pipeline branchB = PipelineBuilder.newBuilder("branchB")
-*     .task("b1", ctx -> { doB1(ctx); return null; }).taskEnd()
-*     .build();
-*
-* Pipeline pipeline = PipelineBuilder.newBuilder("fork-demo")
-*     .task("init", ctx -> { init(ctx); return null; }).taskEnd()
-*     .fork("fork-group")
-*         .branch("a", branchA)
-*         .branch("b", branchB)
-*         .errorStrategy(ForkErrorStrategy.WAIT_ALL)
-*     .taskEnd()
-*     .task("finalize", ctx -> { finalize(ctx); return null; }).taskEnd()
-*     .build();
-* }</pre>结束()
-* .构建();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
-* @see ForkErrorStrategy
- */
+ * 分叉节点 — 多分支并行执行，阻塞等待所有分支完成。
+ *
+ * <p>将多个 {@link Pipeline} 分支并行执行，各分支通过 {@link PipelineContext#createBranchContext()}
+ * 创建独立上下文，{@code currentData} 各分支独立（避免并发冲突），{@code nodeOutputs} 和
+ * {@code attributes} 共享引用（方便跨分支/跨节点数据访问）。</p>
+ *
+ * <p><strong>与 ParallelNode（异步并行）的核心区别：</strong></p>
+ * <ul>
+ *   <li><strong>ForkNode</strong> — 分叉+阻塞，主干等待所有分支完成后才继续</li>
+ *   <li><strong>ParallelNode</strong> — 并行+不阻塞，主干不等待，子流程在后台线程执行</li>
+ * </ul>
+ *
+ * <p><strong>数据共享模型：</strong></p>
+ * <ul>
+ *   <li>{@code nodeOutputs} — 同一 ConcurrentHashMap 引用，各分支通过不同 key 写入各自结果</li>
+ *   <li>{@code attributes} — 同一 Map 引用，所有分支读写同一 Map（线程安全需调用方保证）</li>
+ *   <li>{@code currentData} — 各分支独立，修改互不影响（避免并发写入冲突）</li>
+ *   <li>{@code originalData} — 只读共享</li>
+ * </ul>
+ *
+ * <p><strong>分支结果存储：</strong></p>
+ * <p>各分支执行完毕后，结果以 {@link ForkResult} 结构化对象存入父上下文的 {@code nodeOutputs}，
+ * 键 为分叉节点的 节点id。后续节点可通过 {@code ctx.getData("fork1", ForkResult.class)}
+ * 获取完整结果，再通过 {@link ForkResult#getBranch(String)} 获取指定分支的输出。</p>
+ *
+ * <pre>
+ * nodeOutputs["fork1"] = ForkResult {
+ *     nodeId: "fork1",
+ *     branches: { "branchA": dataA, "branchB": dataB },
+ *     histories: { "branchA": ["a1"], "branchB": ["b1"] }
+ * }
+ * </pre>
+ *
+ * <p><strong>错误处理策略：</strong></p>
+ * <ul>
+ *   <li>{@link ForkErrorStrategy#WAIT_ALL} — 等待所有分支完成，汇总异常（默认）</li>
+ *   <li>{@link ForkErrorStrategy#FAIL_FAST} — 第一个失败时立即抛出，取消其他分支</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
+ * <pre>{@code
+ * Pipeline branchA = PipelineBuilder.newBuilder("branchA")
+ *     .task("a1", ctx -> { doA1(ctx); return null; }).taskEnd()
+ *     .build();
+ *
+ * Pipeline branchB = PipelineBuilder.newBuilder("branchB")
+ *     .task("b1", ctx -> { doB1(ctx); return null; }).taskEnd()
+ *     .build();
+ *
+ * Pipeline pipeline = PipelineBuilder.newBuilder("fork-demo")
+ *     .task("init", ctx -> { init(ctx); return null; }).taskEnd()
+ *     .fork("fork-group")
+ *         .branch("a", branchA)
+ *         .branch("b", branchB)
+ *         .errorStrategy(ForkErrorStrategy.WAIT_ALL)
+ *     .taskEnd()
+ *     .task("finalize", ctx -> { finalize(ctx); return null; }).taskEnd()
+ *     .build();
+ * }</pre>结束()
+ * .构建();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see ForkErrorStrategy
+*/
 public class ForkNode implements PipelineNode {
 
     /**
     * 节点唯一标识
-     */
+    */
     private final String id;
 
     /**
     * 分叉分支列表：分支名称 -> 子流水线
-     */
+    */
     private final Map<String, Pipeline> branches;
 
     /**
     * 错误处理策略，默认 WAIT_全部
-     */
+    */
     private final ForkErrorStrategy errorStrategy;
 
     /**
     * 节点参数映射（JSON 构建时传入，执行时注入到 ctx.节点本地数据）
-     */
+    */
     private Map<String, Object> params;
 
     /**
     * 节点环境参数映射（定义时配置，运行时环境配置如模型路径、阈值等）
-     */
+    */
     private Map<String, Object> env;
 
     /**
@@ -112,7 +112,7 @@ public class ForkNode implements PipelineNode {
     *
     * <p>前置处理器在所有分叉分支启动之前执行，适用于初始化共享数据等场景。
     * 处理器返回值决定后续路由，返回 空 则继续执行分叉分支。</p>
-     */
+    */
     private PipelineNode preHandler;
 
     /**
@@ -121,7 +121,7 @@ public class ForkNode implements PipelineNode {
     * @param id            节点唯一标识
     * @param branches      分支名称 -> 子流水线映射
     * @param errorStrategy 错误处理策略，空 时默认 WAIT_全部
-     */
+    */
     public ForkNode(String id, Map<String, Pipeline> branches, ForkErrorStrategy errorStrategy) {
         this.id = id;
         this.branches = branches != null ? new LinkedHashMap<>(branches) : new LinkedHashMap<>();
@@ -133,7 +133,7 @@ public class ForkNode implements PipelineNode {
     * 获取节点 标识。
     *
     * @return 节点 标识
-     */
+    */
     @Override
     public String getId() {
         return id;
@@ -149,7 +149,7 @@ public class ForkNode implements PipelineNode {
     * 获取分叉分支映射。
     *
     * @return 分支名称 -> 子流水线的不可变映射
-     */
+    */
     public Map<String, Pipeline> getBranches() {
         return Collections.unmodifiableMap(branches);
     }
@@ -158,7 +158,7 @@ public class ForkNode implements PipelineNode {
     * 获取错误处理策略。
     *
     * @return 错误处理策略
-     */
+    */
     public ForkErrorStrategy getErrorStrategy() {
         return errorStrategy;
     }
@@ -173,7 +173,7 @@ public class ForkNode implements PipelineNode {
     * 设置节点参数映射。
     *
     * @param params 参数映射
-     */
+    */
     public void setParams(Map<String, Object> params) {
         this.params = params != null ? params : Collections.emptyMap();
     }
@@ -182,7 +182,7 @@ public class ForkNode implements PipelineNode {
     * 设置节点环境参数（定义时调用）。
     *
     * @param env 环境参数映射
-     */
+    */
     public void setEnv(Map<String, Object> env) {
         this.env = env != null ? env : Collections.emptyMap();
     }
@@ -200,7 +200,7 @@ public class ForkNode implements PipelineNode {
     *
     * @param preHandler 前置处理器
     * @return this
-     */
+    */
     public ForkNode preHandler(PipelineNode preHandler) {
         this.preHandler = preHandler;
         return this;
@@ -210,7 +210,7 @@ public class ForkNode implements PipelineNode {
     * 获取前置处理器。
     *
     * @return 前置处理器，未设置时返回 空
-     */
+    */
     public PipelineNode getPreHandler() {
         return preHandler;
     }
@@ -228,7 +228,7 @@ public class ForkNode implements PipelineNode {
     *
     * @param context 父流水线上下文
     * @return null，按默认顺序继续执行下一节点
-     */
+    */
     @Override
     public String execute(PipelineContext<?> context) {
         context.setCurrentNodeId(id);
@@ -360,7 +360,7 @@ public class ForkNode implements PipelineNode {
     * @param branchName    分支名称
     * @param branchPipeline 分支流水线
     * @param parentCtx     父上下文
-     */
+    */
     private void executeBranch(String branchName, Pipeline branchPipeline, PipelineContext<?> parentCtx) {
         PipelineContext<?> branchCtx = parentCtx.createBranchContext();
         branchPipeline.execute(branchCtx);
@@ -378,7 +378,7 @@ public class ForkNode implements PipelineNode {
     * 分支执行结果。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class BranchResult {
         final String branchName; // 分支名称
         final PipelineContext<?> context; // 上下文

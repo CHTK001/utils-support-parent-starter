@@ -38,7 +38,7 @@ public record TextExtractResult(
     * 创建一个无极简结果（无章节、页码、文件信息）。
     *
     * @param text 文本内容
-     */
+    */
     public TextExtractResult(String text) {
         this(text, "", 0, "");
     }
@@ -48,7 +48,7 @@ public record TextExtractResult(
     *
     * @param text    文本内容
     * @param section 章节名称
-     */
+    */
     public TextExtractResult(String text, String section) {
         this(text, section, 0, "");
     }
@@ -58,7 +58,7 @@ public record TextExtractResult(
     *
     * @param text       文本内容
     * @param pageNumber 页码
-     */
+    */
     public TextExtractResult(String text, int pageNumber) {
         this(text, "", pageNumber, "");
     }
@@ -67,7 +67,7 @@ public record TextExtractResult(
     * 当前结果是否包含有效的结构化信息（有章节或页码）。
     *
     * @return true 如果有章节名或页码
-     */
+    */
     public boolean hasStructure() {
         return (section != null && !section.isEmpty()) || pageNumber > 0;
     }

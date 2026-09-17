@@ -50,49 +50,49 @@ public class ResourceFlow {
 
     /**
     * 默认协议前缀。
-     */
+    */
     private static final String DEFAULT_PROTOCOL = "classpath:";
 
     /**
     * 协议分隔符。
-     */
+    */
     private static final String PROTOCOL_SEPARATOR = ":";
 
     /**
     * 默认缓存容量。
-     */
+    */
     private static final int DEFAULT_CACHE_CAPACITY = 128;
 
     /**
     * ClassLoader → (路径 → ResourceFlow) 二级缓存。
-     */
+    */
     private static final Map<ClassLoader, Map<String, ResourceFlow>> PROVIDER_CACHE =
             new ConcurrentReferenceHashMap<>(DEFAULT_CACHE_CAPACITY);
 
     /**
     * 协议 → 查找器实例缓存（查找器为无状态对象，按配置维度复用）。
-     */
+    */
     private static final Map<String, ResourceFinder> FINDER_CACHE = new ConcurrentHashMap<>(4);
 
     /**
     * 结果缓存（路径 → 资源集合）。
-     */
+    */
     private final Map<String, Set<Resource>> storeCache =
             new ConcurrentReferenceHashMap<>(DEFAULT_CACHE_CAPACITY);
 
     /**
     * 资源路径（已剥离协议前缀）。
-     */
+    */
     private final String name;
 
     /**
     * 实际查找器。
-     */
+    */
     private final ResourceFinder resourceFinder;
 
     /**
     * 查找配置。
-     */
+    */
     private final ResourceConfiguration configuration;
 
     /**
@@ -101,7 +101,7 @@ public class ResourceFlow {
     * @param name           资源路径（已剥离协议前缀）
     * @param resourceFinder 查找器
     * @param configuration  查找配置
-     */
+    */
     private ResourceFlow(String name, ResourceFinder resourceFinder, ResourceConfiguration configuration) {
         this.name = name;
         this.resourceFinder = resourceFinder;
@@ -117,7 +117,7 @@ public class ResourceFlow {
     *
     * @param name 资源定位符，如 {@code classpath:config/*.yml}
     * @return 资源流实例，入参为空时返回 {@code null}
-     */
+    */
     public static ResourceFlow of(String name) {
         return of(name, ResourceConfiguration.DEFAULT);
     }
@@ -128,7 +128,7 @@ public class ResourceFlow {
     * @param name          资源定位符
     * @param configuration 查找配置
     * @return 资源流实例，入参为空时返回 {@code null}
-     */
+    */
     public static ResourceFlow of(String name, ResourceConfiguration configuration) {
         if (StringUtils.isEmpty(name)) {
             log.warn("资源定位符为空，返回 null");
@@ -151,7 +151,7 @@ public class ResourceFlow {
     * @param name          资源定位符
     * @param configuration 查找配置
     * @return 资源流实例，入参为空时返回 {@code null}
-     */
+    */
     public static ResourceFlow ofNoCache(String name, ResourceConfiguration configuration) {
         if (StringUtils.isEmpty(name)) {
             return null;
@@ -165,7 +165,7 @@ public class ResourceFlow {
     *
     * @param name 原始定位符
     * @return 规范化后的定位符
-     */
+    */
     private static String normalizeName(String name) {
         return name.contains(PROTOCOL_SEPARATOR) ? name : DEFAULT_PROTOCOL + name;
     }
@@ -178,7 +178,7 @@ public class ResourceFlow {
     * @param name          规范化后的定位符
     * @param configuration 查找配置
     * @return 资源流实例
-     */
+    */
     private static ResourceFlow createFlow(String name, ResourceConfiguration configuration) {
         int index = name.indexOf(PROTOCOL_SEPARATOR);
         String protocol = name.substring(0, index + 1);
@@ -198,7 +198,7 @@ public class ResourceFlow {
     * @param protocol      协议前缀（含冒号）
     * @param configuration 查找配置
     * @return 查找器实例，不支持的协议返回 {@code null}
-     */
+    */
     private static ResourceFinder createFinder(String protocol, ResourceConfiguration configuration) {
         if (CLASSPATH_URL_PREFIX.equals(protocol)) {
             return new ClassPathResourceFinder(configuration);
@@ -215,7 +215,7 @@ public class ResourceFlow {
     * 获取匹配到的全部资源集合（带结果缓存）。
     *
     * @return 资源集合
-     */
+    */
     public Set<Resource> getResources() {
         Set<Resource> cached = storeCache.get(name);
         if (cached != null) {
@@ -233,7 +233,7 @@ public class ResourceFlow {
     * 获取首个匹配的资源。
     *
     * @return 首个资源，无匹配时返回 {@code null}
-     */
+    */
     public Resource getResource() {
         return CollectionUtils.findFirst(getResources());
     }
@@ -243,7 +243,7 @@ public class ResourceFlow {
     *
     * @param filter 过滤谓词，为 null 时返回全部
     * @return 过滤后的资源集合
-     */
+    */
     public Set<Resource> getResources(Predicate<Resource> filter) {
         if (filter == null) {
             return getResources();
@@ -255,7 +255,7 @@ public class ResourceFlow {
     * 以流形式访问资源。
     *
     * @return 资源流，按配置决定是否并行
-     */
+    */
     public Stream<Resource> stream() {
         Set<Resource> resources = getResources();
         return configuration != null && configuration.isParallel()
@@ -267,7 +267,7 @@ public class ResourceFlow {
     * 获取首个资源的输入流。
     *
     * @return 输入流，无资源或打开失败时返回 {@code null}
-     */
+    */
     public InputStream getInputStream() {
         Resource resource = getResource();
         if (resource == null) {
@@ -285,7 +285,7 @@ public class ResourceFlow {
     * 判断是否存在匹配资源。
     *
     * @return 存在返回 true
-     */
+    */
     public boolean exists() {
         return !getResources().isEmpty();
     }
@@ -294,7 +294,7 @@ public class ResourceFlow {
     * 获取匹配资源数量。
     *
     * @return 资源数量
-     */
+    */
     public int count() {
         return getResources().size();
     }
@@ -305,7 +305,7 @@ public class ResourceFlow {
     * 清除指定类加载器的所有缓存。
     *
     * @param classLoader 类加载器
-     */
+    */
     public static void clearCache(ClassLoader classLoader) {
         if (classLoader != null) {
             Map<String, ResourceFlow> removed = PROVIDER_CACHE.remove(classLoader);
@@ -317,7 +317,7 @@ public class ResourceFlow {
 
     /**
     * 清除全部缓存。
-     */
+    */
     public static void clearAllCache() {
         PROVIDER_CACHE.values().forEach(map -> map.values().forEach(flow -> flow.storeCache.clear()));
         PROVIDER_CACHE.clear();
@@ -325,7 +325,7 @@ public class ResourceFlow {
 
     /**
     * 清除当前资源流的结果缓存。
-     */
+    */
     public void clearStoreCache() {
         storeCache.clear();
     }
@@ -334,7 +334,7 @@ public class ResourceFlow {
     * 获取资源路径。
     *
     * @return 资源路径
-     */
+    */
     public String getName() {
         return name;
     }
@@ -343,7 +343,7 @@ public class ResourceFlow {
     * 获取查找配置。
     *
     * @return 查找配置
-     */
+    */
     public ResourceConfiguration getConfiguration() {
         return configuration;
     }
@@ -357,12 +357,12 @@ public class ResourceFlow {
 
     /**
     * 空结果查找器，用于不支持的协议。
-     */
+    */
     private static final class EmptyResourceFinder implements ResourceFinder {
 
         /**
         * 单例实例。
-         */
+        */
         static final EmptyResourceFinder INSTANCE = new EmptyResourceFinder();
 
         @Override

@@ -7,13 +7,13 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* 恢复结果
-*
-* <p>封装一次恢复操作的执行结果。
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 恢复结果
+ *
+ * <p>封装一次恢复操作的执行结果。
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 @Data
 @Builder
 public class RestoreResult {
@@ -51,7 +51,7 @@ public class RestoreResult {
     * @param size     恢复的总大小（字节）
     * @param duration 耗时毫秒
     * @return 成功结果
-     */
+    */
     public static RestoreResult success(Path target, List<Path> files, long size, long duration) {
         return RestoreResult.builder()
                 .success(true)
@@ -68,7 +68,7 @@ public class RestoreResult {
     *
     * @param errorMessage 失败原因
     * @return 失败结果
-     */
+    */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
                 .success(false)

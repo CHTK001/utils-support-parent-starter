@@ -1,5 +1,4 @@
 package com.chua.common.support.config.parser;
-
 import com.chua.common.support.config.source.MapPropertySource;
 import com.chua.common.support.config.source.PropertiesMutiPropertySource;
 import com.chua.common.support.config.source.PropertySource;
@@ -10,7 +9,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
@@ -18,8 +16,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-
 /**
 * XML                
 * <p>
@@ -83,7 +79,6 @@ import java.util.Map;
 @Slf4j
 @Spi({"xml"})
 public class XmlConfigParser implements ConfigParser {
-
     @Override
     /** 解析 */
     public PropertySource parse(String urlPath, InputStream is) {
@@ -115,14 +110,13 @@ public class XmlConfigParser implements ConfigParser {
             return PropertySource.EMPTY;
         }
     }
-
     /**
     *                            
     *                                                       
     *
     * @param root          
     * @return                                            null
-     */
+    */
     private List<Map<String, Object>> parseAsList(Element root) {
         NodeList children = root.getChildNodes();
         List<Element> elements = new ArrayList<>();
@@ -153,7 +147,6 @@ public class XmlConfigParser implements ConfigParser {
         }
         return result;
     }
-
     /**
     *                 property       
     * <p>
@@ -167,7 +160,7 @@ public class XmlConfigParser implements ConfigParser {
     *
     * @param root          
     * @return Map                property                 null
-     */
+    */
     private Map<String, Object> parsePropertyFormat(Element root) {
         NodeList children = root.getChildNodes();
         Map<String, Object> result = new LinkedHashMap<>();
@@ -204,10 +197,9 @@ public class XmlConfigParser implements ConfigParser {
         
         return isPropertyFormat ? result : null;
     }
-
     /**
     *              XML       
-     */
+    */
     private Map<String, Object> parseElement(Element element) {
         Map<String, Object> result = new LinkedHashMap<>();
         
@@ -251,10 +243,8 @@ public class XmlConfigParser implements ConfigParser {
         
         return result;
     }
-
     /**
-    *                                        
-     */
+    */
     private boolean hasOnlyTextContent(Element element) {
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -264,5 +254,4 @@ public class XmlConfigParser implements ConfigParser {
         }
         return true;
     }
-
 }

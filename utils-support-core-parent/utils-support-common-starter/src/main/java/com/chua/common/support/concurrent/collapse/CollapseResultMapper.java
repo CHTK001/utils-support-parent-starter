@@ -27,6 +27,6 @@ public interface CollapseResultMapper<INPUT, OUTPUT> {
     * @param inputs 本批次的全部调用者入参，不为空
     * @return 调用者入参到其结果的映射；约定包含 {@code inputs} 中的每一个入参
     * @throws Throwable 合并执行过程中发生的异常
-     */
+    */
     Map<INPUT, OUTPUT> map(Collection<INPUT> inputs) throws Throwable;
 }

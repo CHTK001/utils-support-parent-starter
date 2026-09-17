@@ -13,13 +13,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
-* 请求超时过滤器，设置单个请求的最大处理时间。
-*
-* <p>在指定时间内未完成的请求，自动返回 504 Gateway Timeout。</p>
-*
-* @author CH
-* @since 2026/07/18
- */
+ * 请求超时过滤器，设置单个请求的最大处理时间。
+ *
+ * <p>在指定时间内未完成的请求，自动返回 504 Gateway Timeout。</p>
+ *
+ * @author CH
+ * @since 2026/07/18
+*/
 public class RequestTimeoutFilter implements ServerFilter {
 
     /** 超时毫秒 */
@@ -29,14 +29,14 @@ public class RequestTimeoutFilter implements ServerFilter {
     * 创建超时过滤器。
     *
     * @param timeoutMillis 超时时间（毫秒）
-     */
+    */
     public RequestTimeoutFilter(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
 
     /**
     * 创建超时过滤器（秒）。
-     */
+    */
     public static RequestTimeoutFilter ofSeconds(int seconds) {
         return new RequestTimeoutFilter(seconds * 1000L);
     }
@@ -59,7 +59,7 @@ public class RequestTimeoutFilter implements ServerFilter {
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         ExecutorService executor = ThreadUtils.newSingleThreadExecutor();

@@ -14,83 +14,83 @@ public class HighlightConfig {
 
     /**
     * 高亮类型枚举
-     */
+    */
     public enum HighlightType {
         /**
         * 控制台ANSI颜色
-         */
+        */
         ANSI,
         /**
         * HTML标签
-         */
+        */
         HTML,
         /**
         * 无高亮（纯文本）
-         */
+        */
         NONE
     }
 
     /**
     * 关键词类别枚举
-     */
+    */
     public enum KeywordCategory {
         /**
         * DDL关键词（CREATE, ALTER, DROP等）
-         */
+        */
         DDL,
         /**
         * DML关键词（SELECT, INSERT, UPDATE, DELETE等）
-         */
+        */
         DML,
         /**
         * 查询子句（FROM, WHERE, JOIN等）
-         */
+        */
         CLAUSE,
         /**
         * 函数（SUM, COUNT, MAX等）
-         */
+        */
         FUNCTION,
         /**
         * 数据类型（INT, VARCHAR, DATE等）
-         */
+        */
         DATA_TYPE,
         /**
         * 逻辑运算符（AND, OR, NOT等）
-         */
+        */
         OPERATOR,
         /**
         * 字符串/数字
-         */
+        */
         LITERAL,
         /**
         * 注释
-         */
+        */
         COMMENT
     }
 
     @Getter
     /**
     * 类型
-     */
+    */
     private HighlightType type = HighlightType.ANSI;
 
     /**
     * 关键词颜色映射（ANSI）
-     */
+    */
     private Map<KeywordCategory, String> ansiColors = new HashMap<>();
 
     /**
     * 关键词颜色映射（HTML）
-     */
+    */
     private Map<KeywordCategory, String> htmlColors = new HashMap<>();
 
     /**
     * 是否启用高亮
-     */
+    */
     @Getter
     /**
     * 是否启用
-     */
+    */
     private boolean enabled = true;
 
     // ==================== 默认ANSI颜色配置 ====================
@@ -137,7 +137,7 @@ public class HighlightConfig {
 
     /**
     * 默认构造函数
-     */
+    */
     public HighlightConfig() {
         // 初始化ANSI颜色
         ansiColors.put(KeywordCategory.DDL, ANSI_BOLD + ANSI_BLUE);
@@ -176,21 +176,21 @@ public class HighlightConfig {
 
     /**
     * 获取关键词的ANSI颜色
-     */
+    */
     public String getAnsiColor(KeywordCategory category) {
         return ansiColors.getOrDefault(category, ANSI_RESET);
     }
 
     /**
     * 获取关键词的HTML颜色
-     */
+    */
     public String getHtmlColor(KeywordCategory category) {
         return htmlColors.getOrDefault(category, HTML_END);
     }
 
     /**
     * 自定义ANSI颜色
-     */
+    */
     public HighlightConfig setAnsiColor(KeywordCategory category, String color) {
         ansiColors.put(category, color);
         return this;
@@ -198,7 +198,7 @@ public class HighlightConfig {
 
     /**
     * 自定义HTML颜色
-     */
+    */
     public HighlightConfig setHtmlColor(KeywordCategory category, String color) {
         htmlColors.put(category, color);
         return this;
@@ -206,14 +206,14 @@ public class HighlightConfig {
 
     /**
     * 获取ANSI重置码
-     */
+    */
     public String getAnsiReset() {
         return ANSI_RESET;
     }
 
     /**
     * 获取HTML结束标签
-     */
+    */
     public String getHtmlEnd() {
         return HTML_END;
     }

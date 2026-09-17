@@ -42,7 +42,7 @@ public class Json {
 
     /**
     * 当前生效的 JSON 实现，默认通过 SPI 发现（回退到 Jackson 实现）
-     */
+    */
     private static volatile JsonProvider implementation = loadDefaultImplementation();
 
     /**
@@ -52,7 +52,7 @@ public class Json {
     * 若 SPI 发现失败或未注册任何实现，则回退到 {@link JacksonJsonProvider}，确保门面始终可用。</p>
     *
     * @return 默认 JSON 实现
-     */
+    */
     private static JsonProvider loadDefaultImplementation() {
         JsonProvider provider = ServiceProvider.of(JsonProvider.class).getDefault();
         return provider != null ? provider : new JacksonJsonProvider();
@@ -60,7 +60,7 @@ public class Json {
 
     /**
     * 私有构造器，禁止实例化工具类
-     */
+    */
     private Json() {
     }
 
@@ -72,7 +72,7 @@ public class Json {
     *
     * @param provider 新的 JSON 实现，不能为 null
     * @throws IllegalArgumentException 当 provider 为 null 时
-     */
+    */
     public static void setImplementation(JsonProvider provider) {
         if (provider == null) {
             throw new IllegalArgumentException("JsonProvider 不能为空");
@@ -84,7 +84,7 @@ public class Json {
     * 获取当前生效的 JSON 实现。
     *
     * @return 当前 JSON 实现
-     */
+    */
     public static JsonProvider getImplementation() {
         return implementation;
     }
@@ -96,7 +96,7 @@ public class Json {
     *
     * @return ObjectMapper 实例
     * @throws UnsupportedOperationException 当前实现不支持 Jackson ObjectMapper 时
-     */
+    */
     public static ObjectMapper getMapper() {
         JsonProvider current = implementation;
         if (current instanceof JacksonJsonProvider) {
@@ -114,18 +114,18 @@ public class Json {
     *
     * @return 空 JsonObject 节点
     * @since 4.0.0.42
-     */
+    */
     public static JsonObject createJsonObject() {
         return implementation.createJsonObject();
     }
 
     /**
-     * 基于已有 Map 创建 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
-     *
-     * @param map 源数据 Map，可以为 null（null 时创建空 JsonObject）
-     * @return 包含源数据的 JsonObject 节点
-     * @since 4.0.0.42
-     */
+    * 基于已有 Map 创建 {@link JsonObject} 节点（委托当前 SPI 实现的节点工厂）。
+    *
+    * @param map 源数据 Map，可以为 null（null 时创建空 JsonObject）
+    * @return 包含源数据的 JsonObject 节点
+    * @since 4.0.0.42
+    */
     public static JsonObject createJsonObject(Map map) {
         return implementation.createJsonObject(map);
     }
@@ -138,7 +138,7 @@ public class Json {
     *
     * @return 空 JsonArray 节点
     * @since 4.0.0.42
-     */
+    */
     public static JsonArray createJsonArray() {
         return implementation.createJsonArray();
     }
@@ -149,7 +149,7 @@ public class Json {
     * @param collection 源集合，可为 null
     * @return 包含源元素的 JsonArray 节点
     * @since 4.0.0.42
-     */
+    */
     public static JsonArray createJsonArray(Collection collection) {
         return implementation.createJsonArray(collection);
     }
@@ -163,7 +163,7 @@ public class Json {
     * @param value 原始 JSON 值（Map、List、String、Number、Boolean 或 null）
     * @return JsonNode 节点
     * @since 4.0.0.42
-     */
+    */
     public static JsonNode createJsonNode(Object value) {
         return implementation.createJsonNode(value);
     }
@@ -173,7 +173,7 @@ public class Json {
     *
     * @param json JSON 字符串（标准 JSON 或 JSON5 均可）
     * @return JsonNode 对象，解析失败时返回空 JsonObject 的 JsonNode
-     */
+    */
     public static JsonNode parse(String json) {
         return implementation.parse(json);
     }
@@ -183,7 +183,7 @@ public class Json {
     *
     * @param json JSON 字节数组
     * @return JsonNode 对象
-     */
+    */
     public static JsonNode parse(byte[] json) {
         return implementation.parse(json);
     }
@@ -192,7 +192,7 @@ public class Json {
     * 创建一个空的 JSON 对象节点，支持链式构建。
     *
     * @return 包装空 JsonObject 的 JsonNode，支持链式 put 操作
-     */
+    */
     public static JsonNode build() {
         return implementation.build();
     }
@@ -201,7 +201,7 @@ public class Json {
     * 创建一个空的 JSON 数组节点，支持链式构建。
     *
     * @return 包装空 JsonArray 的 JsonNode，支持链式 add 操作
-     */
+    */
     public static JsonNode buildArray() {
         return implementation.buildArray();
     }
@@ -211,7 +211,7 @@ public class Json {
     *
     * @param json JSON 字符串
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject getJsonObject(String json) {
         return implementation.getJsonObject(json);
     }
@@ -221,7 +221,7 @@ public class Json {
     *
     * @param json JSON 字符串
     * @return JsonReference 对象
-     */
+    */
     public static JsonReference getJsonReference(String json) {
         return implementation.getJsonReference(json);
     }
@@ -231,7 +231,7 @@ public class Json {
     *
     * @param jsonArray 字节数组
     * @return JsonArray 对象
-     */
+    */
     public static JsonArray getJsonArray(byte[] jsonArray) {
         return implementation.getJsonArray(jsonArray);
     }
@@ -241,7 +241,7 @@ public class Json {
     *
     * @param json JSON 字符串
     * @return JsonArray 对象
-     */
+    */
     public static JsonArray getJsonArray(String json) {
         return implementation.getJsonArray(json);
     }
@@ -251,7 +251,7 @@ public class Json {
     *
     * @param bytes JSON 字节数组
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject getJsonObject(byte[] bytes) {
         return implementation.getJsonObject(bytes);
     }
@@ -261,7 +261,7 @@ public class Json {
     *
     * @param inputStreamReader 输入流读取器
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject getJsonObject(InputStreamReader inputStreamReader) {
         return implementation.getJsonObject(inputStreamReader);
     }
@@ -271,7 +271,7 @@ public class Json {
     *
     * @param inputStream 输入流
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject getJsonObject(InputStream inputStream) {
         return implementation.getJsonObject(inputStream);
     }
@@ -282,7 +282,7 @@ public class Json {
     * @param inputStream 输入流
     * @param charset     字符集名称
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject getJsonObject(InputStream inputStream, String charset) {
         return implementation.getJsonObject(inputStream, charset);
     }
@@ -294,7 +294,7 @@ public class Json {
     * @param targetType  目标元素类型
     * @param <T>         泛型类型
     * @return List 集合
-     */
+    */
     public static <T> List<T> fromJsonToList(InputStream inputStream, Class<T> targetType) {
         return implementation.fromJsonToList(inputStream, targetType);
     }
@@ -306,7 +306,7 @@ public class Json {
     * @param targetType 列表元素的类型
     * @param <T>        泛型类型
     * @return List 集合
-     */
+    */
     public static <T> List<T> fromJsonToList(String json, Class<T> targetType) {
         return implementation.fromJsonToList(json, targetType);
     }
@@ -318,7 +318,7 @@ public class Json {
     * @param target 目标类型
     * @param <T>    泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(String json, Class<T> target) {
         return implementation.fromJson(json, target);
     }
@@ -330,7 +330,7 @@ public class Json {
     * @param target 目标类型
     * @param <T>    泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(byte[] bytes, Class<T> target) {
         return implementation.fromJson(bytes, target);
     }
@@ -341,7 +341,7 @@ public class Json {
     * @param bytes   JSON 字节数组
     * @param charset 字符集
     * @return JsonObject 对象
-     */
+    */
     public static JsonObject fromJson(byte[] bytes, Charset charset) {
         return implementation.fromJson(bytes, charset);
     }
@@ -353,7 +353,7 @@ public class Json {
     * @param target            目标类型
     * @param <T>               泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         return implementation.fromJson(inputStreamReader, target);
     }
@@ -365,7 +365,7 @@ public class Json {
     * @param target      目标类型
     * @param <T>         泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(InputStream inputStream, Class<T> target) {
         return implementation.fromJson(inputStream, target);
     }
@@ -376,7 +376,7 @@ public class Json {
     * @param object  待序列化的对象
     * @param ignores 需要忽略的字段名数组
     * @return JSON 字符串
-     */
+    */
     public static String toJson(Object object, String... ignores) {
         return implementation.toJson(object, ignores);
     }
@@ -386,7 +386,7 @@ public class Json {
     *
     * @param object 待序列化的对象
     * @return 美化后的 JSON 字符串
-     */
+    */
     public static String prettyFormat(Object object) {
         return implementation.prettyFormat(object);
     }
@@ -396,7 +396,7 @@ public class Json {
     *
     * @param obj 待序列化的对象
     * @return 美化后的 JSON 字符串
-     */
+    */
     public static String toPrettyJson(Object obj) {
         return implementation.toPrettyJson(obj);
     }
@@ -406,7 +406,7 @@ public class Json {
     *
     * @param object 待序列化的对象
     * @return JSON 字节数组
-     */
+    */
     public static byte[] toJsonByte(Object object) {
         return implementation.toJsonByte(object);
     }
@@ -416,7 +416,7 @@ public class Json {
     *
     * @param ext 待检查的对象
     * @return 是否为 JSON 字符串
-     */
+    */
     public static boolean isJson(Object ext) {
         return implementation.isJson(ext);
     }
@@ -426,7 +426,7 @@ public class Json {
     *
     * @param string JSON 字符串
     * @return List 对象
-     */
+    */
     public static List<?> toList(String string) {
         return implementation.toList(string);
     }
@@ -436,7 +436,7 @@ public class Json {
     *
     * @param object 待序列化的对象
     * @return JSON 字节数组
-     */
+    */
     public static byte[] toJSONBytes(Object object) {
         return implementation.toJSONBytes(object);
     }
@@ -446,7 +446,7 @@ public class Json {
     *
     * @param object 待序列化的对象
     * @return JSON 字符串
-     */
+    */
     public static String toJSONString(Object object) {
         return implementation.toJSONString(object);
     }
@@ -456,7 +456,7 @@ public class Json {
     *
     * @param jsonStr JSON 字符串
     * @return 是否合法
-     */
+    */
     public static boolean validate(String jsonStr) {
         return implementation.validate(jsonStr);
     }
@@ -466,7 +466,7 @@ public class Json {
     *
     * @param string JSON 字符串
     * @return Map 对象
-     */
+    */
     public static Map<String, Object> fromJson(String string) {
         return implementation.fromJson(string);
     }
@@ -481,7 +481,7 @@ public class Json {
     * @param typeReference 类型引用
     * @param <T>           泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(String stringValue, TypeReference<T> typeReference) {
         return implementation.fromJson(stringValue, typeReference.getType());
     }
@@ -493,7 +493,7 @@ public class Json {
     * @param target 目标类型
     * @param <T>    泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(Reader reader, Class<T> target) {
         return implementation.fromJson(reader, target);
     }
@@ -503,7 +503,7 @@ public class Json {
     *
     * @param object 待序列化的对象
     * @param writer 输出 Writer
-     */
+    */
     public static void toJson(Object object, Writer writer) {
         implementation.toJson(object, writer);
     }
@@ -517,7 +517,7 @@ public class Json {
     * @param typeReference 类型引用
     * @param <T>           泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(InputStream stream, TypeReference<T> typeReference) {
         return implementation.fromJson(stream, typeReference.getType());
     }
@@ -531,7 +531,7 @@ public class Json {
     * @param typeReference 类型引用
     * @param <T>           泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(Reader reader, TypeReference<T> typeReference) {
         return implementation.fromJson(reader, typeReference.getType());
     }
@@ -543,7 +543,7 @@ public class Json {
     * @param type        类型引用
     * @param <T>         泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(String stringValue, Type type) {
         return implementation.fromJson(stringValue, type);
     }
@@ -555,7 +555,7 @@ public class Json {
     * @param type   类型引用
     * @param <T>    泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(InputStream stream, Type type) {
         return implementation.fromJson(stream, type);
     }
@@ -567,7 +567,7 @@ public class Json {
     * @param type   类型引用
     * @param <T>    泛型类型
     * @return 目标对象
-     */
+    */
     public static <T> T fromJson(Reader reader, Type type) {
         return implementation.fromJson(reader, type);
     }

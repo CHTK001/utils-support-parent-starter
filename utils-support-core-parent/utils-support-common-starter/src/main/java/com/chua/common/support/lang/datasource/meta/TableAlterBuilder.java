@@ -43,7 +43,7 @@ public interface TableAlterBuilder {
     * @param name 列名
     * @param type 数据库类型字符串
     * @return 列构建器（支持继续配置列属性）
-     */
+    */
     AlterColumnBuilder addColumn(String name, String type);
 
     /**
@@ -51,7 +51,7 @@ public interface TableAlterBuilder {
     *
     * @param columnName 列名
     * @return this
-     */
+    */
     TableAlterBuilder dropColumn(String columnName);
 
     /**
@@ -60,7 +60,7 @@ public interface TableAlterBuilder {
     * @param columnName 列名
     * @param newType    新类型字符串
     * @return 列构建器（支持继续配置列属性）
-     */
+    */
     AlterColumnBuilder modifyColumn(String columnName, String newType);
 
     /**
@@ -68,14 +68,14 @@ public interface TableAlterBuilder {
     *
     * @param columns 主键列名
     * @return this
-     */
+    */
     TableAlterBuilder addPrimaryKey(String... columns);
 
     /**
     * 删除主键。
     *
     * @return this
-     */
+    */
     TableAlterBuilder dropPrimaryKey();
 
     /**
@@ -83,7 +83,7 @@ public interface TableAlterBuilder {
     *
     * @param indexName 索引名
     * @return 索引构建器
-     */
+    */
     AlterIndexBuilder addIndex(String indexName);
 
     /**
@@ -91,7 +91,7 @@ public interface TableAlterBuilder {
     *
     * @param indexName 索引名
     * @return this
-     */
+    */
     TableAlterBuilder dropIndex(String indexName);
 
     /**
@@ -99,7 +99,7 @@ public interface TableAlterBuilder {
     *
     * @param fkName 外键名
     * @return 外键构建器
-     */
+    */
     AlterForeignKeyBuilder addForeignKey(String fkName);
 
     /**
@@ -107,7 +107,7 @@ public interface TableAlterBuilder {
     *
     * @param fkName 外键名
     * @return this
-     */
+    */
     TableAlterBuilder dropForeignKey(String fkName);
 
     /**
@@ -115,13 +115,13 @@ public interface TableAlterBuilder {
     *
     * @param newName 新表名
     * @return this
-     */
+    */
     TableAlterBuilder renameTo(String newName);
 
     /**
     * 执行 ALTER TABLE 语句。
     *
     * @return 修改后的表定义
-     */
+    */
     TableDef execute();
 }

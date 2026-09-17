@@ -31,13 +31,15 @@ import java.util.regex.Pattern;
 @Spi("aria2c")
 public class Aria2Tool extends CliTool {
 
-    /** 版本输出格式：{@code aria2 version 1.36.0} */
+    /**
+    * 版本输出格式：{@code aria2 version 1.36.0}
+    */
     private static final Pattern VERSION_PATTERN =
             Pattern.compile("aria2 version (\\d[\\d.]*)");
 
     /**
     * 创建 aria2c 工具实例，使用预置的工具描述。
-     */
+    */
     public Aria2Tool() {
         super(CliToolDescriptor.builder("aria2c")
                 .displayName("aria2 多线程下载工具")
@@ -62,7 +64,7 @@ public class Aria2Tool extends CliTool {
     * @param url      下载地址
     * @param savePath 保存路径
     * @return 执行结果
-     */
+    */
     @Nonnull
     public CmdResult download(@Nonnull String url, @Nonnull String savePath) {
         return request()
@@ -83,7 +85,7 @@ public class Aria2Tool extends CliTool {
     * @param savePath    保存路径
     * @param connections 连接数
     * @return 执行结果
-     */
+    */
     @Nonnull
     public CmdResult download(@Nonnull String url, @Nonnull String savePath, int connections) {
         return request()

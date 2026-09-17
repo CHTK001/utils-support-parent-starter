@@ -21,24 +21,24 @@ public class DefaultUsageRecorder implements UsageRecorder {
 
     /**
     * 内存中保留的最大记录条数；超过此值时按 FIFO 淘汰最早记录
-     */
+    */
     private static final int MAX_RECORDS = 1000;
 
     /**
     * 用量记录链表，链表头为最新记录
-     */
+    */
     private final LinkedList<AiUsage> records = new LinkedList<>();
 
     /**
     * 读写锁对象，保护 {@link #records} 的并发访问
-     */
+    */
     private final Object lock = new Object();
 
     /**
     * 记录一次 AI 调用用量；若超过最大保留数则丢弃最早记录。
     *
     * @param usage 本次调用的用量数据，允许为 null（null 时静默忽略）
-     */
+    */
     @Override
     public void record(AiUsage usage) {
         if (usage == null) {
@@ -59,7 +59,7 @@ public class DefaultUsageRecorder implements UsageRecorder {
     * 对应的 getter 为 null 的记录会被忽略，避免影响聚合结果。</p>
     *
     * @return 用量统计快照
-     */
+    */
     @Override
     public UsageStats stats() {
         List<AiUsage> snapshot;
@@ -85,7 +85,7 @@ public class DefaultUsageRecorder implements UsageRecorder {
 
     /**
     * 清空内存中的全部用量记录。
-     */
+    */
     @Override
     public void reset() {
         synchronized (lock) {

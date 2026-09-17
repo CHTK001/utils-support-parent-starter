@@ -13,7 +13,7 @@ public interface UserCreateBuilder {
     *
     * @param password 密码
     * @return this
-     */
+    */
     UserCreateBuilder withPassword(String password);
 
     /**
@@ -21,13 +21,13 @@ public interface UserCreateBuilder {
     *
     * @param host 主机名或 IP
     * @return this
-     */
+    */
     UserCreateBuilder withHost(String host);
 
     /**
     * 执行创建用户语句。
     *
     * @return true 创建成功
-     */
+    */
     boolean execute();
 }

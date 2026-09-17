@@ -18,7 +18,7 @@ public record DeleteSql<T>(
     * 判断是否存在有效的 WHERE 子句。
     *
     * @return 如果存在 WHERE 子句则返回 true，否则返回 false
-     */
+    */
     public boolean hasWhere() {
         return whereClause != null && !whereClause.isEmpty();
     }

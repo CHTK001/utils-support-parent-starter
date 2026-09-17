@@ -44,78 +44,78 @@ import static com.chua.common.support.spi.definition.ServiceDefinition.COMPARATO
 
 
 /**
-* 默认服务提供者实现，提供 SPI 机制的完整功能。
-*
-* <p>该类实现了 {@link ServiceProvider} 接口，提供了服务发现、注册、获取、管理等完整功能。
-* 支持多种服务解析方式，包括注解解析、服务加载 解析、自定义解析等。</p>
-*
-* <p>主要功能：</p>
-* <ul>
-*   <li>服务注册和发现</li>
-*   <li>按名称获取服务实例</li>
-*   <li>条件加载（基于类存在性、属性配置等）</li>
-*   <li>服务优先级排序</li>
-*   <li>服务监控和生命周期管理</li>
-*   <li>自动装配</li>
-* </ul>
-*
-* @param <T> 服务接口类型
-* @author CH
-* @since 1.0
-* @see ServiceProvider
-* @see ServiceDefinition
- */
+ * 默认服务提供者实现，提供 SPI 机制的完整功能。
+ *
+ * <p>该类实现了 {@link ServiceProvider} 接口，提供了服务发现、注册、获取、管理等完整功能。
+ * 支持多种服务解析方式，包括注解解析、服务加载 解析、自定义解析等。</p>
+ *
+ * <p>主要功能：</p>
+ * <ul>
+ *   <li>服务注册和发现</li>
+ *   <li>按名称获取服务实例</li>
+ *   <li>条件加载（基于类存在性、属性配置等）</li>
+ *   <li>服务优先级排序</li>
+ *   <li>服务监控和生命周期管理</li>
+ *   <li>自动装配</li>
+ * </ul>
+ *
+ * @param <T> 服务接口类型
+ * @author CH
+ * @since 1.0
+ * @see ServiceProvider
+ * @see ServiceDefinition
+*/
 @SuppressWarnings({"ALL", "unchecked"})
 public class DefaultServiceProvider<T> implements ServiceProvider<T>, InitializingAware {
     /**
     * SPI 名称缓存
     * 使用弱引用的 类 作为键
-     */
+    */
     private static final Map<Class<?>, String> SPI_NAME = 
         new ConcurrentReferenceHashMap<>(64, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     /**
     * 服务类型
-     */
+    */
     private final Class<T> type;
     /**
     * 类加载器
-     */
+    */
     private final ClassLoader classLoader;
     /**
     * 自动装配器
-     */
+    */
     private final ServiceAutowire serviceAutowire = new AutoServiceAutowire();
     /**
     * 服务定义映射表
-     */
+    */
     private final Map<String, SortedList<ServiceDefinition>> definitions = new ConcurrentHashMap<>();
     /**
     * 默认服务定义列表
-     */
+    */
     private final SortedList<ServiceDefinition> defaultDefinitions = new SortedArrayList<>(COMPARATOR);
     /**
     * 默认解析器列表
-     */
+    */
     private final List<ServiceResolver> defaultResolvers = new LinkedList<>();
     /**
     * 是否已加载默认实现
-     */
+    */
     private final AtomicBoolean hasDefaultAndLoaded = new AtomicBoolean(false);
 
     /**
     * 条件评估器
-     */
+    */
     private final ConditionEvaluator conditionEvaluator = new ConditionEvaluator();
 
     /**
     * 服务定义查找器
-     */
+    */
     private final ServiceDefinitionFinder definitionFinder;
 
     /**
     * 缓存存活扩展实例
-     */
+    */
     Cache<String, Value<T>> keepAlive = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES)
             .removalListener((RemovalListener<String, Value<T>>) notification -> {
                 RemovalCause cause = notification.getCause();
@@ -127,12 +127,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
 
     /**
     * 默认实现
-     */
+    */
     private T defaultImpl;
 
     /**
     * 定时任务执行器
-     */
+    */
     private static volatile ScheduledExecutorService executor;
 
     /**
@@ -140,7 +140,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * @param type 类型
     * @param classLoader 类加载
     * @param classLoader 类加载
-     */
+    */
     public DefaultServiceProvider(Class<T> type, ClassLoader classLoader) {
         this.type = type;
         this.classLoader = classLoader;
@@ -521,7 +521,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * @param resolverType 解析器类型
     * @param serviceDefinition 服务definition
     * @param key 键
-     */
+    */
     private void doRegisterRemoveCollection(Map<String, List<ServiceDefinition>> remove, String baseName, Class<? extends ServiceResolver> resolverType, ServiceDefinition serviceDefinition, String key) {
         Class<?> finderType = serviceDefinition.getFinderType();
         if (null != finderType && resolverType.isAssignableFrom(finderType)) {
@@ -536,7 +536,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * @param key 键
     * @param remove 移除
     * @param serviceDefinition 服务definition
-     */
+    */
     private void doRegisterRemoveCollectionItem(String baseName, String key, Map<String, List<ServiceDefinition>> remove, ServiceDefinition serviceDefinition) {
         if (StringUtils.isBlank(baseName)) {
             remove.computeIfAbsent(key, it -> new LinkedList<>()).add(serviceDefinition);
@@ -610,7 +610,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             * @param t t
             * @param proxyMethod 代理方法
             * @return invoke的结果
-             */
+            */
             private Object invoke(T t, ProxyMethod proxyMethod) {
                 return proxyMethod.getValue(t);
             }
@@ -641,7 +641,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * @param name 名称
     * @param args 参数
     * @return 获取definitions的结果
-     */
+    */
     public SortedList<ServiceDefinition> getDefinitions(String name, Object... args) {
         return definitionFinder.getDefinitions(name, args);
     }
@@ -790,17 +790,17 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         defaultResolvers.add(new SamePackageServiceResolver());
         /**
         * 动态加载扩展解析器：script加载服务解析器 (utils-support-extension-starter)
-         */
+        */
         ClassUtils.isPresent("com.chua.extension.support.spi.resolver.ScriptLoaderServiceResolver", ServiceResolver.class, defaultResolvers::add);
 
         /**
         * 动态加载 Spring 解析器：spring服务解析器 (utils-support-spring-starter)
-         */
+        */
         ClassUtils.isPresent("com.chua.spring.support.configuration.spi.SpringServiceResolver", ServiceResolver.class, defaultResolvers::add);
 
         /**
         * 动态加载 OSGI 解析器：osgi服务解析器 (utils-support-osgi-starter)
-         */
+        */
         ClassUtils.isPresent("com.chua.common.support.spi.resolver.OsgiServiceResolver", ServiceResolver.class, defaultResolvers::add);
 
         for (ServiceResolver defaultResolver : Collections.unmodifiableList(defaultResolvers)) {
@@ -820,7 +820,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * </p>
     *
     * @param analyze 待注册的服务定义列表
-     */
+    */
     private void registerDefinition(List<ServiceDefinition> analyze) {
         for (ServiceDefinition serviceDefinition : analyze) {
             String name = serviceDefinition.getName();
@@ -852,7 +852,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     * </p>
     *
     * @param serviceDefinition 需要注册为默认实现的服务定义
-     */
+    */
     private void registerDefault(ServiceDefinition serviceDefinition) {
         if (hasDefaultAndLoaded.get()) {
             return;
@@ -875,7 +875,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     *
     * @param args 实例化参数，本方法未实际使用，但保持接口一致性
     * @return 包含服务名称到服务定义映射的不可变或可变 映射，若为空则返回空 映射
-     */
+    */
     private Map<String, ServiceDefinition> listDefinition(Object[] args) {
         // 如果定义列表为空，直接返回空映射
         if (definitions.isEmpty()) {
@@ -913,7 +913,7 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
     *
     * @param args 实例化参数
     * @return 默认实现实例，若未找到则返回 空
-     */
+    */
     private T getDefaultImpl(Object... args) {
         // 如果已经存在默认的实例对象，直接返回
         if (null != defaultImpl) {

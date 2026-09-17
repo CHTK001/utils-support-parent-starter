@@ -65,7 +65,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     * 创建文件令牌提供者。
     *
     * @param filePath 令牌文件路径
-     */
+    */
     public FileAiTokenProvider(String filePath) {
         this(Paths.get(filePath));
     }
@@ -74,7 +74,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     * 创建文件令牌提供者。
     *
     * @param filePath 令牌文件路径
-     */
+    */
     public FileAiTokenProvider(Path filePath) {
         this.filePath = filePath.toAbsolutePath().normalize();
         this.watchDir = this.filePath.getParent() != null ? this.filePath.getParent() : Paths.get(".").toAbsolutePath();
@@ -86,7 +86,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 从文件加载所有令牌到内存。
-     */
+    */
     public void reload() {
         doLoadFromFile();
     }
@@ -144,7 +144,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 将内存中的令牌写回文件。
-     */
+    */
     private void flushToFile() {
         synchronized (this) {
         try {
@@ -174,7 +174,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 启动文件变更监听，文件修改时自动重新加载。
-     */
+    */
     private void startFileWatcher() {
         if (!watching.compareAndSet(false, true)) {
             return;
@@ -219,7 +219,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
     * 停止文件监听并释放资源。
     *
     * <p>调用后此提供者不再响应文件变更。</p>
-     */
+    */
     public void stopWatching() {
         watching.set(false);
         if (watcherThread != null) {
@@ -229,7 +229,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 释放资源（停止监听）。
-     */
+    */
     public void close() {
         stopWatching();
         tokenMap.clear();
@@ -315,7 +315,7 @@ public class FileAiTokenProvider implements AiTokenProvider, AutoCloseable {
 
     /**
     * 脱敏令牌，仅显示前 8 位。
-     */
+    */
     public static String maskToken(String token) {
         if (token == null) {
             return null;

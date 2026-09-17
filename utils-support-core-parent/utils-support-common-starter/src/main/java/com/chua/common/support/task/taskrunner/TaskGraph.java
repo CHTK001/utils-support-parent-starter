@@ -9,28 +9,28 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
-* 任务拓扑图 — 承载 任务runner 的 DAG 结构并完成合法性校验。
-*
-* <p>职责：</p>
-* <ul>
-*   <li><strong>校验</strong>：任务非空、节点 ID 唯一、依赖必须存在</li>
-*   <li><strong>分层</strong>：Kahn 算法输出拓扑分层，第 0 层为无依赖的最外层节点
-*       （并行执行的基础），存在环时抛出异常并指明环路涉及节点</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 任务拓扑图 — 承载 任务runner 的 DAG 结构并完成合法性校验。
+ *
+ * <p>职责：</p>
+ * <ul>
+ *   <li><strong>校验</strong>：任务非空、节点 ID 唯一、依赖必须存在</li>
+ *   <li><strong>分层</strong>：Kahn 算法输出拓扑分层，第 0 层为无依赖的最外层节点
+ *       （并行执行的基础），存在环时抛出异常并指明环路涉及节点</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public final class TaskGraph {
 
     /**
     * 运行名称
-     */
+    */
     private final String name;
 
     /**
     * 注册顺序保持的节点定义表：标识 -> definition
-     */
+    */
     private final Map<String, TaskDefinition> definitions = new LinkedHashMap<>();
 
     /**
@@ -40,7 +40,7 @@ public final class TaskGraph {
     * @param definitions 节点定义集合，非空且 标识 唯一、依赖完整
     * @return 拓扑图实例
     * @throws IllegalArgumentException 当集合为空、标识 重复或依赖缺失时
-     */
+    */
     public static TaskGraph of(String name, Collection<TaskDefinition> definitions) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("运行名称不能为空");
@@ -65,7 +65,7 @@ public final class TaskGraph {
     * 私有构造，统一经 {@link #of(String, Collection)} 创建。
     *
     * @param name 运行名称
-     */
+    */
     private TaskGraph(String name) {
         this.name = name;
     }
@@ -74,7 +74,7 @@ public final class TaskGraph {
     * 校验全部依赖指向已注册节点。
     *
     * @throws IllegalArgumentException 当存在未注册的依赖时
-     */
+    */
     private void validateDependencies() {
         for (var def : definitions.values()) {
             for (var dep : def.getDependencies()) {
@@ -96,7 +96,7 @@ public final class TaskGraph {
     *
     * @return 分层结果，保证非空
     * @throws IllegalStateException 当存在循环依赖时，消息中列出环内节点
-     */
+    */
     public List<List<TaskDefinition>> layeredTopology() {
         var inDegree = new HashMap<String, Integer>();
         var dependents = new HashMap<String, List<String>>();
@@ -150,7 +150,7 @@ public final class TaskGraph {
     * 获取全部节点 标识（注册顺序）。
     *
     * @return 节点 标识 集合
-     */
+    */
     public List<String> nodeIds() {
         return List.copyOf(definitions.keySet());
     }
@@ -162,7 +162,7 @@ public final class TaskGraph {
     *
     * @return 拓扑序节点定义列表
     * @throws IllegalStateException 当存在循环依赖时
-     */
+    */
     public List<TaskDefinition> definitionsInExecutionOrder() {
         var flattened = new ArrayList<TaskDefinition>(definitions.size());
         layeredTopology().forEach(flattened::addAll);
@@ -173,7 +173,7 @@ public final class TaskGraph {
     * 获取运行名称。
     *
     * @return 运行名称
-     */
+    */
     public String getName() {
         return name;
     }

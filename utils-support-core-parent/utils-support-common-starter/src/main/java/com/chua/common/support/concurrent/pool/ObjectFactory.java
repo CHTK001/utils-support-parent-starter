@@ -30,7 +30,7 @@ public interface ObjectFactory<T> {
     *
     * @return 新创建的对象
     * @throws Exception 创建失败时抛出
-     */
+    */
     T create() throws Exception;
 
     /**
@@ -50,7 +50,7 @@ public interface ObjectFactory<T> {
     *
     * @param object 待初始化的对象
     * @throws Exception 初始化失败时抛出（对象将被销毁）
-     */
+    */
     default void initObject(T object) throws Exception {
         // 默认空实现，子类按需覆写
     }
@@ -62,7 +62,7 @@ public interface ObjectFactory<T> {
     * 实现类应释放对象持有的资源（关闭连接、释放内存等）。
     *
     * @param object 待销毁的对象
-     */
+    */
     void destroy(T object);
 
     /**
@@ -73,6 +73,6 @@ public interface ObjectFactory<T> {
     *
     * @param object 待验证的对象
     * @return true 表示可用，false 表示已失效
-     */
+    */
     boolean validate(T object);
 }

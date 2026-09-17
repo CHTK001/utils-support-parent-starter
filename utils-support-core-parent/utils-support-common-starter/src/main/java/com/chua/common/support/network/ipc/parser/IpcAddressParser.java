@@ -20,7 +20,7 @@ public class IpcAddressParser {
     *
     * @param bean 包含被注解方法的对象
     * @return 方法路径到方法对象的映射
-     */
+    */
     public Map<String, Method> parse(Object bean) {
         Objects.requireNonNull(bean, "Bean cannot be null");
         Class<?> clazz = bean.getClass();

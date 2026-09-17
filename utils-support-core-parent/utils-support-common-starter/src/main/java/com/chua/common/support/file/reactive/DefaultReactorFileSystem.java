@@ -23,7 +23,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DefaultReactorFileSystem implements ReactorFileSystem {
 
-    /** 小文件阈值：小于此值用阻塞 Files.*，大于此值用 AsynchronousFileChannel */
+    /**
+    * 小文件阈值：小于此值用阻塞 Files.*，大于此值用 AsynchronousFileChannel
+    */
     private final long sizeThreshold;
 
     public DefaultReactorFileSystem() {
@@ -32,7 +34,7 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
 
     /**
     * 构造并指定阈值。
-     */
+    */
     public DefaultReactorFileSystem(long sizeThreshold) {
         this.sizeThreshold = Math.max(1, sizeThreshold);
     }
@@ -129,7 +131,7 @@ public class DefaultReactorFileSystem implements ReactorFileSystem {
     /**
     * 使用 AsynchronousFileChannel 异步写入。
     * Windows 上底层为 IOCP 真·非阻塞；Linux 上 JVM 内部使用线程池模拟。
-     */
+    */
     private Mono<Void> writeAsync(Path path, byte[] data) {
         return Mono.create(sink -> {
             AtomicLong position = new AtomicLong(0);

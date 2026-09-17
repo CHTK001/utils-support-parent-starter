@@ -5,46 +5,46 @@ import lombok.Getter;
 import java.util.Map;
 
 /**
-* 消息响应对象
-*
-* <p>封装消息发送的结果信息，包括成功/失败状态、消息ID、耗时等。
-*
-* @author CH
-* @since 2026/07/17
- */
+ * 消息响应对象
+ *
+ * <p>封装消息发送的结果信息，包括成功/失败状态、消息ID、耗时等。
+ *
+ * @author CH
+ * @since 2026/07/17
+*/
 @Getter
 public class MessageResponse {
 
     /**
     * 是否发送成功
-     */
+    */
     private final boolean success;
 
     /**
     * 消息 标识（服务商返回）
-     */
+    */
     private final String messageId;
 
     /**
     * 错误信息
-     */
+    */
     private final String errorMessage;
 
     /**
     * 耗时（毫秒）
-     */
+    */
     private final long durationMillis;
 
     /**
     * 扩展数据
-     */
+    */
     private final Map<String, Object> data;
 
     /**
     * 私有构造函数，通过构建器初始化消息响应对象。
     *
     * @param builder 包含所有字段值的构建器实例。
-     */
+    */
     private MessageResponse(Builder builder) {
         this.success = builder.success;
         this.messageId = builder.messageId;
@@ -57,7 +57,7 @@ public class MessageResponse {
     * 创建一个新的构建器实例。
     *
     * @return 新的 构建器 实例。
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -67,7 +67,7 @@ public class MessageResponse {
     *
     * @param messageId 服务商返回的消息 标识。
     * @return 成功的 消息响应 实例。
-     */
+    */
     public static MessageResponse success(String messageId) {
         return builder().success(true).messageId(messageId).build();
     }
@@ -77,7 +77,7 @@ public class MessageResponse {
     *
     * @param errorMessage 描述失败原因的详细信息。
     * @return 失败的 消息响应 实例。
-     */
+    */
     public static MessageResponse failure(String errorMessage) {
         return builder().success(false).errorMessage(errorMessage).build();
     }
@@ -87,32 +87,32 @@ public class MessageResponse {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
 
         /**
         * 是否发送成功。
-         */
+        */
         private boolean success;
 
         /**
         * 消息 标识（服务商返回）。
-         */
+        */
         private String messageId;
 
         /**
         * 错误信息。
-         */
+        */
         private String errorMessage;
 
         /**
         * 耗时（毫秒）。
-         */
+        */
         private long durationMillis;
 
         /**
         * 扩展数据。
-         */
+        */
         private Map<String, Object> data;
 
         /**
@@ -120,7 +120,7 @@ public class MessageResponse {
         *
         * @param success 是否成功。
         * @return 当前构建器实例。
-         */
+        */
         public Builder success(boolean success) {
             this.success = success;
             return this;
@@ -131,7 +131,7 @@ public class MessageResponse {
         *
         * @param messageId 消息 标识。
         * @return 当前构建器实例。
-         */
+        */
         public Builder messageId(String messageId) {
             this.messageId = messageId;
             return this;
@@ -142,7 +142,7 @@ public class MessageResponse {
         *
         * @param errorMessage 错误信息。
         * @return 当前构建器实例。
-         */
+        */
         public Builder errorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
             return this;
@@ -153,7 +153,7 @@ public class MessageResponse {
         *
         * @param durationMillis 耗时（毫秒）。
         * @return 当前构建器实例。
-         */
+        */
         public Builder durationMillis(long durationMillis) {
             this.durationMillis = durationMillis;
             return this;
@@ -164,7 +164,7 @@ public class MessageResponse {
         *
         * @param data 扩展数据。
         * @return 当前构建器实例。
-         */
+        */
         public Builder data(Map<String, Object> data) {
             this.data = data;
             return this;
@@ -174,7 +174,7 @@ public class MessageResponse {
         * 构建 消息响应 对象。
         *
         * @return 构建完成的 消息响应 对象。
-         */
+        */
         public MessageResponse build() {
             return new MessageResponse(this);
         }

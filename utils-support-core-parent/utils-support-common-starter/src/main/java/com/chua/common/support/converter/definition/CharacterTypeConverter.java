@@ -18,7 +18,7 @@ public class CharacterTypeConverter implements TypeConverter<Character> {
     *
     * @param value 源值
     * @return Character 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Character convert(Object value) {
         if (null == value) {
@@ -39,7 +39,7 @@ public class CharacterTypeConverter implements TypeConverter<Character> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Character.class
-     */
+    */
     @Override
     public Class<Character> getType() {
         return Character.class;

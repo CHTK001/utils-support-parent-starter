@@ -12,82 +12,82 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
-* 判断节点定义 — 类型安全的分支配置构建器。
-*
-* <p>通过 {@link TaskDefinition#decision()} 从任务定义转换而来，
-* 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
-*
-* <p><strong>完整模式：task → decision → ... → taskEnd</strong></p>
-* <pre>{@code
-* .task("check", ctx -> condition ? "yes" : "no")
-*     .decision()                    // 转为判断定义
-*     .branch("yes", "processNode")  // 配置分支
-*     .branch("no", "errorNode")
-*     .taskEnd()                     // 结束定义
-* }</pre>                     // 结束定义
-* }</pre>
-*
-* <p><strong>便捷方法：</strong></p>
-* <ul>
-*   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
-*   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
-*   <li>{@link #exit()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
-*   <li>{@link #end()} — 同 {@link #exit()}，执行后终止流水线</li>
-* </ul>
-*
-* <p><strong>用法示例：</strong></p>
-* <pre>{@code
-* // 基本判断
-* PipelineBuilder.newBuilder("flow")
-*     .task("check", ctx -> isValid(ctx) ? "valid" : "invalid")
-*     .decision()
-*     .branch("valid", "processNode")
-*     .branch("invalid", "errorNode")
-*     .taskEnd()
-*     .build();
-*
-* // 链式风格（推荐，语义更清晰）
-* PipelineBuilder.newBuilder("flow")
-*     .task("check", ctx -> isValid(ctx) ? "valid" : "invalid")
-*     .decision()
-*     .branch("valid").toTask("processNode")
-*     .branch("invalid").toTask("errorNode")
-*     .taskEnd()
-*     .build();
-*
-* // 带默认分支
-* PipelineBuilder.newBuilder("flow")
-*     .task("route", ctx -> getTarget(ctx))
-*     .decision()
-*     .branch("A", "nodeA")
-*     .branch("B", "nodeB")
-*     .defaultBranch("fallbackNode")
-*     .taskEnd()
-*     .build();
-*
-* // 使用 ext 终止
-* PipelineBuilder.newBuilder("flow")
-*     .task("finalCheck", ctx -> checkResult(ctx))
-*     .decision()
-*     .branch("ok", "doneNode")
-*     .branch("fail", "errorNode")
-*     .exit()
-*     .taskEnd()
-*     .build();
-* }</pre>eBuilder.newBuilder("flow")
-*     .task("finalCheck", ctx -> checkResult(ctx))
-*     .decision()
-*     .branch("ok", "doneNode")
-*     .branch("fail", "errorNode")
-*     .exit()
-*     .taskEnd()
-*     .build();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
-* @see TaskDefinition#decision()
- */
+ * 判断节点定义 — 类型安全的分支配置构建器。
+ *
+ * <p>通过 {@link TaskDefinition#decision()} 从任务定义转换而来，
+ * 通过 {@link #taskEnd()} 完成定义并返回 {@link PipelineBuilder}。</p>
+ *
+ * <p><strong>完整模式：task → decision → ... → taskEnd</strong></p>
+ * <pre>{@code
+ * .task("check", ctx -> condition ? "yes" : "no")
+ *     .decision()                    // 转为判断定义
+ *     .branch("yes", "processNode")  // 配置分支
+ *     .branch("no", "errorNode")
+ *     .taskEnd()                     // 结束定义
+ * }</pre>                     // 结束定义
+ * }</pre>
+ *
+ * <p><strong>便捷方法：</strong></p>
+ * <ul>
+ *   <li>{@link #onStep(Consumer)} — 无返回值的步骤（Consumer 模式）</li>
+ *   <li>{@link #step(PipelineNode)} — 有返回值的步骤（Function 模式）</li>
+ *   <li>{@link #exit()} — 执行后自动终止流水线（等价于 action=EXIT）</li>
+ *   <li>{@link #end()} — 同 {@link #exit()}，执行后终止流水线</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
+ * <pre>{@code
+ * // 基本判断
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("check", ctx -> isValid(ctx) ? "valid" : "invalid")
+ *     .decision()
+ *     .branch("valid", "processNode")
+ *     .branch("invalid", "errorNode")
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 链式风格（推荐，语义更清晰）
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("check", ctx -> isValid(ctx) ? "valid" : "invalid")
+ *     .decision()
+ *     .branch("valid").toTask("processNode")
+ *     .branch("invalid").toTask("errorNode")
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 带默认分支
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("route", ctx -> getTarget(ctx))
+ *     .decision()
+ *     .branch("A", "nodeA")
+ *     .branch("B", "nodeB")
+ *     .defaultBranch("fallbackNode")
+ *     .taskEnd()
+ *     .build();
+ *
+ * // 使用 ext 终止
+ * PipelineBuilder.newBuilder("flow")
+ *     .task("finalCheck", ctx -> checkResult(ctx))
+ *     .decision()
+ *     .branch("ok", "doneNode")
+ *     .branch("fail", "errorNode")
+ *     .exit()
+ *     .taskEnd()
+ *     .build();
+ * }</pre>eBuilder.newBuilder("flow")
+ *     .task("finalCheck", ctx -> checkResult(ctx))
+ *     .decision()
+ *     .branch("ok", "doneNode")
+ *     .branch("fail", "errorNode")
+ *     .exit()
+ *     .taskEnd()
+ *     .build();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see TaskDefinition#decision()
+*/
 public class TaskDecisionDefinition {
 
     /** 标识 */
@@ -117,7 +117,7 @@ public class TaskDecisionDefinition {
     * @param id      节点唯一标识
     * @param handler 路由逻辑处理器（返回目标节点 标识）
     * @param builder 流水线构建器
-     */
+    */
     TaskDecisionDefinition(String id, PipelineNode handler, PipelineBuilder builder) {
         this.id = id;
         this.handler = handler;
@@ -131,7 +131,7 @@ public class TaskDecisionDefinition {
     * 构成完整的判断定义：任务 → decision → ... → 任务结束。</p>
     *
     * @return PipelineBuilder
-     */
+    */
     public PipelineBuilder taskEnd() {
         PipelineNode effectiveHandler = endAfterExecute ? wrapWithEnd(handler) : handler;
         DecisionNode node = new DecisionNode(id, effectiveHandler);
@@ -170,7 +170,7 @@ public class TaskDecisionDefinition {
     * <p>适用于流水线最后一个节点是判断节点的场景。</p>
     *
     * @return 构建完成的 Pipeline 实例
-     */
+    */
     public Pipeline pipelineEnd() {
         taskEnd();
         builder.end(id);
@@ -185,7 +185,7 @@ public class TaskDecisionDefinition {
     * @param key      处理器 返回值
     * @param nodeType 目标节点 标识
     * @return this
-     */
+    */
     public TaskDecisionDefinition branch(String key, String nodeType) {
         branches.put(key, nodeType);
         return this;
@@ -207,7 +207,7 @@ public class TaskDecisionDefinition {
     *
     * @param key 处理器 返回值
     * @return BranchDefinition 分支定义
-     */
+    */
     public BranchDefinition branch(String key) {
         return new BranchDefinition(key, this);
     }
@@ -219,7 +219,7 @@ public class TaskDecisionDefinition {
     *
     * @param nodeType 默认目标节点 标识
     * @return this
-     */
+    */
     public TaskDecisionDefinition defaultBranch(String nodeType) {
         this.defaultBranch = nodeType;
         return this;
@@ -230,7 +230,7 @@ public class TaskDecisionDefinition {
     *
     * @param params 节点参数映射
     * @return this
-     */
+    */
     public TaskDecisionDefinition params(Map<String, Object> params) {
         this.params = params;
         return this;
@@ -248,7 +248,7 @@ public class TaskDecisionDefinition {
     *
     * @param env 环境参数映射
     * @return this
-     */
+    */
     public TaskDecisionDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;
@@ -262,7 +262,7 @@ public class TaskDecisionDefinition {
     * @param key   参数键
     * @param value 参数值
     * @return this
-     */
+    */
     public TaskDecisionDefinition env(String key, Object value) {
         if (this.env == null) {
             this.env = new LinkedHashMap<>();
@@ -277,7 +277,7 @@ public class TaskDecisionDefinition {
     * <p>等价于在 PipelineBuilder 上调用 {@code .start(id)}。</p>
     *
     * @return this
-     */
+    */
     public TaskDecisionDefinition start() {
         this.startNode = true;
         return this;
@@ -290,7 +290,7 @@ public class TaskDecisionDefinition {
     *
     * @param action Consumer 回调
     * @return this
-     */
+    */
     public TaskDecisionDefinition onStep(Consumer<PipelineContext<?>> action) {
         PipelineNode original = this.handler;
         this.handler = ctx -> {
@@ -310,7 +310,7 @@ public class TaskDecisionDefinition {
     *
     * @param handler pipeline节点 处理器
     * @return this
-     */
+    */
     public TaskDecisionDefinition step(PipelineNode handler) {
         this.handler = handler;
         return this;
@@ -322,7 +322,7 @@ public class TaskDecisionDefinition {
     * <p>与 {@link #end()} 完全等价，提供更语义化的命名。</p>
     *
     * @return this
-     */
+    */
     public TaskDecisionDefinition exit() {
         this.endAfterExecute = true;
         return this;
@@ -347,7 +347,7 @@ public class TaskDecisionDefinition {
     * @param retryConfig 重试配置，空 表示不重试
     * @return this
     * @see com.chua.common.support.task.retry.RetryConfig
-     */
+    */
     public TaskDecisionDefinition retry(RetryConfig retryConfig) {
         this.retryConfig = retryConfig;
         return this;
@@ -359,7 +359,7 @@ public class TaskDecisionDefinition {
     * <p>与 {@link #exit()} 完全等价。</p>
     *
     * @return this
-     */
+    */
     public TaskDecisionDefinition end() {
         this.endAfterExecute = true;
         return this;
@@ -369,7 +369,7 @@ public class TaskDecisionDefinition {
     * 包装 处理器：执行后设置 EXIT 动作。
     * @param original 原始
     * @return wrapwith结束的结果
-     */
+    */
     private static PipelineNode wrapWithEnd(PipelineNode original) {
         return ctx -> {
             String result = original.execute(ctx);

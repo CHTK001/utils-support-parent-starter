@@ -15,7 +15,7 @@ public interface ForeignKeyCreateBuilder {
     *
     * @param columnName 当前表列名
     * @return this
-     */
+    */
     ForeignKeyCreateBuilder column(String columnName);
 
     /**
@@ -24,7 +24,7 @@ public interface ForeignKeyCreateBuilder {
     * @param table  引用表名
     * @param column 引用列名
     * @return this
-     */
+    */
     ForeignKeyCreateBuilder references(String table, String column);
 
     /**
@@ -32,7 +32,7 @@ public interface ForeignKeyCreateBuilder {
     *
     * @param action 删除规则
     * @return this
-     */
+    */
     ForeignKeyCreateBuilder onDelete(String action);
 
     /**
@@ -40,13 +40,13 @@ public interface ForeignKeyCreateBuilder {
     *
     * @param action 更新规则
     * @return this
-     */
+    */
     ForeignKeyCreateBuilder onUpdate(String action);
 
     /**
     * 执行外键添加语句。
     *
     * @return 外键定义
-     */
+    */
     ForeignKeyDef execute();
 }

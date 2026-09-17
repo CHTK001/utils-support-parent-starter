@@ -24,17 +24,17 @@ public abstract class AbstractReader implements FileSystem {
 
     /**
     * 读取选项配置。
-     */
+    */
     protected ReadOption readOption;
 
     /**
     * 文件对象，表示当前要读取的文件。
-     */
+    */
     protected File file;
 
     /**
     * 默认构造函数。
-     */
+    */
     protected AbstractReader() {
     }
 
@@ -42,7 +42,7 @@ public abstract class AbstractReader implements FileSystem {
     * 带文件参数的构造函数。
     *
     * @param file 文件对象
-     */
+    */
     protected AbstractReader(File file) {
         this.file = file;
     }
@@ -51,7 +51,7 @@ public abstract class AbstractReader implements FileSystem {
     * 带文件路径字符串的构造函数。
     *
     * @param filePath 文件路径字符串
-     */
+    */
     protected AbstractReader(String filePath) {
         if (filePath != null) {
             this.file = new File(filePath);
@@ -65,7 +65,7 @@ public abstract class AbstractReader implements FileSystem {
     *
     * @param file 文件对象
     * @return 当前AbstractReader实例
-     */
+    */
     public AbstractReader withFile(File file) {
         this.file = file;
         return this;
@@ -75,7 +75,7 @@ public abstract class AbstractReader implements FileSystem {
     * 获取当前读取器的类型标识。
     *
     * @return 类型字符串
-     */
+    */
     @Override
     public String getType() {
         return "unknown";
@@ -87,7 +87,7 @@ public abstract class AbstractReader implements FileSystem {
     * @param file 文件对象
     * @return 读取构建器
     * @throws UnsupportedOperationException 始终抛出此异常，因为子类需要实现具体逻辑
-     */
+    */
     @Override
     public ReadBuilder read(File file) {
         throw new UnsupportedOperationException();
@@ -99,7 +99,7 @@ public abstract class AbstractReader implements FileSystem {
     * @param file 文件对象
     * @return 写入构建器
     * @throws UnsupportedOperationException 始终抛出此异常，因为此类仅负责读取
-     */
+    */
     @Override
     public WriteBuilder write(File file) {
         throw new UnsupportedOperationException();
@@ -110,7 +110,7 @@ public abstract class AbstractReader implements FileSystem {
     *
     * @return 当前AbstractReader实例
     * @throws IOException 当发生IO错误时抛出
-     */
+    */
     public AbstractReader readAll() throws IOException {
         if (file == null || !file.exists() || !file.isFile()) {
             return this;
@@ -125,7 +125,7 @@ public abstract class AbstractReader implements FileSystem {
     * @return 文件输入流
     * @throws FileNotFoundException 当文件为空或不存在时抛出
     * @throws IOException           当发生IO错误时抛出
-     */
+    */
     public InputStream openInputStream() throws IOException {
         if (file == null) {
             throw new FileNotFoundException("File is null");
@@ -142,6 +142,6 @@ public abstract class AbstractReader implements FileSystem {
     *
     * @return Map列表，每个Map代表一行或一条记录
     * @throws IOException 当发生IO错误时抛出
-     */
+    */
     protected abstract List<Map<String, Object>> doReadMaps() throws IOException;
 }

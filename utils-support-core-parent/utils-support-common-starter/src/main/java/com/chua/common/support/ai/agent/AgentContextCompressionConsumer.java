@@ -26,7 +26,7 @@ public interface AgentContextCompressionConsumer {
     * 基线快照将保存到工作区中，供后续偏差纠正阶段使用。
     *
     * @param fullContext 当前完整上下文（所有消息轮次）
-     */
+    */
     void onFirstCompression(List<ChatMessage> fullContext);
 
     /**
@@ -44,7 +44,7 @@ public interface AgentContextCompressionConsumer {
     * @param baselineContext 第一次保存的完整原始上下文快照
     * @param currentContext  当前（经多轮压缩后的）上下文
     * @return 纠正后的压缩上下文
-     */
+    */
     List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                               List<ChatMessage> currentContext);
 }

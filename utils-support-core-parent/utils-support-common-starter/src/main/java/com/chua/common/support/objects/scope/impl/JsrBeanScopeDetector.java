@@ -8,21 +8,21 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 import java.lang.annotation.Annotation;
 
 /**
-* JSR/CDI 作用域检测器。
-*
-* <p>通过反射检测 javax/jakarta CDI 作用域注解，不依赖编译时 API。
-* 支持的注解：
-* <ul>
-*   <li>@Dependent → PROTOTYPE</li>
-*   <li>@RequestScoped → PROTOTYPE</li>
-*   <li>@SessionScoped → PROTOTYPE</li>
-*   <li>@Singleton → SINGLETON</li>
-*   <li>@ApplicationScoped → SINGLETON</li>
-* </ul></p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * JSR/CDI 作用域检测器。
+ *
+ * <p>通过反射检测 javax/jakarta CDI 作用域注解，不依赖编译时 API。
+ * 支持的注解：
+ * <ul>
+ *   <li>@Dependent → PROTOTYPE</li>
+ *   <li>@RequestScoped → PROTOTYPE</li>
+ *   <li>@SessionScoped → PROTOTYPE</li>
+ *   <li>@Singleton → SINGLETON</li>
+ *   <li>@ApplicationScoped → SINGLETON</li>
+ * </ul></p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Spi("jsr")
 @SpiDescribe("JSR/CDI 作用域检测器")
 public class JsrBeanScopeDetector implements BeanScopeDetector {

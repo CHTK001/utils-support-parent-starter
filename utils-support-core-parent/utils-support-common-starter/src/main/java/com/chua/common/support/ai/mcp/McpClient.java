@@ -15,14 +15,14 @@ public interface McpClient extends AutoCloseable {
 
     /**
     * 初始化客户端，建立与 MCP 服务端的连接
-     */
+    */
     void init();
 
     /**
     * 获取服务端提供的所有工具列表
     *
     * @return 工具描述符列表
-     */
+    */
     List<McpToolDescriptor> listTools();
 
     /**
@@ -30,14 +30,14 @@ public interface McpClient extends AutoCloseable {
     *
     * @param toolCall 工具调用请求
     * @return 工具调用结果
-     */
+    */
     McpToolResult callTool(McpToolCall toolCall);
 
     /**
     * 客户端是否已初始化
     *
     * @return 是否已初始化
-     */
+    */
     boolean isInitialized();
 
     @Override

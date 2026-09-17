@@ -25,7 +25,7 @@ public enum AgentMode {
     *
     * <p>忽略所有已注册的子 Agent，主 Agent 直接处理用户输入。
     * 适用于简单场景或不需要多 Agent 协作的任务。
-     */
+    */
     SINGLE,
 
     /**
@@ -35,7 +35,7 @@ public enum AgentMode {
     * 每个子 Agent 使用自己的 ChatClient、MCP 和 Skill。
     *
     * <p>示例流程：需求分析 → 架构设计 → 代码实现 → 测试
-     */
+    */
     PIPELINE,
 
     /**
@@ -45,7 +45,7 @@ public enum AgentMode {
     * 适用于多角度分析、对比评估等场景。
     *
     * <p>示例：Java 专家 + Python 专家 + SQL 专家同时分析同一问题
-     */
+    */
     FAN_OUT,
 
     /**
@@ -55,7 +55,7 @@ public enum AgentMode {
     * 框架解析 LLM 输出中的 Agent ID 后，用该子 Agent 的专属配置（ChatClient/MCP/Skill）执行。
     *
     * <p>适用场景：多 Agent 智能分派，如代码任务 → dev-agent，搜索任务 → search-agent
-     */
+    */
     ROUTER,
 
     /**
@@ -63,7 +63,7 @@ public enum AgentMode {
     *
     * <p>主 Agent 先制定执行计划，再按计划逐步执行。不委派子 Agent。
     * 适用于复杂任务分解场景。
-     */
+    */
     PLAN_AND_EXECUTE,
 
     /**
@@ -72,6 +72,6 @@ public enum AgentMode {
     * <p>与 ROUTER 类似，但 LLM 有更大自由度。可自主决定：
     * 直接回答、调用 MCP 工具、执行 Skill、或委派给子 Agent。
     * 框架同样会解析 LLM 输出中的 Agent ID 并委派执行。
-     */
+    */
     AUTO
 }

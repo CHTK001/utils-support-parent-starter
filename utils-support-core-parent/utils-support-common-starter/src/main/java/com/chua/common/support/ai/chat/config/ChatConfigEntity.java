@@ -35,31 +35,33 @@ public class ChatConfigEntity {
     /** 主键 */
     /**
     * 标识
-     */
+    */
     private Long id;
 
-    /** 配置名称（唯一标识，如 "production"、"my-openai"） */
+    /**
+    * 配置名称（唯一标识，如 "production"、"my-openai"）
+    */
     /**
     * 名称
-     */
+    */
     private String name;
 
     /** AI 服务商名称 */
     /**
     * 提供方标识
-     */
+    */
     private String provider;
 
     /** API 密钥 */
     /**
     * 应用密钥
-     */
+    */
     private String appKey;
 
     /** API 密钥（备用） */
     /**
     * 应用密钥
-     */
+    */
     private String appSecret;
 
     /** API 请求基础地址 */
@@ -68,7 +70,7 @@ public class ChatConfigEntity {
     /** 默认模型名称 */
     /**
     * 模型名称
-     */
+    */
     private String model;
 
     /** 默认温度参数 */
@@ -89,7 +91,7 @@ public class ChatConfigEntity {
     /** 更新时间 */
     /**
     * 更新时间
-     */
+    */
     private Long updatedAt;
 
     // ======================== 转换方法 ========================
@@ -98,7 +100,7 @@ public class ChatConfigEntity {
     * 转为 {@link ChatConfig} 链式配置
     *
     * @return ChatConfig
-     */
+    */
     public ChatConfig toConfig() {
         return ChatConfig.fromEntity(this);
     }
@@ -107,7 +109,7 @@ public class ChatConfigEntity {
     * 直接创建 {@link ChatClient}
     *
     * @return ChatClient 实例
-     */
+    */
     public ChatClient toChatClient() {
         return toConfig().newChatClient();
     }
@@ -116,7 +118,7 @@ public class ChatConfigEntity {
     * 转为 {@link ChatClientSetting}
     *
     * @return ChatClientSetting
-     */
+    */
     public ChatClientSetting toSetting() {
         return toConfig().toSetting();
     }
@@ -127,7 +129,7 @@ public class ChatConfigEntity {
     * @param config 链式配置
     * @param name   配置名称
     * @return ChatConfigEntity
-     */
+    */
     public static ChatConfigEntity from(ChatConfig config, String name) {
         ChatConfigEntity entity = new ChatConfigEntity();
         entity.setName(name);

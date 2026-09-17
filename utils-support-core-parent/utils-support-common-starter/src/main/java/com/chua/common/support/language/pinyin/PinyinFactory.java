@@ -36,7 +36,7 @@ public interface PinyinFactory {
     * 如果找不到对应的实现则返回 {@code null}。</p>
     *
     * @return 默认拼音工厂实例，未注册时返回 {@code null}
-     */
+    */
     static PinyinFactory getDefault() {
         ServiceProvider<PinyinFactory> provider = ServiceProvider.of(PinyinFactory.class);
         return provider.getExtension("tiny");
@@ -49,7 +49,7 @@ public interface PinyinFactory {
     *
     * @param word 待转换的汉字字符串
     * @return 拼音列表，每个元素对应一个汉字的拼音结果
-     */
+    */
     List<Pinyin> transfer(String word);
 
     /**
@@ -59,7 +59,7 @@ public interface PinyinFactory {
     *
     * @param words 待转换的汉字字符串数组
     * @return 拼音列表，按输入顺序对应每个汉字字符串的首个拼音
-     */
+    */
     default List<Pinyin> transfer(String[] words) {
         if (CollectionUtils.isEmpty(words)) {
             return Collections.emptyList();
@@ -77,7 +77,7 @@ public interface PinyinFactory {
     *
     * @param word 待转换的汉字字符串
     * @return 空格分隔的拼音字符串
-     */
+    */
     default String transferSplit(String word) {
         return transfer(word).stream()
                 .map(Pinyin::getPinyin)
@@ -90,7 +90,7 @@ public interface PinyinFactory {
     *
     * @param words 待转换的汉字字符串数组
     * @return 连续拼音字符串（无分隔符）
-     */
+    */
     default String transferSplit(String[] words) {
         return transfer(words).stream()
                 .map(Pinyin::getPinyin)
@@ -103,7 +103,7 @@ public interface PinyinFactory {
     *
     * @param word 待转换的汉字字符串
     * @return 第一个拼音结果；如果转换结果为空则返回 {@code null}
-     */
+    */
     default Pinyin first(String word) {
         List<Pinyin> result = transfer(word);
         if (result.isEmpty()) {

@@ -42,7 +42,7 @@ public class Json5 {
 
     /**
     * 私有构造器，禁止实例化工具类
-     */
+    */
     private Json5() {
     }
 
@@ -53,7 +53,7 @@ public class Json5 {
     *
     * @param provider 新的 JSON 实现，不能为 null
     * @throws IllegalArgumentException 当 provider 为 null 时
-     */
+    */
     public static void setImplementation(JsonProvider provider) {
         Json.setImplementation(provider);
     }
@@ -62,7 +62,7 @@ public class Json5 {
     * 获取当前生效的 JSON 实现（透传 {@link Json#getImplementation()}）。
     *
     * @return 当前 JSON 实现
-     */
+    */
     public static JsonProvider getImplementation() {
         return Json.getImplementation();
     }
@@ -75,7 +75,7 @@ public class Json5 {
     * @param <T>   列表中元素的泛型类型
     * @return 反序列化后的 List 对象
     * @throws RuntimeException 如果解析失败则抛出运行时异常
-     */
+    */
     public static <T> List<T> fromJsonList(String json, Class<T> clazz) {
         return Json.fromJsonToList(json, clazz);
     }
@@ -87,7 +87,7 @@ public class Json5 {
     * @param target 目标对象的 Class 类型
     * @param <T>    目标对象的泛型类型
     * @return 反序列化后的对象，若输入为空则返回 null
-     */
+    */
     public static <T> T fromJson(String json5, Class<T> target) {
         if (json5 == null || json5.trim().isEmpty()) {
             return null;
@@ -102,7 +102,7 @@ public class Json5 {
     *
     * @param json5 JSON5 格式的字符串内容
     * @return JsonObject 对象，解析失败时返回空对象
-     */
+    */
     public static JsonObject getJsonObject(String json5) {
         try {
             JsonObject result = Json.getJsonObject(json5);
@@ -119,7 +119,7 @@ public class Json5 {
     *
     * @param json5 JSON5 格式的字符串内容
     * @return JsonArray 对象，解析失败时返回空数组
-     */
+    */
     public static JsonArray getJsonArray(String json5) {
         try {
             JsonArray result = Json.getJsonArray(json5);
@@ -136,7 +136,7 @@ public class Json5 {
     * @param target 目标对象的 Class 类型
     * @param <T>    目标对象的泛型类型
     * @return 反序列化后的对象
-     */
+    */
     public static <T> T fromJson(byte[] bytes, Class<T> target) {
         return Json.fromJson(bytes, target);
     }
@@ -147,7 +147,7 @@ public class Json5 {
     * @param bytes   包含 JSON5 数据的字节数组
     * @param charset 字符集编码
     * @return 解析后的 JsonObject
-     */
+    */
     public static JsonObject fromJson(byte[] bytes, Charset charset) {
         JsonObject result = Json.fromJson(bytes, charset);
         return result != null ? result : new JsonObject();
@@ -160,7 +160,7 @@ public class Json5 {
     * @param target            目标对象的 Class 类型
     * @param <T>               目标对象的泛型类型
     * @return 反序列化后的对象
-     */
+    */
     public static <T> T fromJson(InputStreamReader inputStreamReader, Class<T> target) {
         return Json.fromJson(inputStreamReader, target);
     }
@@ -172,7 +172,7 @@ public class Json5 {
     * @param target      目标对象的 Class 类型
     * @param <T>         目标对象的泛型类型
     * @return 反序列化后的对象
-     */
+    */
     public static <T> T fromJson(InputStream inputStream, Class<T> target) {
         return Json.fromJson(inputStream, target);
     }
@@ -184,7 +184,7 @@ public class Json5 {
     *
     * @param json5 JSON5 格式的字符串内容
     * @return 解析后的 Map 对象
-     */
+    */
     public static Map<String, Object> fromJson(String json5) {
         return Json.fromJson(json5);
     }
@@ -197,7 +197,7 @@ public class Json5 {
     *
     * @param object 需要序列化的 Java 对象
     * @return JSON 格式的字符串
-     */
+    */
     public static String toJson(Object object) {
         return Json.toJson(object);
     }
@@ -207,7 +207,7 @@ public class Json5 {
     *
     * @param object 需要序列化的 Java 对象
     * @return JSON 格式的字节数组
-     */
+    */
     public static byte[] toJsonByte(Object object) {
         return Json.toJsonByte(object);
     }
@@ -217,7 +217,7 @@ public class Json5 {
     *
     * @param jsonStr 待验证的字符串
     * @return 如果是有效的 JSON 返回 true，否则返回 false
-     */
+    */
     public static boolean validate(String jsonStr) {
         return Json.validate(jsonStr);
     }
@@ -233,7 +233,7 @@ public class Json5 {
     *
     * @param text 待检测的字符串
     * @return 如果符合 JSON5 特征返回 true，否则返回 false
-     */
+    */
     public static boolean isJson5(String text) {
         if (text == null || text.trim().isEmpty()) {
             return false;
@@ -259,7 +259,7 @@ public class Json5 {
     *
     * @param json5 原始 JSON5 字符串
     * @return 去除注释后的纯净 JSON5 字符串
-     */
+    */
     public static String preprocessJson5(String json5) {
         if (json5 == null) {
             return null;

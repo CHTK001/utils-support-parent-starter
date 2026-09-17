@@ -13,32 +13,32 @@ public enum Event {
 
     /**
     * 新增服务实例
-     */
+    */
     ADD("add"),
 
     /**
     * 更新服务实例信息
-     */
+    */
     UPDATE("update"),
 
     /**
     * 移除服务实例
-     */
+    */
     REMOVE("remove"),
 
     /**
     * 服务实例下线（不可用）
-     */
+    */
     OFFLINE("offline"),
 
     /**
     * 服务实例上线（可用）
-     */
+    */
     ONLINE("online");
 
     /**
     * 名称
-     */
+    */
     private final String name;
 
     Event(String name) {

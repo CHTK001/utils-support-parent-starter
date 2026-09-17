@@ -17,46 +17,46 @@ public class DiscoveryOption {
 
     /**
     * 服务地址，例如 ZooKeeper 的 connect string。
-     */
+    */
     private String address;
 
     /**
     * 命名空间根路径，默认为 "discovery"。
-     */
+    */
     private String root = "discovery";
 
     /**
     * 认证用户名（可选）。
-     */
+    */
     private String user;
 
     /**
     * 认证密码（可选）。
-     */
+    */
     private String password;
 
     /**
     * 数据库名称（特定于某些存储后端时）。
-     */
+    */
     private String database;
 
     /**
     * 连接超时时间（毫秒），默认 10 秒。
-     */
+    */
     private int connectionTimeoutMillis = 10_000;
 
     /**
     * 会话超时时间（毫秒），默认 10 秒。
-     */
+    */
     private int sessionTimeoutMillis = 10_000;
 
     /**
     * 是否优先使用接口地址进行发现，默认 false。
-     */
+    */
     private boolean deferToInterface;
 
     /**
     * 额外的自定义配置项。
-     */
+    */
     private Map<String, Object> extra = new LinkedHashMap<>();
 }

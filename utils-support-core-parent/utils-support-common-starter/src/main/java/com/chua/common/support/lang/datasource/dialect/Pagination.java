@@ -30,12 +30,12 @@ public class Pagination {
 
     /**
     * 每页大小
-     */
+    */
     private int pageSize = 10;
 
     /**
     * 总数
-     */
+    */
     private long total;
 
     /**
@@ -43,7 +43,7 @@ public class Pagination {
     * <p>计算公式：(pageNum - 1) * pageSize，最小值为 0。</p>
     *
     * @return 偏移量
-     */
+    */
     public int getOffset() {
         return (Math.max(pageNum, 1) - 1) * Math.max(pageSize, 1);
     }
@@ -53,7 +53,7 @@ public class Pagination {
     * <p>最小值为 1，避免 SQL 语法错误。</p>
     *
     * @return 限制数
-     */
+    */
     public int getLimit() {
         return Math.max(pageSize, 1);
     }

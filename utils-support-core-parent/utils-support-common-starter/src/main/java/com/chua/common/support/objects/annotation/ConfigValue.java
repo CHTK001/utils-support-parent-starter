@@ -7,23 +7,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
-* 配置值注入注解。
-*
-* <p>用于将外部配置属性注入到 Bean 的字段或 setter 方法上。
-* 支持 ${键} 占位符语法、默认值回退、配置热加载和变更回调。</p>
-*
-* <p>使用示例：</p>
-* <pre>
-*   &#64;ConfigValue("${server.port}")
-*   private int port;
-*
-*   &#64;ConfigValue(value = "${app.name}", defaultValue = "default-app")
-*   private String appName;
-* </pre>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 配置值注入注解。
+ *
+ * <p>用于将外部配置属性注入到 Bean 的字段或 setter 方法上。
+ * 支持 ${键} 占位符语法、默认值回退、配置热加载和变更回调。</p>
+ *
+ * <p>使用示例：</p>
+ * <pre>
+ *   &#64;ConfigValue("${server.port}")
+ *   private int port;
+ *
+ *   &#64;ConfigValue(value = "${app.name}", defaultValue = "default-app")
+ *   private String appName;
+ * </pre>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -36,7 +36,7 @@ public @interface ConfigValue {
     * 为空字符串时，将根据字段名自动推断配置键。</p>
     *
     * @return 配置键，默认为空字符串
-     */
+    */
     String value() default "";
 
     /**
@@ -46,7 +46,7 @@ public @interface ConfigValue {
     * 为空字符串时表示无默认值，字段将保持原值（空 或类型默认值）。</p>
     *
     * @return 默认值，默认为空字符串
-     */
+    */
     String defaultValue() default "";
 
     /**
@@ -56,7 +56,7 @@ public @interface ConfigValue {
     * 需要配合 {@link EnvironmentChangeListener} 或 {@link ConfigValueBindingManager} 使用。</p>
     *
     * @return 是否支持热加载，默认 false
-     */
+    */
     boolean hotReload() default false;
 
     /**
@@ -66,6 +66,6 @@ public @interface ConfigValue {
     * 回调方法签名应为：Void Linux callback名称(字符串 旧值, 字符串 新值)。</p>
     *
     * @return 回调方法名，默认为空字符串表示不回调
-     */
+    */
     String callback() default "";
 }

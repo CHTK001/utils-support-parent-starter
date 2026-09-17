@@ -17,7 +17,7 @@ public abstract class LazyLoader<T> implements InitLoader<T>, Loader<T> {
     /**
     * 缓存的目标对象实例。
     * <p>使用 volatile 关键字修饰，确保多线程环境下的可见性并防止指令重排序。</p>
-     */
+    */
     private volatile T object;
 
     /**
@@ -30,7 +30,7 @@ public abstract class LazyLoader<T> implements InitLoader<T>, Loader<T> {
     * </p>
     *
     * @return 初始化后的目标对象实例
-     */
+    */
     @Override
     public T get() {
         T result = object;

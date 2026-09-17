@@ -14,14 +14,14 @@ public interface AlterIndexBuilder {
     *
     * @param columnName 列名
     * @return this
-     */
+    */
     AlterIndexBuilder column(String columnName);
 
     /**
     * 设置为唯一索引。
     *
     * @return this
-     */
+    */
     AlterIndexBuilder unique();
 
     /**
@@ -29,13 +29,13 @@ public interface AlterIndexBuilder {
     *
     * @param type 索引类型
     * @return this
-     */
+    */
     AlterIndexBuilder type(String type);
 
     /**
     * 执行索引创建。
     *
     * @return this
-     */
+    */
     TableAlterBuilder execute();
 }

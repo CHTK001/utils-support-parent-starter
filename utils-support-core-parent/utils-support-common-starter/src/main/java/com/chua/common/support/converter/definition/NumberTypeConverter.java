@@ -26,7 +26,7 @@ public class NumberTypeConverter implements TypeConverter<Number> {
     *
     * @param value 源值
     * @return Number 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Number convert(Object value) {
         return transToBigDecimal(value);

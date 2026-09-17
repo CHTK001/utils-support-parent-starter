@@ -25,7 +25,7 @@ public interface ExpressionResolver {
     *
     * @param expression 原始表达式，如 {@code #{method.name}}
     * @return true 表示支持
-     */
+    */
     boolean isSupport(String expression);
 
     /**
@@ -35,14 +35,14 @@ public interface ExpressionResolver {
     * @param root       根对象，表达式可访问其属性
     * @param variables  上下文变量（如 method、args 等）
     * @return 解析后的值，无法解析返回 null
-     */
+    */
     String resolve(String expression, Object root, Map<String, Object> variables);
 
     /**
     * 解析器优先级，值越大优先尝试。
     *
     * @return 优先级，默认 0
-     */
+    */
     default int getOrder() {
         return 0;
     }

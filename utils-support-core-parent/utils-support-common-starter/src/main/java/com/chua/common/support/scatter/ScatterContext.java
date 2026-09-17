@@ -7,7 +7,7 @@ import lombok.Data;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 @Data
 public class ScatterContext {
 

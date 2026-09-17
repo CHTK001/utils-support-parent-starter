@@ -25,7 +25,7 @@ public class FileSystemContext<T> {
     * 构造包含指定数据的上下文。
     *
     * @param data 字段映射数据
-     */
+    */
     public FileSystemContext(Map<String, Object> data) {
         this.data = data;
     }
@@ -34,7 +34,7 @@ public class FileSystemContext<T> {
     * 获取全部字段映射。
     *
     * @return 字段名到值的 Map
-     */
+    */
     public Map<String, Object> toMap() {
         return data;
     }
@@ -43,7 +43,7 @@ public class FileSystemContext<T> {
     * 设置字段映射。
     *
     * @param data 字段名到值的 Map
-     */
+    */
     public void setData(Map<String, Object> data) {
         this.data = data;
     }
@@ -54,7 +54,7 @@ public class FileSystemContext<T> {
     * @param key 字段名
     * @param <R> 值类型
     * @return 字段值
-     */
+    */
     @SuppressWarnings("unchecked")
     public <R> R get(String key) {
         if (data != null) {

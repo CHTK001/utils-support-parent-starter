@@ -49,7 +49,7 @@ public class FileSize {
     * 构造函数。
     *
     * @param bytes 字节数
-     */
+    */
     private FileSize(long bytes) {
         this.bytes = bytes;
     }
@@ -59,7 +59,7 @@ public class FileSize {
     *
     * @param bytes 字节数
     * @return FileSize 实例
-     */
+    */
     public static FileSize of(long bytes) {
         return new FileSize(bytes);
     }
@@ -68,7 +68,7 @@ public class FileSize {
     * 获取字节数。
     *
     * @return 字节数
-     */
+    */
     public long getBytes() {
         return bytes;
     }
@@ -77,7 +77,7 @@ public class FileSize {
     * 获取 KB 数（向上取整）。
     *
     * @return KB 数
-     */
+    */
     public long getKb() {
         return bytes / KB;
     }
@@ -86,7 +86,7 @@ public class FileSize {
     * 获取 MB 数（向上取整）。
     *
     * @return MB 数
-     */
+    */
     public long getMb() {
         return bytes / MB;
     }
@@ -95,7 +95,7 @@ public class FileSize {
     * 获取 GB 数（向上取整）。
     *
     * @return GB 数
-     */
+    */
     public long getGb() {
         return bytes / GB;
     }
@@ -106,7 +106,7 @@ public class FileSize {
     * <p>例如：1024 → "1.00 KB"，1_073_741_824 → "1.00 GB"</p>
     *
     * @return 格式化后的字符串
-     */
+    */
     public String toHumanReadable() {
         if (bytes == 0) {
             return "0 B";
@@ -132,7 +132,7 @@ public class FileSize {
     *
     * @param unit 目标单位（"B", "KB", "MB", "GB", "TB"）
     * @return 格式化后的字符串
-     */
+    */
     public String toHumanReadable(String unit) {
         String unitUpper = unit.toUpperCase();
         double value;
@@ -169,7 +169,7 @@ public class FileSize {
     * @param readable 可读大小字符串
     * @return 字节数
     * @throws IllegalArgumentException 解析失败时抛出
-     */
+    */
     public static long parse(String readable) {
         if (readable == null || readable.trim().isEmpty()) {
             throw new IllegalArgumentException("大小字符串不能为空");
@@ -224,7 +224,7 @@ public class FileSize {
     *
     * @param bytes 字节数
     * @return 格式化后的字符串
-     */
+    */
     public static String format(long bytes) {
         return of(bytes).toHumanReadable();
     }

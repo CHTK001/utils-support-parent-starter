@@ -6,13 +6,13 @@ import lombok.Data;
 import java.nio.file.Path;
 
 /**
-* 备份配置
-*
-* <p>控制备份的核心行为参数，包括目录、保留策略、压缩等。
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 备份配置
+ *
+ * <p>控制备份的核心行为参数，包括目录、保留策略、压缩等。
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 @Data
 @Builder
 public class BackupConfig {
@@ -31,19 +31,19 @@ public class BackupConfig {
     *   │   └── 2026-07-14.zip
     *   └── ...
     * </pre>
-     */
+    */
     private Path backupDir;
 
     /**
     * 要备份的源目录
-     */
+    */
     private Path sourceDir;
 
     /**
     * 保留天数
     *
     * <p>超过此天数的历史备份将被清理。默认 30 天。
-     */
+    */
     @Builder.Default
     private int retentionDays = 30; // retentiondays
 
@@ -51,7 +51,7 @@ public class BackupConfig {
     * 是否压缩历史备份
     *
     * <p>超过当天的备份自动压缩为 ZIP。默认开启。
-     */
+    */
     @Builder.Default
     private boolean compressArchives = true; // compressarchives
 
@@ -59,7 +59,7 @@ public class BackupConfig {
     * 备份文件过滤模式
     *
     * <p>Glob 模式，如 "*.json"、"*.txt"。为空则备份所有文件。
-     */
+    */
     @Builder.Default
     private String includePattern = ""; // include模式
 
@@ -67,7 +67,7 @@ public class BackupConfig {
     * 排除模式
     *
     * <p>Glob 模式，如 "*.tmp"、".git"。为空则不排除。
-     */
+    */
     @Builder.Default
     private String excludePattern = ""; // exclude模式
 }

@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Method;
 
 /**
-* 默认生命周期处理器，支持 初始化aware 接口、@postconstruct、@pre销毁。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 默认生命周期处理器，支持 初始化aware 接口、@postconstruct、@pre销毁。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认生命周期处理器")
@@ -61,7 +61,7 @@ public class DefaultBeanDefinitionLifecycle implements BeanDefinitionLifecycle {
     *
     * @param bean Bean
     * @param annotationType 注解类型
-     */
+    */
     private void invokeAnnotatedMethods(Object bean, Class<? extends java.lang.annotation.Annotation> annotationType) {
         for (Method method : ClassUtils.getLocalMethods(bean.getClass())) {
             if (method.isAnnotationPresent(annotationType) && method.getParameterCount() == 0) {

@@ -36,7 +36,7 @@ public class MetricsServerFilter implements ServerFilter {
 
     /**
     * 指标快照。
-     */
+    */
     public static class MetricsSnapshot {
         /** 总数requests */
         private final long totalRequests;
@@ -80,7 +80,7 @@ public class MetricsServerFilter implements ServerFilter {
         * @param qps qps
         * @param tps tps
         * @param uptimeMs uptimeMs
-         */
+        */
         public MetricsSnapshot(long totalRequests, long errorCount, long activeRequests,
                                double avgLatencyMs, long maxLatencyMs,
                                double p50Ms, double p75Ms, double p90Ms, double p95Ms, double p99Ms,
@@ -150,7 +150,7 @@ public class MetricsServerFilter implements ServerFilter {
 
     /**
     * 指标回调接口。
-     */
+    */
     public interface MetricsCallback {
         void onMetrics(MetricsSnapshot snapshot);
     }
@@ -182,7 +182,7 @@ public class MetricsServerFilter implements ServerFilter {
     *
     * @param callback      指标回调
     * @param periodSeconds 输出周期（秒）
-     */
+    */
     public MetricsServerFilter(MetricsCallback callback, int periodSeconds) {
         this.callback = Objects.requireNonNull(callback, "callback must not be null");
         this.periodSeconds = periodSeconds > 0 ? periodSeconds : 10;

@@ -2,11 +2,11 @@ package com.chua.common.support.network.server.request;
 
 
 /**
-* 上传文件描述，包含字段名、文件名、内容类型和文件数据。
-*
-* @author CH
-* @since 2026/07/17
- */
+ * 上传文件描述，包含字段名、文件名、内容类型和文件数据。
+ *
+ * @author CH
+ * @since 2026/07/17
+*/
 public class FormFile {
 
     /** 表单字段名 */
@@ -21,7 +21,7 @@ public class FormFile {
     /** 文件字节数据 */
     /**
     * 数据
-     */
+    */
     private final byte[] data;
 
     /**
@@ -31,7 +31,7 @@ public class FormFile {
     * @param String String
     * @param byte byte
     * @param data data
-     */
+    */
     public FormFile(String fieldName, String fileName, String contentType, byte[] data) {
         this.fieldName = fieldName;
         this.fileName = fileName;

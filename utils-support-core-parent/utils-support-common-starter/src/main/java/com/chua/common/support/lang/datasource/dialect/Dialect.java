@@ -51,7 +51,7 @@ public interface Dialect {
     * <p>例如：{@code mysql}、{@code postgresql}、{@code oracle}、{@code sqlserver}、{@code clickhouse}。</p>
     *
     * @return 协议名
-     */
+    */
     String protocol();
 
     /**
@@ -60,7 +60,7 @@ public interface Dialect {
     * PostgreSQL 返回 {@code org.postgresql.Driver}。</p>
     *
     * @return 驱动类名
-     */
+    */
     String driver();
 
     /**
@@ -75,7 +75,7 @@ public interface Dialect {
     * <p>例如 MySQL 返回 {@code jdbc:mysql://<IP>:<PORT>/<DATABASE>?useSSL=false&serverTimezone=Asia/Shanghai}。</p>
     *
     * @return URL 模板
-     */
+    */
     String url();
 
     /**
@@ -86,7 +86,7 @@ public interface Dialect {
     * @param port     端口号
     * @param database 数据库名（可为 null）
     * @return 完整的 JDBC URL
-     */
+    */
     default String getUrl(String host, int port, String database) {
         return url().replace("<IP>", host)
                 .replace("<PORT>", String.valueOf(port))
@@ -98,7 +98,7 @@ public interface Dialect {
     * <p>返回 false 表示仅支持逻辑分页（一次性查出全部数据，在内存中截取）。</p>
     *
     * @return true 支持物理分页
-     */
+    */
     boolean supportsLimit();
 
     /**
@@ -114,7 +114,7 @@ public interface Dialect {
     * @param sql        原始 SQL
     * @param pagination 分页参数（含 offset / limit）
     * @return 分页后的 SQL
-     */
+    */
     String processSql(String sql, Pagination pagination);
 
     /**
@@ -124,7 +124,7 @@ public interface Dialect {
     * @param pageNum  页码（从 1 开始）
     * @param pageSize 每页条数
     * @return 分页后的 SQL
-     */
+    */
     default String getPaginationSql(String sql, int pageNum, int pageSize) {
         Pagination p = new Pagination().setPageNum(pageNum).setPageSize(pageSize);
         return processSql(sql, p);
@@ -142,7 +142,7 @@ public interface Dialect {
     * </p>
     *
     * @return 左引用字符
-     */
+    */
     default char openQuote() {
         return ' ';
     }
@@ -152,7 +152,7 @@ public interface Dialect {
     *
     * @return 右引用字符
     * @see #openQuote()
-     */
+    */
     default char closeQuote() {
         return ' ';
     }
@@ -163,7 +163,7 @@ public interface Dialect {
     *
     * @param name 标识符名称
     * @return 引用后的名称，例如 {@code `user_name`}
-     */
+    */
     default String quote(String name) {
         char oq = openQuote(), cq = closeQuote();
         if (oq == ' ' || cq == ' ') {
@@ -181,7 +181,7 @@ public interface Dialect {
     * @param precision 精度（数字类型使用）
     * @param scale    小数位数（数字类型使用）
     * @return 数据库类型字符串
-     */
+    */
     String getTypeName(int jdbcType, long length, int precision, int scale);
 
     /**
@@ -196,7 +196,7 @@ public interface Dialect {
     * </p>
     *
     * @return 自增关键字
-     */
+    */
     default String getAutoIncrementKeyword() {
         return "AUTO_INCREMENT";
     }
@@ -207,7 +207,7 @@ public interface Dialect {
     * 获取 CREATE TABLE 语句的关键词。
     *
     * @return 默认返回 {@code create table}
-     */
+    */
     default String getCreateTableString() {
         return "create table";
     }
@@ -217,7 +217,7 @@ public interface Dialect {
     *
     * @param tableName 表名
     * @return 完整的 DROP TABLE 语句，例如 {@code drop table if exists `user`}
-     */
+    */
     default String getDropTableString(String tableName) {
         return "drop table if exists " + quote(tableName);
     }
@@ -227,7 +227,7 @@ public interface Dialect {
     *
     * @param tableName 表名
     * @return 例如 {@code alter table `user`}
-     */
+    */
     default String getAlterTableString(String tableName) {
         return "alter table " + quote(tableName);
     }
@@ -236,7 +236,7 @@ public interface Dialect {
     * 获取 ADD COLUMN 语句的关键词。
     *
     * @return 默认返回 {@code add column}
-     */
+    */
     default String getAddColumnString() {
         return "add column";
     }
@@ -245,7 +245,7 @@ public interface Dialect {
     * 获取 DROP COLUMN 语句的关键词。
     *
     * @return 默认返回 {@code drop column}
-     */
+    */
     default String getDropColumnString() {
         return "drop column";
     }
@@ -256,7 +256,7 @@ public interface Dialect {
     * @param oldName 原表名
     * @param newName 新表名
     * @return 完整的 RENAME 语句，例如 {@code alter table `user` rename to `user_new`}
-     */
+    */
     default String getRenameTableString(String oldName, String newName) {
         return "alter table " + quote(oldName) + " rename to " + quote(newName);
     }
@@ -271,7 +271,7 @@ public interface Dialect {
     * @param columns   列名列表（逗号分隔）
     * @param values    参数占位符列表（逗号分隔）
     * @return INSERT 语句
-     */
+    */
     default String getInsertSql(String tableName, String columns, String values) {
         return "insert into " + quote(tableName) + " (" + columns + ") values (" + values + ")";
     }
@@ -284,7 +284,7 @@ public interface Dialect {
     * @param setClause  SET 子句
     * @param whereClause WHERE 子句（可为 null 或空）
     * @return UPDATE 语句
-     */
+    */
     default String getUpdateSql(String tableName, String setClause, String whereClause) {
         StringBuilder sb = new StringBuilder("update ").append(quote(tableName)).append(" set ").append(setClause);
         if (whereClause != null && !whereClause.isEmpty()) {
@@ -300,7 +300,7 @@ public interface Dialect {
     * @param tableName   表名
     * @param whereClause WHERE 子句（可为 null 或空）
     * @return DELETE 语句
-     */
+    */
     default String getDeleteSql(String tableName, String whereClause) {
         StringBuilder sb = new StringBuilder("delete from ").append(quote(tableName));
         if (whereClause != null && !whereClause.isEmpty()) {
@@ -313,7 +313,7 @@ public interface Dialect {
     * 判断当前数据库是否支持 UPSERT（INSERT ... ON DUPLICATE KEY UPDATE / MERGE / ON CONFLICT）。
     *
     * @return true 支持 UPSERT
-     */
+    */
     default boolean supportsUpsert() {
         return false;
     }
@@ -331,7 +331,7 @@ public interface Dialect {
     * @param updateSet  冲突时更新的 SET 子句
     * @return UPSERT 语句
     * @throws UnsupportedOperationException 如果数据库不支持 UPSERT
-     */
+    */
     default String getUpsertSql(String tableName, String columns, String values, String updateSet) {
         throw new UnsupportedOperationException("当前数据库不支持 UPSERT: " + protocol());
     }
@@ -344,7 +344,7 @@ public interface Dialect {
     * PostgreSQL/H2 使用 {@code ALTER COLUMN}，Oracle/达梦使用 {@code MODIFY}。</p>
     *
     * @return 默认 {@code modify column}
-     */
+    */
     default String getAlterColumnString() {
         return "modify column";
     }
@@ -355,7 +355,7 @@ public interface Dialect {
     *
     * @param url JDBC URL
     * @return 数据库名，无法解析返回 null
-     */
+    */
     default String getDatabaseName(String url) {
         if (url == null || url.isEmpty()) { return null; }
         int protocolEnd = url.indexOf("://");
@@ -375,7 +375,7 @@ public interface Dialect {
     *
     * @param timeout 超时秒数（0 表示 NOWAIT）
     * @return 写锁语句后缀
-     */
+    */
     default String getWriteLockString(int timeout) {
         return " for update";
     }
@@ -387,7 +387,7 @@ public interface Dialect {
     * @param oldTableName 原表名
     * @param newTableName 新表名
     * @return 重命名语句
-     */
+    */
     default String getRenameTableString(String schemaName, String oldTableName, String newTableName) {
         return "rename table " + quote(oldTableName) + " to " + quote(newTableName);
     }
@@ -398,7 +398,7 @@ public interface Dialect {
     *
     * @param comment 注释内容
     * @return 表注释 SQL 片段
-     */
+    */
     default String getTableComment(String comment) {
         return "";
     }
@@ -408,7 +408,7 @@ public interface Dialect {
     *
     * @param comment 注释内容
     * @return 列注释 SQL 片段
-     */
+    */
     default String getColumnComment(String comment) {
         return "";
     }
@@ -419,7 +419,7 @@ public interface Dialect {
     * Oracle/达梦: {@code SELECT SYSDATE FROM DUAL}。</p>
     *
     * @return 当前时间戳查询 SQL
-     */
+    */
     default String getCurrentTimestampSelectString() {
         return "SELECT CURRENT_TIMESTAMP";
     }
@@ -433,7 +433,7 @@ public interface Dialect {
     * @param columnName   自增列名
     * @param sequenceName 序列名
     * @return 触发器体 SQL
-     */
+    */
     default String getAutoIncrementTriggerBody(String triggerName, String tableName, String columnName, String sequenceName) {
         throw new UnsupportedOperationException("当前数据库不需要触发器实现自增: " + protocol());
     }
@@ -466,7 +466,7 @@ public interface Dialect {
     * @return true 支持内联注释（如 MySQL 兼容数据库），false 需要独立的 COMMENT ON 语句
     * @see #getTableComment(String)
     * @see #getColumnComment(String)
-     */
+    */
     default boolean supportsInlineComment() {
         return false;
     }
@@ -475,7 +475,7 @@ public interface Dialect {
     * 判断当前数据库是否支持表分区。
     *
     * @return true 支持分区
-     */
+    */
     default boolean supportsPartition() {
         return false;
     }
@@ -485,7 +485,7 @@ public interface Dialect {
     *
     * @param tableMetadata 表元数据
     * @return 分区 SQL 片段
-     */
+    */
     default String formatPartitionSql(TableMetadata tableMetadata) {
         if (!supportsPartition() || tableMetadata == null || !tableMetadata.hasPartitions()) {
             return "";
@@ -505,7 +505,7 @@ public interface Dialect {
     * @param partitionType 大写分区类型（RANGE / LIST / HASH / KEY 等）
     * @param partitionCol  分区列元数据
     * @return 分区 SQL 片段
-     */
+    */
     default String doFormatPartitionSql(TableMetadata tableMetadata, String partitionType, ColumnMetadata partitionCol) {
         return "";
     }
@@ -514,7 +514,7 @@ public interface Dialect {
     * 获取分区解析器（用于分区管理操作）。
     *
     * @return 分区解析器实例，不支持返回 null
-     */
+    */
     default PartitionResolver partition() {
         return null;
     }
@@ -526,7 +526,7 @@ public interface Dialect {
     *
     * @param indexMetadata 索引元数据
     * @return CREATE INDEX 语句
-     */
+    */
     default String getCreateIndexString(IndexMetadata indexMetadata) {
         StringBuilder sql = new StringBuilder();
         if (indexMetadata.isUnique()) {
@@ -555,7 +555,7 @@ public interface Dialect {
     * @param indexName 索引名
     * @param tableName 表名
     * @return DROP INDEX 语句
-     */
+    */
     default String getDropIndexString(String indexName, String tableName) {
         return "DROP INDEX " + indexName;
     }
@@ -567,7 +567,7 @@ public interface Dialect {
     * @param newIndexName 新索引名
     * @param tableName    表名
     * @return RENAME INDEX 语句
-     */
+    */
     default String getRenameIndexString(String oldIndexName, String newIndexName, String tableName) {
         return "ALTER INDEX " + oldIndexName + " RENAME TO " + newIndexName;
     }
@@ -579,7 +579,7 @@ public interface Dialect {
     * <p>MySQL 8.0+ 使用 {@code ENGINE}，旧版本使用 {@code TYPE}。</p>
     *
     * @return 默认 {@code engine}
-     */
+    */
     default String getEngineKeyword() {
         return "engine";
     }
@@ -588,7 +588,7 @@ public interface Dialect {
     * 获取默认存储引擎。
     *
     * @return 存储引擎枚举
-     */
+    */
     default StorageEngine getStorageEngine() {
         return StorageEngine.DEFAULT;
     }
@@ -597,7 +597,7 @@ public interface Dialect {
     * 获取表的类型字符串（引擎信息等），追加在 CREATE TABLE 末尾。
     *
     * @return 表类型字符串
-     */
+    */
     default String getTableTypeString() {
         return "";
     }
@@ -622,7 +622,7 @@ public interface Dialect {
     *
     * @param schema schema 名称，null 表示不限定
     * @return 查询 SQL，不支持时返回 null
-     */
+    */
     default String getTriggerListSql(String schema) {
         return null;
     }
@@ -634,7 +634,7 @@ public interface Dialect {
     * @param schema      schema 名称，null 表示不限定
     * @return 查询 SQL，不支持时返回 null
     * @see #getTriggerListSql(String)
-     */
+    */
     default String getTriggerSql(String triggerName, String schema) {
         return null;
     }
@@ -658,7 +658,7 @@ public interface Dialect {
     *
     * @param schema schema 名称，null 表示不限定
     * @return 查询 SQL，不支持时返回 null
-     */
+    */
     default String getProcedureListSql(String schema) {
         return null;
     }
@@ -670,7 +670,7 @@ public interface Dialect {
     * @param schema        schema 名称，null 表示不限定
     * @return 查询 SQL，不支持时返回 null
     * @see #getProcedureListSql(String)
-     */
+    */
     default String getProcedureSql(String procedureName, String schema) {
         return null;
     }
@@ -688,7 +688,7 @@ public interface Dialect {
     * </ul>
     *
     * @return true 支持原生向量操作
-     */
+    */
     default boolean supportsVector() {
         return false;
     }
@@ -698,7 +698,7 @@ public interface Dialect {
     * <p>MySQL 5.7+、PostgreSQL 9.4+、MariaDB 10.2+ 默认支持。</p>
     *
     * @return true 支持 JSON 类型
-     */
+    */
     default boolean supportsJson() {
         return false;
     }
@@ -712,7 +712,7 @@ public interface Dialect {
     * <p>非 SQL 语言用于 {@link #supportsNativePagination()} 判断及分页模板匹配。</p>
     *
     * @return 查询语言标识，默认 {@code "sql"}
-     */
+    */
     default String queryLang() {
         return "sql";
     }
@@ -727,7 +727,7 @@ public interface Dialect {
     * </ul>
     *
     * @return true 支持原生分页
-     */
+    */
     default boolean supportsNativePagination() {
         return supportsLimit();
     }
@@ -739,7 +739,7 @@ public interface Dialect {
     *
     * @param protocol 数据库协议名（如 {@code mysql}、{@code postgresql}）
     * @return 方言实例，未找到返回 null
-     */
+    */
     static Dialect getExtension(String protocol) {
         return ServiceProvider.of(Dialect.class).getExtension(protocol);
     }
@@ -748,7 +748,7 @@ public interface Dialect {
     * 获取所有已注册的方言实现。
     *
     * @return SPI 键 → 方言实例的映射
-     */
+    */
     static Map<String, Dialect> listAll() {
         return ServiceProvider.of(Dialect.class).list();
     }

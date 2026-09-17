@@ -14,18 +14,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 
 /**
-* WAL 文件系统抽象基类，复用 {@link SegmentWalLog} 实现追加写、checkpoint、replay。
-*
-* <h3>文件布局</h3>
-* <pre>
-* ${basedir}/_wal/
-*   ${namespace}-000001.wal
-*   checkpoint.meta
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * WAL 文件系统抽象基类，复用 {@link SegmentWalLog} 实现追加写、checkpoint、replay。
+ *
+ * <h3>文件布局</h3>
+ * <pre>
+ * ${basedir}/_wal/
+ *   ${namespace}-000001.wal
+ *   checkpoint.meta
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public abstract class AbstractWalFileSystem implements WalFileSystem {
 
@@ -37,7 +37,7 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     /**
     * 抽象wal文件系统。
     * @param config 配置
-     */
+    */
     protected AbstractWalFileSystem(WalStoreConfig config) throws IOException {
         this.config = config;
         Path walDir = config.baseDir().resolve("_wal");
@@ -128,26 +128,26 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     /**
     * op类型。
     * @return op类型的结果
-     */
+    */
     protected abstract byte opType();
     /**
     * decode键。
     * @param payload payload
     * @return decode键的结果
-     */
+    */
     protected abstract String decodeKey(byte[] payload);
 
     /**
     * 配置。
     * @return 配置的结果
-     */
+    */
     public WalStoreConfig config() { return config; }
 
     /**
     * 获取segment路径。
     * @param segmentNo segmentno
     * @return 获取segment路径的结果
-     */
+    */
     protected Path getSegmentPath(int segmentNo) {
         return config.baseDir().resolve("_wal")
                 .resolve(String.format("%s-%06d.wal", config.namespace(), segmentNo));
@@ -157,7 +157,7 @@ public abstract class AbstractWalFileSystem implements WalFileSystem {
     * 是否tombstone。
     * @param op op
     * @return 是否tombstone的结果
-     */
+    */
     public static boolean isTombstone(byte op) {
         return (op & OP_TOMBSTONE) != 0;
     }

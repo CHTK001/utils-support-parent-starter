@@ -7,7 +7,7 @@ import java.net.InetSocketAddress;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class SeedAddress {
 
     private final String host;
@@ -27,11 +27,11 @@ public class SeedAddress {
     }
 
     /**
-     * 解析 seed 地址字符串。
-     *
-     * @param address 如 "192.168.1.10:19000" 或 "192.168.1.10"
-     * @return seed 地址，格式非法返回 null
-     */
+    * 解析 seed 地址字符串。
+    *
+    * @param address 如 "192.168.1.10:19000" 或 "192.168.1.10"
+    * @return seed 地址，格式非法返回 null
+    */
     public static SeedAddress parse(String address) {
         if (address == null || address.isBlank()) {
             return null;
@@ -57,11 +57,11 @@ public class SeedAddress {
     }
 
     /**
-     * 获取有效端口：显式端口 > 0 用之，否则回落到节点端口。
-     *
-     * @param fallbackPort 节点端口
-     * @return 有效端口
-     */
+    * 获取有效端口：显式端口 > 0 用之，否则回落到节点端口。
+    *
+    * @param fallbackPort 节点端口
+    * @return 有效端口
+    */
     public int effectivePort(int fallbackPort) {
         return port > 0 ? port : fallbackPort;
     }

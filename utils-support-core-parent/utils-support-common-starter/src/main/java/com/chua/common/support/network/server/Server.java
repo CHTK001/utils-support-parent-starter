@@ -20,33 +20,33 @@ public interface Server extends AutoCloseable {
     * 创建 ServerBuilder 实例。
     *
     * @return ServerBuilder
-     */
+    */
     static ServerBuilder builder() {
         return ServerBuilder.create();
     }
 
     /**
     * 启动服务器。
-     */
+    */
     void start();
 
     /**
     * 停止服务器。
-     */
+    */
     void stop();
 
     /**
     * 判断服务器是否正在运行。
     *
     * @return true 表示服务器正在运行，否则为 false
-     */
+    */
     boolean isRunning();
 
     /**
     * 获取当前服务器的协议类型。
     *
     * @return 协议类型枚举
-     */
+    */
     ProtocolType getProtocolType();
 
     /**
@@ -55,7 +55,7 @@ public interface Server extends AutoCloseable {
     * 支持该能力的传输实现仍需同时开启 {@link ServerSetting#isReactor()} 配置才会进入 Reactor 处理路径。</p>
     *
     * @return true 表示支持 Reactor 请求处理模式
-     */
+    */
     default boolean supportsReactor() {
         return false;
     }
@@ -64,7 +64,7 @@ public interface Server extends AutoCloseable {
     * 获取当前服务器的协议名称（小写）。
     *
     * @return 协议名称字符串
-     */
+    */
     default String getProtocol() {
         return getProtocolType().name().toLowerCase();
     }
@@ -73,14 +73,14 @@ public interface Server extends AutoCloseable {
     * 获取服务器监听的端口号。
     *
     * @return 端口号
-     */
+    */
     int getPort();
 
     /**
     * 获取服务器主机地址。
     *
     * @return 主机地址
-     */
+    */
     default String getHost() {
         ServerSetting setting = getSetting();
         if (setting != null && setting.getHost() != null && !"0.0.0.0".equals(setting.getHost())) {
@@ -93,14 +93,14 @@ public interface Server extends AutoCloseable {
     * 获取服务器访问 URL。
     *
     * @return 服务器 URL
-     */
+    */
     default String getServerUrl() {
         return getProtocol() + "://" + getHost() + ":" + getPort() + "/";
     }
 
     /**
     * 启动服务器（如果未运行）。
-     */
+    */
     default void startIfNeeded() {
         if (!isRunning()) {
             start();
@@ -111,14 +111,14 @@ public interface Server extends AutoCloseable {
     * 获取服务器配置设置。
     *
     * @return 服务器设置对象
-     */
+    */
     ServerSetting getSetting();
 
     /**
     * 获取 IOC 对象上下文。
     *
     * @return ObjectContext 实例，可能为 null
-     */
+    */
     ObjectContext getObjectContext();
 
     /**
@@ -126,14 +126,14 @@ public interface Server extends AutoCloseable {
     * <p>设置后会自动从上下文中发现 ServerFilter 等组件。</p>
     *
     * @param objectContext IOC 上下文对象
-     */
+    */
     void setObjectContext(ObjectContext objectContext);
 
     /**
     * 获取当前的过滤器链列表。
     *
     * @return 过滤器列表
-     */
+    */
     List<ServerFilter> getFilters();
 
     /**
@@ -141,7 +141,7 @@ public interface Server extends AutoCloseable {
     *
     * @param filter 要添加的过滤器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server addFilter(ServerFilter filter);
 
     /**
@@ -149,14 +149,14 @@ public interface Server extends AutoCloseable {
     *
     * @param filter 要移除的过滤器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server removeFilter(ServerFilter filter);
 
     /**
     * 刷新过滤器链，重新加载或初始化过滤器。
     *
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server refreshFilters();
 
     /**
@@ -166,7 +166,7 @@ public interface Server extends AutoCloseable {
     *
     * @param bean 要注册的对象
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server registerBean(Object bean);
 
     /**
@@ -174,12 +174,12 @@ public interface Server extends AutoCloseable {
     *
     * @param bean 要注销的对象
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     Server unregisterBean(Object bean);
 
     /**
     * 关闭服务器并释放资源。
-     */
+    */
     @Override
     void close();
 

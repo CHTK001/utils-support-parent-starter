@@ -27,7 +27,7 @@ public record BotUserInfo(
     * 获取用户在 Bot 平台中的唯一 ID。
     *
     * @return 用户 ID
-     */
+    */
     public String getUserId() {
         return userId;
     }

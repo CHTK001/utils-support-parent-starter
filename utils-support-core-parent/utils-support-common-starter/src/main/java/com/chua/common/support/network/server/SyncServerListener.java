@@ -14,7 +14,7 @@ public interface SyncServerListener {
     *
     * @param clientId 客户端标识
     * @param metadata 客户端元数据
-     */
+    */
     default void onClientConnected(String clientId, java.util.Map<String, Object> metadata) {
     }
 
@@ -22,7 +22,7 @@ public interface SyncServerListener {
     * 客户端连接断开时回调。
     *
     * @param clientId 客户端标识
-     */
+    */
     default void onClientDisconnected(String clientId) {
     }
 
@@ -32,7 +32,7 @@ public interface SyncServerListener {
     * @param clientId 客户端标识
     * @param topic    消息主题
     * @param message  消息内容
-     */
+    */
     default void onMessage(String clientId, String topic, Object message) {
     }
 
@@ -41,7 +41,7 @@ public interface SyncServerListener {
     *
     * @param clientId 客户端标识
     * @param cause    异常
-     */
+    */
     default void onError(String clientId, Throwable cause) {
     }
 }

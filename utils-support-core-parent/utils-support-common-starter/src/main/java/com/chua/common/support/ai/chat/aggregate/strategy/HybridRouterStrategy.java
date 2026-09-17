@@ -36,7 +36,7 @@ public class HybridRouterStrategy implements RouterStrategy {
     * @param groups groups
     * @param healthFilter Predicate
     * @param healthFilter healthFilter
-     */
+    */
     public HybridRouterStrategy(List<GroupRouter> groups, Predicate<WeightedClient> healthFilter) {
         this.groups = groups;
         this.healthFilter = healthFilter == null ? wc -> true : healthFilter;
@@ -45,7 +45,7 @@ public class HybridRouterStrategy implements RouterStrategy {
     /**
     * 创建 HybridRouterStrategy 实例
     * @param groups groups
-     */
+    */
     public HybridRouterStrategy(List<GroupRouter> groups) {
         this(groups, null);
     }
@@ -63,7 +63,7 @@ public class HybridRouterStrategy implements RouterStrategy {
     * @param clients clients
     * @param prompt prompt
     * @param usageCallback usageCallback
-     */
+    */
     public String executeSync(List<WeightedClient> clients, String prompt,
                               Consumer<AiUsage> usageCallback) throws Exception {
         if (groups.isEmpty()) {
@@ -99,7 +99,7 @@ public class HybridRouterStrategy implements RouterStrategy {
     * @param clients clients
     * @param prompt prompt
     * @param consumer consumer
-     */
+    */
     public void executeStream(List<WeightedClient> clients, String prompt,
                               Consumer<ChatResponse> consumer) throws Exception {
         if (groups.isEmpty()) {
@@ -129,7 +129,7 @@ public class HybridRouterStrategy implements RouterStrategy {
 
     /**
     * 过滤掉不健康的客户端
-     */
+    */
     private List<WeightedClient> filterHealthy(List<WeightedClient> clients) {
         List<WeightedClient> result = new ArrayList<>(clients.size());
         for (WeightedClient wc : clients) {
@@ -142,7 +142,7 @@ public class HybridRouterStrategy implements RouterStrategy {
 
     /**
     * 组路由器
-     */
+    */
     public record GroupRouter(
             String name,
             Predicate<String> condition,

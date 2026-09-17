@@ -13,7 +13,7 @@ public interface AlterColumnBuilder {
     * 将列设为 NOT NULL。
     *
     * @return this
-     */
+    */
     AlterColumnBuilder notNull();
 
     /**
@@ -21,7 +21,7 @@ public interface AlterColumnBuilder {
     *
     * @param val 默认值表达式
     * @return this
-     */
+    */
     AlterColumnBuilder defaultValue(String val);
 
     /**
@@ -29,7 +29,7 @@ public interface AlterColumnBuilder {
     *
     * @param comment 列注释
     * @return this
-     */
+    */
     AlterColumnBuilder comment(String comment);
 
     /**
@@ -37,20 +37,20 @@ public interface AlterColumnBuilder {
     *
     * @param columnName 前一列名
     * @return this
-     */
+    */
     AlterColumnBuilder after(String columnName);
 
     /**
     * 将列设为第一列。
     *
     * @return this
-     */
+    */
     AlterColumnBuilder first();
 
     /**
     * 执行列修改。
     *
     * @return this
-     */
+    */
     TableAlterBuilder execute();
 }

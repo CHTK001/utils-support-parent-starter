@@ -23,32 +23,32 @@ public class BarChartViewParser implements ViewParser {
 
     /**
     * 默认条形图宽度（块数）
-     */
+    */
     private static final int DEFAULT_BAR_WIDTH = 20;
 
     /**
     * 已填充块字符
-     */
+    */
     private static final char FILLED_BLOCK = '█';
 
     /**
     * 未填充块字符
-     */
+    */
     private static final char EMPTY_BLOCK = '░';
 
     /**
     * 百分比格式
-     */
+    */
     private static final String PERCENT_FORMAT = "  %.0f%%";
 
     /**
     * 全零数据占位文本
-     */
+    */
     private static final String ALL_ZEROS_PLACEHOLDER = "(all zeros)";
 
     /**
     * 空数据占位文本
-     */
+    */
     private static final String EMPTY_PLACEHOLDER = "(empty)";
 
     /**
@@ -56,7 +56,7 @@ public class BarChartViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 非空 {@link Map} 返回 true
-     */
+    */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -70,7 +70,7 @@ public class BarChartViewParser implements ViewParser {
     *
     * @param data 待渲染的数据（{@link Map}，值为数值）
     * @return 条形图文本；空数据返回 {@value #EMPTY_PLACEHOLDER}，全零返回 {@value #ALL_ZEROS_PLACEHOLDER}
-     */
+    */
     @SuppressWarnings("unchecked")
     @Override
     public String render(Object data) {
@@ -119,7 +119,7 @@ public class BarChartViewParser implements ViewParser {
     *
     * @param val 待解析的对象
     * @return 解析后的数值，解析失败返回 0
-     */
+    */
     private static double parseDouble(Object val) {
         if (val instanceof Number) {
             return ((Number) val).doubleValue();
@@ -135,7 +135,7 @@ public class BarChartViewParser implements ViewParser {
     * 获取解析器顺序。
     *
     * @return 顺序值
-     */
+    */
     @Override
     public int getOrder() {
         return 25;
@@ -148,7 +148,7 @@ public class BarChartViewParser implements ViewParser {
     * @param value 条目数值
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     private record Entry(String name, double value) {
     }
 }

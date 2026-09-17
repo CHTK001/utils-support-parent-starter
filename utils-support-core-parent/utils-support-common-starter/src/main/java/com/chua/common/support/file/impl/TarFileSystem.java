@@ -86,22 +86,22 @@ public class TarFileSystem implements FileSystem {
 
     /**
     * 读写缓冲区的字节数
-     */
+    */
     private static final int BUFFER_SIZE = 8192;
 
     /**
     * 一次性内存块大小（用于读取流式数据为字节数组）
-     */
+    */
     private static final int STREAM_BUFFER_SIZE = 8192;
 
     /**
     * 归档条目名分隔符
-     */
+    */
     private static final String ENTRY_NAME_SEPARATOR = "/";
 
     /**
     * 提取操作错误信息：条目路径在目标目录之外，防止 Zip Slip 攻击
-     */
+    */
     private static final String ERROR_ENTRY_OUTSIDE_TARGET = "TAR entry outside target: ";
 
     @Override
@@ -126,7 +126,7 @@ public class TarFileSystem implements FileSystem {
     * TAR 文件读取构建器。
     *
     * @since 1.0.0
-     */
+    */
     public static class TarReadBuilder extends ReadBuilder {
 
         /** 是否启用 GZIP 解包 */
@@ -144,7 +144,7 @@ public class TarFileSystem implements FileSystem {
         * <p>启用后将自动检测同目录下的分卷文件并合并读取。</p>
         *
         * @return 当前构建器
-         */
+        */
         public TarReadBuilder split() {
             this.splitMode = true;
             return this;
@@ -154,7 +154,7 @@ public class TarFileSystem implements FileSystem {
         * 启用 GZIP 解包（读取 .tar.gz 文件时使用）。
         *
         * @return 当前构建器
-         */
+        */
         public TarReadBuilder gz() {
             this.gzipEnabled = true;
             return this;
@@ -162,7 +162,7 @@ public class TarFileSystem implements FileSystem {
 
         /**
         * 创建输入流，自动判断是否使用 GZIP 解包。
-         */
+        */
         private InputStream openInput() throws IOException {
             InputStream is;
             if (splitMode) {
@@ -181,7 +181,7 @@ public class TarFileSystem implements FileSystem {
         *
         * @return 合并后的输入流
         * @throws IOException IO 异常
-         */
+        */
         private InputStream createMergedInputStream() throws IOException {
             List<File> splitFiles = findSplitFiles();
             if (splitFiles.size() <= 1) {
@@ -194,7 +194,7 @@ public class TarFileSystem implements FileSystem {
         * 查找同目录下的分卷文件。
         *
         * @return 分卷文件列表（按顺序排列）
-         */
+        */
         private List<File> findSplitFiles() {
             List<File> splitFiles = new ArrayList<>();
             File parentDir = file.getParentFile();
@@ -243,7 +243,7 @@ public class TarFileSystem implements FileSystem {
 
         /**
         * 合并多个分卷文件的输入流。
-         */
+        */
         private static class MergedInputStream extends InputStream {
             private final List<File> files;
             private int currentIndex = 0;
@@ -405,7 +405,7 @@ public class TarFileSystem implements FileSystem {
     * TAR 文件写入构建器。
     *
     * @since 1.0.0
-     */
+    */
     public static class TarWriteBuilder extends WriteBuilder {
 
         private final List<TarEntryData> entries = new ArrayList<>();

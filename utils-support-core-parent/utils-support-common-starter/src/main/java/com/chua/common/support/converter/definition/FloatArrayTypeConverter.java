@@ -23,7 +23,7 @@ public class FloatArrayTypeConverter implements TypeConverter<Float[]> {
     *
     * @param value 源值
     * @return Float[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public Float[] convert(Object value) {
         if (null == value) {
@@ -50,7 +50,7 @@ public class FloatArrayTypeConverter implements TypeConverter<Float[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Float[].class
-     */
+    */
     @Override
     public Class<Float[]> getType() {
         return Float[].class;

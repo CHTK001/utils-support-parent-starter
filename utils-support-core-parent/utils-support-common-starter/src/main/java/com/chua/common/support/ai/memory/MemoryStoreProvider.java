@@ -18,6 +18,6 @@ public interface MemoryStoreProvider {
     *
     * @param config 记忆体配置
     * @return 记忆存储实例
-     */
+    */
     MemoryStore create(MemoryConfig config);
 }

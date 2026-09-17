@@ -24,38 +24,38 @@ public final class CircuitBreakerFlow {
 
     /**
     * 熔断器缓存，按名称索引
-     */
+    */
     private static final Map<String, CircuitBreakerProvider> CACHE = new ConcurrentHashMap<>();
 
     /**
     * 熔断器名称
-     */
+    */
     private final String name;
 
     /**
     * 失败阈值，达到此次数后熔断打开
-     */
+    */
     private int failureThreshold = 5;
 
     /**
     * 成功阈值，达到此次数后熔断关闭
-     */
+    */
     private int successThreshold = 2;
 
     /**
     * 熔断打开后的等待时间（毫秒），之后进入半开状态
-     */
+    */
     private long waitDuration = 60000;
 
     /**
     * 熔断拒绝时的降级回调
-     */
+    */
     private Supplier<Object> fallback;
 
     /**
     * 创建 CircuitBreakerFlow 实例
     * @param name name
-     */
+    */
     private CircuitBreakerFlow(String name) {
         this.name = name;
     }
@@ -65,7 +65,7 @@ public final class CircuitBreakerFlow {
     *
     * @param name 熔断器名称
     * @return 门面实例
-     */
+    */
     public static CircuitBreakerFlow of(String name) {
         return new CircuitBreakerFlow(name);
     }
@@ -75,7 +75,7 @@ public final class CircuitBreakerFlow {
     *
     * @param failureThreshold 失败次数
     * @return 当前门面
-     */
+    */
     public CircuitBreakerFlow failureThreshold(int failureThreshold) {
         this.failureThreshold = failureThreshold;
         return this;
@@ -86,7 +86,7 @@ public final class CircuitBreakerFlow {
     *
     * @param successThreshold 成功次数
     * @return 当前门面
-     */
+    */
     public CircuitBreakerFlow successThreshold(int successThreshold) {
         this.successThreshold = successThreshold;
         return this;
@@ -97,7 +97,7 @@ public final class CircuitBreakerFlow {
     *
     * @param waitDuration 等待时间（毫秒）
     * @return 当前门面
-     */
+    */
     public CircuitBreakerFlow waitDuration(long waitDuration) {
         this.waitDuration = waitDuration;
         return this;
@@ -108,7 +108,7 @@ public final class CircuitBreakerFlow {
     *
     * @param fallback 降级回调
     * @return 当前门面
-     */
+    */
     public CircuitBreakerFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
@@ -118,7 +118,7 @@ public final class CircuitBreakerFlow {
     * 尝试获取执行许可。
     *
     * @return 获取成功返回 true
-     */
+    */
     public boolean tryAcquire() {
         CircuitBreakerProvider provider = getProvider();
         return provider.tryAcquire();
@@ -130,7 +130,7 @@ public final class CircuitBreakerFlow {
     * @param callable 要执行的任务
     * @param <T>      返回值类型
     * @return 任务执行结果，熔断拒绝时返回降级结果
-     */
+    */
     public <T> T execute(Callable<T> callable) {
         CircuitBreakerProvider provider = getProvider();
         if (!provider.tryAcquire()) {
@@ -177,7 +177,7 @@ public final class CircuitBreakerFlow {
     *
     * @param name 熔断器名称
     * @return 熔断器实例，未找到返回 null
-     */
+    */
     public static CircuitBreakerProvider get(String name) {
         return CACHE.get(name);
     }
@@ -186,14 +186,14 @@ public final class CircuitBreakerFlow {
     * 移除指定熔断器缓存。
     *
     * @param name 熔断器名称
-     */
+    */
     public static void remove(String name) {
         CACHE.remove(name);
     }
 
     /**
     * 清空所有熔断器缓存。
-     */
+    */
     public static void clear() {
         CACHE.clear();
     }
@@ -202,7 +202,7 @@ public final class CircuitBreakerFlow {
     * 列出所有已缓存的熔断器（按名称索引）。
     *
     * @return 熔断器名称 → 实例映射
-     */
+    */
     public static Map<String, CircuitBreakerProvider> list() {
         return new java.util.HashMap<>(CACHE);
     }

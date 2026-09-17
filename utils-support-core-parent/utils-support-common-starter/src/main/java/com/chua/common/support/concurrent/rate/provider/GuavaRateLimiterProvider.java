@@ -27,7 +27,7 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     *
     * @param name             限流器名称
     * @param permitsPerSecond 每秒许可数
-     */
+    */
     public GuavaRateLimiterProvider(String name, double permitsPerSecond) {
         this.name = name;
         this.rateLimiter = RateLimiter.create(permitsPerSecond);
@@ -39,7 +39,7 @@ public class GuavaRateLimiterProvider implements RateLimiterProvider {
     * @param name             限流器名称
     * @param permitsPerSecond 每秒许可数
     * @param warmupPeriod     预热时间（秒）
-     */
+    */
     public GuavaRateLimiterProvider(String name, double permitsPerSecond, long warmupPeriod) {
         this.name = name;
         this.rateLimiter = RateLimiter.create(permitsPerSecond, warmupPeriod, TimeUnit.SECONDS);

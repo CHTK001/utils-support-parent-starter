@@ -15,7 +15,7 @@ public class JsonViewParser implements ViewParser {
 
     /**
     * 空数据占位文本
-     */
+    */
     private static final String EMPTY_PLACEHOLDER = "(null)";
 
     /**
@@ -23,7 +23,7 @@ public class JsonViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 始终支持（作为兜底渲染器）
-     */
+    */
     @Override
     public boolean support(Object data) {
         return true;
@@ -34,7 +34,7 @@ public class JsonViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 格式化 JSON；序列化失败时回退为 {@code toString()}，空数据返回 {@value #EMPTY_PLACEHOLDER}
-     */
+    */
     @Override
     public String render(Object data) {
         if (data == null) {
@@ -51,7 +51,7 @@ public class JsonViewParser implements ViewParser {
     * 获取解析器顺序。
     *
     * @return 最大顺序值（最后兜底）
-     */
+    */
     @Override
     public int getOrder() {
         return Integer.MAX_VALUE;

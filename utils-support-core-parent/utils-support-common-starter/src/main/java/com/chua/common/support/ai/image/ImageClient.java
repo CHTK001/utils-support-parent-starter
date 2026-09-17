@@ -51,7 +51,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     * @param provider AI 服务商名称，如 "openai"、"midjourney"、"stable-diffusion" 等
     * @param apiKey   API 密钥
     * @return ImageClient 实例
-     */
+    */
     static ImageClient create(String provider, String apiKey) {
         return ServiceProvider.of(ImageClient.class)
                 .getNewExtension(provider, ImageClientSetting.builder()
@@ -63,7 +63,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl、model 等
     * @return ImageClient 实例
-     */
+    */
     static ImageClient create(ImageClientSetting setting) {
         return ServiceProvider.of(ImageClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -76,7 +76,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 基地址
     * @return ImageClient 实例
-     */
+    */
     static ImageClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(ImageClient.class)
                 .getNewExtension(provider, ImageClientSetting.builder()
@@ -88,7 +88,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient provider(String provider) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param model 模型名称，如 "dall-e-3"、"mj-6"、"sd-xl" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient model(String model) {
         return this;
     }
@@ -109,7 +109,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     * @param width  图片宽度（像素）
     * @param height 图片高度（像素）
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient size(int width, int height) {
         return this;
     }
@@ -119,7 +119,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param prompt 图片描述文本
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient prompt(String prompt) {
         return this;
     }
@@ -129,7 +129,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param negativePrompt 反向提示词
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient negativePrompt(String negativePrompt) {
         return this;
     }
@@ -139,7 +139,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param quality 质量等级，如 "standard"、"hd" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient quality(String quality) {
         return this;
     }
@@ -149,7 +149,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param style 风格描述，如 "vivid"、"natural"、"expressive" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient style(String style) {
         return this;
     }
@@ -159,7 +159,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param seed 随机种子值，固定种子可保证多次生成结果可复现
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient seed(Long seed) {
         return this;
     }
@@ -169,7 +169,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param steps 推理步数，步数越高图片细节越丰富但耗时更长
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient steps(Integer steps) {
         return this;
     }
@@ -182,7 +182,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param image 参考图字节数据
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient referenceImage(byte[] image) {
         return this;
     }
@@ -194,7 +194,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param image 参考图对象
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient referenceImage(BufferedImage image) {
         return this;
     }
@@ -208,7 +208,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param strength 影响强度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient imageStrength(double strength) {
         return this;
     }
@@ -222,7 +222,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param controlType ControlNet 类型名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default ImageClient controlType(String controlType) {
         return this;
     }
@@ -234,14 +234,14 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param prompt 图片描述提示词
     * @return 生成的图片对象
-     */
+    */
     BufferedImage generate(String prompt);
 
     /**
     * 同步生成图片（使用已配置的 prompt）
     *
     * @return 生成的图片对象
-     */
+    */
     default BufferedImage generate() {
         return generate(null);
     }
@@ -253,7 +253,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param prompt 图片描述提示词
     * @return 任务 ID，用于后续查询任务状态和结果
-     */
+    */
     String createTask(String prompt);
 
     /**
@@ -261,12 +261,12 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     *
     * @param taskId 任务 ID，由 {@link #createTask(String)} 返回
     * @return 任务状态及结果，包含进度、图片数据等信息
-     */
+    */
     ImageResponse queryTask(String taskId);
 
     /**
     * 关闭客户端，释放底层资源
-     */
+    */
     @Override
     default void close() {
     }
@@ -278,7 +278,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     * 默认返回空列表，子类可按需覆写。
     *
     * @return 可用模型 ID 列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -289,7 +289,7 @@ public interface ImageClient extends AutoCloseable, PooledObjectClient<ImageClie
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {

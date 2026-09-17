@@ -35,82 +35,82 @@ class FtpCommandHandler {
 
     /**
     * FTP 200 响应码：命令成功
-     */
+    */
     private static final int CODE_OK = 200;
 
     /**
     * FTP 220 响应码：服务就绪
-     */
+    */
     private static final int CODE_SERVICE_READY = 220;
 
     /**
     * FTP 221 响应码：服务关闭
-     */
+    */
     private static final int CODE_SERVICE_CLOSE = 221;
 
     /**
     * FTP 226 响应码：数据连接关闭，请求的文件操作成功
-     */
+    */
     private static final int CODE_DATA_CLOSE = 226;
 
     /**
     * FTP 227 响应码：进入被动模式
-     */
+    */
     private static final int CODE_ENTER_PASV = 227;
 
     /**
     * FTP 230 响应码：用户登录成功
-     */
+    */
     private static final int CODE_LOGIN_SUCCESS = 230;
 
     /**
     * FTP 331 响应码：用户名正确，需要密码
-     */
+    */
     private static final int CODE_NEED_PASSWORD = 331;
 
     /**
     * FTP 350 响应码：请求的文件操作需要进一步命令
-     */
+    */
     private static final int CODE_FILE_ACTION_PENDING = 350;
 
     /**
     * FTP 421 响应码：服务不可用
-     */
+    */
     private static final int CODE_SERVICE_UNAVAILABLE = 421;
 
     /**
     * FTP 425 响应码：无法打开数据连接
-     */
+    */
     private static final int CODE_CANNOT_OPEN_DATA = 425;
 
     /**
     * FTP 500 响应码：语法错误，命令无法识别
-     */
+    */
     private static final int CODE_SYNTAX_ERROR = 500;
 
     /**
     * FTP 501 响应码：参数语法错误
-     */
+    */
     private static final int CODE_PARAM_ERROR = 501;
 
     /**
     * FTP 530 响应码：登录失败
-     */
+    */
     private static final int CODE_LOGIN_FAILED = 530;
 
     /**
     * FTP 550 响应码：请求的操作未执行，文件不可用
-     */
+    */
     private static final int CODE_FILE_UNAVAILABLE = 550;
 
     /**
     * FTP 隐藏文件前缀
-     */
+    */
     private static final String HIDDEN_FILE_PREFIX = ".";
 
     /**
     * 日期格式化器
-     */
+    */
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd HH:mm", Locale.US);
 
     /**
@@ -119,7 +119,7 @@ class FtpCommandHandler {
     * @param session FTP 会话
     * @param line    原始命令行
     * @return 是否继续处理（false 表示会话应关闭）
-     */
+    */
     boolean handleCommand(FtpSession session, String line) {
         if (line == null || line.isBlank()) {
             return true;
@@ -171,7 +171,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param username 用户名
     * @return 是否继续
-     */
+    */
     private boolean handleUser(FtpSession session, String username) {
         if (username.isBlank()) {
             session.reply(CODE_PARAM_ERROR, "Username cannot be empty.");
@@ -202,7 +202,7 @@ class FtpCommandHandler {
     * @param session FTP 会话
     * @param password 密码
     * @return 是否继续
-     */
+    */
     private boolean handlePass(FtpSession session, String password) {
         // 匿名用户已在 USER 阶段处理
         if (session.isAnonymous()) {
@@ -227,7 +227,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续（始终返回 false）
-     */
+    */
     private boolean handleQuit(FtpSession session) {
         session.reply(CODE_SERVICE_CLOSE, "Goodbye.");
         return false;
@@ -238,7 +238,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续
-     */
+    */
     private boolean handleSyst(FtpSession session) {
         session.reply(CODE_OK, "UNIX Type: L8");
         return true;
@@ -249,7 +249,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续
-     */
+    */
     private boolean handleFeat(FtpSession session) {
         session.replyMultiLine(CODE_OK,
                 "Extensions supported:",
@@ -269,7 +269,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 类型参数（I=二进制，A=ASCII）
     * @return 是否继续
-     */
+    */
     private boolean handleType(FtpSession session, String argument) {
         if (argument.isBlank()) {
             session.reply(CODE_PARAM_ERROR, "Type requires an argument.");
@@ -299,7 +299,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续
-     */
+    */
     private boolean handlePwd(FtpSession session) {
         var dir = session.getCurrentDir();
         // FTP 规范要求路径用双引号包裹
@@ -313,7 +313,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 目录路径
     * @return 是否继续
-     */
+    */
     private boolean handleCwd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -337,7 +337,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续
-     */
+    */
     private boolean handleCdup(FtpSession session) {
         var currentDir = session.getCurrentDir();
         if (currentDir.equals("/")) {
@@ -360,7 +360,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 目录路径
     * @return 是否继续
-     */
+    */
     private boolean handleMkd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -382,7 +382,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 目录路径
     * @return 是否继续
-     */
+    */
     private boolean handleRmd(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -411,7 +411,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleDele(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -440,7 +440,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 原文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleRnfr(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null || !Files.exists(resolved)) {
@@ -462,7 +462,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 新文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleRnto(FtpSession session, String argument) {
         var rnfrPath = (String) session.getAttribute("RNFR_PATH");
         if (rnfrPath == null) {
@@ -490,7 +490,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument PORT 参数（h1,h2,h3,h4,p1,p2）
     * @return 是否继续
-     */
+    */
     private boolean handlePort(FtpSession session, String argument) {
         if (!session.getConfig().isAllowActiveMode()) {
             session.reply(CODE_SYNTAX_ERROR, "Active mode not allowed.");
@@ -519,7 +519,7 @@ class FtpCommandHandler {
     *
     * @param session FTP 会话
     * @return 是否继续
-     */
+    */
     private boolean handlePasv(FtpSession session) {
         if (!session.getConfig().isAllowPassiveMode()) {
             session.reply(CODE_SYNTAX_ERROR, "Passive mode not allowed.");
@@ -541,7 +541,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 远程文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleStor(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -582,7 +582,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 远程文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleRetr(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null) {
@@ -621,7 +621,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 目录路径（可为空）
     * @return 是否继续
-     */
+    */
     private boolean handleList(FtpSession session, String argument) {
         var dirPath = session.resolvePath(argument.isEmpty() ? "." : argument);
         if (dirPath == null || !Files.isDirectory(dirPath)) {
@@ -663,7 +663,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 目录路径（可为空）
     * @return 是否继续
-     */
+    */
     private boolean handleNlst(FtpSession session, String argument) {
         var dirPath = session.resolvePath(argument.isEmpty() ? "." : argument);
         if (dirPath == null || !Files.isDirectory(dirPath)) {
@@ -703,7 +703,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 字节偏移量
     * @return 是否继续
-     */
+    */
     private boolean handleRest(FtpSession session, String argument) {
         try {
             var offset = Long.parseLong(argument);
@@ -721,7 +721,7 @@ class FtpCommandHandler {
     * @param session  FTP 会话
     * @param argument 文件路径
     * @return 是否继续
-     */
+    */
     private boolean handleSize(FtpSession session, String argument) {
         var resolved = session.resolvePath(argument);
         if (resolved == null || !Files.exists(resolved)) {
@@ -741,7 +741,7 @@ class FtpCommandHandler {
     * 确保匿名上传目录存在。
     *
     * @param session FTP 会话
-     */
+    */
     private void ensureAnonymousUploadDir(FtpSession session) {
         var uploadDir = Path.of(
                 session.getConfig().getHomeDirectory().getAbsolutePath(),
@@ -758,7 +758,7 @@ class FtpCommandHandler {
     *
     * @param path 文件路径
     * @return Unix ls -l 格式的字符串
-     */
+    */
     private String formatUnixListEntry(Path path) {
         var isDir = Files.isDirectory(path);
         var size = 0L;

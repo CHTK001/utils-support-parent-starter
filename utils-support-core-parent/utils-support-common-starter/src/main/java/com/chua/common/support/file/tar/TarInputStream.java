@@ -18,34 +18,34 @@ public class TarInputStream extends FilterInputStream {
 
 	/**
 	* 跳过缓冲区的大小，默认为 2048 字节。
-	 */
+ */
 	private static final int SKIP_BUFFER_SIZE = 2048;
 
 	/**
 	* 当前正在处理的 TAR 条目。
-	 */
+ */
 	private TarEntry currentEntry;
 
 	/**
 	* 当前条目已读取的字节数。
-	 */
+ */
 	private long currentFileSize;
 
 	/**
 	* 从流开始读取至今的总字节数。
-	 */
+ */
 	private long bytesRead;
 
 	/**
 	* 是否使用父类的 skip 方法。默认值为 false，表示手动实现跳过逻辑以精确控制字节计数。
-	 */
+ */
 	private boolean defaultSkip = false;
 
 	/**
 	* 构造一个新的 TarInputStream。
 	*
 	* @param in 底层的输入流
-	 */
+ */
 	public TarInputStream(InputStream in) {
 		super(in);
 		this.currentFileSize = 0L;
@@ -56,7 +56,7 @@ public class TarInputStream extends FilterInputStream {
 	* 标记功能不支持。
 	*
 	* @return false
-	 */
+ */
 	@Override
 	public boolean markSupported() {
 		return false;
@@ -66,7 +66,7 @@ public class TarInputStream extends FilterInputStream {
 	* 标记功能不被支持，直接返回。
 	*
 	* @param readlimit 读取限制（未使用）
-	 */
+ */
 	@Override
 	public synchronized void mark(int readlimit) {
 	}
@@ -75,7 +75,7 @@ public class TarInputStream extends FilterInputStream {
 	* 重置功能不被支持，抛出异常。
 	*
 	* @throws IOException 总是抛出此异常
-	 */
+ */
 	@Override
 	public synchronized void reset() throws IOException {
 		throw new IOException("mark/reset not supported");
@@ -86,7 +86,7 @@ public class TarInputStream extends FilterInputStream {
 	*
 	* @return 读取到的字节值 (0-255)，如果到达文件末尾则返回 -1
 	* @throws IOException 发生 I/O 错误时抛出
-	 */
+ */
 	@Override
 	public int read() throws IOException {
 		byte[] buf = new byte[1];
@@ -110,7 +110,7 @@ public class TarInputStream extends FilterInputStream {
 	* @param len 请求读取的长度
 	* @return 实际读取的字节数，如果到达文件末尾则返回 -1
 	* @throws IOException 发生 I/O 错误时抛出
-	 */
+ */
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		if (currentEntry != null) {
@@ -139,7 +139,7 @@ public class TarInputStream extends FilterInputStream {
 	*
 	* @return 下一个 TAR 条目，如果没有更多条目则返回 null
 	* @throws IOException 发生 I/O 错误或文件损坏时抛出
-	 */
+ */
 	public TarEntry getNextEntry() throws IOException {
 		closeCurrentEntry();
 
@@ -180,7 +180,7 @@ public class TarInputStream extends FilterInputStream {
 	* </p>
 	*
 	* @return 当前偏移量
-	 */
+ */
 	public long getCurrentOffset() {
 		return bytesRead;
 	}
@@ -192,7 +192,7 @@ public class TarInputStream extends FilterInputStream {
 	* </p>
 	*
 	* @throws IOException 发生 I/O 错误或检测到文件损坏时抛出
-	 */
+ */
 	protected void closeCurrentEntry() throws IOException {
 		if (currentEntry != null) {
 			if (currentEntry.getSize() > currentFileSize) {
@@ -221,7 +221,7 @@ public class TarInputStream extends FilterInputStream {
 	* </p>
 	*
 	* @throws IOException 发生 I/O 错误时抛出
-	 */
+ */
 	protected void skipPad() throws IOException {
 		if (bytesRead > 0) {
 			int extra = (int) (bytesRead % TarConstants.DATA_BLOCK);
@@ -246,7 +246,7 @@ public class TarInputStream extends FilterInputStream {
 	* @param n 要跳过的字节数
 	* @return 实际跳过的字节数
 	* @throws IOException 发生 I/O 错误时抛出
-	 */
+ */
 	@Override
 	public long skip(long n) throws IOException {
 		if (defaultSkip) {
@@ -278,7 +278,7 @@ public class TarInputStream extends FilterInputStream {
 	* 获取是否使用父类 skip 方法的标志。
 	*
 	* @return true 表示使用父类 skip 方法，false 表示手动实现
-	 */
+ */
 	public boolean isDefaultSkip() {
 		return defaultSkip;
 	}
@@ -287,7 +287,7 @@ public class TarInputStream extends FilterInputStream {
 	* 设置是否使用父类 skip 方法。
 	*
 	* @param defaultSkip true 表示使用父类 skip 方法，false 表示手动实现
-	 */
+ */
 	public void setDefaultSkip(boolean defaultSkip) {
 		this.defaultSkip = defaultSkip;
 	}

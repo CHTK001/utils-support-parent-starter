@@ -33,7 +33,7 @@ public final class MatcherUtils {
     *
     * @param path 请求路径
     * @return 如果是模式字符串返回 true
-     */
+    */
     public static boolean isPattern(String path) {
         return PATH_MATCHER.isPattern(path);
     }
@@ -44,7 +44,7 @@ public final class MatcherUtils {
     * @param pattern 匹配模式（支持 Ant 风格通配符）
     * @param path    请求路径
     * @return 如果匹配返回 true
-     */
+    */
     public static boolean matchPath(String pattern, String path) {
         return PATH_MATCHER.match(pattern, path);
     }
@@ -55,7 +55,7 @@ public final class MatcherUtils {
     * @param pattern 匹配模式
     * @param path    请求路径
     * @return 如果匹配开头返回 true
-     */
+    */
     public static boolean matchStart(String pattern, String path) {
         return PATH_MATCHER.matchStart(pattern, path);
     }
@@ -69,7 +69,7 @@ public final class MatcherUtils {
     * @param pattern 包含 {var} 模板变量的模式
     * @param path    请求路径
     * @return 变量名到值的映射，不匹配时返回空 Map
-     */
+    */
     public static Map<String, String> extractTemplateVariables(String pattern, String path) {
         AntPathMatcher antMatcher = (AntPathMatcher) PATH_MATCHER;
         try {
@@ -87,7 +87,7 @@ public final class MatcherUtils {
     * @param patterns 候选模式列表
     * @param path     请求路径
     * @return 最佳匹配的模式，无匹配返回 null
-     */
+    */
     public static String getMatchingPattern(Iterable<String> patterns, String path) {
         if (patterns == null) {
             return null;

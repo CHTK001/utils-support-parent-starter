@@ -18,12 +18,12 @@ public class ObjectBeanPath implements BeanPath {
 
     /**
     * 是否忽略大小写匹配属性名
-     */
+    */
     private boolean ignoreCase;
 
     /**
     * 命名风格，用于自动转换属性名
-     */
+    */
     private NamingStyle namingStyle = NamingStyle.RAW;
 
     @Override

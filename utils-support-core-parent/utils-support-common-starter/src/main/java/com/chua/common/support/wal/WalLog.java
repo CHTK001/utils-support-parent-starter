@@ -6,25 +6,25 @@ import java.util.List;
 import java.util.Optional;
 
 /**
-* WAL 日志统一接口，支持追加、回放、链式事务、分片查找、checkpoint 管理。
-*
-* <p>实现类：</p>
-* <ul>
-*   <li>{@link SimpleWalLog}：单文件实现，不分片</li>
-*   <li>{@link SegmentWalLog}：分片 + 滚动实现</li>
-* </ul>
-*
-* <h2>checkpoint 设计</h2>
-* <ul>
-*   <li>checkpoint 由 WAL 内部维护（{@link #loadCheckpoint()}）</li>
-*   <li>业务方持久化完成后调用 {@link #markCheckpoint(long)} 推进</li>
-*   <li>回放默认从 checkpoint 之后开始（{@link #replay(WalReplayHandler)}）</li>
-*   <li>需要从特定 LSN 开始可使用 {@link #replay(long, WalReplayHandler)}</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * WAL 日志统一接口，支持追加、回放、链式事务、分片查找、checkpoint 管理。
+ *
+ * <p>实现类：</p>
+ * <ul>
+ *   <li>{@link SimpleWalLog}：单文件实现，不分片</li>
+ *   <li>{@link SegmentWalLog}：分片 + 滚动实现</li>
+ * </ul>
+ *
+ * <h2>checkpoint 设计</h2>
+ * <ul>
+ *   <li>checkpoint 由 WAL 内部维护（{@link #loadCheckpoint()}）</li>
+ *   <li>业务方持久化完成后调用 {@link #markCheckpoint(long)} 推进</li>
+ *   <li>回放默认从 checkpoint 之后开始（{@link #replay(WalReplayHandler)}）</li>
+ *   <li>需要从特定 LSN 开始可使用 {@link #replay(long, WalReplayHandler)}</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public interface WalLog extends Closeable {
 
     /**
@@ -34,21 +34,21 @@ public interface WalLog extends Closeable {
     * @param payload 业务字节流
     * @return 写入分配的 LSN
     * @throws IOException IO 异常
-     */
+    */
     long append(byte op, byte[] payload) throws IOException;
 
     /**
     * 同步刷盘（不写记录）。
     *
     * @throws IOException IO 异常
-     */
+    */
     void sync() throws IOException;
 
     /**
     * 当前最大 LSN（最近一次 追加 分配的 LSN，初始 0）。
     *
     * @return 当前 LSN
-     */
+    */
     long currentLsn();
 
     // ==================== Checkpoint ====================
@@ -60,7 +60,7 @@ public interface WalLog extends Closeable {
     *
     * @return checkpoint 元信息（无则返回 {@link CheckpointMeta#empty()}）
     * @throws IOException IO 异常
-     */
+    */
     CheckpointMeta loadCheckpoint() throws IOException;
 
     /**
@@ -70,7 +70,7 @@ public interface WalLog extends Closeable {
     *
     * @param lsn 已成功持久化的最大 LSN（含）
     * @throws IOException IO 异常
-     */
+    */
     void markCheckpoint(long lsn) throws IOException;
 
     /**
@@ -79,7 +79,7 @@ public interface WalLog extends Closeable {
     * <p>下次 replay 会从第一条记录开始重新应用。</p>
     *
     * @throws IOException IO 异常
-     */
+    */
     void resetCheckpoint() throws IOException;
 
     /**
@@ -87,7 +87,7 @@ public interface WalLog extends Closeable {
     *
     * @param lsn 目标 LSN
     * @throws IOException IO 异常
-     */
+    */
     void forceCheckpoint(long lsn) throws IOException;
 
     // ==================== Replay ====================
@@ -106,7 +106,7 @@ public interface WalLog extends Closeable {
     * @param handler 回放处理器
     * @return 回放结果（含 checkpoint 与回放的记录列表）
     * @throws IOException IO 异常
-     */
+    */
     WalReplayResult replay(WalReplayHandler handler) throws IOException;
 
     /**
@@ -116,7 +116,7 @@ public interface WalLog extends Closeable {
     * @param handler 回放处理器
     * @return 回放结果
     * @throws IOException IO 异常
-     */
+    */
     WalReplayResult replay(long fromLsn, WalReplayHandler handler) throws IOException;
 
     /**
@@ -129,7 +129,7 @@ public interface WalLog extends Closeable {
     * @param handler 回放处理器（可返回 false 中止）
     * @return 回放结果
     * @throws IOException IO 异常
-     */
+    */
     WalReplayResult replay(long fromLsn, long toLsn, WalReplayHandler handler) throws IOException;
 
     // ==================== Chain ====================
@@ -140,7 +140,7 @@ public interface WalLog extends Closeable {
     * @param handler 链式处理器
     * @return 实际写入的最后一条 LSN
     * @throws IOException IO 异常
-     */
+    */
     long appendChain(WalChainHandler handler) throws IOException;
 
     // ==================== Query ====================
@@ -151,7 +151,7 @@ public interface WalLog extends Closeable {
     * @param lsn 目标 LSN
     * @return 记录（找不到返回 {@link Optional#empty()}）
     * @throws IOException IO 异常
-     */
+    */
     Optional<WalRecord> findByLsn(long lsn) throws IOException;
 
     /**
@@ -160,28 +160,28 @@ public interface WalLog extends Closeable {
     * @param keepSegments 保留分片数
     * @return 实际删除的分片数
     * @throws IOException IO 异常
-     */
+    */
     int purgeCheckpointed(int keepSegments) throws IOException;
 
     /**
     * 当前活跃分片信息。
     *
     * @return 活跃分片信息
-     */
+    */
     WalSegmentInfo currentSegment();
 
     /**
     * 列出所有分片。
     *
     * @return 分片列表（按 segmentno 升序）
-     */
+    */
     List<WalSegmentInfo> listSegments();
 
     /**
     * 关闭并释放资源（不删除文件）。
     *
     * @throws IOException IO 异常
-     */
+    */
     @Override
     void close() throws IOException;
 }

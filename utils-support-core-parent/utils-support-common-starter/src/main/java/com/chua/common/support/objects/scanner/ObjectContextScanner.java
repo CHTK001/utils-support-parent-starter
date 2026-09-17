@@ -16,19 +16,19 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
-* 对象上下文 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
-* <p>
-* 支持从文件系统目录和 JAR 包中扫描类文件，并过滤掉无法实例化的类（如接口、枚举、注解等）。
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 对象上下文 包扫描器，用于扫描指定包路径下的类并自动注册到容器。
+ * <p>
+ * 支持从文件系统目录和 JAR 包中扫描类文件，并过滤掉无法实例化的类（如接口、枚举、注解等）。
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 @Slf4j
 public final class ObjectContextScanner {
 
     /**
     * 私有构造函数，防止外部实例化该类。
-     */
+    */
     private ObjectContextScanner() {
     }
 
@@ -37,7 +37,7 @@ public final class ObjectContextScanner {
     *
     * @param context     对象上下文 实例，用于注册扫描到的 Bean。
     * @param basePackage 基包路径，例如 "com.example.服务"。
-     */
+    */
     public static void scan(ObjectContext context, String basePackage) {
         if (context == null || basePackage == null || basePackage.isEmpty()) {
             return;
@@ -58,7 +58,7 @@ public final class ObjectContextScanner {
     *
     * @param context      对象上下文 实例，用于注册扫描到的 Bean。
     * @param basePackages 基包路径列表，包含多个需要扫描的包名。
-     */
+    */
     public static void scan(ObjectContext context, List<String> basePackages) {
         if (basePackages == null) {
             return;
@@ -73,7 +73,7 @@ public final class ObjectContextScanner {
     *
     * @param basePackage 基包路径。
     * @return 找到的类列表。
-     */
+    */
     private static List<Class<?>> findClasses(String basePackage) {
         String path = basePackage.replace('.', '/');
         List<Class<?>> result = new ArrayList<>();
@@ -104,7 +104,7 @@ public final class ObjectContextScanner {
     * @param dir         当前扫描的目录。
     * @param packageName 当前对应的包名。
     * @param result      结果列表，用于存储找到的类。
-     */
+    */
     private static void scanDirectory(File dir, String packageName, List<Class<?>> result) {
         File[] files = dir.listFiles();
         if (files == null) {
@@ -127,7 +127,7 @@ public final class ObjectContextScanner {
     * @param path         JAR 包内的相对路径。
     * @param basePackage  基础包名。
     * @param result       结果列表，用于存储找到的类。
-     */
+    */
     private static void scanJar(URL resource, String path, String basePackage, List<Class<?>> result) {
         String url = resource.toExternalForm();
         try (FileSystem fs = FileSystems.newFileSystem(URI.create(url), Map.of())) {
@@ -155,7 +155,7 @@ public final class ObjectContextScanner {
     *
     * @param className 类的全限定名。
     * @param result    结果列表。
-     */
+    */
     private static void loadClass(String className, List<Class<?>> result) {
         try {
             Class<?> clazz = ReflectUtils.forName(className);

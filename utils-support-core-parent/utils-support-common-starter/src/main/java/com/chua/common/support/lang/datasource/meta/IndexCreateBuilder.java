@@ -15,7 +15,7 @@ public interface IndexCreateBuilder {
     *
     * @param columnName 列名
     * @return this
-     */
+    */
     IndexCreateBuilder column(String columnName);
 
     /**
@@ -23,14 +23,14 @@ public interface IndexCreateBuilder {
     *
     * @param columnNames 列名列表
     * @return this
-     */
+    */
     IndexCreateBuilder columns(String... columnNames);
 
     /**
     * 设置为唯一索引。
     *
     * @return this
-     */
+    */
     IndexCreateBuilder unique();
 
     /**
@@ -38,7 +38,7 @@ public interface IndexCreateBuilder {
     *
     * @param type 索引类型
     * @return this
-     */
+    */
     IndexCreateBuilder type(String type);
 
     /**
@@ -46,7 +46,7 @@ public interface IndexCreateBuilder {
     *
     * @param algorithm 算法名
     * @return this
-     */
+    */
     IndexCreateBuilder using(String algorithm);
 
     /**
@@ -54,7 +54,7 @@ public interface IndexCreateBuilder {
     *
     * @param comment 注释内容
     * @return this
-     */
+    */
     IndexCreateBuilder comment(String comment);
 
     /**
@@ -62,13 +62,13 @@ public interface IndexCreateBuilder {
     *
     * @param visible 是否可见
     * @return this
-     */
+    */
     IndexCreateBuilder visible(boolean visible);
 
     /**
     * 执行建索引语句。
     *
     * @return 创建的索引定义
-     */
+    */
     IndexMetadata execute();
 }

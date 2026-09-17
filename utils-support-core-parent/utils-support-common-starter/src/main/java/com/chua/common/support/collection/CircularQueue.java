@@ -41,21 +41,21 @@ public interface CircularQueue<E> extends Queue<E> {
     * 返回队列的固定容量（最大可容纳元素数量）。
     *
     * @return 队列容量
-     */
+    */
     int capacity();
 
     /**
     * 返回当前溢出策略。
     *
     * @return 溢出策略
-     */
+    */
     OverflowPolicy policy();
 
     /**
     * 修改溢出策略。
     *
     * @param policy 新的溢出策略，不允许为 null
-     */
+    */
     void setPolicy(OverflowPolicy policy);
 
     /**
@@ -63,7 +63,7 @@ public interface CircularQueue<E> extends Queue<E> {
     *
     * @param e 元素
     * @return 是否成功入队；{@link OverflowPolicy#REJECT} 策略下队满时返回 false，其余返回 true
-     */
+    */
     @Override
     boolean offer(E e);
 
@@ -72,7 +72,7 @@ public interface CircularQueue<E> extends Queue<E> {
     *
     * @return 队首元素
     * @throws NoSuchElementException 如果队列为空
-     */
+    */
     @Override
     E poll();
 
@@ -82,6 +82,6 @@ public interface CircularQueue<E> extends Queue<E> {
     * 若该次 offer 未触发淘汰，则返回 null。</p>
     *
     * @return 最近被淘汰的元素，本次 offer 未触发淘汰时返回 null
-     */
+    */
     E lastEvicted();
 }

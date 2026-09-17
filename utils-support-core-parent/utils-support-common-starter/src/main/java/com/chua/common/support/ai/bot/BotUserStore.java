@@ -18,14 +18,14 @@ public interface BotUserStore extends AutoCloseable {
     * 新增或更新用户
     *
     * @param user 用户信息
-     */
+    */
     void upsert(BotUserInfo user);
 
     /**
     * 更新用户（仅当用户存在时）
     *
     * @param user 用户信息
-     */
+    */
     default void update(BotUserInfo user) {
         if (user != null && user.getUserId() != null) {
             Optional<BotUserInfo> existing = findByUserId(user.getUserId());
@@ -40,28 +40,28 @@ public interface BotUserStore extends AutoCloseable {
     *
     * @param userId 用户 ID
     * @return 用户信息，不存在则 empty
-     */
+    */
     Optional<BotUserInfo> findByUserId(String userId);
 
     /**
     * 查询所有用户
     *
     * @return 用户列表
-     */
+    */
     List<BotUserInfo> findAll();
 
     /**
     * 删除用户
     *
     * @param userId 用户 ID
-     */
+    */
     void delete(String userId);
 
     /**
     * 统计用户数
     *
     * @return 用户总数
-     */
+    */
     long count();
 
     @Override

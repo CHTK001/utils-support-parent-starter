@@ -27,12 +27,12 @@ public class ExtractorFactory {
     * 用于管理并发解压操作的锁映射表。
     * Key: 压缩文件的绝对路径。
     * Value: 对应的重入锁。
-     */
+    */
     private static final Map<String, ReentrantLock> EXTRACTION_LOCKS = new ConcurrentHashMap<>();
 
     /**
     * 私有构造函数，防止外部实例化。
-     */
+    */
     private ExtractorFactory() {
     }
 
@@ -41,7 +41,7 @@ public class ExtractorFactory {
     *
     * @param fileName 文件名
     * @return 匹配的解压器，如果未找到则返回 null
-     */
+    */
     public static Extractor getExtractor(String fileName) {
         if (fileName == null) {
             return null;
@@ -62,7 +62,7 @@ public class ExtractorFactory {
     *
     * @param fileName 文件名
     * @return 如果支持解压返回 true，否则返回 false
-     */
+    */
     public static boolean isSupported(String fileName) {
         return getExtractor(fileName) != null;
     }
@@ -78,7 +78,7 @@ public class ExtractorFactory {
     * @param keepOriginal   是否保留原始压缩文件
     * @param fileName       文件名（用于判断解压器类型）
     * @return 解压后的目录，如果失败或参数无效则返回 null
-     */
+    */
     public static File extract(File compressedFile, File extractionDir, boolean keepOriginal, String fileName) {
         if (compressedFile == null || !compressedFile.exists()) {
             log.warn("压缩文件不存在或为空：{}", compressedFile);
@@ -162,7 +162,7 @@ public class ExtractorFactory {
     *
     * @param dir 待检查的目录
     * @return 如果目录存在、是目录且包含文件则返回 true，否则返回 false
-     */
+    */
     private static boolean hasValidContent(File dir) {
         if (!dir.exists() || !dir.isDirectory()) {
             return false;
@@ -175,7 +175,7 @@ public class ExtractorFactory {
     * 递归删除指定的目录及其所有子文件和子目录。
     *
     * @param dir 待删除的目录
-     */
+    */
     private static void deleteDirectory(File dir) {
         if (dir == null || !dir.exists()) {
             return;

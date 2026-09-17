@@ -58,7 +58,7 @@ public final class HpkeFlow {
     * 创建默认提供者（"bc"）的 HPKE 门面。
     *
     * @return 门面实例
-     */
+    */
     public static HpkeFlow of() {
         return of("bc");
     }
@@ -68,7 +68,7 @@ public final class HpkeFlow {
     *
     * @param provider 提供者名称，如 "bc"
     * @return 门面实例
-     */
+    */
     public static HpkeFlow of(String provider) {
         return new HpkeFlow(HpkeCipher.create(provider));
     }
@@ -78,7 +78,7 @@ public final class HpkeFlow {
     *
     * @param cipher 底层原语，不能为 null
     * @return 门面实例
-     */
+    */
     public static HpkeFlow of(HpkeCipher cipher) {
         Objects.requireNonNull(cipher, "cipher 不能为 null");
         return new HpkeFlow(cipher);
@@ -91,7 +91,7 @@ public final class HpkeFlow {
     *
     * @param receiverPublicKey 接收方公钥（32 字节）
     * @return 当前门面
-     */
+    */
     public HpkeFlow receiverPk(byte[] receiverPublicKey) {
         this.receiverPublicKey = receiverPublicKey;
         return this;
@@ -102,7 +102,7 @@ public final class HpkeFlow {
     *
     * @param secretKey 接收方私钥（32 字节）
     * @return 当前门面
-     */
+    */
     public HpkeFlow secretKey(byte[] secretKey) {
         this.secretKey = secretKey;
         return this;
@@ -113,7 +113,7 @@ public final class HpkeFlow {
     *
     * @param enc 发送方封装密钥，见 {@link SealedMessage#enc()}
     * @return 当前门面
-     */
+    */
     public HpkeFlow enc(byte[] enc) {
         this.enc = enc;
         return this;
@@ -124,7 +124,7 @@ public final class HpkeFlow {
     *
     * @param ikm 输入密钥材料，可为 null
     * @return 当前门面
-     */
+    */
     public HpkeFlow ikm(byte[] ikm) {
         this.ikm = ikm;
         return this;
@@ -135,7 +135,7 @@ public final class HpkeFlow {
     *
     * @param aad 附加认证数据，可为 null
     * @return 当前门面
-     */
+    */
     public HpkeFlow aad(byte[] aad) {
         this.aad = aad;
         return this;
@@ -147,7 +147,7 @@ public final class HpkeFlow {
     * 生成 KEM 密钥对。
     *
     * @return 长度 2 数组：{@code [0]}=公钥、{@code [1]}=私钥（各 32 字节）
-     */
+    */
     public byte[][] keys() {
         return cipher.generateKeyPair();
     }
@@ -158,7 +158,7 @@ public final class HpkeFlow {
     * @param plaintext 待加密明文
     * @return 含封装密钥与密文的消息体
     * @throws NullPointerException 未通过 {@link #receiverPk} 设置接收方公钥时
-     */
+    */
     public SealedMessage seal(byte[] plaintext) {
         Objects.requireNonNull(receiverPublicKey, "receiverPk 未设置");
         byte[][] result = cipher.encap(receiverPublicKey, ikm);
@@ -172,7 +172,7 @@ public final class HpkeFlow {
     * @param ciphertext 待解密密文（含 16 字节认证标签）
     * @return 解密后的明文
     * @throws NullPointerException 未通过 {@link #secretKey} 或 {@link #enc} 设置时
-     */
+    */
     public byte[] open(byte[] ciphertext) {
         Objects.requireNonNull(secretKey, "secretKey 未设置");
         Objects.requireNonNull(enc, "enc 未设置");
@@ -184,14 +184,14 @@ public final class HpkeFlow {
     * 获取底层原语实例。
     *
     * @return 底层 {@link HpkeCipher}
-     */
+    */
     public HpkeCipher cipher() {
         return cipher;
     }
 
     /**
     * HPKE 发送方产出物：封装密钥（需随密文传输）与 AEAD 密文。
-     */
+    */
     public static final class SealedMessage {
 
         /** 封装密钥，须随密文发给接收方 */
@@ -209,7 +209,7 @@ public final class HpkeFlow {
         * 获取封装密钥（发送给接收方）。
         *
         * @return 封装密钥
-         */
+        */
         public byte[] enc() {
             return enc;
         }
@@ -218,7 +218,7 @@ public final class HpkeFlow {
         * 获取 AEAD 密文。
         *
         * @return 密文（含 16 字节认证标签）
-         */
+        */
         public byte[] ciphertext() {
             return ciphertext;
         }

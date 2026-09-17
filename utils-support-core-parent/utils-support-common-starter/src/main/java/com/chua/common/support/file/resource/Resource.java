@@ -42,7 +42,7 @@ public interface Resource {
     *
     * @param path 路径或 URL 字符串
     * @return 资源实例
-     */
+    */
     static Resource create(String path) {
         int protocolIndex = path.indexOf(':');
         if (protocolIndex > 0 && protocolIndex < 6) {
@@ -60,7 +60,7 @@ public interface Resource {
     *
     * @param url URL 对象
     * @return 资源实例
-     */
+    */
     static Resource create(URL url) {
         return new UrlResource(url);
     }
@@ -70,7 +70,7 @@ public interface Resource {
     *
     * @param file 文件对象
     * @return 资源实例
-     */
+    */
     static Resource create(File file) {
         return new FileSystemResource(file);
     }
@@ -80,7 +80,7 @@ public interface Resource {
     *
     * @return 资源输入流
     * @throws IOException 打开流失败时抛出
-     */
+    */
     InputStream openStream() throws IOException;
 
     /**
@@ -88,7 +88,7 @@ public interface Resource {
     *
     * @return 资源输入流
     * @throws IOException 打开流失败时抛出
-     */
+    */
     default InputStream getInputStream() throws IOException {
         return openStream();
     }
@@ -97,28 +97,28 @@ public interface Resource {
     * 获取资源的 URL 路径字符串形式。
     *
     * @return URL 路径字符串
-     */
+    */
     String getUrlPath();
 
     /**
     * 获取资源的 {@link URL}。
     *
     * @return 资源 URL
-     */
+    */
     URL getUrl();
 
     /**
     * 获取资源的最后修改时间戳。
     *
     * @return 最后修改时间（毫秒），无法获取时返回 0
-     */
+    */
     long lastModified();
 
     /**
     * 获取资源名称（不含路径的文件名部分）。
     *
     * @return 资源名称
-     */
+    */
     default String getName() {
         return FileUtils.getName(getUrlPath());
     }
@@ -127,7 +127,7 @@ public interface Resource {
     * 将资源内容写入输出流。
     *
     * @param out 目标输出流
-     */
+    */
     default void writeTo(OutputStream out) {
         try {
             IoUtils.copy(openStream(), out);
@@ -140,7 +140,7 @@ public interface Resource {
     * 判断资源是否为文件系统文件。
     *
     * @return 如果是 file 协议返回 true，否则返回 false
-     */
+    */
     default boolean isFile() {
         URL url = getUrl();
         return null != url && FILE_PROTOCOL.equals(url.getProtocol());
@@ -150,7 +150,7 @@ public interface Resource {
     * 获取资源对应的 {@link File} 对象。
     *
     * @return 文件对象
-     */
+    */
     default File getFile() {
         return new File(getUrlPath());
     }
@@ -159,7 +159,7 @@ public interface Resource {
     * 获取资源对应的 {@link Path} 对象。
     *
     * @return 路径对象
-     */
+    */
     default Path getPath() {
         return Paths.get(getUrlPath());
     }
@@ -168,7 +168,7 @@ public interface Resource {
     * 获取资源的文件后缀（不含点号）。
     *
     * @return 文件后缀，无后缀时返回空串
-     */
+    */
     default String getSuffix() {
         return FileUtils.getExtension(getName());
     }

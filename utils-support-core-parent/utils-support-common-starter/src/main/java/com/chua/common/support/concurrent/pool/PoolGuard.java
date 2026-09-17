@@ -23,7 +23,7 @@ public class PoolGuard<T> implements AutoCloseable {
 
     /**
     * 连接池
-     */
+    */
     private final ObjectPool<T> pool;
     /** 返回对象 */
     private final T object;
@@ -40,7 +40,7 @@ public class PoolGuard<T> implements AutoCloseable {
     * 获取借出的对象
     *
     * @return 池化对象
-     */
+    */
     public T get() {
         return object;
     }
@@ -49,7 +49,7 @@ public class PoolGuard<T> implements AutoCloseable {
     * 手动归还对象
     *
     * <p>调用后 close() 不会再重复归还。
-     */
+    */
     public void release() {
         if (!returned) {
             returned = true;
@@ -61,7 +61,7 @@ public class PoolGuard<T> implements AutoCloseable {
     * 自动归还对象
     *
     * <p>try-with-resources 块结束时自动调用。
-     */
+    */
     @Override
     public void close() {
         release();

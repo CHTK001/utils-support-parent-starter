@@ -17,6 +17,6 @@ public interface StringToConfigConverter {
     *
     * @param value 字符串格式的配置值
     * @return 配置 Map
-     */
+    */
     Map<String, Object> convert(String value);
 }

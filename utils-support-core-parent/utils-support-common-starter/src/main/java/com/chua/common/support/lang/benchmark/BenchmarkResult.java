@@ -17,12 +17,12 @@ public class BenchmarkResult {
 
     /**
     * 压测配置（回显用）。
-     */
+    */
     private BenchmarkConfig config;
 
     /**
     * 结果行（实现 × 并发 × 指标）。
-     */
+    */
     private List<BenchmarkDocumentData.BenchmarkRow> rows = new ArrayList<>();
 
     /**
@@ -30,7 +30,7 @@ public class BenchmarkResult {
     *
     * @param row 结果行
     * @return 当前实例（链式）
-     */
+    */
     public BenchmarkResult add(BenchmarkDocumentData.BenchmarkRow row) {
         rows.add(row);
         return this;
@@ -40,7 +40,7 @@ public class BenchmarkResult {
     * 转换为报告文档数据。
     *
     * @return BenchmarkDocumentData
-     */
+    */
     public BenchmarkDocumentData toDocumentData() {
         BenchmarkDocumentData data = new BenchmarkDocumentData();
         data.setTitle(config != null ? config.getTitle() : "HTTP 服务器压测报告");

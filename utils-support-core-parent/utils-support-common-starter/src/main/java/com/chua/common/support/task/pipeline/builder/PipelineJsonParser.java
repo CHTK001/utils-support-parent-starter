@@ -77,16 +77,16 @@ import java.util.*;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class PipelineJsonParser {
 
     /**
-     * 解析 JSON 字符串并创建 PipelineBuilder。
-     *
-     * @param json JSON 字符串
-     * @return PipelineBuilder 实例
-     * @throws IllegalArgumentException 当 JSON 格式不合法时抛出
-     */
+    * 解析 JSON 字符串并创建 PipelineBuilder。
+    *
+    * @param json JSON 字符串
+    * @return PipelineBuilder 实例
+    * @throws IllegalArgumentException 当 JSON 格式不合法时抛出
+    */
     public static PipelineBuilder parse(String json) {
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("JSON string must not be null or empty");
@@ -160,8 +160,8 @@ public class PipelineJsonParser {
     // ========== 简易 JSON 解析器（无外部依赖） ==========
 
     /**
-     * 简易 JSON 节点表示
-     */
+    * 简易 JSON 节点表示
+    */
     static class JsonNode {
         /** data */
         private final Map<String, Object> data;
@@ -186,12 +186,12 @@ public class PipelineJsonParser {
         }
 
         /**
-         * 获取对象值（String -> String 映射）。
-         * 自动将值转为字符串表示。
-         *
-         * @param key 属性键
-         * @return 字符串映射，不存在时返回 null
-         */
+        * 获取对象值（String -> String 映射）。
+        * 自动将值转为字符串表示。
+        *
+        * @param key 属性键
+        * @return 字符串映射，不存在时返回 null
+        */
         Map<String, String> getObjectAsStringMap(String key) {
             Object val = data.get(key);
             if (val instanceof Map) {
@@ -207,11 +207,11 @@ public class PipelineJsonParser {
         }
 
         /**
-         * 获取对象值（支持任意值类型）。
-         *
-         * @param key 属性键
-         * @return 任意值类型的映射，不存在时返回 null
-         */
+        * 获取对象值（支持任意值类型）。
+        *
+        * @param key 属性键
+        * @return 任意值类型的映射，不存在时返回 null
+        */
         Map<String, Object> getObjectMap(String key) {
             Object val = data.get(key);
             if (val instanceof Map) {
@@ -224,8 +224,8 @@ public class PipelineJsonParser {
     }
 
     /**
-     * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、null）
-     */
+    * 简易 JSON 解析（支持对象、数组、字符串、布尔值、数字、null）
+    */
     static JsonNode parseJson(String json) {
         Object result = parseValue(json.trim(), new int[]{0});
         if (result instanceof Map) {

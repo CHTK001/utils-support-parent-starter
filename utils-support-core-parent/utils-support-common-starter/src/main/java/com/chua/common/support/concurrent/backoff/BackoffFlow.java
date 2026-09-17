@@ -24,43 +24,43 @@ public final class BackoffFlow {
 
     /**
     * 避让器缓存，按名称索引
-     */
+    */
     private static final Map<String, BackoffProvider> CACHE = new ConcurrentHashMap<>();
 
     /**
     * 避让器名称
-     */
+    */
     private final String name;
 
     /**
     * 初始延迟（毫秒），默认 1000ms
-     */
+    */
     private long initialDelay = 1000;
 
     /**
     * 退避乘数，默认 2.0
-     */
+    */
     private double multiplier = 2.0;
 
     /**
     * 最大延迟（毫秒），默认 30000ms
-     */
+    */
     private long maxDelay = 30000;
 
     /**
     * 最大尝试次数，默认 3
-     */
+    */
     private int maxAttempts = 3;
 
     /**
     * 避让失败时的降级回调
-     */
+    */
     private Supplier<Object> fallback;
 
     /**
     * 创建 BackoffFlow 实例
     * @param name name
-     */
+    */
     private BackoffFlow(String name) {
         this.name = name;
     }
@@ -70,7 +70,7 @@ public final class BackoffFlow {
     *
     * @param name 避让器名称
     * @return 门面实例
-     */
+    */
     public static BackoffFlow of(String name) {
         return new BackoffFlow(name);
     }
@@ -80,7 +80,7 @@ public final class BackoffFlow {
     *
     * @param initialDelay 初始延迟（毫秒）
     * @return this
-     */
+    */
     public BackoffFlow initialDelay(long initialDelay) {
         this.initialDelay = initialDelay;
         return this;
@@ -91,7 +91,7 @@ public final class BackoffFlow {
     *
     * @param multiplier 退避乘数
     * @return this
-     */
+    */
     public BackoffFlow multiplier(double multiplier) {
         this.multiplier = multiplier;
         return this;
@@ -102,7 +102,7 @@ public final class BackoffFlow {
     *
     * @param maxDelay 最大延迟（毫秒）
     * @return this
-     */
+    */
     public BackoffFlow maxDelay(long maxDelay) {
         this.maxDelay = maxDelay;
         return this;
@@ -113,7 +113,7 @@ public final class BackoffFlow {
     *
     * @param maxAttempts 最大尝试次数
     * @return this
-     */
+    */
     public BackoffFlow maxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
         return this;
@@ -124,7 +124,7 @@ public final class BackoffFlow {
     *
     * @param fallback 降级回调
     * @return this
-     */
+    */
     public BackoffFlow fallback(Supplier<Object> fallback) {
         this.fallback = fallback;
         return this;
@@ -134,7 +134,7 @@ public final class BackoffFlow {
     * 执行避让休眠。
     *
     * @param attempt 当前尝试次数
-     */
+    */
     public void sleep(int attempt) {
         getProvider().sleep(attempt);
     }
@@ -144,7 +144,7 @@ public final class BackoffFlow {
     *
     * @param attempt 当前尝试次数
     * @return 延迟时间（毫秒）
-     */
+    */
     public long nextDelay(int attempt) {
         return getProvider().nextDelay(attempt);
     }
@@ -156,7 +156,7 @@ public final class BackoffFlow {
     * @param <T>  返回值类型
     * @return 任务结果，失败时返回降级回调结果
     * @throws Exception 任务执行异常
-     */
+    */
     public <T> T execute(Callable<T> task) throws Exception {
         return execute(task, 0);
     }
@@ -165,7 +165,7 @@ public final class BackoffFlow {
     * 在避让保护下执行任务（无返回值）。
     *
     * @param task 待执行任务
-     */
+    */
     public void execute(Runnable task) {
         execute(task, 0);
     }
@@ -206,7 +206,7 @@ public final class BackoffFlow {
     * 获取避让器提供者。
     *
     * @return 避让器实例
-     */
+    */
     public BackoffProvider getProvider() {
         return CACHE.computeIfAbsent(name, k -> doCreate());
     }
@@ -215,7 +215,7 @@ public final class BackoffFlow {
     * 创建避让器提供者，优先使用 SPI 发现，否则回退到指数退避。
     *
     * @return 避让器实例
-     */
+    */
     private BackoffProvider doCreate() {
         for (BackoffProvider provider : ServiceProvider.of(BackoffProvider.class).list().values()) {
             if (name.equals(provider.getClass().getSimpleName())) {
@@ -230,7 +230,7 @@ public final class BackoffFlow {
     *
     * @param name 避让器名称
     * @return 避让器实例，未找到返回 null
-     */
+    */
     public static BackoffProvider get(String name) {
         return CACHE.get(name);
     }
@@ -239,7 +239,7 @@ public final class BackoffFlow {
     * 获取避让器提供者实例。
     *
     * @return BackoffProvider 实例
-     */
+    */
     public BackoffProvider provider() {
         return getProvider();
     }
@@ -248,14 +248,14 @@ public final class BackoffFlow {
     * 移除避让器缓存。
     *
     * @param name 避让器名称
-     */
+    */
     public static void remove(String name) {
         CACHE.remove(name);
     }
 
     /**
     * 清空所有缓存。
-     */
+    */
     public static void clear() {
         CACHE.clear();
     }

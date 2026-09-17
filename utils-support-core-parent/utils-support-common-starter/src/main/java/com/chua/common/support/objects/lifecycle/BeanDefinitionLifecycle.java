@@ -5,11 +5,11 @@ import com.chua.common.support.objects.definition.BeanDefinition;
 import com.chua.common.support.objects.definition.BeanScope;
 
 /**
-* Bean 生命周期处理器 SPI，用于处理 Bean 的初始化和销毁过程。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * Bean 生命周期处理器 SPI，用于处理 Bean 的初始化和销毁过程。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Spi
 public interface BeanDefinitionLifecycle {
 
@@ -18,7 +18,7 @@ public interface BeanDefinitionLifecycle {
     *
     * @param beanDefinition 需要检查的 Bean 定义对象
     * @return 如果支持则返回 true，否则返回 false
-     */
+    */
     boolean isSupport(BeanDefinition beanDefinition);
 
     /**
@@ -27,7 +27,7 @@ public interface BeanDefinitionLifecycle {
     * @param beanDefinition 对应的 Bean 定义对象
     * @param bean           待初始化的 Bean 实例
     * @throws Exception 如果初始化过程中发生错误，抛出异常
-     */
+    */
     void init(BeanDefinition beanDefinition, Object bean) throws Exception;
 
     /**
@@ -36,7 +36,7 @@ public interface BeanDefinitionLifecycle {
     * @param beanDefinition 对应的 Bean 定义对象
     * @param bean           待销毁的 Bean 实例
     * @throws Exception 如果销毁过程中发生错误，抛出异常
-     */
+    */
     void destroy(BeanDefinition beanDefinition, Object bean) throws Exception;
 
     /**
@@ -44,7 +44,7 @@ public interface BeanDefinitionLifecycle {
     *
     * @param beanDefinition 需要检查的 Bean 定义对象
     * @return 如果是单例或 scope 为 空 则返回 true，否则返回 false
-     */
+    */
     default boolean isSingleton(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
             return false;

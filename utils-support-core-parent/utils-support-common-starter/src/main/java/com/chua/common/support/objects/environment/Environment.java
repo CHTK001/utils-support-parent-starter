@@ -3,21 +3,21 @@ package com.chua.common.support.objects.environment;
 import com.chua.common.support.config.source.PropertySource;
 
 /**
-* 环境配置接口。
-*
-* <p>提供配置属性的读取和写入能力，是配置注入系统的核心接口。
-* 环境配置聚合了多个 {@link ConfigSource}，按照优先级顺序进行配置查找。</p>
-*
-* <p>配置查找优先级（从高到低）：
-* <ol>
-*   <li>通过 {@link #setProperty} 手动设置的属性</li>
-*   <li>各 ConfigSource 中的属性（按 ConfigSource 优先级排序）</li>
-*   <li>默认值</li>
-* </ol></p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 环境配置接口。
+ *
+ * <p>提供配置属性的读取和写入能力，是配置注入系统的核心接口。
+ * 环境配置聚合了多个 {@link ConfigSource}，按照优先级顺序进行配置查找。</p>
+ *
+ * <p>配置查找优先级（从高到低）：
+ * <ol>
+ *   <li>通过 {@link #setProperty} 手动设置的属性</li>
+ *   <li>各 ConfigSource 中的属性（按 ConfigSource 优先级排序）</li>
+ *   <li>默认值</li>
+ * </ol></p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 public interface Environment {
 
     /**
@@ -29,7 +29,7 @@ public interface Environment {
     *
     * @param key 配置键，如 "服务端.端口"，不可为 空
     * @return 配置值，不存在时返回 空
-     */
+    */
     String getProperty(String key);
 
     /**
@@ -41,7 +41,7 @@ public interface Environment {
     * @param key          配置键，不可为 空
     * @param defaultValue 默认值，当配置键不存在时返回
     * @return 配置值，不存在时返回 默认值
-     */
+    */
     String getProperty(String key, String defaultValue);
 
     /**
@@ -54,7 +54,7 @@ public interface Environment {
     * @param targetType 目标类型，不可为 空
     * @param <T>        泛型类型
     * @return 转换后的配置值，不存在时返回 空
-     */
+    */
     <T> T getProperty(String key, Class<T> targetType);
 
     /**
@@ -68,7 +68,7 @@ public interface Environment {
     * @param defaultValue 默认值，当配置键不存在或转换失败时返回
     * @param <T>          泛型类型
     * @return 转换后的配置值，不存在时返回 默认值
-     */
+    */
     <T> T getProperty(String key, Class<T> targetType, T defaultValue);
 
     /**
@@ -79,7 +79,7 @@ public interface Environment {
     *
     * @param key   配置键，不可为 空
     * @param value 配置值
-     */
+    */
     void setProperty(String key, Object value);
 
     /**
@@ -90,7 +90,7 @@ public interface Environment {
     *
     * @param key 配置键
     * @return 是否包含该配置键
-     */
+    */
     boolean containsProperty(String key);
 
     /**
@@ -100,7 +100,7 @@ public interface Environment {
     * 监听器按注册顺序依次调用。同一个监听器重复注册会产生多次回调。</p>
     *
     * @param listener 配置变更监听器，不可为 空
-     */
+    */
     void addChangeListener(EnvironmentChangeListener listener);
 
     /**
@@ -110,7 +110,7 @@ public interface Environment {
     * 如果监听器未曾注册，则此方法无任何效果。</p>
     *
     * @param listener 配置变更监听器，不可为 空
-     */
+    */
     void removeChangeListener(EnvironmentChangeListener listener);
 
     /**
@@ -120,7 +120,7 @@ public interface Environment {
     * 添加后立即生效，后续的配置查询会包含该配置源的数据。</p>
     *
     * @param propertySource 配置源，不可为 空
-     */
+    */
     void addConfigSource(PropertySource propertySource);
 
     /**
@@ -130,7 +130,7 @@ public interface Environment {
     * 如果配置源未曾添加，则此方法无任何效果。</p>
     *
     * @param propertySource 配置源，不可为 空
-     */
+    */
     void removeConfigSource(PropertySource propertySource);
 
 
@@ -140,6 +140,6 @@ public interface Environment {
     * <p>依次调用每个 ConfigSource 的 {@link PropertySource#refresh()} 方法，
     * 刷新完成后触发所有配置变更监听器。
     * 刷新过程中单个配置源的异常不会中断其他配置源的刷新。</p>
-     */
+    */
     void refresh();
 }

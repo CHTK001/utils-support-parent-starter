@@ -16,7 +16,7 @@ public class RuntimeWhitelistException extends RuntimeException {
     * 构造一个带有详细消息的运行时白名单异常。
     *
     * @param message 描述异常原因的详细信息
-     */
+    */
     public RuntimeWhitelistException(String message) {
         super(message);
     }
@@ -26,7 +26,7 @@ public class RuntimeWhitelistException extends RuntimeException {
     *
     * @param message 描述异常原因的详细信息
     * @param cause   导致此异常的底层原因
-     */
+    */
     public RuntimeWhitelistException(String message, Throwable cause) {
         super(message, cause);
     }

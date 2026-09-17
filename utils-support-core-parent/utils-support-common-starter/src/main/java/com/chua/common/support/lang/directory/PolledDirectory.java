@@ -21,7 +21,7 @@ public interface PolledDirectory extends AutoCloseable {
     * <p>返回 true 时由事件驱动，返回 false 时使用定时轮询。</p>
     *
     * @return true 表示由操作系统事件驱动，false 表示需要定时轮询
-     */
+    */
     default boolean isDelegatedOperatingSystem() {
         return false;
     }
@@ -33,7 +33,7 @@ public interface PolledDirectory extends AutoCloseable {
     * 轮询型自动创建 {@link VirtualThreadPollerExecutor}。</p>
     *
     * @param environment 环境配置
-     */
+    */
     default void start(DirectoryPollerEnvironment environment) {
         if (isDelegatedOperatingSystem()) {
             start(environment, null);
@@ -47,19 +47,19 @@ public interface PolledDirectory extends AutoCloseable {
     *
     * @param environment 环境配置
     * @param executor    执行器，传入 null 时由实现类自行创建
-     */
+    */
     void start(DirectoryPollerEnvironment environment, DirectoryPollerExecutor executor);
 
     /**
     * 执行一次轮询对比，由定时调度器周期性调用。
     * <p>实现类应在此方法中获取最新快照，与缓存对比后通过 {@link PolledListener} 分发事件。</p>
-     */
+    */
     void upgrade();
 
     /**
     * 注册事件监听器。
     *
     * @param listener 监听器
-     */
+    */
     void addListener(PolledListener listener);
 }

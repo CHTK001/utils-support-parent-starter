@@ -1,7 +1,5 @@
 package com.chua.common.support.lang.process;
-
 import com.chua.common.support.utils.ThreadUtils;
-
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,7 +10,6 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-
 /**
 * 工具类，提供进度条相关的静态工具方法。
 * <p>
@@ -23,57 +20,51 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 * @version 1.0.0
  */
 class Util {
-
     /**
     * 进度条定时刷新线程池
     * <p>
     * 单线程调度池，用于定时刷新进度条显示。
-     */
+    */
     static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, ThreadUtils.newDaemonThreadFactory("ProgressBar"));
-
     /**
     *                                                    
     *
     * @param predefinedWidth                
     * @return                   
-     */
+    */
     static ConsoleProgressBarConsumer createConsoleConsumer(int predefinedWidth) {
         PrintStream real = new PrintStream(new FileOutputStream(FileDescriptor.out));
         return createConsoleConsumer(real, predefinedWidth);
     }
-
     /**
     *                                                    
     *
     * @param out          
     * @return                   
-     */
+    */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out) {
         return createConsoleConsumer(out, -1);
     }
-
     /**
-    *                         
     * <p>
     *                                                                                        
     *
     * @param out          
     * @param predefinedWidth                   -1                        
     * @return                   
-     */
+    */
     static ConsoleProgressBarConsumer createConsoleConsumer(PrintStream out, int predefinedWidth) {
         return TerminalUtils.hasCursorMovementSupport()
                 ? new ConsoleProgressBarConsumer(out, predefinedWidth)
                 : new ConsoleProgressBarConsumer(out, predefinedWidth);
     }
-
     /**
     *                         
     *
     * @param c                   
     * @param n             
     * @return                      
-     */
+    */
     static String repeat(char c, int n) {
         if (n <= 0) {
             return "";
@@ -84,28 +75,24 @@ class Util {
         }
         return new String(s);
     }
-
     /**
-    *                      
     * <p>
     *    Duration             "   :   :   "       
     *
     * @param d             
     * @return                                           HH:MM:SS   
-     */
+    */
     static String formatDuration(Duration d) {
         long s = d.getSeconds();
         return String.format("%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60);
     }
-
     /**
-    *                               
     * <p>
     *                                                                   
     *
     * @param progress             
     * @return                                                    
-     */
+    */
     static Optional<Duration> linearEta(ProgressState progress) {
         if (progress.getMax() <= 0 || progress.isIndefinite()) {
             return Optional.empty();
@@ -119,21 +106,18 @@ class Util {
             );
         }
     }
-
     /**
-    *                         
     * <p>
     *                                                                                  available()            
     *
     * @param is          
     * @return                                                       -1
-     */
+    */
     static long getInputStreamSize(InputStream is) {
         try {
             if (is instanceof FileInputStream) {
                 return ((FileInputStream) is).getChannel().size();
             }
-
             //        InputStream::available                      
             int available = is.available();
             if (available > 0) {
@@ -144,14 +128,13 @@ class Util {
         }
         return -1;
     }
-
     /**
     *       Spliterator         
     *
     * @param sp Spliterator      
     * @param <T>             
     * @return Spliterator                                    Long.MAX_VALUE         -1
-     */
+    */
     static <T> long getSpliteratorSize(Spliterator<T> sp) {
         try {
             long size = sp.estimateSize();

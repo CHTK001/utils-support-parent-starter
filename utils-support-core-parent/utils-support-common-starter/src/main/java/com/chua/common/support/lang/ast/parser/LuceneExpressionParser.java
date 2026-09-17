@@ -33,7 +33,7 @@ public class LuceneExpressionParser implements ExpressionParser {
 
     /**
     * 类型
-     */
+    */
     private static final String TYPE = "lucene";
 
     /** 委托客户端 */
@@ -92,7 +92,7 @@ public class LuceneExpressionParser implements ExpressionParser {
     *   <li>-field:value → NOT (field = value)</li>
     *   <li>field:[min TO max] → field BETWEEN min AND max</li>
     * </ul>
-     */
+    */
     private String normalizeLucene(String expression) {
         // 简化处理，实际项目中可能需要更复杂的转换
         String result = expression;

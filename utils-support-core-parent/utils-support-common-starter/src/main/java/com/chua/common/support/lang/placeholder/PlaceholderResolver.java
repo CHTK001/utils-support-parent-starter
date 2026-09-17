@@ -18,7 +18,7 @@ public interface PlaceholderResolver {
     *
     * @param placeholderName 要解析的占位符名称，例如 "user.name" 或 "${user.name}"。
     * @return 解析后的字符串值；如果未找到匹配项，则可能返回 null。
-     */
+    */
     String resolvePlaceholder(String placeholderName);
 
     /**
@@ -28,6 +28,6 @@ public interface PlaceholderResolver {
     *
     * @param key 要查询的属性键，例如 "spring.datasource.url"。
     * @return 对应键的属性值；如果键不存在，则返回 null。
-     */
+    */
     String getProperty(String key);
 }

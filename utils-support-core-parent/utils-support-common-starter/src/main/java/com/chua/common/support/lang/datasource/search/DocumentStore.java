@@ -21,7 +21,7 @@ public interface DocumentStore {
     * @param document 文档对象（POJO 或 {@code Map<String, Object>}）
     * @param <T> 文档类型
     * @return 插入后的文档对象
-     */
+    */
     <T> T insert(String collection, T document);
 
     /**
@@ -32,7 +32,7 @@ public interface DocumentStore {
     * @param documentClass 文档类型
     * @param <T> 文档类型
     * @return 文档对象，不存在时返回 {@code null}
-     */
+    */
     <T> T findById(String collection, Object id, Class<T> documentClass);
 
     /**
@@ -43,7 +43,7 @@ public interface DocumentStore {
     * @param document 新文档对象
     * @param <T> 文档类型
     * @return 更新后的文档对象，不存在时返回 {@code null}
-     */
+    */
     <T> T update(String collection, Object id, T document);
 
     /**
@@ -52,7 +52,7 @@ public interface DocumentStore {
     * @param collection collection 名称
     * @param id 文档 ID
     * @return 是否删除成功
-     */
+    */
     boolean delete(String collection, Object id);
 
     /**
@@ -62,6 +62,6 @@ public interface DocumentStore {
     * @param documentClass 文档类型
     * @param <T> 文档类型
     * @return 文档列表
-     */
+    */
     <T> List<T> findAll(String collection, Class<T> documentClass);
 }

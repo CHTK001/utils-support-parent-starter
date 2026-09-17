@@ -12,14 +12,14 @@ public abstract class AbstractQrCode {
 
     /**
     * 二维码配置信息。
-     */
+    */
     protected final QrSetting setting;
 
     /**
     * 构造函数，初始化二维码配置。
     *
     * @param setting 二维码配置对象
-     */
+    */
     public AbstractQrCode(QrSetting setting) {
         if (setting == null) {
             throw new IllegalArgumentException("QrSetting cannot be null");
@@ -32,6 +32,6 @@ public abstract class AbstractQrCode {
     *
     * @param content           要生成的二维码内容
     * @param outputStream      输出流
-     */
+    */
     public abstract void out(String content, OutputStream outputStream);
 }

@@ -35,7 +35,7 @@ public interface Listener {
     * 此方法通常用于触发重新编译或重新加载流程。
     *
     * @return 脚本内容已变更返回 {@code true}，否则返回 {@code false}
-     */
+    */
     boolean isChange();
 
     /**
@@ -45,6 +45,6 @@ public interface Listener {
     * 源码的格式取决于具体的脚本语言（如 Groovy、JavaScript 等）。
     *
     * @return 脚本源码内容的字符串表示，不会返回 {@code null}
-     */
+    */
     String getSource();
 }

@@ -23,7 +23,7 @@ public @interface Timeout {
     * 超时名称（唯一标识）。
     *
     * @return 名称
-     */
+    */
     String name() default "";
 
     /**
@@ -32,7 +32,7 @@ public @interface Timeout {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 超时毫秒数
-     */
+    */
     String timeout() default "3000";
 
     /**
@@ -47,6 +47,6 @@ public @interface Timeout {
     * <p>为空时超时抛出异常。</p>
     *
     * @return 回退方法名
-     */
+    */
     String fallback() default "";
 }

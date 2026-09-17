@@ -34,32 +34,32 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
 
     /**
     * 内部存储数组
-     */
+    */
     private final Object[] elements;
 
     /**
     * 队首索引，指向最早加入的元素
-     */
+    */
     private int head;
 
     /**
     * 当前元素数量
-     */
+    */
     private int size;
 
     /**
     * 集合固定容量
-     */
+    */
     private final int capacity;
 
     /**
     * 当前溢出策略
-     */
+    */
     private OverflowPolicy policy;
 
     /**
     * 最近一次因容量满而被淘汰的元素，未触发淘汰时为 null
-     */
+    */
     private E lastEvicted;
 
     /**
@@ -69,7 +69,7 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     * @param <E>      元素类型
     * @return 环状集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
-     */
+    */
     public static <E> CircularCollection<E> of(int capacity) {
         return new CircularCollection<>(capacity, OverflowPolicy.EVICT_ELDEST);
     }
@@ -83,7 +83,7 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     * @return 环状集合实例
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
     * @throws NullPointerException     如果 policy 为 null
-     */
+    */
     public static <E> CircularCollection<E> of(int capacity, OverflowPolicy policy) {
         return new CircularCollection<>(capacity, policy);
     }
@@ -95,7 +95,7 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     * @param policy   溢出策略，不允许为 null
     * @throws IllegalArgumentException 如果 capacity 小于等于 0
     * @throws NullPointerException     如果 policy 为 null
-     */
+    */
     public CircularCollection(int capacity, OverflowPolicy policy) {
         if (capacity <= 0) {
             throw new IllegalArgumentException("容量必须大于 0");
@@ -157,7 +157,7 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     * 查看并返回最近一次因容量满而被淘汰的元素。
     *
     * @return 最近被淘汰的元素，未触发淘汰时返回 null
-     */
+    */
     public E lastEvicted() {
         return lastEvicted;
     }
@@ -247,7 +247,7 @@ public class CircularCollection<E> extends AbstractCollection<E> implements Boun
     * @param e    待加入的新元素
     * @param tail 队尾索引
     * @return 是否成功加入
-     */
+    */
     private boolean handleOverflow(E e, int tail) {
         switch (policy) {
             case EVICT_ELDEST -> {

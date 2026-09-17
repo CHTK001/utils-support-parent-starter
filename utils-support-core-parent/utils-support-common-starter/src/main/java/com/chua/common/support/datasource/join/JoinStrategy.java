@@ -24,7 +24,7 @@ public interface JoinStrategy {
     *
     * @param ctx 查询上下文（含两个表的记录集合和 join 条件）
     * @return 结果行列表
-     */
+    */
     List<Map<String, Object>> execute(JoinContext ctx);
 
     /** JOIN 查询上下文 */

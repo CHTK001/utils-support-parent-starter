@@ -11,25 +11,25 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
-* TCP 帧式协议的 {@link ServerResponse} 实现。
-*
-* <p>与 {@link HttpServerResponse} 不同，本实现不直接向网络写出数据，
-* 而是将所有写入缓存在内存中，通过 {@link #getReadyBytes()} 返回完整的 HTTP 响应报文字节，
-* 由调用方（如 {@link JdkTcpServer}）负责加上长度头后写出。</p>
-*
-* <p>使用方式：</p>
-* <pre>{@code
-* TcpServerResponse response = new TcpServerResponse();
-* response.setStatus(200)
-*        .setContentType("text/plain")
-*        .setBody("hello tcp");
-* response.end();
-* byte[] frame = response.getReadyBytes();  // 获取完整响应报文（含长度头）
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * TCP 帧式协议的 {@link ServerResponse} 实现。
+ *
+ * <p>与 {@link HttpServerResponse} 不同，本实现不直接向网络写出数据，
+ * 而是将所有写入缓存在内存中，通过 {@link #getReadyBytes()} 返回完整的 HTTP 响应报文字节，
+ * 由调用方（如 {@link JdkTcpServer}）负责加上长度头后写出。</p>
+ *
+ * <p>使用方式：</p>
+ * <pre>{@code
+ * TcpServerResponse response = new TcpServerResponse();
+ * response.setStatus(200)
+ *        .setContentType("text/plain")
+ *        .setBody("hello tcp");
+ * response.end();
+ * byte[] frame = response.getReadyBytes();  // 获取完整响应报文（含长度头）
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class TcpServerResponse implements ServerResponse {
 
     /** 状态码，默认 200 */
@@ -223,7 +223,7 @@ public class TcpServerResponse implements ServerResponse {
     * <p>调用方应将该返回值直接作为 TCP 帧体，由上层加上 4 字节长度头写出。</p>
     *
     * @return 完整的 HTTP 响应报文字节
-     */
+    */
     public byte[] getReadyBytes() {
         if (!ended) {
             end();
@@ -263,7 +263,7 @@ public class TcpServerResponse implements ServerResponse {
     *
     * @param code 状态码
     * @return 原因短语
-     */
+    */
     private static String getReasonPhrase(int code) {
         switch (code) {
             case 200: return "OK";

@@ -31,13 +31,15 @@ import java.util.regex.Pattern;
 @Spi("tshark")
 public class TsharkTool extends CliTool {
 
-    /** 版本输出格式：{@code TShark (Wireshark) 3.6.2 (Git v3.6.2 ...)} */
+    /**
+    * 版本输出格式：{@code TShark (Wireshark) 3.6.2 (Git v3.6.2 ...)}
+    */
     private static final Pattern VERSION_PATTERN =
             Pattern.compile("TShark \\(Wireshark\\) (\\d[\\d.]*)");
 
     /**
     * 创建 tshark 工具实例，使用预置的工具描述。
-     */
+    */
     public TsharkTool() {
         super(CliToolDescriptor.builder("tshark")
                 .displayName("Wireshark 命令行抓包工具")
@@ -62,7 +64,7 @@ public class TsharkTool extends CliTool {
     * 列出可用的网络接口，等价于 {@code tshark -D}。
     *
     * @return 执行结果，stdout 中每行为一个网卡
-     */
+    */
     @Nonnull
     public CmdResult listInterfaces() {
         return execute("-D");
@@ -75,7 +77,7 @@ public class TsharkTool extends CliTool {
     *
     * @param captureFile 抓包文件路径
     * @return 执行结果，stdout 为 JSON 文本
-     */
+    */
     @Nonnull
     public CmdResult readAsJson(@Nonnull String captureFile) {
         return execute(5, TimeUnit.MINUTES, "-r", captureFile, "-T", "json");

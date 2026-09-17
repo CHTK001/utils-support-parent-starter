@@ -25,29 +25,29 @@ public class ConvertSetting {
 
     /**
     * 文件编码，为空时使用系统默认编码
-     */
+    */
     private String charset;
 
     /**
     * 目标文件存在时是否覆盖，默认覆盖
-     */
+    */
     private boolean overwrite = true;
 
     /**
     * 从第几行开始读取（0 表示第一行）
-     */
+    */
     private int startRow;
 
     /**
     * 最多读取行数（0 表示不限制）
-     */
+    */
     private int limit;
 
     /**
     * 设置文件编码。
     *
     * @param charset 编码名称
-     */
+    */
     public void setCharset(String charset) {
         this.charset = charset;
     }
@@ -56,7 +56,7 @@ public class ConvertSetting {
     * 设置是否覆盖目标文件。
     *
     * @param overwrite 是否覆盖
-     */
+    */
     public void setOverwrite(boolean overwrite) {
         this.overwrite = overwrite;
     }
@@ -65,7 +65,7 @@ public class ConvertSetting {
     * 设置起始行号。
     *
     * @param startRow 起始行号
-     */
+    */
     public void setStartRow(int startRow) {
         this.startRow = startRow;
     }
@@ -74,7 +74,7 @@ public class ConvertSetting {
     * 设置最大读取行数。
     *
     * @param limit 最大行数
-     */
+    */
     public void setLimit(int limit) {
         this.limit = limit;
     }

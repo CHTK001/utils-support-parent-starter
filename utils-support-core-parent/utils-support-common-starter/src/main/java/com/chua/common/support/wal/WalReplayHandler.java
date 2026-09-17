@@ -2,13 +2,13 @@ package com.chua.common.support.wal;
 
 
 /**
-* WAL 回放处理器，由业务方实现。
-*
-* <p>用于 {@link WalLog#replay(long, long, WalReplayHandler)} 中处理单条记录。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * WAL 回放处理器，由业务方实现。
+ *
+ * <p>用于 {@link WalLog#replay(long, long, WalReplayHandler)} 中处理单条记录。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @FunctionalInterface
 public interface WalReplayHandler {
 
@@ -20,6 +20,6 @@ public interface WalReplayHandler {
     * @param payload 业务字节流
     * @return true=继续回放后续记录；false=中止回放
     * @throws Exception 业务异常，回放循环会中止并向上抛出
-     */
+    */
     boolean onRecord(long lsn, byte op, byte[] payload) throws Exception;
 }

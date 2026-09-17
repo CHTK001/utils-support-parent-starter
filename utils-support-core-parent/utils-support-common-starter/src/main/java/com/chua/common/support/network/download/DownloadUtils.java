@@ -29,7 +29,7 @@ public final class DownloadUtils {
     * @param url           下载地址
     * @param explicitName  显式指定的文件名，可为 null 或空白
     * @return 解析后的文件名
-     */
+    */
     public static String resolveFilename(String url, String explicitName) {
         if (explicitName != null && !explicitName.isBlank()) {
             return explicitName;
@@ -50,7 +50,7 @@ public final class DownloadUtils {
     *
     * @param file 待计算 MD5 的文件
     * @return 32 位小写十六进制 MD5 字符串；计算失败时返回空字符串
-     */
+    */
     public static String computeMd5(Path file) {
         try {
             return DigestUtils.md5Hex(file);

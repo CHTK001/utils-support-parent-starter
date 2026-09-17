@@ -26,7 +26,7 @@ public abstract class AbstractWriter implements FileSystem {
     protected boolean initialized;
     /**
     * 文件路径
-     */
+    */
     protected File file;
 
     /** 创建 AbstractWriter 实例 */
@@ -39,7 +39,7 @@ public abstract class AbstractWriter implements FileSystem {
     /**
     * 创建 AbstractWriter 实例
     * @param file file
-     */
+    */
     protected AbstractWriter(File file) {
         this.file = file;
         this.headers = new ArrayList<>();
@@ -50,7 +50,7 @@ public abstract class AbstractWriter implements FileSystem {
     /**
     * 创建 AbstractWriter 实例
     * @param filePath filePath
-     */
+    */
     protected AbstractWriter(String filePath) {
         this.file = filePath != null ? new File(filePath) : null;
         this.headers = new ArrayList<>();

@@ -66,7 +66,7 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
     * @param sourceFile   源文件（可用于获取文件名、后缀等，URL 转换时可能为 null）
     * @param targetFile   目标文件
     * @throws Exception 转换失败
-     */
+    */
     protected abstract void doConvert(InputStream inputStream, OutputStream outputStream,
                                       File sourceFile, File targetFile) throws Exception;
 
@@ -77,14 +77,14 @@ public abstract class AbstractConvertFileSystem implements ConvertFileSystem {
     /**
     * 创建 AbstractConvertFileSystem 实例
     * @param file file
-     */
+    */
     protected AbstractConvertFileSystem(File file) {
     }
 
     /**
     * 创建 AbstractConvertFileSystem 实例
     * @param filePath filePath
-     */
+    */
     protected AbstractConvertFileSystem(String filePath) {
     }
 }

@@ -18,36 +18,36 @@ public class YunxiaoArtifactVersion {
 
     /**
     * 创建时间（毫秒时间戳）
-     */
+    */
     private Long createTime;
 
     /**
     * 创建人
-     */
+    */
     private String creator;
 
     /**
     * 最新下载时间（毫秒时间戳）
-     */
+    */
     private Long gmtDownload;
 
     /**
     * 制品版本 Id
-     */
+    */
     private Long id;
 
     /**
     * 修改人
-     */
+    */
     private String modifier;
 
     /**
     * 修改时间（毫秒时间戳）
-     */
+    */
     private Long updateTime;
 
     /**
     * 版本号
-     */
+    */
     private String version;
 }

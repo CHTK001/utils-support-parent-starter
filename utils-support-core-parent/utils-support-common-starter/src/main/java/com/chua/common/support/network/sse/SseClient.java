@@ -6,44 +6,44 @@ import com.chua.common.support.spi.ServiceProvider;
 import java.util.concurrent.CompletableFuture;
 
 /**
-* SSE（Server-Sent Events）客户端接口
-*
-* <p>提供统一的 SSE 事件流抽象，支持通过 SPI 机制切换底层实现
-* （JDK HttpClient / OkHttp / HttpClient5 等）。SSE 是服务端推送技术，
-* 用于实时接收 AI 对话流式响应、日志推送、消息通知等场景。
-*
-* <h3>使用示例</h3>
-* <pre>{@code
-*   // 通过 SPI 获取实现
-*   SseClient client = ServiceProvider.of(SseClient.class).getExtension("okhttp");
-*
-*   // 构建请求并连接
-*   SseRequest request = SseRequest.builder()
-*       .url("https://api.example.com/stream")
-*       .method(HttpMethod.POST)
-*       .header("Authorization", "Bearer sk-xxx")
-*       .body("{\"prompt\":\"hello\"}")
-*       .build();
-*
-*   SseConnection conn = client.connect(request, new SseListener() {
-*       public void onData(String data) {
-*           System.out.println("收到: " + data);
-*       }
-*       public void onError(Throwable error) {
-*           error.printStackTrace();
-*       }
-*   });
-*
-*   // 关闭连接
-*   conn.close();
-* }</pre>
-*
-* @author CH
-* @since 2026/07/21
-* @see SseRequest
-* @see SseListener
-* @see SseConnection
- */
+ * SSE（Server-Sent Events）客户端接口
+ *
+ * <p>提供统一的 SSE 事件流抽象，支持通过 SPI 机制切换底层实现
+ * （JDK HttpClient / OkHttp / HttpClient5 等）。SSE 是服务端推送技术，
+ * 用于实时接收 AI 对话流式响应、日志推送、消息通知等场景。
+ *
+ * <h3>使用示例</h3>
+ * <pre>{@code
+ *   // 通过 SPI 获取实现
+ *   SseClient client = ServiceProvider.of(SseClient.class).getExtension("okhttp");
+ *
+ *   // 构建请求并连接
+ *   SseRequest request = SseRequest.builder()
+ *       .url("https://api.example.com/stream")
+ *       .method(HttpMethod.POST)
+ *       .header("Authorization", "Bearer sk-xxx")
+ *       .body("{\"prompt\":\"hello\"}")
+ *       .build();
+ *
+ *   SseConnection conn = client.connect(request, new SseListener() {
+ *       public void onData(String data) {
+ *           System.out.println("收到: " + data);
+ *       }
+ *       public void onError(Throwable error) {
+ *           error.printStackTrace();
+ *       }
+ *   });
+ *
+ *   // 关闭连接
+ *   conn.close();
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/07/21
+ * @see SseRequest
+ * @see SseListener
+ * @see SseConnection
+*/
 public interface SseClient {
 
     /**
@@ -62,14 +62,14 @@ public interface SseClient {
     * @param request  SSE 请求参数
     * @param listener 事件监听器
     * @return 连接句柄，可用于主动关闭
-     */
+    */
     SseConnection connect(SseRequest request, SseListener listener);
 
     /**
     * 获取当前客户端的连接句柄。
     *
     * @return 当前连接句柄，未建立连接时返回 null
-     */
+    */
     default SseConnection getConnection() {
         return null;
     }
@@ -81,7 +81,7 @@ public interface SseClient {
     * 优先级顺序：OkHttp &gt; HttpClient5 &gt; JDK（内置）。
     *
     * @return SseClient 实例
-     */
+    */
     static SseClient create() {
         return ServiceProvider.of(SseClient.class).getExtension();
     }
@@ -94,7 +94,7 @@ public interface SseClient {
     * @param request  SSE 请求参数
     * @param listener 事件监听器
     * @return 已完成的连接句柄
-     */
+    */
     static CompletableFuture<SseConnection> connectAsync(SseRequest request, SseListener listener) {
         SseClient client = create();
         client.connect(request, listener);
@@ -106,7 +106,7 @@ public interface SseClient {
     *
     * @param url 请求地址
     * @return 默认实现的 SSE 客户端连接
-     */
+    */
     static SseConnection get(String url, SseListener listener) {
         SseRequest request = SseRequest.builder()
                 .url(url)
@@ -121,7 +121,7 @@ public interface SseClient {
     * @param url  请求地址
     * @param body 请求体（JSON 字符串）
     * @return 默认实现的 SSE 客户端连接
-     */
+    */
     static SseConnection post(String url, String body, SseListener listener) {
         SseRequest request = SseRequest.builder()
                 .url(url)

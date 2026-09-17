@@ -19,32 +19,32 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* SPI 自定义解析器
-* <p>
-*     从 {@code META-INF/extensions} 目录加载 SPI 配置，将配置行解析为 {@link ServiceDefinition} 对象
-* <p>
-*     配置文件格式为 {@code META-INF/extensions/<接口全限定名>}
-* <ul>
-*     <li>{@code 实现类全限定名}</li>
-*     <li>{@code 别名=实现类全限定名}</li>
-* </ul>
-*     自动处理 UTF-8 BOM、不可见字符等边界情况
-*
-* @author CH
-* @since 2024-01-03
- */
+ * SPI 自定义解析器
+ * <p>
+ *     从 {@code META-INF/extensions} 目录加载 SPI 配置，将配置行解析为 {@link ServiceDefinition} 对象
+ * <p>
+ *     配置文件格式为 {@code META-INF/extensions/<接口全限定名>}
+ * <ul>
+ *     <li>{@code 实现类全限定名}</li>
+ *     <li>{@code 别名=实现类全限定名}</li>
+ * </ul>
+ *     自动处理 UTF-8 BOM、不可见字符等边界情况
+ *
+ * @author CH
+ * @since 2024-01-03
+*/
 @Slf4j
 public class CustomServiceResolver implements ServiceResolver {
 
 
     /**
     * SPI 配置文件在 类路径 中的路径
-     */
+    */
     private static final String PATH = "META-INF/extensions";
 
     /**
     * UTF-8 BOM 字符（Zero Width No-中断 Space U+FEFF）
-     */
+    */
     private static final char BOM = '\uFEFF';
 
     /**
@@ -54,7 +54,7 @@ public class CustomServiceResolver implements ServiceResolver {
     * @param type 服务接口类型
     * @param classLoader 类加载器
     * @return SPI 定义列表
-     */
+    */
     protected synchronized List<ServiceDefinition> loadFromFile(String path, Class<?> type, ClassLoader classLoader) {
         if (log.isTraceEnabled()) {
             log.trace("从路径 {} 加载类型 {} 的 SPI 定义", type.getTypeName(), path);
@@ -81,7 +81,7 @@ public class CustomServiceResolver implements ServiceResolver {
     * @param classLoader 类加载器
     * @return SPI 扩展类列表
     * @throws Throwable 加载异常
-     */
+    */
     private List<ServiceDefinition> loadFromClassLoader(final String fullFileName, Class<?> type, ClassLoader classLoader) throws Throwable {
         Enumeration<URL> urls = classLoader.getResources(fullFileName);
         List<ServiceDefinition> allExtensionClass = new ArrayList<>();
@@ -122,7 +122,7 @@ public class CustomServiceResolver implements ServiceResolver {
     * @param type 服务接口类型
     * @param classLoader 类加载器
     * @return 服务定义列表
-     */
+    */
     protected List<ServiceDefinition> readLine(final String line, URL url, Class<?> type, ClassLoader classLoader) {
         String[] aliasAndClassName = parseSpiNameAndClassName(line);
         int size = 2;
@@ -140,7 +140,7 @@ public class CustomServiceResolver implements ServiceResolver {
     *
     * @param line 配置行
     * @return 包含别名和类名的数组，解析失败返回 空
-     */
+    */
     protected String[] parseSpiNameAndClassName(String line) {
         if (null == line || "".equals(line)) {
             return null;
@@ -169,7 +169,7 @@ public class CustomServiceResolver implements ServiceResolver {
     *
     * @param line 原始配置行
     * @return 清理后的配置行
-     */
+    */
     private static String sanitizeSpiLine(String line) {
         if (line == null || line.isEmpty()) {
             return line;
@@ -189,7 +189,7 @@ public class CustomServiceResolver implements ServiceResolver {
     *
     * @param ch 字符
     * @return true 表示为不可见前缀字符
-     */
+    */
     private static boolean isInvisiblePrefixChar(char ch) {
         return switch (ch) {
             case BOM, '\u200B', '\u200C', '\u200D', '\u00A0' -> true;

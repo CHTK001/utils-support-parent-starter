@@ -13,13 +13,13 @@ public interface GrantBuilder {
     *
     * @param username 用户名
     * @return this
-     */
+    */
     GrantBuilder toUser(String username);
 
     /**
     * 执行授予权限语句。
     *
     * @return true 授予成功
-     */
+    */
     boolean execute();
 }

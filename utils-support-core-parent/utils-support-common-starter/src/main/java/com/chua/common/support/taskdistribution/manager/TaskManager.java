@@ -20,50 +20,50 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
-* 任务管理器。
-*
-* <p>维护所有待执行、执行中、已完成的任务状态，支持超时检测、断线重发、
-* 取消、暂停、恢复和状态变更通知。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 任务管理器。
+ *
+ * <p>维护所有待执行、执行中、已完成的任务状态，支持超时检测、断线重发、
+ * 取消、暂停、恢复和状态变更通知。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public class TaskManager {
 
     /**
     * 任务状态映射：任务id -> 任务holder
-     */
+    */
     private final Map<String, TaskHolder> tasks = new ConcurrentHashMap<>();
 
 /**
-* 状态变更监听器
- */
+ * 状态变更监听器
+*/
 private final List<TaskStateListener> stateListeners = new CopyOnWriteArrayList<>();
 
 /**
-* 任务持久化存储
- */
+ * 任务持久化存储
+*/
 private TaskStore store;
 
 /**
-* 超时检测定时器
- */
+ * 超时检测定时器
+*/
 private final ScheduledExecutorService timeoutScheduler;
 
 /**
-* 已完成任务清理过期时间（毫秒），默认 60 秒
- */
+ * 已完成任务清理过期时间（毫秒），默认 60 秒
+*/
 private long cleanExpireMs = 60000;
 
     /**
     * 默认超时检测间隔（毫秒）
-     */
+    */
     private static final long TIMEOUT_CHECK_INTERVAL = 1000;
 
     /**
     * 构造任务管理器，默认启用超时检测。
-     */
+    */
     public TaskManager() {
         this(true);
     }
@@ -72,7 +72,7 @@ private long cleanExpireMs = 60000;
     * 构造任务管理器。
     *
     * @param enableTimeoutCheck 是否启用超时检测
-     */
+    */
     public TaskManager(boolean enableTimeoutCheck) {
         if (enableTimeoutCheck) {
             timeoutScheduler = ThreadUtils.newSingleThreadScheduledExecutor(
@@ -92,7 +92,7 @@ private long cleanExpireMs = 60000;
     * 设置持久化存储。
     *
     * @param store 存储实现
-     */
+    */
     public void setStore(TaskStore store) {
         this.store = store;
     }
@@ -101,7 +101,7 @@ private long cleanExpireMs = 60000;
     * 注册状态变更监听器。
     *
     * @param listener 监听器
-     */
+    */
     public void addStateListener(TaskStateListener listener) {
         if (listener != null) {
             stateListeners.add(listener);
@@ -112,7 +112,7 @@ private long cleanExpireMs = 60000;
     * 移除状态变更监听器。
     *
     * @param listener 监听器
-     */
+    */
     public void removeStateListener(TaskStateListener listener) {
         stateListeners.remove(listener);
     }
@@ -122,7 +122,7 @@ private long cleanExpireMs = 60000;
     *
     * @param task     任务
     * @param callback 回调
-     */
+    */
     public void addTask(Task<?> task, TaskCallback callback) {
         if (task == null || task.getTaskId() == null) {
             return;
@@ -140,7 +140,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId  任务 标识
     * @param status  新状态
-     */
+    */
     public void updateStatus(String taskId, TaskStatus status) {
         TaskHolder holder = tasks.get(taskId);
         if (holder == null) {
@@ -163,7 +163,7 @@ private long cleanExpireMs = 60000;
     * @param taskId 任务标识
     * @param oldState 旧状态
     * @param newState 新状态
-     */
+    */
     private void notifyStateChanged(String taskId, TaskStatus oldState, TaskStatus newState) {
         for (TaskStateListener listener : stateListeners) {
             try {
@@ -177,7 +177,7 @@ private long cleanExpireMs = 60000;
     /**
     * 通知任务完成。
     * @param result 结果
-     */
+    */
     private void notifyCompleted(TaskResult<?> result) {
         for (TaskStateListener listener : stateListeners) {
             try {
@@ -193,7 +193,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return true 表示取消成功
-     */
+    */
     public boolean cancel(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         if (holder == null) {
@@ -216,7 +216,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return true 表示暂停成功
-     */
+    */
     public boolean pause(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         if (holder == null || holder.status != TaskStatus.PENDING) {
@@ -232,7 +232,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return true 表示恢复成功
-     */
+    */
     public boolean resume(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         if (holder == null || holder.status != TaskStatus.PAUSED) {
@@ -247,7 +247,7 @@ private long cleanExpireMs = 60000;
     * 处理任务结果。
     *
     * @param result 执行结果
-     */
+    */
     public void handleResult(TaskResult<?> result) {
         if (result == null || result.getTaskId() == null) {
             return;
@@ -280,7 +280,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return 任务状态，不存在返回 空
-     */
+    */
     public TaskStatus getStatus(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         return holder != null ? holder.status : null;
@@ -291,7 +291,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return 任务结果，不存在返回 空
-     */
+    */
     public TaskResult<?> getResult(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         return holder != null ? holder.result : null;
@@ -302,7 +302,7 @@ private long cleanExpireMs = 60000;
     *
     * @param taskId 任务 标识
     * @return 任务，不存在返回 空
-     */
+    */
     public Task<?> getTask(String taskId) {
         TaskHolder holder = tasks.get(taskId);
         return holder != null ? holder.task : null;
@@ -312,7 +312,7 @@ private long cleanExpireMs = 60000;
     * 获取所有待重试的任务。
     *
     * @return 待重试任务列表（含回调）
-     */
+    */
     public List<Map.Entry<Task<?>, TaskCallback>> getRetryableTasks() {
         return tasks.values().stream()
                 .filter(h -> h.status == TaskStatus.FAILED || h.status == TaskStatus.TIMEOUT)
@@ -328,7 +328,7 @@ private long cleanExpireMs = 60000;
     * 获取所有待派发的任务（PENDING 状态，未暂停）。
     *
     * @return 待派发任务列表
-     */
+    */
     public List<Task<?>> getPendingTasks() {
         return tasks.values().stream()
                 .filter(h -> h.status == TaskStatus.PENDING)
@@ -338,7 +338,7 @@ private long cleanExpireMs = 60000;
 
     /**
     * 超时检测。
-     */
+    */
     private void checkTimeouts() {
         long now = System.currentTimeMillis();
         for (TaskHolder holder : tasks.values()) {
@@ -371,7 +371,7 @@ private long cleanExpireMs = 60000;
     * 获取所有任务视图。
     *
     * @return 任务视图列表
-     */
+    */
     public List<TaskView> getAllTasks() {
         List<TaskView> views = new ArrayList<>();
         for (TaskHolder holder : tasks.values()) {
@@ -392,7 +392,7 @@ private long cleanExpireMs = 60000;
     * <p>从持久化存储加载 PENDING / RUNNING 状态的任务，重置为 PENDING 待重新派发。</p>
     *
     * @return 恢复的任务列表
-     */
+    */
     public List<Task<?>> recover() {
         if (store == null) {
             return List.of();
@@ -410,7 +410,7 @@ private long cleanExpireMs = 60000;
 
     /**
     * 清理已完成任务。
-     */
+    */
     public void cleanCompleted() {
         long now = System.currentTimeMillis();
         tasks.values().removeIf(holder -> {
@@ -423,7 +423,7 @@ private long cleanExpireMs = 60000;
 
     /**
     * 销毁定时器。
-     */
+    */
     public void destroy() {
         if (timeoutScheduler != null) {
             timeoutScheduler.shutdown();
@@ -435,7 +435,7 @@ private long cleanExpireMs = 60000;
     * 任务持有者（内部数据结构）。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class TaskHolder {
         final Task<?> task; // 任务
         final TaskCallback callback; // callback
@@ -466,7 +466,7 @@ private long cleanExpireMs = 60000;
     * @param completedAt 完成时间
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record TaskView(
             String taskId,
             String taskType,

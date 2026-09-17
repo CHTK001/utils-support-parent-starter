@@ -43,7 +43,7 @@ public interface WebContainer {
     *
     * @param setting 容器配置
     * @throws ContainerException 初始化失败时抛出
-     */
+    */
     void initialize(WebContainerSetting setting);
 
     /**
@@ -55,7 +55,7 @@ public interface WebContainer {
     * @param archivePath 归档文件路径（.war、.jar 或 .ear），支持本地路径和远程 URL
     * @throws ContainerException 部署失败时抛出
     * @see #deploy(String, String, DeployUnitType)
-     */
+    */
     void deploy(String archivePath);
 
     /**
@@ -67,7 +67,7 @@ public interface WebContainer {
     * @param contextPath 上下文路径（可为 null，此时自动推导）
     * @param type        部署单元类型
     * @throws ContainerException 部署失败时抛出
-     */
+    */
     void deploy(String archivePath, String contextPath, DeployUnitType type);
 
     /**
@@ -78,7 +78,7 @@ public interface WebContainer {
     * @param url 远程归档文件 URL
     * @throws ContainerException 下载或部署失败时抛出
     * @see #deploy(String)
-     */
+    */
     default void deployRemote(String url) {
         deploy(url);
     }
@@ -90,7 +90,7 @@ public interface WebContainer {
     * @param contextPath 上下文路径
     * @param type        部署单元类型
     * @throws ContainerException 下载或部署失败时抛出
-     */
+    */
     default void deployRemote(String url, String contextPath, DeployUnitType type) {
         deploy(url, contextPath, type);
     }
@@ -99,7 +99,7 @@ public interface WebContainer {
     * 从配置中的所有部署单元批量部署。
     *
     * @throws ContainerException 部署失败时抛出
-     */
+    */
     void deployAll();
 
     /**
@@ -107,7 +107,7 @@ public interface WebContainer {
     *
     * @param contextPath 上下文路径
     * @throws ContainerException 卸载失败时抛出
-     */
+    */
     void undeploy(String contextPath);
 
     /**
@@ -115,56 +115,56 @@ public interface WebContainer {
     *
     * @throws ContainerException 启动失败时抛出
     * @see #initialize(WebContainerSetting)
-     */
+    */
     void start();
 
     /**
     * 停止容器，释放所有资源。
     *
     * @throws ContainerException 停止失败时抛出
-     */
+    */
     void stop();
 
     /**
     * 重启容器。
     *
     * @throws ContainerException 重启失败时抛出
-     */
+    */
     void restart();
 
     /**
     * 获取容器当前运行状态。
     *
     * @return 容器状态对象
-     */
+    */
     ContainerStatus getStatus();
 
     /**
     * 获取容器名称/标识。
     *
     * @return 容器名称，如 "tomcat"、"undertow"
-     */
+    */
     String getName();
 
     /**
     * 判断容器是否正在运行。
     *
     * @return 运行中返回 true，否则返回 false
-     */
+    */
     boolean isRunning();
 
     /**
     * 获取容器实际监听端口。
     *
     * @return 实际端口号，端口 0 时返回自动分配后的端口，未启动时返回配置端口
-     */
+    */
     default int getPort() {
         return 0;
     }
 
     /**
     * 容器运行状态枚举。
-     */
+    */
     enum ContainerStatus {
         /** 已创建，尚未初始化 */
         NEW,
@@ -184,12 +184,12 @@ public interface WebContainer {
 
     /**
     * Web 容器异常。
-     */
+    */
     class ContainerException extends RuntimeException {
         /**
         * 创建 ContainerException 实例
         * @param message message
-         */
+        */
         public ContainerException(String message) {
             super(message);
         }
@@ -198,7 +198,7 @@ public interface WebContainer {
         * 创建 ContainerException 实例
         * @param message message
         * @param Throwable Throwable
-         */
+        */
         public ContainerException(String message, Throwable cause) {
             super(message, cause);
         }

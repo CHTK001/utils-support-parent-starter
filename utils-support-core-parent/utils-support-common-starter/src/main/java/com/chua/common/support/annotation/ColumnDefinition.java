@@ -28,20 +28,20 @@ public @interface ColumnDefinition {
     * 列默认值，空字符串表示不设置默认值。
     *
     * @return 默认值表达式
-     */
+    */
     String defaultValue() default "";
 
     /**
     * 列注释，空字符串表示不添加注释。
     *
     * @return 列注释文本
-     */
+    */
     String comment() default "";
 
     /**
     * 表结构同步时是否强制刷新该列定义。
     *
     * @return true 表示强制刷新，false 表示不强制刷新
-     */
+    */
     boolean refresh() default false;
 }

@@ -65,7 +65,7 @@ public class UsagePersistChatClient implements ChatClient {
     * @param delegate 被包装的 ChatClient 实例（不应是已配置 Engine 的 AggregateChatClient）
     * @param engine   Engine 实例
     * @return 包装后的 ChatClient
-     */
+    */
     public static UsagePersistChatClient wrap(ChatClient delegate, Engine engine) {
         return new UsagePersistChatClient(delegate, engine);
     }
@@ -74,7 +74,7 @@ public class UsagePersistChatClient implements ChatClient {
     * 创建 UsagePersistChatClient 实例
     * @param delegate delegate
     * @param engine Engine
-     */
+    */
     private UsagePersistChatClient(ChatClient delegate, Engine engine) {
         this.delegate = delegate;
         this.engine = engine;
@@ -103,7 +103,7 @@ public class UsagePersistChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete onComplete
     * @param onError onError
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         delegate.chat(prompt, raw -> {
@@ -228,7 +228,7 @@ public class UsagePersistChatClient implements ChatClient {
 
     /**
     * 等待所有异步用量写入完成
-     */
+    */
     public void flush() {
         List<CompletableFuture<?>> pending = List.copyOf(pendingFutures);
         if (pending.isEmpty()) {
@@ -248,7 +248,7 @@ public class UsagePersistChatClient implements ChatClient {
     * <p>将外部数据源（如 UsageParser 解析的本地工具用量）批量写入 Engine 持久化表。</p>
     *
     * @param externalUsage 外部来源的用量数据列表
-     */
+    */
     public void syncUsage(List<AiUsage> externalUsage) {
         if (externalUsage == null || externalUsage.isEmpty() || engine == null) {
             return;

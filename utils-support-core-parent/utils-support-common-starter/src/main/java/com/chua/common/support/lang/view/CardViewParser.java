@@ -42,7 +42,7 @@ public class CardViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 支持时返回 true
-     */
+    */
     @Override
     public boolean support(Object data) {
         if (data == null) {
@@ -66,7 +66,7 @@ public class CardViewParser implements ViewParser {
     *
     * @param data 待渲染的数据
     * @return 卡片字符串；空数据返回 {@link ViewFormatter#EMPTY_PLACEHOLDER}
-     */
+    */
     @Override
     public String render(Object data) {
         Map<String, String> kv = toKeyValue(data);
@@ -112,7 +112,7 @@ public class CardViewParser implements ViewParser {
     *
     * @param data 待转换的数据
     * @return 有序键值对映射
-     */
+    */
     private static Map<String, String> toKeyValue(Object data) {
         Map<String, String> result = new LinkedHashMap<>();
         if (data instanceof Map) {
@@ -140,7 +140,7 @@ public class CardViewParser implements ViewParser {
     * 获取解析器顺序，值越大优先级越高。
     *
     * @return 顺序值 15
-     */
+    */
     @Override
     public int getOrder() {
         return 15;

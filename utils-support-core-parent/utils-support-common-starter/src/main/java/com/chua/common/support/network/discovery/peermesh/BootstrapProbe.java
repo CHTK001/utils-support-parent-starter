@@ -39,7 +39,7 @@ public class BootstrapProbe {
     * @param localPort localPort
     * @param diskStore diskStore
     * @param localHost localHost
-     */
+    */
     public BootstrapProbe(MeshConfig config, NodeTable nodeTable, InterfaceSelector selector,
                           String localServerId, int localPort, DiskStore diskStore,
                           String localHost) {
@@ -54,7 +54,7 @@ public class BootstrapProbe {
 
     /**
     * 执行启动巡检。
-     */
+    */
     public void run() throws Exception {
         ProbeStrategy strategy = createStrategy();
         if (strategy == null) {
@@ -77,7 +77,7 @@ public class BootstrapProbe {
     * 根据配置创建对应的探针策略。
     *
     * @return ProbeStrategy 实例
-     */
+    */
     private ProbeStrategy createStrategy() {
         // UDP 模式统一使用 UDP 广播探针
         if ("udp".equalsIgnoreCase(config.getMode())) {

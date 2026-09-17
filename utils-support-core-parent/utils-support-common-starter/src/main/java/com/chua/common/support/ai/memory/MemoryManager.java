@@ -68,7 +68,7 @@ public class MemoryManager implements AutoCloseable {
     * 创建记忆管理器
     *
     * @param config 记忆体配置
-     */
+    */
     public MemoryManager(MemoryConfig config) {
         this.config = config;
         this.store = createStore(config);
@@ -76,7 +76,7 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 使用指定存储实现创建管理器。
-     */
+    */
     public MemoryManager(MemoryConfig config, MemoryStore store) {
         this.config = config != null ? config : MemoryConfig.builder().build();
         this.store = store != null ? store : createStore(this.config);
@@ -84,14 +84,14 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * Engine 记忆快捷构造（{@link EngineMemoryStore}）。
-     */
+    */
     public static MemoryManager ofEngine(Engine engine) {
         return ofEngine(engine, MemoryConfig.builder().storeType("engine").engine(engine).build());
     }
 
     /**
     * Engine 记忆快捷构造。
-     */
+    */
     public static MemoryManager ofEngine(Engine engine, MemoryConfig config) {
         MemoryConfig cfg = config != null ? config : MemoryConfig.builder().build();
         cfg.setStoreType("engine");
@@ -126,7 +126,7 @@ public class MemoryManager implements AutoCloseable {
     * @param conversation 对话内容
     * @param sessionId    会话 ID
     * @param agentId      Agent 标识
-     */
+    */
     public void saveFromConversation(String conversation, String sessionId, String agentId) {
         if (conversation == null || conversation.isBlank()) {
             return;
@@ -142,7 +142,7 @@ public class MemoryManager implements AutoCloseable {
     * 直接保存一条记忆
     *
     * @param entry 记忆条目
-     */
+    */
     public void save(MemoryEntry entry) {
         store.save(entry);
     }
@@ -153,7 +153,7 @@ public class MemoryManager implements AutoCloseable {
     * @param keyword 搜索关键词
     * @param limit   最大返回数量
     * @return 匹配的记忆列表
-     */
+    */
     public List<MemoryEntry> search(String keyword, int limit) {
         return store.search(keyword, limit);
     }
@@ -164,7 +164,7 @@ public class MemoryManager implements AutoCloseable {
     * @param type  记忆类型
     * @param limit 最大返回数量
     * @return 记忆列表
-     */
+    */
     public List<MemoryEntry> listByType(String type, int limit) {
         return store.listByType(type, limit);
     }
@@ -174,7 +174,7 @@ public class MemoryManager implements AutoCloseable {
     *
     * @param sessionId 会话 ID
     * @return 记忆列表
-     */
+    */
     public List<MemoryEntry> listBySession(String sessionId) {
         return store.listBySession(sessionId);
     }
@@ -184,7 +184,7 @@ public class MemoryManager implements AutoCloseable {
     *
     * @param id 记忆 ID
     * @return 是否成功
-     */
+    */
     public boolean delete(String id) {
         return store.delete(id);
     }
@@ -193,7 +193,7 @@ public class MemoryManager implements AutoCloseable {
     * 获取记忆总数
     *
     * @return 记忆条数
-     */
+    */
     public int count() {
         return store.count();
     }
@@ -202,7 +202,7 @@ public class MemoryManager implements AutoCloseable {
     * 备份记忆
     *
     * @param path 备份文件路径
-     */
+    */
     public void backup(String path) {
         store.backup(path);
     }
@@ -211,7 +211,7 @@ public class MemoryManager implements AutoCloseable {
     * 恢复记忆
     *
     * @param path 备份文件路径
-     */
+    */
     public void restore(String path) {
         store.restore(path);
     }
@@ -220,7 +220,7 @@ public class MemoryManager implements AutoCloseable {
     * 获取底层存储实例
     *
     * @return 记忆存储
-     */
+    */
     public MemoryStore getStore() {
         return store;
     }
@@ -235,7 +235,7 @@ public class MemoryManager implements AutoCloseable {
     * AI 总结并保存
     *
     * <p>调用 ChatClient 将对话内容提炼为结构化记忆条目。
-     */
+    */
     private void summarizeAndSave(String conversation, String sessionId, String agentId) {
         try {
             String prompt = buildSummarizerPrompt(conversation);
@@ -252,7 +252,7 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 原始保存（不做 AI 总结）
-     */
+    */
     private void saveRaw(String content, String sessionId, String agentId) {
         MemoryEntry entry = MemoryEntry.builder()
                 .id(UUID.randomUUID().toString())
@@ -269,7 +269,7 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 构建总结 prompt
-     */
+    */
     private String buildSummarizerPrompt(String content) {
         String template = config.getSummarizerPrompt() != null
                 ? config.getSummarizerPrompt() : DEFAULT_SUMMARIZER_PROMPT;
@@ -278,7 +278,7 @@ public class MemoryManager implements AutoCloseable {
 
     /**
     * 解析 AI 总结结果
-     */
+    */
     private MemoryEntry parseSummaryResult(String result, String sessionId, String agentId) {
         try {
             // 尝试从 JSON 中提取

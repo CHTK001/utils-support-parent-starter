@@ -12,17 +12,17 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
-* JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
-*
-* <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接限流 + 虚拟线程池；
-* {@link #handleConnection(Socket)} 内完成"读 HTTP 请求 → 解析后端 → 转发 → 回传响应 → 关闭"，
-* 一请求一响应一断。</p>
-*
-* <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * JDK HTTP 反向代理服务器（基于 {@link AbstractProxyServer} 骨架，短连接）。
+ *
+ * <p>复用 AbstractProxyServer 的非阻塞批量 accept + 连接限流 + 虚拟线程池；
+ * {@link #handleConnection(Socket)} 内完成"读 HTTP 请求 → 解析后端 → 转发 → 回传响应 → 关闭"，
+ * 一请求一响应一断。</p>
+ *
+ * <p>与 vertx 版 {@code VertxHttpProxyServer}（事件循环异步）对等，本实现为 JDK 阻塞版。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 @Spi({"http-proxy"})
 public class HttpProxyServer extends AbstractProxyServer {
@@ -31,7 +31,9 @@ public class HttpProxyServer extends AbstractProxyServer {
     protected final int connectTimeoutMs;
     protected final int readTimeoutMs;
 
-    /** 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈） */
+    /**
+    * 后端连接池：复用 keep-alive 后端连接，消除每次请求新建 TCP 连接开销（Reactor+虚拟线程下的吞吐瓶颈）
+    */
     private final java.util.Queue<Socket> backendPool = new java.util.concurrent.ConcurrentLinkedQueue<>();
     /** 连接池容量上限 */
     private static final int BACKEND_POOL_MAX = 8;
@@ -226,7 +228,9 @@ OutputStream backOut = backendSocket.getOutputStream();
         }
     }
 
-    /** 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。 */
+    /**
+    * 读 HTTP 头（直到 \r\n\r\n），BufferedInputStream 包装后逐字节读已足够快且不吞 body。
+    */
     private byte[] readHeader(InputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
         int prevPrev = -1;
@@ -247,7 +251,9 @@ OutputStream backOut = backendSocket.getOutputStream();
         return bos.size() == 0 ? null : bos.toByteArray();
     }
 
-    /** 读取请求体（按 Content-Length 或 chunked）。 */
+    /**
+    * 读取请求体（按 Content-Length 或 chunked）。
+    */
     private byte[] readBody(InputStream in, String headText) throws IOException {
         int len = contentLength(headText);
         if (len > 0) {
@@ -283,7 +289,9 @@ OutputStream backOut = backendSocket.getOutputStream();
         return 0;
     }
 
-    /** 响应头中的 Content-Length（用于判断是否转发 body）。 */
+    /**
+    * 响应头中的 Content-Length（用于判断是否转发 body）。
+    */
     private int contentLength(byte[] header) {
         return contentLength(new String(header, java.nio.charset.StandardCharsets.ISO_8859_1));
     }
@@ -298,7 +306,9 @@ OutputStream backOut = backendSocket.getOutputStream();
         }
     }
 
-    /** 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。 */
+    /**
+    * 精确读取并转发 {@code length} 字节（Content-Length 响应体，避免 keep-alive 连接阻塞到超时）。
+    */
     private void pipeN(InputStream in, OutputStream out, int length) throws IOException {
         byte[] buffer = new byte[8192];
         int remaining = length;
@@ -313,7 +323,9 @@ OutputStream backOut = backendSocket.getOutputStream();
         out.flush();
     }
 
-    /** 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。 */
+    /**
+    * 按 chunked 编码解析并转发响应体（直到 0 长度 chunk 后的终止 CRLF）。
+    */
     private void pipeChunked(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         while (true) {

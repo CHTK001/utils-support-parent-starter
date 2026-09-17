@@ -43,7 +43,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param value 源值
     * @return Color 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Color convert(Object value) {
         if (null == value) {
@@ -82,7 +82,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param hexColor hex color string, e.g. "#418063"
     * @return Color object
-     */
+    */
     private Color hexStringToColor(String hexColor) {
         if (hexColor.startsWith(SYMBOL_HASH)) {
             hexColor = hexColor.substring(1);
@@ -111,7 +111,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     * Parse hex rgba color
     * @param str color string
     * @return color
-     */
+    */
     private Color hexRgba(String str) {
         boolean hasA = str.length() >= 8;
         if(hasA) {
@@ -140,7 +140,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param hexStr rgb string
     * @return color
-     */
+    */
     private Color rgb(String hexStr) {
         String[] parts = hexStr.split(",");
         return new Color(
@@ -154,7 +154,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param hexStr rgba string
     * @return color
-     */
+    */
     private Color rgba(String hexStr) {
         String[] parts = hexStr.split(",");
         return new Color(
@@ -170,7 +170,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param str rgb string
     * @return true if rgb
-     */
+    */
     private boolean isRgb(String str) {
         return str.startsWith("rgb");
     }
@@ -180,7 +180,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     *
     * @param str rgba string
     * @return true if rgba
-     */
+    */
     private boolean isRgba(String str) {
         return str.startsWith("rgba");
     }
@@ -189,7 +189,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Color.class
-     */
+    */
     @Override
     public Class<Color> getType() {
         return Color.class;
@@ -197,7 +197,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
 
     /**
     * Color name helper
-     */
+    */
     @Data
     @AllArgsConstructor
     public static class ColorName {
@@ -205,7 +205,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         public int r, g, b;
         /**
         * 名称
-         */
+        */
         public String name;
 
         /**
@@ -214,7 +214,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         * @param int int
         * @param int int
         * @param int int
-         */
+        */
         public ColorName(String name, int r, int g, int b) {
             this.r = r;
             this.g = g;
@@ -225,7 +225,7 @@ public class ColorTypeConverter implements TypeConverter<Color> {
         /**
         * Get Color object
         * @return color
-         */
+        */
         public Color getColor() {
             return new Color(r, g, b);
         }

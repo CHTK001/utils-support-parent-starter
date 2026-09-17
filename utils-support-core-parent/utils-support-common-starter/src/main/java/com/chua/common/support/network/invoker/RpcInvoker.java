@@ -51,7 +51,7 @@ public class RpcInvoker implements Invoker {
 
     /**
     * 未配置 {@code @RemoteService.client()} 时的默认 RPC 客户端协议
-     */
+    */
     private static final String DEFAULT_CLIENT = "json";
 
     @SuppressWarnings("unchecked")
@@ -81,7 +81,7 @@ public class RpcInvoker implements Invoker {
     *
     * @param clazz 接口类型
     * @return RPC 客户端协议名
-     */
+    */
     private static String resolveClient(Class<?> clazz) {
         RemoteService rs = clazz.getAnnotation(RemoteService.class);
         if (rs != null && !StringUtils.isEmpty(rs.client())) {

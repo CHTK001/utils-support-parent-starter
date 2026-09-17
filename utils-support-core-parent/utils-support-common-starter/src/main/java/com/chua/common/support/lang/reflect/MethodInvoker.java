@@ -54,17 +54,17 @@ public final class MethodInvoker {
     /**
     * 方法句柄缓存，避免重复创建 MethodHandle
     * 使用 ConcurrentReferenceHashMap 实现弱引用缓存，防止内存泄漏
-     */
+    */
     private static final Map<Method, MethodHandle> METHOD_HANDLE_CACHE = new ConcurrentReferenceHashMap<>(512);
 
     /**
     * MethodHandles.Lookup 实例，用于创建 MethodHandle
-     */
+    */
     private static final MethodHandles.Lookup LOOKUP;
 
     /**
     * 是否优先使用 MethodHandle 调用（JDK 9+ 启用）
-     */
+    */
     private static final boolean USE_METHOD_HANDLE;
 
     static {
@@ -84,7 +84,7 @@ public final class MethodInvoker {
 
     /**
     * 私有构造方法，禁止实例化工具类
-     */
+    */
     private MethodInvoker() {
     }
 
@@ -103,7 +103,7 @@ public final class MethodInvoker {
     * @param args   方法参数
     * @return 方法返回值
     * @throws RuntimeException 调用出错时包装抛出运行时异常
-     */
+    */
     public static Object invoke(Method method, Object target, Object... args) {
         if (method == null) {
             return null;
@@ -130,7 +130,7 @@ public final class MethodInvoker {
     * @param args       方法参数
     * @param <T>        返回值泛型类型
     * @return 转换后的返回值
-     */
+    */
     public static <T> T invoke(Method method, Object target, Class<T> returnType, Object... args) {
         Object result = invoke(method, target, args);
         return Converter.convertIfNecessary(result, returnType);
@@ -144,7 +144,7 @@ public final class MethodInvoker {
     * @param parameterTypes 参数类型数组
     * @param args           方法参数
     * @return 方法返回值，找不到方法时返回 null
-     */
+    */
     public static Object invokeStatic(Class<?> clazz, String methodName, Class<?>[] parameterTypes, Object... args) {
         Method method = ClassUtils.findDeclaredMethod(clazz, methodName, parameterTypes);
         if (method == null) {
@@ -161,7 +161,7 @@ public final class MethodInvoker {
     * @param target 目标对象
     * @param args   参数列表
     * @return 调用结果
-     */
+    */
     private static Object invokeWithMethodHandle(Method method, Object target, Object... args) {
         try {
             MethodHandle handle = getOrCreateMethodHandle(method);
@@ -196,7 +196,7 @@ public final class MethodInvoker {
     * @param target 目标对象
     * @param args   参数列表
     * @return 调用结果
-     */
+    */
     private static Object invokeWithReflection(Method method, Object target, Object... args) {
         try {
             return method.invoke(target, args); // [P3C 1.10 豁免] MethodInvoker 为反射调用基础设施（JDK8 反射兜底路径），需保留原生 Method.invoke
@@ -211,7 +211,7 @@ public final class MethodInvoker {
     *
     * @param method 方法对象
     * @return MethodHandle 实例，创建失败时返回 null
-     */
+    */
     private static MethodHandle getOrCreateMethodHandle(Method method) {
         return METHOD_HANDLE_CACHE.computeIfAbsent(method, m -> {
             try {
@@ -233,7 +233,7 @@ public final class MethodInvoker {
     * @param returnType     返回值类型
     * @param parameterTypes 参数类型列表
     * @return MethodHandle 实例，未找到时返回 null
-     */
+    */
     public static MethodHandle findMethodHandle(Class<?> clazz, String methodName, 
                                                   Class<?> returnType, Class<?>... parameterTypes) {
         try {
@@ -255,7 +255,7 @@ public final class MethodInvoker {
     * @param returnType     返回值类型
     * @param parameterTypes 参数类型列表
     * @return MethodHandle 实例，未找到时返回 null
-     */
+    */
     public static MethodHandle findStaticMethodHandle(Class<?> clazz, String methodName,
                                                        Class<?> returnType, Class<?>... parameterTypes) {
         try {
@@ -271,7 +271,7 @@ public final class MethodInvoker {
 
     /**
     * 清空 MethodHandle 缓存
-     */
+    */
     public static void clearCache() {
         METHOD_HANDLE_CACHE.clear();
         if (log.isDebugEnabled()) {
@@ -283,7 +283,7 @@ public final class MethodInvoker {
     * 获取当前缓存中的 MethodHandle 数量
     *
     * @return 缓存大小
-     */
+    */
     public static int getCacheSize() {
         return METHOD_HANDLE_CACHE.size();
     }
@@ -292,7 +292,7 @@ public final class MethodInvoker {
     * 判断当前是否使用 MethodHandle 调用策略
     *
     * @return true 表示使用 MethodHandle，false 表示使用反射
-     */
+    */
     public static boolean isUsingMethodHandle() {
         return USE_METHOD_HANDLE;
     }

@@ -32,65 +32,65 @@ public class Discovery implements Serializable {
 
     /**
     * 服务唯一标识符
-     */
+    */
     private String id;
 
     /**
     * 服务器唯一标识符
-     */
+    */
     private String serverId;
 
     /**
     * 业务分组标识(scatterId):同一服务路径下按业务隔离,
     * 仅相同 scatterId 的节点纳入同一负载均衡池,避免不同业务节点互相污染
-     */
+    */
     private String scatterId;
 
     /**
     * 通信协议 (默认: http)
-     */
+    */
     @Builder.Default
     /** 协议 */
     private String protocol = "http";
 
     /**
     * 请求超时时间 (毫秒)
-     */
+    */
     private int timeout;
 
     /**
     * 服务权重，用于负载均衡
-     */
+    */
     private double weight;
 
     /**
     * 主机地址 (默认: 127.0.0.1)
-     */
+    */
     @Builder.Default
     /**
     * 主机名
-     */
+    */
     private String host = "127.0.0.1";
 
     /**
     * 服务端口号
-     */
+    */
     private int port;
 
     /**
     * URI 规格化路径
-     */
+    */
     private String uriSpec;
 
     /**
     * 扩展元数据 (默认: 空Map)
-     */
+    */
     @Builder.Default
     private Map<String, String> metadata = Collections.emptyMap();
 
     /**
     * 运行环境 (默认: prod)
-     */
+    */
     @Builder.Default
     /** ENV */
     private String env = "prod";
@@ -99,7 +99,7 @@ public class Discovery implements Serializable {
     * 设置URI规格，仅当当前值为null时进行赋值
     *
     * @param uriSpec URI规格字符串
-     */
+    */
     public void setUriSpec(String uriSpec) {
         if (null == this.uriSpec) {
             this.uriSpec = uriSpec;
@@ -110,7 +110,7 @@ public class Discovery implements Serializable {
     * 获取协议，如果为null则返回默认值"http"
     *
     * @return 协议字符串
-     */
+    */
     public String getProtocol() {
         if (protocol != null) {
             return protocol;
@@ -123,7 +123,7 @@ public class Discovery implements Serializable {
     * 将当前对象序列化为JSON字符串
     *
     * @return JSON格式的字符串
-     */
+    */
     public String toFullString() {
         return Json.toJson(this);
     }
@@ -133,7 +133,7 @@ public class Discovery implements Serializable {
     *
     * @param url 相对或绝对URL
     * @return 完整的URL字符串
-     */
+    */
     public String createUrl(String url) {
         NetAddress normalUrl = NetAddress.of(url);
         String address = normalUrl.getAddress();
@@ -163,7 +163,7 @@ public class Discovery implements Serializable {
     * @param query  查询参数字符串
     * @param path   路径部分
     * @return 处理后的URL字符串
-     */
+    */
     private String createQueryUrl(String newUrl, String query, String path) {
         if (StringUtils.isNotBlank(query)) {
             String pathPart;
@@ -192,7 +192,7 @@ public class Discovery implements Serializable {
     * 判断是否为HTTP或HTTPS协议
     *
     * @return true表示是HTTP/HTTPS协议
-     */
+    */
     public boolean isHttp() {
         if ("http".equalsIgnoreCase(protocol)) {
             return true;
@@ -207,7 +207,7 @@ public class Discovery implements Serializable {
     * 判断是否为WebSocket协议
     *
     * @return true表示是WebSocket协议
-     */
+    */
     public boolean isWebsocket() {
         if ("ws".equalsIgnoreCase(protocol)) {
             return true;
@@ -223,7 +223,7 @@ public class Discovery implements Serializable {
     *
     * @param targetEnv 目标环境标识
     * @return true表示环境匹配
-     */
+    */
     public boolean matchEnv(String targetEnv) {
         if (targetEnv == null || targetEnv.isEmpty()) {
             return true;

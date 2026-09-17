@@ -28,7 +28,7 @@ public interface TextSplitterProvider {
     * SPI 名称（如 "sentence"）。
     *
     * @return 提供者名称
-     */
+    */
     String name();
 
     /**
@@ -37,7 +37,7 @@ public interface TextSplitterProvider {
     * @param chunkSize    切片大小
     * @param chunkOverlap 切片重叠
     * @return TextSplitter 实例
-     */
+    */
     TextSplitter create(int chunkSize, int chunkOverlap);
 
     /**
@@ -47,7 +47,7 @@ public interface TextSplitterProvider {
     * @param chunkSize    切片大小
     * @param chunkOverlap 切片重叠
     * @return TextSplitter 实例
-     */
+    */
     static TextSplitter create(String providerName, int chunkSize, int chunkOverlap) {
         try {
             return ServiceProvider.of(TextSplitterProvider.class)
@@ -63,7 +63,7 @@ public interface TextSplitterProvider {
     * 返回所有已注册的 SPI 名称。
     *
     * @return 提供者名称列表
-     */
+    */
     static List<String> providers() {
         return ServiceProvider.of(TextSplitterProvider.class)
                 .getExtensions()
@@ -73,7 +73,7 @@ public interface TextSplitterProvider {
 
     /**
     * 默认的句子边界分割器提供者（最低优先级，作为兜底）。
-     */
+    */
     @Spi(value = "sentence", order = -100)
     class SentenceProvider implements TextSplitterProvider {
         @Override

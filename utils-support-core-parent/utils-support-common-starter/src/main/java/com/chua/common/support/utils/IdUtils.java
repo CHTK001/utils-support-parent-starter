@@ -19,26 +19,26 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
-* 标识 工具类，提供多种分布式唯一 标识 生成策略。
-*
-* <p>支持的 ID 生成方式：
-* <ul>
-*   <li>{@link #createUuid()} / {@link #createSimpleUuid()} — UUID（带分隔符 / 无分隔符）</li>
-*   <li>{@link #createUuidv7()} — UUIDv7，时间有序，符合 RFC 9562</li>
-*   <li>{@link #createSnowflakeId()} — 雪花算法 Long 型 ID</li>
-*   <li>{@link #createKafkaSequenceId()} — Kafka 自增序列 ID</li>
-*   <li>{@link #createMacSequenceId()} — 基于 MAC 地址的自增序列 ID</li>
-*   <li>{@link #createTimeId()} / {@link #createTimeId(int)} — 时间戳组合 ID</li>
-*   <li>{@link #createDailySequenceId()} — 日期自增序列 ID（格式：前缀+yyyyMMdd+9位序列）</li>
-*   <li>{@link #getId(Object)} — 基于对象字段值的 MD5 唯一标识</li>
-*   <li>{@link #createMd5(String)} — 通用 MD5 计算</li>
-* </ul>
-*
-* <p>也提供设备编码生成（{@link #createDeviceCode()}）与对象数据比对功能（{@link #isSameData(Object, Object)}）。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 标识 工具类，提供多种分布式唯一 标识 生成策略。
+ *
+ * <p>支持的 ID 生成方式：
+ * <ul>
+ *   <li>{@link #createUuid()} / {@link #createSimpleUuid()} — UUID（带分隔符 / 无分隔符）</li>
+ *   <li>{@link #createUuidv7()} — UUIDv7，时间有序，符合 RFC 9562</li>
+ *   <li>{@link #createSnowflakeId()} — 雪花算法 Long 型 ID</li>
+ *   <li>{@link #createKafkaSequenceId()} — Kafka 自增序列 ID</li>
+ *   <li>{@link #createMacSequenceId()} — 基于 MAC 地址的自增序列 ID</li>
+ *   <li>{@link #createTimeId()} / {@link #createTimeId(int)} — 时间戳组合 ID</li>
+ *   <li>{@link #createDailySequenceId()} — 日期自增序列 ID（格式：前缀+yyyyMMdd+9位序列）</li>
+ *   <li>{@link #getId(Object)} — 基于对象字段值的 MD5 唯一标识</li>
+ *   <li>{@link #createMd5(String)} — 通用 MD5 计算</li>
+ * </ul>
+ *
+ * <p>也提供设备编码生成（{@link #createDeviceCode()}）与对象数据比对功能（{@link #isSameData(Object, Object)}）。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class IdUtils {
 
     /** 雪花算法 标识 生成器实例 */
@@ -88,7 +88,7 @@ public class IdUtils {
     * @param maxNumber     每段最大值（进制基数）
     * @param currentNumber 当前数值
     * @return 以点号分隔的版本号字符串
-     */
+    */
     public static String createVersion(int versionNumber, long maxNumber, long currentNumber) {
         List<Long> temp = new ArrayList<>();
         for (int i = 1; i < versionNumber; i++) {
@@ -108,7 +108,7 @@ public class IdUtils {
     * 生成无分隔符 UUID（32位十六进制字符串）。
     *
     * @return 无分隔符 UUID，如 "b17f24ff026d40949c85a24f4f375d42"
-     */
+    */
     public static String simpleUuid() {
         return createSimpleUuid();
     }
@@ -117,7 +117,7 @@ public class IdUtils {
     * 生成无分隔符 UUID（别名方法）。
     *
     * @return 无分隔符 UUID
-     */
+    */
     public static String fastUuid() {
         return createSimpleUuid();
     }
@@ -126,7 +126,7 @@ public class IdUtils {
     * 生成基于时间戳的唯一 标识 字符串（别名方法）。
     *
     * @return 时间 标识 字符串
-     */
+    */
     public static String timeId() {
         return createTimeId();
     }
@@ -135,7 +135,7 @@ public class IdUtils {
     * 生成带分隔符的标准 UUID 字符串。
     *
     * @return UUID 字符串，如 "a5c8a5e8-df2b-4706-bea4-08d0939410e3"
-     */
+    */
     public static String uuid() {
         return createUuid();
     }
@@ -144,7 +144,7 @@ public class IdUtils {
     * 生成 uuidv7（时间有序 UUID，RFC 9562）。
     *
     * @return UUIDv7 字符串
-     */
+    */
     public static String uuidv7() {
         return createUuidv7();
     }
@@ -157,7 +157,7 @@ public class IdUtils {
     * </p>
     *
     * @return UUIDv7 字符串
-     */
+    */
     public static String createUuidv7() {
         long timestamp = System.currentTimeMillis();
  // uuid7 时间戳占高 48 位，左移 16 位到 Most.js.jssig钻头 的高 48 位
@@ -180,7 +180,7 @@ public class IdUtils {
     * 生成带分隔符的标准 UUID 字符串（别名方法）。
     *
     * @return UUID 字符串
-     */
+    */
     public static String createUuid() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         UUID uuid = new UUID(random.nextLong(), random.nextLong());
@@ -191,7 +191,7 @@ public class IdUtils {
     * 创建数据指纹（MD5 后再 基础64 编码）
     *
     * @return Base64 编码的数据指纹
-     */
+    */
     public static String createDataFinger() {
         String md5 = createMd5();
         Base64.Encoder encoder = Base64.getEncoder();
@@ -202,7 +202,7 @@ public class IdUtils {
     * MD5
     *
     * @return MD5
-     */
+    */
     public static String createMd5() {
         return createMd5(createUuid() + System.nanoTime());
     }
@@ -212,7 +212,7 @@ public class IdUtils {
     *
     * @param value 待计算 MD5 的字符串
     * @return MD5 十六进制字符串，计算失败返回 空
-     */
+    */
     public static String createMd5(final String value) {
         try {
             return DigestUtils.md5(value);
@@ -225,7 +225,7 @@ public class IdUtils {
     * 生成无分隔符 UUID（32位十六进制字符串）。
     *
     * @return 无分隔符 UUID
-     */
+    */
     public static String createSimpleUuid() {
         return createUuid().replace("-", "");
     }
@@ -234,7 +234,7 @@ public class IdUtils {
     * 创建基于时间戳的唯一 标识 字符串
     *
     * @return 时间 标识 字符串
-     */
+    */
     public static String createTimeId() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -252,7 +252,7 @@ public class IdUtils {
     *
     * @param length 目标长度
     * @return 指定长度的时间 标识 字符串
-     */
+    */
     public static String createTimeId(int length) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -277,7 +277,7 @@ public class IdUtils {
     * </p>
     *
     * @return 设备编码字符串
-     */
+    */
     public static String createDeviceCode() {
         return createDeviceCode("DV");
     }
@@ -292,7 +292,7 @@ public class IdUtils {
     *
     * @param deviceType 设备类型前缀，如 "PH"、"PC"、"DV"，最多 4 个字符
     * @return 设备编码字符串
-     */
+    */
     public static String createDeviceCode(String deviceType) {
         var prefix = (deviceType != null && !deviceType.isEmpty()) ? deviceType.toUpperCase() : "DV";
         if (prefix.length() > 4) {
@@ -317,7 +317,7 @@ public class IdUtils {
     * </p>
     *
     * @return 雪花算法 标识
-     */
+    */
     public static long createSnowflakeId() {
         return SNOWFLAKE_ID_GENERATOR.nextId();
     }
@@ -331,7 +331,7 @@ public class IdUtils {
     * </p>
     *
     * @return Kafka 自增序列 标识
-     */
+    */
     public static long createKafkaSequenceId() {
         return KAFKA_SEQUENCE_GENERATOR.nextId();
     }
@@ -345,7 +345,7 @@ public class IdUtils {
     * </p>
     *
     * @return MAC 地址自增序列 标识
-     */
+    */
     public static long createMacSequenceId() {
         return MAC_SEQUENCE_GENERATOR.nextId();
     }
@@ -358,7 +358,7 @@ public class IdUtils {
     * </p>
     *
     * @return 日期序列 标识
-     */
+    */
     public static String dailySequenceId() {
         return createDailySequenceId();
     }
@@ -375,7 +375,7 @@ public class IdUtils {
     * 序列每日从 1 开始，线程安全。
     *
     * @return 日期序列 标识
-     */
+    */
     public static String createDailySequenceId() {
         return createDailySequenceId("GAT");
     }
@@ -388,7 +388,7 @@ public class IdUtils {
     *
     * @param prefix 前缀，如 "GAT"、"ORD"
     * @return 日期序列 标识
-     */
+    */
     public static String createDailySequenceId(String prefix) {
         synchronized (DAILY_SEQUENCE_LOCK) {
             String today = LocalDate.now().format(DAILY_SEQ_DATE_FORMAT);
@@ -409,7 +409,7 @@ public class IdUtils {
     *
     * @param data 数据
     * @return calculate简单校验和的结果
-     */
+    */
     private static String calculateSimpleChecksum(String data) {
         var hash = 0;
         for (char c : data.toCharArray()) {
@@ -428,7 +428,7 @@ public class IdUtils {
     *
     * @param obj 目标对象，可为 {@code null}
     * @return 32 位小写十六进制 MD5 字符串；对象为 {@code null} 时返回 空
-     */
+    */
     public static String getId(Object obj) {
         if (obj == null) {
             return null;
@@ -451,7 +451,7 @@ public class IdUtils {
     * @param ratio 采样比例，范围 (0.0, 1.0]，如 0.6 表示取约 60% 字段
     * @return 32 位小写十六进制 MD5 字符串；对象为 {@code null} 时返回 空
     * @throws IllegalArgumentException 如果 ratio 不在 (0, 1] 范围内
-     */
+    */
     public static String getPartialId(Object obj, double ratio) {
         if (ratio <= 0.0 || ratio > 1.0) {
             throw new IllegalArgumentException("ratio must be in (0, 1.0], got: " + ratio);
@@ -490,7 +490,7 @@ public class IdUtils {
     * @param a 对象 A
     * @param b 对象 B
     * @return 如果两者数据类型相同且 MD5 标识相等返回 {@code true}
-     */
+    */
     public static boolean isSameData(Object a, Object b) {
         if (a == b) {
             return true;
@@ -513,7 +513,7 @@ public class IdUtils {
     * @param b     对象 B
     * @param ratio 采样比例，如 0.6 表示取 60% 字段
     * @return 如果两者类型相同且 部分 标识 相等返回 {@code true}
-     */
+    */
     public static boolean isSamePartialData(Object a, Object b, double ratio) {
         if (a == b) {
             return true;
@@ -533,7 +533,7 @@ public class IdUtils {
     * 构建对象的签名字符串（全部字段）。
     * @param obj obj
     * @return 构建签名的结果
-     */
+    */
     private static String buildSignature(Object obj) {
         List<Field> fields = getAllFields(obj);
         if (fields.isEmpty()) {
@@ -555,7 +555,7 @@ public class IdUtils {
     * 获取类及其所有父类的非静态、非瞬态字段列表，按字段名排序。
     * @param obj obj
     * @return 获取全部字段的结果
-     */
+    */
     private static List<Field> getAllFields(Object obj) {
         Class<?> clazz = obj.getClass();
         List<Field> fields = new ArrayList<>();
@@ -582,7 +582,7 @@ public class IdUtils {
     * 规范化字段值：数组/列表/集合 展平，空 转为空字符串。
     * @param value 值
     * @return normalize值的结果
-     */
+    */
     private static String normalizeValue(Object value) {
         if (value == null) {
             return "";

@@ -73,7 +73,7 @@ public final class AnnotationUtils {
     * @param clazz           目标类
     * @param annotationClass 注解类
     * @return 注解属性映射，键为元素名，值为元素值；未找到注解返回空 Map
-     */
+    */
     public static Map<String, Object> getAnnotationAttributes(Class<?> clazz, Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new LinkedHashMap<>();
         Annotation annotation = clazz.getAnnotation(annotationClass);
@@ -98,7 +98,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return 注解定义
-     */
+    */
     public static AnnotationDefinition getAnnotationDefinition(Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = extractAttributeMethods(annotationClass);
         RetentionPolicy retention = getRetentionPolicy(annotationClass);
@@ -127,7 +127,7 @@ public final class AnnotationUtils {
     *
     * @param method 目标方法
     * @return 方法定义
-     */
+    */
     public static MethodDefinition getMethodDefinition(Method method) {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(method);
         List<MethodDefinition.ParameterDefinition> paramDefs = new ArrayList<>();
@@ -152,7 +152,7 @@ public final class AnnotationUtils {
     *
     * @param field 目标字段
     * @return 字段定义
-     */
+    */
     public static FieldDefinition getFieldDefinition(Field field) {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(field);
         return new FieldDefinition(
@@ -172,7 +172,7 @@ public final class AnnotationUtils {
     *
     * @param clazz 目标类
     * @return 类定义
-     */
+    */
     public static ClassDefinition getClassDefinition(Class<?> clazz) {
         List<AnnotationDefinition> annotationDefs = getAnnotationsFor(clazz);
 
@@ -207,7 +207,7 @@ public final class AnnotationUtils {
     *
     * @param element 注解元素
     * @return 注解定义列表
-     */
+    */
     private static List<AnnotationDefinition> getAnnotationsFor(java.lang.reflect.AnnotatedElement element) {
         List<AnnotationDefinition> defs = new ArrayList<>();
         for (Annotation ann : element.getDeclaredAnnotations()) {
@@ -221,7 +221,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return 属性名映射（初始为空）
-     */
+    */
     private static Map<String, Object> extractAttributeMethods(Class<? extends Annotation> annotationClass) {
         Map<String, Object> attributes = new LinkedHashMap<>();
         for (Method method : annotationClass.getDeclaredMethods()) {
@@ -235,7 +235,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return 保留策略，未标注返回 {@code RetentionPolicy.CLASS}
-     */
+    */
     private static RetentionPolicy getRetentionPolicy(Class<? extends Annotation> annotationClass) {
         Retention retention = annotationClass.getAnnotation(Retention.class);
         return (retention != null) ? retention.value() : RetentionPolicy.CLASS;
@@ -246,7 +246,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return 目标元素类型数组，未标注返回空数组
-     */
+    */
     private static ElementType[] getTargets(Class<? extends Annotation> annotationClass) {
         Target target = annotationClass.getAnnotation(Target.class);
         return (target != null) ? target.value() : new ElementType[0];
@@ -257,7 +257,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return {@code true} 如果标注了 {@code @Inherited}
-     */
+    */
     private static boolean isInherited(Class<? extends Annotation> annotationClass) {
         return annotationClass.isAnnotationPresent(Inherited.class);
     }
@@ -267,7 +267,7 @@ public final class AnnotationUtils {
     *
     * @param annotationClass 注解类
     * @return {@code true} 如果标注了 {@code @Documented}
-     */
+    */
     private static boolean isDocumented(Class<? extends Annotation> annotationClass) {
         return annotationClass.isAnnotationPresent(Documented.class);
     }

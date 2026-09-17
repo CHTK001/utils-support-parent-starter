@@ -52,102 +52,102 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     /**
     * 默认的异步执行线程池核心线程数
-     */
+    */
     private static final int DEFAULT_CORE_POOL_SIZE = 4;
 
     /**
     * 默认的异步执行线程池最大线程数
-     */
+    */
     private static final int DEFAULT_MAX_POOL_SIZE = 8;
 
     /**
     * 默认的异步执行线程池空闲线程存活时间（秒）
-     */
+    */
     private static final long DEFAULT_KEEP_ALIVE_SECONDS = 60L;
 
     /**
     * 关闭线程池时的等待时间（秒）
-     */
+    */
     private static final long SHUTDOWN_WAIT_SECONDS = 5L;
 
     /**
     * 超时阈值：小于等于该值视为不超时
-     */
+    */
     private static final long NO_TIMEOUT = 0L;
 
     /**
     * 初始退出码占位值
-     */
+    */
     private static final int INITIAL_EXIT_CODE = -1;
 
     /**
     * 执行器 SPI 名称
-     */
+    */
     private static final String EXECUTOR_NAME = "process";
 
     /**
     * 异步执行线程池线程名前缀
-     */
+    */
     private static final String THREAD_NAME_PREFIX = "cmd-executor-";
 
     /**
     * 命令非空校验失败的异常消息
-     */
+    */
     private static final String ERR_INVALID_COMMAND = "Command must not be null or empty";
 
     /**
     * 系统属性名：操作系统名称
-     */
+    */
     private static final String OS_NAME_PROPERTY = "os.name";
 
     /**
     * 操作系统名称中包含的 Windows 关键字
-     */
+    */
     private static final String OS_NAME_WIN_KEYWORD = "win";
 
     /**
     * Windows 命令解释器路径
-     */
+    */
     private static final String CMD_EXE = "cmd.exe";
 
     /**
     * cmd.exe 的 /c 参数：执行后退出
-     */
+    */
     private static final String CMD_C_FLAG = "/c";
 
     /**
     * Unix Shell 路径
-     */
+    */
     private static final String SH_PATH = "/bin/sh";
 
     /**
     * Shell 的 -c 参数：执行命令字符串
-     */
+    */
     private static final String SH_C_FLAG = "-c";
 
     /**
     * 实时输出流读取异常时的错误上下文标识
-     */
+    */
     private static final String STREAM_ERROR_CONTEXT = "stream";
 
     /**
     * 异步执行线程池
-     */
+    */
     private final ExecutorService executorService;
 
     /**
     * 输出编码
-     */
+    */
     private Charset charset;
 
     /**
     * 工作目录
-     */
+    */
     private File workDirectory;
 
     /**
     * 使用默认配置创建执行器
-     */
+    */
     public ProcessCmdExecutor() {
         this(Charset.defaultCharset(), null);
     }
@@ -156,7 +156,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * 创建执行器并指定输出编码
     *
     * @param charset 命令输出编码
-     */
+    */
     public ProcessCmdExecutor(Charset charset) {
         this(charset, null);
     }
@@ -166,7 +166,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     *
     * @param charset       命令输出编码
     * @param workDirectory 工作目录
-     */
+    */
     public ProcessCmdExecutor(Charset charset, File workDirectory) {
         this.charset = charset != null ? charset : Charset.defaultCharset();
         this.workDirectory = workDirectory;
@@ -185,7 +185,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * 设置输出编码
     *
     * @param charset 编码
-     */
+    */
     public void setCharset(Charset charset) {
         this.charset = charset != null ? charset : Charset.defaultCharset();
     }
@@ -194,7 +194,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * 设置工作目录
     *
     * @param workDirectory 工作目录
-     */
+    */
     public void setWorkDirectory(File workDirectory) {
         this.workDirectory = workDirectory;
     }
@@ -269,7 +269,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param timeout 超时值（≤0 表示不超时）
     * @param unit    超时单位
     * @return 执行结果
-     */
+    */
     private CmdResult doExecute(String command, long timeout, TimeUnit unit) {
         long startTime = System.currentTimeMillis();
 
@@ -286,7 +286,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param timeout 超时值（≤0 表示不超时）
     * @param unit    超时单位
     * @return 执行结果
-     */
+    */
     private CmdResult doExecuteArray(String[] command, long timeout, TimeUnit unit) {
         long startTime = System.currentTimeMillis();
 
@@ -305,7 +305,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param unit           超时单位
     * @param startTime      起始时间戳
     * @return 执行结果
-     */
+    */
     private CmdResult executeInternal(String[] cmdArray, String displayCommand,
                                       long timeout, TimeUnit unit, long startTime) {
         return executeInternal(cmdArray, displayCommand, timeout, unit, startTime, null, null, null);
@@ -323,7 +323,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param environment      附加环境变量，可为 null
     * @param input            标准输入内容，可为 null
     * @return 执行结果
-     */
+    */
     private CmdResult executeInternal(String[] cmdArray, String displayCommand,
                                       long timeout, TimeUnit unit, long startTime,
                                       File workingDirectory, Map<String, String> environment, String input) {
@@ -403,7 +403,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param startTime 起始时间戳
     * @param throwable 异常对象
     * @return 错误结果
-     */
+    */
     private static CmdResult errorResult(String command, long startTime, Throwable throwable) {
         return CmdResult.builder()
                 .exitCode(CmdResult.EXIT_CODE_ERROR)
@@ -419,7 +419,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     *
     * @param command 参数数组
     * @return 拼接后的命令字符串
-     */
+    */
     private static String joinCommand(String[] command) {
         if (command == null || command.length == 0) {
             return "";
@@ -470,7 +470,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param timeout  超时值（≤0 表示不超时）
     * @param unit     超时单位
     * @param callback 执行回调，允许为空
-     */
+    */
     private void doExecuteAsync(String command, long timeout, TimeUnit unit, CmdCallback callback) {
         submitAsync(command, timeout, unit, callback, () -> doExecute(command, timeout, unit));
     }
@@ -482,7 +482,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param timeout  超时值（≤0 表示不超时）
     * @param unit     超时单位
     * @param callback 执行回调，允许为空
-     */
+    */
     private void doExecuteArrayAsync(String[] command, long timeout, TimeUnit unit, CmdCallback callback) {
         String displayCommand = joinCommand(command);
         submitAsync(displayCommand, timeout, unit, callback, () -> doExecuteArray(command, timeout, unit));
@@ -496,7 +496,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param unit           超时单位
     * @param callback       执行回调，允许为空
     * @param task           实际执行动作
-     */
+    */
     private void submitAsync(String displayCommand, long timeout, TimeUnit unit,
                              CmdCallback callback, Supplier<CmdResult> task) {
         CmdCallback finalCallback = callback != null ? callback : new CmdCallback() {
@@ -552,7 +552,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param startTime 起始时间戳
     * @param callback  逐行回调
     * @return 错误结果
-     */
+    */
     private static CmdResult invalidCommandResult(String command, long startTime, LineCallback callback) {
         CmdResult result = errorResult(command, startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
         callback.onError(command, result.getThrowable());
@@ -569,7 +569,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param callback       逐行回调
     * @param startTime      起始时间戳
     * @return 执行结果
-     */
+    */
     private CmdResult executeWithOutputInternal(String[] cmdArray, String displayCommand,
                                                 long timeout, TimeUnit unit,
                                                 LineCallback callback, long startTime) {
@@ -633,7 +633,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     *
     * <p>指定工作目录、环境变量或标准输入时直接走标准 {@link ProcessBuilder}，
     * 不启用 ConPTY（其封装不支持扩展参数的透传）。</p>
-     */
+    */
     private CmdResult executeWithOutputInternal(String[] cmdArray, String displayCommand,
                                                 long timeout, TimeUnit unit,
                                                 LineCallback callback, long startTime,
@@ -712,7 +712,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     * @param callback   逐行回调
     * @param startTime  起始时间戳
     * @return 执行结果
-     */
+    */
     private CmdResult doExecuteWithOutputConPty(
             String[] cmdArray, String command, File workDir,
             Charset charset, long timeout, TimeUnit unit,
@@ -810,7 +810,7 @@ public class ProcessCmdExecutor implements CmdExecutor {
     *
     * @param command 命令字符串
     * @return 命令参数数组
-     */
+    */
     static String[] parseCommand(String command) {
         if (StringUtils.isNullOrEmpty(command)) {
             return new String[0];
@@ -826,21 +826,21 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     /**
     * 流读取线程，用于异步读取进程的标准输出或错误输出
-     */
+    */
     static class StreamGobbler extends Thread {
         /**
         * 待读取的输入流
-         */
+        */
         private final InputStream inputStream;
 
         /**
         * 输出字符集
-         */
+        */
         private final Charset charset;
 
         /**
         * 已读取并拼接的完整内容
-         */
+        */
         private volatile String content;
 
         StreamGobbler(InputStream inputStream, Charset charset) {
@@ -869,26 +869,26 @@ public class ProcessCmdExecutor implements CmdExecutor {
 
     /**
     * 逐行读取流并回调的线程，用于实时输出场景
-     */
+    */
     static class LineStreamGobbler extends Thread {
         /**
         * 待读取的输入流
-         */
+        */
         private final InputStream inputStream;
 
         /**
         * 输出字符集
-         */
+        */
         private final Charset charset;
 
         /**
         * 逐行回调
-         */
+        */
         private final LineCallback callback;
 
         /**
         * 已读取并拼接的完整内容
-         */
+        */
         private final StringBuilder content;
 
         LineStreamGobbler(InputStream inputStream, Charset charset, LineCallback callback) {

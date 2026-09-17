@@ -22,22 +22,22 @@ public class ModuleLoader {
 
     /**
     * 标记是否已经加载/执行过全量导出，避免重复执行。
-     */
+    */
     static final AtomicBoolean IS_LOADED = new AtomicBoolean(false);
 
     /**
     * 缓存的 {@code Module.implAddExports} 方法引用。
-     */
+    */
     private static volatile Method implAddExportsMethod;
 
     /**
     * 缓存的 {@code Module.implAddOpens} 方法引用。
-     */
+    */
     private static volatile Method implAddOpensMethod;
 
     /**
     * 方法查找和初始化的同步锁。
-     */
+    */
     private static final Object METHOD_LOCK = new Object();
 
     // ==================== 全量导出 ====================
@@ -50,7 +50,7 @@ public class ModuleLoader {
     * 2. 通过反射获取 JDK 内部 API（implAddExports / implAddOpens）以绕过访问控制；
     * 3. 如果反射获取失败，则降级使用标准 API 尝试向未命名模块导出。
     * </p>
-     */
+    */
     public static void exportAllToAll() {
         if (IS_LOADED.compareAndSet(false, true)) {
             try {
@@ -82,7 +82,7 @@ public class ModuleLoader {
     * @param unnamed     未命名模块
     * @param addExports  implAddExports 方法
     * @param addOpens    implAddOpens 方法
-     */
+    */
     private static void exportModule(Module source, Module[] targets, Module unnamed,
                                      Method addExports, Method addOpens) {
         if (source == null) {
@@ -111,7 +111,7 @@ public class ModuleLoader {
     * @param targets     目标模块数组
     * @param unnamed     未命名模块
     * @param addExports  implAddExports 方法
-     */
+    */
     private static void exportPackage(Module source, String pkg, Module[] targets,
                                       Module unnamed, Method addExports) {
         try {
@@ -136,7 +136,7 @@ public class ModuleLoader {
     * @param targets    目标模块数组
     * @param unnamed    未命名模块
     * @param addOpens   implAddOpens 方法
-     */
+    */
     private static void openPackage(Module source, String pkg, Module[] targets,
                                     Module unnamed, Method addOpens) {
         try {
@@ -159,7 +159,7 @@ public class ModuleLoader {
     * 将指定模块的所有包导出给未命名模块。
     *
     * @param name 模块名称
-     */
+    */
     public void exportToAllUnnamed(String name) {
         if (name == null || name.isEmpty()) {
             return;
@@ -196,7 +196,7 @@ public class ModuleLoader {
     * 将指定模块的所有包导出并开放给所有其他模块及未命名模块。
     *
     * @param name 模块名称
-     */
+    */
     public void exportToAll(String name) {
         if (name == null || name.isEmpty()) {
             return;
@@ -237,7 +237,7 @@ public class ModuleLoader {
     * @param unnamed     未命名模块
     * @param addExports  implAddExports 方法
     * @param addOpens    implAddOpens 方法
-     */
+    */
     private static void exportPackageToAll(Module source, String pkg, Module[] targets,
                                            Module unnamed, Method addExports, Method addOpens) {
         for (Module target : targets) {
@@ -257,7 +257,7 @@ public class ModuleLoader {
     * @param pkg         包名
     * @param unnamed     未命名模块
     * @param addExports  implAddExports 方法
-     */
+    */
     private static void exportPackageToUnnamed(Module source, String pkg,
                                                Module unnamed, Method addExports) {
         try {
@@ -275,7 +275,7 @@ public class ModuleLoader {
     * @param target     目标模块
     * @param addExports implAddExports 方法
     * @param addOpens   implAddOpens 方法
-     */
+    */
     private static void invokeReflectively(Module source, String pkg, Module target,
                                            Method addExports, Method addOpens) {
         try {
@@ -290,7 +290,7 @@ public class ModuleLoader {
 
     /**
     * 降级方案：当无法获取内部 API 时，使用标准 API 尝试向未命名模块导出/开放。
-     */
+    */
     private static void fallbackExportAllToAll() {
         try {
             Module[] modulesArray = ModuleLayer.boot().modules().toArray(Module[]::new);
@@ -310,7 +310,7 @@ public class ModuleLoader {
     * @param source      源模块
     * @param targets     目标模块数组
     * @param unnamed     未命名模块
-     */
+    */
     private static void fallbackExportModule(Module source, Module[] targets, Module unnamed) {
         if (source == null) {
             return;
@@ -335,7 +335,7 @@ public class ModuleLoader {
     * @param source  源模块
     * @param pkg     包名
     * @param unnamed 未命名模块
-     */
+    */
     private static void fallbackExportPackage(Module source, String pkg, Module unnamed) {
         try {
             if (unnamed != null) {
@@ -354,7 +354,7 @@ public class ModuleLoader {
     *
     * @param name 模块名称
     * @return Module 实例，不存在则返回 null
-     */
+    */
     private static Module resolveModule(String name) {
         return ModuleLayer.boot().findModule(name).orElse(null);
     }
@@ -366,7 +366,7 @@ public class ModuleLoader {
     * </p>
     *
     * @return 方法引用，获取失败返回 null
-     */
+    */
     private static Method getImplAddExportsMethod() {
         if (implAddExportsMethod == null) {
             synchronized (METHOD_LOCK) {
@@ -394,7 +394,7 @@ public class ModuleLoader {
     * </p>
     *
     * @return 方法引用，获取失败返回 null
-     */
+    */
     private static Method getImplAddOpensMethod() {
         if (implAddOpensMethod == null) {
             synchronized (METHOD_LOCK) {
@@ -419,7 +419,7 @@ public class ModuleLoader {
     * 获取当前类加载器的未命名模块。
     *
     * @return 未命名模块，获取失败返回 null
-     */
+    */
     private static Module getUnnamedModule() {
         try {
             ClassLoader classLoader = ModuleLoader.class.getClassLoader();

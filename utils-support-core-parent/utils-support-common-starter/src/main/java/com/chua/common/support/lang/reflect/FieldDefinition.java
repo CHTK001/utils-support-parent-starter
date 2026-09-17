@@ -31,7 +31,7 @@ public record FieldDefinition(
     * 判断是否为公开字段。
     *
     * @return {@code true} 如果字段为 public
-     */
+    */
     public boolean isPublic() {
         return java.lang.reflect.Modifier.isPublic(modifiers);
     }
@@ -40,7 +40,7 @@ public record FieldDefinition(
     * 判断是否为静态字段。
     *
     * @return {@code true} 如果字段为 static
-     */
+    */
     public boolean isStatic() {
         return java.lang.reflect.Modifier.isStatic(modifiers);
     }
@@ -49,7 +49,7 @@ public record FieldDefinition(
     * 判断是否为 final 字段。
     *
     * @return {@code true} 如果字段为 final
-     */
+    */
     public boolean isFinal() {
         return java.lang.reflect.Modifier.isFinal(modifiers);
     }
@@ -58,7 +58,7 @@ public record FieldDefinition(
     * 判断是否为 volatile 字段。
     *
     * @return {@code true} 如果字段为 volatile
-     */
+    */
     public boolean isVolatile() {
         return java.lang.reflect.Modifier.isVolatile(modifiers);
     }
@@ -67,7 +67,7 @@ public record FieldDefinition(
     * 判断是否为 transient 字段。
     *
     * @return {@code true} 如果字段为 transient
-     */
+    */
     public boolean isTransient() {
         return java.lang.reflect.Modifier.isTransient(modifiers);
     }
@@ -77,7 +77,7 @@ public record FieldDefinition(
     *
     * @param annotationClass 注解类
     * @return 是否包含
-     */
+    */
     public boolean hasAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass) {
         for (AnnotationDefinition def : annotations) {
             if (def.annotationClass().isAssignableFrom(annotationClass)) {
@@ -89,7 +89,7 @@ public record FieldDefinition(
 
     /**
     * 将定义转为字符串形式。
-     */
+    */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

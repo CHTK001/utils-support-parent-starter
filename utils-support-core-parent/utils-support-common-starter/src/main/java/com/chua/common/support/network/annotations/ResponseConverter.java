@@ -24,14 +24,14 @@ public interface ResponseConverter {
     * @param response 响应对象
     * @param data     待转换数据
     * @throws Exception 转换异常
-     */
+    */
     void convert(ServerResponse response, Object data) throws Exception;
 
     /**
     * 获取支持的 Content-Type。
     *
     * @return Content-Type 值
-     */
+    */
     String contentType();
 
     /**
@@ -39,7 +39,7 @@ public interface ResponseConverter {
     *
     * @param data 数据对象
     * @return 支持返回 true
-     */
+    */
     boolean support(Object data);
 
     /**
@@ -48,7 +48,7 @@ public interface ResponseConverter {
     * <p>值越小优先级越高。
     *
     * @return 排序值，默认 0
-     */
+    */
     default int getOrder() {
         return 0;
     }

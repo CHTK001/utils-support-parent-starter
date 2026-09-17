@@ -46,7 +46,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * @param provider AI 服务商名称，如 "openai"、"whisper"、"alibaba-asr" 等
     * @param apiKey   API 密钥
     * @return VirtualClient 实例
-     */
+    */
     static VirtualClient create(String provider, String apiKey) {
         return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(provider, AudioClientSetting.builder()
@@ -58,7 +58,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param setting 客户端配置，包含 provider、apiKey、baseUrl、model 等
     * @return VirtualClient 实例
-     */
+    */
     static VirtualClient create(AudioClientSetting setting) {
         return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(setting.getProvider(), setting);
@@ -71,7 +71,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * @param apiKey   API 密钥
     * @param baseUrl  自定义 API 基地址
     * @return VirtualClient 实例
-     */
+    */
     static VirtualClient create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(VirtualClient.class)
                 .getNewExtension(provider, AudioClientSetting.builder()
@@ -83,7 +83,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param provider 服务商名称
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient provider(String provider) {
         return this;
     }
@@ -93,7 +93,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param model 模型名称，如 "whisper-1"、"whisper-tiny"、"paraformer-v2" 等
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient model(String model) {
         return this;
     }
@@ -107,7 +107,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param language 语言代码
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient language(String language) {
         return this;
     }
@@ -120,7 +120,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param sampleRate 采样率（Hz）
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient sampleRate(Integer sampleRate) {
         return this;
     }
@@ -133,7 +133,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param format 音频格式
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient format(String format) {
         return this;
     }
@@ -146,7 +146,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param prompt 提示词
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient prompt(String prompt) {
         return this;
     }
@@ -159,7 +159,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param temperature 温度
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient temperature(Double temperature) {
         return this;
     }
@@ -169,7 +169,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param seed 随机种子
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient seed(Long seed) {
         return this;
     }
@@ -182,7 +182,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param audio 音频字节
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient audio(byte[] audio) {
         return this;
     }
@@ -192,7 +192,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param input 音频输入流
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient audio(InputStream input) {
         return this;
     }
@@ -202,7 +202,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param path 音频文件路径
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient audio(Path path) {
         return this;
     }
@@ -215,7 +215,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param speakers 说话人数
     * @return 当前客户端实例，支持链式调用
-     */
+    */
     default VirtualClient speakers(Integer speakers) {
         return this;
     }
@@ -227,14 +227,14 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param path 音频文件路径
     * @return 转写得到的文字
-     */
+    */
     String transcribe(Path path);
 
     /**
     * 同步转写音频为文字（使用已配置的 audio 字节）
     *
     * @return 转写得到的文字
-     */
+    */
     default String transcribe() {
         return transcribe((Path) null);
     }
@@ -264,7 +264,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * }</pre>
     *
     * @param samples 音频样本数组（16kHz mono，float 范围 [-1, 1]）
-     */
+    */
     default void feedAudio(float[] samples) {
         // 不支持流式的客户端忽略此方法
     }
@@ -276,7 +276,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * 流式模型会缓存增量，非流式模型返回 {@code null}。
     *
     * @return 增量文本，不支持流式时返回 {@code null}
-     */
+    */
     default String getResult() {
         return null;
     }
@@ -288,7 +288,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * 不支持流式的客户端直接委托给 {@link #transcribe()}。
     *
     * @return 最终完整识别文本
-     */
+    */
     default String complete() {
         return transcribe();
     }
@@ -301,7 +301,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param samples 完整音频样本（16kHz mono，float [-1, 1]）
     * @return 识别文本
-     */
+    */
     default String streamingTranscribe(float[] samples) {
         feedAudio(samples);
         String result = getResult();
@@ -316,7 +316,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param path 音频文件路径
     * @return 任务 ID，用于后续查询任务状态和结果
-     */
+    */
     String createTask(Path path);
 
     /**
@@ -324,12 +324,12 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     *
     * @param taskId 任务 ID，由 {@link #createTask(Path)} 返回
     * @return 任务状态及结果
-     */
+    */
     AudioResponse queryTask(String taskId);
 
     /**
     * 关闭客户端，释放底层资源
-     */
+    */
     @Override
     default void close() {
     }
@@ -338,7 +338,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * 获取服务商支持的模型列表
     *
     * @return 可用模型定义列表
-     */
+    */
     default List<ModelDefinition> models() {
         return List.of();
     }
@@ -349,7 +349,7 @@ public interface VirtualClient extends AutoCloseable, PooledObjectClient<Virtual
     * <p>基于 {@link #models()} 提取模型 ID 列表，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 ID 列表
-     */
+    */
     default List<String> listModels() {
         List<ModelDefinition> defs = models();
         if (defs == null || defs.isEmpty()) {

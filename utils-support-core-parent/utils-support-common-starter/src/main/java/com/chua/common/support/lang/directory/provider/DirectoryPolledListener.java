@@ -35,31 +35,31 @@ public class DirectoryPolledListener implements PolledListener {
 
     /**
     * 创建事件回调
-     */
+    */
     @Getter
     private BiConsumer<WatcherEvent, EventObserver> onCreateCallback;
 
     /**
     * 修改事件回调
-     */
+    */
     @Getter
     private BiConsumer<WatcherEvent, EventObserver> onModifyCallback;
 
     /**
     * 删除事件回调
-     */
+    */
     @Getter
     private BiConsumer<WatcherEvent, EventObserver> onDeleteCallback;
 
     /**
     * 溢出事件回调
-     */
+    */
     @Getter
     private BiConsumer<WatcherEvent, EventObserver> onOverflowCallback;
 
     /**
     * 是否启用日志输出
-     */
+    */
     private boolean logEnabled = true;
 
     /**
@@ -67,7 +67,7 @@ public class DirectoryPolledListener implements PolledListener {
     *
     * @param callback 回调函数，参数为 (事件类型, 事件观察者)
     * @return this
-     */
+    */
     public DirectoryPolledListener onCreate(BiConsumer<WatcherEvent, EventObserver> callback) {
         this.onCreateCallback = callback;
         return this;
@@ -78,7 +78,7 @@ public class DirectoryPolledListener implements PolledListener {
     *
     * @param callback 回调函数
     * @return this
-     */
+    */
     public DirectoryPolledListener onModify(BiConsumer<WatcherEvent, EventObserver> callback) {
         this.onModifyCallback = callback;
         return this;
@@ -89,7 +89,7 @@ public class DirectoryPolledListener implements PolledListener {
     *
     * @param callback 回调函数
     * @return this
-     */
+    */
     public DirectoryPolledListener onDelete(BiConsumer<WatcherEvent, EventObserver> callback) {
         this.onDeleteCallback = callback;
         return this;
@@ -100,7 +100,7 @@ public class DirectoryPolledListener implements PolledListener {
     *
     * @param callback 回调函数
     * @return this
-     */
+    */
     public DirectoryPolledListener onOverflow(BiConsumer<WatcherEvent, EventObserver> callback) {
         this.onOverflowCallback = callback;
         return this;
@@ -111,7 +111,7 @@ public class DirectoryPolledListener implements PolledListener {
     *
     * @param logEnabled true 启用日志（默认），false 禁用
     * @return this
-     */
+    */
     public DirectoryPolledListener setLogEnabled(boolean logEnabled) {
         this.logEnabled = logEnabled;
         return this;

@@ -46,7 +46,7 @@ public class LiteRawMap implements Map<String, Object> {
 
     /**
     * 内部存储的 Map 数据
-     */
+    */
     private final Map<String, Object> delegate;
 
     /**
@@ -54,7 +54,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param map 原始 Map 数据
     * @return LiteRawMap 实例
-     */
+    */
     public static LiteRawMap of(Map<String, Object> map) {
         if (map instanceof LiteRawMap lrm) {
             return lrm;
@@ -66,7 +66,7 @@ public class LiteRawMap implements Map<String, Object> {
     * 创建空的 LiteRawMap
     *
     * @return 空的 LiteRawMap 实例
-     */
+    */
     public static LiteRawMap create() {
         return new LiteRawMap(new LinkedHashMap<>());
     }
@@ -75,7 +75,7 @@ public class LiteRawMap implements Map<String, Object> {
     * 构造方法
     *
     * @param delegate 内部存储的 Map
-     */
+    */
     private LiteRawMap(Map<String, Object> delegate) {
         this.delegate = delegate;
     }
@@ -90,7 +90,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param dotPath 点号分隔的路径
     * @return 对应的值，路径不存在则返回 null
-     */
+    */
     public Object getDot(String dotPath) {
         String[] parts = dotPath.split("\\.");
         Object current = delegate;
@@ -110,7 +110,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param dotPath 点号分隔的路径
     * @param type    目标类型
     * @return 转换后的值
-     */
+    */
     public <T> T getDot(String dotPath, Class<T> type) {
         Object val = getDot(dotPath);
         if (val == null) {
@@ -129,7 +129,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param key 属性键
     * @return 字符串值，不存在则返回 null
-     */
+    */
     public String getString(String key) {
         return Converter.convertIfNecessary(get(key), String.class);
     }
@@ -140,7 +140,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param key 属性键
     * @param def 默认值
     * @return 字符串值或默认值
-     */
+    */
     public String getString(String key, String def) {
         return Converter.convertIfNecessary(get(key), String.class, def);
     }
@@ -151,7 +151,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param key 属性键
     * @param def 默认值
     * @return 整数值或默认值
-     */
+    */
     public int getInt(String key, int def) {
         return Converter.convertIfNecessary(get(key), Integer.class, def);
     }
@@ -162,7 +162,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param key 属性键
     * @param def 默认值
     * @return 长整型值或默认值
-     */
+    */
     public long getLong(String key, long def) {
         return Converter.convertIfNecessary(get(key), Long.class, def);
     }
@@ -173,7 +173,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param key 属性键
     * @param def 默认值
     * @return 双精度值或默认值
-     */
+    */
     public double getDouble(String key, double def) {
         return Converter.convertIfNecessary(get(key), Double.class, def);
     }
@@ -184,7 +184,7 @@ public class LiteRawMap implements Map<String, Object> {
     * @param key 属性键
     * @param def 默认值
     * @return 布尔值或默认值
-     */
+    */
     public boolean getBoolean(String key, boolean def) {
         return Converter.convertIfNecessary(get(key), Boolean.class, def);
     }
@@ -194,7 +194,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param key 属性键
     * @return BigDecimal 值，不存在则返回 null
-     */
+    */
     public BigDecimal getBigDecimal(String key) {
         return Converter.convertIfNecessary(get(key), BigDecimal.class);
     }
@@ -206,7 +206,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param key 属性键
     * @return List 值，不存在则返回 null
-     */
+    */
     public <T> List<T> getList(String key) {
         Object val = delegate.get(key);
         if (val instanceof List<?> list) {
@@ -220,7 +220,7 @@ public class LiteRawMap implements Map<String, Object> {
     *
     * @param key 属性键
     * @return 嵌套 Map，不存在则返回 null
-     */
+    */
     public Map<String, Object> getMap(String key) {
         Object val = delegate.get(key);
         if (val instanceof Map<?, ?> map) {
@@ -238,7 +238,7 @@ public class LiteRawMap implements Map<String, Object> {
     * 例：{server: {port: 8080}} → {"server.port": 8080}
     *
     * @return 扁平化后的 Map
-     */
+    */
     public Map<String, Object> flatten() {
         Map<String, Object> result = new LinkedHashMap<>();
         flattenInternal(delegate, "", result);
@@ -247,7 +247,7 @@ public class LiteRawMap implements Map<String, Object> {
 
     /**
     * 递归扁平化
-     */
+    */
     private void flattenInternal(Map<String, ?> map, String prefix, Map<String, Object> result) {
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();

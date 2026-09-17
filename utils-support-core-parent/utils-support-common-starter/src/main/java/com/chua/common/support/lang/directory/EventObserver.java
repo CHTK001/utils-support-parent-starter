@@ -18,39 +18,39 @@ public class EventObserver {
 
     /**
     * 被监听的父目录路径
-     */
+    */
     private String currentPath;
 
     /**
     * 触发事件的文件或目录名称（相对路径，不含父目录）
-     */
+    */
     private String triggerFile;
 
     /**
     * 事件源对象，可为文件路径字符串或其他自定义来源
-     */
+    */
     private Object source;
 
     /**
     * 事件发生时间戳，默认当前时间
-     */
+    */
     @Builder.Default
     /** 时间戳 */
     private LocalDateTime timestamp = LocalDateTime.now();
 
     /**
     * 事件类型：CREATE / MODIFY / DELETE / OVERFLOW
-     */
+    */
     private WatcherEvent eventType;
 
     /**
     * 触发事件的文件大小（字节），仅 CREATE 和 MODIFY 时有值
-     */
+    */
     private Long fileSize;
 
     /**
     * 是否为目录事件
-     */
+    */
     @Builder.Default
     /** Directory */
     private boolean directory = false;
@@ -60,7 +60,7 @@ public class EventObserver {
     * <p>将 {@link #currentPath} 和 {@link #triggerFile} 拼接为完整路径，自动处理分隔符。</p>
     *
     * @return 完整路径，若 currentPath 或 triggerFile 为空则返回 null
-     */
+    */
     public String getFullPath() {
         if (currentPath == null || triggerFile == null) {
             return null;

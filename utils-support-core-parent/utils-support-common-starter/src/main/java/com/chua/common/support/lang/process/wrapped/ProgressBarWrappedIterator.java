@@ -18,12 +18,12 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
 
     /**
     * 被包装的底层迭代器，用于提供实际的元素遍历逻辑。
-     */
+    */
     private final Iterator<T> underlying;
 
     /**
     * 用于跟踪当前进度的进度条实例。
-     */
+    */
     private final ProgressBar pb;
 
     /**
@@ -31,7 +31,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     *
     * @param underlying 底层迭代器，不能为 null。
     * @param pb         进度条实例，不能为 null。
-     */
+    */
     public ProgressBarWrappedIterator(Iterator<T> underlying, ProgressBar pb) {
         this.underlying = underlying;
         this.pb = pb;
@@ -41,7 +41,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     * 获取关联的进度条实例。
     *
     * @return 进度条对象。
-     */
+    */
     public ProgressBar getProgressBar() {
         return pb;
     }
@@ -53,7 +53,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     * </p>
     *
     * @return 如果还有下一个元素则返回 true，否则返回 false。
-     */
+    */
     @Override
     public boolean hasNext() {
         boolean r = underlying.hasNext();
@@ -68,7 +68,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     *
     * @return 下一个元素。
     * @throws java.util.NoSuchElementException 如果没有更多元素。
-     */
+    */
     @Override
     public T next() {
         T r = underlying.next();
@@ -84,7 +84,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     *
     * @throws UnsupportedOperationException 如果底层迭代器不支持此操作。
     * @throws IllegalStateException           如果尚未调用 {@code next} 或上一次调用 {@code remove} 后未调用 {@code next}。
-     */
+    */
     @Override
     public void remove() {
         underlying.remove();
@@ -95,7 +95,7 @@ public class ProgressBarWrappedIterator<T> implements Iterator<T>, AutoCloseable
     * <p>
     * 该方法确保在迭代完成后正确清理进度条状态。
     * </p>
-     */
+    */
     @Override
     public void close() {
         pb.close();

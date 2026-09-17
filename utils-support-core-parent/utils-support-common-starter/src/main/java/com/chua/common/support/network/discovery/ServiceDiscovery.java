@@ -15,7 +15,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * 启动服务发现功能。
     *
     * @throws Exception 当服务发现初始化或启动失败时抛出异常
-     */
+    */
     void start() throws Exception;
 
     /**
@@ -24,7 +24,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param path      服务路径标识符
     * @param discovery 服务信息对象
     * @return 当前服务发现实例，支持链式调用
-     */
+    */
     ServiceDiscovery registerService(String path, Discovery discovery);
 
     /**
@@ -33,7 +33,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param path      服务路径标识符
     * @param discovery 服务信息对象
     * @return 当前服务发现实例，支持链式调用
-     */
+    */
     ServiceDiscovery unregisterService(String path, Discovery discovery);
 
     /**
@@ -42,7 +42,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param path     服务路径标识符
     * @param serverId 服务节点的唯一标识
     * @return 当前服务发现实例，支持链式调用
-     */
+    */
     ServiceDiscovery unregisterService(String path, String serverId);
 
     /**
@@ -51,7 +51,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param path      服务路径标识符
     * @param discovery 新的服务信息对象
     * @return 当前服务发现实例，支持链式调用
-     */
+    */
     ServiceDiscovery updateService(String path, Discovery discovery);
 
     /**
@@ -61,7 +61,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param balance   负载均衡策略（如 "weight", "random" 等）
     * @param protocol  网络协议类型（如 "http", "tcp" 等），可为 null
     * @return 匹配的服务信息对象，未找到则返回 null
-     */
+    */
     default Discovery getService(String path, String balance, String protocol) {
         return getService(path, null, balance, protocol);
     }
@@ -76,7 +76,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param balance   负载均衡策略（如 "weight", "random" 等）
     * @param protocol  网络协议类型（如 "http", "tcp" 等），可为 null
     * @return 匹配的服务信息对象，未找到则返回 null
-     */
+    */
     Discovery getService(String path, String scatterId, String balance, String protocol);
 
     /**
@@ -86,7 +86,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param path    服务路径标识符
     * @param balance 负载均衡策略
     * @return 匹配的服务信息对象，未找到则返回 null
-     */
+    */
     default Discovery getService(String path, String balance) {
         return getService(path, balance, null);
     }
@@ -96,7 +96,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     *
     * @param path 服务路径标识符
     * @return 满足匹配条件的服务信息对象集合，若未找到则返回 null
-     */
+    */
     Set<Discovery> getServiceAll(String path);
 
     /**
@@ -105,7 +105,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     *
     * @param path 服务路径标识符
     * @return 匹配的服务信息对象，未找到则返回 null
-     */
+    */
     default Discovery getService(String path) {
         return getService(path, "weight", null);
     }
@@ -114,7 +114,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * 判断当前服务发现实例是否支持订阅模式。
     *
     * @return 支持订阅的模式返回 true，否则返回 false
-     */
+    */
     default boolean isSupportSubscribe() {
         return false;
     }
@@ -126,7 +126,7 @@ public interface ServiceDiscovery extends AutoCloseable {
     * @param serviceName 服务名称
     * @param listener    服务监听器回调对象
     * @throws UnsupportedOperationException 如果当前实现不支持该功能
-     */
+    */
     default void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         throw new UnsupportedOperationException("Subscription is not supported by this implementation.");
     }
@@ -137,14 +137,14 @@ public interface ServiceDiscovery extends AutoCloseable {
     *
     * @param serviceName 服务名称
     * @param listener    服务监听器回调对象
-     */
+    */
     default void unsubscribe(String serviceName, ServiceDiscoveryListener listener) {
     }
 
     /**
     * 清除本地服务表缓存，移除所有已注册的服务条目。
     * <p>主要用于测试隔离，确保不同测试用例之间的服务表互不干扰。</p>
-     */
+    */
     default void clearCache() {
     }
 }

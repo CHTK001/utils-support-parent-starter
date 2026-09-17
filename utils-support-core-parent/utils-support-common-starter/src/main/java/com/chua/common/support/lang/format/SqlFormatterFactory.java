@@ -28,7 +28,7 @@ public class SqlFormatterFactory {
     *
     * <p>该类为纯工具类，所有方法均为静态方法，
     * 不应被实例化。
-     */
+    */
     private SqlFormatterFactory() {
         throw new UnsupportedOperationException("Utility class");
     }
@@ -38,7 +38,7 @@ public class SqlFormatterFactory {
     *
     * @param upper 大写的SQL语句
     * @return 是否为DDL语句
-     */
+    */
     private static boolean isDdlStatement(String upper) {
         return upper.startsWith("CREATE") ||
                 upper.startsWith("ALTER") ||
@@ -65,7 +65,7 @@ public class SqlFormatterFactory {
     *
     * @param sql SQL语句
     * @return 对应的格式化器实例，如果无法识别返回null
-     */
+    */
     public static SqlFormatter getFormatter(String sql) {
         // 空值检查
         if (sql == null) {
@@ -108,7 +108,7 @@ public class SqlFormatterFactory {
     * @param keepComments      是否保留注释
     * @param upperCaseKeywords 是否大写关键字
     * @return 配置后的DDL格式化器
-     */
+    */
     public static SqlFormatter getDdlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         return new DdlFormatter(keepComments, upperCaseKeywords);
     }
@@ -119,7 +119,7 @@ public class SqlFormatterFactory {
     * @param keepComments      是否保留注释
     * @param upperCaseKeywords 是否大写关键字
     * @return 配置后的DML格式化器
-     */
+    */
     public static SqlFormatter getDmlFormatter(boolean keepComments, boolean upperCaseKeywords) {
         return new DmlFormatter(keepComments, upperCaseKeywords);
     }
@@ -136,7 +136,7 @@ public class SqlFormatterFactory {
     * @param compressWhitespace 是否压缩空白
     * @return 配置后的格式化器
     * @throws IllegalArgumentException 如果type参数无效
-     */
+    */
     public static SqlFormatter getFormatter(String type,
                                             boolean keepComments,
                                             boolean upperCaseKeywords,

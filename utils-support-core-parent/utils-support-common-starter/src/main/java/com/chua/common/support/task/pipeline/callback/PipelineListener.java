@@ -3,42 +3,42 @@ package com.chua.common.support.task.pipeline.callback;
 import com.chua.common.support.task.pipeline.core.PipelineContext;
 
 /**
-* 流水线全局回调监听器。
-*
-* <p>提供流水线执行过程中的生命周期回调，支持在流水线启动、节点执行前后、
-* 异常时、完成时插入自定义逻辑。所有方法均为 默认 实现，按需覆盖即可。</p>
-*
-* <p>通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#addListener(PipelineListener)}
-* 注册到流水线，或使用便捷方法 {@code logging()}、{@code onStart()}、{@code onComplete()}、{@code onNextStep()}。</p>
-*
-* <p>用法示例：</p>
-* <pre>{@code
-* .addListener(new PipelineListener() {
-*     @Override
-*     public void onStart(PipelineContext<?> ctx) {
-*         System.out.println("Pipeline started: " + ctx.getPipelineId());
-*     }
-*
-*     @Override
-*     public void beforeNode(PipelineContext<?> ctx) {
-*         System.out.println("Enter node: " + ctx.getCurrentNodeId());
-*     }
-*
-*     @Override
-*     public String onError(PipelineContext<?> ctx, Throwable e) {
-*         log.error("Node failed: " + ctx.getCurrentNodeId(), e);
-*         return "error-handler";  // 路由到错误处理节点继续执行
-*         // return null;  // 终止流水线
-*     }
-* })
-* }</pre>  // 终止流水线
-*     }
-* })
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 流水线全局回调监听器。
+ *
+ * <p>提供流水线执行过程中的生命周期回调，支持在流水线启动、节点执行前后、
+ * 异常时、完成时插入自定义逻辑。所有方法均为 默认 实现，按需覆盖即可。</p>
+ *
+ * <p>通过 {@link com.chua.common.support.task.pipeline.builder.PipelineBuilder#addListener(PipelineListener)}
+ * 注册到流水线，或使用便捷方法 {@code logging()}、{@code onStart()}、{@code onComplete()}、{@code onNextStep()}。</p>
+ *
+ * <p>用法示例：</p>
+ * <pre>{@code
+ * .addListener(new PipelineListener() {
+ *     @Override
+ *     public void onStart(PipelineContext<?> ctx) {
+ *         System.out.println("Pipeline started: " + ctx.getPipelineId());
+ *     }
+ *
+ *     @Override
+ *     public void beforeNode(PipelineContext<?> ctx) {
+ *         System.out.println("Enter node: " + ctx.getCurrentNodeId());
+ *     }
+ *
+ *     @Override
+ *     public String onError(PipelineContext<?> ctx, Throwable e) {
+ *         log.error("Node failed: " + ctx.getCurrentNodeId(), e);
+ *         return "error-handler";  // 路由到错误处理节点继续执行
+ *         // return null;  // 终止流水线
+ *     }
+ * })
+ * }</pre>  // 终止流水线
+ *     }
+ * })
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public interface PipelineListener {
 
     /**
@@ -47,7 +47,7 @@ public interface PipelineListener {
     * <p>在第一个节点执行前触发，仅触发一次。</p>
     *
     * @param context 流水线上下文
-     */
+    */
     default void onStart(PipelineContext<?> context) {
     }
 
@@ -55,7 +55,7 @@ public interface PipelineListener {
     * 节点执行前回调。
     *
     * @param context 当前流水线上下文
-     */
+    */
     default void beforeNode(PipelineContext<?> context) {
     }
 
@@ -63,7 +63,7 @@ public interface PipelineListener {
     * 节点执行后回调。
     *
     * @param context 当前流水线上下文
-     */
+    */
     default void afterNode(PipelineContext<?> context) {
     }
 
@@ -82,7 +82,7 @@ public interface PipelineListener {
     * @param context 当前流水线上下文
     * @param e       异常信息
     * @return 恢复节点 标识（继续执行），或 空（终止流水线）
-     */
+    */
     default String onError(PipelineContext<?> context, Throwable e) {
         return null;
     }
@@ -91,7 +91,7 @@ public interface PipelineListener {
     * 流水线执行完成回调。
     *
     * @param context 当前流水线上下文
-     */
+    */
     default void onComplete(PipelineContext<?> context) {
     }
 
@@ -120,7 +120,7 @@ public interface PipelineListener {
     * }</pre>
     *
     * @param context 当前流水线上下文（含 历史 等执行状态）
-     */
+    */
     default void onDraw(PipelineContext<?> context) {
     }
 }

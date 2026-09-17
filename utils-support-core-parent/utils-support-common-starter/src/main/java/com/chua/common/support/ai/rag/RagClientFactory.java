@@ -18,6 +18,6 @@ public interface RagClientFactory {
     *
     * @param setting 客户端配置
     * @return RagClient 实例
-     */
+    */
     RagClient create(RagClientSetting setting);
 }

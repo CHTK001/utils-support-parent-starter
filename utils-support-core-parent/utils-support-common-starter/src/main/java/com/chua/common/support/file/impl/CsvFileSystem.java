@@ -36,32 +36,32 @@ public class CsvFileSystem implements FileSystem {
 
     /**
     * CSV 文件类型标识
-     */
+    */
     private static final String TYPE_CSV = "csv";
 
     /**
     * 默认字段分隔符（逗号）
-     */
+    */
     private static final char DEFAULT_DELIMITER = ',';
 
     /**
     * 无表头时生成的列名前缀
-     */
+    */
     private static final String COLUMN_KEY_PREFIX = "col";
 
     /**
     * CSV 双引号字符
-     */
+    */
     private static final char QUOTE_CHAR = '"';
 
     /**
     * 空值占位字符串
-     */
+    */
     private static final String EMPTY_VALUE = "";
 
     /**
     * 读取每行默认的列数估算（仅用于预分配 Map 容量，避免初始扩容）
-     */
+    */
     private static final int ESTIMATED_COLUMN_COUNT = 8;
 
     @Override
@@ -86,13 +86,13 @@ public class CsvFileSystem implements FileSystem {
     * CSV 文件读取构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     @Slf4j
     public static class CsvReadBuilder extends ReadBuilder {
 
         /**
         * 字段分隔符，默认逗号
-         */
+        */
         private char delimiter = DEFAULT_DELIMITER;
 
         CsvReadBuilder(File file) {
@@ -104,7 +104,7 @@ public class CsvFileSystem implements FileSystem {
         *
         * @param delimiter 分隔符字符
         * @return 当前构建器
-         */
+        */
         public CsvReadBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
             return this;
@@ -123,7 +123,7 @@ public class CsvFileSystem implements FileSystem {
         * <p>当 {@link #withHeader()} 启用时，Map 的 key 为列名。</p>
         *
         * @return Map 行数据列表
-         */
+        */
         public List<Map<String, Object>> rows() {
             List<Map<String, Object>> result = CollectionUtils.newArrayList();
             List<String> headerRow = CollectionUtils.newArrayList();
@@ -182,7 +182,7 @@ public class CsvFileSystem implements FileSystem {
         * @param line      CSV 行文本
         * @param delimiter 字段分隔符
         * @return 解析后的字段数组
-         */
+        */
         private String[] parseLine(String line, char delimiter) {
             List<String> parts = CollectionUtils.newArrayList();
             StringBuilder sb = new StringBuilder();
@@ -208,18 +208,18 @@ public class CsvFileSystem implements FileSystem {
     * CSV 文件写入构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     @Slf4j
     public static class CsvWriteBuilder extends WriteBuilder {
 
         /**
         * 字段分隔符，默认逗号
-         */
+        */
         private char delimiter = DEFAULT_DELIMITER;
 
         /**
         * 显式指定的表头列（与 {@link #headerColumns} 二选一）
-         */
+        */
         private String[] header;
 
         CsvWriteBuilder(File file) {
@@ -231,7 +231,7 @@ public class CsvFileSystem implements FileSystem {
         *
         * @param header 表头列数组
         * @return 当前构建器
-         */
+        */
         public CsvWriteBuilder withHeader(String... header) {
             this.header = header;
             return this;
@@ -242,7 +242,7 @@ public class CsvFileSystem implements FileSystem {
         *
         * @param delimiter 分隔符字符
         * @return 当前构建器
-         */
+        */
         public CsvWriteBuilder withDelimiter(char delimiter) {
             this.delimiter = delimiter;
             return this;
@@ -271,7 +271,7 @@ public class CsvFileSystem implements FileSystem {
         *
         * @param rows 行数据列表
         * @return 当前构建器
-         */
+        */
         public CsvWriteBuilder write(List<Map<String, Object>> rows) {
             pending.add(rows);
             return this;
@@ -281,7 +281,7 @@ public class CsvFileSystem implements FileSystem {
         * 立即将指定行写入磁盘并刷新。
         *
         * @param rows 行数据列表
-         */
+        */
         public void writeAndFlush(List<Map<String, Object>> rows) {
             callback.onStart();
             callback.onBeginWrite();
@@ -377,7 +377,7 @@ public class CsvFileSystem implements FileSystem {
         * 解析最终用于写入的列顺序：优先使用 {@link #headerColumns}，否则从首行 Map 的 keySet 推断。
         *
         * @return 列名列表，无法推断时返回 null
-         */
+        */
         private List<String> resolveColumns() {
             if (headerColumns != null) {
                 return headerColumns;

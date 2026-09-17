@@ -56,7 +56,7 @@ public class HttpInvoker implements Invoker {
     * 自定义配置（baseUrl/客户端/拦截器）。
     *
     * <p>为 null 或全默认值时，走原有 {@code HttpApiFactory.create/createNew} 快捷路径。</p>
-     */
+    */
     private HttpApiOptions options;
 
     /**
@@ -66,7 +66,7 @@ public class HttpInvoker implements Invoker {
     * 应通过本方法创建独立实例，避免影响全局默认行为。</p>
     *
     * @return 可链式自定义的 HttpInvoker 实例
-     */
+    */
     public static HttpInvoker of() {
         return new HttpInvoker();
     }
@@ -78,7 +78,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param baseUrl 自定义 baseUrl，如 {@code "http://gateway.example.com"}
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker baseUrl(String baseUrl) {
         options().baseUrl(baseUrl);
         return this;
@@ -92,7 +92,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param client 自定义 HttpClient
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker client(HttpClient client) {
         options().client(client);
         return this;
@@ -106,7 +106,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param interceptor 应用层拦截器
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker addInterceptor(HttpInterceptor interceptor) {
         options().addInterceptor(interceptor);
         return this;
@@ -119,7 +119,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param interceptor 网络层拦截器
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker addNetworkInterceptor(HttpInterceptor interceptor) {
         options().addNetworkInterceptor(interceptor);
         return this;
@@ -145,7 +145,7 @@ public class HttpInvoker implements Invoker {
     * @param target   注入目标路径，如 {@code "headers.Authorization"}
     * @param callback 注入回调，每次调用时执行，返回注入值；返回 null 则跳过
     * @return 当前实例（链式调用）
-     */
+    */
     @Override
     public HttpInvoker addInject(String target, InjectCallback callback) {
         options().addInject(target, callback);
@@ -156,7 +156,7 @@ public class HttpInvoker implements Invoker {
     * 获取已注册的注入规则（只读）。
     *
     * @return 注入规则列表
-     */
+    */
     public List<SharedInvocationContext.InjectRule> getInjectRules() {
         return options == null ? List.of() : new ArrayList<>(options.getInjectRules());
     }
@@ -167,7 +167,7 @@ public class HttpInvoker implements Invoker {
     * @param name  请求头名称，如 {@code "Accept"}
     * @param value 请求头值，如 {@code "application/json"}
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker header(String name, String value) {
         options().header(name, value);
         return this;
@@ -178,7 +178,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param headers 请求头 Map
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker headers(Map<String, String> headers) {
         options().headers(headers);
         return this;
@@ -189,7 +189,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param timeout 连接超时，-1 表示使用执行器默认值
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker connectTimeout(long timeout) {
         options().connectTimeout(timeout);
         return this;
@@ -200,7 +200,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param timeout 读取超时，-1 表示使用执行器默认值
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker readTimeout(long timeout) {
         options().readTimeout(timeout);
         return this;
@@ -211,7 +211,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param timeout 写入超时，-1 表示使用执行器默认值
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker writeTimeout(long timeout) {
         options().writeTimeout(timeout);
         return this;
@@ -222,7 +222,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param retries 最大重试次数，-1 表示不重试
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker retry(int retries) {
         options().retry(retries);
         return this;
@@ -233,7 +233,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param ttlMs 缓存有效期，-1 表示不缓存
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker cache(long ttlMs) {
         options().cache(ttlMs);
         return this;
@@ -244,7 +244,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param follow true 跟随重定向，false 不跟随
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker followRedirects(boolean follow) {
         options().followRedirects(follow);
         return this;
@@ -255,7 +255,7 @@ public class HttpInvoker implements Invoker {
     *
     * @param version HTTP 版本（HTTP_1_1 / HTTP_2）
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker version(HttpVersion version) {
         options().version(version);
         return this;
@@ -267,7 +267,7 @@ public class HttpInvoker implements Invoker {
     * @param host 代理服务器主机名或 IP 地址
     * @param port 代理服务器端口号
     * @return 当前实例（链式调用）
-     */
+    */
     public HttpInvoker proxy(String host, int port) {
         options().proxy(host, port);
         return this;
@@ -277,7 +277,7 @@ public class HttpInvoker implements Invoker {
     * 获取已注册的应用层拦截器（只读）。
     *
     * @return 应用层拦截器列表
-     */
+    */
     public List<HttpInterceptor> getInterceptors() {
         return options == null ? List.of() : new ArrayList<>(options.getInterceptors());
     }
@@ -286,7 +286,7 @@ public class HttpInvoker implements Invoker {
     * 获取已注册的网络层拦截器（只读）。
     *
     * @return 网络层拦截器列表
-     */
+    */
     public List<HttpInterceptor> getNetworkInterceptors() {
         return options == null ? List.of() : new ArrayList<>(options.getNetworkInterceptors());
     }
@@ -295,7 +295,7 @@ public class HttpInvoker implements Invoker {
     * 懒加载并返回自定义配置实例。
     *
     * @return HttpApiOptions 实例
-     */
+    */
     private HttpApiOptions options() {
         if (options == null) {
             options = HttpApiOptions.of();
@@ -325,7 +325,7 @@ public class HttpInvoker implements Invoker {
     * 判断当前是否处于默认（未自定义）状态。
     *
     * @return true 表示未做任何自定义，可走快捷路径
-     */
+    */
     private boolean isDefault() {
         if (options == null) {
             return true;

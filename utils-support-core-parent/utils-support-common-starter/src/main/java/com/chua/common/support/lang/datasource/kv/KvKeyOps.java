@@ -18,17 +18,17 @@ public class KvKeyOps {
 
     /**
     * 底层 KV 引擎实现
-     */
+    */
     private final KvEngine engine;
 
     /**
     * 当前绑定的键
-     */
+    */
     private final String key;
 
     /**
     * 待提交的过期时长，未设置时为 null
-     */
+    */
     private Duration pendingTtl;
 
     /**
@@ -36,7 +36,7 @@ public class KvKeyOps {
     *
     * @param engine 底层 KV 引擎实现，不可为 null
     * @param key    绑定的键，不可为 null
-     */
+    */
     KvKeyOps(KvEngine engine, String key) {
         this.engine = engine;
         this.key = key;
@@ -47,7 +47,7 @@ public class KvKeyOps {
     *
     * @param seconds 过期秒数，必须大于 0
     * @return this，支持链式调用
-     */
+    */
     public KvKeyOps expire(long seconds) {
         this.pendingTtl = Duration.ofSeconds(seconds);
         return this;
@@ -58,7 +58,7 @@ public class KvKeyOps {
     *
     * @param ttl 过期时长，不可为 null
     * @return this，支持链式调用
-     */
+    */
     public KvKeyOps expire(Duration ttl) {
         this.pendingTtl = ttl;
         return this;
@@ -69,7 +69,7 @@ public class KvKeyOps {
     *
     * @param value 待写入的值，可为 null
     * @return this，支持链式调用
-     */
+    */
     public KvKeyOps set(String value) {
         if (pendingTtl != null) {
             engine.put(key, value, pendingTtl);
@@ -83,7 +83,7 @@ public class KvKeyOps {
     * 读取当前键的值。
     *
     * @return 当前键的值，不存在返回 null
-     */
+    */
     public String get() {
         return engine.get(key);
     }
@@ -92,7 +92,7 @@ public class KvKeyOps {
     * 判断当前键是否存在。
     *
     * @return 存在返回 true，否则返回 false
-     */
+    */
     public boolean exists() {
         return engine.containsKey(key);
     }
@@ -101,7 +101,7 @@ public class KvKeyOps {
     * 删除当前键。
     *
     * @return 删除成功返回 true，否则返回 false
-     */
+    */
     public boolean delete() {
         return engine.delete(key);
     }
@@ -110,7 +110,7 @@ public class KvKeyOps {
     * 获取当前键的剩余生存时间（秒）。
     *
     * @return 剩余秒数；键不存在返回 -2，无过期返回 -1
-     */
+    */
     public long ttl() {
         return engine.ttl(key);
     }
@@ -119,7 +119,7 @@ public class KvKeyOps {
     * 将当前键对应的整数值原子递增 1。
     *
     * @return 递增后的最新值
-     */
+    */
     public long incr() {
         return engine.incr(key);
     }

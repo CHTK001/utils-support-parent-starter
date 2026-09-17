@@ -33,15 +33,15 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     /**
     * 本地服务列表缓存：Key 为路径，Value 为该路径下的服务实例列表
-     */
+    */
     protected final ConcurrentMap<String, List<Discovery>> localCache = new ConcurrentHashMap<>();
     /**
     * 负载均衡器缓存：Key 为组合键 (路径#策略#协议)，Value 为带版本号的负载均衡器
-     */
+    */
     private final ConcurrentMap<String, CachedLoadBalance> loadBalanceCache = new ConcurrentHashMap<>();
     /**
     * 服务版本计数器，用于使缓存失效
-     */
+    */
     private final AtomicLong serviceVersion = new AtomicLong(0);
 
     /** Discoveryoption */
@@ -52,7 +52,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     /**
     * 构造函数，使用默认空集群名称。
     * @param discoveryOption 发现选项配置
-     */
+    */
     public AbstractServiceDiscovery(DiscoveryOption discoveryOption) {
         this(discoveryOption, "");
     }
@@ -61,7 +61,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 构造函数。
     * @param discoveryOption 发现选项配置
     * @param clusterName 集群名称，用于隔离不同集群的服务
-     */
+    */
     public AbstractServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         this.discoveryOption = discoveryOption;
         this.clusterName = clusterName != null ? clusterName : "";
@@ -73,7 +73,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 将单个服务发现对象添加到本地缓存中。
     * @param path 服务路径
     * @param discovery 服务发现对象
-     */
+    */
     protected void addToCache(String path, Discovery discovery) {
         path = StringUtils.startWithAppend(path, "/");
         // CopyOnWriteArrayList：写时拷贝，读时无锁快照，避免 gossip/心跳/查询并发写坏链表结构
@@ -84,7 +84,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 根据服务器ID从本地缓存中移除对应的服务发现对象。
     * @param path 服务路径
     * @param serverId 服务器唯一标识
-     */
+    */
     protected void removeFromCache(String path, String serverId) {
         path = StringUtils.startWithAppend(path, "/");
         localCache.computeIfPresent(path, (k, list) -> {
@@ -97,7 +97,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 替换指定路径下的整个服务列表缓存。
     * @param path 服务路径
     * @param discoveries 新的服务发现集合
-     */
+    */
     protected void replaceCache(String path, Collection<Discovery> discoveries) {
         path = StringUtils.startWithAppend(path, "/");
         localCache.put(path, new CopyOnWriteArrayList<>(discoveries));
@@ -105,14 +105,14 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
 
     /**
     * 清空所有本地缓存。
-     */
+    */
     public void clearCache() {
         localCache.clear();
     }
 
     /**
     * 增加服务版本号，通知缓存系统数据已变更，旧缓存失效。
-     */
+    */
     protected void incrementServiceVersion() {
         serviceVersion.incrementAndGet();
     }
@@ -124,7 +124,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     *
     * @param discovery 服务发现数据
     * @return true 表示不参与业务路由
-     */
+    */
     protected boolean isSeedNode(Discovery discovery) {
         if (discovery == null || discovery.getMetadata() == null) {
             return false;
@@ -139,7 +139,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param balance 负载均衡策略名称
     * @param protocol 协议类型
     * @return 组合后的缓存键字符串
-     */
+    */
     private String buildCacheKey(String path, String scatterId, String balance, String protocol) {
         return path + "#" + (scatterId != null ? scatterId : "") + "#"
                 + (balance != null ? balance : "weight") + "#" + (protocol != null ? protocol : "");
@@ -152,7 +152,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 子类可以重写此方法以提供特定的查询逻辑或数据来源。
     * @param path 服务路径
     * @return 服务发现集合
-     */
+    */
     protected Set<Discovery> get(String path) {
         List<Discovery> list = localCache.get(path);
         if (CollectionUtils.size(list) == 0) {
@@ -177,7 +177,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 子类应在此处实现向注册中心取消注册的具体逻辑。
     * @param path 服务路径
     * @param discovery 被注销的服务信息
-     */
+    */
     protected void doUnregister(String path, Discovery discovery) {
     }
 
@@ -187,7 +187,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param path 服务路径
     * @param oldDiscovery 旧的服务信息
     * @param newDiscovery 新的服务信息
-     */
+    */
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 获取指定路径下的所有服务实例。
     * @param path 服务路径
     * @return 所有服务实例集合
-     */
+    */
     @Override
     public Set<Discovery> getServiceAll(String path) {
         return getPath(addClusterPrefix(path));
@@ -210,7 +210,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param balance 负载均衡策略名称（如"weight", "random"等）
     * @param protocol 协议类型（可选，用于过滤）
     * @return 选中的服务实例，若无可用服务则返回null
-     */
+    */
     @Override
     public Discovery getService(String path, String scatterId, String balance, String protocol) {
         String prefixedPath = addClusterPrefix(path);
@@ -273,7 +273,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param path 服务路径
     * @param discovery 要注销的服务详情
     * @return 当前实例，支持链式调用
-     */
+    */
     @Override
     public ServiceDiscovery unregisterService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
@@ -288,7 +288,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param path 服务路径
     * @param serverId 要注销的服务ID
     * @return 当前实例，支持链式调用
-     */
+    */
     @Override
     public ServiceDiscovery unregisterService(String path, String serverId) {
         String prefixed = addClusterPrefix(path);
@@ -304,7 +304,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * @param path 服务路径
     * @param discovery 新的服务详情
     * @return 当前实例，支持链式调用
-     */
+    */
     @Override
     public ServiceDiscovery updateService(String path, Discovery discovery) {
         String prefixed = addClusterPrefix(path);
@@ -334,7 +334,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     /**
     * 判断是否需要路径前缀隔离（即是否需要在路径前加上集群名）。
     * @return true 表示需要隔离，false 表示不需要
-     */
+    */
     protected boolean needsPathPrefixIsolation() {
         return true;
     }
@@ -343,7 +343,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 为路径添加集群前缀。
     * @param path 原始路径
     * @return 添加前缀后的路径
-     */
+    */
     protected String addClusterPrefix(String path) {
         if (!needsPathPrefixIsolation() || clusterName == null || clusterName.isEmpty()) {
             return path;
@@ -357,7 +357,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 例如：请求 "/a/b/c"，如果该路径下没有服务，会依次尝试 "/a/b", "/a", "/"。
     * @param path 服务路径
     * @return 找到的服务集合，未找到则返回空集合
-     */
+    */
     public Set<Discovery> getPath(String path) {
         path = StringUtils.endWithMove(path, "/");
         log.debug("getPath: {} ", path);
@@ -391,11 +391,13 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     * 内部类：用于缓存负载均衡器及其关联的版本号和服务快照。
     * 当服务列表发生变更时重建 LoadBalance SPI 实例；
     * 服务表不变时复用已有实例，保持 weight 衰减等内部状态持久。
-     */
+    */
     private static class CachedLoadBalance {
         final LoadBalance loadBalance;
         final long version;
-        /** 注册时绑定的服务 serverId 集合（用于检测服务表是否实际变化） */
+        /**
+        * 注册时绑定的服务 serverId 集合（用于检测服务表是否实际变化）
+        */
         final Set<String> serviceKeys;
 
         CachedLoadBalance(LoadBalance loadBalance, long version, Set<String> serviceKeys) {
@@ -410,7 +412,7 @@ public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
         * @param currentVersion 当前全局服务版本号
         * @param currentServices 当前服务 serverId 集合
         * @return true 表示缓存有效，false 表示需要重建负载均衡器
-         */
+        */
         boolean isValid(long currentVersion, Set<String> currentServices) {
             return this.version == currentVersion
                     || java.util.Objects.equals(this.serviceKeys, currentServices);

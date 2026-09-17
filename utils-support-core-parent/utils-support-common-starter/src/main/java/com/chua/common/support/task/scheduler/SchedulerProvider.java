@@ -3,24 +3,24 @@ package com.chua.common.support.task.scheduler;
 import java.util.List;
 
 /**
-* 调度器提供者接口
-*
-* <p>定义任务调度服务的核心 API，采用 SPI 机制实现，允许不同的调度实现进行扩展和替换。
-* 提供者负责管理任务的注册、触发、取消和生命周期管理。
-*
-* <p>核心职责：
-* <ul>
-*   <li>将任务与触发器绑定，按照触发策略执行任务</li>
-*   <li>管理多个调度任务的生命周期</li>
-*   <li>提供任务执行状态的查询和取消能力</li>
-*   <li>统一管理线程资源和优雅关闭</li>
-* </ul>
-*
-* <p>默认 JDK 实现：{@link JdkSchedulerProvider}
-*
-* @author CH
-* @since 1.0.0
- */
+ * 调度器提供者接口
+ *
+ * <p>定义任务调度服务的核心 API，采用 SPI 机制实现，允许不同的调度实现进行扩展和替换。
+ * 提供者负责管理任务的注册、触发、取消和生命周期管理。
+ *
+ * <p>核心职责：
+ * <ul>
+ *   <li>将任务与触发器绑定，按照触发策略执行任务</li>
+ *   <li>管理多个调度任务的生命周期</li>
+ *   <li>提供任务执行状态的查询和取消能力</li>
+ *   <li>统一管理线程资源和优雅关闭</li>
+ * </ul>
+ *
+ * <p>默认 JDK 实现：{@link JdkSchedulerProvider}
+ *
+ * @author CH
+ * @since 1.0.0
+*/
 public interface SchedulerProvider {
 
     /**
@@ -31,7 +31,7 @@ public interface SchedulerProvider {
     * @param task    待执行的任务逻辑
     * @param trigger 触发策略
     * @return 已调度的任务实例
-     */
+    */
     ScheduledTask schedule(Runnable task, Trigger trigger);
 
     /**
@@ -44,7 +44,7 @@ public interface SchedulerProvider {
     * @param task    待执行的任务逻辑
     * @param trigger 触发策略
     * @return 已调度的任务实例
-     */
+    */
     ScheduledTask schedule(String id, Runnable task, Trigger trigger);
 
     /**
@@ -58,7 +58,7 @@ public interface SchedulerProvider {
     * @param id      任务唯一标识
     * @param trigger 新的触发策略
     * @return 重新调度后的任务实例，不存在返回 {@code null}
-     */
+    */
     ScheduledTask reschedule(String id, Trigger trigger);
 
     /**
@@ -69,7 +69,7 @@ public interface SchedulerProvider {
     *
     * @param id 任务唯一标识
     * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
-     */
+    */
     boolean cancel(String id);
 
     /**
@@ -77,7 +77,7 @@ public interface SchedulerProvider {
     *
     * @param id 任务唯一标识
     * @return 如果任务存在且未被取消返回 {@code true}，否则返回 {@code false}
-     */
+    */
     boolean isRunning(String id);
 
     /**
@@ -92,20 +92,20 @@ public interface SchedulerProvider {
     * </ol>
     *
     * <p>关闭后，调度器不再接受新的调度请求。
-     */
+    */
     void shutdown();
 
     /**
     * 检查调度器是否正在运行
     *
     * @return 如果调度器尚未关闭返回 {@code true}，否则返回 {@code false}
-     */
+    */
     boolean isRunning();
 
     /**
     * 获取所有已调度的任务
     *
     * @return 已调度任务列表，不会为 {@code null}
-     */
+    */
     List<ScheduledTask> getScheduledTasks();
 }

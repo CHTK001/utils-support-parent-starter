@@ -30,36 +30,36 @@ final class InterceptorChain implements HttpInterceptor.Chain {
 
     /**
     * 拦截器序列（客户端应用层 + 请求级 + 客户端网络层已合并）。
-     */
+    */
     private final List<HttpInterceptor> interceptors;
 
     /**
     * 当前拦截器下标（指向将要执行的拦截器）。
-     */
+    */
     private final int index;
 
     /**
     * 当前请求对象。
-     */
+    */
     private final ClientRequest request;
 
     /**
     * 最内层真实网络调用回调。
-     */
+    */
     private final RealCall realCall;
 
     /**
     * 真实网络调用回调接口，由 {@link HttpClient} 提供。
     *
     * <p>当拦截器链执行到最内层时，调用此回调完成真实的网络请求。</p>
-     */
+    */
     interface RealCall {
         /**
         * 执行真实请求。
         *
         * @param request 请求对象（已被拦截器修改）
         * @return 响应对象
-         */
+        */
         ClientResponse proceed(ClientRequest request);
     }
 
@@ -73,7 +73,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     * @param networkInterceptors 客户端网络层拦截器列表，可为空
     * @param request             初始请求对象
     * @param realCall            最内层网络调用回调
-     */
+    */
     InterceptorChain(List<HttpInterceptor> appInterceptors,
                      HttpInterceptor requestInterceptor,
                      List<HttpInterceptor> networkInterceptors,
@@ -89,7 +89,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     * @param requestInterceptor  请求级拦截器
     * @param networkInterceptors 客户端网络层拦截器列表
     * @return 合并后的拦截器序列
-     */
+    */
     private static List<HttpInterceptor> merge(List<HttpInterceptor> appInterceptors,
                                                HttpInterceptor requestInterceptor,
                                                List<HttpInterceptor> networkInterceptors) {
@@ -113,7 +113,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     * @param index        将要执行的拦截器下标
     * @param request      当前请求对象
     * @param realCall     最内层网络调用回调
-     */
+    */
     private InterceptorChain(List<HttpInterceptor> interceptors, int index,
                              ClientRequest request, RealCall realCall) {
         this.interceptors = interceptors;
@@ -126,7 +126,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     * 获取当前请求。
     *
     * @return 当前请求对象
-     */
+    */
     @Override
     public ClientRequest request() {
         return request;
@@ -139,7 +139,7 @@ final class InterceptorChain implements HttpInterceptor.Chain {
     *
     * @param request 请求对象（可为 null，此时沿用当前请求）
     * @return 响应对象
-     */
+    */
     @Override
     public ClientResponse proceed(ClientRequest request) {
         ClientRequest current = request != null ? request : this.request;

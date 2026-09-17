@@ -15,11 +15,11 @@ public class OpenApiTag {
 
     /**
     * tag 名（group by key）。
-     */
+    */
     private String name;
 
     /**
     * tag 描述（OpenAPI tags[].description）。
-     */
+    */
     private String description;
 }

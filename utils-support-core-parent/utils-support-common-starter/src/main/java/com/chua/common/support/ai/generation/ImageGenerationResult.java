@@ -22,7 +22,7 @@ public record ImageGenerationResult(java.util.List<GeneratedImage> images, Strin
     * @param width    宽度
     * @param height   高度
     * @param format   格式（png/jpeg/webp）
-     */
+    */
     public record GeneratedImage(String key, String thumbUrl, String oriUrl, String rawUrl,
                                  int width, int height, String format) {
     }

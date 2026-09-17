@@ -39,14 +39,14 @@ public interface SearchEngine {
     * 返回搜索引擎类型标识（SPI 扩展键）。
     *
     * @return 类型名（如 {@code elasticsearch}、{@code solr}、{@code redis}）
-     */
+    */
     String type();
 
     /**
     * 列出所有索引名。
     *
     * @return 索引名列表
-     */
+    */
     List<String> listIndexes();
 
     /**
@@ -54,7 +54,7 @@ public interface SearchEngine {
     *
     * @param indexName 索引名
     * @return 索引定义
-     */
+    */
     SearchIndexDef getIndex(String indexName);
 
     /**
@@ -62,7 +62,7 @@ public interface SearchEngine {
     *
     * @param indexDef 索引定义
     * @return true 创建成功
-     */
+    */
     boolean createIndex(SearchIndexDef indexDef);
 
     /**
@@ -70,13 +70,13 @@ public interface SearchEngine {
     *
     * @param indexName 索引名
     * @return true 删除成功
-     */
+    */
     boolean deleteIndex(String indexName);
 
     /**
     * 获取底层客户端实例（用于高级操作）。
     *
     * @return 客户端对象（类型因搜索引擎而异）
-     */
+    */
     Object getClient();
 }

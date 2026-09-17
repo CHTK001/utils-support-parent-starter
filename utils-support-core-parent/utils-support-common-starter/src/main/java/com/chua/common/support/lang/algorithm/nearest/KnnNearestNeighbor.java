@@ -45,7 +45,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
     * @param k       邻居数量
     * @return 按距离升序排列的 K 个邻居
     * @throws IllegalArgumentException 如果参数不合法
-     */
+    */
     @Override
     public List<NeighborResult> search(double[] target, List<double[]> dataset, int k) {
         validate(target, dataset, k);
@@ -92,7 +92,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
     * @param target  目标点特征向量
     * @param dataset 数据集
     * @return 最近的邻居，若数据集为空返回空结果
-     */
+    */
     @Override
     public NeighborResult searchNearest(double[] target, List<double[]> dataset) {
         validate(target, dataset, 1);
@@ -123,7 +123,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
     * @param a 向量 a
     * @param b 向量 b
     * @return 欧几里得距离
-     */
+    */
     private double euclideanDistance(double[] a, double[] b) {
         double sum = 0.0;
         for (int i = 0; i < a.length; i++) {
@@ -140,7 +140,7 @@ public class KnnNearestNeighbor implements NearestNeighborAlgorithm {
     * @param dataset 数据集
     * @param k       邻居数量
     * @throws IllegalArgumentException 如果参数不合法
-     */
+    */
     private void validate(double[] target, List<double[]> dataset, int k) {
         if (target.length == 0) {
             throw new IllegalArgumentException("目标向量不能为空");

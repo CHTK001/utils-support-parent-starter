@@ -33,7 +33,7 @@ public class PropertiesConfigParser implements ConfigParser {
     * @param urlPath 属性文件的 URL 路径或标识符，用于描述来源位置
     * @param is      包含属性数据的输入流，例如：new FileInputStream("application.properties")
     * @return        解析后的 PropertySource 对象；若解析失败则返回空对象
-     */
+    */
     @Override
     public PropertySource parse(String urlPath, InputStream is) {
         // 创建新的 Properties 实例用于存储配置项

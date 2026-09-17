@@ -20,7 +20,7 @@ public interface SafePredicate<T> extends Predicate<T> {
     *
     * @param t 输入参数
     * @return 如果输入参数匹配断言条件则返回 {@code true}，否则或发生异常时返回 {@code false}
-     */
+    */
     @Override
     default boolean test(T t) {
         try {
@@ -36,6 +36,6 @@ public interface SafePredicate<T> extends Predicate<T> {
     * @param t 输入参数
     * @return 如果输入参数匹配断言条件则返回 {@code true}，否则返回 {@code false}
     * @throws Throwable 允许抛出任何异常
-     */
+    */
     boolean safeTest(T t) throws Throwable;
 }

@@ -37,7 +37,7 @@ public class JsonArrayTypeConverter implements TypeConverter<List> {
     *
     * @param value 源值
     * @return List 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public List convert(Object value) {
         if (value instanceof String) {

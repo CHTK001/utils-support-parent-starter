@@ -31,23 +31,25 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
 
     /**
     * HTTP 429 状态码:请求过多
-     */
+    */
     private static final int STATUS_TOO_MANY_REQUESTS = 429;
 
     /**
     * 跟踪 IP 数量硬上限:超出后新来源放行,保护过滤器自身内存
-     */
+    */
     private static final int MAX_TRACKED_IPS = 65536;
 
     /**
     * 初始映射容量:按预期活跃 IP 数预估,减少扩容
-     */
+    */
     private static final int INITIAL_MAP_CAPACITY = 256;
 
     /** 单 IP 允许的最大在途并发请求数 */
     private final int maxConcurrentPerIp;
 
-    /** 每 IP 在途计数表:key=来源 IP,value=该 IP 当前在途请求数 */
+    /**
+    * 每 IP 在途计数表:key=来源 IP,value=该 IP 当前在途请求数
+    */
     private final ConcurrentHashMap<String, AtomicInteger> inFlightByIp =
             new ConcurrentHashMap<>(INITIAL_MAP_CAPACITY);
 
@@ -55,7 +57,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     * 创建单 IP 并发预算过滤器。
     *
     * @param maxConcurrentPerIp 单 IP 允许的最大在途并发请求数(须大于 0)
-     */
+    */
     public ConnectionBudgetServerFilter(int maxConcurrentPerIp) {
         this.maxConcurrentPerIp = Math.max(maxConcurrentPerIp, 1);
     }
@@ -67,7 +69,9 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     }
 
     @Override
-    /** SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突) */
+    /**
+    * SupportPath:Access Filter,每次请求都触发(显式覆写消除双接口默认方法冲突)
+    */
     public String supportPath() {
         return null;
     }
@@ -85,7 +89,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         AtomicInteger counter = acquire(request);
@@ -113,7 +117,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     * @param request request
     * @param response response
     * @param chain chain
-     */
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         AtomicInteger counter = acquire(request);
@@ -135,7 +139,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     *
     * @param request 请求对象
     * @return 计数器或 null(不跟踪)
-     */
+    */
     private AtomicInteger acquire(ServerRequest request) {
         String ip = request.getRemoteAddress();
         // 达到跟踪上限时不再为新 IP 建表项(内存防护),已有 IP 正常限流
@@ -149,7 +153,7 @@ public class ConnectionBudgetServerFilter implements ServerFilter, ReactiveServe
     * 返回 429 标准错误响应并终止链。
     *
     * @param response 响应对象
-     */
+    */
     private void reject(ServerResponse response) {
         if (!response.isEnded()) {
             response.setStatus(STATUS_TOO_MANY_REQUESTS);

@@ -45,7 +45,7 @@ public class LevelsOpen implements Levels {
     *
     * @param stringObjectMap 扁平化的键值对 Map
     * @return 嵌套后的 Map 结构，如果输入为空则返回 null
-     */
+    */
     @Override
     public Map<String, Object> apply(Map<String, Object> stringObjectMap) {
         if (MapUtils.isEmpty(stringObjectMap)) {
@@ -98,7 +98,7 @@ public class LevelsOpen implements Levels {
     *
     * @param toArray 包含多个 Map 分片的列表
     * @return 合并后的最终 Map
-     */
+    */
     private Map<String, Object> merge(List<Map<String, Object>> toArray) {
         Map<String, Object> result = new HashMap<>(DEFAULT_INITIAL_CAPACITY);
         for (Map<String, Object> objectMap : toArray) {
@@ -116,7 +116,7 @@ public class LevelsOpen implements Levels {
     *
     * @param mapLeft  目标 Map（方法内部会修改此 Map）
     * @param mapRight 源 Map
-     */
+    */
     public void merge(Map<String, Object> mapLeft, Map<String, Object> mapRight) {
         for (Map.Entry<String, Object> entry : mapRight.entrySet()) {
             if (mapLeft.containsKey(entry.getKey())) {
@@ -141,7 +141,7 @@ public class LevelsOpen implements Levels {
     *
     * @param leftList  左侧列表对象
     * @param rightList 右侧列表对象
-     */
+    */
     private void mergeList(Object leftList, Object rightList) {
         List<Object> temp = CollectionUtils.ifList(leftList);
         if (temp.isEmpty()) {
@@ -167,7 +167,7 @@ public class LevelsOpen implements Levels {
     * @param left  左侧对象
     * @param right 右侧对象
     * @return 如果均为 Map 返回 true，否则返回 false
-     */
+    */
     private boolean isAllMap(Object left, Object right) {
         return left instanceof Map && right instanceof Map;
     }
@@ -178,7 +178,7 @@ public class LevelsOpen implements Levels {
     * @param offset 当前处理的列表索引
     * @param temp   目标列表
     * @param list   源列表
-     */
+    */
     private void intoTemp(int offset, List<Object> temp, List<Object> list) {
         Object o3 = list.getFirst();
         Object o2 = temp.get(offset);
@@ -208,7 +208,7 @@ public class LevelsOpen implements Levels {
     * @param leftMap  左侧 Map
     * @param rightMap 右侧 Map
     * @return 如果右侧 Map 的所有 Key 都在左侧 Map 中存在，返回 true
-     */
+    */
     private boolean allIn(Map<String, Object> leftMap, Map<String, Object> rightMap) {
         boolean isAll = true;
         for (String s : rightMap.keySet()) {
@@ -227,7 +227,7 @@ public class LevelsOpen implements Levels {
     * @param key   当前处理的键（可能包含 "." 分隔符）
     * @param value 对应的值
     * @return 构建后的嵌套 Map
-     */
+    */
     private Map<String, Object> levelOpenMap(String key, Object value) {
         String tempKey = key;
         int index = tempKey.indexOf(".");
@@ -260,7 +260,7 @@ public class LevelsOpen implements Levels {
     * @param key   当前处理的键
     * @param value 对应的值
     * @return 构建后的 List，包含解析后的 Map 元素
-     */
+    */
     private List<Map<String, Object>> levelOpenListMap(String key, Object value) {
         String tempKey = key;
         int index = tempKey.indexOf(".");
@@ -296,7 +296,7 @@ public class LevelsOpen implements Levels {
     * @param substring 未使用的参数（历史遗留）
     * @param o         需要转换的对象
     * @return 转换后的 List
-     */
+    */
     private List<Object> levelOpenList(String substring, Object o) {
         if (o instanceof Collection) {
             return new ArrayList<Object>((Collection<?>) o);

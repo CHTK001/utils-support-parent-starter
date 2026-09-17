@@ -38,7 +38,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
     *
     * @param value 源值
     * @return Object[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public Object[] convert(Object value) {
         if (null == value) {
@@ -90,7 +90,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Object[].class
-     */
+    */
     @Override
     public Class<Object[]> getType() {
         return Object[].class;
@@ -104,7 +104,7 @@ public class ObjectArrayTypeConverter implements TypeConverter<Object[]> {
     * @param newType 目标数组的元素类型
     * @param <T>     目标元素泛型类型
     * @return 转换后的目标类型数组
-     */
+    */
     @SuppressWarnings("ALL")
     public <T> T convertFor(Object value, Class<T> newType) {
         if (null == value) {

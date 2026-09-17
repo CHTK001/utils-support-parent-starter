@@ -19,7 +19,7 @@ public interface RpcMonitor {
     * 获取当前所有连接信息。
     *
     * @return 连接信息列表，无连接或实现不支持时返回空列表
-     */
+    */
     default List<RpcConnectionInfo> getConnections() {
         return Collections.emptyList();
     }
@@ -28,7 +28,7 @@ public interface RpcMonitor {
     * 获取运行时指标快照。
     *
     * @return 指标快照，实现不支持时返回全零快照
-     */
+    */
     default RpcMetrics getMetrics() {
         return RpcMetrics.immutable(getProtocol());
     }
@@ -37,7 +37,7 @@ public interface RpcMonitor {
     * 获取协议名称。
     *
     * @return 协议名称
-     */
+    */
     default String getProtocol() {
         return "unknown";
     }
@@ -46,7 +46,7 @@ public interface RpcMonitor {
     * 获取已暴露的服务数量。
     *
     * @return 服务数量
-     */
+    */
     default int getServiceCount() {
         return 0;
     }

@@ -47,7 +47,7 @@ public @interface RpcResource {
     * 但标注在 Setter 方法时必须显式指定。</p>
     *
     * @return 服务接口的 Class 对象，默认 {@code void.class} 表示自动推断
-     */
+    */
     Class<?> interfaceClass() default void.class;
 
     /**
@@ -57,7 +57,7 @@ public @interface RpcResource {
     * 与 {@link #interfaceClass()} 二选一。</p>
     *
     * @return 接口全限定类名
-     */
+    */
     String interfaceName() default "";
 
     /**
@@ -67,7 +67,7 @@ public @interface RpcResource {
     * 必须与 {@link RpcService#version()} 一致才能完成调用。</p>
     *
     * @return 版本号，默认空字符串表示使用 {@link RpcConsumerConfig} 中的全局版本配置
-     */
+    */
     String version() default "";
 
     /**
@@ -77,7 +77,7 @@ public @interface RpcResource {
     * 必须与 {@link RpcService#group()} 一致才能完成调用。</p>
     *
     * @return 分组名称，默认空字符串表示使用 {@link RpcConsumerConfig} 中的全局分组配置
-     */
+    */
     String group() default "";
 
     /**
@@ -89,7 +89,7 @@ public @interface RpcResource {
     * <p>此选项常用于调试、测试环境，生产环境建议使用注册中心实现高可用。</p>
     *
     * @return 直连 URL，默认空字符串表示通过注册中心发现服务
-     */
+    */
     String url() default "";
 
     /**
@@ -99,7 +99,7 @@ public @interface RpcResource {
     * 如果不指定，使用默认协议。</p>
     *
     * @return 协议名称，默认空字符串表示使用默认协议
-     */
+    */
     String client() default "";
 
     /**
@@ -113,7 +113,7 @@ public @interface RpcResource {
     * </ul>
     *
     * @return 是否启动时检查
-     */
+    */
     boolean check() default true;
 
     /**
@@ -126,7 +126,7 @@ public @interface RpcResource {
     * </ul>
     *
     * @return 是否立即初始化
-     */
+    */
     boolean init() default true;
 
     /**
@@ -136,7 +136,7 @@ public @interface RpcResource {
     * 代理对象被调用时再根据负载均衡策略选择可用节点发起请求。</p>
     *
     * @return 是否启用懒加载
-     */
+    */
     boolean lazy() default false;
 
     /**
@@ -146,7 +146,7 @@ public @interface RpcResource {
     * 仅对当前服务引用生效。</p>
     *
     * @return 是否异步
-     */
+    */
     boolean async() default false;
 
     /**
@@ -156,7 +156,7 @@ public @interface RpcResource {
     * 仅对当前服务引用生效。</p>
     *
     * @return 超时毫秒数，默认 {@code -1} 表示使用全局配置
-     */
+    */
     int timeout() default -1;
 
     /**
@@ -171,7 +171,7 @@ public @interface RpcResource {
     * </ul>
     *
     * @return 缓存策略
-     */
+    */
     String cache() default "";
 
     /**
@@ -181,6 +181,6 @@ public @interface RpcResource {
     * 当 {@link #client()} 指定为 "dubbo" 时，此参数决定底层使用哪种协议进行数据传输。</p>
     *
     * @return 协议名称
-     */
+    */
     String protocol() default "";
 }

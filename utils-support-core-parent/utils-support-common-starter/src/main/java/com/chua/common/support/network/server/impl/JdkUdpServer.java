@@ -17,31 +17,31 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 基于 JDK DatagramSocket 的 UDP 服务器实现。
-*
-* <p>同步阻塞模型，每个数据包使用线程池处理。
-* 支持 UDP 数据包处理器注册、分包处理和链式调用。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* // 基础用法
-* JdkUdpServer server = new JdkUdpServer(setting)
-*         .registerHandler("*", (data, sender) -> {
-*             return ("echo:" + new String(data)).getBytes();
-*         });
-*
-* // 链式调用
-* JdkUdpServer server = new JdkUdpServer(setting)
-*         .maxRequestSize(8192)
-*         .workerThreads(100)
-*         .handler((data, sender) -> {
-*             return processUdp(data);
-*         });
-* }</pre>
-*
-* @author CH
-* @since 2026/07/26
- */
+ * 基于 JDK DatagramSocket 的 UDP 服务器实现。
+ *
+ * <p>同步阻塞模型，每个数据包使用线程池处理。
+ * 支持 UDP 数据包处理器注册、分包处理和链式调用。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * // 基础用法
+ * JdkUdpServer server = new JdkUdpServer(setting)
+ *         .registerHandler("*", (data, sender) -> {
+ *             return ("echo:" + new String(data)).getBytes();
+ *         });
+ *
+ * // 链式调用
+ * JdkUdpServer server = new JdkUdpServer(setting)
+ *         .maxRequestSize(8192)
+ *         .workerThreads(100)
+ *         .handler((data, sender) -> {
+ *             return processUdp(data);
+ *         });
+ * }</pre>
+ *
+ * @author CH
+ * @since 2026/07/26
+*/
 @Slf4j
 @Spi({"jdk-udp"})
 public class JdkUdpServer extends AbstractServer {
@@ -58,7 +58,7 @@ public class JdkUdpServer extends AbstractServer {
     /**
     * 创建 JdkUdpServer 实例
     * @param setting setting
-     */
+    */
     public JdkUdpServer(ServerSetting setting) {
         super(setting);
     }
@@ -169,7 +169,7 @@ public class JdkUdpServer extends AbstractServer {
     * @param name    处理器名称（"*" 表示匹配所有数据包）
     * @param handler 处理器
     * @return 当前服务器实例
-     */
+    */
     public JdkUdpServer registerHandler(String name, UdpHandler handler) {
         handlers.put(name, handler);
         return this;
@@ -180,7 +180,7 @@ public class JdkUdpServer extends AbstractServer {
     *
     * @param size 最大字节数
     * @return 当前服务器实例
-     */
+    */
     public JdkUdpServer maxRequestSize(long size) {
         setting.setMaxRequestSize(size);
         return this;
@@ -191,7 +191,7 @@ public class JdkUdpServer extends AbstractServer {
     *
     * @param threads 线程数
     * @return 当前服务器实例
-     */
+    */
     public JdkUdpServer workerThreads(int threads) {
         setting.setWorkerThreads(threads);
         return this;
@@ -203,7 +203,7 @@ public class JdkUdpServer extends AbstractServer {
     * @param host 目标主机
     * @param port 目标端口
     * @param data 数据
-     */
+    */
     public void send(String host, int port, byte[] data) throws Exception {
         DatagramPacket packet = new DatagramPacket(data, data.length, new InetSocketAddress(host, port));
         datagramSocket.send(packet);
@@ -211,7 +211,7 @@ public class JdkUdpServer extends AbstractServer {
 
     /**
     * UDP 处理器接口。
-     */
+    */
     @FunctionalInterface
     public interface UdpHandler {
         /**
@@ -220,7 +220,7 @@ public class JdkUdpServer extends AbstractServer {
         * @param data   接收的数据
         * @param sender 发送方地址
         * @return 响应数据，null 表示不回复
-         */
+        */
         byte[] handle(byte[] data, InetSocketAddress sender) throws Exception;
     }
 }

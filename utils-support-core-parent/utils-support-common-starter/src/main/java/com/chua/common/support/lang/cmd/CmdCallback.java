@@ -29,14 +29,14 @@ public interface CmdCallback {
     * 命令开始执行时回调
     *
     * @param command 被执行的命令字符串
-     */
+    */
     default void onStart(String command) {}
 
     /**
     * 命令执行完成时回调（包括正常完成和超时完成）
     *
     * @param result 命令执行结果
-     */
+    */
     void onComplete(CmdResult result);
 
     /**
@@ -45,7 +45,7 @@ public interface CmdCallback {
     * @param command 被执行的命令字符串
     * @param timeout 超时时间值
     * @param unit    超时时间单位
-     */
+    */
     default void onTimeout(String command, long timeout, TimeUnit unit) {}
 
     /**
@@ -53,6 +53,6 @@ public interface CmdCallback {
     *
     * @param command   被执行的命令字符串
     * @param throwable 捕获的异常
-     */
+    */
     default void onError(String command, Throwable throwable) {}
 }

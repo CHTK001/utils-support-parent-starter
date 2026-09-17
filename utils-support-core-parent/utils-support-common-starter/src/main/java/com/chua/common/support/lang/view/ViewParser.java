@@ -15,7 +15,7 @@ public interface ViewParser {
     *
     * @param data 待渲染数据
     * @return 支持返回 true
-     */
+    */
     boolean support(Object data);
 
     /**
@@ -23,14 +23,14 @@ public interface ViewParser {
     *
     * @param data 待渲染数据
     * @return 文本视图字符串，不含末尾换行
-     */
+    */
     String render(Object data);
 
     /**
     * 获取排序值，越小优先级越高。
     *
     * @return 排序值
-     */
+    */
     default int getOrder() {
         return 0;
     }

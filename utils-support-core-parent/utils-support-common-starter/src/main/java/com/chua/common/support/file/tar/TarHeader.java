@@ -161,7 +161,7 @@ public class TarHeader {
 
     /**
     * 构造 TarHeader，初始化 UStar 魔数、用户名等默认值。
-     */
+    */
     public TarHeader() {
         this.magic = new StringBuffer(TarHeader.USTAR_MAGIC);
         this.name = new StringBuffer();
@@ -187,7 +187,7 @@ public class TarHeader {
     * @param offset 解析起始偏移量
     * @param length 待解析的字节数
     * @return 解析出的条目名称
-     */
+    */
     public static StringBuffer parseName(byte[] header, int offset, int length) {
         StringBuffer result = new StringBuffer(length);
 
@@ -210,7 +210,7 @@ public class TarHeader {
     * @param offset 写入起始偏移量
     * @param length 写入的字节数
     * @return 写入后的偏移量
-     */
+    */
     public static int getNameBytes(StringBuffer name, byte[] buf, int offset, int length) {
         int i;
 
@@ -234,7 +234,7 @@ public class TarHeader {
     * @param dir         是否为目录
     * @param permissions 文件权限
     * @return TarHeader 实例
-     */
+    */
     public static TarHeader createHeader(String entryName, long size, long modTime, boolean dir, int permissions) {
         String name = entryName;
         name = TarUtils.trim(name.replace(File.separatorChar, '/'), '/');

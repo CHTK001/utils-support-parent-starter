@@ -39,7 +39,9 @@ import java.util.regex.Pattern;
  */
 public final class CliVersion implements Comparable<CliVersion> {
 
-    /** 默认版本提取正则：一段以数字开头、以点/下划线/连字符分隔的数字序列 */
+    /**
+    * 默认版本提取正则：一段以数字开头、以点/下划线/连字符分隔的数字序列
+    */
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("\\d+(?:[._-]\\d+)*");
 
     /** 数字段分隔符 */
@@ -61,7 +63,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * @param raw       原始版本字符串
     * @param numbers   数字段
     * @param qualifier 限定符
-     */
+    */
     private CliVersion(String raw, int[] numbers, String qualifier) {
         this.raw = raw;
         this.numbers = numbers;
@@ -73,7 +75,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param text 待解析文本，如 {@code --version} 的输出
     * @return 版本实例，解析失败时返回 {@link #unknown()}
-     */
+    */
     @Nonnull
     public static CliVersion parse(@Nullable String text) {
         return parse(text, DEFAULT_PATTERN);
@@ -85,7 +87,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * @param text    待解析文本
     * @param pattern 提取正则，需包含第一个捕获组
     * @return 版本实例，解析失败时返回 {@link #unknown()}
-     */
+    */
     @Nonnull
     public static CliVersion parse(@Nullable String text, @Nonnull Pattern pattern) {
         if (text == null || text.isBlank()) {
@@ -105,7 +107,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param numbers 数字段，如 {@code of(5, 1)} 表示 5.1
     * @return 版本实例
-     */
+    */
     @Nonnull
     public static CliVersion of(int... numbers) {
         if (numbers == null || numbers.length == 0) {
@@ -126,7 +128,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取无法解析的版本占位实例，其所有数字段为 0，且小于任何正常版本。
     *
     * @return 未知版本实例
-     */
+    */
     @Nonnull
     public static CliVersion unknown() {
         return new CliVersion("", new int[0], "");
@@ -141,7 +143,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * @param text 原始文本
     * @param end  数字序列结束下标
     * @return 限定符，无则为空字符串
-     */
+    */
     private static String extractQualifier(String text, int end) {
         if (end >= text.length()) {
             return "";
@@ -170,7 +172,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param versionPart 版本数字部分，如 "4.0.0"
     * @return 数字段数组
-     */
+    */
     private static int[] splitNumbers(String versionPart) {
         String[] segments = SEGMENT_SEPARATOR.split(versionPart);
         List<Integer> list = new ArrayList<>(segments.length);
@@ -195,7 +197,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取原始版本字符串。
     *
     * @return 原始版本字符串，未知版本返回空字符串
-     */
+    */
     @Nonnull
     public String raw() {
         return raw;
@@ -205,7 +207,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取主版本号，不存在时返回 0。
     *
     * @return 主版本号
-     */
+    */
     public int major() {
         return numbers.length > 0 ? numbers[0] : 0;
     }
@@ -214,7 +216,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取次版本号，不存在时返回 0。
     *
     * @return 次版本号
-     */
+    */
     public int minor() {
         return numbers.length > 1 ? numbers[1] : 0;
     }
@@ -223,7 +225,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取修订版本号，不存在时返回 0。
     *
     * @return 修订版本号
-     */
+    */
     public int patch() {
         return numbers.length > 2 ? numbers[2] : 0;
     }
@@ -232,7 +234,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 获取限定符，如 {@code rc-6}、{@code beta.1}，正式版返回空字符串。
     *
     * @return 限定符
-     */
+    */
     @Nonnull
     public String qualifier() {
         return qualifier;
@@ -242,7 +244,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 判断是否为正式版（无限定符）。
     *
     * @return 无限定符返回 true
-     */
+    */
     public boolean isRelease() {
         return qualifier.isEmpty();
     }
@@ -251,7 +253,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * 判断是否为未能解析的未知版本。
     *
     * @return 未知版本返回 true
-     */
+    */
     public boolean isUnknown() {
         return numbers.length == 0;
     }
@@ -261,7 +263,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param minimum 最低版本
     * @return 当前版本大于或等于最低版本时返回 true
-     */
+    */
     public boolean atLeast(@Nonnull CliVersion minimum) {
         return compareTo(minimum) >= 0;
     }
@@ -271,7 +273,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param other 对比版本
     * @return 当前版本较小时返回 true
-     */
+    */
     public boolean below(@Nonnull CliVersion other) {
         return compareTo(other) < 0;
     }
@@ -295,7 +297,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * @param left  左侧限定符
     * @param right 右侧限定符
     * @return 负整数、零或正整数
-     */
+    */
     private static int compareQualifier(String left, String right) {
         if (left.equals(right)) {
             return 0;
@@ -313,7 +315,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param qualifier 限定符
     * @return 等级数值
-     */
+    */
     private static int qualifierRank(String qualifier) {
         if (qualifier.isEmpty()) {
             return 6;
@@ -346,7 +348,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     * @param left  左侧限定符
     * @param right 右侧限定符
     * @return 负整数、零或正整数
-     */
+    */
     private static int compareQualifierSegment(String left, String right) {
         String[] leftParts = SEGMENT_SEPARATOR.split(left);
         String[] rightParts = SEGMENT_SEPARATOR.split(right);
@@ -375,7 +377,7 @@ public final class CliVersion implements Comparable<CliVersion> {
     *
     * @param value 待解析字符串
     * @return 整数值，解析失败返回 null
-     */
+    */
     @Nullable
     private static Integer tryParseInt(String value) {
         if (value.isEmpty()) {

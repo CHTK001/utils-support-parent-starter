@@ -13,13 +13,13 @@ public interface RevokeBuilder {
     *
     * @param username 用户名
     * @return this
-     */
+    */
     RevokeBuilder fromUser(String username);
 
     /**
     * 执行撤销权限语句。
     *
     * @return true 撤销成功
-     */
+    */
     boolean execute();
 }

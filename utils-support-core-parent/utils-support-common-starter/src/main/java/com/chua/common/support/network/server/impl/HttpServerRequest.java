@@ -23,11 +23,11 @@ import com.chua.common.support.network.server.request.MultipartParser;
 import com.chua.common.support.spi.ServiceProvider;
 
 /**
-* 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 基于 JDK {@link HttpExchange} 的 {@link ServerRequest} 实现。
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 public class HttpServerRequest implements ServerRequest {
 
     /** Exchange */
@@ -46,7 +46,7 @@ public class HttpServerRequest implements ServerRequest {
     * @param exchange exchange
     * @param long long
     * @param String String
-     */
+    */
     public HttpServerRequest(HttpExchange exchange, long maxRequestSize, String charset) {
         this.exchange = exchange;
         this.maxRequestSize = maxRequestSize;
@@ -240,7 +240,7 @@ public class HttpServerRequest implements ServerRequest {
     *
     * @param value 原始参数片段
     * @return 解码后的参数
-     */
+    */
     private String decode(String value) {
         return URLDecoder.decode(value, defaultCharset);
     }
@@ -249,7 +249,7 @@ public class HttpServerRequest implements ServerRequest {
     * 从 Content-Type 解析字符集，未声明时回退到服务器配置。
     *
     * @return 请求体字符集
-     */
+    */
     private Charset resolveCharset() {
         String contentType = getContentType();
         if (contentType != null) {

@@ -13,19 +13,19 @@ import static com.chua.common.support.constant.ValueConstant.SYMBOL_EMPTY_STRING
 
 
 /**
-* SPI 服务定义构建工具类，用于根据注解信息生成 {@link ServiceDefinition} 实例。
-* <p>
-* 该类会读取实现类上的 {@link Spi}、{@link SpiDescribe}、{@link SpiSupport}、{@link SpiOrder} 等注解，
-* 组装服务名称、描述信息、优先级、默认实现标识以及关联的扩展点信息，供 SPI 解析器统一使用。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * SPI 服务定义构建工具类，用于根据注解信息生成 {@link ServiceDefinition} 实例。
+ * <p>
+ * 该类会读取实现类上的 {@link Spi}、{@link SpiDescribe}、{@link SpiSupport}、{@link SpiOrder} 等注解，
+ * 组装服务名称、描述信息、优先级、默认实现标识以及关联的扩展点信息，供 SPI 解析器统一使用。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class ServiceDefinitionUtils {
 
     /**
     * 服务definition工具。
-     */
+    */
     private ServiceDefinitionUtils() {
     }
 
@@ -36,7 +36,7 @@ public class ServiceDefinitionUtils {
     * @param implType 服务实现类
     * @param resolverType 发现该服务定义的解析器类型
     * @return 构建得到的服务定义列表
-     */
+    */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> implType, Class<?> resolverType) {
         return buildDefinition(service, resolverType, null, implType, null, null);
     }
@@ -49,7 +49,7 @@ public class ServiceDefinitionUtils {
     * @param obj 服务实例对象
     * @param resolverType 发现该服务定义的解析器类型
     * @return 构建得到的服务定义列表
-     */
+    */
     public static List<ServiceDefinition> buildDefinition(String name, Class<?> service, Object obj, Class<?> resolverType) {
         Class<?> aClass = ClassUtils.toType(obj);
         List<ServiceDefinition> serviceDefinitions = buildDefinition(service, resolverType, obj, aClass, null, null);
@@ -67,7 +67,7 @@ public class ServiceDefinitionUtils {
     * @param obj 服务实例对象
     * @param resolverType 发现该服务定义的解析器类型
     * @return 构建得到的服务定义列表
-     */
+    */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Object obj, Class<?> resolverType) {
         Class<?> aClass = ClassUtils.toType(obj);
         return buildDefinition(aClass.getSimpleName().replace(service.getSimpleName(), ""), service, obj, resolverType);
@@ -83,7 +83,7 @@ public class ServiceDefinitionUtils {
     * @param alias 服务别名
     * @param url 服务定义来源地址
     * @return 构建得到的服务定义列表
-     */
+    */
     public static List<ServiceDefinition> buildDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
         if (null == implType) {
             implType = ClassUtils.toType(obj);
@@ -122,7 +122,7 @@ public class ServiceDefinitionUtils {
     * @param alias 服务别名
     * @param url 服务定义来源地址
     * @return 枚举对应的服务定义列表
-     */
+    */
     private static List<ServiceDefinition> buildEnumDefinition(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, String alias, URL url) {
         if (StringUtils.isEmpty(alias)) {
             return Collections.emptyList();
@@ -145,7 +145,7 @@ public class ServiceDefinitionUtils {
     *
     * @param implType 服务实现类
     * @return 满足条件则返回 {@code true}
-     */
+    */
     private static boolean isCondition(Class<?> implType) {
         SpiIgnore spiIgnore = implType.getDeclaredAnnotation(SpiIgnore.class);
         if (null != spiIgnore) {
@@ -189,7 +189,7 @@ public class ServiceDefinitionUtils {
     * @param implType 服务实现类
     * @param url 服务定义来源地址
     * @return 构造得到的服务定义集合
-     */
+    */
     private static Collection<? extends ServiceDefinition> buildDefinitionType(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url) {
         if (!isCondition(implType)) {
             return Collections.emptyList();
@@ -217,7 +217,7 @@ public class ServiceDefinitionUtils {
     *
     * @param implType 服务实现类
     * @return 服务名称数组
-     */
+    */
     private static String[] getName(Class<?> implType) {
         if(null == implType) {
             return SYMBOL_EMPTY_STRING_ARRAY;
@@ -253,7 +253,7 @@ public class ServiceDefinitionUtils {
     * @param alias 服务别名
     * @param order 服务优先级
     * @return 构建得到的服务定义对象
-     */
+    */
     @SuppressWarnings("ALL")
     public static ServiceDefinition buildDefinitionAlias(Class<?> service, Class<?> resolverType, Object obj, Class<?> implType, URL url, String alias, int order) {
         ServiceDefinition serviceDefinition = new ServiceDefinition();
@@ -293,7 +293,7 @@ public class ServiceDefinitionUtils {
     *
     * @param implType 服务实现类
     * @return 服务优先级，未配置时返回 0
-     */
+    */
     private static int getOrder(Class<?> implType) {
         SpiOrder spiOrder = implType.getDeclaredAnnotation(SpiOrder.class);
         if (null != spiOrder) {

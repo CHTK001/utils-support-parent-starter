@@ -19,13 +19,13 @@ public class SkillDefinition {
     /** 技能名称 */
     /**
     * 名称
-     */
+    */
     private final String name;
 
     /** 技能描述 */
     /**
     * 描述
-     */
+    */
     private final String description;
 
     /** 参数 schema */
@@ -41,7 +41,7 @@ public class SkillDefinition {
     * @param arguments List
     * @param arguments arguments
     * @param handler SkillHandler
-     */
+    */
     public SkillDefinition(String name, String description, List<SkillArgumentSchema> arguments, SkillHandler handler) {
         this.name = name;
         this.description = description;
@@ -74,7 +74,7 @@ public class SkillDefinition {
     *
     * @param args 调用参数
     * @return 执行结果
-     */
+    */
     public SkillResult execute(Map<String, Object> args) {
         if (handler == null) {
             return SkillResult.error("技能处理器未设置");
@@ -89,7 +89,7 @@ public class SkillDefinition {
     * @param description 技能描述
     * @param content     技能文本内容（SKILL.md 形式）
     * @return 技能定义
-     */
+    */
     public static SkillDefinition text(String name, String description, String content) {
         SkillHandler handler = args -> SkillResult.success(content);
         return new SkillDefinition(name, description, null, handler);
@@ -102,7 +102,7 @@ public class SkillDefinition {
     * @param description 技能描述
     * @param path        技能文件路径
     * @return 技能定义
-     */
+    */
     public static SkillDefinition skill(String name, String description, String path) {
         SkillHandler handler = args -> {
             try {

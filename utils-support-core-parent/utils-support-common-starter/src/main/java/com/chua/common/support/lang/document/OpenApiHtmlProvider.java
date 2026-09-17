@@ -69,7 +69,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /**
     * 仅渲染 HTML，便于测试或预览。
-     */
+    */
     public String render(OpenApiDocumentData data) {
         String title = data.getTitle() != null ? data.getTitle() : "Open API 接口文档";
         String version = data.getVersion() != null ? data.getVersion() : "1.0.0";
@@ -260,7 +260,9 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
         return s == null ? "" : s;
     }
 
-    /** MethodToClass 映射 HTTP 方法到 CSS 类名（语义色） */
+    /**
+    * MethodToClass 映射 HTTP 方法到 CSS 类名（语义色）
+    */
     private static String methodToClass(String method) {
         return switch (method.toUpperCase()) {
             case "GET"    -> "method-get";
@@ -296,7 +298,7 @@ public class OpenApiHtmlProvider implements OpenApiDocumentProvider {
 
     /**
     * 样式 (从泛微E10_Open_API接口文档.html 提取并简化)。
-     */
+    */
     private static final String STYLE = """
             * { box-sizing: border-box; }
             html { overflow-x:hidden; scroll-behavior:smooth; }

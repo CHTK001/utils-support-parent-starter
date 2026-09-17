@@ -3,12 +3,12 @@ package com.chua.common.support.network.ssl;
 import lombok.Data;
 
 /**
-* ACME 连接结果。
-*
-* @author CH
-* @since 4.0.0.42
-* @version 1.0.0
- */
+ * ACME 连接结果。
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @version 1.0.0
+*/
 @Data
 public class AcmeConnectionResult {
 
@@ -26,7 +26,7 @@ public class AcmeConnectionResult {
 
     /**
     * 创建成功结果
-     */
+    */
     public static AcmeConnectionResult success(String accountUrl, String privateKeyPem) {
         AcmeConnectionResult result = new AcmeConnectionResult();
         result.setSuccess(true);
@@ -37,7 +37,7 @@ public class AcmeConnectionResult {
 
     /**
     * 创建失败结果
-     */
+    */
     public static AcmeConnectionResult fail(String error) {
         AcmeConnectionResult result = new AcmeConnectionResult();
         result.setSuccess(false);

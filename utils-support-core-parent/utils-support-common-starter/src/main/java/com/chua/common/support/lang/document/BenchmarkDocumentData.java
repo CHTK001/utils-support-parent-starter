@@ -26,70 +26,70 @@ public class BenchmarkDocumentData extends DocumentData {
 
     /**
     * 环境描述（OS / JDK / CPU / 内存）。
-     */
+    */
     private String environment;
 
     /**
     * 压测工具描述，如 "k6 v2.2.0（真并发 flash 模式）"。
-     */
+    */
     private String tool;
 
     /**
     * 场景说明（如 "GET /echo（128B），N 虚拟用户同时各发 1 次请求"）。
-     */
+    */
     private String scenario;
 
     /**
     * 压测结果行。
-     */
+    */
     private List<BenchmarkRow> rows = new ArrayList<>();
 
     /**
     * 压测场景行：实现 × 并发等级 × 指标。
-     */
+    */
     @Data
     public static class BenchmarkRow {
 
         /**
         * 服务器实现（jdk / nio / netty ...）。
-         */
+        */
         private String implementation;
 
         /**
         * 并发数（虚拟用户数 / 同时连接数）。
-         */
+        */
         private int concurrency;
 
         /**
         * 总请求数。
-         */
+        */
         private long total;
 
         /**
         * 失败请求数。
-         */
+        */
         private long fails;
 
         /**
         * 吞吐量（req/s）。
-         */
+        */
         private double rps;
 
         /**
         * p95 延迟（毫秒）。
-         */
+        */
         private double p95;
 
         /**
         * p99 延迟（毫秒）。
-         */
+        */
         private double p99;
 
         /**
         * 成功率（百分比，0~100）。
         *
         * @return 成功率
-         */
+        */
         public double successRate() {
             return total > 0 ? (total - fails) * 100.0 / total : 0.0;
         }
@@ -109,7 +109,7 @@ public class BenchmarkDocumentData extends DocumentData {
     * @param implementation 服务器实现名称
     * @param concurrency    并发数（VUS）
     * @return 压测结果行
-     */
+    */
     @SuppressWarnings("unchecked")
     public static BenchmarkRow fromK6SummaryJson(String k6SummaryJson, String implementation, int concurrency) {
         Map<String, Object> root = Json.fromJson(k6SummaryJson, Map.class);

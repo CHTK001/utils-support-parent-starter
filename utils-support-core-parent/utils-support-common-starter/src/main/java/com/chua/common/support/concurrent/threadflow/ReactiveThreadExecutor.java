@@ -24,7 +24,7 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
     * @param int int
     * @param long long
     * @param TimeUnit TimeUnit
-     */
+    */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit) {
         this(strategy, threshold, timeout, timeUnit, -1);
     }
@@ -36,7 +36,7 @@ public class ReactiveThreadExecutor extends AbstractThreadExecutor {
     * @param timeout timeout
     * @param timeUnit timeUnit
     * @param maxConcurrent maxConcurrent
-     */
+    */
     public ReactiveThreadExecutor(ThreadStrategy strategy, int threshold, long timeout, TimeUnit timeUnit,
                                   int maxConcurrent) {
         super(strategy, threshold, timeout, timeUnit, maxConcurrent);

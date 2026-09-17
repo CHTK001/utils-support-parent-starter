@@ -31,7 +31,9 @@ import java.util.regex.Pattern;
 @Spi("nmap")
 public class NmapTool extends CliTool {
 
-    /** nmap 版本输出格式：Nmap version 7.94 ( https://nmap.org ) */
+    /**
+    * nmap 版本输出格式：Nmap version 7.94 ( https://nmap.org )
+    */
     private static final Pattern VERSION_PATTERN =
             Pattern.compile("Nmap version (\\d[\\d.]*)");
 
@@ -60,7 +62,7 @@ public class NmapTool extends CliTool {
     *
     * @param host 目标 IP 或域名
     * @return 执行结果，stdout 为 nmap 标准输出
-     */
+    */
     @Nonnull
     public CmdResult tcpConnectScan(@Nonnull String host) {
         return execute(120, TimeUnit.SECONDS,
@@ -72,7 +74,7 @@ public class NmapTool extends CliTool {
     *
     * @param host 目标 IP 或域名
     * @return 执行结果
-     */
+    */
     @Nonnull
     public CmdResult tcpQuickScan(@Nonnull String host) {
         return execute(30, TimeUnit.SECONDS,
@@ -90,7 +92,7 @@ public class NmapTool extends CliTool {
     *
     * @param stdout nmap 标准输出
     * @return 解析出的端口信息数组（JSON 序列化后存库）
-     */
+    */
     @Nonnull
     public java.util.List<java.util.Map<String, String>> parseOpenPorts(@Nonnull String stdout) {
         java.util.List<java.util.Map<String, String>> ports = new java.util.ArrayList<>();

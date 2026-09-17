@@ -18,21 +18,21 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
-* 提供字节数组与常见基本类型之间相互转换的工具类。
-* <p>
-* 该类封装了十六进制字符串解析、字节序转换、补码计算以及数值类型与字节数组之间的互转功能，
-* 适用于底层协议解析、数据序列化和字节流处理等场景。
-*
-* @author CH
-* @版本 1.0.0
-* @since 2020/12/26
- */
+ * 提供字节数组与常见基本类型之间相互转换的工具类。
+ * <p>
+ * 该类封装了十六进制字符串解析、字节序转换、补码计算以及数值类型与字节数组之间的互转功能，
+ * 适用于底层协议解析、数据序列化和字节流处理等场景。
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2020/12/26
+*/
 @Slf4j
 public class ByteUtils extends BitUtils {
 
     /**
     * byte工具。
-     */
+    */
     private ByteUtils() {}
 
     /** Digits */
@@ -46,7 +46,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param i 需要转换的字符索引
     * @return 对应的字符
-     */
+    */
     public static char toDigit(int i) {
         return DIGITS[i];
     }
@@ -58,7 +58,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param s 待解析的十六进制字符串
     * @return 解析后的字节数组，若输入无效则返回 {@code null}
-     */
+    */
     public static byte[] parseHexStringToArray(String s) {
         if (StringUtils.isEmpty(s)) {
             return null;
@@ -86,7 +86,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param s 单个十六进制字符串，例如 "FF"
     * @return 转换后的字节值
-     */
+    */
     public static byte parseHexString(String s) {
         int i = Integer.parseInt(s, 16);
         return (byte) i;
@@ -97,7 +97,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b 待转换的字节
     * @return 二位大写十六进制字符串
-     */
+    */
     public static String toHexString(byte b) {
         String s = Integer.toHexString(b & 0xFF);
         int len = s.length();
@@ -114,7 +114,7 @@ public class ByteUtils extends BitUtils {
     * @param prefix 每个字节前缀，如 "0x"
     * @param suffix 每个字节后缀，如 " "
     * @return 转换后的字符串，输入为空时返回 {@code null}
-     */
+    */
     public static String toHexString(byte[] bytes, String prefix, String suffix) {
         if (bytes == null || bytes.length == 0) {
             return null;
@@ -131,7 +131,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes 需要转换的字节数组
     * @return 转换后的十六进制字符串，输入为空时返回 {@code null}
-     */
+    */
     public static String toHexString(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;
@@ -150,7 +150,7 @@ public class ByteUtils extends BitUtils {
     * @param prefix 每个字节前缀
     * @param suffix 每个字节后缀
     * @return 包含前后缀的十六进制字符串
-     */
+    */
     public static String toHexString(byte b, String prefix, String suffix) {
         String s = Integer.toHexString(b & 0xFF);
         int len = s.length();
@@ -166,7 +166,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源双精度浮点数
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(double source) {
         try {
             return ByteBuffer.allocate(DOUBLE_SIZE).putDouble(source).array();
@@ -181,7 +181,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param buffer 源字节缓冲区
     * @return 剩余字节内容
-     */
+    */
     public static byte[] asBytes(ByteBuffer buffer) {
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
@@ -193,7 +193,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源单精度浮点数
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(float source) {
         try {
             return ByteBuffer.allocate(FLOAT_SIZE).putFloat(source).array();
@@ -208,7 +208,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源长整型值
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(long source) {
         try {
             return ByteBuffer.allocate(LONG_SIZE).putLong(source).array();
@@ -231,7 +231,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源短整型值
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(short source) {
         try {
             return ByteBuffer.allocate(SHORT_SIZE).putShort(source).array();
@@ -248,7 +248,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源整型值
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(int source) {
         try {
             return ByteBuffer.allocate(INT_SIZE).putInt(source).array();
@@ -268,7 +268,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param c 源字符
     * @return 对应的字节数组
-     */
+    */
     public static byte[] asBytes(char c) {
         try {
             return ByteBuffer.allocate(CHAR_SIZE).putChar(c).array();
@@ -285,7 +285,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源字符串
     * @return 对应的 UTF-8 字节数组，输入为空时返回空字节数组常量
-     */
+    */
     public static byte[] asBytes(String source) {
         if (StringUtils.isNullOrEmpty(source)) {
             return SYMBOL_EMPTY_BYTE_ARRAY;
@@ -298,7 +298,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source 源布尔值
     * @return 以整数形式编码的字节数组，{@code true} 对应 1，{@code false} 对应 0
-     */
+    */
     public static byte[] asBytes(boolean source) {
         int tmp = !source ? 0 : 1;
         return ByteBuffer.allocate(INT_SIZE).putInt(tmp).array();
@@ -310,7 +310,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static byte[] complementArithmetic(int b) {
         int bit = INT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitIntString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
@@ -328,7 +328,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static byte[] complementArithmetic(long b) {
         int bit = INT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitLongString(Long.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
@@ -346,7 +346,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static byte[] complementArithmetic(short b) {
         int bit = SHORT_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitShortString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item.trim())).collect(Collectors.toList());
@@ -364,7 +364,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static byte[] complementArithmetic(byte b) {
         int bit = BYTE_SIZE * BIT_LENGTH;
         List<String> split = Arrays.stream(asBitByteString(Integer.toBinaryString(-b)).split("")).filter(item -> !StringUtils.isNullOrEmpty(item)).collect(Collectors.toList());
@@ -382,7 +382,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static BigInteger complementArithmeticValue(int b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
         return BigInteger.valueOf(((b > Integer.MAX_VALUE || b < Integer.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
@@ -393,7 +393,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static BigInteger complementArithmeticValue(long b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
         return BigInteger.valueOf(((b > Long.MAX_VALUE || b < Long.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
@@ -404,7 +404,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static BigInteger complementArithmeticValue(short b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
         return BigInteger.valueOf(((b > Short.MAX_VALUE || b < Short.MIN_VALUE) ? -1 : 1) * Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
@@ -415,7 +415,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return       
-     */
+    */
     public static BigInteger complementArithmeticValue(byte b) {
         Byte[] bytes = asBytes(complementArithmetic(b));
         return BigInteger.valueOf(Long.parseLong(Joiner.on("").join((Object[]) bytes), 2));
@@ -429,7 +429,7 @@ public class ByteUtils extends BitUtils {
     * @param offset       
     * @param length             
     * @return                         0
-     */
+    */
     public static BigDecimal toBigDecimal(byte[] bytes, int offset, int length) {
         byte[] target = new byte[length];
         System.arraycopy(bytes, offset, target, 0, length);
@@ -454,7 +454,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return boolean
-     */
+    */
     public static boolean toBoolean(byte[] bytes) {
         if (bytes == null) {
             return false;
@@ -475,7 +475,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return char 值
-     */
+    */
     public static char toChar(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -489,7 +489,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return char 值
-     */
+    */
     public static char[] toChars(byte[] bytes) {
         if (null == bytes || bytes.length < CHAR_SIZE) {
             throw new IndexOutOfBoundsException();
@@ -502,7 +502,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return double 值
-     */
+    */
     public static double toDouble(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -516,7 +516,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return float 值
-     */
+    */
     public static float toFloat(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -530,7 +530,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return int 值
-     */
+    */
     public static int toInt(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -544,7 +544,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return long 值
-     */
+    */
     public static long toLong(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -557,7 +557,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes byte array
     * @return short 值
-     */
+    */
     public static short toShort(byte[] bytes) {
         if (null == bytes) {
             throw new IndexOutOfBoundsException();
@@ -571,7 +571,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes             
     * @return          
-     */
+    */
     public static String toString(byte[] bytes) {
         return new String(bytes, UTF_8);
     }
@@ -582,7 +582,7 @@ public class ByteUtils extends BitUtils {
     * @param bytes             
     * @return          
     * @param charset 字符集
-     */
+    */
     public static String toString(byte[] bytes, Charset charset) {
         return new String(bytes, charset);
     }
@@ -593,7 +593,7 @@ public class ByteUtils extends BitUtils {
     * @param bytes             
     * @return          
     * @param charset 字符集
-     */
+    */
     public static String toString(byte[] bytes, String charset) {
         return new String(bytes, Charset.forName(charset));
     }
@@ -604,7 +604,7 @@ public class ByteUtils extends BitUtils {
     * @param size        
     * @param bytes          
     * @return                   
-     */
+    */
     private static byte[] createBytes(int size, byte[] bytes) {
         byte[] item = new byte[size];
         int length = bytes.length;
@@ -623,7 +623,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param source          
     * @return          
-     */
+    */
     private static Byte[] asBytes(byte[] source) {
         Byte[] result = new Byte[source.length];
         for (int i = 0; i < source.length; i++) {
@@ -638,7 +638,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param str          
     * @return                      
-     */
+    */
     public static byte[] utf8Bytes(CharSequence str) {
         return bytes(str, UTF_8);
     }
@@ -649,7 +649,7 @@ public class ByteUtils extends BitUtils {
     * @param str              
     * @param charset                                                                      
     * @return                      
-     */
+    */
     public static byte[] bytes(CharSequence str, Charset charset) {
         if (str == null) {
             return null;
@@ -667,7 +667,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param obj       
     * @return          
-     */
+    */
     public static String utf8Str(Object obj) {
         return str(obj, UTF_8);
     }
@@ -679,7 +679,7 @@ public class ByteUtils extends BitUtils {
     * @param obj           
     * @param charset          
     * @return          
-     */
+    */
     public static String str(Object obj, Charset charset) {
         if (null == obj) {
             return null;
@@ -706,7 +706,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b       
     * @return hex
-     */
+    */
     public static String asHex(byte b) {
         return Hex.encodeHexString(new byte[]{b});
     }
@@ -716,7 +716,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes             
     * @return hex
-     */
+    */
     public static String asHex(byte[] bytes) {
         return Hex.encodeHexString(bytes);
     }
@@ -726,7 +726,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n int
     * @return byte[]
-     */
+    */
     public static byte[] intToByteBig(int n) {
         byte[] b = new byte[4];
         b[3] = (byte) (n & 0xff);
@@ -741,7 +741,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n int
     * @return byte[]
-     */
+    */
     public static byte[] intToByteLittle(int n) {
         byte[] b = new byte[4];
         b[0] = (byte) (n & 0xff);
@@ -756,7 +756,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes
     * @return
-     */
+    */
     public static int bytes2IntLittle(byte[] bytes) {
         int int1 = bytes[0] & 0xff;
         int int2 = (bytes[1] & 0xff) << 8;
@@ -771,7 +771,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param bytes
     * @return
-     */
+    */
     public static int bytes2IntBig(byte[] bytes) {
         int int1 = bytes[3] & 0xff;
         int int2 = (bytes[2] & 0xff) << 8;
@@ -786,7 +786,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n short
     * @return byte[]
-     */
+    */
     public static byte[] shortToByteBig(short n) {
         byte[] b = new byte[2];
         b[1] = (byte) (n & 0xff);
@@ -799,7 +799,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n short
     * @return byte[]
-     */
+    */
     public static byte[] shortToByteLittle(short n) {
         byte[] b = new byte[2];
         b[0] = (byte) (n & 0xff);
@@ -812,7 +812,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b
     * @return
-     */
+    */
     public static short byteToShortLittle(byte[] b) {
         return (short) (((b[1] << 8) | b[0] & 0xff));
     }
@@ -822,7 +822,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param b
     * @return
-     */
+    */
     public static short byteToShortBig(byte[] b) {
         return (short) (((b[0] << 8) | b[1] & 0xff));
     }
@@ -832,7 +832,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n
     * @return
-     */
+    */
     public static byte[] longToBytesBig(long n) {
         byte[] b = new byte[8];
         b[7] = (byte) (n & 0xff);
@@ -851,7 +851,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param n
     * @return
-     */
+    */
     public static byte[] longToBytesLittle(long n) {
         byte[] b = new byte[8];
         b[0] = (byte) (n & 0xff);
@@ -870,7 +870,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param array
     * @return
-     */
+    */
     public static long bytesToLongLittle(byte[] array) {
         return ((((long) array[0] & 0xff) << 0)
                 | (((long) array[1] & 0xff) << 8)
@@ -887,7 +887,7 @@ public class ByteUtils extends BitUtils {
     *
     * @param array
     * @return
-     */
+    */
     public static long bytesToLongBig(byte[] array) {
         return ((((long) array[0] & 0xff) << 56)
                 | (((long) array[1] & 0xff) << 48)

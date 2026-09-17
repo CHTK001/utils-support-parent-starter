@@ -61,42 +61,42 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 对象池配置
-     */
+    */
     private final ObjectPoolConfig config;
 
     /**
     * 对象工厂
-     */
+    */
     private final ObjectFactory<T> factory;
 
     /**
     * 空闲对象队列（FIFO）
-     */
+    */
     private final LinkedList<PooledObject<T>> idleObjects = new LinkedList<>();
 
     /**
     * 所有对象（含借出+空闲）
-     */
+    */
     private final List<PooledObject<T>> allObjects = new ArrayList<>();
 
     /**
     * 锁
-     */
+    */
     private final ReentrantLock lock = new ReentrantLock();
 
     /**
     * 等待借出的条件
-     */
+    */
     private final Condition borrowCondition = lock.newCondition();
 
     /**
     * 空闲检测线程
-     */
+    */
     private Thread evictionThread;
 
     /**
     * 池是否已关闭
-     */
+    */
     private volatile boolean closed = false;
 
     /**
@@ -106,7 +106,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     * 适用于快速创建场景，复杂场景请使用 {@link #GenericObjectPool(ObjectPoolConfig, ObjectFactory)}。
     *
     * @param factory 对象工厂
-     */
+    */
     public GenericObjectPool(ObjectFactory<T> factory) {
         this(ObjectPoolConfig.builder().build(), factory);
     }
@@ -116,7 +116,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     *
     * @param config  池配置
     * @param factory 对象工厂（必须实现 create/initObject/destroy/validate）
-     */
+    */
     public GenericObjectPool(ObjectPoolConfig config, ObjectFactory<T> factory) {
         this.config = config;
         this.factory = factory;
@@ -293,7 +293,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     * 获取池状态信息
     *
     * @return 状态摘要字符串
-     */
+    */
     public String getStats() {
         lock.lock();
         try {
@@ -310,7 +310,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 从空闲队列取出一个可用对象
-     */
+    */
     private PooledObject<T> pollIdleObject() {
         Iterator<PooledObject<T>> it = idleObjects.iterator();
         while (it.hasNext()) {
@@ -338,7 +338,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 查找对象对应的 PooledObject
-     */
+    */
     private PooledObject<T> findPooled(T object) {
         for (PooledObject<T> p : allObjects) {
             if (p.getObject() == object) {
@@ -350,7 +350,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 销毁 PooledObject 并从 allObjects 移除
-     */
+    */
     private void destroyPooled(PooledObject<T> pooled) {
         pooled.setStatus(PooledObject.Status.INVALID);
         allObjects.remove(pooled);
@@ -359,7 +359,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 静默销毁对象（不抛异常）
-     */
+    */
     private void destroyObjectQuietly(PooledObject<T> pooled) {
         try {
             factory.destroy(pooled.getObject());
@@ -369,14 +369,14 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 通知等待借出的线程
-     */
+    */
     private void signalBorrowers() {
         borrowCondition.signalAll();
     }
 
     /**
     * 预分配 minIdle 个对象
-     */
+    */
     private void preallocate() {
         try {
             for (int i = 0; i < config.getMinIdle(); i++) {
@@ -398,7 +398,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
     *
     * @return 初始化完成的对象
     * @throws Exception 创建或初始化失败
-     */
+    */
     private T createAndInit() throws Exception {
         T obj = factory.create();
         try {
@@ -416,7 +416,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 启动空闲检测线程
-     */
+    */
     private void startEvictionThread() {
         evictionThread = ThreadUtils.newThread(() -> {
             while (!closed && !Thread.currentThread().isInterrupted()) {
@@ -430,7 +430,7 @@ public class GenericObjectPool<T> implements ObjectPool<T> {
 
     /**
     * 清理超时空闲对象
-     */
+    */
     private void evictIdleObjects() {
         lock.lock();
         try {

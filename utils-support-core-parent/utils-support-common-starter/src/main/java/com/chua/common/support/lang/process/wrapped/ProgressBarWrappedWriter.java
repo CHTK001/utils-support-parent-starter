@@ -20,7 +20,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
 
     /**
     * 用于跟踪进度的进度条实例。
-     */
+    */
     private final ProgressBar pb;
 
     /**
@@ -28,7 +28,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     *
     * @param out 被包装的底层 Writer。
     * @param pb  用于跟踪进度的 ProgressBar。
-     */
+    */
     public ProgressBarWrappedWriter(Writer out, ProgressBar pb) {
         super(out);
         this.pb = pb;
@@ -39,7 +39,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     *
     * @param c 要写入的字符。
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void write(int c) throws IOException {
         if (c != -1) {
@@ -55,7 +55,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     * @param off  起始偏移量。
     * @param len  要写入的长度。
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         if (len > 0) {
@@ -71,7 +71,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     * @param off 起始偏移量。
     * @param len 要写入的长度。
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void write(String str, int off, int len) throws IOException {
         if (len > 0) {
@@ -85,7 +85,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     *
     * @param str 要写入的字符串。
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void write(String str) throws IOException {
         if (str != null && !str.isEmpty()) {
@@ -98,7 +98,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     * 刷新底层流并刷新进度条。
     *
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void flush() throws IOException {
         out.flush();
@@ -109,7 +109,7 @@ public class ProgressBarWrappedWriter extends FilterWriter {
     * 关闭底层流并关闭进度条。
     *
     * @throws IOException 如果发生 I/O 错误。
-     */
+    */
     @Override
     public void close() throws IOException {
         out.close();

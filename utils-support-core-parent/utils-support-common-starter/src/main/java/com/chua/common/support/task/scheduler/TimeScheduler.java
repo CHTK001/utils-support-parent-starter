@@ -4,37 +4,37 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 时间调度管理器
-*
-* <p>调度框架的门面类，提供简洁易用的任务调度 API。内部封装了 {@link SchedulerProvider} 的
-* 调度能力，对外提供 Cron 调度、固定频率调度等便捷方法。
-*
-* <p>核心能力：
-* <ul>
-*   <li><strong>Cron 调度</strong>：通过 {@link #scheduleCron(Runnable, String)} 注册 Cron 任务</li>
-*   <li><strong>固定频率调度</strong>：通过 {@link #scheduleFixedRate(Runnable, long, TimeUnit)} 注册固定间隔任务</li>
-*   <li><strong>任务管理</strong>：支持取消任务、查询运行状态、获取所有调度任务</li>
-*   <li><strong>生命周期</strong>：通过 {@link #shutdown()} 优雅关闭所有调度资源</li>
-* </ul>
-*
-* <p>使用示例：
-* <pre>{@code
-* TimeScheduler scheduler = TimeScheduler.of();
-* scheduler.scheduleCron("daily-task", () -> log("执行"), "0 0 12 * * ?");
-* scheduler.scheduleFixedRate("heartbeat", () -> log("心跳"), 5, TimeUnit.SECONDS);
-* scheduler.shutdown();
-* }</pre>"心跳"), 5, TimeUnit.SECONDS);
-* scheduler.shutdown();
-* }</pre>
-*
-* @author CH
-* @since 1.0.0
- */
+ * 时间调度管理器
+ *
+ * <p>调度框架的门面类，提供简洁易用的任务调度 API。内部封装了 {@link SchedulerProvider} 的
+ * 调度能力，对外提供 Cron 调度、固定频率调度等便捷方法。
+ *
+ * <p>核心能力：
+ * <ul>
+ *   <li><strong>Cron 调度</strong>：通过 {@link #scheduleCron(Runnable, String)} 注册 Cron 任务</li>
+ *   <li><strong>固定频率调度</strong>：通过 {@link #scheduleFixedRate(Runnable, long, TimeUnit)} 注册固定间隔任务</li>
+ *   <li><strong>任务管理</strong>：支持取消任务、查询运行状态、获取所有调度任务</li>
+ *   <li><strong>生命周期</strong>：通过 {@link #shutdown()} 优雅关闭所有调度资源</li>
+ * </ul>
+ *
+ * <p>使用示例：
+ * <pre>{@code
+ * TimeScheduler scheduler = TimeScheduler.of();
+ * scheduler.scheduleCron("daily-task", () -> log("执行"), "0 0 12 * * ?");
+ * scheduler.scheduleFixedRate("heartbeat", () -> log("心跳"), 5, TimeUnit.SECONDS);
+ * scheduler.shutdown();
+ * }</pre>"心跳"), 5, TimeUnit.SECONDS);
+ * scheduler.shutdown();
+ * }</pre>
+ *
+ * @author CH
+ * @since 1.0.0
+*/
 public class TimeScheduler {
 
     /**
     * 底层调度器提供者
-     */
+    */
     private final SchedulerProvider provider;
 
     /**
@@ -43,14 +43,14 @@ public class TimeScheduler {
     * <p>使用 {@link JdkSchedulerProvider} 作为默认调度实现。</p>
     *
     * @return TimeScheduler 实例
-     */
+    */
     public static TimeScheduler of() {
         return new TimeScheduler();
     }
 
     /**
     * 创建默认的时间调度管理器。
-     */
+    */
     public TimeScheduler() {
         this(new JdkSchedulerProvider());
     }
@@ -61,7 +61,7 @@ public class TimeScheduler {
     * <p>允许注入自定义的 {@link SchedulerProvider} 实现，用于扩展或替换调度策略。
     *
     * @param provider 调度器提供者
-     */
+    */
     public TimeScheduler(SchedulerProvider provider) {
         this.provider = provider;
     }
@@ -73,7 +73,7 @@ public class TimeScheduler {
     * @param task    待执行的任务逻辑
     * @param trigger 触发策略
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask schedule(String id, Runnable task, Trigger trigger) {
         return provider.schedule(id, task, trigger);
     }
@@ -84,7 +84,7 @@ public class TimeScheduler {
     * @param task    待执行的任务逻辑
     * @param trigger 触发策略
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask schedule(Runnable task, Trigger trigger) {
         return provider.schedule(task, trigger);
     }
@@ -98,7 +98,7 @@ public class TimeScheduler {
     * @param task 待执行的任务逻辑
     * @param cron 标准 6 字段 Cron 表达式
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask scheduleCron(String id, Runnable task, String cron) {
         return provider.schedule(id, task, new CronTrigger(cron));
     }
@@ -109,7 +109,7 @@ public class TimeScheduler {
     * @param task 待执行的任务逻辑
     * @param cron 标准 6 字段 Cron 表达式
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask scheduleCron(Runnable task, String cron) {
         return provider.schedule(task, new CronTrigger(cron));
     }
@@ -122,7 +122,7 @@ public class TimeScheduler {
     * @param interval 执行间隔
     * @param timeUnit 时间单位
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask scheduleFixedRate(String id, Runnable task, long interval, TimeUnit timeUnit) {
         return scheduleFixedRate(id, task, 0, interval, timeUnit);
     }
@@ -136,7 +136,7 @@ public class TimeScheduler {
     * @param interval     执行间隔
     * @param timeUnit     时间单位
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask scheduleFixedRate(String id, Runnable task, long initialDelay, long interval, TimeUnit timeUnit) {
         return provider.schedule(id, task, new FixedTrigger(initialDelay, interval, timeUnit));
     }
@@ -148,7 +148,7 @@ public class TimeScheduler {
     * @param interval 执行间隔
     * @param timeUnit 时间单位
     * @return 已调度的任务实例
-     */
+    */
     public ScheduledTask scheduleFixedRate(Runnable task, long interval, TimeUnit timeUnit) {
         return provider.schedule(task, new FixedTrigger(interval, timeUnit));
     }
@@ -162,7 +162,7 @@ public class TimeScheduler {
     * @param id      任务唯一标识
     * @param trigger 新的触发策略
     * @return 重新调度后的任务实例，不存在返回 {@code null}
-     */
+    */
     public ScheduledTask reschedule(String id, Trigger trigger) {
         return provider.reschedule(id, trigger);
     }
@@ -173,7 +173,7 @@ public class TimeScheduler {
     * @param id   任务唯一标识
     * @param cron 新的 Cron 表达式
     * @return 重新调度后的任务实例，不存在返回 {@code null}
-     */
+    */
     public ScheduledTask rescheduleCron(String id, String cron) {
         return provider.reschedule(id, new CronTrigger(cron));
     }
@@ -185,7 +185,7 @@ public class TimeScheduler {
     * @param interval 新的执行间隔
     * @param timeUnit 时间单位
     * @return 重新调度后的任务实例，不存在返回 {@code null}
-     */
+    */
     public ScheduledTask rescheduleFixedRate(String id, long interval, TimeUnit timeUnit) {
         return provider.reschedule(id, new FixedTrigger(interval, timeUnit));
     }
@@ -195,7 +195,7 @@ public class TimeScheduler {
     *
     * @param id 任务唯一标识
     * @return 如果存在该任务并成功取消返回 {@code true}，否则返回 {@code false}
-     */
+    */
     public boolean cancel(String id) {
         return provider.cancel(id);
     }
@@ -205,7 +205,7 @@ public class TimeScheduler {
     *
     * @param id 任务唯一标识
     * @return 如果任务存在且未被取消返回 {@code true}，否则返回 {@code false}
-     */
+    */
     public boolean isRunning(String id) {
         return provider.isRunning(id);
     }
@@ -214,7 +214,7 @@ public class TimeScheduler {
     * 获取所有已调度的任务
     *
     * @return 已调度任务列表
-     */
+    */
     public List<ScheduledTask> getScheduledTasks() {
         return provider.getScheduledTasks();
     }
@@ -223,7 +223,7 @@ public class TimeScheduler {
     * 关闭调度管理器
     *
     * <p>委托给底层的 {@link SchedulerProvider#shutdown()} 执行优雅关闭。
-     */
+    */
     public void shutdown() {
         provider.shutdown();
     }
@@ -232,7 +232,7 @@ public class TimeScheduler {
     * 获取底层调度器提供者
     *
     * @return 调度器提供者实例
-     */
+    */
     public SchedulerProvider getProvider() {
         return provider;
     }

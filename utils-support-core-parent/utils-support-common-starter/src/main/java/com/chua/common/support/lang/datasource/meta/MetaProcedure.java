@@ -42,7 +42,7 @@ public interface MetaProcedure {
     * 列出当前 catalog/schema 下的所有存储过程和函数。
     *
     * @return 存储过程定义列表
-     */
+    */
     List<ProcedureDef> list();
 
     /**
@@ -50,7 +50,7 @@ public interface MetaProcedure {
     *
     * @param procedureName 存储过程名
     * @return 存储过程定义
-     */
+    */
     ProcedureDef get(String procedureName);
 
     /**
@@ -58,7 +58,7 @@ public interface MetaProcedure {
     *
     * @param procedureName 存储过程名
     * @return 创建存储过程构建器
-     */
+    */
     ProcedureCreateBuilder create(String procedureName);
 
     /**
@@ -66,7 +66,7 @@ public interface MetaProcedure {
     *
     * @param procedureName 存储过程名
     * @return true 删除成功
-     */
+    */
     boolean drop(String procedureName);
 
     /**
@@ -74,7 +74,7 @@ public interface MetaProcedure {
     *
     * @param args 参数值列表
     * @return 查询结果（每行为一个 Map）
-     */
+    */
     List<java.util.Map<String, Object>> call(Object... args);
 
     /**
@@ -83,6 +83,6 @@ public interface MetaProcedure {
     * @param procedureName 存储过程名
     * @param args          参数值列表
     * @return 查询结果
-     */
+    */
     List<java.util.Map<String, Object>> call(String procedureName, Object... args);
 }

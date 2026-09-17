@@ -14,6 +14,6 @@ public interface NameAware {
     * 获取名称数组
     *
     * @return 名称数组
-     */
+    */
     String[] named();
 }

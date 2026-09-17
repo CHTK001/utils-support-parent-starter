@@ -13,58 +13,58 @@ import java.net.Socket;
 import java.util.Arrays;
 
 /**
-* 端口侧隧道代理，将本机端口映射到对端隧道服务。
-*
-* <p>实现"内网穿透"的访问方侧：在本地监听一个端口，所有到达该端口的 TCP 连接
-* 都会通过隧道转发到远端服务提供方暴露的服务。访问 {@code localhost:port}
-* 即相当于访问对端电脑上的本地服务。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* SipClient client = SipClient.tcp("tcp://127.0.0.1:19460").token("xxx");
-* // 本地 8080 -> 对端 "web" 服务
-* client.tunnel("web").listen(8080);
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 端口侧隧道代理，将本机端口映射到对端隧道服务。
+ *
+ * <p>实现"内网穿透"的访问方侧：在本地监听一个端口，所有到达该端口的 TCP 连接
+ * 都会通过隧道转发到远端服务提供方暴露的服务。访问 {@code localhost:port}
+ * 即相当于访问对端电脑上的本地服务。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * SipClient client = SipClient.tcp("tcp://127.0.0.1:19460").token("xxx");
+ * // 本地 8080 -> 对端 "web" 服务
+ * client.tunnel("web").listen(8080);
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public class SipTunnelPort {
 
     /**
     * 底层 SIP 客户端
-     */
+    */
     private final SipClient client;
 
     /**
     * 目标隧道服务名称
-     */
+    */
     private final String serviceName;
 
     /**
     * 本地监听端口
-     */
+    */
     private final int localPort;
 
     /**
     * 本地监听地址
-     */
+    */
     private final String localHost;
 
     /**
     * 本地监听 Socket
-     */
+    */
     private ServerSocket serverSocket;
 
     /**
     * 接受连接线程
-     */
+    */
     private Thread acceptThread;
 
     /**
     * 是否正在运行
-     */
+    */
     private volatile boolean running;
 
     /**
@@ -73,7 +73,7 @@ public class SipTunnelPort {
     * @param client      底层 SIP 客户端
     * @param serviceName 目标隧道服务名称
     * @param localPort   本地监听端口
-     */
+    */
     public SipTunnelPort(SipClient client, String serviceName, int localPort) {
         this(client, serviceName, "127.0.0.1", localPort);
     }
@@ -85,7 +85,7 @@ public class SipTunnelPort {
     * @param serviceName 目标隧道服务名称
     * @param localHost   本地监听地址
     * @param localPort   本地监听端口
-     */
+    */
     public SipTunnelPort(SipClient client, String serviceName, String localHost, int localPort) {
         this.client = client;
         this.serviceName = serviceName;
@@ -97,7 +97,7 @@ public class SipTunnelPort {
     * 启动端口侧隧道代理：连接 SipServer 并在本地端口监听。
     *
     * @return 当前代理实例，支持链式调用
-     */
+    */
     public SipTunnelPort start() {
         if (running) {
             return this;
@@ -120,7 +120,7 @@ public class SipTunnelPort {
 
     /**
     * 停止端口侧隧道代理。
-     */
+    */
     public void stop() {
         if (!running) {
             return;
@@ -139,7 +139,7 @@ public class SipTunnelPort {
     * 获取本机可达地址。
     *
     * @return 本机 IP 地址
-     */
+    */
     private String localAddress() {
         try {
             return InetAddress.getLocalHost().getHostAddress();
@@ -150,7 +150,7 @@ public class SipTunnelPort {
 
     /**
     * 接受连接循环。
-     */
+    */
     private void acceptLoop() {
         while (running) {
             try {
@@ -168,7 +168,7 @@ public class SipTunnelPort {
     * 将本地 TCP 连接转发到隧道服务。
     *
     * @param socket 本地连接
-     */
+    */
     private void forward(Socket socket) {
         SipTunnelSession session;
         try {
@@ -189,7 +189,7 @@ public class SipTunnelPort {
     *
     * @param socket  本地连接
     * @param session 隧道会话
-     */
+    */
     private void readSocket(Socket socket, SipTunnelSession session) {
         try (InputStream in = socket.getInputStream()) {
             byte[] buffer = new byte[8192];
@@ -211,7 +211,7 @@ public class SipTunnelPort {
     *
     * @param socket 本地连接
     * @param data   字节数据
-     */
+    */
     private void writeSocket(Socket socket, byte[] data) {
         try {
             OutputStream out = socket.getOutputStream();
@@ -225,7 +225,7 @@ public class SipTunnelPort {
     * 静默关闭连接。
     *
     * @param socket 连接
-     */
+    */
     private void closeQuietly(Socket socket) {
         try {
             socket.close();

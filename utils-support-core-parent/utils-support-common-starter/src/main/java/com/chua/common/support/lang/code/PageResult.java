@@ -49,17 +49,17 @@ public class PageResult<T> implements Serializable {
  private List<T> data;
 
  /**
-  * 空分页结果单例（所有字段为默认值：页码 0、每页 0、总页数 0、总数 0、数据 null），
-  * 供 {@link #empty()} 复用，避免每次创建新对象。
-  */
+ * 空分页结果单例（所有字段为默认值：页码 0、每页 0、总页数 0、总数 0、数据 null），
+ * 供 {@link #empty()} 复用，避免每次创建新对象。
+ */
  private static final PageResult<Object> EMPTY = PageResult.builder().build();
 
  /**
-  * 获取指定类型的空分页结果单例。
-  *
-  * @param <T> 数据元素类型
-  * @return 空分页结果（所有字段为默认值，data 为 null）
-  */
+ * 获取指定类型的空分页结果单例。
+ *
+ * @param <T> 数据元素类型
+ * @return 空分页结果（所有字段为默认值，data 为 null）
+ */
  @SuppressWarnings("unchecked")
  public static <T> PageResult<T> empty() {
  return (PageResult<T>) EMPTY;

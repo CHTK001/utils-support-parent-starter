@@ -20,20 +20,20 @@ import static com.chua.common.support.constant.NumberConstant.DEFAULT_SIZE;
 
 
 /**
-* 集合工具类，提供 列表、设置、映射 等集合的常用操作方法。
-*
-* <p>包含空值检查、遍历、聚合、分组、排序、打印格式化等功能，
-* 部分方法参考 Google Guava 实现。</p>
-*
-* @author CH
-* @since 4.0.0.50
- */
+ * 集合工具类，提供 列表、设置、映射 等集合的常用操作方法。
+ *
+ * <p>包含空值检查、遍历、聚合、分组、排序、打印格式化等功能，
+ * 部分方法参考 Google Guava 实现。</p>
+ *
+ * @author CH
+ * @since 4.0.0.50
+*/
 @Slf4j
 public class CollectionUtils {
 
     /**
     * 集合工具。
-     */
+    */
     private CollectionUtils() {
     }
 
@@ -46,7 +46,7 @@ public class CollectionUtils {
     * @param consumer   每个元素执行的回调，可能为 空
     * @param <T>        集合元素类型
     * @return forEach的结果
-     */
+    */
     public static <T> void forEach(@Nullable Collection<T> collection, @Nullable Consumer<T> consumer) {
         if(isEmpty(collection) || ObjectUtils.isNull(consumer)) {
             return;
@@ -60,7 +60,7 @@ public class CollectionUtils {
     * @param set 待检查的 设置，可能为 空
     * @param <T> 元素类型
     * @return 非空 设置，空 时返回空 设置
-     */
+    */
     @Nonnull
     public static <T> Set<T> emptyIfNull(@Nullable Set<T> set) {
         return (null == set) ? Collections.emptySet() : set;
@@ -72,7 +72,7 @@ public class CollectionUtils {
     * @param list 待检查的 列表，可能为 空
     * @param <T>  元素类型
     * @return 非空 列表，空 时返回空 列表
-     */
+    */
     @Nonnull
     public static <T> List<T> emptyIfNull(@Nullable List<T> list) {
         return (null == list) ? Collections.emptyList() : list;
@@ -85,7 +85,7 @@ public class CollectionUtils {
     * @param indexes    要获取的元素索引数组
     * @param <T>        元素类型
     * @return 对应索引的元素列表
-     */
+    */
     @SuppressWarnings({"unchecked", "all"})
     public static <T> List<T> getAny(Collection<T> collection, int... indexes) {
         final int size = collection.size();
@@ -115,7 +115,7 @@ public class CollectionUtils {
     * @param source 源集合，可能为 空
     * @param <T>    元素类型
     * @return 随机选中的元素，集合为空或 空 返回 空
-     */
+    */
     public static <T> T getRandom(final Collection<T> source) {
         if (isEmpty(source)) {
             return null;
@@ -132,7 +132,7 @@ public class CollectionUtils {
     * @param limit  每组最大元素数
     * @param <T>    元素类型
     * @return 分组后的列表集合
-     */
+    */
     public static <T> List<List<T>> averageAssign(List<T> source, int limit) {
         if (null == source || source.isEmpty()) {
             return Collections.emptyList();
@@ -165,7 +165,7 @@ public class CollectionUtils {
     * @param it  待检查的 可迭代，可能为 空
     * @param <E> 元素类型
     * @return 如果为 空 或无元素返回 true
-     */
+    */
     public static <E> boolean isEmpty(Iterable<? extends E> it) {
         return null == it || !it.iterator().hasNext();
     }
@@ -176,7 +176,7 @@ public class CollectionUtils {
     * @param collection 待检查的集合，可能为 空
     * @param <E>        元素类型
     * @return 非空时返回原集合，否则返回空列表
-     */
+    */
     public static <E> List<E> ifEmpty(List<E> collection) {
         return isEmpty(collection) ? Collections.emptyList() : collection;
     }
@@ -187,7 +187,7 @@ public class CollectionUtils {
     * @param collection 待检查的集合，可能为 空
     * @param <E>        元素类型
     * @return 如果为 空 或无元素返回 true
-     */
+    */
     public static <E> boolean isEmpty(Collection<E> collection) {
         return null == collection || collection.isEmpty();
     }
@@ -197,7 +197,7 @@ public class CollectionUtils {
     * @param arrays 待检查的数组，可能为 空
     * @param <E>    元素类型
     * @return 如果为 空 或无元素返回 true
-     */
+    */
     public static <E> boolean isEmpty(E[] arrays) {
         return ArrayUtils.isEmpty(arrays);
     }
@@ -208,7 +208,7 @@ public class CollectionUtils {
     * @param <K>   键类型
     * @param <V>   值类型
     * @return 如果为 空 或无键值对返回 true
-     */
+    */
     public static <K, V> boolean isEmpty(Map<K, V> kvMap) {
         return MapUtils.isEmpty(kvMap);
     }
@@ -219,7 +219,7 @@ public class CollectionUtils {
     * @param collection 待检查的集合，可能为 空
     * @param <E>        元素类型
     * @return 如果非空返回 true
-     */
+    */
     public static <E> boolean isNotEmpty(Collection<E> collection) {
         return !isEmpty(collection);
     }
@@ -230,7 +230,7 @@ public class CollectionUtils {
     * @param <E> 键类型
     * @param <V> 值类型
     * @return 如果非空返回 true
-     */
+    */
     public static <E, V> boolean isNotEmpty(Map<E, V> map) {
         return MapUtils.isNotEmpty(map);
     }
@@ -240,7 +240,7 @@ public class CollectionUtils {
     *
     * @param collection 待获取大小的集合，可能为 空
     * @return 集合的大小，null 返回 0
-     */
+    */
     public static int size(Collection<?> collection) {
         return null == collection ? 0 : collection.size();
     }
@@ -250,7 +250,7 @@ public class CollectionUtils {
     *
     * @param collection 待获取大小的 映射，可能为 空
     * @return Map 的大小，空 返回 0
-     */
+    */
     public static int size(Map<?, ?> collection) {
         return null == collection ? 0 : collection.size();
     }
@@ -260,7 +260,7 @@ public class CollectionUtils {
     *
     * @param value 待转换的对象
     * @return 如果对象是 列表 则强转返回，否则返回空列表
-     */
+    */
     public static List<Object> ifList(Object value) {
         if (value instanceof List<?> rawList) {
             @SuppressWarnings("unchecked")
@@ -275,7 +275,7 @@ public class CollectionUtils {
     *
     * @param source 待判断的对象
     * @return 如果是 列表 返回 true
-     */
+    */
     public static boolean isList(Object source) {
         return source instanceof List;
     }
@@ -288,7 +288,7 @@ public class CollectionUtils {
     * @param source 源集合，可能为 空
     * @param <T>    元素类型
     * @return 第一个元素，集合为空或 空 返回 空
-     */
+    */
     public static <T> T findFirst(final Collection<T> source) {
         if (null == source || source.isEmpty()) {
             return null;
@@ -305,7 +305,7 @@ public class CollectionUtils {
     * @param source 源 可迭代，可能为 空
     * @param <T>    元素类型
     * @return 第一个元素，null 返回 空
-     */
+    */
     public static <T> T findFirst(final Iterable<T> source) {
         if(null == source) {
             return null;
@@ -320,7 +320,7 @@ public class CollectionUtils {
     * @param source 源 映射，可能为 空
     * @param <T>    值类型
     * @return 第一个值，Map 为空或 空 返回 空
-     */
+    */
     public static <T> T findFirst(final Map<?, T> source) {
         if (null == source || source.isEmpty()) {
             return null;
@@ -336,7 +336,7 @@ public class CollectionUtils {
     * @param defaultValue 默认值
     * @param <T>          元素类型
     * @return 第一个元素，不存在则返回默认值
-     */
+    */
     public static <T> T findFirst(final Collection<T> source, T defaultValue) {
         return Optional.ofNullable(findFirst(source)).orElse(defaultValue);
     }
@@ -349,7 +349,7 @@ public class CollectionUtils {
     * @param source 源集合，可能为 空
     * @param <T>    元素类型
     * @return 最后一个元素，集合为空或 空 返回 空
-     */
+    */
     public static <T> T findLast(final Collection<T> source) {
         if (null == source || source.isEmpty()) {
             return null;
@@ -367,7 +367,7 @@ public class CollectionUtils {
     * @param defaultValue 默认值
     * @param <T>          元素类型
     * @return 最后一个元素，不存在则返回默认值
-     */
+    */
     public static <T> T findLast(final Collection<T> source, T defaultValue) {
         return Optional.ofNullable(findLast(source)).orElse(defaultValue);
     }
@@ -379,7 +379,7 @@ public class CollectionUtils {
     * @param index  索引，负数从末尾开始计数
     * @param <T>    元素类型
     * @return 指定索引的元素，不存在返回 空
-     */
+    */
     public static <T> T get(final Collection<T> source, final int index) {
         return find(source, index, null);
     }
@@ -392,7 +392,7 @@ public class CollectionUtils {
     * @param <T>    元素类型
     * @return 指定索引的元素，不存在返回 空
     * @see #get(Collection, int)
-     */
+    */
     public static <T> T find(final Collection<T> source, final int index) {
         return find(source, index, null);
     }
@@ -408,7 +408,7 @@ public class CollectionUtils {
     * @param defaultValue 默认值
     * @param <T>          元素类型
     * @return 指定索引的元素，不存在返回 默认值
-     */
+    */
     public static <T> T find(final Collection<T> source, final int index, final T defaultValue) {
         if (null == source) {
             return defaultValue;
@@ -435,7 +435,7 @@ public class CollectionUtils {
     *
     * @param collection 待检查的集合
     * @return 如果有元素返回 true
-     */
+    */
     public static boolean hasElement(Collection<?> collection) {
         return size(collection) > 0;
     }
@@ -451,7 +451,7 @@ public class CollectionUtils {
     * @param list     源列表
     * @param <T>      元素类型
     * @return 指定页的元素列表，越界返回空列表
-     */
+    */
     public static <T> List<T> page(int pageNo, int pageSize, List<T> list) {
         if (isEmpty(list)) {
             return new ArrayList<>(0);
@@ -492,7 +492,7 @@ public class CollectionUtils {
     * @param list 源列表
     * @param <T>  元素类型
     * @return 不可修改的列表，null 时返回 空
-     */
+    */
     public static <T> List<T> unmodifiable(List<T> list) {
         if (null == list) {
             return null;
@@ -508,7 +508,7 @@ public class CollectionUtils {
     * @param pageListConsumer   每页数据的消费回调
     * @param <T>                元素类型
     * @return page的结果
-     */
+    */
     public static <T> void page(List<T> list, int pageSize, Consumer<List<T>> pageListConsumer) {
         if (isEmpty(list) || pageSize <= 0) {
             return;
@@ -535,7 +535,7 @@ public class CollectionUtils {
     * @param comparator 比较器
     * @param <T>        元素类型
     * @return 排序后的 列表
-     */
+    */
     public static <T> List<T> sort(Collection<T> collection, Comparator<? super T> comparator) {
         List<T> list = new ArrayList<>(collection);
         list.sort(comparator);
@@ -551,7 +551,7 @@ public class CollectionUtils {
     * @param end   结束索引（负数从末尾计数）
     * @param <T>   元素类型
     * @return 截取后的不可变子列表
-     */
+    */
     public static <T> List<T> sub(List<T> list, int start, int end) {
         return sub(list, start, end, 1);
     }
@@ -565,7 +565,7 @@ public class CollectionUtils {
     * @param step  步长，必须大于等于 1
     * @param <T>   元素类型
     * @return 截取后的不可变子列表
-     */
+    */
     public static <T> List<T> sub(List<T> list, int start, int end, int step) {
         if (list == null) {
             return null;
@@ -616,7 +616,7 @@ public class CollectionUtils {
     * @param number      要选取的元素个数，必须大于 0
     * @param <T>         元素类型
     * @return 随机选取的元素列表，source 为空或 数字 无效时返回空列表
-     */
+    */
     public static <T> List<T> getRandomElement(List<T> elementList, int number) {
         if (CollectionUtils.isEmpty(elementList) || number < 1) {
             return Collections.emptyList();
@@ -649,7 +649,7 @@ public class CollectionUtils {
     * @param element  待添加的元素数组
     * @param <E>      元素类型
     * @return 添加后的列表，输入为 空 返回空列表
-     */
+    */
     public static <E> List<E> addAll(List<E> elements, E... element) {
         if (null == elements || element.length == 0) {
             return Collections.emptyList();
@@ -672,7 +672,7 @@ public class CollectionUtils {
     * @param element  源集合
     * @param <E>      元素类型
     * @return 添加后的列表，输入为 空 返回空列表
-     */
+    */
     public static <E> List<E> addAll(List<E> elements, List<E> element) {
         if (null == elements || null == element) {
             return Collections.emptyList();
@@ -688,7 +688,7 @@ public class CollectionUtils {
     * @param elements 源数组
     * @param <T>      元素类型
     * @return 包含数组元素的 列表，数组为 空 返回空列表
-     */
+    */
     public static <T> List<T> newArrayList(T... elements) {
         return null == elements ? new ArrayList<>() : new ArrayList<>(Arrays.asList(elements));
     }
@@ -699,7 +699,7 @@ public class CollectionUtils {
     * @param elements 源 可迭代
     * @param <E>      元素类型
     * @return 不可变的 列表，可迭代 为 空 返回空列表
-     */
+    */
     public static <E> List<E> newArrayList(Iterable<? extends E> elements) {
         if (null == elements) {
             return Collections.emptyList();
@@ -720,7 +720,7 @@ public class CollectionUtils {
     * @param elements 源 迭代器
     * @param <E>      元素类型
     * @return 不可变的 列表
-     */
+    */
     public static <E> List<E> newArrayList(Iterator<? extends E> elements) {
         if (!elements.hasNext()) {
             return Collections.emptyList();
@@ -745,7 +745,7 @@ public class CollectionUtils {
     * @param list 源数组
     * @param <T>  元素类型
     * @return 包含数组元素的 链接列表，数组为 空 返回空列表
-     */
+    */
     public static <T> List<T> newLinkedList(T... list) {
         return null == list ? Collections.emptyList() : new LinkedList<>(Arrays.asList(list));
     }
@@ -756,7 +756,7 @@ public class CollectionUtils {
     * @param list 源数组
     * @param <T>  元素类型
     * @return 包含数组元素的 哈希设置，数组为 空 返回空 设置
-     */
+    */
     public static <T> Set<T> newHashSet(T... list) {
         return null == list ? Collections.emptySet() : new HashSet<>(Arrays.asList(list));
     }
@@ -770,7 +770,7 @@ public class CollectionUtils {
     * @param more  更多列表（可选）
     * @param <T>   元素类型
     * @return 所有组合的列表集合
-     */
+    */
     public static <T> List<List<T>> descartes(List<T> first, List<T>... more) {
         List<List<T>> lists = new LinkedList<>();
         lists.add(first);
@@ -788,7 +788,7 @@ public class CollectionUtils {
     * @param current 当前
     * @param result 结果
     * @return descartesRecursive的结果
-     */
+    */
     private static <T> void descartesRecursive(List<List<T>> lists, int depth, LinkedList<T> current, List<List<T>> result) {
         if (depth == lists.size()) {
             result.add(new LinkedList<>(current));
@@ -811,7 +811,7 @@ public class CollectionUtils {
     * @param coll2 减集合
     * @param <T>   元素类型
     * @return 差集列表
-     */
+    */
     public static <T> List<T> subtractToList(Collection<T> coll1, Collection<T> coll2) {
 
         if (isEmpty(coll1)) {
@@ -840,7 +840,7 @@ public class CollectionUtils {
     * @param collection 源集合，为 空 时返回空 列表
     * @param <T>        元素类型
     * @return 转换后的 列表
-     */
+    */
     public static <T> List<T> list(boolean isLinked, Collection<T> collection) {
         if (null == collection) {
             return list(isLinked);
@@ -854,7 +854,7 @@ public class CollectionUtils {
     * @param isLinked 是否使用 链接列表
     * @param <T>      元素类型
     * @return 空 列表
-     */
+    */
     public static <T> List<T> list(boolean isLinked) {
         return isLinked ? new LinkedList<>() : new ArrayList<>();
     }
@@ -865,7 +865,7 @@ public class CollectionUtils {
     * @param source 待查找的字符串
     * @param target 目标集合
     * @return 存在返回 true
-     */
+    */
     public static boolean contains(String source, Collection<String> target) {
         if(StringUtils.isEmpty(source)) {
             return false;
@@ -885,7 +885,7 @@ public class CollectionUtils {
     * @param target 目标集合
     * @param source 待查找的字符串
     * @return 存在返回 true
-     */
+    */
     public static boolean containsIgnoreCase(Collection<String> target, String source) {
         if(StringUtils.isEmpty(source)) {
             return false;
@@ -905,7 +905,7 @@ public class CollectionUtils {
     * @param target 目标集合
     * @param source 待查找的字符串数组
     * @return 全部包含返回 true
-     */
+    */
     public static boolean containsAllIgnoreCase(Collection<String> target, String... source) {
         if(ArrayUtils.isEmpty(source)) {
             return true;
@@ -927,7 +927,7 @@ public class CollectionUtils {
     * @param source 源列表
     * @param target 目标集合
     * @return 存在不在 源 中的 Target 元素时返回 true
-     */
+    */
     public static boolean notContains(List<String> source, Collection<String> target) {
         for (String s : target) {
             if (!source.contains(s)) {
@@ -942,7 +942,7 @@ public class CollectionUtils {
     * @param source 源列表
     * @param target 目标集合
     * @return 存在交集返回 true
-     */
+    */
     public static boolean contains(List<String> source, Collection<String> target) {
         for (String s : target) {
             if (source.contains(s)) {
@@ -958,7 +958,7 @@ public class CollectionUtils {
     * @param source 源 设置
     * @param target 目标集合
     * @return 存在交集返回 true
-     */
+    */
     public static boolean contains(Set<String> source, Collection<String> target) {
         for (String s : target) {
             if (source.contains(s)) {
@@ -973,7 +973,7 @@ public class CollectionUtils {
     * @param source  源 设置
     * @param target  逗号分隔的待查找字符串
     * @return 存在交集返回 true
-     */
+    */
     public static boolean contains(Set<String> source, String target) {
         for (String s : target.split(SYMBOL_COMMA)) {
             if (source.contains(s)) {
@@ -989,7 +989,7 @@ public class CollectionUtils {
     * @param iterator 待检查的 迭代器
     * @param element  要查找的元素
     * @return 如果找到返回 true，否则返回 false
-     */
+    */
     public static boolean contains(Iterator<?> iterator, Object element) {
         if (iterator != null) {
             while (iterator.hasNext()) {
@@ -1008,7 +1008,7 @@ public class CollectionUtils {
     * @param enumeration 待检查的 Enumeration
     * @param element     要查找的元素
     * @return 如果找到返回 true，否则返回 false
-     */
+    */
     public static boolean contains(Enumeration<?> enumeration, Object element) {
         if (enumeration != null) {
             while (enumeration.hasMoreElements()) {
@@ -1026,7 +1026,7 @@ public class CollectionUtils {
     * @param args 源列表
     * @param <T>  元素类型
     * @return 转换后的数组
-     */
+    */
     public static <T>T[] toArray(List<T> args) {
         return ArrayUtils.toArray(args);
     }
@@ -1036,7 +1036,7 @@ public class CollectionUtils {
     * @param args  源列表
     * @param names 列名列表
     * @return 二维数组
-     */
+    */
     public static Object[][] toArray(List<Object> args, List<String> names) {
         return toArray(args.toArray(), names);
     }
@@ -1048,7 +1048,7 @@ public class CollectionUtils {
     * @param args  对象数组
     * @param names 列名列表
     * @return 二维数组
-     */
+    */
     public static Object[][] toArray(Object[] args, List<String> names) {
         List<Object[]> rs = new LinkedList<>();
         for (Object arg : args) {
@@ -1076,7 +1076,7 @@ public class CollectionUtils {
     * @param arg
     * @param names
     * @return
-     */
+    */
     private static Object[] toArray(Collection arg, List<String> names) {
         Object[] rs = new Object[names.size()];
         if(CollectionUtils.isEmpty(arg)) {
@@ -1098,7 +1098,7 @@ public class CollectionUtils {
     * @param arg
     * @param names
     * @return
-     */
+    */
     private static Object[] toArray(Map arg, List<String> names) {
         Object[] rs = new Object[names.size()];
         if(MapUtils.isEmpty(arg)) {
@@ -1124,7 +1124,7 @@ public class CollectionUtils {
     * @param <R>      键 类型
     * @param <T>      元素类型
     * @return Map 结果
-     */
+    */
     public static <R, T>Map<R, T> convertMap(List<T> list, Function<T, R> function) {
         if(isEmpty(list) || null == function) {
             return Collections.emptyMap();
@@ -1146,7 +1146,7 @@ public class CollectionUtils {
     * @param <R>      键 类型
     * @param <T>      元素类型
     * @return 分组后的 映射 结果
-     */
+    */
     public static <R, T>Map<R, List<T>> convertMaps(List<T> list, Function<T, R> function) {
         if(isEmpty(list) || null == function) {
             return Collections.emptyMap();
@@ -1165,7 +1165,7 @@ public class CollectionUtils {
     * @param elements 源列表，可能为 空
     * @param <T>      元素类型
     * @return 非 空 的列表
-     */
+    */
     public static <T>List<T> wrapper(List<T> elements) {
         return Optional.ofNullable(elements).orElse(Collections.emptyList());
     }
@@ -1175,7 +1175,7 @@ public class CollectionUtils {
     * @param element 待包装的元素，可能为 空
     * @param <T>     元素类型
     * @return 包含该元素的单例列表，null 返回空列表
-     */
+    */
     public static <T>List<T> wrapper(T element) {
         if(null == element) {
             return Collections.emptyList();
@@ -1189,7 +1189,7 @@ public class CollectionUtils {
     * @param elements 源 设置，可能为 空
     * @param <T>      元素类型
     * @return 非 空 的 设置
-     */
+    */
     public static <T>Set<T> wrapper(Set<T> elements) {
         return Optional.ofNullable(elements).orElse(Collections.emptySet());
     }
@@ -1200,7 +1200,7 @@ public class CollectionUtils {
     * @param <K>      键 类型
     * @param <V>      值 类型
     * @return 非 空 的 映射
-     */
+    */
     public static <K, V>Map<K, V> wrapper(Map<K, V> elements) {
         return Optional.ofNullable(elements).orElse(Collections.emptyMap());
     }
@@ -1213,7 +1213,7 @@ public class CollectionUtils {
     *
     * @param parameters 参数字符串数组
     * @return 解析后的 映射
-     */
+    */
     public static Map<String, String> convertParameters(String[] parameters) {
         if (ArrayUtils.isEmpty(parameters)) {
             return new HashMap<>(DEFAULT_SIZE);
@@ -1256,7 +1256,7 @@ public class CollectionUtils {
     *
     * @param pairs 键值对字符串数组
     * @return 转换后的 映射
-     */
+    */
     public static Map<String, String> toStringMap(String... pairs) {
         Map<String, String> parameters = new HashMap<>(pairs.length);
  // pairs                                          映射
@@ -1284,7 +1284,7 @@ public class CollectionUtils {
     * @param <K>  键 类型
     * @param <V>  值 类型
     * @return 不可变的 键 列表
-     */
+    */
     public static <K, V> Collection<? extends K> keySet(Map<K, V> temp) {
         //
         if(isEmpty(temp)) {
@@ -1309,7 +1309,7 @@ public class CollectionUtils {
     * @param <T>      元素类型
     * @param <R>      返回值类型
     * @return 第一个非 空 转换结果，不存在则返回 空
-     */
+    */
     public static <T, R> R firstValidate(List<T> s, Function<T, R> function) {
         T t = firstValidate(s);
         return null == t ? null : function.apply(t);
@@ -1321,7 +1321,7 @@ public class CollectionUtils {
     * @param s 源列表
     * @param <T> 元素类型
     * @return 第一个有效元素，不存在则返回 空
-     */
+    */
     public static <T> T firstValidate(List<T> s) {
         //
         if(isEmpty(s)) {
@@ -1345,7 +1345,7 @@ public class CollectionUtils {
     * @param t 元素数组
     * @param <T> 元素类型
     * @return 包含元素的 列表，空 时返回空列表
-     */
+    */
     @SafeVarargs
     public static <T> List<T> toList(T... t) {
         if (t != null) {
@@ -1365,7 +1365,7 @@ public class CollectionUtils {
     * @param <K>               键 类型
     * @param <V>               值 类型
     * @return 映射结果
-     */
+    */
     public static <K, V> V computeIfAbsent(Map<K, V> concurrentHashMap, K key, Function<? super K, ? extends V> mappingFunction) {
         Objects.requireNonNull(mappingFunction);
         if (Projects.JDK_8) {
@@ -1393,7 +1393,7 @@ public class CollectionUtils {
     * @param list 字符串列表
     * @param ele  要查找的子串
     * @return 第一个包含子串的元素索引，未找到返回 -1
-     */
+    */
     public static int getIndexByContains(List<String> list, String ele) {
         for (int i = 0; i < list.size(); i++) {
             String s = list.get(i);
@@ -1413,7 +1413,7 @@ public class CollectionUtils {
     * @param step 步长间隔
     * @param seq  分隔符
     * @return 连接后的字符串
-     */
+    */
     public static String join(List<String> eles, int step, String seq) {
         if(isEmpty(eles)) {
             return SYMBOL_EMPTY;
@@ -1434,7 +1434,7 @@ public class CollectionUtils {
     * @param originalList 源列表
     * @param step         每组元素个数，必须能整除列表长度
     * @return 分组后的列表集合
-     */
+    */
     public static List<List<Integer>> generateGroupList(List<Integer> originalList, int step) {
  // 群体大小
         if (originalList.size() % step != 0) {
@@ -1460,7 +1460,7 @@ public class CollectionUtils {
     * @param <E>      元素类型
     * @return 唯一的元素
     * @throws IllegalArgumentException 如果列表为空
-     */
+    */
     public static <E>E singletonOrThrow(List<E> elements) {
         if(isEmpty(elements)) {
             throw new IllegalArgumentException("                  ");
@@ -1475,7 +1475,7 @@ public class CollectionUtils {
     * @param limit  最大长度
     * @param <T>    元素类型
     * @return 截取后的子列表
-     */
+    */
     public static <T>List<T> limit(List<T> source, int limit) {
         return source.subList(0, Math.min(limit, source.size()));
     }
@@ -1489,7 +1489,7 @@ public class CollectionUtils {
     * @param limit  最大长度
     * @param <T>    元素类型
     * @return 截取后的子列表
-     */
+    */
     public static <T>List<T> limit(List<T> source, int offset, int limit) {
         return source.subList(offset, Math.min(offset + limit, source.size()));
     }
@@ -1501,7 +1501,7 @@ public class CollectionUtils {
     * @param function 元素到字符串的转换函数
     * @param <T>      元素类型
     * @return print的结果
-     */
+    */
     public static <T> void print(List<T> list, Function<T, String> function) {
         if(isEmpty(list) || null == function) {
             log.info("list is empty");
@@ -1524,7 +1524,7 @@ public class CollectionUtils {
     * @param function 元素到字符串的转换函数
     * @param <T>      元素类型
     * @return printtable格式化的结果
-     */
+    */
     public static <T> void printTableFormat(String title, List<T> list, int maxLines, Function<T, String> function) {
         if (isEmpty(list) || null == function) {
             log.info("{}: [empty list]", title);
@@ -1562,7 +1562,7 @@ public class CollectionUtils {
     * @param function 元素到字符串的转换函数
     * @param <T>      元素类型
     * @return printtable格式化的结果
-     */
+    */
     public static <T> void printTableFormat(String title, List<T> list, Function<T, String> function) {
         printTableFormat(title, list, 5, function);
     }

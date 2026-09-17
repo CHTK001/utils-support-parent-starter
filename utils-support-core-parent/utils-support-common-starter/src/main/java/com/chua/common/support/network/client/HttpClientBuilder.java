@@ -83,27 +83,27 @@ public class HttpClientBuilder {
 
     /**
     * 基础 URL，在构造时传入，最终请求 URL 由 baseUrl + path 拼接而成
-     */
+    */
     private final String baseUrl;
 
     /**
     * 请求头容器，内部使用 {@link LinkedHashMap} 保持插入顺序
-     */
+    */
     private final HttpHeader headers = HttpHeader.create();
 
     /**
     * 请求路径（追加到 baseUrl 后形成完整的请求 URL）
-     */
+    */
     private String path;
 
     /**
     * 请求体，支持 String、byte[] 或任意 Java 对象
-     */
+    */
     private Object body;
 
     /**
     * 查询参数 Map，会在执行时拼接到 URL 的 query string 中
-     */
+    */
     private Map<String, String> params;
 
     /**
@@ -111,44 +111,44 @@ public class HttpClientBuilder {
     *
     * <p>当需要通过 HTTP 代理访问目标服务器时设置此项。
     * null 或空字符串表示不使用代理。</p>
-     */
+    */
     private String proxyHost;
 
     /**
     * 代理服务器端口号。
     *
     * <p>与 {@link #proxyHost} 配合使用，当 proxyHost 为 null 时此值无效。</p>
-     */
+    */
     private int proxyPort;
 
     /**
     * 连接超时时间（毫秒），默认 30 秒
-     */
+    */
     private long connectTimeout = 30000;
 
     /**
     * 读取超时时间（毫秒），默认 30 秒
-     */
+    */
     private long readTimeout = 30000;
 
     /**
     * 连接保活超时时间（毫秒），默认 60 秒
-     */
+    */
     private long keepAliveTimeout = 60000;
 
     /**
     * 是否跟随重定向，默认 true
-     */
+    */
     private boolean followRedirects = true;
 
     /**
     * 自定义重定向处理器
-     */
+    */
     private java.util.function.Consumer<ClientResponse> redirectHandler;
 
     /**
     * 请求方法，默认为 GET
-     */
+    */
     private HttpMethod method = HttpMethod.GET;
 
     /**
@@ -163,7 +163,7 @@ public class HttpClientBuilder {
     * <p><b>注意：</b>一旦调用了带有文件参数的 {@link #formData(String, byte[], String, String)}，
     * 此 Map 中的数据会被迁移到 {@link #multipartBody} 中（转为 multipart 模式），
     * 此字段会被置为 null。
-     */
+    */
     private Map<String, String> formData;
 
     /**
@@ -175,7 +175,7 @@ public class HttpClientBuilder {
     * 并自动设置 Content-Type 头为 {@code multipart/form-data; boundary=...}。
     *
     * <p>null 表示当前处于非 multipart 模式（纯文本或直接 body 模式）。
-     */
+    */
     private MultipartBody multipartBody;
 
     /**
@@ -183,7 +183,7 @@ public class HttpClientBuilder {
     *
     * <p>优先级低于客户端级（{@code HttpClient.addInterceptor}）应用层拦截器，
     * 高于网络层拦截器。null 表示不启用。</p>
-     */
+    */
     private HttpInterceptor interceptor;
 
     /**
@@ -191,7 +191,7 @@ public class HttpClientBuilder {
     * <p>包级访问权限，外部通过 {@link HttpClientFactory#of(String)} 工厂方法创建。</p>
     *
     * @param baseUrl 基础 URL，例如 {@code "http://localhost:8080"} 或 {@code "http://localhost:8080/"}
-     */
+    */
     HttpClientBuilder(String baseUrl) {
         this.baseUrl = baseUrl;
     }
@@ -208,7 +208,7 @@ public class HttpClientBuilder {
     *
     * @param path 请求路径，如 {@code "/api/users"} 或 {@code "api/users"}
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder path(String path) {
         this.path = path;
         return this;
@@ -222,7 +222,7 @@ public class HttpClientBuilder {
     * @param name  请求头名称，如 {@code "Content-Type"}、{@code "Authorization"}
     * @param value 请求头值，如 {@code "application/json"}、{@code "Bearer xxx"}
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder header(String name, String value) {
         this.headers.add(name, value);
         return this;
@@ -236,7 +236,7 @@ public class HttpClientBuilder {
     *
     * @param headers 请求头 Map，键为请求头名称，值为请求头值
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder headers(Map<String, String> headers) {
         headers.forEach(this.headers::add);
         return this;
@@ -254,7 +254,7 @@ public class HttpClientBuilder {
     * }</pre>
     *
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder json() {
         this.headers.add("Content-Type", "application/json");
         return this;
@@ -272,7 +272,7 @@ public class HttpClientBuilder {
     * }</pre>
     *
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder form() {
         this.headers.add("Content-Type", "application/x-www-form-urlencoded");
         return this;
@@ -312,7 +312,7 @@ public class HttpClientBuilder {
     *
     * @param mimeType 期望的 MIME 类型，如 {@code "application/json"}、{@code "text/plain"}
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder accept(String mimeType) {
         this.headers.add("Accept", mimeType);
         return this;
@@ -339,7 +339,7 @@ public class HttpClientBuilder {
     *
     * @param token Bearer Token 字符串，如 JWT 或 OAuth2 Access Token
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder auth(String token) {
         this.headers.add("Authorization", "Bearer " + token);
         return this;
@@ -350,7 +350,7 @@ public class HttpClientBuilder {
     *
     * @param token Bearer Token 字符串，如 JWT 或 OAuth2 Access Token
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder bearer(String token) {
         return auth(token);
     }
@@ -369,7 +369,7 @@ public class HttpClientBuilder {
     *
     * @param value 完整的 Authorization 头值
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder authorization(String value) {
         this.headers.add("Authorization", value);
         return this;
@@ -381,7 +381,7 @@ public class HttpClientBuilder {
     * @param username 认证用户名
     * @param password 认证密码
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder basicAuth(String username, String password) {
         return authBasic(username, password);
     }
@@ -408,7 +408,7 @@ public class HttpClientBuilder {
     * @param username 认证用户名
     * @param password 认证密码
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder authBasic(String username, String password) {
         String encoded = Base64.getEncoder().encodeToString(
                 (username + ":" + password).getBytes(StandardCharsets.UTF_8));
@@ -440,7 +440,7 @@ public class HttpClientBuilder {
     * @param key   表单字段名，不能为 null
     * @param value 表单字段值，为 null 时序列化为空字符串
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder formData(String key, String value) {
         if (multipartBody != null) {
             // 已处于 multipart 模式，添加到 MultipartBody
@@ -483,7 +483,7 @@ public class HttpClientBuilder {
     * @param filename    上传的文件名，如 {@code "photo.png"}、{@code "report.pdf"}；
     *                    该名称会出现在服务端的 Content-Disposition 头中
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder formData(String name, byte[] content, String contentType, String filename) {
         ensureMultipartMode();
         multipartBody.addFile(name, content, contentType, filename);
@@ -499,7 +499,7 @@ public class HttpClientBuilder {
     *   <li>将 {@link #formData} Map 中已有的纯文本字段全部迁移到 MultipartBody 中</li>
     *   <li>将 {@link #formData} 置为 null（后续纯文本字段通过 {@link #formData(String, String)} 直接进入 MultipartBody）</li>
     * </ol>
-     */
+    */
     private void ensureMultipartMode() {
         if (multipartBody == null) {
             multipartBody = new MultipartBody();
@@ -526,7 +526,7 @@ public class HttpClientBuilder {
     *
     * @param body 请求体字符串，如 {@code "{\"name\":\"test\"}"}
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder body(String body) {
         this.body = body;
         return this;
@@ -540,7 +540,7 @@ public class HttpClientBuilder {
     *
     * @param body 请求体字节数组
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder body(byte[] body) {
         this.body = body;
         return this;
@@ -569,7 +569,7 @@ public class HttpClientBuilder {
     * @param key   参数键名
     * @param value 参数键值
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder body(String key, String value) {
         return formData(key, value);
     }
@@ -590,7 +590,7 @@ public class HttpClientBuilder {
     *
     * @param body 请求体对象，支持 String、byte[] 及任意对象
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder body(Object body) {
         this.body = body;
         return this;
@@ -615,7 +615,7 @@ public class HttpClientBuilder {
     * @param key   参数名，不能为 null
     * @param value 参数值，为 null 时参数名仍会被添加但值为空
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder query(String key, String value) {
         if (this.params == null) {
             this.params = new LinkedHashMap<>();
@@ -636,7 +636,7 @@ public class HttpClientBuilder {
     *
     * @param params 查询参数 Map，键为参数名，值为参数值
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder params(Map<String, String> params) {
         this.params = params;
         return this;
@@ -658,7 +658,7 @@ public class HttpClientBuilder {
     *
     * @param timeout 连接超时时间（毫秒），必须为正数
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder connectTimeout(long timeout) {
         this.connectTimeout = timeout;
         return this;
@@ -680,7 +680,7 @@ public class HttpClientBuilder {
     *
     * @param timeout 读取超时时间（毫秒），0 表示无限等待（具体行为取决于底层执行器）
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder readTimeout(long timeout) {
         this.readTimeout = timeout;
         return this;
@@ -694,7 +694,7 @@ public class HttpClientBuilder {
     *
     * @param timeout 保活超时时间（毫秒），0 表示不限制
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder keepAliveTimeout(long timeout) {
         this.keepAliveTimeout = timeout;
         return this;
@@ -722,7 +722,7 @@ public class HttpClientBuilder {
     *
     * @param handler 重定向处理器，接收 {@link ClientResponse} 参数；null 表示清除
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder onRedirect(java.util.function.Consumer<ClientResponse> handler) {
         this.redirectHandler = handler;
         if (handler != null) {
@@ -756,7 +756,7 @@ public class HttpClientBuilder {
     * @param host 代理服务器主机名或 IP 地址，如 {@code "proxy.company.com"}
     * @param port 代理服务器端口号，如 {@code 8080}、{@code 3128}
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder proxy(String host, int port) {
         this.proxyHost = host;
         this.proxyPort = port;
@@ -783,7 +783,7 @@ public class HttpClientBuilder {
     *
     * @param interceptor 请求级拦截器
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder interceptor(HttpInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
@@ -805,7 +805,7 @@ public class HttpClientBuilder {
     *
     * @return 响应对象 {@link ClientResponse}，包含状态码、响应头和响应体
     * @throws RuntimeException 如果请求执行过程中发生异常
-     */
+    */
     public ClientResponse execute() {
         String url = baseUrl;
         if (path != null && !path.isEmpty()) {
@@ -839,7 +839,7 @@ public class HttpClientBuilder {
     * </ol>
     *
     * @return 解析后的请求体对象，可能为 null、String 或 byte[]
-     */
+    */
     private Object resolveBody() {
         if (body != null) {
             return body;
@@ -890,7 +890,7 @@ public class HttpClientBuilder {
     * }</pre>
     *
     * @return 异步任务，完成时包含 {@link ClientResponse} 响应对象
-     */
+    */
     public Mono<ClientResponse> executeAsync() {
         String url = baseUrl;
         if (path != null && !path.isEmpty()) {
@@ -946,7 +946,7 @@ public class HttpClientBuilder {
     *
     * @param callback 异步回调，成功时回调 {@link Callback#onSuccess(Object)}，
     *                 失败时回调 {@link Callback#onError(Throwable)}
-     */
+    */
     public void executeAsync(Callback<ClientResponse> callback) {
         executeAsync().subscribe(callback::onSuccess, callback::onError);
     }
@@ -955,67 +955,67 @@ public class HttpClientBuilder {
 
     /**
     * 内部访问：获取 baseUrl（供同包工具类使用）。
-     */
+    */
     String _url() { return baseUrl; }
 
     /**
     * 内部访问：获取 path（供同包工具类使用）。
-     */
+    */
     String _path() { return path; }
 
     /**
     * 内部访问：获取请求方法（供同包工具类使用）。
-     */
+    */
     HttpMethod _method() { return method; }
 
     /**
     * 内部访问：获取请求头（供同包工具类使用）。
-     */
+    */
     com.chua.common.support.network.http.HttpHeader _headers() { return headers; }
 
     /**
     * 内部访问：获取请求体（供同包工具类使用）。
-     */
+    */
     Object _body() { return body; }
 
     /**
     * 内部访问：获取 multipart 请求体（供同包工具类使用）。
-     */
+    */
     MultipartBody _multipartBody() { return multipartBody; }
 
     /**
     * 内部访问：获取纯文本表单字段（供同包工具类使用）。
-     */
+    */
     java.util.Map<String, String> _formData() { return formData; }
 
     /**
     * 内部访问：获取连接超时（供同包工具类使用）。
-     */
+    */
     long _connectTimeout() { return connectTimeout; }
 
     /**
     * 内部访问：获取读取超时（供同包工具类使用）。
-     */
+    */
     long _readTimeout() { return readTimeout; }
 
     /**
     * 内部访问：获取保活超时（供同包工具类使用）。
-     */
+    */
     long _keepAliveTimeout() { return keepAliveTimeout; }
 
     /**
     * 内部访问：获取是否跟随重定向（供同包工具类使用）。
-     */
+    */
     boolean _followRedirects() { return followRedirects; }
 
     /**
     * 内部访问：获取代理主机（供同包工具类使用）。
-     */
+    */
     String _proxyHost() { return proxyHost; }
 
     /**
     * 内部访问：获取代理端口（供同包工具类使用）。
-     */
+    */
     int _proxyPort() { return proxyPort; }
 
     /**
@@ -1037,7 +1037,7 @@ public class HttpClientBuilder {
     *
     * @param curl curl 命令字符串，可以是完整命令（含 {@code curl} 前缀），也可以是选项部分
     * @return 构建好的 HttpClientBuilder
-     */
+    */
     public static HttpClientBuilder fromCurl(String curl) {
         return CurlParser.fromCurl(curl);
     }
@@ -1060,7 +1060,7 @@ public class HttpClientBuilder {
     * }</pre>
     *
     * @return 等价的 curl 命令字符串
-     */
+    */
     public String toCurl() {
         String url = baseUrl;
         if (path != null && !path.isEmpty()) {
@@ -1089,7 +1089,7 @@ public class HttpClientBuilder {
     * 将当前构建状态格式化为等价的 curl 命令字符串（{@link #toCurl} 的别名）。
     *
     * @return 等价的 curl 命令字符串
-     */
+    */
     public String curl() {
         return toCurl();
     }
@@ -1101,7 +1101,7 @@ public class HttpClientBuilder {
     *
     * @param method HTTP 请求方法
     * @return 当前构建器实例，支持链式调用
-     */
+    */
     public HttpClientBuilder method(HttpMethod method) {
         this.method = method;
         return this;
@@ -1112,7 +1112,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 GET 后立即执行请求。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse get() {
         method = HttpMethod.GET;
         return execute();
@@ -1123,7 +1123,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 POST 后立即执行请求。用于创建资源，通常配合 body 使用。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse post() {
         method = HttpMethod.POST;
         return execute();
@@ -1134,7 +1134,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 PUT 后立即执行请求。用于全量更新资源，通常配合 body 使用。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse put() {
         method = HttpMethod.PUT;
         return execute();
@@ -1145,7 +1145,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 DELETE 后立即执行请求。用于删除资源。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse delete() {
         method = HttpMethod.DELETE;
         return execute();
@@ -1156,7 +1156,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 PATCH 后立即执行请求。用于部分更新资源，通常配合 body 使用。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse patch() {
         method = HttpMethod.PATCH;
         return execute();
@@ -1167,7 +1167,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 HEAD 后立即执行请求。仅获取响应头，不返回响应体，常用于检查资源是否存在。</p>
     *
     * @return 响应对象 {@link ClientResponse}（body 为空）
-     */
+    */
     public ClientResponse head() {
         method = HttpMethod.HEAD;
         return execute();
@@ -1178,7 +1178,7 @@ public class HttpClientBuilder {
     * <p>将请求方法设为 OPTIONS 后立即执行请求。用于获取目标资源支持的 HTTP 方法列表。</p>
     *
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     public ClientResponse options() {
         method = HttpMethod.OPTIONS;
         return execute();
@@ -1188,7 +1188,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 GET 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> getAsync() {
         method = HttpMethod.GET;
         return executeAsync();
@@ -1196,14 +1196,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 GET 请求，通过回调通知结果。
-     */
+    */
     public void getAsync(Callback<ClientResponse> callback) {
         getAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 POST 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> postAsync() {
         method = HttpMethod.POST;
         return executeAsync();
@@ -1211,14 +1211,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 POST 请求，通过回调通知结果。
-     */
+    */
     public void postAsync(Callback<ClientResponse> callback) {
         postAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 PUT 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> putAsync() {
         method = HttpMethod.PUT;
         return executeAsync();
@@ -1226,14 +1226,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PUT 请求，通过回调通知结果。
-     */
+    */
     public void putAsync(Callback<ClientResponse> callback) {
         putAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 DELETE 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> deleteAsync() {
         method = HttpMethod.DELETE;
         return executeAsync();
@@ -1241,14 +1241,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 DELETE 请求，通过回调通知结果。
-     */
+    */
     public void deleteAsync(Callback<ClientResponse> callback) {
         deleteAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 PATCH 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> patchAsync() {
         method = HttpMethod.PATCH;
         return executeAsync();
@@ -1256,14 +1256,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 PATCH 请求，通过回调通知结果。
-     */
+    */
     public void patchAsync(Callback<ClientResponse> callback) {
         patchAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 HEAD 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> headAsync() {
         method = HttpMethod.HEAD;
         return executeAsync();
@@ -1271,14 +1271,14 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 HEAD 请求，通过回调通知结果。
-     */
+    */
     public void headAsync(Callback<ClientResponse> callback) {
         headAsync().subscribe(callback::onSuccess, callback::onError);
     }
 
     /**
     * 异步执行 OPTIONS 请求，返回 {@link Mono}。
-     */
+    */
     public Mono<ClientResponse> optionsAsync() {
         method = HttpMethod.OPTIONS;
         return executeAsync();
@@ -1286,7 +1286,7 @@ public class HttpClientBuilder {
 
     /**
     * 异步执行 OPTIONS 请求，通过回调通知结果。
-     */
+    */
     public void optionsAsync(Callback<ClientResponse> callback) {
         optionsAsync().subscribe(callback::onSuccess, callback::onError);
     }

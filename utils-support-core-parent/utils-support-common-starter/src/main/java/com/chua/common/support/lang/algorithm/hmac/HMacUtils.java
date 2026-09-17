@@ -30,7 +30,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return 十六进制格式的HMAC-MD5摘要字符串
-     */
+    */
     public static String hmacMd5Hex(String key, String data) {
         return HMac.hmacMd5(key).digestHex(data);
     }
@@ -41,7 +41,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return Base64编码的HMAC-MD5摘要字符串
-     */
+    */
     public static String hmacMd5Base64(String key, String data) {
         return HMac.hmacMd5(key).digestBase64(data);
     }
@@ -52,7 +52,7 @@ public class HMacUtils {
     * @param key  密钥字节数组
     * @param data 待加密的数据字节数组
     * @return HMAC-MD5摘要的原始字节数组
-     */
+    */
     public static byte[] hmacMd5(byte[] key, byte[] data) {
         return HMac.hmacMd5(key).digest(data);
     }
@@ -65,7 +65,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return 十六进制格式的HMAC-SHA1摘要字符串
-     */
+    */
     public static String hmacSha1Hex(String key, String data) {
         return HMac.hmacSha1(key).digestHex(data);
     }
@@ -76,7 +76,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return Base64编码的HMAC-SHA1摘要字符串
-     */
+    */
     public static String hmacSha1Base64(String key, String data) {
         return HMac.hmacSha1(key).digestBase64(data);
     }
@@ -87,7 +87,7 @@ public class HMacUtils {
     * @param key  密钥字节数组
     * @param data 待加密的数据字节数组
     * @return HMAC-SHA1摘要的原始字节数组
-     */
+    */
     public static byte[] hmacSha1(byte[] key, byte[] data) {
         return HMac.hmacSha1(key).digest(data);
     }
@@ -100,7 +100,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return 十六进制格式的HMAC-SHA256摘要字符串
-     */
+    */
     public static String hmacSha256Hex(String key, String data) {
         return HMac.hmacSha256(key).digestHex(data);
     }
@@ -111,7 +111,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return Base64编码的HMAC-SHA256摘要字符串
-     */
+    */
     public static String hmacSha256Base64(String key, String data) {
         return HMac.hmacSha256(key).digestBase64(data);
     }
@@ -122,7 +122,7 @@ public class HMacUtils {
     * @param key  密钥字节数组
     * @param data 待加密的数据字节数组
     * @return HMAC-SHA256摘要的原始字节数组
-     */
+    */
     public static byte[] hmacSha256(byte[] key, byte[] data) {
         return HMac.hmacSha256(key).digest(data);
     }
@@ -135,7 +135,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return 十六进制格式的HMAC-SHA512摘要字符串
-     */
+    */
     public static String hmacSha512Hex(String key, String data) {
         return HMac.hmacSha512(key).digestHex(data);
     }
@@ -146,7 +146,7 @@ public class HMacUtils {
     * @param key  密钥字符串
     * @param data 待加密的数据字符串
     * @return Base64编码的HMAC-SHA512摘要字符串
-     */
+    */
     public static String hmacSha512Base64(String key, String data) {
         return HMac.hmacSha512(key).digestBase64(data);
     }
@@ -157,7 +157,7 @@ public class HMacUtils {
     * @param key  密钥字节数组
     * @param data 待加密的数据字节数组
     * @return HMAC-SHA512摘要的原始字节数组
-     */
+    */
     public static byte[] hmacSha512(byte[] key, byte[] data) {
         return HMac.hmacSha512(key).digest(data);
     }
@@ -171,7 +171,7 @@ public class HMacUtils {
     * @param key       密钥字符串
     * @param data      待加密的数据字符串
     * @return 十六进制格式的HMAC摘要字符串
-     */
+    */
     public static String digestHex(HmacAlgorithm algorithm, String key, String data) {
         return new HMac(algorithm, key).digestHex(data);
     }
@@ -183,7 +183,7 @@ public class HMacUtils {
     * @param key       密钥字符串
     * @param data      待加密的数据字符串
     * @return Base64编码的HMAC摘要字符串
-     */
+    */
     public static String digestBase64(HmacAlgorithm algorithm, String key, String data) {
         return new HMac(algorithm, key).digestBase64(data);
     }
@@ -195,7 +195,7 @@ public class HMacUtils {
     * @param key       密钥字节数组
     * @param data      待加密的数据字节数组
     * @return HMAC摘要的原始字节数组
-     */
+    */
     public static byte[] digest(HmacAlgorithm algorithm, byte[] key, byte[] data) {
         return new HMac(algorithm, key).digest(data);
     }
@@ -208,7 +208,7 @@ public class HMacUtils {
     * @param file      待计算的文件对象
     * @return 十六进制格式的HMAC摘要字符串
     * @throws IOException 当发生IO异常时抛出
-     */
+    */
     public static String digestHex(HmacAlgorithm algorithm, String key, File file) throws IOException {
         return new HMac(algorithm, key).digestHex(file);
     }
@@ -221,7 +221,7 @@ public class HMacUtils {
     * @param in        待计算的输入流
     * @return 十六进制格式的HMAC摘要字符串
     * @throws IOException 当发生IO异常时抛出
-     */
+    */
     public static String digestHex(HmacAlgorithm algorithm, String key, InputStream in) throws IOException {
         return new HMac(algorithm, key).digestHex(in);
     }
@@ -234,7 +234,7 @@ public class HMacUtils {
     * @param data        待验证的数据字符串
     * @param expectedHex 预期的十六进制摘要字符串
     * @return 如果摘要匹配返回true，否则返回false
-     */
+    */
     public static boolean verify(HmacAlgorithm algorithm, String key, String data, String expectedHex) {
         return new HMac(algorithm, key).verify(data, expectedHex);
     }
@@ -247,7 +247,7 @@ public class HMacUtils {
     * @param data           待验证的数据字节数组
     * @param expectedDigest 预期的摘要字节数组
     * @return 如果摘要匹配返回true，否则返回false
-     */
+    */
     public static boolean verify(HmacAlgorithm algorithm, byte[] key, byte[] data, byte[] expectedDigest) {
         return new HMac(algorithm, key).verify(data, expectedDigest);
     }

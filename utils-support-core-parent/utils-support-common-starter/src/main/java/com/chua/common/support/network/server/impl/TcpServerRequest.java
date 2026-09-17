@@ -16,24 +16,24 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 将 TCP 帧中的 HTTP 请求体包装为 {@link ServerRequest}。
-*
-* <p>协议约定：TCP 帧体（不含 4 字节长度头）必须是一个完整的 HTTP/1.x 请求报文，
-* 以 {@code \r\n\r\n}（无 body）或 {@code \r\n\r\n<data>}（有 body）结尾。
-* 头部解析失败时降级为 {@code POST /} ，允许纯字节流场景仍能写入响应。</p>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* // JdkTcpServer 接入 UrlMappingServerFilter 后自动使用
-* JdkTcpServer server = new JdkTcpServer(setting)
-*         .registerMapping("/hello", req -> req.getResponse()
-*                 .setBody("hello tcp")
-*                 .end());
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 将 TCP 帧中的 HTTP 请求体包装为 {@link ServerRequest}。
+ *
+ * <p>协议约定：TCP 帧体（不含 4 字节长度头）必须是一个完整的 HTTP/1.x 请求报文，
+ * 以 {@code \r\n\r\n}（无 body）或 {@code \r\n\r\n<data>}（有 body）结尾。
+ * 头部解析失败时降级为 {@code POST /} ，允许纯字节流场景仍能写入响应。</p>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * // JdkTcpServer 接入 UrlMappingServerFilter 后自动使用
+ * JdkTcpServer server = new JdkTcpServer(setting)
+ *         .registerMapping("/hello", req -> req.getResponse()
+ *                 .setBody("hello tcp")
+ *                 .end());
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class TcpServerRequest implements ServerRequest {
 
     /** 请求方法 */
@@ -65,7 +65,7 @@ public class TcpServerRequest implements ServerRequest {
     * @param body        帧体字节（完整的 HTTP 请求报文）
     * @param remoteAddr  客户端 InetSocketAddress
     * @param charset     请求体字符集
-     */
+    */
     public TcpServerRequest(byte[] body, InetSocketAddress remoteAddr, Charset charset) {
         this.body = body != null ? body : new byte[0];
         this.charset = charset != null ? charset : StandardCharsets.UTF_8;

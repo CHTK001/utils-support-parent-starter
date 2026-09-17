@@ -44,71 +44,71 @@ public class NativeRpcClient implements RpcClient {
 
     /**
     * 日志
-     */
+    */
 
     /**
     * 默认端口
-     */
+    */
     private static final int DEFAULT_PORT = 18866;
 
     /**
     * 默认连接超时（毫秒），消费者未配置时使用
-     */
+    */
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
 
     /**
     * 默认读超时（毫秒），消费者未配置时使用
-     */
+    */
     private static final int DEFAULT_READ_TIMEOUT = 10000;
 
     /**
     * 候选服务端地址
-     */
+    */
     private final List<String> addresses = new ArrayList<>();
 
     /**
     * 服务发现
-     */
+    */
     private final ServiceDiscovery serviceDiscovery;
 
     /**
     * APP 名称
-     */
+    */
     private final String appName;
 
     /**
     * 连接超时（毫秒）
-     */
+    */
     private final int connectTimeout;
 
     /**
     * 读超时（毫秒）
-     */
+    */
     private final int readTimeout;
 
     /**
     * 底层 TCP 长度帧客户端（复用传输层）
-     */
+    */
     private final TcpClient tcpClient;
 
     /**
     * 代理缓存
-     */
+    */
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     /**
     * 负载均衡器（SPI 实例，为空时回退顺序调用）
-     */
+    */
     private final com.chua.common.support.lang.balance.LoadBalance loadBalance;
 
     /**
     * 请求/响应编解码器（SPI 序列化，Fury 优先）
-     */
+    */
     private final RpcSerialization rpcSerialization;
 
     /**
     * 是否启用同 JVM 直调：目标服务本机已注册时直接调用本地对象，跳过 TCP 与序列化
-     */
+    */
     private final boolean inlineEnabled;
 
     /**
@@ -117,7 +117,7 @@ public class NativeRpcClient implements RpcClient {
     * @param registryConfigs 注册中心配置列表
     * @param consumerConfig  消费者配置
     * @param name            APP 名称
-     */
+    */
     public NativeRpcClient(List<RpcRegistryConfig> registryConfigs, RpcConsumerConfig consumerConfig, String name) {
         int configuredTimeout = consumerConfig != null && consumerConfig.getTimeout() != null
                 ? consumerConfig.getTimeout() : DEFAULT_READ_TIMEOUT;
@@ -255,7 +255,7 @@ public class NativeRpcClient implements RpcClient {
         * @param localService 本机服务对象
         * @param pm           代理方法
         * @return 调用结果
-         */
+        */
         private Object invokeLocal(Object localService, ProxyMethod pm) {
             try {
                 java.lang.reflect.Method m = pm.getMethod();
@@ -295,7 +295,7 @@ public class NativeRpcClient implements RpcClient {
     *
     * @param consumerConfig 消费者配置，可为空
     * @return 负载均衡器实例，SPI 未找到时返回 {@code null}
-     */
+    */
     private static com.chua.common.support.lang.balance.LoadBalance createLoadBalancer(RpcConsumerConfig consumerConfig) {
         String type = consumerConfig != null && consumerConfig.getLoadBalance() != null
                 ? consumerConfig.getLoadBalance() : "random";
@@ -313,7 +313,7 @@ public class NativeRpcClient implements RpcClient {
     *
     * @param targets 候选端点列表
     * @return 选中的端点，无候选或均衡器不可用时返回 {@code null}
-     */
+    */
     private String selectFirst(List<String> targets) {
         if (loadBalance == null || targets == null || targets.isEmpty()) {
             return null;

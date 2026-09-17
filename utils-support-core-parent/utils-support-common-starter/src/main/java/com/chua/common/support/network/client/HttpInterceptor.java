@@ -70,21 +70,21 @@ public interface HttpInterceptor {
     * @param request 当前请求（可修改后传给 {@code chain.proceed(request)}）
     * @return 响应对象
     * @throws Exception 网络异常或拦截器自身抛出的异常
-     */
+    */
     ClientResponse intercept(Chain chain, ClientRequest request) throws Exception;
 
     /**
     * 拦截器链，通过 {@link #proceed(ClientRequest)} 将请求放行到下一层拦截器或网络调用。
     *
     * @see HttpInterceptor
-     */
+    */
     interface Chain {
 
         /**
         * 获取当前请求。
         *
         * @return 当前请求对象
-         */
+        */
         ClientRequest request();
 
         /**
@@ -96,7 +96,7 @@ public interface HttpInterceptor {
         * @param request 请求对象，通常为 {@link #request()} 或其修改副本
         * @return 响应对象
         * @throws Exception 下一层执行时抛出的异常
-         */
+        */
         ClientResponse proceed(ClientRequest request) throws Exception;
 
         /**
@@ -109,7 +109,7 @@ public interface HttpInterceptor {
         * @param value 请求头值
         * @return 响应对象
         * @throws Exception 下一层执行时抛出的异常
-         */
+        */
         default ClientResponse header(String name, String value) throws Exception {
             return proceed(request().header(name, value));
         }
@@ -122,7 +122,7 @@ public interface HttpInterceptor {
         * @param values 请求头键值集合
         * @return 响应对象
         * @throws Exception 下一层执行时抛出的异常
-         */
+        */
         default ClientResponse headers(HttpHeader values) throws Exception {
             if (values != null) {
                 ClientRequest r = request();

@@ -17,7 +17,7 @@ public interface SafeConsumer<T> extends Consumer<T> {
     * 消费给定的参数，内部调用 {@link #safeAccept(Object)} 并捕获所有异常。
     *
     * @param t 输入参数
-     */
+    */
     @Override
     default void accept(T t) {
         try {
@@ -31,6 +31,6 @@ public interface SafeConsumer<T> extends Consumer<T> {
     *
     * @param t 输入参数
     * @throws Throwable 如果发生异常
-     */
+    */
     void safeAccept(T t) throws Throwable;
 }

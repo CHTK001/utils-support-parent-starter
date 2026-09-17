@@ -15,7 +15,7 @@ public interface PolledListener {
     *
     * @param event    事件类型（始终为 {@link WatcherEvent#CREATE}）
     * @param observer 事件观察者，包含路径、文件名称、时间戳等信息
-     */
+    */
     default void onCreate(WatcherEvent event, EventObserver observer) {}
 
     /**
@@ -23,7 +23,7 @@ public interface PolledListener {
     *
     * @param event    事件类型（始终为 {@link WatcherEvent#MODIFY}）
     * @param observer 事件观察者
-     */
+    */
     default void onModify(WatcherEvent event, EventObserver observer) {}
 
     /**
@@ -31,7 +31,7 @@ public interface PolledListener {
     *
     * @param event    事件类型（始终为 {@link WatcherEvent#DELETE}）
     * @param observer 事件观察者
-     */
+    */
     default void onDelete(WatcherEvent event, EventObserver observer) {}
 
     /**
@@ -39,6 +39,6 @@ public interface PolledListener {
     *
     * @param event    事件类型（始终为 {@link WatcherEvent#OVERFLOW}）
     * @param observer 事件观察者
-     */
+    */
     default void onOverflow(WatcherEvent event, EventObserver observer) {}
 }

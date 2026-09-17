@@ -40,7 +40,7 @@ public class ClientSetting {
     * 默认值 {@code 30000} 毫秒（30 秒）。如果设置为 0 或负数，部分实现可能会使用平台默认值。
     *
     * @see #setConnectTimeout(long)
-     */
+    */
     private long connectTimeout = 30000;
 
     /**
@@ -50,7 +50,7 @@ public class ClientSetting {
     * 默认值 {@code 30000} 毫秒（30 秒）。如果设置为 0，部分实现视为无限等待。
     *
     * @see #setReadTimeout(long)
-     */
+    */
     private long readTimeout = 30000;
 
     /**
@@ -59,7 +59,7 @@ public class ClientSetting {
     * <p>指将请求数据发送到服务器的最大时间。
     * 默认值 {@code 30000} 毫秒（30 秒）。
     * 适用于大文件上传等需要较长写入时间的场景。
-     */
+    */
     private long writeTimeout = 30000;
 
     /**
@@ -68,7 +68,7 @@ public class ClientSetting {
     * <p>默认值 {@code true}（自动跟随）。
     * 设置为 {@code false} 时，3xx 响应会直接返回给调用方，由调用方自行处理重定向逻辑。
     * 适用于需要手动处理 Cookie、跨域跳转或自定义重定向策略的场景。
-     */
+    */
     private boolean followRedirects = true;
 
     /**
@@ -79,7 +79,7 @@ public class ClientSetting {
     *
     * <p><b>注意：</b>重试仅对幂等请求（GET、HEAD、OPTIONS、PUT、DELETE）安全，
     * 对于非幂等请求（POST、PATCH）应谨慎使用，避免产生重复数据。
-     */
+    */
     private int maxRetries;
 
     /**
@@ -90,7 +90,7 @@ public class ClientSetting {
     * null 或空字符串表示不使用代理。
     *
     * @see #proxyPort
-     */
+    */
     private String proxyHost;
 
     /**
@@ -101,70 +101,70 @@ public class ClientSetting {
     * 当 {@link #proxyHost} 为 null 或空时，此值无效。
     *
     * @see #proxyHost
-     */
+    */
     private int proxyPort;
 
     /**
     * 获取连接超时时间。
     *
     * @return 连接超时时间（毫秒）
-     */
+    */
     public long getConnectTimeout() { return connectTimeout; }
 
     /**
     * 设置连接超时时间。
     *
     * @param connectTimeout 连接超时时间（毫秒），推荐范围：3000~30000
-     */
+    */
     public void setConnectTimeout(long connectTimeout) { this.connectTimeout = connectTimeout; }
 
     /**
     * 获取读取超时时间。
     *
     * @return 读取超时时间（毫秒）
-     */
+    */
     public long getReadTimeout() { return readTimeout; }
 
     /**
     * 设置读取超时时间。
     *
     * @param readTimeout 读取超时时间（毫秒），0 表示部分实现中为无限等待
-     */
+    */
     public void setReadTimeout(long readTimeout) { this.readTimeout = readTimeout; }
 
     /**
     * 获取写入超时时间。
     *
     * @return 写入超时时间（毫秒）
-     */
+    */
     public long getWriteTimeout() { return writeTimeout; }
 
     /**
     * 设置写入超时时间。
     *
     * @param writeTimeout 写入超时时间（毫秒），0 表示部分实现中为无限等待
-     */
+    */
     public void setWriteTimeout(long writeTimeout) { this.writeTimeout = writeTimeout; }
 
     /**
     * 判断是否自动跟随 HTTP 重定向。
     *
     * @return true 表示跟随重定向，false 表示不跟随
-     */
+    */
     public boolean isFollowRedirects() { return followRedirects; }
 
     /**
     * 设置是否自动跟随 HTTP 重定向。
     *
     * @param followRedirects true 跟随重定向，false 不跟随
-     */
+    */
     public void setFollowRedirects(boolean followRedirects) { this.followRedirects = followRedirects; }
 
     /**
     * 获取最大重试次数。
     *
     * @return 最大重试次数，0 表示不重试
-     */
+    */
     public int getMaxRetries() { return maxRetries; }
 
     /**
@@ -173,14 +173,14 @@ public class ClientSetting {
     * <p>建议仅对幂等请求（GET、HEAD、PUT、DELETE、OPTIONS）启用重试。
     *
     * @param maxRetries 最大重试次数，0 表示不重试
-     */
+    */
     public void setMaxRetries(int maxRetries) { this.maxRetries = maxRetries; }
 
     /**
     * 获取代理服务器主机名。
     *
     * @return 代理主机名，null 或空字符串表示不使用代理
-     */
+    */
     public String getProxyHost() { return proxyHost; }
 
     /**
@@ -188,14 +188,14 @@ public class ClientSetting {
     *
     * @param proxyHost 代理主机名或 IP 地址，如 {@code "proxy.example.com"}；
     *                  null 或空字符串表示不使用代理
-     */
+    */
     public void setProxyHost(String proxyHost) { this.proxyHost = proxyHost; }
 
     /**
     * 获取代理服务器端口号。
     *
     * @return 代理端口号，0 表示未设置
-     */
+    */
     public int getProxyPort() { return proxyPort; }
 
     /**
@@ -204,7 +204,7 @@ public class ClientSetting {
     * <p>当 {@link #proxyHost} 为 null 或空时，此设置无效。
     *
     * @param proxyPort 代理端口号，如 8080、3128
-     */
+    */
     public void setProxyPort(int proxyPort) { this.proxyPort = proxyPort; }
 
     /**
@@ -213,20 +213,20 @@ public class ClientSetting {
     * <p>空闲连接在连接池中的最大存活时间。超过此时间未使用的连接将被关闭。
     * 默认值 {@code 60000} 毫秒（60 秒）。
     * 设置为 0 表示不限制保活时间。
-     */
+    */
     private long keepAliveTimeout = 60000;
 
     /**
     * 获取连接保活超时时间。
     *
     * @return 保活超时时间（毫秒）
-     */
+    */
     public long getKeepAliveTimeout() { return keepAliveTimeout; }
 
     /**
     * 设置连接保活超时时间。
     *
     * @param keepAliveTimeout 保活超时时间（毫秒），0 表示不限制
-     */
+    */
     public void setKeepAliveTimeout(long keepAliveTimeout) { this.keepAliveTimeout = keepAliveTimeout; }
 }

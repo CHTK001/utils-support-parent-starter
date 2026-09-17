@@ -36,14 +36,14 @@ public interface MetaForeignKey {
     *
     * @param tableName 表名
     * @return this
-     */
+    */
     MetaForeignKey onTable(String tableName);
 
     /**
     * 列出当前表的所有外键。
     *
     * @return 外键定义列表
-     */
+    */
     java.util.List<ForeignKeyDef> list();
 
     /**
@@ -51,7 +51,7 @@ public interface MetaForeignKey {
     *
     * @param fkName 外键名
     * @return 外键定义
-     */
+    */
     ForeignKeyDef get(String fkName);
 
     /**
@@ -59,7 +59,7 @@ public interface MetaForeignKey {
     *
     * @param fkName 外键名
     * @return 添加外键构建器
-     */
+    */
     ForeignKeyCreateBuilder add(String fkName);
 
     /**
@@ -67,6 +67,6 @@ public interface MetaForeignKey {
     *
     * @param fkName 外键名
     * @return true 删除成功
-     */
+    */
     boolean drop(String fkName);
 }

@@ -15,7 +15,7 @@ public interface ViewAlterBuilder {
     *
     * @param definition 新的 SELECT 语句
     * @return this
-     */
+    */
     ViewAlterBuilder definition(String definition);
 
     /**
@@ -23,13 +23,13 @@ public interface ViewAlterBuilder {
     *
     * @param newName 新视图名
     * @return this
-     */
+    */
     ViewAlterBuilder renameTo(String newName);
 
     /**
     * 执行改视图语句。
     *
     * @return 修改后的视图定义
-     */
+    */
     ViewDef execute();
 }

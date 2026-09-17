@@ -26,7 +26,7 @@ public class AgentHookEvent implements Serializable {
     *
     * <p>常见值：PRE_CALL / POST_CALL / PRE_REASONING / POST_REASONING /
     * PRE_ACTING / POST_ACTING / ERROR / PLAN_ENTER / PLAN_WRITE / PLAN_EXIT 等
-     */
+    */
     private String type;
 
     /** Agent 标识 */
@@ -66,7 +66,7 @@ public class AgentHookEvent implements Serializable {
     * @param agentId Agent 标识
     * @param message 事件描述
     * @return 事件实例
-     */
+    */
     public static AgentHookEvent of(String type, String agentId, String message) {
         return AgentHookEvent.builder()
                 .type(type)
@@ -84,7 +84,7 @@ public class AgentHookEvent implements Serializable {
     * @param message   事件描述
     * @param iteration 当前执行轮次（从 1 开始）
     * @return 事件实例
-     */
+    */
     public static AgentHookEvent of(String type, String agentId, String message, int iteration) {
         return AgentHookEvent.builder()
                 .type(type)

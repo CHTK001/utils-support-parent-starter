@@ -15,19 +15,19 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
 
     /**
     * 存储用户自定义属性的映射表，优先级高于系统属性。
-     */
+    */
     private final Map<String, Object> props;
     
     /**
     * 用于解析系统属性（如 JVM 系统属性）的辅助解析器。
-     */
+    */
     private final SystemPropertyPlaceholderResolver placeholderResolver;
 
     /**
     * 构造函数，初始化属性映射表和系统属性解析器。
     *
     * @param props 包含自定义键值对的 Map，用于提供优先级的占位符值。
-     */
+    */
     public MapMixSystemPlaceholderResolver(Map<String, Object> props) {
         this.props = props;
         this.placeholderResolver = new SystemPropertyPlaceholderResolver();
@@ -43,7 +43,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
     *
     * @param placeholderName 需要解析的占位符名称（即键名）。
     * @return 解析后的字符串值；如果未找到任何匹配项，可能返回 null。
-     */
+    */
     @Override
     public String resolvePlaceholder(String placeholderName) {
         if (placeholderName == null) {
@@ -66,7 +66,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
     *
     * @param key 要获取的属性键。
     * @return 对应的属性值字符串。
-     */
+    */
     @Override
     public String getProperty(String key) {
         return resolvePlaceholder(key);
@@ -80,7 +80,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
     * @param name  属性的名称（键）。
     * @param value 属性的值。如果值为 null，则不执行添加操作。
     * @return 返回当前实例本身，以支持链式调用。
-     */
+    */
     @Override
     public PlaceholderDynamicResolver add(String name, Object value) {
         if (name != null && value != null) {
@@ -93,7 +93,7 @@ public class MapMixSystemPlaceholderResolver implements PlaceholderResolver, Pla
     * 从当前解析器中移除指定的属性。
     *
     * @param name 要移除的属性名称（键）。
-     */
+    */
     @Override
     public void remove(String name) {
         if (name != null) {

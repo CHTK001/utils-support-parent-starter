@@ -20,28 +20,28 @@ import static com.chua.common.support.constant.CharsetConstant.UTF_8;
 import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
 
 /**
-* URL 工具类，提供 URL 与 URI 之间的相互转换、application/x-www-form-urlencoded 格式的编解码、
-* 路径规范化（去除多余斜杠与反斜杠、拆分协议/域名/路径/参数）、以及编码后的路径提取等一站式操作。
-*
-* <p>核心能力包括：
-* <ul>
-*   <li><b>URL 规范化</b> —— 将 URL 拆分为协议头（如 {@code http://}）、域名、路径和查询参数四个部分，
-*       分别去除路径部分前后多余的斜杠和反斜杠，支持可选的对路径进行百分号编码</li>
-*   <li><b>编解码</b> —— 基于自定义 {@link SimpleUrlEncoder} 实现符合 RFC 3986 的百分号编码（{@code %XX} 十六进制格式），
-*       解码基于 JDK 的 {@link URLDecoder}，支持指定字符集</li>
-*   <li><b>URI 转换</b> —— 将 {@link URL} 转为 {@link URI}，捕获 {@link URISyntaxException} 并优雅降级</li>
-*   <li><b>路径提取</b> —— 优先通过 {@code URL → URI → getPath()} 获取解码后的路径，
-*       当 URI 路径为空时回退到 {@link URL#getPath()}</li>
-* </ul>
-*
-* <p>内部类 {@link SimpleUrlEncoder} 实现了 URI 规范定义的字符安全集（unreserved + sub-delims + ":" + "@"），
-* 在此基础上额外保留 {@code /} 以保证路径分隔符不被编码。
-*
-* @author CH
-* @see SimpleUrlEncoder
-* @see URLDecoder
-* @since 4.0.0
- */
+ * URL 工具类，提供 URL 与 URI 之间的相互转换、application/x-www-form-urlencoded 格式的编解码、
+ * 路径规范化（去除多余斜杠与反斜杠、拆分协议/域名/路径/参数）、以及编码后的路径提取等一站式操作。
+ *
+ * <p>核心能力包括：
+ * <ul>
+ *   <li><b>URL 规范化</b> —— 将 URL 拆分为协议头（如 {@code http://}）、域名、路径和查询参数四个部分，
+ *       分别去除路径部分前后多余的斜杠和反斜杠，支持可选的对路径进行百分号编码</li>
+ *   <li><b>编解码</b> —— 基于自定义 {@link SimpleUrlEncoder} 实现符合 RFC 3986 的百分号编码（{@code %XX} 十六进制格式），
+ *       解码基于 JDK 的 {@link URLDecoder}，支持指定字符集</li>
+ *   <li><b>URI 转换</b> —— 将 {@link URL} 转为 {@link URI}，捕获 {@link URISyntaxException} 并优雅降级</li>
+ *   <li><b>路径提取</b> —— 优先通过 {@code URL → URI → getPath()} 获取解码后的路径，
+ *       当 URI 路径为空时回退到 {@link URL#getPath()}</li>
+ * </ul>
+ *
+ * <p>内部类 {@link SimpleUrlEncoder} 实现了 URI 规范定义的字符安全集（unreserved + sub-delims + ":" + "@"），
+ * 在此基础上额外保留 {@code /} 以保证路径分隔符不被编码。
+ *
+ * @author CH
+ * @see SimpleUrlEncoder
+ * @see URLDecoder
+ * @since 4.0.0
+*/
 public class UrlUtils {
     /** 创建 url工具 实例 */
     private UrlUtils() {
@@ -67,7 +67,7 @@ public class UrlUtils {
     * @param url URL 路径片段数组，如 {@code {"http://example.com", "api", "v1"}}
     * @return 拼接并规范化后的 URL 字符串，各部分以 {@code /} 连接且无重复斜杠，
     *         例如 {@code "http://example.com/api/v1"}
-     */
+    */
     public static String normalize(String... url) {
         if (url.length == 1) {
             return url[0];
@@ -92,7 +92,7 @@ public class UrlUtils {
     * @param url          待规范的 URL 字符串，可为 {@code null} 或空白
     * @param isEncodePath 是否对路径部分进行编码
     * @return 规范化后的 URL 字符串
-     */
+    */
     public static String normalize(String url, boolean isEncodePath) {
         if (StringUtils.isBlank(url)) {
             return url;
@@ -145,7 +145,7 @@ public class UrlUtils {
     *
     * @param path 已统一为正斜杠的路径
     * @return 去除穿越后的安全路径
-     */
+    */
     private static String stripPathTraversal(String path) {
         String[] parts = path.split("/");
         var stack = new java.util.ArrayList<String>(parts.length);
@@ -178,7 +178,7 @@ public class UrlUtils {
     *
     * @param url 待编码的 URL 字符串，可为 {@code null}
     * @return 编码后的 URL 字符串；若入参为 {@code null} 或空，返回原值或空串
-     */
+    */
     public static String encode(String url) {
         return SimpleUrlEncoder.DEFAULT.encode(url);
     }
@@ -200,7 +200,7 @@ public class UrlUtils {
     * @return 解码后的字符串
     * @throws UnsupportedEncodingException 当系统不支持 UTF-8 时抛出（Java 标准环境不会出现）
     * @since 3.1.2
-     */
+    */
     public static String decode(String url) throws UnsupportedEncodingException {
         return decode(url, UTF_8);
     }
@@ -228,7 +228,7 @@ public class UrlUtils {
     * @param charset 字符集，若为 {@code null} 则不进行解码
     * @return 解码后的字符串
     * @since 5.6.3
-     */
+    */
     public static String decode(String content, Charset charset) {
         if (null == charset) {
             return content;
@@ -246,7 +246,7 @@ public class UrlUtils {
     * @param charset 字符集名称，如 {@code "UTF-8"}、{@code "GBK"}，不能为 {@code null}
     * @return 解码后的字符串
     * @throws UnsupportedEncodingException 当 {@code charset} 名称对应的字符集不被 JVM 支持时抛出
-     */
+    */
     public static String decode(String content, String charset) throws UnsupportedEncodingException {
         return decode(content, Charset.forName(charset));
     }
@@ -277,7 +277,7 @@ public class UrlUtils {
     * @throws NullPointerException 如果 URL 转 URI 后为 空（即转换失败），
     *         调用 {@link Objects#requireNonNull(Object)} 时抛出此异常
     * @see #toUri(URL)
-     */
+    */
     public static String getDecodedPath(URL url) {
         if (null == url) {
             return null;
@@ -309,7 +309,7 @@ public class UrlUtils {
     *
     * @param url 目标 URL 对象，不可为 {@code null}
     * @return 对应的 URI 对象；若 URL 字符串不符合 URI 语法规范，返回 {@code null}
-     */
+    */
     public static URI toUri(URL url) {
         try {
             return url.toURI();
@@ -345,7 +345,7 @@ public class UrlUtils {
     * @return 以 {@code /} 开头的路径字符串
     * @since 2026/07/18
     * @author CH
-     */
+    */
     public static String normalizePath(String path) {
         if (StringUtils.isBlank(path)) {
             return "/";
@@ -368,11 +368,11 @@ public class UrlUtils {
         * 此外还额外将 {@code /} 加入安全字符集，以确保路径分隔符不会被编码为 {@code %2F}。
         *
         * @see #createDefault()
-         */
+        */
         public static final SimpleUrlEncoder DEFAULT = createDefault();
         /**
         * 其中被置位的字符在编码时原样保留，不转换为百分号编码。
-         */
+        */
         private final BitSet safeCharacters;
 
         /**
@@ -387,7 +387,7 @@ public class UrlUtils {
         * <p>这些字符在任何 URI 上下文中均不需要编码，是最基础的安全字符。
         *
         * @see #addCharacter(char)
-         */
+        */
         public SimpleUrlEncoder() {
             this(new BitSet(256));
 
@@ -406,7 +406,7 @@ public class UrlUtils {
         * 使用预构建的安全字符集构造编码器（私有构造器，仅由 {@code createDefault()} 调用）。
         *
         * @param safeCharacters 已经填充了基础安全字符（字母+数字）的 {@code BitSet}
-         */
+        */
         private SimpleUrlEncoder(BitSet safeCharacters) {
             this.safeCharacters = safeCharacters;
         }
@@ -428,7 +428,7 @@ public class UrlUtils {
         * <p>合计：基础 62 个（字母+数字）+ 18 个 = <b>80 个</b>安全字符。
         *
         * @return 默认的 URL 编码器，覆盖了 URI 规范中所有不需要编码的字符
-         */
+        */
         public static SimpleUrlEncoder createDefault() {
             final SimpleUrlEncoder encoder = new SimpleUrlEncoder();
             encoder.addCharacter('-');
@@ -466,7 +466,7 @@ public class UrlUtils {
         * {@link #createDefault()}（追加 unreserved、sub-delims 和特殊字符）中被多次调用。
         *
         * @param c 要加入安全字符集的字符
-         */
+        */
         public void addCharacter(char c) {
             safeCharacters.set(c);
         }
@@ -508,7 +508,7 @@ public class UrlUtils {
         *
         * @param source 待编码的字符串，可为 {@code null}
         * @return 编码后的字符串；所有安全字符原样输出，非安全字符转为 {@code %XX} 格式
-         */
+        */
         public String encode(String source) {
             final StringBuilder rewrittenPath = new StringBuilder(source.length());
             ByteArrayOutputStream buf = new ByteArrayOutputStream();

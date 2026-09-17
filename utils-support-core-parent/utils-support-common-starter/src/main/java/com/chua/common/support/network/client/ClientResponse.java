@@ -53,7 +53,7 @@ public class ClientResponse {
     * </ul>
     *
     * @see HttpStatus
-     */
+    */
     private int statusCode;
 
     /**
@@ -63,7 +63,7 @@ public class ClientResponse {
     * 可通过 {@link #getHeader(String)} 按名称获取单个响应头值，
     * 或通过 {@link #getHeaders()} 获取整个集合。
     * 默认值为空请求头（{@code HttpHeader.create()}）。
-     */
+    */
     private HttpHeader headers = HttpHeader.create();
 
     /**
@@ -75,7 +75,7 @@ public class ClientResponse {
     *   <li>二进制响应（图片/文件） — 直接使用字节数组进行后续处理</li>
     *   <li>空响应 — 值为 null，{@link #getBodyString()} 返回空字符串 {@code ""}</li>
     * </ul>
-     */
+    */
     private byte[] body;
 
     /**
@@ -88,42 +88,42 @@ public class ClientResponse {
     *   <li>500 → {@code "Internal Server Error"}</li>
     * </ul>
     * 可能为空字符串或 null，取决于底层执行器的实现。
-     */
+    */
     private String message;
 
     /**
     * HTTP 协议版本。
     *
     * <p>服务端实际使用的 HTTP 协议版本，可能为 null（执行器未填充时）。
-     */
+    */
     private HttpVersion version;
 
     /**
     * 获取 HTTP 状态码。
     *
     * @return HTTP 状态码，如 200、404、500
-     */
+    */
     public int getStatusCode() { return statusCode; }
 
     /**
     * 设置 HTTP 状态码。
     *
     * @param statusCode HTTP 状态码
-     */
+    */
     public void setStatusCode(int statusCode) { this.statusCode = statusCode; }
 
     /**
     * 获取所有响应头。
     *
     * @return 响应头集合，不会返回 null
-     */
+    */
     public HttpHeader getHeaders() { return headers; }
 
     /**
     * 设置响应头集合。
     *
     * @param headers 响应头集合，传入 null 会使用空请求头
-     */
+    */
     public void setHeaders(HttpHeader headers) {
         this.headers = headers != null ? headers : HttpHeader.create();
     }
@@ -134,14 +134,14 @@ public class ClientResponse {
     * <p>直接返回服务端响应的原始二进制数据。如需获取字符串形式，请使用 {@link #getBodyString()}。
     *
     * @return 响应体字节数组，可能为 null（表示无响应体）
-     */
+    */
     public byte[] getBody() { return body; }
 
     /**
     * 设置响应体字节数组。
     *
     * @param body 响应体字节数组
-     */
+    */
     public void setBody(byte[] body) { this.body = body; }
 
     /**
@@ -150,28 +150,28 @@ public class ClientResponse {
     * <p>例如状态码 200 对应的消息为 {@code "OK"}。
     *
     * @return 响应状态消息字符串，可能为 null 或空字符串
-     */
+    */
     public String getMessage() { return message; }
 
     /**
     * 设置 HTTP 响应状态消息。
     *
     * @param message 响应状态消息，如 {@code "OK"}、{@code "Not Found"}
-     */
+    */
     public void setMessage(String message) { this.message = message; }
 
     /**
     * 获取 HTTP 协议版本。
     *
     * @return HTTP 协议版本，可能为 null（执行器未填充时）
-     */
+    */
     public HttpVersion getVersion() { return version; }
 
     /**
     * 设置 HTTP 协议版本。
     *
     * @param version HTTP 协议版本
-     */
+    */
     public void setVersion(HttpVersion version) { this.version = version; }
 
     /**
@@ -184,7 +184,7 @@ public class ClientResponse {
     * 此方法会导致乱码，请直接使用 {@link #getBody()} 自行指定字符集解码。
     *
     * @return 响应体字符串，空响应或无响应体返回空字符串 {@code ""}
-     */
+    */
     public String getBodyString() {
         return body != null ? new String(body, StandardCharsets.UTF_8) : "";
     }
@@ -204,7 +204,7 @@ public class ClientResponse {
     * <p>此方法委托给 {@link HttpStatus#isSuccess(int)} 进行判断。
     *
     * @return 状态码在 200-299 范围内返回 true，否则返回 false
-     */
+    */
     public boolean isSuccess() {
         return HttpStatus.isSuccess(statusCode);
     }
@@ -222,7 +222,7 @@ public class ClientResponse {
     *
     * @param name 响应头名称，如 {@code "Content-Type"}、{@code "Set-Cookie"}
     * @return 响应头值，不存在返回 null
-     */
+    */
     public String getHeader(String name) {
         return headers.get(name);
     }
@@ -235,7 +235,7 @@ public class ClientResponse {
     *
     * @param name  响应头名称
     * @param value 响应头值
-     */
+    */
     public void setHeader(String name, String value) {
         headers.add(name, value);
     }

@@ -48,7 +48,7 @@ public record AnnotationDefinition(
     * <p>例如: {@code @MyAnno -> @Target -> @Retention}</p>
     *
     * @return 注解全限定名列表
-     */
+    */
     public List<String> fullChain() {
         List<String> chain = new ArrayList<>();
         chain.add(annotationClass.getName());
@@ -63,7 +63,7 @@ public record AnnotationDefinition(
     *
     * @param name 属性名
     * @return 属性值，找不到返回 {@code null}
-     */
+    */
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
@@ -73,7 +73,7 @@ public record AnnotationDefinition(
     *
     * @param name 属性名
     * @return 是否包含
-     */
+    */
     public boolean hasAttribute(String name) {
         return attributes.containsKey(name);
     }
@@ -83,7 +83,7 @@ public record AnnotationDefinition(
     *
     * @param annotationClass 待查找注解类
     * @return 是否包含
-     */
+    */
     public boolean hasMetaAnnotation(Class<? extends Annotation> annotationClass) {
         for (AnnotationDefinition meta : metaAnnotations) {
             if (meta.annotationClass().isAssignableFrom(annotationClass)) {
@@ -98,7 +98,7 @@ public record AnnotationDefinition(
 
     /**
     * 将定义转为字符串形式。
-     */
+    */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -11,29 +11,29 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 /**
-* CUDA 运行时库环境检测器，检测 onnxruntime-gpu 所需的 CUDA 运行库是否就绪。
-*
-* <p>检测流程（逐级失败则停止并打印安装指引）：
-* <ol>
-*   <li>检查 onnxruntime_gpu 构件是否在 classpath（{@code ai.onnxruntime} 且含 CUDA provider）</li>
-*   <li>检查 NVIDIA 驱动是否安装（Windows: registry / nvidia-smi；Linux: /proc/driver/nvidia）</li>
-*   <li>检查 GPU 设备是否可访问（nvidia-smi）</li>
-*   <li>检查 CUDA 运行库（cudart/cublas/cudnn）是否可从 PATH 加载</li>
-* </ol>
-* </p>
-*
-* <p>CUDA 运行库缺失时可通过 {@code utils-support-native-cuda} 模块脚本自动安装：
-* <pre>
-*   Windows: scripts/setup-cuda.bat
-*   Linux:   scripts/setup-cuda.sh
-*   macOS:   scripts/setup-cuda-macos.sh（仅检测，NVIDIA 已停止 macOS CUDA 支持）
-* </pre>
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
-* @see RuntimeDetector
- */
+ * CUDA 运行时库环境检测器，检测 onnxruntime-gpu 所需的 CUDA 运行库是否就绪。
+ *
+ * <p>检测流程（逐级失败则停止并打印安装指引）：
+ * <ol>
+ *   <li>检查 onnxruntime_gpu 构件是否在 classpath（{@code ai.onnxruntime} 且含 CUDA provider）</li>
+ *   <li>检查 NVIDIA 驱动是否安装（Windows: registry / nvidia-smi；Linux: /proc/driver/nvidia）</li>
+ *   <li>检查 GPU 设备是否可访问（nvidia-smi）</li>
+ *   <li>检查 CUDA 运行库（cudart/cublas/cudnn）是否可从 PATH 加载</li>
+ * </ol>
+ * </p>
+ *
+ * <p>CUDA 运行库缺失时可通过 {@code utils-support-native-cuda} 模块脚本自动安装：
+ * <pre>
+ *   Windows: scripts/setup-cuda.bat
+ *   Linux:   scripts/setup-cuda.sh
+ *   macOS:   scripts/setup-cuda-macos.sh（仅检测，NVIDIA 已停止 macOS CUDA 支持）
+ * </pre>
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ * @see RuntimeDetector
+*/
 @Slf4j
 public class CudaRuntimeDetector implements RuntimeDetector {
 
@@ -95,7 +95,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     *
     * @param className 全限定类名
     * @return true 表示类可加载
-     */
+    */
     private static boolean isClassPresent(String className) {
         try {
             ReflectUtils.forName(className, CudaRuntimeDetector.class.getClassLoader());
@@ -111,7 +111,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     * <p>Windows：查询注册表 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvidia;
     * Linux：检查 /proc/driver/nvidia 是否存在。</p>
     * @return 检查nvidiadriver的结果
-     */
+    */
     private boolean checkNvidiaDriver() {
         if (isWindows() && checkNvidiaRegistry()) {
             return true;
@@ -126,7 +126,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     /**
     * 检测可用的 GPU 设备列表（通过 nvidia-smi）。
     * @return detectGpus的结果
-     */
+    */
     private List<String> detectGpus() {
         List<String> gpus = new ArrayList<>();
         try {
@@ -160,7 +160,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     * <p>不做完整加载（避免副作用），仅检查关键 DLL/.so 是否存在于
     * 路径 可搜索目录（窗口）或常见库目录（Linux）。</p>
     * @return 检查cudaruntime图书馆的结果
-     */
+    */
     private boolean checkCudaRuntimeLibraries() {
         String cudaMajor = System.getProperty("cuda.major", "12");
         String[] libs;
@@ -217,7 +217,7 @@ public class CudaRuntimeDetector implements RuntimeDetector {
     /**
     * Windows 注册表检查 NVIDIA 驱动。
     * @return 检查nvidiaregistry的结果
-     */
+    */
     private boolean checkNvidiaRegistry() {
         try {
             ProcessBuilder pb = new ProcessBuilder(

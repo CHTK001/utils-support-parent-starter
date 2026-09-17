@@ -12,13 +12,13 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* PID 文件式进程追踪器（默认实现）。
-*
-* <p>启动时记录 PID 到文件，后续通过 {@code kill PID} 和 {@code kill -0 PID} 管理进程。</p>
-*
-* @author CH
-* @since 4.0.0.43
- */
+ * PID 文件式进程追踪器（默认实现）。
+ *
+ * <p>启动时记录 PID 到文件，后续通过 {@code kill PID} 和 {@code kill -0 PID} 管理进程。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
+*/
 @Slf4j
 @SpiDefault
 @Spi("pidfile")
@@ -156,7 +156,7 @@ public class PidFileProcessTracker implements ServiceProcessTracker {
     * @param process 进程
     * @param serviceName 服务名称
     * @return 检测到的 PID
-     */
+    */
     private long detectPid(Process process, String serviceName) {
         long pid = process.pid();
         if (pid > 0) {

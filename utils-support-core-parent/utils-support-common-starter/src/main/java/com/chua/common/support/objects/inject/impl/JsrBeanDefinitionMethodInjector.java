@@ -12,13 +12,13 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
-* JSR 标准方法注入器，通过反射处理 {@code @Resource} / {@code @Inject} 注解的 setter 方法。
-*
-* <p>所有注解均通过反射按类名检测，不依赖编译时注解 API。</p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * JSR 标准方法注入器，通过反射处理 {@code @Resource} / {@code @Inject} 注解的 setter 方法。
+ *
+ * <p>所有注解均通过反射按类名检测，不依赖编译时注解 API。</p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("jsr")
 public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInjector {
@@ -60,7 +60,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     * @param beanDefinition Beandefinition
     * @param beanProvider Bean提供者
     * @param typeProvider 类型提供者
-     */
+    */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {
@@ -85,7 +85,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     * @param method 方法
     * @param beanProvider Bean提供者
     * @param typeProvider 类型提供者
-     */
+    */
     private Object[] resolveArgs(Method method,
                                  Function<String, Object> beanProvider,
                                  Function<Class<?>, Object> typeProvider) {
@@ -127,7 +127,7 @@ public class JsrBeanDefinitionMethodInjector implements BeanDefinitionMethodInje
     * @param method 方法
     * @param paramType 参数类型
     * @return resolve名称的结果
-     */
+    */
     private String resolveName(Method method, Class<?> paramType) {
         for (Annotation ann : method.getAnnotations()) {
             String name = ann.annotationType().getName();

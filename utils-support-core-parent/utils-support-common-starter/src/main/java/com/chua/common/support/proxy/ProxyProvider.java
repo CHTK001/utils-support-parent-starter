@@ -5,49 +5,49 @@ import com.chua.common.support.proxy.intercept.MethodIntercept;
 
 
 /**
-* 代理提供者接口，定义了代理对象构建的标准方法。
-*
-* <p>本接口采用<b>建造者模式（Builder Pattern）</b>，允许通过链式调用配置代理对象的
-* 各项属性，包括类加载器、额外接口、目标对象、方法拦截器、注解扫描和环绕拦截等。
-* 最终通过 {@link #build()} 方法生成代理对象实例。</p>
-*
-* <p><b>核心特性：</b></p>
-* <ul>
-*   <li><b>双代理引擎</b> — 接口类型使用 JDK 动态代理，类类型使用 Javassist 代理</li>
-*   <li><b>注解扫描</b> — 自动扫描方法上的注解并执行对应的拦截逻辑</li>
-*   <li><b>环绕拦截</b> — 支持按方法签名匹配的环绕拦截器链</li>
-*   <li><b>IoC 集成</b> — 支持注入 {@link ObjectContext} 实现与容器集成</li>
-* </ul>
-*
-* <p><b>使用示例：</b></p>
-* <pre>{@code
-* // 创建代理对象（接口类型）
-* Service proxy = ProxyProvider.of(Service.class)
-*     .classLoader(Thread.currentThread().getContextClassLoader())
-*     .methodIntercept((obj, method, args, proxyInstance) -> {
-*         System.out.println("调用方法: " + method.getName());
-*         return MethodInvoker.invoke(method, obj, args);
-*     })
-*     .build();
-*
-* // 创建代理对象（类类型，带注解扫描）
-* UserService proxy = ProxyProvider.of(UserService.class)
-*     .target(new UserServiceImpl())
-*     .enableAnnotationScan(true)
-*     .enableArround(true)
-*     .build();
-* }</pre>用户服务.类)
-* .Target(新 用户服务impl())
-* .enable注解扫描(true)
-* .enablearround(true)
-* .构建();
-* }</pre>
-*
-* @param <T> 代理接口类型
-* @author CH
-* @since 2025/11/26
-* @版本 1.0.0
- */
+ * 代理提供者接口，定义了代理对象构建的标准方法。
+ *
+ * <p>本接口采用<b>建造者模式（Builder Pattern）</b>，允许通过链式调用配置代理对象的
+ * 各项属性，包括类加载器、额外接口、目标对象、方法拦截器、注解扫描和环绕拦截等。
+ * 最终通过 {@link #build()} 方法生成代理对象实例。</p>
+ *
+ * <p><b>核心特性：</b></p>
+ * <ul>
+ *   <li><b>双代理引擎</b> — 接口类型使用 JDK 动态代理，类类型使用 Javassist 代理</li>
+ *   <li><b>注解扫描</b> — 自动扫描方法上的注解并执行对应的拦截逻辑</li>
+ *   <li><b>环绕拦截</b> — 支持按方法签名匹配的环绕拦截器链</li>
+ *   <li><b>IoC 集成</b> — 支持注入 {@link ObjectContext} 实现与容器集成</li>
+ * </ul>
+ *
+ * <p><b>使用示例：</b></p>
+ * <pre>{@code
+ * // 创建代理对象（接口类型）
+ * Service proxy = ProxyProvider.of(Service.class)
+ *     .classLoader(Thread.currentThread().getContextClassLoader())
+ *     .methodIntercept((obj, method, args, proxyInstance) -> {
+ *         System.out.println("调用方法: " + method.getName());
+ *         return MethodInvoker.invoke(method, obj, args);
+ *     })
+ *     .build();
+ *
+ * // 创建代理对象（类类型，带注解扫描）
+ * UserService proxy = ProxyProvider.of(UserService.class)
+ *     .target(new UserServiceImpl())
+ *     .enableAnnotationScan(true)
+ *     .enableArround(true)
+ *     .build();
+ * }</pre>用户服务.类)
+ * .Target(新 用户服务impl())
+ * .enable注解扫描(true)
+ * .enablearround(true)
+ * .构建();
+ * }</pre>
+ *
+ * @param <T> 代理接口类型
+ * @author CH
+ * @since 2025/11/26
+ * @版本 1.0.0
+*/
 public interface ProxyProvider<T> {
 
     /**
@@ -59,7 +59,7 @@ public interface ProxyProvider<T> {
     * @param type 目标接口类型，如 {@code Service.class}
     * @param <T>  接口类型
     * @return 代理提供者实例，可继续链式配置
-     */
+    */
     static <T> ProxyProvider<T> of(Class<T> type) {
         return new DefaultProxyProvider<>(type);
     }
@@ -74,7 +74,7 @@ public interface ProxyProvider<T> {
     * @param objectContext 对象上下文，用于 Bean 查找和依赖注入
     * @param <T>           接口类型
     * @return 代理提供者实例，可继续链式配置
-     */
+    */
     static <T> ProxyProvider<T> of(Class<T> type, ObjectContext objectContext) {
         return new DefaultProxyProvider<>(type).objectContext(objectContext);
     }
@@ -87,7 +87,7 @@ public interface ProxyProvider<T> {
     *
     * @param classLoader 类加载器，如 {@code Thread.currentThread().getContextClassLoader()}
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> classLoader(ClassLoader classLoader);
 
     /**
@@ -98,8 +98,8 @@ public interface ProxyProvider<T> {
     *
     * @param interfaces 要代理的额外接口数组，如 {@code new Class<?>[]{Closeable.class, Serializable.class}}
     private static final long serialVersionUID = 1L;
-     * @return 当前代理提供者实例（支持链式调用）
-     */
+    * @return 当前代理提供者实例（支持链式调用）
+    */
     ProxyProvider<T> interfaces(Class<?>... interfaces);
 
     /**
@@ -111,7 +111,7 @@ public interface ProxyProvider<T> {
     *
     * @param target 目标对象实例，包含实际的业务逻辑实现
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> target(Object target);
 
     /**
@@ -122,7 +122,7 @@ public interface ProxyProvider<T> {
     * 等效于调用 {@code enableAnnotationScan(true)}。</p>
     *
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     default ProxyProvider<T> enableAnnotationScan() {
         return enableAnnotationScan(true);
     }
@@ -135,7 +135,7 @@ public interface ProxyProvider<T> {
     *
     * @param enable 是否启用注解扫描，true 表示启用，false 表示禁用
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> enableAnnotationScan(boolean enable);
 
     /**
@@ -146,7 +146,7 @@ public interface ProxyProvider<T> {
     * 等效于调用 {@code enableArround(true)}。</p>
     *
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     default ProxyProvider<T> enableArround() {
         return enableArround(true);
     }
@@ -159,7 +159,7 @@ public interface ProxyProvider<T> {
     *
     * @param enable 是否启用环绕拦截，true 表示启用，false 表示禁用
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> enableArround(boolean enable);
 
     /**
@@ -171,7 +171,7 @@ public interface ProxyProvider<T> {
     *
     * @param objectContext 对象上下文实例
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> objectContext(ObjectContext objectContext);
 
     /**
@@ -182,7 +182,7 @@ public interface ProxyProvider<T> {
     *
     * @param enable 是否启用 ASM 代理
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> tryAsm(boolean enable);
 
     /**
@@ -193,7 +193,7 @@ public interface ProxyProvider<T> {
     *
     * @param enable 是否启用 Javassist 代理
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> tryJavassist(boolean enable);
 
     /**
@@ -224,7 +224,7 @@ public interface ProxyProvider<T> {
     *
     * @param methodIntercept 方法拦截器实例，传入 空 会使用空拦截器
     * @return 当前代理提供者实例（支持链式调用）
-     */
+    */
     ProxyProvider<T> methodIntercept(MethodIntercept<T> methodIntercept);
 
     /**
@@ -237,6 +237,6 @@ public interface ProxyProvider<T> {
     * <p>此方法应只在所有配置完成后调用一次。重复调用会创建多个代理实例。</p>
     *
     * @return 代理对象实例，类型为构造时指定的 {@code T}
-     */
+    */
     T build();
 }

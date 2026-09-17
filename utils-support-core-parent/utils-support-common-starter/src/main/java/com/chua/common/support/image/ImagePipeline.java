@@ -32,52 +32,52 @@ public class ImagePipeline {
 
     /**
     * 底层图像处理器（SPI 自动降级）。
-     */
+    */
     private final ImageProcessor processor;
 
     /**
     * 是否启用灰度化。
-     */
+    */
     private final boolean grayscale;
 
     /**
     * 是否启用二值化。
-     */
+    */
     private final boolean binarize;
 
     /**
     * 二值化阈值。
-     */
+    */
     private final int binarizeThreshold;
 
     /**
     * 是否启用降噪。
-     */
+    */
     private final boolean denoise;
 
     /**
     * 降噪邻域半径。
-     */
+    */
     private final int denoiseRadius;
 
     /**
     * 是否启用腐蚀。
-     */
+    */
     private final boolean erode;
 
     /**
     * 腐蚀核尺寸。
-     */
+    */
     private final int erodeKernel;
 
     /**
     * 是否启用膨胀。
-     */
+    */
     private final boolean dilate;
 
     /**
     * 膨胀核尺寸。
-     */
+    */
     private final int dilateKernel;
 
     /**
@@ -93,7 +93,7 @@ public class ImagePipeline {
     * @param erodeKernel      腐蚀核
     * @param dilate           启用膨胀
     * @param dilateKernel     膨胀核
-     */
+    */
     public ImagePipeline(ImageProcessor processor, boolean grayscale, boolean binarize,
                          int binarizeThreshold, boolean denoise, int denoiseRadius,
                          boolean erode, int erodeKernel, boolean dilate, int dilateKernel) {
@@ -113,7 +113,7 @@ public class ImagePipeline {
     * 构建器。
     *
     * @return Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -126,7 +126,7 @@ public class ImagePipeline {
     *
     * @param imageData 原始图像字节（PNG/JPEG 等）
     * @return 处理后的图像字节；未启用任何步骤时返回原图
-     */
+    */
     public byte[] process(byte[] imageData) {
         if (imageData == null || imageData.length == 0) {
             return imageData;
@@ -168,7 +168,7 @@ public class ImagePipeline {
     * @param operation 操作名
     * @param params    操作参数
     * @return 处理后的图像字节
-     */
+    */
     private byte[] apply(byte[] imageData, String operation, Map<String, Object> params) {
         try {
             return processor.process(imageData, operation, params);
@@ -181,7 +181,7 @@ public class ImagePipeline {
     * 底层图像处理器。
     *
     * @return ImageProcessor
-     */
+    */
     public ImageProcessor processor() {
         return processor;
     }
@@ -192,57 +192,57 @@ public class ImagePipeline {
     * <p>所有步骤默认关闭，仅调用对应 setter 后生效。</p>
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 底层处理器，默认走 {@link ImageProcessors#getProcessor()} SPI 自动选择。
-         */
+        */
         private ImageProcessor processor;
 
         /**
         * 灰度化开关。
-         */
+        */
         private boolean grayscale;
 
         /**
         * 二值化开关。
-         */
+        */
         private boolean binarize;
 
         /**
         * 二值化阈值。
-         */
+        */
         private int binarizeThreshold = 128;
 
         /**
         * 降噪开关。
-         */
+        */
         private boolean denoise;
 
         /**
         * 降噪半径。
-         */
+        */
         private int denoiseRadius = 1;
 
         /**
         * 腐蚀开关。
-         */
+        */
         private boolean erode;
 
         /**
         * 腐蚀核。
-         */
+        */
         private int erodeKernel = 3;
 
         /**
         * 膨胀开关。
-         */
+        */
         private boolean dilate;
 
         /**
         * 膨胀核。
-         */
+        */
         private int dilateKernel = 3;
 
         /**
@@ -250,7 +250,7 @@ public class ImagePipeline {
         *
         * @param processor 处理器实例
         * @return this
-         */
+        */
         public Builder processor(ImageProcessor processor) {
             this.processor = processor;
             return this;
@@ -261,7 +261,7 @@ public class ImagePipeline {
         *
         * @param enabled true 启用
         * @return this
-         */
+        */
         public Builder grayscale(boolean enabled) {
             this.grayscale = enabled;
             return this;
@@ -273,7 +273,7 @@ public class ImagePipeline {
         * @param enabled   是否启用
         * @param threshold 阈值 0~255
         * @return this
-         */
+        */
         public Builder binarize(boolean enabled, int threshold) {
             this.binarize = enabled;
             this.binarizeThreshold = threshold;
@@ -285,7 +285,7 @@ public class ImagePipeline {
         *
         * @param enabled 是否启用
         * @return this
-         */
+        */
         public Builder binarize(boolean enabled) {
             return binarize(enabled, 128);
         }
@@ -296,7 +296,7 @@ public class ImagePipeline {
         * @param enabled 是否启用
         * @param radius  邻域半径
         * @return this
-         */
+        */
         public Builder denoise(boolean enabled, int radius) {
             this.denoise = enabled;
             this.denoiseRadius = radius;
@@ -308,7 +308,7 @@ public class ImagePipeline {
         *
         * @param enabled 是否启用
         * @return this
-         */
+        */
         public Builder denoise(boolean enabled) {
             return denoise(enabled, 1);
         }
@@ -319,7 +319,7 @@ public class ImagePipeline {
         * @param enabled 是否启用
         * @param kernel  核尺寸（奇数）
         * @return this
-         */
+        */
         public Builder erode(boolean enabled, int kernel) {
             this.erode = enabled;
             this.erodeKernel = kernel;
@@ -331,7 +331,7 @@ public class ImagePipeline {
         *
         * @param enabled 是否启用
         * @return this
-         */
+        */
         public Builder erode(boolean enabled) {
             return erode(enabled, 3);
         }
@@ -342,7 +342,7 @@ public class ImagePipeline {
         * @param enabled 是否启用
         * @param kernel  核尺寸（奇数）
         * @return this
-         */
+        */
         public Builder dilate(boolean enabled, int kernel) {
             this.dilate = enabled;
             this.dilateKernel = kernel;
@@ -354,7 +354,7 @@ public class ImagePipeline {
         *
         * @param enabled 是否启用
         * @return this
-         */
+        */
         public Builder dilate(boolean enabled) {
             return dilate(enabled, 3);
         }
@@ -363,7 +363,7 @@ public class ImagePipeline {
         * 构建图像管线。
         *
         * @return ImagePipeline
-         */
+        */
         public ImagePipeline build() {
             ImageProcessor proc = processor != null ? processor : ImageProcessors.getProcessor();
             return new ImagePipeline(proc, grayscale, binarize, binarizeThreshold,

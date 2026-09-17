@@ -25,27 +25,27 @@ public class DnsConfig implements Serializable {
 
     /**
     * API Token / AccessKey（服务商认证凭据）
-     */
+    */
     private String token;
 
     /**
     * 区域名称（主域名，如 example.com）
-     */
+    */
     private String zoneName;
 
     /**
     * 区域 ID（可选，部分服务商需要显式指定）
-     */
+    */
     private String zoneId;
 
     /**
     * API 基础地址（可选，默认使用服务商官方地址）
-     */
+    */
     private String baseUrl;
 
     /**
     * 单次请求超时（毫秒），默认 30000
-     */
+    */
     @Builder.Default
     private long timeoutMs = 30_000L;
 }

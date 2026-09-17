@@ -25,22 +25,22 @@ public class DirectoryPollerEnvironment {
 
     /**
     * 需要监听的事件类型
-     */
+    */
     private final Set<WatcherEvent> events;
 
     /**
     * 轮询间隔
-     */
+    */
     private final long pollingInterval;
 
     /**
     * 轮询间隔时间单位
-     */
+    */
     private final TimeUnit timeUnit;
 
     /**
     * 自定义属性，通过 key-value 存储数据库/SSH/FTP 等连接参数
-     */
+    */
     private final Map<String, String> properties = new LinkedHashMap<>();
 
     /**
@@ -49,7 +49,7 @@ public class DirectoryPollerEnvironment {
     * @param events          需要监听的事件类型
     * @param pollingInterval 轮询间隔
     * @param timeUnit        轮询间隔时间单位
-     */
+    */
     public DirectoryPollerEnvironment(Set<WatcherEvent> events, long pollingInterval, TimeUnit timeUnit) {
         this.events = events;
         this.pollingInterval = pollingInterval;
@@ -61,7 +61,7 @@ public class DirectoryPollerEnvironment {
     *
     * @param event 事件类型
     * @return true 表示需要监听
-     */
+    */
     public boolean hasEvent(WatcherEvent event) {
         return events == null || events.isEmpty() || events.contains(WatcherEvent.ALL_KIND) || events.contains(event);
     }
@@ -70,7 +70,7 @@ public class DirectoryPollerEnvironment {
     * 获取轮询间隔。
     *
     * @return 轮询间隔数值
-     */
+    */
     public long getPollingInterval() {
         return pollingInterval;
     }
@@ -79,7 +79,7 @@ public class DirectoryPollerEnvironment {
     * 获取轮询间隔时间单位。
     *
     * @return 时间单位
-     */
+    */
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }
@@ -88,7 +88,7 @@ public class DirectoryPollerEnvironment {
     * 获取所有已注册的事件类型。
     *
     * @return 事件类型集合
-     */
+    */
     public Set<WatcherEvent> getEvents() {
         return events;
     }
@@ -99,7 +99,7 @@ public class DirectoryPollerEnvironment {
     * @param key   属性键
     * @param value 属性值
     * @return this
-     */
+    */
     public DirectoryPollerEnvironment setProperty(String key, String value) {
         properties.put(key, value);
         return this;
@@ -110,7 +110,7 @@ public class DirectoryPollerEnvironment {
     *
     * @param key 属性键
     * @return 属性值，不存在返回 null
-     */
+    */
     public String getProperty(String key) {
         return properties.get(key);
     }
@@ -121,7 +121,7 @@ public class DirectoryPollerEnvironment {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 属性值，不存在返回 defaultValue
-     */
+    */
     public String getProperty(String key, String defaultValue) {
         return properties.getOrDefault(key, defaultValue);
     }
@@ -131,7 +131,7 @@ public class DirectoryPollerEnvironment {
     *
     * @param key 属性键
     * @return 属性值，不存在返回 null
-     */
+    */
     public String getString(String key) {
         return getProperty(key);
     }
@@ -142,7 +142,7 @@ public class DirectoryPollerEnvironment {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 属性值，不存在返回 defaultValue
-     */
+    */
     public String getString(String key, String defaultValue) {
         return getProperty(key, defaultValue);
     }
@@ -151,7 +151,7 @@ public class DirectoryPollerEnvironment {
     * 获取所有自定义属性。
     *
     * @return 属性 Map
-     */
+    */
     public Map<String, String> getProperties() {
         return properties;
     }

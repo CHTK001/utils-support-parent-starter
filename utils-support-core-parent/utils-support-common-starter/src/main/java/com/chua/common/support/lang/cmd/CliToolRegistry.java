@@ -43,7 +43,7 @@ public final class CliToolRegistry {
 
     /**
     * 创建注册表并加载 SPI 实现
-     */
+    */
     private CliToolRegistry() {
         loadFromSpi();
     }
@@ -52,7 +52,7 @@ public final class CliToolRegistry {
     * 获取注册表单例。
     *
     * @return 注册表实例
-     */
+    */
     @Nonnull
     public static CliToolRegistry getInstance() {
         return INSTANCE;
@@ -62,7 +62,7 @@ public final class CliToolRegistry {
     * 从 SPI 加载所有 CLI 工具实现。
     *
     * <p>加载失败的实现会被跳过，不影响其他工具的注册。</p>
-     */
+    */
     private void loadFromSpi() {
         try {
             ServiceProvider<CliTool> provider = ServiceProvider.of(CliTool.class);
@@ -81,7 +81,7 @@ public final class CliToolRegistry {
     *
     * @param tool 工具实例
     * @return this，便于链式注册
-     */
+    */
     @Nonnull
     public CliToolRegistry register(@Nonnull CliTool tool) {
         if (tool != null) {
@@ -95,7 +95,7 @@ public final class CliToolRegistry {
     *
     * @param name 工具名，如 {@code tshark}
     * @return 工具实例，未注册时返回 {@link Optional#empty()}
-     */
+    */
     @Nonnull
     public Optional<CliTool> find(@Nonnull String name) {
         return Optional.ofNullable(tools.get(name));
@@ -108,7 +108,7 @@ public final class CliToolRegistry {
     * @param type 期望的类型
     * @param <T>  工具类型
     * @return 工具实例，未注册或类型不匹配时返回 {@link Optional#empty()}
-     */
+    */
     @Nonnull
     public <T extends CliTool> Optional<T> find(@Nonnull String name, @Nonnull Class<T> type) {
         return find(name).filter(type::isInstance).map(type::cast);
@@ -119,7 +119,7 @@ public final class CliToolRegistry {
     *
     * @param name 工具名
     * @return 已注册且可执行文件存在时返回 true
-     */
+    */
     public boolean isAvailable(@Nonnull String name) {
         return find(name).map(CliTool::isAvailable).orElse(false);
     }
@@ -128,7 +128,7 @@ public final class CliToolRegistry {
     * 获取所有已注册的工具。
     *
     * @return 工具集合的不可变视图
-     */
+    */
     @Nonnull
     public Collection<CliTool> all() {
         return Collections.unmodifiableCollection(tools.values());
@@ -140,7 +140,7 @@ public final class CliToolRegistry {
     * <p>会触发每个工具的定位与版本探测，未安装的工具不在结果中。</p>
     *
     * @return 可用工具列表
-     */
+    */
     @Nonnull
     public List<CliTool> available() {
         List<CliTool> result = new ArrayList<>();
@@ -156,7 +156,7 @@ public final class CliToolRegistry {
     * 获取所有已注册工具的名称。
     *
     * @return 工具名列表
-     */
+    */
     @Nonnull
     public List<String> names() {
         return List.copyOf(tools.keySet());
@@ -164,7 +164,7 @@ public final class CliToolRegistry {
 
     /**
     * 清空注册表，主要用于测试场景。
-     */
+    */
     public void clear() {
         tools.clear();
     }

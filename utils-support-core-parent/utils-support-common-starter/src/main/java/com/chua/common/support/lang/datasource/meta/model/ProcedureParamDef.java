@@ -19,21 +19,21 @@ public class ProcedureParamDef {
 
     /**
     * 参数名
-     */
+    */
     private String name;
 
     /**
     * 参数类型（如 VARCHAR、INT、CURSOR 等）
-     */
+    */
     private String type;
 
     /**
     * 参数方向（IN / OUT / INOUT）
-     */
+    */
     private String direction;
 
     /**
     * 参数位置（从 1 开始）
-     */
+    */
     private Integer position;
 }

@@ -16,83 +16,83 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
-* 基于 JDK HttpClient 的 HTTP 同步客户端实现。
-* <p>
-* 通过 HTTP POST 发送消息，通过长轮询（Long Polling）接收服务端推送。
-* 内置心跳和自动重连机制。
-* </p>
-*
-* @author CH
-* @since 2026-07-25
- */
+ * 基于 JDK HttpClient 的 HTTP 同步客户端实现。
+ * <p>
+ * 通过 HTTP POST 发送消息，通过长轮询（Long Polling）接收服务端推送。
+ * 内置心跳和自动重连机制。
+ * </p>
+ *
+ * @author CH
+ * @since 2026-07-25
+*/
 @Spi("http")
 public class HttpSyncClient implements SyncClient {
 
     /**
     * 客户端标识
-     */
+    */
     private final String clientId;
 
     /**
     * 服务端地址
-     */
+    */
     private final String serverUrl;
 
     /**
     * HTTP 客户端
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * 是否已连接
-     */
+    */
     private volatile boolean connected;
 
     /**
     * 订阅的主题映射（topic -> handler）
-     */
+    */
     private final Map<String, SyncMessageHandler> subscriptions = new ConcurrentHashMap<>();
 
     /**
     * 监听器列表
-     */
+    */
     private final java.util.List<SyncFlowListener> listeners = new java.util.ArrayList<>();
 
     /**
     * 拉取线程
-     */
+    */
     private Thread pullThread;
 
     /**
     * 心跳线程
-     */
+    */
     private Thread heartbeatThread;
 
     /**
     * 重连次数
-     */
+    */
     private final AtomicInteger reconnectCount = new AtomicInteger(0);
 
     /**
     * 最大重连次数（0 表示无限重连）
-     */
+    */
     private static final int MAX_RECONNECT = 0;
 
     /**
     * 重连间隔（毫秒）
-     */
+    */
     private static final long RECONNECT_INTERVAL = 3000;
 
     /**
     * 心跳间隔（秒）
-     */
+    */
     private static final int HEARTBEAT_INTERVAL = 30;
 
     /**
     * 创建 HTTP 同步客户端。
     *
     * @param serverUrl 服务端地址，如 http://localhost:8080
-     */
+    */
     public HttpSyncClient(String serverUrl) {
         this(java.util.UUID.randomUUID().toString(), serverUrl);
     }
@@ -102,7 +102,7 @@ public class HttpSyncClient implements SyncClient {
     *
     * @param clientId  客户端标识
     * @param serverUrl 服务端地址
-     */
+    */
     public HttpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl.substring(0, serverUrl.length() - 1) : serverUrl;

@@ -66,99 +66,99 @@ public final class AgentSystemPromptBuilder {
 
     /**
     * Markdown 分隔线
-     */
+    */
     private static final String MD_SEPARATOR = "\n\n---\n";
 
     /**
     * 换行符
-     */
+    */
     private static final String NEW_LINE = "\n";
 
     /**
     * 段标题前缀
-     */
+    */
     private static final String SECTION_PREFIX = "## ";
 
     /**
     * 子标题前缀
-     */
+    */
     private static final String SUB_SECTION_PREFIX = "### ";
 
     /**
     * 技能段标题
-     */
+    */
     private static final String SKILLS_HEADER = "## 可用技能";
 
     /**
     * 技能段说明
-     */
+    */
     private static final String SKILLS_DESC =
             "当用户请求匹配以下技能时，请输出对应的技能调用指令。\n技能调用格式：`[SKILL:技能名](参数1=值1,参数2=值2)`";
 
     /**
     * 参数表格头
-     */
+    */
     private static final String ARG_TABLE_HEADER = "| 参数 | 类型 | 必填 | 说明 |";
 
     /**
     * 参数表格分隔线
-     */
+    */
     private static final String ARG_TABLE_SEPARATOR = "|------|------|------|------|";
 
     /**
     * 必填：是
-     */
+    */
     private static final String REQUIRED_YES = "是";
 
     /**
     * 必填：否
-     */
+    */
     private static final String REQUIRED_NO = "否";
 
     /**
     * 调用示例前缀
-     */
+    */
     private static final String CALL_SAMPLE_PREFIX = "**调用示例：**\n```\n";
 
     /**
     * 代码块结束
-     */
+    */
     private static final String CODE_BLOCK_END = "\n```\n\n";
 
     /**
     * MCP 工具段标题
-     */
+    */
     private static final String MCP_HEADER = "## 可用 MCP 工具";
 
     /**
     * MCP 工具段说明
-     */
+    */
     private static final String MCP_DESC =
             "你可以调用以下外部工具来完成任务。\n调用格式：`[MCP:工具名](参数JSON)`";
 
     /**
     * 参数描述前缀
-     */
+    */
     private static final String DESC_PREFIX = "**描述：** ";
 
     /**
     * 参数段落前缀
-     */
+    */
     private static final String ARG_PREFIX = "**参数：**\n\n";
 
     /**
     * JSON Schema 参数前缀
-     */
+    */
     private static final String JSON_SCHEMA_PREFIX = "**参数（JSON Schema）：**\n```json\n";
 
     /**
     * MCP 调用规则标题
-     */
+    */
     private static final String MCP_RULE_HEADER = "### 调用规则";
 
     /**
     * MCP 调用规则条目（按行索引）
-     */
+    */
     private static final String MCP_RULE_1 = "1. 分析用户请求，判断是否需要调用 MCP 工具";
     /** MCP 工具调用规则第二条 */
     private static final String MCP_RULE_2 = "2. 若需要，输出 `[MCP:工具名]({\"参数名\": \"参数值\"})` 格式";
@@ -169,33 +169,33 @@ public final class AgentSystemPromptBuilder {
 
     /**
     * 子 Agent 段标题
-     */
+    */
     private static final String SUB_AGENT_HEADER = "## 可用子 Agent";
 
     /**
     * 子 Agent 段说明
-     */
+    */
     private static final String SUB_AGENT_DESC =
             "你可以将任务委派给以下子 Agent 执行。\n每个子 Agent 拥有独立的工具集和专业能力。";
 
     /**
     * 子 Agent 表格头
-     */
+    */
     private static final String SUB_AGENT_TABLE_HEADER = "| Agent ID | 名称 | 描述 |";
 
     /**
     * 子 Agent 表格分隔线
-     */
+    */
     private static final String SUB_AGENT_TABLE_SEPARATOR = "|----------|------|------|";
 
     /**
     * 路由规则标题
-     */
+    */
     private static final String ROUTE_RULE_HEADER = "## 路由规则";
 
     /**
     * 路由规则条目（按行索引）
-     */
+    */
     private static final String ROUTE_RULE_1 = "1. 分析用户输入，判断最匹配的子 Agent";
     /** Agent 路由规则第二条 */
     private static final String ROUTE_RULE_2 = "2. 在回复中明确输出要使用的 Agent ID";
@@ -207,12 +207,12 @@ public final class AgentSystemPromptBuilder {
 
     /**
     * 技能调用规则标题
-     */
+    */
     private static final String SKILL_RULE_HEADER = "## 技能调用规则";
 
     /**
     * 技能调用规则条目（按行索引）
-     */
+    */
     private static final String SKILL_RULE_1 = "1. 分析用户请求，判断是否匹配某个技能";
     /** 技能调用规则第二条 */
     private static final String SKILL_RULE_2 = "2. 若匹配，输出 `[SKILL:技能名](参数=值)` 格式的调用指令";
@@ -223,12 +223,12 @@ public final class AgentSystemPromptBuilder {
 
     /**
     * 纯文本模式子 Agent 段说明
-     */
+    */
     private static final String SUB_AGENT_PLAIN_DESC = "你可以将任务委派给以下子 Agent 执行。";
 
     /**
     * 纯文本路由规则
-     */
+    */
     private static final String PLAIN_ROUTE_RULE =
             "\n路由规则：分析用户输入，选择最匹配的子 Agent。\n"
                     + "框架将自动使用该 Agent 的专属 ChatClient、MCP 工具和技能执行任务。\n"
@@ -236,202 +236,202 @@ public final class AgentSystemPromptBuilder {
 
     /**
     * 子 Agent 条目连接符：—
-     */
+    */
     private static final String DASH = " — ";
 
     /**
     * 表格单元格分隔符
-     */
+    */
     private static final String CELL_SEPARATOR = " | ";
 
     /**
     * 行尾换行
-     */
+    */
     private static final String ROW_NEW_LINE = " |\n";
 
     /**
     * 空字符串
-     */
+    */
     private static final String EMPTY_STRING = "";
 
     /**
     * 表格换行占位
-     */
+    */
     private static final String TABLE_ROW_NEW_LINE = "\n";
 
     /**
     * 表格行后缀
-     */
+    */
     private static final String TABLE_LINE_SUFFIX = " |\n";
 
     /**
     * 参数示例占位值
-     */
+    */
     private static final String ARG_PLACEHOLDER_VALUE = "值";
 
     /**
     * 序号 1
-     */
+    */
     private static final int INDEX_OFFSET = 1;
 
     /**
     * Markdown 表格列分隔符
-     */
+    */
     private static final String MD_PIPE = "|";
 
     /**
     * Markdown 表格列分隔符转义
-     */
+    */
     private static final String MD_PIPE_ESCAPED = "\\|";
 
     /**
     * 换行替换为空格
-     */
+    */
     private static final String SPACE = " ";
 
     /**
     * 段落间隔（两个换行）
-     */
+    */
     private static final String PARAGRAPH_BREAK = "\n\n";
 
     /**
     * JSON 大括号起始
-     */
+    */
     private static final String JSON_OBJECT_START = "{";
 
     /**
     * JSON 大括号结束
-     */
+    */
     private static final String JSON_OBJECT_END = "}";
 
     /**
     * JSON 数组起始
-     */
+    */
     private static final String JSON_ARRAY_START = "[";
 
     /**
     * JSON 数组结束
-     */
+    */
     private static final String JSON_ARRAY_END = "]";
 
     /**
     * JSON null 字面量
-     */
+    */
     private static final String JSON_NULL = "null";
 
     /**
     * JSON 双引号
-     */
+    */
     private static final String JSON_QUOTE = "\"";
 
     /**
     * JSON 键值分隔符
-     */
+    */
     private static final String JSON_KEY_VALUE_SEPARATOR = "\": ";
 
     /**
     * JSON 字段分隔符
-     */
+    */
     private static final String JSON_FIELD_SEPARATOR = ",";
 
     /**
     * JSON 行首缩进（2 空格）
-     */
+    */
     private static final String JSON_INDENT_2 = "  ";
 
     /**
     * JSON 行前缀（换行+缩进）
-     */
+    */
     private static final String JSON_LINE_PREFIX_2 = "\n  ";
 
     /**
     * JSON 大括号结尾（换行+缩进+大括号）
-     */
+    */
     private static final String JSON_OBJECT_END_INDENTED_2 = "\n  }";
 
     /**
     * JSON 数组结尾（换行+缩进+方括号）
-     */
+    */
     private static final String JSON_ARRAY_END_INDENTED_2 = "\n  ]";
 
     /**
     * JSON 顶层结束（换行+大括号）
-     */
+    */
     private static final String JSON_TOP_END = "\n}";
 
     /**
     * JSON 转义：反斜杠
-     */
+    */
     private static final String JSON_ESCAPE_BACKSLASH = "\\\\";
 
     /**
     * JSON 转义：双引号
-     */
+    */
     private static final String JSON_ESCAPE_QUOTE = "\\\"";
 
     /**
     * JSON 转义：换行
-     */
+    */
     private static final String JSON_ESCAPE_NEW_LINE = "\\n";
 
     /**
     * JSON 转义：回车
-     */
+    */
     private static final String JSON_ESCAPE_CARRIAGE = "\\r";
 
     /**
     * JSON 转义：制表符
-     */
+    */
     private static final String JSON_ESCAPE_TAB = "\\t";
 
     /**
     * MCP 工具调用示例模板
-     */
+    */
     private static final String MCP_CALL_SAMPLE_TEMPLATE = "[MCP:%s]({\"arg1\": \"值\"})\n";
 
     /**
     * 技能调用前缀
-     */
+    */
     private static final String SKILL_CALL_PREFIX = "[SKILL:";
 
     /**
     * 技能调用后缀（不含参数）
-     */
+    */
     private static final String SKILL_CALL_SUFFIX = "]";
 
     /**
     * 技能调用左括号
-     */
+    */
     private static final String SKILL_CALL_LEFT_PAREN = "(";
 
     /**
     * 技能调用右括号
-     */
+    */
     private static final String SKILL_CALL_RIGHT_PAREN = ")";
 
     /**
     * 技能参数连接符
-     */
+    */
     private static final String SKILL_ARG_SEPARATOR = ",";
 
     /**
     * 技能参数赋值符
-     */
+    */
     private static final String SKILL_ARG_ASSIGN = "=";
 
     /**
     * 序号加点前缀
-     */
+    */
     private static final String INDEX_DOT = ". ";
 
     /**
     * 纯文本模式子 Agent 条目前缀（左方括号）
-     */
+    */
     private static final String BRACKET_LEFT = "[";
 
     /**
     * 纯文本模式子 Agent 条目后缀（右方括号）
-     */
+    */
     private static final String BRACKET_RIGHT = "]";
 
     /** 创建 AgentSystemPromptBuilder 实例 */
@@ -446,7 +446,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param skills 已注册的技能定义列表
     * @return 技能描述段文本
-     */
+    */
     public static String buildSkillsSection(Map<String, SkillDefinition> skills) {
         if (MapUtils.isEmpty(skills)) {
             return EMPTY_STRING;
@@ -466,7 +466,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param tools MCP 工具描述符列表
     * @return MCP 工具描述段文本
-     */
+    */
     public static String buildMcpToolsSection(List<McpToolDescriptor> tools) {
         if (CollectionUtils.isEmpty(tools)) {
             return EMPTY_STRING;
@@ -488,7 +488,7 @@ public final class AgentSystemPromptBuilder {
     * @param instruction 主 Agent 的系统指令
     * @param subAgents   已注册的子 Agent 定义列表
     * @return 完整的系统提示词
-     */
+    */
     public static String build(String instruction, List<AgentDefinition> subAgents) {
         return build(instruction, subAgents, null, null);
     }
@@ -503,7 +503,7 @@ public final class AgentSystemPromptBuilder {
     * @param skills      已注册的技能定义映射
     * @param mcpTools    MCP 工具描述符列表
     * @return 完整的系统提示词
-     */
+    */
     public static String build(String instruction,
                                List<AgentDefinition> subAgents,
                                Map<String, SkillDefinition> skills,
@@ -547,7 +547,7 @@ public final class AgentSystemPromptBuilder {
     * @param subAgents   已注册的子 Agent 定义列表
     * @param skills      已注册的技能定义映射
     * @return 完整的系统提示词
-     */
+    */
     public static String build(String instruction,
                                List<AgentDefinition> subAgents,
                                Map<String, SkillDefinition> skills) {
@@ -582,7 +582,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param subAgents 子 Agent 定义列表
     * @return 路由段文本
-     */
+    */
     static String buildSubAgentSection(List<AgentDefinition> subAgents) {
         StringBuilder sb = new StringBuilder();
         sb.append(SUB_AGENT_HEADER).append(PARAGRAPH_BREAK);
@@ -599,7 +599,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param subAgents 子 Agent 定义列表
     * @return 纯文本格式的路由说明
-     */
+    */
     public static String buildSubAgentSectionPlainText(List<AgentDefinition> subAgents) {
         if (CollectionUtils.isEmpty(subAgents)) {
             return EMPTY_STRING;
@@ -621,7 +621,7 @@ public final class AgentSystemPromptBuilder {
     * 拼接技能段标题与说明。
     *
     * @param sb 目标字符串构建器
-     */
+    */
     private static void appendSkillsHeader(StringBuilder sb) {
         sb.append(SKILLS_HEADER).append(PARAGRAPH_BREAK);
         sb.append(SKILLS_DESC).append(PARAGRAPH_BREAK);
@@ -632,7 +632,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb     目标字符串构建器
     * @param skills 技能定义映射
-     */
+    */
     private static void appendSkillsTable(StringBuilder sb, Map<String, SkillDefinition> skills) {
         for (SkillDefinition skill : skills.values()) {
             appendSkillEntry(sb, skill);
@@ -644,7 +644,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb    目标字符串构建器
     * @param skill 技能定义
-     */
+    */
     private static void appendSkillEntry(StringBuilder sb, SkillDefinition skill) {
         appendSkillTitle(sb, skill);
         appendSkillDescription(sb, skill);
@@ -657,7 +657,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb    目标字符串构建器
     * @param skill 技能定义
-     */
+    */
     private static void appendSkillTitle(StringBuilder sb, SkillDefinition skill) {
         sb.append(SUB_SECTION_PREFIX).append(skill.getName()).append(PARAGRAPH_BREAK);
     }
@@ -667,7 +667,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb    目标字符串构建器
     * @param skill 技能定义
-     */
+    */
     private static void appendSkillDescription(StringBuilder sb, SkillDefinition skill) {
         sb.append(DESC_PREFIX).append(skill.getDescription()).append(PARAGRAPH_BREAK);
     }
@@ -677,7 +677,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb  目标字符串构建器
     * @param arg 参数 schema 列表
-     */
+    */
     private static void appendSkillArgsTable(StringBuilder sb, List<SkillArgumentSchema> arg) {
         if (CollectionUtils.isEmpty(arg)) {
             return;
@@ -702,7 +702,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb    目标字符串构建器
     * @param skill 技能定义
-     */
+    */
     private static void appendSkillCallSample(StringBuilder sb, SkillDefinition skill) {
         sb.append(CALL_SAMPLE_PREFIX);
         sb.append(SKILL_CALL_PREFIX).append(skill.getName()).append(SKILL_CALL_SUFFIX);
@@ -722,7 +722,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param args 参数 schema 列表
     * @return 拼接结果
-     */
+    */
     private static String joinSkillArgSamples(List<SkillArgumentSchema> args) {
         StringBuilder inner = new StringBuilder();
         for (int i = 0; i < args.size(); i++) {
@@ -743,7 +743,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb    目标字符串构建器
     * @param tools MCP 工具描述符列表
-     */
+    */
     private static void appendMcpToolEntries(StringBuilder sb, List<McpToolDescriptor> tools) {
         for (McpToolDescriptor tool : tools) {
             appendMcpToolEntry(sb, tool);
@@ -755,7 +755,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb   目标字符串构建器
     * @param tool MCP 工具描述符
-     */
+    */
     private static void appendMcpToolEntry(StringBuilder sb, McpToolDescriptor tool) {
         sb.append(SUB_SECTION_PREFIX).append(escape(tool.getName())).append(PARAGRAPH_BREAK);
         sb.append(DESC_PREFIX).append(escape(tool.getDescription())).append(PARAGRAPH_BREAK);
@@ -776,7 +776,7 @@ public final class AgentSystemPromptBuilder {
     * 拼接 MCP 调用规则段落。
     *
     * @param sb 目标字符串构建器
-     */
+    */
     private static void appendMcpCallRules(StringBuilder sb) {
         sb.append(SUB_SECTION_PREFIX).append(MCP_RULE_HEADER).append(PARAGRAPH_BREAK);
         sb.append(MCP_RULE_1).append(NEW_LINE);
@@ -790,7 +790,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param schema JSON Schema Map
     * @return 格式化后的 JSON 字符串
-     */
+    */
     private static String formatJsonSchema(Map<String, Object> schema) {
         StringBuilder sb = new StringBuilder();
         sb.append(JSON_OBJECT_START);
@@ -820,7 +820,7 @@ public final class AgentSystemPromptBuilder {
     * @param value   当前值
     * @param indent  当前缩进字符串
     * @return JSON 字符串
-     */
+    */
     private static String formatJsonValue(Object value, String indent) {
         if (ObjectUtils.isNull(value)) {
             return JSON_NULL;
@@ -851,7 +851,7 @@ public final class AgentSystemPromptBuilder {
     * @param map    对象 Map
     * @param indent 当前缩进字符串
     * @return JSON 字符串
-     */
+    */
     private static String formatJsonObject(Map<String, Object> map, String indent) {
         StringBuilder sb = new StringBuilder(JSON_OBJECT_START);
         for (Map.Entry<String, Object> e : map.entrySet()) {
@@ -876,7 +876,7 @@ public final class AgentSystemPromptBuilder {
     * @param list   数组 List
     * @param indent 当前缩进字符串
     * @return JSON 字符串
-     */
+    */
     private static String formatJsonArray(List<Object> list, String indent) {
         StringBuilder sb = new StringBuilder(JSON_ARRAY_START);
         for (Object item : list) {
@@ -898,7 +898,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param s 原始字符串
     * @return 转义后的字符串
-     */
+    */
     private static String escapeJson(String s) {
         if (s == null) {
             return EMPTY_STRING;
@@ -917,7 +917,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb        目标字符串构建器
     * @param subAgents 子 Agent 定义列表
-     */
+    */
     private static void appendSubAgentTable(StringBuilder sb, List<AgentDefinition> subAgents) {
         sb.append(SUB_AGENT_TABLE_HEADER).append(NEW_LINE);
         sb.append(SUB_AGENT_TABLE_SEPARATOR).append(NEW_LINE);
@@ -933,7 +933,7 @@ public final class AgentSystemPromptBuilder {
     * 拼接路由规则段落。
     *
     * @param sb 目标字符串构建器
-     */
+    */
     private static void appendRouteRules(StringBuilder sb) {
         sb.append(PARAGRAPH_BREAK).append(ROUTE_RULE_HEADER).append(PARAGRAPH_BREAK);
         sb.append(ROUTE_RULE_1).append(NEW_LINE);
@@ -947,7 +947,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param sb        目标字符串构建器
     * @param subAgents 子 Agent 定义列表
-     */
+    */
     private static void appendSubAgentList(StringBuilder sb, List<AgentDefinition> subAgents) {
         for (int i = 0; i < subAgents.size(); i++) {
             AgentDefinition agent = subAgents.get(i);
@@ -963,7 +963,7 @@ public final class AgentSystemPromptBuilder {
     *
     * @param value 原始字符串
     * @return 转义后的字符串
-     */
+    */
     private static String escape(String value) {
         if (value == null) {
             return EMPTY_STRING;

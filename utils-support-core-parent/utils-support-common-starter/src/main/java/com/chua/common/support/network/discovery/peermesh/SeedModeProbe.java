@@ -47,7 +47,7 @@ public class SeedModeProbe implements ProbeStrategy {
     * @param localServerId 本地 serverId
     * @param localHost 本地主机 IP
     * @param localPort 本地端口
-     */
+    */
     public SeedModeProbe(MeshConfig config, String localServerId, String localHost, int localPort) {
         this.config = config;
         this.localServerId = localServerId;
@@ -86,7 +86,7 @@ public class SeedModeProbe implements ProbeStrategy {
     * 探测种子节点。
     *
     * @param seed 种子地址，格式 host:port
-     */
+    */
     private void probeSeed(String seed) {
         String[] parts = seed.split(":");
         if (parts.length != 2) {

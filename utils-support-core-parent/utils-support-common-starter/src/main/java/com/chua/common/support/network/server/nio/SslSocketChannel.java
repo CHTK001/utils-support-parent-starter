@@ -12,58 +12,58 @@ import java.nio.channels.SocketChannel;
 import java.util.Set;
 
 /**
-* 基于 {@link SSLEngine} 的 SSL 包装通道。
-*
-* <p>将普通 {@link SocketChannel} 包装为 TLS 通道：构造时完成阻塞式 TLS 握手，
-* 之后 {@link #read(ByteBuffer)} / {@link #write(ByteBuffer)} 自动完成
-* 密文 <-> 明文的加解密转换。上层（如 {@link NioServerRequest} / {@link NioServerResponse}）
-* 无需感知 SSL 的存在，直接按普通通道使用即可。</p>
-*
-* <p>实现要点：</p>
-* <ul>
-*   <li>SSLEngine 阻塞模式——握手与读写均在当前线程内完成，配合虚拟线程开销极低</li>
-*   <li>单连接单引擎，无共享状态，线程安全由连接隔离保证</li>
-*   <li>关闭时尽力发送 close_notify 通知对端</li>
-* </ul>
-*
-* @author CH
-* @since 2026/08/15
- */
+ * 基于 {@link SSLEngine} 的 SSL 包装通道。
+ *
+ * <p>将普通 {@link SocketChannel} 包装为 TLS 通道：构造时完成阻塞式 TLS 握手，
+ * 之后 {@link #read(ByteBuffer)} / {@link #write(ByteBuffer)} 自动完成
+ * 密文 <-> 明文的加解密转换。上层（如 {@link NioServerRequest} / {@link NioServerResponse}）
+ * 无需感知 SSL 的存在，直接按普通通道使用即可。</p>
+ *
+ * <p>实现要点：</p>
+ * <ul>
+ *   <li>SSLEngine 阻塞模式——握手与读写均在当前线程内完成，配合虚拟线程开销极低</li>
+ *   <li>单连接单引擎，无共享状态，线程安全由连接隔离保证</li>
+ *   <li>关闭时尽力发送 close_notify 通知对端</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2026/08/15
+*/
 public class SslSocketChannel extends SocketChannel {
 
     /**
     * 底层原始通道（密文通道）。
-     */
+    */
     private final SocketChannel delegate;
 
     /**
     * TLS 引擎，负责握手与加解密。
-     */
+    */
     private final SSLEngine engine;
 
     /**
     * 网络密文输入缓冲（从 socket 读入的密文，flip 状态，等待 unwrap）。
-     */
+    */
     private final ByteBuffer netIn;
 
     /**
     * 网络密文输出缓冲（wrap 产生的密文，等待写入 socket）。
-     */
+    */
     private final ByteBuffer netOut;
 
     /**
     * 应用明文缓冲（unwrap 产生的明文，等待上层读取）。
-     */
+    */
     private final ByteBuffer appOut;
 
     /**
     * 握手是否已完成。
-     */
+    */
     private boolean handshakeDone;
 
     /**
     * 通道是否已关闭。
-     */
+    */
     private boolean closed;
 
     /**
@@ -72,7 +72,7 @@ public class SslSocketChannel extends SocketChannel {
     * @param delegate 底层已连接的原生通道
     * @param engine   TLS 引擎（需已配置服务端模式）
     * @throws IOException 握手失败或底层 IO 异常
-     */
+    */
     public SslSocketChannel(SocketChannel delegate, SSLEngine engine) throws IOException {
         super(delegate.provider());
         this.delegate = delegate;
@@ -99,7 +99,7 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
     * 阻塞式 TLS 握手，直至 {@link SSLEngineResult.HandshakeStatus#FINISHED}。
-     */
+    */
     private void handshake() throws IOException {
         engine.beginHandshake();
         while (true) {
@@ -247,7 +247,7 @@ public class SslSocketChannel extends SocketChannel {
     * 从底层通道读取密文到 {@link #netIn}。
     *
     * @return true 表示读取成功（含 0 字节重试后的数据）；false 表示对端关闭（EOF）
-     */
+    */
     private boolean readNet() throws IOException {
         netIn.clear();
         int n;
@@ -263,7 +263,7 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
     * 将 {@link #netOut} 中的密文全部写入底层通道。
-     */
+    */
     private void flushNetOut() throws IOException {
         netOut.flip();
         while (netOut.hasRemaining()) {
@@ -276,7 +276,7 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
     * 执行引擎委托的任务（如 RSA 解密），阻塞当前线程。
-     */
+    */
     private void runTasks() {
         Runnable task;
         while ((task = engine.getDelegatedTask()) != null) {
@@ -286,7 +286,7 @@ public class SslSocketChannel extends SocketChannel {
 
     /**
     * 校验 wrap/unwrap 结果，非 OK 状态抛出异常。
-     */
+    */
     private static void check(SSLEngineResult result, String phase) throws SSLException {
         if (result.getStatus() != SSLEngineResult.Status.OK
                 && result.getStatus() != SSLEngineResult.Status.CLOSED) {
@@ -298,7 +298,7 @@ public class SslSocketChannel extends SocketChannel {
     * 将 src 中尽可能多的字节拷贝到 dst。
     *
     * @return 实际拷贝字节数
-     */
+    */
     private static int copy(ByteBuffer src, ByteBuffer dst) {
         int n = Math.min(src.remaining(), dst.remaining());
         if (n == 0) {

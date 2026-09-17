@@ -20,7 +20,7 @@ public class CurrencyTypeConverter implements TypeConverter<Currency> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Currency.class
-     */
+    */
     @Override
     public Class<Currency> getType() {
         return Currency.class;
@@ -31,7 +31,7 @@ public class CurrencyTypeConverter implements TypeConverter<Currency> {
     *
     * @param value 源值（Locale 对象）
     * @return Currency 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Currency convert(Object value) {
         if (value instanceof Locale) {

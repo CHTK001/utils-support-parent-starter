@@ -28,31 +28,31 @@ public class OpenApiDocumentData extends DocumentData {
 
     /**
     * 文档标题（OpenAPI info.title）。
-     */
+    */
     private String title = "Open API 接口文档";
 
     /**
     * 文档版本（OpenAPI info.version）。
-     */
+    */
     private String version = "1.0.0";
 
     /**
     * 文档描述（OpenAPI info.description）。
-     */
+    */
     private String description;
 
     /**
     * Tag 分组列表（与 OpenAPI tags 一致，可缺省）。
-     */
+    */
     private List<OpenApiTag> tags = new ArrayList<>();
 
     /**
     * 全量接口列表（按 tag 不重复；tag 缺省归入 "default"）。
-     */
+    */
     private List<OpenApiEndpoint> endpoints = new ArrayList<>();
 
     /**
     * 顶部附加信息（约定：home / changelog / 联系 等）。
-     */
+    */
     private List<OpenApiSection> sections = new ArrayList<>();
 }

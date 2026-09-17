@@ -22,7 +22,7 @@ public class LongTypeConverter implements TypeConverter<Long> {
     *
     * @param value 源值
     * @return Long 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Long convert(Object value) {
         if (null == value) {
@@ -41,7 +41,7 @@ public class LongTypeConverter implements TypeConverter<Long> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Long.class
-     */
+    */
     @Override
     public Class<Long> getType() {
         return Long.class;

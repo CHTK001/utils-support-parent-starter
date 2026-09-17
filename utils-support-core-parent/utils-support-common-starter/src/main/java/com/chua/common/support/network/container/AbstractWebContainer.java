@@ -30,107 +30,107 @@ public abstract class AbstractWebContainer implements WebContainer {
 
     /**
     * HTTP 连接超时（毫秒）
-     */
+    */
     private static final int CONNECT_TIMEOUT_MS = 30_000;
 
     /**
     * HTTP 读取超时（毫秒），5 分钟
-     */
+    */
     private static final int READ_TIMEOUT_MS = 300_000;
 
     /**
     * 下载缓冲区大小（字节）
-     */
+    */
     private static final int DOWNLOAD_BUFFER_SIZE = 8_192;
 
     /**
     * 进度日志输出间隔（字节），1MB
-     */
+    */
     private static final long PROGRESS_LOG_INTERVAL_BYTES = 1024L * 1024L;
 
     /**
     * HTTP User-Agent 请求头
-     */
+    */
     private static final String HTTP_USER_AGENT = "WebContainer/1.0";
 
     /**
     * HTTP 协议前缀
-     */
+    */
     private static final String HTTP_PREFIX = "http://";
 
     /**
     * HTTPS 协议前缀
-     */
+    */
     private static final String HTTPS_PREFIX = "https://";
 
     /**
     * FTP 协议前缀
-     */
+    */
     private static final String FTP_PREFIX = "ftp://";
 
     /**
     * classpath 路径前缀
-     */
+    */
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
     * URL 查询字符串分隔符
-     */
+    */
     private static final char QUERY_DELIMITER = '?';
 
     /**
     * 路径分隔符
-     */
+    */
     private static final char PATH_SEPARATOR = '/';
 
     /**
     * 文件扩展名分隔符
-     */
+    */
     private static final char EXTENSION_SEPARATOR = '.';
 
     /**
     * 根上下文路径
-     */
+    */
     private static final String ROOT_CONTEXT_PATH = "/";
 
     /**
     * Spring Boot context-path 参数前缀
-     */
+    */
     private static final String CONTEXT_PATH_ARG_PREFIX = "--server.servlet.context-path=";
 
     /**
     * Main 类部署线程名前缀
-     */
+    */
     private static final String MAIN_THREAD_NAME_PREFIX = "main-";
 
     /**
     * 远程文件默认命名前缀
-     */
+    */
     private static final String REMOTE_FILE_NAME_PREFIX = "remote_";
 
     /**
     * 默认下载缓存目录名
-     */
+    */
     private static final String DEFAULT_DOWNLOAD_DIR_NAME = "webcontainer";
 
     /**
     * 字节单位换算基数
-     */
+    */
     private static final long BYTES_PER_KB = 1024L;
 
     /**
     * 容器状态机引用
-     */
+    */
     protected final AtomicReference<ContainerStatus> status = new AtomicReference<>(ContainerStatus.NEW);
 
     /**
     * 容器配置
-     */
+    */
     protected WebContainerSetting setting;
 
     /**
     * 已部署单元列表
-     */
+    */
     protected final List<DeployUnitInfo> deployedUnits = new ArrayList<>();
 
     @Override
@@ -195,7 +195,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param mainClass   主类全限定名
     * @param contextPath 上下文路径
-     */
+    */
     protected void doDeployMain(String mainClass, String contextPath) {
         try {
              Class<?> clazz = ReflectUtils.forName(mainClass);
@@ -319,12 +319,12 @@ public abstract class AbstractWebContainer implements WebContainer {
 
     /**
     * 子类实现：启动容器。
-     */
+    */
     protected abstract void doStart();
 
     /**
     * 子类实现：停止容器。
-     */
+    */
     protected abstract void doStop();
 
     /**
@@ -333,21 +333,21 @@ public abstract class AbstractWebContainer implements WebContainer {
     * @param archivePath 归档文件路径
     * @param contextPath 上下文路径
     * @param type        部署单元类型
-     */
+    */
     protected abstract void doDeploy(String archivePath, String contextPath, DeployUnitType type);
 
     /**
     * 子类实现：卸载应用（默认空实现）。
     *
     * @param contextPath 上下文路径
-     */
+    */
     protected void doUndeploy(String contextPath) {
         // 默认空实现，子类可按需覆盖
     }
 
     /**
     * 确保容器已初始化。
-     */
+    */
     protected void ensureInitialized() {
         if (setting == null) {
             throw new ContainerException("容器尚未初始化，请先调用 initialize()");
@@ -360,7 +360,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     * @param archivePath 归档文件路径
     * @param type        部署单元类型
     * @return 解析出的上下文路径
-     */
+    */
     protected String resolveContextPath(String archivePath, DeployUnitType type) {
         if (archivePath == null) {
             return ROOT_CONTEXT_PATH;
@@ -382,7 +382,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param archivePath 归档文件路径
     * @param type        部署单元类型
-     */
+    */
     protected void validateArchive(String archivePath, DeployUnitType type) {
         File file = new File(archivePath);
         if (!file.exists() && !archivePath.startsWith(CLASSPATH_PREFIX)) {
@@ -397,7 +397,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param path 路径
     * @return true 表示是远程 URL
-     */
+    */
     protected boolean isRemoteUrl(String path) {
         if (path == null) {
             return false;
@@ -416,7 +416,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param path 原始路径
     * @return 本地可用的文件路径
-     */
+    */
     protected String resolvePath(String path) {
         if (StringUtils.isEmpty(path)) {
             return path;
@@ -435,7 +435,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     * @param remoteUrl 远程文件 URL
     * @return 下载后的本地文件绝对路径
     * @throws ContainerException 下载失败时抛出
-     */
+    */
     protected String downloadRemoteFile(String remoteUrl) {
         String fileName = extractFileName(remoteUrl);
         File downloadDir = determineDownloadDir();
@@ -519,7 +519,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param url URL 字符串
     * @return 文件名，若无法提取则返回带时间戳的默认名
-     */
+    */
     private String extractFileName(String url) {
         int queryIndex = url.indexOf(QUERY_DELIMITER);
         String path = queryIndex > 0 ? url.substring(0, queryIndex) : url;
@@ -535,7 +535,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     * 确定下载缓存目录。
     *
     * @return 下载缓存目录
-     */
+    */
     private File determineDownloadDir() {
         if (setting != null && !StringUtils.isEmpty(setting.getDownloadDir())) {
             return new File(setting.getDownloadDir());
@@ -549,7 +549,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     *
     * @param bytes 字节数
     * @return 可读的文件大小字符串
-     */
+    */
     private static String formatSize(long bytes) {
         if (bytes < BYTES_PER_KB) {
             return bytes + " B";
@@ -567,7 +567,7 @@ public abstract class AbstractWebContainer implements WebContainer {
     * 获取已部署的单元信息列表。
     *
     * @return 已部署单元信息副本列表
-     */
+    */
     public List<DeployUnitInfo> getDeployedUnits() {
         return new ArrayList<>(deployedUnits);
     }
@@ -576,22 +576,22 @@ public abstract class AbstractWebContainer implements WebContainer {
     * 已部署的单元信息。
     *
     * @since 4.0.0.42
-     */
+    */
     @Data
     public static class DeployUnitInfo {
         /**
         * 归档文件路径
-         */
+        */
         private final String path;
 
         /**
         * 上下文路径
-         */
+        */
         private final String contextPath;
 
         /**
         * 部署单元类型
-         */
+        */
         private final DeployUnitType type;
 
         /**
@@ -600,7 +600,7 @@ public abstract class AbstractWebContainer implements WebContainer {
         * @param path        归档文件路径
         * @param contextPath 上下文路径
         * @param type        部署单元类型
-         */
+        */
         public DeployUnitInfo(String path, String contextPath, DeployUnitType type) {
             this.path = path;
             this.contextPath = contextPath;
@@ -611,7 +611,7 @@ public abstract class AbstractWebContainer implements WebContainer {
         * 转为字符串表示。
         *
         * @return 字符串表示
-         */
+        */
         @Override
         public String toString() {
             return type + ":" + contextPath + "=" + path;

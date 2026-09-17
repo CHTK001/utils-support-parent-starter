@@ -37,7 +37,7 @@ public record MethodDefinition(
     * @param annotations 参数注解定义列表
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record ParameterDefinition(
         String name,
         Class<?> type,
@@ -51,7 +51,7 @@ public record MethodDefinition(
     * 获取第一个参数类型。
     *
     * @return 第一个参数类型，无参返回 {@code null}
-     */
+    */
     public Class<?> getFirstParamType() {
         return parameters.isEmpty() ? null : parameters.getFirst().type();
     }
@@ -60,7 +60,7 @@ public record MethodDefinition(
     * 判断是否为公开方法。
     *
     * @return {@code true} 如果方法为 public
-     */
+    */
     public boolean isPublic() {
         return java.lang.reflect.Modifier.isPublic(modifiers);
     }
@@ -69,7 +69,7 @@ public record MethodDefinition(
     * 判断是否为静态方法。
     *
     * @return {@code true} 如果方法为 static
-     */
+    */
     public boolean isStatic() {
         return java.lang.reflect.Modifier.isStatic(modifiers);
     }
@@ -78,7 +78,7 @@ public record MethodDefinition(
     * 判断是否为抽象方法。
     *
     * @return {@code true} 如果方法为 abstract
-     */
+    */
     public boolean isAbstract() {
         return java.lang.reflect.Modifier.isAbstract(modifiers);
     }
@@ -88,7 +88,7 @@ public record MethodDefinition(
     *
     * @param annotationClass 注解类
     * @return 是否包含
-     */
+    */
     public boolean hasAnnotation(Class<? extends java.lang.annotation.Annotation> annotationClass) {
         for (AnnotationDefinition def : annotations) {
             if (def.annotationClass().isAssignableFrom(annotationClass)) {
@@ -100,7 +100,7 @@ public record MethodDefinition(
 
     /**
     * 将定义转为字符串形式。
-     */
+    */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

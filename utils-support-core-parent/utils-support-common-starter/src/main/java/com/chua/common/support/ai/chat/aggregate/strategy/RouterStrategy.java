@@ -36,7 +36,7 @@ public interface RouterStrategy {
     * @param clients 候选列表（可修改，已选中的会被外部移除）
     * @param prompt  用户输入
     * @return 选中的客户端
-     */
+    */
     WeightedClient select(List<WeightedClient> clients, String prompt);
 
     /**
@@ -47,7 +47,7 @@ public interface RouterStrategy {
     * @param usageCallback 用量回调
     * @return 响应文本
     * @throws Exception 全部失败
-     */
+    */
     default String executeSync(List<WeightedClient> clients, String prompt,
                                Consumer<AiUsage> usageCallback) throws Exception {
         return FailoverTemplate.executeSync(this, clients, prompt, usageCallback);
@@ -60,7 +60,7 @@ public interface RouterStrategy {
     * @param prompt   用户输入
     * @param consumer 流式回调
     * @throws Exception 全部失败
-     */
+    */
     default void executeStream(List<WeightedClient> clients, String prompt,
                                Consumer<ChatResponse> consumer) throws Exception {
         FailoverTemplate.executeStream(this, clients, prompt, consumer);
@@ -73,7 +73,7 @@ public interface RouterStrategy {
     * @param model    模型
     * @param weight   权重
     * @param client   ChatClient 实例
-     */
+    */
     record WeightedClient(String provider, String model, int weight, ChatClient client) {
     }
 }

@@ -8,23 +8,23 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.util.Map;
 
 /**
-* 服务器过滤器接口，用于实现协议无关的请求处理逻辑。
-* <p>
-* {@code ServerFilter} 是 {@link Server} 的核心扩展点，允许在请求处理和响应发送过程中插入自定义逻辑。
-* 通过 {@link #supportProtocols()} 方法声明该过滤器支持的协议类型。
-* </p>
-* <p>
-* 控制流方式：
-* <ul>
-*   <li><b>放行</b>：调用 {@link ServerFilterChain#doFilter(ServerRequest, ServerResponse)} 以继续执行链中的下一个过滤器。</li>
-*   <li><b>终止</b>：调用 {@link ServerResponse#end()} 结束响应并阻止链中后续过滤器的执行。</li>
-* </ul>
-* </p>
-*
-* @author CH
-* @version 2.0
-* @since 2026/07/16
- */
+ * 服务器过滤器接口，用于实现协议无关的请求处理逻辑。
+ * <p>
+ * {@code ServerFilter} 是 {@link Server} 的核心扩展点，允许在请求处理和响应发送过程中插入自定义逻辑。
+ * 通过 {@link #supportProtocols()} 方法声明该过滤器支持的协议类型。
+ * </p>
+ * <p>
+ * 控制流方式：
+ * <ul>
+ *   <li><b>放行</b>：调用 {@link ServerFilterChain#doFilter(ServerRequest, ServerResponse)} 以继续执行链中的下一个过滤器。</li>
+ *   <li><b>终止</b>：调用 {@link ServerResponse#end()} 结束响应并阻止链中后续过滤器的执行。</li>
+ * </ul>
+ * </p>
+ *
+ * @author CH
+ * @version 2.0
+ * @since 2026/07/16
+*/
 public interface ServerFilter {
 
     /**
@@ -38,7 +38,7 @@ public interface ServerFilter {
     * @param response 当前响应对象
     * @param chain    过滤器链，用于传递到下一个过滤器
     * @throws Exception 处理过程中可能抛出的异常
-     */
+    */
     void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception;
 
     /**
@@ -48,7 +48,7 @@ public interface ServerFilter {
     * </p>
     *
     * @return 执行顺序值
-     */
+    */
     default int getOrder() {
         return 100;
     }
@@ -60,7 +60,7 @@ public interface ServerFilter {
     * </p>
     *
     * @return true 表示启用，false 表示禁用
-     */
+    */
     default boolean isEnabled() {
         return true;
     }
@@ -72,7 +72,7 @@ public interface ServerFilter {
     * </p>
     *
     * @return 过滤器 ID
-     */
+    */
     default String getFilterId() {
         return getClass().getName();
     }
@@ -85,7 +85,7 @@ public interface ServerFilter {
     *
     * @param config 过滤器配置信息
     * @throws Exception 初始化失败时抛出异常
-     */
+    */
     default void init(ServerFilterConfig config) throws Exception {
     }
 
@@ -94,7 +94,7 @@ public interface ServerFilter {
     * <p>
     * 当服务器关闭或过滤器被移除时调用，用于释放资源。
     * </p>
-     */
+    */
     default void destroy() {
         // NOTHING
     }
@@ -106,7 +106,7 @@ public interface ServerFilter {
     * </p>
     *
     * @param config 新的配置参数
-     */
+    */
     default void updateConfig(Map<String, Object> config) {
     }
 
@@ -117,7 +117,7 @@ public interface ServerFilter {
     * </p>
     *
     * @return 支持的协议类型数组
-     */
+    */
     default ProtocolType[] supportProtocols() {
         return new ProtocolType[0];
     }
@@ -139,7 +139,7 @@ public interface ServerFilter {
     * </ul>
     *
     * @return 路径模式，null 表示每次请求都触发（Access Filter）
-     */
+    */
     default String supportPath() {
         return null;
     }
@@ -148,7 +148,7 @@ public interface ServerFilter {
     * 判断该过滤器是否为 Access Filter（每次请求都触发）。
     *
     * @return true 表示是 Access Filter
-     */
+    */
     default boolean isAccessFilter() {
         return supportPath() == null;
     }
@@ -161,7 +161,7 @@ public interface ServerFilter {
     *
     * @param protocol 待检查的协议类型
     * @return 如果支持返回 true，否则返回 false
-     */
+    */
     default boolean supportProtocol(ProtocolType protocol) {
         ProtocolType[] types = supportProtocols();
         if (types.length == 0) {

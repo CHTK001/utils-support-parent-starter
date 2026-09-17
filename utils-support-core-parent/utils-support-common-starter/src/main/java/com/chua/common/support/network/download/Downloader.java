@@ -92,7 +92,7 @@ public class Downloader {
     * 创建 Downloader 实例。
     *
     * @return 新的 Downloader 实例
-     */
+    */
     public static Downloader create() {
         return new Downloader();
     }
@@ -104,7 +104,7 @@ public class Downloader {
     *
     * @param url 合法的 HTTP/HTTPS URL
     * @return 当前实例
-     */
+    */
     public Downloader url(String url) {
         this.url = url;
         return this;
@@ -115,7 +115,7 @@ public class Downloader {
     *
     * @param targetDir 目标目录
     * @return 当前实例
-     */
+    */
     public Downloader target(Path targetDir) {
         this.targetDir = targetDir;
         return this;
@@ -126,7 +126,7 @@ public class Downloader {
     *
     * @param filename 期望的文件名
     * @return 当前实例
-     */
+    */
     public Downloader filename(String filename) {
         this.filename = filename;
         return this;
@@ -137,7 +137,7 @@ public class Downloader {
     *
     * @param md5 小写十六进制 MD5 字符串
     * @return 当前实例
-     */
+    */
     public Downloader expectedMd5(String md5) {
         this.expectedMd5 = md5;
         return this;
@@ -148,7 +148,7 @@ public class Downloader {
     *
     * @param threads 线程数，必须 >= 1
     * @return 当前实例
-     */
+    */
     public Downloader concurrency(int threads) {
         this.concurrency = Math.max(1, threads);
         return this;
@@ -159,7 +159,7 @@ public class Downloader {
     *
     * @param bytesPerSecond 限速字节/秒
     * @return 当前实例
-     */
+    */
     public Downloader maxSpeed(long bytesPerSecond) {
         this.maxSpeed = bytesPerSecond;
         return this;
@@ -170,7 +170,7 @@ public class Downloader {
     *
     * @param proxy 代理对象
     * @return 当前实例
-     */
+    */
     public Downloader proxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
@@ -181,7 +181,7 @@ public class Downloader {
     *
     * @param autoExtract true 表示自动解压
     * @return 当前实例
-     */
+    */
     public Downloader autoExtract(boolean autoExtract) {
         this.autoExtract = autoExtract;
         return this;
@@ -192,7 +192,7 @@ public class Downloader {
     *
     * @param extractTo 解压目标目录
     * @return 当前实例
-     */
+    */
     public Downloader extractTo(Path extractTo) {
         this.extractTo = extractTo;
         return this;
@@ -203,7 +203,7 @@ public class Downloader {
     *
     * @param skip true 表示跳过
     * @return 当前实例
-     */
+    */
     public Downloader skipMd5Check(boolean skip) {
         this.skipMd5Check = skip;
         return this;
@@ -214,7 +214,7 @@ public class Downloader {
     *
     * @param force true 表示强制
     * @return 当前实例
-     */
+    */
     public Downloader forceDownload(boolean force) {
         this.forceDownload = force;
         return this;
@@ -225,7 +225,7 @@ public class Downloader {
     *
     * @param show true 显示进度条
     * @return 当前实例
-     */
+    */
     public Downloader showProgress(boolean show) {
         this.showProgress = show;
         return this;
@@ -236,7 +236,7 @@ public class Downloader {
     *
     * @param ms 超时毫秒数
     * @return 当前实例
-     */
+    */
     public Downloader connectTimeout(int ms) {
         this.connectTimeoutMs = ms;
         return this;
@@ -247,7 +247,7 @@ public class Downloader {
     *
     * @param ms 超时毫秒数
     * @return 当前实例
-     */
+    */
     public Downloader readTimeout(int ms) {
         this.readTimeoutMs = ms;
         return this;
@@ -259,7 +259,7 @@ public class Downloader {
     * @param name  请求头名称
     * @param value 请求头值
     * @return 当前实例
-     */
+    */
     public Downloader header(String name, String value) {
         this.headers.put(name, value);
         return this;
@@ -275,7 +275,7 @@ public class Downloader {
     *
     * @param protocol 下载协议
     * @return 当前实例
-     */
+    */
     public Downloader protocol(DownloadProtocol protocol) {
         this.protocol = protocol;
         return this;
@@ -289,7 +289,7 @@ public class Downloader {
     * @return 下载结果
     * @throws DownloadException 下载失败
     * @throws IOException       文件系统操作失败
-     */
+    */
     public DownloadResult execute() throws DownloadException, IOException {
         validate();
 
@@ -358,7 +358,7 @@ public class Downloader {
     * 校验必填参数。
     *
     * @throws DownloadException 当 URL 为空时
-     */
+    */
     private void validate() throws DownloadException {
         if (url == null || url.isBlank()) {
             throw new DownloadException("URL 不能为空");

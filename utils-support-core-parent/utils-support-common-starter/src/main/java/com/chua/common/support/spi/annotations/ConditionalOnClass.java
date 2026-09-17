@@ -3,14 +3,14 @@ package com.chua.common.support.spi.annotations;
 import java.lang.annotation.*;
 
 /**
-* 条件注解：当类路径下存在指定的类时，相关的SPI配置或组件才会生效。
-* <p>
-* 用于SPI机制中的条件装配，判断当前运行环境中是否包含特定的依赖类。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 条件注解：当类路径下存在指定的类时，相关的SPI配置或组件才会生效。
+ * <p>
+ * 用于SPI机制中的条件装配，判断当前运行环境中是否包含特定的依赖类。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -23,7 +23,7 @@ public @interface ConditionalOnClass {
     * </p>
     *
     * @return 类的全限定名数组
-     */
+    */
     String[] value() default {};
 
     /**
@@ -33,6 +33,6 @@ public @interface ConditionalOnClass {
     * </p>
     *
     * @return 类对象数组
-     */
+    */
     Class<?>[] classes() default {};
 }

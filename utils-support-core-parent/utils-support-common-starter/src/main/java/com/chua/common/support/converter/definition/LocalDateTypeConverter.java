@@ -29,7 +29,7 @@ public class LocalDateTypeConverter implements TypeConverter<LocalDate> {
     *
     * @param value 源值
     * @return LocalDate 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public LocalDate convert(Object value) {
         if (null == value) {
@@ -74,7 +74,7 @@ public class LocalDateTypeConverter implements TypeConverter<LocalDate> {
     * 获取当前转换器支持的目标类型。
     *
     * @return LocalDate.class
-     */
+    */
     @Override
     public Class<LocalDate> getType() {
         return LocalDate.class;

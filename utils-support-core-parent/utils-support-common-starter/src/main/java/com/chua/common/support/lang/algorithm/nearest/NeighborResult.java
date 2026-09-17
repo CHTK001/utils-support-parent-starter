@@ -23,7 +23,7 @@ public class NeighborResult {
     /** 样本在原数据集中的索引位置 */
     /**
     * 索引名
-     */
+    */
     private final int index;
 
     /** 与目标点的距离值 */
@@ -38,7 +38,7 @@ public class NeighborResult {
     * @param index    样本索引
     * @param distance 距离值
     * @param vector   特征向量
-     */
+    */
     public NeighborResult(int index, double distance, double[] vector) {
         this.index = index;
         this.distance = distance;
@@ -49,7 +49,7 @@ public class NeighborResult {
     * 获取样本索引
     *
     * @return 样本在原数据集中的索引
-     */
+    */
     public int getIndex() {
         return index;
     }
@@ -58,7 +58,7 @@ public class NeighborResult {
     * 获取距离值
     *
     * @return 与目标点的距离
-     */
+    */
     public double getDistance() {
         return distance;
     }
@@ -67,7 +67,7 @@ public class NeighborResult {
     * 获取特征向量
     *
     * @return 样本的 N 维特征向量
-     */
+    */
     public double[] getVector() {
         return vector;
     }
@@ -76,7 +76,7 @@ public class NeighborResult {
     * 是否为有效结果
     *
     * @return 如果索引 >= 0 则为有效结果
-     */
+    */
     public boolean isValid() {
         return index >= 0;
     }

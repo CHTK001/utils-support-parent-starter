@@ -26,54 +26,54 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
 
     /**
     * 进度条样式
-     */
+    */
     private final ProgressBarStyle style;
 
     /**
     * 进度单位
-     */
+    */
     private final ProgressUnit unit;
 
     /**
     * 单位名称
-     */
+    */
     private final String unitName;
 
     /**
     * 单位大小
-     */
+    */
     private final long unitSize;
 
     /**
     * 是否显示速度
-     */
+    */
     private final boolean isSpeedShown;
 
     /**
     * 速度格式
-     */
+    */
     private final DecimalFormat speedFormat;
 
     /**
     * 速度单位
-     */
+    */
     private final ChronoUnit speedUnit;
 
     /**
     * 是否显示预计剩余时间
-     */
+    */
     private final boolean isEtaShown;
 
     /**
     * 预计剩余时间计算函数
-     */
+    */
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
     *             
     *
     * @param style                
-     */
+    */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style
     ) {
@@ -102,7 +102,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     * @param speedUnit             
     * @param isEtaShown                               
     * @param eta                               
-     */
+    */
     protected DefaultProgressBarRenderer(
             ProgressBarStyle style,
             ProgressUnit unit,
@@ -131,7 +131,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param length          
     * @return                   
-     */
+    */
     protected int progressIntegralPart(ProgressState progress, int length) {
         return (int) (progress.getNormalizedProgress() * length);
     }
@@ -142,7 +142,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param length          
     * @return                                           
-     */
+    */
     protected int progressFractionalPart(ProgressState progress, int length) {
         double p = progress.getNormalizedProgress() * length;
         double fraction = (p - Math.floor(p)) * style.fractionSymbols.length();
@@ -154,7 +154,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                                                           "?"
-     */
+    */
     protected String etaString(ProgressState progress) {
         Optional<Duration> eta = this.eta.apply(progress);
         return eta.map(Util::formatDuration).orElse("?");
@@ -165,7 +165,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                                  4                  
-     */
+    */
     protected String percentage(ProgressState progress) {
         String res;
         if (progress.max <= 0 || progress.indefinite) {
@@ -181,7 +181,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                                        NONE                     
-     */
+    */
     protected String ratio(ProgressState progress) {
         if (unit == ProgressUnitType.NONE) {
             return SYMBOL_EMPTY;
@@ -196,7 +196,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                               
-     */
+    */
     protected String speed(ProgressState progress) {
         String suffix = "/s";
         double elapsedSeconds = progress.getElapsedAfterStart().getSeconds();
@@ -233,7 +233,7 @@ public class DefaultProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param maxLength             
     * @return                               
-     */
+    */
     @Override
     public String render(ProgressState progress, int maxLength) {
         if (maxLength <= 0) {

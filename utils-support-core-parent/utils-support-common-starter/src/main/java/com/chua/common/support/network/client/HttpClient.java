@@ -56,7 +56,7 @@ public interface HttpClient extends AutoCloseable {
     * @param request 封装好的请求对象，包含 URL、方法、请求头、请求体、超时等全部参数
     * @return 响应对象 {@link ClientResponse}，包含状态码、响应头和响应体
     * @throws RuntimeException 如果请求执行过程中发生异常
-     */
+    */
     ClientResponse execute(ClientRequest request);
 
     /**
@@ -69,7 +69,7 @@ public interface HttpClient extends AutoCloseable {
     * @param url    请求 URL，如 {@code "http://api.example.com/users"}
     * @param method HTTP 请求方法
     * @return 链式请求规格 RequestSpec
-     */
+    */
     default RequestSpec request(String url, HttpMethod method) {
         return new RequestSpec(this, url, method);
     }
@@ -102,7 +102,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param interceptor 应用层拦截器
     * @return 当前客户端实例（链式调用）
-     */
+    */
     default HttpClient addInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
             getInterceptors().add(interceptor);
@@ -118,7 +118,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param interceptor 网络层拦截器
     * @return 当前客户端实例（链式调用）
-     */
+    */
     default HttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
             getNetworkInterceptors().add(interceptor);
@@ -140,7 +140,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param interceptor 请求预处理 Consumer，在请求发出前执行
     * @return 当前客户端实例（链式调用）
-     */
+    */
     default HttpClient interceptor(Consumer<ClientRequest> interceptor) {
         return addInterceptor((chain, request) -> {
             interceptor.accept(request);
@@ -153,7 +153,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param interceptor 请求预处理 Consumer，在请求发出前执行
     * @return 当前客户端实例（链式调用）
-     */
+    */
     default HttpClient networkInterceptor(Consumer<ClientRequest> interceptor) {
         return addNetworkInterceptor((chain, request) -> {
             interceptor.accept(request);
@@ -169,7 +169,7 @@ public interface HttpClient extends AutoCloseable {
     * 应覆写此方法返回其持有的应用层拦截器列表，以便在 {@link #execute(ClientRequest)} 中组装拦截器链。</p>
     *
     * @return 应用层拦截器列表，不会返回 null
-     */
+    */
     default List<HttpInterceptor> getInterceptors() {
         return new java.util.ArrayList<>();
     }
@@ -181,7 +181,7 @@ public interface HttpClient extends AutoCloseable {
     * {@code UnsupportedOperationException}。</p>
     *
     * @return 网络层拦截器列表，不会返回 null
-     */
+    */
     default List<HttpInterceptor> getNetworkInterceptors() {
         return new java.util.ArrayList<>();
     }
@@ -201,7 +201,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @return 折叠 HTTP 客户端
     * @see HttpClientFactory#collapse(HttpClient)
-     */
+    */
     default HttpClient collapse() {
         return HttpClientFactory.collapse(this);
     }
@@ -214,7 +214,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param url 请求 URL，如 {@code "http://api.example.com/users"}
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     default ClientResponse get(String url) {
         return execute(ClientRequest.of(url, HttpMethod.GET));
     }
@@ -228,7 +228,7 @@ public interface HttpClient extends AutoCloseable {
     * @param url  请求 URL，如 {@code "http://api.example.com/users"}
     * @param body 请求体对象，支持 String、byte[] 或任意 Java 对象
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     default ClientResponse post(String url, Object body) {
         ClientRequest request = ClientRequest.of(url, HttpMethod.POST);
         request.setBody(body);
@@ -244,7 +244,7 @@ public interface HttpClient extends AutoCloseable {
     * @param url  请求 URL，如 {@code "http://api.example.com/users/1"}
     * @param body 请求体对象，支持 String、byte[] 或任意 Java 对象
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     default ClientResponse put(String url, Object body) {
         ClientRequest request = ClientRequest.of(url, HttpMethod.PUT);
         request.setBody(body);
@@ -259,7 +259,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param url 请求 URL，如 {@code "http://api.example.com/users/1"}
     * @return 响应对象 {@link ClientResponse}
-     */
+    */
     default ClientResponse delete(String url) {
         return execute(ClientRequest.of(url, HttpMethod.DELETE));
     }
@@ -288,7 +288,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * @param request 封装好的请求对象
     * @return 响应 Mono，完成时包含 {@link ClientResponse}
-     */
+    */
     Mono<ClientResponse> executeAsync(ClientRequest request);
 
     /**
@@ -299,7 +299,7 @@ public interface HttpClient extends AutoCloseable {
     * @param request  封装好的请求对象
     * @param callback 异步回调，成功时回调 {@link Callback#onSuccess(Object)}，
     *                 失败时回调 {@link Callback#onError(Throwable)}
-     */
+    */
     default void executeAsync(ClientRequest request, Callback<ClientResponse> callback) {
         executeAsync(request).subscribe(
                 callback::onSuccess,
@@ -312,7 +312,7 @@ public interface HttpClient extends AutoCloseable {
     *
     * <p>实现类应在此方法中关闭底层 HTTP 客户端的连接池和线程资源。
     * 使用 try-with-resources 可以确保自动调用此方法。</p>
-     */
+    */
     @Override
     void close();
 }

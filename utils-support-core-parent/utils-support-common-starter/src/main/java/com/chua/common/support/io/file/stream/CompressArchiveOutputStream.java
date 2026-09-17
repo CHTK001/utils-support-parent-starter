@@ -19,7 +19,7 @@ public interface CompressArchiveOutputStream {
     *
     * @param file 待处理的文件
     * @return true 表示支持
-     */
+    */
     boolean isSupport(File file);
 
     /**
@@ -30,13 +30,13 @@ public interface CompressArchiveOutputStream {
     * @param password     加密密码（可为 null）
     * @return 归档输出流
     * @throws IOException IO 异常
-     */
+    */
     Object createOutputStream(OutputStream outputStream, File file, char[] password) throws IOException;
 
     /**
     * 获取归档格式名称。
     *
     * @return 格式名称
-     */
+    */
     String getFormatName();
 }

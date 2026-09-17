@@ -45,13 +45,13 @@ public class AiTokenServerFilter implements ServerFilter {
     @Setter
     /**
     * 是否启用
-     */
+    */
     private boolean enabled = true;
 
     /**
     * 创建 AiTokenServerFilter 实例
     * @param tokenProvider tokenProvider
-     */
+    */
     public AiTokenServerFilter(AiTokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
     }

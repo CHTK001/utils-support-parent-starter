@@ -9,27 +9,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 方法注解拦截器抽象基类，统一处理 #{...} 表达式、${...} 占位符和默认值解析。
-*
-* <p>子类拦截器继承本基类后，无需重复实现属性解析逻辑，只需实现
-* {@link com.chua.common.support.proxy.annotation.MethodAnnotationIntercept} 的核心拦截方法。</p>
-*
-* <p><b>属性解析链（按优先级）：</b></p>
-* <ol>
-*   <li>{@code #{...}} 表达式，通过 {@link ExpressionResolvers} SPI 链解析，
-* 支持默认变量访问（通用）和 spel 全特性（spring 增强）</li>
-*   <li>{@code ${...}} 占位符，通过 {@link StringValuePropertyResolver} 从配置源读取</li>
-*   <li>普通字面量，直接使用</li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 方法注解拦截器抽象基类，统一处理 #{...} 表达式、${...} 占位符和默认值解析。
+ *
+ * <p>子类拦截器继承本基类后，无需重复实现属性解析逻辑，只需实现
+ * {@link com.chua.common.support.proxy.annotation.MethodAnnotationIntercept} 的核心拦截方法。</p>
+ *
+ * <p><b>属性解析链（按优先级）：</b></p>
+ * <ol>
+ *   <li>{@code #{...}} 表达式，通过 {@link ExpressionResolvers} SPI 链解析，
+ * 支持默认变量访问（通用）和 spel 全特性（spring 增强）</li>
+ *   <li>{@code ${...}} 占位符，通过 {@link StringValuePropertyResolver} 从配置源读取</li>
+ *   <li>普通字面量，直接使用</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public abstract class AbstractMethodAnnotationIntercept {
 
     /**
     * 占位符解析器，用于解析 ${...} 格式的占位符
-     */
+    */
     protected final StringValuePropertyResolver propertyResolver = new StringValuePropertyResolver(null);
 
     /**
@@ -41,7 +41,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param defaultValue 解析失败时的默认值
     * @param proxyMethod  被拦截方法信息，用于表达式求值上下文
     * @return 解析后的整型值
-     */
+    */
     protected int resolveInt(String value, int defaultValue, ProxyMethod proxyMethod) {
         String resolved = resolve(value, proxyMethod);
         if (resolved == null) {
@@ -62,7 +62,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param defaultValue 解析失败时的默认值
     * @param proxyMethod  被拦截方法信息，用于表达式求值上下文
     * @return 解析后的长整型值
-     */
+    */
     protected long resolveLong(String value, String alias, long defaultValue, ProxyMethod proxyMethod) {
         String actual = StringUtils.hasText(alias) ? alias : value;
         return resolveLong(actual, defaultValue, proxyMethod);
@@ -75,7 +75,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param defaultValue 解析失败时的默认值
     * @param proxyMethod  被拦截方法信息，用于表达式求值上下文
     * @return 解析后的长整型值
-     */
+    */
     protected long resolveLong(String value, long defaultValue, ProxyMethod proxyMethod) {
         String resolved = resolve(value, proxyMethod);
         if (resolved == null) {
@@ -95,7 +95,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param defaultValue 解析失败时的默认值
     * @param proxyMethod  被拦截方法信息，用于表达式求值上下文
     * @return 解析后的双精度值
-     */
+    */
     protected double resolveDouble(String value, double defaultValue, ProxyMethod proxyMethod) {
         String resolved = resolve(value, proxyMethod);
         if (resolved == null) {
@@ -117,7 +117,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param annotatedName 注解中的 名称 值
     * @param proxyMethod   被拦截方法信息
     * @return 解析后的名称
-     */
+    */
     protected String resolveName(String annotatedName, ProxyMethod proxyMethod) {
         if (!StringUtils.hasText(annotatedName)) {
             return proxyMethod.getTarget().getClass().getName() + "." + proxyMethod.getMethod().getName();
@@ -138,7 +138,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     * @param text        注解属性原始文本
     * @param proxyMethod 被拦截方法信息
     * @return 解析后的值，无法解析时返回 空
-     */
+    */
     protected String resolve(String text, ProxyMethod proxyMethod) {
         if (!StringUtils.hasText(text)) {
             return null;
@@ -165,7 +165,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     *
     * @param proxyMethod 被拦截方法信息
     * @return 目标实例作为根对象
-     */
+    */
     protected Object createRoot(ProxyMethod proxyMethod) {
         return proxyMethod != null ? proxyMethod.getTarget() : null;
     }
@@ -178,7 +178,7 @@ public abstract class AbstractMethodAnnotationIntercept {
     *
     * @param proxyMethod 被拦截方法信息
     * @return 上下文变量映射
-     */
+    */
     protected Map<String, Object> createVariables(ProxyMethod proxyMethod) {
         Map<String, Object> variables = new HashMap<>(4);
         if (proxyMethod != null) {

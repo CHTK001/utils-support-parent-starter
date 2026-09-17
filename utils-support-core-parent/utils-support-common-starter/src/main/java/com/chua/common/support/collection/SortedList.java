@@ -23,7 +23,7 @@ public interface SortedList<E> extends List<E> {
     *
     * @return 第一个元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     E first();
 
     /**
@@ -31,7 +31,7 @@ public interface SortedList<E> extends List<E> {
     *
     * @return 最后一个元素
     * @throws NoSuchElementException 如果列表为空
-     */
+    */
     E last();
 
     /**
@@ -39,7 +39,7 @@ public interface SortedList<E> extends List<E> {
     *
     * @param <E> 元素类型
     * @return 空的排序列表
-     */
+    */
     static <E> SortedList<E> emptyList() {
         return new SortedArrayList<E>(Comparator.comparingInt(Object::hashCode));
     }

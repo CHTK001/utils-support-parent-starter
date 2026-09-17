@@ -53,7 +53,7 @@ public interface Callback<T> {
     * 调用方应在回调中自行判断 {@code result.isSuccess()} 决定业务逻辑。</p>
     *
     * @param result 异步执行结果，通常为 {@link ClientResponse} 对象
-     */
+    */
     void onSuccess(T result);
 
     /**
@@ -63,7 +63,7 @@ public interface Callback<T> {
     * 默认实现为空方法，调用方可按需覆盖以处理异常。</p>
     *
     * @param error 异常信息，包含失败原因和堆栈
-     */
+    */
     default void onError(Throwable error) {
     }
 }

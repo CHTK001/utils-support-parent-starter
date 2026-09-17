@@ -69,7 +69,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     * @param compressionChatClient compressionChatClient
     * @param fallbackChatClient fallbackChatClient
     * @param workspace workspace
-     */
+    */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient compressionChatClient,
                                           ChatClient fallbackChatClient,
@@ -85,7 +85,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     * @param config config
     * @param fallbackChatClient fallbackChatClient
     * @param workspace workspace
-     */
+    */
     public AgentContextCompressionService(AgentCompressionConfig config,
                                           ChatClient fallbackChatClient,
                                           String workspace) {
@@ -119,7 +119,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     * OnDeviationCompression
     * @param baselineContext baselineContext
     * @param currentContext currentContext
-     */
+    */
     public List<ChatMessage> onDeviationCompression(List<ChatMessage> baselineContext,
                                                      List<ChatMessage> currentContext) {
         if (!config.isEnabled()) {
@@ -356,7 +356,7 @@ public class AgentContextCompressionService implements AgentContextCompressionCo
     * @param client client
     * @param baselineSummary baselineSummary
     * @param currentContext currentContext
-     */
+    */
     private List<ChatMessage> correctDeviation(ChatClient client,
                                                 String baselineSummary,
                                                 List<ChatMessage> currentContext) {

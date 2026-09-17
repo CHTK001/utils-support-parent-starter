@@ -44,32 +44,32 @@ public class FtpsServer extends FtpServer {
 
     /**
     * FTPS 隐式模式默认端口
-     */
+    */
     private static final int DEFAULT_FTPS_PORT = 990;
 
     /**
     * SSL 上下文
-     */
+    */
     private final SSLContext sslContext;
 
     /**
     * SSL 服务器 Socket 工厂
-     */
+    */
     private final SSLServerSocketFactory sslServerSocketFactory;
 
     /**
     * 是否为隐式 SSL 模式（true=端口直接 TLS，false=先明文后 AUTH TLS）
-     */
+    */
     private final boolean implicitSsl;
 
     /**
     * 底层 SSL 监听 Socket
-     */
+    */
     private volatile SSLServerSocket sslServerSocket;
 
     /**
     * 创建默认 FTPS 服务器（隐式 SSL，端口 990，自签名证书）。
-     */
+    */
     public FtpsServer() {
         this(FtpConfig.builder()
                 .controlPort(DEFAULT_FTPS_PORT)
@@ -82,7 +82,7 @@ public class FtpsServer extends FtpServer {
     * 创建指定配置的 FTPS 服务器（隐式 SSL 模式）。
     *
     * @param config FTP 配置（必须启用 SSL）
-     */
+    */
     public FtpsServer(FtpConfig config) {
         this(config, true);
     }
@@ -92,7 +92,7 @@ public class FtpsServer extends FtpServer {
     *
     * @param config       FTP 配置
     * @param implicitSsl  是否隐式 SSL 模式
-     */
+    */
     public FtpsServer(FtpConfig config, boolean implicitSsl) {
         super(config);
         this.implicitSsl = implicitSsl;
@@ -105,7 +105,7 @@ public class FtpsServer extends FtpServer {
     *
     * @param config FTP 配置
     * @return SSL 上下文
-     */
+    */
     private SSLContext initSslContext(FtpConfig config) {
         try {
             var sslConfig = new ServerSetting.SslConfig();
@@ -130,7 +130,7 @@ public class FtpsServer extends FtpServer {
 
     /**
     * 启动 FTPS 服务器：绑定 SSL 监听端口并开始接受 TLS 连接。
-     */
+    */
     @Override
     protected void doStart() {
         try {
@@ -150,7 +150,7 @@ public class FtpsServer extends FtpServer {
 
     /**
     * 接受连接主循环。
-     */
+    */
     private void acceptLoop() {
         while (!sslServerSocket.isClosed()) {
             try {
@@ -168,7 +168,7 @@ public class FtpsServer extends FtpServer {
     * 处理 FTPS 控制连接。
     *
     * @param socket SSL Socket
-     */
+    */
     private void handleControlConnection(Socket socket) {
         FtpSession session = null;
         try {
@@ -211,7 +211,7 @@ public class FtpsServer extends FtpServer {
     * 处理 AUTH TLS 命令：将明文控制连接升级为加密连接。
     *
     * @param session FTP 会话
-     */
+    */
     private void handleAuthTls(FtpSession session) {
         try {
             session.reply(234, "Ready to start SSL");
@@ -223,7 +223,7 @@ public class FtpsServer extends FtpServer {
 
     /**
     * 停止 FTPS 服务器。
-     */
+    */
     @Override
     protected void doStop() {
         markStopped();
@@ -243,7 +243,7 @@ public class FtpsServer extends FtpServer {
     * 获取 SSL 上下文。
     *
     * @return SSL 上下文
-     */
+    */
     public SSLContext getSslContext() {
         return sslContext;
     }
@@ -252,7 +252,7 @@ public class FtpsServer extends FtpServer {
     * 是否为隐式 SSL 模式。
     *
     * @return true 表示隐式 SSL 模式
-     */
+    */
     public boolean isImplicitSsl() {
         return implicitSsl;
     }

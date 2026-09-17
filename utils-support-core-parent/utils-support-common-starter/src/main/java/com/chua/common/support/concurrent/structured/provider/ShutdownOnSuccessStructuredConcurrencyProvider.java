@@ -25,7 +25,9 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     /** 是否已关闭 */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    /** 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例 */
+    /**
+    * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
+    */
     public ShutdownOnSuccessStructuredConcurrencyProvider() {
         this.executor = ThreadUtils.newVirtualThreadPerTaskExecutor();
     }
@@ -33,7 +35,7 @@ public class ShutdownOnSuccessStructuredConcurrencyProvider implements Structure
     /**
     * 创建 ShutdownOnSuccessStructuredConcurrencyProvider 实例
     * @param executor executor
-     */
+    */
     public ShutdownOnSuccessStructuredConcurrencyProvider(ExecutorService executor) {
         this.executor = executor;
     }

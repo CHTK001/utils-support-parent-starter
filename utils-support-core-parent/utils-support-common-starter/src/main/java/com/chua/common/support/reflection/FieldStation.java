@@ -5,15 +5,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
-* 字段访问工具。
-* <p>
-* 通过 {@link ReflectUtils} 提供的字段读写、查找能力封装，
-* 提供对 Bean 字段按字符串名称的动态读写能力。
-* </p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 字段访问工具。
+ * <p>
+ * 通过 {@link ReflectUtils} 提供的字段读写、查找能力封装，
+ * 提供对 Bean 字段按字符串名称的动态读写能力。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public final class FieldStation {
 
     /** 实例 */
@@ -27,7 +27,7 @@ public final class FieldStation {
     *
     * @param instance 实例
     * @param type     类型
-     */
+    */
     private FieldStation(Object instance, Class<?> type) {
         this.instance = instance;
         this.type = type;
@@ -38,7 +38,7 @@ public final class FieldStation {
     *
     * @param type 类型
     * @return FieldStation 实例
-     */
+    */
     public static FieldStation of(Class<?> type) {
         return new FieldStation(null, type);
     }
@@ -48,7 +48,7 @@ public final class FieldStation {
     *
     * @param instance 实例，允许为 空
     * @return FieldStation 实例
-     */
+    */
     public static FieldStation of(Object instance) {
         if (instance == null) {
             return new FieldStation(null, null);
@@ -61,7 +61,7 @@ public final class FieldStation {
     *
     * @param name 字段名（支持 pascal大小写，自动转 camel大小写）
     * @return 字段值，不存在返回 空
-     */
+    */
     public Object getValue(String name) {
         if (type == null) {
             return null;
@@ -74,7 +74,7 @@ public final class FieldStation {
     *
     * @param name  字段名
     * @param value 值
-     */
+    */
     public void setIgnoreNameValue(String name, Object value) {
         if (type == null) {
             return;
@@ -87,7 +87,7 @@ public final class FieldStation {
     *
     * @param name 字段名
     * @return 转换后的字段名
-     */
+    */
     private String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -106,7 +106,7 @@ public final class FieldStation {
     * @param name 字段名
     * @return Field 对象
     * @throws NoSuchFieldException 当字段不存在时
-     */
+    */
     static Field findField(Class<?> type, String name) throws NoSuchFieldException {
         Field field = ReflectUtils.findField(type, name);
         if (field == null) {
@@ -121,7 +121,7 @@ public final class FieldStation {
     * @param type 目标类型
     * @param name 字段名
     * @return Field 对象
-     */
+    */
     static Field findFieldForTest(Class<?> type, String name) {
         try {
             return findField(type, name);

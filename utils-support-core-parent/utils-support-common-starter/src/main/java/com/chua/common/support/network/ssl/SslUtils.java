@@ -19,32 +19,32 @@ import java.util.Base64;
 import java.util.List;
 
 /**
-* SSL/TLS 工具类，统一 KeyStore 加载、SSLContext 创建、自签名证书生成等逻辑。
-*
-* <p>消除 {@code JdkHttpServer}、{@code NioHttpServer}、{@code NettyHttpServer}
-* 中的 SSL 代码重复，提供统一的入口方法。</p>
-*
-* <h2>典型用法</h2>
-* <pre>
-*   // 一键 SSL（推荐）
-*   SSLContext ctx = SslUtils.autoSsl(ssl);
-*   if (ctx != null) { // HTTPS } else { // HTTP }
-*
-*   // Netty 场景：仅预处理，自行创建 SslContext
-*   if (SslUtils.autoPrepare(ssl)) {
-*       sslContext = createSslContext(ssl);  // Netty SslContextBuilder
-*   }
-*
-*   // 低级 API：手动分步调用
-*   if (SslUtils.isSslEnabled(ssl)) {
-*       SslUtils.prepareSslConfig(ssl);
-*       SSLContext ctx = SslUtils.createSslContext(ssl);
-*   }
-* </pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * SSL/TLS 工具类，统一 KeyStore 加载、SSLContext 创建、自签名证书生成等逻辑。
+ *
+ * <p>消除 {@code JdkHttpServer}、{@code NioHttpServer}、{@code NettyHttpServer}
+ * 中的 SSL 代码重复，提供统一的入口方法。</p>
+ *
+ * <h2>典型用法</h2>
+ * <pre>
+ *   // 一键 SSL（推荐）
+ *   SSLContext ctx = SslUtils.autoSsl(ssl);
+ *   if (ctx != null) { // HTTPS } else { // HTTP }
+ *
+ *   // Netty 场景：仅预处理，自行创建 SslContext
+ *   if (SslUtils.autoPrepare(ssl)) {
+ *       sslContext = createSslContext(ssl);  // Netty SslContextBuilder
+ *   }
+ *
+ *   // 低级 API：手动分步调用
+ *   if (SslUtils.isSslEnabled(ssl)) {
+ *       SslUtils.prepareSslConfig(ssl);
+ *       SSLContext ctx = SslUtils.createSslContext(ssl);
+ *   }
+ * </pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 public final class SslUtils {
 
@@ -74,7 +74,7 @@ public final class SslUtils {
     * @param ssl SSL 配置，可为 null
     * @return 已初始化的 SSLContext；未启用 SSL 时返回 null
     * @throws RuntimeException SSL 配置或证书加载失败
-     */
+    */
     public static SSLContext autoSsl(ServerSetting.SslConfig ssl) {
         if (!isSslEnabled(ssl)) {
             return null;
@@ -96,7 +96,7 @@ public final class SslUtils {
     *
     * @param ssl SSL 配置，可为 null
     * @return true 表示 SSL 已启用且配置已预处理完成
-     */
+    */
     public static boolean autoPrepare(ServerSetting.SslConfig ssl) {
         if (!isSslEnabled(ssl)) {
             return false;
@@ -112,7 +112,7 @@ public final class SslUtils {
     *
     * @param ssl SSL 配置，可为 null
     * @return true 表示应启用 SSL
-     */
+    */
     public static boolean isSslEnabled(ServerSetting.SslConfig ssl) {
         return ssl != null && (ssl.isEnabled() || ssl.isSelfSignedAuto());
     }
@@ -124,7 +124,7 @@ public final class SslUtils {
     * <p>应在 SSL 初始化之前调用。</p>
     *
     * @param ssl SSL 配置，可为 null
-     */
+    */
     public static void prepareSslConfig(ServerSetting.SslConfig ssl) {
         if (ssl != null && ssl.isSelfSignedAuto()) {
             ssl.setEnabled(true);
@@ -141,7 +141,7 @@ public final class SslUtils {
     * @return 已加载的 KeyStore
     * @throws Exception 加载失败
     * @throws IllegalArgumentException SSL 已启用但未配置任何证书来源
-     */
+    */
     public static KeyStore loadKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         if (ssl.getKeyStorePath() != null) {
             return loadKeyStoreFile(ssl);
@@ -157,7 +157,7 @@ public final class SslUtils {
 
     /**
     * 从 KeyStore 文件（JKS/PKCS12）加载。
-     */
+    */
     private static KeyStore loadKeyStoreFile(ServerSetting.SslConfig ssl) throws Exception {
         String type = ssl.getKeyStorePath().toLowerCase().endsWith(".p12") ? "PKCS12" : "JKS";
         KeyStore ks = KeyStore.getInstance(type);
@@ -170,7 +170,7 @@ public final class SslUtils {
 
     /**
     * 从 PEM 证书文件和私钥文件加载为 KeyStore。
-     */
+    */
     private static KeyStore loadPemKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate cert;
@@ -196,7 +196,7 @@ public final class SslUtils {
 
     /**
     * 使用 {@link JdkCertificateProvider} 自动生成自签名证书并加载为 KeyStore。
-     */
+    */
     private static KeyStore generateSelfSignedKeyStore(ServerSetting.SslConfig ssl) throws Exception {
         JdkCertificateProvider provider = new JdkCertificateProvider();
         provider.setKeyAlg(ssl.getSelfSignedKeyAlg());
@@ -247,7 +247,7 @@ public final class SslUtils {
     * @param ssl SSL 配置
     * @return 已初始化的 SSLContext
     * @throws Exception 创建失败
-     */
+    */
     public static SSLContext createSslContext(ServerSetting.SslConfig ssl) throws Exception {
         KeyManagerFactory kmf = createKeyManagerFactory(ssl);
         SSLContext ctx = SSLContext.getInstance("TLS");
@@ -263,7 +263,7 @@ public final class SslUtils {
     * @param ssl SSL 配置
     * @return 已初始化的 KeyManagerFactory
     * @throws Exception 创建失败
-     */
+    */
     public static KeyManagerFactory createKeyManagerFactory(ServerSetting.SslConfig ssl) throws Exception {
         KeyStore ks = loadKeyStore(ssl);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -281,7 +281,7 @@ public final class SslUtils {
     * 避免加载后 KeyManagerFactory 解密密钥条目失败（BadPaddingException）。</p>
     *
     * @return 密码字符数组
-     */
+    */
     public static char[] getKeyStorePassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyStorePassword() != null
                 ? ssl.getKeyStorePassword().toCharArray() : "changeit".toCharArray();
@@ -291,7 +291,7 @@ public final class SslUtils {
     * 获取私钥密码字符数组。
     *
     * @return 密码字符数组，未设置时返回空数组
-     */
+    */
     public static char[] getKeyPassword(ServerSetting.SslConfig ssl) {
         return ssl.getKeyPassword() != null
                 ? ssl.getKeyPassword().toCharArray() : new char[0];

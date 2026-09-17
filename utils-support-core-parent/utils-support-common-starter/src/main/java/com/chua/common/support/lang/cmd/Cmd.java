@@ -67,14 +67,14 @@ public interface Cmd {
     * 如 {@code "ls"}、{@code "echo"}</p>
     *
     * @return 命令名称（非空）
-     */
+    */
     String name();
 
     /**
     * 获取命令的描述信息。
     *
     * @return 命令描述，用于帮助信息和命令列表
-     */
+    */
     String description();
 
     /**
@@ -83,7 +83,7 @@ public interface Cmd {
     * <p>定义了该命令支持的所有选项和参数，用于参数解析和帮助信息生成。</p>
     *
     * @return {@link CommandLine} 实例
-     */
+    */
     CommandLine cli();
 
     /**
@@ -91,7 +91,7 @@ public interface Cmd {
     *
     * @param args 已解析的命令行参数（来自 {@link CommandLine#parse(String[])}）
     * @return 命令执行结果
-     */
+    */
     CmdResult execute(CommandLine.Result args);
 
     /**
@@ -103,7 +103,7 @@ public interface Cmd {
     * @param rawArgs 原始命令行参数数组
     * @return 命令执行结果
     * @throws IllegalArgumentException 如果参数解析失败
-     */
+    */
     default CmdResult execute(String[] rawArgs) {
         CommandLine.Result parsed = cli().parse(rawArgs);
         // 自动处理 --help

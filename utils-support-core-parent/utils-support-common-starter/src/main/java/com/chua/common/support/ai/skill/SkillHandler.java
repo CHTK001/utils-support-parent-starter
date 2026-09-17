@@ -17,6 +17,6 @@ public interface SkillHandler {
     *
     * @param args 技能调用参数
     * @return 技能执行结果
-     */
+    */
     SkillResult handle(Map<String, Object> args);
 }

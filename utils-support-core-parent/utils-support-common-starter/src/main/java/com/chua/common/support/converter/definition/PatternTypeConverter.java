@@ -19,7 +19,7 @@ public class PatternTypeConverter implements TypeConverter<Pattern> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Pattern.class
-     */
+    */
     @Override
     public Class<Pattern> getType() {
         return Pattern.class;
@@ -30,7 +30,7 @@ public class PatternTypeConverter implements TypeConverter<Pattern> {
     *
     * @param value 源值（正则表达式字符串）
     * @return Pattern 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Pattern convert(Object value) {
         if (value instanceof String) {

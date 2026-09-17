@@ -41,7 +41,7 @@ public interface DdlProvider {
 
     /**
     * DDL 生成器 SPI 扩展名。
-     */
+    */
     String SPI_NAME = "ddl-provider";
 
     /**
@@ -49,7 +49,7 @@ public interface DdlProvider {
     *
     * @param protocol 方言协议名（如 "mysql"、"postgresql"），来自 {@code Dialect} 的协议标识
     * @return true 表示支持该方言
-     */
+    */
     boolean supports(String protocol);
 
     /**
@@ -57,7 +57,7 @@ public interface DdlProvider {
     *
     * @param dbName 数据库名称
     * @return 完整的建库 DDL 语句
-     */
+    */
     String createDatabase(String dbName);
 
     /**
@@ -65,7 +65,7 @@ public interface DdlProvider {
     *
     * @param dbName 数据库名称
     * @return 完整的删库 DDL 语句
-     */
+    */
     String dropDatabase(String dbName);
 
     /**
@@ -74,6 +74,6 @@ public interface DdlProvider {
     * @param tableName 表名
     * @param columns   列定义列表
     * @return 完整的建表 DDL 语句
-     */
+    */
     String createTable(String tableName, List<ColumnDef> columns);
 }

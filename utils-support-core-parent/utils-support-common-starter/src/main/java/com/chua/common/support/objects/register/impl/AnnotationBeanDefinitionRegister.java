@@ -12,11 +12,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
-* 注解 Bean 定义注册器，按注解对 Beandefinition 进行索引和注册。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 注解 Bean 定义注册器，按注解对 Beandefinition 进行索引和注册。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("annotation")
 @SpiDescribe("注解 Bean 定义注册器")

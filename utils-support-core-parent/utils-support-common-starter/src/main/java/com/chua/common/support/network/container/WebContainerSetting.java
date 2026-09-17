@@ -24,7 +24,7 @@ public class WebContainerSetting {
     * 创建一份默认的 Web 容器配置。
     *
     * @return 新的默认配置实例
-     */
+    */
     public static WebContainerSetting defaults() {
         return new WebContainerSetting();
     }
@@ -84,7 +84,7 @@ public class WebContainerSetting {
 
     /**
     * 部署单元定义，描述一个待部署的归档文件。
-     */
+    */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -109,7 +109,7 @@ public class WebContainerSetting {
 
     /**
     * SSL/TLS 配置。
-     */
+    */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

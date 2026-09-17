@@ -68,7 +68,9 @@ public class SnowflakeIdGenerator {
 
     // ==================== 默认值 ====================
 
-    /** 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位毫秒） */
+    /**
+    * 默认纪元起始时间（2020-01-01 00:00:00 UTC，单位毫秒）
+    */
     private static final long DEFAULT_EPOCH = 1577836800000L;
 
     /** 默认工作节点 ID */
@@ -97,7 +99,7 @@ public class SnowflakeIdGenerator {
     * 使用默认配置创建雪花算法 ID 生成器
     *
     * <p>默认工作节点 ID 为 0，纪元起始时间为 2020-01-01。</p>
-     */
+    */
     public SnowflakeIdGenerator() {
         this(DEFAULT_WORKER_ID, DEFAULT_EPOCH, DEFAULT_WORKER_ID_BITS, DEFAULT_TIMESTAMP_BITS, DEFAULT_SEQUENCE_BITS);
     }
@@ -107,7 +109,7 @@ public class SnowflakeIdGenerator {
     *
     * @param workerId 工作节点 ID（0 ~ {@code 2^workerIdBits - 1}）
     * @throws IllegalArgumentException 当工作节点 ID 超出范围时
-     */
+    */
     public SnowflakeIdGenerator(long workerId) {
         this(workerId, DEFAULT_EPOCH, DEFAULT_WORKER_ID_BITS, DEFAULT_TIMESTAMP_BITS, DEFAULT_SEQUENCE_BITS);
     }
@@ -121,7 +123,7 @@ public class SnowflakeIdGenerator {
     * @param timestampBits      时间戳占用位数
     * @param sequenceBits       序列号占用位数
     * @throws IllegalArgumentException 当参数超出范围时
-     */
+    */
     public SnowflakeIdGenerator(long workerId, long epoch,
                                 long workerIdBits, long timestampBits, long sequenceBits) {
         // 计算掩码
@@ -149,7 +151,7 @@ public class SnowflakeIdGenerator {
     *
     * @return 64 位 Long 型唯一 ID
     * @throws IllegalStateException 如果系统时钟回拨（时钟倒退）
-     */
+    */
     public long nextId() {
         synchronized (lock) {
             long currentTimestamp = timestamp();
@@ -185,7 +187,7 @@ public class SnowflakeIdGenerator {
     * 生成下一个唯一 ID 的字符串形式
     *
     * @return 十进制字符串表示的 ID
-     */
+    */
     public String nextIdString() {
         return String.valueOf(nextId());
     }
@@ -195,7 +197,7 @@ public class SnowflakeIdGenerator {
     *
     * @param id 雪花 ID
     * @return 包含时间戳、工作节点 ID、序列号的数组 [timestamp, workerId, sequence]
-     */
+    */
     public long[] parse(long id) {
         long sequence = id & sequenceMask;
         long workerId = (id >>> workerIdShift) & workerIdMask;
@@ -210,7 +212,7 @@ public class SnowflakeIdGenerator {
     * 获取当前系统时间戳（毫秒）
     *
     * @return 当前时间戳（毫秒）
-     */
+    */
     private long timestamp() {
         return System.currentTimeMillis();
     }
@@ -220,7 +222,7 @@ public class SnowflakeIdGenerator {
     *
     * @param lastTimestamp 上次生成 ID 的时间戳
     * @return 下一毫秒的时间戳
-     */
+    */
     private long waitNextMillis(long lastTimestamp) {
         long currentTimestamp = timestamp();
         while (currentTimestamp <= lastTimestamp) {

@@ -21,47 +21,47 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
 
     /**
     * 进度条样式
-     */
+    */
     private final ProgressBarStyle style;
 
     /**
     * 进度单位
-     */
+    */
     private final ProgressUnit unit;
 
     /**
     * 单位名称
-     */
+    */
     private final String unitName;
 
     /**
     * 单位大小
-     */
+    */
     private final long unitSize;
 
     /**
     * 是否显示速度
-     */
+    */
     private final boolean isSpeedShown;
 
     /**
     * 速度格式
-     */
+    */
     private final DecimalFormat speedFormat;
 
     /**
     * 速度单位
-     */
+    */
     private final ChronoUnit speedUnit;
 
     /**
     * 是否显示预计剩余时间
-     */
+    */
     private final boolean isEtaShown;
 
     /**
     * 预计剩余时间计算函数
-     */
+    */
     private final Function<ProgressState, Optional<Duration>> eta;
 
     /**
@@ -76,7 +76,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param speedUnit     速度单位
     * @param isEtaShown    是否显示预计剩余时间
     * @param eta           预计剩余时间计算函数
-     */
+    */
     public PythonLoadingProgressBarRenderer(
             ProgressBarStyle style,
             ProgressUnit unit,
@@ -105,7 +105,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param maxLength             
     * @return                               
-     */
+    */
     @Override
     public String render(ProgressState progress, int maxLength) {
         if (maxLength <= 0) {
@@ -162,7 +162,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                
-     */
+    */
     protected String speed(ProgressState progress) {
         String suffix = "/s";
         double elapsedSeconds = progress.getElapsedAfterStart().getSeconds();
@@ -210,7 +210,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param bytesPerSecond                
     * @param timeSuffix                    /s, /min, /h   
     * @return                               
-     */
+    */
     private String formatDownloadSpeed(double bytesPerSecond, String timeSuffix) {
         if (bytesPerSecond < 0) {
             return "0 B" + timeSuffix;
@@ -245,7 +245,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param progress             
     * @param length                
     * @return                   
-     */
+    */
     private String renderProgressBar(ProgressState progress, int length) {
         StringBuilder sb = new StringBuilder();
         
@@ -291,7 +291,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                            
-     */
+    */
     private String getEtaString(ProgressState progress) {
         if (eta == null) {
             return "--:--:--";
@@ -310,7 +310,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param progress             
     * @return                
-     */
+    */
     private String getSpeedString(ProgressState progress) {
         if (speedFormat == null) {
             return "";
@@ -330,7 +330,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     *
     * @param str          
     * @return             
-     */
+    */
     private int getStringDisplayLength(String str) {
         if (str == null) {
             return 0;
@@ -346,7 +346,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param str                
     * @param maxLength             
     * @return                      
-     */
+    */
     private String truncateString(String str, int maxLength) {
         if (str == null || maxLength <= 0) {
             return "";
@@ -398,7 +398,7 @@ public class PythonLoadingProgressBarRenderer implements ProgressBarRenderer {
     * @param showEta                               
     * @param eta                               
     * @return Python Loading                     
-     */
+    */
     public static PythonLoadingProgressBarRenderer create(
             ProgressUnit unit,
             String unitName,

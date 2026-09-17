@@ -52,7 +52,7 @@ public class DdlBuilder {
 
     /**
     * DDL 操作模式枚举。
-     */
+    */
     public enum Mode {
         /** 建表模式 */
         CREATE,
@@ -68,7 +68,7 @@ public class DdlBuilder {
     private final String tableName;
     /**
     * Schema 名
-     */
+    */
     private String schema;
     /** Comment */
     private String comment;
@@ -76,7 +76,7 @@ public class DdlBuilder {
     private String engine;
     /**
     * 字符集
-     */
+    */
     private String charset;
     /** Columns */
     private final List<ColumnDef> columns = new ArrayList<>();
@@ -89,7 +89,7 @@ public class DdlBuilder {
     * 创建 DdlBuilder 实例
     * @param mode mode
     * @param String String
-     */
+    */
     private DdlBuilder(Mode mode, String tableName) {
         this.mode = mode;
         this.tableName = tableName;
@@ -100,7 +100,7 @@ public class DdlBuilder {
     *
     * @param tableName 表名
     * @return 构建器实例
-     */
+    */
     public static DdlBuilder create(String tableName) {
         return new DdlBuilder(Mode.CREATE, tableName);
     }
@@ -110,7 +110,7 @@ public class DdlBuilder {
     *
     * @param tableName 表名
     * @return 构建器实例
-     */
+    */
     public static DdlBuilder alter(String tableName) {
         return new DdlBuilder(Mode.ALTER, tableName);
     }
@@ -120,7 +120,7 @@ public class DdlBuilder {
     *
     * @param tableName 表名
     * @return 构建器实例
-     */
+    */
     public static DdlBuilder drop(String tableName) {
         return new DdlBuilder(Mode.DROP, tableName);
     }
@@ -142,7 +142,7 @@ public class DdlBuilder {
     * @param name 列名
     * @param type 数据库类型字符串
     * @return this
-     */
+    */
     public DdlBuilder column(String name, String type) {
         columns.add(new ColumnDef().setName(name).setType(type));
         return this;
@@ -153,7 +153,7 @@ public class DdlBuilder {
     *
     * @param def 列定义
     * @return this
-     */
+    */
     public DdlBuilder column(ColumnDef def) {
         columns.add(def);
         return this;
@@ -164,7 +164,7 @@ public class DdlBuilder {
     *
     * @param keys 主键列名
     * @return this
-     */
+    */
     public DdlBuilder primaryKey(String... keys) {
         primaryKeys.addAll(List.of(keys));
         return this;
@@ -174,7 +174,7 @@ public class DdlBuilder {
     * 将最后添加的列设为 NOT NULL。
     *
     * @return this
-     */
+    */
     public DdlBuilder notNull() {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setNullable(false);
@@ -187,7 +187,7 @@ public class DdlBuilder {
     * <p>同时自动设置该列为 NOT NULL。</p>
     *
     * @return this
-     */
+    */
     public DdlBuilder primaryKey() {
         if (!columns.isEmpty()) {
             ColumnDef c = columns.get(columns.size() - 1);
@@ -201,7 +201,7 @@ public class DdlBuilder {
     * 将最后添加的列设为自增。
     *
     * @return this
-     */
+    */
     public DdlBuilder autoIncrement() {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setAutoIncrement(true);
@@ -213,7 +213,7 @@ public class DdlBuilder {
     * 将最后添加的列设为无符号（仅数值类型）。
     *
     * @return this
-     */
+    */
     public DdlBuilder unsigned() {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setUnsigned(true);
@@ -226,7 +226,7 @@ public class DdlBuilder {
     *
     * @param val 默认值表达式
     * @return this
-     */
+    */
     public DdlBuilder defaultValue(String val) {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setDefaultValue(val);
@@ -239,7 +239,7 @@ public class DdlBuilder {
     *
     * @param val 列注释
     * @return this
-     */
+    */
     public DdlBuilder columnComment(String val) {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setComment(val);
@@ -252,7 +252,7 @@ public class DdlBuilder {
     *
     * @param columnName 前一列名
     * @return this
-     */
+    */
     public DdlBuilder after(String columnName) {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setAfter(columnName);
@@ -264,7 +264,7 @@ public class DdlBuilder {
     * 将最后添加的列设为第一列（仅 ALTER 模式，MySQL 支持）。
     *
     * @return this
-     */
+    */
     public DdlBuilder first() {
         if (!columns.isEmpty()) {
             columns.get(columns.size() - 1).setFirst(true);
@@ -278,7 +278,7 @@ public class DdlBuilder {
     *
     * @param renderer 方言渲染器，负责将 {@link TableDef} 转换为特定数据库的 DDL 语句
     * @return DDL SQL 字符串
-     */
+    */
     public String build(TableDdlRenderer renderer) {
         TableDef def = new TableDef()
                 .setName(tableName)
@@ -300,7 +300,7 @@ public class DdlBuilder {
     /**
     * DDL 渲染器函数式接口。
     * <p>由具体的数据库方言实现，将结构化的表定义转换为特定数据库语法的 DDL 语句。</p>
-     */
+    */
     @FunctionalInterface
     public interface TableDdlRenderer {
 
@@ -309,7 +309,7 @@ public class DdlBuilder {
         *
         * @param def 表定义
         * @return CREATE TABLE SQL
-         */
+        */
         String renderCreate(TableDef def);
 
         /**
@@ -319,7 +319,7 @@ public class DdlBuilder {
         * @param def     表定义
         * @param newName 重命名后的新表名（可为 null）
         * @return ALTER TABLE SQL
-         */
+        */
         default String renderAlter(TableDef def, String newName) {
             throw new UnsupportedOperationException("ALTER TABLE 操作未实现");
         }
@@ -329,7 +329,7 @@ public class DdlBuilder {
         *
         * @param tableName 表名
         * @return DROP TABLE SQL
-         */
+        */
         default String renderDrop(String tableName) {
             return "drop table if exists " + tableName;
         }

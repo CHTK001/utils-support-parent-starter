@@ -15,12 +15,12 @@ public interface Invoker {
 
     /**
     * 为指定接口创建动态代理（带缓存）。
-     */
+    */
     <T> T create(Class<T> apiClass);
 
     /**
     * 创建新的动态代理实例（不缓存）。
-     */
+    */
     <T> T createNew(Class<T> apiClass);
 
     /**
@@ -43,7 +43,7 @@ public interface Invoker {
     * @param target  注入目标路径
     * @param callback 注入回调，每次调用时执行
     * @return 当前 Invoker 实例（链式调用）
-     */
+    */
     default Invoker addInject(String target, InjectCallback callback) {
         return this;
     }

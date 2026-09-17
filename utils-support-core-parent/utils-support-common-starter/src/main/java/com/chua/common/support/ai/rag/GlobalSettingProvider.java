@@ -18,21 +18,21 @@ public interface GlobalSettingProvider {
     * 返回设置分组标识，如 "rag"、"ocr"。
     *
     * @return 分组标识
-     */
+    */
     String group();
 
     /**
     * 返回设置分组显示名称。
     *
     * @return 分组名称
-     */
+    */
     String groupName();
 
     /**
     * 返回该分组下的所有设置项。
     *
     * @return 设置项列表
-     */
+    */
     List<SettingItem> getItems();
 
     /**
@@ -43,7 +43,7 @@ public interface GlobalSettingProvider {
     * @param valueType    值类型：STRING / NUMBER / BOOLEAN
     * @param description  描述
     * @param sort         排序序号
-     */
+    */
     record SettingItem(
             String field,
             String defaultValue,

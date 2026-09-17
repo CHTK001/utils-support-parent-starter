@@ -52,7 +52,7 @@ public class K6Benchmark implements Benchmark {
 
     /**
     * k6 压测脚本（通过环境变量注入目标 URL）。
-     */
+    */
     private static final String K6_SCRIPT = """
             import http from 'k6/http';
             export const options = {
@@ -92,7 +92,7 @@ public class K6Benchmark implements Benchmark {
     * 解析 k6 可执行文件路径：配置 > 环境变量 K6_BIN > 常见安装路径 > PATH。
     *
     * @return k6 可执行文件路径
-     */
+    */
     private String resolveK6Binary() {
         if (config.getK6Binary() != null && !config.getK6Binary().isEmpty()) {
             return config.getK6Binary();
@@ -167,7 +167,7 @@ public class K6Benchmark implements Benchmark {
 
     /**
     * 调用 k6 CLI 执行单档压测。
-     */
+    */
     private void runK6(String k6, Path script, Path summary,
                        int vus, int iterations, String targetUrl) throws Exception {
         List<String> cmd = new ArrayList<>();

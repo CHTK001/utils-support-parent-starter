@@ -93,7 +93,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param config       下载配置
     * @param resumeOffset 断点续传起始偏移字节
     * @throws IOException 当网络或文件系统操作失败时
-     */
+    */
     private void downloadSingle(Path targetFile, DownloadConfig config, long resumeOffset) throws IOException {
         ProgressBar bar = null;
         try {
@@ -171,7 +171,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param config       下载配置
     * @param resumeOffset 断点续传起始偏移（当前不支持并发+断点续传混合）
     * @throws DownloadException 当并发下载或合并分片失败时
-     */
+    */
     private void downloadWithConcurrency(Path targetFile, DownloadConfig config, long resumeOffset) throws DownloadException {
         try {
             HttpURLConnection headConn = openConnection(config);
@@ -245,7 +245,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param partIndex   分片索引
     * @param config      下载配置
     * @param totalBar    全局进度条（可为 null）
-     */
+    */
     private void downloadChunk(Path targetFile, long start, long end, int partIndex,
                                 DownloadConfig config, ProgressBar totalBar) {
         String partFile = targetFile + ".part" + partIndex;
@@ -290,7 +290,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param targetFile 目标文件路径
     * @param partCount  分片总数
     * @throws IOException 当合并或删除失败时
-     */
+    */
     private void mergeParts(Path targetFile, int partCount) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(targetFile.toFile());
              FileChannel out = fos.getChannel()) {
@@ -314,7 +314,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param config 下载配置
     * @return 已建立连接的 HttpURLConnection
     * @throws IOException 当 URL 解析或连接建立失败时
-     */
+    */
     private HttpURLConnection openConnection(DownloadConfig config) throws IOException {
         URL u = new URL(config.getUrl());
         if (config.getProxy() != null) {
@@ -328,7 +328,7 @@ public class DefaultDownloadService implements DownloadService {
     *
     * @param conn   目标连接
     * @param config 下载配置
-     */
+    */
     private void applyHeaders(HttpURLConnection conn, DownloadConfig config) {
         for (java.util.Map.Entry<String, String> entry : config.getHeaders().entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
@@ -340,7 +340,7 @@ public class DefaultDownloadService implements DownloadService {
     *
     * @param config 下载配置
     * @return true 表示服务端支持断点续传
-     */
+    */
     private boolean checkResumeSupport(DownloadConfig config) {
         try {
             HttpURLConnection conn = openConnection(config);
@@ -365,7 +365,7 @@ public class DefaultDownloadService implements DownloadService {
     * @param reason 跳过或完成原因
     * @param md5    期望的 MD5 值
     * @return 下载结果
-     */
+    */
     private static DownloadResult buildResult(Path file, boolean skipped, String reason, String md5) {
         return DownloadResult.builder()
                 .success(true)
@@ -382,11 +382,13 @@ public class DefaultDownloadService implements DownloadService {
     * 限速 InputStream — 通过令牌桶算法控制读取速率。
     *
     * <p>每读取指定字节数后，若令牌不足则阻塞等待令牌补充，从而实现限速。
-     */
+    */
     private static class ThrottledInputStream extends InputStream {
         /** 底层输入流 */
         private final InputStream delegate;
-        /** 每秒可消耗的毫秒级速率（bytesPerSecond / 1000） */
+        /**
+        * 每秒可消耗的毫秒级速率（bytesPerSecond / 1000）
+        */
         private final long bytesPerMs;
         /** 当前可用令牌数（字节） */
         private long tokens;
@@ -398,7 +400,7 @@ public class DefaultDownloadService implements DownloadService {
         *
         * @param delegate       底层输入流
         * @param bytesPerSecond 限速字节/秒，0 表示不限速
-         */
+        */
         ThrottledInputStream(InputStream delegate, long bytesPerSecond) {
             this.delegate = delegate;
             this.bytesPerMs = bytesPerSecond / 1000;
@@ -422,7 +424,7 @@ public class DefaultDownloadService implements DownloadService {
         * 令牌桶节流：当令牌不足时阻塞等待补充。
         *
         * @param bytes 本次请求读取的字节数
-         */
+        */
         private void throttle(int bytes) {
             if (bytesPerMs <= 0) {
                 return;

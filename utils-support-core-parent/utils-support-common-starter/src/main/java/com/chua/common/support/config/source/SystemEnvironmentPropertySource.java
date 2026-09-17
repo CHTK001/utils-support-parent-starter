@@ -20,7 +20,7 @@ public class SystemEnvironmentPropertySource extends AbstractPropertySource {
     /**
     * 构造函数。
     * 初始化属性源名称为 "system-env"。
-     */
+    */
     public SystemEnvironmentPropertySource() {
         super("system-env");
     }
@@ -31,7 +31,7 @@ public class SystemEnvironmentPropertySource extends AbstractPropertySource {
     *
     * @param key 属性键
     * @return 对应的环境变量值，如果不存在则返回 null
-     */
+    */
     @Override
     protected Object getRawProperty(String key) {
         return System.getenv(key);
@@ -42,7 +42,7 @@ public class SystemEnvironmentPropertySource extends AbstractPropertySource {
     * 返回当前系统的所有环境变量映射。
     *
     * @return 环境变量映射对象
-     */
+    */
     @Override
     protected Object getSource() {
         return System.getenv();
@@ -57,7 +57,7 @@ public class SystemEnvironmentPropertySource extends AbstractPropertySource {
     *
     * @param key 属性键
     * @return 找到的属性值，如果未找到则返回 null
-     */
+    */
     @Override
     public Object getProperty(String key) {
         if (key == null || key.isEmpty()) {

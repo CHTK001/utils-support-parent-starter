@@ -32,32 +32,32 @@ public final class AesGcmUtils {
 
     /**
     * GCM nonce 长度（字节）
-     */
+    */
     public static final int NONCE_LEN = 12;
 
     /**
     * GCM 认证标签长度（字节）
-     */
+    */
     public static final int TAG_LEN = 16;
 
     /**
     * 长度头长度（字节）
-     */
+    */
     public static final int HEADER_LEN = 4;
 
     /**
     * 单帧明文上限（字节），超出自动分帧
-     */
+    */
     public static final int MAX_PLAIN_LEN = 64 * 1024;
 
     /**
     * 单帧总长上限（含 nonce 与标签），超出视为协议错误
-     */
+    */
     public static final int MAX_FRAME_LEN = MAX_PLAIN_LEN + NONCE_LEN + TAG_LEN;
 
     /**
     * 随机数发生器
-     */
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private AesGcmUtils() {
@@ -68,7 +68,7 @@ public final class AesGcmUtils {
     *
     * @param secret 密钥短语（如共享 token）
     * @return AES 密钥
-     */
+    */
     public static SecretKeySpec deriveKey(String secret) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -84,7 +84,7 @@ public final class AesGcmUtils {
     * @param out 原始输出流
     * @param key AES 密钥
     * @return 加密输出流
-     */
+    */
     public static OutputStream encrypting(OutputStream out, SecretKeySpec key) {
         return new EncryptingOutputStream(out, key);
     }
@@ -95,7 +95,7 @@ public final class AesGcmUtils {
     * @param in  原始输入流
     * @param key AES 密钥
     * @return 解密输入流
-     */
+    */
     public static InputStream decrypting(InputStream in, SecretKeySpec key) {
         return new DecryptingInputStream(in, key);
     }
@@ -108,7 +108,7 @@ public final class AesGcmUtils {
     * @param plain  明文（1..MAX_PLAIN_LEN 字节）
     * @return 完整帧（含长度头）
     * @throws IOException 加密失败
-     */
+    */
     private static byte[] encryptFrame(Cipher cipher, SecretKeySpec key, byte[] plain) throws IOException {
         try {
             byte[] nonce = new byte[NONCE_LEN];
@@ -127,22 +127,22 @@ public final class AesGcmUtils {
 
     /**
     * 加密输出流：每次 write 独立成帧，大数组自动按 MAX_PLAIN_LEN 分帧。
-     */
+    */
     private static final class EncryptingOutputStream extends OutputStream {
 
         /**
         * 原始输出流
-         */
+        */
         private final OutputStream out;
 
         /**
         * 加密器（线程安全使用：所有 write 串行化）
-         */
+        */
         private final Cipher cipher;
 
         /**
         * AES 密钥
-         */
+        */
         private final SecretKeySpec key;
 
         private EncryptingOutputStream(OutputStream out, SecretKeySpec key) {
@@ -190,32 +190,32 @@ public final class AesGcmUtils {
 
     /**
     * 解密输入流：阻塞读取完整帧并解密，以流语义吐出明文。
-     */
+    */
     private static final class DecryptingInputStream extends InputStream {
 
         /**
         * 原始输入流
-         */
+        */
         private final InputStream in;
 
         /**
         * 解密器
-         */
+        */
         private final Cipher cipher;
 
         /**
         * AES 密钥
-         */
+        */
         private final SecretKeySpec key;
 
         /**
         * 当前明文缓冲
-         */
+        */
         private byte[] buf = new byte[0];
 
         /**
         * 缓冲读取位置
-         */
+        */
         private int pos = 0;
 
         private DecryptingInputStream(InputStream in, SecretKeySpec key) {
@@ -233,7 +233,7 @@ public final class AesGcmUtils {
         *
         * @return false 表示流已结束
         * @throws IOException IO 异常或帧非法/认证失败
-         */
+        */
         private boolean fill() throws IOException {
             byte[] header = readFully(HEADER_LEN);
             if (header == null) {
@@ -265,7 +265,7 @@ public final class AesGcmUtils {
         * @param n 期望长度
         * @return 数据；流结束时返回 null
         * @throws IOException IO 异常
-         */
+        */
         private byte[] readFully(int n) throws IOException {
             byte[] data = new byte[n];
             int offset = 0;

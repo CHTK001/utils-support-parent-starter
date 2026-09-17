@@ -43,7 +43,7 @@ public interface MetaPermission {
     * 列出当前数据库下的所有权限记录。
     *
     * @return 权限定义列表
-     */
+    */
     List<PermissionDef> list();
 
     /**
@@ -51,7 +51,7 @@ public interface MetaPermission {
     *
     * @param username 用户名
     * @return 权限定义列表
-     */
+    */
     List<PermissionDef> listByUser(String username);
 
     /**
@@ -59,7 +59,7 @@ public interface MetaPermission {
     *
     * @param username 用户名
     * @return this
-     */
+    */
     MetaPermission toUser(String username);
 
     /**
@@ -67,7 +67,7 @@ public interface MetaPermission {
     *
     * @param tableName 表名
     * @return this
-     */
+    */
     MetaPermission onTable(String tableName);
 
     /**
@@ -76,7 +76,7 @@ public interface MetaPermission {
     * @param tableName 表名
     * @param columnName 列名
     * @return this
-     */
+    */
     MetaPermission onColumn(String tableName, String columnName);
 
     /**
@@ -84,7 +84,7 @@ public interface MetaPermission {
     *
     * @param privileges 权限列表，如 {@code "SELECT, INSERT"}
     * @return 授予权限构建器
-     */
+    */
     GrantBuilder grant(String privileges);
 
     /**
@@ -92,6 +92,6 @@ public interface MetaPermission {
     *
     * @param privileges 权限列表，如 {@code "SELECT"}
     * @return 撤销权限构建器
-     */
+    */
     RevokeBuilder revoke(String privileges);
 }

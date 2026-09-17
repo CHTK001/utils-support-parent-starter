@@ -31,7 +31,7 @@ public class EvictionManager {
     * @param nodeTable 节点表
     * @param localServerId 本地 serverId（剔除时排除自身）
     * @param discovery PeerMeshDiscovery 实例
-     */
+    */
     public EvictionManager(MeshConfig config, NodeTable nodeTable, String localServerId,
                            PeerMeshDiscovery discovery) {
         this.config = config;
@@ -42,7 +42,7 @@ public class EvictionManager {
 
     /**
     * 执行一次剔除检查。
-     */
+    */
     public void evict() {
         long now = System.currentTimeMillis();
         long timeoutMs = config.getEvictTimeout() * 1000L;

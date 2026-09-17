@@ -11,16 +11,16 @@ package com.chua.common.support.lang.qr;
 public enum CodeEyeStyle {
     /**
     * 无特殊样式，使用默认样式。
-     */
+    */
     NONE,
 
     /**
     * 圆形样式。
-     */
+    */
     CIRCLE,
 
     /**
     * 图片样式。
-     */
+    */
     IMAGE
 }

@@ -75,7 +75,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * 私有构造，通过 {@link #builder()} 创建。
-     */
+    */
     private LazyExpiringList(Builder<E> b) {
         this.loader = b.loader;
         this.ttlMillis = b.ttlMillis;
@@ -92,7 +92,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     *
     * @param <E> 元素类型
     * @return 构建器实例
-     */
+    */
     public static <E> Builder<E> builder() {
         return new Builder<>();
     }
@@ -101,7 +101,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 懒加载列表构建器。
     *
     * @param <E> 元素类型
-     */
+    */
     public static final class Builder<E> {
 
         /** 数据加载器（必填） */
@@ -122,7 +122,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param loader 加载器
         * @return 当前构建器
-         */
+        */
         public Builder<E> loader(Supplier<List<E>> loader) {
             this.loader = loader;
             return this;
@@ -133,7 +133,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param millis TTL 毫秒
         * @return 当前构建器
-         */
+        */
         public Builder<E> ttlMillis(long millis) {
             this.ttlMillis = millis;
             return this;
@@ -144,7 +144,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param millis 检查间隔毫秒
         * @return 当前构建器
-         */
+        */
         public Builder<E> expiryCheckIntervalMillis(long millis) {
             this.expiryCheckIntervalMillis = millis;
             return this;
@@ -155,7 +155,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param capacity 最大容量
         * @return 当前构建器
-         */
+        */
         public Builder<E> maxCapacity(int capacity) {
             this.maxCapacity = capacity;
             return this;
@@ -166,7 +166,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param enable true 启用堆外
         * @return 当前构建器
-         */
+        */
         public Builder<E> offHeap(boolean enable) {
             this.offHeap = enable;
             return this;
@@ -177,7 +177,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @param listener 监听器
         * @return 当前构建器
-         */
+        */
         public Builder<E> lifecycleListener(Consumer<LifecycleEvent> listener) {
             this.lifecycleListener = listener;
             return this;
@@ -188,7 +188,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         *
         * @return 列表实例
         * @throws IllegalArgumentException loader 未设置时抛出
-         */
+        */
         public LazyExpiringList<E> build() {
             if (loader == null) {
                 throw new IllegalArgumentException("loader 必须设置");
@@ -201,12 +201,12 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * 生命周期事件：携带事件类型。
-     */
+    */
     public static final class LifecycleEvent {
 
         /**
         * 事件类型枚举。
-         */
+        */
         public enum Type {
             /** 数据加载完成 */
             LOADED,
@@ -225,7 +225,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         * 私有构造，由内部触发。
         *
         * @param type 事件类型
-         */
+        */
         private LifecycleEvent(Type type) {
             this.type = type;
         }
@@ -234,7 +234,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
         * 获取事件类型。
         *
         * @return 事件类型
-         */
+        */
         public Type getType() {
             return type;
         }
@@ -246,7 +246,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 获取当前状态（含 TTL 惰性判定，不触发加载）。
     *
     * @return 当前状态
-     */
+    */
     public ListState getState() {
         checkExpiry();
         return state;
@@ -256,7 +256,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 是否为堆外存储模式。
     *
     * @return true 表示堆外
-     */
+    */
     public boolean isOffHeap() {
         return store != null ? store.isOffHeap() : offHeap;
     }
@@ -265,14 +265,14 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 获取当前堆外占用字节数（非堆外或已释放为 0）。不触发加载。
     *
     * @return 堆外字节数
-     */
+    */
     public long getOffHeapBytes() {
         return store != null ? store.getOffHeapBytes() : 0L;
     }
 
     /**
     * 手动释放已加载数据，状态回到 UNLOADED，下次访问重新懒加载。
-     */
+    */
     public void evict() {
         requireNotClosed();
         checkExpiry();
@@ -281,7 +281,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * 清空数据：与 evict 等价的释放语义（不触发 EVICTED 事件），状态回到 UNLOADED。
-     */
+    */
     @Override
     public void clear() {
         requireNotClosed();
@@ -292,7 +292,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     /**
     * 关闭列表：释放底层存储，状态置为 CLOSED。
     * <p>double close 安全；关闭后数据访问抛出 {@link IllegalStateException}。</p>
-     */
+    */
     @Override
     public void close() {
         loadLock.lock();
@@ -315,7 +315,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     *
     * @return 元素个数
     * @throws IllegalStateException 已关闭或加载失败时抛出
-     */
+    */
     @Override
     public int size() {
         ensureLoaded();
@@ -328,7 +328,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * @param index 下标
     * @return 元素
     * @throws IllegalStateException 已关闭或加载失败时抛出
-     */
+    */
     @Override
     public E get(int index) {
         ensureLoaded();
@@ -342,7 +342,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * @return 是否追加成功（达到 maxCapacity 时返回 false）
     * @throws UnsupportedOperationException 堆外模式抛出
     * @throws IllegalStateException 已关闭或加载失败时抛出
-     */
+    */
     @Override
     public boolean add(E element) {
         ensureLoaded();
@@ -363,7 +363,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * @return 实际追加个数
     * @throws UnsupportedOperationException 堆外模式抛出
     * @throws IllegalStateException 已关闭或加载失败时抛出
-     */
+    */
     @Override
     public boolean addAll(java.util.Collection<? extends E> c) {
         ensureLoaded();
@@ -388,7 +388,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     *
     * @param o 比较对象
     * @return 同一实例返回 true
-     */
+    */
     @Override
     public boolean equals(Object o) {
         return this == o;
@@ -398,7 +398,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 基于身份的哈希，不触发懒加载。
     *
     * @return 身份哈希
-     */
+    */
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
@@ -408,7 +408,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 字符串表示（含当前状态名），不触发懒加载。
     *
     * @return 形如 LazyExpiringList{state=UNLOADED}
-     */
+    */
     @Override
     public String toString() {
         int sizeHint;
@@ -428,7 +428,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 确保数据已加载：UNLOADED 时执行加载（并发安全）。
     *
     * @throws IllegalStateException 已关闭或加载失败时抛出
-     */
+    */
     private void ensureLoaded() {
         requireNotClosed();
         checkExpiry();
@@ -467,7 +467,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * TTL 读时惰性判定：LOADED 且超期则释放回 UNLOADED（触发 EVICTED 事件）。
-     */
+    */
     private void checkExpiry() {
         if (ttlMillis <= 0 || state != ListState.LOADED) {
             return;
@@ -493,7 +493,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     *
     * @param nextState 目标状态
     * @param event     触发的事件，null 表示不触发
-     */
+    */
     private void releaseIfLoaded(ListState nextState, LifecycleEvent.Type event) {
         loadLock.lock();
         try {
@@ -510,7 +510,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
 
     /**
     * 释放底层存储（幂等）。
-     */
+    */
     private void releaseStore() {
         DataStore<E> s = this.store;
         this.store = null;
@@ -527,7 +527,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 按配置创建存储后端。
     *
     * @return 存储实例
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private DataStore<E> createStore() {
         if (offHeap) {
@@ -541,7 +541,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 校验未关闭。
     *
     * @throws IllegalStateException 已关闭时抛出
-     */
+    */
     private void requireNotClosed() {
         if (state == ListState.CLOSED) {
             throw new IllegalStateException("LazyExpiringList 已关闭");
@@ -552,7 +552,7 @@ public final class LazyExpiringList<E> extends AbstractList<E> implements AutoCl
     * 触发生命周期事件。
     *
     * @param type 事件类型，null 忽略
-     */
+    */
     private void fire(LifecycleEvent.Type type) {
         if (type == null || lifecycleListener == null) {
             return;

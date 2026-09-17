@@ -3,35 +3,35 @@ package com.chua.common.support.task.flow;
 import java.util.Map;
 
 /**
-* 流程编排图接口。
-*
-* <p>由 {@link Flow#createGraph()} 创建，进入可执行状态。
-* 通过链式 DSL 配置节点连线：</p>
-* <ul>
-*   <li>{@link #start(String)} — 指定起始节点</li>
-*   <li>{@link #next(String...)} — 顺序连线（一个节点连多个后续节点）</li>
-*   <li>{@link #when(String, boolean, String)} — 条件分支连线</li>
-*   <li>{@link #end(String...)} — 标记终止节点</li>
-* </ul>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* FlowGraph graph = flow.createGraph()
-*     .start("start").next("fetch").next("check")
-*     .when("check", true, "transform", "notify")
-*     .when("check", false, "end")
-*     .next("transform").next("end")
-*     .end();
-*
-* FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
-* instance.run();
-* }</pre>h.createInstance(Map.of("bizId", "1"));
-* instance.run();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 流程编排图接口。
+ *
+ * <p>由 {@link Flow#createGraph()} 创建，进入可执行状态。
+ * 通过链式 DSL 配置节点连线：</p>
+ * <ul>
+ *   <li>{@link #start(String)} — 指定起始节点</li>
+ *   <li>{@link #next(String...)} — 顺序连线（一个节点连多个后续节点）</li>
+ *   <li>{@link #when(String, boolean, String)} — 条件分支连线</li>
+ *   <li>{@link #end(String...)} — 标记终止节点</li>
+ * </ul>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * FlowGraph graph = flow.createGraph()
+ *     .start("start").next("fetch").next("check")
+ *     .when("check", true, "transform", "notify")
+ *     .when("check", false, "end")
+ *     .next("transform").next("end")
+ *     .end();
+ *
+ * FlowInstance instance = graph.createInstance(Map.of("bizId", "1"));
+ * instance.run();
+ * }</pre>h.createInstance(Map.of("bizId", "1"));
+ * instance.run();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public interface FlowGraph {
 
     /**
@@ -41,7 +41,7 @@ public interface FlowGraph {
     *
     * @param nodeId 起始节点 标识
     * @return 当前编排图，支持链式调用
-     */
+    */
     FlowGraph start(String nodeId);
 
     /**
@@ -52,7 +52,7 @@ public interface FlowGraph {
     *
     * @param nodeIds 目标节点 标识，顺序排列
     * @return 当前编排图，支持链式调用
-     */
+    */
     FlowGraph next(String... nodeIds);
 
     /**
@@ -65,7 +65,7 @@ public interface FlowGraph {
     * @param result  判断结果
     * @param targets 该结果对应的下一节点 标识，可多个
     * @return 当前编排图，支持链式调用
-     */
+    */
     FlowGraph when(String nodeId, boolean result, String... targets);
 
     /**
@@ -76,14 +76,14 @@ public interface FlowGraph {
     *
     * @param nodeIds 终止节点 标识，可选
     * @return 当前编排图，支持链式调用
-     */
+    */
     FlowGraph end(String... nodeIds);
 
     /**
     * 创建流程实例。
     *
     * @return 流程实例，持有唯一执行上下文
-     */
+    */
     FlowInstance createInstance();
 
     /**
@@ -93,7 +93,7 @@ public interface FlowGraph {
     *
     * @param params 初始参数
     * @return 流程实例，持有唯一执行上下文
-     */
+    */
     FlowInstance createInstance(Map<String, Object> params);
 
     /**
@@ -102,6 +102,6 @@ public interface FlowGraph {
     * <p>输出前后端统一的图格式，与前端 ReFlow 画布数据一致。</p>
     *
     * @return 流程定义 JSON 字符串
-     */
+    */
     String exportJson();
 }

@@ -51,22 +51,22 @@ public class HttpApiOptions {
 
     /**
     * 自定义 baseUrl，null 表示使用接口类级注解解析的 baseUrl。
-     */
+    */
     private String baseUrl;
 
     /**
     * 自定义底层 HttpClient，null 表示使用全局单例。
-     */
+    */
     private HttpClient client;
 
     /**
     * 应用层拦截器列表（仅对当前 API 代理生效）。
-     */
+    */
     private final List<HttpInterceptor> interceptors = new ArrayList<>();
 
     /**
     * 网络层拦截器列表（仅对当前 API 代理生效）。
-     */
+    */
     private final List<HttpInterceptor> networkInterceptors = new ArrayList<>();
 
     /**
@@ -75,7 +75,7 @@ public class HttpApiOptions {
     * <p>防止同一 {@link HttpApiOptions} 被多次解析（如重复调用 createNew）
     * 时向客户端重复注册同一拦截器。仅按实例（identity）去重，允许逻辑不同
     * 但结构相同的拦截器各自生效。</p>
-     */
+    */
     private final Set<HttpInterceptor> resolved = java.util.Collections.newSetFromMap(
             new java.util.concurrent.ConcurrentHashMap<>());
 
@@ -84,64 +84,64 @@ public class HttpApiOptions {
     *
     * <p>每次远程调用前执行，将回调返回值按 target 注入到请求头（{@code headers.X}）
     * 或共享属性（{@code attributes.X}）。由 {@link HttpInvoker#addInject(String, InjectCallback)} 注册。</p>
-     */
+    */
     private final List<SharedInvocationContext.InjectRule> injectRules = new ArrayList<>();
 
     /**
     * 默认请求头，每次远程调用自动携带。
-     */
+    */
     private final Map<String, String> defaultHeaders = new java.util.LinkedHashMap<>();
 
     /**
     * 连接超时（毫秒），-1 表示使用执行器默认值。
-     */
+    */
     private long connectTimeout = -1;
 
     /**
     * 读取超时（毫秒），-1 表示使用执行器默认值。
-     */
+    */
     private long readTimeout = -1;
 
     /**
     * 写入超时（毫秒），-1 表示使用执行器默认值。
-     */
+    */
     private long writeTimeout = -1;
 
     /**
     * 最大重试次数，-1 表示不重试（使用默认）。
-     */
+    */
     private int maxRetries = -1;
 
     /**
     * 响应缓存有效期（毫秒），-1 表示不缓存。
-     */
+    */
     private long cacheTtl = -1;
 
     /**
     * 是否跟随重定向，null 表示使用客户端默认。
-     */
+    */
     private Boolean followRedirects;
 
     /**
     * HTTP 协议版本，null 表示使用执行器默认版本。
-     */
+    */
     private HttpVersion version;
 
     /**
     * 代理主机名，null 表示不使用代理。
-     */
+    */
     private String proxyHost;
 
     /**
     * 代理端口号。
-     */
+    */
     private int proxyPort;
 
     /**
     * 创建空的配置实例。
     *
     * @return 新的 HttpApiOptions 实例
-     */
+    */
     public static HttpApiOptions of() {
         return new HttpApiOptions();
     }
@@ -150,7 +150,7 @@ public class HttpApiOptions {
     * 获取自定义 baseUrl。
     *
     * @return 自定义 baseUrl，null 表示未设置
-     */
+    */
     public String getBaseUrl() {
         return baseUrl;
     }
@@ -162,7 +162,7 @@ public class HttpApiOptions {
     *
     * @param baseUrl 自定义 baseUrl
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions baseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
         return this;
@@ -172,7 +172,7 @@ public class HttpApiOptions {
     * 获取自定义底层 HttpClient。
     *
     * @return 自定义 HttpClient，null 表示使用全局单例
-     */
+    */
     public HttpClient getClient() {
         return client;
     }
@@ -185,7 +185,7 @@ public class HttpApiOptions {
     *
     * @param client 自定义 HttpClient
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions client(HttpClient client) {
         this.client = client;
         return this;
@@ -195,7 +195,7 @@ public class HttpApiOptions {
     * 获取应用层拦截器列表。
     *
     * @return 应用层拦截器列表
-     */
+    */
     public List<HttpInterceptor> getInterceptors() {
         return interceptors;
     }
@@ -204,7 +204,7 @@ public class HttpApiOptions {
     * 获取网络层拦截器列表。
     *
     * @return 网络层拦截器列表
-     */
+    */
     public List<HttpInterceptor> getNetworkInterceptors() {
         return networkInterceptors;
     }
@@ -217,7 +217,7 @@ public class HttpApiOptions {
     *
     * @param interceptor 应用层拦截器
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions addInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
             interceptors.add(interceptor);
@@ -230,7 +230,7 @@ public class HttpApiOptions {
     *
     * @param interceptor 应用层拦截器
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions interceptor(HttpInterceptor interceptor) {
         return addInterceptor(interceptor);
     }
@@ -243,7 +243,7 @@ public class HttpApiOptions {
     *
     * @param interceptor 网络层拦截器
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions addNetworkInterceptor(HttpInterceptor interceptor) {
         if (interceptor != null) {
             networkInterceptors.add(interceptor);
@@ -256,7 +256,7 @@ public class HttpApiOptions {
     *
     * @param interceptor 网络层拦截器
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions networkInterceptor(HttpInterceptor interceptor) {
         return addNetworkInterceptor(interceptor);
     }
@@ -280,7 +280,7 @@ public class HttpApiOptions {
     * @param target   注入目标路径，如 {@code "headers.Authorization"}
     * @param callback 注入回调，每次调用时执行，返回注入值；返回 null 则跳过
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions addInject(String target, InjectCallback callback) {
         if (target != null && callback != null) {
             injectRules.add(new SharedInvocationContext.InjectRule(target, callback));
@@ -292,7 +292,7 @@ public class HttpApiOptions {
     * 获取已注册的注入规则列表（只读）。
     *
     * @return 注入规则列表，不会返回 null
-     */
+    */
     public List<SharedInvocationContext.InjectRule> getInjectRules() {
         return java.util.Collections.unmodifiableList(injectRules);
     }
@@ -301,7 +301,7 @@ public class HttpApiOptions {
     * 获取默认请求头（只读）。
     *
     * @return 默认请求头，不会返回 null
-     */
+    */
     public Map<String, String> getDefaultHeaders() {
         return java.util.Collections.unmodifiableMap(defaultHeaders);
     }
@@ -312,7 +312,7 @@ public class HttpApiOptions {
     * @param name  请求头名称
     * @param value 请求头值
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions header(String name, String value) {
         if (name != null && value != null) {
             defaultHeaders.put(name, value);
@@ -325,7 +325,7 @@ public class HttpApiOptions {
     *
     * @param headers 请求头 Map
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions headers(Map<String, String> headers) {
         if (headers != null) {
             headers.forEach(this::header);
@@ -337,7 +337,7 @@ public class HttpApiOptions {
     * 获取连接超时（毫秒）。
     *
     * @return 连接超时，-1 表示未设置
-     */
+    */
     public long getConnectTimeout() { return connectTimeout; }
 
     /**
@@ -345,14 +345,14 @@ public class HttpApiOptions {
     *
     * @param timeout 连接超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions connectTimeout(long timeout) { this.connectTimeout = timeout; return this; }
 
     /**
     * 获取读取超时（毫秒）。
     *
     * @return 读取超时，-1 表示未设置
-     */
+    */
     public long getReadTimeout() { return readTimeout; }
 
     /**
@@ -360,14 +360,14 @@ public class HttpApiOptions {
     *
     * @param timeout 读取超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions readTimeout(long timeout) { this.readTimeout = timeout; return this; }
 
     /**
     * 获取写入超时（毫秒）。
     *
     * @return 写入超时，-1 表示未设置
-     */
+    */
     public long getWriteTimeout() { return writeTimeout; }
 
     /**
@@ -375,14 +375,14 @@ public class HttpApiOptions {
     *
     * @param timeout 写入超时，-1 表示使用执行器默认值
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions writeTimeout(long timeout) { this.writeTimeout = timeout; return this; }
 
     /**
     * 获取最大重试次数。
     *
     * @return 最大重试次数，-1 表示未设置
-     */
+    */
     public int getMaxRetries() { return maxRetries; }
 
     /**
@@ -390,14 +390,14 @@ public class HttpApiOptions {
     *
     * @param retries 最大重试次数，-1 表示不重试
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions retry(int retries) { this.maxRetries = retries; return this; }
 
     /**
     * 获取缓存有效期（毫秒）。
     *
     * @return 缓存有效期，-1 表示未设置
-     */
+    */
     public long getCacheTtl() { return cacheTtl; }
 
     /**
@@ -405,14 +405,14 @@ public class HttpApiOptions {
     *
     * @param ttlMs 缓存有效期，-1 表示不缓存
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions cache(long ttlMs) { this.cacheTtl = ttlMs; return this; }
 
     /**
     * 获取是否跟随重定向。
     *
     * @return 是否跟随重定向，null 表示未设置
-     */
+    */
     public Boolean getFollowRedirects() { return followRedirects; }
 
     /**
@@ -420,14 +420,14 @@ public class HttpApiOptions {
     *
     * @param follow true 跟随重定向，false 不跟随
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions followRedirects(boolean follow) { this.followRedirects = follow; return this; }
 
     /**
     * 获取 HTTP 协议版本。
     *
     * @return HTTP 版本，null 表示未设置
-     */
+    */
     public HttpVersion getVersion() { return version; }
 
     /**
@@ -435,21 +435,21 @@ public class HttpApiOptions {
     *
     * @param version HTTP 版本（HTTP_1_1 / HTTP_2）
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions version(HttpVersion version) { this.version = version; return this; }
 
     /**
     * 获取代理主机名。
     *
     * @return 代理主机名，null 表示未设置
-     */
+    */
     public String getProxyHost() { return proxyHost; }
 
     /**
     * 获取代理端口号。
     *
     * @return 代理端口号
-     */
+    */
     public int getProxyPort() { return proxyPort; }
 
     /**
@@ -458,7 +458,7 @@ public class HttpApiOptions {
     * @param host 代理主机名
     * @param port 代理端口号
     * @return 当前配置实例（链式调用）
-     */
+    */
     public HttpApiOptions proxy(String host, int port) {
         this.proxyHost = host;
         this.proxyPort = port;
@@ -472,7 +472,7 @@ public class HttpApiOptions {
     * {@link HttpApiInvocationHandler} 在每次远程调用前调用。</p>
     *
     * @param spec 目标 RequestSpec
-     */
+    */
     public void applyTo(RequestSpec spec) {
         defaultHeaders.forEach(spec::header);
         if (connectTimeout >= 0) spec.connectTimeout(connectTimeout);
@@ -498,7 +498,7 @@ public class HttpApiOptions {
     * </ul>
     *
     * @return 解析后的 HttpClient 实例
-     */
+    */
     public HttpClient resolveClient() {
         boolean hasInterceptors = !interceptors.isEmpty() || !networkInterceptors.isEmpty();
         HttpClient target;

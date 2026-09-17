@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         implements ScatterServiceDiscovery, ScatterNodeHandler {
 
@@ -112,7 +112,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 子类实现每轮发现/扩散逻辑（路由 gossip 或 seed 同步）。 */
+    /**
+    * 子类实现每轮发现/扩散逻辑（路由 gossip 或 seed 同步）。
+    */
     protected abstract void doDiscoveryRound();
 
     @Override
@@ -191,7 +193,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。 */
+    /**
+    * 帧处理：REQ 拉取（返回完整服务表列表，供对端逐条合并——hash 同步）/ PUSH 合并。
+    */
     @Override
     public byte[] handle(ScatterFrame frame) {
         try {
@@ -256,7 +260,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
         }
     }
 
-    /** 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。 */
+    /**
+    * 探活单个节点：轻量 ICMP/TCP 探针（复用 remoteClient 通道），返回同步结果用于合并。
+    */
     protected void probeHeartbeat(Discovery d) {
         ScatterNode node = new ScatterNode(d.getServerId(), d.getHost(), d.getPort(),
                 d.getProtocol(), getGroupId(), setting.getServicePath());
@@ -396,9 +402,9 @@ public abstract class AbstractScatterDiscovery extends AbstractServiceDiscovery
     }
 
     /**
-     * 优雅关闭：等待当前一轮 discoveryRound 完成后再停止调度器，
-     * 确保正在执行的 healthCheck → removeFromCache 不会被中断。
-     */
+    * 优雅关闭：等待当前一轮 discoveryRound 完成后再停止调度器，
+    * 确保正在执行的 healthCheck → removeFromCache 不会被中断。
+    */
     public void gracefulClose() {
         started = false;
         if (discoveryExecutor != null) {

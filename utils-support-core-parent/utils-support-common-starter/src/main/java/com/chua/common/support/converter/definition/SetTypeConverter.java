@@ -30,7 +30,7 @@ public class SetTypeConverter implements TypeConverter<Set> {
     *
     * @param value 源值
     * @return Set 值，如果为 null 则返回 null
-     */
+    */
     @Override
     public Set convert(Object value) {
         if (null == value) {
@@ -73,7 +73,7 @@ public class SetTypeConverter implements TypeConverter<Set> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Set.class
-     */
+    */
     @Override
     public Class<Set> getType() {
         return Set.class;

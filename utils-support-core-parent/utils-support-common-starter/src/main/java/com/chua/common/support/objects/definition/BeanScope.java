@@ -2,17 +2,17 @@ package com.chua.common.support.objects.definition;
 
 
 /**
-* Bean 作用域枚举。
-*
-* <p>定义 Bean 实例的生命周期范围：
-* <ul>
-*   <li>{@link #SINGLETON} — 单例模式，整个容器生命周期内只有一个实例</li>
-*   <li>{@link #PROTOTYPE} — 原型模式，每次获取都创建新的实例</li>
-* </ul></p>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * Bean 作用域枚举。
+ *
+ * <p>定义 Bean 实例的生命周期范围：
+ * <ul>
+ *   <li>{@link #SINGLETON} — 单例模式，整个容器生命周期内只有一个实例</li>
+ *   <li>{@link #PROTOTYPE} — 原型模式，每次获取都创建新的实例</li>
+ * </ul></p>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 public enum BeanScope {
 
     /** 单例，整个容器生命周期内只有一个实例 */
@@ -24,7 +24,7 @@ public enum BeanScope {
     /** 作用域名称 */
     /**
     * 名称
-     */
+    */
     private final String name;
 
     BeanScope(String name) {
@@ -35,7 +35,7 @@ public enum BeanScope {
     * 获取作用域名称。
     *
     * @return 作用域名称，如 "单例"、"原型"
-     */
+    */
     public String getName() {
         return name;
     }
@@ -47,7 +47,7 @@ public enum BeanScope {
     *
     * @param name 作用域名称
     * @return 对应的作用域枚举，未匹配时返回 单例
-     */
+    */
     public static BeanScope fromName(String name) {
         if (name == null || name.isEmpty()) {
             return SINGLETON;

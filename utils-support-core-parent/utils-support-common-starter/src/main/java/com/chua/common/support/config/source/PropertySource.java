@@ -32,27 +32,27 @@ public interface PropertySource {
 
     /**
     * 空属性源实例
-     */
+    */
     PropertySource EMPTY = new EmptyPropertySource();
 
     /**
     * 驼峰命名正则匹配模式（小写字母后跟大写字母）
-     */
+    */
     Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z])");
 
     /**
     * 下划线分隔符
-     */
+    */
     String UNDERSCORE = "_";
 
     /**
     * 双下划线片段
-     */
+    */
     String DOUBLE_UNDERSCORE = "__";
 
     /**
     * 连字符
-     */
+    */
     char HYPHEN = '-';
 
     /**
@@ -60,14 +60,14 @@ public interface PropertySource {
     *
     * @param key 属性键，例如 "database.url" 或 "server.port"
     * @return 属性值，如果不存在则返回 null
-     */
+    */
     Object getProperty(String key);
 
     /**
     * 获取属性源名称。
     *
     * @return 属性源名称
-     */
+    */
     String getName();
 
     /**
@@ -76,7 +76,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 属性值或默认值
-     */
+    */
     default Object getProperty(String key, Object defaultValue) {
         Object value = getProperty(key);
         if (value != null) {
@@ -90,7 +90,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 字符串类型的属性值
-     */
+    */
     default String getString(String key) {
         return getString(key, null);
     }
@@ -101,7 +101,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 字符串类型的属性值或默认值
-     */
+    */
     default String getString(String key, String defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -115,7 +115,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 整数类型的属性值
-     */
+    */
     default Integer getInteger(String key) {
         return getInteger(key, null);
     }
@@ -126,7 +126,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 整数类型的属性值或默认值
-     */
+    */
     default Integer getInteger(String key, Integer defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -140,7 +140,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 长整型属性的值
-     */
+    */
     default Long getLong(String key) {
         return getLong(key, null);
     }
@@ -151,7 +151,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 长整型属性的值或默认值
-     */
+    */
     default Long getLong(String key, Long defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -165,7 +165,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 双精度浮点型属性的值
-     */
+    */
     default Double getDouble(String key) {
         return getDouble(key, null);
     }
@@ -176,7 +176,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 双精度浮点型属性的值或默认值
-     */
+    */
     default Double getDouble(String key, Double defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -190,7 +190,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 布尔型属性的值
-     */
+    */
     default Boolean getBoolean(String key) {
         return getBoolean(key, null);
     }
@@ -201,7 +201,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return 布尔型属性的值或默认值
-     */
+    */
     default Boolean getBoolean(String key, Boolean defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -215,7 +215,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return BigDecimal 类型的属性值
-     */
+    */
     default BigDecimal getBigDecimal(String key) {
         return getBigDecimal(key, null);
     }
@@ -226,7 +226,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return BigDecimal 类型的属性值或默认值
-     */
+    */
     default BigDecimal getBigDecimal(String key, BigDecimal defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -240,7 +240,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return BigInteger 类型的属性值
-     */
+    */
     default BigInteger getBigInteger(String key) {
         return getBigInteger(key, null);
     }
@@ -251,7 +251,7 @@ public interface PropertySource {
     * @param key          属性键
     * @param defaultValue 默认值
     * @return BigInteger 类型的属性值或默认值
-     */
+    */
     default BigInteger getBigInteger(String key, BigInteger defaultValue) {
         Object value = getProperty(key);
         if (value == null) {
@@ -265,7 +265,7 @@ public interface PropertySource {
     *
     * @param key 属性键
     * @return 字符串列表类型的属性值
-     */
+    */
     default List<String> getList(String key) {
         Object value = getProperty(key);
         if (value == null) {
@@ -287,7 +287,7 @@ public interface PropertySource {
     * </ul>
     *
     * @return 转换后的 Map，如果为空则返回空 Map
-     */
+    */
     default Map<String, Object> toMap() {
         if (this == EMPTY) {
             return Map.of();
@@ -369,7 +369,7 @@ public interface PropertySource {
     *
     * @param key 原始键名
     * @return 规范化后的键名
-     */
+    */
     static String normalizeKey(String key) {
         if (StringUtils.isEmpty(key)) {
             return key;
@@ -399,7 +399,7 @@ public interface PropertySource {
     *
     * @param key 原始键名
     * @return 包含所有变体的字符串数组
-     */
+    */
     static String[] generateKeyVariants(String key) {
         if (StringUtils.isEmpty(key)) {
             return new String[]{key};
@@ -452,14 +452,14 @@ public interface PropertySource {
     * 获取属性源的优先级。
     *
     * @return 优先级数值
-     */
+    */
     default int getPriority() {
         return 0;
     }
 
     /**
     * 刷新属性源，默认空实现。
-     */
+    */
     default void refresh() {
     }
 }

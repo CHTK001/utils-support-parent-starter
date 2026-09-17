@@ -65,34 +65,34 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 分段数组，使用哈希值的高位进行索引。
-     */
+    */
     private final Segment[] segments;
 
     /**
     * 负载因子，当每个表平均引用数超过此值时触发扩容。
-     */
+    */
     private final float loadFactor;
 
     /**
     * 引用类型：SOFT（软引用）或 WEAK（弱引用）。
-     */
+    */
     private final ReferenceType referenceType;
 
     /**
     * 移位值，用于计算分段数组大小以及从哈希值中提取索引。
-     */
+    */
     private final int shift;
 
     /**
     * 延迟绑定的 Entry 集合视图。
-     */
+    */
 
     private volatile Set<Map.Entry<K, V>> entrySet;
 
 
     /**
     * 创建一个新的 {@code ConcurrentReferenceHashMap} 实例。
-     */
+    */
     public ConcurrentReferenceHashMap() {
         this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_REFERENCE_TYPE);
     }
@@ -101,7 +101,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * 创建一个新的 {@code ConcurrentReferenceHashMap} 实例。
     *
     * @param initialCapacity 初始容量
-     */
+    */
     public ConcurrentReferenceHashMap(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_REFERENCE_TYPE);
     }
@@ -111,7 +111,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param initialCapacity 初始容量
     * @param loadFactor      负载因子，当每个表平均引用数超过此值时触发扩容
-     */
+    */
     public ConcurrentReferenceHashMap(int initialCapacity, float loadFactor) {
         this(initialCapacity, loadFactor, DEFAULT_CONCURRENCY_LEVEL, DEFAULT_REFERENCE_TYPE);
     }
@@ -121,7 +121,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param initialCapacity  初始容量
     * @param concurrencyLevel 预期的并发写入线程数
-     */
+    */
     public ConcurrentReferenceHashMap(int initialCapacity, int concurrencyLevel) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR, concurrencyLevel, DEFAULT_REFERENCE_TYPE);
     }
@@ -131,7 +131,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param initialCapacity 初始容量
     * @param referenceType   条目的引用类型（软引用或弱引用）
-     */
+    */
     public ConcurrentReferenceHashMap(int initialCapacity, ReferenceType referenceType) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR, DEFAULT_CONCURRENCY_LEVEL, referenceType);
     }
@@ -142,7 +142,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * @param initialCapacity  初始容量
     * @param loadFactor       负载因子，当每个表平均引用数超过此值时触发扩容
     * @param concurrencyLevel 预期的并发写入线程数
-     */
+    */
     public ConcurrentReferenceHashMap(int initialCapacity, float loadFactor, int concurrencyLevel) {
         this(initialCapacity, loadFactor, concurrencyLevel, DEFAULT_REFERENCE_TYPE);
     }
@@ -154,7 +154,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * @param loadFactor       负载因子，当每个表平均引用数超过此值时触发扩容
     * @param concurrencyLevel 预期的并发写入线程数
     * @param referenceType    条目的引用类型（软引用或弱引用）
-     */
+    */
     public ConcurrentReferenceHashMap(
             int initialCapacity, float loadFactor, int concurrencyLevel, ReferenceType referenceType) {
 
@@ -193,7 +193,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * 每个 {@link Segment} 段对应一个引用管理器实例。
     *
     * @return 新的引用管理器
-     */
+    */
     protected ReferenceManager createReferenceManager() {
         return new ReferenceManager();
     }
@@ -205,7 +205,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param o 要计算哈希的对象（可为 null）
     * @return 计算得到的哈希码
-     */
+    */
     protected int getHash(Object o) {
         int hash = (o != null ? o.hashCode() : 0);
         hash += (hash << 15) ^ 0xffffcd7d;
@@ -250,7 +250,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * @param key         键（可为 null）
     * @param restructure 此调用允许的重构类型
     * @return 引用对象，未找到时返回 {@code null}
-     */
+    */
 
     protected final Reference<K, V> getReference(Object key, Restructure restructure) {
         int hash = getHash(key);
@@ -379,7 +379,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * 移除所有已被 GC 回收、不再被引用的条目。
     * 正常情况下，当 Map 中添加或移除条目时，已被 GC 回收的条目会自动清理。
     * 此方法可用于强制清理，适用于 Map 读取频繁但更新较少的场景。
-     */
+    */
     public void purgeUnreferencedEntries() {
         for (Segment segment : this.segments) {
             segment.restructureIfNecessary(false);
@@ -437,7 +437,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     * @param minimumValue 最小值
     * @param maximumValue 最大值
     * @return 计算得到的移位值（使用 {@code 1 << shift} 获得实际值）
-     */
+    */
     protected static int calculateShift(int minimumValue, int maximumValue) {
         int shift = 0;
         int value = 1;
@@ -451,24 +451,24 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 此 Map 支持的引用类型。
-     */
+    */
     public enum ReferenceType {
 
         /**
         * 使用 {@link SoftReference 软引用}。
-         */
+        */
         SOFT,
 
         /**
         * 使用 {@link WeakReference 弱引用}。
-         */
+        */
         WEAK
     }
 
 
     /**
     * 单个分段（Segment），用于将 Map 拆分为多个段以提高并发性能。
-     */
+    */
     protected final class Segment extends ReentrantLock {
 
         /** 引用管理器 */
@@ -480,24 +480,24 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         /**
         * 引用数组，使用哈希值的低位进行索引。
         * 此属性应与 {@code resizeThreshold} 同时设置。
-         */
+        */
         private volatile Reference<K, V>[] references;
 
         /**
         * 此分段中包含的引用总数。包括链式引用和已被 GC 回收但尚未清除的引用。
-         */
+        */
         private final AtomicInteger count = new AtomicInteger();
 
         /**
         * 扩容阈值，当 {@code count} 超过此值时引用数组将被扩容。
-         */
+        */
         private int resizeThreshold;
 
         /**
         * 创建 Segment 实例
         * @param initialSize initialSize
         * @param initialSize int
-         */
+        */
         public Segment(int initialSize, int resizeThreshold) {
             this.referenceManager = createReferenceManager();
             this.initialSize = initialSize;
@@ -528,7 +528,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param key  键
         * @param task 更新操作任务
         * @return 操作结果
-         */
+        */
 
         public <T> T doTask(final int hash, final Object key, final AbstractTask<T> task) {
             boolean resize = task.hasOption(TaskOption.RESIZE);
@@ -561,7 +561,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
         * 清空此分段中的所有条目。
-         */
+        */
         public void clear() {
             if (this.count.get() == 0) {
                 return;
@@ -581,7 +581,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * 被 GC 回收的引用。
         *
         * @param allowResize 是否允许扩容
-         */
+        */
         protected final void restructureIfNecessary(boolean allowResize) {
             int currCount = this.count.get();
             boolean needsResize = allowResize && (currCount > 0 && currCount >= this.resizeThreshold);
@@ -681,14 +681,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
         /**
         * 返回当前引用数组的大小。
-         */
+        */
         public final int getSize() {
             return this.references.length;
         }
 
         /**
         * 返回此分段中的引用总数。
-         */
+        */
         public final int getCount() {
             return this.count.get();
         }
@@ -701,32 +701,32 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param <K> 键类型
     * @param <V> 值类型
-     */
+    */
     protected interface Reference<K, V> {
 
         /**
         * 返回被引用的条目，如果条目不再可用则返回 {@code null}。
         * @return 被引用的条目，或 {@code null}
-         */
+        */
 
         Entry<K, V> get();
 
         /**
         * 返回此引用的哈希值。
         * @return 哈希值
-         */
+        */
         int getHash();
 
         /**
         * 返回链中的下一个引用，如果没有则返回 {@code null}。
         * @return 下一个引用，或 {@code null}
-         */
+        */
 
         Reference<K, V> getNext();
 
         /**
         * 释放此条目，确保它将从 {@code ReferenceManager#pollForPurge()} 中返回。
-         */
+        */
         void release();
     }
 
@@ -736,26 +736,26 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     *
     * @param <K> 键类型
     * @param <V> 值类型
-     */
+    */
     protected static final class Entry<K, V> implements Map.Entry<K, V> {
 
 
         /**
         * 键
-         */
+        */
         private final K key;
 
 
         /**
         * 值
-         */
+        */
         private volatile V value;
 
         /**
         * 创建 Entry 实例
         * @param key key
         * @param value V
-         */
+        */
         public Entry(K key, V value) {
             this.key = key;
             this.value = value;
@@ -814,7 +814,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 可在 {@link Segment} 上执行的 {@link Segment#doTask 任务}。
-     */
+    */
     private abstract class AbstractTask<T> {
 
         /** 选项列表 */
@@ -823,7 +823,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         /**
         * 创建 AbstractTask 实例
         * @param options options
-         */
+        */
         public AbstractTask(TaskOption... options) {
             this.options = (options.length == 0 ? EnumSet.noneOf(TaskOption.class) : EnumSet.of(options[0], options));
         }
@@ -841,7 +841,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param entries 底层条目的访问接口
         * @return 任务执行结果
         * @see #execute(Reference, Entry)
-         */
+        */
 
         protected T execute(Reference<K, V> ref, Entry<K, V> entry, Entries<V> entries) {
             return execute(ref, entry);
@@ -854,7 +854,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param entry 找到的条目（或 {@code null}）
         * @return 任务执行结果
         * @see #execute(Reference, Entry, Entries)
-         */
+        */
 
         protected T execute(Reference<K, V> ref, Entry<K, V> entry) {
             return null;
@@ -864,7 +864,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * {@code Task} 支持的各种选项。
-     */
+    */
     private enum TaskOption {
         /** 执行前重构 */
         RESTRUCTURE_BEFORE,
@@ -879,21 +879,21 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 允许任务访问 {@link Segment} 中的条目。
-     */
+    */
     private interface Entries<V> {
 
         /**
         * 添加一个指定值的新条目。
         *
         * @param value 要添加的值
-         */
+        */
         void add(V value);
     }
 
 
     /**
     * 内部 EntrySet 视图实现。
-     */
+    */
     private class EntrySet extends AbstractSet<Map.Entry<K, V>> {
 
         @Override
@@ -942,7 +942,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 内部 Entry 迭代器实现。
-     */
+    */
     private class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
         /** 分段索引 */
@@ -1039,7 +1039,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 可执行的重构类型。
-     */
+    */
     protected enum Restructure {
         /** 必要时重构 */
         WHEN_NECESSARY,
@@ -1051,7 +1051,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     /**
     * 用于管理 {@link Reference 引用} 的策略类。
     * 如果需要支持其他引用类型，可以重写此类。
-     */
+    */
     protected class ReferenceManager {
 
         /** 引用队列 */
@@ -1064,7 +1064,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param hash  哈希值
         * @param next  链中的下一个引用，如果没有则为 {@code null}
         * @return 新的 {@link Reference}
-         */
+        */
         public Reference<K, V> createReference(Entry<K, V> entry, int hash, Reference<K, V> next) {
             if (ConcurrentReferenceHashMap.this.referenceType == ReferenceType.WEAK) {
                 return new WeakEntryReference<>(entry, hash, next, this.queue);
@@ -1078,7 +1078,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * 每个引用应仅被返回一次。
         *
         * @return 需要清除的引用，或 {@code null}
-         */
+        */
 
         public Reference<K, V> pollForPurge() {
             return (Reference<K, V>) this.queue.poll();
@@ -1088,7 +1088,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 针对 {@link SoftReference 软引用} 的内部 {@link Reference} 实现。
-     */
+    */
     private static final class SoftEntryReference<K, V> extends SoftReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */
@@ -1104,7 +1104,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param hash hash
         * @param next next
         * @param queue queue
-         */
+        */
         public SoftEntryReference(Entry<K, V> entry, int hash, Reference<K, V> next,
                                   ReferenceQueue<Entry<K, V>> queue) {
 
@@ -1137,7 +1137,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
     /**
     * 针对 {@link WeakReference 弱引用} 的内部 {@link Reference} 实现。
-     */
+    */
     private static final class WeakEntryReference<K, V> extends WeakReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */
@@ -1153,7 +1153,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         * @param hash hash
         * @param next next
         * @param queue queue
-         */
+        */
         public WeakEntryReference(Entry<K, V> entry, int hash, Reference<K, V> next,
                                   ReferenceQueue<Entry<K, V>> queue) {
 

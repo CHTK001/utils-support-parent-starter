@@ -53,12 +53,12 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     * @param key     索引键
     * @param payload 业务 payload
     * @return 分配的 LSN
-     */
+    */
     long append(K key, byte[] payload) throws java.io.IOException;
 
     /**
     * 批量追加（线程安全，内部攒批）。
-     */
+    */
     default void appendBatch(List<WalAppendItem<K>> items) throws java.io.IOException {
         for (WalAppendItem<K> item : items) {
             append(item.key(), item.payload());
@@ -75,12 +75,12 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     *
     * @param key 索引键
     * @return payload（不存在返回 empty）
-     */
+    */
     Optional<byte[]> get(K key) throws java.io.IOException;
 
     /**
     * 判断 key 是否存在。
-     */
+    */
     boolean contains(K key) throws java.io.IOException;
 
     // ==================== 范围查 ====================
@@ -91,12 +91,12 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     * @param from 下界（含）
     * @param to   上界（不含）
     * @return 条目列表
-     */
+    */
     List<java.util.Map.Entry<K, byte[]>> range(K from, K to) throws java.io.IOException;
 
     /**
     * 带分页的范围查询。
-     */
+    */
     List<java.util.Map.Entry<K, byte[]>> range(K from, K to, int offset, int limit)
             throws java.io.IOException;
 
@@ -106,34 +106,34 @@ public interface WalStoreSystem<K extends Comparable<K>> extends AutoCloseable {
     * 逻辑删除（追加 tombstone 记录）。
     *
     * @return 是否成功（key 存在返回 true）
-     */
+    */
     boolean delete(K key) throws java.io.IOException;
 
     // ==================== 管理 ====================
 
     /**
     * 重建索引（从 WAL 回放，启动时调用）。
-     */
+    */
     void rebuildIndex() throws java.io.IOException;
 
     /**
     * Compaction：合并分片，消除 tombstone 和过期记录。
-     */
+    */
     void compact() throws java.io.IOException;
 
     /**
     * 当前总记录数（有效记录，不含 tombstone）。
-     */
+    */
     int size();
 
     /**
     * 列出所有分片元信息。
-     */
+    */
     List<WalSegmentInfo> listSegments() throws java.io.IOException;
 
     /**
     * 存储类型（kv/ts/vec/jdbc）。
-     */
+    */
     StoreType storeType();
 
     enum StoreType { KV, TS, VEC, JDBC }

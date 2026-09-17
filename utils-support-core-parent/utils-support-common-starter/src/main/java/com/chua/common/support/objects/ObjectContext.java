@@ -17,47 +17,47 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 对象容器上下文接口。
-* <p>轻量级 IoC 容器的核心抽象，提供 Bean 的获取、注册、查询和生命周期管理能力。</p>
-* <p>类似于 Spring 的 ApplicationContext，但更加精简，专注于对象查找和依赖注入。</p>
-* <p>核心功能包括：按名称/类型获取 Bean 实例、按注解批量获取 Bean、判断 Bean 是否存在及是否为单例、
-* 获取环境配置接口、事件发布能力、Bean 注册/注销、包扫描以及可配置 SPI 发现开关。</p>
-*
-* <h2>Bean 管理体系</h2>
-* <pre>
-* Class 来源
-*   ├─ SPI 发现（ServiceProvider）
-*   ├─ 注解扫描（BeanDefinitionDetector）
-*   ├─ registerBean(Object) 手动注册
-*   └─ scan(basePackage) 包扫描
-*         │
-*         ▼
-* BeanDefinitionGenerator  →  BeanDefinition
-*         │
-*         ▼
-* BeanDefinitionRegister.register(BeanDefinition)
-*   ├─ 缓存 name→register、type→names
-*   └─ beanNameCache / typeToBeanNames
-*         │
-*         ▼
-* createInstance() → 反射构造
-*   ├─ BeanDefinitionServiceInjector（@Autowired 等）
-*   ├─ BeanDefinitionConfigInjector（@Value 等）
-*   └─ BeanDefinitionLifecycle（@PostConstruct, @PreDestroy）
-*         │
-*         ▼
-* getBean() / getBeanOfType()  供消费
-* </pre>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 对象容器上下文接口。
+ * <p>轻量级 IoC 容器的核心抽象，提供 Bean 的获取、注册、查询和生命周期管理能力。</p>
+ * <p>类似于 Spring 的 ApplicationContext，但更加精简，专注于对象查找和依赖注入。</p>
+ * <p>核心功能包括：按名称/类型获取 Bean 实例、按注解批量获取 Bean、判断 Bean 是否存在及是否为单例、
+ * 获取环境配置接口、事件发布能力、Bean 注册/注销、包扫描以及可配置 SPI 发现开关。</p>
+ *
+ * <h2>Bean 管理体系</h2>
+ * <pre>
+ * Class 来源
+ *   ├─ SPI 发现（ServiceProvider）
+ *   ├─ 注解扫描（BeanDefinitionDetector）
+ *   ├─ registerBean(Object) 手动注册
+ *   └─ scan(basePackage) 包扫描
+ *         │
+ *         ▼
+ * BeanDefinitionGenerator  →  BeanDefinition
+ *         │
+ *         ▼
+ * BeanDefinitionRegister.register(BeanDefinition)
+ *   ├─ 缓存 name→register、type→names
+ *   └─ beanNameCache / typeToBeanNames
+ *         │
+ *         ▼
+ * createInstance() → 反射构造
+ *   ├─ BeanDefinitionServiceInjector（@Autowired 等）
+ *   ├─ BeanDefinitionConfigInjector（@Value 等）
+ *   └─ BeanDefinitionLifecycle（@PostConstruct, @PreDestroy）
+ *         │
+ *         ▼
+ * getBean() / getBeanOfType()  供消费
+ * </pre>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 public interface ObjectContext {
 
     /**
     * 存储 对象上下文 实例对应的配置。
     * <p>用于 default 方法持有一个状态副本。</p>
-     */
+    */
     Map<ObjectContext, ObjectContextConfig> CONFIG_HOLDER = new ConcurrentHashMap<>();
 
     /**
@@ -65,7 +65,7 @@ public interface ObjectContext {
     * <p>解决 registerBean()/getBean() 数据不互通的问题。</p>
     * <p>使用 {@link ConcurrentHashMap} 的强引用持有，容器关闭时（{@link #close()}）显式移除，
     * 避免 weak哈希映射 在实例暂时无强引用时被 GC 后丢失所有 Beandefinition。</p>
-     */
+    */
     Map<ObjectContext, BeanDefinitionRegistry> REGISTRY_HOLDER = new ConcurrentHashMap<>();
 
     // ==================== Bean 获取 ====================
@@ -77,7 +77,7 @@ public interface ObjectContext {
     * @param name Bean 名称
     * @param type Bean 类型
     * @return Bean 实例
-     */
+    */
     <T> T getBean(String name, Class<T> type);
 
     /**
@@ -88,7 +88,7 @@ public interface ObjectContext {
     * @param <T>  目标类型泛型
     * @param type Bean 类型
     * @return Bean 实例，不存在返回 空
-     */
+    */
     <T> T getBeanOfType(Class<T> type);
 
     /**
@@ -97,7 +97,7 @@ public interface ObjectContext {
     * @param <T>  目标类型泛型
     * @param type Bean 类型
     * @return Bean 实例，不存在返回 空
-     */
+    */
     <T> T getBeanOfTypeSafely(Class<T> type);
 
     /**
@@ -106,7 +106,7 @@ public interface ObjectContext {
     * @param <T>  目标类型泛型
     * @param type Bean 类型
     * @return 名称到 Bean 实例映射
-     */
+    */
     <T> Map<String, T> getBeanOfTypes(Class<T> type);
 
     /**
@@ -115,7 +115,7 @@ public interface ObjectContext {
     * @param <T>  目标类型泛型
     * @param type Bean 类型
     * @return Bean 实例集合
-     */
+    */
     <T> Collection<T> getBeanOfTypeCollection(Class<T> type);
 
     /**
@@ -123,7 +123,7 @@ public interface ObjectContext {
     *
     * @param annotationType 注解类型
     * @return 名称到 Bean 实例映射
-     */
+    */
     Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType);
 
     /**
@@ -131,14 +131,14 @@ public interface ObjectContext {
     *
     * @param annotationType 注解类型
     * @return 方法定义列表
-     */
+    */
     List<MethodDefinition> getMethodWithAnnotation(Class<? extends Annotation> annotationType);
 
     /**
     * 对已存在的对象执行依赖注入。
     *
     * @param bean 待装配的对象
-     */
+    */
     void autowire(Object bean);
 
     /**
@@ -146,7 +146,7 @@ public interface ObjectContext {
     *
     * @param name Bean 名称
     * @return true 表示存在
-     */
+    */
     boolean containsBean(String name);
 
     /**
@@ -154,21 +154,21 @@ public interface ObjectContext {
     *
     * @param name Bean 名称
     * @return true 表示为单例
-     */
+    */
     boolean isSingleton(String name);
 
     /**
     * 获取所有 Bean 的名称集合。
     *
     * @return 所有 Bean 名称
-     */
+    */
     Collection<String> getBeanDefinitionNames();
 
     /**
     * 获取 Bean 定义总数量。
     *
     * @return Bean 定义总数量
-     */
+    */
     int getBeanDefinitionCount();
 
     /**
@@ -177,7 +177,7 @@ public interface ObjectContext {
     * @param <T>  目标类型泛型
     * @param type Bean 类型
     * @return true 表示存在
-     */
+    */
     <T> boolean hasBeanOfType(Class<T> type);
 
     /**
@@ -185,7 +185,7 @@ public interface ObjectContext {
     *
     * @param type Bean 类型
     * @return Bean 名称集合
-     */
+    */
     Collection<String> getBeanNames(Class<?> type);
 
     /**
@@ -194,14 +194,14 @@ public interface ObjectContext {
     * @param <T>          目标类型泛型
     * @param requiredType Bean 类型
     * @return ObjectProvider 实例
-     */
+    */
     <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType);
 
     /**
     * 获取环境配置实例。
     *
     * @return 环境配置实例
-     */
+    */
     Environment getEnvironment();
 
     /**
@@ -211,7 +211,7 @@ public interface ObjectContext {
     *
     * @param event 事件对象
     * @return 本次分发调用的监听器数量；事件为 空 返回 0
-     */
+    */
     default int publish(Object event) {
         if (event == null) {
             return 0;
@@ -228,7 +228,7 @@ public interface ObjectContext {
     * @param <T>      事件类型泛型
     * @param type     事件类型
     * @param listener 事件监听器
-     */
+    */
     default <T> void addEventListener(Class<T> type, EventPublisher.EventListener listener) {
         getEventPublisher().register(type, listener);
     }
@@ -240,7 +240,7 @@ public interface ObjectContext {
     * @param type     事件类型
     * @param listener 待注销的监听器
     * @return true 表示找到并移除
-     */
+    */
     default <T> boolean removeEventListener(Class<T> type, EventPublisher.EventListener listener) {
         return getEventPublisher().unregister(type, listener);
     }
@@ -250,7 +250,7 @@ public interface ObjectContext {
     * <p>每个 {@link ObjectContext} 实例独立持有一个发布器，容器关闭不会影响其他容器。</p>
     *
     * @return EventPublisher 实例
-     */
+    */
     EventPublisher getEventPublisher();
 
     // ==================== 生命周期 ====================
@@ -258,7 +258,7 @@ public interface ObjectContext {
     /**
     * 关闭容器：销毁所有 Bean、清理注册表、释放资源。
     * <p>调用后 {@link #isClosed()} 返回 true，{@link #getBeanOfType(Object)} 等查找方法返回 null。</p>
-     */
+    */
     default void close() {
         if (isClosed()) {
             return;
@@ -278,7 +278,7 @@ public interface ObjectContext {
     * 容器是否已关闭。
     *
     * @return true 表示已关闭
-     */
+    */
     default boolean isClosed() {
         return REGISTRY_HOLDER.get(this) == null && CONFIG_HOLDER.get(this) == null;
     }
@@ -290,7 +290,7 @@ public interface ObjectContext {
     * <p>行为对齐 Spring Boot，加载 classpath 配置（application.yml 等）。</p>
     *
     * @see ObjectContextConfig#defaults()
-     */
+    */
     default void init() {
         init(ObjectContextConfig.defaults());
     }
@@ -305,7 +305,7 @@ public interface ObjectContext {
     * </ul>
     *
     * @param config 容器配置，空 时等同 {@link ObjectContextConfig#defaults()}
-     */
+    */
     default void init(ObjectContextConfig config) {
         if (config == null) {
             config = ObjectContextConfig.defaults();
@@ -321,7 +321,7 @@ public interface ObjectContext {
     * 设置容器配置。
     *
     * @param config 容器配置
-     */
+    */
     default void setConfig(ObjectContextConfig config) {
         if (config != null) {
             CONFIG_HOLDER.put(this, config);
@@ -332,7 +332,7 @@ public interface ObjectContext {
     * 获取容器配置。
     *
     * @return 当前配置，未设置则返回默认配置
-     */
+    */
     default ObjectContextConfig getConfig() {
         return CONFIG_HOLDER.getOrDefault(this, ObjectContextConfig.defaults());
     }
@@ -346,7 +346,7 @@ public interface ObjectContext {
     *
     * @param type Bean 类型
     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 类型 为 空 或注册失败时抛出
-     */
+    */
     default void registerBean(Class<?> type) {
         if (type == null) {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException("Bean 类型不能为空");
@@ -364,7 +364,7 @@ public interface ObjectContext {
     *
     * @param beanDefinition Bean 定义
     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 注册失败时抛出
-     */
+    */
     default void registerBean(BeanDefinition beanDefinition) {
         if (beanDefinition == null) {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException("BeanDefinition 不能为空");
@@ -392,7 +392,7 @@ public interface ObjectContext {
     *
     * @param bean 要注册的对象实例
     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 注册失败时抛出
-     */
+    */
     default void registerBean(Object bean) {
         if (bean == null) {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException("Bean 不能为空");
@@ -449,7 +449,7 @@ public interface ObjectContext {
     * @param register 待注册的 Beandefinition注册
     * @return true 表示新增成功
     * @throws com.chua.common.support.objects.exception.BeanDefinitionException 入参为空或挂接失败
-     */
+    */
     default boolean registerBean(BeanDefinitionRegister register) {
         if (register == null) {
             throw new com.chua.common.support.objects.exception.BeanDefinitionException("BeanDefinitionRegister 不能为空");
@@ -465,7 +465,7 @@ public interface ObjectContext {
     *
     * @param bean 要注销的对象实例
     * @return true 表示找到并注销
-     */
+    */
     default boolean unregisterBean(Object bean) {
         if (bean == null) {
             return false;
@@ -500,7 +500,7 @@ public interface ObjectContext {
     * <p>只扫描有无参构造器的非接口、非抽象、非枚举类。</p>
     *
     * @param basePackage 基包路径
-     */
+    */
     default void scan(String basePackage) {
         ObjectContextScanner.scan(this, basePackage);
     }
@@ -509,7 +509,7 @@ public interface ObjectContext {
     * 扫描多个包路径下的所有类。
     *
     * @param basePackages 基包路径列表
-     */
+    */
     default void scan(List<String> basePackages) {
         ObjectContextScanner.scan(this, basePackages);
     }
@@ -520,7 +520,7 @@ public interface ObjectContext {
     * 获取 Beandefinitionregistry。
     *
     * @return Bean 定义注册中心
-     */
+    */
     default BeanDefinitionRegistry getRegistry() {
         return getRegistry(getConfig().isSpiEnabled());
     }
@@ -530,7 +530,7 @@ public interface ObjectContext {
     *
     * @param spiEnabled 是否通过 SPI 发现 Beandefinition注册
     * @return Bean 定义注册中心
-     */
+    */
     default BeanDefinitionRegistry getRegistry(boolean spiEnabled) {
         BeanDefinitionRegistry registry = REGISTRY_HOLDER.get(this);
         if (registry == null) {

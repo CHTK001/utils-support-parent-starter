@@ -23,7 +23,7 @@ public class InterfaceSelector {
 
     /**
     * 默认构造函数。
-     */
+    */
     public InterfaceSelector() {
     }
 
@@ -35,7 +35,7 @@ public class InterfaceSelector {
     * @return 选中的 IP 地址字符串
     * @throws SocketException 网络异常
     * @throws IllegalStateException 无法找到合适的 IP
-     */
+    */
     public String select(String bindIp, String bindInterface) throws SocketException {
         // 1. 若指定了 bindIp，直接返回
         if (bindIp != null && !bindIp.isBlank()) {
@@ -99,7 +99,7 @@ public class InterfaceSelector {
     * @param name 网卡名称
     * @return NetworkInterface 或 null
     * @throws SocketException 网络异常
-     */
+    */
     private NetworkInterface findInterfaceByName(String name) throws SocketException {
         Enumeration<NetworkInterface> all = NetworkInterface.getNetworkInterfaces();
         if (all == null) {
@@ -118,7 +118,7 @@ public class InterfaceSelector {
     *
     * @param nif NetworkInterface
     * @return IPv4 地址字符串或 null
-     */
+    */
     private String selectPrivateIPv4(NetworkInterface nif) {
         try {
             Enumeration<InetAddress> addrs = nif.getInetAddresses();
@@ -140,7 +140,7 @@ public class InterfaceSelector {
     *
     * @param addr InetAddress
     * @return true 表示私网
-     */
+    */
     private boolean isPrivateIPv4(InetAddress addr) {
         byte[] b = addr.getAddress();
         if (b == null || b.length != 4) {

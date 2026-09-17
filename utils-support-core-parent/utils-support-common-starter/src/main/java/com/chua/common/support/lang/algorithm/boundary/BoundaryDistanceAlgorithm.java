@@ -57,7 +57,7 @@ public interface BoundaryDistanceAlgorithm {
     * @param points 数据点列表，每个数据点为 N 维特征向量
     * @return 两点间的最大距离值
     * @throws IllegalArgumentException 如果 points 为 null 或包含少于 2 个点
-     */
+    */
     double boundary(List<double[]> points);
 
     /**
@@ -68,7 +68,7 @@ public interface BoundaryDistanceAlgorithm {
     * @param points 数据点列表
     * @return 最远点对信息，包含两个点的索引、向量和距离值
     * @throws IllegalArgumentException 如果 points 为 null 或包含少于 2 个点
-     */
+    */
     FurthestPair furthestPair(List<double[]> points);
 
     /**
@@ -81,7 +81,7 @@ public interface BoundaryDistanceAlgorithm {
     * @param points 数据点列表
     * @return 数据集到几何中心的扩展范围（半径），取最近点距离中心的最大值
     * @throws IllegalArgumentException 如果 points 为 null 或为空列表
-     */
+    */
     double extent(List<double[]> points);
 
     /**
@@ -90,6 +90,6 @@ public interface BoundaryDistanceAlgorithm {
     * @param a 点 a 的特征向量
     * @param b 点 b 的特征向量
     * @return 两点间的距离
-     */
+    */
     double distance(double[] a, double[] b);
 }

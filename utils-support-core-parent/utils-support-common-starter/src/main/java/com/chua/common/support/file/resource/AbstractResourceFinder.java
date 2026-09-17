@@ -36,44 +36,44 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
 
     /**
     * JAR URL 协议前缀 {@value}。
-     */
+    */
     protected static final String JAR_URL_PREFIX = "jar:";
 
     /**
     * JAR 协议名称 {@value}。
-     */
+    */
     protected static final String JAR_PROTOCOL = "jar";
 
     /**
     * 路径匹配器。
-     */
+    */
     protected final PathMatcher matcher;
 
     /**
     * 查找配置。
-     */
+    */
     protected final ResourceConfiguration configuration;
 
     /**
     * 排除规则集合。
-     */
+    */
     protected final Set<String> excludes;
 
     /**
     * 类加载器。
-     */
+    */
     protected final ClassLoader classLoader;
 
     /**
     * 资源命中回调。
-     */
+    */
     protected final Consumer<Resource> consumer;
 
     /**
     * 使用指定配置构造查找器，并从配置中提取匹配器、排除规则、类加载器与回调。
     *
     * @param configuration 查找配置
-     */
+    */
     public AbstractResourceFinder(ResourceConfiguration configuration) {
         this.configuration = configuration;
         this.matcher = configuration.getPathMatcher();
@@ -87,7 +87,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param path 待判定路径
     * @return 如果是模式返回 true
-     */
+    */
     protected boolean isPattern(String path) {
         return matcher.isPattern(path);
     }
@@ -97,7 +97,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param absolutePath 资源路径
     * @return 命中排除规则返回 true
-     */
+    */
     protected boolean isExclude(String absolutePath) {
         if (excludes == null || excludes.isEmpty()) {
             return false;
@@ -119,7 +119,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     * @param name      待匹配名称
     * @param matchPath 匹配模式
     * @return 匹配返回 true
-     */
+    */
     protected boolean isMatch(String name, String matchPath) {
         if (SYMBOL_ASTERISK.equals(matchPath) || SYMBOL_ASTERISK_ANY.equals(matchPath)) {
             return true;
@@ -135,7 +135,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param name 完整路径（含协议前缀）
     * @return 根路径
-     */
+    */
     protected String findPathRootPath(String name) {
         int prefixEnd = name.indexOf(':') + 1;
         int rootDirEnd = name.length();
@@ -153,7 +153,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param path 完整路径
     * @return 确定部分路径
-     */
+    */
     public String getFullPath(String path) {
         path = path.replace("\\", SYMBOL_LEFT_SLASH);
         List<String> sep = new LinkedList<>();
@@ -171,7 +171,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param path 完整路径
     * @return 匹配部分路径
-     */
+    */
     public String getMatchPath(String path) {
         path = path.replace("\\", SYMBOL_LEFT_SLASH);
         List<String> sep = new LinkedList<>();
@@ -188,7 +188,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param urlForm URL 外部形式
     * @return JAR 文件名，非 JAR URL 时返回原字符串
-     */
+    */
     protected String getUrlName(String urlForm) {
         int index = urlForm.indexOf(JAR_URL_SEPARATOR);
         if (index == -1) {
@@ -205,7 +205,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param url 待判定 URL
     * @return 是 JAR 归档返回 true
-     */
+    */
     protected boolean isJarUrl(java.net.URL url) {
         if (url == null) {
             return false;
@@ -221,7 +221,7 @@ public abstract class AbstractResourceFinder implements ResourceFinder {
     *
     * @param path 待判定路径
     * @return 是 JAR 归档返回 true
-     */
+    */
     protected boolean isJarPath(String path) {
         if (StringUtils.isEmpty(path)) {
             return false;

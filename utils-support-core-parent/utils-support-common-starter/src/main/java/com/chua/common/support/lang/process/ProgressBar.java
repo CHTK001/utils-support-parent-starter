@@ -45,24 +45,24 @@ public class ProgressBar implements AutoCloseable {
 
     /**
     * 进度状态
-     */
+    */
     private final ProgressState progress;
 
     /**
     * 进度更新动作
-     */
+    */
     private final ProgressUpdateAction action;
 
     /**
     * 定时刷新任务
-     */
+    */
     private final ScheduledFuture<?> scheduledTask;
     /**
     * 创建一个进度条
     *
     * @param task 任务名称
     * @param initialMax 最大进度值
-     */
+    */
     public ProgressBar(String task, long initialMax) {
         this(task, initialMax, ProgressUnitType.ORIGINAL);
     }
@@ -72,7 +72,7 @@ public class ProgressBar implements AutoCloseable {
     * @param task 任务名称
     * @param initialMax 最大进度值
     * @param unit 进度单位
-     */
+    */
     public ProgressBar(String task, long initialMax, ProgressUnit unit) {
         this(
                 task, initialMax, 1000, false, false,
@@ -99,7 +99,7 @@ public class ProgressBar implements AutoCloseable {
     * @param speedUnit 速度单位
     * @param processed 已处理数量
     * @param elapsed 已消耗时间
-     */
+    */
     public ProgressBar(
             String task,
             long initialMax,
@@ -139,7 +139,7 @@ public class ProgressBar implements AutoCloseable {
     * @param elapsed 已消耗时间
     * @param renderer 进度条渲染器
     * @param consumer 进度条消费者
-     */
+    */
     public ProgressBar(
             String task,
             long initialMax,
@@ -163,7 +163,7 @@ public class ProgressBar implements AutoCloseable {
     *
     * @param n 步进数量
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar stepBy(long n) {
         progress.stepBy(n);
         return this;
@@ -174,7 +174,7 @@ public class ProgressBar implements AutoCloseable {
     *
     * @param n 目标进度值
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar stepTo(long n) {
         boolean back = n < progress.current;
         progress.stepTo(n);
@@ -189,7 +189,7 @@ public class ProgressBar implements AutoCloseable {
     * 步进 1
     *
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar step() {
         progress.stepBy(1);
         return this;
@@ -202,7 +202,7 @@ public class ProgressBar implements AutoCloseable {
     *
     * @param n 最大进度值（-1 表示不确定模式）
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar maxHint(long n) {
         if (n < 0) {
             progress.setAsIndefinite();
@@ -217,7 +217,7 @@ public class ProgressBar implements AutoCloseable {
     * 暂停进度条
     *
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar pause() {
         progress.pause();
         return this;
@@ -227,7 +227,7 @@ public class ProgressBar implements AutoCloseable {
     * 恢复进度条
     *
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar resume() {
         progress.resume();
         return this;
@@ -237,7 +237,7 @@ public class ProgressBar implements AutoCloseable {
     * 重置进度条（归零）
     *
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar reset() {
         progress.reset();
         // 强制刷新（修复 #124）
@@ -251,7 +251,7 @@ public class ProgressBar implements AutoCloseable {
     * 实现 {@link AutoCloseable} 接口，支持 try-with-resource 语法自动关闭
     *
     * @since 0.7.0
-     */
+    */
     @Override
     public void close() {
         if (scheduledTask.isCancelled()) {
@@ -271,7 +271,7 @@ public class ProgressBar implements AutoCloseable {
     *
     * @param msg 附加消息
     * @return 当前进度条实例
-     */
+    */
     public ProgressBar setExtraMessage(String msg) {
         progress.setExtraMessage(msg);
         return this;
@@ -281,7 +281,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取当前进度值
     *
     * @return 当前进度值
-     */
+    */
     public long getCurrent() {
         return progress.getCurrent();
     }
@@ -290,7 +290,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取最大进度值
     *
     * @return 最大进度值
-     */
+    */
     public long getMax() {
         return progress.getMax();
     }
@@ -299,7 +299,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取起始进度值
     *
     * @return 起始进度值
-     */
+    */
     public long getStart() {
         return progress.getStart();
     }
@@ -308,7 +308,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取归一化进度值（范围 0.0 ~ 1.0）
     *
     * @return 归一化进度值
-     */
+    */
     public double getNormalizedProgress() {
         return progress.getNormalizedProgress();
     }
@@ -319,7 +319,7 @@ public class ProgressBar implements AutoCloseable {
     * 返回进度条开始时的瞬时时间点
     *
     * @return 开始时间戳
-     */
+    */
     public Instant getStartInstant() {
         return progress.startInstant;
     }
@@ -330,7 +330,7 @@ public class ProgressBar implements AutoCloseable {
     * 返回进度开始前记录的时间量
     *
     * @return 开始前已消耗时间
-     */
+    */
     public Duration getElapsedBeforeStart() {
         return progress.getElapsedBeforeStart();
     }
@@ -341,7 +341,7 @@ public class ProgressBar implements AutoCloseable {
     * 返回从进度开始到现在的时间量
     *
     * @return 开始后已消耗时间
-     */
+    */
     public Duration getElapsedAfterStart() {
         return progress.getElapsedAfterStart();
     }
@@ -352,7 +352,7 @@ public class ProgressBar implements AutoCloseable {
     * 包含开始前和开始后的总时间
     *
     * @return 总消耗时间
-     */
+    */
     public Duration getTotalElapsed() {
         return progress.getTotalElapsed();
     }
@@ -361,7 +361,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取任务名称
     *
     * @return 任务名称
-     */
+    */
     public String getTaskName() {
         return progress.getTaskName();
     }
@@ -370,7 +370,7 @@ public class ProgressBar implements AutoCloseable {
     * 获取附加消息
     *
     * @return 附加消息
-     */
+    */
     public String getExtraMessage() {
         return progress.getExtraMessage();
     }
@@ -379,7 +379,7 @@ public class ProgressBar implements AutoCloseable {
     * 判断是否为不确定模式
     *
     * @return true 表示不确定模式，false 表示确定模式
-     */
+    */
     public boolean isIndefinite() {
         return progress.indefinite;
     }
@@ -388,7 +388,7 @@ public class ProgressBar implements AutoCloseable {
     * 强制刷新显示
     * <p>
     * 立即更新进度条的显示内容
-     */
+    */
     public void refresh() {
         action.refresh();
     }
@@ -402,7 +402,7 @@ public class ProgressBar implements AutoCloseable {
     * @param task 任务名称
     * @param <T> 元素类型
     * @return 包装后的迭代器
-     */
+    */
     public static <T> Iterator<T> wrap(Iterator<T> it, String task) {
         return wrap(it,
                 new ProgressBarBuilder().setTaskName(task).setInitialMax(-1)
@@ -417,7 +417,7 @@ public class ProgressBar implements AutoCloseable {
     * @param pbb 进度条构建器
     * @param <T> 元素类型
     * @return 包装后的迭代器
-     */
+    */
     public static <T> Iterator<T> wrap(Iterator<T> it, ProgressBarBuilder pbb) {
         return new ProgressBarWrappedIterator<>(it, pbb.build());
     }
@@ -434,7 +434,7 @@ public class ProgressBar implements AutoCloseable {
     * @param task 任务名称
     * @param <T> 元素类型
     * @return 包装后的可迭代对象
-     */
+    */
     public static <T> Iterable<T> wrap(Iterable<T> ts, String task) {
         return wrap(ts, new ProgressBarBuilder().setTaskName(task));
     }
@@ -448,7 +448,7 @@ public class ProgressBar implements AutoCloseable {
     * @param pbb 进度条构建器
     * @param <T> 元素类型
     * @return 包装后的可迭代对象
-     */
+    */
     public static <T> Iterable<T> wrap(Iterable<T> ts, ProgressBarBuilder pbb) {
         if (!pbb.initialMaxIsSet()) {
             pbb.setInitialMax(Util.getSpliteratorSize(ts.spliterator()));
@@ -462,7 +462,7 @@ public class ProgressBar implements AutoCloseable {
     * @param is 输入流
     * @param task 任务名称
     * @return 包装后的输入流
-     */
+    */
     public static InputStream wrap(InputStream is, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(is, pbb);
@@ -476,7 +476,7 @@ public class ProgressBar implements AutoCloseable {
     * @param is 输入流
     * @param pbb 进度条构建器
     * @return 包装后的输入流
-     */
+    */
     public static InputStream wrap(InputStream is, ProgressBarBuilder pbb) {
         if (!pbb.initialMaxIsSet()) {
             pbb.setInitialMax(Util.getInputStreamSize(is));
@@ -490,7 +490,7 @@ public class ProgressBar implements AutoCloseable {
     * @param os 输出流
     * @param task 任务名称
     * @return 包装后的输出流
-     */
+    */
     public static OutputStream wrap(OutputStream os, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(os, pbb);
@@ -504,7 +504,7 @@ public class ProgressBar implements AutoCloseable {
     * @param os 输出流
     * @param pbb 进度条构建器
     * @return 包装后的输出流
-     */
+    */
     public static OutputStream wrap(OutputStream os, ProgressBarBuilder pbb) {
         return new ProgressBarWrappedOutputStream(os, pbb.build());
     }
@@ -515,7 +515,7 @@ public class ProgressBar implements AutoCloseable {
     * @param reader Reader
     * @param task 任务名称
     * @return 包装后的 Reader
-     */
+    */
     public static Reader wrap(Reader reader, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(reader, pbb);
@@ -529,7 +529,7 @@ public class ProgressBar implements AutoCloseable {
     * @param reader Reader
     * @param pbb 进度条构建器
     * @return 包装后的 Reader
-     */
+    */
     public static Reader wrap(Reader reader, ProgressBarBuilder pbb) {
         return new ProgressBarWrappedReader(reader, pbb.build());
     }
@@ -540,7 +540,7 @@ public class ProgressBar implements AutoCloseable {
     * @param writer Writer
     * @param task 任务名称
     * @return 包装后的 Writer
-     */
+    */
     public static Writer wrap(Writer writer, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(writer, pbb);
@@ -554,7 +554,7 @@ public class ProgressBar implements AutoCloseable {
     * @param writer Writer
     * @param pbb 进度条构建器
     * @return 包装后的 Writer
-     */
+    */
     public static Writer wrap(Writer writer, ProgressBarBuilder pbb) {
         return new ProgressBarWrappedWriter(writer, pbb.build());
     }
@@ -566,7 +566,7 @@ public class ProgressBar implements AutoCloseable {
     * @param task 任务名称
     * @param <T> 元素类型
     * @return 包装后的 Spliterator
-     */
+    */
     public static <T> Spliterator<T> wrap(Spliterator<T> sp, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(sp, pbb);
@@ -581,7 +581,7 @@ public class ProgressBar implements AutoCloseable {
     * @param pbb 进度条构建器
     * @param <T> 元素类型
     * @return 包装后的 Spliterator
-     */
+    */
     public static <T> Spliterator<T> wrap(Spliterator<T> sp, ProgressBarBuilder pbb) {
         if (!pbb.initialMaxIsSet()) {
             pbb.setInitialMax(Util.getSpliteratorSize(sp));
@@ -597,7 +597,7 @@ public class ProgressBar implements AutoCloseable {
     * @param <T> 元素类型
     * @param <S> Stream 类型
     * @return 包装后的 Stream
-     */
+    */
     public static <T, S extends BaseStream<T, S>> Stream<T> wrap(S stream, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(stream, pbb);
@@ -613,7 +613,7 @@ public class ProgressBar implements AutoCloseable {
     * @param <T> 元素类型
     * @param <S> Stream 类型
     * @return 包装后的 Stream
-     */
+    */
     public static <T, S extends BaseStream<T, S>> Stream<T> wrap(S stream, ProgressBarBuilder pbb) {
         Spliterator<T> sp = wrap(stream.spliterator(), pbb);
         return StreamSupport.stream(sp, stream.isParallel());
@@ -626,7 +626,7 @@ public class ProgressBar implements AutoCloseable {
     * @param task 任务名称
     * @param <T> 元素类型
     * @return 包装后的 Stream
-     */
+    */
     public static <T> Stream<T> wrap(T[] array, String task) {
         ProgressBarBuilder pbb = new ProgressBarBuilder().setTaskName(task);
         return wrap(array, pbb);
@@ -641,7 +641,7 @@ public class ProgressBar implements AutoCloseable {
     * @param pbb 进度条构建器
     * @param <T> 元素类型
     * @return 包装后的 Stream
-     */
+    */
     public static <T> Stream<T> wrap(T[] array, ProgressBarBuilder pbb) {
         pbb.setInitialMax(array.length);
         return wrap(Arrays.stream(array), pbb);
@@ -651,7 +651,7 @@ public class ProgressBar implements AutoCloseable {
     * 创建一个进度条构建器
     *
     * @return 进度条构建器实例
-     */
+    */
     public static ProgressBarBuilder builder() {
         return new ProgressBarBuilder();
     }

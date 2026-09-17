@@ -87,21 +87,21 @@ public class FtpConfig {
 
     /**
     * 创建默认 FTP 配置。
-     */
+    */
     public static FtpConfig defaults() {
         return new FtpConfig();
     }
 
     /**
     * 创建配置构建器。
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
     * 配置构建器。
-     */
+    */
     public static class Builder {
         private final FtpConfig config = new FtpConfig();
 

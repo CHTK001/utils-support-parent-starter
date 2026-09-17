@@ -13,7 +13,7 @@ public class StartFailedException extends RuntimeException {
     * 构造方法。
     *
     * @param message 异常消息
-     */
+    */
     public StartFailedException(String message) {
         super(message);
     }
@@ -23,7 +23,7 @@ public class StartFailedException extends RuntimeException {
     *
     * @param message 异常消息
     * @param cause   原始异常
-     */
+    */
     public StartFailedException(String message, Throwable cause) {
         super(message, cause);
     }

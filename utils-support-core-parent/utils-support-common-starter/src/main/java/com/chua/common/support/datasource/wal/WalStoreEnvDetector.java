@@ -64,7 +64,7 @@ public class WalStoreEnvDetector implements RuntimeDetector {
     *
     * @param baseDir 数据存储根目录
     * @return 自动检测后的配置
-     */
+    */
     public WalStoreConfig detect(Path baseDir) {
         long maxMemory = Runtime.getRuntime().maxMemory();
         int cores = Runtime.getRuntime().availableProcessors();
@@ -101,7 +101,7 @@ public class WalStoreEnvDetector implements RuntimeDetector {
 
     /**
     * 带命名空间的检测。
-     */
+    */
     public WalStoreConfig detect(Path baseDir, String namespace) {
         WalStoreConfig cfg = detect(baseDir);
         return WalStoreConfig.builder()

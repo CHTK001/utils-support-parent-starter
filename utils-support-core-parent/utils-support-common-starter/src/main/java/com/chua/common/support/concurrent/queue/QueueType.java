@@ -18,16 +18,16 @@ public enum QueueType {
 
     /**
     * 单生产者单消费者（Single Producer Single Consumer）
-     */
+    */
     SPSC,
 
     /**
     * 多生产者多消费者（Multiple Producer Multiple Consumer）
-     */
+    */
     MPMC,
 
     /**
     * 无界（Unbounded）
-     */
+    */
     UNBOUNDED
 }

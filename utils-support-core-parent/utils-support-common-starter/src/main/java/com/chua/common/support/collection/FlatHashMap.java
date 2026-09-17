@@ -44,7 +44,7 @@ public class FlatHashMap implements FlatMap {
 
     /**
     * 构造一个空的 FlatHashMap 实例，使用默认的 HashMap 作为底层存储。
-     */
+    */
     protected FlatHashMap() {
         this.flatMap = new HashMap<>();
     }
@@ -53,7 +53,7 @@ public class FlatHashMap implements FlatMap {
     * 根据给定的源 Map 构造 FlatHashMap 实例，自动将嵌套结构展平。
     *
     * @param source 源 Map，包含可能的嵌套结构
-     */
+    */
     protected FlatHashMap(Map<String, Object> source) {
         this.flatMap = levelsClose.apply(source);
     }
@@ -163,7 +163,7 @@ public class FlatHashMap implements FlatMap {
     * 创建一个空的 FlatMap 实例。
     *
     * @return 空的 FlatMap 实例
-     */
+    */
     public static FlatMap create() {
         return create(Collections.emptyMap());
     }
@@ -173,7 +173,7 @@ public class FlatHashMap implements FlatMap {
     *
     * @param source 源 Map，其中可能包含嵌套的 Map 或 List 结构
     * @return 展平后的 FlatMap 实例
-     */
+    */
     public static FlatMap create(Map<String, Object> source) {
         return new FlatHashMap(source);
     }
@@ -188,7 +188,7 @@ public class FlatHashMap implements FlatMap {
     * @param key      通配符模式或前缀字符串
     * @param entryKey 待匹配的键
     * @return 如果匹配返回 true，否则返回 false
-     */
+    */
     private boolean isMatch(String key, String entryKey) {
         if (key.contains(SYMBOL_QUESTION) || key.contains(SYMBOL_ASTERISK)) {
             return MATCHER.match(key, entryKey);
@@ -206,7 +206,7 @@ public class FlatHashMap implements FlatMap {
     *
     * @param apply 展开后的嵌套 Map
     * @return 简化后的值，可能为 Map、Object 或 List
-     */
+    */
     private Object simpleValue(Map<String, Object> apply) {
         Set<String> keySet = apply.keySet();
         if (keySet.size() == 1) {

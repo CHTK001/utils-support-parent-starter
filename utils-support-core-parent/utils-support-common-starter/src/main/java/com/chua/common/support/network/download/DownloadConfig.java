@@ -32,7 +32,9 @@ public class DownloadConfig {
     private final boolean autoExtract;
     /** 解压目标目录（null 时表示与下载目录相同） */
     private final Path extractTo;
-    /** 是否跳过 MD5 校验（优先于 expectedMd5，true 时忽略校验） */
+    /**
+    * 是否跳过 MD5 校验（优先于 expectedMd5，true 时忽略校验）
+    */
     private final boolean skipMd5Check;
     /** 是否强制重新下载（忽略本地缓存文件） */
     private final boolean forceDownload;
@@ -90,7 +92,7 @@ public class DownloadConfig {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static class Builder {
 
         /** 下载地址，必须通过 {@link #url(String)} 设置 */
@@ -131,7 +133,7 @@ public class DownloadConfig {
         *
         * @param url 合法的 HTTP/HTTPS URL，不能为 null 或空白
         * @return Builder 自身，支持链式调用
-         */
+        */
         public Builder url(String url) { this.url = url; return this; }
 
         /**
@@ -139,7 +141,7 @@ public class DownloadConfig {
         *
         * @param targetDir 目标目录，为 null 时使用当前工作目录
         * @return Builder 自身
-         */
+        */
         public Builder targetDir(Path targetDir) { this.targetDir = targetDir; return this; }
 
         /**
@@ -147,7 +149,7 @@ public class DownloadConfig {
         *
         * @param filename 期望的文件名，为 null 或空白时从 URL 路径自动解析
         * @return Builder 自身
-         */
+        */
         public Builder filename(String filename) { this.filename = filename; return this; }
 
         /**
@@ -155,7 +157,7 @@ public class DownloadConfig {
         *
         * @param expectedMd5 小写十六进制 MD5 字符串，为 null 或空白时跳过校验
         * @return Builder 自身
-         */
+        */
         public Builder expectedMd5(String expectedMd5) { this.expectedMd5 = expectedMd5; return this; }
 
         /**
@@ -163,7 +165,7 @@ public class DownloadConfig {
         *
         * @param concurrency 线程数，必须 >= 1，传入小于 1 的值会自动调整为 1
         * @return Builder 自身
-         */
+        */
         public Builder concurrency(int concurrency) { this.concurrency = Math.max(1, concurrency); return this; }
 
         /**
@@ -171,7 +173,7 @@ public class DownloadConfig {
         *
         * @param maxSpeed 限速字节/秒，0 表示不限速
         * @return Builder 自身
-         */
+        */
         public Builder maxSpeed(long maxSpeed) { this.maxSpeed = maxSpeed; return this; }
 
         /**
@@ -179,7 +181,7 @@ public class DownloadConfig {
         *
         * @param proxy 代理对象，为 null 时不使用代理
         * @return Builder 自身
-         */
+        */
         public Builder proxy(Proxy proxy) { this.proxy = proxy; return this; }
 
         /**
@@ -187,7 +189,7 @@ public class DownloadConfig {
         *
         * @param autoExtract true 表示下载完成后自动解压
         * @return Builder 自身
-         */
+        */
         public Builder autoExtract(boolean autoExtract) { this.autoExtract = autoExtract; return this; }
 
         /**
@@ -195,7 +197,7 @@ public class DownloadConfig {
         *
         * @param extractTo 解压目标目录，为 null 时使用下载目录
         * @return Builder 自身
-         */
+        */
         public Builder extractTo(Path extractTo) { this.extractTo = extractTo; return this; }
 
         /**
@@ -203,7 +205,7 @@ public class DownloadConfig {
         *
         * @param skipMd5Check true 表示跳过校验（即使设置了 expectedMd5）
         * @return Builder 自身
-         */
+        */
         public Builder skipMd5Check(boolean skipMd5Check) { this.skipMd5Check = skipMd5Check; return this; }
 
         /**
@@ -211,7 +213,7 @@ public class DownloadConfig {
         *
         * @param forceDownload true 表示忽略本地已有文件强制重新下载
         * @return Builder 自身
-         */
+        */
         public Builder forceDownload(boolean forceDownload) { this.forceDownload = forceDownload; return this; }
 
         /**
@@ -219,7 +221,7 @@ public class DownloadConfig {
         *
         * @param showProgress true 显示进度条，false 静默下载
         * @return Builder 自身
-         */
+        */
         public Builder showProgress(boolean showProgress) { this.showProgress = showProgress; return this; }
 
         /**
@@ -227,7 +229,7 @@ public class DownloadConfig {
         *
         * @param connectTimeoutMs 超时毫秒数
         * @return Builder 自身
-         */
+        */
         public Builder connectTimeoutMs(int connectTimeoutMs) { this.connectTimeoutMs = connectTimeoutMs; return this; }
 
         /**
@@ -235,7 +237,7 @@ public class DownloadConfig {
         *
         * @param readTimeoutMs 超时毫秒数
         * @return Builder 自身
-         */
+        */
         public Builder readTimeoutMs(int readTimeoutMs) { this.readTimeoutMs = readTimeoutMs; return this; }
 
         /**
@@ -243,7 +245,7 @@ public class DownloadConfig {
         *
         * @param headers 键值对形式的请求头，会覆盖默认头
         * @return Builder 自身
-         */
+        */
         public Builder headers(Map<String, String> headers) { this.headers = headers; return this; }
 
         /**
@@ -253,7 +255,7 @@ public class DownloadConfig {
         *
         * @param resumeOffset 已下载的字节数
         * @return Builder 自身
-         */
+        */
         public Builder resumeOffset(long resumeOffset) { this.resumeOffset = resumeOffset; return this; }
 
         /**
@@ -261,7 +263,7 @@ public class DownloadConfig {
         *
         * @return 新构建的配置对象
         * @throws IllegalStateException 当 url 为 null 时
-         */
+        */
         public DownloadConfig build() {
             if (url == null || url.isBlank()) {
                 throw new IllegalStateException("download url must not be null or blank");

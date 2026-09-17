@@ -25,12 +25,12 @@ public abstract class AbstractPropertySource implements PropertySource {
     /**
     * 用于匹配数组索引的正则表达式模式。
     * 例如：key[0]
-     */
+    */
     private static final Pattern ARRAY_INDEX_PATTERN = Pattern.compile("(.+?)\\[(\\d+)]");
 
     /**
     * 属性源的名称标识。
-     */
+    */
     private final String name;
 
     /**
@@ -38,14 +38,14 @@ public abstract class AbstractPropertySource implements PropertySource {
     *
     * @param key 属性键
     * @return 属性值，如果不存在则返回 null
-     */
+    */
     protected abstract Object getRawProperty(String key);
 
     /**
     * 获取完整的属性源对象。
     *
     * @return 通常是一个 Map 或 Properties 对象
-     */
+    */
     protected abstract Object getSource();
 
     @Override
@@ -94,7 +94,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     *
     * @param key 嵌套属性路径
     * @return 找到的属性值，如果未找到则返回 null
-     */
+    */
     protected Object getNestedProperty(String key) {
         Object source = getSource();
         if (!(source instanceof Map)) {
@@ -141,7 +141,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     *
     * @param key 属性路径字符串
     * @return 分割后的字符串数组
-     */
+    */
     private String[] splitKeyPath(String key) {
         return key.split("\\.");
     }
@@ -153,7 +153,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     * @param source 源对象
     * @param key    键
     * @return 对应的值，如果类型不匹配则返回 null
-     */
+    */
     private Object getFromSource(Object source, String key) {
         if (source instanceof Map) {
             return ((Map<String, Object>) source).get(key);
@@ -167,7 +167,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     * @param source 源对象（必须是 Map 类型）
     * @param key    原始键
     * @return 找到的值，如果未找到则返回 null
-     */
+    */
     private Object getFromSourceWithVariants(Object source, String key) {
         if (!(source instanceof Map)) {
             return null;
@@ -199,7 +199,7 @@ public abstract class AbstractPropertySource implements PropertySource {
     * @param source 源对象（List 或数组）
     * @param index  索引位置
     * @return 对应索引的元素，如果索引越界或类型不匹配则返回 null
-     */
+    */
     private Object getFromList(Object source, int index) {
         if (source instanceof List) {
             List<Object> list = (List<Object>) source;

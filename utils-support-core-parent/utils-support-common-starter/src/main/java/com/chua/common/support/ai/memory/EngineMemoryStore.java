@@ -35,7 +35,7 @@ public class EngineMemoryStore implements MemoryStore {
 
     /**
     * 与 {@link MemoryEntryEntity} 简单类名驼峰转下划线一致，供 Engine 表定位。
-     */
+    */
     public static final String TABLE = "memory_entry_entity";
 
     /** 引擎实例 */
@@ -49,7 +49,7 @@ public class EngineMemoryStore implements MemoryStore {
     * 创建 EngineMemoryStore 实例
     * @param engine engine
     * @param config MemoryConfig
-     */
+    */
     public EngineMemoryStore(Engine engine, MemoryConfig config) {
         this.engine = engine;
         this.config = config != null ? config : MemoryConfig.builder().build();

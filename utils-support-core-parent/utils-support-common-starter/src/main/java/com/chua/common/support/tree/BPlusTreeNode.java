@@ -5,16 +5,16 @@ import java.util.List;
 import java.util.Objects;
 
 /**
-* B+ 树节点。
-*
-* <p>内部节点存储分隔键与子节点指针；叶子节点存储键值对，并通过 {@code next}
-* 指针串联形成有序链表，支持高效的范围扫描。</p>
-*
-* @param <K> 键类型
-* @param <V> 值类型
-* @author CH
-* @since 4.0.0.42
- */
+ * B+ 树节点。
+ *
+ * <p>内部节点存储分隔键与子节点指针；叶子节点存储键值对，并通过 {@code next}
+ * 指针串联形成有序链表，支持高效的范围扫描。</p>
+ *
+ * @param <K> 键类型
+ * @param <V> 值类型
+ * @author CH
+ * @since 4.0.0.42
+*/
 class BPlusTreeNode<K, V> {
 
     final boolean leaf; // leaf
@@ -46,7 +46,7 @@ class BPlusTreeNode<K, V> {
 
     /**
     * 返回 键 的当前容量（用于拷贝时预估新节点大小）。
-     */
+    */
     int keysCapacity() {
         return keys instanceof ArrayList ? ((ArrayList<?>) keys).size() : keys.size();
     }

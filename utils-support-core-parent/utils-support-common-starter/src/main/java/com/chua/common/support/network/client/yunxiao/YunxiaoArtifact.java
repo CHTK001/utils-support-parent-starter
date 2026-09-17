@@ -20,41 +20,41 @@ public class YunxiaoArtifact {
 
     /**
     * 下载次数
-     */
+    */
     private Integer downloadCount;
 
     /**
     * 最近下载时间（毫秒时间戳）
-     */
+    */
     private Long gmtDownload;
 
     /**
     * 制品 Id
-     */
+    */
     private Long id;
 
     /**
     * 最近更新时间（毫秒时间戳）
-     */
+    */
     private Long latestUpdate;
 
     /**
     * 模块名
-     */
+    */
     private String module;
 
     /**
     * 组织信息
-     */
+    */
     private String organization;
 
     /**
     * 仓库 Id
-     */
+    */
     private String repositoryId;
 
     /**
     * 制品版本列表
-     */
+    */
     private List<YunxiaoArtifactVersion> versions;
 }

@@ -40,12 +40,12 @@ public class CollapseHttpClient implements HttpClient {
 
     /**
     * 折叠执行器默认名称
-     */
+    */
     private static final String DEFAULT_FLOW_NAME = "collapse-http";
 
     /**
     * 异步折叠执行线程（虚拟线程承载，避免阻塞平台线程）
-     */
+    */
     private static final ExecutorService ASYNC_EXECUTOR;
 
     static {
@@ -55,24 +55,24 @@ public class CollapseHttpClient implements HttpClient {
 
     /**
     * 底层 HTTP 客户端
-     */
+    */
     private final HttpClient delegate;
 
     /**
     * 折叠门面
-     */
+    */
     private final CollapseFlow<HttpCollapseTask, ClientResponse> flow;
 
     /**
     * 关闭时是否级联关闭底层客户端（默认 true）
-     */
+    */
     private final boolean closeDelegate;
 
     /**
     * 构造折叠 HTTP 客户端。
     *
     * @param delegate 底层 HTTP 客户端，不可为空
-     */
+    */
     public CollapseHttpClient(HttpClient delegate) {
         this(delegate, null, true);
     }
@@ -82,7 +82,7 @@ public class CollapseHttpClient implements HttpClient {
     *
     * @param delegate 底层 HTTP 客户端，不可为空
     * @param config   折叠配置，可为空（使用默认配置）
-     */
+    */
     public CollapseHttpClient(HttpClient delegate, CollapseConfig config) {
         this(delegate, config, true);
     }
@@ -97,7 +97,7 @@ public class CollapseHttpClient implements HttpClient {
     * @param delegate      底层 HTTP 客户端，不可为空
     * @param config        折叠配置，可为空（使用默认配置）
     * @param closeDelegate 关闭时是否级联关闭底层客户端
-     */
+    */
     public CollapseHttpClient(HttpClient delegate, CollapseConfig config, boolean closeDelegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate must not be null.");
         this.closeDelegate = closeDelegate;
@@ -136,7 +136,7 @@ public class CollapseHttpClient implements HttpClient {
     *
     * @param url 原始 URL
     * @return 规范化后的 URL
-     */
+    */
     private static String normalizeUrl(String url) {
         if (url == null) {
             return null;
@@ -176,7 +176,7 @@ public class CollapseHttpClient implements HttpClient {
     *
     * @param interceptor 应用层拦截器
     * @return 当前折叠客户端实例（链式调用）
-     */
+    */
     @Override
     public CollapseHttpClient addInterceptor(HttpInterceptor interceptor) {
         delegate.addInterceptor(interceptor);
@@ -188,7 +188,7 @@ public class CollapseHttpClient implements HttpClient {
     *
     * @param interceptor 网络层拦截器
     * @return 当前折叠客户端实例（链式调用）
-     */
+    */
     @Override
     public CollapseHttpClient addNetworkInterceptor(HttpInterceptor interceptor) {
         delegate.addNetworkInterceptor(interceptor);
@@ -199,7 +199,7 @@ public class CollapseHttpClient implements HttpClient {
     * 获取底层客户端的应用层拦截器列表。
     *
     * @return 应用层拦截器列表
-     */
+    */
     @Override
     public java.util.List<HttpInterceptor> getInterceptors() {
         return delegate.getInterceptors();
@@ -209,7 +209,7 @@ public class CollapseHttpClient implements HttpClient {
     * 获取底层客户端的网络层拦截器列表。
     *
     * @return 网络层拦截器列表
-     */
+    */
     @Override
     public java.util.List<HttpInterceptor> getNetworkInterceptors() {
         return delegate.getNetworkInterceptors();
@@ -217,7 +217,7 @@ public class CollapseHttpClient implements HttpClient {
 
     /**
     * 关闭折叠客户端：始终关闭折叠执行器；是否级联关闭底层客户端由 {@code closeDelegate} 决定。
-     */
+    */
     @Override
     public void close() {
         flow.close();
@@ -228,17 +228,17 @@ public class CollapseHttpClient implements HttpClient {
 
     /**
     * 折叠请求任务：以 URL 为折叠 key（equals/hashCode），携带真实请求用于执行。
-     */
+    */
     private static final class HttpCollapseTask {
 
         /**
         * 请求 URL（折叠 key）
-         */
+        */
         private final String url;
 
         /**
         * 真实请求对象
-         */
+        */
         private final ClientRequest request;
 
         private HttpCollapseTask(String url, ClientRequest request) {

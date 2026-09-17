@@ -10,12 +10,12 @@ import javax.annotation.Nullable;
 
 
 /**
-* 桥接方法拦截器，将代理方法调用委托给指定的目标对象处理。
-*
-* @param <T> 代理接口类型
-* @author CH
-* @since 2025/7/20
- */
+ * 桥接方法拦截器，将代理方法调用委托给指定的目标对象处理。
+ *
+ * @param <T> 代理接口类型
+ * @author CH
+ * @since 2025/7/20
+*/
 @AllArgsConstructor
 public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 
@@ -24,7 +24,7 @@ public class BridgingMethodIntercept<T> implements MethodIntercept<T> {
 
     /**
     * 类型
-     */
+    */
     private final Class<?> type;
 
     @Override

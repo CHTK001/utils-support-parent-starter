@@ -11,33 +11,33 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
-* 条件评估器，用于评估服务定义是否满足加载条件。
-*
-* <p>该类负责评估服务定义上的条件注解，包括：</p>
-* <ul>
-*   <li>{@link ConditionalOnProperty} - 基于系统属性的条件</li>
-*   <li>{@link ConditionalOnClass} - 基于类存在性的条件</li>
-*   <li>{@link ConditionalOnMissingClass} - 基于类缺失的条件</li>
-* </ul>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* ConditionEvaluator evaluator = new ConditionEvaluator();
-* ServiceDefinition definition = ...;
-* if (evaluator.evaluate(definition)) {
-*     // 条件满足，可以加载服务
-* }
-* }</pre>以加载服务
-* }
-* }</pre>
-*
-* @author CH
-* @since 1.0
-* @see ServiceDefinition
-* @see ConditionalOnProperty
-* @see ConditionalOnClass
-* @see ConditionalOnMissingClass
- */
+ * 条件评估器，用于评估服务定义是否满足加载条件。
+ *
+ * <p>该类负责评估服务定义上的条件注解，包括：</p>
+ * <ul>
+ *   <li>{@link ConditionalOnProperty} - 基于系统属性的条件</li>
+ *   <li>{@link ConditionalOnClass} - 基于类存在性的条件</li>
+ *   <li>{@link ConditionalOnMissingClass} - 基于类缺失的条件</li>
+ * </ul>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * ConditionEvaluator evaluator = new ConditionEvaluator();
+ * ServiceDefinition definition = ...;
+ * if (evaluator.evaluate(definition)) {
+ *     // 条件满足，可以加载服务
+ * }
+ * }</pre>以加载服务
+ * }
+ * }</pre>
+ *
+ * @author CH
+ * @since 1.0
+ * @see ServiceDefinition
+ * @see ConditionalOnProperty
+ * @see ConditionalOnClass
+ * @see ConditionalOnMissingClass
+*/
 @Slf4j
 public class ConditionEvaluator {
 
@@ -51,7 +51,7 @@ public class ConditionEvaluator {
     *
     * @param definition 服务定义
     * @return true 表示满足条件
-     */
+    */
     public boolean evaluate(ServiceDefinition definition) {
         if (definition == null || definition.getImplClass() == null) {
             return false;
@@ -79,7 +79,7 @@ public class ConditionEvaluator {
     *
     * @param implClass 实现类
     * @return true 表示满足条件
-     */
+    */
     private boolean evaluatePropertyCondition(Class<?> implClass) {
         ConditionalOnProperty condition = implClass.getAnnotation(ConditionalOnProperty.class);
         if (condition == null) {
@@ -127,7 +127,7 @@ public class ConditionEvaluator {
     *
     * @param implClass 实现类
     * @return true 表示满足条件
-     */
+    */
     private boolean evaluateClassCondition(Class<?> implClass) {
         ConditionalOnClass condition = implClass.getAnnotation(ConditionalOnClass.class);
         if (condition == null) {
@@ -160,7 +160,7 @@ public class ConditionEvaluator {
     *
     * @param implClass 实现类
     * @return true 表示满足条件
-     */
+    */
     private boolean evaluateMissingClassCondition(Class<?> implClass) {
         ConditionalOnMissingClass condition = implClass.getAnnotation(ConditionalOnMissingClass.class);
         if (condition == null) {

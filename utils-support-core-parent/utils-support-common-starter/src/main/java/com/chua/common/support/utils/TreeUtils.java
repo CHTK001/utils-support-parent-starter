@@ -16,57 +16,57 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
-* 树操作工具集 — 提供平铺列表与树结构互转、查找、路径、兄弟、排序、扁平化的通用能力。
-*
-* <p>设计为<strong>函数式访问器</strong>风格：不绑定任何具体节点模型，
-* 通过 {@link Function}/{@link BiConsumer} 访问任意节点的 标识、父 标识 与子节点列表，
-* 可直接适配实体类、DTO、record 等任意结构。</p>
-*
-* <p>核心能力：</p>
-* <ul>
-*   <li>{@link #build} — 平铺列表 → 树（自动识别根、孤儿归根、重复 ID 与循环引用快速失败）</li>
-*   <li>{@link #findNode} / {@link #findById} — 按条件或按 ID 查找节点</li>
-*   <li>{@link #getDirectChildren} / {@link #getAllChildren} — 直接子节点 / 全部后代</li>
-*   <li>{@link #getParents} / {@link #getParentChain} — 父链（直接父→根） / 完整路径（根→直接父）</li>
-*   <li>{@link #getSiblings} — 兄弟节点（排除自身；根节点的兄弟即其他根）</li>
-*   <li>{@link #sortTree} — 递归排序整棵树（就地排序各层子列表）</li>
-*   <li>{@link #flatten} — 树 → 平铺列表（DFS 前序）</li>
-*   <li>{@link #getDepth} — 节点深度（根为 0）</li>
-* </ul>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-* class Dept {
-*     Long id; Long parentId; List<Dept> children;
-* }
-*
-* List<Dept> roots = TreeUtils.build(deptList,
-*         d -> d.id, d -> d.parentId,
-*         (dept, children) -> dept.children = children);
-*
-* Dept found = TreeUtils.findById(roots, 42L, d -> d.id, d -> d.children);
-* List<Dept> ancestors = TreeUtils.getParents(roots, found, d -> d.children);
-* }</pre>
-* }</pre>
-*
-* <p>约定与限制：</p>
-* <ul>
-*   <li>路径/父链/兄弟类方法对<strong>目标节点按引用（==）定位</strong>；
-* 按 标识 定位请先使用 {@link #findById}</li>
-*   <li>全部遍历均为显式栈迭代实现，不受树深限制；
-*       但传入含环结构时行为未定义（可能死循环）——
-*       请保证数据无环，{@link #build} 已内置环检测</li>
-*   <li>children 访问器返回 null 时一律按空列表处理</li>
-* </ul>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 树操作工具集 — 提供平铺列表与树结构互转、查找、路径、兄弟、排序、扁平化的通用能力。
+ *
+ * <p>设计为<strong>函数式访问器</strong>风格：不绑定任何具体节点模型，
+ * 通过 {@link Function}/{@link BiConsumer} 访问任意节点的 标识、父 标识 与子节点列表，
+ * 可直接适配实体类、DTO、record 等任意结构。</p>
+ *
+ * <p>核心能力：</p>
+ * <ul>
+ *   <li>{@link #build} — 平铺列表 → 树（自动识别根、孤儿归根、重复 ID 与循环引用快速失败）</li>
+ *   <li>{@link #findNode} / {@link #findById} — 按条件或按 ID 查找节点</li>
+ *   <li>{@link #getDirectChildren} / {@link #getAllChildren} — 直接子节点 / 全部后代</li>
+ *   <li>{@link #getParents} / {@link #getParentChain} — 父链（直接父→根） / 完整路径（根→直接父）</li>
+ *   <li>{@link #getSiblings} — 兄弟节点（排除自身；根节点的兄弟即其他根）</li>
+ *   <li>{@link #sortTree} — 递归排序整棵树（就地排序各层子列表）</li>
+ *   <li>{@link #flatten} — 树 → 平铺列表（DFS 前序）</li>
+ *   <li>{@link #getDepth} — 节点深度（根为 0）</li>
+ * </ul>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ * class Dept {
+ *     Long id; Long parentId; List<Dept> children;
+ * }
+ *
+ * List<Dept> roots = TreeUtils.build(deptList,
+ *         d -> d.id, d -> d.parentId,
+ *         (dept, children) -> dept.children = children);
+ *
+ * Dept found = TreeUtils.findById(roots, 42L, d -> d.id, d -> d.children);
+ * List<Dept> ancestors = TreeUtils.getParents(roots, found, d -> d.children);
+ * }</pre>
+ * }</pre>
+ *
+ * <p>约定与限制：</p>
+ * <ul>
+ *   <li>路径/父链/兄弟类方法对<strong>目标节点按引用（==）定位</strong>；
+ * 按 标识 定位请先使用 {@link #findById}</li>
+ *   <li>全部遍历均为显式栈迭代实现，不受树深限制；
+ *       但传入含环结构时行为未定义（可能死循环）——
+ *       请保证数据无环，{@link #build} 已内置环检测</li>
+ *   <li>children 访问器返回 null 时一律按空列表处理</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public final class TreeUtils {
 
     /**
     * 防止实例化工具类。
-     */
+    */
     private TreeUtils() {
     }
 
@@ -74,7 +74,7 @@ public final class TreeUtils {
     * DFS 遍历帧：记录当前节点、其子列表与已消费的游标位置。
     *
     * @param <T> 节点类型
-     */
+    */
     private record Frame<T>(T node, List<T> children, int cursor) {
     }
 
@@ -96,7 +96,7 @@ public final class TreeUtils {
     * @return 根节点列表（保持入参中的相对顺序）
     * @throws IllegalArgumentException 当存在重复节点 标识 时
     * @throws IllegalStateException    当存在循环引用导致部分节点不可达时
-     */
+    */
     public static <T, I> List<T> build(Collection<T> items,
                                        Function<T, I> idGetter,
                                        Function<T, I> parentIdGetter,
@@ -147,7 +147,7 @@ public final class TreeUtils {
     /**
     * 环检测：从全部根出发沿邻接表遍历，应能到达每一个节点；
     * 存在不可达节点即判定循环引用并快速失败。
-     */
+    */
     private static <I> void validateReachable(int totalNodes, Collection<I> rootIds,
                                               Map<I, List<I>> adjacency) {
         Set<I> reached = new HashSet<>();
@@ -179,7 +179,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 命中的节点；未命中返回 空
-     */
+    */
     public static <T> T findNode(Collection<T> roots, Predicate<? super T> matcher,
                                  Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
@@ -203,7 +203,7 @@ public final class TreeUtils {
     * @param <T>            节点类型
     * @param <I>            标识 类型
     * @return 命中的节点；未命中返回 空
-     */
+    */
     public static <T, I> T findById(Collection<T> roots, I targetId,
                                     Function<T, I> idGetter,
                                     Function<T, List<T>> childrenGetter) {
@@ -214,7 +214,7 @@ public final class TreeUtils {
 
     /**
     * DFS 迭代查找（显式栈，不受树深限制）。
-     */
+    */
     private static <T> T findDfs(T node, Predicate<? super T> matcher,
                                  Function<T, List<T>> childrenGetter) {
         Deque<T> stack = new ArrayDeque<>();
@@ -238,7 +238,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 直接子节点列表；无子节点返回空列表
-     */
+    */
     public static <T> List<T> getDirectChildren(T node, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(node, "node must not be null");
         return childrenOf(node, childrenGetter);
@@ -251,7 +251,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 后代节点列表；叶子节点返回空列表
-     */
+    */
     public static <T> List<T> getAllChildren(T node, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(node, "node must not be null");
         var descendants = new ArrayList<T>();
@@ -270,7 +270,7 @@ public final class TreeUtils {
     * @param stack stack
     * @param children children
     * @return pushReversed的结果
-     */
+    */
     private static <T> void pushReversed(Deque<T> stack, List<T> children) {
         for (var i = children.size() - 1; i >= 0; i--) {
             stack.push(children.get(i));
@@ -289,7 +289,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 路径列表 [根, ..., 直接父, 目标]；未找到返回空列表
-     */
+    */
     public static <T> List<T> getParentChain(Collection<T> roots, T target,
                                              Function<T, List<T>> childrenGetter) {
         return locatePath(roots, target, childrenGetter);
@@ -303,7 +303,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 父节点列表 [直接父, ..., 根]；目标为根时返回空列表
-     */
+    */
     public static <T> List<T> getParents(Collection<T> roots, T target,
                                          Function<T, List<T>> childrenGetter) {
         var path = locatePath(roots, target, childrenGetter);
@@ -324,7 +324,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 兄弟节点列表（保持原顺序）
-     */
+    */
     public static <T> List<T> getSiblings(Collection<T> roots, T target,
                                           Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(target, "target must not be null");
@@ -352,7 +352,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 深度值；未找到返回 -1
-     */
+    */
     public static <T> int getDepth(Collection<T> roots, T target,
                                    Function<T, List<T>> childrenGetter) {
         var path = locatePath(roots, target, childrenGetter);
@@ -362,7 +362,7 @@ public final class TreeUtils {
     /**
     * 定位从根到目标的路径（含两端），基于显式栈的迭代 DFS，
     * 不受树深限制。目标按引用（==）匹配。
-     */
+    */
     private static <T> List<T> locatePath(Collection<T> roots, T target,
                                           Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
@@ -409,7 +409,7 @@ public final class TreeUtils {
     * @param comparator     同层比较器
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
-     */
+    */
     public static <T> void sortTree(List<T> roots, Comparator<? super T> comparator,
                                     Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
@@ -431,7 +431,7 @@ public final class TreeUtils {
     * @param childrenGetter 子节点访问器
     * @param <T>            节点类型
     * @return 平铺列表（新列表，不影响原树）
-     */
+    */
     public static <T> List<T> flatten(Collection<T> roots, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(roots, "roots must not be null");
         var flat = new ArrayList<T>();
@@ -452,7 +452,7 @@ public final class TreeUtils {
     * @param node 节点
     * @param childrenGetter childrengetter
     * @return children的的结果
-     */
+    */
     private static <T> List<T> childrenOf(T node, Function<T, List<T>> childrenGetter) {
         Objects.requireNonNull(childrenGetter, "childrenGetter must not be null");
         var children = childrenGetter.apply(node);

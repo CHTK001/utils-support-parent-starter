@@ -28,53 +28,53 @@ public class TriggerDefinition {
     /**
     * 用于从 CREATE TRIGGER 内容中匹配表名的正则。
     * <p>匹配 {@code ON `user`}、{@code ON "user"}、{@code ON [user]}、{@code ON user} 等写法。</p>
-     */
+    */
     private static final Pattern TABLE_NAME_PATTERN = Pattern.compile(
             "(?is)\\bON\\s+([`\"\\[\\w.]+)`?\\\"?\\]?");
 
     /**
     * 触发器名
-     */
+    */
     private String name;
 
     /**
     * catalog 名称
-     */
+    */
     private String catalog;
 
     /**
     * schema 名称
-     */
+    */
     private String schema;
 
     /**
     * 关联表名
-     */
+    */
     private String tableName;
 
     /**
     * 触发时机（BEFORE / AFTER / INSTEAD OF）
-     */
+    */
     private String timing;
 
     /**
     * 触发事件（INSERT / UPDATE / DELETE）
-     */
+    */
     private String event;
 
     /**
     * 是否逐行触发
-     */
+    */
     private boolean forEachRow;
 
     /**
     * 触发器体内容
-     */
+    */
     private String body;
 
     /**
     * 触发器状态（ENABLED / DISABLED）
-     */
+    */
     private String status;
 
     /**
@@ -83,7 +83,7 @@ public class TriggerDefinition {
     *
     * @param body 触发器内容（CREATE TRIGGER 语句）
     * @return 关联表名，无法解析返回 null
-     */
+    */
     public static String parseTableName(String body) {
         if (body == null || body.isEmpty()) {
             return null;
@@ -106,7 +106,7 @@ public class TriggerDefinition {
     * 补齐关联表名：当前表名为空时，尝试从内容中提取。
     *
     * @return 当前实例
-     */
+    */
     public TriggerDefinition fillTableNameFromBody() {
         if ((tableName == null || tableName.isEmpty()) && body != null && !body.isEmpty()) {
             String parsed = parseTableName(body);

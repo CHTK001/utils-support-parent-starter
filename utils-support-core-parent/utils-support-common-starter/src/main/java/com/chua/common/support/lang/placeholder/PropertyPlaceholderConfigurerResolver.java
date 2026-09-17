@@ -17,14 +17,14 @@ public class PropertyPlaceholderConfigurerResolver implements PlaceholderResolve
 
     /**
     * 存储属性的核心容器。
-     */
+    */
     private final Properties props;
 
     /**
     * 私有构造函数，通过传入的 Properties 对象初始化实例。
     *
     * @param props 包含配置属性的 Properties 对象，不能为 null。
-     */
+    */
     private PropertyPlaceholderConfigurerResolver(Properties props) {
         this.props = props;
     }
@@ -38,7 +38,7 @@ public class PropertyPlaceholderConfigurerResolver implements PlaceholderResolve
     *
     * @param placeholderName 需要解析的占位符名称（即属性键）。
     * @return 对应的属性值，若未找到则返回 null。
-     */
+    */
     @Override
     public String resolvePlaceholder(String placeholderName) {
         return props.getProperty(placeholderName);
@@ -49,7 +49,7 @@ public class PropertyPlaceholderConfigurerResolver implements PlaceholderResolve
     *
     * @param key 要获取的属性键。
     * @return 对应的属性值，若未找到则返回 null。
-     */
+    */
     @Override
     public String getProperty(String key) {
         return resolvePlaceholder(key);

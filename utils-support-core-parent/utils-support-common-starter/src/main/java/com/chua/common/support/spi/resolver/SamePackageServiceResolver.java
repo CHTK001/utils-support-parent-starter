@@ -26,44 +26,44 @@ import javax.annotation.Nullable;
 
 
 /**
-* 同包 SPI 服务解析器工具类。
-* <p>
-* 该实现会扫描指定服务接口所在包及其子包下的所有类，查找该接口的实现类并构造对应的服务定义。
-* <p>
-* 扫描策略如下：
-* <ol>
-*   <li>获取服务接口所在包名；</li>
-*   <li>通过类加载器定位包路径下的 {@code .class} 文件；</li>
-*   <li>过滤出实现该接口且非抽象的具体类；</li>
-*   <li>排除内部类，避免误扫描。</li>
-* </ol>
-*
-* @author CH
-* @since 4.0.0
- */
+ * 同包 SPI 服务解析器工具类。
+ * <p>
+ * 该实现会扫描指定服务接口所在包及其子包下的所有类，查找该接口的实现类并构造对应的服务定义。
+ * <p>
+ * 扫描策略如下：
+ * <ol>
+ *   <li>获取服务接口所在包名；</li>
+ *   <li>通过类加载器定位包路径下的 {@code .class} 文件；</li>
+ *   <li>过滤出实现该接口且非抽象的具体类；</li>
+ *   <li>排除内部类，避免误扫描。</li>
+ * </ol>
+ *
+ * @author CH
+ * @since 4.0.0
+*/
 @Slf4j
 public class SamePackageServiceResolver implements ServiceResolver {
 
 
     /**
     * 类缓存，用于加速重复加载
-     */
+    */
     private static final Map<String, Class<?>> CLASS_CACHE = new ConcurrentHashMap<>(512);
     
     /**
     * 类锁缓存，用于并发安全加载
-     */
+    */
     private static final Map<String, Object> CLASS_LOCKS = new ConcurrentHashMap<>(512);
 
     /**
     * JAR URL 锁缓存：同一 URL 的打开-扫描-关闭必须串行，
     * 避免一个线程 关闭 后其他线程访问已关闭的 jar文件 报 压缩 文件 关闭。
-     */
+    */
     private static final Map<String, Object> JAR_URL_LOCKS = new ConcurrentHashMap<>(64);
 
     /**
     * 批量加载大小
-     */
+    */
     private static final int BATCH_SIZE = 100;
 
     /**
@@ -72,7 +72,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param service 服务接口类型
     * @param classLoader 用于扫描和加载实现类的类加载器
     * @return 解析得到的服务定义列表
-     */
+    */
     @Override
     public List<ServiceDefinition> resolve(Class<?> service, ClassLoader classLoader) {
         if (log.isTraceEnabled()) {
@@ -125,7 +125,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     *
     * @param typeName 类型全名
     * @return 包名，若不存在包名则返回空字符串
-     */
+    */
     private String extractPackageName(String typeName) {
         int lastDot = typeName.lastIndexOf('.');
         return lastDot > 0 ? typeName.substring(0, lastDot) : "";
@@ -140,7 +140,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param service 服务接口
     * @param classLoader 类加载器
     * @return 子类型列表
-     */
+    */
     public List<Class<?>> findSubTypeByPackage(String packageName, Class<?> service, ClassLoader classLoader) {
         if (packageName == null || packageName.isEmpty()) {
             if (log.isTraceEnabled()) {
@@ -197,7 +197,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param packageDirName 包目录名
     * @param service 服务接口
     * @param classLoader 类加载器
-     */
+    */
     private void doAnalysisUrl(Collection<Class<?>> result,
                                URL url,
                                String packageName,
@@ -224,7 +224,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param packageDirName 包目录名
     * @param service 服务接口
     * @param classLoader 类加载器
-     */
+    */
     private void doAnalysisJarUrl(Collection<Class<?>> result,
                                   URL url,
                                   String packageDirName,
@@ -244,7 +244,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param packageDirName 包dir名称
     * @param service 服务
     * @param classLoader 类加载
-     */
+    */
     private void doAnalysisJarUrlInner(Collection<Class<?>> result,
                                        URL url,
                                        String packageDirName,
@@ -295,7 +295,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param packageDirName 包目录名
     * @param service 服务接口
     * @param classLoader 类加载器
-     */
+    */
     private void doAnalysisFileUrl(Collection<Class<?>> result,
                                   URL url,
                                   String packageName,
@@ -370,7 +370,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param packageName 包名
     * @param service 服务接口
     * @param classLoader 类加载器
-     */
+    */
     private void doAnalysisFileUrlLegacy(Collection<Class<?>> result,
                                          File packageDir,
                                          String packageName,
@@ -433,7 +433,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param service 服务接口
     * @param classLoader 类加载器
     * @param result 结果集合
-     */
+    */
     private void loadClassesInBatch(List<String> classNames, 
                                     Class<?> service, 
                                     ClassLoader classLoader,
@@ -467,7 +467,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param aClass 待检查类
     * @param service 服务接口
     * @return 如果是有效实现类则返回 {@code true}
-     */
+    */
     private boolean isValidImplementation(Class<?> aClass, Class<?> service) {
         return service.isAssignableFrom(aClass)
                 && !aClass.isInterface()
@@ -482,7 +482,7 @@ public class SamePackageServiceResolver implements ServiceResolver {
     * @param className 类名
     * @param classLoader 类加载器
     * @return 加载成功的类对象；若失败则返回 {@code null}
-     */
+    */
     private Class<?> loadClassWithCache(String className, ClassLoader classLoader) {
         Class<?> cached = CLASS_CACHE.get(className);
         if (cached != null) {

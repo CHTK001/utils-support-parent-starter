@@ -38,7 +38,7 @@ public class UrlTypeConverter implements TypeConverter<URL> {
     *
     * @param value 源值
     * @return URL 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public URL convert(Object value) {
         if (null == value) {
@@ -96,7 +96,7 @@ public class UrlTypeConverter implements TypeConverter<URL> {
     * 获取当前转换器支持的目标类型。
     *
     * @return URL.class
-     */
+    */
     @Override
     public Class<URL> getType() {
         return URL.class;

@@ -49,19 +49,19 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
 
     /**
     * {@code java.class.path} 系统属性名。
-     */
+    */
     private static final String JAVA_CLASS_PATH = "java.class.path";
 
     /**
     * 路径分隔符（OS 相关）。
-     */
+    */
     private static final String PATH_SEPARATOR = System.getProperty("path.separator");
 
     /**
     * 使用指定配置构造查找器。
     *
     * @param configuration 查找配置
-     */
+    */
     public ClassPathAnyResourceFinder(ResourceConfiguration configuration) {
         super(configuration);
     }
@@ -77,7 +77,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     *
     * @param name 含 {@code classpath*:} 前缀的完整路径
     * @return 匹配资源集合
-     */
+    */
     private Set<Resource> analysisAnyResources(String name) {
         String sub = name.substring(CLASSPATH_URL_ALL_PREFIX.length());
         if (isPattern(sub)) {
@@ -91,7 +91,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     *
     * @param name 含 {@code classpath*:} 前缀的完整模式
     * @return 匹配资源集合
-     */
+    */
     private Set<Resource> findPathMatchingResources(String name) {
         Set<Resource> result = new LinkedHashSet<>();
         String classPathRoot = findPathRootPath(name);
@@ -113,7 +113,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     * @param name      完整模式（用于日志）
     * @param subPath   通配子路径
     * @param result    匹配结果收集集合
-     */
+    */
     private void analysisResources(Set<Resource> resources, String name, String subPath, Set<Resource> result) {
         if (resources.isEmpty()) {
             return;
@@ -156,7 +156,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     * @param subPath 通配子路径
     * @param result  匹配结果收集集合
     * @throws IOException 打开 JAR 失败时抛出
-     */
+    */
     private void doFindPathMatchingJarResources(URL url, String subPath, Set<Resource> result) throws IOException {
         ZipFile jarFile;
         try {
@@ -211,7 +211,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     * @param url       file URL
     * @param subPath   通配子路径
     * @param result    匹配结果收集集合
-     */
+    */
     private void doFindPathMatchingResources(URL url, String subPath, Set<Resource> result) {
         File file = new File(url.getFile());
         if (file.isFile()) {
@@ -255,7 +255,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     *
     * @param name 含 {@code classpath*:} 前缀的完整路径
     * @return 资源集合
-     */
+    */
     private Set<Resource> findAllClassPathResources(String name) {
         Set<Resource> result = new LinkedHashSet<>();
         Set<String> additionalCollections = new HashSet<>();
@@ -293,7 +293,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     * @param classLoader            类加载器
     * @param result                 资源结果集合
     * @param additionalCollections  已收集的 JAR 外部形式集合（去重用）
-     */
+    */
     private void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result,
                                            Set<String> additionalCollections) {
         if (classLoader instanceof URLClassLoader urlClassLoader) {
@@ -335,7 +335,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     *
     * @param result                资源结果集合
     * @param additionalCollections 已收集的 JAR 外部形式集合（去重用）
-     */
+    */
     private void addClassPathManifestEntries(Set<Resource> result, Set<String> additionalCollections) {
         try {
             String javaClassPathProperty = System.getProperty(JAVA_CLASS_PATH);
@@ -371,7 +371,7 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     *
     * @param name JAR 文件名
     * @return 应忽略返回 true
-     */
+    */
     private boolean ignoreJar(String name) {
         if (excludes == null || excludes.isEmpty() || StringUtils.isEmpty(name)) {
             return false;

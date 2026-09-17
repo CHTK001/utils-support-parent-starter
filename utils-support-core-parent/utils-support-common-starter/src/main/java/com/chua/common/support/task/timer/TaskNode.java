@@ -4,11 +4,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 哈希轮定时器节点，构成双向链表。
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 哈希轮定时器节点，构成双向链表。
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Data
 @NoArgsConstructor
 public class TaskNode {
@@ -29,7 +29,7 @@ public class TaskNode {
     * @param next       后继节点
     * @param task       定时器任务
     * @param slotIndex  槽位索引
-     */
+    */
     public TaskNode(TaskNode prev, TaskNode next, TimerTask task, int slotIndex) {
         this.prev = prev;
         this.next = next;

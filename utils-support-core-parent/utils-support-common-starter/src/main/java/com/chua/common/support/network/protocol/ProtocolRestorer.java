@@ -32,7 +32,7 @@ public interface ProtocolRestorer {
     * 协议名称标识
     *
     * @return 协议名（如 "http", "telnet", "email"）
-     */
+    */
     String getProtocolName();
 
     /**
@@ -41,7 +41,7 @@ public interface ProtocolRestorer {
     * @param protocolInfo 已解析的协议信息（从 Ethernet/IP/TCP 等解析而来）
     * @param rawData      原始数据包字节
     * @return true 表示该还原器可以处理此数据包
-     */
+    */
     boolean canRestore(Map<String, Object> protocolInfo, byte[] rawData);
 
     /**
@@ -50,7 +50,7 @@ public interface ProtocolRestorer {
     * @param protocolInfo 已解析的协议信息
     * @param rawData      原始数据包字节
     * @return 人类可读的协议文本
-     */
+    */
     String restore(Map<String, Object> protocolInfo, byte[] rawData);
 
     /**
@@ -60,7 +60,7 @@ public interface ProtocolRestorer {
     * 默认优先级 100。
     *
     * @return 优先级值
-     */
+    */
     default int getPriority() {
         return 100;
     }

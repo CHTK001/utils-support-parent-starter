@@ -19,7 +19,7 @@ public enum ServerCategory {
     *
     * <p>基于请求-响应模式，客户端发起请求，服务端处理并返回响应。
     * 典型协议：HTTP、TCP。
-     */
+    */
     APPLICATION,
 
     /**
@@ -27,7 +27,7 @@ public enum ServerCategory {
     *
     * <p>基于发布-订阅或推送模式，服务端可主动向客户端推送消息。
     * 典型协议：WebSocket、MQTT。</p>
-     */
+    */
     MESSAGE,
 
     /**
@@ -35,6 +35,6 @@ public enum ServerCategory {
     *
     * <p>基于文件共享模式，客户端挂载远程文件系统，进行文件读写操作。
     * 典型协议：SMB、FTP、SFTP、WebDAV。</p>
-     */
+    */
     FILE
 }

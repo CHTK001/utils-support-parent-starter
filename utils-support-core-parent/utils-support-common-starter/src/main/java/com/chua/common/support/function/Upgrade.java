@@ -14,6 +14,6 @@ public interface Upgrade<T> {
     * 升级到新配置
     *
     * @param t 新配置
-     */
+    */
     void upgrade(T t);
 }

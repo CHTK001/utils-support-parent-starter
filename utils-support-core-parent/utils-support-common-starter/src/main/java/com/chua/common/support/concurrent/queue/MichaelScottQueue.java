@@ -25,22 +25,22 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
 
     /**
     * size() 遍历时的最大扫描节点数保护值，防止极端并发下无限遍历
-     */
+    */
     private static final int MAX_SIZE_SCAN = 1_000_000;
 
     /**
     * 队列头引用，指向哨兵或已出队节点，其 next 为队首元素
-     */
+    */
     private final AtomicReference<Node<E>> head = new AtomicReference<>();
 
     /**
     * 队列尾引用，指向最新追加节点
-     */
+    */
     private final AtomicReference<Node<E>> tail = new AtomicReference<>();
 
     /**
     * 创建空队列，初始化哨兵节点。
-     */
+    */
     public MichaelScottQueue() {
         Node<E> sentinel = new Node<>(null);
         head.set(sentinel);
@@ -54,7 +54,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * @param element 待入队元素，禁止为 null
     * @return 恒为 true
     * @throws NullPointerException 元素为 null 时抛出
-     */
+    */
     @Override
     public boolean offer(E element) {
         if (element == null) {
@@ -80,7 +80,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * 出队并移除队首元素。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     @Override
     public E poll() {
         while (true) {
@@ -106,7 +106,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * 查看队首元素但不移除。
     *
     * @return 队首元素；队列为空时返回 null
-     */
+    */
     @Override
     public E peek() {
         for (int i = 0; i < 100; i++) {
@@ -127,7 +127,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * 判断队列是否为空。
     *
     * @return 队列为空返回 true
-     */
+    */
     @Override
     public boolean isEmpty() {
         return head.getAcquire().next.getAcquire() == null;
@@ -147,7 +147,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
 
     /**
     * 清空队列，持续出队直至为空。
-     */
+    */
     @Override
     public void clear() {
         while (poll() != null) {
@@ -159,7 +159,7 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * 无界队列容量返回 Integer.MAX_VALUE。
     *
     * @return {@link Integer#MAX_VALUE}
-     */
+    */
     @Override
     public int capacity() {
         return Integer.MAX_VALUE;
@@ -169,24 +169,24 @@ public class MichaelScottQueue<E> implements LockFreeQueue<E> {
     * 无锁链表节点，next 使用原子引用支撑 CAS 追加。
     *
     * @param <E> 元素类型
-     */
+    */
     private static final class Node<E> {
 
         /**
         * 节点存储的元素值，哨兵节点为 null
-         */
+        */
         private final E value;
 
         /**
         * 下一个节点的原子引用
-         */
+        */
         private final AtomicReference<Node<E>> next = new AtomicReference<>();
 
         /**
         * 构造节点。
         *
         * @param value 元素值，哨兵传入 null
-         */
+        */
         Node(E value) {
             this.value = value;
         }

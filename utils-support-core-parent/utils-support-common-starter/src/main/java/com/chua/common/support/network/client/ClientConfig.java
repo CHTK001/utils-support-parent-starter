@@ -64,49 +64,49 @@ public class ClientConfig {
 
     /**
     * 绑定的 HTTP 客户端
-     */
+    */
     private final HttpClient client;
 
     /**
     * 预配置的请求头
-     */
+    */
     private final HttpHeader headers = HttpHeader.create();
 
     /**
     * 预配置的连接超时（毫秒），-1 表示未设置
-     */
+    */
     private long connectTimeout = -1;
 
     /**
     * 预配置的读取超时（毫秒），-1 表示未设置
-     */
+    */
     private long readTimeout = -1;
 
     /**
     * 预配置的写入超时（毫秒），-1 表示未设置
-     */
+    */
     private long writeTimeout = -1;
 
     /**
     * 预配置的缓存有效期（毫秒），-1 表示未设置
-     */
+    */
     private long cacheTtl = -1;
 
     /**
     * 预配置的重试次数，-1 表示未设置
-     */
+    */
     private int maxRetries = -1;
 
     /**
     * 预配置的 HTTP 版本
-     */
+    */
     private HttpVersion version;
 
     /**
     * 创建绑定到指定客户端的预配置构建器。
     *
     * @param client 绑定的 HTTP 客户端
-     */
+    */
     ClientConfig(HttpClient client) {
         this.client = client;
     }
@@ -117,7 +117,7 @@ public class ClientConfig {
     * 快捷设置 Content-Type 为 {@code application/json}。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig json() {
         this.headers.add("Content-Type", "application/json");
         return this;
@@ -127,7 +127,7 @@ public class ClientConfig {
     * 快捷设置 Content-Type 为 {@code application/x-www-form-urlencoded}。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig form() {
         this.headers.add("Content-Type", "application/x-www-form-urlencoded");
         return this;
@@ -138,7 +138,7 @@ public class ClientConfig {
     *
     * @param mimeType MIME 类型
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig contentType(String mimeType) {
         this.headers.add("Content-Type", mimeType);
         return this;
@@ -151,7 +151,7 @@ public class ClientConfig {
     *
     * @param token Bearer Token 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig auth(String token) {
         this.headers.add("Authorization", "Bearer " + token);
         return this;
@@ -162,7 +162,7 @@ public class ClientConfig {
     *
     * @param token Bearer Token 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig authorization(String token) {
         return auth(token);
     }
@@ -173,7 +173,7 @@ public class ClientConfig {
     * @param username 认证用户名
     * @param password 认证密码
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig authBasic(String username, String password) {
         String encoded = Base64.getEncoder().encodeToString(
                 (username + ":" + password).getBytes(StandardCharsets.UTF_8));
@@ -187,7 +187,7 @@ public class ClientConfig {
     * @param name  请求头名称
     * @param value 请求头值
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig header(String name, String value) {
         this.headers.add(name, value);
         return this;
@@ -198,7 +198,7 @@ public class ClientConfig {
     *
     * @param headers 请求头 Map
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig headers(Map<String, String> headers) {
         if (headers != null) {
             headers.forEach(this.headers::add);
@@ -211,7 +211,7 @@ public class ClientConfig {
     *
     * @param mimeType 期望的 MIME 类型
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig accept(String mimeType) {
         this.headers.add("Accept", mimeType);
         return this;
@@ -222,7 +222,7 @@ public class ClientConfig {
     *
     * @param userAgent User-Agent 字符串
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig userAgent(String userAgent) {
         this.headers.add("User-Agent", userAgent);
         return this;
@@ -234,7 +234,7 @@ public class ClientConfig {
     * @param name  Cookie 名称
     * @param value Cookie 值
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig cookie(String name, String value) {
         String existing = this.headers.get("Cookie");
         String cookieEntry = name + "=" + value;
@@ -250,7 +250,7 @@ public class ClientConfig {
     * 设置 Cache-Control 为 {@code no-cache}。
     *
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig noCache() {
         this.headers.add("Cache-Control", "no-cache");
         return this;
@@ -261,7 +261,7 @@ public class ClientConfig {
     *
     * @param referer 来源页面 URL
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig referer(String referer) {
         this.headers.add("Referer", referer);
         return this;
@@ -274,7 +274,7 @@ public class ClientConfig {
     *
     * @param timeoutMs 超时时间（毫秒）
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig timeout(long timeoutMs) {
         this.connectTimeout = timeoutMs;
         this.readTimeout = timeoutMs;
@@ -286,7 +286,7 @@ public class ClientConfig {
     *
     * @param timeout 连接超时（毫秒）
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig connectTimeout(long timeout) {
         this.connectTimeout = timeout;
         return this;
@@ -297,7 +297,7 @@ public class ClientConfig {
     *
     * @param timeout 读取超时（毫秒）
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig readTimeout(long timeout) {
         this.readTimeout = timeout;
         return this;
@@ -308,7 +308,7 @@ public class ClientConfig {
     *
     * @param timeout 写入超时（毫秒）
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig writeTimeout(long timeout) {
         this.writeTimeout = timeout;
         return this;
@@ -319,7 +319,7 @@ public class ClientConfig {
     *
     * @param ttlMs 缓存有效期（毫秒）
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig cache(long ttlMs) {
         this.cacheTtl = ttlMs;
         return this;
@@ -330,7 +330,7 @@ public class ClientConfig {
     *
     * @param retries 最大重试次数
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig retry(int retries) {
         this.maxRetries = retries;
         return this;
@@ -341,7 +341,7 @@ public class ClientConfig {
     *
     * @param version HTTP 版本
     * @return 当前实例（链式调用）
-     */
+    */
     public ClientConfig version(HttpVersion version) {
         this.version = version;
         return this;
@@ -354,7 +354,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec get(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.GET));
     }
@@ -364,7 +364,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec post(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.POST));
     }
@@ -374,7 +374,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec put(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.PUT));
     }
@@ -384,7 +384,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec delete(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.DELETE));
     }
@@ -394,7 +394,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec patch(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.PATCH));
     }
@@ -404,7 +404,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec head(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.HEAD));
     }
@@ -414,7 +414,7 @@ public class ClientConfig {
     *
     * @param url 请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec options(String url) {
         return applyTo(new RequestSpec(client, url, HttpMethod.OPTIONS));
     }
@@ -425,7 +425,7 @@ public class ClientConfig {
     * @param method HTTP 方法
     * @param url    请求 URL
     * @return 预配置好的 RequestSpec
-     */
+    */
     public RequestSpec method(HttpMethod method, String url) {
         return applyTo(new RequestSpec(client, url, method));
     }
@@ -437,7 +437,7 @@ public class ClientConfig {
     *
     * @param spec 目标 RequestSpec
     * @return 应用预配置后的 RequestSpec
-     */
+    */
     private RequestSpec applyTo(RequestSpec spec) {
         // 应用预配置的请求头
         for (Map.Entry<String, String> entry : headers.toMap().entrySet()) {

@@ -48,7 +48,7 @@ public interface RpcServer extends AutoCloseable, InitializingAware, RpcMonitor 
     * @param registryConfig registryConfig
     * @param protocolConfig protocolConfig
     * @param appName appName
-     */
+    */
     static RpcServer createService(String name, RpcRegistryConfig registryConfig,
                                    RpcProtocolConfig protocolConfig, String appName) {
         return createService(name, Collections.singletonList(registryConfig), protocolConfig, appName);
@@ -63,7 +63,7 @@ public interface RpcServer extends AutoCloseable, InitializingAware, RpcMonitor 
     * @param protocolConfig    协议配置，为 {@code null} 时使用实现类默认配置
     * @param appName           应用名称
     * @return RPC 服务端实例
-     */
+    */
     static RpcServer createService(String name, List<RpcRegistryConfig> registryConfigs,
                                    RpcProtocolConfig protocolConfig, String appName) {
         return ServiceProvider.of(RpcServer.class)
@@ -75,7 +75,7 @@ public interface RpcServer extends AutoCloseable, InitializingAware, RpcMonitor 
     *
     * @param bean 服务实现实例
     * @return 当前实例自身（支持链式调用）
-     */
+    */
     default RpcServer register(Object bean) {
         Set<Class<?>> allInterfaces = ClassUtils.getAllInterfaces(bean.getClass());
         for (Class<?> iface : allInterfaces) {
@@ -90,6 +90,6 @@ public interface RpcServer extends AutoCloseable, InitializingAware, RpcMonitor 
     * @param name 服务接口的全限定类名
     * @param bean 服务实现对象的实例
     * @return 当前实例自身（支持链式调用）
-     */
+    */
     RpcServer register(String name, Object bean);
 }

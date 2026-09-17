@@ -20,7 +20,7 @@ public class TarUtils {
 	*
 	* @param path 要计算大小的文件或文件夹路径
 	* @return TAR 文件的总大小（包含文件头、数据块及结束标记）
-	 */
+ */
 	public static long calculateTarSize(File path) {
 		return tarSize(path) + TarConstants.EOF_BLOCK;
 	}
@@ -30,7 +30,7 @@ public class TarUtils {
 	*
 	* @param dir 待计算的文件或目录
 	* @return 该文件或目录在 TAR 格式下的大小
-	 */
+ */
 	private static long tarSize(File dir) {
 		long size = 0L;
 
@@ -61,7 +61,7 @@ public class TarUtils {
 	*
 	* @param fileSize 原始文件的大小
 	* @return 包含文件头、数据内容及填充字节后的总大小
-	 */
+ */
 	private static long entrySize(long fileSize) {
 		long size = 0L;
 		// 添加文件头大小
@@ -85,7 +85,7 @@ public class TarUtils {
 	* @param s  原始字符串
 	* @param c  需要移除的字符
 	* @return 去除首尾指定字符后的新字符串
-	 */
+ */
 	public static String trim(String s, char c) {
 		if (s == null || s.isEmpty()) {
 			return s;

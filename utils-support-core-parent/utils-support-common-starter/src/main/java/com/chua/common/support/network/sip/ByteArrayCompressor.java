@@ -9,20 +9,20 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
-* SIP 数据面字节数组压缩工具类。
-*
-* <p>专门用于 {@code byte[]} 数组的压缩与解压，配合 {@link SipStreamCompressor}
-* 的 {@code wrap/unwrap} 流式接口使用。当需要在不产生流对象开销的场景下
-* 对完整的 byte 数组进行压缩时使用。</p>
-*
-* <p>帧格式：{@code [4B 压缩后长度][4B 原始长度][压缩数据]}，与 {@link SipStreamCompressor}
-* 的帧格式完全正交，可组合使用。</p>
-*
-* <p>压缩级别 {@link Deflater#BEST_SPEED}（低延迟优先），适合隧道传输场景。</p>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * SIP 数据面字节数组压缩工具类。
+ *
+ * <p>专门用于 {@code byte[]} 数组的压缩与解压，配合 {@link SipStreamCompressor}
+ * 的 {@code wrap/unwrap} 流式接口使用。当需要在不产生流对象开销的场景下
+ * 对完整的 byte 数组进行压缩时使用。</p>
+ *
+ * <p>帧格式：{@code [4B 压缩后长度][4B 原始长度][压缩数据]}，与 {@link SipStreamCompressor}
+ * 的帧格式完全正交，可组合使用。</p>
+ *
+ * <p>压缩级别 {@link Deflater#BEST_SPEED}（低延迟优先），适合隧道传输场景。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Spi("byte-array-compressor")
 public final class ByteArrayCompressor {
 
@@ -48,7 +48,7 @@ public final class ByteArrayCompressor {
     * @param data 原始字节数据
     * @return 压缩帧（头部 8B + 压缩数据），若数据为空返回空帧，过大则抛出异常
     * @throws IOException 压缩过程异常
-     */
+    */
     public static byte[] compressFrame(byte[] data) throws IOException {
         if (data == null) {
             return new byte[0];
@@ -89,7 +89,7 @@ public final class ByteArrayCompressor {
     * @param frame 压缩帧（头部 8B + 压缩数据）
     * @return 原始字节数据
     * @throws IOException 解压过程异常
-     */
+    */
     public static byte[] decompressFrame(byte[] frame) throws IOException {
         if (frame == null || frame.length < HEADER_LEN) {
             throw new IOException("SIP 压缩帧数据为空或长度不足: " + (frame == null ? "null" : frame.length));
@@ -136,7 +136,7 @@ public final class ByteArrayCompressor {
     * @param out 目标输出流
     * @param data 要压缩的字节数据
     * @throws IOException IO 异常
-     */
+    */
     public static void wrap(OutputStream out, byte[] data) throws IOException {
         if (out == null) {
             throw new IOException("输出流不能为 null");
@@ -154,7 +154,7 @@ public final class ByteArrayCompressor {
     * @param dataLen 预期的压缩帧数据长度（不含头部），用于界定读取范围
     * @return 解压后的原始字节数据
     * @throws IOException IO 异常
-     */
+    */
     public static byte[] unwrap(InputStream in, int dataLen) throws IOException {
         if (in == null) {
             throw new IOException("输入流不能为 null");
@@ -175,7 +175,7 @@ public final class ByteArrayCompressor {
     * SPI 名称。
     *
     * @return 压缩器名称
-     */
+    */
     public String name() {
         return "byte-array-compressor";
     }

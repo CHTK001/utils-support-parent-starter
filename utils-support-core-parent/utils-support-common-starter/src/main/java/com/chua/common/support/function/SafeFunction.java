@@ -44,7 +44,7 @@ public interface SafeFunction<T, R> extends Function<T, R> {
     *
     * @param t 函数参数
     * @return 函数结果，如果发生异常则返回 null
-     */
+    */
     @Override
     default R apply(T t) {
         try {
@@ -64,6 +64,6 @@ public interface SafeFunction<T, R> extends Function<T, R> {
     * @param t 函数参数
     * @return 函数结果
     * @throws Throwable 可能抛出的任何异常
-     */
+    */
     R safeApply(T t) throws Throwable;
 }

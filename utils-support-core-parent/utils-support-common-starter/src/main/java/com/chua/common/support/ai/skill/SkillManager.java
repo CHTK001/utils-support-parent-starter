@@ -18,7 +18,7 @@ public interface SkillManager {
     *
     * @param skillDefinition 技能定义
     * @return 当前管理器，支持链式调用
-     */
+    */
     SkillManager register(SkillDefinition skillDefinition);
 
     /**
@@ -26,21 +26,21 @@ public interface SkillManager {
     *
     * @param name 技能名称
     * @return 技能定义，未找到返回 null
-     */
+    */
     SkillDefinition get(String name);
 
     /**
     * 获取所有已注册的技能定义
     *
     * @return 名称到技能定义的映射
-     */
+    */
     Map<String, SkillDefinition> getAll();
 
     /**
     * 获取所有技能的工具描述列表
     *
     * @return 技能的工具描述列表
-     */
+    */
     List<Map<String, Object>> listAllToolDescriptors();
 
     /**
@@ -49,7 +49,7 @@ public interface SkillManager {
     * @param name 技能名称
     * @param args 调用参数
     * @return 技能执行结果
-     */
+    */
     SkillResult execute(String name, Map<String, Object> args);
 
     /**
@@ -57,6 +57,6 @@ public interface SkillManager {
     *
     * @param name 技能名称
     * @return 是否存在
-     */
+    */
     boolean contains(String name);
 }

@@ -41,81 +41,81 @@ public class ColumnDef {
 
     /**
     * 列名
-     */
+    */
     private String name;
 
     /**
     * 数据库类型字符串（如 VARCHAR(255)、BIGINT、TEXT）
-     */
+    */
     private String type;
 
     /**
     * 是否可为空（默认 true）
-     */
+    */
     private boolean nullable = true;
 
     /**
     * 是否主键
-     */
+    */
     private boolean primaryKey;
 
     /**
     * 是否自增
-     */
+    */
     private boolean autoIncrement;
 
     /**
     * 是否无符号（数值类型）
-     */
+    */
     private boolean unsigned;
 
     /**
     * 默认值表达式
-     */
+    */
     private String defaultValue;
 
     /**
     * 列注释
-     */
+    */
     private String comment;
 
     /**
     * 类型长度（如 VARCHAR(255) 的 255）
-     */
+    */
     private Long length;
 
     /**
     * 数字精度
-     */
+    */
     private Integer precision;
 
     /**
     * 小数位数
-     */
+    */
     private Integer scale;
 
     /**
     * 在哪个列之后添加（ALTER TABLE 使用）
-     */
+    */
     private String after;
 
     /**
     * 是否添加到第一列（ALTER TABLE 使用）
-     */
+    */
     private boolean first;
 
     /**
     * 列顺序（JDBC 标准字段）
-     */
+    */
     private Integer ordinalPosition;
 
     /**
     * 列字符集
-     */
+    */
     private String charset;
 
     /**
     * 列排序规则
-     */
+    */
     private String collation;
 }

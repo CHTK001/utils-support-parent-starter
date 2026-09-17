@@ -31,7 +31,7 @@ public class PathTypeConverter implements TypeConverter<Path> {
     *
     * @param value 源值
     * @return Path 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public Path convert(Object value) {
         if (null == value) {
@@ -69,7 +69,7 @@ public class PathTypeConverter implements TypeConverter<Path> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Path.class
-     */
+    */
     @Override
     public Class<Path> getType() {
         return Path.class;

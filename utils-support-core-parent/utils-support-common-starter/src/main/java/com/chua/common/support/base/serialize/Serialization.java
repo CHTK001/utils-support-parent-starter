@@ -15,7 +15,7 @@ public interface Serialization {
     * 获取序列化名称。
     *
     * @return 序列化名称
-     */
+    */
     String name();
 
     /**
@@ -24,7 +24,7 @@ public interface Serialization {
     * @param obj 要序列化的对象
     * @return 序列化后的字节数组
     * @throws Exception 序列化异常
-     */
+    */
     byte[] serialize(Object obj) throws Exception;
 
     /**
@@ -35,6 +35,6 @@ public interface Serialization {
     * @param <T>  目标类型泛型
     * @return 反序列化后的对象
     * @throws Exception 反序列化异常
-     */
+    */
     <T> T deserialize(byte[] data, Class<T> type) throws Exception;
 }

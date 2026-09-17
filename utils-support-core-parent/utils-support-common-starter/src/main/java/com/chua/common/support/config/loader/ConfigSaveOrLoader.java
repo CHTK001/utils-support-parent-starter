@@ -20,7 +20,7 @@ public interface ConfigSaveOrLoader extends Closeable {
     * @param key     配置的键名，用于标识数据。
     * @param content 需要保存的字节数组内容。
     * @return 包含保存结果的 ConfigSaveResult 对象。
-     */
+    */
     ConfigSaveResult saveBytes(String key, byte[] content);
 
     /**
@@ -28,7 +28,7 @@ public interface ConfigSaveOrLoader extends Closeable {
     *
     * @param key 配置的键名，用于查找数据。
     * @return 如果找到数据则返回包含内容的 Optional，否则返回空 Optional。
-     */
+    */
     Optional<byte[]> loadBytes(String key);
 
     /**
@@ -36,7 +36,7 @@ public interface ConfigSaveOrLoader extends Closeable {
     *
     * @param key 要删除的键名。
     * @return 如果删除成功返回 true，否则返回 false。
-     */
+    */
     boolean delete(String key);
 
     /**
@@ -44,7 +44,7 @@ public interface ConfigSaveOrLoader extends Closeable {
     * 默认实现返回 UTF-8 字符集。
     *
     * @return 当前使用的 Charset 实例。
-     */
+    */
     default Charset charset() {
         return StandardCharsets.UTF_8;
     }
@@ -52,7 +52,7 @@ public interface ConfigSaveOrLoader extends Closeable {
     /**
     * 关闭资源并释放相关连接。
     * 此方法为 Closeable 接口的默认实现，当前为空操作。
-     */
+    */
     @Override
     default void close() {
         // 执行资源清理操作

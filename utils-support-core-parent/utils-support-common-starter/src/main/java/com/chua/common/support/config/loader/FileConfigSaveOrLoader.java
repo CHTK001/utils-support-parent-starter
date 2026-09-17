@@ -35,7 +35,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     /**
     * 创建 FileConfigSaveOrLoader 实例
     * @param setting setting
-     */
+    */
     public FileConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting);
         this.rootPath = Paths.get(this.setting.getRootPath()).toAbsolutePath().normalize();

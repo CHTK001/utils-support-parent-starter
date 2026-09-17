@@ -37,9 +37,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Base64;
 
 /**
-* @author CH
-* @since 4.0.0.42
- */
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 @Spi("jdk-websocket")
 public class JdkWebSocketServer extends AbstractServer {
@@ -58,7 +58,7 @@ public class JdkWebSocketServer extends AbstractServer {
     /**
     * 创建 JdkWebSocketServer 实例
     * @param setting setting
-     */
+    */
     public JdkWebSocketServer(ServerSetting setting) {
         super(setting);
     }
@@ -446,11 +446,11 @@ public class JdkWebSocketServer extends AbstractServer {
 
         /**
         * 主题
-         */
+        */
         private final String topic;
         /**
         * 请求体
-         */
+        */
         private final String body;
         /** attributes */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
@@ -573,11 +573,11 @@ public class JdkWebSocketServer extends AbstractServer {
         private volatile boolean committed;
         /**
         * 状态
-         */
+        */
         private int status = 200;
         /**
         * 结果
-         */
+        */
         private Object result;
         /** Close消息 */
         private String closeMessage;

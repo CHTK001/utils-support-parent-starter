@@ -47,7 +47,7 @@ public final class CipherFlow {
     *
     * @param algorithm 算法名，如 "sm2"、"sm4"、"aes"、"hpke"
     * @return 门面实例
-     */
+    */
     public static CipherFlow of(String algorithm) {
         return new CipherFlow(algorithm);
     }
@@ -58,7 +58,7 @@ public final class CipherFlow {
     * @param algorithm 算法名
     * @param provider  提供者名称，如 "bc"
     * @return 门面实例
-     */
+    */
     public static CipherFlow of(String algorithm, String provider) {
         CipherFlow flow = new CipherFlow(algorithm);
         if (provider != null && !provider.isEmpty()) {
@@ -74,7 +74,7 @@ public final class CipherFlow {
     *
     * @param algorithm 算法名
     * @return 当前门面
-     */
+    */
     public CipherFlow algorithm(String algorithm) {
         this.algorithm = algorithm;
         return this;
@@ -85,7 +85,7 @@ public final class CipherFlow {
     *
     * @param provider 提供者名称，如 "bc"
     * @return 当前门面
-     */
+    */
     public CipherFlow provider(String provider) {
         this.provider = provider;
         return this;
@@ -95,7 +95,7 @@ public final class CipherFlow {
     * 获取当前算法名。
     *
     * @return 算法名
-     */
+    */
     public String algorithm() {
         return algorithm;
     }
@@ -104,7 +104,7 @@ public final class CipherFlow {
     * 获取当前提供者。
     *
     * @return 提供者名称
-     */
+    */
     public String provider() {
         return provider;
     }
@@ -116,7 +116,7 @@ public final class CipherFlow {
     *
     * @return 对应的 Cipher 实现
     * @throws IllegalArgumentException 未知算法名时
-     */
+    */
     public Cipher resolve() {
         String name = algorithm == null ? "" : algorithm.toLowerCase();
         return switch (name) {

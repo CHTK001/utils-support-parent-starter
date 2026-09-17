@@ -43,7 +43,7 @@ public interface NearestNeighborAlgorithm {
     * @param k       返回的邻居数量，必须大于 0 且不大于数据集大小
     * @return 按距离升序排列的 K 个邻居结果列表
     * @throws IllegalArgumentException 如果 k 超出范围或 dataset 为空
-     */
+    */
     List<NeighborResult> search(double[] target, List<double[]> dataset, int k);
 
     /**
@@ -52,6 +52,6 @@ public interface NearestNeighborAlgorithm {
     * @param target  目标点特征向量
     * @param dataset 数据集，包含 N 维特征向量的列表
     * @return 最近的邻居结果，若 dataset 为空则返回 {@link NeighborResult#EMPTY}
-     */
+    */
     NeighborResult searchNearest(double[] target, List<double[]> dataset);
 }

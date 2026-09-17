@@ -41,37 +41,37 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
 
     /**
     * 折叠执行器工厂的 SPI 名称
-     */
+    */
     private static final String DEFAULT_FACTORY_NAME = "collapse";
 
     /**
     * 折叠配置（execute 前完成链式配置）
-     */
+    */
     private final CollapseConfig config = new CollapseConfig();
 
     /**
     * 批量执行函数（同参折叠模式），与结果映射器二选一
-     */
+    */
     private final CollapseBatchFunction<INPUT, OUTPUT> batchFunction;
 
     /**
     * 折叠结果映射器（合并拆分模式），与批量执行函数二选一
-     */
+    */
     private final CollapseResultMapper<INPUT, OUTPUT> resultMapper;
 
     /**
     * 折叠执行器（懒加载）
-     */
+    */
     private volatile CollapseExecutor<INPUT, OUTPUT> executor;
 
     /**
     * 是否已完成 SPI 探测（避免重复查询）
-     */
+    */
     private volatile boolean checked;
 
     /**
     * 自定义执行器工厂回调（设置后优先于 SPI 探测）
-     */
+    */
     private volatile CollapseExecutorFactory executorFactory;
 
     /**
@@ -80,7 +80,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * @param name          执行器名称
     * @param batchFunction 批量执行函数
     * @param resultMapper  折叠结果映射器
-     */
+    */
     private CollapseFlow(String name,
                          CollapseBatchFunction<INPUT, OUTPUT> batchFunction,
                          CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
@@ -97,7 +97,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * @param <INPUT>       单次调用的入参类型
     * @param <OUTPUT>      单次调用的返回类型
     * @return 折叠门面实例
-     */
+    */
     public static <INPUT, OUTPUT> CollapseFlow<INPUT, OUTPUT> of(String name,
                                                                  CollapseBatchFunction<INPUT, OUTPUT> batchFunction) {
         return new CollapseFlow<>(name, Objects.requireNonNull(batchFunction, "batchFunction must not be null."), null);
@@ -111,7 +111,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * @param <INPUT>      单次调用的入参类型
     * @param <OUTPUT>     单次调用的返回类型
     * @return 折叠门面实例
-     */
+    */
     public static <INPUT, OUTPUT> CollapseFlow<INPUT, OUTPUT> ofMapped(String name,
                                                                        CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
         return new CollapseFlow<>(name, null, Objects.requireNonNull(resultMapper, "resultMapper must not be null."));
@@ -122,7 +122,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     *
     * @param waitThreshold 批量收集阈值
     * @return this
-     */
+    */
     public CollapseFlow<INPUT, OUTPUT> threshold(int waitThreshold) {
         config.setWaitThreshold(waitThreshold);
         return this;
@@ -135,7 +135,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     *
     * @param collectingWaitTime 补收等待时间（毫秒）
     * @return this
-     */
+    */
     public CollapseFlow<INPUT, OUTPUT> collectingWaitTime(long collectingWaitTime) {
         config.setCollectingWaitTime(collectingWaitTime);
         return this;
@@ -146,7 +146,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     *
     * @param virtualThread 是否启用虚拟线程
     * @return this
-     */
+    */
     public CollapseFlow<INPUT, OUTPUT> virtualThread(boolean virtualThread) {
         config.setVirtualThread(virtualThread);
         return this;
@@ -164,7 +164,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     *
     * @param executorFactory 执行器工厂回调，不可为空
     * @return this
-     */
+    */
     public CollapseFlow<INPUT, OUTPUT> executorFactory(CollapseExecutorFactory executorFactory) {
         if (checked) {
             throw new IllegalStateException("executorFactory 必须在首次 execute() 之前设置。");
@@ -179,7 +179,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * @param input 单次调用的入参
     * @return 单次调用的返回结果
     * @throws Throwable 执行异常（原样透传）
-     */
+    */
     public OUTPUT execute(INPUT input) throws Throwable {
         CollapseExecutor<INPUT, OUTPUT> collapseExecutor = getExecutor();
         if (collapseExecutor == null) {
@@ -192,7 +192,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * 获取折叠执行器（SPI 加载，懒初始化）。
     *
     * @return 折叠执行器，无 SPI 实现时返回 null
-     */
+    */
     private CollapseExecutor<INPUT, OUTPUT> getExecutor() {
         if (checked) {
             return executor;
@@ -218,7 +218,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * 解析执行器工厂：优先使用回调注入的工厂，其次 SPI 探测。
     *
     * @return 执行器工厂，不可用时返回 null
-     */
+    */
     private CollapseExecutorFactory resolveFactory() {
         CollapseExecutorFactory factory = executorFactory;
         if (factory != null) {
@@ -233,7 +233,7 @@ public final class CollapseFlow<INPUT, OUTPUT> implements AutoCloseable {
     * @param input 单次调用的入参
     * @return 执行结果
     * @throws Throwable 执行异常
-     */
+    */
     private OUTPUT directExecute(INPUT input) throws Throwable {
         if (resultMapper != null) {
             Map<INPUT, OUTPUT> mapped = resultMapper.map(Collections.singletonList(input));

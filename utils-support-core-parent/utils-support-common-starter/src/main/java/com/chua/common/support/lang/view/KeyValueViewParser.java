@@ -57,7 +57,7 @@ public class KeyValueViewParser implements ViewParser {
     *
     * @param data 待转换的数据
     * @return 有序键值对映射
-     */
+    */
     private static Map<String, String> toKeyValue(Object data) {
         if (data instanceof Map) {
             Map<Object, Object> map = (Map<Object, Object>) data;
@@ -88,7 +88,7 @@ public class KeyValueViewParser implements ViewParser {
     *
     * @param data 待判断对象
     * @return POJO 返回 true
-     */
+    */
     private static boolean isPojo(Object data) {
         if (data == null) {
             return false;

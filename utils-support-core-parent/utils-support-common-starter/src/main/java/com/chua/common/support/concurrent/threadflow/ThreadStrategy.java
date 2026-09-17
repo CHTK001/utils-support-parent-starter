@@ -19,26 +19,26 @@ public enum ThreadStrategy {
 
     /**
     * 任意一个任务成功即视为整体成功
-     */
+    */
     ANY_SUCCESS,
 
     /**
     * 所有任务都成功才视为整体成功
-     */
+    */
     ALL_SUCCESS,
 
     /**
     * 任意一个任务失败即视为整体失败
-     */
+    */
     ANY_FAIL,
 
     /**
     * 累计 N 个任务失败即视为整体失败
-     */
+    */
     N_FAIL,
 
     /**
     * 累计 N 个任务成功即视为整体成功
-     */
+    */
     N_SUCCESS
 }

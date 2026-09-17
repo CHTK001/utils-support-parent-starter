@@ -74,7 +74,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>对于图片生成、视频生成等非文本对话服务，该字段可能为 null 或 0。
-     */
+    */
     private Integer inputTokens;
 
     /**
@@ -88,7 +88,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>对于图片生成、视频生成等非文本对话服务，该字段可能为 null 或 0。
-     */
+    */
     private Integer outputTokens;
 
     /**
@@ -96,7 +96,7 @@ public class AiUsage {
     *
     * <p>输入与输出 Token 的总和，即 inputTokens + outputTokens。
     * 该字段为便捷汇总字段，便于快速判断总消耗是否超出配额限制。
-     */
+    */
     private Integer totalTokens;
 
     /**
@@ -110,7 +110,7 @@ public class AiUsage {
     * 因此实际费用可能低于按 totalTokens × 单价计算的理论值。
     *
     * <p>不支持缓存的服务商该字段为 null。
-     */
+    */
     private Integer cacheTokens;
 
     /**
@@ -125,7 +125,7 @@ public class AiUsage {
     * <p>与 {@link #cacheTokens} 配合使用：{@code cacheName != null && cacheTokens > 0}
     * 表示本次请求命中了指定缓存；{@code cacheName != null && cacheTokens == 0}
     * 表示请求触发了新缓存写入。
-     */
+    */
     private String cacheName;
 
     // ==================== 费用信息 ====================
@@ -142,7 +142,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>实现类应从服务商公开定价或 API 响应中解析并填充此字段。
-     */
+    */
     private BigDecimal inputUnitPrice;
 
     /**
@@ -150,7 +150,7 @@ public class AiUsage {
     *
     * <p>输出部分的单价，单位为货币单位/Token。
     * 通常输出单价高于输入单价（约为输入的 2~4 倍）。
-     */
+    */
     private BigDecimal outputUnitPrice;
 
     /**
@@ -160,7 +160,7 @@ public class AiUsage {
     * 该字段由实现类根据单价和 Token 数自动计算填充。
     *
     * <p>如果服务商支持缓存折扣，此处应为实际扣除折扣后的费用。
-     */
+    */
     private BigDecimal inputCost;
 
     /**
@@ -168,7 +168,7 @@ public class AiUsage {
     *
     * <p>本次响应输出部分的实际费用，计算公式：outputTokens × outputUnitPrice。
     * 该字段由实现类根据单价和 Token 数自动计算填充。
-     */
+    */
     private BigDecimal outputCost;
 
     /**
@@ -182,7 +182,7 @@ public class AiUsage {
     *   <li>对于部分免费额度的调用，该字段为 BigDecimal.ZERO</li>
     *   <li>对于不返回费用的服务商，该字段为 null</li>
     * </ul>
-     */
+    */
     private BigDecimal totalCost;
 
     /**
@@ -197,7 +197,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>默认为 "USD"，实现类可根据服务商返回值覆盖。
-     */
+    */
     @Builder.Default
     /** Currency */
     private String currency = "USD";
@@ -210,7 +210,7 @@ public class AiUsage {
     *
     * <p>需要精确计费的场景（如用户账单、财务对账）应优先使用
     * 服务商返回的真实费用数据（当 estimated 为 false 时）。
-     */
+    */
     @Builder.Default
     /** Estimated */
     private boolean estimated = false;
@@ -232,7 +232,7 @@ public class AiUsage {
     * <p>实现类应从 API 响应中解析并填充此字段。
     * 部分服务商在请求中指定的模型与实际使用的模型可能不同（如模型别名解析），
     * 此处应记录实际使用的模型。
-     */
+    */
     private String model;
 
     /**
@@ -242,7 +242,7 @@ public class AiUsage {
     *
     * <p>同一模型可能通过不同服务商访问（如 OpenAI 直连 vs Azure OpenAI），
     * 价格和性能可能有差异，因此需要单独记录。
-     */
+    */
     private String provider;
 
     // ==================== 请求追踪 ====================
@@ -260,7 +260,7 @@ public class AiUsage {
     * <p>不同服务商的字段名可能不同（如 OpenAI 为 id，
     * Anthropic 为 request_id，国内服务商多为 requestId），
     * 实现类应统一映射到此字段。
-     */
+    */
     private String requestId;
 
     // ==================== 生成状态 ====================
@@ -278,7 +278,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>业务侧可根据此字段判断是否需要继续处理（如 length 时提示用户缩短输入）。
-     */
+    */
     private String finishReason;
 
     // ==================== 推理 Token ====================
@@ -296,7 +296,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>非推理模型该字段为 null。
-     */
+    */
     private Integer reasoningTokens;
 
     // ==================== 性能指标 ====================
@@ -313,7 +313,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>建议使用 {@link System#currentTimeMillis()} 填充。
-     */
+    */
     private Long startTime;
 
     /**
@@ -335,7 +335,7 @@ public class AiUsage {
     *   <li>一般：800ms ~ 2000ms</li>
     *   <li>较差：&gt; 2000ms</li>
     * </ul>
-     */
+    */
     private Long firstTokenLatencyMillis;
 
     /**
@@ -351,7 +351,7 @@ public class AiUsage {
     *   <li>非流式响应：durationMillis 等于整个请求的往返延迟</li>
     *   <li>图片/视频异步任务：该字段可能为提交任务的耗时，而非生成耗时</li>
     * </ul>
-     */
+    */
     private Long durationMillis;
 
     // ==================== 频率限制 ====================
@@ -369,7 +369,7 @@ public class AiUsage {
     * </ul>
     *
     * <p>不返回此信息的服务商该字段为 null。
-     */
+    */
     private Integer rateLimitRemaining;
 
     /**
@@ -379,6 +379,6 @@ public class AiUsage {
     * 配合 {@link #rateLimitRemaining} 使用，可在配额耗尽时精确计算等待时间。
     *
     * <p>不返回此信息的服务商该字段为 null。
-     */
+    */
     private Long rateLimitReset;
 }

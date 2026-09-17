@@ -40,7 +40,7 @@ public class VideoGenerationSpec {
     /**
     * 创建 VideoGenerationSpec 实例
     * @param client client
-     */
+    */
     public VideoGenerationSpec(ChatClient client) {
         this.client = client;
     }

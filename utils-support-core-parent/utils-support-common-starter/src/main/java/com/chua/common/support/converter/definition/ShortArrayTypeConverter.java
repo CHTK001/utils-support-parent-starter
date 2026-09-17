@@ -25,7 +25,7 @@ public class ShortArrayTypeConverter implements TypeConverter<Short[]> {
     *
     * @param value 源值
     * @return Short[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public Short[] convert(Object value) {
         if (null == value) {
@@ -52,7 +52,7 @@ public class ShortArrayTypeConverter implements TypeConverter<Short[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Short[].class
-     */
+    */
     @Override
     public Class<Short[]> getType() {
         return Short[].class;

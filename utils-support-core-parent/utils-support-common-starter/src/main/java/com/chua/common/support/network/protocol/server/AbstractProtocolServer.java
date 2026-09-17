@@ -15,26 +15,26 @@ public abstract class AbstractProtocolServer {
 
     /**
     * 服务器配置设置。
-     */
+    */
     protected final ServerSetting serverSetting;
 
     /**
     * 服务器是否正在运行。
-     */
+    */
     protected volatile boolean running;
 
     /**
     * 子类必须提供带 {@link ServerSetting} 的构造函数。
     *
     * @param serverSetting 服务器配置
-     */
+    */
     public AbstractProtocolServer(ServerSetting serverSetting) {
         this.serverSetting = serverSetting;
     }
 
     /**
     * 启动服务器。
-     */
+    */
     public void start() throws Exception {
         if (running) {
             log.warn("Server already running");
@@ -48,7 +48,7 @@ public abstract class AbstractProtocolServer {
 
     /**
     * 停止服务器。
-     */
+    */
     public void stop() throws Exception {
         if (!running) {
             return;
@@ -60,19 +60,19 @@ public abstract class AbstractProtocolServer {
 
     /**
     * 子类实现：启动服务器逻辑。
-     */
+    */
     protected abstract void doStart() throws Exception;
 
     /**
     * 子类实现：停止服务器逻辑。
-     */
+    */
     protected abstract void doStop() throws Exception;
 
     /**
     * 检查服务器是否正在运行。
     *
     * @return true 如果正在运行
-     */
+    */
     public boolean isRunning() {
         return running;
     }

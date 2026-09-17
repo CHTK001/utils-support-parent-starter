@@ -41,7 +41,7 @@ public class JdkBeanCopier implements BeanCopier {
 
     /**
     * 属性描述信息缓存（类 -> 属性名 -> PropertyDescriptor）
-     */
+    */
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> READ_CACHE = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Map<String, PropertyDescriptor>> WRITE_CACHE = new ConcurrentHashMap<>();
 

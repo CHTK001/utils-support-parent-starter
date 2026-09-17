@@ -29,23 +29,23 @@ public class CircularLockProvider extends AbstractLockProvider {
 
     /**
     * 环状缓冲区容量（并发槽位数 / 许可数）
-     */
+    */
     private final int size;
 
     /**
     * 并发令牌桶：size 个许可，公平模式（FIFO 等待队列）
-     */
+    */
     private final Semaphore semaphore;
 
     /**
     * 锁名称，可由 {@link #configure(LockSetting)} 覆盖
-     */
+    */
     private volatile String name;
 
     /**
     * 无参构造，SPI 实例化使用，默认名称 "default"，容量 1（等价于互斥锁）。
     * 名称可通过 {@link #configure(LockSetting)} 在 {@code LockFlow} 注册时覆盖。
-     */
+    */
     public CircularLockProvider() {
         this("default", 1);
     }
@@ -56,7 +56,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     * @param name 锁名称
     * @param size 并发槽位数量（许可数），必须大于 0
     * @throws IllegalArgumentException 当 size 小于等于 0 时
-     */
+    */
     public CircularLockProvider(String name, int size) {
         if (size <= 0) {
             throw new IllegalArgumentException("size 必须大于 0，当前: " + size);
@@ -70,7 +70,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     * 默认构造，容量 1（等价于互斥锁）。
     *
     * @param name 锁名称
-     */
+    */
     public CircularLockProvider(String name) {
         this(name, 1);
     }
@@ -80,7 +80,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     * 用配置的锁名称覆盖构造时的默认名称。
     *
     * @param setting 锁配置，为 null 或名称为空时保持现有名称
-     */
+    */
     @Override
     public void configure(LockSetting setting) {
         if (setting != null && setting.getName() != null && !setting.getName().isEmpty()) {
@@ -120,7 +120,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     * 获取当前并发槽位数量（许可数）。
     *
     * @return 槽位数量
-     */
+    */
     public int size() {
         return size;
     }
@@ -129,7 +129,7 @@ public class CircularLockProvider extends AbstractLockProvider {
     * 获取当前可用许可数（空闲槽位）。
     *
     * @return 可用许可数
-     */
+    */
     public int available() {
         return semaphore.availablePermits();
     }

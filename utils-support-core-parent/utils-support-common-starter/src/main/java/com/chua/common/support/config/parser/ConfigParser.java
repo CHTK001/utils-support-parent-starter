@@ -41,7 +41,7 @@ public interface ConfigParser {
     * @param urlPath 原始配置数据的来源路径或标识符（如文件路径）
     * @param is      原始配置数据的输入流
     * @return 解析后的配置映射表，绝不为 null
-     */
+    */
     PropertySource parse(String urlPath, InputStream is);
 
 }

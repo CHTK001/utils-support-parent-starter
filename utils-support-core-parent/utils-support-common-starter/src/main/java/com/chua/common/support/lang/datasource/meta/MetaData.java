@@ -44,7 +44,7 @@ public interface MetaData {
     * 获取表元数据操作入口。
     *
     * @return 表操作接口
-     */
+    */
     MetaTable table();
 
     /**
@@ -52,14 +52,14 @@ public interface MetaData {
     *
     * @param tableName 表名
     * @return 表操作接口
-     */
+    */
     MetaTable table(String tableName);
 
     /**
     * 获取视图元数据操作入口。
     *
     * @return 视图操作接口
-     */
+    */
     MetaView view();
 
     /**
@@ -67,14 +67,14 @@ public interface MetaData {
     *
     * @param viewName 视图名
     * @return 视图操作接口
-     */
+    */
     MetaView view(String viewName);
 
     /**
     * 获取索引入口。
     *
     * @return 索引操作接口
-     */
+    */
     MetaIndex index();
 
     /**
@@ -82,14 +82,14 @@ public interface MetaData {
     *
     * @param indexName 索引名
     * @return 索引操作接口
-     */
+    */
     MetaIndex index(String indexName);
 
     /**
     * 获取触发器操作入口。
     *
     * @return 触发器操作接口
-     */
+    */
     MetaTrigger trigger();
 
     /**
@@ -97,14 +97,14 @@ public interface MetaData {
     *
     * @param triggerName 触发器名
     * @return 触发器操作接口
-     */
+    */
     MetaTrigger trigger(String triggerName);
 
     /**
     * 获取存储过程操作入口。
     *
     * @return 存储过程操作接口
-     */
+    */
     MetaProcedure procedure();
 
     /**
@@ -112,14 +112,14 @@ public interface MetaData {
     *
     * @param procedureName 存储过程名
     * @return 存储过程操作接口
-     */
+    */
     MetaProcedure procedure(String procedureName);
 
     /**
     * 获取外键操作入口。
     *
     * @return 外键操作接口
-     */
+    */
     MetaForeignKey fk();
 
     /**
@@ -127,28 +127,28 @@ public interface MetaData {
     *
     * @param fkName 外键名
     * @return 外键操作接口
-     */
+    */
     MetaForeignKey fk(String fkName);
 
     /**
     * 获取用户操作入口。
     *
     * @return 用户操作接口
-     */
+    */
     MetaUser user();
 
     /**
     * 获取权限操作入口。
     *
     * @return 权限操作接口
-     */
+    */
     MetaPermission permission();
 
     /**
     * 获取搜索引擎索引操作入口。
     *
     * @return 搜索引擎索引操作接口
-     */
+    */
     MetaSearch search();
 
     /**
@@ -156,6 +156,6 @@ public interface MetaData {
     *
     * @param indexName 索引名
     * @return 搜索引擎索引操作接口
-     */
+    */
     MetaSearch search(String indexName);
 }

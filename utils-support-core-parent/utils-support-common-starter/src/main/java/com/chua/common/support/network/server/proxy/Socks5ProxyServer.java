@@ -15,27 +15,27 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
-* 基于原生 JDK {@link java.net.ServerSocket} 的 SOCKS5 代理服务器。
-*
-* <p>继承 {@link AbstractProxyServer}，自动获得多 acceptor 并行、Semaphore 连接限流、
-* TCP_NODELAY、32KB ThreadLocal 转发缓冲、CompletableFuture 双向转发等高并发基础设施。</p>
-*
-* <p>实现 RFC 1928 标准协议，支持：</p>
-* <ul>
-*     <li>无认证（{@code 0x00}）与用户名/口令认证（{@code 0x02}）</li>
-*     <li>{@code CONNECT} 命令（IPv4、域名、IPv6）</li>
-*     <li>{@code BIND} 与 {@code UDP ASSOCIATE} 命令框架（仅占位，详细处理可在子类扩展）</li>
-* </ul>
-*
-* <h2>使用方式</h2>
-* <pre>{@code
-* Socks5ProxyServer server = new Socks5ProxyServer(setting, "user", "pass");
-* server.start();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 基于原生 JDK {@link java.net.ServerSocket} 的 SOCKS5 代理服务器。
+ *
+ * <p>继承 {@link AbstractProxyServer}，自动获得多 acceptor 并行、Semaphore 连接限流、
+ * TCP_NODELAY、32KB ThreadLocal 转发缓冲、CompletableFuture 双向转发等高并发基础设施。</p>
+ *
+ * <p>实现 RFC 1928 标准协议，支持：</p>
+ * <ul>
+ *     <li>无认证（{@code 0x00}）与用户名/口令认证（{@code 0x02}）</li>
+ *     <li>{@code CONNECT} 命令（IPv4、域名、IPv6）</li>
+ *     <li>{@code BIND} 与 {@code UDP ASSOCIATE} 命令框架（仅占位，详细处理可在子类扩展）</li>
+ * </ul>
+ *
+ * <h2>使用方式</h2>
+ * <pre>{@code
+ * Socks5ProxyServer server = new Socks5ProxyServer(setting, "user", "pass");
+ * server.start();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 @Slf4j
 @Spi({"socks5-proxy"})
 public class Socks5ProxyServer extends AbstractProxyServer {
@@ -103,7 +103,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     /**
     * 创建 Socks5ProxyServer 实例
     * @param setting setting
-     */
+    */
     public Socks5ProxyServer(ServerSetting setting) {
         this(setting, null, null);
     }
@@ -113,7 +113,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     * @param setting setting
     * @param String String
     * @param String String
-     */
+    */
     public Socks5ProxyServer(ServerSetting setting, String username, String password) {
         this(setting, username, password, 5000, 30000);
     }
@@ -125,7 +125,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     * @param password password
     * @param connectTimeoutMs connectTimeoutMs
     * @param readTimeoutMs readTimeoutMs
-     */
+    */
     public Socks5ProxyServer(ServerSetting setting, String username, String password,
                              int connectTimeoutMs, int readTimeoutMs) {
         super(setting);
@@ -153,7 +153,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     /**
     * 处理单个客户端连接：SOCKS5 认证协商 → 读取请求 → 建立后端连接 → 双向转发。
     * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向传输。</p>
-     */
+    */
     @Override
     protected void handleConnection(Socket clientSocket) {
         InetSocketAddress remote = (InetSocketAddress) clientSocket.getRemoteSocketAddress();
@@ -294,7 +294,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
     * @param in in
     * @param out out
     * @param request request
-     */
+    */
     protected void handleCommand(Socket clientSocket, InputStream in, OutputStream out,
                                  Socks5Request request) throws IOException {
         if (request.command == CMD_CONNECT) {
@@ -339,7 +339,7 @@ public class Socks5ProxyServer extends AbstractProxyServer {
 
     /**
     * SOCKS5 客户端请求。
-     */
+    */
     public record Socks5Request(byte command, InetSocketAddress target) {
     }
 }

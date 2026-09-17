@@ -50,7 +50,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 键，不可为 null
     * @return 键对应的值；键不存在时返回 null
-     */
+    */
     String get(String key);
 
     /**
@@ -58,7 +58,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key   键，不可为 null
     * @param value 值，可为 null（等效于删除）
-     */
+    */
     void put(String key, String value);
 
     /**
@@ -66,7 +66,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 键，不可为 null
     * @return 存在返回 true，否则返回 false
-     */
+    */
     boolean containsKey(String key);
 
     /**
@@ -74,7 +74,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 键，不可为 null
     * @return 删除成功（键原本存在）返回 true，否则返回 false
-     */
+    */
     boolean delete(String key);
 
     /**
@@ -82,7 +82,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 键，不可为 null
     * @return 递增后的最新值
-     */
+    */
     long incr(String key);
 
     // ==================== TTL 操作 ====================
@@ -95,7 +95,7 @@ public interface KvEngine extends KvOperations {
     * @param key   键，不可为 null
     * @param value 值，可为 null
     * @param ttl   过期时长，不可为 null
-     */
+    */
     default void put(String key, String value, Duration ttl) {
         throw new UnsupportedOperationException("该 KV 后端不支持 TTL");
     }
@@ -107,7 +107,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 键，不可为 null
     * @return 剩余秒数；键不存在返回 -2，存在但无过期返回 -1
-     */
+    */
     default long ttl(String key) {
         throw new UnsupportedOperationException("该 KV 后端不支持 TTL");
     }
@@ -119,7 +119,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key     键，不可为 null
     * @param seconds 过期秒数，必须大于 0
-     */
+    */
     default void expire(String key, long seconds) {
         throw new UnsupportedOperationException("该 KV 后端不支持 TTL");
     }
@@ -135,7 +135,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param prefix 键前缀，不可为 null
     * @return 匹配前缀的键值对映射；无匹配时返回空 Map
-     */
+    */
     Map<String, String> findAllByPrefix(String prefix);
 
     // ==================== 链式操作 ====================
@@ -148,7 +148,7 @@ public interface KvEngine extends KvOperations {
     *
     * @param key 目标键，不可为 null
     * @return 键级操作器
-     */
+    */
     default KvKeyOps key(String key) {
         return new KvKeyOps(this, key);
     }

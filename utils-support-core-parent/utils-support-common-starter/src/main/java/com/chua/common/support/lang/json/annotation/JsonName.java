@@ -34,6 +34,6 @@ public @interface JsonName {
     * JSON 字段名。
     *
     * @return JSON 字段名
-     */
+    */
     String value();
 }

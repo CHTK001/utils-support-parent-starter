@@ -12,13 +12,17 @@ package com.chua.common.support.network.container;
  */
 public enum DeployUnitType {
 
-    /** Web Application Archive - Java Web 应用归档 */
+    /**
+    * Web Application Archive - Java Web 应用归档
+    */
     WAR("war"),
 
     /** Java Archive - Java 归档 */
     JAR("jar"),
 
-    /** Enterprise Archive - 企业级 Java 应用归档 */
+    /**
+    * Enterprise Archive - 企业级 Java 应用归档
+    */
     EAR("ear"),
 
     /** 可执行 FAT-JAR（含所有依赖的独立 JAR） */
@@ -41,7 +45,7 @@ public enum DeployUnitType {
     * 获取文件扩展名。
     *
     * @return 文件扩展名
-     */
+    */
     public String getExtension() {
         return extension;
     }
@@ -51,7 +55,7 @@ public enum DeployUnitType {
     *
     * @param fileName 文件名
     * @return 对应的部署单元类型，默认返回 JAR
-     */
+    */
     public static DeployUnitType fromFileName(String fileName) {
         if (fileName == null) {
             return JAR;
@@ -71,7 +75,7 @@ public enum DeployUnitType {
     *
     * @param extension 扩展名
     * @return 对应的部署单元类型，默认返回 JAR
-     */
+    */
     public static DeployUnitType fromExtension(String extension) {
         if (extension == null) {
             return JAR;

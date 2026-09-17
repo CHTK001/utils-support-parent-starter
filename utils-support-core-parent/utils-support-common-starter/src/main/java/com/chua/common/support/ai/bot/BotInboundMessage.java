@@ -55,25 +55,25 @@ public class BotInboundMessage {
     /** 消息类型 */
     /**
     * 类型
-     */
+    */
     private Type type;
 
     /**
     * 消息内容
     * <p>TEXT 类型时包含文本</p>
-     */
+    */
     private String content;
 
     /**
     * 发送者 ID
     * <p>openid / uid / open_id</p>
-     */
+    */
     private String fromUser;
 
     /**
     * 发送者名称
     * <p>username / name</p>
-     */
+    */
     private String fromUserName;
 
     /** 目标用户 ID（Bot 回复对象）*/
@@ -85,19 +85,19 @@ public class BotInboundMessage {
     /**
     * 媒体文件 URL
     * <p>IMAGE/VOICE/VIDEO/FILE 类型时</p>
-     */
+    */
     private String mediaUrl;
 
     /**
     * 媒体 ID
     * <p>平台返回的 MediaId</p>
-     */
+    */
     private String mediaId;
 
     /**
     * 事件类型
     * <p>EVENT 类型时为 "subscribe"、"unsubscribe"、"click" 等</p>
-     */
+    */
     private String eventType;
 
     /** 事件 Key */
@@ -106,7 +106,7 @@ public class BotInboundMessage {
     /**
     * 会话 ID
     * <p>群聊为 groupid / chatid</p>
-     */
+    */
     private String chatId;
 
     /** 是否来自群组 */
@@ -120,7 +120,7 @@ public class BotInboundMessage {
     /**
     * 原始字段
     * <p>支持扩展</p>
-     */
+    */
     @Singular("rawField")
     private Map<String, Object> rawFields;
 
@@ -129,7 +129,7 @@ public class BotInboundMessage {
     *
     * @param key 字段名
     * @return 字段值，不存在则 null
-     */
+    */
     public <T> T rawField(String key) {
         if (rawFields == null) {
             return null;

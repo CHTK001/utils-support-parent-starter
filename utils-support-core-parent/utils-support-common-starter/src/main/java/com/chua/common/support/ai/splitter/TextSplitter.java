@@ -20,7 +20,7 @@ public interface TextSplitter {
     *
     * @param text 待分割的文本
     * @return 分割后的文本块列表
-     */
+    */
     @Nonnull
     List<TextChunk> split(@Nonnull String text);
 }

@@ -20,6 +20,6 @@ public interface ProgressUnit {
     *
     * @param num 进度数值
     * @return 格式化后的字符串
-     */
+    */
     String format(long num);
 }

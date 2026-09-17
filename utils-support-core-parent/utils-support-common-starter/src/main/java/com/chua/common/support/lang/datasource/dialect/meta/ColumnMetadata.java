@@ -32,7 +32,7 @@ public class ColumnMetadata {
     /** 是否可为空 */
     /**
     * 是否允许为空
-     */
+    */
     private boolean nullable = true;
     /** 默认值 */
     private String defaultValue;
@@ -41,7 +41,7 @@ public class ColumnMetadata {
     /** 是否主键 */
     /**
     * 主键字段名
-     */
+    */
     private boolean primaryKey;
     /** 是否自增 */
     private boolean autoIncrement;

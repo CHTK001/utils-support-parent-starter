@@ -43,7 +43,7 @@ public final class ImageProcessorUtils {
     * -2  0  2
     * -1  0  1
     * </pre>
-     */
+    */
     public static final int[] SOBEL_X = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
 
     /**
@@ -55,12 +55,12 @@ public final class ImageProcessorUtils {
     *  0   0   0
     *  1   2   1
     * </pre>
-     */
+    */
     public static final int[] SOBEL_Y = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
 
     /**
     * 私有构造方法，防止实例化
-     */
+    */
     private ImageProcessorUtils() {
     }
 
@@ -81,7 +81,7 @@ public final class ImageProcessorUtils {
     * @param value      参数值，可能为 null / Number / String
     * @param defaultVal 解析失败时的默认值
     * @return 解析后的整数值
-     */
+    */
     public static int toInt(Object value, int defaultVal) {
         if (value instanceof Number n) {
             return n.intValue();
@@ -108,7 +108,7 @@ public final class ImageProcessorUtils {
     *
     * @param v 原始值，可能超出 [0, 255]
     * @return 钳制后的值，保证在 [0, 255] 范围内
-     */
+    */
     public static int clamp(int v) {
         return Math.max(0, Math.min(255, v));
     }
@@ -124,7 +124,7 @@ public final class ImageProcessorUtils {
     *
     * @param rgb ARGB 像素值（格式：0xAARRGGBB）
     * @return 亮度值，范围 [0, 255]
-     */
+    */
     public static int luminance(int rgb) {
         return (int) (0.299 * ((rgb >> 16) & 0xFF)
                 + 0.587 * ((rgb >> 8) & 0xFF)
@@ -147,7 +147,7 @@ public final class ImageProcessorUtils {
     *
     * @param colorStr 颜色字符串，支持 #RRGGBB 或 r,g,b 格式
     * @return RGB 三元组，索引 0=R、1=G、2=B
-     */
+    */
     public static int[] parseColor(String colorStr) {
         String s = colorStr.trim();
         if (s.startsWith("#") && s.length() == 7) {

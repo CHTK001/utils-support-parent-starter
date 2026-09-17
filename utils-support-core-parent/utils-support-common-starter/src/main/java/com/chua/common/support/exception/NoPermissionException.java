@@ -20,7 +20,7 @@ public class NoPermissionException extends RuntimeException {
     /**
     * 创建 NoPermissionException 实例
     * @param message message
-     */
+    */
     public NoPermissionException(String message) {
         super(message);
     }
@@ -29,7 +29,7 @@ public class NoPermissionException extends RuntimeException {
     * 创建 NoPermissionException 实例
     * @param message message
     * @param Throwable Throwable
-     */
+    */
     public NoPermissionException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -37,7 +37,7 @@ public class NoPermissionException extends RuntimeException {
     /**
     * 创建 NoPermissionException 实例
     * @param cause cause
-     */
+    */
     public NoPermissionException(Throwable cause) {
         super(cause);
     }

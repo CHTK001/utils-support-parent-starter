@@ -37,7 +37,7 @@ public record TemplateExtractResult(
     *
     * @param extracted 已提取的变量映射，不可为 null
     * @return 提取结果实例
-     */
+    */
     public static TemplateExtractResult success(Map<String, Object> extracted) {
         return success(extracted, Collections.emptyList());
     }
@@ -48,7 +48,7 @@ public record TemplateExtractResult(
     * @param extracted 已提取的变量映射，不可为 null
     * @param vars      已成功提取的变量列表，可为空
     * @return 提取结果实例
-     */
+    */
     public static TemplateExtractResult success(Map<String, Object> extracted, List<TemplateVar> vars) {
         return new TemplateExtractResult(
                 extracted == null ? Collections.emptyMap() : extracted,
@@ -63,7 +63,7 @@ public record TemplateExtractResult(
     * @param extracted 已提取的变量映射，不可为 null
     * @param missing   缺失的变量名集合，不可为 null
     * @return 提取结果实例
-     */
+    */
     public static TemplateExtractResult partial(Map<String, Object> extracted, List<String> missing) {
         return partial(extracted, missing, Collections.emptyList());
     }
@@ -75,7 +75,7 @@ public record TemplateExtractResult(
     * @param missing   缺失的变量名集合，不可为 null
     * @param vars      已成功提取的变量列表，可为空
     * @return 提取结果实例
-     */
+    */
     public static TemplateExtractResult partial(Map<String, Object> extracted, List<String> missing, List<TemplateVar> vars) {
         return new TemplateExtractResult(
                 extracted == null ? Collections.emptyMap() : new LinkedHashMap<>(extracted),
@@ -89,7 +89,7 @@ public record TemplateExtractResult(
     *
     * @param name 变量名（来自模板中的 {name} 占位符）
     * @return 提取值；若未提取到则返回 null
-     */
+    */
     public Object get(String name) {
         return extracted.get(name);
     }
@@ -99,7 +99,7 @@ public record TemplateExtractResult(
     *
     * @param name 变量名
     * @return 已提取返回 true，否则返回 false
-     */
+    */
     public boolean has(String name) {
         return extracted.containsKey(name);
     }
@@ -108,7 +108,7 @@ public record TemplateExtractResult(
     * 判断本次提取是否完整（即不存在缺失变量）。
     *
     * @return 全部命中返回 true，存在缺失返回 false
-     */
+    */
     public boolean isSuccess() {
         return missing.isEmpty();
     }
@@ -117,7 +117,7 @@ public record TemplateExtractResult(
     * 返回已提取变量的不可变视图。
     *
     * @return 变量名到值的映射
-     */
+    */
     public Map<String, Object> toMap() {
         return Collections.unmodifiableMap(extracted);
     }
@@ -129,7 +129,7 @@ public record TemplateExtractResult(
     * 适合需要顺序或溯源的消费场景。</p>
     *
     * @return 不可变的 TemplateVar 列表
-     */
+    */
     public List<TemplateVar> vars() {
         return Collections.unmodifiableList(vars);
     }
@@ -138,7 +138,7 @@ public record TemplateExtractResult(
     * 将已提取的变量集合序列化为 JSON 字符串。
     *
     * @return JSON 格式字符串，便于日志输出与下游传输
-     */
+    */
     public String toJson() {
         return Json.toJson(extracted);
     }

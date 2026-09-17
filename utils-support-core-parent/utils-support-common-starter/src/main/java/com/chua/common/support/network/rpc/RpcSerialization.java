@@ -36,11 +36,11 @@ public final class RpcSerialization {
 
     /**
     * 日志
-     */
+    */
 
     /**
     * 支持的序列化名称（映射到实现类全限定名）
-     */
+    */
     private static final String[][] SUPPORTED = {
             {"fury", "com.chua.fory.support.serialize.ForySerialization"},
             {"fory", "com.chua.fory.support.serialize.ForySerialization"},
@@ -49,17 +49,17 @@ public final class RpcSerialization {
 
     /**
     * 缓存解析出的序列化实现
-     */
+    */
     private final Serialization serialization;
 
     /**
     * 序列化实现名称
-     */
+    */
     private final String name;
 
     /**
     * 构造 RPC 编解码器，按优先级自动选择序列化实现。
-     */
+    */
     public RpcSerialization() {
         this(null);
     }
@@ -68,7 +68,7 @@ public final class RpcSerialization {
     * 构造 RPC 编解码器。
     *
     * @param configuredName 显式指定的序列化名称，为空时按默认优先级选择
-     */
+    */
     public RpcSerialization(String configuredName) {
         Serialization picked = null;
         if (configuredName != null && !configuredName.isBlank()) {
@@ -95,7 +95,7 @@ public final class RpcSerialization {
     * @param request 请求对象
     * @return 序列化后的字节数组
     * @throws IOException 序列化异常
-     */
+    */
     public byte[] serialize(RpcRequest request) throws IOException {
         return doSerialize(request);
     }
@@ -106,7 +106,7 @@ public final class RpcSerialization {
     * @param response 响应对象
     * @return 序列化后的字节数组
     * @throws IOException 序列化异常
-     */
+    */
     public byte[] serialize(RpcResponse response) throws IOException {
         return doSerialize(response);
     }
@@ -118,7 +118,7 @@ public final class RpcSerialization {
     * @return 请求对象
     * @throws IOException            反序列化 IO 异常
     * @throws ClassNotFoundException 类型不存在异常
-     */
+    */
     public RpcRequest deserializeRequest(byte[] data) throws IOException, ClassNotFoundException {
         return doDeserialize(data, RpcRequest.class);
     }
@@ -130,7 +130,7 @@ public final class RpcSerialization {
     * @return 响应对象
     * @throws IOException            反序列化 IO 异常
     * @throws ClassNotFoundException 类型不存在异常
-     */
+    */
     public RpcResponse deserializeResponse(byte[] data) throws IOException, ClassNotFoundException {
         return doDeserialize(data, RpcResponse.class);
     }
@@ -139,7 +139,7 @@ public final class RpcSerialization {
     * 当前使用的序列化实现名称。
     *
     * @return 序列化名称
-     */
+    */
     public String name() {
         return name;
     }
@@ -149,7 +149,7 @@ public final class RpcSerialization {
     *
     * @param name 序列化名称
     * @return 序列化实现，加载失败时返回 {@code null}
-     */
+    */
     private static Serialization loadByName(String name) {
         for (String[] supported : SUPPORTED) {
             if (!supported[0].equalsIgnoreCase(name)) {
@@ -171,7 +171,7 @@ public final class RpcSerialization {
     * @param obj 待序列化对象
     * @return 字节数组
     * @throws IOException 序列化异常
-     */
+    */
     private byte[] doSerialize(Object obj) throws IOException {
         try {
             return serialization.serialize(obj);
@@ -192,7 +192,7 @@ public final class RpcSerialization {
     * @return 反序列化后的对象
     * @throws IOException            反序列化 IO 异常
     * @throws ClassNotFoundException 类型不存在异常
-     */
+    */
     private <T> T doDeserialize(byte[] data, Class<T> type) throws IOException, ClassNotFoundException {
         if (data == null || data.length == 0) {
             return null;
@@ -210,7 +210,7 @@ public final class RpcSerialization {
     * JDK 原生序列化实现（带反序列化安全过滤）。
     *
     * @since 4.0.0.42
-     */
+    */
     private static final class JdkSerialization implements Serialization {
 
         @Override
@@ -247,7 +247,7 @@ public final class RpcSerialization {
     * 同时限制对象图深度与数组长度，防止恶意报文 OOM。</p>
     *
     * @return 对象输入过滤器
-     */
+    */
     static ObjectInputFilter objectInputFilter() {
         return info -> {
             Class<?> serialClass = info.serialClass();
@@ -272,7 +272,7 @@ public final class RpcSerialization {
 
     /**
     * 高危反序列化 gadget 类前缀黑名单
-     */
+    */
     private static final String[] DENIED_CLASS_PREFIXES = {
             "com.sun.", "java.rmi.", "javax.naming.", "javax.management.",
             "org.apache.commons.collections.", "org.apache.commons.beanutils.",

@@ -80,7 +80,7 @@ public final class Commands {
     * 并以 {@link Cmd#name()} 为键注册。</p>
     *
     * @return Commands 实例（包含所有 SPI 发现的命令）
-     */
+    */
     @Nonnull
     public static Commands create() {
         Commands commands = new Commands();
@@ -94,7 +94,7 @@ public final class Commands {
     * <p>适用于完全手动注册命令的场景。</p>
     *
     * @return 空的 Commands 实例
-     */
+    */
     @Nonnull
     public static Commands empty() {
         return new Commands();
@@ -108,7 +108,7 @@ public final class Commands {
     * @param cmd 命令实例
     * @return this
     * @throws IllegalArgumentException 如果存在同名的命令
-     */
+    */
     @Nonnull
     public Commands register(@Nonnull Cmd cmd) {
         String name = cmd.name();
@@ -124,7 +124,7 @@ public final class Commands {
     *
     * @param cmd 命令实例
     * @return this
-     */
+    */
     @Nonnull
     public Commands registerOrReplace(@Nonnull Cmd cmd) {
         commandMap.put(cmd.name(), cmd);
@@ -136,7 +136,7 @@ public final class Commands {
     *
     * @param cmds 命令数组
     * @return this
-     */
+    */
     @Nonnull
     public Commands registerAll(@Nonnull Cmd... cmds) {
         for (Cmd cmd : cmds) {
@@ -150,7 +150,7 @@ public final class Commands {
     *
     * @param name 命令名称
     * @return this
-     */
+    */
     @Nonnull
     public Commands unregister(@Nonnull String name) {
         commandMap.remove(name);
@@ -164,7 +164,7 @@ public final class Commands {
     *
     * @param name 命令名称
     * @return {@link Cmd} 实例，未找到返回 null
-     */
+    */
     @Nullable
     public Cmd get(@Nonnull String name) {
         return commandMap.get(name);
@@ -175,7 +175,7 @@ public final class Commands {
     *
     * @param name 命令名称
     * @return 如果存在返回 true
-     */
+    */
     public boolean has(@Nonnull String name) {
         return commandMap.containsKey(name);
     }
@@ -184,7 +184,7 @@ public final class Commands {
     * 获取所有已注册的命令。
     *
     * @return 不可修改的命令集合
-     */
+    */
     @Nonnull
     public Collection<Cmd> getAll() {
         return Collections.unmodifiableCollection(commandMap.values());
@@ -194,7 +194,7 @@ public final class Commands {
     * 获取所有已注册的命令名称列表。
     *
     * @return 命令名称列表
-     */
+    */
     @Nonnull
     public List<String> getNames() {
         return new ArrayList<>(commandMap.keySet());
@@ -204,7 +204,7 @@ public final class Commands {
     * 获取已注册的命令数量。
     *
     * @return 命令数量
-     */
+    */
     public int size() {
         return commandMap.size();
     }
@@ -218,7 +218,7 @@ public final class Commands {
     * @param rawArgs  原始命令行参数（不包含命令名称本身）
     * @return 命令执行结果
     * @throws IllegalArgumentException 如果命令不存在或参数解析失败
-     */
+    */
     @Nonnull
     public CmdResult execute(@Nonnull String name, @Nonnull String... rawArgs) {
         Cmd cmd = commandMap.get(name);
@@ -257,7 +257,7 @@ public final class Commands {
     *
     * @param commandLine 完整的命令行字符串（如 {@code "echo --uppercase hello world"}）
     * @return 命令执行结果
-     */
+    */
     @Nonnull
     public CmdResult executeLine(@Nonnull String commandLine) {
         String[] parts = splitCommandLine(commandLine);
@@ -282,7 +282,7 @@ public final class Commands {
     * 适合直接输出到终端或远程客户端。</p>
     *
     * @return 格式化命令列表字符串
-     */
+    */
     @Nonnull
     public String listCommands() {
         if (commandMap.isEmpty()) {
@@ -316,7 +316,7 @@ public final class Commands {
     *
     * @param name 命令名称
     * @return 帮助文本，如果命令不存在返回错误信息
-     */
+    */
     @Nonnull
     public String help(@Nonnull String name) {
         Cmd cmd = commandMap.get(name);
@@ -333,7 +333,7 @@ public final class Commands {
 
     /**
     * 通过 SPI 自动发现所有 {@link Cmd} 实现并注册。
-     */
+    */
     private void discoverFromSpi() {
         Map<String, Cmd> spiCommands = ServiceProvider.of(Cmd.class).list();
         for (Map.Entry<String, Cmd> entry : spiCommands.entrySet()) {
@@ -352,7 +352,7 @@ public final class Commands {
     *
     * @param line 命令行字符串
     * @return 拆分后的参数数组
-     */
+    */
     @Nonnull
     private static String[] splitCommandLine(@Nonnull String line) {
         List<String> parts = new ArrayList<>();

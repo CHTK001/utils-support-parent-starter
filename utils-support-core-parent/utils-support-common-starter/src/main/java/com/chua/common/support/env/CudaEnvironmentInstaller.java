@@ -52,7 +52,7 @@ public final class CudaEnvironmentInstaller {
     * 不产生任何开销；未就绪时异步触发安装脚本并返回 false（安装结果通过回调通知）。</p>
     *
     * @return true 表示 CUDA 环境已就绪；false 表示已触发异步安装（或安装已在进行中）
-     */
+    */
     public static boolean ensureCudaRuntime() {
         if (new CudaRuntimeDetector().isAvailable()) {
             return true;
@@ -82,7 +82,7 @@ public final class CudaEnvironmentInstaller {
     * @param timeout 等待超时
     * @param unit    超时单位
     * @return true 表示安装成功
-     */
+    */
     public static boolean awaitInstallation(long timeout, TimeUnit unit) {
         return false; // 由实现方在回调中自行处理等待；此处保留占位语义
     }
@@ -91,7 +91,7 @@ public final class CudaEnvironmentInstaller {
     * 异步执行平台安装脚本，输出实时写日志。
     *
     * @param callback 安装结果回调
-     */
+    */
     public static void installAsync(InstallCallback callback) {
         Path script = extractScript();
         if (script == null) {
@@ -144,7 +144,7 @@ public final class CudaEnvironmentInstaller {
     * 执行平台脚本并实时转发输出行到日志（供同步场景使用）。
     *
     * @param lineCallback 逐行输出回调
-     */
+    */
     public static void installWithLineLogging(LineCallback lineCallback) {
         Path script = extractScript();
         if (script == null) {
@@ -166,7 +166,7 @@ public final class CudaEnvironmentInstaller {
 
     /**
     * 安装结果回调。
-     */
+    */
     public interface InstallCallback {
 
         /**
@@ -174,7 +174,7 @@ public final class CudaEnvironmentInstaller {
         *
         * @param success 是否成功
         * @param detail  详情（exitCode/超时/异常信息）
-         */
+        */
         void onFinished(boolean success, String detail);
     }
 
@@ -182,7 +182,7 @@ public final class CudaEnvironmentInstaller {
     * 从 classpath 抽取平台安装脚本到临时目录。
     *
     * @return 脚本路径；平台不支持或脚本缺失返回 null
-     */
+    */
     private static Path extractScript() {
         String os = System.getProperty("os.name", "").toLowerCase();
         String scriptName;
@@ -221,7 +221,7 @@ public final class CudaEnvironmentInstaller {
     *
     * @param script 脚本路径
     * @return 命令字符串
-     */
+    */
     private static String buildCommand(Path script) {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) {

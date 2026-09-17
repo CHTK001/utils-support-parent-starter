@@ -47,7 +47,7 @@ public class StringTypeConverter implements TypeConverter<String> {
     *
     * @param value 源值
     * @return String 值，如果为 null 则返回 null
-     */
+    */
     @Override
     public String convert(Object value) {
         if (null == value) {
@@ -125,7 +125,7 @@ public class StringTypeConverter implements TypeConverter<String> {
     * @param is 输入流
     * @return 字节数组
     * @throws IOException 读取异常
-     */
+    */
     private byte[] readBytes(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
         byte[] buffer = new byte[8192];

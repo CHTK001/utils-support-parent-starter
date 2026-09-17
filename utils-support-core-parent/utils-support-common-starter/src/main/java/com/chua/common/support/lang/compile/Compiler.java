@@ -19,45 +19,45 @@ public interface Compiler {
     /**
     * 匹配 "extends" 关键字后跟随的父类名称的正则表达式模式。
     * 捕获组 1 将包含父类的全限定名或简单名。
-     */
+    */
     Pattern PARENT_PATTERN = Pattern.compile("extends\\s+([a-zA-z][$_a-zA-z0-9.]*)");
     
     /**
     * 匹配 "implements" 关键字后跟随的接口名称的正则表达式模式。
     * 捕获组 1 将包含接口的全限定名或简单名。
-     */
+    */
     Pattern INTERFACE_PATTERN = Pattern.compile("implements\\s+([a-zA-z][$_a-zA-z0-9.]*)");
     
     /**
     * 匹配 "package" 声明后的包名的正则表达式模式。
     * 捕获组 1 将包含包名。
-     */
+    */
     Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([a-zA-z][$_a-zA-z0-9.]*)");
     
     /**
     * 匹配 "class" 关键字后跟随的类名的正则表达式模式。
     * 捕获组 1 将包含类名（不包含泛型参数）。
-     */
+    */
     Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-z][$_a-zA-z0-9]*)");
     
     /**
     * 匹配 "import" 语句的正则表达式模式。
     * 捕获组 1 将包含导入的完整路径（不含分号）。
-     */
+    */
     Pattern IMPORT_PATTERN = Pattern.compile("import\\s+(.*);");
     
     /**
     * 匹配字段声明（private, public, protected）的正则表达式模式。
     * 捕获组 1 为访问修饰符，捕获组 2 为字段类型和名称。
     * 注意：原模式中 "protect" 应为 "protected"，此处保留原逻辑。
-     */
+    */
     Pattern FIELD_PATTERN = Pattern.compile("(private|public|protect)\\s+(.*);");
     
     /**
     * 匹配方法声明的正则表达式模式。
     * 结构复杂，旨在捕获访问修饰符、返回类型（含泛型）、方法名、参数列表及方法体。
     * 注意：此正则表达式较为宽泛，可能无法完美匹配所有复杂的 Java 语法场景。
-     */
+    */
     Pattern METHOD_PATTERN = Pattern.compile("(private|public|protect)\\s+(([a-zA-z][$_a-zA-z0-9.]*)(<(.*?)>)*)\\s+([a-zA-z][$_a-zA-z0-9.]*)(\\s+)*\\((.*)\\)(\\s+)*\\{((.*?)|\n)*}");
 
     /**
@@ -65,7 +65,7 @@ public interface Compiler {
     *
     * @param code 要编译的 Java 源代码字符串
     * @return 编译并加载后的 Class 对象
-     */
+    */
     default Class<?> compiler(String code) {
         return compiler(code, Thread.currentThread().getContextClassLoader());
     }
@@ -76,7 +76,7 @@ public interface Compiler {
     * @param code      要编译的 Java 源代码字符串
     * @param classLoader 用于加载类的类加载器
     * @return 编译并加载后的 Class 对象
-     */
+    */
     default Class<?> compiler(String code, final ClassLoader classLoader) {
         return compiler(code, classLoader, "");
     }
@@ -90,7 +90,7 @@ public interface Compiler {
     * @return 编译并加载后的 Class 对象
     * @throws IllegalStateException 如果代码格式错误（如缺少结束大括号）或编译失败
     * @throws IllegalArgumentException 如果代码中未找到类名定义
-     */
+    */
     default Class<?> compiler(String code, final ClassLoader classLoader, final String suffix) {
         // 去除首尾空白字符
         code = code.trim();
@@ -146,7 +146,7 @@ public interface Compiler {
     * @param source 原始的 Java 源代码字符串
     * @return 编译后的 Class 对象
     * @throws Throwable 编译过程中可能抛出的任何异常
-     */
+    */
     Class<?> doCompile(String name, String source) throws Throwable;
 
     /**
@@ -155,7 +155,7 @@ public interface Compiler {
     * @param code 包含类定义的 Java 源代码字符串
     * @return 提取到的类名
     * @throws IllegalArgumentException 如果代码中未找到类名定义
-     */
+    */
     default String getClassName(String code) {
         // 使用 CLASS_PATTERN 匹配类名
         Matcher matcher1 = CLASS_PATTERN.matcher(code);
@@ -171,7 +171,7 @@ public interface Compiler {
     *
     * @param code 包含包声明的 Java 源代码字符串
     * @return 提取到的包名，如果未找到则返回 null
-     */
+    */
     default String getPkg(String code) {
         // 使用 PACKAGE_PATTERN 匹配包名
         Matcher matcher = PACKAGE_PATTERN.matcher(code);

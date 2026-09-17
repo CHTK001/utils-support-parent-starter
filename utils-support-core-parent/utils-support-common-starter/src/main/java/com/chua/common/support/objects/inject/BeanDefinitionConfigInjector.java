@@ -8,11 +8,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
-* Bean 配置注入器 SPI，用于将配置值注入到目标字段或方法参数。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * Bean 配置注入器 SPI，用于将配置值注入到目标字段或方法参数。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Spi
 public interface BeanDefinitionConfigInjector {
 
@@ -22,7 +22,7 @@ public interface BeanDefinitionConfigInjector {
     * @param field            待检查的目标字段
     * @param beanDefinition   对应的 Bean 定义信息
     * @return 如果支持注入则返回 true，否则返回 false
-     */
+    */
     boolean isSupport(Field field, BeanDefinition beanDefinition);
 
     /**
@@ -33,7 +33,7 @@ public interface BeanDefinitionConfigInjector {
     * @param beanDefinition   Bean 的定义信息，提供上下文元数据
     * @param environment      环境配置对象，提供可读取的配置源
     * @return 注入后的新值；如果无法注入或不适配，则返回 空
-     */
+    */
     Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment);
 
     /**
@@ -42,7 +42,7 @@ public interface BeanDefinitionConfigInjector {
     * @param method          目标方法
     * @param beanDefinition  Bean 定义
     * @return 如果支持注入则返回 true，否则返回 false
-     */
+    */
     default boolean isSupport(Method method, BeanDefinition beanDefinition) {
         return false;
     }
@@ -55,7 +55,7 @@ public interface BeanDefinitionConfigInjector {
     * @param beanDefinition  Bean 定义
     * @param environment     环境配置对象
     * @return 参数值数组，每项为对应位置的配置值；无法解析的位为 空
-     */
+    */
     default Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         return null;
     }

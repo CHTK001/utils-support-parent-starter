@@ -33,37 +33,37 @@ public class UrlScriptListener implements Listener {
 
     /**
     * 脚本内容 URL
-     */
+    */
     private final URL url;
 
     /**
     * 轮询周期（毫秒）
-     */
+    */
     private final long periodMillis;
 
     /**
     * 定时任务线程池（单线程，daemon）
-     */
+    */
     private final java.util.concurrent.ScheduledExecutorService scheduler;
 
     /**
     * 上次拉取的脚本内容
-     */
+    */
     private final AtomicReference<String> lastContent = new AtomicReference<>();
 
     /**
     * 内容是否发生变化的标记
-     */
+    */
     private final AtomicBoolean changed = new AtomicBoolean(false);
 
     /**
     * 定时任务句柄
-     */
+    */
     private volatile java.util.concurrent.ScheduledFuture<?> future;
 
     /**
     * HTTP 连接超时上限（毫秒），取 periodMillis 与 5 秒的较小值
-     */
+    */
     private static final int CONNECT_TIMEOUT_MS = 5000;
 
     /**
@@ -71,7 +71,7 @@ public class UrlScriptListener implements Listener {
     *
     * @param url          脚本内容 URL
     * @param periodMillis 轮询周期，单位毫秒
-     */
+    */
     public UrlScriptListener(URL url, long periodMillis) {
         this.url = url;
         this.periodMillis = periodMillis;
@@ -101,7 +101,7 @@ public class UrlScriptListener implements Listener {
     * 关闭监听器，取消定时任务。
     *
     * <p>应在不再需要监听时调用，避免 daemon 线程残留。</p>
-     */
+    */
     public void close() {
         if (future != null) {
             future.cancel(false);
@@ -111,7 +111,7 @@ public class UrlScriptListener implements Listener {
 
     /**
     * 执行一次远程内容拉取。
-     */
+    */
     private void fetch() {
         HttpURLConnection connection = null;
         try {
@@ -149,7 +149,7 @@ public class UrlScriptListener implements Listener {
     * URL 脚本监听器专用线程工厂。
     *
     * <p>创建 daemon 线程，避免阻止 JVM 正常退出。</p>
-     */
+    */
     private static class UrlScriptThreadFactory implements ThreadFactory {
         @Override
         /** NewThread */

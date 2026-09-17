@@ -19,12 +19,12 @@ public interface UsageRecorder extends Consumer<AiUsage> {
     * 获取当前统计
     *
     * @return 统计信息
-     */
+    */
     UsageStats stats();
 
     /**
     * 重置统计
-     */
+    */
     default void reset() {
     }
 
@@ -38,6 +38,6 @@ public interface UsageRecorder extends Consumer<AiUsage> {
 
     /**
     * 记录一次用量
-     */
+    */
     void record(AiUsage usage);
 }

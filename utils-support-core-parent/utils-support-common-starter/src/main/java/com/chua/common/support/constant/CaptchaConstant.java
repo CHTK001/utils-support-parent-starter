@@ -13,12 +13,12 @@ public final class CaptchaConstant {
 
     /**
     * 验证码在 Session 中存储的 Key
-     */
+    */
     public static final String CAPTCHA_SESSION_KEY = "CAPTCHA_SESSION_KEY";
 
     /**
     * 私有构造方法，禁止实例化。
-     */
+    */
     private CaptchaConstant() {
     }
 }

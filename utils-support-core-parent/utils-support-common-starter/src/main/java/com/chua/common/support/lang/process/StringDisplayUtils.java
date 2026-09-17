@@ -20,7 +20,7 @@ class StringDisplayUtils {
     *
     * @param c 字符
     * @return 显示宽度
-     */
+    */
     static int getCharDisplayLength(char c) {
         return 1;
     }
@@ -32,7 +32,7 @@ class StringDisplayUtils {
     *
     * @param s 字符串
     * @return 显示宽度
-     */
+    */
     static int getStringDisplayLength(String s) {
         int displayWidth = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -56,7 +56,7 @@ class StringDisplayUtils {
     * @param s                字符串
     * @param maxDisplayLength 最大显示长度
     * @return 截断后的字符串
-     */
+    */
     static String trimDisplayLength(String s, int maxDisplayLength) {
         if (maxDisplayLength <= 0) {
             return "";

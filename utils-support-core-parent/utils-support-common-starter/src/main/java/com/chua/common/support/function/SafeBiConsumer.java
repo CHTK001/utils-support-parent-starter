@@ -15,7 +15,7 @@ public interface SafeBiConsumer<T, U> extends BiConsumer<T, U> {
     *
     * @param t 第一个输入参数
     * @param u 第二个输入参数
-     */
+    */
     @Override
     default void accept(T t, U u) {
         try {
@@ -30,6 +30,6 @@ public interface SafeBiConsumer<T, U> extends BiConsumer<T, U> {
     * @param t 第一个输入参数
     * @param u 第二个输入参数
     * @throws Throwable 如果发生异常
-     */
+    */
     void safeAccept(T t, U u) throws Throwable;
 }

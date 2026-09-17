@@ -49,6 +49,6 @@ public interface InitializingAware {
     * </ul>
     *
     * <p>注意：该方法应该在对象完全构造后调用，确保所有依赖已就绪。</p>
-     */
+    */
     void afterPropertiesSet();
 }

@@ -38,7 +38,7 @@ public final class NetUtils {
     * 获取本地主机地址
     *
     * @return 本地主机地址
-     */
+    */
     public static String getLocalHost() {
         return LOCAL_HOST_CACHE;
     }
@@ -47,7 +47,7 @@ public final class NetUtils {
     * 获取公网地址
     *
     * @return 公网地址，获取失败时返回本地地址
-     */
+    */
     public static String getPublicAddress() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -79,7 +79,7 @@ public final class NetUtils {
     *
     * @param host 主机地址
     * @return 是否本地地址
-     */
+    */
     public static boolean isLocalHost(String host) {
         if (StringUtils.isEmpty(host)) {
             return false;
@@ -95,7 +95,7 @@ public final class NetUtils {
     *
     * @param host 主机地址
     * @return 是否任意地址
-     */
+    */
     public static boolean isAnyHost(String host) {
         return ANY_HOST.equals(host) || "0.0.0.0".equals(host);
     }
@@ -104,7 +104,7 @@ public final class NetUtils {
     * 枚举本机全部网卡 IPv4（非回环——多网卡全部返回，供白名单等"命中其一"场景）。
     *
     * @return 本机全部 IPv4 列表（可能为空）
-     */
+    */
     public static java.util.List<String> getLocalIps() {
         java.util.List<String> ips = new java.util.ArrayList<>();
         try {
@@ -136,7 +136,7 @@ public final class NetUtils {
     *
     * @param ip IPv4 地址（如 192.168.1.5）
     * @return 数值（非法输入抛出异常）
-     */
+    */
     public static long ipToLong(String ip) {
         String[] parts = ip.split("\\.");
         long value = 0;
@@ -153,7 +153,7 @@ public final class NetUtils {
     * @param start 区间起点
     * @param end   区间终点
     * @return 是否在区间内（非法输入返回 false）
-     */
+    */
     public static boolean ipInRange(String ip, String start, String end) {
         try {
             long value = ipToLong(ip);

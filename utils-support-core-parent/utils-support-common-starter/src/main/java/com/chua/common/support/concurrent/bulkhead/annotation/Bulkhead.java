@@ -23,7 +23,7 @@ public @interface Bulkhead {
     * 隔离名称（唯一标识）。
     *
     * @return 名称
-     */
+    */
     String name() default "";
 
     /**
@@ -32,14 +32,14 @@ public @interface Bulkhead {
     * <p>支持 {@code ${...}} 和 {@code #{...}} 表达式。</p>
     *
     * @return 最大并发数
-     */
+    */
     String maxConcurrent() default "10";
 
     /**
     * 是否公平模式。
     *
     * @return 是否公平
-     */
+    */
     boolean fair() default true;
 
     /**
@@ -54,6 +54,6 @@ public @interface Bulkhead {
     * <p>为空时抛出并发异常。</p>
     *
     * @return 回退方法名
-     */
+    */
     String fallback() default "";
 }

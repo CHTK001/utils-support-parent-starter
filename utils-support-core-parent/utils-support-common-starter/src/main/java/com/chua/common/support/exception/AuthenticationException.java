@@ -15,7 +15,7 @@ public class AuthenticationException extends RuntimeException {
 
     /**
     * 默认构造函数，创建一个没有详细消息的认证异常。
-     */
+    */
     public AuthenticationException() {
         super();
     }
@@ -24,7 +24,7 @@ public class AuthenticationException extends RuntimeException {
     * 使用指定的详细消息创建认证异常。
     *
     * @param message 描述异常原因的详细信息
-     */
+    */
     public AuthenticationException(String message) {
         super(message);
     }
@@ -34,7 +34,7 @@ public class AuthenticationException extends RuntimeException {
     *
     * @param message 描述异常原因的详细信息
     * @param cause   引起此异常的 Throwable 对象（通常用于记录底层错误）
-     */
+    */
     public AuthenticationException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -43,7 +43,7 @@ public class AuthenticationException extends RuntimeException {
     * 使用指定的 Cause（根本原因）创建认证异常。
     *
     * @param cause 引起此异常的 Throwable 对象
-     */
+    */
     public AuthenticationException(Throwable cause) {
         super(cause);
     }
@@ -58,7 +58,7 @@ public class AuthenticationException extends RuntimeException {
     * @param cause                 引起此异常的 Throwable 对象
     * @param enableSuppression     指定是否启用异常抑制（即是否允许调用 suppressedExceptions）
     * @param writableStackTrace    指定是否生成可写的堆栈跟踪（如果为 false，则不生成堆栈信息以节省性能）
-     */
+    */
     public AuthenticationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

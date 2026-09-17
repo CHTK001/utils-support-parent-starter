@@ -20,49 +20,49 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
 
     /**
     * 熔断器状态
-     */
+    */
     private enum State {
         CLOSED, OPEN, HALF_OPEN
     }
 
     /**
     * 熔断器名称
-     */
+    */
     private final String name;
 
     /**
     * 失败阈值
-     */
+    */
     private final int failureThreshold;
 
     /**
     * 成功阈值
-     */
+    */
     private final int successThreshold;
 
     /**
     * 熔断等待时间（毫秒）
-     */
+    */
     private final long waitDuration;
 
     /**
     * 当前连续失败次数
-     */
+    */
     private final AtomicInteger failureCount = new AtomicInteger(0);
 
     /**
     * 当前连续成功次数（半开状态）
-     */
+    */
     private final AtomicInteger successCount = new AtomicInteger(0);
 
     /**
     * 熔断打开的时间戳
-     */
+    */
     private final AtomicLong openTimestamp = new AtomicLong(0);
 
     /**
     * 当前状态
-     */
+    */
     private final AtomicReference<State> state = new AtomicReference<>(State.CLOSED);
 
     /**
@@ -71,7 +71,7 @@ public class InMemoryCircuitBreakerProvider implements CircuitBreakerProvider {
     * @param failureThreshold int
     * @param failureThreshold int
     * @param waitDuration long
-     */
+    */
     public InMemoryCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         this.name = name;
         this.failureThreshold = failureThreshold;

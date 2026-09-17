@@ -22,7 +22,7 @@ public interface FileSystem {
     *
     * @param type 文件类型 SPI 名称（csv, excel, json, xml, yaml 等）
     * @return FileSystem 实例
-     */
+    */
     static FileSystem create(String type) {
         return ServiceProvider.of(FileSystem.class)
                 .getExtension(type);
@@ -48,7 +48,7 @@ public interface FileSystem {
     * @param implType 期望的实现类型 Class 对象
     * @param <T>      实现类型泛型
     * @return 指定类型的 FileSystem 实例
-     */
+    */
     static <T extends FileSystem> T create(String type, Class<T> implType) {
         return implType.cast(ServiceProvider.of(FileSystem.class).getExtension(type));
     }
@@ -59,7 +59,7 @@ public interface FileSystem {
     * @param file 文件对象
     * @return FileSystem 实例
     * @throws UnsupportedOperationException 当文件类型不支持时抛出异常
-     */
+    */
     static FileSystem auto(File file) {
         String ext = FileUtils.getExtension(file);
         if (ext.isEmpty()) {
@@ -79,7 +79,7 @@ public interface FileSystem {
     * 获取文件系统类型名称。
     *
     * @return 类型名称字符串
-     */
+    */
     String getType();
 
     /**
@@ -87,7 +87,7 @@ public interface FileSystem {
     *
     * @param file 要读取的文件对象
     * @return ReadBuilder 构建器实例
-     */
+    */
     ReadBuilder read(File file);
 
     /**
@@ -95,6 +95,6 @@ public interface FileSystem {
     *
     * @param file 要写入的文件对象
     * @return WriteBuilder 构建器实例
-     */
+    */
     WriteBuilder write(File file);
 }

@@ -15,14 +15,14 @@ public interface ViewCreateBuilder {
     *
     * @param definition SELECT 语句
     * @return this
-     */
+    */
     ViewCreateBuilder definition(String definition);
 
     /**
     * 使用 CREATE OR REPLACE 语义（如果数据库支持）。
     *
     * @return this
-     */
+    */
     ViewCreateBuilder orReplace();
 
     /**
@@ -30,14 +30,14 @@ public interface ViewCreateBuilder {
     *
     * @param comment 注释内容
     * @return this
-     */
+    */
     ViewCreateBuilder comment(String comment);
 
     /**
     * 设置视图为可更新（如果数据库支持）。
     *
     * @return this
-     */
+    */
     ViewCreateBuilder updatable();
 
     /**
@@ -45,13 +45,13 @@ public interface ViewCreateBuilder {
     *
     * @param checkOption 检查选项
     * @return this
-     */
+    */
     ViewCreateBuilder checkOption(String checkOption);
 
     /**
     * 执行建视图语句。
     *
     * @return 视图定义
-     */
+    */
     ViewDef execute();
 }

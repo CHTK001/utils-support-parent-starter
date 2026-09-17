@@ -24,7 +24,7 @@ public class TarExtractor extends TarGzExtractor {
     * 获取当前提取器支持的扩展名列表。
     *
     * @return 包含 ".tar" 的字符串数组
-     */
+    */
     @Override
     public String[] supportedExtensions() {
         return new String[]{".tar"};
@@ -36,7 +36,7 @@ public class TarExtractor extends TarGzExtractor {
     * @param sourceFile 待解压的 TAR 源文件
     * @param targetDir  解压后的目标目录
     * @return 如果解压成功返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean extract(File sourceFile, File targetDir) {
         if (log.isDebugEnabled()) {

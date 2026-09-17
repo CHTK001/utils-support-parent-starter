@@ -16,7 +16,7 @@ public final class SemaphoreRegistry {
 
     /**
     * 信号量缓存，按名称索引
-     */
+    */
     private static final Map<String, Semaphore> CACHE = new ConcurrentHashMap<>();
 
     /** 创建 SemaphoreRegistry 实例 */
@@ -30,14 +30,14 @@ public final class SemaphoreRegistry {
     * @param permits       许可数
     * @param fair          是否公平
     * @return 信号量实例
-     */
+    */
     public static Semaphore acquire(String name, int permits, boolean fair) {
         return CACHE.computeIfAbsent(name, k -> new Semaphore(permits, fair));
     }
 
     /**
     * 清空信号量缓存。
-     */
+    */
     public static void clear() {
         CACHE.clear();
     }

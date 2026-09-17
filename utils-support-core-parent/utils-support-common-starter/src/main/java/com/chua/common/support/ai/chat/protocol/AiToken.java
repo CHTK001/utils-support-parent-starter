@@ -21,13 +21,15 @@ public class AiToken {
     /** 令牌值（如 sk-xxx） */
     /**
     * 令牌
-     */
+    */
     private String token;
 
-    /** 令牌分组（如 default、vip、admin），用于路由到对应的模型组 */
+    /**
+    * 令牌分组（如 default、vip、admin），用于路由到对应的模型组
+    */
     /**
     * 用户组
-     */
+    */
     private String group;
 
     /** 过期时间，null 表示永不过期 */
@@ -37,7 +39,7 @@ public class AiToken {
     @Builder.Default
     /**
     * 是否启用
-     */
+    */
     private boolean enabled = true;
 
     /** 备注 */
@@ -52,7 +54,7 @@ public class AiToken {
     * 令牌是否有效。
     *
     * @return true 有效，false 已过期或已禁用
-     */
+    */
     public boolean isValid() {
         if (!enabled) {
             return false;

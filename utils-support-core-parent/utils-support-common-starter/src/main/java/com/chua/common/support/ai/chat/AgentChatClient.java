@@ -59,7 +59,7 @@ public class AgentChatClient implements ChatClient {
     * @param modelName 模型名称
     * @param client    ChatClient 实例
     * @return 当前实例
-     */
+    */
     public AgentChatClient master(String modelName, ChatClient client) {
         this.masterClient = client;
         this.masterModel = modelName;
@@ -74,7 +74,7 @@ public class AgentChatClient implements ChatClient {
     * @param description Agent 描述
     * @param client      ChatClient 实例
     * @return 当前实例
-     */
+    */
     public AgentChatClient slave(String id, String name, String description, ChatClient client) {
         slaves.put(id, new SlaveConfig(id, name, description, client));
         return this;
@@ -82,7 +82,7 @@ public class AgentChatClient implements ChatClient {
 
     /**
     * 设置执行模式
-     */
+    */
     public AgentChatClient mode(AgentMode mode) {
         this.mode = mode;
         return this;
@@ -90,7 +90,7 @@ public class AgentChatClient implements ChatClient {
 
     /**
     * 设置是否启用 MCP
-     */
+    */
     public AgentChatClient mcp(boolean mcp) {
         this.mcp = mcp;
         return this;
@@ -138,7 +138,7 @@ public class AgentChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete onComplete
     * @param onError onError
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

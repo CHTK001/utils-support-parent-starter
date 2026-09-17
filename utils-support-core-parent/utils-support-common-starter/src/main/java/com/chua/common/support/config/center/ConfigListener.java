@@ -23,7 +23,7 @@ public interface ConfigListener {
     * @param key      配置键（dataId）
     * @param oldValue 变更前的值
     * @param newValue 变更后的值
-     */
+    */
     void onChange(String key, String oldValue, String newValue);
 
     /**
@@ -33,7 +33,7 @@ public interface ConfigListener {
     *
     * @param key      配置键（dataId）
     * @param oldValue 被删除的旧值
-     */
+    */
     void onDelete(String key, String oldValue);
 
     /**
@@ -44,6 +44,6 @@ public interface ConfigListener {
     * @param key      配置键（dataId）
     * @param oldValue 修改前的值
     * @param newValue 修改后的值
-     */
+    */
     void onUpdate(String key, String oldValue, String newValue);
 }

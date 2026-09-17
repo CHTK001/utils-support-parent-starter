@@ -13,11 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
-* 默认 Bean 定义注册器，基于内存存储 Beandefinition。
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 默认 Bean 定义注册器，基于内存存储 Beandefinition。
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Slf4j
 @Spi("default")
 @SpiDescribe("默认 Bean 定义注册器")

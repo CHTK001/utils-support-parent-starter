@@ -21,12 +21,12 @@ public class TarGzExtractor implements Extractor {
 
     /**
     * TAR 标准块大小
-     */
+    */
     private static final int TAR_BLOCK_SIZE = 512;
 
     /**
     * TAR 文件头大小
-     */
+    */
     private static final int TAR_HEADER_SIZE = 512;
 
     @Override
@@ -63,7 +63,7 @@ public class TarGzExtractor implements Extractor {
     * @param inputStream TAR 流输入源
     * @param targetDir   目标解压目录
     * @throws IOException IO 异常
-     */
+    */
     protected void extractTar(InputStream inputStream, File targetDir) throws IOException {
         byte[] header = new byte[TAR_HEADER_SIZE];
 
@@ -116,7 +116,7 @@ public class TarGzExtractor implements Extractor {
     *
     * @param header 文件头字节数组
     * @return TAR 头部信息对象
-     */
+    */
     private TarHeader parseTarHeader(byte[] header) {
         String name = extractString(header, 0, 100);
         String sizeStr = extractString(header, 124, 12).trim();
@@ -149,7 +149,7 @@ public class TarGzExtractor implements Extractor {
     * @param offset 起始偏移量
     * @param length 提取长度
     * @return 提取后的字符串
-     */
+    */
     private String extractString(byte[] data, int offset, int length) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length && (offset + i) < data.length; i++) {
@@ -167,7 +167,7 @@ public class TarGzExtractor implements Extractor {
     *
     * @param block 待检查的字节块
     * @return 是否为空块
-     */
+    */
     private boolean isEmptyBlock(byte[] block) {
         for (byte b : block) {
             if (b != 0) {
@@ -184,7 +184,7 @@ public class TarGzExtractor implements Extractor {
     * @param buffer      目标缓冲区
     * @return 实际读取的字节数
     * @throws IOException IO 异常
-     */
+    */
     private int readFully(InputStream inputStream, byte[] buffer) throws IOException {
         int totalRead = 0;
         while (totalRead < buffer.length) {
@@ -203,7 +203,7 @@ public class TarGzExtractor implements Extractor {
     * @param inputStream 输入流
     * @param bytes       要跳过的字节数
     * @throws IOException IO 异常
-     */
+    */
     private void skipBytes(InputStream inputStream, long bytes) throws IOException {
         long remaining = bytes;
         while (remaining > 0) {
@@ -229,7 +229,7 @@ public class TarGzExtractor implements Extractor {
     * @param outputStream 输出流
     * @param bytes        要复制的字节数
     * @throws IOException IO 异常
-     */
+    */
     private void copyBytes(InputStream inputStream, OutputStream outputStream, long bytes) throws IOException {
         byte[] buffer = new byte[8192];
         long remaining = bytes;
@@ -246,7 +246,7 @@ public class TarGzExtractor implements Extractor {
 
     /**
     * TAR 文件头部信息类
-     */
+    */
     private static class TarHeader {
         String name = "";
         long size = 0;

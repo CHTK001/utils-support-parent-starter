@@ -19,7 +19,7 @@ public class MapPropertySource extends AbstractPropertySource {
 
     /**
     * 内部存储（LiteRawMap 封装原始 Map）
-     */
+    */
     private final LiteRawMap properties;
 
     /**
@@ -27,7 +27,7 @@ public class MapPropertySource extends AbstractPropertySource {
     *
     * @param name   属性源名称
     * @param source 原始 Map 数据
-     */
+    */
     public MapPropertySource(String name, Map<String, Object> source) {
         super(name);
         this.properties = source instanceof LiteRawMap lrm ? lrm : LiteRawMap.of(source);
@@ -35,7 +35,7 @@ public class MapPropertySource extends AbstractPropertySource {
 
     /**
     * 设置属性值
-     */
+    */
     public void setProperty(String key, Object value) {
         if (key != null) {
             properties.put(key, value);
@@ -60,7 +60,7 @@ public class MapPropertySource extends AbstractPropertySource {
     *
     * @param key 属性键
     * @return 属性值
-     */
+    */
     @Override
     protected Object getRawProperty(String key) {
         if (key == null) { return null; }
@@ -73,7 +73,7 @@ public class MapPropertySource extends AbstractPropertySource {
 
     /**
     * 获取底层 LiteRawMap（不拷贝，直接引用）
-     */
+    */
     @Override
     protected Object getSource() {
         return properties;

@@ -20,14 +20,14 @@ public class PathResource implements Resource {
 
     /**
     * 资源对应的路径。
-     */
+    */
     private final Path path;
 
     /**
     * 使用路径字符串构造资源。
     *
     * @param path 路径字符串
-     */
+    */
     public PathResource(String path) {
         this(Paths.get(path));
     }
@@ -36,7 +36,7 @@ public class PathResource implements Resource {
     * 使用 {@link Path} 构造资源。
     *
     * @param path 路径对象
-     */
+    */
     public PathResource(Path path) {
         this.path = path;
     }

@@ -52,77 +52,77 @@ public class AiChatConfig {
 
     /**
     * 默认全局策略：hybrid（混合调度）
-     */
+    */
     private static final String DEFAULT_STRATEGY = "hybrid";
 
     /**
     * 默认组策略：failover（故障转移）
-     */
+    */
     private static final String DEFAULT_GROUP_STRATEGY = "failover";
 
     /**
     * 客户端默认权重
-     */
+    */
     private static final int DEFAULT_WEIGHT = 1;
 
     /**
     * 排序字段：组内顺序
-     */
+    */
     private static final String FIELD_GROUP_ORDER = "groupOrder";
 
     /**
     * 排序字段：客户端顺序
-     */
+    */
     private static final String FIELD_CLIENT_ORDER = "clientOrder";
 
     /**
     * 排序表达式：组顺序升序 + 客户端顺序升序
-     */
+    */
     private static final String ORDER_BY_GROUP_CLIENT = "groupOrder, clientOrder";
 
     /**
     * 数据库字段名：name
-     */
+    */
     private static final String FIELD_NAME = "name";
 
     /**
     * 数据库字段名：configId
-     */
+    */
     private static final String FIELD_CONFIG_ID = "configId";
 
     /**
     * 全局策略名称
-     */
+    */
     private String strategy = DEFAULT_STRATEGY;
 
     /**
     * 上下文压缩配置
-     */
+    */
     private ContextCompressionConfig compression;
 
     /**
     * 技能目录路径列表
-     */
+    */
     private List<String> skillPaths;
 
     /**
     * 组配置列表
-     */
+    */
     private final List<GroupBuilder> groups = CollectionUtils.newArrayList();
 
     /**
     * 当前 GroupBuilder（用于 add() 时直接添加到当前组）
-     */
+    */
     private transient GroupBuilder currentGroup;
 
     /**
     * 是否已从 Engine 加载/写入
-     */
+    */
     private transient volatile boolean loaded = false;
 
     /**
     * 加载时使用的名称
-     */
+    */
     private transient String loadedName;
 
     // ======================== 顶级 API ========================
@@ -131,7 +131,7 @@ public class AiChatConfig {
     * 创建一个新的配置实例。
     *
     * @return 新的 AiChatConfig
-     */
+    */
     public static AiChatConfig configure() {
         return new AiChatConfig();
     }
@@ -141,7 +141,7 @@ public class AiChatConfig {
     *
     * @param strategy 策略名称
     * @return 自身（支持链式）
-     */
+    */
     public AiChatConfig strategy(String strategy) {
         this.strategy = strategy;
         return this;
@@ -152,7 +152,7 @@ public class AiChatConfig {
     *
     * @param compression 压缩配置
     * @return 自身（支持链式）
-     */
+    */
     public AiChatConfig compression(ContextCompressionConfig compression) {
         this.compression = compression;
         return this;
@@ -163,7 +163,7 @@ public class AiChatConfig {
     *
     * @param skillPaths 技能路径列表
     * @return 自身（支持链式）
-     */
+    */
     public AiChatConfig skillPaths(List<String> skillPaths) {
         this.skillPaths = skillPaths;
         return this;
@@ -174,7 +174,7 @@ public class AiChatConfig {
     *
     * @param name 组名
     * @return 新组的 GroupBuilder
-     */
+    */
     public GroupBuilder group(String name) {
         currentGroup = new GroupBuilder(this, name);
         groups.add(currentGroup);
@@ -185,7 +185,7 @@ public class AiChatConfig {
     * 构建完成，返回自身（可链式调 toSetting()）。
     *
     * @return 自身
-     */
+    */
     public AiChatConfig build() {
         return this;
     }
@@ -194,7 +194,7 @@ public class AiChatConfig {
     * 转换为 AggregateChatClientSetting。
     *
     * @return 组装后的设置对象
-     */
+    */
     public AggregateChatClientSetting toSetting() {
         AggregateChatClientSetting setting = new AggregateChatClientSetting();
         setting.setStrategy(strategy);
@@ -214,7 +214,7 @@ public class AiChatConfig {
     *
     * @param name 配置名称
     * @return 配置头实体
-     */
+    */
     public AiChatConfigEntity toHeader(String name) {
         AiChatConfigEntity header = new AiChatConfigEntity();
         header.setName(name);
@@ -229,7 +229,7 @@ public class AiChatConfig {
     *
     * @param configId 配置 ID
     * @return 客户端绑定实体列表
-     */
+    */
     public List<AiChatClientBindingEntity> toBindings(Long configId) {
         List<AiChatClientBindingEntity> result = CollectionUtils.newArrayList();
         int groupOrder = 0;
@@ -273,7 +273,7 @@ public class AiChatConfig {
     * @param engine Engine 实例
     * @param name   配置名称
     * @return 自身（支持链式）
-     */
+    */
     public AiChatConfig loadFromEngine(Engine engine, String name) {
         if (engine == null || StringUtils.isBlank(name)) {
             return this;
@@ -327,7 +327,7 @@ public class AiChatConfig {
     * @param header   配置头
     * @param bindings 客户端绑定列表
     * @return AiChatConfig
-     */
+    */
     public static AiChatConfig fromEntity(AiChatConfigEntity header, List<AiChatClientBindingEntity> bindings) {
         AiChatConfig config = new AiChatConfig();
         config.strategy = header.getStrategy();
@@ -372,33 +372,33 @@ public class AiChatConfig {
     * 组构建器，用于构建同组内多个客户端配置。
     *
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class GroupBuilder {
 
         /**
         * 父级 AiChatConfig
-         */
+        */
         private final AiChatConfig parent;
 
         /**
         * 组名称
-         */
+        */
         private String name;
 
         /**
         * 组策略名称
-         */
+        */
         private String strategy = DEFAULT_GROUP_STRATEGY;
 
         /**
         * 触发条件
-         */
+        */
         private String condition;
 
         /**
         * 客户端列表
-         */
+        */
         private final List<ClientBuilder> clients = CollectionUtils.newArrayList();
 
         /**
@@ -406,7 +406,7 @@ public class AiChatConfig {
         *
         * @param parent 父级配置
         * @param name   组名
-         */
+        */
         GroupBuilder(AiChatConfig parent, String name) {
             this.parent = parent;
             this.name = name;
@@ -417,7 +417,7 @@ public class AiChatConfig {
         *
         * @param strategy 策略名称
         * @return 自身（支持链式）
-         */
+        */
         public GroupBuilder strategy(String strategy) {
             this.strategy = strategy;
             return this;
@@ -428,7 +428,7 @@ public class AiChatConfig {
         *
         * @param condition 触发条件表达式
         * @return 自身（支持链式）
-         */
+        */
         public GroupBuilder condition(String condition) {
             this.condition = condition;
             return this;
@@ -440,7 +440,7 @@ public class AiChatConfig {
         * @param provider 提供方标识
         * @param apiKey   API 密钥
         * @return 新客户端的 ClientBuilder
-         */
+        */
         public ClientBuilder add(String provider, String apiKey) {
             ClientBuilder cb = new ClientBuilder(this, provider, apiKey);
             clients.add(cb);
@@ -451,7 +451,7 @@ public class AiChatConfig {
         * 返回上一级。
         *
         * @return 父级 AiChatConfig
-         */
+        */
         public AiChatConfig back() {
             return parent;
         }
@@ -461,7 +461,7 @@ public class AiChatConfig {
         *
         * @param name 新组名称
         * @return 新组的 GroupBuilder
-         */
+        */
         public GroupBuilder group(String name) {
             return parent.group(name);
         }
@@ -470,7 +470,7 @@ public class AiChatConfig {
         * 构建完成。
         *
         * @return 父级 AiChatConfig
-         */
+        */
         public AiChatConfig build() {
             return parent.build();
         }
@@ -479,7 +479,7 @@ public class AiChatConfig {
         * 转换为 AggregateChatClientSetting.GroupConfig。
         *
         * @return 组配置对象
-         */
+        */
         AggregateChatClientSetting.GroupConfig toGroupConfig() {
             AggregateChatClientSetting.GroupConfig gc = new AggregateChatClientSetting.GroupConfig();
             gc.setName(name);
@@ -500,58 +500,58 @@ public class AiChatConfig {
     * 客户端构建器，用于构建单个客户端的配置项。
     *
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class ClientBuilder {
 
         /**
         * 父级 GroupBuilder
-         */
+        */
         private final GroupBuilder parent;
 
         /**
         * 提供方标识
-         */
+        */
         private String provider;
 
         /**
         * API 密钥
-         */
+        */
         private String apiKey;
 
         /**
         * Base URL
-         */
+        */
         private String baseUrl;
 
         /**
         * 模型名称
-         */
+        */
         private String model;
 
         /**
         * 温度参数
-         */
+        */
         private Double temperature;
 
         /**
         * 最大 token 数
-         */
+        */
         private Integer maxTokens;
 
         /**
         * 系统提示词
-         */
+        */
         private String system;
 
         /**
         * 代理配置
-         */
+        */
         private String proxy;
 
         /**
         * 权重
-         */
+        */
         private int weight = DEFAULT_WEIGHT;
 
         /**
@@ -560,7 +560,7 @@ public class AiChatConfig {
         * @param parent   父级 GroupBuilder
         * @param provider 提供方标识
         * @param apiKey   API 密钥
-         */
+        */
         ClientBuilder(GroupBuilder parent, String provider, String apiKey) {
             this.parent = parent;
             this.provider = provider;
@@ -572,7 +572,7 @@ public class AiChatConfig {
         *
         * @param model 模型名称
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder model(String model) {
             this.model = model;
             return this;
@@ -583,7 +583,7 @@ public class AiChatConfig {
         *
         * @param weight 权重值
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder weight(int weight) {
             this.weight = weight;
             return this;
@@ -594,7 +594,7 @@ public class AiChatConfig {
         *
         * @param baseUrl Base URL
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder baseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -605,7 +605,7 @@ public class AiChatConfig {
         *
         * @param temperature 温度参数
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder temperature(Double temperature) {
             this.temperature = temperature;
             return this;
@@ -616,7 +616,7 @@ public class AiChatConfig {
         *
         * @param maxTokens 最大 token 数
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder maxTokens(Integer maxTokens) {
             this.maxTokens = maxTokens;
             return this;
@@ -627,7 +627,7 @@ public class AiChatConfig {
         *
         * @param system 系统提示词
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder system(String system) {
             this.system = system;
             return this;
@@ -638,7 +638,7 @@ public class AiChatConfig {
         *
         * @param proxy 代理配置
         * @return 自身（支持链式）
-         */
+        */
         public ClientBuilder proxy(String proxy) {
             this.proxy = proxy;
             return this;
@@ -648,7 +648,7 @@ public class AiChatConfig {
         * 返回上一级 Group。
         *
         * @return 父级 GroupBuilder
-         */
+        */
         public GroupBuilder back() {
             return parent;
         }
@@ -659,7 +659,7 @@ public class AiChatConfig {
         * @param provider 提供方标识
         * @param apiKey   API 密钥
         * @return 新客户端的 ClientBuilder
-         */
+        */
         public ClientBuilder add(String provider, String apiKey) {
             return parent.add(provider, apiKey);
         }
@@ -669,7 +669,7 @@ public class AiChatConfig {
         *
         * @param name 新组名称
         * @return 新组的 GroupBuilder
-         */
+        */
         public GroupBuilder group(String name) {
             return parent.group(name);
         }
@@ -678,7 +678,7 @@ public class AiChatConfig {
         * 构建完成。
         *
         * @return 顶级 AiChatConfig
-         */
+        */
         public AiChatConfig build() {
             return parent.build();
         }
@@ -687,7 +687,7 @@ public class AiChatConfig {
         * 转换为 AggregateChatClientSetting.ClientConfig。
         *
         * @return 客户端配置对象
-         */
+        */
         AggregateChatClientSetting.ClientConfig toClientConfig() {
             AggregateChatClientSetting.ClientConfig cc = new AggregateChatClientSetting.ClientConfig();
             cc.setProvider(provider);

@@ -38,7 +38,7 @@ public class SqlExpressionParser implements ExpressionParser {
 
     /**
     * 类型
-     */
+    */
     private static final String TYPE = "sql";
 
     /**
@@ -46,7 +46,7 @@ public class SqlExpressionParser implements ExpressionParser {
     *
     * <p>SQL WHERE 条件的语法与通用表达式基本一致，
     * 直接复用 {@link DefaultExpressionParser} 的解析逻辑。
-     */
+    */
     private final DefaultExpressionParser delegate = new DefaultExpressionParser();
 
     @Override

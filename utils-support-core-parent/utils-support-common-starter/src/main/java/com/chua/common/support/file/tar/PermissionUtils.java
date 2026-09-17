@@ -29,19 +29,19 @@ public class PermissionUtils {
     * <p>
     * 在非POSIX系统中，所有者和组被视为具有相同的权限，其他人没有权限。
     * </p>
-     */
+    */
     private static enum StandardFilePermission {
         /**
         * 执行权限模式：0110 (八进制)。
-         */
+        */
         EXECUTE(0110),
         /**
         * 写入权限模式：0220 (八进制)。
-         */
+        */
         WRITE(0220),
         /**
         * 读取权限模式：0440 (八进制)。
-         */
+        */
         READ(0440);
 
         /** 文件权限模式 */
@@ -54,7 +54,7 @@ public class PermissionUtils {
 
     /**
     * POSIX权限到整数的映射表。
-     */
+    */
     private static final Map<PosixFilePermission, Integer> POSIX_PERMISSION_TO_INTEGER = new HashMap<>();
 
     static {
@@ -76,7 +76,7 @@ public class PermissionUtils {
 
     /**
     * 判断当前系统是否支持POSIX文件属性视图。
-     */
+    */
     private static final boolean IS_POSIX = FileSystems.getDefault()
             .supportedFileAttributeViews()
             .contains("posix");
@@ -94,7 +94,7 @@ public class PermissionUtils {
     * @return 文件的权限值（八进制整数）。
     * @throws NullPointerException 如果文件为null。
     * @throws IllegalArgumentException 如果文件不存在。
-     */
+    */
     public static int permissions(File f) {
         if (f == null) {
             throw new NullPointerException("File is null.");
@@ -116,7 +116,7 @@ public class PermissionUtils {
     * @param f 文件对象。
     * @return 权限的整数值。
     * @throws RuntimeException 如果在获取权限时发生IO异常。
-     */
+    */
     private static int posixPermissions(File f) {
         int number = 0;
         try {
@@ -137,7 +137,7 @@ public class PermissionUtils {
     *
     * @param f 文件对象。
     * @return 包含标准权限的集合。
-     */
+    */
     private static Set<StandardFilePermission> readStandardPermissions(File f) {
         Set<StandardFilePermission> permissions = new HashSet<>();
         if (f.canExecute()) {
@@ -157,7 +157,7 @@ public class PermissionUtils {
     *
     * @param f 文件对象。
     * @return 权限的整数值。
-     */
+    */
     private static int standardPermissions(File f) {
         int number = 0;
         Set<StandardFilePermission> permissions = readStandardPermissions(f);

@@ -29,13 +29,13 @@ public class ChatMessage {
     *   <li>user — 用户输入</li>
     *   <li>assistant — AI 助手的回复</li>
     * </ul>
-     */
+    */
     private String role;
 
     /**
     * 消息内容
     *
     * <p>该条消息的文本内容。
-     */
+    */
     private String content;
 }

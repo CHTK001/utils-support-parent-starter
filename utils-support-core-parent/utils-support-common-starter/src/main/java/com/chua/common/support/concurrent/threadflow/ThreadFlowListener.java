@@ -25,7 +25,7 @@ public interface ThreadFlowListener {
     * 整体流程启动回调。
     *
     * @param executor 当前执行器
-     */
+    */
     default void onStart(ThreadExecutor<?> executor) {
     }
 
@@ -33,7 +33,7 @@ public interface ThreadFlowListener {
     * 单个任务开始回调。
     *
     * @param index 任务下标（从 0 开始）
-     */
+    */
     default void onTaskStart(int index) {
     }
 
@@ -42,7 +42,7 @@ public interface ThreadFlowListener {
     *
     * @param index  任务下标
     * @param result 任务返回值（无返回值任务为 null）
-     */
+    */
     default void onNext(int index, Object result) {
     }
 
@@ -51,7 +51,7 @@ public interface ThreadFlowListener {
     *
     * @param index 任务下标
     * @param error 异常
-     */
+    */
     default void onError(int index, Throwable error) {
     }
 
@@ -60,7 +60,7 @@ public interface ThreadFlowListener {
     *
     * @param completed 已完成任务数
     * @param total     任务总数
-     */
+    */
     default void onProcess(int completed, int total) {
     }
 
@@ -68,7 +68,7 @@ public interface ThreadFlowListener {
     * 整体完成回调。
     *
     * @param result 聚合结果
-     */
+    */
     default void onComplete(ThreadFlowResult<?> result) {
     }
 }

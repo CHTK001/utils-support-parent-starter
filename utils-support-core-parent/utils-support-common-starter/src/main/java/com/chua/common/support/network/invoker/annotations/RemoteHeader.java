@@ -39,7 +39,7 @@ public @interface RemoteHeader {
     * <p>标注在参数上时，如果未指定则使用参数名。</p>
     *
     * @return 请求头名称
-     */
+    */
     String name();
 
     /**
@@ -48,6 +48,6 @@ public @interface RemoteHeader {
     * <p>标注在参数上时忽略此属性，值由参数值提供。</p>
     *
     * @return 请求头值
-     */
+    */
     String value() default "";
 }

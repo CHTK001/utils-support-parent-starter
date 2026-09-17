@@ -15,7 +15,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
 
     /**
     * 名称
-     */
+    */
     private final String name;
     /** 信号量 */
     private final Semaphore semaphore;
@@ -28,7 +28,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /**
     * 创建 SemaphoreLockProvider 实例
     * @param fair fair
-     */
+    */
     public SemaphoreLockProvider(boolean fair) {
         this("default", 1, fair);
     }
@@ -36,7 +36,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     /**
     * 创建 SemaphoreLockProvider 实例
     * @param name name
-     */
+    */
     public SemaphoreLockProvider(String name) {
         this(name, 1);
     }
@@ -45,7 +45,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     * 创建 SemaphoreLockProvider 实例
     * @param name name
     * @param fair boolean
-     */
+    */
     public SemaphoreLockProvider(String name, boolean fair) {
         this(name, 1, fair);
     }
@@ -54,7 +54,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     * 创建 SemaphoreLockProvider 实例
     * @param name name
     * @param permits int
-     */
+    */
     public SemaphoreLockProvider(String name, int permits) {
         this(name, permits, false);
     }
@@ -64,7 +64,7 @@ public class SemaphoreLockProvider extends AbstractLockProvider {
     * @param name name
     * @param permits int
     * @param fair boolean
-     */
+    */
     public SemaphoreLockProvider(String name, int permits, boolean fair) {
         this.name = name;
         this.semaphore = new Semaphore(permits, fair);

@@ -25,51 +25,51 @@ public class ProcedureDefinition {
 
     /**
     * 存储过程名
-     */
+    */
     private String name;
 
     /**
     * catalog 名称
-     */
+    */
     private String catalog;
 
     /**
     * schema 名称
-     */
+    */
     private String schema;
 
     /**
     * 参数列表
-     */
+    */
     private List<ProcedureParameter> params;
 
     /**
     * 返回值类型（函数使用，存储过程通常为 null）
-     */
+    */
     private String returnType;
 
     /**
     * 过程体内容
-     */
+    */
     private String body;
 
     /**
     * 语言（SQL / JAVA / PLPGSQL 等）
-     */
+    */
     private String language;
 
     /**
     * 安全类型（DEFINER / INVOKER）
-     */
+    */
     private String securityType;
 
     /**
     * 注释
-     */
+    */
     private String comment;
 
     /**
     * 状态（VALID / INVALID，仅 Oracle 等支持）
-     */
+    */
     private String status;
 }

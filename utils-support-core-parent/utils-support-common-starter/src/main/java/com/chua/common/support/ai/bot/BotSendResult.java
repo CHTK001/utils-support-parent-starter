@@ -17,7 +17,7 @@ public class BotSendResult {
     /** 是否发送成功 */
     /**
     * 是否成功
-     */
+    */
     private boolean success;
 
     /** 返回的消息 ID */
@@ -37,7 +37,7 @@ public class BotSendResult {
     *
     * @param msgId 消息 ID
     * @return 发送结果
-     */
+    */
     public static BotSendResult ok(String msgId) {
         BotSendResult result = new BotSendResult();
         result.success = true;
@@ -51,7 +51,7 @@ public class BotSendResult {
     * @param errorCode    错误码
     * @param errorMessage 错误信息
     * @return 发送结果
-     */
+    */
     public static BotSendResult fail(int errorCode, String errorMessage) {
         BotSendResult result = new BotSendResult();
         result.success = false;

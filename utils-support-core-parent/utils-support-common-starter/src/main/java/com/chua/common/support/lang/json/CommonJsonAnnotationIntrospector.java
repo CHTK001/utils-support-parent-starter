@@ -35,7 +35,7 @@ public class CommonJsonAnnotationIntrospector extends JacksonAnnotationIntrospec
     *
     * @param a 待序列化的属性
     * @return 字段名
-     */
+    */
     @Override
     public PropertyName findNameForSerialization(Annotated a) {
         JsonName jsonName = a.getAnnotation(JsonName.class);
@@ -50,7 +50,7 @@ public class CommonJsonAnnotationIntrospector extends JacksonAnnotationIntrospec
     *
     * @param a 待反序列化的属性
     * @return 字段名
-     */
+    */
     @Override
     public PropertyName findNameForDeserialization(Annotated a) {
         JsonName jsonName = a.getAnnotation(JsonName.class);
@@ -65,7 +65,7 @@ public class CommonJsonAnnotationIntrospector extends JacksonAnnotationIntrospec
     *
     * @param m 属性成员
     * @return 是否忽略
-     */
+    */
     @Override
     public boolean hasIgnoreMarker(AnnotatedMember m) {
         if (null != m.getAnnotation(JsonIgnore.class)) {
@@ -79,7 +79,7 @@ public class CommonJsonAnnotationIntrospector extends JacksonAnnotationIntrospec
     *
     * @param memberOrClass 属性或类
     * @return Jackson 格式定义
-     */
+    */
     @Override
     public com.fasterxml.jackson.annotation.JsonFormat.Value findFormat(Annotated memberOrClass) {
         JsonFormat jsonFormat = memberOrClass.getAnnotation(JsonFormat.class);

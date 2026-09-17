@@ -35,16 +35,16 @@ public class ChatTool {
 
     /**
     * 工具名称（模型调用时的函数标识）
-     */
+    */
     private final String name;
 
     /**
     * 工具描述（供模型判断何时调用）
-     */
+    */
     private final String description;
 
     /**
     * 参数 JSON Schema（type/properties/required 等），为空时表示无参数
-     */
+    */
     private final Map<String, Object> parameters;
 }

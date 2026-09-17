@@ -14,122 +14,122 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 /**
-* 流水线构建器。
-*
-* <p>链式 API 构建流水线，支持添加执行节点、判断节点、子流水线节点，以及注册全局回调。</p>
-*
-* <p>所有节点统一使用 {@link PipelineNode} 函数式接口，无需类型强转：</p>
-* <ul>
-*   <li>{@code .task("id", ctx -> { doWork(ctx); return null; })} — 顺序执行</li>
-*   <li>{@code .task("id", ctx -> condition ? "nodeA" : "nodeB")} — 动态路由</li>
-*   <li>{@code .decision("id", ctx -> ctx.getData() != null ? "yes" : "no")} — 条件分支</li>
-* </ul>
-*
-* <p><strong>用法示例：</strong></p>
-* <pre>{@code
-* // 顺序执行 + 条件分支
-* Pipeline pipeline = PipelineBuilder.newBuilder("order")
-*     .task("validate", ctx -> {
-*         validate(ctx.getCurrentData());
-*         return null;  // 按默认顺序执行
-*     }).taskEnd()
-*     .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
-*     .task("process", ctx -> {
-*         process(ctx.getCurrentData());
-*         return null;
-*     }).taskEnd()
-*     .task("error", ctx -> {
-*         log.error("invalid data");
-*         return null;
-*     }).taskEnd()
-*     .addListener(new LoggingListener())
-*     .build();
-*
-* // 动态路由
-* Pipeline pipeline = PipelineBuilder.newBuilder("router")
-*     .task("process", ctx -> {
-*         doProcess(ctx.getCurrentData());
-*         return "validate";  // 跳转到 validate 节点
-*     }).taskEnd()
-*     .task("validate", ctx -> {
-*         validate(ctx.getCurrentData());
-*         return null;
-*     }).taskEnd()
-*     .build();
-*
-* // 便捷回调
-* Pipeline pipeline = PipelineBuilder.newBuilder("flow")
-*     .logging()                          // 启用日志
-*     .onStart(ctx -> log.info("start"))  // 启动回调
-*     .onComplete(ctx -> log.info("done"))// 完成回调
-*     .onError((ctx, e) -> {              // 异常回调（支持错误恢复路由）
-*         log.error("node {} failed", ctx.getCurrentNodeId(), e);
-*         return "error-handler";         // 返回恢复节点 ID，null 则终止
-*     })
-*     .task("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
-*     .task("step2", ctx -> { doStep2(ctx); return null; }).taskEnd()
-*     .build();
-*
-* // JSON 构建
-* Pipeline pipeline = PipelineBuilder.fromJson(jsonString).build();
-* }</pre>e pipeline = pipeline构建器.从json(json字符串).构建();
-* }</pre>
-*
-* @author CH
-* @since 4.0.0.42
- */
+ * 流水线构建器。
+ *
+ * <p>链式 API 构建流水线，支持添加执行节点、判断节点、子流水线节点，以及注册全局回调。</p>
+ *
+ * <p>所有节点统一使用 {@link PipelineNode} 函数式接口，无需类型强转：</p>
+ * <ul>
+ *   <li>{@code .task("id", ctx -> { doWork(ctx); return null; })} — 顺序执行</li>
+ *   <li>{@code .task("id", ctx -> condition ? "nodeA" : "nodeB")} — 动态路由</li>
+ *   <li>{@code .decision("id", ctx -> ctx.getData() != null ? "yes" : "no")} — 条件分支</li>
+ * </ul>
+ *
+ * <p><strong>用法示例：</strong></p>
+ * <pre>{@code
+ * // 顺序执行 + 条件分支
+ * Pipeline pipeline = PipelineBuilder.newBuilder("order")
+ *     .task("validate", ctx -> {
+ *         validate(ctx.getCurrentData());
+ *         return null;  // 按默认顺序执行
+ *     }).taskEnd()
+ *     .decision("check", ctx -> ctx.getCurrentData() != null ? "process" : "error")
+ *     .task("process", ctx -> {
+ *         process(ctx.getCurrentData());
+ *         return null;
+ *     }).taskEnd()
+ *     .task("error", ctx -> {
+ *         log.error("invalid data");
+ *         return null;
+ *     }).taskEnd()
+ *     .addListener(new LoggingListener())
+ *     .build();
+ *
+ * // 动态路由
+ * Pipeline pipeline = PipelineBuilder.newBuilder("router")
+ *     .task("process", ctx -> {
+ *         doProcess(ctx.getCurrentData());
+ *         return "validate";  // 跳转到 validate 节点
+ *     }).taskEnd()
+ *     .task("validate", ctx -> {
+ *         validate(ctx.getCurrentData());
+ *         return null;
+ *     }).taskEnd()
+ *     .build();
+ *
+ * // 便捷回调
+ * Pipeline pipeline = PipelineBuilder.newBuilder("flow")
+ *     .logging()                          // 启用日志
+ *     .onStart(ctx -> log.info("start"))  // 启动回调
+ *     .onComplete(ctx -> log.info("done"))// 完成回调
+ *     .onError((ctx, e) -> {              // 异常回调（支持错误恢复路由）
+ *         log.error("node {} failed", ctx.getCurrentNodeId(), e);
+ *         return "error-handler";         // 返回恢复节点 ID，null 则终止
+ *     })
+ *     .task("step1", ctx -> { doStep1(ctx); return null; }).taskEnd()
+ *     .task("step2", ctx -> { doStep2(ctx); return null; }).taskEnd()
+ *     .build();
+ *
+ * // JSON 构建
+ * Pipeline pipeline = PipelineBuilder.fromJson(jsonString).build();
+ * }</pre>e pipeline = pipeline构建器.从json(json字符串).构建();
+ * }</pre>
+ *
+ * @author CH
+ * @since 4.0.0.42
+*/
 public class PipelineBuilder {
 
     /**
     * 流水线唯一标识
-     */
+    */
     private final String id;
 
     /**
     * 按添加顺序排列的节点列表
-     */
+    */
     private final List<PipelineNode> nodes;
 
     /**
     * 全局回调监听器列表
-     */
+    */
     private final List<PipelineListener> listeners;
 
     /**
     * 节点 标识 -> 节点实例的映射
-     */
+    */
     private final Map<String, PipelineNode> nodeMap;
 
     /**
     * 起始节点 标识
-     */
+    */
     private String startNodeId;
 
     /**
     * 终止节点 标识
-     */
+    */
     private String endNodeId;
 
     /**
     * 是否已构建，防止重复调用 构建()
-     */
+    */
     private boolean built;
 
     /**
     * 路由策略：当目标节点不存在时的处理方式
-     */
+    */
     private RouteStrategy routeStrategy;
 
     /**
     * WAL 持久化目录，空 表示不启用 WAL
-     */
+    */
     private String walDir;
 
     /**
     * 私有构造器。
     *
     * @param id 流水线唯一标识
-     */
+    */
     private PipelineBuilder(String id) {
         this.id = id;
         this.nodes = new ArrayList<>();
@@ -143,7 +143,7 @@ public class PipelineBuilder {
     * 创建流水线构建器，自动生成流水线 标识。
     *
     * @return PipelineBuilder
-     */
+    */
     public static PipelineBuilder newBuilder() {
         return newBuilder("pipeline-" + UUID.randomUUID().toString().substring(0, 8));
     }
@@ -153,7 +153,7 @@ public class PipelineBuilder {
     *
     * @param id 流水线唯一标识
     * @return PipelineBuilder
-     */
+    */
     public static PipelineBuilder newBuilder(String id) {
         return new PipelineBuilder(id);
     }
@@ -166,7 +166,7 @@ public class PipelineBuilder {
     * @param json JSON 字符串
     * @return PipelineBuilder
     * @see PipelineJsonParser
-     */
+    */
     public static PipelineBuilder fromJson(String json) {
         return PipelineJsonParser.parse(json);
     }
@@ -210,7 +210,7 @@ public class PipelineBuilder {
     * @param id      节点唯一标识
     * @param handler 业务逻辑处理器，返回 空 按默认顺序执行，返回节点 标识 则跳转
     * @return TaskDefinition 任务节点定义
-     */
+    */
     public TaskDefinition task(String id, PipelineNode handler) {
         return new TaskDefinition(id, handler, this);
     }
@@ -226,7 +226,7 @@ public class PipelineBuilder {
     * @param id      节点唯一标识
     * @param handler 业务逻辑处理器
     * @return TaskDefinition 任务节点定义
-     */
+    */
     public TaskDefinition taskStart(String id, PipelineNode handler) {
         return task(id, handler);
     }
@@ -257,7 +257,7 @@ public class PipelineBuilder {
     *
     * @param id 节点唯一标识
     * @return TaskDefinition 任务节点定义（处理器 为空实现）
-     */
+    */
     public TaskDefinition taskStart(String id) {
         return new TaskDefinition(id, ctx -> null, this);
     }
@@ -287,7 +287,7 @@ public class PipelineBuilder {
     *
     * @param id 节点唯一标识
     * @return TaskDefinition 任务节点定义（处理器 为空实现）
-     */
+    */
     public TaskDefinition task(String id) {
         return taskStart(id);
     }
@@ -324,7 +324,7 @@ public class PipelineBuilder {
     * @param id     节点唯一标识
     * @param router 路由处理器，返回目标节点 标识；返回 空 表示按默认顺序执行
     * @return this
-     */
+    */
     public PipelineBuilder decision(String id, PipelineNode router) {
         DecisionNode node = new DecisionNode(id, router);
         nodes.add(node);
@@ -360,7 +360,7 @@ public class PipelineBuilder {
     *
     * @param id 节点唯一标识
     * @return TaskDefinition 任务节点定义（处理器 为空实现，需配合 step/onstep 使用）
-     */
+    */
     public TaskDefinition decision(String id) {
         return new TaskDefinition(id, ctx -> null, this);
     }
@@ -371,7 +371,7 @@ public class PipelineBuilder {
     * @param id          节点唯一标识
     * @param subPipeline 子流水线实例
     * @return this
-     */
+    */
     public PipelineBuilder pipeline(String id, Pipeline subPipeline) {
         SubPipelineNode node = new SubPipelineNode(id, subPipeline);
         nodes.add(node);
@@ -409,7 +409,7 @@ public class PipelineBuilder {
     * @param subPipeline 子流水线实例
     * @return TaskSubPipelineDefinition 子流水线节点定义
     * @see TaskSubPipelineDefinition
-     */
+    */
     public TaskSubPipelineDefinition subPipeline(String id, Pipeline subPipeline) {
         return new TaskSubPipelineDefinition(id, this, subPipeline);
     }
@@ -443,7 +443,7 @@ public class PipelineBuilder {
     * @return TaskParallelDefinition 并行子流水线节点定义
     * @see TaskParallelDefinition
     * @see com.chua.common.support.task.pipeline.node.ParallelNode
-     */
+    */
     public TaskParallelDefinition parallel(String id, Pipeline subPipeline) {
         return new TaskParallelDefinition(id, this, subPipeline);
     }
@@ -494,7 +494,7 @@ public class PipelineBuilder {
     * @see TaskForkDefinition#endFork()
     * @see ForkBranchBuilder
     * @see com.chua.common.support.task.pipeline.node.ForkNode
-     */
+    */
     public TaskForkDefinition fork(String id) {
         return new TaskForkDefinition(id, this);
     }
@@ -504,7 +504,7 @@ public class PipelineBuilder {
     *
     * @param listener 监听器实例
     * @return this
-     */
+    */
     public PipelineBuilder addListener(PipelineListener listener) {
         this.listeners.add(listener);
         return this;
@@ -518,7 +518,7 @@ public class PipelineBuilder {
     * <p>日志级别：节点执行前/后 FINE，完成 INFO，异常 SEVERE。</p>
     *
     * @return this
-     */
+    */
     public PipelineBuilder logging() {
         this.listeners.add(new LoggingListener());
         return this;
@@ -531,7 +531,7 @@ public class PipelineBuilder {
     *
     * @param onStart 启动回调
     * @return this
-     */
+    */
     public PipelineBuilder onStart(Consumer<PipelineContext<?>> onStart) {
         this.listeners.add(new PipelineListener() {
             @Override
@@ -549,7 +549,7 @@ public class PipelineBuilder {
     *
     * @param onComplete 完成回调
     * @return this
-     */
+    */
     public PipelineBuilder onComplete(Consumer<PipelineContext<?>> onComplete) {
         this.listeners.add(new PipelineListener() {
             @Override
@@ -567,7 +567,7 @@ public class PipelineBuilder {
     *
     * @param onNextStep 回调函数，参数为 (上下文, 当前节点标识, 下一个节点标识)
     * @return this
-     */
+    */
     public PipelineBuilder onNextStep(java.util.function.BiConsumer<PipelineContext<?>, String[]> onNextStep) {
         this.listeners.add(new PipelineListener() {
             @Override
@@ -603,7 +603,7 @@ public class PipelineBuilder {
     *
     * @param onDraw 绘制回调，参数为当前流水线上下文
     * @return this
-     */
+    */
     public PipelineBuilder onDraw(Consumer<PipelineContext<?>> onDraw) {
         this.listeners.add(new PipelineListener() {
             @Override
@@ -645,7 +645,7 @@ public class PipelineBuilder {
     *
     * @param onError 异常回调函数，参数为 (上下文, 异常)，返回恢复节点 标识 或 空
     * @return this
-     */
+    */
     public PipelineBuilder onError(BiFunction<PipelineContext<?>, Throwable, String> onError) {
         this.listeners.add(new PipelineListener() {
             @Override
@@ -663,7 +663,7 @@ public class PipelineBuilder {
     *
     * @param id 起始节点 标识
     * @return this
-     */
+    */
     public PipelineBuilder start(String id) {
         this.startNodeId = id;
         return this;
@@ -674,7 +674,7 @@ public class PipelineBuilder {
     *
     * @param id 终止节点 标识
     * @return this
-     */
+    */
     public PipelineBuilder end(String id) {
         this.endNodeId = id;
         return this;
@@ -707,7 +707,7 @@ public class PipelineBuilder {
     *
     * @param strategy 路由策略
     * @return this
-     */
+    */
     public PipelineBuilder routeStrategy(RouteStrategy strategy) {
         this.routeStrategy = strategy;
         return this;
@@ -722,7 +722,7 @@ public class PipelineBuilder {
     *
     * @param walDir WAL 日志目录
     * @return this
-     */
+    */
     public PipelineBuilder wal(String walDir) {
         this.walDir = walDir;
         return this;
@@ -732,7 +732,7 @@ public class PipelineBuilder {
     * 添加节点（供其他构建器内部使用）。
     *
     * @param node 节点实例
-     */
+    */
     void addNode(PipelineNode node) {
         if (node instanceof StartNode) {
             StartNode sn = (StartNode) node;
@@ -749,7 +749,7 @@ public class PipelineBuilder {
     * 调用，将配置完成的节点添加到流水线。</p>
     *
     * @param node 节点实例
-     */
+    */
     void addNodeInternal(PipelineNode node) {
         String nid = DefaultPipeline.nodeId(node);
         nodes.add(node);
@@ -770,7 +770,7 @@ public class PipelineBuilder {
     *
     * @return 构建完成的 Pipeline 实例
     * @throws IllegalStateException 当验证失败或重复构建时抛出
-     */
+    */
     public Pipeline build() {
         if (built) {
             throw new IllegalStateException("Pipeline already built");
@@ -853,7 +853,7 @@ public class PipelineBuilder {
     *
     * @return 构建完成的 Pipeline 实例
     * @throws IllegalStateException 当验证失败或重复构建时抛出
-     */
+    */
     public Pipeline pipelineEnd() {
         return build();
     }
@@ -864,7 +864,7 @@ public class PipelineBuilder {
     * 获取流水线 标识。
     *
     * @return 流水线 标识
-     */
+    */
     public String getId() {
         return id;
     }
@@ -873,7 +873,7 @@ public class PipelineBuilder {
     * 获取节点映射。
     *
     * @return 节点 标识 -> 节点实例的映射
-     */
+    */
     Map<String, PipelineNode> getNodeMap() {
         return nodeMap;
     }
@@ -882,7 +882,7 @@ public class PipelineBuilder {
     * 获取按添加顺序排列的节点列表。
     *
     * @return 节点列表
-     */
+    */
     List<PipelineNode> getNodes() {
         return nodes;
     }
@@ -891,7 +891,7 @@ public class PipelineBuilder {
     * 获取起始节点 标识。
     *
     * @return 起始节点 标识，未指定时返回 空
-     */
+    */
     String getStartNodeId() {
         return startNodeId;
     }
@@ -900,7 +900,7 @@ public class PipelineBuilder {
     * 获取终止节点 标识。
     *
     * @return 终止节点 标识，未指定时返回 空
-     */
+    */
     String getEndNodeId() {
         return endNodeId;
     }

@@ -20,50 +20,50 @@ public class RpcMetrics {
 
     /**
     * 协议名称
-     */
+    */
     private String protocol = "unknown";
     /**
     * 服务启动时间戳（毫秒）
-     */
+    */
     private long startTime = System.currentTimeMillis();
     /**
     * 累计调用总数
-     */
+    */
     private long totalCalls;
     /**
     * 累计成功次数
-     */
+    */
     private long successCalls;
     /**
     * 累计失败次数
-     */
+    */
     private long failureCalls;
     /**
     * 当前在途调用数
-     */
+    */
     private long activeCalls;
     /**
     * 当前连接总数
-     */
+    */
     private long totalConnections;
     /**
     * 已暴露服务数
-     */
+    */
     private int serviceCount;
     /**
     * 连接列表
-     */
+    */
     private List<RpcConnectionInfo> connections = new ArrayList<>();
     /**
     * 方法级统计（可选）
-     */
+    */
     private List<MethodStat> methodStats = new ArrayList<>();
 
     /**
     * 创建指定协议的指标快照。
     *
     * @param protocol 协议名称
-     */
+    */
     public RpcMetrics(String protocol) {
         this.protocol = protocol;
     }
@@ -73,7 +73,7 @@ public class RpcMetrics {
     *
     * @param protocol 协议名称
     * @return 空指标快照
-     */
+    */
     public static RpcMetrics immutable(String protocol) {
         RpcMetrics metrics = new RpcMetrics(protocol);
         metrics.setConnections(Collections.emptyList());
@@ -95,7 +95,7 @@ public class RpcMetrics {
     * @param lastCallTime   最近一次调用时间戳（毫秒），无记录为 0
     * @param lastResult     最近一次结果（SUCCESS / FAILURE / NONE）
     * @param lastError      最近一次失败时的错误信息，成功或未发生失败时为空字符串
-     */
+    */
     public record MethodStat(String method, long total, long success, long failure,
                              long avgDurationMs, long maxDurationMs, long minDurationMs,
                              long lastDurationMs, long lastCallTime, String lastResult, String lastError) {

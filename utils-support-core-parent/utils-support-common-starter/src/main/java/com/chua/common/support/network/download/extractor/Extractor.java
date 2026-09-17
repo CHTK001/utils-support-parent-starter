@@ -19,7 +19,7 @@ public interface Extractor {
     * 获取当前实现支持的压缩文件扩展名列表。
     *
     * @return 支持的扩展名数组，例如 [".zip"], [".tar.gz", ".tgz"]
-     */
+    */
     String[] supportedExtensions();
 
     /**
@@ -27,7 +27,7 @@ public interface Extractor {
     *
     * @param fileName 待检查的文件名
     * @return 如果文件名后缀匹配支持的扩展名则返回 true，否则返回 false
-     */
+    */
     default boolean supports(String fileName) {
         if (fileName == null) {
             return false;
@@ -47,7 +47,7 @@ public interface Extractor {
     * @param sourceFile 源压缩文件
     * @param targetDir  目标解压目录
     * @return 如果解压成功返回 true，否则返回 false
-     */
+    */
     boolean extract(File sourceFile, File targetDir);
 
     /**
@@ -55,7 +55,7 @@ public interface Extractor {
     *
     * @param fileName 原始文件名
     * @return 去除扩展名后的基础文件名，如果未找到匹配的扩展名则返回原文件名
-     */
+    */
     default String getBaseName(String fileName) {
         if (fileName == null) {
             return null;

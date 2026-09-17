@@ -23,7 +23,7 @@ public class BigIntegerTypeConverter implements TypeConverter<BigInteger> {
     *
     * @param value 源值
     * @return BigInteger 值，如果无法转换则返回 null
-     */
+    */
     @Override
     public BigInteger convert(Object value) {
         if (null == value) {
@@ -42,7 +42,7 @@ public class BigIntegerTypeConverter implements TypeConverter<BigInteger> {
     * 获取当前转换器支持的目标类型。
     *
     * @return BigInteger.class
-     */
+    */
     @Override
     public Class<BigInteger> getType() {
         return BigInteger.class;

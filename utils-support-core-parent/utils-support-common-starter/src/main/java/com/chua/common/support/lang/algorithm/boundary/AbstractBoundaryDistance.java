@@ -25,12 +25,12 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
 
     /**
     * 数据点最小数量
-     */
+    */
     private static final int MIN_POINTS_FOR_BOUNDARY = 2;
 
     /**
     * 数据点最小数量（用于扩展范围计算）
-     */
+    */
     private static final int MIN_POINTS_FOR_EXTENT = 1;
 
     @Override
@@ -102,7 +102,7 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
     * @param points    数据点列表
     * @param dimension 特征向量维度
     * @return 几何中心坐标向量
-     */
+    */
     private double[] computeCenter(List<double[]> points, int dimension) {
         double[] center = new double[dimension];
         for (double[] point : points) {
@@ -122,7 +122,7 @@ public abstract class AbstractBoundaryDistance implements BoundaryDistanceAlgori
     * @param points   数据点列表
     * @param minSize  最小数量要求
     * @throws IllegalArgumentException 如果 points 为 null 或数量不足
-     */
+    */
     private void validatePoints(List<double[]> points, int minSize) {
         if (points == null) {
             throw new IllegalArgumentException("数据点列表不能为 null");

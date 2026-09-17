@@ -17,51 +17,51 @@ public enum Action {
 
     /**
     * 无动作
-     */
+    */
     NONE,
 
     /**
     * 新建
-     */
+    */
     CREATE,
 
     /**
     * 更新
-     */
+    */
     UPDATE,
 
     /**
     * 删除
-     */
+    */
     DELETE,
 
     /**
     * 查询
-     */
+    */
     QUERY,
 
     /**
     * 登录
-     */
+    */
     LOGIN,
 
     /**
     * 登出
-     */
+    */
     LOGOUT,
 
     /**
     * 导出
-     */
+    */
     EXPORT,
 
     /**
     * 导入
-     */
+    */
     IMPORT,
 
     /**
     * 其他
-     */
+    */
     OTHER
 }

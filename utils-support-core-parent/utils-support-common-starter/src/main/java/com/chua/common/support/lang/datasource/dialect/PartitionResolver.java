@@ -46,7 +46,7 @@ public interface PartitionResolver {
     * @param tableName tableName
     * @param sourcePartitionNames sourcePartitionNames
     * @param targetPartitions targetPartitions
-     */
+    */
     default String reorganizePartition(String tableName, List<String> sourcePartitionNames,
                                        List<PartitionMetadata> targetPartitions) {
         throw new UnsupportedOperationException("当前数据库不支持重组分区");

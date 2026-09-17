@@ -65,40 +65,40 @@ public class CircuitBreaker {
 
     /**
     * 默认判断器（共享单例，避免重复创建）
-     */
+    */
     private static final BreakerJudge DEFAULT_JUDGE = new DefaultBreakerJudge();
 
     /**
     * 表达式文本
-     */
+    */
     private final String expression;
 
     /**
     * B-Tree 根节点
-     */
+    */
     @Getter
     /** Tree */
     private final BTreeNode tree;
 
     /**
     * 上下文参数
-     */
+    */
     private final Map<String, Object> context;
 
     /**
     * 判断器（叶子节点求值）
-     */
+    */
     private final BreakerJudge judge;
 
     /**
     * 表达式类型（默认 "expr"）
-     */
+    */
     private final String expressionType;
 
     /**
     * 创建 CircuitBreaker 实例
     * @param builder builder
-     */
+    */
     private CircuitBreaker(Builder builder) {
         this.expression = builder.expression;
         this.context = builder.context;
@@ -115,7 +115,7 @@ public class CircuitBreaker {
     * 创建 Builder
     *
     * @return 新的 Builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -128,7 +128,7 @@ public class CircuitBreaker {
     * @param expression 表达式文本
     * @param context    上下文参数
     * @return true=通过, false=断路
-     */
+    */
     public static boolean evaluate(String expression, Map<String, Object> context) {
         return builder()
                 .expression(expression)
@@ -152,7 +152,7 @@ public class CircuitBreaker {
     * 这保证业务规则拦截不会因为 judge 实现 bug 导致误放行。</p>
     *
     * @return true=通过, false=断路
-     */
+    */
     public boolean evaluate() {
         try {
             return evaluateNode(tree);
@@ -164,7 +164,7 @@ public class CircuitBreaker {
 
     /**
     * 递归评估节点（支持短路优化）
-     */
+    */
     private boolean evaluateNode(BTreeNode node) {
         if (node == null) {
             return true;
@@ -182,7 +182,7 @@ public class CircuitBreaker {
     *
     * <p>AND：左边 false → 直接返回 false，不评估右边
     * OR：左边 true → 直接返回 true，不评估右边
-     */
+    */
     private boolean evaluateLogic(BTreeNode node) {
         boolean leftResult = evaluateNode(node.getLeft());
 
@@ -207,7 +207,7 @@ public class CircuitBreaker {
 
     /**
     * 断路器构建器
-     */
+    */
     public static class Builder {
 
         /** 熔断表达式 */
@@ -227,7 +227,7 @@ public class CircuitBreaker {
         *
         * @param expression 表达式文本
         * @return 当前 Builder
-         */
+        */
         public Builder expression(String expression) {
             this.expression = expression == null ? null : expression.trim();
             return this;
@@ -246,7 +246,7 @@ public class CircuitBreaker {
         *
         * @param expressionType 表达式类型标识
         * @return 当前 Builder
-         */
+        */
         public Builder expressionType(String expressionType) {
             this.expressionType = expressionType;
             return this;
@@ -259,7 +259,7 @@ public class CircuitBreaker {
         *
         * @param context 上下文参数 Map
         * @return 当前 Builder
-         */
+        */
         public Builder context(Map<String, Object> context) {
             this.context = context;
             return this;
@@ -274,7 +274,7 @@ public class CircuitBreaker {
         *
         * @param judge 判断器实例
         * @return 当前 Builder
-         */
+        */
         public Builder judge(BreakerJudge judge) {
             this.judge = judge;
             return this;
@@ -285,7 +285,7 @@ public class CircuitBreaker {
         *
         * @return CircuitBreaker 实例
         * @throws IllegalArgumentException 缺少必填参数时抛出
-         */
+        */
         public CircuitBreaker build() {
             if (expression == null || expression.isBlank()) {
                 throw new IllegalArgumentException("表达式不能为空");

@@ -49,12 +49,12 @@ public class TtlResponseCache {
 
     /**
     * 默认最大缓存条目数。
-     */
+    */
     private static final int DEFAULT_MAX_ENTRIES = 1024;
 
     /**
     * 缓存条目：响应 + 过期时间戳。
-     */
+    */
     private record CacheEntry(ClientResponse response, long expireAt) {
         boolean isExpired() {
             return System.currentTimeMillis() > expireAt;
@@ -63,32 +63,32 @@ public class TtlResponseCache {
 
     /**
     * 缓存存储：Key = 缓存键（method + url），Value = 缓存条目。
-     */
+    */
     private final ConcurrentHashMap<String, CacheEntry> store = new ConcurrentHashMap<>();
 
     /**
     * 最大缓存条目数。
-     */
+    */
     private final int maxEntries;
 
     /**
     * 缓存命中计数器。
-     */
+    */
     private final LongAdder hitCount = new LongAdder();
 
     /**
     * 缓存未命中计数器。
-     */
+    */
     private final LongAdder missCount = new LongAdder();
 
     /**
     * 缓存驱逐计数器（过期或容量清理）。
-     */
+    */
     private final LongAdder evictionCount = new LongAdder();
 
     /**
     * 使用默认容量创建缓存。
-     */
+    */
     public TtlResponseCache() {
         this(DEFAULT_MAX_ENTRIES);
     }
@@ -97,7 +97,7 @@ public class TtlResponseCache {
     * 使用指定容量创建缓存。
     *
     * @param maxEntries 最大缓存条目数，超过后触发过期清理
-     */
+    */
     public TtlResponseCache(int maxEntries) {
         this.maxEntries = maxEntries > 0 ? maxEntries : DEFAULT_MAX_ENTRIES;
     }
@@ -110,7 +110,7 @@ public class TtlResponseCache {
     *
     * @param request 请求对象
     * @return 缓存键字符串，如果不应该缓存返回 null
-     */
+    */
     public String buildCacheKey(ClientRequest request) {
         // 仅缓存 GET 请求
         if (request.getMethod() != HttpMethod.GET) {
@@ -127,7 +127,7 @@ public class TtlResponseCache {
     *
     * @param cacheKey 缓存键
     * @return 缓存的响应副本，未命中返回 null
-     */
+    */
     public ClientResponse get(String cacheKey) {
         if (cacheKey == null) {
             return null;
@@ -158,7 +158,7 @@ public class TtlResponseCache {
     * @param cacheKey 缓存键
     * @param response 响应对象
     * @param ttlMs    缓存有效期（毫秒）
-     */
+    */
     public void put(String cacheKey, ClientResponse response, long ttlMs) {
         if (cacheKey == null || response == null || ttlMs <= 0) {
             return;
@@ -179,7 +179,7 @@ public class TtlResponseCache {
     * 主动失效指定缓存键。
     *
     * @param cacheKey 缓存键
-     */
+    */
     public void invalidate(String cacheKey) {
         if (cacheKey != null) {
             CacheEntry removed = store.remove(cacheKey);
@@ -191,7 +191,7 @@ public class TtlResponseCache {
 
     /**
     * 清空所有缓存条目。
-     */
+    */
     public void clear() {
         int size = store.size();
         store.clear();
@@ -203,7 +203,7 @@ public class TtlResponseCache {
     *
     * <p>可定期调用此方法防止过期条目占用内存。
     * 在高并发场景中由 {@link #put} 自动触发，通常无需手动调用。</p>
-     */
+    */
     public void evictExpired() {
         Iterator<Map.Entry<String, CacheEntry>> it = store.entrySet().iterator();
         while (it.hasNext()) {
@@ -218,7 +218,7 @@ public class TtlResponseCache {
     * 获取当前缓存条目数（含过期但未清理的条目）。
     *
     * @return 缓存条目数
-     */
+    */
     public int size() {
         return store.size();
     }
@@ -227,7 +227,7 @@ public class TtlResponseCache {
     * 获取缓存命中次数。
     *
     * @return 命中次数
-     */
+    */
     public long getHitCount() {
         return hitCount.sum();
     }
@@ -236,7 +236,7 @@ public class TtlResponseCache {
     * 获取缓存未命中次数。
     *
     * @return 未命中次数
-     */
+    */
     public long getMissCount() {
         return missCount.sum();
     }
@@ -245,7 +245,7 @@ public class TtlResponseCache {
     * 获取缓存驱逐次数。
     *
     * @return 驱逐次数
-     */
+    */
     public long getEvictionCount() {
         return evictionCount.sum();
     }
@@ -254,7 +254,7 @@ public class TtlResponseCache {
     * 获取缓存命中率。
     *
     * @return 命中率（0.0 ~ 1.0），无请求记录时返回 0.0
-     */
+    */
     public double getHitRate() {
         long hits = hitCount.sum();
         long misses = missCount.sum();
@@ -269,7 +269,7 @@ public class TtlResponseCache {
     *
     * @param original 原始响应
     * @return 独立的副本
-     */
+    */
     private ClientResponse cloneResponse(ClientResponse original) {
         ClientResponse copy = new ClientResponse();
         copy.setStatusCode(original.getStatusCode());

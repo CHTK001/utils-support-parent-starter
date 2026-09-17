@@ -22,12 +22,12 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
     /**
     * 配置文件的根目录路径
-     */
+    */
     private final Path rootPath;
 
     /**
     * 默认构造函数，使用默认的配置文件设置。
-     */
+    */
     public FileConfigSaveOrLoader() {
         this(ConfigSaveLoadSetting.builder().build());
     }
@@ -36,7 +36,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     * 带参数的构造函数，使用指定的配置设置初始化。
     *
     * @param setting 配置设置对象，包含根路径等参数。
-     */
+    */
     public FileConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting);
         // 获取根路径并将其转换为绝对路径并进行规范化处理，防止路径遍历攻击
@@ -50,7 +50,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     * @param key     配置的键名。
     * @param content 要保存的字节数组内容；如果为 null，则保存空字节数组。
     * @return 保存结果对象，包含成功/失败状态及详细信息。
-     */
+    */
     @Override
     public ConfigSaveResult saveBytes(String key, byte[] content) {
         String normalizedKey = normalizeKey(key);
@@ -85,7 +85,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     *
     * @param key 配置的键名。
     * @return 包含读取到的字节数组的 Optional 对象；如果文件不存在或不是文件，则返回空 Optional。
-     */
+    */
     @Override
     public Optional<byte[]> loadBytes(String key) {
         String normalizedKey = normalizeKey(key);
@@ -107,7 +107,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     *
     * @param key 配置的键名。
     * @return 如果文件成功删除则返回 true，否则返回 false。
-     */
+    */
     @Override
     public boolean delete(String key) {
         String normalizedKey = normalizeKey(key);
@@ -126,7 +126,7 @@ public class FileConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     * @param key 配置的键名。
     * @return 解析后的绝对路径对象。
     * @throws IllegalArgumentException 如果解析后的路径逃逸了根目录。
-     */
+    */
     private Path resolve(String key) {
         // 拼接根路径和键名，并进行规范化
         Path target = rootPath.resolve(key).normalize();

@@ -17,31 +17,31 @@ public class OpenApiParam {
 
     /**
     * 参数名。
-     */
+    */
     private String name;
 
     /**
     * 位置（query / path / header / cookie / body）。
-     */
+    */
     private String in;
 
     /**
     * 数据类型（string / integer / boolean / array / object / 自定义）。
-     */
+    */
     private String type;
 
     /**
     * 是否必填。
-     */
+    */
     private boolean required;
 
     /**
     * 描述。
-     */
+    */
     private String description;
 
     /**
     * 示例值（字符串，渲染时按 JSON 嵌入）。
-     */
+    */
     private String example;
 }

@@ -43,7 +43,7 @@ public final class JsonBeanMapper {
     *
     * @param bean 待转换的对象
     * @return 转换后的 Map，bean 为 null 或基本类型时返回 null / 原值
-     */
+    */
     public static Object toMap(Object bean) {
         if (bean == null) {
             return null;
@@ -100,7 +100,7 @@ public final class JsonBeanMapper {
     * @param target 目标类型
     * @param <T>    目标类型泛型
     * @return 填充后的 Bean 对象
-     */
+    */
     public static <T> T fromMap(Map<String, Object> source, Class<T> target) {
         if (source == null) {
             return null;
@@ -137,7 +137,7 @@ public final class JsonBeanMapper {
     *
     * @param type 类型
     * @return true 表示为基本类型
-     */
+    */
     private static boolean isBasic(Class<?> type) {
         return type.isPrimitive() || type.isEnum()
                 || CharSequence.class.isAssignableFrom(type)
@@ -155,7 +155,7 @@ public final class JsonBeanMapper {
     *
     * @param type 类型
     * @return true 表示为日期时间类型
-     */
+    */
     private static boolean isDateType(Class<?> type) {
         return Date.class.isAssignableFrom(type)
                 || LocalDateTime.class.isAssignableFrom(type)
@@ -169,7 +169,7 @@ public final class JsonBeanMapper {
     * @param value   日期时间值
     * @param pattern 格式 pattern
     * @return 格式化后的字符串
-     */
+    */
     private static String formatDate(Object value, String pattern) {
         if (value instanceof Date) {
             return new java.text.SimpleDateFormat(pattern).format((Date) value);
@@ -194,7 +194,7 @@ public final class JsonBeanMapper {
     * @param type    目标日期类型
     * @param pattern 格式 pattern
     * @return 解析后的日期值
-     */
+    */
     private static Object parseDate(Object value, Class<?> type, String pattern) {
         if (Date.class.isAssignableFrom(type)) {
             if (value instanceof Date) {
@@ -229,7 +229,7 @@ public final class JsonBeanMapper {
     * @param field 字段
     * @param bean  目标对象
     * @return 字段值
-     */
+    */
     private static Object readField(Field field, Object bean) {
         String getter = findGetterName(field);
         if (getter != null) {
@@ -252,7 +252,7 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
     * @param field 字段
     * @param bean  目标对象
     * @param value 值
-     */
+    */
     private static void writeField(Field field, Object bean, Object value) {
         String setter = findSetterName(field);
         if (setter != null) {
@@ -274,7 +274,7 @@ return ReflectUtils.invoke(bean, getter, Object.class, new Class<?>[0], new Obje
     *
     * @param field 字段
     * @return getter 方法名，不存在返回 null
-     */
+    */
     private static String findGetterName(Field field) {
         String name = capitalize(field.getName());
         for (String prefix : new String[]{"get", "is"}) {
@@ -296,7 +296,7 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
     *
     * @param field 字段
     * @return setter 方法名，不存在返回 null
-     */
+    */
     private static String findSetterName(Field field) {
         String name = capitalize(field.getName());
         try {
@@ -314,7 +314,7 @@ Object result = ReflectUtils.invoke(clazz, methodName, field.getType(), new Clas
     *
     * @param name 字段名
     * @return 首字母大写后的名称
-     */
+    */
     private static String capitalize(String name) {
         if (name == null || name.isEmpty()) {
             return name;

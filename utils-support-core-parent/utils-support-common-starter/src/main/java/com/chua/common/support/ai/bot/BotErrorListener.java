@@ -17,6 +17,6 @@ public interface BotErrorListener {
     * 错误回调
     *
     * @param throwable 异常
-     */
+    */
     void onError(Throwable throwable);
 }

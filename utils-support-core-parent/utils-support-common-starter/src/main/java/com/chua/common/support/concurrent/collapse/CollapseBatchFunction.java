@@ -29,6 +29,6 @@ public interface CollapseBatchFunction<INPUT, OUTPUT> {
     * @param inputs 本批次合并后的全部入参，不为空且长度不小于 1
     * @return 批量执行结果
     * @throws Throwable 批量执行过程中发生的异常
-     */
+    */
     OUTPUT executeBatch(Collection<INPUT> inputs) throws Throwable;
 }

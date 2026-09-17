@@ -3,16 +3,16 @@ package com.chua.common.support.network.sip;
 import com.chua.common.support.spi.annotations.Spi;
 
 /**
-* SIP 传输配置。
-*
-* <p>包含压缩、加密、数据平面模式等配置开关。<br>
-* 实际使用时通过 {@link com.chua.common.support.spi.ServiceProvider} 加载具体实现。</p>
-*
-* <p>数据平面模式：{@code relay}（服务器中转，默认）或 {@code direct}（直连，需双方均有公网地址）。</p>
-*
-* @author CH
-* @since 4.0.0.43
- */
+ * SIP 传输配置。
+ *
+ * <p>包含压缩、加密、数据平面模式等配置开关。<br>
+ * 实际使用时通过 {@link com.chua.common.support.spi.ServiceProvider} 加载具体实现。</p>
+ *
+ * <p>数据平面模式：{@code relay}（服务器中转，默认）或 {@code direct}（直连，需双方均有公网地址）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.43
+*/
  @Spi("sip-config")
 public class SipConfig {
 
@@ -42,10 +42,14 @@ public class SipConfig {
     /** 是否开启加密，默认关闭 */
     private boolean encrypt;
 
-    /** 压缩器 SPI 名称，对应 {@link SipStreamCompressor} 的 SPI 标识 */
+    /**
+    * 压缩器 SPI 名称，对应 {@link SipStreamCompressor} 的 SPI 标识
+    */
     private String compressor;
 
-    /** 加密器 SPI 名称，对应 {@link com.chua.common.support.network.sip.cipher.SipCipher} 的 SPI 标识 */
+    /**
+    * 加密器 SPI 名称，对应 {@link com.chua.common.support.network.sip.cipher.SipCipher} 的 SPI 标识
+    */
     private String cipher;
 
     /** 认证令牌 */
@@ -57,7 +61,9 @@ public class SipConfig {
     /** 监听端口 */
     private int port;
 
-    /** 数据平面模式：relay（中继）或 direct（直连），默认 relay */
+    /**
+    * 数据平面模式：relay（中继）或 direct（直连），默认 relay
+    */
     private String dataPlaneMode;
 
     /** 认证最小帧间隔（纳秒），用于限速 */
@@ -72,56 +78,56 @@ public class SipConfig {
     /**
     * 创建默认配置。
     * 默认 KCP 监听端口
-     */
+    */
     public static final int DEFAULT_KCP_PORT = 19461;
 
     /**
     * 默认数据平面监听端口
-     */
+    */
     public static final int DEFAULT_DATA_PORT = 19462;
 
     /**
     * 是否启用 TCP 传输
-     */
+    */
     private boolean tcpEnabled;
 
     /**
     * TCP 监听端口
-     */
+    */
     private int tcpPort;
 
     /**
     * 是否启用 KCP 传输
-     */
+    */
     private boolean kcpEnabled;
 
     /**
     * KCP 监听端口
-     */
+    */
     private int kcpPort;
 
     /**
     * 是否启用 frp 数据平面
-     */
+    */
     private boolean dataPlaneEnabled;
 
     /**
     * 数据平面监听端口
-     */
+    */
     private int dataPort;
 
     /**
     * 创建一份独立的默认配置。
     *
     * @return 新的默认配置实例
-     */
+    */
     public static SipConfig defaults() {
         return builder().build();
     }
 
     /**
     * 创建配置构建器。
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -216,7 +222,7 @@ public class SipConfig {
 
     /**
     * 配置构建器。
-     */
+    */
     public static class Builder {
         private final SipConfig config = new SipConfig();
 

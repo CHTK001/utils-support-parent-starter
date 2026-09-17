@@ -13,12 +13,12 @@ public enum LogoStyle {
 
     /**
     * 圆形样式：Logo图标呈现为完美的圆形。
-     */
+    */
     CIRCLE,
 
     /**
     * 圆角样式：Logo图标呈现为带有圆角的矩形。
-     */
+    */
     ROUND;
 
 }

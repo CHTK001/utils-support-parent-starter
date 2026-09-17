@@ -27,7 +27,7 @@ public class ReadResult<T> {
     * 构造包含指定数据的读取结果。
     *
     * @param contexts 数据上下文列表
-     */
+    */
     public ReadResult(List<FileSystemContext<?>> contexts) {
         if (contexts != null) {
             this.contexts.addAll(contexts);
@@ -38,7 +38,7 @@ public class ReadResult<T> {
     * 获取全部数据上下文（只读）。
     *
     * @return 数据上下文列表
-     */
+    */
     public List<FileSystemContext<?>> getContexts() {
         return Collections.unmodifiableList(contexts);
     }
@@ -47,7 +47,7 @@ public class ReadResult<T> {
     * 添加一条数据上下文。
     *
     * @param context 数据上下文
-     */
+    */
     public void addContext(FileSystemContext<?> context) {
         contexts.add(context);
     }
@@ -56,7 +56,7 @@ public class ReadResult<T> {
     * 判断结果集是否为空。
     *
     * @return 是否为空
-     */
+    */
     public boolean isEmpty() {
         return contexts.isEmpty();
     }
@@ -65,7 +65,7 @@ public class ReadResult<T> {
     * 获取结果集大小。
     *
     * @return 数据条数
-     */
+    */
     public int size() {
         return contexts.size();
     }

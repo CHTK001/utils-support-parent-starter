@@ -108,7 +108,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param provider 实现提供者名称，如 "agentscope"
     * @return Agent 实例
-     */
+    */
     static Agent create(String provider) {
         return ServiceProvider.of(Agent.class).getNewExtension(provider);
     }
@@ -119,7 +119,7 @@ public interface Agent extends AutoCloseable {
     * @param provider 实现提供者名称
     * @param args     创建参数
     * @return Agent 实例
-     */
+    */
     static Agent create(String provider, Object args) {
         return ServiceProvider.of(Agent.class).getNewExtension(provider, args);
     }
@@ -131,7 +131,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param input 用户输入
     * @return Agent 执行结果
-     */
+    */
     AgentResponse run(String input);
 
     /**
@@ -143,7 +143,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param input 用户输入
     * @return 异步任务，完成时返回 Agent 执行结果
-     */
+    */
     default CompletableFuture<AgentResponse> runAsync(String input) {
         return CompletableFuture.supplyAsync(() -> run(input));
     }
@@ -192,7 +192,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param mode 执行模式，默认 {@link AgentMode#AUTO}
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent mode(AgentMode mode) {
         return this;
     }
@@ -204,7 +204,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param chatClient 大模型对话客户端
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent chatClient(ChatClient chatClient) {
         return this;
     }
@@ -217,7 +217,7 @@ public interface Agent extends AutoCloseable {
     * @param agentId    Agent 标识
     * @param chatClient 大模型对话客户端
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent chatClient(String agentId, ChatClient chatClient) {
         return this;
     }
@@ -230,7 +230,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param mcpManager MCP 管理器
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent mcpManager(McpManager mcpManager) {
         return this;
     }
@@ -244,7 +244,7 @@ public interface Agent extends AutoCloseable {
     * @param agentId    子 Agent 标识
     * @param mcpManager 该子 Agent 专属的 MCP 管理器
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent mcpManager(String agentId, McpManager mcpManager) {
         return this;
     }
@@ -257,7 +257,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param skillManager 技能管理器
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent skillManager(SkillManager skillManager) {
         return this;
     }
@@ -271,7 +271,7 @@ public interface Agent extends AutoCloseable {
     * @param agentId      子 Agent 标识
     * @param skillManager 该子 Agent 专属的技能管理器
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent skillManager(String agentId, SkillManager skillManager) {
         return this;
     }
@@ -284,7 +284,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param subAgent 子 Agent 定义
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent subAgent(AgentDefinition subAgent) {
         return this;
     }
@@ -296,7 +296,7 @@ public interface Agent extends AutoCloseable {
     * @param description 技能描述
     * @param handler     技能处理器
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent skill(String name, String description, SkillHandler handler) {
         return this;
     }
@@ -308,7 +308,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param mcp 是否启用（默认 true）
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent mcp(boolean mcp) {
         return this;
     }
@@ -330,7 +330,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param maxIterations 最大迭代次数，0 或负数表示不限制
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent maxToolIterations(int maxIterations) {
         return this;
     }
@@ -343,7 +343,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param memoryConfig 记忆体配置
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent memoryConfig(MemoryConfig memoryConfig) {
         return this;
     }
@@ -360,7 +360,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param maxRetries 最大重试次数
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent maxRetries(int maxRetries) {
         return this;
     }
@@ -377,7 +377,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param strategy 退避策略
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent retryBackoff(AgentRetryConfig.BackoffStrategy strategy) {
         return this;
     }
@@ -387,7 +387,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param baseDelayMillis 基础延迟（毫秒）
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent retryBaseDelay(long baseDelayMillis) {
         return this;
     }
@@ -397,7 +397,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param retryConfig 重试配置
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent retryConfig(AgentRetryConfig retryConfig) {
         return this;
     }
@@ -410,7 +410,7 @@ public interface Agent extends AutoCloseable {
     * 保存对话记忆。
     *
     * @return 记忆管理器，未启用则返回 null
-     */
+    */
     default MemoryManager getMemoryManager() {
         return null;
     }
@@ -429,7 +429,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param compressionConfig 压缩配置
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent compressionConfig(AgentCompressionConfig compressionConfig) {
         return this;
     }
@@ -440,7 +440,7 @@ public interface Agent extends AutoCloseable {
     * <p>返回当前 Agent 的上下文压缩配置。若未设置则返回 null（压缩不生效）。
     *
     * @return 压缩配置，未设置则返回 null
-     */
+    */
     default AgentCompressionConfig compressionConfig() {
         return null;
     }
@@ -453,7 +453,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param plan 是否启用规划
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent plan(boolean plan) {
         return this;
     }
@@ -466,7 +466,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param planMaxTask 最大子任务数
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent planMaxTask(int planMaxTask) {
         return this;
     }
@@ -480,7 +480,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param printConfig 是否启用，默认 true
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent printConfig(boolean printConfig) {
         return this;
     }
@@ -495,7 +495,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param debug 是否启用，默认 false
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent debug(boolean debug) {
         return this;
     }
@@ -507,7 +507,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param debugHook 调试回调，null 表示不启用
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent debugHook(AgentDebugHook debugHook) {
         return this;
     }
@@ -521,7 +521,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param definition Agent 定义
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent definition(AgentDefinition definition) {
         return this;
     }
@@ -533,7 +533,7 @@ public interface Agent extends AutoCloseable {
     *
     * @param planHook 规划回调，null 表示不启用
     * @return 当前 Agent 实例，支持链式调用
-     */
+    */
     default Agent planHook(AgentPlanHook planHook) {
         return this;
     }
@@ -545,7 +545,7 @@ public interface Agent extends AutoCloseable {
     * 实现类应维护内部列表并返回不可修改的副本。
     *
     * @return 子 Agent 定义列表，若无注册则返回空列表
-     */
+    */
     default List<AgentDefinition> getSubAgents() {
         return List.of();
     }
@@ -556,7 +556,7 @@ public interface Agent extends AutoCloseable {
     * <p>返回当前 Agent 的定义信息。实现类应在构造时保存 AgentDefinition 并返回。
     *
     * @return Agent 定义，若未设置则返回 null
-     */
+    */
     default AgentDefinition getDefinition() {
         return null;
     }
@@ -569,7 +569,7 @@ public interface Agent extends AutoCloseable {
     * Agent 实现类在与 ChatClient 通信时应使用此方法获取 system prompt。
     *
     * @return 完整的系统提示词，未设置 definition 时返回 null
-     */
+    */
     default String getSystemPrompt() {
         AgentDefinition def = getDefinition();
         return def != null ? def.getSystemPrompt() : null;
@@ -577,7 +577,7 @@ public interface Agent extends AutoCloseable {
 
     /**
     * 关闭 Agent，释放资源
-     */
+    */
     @Override
     default void close() {
     }

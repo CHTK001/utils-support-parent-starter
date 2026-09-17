@@ -6,35 +6,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
-* 事件发布器。
-*
-* <p>轻量级的事件发布-订阅机制，支持按事件类型注册监听器。
-* 当调用 {@link #publish(Object)} 时，所有匹配事件类型的监听器会被依次调用。</p>
-*
-* <p>内部使用 {@link ConcurrentHashMap} 和 {@link CopyOnWriteArrayList}
-* 保证线程安全，适合高并发场景下的读写操作。</p>
-*
-* <p>使用示例：</p>
-* <pre>{@code
-*   EventPublisher publisher = new EventPublisher();
-*   publisher.register(UserLoginEvent.class, event -> {
-*       System.out.println("用户登录: " + event);
-*   });
-*   publisher.publish(new UserLoginEvent("admin"));
-* }</pre>: " + event);
-*   });
-* 发布.发布(新 用户login事件("admin"));
-* }</pre>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 事件发布器。
+ *
+ * <p>轻量级的事件发布-订阅机制，支持按事件类型注册监听器。
+ * 当调用 {@link #publish(Object)} 时，所有匹配事件类型的监听器会被依次调用。</p>
+ *
+ * <p>内部使用 {@link ConcurrentHashMap} 和 {@link CopyOnWriteArrayList}
+ * 保证线程安全，适合高并发场景下的读写操作。</p>
+ *
+ * <p>使用示例：</p>
+ * <pre>{@code
+ *   EventPublisher publisher = new EventPublisher();
+ *   publisher.register(UserLoginEvent.class, event -> {
+ *       System.out.println("用户登录: " + event);
+ *   });
+ *   publisher.publish(new UserLoginEvent("admin"));
+ * }</pre>: " + event);
+ *   });
+ * 发布.发布(新 用户login事件("admin"));
+ * }</pre>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 public class EventPublisher {
 
     /**
     * 监听器注册表，按事件类型分组。
     * 键 为事件类型，值 为该类型对应的监听器列表。
-     */
+    */
     private final Map<Class<?>, List<EventListener>> listeners = new ConcurrentHashMap<>();
 
     /**
@@ -44,7 +44,7 @@ public class EventPublisher {
     * @param type     事件类型，不可为 空
     * @param listener 事件监听器，不可为 空
     * @return 注册的结果
-     */
+    */
     public <T> void register(Class<T> type, EventListener listener) {
         if (type == null || listener == null) {
             return;
@@ -60,7 +60,7 @@ public class EventPublisher {
     * @param type     事件类型
     * @param listener 待注销的监听器实例
     * @return true 表示找到并移除
-     */
+    */
     public <T> boolean unregister(Class<T> type, EventListener listener) {
         if (type == null || listener == null) {
             return false;
@@ -77,7 +77,7 @@ public class EventPublisher {
     *
     * @param type 事件类型
     * @return true 表示清除了非空列表
-     */
+    */
     public boolean unregisterAll(Class<?> type) {
         if (type == null) {
             return false;
@@ -94,7 +94,7 @@ public class EventPublisher {
     *
     * @param event 事件对象，空 时不处理
     * @return 本次分发调用的监听器数量
-     */
+    */
     public int publish(Object event) {
         if (event == null) {
             return 0;
@@ -120,7 +120,7 @@ public class EventPublisher {
     *
     * @param type 事件类型
     * @return 监听器数量
-     */
+    */
     public int listenerCount(Class<?> type) {
         if (type == null) {
             return 0;
@@ -133,14 +133,14 @@ public class EventPublisher {
     * 获取所有已注册的事件类型集合。
     *
     * @return 事件类型不可变视图
-     */
+    */
     public java.util.Set<Class<?>> getEventTypes() {
         return java.util.Collections.unmodifiableSet(listeners.keySet());
     }
 
     /**
     * 清空所有监听器。
-     */
+    */
     public void clear() {
         listeners.clear();
     }
@@ -149,7 +149,7 @@ public class EventPublisher {
     * 事件监听器函数式接口。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @FunctionalInterface
     public interface EventListener {
         void onEvent(Object event);

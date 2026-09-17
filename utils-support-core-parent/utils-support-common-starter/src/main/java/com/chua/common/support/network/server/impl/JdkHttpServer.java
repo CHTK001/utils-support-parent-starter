@@ -18,15 +18,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
-* 基于 JDK {@link HttpServer} 的 HTTP 服务器实现。
-*
-* <p>使用 {@code com.sun.net.httpserver.HttpServer}，简易内嵌，零依赖。
-* 同步阻塞模型，使用虚拟线程池处理请求。
-* SSL 支持 KeyStore（JKS/PKCS12）和 PEM 证书文件两种模式。</p>
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 基于 JDK {@link HttpServer} 的 HTTP 服务器实现。
+ *
+ * <p>使用 {@code com.sun.net.httpserver.HttpServer}，简易内嵌，零依赖。
+ * 同步阻塞模型，使用虚拟线程池处理请求。
+ * SSL 支持 KeyStore（JKS/PKCS12）和 PEM 证书文件两种模式。</p>
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 @Slf4j
 @Spi({"jdk", "jdk-http"})
 public class JdkHttpServer extends AbstractServer {
@@ -39,7 +39,7 @@ public class JdkHttpServer extends AbstractServer {
     /**
     * 创建 JdkHttpServer 实例
     * @param setting setting
-     */
+    */
     public JdkHttpServer(ServerSetting setting) {
         super(setting);
     }

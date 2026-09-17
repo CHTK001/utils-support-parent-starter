@@ -18,7 +18,7 @@ public interface ArchiveInputStream {
     *
     * @return 下一个归档条目，没有更多条目时返回 null
     * @throws IOException IO 异常
-     */
+    */
     ArchiveEntry getNextEntry() throws IOException;
 
     /**
@@ -26,7 +26,7 @@ public interface ArchiveInputStream {
     *
     * @return 读取的字节，-1 表示结束
     * @throws IOException IO 异常
-     */
+    */
     int read() throws IOException;
 
     /**
@@ -35,7 +35,7 @@ public interface ArchiveInputStream {
     * @param b 缓冲区
     * @return 实际读取字节数，-1 表示结束
     * @throws IOException IO 异常
-     */
+    */
     int read(byte[] b) throws IOException;
 
     /**
@@ -46,7 +46,7 @@ public interface ArchiveInputStream {
     * @param len 最大读取长度
     * @return 实际读取字节数，-1 表示结束
     * @throws IOException IO 异常
-     */
+    */
     int read(byte[] b, int off, int len) throws IOException;
 
     /**
@@ -55,7 +55,7 @@ public interface ArchiveInputStream {
     * @param n 要跳过的字节数
     * @return 实际跳过的字节数
     * @throws IOException IO 异常
-     */
+    */
     long skip(long n) throws IOException;
 
     /**
@@ -63,34 +63,34 @@ public interface ArchiveInputStream {
     *
     * @return 可读取字节数
     * @throws IOException IO 异常
-     */
+    */
     int available() throws IOException;
 
     /**
     * 标记当前位置。
     *
     * @param readlimit 最大可回溯字节数
-     */
+    */
     void mark(int readlimit);
 
     /**
     * 重置到标记位置。
     *
     * @throws IOException IO 异常
-     */
+    */
     void reset() throws IOException;
 
     /**
     * 判断是否支持标记/重置。
     *
     * @return true 表示支持
-     */
+    */
     boolean markSupported();
 
     /**
     * 关闭流。
     *
     * @throws IOException IO 异常
-     */
+    */
     void close() throws IOException;
 }

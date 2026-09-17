@@ -51,7 +51,7 @@ public @interface RpcService {
     * <pre>{@code @RpcService(interfaceClass = UserService.class)}</pre>
     *
     * @return 服务接口的 Class 对象，默认 {@code void.class} 表示未设置
-     */
+    */
     Class<?> interfaceClass() default void.class;
 
     /**
@@ -63,7 +63,7 @@ public @interface RpcService {
     * <pre>{@code @RpcService(interfaceName = "com.example.UserService")}</pre>
     *
     * @return 服务接口的全限定类名，默认空字符串表示未设置
-     */
+    */
     String interfaceName() default "";
 
     /**
@@ -75,7 +75,7 @@ public @interface RpcService {
     * <p>示例：{@code "1.0.0"}、{@code "2.0.0"}。</p>
     *
     * @return 版本号字符串，默认空字符串表示使用框架默认版本
-     */
+    */
     String version() default "";
 
     /**
@@ -87,7 +87,7 @@ public @interface RpcService {
     * 设置相同分组才能成功调用。</p>
     *
     * @return 分组名称，默认空字符串表示不分组
-     */
+    */
     String group() default "";
 
     /**
@@ -97,7 +97,7 @@ public @interface RpcService {
     * 否则服务端拒绝请求。适用于对安全性有轻度要求的内部微服务间通信。</p>
     *
     * @return token 字符串，默认空字符串表示不启用 token 校验
-     */
+    */
     String token() default "";
 
     /**
@@ -107,7 +107,7 @@ public @interface RpcService {
     * 就接收外部请求。例如 {@code 5000} 表示启动 5 秒后再注册到注册中心。</p>
     *
     * @return 延迟毫秒数，默认 {@code 0} 表示不延迟持续暴露
-     */
+    */
     int delay() default 0;
 
     /**
@@ -117,7 +117,7 @@ public @interface RpcService {
     * 自动重新执行的次数。注意这和客户端的重试 ({@link RpcConsumerConfig#retries}) 不同。</p>
     *
     * @return 重试次数，默认 {@code 0} 表示不重试
-     */
+    */
     int retry() default 0;
 
     /**
@@ -129,7 +129,7 @@ public @interface RpcService {
     * </ul>
     *
     * @return 是否启用异步执行
-     */
+    */
     boolean async() default false;
 
     /**
@@ -139,7 +139,7 @@ public @interface RpcService {
     * 并返回超时异常给客户端。如果配置为 {@code 0}，表示使用框架默认超时。</p>
     *
     * @return 超时毫秒数
-     */
+    */
     int timeout() default 0;
 
     /**
@@ -155,6 +155,6 @@ public @interface RpcService {
     * </ul>
     *
     * @return 缓存策略名称，默认空字符串表示不缓存
-     */
+    */
     String cache() default "";
 }

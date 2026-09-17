@@ -15,12 +15,12 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
 
     /**
     * 进度条实例，用于跟踪读取进度。
-     */
+    */
     private final ProgressBar pb;
 
     /**
     * 标记位置时的已读取字节数，用于 reset 操作恢复进度。
-     */
+    */
     private long mark = 0;
 
     /**
@@ -28,7 +28,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     *
     * @param in 被包装的原始输入流
     * @param pb 用于跟踪进度的进度条实例
-     */
+    */
     public ProgressBarWrappedInputStream(InputStream in, ProgressBar pb) {
         super(in);
         this.pb = pb;
@@ -38,7 +38,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * 获取关联的进度条实例。
     *
     * @return 进度条实例
-     */
+    */
     public ProgressBar getProgressBar() {
         return pb;
     }
@@ -48,7 +48,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     *
     * @return 读取到的字节值，如果到达流末尾则返回 -1
     * @throws IOException 当发生 I/O 错误时抛出
-     */
+    */
     @Override
     public int read() throws IOException {
         int r = in.read();
@@ -64,7 +64,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * @param b 目标字节数组
     * @return 实际读取的字节数，如果到达流末尾则返回 -1
     * @throws IOException 当发生 I/O 错误时抛出
-     */
+    */
     @Override
     public int read(byte[] b) throws IOException {
         int r = in.read(b);
@@ -82,7 +82,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * @param len 要读取的最大长度
     * @return 实际读取的字节数，如果到达流末尾则返回 -1
     * @throws IOException 当发生 I/O 错误时抛出
-     */
+    */
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int r = in.read(b, off, len);
@@ -98,7 +98,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * @param n 要跳过的字节数
     * @return 实际跳过的字节数
     * @throws IOException 当发生 I/O 错误时抛出
-     */
+    */
     @Override
     public long skip(long n) throws IOException {
         long r = in.skip(n);
@@ -110,7 +110,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * 在流上设置标记。
     *
     * @param readLimit 允许读取而不使标记失效的最大字节数
-     */
+    */
     @Override
     public void mark(int readLimit) {
         in.mark(readLimit);
@@ -121,7 +121,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * 重置流到上次标记的位置。
     *
     * @throws IOException 如果流不支持标记或重置失败时抛出
-     */
+    */
     @Override
     public void reset() throws IOException {
         in.reset();
@@ -132,7 +132,7 @@ public class ProgressBarWrappedInputStream extends FilterInputStream {
     * 关闭此输入流及其关联的进度条。
     *
     * @throws IOException 当发生 I/O 错误时抛出
-     */
+    */
     @Override
     public void close() throws IOException {
         in.close();

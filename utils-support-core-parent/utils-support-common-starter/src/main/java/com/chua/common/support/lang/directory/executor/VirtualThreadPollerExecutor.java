@@ -28,22 +28,22 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
 
     /**
     * 被驱动的可轮询目录实例
-     */
+    */
     private final PolledDirectory polledDirectory;
 
     /**
     * 环境配置（获取轮询间隔）
-     */
+    */
     private final DirectoryPollerEnvironment environment;
 
     /**
     * 虚拟线程执行器
-     */
+    */
     private final ExecutorService executor;
 
     /**
     * 运行状态标志
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
@@ -51,7 +51,7 @@ public class VirtualThreadPollerExecutor implements DirectoryPollerExecutor {
     *
     * @param polledDirectory 可轮询目录实例
     * @param environment     环境配置
-     */
+    */
     public VirtualThreadPollerExecutor(PolledDirectory polledDirectory, DirectoryPollerEnvironment environment) {
         this.polledDirectory = polledDirectory;
         this.environment = environment;

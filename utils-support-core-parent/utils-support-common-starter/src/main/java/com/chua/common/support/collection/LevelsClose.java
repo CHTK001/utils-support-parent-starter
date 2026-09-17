@@ -32,7 +32,7 @@ public class LevelsClose implements Levels {
 
     /**
     * 构造一个使用默认分隔符（"."）的展平处理器。
-     */
+    */
     public LevelsClose() {
     }
 
@@ -40,7 +40,7 @@ public class LevelsClose implements Levels {
     * 构造一个使用指定分隔符的展平处理器。
     *
     * @param sp 层级分隔符，默认值为 "."
-     */
+    */
     public LevelsClose(String sp) {
         this.sp = sp;
     }
@@ -50,7 +50,7 @@ public class LevelsClose implements Levels {
     *
     * @param map    原始嵌套 Map
     * @param result 展平后的结果 Map
-     */
+    */
     private void analysisHierarchicalAnalysis(Map<String, Object> map, final Map<String, Object> result) {
         if (null == map) {
             return;
@@ -73,7 +73,7 @@ public class LevelsClose implements Levels {
     * @param parentName  父级键名
     * @param valueObject 值对象
     * @param result      结果 Map
-     */
+    */
     private void dataFormatProfileHierarchicalAnalysis(String parentName, Object valueObject, Map<String, Object> result) {
         if (valueObject instanceof Map) {
 @SuppressWarnings("unchecked")
@@ -94,7 +94,7 @@ public class LevelsClose implements Levels {
     * @param parentName 父级键名
     * @param map        Map 类型的值
     * @param result     结果 Map
-     */
+    */
     private void doAnalysisMapValueHierarchicalAnalysis(String parentName, Map<String, Object> map, Map<String, Object> result) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = String.valueOf(entry.getKey());
@@ -110,7 +110,7 @@ public class LevelsClose implements Levels {
     * @param parentName 父级键名
     * @param source     List 类型的值
     * @param result     结果 Map
-     */
+    */
     private void doAnalysisListValueHierarchicalAnalysis(String parentName, List<Object> source, Map<String, Object> result) {
         for (int i = 0; i < source.size(); i++) {
             dataFormatProfileHierarchicalAnalysis(parentName + "[" + i + "]", source.get(i), result);
@@ -122,7 +122,7 @@ public class LevelsClose implements Levels {
     *
     * @param stringObjectMap 原始嵌套 Map
     * @return 展平后的单层 Map
-     */
+    */
     @Override
     public Map<String, Object> apply(Map<String, Object> stringObjectMap) {
         Map<String, Object> properties1 = new HashMap<>(DEFAULT_BUFFER_SIZE);

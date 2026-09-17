@@ -56,7 +56,7 @@ public class MemoryMcpPlugin {
     /**
     * 创建 MemoryMcpPlugin 实例
     * @param manager manager
-     */
+    */
     public MemoryMcpPlugin(MemoryManager manager) {
         this.manager = manager;
     }
@@ -67,7 +67,7 @@ public class MemoryMcpPlugin {
     * <p>将 5 个记忆操作注册为 MCP 工具，使 Agent 可通过工具调用管理记忆。
     *
     * @param mcpManager MCP 管理器
-     */
+    */
     public void registerTo(McpManager mcpManager) {
         // memory_save
         mcpManager.register("memory", new com.chua.common.support.ai.mcp.McpClient() {

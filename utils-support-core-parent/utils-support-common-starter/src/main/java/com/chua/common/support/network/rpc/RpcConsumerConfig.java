@@ -29,7 +29,7 @@ public class RpcConsumerConfig {
     * 重试间隔等关键参数（等效于 {@code autoConfig()}）。</p>
     *
     * @return 自动配置实例
-     */
+    */
     public static RpcConsumerConfig auto() {
         return new RpcConsumerConfig().autoConfig();
     }
@@ -40,7 +40,7 @@ public class RpcConsumerConfig {
     * <p>开启后，客户端创建前会基于 CPU 核数与 JVM 可用堆内存自动调整
     * 超时、连接数、连接超时、重试间隔等参数，使消费者在各环境中都能获得
     * 较优的默认表现。默认开启，可设为 {@code false} 手动指定。</p>
-     */
+    */
     private boolean auto = true;
 
     /**
@@ -55,7 +55,7 @@ public class RpcConsumerConfig {
     * </ul>
     *
     * @return 当前配置实例
-     */
+    */
     public RpcConsumerConfig autoConfig() {
         int cpus = Runtime.getRuntime().availableProcessors();
         long heapMb = Runtime.getRuntime().maxMemory() / (1024 * 1024);
@@ -76,33 +76,37 @@ public class RpcConsumerConfig {
     /** 超时（毫秒） */
     /**
     * 超时时间（毫秒）
-     */
+    */
     private Integer timeout;
     /** 重试次数 */
     /**
     * 重试次数
-     */
+    */
     private Integer retries;
-    /** 负载均衡策略（random, roundrobin, leastactive, consistenthash, shortestresponse） */
+    /**
+    * 负载均衡策略（random, roundrobin, leastactive, consistenthash, shortestresponse）
+    */
     private String loadBalance;
     /** 是否异步 */
     /**
     * 是否异步执行
-     */
+    */
     private Boolean async;
     /** 版本 */
     /**
     * 版本号
-     */
+    */
     private String version;
     /** 分组 */
     /**
     * 用户组
-     */
+    */
     private String group;
     /** 最大连接数 */
     private Integer connections;
-    /** 集群策略（failover, failfast, failsafe, failback, forking, broadcast） */
+    /**
+    * 集群策略（failover, failfast, failsafe, failback, forking, broadcast）
+    */
     private String cluster;
     /** 粘性连接 */
     private Boolean sticky;
@@ -117,12 +121,12 @@ public class RpcConsumerConfig {
     * 可获得极大吞吐与极低延迟（适合单机部署/同进程服务间调用）。</p>
     *
     * <p>本机无该服务时自动回退到远程 RPC，不影响分布式部署。</p>
-     */
+    */
     private Boolean inline;
     /** 连接超时（毫秒） */
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private Integer connectTimeout;
     /** 是否启用重试 */
     private Boolean retryEnabled;
@@ -135,17 +139,21 @@ public class RpcConsumerConfig {
     /** 直连 URL */
     /**
     * 地址
-     */
+    */
     private String url;
-    /** 调用模式（sync, async, future, callback, oneway） */
+    /**
+    * 调用模式（sync, async, future, callback, oneway）
+    */
     private String invokeType;
     /** 服务接口类 */
     private Class<?> interfaceClass;
     /** 服务接口名 */
     private String interfaceName;
-    /** 服务治理令牌（请求头 X-RPC-Token），服务端 {@code RpcService#token()} 校验时必填 */
+    /**
+    * 服务治理令牌（请求头 X-RPC-Token），服务端 {@code RpcService#token()} 校验时必填
+    */
     /**
     * 令牌
-     */
+    */
     private String token;
 }

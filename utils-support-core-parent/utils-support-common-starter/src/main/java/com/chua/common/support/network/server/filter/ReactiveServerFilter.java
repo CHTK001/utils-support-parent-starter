@@ -6,18 +6,18 @@ import com.chua.common.support.network.server.response.ServerResponse;
 import java.util.concurrent.CompletionStage;
 
 /**
-* 响应式服务器过滤器接口。
-*
-* <p>与同步 {@link ServerFilter} 不同，本接口的 {@link #doFilter} 返回
-* {@link CompletionStage}，调用方无需阻塞等待过滤链执行结果。</p>
-*
-* <p>同步 {@link ServerFilter} 也可通过 <b>包装</b> 接入响应式链：
-* 只需在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)} 并将返回值包装为
-* {@code CompletableFuture.completedStage(null)} 即可。</p>
-*
-* @author CH
-* @since 2026/07/16
- */
+ * 响应式服务器过滤器接口。
+ *
+ * <p>与同步 {@link ServerFilter} 不同，本接口的 {@link #doFilter} 返回
+ * {@link CompletionStage}，调用方无需阻塞等待过滤链执行结果。</p>
+ *
+ * <p>同步 {@link ServerFilter} 也可通过 <b>包装</b> 接入响应式链：
+ * 只需在同步 {@code doFilter} 内部调用 {@code chain.doFilter(...)} 并将返回值包装为
+ * {@code CompletableFuture.completedStage(null)} 即可。</p>
+ *
+ * @author CH
+ * @since 2026/07/16
+*/
 public interface ReactiveServerFilter {
 
     /**
@@ -30,7 +30,7 @@ public interface ReactiveServerFilter {
     * @param response 当前响应对象
     * @param chain    响应式过滤器链，用于传递到下一个过滤器
     * @return 过滤链执行完成的阶段
-     */
+    */
     CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response, ReactiveFilterChain chain);
 
     /**
@@ -39,7 +39,7 @@ public interface ReactiveServerFilter {
     * <p>数值越小，优先级越高，越先执行。默认值为 100。</p>
     *
     * @return 执行顺序值
-     */
+    */
     default int getOrder() {
         return 100;
     }
@@ -54,7 +54,7 @@ public interface ReactiveServerFilter {
     * </ul>
     *
     * @return 路径模式，null 表示每次请求都触发（Access Filter）
-     */
+    */
     default String supportPath() {
         return null;
     }

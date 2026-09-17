@@ -26,7 +26,7 @@ public class IntegerArrayTypeConverter implements TypeConverter<Integer[]> {
     *
     * @param value 源值
     * @return Integer[] 值，如果为 null 则返回空数组
-     */
+    */
     @Override
     public Integer[] convert(Object value) {
         if (null == value) {
@@ -55,7 +55,7 @@ public class IntegerArrayTypeConverter implements TypeConverter<Integer[]> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Integer[].class
-     */
+    */
     @Override
     public Class<Integer[]> getType() {
         return Integer[].class;

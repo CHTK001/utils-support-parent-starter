@@ -26,7 +26,7 @@ public class ClassTypeConverter implements TypeConverter<Class> {
     *
     * @param value 源值
     * @return Class 值，如果为 null 则返回 Void.class
-     */
+    */
     @Override
     public Class convert(Object value) {
         if (null == value) {
@@ -44,7 +44,7 @@ public class ClassTypeConverter implements TypeConverter<Class> {
     * 获取当前转换器支持的目标类型。
     *
     * @return Class.class
-     */
+    */
     @Override
     public Class<Class> getType() {
         return Class.class;

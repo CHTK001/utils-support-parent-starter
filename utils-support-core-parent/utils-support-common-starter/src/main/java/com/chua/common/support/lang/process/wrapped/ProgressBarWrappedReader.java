@@ -20,12 +20,12 @@ public class ProgressBarWrappedReader extends FilterReader {
 
     /**
     * 用于跟踪进度的进度条实例。
-     */
+    */
     private final ProgressBar pb;
 
     /**
     * 在调用 mark 方法时记录的当前进度值，用于 reset 时恢复。
-     */
+    */
     private long mark = 0;
 
     /**
@@ -33,7 +33,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     *
     * @param in 被包装的底层 Reader
     * @param pb 用于跟踪进度的 ProgressBar
-     */
+    */
     public ProgressBarWrappedReader(Reader in, ProgressBar pb) {
         super(in);
         this.pb = pb;
@@ -43,7 +43,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * 获取当前关联的进度条实例。
     *
     * @return 进度条实例
-     */
+    */
     public ProgressBar getProgressBar() {
         return pb;
     }
@@ -54,7 +54,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     *
     * @return 读取到的字符，如果到达流末尾则返回 -1
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public int read() throws IOException {
         int r = in.read();
@@ -71,7 +71,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * @param b 用于存储读取字符的缓冲区
     * @return 实际读取的字符数，如果到达流末尾则返回 -1
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public int read(char[] b) throws IOException {
         int r = in.read(b);
@@ -90,7 +90,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * @param len 要读取的最大字符数
     * @return 实际读取的字符数，如果到达流末尾则返回 -1
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public int read(char[] b, int off, int len) throws IOException {
         int r = in.read(b, off, len);
@@ -107,7 +107,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * @param n 希望跳过的字符数
     * @return 实际跳过的字符数
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public long skip(long n) throws IOException {
         long r = in.skip(n);
@@ -121,7 +121,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     *
     * @param readAheadLimit 允许读取-ahead 的最大字节数（此实现中未直接使用）
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public void mark(int readAheadLimit) throws IOException {
         in.mark(readAheadLimit);
@@ -133,7 +133,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * 将进度条回退到标记时的进度值。
     *
     * @throws IOException 如果发生 I/O 错误或该 Reader 不支持 reset
-     */
+    */
     @Override
     public void reset() throws IOException {
         in.reset();
@@ -145,7 +145,7 @@ public class ProgressBarWrappedReader extends FilterReader {
     * 同时关闭底层的 Reader 和进度条。
     *
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     @Override
     public void close() throws IOException {
         in.close();

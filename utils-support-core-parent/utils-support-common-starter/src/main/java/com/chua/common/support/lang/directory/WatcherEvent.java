@@ -12,26 +12,26 @@ public enum WatcherEvent {
 
     /**
     * 文件或目录创建事件
-     */
+    */
     CREATE,
 
     /**
     * 文件或目录内容修改事件
-     */
+    */
     MODIFY,
 
     /**
     * 文件或目录删除事件
-     */
+    */
     DELETE,
 
     /**
     * WatchEvent 溢出事件，通常表示事件丢失
-     */
+    */
     OVERFLOW,
 
     /**
     * 通配类型，表示监听所有事件
-     */
+    */
     ALL_KIND
 }

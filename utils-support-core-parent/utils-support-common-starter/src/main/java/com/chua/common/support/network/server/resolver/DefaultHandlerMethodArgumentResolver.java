@@ -10,21 +10,21 @@ import java.util.Map;
 
 
 /**
-* 默认处理器方法参数解析器。
-*
-* <p>支持以下类型：
-* <ul>
-*   <li>{@link ServerRequest} — 直接传入</li>
-*   <li>{@link ServerResponse} — 直接传入</li>
-*   <li>{@link String} — 从路径变量、查询参数按参数名解析</li>
-*   <li>{@code int} / {@link Integer} — 解析字符串后转换</li>
-*   <li>{@code long} / {@link Long} — 解析字符串后转换</li>
-*   <li>{@code boolean} / {@link Boolean} — 解析字符串后转换</li>
-* </ul>
-*
-* @author CH
-* @since 2024/12/20
- */
+ * 默认处理器方法参数解析器。
+ *
+ * <p>支持以下类型：
+ * <ul>
+ *   <li>{@link ServerRequest} — 直接传入</li>
+ *   <li>{@link ServerResponse} — 直接传入</li>
+ *   <li>{@link String} — 从路径变量、查询参数按参数名解析</li>
+ *   <li>{@code int} / {@link Integer} — 解析字符串后转换</li>
+ *   <li>{@code long} / {@link Long} — 解析字符串后转换</li>
+ *   <li>{@code boolean} / {@link Boolean} — 解析字符串后转换</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2024/12/20
+*/
 @Spi("default")
 public class DefaultHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 

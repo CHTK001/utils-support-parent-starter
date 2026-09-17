@@ -13,14 +13,14 @@ public class GenerateRequest {
 
     /**
     * 文件名（含扩展名）
-     */
+    */
     private String fileName;
 
     /**
     * 获取文件名
     *
     * @return 文件名
-     */
+    */
     public String getFileName() {
         return fileName;
     }
@@ -29,7 +29,7 @@ public class GenerateRequest {
     * 设置文件名
     *
     * @param fileName 文件名
-     */
+    */
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }

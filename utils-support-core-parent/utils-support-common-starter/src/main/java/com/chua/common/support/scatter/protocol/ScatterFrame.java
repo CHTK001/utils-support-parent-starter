@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author CH
  * @since 4.0.0.42
- */
+*/
 public class ScatterFrame {
 
     private final byte type;
@@ -43,10 +43,10 @@ public class ScatterFrame {
     }
 
     /**
-     * 编码为字节数组。
-     *
-     * @return 帧字节
-     */
+    * 编码为字节数组。
+    *
+    * @return 帧字节
+    */
     public byte[] encode() {
         byte[] pathBytes = path.getBytes(StandardCharsets.UTF_8);
         if (pathBytes.length > 255) {
@@ -65,11 +65,11 @@ public class ScatterFrame {
     }
 
     /**
-     * 解码字节数组为帧。
-     *
-     * @param data 帧字节
-     * @return 帧对象
-     */
+    * 解码字节数组为帧。
+    *
+    * @param data 帧字节
+    * @return 帧对象
+    */
     public static ScatterFrame decode(byte[] data) {
         if (data == null || data.length < 11) {
             throw new IllegalArgumentException("帧过短: " + (data == null ? 0 : data.length));

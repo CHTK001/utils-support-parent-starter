@@ -19,6 +19,6 @@ public interface BotMessageListener {
     * 收到消息回调
     *
     * @param message 入站消息
-     */
+    */
     void onMessage(BotInboundMessage message);
 }

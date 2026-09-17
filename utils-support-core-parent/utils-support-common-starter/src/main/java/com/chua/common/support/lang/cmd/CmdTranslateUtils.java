@@ -36,7 +36,9 @@ import java.util.regex.Pattern;
  */
 public final class CmdTranslateUtils {
 
-    /** PowerShell 命令前缀（WinRM 默认走 cmd.exe，PS 命令需包装） */
+    /**
+    * PowerShell 命令前缀（WinRM 默认走 cmd.exe，PS 命令需包装）
+    */
     private static final String PS_PREFIX = "powershell -Command \"";
     private static final String PS_SUFFIX = "\"";
 
@@ -130,7 +132,9 @@ public final class CmdTranslateUtils {
         LINUX_TO_WIN.put(Pattern.compile(regex, Pattern.CASE_INSENSITIVE), replacement);
     }
 
-    /** 将 PowerShell 表达式包装为 powershell -Command "..." */
+    /**
+    * 将 PowerShell 表达式包装为 powershell -Command "..."
+    */
     private static String ps(String expr) {
         return PS_PREFIX + expr + PS_SUFFIX;
     }
@@ -144,7 +148,7 @@ public final class CmdTranslateUtils {
     *
     * @param cmd 原始命令（支持完整命令行，含参数）
     * @return 转换后的命令；未匹配时返回原命令
-     */
+    */
     public static String translate(String cmd) {
         if (cmd == null || cmd.trim().isEmpty()) {
             return cmd;
@@ -167,7 +171,7 @@ public final class CmdTranslateUtils {
 
     /**
     * 手动替换 Matcher 捕获组（避免 Illegal group reference）。
-     */
+    */
     private static String replaceCaptures(java.util.regex.Matcher m, String template) {
         int g = m.groupCount();
         StringBuilder sb = new StringBuilder();
@@ -189,7 +193,7 @@ public final class CmdTranslateUtils {
 
     /**
     * 判断给定命令是否可被翻译（即命中映射表）。
-     */
+    */
     public static boolean canTranslate(String cmd) {
         if (cmd == null || cmd.trim().isEmpty()) {
             return false;
@@ -205,7 +209,7 @@ public final class CmdTranslateUtils {
 
     /**
     * 返回当前注册的翻译规则数量。
-     */
+    */
     public static int ruleCount() {
         return LINUX_TO_WIN.size();
     }

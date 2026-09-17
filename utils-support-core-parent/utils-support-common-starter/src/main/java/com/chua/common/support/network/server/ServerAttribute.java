@@ -50,10 +50,14 @@ public final class ServerAttribute {
     /** 原始请求路径（重写前） */
     public static final String ORIGINAL_PATH = "__original_path";
 
-    /** 服务发现对象（ServiceDiscoveryServerFilter 存入） */
+    /**
+    * 服务发现对象（ServiceDiscoveryServerFilter 存入）
+    */
     public static final String BACKEND_DISCOVERY = "__backend_discovery";
 
-    /** 底层 Vert.x RoutingContext（VertxHttpServer 存入，供 WebSocket 代理升级使用） */
+    /**
+    * 底层 Vert.x RoutingContext（VertxHttpServer 存入，供 WebSocket 代理升级使用）
+    */
     public static final String VERTX_ROUTING_CONTEXT = "__vertx_routing_context";
 
     /** 创建 ServerAttribute 实例 */
@@ -67,7 +71,7 @@ public final class ServerAttribute {
     * @param name    属性名
     * @param <T>     属性类型
     * @return 属性值，不存在返回 null
-     */
+    */
 @SuppressWarnings("unchecked")
     public static <T> T getAttribute(ServerRequest request, String name) {
         return (T) request.getAttribute(name);
@@ -79,7 +83,7 @@ public final class ServerAttribute {
     * @param request 请求对象
     * @param name    属性名
     * @param value   属性值
-     */
+    */
     public static void setAttribute(ServerRequest request, String name, Object value) {
         request.setAttribute(name, value);
     }
@@ -89,7 +93,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 属性 Map
-     */
+    */
     public static Map<String, Object> getAttributes(ServerRequest request) {
         return request.getAttributes();
     }
@@ -99,7 +103,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 后端地址，不存在返回 null
-     */
+    */
     public static String getBackendAddress(ServerRequest request) {
         return getAttribute(request, BACKEND_ADDRESS);
     }
@@ -109,7 +113,7 @@ public final class ServerAttribute {
     *
     * @param request          请求对象
     * @param backendAddress   后端地址
-     */
+    */
     public static void setBackendAddress(ServerRequest request, String backendAddress) {
         setAttribute(request, BACKEND_ADDRESS, backendAddress);
     }
@@ -119,7 +123,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 协议 (http/https)，不存在返回 null
-     */
+    */
     public static String getBackendScheme(ServerRequest request) {
         return getAttribute(request, BACKEND_SCHEME);
     }
@@ -129,7 +133,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @param scheme  协议 (http/https)
-     */
+    */
     public static void setBackendScheme(ServerRequest request, String scheme) {
         setAttribute(request, BACKEND_SCHEME, scheme);
     }
@@ -139,7 +143,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 主机名
-     */
+    */
     public static String getBackendHost(ServerRequest request) {
         return getAttribute(request, BACKEND_HOST);
     }
@@ -149,7 +153,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @param host    主机名
-     */
+    */
     public static void setBackendHost(ServerRequest request, String host) {
         setAttribute(request, BACKEND_HOST, host);
     }
@@ -159,7 +163,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 端口号
-     */
+    */
     public static Integer getBackendPort(ServerRequest request) {
         return getAttribute(request, BACKEND_PORT);
     }
@@ -169,7 +173,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @param port    端口号
-     */
+    */
     public static void setBackendPort(ServerRequest request, Integer port) {
         setAttribute(request, BACKEND_PORT, port);
     }
@@ -179,7 +183,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 完整 URI
-     */
+    */
     public static String getBackendUri(ServerRequest request) {
         return getAttribute(request, BACKEND_URI);
     }
@@ -189,7 +193,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @param uri     完整 URI
-     */
+    */
     public static void setBackendUri(ServerRequest request, String uri) {
         setAttribute(request, BACKEND_URI, uri);
     }
@@ -199,7 +203,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 路由模式，不存在返回 null
-     */
+    */
     public static String getRoutePattern(ServerRequest request) {
         return getAttribute(request, ROUTE_PATTERN);
     }
@@ -209,7 +213,7 @@ public final class ServerAttribute {
     *
     * @param request  请求对象
     * @param pattern  路由模式
-     */
+    */
     public static void setRoutePattern(ServerRequest request, String pattern) {
         setAttribute(request, ROUTE_PATTERN, pattern);
     }
@@ -219,7 +223,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 变量 Map，不存在返回空 Map
-     */
+    */
     public static Map<String, String> getPathVariables(ServerRequest request) {
         Map<String, String> vars = (Map<String, String>) request.getAttribute(PATH_VARIABLES);
         return vars != null ? vars : Map.of();
@@ -230,7 +234,7 @@ public final class ServerAttribute {
     *
     * @param request     请求对象
     * @param variables   变量映射
-     */
+    */
     public static void setPathVariables(ServerRequest request, Map<String, String> variables) {
         setAttribute(request, PATH_VARIABLES, variables);
     }
@@ -240,7 +244,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 用户标识
-     */
+    */
     public static Object getAuthPrincipal(ServerRequest request) {
         return getAttribute(request, AUTH_PRINCIPAL);
     }
@@ -250,7 +254,7 @@ public final class ServerAttribute {
     *
     * @param request   请求对象
     * @param principal 用户标识
-     */
+    */
     public static void setAuthPrincipal(ServerRequest request, Object principal) {
         setAttribute(request, AUTH_PRINCIPAL, principal);
     }
@@ -260,7 +264,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return 原始路径
-     */
+    */
     public static String getOriginalPath(ServerRequest request) {
         return getAttribute(request, ORIGINAL_PATH);
     }
@@ -270,7 +274,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @param path    原始路径
-     */
+    */
     public static void setOriginalPath(ServerRequest request, String path) {
         setAttribute(request, ORIGINAL_PATH, path);
     }
@@ -280,7 +284,7 @@ public final class ServerAttribute {
     *
     * @param request 请求对象
     * @return Discovery 对象，不存在返回 null
-     */
+    */
     public static com.chua.common.support.network.discovery.Discovery getBackendDiscovery(ServerRequest request) {
         return getAttribute(request, BACKEND_DISCOVERY);
     }
@@ -290,7 +294,7 @@ public final class ServerAttribute {
     *
     * @param request   请求对象
     * @param discovery Discovery 对象
-     */
+    */
     public static void setBackendDiscovery(ServerRequest request,
                                            com.chua.common.support.network.discovery.Discovery discovery) {
         setAttribute(request, BACKEND_DISCOVERY, discovery);

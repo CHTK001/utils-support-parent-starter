@@ -34,7 +34,7 @@ public class PropertiesPropertySource extends AbstractPropertySource {
     * props.setProperty("key1", "value1");
     * props.setProperty("key2", "value2");
     * </pre>
-     */
+    */
     private final Properties properties;
 
     /**
@@ -42,7 +42,7 @@ public class PropertiesPropertySource extends AbstractPropertySource {
     *
     * @param name         属性源的名称，用于标识该源。
     * @param properties   包含配置属性的 Properties 对象。
-     */
+    */
     public PropertiesPropertySource(String name, Properties properties) {
         super(name);
         this.properties = properties;
