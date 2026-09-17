@@ -3,6 +3,7 @@ com.chua.common.support.datasearch.usage.spi.impl.AntigravityUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.AnythingLlmUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.AtomCodeUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.CcswitchUsageParser
+com.chua.common.support.datasearch.usage.spi.impl.DoubaoUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ClaudeCodeUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ClaudeScienceUsageParser
 com.chua.common.support.datasearch.usage.spi.impl.ClineUsageParser

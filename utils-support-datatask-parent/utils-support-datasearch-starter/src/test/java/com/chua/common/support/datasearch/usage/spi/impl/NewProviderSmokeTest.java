@@ -35,7 +35,7 @@ public class NewProviderSmokeTest {
     public static void main(String[] args) {
         // UsageParser 新实现
         String[] usage = {
-            "acode", "claude-science", "every-code", "kimi-code", "pi", "reasonix", "qoder-cn", "dsh"
+            "acode", "claude-science", "every-code", "kimi-code", "pi", "reasonix", "qoder-cn", "dsh", "doubao"
         };
         for (String key : usage) {
             checkProvider(UsageParser.class, key, "UsageParser");
