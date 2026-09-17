@@ -43,7 +43,7 @@ public class DefaultConfigValueExpressionResolver implements ConfigValueExpressi
     * 解析
     *
     * @param expression expression
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @param environment 环境
     * @return resolve的结果
     */
