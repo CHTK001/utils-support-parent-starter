@@ -139,28 +139,99 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-    * 解析 SKILL.md 文件为 skilldefinition。
-    *
-    * @param skillMdFile SKILL.md 文件路径
-    * @param skillName   技能名称（目录名）
-    * @return SkillDefinition 实例；解析失败返回 空
-     */
-    private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
-        try {
-            String content = Files.readString(skillMdFile, StandardCharsets.UTF_8);
-            String description = "";
-            for (String line : content.lines().toList()) {
-                if (line.startsWith("##") || line.startsWith("description:")) {
-                    description = line.replaceFirst("^#{1,4}\\s*", "")
-                            .replaceFirst("^description:\\s*", "").trim();
-                    break;
-                }
-            }
-            return SkillDefinition.skill(skillName, description, skillMdFile.toString());
-        } catch (IOException e) {
-            return null;
-        }
-    }
+     * 解析 SKILL.md 文件为 skilldefinition。
+     *
+     * <p>描述提取优先级：</p>
+     * <ol>
+     *   <li>YAML front-matter（{@code ---} 包围块）内的 {@code description:} 字段</li>
+     *   <li>正文中首个 {@code description:} 行（兼容无 front-matter 的写法）</li>
+     *   <li>正文首个 Markdown 标题（{@code ##} 起）</li>
+     *   <li>空串</li>
+     * </ol>
+     *
+     * @param skillMdFile SKILL.md 文件路径
+     * @param skillName   技能名称（目录名）
+     * @return SkillDefinition 实例；解析失败返回 空
+      */
+     private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
+         try {
+             String content = Files.readString(skillMdFile, StandardCharsets.UTF_8);
+             String description = extractDescription(content);
+             return SkillDefinition.skill(skillName, description, skillMdFile.toString());
+         } catch (IOException e) {
+             return null;
+         }
+     }
+
+     /**
+      * 从 SKILL.md 内容提取描述文本（三级回退）。
+      *
+      * @param content 文件内容
+      * @return 描述；无内容时返回 空串
+       */
+     private static String extractDescription(String content) {
+         if (content == null || content.isBlank()) {
+             return "";
+         }
+         List<String> lines = content.lines().toList();
+         // 1. YAML front-matter 块（首行须为 ---）
+         if (!lines.isEmpty() && lines.getFirst().startsWith("---")) {
+             String frontMatterDesc = parseFrontMatterDescription(lines);
+             if (!frontMatterDesc.isEmpty()) {
+                 return frontMatterDesc;
+             }
+         }
+         // 2. 任意位置的首个 description: 行
+         for (String line : lines) {
+             if (line.startsWith("description:")) {
+                 String value = line.replaceFirst("^description:\\s*", "").trim();
+                 if (!value.isEmpty()) {
+                     return value;
+                 }
+             }
+         }
+         // 3. 首个 Markdown 标题（## 及以上）
+         for (String line : lines) {
+             if (line.startsWith("#")) {
+                 String value = line.replaceFirst("^#{1,6}\\s*", "").trim();
+                 if (!value.isEmpty()) {
+                     return value;
+                 }
+             }
+         }
+         return "";
+     }
+
+     /**
+      * 解析 YAML front-matter 块内的 description 字段。
+      *
+      * <p>仅解析简单 {@code key: value} 形式，支持双引号/单引号包裹值；
+      * 块结束于第二个 {@code ---}（或文件尾）。</p>
+      *
+      * @param lines 全文行列表
+      * @return description 值；未找到返回 空串
+       */
+     private static String parseFrontMatterDescription(List<String> lines) {
+         for (int i = 1; i < lines.size(); i++) {
+             String line = lines.get(i);
+             if (line.startsWith("---")) {
+                 break;
+             }
+             String trimmed = line.trim();
+             if (trimmed.startsWith("description:")) {
+                 String value = trimmed.replaceFirst("^description:\\s*", "").trim();
+                 if (value.length() >= 2) {
+                     char first = value.charAt(0);
+                     char last = value.charAt(value.length() - 1);
+                     if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
+                         value = value.substring(1, value.length() - 1);
+                     }
+                 }
+                 return value;
+             }
+         }
+         return "";
+     }
 
     @Override
     public String name() {
