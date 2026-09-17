@@ -1,3 +1,2 @@
-com.chua.common.support.datasearch.music.spi.impl.DemoMusicSourceProvider
 com.chua.common.support.datasearch.music.spi.impl.TencentMusicSourceProvider
 com.chua.common.support.datasearch.music.spi.impl.NeteaseMusicSourceProvider
