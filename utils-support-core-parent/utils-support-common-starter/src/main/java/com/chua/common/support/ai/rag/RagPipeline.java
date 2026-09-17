@@ -88,6 +88,9 @@ public class RagPipeline implements RagClient {
     private static final String CONTEXT_HEADER = "基于以下上下文回答问题。\n\n上下文:";
     /** 生成提示词的问题前缀 */
     private static final String QUESTION_PREFIX = "\n\n问题: ";
+    /** 生成提示词末尾的引用格式说明（要求模型在回答中标注来源编号） */
+    private static final String CITATION_HINT =
+            "\n\n请基于以上编号来源回答，在引用某来源时在句末标注 [编号]，例如 [1][3]。";
     /** 文档处理状态：就绪 */
     private static final String STATUS_READY = "READY";
     /** UUID 字符串中的短横线 */
@@ -96,6 +99,8 @@ public class RagPipeline implements RagClient {
     private static final String EMPTY = "";
     /** 无匹配提取器时跳过 UTF-8 解码的文件大小上限（1MB） */
     private static final int MAX_TEXT_EXTRACT_BYTES = 1_048_576;
+    /** Pipeline 上下文中 RAG 上下文的属性键 */
+    private static final String RAG_CTX_KEY = "rag";
 
     /** RAG 客户端配置（含嵌入、分块、向量存储等组件引用） */
     private final RagClientSetting setting;
@@ -164,6 +169,11 @@ public class RagPipeline implements RagClient {
         return new Builder();
     }
 
+    /**
+     * 构建入库管线（保存→抽取→分块→嵌入→收集→结束）。
+     *
+     * @return 入库 Pipeline 实例，不为 null
+     */
     private Pipeline buildIngestPipeline() {
         return PipelineBuilder.newBuilder("rag-ingest")
                 .task(NODE_SAVE, ctx -> {
@@ -249,6 +259,11 @@ public class RagPipeline implements RagClient {
                 .build();
     }
 
+    /**
+     * 构建查询管线（嵌入→检索→过滤→生成→收集→结束）。
+     *
+     * @return 查询 Pipeline 实例，不为 null
+     */
     private Pipeline buildQueryPipeline() {
         return PipelineBuilder.newBuilder("rag-query")
                 .task(NODE_EMBED_QUERY, ctx -> {
@@ -299,7 +314,7 @@ public class RagPipeline implements RagClient {
      * @return RAG 上下文，不为 null
      */
     private static RagContext current(PipelineContext<?> ctx) {
-        return ctx.getAttribute("rag");
+        return ctx.getAttribute(RAG_CTX_KEY);
     }
 
     /**
@@ -354,7 +369,9 @@ public class RagPipeline implements RagClient {
     /**
      * 过滤检索结果，按相似度阈值筛选并回读分块原文。
      * <p>向量库不返回 metadata.content 时（jvector ON_DISK 等），从 {@link #chunkContentCache}
-     * 以 chunkId 回读分块原文；metadata 缺失时内容回退为空字符串。</p>
+     * 以 chunkId 回读分块原文；metadata 缺失时内容回退为空字符串。
+     * 同时把 docId / fileName / fileType 透传到 {@link RagResponse.Source#metadata()}，
+     * 供下游（如前端渲染来源图片、RagController 回读原图）使用。</p>
      *
      * @param rc RAG 上下文，须已设置 queryVector/threshold/currentResults
      * @return 过滤后的来源列表（非 null），无命中时返回空列表
@@ -372,31 +389,51 @@ public class RagPipeline implements RagClient {
             // 优先取向量库 metadata；jvector ON_DISK 不返回 metadata.content 时，
             // 用 v.id() 从内存缓存 chunkContentCache 回读分块原文
             String chunkId = v.id();
-            String docId = (v.metadata() != null && v.metadata().containsKey(META_DOC_ID))
-                    ? (String) v.metadata().get(META_DOC_ID) : chunkId;
-            String content = (v.metadata() != null && v.metadata().containsKey(META_CONTENT))
-                    ? (String) v.metadata().get(META_CONTENT) : chunkContentCache.get(chunkId);
+            // jvector ON_DISK 等向量库返回的 metadata 可能是不可变 Map，
+            // 统一拷贝为可变 Map 再增补 fileName/fileType/docId，避免 UnsupportedOperationException
+            Map<String, Object> meta = v.metadata() != null
+                    ? new HashMap<>(v.metadata())
+                    : new HashMap<>(16);
+            String docId = meta.containsKey(META_DOC_ID)
+                    ? String.valueOf(meta.get(META_DOC_ID)) : chunkId;
+            String content = meta.containsKey(META_CONTENT)
+                    ? String.valueOf(meta.get(META_CONTENT)) : chunkContentCache.get(chunkId);
             if (content == null) {
                 content = EMPTY;
             }
-            Map<String, Object> meta = v.metadata() != null ? v.metadata() : new HashMap<>(8);
-            sources.add(new RagResponse.Source(docId, content, score, meta));
+            // 把入库时写入的 fileName / fileType 透传进 Source.metadata，
+            // 供前端判断来源是否为图片并渲染缩略图
+            if (meta.containsKey(META_FILE_NAME)) {
+                meta.put(META_FILE_NAME, meta.get(META_FILE_NAME));
+            }
+            if (meta.containsKey(META_FILE_TYPE)) {
+                meta.put(META_FILE_TYPE, meta.get(META_FILE_TYPE));
+            }
+            meta.put(META_DOC_ID, docId);
+            // 标记来源是否为图片文件（前端据此渲染缩略图 / 预览原图）
+            // fileType 是扩展名（不带点），拼上前缀后用 isImage 判定
+            boolean isImageSource = isImage("." + String.valueOf(meta.getOrDefault(META_FILE_TYPE, EMPTY)));
+            sources.add(new RagResponse.Source(docId, content, score, isImageSource, meta));
         }
         return sources;
     }
 
     /**
-     * 构建发送给模型的生成提示词（系统提示 + 上下文 + 问题）。
+     * 构建发送给模型的生成提示词（系统提示 + 带引用编号的来源 + 问题 + 引用格式说明）。
      *
      * @param rc RAG 上下文，须已设置 query/currentSources
      * @return 完整提示词字符串，不为 null
      */
     private String buildPrompt(RagContext rc) {
         StringBuilder context = new StringBuilder();
+        int n = 0;
         for (RagResponse.Source source : rc.currentSources()) {
-            context.append(source.content()).append(PARAGRAPH_BREAK);
+            n++;
+            // 每个来源带引用编号，模型在回答中用 [n] 标注依据
+            context.append("[").append(n).append("] ")
+                    .append(source.content()).append(PARAGRAPH_BREAK);
         }
-        String prompt = CONTEXT_HEADER + context + QUESTION_PREFIX + rc.query();
+        String prompt = CONTEXT_HEADER + context + QUESTION_PREFIX + rc.query() + CITATION_HINT;
         String systemPrompt = setting.getSystemPrompt();
         if (StringUtils.isNotBlank(systemPrompt)) {
             prompt = systemPrompt + PARAGRAPH_BREAK + prompt;
@@ -490,7 +527,7 @@ public class RagPipeline implements RagClient {
      */
     private void runIngest(RagContext rc) {
         PipelineContext<?> ctx = new PipelineContext<>(ingestPipeline.getId(), (Object) null);
-        ctx.setAttribute("rag", rc);
+        ctx.setAttribute(RAG_CTX_KEY, rc);
         ctx.setNextNodeId(NODE_SAVE);
         ingestPipeline.resume(ctx);
     }
@@ -502,7 +539,7 @@ public class RagPipeline implements RagClient {
      */
     private void runQuery(RagContext rc) {
         PipelineContext<?> ctx = new PipelineContext<>(queryPipeline.getId(), (Object) null);
-        ctx.setAttribute("rag", rc);
+        ctx.setAttribute(RAG_CTX_KEY, rc);
         ctx.setNextNodeId(NODE_EMBED_QUERY);
         queryPipeline.resume(ctx);
     }
@@ -537,16 +574,34 @@ public class RagPipeline implements RagClient {
         return this;
     }
 
+    /**
+     * 设置系统提示词（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param system 系统提示词
+     * @return 当前客户端
+     */
     @Override
     public RagClient system(String system) {
         return this;
     }
 
+    /**
+     * 设置温度（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param temperature 温度值
+     * @return 当前客户端
+     */
     @Override
     public RagClient temperature(double temperature) {
         return this;
     }
 
+    /**
+     * 设置最大输出 Token 数（管线实现暂不使用，保留接口一致性）。
+     *
+     * @param maxTokens 最大 Token 数
+     * @return 当前客户端
+     */
     @Override
     public RagClient maxTokens(int maxTokens) {
         return this;
@@ -642,11 +697,26 @@ public class RagPipeline implements RagClient {
         return documents.size();
     }
 
+    /**
+     * 重新索引所有 READY 状态的文档。
+     * <p>先快照再清空文档列表，逐个重新走入库管线，避免迭代期间追加导致
+     * ConcurrentModificationException；单个文档失败仅记录日志不中断整体。</p>
+     *
+     * @return 成功重新索引的文档数量
+     */
+    /**
+     * 快照迭代前的文档列表，避免入库管线的 collect 节点向 documents 追加导致
+     * ConcurrentModificationException。
+     *
+     * @return 文档快照列表（新建 ArrayList，不含原引用），不为 null
+     */
+    private List<RagDocument> snapshotDocuments() {
+        return new java.util.ArrayList<>(documents);
+    }
+
     @Override
     public int reindex() {
-        // 快照迭代前文档列表，避免 ingest 的 collect 节点向 documents 追加导致
-        // "ConcurrentModificationException: arraycopy during iteration"
-        List<RagDocument> snapshot = new java.util.ArrayList<>(documents);
+        List<RagDocument> snapshot = snapshotDocuments();
         vectorStorage.clear();
         chunkContentCache.clear();
         documents.clear();
@@ -675,13 +745,30 @@ public class RagPipeline implements RagClient {
     public String readDocumentContent(String docId) {
         Optional<RagDocument> opt = documents.stream().filter(d -> d.id().equals(docId)).findFirst();
         if (opt.isEmpty()) {
-            return null;
+            return EMPTY;
         }
         try {
             byte[] data = uploadProvider.read(docId);
-            return data != null ? new String(data, StandardCharsets.UTF_8) : null;
+            return data != null ? new String(data, StandardCharsets.UTF_8) : EMPTY;
         } catch (Exception e) {
-            return null;
+            log.warn("[RagPipeline] 读取文档内容失败: docId={}, error={}", docId, e.getMessage());
+            return EMPTY;
+        }
+    }
+
+    @Override
+    public byte[] readDocumentBytes(String docId) {
+        // 文档不在内存列表（未入库或已删除）时返回空数组
+        Optional<RagDocument> opt = documents.stream().filter(d -> d.id().equals(docId)).findFirst();
+        if (opt.isEmpty()) {
+            return new byte[0];
+        }
+        try {
+            byte[] data = uploadProvider.read(docId);
+            return data != null ? data : new byte[0];
+        } catch (Exception e) {
+            log.warn("[RagPipeline] 读取文档字节失败: docId={}, error={}", docId, e.getMessage());
+            return new byte[0];
         }
     }
 

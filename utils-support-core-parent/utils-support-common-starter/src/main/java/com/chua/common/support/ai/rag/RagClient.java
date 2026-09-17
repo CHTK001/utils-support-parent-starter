@@ -220,12 +220,22 @@ public interface RagClient extends AutoCloseable, PooledObjectClient<RagClient> 
     int reindex();
 
     /**
-    * 读取文档原始内容。
-    *
-    * @param docId 文档 ID
-    * @return 文档内容，不存在则返回 null
+     * 读取文档原始内容。
+     *
+     * @param docId 文档 ID，不能为 null
+     * @return 文档内容（UTF-8 字符串），文档不存在或读取失败时返回空字符串（不为 null）
      */
     String readDocumentContent(String docId);
+
+    /**
+     * 读取文档原始字节（图片二进制等，供前端渲染）。
+     * <p>图片类文档入库后，可通过此方法取回原图字节做缩略图 / 预览。
+     * 实现需从上传文件落盘位置读取，文档不存在或读取失败时返回 空 字节数组（不为 null）。</p>
+     *
+     * @param docId 文档 ID，不能为 null
+     * @return 文档原始字节，不存在或读取失败时返回长度为 0 的数组
+     */
+    byte[] readDocumentBytes(String docId);
 
     // ==================== 设置注入 ====================
 
