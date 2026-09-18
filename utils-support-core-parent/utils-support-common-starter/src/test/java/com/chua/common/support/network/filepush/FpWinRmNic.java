@@ -1,4 +1,4 @@
-﻿﻿package com.chua.common.support.network.filepush;
+package com.chua.common.support.network.filepush;
 import com.chua.winrm.support.client.WinRmExecClient;
 /**
  * FpWinRmNic类，提供相关能力。

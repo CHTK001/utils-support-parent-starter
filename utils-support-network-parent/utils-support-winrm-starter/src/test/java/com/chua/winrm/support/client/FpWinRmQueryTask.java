@@ -1,4 +1,4 @@
-﻿﻿package com.chua.winrm.support.client;
+package com.chua.winrm.support.client;
 import com.chua.winrm.support.client.WinRmExecClient;
 /**
  * FpWinRm查询Task类，提供相关能力。

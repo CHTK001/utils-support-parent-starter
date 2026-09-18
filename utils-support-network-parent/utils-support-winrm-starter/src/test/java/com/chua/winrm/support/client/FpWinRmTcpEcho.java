@@ -1,4 +1,4 @@
-﻿﻿package com.chua.winrm.support.client;
+package com.chua.winrm.support.client;
 import com.chua.winrm.support.client.WinRmExecClient;
 /**
  * FpWinRmTcpEcho类，提供相关能力。
