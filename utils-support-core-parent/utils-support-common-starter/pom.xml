@@ -63,6 +63,11 @@
                             <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                    <!-- Fp* 为一次性远程 WinRM 探针（main 方法），引用 com.chua.winrm 类，
+                         不在本模块测试类路径上（winrm 依赖 common，反向 test 依赖成环）；保留源码，不参与编译 -->
+                    <testExcludes>
+                        <testExclude>**/network/filepush/Fp*.java</testExclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
         </plugins>

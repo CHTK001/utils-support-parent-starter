@@ -88,4 +88,19 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- Fp* 为一次性远程 WinRM 探针（main 方法），多数文件字符串截断语法损坏，
+                         且历史上从未参与编译；保留源码，不参与编译 -->
+                    <testExcludes>
+                        <testExclude>**/client/Fp*.java</testExclude>
+                    </testExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
