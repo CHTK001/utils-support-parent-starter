@@ -38,6 +38,9 @@ class OpencodeAgentTest {
 
     // ── descriptor ────────────────────────────────────────────────────
 
+    /**
+    * 测试：opencode 描述符指向 anomalyco 仓库、二进制命名且无 sha256 配套。
+    */
     @Test
     void opencodeDescriptor_anomalycoUrlNoSha() {
         CliModelRunner.CliDescriptor d = CliModelRunner.opencode();
@@ -52,6 +55,12 @@ class OpencodeAgentTest {
 
     // ── buildArgs：转发为真实 CLI 参数 ─────────────────────────────────
 
+    /**
+    * 测试：所有已设置的旗标都被翻译成对应的 CLI 参数。
+    *
+    * @param dir 临时工作目录
+    * @throws Exception 反射调用失败时抛出
+    */
     @Test
     void buildArgs_translatesAllMappableFlags(@TempDir Path dir) throws Exception {
         OpencodeAgent ag = new OpencodeAgent()
@@ -73,6 +82,9 @@ class OpencodeAgentTest {
                 "debug(true) 应转 --print-logs --log-level DEBUG");
     }
 
+    /**
+    * 测试：未设置的旗标不会出现在 CLI 参数里。
+    */
     @Test
     void buildArgs_omitsUnsetFlags() throws Exception {
         OpencodeAgent ag = new OpencodeAgent();
@@ -87,6 +99,12 @@ class OpencodeAgentTest {
 
     // ── definition → opencode.json ────────────────────────────────────
 
+    /**
+    * 测试：definition 会生成合法 opencode.json 并回填 agentName。
+    *
+    * @param dir 临时工作目录
+    * @throws Exception 反射调用失败时抛出
+    */
     @Test
     void applyDefinition_writesAgentConfig(@TempDir Path dir) throws Exception {
         OpencodeAgent ag = new OpencodeAgent().workDir(dir.toString());
@@ -105,6 +123,12 @@ class OpencodeAgentTest {
                 .get("agent").get("pinger").get("mode").toStringValue(null));
     }
 
+    /**
+    * 测试：已存在的 opencode.json 不被覆盖（no-clobber），并记入忽略项。
+    *
+    * @param dir 临时工作目录
+    * @throws Exception 反射调用或文件读写失败时抛出
+    */
     @Test
     void applyDefinition_neverClobbersExistingConfig(@TempDir Path dir) throws Exception {
         Path cfg = dir.resolve("opencode.json");
@@ -119,6 +143,12 @@ class OpencodeAgentTest {
         assertTrue(ignoredOf(ag).stream().anyMatch(s -> s.startsWith("definition")));
     }
 
+    /**
+    * 测试：未设置 workDir 时 definition 被记为忽略并说明原因。
+    *
+    * @param dir 临时工作目录（本例不使用其内容）
+    * @throws Exception 反射调用失败时抛出
+    */
     @Test
     void applyDefinition_requiresWorkDir(@TempDir Path dir) throws Exception {
         OpencodeAgent ag = new OpencodeAgent(); // 未设 workDir
@@ -129,6 +159,11 @@ class OpencodeAgentTest {
                 "无 workDir 时记为忽略并说明原因");
     }
 
+    /**
+    * 测试：生成的 agent 配置 JSON 可解析且转义原样可还原。
+    *
+    * @throws Exception 反射调用失败时抛出
+    */
     @Test
     void buildAgentConfigJson_isParseable() throws Exception {
         String json = (String) invokeStatic("buildAgentConfigJson",
@@ -140,6 +175,9 @@ class OpencodeAgentTest {
 
     // ── chatClient → model 派生 ───────────────────────────────────────
 
+    /**
+    * 测试：模型名优先派生为 provider/model 形式，已带 provider 的原样保留。
+    */
     @Test
     void deriveModel_prefersProviderSlashModel() throws Exception {
         ChatClientSetting s = ChatClientSetting.builder().provider("openai").model("gpt-4").build();
@@ -150,6 +188,11 @@ class OpencodeAgentTest {
 
     // ── 重试判定 ──────────────────────────────────────────────────────
 
+    /**
+    * 测试：重试判定的各边界（无配置、未达上限、已达上限、无限重试）。
+    *
+    * @throws Exception 反射调用失败时抛出
+    */
     @Test
     void shouldRetry_boundaries() throws Exception {
         assertFalse(shouldRetryWithoutConfig(), "retryConfig=null 不重试");
@@ -162,12 +205,27 @@ class OpencodeAgentTest {
 
     // ── reflection helpers ────────────────────────────────────────────
 
+    /**
+    * 以无 retryConfig 的代理实例调用 shouldRetry。
+    *
+    * @return 是否应当重试
+    * @throws Exception 反射调用失败时抛出
+    */
     private static boolean shouldRetryWithoutConfig() throws Exception {
         OpencodeAgent ag = new OpencodeAgent();
         return (Boolean) invoke(ag, "shouldRetry", new Class[]{Throwable.class, int.class},
                 new RuntimeException("boom"), 0);
     }
 
+    /**
+    * 按指定的最大重试次数调用 shouldRetry。
+    *
+    * @param maxRetries 最大重试次数
+    * @param attempt 当前已尝试次数
+    * @param unused 占位参数，保持签名兼容
+    * @return 是否应当重试
+    * @throws Exception 反射调用失败时抛出
+    */
     private static boolean shouldRetry(int maxRetries, int attempt, int unused) throws Exception {
         OpencodeAgent ag = new OpencodeAgent();
         ag.retryConfig(AgentRetryConfig.builder().maxRetries(maxRetries).build());
@@ -175,6 +233,14 @@ class OpencodeAgentTest {
                 new RuntimeException("boom"), attempt);
     }
 
+    /**
+    * 用动态代理伪造 ChatClient，调用 deriveModel 验证派生结果。
+    *
+    * @param model 客户端报告的系统模型名
+    * @param setting 客户端设置（提供 provider）
+    * @return 派生出的 opencode 模型名
+    * @throws Exception 反射调用失败时抛出
+    */
     private static String deriveModel(String model, ChatClientSetting setting) throws Exception {
         ChatClient cc = (ChatClient) Proxy.newProxyInstance(
                 OpencodeAgentTest.class.getClassLoader(), new Class[]{ChatClient.class},
@@ -186,29 +252,71 @@ class OpencodeAgentTest {
         return (String) invokeStatic("deriveModel", new Class[]{ChatClient.class}, cc);
     }
 
+    /**
+    * 读取代理实例的忽略项集合。
+    *
+    * @param ag 代理实例
+    * @return 被忽略的配置项集合
+    * @throws Exception 反射读取失败时抛出
+    */
     @SuppressWarnings("unchecked")
     private static Set<String> ignoredOf(OpencodeAgent ag) throws Exception {
         return (Set<String>) get(ag, "ignored");
     }
 
+    /**
+    * 反射读取目标对象的字段值。
+    *
+    * @param t 目标对象
+    * @param field 字段名
+    * @return 字段值
+    * @throws Exception 反射失败时抛出
+    */
     private static Object get(Object t, String field) throws Exception {
         Field f = OpencodeAgent.class.getDeclaredField(field);
         f.setAccessible(true);
         return f.get(t);
     }
 
+    /**
+    * 反射设置目标对象的字段值。
+    *
+    * @param t 目标对象
+    * @param field 字段名
+    * @param value 要设置的值
+    * @throws Exception 反射失败时抛出
+    */
     private static void set(Object t, String field, Object value) throws Exception {
         Field f = OpencodeAgent.class.getDeclaredField(field);
         f.setAccessible(true);
         f.set(t, value);
     }
 
+    /**
+    * 反射调用实例方法。
+    *
+    * @param t 目标对象
+    * @param name 方法名
+    * @param types 参数类型列表
+    * @param args 实参列表
+    * @return 方法返回值
+    * @throws Exception 反射失败时抛出
+    */
     private static Object invoke(Object t, String name, Class<?>[] types, Object... args) throws Exception {
         Method m = OpencodeAgent.class.getDeclaredMethod(name, types);
         m.setAccessible(true);
         return m.invoke(t, args);
     }
 
+    /**
+    * 反射调用静态方法。
+    *
+    * @param name 方法名
+    * @param types 参数类型列表
+    * @param args 实参列表
+    * @return 方法返回值
+    * @throws Exception 反射失败时抛出
+    */
     private static Object invokeStatic(String name, Class<?>[] types, Object... args) throws Exception {
         Method m = OpencodeAgent.class.getDeclaredMethod(name, types);
         m.setAccessible(true);
