@@ -3,6 +3,7 @@ package com.chua.hprof.support.serializer;
 import com.chua.hprof.support.analyzer.HprofAnalyzer;
 import com.chua.hprof.support.analyzer.HprofAnalyzer.HprofAnalysis;
 import com.chua.hprof.support.analyzer.HprofAnalyzer.HprofFinding;
+import com.chua.hprof.support.model.HprofClassDetail;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.model.HprofObject;
 import com.chua.hprof.support.parser.HprofParser;
@@ -79,11 +80,12 @@ public final class HprofToHtmlSerializer {
         appendKpiCards(sb, analysis, result);
         appendRootCause(sb, analysis);
         appendCharts(sb);
-        appendFindings(sb, analysis);
-        appendNonJdk(sb, analysis);
+        appendFindings(sb, analysis, result);
+        appendNonJdk(sb, analysis, result);
         appendConclusions(sb, analysis);
         appendAiSummary(sb, aiSummary);
-        appendTables(sb, analysis);
+        appendDetails(sb, result);
+        appendTables(sb, analysis, result);
         appendScript(sb, analysis, fileName);
         appendHtmlTail(sb);
         return sb.toString();
@@ -160,6 +162,25 @@ public final class HprofToHtmlSerializer {
                 .append("  .ai-summary { background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);")
                 .append("               border: 1px solid #fcd34d; }\n")
                 .append("  .ai-summary .ai-text { white-space: pre-wrap; font-size: 14px; color: #78350f; }\n")
+                .append("  details { background: #fff; border-radius: 10px; margin-bottom: 10px;")
+                .append("           box-shadow: 0 1px 3px rgba(0,0,0,.08); }")
+                .append("  details summary { cursor: pointer; padding: 12px 16px; font-weight: 600;")
+                .append("                    color: #1f2937; list-style: none; }")
+                .append("  details summary::-webkit-details-marker { display: none; }")
+                .append("  details summary::before { content: '▶'; display: inline-block; margin-right: 8px;")
+                .append("                           font-size: 11px; color: #3b82f6; transition: transform .15s; }")
+                .append("  details[open] summary::before { transform: rotate(90deg); }")
+                .append("  details .body { padding: 8px 16px 14px; border-top: 1px solid #e5e7eb; }")
+                .append("  .inst { margin: 10px 0; padding: 10px; background: #f9fafb; border-radius: 6px; }")
+                .append("  .inst .head { font-weight: 600; font-size: 13px; margin-bottom: 6px; }")
+                .append("  .inst .head .id { color: #6b7280; font-family: ui-monospace, monospace; font-weight: 400; }")
+                .append("  .field { display: flex; gap: 8px; font-size: 12px; padding: 2px 0;")
+                .append("          font-family: ui-monospace, monospace; }")
+                .append("  .field .fn { color: #1d4ed8; min-width: 180px; }")
+                .append("  .field .ft { color: #6b7280; min-width: 120px; }")
+                .append("  .field .fv { color: #059669; word-break: break-all; }")
+                .append("  .field.static .fn::before { content: 'static '; color: #b91c1c; font-weight: 700; }\n")
+                .append("  .detail-row td { padding: 0 8px 10px; background: #fafafa; }\n")
                 .append("  table { width: 100%; border-collapse: collapse; font-size: 13px; }\n")
                 .append("  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; }\n")
                 .append("  th { background: #f9fafb; font-weight: 600; color: #374151; }\n")
@@ -223,8 +244,10 @@ public final class HprofToHtmlSerializer {
     *
     * @param sb       output buffer
     * @param analysis analysis
+    * @param result   parsed result (for details linkage)
     */
-    private static void appendFindings(StringBuilder sb, HprofAnalysis analysis) {
+    private static void appendFindings(StringBuilder sb, HprofAnalysis analysis,
+                                       HprofParser.Result result) {
         sb.append("<h2>算法分析结论（为什么内存高）</h2>\n");
         for (HprofFinding f : analysis.findingDetails) {
             sb.append("<div class=\"card\">")
@@ -242,8 +265,10 @@ public final class HprofToHtmlSerializer {
     *
     * @param sb       output buffer
     * @param analysis analysis
+    * @param result   parsed result (details linkage for future per-package expand)
     */
-    private static void appendNonJdk(StringBuilder sb, HprofAnalysis analysis) {
+    private static void appendNonJdk(StringBuilder sb, HprofAnalysis analysis,
+                                     HprofParser.Result result) {
         if (analysis.nonJdkPackageGroups == null || analysis.nonJdkPackageGroups.isEmpty()) {
             return;
         }
@@ -305,34 +330,113 @@ public final class HprofToHtmlSerializer {
     }
 
     /**
+    * Append the "点开看详情" block: for each captured top class, a
+    * collapsible {@code <details>} showing its retained-largest instances
+    * and their field values (which field holds the big collection / array /
+    * string) plus the static field holders. This answers "who stored what".
+    *
+    * @param sb     output buffer
+    * @param result parsed result with classDetails
+    */
+    private static void appendDetails(StringBuilder sb, HprofParser.Result result) {
+        Map<String, HprofClassDetail> details = result.classDetails();
+        if (details == null || details.isEmpty()) {
+            return;
+        }
+        sb.append("<h2>内存持有明细（点开看是谁存了什么）</h2>\n");
+        for (HprofClassDetail detail : details.values()) {
+            if (detail.getInstances().isEmpty() && detail.getStaticFields().isEmpty()) {
+                continue;
+            }
+            sb.append("<details>\n")
+                    .append("<summary>").append(escape(detail.getClassName()))
+                    .append("</summary>\n<div class=\"body\">\n");
+            for (HprofClassDetail.InstanceDetail inst : detail.getInstances()) {
+                sb.append("<div class=\"inst\">\n")
+                        .append("<div class=\"head\">实例 ")
+                        .append(escape(HprofObject.formatSize(inst.getRetainedSize())))
+                        .append(" <span class=\"id\">#").append(inst.getInstanceId()).append("</span></div>\n");
+                for (HprofClassDetail.FieldValueDetail fv : inst.getFieldValues()) {
+                    appendField(sb, fv, false);
+                }
+                sb.append("</div>\n");
+            }
+            if (!detail.getStaticFields().isEmpty()) {
+                sb.append("<div class=\"inst\"><div class=\"head\">静态字段持有者</div>\n");
+                for (HprofClassDetail.FieldValueDetail fv : detail.getStaticFields()) {
+                    appendField(sb, fv, true);
+                }
+                sb.append("</div>\n");
+            }
+            sb.append("</div>\n</details>\n");
+        }
+    }
+
+    /**
+    * One field row inside a details block.
+    *
+    * @param sb      output buffer
+    * @param fv      field value detail
+    * @param isStatic whether in the static-field section
+    */
+    private static void appendField(StringBuilder sb,
+                                    HprofClassDetail.FieldValueDetail fv,
+                                    boolean isStatic) {
+        sb.append("<div class=\"field").append(isStatic ? " static" : "")
+                .append("\"><span class=\"fn\">").append(escape(fv.getName()))
+                .append("</span><span class=\"ft\">").append(escape(fv.getType()))
+                .append("</span><span class=\"fv\">").append(escape(fv.getValueText()))
+                .append("</span></div>\n");
+    }
+
+    /**
     * Append the detailed ranking tables.
     *
     * @param sb       output buffer
     * @param analysis analysis
+    * @param result   parsed result (class details)
     */
-    private static void appendTables(StringBuilder sb, HprofAnalysis analysis) {
+    private static void appendTables(StringBuilder sb, HprofAnalysis analysis,
+                                     HprofParser.Result result) {
         sb.append("<h2>类排行明细</h2>\n<div class=\"card\">\n")
                 .append("<table><thead><tr><th>类</th><th class=\"num\">实例数</th>")
                 .append("<th class=\"num\">Shallow</th><th class=\"num\">Retained</th>")
                 .append("</tr></thead><tbody>\n");
         for (HprofHistogramRow row : analysis.topByRetained) {
-            appendRow(sb, row);
+            appendRow(sb, row, result);
         }
         sb.append("</tbody></table>\n</div>\n");
     }
 
     /**
-    * One table row.
+    * One table row. When the class has captured instance details, the row
+    * expands via {@code <details>} to show the field values.
     *
-    * @param sb  output buffer
-    * @param row histogram row
+    * @param sb    output buffer
+    * @param row   histogram row
+    * @param result parsed result (for classDetails)
     */
-    private static void appendRow(StringBuilder sb, HprofHistogramRow row) {
+    private static void appendRow(StringBuilder sb, HprofHistogramRow row,
+                                  HprofParser.Result result) {
         sb.append("<tr><td>").append(escape(row.getClassName()))
                 .append("</td><td class=\"num\">").append(row.getInstanceCount())
                 .append("</td><td class=\"num\">").append(HprofObject.formatSize(row.getShallowSize()))
                 .append("</td><td class=\"num\">").append(HprofObject.formatSize(row.getRetainedSize()))
                 .append("</td></tr>\n");
+        if (result.classDetails() != null && result.classDetails().containsKey(row.getClassName())) {
+            HprofClassDetail detail = result.classDetails().get(row.getClassName());
+            sb.append("<tr class=\"detail-row\"><td colspan=\"4\">\n");
+            for (HprofClassDetail.InstanceDetail inst : detail.getInstances()) {
+                sb.append("<div class=\"inst\"><div class=\"head\">实例 ")
+                        .append(HprofObject.formatSize(inst.getRetainedSize()))
+                        .append(" <span class=\"id\">#").append(inst.getInstanceId()).append("</span></div>\n");
+                for (HprofClassDetail.FieldValueDetail fv : inst.getFieldValues()) {
+                    appendField(sb, fv, false);
+                }
+                sb.append("</div>\n");
+            }
+            sb.append("</td></tr>\n");
+        }
     }
 
     /**

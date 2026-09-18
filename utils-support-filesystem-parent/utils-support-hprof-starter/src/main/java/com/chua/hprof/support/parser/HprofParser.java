@@ -1,5 +1,6 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.hprof.support.model.HprofClassDetail;
 import com.chua.hprof.support.model.HprofHistogramRow;
 import com.chua.hprof.support.model.HprofObject;
 
@@ -37,6 +38,7 @@ public final class HprofParser {
                           List<HprofObject> topRetained,
                           List<String> gcRoots,
                           Map<String, Long> gcRootsByKind,
+                          Map<String, HprofClassDetail> classDetails,
                           long totalRetainedBytes,
                           long totalObjectCount) {
     }
@@ -121,7 +123,9 @@ public final class HprofParser {
         long totalRetained = ctx.retainedByClass().values().stream().mapToLong(Long::longValue).sum();
         long totalCount = ctx.countByClass().values().stream().mapToLong(Long::longValue).sum();
         Map<String, Long> gcRootsByKind = ctx.gcRootsByKind();
-        return new Result(objects, histogram, topRetained, ctx.gcRoots(), gcRootsByKind, totalRetained, totalCount);
+        Map<String, HprofClassDetail> classDetails = ctx.classDetails();
+        return new Result(objects, histogram, topRetained, ctx.gcRoots(),
+                gcRootsByKind, classDetails, totalRetained, totalCount);
     }
 
     /**

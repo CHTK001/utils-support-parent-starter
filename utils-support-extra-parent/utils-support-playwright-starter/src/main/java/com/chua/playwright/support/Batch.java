@@ -127,7 +127,7 @@ public class Batch {
     * 逐条执行所有命令。
     * 当 {@code stopOnError=true} 时，遇到异常立即停止并抛出。
     * @param action 动作
-     /**
+    /**
     * 执行。
     * @return 执行的结果
     */

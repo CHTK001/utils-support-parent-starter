@@ -39,7 +39,8 @@ class HprofConverterTest {
         HprofHistogramRow row = new HprofHistogramRow("java.util.HashMap", 1L, 0L, 1_200_000_000L);
         HprofParser.Result result = new HprofParser.Result(
                 List.of(suspect), List.of(row), List.of(suspect),
-                List.of("static OrderCache.cache"), Map.of("sticky class", 1L), 1_200_000_000L, 1L);
+                List.of("static OrderCache.cache"), Map.of("sticky class", 1L),
+                Map.of(), 1_200_000_000L, 1L);
 
         String json = HprofToJsonSerializer.serialize(result, "sample.hprof");
         assertNotNull(json);
@@ -70,7 +71,8 @@ class HprofConverterTest {
         HprofHistogramRow row = new HprofHistogramRow("java.util.HashMap", 1L, 0L, 1_200_000_000L);
         HprofParser.Result result = new HprofParser.Result(
                 List.of(suspect), List.of(row), List.of(suspect),
-                List.of("static OrderCache.cache"), Map.of("sticky class", 1L), 1_200_000_000L, 1L);
+                List.of("static OrderCache.cache"), Map.of("sticky class", 1L),
+                Map.of(), 1_200_000_000L, 1L);
 
         String md = HprofToMarkdownSerializer.serialize(result, "sample.hprof");
         assertNotNull(md);

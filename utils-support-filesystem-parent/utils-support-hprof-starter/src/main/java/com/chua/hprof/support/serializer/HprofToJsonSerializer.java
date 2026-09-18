@@ -111,6 +111,35 @@ public final class HprofToJsonSerializer {
             item.put("retained_bytes", g.retained());
         }
         analysisNode.put("root_cause", analysis.rootCause);
+        // 逐实例字段明细：让 AI 能读到"是谁把东西存进去了"
+        ArrayNode classDetails = root.putArray("class_details");
+        if (result.classDetails() != null) {
+            for (com.chua.hprof.support.model.HprofClassDetail detail : result.classDetails().values()) {
+                ObjectNode d = classDetails.addObject();
+                d.put("class", detail.getClassName());
+                ArrayNode insts = d.putArray("instances");
+                for (com.chua.hprof.support.model.HprofClassDetail.InstanceDetail inst : detail.getInstances()) {
+                    ObjectNode i = insts.addObject();
+                    i.put("instance_id", inst.getInstanceId());
+                    i.put("retained_size", inst.getRetainedSize());
+                    i.put("shallow_size", inst.getShallowSize());
+                    ArrayNode fvs = i.putArray("fields");
+                    for (com.chua.hprof.support.model.HprofClassDetail.FieldValueDetail fv : inst.getFieldValues()) {
+                        ObjectNode f = fvs.addObject();
+                        f.put("name", fv.getName());
+                        f.put("type", fv.getType());
+                        f.put("value", fv.getValueText());
+                    }
+                }
+                ArrayNode statics = d.putArray("static_fields");
+                for (com.chua.hprof.support.model.HprofClassDetail.FieldValueDetail fv : detail.getStaticFields()) {
+                    ObjectNode f = statics.addObject();
+                    f.put("name", fv.getName());
+                    f.put("type", fv.getType());
+                    f.put("value", fv.getValueText());
+                }
+            }
+        }
         return root;
     }
 
