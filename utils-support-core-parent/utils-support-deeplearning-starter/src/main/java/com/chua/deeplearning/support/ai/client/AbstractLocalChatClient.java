@@ -29,22 +29,22 @@ public abstract class AbstractLocalChatClient implements ChatClient {
 
     /**
     * 引擎名称（提供者）
-     */
+    */
     protected final String engine;
 
     /**
     * 识别引擎实例
-     */
+    */
     protected final IdentificationEngine identificationEngine;
 
     /**
     * 当前模型名称
-     */
+    */
     protected String model;
 
     /**
     * 客户端配置（用于在 对话同步 时向 translator 注入 device / usegpu / gpulayers 等参数）
-     */
+    */
     protected final ChatClientSetting setting;
 
     /**
@@ -52,7 +52,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     *
     * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
     * @param setting 客户端配置
-     */
+    */
     protected AbstractLocalChatClient(String engine, ChatClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -74,7 +74,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     * 否则返回显式指定的模型名。</p>
     *
     * @return 模型名称
-     */
+    */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;
@@ -121,7 +121,7 @@ public abstract class AbstractLocalChatClient implements ChatClient {
     * usegpu 走设置或系统属性；其他字段为 空 时由 translator 用自己的默认值。</p>
     *
     * @return 配置 映射，可为空
-     */
+    */
     protected Map<String, Object> resolveOptions() {
         ChatClientSetting setting = this.setting;
         Map<String, Object> opts = new LinkedHashMap<>();

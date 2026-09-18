@@ -9,7 +9,7 @@ import com.chua.common.support.network.server.SyncServerListener;
 import java.util.*;
 
 /**
-* 套接字.IO 同步流程管理器。
+* Socket.IO 同步流程管理器。
 *
 * @author CH
 * @since 4.0.0.42
@@ -18,45 +18,45 @@ public class SocketIOSyncFlow implements SyncFlow {
 
     /**
     * 客户端实例
-     */
+    */
     private final SocketIOSyncClient client;
     /**
     * 服务器实例
-     */
+    */
     private final SocketIOSyncServer server;
     /**
     * running
-     */
+    */
     private volatile boolean running = false;
     /**
     * 监听器列表
-     */
+    */
     private final List<SyncFlowListener> listeners = new ArrayList<>();
 
     /**
-    * 创建 套接字io同步流 实例
+    * 创建 Socketio同步流 实例
     * @param setting setting
     * @param serverUrl 字符串
     * @param serverUrl 服务端url
-     */
+    */
     public SocketIOSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new SocketIOSyncServer(setting);
         this.client = new SocketIOSyncClient(serverUrl);
     }
 
     /**
-    * 创建 套接字io同步流 实例
+    * 创建 Socketio同步流 实例
     * @param serverUrl 服务端url
-     */
+    */
     public SocketIOSyncFlow(String serverUrl) {
         this.server = null;
         this.client = new SocketIOSyncClient(serverUrl);
     }
 
     /**
-    * 创建 套接字io同步流 实例
+    * 创建 Socketio同步流 实例
     * @param setting setting
-     */
+    */
     public SocketIOSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
         this.server = new SocketIOSyncServer(setting);
         this.client = null;
@@ -167,7 +167,7 @@ public class SocketIOSyncFlow implements SyncFlow {
     * 通知监听器
     *
     * @param action 动作
-     */
+    */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

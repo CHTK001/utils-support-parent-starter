@@ -38,7 +38,7 @@ public class WekaRandomForestFeatureImportance {
     * @param options 随机森林参数，传 {@code null} 使用默认值
     * @return 按重要性降序排列的特征重要性列表
     * @throws WekaException 数据缺少标签 / 目标列或训练失败
-     */
+    */
     public List<FeatureImportance> analyze(WekaInstanceData data, RandomForestOptions options) {
         Objects.requireNonNull(data, "data must not be null");
         if (!data.hasTargetOrLabel()) {

@@ -62,7 +62,7 @@ public class BcSm4Cipher implements Sm4Cipher {
     *
     * @param key 密钥字节
     * @return 原密钥
-     */
+    */
     private static byte[] validateKey(byte[] key) {
         if (key == null || key.length != 16) {
             throw new IllegalArgumentException("SM4 密钥长度必须为 16 字节（128 位）");

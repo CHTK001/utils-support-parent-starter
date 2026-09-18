@@ -15,7 +15,7 @@ public class DecoderTranslator implements NoBatchifyTranslator<NDList, CausalLMO
 
     /**
     * past_键_值 元组名。
-     */
+    */
     private final String tupleName;
 
     /** 创建 解码器translator 实例 */

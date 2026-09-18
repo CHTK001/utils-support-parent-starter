@@ -20,7 +20,7 @@ public interface PlateNumberPipelineCallback {
     *
     * @param imageData 原始场景图
     * @param boxes     检测到的车牌框列表
-     */
+    */
     default void onDetect(byte[] imageData, List<PredictRectangle> boxes) {
     }
 
@@ -31,7 +31,7 @@ public interface PlateNumberPipelineCallback {
     * @param result 车牌识别结果
     * @param index  当前索引
     * @param total  总数
-     */
+    */
     default void onRecognize(PredictRectangle box, PlateResult result, int index, int total) {
     }
 }

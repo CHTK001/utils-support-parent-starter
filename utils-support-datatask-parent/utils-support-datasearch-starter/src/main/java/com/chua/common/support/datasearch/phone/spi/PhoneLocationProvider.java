@@ -17,7 +17,7 @@ public interface PhoneLocationProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -27,6 +27,6 @@ public interface PhoneLocationProvider {
     *
     * @param phone 手机号码
     * @return 归属地信息；格式非法或查询失败返回 空
-     */
+    */
     PhoneLocationInfo getLocation(String phone);
 }

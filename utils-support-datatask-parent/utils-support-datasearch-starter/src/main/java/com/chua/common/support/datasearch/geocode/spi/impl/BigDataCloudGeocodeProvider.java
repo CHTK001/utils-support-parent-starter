@@ -119,7 +119,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
     *
     * @param root 逆编码响应
     * @return 地址；全部缺失时返回 空
-     */
+    */
     private String buildAddress(JsonNode root) {
         StringBuilder sb = new StringBuilder();
         append(sb, root.path("locality").asText(null));
@@ -134,7 +134,7 @@ public class BigDataCloudGeocodeProvider implements GeocodeProvider {
     *
     * @param sb   拼接器
     * @param part 地址段
-     */
+    */
     private void append(StringBuilder sb, String part) {
         if (part == null || part.isBlank()) {
             return;

@@ -50,7 +50,7 @@ public class JcefWebviewWindow implements WebViewWindow {
 
     /**
     * ipc 页面
-     */
+    */
     private static final String IPC_PAGE =
             "<!DOCTYPE html><html><body style='background:#1e1e1e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0'>" +
             "<div style='text-align:center'>" +
@@ -60,23 +60,23 @@ public class JcefWebviewWindow implements WebViewWindow {
 
     /**
     * cef App
-     */
+    */
     private CefApp cefApp;
     /**
     * 客户端实例
-     */
+    */
     private CefClient client;
     /**
     * 浏览器实例
-     */
+    */
     private CefBrowser browser;
     /**
     * 帧
-     */
+    */
     private Frame frame;
     /**
     * ipc 服务端
-     */
+    */
     private IpcProtocolServer ipcServer;
 
     @Override
@@ -117,7 +117,7 @@ catch (Throwable e) {
     * @param title title
     * @param width width
     * @param height height
-     */
+    */
     public void open(ProtocolServer server, String title, int width, int height) {
         ProtocolType type = server.getProtocolType();
         if (type == ProtocolType.IPC) {
@@ -139,7 +139,7 @@ catch (Throwable e) {
     * @param title title
     * @param width width
     * @param height height
-     */
+    */
     private void openIpc(ProtocolServer server, String title, int width, int height) {
         if (!(server instanceof IpcProtocolServer)) {
             log.error("IPC protocol requires IpcProtocolServer, got: {}", server.getClass().getName());
@@ -203,15 +203,15 @@ finally {
     }
 
     /**
-    * JCEF cef消息router                 JS                 {@link IpcProtocolServer}
-    * @author CH
-    * @since 4.0.0
-     */
+                * JCEF cef消息router                 JS                 {@link IpcProtocolServer}
+                * @author CH
+                * @since 4.0.0
+                */
     private static class IpcMessageRouterHandler extends CefMessageRouterHandlerAdapter {
 
         /**
         * ipc 服务端
-         */
+        */
         private final IpcProtocolServer ipcServer;
 
         IpcMessageRouterHandler(IpcProtocolServer ipcServer) {
@@ -227,7 +227,7 @@ finally {
         * @param request 请求
         * @param persistent persistent
         * @param callback callback
-         */
+        */
         public boolean onQuery(CefBrowser browser, CefFrame frame, long queryId,
                                String request, boolean persistent, CefQueryCallback callback) {
             try {

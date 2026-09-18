@@ -73,7 +73,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     * @param content 数据库文件字节
     * @return 预览 HTML
     * @throws IOException 数据库不可读时抛出
-     */
+    */
     private String previewDatabase(byte[] content) throws IOException {
         Path tmp = Files.createTempFile("preview-sqlite-", ".db");
         try {
@@ -107,7 +107,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     * @param path 数据库文件路径
     * @return 数据库连接
     * @throws SQLException 连接失败时抛出
-     */
+    */
     private Connection openConnection(Path path) throws SQLException {
         String url = "jdbc:sqlite:file:" + path.toAbsolutePath() + "?mode=ro";
         Connection conn = DriverManager.getConnection(url);
@@ -121,7 +121,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     * @param conn 数据库连接
     * @return 表名列表
     * @throws SQLException 查询失败时抛出
-     */
+    */
     private List<String> listTables(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
         String sql = "SELECT name FROM sqlite_master WHERE type IN ('table','view') "
@@ -144,7 +144,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     * @param sb    输出缓冲区
     * @param conn  数据库连接
     * @param table 表名
-     */
+    */
     private void renderTable(StringBuilder sb, Connection conn, String table) {
         sb.append("<div class=\"table-block\"><div class=\"table-head\">")
                 .append(escape(table)).append("</div>");
@@ -184,7 +184,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param body 页面主体片段
     * @return 完整 HTML
-     */
+    */
     private String wrapHtml(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
@@ -211,7 +211,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param message 提示信息
     * @return 完整 HTML
-     */
+    */
     private String emptyHtml(String message) {
         return wrapHtml("<div class=\"header\"><h1>SQLite 数据库预览</h1></div>"
                 + "<div class=\"empty\">" + escape(message) + "</div>");
@@ -222,7 +222,7 @@ public class SqlitePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 原始文本
     * @return 转义后的文本
-     */
+    */
     private String escape(String text) {
         return StringUtils.escapeHtml(text);
     }

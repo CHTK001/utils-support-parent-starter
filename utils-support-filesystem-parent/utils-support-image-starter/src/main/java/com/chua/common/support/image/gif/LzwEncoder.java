@@ -210,7 +210,7 @@ class LzwEncoder {
     *
     * @param nBits 位数
     * @return maxcode的结果
-     */
+    */
     final int maxcode(int nBits) {
         return (1 << nBits) - 1;
     }
@@ -220,7 +220,7 @@ class LzwEncoder {
     * 下一个pixel
     *
     * @return 下一个pixel的结果
-     */
+    */
     private int nextPixel() {
         if (remaining == 0) {
             return EOF;

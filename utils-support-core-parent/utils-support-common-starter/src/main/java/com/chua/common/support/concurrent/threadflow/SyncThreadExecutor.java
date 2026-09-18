@@ -93,8 +93,8 @@ public class SyncThreadExecutor extends AbstractThreadExecutor {
     }
 
     /**
-    * 失败 Future 包装。
-    */
+        * 失败 Future 包装。
+        */
     private static final class FailedFuture implements Future<Object> {
         /** 异常对象 */
         private final Exception exception;

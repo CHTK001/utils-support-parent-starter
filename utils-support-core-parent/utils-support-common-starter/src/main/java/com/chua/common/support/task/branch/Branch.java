@@ -98,11 +98,11 @@ public final class Branch<T> {
     }
 
     /**
-    * 条件组阶段。
-    *
-    * @param group 群体
-    * @return 群体Stage的结果
-    */
+        * 条件组阶段。
+        *
+        * @param group 群体
+        * @return 群体Stage的结果
+        */
     private record GroupStage(Group group) implements Stage {
     }
 

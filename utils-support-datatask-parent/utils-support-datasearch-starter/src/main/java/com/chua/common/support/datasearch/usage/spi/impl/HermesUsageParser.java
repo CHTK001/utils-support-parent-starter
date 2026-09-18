@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Hermes 智能体 usage parser.
+* Hermes Agent usage parser.
 *
 * <p>Hermes (by Hugging Face) is an agentic coding assistant that persists
 * per-会话 令牌 和 cost tallies 入 a sqlite database at
@@ -56,7 +56,7 @@ public class HermesUsageParser extends BaseUsageParser {
     /**
     * resolvedb路径。
     * @return resolvedb路径的结果
-     */
+    */
     private static Path resolveDbPath() {
         String localAppData = System.getenv("LOCALAPPDATA");
         if (localAppData != null && !localAppData.isBlank()) {
@@ -77,7 +77,7 @@ public class HermesUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "hermes"}
-     */
+    */
     @Override
     public String name() {
         return PROVIDER;
@@ -85,7 +85,7 @@ public class HermesUsageParser extends BaseUsageParser {
 
     /**
     * 流式解析全部会话用量记录。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -104,7 +104,7 @@ public class HermesUsageParser extends BaseUsageParser {
     *
     * @param row 数据库行
     * @return 用量记录
-     */
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int inputTokens = asInt(row.get("input_tokens"));
         int outputTokens = asInt(row.get("output_tokens"));

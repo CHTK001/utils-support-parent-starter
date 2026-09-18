@@ -43,27 +43,27 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
     * Milvus 客户端
-     */
+    */
     private final MilvusClientV2 client;
 
     /**
     * 集合 名称
-     */
+    */
     private final String collectionName;
 
     /**
     * 距离度量类型
-     */
+    */
     private final IndexParam.MetricType algorithmName;
 
     /**
     * 认证令牌
-     */
+    */
     private final String token;
 
     /**
     * 是否已释放资源
-     */
+    */
     private boolean released;
 
     /**
@@ -77,7 +77,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     * @param port       Milvus 服务端口（仅当 主机 不含协议时使用）
     * @param collection 集合名称
     * @param token      认证令牌（可选）
-     */
+    */
     public MilvusVectorStorage(int dimension, VectorCompareAlgorithm algorithm,
                                String host, int port, String collection, String token) {
         super(dimension, algorithm);
@@ -97,7 +97,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
     * 初始化 Milvus 集合。
-     */
+    */
     private void initCollection() {
         boolean exists = client.hasCollection(HasCollectionReq.builder()
                 .collectionName(collectionName)
@@ -125,7 +125,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     * 将业务层算法名称映射为 Milvus {@link IndexParam.MetricType}。
     * @param algo algo
     * @return 转为milvus指标类型的结果
-     */
+    */
     private static IndexParam.MetricType toMilvusMetricType(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return IndexParam.MetricType.COSINE;
@@ -139,7 +139,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
 
     /**
     * 刷新索引，使新插入的向量可被搜索。
-     */
+    */
     public void release() {
         if (!released) {
             client.flush(FlushReq.builder()
@@ -172,7 +172,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     *
     * @param id 向量标识
     * @return 是否删除成功（id 不存在时返回 false）
-     */
+    */
     @Override
     public synchronized boolean remove(String id) {
         checkNotClosed();
@@ -196,7 +196,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     * @param id     向量标识
     * @param vector 新的向量数据
     * @return 是否更新成功（id 不存在时返回 false）
-     */
+    */
     @Override
     public synchronized boolean update(String id, float[] vector) {
         checkNotClosed();
@@ -255,7 +255,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     * 从 Milvus 返回的 实体 中提取向量数据。
     * @param entity 实体
     * @return extract向量的结果
-     */
+    */
     private static float[] extractVector(Map<String, Object> entity) {
         if (entity == null) {
             return new float[0];
@@ -307,7 +307,7 @@ public class MilvusVectorStorage extends AbstractVectorStorage {
     *
     * @param data 数据
     * @return gsonFloatArray的结果
-     */
+    */
     private static com.google.gson.JsonArray gsonFloatArray(float[] data) {
         com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
         for (float v : data) {

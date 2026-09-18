@@ -1561,11 +1561,11 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-    * WebSocket 连接封装,负责向对端发送帧(线程安全)。
-    *
-    * @author CH
-    * @since 2026/08/24
-    */
+        * WebSocket 连接封装,负责向对端发送帧(线程安全)。
+        *
+        * @author CH
+        * @since 2026/08/24
+        */
     private static final class AioWsConnection {
 
         /** OUT */
@@ -1637,11 +1637,11 @@ public class AioHttpServer extends AbstractServer {
     }
 
     /**
-    * WebSocket 消息响应(语义与 NIO 版 WsServerResponse 一致)。
-    *
-    * @author CH
-    * @since 2026/08/24
-    */
+        * WebSocket 消息响应(语义与 NIO 版 WsServerResponse 一致)。
+        *
+        * @author CH
+        * @since 2026/08/24
+        */
     private static final class AioWsResponse implements ServerResponse {
         /** Connection */
         private final AioWsConnection connection;

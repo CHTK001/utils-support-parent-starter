@@ -45,22 +45,22 @@ public abstract class AbstractEngine implements Engine {
 
     /**
     * 内存数据存储映射表，键为表名，值为数据列表。
-     */
+    */
     protected final Map<String, List<?>> dataStores = new ConcurrentHashMap<>();
 
     /**
     * 数据源映射表，存储所有注册的数据源。
-     */
+    */
     protected final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
     * 默认数据源名称。
-     */
+    */
     protected String defaultDataSourceName;
 
     /**
     * 引擎拦截器扩展缓存，首次访问时通过 SPI 加载。
-     */
+    */
     private volatile List<EngineInterceptor> interceptorCache;
 
     /**
@@ -69,7 +69,7 @@ public abstract class AbstractEngine implements Engine {
     * 结果按 order 降序排列；无注册实现时返回空列表。</p>
     *
     * @return 拦截器列表（非 null）
-     */
+    */
     protected List<EngineInterceptor> interceptors() {
         if (interceptorCache == null) {
             synchronized (this) {
@@ -109,7 +109,7 @@ public abstract class AbstractEngine implements Engine {
     * @param name 名称
     * @param ds ds
     * @return 添加数据源的结果
-     */
+    */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         dataSources.put(name, (EngineDataSource<Object>) ds);
         if (defaultDataSourceName == null) {
@@ -154,7 +154,7 @@ public abstract class AbstractEngine implements Engine {
     *
     * @param n n
     * @return 获取数据源的结果
-     */
+    */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
@@ -165,7 +165,7 @@ public abstract class AbstractEngine implements Engine {
     * 获取数据源
     *
     * @return 获取数据源的结果
-     */
+    */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -177,7 +177,7 @@ public abstract class AbstractEngine implements Engine {
     *
     * @param n 数据源名称
     * @return 方言实例，无匹配时返回 null
-     */
+    */
     public Dialect getDialect(String n) {
         EngineDataSource<?> ds = dataSources.get(n);
         return ds != null ? ds.getDialect() : null;
@@ -200,7 +200,7 @@ public abstract class AbstractEngine implements Engine {
     * 关闭引擎，释放所有已注册数据源的底层资源。
     *
     * <p>遍历所有 EngineDataSource 逐一关闭，再清理内存数据与数据源映射。</p>
-     */
+    */
     public void close() {
         for (EngineDataSource<?> ds : dataSources.values()) {
             try {
@@ -252,7 +252,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 查询包装器
-     */
+    */
     public <T> EngineQueryWrapper<T> queryNew(Class<T> entityClass) {
         return new EngineQueryWrapper<>(this, entityClass);
     }
@@ -263,7 +263,7 @@ public abstract class AbstractEngine implements Engine {
     * @param wrapper 查询包装器
     * @param <T>     实体类型
     * @return 查询结果
-     */
+    */
     public <T> List<T> execute(EngineQueryWrapper<T> wrapper) {
         return executeQuery(wrapper, wrapper.getEntityClass());
     }
@@ -276,7 +276,7 @@ public abstract class AbstractEngine implements Engine {
     * @param ps      每页大小
     * @param <T>     实体类型
     * @return 分页结果
-     */
+    */
     public <T> Page<T> executePage(EngineQueryWrapper<T> wrapper, int pn, int ps) {
         return executePage(wrapper, wrapper.getEntityClass(), pn, ps);
     }
@@ -290,7 +290,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 查询结果
-     */
+    */
     public <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         var sql = wrapper.buildSql();
         String ql = sql.whereClause();
@@ -339,7 +339,7 @@ public abstract class AbstractEngine implements Engine {
     * @param result 原始查询结果
     * @param <T>    实体类型
     * @return 后处理后的查询结果
-     */
+    */
     private <T> List<T> processQueryResult(QuerySql<T> sql, List<T> result) {
         if (result == null || result.isEmpty()) {
             return result;
@@ -373,7 +373,7 @@ public abstract class AbstractEngine implements Engine {
     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
     * @param <T>      对象类型
     * @return 比较结果
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
@@ -407,7 +407,7 @@ public abstract class AbstractEngine implements Engine {
     * @param bean  对象实例
     * @param field 字段名
     * @return 属性值，获取失败返回 空
-     */
+    */
     private static Object getPropertyValue(Object bean, String field) {
         return MethodCache.getValue(bean, field);
     }
@@ -421,7 +421,7 @@ public abstract class AbstractEngine implements Engine {
     * @param ps      每页大小
     * @param <T>     实体类型
     * @return 分页结果
-     */
+    */
     public <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, Class<T> ec, int pn, int ps) {
         if (pn < 1) {
             pn = 1;
@@ -451,7 +451,7 @@ public abstract class AbstractEngine implements Engine {
     *
     * @param entityClass 实体类类型（内存存储中存在该实体数据时应回退内存分页）
     * @return true 表示支持物理分页
-     */
+    */
     protected boolean supportsNativePaging(Class<?> entityClass) {
         return false;
     }
@@ -464,7 +464,7 @@ public abstract class AbstractEngine implements Engine {
     * @param wrapper 查询包装器（不含分页参数）
     * @param <T>     实体类型
     * @return 总行数
-     */
+    */
     public <T> long queryCount(LambdaQueryWrapper<T> wrapper) {
         if (supportsNativePaging(wrapper.getEntityClass())) {
             return executeCount(wrapper);
@@ -493,7 +493,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 查询结果
-     */
+    */
     protected abstract <T> List<T> executeNewQuery(
             String where, Object[] params, Class<T> entityClass, int limit, int offset);
 
@@ -505,7 +505,7 @@ public abstract class AbstractEngine implements Engine {
     * @param sql  更新 SQL 信息
     * @param <T>  实体类型
     * @return 影响行数
-     */
+    */
     public <T> int executeUpdate(UpdateSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
@@ -535,7 +535,7 @@ public abstract class AbstractEngine implements Engine {
     * @param sql  删除 SQL 信息
     * @param <T>  实体类型
     * @return 影响行数
-     */
+    */
     public <T> int executeDelete(DeleteSql<T> sql) {
         String ql = sql.whereClause();
         Object[] params = sql.params() == null ? new Object[0] : sql.params().toArray();
@@ -563,7 +563,7 @@ public abstract class AbstractEngine implements Engine {
     *
     * @param sql SQL
     * @return 执行更新入内存的结果
-     */
+    */
     private <T> int executeUpdateInMemory(UpdateSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -615,7 +615,7 @@ public abstract class AbstractEngine implements Engine {
     *
     * @param sql SQL
     * @return 执行删除入内存的结果
-     */
+    */
     private <T> int executeDeleteInMemory(DeleteSql<T> sql) {
         List<T> data = getData(sql.entityClass());
         if (data.isEmpty()) {
@@ -650,7 +650,7 @@ public abstract class AbstractEngine implements Engine {
     * @param obj   目标对象
     * @param field 字段名
     * @param value 字段值
-     */
+    */
     private void setFieldValue(Object obj, String field, Object value) {
         MethodCache.setValue(obj, field, value);
     }
@@ -661,7 +661,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 数据列表
-     */
+    */
     @SuppressWarnings("unchecked")
     protected <T> List<T> getData(Class<T> entityClass) {
         String tableName = getTableName(entityClass);
@@ -683,7 +683,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 表名
-     */
+    */
     protected <T> String getTableName(Class<T> entityClass) {
         return resolveTableName(entityClass);
     }
@@ -696,7 +696,7 @@ public abstract class AbstractEngine implements Engine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 表名
-     */
+    */
     public static <T> String resolveTableName(Class<T> entityClass) {
         TableName annotation = entityClass.getAnnotation(TableName.class);
         if (annotation != null && !annotation.value().isEmpty()) {
@@ -721,7 +721,7 @@ public abstract class AbstractEngine implements Engine {
     * DDL 管理能力的引擎子类或 SPI 环境覆盖。</p>
     *
     * @return DdlManager 实例
-     */
+    */
     public DslManager ddl() {
         throw new UnsupportedOperationException("当前引擎不支持 DDL 管理");
     }
@@ -732,7 +732,7 @@ public abstract class AbstractEngine implements Engine {
     * 用户管理能力的引擎子类或 SPI 环境覆盖。</p>
     *
     * @return UserManager 实例
-     */
+    */
     public UserManager user() {
         throw new UnsupportedOperationException("当前引擎不支持用户管理");
     }

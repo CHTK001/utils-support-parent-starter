@@ -16,22 +16,22 @@ public class Mem {
 
     /**
     * 内存总容量（单位：字节）。
-     */
+    */
     private long total;
 
     /**
     * 内存已使用量（单位：字节）。
-     */
+    */
     private long used;
 
     /**
     * 内存可用/空闲量（单位：字节）。
-     */
+    */
     private long free;
 
     /**
     * 内存使用率，取值范围 [0.0, 1.0]。
     * 例如：0.75 表示使用了 75% 的内存。
-     */
+    */
     private double usage;
 }

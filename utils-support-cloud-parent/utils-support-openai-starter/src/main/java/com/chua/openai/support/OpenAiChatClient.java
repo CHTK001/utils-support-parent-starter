@@ -82,133 +82,133 @@ public class OpenAiChatClient implements ChatClient {
 
     /**
     * 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 工具（函数调用）定义列表
-     */
+    */
     private final List<ChatTool> tools = new ArrayList<>();
 
     /**
     * 工具选择策略（tool_choice）：auto / 无 / required / 指定工具名称
-     */
+    */
     private String toolChoice;
 
     /**
     * Top-P 采样参数
-     */
+    */
     private Double topP;
 
     /**
     * 停止序列
-     */
+    */
     private List<String> stop;
 
     /**
     * 随机种子
-     */
+    */
     private Long seed;
 
     /**
     * 响应格式：文本 / json_对象
-     */
+    */
     private String responseFormat;
 
     /**
     * 额外请求体参数
-     */
+    */
     private Map<String, Object> extraBody = new HashMap<>();
 
     /**
     * 自定义 HTTP 请求头
-     */
+    */
     private Map<String, String> extraHeaders;
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否使用流式请求（默认 false，非流式一次返回完整结果）
-     */
+    */
     private boolean stream;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
     /**
     * 附件列表
-     */
+    */
     private final List<Attachment> attachments = new ArrayList<>();
 
     /**
     * 真伪探测器实例（延迟初始化）
-     */
+    */
     private OpenAiProbeStation probeStation;
 
     /**
     * 构造 打开AI 对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public OpenAiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -453,7 +453,7 @@ public class OpenAiChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualBaseUrl = normalizeBaseUrl();
@@ -703,11 +703,11 @@ public class OpenAiChatClient implements ChatClient {
     }
 
     /**
-    * 将统一的 {@link ChatTool} 定义转换为 打开AI 的 {@link ChatCompletionTool}。
-    *
-    * @param tool 工具定义
-    * @return OpenAI 工具对象，工具名称为空时返回 空
-     */
+            * 将统一的 {@link ChatTool} 定义转换为 打开AI 的 {@link ChatCompletionTool}。
+            *
+            * @param tool 工具定义
+            * @return OpenAI 工具对象，工具名称为空时返回 空
+            */
     private static ChatCompletionTool toOpenAiTool(ChatTool tool) {
         if (tool == null || tool.getName() == null || tool.getName().isBlank()) {
             return null;
@@ -731,7 +731,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param toolChoice tool_choice 取值
     * @return OpenAI 工具选择对象，无法识别时返回 空
-     */
+    */
     private static ChatCompletionToolChoiceOption toToolChoice(String toolChoice) {
         if (toolChoice == null || toolChoice.isBlank()) {
             return null;
@@ -753,7 +753,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param params 参数 模式
     * @return JsonValue 映射
-     */
+    */
     private static Map<String, JsonValue> toJsonValueMap(Map<String, Object> params) {
         Map<String, JsonValue> result = new HashMap<>();
         if (params != null) {
@@ -773,7 +773,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param builder        打开AI 请求参数构建器
     * @param responseFormat 响应格式取值
-     */
+    */
     private static void applyResponseFormat(ChatCompletionCreateParams.Builder builder, String responseFormat) {
         if (responseFormat == null || responseFormat.isBlank()) {
             return;
@@ -796,7 +796,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param builder   打开AI 请求参数构建器
     * @param extraBody 额外请求体参数
-     */
+    */
     private static void applyExtraBody(ChatCompletionCreateParams.Builder builder, Map<String, Object> extraBody) {
         if (extraBody == null || extraBody.isEmpty()) {
             return;
@@ -834,7 +834,7 @@ public class OpenAiChatClient implements ChatClient {
     * <p>移除末尾多余的斜杠，若未配置则使用默认地址。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -851,7 +851,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param proxyStr 代理地址字符串，支持 http://、socks5:// 格式
     * @return Proxy 对象，解析失败时返回 空
-     */
+    */
     private static Proxy resolveProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;
@@ -879,7 +879,7 @@ public class OpenAiChatClient implements ChatClient {
     * @param  附加
     * @param additionalProps additionalprops
     * @return extractReasonML的结果
-     */
+    */
     private static String extractReasoning(Map<String, JsonValue> additionalProps) {
         if (additionalProps == null || additionalProps.isEmpty()) {
             return null;
@@ -903,7 +903,7 @@ public class OpenAiChatClient implements ChatClient {
     *
     * @param usage 完成用量
     * @return 缓存命中 令牌 数，不可用时返回 0
-     */
+    */
     private static int extractCacheTokens(CompletionUsage usage) {
         if (usage == null) {
             return 0;

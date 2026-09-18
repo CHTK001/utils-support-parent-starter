@@ -14,7 +14,7 @@ public final class Formatter {
 
     /**
     * Formatter。
-     */
+    */
     private Formatter() {
     }
 
@@ -23,7 +23,7 @@ public final class Formatter {
     *
     * @param n 字节数
     * @return 格式化字符串
-     */
+    */
     public static String formatBytes(long n) {
         if (n >= 1_073_741_824L) {
             return String.format("%.1f GB", n / 1_073_741_824.0);
@@ -43,7 +43,7 @@ public final class Formatter {
     * @param title 面板标题
     * @param rows  交替的 键,值
     * @return 面板字符串
-     */
+    */
     public static String panel(String title, String... rows) {
         List<String> keys = new ArrayList<>();
         List<String> values = new ArrayList<>();
@@ -76,7 +76,7 @@ public final class Formatter {
     * @param headers 表头
     * @param rows    数据行（每行长度与表头一致）
     * @return 表格字符串
-     */
+    */
     public static String table(String title, String[] headers, List<String[]> rows) {
         return table(title, headers, rows, null);
     }
@@ -89,7 +89,7 @@ public final class Formatter {
     * @param rows    数据行
     * @param summary 汇总行（可空）
     * @return 表格字符串
-     */
+    */
     public static String table(String title, String[] headers, List<String[]> rows, String[] summary) {
         int cols = headers.length;
         int[] widths = new int[cols];
@@ -133,21 +133,14 @@ public final class Formatter {
         return sb.toString();
     }
 
-     /**
-     * bar。
-     * @param pct pct
-     * @param length 长度
-     * @return bar的结果
-      */
-     * 构建百分比进度条。
-     *
-     * @param s s
-     * @param n n
-     * @return repeat的结果
-     * @param sb sb
-     * @param headers 头部
-     * @param widths widths
-     */
+    /**
+    * 构建百分比进度条。
+    * 实心块填充已用比例，空心块填充剩余部分，结果总长度固定为 length。
+    *
+    * @param pct    百分比，取值 0-100
+    * @param length 进度条总长度
+    * @return 进度条字符串
+    */
     public static String bar(double pct, int length) {
         int filled = (int) Math.round(pct / 100.0 * length);
         filled = Math.max(0, Math.min(length, filled));
@@ -157,12 +150,6 @@ public final class Formatter {
     private static void header(StringBuilder sb, String[] headers, int[] widths) {
         sb.append("┃");
         for (int c = 0; c < headers.length; c++) {
-            /**
-            * row。
-            * @param sb sb
-            * @param cells cells
-            * @param widths widths
-             */
             String h = headers[c];
             sb.append(' ').append(h).append(repeat(" ", widths[c] - width(h))).append("  ┃");
         }
@@ -179,7 +166,7 @@ public final class Formatter {
             * @param l l
             * @param m m
             * @param r r
-             */
+            */
             String cell = cells[c] == null ? "" : cells[c];
             sb.append(' ').append(cell).append(repeat(" ", widths[c] - width(cell))).append("  │");
         }
@@ -196,7 +183,7 @@ public final class Formatter {
                 * @param s s
                 * @return width的结果
                 * @param n n
-                 */
+                */
                 sb.append(m);
             }
         }

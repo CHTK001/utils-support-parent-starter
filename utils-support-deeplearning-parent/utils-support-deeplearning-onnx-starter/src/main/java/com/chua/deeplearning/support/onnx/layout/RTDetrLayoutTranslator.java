@@ -39,19 +39,19 @@ public class RTDetrLayoutTranslator implements Translator<Image, DetectedObjects
 
     /**
     * rtdetrlayouttranslator。
-     */
+    */
     public RTDetrLayoutTranslator() {}
     /**
     * rtdetrlayouttranslator。
     * @param threshold 阈值
-     */
+    */
     public RTDetrLayoutTranslator(float threshold) { this.scoreThreshold = threshold; }
 
     /**
     * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public RTDetrLayoutTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? 0.5f
                 : configuration.optFloat(DetectionConfiguration.KEY_THRESHOLD, 0.5f));

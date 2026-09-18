@@ -36,62 +36,62 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
 
     /**
     * 输入边长。
-     */
+    */
     private static final int INPUT_SIZE = 640;
 
     /**
     * 默认置信度阈值。
-     */
+    */
     private static final float DEFAULT_CONF_THRESHOLD = 0.25f;
 
     /**
     * 默认 IOU 阈值。
-     */
+    */
     private static final float DEFAULT_IOU_THRESHOLD = 0.45f;
 
     /**
     * 置信度阈值（可通过 detection配置.系统期权("阈值") 覆盖）。
-     */
+    */
     private final float confThreshold;
 
     /**
     * IOU 阈值（可通过 detection配置.系统期权("iou阈值") 覆盖）。
-     */
+    */
     private final float iouThreshold;
 
     /**
     * 类别名。
-     */
+    */
     private static final String CLASS_NAME = "license-plate";
 
     /**
     * 源图宽。
-     */
+    */
     private int srcW;
 
     /**
     * 源图高。
-     */
+    */
     private int srcH;
 
     /**
     * letterbox 缩放比例。
-     */
+    */
     private float scale;
 
     /**
     * letterbox 水平填充。
-     */
+    */
     private int padX;
 
     /**
     * letterbox 垂直填充。
-     */
+    */
     private int padY;
 
     /**
     * yolo11铭牌detecttranslator。
-     */
+    */
     public Yolo11PlateDetectTranslator() {
         this(null);
     }
@@ -103,7 +103,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
     * 未提供的键使用内置准确默认值。</p>
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public Yolo11PlateDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this.confThreshold = configuration == null ? DEFAULT_CONF_THRESHOLD
                 : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
@@ -193,7 +193,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
 
     /**
     * 读取第 boxidx 个框的第 特征idx 个特征（自动适配行/列主序）。
-     */
+    */
     private static float val(float[] data, int boxIdx, int featureIdx,
                              boolean transposed, long numBoxes, int features) {
         return transposed ? data[featureIdx * (int) numBoxes + boxIdx]
@@ -205,7 +205,7 @@ public class Yolo11PlateDetectTranslator implements Translator<Image, DetectedOb
     * @param manager 管理器
     * @param hwc hwc
     * @return 转为normalizedchw的结果
-     */
+    */
     private static NDArray toNormalizedChw(NDManager manager, NDArray hwc) {
         Shape shape = hwc.getShape();
         int height = (int) shape.get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）

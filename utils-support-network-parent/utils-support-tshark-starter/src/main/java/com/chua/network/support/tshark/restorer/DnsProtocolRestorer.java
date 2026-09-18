@@ -114,7 +114,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 完整 DNS 报文
     * @param idx  起始偏移
     * @return 域名字符串
-     */
+    */
     private static String readName(byte[] data, int idx) {
         StringBuilder sb = new StringBuilder();
         int hops = 0;
@@ -160,7 +160,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 报文
     * @param idx  起始偏移
     * @return 字节数
-     */
+    */
     private static int jumpLength(byte[] data, int idx) {
         int len = 0;
         int loopGuard = 0;
@@ -183,7 +183,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     * 资源记录类型转可读名称。
     * @param type 类型
     * @return 转为类型名称的结果
-     */
+    */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0x0001 -> "A";
@@ -208,7 +208,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     * DNS 类（类）转可读名称。
     * @param cls cls
     * @return 转为类名称的结果
-     */
+    */
     private static String toClassName(int cls) {
         return switch (cls) {
             case 0x0001 -> "IN";
@@ -224,7 +224,7 @@ public class DnsProtocolRestorer extends AbstractProtocolRestorer {
     * DNS RCODE 转可读名称。
     * @param rcode rcode
     * @return 转为rcode的结果
-     */
+    */
     private static String toRcode(int rcode) {
         return switch (rcode) {
             case 0 -> "NOERROR";

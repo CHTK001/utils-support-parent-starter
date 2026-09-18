@@ -36,17 +36,17 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *              -                   
-     */
+    */
     public SmallSdUnetTranslator() {
         this(512, 512);
     }
@@ -56,7 +56,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public SmallSdUnetTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -69,7 +69,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     *             
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         if (log.isDebugEnabled()) {
@@ -89,7 +89,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     * @param ctx                     
     * @param input        nd列表
     * @return                         
-     */
+    */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull NDList input) {
         var modelInput = new NDList();
@@ -132,7 +132,7 @@ public class SmallSdUnetTranslator implements NoBatchifyTranslator<NDList, NDLis
     * @param ctx                    
     * @param list                   
     * @return                               
-     */
+    */
     @Override
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         var unetOutput = new NDList();

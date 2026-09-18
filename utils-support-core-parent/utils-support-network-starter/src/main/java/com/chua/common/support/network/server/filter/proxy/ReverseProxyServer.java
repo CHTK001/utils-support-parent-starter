@@ -72,7 +72,7 @@ public class ReverseProxyServer implements AutoCloseable {
 
     /**
     * 构造反向代理（本机随机端口，超时 30 秒）。
-     */
+    */
     public ReverseProxyServer() {
         this(DEFAULT_HOST, 0, DEFAULT_TIMEOUT_SECONDS);
     }
@@ -81,7 +81,7 @@ public class ReverseProxyServer implements AutoCloseable {
     * 构造反向代理。
     *
     * @param port 监听端口（0 为随机）
-     */
+    */
     public ReverseProxyServer(int port) {
         this(DEFAULT_HOST, port, DEFAULT_TIMEOUT_SECONDS);
     }
@@ -92,7 +92,7 @@ public class ReverseProxyServer implements AutoCloseable {
     * @param host           监听地址
     * @param port           监听端口（0 为随机）
     * @param timeoutSeconds 转发超时（秒）
-     */
+    */
     public ReverseProxyServer(String host, int port, int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds > 0 ? timeoutSeconds : DEFAULT_TIMEOUT_SECONDS;
         this.server = ServerBuilder.create().type("jdk-http")
@@ -106,7 +106,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param serviceDiscovery 服务发现
     * @return this
-     */
+    */
     public ReverseProxyServer discovery(ServiceDiscovery serviceDiscovery) {
         this.serviceDiscovery = Objects.requireNonNull(serviceDiscovery, "serviceDiscovery");
         return this;
@@ -117,7 +117,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param discoveryName 服务发现名称
     * @return this
-     */
+    */
     public ReverseProxyServer discoveryName(String discoveryName) {
         this.discoveryName = Objects.requireNonNull(discoveryName, "discoveryName");
         return this;
@@ -129,7 +129,7 @@ public class ReverseProxyServer implements AutoCloseable {
     * @param pathPrefix  请求路径匹配模式（如 {@code /api/**}）
     * @param servicePath 注册的服务路径
     * @return this
-     */
+    */
     public ReverseProxyServer route(String pathPrefix, String servicePath) {
         routes.put(pathPrefix, servicePath);
         return this;
@@ -140,7 +140,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param scatterId 集群标识
     * @return this
-     */
+    */
     public ReverseProxyServer scatterId(String scatterId) {
         this.scatterId = scatterId;
         return this;
@@ -151,7 +151,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param protocol 协议（如 http）
     * @return this
-     */
+    */
     public ReverseProxyServer protocol(String protocol) {
         this.protocol = protocol;
         return this;
@@ -162,7 +162,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param balance 策略名（如 权重）
     * @return this
-     */
+    */
     public ReverseProxyServer balance(String balance) {
         this.balance = balance;
         return this;
@@ -173,7 +173,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @param excludeServerId 服务 标识
     * @return this
-     */
+    */
     public ReverseProxyServer excludeServerId(String excludeServerId) {
         this.excludeServerId = excludeServerId;
         return this;
@@ -184,7 +184,7 @@ public class ReverseProxyServer implements AutoCloseable {
     *
     * @return this
     * @throws Exception 启动异常
-     */
+    */
     public synchronized ReverseProxyServer start() throws Exception {
         ServiceDiscoveryServerFilter filter = serviceDiscovery != null
                 ? new ServiceDiscoveryServerFilter(serviceDiscovery)
@@ -212,7 +212,7 @@ public class ReverseProxyServer implements AutoCloseable {
     * 获取实际监听端口。
     *
     * @return 端口
-     */
+    */
     public int getPort() {
         return server.getPort();
     }

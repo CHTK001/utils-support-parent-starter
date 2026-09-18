@@ -79,7 +79,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     * 未提供的键使用内置准确默认值。</p>
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public YoloV8sTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this(configuration == null ? DEFAULT_THRESHOLD
                 : configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD,
@@ -97,7 +97,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     * @param classes 列表
     * @param classes classes
     * @param nmsThreshold nms阈值
-     */
+    */
     public YoloV8sTranslator(float threshold, float nmsThreshold, List<String> classes) {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
@@ -238,7 +238,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param x x
     * @return sigmoid的结果
-     */
+    */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
@@ -249,7 +249,7 @@ public class YoloV8sTranslator implements Translator<Image, DetectedObjects> {
     * @param ctx ctx
     * @param array array
     * @return 转为normalizedchw的结果
-     */
+    */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

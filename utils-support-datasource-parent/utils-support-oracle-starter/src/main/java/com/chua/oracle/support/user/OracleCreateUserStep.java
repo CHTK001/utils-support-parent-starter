@@ -35,7 +35,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     *
     * @param password 明文密码
     * @return this
-     */
+    */
     @Override
     public UserManager.CreateUserStep withPassword(String password) {
         this.password = password;
@@ -47,7 +47,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
     *
     * @param host 忽略
     * @return this
-     */
+    */
     @Override
     public UserManager.CreateUserStep withHost(String host) {
         return this;
@@ -55,7 +55,7 @@ public class OracleCreateUserStep implements UserManager.CreateUserStep {
 
     /**
     * 执行 创建 用户 并授予 连接 权限。
-     */
+    */
     @Override
     public void execute() {
         try (var c = dataSource.getConnection();

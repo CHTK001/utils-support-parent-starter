@@ -82,14 +82,14 @@ public class ClusterProperties {
     /**
     * 声明的远端服务条目（scatter 会自动将这些服务注册到集群，供对等发现）。
     * 同一 服务路径 下只允许同一种协议。
-     */
+    */
     private List<ServerEntryProp> serverEntries = new ArrayList<>();
 
     /**
     * 单个服务条目元数据。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Getter
     @Setter
     public static class ServerEntryProp {

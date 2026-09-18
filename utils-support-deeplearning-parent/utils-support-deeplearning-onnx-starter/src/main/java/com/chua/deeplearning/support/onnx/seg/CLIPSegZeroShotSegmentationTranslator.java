@@ -64,14 +64,16 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     /** Tokenizer */
     private HuggingFaceTokenizer tokenizer;
 
-    /** 外部掩码概率阈值（区间 (0,1)，空 表示未配置时以 logits>0 为界）。 */
+    /**
+    * 外部掩码概率阈值（区间 (0,1)，空 表示未配置时以 logits>0 为界）。
+    */
     private Float probThreshold;
 
     /**
     * 创建 Translator（支持外部阈值覆盖）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public CLIPSegZeroShotSegmentationTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
@@ -82,7 +84,9 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
         }
     }
 
-    /** 创建 clipsegzeroshotsegmentationtranslator 实例 */
+    /**
+    * 创建 clipsegzeroshotsegmentationtranslator 实例
+    */
     public CLIPSegZeroShotSegmentationTranslator() {
         this("object");
     }
@@ -91,7 +95,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     * 创建 clipsegzeroshotsegmentationtranslator 实例
     * @param prompt 字符串
     * @param prompt 提示符
-     */
+    */
     public CLIPSegZeroShotSegmentationTranslator(@Nonnull String prompt) {
         this.prompt = prompt != null ? prompt : "object";
     }
@@ -170,7 +174,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -187,7 +191,7 @@ public class CLIPSegZeroShotSegmentationTranslator implements Translator<Image, 
     * @param root 根
     * @param name 名称
     * @return find文件的结果
-     */
+    */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

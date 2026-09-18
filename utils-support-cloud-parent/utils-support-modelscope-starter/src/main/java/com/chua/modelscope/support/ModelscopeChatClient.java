@@ -60,8 +60,8 @@ import java.util.Map;
 public class ModelscopeChatClient implements ChatClient {
 
     /**
-     * 默认对话模型
-     */
+    * 默认对话模型
+    */
     private static final String DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
     private final ChatClientSetting setting;
@@ -349,8 +349,8 @@ public class ModelscopeChatClient implements ChatClient {
     }
 
     /**
-     * ModelScope 知名对话模型清单（节选）。
-     */
+    * ModelScope 知名对话模型清单（节选）。
+    */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()
                     .id("Qwen/Qwen2.5-7B-Instruct").name("Qwen2.5-7B-Instruct").provider("modelscope")

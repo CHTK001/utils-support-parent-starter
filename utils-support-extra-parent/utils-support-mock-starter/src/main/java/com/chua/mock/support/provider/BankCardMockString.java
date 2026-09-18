@@ -23,7 +23,7 @@ public class BankCardMockString implements MockString {
 
     /**
     * 常见银行卡 BIN 前缀池
-     */
+    */
     private static final String[] BINS = {
             "622202", "621226", "622848", "622700", "622260", "622155",
             "622588", "622188", "621700", "622280", "622161", "621661",
@@ -31,13 +31,13 @@ public class BankCardMockString implements MockString {
     };
     /**
     * 16 位卡号总长度
-     */
+    */
     private static final int LENGTH_16 = 16;
     /**
     * 19 位卡号总长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int LENGTH_19 = 19;
 
     @Override
@@ -59,7 +59,7 @@ public class BankCardMockString implements MockString {
     *
     * @param digits 不含校验位的数字串
     * @return 校验位字符
-     */
+    */
     private static char luhnCheckDigit(StringBuilder digits) {
         int sum = 0;
         boolean alternate = true;

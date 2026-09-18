@@ -13,7 +13,7 @@ final class RowFilter {
     *
     * @param x 输入整数
     * @return 输入整数的绝对值
-     */
+    */
     private static int abs(int x) {
         return (x < 0) ? -x : x;
     }
@@ -27,7 +27,7 @@ final class RowFilter {
     * @param bytesPerPixel 每个像素的字节数
     * @param bytesPerRow 每行的字节数
     * @return 返回绝对差值的总和
-     */
+    */
     private static int subFilter(byte[] currRow,
                                  byte[] subFilteredRow,
                                  int bytesPerPixel,
@@ -55,7 +55,7 @@ final class RowFilter {
     * @param bytesPerPixel 每个像素的字节数
     * @param bytesPerRow 每行的字节数
     * @return 返回绝对差值的总和
-     */
+    */
     private static int upFilter(byte[] currRow,
                                 byte[] prevRow,
                                 byte[] upFilteredRow,
@@ -81,7 +81,7 @@ final class RowFilter {
     * @param b 上边像素值
     * @param c 左上角像素值
     * @return 预测的像素值
-     */
+    */
     private int paethPredictor(int a, int b, int c) {
         int p = a + b - c;
         int pa = abs(p - a);
@@ -108,7 +108,7 @@ final class RowFilter {
     * @param bytesPerRow 每行的字节数
     * @param bytesPerPixel 每个像素的字节数
     * @return 返回最优的过滤方法类型
-     */
+    */
     public int filterRow(int colorType,
                          byte[] currRow,
                          byte[] prevRow,

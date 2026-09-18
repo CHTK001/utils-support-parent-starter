@@ -15,6 +15,6 @@ public interface FileConfigDefinition extends DataSyncConfigDefinition {
     * 获取文件路径。
     *
     * @return 文件路径
-     */
+    */
     String filePath();
 }

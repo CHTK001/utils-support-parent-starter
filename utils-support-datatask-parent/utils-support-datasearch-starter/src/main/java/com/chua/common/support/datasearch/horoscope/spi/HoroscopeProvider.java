@@ -17,7 +17,7 @@ public interface HoroscopeProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -26,7 +26,7 @@ public interface HoroscopeProvider {
     * @param sign 星座（如：白羊座、金牛座）
     * @param type 周期：today=今日 / week=本周 / month=本月
     * @return 运势信息；参数非法或查询失败返回 空
-     */
+    */
     HoroscopeInfo get(String sign, String type);
 
     /**
@@ -34,7 +34,7 @@ public interface HoroscopeProvider {
     *
     * @param sign 星座
     * @return 今日运势
-     */
+    */
     default HoroscopeInfo getToday(String sign) {
         return get(sign, "today");
     }
@@ -44,7 +44,7 @@ public interface HoroscopeProvider {
     *
     * @param sign 星座
     * @return 本周运势
-     */
+    */
     default HoroscopeInfo getWeek(String sign) {
         return get(sign, "week");
     }
@@ -54,7 +54,7 @@ public interface HoroscopeProvider {
     *
     * @param sign 星座
     * @return 本月运势
-     */
+    */
     default HoroscopeInfo getMonth(String sign) {
         return get(sign, "month");
     }

@@ -29,7 +29,7 @@ public class ZipExtractor implements Extractor {
 
     /**
     * 缓冲区大小（8KB）
-     */
+    */
     private static final int BUFFER_SIZE = 8192;
 
     @Override
@@ -51,7 +51,7 @@ public class ZipExtractor implements Extractor {
     * @param targetDir  目标目录
     * @param password   密码（可选，空 表示无密码）
     * @return 提取是否成功
-     */
+    */
     public boolean extract(File sourceFile, File targetDir, String password) {
         if (sourceFile == null || !sourceFile.exists()) {
             log.error("[filesystem-extractor] 源文件不存在: {}", sourceFile);

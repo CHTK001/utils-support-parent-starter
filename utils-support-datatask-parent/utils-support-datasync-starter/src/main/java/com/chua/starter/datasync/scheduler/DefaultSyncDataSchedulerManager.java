@@ -49,81 +49,81 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
     /**
     * 调度间隔（秒）
-     */
+    */
     private static final int SCHEDULER_INTERVAL_SECONDS = 1;
 
     /**
     * Sink 键分隔符
-     */
+    */
     private static final String SINK_KEY_SEPARATOR = "|";
 
     /**
     * 默认批次大小
-     */
+    */
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     /**
     * 调度线程名前缀
-     */
+    */
     private static final String SCHEDULER_THREAD_NAME_PREFIX = "datasync-scheduler-";
 
     /**
     * 调度器配置
-     */
+    */
     private final SchedulerConfig config;
 
     /**
     * 数据同步服务器
-     */
+    */
     private final DataSyncServer dataSyncServer;
 
     /**
     * 调度线程池
-     */
+    */
     private final ScheduledExecutorService scheduler;
 
     /**
     * 字段映射转换器
-     */
+    */
     private final FieldMappingConverter fieldMappingConverter;
 
     /**
     * 已订阅的 Sink 标识集合（格式：输出id|sinkid），避免重复订阅
-     */
+    */
     private final Set<String> subscribedSinkKeys;
 
     /**
     * 触发器缓存（mappingid -> Trigger），避免每秒重复解析 Cron 表达式
-     */
+    */
     private final Map<String, Trigger> triggerCache = new ConcurrentHashMap<>();
 
     /**
     * 每个映射的上次执行时间（用于去重，防止同一 cron 区间内重复触发）
-     */
+    */
     private final Map<String, LocalDateTime> lastExecutionTimeMap = new ConcurrentHashMap<>();
 
     /**
     * 失败重试计数器（mappingid -> 连续失败次数），用于熔断退避
-     */
+    */
     private final Map<String, AtomicInteger> retryCounters = new ConcurrentHashMap<>();
 
     /**
     * 活跃的订阅引用，防止 Depose 被 GC 回收导致管线取消。
-     */
+    */
     private final java.util.List<reactor.core.Disposable> activeSubscriptions = new CopyOnWriteArrayList<>();
 
     /**
     * 调度器配置。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     @Builder
     public static class SchedulerConfig {
 
         /**
         * flat映射 并行度
-         */
+        */
         /** flat映射 并行度 */
         @Builder.Default
         /** Flat映射parallelism */
@@ -131,7 +131,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 最大 缓冲 行数上限（默认无限制，设置 >0 的数值后启用上限）
-         */
+        */
         /** 最大缓冲行数 */
         @Builder.Default
         /** 最大值缓冲区rows */
@@ -139,7 +139,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 每秒最大请求数（默认 0 表示无限制，>0 时启用 {@link Flux#limitRate(int)}）
-         */
+        */
         /** 每秒最大速率 */
         @Builder.Default
         /** 最大值比率persecond */
@@ -147,7 +147,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 最大重试次数
-         */
+        */
         /** 最大重试次数 */
         @Builder.Default
         /** 重试最大值尝试 */
@@ -155,7 +155,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 重试初始退避毫秒
-         */
+        */
         /** 重试退避时间（毫秒） */
         @Builder.Default
         /** 重试退避ms */
@@ -163,7 +163,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 熔断阈值：连续失败超过此次数后停止重试
-         */
+        */
         /** 熔断阈值 */
         @Builder.Default
         /** Circuitbreaker阈值 */
@@ -172,7 +172,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         /**
         * 内存安全模式：根据 JVM 最大堆自动计算管线中最大在飞行数，防止 OOM。
         * 计算公式：{@code maxInFlightRows = (maxMemory * memoryPercent / 100) / estimatedRowBytes}
-         */
+        */
         /** 是否启用内存安全 */
         @Builder.Default
         /** Memorysafe是否启用 */
@@ -180,7 +180,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 用于内存安全计算的堆内存百分比（默认 30%）
-         */
+        */
         /** 内存占用百分比 */
         @Builder.Default
         /** 内存百分比 */
@@ -188,7 +188,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
         /**
         * 估算单行数据字节数（映射 开销 + 字段值，默认 256 字节）
-         */
+        */
         /** 预估行字节数 */
         @Builder.Default
         /** Estimated行bytes */
@@ -197,7 +197,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         /**
         * 是否启用直连派发模式（同 JVM 内 发布 直接调用 subscriber，绕过 Chronicle）。
         * 默认 false 使用 Chronicle 磁盘派发；true 时跳过 Chronicle 提高吞吐。
-         */
+        */
         /** 是否直接分发 */
         @Builder.Default
         /** Directdispatch */
@@ -208,7 +208,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
         *
         * @param batchSize 当前批次大小
         * @return publishOn prefetch 值
-         */
+        */
         public int computePrefetch(int batchSize) {
             if (!memorySafeEnabled) {
                 return 256;
@@ -225,7 +225,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * 创建 默认同步数据调度器管理器 实例
     * @param dataSyncServer 数据同步服务端
     * @return 默认同步数据调度器管理器的结果
-     */
+    */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer) {
         this(dataSyncServer, SchedulerConfig.builder().build());
     }
@@ -236,7 +236,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * @param config 调度器配置
     * @param config 配置
     * @return 默认同步数据调度器管理器的结果
-     */
+    */
     public DefaultSyncDataSchedulerManager(DataSyncServer dataSyncServer, SchedulerConfig config) {
         this.dataSyncServer = dataSyncServer;
         this.config = config;
@@ -317,7 +317,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
 
     /**
     * 执行待处理的映射。
-     */
+    */
     private void executePendingMappings() {
         try {
             List<DataSyncMapping> mappings = dataSyncServer.mappingManager().getMappings();
@@ -344,7 +344,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     *
     * @param mapping 映射配置
     * @return true 表示满足触发条件
-     */
+    */
     private boolean isTriggerSatisfied(DataSyncMapping mapping) {
         Trigger trigger = mapping.trigger();
         if (trigger == null) {
@@ -389,7 +389,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * 执行单个映射。
     *
     * @param mapping 映射配置
-     */
+    */
     private void executeMapping(DataSyncMapping mapping) {
         try {
             // 基础校验
@@ -523,7 +523,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * @param batchData 数据批次
     * @param mappings 字段映射列表
     * @return 转换后的数据列表
-     */
+    */
     private List<Map<String, Object>> applyFieldMappings(List<Map<String, Object>> batchData, List<DataSyncFieldMapping> mappings) {
         if (mappings.isEmpty()) {
             return batchData;
@@ -539,7 +539,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * @param mapping mapping
     * @param source 源
     * @return 构建读取参数的结果
-     */
+    */
     private Map<String, Object> buildReadParams(DataSyncMapping mapping, DataSyncAgentSource source) {
         Map<String, Object> params = mapping.params() == null ? new HashMap<>() : new HashMap<>(mapping.params());
         com.chua.datasync.agent.support.model.SyncDataOffset storedOffset = source.readOffset(params);
@@ -558,7 +558,7 @@ public class DefaultSyncDataSchedulerManager implements SyncDataSchedulerManager
     * @param source 数据源
     * @param mapping 映射配置
     * @param lastOffset 本次最后一条数据的偏移量
-     */
+    */
     private void persistOffset(DataSyncAgentSource source, DataSyncMapping mapping, Object lastOffset) {
         if (lastOffset == null) {
             return;

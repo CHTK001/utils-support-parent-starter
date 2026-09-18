@@ -27,29 +27,29 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
 
     /**
     * 树 实例，用于获取编译树。
-     */
+    */
     protected Trees trees;
 
     /**
     * 消息处理器，用于输出编译期日志和警告。
-     */
+    */
     protected Messager messager;
 
     /**
     * 编译处理环境。
-     */
+    */
     protected ProcessingEnvironment processingEnv;
 
     /**
     * javac 上下文。
-     */
+    */
     protected Context context;
 
     /**
     * 初始化处理器，获取 树 实例。
     *
     * @param processingEnv 编译处理环境
-     */
+    */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
@@ -72,7 +72,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     * </p>
     *
     * @return TreeMaker 实例，获取失败返回 空
-     */
+    */
     protected TreeMaker getTreeMaker() {
         if (trees == null) {
             return null;
@@ -105,7 +105,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     * </p>
     *
     * @return javac 上下文，获取失败返回 空
-     */
+    */
     private Context getContextFromJavacEnv() {
         try {
             Class<?> javacEnvClass = Class.forName(
@@ -136,7 +136,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     * </p>
     *
     * @return javac 上下文，获取失败返回 空
-     */
+    */
     private Context getContextFromJavacTrees() {
         JavacTrees javacTrees = (JavacTrees) trees;
         String[] fieldNames = new String[]{"context", "treeContext"};
@@ -161,7 +161,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     *
     * @param maker 树maker 实例
     * @return Names 实例，获取失败返回 空
-     */
+    */
     protected Names getNames(TreeMaker maker) {
         if (context != null) {
             return Names.instance(context);
@@ -182,7 +182,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     * 检查 树 API 是否可用。
     *
     * @return Trees 实例不为 空 时返回 true
-     */
+    */
     protected boolean isTreeApiAvailable() {
         return trees != null;
     }
@@ -192,7 +192,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     *
     * @param msg     提示消息
     * @param element 关联的编译元素
-     */
+    */
     protected void note(String msg, Element element) {
         messager.printMessage(Diagnostic.Kind.NOTE, msg, element);
     }
@@ -202,7 +202,7 @@ public abstract class AbstractAstProcessor extends AbstractProcessor {
     *
     * @param msg     警告消息
     * @param element 关联的编译元素
-     */
+    */
     protected void warn(String msg, Element element) {
         messager.printMessage(Diagnostic.Kind.WARNING, msg, element);
     }

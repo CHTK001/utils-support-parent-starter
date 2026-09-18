@@ -17,16 +17,16 @@ public class UserInfo {
 
     /**
     * 用户名
-     */
+    */
     private String user;
 
     /**
     * 主机名/IP
-     */
+    */
     private String host;
 
     /**
     * 密码
-     */
+    */
     private String password;
 }

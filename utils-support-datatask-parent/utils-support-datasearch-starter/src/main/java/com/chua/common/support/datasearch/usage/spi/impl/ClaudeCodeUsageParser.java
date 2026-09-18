@@ -58,7 +58,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "claude-code"}
-     */
+    */
     @Override
     public String name() {
         return "claude-code";
@@ -68,7 +68,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     * 遗留实现（不再属于契约）：全量装载。请优先使用 {@link #streamAll()}。
     *
     * @return 原始用量记录列表
-     */
+    */
     public List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             log.debug("[claude-code] projects dir not found: {}", PROJECTS_DIR);
@@ -99,7 +99,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     * 相关而与总量无关。
     *
     * @return 用量记录流
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
@@ -125,7 +125,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     *
     * @param file 转录文件
     * @return 用量记录流
-     */
+    */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         return streamLines(file)
                 .filter(line -> !line.isBlank())
@@ -139,7 +139,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     *
     * @param line 单行 JSON
     * @return 用量记录；非用量行或解析失败时 empty
-     */
+    */
     private Optional<AiUsage> parseLineSafe(String line) {
         try {
             return parseNode(Json.parse(line));
@@ -155,7 +155,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     * @param file   转录文件
     * @param result 累积结果列表
     * @throws IOException 文件读取失败
-     */
+    */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
@@ -178,7 +178,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     *
     * @param node 解析后的记录
     * @return 用量记录；非目标行时 empty
-     */
+    */
     private Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return Optional.empty();
@@ -219,7 +219,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     *
     * @param ts ISO-8601 时间字符串
     * @return epoch 毫秒；为空或非法时 0
-     */
+    */
     private long parseTimestamp(String ts) {
         if (ts == null || ts.isBlank()) {
             return 0L;
@@ -236,7 +236,7 @@ public class ClaudeCodeUsageParser extends BaseUsageParser {
     *
     * @param model 原始模型名
     * @return 归一化结果
-     */
+    */
     private String normalizeModel(String model) {
         return (model == null || model.isBlank() || "<synthetic>".equals(model))
                 ? "unknown" : model;

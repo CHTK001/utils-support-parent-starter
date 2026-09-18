@@ -26,7 +26,7 @@ final class RecognitionSupport {
     * @param name 名称（小写）
     * @param keys 关键字
     * @return 命中任一返回 true
-     */
+    */
     static boolean contains(String name, String... keys) {
         if (name == null) {
             return false;
@@ -51,7 +51,7 @@ final class RecognitionSupport {
     *
     * @param boxes 检测器输出
     * @return 矩形列表
-     */
+    */
     @SuppressWarnings("unchecked")
     static List<PredictRectangle> toRectangles(Object boxes) {
         if (boxes == null) {
@@ -71,7 +71,7 @@ final class RecognitionSupport {
     * @param imageData 原始图像
     * @param rect      检测框
     * @return 裁剪后图像
-     */
+    */
     static byte[] crop(byte[] imageData, PredictRectangle rect) {
         return ImageCropUtils.crop(imageData, rect);
     }

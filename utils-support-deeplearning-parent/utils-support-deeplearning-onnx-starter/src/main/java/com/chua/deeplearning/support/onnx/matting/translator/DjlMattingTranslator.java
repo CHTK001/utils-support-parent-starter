@@ -29,17 +29,17 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
 
     /**
     * 目标处理尺寸（modnet 约束：16 的倍数，正方形）
-     */
+    */
     private static final int TARGET_SIZE = 512;
 
     /**
     * 模型输入节点名
-     */
+    */
     private static final String INPUT_NAME = "input";
 
     /**
     * 当前原始图像（处理输入 保存，处理输出 合成用）
-     */
+    */
     private BufferedImage originalImage;
 
     @Override
@@ -50,7 +50,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     * @param ctx ctx
     * @param input 输入
     * @return 处理输入的结果
-     */
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
  // 打开cv 预处理：镜像 → 缓冲镜像 → Mat → 缩放 → CHW 归一化 → float[]
         ImageUtils.load();
@@ -71,7 +71,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     *
     * @param src 原图
     * @return [3, 大小, 大小] 归一化像素（RGB）
-     */
+    */
     private float[] preprocess(BufferedImage src) {
         Mat img;
         try {
@@ -107,7 +107,7 @@ public class DjlMattingTranslator implements Translator<Image, Image> {
     * @param ctx ctx
     * @param list 列表
     * @return 处理输出的结果
-     */
+    */
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray alpha = list.singletonOrThrow();
         float[] flat = alpha.toFloatArray();

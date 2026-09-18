@@ -13,7 +13,7 @@ public interface PipelineManager {
     *
     * @param pipelineId 管线唯一标识
     * @param jsonDsl    管线 JSON‑DSL 字符串
-     */
+    */
     void savePipeline(String pipelineId, String jsonDsl);
 
     /**
@@ -21,20 +21,20 @@ public interface PipelineManager {
     *
     * @param pipelineId 管线标识
     * @return DSL 字符串，不存在返回 空
-     */
+    */
     String getPipeline(String pipelineId);
 
     /**
     * 删除管线
     *
     * @param pipelineId 管线标识
-     */
+    */
     void deletePipeline(String pipelineId);
 
     /**
     * 获取所有已注册管线 标识
     *
     * @return 管线 标识 列表（不可变）
-     */
+    */
     Iterable<String> pipelineIds();
 }

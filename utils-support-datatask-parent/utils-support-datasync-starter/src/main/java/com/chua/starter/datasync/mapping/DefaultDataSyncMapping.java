@@ -36,7 +36,7 @@ public record DefaultDataSyncMapping(
     * @param mappingId mappingid
     * @param config 配置
     * @return 默认数据同步mapping的结果
-     */
+    */
     public DefaultDataSyncMapping(String mappingId, DataSyncConfigDefinition config) {
         this(
                 mappingId,

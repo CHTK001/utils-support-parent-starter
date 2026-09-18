@@ -598,12 +598,12 @@ public class AiProtocolServerFilter extends UrlMappingServerFilter {
     // ==================== OpenAI Completions ====================
 
     /**
-    * 处理 OpenAI Completions 请求。
-    *
-    * @param request  请求对象
-    * @param response 响应对象
-    * @throws Exception 处理异常
-    */
+            * 处理 OpenAI Completions 请求。
+            *
+            * @param request  请求对象
+            * @param response 响应对象
+            * @throws Exception 处理异常
+            */
     private void handleCompletions(ServerRequest request, ServerResponse response) throws Exception {
         Map<String, Object> body = parseBody(request);
         String model = (String) body.get(KEY_MODEL);

@@ -28,17 +28,17 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
 
     /**
     * sardine
-     */
+    */
     private final Sardine sardine;
     /**
     * 基础地址
-     */
+    */
     private final String baseUrl;
 
     /**
     * 创建 webdav配置保存或加载 实例
     * @param setting setting
-     */
+    */
     public WebdavConfigSaveOrLoader(ConfigSaveLoadSetting setting) {
         super(setting != null ? setting : ConfigSaveLoadSetting.builder().build());
         String username = this.setting.getUsername() != null ? this.setting.getUsername() : "";
@@ -58,7 +58,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     *
     * @param key 键
     * @return 完整url的结果
-     */
+    */
     private String fullUrl(String key) {
         return baseUrl + normalizeKey(key);
     }
@@ -67,7 +67,7 @@ public class WebdavConfigSaveOrLoader extends AbstractConfigSaveOrLoader {
     * ensure父路径
     *
     * @param key 键
-     */
+    */
     private void ensureParentPath(String key) throws IOException {
         String normalized = normalizeKey(key);
         if (!normalized.contains("/")) {

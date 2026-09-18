@@ -24,72 +24,72 @@ public class SpiderDefinition {
 
     /**
     * 爬虫唯一标识
-     */
+    */
     private Long spiderId;
 
     /**
     * 爬虫编码（业务唯一）
-     */
+    */
     private String spiderCode;
 
     /**
     * 爬虫名称
-     */
+    */
     private String spiderName;
 
     /**
     * 入口 URL
-     */
+    */
     private String spiderEntryUrl;
 
     /**
     * 执行器类型（ONCE / CRON / MANUAL）
-     */
+    */
     private String spiderExecutorType;
 
     /**
     * 执行轮次
-     */
+    */
     private Integer spiderExecutorRounds;
 
     /**
     * 是否采集深层 URL（0 否 / 1 是）
-     */
+    */
     private Integer spiderCollectDeepUrl;
 
     /**
     * 最大爬取深度
-     */
+    */
     private Integer spiderMaxDepth;
 
     /**
     * 最大爬取页面数
-     */
+    */
     private Integer spiderMaxPages;
 
     /**
     * 去重策略
-     */
+    */
     private String spiderDedupStrategy;
 
     /**
     * URL 存储类型
-     */
+    */
     private String spiderUrlStorageType;
 
     /**
     * 状态（0 禁用 / 1 启用）
-     */
+    */
     private Integer spiderStatus;
 
     /**
     * 是否开启定时（0 否 / 1 是）
-     */
+    */
     private Integer spiderScheduleEnable;
 
     /**
     * 定时 Cron 表达式
-     */
+    */
     private String spiderScheduleCron;
 
 /**
@@ -113,17 +113,17 @@ private String spiderProxyPoolCode;
 private String spiderCookies;
 
 /**
-* 公共请求头（JSON 字符串 {"用户-智能体":"..."}）
+* 公共请求头（JSON 字符串 {"用户-Agent":"..."}）
  */
 private String spiderHeaders;
 
     /**
     * 创建时间
-     */
+    */
     private LocalDateTime createTime;
 
     /**
     * 更新时间
-     */
+    */
     private LocalDateTime updateTime;
 }

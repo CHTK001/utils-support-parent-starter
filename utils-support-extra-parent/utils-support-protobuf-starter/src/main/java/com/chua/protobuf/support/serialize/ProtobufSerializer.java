@@ -53,25 +53,25 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
 
     /**
     * 模式 实例缓存池，按实体类类型缓存 模式 实例
-     */
+    */
     private static final ConcurrentHashMap<Class<?>, Schema<?>> SCHEMA_POOL = new ConcurrentHashMap<>();
 
     /**
     * 链接缓冲 线程局部变量，避免每次序列化都分配新缓冲区
-     */
+    */
     private static final ThreadLocal<LinkedBuffer> BUFFER_THREAD_LOCAL =
             ThreadLocal.withInitial(() -> LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE));
 
     /**
     * 目标实体类类型
-     */
+    */
     private final Class<T> clazz;
 
     /**
     * 创建指定类型的 Protobuf 序列化器。
     *
     * @param clazz 要序列化的目标类型（需使用 @标签 注解标注字段）
-     */
+    */
     public ProtobufSerializer(Class<T> clazz) {
         this.clazz = clazz;
     }
@@ -83,7 +83,7 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
     * 模式 由 protostuff runtime模式 运行时动态生成，线程安全可复用。</p>
     *
     * @return Schema 实例
-     */
+    */
     @SuppressWarnings("unchecked")
     private Schema<T> getSchema() {
         return (Schema<T>) SCHEMA_POOL.computeIfAbsent(clazz, RuntimeSchema::getSchema);
@@ -94,7 +94,7 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
     *
     * @param object 待序列化的对象，空 返回空字节数组
     * @return 序列化后的字节数组
-     */
+    */
     @Override
     public byte[] serialize(T object) {
         if (object == null) {
@@ -116,7 +116,7 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
     *
     * @param bytes 序列化后的字节数组，空 或空数组返回 空
     * @return 反序列化后的对象
-     */
+    */
     @Override
     public T deserialize(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {
@@ -135,7 +135,7 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
     /**
     * 清除所有 模式 实例缓存。
     * 适用于测试环境或需要释放资源的场景。
-     */
+    */
     public static void clearPool() {
         SCHEMA_POOL.clear();
     }
@@ -144,7 +144,7 @@ public class ProtobufSerializer<T extends Serializable> implements Serializer<T>
     * 获取当前缓存的 模式 实例数量。
     *
     * @return Schema 实例数量
-     */
+    */
     public static int getPoolSize() {
         return SCHEMA_POOL.size();
     }

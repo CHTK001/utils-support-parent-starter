@@ -20,7 +20,7 @@ public class EmojiTrie {
 
     /**
     * 字典树最大深度
-     */
+    */
     public final int maxDepth;
 
     /** 根级 */
@@ -30,7 +30,7 @@ public class EmojiTrie {
     * 创建指定容量的字典树
     *
     * @param maxDepth 最大深度
-     */
+    */
     public EmojiTrie(int maxDepth) {
         this.maxDepth = maxDepth;
     }
@@ -39,7 +39,7 @@ public class EmojiTrie {
     * 向字典树添加 emoji
     *
     * @param emoji Emoji 对象
-     */
+    */
     public void addEmoji(Emoji emoji) {
         if (emoji == null || emoji.getUnicode() == null) {
             return;
@@ -59,7 +59,7 @@ public class EmojiTrie {
     * @param start 起始位置
     * @param end   结束位置
     * @return 匹配结果
-     */
+    */
     public Matches isEmoji(char[] text, int start, int end) {
         if (text == null || start < 0 || end > text.length || start >= end) {
             return Matches.impossible();
@@ -90,7 +90,7 @@ public class EmojiTrie {
     *
     * @param unicode Unicode 字符串
     * @return Emoji 对象，未找到返回 空
-     */
+    */
     public Emoji getEmoji(String unicode) {
         if (unicode == null) {
             return null;
@@ -105,7 +105,7 @@ public class EmojiTrie {
     * @param start 起始位置
     * @param end   结束位置
     * @return Emoji 对象，未找到返回 空
-     */
+    */
     public Emoji getEmoji(char[] text, int start, int end) {
         if (text == null || start < 0 || end > text.length || start >= end) {
             return null;
@@ -127,7 +127,7 @@ public class EmojiTrie {
     * 匹配结果枚举
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Matches {
         /** Exactmatch */
         private final boolean exactMatch;
@@ -143,7 +143,7 @@ public class EmojiTrie {
         * @param exactMatch 布尔值
         * @param prefixMatch 前缀匹配
         * @param impossibleMatch impossible匹配
-         */
+        */
         private Matches(boolean exactMatch, boolean prefixMatch, boolean impossibleMatch) {
             this.exactMatch = exactMatch;
             this.prefixMatch = prefixMatch;
@@ -154,7 +154,7 @@ public class EmojiTrie {
         * Exact
         *
         * @return exact的结果
-         */
+        */
         public static Matches exact() {
             return new Matches(true, false, false);
         }
@@ -163,7 +163,7 @@ public class EmojiTrie {
         * 前缀
         *
         * @return 前缀的结果
-         */
+        */
         public static Matches prefix() {
             return new Matches(false, true, false);
         }
@@ -172,7 +172,7 @@ public class EmojiTrie {
         * Impossible
         *
         * @return impossible的结果
-         */
+        */
         public static Matches impossible() {
             return new Matches(false, false, true);
         }
@@ -181,7 +181,7 @@ public class EmojiTrie {
         * exact匹配
         *
         * @return exact匹配的结果
-         */
+        */
         public boolean exactMatch() {
             return exactMatch;
         }
@@ -190,7 +190,7 @@ public class EmojiTrie {
         * 前缀匹配
         *
         * @return 前缀匹配的结果
-         */
+        */
         public boolean prefixMatch() {
             return prefixMatch;
         }
@@ -201,7 +201,7 @@ public class EmojiTrie {
         * @return impossible匹配的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public boolean impossibleMatch() {
             return impossibleMatch;
         }

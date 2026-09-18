@@ -19,42 +19,42 @@ public class RustVideoDecoder implements VideoDecoder {
 
     /**
     * 解码器原生句柄
-     */
+    */
     private long decoderHandle;
 
     /**
     * 当前编解码器标识
-     */
+    */
     private int codecId;
 
     /**
     * 视频宽度
-     */
+    */
     private int width;
 
     /**
     * 视频高度
-     */
+    */
     private int height;
 
     /**
     * 解码器是否已初始化
-     */
+    */
     private boolean initialized;
 
     /**
     * ffmpeg AV_CODEC_标识_H264
-     */
+    */
     private static final int AV_CODEC_ID_H264 = 27;
 
     /**
     * ffmpeg AV_CODEC_标识_H265
-     */
+    */
     private static final int AV_CODEC_ID_H265 = 173;
 
     /**
     * ffmpeg AV_CODEC_标识_H266
-     */
+    */
     private static final int AV_CODEC_ID_H266 = 276;
 
     @Override

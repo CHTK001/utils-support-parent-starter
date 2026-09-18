@@ -45,7 +45,7 @@ public class RectDrawEyeResolver extends AbstractDrawEyeResolver{
     * @param detectOutColor detect出color
     * @param detectInnerColor detect内部color
     * @param codeEyeSetting 编码eyesetting
-     */
+    */
     public RectDrawEyeResolver(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW, int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize, Color detectOutColor, Color detectInnerColor, CodeEyeSetting codeEyeSetting) {
         super(qrCodeConfig, g2, bitMatrix, matrixW, matrixH, leftPadding, topPadding, infoSize, detectCornerSize, detectOutColor, detectInnerColor, codeEyeSetting);
     }

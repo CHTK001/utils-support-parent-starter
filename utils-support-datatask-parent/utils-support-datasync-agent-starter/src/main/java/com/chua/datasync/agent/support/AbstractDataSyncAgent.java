@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 数据同步 智能体 抽象基类，统一管理 源、Sink 与生命周期。
+* 数据同步 Agent 抽象基类，统一管理 源、Sink 与生命周期。
 *
 * @author CH
 * @since 4.0.0.42
@@ -17,23 +17,23 @@ import java.util.Map;
 public abstract class AbstractDataSyncAgent implements DataSyncAgent {
 
     /**
-    * 智能体 唯一标识
-     */
+    * Agent 唯一标识
+    */
     private final String agentId;
     /**
     * 源 实例列表
-     */
+    */
     private final List<DataSyncAgentSource> sources;
     /**
     * Sink 实例列表
-     */
+    */
     private final List<DataSyncAgentSink> sinks;
 
     /**
-    * 构造 智能体。
+    * 构造 Agent。
     *
-    * @param agentId 智能体 唯一标识
-     */
+    * @param agentId Agent 唯一标识
+    */
     protected AbstractDataSyncAgent(String agentId) {
         this.agentId = agentId;
         this.sources = new ArrayList<>();
@@ -44,7 +44,7 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     * 添加 源 实例。
     *
     * @param source 源 实例
-     */
+    */
     protected void addSource(DataSyncAgentSource source) {
         this.sources.add(source);
     }
@@ -53,13 +53,13 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     * 添加 Sink 实例。
     *
     * @param sink Sink 实例
-     */
+    */
     protected void addSink(DataSyncAgentSink sink) {
         this.sinks.add(sink);
     }
 
     @Override
-    /** 智能体id */
+    /** Agentid */
     public String agentId() {
         return agentId;
     }
@@ -68,7 +68,7 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     * 获取所有 源 实例。
     *
     * @return Source 列表
-     */
+    */
     public List<DataSyncAgentSource> sources() {
         return Collections.unmodifiableList(sources);
     }
@@ -88,7 +88,7 @@ public abstract class AbstractDataSyncAgent implements DataSyncAgent {
     * 获取所有 Sink 实例。
     *
     * @return Sink 列表
-     */
+    */
     public List<DataSyncAgentSink> sinks() {
         return Collections.unmodifiableList(sinks);
     }

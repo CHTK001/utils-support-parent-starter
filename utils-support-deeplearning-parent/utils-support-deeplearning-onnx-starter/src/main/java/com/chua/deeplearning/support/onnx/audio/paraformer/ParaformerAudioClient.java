@@ -43,7 +43,9 @@ public class ParaformerAudioClient implements VirtualClient {
     /** Resource_基础 */
     private static final String RESOURCE_BASE = "audio/asr/";
 
-    /** 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%） */
+    /**
+    * 模型缓存根目录（相对 deeplearning.模型.缓存-dir 或 %TEMP%）
+    */
     /** 缓存_根 */
     private static final String CACHE_ROOT = "audio/asr/";
 
@@ -110,7 +112,7 @@ public class ParaformerAudioClient implements VirtualClient {
     /**
     * 创建 paraformer音频客户端 实例
     * @param setting setting
-     */
+    */
     public ParaformerAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -251,7 +253,7 @@ public class ParaformerAudioClient implements VirtualClient {
 
     /**
     * 确保模型资源已解压并加载。
-     */
+    */
     private void ensurePrepared() {
         try {
             String modelName = model != null ? model : DEFAULT_MODEL;
@@ -278,7 +280,7 @@ public class ParaformerAudioClient implements VirtualClient {
     * 未配置时回落 %TEMP%。
     *
     * @return 缓存根目录
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
@@ -288,7 +290,7 @@ public class ParaformerAudioClient implements VirtualClient {
     * 解析待转写音频路径。
     *
     * @return 音频文件路径
-     */
+    */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

@@ -36,64 +36,64 @@ public class DhtProtocol implements AutoCloseable {
 
     /**
     * DHT 配置
-     */
+    */
     private final DhtConfig config;
 
     /**
     * 本地节点的 Kademlia 标识
-     */
+    */
     private final KademliaNodeId selfId;
 
     /**
     * 路由表
-     */
+    */
     private final DhtRoutingTable routingTable;
 
     /**
     * UDP 服务器（基于 抽象服务端 实现）
-     */
+    */
     private final DhtNettyServer server;
 
     /**
     * 本地键值存储
-     */
+    */
     private final DhtValueStore valueStore;
 
     /**
     * 定时任务调度器（Bootstrap 和重新发布）
-     */
+    */
     private final ScheduledExecutorService scheduler;
 
     /**
     * Bootstrap 种子节点集合，格式 "主机:端口"
-     */
+    */
     private final Set<String> bootstrapSeeds = ConcurrentHashMap.newKeySet();
 
     /**
     * 被动收集到的 infohash 集合（来自入站 获取_peers 查询）
-     */
+    */
     private final Set<String> infohashes = ConcurrentHashMap.newKeySet();
 
     /**
     * 已订阅服务名的监听器列表（用于服务发现通知）
-     */
+    */
     private final List<ServiceListenerEntry> serviceListeners = new CopyOnWriteArrayList<>();
 
     /**
     * KRPC 桥接器（非空时出站消息使用 KRPC 而非 JSON）。
-     */
+    */
     private KrpcDhtBridge krpcBridge;
 
     /**
     * DHT 爬取监听器。
-     */
+    */
     private DhtCrawlListener crawlListener;
 
     /**
     * 设置 DHT 爬取监听器。
     *
     * @param listener 监听器实例
-     */
+    */
     public void setCrawlListener(DhtCrawlListener listener) {
         this.crawlListener = listener;
     }
@@ -103,7 +103,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param config DHT 配置
     * @param selfId 本地节点 标识
-     */
+    */
     public DhtProtocol(DhtConfig config, KademliaNodeId selfId) {
         this.config = config;
         this.selfId = selfId;
@@ -124,7 +124,7 @@ public class DhtProtocol implements AutoCloseable {
     * 启动 DHT 协议引擎。
     *
     * @throws Exception 启动失败时抛出
-     */
+    */
     public void start() throws Exception {
         server.start();
         server.setMessageHandler(this::handleMessage);
@@ -139,7 +139,7 @@ public class DhtProtocol implements AutoCloseable {
     * 获取 UDP 服务器实例。
     *
     * @return DhtNettyServer 实例
-     */
+    */
     public DhtNettyServer server() {
         return server;
     }
@@ -148,7 +148,7 @@ public class DhtProtocol implements AutoCloseable {
     * 获取路由表。
     *
     * @return DhtRoutingTable 实例
-     */
+    */
     public DhtRoutingTable routingTable() {
         return routingTable;
     }
@@ -157,7 +157,7 @@ public class DhtProtocol implements AutoCloseable {
     * 获取值存储。
     *
     * @return DhtValueStore 实例
-     */
+    */
     public DhtValueStore valueStore() {
         return valueStore;
     }
@@ -166,7 +166,7 @@ public class DhtProtocol implements AutoCloseable {
     * 获取本地节点 标识。
     *
     * @return KademliaNodeId 实例
-     */
+    */
     public KademliaNodeId selfId() {
         return selfId;
     }
@@ -175,7 +175,7 @@ public class DhtProtocol implements AutoCloseable {
     * 添加种子节点地址。
     *
     * @param seed 种子节点地址，格式 "主机:端口"
-     */
+    */
     public void addSeed(String seed) {
         bootstrapSeeds.add(seed);
     }
@@ -188,7 +188,7 @@ public class DhtProtocol implements AutoCloseable {
     * </p>
     *
     * @param bridge krpcdhtbridge 实例
-     */
+    */
     public void enableKrpc(KrpcDhtBridge bridge) {
         this.krpcBridge = bridge;
     }
@@ -199,7 +199,7 @@ public class DhtProtocol implements AutoCloseable {
     * 路由表为空时向种子节点发送 查找_节点 请求；
     * 路由表非空时从路由表取 3 个节点刷新。
     * </p>
-     */
+    */
     public void bootstrap() {
         int total = routingTable.totalPeers();
         if (total < 20 && !bootstrapSeeds.isEmpty()) {
@@ -259,7 +259,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param target   目标节点地址
     * @param targetId 目标节点 标识
     * @return 查询到的节点列表
-     */
+    */
     public List<DhtPeer> findNode(InetSocketAddress target, KademliaNodeId targetId) {
         if (krpcBridge != null) {
             return krpcFindNode(target, targetId);
@@ -289,7 +289,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param target   目标节点地址
     * @param targetId 目标节点 标识
     * @return 查询到的节点列表
-     */
+    */
     private List<DhtPeer> krpcFindNode(InetSocketAddress target, KademliaNodeId targetId) {
         DhtMessage msg = DhtMessage.builder()
                 .type(DhtMessageType.FIND_NODE)
@@ -320,7 +320,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param peers  原始节点列表
     * @param target 请求目标地址（用于替换 0.0.0.0）
     * @return 修正后的节点列表
-     */
+    */
     private List<DhtPeer> fixPeers(List<DhtPeer> peers, InetSocketAddress target) {
         return peers.stream()
                 .map(p -> {
@@ -343,7 +343,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param target 目标节点 标识
     * @return 最接近目标节点的 k 个节点
-     */
+    */
     public List<DhtPeer> iterativeFindNode(KademliaNodeId target) {
         Set<String> visited = new HashSet<>();
         Set<DhtPeer> closest = new HashSet<>(routingTable.findClosestPeers(target, config.getAlpha()));
@@ -412,7 +412,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param key   键
     * @param value 值
-     */
+    */
     public void store(String key, String value) {
         valueStore.put(key, value);
         KademliaNodeId keyId = KademliaNodeId.fromString(key);
@@ -446,7 +446,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param key 键
     * @return 找到的值，未找到返回 空
-     */
+    */
     public String findValue(String key) {
         String local = valueStore.get(key);
         if (local != null) {
@@ -485,13 +485,13 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的消息
     * @param sender 发送者地址
-     */
+    */
     /**
     * 接收并处理 DHT 消息（包访问，供 dhtnetty服务端 调用）。
     *
     * @param msg    接收到的消息
     * @param sender 发送者地址
-     */
+    */
     void receiveMessage(DhtMessage msg, InetSocketAddress sender) {
         handleMessage(msg, sender);
     }
@@ -501,7 +501,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的消息
     * @param sender 发送者地址
-     */
+    */
     private void handleMessage(DhtMessage msg, InetSocketAddress sender) {
         if (msg.getSenderId() != null && !msg.getSenderId().equals(selfId.toString())) {
             DhtPeer peer = DhtPeer.builder()
@@ -542,7 +542,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg 入站消息（用于从中提取 recipient 地址）
     * @return 本机对外地址字符串
-     */
+    */
     private String selfHost(DhtMessage msg) {
         String host = config.hasAdvertisedAddress() ? config.getAdvertisedHost()
                 : (msg.getRecipientHost() != null && !"0.0.0.0".equals(msg.getRecipientHost())
@@ -558,7 +558,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg 入站消息（用于从中提取 recipient 端口）
     * @return 本机对外端口
-     */
+    */
     private int selfPort(DhtMessage msg) {
         return config.hasAdvertisedAddress() ? config.getAdvertisedPort()
                 : (msg.getRecipientPort() > 0 ? msg.getRecipientPort() : config.getPort());
@@ -570,7 +570,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param req   原始请求消息
     * @param resp  响应消息
     * @param target 目标地址
-     */
+    */
     private void sendResponse(DhtMessage req, DhtMessage resp, InetSocketAddress target) {
         resp.setKrpcTxId(req.getKrpcTxId());
         server.sendNoResponse(resp, target);
@@ -581,7 +581,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的 PING 消息
     * @param sender 发送者地址
-     */
+    */
     private void handlePing(DhtMessage msg, InetSocketAddress sender) {
         DhtMessage resp = DhtMessage.builder()
                 .type(DhtMessageType.PONG)
@@ -599,7 +599,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的 查找_节点 消息
     * @param sender 发送者地址
-     */
+    */
     private void handleFindNode(DhtMessage msg, InetSocketAddress sender) {
         KademliaNodeId target = KademliaNodeId.fromHex(msg.getTargetId());
         List<DhtPeer> closest = routingTable.findClosestPeers(target, config.getKBucketSize());
@@ -632,7 +632,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的 查找_值 消息
     * @param sender 发送者地址
-     */
+    */
     private void handleFindValue(DhtMessage msg, InetSocketAddress sender) {
         String value = valueStore.get(msg.getKey());
         DhtMessage resp;
@@ -667,7 +667,7 @@ public class DhtProtocol implements AutoCloseable {
     * 处理 存储 消息，将键值对存入本地存储。
     * @param msg msg
     * @param sender 发送
-     */
+    */
     private void handleStore(DhtMessage msg, InetSocketAddress sender) {
         if (msg.getKey() != null && msg.getValue() != null) {
             long ttl = msg.getTtl() > 0 ? msg.getTtl() : config.getValueTtlMs();
@@ -688,7 +688,7 @@ public class DhtProtocol implements AutoCloseable {
     * 处理 NAT_DETECT 消息，在响应中携带发送者的来源地址。
     * @param msg msg
     * @param sender 发送
-     */
+    */
     private void handleNatDetect(DhtMessage msg, InetSocketAddress sender) {
         DhtMessage resp = DhtMessage.builder()
                 .type(DhtMessageType.NAT_DETECT_RESPONSE)
@@ -706,7 +706,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param msg    接收到的 获取_PEERS 消息
     * @param sender 发送者地址
-     */
+    */
     private void handleGetPeers(DhtMessage msg, InetSocketAddress sender) {
         String infohash = msg.getInfohash() != null ? msg.getInfohash() : msg.getTargetId();
         if (infohash != null && !infohash.isEmpty()) {
@@ -750,7 +750,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param target   目标节点地址
     * @param infohash 目标 infohash
     * @return 查询到的 peer 列表
-     */
+    */
     public List<DhtPeer> krpcGetPeers(InetSocketAddress target, String infohash) {
         if (krpcBridge == null) {
             return Collections.emptyList();
@@ -789,7 +789,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param infohash 20 字节十六进制 infohash
     * @return 收集到的 BT peer 列表（可能为空）
-     */
+    */
     public List<DhtPeer> activeCrawl(String infohash) {
         if (krpcBridge == null || infohash == null || infohash.isEmpty()) {
             return Collections.emptyList();
@@ -831,7 +831,7 @@ public class DhtProtocol implements AutoCloseable {
     * 获取被动收集到的 infohash 集合。
     *
     * @return infohash 集合
-     */
+    */
     public Set<String> collectedInfohashes() {
         return Collections.unmodifiableSet(infohashes);
     }
@@ -842,7 +842,7 @@ public class DhtProtocol implements AutoCloseable {
     * @param hexInfohash 十六进制 infohash
     * @param timeoutMs   超时时间（毫秒）
     * @return 种子名称，未找到返回 空
-     */
+    */
     public String lookupName(String hexInfohash, int timeoutMs) {
         byte[] infoHash = new byte[20];
         for (int i = 0; i < 20; i++) {
@@ -869,7 +869,7 @@ public class DhtProtocol implements AutoCloseable {
 
     /**
     * 重新发布本地存储的所有值到 DHT 网络。
-     */
+    */
     public void republish() {
         Map<String, String> all = valueStore.getAll();
         for (Map.Entry<String, String> e : all.entrySet()) {
@@ -885,7 +885,7 @@ public class DhtProtocol implements AutoCloseable {
     *
     * @param stunServer STUN 服务器地址
     * @return 检测到的外部地址，失败返回 空
-     */
+    */
     public InetSocketAddress detectExternalAddress(InetSocketAddress stunServer) {
         try {
             DhtMessage msg = DhtMessage.builder()
@@ -908,17 +908,17 @@ public class DhtProtocol implements AutoCloseable {
     * 服务监听器条目，持有服务名和对应的监听器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class ServiceListenerEntry {
 
         /**
         * 服务路径。
-         */
+        */
         public final String path;
 
         /**
         * 变更监听器。
-         */
+        */
         public final ServiceListener listener;
 
         /**
@@ -926,7 +926,7 @@ public class DhtProtocol implements AutoCloseable {
         *
         * @param path     服务路径
         * @param listener 监听器
-         */
+        */
         public ServiceListenerEntry(String path, ServiceListener listener) {
             this.path = path;
             this.listener = listener;
@@ -937,7 +937,7 @@ public class DhtProtocol implements AutoCloseable {
     * 服务变更监听器接口。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public interface ServiceListener {
 
         /**
@@ -945,7 +945,7 @@ public class DhtProtocol implements AutoCloseable {
         *
         * @param path  服务路径
         * @param value 新的值
-         */
+        */
         void onChange(String path, String value);
     }
 

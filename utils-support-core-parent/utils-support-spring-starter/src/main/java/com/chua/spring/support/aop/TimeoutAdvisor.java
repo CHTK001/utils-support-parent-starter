@@ -22,7 +22,7 @@ public class TimeoutAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * @param intercept intercept
     * @author CH
     * @since 4.0.0
-     */
+    */
     public TimeoutAdvisor(TimeoutIntercept intercept) {
         super(new TimeoutAdvice(intercept));
     }

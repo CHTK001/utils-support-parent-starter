@@ -71,7 +71,7 @@ public class EmailPush implements MessagePush {
     /**
     * 创建 emailpush 实例
     * @param environment 环境
-     */
+    */
     public EmailPush(MessageEnvironment environment) {
         this.environment = environment;
     }
@@ -86,7 +86,7 @@ public class EmailPush implements MessagePush {
     /**
     * 发送
     * @param request 请求
-     */
+    */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -140,7 +140,7 @@ public class EmailPush implements MessagePush {
     /**
     * 获取Template
     * @param templateId templateid
-     */
+    */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
@@ -148,7 +148,7 @@ public class EmailPush implements MessagePush {
     /**
     * 注册模板
     * @param template template
-     */
+    */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
     }
@@ -156,7 +156,7 @@ public class EmailPush implements MessagePush {
     /**
     * 构建 SMTP 属性
     * @return 构建属性的结果
-     */
+    */
     private Properties buildProperties() {
         Properties props = new Properties();
         String host = environment.get("smtp.host");

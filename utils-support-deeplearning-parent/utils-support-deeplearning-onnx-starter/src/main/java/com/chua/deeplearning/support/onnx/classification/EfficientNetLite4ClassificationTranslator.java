@@ -29,7 +29,9 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     /** Runtimelabels */
     private List<String> runtimeLabels = defaultLabels(DEFAULT_CLASS_COUNT);
 
-    /** 创建 efficientnetlite4classificationtranslator 实例 */
+    /**
+    * 创建 efficientnetlite4classificationtranslator 实例
+    */
     public EfficientNetLite4ClassificationTranslator() {
     }
 
@@ -84,7 +86,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     *
     * @param modelPath 模型路径
     * @return 加载标签的结果
-     */
+    */
     private static List<String> loadLabels(Path modelPath) {
         try {
             if (modelPath == null) {
@@ -119,7 +121,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     *
     * @param size 大小
     * @return 默认标签的结果
-     */
+    */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
@@ -133,7 +135,7 @@ public class EfficientNetLite4ClassificationTranslator implements Translator<Ima
     *
     * @param logits logits
     * @return softmax的结果
-     */
+    */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float logit : logits) {

@@ -60,7 +60,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param outputStream 输出流
     * @param inputFormat 输入格式化
     * @param outputFormat 输出格式化
-     */
+    */
     public void convertVideo(java.io.InputStream inputStream, java.io.OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         checkStreamAvailable();
@@ -235,7 +235,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param duration 持续时间
     * @param width width
     * @param fps fps
-     */
+    */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         checkStreamAvailable();
@@ -279,7 +279,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
         checkStreamAvailable();
@@ -302,7 +302,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
         pushStream(input, streamUrl, options, callback);
@@ -325,7 +325,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         checkStreamAvailable();
@@ -342,7 +342,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
         pullStream(streamUrl, output, duration, callback);
@@ -391,7 +391,7 @@ public class RustFFmpegProcessor implements FFmpegProcessor {
     *
     * @param json json
     * @return 解析media信息的结果
-     */
+    */
     private FFmpegMediaInfo parseMediaInfo(String json) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(json);
         FFmpegMediaInfo info = new FFmpegMediaInfo();

@@ -100,8 +100,8 @@ rocksDb.close();
 
 | 能力 | 说明 |
 |------|------|
-| 字节 KV | `putBytes` / `getBytes` / `deleteBytes` / `scanBytes` |
-| 字符串 KV | `KvEngine` 契约：`get` / `put` / `delete` / `containsKey` / `incr` / `findAllByPrefix` |
+| 字节 KV | `putBytes` / `getBytes` / `deleteBytes` / `scanBytes`（真实 `RocksDB.put/get/delete`，前缀扫描走 `RocksIterator`） |
+| 字符串 KV | `KvEngine` 契约：`get` / `put` / `delete` / `containsKey` / `incr` / `findAllByPrefix`，真实 写 入 RocksDB `SKV:` 键 空间（重启 后 仍 可 读 回） |
 | 批量写入 | `writeBatch`（原子 `WriteBatch`） |
 | 文档存储 | `DocumentStore` 契约：`insert` / `findById` / `update` / `delete` / `findAll`（JSON 序列化） |
 | 全文检索 | `FulltextSearch` 契约：`createFulltextIndex` / `search` / `dropFulltextIndex`（倒排索引） |
@@ -112,6 +112,19 @@ rocksDb.close();
 ## 配置说明
 
 本模块为零配置模块，引入依赖后即可使用。RocksDB 为嵌入式数据库，数据存储在本地文件目录。
+
+## 并发语义
+
+- 单 个 `RocksDB` 实例 本身 线程 安全（RocksDB 官方 契约）
+- 复合 操作 通过 分级 锁 串行化：
+  - **键 级 锁**：字符串 KV `incr` 读-改-写（`SKV:` 键 空间）
+  - **集合 级 锁**：文档 + FTS 倒排 条目 的 读-改-写（`DOC:` / `FTS_` 键 空间）
+  - **表 级 锁**：ORM 自增 序号 分配 与 读-改-写 循环（`ORM:` 键 空间，跨 调用 共享）
+- FTS 采用 **单 值 键 布局**（`FTS_<collection>:<token>:<docId>` → 文档 键），无 多 值 逗号 拼接 竞态；
+  文档 与 索引 条目 共 用 同一 `WriteBatch` 原子 写 入，崩溃 不 产生 孤 文档
+- 自增 序号 键 后缀 为 **8 位 零 填充 十 进制**（字典 序 = 数值 序，行 键 扫描 顺序 即 插入 顺序）
+- 全 表 扫描 后 内存 分页（`supportsNativePaging() = false`）：`limit` 不 省 扫描 I/O，
+  大 表 高频 分页 场景 建议 加 二级 索引 或 切 SQL 引擎
 
 ---
 

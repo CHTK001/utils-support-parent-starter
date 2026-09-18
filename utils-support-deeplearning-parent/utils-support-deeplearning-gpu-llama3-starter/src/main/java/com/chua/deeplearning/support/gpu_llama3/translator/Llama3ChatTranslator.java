@@ -71,7 +71,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
 
     /**
     * 默认构造器，使用 llama-3-8b-it 模型。
-     */
+    */
     public Llama3ChatTranslator() {
         this("llama-3-8b-it");
     }
@@ -80,7 +80,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     * 构造器。
     *
     * @param modelId 模型 标识
-     */
+    */
     public Llama3ChatTranslator(String modelId) {
         this.modelId = modelId;
     }
@@ -104,7 +104,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     *   <li>{@code threads} → {@link Integer}</li>
     *   <li>{@code device} → {@link String}（auto/cpu/gpu/cuda）</li>
     * </ul>
-     */
+    */
     @Override
     public void configure(Map<String, Object> options) {
         if (options == null || options.isEmpty()) {
@@ -203,7 +203,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /**
     * 解析 gpulayers：优先运行时配置，其次默认 -1（全部 GPU）。
     * @return resolveGpuLayers的结果
-     */
+    */
     private int resolveGpuLayers() {
         if (gpuLayers != null) {
             return gpuLayers;
@@ -218,7 +218,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /**
     * 解析 ctx大小：优先运行时配置，其次默认 4096。
     * @return resolvectx大小的结果
-     */
+    */
     private int resolveCtxSize() {
         return ctxSize != null ? ctxSize : DEFAULT_CTX_SIZE;
     }
@@ -226,7 +226,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     /**
     * 解析 threads：优先运行时配置，其次 CPU 核心数。
     * @return resolveThreads的结果
-     */
+    */
     private int resolveThreads() {
         return threads != null ? threads : Runtime.getRuntime().availableProcessors();
     }
@@ -235,7 +235,7 @@ public class Llama3ChatTranslator implements ITranslator<String, String>, Detect
     * 逐 令牌 生成，遇结束符或达到上限提前终止。
     * @param parameters 参数
     * @return generatewith限制的结果
-     */
+    */
     private String generateWithLimit(InferenceParameters parameters) {
         StringBuilder sb = new StringBuilder();
         LlamaIterator it = model.generate(parameters).iterator();

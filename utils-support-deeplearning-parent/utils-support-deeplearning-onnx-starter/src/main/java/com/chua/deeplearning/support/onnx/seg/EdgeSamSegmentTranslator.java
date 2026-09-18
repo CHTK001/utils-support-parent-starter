@@ -46,47 +46,47 @@ public class EdgeSamSegmentTranslator {
 
     /**
     * edgesam 输入边长（1024）
-     */
+    */
     private static final int INPUT_SIZE = 1024;
 
     /**
     * 图像编码器输出的特征图边长（64）
-     */
+    */
     private static final int EMBED_SIZE = 64;
 
     /**
     * 掩码解码器输出的低分辨率掩码边长（256）
-     */
+    */
     private static final int MASK_SIZE = 256;
 
     /**
     * 掩码候选数量（SAM 输出 4 个候选）
-     */
+    */
     private static final int NUM_MASKS = 4;
 
     /**
     * 镜像net 均值（RGB，0-255 范围）
-     */
+    */
     private static final float[] PIXEL_MEAN = {123.675f, 116.28f, 103.53f};
 
     /**
     * 镜像net 标准差（RGB，0-255 范围）
-     */
+    */
     private static final float[] PIXEL_STD = {58.395f, 57.12f, 57.375f};
 
     /**
     * 资源目录前缀（jar 内）
-     */
+    */
     private static final String RESOURCE_BASE = "vision/seg/edge-sam/onnx/";
 
     /**
     * 图像编码器模型文件名
-     */
+    */
     private static final String ENCODER_FILE = "edge_sam_encoder.onnx";
 
     /**
     * 掩码解码器模型文件名
-     */
+    */
     private static final String DECODER_FILE = "edge_sam_decoder.onnx";
 
     /** ONNX 运行时环境 */
@@ -99,7 +99,7 @@ public class EdgeSamSegmentTranslator {
 
     /**
     * 当前依赖上下文（等比缩放参数），由 segment 串行使用
-     */
+    */
     private int srcWidth;
     /** 源图像高度 */
     /** SRC高度 */
@@ -158,7 +158,7 @@ public class EdgeSamSegmentTranslator {
     * @param input      输入图像
     * @param box        提示框 [x1, y1, x2, y2]（原图像素坐标）
     * @return 灰度掩码图（0=背景，255=前景）
-     */
+    */
     public Image segment(Image input, float[] box) throws Exception {
         if (box == null || box.length != 4) {
             throw new IllegalArgumentException("box 必须为 [x1, y1, x2, y2]");
@@ -182,7 +182,7 @@ public class EdgeSamSegmentTranslator {
     * extendscale
     *
     * @param input 输入
-     */
+    */
     private void extendScale(Image input) {
         srcWidth = input.getWidth();
         srcHeight = input.getHeight();
@@ -198,7 +198,7 @@ public class EdgeSamSegmentTranslator {
     * 图像预处理：等比缩放 + 居中填充 + SAM 归一化 → [1,3,1024,1024]。
     * @param input 输入
     * @return preprocess的结果
-     */
+    */
     private float[][] preprocess(Image input) {
         BufferedImage src = toBufferedImage(input);
         int newWidth = Math.max(1, Math.round(srcWidth * scale));
@@ -235,7 +235,7 @@ public class EdgeSamSegmentTranslator {
     *
     * @param normalized normalized
     * @return encode的结果
-     */
+    */
     private float[][][][] encode(float[][] normalized) {
         long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor imageTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(normalized)), shape)) {
@@ -255,7 +255,7 @@ public class EdgeSamSegmentTranslator {
     * @param coords coords
     * @param labels 标签
     * @param scoresOut scores出
-     */
+    */
     private float[][][][] decode(float[][][][] embeddings, float[][] coords,
                                  float[][] labels, float[] scoresOut) {
         long[] embShape = new long[]{1, 256, EMBED_SIZE, EMBED_SIZE};
@@ -285,7 +285,7 @@ public class EdgeSamSegmentTranslator {
     * 将原图坐标 bbox 转换为解码器需要的缩放后坐标点 [top-left, bottom-right]。
     * @param box box
     * @return 转为pointcoords的结果
-     */
+    */
     private float[][] toPointCoords(float[] box) {
         float x1 = Math.min(box[0], box[2]);
         float y1 = Math.min(box[1], box[3]);
@@ -302,7 +302,7 @@ public class EdgeSamSegmentTranslator {
     *
     * @param scores scores
     * @return argmax的结果
-     */
+    */
     private int argmax(float[] scores) {
         int best = 0;
         for (int i = 1; i < scores.length; i++) {
@@ -317,7 +317,7 @@ public class EdgeSamSegmentTranslator {
     * 掩码 logits [256,256] → sigmoid 阈值 → 灰度图 [0/255] → resize 回原图尺寸。
     * @param logits logits
     * @return mask转为镜像的结果
-     */
+    */
     private BufferedImage maskToImage(float[][] logits) {
         BufferedImage lowRes = new BufferedImage(MASK_SIZE, MASK_SIZE, BufferedImage.TYPE_BYTE_GRAY);
         WritableRaster raster = lowRes.getRaster();
@@ -344,7 +344,7 @@ public class EdgeSamSegmentTranslator {
     *
     * @param input 输入
     * @return 转为缓冲镜像的结果
-     */
+    */
     private BufferedImage toBufferedImage(Image input) {
         if (input == null) {
             throw new IllegalArgumentException("EdgeSAM 输入图像为空");
@@ -365,7 +365,7 @@ public class EdgeSamSegmentTranslator {
     *
     * @param arr arr
     * @return flatten的结果
-     */
+    */
     private static float[] flatten(float[][] arr) {
         int n = 0;
         for (float[] row : arr) {
@@ -386,7 +386,7 @@ public class EdgeSamSegmentTranslator {
     *
     * @param arr arr
     * @return flatten4的结果
-     */
+    */
     private static float[] flatten4(float[][][][] arr) {
         int n = 0;
         for (float[][][] a : arr) {
@@ -412,7 +412,7 @@ public class EdgeSamSegmentTranslator {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (encoderSession != null) {

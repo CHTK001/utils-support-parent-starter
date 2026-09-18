@@ -19,11 +19,11 @@ public enum KeyPolicy {
 
     /**
     * 自定义密钥：KEK 由使用者口令(secret)经 PBKDF2 派生
-     */
+    */
     CUSTOM,
 
     /**
     * 绑定服务器：KEK 由服务器指纹经 PBKDF2 派生（可选叠加口令作为 pepper）
-     */
+    */
     SERVER_BOUND
 }

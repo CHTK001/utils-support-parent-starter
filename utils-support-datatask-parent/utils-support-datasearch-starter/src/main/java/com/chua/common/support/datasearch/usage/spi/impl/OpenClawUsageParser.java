@@ -47,17 +47,17 @@ public class OpenClawUsageParser extends BaseUsageParser {
     private static final String PROVIDER_OPENCLAW = "openclaw";
 
     /**
-     * Returns the SPI name for OpenClaw.
-     *
-     * @return {@code "openclaw"}
-     */
+    * Returns the SPI name for OpenClaw.
+    *
+    * @return {@code "openclaw"}
+    */
     public String name() {
         return "openclaw";
     }
 
     /**
-     * Streams per-completion usage records from all trajectory files.
-     */
+    * Streams per-completion usage records from all trajectory files.
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listTrajectoryFiles();
@@ -107,14 +107,14 @@ public class OpenClawUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Locates the usage block of a model.completed event.
-     *
-     * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
-     * it at the top level, so both positions are checked.</p>
-     *
-     * @param node parsed trajectory line
-     * @return the usage block, or a missing node when absent
-     */
+    * Locates the usage block of a model.completed event.
+    *
+    * <p>OpenClaw nests it under {@code data.usage}; older schemas may carry
+    * it at the top level, so both positions are checked.</p>
+    *
+    * @param node parsed trajectory line
+    * @return the usage block, or a missing node when absent
+    */
     private JsonNode readUsage(JsonNode node) {
         JsonNode data = node.get("data");
         if (!data.isMissingValue() && !data.get("usage").isMissingValue()) {

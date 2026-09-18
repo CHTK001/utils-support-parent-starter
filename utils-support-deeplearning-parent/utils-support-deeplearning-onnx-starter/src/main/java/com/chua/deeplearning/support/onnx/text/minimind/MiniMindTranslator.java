@@ -47,47 +47,47 @@ public class MiniMindTranslator implements Translator<String, String> {
 
     /**
     * 最大输入长度
-     */
+    */
     private static final int MAX_INPUT_LENGTH = 256;
 
     /**
     * 最大生成 令牌 数
-     */
+    */
     private static final int MAX_NEW_TOKENS = 64;
 
     /**
     * EOS 令牌 标识（{@code <|im_end|>}，minimind 的对话结束符）
-     */
+    */
     private static final long EOS_TOKEN_ID = 2L;
 
     /**
     * BOS 令牌 标识（{@code <|im_start|>}）
-     */
+    */
     private static final long BOS_TOKEN_ID = 1L;
 
     /**
     * 纯 Java BPE tokenizer
-     */
+    */
     private MiniMindTokenizer tokenizer;
 
     /**
     * 当前输入文本
-     */
+    */
     private String currentInput;
 
     /**
     * 缓存分词结果
-     */
+    */
     private int[] cachedIds;
 
     /**
     * DJL 参数存储（用于 block.远期）
-     */
+    */
     private final ParameterStore parameterStore = new ParameterStore();
 
     /**
     * 模型是否需要 attention_mask 输入
-     */
+    */
     private boolean hasAttentionMask;
 
     @Override
@@ -191,7 +191,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     * </p>
     * @param ctx ctx
     * @return generateGreedy的结果
-     */
+    */
     private String generateGreedy(TranslatorContext ctx) {
         long startTime = System.currentTimeMillis();
         int generatedCount = 0;
@@ -286,7 +286,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     * argmax
     * @param logits logits
     * @return argmax的结果
-     */
+    */
     private static int argmax(float[] logits) {
         int maxIdx = 0;
         float maxVal = logits[0];
@@ -303,7 +303,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     * 解析模型根目录
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -319,7 +319,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     * @param root 根
     * @param name 名称
     * @return find文件的结果
-     */
+    */
     private static Path findFile(Path root, String name) {
         if (root == null) {
             return null;
@@ -341,7 +341,7 @@ public class MiniMindTranslator implements Translator<String, String> {
     * 查找 ONNX 模型文件
     * @param modelRoot 模型根
     * @return findonnx文件的结果
-     */
+    */
     private static Path findOnnxFile(Path modelRoot) {
         Path onnxPath = modelRoot.resolve("model.onnx");
         if (Files.exists(onnxPath)) {

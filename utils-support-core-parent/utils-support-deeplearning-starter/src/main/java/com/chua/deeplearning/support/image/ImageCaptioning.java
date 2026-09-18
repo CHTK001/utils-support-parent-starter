@@ -28,7 +28,7 @@ public interface ImageCaptioning {
     *
     * @param name 模型名称
     * @return 描述器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -36,7 +36,7 @@ public interface ImageCaptioning {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static ImageCaptioning create(String provider, String apiKey) {
         return ServiceProvider.of(ImageCaptioning.class)
                 .getNewExtension(provider, apiKey);
@@ -47,7 +47,7 @@ public interface ImageCaptioning {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default ImageCaptioning provider(String provider) {
         return this;
     }
@@ -57,7 +57,7 @@ public interface ImageCaptioning {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default ImageCaptioning model(String model) {
         return this;
     }
@@ -67,7 +67,7 @@ public interface ImageCaptioning {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static ImageCaptioning create(String name) {
         return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -79,7 +79,7 @@ public interface ImageCaptioning {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageCaptioning.class);
     }
@@ -90,7 +90,7 @@ public interface ImageCaptioning {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 描述器
-     */
+    */
     static ImageCaptioning create(String name, ModelSetting setting) {
         return new DefaultImageCaptioning(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -100,7 +100,7 @@ public interface ImageCaptioning {
     *
     * @param imageData 图像字节
     * @return 图像描述文本
-     */
+    */
     String describe(byte[] imageData);
 }
 
@@ -114,17 +114,17 @@ class DefaultImageCaptioning implements ImageCaptioning {
 
     /**
     * 默认模型名称
-     */
+    */
     private static final String DEFAULT_MODEL = "vit-gpt2-captioning";
 
     /**
     * 识别引擎
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称
-     */
+    */
     private final String modelName;
 
     /**
@@ -133,7 +133,7 @@ class DefaultImageCaptioning implements ImageCaptioning {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultImageCaptioning(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName != null ? modelName : DEFAULT_MODEL;
@@ -146,7 +146,7 @@ class DefaultImageCaptioning implements ImageCaptioning {
     *
     * @param imageData 镜像数据
     * @return describe的结果
-     */
+    */
     public String describe(byte[] imageData) {
         ITranslator<byte[], String> t = engine.get(modelName, ITranslator.class);
         if (t == null) {

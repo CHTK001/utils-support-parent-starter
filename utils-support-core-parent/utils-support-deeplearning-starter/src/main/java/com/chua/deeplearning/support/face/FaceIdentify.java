@@ -35,47 +35,47 @@ public class FaceIdentify {
 
     /**
     * 默认 Top-K 值。
-     */
+    */
     private static final int DEFAULT_TOP_K = 5;
 
     /**
     * 默认活体阈值。
-     */
+    */
     private static final float DEFAULT_LIVENESS_THRESHOLD = 0.5f;
 
     /**
     * 人脸检测器。
-     */
+    */
     private final FaceDetector detector;
 
     /**
     * 活体检测器，可为 空。
-     */
+    */
     private final LivenessDetector liveness;
 
     /**
     * 特征提取器。
-     */
+    */
     private final FeatureExtractor featureExtractor;
 
     /**
     * 向量库。
-     */
+    */
     private final VectorStorage vectorStorage;
 
     /**
     * 检索 Top-K。
-     */
+    */
     private final int topK;
 
     /**
     * 是否要求活体通过才继续识别。
-     */
+    */
     private final boolean requireLive;
 
     /**
     * 活体阈值。
-     */
+    */
     private final float livenessThreshold;
 
     /**
@@ -88,7 +88,7 @@ public class FaceIdentify {
     * @param topK               Top-K
     * @param requireLive        是否过滤非活体
     * @param livenessThreshold  活体阈值
-     */
+    */
     public FaceIdentify(FaceDetector detector,
                         LivenessDetector liveness,
                         FeatureExtractor featureExtractor,
@@ -112,7 +112,7 @@ public class FaceIdentify {
     * @param featureExtractor 特征
     * @param vectorStorage    向量库
     * @param topK             Top-K
-     */
+    */
     public FaceIdentify(FaceDetector detector,
                         FeatureExtractor featureExtractor,
                         VectorStorage vectorStorage,
@@ -124,7 +124,7 @@ public class FaceIdentify {
     * 构建器。
     *
     * @return builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -133,42 +133,42 @@ public class FaceIdentify {
     * 链式构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 人脸检测器。
-         */
+        */
         private FaceDetector detector;
 
         /**
         * 活体检测器。
-         */
+        */
         private LivenessDetector liveness;
 
         /**
         * 特征提取器。
-         */
+        */
         private FeatureExtractor featureExtractor;
 
         /**
         * 向量库。
-         */
+        */
         private VectorStorage vectorStorage;
 
         /**
         * 检索返回 Top-K 条数。
-         */
+        */
         private int topK = DEFAULT_TOP_K;
 
         /**
         * 是否要求活体通过。
-         */
+        */
         private boolean requireLive = true;
 
         /**
         * 活体分数阈值。
-         */
+        */
         private float livenessThreshold = DEFAULT_LIVENESS_THRESHOLD;
 
         /**
@@ -176,7 +176,7 @@ public class FaceIdentify {
         *
         * @param detector 人脸检测
         * @return this
-         */
+        */
         public Builder detector(FaceDetector detector) {
             this.detector = detector;
             return this;
@@ -187,7 +187,7 @@ public class FaceIdentify {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder detector(String modelId) {
             this.detector = FaceDetector.create(modelId);
             return this;
@@ -198,7 +198,7 @@ public class FaceIdentify {
         *
         * @param liveness 活体
         * @return this
-         */
+        */
         public Builder liveness(LivenessDetector liveness) {
             this.liveness = liveness;
             return this;
@@ -209,7 +209,7 @@ public class FaceIdentify {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder liveness(String modelId) {
             this.liveness = LivenessDetector.create(modelId);
             return this;
@@ -220,7 +220,7 @@ public class FaceIdentify {
         *
         * @param featureExtractor 特征
         * @return this
-         */
+        */
         public Builder featureExtractor(FeatureExtractor featureExtractor) {
             this.featureExtractor = featureExtractor;
             return this;
@@ -231,7 +231,7 @@ public class FaceIdentify {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder featureExtractor(String modelId) {
             this.featureExtractor = FeatureExtractor.create(modelId);
             return this;
@@ -242,7 +242,7 @@ public class FaceIdentify {
         *
         * @param vectorStorage 向量库
         * @return this
-         */
+        */
         public Builder vectorStorage(VectorStorage vectorStorage) {
             this.vectorStorage = vectorStorage;
             return this;
@@ -253,7 +253,7 @@ public class FaceIdentify {
         *
         * @param topK 条数
         * @return this
-         */
+        */
         public Builder topK(int topK) {
             this.topK = topK;
             return this;
@@ -264,7 +264,7 @@ public class FaceIdentify {
         *
         * @param requireLive true 过滤假体
         * @return this
-         */
+        */
         public Builder requireLive(boolean requireLive) {
             this.requireLive = requireLive;
             return this;
@@ -275,7 +275,7 @@ public class FaceIdentify {
         *
         * @param livenessThreshold 阈值
         * @return this
-         */
+        */
         public Builder livenessThreshold(float livenessThreshold) {
             this.livenessThreshold = livenessThreshold;
             return this;
@@ -285,7 +285,7 @@ public class FaceIdentify {
         * 构建。
         *
         * @return FaceIdentify
-         */
+        */
         public FaceIdentify build() {
             return new FaceIdentify(detector, liveness, featureExtractor, vectorStorage,
                     topK, requireLive, livenessThreshold);
@@ -297,7 +297,7 @@ public class FaceIdentify {
     *
     * @param imageData 场景图
     * @return 每人脸识别结果
-     */
+    */
     public List<FaceIdentifyHit> identify(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
         if (boxes == null || boxes.isEmpty()) {
@@ -315,7 +315,7 @@ public class FaceIdentify {
     *
     * @param imageData 场景图
     * @return 结果，无人脸时 空；requirelive 且非活体时仍返回 hit（live=false, hits 空）或 空
-     */
+    */
     public FaceIdentifyHit identifyLargest(byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
         if (boxes == null || boxes.isEmpty()) {
@@ -330,7 +330,7 @@ public class FaceIdentify {
     * @param imageData 原始图像数据
     * @param box       人脸检测框
     * @return 识别结果
-     */
+    */
     private FaceIdentifyHit identifyOne(byte[] imageData, PredictRectangle box) {
         byte[] face = ImageCropUtils.crop(imageData, box);
         LivenessResult lr = evaluateLiveness(face);
@@ -348,7 +348,7 @@ public class FaceIdentify {
     * @param id        人员 标识
     * @param faceImage 人脸图
     * @return 是否成功
-     */
+    */
     public boolean enroll(String id, byte[] faceImage) {
         if (requireLive && liveness != null) {
             LivenessResult lr = evaluateLiveness(faceImage);
@@ -365,7 +365,7 @@ public class FaceIdentify {
     * @param id        人员 标识
     * @param imageData 场景图
     * @return 是否成功
-     */
+    */
     public boolean enrollLargest(String id, byte[] imageData) {
         List<PredictRectangle> boxes = detector.detect(imageData);
         if (boxes == null || boxes.isEmpty()) {
@@ -383,7 +383,7 @@ public class FaceIdentify {
     * @param metadata 元数据
     * @param content  内容
     * @return 是否成功
-     */
+    */
     public boolean enroll(String id, float[] feature, Map<String, Object> metadata, String content) {
         return vectorStorage.add(new Vector(id, feature,
                 metadata == null ? Map.of() : metadata, content));
@@ -394,7 +394,7 @@ public class FaceIdentify {
     *
     * @param faceImage 人脸图像数据
     * @return 活体结果
-     */
+    */
     private LivenessResult evaluateLiveness(byte[] faceImage) {
         if (liveness == null) {
             return new LivenessResult(true, 1.0f);
@@ -424,7 +424,7 @@ public class FaceIdentify {
     * @param feature 查询特征
     * @param k       返回条数
     * @return 命中列表
-     */
+    */
     private List<FaceSearchHit> searchFeature(float[] feature, int k) {
         List<com.chua.common.support.vector.Vector> vectors = vectorStorage.search(feature, k);
         if (vectors == null || vectors.isEmpty()) {
@@ -451,7 +451,7 @@ public class FaceIdentify {
     *
     * @param boxes 检测框列表
     * @return 最大框
-     */
+    */
     private static PredictRectangle pickLargest(List<PredictRectangle> boxes) {
         PredictRectangle largest = boxes.getFirst();
         float maxArea = largest.width() * largest.height();
@@ -470,7 +470,7 @@ public class FaceIdentify {
     * 检测器。
     *
     * @return FaceDetector
-     */
+    */
     public FaceDetector detector() {
         return detector;
     }
@@ -479,7 +479,7 @@ public class FaceIdentify {
     * 活体检测器。
     *
     * @return LivenessDetector 或 空
-     */
+    */
     public LivenessDetector liveness() {
         return liveness;
     }
@@ -488,7 +488,7 @@ public class FaceIdentify {
     * 特征提取器。
     *
     * @return FeatureExtractor
-     */
+    */
     public FeatureExtractor featureExtractor() {
         return featureExtractor;
     }
@@ -497,7 +497,7 @@ public class FaceIdentify {
     * 向量库。
     *
     * @return VectorStorage
-     */
+    */
     public VectorStorage vectorStorage() {
         return vectorStorage;
     }
@@ -509,7 +509,7 @@ public class FaceIdentify {
     * @param live live
     * @param score score
     * @return liveness结果的结果
-     */
+    */
     private record LivenessResult(boolean live, float score) {
     }
 }

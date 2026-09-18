@@ -48,37 +48,37 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
 
     /**
     *                             640x640   
-     */
+    */
     private final int inputSize;
 
     /**
     *                      
-     */
+    */
     private final float minConfThreshold;
 
     /**
     * IOU       
-     */
+    */
     private final float iouThreshold;
 
     /**
     *                   
-     */
+    */
     private final int topK;
 
     /**
     *                   
-     */
+    */
     private int imageWidth;
 
     /**
     *                   
-     */
+    */
     private int imageHeight;
 
     /**
     * letterbox
-     */
+    */
     private LetterBoxUtils.ResizeResult letterBoxResult;
 
     /**
@@ -90,7 +90,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     * - iou阈值: 0.5
     * - topk: 100
     * </p>
-     */
+    */
     public Yolo8IdCardDetectTranslator() {
         this(640, 0.3f, 0.5f, 100);
     }
@@ -99,7 +99,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     * 映射
     *
     * @param arguments             
-     */
+    */
     public Yolo8IdCardDetectTranslator(Map<String, ?> arguments) {
         this.minConfThreshold = arguments.containsKey("confThreshold")
                 ? Float.parseFloat(arguments.get("confThreshold").toString())
@@ -125,7 +125,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     * @param minConfThreshold                       [0.0, 1.0]
     * @param iouThreshold     IOU        [0.0, 1.0]
     * @param topK                                
-     */
+    */
     public Yolo8IdCardDetectTranslator(int inputSize, float minConfThreshold, float iouThreshold, int topK) {
         this.inputSize = inputSize;
         this.minConfThreshold = minConfThreshold;
@@ -257,7 +257,7 @@ public class Yolo8IdCardDetectTranslator implements Translator<Image, DetectedOb
     *
     * @param xywh                                  
     * @return                               
-     */
+    */
     public static NDArray xywh2xyxy(NDArray xywh) {
         var x = xywh.get(":, 0");
         var y = xywh.get(":, 1");

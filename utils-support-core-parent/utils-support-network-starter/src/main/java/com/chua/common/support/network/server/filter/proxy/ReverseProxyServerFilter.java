@@ -68,7 +68,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     /**
     * 创建 reverse代理服务端过滤器 实例
     * @param timeoutSeconds 超时seconds
-     */
+    */
     public ReverseProxyServerFilter(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
     }
@@ -125,7 +125,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -166,7 +166,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     * 响应式过滤器入口:适配 vertx-http 等响应式 服务端 的过滤器链
     * (其响应式链仅执行 {@link ReactiveServerFilter})。
     * 返回转发完成的 Stage,供响应式链等待真正写出响应,避免提前 结束vertx 空响应。
-     */
+    */
     @Override
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
@@ -190,7 +190,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     * @param host 主机
     * @param port 端口
     * @param scheme scheme
-     */
+    */
     private CompletableFuture<Void> handleHttpProxyAsync(ServerRequest request, ServerResponse response,
                                                          String host, int port, String scheme) {
         String path = request.getPath();
@@ -284,7 +284,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     * @param host 主机
     * @param port 端口
     * @param scheme scheme
-     */
+    */
     private void handleHttpProxy(ServerRequest request, ServerResponse response,
                                  String host, int port, String scheme) throws Exception {
         handleHttpProxyAsync(request, response, host, port, scheme);
@@ -295,7 +295,7 @@ public class ReverseProxyServerFilter implements ServerFilter, ReactiveServerFil
     *
     * @param uri uri
     * @return extract查询的结果
-     */
+    */
     private String extractQuery(String uri) {
         if (uri == null) {
             return null;

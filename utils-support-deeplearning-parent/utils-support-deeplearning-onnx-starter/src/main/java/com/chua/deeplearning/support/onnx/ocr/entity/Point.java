@@ -20,7 +20,7 @@ public class Point {
     * @param x x
     * @param x double
     * @param y y
-     */
+    */
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
@@ -30,7 +30,7 @@ public class Point {
     * 获取X
     *
     * @return 获取x的结果
-     */
+    */
     public double getX() {
         return x;
     }
@@ -39,7 +39,7 @@ public class Point {
     * 获取Y
     *
     * @return 获取y的结果
-     */
+    */
     public double getY() {
         return y;
     }

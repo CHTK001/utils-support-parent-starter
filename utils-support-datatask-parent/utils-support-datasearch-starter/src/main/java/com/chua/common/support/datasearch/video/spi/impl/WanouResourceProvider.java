@@ -37,7 +37,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     /**
     * 创建 wanouresource提供者 实例
     * @param videoSource 视频源
-     */
+    */
     public WanouResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -46,20 +46,20 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     * 获取地址
     *
     * @return
-     */
+    */
     protected String getUrl() {
         return StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://woog.nxog.eu.org/api.php/provide/vod?ac=detail&wd=%s");
     }
 
     @Override
     /**
-     * 搜索Resource。
-     * <p>请求 MacCMS v1 采集接口（ac=detail），解析 JSON 为视频列表。
-     * 响应非 JSON（如 403 HTML）时快速返回不可用错误，避免解析异常。</p>
-     *
-     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
-     * @return 搜索Resource的结果；列表为空时返回空结果，响应异常时返回错误结果
-     */
+    * 搜索Resource。
+    * <p>请求 MacCMS v1 采集接口（ac=detail），解析 JSON 为视频列表。
+    * 响应非 JSON（如 403 HTML）时快速返回不可用错误，避免解析异常。</p>
+    *
+    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+    * @return 搜索Resource的结果；列表为空时返回空结果，响应异常时返回错误结果
+    */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         if (!StringUtils.hasText(videoSearch.getKeyword())) {
             return ReturnPageResult.error("关键词不能为空");
@@ -123,7 +123,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     * @param videoDownloads 视频downloads
     * @param vodDownFrom voddown从
     * @param vodDownUrl voddownurl
-     */
+    */
     private void registerDownload(List<VideoDownload> videoDownloads, String vodDownFrom, String vodDownUrl) {
         if (null == vodDownFrom) {
             return;
@@ -146,7 +146,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
     * @return 调动名称的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public String transferName(String s) {
         return switch (s.toLowerCase()) {
             case "bd" -> "百度网盘";

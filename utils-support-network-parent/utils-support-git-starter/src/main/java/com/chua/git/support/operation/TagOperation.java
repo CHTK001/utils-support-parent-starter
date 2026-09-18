@@ -41,14 +41,14 @@ public class TagOperation {
 
     /**
     * 所属 git客户端。
-     */
+    */
     private final GitClient client;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 所属 Git客户端
-     */
+    */
     public TagOperation(GitClient client) {
         this.client = client;
     }
@@ -59,7 +59,7 @@ public class TagOperation {
     * 列出所有标签。
     *
     * @return 标签信息列表
-     */
+    */
     public List<TagInfo> list() {
         try {
             client.open();
@@ -86,7 +86,7 @@ public class TagOperation {
     *
     * @param name 标签名称（如 "v1.0"）
     * @return 当前操作实例
-     */
+    */
     public TagOperation create(String name) {
         create(name, null);
         return this;
@@ -98,7 +98,7 @@ public class TagOperation {
     * @param name    标签名称
     * @param message 标签消息
     * @return 当前操作实例
-     */
+    */
     public TagOperation create(String name, String message) {
         try {
             client.open();
@@ -122,7 +122,7 @@ public class TagOperation {
     *
     * @param name 标签名称
     * @return 当前操作实例
-     */
+    */
     public TagOperation delete(String name) {
         try {
             client.open();

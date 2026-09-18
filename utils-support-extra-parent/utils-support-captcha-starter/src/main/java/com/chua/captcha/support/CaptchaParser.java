@@ -20,7 +20,7 @@ public interface CaptchaParser {
     * @param imageData 验证码图片的字节数据
     * @param options 解析选项配置（如验证码类型、site键、代理设置等）
     * @return 解析任务 标识，可用于后续查询结果
-     */
+    */
     String submitCaptcha(byte[] imageData, Map<String, String> options);
 
     /**
@@ -28,6 +28,6 @@ public interface CaptchaParser {
     *
     * @param taskId 解析任务 标识
     * @return 解析结果响应
-     */
+    */
     CaptchaResponse queryResult(String taskId);
 }

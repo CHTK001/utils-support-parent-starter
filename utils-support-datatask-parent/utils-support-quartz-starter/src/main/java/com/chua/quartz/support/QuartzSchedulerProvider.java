@@ -38,17 +38,17 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
 
     /**
     * 石英石 调度器
-     */
+    */
     private final Scheduler scheduler;
 
     /**
     * 任务运行器缓存（供 delegate作业 访问）
-     */
+    */
     static final Map<String, Runnable> TASK_CACHE = new ConcurrentHashMap<>();
 
     /**
     * 创建默认配置的 石英石 调度器提供者
-     */
+    */
     public QuartzSchedulerProvider() {
         try {
             this.scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -62,7 +62,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     * 创建使用指定配置的 石英石 调度器提供者
     *
     * @param config 石英石 配置属性
-     */
+    */
     public QuartzSchedulerProvider(Properties config) {
         try {
             var factory = new StdSchedulerFactory(config);
@@ -142,7 +142,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     * @param id 标识
     * @param trigger trigger
     * @return 转为石英石trigger的结果
-     */
+    */
     private org.quartz.Trigger toQuartzTrigger(String id, Trigger trigger) {
         if (trigger instanceof CronTrigger ct) {
             return TriggerBuilder.newTrigger()
@@ -167,7 +167,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     *
     * @param ldt ldt
     * @return 转为日期的结果
-     */
+    */
     private static Date toDate(LocalDateTime ldt) {
         return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     }
@@ -176,7 +176,7 @@ public class QuartzSchedulerProvider extends AbstractSchedulerProvider {
     * 石英石 委托任务
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class DelegateJob implements Job {
         @Override
         /** 执行 */

@@ -33,7 +33,7 @@ public class DefaultCodeProduct implements CodeProduct{
     * @param setting      二维码设置
     * @return 背景图、logo和前景图的BufferedImage对象
     * @throws IOException 如果读取背景图、logo或前景图时发生错误。
-     */
+    */
     BufferedImage toBufferedImage(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrSetting setting) throws IOException {
         // 绘制二维码基本图形
         return QrCodeRenderUtils.drawQrInfo(qrCodeConfig, bitMatrix, setting);

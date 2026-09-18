@@ -28,7 +28,7 @@ public record PostgresqlVectorStorageProperties(
         *
         * @param obj obj
         * @return 的的结果
-         */
+        */
         int hnswEfSearch
 ) {
     private static final String DEFAULT_TABLE = "vector_store";
@@ -37,7 +37,7 @@ public record PostgresqlVectorStorageProperties(
     * postgresql向量storage属性。
     * @return postgresql向量storage属性的结果
     * @param obj obj
-     */
+    */
     private static final String DEFAULT_VECTOR_COLUMN = "embedding";
     private static final int DEFAULT_IVFFLAT_LISTS = 100;
     private static final int DEFAULT_HNSW_M = 16;

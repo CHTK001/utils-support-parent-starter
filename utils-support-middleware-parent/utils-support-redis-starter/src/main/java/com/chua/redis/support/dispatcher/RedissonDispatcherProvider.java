@@ -41,7 +41,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     /**
     * 创建 redissondispatcher提供者 实例
     * @param config 配置
-     */
+    */
     public RedissonDispatcherProvider(DispatcherConfig config) {
         super(config);
         var redisUri = config.getUrl() != null ? config.getUrl() : "redis://127.0.0.1:6379";
@@ -56,7 +56,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     * @param config 配置
     * @param redissonClient redisson客户端
     * @param redissonClient redisson客户端
-     */
+    */
     public RedissonDispatcherProvider(DispatcherConfig config, RedissonClient redissonClient) {
         super(config);
         this.redissonClient = redissonClient;
@@ -137,7 +137,7 @@ public class RedissonDispatcherProvider extends AbstractDispatcherProvider {
     *
     * @param topic topic
     * @return 获取或创建topic的结果
-     */
+    */
     private RTopic getOrCreateTopic(String topic) {
         return topicMap.computeIfAbsent(topic, redissonClient::getTopic);
     }

@@ -42,13 +42,15 @@ public class ClusterSetting {
     * 显式声明的远端服务元数据列表。
     * <p>ClusterServer builder 在启动前填入，ClusterNode.start() 会将它们注册进 scatter 供对等扩散。</p>
     * <p>同一 servicePath 下只允许同一种协议，混用时 {@link ClusterManager#addServer} 会拒绝。</p>
-     */
+    */
     private List<ServerEntry> serverEntries = new ArrayList<>();
 
     /** 本节点业务端口（HTTP 与 TCP 共用；0=自动分配） */
     private int port = 0;
 
-    /** scatter 通信端口（节点服务端 监听；0=端口+2，与 HTTP/TCP 代理分离） */
+    /**
+    * scatter 通信端口（节点服务端 监听；0=端口+2，与 HTTP/TCP 代理分离）
+    */
     private int scatterPort = 0;
 
     /** 是否启用 HTTP 代理入口 */
@@ -69,13 +71,13 @@ public class ClusterSetting {
     /**
     * 集群 master（域名或主入口地址）。
     * <p>仅作为元数据记录，供运维/监控识别主入口，不影响 scatter 对等发现逻辑。</p>
-     */
+    */
     private String master;
 
     /**
     * 获取有效业务分组：clusterid 为空时回落到 scatterid。
     * @return effective群体id的结果
-     */
+    */
     public String effectiveGroupId() {
         return clusterId != null && !clusterId.isBlank() ? clusterId : scatterId;
     }
@@ -83,7 +85,7 @@ public class ClusterSetting {
     /**
     * 转换为 scatter 配置。
     * @return 转为scattersetting的结果
-     */
+    */
     public ScatterSetting toScatterSetting() {
         ScatterSetting setting = new ScatterSetting();
         setting.setNodeId(nodeId != null ? nodeId : (host + ":" + port));

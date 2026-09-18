@@ -26,19 +26,19 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 内存注册表：指纹(hex) -> 基础64(封装块)
-     */
+    */
     private final Map<String, String> store = new ConcurrentHashMap<>();
 
     /**
     * 持久化文件
-     */
+    */
     private final Path file;
 
     /**
     * 私有构造，经 {@link #load(Path)} 创建
     *
     * @param file 持久化文件
-     */
+    */
     private FileLicenseRegistry(Path file) {
         this.file = file;
     }
@@ -49,7 +49,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     * @param file 注册表文件
     * @return 注册表
     * @throws IOException 读取失败
-     */
+    */
     public static FileLicenseRegistry load(Path file) throws IOException {
         FileLicenseRegistry registry = new FileLicenseRegistry(file);
         if (Files.exists(file)) {
@@ -68,7 +68,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 注册/更新并原子落盘
-     */
+    */
     @Override
     public synchronized void register(String fingerprint, byte[] blob) {
         store.put(fingerprint, Base64.getMimeEncoder().encodeToString(blob));
@@ -77,7 +77,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 吊销并落盘
-     */
+    */
     @Override
     public synchronized boolean revoke(String fingerprint) {
         boolean removed = store.remove(fingerprint) != null;
@@ -89,7 +89,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 查询私钥封装块
-     */
+    */
     @Override
     public byte[] lookup(String fingerprint) {
         String base64 = store.get(fingerprint);
@@ -98,7 +98,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 是否已注册
-     */
+    */
     @Override
     public boolean contains(String fingerprint) {
         return store.containsKey(fingerprint);
@@ -106,7 +106,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 快照
-     */
+    */
     @Override
     public Map<String, String> snapshot() {
         return new LinkedHashMap<>(store);
@@ -114,7 +114,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
 
     /**
     * 原子持久化：临时文件 + 原子移动（失败回退普通移动），IO 失败转为运行时异常
-     */
+    */
     private void persist() {
         try {
             persistInternal();
@@ -127,7 +127,7 @@ public final class FileLicenseRegistry implements LicenseRegistry {
     * 实际落盘
     *
     * @throws IOException 写入失败
-     */
+    */
     private void persistInternal() throws IOException {
         StringBuilder sb = new StringBuilder();
         store.forEach((fp, blob) -> sb.append(fp).append('=').append(blob).append(System.lineSeparator()));

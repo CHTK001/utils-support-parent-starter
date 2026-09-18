@@ -49,7 +49,7 @@ public final class UebaEngineBuilder {
     * @param config UEBA 配置，不能为 空
     * @return 当前构建器
     * @throws IllegalArgumentException 当 配置 为 空 时
-     */
+    */
     public UebaEngineBuilder config(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
         this.config = config;
@@ -63,7 +63,7 @@ public final class UebaEngineBuilder {
     * @return 当前构建器
     * @throws IllegalArgumentException 当 路径 为 空 时
     * @throws UncheckedIOException     当配置文件读取失败时
-     */
+    */
     public UebaEngineBuilder config(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         this.config = UebaConfig.load(path);
@@ -76,7 +76,7 @@ public final class UebaEngineBuilder {
     * @param file 配置文件路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 文件 为 空 或空白时
-     */
+    */
     public UebaEngineBuilder configFile(String file) {
         if (file == null || file.isBlank()) {
             throw new IllegalArgumentException("file 不能为 null 或空白");
@@ -91,7 +91,7 @@ public final class UebaEngineBuilder {
     * @param resource 类路径 资源路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 resource 为 空/空白或资源不存在时
-     */
+    */
     public UebaEngineBuilder configResource(String resource) {
         if (resource == null || resource.isBlank()) {
             throw new IllegalArgumentException("resource 不能为 null 或空白");
@@ -113,7 +113,7 @@ public final class UebaEngineBuilder {
     *
     * @param modelDir 模型目录，允许为 空（保持默认加载策略）
     * @return 当前构建器
-     */
+    */
     public UebaEngineBuilder modelDir(String modelDir) {
         this.modelDir = modelDir;
         return this;
@@ -123,7 +123,7 @@ public final class UebaEngineBuilder {
     * 启用 minimind 语义解释（默认行为）。
     *
     * @return 当前构建器
-     */
+    */
     public UebaEngineBuilder enableLlm() {
         this.enableLlm = Boolean.TRUE;
         return this;
@@ -133,7 +133,7 @@ public final class UebaEngineBuilder {
     * 禁用 minimind 语义解释，使用模板解释。
     *
     * @return 当前构建器
-     */
+    */
     public UebaEngineBuilder disableLlm() {
         this.enableLlm = Boolean.FALSE;
         return this;
@@ -146,7 +146,7 @@ public final class UebaEngineBuilder {
     *
     * @return 就绪的分析引擎，绝不为 空
     * @throws IllegalStateException 当默认配置加载失败时
-     */
+    */
     public UebaEngine build() {
         if (config == null) {
             configResource(DEFAULT_CONFIG_RESOURCE);

@@ -37,20 +37,20 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
 
     /**
     * 管线引擎（由 数据湖服务端构建器 注入）
-     */
+    */
     private volatile PipelineEngine pipelineEngine;
 
     /**
     * 直接派发用的 sink 注册表（pipelineengine 不可用时 降级）
-     */
+    */
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
     * 创建 数据湖reactor执行器 实例
-    * @param agentId 智能体标识
+    * @param agentId Agent标识
     * @param serverMode 布尔值
     * @param serverMode 服务端mode
-     */
+    */
     public DatalakeReactorExecutor(String agentId, boolean serverMode) {
         super(agentId, serverMode);
     }
@@ -58,7 +58,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     /**
     * 注入管线引擎。
     * @param pipelineEngine pipelineengine
-     */
+    */
     public void setPipelineEngine(PipelineEngine pipelineEngine) {
         this.pipelineEngine = pipelineEngine;
     }
@@ -66,7 +66,7 @@ public class DatalakeReactorExecutor extends ReactorDataSyncExecutor {
     /**
     * 注册 降级 派发用的 sink。
     * @param sink sink
-     */
+    */
     public void registerSink(DataSink sink) {
         sinkRegistry.put(sink.type(), sink);
     }

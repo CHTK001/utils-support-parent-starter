@@ -44,17 +44,17 @@ public class DefaultDataSyncServer implements DataSyncServer {
 
     /**
     * 创建 默认数据同步服务端 实例
-    * @param agentServerManager 智能体服务端管理器
-     */
+    * @param agentServerManager Agent服务端管理器
+    */
     public DefaultDataSyncServer(AgentServerManager agentServerManager) {
         this(agentServerManager, DefaultSyncDataSchedulerManager.SchedulerConfig.builder().build());
     }
 
     /**
     * 创建 默认数据同步服务端 实例
-    * @param agentServerManager 智能体服务端管理器
+    * @param agentServerManager Agent服务端管理器
     * @param schedulerConfig 调度器配置
-     */
+    */
     public DefaultDataSyncServer(AgentServerManager agentServerManager,
                                   DefaultSyncDataSchedulerManager.SchedulerConfig schedulerConfig) {
         this.agentServerManager = agentServerManager;
@@ -67,7 +67,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     * 替换执行器管理器（与 数据湖 整合时使用）。
     * 必须在 {@link #start()} 之前调用。
     * @param executorManager 执行器管理器
-     */
+    */
     public void setExecutorManager(ExecutorManager executorManager) {
         this.executorManager = executorManager;
     }
@@ -77,7 +77,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     * 必须在 {@link #start()} 之前调用。
     *
     * @param mappingManager 映射管理器
-     */
+    */
     public void setMappingManager(DataSyncMappingManager mappingManager) {
         this.mappingManager = mappingManager;
     }
@@ -95,7 +95,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 智能体服务端管理器 */
+    /** Agent服务端管理器 */
     public AgentServerManager agentServerManager() {
         return agentServerManager;
     }
@@ -181,7 +181,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注册智能体 */
+    /** 注册Agent */
     public void registerAgent(DataSyncAgent agent) {
         if (agent == null || agent.agentId() == null) {
             return;
@@ -191,7 +191,7 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 注销智能体 */
+    /** 注销Agent */
     public void unregisterAgent(String agentId) {
         if (agentId == null) {
             return;
@@ -203,13 +203,13 @@ public class DefaultDataSyncServer implements DataSyncServer {
     }
 
     @Override
-    /** 获取智能体 */
+    /** 获取Agent */
     public DataSyncAgent getAgent(String agentId) {
         return agentRegistry.get(agentId);
     }
 
     @Override
-    /** 获取智能体 */
+    /** 获取Agent */
     public List<DataSyncAgent> getAgents() {
         return List.copyOf(agentRegistry.values());
     }

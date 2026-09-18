@@ -28,12 +28,12 @@ final class DubboConfigs {
 
     /**
     * 应用名 → 配置持有者（含引用计数）。
-     */
+    */
     private static final Map<String, ConfigHolder> HOLDERS = new ConcurrentHashMap<>();
 
     /**
     * 私有构造器，禁止实例化。
-     */
+    */
     private DubboConfigs() {
     }
 
@@ -43,7 +43,7 @@ final class DubboConfigs {
     * @param name 应用名，不允许为 {@code null} 或空串
     * @return 共享实例
     * @throws IllegalArgumentException 应用名为 {@code null} 或空串时抛出（避免下游 {@code setApplication(null)} 静默失效）
-     */
+    */
     static ApplicationConfig get(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Dubbo application name must not be null or empty");
@@ -69,7 +69,7 @@ final class DubboConfigs {
     * <p>计数归零时移除缓存项，供服务端/客户端关闭时调用，避免静态缓存累积极弱。</p>
     *
     * @param name 应用名，可为 {@code null}（空操作）
-     */
+    */
     static void release(String name) {
         if (name == null || name.isEmpty()) {
             return;
@@ -84,7 +84,7 @@ final class DubboConfigs {
 
     /**
     * 清空全部缓存（进程级静态缓存，供测试或极端场景强制释放）。
-     */
+    */
     public static void clear() {
         HOLDERS.clear();
     }
@@ -94,7 +94,7 @@ final class DubboConfigs {
     *
     * @param name 应用名
     * @return 初始化后的配置实例
-     */
+    */
     private static ApplicationConfig create(String name) {
         ApplicationConfig config = new ApplicationConfig();
         config.setName(name);
@@ -107,17 +107,17 @@ final class DubboConfigs {
 
     /**
     * 配置持有者：包装 {@link ApplicationConfig} 与引用计数。
-     */
+    */
     private static final class ConfigHolder {
 
         /**
         * Dubbo 应用配置实例
-         */
+        */
         final ApplicationConfig config;
 
         /**
         * 引用计数
-         */
+        */
         final AtomicInteger refCount = new AtomicInteger(1);
 
         ConfigHolder(ApplicationConfig config) {

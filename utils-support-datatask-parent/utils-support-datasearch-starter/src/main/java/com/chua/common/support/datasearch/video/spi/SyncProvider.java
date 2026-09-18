@@ -31,7 +31,7 @@ public interface SyncProvider {
     *                             };
     *                             </code></pre>
     * @throws RuntimeException 当ͬ步过程中发生错误ʱ抛?
-     */
+    */
     void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer);
 }
 

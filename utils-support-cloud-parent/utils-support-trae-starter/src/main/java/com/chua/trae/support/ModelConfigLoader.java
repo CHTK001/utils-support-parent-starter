@@ -26,7 +26,7 @@ public class ModelConfigLoader {
 
     /**
     * 私有构造，防止实例化。
-     */
+    */
     private ModelConfigLoader() {
         throw new UnsupportedOperationException("ModelConfigLoader is a static utility, do not instantiate");
     }
@@ -36,7 +36,7 @@ public class ModelConfigLoader {
     *
     * @param resourceName 资源路径，如 /模型-配置.json，不可为 空
     * @return 解析后的配置，资源不存在时返回空 Optional
-     */
+    */
     public static Optional<ModelConfig> loadFromResource(String resourceName) {
         Objects.requireNonNull(resourceName, "resourceName must not be null");
         try (InputStream is = ModelConfigLoader.class.getResourceAsStream(resourceName)) {
@@ -55,7 +55,7 @@ public class ModelConfigLoader {
     * @param file 配置文件路径，不可为 空，文件必须存在
     * @return 解析后的配置
     * @throws java.io.IOException 当文件读取失败时
-     */
+    */
     public static ModelConfig loadFromFile(Path file) throws java.io.IOException {
         Objects.requireNonNull(file, "file must not be null");
         if (!Files.exists(file)) {
@@ -70,7 +70,7 @@ public class ModelConfigLoader {
     * 加载默认配置（/模型-配置.json）。
     *
     * @return 默认配置，资源不存在时返回空 Optional
-     */
+    */
     public static Optional<ModelConfig> loadDefault() {
         return loadFromResource(DEFAULT_RESOURCE);
     }

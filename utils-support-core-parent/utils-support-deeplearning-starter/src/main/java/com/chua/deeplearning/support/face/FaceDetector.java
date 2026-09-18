@@ -22,22 +22,22 @@ public interface FaceDetector {
 
     /**
     * 默认置信度阈值
-     */
+    */
     float DEFAULT_THRESHOLD = 0.5f;
 
     /**
     * 默认 NMS IOU 阈值
-     */
+    */
     float DEFAULT_NMS = 0.4f;
 
     /**
     * 默认最小人脸尺寸
-     */
+    */
     int DEFAULT_MIN_FACE_SIZE = 20;
 
     /**
     * 默认设备
-     */
+    */
     String DEFAULT_DEVICE = "cpu";
 
     /**
@@ -45,7 +45,7 @@ public interface FaceDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static FaceDetector create(String name) {
         return new DefaultFaceDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -56,7 +56,7 @@ public interface FaceDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 检测器
-     */
+    */
     static FaceDetector create(String provider, String apiKey) {
         return ServiceProvider.of(FaceDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -69,7 +69,7 @@ public interface FaceDetector {
     * @param apiKey   API 密钥
     * @param baseUrl  自定义地址
     * @return 检测器
-     */
+    */
     static FaceDetector create(String provider, String apiKey, String baseUrl) {
         return ServiceProvider.of(FaceDetector.class)
                 .getNewExtension(provider, apiKey, baseUrl);
@@ -80,7 +80,7 @@ public interface FaceDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default FaceDetector provider(String provider) {
         return this;
     }
@@ -90,7 +90,7 @@ public interface FaceDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default FaceDetector model(String model) {
         return this;
     }
@@ -102,7 +102,7 @@ public interface FaceDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceDetector.class);
     }
@@ -114,7 +114,7 @@ public interface FaceDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static FaceDetector create(String name, ModelSetting setting) {
         return new DefaultFaceDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -124,7 +124,7 @@ public interface FaceDetector {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     default FaceDetector threshold(float threshold) {
         return this;
     }
@@ -134,7 +134,7 @@ public interface FaceDetector {
     *
     * @param nms 阈值
     * @return this
-     */
+    */
     default FaceDetector nms(float nms) {
         return this;
     }
@@ -144,7 +144,7 @@ public interface FaceDetector {
     *
     * @param size 最小尺寸
     * @return this
-     */
+    */
     default FaceDetector minFaceSize(int size) {
         return this;
     }
@@ -154,7 +154,7 @@ public interface FaceDetector {
     *
     * @param path 模型路径
     * @return this
-     */
+    */
     default FaceDetector modelPath(String path) {
         return this;
     }
@@ -164,7 +164,7 @@ public interface FaceDetector {
     *
     * @param device 设备名称
     * @return this
-     */
+    */
     default FaceDetector device(String device) {
         return this;
     }
@@ -174,7 +174,7 @@ public interface FaceDetector {
     *
     * @param imageData 图像字节数组
     * @return 人脸位置列表
-     */
+    */
     List<PredictRectangle> detect(byte[] imageData);
 
     /**
@@ -182,7 +182,7 @@ public interface FaceDetector {
     *
     * @param imageData 图像字节数组
     * @return 检测信息列表
-     */
+    */
     List<DetectionInfo> detectInfo(byte[] imageData);
 
     /**
@@ -190,7 +190,7 @@ public interface FaceDetector {
     *
     * @param imageData 图像字节数组
     * @return 人脸数量
-     */
+    */
     int faceCount(byte[] imageData);
 }
 
@@ -204,44 +204,44 @@ class DefaultFaceDetector implements FaceDetector {
 
     /**
     * 识别引擎
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 置信度阈值
-     */
+    */
     private Float threshold;
 
     /**
     * NMS IOU 阈值
-     */
+    */
     private float nms = FaceDetector.DEFAULT_NMS;
 
     /**
     * 最小人脸尺寸
-     */
+    */
     private int minFaceSize = FaceDetector.DEFAULT_MIN_FACE_SIZE;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备
-     */
+    */
     private String device = FaceDetector.DEFAULT_DEVICE;
 
     DefaultFaceDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -298,7 +298,7 @@ class DefaultFaceDetector implements FaceDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

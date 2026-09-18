@@ -37,12 +37,12 @@ public class RetrofitHttpInvoker implements Invoker {
 
     /**
     * 代理 缓存
-     */
+    */
     private static final ConcurrentMap<Class<?>, Object> PROXY_CACHE = new ConcurrentHashMap<>();
 
     /**
     * 类 级别 注解
-     */
+    */
     private static final String[] CLASS_LEVEL_ANNOTATIONS = {
             "org.springframework.web.bind.annotation.RequestMapping"
     };
@@ -54,7 +54,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param apiClass api类
     * @return 创建的结果
-     */
+    */
     public <T> T create(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -69,7 +69,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param apiClass api类
     * @return 创建新的结果
-     */
+    */
     public <T> T createNew(Class<T> apiClass) {
         if (!apiClass.isInterface()) {
             throw new IllegalArgumentException("只支持接口类型: " + apiClass.getName());
@@ -82,7 +82,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param apiClass 接口类
     * @return Retrofit 动态代理实例
-     */
+    */
     private <T> T createProxy(Class<T> apiClass) {
         String baseUrl = resolveBaseUrl(apiClass);
         if (StringUtils.isEmpty(baseUrl)) {
@@ -101,7 +101,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param clazz 接口类
     * @return 解析后的 baseurl，未声明返回空串
-     */
+    */
     private static String resolveBaseUrl(Class<?> clazz) {
         // 优先尝试 Spring 类级注解
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
@@ -135,7 +135,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param url 原始 URL
     * @return 以 / 结尾的 URL
-     */
+    */
     private static String normalizeBaseUrl(String url) {
         return url.endsWith("/") ? url : url + "/";
     }
@@ -145,7 +145,7 @@ public class RetrofitHttpInvoker implements Invoker {
     *
     * @param ann 注解实例
     * @return value 值，无值返回空串
-     */
+    */
     private static String extractAnnotationValue(Annotation ann) {
         try {
             Object r = ReflectUtils.invoke(ann, "value", Object.class);

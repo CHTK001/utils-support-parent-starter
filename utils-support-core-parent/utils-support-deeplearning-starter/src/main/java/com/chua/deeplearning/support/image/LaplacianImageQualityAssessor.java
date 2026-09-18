@@ -27,22 +27,22 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
 
     /**
     * 模糊阈值，低于该值视为模糊。
-     */
+    */
     private double blurThreshold = 100.0;
 
     /**
     * 最低亮度。
-     */
+    */
     private double minBrightness = 40.0;
 
     /**
     * 最高亮度。
-     */
+    */
     private double maxBrightness = 220.0;
 
     /**
     * 构造评估器（默认阈值：模糊 100、亮度 40~220）。
-     */
+    */
     public LaplacianImageQualityAssessor() {
     }
 
@@ -52,7 +52,7 @@ public class LaplacianImageQualityAssessor implements ImageQualityAssessor {
     * @param blurThreshold 模糊阈值
     * @param minBrightness 最低亮度
     * @param maxBrightness 最高亮度
-     */
+    */
     public LaplacianImageQualityAssessor(double blurThreshold, double minBrightness, double maxBrightness) {
         this.blurThreshold = blurThreshold;
         this.minBrightness = minBrightness;

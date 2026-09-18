@@ -58,7 +58,7 @@ public class FileReactorEngine implements ReactorEngine {
     /**
     * 列表。
     * @return 列表的结果
-     */
+    */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
@@ -70,7 +70,7 @@ public class FileReactorEngine implements ReactorEngine {
                 * @param clazz clazz
                 * @param pn pn
                 * @param ps ps
-                 */
+                */
                 return Flux.fromIterable(doQuery(entityClass));
             /**
             * one。
@@ -78,7 +78,7 @@ public class FileReactorEngine implements ReactorEngine {
             * @param clazz clazz
             * @param pn pn
             * @param ps ps
-             */
+            */
             }
 
             @Override
@@ -179,7 +179,7 @@ public class FileReactorEngine implements ReactorEngine {
     * @param name     数据源名称
     * @param filePath 文件路径
     * @return 当前引擎实例的 Mono
-     */
+    */
     public Mono<FileReactorEngine> load(String name, String filePath) {
         Path path = Path.of(filePath);
         String ext = FileUtils.getExtension(filePath);
@@ -209,17 +209,17 @@ public class FileReactorEngine implements ReactorEngine {
     }
 
     /**
-     * 通过异步文件通道非阻塞读取文件全部内容。
-     * @param path 路径
-     * @return 读取文件异步的结果
-     */
+    * 通过异步文件通道非阻塞读取文件全部内容。
+    * @param path 路径
+    * @return 读取文件异步的结果
+    */
     private static Mono<byte[]> readFileAsync(Path path) {
         return Mono.create(sink -> {
             /**
             * 完成。
             * @param result 结果
             * @param attachment attachment
-             */
+            */
             try {
                 AsynchronousFileChannel channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
                 ByteBuffer buffer = ByteBuffer.allocate((int) channel.size());
@@ -233,7 +233,7 @@ public class FileReactorEngine implements ReactorEngine {
                         * 失败。
                         * @param exc exc
                         * @param attachment attachment
-                         */
+                        */
                         try { channel.close(); } catch (IOException ignored) {}
                         sink.success(data);
                     }
@@ -253,7 +253,7 @@ public class FileReactorEngine implements ReactorEngine {
             * @return 解析json的结果
             * @param line 线
             * @param separator separator
-             */
+            */
             }
         });
     }
@@ -319,14 +319,14 @@ public class FileReactorEngine implements ReactorEngine {
     /**
     * 获取底层同步 文件engine。
     * @return 获取delegate的结果
-     */
+    */
     public FileEngine getDelegate() {
         return delegate;
     }
 
     /**
     * 关闭引擎，释放底层数据源资源。
-     */
+    */
     public void close() {
         delegate.close();
     }

@@ -69,6 +69,6 @@ public class RpcResponse implements Serializable {
     *   <li>方法调用反射异常，如 {@code "java.lang.reflect.InvocationTargetException"}</li>
     *   <li>参数类型不匹配，如 {@code "No matching method found for [String, Integer]"}</li>
     * </ul>
-     */
+    */
     private String error;
 }

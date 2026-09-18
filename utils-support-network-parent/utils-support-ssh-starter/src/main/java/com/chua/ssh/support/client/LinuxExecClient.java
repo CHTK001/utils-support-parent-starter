@@ -16,17 +16,17 @@ public class LinuxExecClient implements AutoCloseable {
 
     /**
     * 配置对象
-     */
+    */
     private final ClientSetting setting;
     /**
     * ssh 客户端
-     */
+    */
     private SshClient sshClient;
 
     /**
     * 创建 Linux执行客户端 实例
     * @param setting setting
-     */
+    */
     public LinuxExecClient(ClientSetting setting) {
         this.setting = setting;
     }
@@ -50,7 +50,7 @@ public class LinuxExecClient implements AutoCloseable {
     * @param command 命令
     * @param timeoutMs 超时ms
     * @return 执行命令的结果
-     */
+    */
     public SshClient.ExecResult executeCommand(String command, int timeoutMs) {
         if (sshClient == null) {
             throw new IllegalStateException("SSH 客户端未连接，请先调用 connect()");
@@ -69,7 +69,7 @@ public class LinuxExecClient implements AutoCloseable {
     *
     * @param command 命令
     * @return 执行命令的结果
-     */
+    */
     public SshClient.ExecResult executeCommand(String command) {
         return executeCommand(command, 30_000);
     }

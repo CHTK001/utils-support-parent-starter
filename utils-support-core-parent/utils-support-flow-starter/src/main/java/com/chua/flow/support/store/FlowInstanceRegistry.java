@@ -19,14 +19,14 @@ public class FlowInstanceRegistry {
 
     /**
     * 实例存储映射
-     */
+    */
     private final Map<String, FlowInstance> storage = new ConcurrentHashMap<>();
 
     /**
     * 登记流程实例。
     *
     * @param instance 流程实例
-     */
+    */
     public void register(FlowInstance instance) {
         storage.put(instance.getInstanceId(), instance);
     }
@@ -36,7 +36,7 @@ public class FlowInstanceRegistry {
     *
     * @param instanceId 实例 标识
     * @return 流程实例，不存在时返回 空
-     */
+    */
     public FlowInstance get(String instanceId) {
         return storage.get(instanceId);
     }
@@ -45,7 +45,7 @@ public class FlowInstanceRegistry {
     * 移除流程实例。
     *
     * @param instanceId 实例 标识
-     */
+    */
     public void remove(String instanceId) {
         storage.remove(instanceId);
     }

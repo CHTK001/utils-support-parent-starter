@@ -18,7 +18,7 @@ public class ForyJsonNode extends JsonNode {
     * 使用原始值构造 foryjson节点。
     *
     * @param value 原始 JSON 值
-     */
+    */
     public ForyJsonNode(Object value) {
         super(value);
     }

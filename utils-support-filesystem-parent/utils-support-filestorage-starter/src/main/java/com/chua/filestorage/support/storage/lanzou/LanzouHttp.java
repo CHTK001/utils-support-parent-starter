@@ -34,30 +34,30 @@ import java.util.zip.InflaterInputStream;
 class LanzouHttp {
 
     /**
-    * 浏览器 用户-智能体，蓝奏云会对非浏览器 UA 返回异常页面。
-     */
+    * 浏览器 用户-Agent，蓝奏云会对非浏览器 UA 返回异常页面。
+    */
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                     + "Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0";
 
     /**
     * WAF 挑战最大重试次数。
-     */
+    */
     private static final int MAX_CHALLENGE_RETRY = 2;
 
     /**
     * 连接超时（毫秒）。
-     */
+    */
     private final int connectTimeout;
 
     /**
     * 读取超时（毫秒）。
-     */
+    */
     private final int readTimeout;
 
     /**
     * 会话 Cookie 容器，键 为 Cookie 名。
-     */
+    */
     private final Map<String, String> cookies = new ConcurrentHashMap<>();
 
     /**
@@ -66,7 +66,7 @@ class LanzouHttp {
     * @param rawCookie      初始 Cookie 串，形如 {@code ylogin=123; phpdisk_info=xxx}，可为 空
     * @param connectTimeout 连接超时（毫秒）
     * @param readTimeout    读取超时（毫秒）
-     */
+    */
     LanzouHttp(String rawCookie, int connectTimeout, int readTimeout) {
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
@@ -80,7 +80,7 @@ class LanzouHttp {
     * 合并 Cookie 串到会话中。
     *
     * @param rawCookie Cookie 串，形如 {@code a=1; b=2}
-     */
+    */
     final void mergeCookie(String rawCookie) {
         if (rawCookie == null || rawCookie.isEmpty()) {
             return;
@@ -99,7 +99,7 @@ class LanzouHttp {
     *
     * @param name Cookie 名
     * @return Cookie 值，不存在返回 空
-     */
+    */
     String getCookie(String name) {
         return cookies.get(name);
     }
@@ -108,7 +108,7 @@ class LanzouHttp {
     * 拼接当前会话的 Cookie 请求头。
     *
     * @return Cookie 头值
-     */
+    */
     private String cookieHeader() {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, String> entry : cookies.entrySet()) {
@@ -126,7 +126,7 @@ class LanzouHttp {
     * @param url     请求地址
     * @param referer Referer 头，可为 空
     * @return 响应正文
-     */
+    */
     String get(String url, String referer) {
         for (int attempt = 0; attempt <= MAX_CHALLENGE_RETRY; attempt++) {
             String body = doText(url, "GET", null, referer);
@@ -149,7 +149,7 @@ class LanzouHttp {
     * @param params  表单参数，将以 {@code application/x-www-form-urlencoded} 编码
     * @param referer Referer 头，可为 空
     * @return 响应正文
-     */
+    */
     String post(String url, Map<String, String> params, String referer) {
         byte[] payload = encodeForm(params).getBytes(StandardCharsets.UTF_8);
         for (int attempt = 0; attempt <= MAX_CHALLENGE_RETRY; attempt++) {
@@ -176,7 +176,7 @@ class LanzouHttp {
     * @param fileName 文件名
     * @param content  文件内容
     * @return 响应正文
-     */
+    */
     String upload(String url, String referer, Map<String, String> fields,
                   String fileKey, String fileName, byte[] content) {
         String boundary = "----WebKitFormBoundary" + Long.toHexString(System.nanoTime());
@@ -208,7 +208,7 @@ class LanzouHttp {
     * @param url     直链地址
     * @param referer Referer 头
     * @return 文件内容输入流
-     */
+    */
     InputStream openStream(String url, String referer) {
         String current = url;
         try {
@@ -249,7 +249,7 @@ class LanzouHttp {
     * @param payload 请求体，获取 时为 空
     * @param referer Referer 头
     * @return 响应正文
-     */
+    */
     private String doText(String url, String method, byte[] payload, String referer) {
         HttpURLConnection connection = null;
         try {
@@ -279,7 +279,7 @@ class LanzouHttp {
     * @param referer Referer 头
     * @return 已配置的连接
     * @throws IOException 网络异常
-     */
+    */
     private HttpURLConnection open(String url, String method, String referer) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod(method);
@@ -306,7 +306,7 @@ class LanzouHttp {
     * @param connection 连接
     * @return 响应正文
     * @throws IOException 网络异常
-     */
+    */
     private String readText(HttpURLConnection connection) throws IOException {
         collectCookies(connection);
         int code = connection.getResponseCode();
@@ -332,7 +332,7 @@ class LanzouHttp {
     * @param encoding 内容编码
     * @return 解压后的流
     * @throws IOException 解压异常
-     */
+    */
     private InputStream decode(InputStream input, String encoding) throws IOException {
         if (encoding == null) {
             return input;
@@ -350,7 +350,7 @@ class LanzouHttp {
     * 收集响应中的 设置-Cookie 并合并到会话。
     *
     * @param connection 连接
-     */
+    */
     private void collectCookies(HttpURLConnection connection) {
         for (int index = 0; ; index++) {
             String key = connection.getHeaderFieldKey(index);
@@ -370,7 +370,7 @@ class LanzouHttp {
     *
     * @param params 参数
     * @return 编码结果
-     */
+    */
     private String encodeForm(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return "";
@@ -397,7 +397,7 @@ class LanzouHttp {
     * @param fileName 文件名
     * @param content  文件内容
     * @return 请求体字节
-     */
+    */
     private byte[] buildMultipart(String boundary, Map<String, String> fields,
                                   String fileKey, String fileName, byte[] content) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

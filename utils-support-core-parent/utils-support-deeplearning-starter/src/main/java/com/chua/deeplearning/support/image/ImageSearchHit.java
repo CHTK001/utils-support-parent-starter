@@ -27,7 +27,7 @@ public record ImageSearchHit(
     * @param id    向量 标识
     * @param score 分数
     * @return 镜像搜索hit的结果
-     */
+    */
     public ImageSearchHit(String id, double score) {
         this(id, score, null, Collections.emptyMap(), null);
     }
@@ -39,7 +39,7 @@ public record ImageSearchHit(
     * @param score   分数
     * @param feature 特征
     * @return 镜像搜索hit的结果
-     */
+    */
     public ImageSearchHit(String id, double score, float[] feature) {
         this(id, score, feature, Collections.emptyMap(), null);
     }

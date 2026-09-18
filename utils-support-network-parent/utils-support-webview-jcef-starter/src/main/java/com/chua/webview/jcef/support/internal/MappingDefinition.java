@@ -10,16 +10,16 @@ public interface MappingDefinition {
 
     /**
     * @return 映射名称
-     */
+    */
     String getName();
 
     /**
     * @return HTTP 方法
-     */
+    */
     String[] getMethod();
 
     /**
     * @return 路径
-     */
+    */
     String getPath();
 }

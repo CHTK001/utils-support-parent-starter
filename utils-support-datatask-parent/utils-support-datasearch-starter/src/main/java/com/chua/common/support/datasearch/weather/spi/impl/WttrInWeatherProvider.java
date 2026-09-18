@@ -60,7 +60,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     *
     * @param city 城市名（如 "北京"、"Beijing"）
     * @return 天气信息；数据源不可达或城市不存在时返回 空
-     */
+    */
     @Override
     public WeatherInfo getWeather(String city) {
         if (city == null || city.isBlank()) {
@@ -94,7 +94,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     * @param json 响应 JSON
     * @param city 请求城市
     * @return 天气实体；解析失败返回 空
-     */
+    */
     private WeatherInfo parse(String json, String city) {
         if (json == null || json.isEmpty()) {
             return null;
@@ -136,7 +136,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     *
     * @param weatherNode 天气 数组节点
     * @return 预报列表；非数组时返回空列表
-     */
+    */
     private List<DailyForecast> parseForecast(JsonNode weatherNode) {
         List<DailyForecast> result = new ArrayList<>();
         if (weatherNode == null || !weatherNode.isArray()) {
@@ -161,7 +161,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     *
     * @param hourlyNode 时薪 数组节点
     * @return 逐小时列表；非数组时返回空列表
-     */
+    */
     private List<HourlyWeather> parseHourly(JsonNode hourlyNode) {
         List<HourlyWeather> result = new ArrayList<>();
         if (hourlyNode == null || !hourlyNode.isArray()) {
@@ -188,7 +188,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     *
     * @param node 数值节点
     * @return 数值；缺失/非数值返回 空
-     */
+    */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -201,7 +201,7 @@ public class WttrInWeatherProvider implements WeatherProvider {
     *
     * @param node 数值节点
     * @return 整数；缺失/非数值返回 空
-     */
+    */
     private Integer intVal(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

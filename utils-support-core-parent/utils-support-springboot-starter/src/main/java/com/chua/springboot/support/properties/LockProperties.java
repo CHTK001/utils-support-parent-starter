@@ -18,31 +18,31 @@ public class LockProperties {
 
     /**
     * 配置前缀
-     */
+    */
     public static final String PRE = "plugin.lock";
 
     /**
     * 是否启用分布式锁自动配置
-     */
+    */
     private boolean enabled = true;
 
     /**
     * 锁类型标识，对应 {@code LockProvider} 的 SPI 实现
-     */
+    */
     private String type = "chronicle";
 
     /**
     * 是否公平锁
-     */
+    */
     private boolean fair;
 
     /**
     * 获取锁的等待时间（毫秒），小于等于 0 表示不等待
-     */
+    */
     private long waitTime;
 
     /**
     * 锁的租约时间（毫秒），-1 表示不自动释放
-     */
+    */
     private long leaseTime = -1L;
 }

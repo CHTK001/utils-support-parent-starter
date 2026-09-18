@@ -33,7 +33,7 @@ public class MailNestEmailProvider implements EmailProvider {
 
     /**
     * mailnestemail提供者。
-     */
+    */
     public MailNestEmailProvider() {
         this.apiKey = resolveEnv("MAILNEST_API_KEY", "");
         this.projectCode = resolveEnv("MAILNEST_PROJECT_CODE", DEFAULT_PROJECT_CODE);
@@ -133,7 +133,7 @@ public class MailNestEmailProvider implements EmailProvider {
     * @param key 键
     * @param def def
     * @return resolveEnv的结果
-     */
+    */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);
         return v != null && !v.isBlank() ? v : def;

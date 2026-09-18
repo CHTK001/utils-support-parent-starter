@@ -47,30 +47,30 @@ public class RedissonLockProvider extends AbstractLockProvider {
 
     /**
 
-     * * 锁名称
+    * * 锁名称
 
-     */
+    */
     private final String name;
 
     /**
 
-     * * Redisson 客户端
+    * * Redisson 客户端
 
-     */
+    */
     private final RedissonClient redissonClient;
 
     /**
 
-     * * Redisson 分布式锁
+    * * Redisson 分布式锁
 
-     */
+    */
     private final RLock lock;
 
     /**
     * 创建 Redisson 分布式锁提供者
     *
     * @param redisUri Redis 连接 URI，如 Redis://127.0.0.1:6379
-     */
+    */
     public RedissonLockProvider(String redisUri) {
         this("redis-lock", redisUri);
     }
@@ -80,7 +80,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     *
     * @param name     锁名称
     * @param redisUri Redis 连接 URI
-     */
+    */
     public RedissonLockProvider(String name, String redisUri) {
         this.name = name;
         Config config = new Config();
@@ -94,7 +94,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     *
     * @param name           锁名称
     * @param redissonClient Redisson 客户端
-     */
+    */
     public RedissonLockProvider(String name, RedissonClient redissonClient) {
         this.name = name;
         this.redissonClient = redissonClient;
@@ -107,7 +107,7 @@ public class RedissonLockProvider extends AbstractLockProvider {
     * @param timeout  等待锁的最大时间
     * @param timeUnit 时间单位
     * @return 成功获取锁返回 true，否则返回 false
-     */
+    */
     @Override
     protected boolean doTryLock(int timeout, TimeUnit timeUnit) {
         try {

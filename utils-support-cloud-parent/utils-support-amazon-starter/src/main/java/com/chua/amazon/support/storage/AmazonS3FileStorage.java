@@ -42,7 +42,7 @@ public class AmazonS3FileStorage extends AbstractFileStorage {
     /**
     * 创建 amazons3文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public AmazonS3FileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);

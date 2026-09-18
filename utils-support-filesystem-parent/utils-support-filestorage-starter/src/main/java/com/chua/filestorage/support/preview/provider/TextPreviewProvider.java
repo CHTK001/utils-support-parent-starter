@@ -39,7 +39,7 @@ public class TextPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param s s
     * @return escapeHtml的结果
-     */
+    */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

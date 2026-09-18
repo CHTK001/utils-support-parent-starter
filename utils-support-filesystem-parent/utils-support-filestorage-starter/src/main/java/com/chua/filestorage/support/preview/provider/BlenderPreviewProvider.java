@@ -72,7 +72,7 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
         info.version = String.format(Locale.ENGLISH, "%c.%c.%c", data[9], data[10], data[11]);
 
         return info;
@@ -81,7 +81,7 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
     * @param info 信息
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(BlendInfo info, long fileSize) {
@@ -124,7 +124,7 @@ public class BlenderPreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     private String escapeHtml(String text) {

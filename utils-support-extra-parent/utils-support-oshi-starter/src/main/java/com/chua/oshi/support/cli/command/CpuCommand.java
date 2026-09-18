@@ -121,7 +121,7 @@ public final class CpuCommand extends AbstractCommand {
     * 当前freq。
     * @param processor 处理器
     * @return 当前freq的结果
-     */
+    */
     private static long currentFreq(CentralProcessor processor) {
         long[] freqs = processor.getCurrentFreq();
         if (freqs == null || freqs.length == 0) {
@@ -138,7 +138,7 @@ public final class CpuCommand extends AbstractCommand {
     * 格式化hz。
     * @param hz hz
     * @return 格式化hz的结果
-     */
+    */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
             return String.format("%.2f GHz", hz / 1_000_000_000.0);
@@ -154,7 +154,7 @@ public final class CpuCommand extends AbstractCommand {
     * @param s s
     * @param max 最大
     * @return truncate的结果
-     */
+    */
     private static String truncate(String s, int max) {
         if (s == null) {
             return "";

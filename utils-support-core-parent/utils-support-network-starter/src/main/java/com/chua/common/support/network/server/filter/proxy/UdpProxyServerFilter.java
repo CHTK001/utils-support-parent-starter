@@ -52,27 +52,27 @@ public class UdpProxyServerFilter implements ServerFilter {
 
     /**
     * 超时时间（毫秒）
-     */
+    */
     private final int timeoutMs;
 
     /**
     * 是否运行中
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
     * 后端地址解析器
-     */
+    */
     private final ProxyTargetResolver targetResolver;
 
     /**
     * Vert.x 实例
-     */
+    */
     private Vertx vertx;
 
     /**
-    * 主监听 套接字
-     */
+    * 主监听 Socket
+    */
     private DatagramSocket serverSocket;
 
     /** 创建 udp代理服务端过滤器 实例 */
@@ -83,7 +83,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     /**
     * 创建 udp代理服务端过滤器 实例
     * @param timeoutMs 超时ms
-     */
+    */
     public UdpProxyServerFilter(int timeoutMs) {
         this(timeoutMs, null);
     }
@@ -93,7 +93,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     *
     * @param routes 名称 → 后端地址映射（实际仅取第一个非空地址）
     * @return UdpProxyServerFilter 实例
-     */
+    */
     public static UdpProxyServerFilter staticRoutes(Map<String, InetSocketAddress> routes) {
         Objects.requireNonNull(routes, "routes must not be null");
         if (routes.isEmpty()) {
@@ -114,7 +114,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     * @param timeoutMs      超时时间（毫秒）
     * @param targetResolver 目标解析器
     * @return UdpProxyServerFilter 实例
-     */
+    */
     public static UdpProxyServerFilter of(int timeoutMs, ProxyTargetResolver targetResolver) {
         return new UdpProxyServerFilter(timeoutMs, targetResolver);
     }
@@ -124,7 +124,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     * @param timeoutMs 超时ms
     * @param targetResolver 代理Target解析器
     * @param targetResolver Target解析器
-     */
+    */
     public UdpProxyServerFilter(int timeoutMs, ProxyTargetResolver targetResolver) {
         this.timeoutMs = timeoutMs;
         this.targetResolver = targetResolver != null ? targetResolver : remoteAddr -> null;
@@ -167,7 +167,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);
@@ -177,7 +177,7 @@ public class UdpProxyServerFilter implements ServerFilter {
     * 启动 UDP 代理服务。
     *
     * @param listenPort 监听端口
-     */
+    */
     public void startProxy(int listenPort) {
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -193,7 +193,7 @@ public class UdpProxyServerFilter implements ServerFilter {
 
     /**
     * 停止代理。
-     */
+    */
     public void stopProxy() {
         running.set(false);
         if (serverSocket != null) {
@@ -207,8 +207,8 @@ public class UdpProxyServerFilter implements ServerFilter {
     * 处理数据包
     *
     * @param packet 数据包
-    * @param mainSocket main套接字
-     */
+    * @param mainSocket mainSocket
+    */
     private void handlePacket(io.vertx.core.datagram.DatagramPacket packet, DatagramSocket mainSocket) {
         io.vertx.core.net.SocketAddress sender = packet.sender();
         InetSocketAddress senderAddr = new InetSocketAddress(sender.host(), sender.port());
@@ -223,14 +223,14 @@ public class UdpProxyServerFilter implements ServerFilter {
     /**
     * 转发 UDP 数据包到后端。
     *
-    * @param mainSocket 主监听 套接字（用于回传响应）
+    * @param mainSocket 主监听 Socket（用于回传响应）
     * @param data       数据
     * @param sender     发送方地址
     * @param discovery  后端地址
-     */
+    */
     private void forwardUdp(DatagramSocket mainSocket, io.vertx.core.buffer.Buffer data,
                             io.vertx.core.net.SocketAddress sender, Discovery discovery) {
- // 每个请求使用独立临时 套接字 转发并接收后端响应，与后端一问一答
+ // 每个请求使用独立临时 Socket 转发并接收后端响应，与后端一问一答
         vertx.createDatagramSocket(new DatagramSocketOptions().setReuseAddress(true))
                 .listen(0, "0.0.0.0")
                 .onSuccess(tmp -> {

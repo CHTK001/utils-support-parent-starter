@@ -12,9 +12,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 套接字.IO 同步服务端实现。
+* Socket.IO 同步服务端实现。
 * <p>
-* 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 套接字.IO 通信。
+* 委托给 {@link com.chua.socketio.support.server.SocketIOServer} 处理底层 Socket.IO 通信。
 * </p>
 *
 * @author CH
@@ -44,21 +44,21 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
 
     /**
     * 客户端
-     */
+    */
     private final Map<String, Map<String, Object>> clients = new ConcurrentHashMap<>();
     /**
     * 监听器列表
-     */
+    */
     private final List<SyncServerListener> listeners = new ArrayList<>();
     /**
     * 委托对象
-     */
+    */
     private final com.chua.socketio.support.server.SocketIOServer delegate;
 
     /**
-    * 创建 套接字io同步服务端 实例
+    * 创建 Socketio同步服务端 实例
     * @param setting setting
-     */
+    */
     public SocketIOSyncServer(ServerSetting setting) {
         super(setting);
         this.delegate = new com.chua.socketio.support.server.SocketIOServer(setting);
@@ -126,7 +126,7 @@ public class SocketIOSyncServer extends com.chua.common.support.network.server.A
     * 通知监听器
     *
     * @param action 动作
-     */
+    */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

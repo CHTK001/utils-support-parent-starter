@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Pi (Stochastic Labs / pi 路由智能体) 用量解析器。
+ * Pi (Stochastic Labs / pi 路由Agent) 用量解析器。
  *
  * <p>Pi 将会话转录写入 {@code ~/.pi/agent/sessions/<cwd>/<sessionId>.jsonl}
  * （{@code TOKENTRACKER_PI_AGENT_DIR} / {@code PI_CODING_AGENT_DIR} 覆盖）。

@@ -32,34 +32,34 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
     * RabbitMQ 连接
-     */
+    */
     private Connection connection;
 
     /**
     * RabbitMQ 通道
-     */
+    */
     private Channel channel;
 
     /**
     * 主题与订阅定义列表的映射
-     */
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
     * 消费者线程池
-     */
+    */
     private final ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("rabbitmq-dispatcher-%d").setDaemon(true).build());
 
     /**
     * 是否已关闭
-     */
+    */
     private volatile boolean closed = false;
 
     /**
     * 创建 rabbitmqdispatcher提供者 实例
     * @param config 配置
-     */
+    */
     public RabbitmqDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
@@ -104,7 +104,7 @@ public class RabbitmqDispatcherProvider extends AbstractDispatcherProvider {
     * 启动 RabbitMQ 消费者监听指定交换器。
     *
     * @param topic 交换器名称
-     */
+    */
     private void startConsumer(String topic) {
         try {
             channel.exchangeDeclare(topic, "fanout", true);

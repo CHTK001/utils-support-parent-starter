@@ -67,7 +67,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     /**
     * Atom编码 Home 目录，支持 ATOMCODE_Home 环境变量覆盖。
     * 默认为 ~/.atomcode
-     */
+    */
     private static final Path ATOMCODE_HOME;
 
     /** 会话 transcripts 根: $ATOMCODE_Home/会话 */
@@ -90,7 +90,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     /**
     * config.toml 的兜底模型名（已映射为真实 model 名）。
     * 空串表示解析过但无结果，避免重复读盘。
-     */
+    */
     private static volatile String CONFIG_DEFAULT_MODEL;
 
     static {
@@ -110,7 +110,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
 
     /**
     * 流式解析全部 会话 转录：逐文件、逐行惰性拉取，内存占用与单条记录相关而与总量无关。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
@@ -139,7 +139,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * meta 缺失或该 turn 无记录时回退 config.toml 的 default_model。
     * @param file 文件
     * @return 流jsonl文件的结果
-     */
+    */
     private Flux<AiUsage> streamJsonlFile(Path file) {
         Map<Integer, String> turnModels = loadTurnModels(metaFileOf(file));
         String fallbackModel = configDefaultModel();
@@ -154,7 +154,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * 由 JSONL 文件路径推导同目录同名 .meta 文件路径。
     * @param file 会话 JSONL 文件
     * @return 对应的 .meta 文件
-     */
+    */
     private Path metaFileOf(Path file) {
         String name = file.getFileName().toString();
         return file.resolveSibling(name.substring(0, name.length() - ".jsonl".length()) + ".meta");
@@ -165,7 +165,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * 每个 turn 的 model_usage 可能含多个模型条目，取 token 总量最大者。
     * @param metaFile meta 文件
     * @return turn_id 到模型名的映射；文件缺失或解析失败时为空映射
-     */
+    */
     private Map<Integer, String> loadTurnModels(Path metaFile) {
         if (!Files.isRegularFile(metaFile)) {
             return Map.of();
@@ -199,7 +199,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * 从一个 turn 的 model_usage 数组中选出 token 占比最大的模型。
     * @param modelUsage model_usage 数组节点
     * @return 模型名（model_id 优先，provider_id 兜底）；无有效条目时返回 null
-     */
+    */
     private String pickDominantModel(JsonNode modelUsage) {
         if (modelUsage.isMissingValue() || !modelUsage.isArray()) {
             return null;
@@ -232,7 +232,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     /**
     * config.toml 的 default_model 兜底值（懒加载，结果缓存）。
     * @return 真实模型名；无法解析时返回 null
-     */
+    */
     private String configDefaultModel() {
         String cached = CONFIG_DEFAULT_MODEL;
         if (cached == null) {
@@ -250,7 +250,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * 解析 config.toml：先取 default_model 声明，再映射到
     * 对应 [models."xxx"] 小节内的真实 model 名。
     * @return 真实模型名；声明缺失或映射不到时返回声明原值，读盘失败返回空串
-     */
+    */
     private String resolveConfigDefaultModel() {
         Path config = ATOMCODE_HOME.resolve("config.toml");
         if (!Files.isRegularFile(config)) {
@@ -296,7 +296,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * @param turnModels turn_id 到模型名的映射
     * @param fallbackModel 兜底模型名
     * @return 解析线safe的结果
-     */
+    */
     private Optional<AiUsage> parseLineSafe(String line, Map<Integer, String> turnModels, String fallbackModel) {
         try {
             return parseNode(Json.parse(line), turnModels, fallbackModel);
@@ -315,7 +315,7 @@ public class AtomCodeUsageParser extends BaseUsageParser {
     * @param turnModels turn_id 到模型名的映射
     * @param fallbackModel 兜底模型名
     * @return 解析节点的结果
-     */
+    */
     private Optional<AiUsage> parseNode(JsonNode node, Map<Integer, String> turnModels, String fallbackModel) {
         JsonNode usage = node.get("usage");
         if (usage.isMissingValue()) {

@@ -24,6 +24,6 @@ public interface CodeEyeResolver {
     * @param startX 绘制二维码的起始x坐标
     * @param startY 绘制二维码的起始y坐标
     * @param version 二维码的版本号
-     */
+    */
     void resolve(Graphics2D g, Color df, Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version);
 }

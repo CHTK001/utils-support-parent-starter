@@ -55,7 +55,9 @@ import java.util.Map;
 @Slf4j
 public final class KvCacheDecoder implements AutoCloseable {
 
-    /** 空 past 的 批量 / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256） */
+    /**
+    * 空 past 的 批量 / kv-heads 维度（gemma-3-270m = 1 head，head_dim 256）
+    */
     private static final long BATCH = 1L;
 
     private final OrtEnvironment env; // env
@@ -64,7 +66,9 @@ public final class KvCacheDecoder implements AutoCloseable {
     private final long kvHeads; // kvheads
     private final long headDim; // headdim
 
-    /** 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步 */
+    /**
+    * 当前 past 张量（每层 键/值 各一个，顺序 键0,值0,键1,值1,...），空=首步
+    */
     private List<OnnxTensor> past;
     /** 已缓存的 令牌 数（首步为 0） */
     private int pastSeqLen;
@@ -76,7 +80,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * @param numLayers numlayers
     * @param kvHeads kvheads
     * @param headDim headdim
-     */
+    */
     private KvCacheDecoder(OrtEnvironment env, OrtSession session, int numLayers, long kvHeads, long headDim) {
         this.env = env;
         this.session = session;
@@ -90,7 +94,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     *
     * @param session ORT 会话
     * @return true 表示 KV 缓存 版
-     */
+    */
     public static boolean isKvCacheModel(OrtSession session) {
         try {
             for (Map.Entry<String, ai.onnxruntime.NodeInfo> e : session.getInputInfo().entrySet()) {
@@ -111,7 +115,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * @param session ORT 会话（须为 KV 缓存 版，否则抛异常）
     * @return 解码器实例
     * @throws OrtException 非 KV 缓存 版或探测失败
-     */
+    */
     public static KvCacheDecoder of(OrtEnvironment env, OrtSession session) throws OrtException {
         int layers = 0;
         long kvHeads = 0;
@@ -151,7 +155,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * @param attentionMask  注意力掩码（长度 = 输入标识.长度 + pastseqlen，全 1）
     * @return 最后位置的 logits（词表大小）
     * @throws OrtException 推理异常
-     */
+    */
     public float[] step(long[] inputIds, long[] attentionMask) throws OrtException {
         Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
         inputs.put("input_ids", OnnxTensor.createTensor(env, LongBuffer.wrap(inputIds), new long[]{BATCH, inputIds.length}));
@@ -213,7 +217,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * 当前上下文总长度（pastseqlen + 本次输入长度）。
     *
     * @return 总 令牌 数
-     */
+    */
     public int totalSeqLen() {
         return pastSeqLen;
     }
@@ -238,7 +242,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * 抛 heapbyte缓冲→short缓冲 强转异常。</p>
     * @param shape shape
     * @return 创建空fp16的结果
-     */
+    */
     private OnnxTensor createEmptyFp16(long[] shape) throws OrtException {
         int elems = (int) (shape[0] * shape[1] * shape[2] * shape[3]);
         return OnnxTensor.createTensor(env, ShortBuffer.allocate(elems), shape, OnnxJavaType.FLOAT16);
@@ -249,7 +253,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     *
     * @param halfBits fp16 的 16 位原始值
     * @return 转换后的 float
-     */
+    */
     private static float halfToFloat(short halfBits) {
         int h = halfBits & 0xFFFF;
         int sign = (h >> 15) & 0x1;
@@ -279,7 +283,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     * 部分版本直接返回 short缓冲，也一并兼容。</p>
     * @param src src
     * @return 副本fp16的结果
-     */
+    */
     private OnnxTensor copyFp16(OnnxTensor src) throws OrtException {
         long[] shape = src.getInfo().getShape();
         int elems = 1;
@@ -313,7 +317,7 @@ public final class KvCacheDecoder implements AutoCloseable {
     *
     * @param f 32 位浮点值
     * @return 16 位 half 原始值
-     */
+    */
     private static short floatToHalf(float f) {
         int bits = Float.floatToRawIntBits(f);
         int sign = (bits >>> 16) & 0x8000;

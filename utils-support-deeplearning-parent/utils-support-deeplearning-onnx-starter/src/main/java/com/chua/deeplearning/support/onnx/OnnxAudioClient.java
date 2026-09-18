@@ -35,7 +35,7 @@ public class OnnxAudioClient extends AbstractLocalAudioClient {
     * 构造 ONNX 语音识别客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OnnxAudioClient(AudioClientSetting setting) {
         super("onnx", setting);
     }

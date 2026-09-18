@@ -36,29 +36,29 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
 
     /**
     * 是否已启动标记
-     */
+    */
     private final AtomicBoolean started = new AtomicBoolean(false);
     /**
     * 服务路径与监听器列表映射
-     */
+    */
     private final Map<String, List<ServiceDiscoveryListener>> listeners = new ConcurrentHashMap<>();
     /**
     * 删除前的服务状态快照
-     */
+    */
     private final Map<String, Set<Discovery>> preDeleteState = new ConcurrentHashMap<>();
     /**
     * Curator 客户端实例
-     */
+    */
     private CuratorFramework client;
     /**
     * ZooKeeper 根路径
-     */
+    */
     private String root;
 
     /**
     * 创建 zookeeper服务discovery 实例
     * @param discoveryOption discovery期权
-     */
+    */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
@@ -68,7 +68,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     * @param discoveryOption discovery期权
     * @param clusterName 字符串
     * @param clusterName cluster名称
-     */
+    */
     public ZookeeperServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
@@ -188,7 +188,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     * watchchildren
     *
     * @param zkPath zk路径
-     */
+    */
     private void watchChildren(String zkPath) {
         try {
             List<String> children = client.getChildren()
@@ -212,10 +212,10 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * refresh路径
-    *
-    * @param zkPath zk路径
-     */
+                        * refresh路径
+                        *
+                        * @param zkPath zk路径
+                        */
     private void refreshPath(String zkPath) {
         String discoveryPath = zkPath.substring(root.length());
         if (discoveryPath.isEmpty()) {
@@ -246,7 +246,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param zkPath zk路径
     * @return 获取全部instances的结果
-     */
+    */
     private List<Discovery> fetchAllInstances(String zkPath) {
         for (int attempt = 0; attempt < 5; attempt++) {
             try {
@@ -304,7 +304,7 @@ public class ZookeeperServiceDiscovery extends AbstractServiceDiscovery {
     * @param path 路径
     * @param oldSet 旧设置
     * @param newList 新列表
-     */
+    */
     private void notifyListeners(String path, Set<Discovery> oldSet, List<Discovery> newList) {
         List<ServiceDiscoveryListener> pathListeners = listeners.get(path);
         if (pathListeners == null || pathListeners.isEmpty()) {

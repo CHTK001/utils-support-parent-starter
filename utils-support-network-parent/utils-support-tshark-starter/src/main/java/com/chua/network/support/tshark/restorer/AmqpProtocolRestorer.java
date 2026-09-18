@@ -92,7 +92,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为帧类型的结果
-     */
+    */
     private static String toFrameType(int type) {
         return switch (type) {
             case 0x01 -> "METHOD";
@@ -108,7 +108,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param classId 类标识
     * @return 转为类名称的结果
-     */
+    */
     private static String toClassName(int classId) {
         return switch (classId) {
             case 10 -> "Connection";
@@ -127,7 +127,7 @@ public class AmqpProtocolRestorer extends AbstractProtocolRestorer {
     * @param classId 类标识
     * @param methodId 方法标识
     * @return 转为方法名称的结果
-     */
+    */
     private static String toMethodName(int classId, int methodId) {
         if (classId == 10) {
             return switch (methodId) {

@@ -42,7 +42,7 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     * @param detectOutColor detect出color
     * @param detectInnerColor detect内部color
     * @param codeEyeSetting 编码eyesetting
-     */
+    */
     public AbstractDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                    Graphics2D g2,
                                    BitMatrixEx bitMatrix,
@@ -91,7 +91,7 @@ public abstract class AbstractDrawEyeResolver implements DrawEyeResolver{
     * @param w 矩形的宽度
     * @param h 矩形的高度
     * 不返回任何内容。
-     */
+    */
     abstract void draw(Graphics2D g2, int x, int y, int w, int h);
 
 }

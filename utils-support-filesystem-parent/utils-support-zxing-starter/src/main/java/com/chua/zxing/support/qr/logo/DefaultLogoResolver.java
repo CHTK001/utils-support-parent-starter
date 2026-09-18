@@ -57,7 +57,7 @@ public class DefaultLogoResolver implements LogoResolver {
     * 根据传入的logostyle参数决定设置圆形还是矩形的Logo风格。
     * 如果logostyle为圆形，则设置为圆形Logo风格；
     * 否则，默认设置为矩形Logo风格。
-     */
+    */
     private void formatLogoStyle(QrCodeOptions.LogoOptions.LogoOptionsBuilder builder, LogoStyle logoStyle) {
  // 验证logostyle是否为空，若为空则抛出空pointer异常
         if (Objects.requireNonNull(logoStyle) == LogoStyle.CIRCLE) {

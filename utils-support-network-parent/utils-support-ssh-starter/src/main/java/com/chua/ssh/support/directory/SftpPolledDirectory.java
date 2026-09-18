@@ -38,32 +38,32 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
 
     /**
     * 主机地址
-     */
+    */
     private final String host;
     /**
     * 端口号
-     */
+    */
     private final int port;
     /**
     * 登录用户名
-     */
+    */
     private final String username;
     /**
     * 登录密码
-     */
+    */
     private final String password;
 
     /**
     * 客户端实例
-     */
+    */
     private SshClient client;
     /**
     * 会话对象
-     */
+    */
     private ClientSession session;
     /**
     * sftp
-     */
+    */
     private SftpClient sftp;
 
     /**
@@ -71,7 +71,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     *
     * @param listenPath SFTP 远程目录路径
     * @param environment 环境配置（需包含 主机、端口、用户名、密码）
-     */
+    */
     public SftpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
         this.host = environment.getProperty("host");
@@ -85,7 +85,7 @@ public class SftpPolledDirectory extends DiffPolledDirectory<SftpClient.DirEntry
     * 开始
     * @param environment 环境
     * @param executor 执行器
-     */
+    */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         try {

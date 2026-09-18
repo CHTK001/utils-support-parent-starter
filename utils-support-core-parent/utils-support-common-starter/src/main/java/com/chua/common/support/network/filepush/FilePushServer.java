@@ -113,7 +113,7 @@ public class FilePushServer implements AutoCloseable {
     /** 服务端配置 */
     private final FilePushConfig config;
 
-    /** 监听套接字 */
+    /** 监听Socket */
     private volatile ServerSocket serverSocket;
 
     /** 连接数信号量 */
@@ -330,7 +330,7 @@ public class FilePushServer implements AutoCloseable {
                 });
             } catch (IOException e) {
                 if (running) {
-                    // 监听套接字关闭会持续抛异常，短暂休眠避免空转
+                    // 监听Socket关闭会持续抛异常，短暂休眠避免空转
                     ThreadUtils.sleep(100);
                 }
             }

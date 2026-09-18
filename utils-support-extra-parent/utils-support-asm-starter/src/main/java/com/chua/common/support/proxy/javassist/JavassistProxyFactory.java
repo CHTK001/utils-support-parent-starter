@@ -29,7 +29,7 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
 
     /**
     * 单例实例
-     */
+    */
     public static final ProxyFactory INSTANCE = new JavassistProxyFactory();
 
     @Override
@@ -40,7 +40,7 @@ public class JavassistProxyFactory<T> implements ProxyFactory<T> {
     * @param interfaces 接口
     * @param classLoader 类加载
     * @param intercept intercept
-     */
+    */
     public T createProxy(Class<T> target, Class<?>[] interfaces, ClassLoader classLoader,
                         MethodIntercept<T> intercept) {
         javassist.util.proxy.ProxyFactory proxyFactory = new javassist.util.proxy.ProxyFactory();

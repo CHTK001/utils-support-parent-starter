@@ -72,7 +72,7 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param data TLS 记录字节
     * @return SNI 域名，若无法提取返回 空
-     */
+    */
     private static String extractSni(byte[] data) {
         try {
             int idx = 43;
@@ -122,7 +122,7 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param version 原始版本号
     * @return 版本字符串
-     */
+    */
     private static String toVersionString(int version) {
         return switch (version) {
             case 0x0300 -> "SSLv3";
@@ -139,7 +139,7 @@ public class HttpsProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 原始类型编号
     * @return 类型字符串
-     */
+    */
     private static String toContentTypeString(int type) {
         return switch (type) {
             case 0x14 -> "ChangeCipherSpec";

@@ -55,27 +55,27 @@ public class RedisReactorEngine implements ReactorEngine {
 
     /**
     * Redis 连接 URL 协议前缀
-     */
+    */
     private static final String REDIS_PREFIX = "redis://";
 
     /**
     * 数据源名称 -> Lettuce redis客户端
-     */
+    */
     private final Map<String, RedisClient> lettuceClients = new ConcurrentHashMap<>();
 
     /**
     * 数据源名称 -> 超时时间
-     */
+    */
     private final Map<String, Duration> timeouts = new ConcurrentHashMap<>();
 
     /**
     * 默认数据源名称
-     */
+    */
     private String defaultDataSourceName;
 
     /**
     * 无参构造，用于 SPI 加载
-     */
+    */
     public RedisReactorEngine() {
     }
 
@@ -85,7 +85,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param name     数据源名称
     * @param redisUrl Redis 连接 URL（如 Redis://127.0.0.1:6379）
     * @return this
-     */
+    */
     public RedisReactorEngine addDataSource(String name, String redisUrl) {
         if (redisUrl == null || redisUrl.isEmpty()) {
             throw new IllegalArgumentException("Redis URL cannot be null or empty");
@@ -112,7 +112,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param redisUrl Redis 连接 URL
     * @param password 密码
     * @return this
-     */
+    */
     public RedisReactorEngine addDataSource(String name, String redisUrl, String password) {
         if (redisUrl == null || redisUrl.isEmpty()) {
             throw new IllegalArgumentException("Redis URL cannot be null or empty");
@@ -140,7 +140,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param name 数据源名称
     * @return this
-     */
+    */
     public RedisReactorEngine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
         return this;
@@ -150,7 +150,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * 获取默认数据源名称。
     *
     * @return 默认数据源名称
-     */
+    */
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
     }
@@ -159,7 +159,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * 是否多数据源模式。
     *
     * @return true 表示有多个数据源
-     */
+    */
     public boolean isMultiDataSource() {
         return lettuceClients.size() > 1;
     }
@@ -169,7 +169,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param name 数据源名称
     * @return Lettuce Redis客户端，未配置返回 空
-     */
+    */
     public RedisClient getLettuceClient(String name) {
         return lettuceClients.get(name);
     }
@@ -178,7 +178,7 @@ public class RedisReactorEngine implements ReactorEngine {
 
     /**
     * Redis 不支持 SQL Lambda 查询，抛出 unsupportedoperation异常。
-     */
+    */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         throw new UnsupportedOperationException("Redis 不支持 SQL Lambda 查询，请使用 get()/execute() 等响应式方法");
@@ -186,7 +186,7 @@ public class RedisReactorEngine implements ReactorEngine {
 
     /**
     * Redis 不支持 SQL Lambda 更新，抛出 unsupportedoperation异常。
-     */
+    */
     @Override
     public <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass) {
         throw new UnsupportedOperationException("Redis 不支持 SQL Lambda 更新，请使用 set()/hset() 等响应式方法");
@@ -194,7 +194,7 @@ public class RedisReactorEngine implements ReactorEngine {
 
     /**
     * Redis 不支持 SQL Lambda 删除，抛出 unsupportedoperation异常。
-     */
+    */
     @Override
     public <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass) {
         throw new UnsupportedOperationException("Redis 不支持 SQL Lambda 删除，请使用 delete() 等响应式方法");
@@ -209,7 +209,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param sql    Redis 命令（大写，如 "获取 mykey"）
     * @param params 命令参数
     * @return 结果行 Flux，单条记录
-     */
+    */
     @Override
     public Flux<Map<String, Object>> query(String sql, Object... params) {
         String name = defaultDataSourceName;
@@ -235,7 +235,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param params  命令参数
     * @param <T>     行类型
     * @return 类型化结果 Flux
-     */
+    */
     @Override
     public <T> Flux<T> query(String sql, Class<T> rowType, Object... params) {
         String name = defaultDataSourceName;
@@ -258,7 +258,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param sql    Redis 命令
     * @param params 命令参数
     * @return 受影响行数 Mono
-     */
+    */
     @Override
     public Mono<Integer> execute(String sql, Object... params) {
         String name = defaultDataSourceName;
@@ -284,7 +284,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param sql         Redis 命令模板
     * @param batchParams 批量参数列表
     * @return 每批影响行数 Flux
-     */
+    */
     @Override
     public Flux<Integer> batch(String sql, List<Object[]> batchParams) {
         if (batchParams == null || batchParams.isEmpty()) {
@@ -323,7 +323,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param command 命令字符串（如 "获取" 或 "获取 mykey"）
     * @param params  额外参数（结构化调用时使用）
     * @return 命令执行结果
-     */
+    */
     @SuppressWarnings({"unchecked"})
     private Object executeSingleCommand(String name, String command, Object... params) {
         RedisClient client = lettuceClients.get(name);
@@ -508,7 +508,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param rowType 目标类型
     * @param <T>     目标类型
     * @return 转换后的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> T convertTo(Object result, Class<T> rowType) {
         if (result == null) {
@@ -532,7 +532,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 值 Mono，不存在返回空 Mono
-     */
+    */
     public Mono<String> get(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "GET", key);
@@ -546,7 +546,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param key   键
     * @param value 值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> set(String key, String value) {
         return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, "SET", key, value))
                 .subscribeOn(Schedulers.boundedElastic())
@@ -560,7 +560,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param value 值
     * @param ttl   过期时长（秒）
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> setex(String key, String value, long ttl) {
         return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, "SETEX", key, ttl, value))
                 .subscribeOn(Schedulers.boundedElastic())
@@ -572,7 +572,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 删除成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> delete(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "DEL", key);
@@ -585,7 +585,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 存在返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> exists(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "EXISTS", key);
@@ -598,7 +598,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 剩余秒数 Mono，-1 表示无过期，-2 表示键不存在
-     */
+    */
     public Mono<Long> ttl(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "TTL", key);
@@ -611,7 +611,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 递增后的值 Mono
-     */
+    */
     public Mono<Long> incr(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "INCR", key);
@@ -624,7 +624,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 键
     * @return 递减后的值 Mono
-     */
+    */
     public Mono<Long> decr(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "DECR", key);
@@ -638,7 +638,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param key   哈希键
     * @param field 字段名
     * @return 字段值 Mono
-     */
+    */
     public Mono<String> hget(String key, String field) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "HGET", key, field);
@@ -653,7 +653,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param field 字段名
     * @param value 字段值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> hset(String key, String field, String value) {
         return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, "HSET", key, field, value))
                 .subscribeOn(Schedulers.boundedElastic())
@@ -665,7 +665,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 哈希键
     * @return 字段值对 Flux
-     */
+    */
     public Flux<Map.Entry<String, String>> hgetall(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "HGETALL", key);
@@ -689,7 +689,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param pattern 匹配模式（如 "用户:*"）
     * @return 匹配的键 Flux
-     */
+    */
     public Flux<String> scanKeys(String pattern) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "KEYS", pattern);
@@ -707,7 +707,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param key    列表键
     * @param values 值数组
     * @return 列表长度 Mono
-     */
+    */
     public Mono<Long> lpush(String key, String... values) {
         return Mono.fromCallable(() -> {
             RedisClient client = lettuceClients.get(defaultDataSourceName);
@@ -730,7 +730,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param start 起始索引
     * @param end   结束索引
     * @return 元素列表 Flux
-     */
+    */
     public Flux<String> lrange(String key, long start, long end) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "LRANGE", key, start, end);
@@ -747,7 +747,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param key 集合键
     * @return 成员列表 Flux
-     */
+    */
     public Flux<String> smembers(String key) {
         return Mono.fromCallable(() -> {
             Object result = executeSingleCommand(defaultDataSourceName, "SMEMBERS", key);
@@ -765,7 +765,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param key    集合键
     * @param values 值数组
     * @return 新增成员数 Mono
-     */
+    */
     public Mono<Long> sadd(String key, String... values) {
         return Mono.fromCallable(() -> {
             RedisClient client = lettuceClients.get(defaultDataSourceName);
@@ -786,7 +786,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param command Redis 命令字符串
     * @return 结果 Mono
-     */
+    */
     public Mono<Object> execCommand(String command) {
         return Mono.fromCallable(() -> executeSingleCommand(defaultDataSourceName, command))
                 .subscribeOn(Schedulers.boundedElastic());
@@ -797,7 +797,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param commands 命令列表，每项为 "CMD 参数1 参数2 ..." 格式
     * @return 结果列表 Flux
-     */
+    */
     public Flux<Object> execBatch(List<String> commands) {
         if (commands == null || commands.isEmpty()) {
             return Flux.empty();
@@ -812,7 +812,7 @@ public class RedisReactorEngine implements ReactorEngine {
 
     /**
     * 关闭引擎，释放所有 Lettuce 连接。
-     */
+    */
     public void close() {
         for (RedisClient client : lettuceClients.values()) {
             try {
@@ -832,7 +832,7 @@ public class RedisReactorEngine implements ReactorEngine {
     *
     * @param timeout 超时时长
     * @return this
-     */
+    */
     public RedisReactorEngine setTimeout(Duration timeout) {
         timeouts.put(defaultDataSourceName, timeout);
         return this;
@@ -844,7 +844,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param name    数据源名称
     * @param timeout 超时时长
     * @return this
-     */
+    */
     public RedisReactorEngine setTimeout(String name, Duration timeout) {
         timeouts.put(name, timeout);
         return this;
@@ -858,7 +858,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param converted 转换结果（可能为 空）
     * @param raw       原始字符串
     * @return Long 值
-     */
+    */
     private static long parseLong(Long converted, String raw) {
         if (converted != null) {
             return converted;
@@ -872,7 +872,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param converted 转换结果（可能为 空）
     * @param raw       原始字符串
     * @return Integer 值
-     */
+    */
     private static int parseInt(Integer converted, String raw) {
         if (converted != null) {
             return converted;
@@ -886,7 +886,7 @@ public class RedisReactorEngine implements ReactorEngine {
     * @param converted 转换结果（可能为 空）
     * @param raw       原始字符串
     * @return Double 值
-     */
+    */
     private static double parseDouble(Double converted, String raw) {
         if (converted != null) {
             return converted;

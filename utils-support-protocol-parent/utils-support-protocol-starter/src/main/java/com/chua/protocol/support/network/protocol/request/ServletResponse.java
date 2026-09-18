@@ -19,7 +19,7 @@ public interface ServletResponse {
     *
     * @param name  头名称
     * @param value 头值
-     */
+    */
     void setHeader(String name, String value);
 
     /**
@@ -27,7 +27,7 @@ public interface ServletResponse {
     *
     * @param name  头名称
     * @param value 头值
-     */
+    */
     void addHeader(String name, String value);
 
     /** 写入响应体字符串 */

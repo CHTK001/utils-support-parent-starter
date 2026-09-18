@@ -27,7 +27,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
 
     /**
     * 最长边限制。
-     */
+    */
     private final int maxSideLen;
 
     /** 创建 ppworddetectiontranslator 实例 */
@@ -38,7 +38,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     /**
     * 创建 ppworddetectiontranslator 实例
     * @param maxSideLen 最大sidelen
-     */
+    */
     public PpWordDetectionTranslator(int maxSideLen) {
         this.maxSideLen = maxSideLen;
     }
@@ -100,7 +100,7 @@ public class PpWordDetectionTranslator implements Translator<Image, DetectedObje
     *
     * @param value 值
     * @return align32的结果
-     */
+    */
     private int align32(int value) {
         if (value % 32 == 0) {
             return value;

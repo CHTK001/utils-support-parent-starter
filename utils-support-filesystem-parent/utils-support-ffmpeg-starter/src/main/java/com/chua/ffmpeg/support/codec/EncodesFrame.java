@@ -14,6 +14,6 @@ public interface EncodesFrame {
     *
     * @param frame 输入帧
     * @return 编码后的字节数组
-     */
+    */
     byte[] encode(Frame frame);
 }

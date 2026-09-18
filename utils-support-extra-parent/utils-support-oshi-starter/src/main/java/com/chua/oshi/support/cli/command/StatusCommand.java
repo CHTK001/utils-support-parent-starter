@@ -169,7 +169,7 @@ public final class StatusCommand extends AbstractCommand {
     * @param label 标签
     * @param val val
     * @return pad的结果
-     */
+    */
     private static String pad(String label, double val) {
         return String.format("%-5s %6.1f%%  ", label, val);
     }

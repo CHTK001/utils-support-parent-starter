@@ -24,6 +24,6 @@ public interface SketchTo3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 }

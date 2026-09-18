@@ -52,7 +52,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
     protected ExecutorService proxyPool;
 
     /**
-    * JDK 服务端监听套接字。
+    * JDK 服务端监听Socket。
     */
     protected ServerSocket serverSocket;
 
@@ -293,7 +293,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
         log.info("{} nonBlockingAcceptLoop ended", getClass().getSimpleName());
     }
 
-    /** 静默关闭套接字。 */
+    /** 静默关闭Socket。 */
     private void closeSocket(Socket s) {
         try {
             s.close();
@@ -304,7 +304,7 @@ public abstract class AbstractProxyServer extends AbstractServer {
     /**
     * 处理单个客户端连接。子类实现具体协议逻辑。
     *
-    * @param clientSocket 客户端套接字
+    * @param clientSocket 客户端Socket
     */
     protected abstract void handleConnection(Socket clientSocket);
 
@@ -315,8 +315,8 @@ public abstract class AbstractProxyServer extends AbstractServer {
     * 任一方向结束时，通过关闭双方 Socket 解除另一方向的阻塞。
     * 线程由 proxyPool 管理，shutdownNow() 可中断全部转发。</p>
     *
-    * @param clientSocket  客户端套接字
-    * @param backendSocket 后端套接字
+    * @param clientSocket  客户端Socket
+    * @param backendSocket 后端Socket
     */
     protected void forwardBidirectional(Socket clientSocket, Socket backendSocket) {
         // 后端 Socket 也启用 TCP_NODELAY

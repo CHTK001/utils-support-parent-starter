@@ -44,18 +44,18 @@ public class PipelineConfig {
 
     /**
     * 管线唯一标识
-     */
+    */
     private String id;
 
     /**
     * Stage → 动作 映射；键 "默认" 为默认路由
-     */
+    */
     private Map<String, PipelineStageConfig> stages = new HashMap<>();
 
     /**
     * 返回无信息时的空配置
     * @return 空的结果
-     */
+    */
     public static PipelineConfig empty() {
         PipelineConfig cfg = new PipelineConfig();
         cfg.setStages(Collections.singletonMap("default", new PipelineStageConfig()));
@@ -66,7 +66,7 @@ public class PipelineConfig {
     * 单阶段配置 = {"过滤器": [], "parser": [], "清洁剂": [], "standardizer": [], "sink": []}
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     @Builder
     @NoArgsConstructor
@@ -75,27 +75,27 @@ public class PipelineConfig {
 
         /**
         * 过滤器列表
-         */
+        */
         private List<Map<String, Object>> filter = Collections.emptyList();
 
         /**
         * 解析器列表
-         */
+        */
         private List<Map<String, Object>> parser = Collections.emptyList();
 
         /**
         * 清洗器列表
-         */
+        */
         private List<Map<String, Object>> cleaner = Collections.emptyList();
 
         /**
         * 标准化器列表
-         */
+        */
         private List<Map<String, Object>> standardizer = Collections.emptyList();
 
         /**
         * 下沉 sink 列表
-         */
+        */
         private List<Map<String, Object>> sink = Collections.emptyList();
     }
 }

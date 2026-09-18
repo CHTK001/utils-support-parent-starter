@@ -26,7 +26,7 @@ public class RandomMockString implements MockString {
     * 随机字符池（小写字母 + 大写字母 + 数字）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final char[] CHARS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
 

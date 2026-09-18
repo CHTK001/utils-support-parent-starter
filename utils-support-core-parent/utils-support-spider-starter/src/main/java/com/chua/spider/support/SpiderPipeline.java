@@ -28,7 +28,7 @@ public interface SpiderPipeline {
     * 此方法不应抛出异常，内部应捕获并记录错误。
     *
     * @param result 爬取结果，包含标题、内容、结构化数据、AI 总结等
-     */
+    */
     void process(SpiderResult result);
 
     /**
@@ -36,7 +36,7 @@ public interface SpiderPipeline {
     *
     * <p>在开始爬取前调用，用于初始化资源（如打开文件、建立数据库连接等）。
     * 默认空实现。
-     */
+    */
     default void init() {
     }
 
@@ -45,7 +45,7 @@ public interface SpiderPipeline {
     *
     * <p>在爬取结束后调用，用于释放资源（如关闭文件、断开数据库连接等）。
     * 默认空实现。
-     */
+    */
     default void destroy() {
     }
 }

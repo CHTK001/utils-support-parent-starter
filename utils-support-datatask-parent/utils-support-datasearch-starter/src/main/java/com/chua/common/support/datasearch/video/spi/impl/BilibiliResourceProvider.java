@@ -48,7 +48,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     /**
     * 创建 bilibiliresource提供者 实例
     * @param videoSource 视频源
-     */
+    */
     public BilibiliResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -166,7 +166,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     *
     * @param videoSearch 视频搜索
     * @return 获取搜索类型的结果
-     */
+    */
     private String getSearchType(VideoSearch videoSearch) {
         //0=综合（默认），1=视频，2=番剧，3=影视，5=用户，6=专栏，7=直播，8=相簿，9=话题，12=课程
         String category = videoSearch.getVideoType();

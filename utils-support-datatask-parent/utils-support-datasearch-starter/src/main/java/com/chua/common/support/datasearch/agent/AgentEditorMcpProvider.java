@@ -27,7 +27,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * 获取 MCP 提供器名称。
     *
     * @return 提供器名称字符串，固定为 {@link #NAME}
-     */
+    */
     @Override
     public String name() {
         return NAME;
@@ -37,7 +37,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * 创建 datasearch MCP 客户端实例，每次调用返回新实例。
     *
     * @return 新的 {@link DatasearchMcpClient} 实例
-     */
+    */
     @Override
     public McpClient create() {
         return new DatasearchMcpClient();
@@ -49,7 +49,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * @param clientId 客户端标识，可为编辑器名称（如 Cursor）或配置目录（如 .Cursor）
     * @param toolId   工具标识
     * @return 安装成功返回 true；客户端不存在或安装失败返回 false
-     */
+    */
     @Override
     public boolean install(String clientId, String toolId) {
         log.info("datasearch MCP 安装: clientId={}, toolId={}", clientId, toolId);
@@ -71,7 +71,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * @param clientId 客户端标识，可为编辑器名称或配置目录
     * @param toolId   工具标识
     * @return 卸载成功返回 true；客户端不存在或卸载失败返回 false
-     */
+    */
     @Override
     public boolean uninstall(String clientId, String toolId) {
         log.info("datasearch MCP 卸载: clientId={}, toolId={}", clientId, toolId);
@@ -91,7 +91,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * 列出所有受支持编辑器上 datasearch MCP 的安装状态。
     *
     * @return 编辑器名称到安装状态的映射
-     */
+    */
     public Map<String, Boolean> listInstalled() {
         return super.listInstalled();
     }
@@ -100,7 +100,7 @@ public class AgentEditorMcpProvider extends AgentEditorProvider implements McpPr
     * 列出当前机器上已安装（配置目录存在）的可用 MCP 客户端。
     *
     * @return 配置目录实际存在的编辑器名称列表
-     */
+    */
     @Override
     public List<String> listAvailable() {
         return listAvailableEditors();

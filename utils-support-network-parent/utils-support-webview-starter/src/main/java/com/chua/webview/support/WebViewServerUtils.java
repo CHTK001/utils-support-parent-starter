@@ -22,7 +22,7 @@ public class WebViewServerUtils {
     * @param width   窗口宽度。
     * @param height  窗口高度。
     * @throws UnsupportedOperationException 如果窗口不支持IPC协议但服务器使用IPC协议时抛出。
-     */
+    */
     public static void open(WebViewWindow window, Server server, String title, int width, int height) {
         final ProtocolType type = server.getProtocolType();
 
@@ -40,7 +40,7 @@ public class WebViewServerUtils {
 
     /**
     * 私有构造函数，防止实例化。
-     */
+    */
     private WebViewServerUtils() {
     }
 }

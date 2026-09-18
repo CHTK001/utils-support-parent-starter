@@ -36,22 +36,22 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     * VAE                Stable Diffusion        0.18215   
-     */
+    */
     private static final float VAE_SCALE_FACTOR = 0.18215f;
 
     /**
     *              -                   
-     */
+    */
     public SmallSdVaeDecoderTranslator() {
         this(512, 512);
     }
@@ -61,7 +61,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public SmallSdVaeDecoderTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -74,7 +74,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     *             
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         if (log.isDebugEnabled()) {
@@ -92,7 +92,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     * @param ctx                     
     * @param input        nd列表
     * @return                         
-     */
+    */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull NDList input) {
         var modelInput = new NDList();
@@ -125,7 +125,7 @@ public class SmallSdVaeDecoderTranslator implements NoBatchifyTranslator<NDList,
     * @param ctx                    
     * @param list              nd列表
     * @return                   
-     */
+    */
     @Override
     public Image processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         var manager = ctx.getNDManager();

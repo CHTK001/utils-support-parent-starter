@@ -25,7 +25,7 @@ public class WinRmFileClientSpi implements FileClient {
 
     /**
     * 建立连接（占位，SPI 框架管理生命周期）。
-     */
+    */
     @Override
     public void connect() throws IOException {
         // SPI 由框架管理生命周期，此处无需额外处理
@@ -33,7 +33,7 @@ public class WinRmFileClientSpi implements FileClient {
 
     /**
     * 静默关闭连接（占位实现）。
-     */
+    */
     @Override
     public void closeQuietly() {
         // no-op
@@ -44,7 +44,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path 远端路径
     * @return 文件名列表，当前始终为空
-     */
+    */
     @Override
     public List<String> listFiles(String path) throws IOException {
         return new ArrayList<>();
@@ -55,7 +55,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param inputStream 源输入流
     * @param path        远端目标路径
-     */
+    */
     @Override
     public void uploadFile(InputStream inputStream, String path) throws IOException {
  // winrm 文件上传暂未实现
@@ -66,7 +66,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path         远端源路径
     * @param outputStream 本地输出流
-     */
+    */
     @Override
     public void downloadFile(String path, OutputStream outputStream) throws IOException {
  // winrm 文件下载暂未实现
@@ -77,7 +77,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path 远端文件路径
     * @return 当前返回 空
-     */
+    */
     @Override
     public String readFile(String path) throws IOException {
         return null;
@@ -88,7 +88,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path      远端目录路径
     * @param recursive 是否递归创建
-     */
+    */
     @Override
     public void createDirectory(String path, boolean recursive) throws IOException {
         // 暂未实现
@@ -98,7 +98,7 @@ public class WinRmFileClientSpi implements FileClient {
     * 删除远端文件或目录（暂未实现）。
     *
     * @param path 远端路径
-     */
+    */
     @Override
     public void delete(String path) throws IOException {
         // 暂未实现
@@ -109,7 +109,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param oldPath 远端原路径
     * @param newPath 远端新路径
-     */
+    */
     @Override
     public void rename(String oldPath, String newPath) throws IOException {
         // 暂未实现
@@ -120,7 +120,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path 远端路径
     * @return true 表示存在
-     */
+    */
     @Override
     public boolean exists(String path) throws IOException {
         return false;
@@ -131,7 +131,7 @@ public class WinRmFileClientSpi implements FileClient {
     *
     * @param path 远端路径
     * @return true 表示是目录
-     */
+    */
     @Override
     public boolean isDirectory(String path) throws IOException {
         return false;

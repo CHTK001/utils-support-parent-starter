@@ -42,12 +42,12 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
     * 底层同步引擎
-     */
+    */
     private final Engine engine;
 
     /**
     * 查询列列表
-     */
+    */
     private final List<String> selectColumns = new ArrayList<>();
 
     /**
@@ -62,22 +62,22 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
 
     /**
     * 偏移行数，0 表示不偏移
-     */
+    */
     private int offset;
 
     /**
     * JOIN 关联子句列表
-     */
+    */
     private final List<JoinClause> joins = new ArrayList<>();
 
     /**
     * HAVING 条件片段（不含 HAVING 关键字），null 表示无分组过滤
-     */
+    */
     private String havingClause;
 
     /**
     * HAVING 条件参数列表（与 ? 占位符顺序一致）
-     */
+    */
     private final List<Object> havingParams = new ArrayList<>();
 
     /**
@@ -85,7 +85,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     *
     * @param engine      底层引擎
     * @param entityClass 实体类
-     */
+    */
     public ReactorLambdaQueryWrapper(Engine engine, Class<T> entityClass) {
         super(entityClass);
         this.engine = engine;
@@ -97,7 +97,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 添加 选择 列。
     * @param column column
     * @return 选择的结果
-     */
+    */
     public ReactorLambdaQueryWrapper<T> select(SFunction<T, ?> column) {
         selectColumns.add(resolveColumn(column));
         return this;
@@ -107,7 +107,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 批量添加 选择 列。
     * @param columns columns
     * @return 选择的结果
-     */
+    */
     @SafeVarargs
     public final ReactorLambdaQueryWrapper<T> select(SFunction<T, ?>... columns) {
         for (SFunction<T, ?> c : columns) {
@@ -120,7 +120,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 以字符串形式添加 选择 列。
     * @param columns columns
     * @return 选择的结果
-     */
+    */
     public ReactorLambdaQueryWrapper<T> select(String... columns) {
         selectColumns.addAll(List.of(columns));
         return this;
@@ -130,7 +130,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 添加 群体 BY 列。
     * @param column column
     * @return 群体by的结果
-     */
+    */
     public ReactorLambdaQueryWrapper<T> groupBy(SFunction<T, ?> column) {
         this.groupByColumn = resolveColumn(column);
         return this;
@@ -141,7 +141,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     *
     * @param columns 列名数组，至少一个
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> groupBy(String... columns) {
         if (columns == null || columns.length == 0) {
             throw new IllegalArgumentException("GROUP BY 列不能为空");
@@ -158,7 +158,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param table       关联表名，可携带别名（如 {@code "order o"}）
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> innerJoin(String table, String onCondition) {
         return addJoin("INNER", table, null, onCondition);
     }
@@ -170,7 +170,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param alias       表别名
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> innerJoin(String table, String alias, String onCondition) {
         return addJoin("INNER", table, alias, onCondition);
     }
@@ -181,7 +181,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param table       关联表名，可携带别名（如 {@code "order o"}）
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> leftJoin(String table, String onCondition) {
         return addJoin("LEFT", table, null, onCondition);
     }
@@ -193,7 +193,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param alias       表别名
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> leftJoin(String table, String alias, String onCondition) {
         return addJoin("LEFT", table, alias, onCondition);
     }
@@ -204,7 +204,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param table       关联表名，可携带别名（如 {@code "order o"}）
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> rightJoin(String table, String onCondition) {
         return addJoin("RIGHT", table, null, onCondition);
     }
@@ -216,7 +216,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param alias       表别名
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> rightJoin(String table, String alias, String onCondition) {
         return addJoin("RIGHT", table, alias, onCondition);
     }
@@ -229,7 +229,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param alias       表别名，可为 null
     * @param onCondition ON 关联条件 SQL 片段
     * @return this
-     */
+    */
     private ReactorLambdaQueryWrapper<T> addJoin(String joinType, String table, String alias, String onCondition) {
         if (table == null || table.isBlank()) {
             throw new IllegalArgumentException("JOIN 表名不能为空");
@@ -250,7 +250,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param column   聚合列名，null 或空串表示 {@code *}
     * @param alias    结果别名，null 或空串时不加 AS 子句
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectFunc(String function, String column, String alias) {
         if (function == null || function.isBlank()) {
             throw new IllegalArgumentException("聚合函数名不能为空");
@@ -270,7 +270,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     *
     * @param alias 结果别名
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectCount(String alias) {
         return selectFunc("COUNT", "*", alias);
     }
@@ -281,7 +281,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param column 聚合列名
     * @param alias  结果别名
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectSum(String column, String alias) {
         return selectFunc("SUM", column, alias);
     }
@@ -292,7 +292,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param column 聚合列名
     * @param alias  结果别名
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectAvg(String column, String alias) {
         return selectFunc("AVG", column, alias);
     }
@@ -303,7 +303,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param column 聚合列名
     * @param alias  结果别名
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectMax(String column, String alias) {
         return selectFunc("MAX", column, alias);
     }
@@ -314,7 +314,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param column 聚合列名
     * @param alias  结果别名
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> selectMin(String column, String alias) {
         return selectFunc("MIN", column, alias);
     }
@@ -327,7 +327,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param condition HAVING 条件片段，如 {@code "SUM(amount) > ?"}
     * @param params    条件参数列表
     * @return this
-     */
+    */
     public ReactorLambdaQueryWrapper<T> having(String condition, Object... params) {
         if (condition == null || condition.isBlank()) {
             throw new IllegalArgumentException("HAVING 条件不能为空");
@@ -390,7 +390,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 执行查询，返回实体列表的 Flux。
     *
     * @return 实体 Flux
-     */
+    */
     public Flux<T> list() {
         return Mono.fromCallable(this::doList)
                 .subscribeOn(Schedulers.boundedElastic())
@@ -401,7 +401,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 执行查询，返回单个实体的 Mono。
     *
     * @return 实体 Mono，不存在返回空 Mono
-     */
+    */
     public Mono<T> one() {
         return Mono.fromCallable(() -> {
             List<T> list = doList();
@@ -415,7 +415,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param pageNum  页码（从 1 开始）
     * @param pageSize 每页大小
     * @return 分页结果 Mono
-     */
+    */
     public Mono<Page<T>> page(int pageNum, int pageSize) {
         final int pn = pageNum < 1 ? 1 : pageNum;
         final int ps = pageSize;
@@ -561,7 +561,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * 构建 WHERE 子句和参数列表。
     * @param sb sb
     * @param params 参数
-     */
+    */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) {
@@ -576,7 +576,7 @@ public class ReactorLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, React
     * @param sb sb
     * @param params 参数
     * @param c c
-     */
+    */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             sb.append("(");

@@ -38,19 +38,19 @@ public class JdbcSqlExecutor implements SqlExecutor {
 
     /**
     * 统计总数子查询的别名
-     */
+    */
     private static final String COUNT_ALIAS = "t";
 
     /**
     * 所属 JDBC 引擎，用于获取连接与方言
-     */
+    */
     private final JdbcEngine engine;
 
     /**
     * 构造 JDBC SQL 执行器。
     *
     * @param engine 所属 JDBC 引擎，用于获取连接与方言
-     */
+    */
     public JdbcSqlExecutor(JdbcEngine engine) {
         this.engine = engine;
     }
@@ -156,7 +156,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param sql    原始 SQL
     * @param params 参数列表
     * @return 总记录数
-     */
+    */
     private long count(String sql, Object... params) {
         String countSql = "SELECT COUNT(*) FROM (" + trimSql(sql) + ") " + COUNT_ALIAS;
         try (Connection conn = engine.getJdbcConnection();
@@ -179,7 +179,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param sql        原始 SQL
     * @param pagination 分页参数（含 偏移量 / 限制）
     * @return 分页 SQL
-     */
+    */
     private String buildPageSql(String sql, Pagination pagination) {
         Dialect dialect = engine.getDialect(engine.getDefaultDataSourceName());
         if (dialect != null) {
@@ -193,7 +193,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     *
     * @param sql 原始 SQL
     * @return 清理后的 SQL
-     */
+    */
     private static String trimSql(String sql) {
         if (sql == null) {
             return "";
@@ -214,7 +214,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param instance   目标对象
     * @param columnName 列名
     * @param value      列值
-     */
+    */
     private static void setFieldValue(Object instance, String columnName, Object value) {
         Class<?> clazz = instance.getClass();
         // 依次尝试原列名、全小写（H2/PostgreSQL/Oracle 大写标签）、驼峰化列名
@@ -252,7 +252,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param clazz      目标类
     * @param columnName 结果集列名
     * @return 匹配的字段，未找到返回 null
-     */
+    */
     private static Field findFieldLoose(Class<?> clazz, String columnName) {
         String normalizedColumn = columnName.replace("_", "").toLowerCase();
         Class<?> current = clazz;
@@ -277,7 +277,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param clazz 目标类
     * @param name  字段名
     * @return 字段，未找到返回 空
-     */
+    */
     private static Field findField(Class<?> clazz, String name) {
         return ReflectUtils.findField(clazz, name);
     }
@@ -287,7 +287,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     *
     * @param name 原始名称（如 用户_名称）
     * @return 驼峰命名（如 用户名）
-     */
+    */
     private static String toCamelCase(String name) {
         if (name == null || name.isEmpty()) {
             return name;
@@ -314,7 +314,7 @@ public class JdbcSqlExecutor implements SqlExecutor {
     * @param ps     预编译语句
     * @param params 参数数组
     * @throws SQLException 绑定失败
-     */
+    */
     private static void bindParams(PreparedStatement ps, Object... params) throws SQLException {
         if (params == null) {
             return;

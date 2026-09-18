@@ -67,7 +67,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
     /**
     * 创建 wemm-嵌入-2B 文本嵌入 Translator（默认 2048 维）。
-     */
+    */
     public WeMMEmbeddingTranslator() {
         this("wemm-embedding-2b", "nlp/embedding/wemm-embedding-2b/", "model.onnx", "tokenizer.json", 2048);
     }
@@ -80,7 +80,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     * @param modelFile    模型文件名
     * @param tokenizerFile 分词器文件名
     * @param defaultDim   默认输出维度
-     */
+    */
     public WeMMEmbeddingTranslator(String name, String resourceBase,
                                     String modelFile, String tokenizerFile, int defaultDim) {
         this.name = name;
@@ -93,7 +93,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     /**
     * 创建 wemm-嵌入-4B 文本嵌入 Translator（默认 2560 维）。
     * @return embedding4b的结果
-     */
+    */
     public static WeMMEmbeddingTranslator embedding4b() {
         return new WeMMEmbeddingTranslator(
                 "wemm-embedding-4b", "nlp/embedding/wemm-embedding-4b/", "model.onnx", "tokenizer.json", 2560);
@@ -102,7 +102,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     /**
     * 创建 wemm-嵌入-9B 文本嵌入 Translator（默认 4096 维）。
     * @return embedding9b的结果
-     */
+    */
     public static WeMMEmbeddingTranslator embedding9b() {
         return new WeMMEmbeddingTranslator(
                 "wemm-embedding-9b", "nlp/embedding/wemm-embedding-9b/", "model.onnx", "tokenizer.json", 4096);
@@ -112,7 +112,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     * 设置本地模型目录（downloadurl 缓存由 模型registry 注入）。
     *
     * @param dir 包含 模型.onnx + 模型.onnx_数据 + tokenizer.json 的目录
-     */
+    */
     public void setModelPath(Path dir) {
         this.localModelDir = dir;
         this.loaded = false;
@@ -122,7 +122,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     * 设置本地模型路径（字符串形式，由 模型registry 反射注入）。
     *
     * @param path 模型文件或目录路径
-     */
+    */
     public void setModelPath(String path) {
         this.localModelDir = Path.of(path);
         this.loaded = false;
@@ -188,7 +188,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     *
     * @param text 输入文本
     * @return 嵌入向量 float[]
-     */
+    */
     @Override
     public String name() {
         return name;
@@ -198,7 +198,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     * Translate
     * @param input 输入
     * @return float[]
-     */
+    */
     @Override
     public float[] translate(String input) {
         try {
@@ -218,7 +218,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
     * @param text  输入文本
     * @param dim   目标维度（必须 ≤ 模型原始维度）
     * @return 截断并 L2 归一化后的 float[dim]
-     */
+    */
     public float[] embed(String text, int dim) throws Exception {
         if (dim <= 0 || dim > defaultDim) {
             throw new IllegalArgumentException("dim must be in (0, " + defaultDim + "], got " + dim);
@@ -271,7 +271,7 @@ public class WeMMEmbeddingTranslator implements ITranslator<String, float[]> {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

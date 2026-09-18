@@ -31,32 +31,32 @@ public class CampplusEmbedding {
 
     /**
     * 目标采样率
-     */
+    */
     private static final int SAMPLE_RATE = 16000;
 
     /**
     * fbank 维数
-     */
+    */
     private static final int FEATURE_DIM = 80;
 
     /**
     * FFT 窗口大小
-     */
+    */
     private static final int FFT_N = 512;
 
     /**
     * 帧长 25ms
-     */
+    */
     private static final int FRAME_LEN = 400;
 
     /**
     * 帧移 10ms
-     */
+    */
     private static final int FRAME_SHIFT = 160;
 
     /**
     * 嵌入维度
-     */
+    */
     private static final int EMBEDDING_DIM = 192;
 
     private final OrtEnvironment ortEnv; // ortenv
@@ -68,7 +68,7 @@ public class CampplusEmbedding {
     * campplus嵌入。
     * @param session 会话
     * @param env env
-     */
+    */
     private CampplusEmbedding(OrtSession session, OrtEnvironment env) {
         this.session = session;
         this.ortEnv = env;
@@ -81,7 +81,7 @@ public class CampplusEmbedding {
     * 从 类路径 加载模型（自动从 JAR 解压到缓存目录）。
     *
     * @return CampplusEmbedding 实例
-     */
+    */
     public static CampplusEmbedding load() {
         try {
             Path cacheDir = Path.of(System.getProperty("java.io.tmpdir"),
@@ -125,7 +125,7 @@ public class CampplusEmbedding {
     *
     * @param samples 16khz 单声道 [-1,1] 浮点采样
     * @return L2 归一化 192 维嵌入向量
-     */
+    */
     public float[] extract(float[] samples) {
         double[][] feat80 = computeFbank80(samples);
 
@@ -153,7 +153,7 @@ public class CampplusEmbedding {
     * 获取嵌入维度。
     *
     * @return 192
-     */
+    */
     public int getDimension() {
         return EMBEDDING_DIM;
     }
@@ -163,7 +163,7 @@ public class CampplusEmbedding {
     *
     * @param samples 样本
     * @return computeFbank80的结果
-     */
+    */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -218,7 +218,7 @@ public class CampplusEmbedding {
     *
     * @param nFreq nfreq
     * @return 构建kaldimel过滤器的结果
-     */
+    */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
 
@@ -312,7 +312,7 @@ public class CampplusEmbedding {
                 * 转为floatarray。
                 * @param t t
                 * @return 转为floatarray的结果
-                 */
+                */
                 }
             }
         }
@@ -323,7 +323,7 @@ public class CampplusEmbedding {
         /**
         * l2Normalize。
         * @param v v
-         */
+        */
         float[] arr = new float[fb.remaining()];
         fb.get(arr);
         return arr;
@@ -336,7 +336,7 @@ public class CampplusEmbedding {
         * @param hz hz
         * @return hz转为mel的结果
         * @param mel mel
-         */
+        */
         for (float x : v) {
             s += x * x;
         }
@@ -364,11 +364,11 @@ public class CampplusEmbedding {
     }
 
         /**
-        * 将 double 矩阵拍平并转为 float 数组。
-        *
-        * @param mat mat
-        * @return flatten的结果
-         */
+    * 将 double 矩阵拍平并转为 float 数组。
+    *
+    * @param mat mat
+    * @return flatten的结果
+    */
     private static float[] flatten(double[][] mat) {
         int rows = mat.length;
         int cols = rows > 0 ? mat[0].length : 0;

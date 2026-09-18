@@ -25,7 +25,7 @@ public class SafeTensorAudioClient extends AbstractLocalAudioClient {
     * 构造 safetensor 语音识别客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorAudioClient(AudioClientSetting setting) {
         super("safetensors", setting);
     }

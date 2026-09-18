@@ -19,7 +19,7 @@ public class DogClassificationTranslator extends SiglipZeroShotClassificationTra
             * dogclassificationtranslator。
             * @param candidates candidates
             * @return 构建参数的结果
-             */
+            */
             "squirrel,deer,raccoon,fox,wolf,lion,tiger,bear";
 
     public DogClassificationTranslator() {

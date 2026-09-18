@@ -34,26 +34,26 @@ public class PlaywrightFetcher implements SpiderFetcher {
 
     /**
     * nav 超时时间
-     */
+    */
     private static final Duration NAV_TIMEOUT = Duration.ofSeconds(60);
 
     /**
     * 加载 超时时间
-     */
+    */
     private static final Duration LOAD_TIMEOUT = Duration.ofSeconds(30);
 
     /**
     * Playwright 实例
-     */
+    */
     private final Playwright playwright;
     /**
     * 浏览器实例
-     */
+    */
     private final Browser browser;
 
     /**
     * 默认构造器，启动 铬 浏览器。
-     */
+    */
     public PlaywrightFetcher() {
         this.playwright = Playwright.create();
         this.browser = playwright.chromium().launch(
@@ -65,7 +65,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
     *
     * @param playwright Playwright 实例
     * @param browser    浏览器实例
-     */
+    */
     public PlaywrightFetcher(Playwright playwright, Browser browser) {
         this.playwright = playwright;
         this.browser = browser;
@@ -126,7 +126,7 @@ public class PlaywrightFetcher implements SpiderFetcher {
     * 释放浏览器资源。
     *
     * <p>爬虫结束后调用，释放 Playwright 和浏览器实例。
-     */
+    */
     public void close() {
         Exception ex = null;
         try {

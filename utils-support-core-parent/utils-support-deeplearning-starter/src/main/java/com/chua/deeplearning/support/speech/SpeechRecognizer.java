@@ -20,7 +20,7 @@ public interface SpeechRecognizer {
     *
     * @param name 模型名称
     * @return 识别器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -28,7 +28,7 @@ public interface SpeechRecognizer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static SpeechRecognizer create(String provider, String apiKey) {
         return ServiceProvider.of(SpeechRecognizer.class)
                 .getNewExtension(provider, apiKey);
@@ -39,7 +39,7 @@ public interface SpeechRecognizer {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default SpeechRecognizer provider(String provider) {
         return this;
     }
@@ -49,7 +49,7 @@ public interface SpeechRecognizer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default SpeechRecognizer model(String model) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface SpeechRecognizer {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static SpeechRecognizer create(String name) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -71,7 +71,7 @@ public interface SpeechRecognizer {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.speech.SpeechRecognizer.class);
     }
@@ -83,7 +83,7 @@ public interface SpeechRecognizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 识别器
-     */
+    */
     static SpeechRecognizer create(String name, ModelSetting setting) {
         return new DefaultSpeechRecognizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -93,7 +93,7 @@ public interface SpeechRecognizer {
     *
     * @param lang 语言代码
     * @return this
-     */
+    */
     SpeechRecognizer lang(String lang);
 
     /**
@@ -101,7 +101,7 @@ public interface SpeechRecognizer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     SpeechRecognizer modelPath(String path);
 
     /**
@@ -109,7 +109,7 @@ public interface SpeechRecognizer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     SpeechRecognizer device(String device);
 
     /**
@@ -117,7 +117,7 @@ public interface SpeechRecognizer {
     *
     * @param rate 采样率（Hz）
     * @return this
-     */
+    */
     SpeechRecognizer sampleRate(int rate);
 
     /**
@@ -125,7 +125,7 @@ public interface SpeechRecognizer {
     *
     * @param audioData 音频数据
     * @return 识别文字
-     */
+    */
     String recognize(byte[] audioData);
 
     /**
@@ -134,7 +134,7 @@ public interface SpeechRecognizer {
     * @param audioData 音频数据
     * @param language  语言代码
     * @return 识别文字
-     */
+    */
     String recognize(byte[] audioData, String language);
 }
 
@@ -148,54 +148,54 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
 
     /**
     * 默认识别语言（中文）。
-     */
+    */
     private static final String DEFAULT_LANG = "zh";
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 默认采样率（16khz）。
-     */
+    */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 识别语言。
-     */
+    */
     private String lang = DEFAULT_LANG;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
     * 采样率。
-     */
+    */
     private int sampleRate = DEFAULT_SAMPLE_RATE;
 
     /**
@@ -204,7 +204,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultSpeechRecognizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -252,7 +252,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     *
     * @param audioData 音频数据
     * @return recognize的结果
-     */
+    */
     public String recognize(byte[] audioData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class);
@@ -270,7 +270,7 @@ class DefaultSpeechRecognizer implements SpeechRecognizer {
     * @param audioData 音频数据
     * @param language language
     * @return recognize的结果
-     */
+    */
     public String recognize(byte[] audioData, String language) {
         this.lang = language;
         return recognize(audioData);

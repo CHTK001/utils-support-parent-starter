@@ -18,7 +18,7 @@ public interface FlowSnapshotStore {
     * 保存一次流程执行快照。
     *
     * @param snapshot 执行快照
-     */
+    */
     void save(FlowSnapshot snapshot);
 
     /**
@@ -26,7 +26,7 @@ public interface FlowSnapshotStore {
     *
     * @param executionNo 执行号
     * @return 快照，不存在时返回 空
-     */
+    */
     FlowSnapshot load(String executionNo);
 
     /**
@@ -34,6 +34,6 @@ public interface FlowSnapshotStore {
     *
     * @param flowId 流程 标识
     * @return 快照列表，无则返回空列表
-     */
+    */
     List<FlowSnapshot> list(String flowId);
 }

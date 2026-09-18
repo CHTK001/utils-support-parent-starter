@@ -23,7 +23,7 @@ public interface Model3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(String prompt, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 
     /**
@@ -35,7 +35,7 @@ public interface Model3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(byte[] image, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 
     /**
@@ -47,7 +47,7 @@ public interface Model3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 
     /**
@@ -60,7 +60,7 @@ public interface Model3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generateFromSketch(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 
     /**
@@ -71,6 +71,6 @@ public interface Model3DGenerator {
     * @param resolution   分辨率
     * @return 风格化后的 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D stylize(Model3D model, Model3DStyle style, int resolution) throws IOException;
 }

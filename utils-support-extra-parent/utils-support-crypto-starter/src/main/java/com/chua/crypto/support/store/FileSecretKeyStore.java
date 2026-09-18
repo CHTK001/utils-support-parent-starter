@@ -27,7 +27,7 @@ public class FileSecretKeyStore extends AbstractWrappedKeyStore {
 
     /**
     * 载体魔数：Chua 键 文件
-     */
+    */
     private static final byte[] MAGIC = {'C', 'H', 'K', 'F'};
 
     /**
@@ -35,7 +35,7 @@ public class FileSecretKeyStore extends AbstractWrappedKeyStore {
     *
     * @param setting 加密配置
     * @return 密钥文件绝对路径
-     */
+    */
     @Override
     protected Path carrierPath(CryptoSetting setting) {
         return KeyFileResolver.resolve(setting.getKeyFile());
@@ -45,7 +45,7 @@ public class FileSecretKeyStore extends AbstractWrappedKeyStore {
     * 获取载体魔数
     *
     * @return CHKF
-     */
+    */
     @Override
     protected byte[] magic() {
         return MAGIC.clone();
@@ -55,7 +55,7 @@ public class FileSecretKeyStore extends AbstractWrappedKeyStore {
     * 返回载体类型描述
     *
     * @return 类型名
-     */
+    */
     @Override
     public String toString() {
         return KeyStoreType.FILE.name();

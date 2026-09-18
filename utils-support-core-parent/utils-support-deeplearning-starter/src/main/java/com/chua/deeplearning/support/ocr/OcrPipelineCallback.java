@@ -19,7 +19,7 @@ public interface OcrPipelineCallback {
     *
     * @param imageData 原始场景图
     * @param boxes     检测到的文字框列表
-     */
+    */
     default void onDetect(byte[] imageData, List<PredictRectangle> boxes) {
     }
 
@@ -31,7 +31,7 @@ public interface OcrPipelineCallback {
     * @param conf    置信度
     * @param index   当前索引
     * @param total   总数
-     */
+    */
     default void onRecognize(PredictRectangle box, String text, float conf, int index, int total) {
     }
 
@@ -39,7 +39,7 @@ public interface OcrPipelineCallback {
     * 方向矫正完成回调。
     *
     * @param corrected 矫正后的图片
-     */
+    */
     default void onCorrect(byte[] corrected) {
     }
 
@@ -47,7 +47,7 @@ public interface OcrPipelineCallback {
     * 文字高清化完成回调。
     *
     * @param enhanced 高清化后的图片
-     */
+    */
     default void onEnhance(byte[] enhanced) {
     }
 }

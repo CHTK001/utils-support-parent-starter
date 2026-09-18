@@ -42,7 +42,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     * 是否支持
     * @param field 字段
     * @param beanDefinition Beandefinition
-     */
+    */
     public boolean isSupport(Field field, BeanDefinition beanDefinition) {
         return field != null && field.isAnnotationPresent(Value.class);
     }
@@ -54,7 +54,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     * @param bean Bean
     * @param beanDefinition Beandefinition
     * @param environment 环境
-     */
+    */
     public Object inject(Field field, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (field == null || bean == null) {
             return null;
@@ -71,7 +71,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     * 是否支持
     * @param method 方法
     * @param beanDefinition Beandefinition
-     */
+    */
     public boolean isSupport(Method method, BeanDefinition beanDefinition) {
         if (method == null) {
             return false;
@@ -91,7 +91,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     * @param bean Bean
     * @param beanDefinition Beandefinition
     * @param environment 环境
-     */
+    */
     public Object[] inject(Method method, Object bean, BeanDefinition beanDefinition, Environment environment) {
         if (method == null || bean == null) {
             return null;
@@ -117,7 +117,7 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     * 获取springenv
     * @param frameworkEnv 框架env
     * @return 获取springenv的结果
-     */
+    */
     private org.springframework.core.env.Environment getSpringEnv(Environment frameworkEnv) {
         org.springframework.core.env.Environment env = this.springEnv;
         if (env instanceof SpringEnvironmentAdapter adapter && adapter.getDelegate() == frameworkEnv) {
@@ -132,10 +132,10 @@ public class SpringBeanDefinitionConfigInjector implements BeanDefinitionConfigI
     /**
     * 解析值
     * @param expression expression
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @param frameworkEnv 框架env
     * @return resolve值的结果
-     */
+    */
     private Object resolveValue(String expression, Class<?> targetType, Environment frameworkEnv) {
         if (expression == null) {
             return null;

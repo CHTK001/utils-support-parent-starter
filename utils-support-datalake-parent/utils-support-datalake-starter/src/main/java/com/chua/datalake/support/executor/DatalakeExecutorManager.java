@@ -20,14 +20,14 @@ public class DatalakeExecutorManager implements ExecutorManager {
 
     /**
     * 内部的唯一执行器实例
-     */
+    */
     private final DatalakeReactorExecutor executor;
 
     /**
     * 注入 dispatcher提供者，使 执行器 能共享 Chronicle 队列。
     *
     * @param dispatcherProvider dispatcher提供者 实例
-     */
+    */
     public void setDispatcherProvider(DispatcherProvider dispatcherProvider) {
         executor.setDispatcherProvider(dispatcherProvider);
     }
@@ -43,7 +43,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
     * @param unused 兼容参数
     * @param engine 管线引擎
     * @param sinks  sink 注册表
-     */
+    */
     public void setPipelineEngine(ReactorDataSyncExecutor unused, PipelineEngine engine, Map<String, DataSink> sinks) {
         executor.setPipelineEngine(engine);
         if (sinks != null) {
@@ -56,7 +56,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
     *
     * @param unused 兼容参数
     * @param engine 管线引擎
-     */
+    */
     public void setPipelineEngine(ReactorDataSyncExecutor unused, PipelineEngine engine) {
         executor.setPipelineEngine(engine);
     }
@@ -84,7 +84,7 @@ public class DatalakeExecutorManager implements ExecutorManager {
     *
     * @param sinkId sink 标识
     * @return topic 字符串
-     */
+    */
     public String getTopic(String sinkId) {
         return "server:" + executor.getAgentId();
     }

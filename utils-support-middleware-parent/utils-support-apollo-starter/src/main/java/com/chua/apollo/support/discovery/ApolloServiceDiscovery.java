@@ -26,19 +26,19 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
 
     /**
     * 默认的 Apollo 命名空间名称，用于存储服务发现相关配置。
-     */
+    */
     private static final String APOLLO_NAMESPACE = "discovery";
 
     /**
     * Apollo 配置对象实例，用于获取和监听配置变化。
-     */
+    */
     private Config apolloConfig;
 
     /**
     * 构造函数，初始化服务发现选项。
     *
     * @param discoveryOption 服务发现配置选项
-     */
+    */
     public ApolloServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
@@ -48,7 +48,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param discoveryOption 服务发现配置选项
     * @param clusterName     集群名称
-     */
+    */
     public ApolloServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }
@@ -56,7 +56,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     /**
     * 启动服务发现功能。
     * 加载所有当前配置项，并添加监听器以响应配置变更。
-     */
+    */
     @Override
     public void start() {
         // 确定使用的命名空间，优先使用配置选项中的数据库名，否则使用默认命名空间
@@ -88,9 +88,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 加载 Apollo 配置中的所有服务发现条目。
-    * 遍历所有属性键，解析 JSON 并缓存到本地。
-     */
+            * 加载 Apollo 配置中的所有服务发现条目。
+            * 遍历所有属性键，解析 JSON 并缓存到本地。
+            */
     private void loadAll() {
         if (apolloConfig == null) {
             return;
@@ -108,7 +108,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param key   配置键
     * @param json  配置值（JSON 格式）
-     */
+    */
     private void refreshKey(String key, String json) {
         if (StringUtils.isNullOrEmpty(json)) {
             return;
@@ -128,7 +128,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     * @param path      服务路径
     * @param discovery 服务发现信息对象
     * @return 当前服务发现实例
-     */
+    */
     @Override
     public ServiceDiscovery registerService(String path, Discovery discovery) {
         log.warn("Apollo discovery is read-only, registerService is a no-op");
@@ -143,7 +143,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param path      服务路径
     * @param discovery 服务发现信息对象
-     */
+    */
     @Override
     protected void doUnregister(String path, Discovery discovery) {
         log.warn("Apollo discovery is read-only, unregisterService is a no-op");
@@ -156,7 +156,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     * @param path         服务路径
     * @param oldDiscovery 旧的服务发现信息
     * @param newDiscovery 新的服务发现信息
-     */
+    */
     @Override
     protected void doUpdate(String path, Discovery oldDiscovery, Discovery newDiscovery) {
         log.warn("Apollo discovery is read-only, updateService is a no-op");
@@ -166,7 +166,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     * 检查是否支持订阅功能。
     *
     * @return true 表示支持订阅
-     */
+    */
     @Override
     public boolean isSupportSubscribe() {
         return true;
@@ -178,7 +178,7 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     *
     * @param serviceName 服务名称
     * @param listener    服务发现监听器
-     */
+    */
     @Override
     public void subscribe(String serviceName, ServiceDiscoveryListener listener) {
         apolloConfig.addChangeListener(new ConfigChangeListener() {
@@ -200,9 +200,9 @@ public class ApolloServiceDiscovery extends AbstractServiceDiscovery {
     }
 
     /**
-    * 关闭服务发现功能。
-    * 清理本地缓存数据。
-     */
+            * 关闭服务发现功能。
+            * 清理本地缓存数据。
+            */
     @Override
     public void close() {
         clearCache();

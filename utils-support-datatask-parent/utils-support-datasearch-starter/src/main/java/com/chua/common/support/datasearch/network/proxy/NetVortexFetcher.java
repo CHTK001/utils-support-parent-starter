@@ -21,12 +21,12 @@ public class NetVortexFetcher implements ProxyFetcher {
 
     /**
     * 免费代理列表 URL
-     */
+    */
     private static final String URL = "https://net-vortex.com/free-proxies";
 
     /**
     * 匹配 IP:端口 格式的正则
-     */
+    */
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{2,5})");
 

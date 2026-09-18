@@ -50,81 +50,81 @@ public class DingTalkBotClient implements BotClient {
 
     /**
     * HMAC SHA256 算法名称
-     */
+    */
     private static final String HMAC_SHA256 = "HmacSHA256";
 
     /**
     * JSON 媒体类型
-     */
+    */
     private static final MediaType JSON_MEDIA_TYPE =
             MediaType.get("application/json; charset=utf-8");
 
     /**
     * Webhook URL
-     */
+    */
     private String webhookUrl;
 
     /**
     * 签名密钥
-     */
+    */
     private String secret;
 
     /**
     * 应用 键
-     */
+    */
     private String appKey;
 
     /**
     * 应用 Secret
-     */
+    */
     private String appSecret;
 
     /**
     * API 基础地址
-     */
+    */
     private String baseUrl =
             "https://oapi.dingtalk.com/robot/send?access_token=";
 
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private long connectTimeoutMillis = 10_000;
 
     /**
     * 读取超时时间（毫秒）
-     */
+    */
     private long readTimeoutMillis = 30_000;
 
     /**
     * Webhook 验证 令牌
-     */
+    */
     private String webhookVerifyToken;
 
     /**
     * 运行状态标识
-     */
+    */
     private volatile boolean running;
 
     /**
     * HTTP 客户端实例
-     */
+    */
     private OkHttpClient httpClient;
 
     /**
     * 消息监听器列表
-     */
+    */
     private final List<BotMessageListener> messageListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 错误监听器列表
-     */
+    */
     private final List<BotErrorListener> errorListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 用户存储实例
-     */
+    */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     @Override
@@ -133,7 +133,7 @@ public class DingTalkBotClient implements BotClient {
     * @param token 令牌
     * @param secret secret
     * @param encodingAesKey 编码aes键
-     */
+    */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (token != null && !token.isBlank()) {
@@ -201,7 +201,7 @@ public class DingTalkBotClient implements BotClient {
     *
     * @param webhookUrl Webhook 地址
     * @return this
-     */
+    */
     public DingTalkBotClient webhookUrl(String webhookUrl) {
         this.webhookUrl = webhookUrl;
         return this;
@@ -212,7 +212,7 @@ public class DingTalkBotClient implements BotClient {
     *
     * @param token 验证 令牌
     * @return this
-     */
+    */
     public DingTalkBotClient webhookVerifyToken(String token) {
         this.webhookVerifyToken = token;
         return this;
@@ -307,7 +307,7 @@ public class DingTalkBotClient implements BotClient {
     * @param mediaPath media路径
     * @param title title
     * @param desc desc
-     */
+    */
     public BotSendResult sendVideo(String toUser, String mediaPath,
             String title, String desc) {
         log.warn(
@@ -395,7 +395,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
         return CompletableFuture.supplyAsync(
@@ -447,7 +447,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
         return CompletableFuture.supplyAsync(
@@ -496,7 +496,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
@@ -513,7 +513,7 @@ public class DingTalkBotClient implements BotClient {
     * 发送转为分组
     * @param groupId 群体标识
     * @param content 内容
-     */
+    */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         log.warn("Use webhookUrl to target specific group");
@@ -560,7 +560,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
         return CompletableFuture.supplyAsync(
@@ -603,7 +603,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -676,7 +676,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -707,7 +707,7 @@ public class DingTalkBotClient implements BotClient {
     *
     * @param jsonBody 请求体 JSON 字符串
     * @return true 表示处理成功
-     */
+    */
     public boolean handleCallback(String jsonBody) {
         try {
             Map<String, Object> data = JSON.parseObject(jsonBody);
@@ -748,7 +748,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     private BotSendResult sendInternal(
             Map<String, Object> message) {
         if (webhookUrl == null || webhookUrl.isBlank()) {
@@ -804,7 +804,7 @@ public class DingTalkBotClient implements BotClient {
     * 构建请求url
     *
     * @return 构建请求url的结果
-     */
+    */
     private String buildRequestUrl() throws Exception {
         if (secret == null || secret.isBlank()) {
             return webhookUrl;
@@ -830,7 +830,7 @@ public class DingTalkBotClient implements BotClient {
     * @param type 类型
     * @param e e
     * @param ignored ignored
-     */
+    */
     private BotInboundMessage parseInbound(
             Map<String, Object> data) {
         String msgType = (String) data.get("msgtype");
@@ -871,7 +871,7 @@ public class DingTalkBotClient implements BotClient {
     *
     * @param type 类型
     * @return 映射msg类型的结果
-     */
+    */
     private Type mapMsgType(String type) {
         if (type == null) {
             return Type.UNKNOWN;
@@ -889,7 +889,7 @@ public class DingTalkBotClient implements BotClient {
     * 通知记录错误
     *
     * @param e e
-     */
+    */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {

@@ -20,7 +20,7 @@ public interface FeatureExtractor {
     *
     * @param name 模型名称
     * @return 提取器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -28,7 +28,7 @@ public interface FeatureExtractor {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static FeatureExtractor create(String provider, String apiKey) {
         return ServiceProvider.of(FeatureExtractor.class)
                 .getNewExtension(provider, apiKey);
@@ -39,7 +39,7 @@ public interface FeatureExtractor {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default FeatureExtractor provider(String provider) {
         return this;
     }
@@ -49,7 +49,7 @@ public interface FeatureExtractor {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default FeatureExtractor model(String model) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface FeatureExtractor {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static FeatureExtractor create(String name) {
         return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -71,7 +71,7 @@ public interface FeatureExtractor {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.feature.FeatureExtractor.class);
     }
@@ -83,7 +83,7 @@ public interface FeatureExtractor {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 提取器
-     */
+    */
     static FeatureExtractor create(String name, ModelSetting setting) {
         return new DefaultFeatureExtractor(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -93,7 +93,7 @@ public interface FeatureExtractor {
     *
     * @param path 路径
     * @return this
-     */
+    */
     FeatureExtractor modelPath(String path);
 
     /**
@@ -101,7 +101,7 @@ public interface FeatureExtractor {
     *
     * @param device 设备
     * @return this
-     */
+    */
     FeatureExtractor device(String device);
 
     /**
@@ -109,7 +109,7 @@ public interface FeatureExtractor {
     *
     * @param normalize 是否归一化
     * @return this
-     */
+    */
     FeatureExtractor normalize(boolean normalize);
 
     /**
@@ -117,7 +117,7 @@ public interface FeatureExtractor {
     *
     * @param imageData 图像数据
     * @return 特征向量
-     */
+    */
     float[] extract(byte[] imageData);
 
     /**
@@ -125,7 +125,7 @@ public interface FeatureExtractor {
     *
     * @param text 文本
     * @return 特征向量
-     */
+    */
     float[] extract(String text);
 }
 
@@ -139,39 +139,39 @@ class DefaultFeatureExtractor implements FeatureExtractor {
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
     * 是否归一化。
-     */
+    */
     private boolean normalize = true;
 
     /**
@@ -180,7 +180,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultFeatureExtractor(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -221,7 +221,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     *
     * @param imageData 镜像数据
     * @return extract的结果
-     */
+    */
     public float[] extract(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);
@@ -238,7 +238,7 @@ class DefaultFeatureExtractor implements FeatureExtractor {
     *
     * @param text 文本
     * @return extract的结果
-     */
+    */
     public float[] extract(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);

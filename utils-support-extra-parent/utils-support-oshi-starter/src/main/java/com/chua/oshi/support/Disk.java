@@ -16,41 +16,41 @@ public class Disk {
 
     /**
     * 磁盘控制器类型（HDD / SSD / nvme / RAID / Unknown）。
-     */
+    */
     private String controllerType;
 
     /**
     * 磁盘型号名称。
-     */
+    */
     private String model;
 
     /**
     * 磁盘序列号。
-     */
+    */
     private String serial;
 
     /**
     * 磁盘总容量（字节）。
-     */
+    */
     private long size;
 
     /**
     * 传输速率（MB/s）。
-     */
+    */
     private long transferSpeed;
 
     /**
     * 磁盘健康状态（Good / Caution / Bad）。
-     */
+    */
     private String smartStatus;
 
     /**
     * 是否为固态硬盘。
-     */
+    */
     private boolean solidStateDrive;
 
     /**
     * 旋转速度（RPM），SSD 为 0。
-     */
+    */
     private int rotationSpeed;
 }

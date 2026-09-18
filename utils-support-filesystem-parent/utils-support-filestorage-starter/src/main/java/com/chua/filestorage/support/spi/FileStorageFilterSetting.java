@@ -48,7 +48,7 @@ public interface FileStorageFilterSetting {
     * <p>如 {@code ["resize", "grayscale", "blur", "watermark"]}。</p>
     *
     * @return 支持的滤镜 标识 列表
-     */
+    */
     default List<String> capabilities() {
         return Collections.emptyList();
     }
@@ -59,7 +59,7 @@ public interface FileStorageFilterSetting {
     * 如果返回空列表，表示不进行任何全局滤镜处理。</p>
     *
     * @return 滤镜链配置列表
-     */
+    */
     List<ImageFilterConfig> getFilterChain();
 
     /**
@@ -68,7 +68,7 @@ public interface FileStorageFilterSetting {
     * @param path      文件路径
     * @param extension 文件扩展名（小写）
     * @return true 表示跳过滤镜
-     */
+    */
     default boolean isExcluded(String path, String extension) {
         return false;
     }
@@ -78,7 +78,7 @@ public interface FileStorageFilterSetting {
     *
     * @param id     滤镜 标识（对应 镜像过滤器 SPI 名称，如 {@code "resize"}、{@code "blur"}）
     * @param params 滤镜参数（键值对）
-     */
+    */
     record ImageFilterConfig(String id, Map<String, Object> params) {
 
         /**
@@ -87,7 +87,7 @@ public interface FileStorageFilterSetting {
         * @param id 标识
         * @param params 参数
         * @return 的的结果
-         */
+        */
         public static ImageFilterConfig of(String id, Map<String, Object> params) {
             return new ImageFilterConfig(id, params);
         }
@@ -97,7 +97,7 @@ public interface FileStorageFilterSetting {
         *
         * @param id 标识
         * @return 的的结果
-         */
+        */
         public static ImageFilterConfig of(String id) {
             return new ImageFilterConfig(id, Collections.emptyMap());
         }

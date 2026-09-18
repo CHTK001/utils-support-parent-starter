@@ -43,7 +43,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     public enum MattingMode {
         ALPHA_ONLY,
@@ -55,7 +55,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     /**
     * 无参构造，默认 512×512，RGBA 输出，需归一化。
     * @return MattingTranslator的结果
-     */
+    */
     public MattingTranslator() {
         this(DEFAULT_TARGET_SIZE, DEFAULT_TARGET_SIZE, MattingMode.RGBA, true);
     }
@@ -68,7 +68,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * @param mode         输出模式
     * @param normalize    是否做 镜像net 归一化
     * @return MattingTranslator的结果
-     */
+    */
     public MattingTranslator(int targetWidth, int targetHeight, MattingMode mode, boolean normalize) {
         this.targetWidth = targetWidth;
         this.targetHeight = targetHeight;
@@ -138,7 +138,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * @param list 列表
     * @return 处理输出的结果
     * @param input 输入
-     */
+    */
     }
 
     @Override
@@ -203,7 +203,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * 创建alphaonly镜像。
     * @param alphaMask alphamask
     * @return 创建alphaonly镜像的结果
-     */
+    */
     }
 
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
@@ -220,7 +220,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * 创建rgba镜像。
     * @param alphaMask alphamask
     * @return 创建rgba镜像的结果
-     */
+    */
     }
 
     private Image createRgbaImage(BufferedImage alphaMask) {
@@ -238,7 +238,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * @param alphaMask alphamask
     * @param bgValue bg值
     * @return 创建rgb镜像的结果
-     */
+    */
     }
 
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
@@ -262,7 +262,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * @param alpha alpha
     * @param inverseAlpha inversealpha
     * @return blend通道的结果
-     */
+    */
     }
 
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
@@ -272,7 +272,7 @@ public final class MattingTranslator implements Translator<Image, Image> {
     * @return 创建low信息降级的结果
     * @param configuration 配置
     * @param image 镜像
-     */
+    */
     }
 
     private Image createLowInformationFallback() {

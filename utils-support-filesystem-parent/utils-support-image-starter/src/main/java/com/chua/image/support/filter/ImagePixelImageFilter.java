@@ -2,6 +2,8 @@ package com.chua.image.support.filter;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDescribe;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -45,36 +47,63 @@ import javax.annotation.Nullable;
 * - 社交媒体：为照片添加复古滤镜效果
 * - 品牌设计：营造怀旧、复古的品牌形象
 *
-* 性能特点：
-* - 高效处理：通过跳跃采样减少计算量
-* - 内存友好：生成的图像保持原始尺寸
-* - 可调节性：通过步长参数控制效果强度
-* - 实时性：适合实时图像处理应用
-*
-* @author CH
-* @版本 1.0.0
-* @since 2024/5/27
+ * 性能特点：
+ * - 高效处理：通过跳跃采样减少计算量
+ * - 内存友好：生成的图像保持原始尺寸
+ * - 可调节性：通过步长参数控制效果强度
+ * - 实时性：适合实时图像处理应用
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认步长 5
+ * BufferedImage pix = new ImagePixelImageFilter().converter(src);
+ *
+ * // 步长 10（更粗的像素块）
+ * BufferedImage pix = new ImagePixelImageFilter(10).converter(src);
+ *
+ * // 链式调整
+ * BufferedImage pix = new ImagePixelImageFilter().setStepValue(16).converter(src);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>stepValue</b>（默认 5）：像素步长（像素块边长），建议 3-20。
+ *       值越小像素化效果越明显，值越大保留更多细节。</li>
+ * </ul>
+ *
+ * <h3>与其他像素化滤镜的区别</h3>
+ * <ul>
+ *   <li>本滤镜：纯像素化（中心像素填充），保留原图色彩</li>
+ *   <li>{@link PixelStyleImageFilter}：像素游戏风（低色数 + 复古调色板 + 描边）</li>
+ *   <li>{@link ImageMosaicFilter}：马赛克（中心像素填充，效果类似但块大小默认 8）</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2024/5/27
  */
 @Spi("pixel")
 @SpiDescribe("像素化滤镜")
+@Accessors(chain = true)
+@Setter
 public class ImagePixelImageFilter extends AbstractImageFilter{
 
     /**
     * 默认像素步长，值越小像素化程度越高
     * 推荐值：5像素，适合大多数图像
-     */
+    */
     private static final int DEFAULT_STEP = 5;
 
     /**
     * 当前使用的像素步长
-     */
+    */
     private int stepValue = DEFAULT_STEP;
 
     /**
     * 默认构造函数
     *
     * 使用默认的像素步长（5像素）创建像素化滤镜。
-     */
+    */
     public ImagePixelImageFilter() {
         // 使用默认步长
     }
@@ -83,7 +112,7 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
     * 带参数的构造函数
     *
     * @param stepValue 像素步长，控制像素化程度值越小效果越明显，建议范围3-20
-     */
+    */
     public ImagePixelImageFilter(int stepValue) {
         this.stepValue = stepValue;
     }
@@ -95,7 +124,7 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
     * @param src 源图像
     * @param dst 目标图像（此参数未使用）
     * @return 像素化处理后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
@@ -112,7 +141,7 @@ public class ImagePixelImageFilter extends AbstractImageFilter{
     * @param sourceImage 输入的源图像
     * @param pixelStep 像素步长，控制像素化程度值越小像素化效果越明显
     * @return 像素化处理后的图像
-     */
+    */
     public BufferedImage getPixelImage(BufferedImage sourceImage, int pixelStep) {
         int width = sourceImage.getWidth();
         int height = sourceImage.getHeight();

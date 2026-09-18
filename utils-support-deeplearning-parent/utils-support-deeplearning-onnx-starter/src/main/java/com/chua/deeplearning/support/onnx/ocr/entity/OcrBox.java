@@ -30,7 +30,7 @@ public class OcrBox {
     * @param topRight topright
     * @param bottomRight bottomright
     * @param bottomLeft bottomleft
-     */
+    */
     public OcrBox(Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
         this.topLeft = topLeft;
         this.topRight = topRight;
@@ -42,7 +42,7 @@ public class OcrBox {
     * 获取topleft
     *
     * @return 获取topleft的结果
-     */
+    */
     public Point getTopLeft() {
         return topLeft;
     }
@@ -51,7 +51,7 @@ public class OcrBox {
     * 获取topright
     *
     * @return 获取topright的结果
-     */
+    */
     public Point getTopRight() {
         return topRight;
     }
@@ -60,7 +60,7 @@ public class OcrBox {
     * 获取bottomright
     *
     * @return 获取bottomright的结果
-     */
+    */
     public Point getBottomRight() {
         return bottomRight;
     }
@@ -69,7 +69,7 @@ public class OcrBox {
     * 获取bottomleft
     *
     * @return 获取bottomleft的结果
-     */
+    */
     public Point getBottomLeft() {
         return bottomLeft;
     }

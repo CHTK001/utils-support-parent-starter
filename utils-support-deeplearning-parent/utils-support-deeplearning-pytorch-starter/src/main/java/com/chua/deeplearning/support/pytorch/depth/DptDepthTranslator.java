@@ -22,22 +22,22 @@ public class DptDepthTranslator implements Translator<Image, Image> {
 
     /**
     * 检测分辨率。
-     */
+    */
     private final int detectResolution;
 
     /**
     * 输出分辨率。
-     */
+    */
     private final int imageResolution;
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     /** 创建 dpt深度translator 实例 */
@@ -50,7 +50,7 @@ public class DptDepthTranslator implements Translator<Image, Image> {
     * @param detectResolution detectresolution
     * @param detectResolution int
     * @param imageResolution 镜像resolution
-     */
+    */
     public DptDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;
@@ -92,7 +92,7 @@ public class DptDepthTranslator implements Translator<Image, Image> {
     *
     * @param depthPt 深度pt
     * @return 转为display的结果
-     */
+    */
     private NDArray toDisplay(NDArray depthPt) {
         NDArray normalized = depthPt;
         while (normalized.getShape().dimension() > 3 && normalized.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）

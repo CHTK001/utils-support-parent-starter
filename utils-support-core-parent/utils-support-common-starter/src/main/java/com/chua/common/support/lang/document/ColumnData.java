@@ -35,10 +35,10 @@ public record ColumnData(
 ) {
 
     /**
-    * 获取列序号。
-    *
-    * @return 列序号
-    */
+        * 获取列序号。
+        *
+        * @return 列序号
+        */
     public int getOrdinalPosition() {
         return ordinalPosition;
     }

@@ -14,14 +14,14 @@ public interface DataScheme extends AutoCloseable {
     * 获取方案名称。
     *
     * @return 名称
-     */
+    */
     String getName();
 
     /**
     * 获取所有表名。
     *
     * @return 表名列表
-     */
+    */
     List<String> getTableNames();
 
     /**
@@ -29,6 +29,6 @@ public interface DataScheme extends AutoCloseable {
     *
     * @param name 表名
     * @return 表实例
-     */
+    */
     DataTable getTable(String name);
 }

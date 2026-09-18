@@ -27,7 +27,7 @@ public record DepthResult(
     * 最近点距离。
     *
     * @return 最近距离（米）
-     */
+    */
     public float nearest() {
         return minMeters;
     }
@@ -36,7 +36,7 @@ public record DepthResult(
     * 最远点距离。
     *
     * @return 最远距离（米）
-     */
+    */
     public float farthest() {
         return maxMeters;
     }

@@ -31,7 +31,7 @@ public class SolrMeta extends AbstractMetaSearch {
     * @param metaData meta数据
     * @param engine Solrengine
     * @param engine engine
-     */
+    */
     public SolrMeta(AbstractMetaData metaData, SolrEngine engine) {
         super(metaData, engine);
         this.searchEngine = new SolrSearchEngine(engine);
@@ -92,7 +92,7 @@ public class SolrMeta extends AbstractMetaSearch {
     * @return 优化的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public boolean optimize(String indexName) {
         SolrClient client = ((SolrEngine) engine).getClient();
         if (client == null) {
@@ -196,7 +196,7 @@ public class SolrMeta extends AbstractMetaSearch {
         * @return 执行的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);

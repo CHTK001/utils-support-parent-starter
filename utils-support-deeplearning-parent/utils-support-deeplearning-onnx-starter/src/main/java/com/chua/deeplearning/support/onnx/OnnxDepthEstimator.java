@@ -13,7 +13,7 @@ public class OnnxDepthEstimator implements DepthEstimator {
     /**
     * 创建 onnx深度estimator 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxDepthEstimator(String apiKey) {
     }
 
@@ -28,7 +28,7 @@ public class OnnxDepthEstimator implements DepthEstimator {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "depth-anything";
     }

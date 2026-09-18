@@ -81,7 +81,7 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param cmd CMD
     * @return 转为telnet命令的结果
-     */
+    */
     private static String toTelnetCommand(int cmd) {
         return switch (cmd) {
             case 0xfb -> "WILL";
@@ -107,7 +107,7 @@ public class TelnetProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param option 期权
     * @return 转为telnet期权的结果
-     */
+    */
     private static String toTelnetOption(int option) {
         return switch (option) {
             case 0x00 -> "TRANSMIT-BINARY";

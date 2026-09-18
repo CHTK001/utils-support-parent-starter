@@ -95,7 +95,7 @@ public class PreviewPdfCache {
     /**
     * 创建 previewpdf缓存 实例
     * @param cacheDir 缓存目录
-     */
+    */
     public PreviewPdfCache(Path cacheDir) {
         this(cacheDir, DEFAULT_TTL_SECONDS, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }
@@ -104,7 +104,7 @@ public class PreviewPdfCache {
     * 创建 previewpdf缓存 实例
     * @param cacheDir   缓存目录
     * @param ttlSeconds 缓存 TTL（秒），0 表示永不过期
-     */
+    */
     public PreviewPdfCache(Path cacheDir, long ttlSeconds) {
         this(cacheDir, ttlSeconds, DEFAULT_MEMORY_CAPACITY, DEFAULT_MAX_MEMORY_FILE_SIZE);
     }
@@ -116,7 +116,7 @@ public class PreviewPdfCache {
     * @param ttlSeconds       缓存 TTL（秒），0 表示永不过期
     * @param memoryCapacity   内存 LRU 容量（条目数）
     * @param maxMemoryFileSize 单文件内存缓存上限（字节），超过此值不放入内存
-     */
+    */
     public PreviewPdfCache(Path cacheDir, long ttlSeconds, int memoryCapacity, long maxMemoryFileSize) {
         this.cacheDir = cacheDir;
         this.ttlSeconds = ttlSeconds;
@@ -173,7 +173,7 @@ public class PreviewPdfCache {
     * @param storageName 存储名称
     * @param key         文件 键
     * @return PDF 字节数组；若不存在或已过期返回 空
-     */
+    */
     public byte[] get(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
 
@@ -219,7 +219,7 @@ public class PreviewPdfCache {
     * @param storageName 存储名称
     * @param key         文件 键
     * @return 缓存文件路径，若不存在返回 空
-     */
+    */
     public Path getCacheFile(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
         return getDiskCacheFile(cacheKey);
@@ -233,7 +233,7 @@ public class PreviewPdfCache {
     * @param pdfBytes    转换后的 PDF 字节数组
     * @return 写入后的磁盘文件路径
     * @throws IOException IO 异常
-     */
+    */
     public Path writeCache(String storageName, String key, byte[] pdfBytes) throws IOException {
         String cacheKey = buildCacheKey(storageName, key);
         String fileName = DigestUtils.md5(cacheKey) + ".pdf";
@@ -270,7 +270,7 @@ public class PreviewPdfCache {
     * @param key         文件 键
     * @param converter   转换函数（仅在缓存未命中且无进行中转换时调用）
     * @return PDF 字节数组；转换失败返回 空
-     */
+    */
     public byte[] getOrConvert(String storageName, String key, java.util.function.Supplier<byte[]> converter) {
         // 1. 先查缓存（内存 + 磁盘）
         byte[] cached = get(storageName, key);
@@ -316,7 +316,7 @@ public class PreviewPdfCache {
     *
     * @param storageName 存储名称
     * @param key         文件 键
-     */
+    */
     public void evict(String storageName, String key) {
         String cacheKey = buildCacheKey(storageName, key);
 
@@ -338,7 +338,7 @@ public class PreviewPdfCache {
 
     /**
     * 清空全部缓存（磁盘 + 内存）。
-     */
+    */
     public void clearAll() {
         // 清内存
         synchronized (memoryCache) {
@@ -368,7 +368,7 @@ public class PreviewPdfCache {
     * 获取缓存统计信息
     *
     * @return 获取stats的结果
-     */
+    */
     public CacheStats getStats() {
         synchronized (memoryCache) {
             return new CacheStats(hitCount.get(), missCount.get(), evictionCount.get(), memoryCache.size());
@@ -383,13 +383,13 @@ public class PreviewPdfCache {
     * @param evictionCount eviction数量
     * @param memorySize 内存大小
     * @return 缓存stats的结果
-     */
+    */
     public record CacheStats(long hitCount, long missCount, long evictionCount, int memorySize) {
         /**
         * 命中率
         *
         * @return hitRate的结果
-         */
+        */
         public double hitRate() {
             long total = hitCount + missCount;
             return total == 0 ? 0.0 : (double) hitCount / total;
@@ -409,7 +409,7 @@ public class PreviewPdfCache {
     *
     * @param cacheKey 缓存键
     * @return 缓存文件路径；不存在或已过期返回 空（过期文件会被自动删除）
-     */
+    */
     private Path getDiskCacheFile(String cacheKey) {
         String fileName = DigestUtils.md5(cacheKey) + ".pdf";
         Path target = cacheDir.resolve(fileName);
@@ -445,7 +445,7 @@ public class PreviewPdfCache {
     /**
     * 后台清理过期缓存文件。
     * <p>由 ScheduledExecutorService 每小时调用一次，扫描磁盘目录删除过期文件。</p>
-     */
+    */
     private void cleanupExpired() {
         if (ttlSeconds <= 0) {
             return;
@@ -486,14 +486,14 @@ public class PreviewPdfCache {
     * @param storageName 存储名称
     * @param key         文件 键
     * @return 缓存键
-     */
+    */
     private String buildCacheKey(String storageName, String key) {
         return storageName + ":" + key + ":pdf";
     }
 
     /**
     * 关闭缓存（停止后台清理线程）。
-     */
+    */
     public void close() {
         cleanupScheduler.shutdown();
         try {

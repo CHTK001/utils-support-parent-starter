@@ -44,14 +44,14 @@ public class ChronicleMapKv implements KvEngine {
 
     /**
     * 底层 chronicle映射 实例。
-     */
+    */
     private final ChronicleMap<String, String> map;
 
     /**
     * 构造基于指定 chronicle映射 的 KV 操作实现。
     *
     * @param map 底层 chronicle映射 实例，不可为 空
-     */
+    */
     public ChronicleMapKv(ChronicleMap<String, String> map) {
         this.map = map;
     }
@@ -61,7 +61,7 @@ public class ChronicleMapKv implements KvEngine {
     * <p>支持属性：file（持久化文件路径，可选）、name（地图名称，默认 chronicle-kv）、entries（容量，默认 10000）。</p>
     *
     * @param properties SPI 配置，不可为 空
-     */
+    */
     public ChronicleMapKv(Properties properties) {
         String name = properties.getProperty("name", "chronicle-kv");
         String file = properties.getProperty("file");
@@ -71,7 +71,7 @@ public class ChronicleMapKv implements KvEngine {
 
     /**
     * 构造内存型 KV 操作实现（默认名称 chronicle-kv，容量 10000）。
-     */
+    */
     public ChronicleMapKv() {
         this.map = buildMap("chronicle-kv", null, 10_000L);
     }
@@ -80,7 +80,7 @@ public class ChronicleMapKv implements KvEngine {
     * 构造持久化到指定文件的 KV 操作实现。
     *
     * @param file 持久化文件路径，不可为 空
-     */
+    */
     public ChronicleMapKv(File file) {
         this.map = buildMap("chronicle-kv", file, 10_000L);
     }
@@ -92,7 +92,7 @@ public class ChronicleMapKv implements KvEngine {
     * @param file    持久化文件，为 空 时构建内存型
     * @param entries 预估条目数
     * @return ChronicleMap 实例
-     */
+    */
     private static ChronicleMap<String, String> buildMap(String name, File file, long entries) {
         ChronicleMapBuilder<String, String> builder = ChronicleMap
                 .of(String.class, String.class)
@@ -147,7 +147,7 @@ public class ChronicleMapKv implements KvEngine {
     *
     * @param prefix 键前缀，不可为 空
     * @return 匹配前缀的键值对映射；无匹配时返回空 映射
-     */
+    */
     @Override
     public Map<String, String> findAllByPrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {

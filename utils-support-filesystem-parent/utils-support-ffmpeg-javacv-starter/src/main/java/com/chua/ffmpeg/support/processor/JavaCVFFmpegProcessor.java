@@ -97,7 +97,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param outputStream 输出流
     * @param inputFormat 输入格式化
     * @param outputFormat 输出格式化
-     */
+    */
     public void convertVideo(InputStream inputStream, OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         File tempInput = File.createTempFile("ffmpeg_input_", "." + inputFormat);
@@ -436,7 +436,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param duration 持续时间
     * @param width width
     * @param fps fps
-     */
+    */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         if (!available) {
@@ -552,7 +552,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -568,7 +568,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -584,7 +584,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param options 期权
     * @param callback callback
     * @param withImageData with镜像数据
-     */
+    */
     private void pushStreamInternal(String input, String streamUrl, FFmpegOptions options,
                                     Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
         try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(input);
@@ -678,7 +678,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -694,7 +694,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -710,7 +710,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param duration 持续时间
     * @param callback callback
     * @param withImageData with镜像数据
-     */
+    */
     private void pullStreamInternal(String streamUrl, File output, double duration,
                                     Consumer<FrameInfo> callback, boolean withImageData) throws IOException {
         output.getParentFile().mkdirs();
@@ -764,7 +764,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * @param frameNumber 帧数字
     * @param grabber grabber
     * @return 构建帧信息的结果
-     */
+    */
     private FrameInfo buildFrameInfo(Frame frame, long frameNumber, FFmpegFrameGrabber grabber) {
         FrameInfo info = new FrameInfo();
         info.setFrameNumber(frameNumber);
@@ -781,7 +781,7 @@ public class JavaCVFFmpegProcessor implements FFmpegProcessor {
     * 将 缓冲镜像 编码为 JPEG 字节
     * @param image 镜像
     * @return 转为jpegbytes的结果
-     */
+    */
     private byte[] toJpegBytes(BufferedImage image) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);

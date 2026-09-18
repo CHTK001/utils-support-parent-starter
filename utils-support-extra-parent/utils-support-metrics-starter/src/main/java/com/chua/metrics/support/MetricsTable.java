@@ -12,11 +12,11 @@ import lombok.Data;
 public class MetricsTable {
     /**
     * 时间戳（Unix 时间戳，毫秒）
-     */
+    */
     private long timestamp;
 
     /**
     * 表格名称（对应指标类型，如 cpu、内存、disk 等）
-     */
+    */
     private String table;
 }

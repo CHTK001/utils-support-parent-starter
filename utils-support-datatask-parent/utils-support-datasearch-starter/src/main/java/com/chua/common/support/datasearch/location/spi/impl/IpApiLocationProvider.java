@@ -69,7 +69,7 @@ public class IpApiLocationProvider implements LocationProvider {
     *
     * @param key IP 或空串
     * @return 定位信息；失败返回 空
-     */
+    */
     private LocationInfo locate(String key) {
         Long ts = cachedAt.get(key);
         if (ts != null && System.currentTimeMillis() - ts < CACHE_TTL_MILLIS) {
@@ -108,7 +108,7 @@ public class IpApiLocationProvider implements LocationProvider {
     *
     * @param node 数值节点
     * @return 数值；缺失/非数值返回 空
-     */
+    */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

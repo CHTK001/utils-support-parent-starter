@@ -49,7 +49,7 @@ public class ImageGrayImageFilter extends AbstractImageFilter {
     * @param src 源彩色图像
     * @param dst 目标图像（此参数未使用，方法会创建新的灰度图像）
     * @return 转换后的灰度图像，转换失败时返回null
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         try {

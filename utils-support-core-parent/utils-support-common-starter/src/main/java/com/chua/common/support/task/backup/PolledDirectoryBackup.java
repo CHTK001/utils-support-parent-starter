@@ -187,8 +187,8 @@ public class PolledDirectoryBackup implements BackupStrategy {
     }
 
     /**
-    * 清理过期备份，委托给 {@link DefaultDailyBackupStrategy}。
-    */
+            * 清理过期备份，委托给 {@link DefaultDailyBackupStrategy}。
+            */
     @Override
     public int cleanExpired(BackupConfig config) {
         DefaultDailyBackupStrategy delegate = new DefaultDailyBackupStrategy();

@@ -45,27 +45,27 @@ public class Neo4jEngine implements Engine {
 
     /**
     * 数据源映射表。
-     */
+    */
     private final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
     * 默认数据源名称。
-     */
+    */
     private String defaultDataSourceName;
 
     /**
     * Neo4j 驱动实例。
-     */
+    */
     private Driver driver;
 
     /**
     * 方言（从 META-INF/dialect-env/neo4j.env 加载）。
-     */
+    */
     private final java.util.Properties dialectProps;
 
     /**
     * Neo4jengine。
-     */
+    */
     public Neo4jEngine() {
         this.dialectProps = loadProps("neo4j");
     }
@@ -75,7 +75,7 @@ public class Neo4jEngine implements Engine {
     *
     * @param protocol 方言协议名，对应 {@code META-INF/dialect-env/<protocol>.env} 文件
     * @return 加载的属性对象，文件不存在或加载失败时返回空属性对象
-     */
+    */
     private static java.util.Properties loadProps(String protocol) {
         try {
             java.io.InputStream is = Neo4jEngine.class.getClassLoader()
@@ -105,7 +105,7 @@ public class Neo4jEngine implements Engine {
     * @param name 名称
     * @param ds ds
     * @return 添加数据源的结果
-     */
+    */
     public <T> Engine addDataSource(String name, EngineDataSource<T> ds) {
         Object src = ds.getSource();
         if (src instanceof String uri) {
@@ -125,7 +125,7 @@ public class Neo4jEngine implements Engine {
     * @param user     用户名
     * @param password 密码
     * @return 当前引擎实例
-     */
+    */
     public Neo4jEngine connect(String uri, String user, String password) {
         Config config = Config.builder()
                 .withoutEncryption()
@@ -214,7 +214,7 @@ public class Neo4jEngine implements Engine {
     * @param ql     Cypher 语句
     * @param params 参数列表
     * @return 受影响行数
-     */
+    */
     public int execute(String ql, Object... params) {
         if (driver == null) {
             throw new IllegalStateException("Neo4j 驱动未初始化，请先调用 connect 或注册数据源");
@@ -241,7 +241,7 @@ public class Neo4jEngine implements Engine {
     *
     * @param n n
     * @return 获取数据源的结果
-     */
+    */
     public <T> EngineDataSource<T> getDataSource(String n) {
         return (EngineDataSource<T>) dataSources.get(n);
     }
@@ -252,7 +252,7 @@ public class Neo4jEngine implements Engine {
     * 获取数据源
     *
     * @return 获取数据源的结果
-     */
+    */
     public <T> EngineDataSource<T> getDataSource() {
         return (EngineDataSource<T>) dataSources.get(defaultDataSourceName);
     }
@@ -279,11 +279,11 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析属性函数引用的列名。
-             *
-             * @param col 属性函数引用
-             * @return 解析后的列名
-             */
+    * 解析属性函数引用的列名。
+    *
+    * @param col 属性函数引用
+    * @return 解析后的列名
+    */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -296,11 +296,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析属性函数引用的列名。
-                     *
-                     * @param col 属性函数引用
-                     * @return 解析后的列名
-                     */
+            * 解析属性函数引用的列名。
+            *
+            * @param col 属性函数引用
+            * @return 解析后的列名
+            */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -354,11 +354,11 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析属性函数引用的列名。
-             *
-             * @param col 属性函数引用
-             * @return 解析后的列名
-             */
+            * 解析属性函数引用的列名。
+            *
+            * @param col 属性函数引用
+            * @return 解析后的列名
+            */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -371,11 +371,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析属性函数引用的列名。
-                     *
-                     * @param col 属性函数引用
-                     * @return 解析后的列名
-                     */
+            * 解析属性函数引用的列名。
+            *
+            * @param col 属性函数引用
+            * @return 解析后的列名
+            */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -398,11 +398,11 @@ public class Neo4jEngine implements Engine {
 
             @Override
             /**
-             * 解析属性函数引用的列名。
-             *
-             * @param col 属性函数引用
-             * @return 解析后的列名
-             */
+            * 解析属性函数引用的列名。
+            *
+            * @param col 属性函数引用
+            * @return 解析后的列名
+            */
             protected String resolveColumn(
                     com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                 return LambdaUtils.resolveObject(col);
@@ -415,11 +415,11 @@ public class Neo4jEngine implements Engine {
 
                     @Override
                     /**
-                     * 解析属性函数引用的列名。
-                     *
-                     * @param col 属性函数引用
-                     * @return 解析后的列名
-                     */
+            * 解析属性函数引用的列名。
+            *
+            * @param col 属性函数引用
+            * @return 解析后的列名
+            */
                     protected String resolveColumn(
                             com.chua.common.support.lang.datasource.engine.wrapper.SFunction<T, ?> col) {
                         return LambdaUtils.resolveObject(col);
@@ -436,13 +436,13 @@ public class Neo4jEngine implements Engine {
     }
 
     /**
-    * 执行 Cypher 查询（无分页）。
-    *
-    * @param entityClass 实体类
-    * @param conditions  条件列表
-    * @param <T>         实体类型
-    * @return 查询结果列表
-     */
+            * 执行 Cypher 查询（无分页）。
+            *
+            * @param entityClass 实体类
+            * @param conditions  条件列表
+            * @param <T>         实体类型
+            * @return 查询结果列表
+            */
     @SuppressWarnings("unchecked")
     private <T> List<T> cypherQuery(Class<T> entityClass, List<Condition> conditions) {
         return cypherQuery(entityClass, conditions, 0, 0);
@@ -485,7 +485,7 @@ public class Neo4jEngine implements Engine {
 
     /**
     * 执行 Cypher 更新。
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> int cypherUpdate(
             Class<T> entityClass,
@@ -533,7 +533,7 @@ public class Neo4jEngine implements Engine {
     * @param entityClass 实体类
     * @param conditions 条件
     * @return cypher删除的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> int cypherDelete(Class<T> entityClass, List<Condition> conditions) {
         if (driver == null) {
@@ -568,7 +568,7 @@ public class Neo4jEngine implements Engine {
     * @param params     参数映射（输出）
     * @param alias      节点别名
     * @return Cypher WHERE 字符串
-     */
+    */
     private String buildCypherWhere(
             List<Condition> conditions,
             Map<String, Object> params,
@@ -588,7 +588,7 @@ public class Neo4jEngine implements Engine {
 
     /**
     * 追加单个条件到 字符串构建器。
-     */
+    */
     private void appendCondition(
             StringBuilder sb,
             Condition c,
@@ -677,7 +677,7 @@ public class Neo4jEngine implements Engine {
     * @param props props
     * @param entityClass 实体类
     * @return 映射转为实体的结果
-     */
+    */
     private <T> T mapToEntity(Map<String, Object> props, Class<T> entityClass) {
         try {
             T instance = ReflectUtils.instantiate(entityClass);
@@ -710,9 +710,9 @@ public class Neo4jEngine implements Engine {
     * 转换数字
     *
     * @param value 值
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 转换数字的结果
-     */
+    */
     private Object convertNumber(Object value, Class<?> targetType) {
         if (!(value instanceof Number)) {
             return value;

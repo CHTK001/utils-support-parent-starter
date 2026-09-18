@@ -14,7 +14,7 @@ public class Mt5ZhSeq2SeqOrtTranslator extends T5Seq2SeqOrtTranslator {
 
     /**
     * 无参构造，使用达摩院中文 mt5-基础 模型定义。
-     */
+    */
     public Mt5ZhSeq2SeqOrtTranslator() {
         super(Seq2SeqModelDefinition.MT5_ZH);
     }

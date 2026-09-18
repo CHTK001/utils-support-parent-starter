@@ -30,7 +30,7 @@ public record DeployConfig(
     *
     * @param projectPath Maven pom.xml 路径
     * @return 默认部署描述
-     */
+    */
     public static DeployConfig ofDefault(String projectPath) {
         return new DeployConfig(
                 projectPath,

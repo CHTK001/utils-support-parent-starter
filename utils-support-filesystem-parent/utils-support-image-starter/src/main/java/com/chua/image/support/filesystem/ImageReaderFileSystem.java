@@ -65,7 +65,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     /**
     * 支持的图片格式扩展名（动态获取）
     * @return 获取支持延伸的结果
-     */
+    */
     private static Set<String> getSupportedExtensions() {
         var extensions = new HashSet<String>();
         extensions.addAll(Set.of(".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tiff", ".tif", ".ico", ".heic", ".heif"));
@@ -76,22 +76,22 @@ public class ImageReaderFileSystem extends AbstractReader {
 
     /**
     * 默认类型
-     */
+    */
     private static final String DEFAULT_TYPE = "image";
 
     /**
     * 图片操作实现（通过SPI加载）
-     */
+    */
     private ImageOperation imageOperation;
 
     /**
     * 当前处理的图片（链式操作）
-     */
+    */
     private BufferedImage currentImage;
 
     /**
     * 默认构造函数
-     */
+    */
     public ImageReaderFileSystem() {
         super();
         initImageOperation();
@@ -101,7 +101,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * 构造函数
     *
     * @param file 文件对象
-     */
+    */
     public ImageReaderFileSystem(File file) {
         super(file);
         initImageOperation();
@@ -111,7 +111,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * 构造函数
     *
     * @param filePath 文件路径
-     */
+    */
     public ImageReaderFileSystem(String filePath) {
         super(filePath);
         initImageOperation();
@@ -119,7 +119,7 @@ public class ImageReaderFileSystem extends AbstractReader {
 
     /**
     * 初始化图片操作实现
-     */
+    */
     private void initImageOperation() {
         if (imageOperation == null) {
             imageOperation = ServiceProvider.of(ImageOperation.class).getExtension();
@@ -149,7 +149,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     *
     * @param file 文件
     * @return 是否支持的结果
-     */
+    */
     public boolean isSupport(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
             return false;
@@ -171,7 +171,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     *
     * @param fileName 文件名
     * @return 扩展名（包含点号）
-     */
+    */
     private String getExtension(String fileName) {
         var lastDot = fileName.lastIndexOf('.');
         return lastDot > 0 ? fileName.substring(lastDot) : "";
@@ -242,7 +242,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * 获取图片格式
     *
     * @return 图片格式
-     */
+    */
     private String getImageFormat() {
         if (file == null) {
             return "unknown";
@@ -260,7 +260,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     *
     * @return 当前图片
     * @throws IOException IO异常
-     */
+    */
     private BufferedImage getCurrentImage() throws IOException {
         if (currentImage == null) {
             if (file == null || !file.exists()) {
@@ -278,7 +278,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param height 目标高度（空表示保持比例）
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem resize(Integer width, Integer height) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -294,7 +294,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param scale 缩放比例（大于1放大，小于1缩小）
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem resize(double scale) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -313,7 +313,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param height 裁剪高度
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem crop(int x, int y, int width, int height) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -329,7 +329,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param angle 旋转角度（度数，正数顺时针，负数逆时针）
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem rotate(int angle) throws IOException {
         var image = getCurrentImage();
         var format = getImageFormat();
@@ -347,7 +347,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param output  输出文件
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem compress(float quality, String format, File output) throws IOException {
         var image = getCurrentImage();
         var inputFormat = getImageFormat();
@@ -364,7 +364,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param output 输出文件
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem save(File output) throws IOException {
         var format = getImageFormat();
         BufferedImageUtils.writeToFile(getCurrentImage(), format, output);
@@ -379,7 +379,7 @@ public class ImageReaderFileSystem extends AbstractReader {
     * @param outputPath 输出文件路径
     * @return this
     * @throws IOException IO异常
-     */
+    */
     public ImageReaderFileSystem save(String outputPath) throws IOException {
         return save(new File(outputPath));
     }

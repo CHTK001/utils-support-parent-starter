@@ -47,7 +47,7 @@ public class SkillsmpMcpProvider extends SkillsmpProvider implements McpProvider
     * 列表installed
     *
     * @return 列表installed的结果
-     */
+    */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new HashMap<>();
         result.put(PREFIX + "search", true);

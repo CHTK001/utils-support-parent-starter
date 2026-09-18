@@ -32,6 +32,6 @@ public class Response {
     /**
     * url。
     * @return url的结果
-     */
+    */
     public String url() { return url; }
 }

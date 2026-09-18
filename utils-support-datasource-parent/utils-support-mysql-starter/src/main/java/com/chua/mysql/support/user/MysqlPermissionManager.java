@@ -81,7 +81,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     * 解析grantprivileges。
     * @param sql SQL
     * @return 解析grantprivileges的结果
-     */
+    */
     private static String parseGrantPrivileges(String sql) {
         if (sql == null) {
             return null;
@@ -103,7 +103,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     * 解析grantdatabase。
     * @param sql SQL
     * @return 解析grantdatabase的结果
-     */
+    */
     private static String parseGrantDatabase(String sql) {
         if (sql == null) {
             return null;
@@ -147,7 +147,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     * strip引述。
     * @param raw raw
     * @return strip引述的结果
-     */
+    */
     private static String stripQuote(String raw) {
         if (raw == null) {
             return raw;
@@ -177,7 +177,7 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     * 执行sql。
     * @param ds ds
     * @param sql SQL
-     */
+    */
     private static void execSql(DataSource ds, String sql) {
         try (Connection conn = ds.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -189,11 +189,11 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
 
     // ==================== Inner Actions ====================
     /**
-     * grant动作类。
-     *
-     * @author CH
-     * @since 4.0.0
-     */
+    * grant动作类。
+    *
+    * @author CH
+    * @since 4.0.0
+    */
 
     private static class GrantAction implements GrantStep {
         private final DataSource dataSource; // 数据源
@@ -238,8 +238,8 @@ public class MysqlPermissionManager implements PermissionManager, DataSourceAwar
     }
 
     /**
-     * revoke动作类。
-     */
+    * revoke动作类。
+    */
     private static class RevokeAction implements RevokeStep {
         private final DataSource dataSource;
         private final String privileges;

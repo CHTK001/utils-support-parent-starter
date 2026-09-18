@@ -16,12 +16,12 @@ public class Mysql57Dialect extends SqlDialect {
 
     /**
     * MySQL57Dialect。
-     */
+    */
     public Mysql57Dialect() {
         /**
         * MySQL57Dialect。
         * @param properties 属性
-         */
+        */
         super("mysql", defaultProps("com.mysql.jdbc.Driver", " ENGINE=InnoDB DEFAULT CHARSET=utf8"));
     }
 
@@ -33,7 +33,7 @@ public class Mysql57Dialect extends SqlDialect {
         * @return 默认props的结果
         * @param defaults 默认
         * @param overrides overrides
-         */
+        */
         super("mysql", merge(defaultProps("com.mysql.jdbc.Driver", " ENGINE=InnoDB DEFAULT CHARSET=utf8"), properties));
     /**
     * 默认props。
@@ -42,7 +42,7 @@ public class Mysql57Dialect extends SqlDialect {
     * @return 默认props的结果
     * @param defaults 默认
     * @param overrides overrides
-     */
+    */
     }
 
     private static Properties defaultProps(String driver, String tableType) {

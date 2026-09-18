@@ -43,7 +43,7 @@ public interface MavenCompilerCallback {
     * 编译开始回调
     *
     * @param projectPath 项目路径
-     */
+    */
     default void onStart(String projectPath) {
     }
 
@@ -51,7 +51,7 @@ public interface MavenCompilerCallback {
     * 编译结束回调（成功或失败都会调用）
     *
     * @param result 编译结果，包含退出码、输出、耗时等信息
-     */
+    */
     default void onComplete(MavenCompileResult result) {
     }
 
@@ -59,7 +59,7 @@ public interface MavenCompilerCallback {
     * 编译成功回调
     *
     * @param result 编译结果
-     */
+    */
     default void onSuccess(MavenCompileResult result) {
     }
 
@@ -67,13 +67,13 @@ public interface MavenCompilerCallback {
     * 编译失败回调
     *
     * @param result 编译结果（包含错误信息）
-     */
+    */
     default void onFailure(MavenCompileResult result) {
     }
 
     /**
     * 编译取消回调
-     */
+    */
     default void onCancel() {
     }
 }

@@ -29,7 +29,7 @@ public class ZipformerFbank {
 
     /**
     * zipformerfbank。
-     */
+    */
     public ZipformerFbank() {
         this.window = buildPoveyWindow();
         this.melBanks = buildMelBanks();
@@ -98,7 +98,7 @@ public class ZipformerFbank {
     * @param frame 帧
     * @param powerSpec powerspec
     * @return 构建povey窗口的结果
-     */
+    */
     }
 
     private void computePowerSpectrum(double[] frame, double[] powerSpec) {
@@ -126,7 +126,7 @@ public class ZipformerFbank {
     * @return 构建melbanks的结果
     * @param hz hz
     * @param mel mel
-     */
+    */
     }
 
     private float[][] buildMelBanks() {

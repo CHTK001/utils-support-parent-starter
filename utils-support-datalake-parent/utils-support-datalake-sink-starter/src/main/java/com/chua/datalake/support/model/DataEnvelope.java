@@ -37,44 +37,44 @@ public class DataEnvelope {
 
     /**
     * 当前阶段的业务数据，核心存储结构为 {@code Map<String,Object>}
-     */
+    */
     private Map<String, Object> parsed;
 
     /**
     * 所属管线 标识，同一管线同结构在这条流上处理/分析
-     */
+    */
     private String pipelineId;
 
     /**
     * 当期所处的管线阶段状态
-     */
+    */
     private PipelineState state;
 
     /**
     * 受理时间戳（毫秒），用作数据排序的 monotonically 增加 偏移量
-     */
+    */
     private long timestamp;
 
     /**
     * 追踪 标识，可观察性标识
-     */
+    */
     private String traceId;
 
     /**
     * 数据所属主题列表，用于路由与分发过滤
-     */
+    */
     private Set<String> topics;
 
     /**
     * 数据迹日志记录（附加信息）
-     */
+    */
     private final List<String> trace = new ArrayList<>();
 
     /**
     * 以指定业务数据创建 Envelope
     *
     * @param parsed 当前业务数据（非空）
-     */
+    */
     public DataEnvelope(Map<String, Object> parsed) {
         this.parsed = parsed;
     }
@@ -83,7 +83,7 @@ public class DataEnvelope {
     * 判断是否为日志型数据
     *
     * @return true 表示该数据源自日志管线
-     */
+    */
     public boolean isLog() {
         return topics != null && topics.stream().anyMatch(t -> t.startsWith("log"));
     }
@@ -92,7 +92,7 @@ public class DataEnvelope {
     * 追加一条迹信息
     *
     * @param entry 迹描述
-     */
+    */
     public void addTrace(String entry) {
         this.trace.add(entry);
     }

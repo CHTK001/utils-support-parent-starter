@@ -76,7 +76,7 @@ public class SpringServerHandlerAnnotationParser
     *
     * @param bean   Bean 实例
     * @param result 处理器列表
-     */
+    */
     private void parseController(Object bean, List<ServerHandler> result) {
         Class<?> clazz = bean.getClass();
         String classPath = resolveClassPath(clazz);
@@ -108,7 +108,7 @@ public class SpringServerHandlerAnnotationParser
     *
     * @param clazz 控制器类型
     * @return 路径前缀
-     */
+    */
     private String resolveClassPath(Class<?> clazz) {
         RequestMapping rm = clazz.getAnnotation(RequestMapping.class);
         if (rm != null && rm.value().length > 0) {
@@ -125,7 +125,7 @@ public class SpringServerHandlerAnnotationParser
     *
     * @param method 目标方法
     * @return 路径列表，无映射注解返回空列表
-     */
+    */
     private List<String> resolveMethodPaths(Method method) {
         if (method.isAnnotationPresent(GetMapping.class)) {
             GetMapping gm = method.getAnnotation(GetMapping.class);
@@ -174,7 +174,7 @@ public class SpringServerHandlerAnnotationParser
     *
     * @param method 目标方法
     * @return HTTP 方法集合，空集合表示匹配所有方法
-     */
+    */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
         if (method.isAnnotationPresent(GetMapping.class)) {
             return Set.of(HttpMethod.GET);
@@ -216,7 +216,7 @@ public class SpringServerHandlerAnnotationParser
     * @param prefix 类级路径
     * @param suffix 方法级路径
     * @return 拼接后的完整路径
-     */
+    */
     private static String joinPath(String prefix, String suffix) {
         if (prefix.isEmpty()) {
             return suffix.startsWith("/") ? suffix : "/" + suffix;

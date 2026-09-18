@@ -29,7 +29,7 @@ public class ArcFaceDetectorTranslator implements ITranslator<Object, List<Detec
     /**
     * 创建 arcfacedetectortranslator 实例
     * @param faceEngine faceengine
-     */
+    */
     public ArcFaceDetectorTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }

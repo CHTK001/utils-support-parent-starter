@@ -15,20 +15,20 @@ public interface WebViewWindow {
     * @param title  窗口显示的标题文本。
     * @param width  窗口的宽度像素值。
     * @param height 窗口的高度像素值。
-     */
+    */
     void open(String url, String title, int width, int height);
 
     /**
     * 检查当前实现是否支持进程间通信 (IPC) 机制。
     *
     * @return 如果支持 IPC 则返回 true，否则返回 false。
-     */
+    */
     default boolean supportsIpc() {
         return false;
     }
 
     /**
     * 关闭当前的 webview 窗口。
-     */
+    */
     void close();
 }

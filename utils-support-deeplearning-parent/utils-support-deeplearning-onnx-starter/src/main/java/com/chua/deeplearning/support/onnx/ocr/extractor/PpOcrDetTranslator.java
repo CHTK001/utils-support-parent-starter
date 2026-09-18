@@ -54,7 +54,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -63,7 +63,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     * 创建 Translator（支持外部阈值覆盖）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public PpOcrDetTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
@@ -88,7 +88,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     *
     * @param modelDefault 模型默认
     * @return effective阈值的结果
-     */
+    */
     protected float effectiveThreshold(float modelDefault) {
         return thresholdOverride > 0 ? thresholdOverride : modelDefault;
     }
@@ -99,12 +99,12 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     /**
     * 模型资源目录（tiny / medium 通用）。
-     */
+    */
     private final String resourceBase;
 
     /**
     * 模型名称（用于 NAT加载 缓存隔离）。
-     */
+    */
     private final String modelName;
 
     /** ONNX 运行时环境 */
@@ -121,7 +121,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     /**
     * 默认使用 PP-ocrv6 tiny 资源。
-     */
+    */
     public PpOcrDetTranslator() {
         this("ocr/PP-OCRv6/tiny/det_infer/", "paddleocrv6-det");
     }
@@ -131,7 +131,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     *
     * @param resourceBase 模型资源目录（jar 内路径）
     * @param modelName    模型名称
-     */
+    */
     public PpOcrDetTranslator(String resourceBase, String modelName) {
         this.resourceBase = resourceBase;
         this.modelName = modelName;
@@ -169,7 +169,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     /**
     * 预热推理（全零小图），确保后续调用稳定。
-     */
+    */
     private void warmup() throws Exception {
         try {
             int w = 960;
@@ -217,7 +217,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     private List<DetectionInfo> detect(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -321,7 +321,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     * @param mapW 映射w
     * @param mapH 映射h
     * @return boxes从prob映射的结果
-     */
+    */
     private List<DetectionInfo> boxesFromProbMap(float[][] probs, int mapW, int mapH) {
         float scaleX = (float) srcWidth / mapW;
         float scaleY = (float) srcHeight / mapH;
@@ -411,7 +411,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {
@@ -426,7 +426,7 @@ public class PpOcrDetTranslator implements ITranslator<byte[], List<DetectionInf
     * 子类注入外部阈值覆盖。
     *
     * @param value 值
-     */
+    */
     protected void applyThresholdOverride(float value) {
         if (value > 0) {
             this.thresholdOverride = value;

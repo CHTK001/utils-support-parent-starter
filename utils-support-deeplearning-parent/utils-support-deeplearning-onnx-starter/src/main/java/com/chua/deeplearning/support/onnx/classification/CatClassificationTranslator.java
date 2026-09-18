@@ -19,7 +19,7 @@ public class CatClassificationTranslator extends SiglipZeroShotClassificationTra
             * catclassificationtranslator。
             * @param candidates candidates
             * @return 构建参数的结果
-             */
+            */
             "squirrel,deer,raccoon,fox,wolf,lion,tiger,bear";
 
     public CatClassificationTranslator() {

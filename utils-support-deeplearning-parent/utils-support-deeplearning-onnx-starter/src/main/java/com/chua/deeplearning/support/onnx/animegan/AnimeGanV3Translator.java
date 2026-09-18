@@ -34,12 +34,12 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
 
     /**
     *                   
-     */
+    */
     private static final int INPUT_SIZE = 512;
 
     /**
     *                                           
-     */
+    */
     private int originalWidth;
     /** 原始高度 */
     /** 原始高度 */
@@ -51,7 +51,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     * @param ctx                   
     * @param input             
     * @return                            
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         //                   
@@ -146,7 +146,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     * @param ctx                   
     * @param list                         
     * @return                      
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray output = list.singletonOrThrow();
@@ -214,7 +214,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     *                   
     *
     * @return              -        无                    处理输入
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.fromString("none");
@@ -224,7 +224,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     *                   
     *
     * @return             
-     */
+    */
     public int getInputSize() {
         return INPUT_SIZE;
     }
@@ -233,7 +233,7 @@ public class AnimeGanV3Translator implements Translator<Image, Image> {
     *                         
     *
     * @return                    [width, height]
-     */
+    */
     public int[] getOriginalSize() {
         return new int[]{originalWidth, originalHeight};
     }

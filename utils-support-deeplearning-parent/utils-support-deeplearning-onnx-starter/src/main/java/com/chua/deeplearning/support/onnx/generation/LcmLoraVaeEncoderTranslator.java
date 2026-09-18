@@ -33,17 +33,17 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *              -                   
-     */
+    */
     public LcmLoraVaeEncoderTranslator() {
         this(512, 512);
     }
@@ -53,7 +53,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public LcmLoraVaeEncoderTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -68,7 +68,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     * @param ctx                     
     * @param input             
     * @return              NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
@@ -99,7 +99,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     * @param ctx                    
     * @param list              nd列表
     * @return VAE                                        
-     */
+    */
     @Override
     public NDList processOutput(TranslatorContext ctx, NDList list) {
         // VAE                                           
@@ -122,7 +122,7 @@ public class LcmLoraVaeEncoderTranslator implements Translator<Image, NDList> {
     *                   
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

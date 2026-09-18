@@ -25,22 +25,22 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
 
     /**
     * 引擎名称（提供者）
-     */
+    */
     protected final String engine;
 
     /**
     * 识别引擎实例
-     */
+    */
     protected final IdentificationEngine identificationEngine;
 
     /**
     * 当前模型名称
-     */
+    */
     protected String model;
 
     /**
     * 当前合成文本
-     */
+    */
     protected String text;
 
     /**
@@ -48,7 +48,7 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     *
     * @param engine  引擎名称，如 "onnx"、"llama"
     * @param setting 客户端配置
-     */
+    */
     protected AbstractLocalTextToAudioClient(String engine, TextToAudioClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -76,7 +76,7 @@ public abstract class AbstractLocalTextToAudioClient implements TextToAudioClien
     * 否则返回显式指定的模型名。</p>
     *
     * @return 模型名称
-     */
+    */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;

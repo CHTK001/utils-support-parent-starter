@@ -36,28 +36,28 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
 
     /**
     * FTP 服务器主机地址
-     */
+    */
     private final String host;
     /**
     * FTP 服务器端口号
-     */
+    */
     private final int port;
     /**
     * 登录用户名
-     */
+    */
     private final String username;
     /**
     * 登录密码
-     */
+    */
     private final String password;
     /**
     * 是否使用被动模式
-     */
+    */
     private final boolean passiveMode;
 
     /**
     * Apache Commons Net FTP 客户端实例
-     */
+    */
     private FTPClient client;
 
     /**
@@ -65,7 +65,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     *
     * @param listenPath  FTP 远程目录路径
     * @param environment 环境配置（需包含 主机、端口 等）
-     */
+    */
     public FtpPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
         this.host = environment.getProperty("host");
@@ -80,7 +80,7 @@ public class FtpPolledDirectory extends DiffPolledDirectory<FTPFile> {
     * 开始
     * @param environment 环境
     * @param executor 执行器
-     */
+    */
     public void start(DirectoryPollerEnvironment environment,
                       com.chua.common.support.lang.directory.executor.DirectoryPollerExecutor executor) {
         client = new FTPClient();

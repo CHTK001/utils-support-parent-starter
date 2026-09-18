@@ -42,7 +42,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
 
     /**
     * 默认最大序列长度（包含 [CLS]/[SEP]）
-     */
+    */
     private static final int DEFAULT_MAX_LEN = 128;
 
     /** 设置 */
@@ -56,7 +56,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     /**
     * 创建 minilm嵌入客户端 实例
     * @param setting setting
-     */
+    */
     public MiniLMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
     }
@@ -87,7 +87,7 @@ public class MiniLMEmbeddingClient implements EmbeddingClient {
     * Translator
     *
     * @return translator的结果
-     */
+    */
     private MiniLMEmbeddingTranslator translator() {
         String model = setting.getModel();
         String key = model == null || model.isBlank() || "minilm".equalsIgnoreCase(model)

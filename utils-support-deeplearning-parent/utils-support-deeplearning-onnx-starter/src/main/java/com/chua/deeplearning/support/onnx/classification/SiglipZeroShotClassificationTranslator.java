@@ -61,7 +61,9 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     /** Candidate输入标识 */
     private long[][] candidateInputIds = new long[0][];
 
-    /** 创建 siglipzeroshotclassificationtranslator 实例 */
+    /**
+    * 创建 siglipzeroshotclassificationtranslator 实例
+    */
     public SiglipZeroShotClassificationTranslator() {
         this(Collections.emptyMap());
     }
@@ -69,7 +71,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     /**
     * 创建 siglipzeroshotclassificationtranslator 实例
     * @param arguments 参数
-     */
+    */
     public SiglipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
         this.requestedCandidates = parseCandidates(rawCandidates);
@@ -151,7 +153,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     * @param list 列表
     * @param candidateCount candidate数量
     * @return 选择logits的结果
-     */
+    */
     private NDArray selectLogits(NDList list, int candidateCount) {
         for (NDArray array : list) {
             if (array == null) {
@@ -180,7 +182,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param labels 标签
     * @return 构建candidate输入标识的结果
-     */
+    */
     private long[][] buildCandidateInputIds(List<String> labels) {
         List<long[]> encoded = new ArrayList<>(labels.size());
         int maxLength = 1;
@@ -207,7 +209,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param logits logits
     * @return 转为probabilities的结果
-     */
+    */
     private List<Double> toProbabilities(float[] logits) {
         double[] softmax = softmax(logits);
         List<Double> probabilities = new ArrayList<>(softmax.length);
@@ -222,7 +224,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param logits logits
     * @return softmax的结果
-     */
+    */
     private double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float logit : logits) {
@@ -248,7 +250,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param label 标签
     * @return 格式化提示符的结果
-     */
+    */
     private String formatPrompt(String label) {
         if (promptTemplate.contains("%s")) {
             return String.format(promptTemplate, label);
@@ -261,7 +263,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param rawCandidates rawcandidates
     * @return 解析candidates的结果
-     */
+    */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
@@ -282,7 +284,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     * @param arguments 参数
     * @param key 键
     * @return 读取参数的结果
-     */
+    */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -296,7 +298,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -317,7 +319,7 @@ public class SiglipZeroShotClassificationTranslator implements Translator<Image,
     * @param root 根
     * @param fileName 文件名称
     * @return resolverequired文件的结果
-     */
+    */
     private Path resolveRequiredFile(Path root, String fileName) throws IOException {
         Path file = root.resolve(fileName);
         if (Files.exists(file)) {

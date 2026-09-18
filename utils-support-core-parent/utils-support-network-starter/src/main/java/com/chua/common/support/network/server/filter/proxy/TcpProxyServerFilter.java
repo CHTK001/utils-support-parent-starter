@@ -86,7 +86,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * @param connectTimeoutMs 连接超时ms
     * @param connectTimeoutMs int
     * @param readTimeoutMs 读取超时ms
-     */
+    */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs) {
         this(connectTimeoutMs, readTimeoutMs, null);
     }
@@ -96,7 +96,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     *
     * @param routes routes
     * @return 静态routes的结果
-     */
+    */
     public static TcpProxyServerFilter staticRoutes(Map<String, InetSocketAddress> routes) {
         Objects.requireNonNull(routes, "routes must not be null");
         if (routes.isEmpty()) {
@@ -119,7 +119,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * @param readTimeoutMs 读取超时ms
     * @param targetResolver Target解析器
     * @return 的的结果
-     */
+    */
     public static TcpProxyServerFilter of(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         return new TcpProxyServerFilter(connectTimeoutMs, readTimeoutMs, targetResolver);
     }
@@ -131,7 +131,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * @param targetResolver 代理Target解析器
     * @param readTimeoutMs 读取超时ms
     * @param targetResolver Target解析器
-     */
+    */
     public TcpProxyServerFilter(int connectTimeoutMs, int readTimeoutMs, ProxyTargetResolver targetResolver) {
         this.connectTimeoutMs = connectTimeoutMs;
         this.readTimeoutMs = readTimeoutMs;
@@ -182,7 +182,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         chain.doFilter(request, response);
@@ -200,7 +200,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * 获取活跃connections
     *
     * @return 获取活跃connections的结果
-     */
+    */
     public int getActiveConnections() {
         return activeConnections.get();
     }
@@ -209,7 +209,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     * 开始代理
     *
     * @param listenPort 监听端口
-     */
+    */
     public void startProxy(int listenPort) {
         startProxy(listenPort, 0);
     }
@@ -219,7 +219,7 @@ public class TcpProxyServerFilter implements ServerFilter {
     *
     * @param listenPort 监听端口
     * @param backlog backlog
-     */
+    */
     public void startProxy(int listenPort, int backlog) {
         if (vertx == null) {
             this.vertx = Vertx.vertx();
@@ -244,8 +244,8 @@ public class TcpProxyServerFilter implements ServerFilter {
     /**
     * 处理Connection
     *
-    * @param clientSocket 客户端套接字
-     */
+    * @param clientSocket 客户端Socket
+    */
     private void handleConnection(NetSocket clientSocket) {
         InetSocketAddress remote = remoteAddress(clientSocket);
         Discovery discovery = targetResolver.resolve(remote);
@@ -275,9 +275,9 @@ public class TcpProxyServerFilter implements ServerFilter {
     /**
     * 远程地址
     *
-    * @param socket 套接字
+    * @param socket Socket
     * @return 远程地址的结果
-     */
+    */
     private static InetSocketAddress remoteAddress(NetSocket socket) {
         io.vertx.core.net.SocketAddress addr = socket.remoteAddress();
         return new InetSocketAddress(addr.host(), addr.port());

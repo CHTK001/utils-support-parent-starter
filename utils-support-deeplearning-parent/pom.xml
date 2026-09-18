@@ -28,6 +28,7 @@
         <module>utils-support-deeplearning-safetensors-starter</module>
         <module>utils-support-deeplearning-3d-starter</module>
         <module>utils-support-deeplearning-gpu-llama3-starter</module>
+        <module>utils-support-deeplearning-ollama-starter</module>
         <module>utils-support-deeplearning-needle-starter</module>
         <module>utils-support-deeplearning-dl4j-starter</module>
         <module>utils-support-weka-starter</module>

@@ -39,24 +39,24 @@ public class OkHttpSseClient implements SseClient {
 
     /**
     * SSE 数据行前缀
-     */
+    */
     private static final String DATA_PREFIX = "data: ";
 
     /**
     * SSE 结束标记
-     */
+    */
     private static final String DONE_MARKER = "[DONE]";
 
     /**
     * 默认 OkHttp 客户端
-     */
+    */
     private final OkHttpClient defaultClient;
 
     /**
     * 构造 OkHttp SSE 客户端
     *
     * <p>使用默认配置创建 OkHttpClient 实例。
-     */
+    */
     public OkHttpSseClient() {
         this.defaultClient = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -163,29 +163,29 @@ public class OkHttpSseClient implements SseClient {
     * OkHttp SSE 连接实现，跟踪连接状态
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class OkHttpSseConnection implements SseConnection {
 
         /**
         * 读取线程
-         */
+        */
         private volatile Thread readerThread;
 
         /**
         * 连接是否已关闭
-         */
+        */
         private volatile boolean closed;
 
         /**
         * OkHttp 响应（用于关闭底层连接）
-         */
+        */
         private final Response response;
 
         /**
         * 构造 OkHttp SSE 连接
         *
         * @param response OkHttp 响应
-         */
+        */
         OkHttpSseConnection(Response response) {
             this.response = response;
         }
@@ -208,13 +208,13 @@ public class OkHttpSseClient implements SseClient {
     }
 
     /**
-    * 已关闭的空连接（用于错误路径）
-     */
+        * 已关闭的空连接（用于错误路径）
+        */
     private static final class ClosedSseConnection implements SseConnection {
 
         /**
         * 单例实例
-         */
+        */
         static final ClosedSseConnection INSTANCE = new ClosedSseConnection();
 
         @Override
@@ -230,13 +230,13 @@ public class OkHttpSseClient implements SseClient {
     }
 
     /**
-    * 计算读取超时
-    *
-    * <p>SSE 长连接通常不应设置读取超时（0 = 不超时）。
-    *
-    * @param request SSE 请求参数
-    * @return 超时毫秒数，0 返回 0（不超时）
-     */
+        * 计算读取超时
+        *
+        * <p>SSE 长连接通常不应设置读取超时（0 = 不超时）。
+        *
+        * @param request SSE 请求参数
+        * @return 超时毫秒数，0 返回 0（不超时）
+        */
     private static long readTimeout(SseRequest request) {
         return request.getReadTimeout();
     }

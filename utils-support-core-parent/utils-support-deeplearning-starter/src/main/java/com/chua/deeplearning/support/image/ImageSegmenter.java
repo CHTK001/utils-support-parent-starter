@@ -20,7 +20,7 @@ public interface ImageSegmenter {
     *
     * @param name 模型名称
     * @return 分割器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -28,7 +28,7 @@ public interface ImageSegmenter {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static ImageSegmenter create(String provider, String apiKey) {
         return ServiceProvider.of(ImageSegmenter.class)
                 .getNewExtension(provider, apiKey);
@@ -39,7 +39,7 @@ public interface ImageSegmenter {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default ImageSegmenter provider(String provider) {
         return this;
     }
@@ -49,7 +49,7 @@ public interface ImageSegmenter {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default ImageSegmenter model(String model) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface ImageSegmenter {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static ImageSegmenter create(String name) {
         return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -71,7 +71,7 @@ public interface ImageSegmenter {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageSegmenter.class);
     }
@@ -83,7 +83,7 @@ public interface ImageSegmenter {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 分割器
-     */
+    */
     static ImageSegmenter create(String name, ModelSetting setting) {
         return new DefaultImageSegmenter(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -93,7 +93,7 @@ public interface ImageSegmenter {
     *
     * @param path 路径
     * @return this
-     */
+    */
     ImageSegmenter modelPath(String path);
 
     /**
@@ -101,7 +101,7 @@ public interface ImageSegmenter {
     *
     * @param device 设备
     * @return this
-     */
+    */
     ImageSegmenter device(String device);
 
     /**
@@ -109,7 +109,7 @@ public interface ImageSegmenter {
     *
     * @param imageData 图像数据
     * @return 分割结果（掩码图像数据）
-     */
+    */
     byte[] segment(byte[] imageData);
 
     /**
@@ -118,7 +118,7 @@ public interface ImageSegmenter {
     * @param imageData   图像数据
     * @param targetClass 目标类别
     * @return 分割结果（掩码图像数据）
-     */
+    */
     byte[] segment(byte[] imageData, int targetClass);
 }
 
@@ -132,34 +132,34 @@ class DefaultImageSegmenter implements ImageSegmenter {
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -168,7 +168,7 @@ class DefaultImageSegmenter implements ImageSegmenter {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultImageSegmenter(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -202,7 +202,7 @@ class DefaultImageSegmenter implements ImageSegmenter {
     *
     * @param imageData 镜像数据
     * @return segment的结果
-     */
+    */
     public byte[] segment(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);
@@ -218,9 +218,9 @@ class DefaultImageSegmenter implements ImageSegmenter {
     * Segment
     *
     * @param imageData 镜像数据
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @return segment的结果
-     */
+    */
     public byte[] segment(byte[] imageData, int targetClass) {
         return segment(imageData);
     }

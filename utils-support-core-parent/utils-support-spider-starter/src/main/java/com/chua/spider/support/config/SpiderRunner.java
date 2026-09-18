@@ -32,38 +32,38 @@ public class SpiderRunner {
 
     /**
     * 默认线程数
-     */
+    */
     private static final int DEFAULT_THREADS = 2;
 
     /**
     * 默认整体超时时间（10 分钟）
-     */
+    */
     private static final long DEFAULT_JOB_TIMEOUT_MS = 600_000;
 
     /**
     * 爬虫定义存储
-     */
+    */
     private final SpiderDefinitionStore definitionStore;
 
     /**
     * 执行记录存储
-     */
+    */
     private final SpiderExecutionStore executionStore;
 
     /**
     * 请求工厂
-     */
+    */
     private final SpiderRequestFactory requestFactory;
 
     /**
     * 控制器 弱引用（不参与 Spring 注入循环）。
-     */
+    */
     private volatile SpiderExecutionController controllerRef;
 
     /**
     * 由 控制器 调用，注入自己引用。
     * @param controller 控制器
-     */
+    */
     public void setController(SpiderExecutionController controller) {
         this.controllerRef = controller;
     }
@@ -71,7 +71,7 @@ public class SpiderRunner {
     /**
     * 仅供 控制器 调试接口使用：返回当前 控制器ref 是否为 空。
     * @return 获取控制器reffor调试的结果
-     */
+    */
     public SpiderExecutionController getControllerRefForDebug() {
         return controllerRef;
     }
@@ -81,7 +81,7 @@ public class SpiderRunner {
     * @param definitionStore definition存储
     * @param executionStore 执行存储
     * @param requestFactory 请求工厂
-     */
+    */
     public SpiderRunner(SpiderDefinitionStore definitionStore,
                          SpiderExecutionStore executionStore,
                          SpiderRequestFactory requestFactory) {
@@ -98,7 +98,7 @@ public class SpiderRunner {
     *
     * @param definition 爬虫定义
     * @return 执行记录（状态 RUNNING 或 REJECTED）
-     */
+    */
     public SpiderExecutionRecord start(SpiderDefinition definition) {
         if (definition == null) {
             throw new IllegalArgumentException("definition must not be null");
@@ -130,7 +130,7 @@ public class SpiderRunner {
     *
     * @param definition 爬虫定义
     * @param record 执行记录
-     */
+    */
     private void runJob(SpiderDefinition definition, SpiderExecutionRecord record) {
         try {
             // 构建站点配置，从定义中读取深度和页数限制
@@ -203,7 +203,7 @@ public class SpiderRunner {
     * DOM 树等大字段导致内存爆炸。</p>
     * @param results 结果
     * @return serialize结果的结果
-     */
+    */
     private String serializeResults(List<com.chua.spider.support.model.SpiderResult> results) {
         if (CollectionUtils.isEmpty(results)) {
             return "[]";
@@ -234,7 +234,7 @@ public class SpiderRunner {
     *
     * @param definition 爬虫定义
     * @return 新记录
-     */
+    */
     private SpiderExecutionRecord newRecord(SpiderDefinition definition) {
         var record = new SpiderExecutionRecord();
         record.setExecutionNo(executionStore.nextExecutionNo());

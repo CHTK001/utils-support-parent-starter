@@ -54,43 +54,43 @@ public class GithubSkillProvider {
     protected static final String API_BASE = "https://api.github.com";
 
     /**
-     * 获取提供者名称。
-     *
-     * @return 名称
-     */
+    * 获取提供者名称。
+    *
+    * @return 名称
+    */
     public String name() {
         return NAME;
     }
 
     /**
-     * 安装（远程仓库技能，记录日志）。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 安装结果
-     */
+    * 安装（远程仓库技能，记录日志）。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 安装结果
+    */
     public boolean install(String clientId, String skillId) {
         log.info("GitHub 技能安装请求: clientId={}, skillId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 卸载。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 卸载结果
-     */
+    * 卸载。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 卸载结果
+    */
     public boolean uninstall(String clientId, String skillId) {
         log.info("GitHub 技能卸载请求: clientId={}, skillId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 获取 MCP 工具描述符列表。
-     *
-     * @return 工具描述符
-     */
+    * 获取 MCP 工具描述符列表。
+    *
+    * @return 工具描述符
+    */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
                 new McpToolDescriptor(PREFIX + "discover",
@@ -102,10 +102,10 @@ public class GithubSkillProvider {
     }
 
     /**
-     * 构建发现 SkillDefinition。
-     *
-     * @return 发现技能
-     */
+    * 构建发现 SkillDefinition。
+    *
+    * @return 发现技能
+    */
     protected SkillDefinition discoverSkill() {
         return new SkillDefinition(
                 PREFIX + "discover",
@@ -116,11 +116,11 @@ public class GithubSkillProvider {
     }
 
     /**
-     * 处理发现工具调用。
-     *
-     * @param args 参数
-     * @return 发现结果
-     */
+    * 处理发现工具调用。
+    *
+    * @param args 参数
+    * @return 发现结果
+    */
     protected McpToolResult handleDiscover(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
         try {
@@ -133,12 +133,12 @@ public class GithubSkillProvider {
     }
 
     /**
-     * 遍历默认仓库递归获取 SKILL.md 技能。
-     *
-     * @param keyword 过滤关键词（可空）
-     * @return 发现结果
-     * @throws Exception 传输或解析异常
-     */
+    * 遍历默认仓库递归获取 SKILL.md 技能。
+    *
+    * @param keyword 过滤关键词（可空）
+    * @return 发现结果
+    * @throws Exception 传输或解析异常
+    */
     @SuppressWarnings("unchecked")
     protected Map<String, Object> discoverSkills(String keyword) throws Exception {
         List<Map<String, Object>> items = new ArrayList<>();
@@ -187,13 +187,13 @@ public class GithubSkillProvider {
     }
 
     /**
-     * 获取指定仓库的分支递归文件树路径。
-     *
-     * @param owner  仓库 owner
-     * @param name   仓库名
-     * @param branch 分支
-     * @return 文件路径列表
-     */
+    * 获取指定仓库的分支递归文件树路径。
+    *
+    * @param owner  仓库 owner
+    * @param name   仓库名
+    * @param branch 分支
+    * @return 文件路径列表
+    */
     @SuppressWarnings("unchecked")
     protected List<String> fetchTreePaths(String owner, String name, String branch) throws Exception {
         String url = API_BASE + "/repos/" + owner + "/" + name + "/git/trees/" + encode(branch) + "?recursive=1";
@@ -228,11 +228,11 @@ public class GithubSkillProvider {
     }
 
     /**
-     * 将 MCP 工具调用结果转换为 Skill 调用结果。
-     *
-     * @param mcpResult MCP 结果
-     * @return Skill 结果
-     */
+    * 将 MCP 工具调用结果转换为 Skill 调用结果。
+    *
+    * @param mcpResult MCP 结果
+    * @return Skill 结果
+    */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
             return SkillResult.success(mcpResult.getContent());

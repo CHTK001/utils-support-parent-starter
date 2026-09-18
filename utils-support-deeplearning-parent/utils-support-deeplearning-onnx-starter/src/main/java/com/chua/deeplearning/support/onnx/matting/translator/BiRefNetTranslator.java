@@ -55,19 +55,19 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 构造 512×512 小模型 Translator。
-     */
+    * 构造 512×512 小模型 Translator。
+    */
     public BiRefNetTranslator() {
         this(SIZE_512, MattingTranslator.MattingMode.RGBA);
     }
 
 
     /**
-     * 构造指定尺寸和输出模式的 Translator。
-     *
-     * @param targetSize 目标尺寸（512 或 1024）
-     * @param mode 输出模式
-     */
+    * 构造指定尺寸和输出模式的 Translator。
+    *
+    * @param targetSize 目标尺寸（512 或 1024）
+    * @param mode 输出模式
+    */
     public BiRefNetTranslator(int targetSize, MattingTranslator.MattingMode mode) {
         this.targetSize = targetSize;
         this.mode = mode;
@@ -75,10 +75,10 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 从 arguments Map 构造。
-     *
-     * @param arguments 参数（targetSize 可选，默认 512；mode 可选，默认 RGBA）
-     */
+    * 从 arguments Map 构造。
+    *
+    * @param arguments 参数（targetSize 可选，默认 512；mode 可选，默认 RGBA）
+    */
     public BiRefNetTranslator(Map<String, ?> arguments) {
         int size = SIZE_512;
         MattingTranslator.MattingMode m = MattingTranslator.MattingMode.RGBA;
@@ -189,11 +189,11 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 创建 ALPHA_ONLY 灰度 mask。
-     *
-     * @param alphaMask alpha mask
-     * @return 创建 ALPHA_ONLY 灰度 mask 的结果
-     */
+    * 创建 ALPHA_ONLY 灰度 mask。
+    *
+    * @param alphaMask alpha mask
+    * @return 创建 ALPHA_ONLY 灰度 mask 的结果
+    */
     private Image createAlphaOnly(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -208,11 +208,11 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 创建 RGBA 透明背景。
-     *
-     * @param alphaMask alpha mask
-     * @return 创建 RGBA 透明背景的结果
-     */
+    * 创建 RGBA 透明背景。
+    *
+    * @param alphaMask alpha mask
+    * @return 创建 RGBA 透明背景的结果
+    */
     private Image createRgba(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -227,12 +227,12 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 创建指定背景色 RGB。
-     *
-     * @param alphaMask alpha mask
-     * @param bgValue 背景色（0 黑 / 255 白）
-     * @return 创建指定背景色 RGB 的结果
-     */
+    * 创建指定背景色 RGB。
+    *
+    * @param alphaMask alpha mask
+    * @param bgValue 背景色（0 黑 / 255 白）
+    * @return 创建指定背景色 RGB 的结果
+    */
     private Image createRgb(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -251,14 +251,14 @@ public final class BiRefNetTranslator implements Translator<Image, Image> {
 
 
     /**
-     * 单通道 alpha blend。
-     *
-     * @param fg 前景
-     * @param bg 背景
-     * @param alpha alpha
-     * @param inv 反向 alpha
-     * @return 单通道 alpha blend 的结果
-     */
+    * 单通道 alpha blend。
+    *
+    * @param fg 前景
+    * @param bg 背景
+    * @param alpha alpha
+    * @param inv 反向 alpha
+    * @return 单通道 alpha blend 的结果
+    */
     private static int blend(int fg, int bg, int alpha, int inv) {
         return (fg * alpha + bg * inv + 127) / 255;
     }

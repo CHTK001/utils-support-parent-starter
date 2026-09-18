@@ -29,12 +29,12 @@ public class QuarkusBeanDefinitionRegister extends BeanSingletonRegistry impleme
 
     /**
     * cdi 类
-     */
+    */
     private static final String CDI_CLASS = "jakarta.enterprise.inject.spi.CDI";
 
     /**
     * closed
-     */
+    */
     private volatile boolean closed;
 
     @Override

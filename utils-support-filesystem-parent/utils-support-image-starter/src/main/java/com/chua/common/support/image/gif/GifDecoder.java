@@ -28,32 +28,32 @@ public class GifDecoder {
 
     /**
     * 已解码的帧画面列表。
-     */
+    */
     protected List<BufferedImage> frames = new ArrayList<>();
 
     /**
     * 每一帧对应的延迟时间列表，单位为百分之一秒，默认 10（即 100 毫秒）。
-     */
+    */
     protected List<Integer> delays = new ArrayList<>();
 
     /**
     * 循环播放次数，0 表示无限循环。
-     */
+    */
     protected int loopCount = 0;
 
     /**
     * 整个 GIF 图像的最大宽度。
-     */
+    */
     protected int width = 0;
 
     /**
     * 整个 GIF 图像的最大高度。
-     */
+    */
     protected int height = 0;
 
     /**
     * 标记是否已成功完成读取。
-     */
+    */
     protected boolean read = false;
 
     /**
@@ -64,7 +64,7 @@ public class GifDecoder {
     *
     * @param is 待读取的 GIF 输入流，不能为空
     * @throws IOException 当输入流读取失败时抛出
-     */
+    */
     public void read(InputStream is) throws IOException {
         try (ImageInputStream iis = ImageIO.createImageInputStream(is)) {
             if (iis == null) {
@@ -95,7 +95,7 @@ public class GifDecoder {
     *
     * @param reader     图像读取器
     * @param frameIndex 帧索引，从 0 开始
-     */
+    */
     private void readFrame(ImageReader reader, int frameIndex) throws IOException {
         BufferedImage frame = reader.read(frameIndex);
         frames.add(frame);
@@ -115,7 +115,7 @@ public class GifDecoder {
     * @param reader     图像读取器
     * @param frameIndex 帧索引
     * @return 延迟时间，单位为百分之一秒
-     */
+    */
     private int readFrameDelay(ImageReader reader, int frameIndex) {
         try {
             var metadata = reader.getImageMetadata(frameIndex);
@@ -162,7 +162,7 @@ public class GifDecoder {
     * </p>
     *
     * @param reader 图像读取器
-     */
+    */
     private void readLoopCount(ImageReader reader) {
         try {
             Object node = reader.getImageMetadata(0).getAsTree("javax_imageio_gif_image_1.0");
@@ -204,7 +204,7 @@ public class GifDecoder {
     * @param node     当前遍历节点
     * @param nodeName 目标节点名称
     * @return 匹配到的节点，未找到时返回 空
-     */
+    */
     private IIOMetadataNode findNodeByName(IIOMetadataNode node, String nodeName) {
         if (nodeName.equals(node.getNodeName())) {
             return node;
@@ -229,7 +229,7 @@ public class GifDecoder {
     *
     * @param hex 十六进制字符串
     * @return 转换后的字节数组
-     */
+    */
     private byte[] hexStringToBytes(String hex) {
         int len = hex.length();
         byte[] data = new byte[len / 2];
@@ -244,7 +244,7 @@ public class GifDecoder {
     * 获取 GIF 总帧数。
     *
     * @return 帧数
-     */
+    */
     public int getFrameCount() {
         return frames.size();
     }
@@ -254,7 +254,7 @@ public class GifDecoder {
     *
     * @param index 帧索引，越界时返回 空
     * @return 帧画面，越界时返回 空
-     */
+    */
     public BufferedImage getFrame(int index) {
         if (index < 0 || index >= frames.size()) {
             return null;
@@ -266,7 +266,7 @@ public class GifDecoder {
     * 获取循环播放次数。
     *
     * @return 循环次数，0 表示无限循环
-     */
+    */
     public int getLoopCount() {
         return loopCount;
     }
@@ -276,7 +276,7 @@ public class GifDecoder {
     *
     * @param index 帧索引，越界时返回 10（100 毫秒）
     * @return 延迟时间，单位为百分之一秒
-     */
+    */
     public int getDelay(int index) {
         if (index < 0 || index >= delays.size()) {
             return 10;
@@ -288,7 +288,7 @@ public class GifDecoder {
     * 获取 GIF 宽度。
     *
     * @return 宽度
-     */
+    */
     public int getWidth() {
         return width;
     }
@@ -297,7 +297,7 @@ public class GifDecoder {
     * 获取 GIF 高度。
     *
     * @return 高度
-     */
+    */
     public int getHeight() {
         return height;
     }

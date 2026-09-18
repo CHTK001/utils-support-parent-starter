@@ -28,66 +28,66 @@ public class DjlModelFactory implements AutoCloseable {
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型路径。
-     */
+    */
     private final Path modelPath;
 
     /**
     * 引擎名称，可为 空（自动推断）。
-     */
+    */
     private final String engineName;
 
     /**
     * 设备设置：空/blank 跟随系统属性 deeplearning.device（默认 auto）。
-     */
+    */
     private final String deviceSetting;
 
     /**
     * Translator 工厂。
-     */
+    */
     private final TranslatorFactory translatorFactory;
 
     /**
     * 是否已初始化。
-     */
+    */
     private volatile boolean initialized;
 
     /**
     * GPU 失败后强制降级 CPU（粘性标记）。
-     */
+    */
     private volatile boolean forceCpu;
 
     /**
     * 当前实际使用的设备："gpu" / "cpu"，未初始化为 空。
-     */
+    */
     private volatile String deviceInUse;
 
     /**
     * DJL 模型实例。
-     */
+    */
     private Model model;
 
     /**
     * DJL 预测器。
-     */
+    */
     private Predictor<?, ?> predictor;
 
     /**
     * Translator 创建工厂。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @FunctionalInterface
     public interface TranslatorFactory {
         /**
         * 创建 Translator。
         *
         * @return Translator 实例
-         */
+        */
         Translator<?, ?> create();
     }
 
@@ -98,7 +98,7 @@ public class DjlModelFactory implements AutoCloseable {
     * @param modelPath          模型路径
     * @param translatorFactory  Translator 工厂
     * @return djl模型工厂的结果
-     */
+    */
     public DjlModelFactory(String modelName, Path modelPath, TranslatorFactory translatorFactory) {
         this(modelName, modelPath, null, translatorFactory);
     }
@@ -111,7 +111,7 @@ public class DjlModelFactory implements AutoCloseable {
     * @param engineName         引擎名称（onnxruntime / pytorch / PaddlePaddle / tensor流）
     * @param translatorFactory  Translator 工厂
     * @return djl模型工厂的结果
-     */
+    */
     public DjlModelFactory(String modelName, Path modelPath, String engineName, TranslatorFactory translatorFactory) {
         this(modelName, modelPath, engineName, null, translatorFactory);
     }
@@ -124,7 +124,7 @@ public class DjlModelFactory implements AutoCloseable {
     * @param engineName         引擎名称，可为 空（自动推断）
     * @param deviceSetting      设备设置：auto / cpu / gpu / cuda，可为 空
     * @param translatorFactory  Translator 工厂
-     */
+    */
     public DjlModelFactory(String modelName, Path modelPath, String engineName,
                            String deviceSetting, TranslatorFactory translatorFactory) {
         this.modelName = modelName;
@@ -139,7 +139,7 @@ public class DjlModelFactory implements AutoCloseable {
     *
     * @param path 模型路径
     * @return 引擎名
-     */
+    */
     public static String resolveEngine(Path path) {
         if (path == null) {
             return "OnnxRuntime";
@@ -162,7 +162,7 @@ public class DjlModelFactory implements AutoCloseable {
     * 解析本次应使用的设备。
     *
     * @return "gpu" 或 "cpu"
-     */
+    */
     private String resolveRequestedDevice() {
         return forceCpu ? "cpu" : DeviceSelector.resolve(deviceSetting);
     }
@@ -212,7 +212,7 @@ public class DjlModelFactory implements AutoCloseable {
     *
     * @param device "gpu" / "cpu"
     * @throws Exception 加载异常
-     */
+    */
     private void doInit(String device) throws Exception {
         String engine = (engineName == null || engineName.isBlank())
                 ? resolveEngine(modelPath)
@@ -241,7 +241,7 @@ public class DjlModelFactory implements AutoCloseable {
 
     /**
     * 静默释放已创建的预测器与模型。
-     */
+    */
     private void releaseQuietly() {
         try {
             if (predictor != null) {
@@ -267,7 +267,7 @@ public class DjlModelFactory implements AutoCloseable {
     *
     * @param fileName 文件名
     * @return 无扩展名名称
-     */
+    */
     private static String stripExtension(String fileName) {
         if (fileName == null) {
             return null;
@@ -289,7 +289,7 @@ public class DjlModelFactory implements AutoCloseable {
     * @param <I>   输入类型
     * @param <O>   输出类型
     * @return 输出
-     */
+    */
     @SuppressWarnings("unchecked")
     public <I, O> O predict(I input) {
         ensureInitialized();
@@ -319,7 +319,7 @@ public class DjlModelFactory implements AutoCloseable {
     * 当前实际使用的设备。
     *
     * @return "gpu" / "cpu"；未初始化时返回 空
-     */
+    */
     public String deviceInUse() {
         return deviceInUse;
     }

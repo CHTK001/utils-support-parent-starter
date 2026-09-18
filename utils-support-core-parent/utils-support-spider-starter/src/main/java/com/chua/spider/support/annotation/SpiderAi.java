@@ -57,7 +57,7 @@ public @interface SpiderAi {
     * 自动生成结构化的 JSON 输出并映射到 POJO。
     *
     * @return AI 提取指令
-     */
+    */
     String value() default "";
 
     /**
@@ -67,6 +67,6 @@ public @interface SpiderAi {
     * 不指定时使用 对话客户端 默认模型。
     *
     * @return 模型名称
-     */
+    */
     String model() default "";
 }

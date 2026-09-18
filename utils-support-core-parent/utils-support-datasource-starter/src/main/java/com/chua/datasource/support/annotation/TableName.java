@@ -25,6 +25,6 @@ public @interface TableName {
     * 表名。
     *
     * @return 表名
-     */
+    */
     String value();
 }

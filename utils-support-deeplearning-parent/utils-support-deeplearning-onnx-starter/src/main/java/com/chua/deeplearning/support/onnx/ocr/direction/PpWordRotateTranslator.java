@@ -105,7 +105,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
     *
     * @param imageData 镜像数据
     * @return classify的结果
-     */
+    */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -167,7 +167,7 @@ public class PpWordRotateTranslator implements ITranslator<byte[], DirectionInfo
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

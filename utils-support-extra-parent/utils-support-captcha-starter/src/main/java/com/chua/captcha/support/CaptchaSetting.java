@@ -19,35 +19,35 @@ public class CaptchaSetting {
 
     /**
     * yescaptcha API 服务地址
-     */
+    */
     public static final String YESCAPTCHA_API_URL = "https://api.yescaptcha.com";
 
     /**
     * captcha运行 API 服务地址
-     */
+    */
     public static final String CAPTCHA_RUN_API_URL = "https://api.captcha-run.com";
 
     /**
     * API 鉴权令牌（从 yescaptcha.com 或 captcha-运行.com 获取）
-     */
+    */
     private String apiToken;
 
     /**
     * API 服务地址，默认使用 yescaptcha
-     */
+    */
     @Builder.Default
     private String apiUrl = YESCAPTCHA_API_URL; // apiurl
 
     /**
     * 连接超时时间（毫秒），默认 30000ms
-     */
+    */
     @Builder.Default
     /** 连接超时 */
     private long connectTimeout = 30000;
 
     /**
     * 读取超时时间（毫秒），默认 30000ms
-     */
+    */
     @Builder.Default
     /** 读取超时 */
     private long readTimeout = 30000;

@@ -32,44 +32,44 @@ public class KrpcDhtBridge {
 
     /**
     * KRPC 节点 标识 的字节长度（20 字节 = 160 位）
-     */
+    */
     private static final int KRP_NODE_ID_BYTES = 20;
 
     /**
     * 事务 标识 计数器
-     */
+    */
     private final AtomicInteger txCounter = new AtomicInteger(0);
 
     /**
     * 挂起的查询映射（事务 标识 -> pending查询）
-     */
+    */
     private final Map<String, PendingQuery> pending = new ConcurrentHashMap<>();
 
     /**
     * 挂起的查询记录，包含事务 标识、原始请求和消息类型。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class PendingQuery {
 
         /**
         * 事务 标识
-         */
+        */
         public final String txId;
 
         /**
         * 原始请求消息
-         */
+        */
         public final DhtMessage request;
 
         /**
         * 请求消息类型
-         */
+        */
         public final DhtMessageType type;
 
         /**
         * 请求发起时间戳
-         */
+        */
         public final long startTime;
 
         /**
@@ -78,7 +78,7 @@ public class KrpcDhtBridge {
         * @param txId    事务 标识
         * @param request 原始请求
         * @param type    消息类型
-         */
+        */
         public PendingQuery(String txId, DhtMessage request, DhtMessageType type) {
             this.txId = txId;
             this.request = request;
@@ -91,7 +91,7 @@ public class KrpcDhtBridge {
     * 生成随机的 KRPC 节点 标识（SHA-1 哈希）。
     *
     * @return 20 字节的节点 标识
-     */
+    */
     public static byte[] generateNodeId() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -109,7 +109,7 @@ public class KrpcDhtBridge {
     *
     * @param hex 十六进制字符串
     * @return 20 字节原始 标识
-     */
+    */
     public static byte[] hexToRawId(String hex) {
         if (hex == null || hex.isEmpty()) {
             byte[] id = new byte[20];
@@ -128,7 +128,7 @@ public class KrpcDhtBridge {
     *
     * @param raw 20 字节原始 标识
     * @return 十六进制字符串
-     */
+    */
     public static String rawIdToHex(byte[] raw) {
         if (raw == null || raw.length == 0) {
             return "";
@@ -145,7 +145,7 @@ public class KrpcDhtBridge {
     *
     * @param hex 十六进制字符串
     * @return 字节数组
-     */
+    */
     public static byte[] hexStringToBytes(String hex) {
         int len = hex.length();
         byte[] data = new byte[len / 2];
@@ -160,7 +160,7 @@ public class KrpcDhtBridge {
     * 生成下一个事务 标识。
     *
     * @return 2 字节的事务 标识
-     */
+    */
     public String nextTxId() {
         int n = txCounter.incrementAndGet() & 0xffff;
         return new String(new byte[]{(byte) (n >> 8), (byte) (n & 0xff)}, StandardCharsets.ISO_8859_1);
@@ -172,7 +172,7 @@ public class KrpcDhtBridge {
     * @param txId    事务 标识
     * @param request 原始请求
     * @param type    消息类型
-     */
+    */
     public void registerPending(String txId, DhtMessage request, DhtMessageType type) {
         pending.put(txId, new PendingQuery(txId, request, type));
     }
@@ -182,7 +182,7 @@ public class KrpcDhtBridge {
     *
     * @param txId 事务 标识
     * @return PendingQuery 实例，未找到返回 空
-     */
+    */
     public PendingQuery removePending(String txId) {
         return pending.remove(txId);
     }
@@ -192,7 +192,7 @@ public class KrpcDhtBridge {
     *
     * @param data 字节数组
     * @return 如果是 Bencode 格式返回 true
-     */
+    */
     public static boolean isKrpcMessage(byte[] data) {
         if (data == null || data.length == 0) {
             return false;
@@ -206,7 +206,7 @@ public class KrpcDhtBridge {
     *
     * @param data 字节数组
     * @return 如果以 '{' 开头返回 true
-     */
+    */
     public static boolean isJsonMessage(byte[] data) {
         return data != null && data.length > 0 && data[0] == '{';
     }
@@ -217,7 +217,7 @@ public class KrpcDhtBridge {
     * @param msg  DHT 消息
     * @param txId 事务 标识
     * @return Bencode 编码的字节数组
-     */
+    */
     public byte[] encodeQuery(DhtMessage msg, String txId) {
         KrpcMessage krpc = new KrpcMessage();
         krpc.t = txId;
@@ -257,7 +257,7 @@ public class KrpcDhtBridge {
     * @param data           KRPC 响应的字节数组
     * @param originalRequest 原始请求消息
     * @return 解码后的 DHT 消息
-     */
+    */
     public DhtMessage decodeResponse(byte[] data, DhtMessage originalRequest) {
         KrpcMessage krpc = KrpcMessage.parse(data);
         if (krpc.y == 'e') {
@@ -340,7 +340,7 @@ public class KrpcDhtBridge {
     * @param resp DHT 响应消息
     * @param txId 事务 标识
     * @return Bencode 编码的字节数组
-     */
+    */
     public byte[] encodeResponse(DhtMessage resp, String txId) {
         KrpcMessage krpc = new KrpcMessage();
         krpc.t = txId;
@@ -391,7 +391,7 @@ public class KrpcDhtBridge {
     * @param krpc   KRPC 消息
     * @param sender 发送者地址
     * @return DHT 消息
-     */
+    */
     public DhtMessage decodeQuery(KrpcMessage krpc, InetSocketAddress sender) {
         DhtMessage msg = new DhtMessage();
         msg.setKrpcTxId(krpc.t);
@@ -451,7 +451,7 @@ public class KrpcDhtBridge {
     *
     * @param peers 节点列表
     * @return 紧凑编码的字节数组
-     */
+    */
     public byte[] encodeCompactNodeList(List<DhtPeer> peers) {
         List<byte[]> entries = new ArrayList<>();
         for (DhtPeer p : peers) {
@@ -480,7 +480,7 @@ public class KrpcDhtBridge {
     *
     * @param data 紧凑编码的字节数组
     * @return 节点列表
-     */
+    */
     public List<DhtPeer> decodeCompactNodeList(byte[] data) {
         List<DhtPeer> peers = new ArrayList<>();
         int entrySize = KRP_NODE_ID_BYTES + 6;
@@ -505,7 +505,7 @@ public class KrpcDhtBridge {
     *
     * @param p 节点
     * @return 6 字节的紧凑编码
-     */
+    */
     public byte[] encodeCompactPeer(DhtPeer p) {
         byte[] addr = compactAddressBytes(p.getHost(), p.getPort());
         return addr != null ? addr : new byte[6];
@@ -517,7 +517,7 @@ public class KrpcDhtBridge {
     * @param host 主机 ipv4 地址
     * @param port 端口号
     * @return 6 字节数组，格式异常时返回 空
-     */
+    */
     private byte[] compactAddressBytes(String host, int port) {
         try {
             byte[] result = new byte[6];
@@ -545,7 +545,7 @@ public class KrpcDhtBridge {
     *
     * @param requestType 请求类型
     * @return 响应类型
-     */
+    */
     private DhtMessageType responseTypeOf(DhtMessageType requestType) {
         switch (requestType) {
             case PING:
@@ -567,7 +567,7 @@ public class KrpcDhtBridge {
     * @param map 映射
     * @param key 键
     * @return 字节数组
-     */
+    */
     private static byte[] getBytes(Map<String, Object> map, String key) {
         if (map == null) {
             return null;
@@ -588,7 +588,7 @@ public class KrpcDhtBridge {
     * @param map 映射
     * @param key 键
     * @return 字符串
-     */
+    */
     private static String getString(Map<String, Object> map, String key) {
         if (map == null) {
             return null;
@@ -609,7 +609,7 @@ public class KrpcDhtBridge {
     * @param map 映射
     * @param key 键
     * @return 长整型值
-     */
+    */
     private static Long getLong(Map<String, Object> map, String key) {
         if (map == null) {
             return null;

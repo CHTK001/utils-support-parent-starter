@@ -65,7 +65,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     *
     * @param urlTemplate 含 {@code %s}（类型）与 {@code %s}（标志）占位符的地址，
     *                    如 {@code https://host/api?type=%s&astro=%s}
-     */
+    */
     public OnlineHoroscopeProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
         this.httpClient = HttpClientFactory.getClient();
@@ -101,7 +101,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     * @param sign 标志
     * @param type 类型
     * @return 获取online的结果
-     */
+    */
     private HoroscopeInfo fetchOnline(String sign, String type) {
         try {
             ClientResponse resp = httpClient.get(String.format(urlTemplate, type, sign));
@@ -133,7 +133,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     *
     * @param type 类型
     * @return normalize类型的结果
-     */
+    */
     private static String normalizeType(String type) {
         switch (type.trim().toLowerCase()) {
             case "week":
@@ -156,7 +156,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     * @param n n
     * @param k k
     * @return num的结果
-     */
+    */
     private static int num(JsonNode n, String k) {
         JsonNode v = n.get(k);
         if (v == null || v.isNull()) {
@@ -175,7 +175,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     * @param n n
     * @param k k
     * @return 文本的结果
-     */
+    */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -184,7 +184,7 @@ public class OnlineHoroscopeProvider implements HoroscopeProvider {
     /**
     * 内置十二星座运势兜底库（在线不可用时的核心数据）。
     * @return 构建降级的结果
-     */
+    */
     private static Map<String, Map<String, HoroscopeInfo>> buildFallback() {
         Map<String, Map<String, HoroscopeInfo>> map = new HashMap<>();
         put(map, "白羊座", 88, 85, 90, 80, 86, "3", "红色", "今天精力充沛，适合开启新计划，主动出击会有不错收获。");

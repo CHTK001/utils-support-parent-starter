@@ -30,6 +30,6 @@ public @interface ConditionalOnMissingBeanDefinition {
 
     /**
     * @return 需要检查的 Bean 定义名称；任一已存在则跳过注册
-     */
+    */
     String[] value();
 }

@@ -221,10 +221,10 @@ public class ConnectionPool extends GenericObjectPool<Connection> {
     }
 
     /**
-    * 连接池构建器
-    *
-    * <p>支持链式配置所有参数，必填参数为 url。
-    */
+        * 连接池构建器
+        *
+        * <p>支持链式配置所有参数，必填参数为 url。
+        */
     public static class Builder {
 
         /**

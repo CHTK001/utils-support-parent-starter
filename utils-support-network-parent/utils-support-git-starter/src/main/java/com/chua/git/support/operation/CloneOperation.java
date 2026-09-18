@@ -45,24 +45,24 @@ public class CloneOperation {
 
     /**
     * 源 git客户端（携带 远程url、本地路径、凭证）。
-     */
+    */
     private final GitClient client;
 
     /**
     * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
-     */
+    */
     private boolean asyncMode;
 
     /**
     * 进度监听器，非空时会附加到 clone 命令的 进步监控。
-     */
+    */
     private GitProgressListener progressListener;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 源 Git客户端
-     */
+    */
     public CloneOperation(GitClient client) {
         this.client = client;
     }
@@ -73,7 +73,7 @@ public class CloneOperation {
     * 标记为异步模式。
     *
     * @return 当前操作实例
-     */
+    */
     public CloneOperation async() {
         this.asyncMode = true;
         return this;
@@ -84,7 +84,7 @@ public class CloneOperation {
     *
     * @param listener 进度监听器
     * @return 当前操作实例
-     */
+    */
     public CloneOperation progressListener(GitProgressListener listener) {
         this.progressListener = listener;
         return this;
@@ -96,7 +96,7 @@ public class CloneOperation {
     * 执行 clone 操作。
     *
     * @return 同步模式返回 {@link GitClient}，异步模式返回 {@link CompletableFuture}{@code <GitClient>}
-     */
+    */
     @SuppressWarnings("unchecked")
     public Object execute() {
         if (asyncMode) {
@@ -113,7 +113,7 @@ public class CloneOperation {
     * 返回新的 git客户端 实例（因为克隆后本地是不同仓库）。</p>
     *
     * @return 新克隆的 Git 仓库客户端
-     */
+    */
     private GitClient doClone() {
         String remoteUrl = client.getRemoteUrl();
         if (remoteUrl == null || remoteUrl.isEmpty()) {

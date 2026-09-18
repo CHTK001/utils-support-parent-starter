@@ -16,32 +16,32 @@ public class HanziInfo {
 
     /**
     * 汉字（如：中）
-     */
+    */
     private final String character;
 
     /**
     * 拼音（如：zhōng）
-     */
+    */
     private final String pinyin;
 
     /**
     * 部首（如：丨）
-     */
+    */
     private final String radicals;
 
     /**
     * 笔画数
-     */
+    */
     private final String strokes;
 
     /**
     * 释义
-     */
+    */
     private final String explanation;
 
     /**
     * 更多信息（如组词、相关词条）
-     */
+    */
     private final String more;
 
     /**
@@ -53,7 +53,7 @@ public class HanziInfo {
     * @param strokes     笔画数
     * @param explanation 释义
     * @param more        更多信息
-     */
+    */
     public HanziInfo(String character, String pinyin, String radicals, String strokes, String explanation, String more) {
         this.character = character;
         this.pinyin = pinyin;
@@ -67,7 +67,7 @@ public class HanziInfo {
     * 获取汉字
     *
     * @return 获取character的结果
-     */
+    */
     public String getCharacter() {
         return character;
     }
@@ -76,7 +76,7 @@ public class HanziInfo {
     * 获取拼音
     *
     * @return 获取pinyin的结果
-     */
+    */
     public String getPinyin() {
         return pinyin;
     }
@@ -85,7 +85,7 @@ public class HanziInfo {
     * 获取部首
     *
     * @return 获取radicals的结果
-     */
+    */
     public String getRadicals() {
         return radicals;
     }
@@ -94,7 +94,7 @@ public class HanziInfo {
     * 获取笔画数
     *
     * @return 获取strokes的结果
-     */
+    */
     public String getStrokes() {
         return strokes;
     }
@@ -103,7 +103,7 @@ public class HanziInfo {
     * 获取释义
     *
     * @return 获取解释的结果
-     */
+    */
     public String getExplanation() {
         return explanation;
     }
@@ -112,7 +112,7 @@ public class HanziInfo {
     * 获取更多信息
     *
     * @return 获取more的结果
-     */
+    */
     public String getMore() {
         return more;
     }
@@ -121,7 +121,7 @@ public class HanziInfo {
     * 转换为 映射 用于 JSON 序列化
     *
     * @return Map 表示
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("character", character);

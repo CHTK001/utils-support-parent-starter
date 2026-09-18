@@ -33,13 +33,13 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     private static final Set<String> SUPPORTED_EXTS = Set.of("eml", "msg"); // 支持exts
 
     /**
-     * RFC 2047 编码词正则：=?字符集?B/Q?编码内容?=
-     */
+    * RFC 2047 编码词正则：=?字符集?B/Q?编码内容?=
+    */
     private static final Pattern ENCODED_WORD_PATTERN = Pattern.compile("=\\?([^?]+)\\?([BbQq])\\?([^?]*)\\?=");
 
     /**
-     * 匹配仅包含空白（含折叠换行）的字符串
-     */
+    * 匹配仅包含空白（含折叠换行）的字符串
+    */
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
 
     @Override
@@ -120,7 +120,7 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
         if (bodyText.length() > 2000) {
             bodyText = bodyText.substring(0, 2000) + "...";
         }
@@ -132,7 +132,7 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     * @param info 信息
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(EmailInfo info, long fileSize) {
@@ -187,17 +187,17 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     /**
-     * 解码 RFC 2047 编码的邮件头。
-     * <p>形如 {@code =?UTF-8?B?5rWL6K+V?=} 的编码词会被还原为原文；
-     * 相邻编码词之间仅存在折叠空白时直接拼接（RFC 2047 规则）。</p>
-     *
-     * @param header 原始邮件头
-     * @return 解码后的邮件头
-     */
+    * 解码 RFC 2047 编码的邮件头。
+    * <p>形如 {@code =?UTF-8?B?5rWL6K+V?=} 的编码词会被还原为原文；
+    * 相邻编码词之间仅存在折叠空白时直接拼接（RFC 2047 规则）。</p>
+    *
+    * @param header 原始邮件头
+    * @return 解码后的邮件头
+    */
     private String decodeHeader(String header) {
         if (header == null || header.indexOf("=?") < 0) {
             return header;
@@ -228,13 +228,13 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解码单个 RFC 2047 编码词。
-     *
-     * @param charsetName 声明的字符集
-     * @param encoding B 表示 Base64，Q 表示 Quoted-Printable
-     * @param encoded 编码内容
-     * @return 解码文本；解码失败时原样返回
-     */
+    * 解码单个 RFC 2047 编码词。
+    *
+    * @param charsetName 声明的字符集
+    * @param encoding B 表示 Base64，Q 表示 Quoted-Printable
+    * @param encoded 编码内容
+    * @return 解码文本；解码失败时原样返回
+    */
     private String decodeEncodedWord(String charsetName, String encoding, String encoded) {
         Charset charset;
         try {
@@ -257,11 +257,11 @@ public class EmailPreviewProvider implements FileStoragePreviewProvider {
     }
 
     /**
-     * 解码 RFC 2047 Q 编码（下划线表示空格，=XX 表示字节）。
-     *
-     * @param encoded Q 编码内容
-     * @return 原始字节
-     */
+    * 解码 RFC 2047 Q 编码（下划线表示空格，=XX 表示字节）。
+    *
+    * @param encoded Q 编码内容
+    * @return 原始字节
+    */
     private byte[] decodeQuotedPrintable(String encoded) {
         String normalized = encoded.replace('_', ' ');
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();

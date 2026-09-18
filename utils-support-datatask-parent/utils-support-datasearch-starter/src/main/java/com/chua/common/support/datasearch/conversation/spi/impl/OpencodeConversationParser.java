@@ -40,7 +40,7 @@ public class OpencodeConversationParser implements ConversationParser {
     /**
     * resolvedb路径。
     * @return resolvedb路径的结果
-     */
+    */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -59,7 +59,7 @@ public class OpencodeConversationParser implements ConversationParser {
     * 返回 SPI 名称。
     *
     * @return {@code "opencode"}
-     */
+    */
     @Override
     public String name() {
         return "opencode";
@@ -70,9 +70,9 @@ public class OpencodeConversationParser implements ConversationParser {
     * @param value 值
     * @return asStr的结果
      /**
-      * 流消息。
-      * @return 流消息的结果
-     */
+    * 流消息。
+    * @return 流消息的结果
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         if (!Files.exists(DB_PATH)) {
@@ -87,7 +87,7 @@ public class OpencodeConversationParser implements ConversationParser {
     * 转为消息。
     * @param row row
     * @return 转为消息的结果
-     */
+    */
     }
 
     private ConversationMessage toMessage(Map<String, Object> row) {
@@ -121,7 +121,7 @@ public class OpencodeConversationParser implements ConversationParser {
     * @param raw raw
     * @return safe解析的结果
     * @param value 值
-     */
+    */
     }
 
     private JsonNode safeParse(String raw) {

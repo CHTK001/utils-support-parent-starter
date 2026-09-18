@@ -56,11 +56,11 @@ public class TsharkPolledDirectory implements PolledDirectory {
 
     /**
     * 对象 映射器
-     */
+    */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     /**
     * RESTORERS
-     */
+    */
     private static final List<ProtocolRestorer> RESTORERS;
 
     static {
@@ -69,44 +69,44 @@ public class TsharkPolledDirectory implements PolledDirectory {
 
     /**
     * 被监听的目录路径
-     */
+    */
     private final String listenPath;
 
     /**
     * 文件名 -> 最后修改时间戳（毫秒）的快照缓存
-     */
+    */
     private final Map<String, Long> cache = new ConcurrentHashMap<>();
 
     /**
     * 事件监听器列表
-     */
+    */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
     * 数据包记录回调消费者
-     */
+    */
     private final AtomicReference<Consumer<List<PacketRecord>>> packetListener = new AtomicReference<>();
 
     /**
     * tshark 可执行文件路径（默认 "tshark"，可通过 {@link #setTsharkBinary(String)} 自定义）
-     */
+    */
     private final AtomicReference<String> tsharkBinary = new AtomicReference<>("tshark");
 
     /**
     * 环境配置
-     */
+    */
     private DirectoryPollerEnvironment environment;
 
     /**
     * 当前运行中的轮询执行器
-     */
+    */
     private DirectoryPollerExecutor executor;
 
     /**
     * 构造 tshark 轮询目录监听器。
     *
     * @param listenPath 被监听的目录路径
-     */
+    */
     public TsharkPolledDirectory(String listenPath) {
         this.listenPath = listenPath;
     }
@@ -117,7 +117,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * <p>新文件或被修改的文件会通过 TShark 解析，结果通过此回调暴露。</p>
     *
     * @param listener 解析结果消费者
-     */
+    */
     public void setPacketListener(Consumer<List<PacketRecord>> listener) {
         this.packetListener.set(listener);
     }
@@ -129,7 +129,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * 可传入完整路径如 {@code "C:/Program Files/Wireshark/tshark.exe"}。</p>
     *
     * @param binary tshark 可执行文件路径或名称
-     */
+    */
     public void setTsharkBinary(String binary) {
         if (binary != null && !binary.isBlank()) {
             this.tsharkBinary.set(binary);
@@ -228,7 +228,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * 确保被监听的目录存在（不存在则创建）。
     *
     * @param path 目录路径
-     */
+    */
     private void ensureDirExists(String path) {
         File dir = new File(path);
         if (!dir.exists()) {
@@ -247,7 +247,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * 触发 数据包监听器 回调（即使解析失败也会以空列表回调一次）。</p>
     *
     * @param fileName 文件名
-     */
+    */
     private void handleNewOrModified(String fileName) {
         List<PacketRecord> records = List.of();
         try {
@@ -270,7 +270,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     *
     * @param fileName pcap 文件名
     * @return 解析出的数据包记录列表
-     */
+    */
     private List<PacketRecord> parsePcapFile(String fileName) throws Exception {
         List<PacketRecord> records = new ArrayList<>();
         File pcap = new File(listenPath, fileName);
@@ -332,7 +332,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * @param packetJson 数据包json
     * @param record record
     * @return 尝试restore协议的结果
-     */
+    */
     private static String tryRestoreProtocol(String packetJson, PacketRecord record) {
         if (RESTORERS.isEmpty()) {
             return null;
@@ -374,7 +374,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     *
     * @param layers layers
     * @return extractRawBytes的结果
-     */
+    */
     private static byte[] extractRawBytes(Map<String, Object> layers) {
  // tshark -T json -x 输出 帧_raw: [hex, 偏移量, 长度]，第一个元素是 hex 字符串
         Object frameRaw = findDeep(layers, "frame_raw");
@@ -415,7 +415,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * @param map 映射
     * @param key 键
     * @return findDeep的结果
-     */
+    */
     private static Object findDeep(Map<String, Object> map, String key) {
         if (map == null) {
             return null;
@@ -439,7 +439,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     *
     * @param event    事件类型
     * @param fileName 触发事件的文件名
-     */
+    */
     private void fire(WatcherEvent event, String fileName) {
         EventObserver observer = EventObserver.builder()
                 .currentPath(listenPath)
@@ -468,7 +468,7 @@ public class TsharkPolledDirectory implements PolledDirectory {
     * 获取当前快照的文件名集合。
     *
     * @return 当前缓存的文件名集合
-     */
+    */
     public Set<String> snapshot() {
         return new HashSet<>(cache.keySet());
     }

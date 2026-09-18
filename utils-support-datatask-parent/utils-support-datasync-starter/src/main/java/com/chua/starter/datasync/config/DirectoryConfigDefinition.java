@@ -15,6 +15,6 @@ public interface DirectoryConfigDefinition extends DataSyncConfigDefinition {
     * 获取目录路径。
     *
     * @return 目录路径
-     */
+    */
     String directoryPath();
 }

@@ -45,7 +45,9 @@ import java.util.List;
 @Spi("vscode")
 public class VscodeUsageParser extends BaseUsageParser {
 
-    /** Nano-AIU ticks per US dollar (GitHub's reported cost unit). */
+    /**
+    * Nano-AIU ticks per US dollar (GitHub's reported cost unit).
+    */
     private static final long NANO_AIU_PER_USD = 10_000_000_000L;
 
     private static final Path DB_PATH = Path.of(
@@ -64,7 +66,7 @@ public class VscodeUsageParser extends BaseUsageParser {
     * 返回 SPI 名称（for VSCode Copilot）。
     *
     * @return {@code "vscode"}
-     */
+    */
     @Override
     public String name() {
         return "vscode";
@@ -72,7 +74,7 @@ public class VscodeUsageParser extends BaseUsageParser {
 
     /**
     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-     */
+    */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -83,7 +85,7 @@ public class VscodeUsageParser extends BaseUsageParser {
     * 解析全部用量事件（from the Copilot CLI session store）。
     *
     * @return list of AiUsage records, one per billed API request
-     */
+    */
     @Override
     protected List<AiUsage> parseAll() {
         if (!Files.exists(DB_PATH)) {
@@ -110,7 +112,7 @@ public class VscodeUsageParser extends BaseUsageParser {
     * @param rs 结果集（current row）
     * @return populated AiUsage record
     * @throws SQLException if column access fails
-     */
+    */
     private AiUsage toAiUsage(ResultSet rs) throws SQLException {
         long startTime = parseInstantToMillis(rs.getString(1));
         String model = rs.getString(2);
@@ -152,7 +154,7 @@ public class VscodeUsageParser extends BaseUsageParser {
     *
     * @param nanoAiu GitHub reported 整数 nano-AIU
     * @return USD 金额（0 或负数返回 null）
-     */
+    */
     private BigDecimal convertNanoAiuToUsd(long nanoAiu) {
         if (nanoAiu <= 0) {
             return null;

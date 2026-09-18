@@ -21,7 +21,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
 
     /**
     * 输入尺寸。
-     */
+    */
     private final int imageSize;
 
     /** 创建 clip镜像特征translator 实例 */
@@ -32,7 +32,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     /**
     * 创建 clip镜像特征translator 实例
     * @param imageSize 镜像大小
-     */
+    */
     public ClipImageFeatureTranslator(int imageSize) {
         this.imageSize = imageSize;
     }

@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 /**
 * AI Agent 接口
 *
-* <p>提供统一的智能体执行抽象，支持多 Agent 编排、MCP 工具调用、技能系统和大模型对话。
+* <p>提供统一的Agent执行抽象，支持多 Agent 编排、MCP 工具调用、技能系统和大模型对话。
 * 实现类通过 SPI 机制按 provider 名称注册，调用方通过工厂方法获取实例。
 *
 * <h3>系统架构</h3>

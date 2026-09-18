@@ -31,7 +31,7 @@ public class ChronicleLockProvider extends AbstractLockProvider {
     /**
     * 创建 chronicle锁提供者 实例
     * @param name 名称
-     */
+    */
     public ChronicleLockProvider(String name) {
         this.name = name;
     }

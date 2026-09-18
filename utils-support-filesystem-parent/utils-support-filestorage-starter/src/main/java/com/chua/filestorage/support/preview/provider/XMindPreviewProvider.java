@@ -35,7 +35,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param ext  文件扩展名（不含点号，如 "xmind"），可为 空
     * @param mime MIME 类型（本实现不依赖 MIME，仅校验扩展名）
     * @return 当 {@code ext} 非 空 且等于 "xmind"（不区分大小写）时返回 true
-     */
+    */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && "xmind".equals(ext.toLowerCase(Locale.ENGLISH));
@@ -52,7 +52,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param mime    MIME 类型（本实现忽略）
     * @return 预览结果，包含 HTML 内容
     * @throws IOException 读取 压缩 时发生 I/O 错误
-     */
+    */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
         List<TopicNode> roots = extractFromZip(content);
@@ -76,7 +76,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param xmindBytes xmind 文件的原始 压缩 字节内容
     * @return 根主题列表（通常只有一个根主题），解析失败时返回空列表
     * @throws IOException 读取 压缩 流时发生 I/O 错误
-     */
+    */
     private List<TopicNode> extractFromZip(byte[] xmindBytes) throws IOException {
  // 优先尝试 内容.json（xmind Zen/2020+ 新格式）
         String json = extractFromZipByName(xmindBytes, "content.json");
@@ -109,7 +109,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param targetName 目标文件名（如 "内容.json"、"内容.xml"）
     * @return 文件内容字符串；ZIP 中不存在该文件时返回 空
     * @throws IOException 读取 压缩 流时发生 I/O 错误
-     */
+    */
     private String extractFromZipByName(byte[] xmindBytes, String targetName) throws IOException {
         // 第一趟：精确匹配文件名
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(xmindBytes))) {
@@ -141,7 +141,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param json 内容.json 的文件内容字符串
     * @return 根主题列表（通常只有一个元素），解析失败或内容为空时返回空列表
-     */
+    */
     private List<TopicNode> parseTopics(String json) {
         List<TopicNode> roots = new ArrayList<>();
         if (json == null || json.isBlank() || "[]".equals(json.trim())) {
@@ -171,7 +171,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param xml 内容.xml 的文件内容字符串
     * @return 根主题列表（每个 sheet 的根主题），解析失败或内容为空时返回空列表
-     */
+    */
     private List<TopicNode> parseTopicsFromXml(String xml) {
         List<TopicNode> roots = new ArrayList<>();
         if (xml == null || xml.isBlank()) {
@@ -229,7 +229,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param topicEl XML 中的 topic DOM 元素
     * @return 构建好的主题节点（title 非空，children 可能为空）
-     */
+    */
     private TopicNode buildNodeFromXml(org.w3c.dom.Element topicEl) {
         String title = getTextContent(topicEl, "title");
         if (title == null || title.isBlank()) {
@@ -277,7 +277,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param parent   父 DOM 元素
     * @param childName 子元素名称（如 "title"）
     * @return 子元素的 修剪 后文本内容；不存在或为空时返回 空
-     */
+    */
     private String getTextContent(org.w3c.dom.Element parent, String childName) {
         org.w3c.dom.NodeList list = parent.getElementsByTagNameNS(
                 "urn:xmind:xmap:xmlns:content:2.0", childName);
@@ -301,7 +301,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param json     内容.json 的完整内容字符串
     * @param startPos 当前 topic 对象在 JSON 字符串中的起始位置
     * @return 解析出的主题节点；解析失败时返回 空
-     */
+    */
     private TopicNode parseTopicObject(String json, int startPos) {
         String title = extractStringValue(json, startPos, "title");
         if (title == null) {
@@ -368,7 +368,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param startPos 起始搜索位置
     * @param key      要查找的字段名（不含引号，如 "title"）
     * @return 字段值字符串；未找到或距离超过 500 字符时返回 空
-     */
+    */
     private String extractStringValue(String json, int startPos, String key) {
         String search = "\"" + key + "\"";
         int idx = json.indexOf(search, startPos);
@@ -406,7 +406,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param json  完整的 JSON 字符串
     * @param start 字符串内容的起始位置（紧跟第一个双引号之后）
     * @return 字符串结束位置（双引号的索引）；未找到时返回 -1
-     */
+    */
     private int findStringEnd(String json, int start) {
         for (int i = start; i < json.length(); i++) {
             char c = json.charAt(i);
@@ -428,7 +428,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param roots    根主题列表（通常只有一个根主题）
     * @param fileSize 原始 xmind 文件的字节大小（用于显示文件信息）
     * @return 完整的 HTML 页面字符串
-     */
+    */
     private String buildHtml(List<TopicNode> roots, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -479,7 +479,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * @param node   当前主题节点
     * @param depth  当前层级深度（根节点为 0）
     * @param isRoot 是否为根节点
-     */
+    */
     private void renderNode(StringBuilder sb, TopicNode node, int depth, boolean isRoot) {
         String topicClass = isRoot ? "topic-root" : (depth <= 1 ? "topic-branch" : "topic-leaf");
 
@@ -509,7 +509,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 原始文本（可为 空）
     * @return 转义后的安全文本；输入为 空 时返回空字符串
-     */
+    */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -525,7 +525,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param bytes 文件大小（字节）
     * @return 格式化后的字符串，如 "1.5 KB"、"2.3 MB"
-     */
+    */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -542,7 +542,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
     * <p>每个节点包含一个标题和零到多个子节点，构成树形结构。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class TopicNode {
         /** 主题标题（不可为 空） */
         String title;
@@ -553,7 +553,7 @@ public class XMindPreviewProvider implements FileStoragePreviewProvider {
         * 创建主题节点。
         *
         * @param title 主题标题
-         */
+        */
         TopicNode(String title) {
             this.title = title;
         }

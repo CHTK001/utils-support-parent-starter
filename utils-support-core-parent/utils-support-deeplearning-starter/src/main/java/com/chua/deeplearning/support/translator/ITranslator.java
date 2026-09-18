@@ -15,7 +15,7 @@ public interface ITranslator<I, O> {
     * 翻译器名称，对应模型标识。
     *
     * @return 名称
-     */
+    */
     String name();
 
     /**
@@ -23,6 +23,6 @@ public interface ITranslator<I, O> {
     *
     * @param input 模型输入
     * @return 业务输出
-     */
+    */
     O translate(I input);
 }

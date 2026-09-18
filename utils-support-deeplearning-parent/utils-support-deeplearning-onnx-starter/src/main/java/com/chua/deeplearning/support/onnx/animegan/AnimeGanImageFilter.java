@@ -53,24 +53,24 @@ public class AnimeGanImageFilter implements ImageFilter {
 
     /**
     * 支持的动漫风格模型名称
-     */
+    */
     private static final String[] ANIME_STYLE_NAMES = {
             "anime-gan-v2-hayao", "anime-gan-v2-shinkai", "anime-gan-v2-paprika", "anime-gan-v2-face-portrait"
     };
 
     /**
     * 识别引擎
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 默认构造函数（SPI 加载用，默认使用宫崎骏风格）
-     */
+    */
     public AnimeGanImageFilter() {
         this("anime-gan-v2-hayao");
     }
@@ -79,7 +79,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     * 构造函数
     *
     * @param modelName 模型名称（如 anime-gan-v2-hayao, anime-gan-v2-shinkai 等）
-     */
+    */
     public AnimeGanImageFilter(String modelName) {
         this.modelName = modelName;
         this.engine = AbstractIdentificationEngine.getInstance();
@@ -90,7 +90,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     * 获取当前使用的模型名称
     *
     * @return 模型名称
-     */
+    */
     public String getModelName() {
         return modelName;
     }
@@ -99,7 +99,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     * 获取所有支持的动漫风格名称
     *
     * @return 风格名称数组
-     */
+    */
     public static String[] getSupportedStyles() {
         return ANIME_STYLE_NAMES.clone();
     }
@@ -183,7 +183,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     * @param format 格式（如 "png", "jpg"）
     * @return 字节数组
     * @throws IOException IO 异常
-     */
+    */
     private static byte[] toBytes(BufferedImage image, String format) throws IOException {
         return ImageUtils.encode(ImageUtils.toMat(image), format);
     }
@@ -193,7 +193,7 @@ public class AnimeGanImageFilter implements ImageFilter {
     *
     * @param djlImage DJL 镜像 对象
     * @return BufferedImage
-     */
+    */
     private static BufferedImage djlImageToBufferedImage(Image djlImage) {
         // DJL Image 的 getWrappedImage() 返回底层 OpenCV/BufferedImage 对象
  // 或通过 转为ndarray → 缓冲镜像 转换

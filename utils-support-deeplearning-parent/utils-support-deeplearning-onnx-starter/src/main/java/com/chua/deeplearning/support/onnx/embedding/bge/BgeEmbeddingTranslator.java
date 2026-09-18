@@ -32,7 +32,7 @@ public class BgeEmbeddingTranslator {
 
     /**
     * 默认最大序列长度（含 [CLS]/[SEP]）
-     */
+    */
     public static final int DEFAULT_MAX_LEN = 512;
 
     /** ONNX 运行时环境 */
@@ -49,7 +49,7 @@ public class BgeEmbeddingTranslator {
     * @param tokenizerFile tokenizer 文件名
     * @return tokenizer（HuggingFace tokenizer 由 DJL 加载）
     * @throws Exception 加载异常
-     */
+    */
     public synchronized Path extractFromClasspath(String basePath, String modelFile, String tokenizerFile) throws Exception {
         if (session != null) {
             return null;
@@ -81,7 +81,7 @@ public class BgeEmbeddingTranslator {
     *
     * @param modelPath 本地模型文件路径
     * @throws Exception 加载异常
-     */
+    */
     public synchronized void loadLocal(String modelPath) throws Exception {
         if (session != null) {
             return;
@@ -97,7 +97,7 @@ public class BgeEmbeddingTranslator {
     * 创建会话
     *
     * @param modelPath 模型路径
-     */
+    */
     private void createSession(String modelPath) throws IOException {
         try {
             this.ortEnv = OrtEnvironment.getEnvironment();
@@ -116,7 +116,7 @@ public class BgeEmbeddingTranslator {
     * @param inputIds      令牌 标识
     * @param attentionMask attention mask
     * @return 句向量 float[]
-     */
+    */
     public float[] embed(long[] inputIds, long[] attentionMask) throws Exception {
         if (session == null) {
             throw new IllegalStateException("BGE 模型未初始化");
@@ -161,7 +161,7 @@ public class BgeEmbeddingTranslator {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

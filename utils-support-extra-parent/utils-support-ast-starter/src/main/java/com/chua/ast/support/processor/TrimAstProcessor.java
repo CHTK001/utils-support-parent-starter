@@ -85,7 +85,7 @@ public final class TrimAstProcessor extends AbstractProcessor {
     *
     * @param type 类型
     * @return 是否字符串类型的结果
-     */
+    */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != javax.lang.model.type.TypeKind.DECLARED) { return false; }
         String typeName = type.toString();
@@ -96,7 +96,7 @@ public final class TrimAstProcessor extends AbstractProcessor {
     * 应用去空格转换
     * @param methodTree 方法树
     * @param paramName 参数名称
-     */
+    */
     private void applyTrimTransform(com.sun.source.tree.MethodTree methodTree,
             String paramName) throws Exception {
 

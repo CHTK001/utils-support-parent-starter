@@ -140,7 +140,7 @@ public class BcHpkeCipher implements HpkeCipher {
     *
     * @param ek ek
     * @return aes键的结果
-     */
+    */
     private byte[] aesKey(byte[] ek) {
         return Arrays.copyOfRange(ek, 0, SYM_KEY_LEN);
     }
@@ -150,7 +150,7 @@ public class BcHpkeCipher implements HpkeCipher {
     *
     * @param ek ek
     * @return nonce的结果
-     */
+    */
     private byte[] nonce(byte[] ek) {
         return Arrays.copyOfRange(ek, SYM_KEY_LEN, SYM_KEY_LEN + GCM_NONCE_LEN);
     }
@@ -162,7 +162,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * @param peerPub 对端 X25519 公钥
     * @param ikm 可选输入密钥材料
     * @return 长度 {@code SYM_KEY_LEN + GCM_NONCE_LEN} 的密钥材料
-     */
+    */
     private byte[] deriveSharedKey(X25519PrivateKeyParameters sk, byte[] peerPub, byte[] ikm) {
         X25519Agreement agreement = new X25519Agreement();
         agreement.init(sk);
@@ -179,7 +179,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * @param salt salt
     * @param ikm ikm
     * @return hkdfExtract的结果
-     */
+    */
     private static byte[] hkdfExtract(byte[] salt, byte[] ikm) {
         return hmacSha256(salt.length == 0 ? new byte[32] : salt, ikm);
     }
@@ -191,7 +191,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * @param info 信息
     * @param length 长度
     * @return hkdfExpand的结果
-     */
+    */
     private static byte[] hkdfExpand(byte[] prk, byte[] info, int length) {
         byte[] okm = new byte[length];
         byte[] t = new byte[0];
@@ -211,7 +211,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * @param key 键
     * @param data 数据
     * @return hmacSha256的结果
-     */
+    */
     private static byte[] hmacSha256(byte[] key, byte[] data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -228,7 +228,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * @param a a
     * @param b b
     * @return 连接的结果
-     */
+    */
     private static byte[] concat(byte[] a, byte[] b) {
         byte[] r = new byte[a.length + b.length];
         System.arraycopy(a, 0, r, 0, a.length);
@@ -240,7 +240,7 @@ public class BcHpkeCipher implements HpkeCipher {
     * GCM 标签长度（供调用方核对密文结构时使用）
     *
     * @return gcm标签长度的结果
-     */
+    */
     public int gcmTagLength() {
         return GCM_TAG_LEN;
     }

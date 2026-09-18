@@ -51,54 +51,54 @@ public class OpenAiAudioClient implements VirtualClient {
 
     /**
     * 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
     * 默认转录模型
-     */
+    */
     private static final String DEFAULT_MODEL = "whisper-1";
 
     /**
     * 客户端配置
-     */
+    */
     private final AudioClientSetting setting;
 
     /**
     * 当前模型
-     */
+    */
     private String model;
 
     /**
     * 当前语言
-     */
+    */
     private String language;
 
     /**
     * 当前提示词
-     */
+    */
     private String prompt;
 
     /**
     * 音频字节
-     */
+    */
     private byte[] audio;
 
     /**
     * 音频输入流
-     */
+    */
     private InputStream audioInput;
 
     /**
     * 音频文件路径
-     */
+    */
     private Path audioPath;
 
     /**
     * 构造 打开AI 语音识别客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OpenAiAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -261,7 +261,7 @@ public class OpenAiAudioClient implements VirtualClient {
     * @param path 调用方法时传入的路径（可为 空）
     * @return 音频字节
     * @throws IOException 读取失败时抛出
-     */
+    */
     private byte[] resolveAudioBytes(Path path) throws IOException {
         if (audio != null && audio.length > 0) {
             return audio;
@@ -281,7 +281,7 @@ public class OpenAiAudioClient implements VirtualClient {
     *
     * @param path 音频路径
     * @return 文件名（带扩展名）
-     */
+    */
     private String resolveFilename(Path path) {
         Path effective = path != null ? path : audioPath;
         String name = effective != null ? effective.getFileName().toString() : "audio";
@@ -293,7 +293,7 @@ public class OpenAiAudioClient implements VirtualClient {
     *
     * @param filename 文件名
     * @return MIME 类型
-     */
+    */
     private String resolveContentType(String filename) {
         String lower = filename.toLowerCase();
         if (lower.endsWith(".mp3")) {
@@ -325,7 +325,7 @@ public class OpenAiAudioClient implements VirtualClient {
     *
     * @param json 响应 JSON 字符串
     * @return 转录文本
-     */
+    */
     @SuppressWarnings("unchecked")
     private String parseTranscript(String json) {
         Map<String, Object> root = Json.fromJson(json, Map.class);
@@ -338,7 +338,7 @@ public class OpenAiAudioClient implements VirtualClient {
     *
     * @param path API 路径（含前导斜杠）
     * @return 请求构建器
-     */
+    */
     private HttpClientBuilder newBuilder(String path) {
         HttpClientBuilder builder = HttpClientFactory.of(normalizeBaseUrl())
                 .path(path)
@@ -359,7 +359,7 @@ public class OpenAiAudioClient implements VirtualClient {
     * 规范化 API 基础地址。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

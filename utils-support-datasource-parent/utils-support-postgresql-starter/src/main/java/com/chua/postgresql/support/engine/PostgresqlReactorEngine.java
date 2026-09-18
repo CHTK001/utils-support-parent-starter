@@ -26,7 +26,7 @@ public class PostgresqlReactorEngine extends JdbcReactorEngine {
 
     /**
     * 创建 PostgreSQL 响应式引擎，内部持有同步 {@link PostgresqlEngine}。
-     */
+    */
     public PostgresqlReactorEngine() {
         super(new PostgresqlEngine());
     }
@@ -41,7 +41,7 @@ public class PostgresqlReactorEngine extends JdbcReactorEngine {
     * @param username 用户名
     * @param password 密码
     * @return 当前引擎实例
-     */
+    */
     public PostgresqlReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
         ((PostgresqlEngine) delegate).addDataSource(name, host, port, database, username, password);
         // 注册到响应式 JDBC 路径（boundedElastic 上执行），与同步引擎共用同一库

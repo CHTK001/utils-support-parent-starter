@@ -103,8 +103,8 @@ public class SigmoidTrainerCalibrator implements TrainerPureCalibrator {
     }
 
     /**
-    * 当前参数
-    */
+        * 当前参数
+        */
     private final SigmoidParams params;
 
     // ==================== 构造方法 ====================

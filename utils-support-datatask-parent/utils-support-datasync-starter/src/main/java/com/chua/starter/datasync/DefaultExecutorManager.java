@@ -36,7 +36,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     /**
     * 创建 默认执行器管理器 实例
     * @param serverId 服务端标识
-     */
+    */
     public DefaultExecutorManager(String serverId) {
         this(serverId, false);
     }
@@ -46,7 +46,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     * @param serverId 服务端标识
     * @param directDispatch 布尔值
     * @param directDispatch directdispatch
-     */
+    */
     public DefaultExecutorManager(String serverId, boolean directDispatch) {
         this.serverId = serverId;
         this.directDispatch = directDispatch;
@@ -92,7 +92,7 @@ public class DefaultExecutorManager implements ExecutorManager {
     * 获取执行器计算数量
     *
     * @return 获取执行器数量的结果
-     */
+    */
     public int getExecutorCount() {
         return executors.size();
     }

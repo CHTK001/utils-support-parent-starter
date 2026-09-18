@@ -30,7 +30,7 @@ public record QwenChatResult(
     * 判断是否成功。
     *
     * @return true 表示成功
-     */
+    */
     public boolean isSuccess() {
         return done && errorMessage == null;
     }
@@ -42,7 +42,7 @@ public record QwenChatResult(
     * @param thinkingContent 思考链文本
     * @param conversationId  会话 标识
     * @return 成功结果
-     */
+    */
     public static QwenChatResult ok(String text, String thinkingContent, String conversationId) {
         return new QwenChatResult(text, thinkingContent, conversationId, null, null, true);
     }
@@ -55,7 +55,7 @@ public record QwenChatResult(
     * @param conversationId  会话 标识
     * @param rawEvents       原始 SSE 事件列表
     * @return 成功结果
-     */
+    */
     public static QwenChatResult ok(String text, String thinkingContent, String conversationId,
                                     List<Map<String, Object>> rawEvents) {
         return new QwenChatResult(text, thinkingContent, conversationId, null, rawEvents, true);
@@ -66,7 +66,7 @@ public record QwenChatResult(
     *
     * @param errorMessage 错误消息
     * @return 错误结果
-     */
+    */
     public static QwenChatResult error(String errorMessage) {
         return new QwenChatResult(null, null, null, errorMessage, null, false);
     }

@@ -21,12 +21,12 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的字体扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED_EXTS = Set.of("ttf", "otf", "woff", "woff2", "eot");
 
     /**
     * Base64 内嵌字体预览允许的最大字节数（约 10 MB）
-     */
+    */
     private static final long MAX_FONT_PREVIEW_BYTES = 10L * 1024 * 1024;
 
     /**
@@ -34,7 +34,7 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
     * @param bytes bytes
     * @return human大小的结果
     * @param ext ext
-     */
+    */
     private static final java.util.Map<String, String> MIME_MAP = java.util.Map.of(
             "ttf", "font/ttf",
             "otf", "font/otf",
@@ -46,7 +46,7 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
     * @param ext ext
     * @param mime mime
     * @return 支持的结果
-     */
+    */
     );
 
     @Override
@@ -58,7 +58,7 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
     * @param ext ext
     * @param mime mime
     * @return preview的结果
-     */
+    */
     }
 
     @Override
@@ -122,7 +122,7 @@ public class FontPreviewProvider implements FileStoragePreviewProvider {
                 * @param ext ext
                 * @return 获取格式化的结果
                 * @param bytes bytes
-                 */
+                */
                 .build();
     }
 

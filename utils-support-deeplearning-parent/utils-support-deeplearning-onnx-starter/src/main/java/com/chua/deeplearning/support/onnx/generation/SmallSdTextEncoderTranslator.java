@@ -39,12 +39,12 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
 
     /**
     * CLIP                                  
-     */
+    */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
     * huggingface
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /**
@@ -55,7 +55,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     *
     * @param ctx                   
     * @throws IOException IO      
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         try {
@@ -103,7 +103,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     * @param input             
     * @return                         
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
         if (tokenizer == null) {
@@ -143,7 +143,7 @@ public class SmallSdTextEncoderTranslator implements NoBatchifyTranslator<String
     * @param list                   
     * @return                 NDList
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) throws Exception {
         var encoderOutput = new NDList();

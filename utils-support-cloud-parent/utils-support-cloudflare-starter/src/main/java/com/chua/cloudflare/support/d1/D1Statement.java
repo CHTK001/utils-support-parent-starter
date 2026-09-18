@@ -24,7 +24,7 @@ public record D1Statement(String sql, D1SqlParameter params) {
     * @param sql    SQL
     * @param params 参数
     * @return D1Statement
-     */
+    */
     public static D1Statement of(String sql, Object... params) {
         return new D1Statement(sql, D1SqlParameter.ofPositional(params));
     }
@@ -36,7 +36,7 @@ public record D1Statement(String sql, D1SqlParameter params) {
     * 命名参数（{@code :name}）按 SQL 中出现顺序转换为数组。</p>
     *
     * @return JSON 节点（映射 形式）
-     */
+    */
     public Map<String, Object> toJson() {
         var map = new LinkedHashMap<String, Object>();
         map.put("sql", sql);

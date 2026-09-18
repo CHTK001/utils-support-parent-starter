@@ -28,27 +28,27 @@ public class KryoPoolManager<T extends Serializable> {
 
     /**
     * 全局管理器缓存，按实体类类型缓存管理器实例
-     */
+    */
     private static final Map<Class<?>, KryoPoolManager<?>> MANAGERS = new ConcurrentHashMap<>();
     /**
     * 序列化器对象池（双端队列）
-     */
+    */
     private final Deque<KryoSerializer<T>> pool;
     /**
     * 目标实体类类型
-     */
+    */
     private final Class<T> clazz;
     /**
     * 对象池最大容量
-     */
+    */
     private final int maxSize;
     /**
     * 当前活跃序列化器数量
-     */
+    */
     private final AtomicInteger activeCount = new AtomicInteger(0);
     /**
     * 累计创建的序列化器总数
-     */
+    */
     private final AtomicInteger totalCreated = new AtomicInteger(0);
 
     /**
@@ -56,7 +56,7 @@ public class KryoPoolManager<T extends Serializable> {
     *
     * @param clazz  目标实体类类型
     * @param maxSize 对象池最大容量
-     */
+    */
     private KryoPoolManager(Class<T> clazz, int maxSize) {
         this.clazz = clazz;
         this.maxSize = maxSize;
@@ -70,7 +70,7 @@ public class KryoPoolManager<T extends Serializable> {
     * @param maxSize 对象池最大容量
     * @param <S>    泛型类型
     * @return KryoPoolManager 实例
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <S extends Serializable> KryoPoolManager<S> getInstance(Class<S> clazz, int maxSize) {
         return (KryoPoolManager<S>) MANAGERS.computeIfAbsent(clazz, k -> new KryoPoolManager(k, maxSize));
@@ -82,7 +82,7 @@ public class KryoPoolManager<T extends Serializable> {
     * @param clazz 目标实体类类型
     * @param <S>   泛型类型
     * @return KryoPoolManager 实例
-     */
+    */
     public static <S extends Serializable> KryoPoolManager<S> getInstance(Class<S> clazz) {
         return getInstance(clazz, 16);
     }
@@ -94,7 +94,7 @@ public class KryoPoolManager<T extends Serializable> {
     * </p>
     *
     * @return KryoSerializer 实例
-     */
+    */
     public synchronized KryoSerializer<T> acquire() {
         KryoSerializer<T> serializer = pool.pollFirst();
         if (serializer != null) {
@@ -115,7 +115,7 @@ public class KryoPoolManager<T extends Serializable> {
     * </p>
     *
     * @param serializer 待释放的序列化器
-     */
+    */
     public void release(KryoSerializer<T> serializer) {
         if (serializer == null) {
             return;
@@ -132,7 +132,7 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取池中当前空闲的序列化器数量。
     *
     * @return 空闲序列化器数量
-     */
+    */
     public int getPoolSize() {
         return pool.size();
     }
@@ -141,7 +141,7 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取当前活跃的序列化器数量。
     *
     * @return 活跃序列化器数量
-     */
+    */
     public int getActiveCount() {
         return activeCount.get();
     }
@@ -150,7 +150,7 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取累计创建的序列化器总数。
     *
     * @return 累计创建总数
-     */
+    */
     public int getTotalCreated() {
         return totalCreated.get();
     }
@@ -159,7 +159,7 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取对象池的最大容量。
     *
     * @return 最大容量
-     */
+    */
     public int getMaxSize() {
         return maxSize;
     }
@@ -168,14 +168,14 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取管理的实体类类型。
     *
     * @return 实体类类型
-     */
+    */
     public Class<T> getClazz() {
         return clazz;
     }
 
     /**
     * 清空池中的所有序列化器并重置计数器。
-     */
+    */
     public void clear() {
         pool.clear();
         activeCount.set(0);
@@ -185,7 +185,7 @@ public class KryoPoolManager<T extends Serializable> {
     /**
     * 清除所有缓存的池管理器和 Kryo 实例。
     * 适用于测试环境或需要释放资源的场景。
-     */
+    */
     public static void clearAll() {
         MANAGERS.clear();
         KryoSerializer.clearPool();
@@ -195,7 +195,7 @@ public class KryoPoolManager<T extends Serializable> {
     * 获取当前池管理器的统计信息字符串。
     *
     * @return 统计信息字符串
-     */
+    */
     public String stats() {
         return String.format("KryoPoolManager{clazz=%s, pool=%d, active=%d, totalCreated=%d, max=%d}",
                 clazz.getSimpleName(), pool.size(), activeCount.get(), totalCreated.get(), maxSize);

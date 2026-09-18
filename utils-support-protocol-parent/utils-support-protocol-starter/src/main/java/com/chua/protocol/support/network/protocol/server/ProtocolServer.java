@@ -18,7 +18,7 @@ public interface ProtocolServer extends AutoCloseable {
     *
     * @param path    路由路径
     * @param handler 请求处理器
-     */
+    */
     void post(String path, BiConsumer<ServletRequest, ServletResponse> handler);
 
     /**
@@ -26,21 +26,21 @@ public interface ProtocolServer extends AutoCloseable {
     *
     * @param path    路由路径
     * @param handler 请求处理器
-     */
+    */
     void get(String path, BiConsumer<ServletRequest, ServletResponse> handler);
 
     /**
     * 启动服务器。
     *
     * @throws Exception 启动失败
-     */
+    */
     void start() throws Exception;
 
     /**
     * 停止服务器。
     *
     * @throws Exception 停止失败
-     */
+    */
     @Override
     void close() throws Exception;
 }

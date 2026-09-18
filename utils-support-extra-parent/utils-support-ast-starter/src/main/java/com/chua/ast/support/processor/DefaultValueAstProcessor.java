@@ -118,7 +118,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     * @param defaultValues 默认值数组
     * @param paramType 参数类型
     * @param paramElement 参数元素
-     */
+    */
     private void applyAstTransform(com.sun.source.tree.MethodTree methodTree,
             String paramName,
             String[] defaultValues,
@@ -181,7 +181,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     *
     * @param type 类型镜像
     * @return 如果是字符串类型返回 true，否则返回 false
-     */
+    */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) { return false; }
         String typeName = type.toString();
@@ -193,7 +193,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     *
     * @param type 类型镜像
     * @return 如果是枚举类型返回 true，否则返回 false
-     */
+    */
     private boolean isEnumType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) { return false; }
         try {
@@ -212,7 +212,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     * @param defaultValues 默认值数组
     * @param arrayType 数组类型
     * @return 赋值表达式语句
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildArrayAssignment(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             com.sun.tools.javac.tree.JCTree.JCIdent paramIdent,
@@ -260,7 +260,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     * @param enumValue 枚举常量名称
     * @param paramType 参数类型
     * @return 赋值表达式语句
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildEnumAssignment(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             com.sun.tools.javac.tree.JCTree.JCIdent paramIdent,
@@ -282,7 +282,7 @@ public final class DefaultValueAstProcessor extends AbstractProcessor {
     * @param names 名称 实例
     * @param qualifiedName 全限定类名
     * @return 全限定名标识符表达式
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedIdent(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             String qualifiedName) {

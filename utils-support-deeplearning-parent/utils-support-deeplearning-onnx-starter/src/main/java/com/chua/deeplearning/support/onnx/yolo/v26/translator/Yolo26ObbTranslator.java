@@ -40,57 +40,57 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
 
     /**
     *                   
-     */
+    */
     private static final int DEFAULT_SIZE = 640;
 
     /**
     *                      
-     */
+    */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
     *        NMS       
-     */
+    */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /**
     *                            
-     */
+    */
     private static final int DEFAULT_MAX_BOXES = 8400;
 
     /**
     *                
-     */
+    */
     private final float threshold;
 
     /**
     * NMS       
-     */
+    */
     private final float nmsThreshold;
 
     /**
     *                   
-     */
+    */
     private final List<String> classes;
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *                      
-     */
+    */
     private final int maxBoxes;
 
     /**
     *                                           
-     */
+    */
     public Yolo26ObbTranslator() {
         this(DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, Arrays.asList("object"), DEFAULT_MAX_BOXES);
     }
@@ -99,7 +99,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     *                               
     *
     * @param classes                   
-     */
+    */
     public Yolo26ObbTranslator(List<String> classes) {
         this(DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, classes, DEFAULT_MAX_BOXES);
     }
@@ -111,7 +111,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param threshold                   
     * @param nmsThreshold NMS       
     * @param classes                        
-     */
+    */
     public Yolo26ObbTranslator(int size, float threshold, float nmsThreshold, List<String> classes) {
         this(size, size, threshold, nmsThreshold, classes, DEFAULT_MAX_BOXES);
     }
@@ -125,7 +125,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param nmsThreshold NMS       
     * @param classes                        
     * @param maxBoxes                          
-     */
+    */
     public Yolo26ObbTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes, int maxBoxes) {
         this.width = width;
         this.height = height;
@@ -143,7 +143,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param ctx                     
     * @param input             
     * @return              NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
@@ -173,7 +173,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param ctx                    
     * @param list              nd列表
     * @return OBB             
-     */
+    */
     @Override
     public ObbResult processOutput(TranslatorContext ctx, NDList list) {
         var imageWidth = (Integer) ctx.getAttachment("width");
@@ -199,7 +199,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param top                    padding
     * @param list                        
     * @return OBB             
-     */
+    */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                           float scale, int left, int top, NDList list) {
         var rawResult = list.getFirst();
@@ -250,7 +250,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     *
     * @param rawResult             
     * @return [boxes, 特征]
-     */
+    */
     private NDArray reshapeToBoxesFirst(NDArray rawResult) {
         var shape = rawResult.getShape();
         if (shape.dimension() == 2) {
@@ -285,7 +285,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     * @param boxes                       
     * @param iouThreshold iou
     * @return                         
-     */
+    */
     private List<YoloRotatedBox> rotatedNms(List<YoloRotatedBox> boxes, double iouThreshold) {
         var keep = new ArrayList<YoloRotatedBox>();
         var removed = new boolean[boxes.size()];
@@ -328,7 +328,7 @@ public class Yolo26ObbTranslator implements Translator<Image, ObbResult> {
     *                   
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

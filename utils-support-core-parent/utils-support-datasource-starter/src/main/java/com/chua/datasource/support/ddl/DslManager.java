@@ -22,7 +22,7 @@ public interface DslManager {
     * @param schemaName  模式 名称
     * @param tableName   表名
     * @return 表定义，不存在返回 空
-     */
+    */
     TableDef getTable(String catalogName, String schemaName, String tableName);
 
     /**
@@ -32,7 +32,7 @@ public interface DslManager {
     * @param schemaName  模式 名称
     * @param tableName   表名
     * @return CREATE TABLE SQL
-     */
+    */
     String createTableDDL(String catalogName, String schemaName, String tableName);
 
     /**
@@ -42,7 +42,7 @@ public interface DslManager {
     * @param oldTableName 原表名
     * @param newTableName 新表名
     * @return RENAME TABLE SQL
-     */
+    */
     String renameTable(String schemaName, String oldTableName, String newTableName);
 
     /**
@@ -52,7 +52,7 @@ public interface DslManager {
     * @param sourceTableName 源表名
     * @param targetTableName 目标表名
     * @return 复制结构 SQL
-     */
+    */
     String copyTableStructure(String schemaName, String sourceTableName, String targetTableName);
 
     /**
@@ -61,13 +61,13 @@ public interface DslManager {
     * @param catalogName catalog 名称
     * @param schemaName  模式 名称
     * @return 表定义列表
-     */
+    */
     List<TableDef> listTables(String catalogName, String schemaName);
 
     /**
     * 管理器类型标识。
     *
     * @return 类型名称
-     */
+    */
     String type();
 }

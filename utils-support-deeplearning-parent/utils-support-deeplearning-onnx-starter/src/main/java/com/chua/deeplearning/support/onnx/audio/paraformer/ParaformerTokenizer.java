@@ -59,7 +59,7 @@ public class ParaformerTokenizer {
     * 构造词表。
     *
     * @param idToToken 令牌 标识 → 字符串映射
-     */
+    */
     private ParaformerTokenizer(String[] idToToken) {
         this.idToToken = idToToken;
         this.vocabSize = idToToken.length;
@@ -76,7 +76,7 @@ public class ParaformerTokenizer {
     * @param tokensPath 令牌.txt 路径
     * @return 词表实例
     * @throws IOException 文件读取失败
-     */
+    */
     public static ParaformerTokenizer load(Path tokensPath) throws IOException {
         try (InputStream in = Files.newInputStream(tokensPath)) {
             return loadFromStream(in);
@@ -89,7 +89,7 @@ public class ParaformerTokenizer {
     * @param in 令牌.txt 输入流
     * @return 词表实例
     * @throws IOException 读取失败
-     */
+    */
     public static ParaformerTokenizer loadFromStream(InputStream in) throws IOException {
         String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
         List<String> lines = content.lines().toList();
@@ -129,7 +129,7 @@ public class ParaformerTokenizer {
     * 词表大小。
     *
     * @return 词表大小
-     */
+    */
     public int vocabSize() {
         return vocabSize;
     }
@@ -138,7 +138,7 @@ public class ParaformerTokenizer {
     * EOS 令牌 标识。
     *
     * @return EOS 标识
-     */
+    */
     public int eosId() {
         return eosId;
     }
@@ -148,7 +148,7 @@ public class ParaformerTokenizer {
     *
     * @param tokenIds 令牌 标识 序列（不含 EOS）
     * @return 识别文本
-     */
+    */
     public String decode(List<Integer> tokenIds) {
         StringBuilder text = new StringBuilder();
         boolean mergeable = false;

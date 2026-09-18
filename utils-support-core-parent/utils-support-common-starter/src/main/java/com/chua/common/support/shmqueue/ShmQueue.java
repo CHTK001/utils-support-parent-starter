@@ -81,8 +81,8 @@ public abstract class ShmQueue implements AutoCloseable {
     }
 
     /**
-    * C 端错误码（与 SHMQ_ERR_* 宏对齐，跨实现统一）
-    */
+        * C 端错误码（与 SHMQ_ERR_* 宏对齐，跨实现统一）
+        */
     public static final int ERR_OK              = 0;
 
     /**

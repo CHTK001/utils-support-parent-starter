@@ -16,6 +16,6 @@ public interface DownloadLinkProvider {
     *
     * @param keyword 搜索关键词，用于定位目标视频资源。
     * @return 包含搜索结果列表的返回对象，可能为空或包含多个下载链接。
-     */
+    */
     ListReturnResult<String> searchDownloadUrls(String keyword);
 }

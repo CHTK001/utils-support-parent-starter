@@ -41,17 +41,17 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
 
     /**
     * Vision          
-     */
+    */
     private SmolDoclingVisionTranslator visionTranslator;
 
     /**
     * Embed          
-     */
+    */
     private SmolDoclingEmbedTranslator embedTranslator;
 
     /**
     * 解码器
-     */
+    */
     private SmolDoclingDecoderTranslator decoderTranslator;
 
     /**
@@ -62,7 +62,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     *
     * @param ctx                   
     * @throws IOException IO      
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         visionTranslator = new SmolDoclingVisionTranslator();
@@ -93,7 +93,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     * @param input                                        
     * @return Vision              nd列表
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, CombinedInput input) throws Exception {
         //        Vision                            
@@ -113,7 +113,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     * @param list              nd列表          Vision
     * @return                         
     * @throws Exception             
-     */
+    */
     @Override
     public String processOutput(TranslatorContext ctx, NDList list) throws Exception {
         //                                           
@@ -162,7 +162,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     *                   
     *
     * @return null                        
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return null;
@@ -172,17 +172,17 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
     *             
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     public static class CombinedInput {
         /**
         *             
-         */
+        */
         private Image image;
 
         /**
         * 令牌 ids
-         */
+        */
         private long[] textTokens;
 
         /**
@@ -190,7 +190,7 @@ public class SmolDoclingCombinedTranslator implements Translator<SmolDoclingComb
         *
         * @param image                  
         * @param textTokens        令牌 标识
-         */
+        */
         public CombinedInput(Image image, long[] textTokens) {
             this.image = image;
             this.textTokens = textTokens;

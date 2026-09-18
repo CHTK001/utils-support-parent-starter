@@ -26,11 +26,11 @@ public class VipParseResult {
     public VipParseResult() {}
 
     /**
-     * 成功结果。
-     *
-     * @param playAddresses 播放地址列表
-     * @return 解析结果
-     */
+    * 成功结果。
+    *
+    * @param playAddresses 播放地址列表
+    * @return 解析结果
+    */
     public static VipParseResult success(List<VideoPlayAddress> playAddresses) {
         VipParseResult r = new VipParseResult();
         r.success = true;
@@ -39,11 +39,11 @@ public class VipParseResult {
     }
 
     /**
-     * 错误结果。
-     *
-     * @param errorMessage 错误信息
-     * @return 解析结果
-     */
+    * 错误结果。
+    *
+    * @param errorMessage 错误信息
+    * @return 解析结果
+    */
     public static VipParseResult error(String errorMessage) {
         VipParseResult r = new VipParseResult();
         r.success = false;
@@ -52,20 +52,52 @@ public class VipParseResult {
         return r;
     }
 
-    /** 获取是否成功。 @return 是否成功 */
+    /**
+    * 获取是否成功。
+    * 
+    * @return 是否成功
+    */
     public boolean isSuccess() { return success; }
-    /** 设置是否成功。 @param success 是否成功 */
+    /**
+    * 设置是否成功。
+    * 
+    * @param success 是否成功
+    */
     public void setSuccess(boolean success) { this.success = success; }
-    /** 获取播放地址列表。 @return 播放地址 */
+    /**
+    * 获取播放地址列表。
+    * 
+    * @return 播放地址
+    */
     public List<VideoPlayAddress> getPlayAddresses() { return playAddresses; }
-    /** 设置播放地址列表。 @param playAddresses 播放地址 */
+    /**
+    * 设置播放地址列表。
+    * 
+    * @param playAddresses 播放地址
+    */
     public void setPlayAddresses(List<VideoPlayAddress> playAddresses) { this.playAddresses = playAddresses; }
-    /** 获取错误信息。 @return 错误信息 */
+    /**
+    * 获取错误信息。
+    * 
+    * @return 错误信息
+    */
     public String getErrorMessage() { return errorMessage; }
-    /** 设置错误信息。 @param errorMessage 错误信息 */
+    /**
+    * 设置错误信息。
+    * 
+    * @param errorMessage 错误信息
+    */
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
-    /** 获取视频标题。 @return 标题 */
+    /**
+    * 获取视频标题。
+    * 
+    * @return 标题
+    */
     public String getTitle() { return title; }
-    /** 设置视频标题。 @param title 标题 */
+    /**
+    * 设置视频标题。
+    * 
+    * @param title 标题
+    */
     public void setTitle(String title) { this.title = title; }
 }

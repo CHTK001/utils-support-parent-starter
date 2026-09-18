@@ -25,21 +25,21 @@ public class MilvusStorageProperties implements Serializable {
 
     /**
     * Milvus 服务地址（支持完整 URI，如 https://...）
-     */
+    */
     private String host = "127.0.0.1";
 
     /**
     * Milvus 服务端口（仅当 主机 不含协议时使用）
-     */
+    */
     private int port = 19530;
 
     /**
     * 集合 名称
-     */
+    */
     private String collection = "vector_store";
 
     /**
     * 认证令牌（可选，Zilliz Cloud 必须）
-     */
+    */
     private String token;
 }

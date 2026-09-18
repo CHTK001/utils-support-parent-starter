@@ -43,7 +43,7 @@ public class PropertiesConfigFileParser implements ConfigFileParser {
     *
     * @param flat flat
     * @return 构建嵌套映射的结果
-     */
+    */
     private static Map<String, Object> buildNestedMap(Map<String, Object> flat) {
         Map<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : flat.entrySet()) {

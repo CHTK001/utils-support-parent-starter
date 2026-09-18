@@ -28,19 +28,19 @@ public class LetterBoxUtils {
     * letterbox 填充位置枚举，定义图像缩放后在画布中的放置位置
     * @author CH
     * @since 4.0.0
-     */
+    */
     public enum PaddingPosition {
         /**
         * 居中填充：图像缩放后放置在画布中央
-         */
+        */
         CENTER,
         /**
         * 左上角填充：图像缩放后放置在画布左上角
-         */
+        */
         LEFT_TOP,
         /**
         * 右下角填充：图像缩放后放置在画布右下角
-         */
+        */
         RIGHT_BOTTOM
     }
 
@@ -48,31 +48,31 @@ public class LetterBoxUtils {
     * letterbox 缩放结果，保存缩放后的图像和缩放填充参数
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class ResizeResult {
         /**
         * letterbox 处理后的 ndarray 图像张量（HWC 格式）
-         */
+        */
         public NDArray image;
         /**
         * 等比缩放比例
-         */
+        */
         public float r;
         /**
         * 左侧填充宽度（像素）
-         */
+        */
         public int left;
         /**
         * 上方填充高度（像素）
-         */
+        */
         public int top;
         /**
         * 水平方向填充总宽度（左侧+右侧，像素）
-         */
+        */
         public int padW;
         /**
         * 垂直方向填充总高度（上方+下方，像素）
-         */
+        */
         public int padH;
     }
 
@@ -84,7 +84,7 @@ public class LetterBoxUtils {
     * @param left       左侧填充像素数
     * @param top        顶部填充像素数
     * @return 封装了缩放元数据的 resize结果 对象
-     */
+    */
     public static ResizeResult letterboxWithMeta(NDArray paddingImg, float r, int left, int top) {
         var result = new ResizeResult();
         result.image = paddingImg;
@@ -107,7 +107,7 @@ public class LetterBoxUtils {
     * @param position 填充位置策略，可选 CENTER / LEFT_TOP / RIGHT_BOTTOM
     * @return 包含缩放后图像和元数据的 resize结果 对象
     * @param ndManager nd管理器
-     */
+    */
     public static ResizeResult letterbox(NDManager ndManager, NDArray img, int targetW, int targetH, float padColor, PaddingPosition position) {
         long origH = img.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         long origW = img.getShape().get(1);
@@ -179,7 +179,7 @@ public class LetterBoxUtils {
     * @param keypointStart    关键点起始列的索引位置
     * @param keypointDim      关键点维度，取 0 表示没有关键点
     * @return 还原到原始图像坐标系后的边界框 ndarray
-     */
+    */
     public static NDArray restoreBox(NDArray boxes, float scaleRatio, float left, float top, int keypointStart, int keypointDim) {
         // 还原 bbox 坐标
         var x1 = boxes.get(":, 0").sub(left).div(scaleRatio);
@@ -215,7 +215,7 @@ public class LetterBoxUtils {
     * @param inputWidth      模型输入宽度（像素），即 letterbox 的目标宽度
     * @param inputHeight                       模型输入高度（像素），即 letterbox 的目标高度
     * @return 还原后的归一化 Rectangle 对象
-     */
+    */
     public static Rectangle restoreBox(Rectangle rectangle, float scale, int origImageWidth, int origImageHeight, int inputWidth, int inputHeight) {
         double paddingWidth = (inputWidth - origImageWidth * scale) / 2;
         double paddingHeight = (inputHeight - origImageHeight * scale) / 2;
@@ -243,7 +243,7 @@ public class LetterBoxUtils {
     * @param inputHeight                       模型输入图像高度（像素），即 letterbox 的目标高度
     * @param isNormalized             关键点坐标是否为归一化坐标（0-1 范围）
     * @return 还原后的 Landmark 对象
-     */
+    */
     public static Landmark restoreBox(Landmark landmark, float scale, int origImageWidth, int origImageHeight, int inputWidth, int inputHeight, boolean isNormalized) {
         double x = 0;
         double y = 0;
@@ -291,7 +291,7 @@ public class LetterBoxUtils {
     * @param targetWidth                目标宽度（像素）
     * @param targetHeight                        目标高度（像素）
     * @return 长度为 2 的 int 数组 [width, height]，即等比缩放后的宽度和高度
-     */
+    */
     public static int[] getResizeSize(int origW, int origH, int targetWidth, int targetHeight) {
         float r = Math.min(targetWidth / (float) origW, targetHeight / (float) origH);
         int newW = Math.round(origW * r);
@@ -312,7 +312,7 @@ public class LetterBoxUtils {
     * @param origW          原始图像宽度（像素）
     * @param origH                         原始图像高度（像素）
     * @return 还原后的坐标数组 [x1, y1, x2, y2]
-     */
+    */
     public static float[] scaleCoords(int targetW, int targetH, float x1, float y1, float x2, float y2, ResizeResult result, int origW, int origH) {
         float scale = result.r;
         float scaledX1 = (x1 - result.left) / scale;
@@ -336,7 +336,7 @@ public class LetterBoxUtils {
     * @param newW      目标宽度
     * @param newH      目标高度
     * @return 缩放后的 ndarray（HWC float32）
-     */
+    */
     public static NDArray resizeWithAwt(NDManager ndManager, NDArray img, int newW, int newH) {
         long[] shape = img.getShape().getShape();
         int origH = (int) shape[0];

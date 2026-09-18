@@ -15,12 +15,12 @@ public class ClassPrediction {
 
     /**
     * 预测类别名称。
-     */
+    */
     private final String className;
 
     /**
     * 预测置信度（0.0 ~ 1.0）。
-     */
+    */
     private final float probability;
 
     /**
@@ -28,7 +28,7 @@ public class ClassPrediction {
     *
     * @param className   预测类别
     * @param probability 置信度
-     */
+    */
     public ClassPrediction(String className, float probability) {
         this.className = className;
         this.probability = probability;

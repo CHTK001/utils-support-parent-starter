@@ -41,7 +41,7 @@ public @interface Collapsible {
     * （合并拆分模式按方法执行，混入不同方法会抛出异常）。</p>
     *
     * @return 折叠执行器名称
-     */
+    */
     String name() default "";
 
     /**
@@ -55,7 +55,7 @@ public @interface Collapsible {
     * 支持同参合并场景下将元素映射为统一键（如实体按业务键归约）。</p>
     *
     * @return 元素归约键 spel 表达式
-     */
+    */
     String key() default "";
 
     /**
@@ -72,7 +72,7 @@ public @interface Collapsible {
     * 时抛出原始异常。</p>
     *
     * @return 降级方法引用，为空时折叠失败直接抛原始异常
-     */
+    */
     String fallback() default "";
 
     /**
@@ -82,7 +82,7 @@ public @interface Collapsible {
     * （Spring Boot {@code collapse.executor.wait-threshold}），未配置全局时使用内置默认 10。</p>
     *
     * @return 批量收集阈值
-     */
+    */
     int waitThreshold() default -1;
 
     /**
@@ -95,6 +95,6 @@ public @interface Collapsible {
     * （Spring Boot {@code collapse.executor.collecting-wait-time}），未配置全局时使用内置默认 0。</p>
     *
     * @return 补收等待时间（毫秒）
-     */
+    */
     long collectingWaitTime() default -2;
 }

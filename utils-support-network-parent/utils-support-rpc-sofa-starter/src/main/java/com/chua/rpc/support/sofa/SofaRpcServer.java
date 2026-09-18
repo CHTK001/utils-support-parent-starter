@@ -30,23 +30,23 @@ public class SofaRpcServer implements RpcServer {
 
     /**
     * registry 配置
-     */
+    */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
     * 服务器 配置
-     */
+    */
     private final List<ServerConfig> serverConfigs = new ArrayList<>();
     /**
     * 提供者 配置
-     */
+    */
     private final List<ProviderConfig<?>> providerConfigs = new ArrayList<>();
     /**
     * 状态
-     */
+    */
     private final AtomicBoolean state = new AtomicBoolean(false);
     /**
     * application 配置
-     */
+    */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
 
     /**
@@ -56,7 +56,7 @@ public class SofaRpcServer implements RpcServer {
     * @param name 字符串
     * @param protocolConfig 协议配置
     * @param name 名称
-     */
+    */
     public SofaRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig.setAppName(name);
         for (RpcRegistryConfig config : rpcRegistryConfigs) {
@@ -82,7 +82,7 @@ public class SofaRpcServer implements RpcServer {
     *
     * @param appName 应用名（{@code null} / 空串时退化为 {@code default}）
     * @return 注册文件绝对路径
-     */
+    */
     static String localRegistryFile(String appName) {
         String safe = (appName == null || appName.isEmpty()) ? "default" : appName;
         String dir = System.getProperty("sofa.rpc.registry.file.dir");
@@ -99,7 +99,7 @@ public class SofaRpcServer implements RpcServer {
     * 初始化协议
     *
     * @param config 配置
-     */
+    */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) { return; }
         ServerConfig item = new ServerConfig();

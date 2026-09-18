@@ -42,7 +42,9 @@ public class RandomForestOptions implements Serializable {
     /** 随机种子 */
     private int seed = 1;
 
-    /** Bagging 采样比例（百分数，100 = 全量重采样（Weka 默认），取值 1~100） */
+    /**
+    * Bagging 采样比例（百分数，100 = 全量重采样（Weka 默认），取值 1~100）
+    */
     private int bagSizePercent = 100;
 
     /** 每棵树分裂时的候选特征数（0 = 默认 sqrt(总特征数)） */
@@ -58,7 +60,7 @@ public class RandomForestOptions implements Serializable {
     * 默认参数。
     *
     * @return 默认参数实例
-     */
+    */
     public static RandomForestOptions defaults() {
         return new RandomForestOptions();
     }

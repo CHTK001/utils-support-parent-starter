@@ -56,32 +56,32 @@ public class VitsTtsTranslator {
 
     /**
     * 输出采样率（VITS-icefall 固定 8khz）
-     */
+    */
     private static final int SAMPLE_RATE = 8000;
 
     /**
     * 类路径 资源根路径
-     */
+    */
     private static final String RESOURCE_BASE = "audio/tts/vits-icefall-zh/";
 
     /**
     * 模型缓存根目录（音频/tts/）
-     */
+    */
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
     * 最大音素 令牌 数（防 OOM）
-     */
+    */
     private static final int MAX_TOKENS = 2000;
 
     /**
     * 句末标点集合（对标 sherpa-onnx，命中后追加 eos 并分段）
-     */
+    */
     private static final String SENTENCE_END_PUNCS = "。；！？：”";
 
     /**
     * 非句末标点集合（直接以 #0 占位，不分段）
-     */
+    */
     private static final String INLINE_PUNCS = "，、“、";
 
     /** ONNX 运行时环境 */
@@ -104,7 +104,7 @@ public class VitsTtsTranslator {
 
     /**
     * 构造合成器。
-     */
+    */
     public VitsTtsTranslator() {
     }
 
@@ -112,7 +112,7 @@ public class VitsTtsTranslator {
     * 说话人名称列表（speakers.txt 顺序，对应 speaker 标识 0~N-1）。
     *
     * @return 说话人名称列表
-     */
+    */
     public List<String> speakerNames() {
         return speakers;
     }
@@ -121,7 +121,7 @@ public class VitsTtsTranslator {
     * 准备模型（懒加载）。
     *
     * @throws Exception 准备异常
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (prepared) {
             return;
@@ -154,7 +154,7 @@ public class VitsTtsTranslator {
     * 未配置时回落 {@code %TEMP%}。
     *
     * @return 缓存根目录
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
@@ -163,7 +163,7 @@ public class VitsTtsTranslator {
     /**
     * 加载 令牌.txt（每行 {@code token id}）。
     * @param path 路径
-     */
+    */
     private void loadTokens(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -179,7 +179,7 @@ public class VitsTtsTranslator {
     /**
     * 加载 lexicon.txt（每行 {@code 字 音素...}），音素逐一转 令牌 标识。
     * @param path 路径
-     */
+    */
     private void loadLexicon(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (line.isBlank()) {
@@ -212,7 +212,7 @@ public class VitsTtsTranslator {
     /**
     * 加载 speakers.txt（每行一个说话人 标识，按行序对应 0~N-1）。
     * @param path 路径
-     */
+    */
     private void loadSpeakers(Path path) throws Exception {
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             if (!line.isBlank()) {
@@ -226,7 +226,7 @@ public class VitsTtsTranslator {
     *
     * @param text 中文文本
     * @return token 标识 序列
-     */
+    */
     private int[] textToTokenIds(String text) {
         Integer sil = token2id.get("sil");
         Integer eos = token2id.get("eos");
@@ -279,7 +279,7 @@ public class VitsTtsTranslator {
     * @param text     中文文本
     * @param speakerId 说话人 标识（0~173），负数或越界回退 0
     * @return 8kHz WAV 音频字节
-     */
+    */
     public byte[] synthesize(String text, int speakerId) {
         try {
             if (text == null || text.isBlank()) {
@@ -307,7 +307,7 @@ public class VitsTtsTranslator {
     * @param tokenIds 音素 令牌 标识 序列
     * @param sid      说话人 标识
     * @return 8kHz 波形
-     */
+    */
     private float[] runInference(int[] tokenIds, int sid) throws Exception {
         long[] tokensShape = new long[]{1, tokenIds.length};
         long[] lenShape = new long[]{1};
@@ -341,7 +341,7 @@ public class VitsTtsTranslator {
     *
     * @param samples 波形数据
     * @return WAV 字节
-     */
+    */
     private static byte[] toWav(float[] samples) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {
@@ -361,7 +361,7 @@ public class VitsTtsTranslator {
     * 列表 转 int 数组。
     * @param list 列表
     * @return 转为intarray的结果
-     */
+    */
     private static int[] toIntArray(List<Integer> list) {
         int[] arr = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -374,7 +374,7 @@ public class VitsTtsTranslator {
     * int 数组转 long 数组。
     * @param arr arr
     * @return 转为longarray的结果
-     */
+    */
     private static long[] toLongArray(int[] arr) {
         long[] out = new long[arr.length];
         for (int i = 0; i < arr.length; i++) {
@@ -385,7 +385,7 @@ public class VitsTtsTranslator {
 
     /**
     * 关闭资源。
-     */
+    */
     public void close() {
         if (session != null) {
             try {

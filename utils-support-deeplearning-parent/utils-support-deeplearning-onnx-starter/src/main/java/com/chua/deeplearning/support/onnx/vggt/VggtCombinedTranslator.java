@@ -36,7 +36,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
 
     /**
     *                                        
-     */
+    */
     private VggtOutputTranslator outputTranslator;
 
     /**
@@ -47,7 +47,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     *
     * @param ctx                   
     * @throws IOException IO      
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) throws IOException {
         outputTranslator = new VggtOutputTranslator();
@@ -72,7 +72,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     * @param input             
     * @return              NDList
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         return outputTranslator.processInput(ctx, input);
@@ -88,7 +88,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     * @param list              nd列表
     * @return VggtOutput       
     * @throws Exception             
-     */
+    */
     @Override
     public VggtOutput processOutput(TranslatorContext ctx, NDList list) throws Exception {
         return outputTranslator.processOutput(ctx, list);
@@ -98,7 +98,7 @@ public class VggtCombinedTranslator implements Translator<Image, VggtOutput> {
     *                   
     *
     * @return null                        
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return null;

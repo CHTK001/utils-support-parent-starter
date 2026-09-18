@@ -31,23 +31,23 @@ public final class ProxyFetcherFlow {
 
     /**
     * 代理源名称
-     */
+    */
     private final String sourceName;
 
     /**
     * 是否轮询模式
-     */
+    */
     private boolean roundRobin;
 
     /**
     * 降级回调
-     */
+    */
     private Supplier<String> fallback;
 
     /**
     * 创建 代理获取流 实例
     * @param sourceName 源名称
-     */
+    */
     private ProxyFetcherFlow(String sourceName) {
         this.sourceName = sourceName;
     }
@@ -56,7 +56,7 @@ public final class ProxyFetcherFlow {
     * 创建代理获取门面（从所有 SPI 实现聚合）。
     *
     * @return 门面实例
-     */
+    */
     public static ProxyFetcherFlow of() {
         return new ProxyFetcherFlow(null);
     }
@@ -66,7 +66,7 @@ public final class ProxyFetcherFlow {
     *
     * @param sourceName 代理源名称
     * @return 门面实例
-     */
+    */
     public static ProxyFetcherFlow of(String sourceName) {
         return new ProxyFetcherFlow(sourceName);
     }
@@ -75,7 +75,7 @@ public final class ProxyFetcherFlow {
     * 设置轮询模式。
     *
     * @return this
-     */
+    */
     public ProxyFetcherFlow roundRobin() {
         this.roundRobin = true;
         return this;
@@ -86,7 +86,7 @@ public final class ProxyFetcherFlow {
     *
     * @param fallback 降级回调
     * @return this
-     */
+    */
     public ProxyFetcherFlow fallback(Supplier<String> fallback) {
         this.fallback = fallback;
         return this;
@@ -96,7 +96,7 @@ public final class ProxyFetcherFlow {
     * 获取一个代理。
     *
     * @return 代理地址，格式 "主机:端口"
-     */
+    */
     public String fetchOne() {
         List<String> proxies = fetchProxies();
         if (proxies.isEmpty()) {
@@ -115,7 +115,7 @@ public final class ProxyFetcherFlow {
     * 获取所有代理。
     *
     * @return 代理地址列表
-     */
+    */
     public List<String> fetchAll() {
         return fetchProxies();
     }
@@ -124,7 +124,7 @@ public final class ProxyFetcherFlow {
     * 获取代理
     *
     * @return 获取代理的结果
-     */
+    */
     private List<String> fetchProxies() {
         Map<String, ProxyFetcher> fetchers = ServiceProvider.of(ProxyFetcher.class).list();
         if (fetchers.isEmpty()) {
@@ -145,7 +145,7 @@ public final class ProxyFetcherFlow {
 
     /**
     * 轮询计数器缓存。
-     */
+    */
     private static final Map<String, AtomicInteger> ROUND_ROBIN_CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -153,7 +153,7 @@ public final class ProxyFetcherFlow {
     *
     * @param proxies 代理
     * @return roundrobin选择的结果
-     */
+    */
     private String roundRobinSelect(List<String> proxies) {
         String key = sourceName != null ? sourceName : "all";
         AtomicInteger counter = ROUND_ROBIN_CACHE.computeIfAbsent(key, k -> new AtomicInteger(0));

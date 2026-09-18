@@ -45,7 +45,7 @@ public class FceEmailProvider implements EmailProvider {
 
     /**
     * fceemail提供者。
-     */
+    */
     public FceEmailProvider() {
         this.apiKey = resolveApiKey();
     }
@@ -130,11 +130,11 @@ public class FceEmailProvider implements EmailProvider {
     * 从邮件内容中提取 OTP 验证码。
     * @return resolveapi键的结果
      /**
-       * extractotp。
-      * @param text 文本
-      * @return extractOtp的结果
-     * @param length 长度
-     */
+    * extractotp。
+    * @param text 文本
+    * @return extractOtp的结果
+    * @param length 长度
+    */
     public static String extractOtp(String text) {
         if (text == null) {
             return null;

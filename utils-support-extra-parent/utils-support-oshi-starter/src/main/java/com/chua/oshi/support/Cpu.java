@@ -16,31 +16,31 @@ public class Cpu {
 
     /**
     * 用户态 CPU 使用率（百分比 0-100）。
-     */
+    */
     private double user;
 
     /**
     * 系统态 CPU 使用率（百分比 0-100）。
-     */
+    */
     private double sys;
 
     /**
     * I/O 等待 CPU 使用率（百分比 0-100）。
-     */
+    */
     private double wait;
 
     /**
     * CPU 空闲率（百分比 0-100）。
-     */
+    */
     private double free;
 
     /**
     * CPU 总使用率（百分比 0-100）。
-     */
+    */
     private double used;
 
     /**
     * CPU 逻辑核心数量。
-     */
+    */
     private int cpuNum;
 }

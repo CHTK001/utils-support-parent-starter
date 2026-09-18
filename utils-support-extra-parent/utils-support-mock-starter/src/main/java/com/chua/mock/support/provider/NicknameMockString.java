@@ -21,7 +21,7 @@ public class NicknameMockString implements MockString {
 
     /**
     * 修饰词池
-     */
+    */
     private static final String[] PREFIXES = {
             "快乐的", "可爱的", "爱笑的", "阳光的", "帅气的", "甜甜的", "酷酷的", "温柔的",
             "软萌的", "元气", "机智的", "浪漫的", "追风的", "安静的", "傲娇的", "暖心"
@@ -30,7 +30,7 @@ public class NicknameMockString implements MockString {
     * 意象词池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] IMAGES = {
             "猫咪", "小鱼", "星星", "月亮", "奶茶", "柠檬", "布丁", "小鹿",
             "云朵", "泡泡", "小熊", "海豚", "企鹅", "兔子", "狐狸", "椰子"

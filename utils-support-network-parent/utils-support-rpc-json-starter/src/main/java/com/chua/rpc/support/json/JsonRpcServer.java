@@ -59,97 +59,97 @@ public class JsonRpcServer implements RpcServer {
 
     /**
     * JSON-RPC 请求体中用于路由的服务标识字段名（与 {@link JsonRpcClient} 约定一致）
-     */
+    */
     static final String SERVICE_FIELD = "service";
 
     /**
     * 未配置端口时的默认监听端口
-     */
+    */
     private static final int DEFAULT_PORT = 8080;
 
     /**
     * 未配置线程数时的默认 HTTP 工作线程数
-     */
+    */
     private static final int DEFAULT_THREADS = 8;
 
     /**
     * 请求头：版本号（与 {@link JsonRpcClient} 约定一致，包内可见）
-     */
+    */
     static final String HEADER_VERSION = "X-RPC-Version";
 
     /**
     * 请求头：分组（与 {@link JsonRpcClient} 约定一致，包内可见）
-     */
+    */
     static final String HEADER_GROUP = "X-RPC-Group";
 
     /**
     * 请求头：安全令牌（与 {@link JsonRpcClient} 约定一致，包内可见）
-     */
+    */
     static final String HEADER_TOKEN = "X-RPC-Token";
 
     /**
     * 启动状态（防止 {@link #afterPropertiesSet()} 重复启动）
-     */
+    */
     private final AtomicBoolean state = new AtomicBoolean(false);
 
     /**
     * 协议配置（端口 / 线程数）
-     */
+    */
     private final RpcProtocolConfig protocolConfig;
 
     /**
     * JSON 序列化器（jsonrpc4j 复用）
-     */
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
     * 服务名（接口全限定名）→ 独立 JSON-RPC 处理器
-     */
+    */
     private final Map<String, JsonRpcBasicServer> rpcServerMap = new ConcurrentHashMap<>();
 
     /**
     * 服务名（接口全限定名）→ 服务实现对象（用于读取 {@link RpcService} 治理元数据）
-     */
+    */
     private final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
 
     /**
     * JDK HTTP 服务（{@link #afterPropertiesSet()} 启动）
-     */
+    */
     private HttpServer httpServer;
 
     /**
     * HTTP 工作线程池
-     */
+    */
     private ExecutorService executorService;
 
     /**
     * 服务启动时间戳（毫秒）
-     */
+    */
     private final long startTime = System.currentTimeMillis();
 
     /**
     * 累计请求总数（仅统计 POST 请求）
-     */
+    */
     private final AtomicLong totalRequests = new AtomicLong();
 
     /**
     * 累计成功响应数
-     */
+    */
     private final AtomicLong successRequests = new AtomicLong();
 
     /**
     * 累计失败响应数（5xx/4xx/异常）
-     */
+    */
     private final AtomicLong failureRequests = new AtomicLong();
 
     /**
     * 当前在途请求数
-     */
+    */
     private final AtomicLong activeRequests = new AtomicLong();
 
     /**
     * 最近请求来源 IP 集合（HTTP 短连接无持久连接，用来源地址近似连接信息）
-     */
+    */
     private final Set<String> clientAddresses = ConcurrentHashMap.newKeySet();
 
     /**
@@ -158,7 +158,7 @@ public class JsonRpcServer implements RpcServer {
     * @param rpcRegistryConfigs 注册中心配置（json 实现仅取地址，如 {@code http://127.0.0.1:8080}）
     * @param protocolConfig     协议配置（端口 / 线程数），可为 {@code null}
     * @param name               应用名（json 实现不使用，保留 SPI 构造契约）
-     */
+    */
     public JsonRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         this.protocolConfig = protocolConfig;
     }
@@ -208,7 +208,7 @@ public class JsonRpcServer implements RpcServer {
     *
     * @param exchange HTTP 交换对象
     * @throws IOException 响应写出失败时抛出
-     */
+    */
     private void handleHttp(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             exchange.sendResponseHeaders(405, -1);
@@ -271,7 +271,7 @@ public class JsonRpcServer implements RpcServer {
     * 记录一次请求：累计总数、在途数、来源地址。
     *
     * @param exchange HTTP 交换对象
-     */
+    */
     private void trackRequest(HttpExchange exchange) {
         totalRequests.incrementAndGet();
         activeRequests.incrementAndGet();
@@ -335,7 +335,7 @@ public class JsonRpcServer implements RpcServer {
     * @param input 请求体输入流
     * @return 请求体字节数组，不会为 {@code null}
     * @throws IOException 读取失败时抛出
-     */
+    */
     private static byte[] readRequestBody(InputStream input) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(512);
         byte[] chunk = new byte[4096];
@@ -351,7 +351,7 @@ public class JsonRpcServer implements RpcServer {
     *
     * @param body 请求体字节数组
     * @return 服务标识；请求体未包含该字段或解析失败时返回 {@code null}
-     */
+    */
     private String resolveServiceName(byte[] body) {
         try {
             JsonNode node = objectMapper.readTree(body);
@@ -375,7 +375,7 @@ public class JsonRpcServer implements RpcServer {
     *
     * @param serviceName 服务标识，可为 {@code null}
     * @return 对应的处理器；无法确定时返回 {@code null}
-     */
+    */
     private JsonRpcBasicServer resolveServer(String serviceName) {
         if (serviceName == null || serviceName.isEmpty()) {
             if (rpcServerMap.size() == 1) {
@@ -395,7 +395,7 @@ public class JsonRpcServer implements RpcServer {
     * @param exchange    HTTP 交换对象
     * @param serviceName 服务标识
     * @return 校验通过返回 {@code true}
-     */
+    */
     private boolean checkServiceHeaders(HttpExchange exchange, String serviceName) {
         Object bean = serviceName != null ? serviceMap.get(serviceName) : null;
         RpcService meta = bean == null ? null : bean.getClass().getAnnotation(RpcService.class);
@@ -422,7 +422,7 @@ public class JsonRpcServer implements RpcServer {
     *
     * @param value 待判断字符串
     * @return 非空返回 {@code true}
-     */
+    */
     private static boolean hasText(String value) {
         return value != null && !value.trim().isEmpty();
     }

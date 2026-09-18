@@ -22,7 +22,7 @@ public class RedisSearchMetaData extends DefaultMetaData {
     /**
     * 创建 redis搜索meta数据 实例
     * @param engine engine
-     */
+    */
     public RedisSearchMetaData(RediSearchEngine engine) {
         super(engine);
     }

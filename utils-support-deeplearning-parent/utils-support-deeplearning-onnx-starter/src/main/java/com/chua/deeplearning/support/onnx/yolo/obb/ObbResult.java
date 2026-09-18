@@ -19,14 +19,14 @@ public class ObbResult {
 
     /**
     * OBB              
-     */
+    */
     private List<YoloRotatedBox> rotatedBoxList;
 
     /**
     *             
     *
     * @param rotatedBoxList                
-     */
+    */
     public ObbResult(List<YoloRotatedBox> rotatedBoxList) {
         this.rotatedBoxList = rotatedBoxList;
     }

@@ -62,7 +62,7 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     * @param dataSource 数据源
     * @param dimension 维度
     * @param algorithm algorithm
-     */
+    */
     public PostgresqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         this(dataSource, dimension, algorithm, new PostgresqlVectorStorageProperties());
     }
@@ -124,7 +124,7 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
     /**
     * ensure模式。
-     */
+    */
     private synchronized void ensureSchema() {
         if (schemaInitialized) {
             return;
@@ -162,12 +162,11 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
 
     /**
     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
-    * @return 构建相似度op的结果
-     /**
-      * resolved。
-      * @return resolved的结果
-      */
-     */
+    * 若初始化时原生向量能力不可用并降级为内存存储，则返回内存存储实例；
+    * 否则确保向量表结构就绪后返回当前实例。
+    *
+    * @return 实际可用的向量存储实例
+    */
     private com.chua.common.support.vector.VectorStorage resolved() {
         if (fallback != null) {
             return fallback;
@@ -187,10 +186,11 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将 float[] 转为 PostgreSQL 向量 字面量，如 {@code '[0.1,0.2,0.3]'}.
-    * @param arr arr
-    * @return floatarray转为pg向量字面量的结果
-     */
+    * 将 float[] 转为 PostgreSQL 向量字面量，如 {@code '[0.1,0.2,0.3]'}。
+    *
+    * @param arr 向量数组，可为 null（返回空向量字面量）
+    * @return PostgreSQL 向量字面量字符串
+    */
     private static String floatArrayToPgVectorLiteral(float[] arr) {
         if (arr == null || arr.length == 0) {
             return "[]";
@@ -208,15 +208,12 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * 将 PostgreSQL 向量 对象转为 float[]。
-    * @param json json
-     /**
-      * pg向量转为对象。
-      * @param obj obj
-      * @return pg向量转为对象的结果
-      */
-     * @return jsonarray转为floatarray的结果
-     */
+    * 将 PostgreSQL 向量对象转为 float[]。
+    * 兼容 float[]、double[] 以及 JSON 数组字面量三种形态。
+    *
+    * @param obj PostgreSQL 返回的向量对象，可为 null
+    * @return 转换后的浮点数组；无法解析时返回 null
+    */
     private static float[] pgVectorToObject(Object obj) {
         if (obj == null) {
             return null;
@@ -233,12 +230,6 @@ public class PostgresqlVectorStorage extends AbstractVectorStorage {
         }
         String s = obj.toString();
         return jsonArrayToFloatArray(s);
-    /**
-    * floatarray转为json。
-    * @param vector 向量
-    * @return floatarray转为json的结果
-    * @param json json
-     */
     }
 
     private static String floatArrayToJson(float[] vector) {

@@ -26,12 +26,12 @@ public class PedestrianTranslator implements Translator<Image, DetectedObjects> 
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     @Override

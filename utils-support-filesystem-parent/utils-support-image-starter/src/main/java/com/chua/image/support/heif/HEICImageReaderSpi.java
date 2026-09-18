@@ -25,7 +25,7 @@ public class HEICImageReaderSpi extends ImageReaderSpi {
 
     /**
     * heic镜像读取spi。
-     */
+    */
     public HEICImageReaderSpi() {
         super(VENDOR, VERSION, NAMES, SUFFIXES, MIMES,
                 HEICImageReader.class.getName(),

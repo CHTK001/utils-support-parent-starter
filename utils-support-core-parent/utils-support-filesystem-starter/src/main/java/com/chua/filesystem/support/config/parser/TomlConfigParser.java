@@ -37,7 +37,7 @@ public class TomlConfigParser implements ConfigParser {
     * @param urlPath url路径
     * @param is 是否
     * @return 解析的结果
-     */
+    */
     public PropertySource parse(String urlPath, InputStream is) {
         try {
             Map<String, Object> map = TOML_MAPPER.readValue(is, Map.class);
@@ -56,7 +56,7 @@ public class TomlConfigParser implements ConfigParser {
     * @param map    原始映射
     * @param prefix 前缀
     * @return 扁平化后的Map
-     */
+    */
     @SuppressWarnings("unchecked")
     private Map<String, Object> flattenMap(Map<String, Object> map, String prefix) {
         Map<String, Object> result = new LinkedHashMap<>();

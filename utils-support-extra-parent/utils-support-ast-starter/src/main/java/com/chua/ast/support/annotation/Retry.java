@@ -31,28 +31,28 @@ public @interface Retry {
     * 最大重试次数
     *
     * @return 重试次数
-     */
+    */
     int times() default 3;
 
     /**
     * 重试间隔（毫秒）
     *
     * @return 间隔毫秒数
-     */
+    */
     long delay() default 100;
 
     /**
     * 最大延迟（毫秒），仅指数退避策略生效
     *
     * @return 最大延迟毫秒数
-     */
+    */
     long maxDelay() default 5000;
 
     /**
     * 重试策略
     *
     * @return 重试策略枚举
-     */
+    */
     RetryStrategy strategy() default RetryStrategy.FIXED;
 
     /**
@@ -60,7 +60,7 @@ public @interface Retry {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     enum RetryStrategy {
         /** 固定间隔 */
         FIXED,

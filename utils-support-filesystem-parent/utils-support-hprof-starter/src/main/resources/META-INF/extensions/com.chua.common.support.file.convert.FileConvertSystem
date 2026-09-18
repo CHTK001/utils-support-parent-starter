@@ -1,0 +1,3 @@
+hprof2json=com.chua.hprof.support.converter.HprofToJsonFileConvertSystem
+hprof2markdown=com.chua.hprof.support.converter.HprofToMarkdownFileConvertSystem
+hprof2html=com.chua.hprof.support.converter.HprofToHtmlFileConvertSystem

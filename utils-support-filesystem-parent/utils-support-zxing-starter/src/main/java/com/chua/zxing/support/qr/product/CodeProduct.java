@@ -27,6 +27,6 @@ public interface CodeProduct {
     * @param setting QR码的设置，例如图像尺寸、颜色等
     * @return 返回BufferedImage对象，代表生成的QR码图像
     * @throws IOException io异常
-     */
+    */
     BufferedImage create(QrCodeOptions qrCodeOptions, BitMatrixEx bitMatrix, QRCode qrCode, QrSetting setting) throws IOException;
 }

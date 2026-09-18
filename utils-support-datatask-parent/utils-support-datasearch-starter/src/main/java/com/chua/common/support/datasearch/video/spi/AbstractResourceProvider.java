@@ -22,7 +22,7 @@ public abstract class AbstractResourceProvider implements ResourceProvider {
     /**
     * 创建 抽象resource提供者 实例
     * @param videoSource 视频源
-     */
+    */
     public AbstractResourceProvider(VideoSource videoSource) {
         this.videoSource = videoSource;
     }
@@ -32,7 +32,7 @@ public abstract class AbstractResourceProvider implements ResourceProvider {
     *
     * @param providerName 提供者名称
     * @return 检查blocked的结果
-     */
+    */
     protected ReturnPageResult<VideoInfoResult> checkBlocked(String providerName) {
         if (VideoProviderRegistry.isBlocked(providerName)) {
             VideoProviderRegistry.BlockReason reason = VideoProviderRegistry.getBlockReason(providerName);

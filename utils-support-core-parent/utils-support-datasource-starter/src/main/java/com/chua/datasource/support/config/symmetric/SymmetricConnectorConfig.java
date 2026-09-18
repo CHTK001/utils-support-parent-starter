@@ -17,6 +17,6 @@ public interface SymmetricConnectorConfig {
     *
     * @param props       symmetricds 配置属性
     * @param environment 环境配置
-     */
+    */
     void configure(Properties props, DirectoryPollerEnvironment environment);
 }

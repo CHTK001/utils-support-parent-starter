@@ -30,52 +30,52 @@ public class MavenCompileResult {
 
     /**
     * 是否编译成功
-     */
+    */
     private boolean success;
 
     /**
     * 进程退出码
-     */
+    */
     private int exitCode;
 
     /**
     * 标准输出内容
-     */
+    */
     private String output;
 
     /**
     * 错误信息列表
-     */
+    */
     private List<String> errors;
 
     /**
     * 编译耗时（毫秒）
-     */
+    */
     private long durationMillis;
 
     /**
     * 项目 pom.xml 路径
-     */
+    */
     private String projectPath;
 
     /**
     * 项目根目录
-     */
+    */
     private String projectDir;
 
     /**
     * 执行的 Maven 目标
-     */
+    */
     private List<String> goals;
 
     /**
     * 激活的 配置文件
-     */
+    */
     private List<String> profiles;
 
     /**
     * 构建产物文件绝对路径列表（jar/war 等）
-     */
+    */
     private List<String> artifacts;
 
     /** 创建 mavencompile结果 实例 */
@@ -94,7 +94,7 @@ public class MavenCompileResult {
     * @param goals goals
     * @param profiles 配置文件
     * @param artifacts artifacts
-     */
+    */
     private MavenCompileResult(boolean success, int exitCode, String output, List<String> errors,
                                long durationMillis, String projectPath, String projectDir,
                                List<String> goals, List<String> profiles, List<String> artifacts) {
@@ -116,7 +116,7 @@ public class MavenCompileResult {
     * 是否成功
     *
     * @return 是否成功的结果
-     */
+    */
     public boolean isSuccess() {
         return success;
     }
@@ -125,7 +125,7 @@ public class MavenCompileResult {
     * 获取exit编码
     *
     * @return 获取exit编码的结果
-     */
+    */
     public int getExitCode() {
         return exitCode;
     }
@@ -134,7 +134,7 @@ public class MavenCompileResult {
     * 获取输出
     *
     * @return 获取输出的结果
-     */
+    */
     public String getOutput() {
         return output;
     }
@@ -143,7 +143,7 @@ public class MavenCompileResult {
     * 获取错误
     *
     * @return 获取错误的结果
-     */
+    */
     public List<String> getErrors() {
         return errors;
     }
@@ -152,7 +152,7 @@ public class MavenCompileResult {
     * 获取持续时间millis
     *
     * @return 获取持续时间millis的结果
-     */
+    */
     public long getDurationMillis() {
         return durationMillis;
     }
@@ -161,7 +161,7 @@ public class MavenCompileResult {
     * 获取project路径
     *
     * @return 获取project路径的结果
-     */
+    */
     public String getProjectPath() {
         return projectPath;
     }
@@ -170,7 +170,7 @@ public class MavenCompileResult {
     * 获取projectdir
     *
     * @return 获取projectdir的结果
-     */
+    */
     public String getProjectDir() {
         return projectDir;
     }
@@ -179,7 +179,7 @@ public class MavenCompileResult {
     * 获取Goals
     *
     * @return 获取goals的结果
-     */
+    */
     public List<String> getGoals() {
         return goals;
     }
@@ -188,7 +188,7 @@ public class MavenCompileResult {
     * 获取配置文件
     *
     * @return 获取配置文件的结果
-     */
+    */
     public List<String> getProfiles() {
         return profiles;
     }
@@ -197,7 +197,7 @@ public class MavenCompileResult {
     * 获取构建产物路径列表
     *
     * @return 产物文件绝对路径列表
-     */
+    */
     public List<String> getArtifacts() {
         return artifacts;
     }
@@ -206,7 +206,7 @@ public class MavenCompileResult {
     * 获取主产物路径（第一个 jar 或 war 文件）
     *
     * @return 主产物路径，无产物时返回 空
-     */
+    */
     public String getMainArtifact() {
         if (artifacts != null && !artifacts.isEmpty()) {
             return artifacts.getFirst();
@@ -218,7 +218,7 @@ public class MavenCompileResult {
     * 获取主产物文件名
     *
     * @return 文件名，无产物时返回 空
-     */
+    */
     public String getMainArtifactName() {
         String main = getMainArtifact();
         if (main != null) {
@@ -231,7 +231,7 @@ public class MavenCompileResult {
     * 是否有产物
     *
     * @return true 有至少一个产物
-     */
+    */
     public boolean hasArtifacts() {
         return artifacts != null && !artifacts.isEmpty();
     }
@@ -247,7 +247,7 @@ public class MavenCompileResult {
     * @param profiles    配置文件 列表
     * @param duration    耗时（毫秒）
     * @return 编译成功结果
-     */
+    */
     public static MavenCompileResult success(String projectPath, String output,
                                              List<String> goals, List<String> profiles, long duration) {
         String projectDir = resolveProjectDir(projectPath);
@@ -267,7 +267,7 @@ public class MavenCompileResult {
     * @param profiles    配置文件 列表
     * @param duration    耗时（毫秒）
     * @return 编译失败结果
-     */
+    */
     public static MavenCompileResult failure(String projectPath, int exitCode, String output,
                                              List<String> errors, List<String> goals, List<String> profiles, long duration) {
         String projectDir = resolveProjectDir(projectPath);
@@ -280,7 +280,7 @@ public class MavenCompileResult {
     *
     * @param projectPath pom.xml 路径
     * @return 项目根目录
-     */
+    */
     private static String resolveProjectDir(String projectPath) {
         if (projectPath == null) {
             return null;
@@ -303,7 +303,7 @@ public class MavenCompileResult {
     * @param projectDir 项目根目录
     * @param goals      执行的目标
     * @return 产物文件列表
-     */
+    */
     private static List<String> scanArtifacts(String projectDir, List<String> goals) {
         if (projectDir == null || goals == null) {
             return List.of();
@@ -344,7 +344,7 @@ public class MavenCompileResult {
     *
     * @param dir   Target 目录
     * @param result 结果列表
-     */
+    */
     private static void scanTargetDir(File dir, List<String> result) {
         File[] files = dir.listFiles();
         if (files == null) {
@@ -364,7 +364,7 @@ public class MavenCompileResult {
     *
     * @param fileName 文件名
     * @return 是否产物
-     */
+    */
     private static boolean isArtifact(String fileName) {
         String lower = fileName.toLowerCase();
         // 常见构建产物：jar

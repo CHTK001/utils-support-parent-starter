@@ -23,33 +23,33 @@ public class PasswordMockString implements MockString {
 
     /**
     * 小写字母池
-     */
+    */
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
     /**
     * 大写字母池
-     */
+    */
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     /**
     * 数字池
-     */
+    */
     private static final String DIGITS = "0123456789";
     /**
     * 特殊符号池
-     */
+    */
     private static final String SYMBOLS = "!@#$%^&*_-+=?";
     /**
     * 全部字符池
-     */
+    */
     private static final String ALL = LOWER + UPPER + DIGITS + SYMBOLS;
     /**
     * 默认最短密码长度
-     */
+    */
     private static final int DEFAULT_MIN = 8;
     /**
     * 默认最长密码长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int DEFAULT_MAX = 20;
 
     @Override
@@ -77,14 +77,14 @@ public class PasswordMockString implements MockString {
     * @param environment Mock 环境
     * @param pool        字符池
     * @return 随机字符
-     */
+    */
     private static char pick(@Nonnull MockEnvironment environment, @Nonnull String pool) {
         return pool.charAt(environment.nextInt(pool.length()));
     }
 
     /**
     * 简单的字符打乱器，避免固定前缀顺序泄露随机性。
-     */
+    */
     private static final class StringBuilderShuffler {
 
         /**
@@ -93,7 +93,7 @@ public class PasswordMockString implements MockString {
         * @param builder     待重排的字符串
         * @param environment Mock 环境
         * @return 重排后的字符串
-         */
+        */
         static String shuffle(StringBuilder builder, MockEnvironment environment) {
             char[] chars = builder.toString().toCharArray();
             for (int i = chars.length - 1; i > 0; i--) {

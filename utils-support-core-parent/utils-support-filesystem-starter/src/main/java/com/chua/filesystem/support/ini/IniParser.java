@@ -25,7 +25,7 @@ public class IniParser {
 
     /**
     * 私有构造方法，防止实例化
-     */
+    */
     private IniParser() {
     }
 
@@ -35,7 +35,7 @@ public class IniParser {
     * @param inputStream INI 输入流
     * @return 解析后的属性映射
     * @throws IOException IO 异常
-     */
+    */
     public static Properties parseInputStream(InputStream inputStream) throws IOException {
         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         return parseContent(content);
@@ -46,7 +46,7 @@ public class IniParser {
     *
     * @param content INI 内容
     * @return 解析后的属性映射
-     */
+    */
     public static Properties parseContent(String content) {
         Properties properties = new Properties();
         parseToMap(content, properties, "");
@@ -58,7 +58,7 @@ public class IniParser {
     *
     * @param content INI 内容
     * @return 解析后的 映射（Section -> 属性映射）
-     */
+    */
     public static Map<String, Map<String, String>> parseToNestedMap(String content) {
         Map<String, Map<String, String>> result = new LinkedHashMap<>();
         String[] lines = content.split("\n");
@@ -101,7 +101,7 @@ public class IniParser {
     *
     * @param content INI 内容
     * @return Section 列表
-     */
+    */
     public static List<Map<String, String>> parseToList(String content) {
         List<Map<String, String>> result = new ArrayList<>();
         Map<String, Map<String, String>> nestedMap = parseToNestedMap(content);
@@ -120,7 +120,7 @@ public class IniParser {
     *
     * @param line 行内容
     * @return 是否为注释
-     */
+    */
     private static boolean isComment(String line) {
         return line.startsWith(";") || line.startsWith("#");
     }
@@ -131,7 +131,7 @@ public class IniParser {
     * @param content    INI 内容
     * @param properties 属性 对象
     * @param prefix     前缀
-     */
+    */
     private static void parseToMap(String content, Properties properties, String prefix) {
         String[] lines = content.split("\n");
         String currentSection = "";
@@ -181,7 +181,7 @@ public class IniParser {
     *
     * @param content INI 内容
     * @return Section 名称集合
-     */
+    */
     public static Set<String> getSections(String content) {
         Set<String> sections = new LinkedHashSet<>();
         String[] lines = content.split("\n");
@@ -204,7 +204,7 @@ public class IniParser {
     *
     * @param properties 属性 对象
     * @return INI 格式字符串
-     */
+    */
     public static String propertiesToIni(Properties properties) {
         StringBuilder sb = new StringBuilder();
         Map<String, Map<String, String>> sections = new LinkedHashMap<>();

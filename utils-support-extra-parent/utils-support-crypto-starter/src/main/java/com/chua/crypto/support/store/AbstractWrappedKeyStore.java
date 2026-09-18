@@ -35,7 +35,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     * 获取载体魔数（密钥文件 CHKF）
     *
     * @return 4 字节魔数
-     */
+    */
     protected abstract byte[] magic();
 
     /**
@@ -43,21 +43,21 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     *
     * @param setting 加密配置
     * @return 载体绝对路径
-     */
+    */
     protected abstract Path carrierPath(CryptoSetting setting);
 
     /**
     * 载体是否允许被销毁擦除（预留扩展位，当前恒为 true）
     *
     * @return true 表示允许擦除删除
-     */
+    */
     protected boolean erasable() {
         return true;
     }
 
     /**
     * 写入密钥材料：委托 {@link KeyBlobCodec} 编码后原子落盘
-     */
+    */
     @Override
     public void save(SecretKeyMaterial material, CryptoSetting setting) {
         Path target = carrierPath(setting);
@@ -78,7 +78,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     * 文件系统跳过（依赖目录 访问控制列表），失败不影响写入结果
     *
     * @param target 载体文件
-     */
+    */
     private static void restrictPermissions(Path target) {
         try {
             Set<PosixFilePermission> ownerOnly = PosixFilePermissions.fromString("rw-------");
@@ -91,7 +91,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     /**
     * 加载密钥材料：读取后委托 {@link KeyBlobCodec} 校验解封；
     * 生命周期为一次性且载体可擦除时，读取成功后立即安全销毁落盘副本
-     */
+    */
     @Override
     public SecretKeyMaterial load(CryptoSetting setting) {
         Path source = carrierPath(setting);
@@ -114,7 +114,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
 
     /**
     * 载体是否存在
-     */
+    */
     @Override
     public boolean exists(CryptoSetting setting) {
         return Files.exists(carrierPath(setting));
@@ -122,7 +122,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
 
     /**
     * 安全销毁载体：整文件覆写零后再删除，防止残留恢复
-     */
+    */
     @Override
     public void destroy(CryptoSetting setting) {
         Path target = carrierPath(setting);
@@ -155,7 +155,7 @@ public abstract class AbstractWrappedKeyStore implements SecretKeyStore {
     * @param target 目标路径
     * @param data   数据
     * @throws IOException IO 异常
-     */
+    */
     private void writeAtomically(Path target, byte[] data) throws IOException {
         Path tmp = Files.createTempFile(target.getParent(), "chk", ".tmp");
         try {

@@ -34,17 +34,17 @@ public final class FallbackResolver {
 
     /**
     * Bean 与方法名的分隔符
-     */
+    */
     private static final String SEPARATOR = "#";
 
     /**
     * 全局降级 Bean 容器（Spring 装配时注册，线程无关；thread本地 上下文不可用时回退）
-     */
+    */
     private static volatile ApplicationContext fallbackContext;
 
     /**
     * 降级解析器。
-     */
+    */
     private FallbackResolver() {
     }
 
@@ -55,7 +55,7 @@ public final class FallbackResolver {
     * 此处注册的全局容器供任意线程解析 {@code bean#method} 降级。</p>
     *
     * @param applicationContext Spring 容器
-     */
+    */
     public static void registerApplicationContext(ApplicationContext applicationContext) {
         fallbackContext = applicationContext;
     }
@@ -66,7 +66,7 @@ public final class FallbackResolver {
     * @param fallback    注解上的 降级 属性值，支持 {@code beanName#methodName} 或 {@code methodName}
     * @param proxyMethod 被拦截方法信息
     * @return 降级方法返回值，无法降级时返回 空
-     */
+    */
     public static Object resolve(String fallback, ProxyMethod proxyMethod) {
         if (fallback == null || fallback.isBlank()) {
             return null;
@@ -97,7 +97,7 @@ public final class FallbackResolver {
     * @param args       目标方法实参
     * @param paramTypes 目标方法参数类型
     * @return 降级方法返回值，Bean/方法不可用时返回 空
-     */
+    */
     private static Object resolveBeanMethod(String beanName,
                                             String methodName,
                                             Object[] args,
@@ -114,7 +114,7 @@ public final class FallbackResolver {
     *
     * @param beanName Bean 名称
     * @return Bean 实例，不可用时返回 空
-     */
+    */
     private static Object lookupBean(String beanName) {
         try {
             return SpringBeanUtils.getBean(beanName, Object.class);
@@ -143,7 +143,7 @@ public final class FallbackResolver {
     * @param paramTypes 目标方法参数类型
     * @return 降级方法返回值，方法不存在时返回 空
     * @throws Exception 降级方法调用异常
-     */
+    */
     private static Object resolveMethod(Object owner, String methodName, Object[] args, Class<?>[] paramTypes) throws Exception {
         if (owner == null) {
             return null;
@@ -164,7 +164,7 @@ public final class FallbackResolver {
     * @param methodName 方法名
     * @param paramTypes 目标方法参数类型
     * @return 匹配的方法，未找到返回 空
-     */
+    */
     private static Method findMethod(Class<?> type, String methodName, Class<?>[] paramTypes) {
  // Spring 7 起 类工具.查找方法 已移除，使用等价的 获取方法if可用（精确签名匹配）
         Method exact = ClassUtils.getMethodIfAvailable(type, methodName, paramTypes);

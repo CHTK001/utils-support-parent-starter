@@ -27,12 +27,12 @@ public class FifoScheduler implements SpiderScheduler {
 
     /**
     * 待爬取队列
-     */
+    */
     private final ConcurrentLinkedQueue<SpiderRequest> queue = new ConcurrentLinkedQueue<>();
 
     /**
     * 队列中剩余请求数
-     */
+    */
     private final AtomicInteger count = new AtomicInteger(0);
 
     @Override

@@ -28,13 +28,13 @@ public class SpiderRequestFactory {
 
     /**
     * 代理池存储。
-     */
+    */
     private final SpiderProxyPoolStore proxyPoolStore;
 
     /**
     * 创建 蜘蛛请求工厂 实例
     * @param proxyPoolStore 代理游泳池存储
-     */
+    */
     public SpiderRequestFactory(SpiderProxyPoolStore proxyPoolStore) {
         this.proxyPoolStore = proxyPoolStore;
     }
@@ -45,7 +45,7 @@ public class SpiderRequestFactory {
     * @param definition 爬虫定义
     * @param url        目标 URL
     * @return SpiderRequest 实例
-     */
+    */
     public SpiderRequest build(SpiderDefinition definition, String url) {
         return build(definition, url, null);
     }
@@ -57,7 +57,7 @@ public class SpiderRequestFactory {
     * @param url        目标 URL
     * @param body       请求体（POST/放入）
     * @return SpiderRequest 实例
-     */
+    */
     public SpiderRequest build(SpiderDefinition definition, String url, String body) {
         Map<String, String> headers = new HashMap<>();
         if (StringUtils.isNotEmpty(definition.getSpiderHeaders())) {
@@ -100,7 +100,7 @@ public class SpiderRequestFactory {
     *
     * @param json 头部 JSON 字符串
     * @return 解析后的 映射；解析失败返回空 映射
-     */
+    */
     private Map<String, String> deserializeHeaders(String json) {
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -116,7 +116,7 @@ public class SpiderRequestFactory {
     *
     * @param json Cookie JSON 字符串
     * @return 解析后的 列表；解析失败返回空 列表
-     */
+    */
     private List<SpiderCookie> deserializeCookies(String json) {
         try {
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();

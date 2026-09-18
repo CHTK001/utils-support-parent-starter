@@ -26,7 +26,7 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
     * 构造 safetensor 对话客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorChatClient(ChatClientSetting setting) {
         super("safetensors", setting);
     }
@@ -39,10 +39,10 @@ public class SafeTensorChatClient extends AbstractLocalChatClient {
 }
 
 /**
-* safetensor 模型列表辅助。
-* @author CH
-* @since 4.0.0
- */
+    * safetensor 模型列表辅助。
+    * @author CH
+    * @since 4.0.0
+    */
 final class SafeTensorModels {
 
     /** 创建 safetensor模型 实例 */
@@ -54,7 +54,7 @@ final class SafeTensorModels {
     *
     * @param types 模型类型（llm / vlm / 镜像_gen / 文本_嵌入 / asr / tts 等）
     * @return 模型定义列表
-     */
+    */
     static List<ModelDefinition> ofType(String... types) {
         List<ModelDefinition> result = new ArrayList<>();
         for (SafeTensorModelRegistry.ModelEntry entry : SafeTensorModelRegistry.allModels()) {

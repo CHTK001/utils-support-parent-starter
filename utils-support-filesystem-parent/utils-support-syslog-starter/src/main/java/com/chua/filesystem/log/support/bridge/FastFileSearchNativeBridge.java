@@ -72,7 +72,7 @@ public final class FastFileSearchNativeBridge {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static void loadLibrary() {
         if (loaded) {
             return;
@@ -110,7 +110,7 @@ public final class FastFileSearchNativeBridge {
     * @throws IllegalStateException 若原生库尚未加载，或任一必需符号不存在
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     private static void bindFunctions() {
         if (LIBRARY == null || ARENA == null) {
             throw new IllegalStateException("Native library not loaded");
@@ -148,7 +148,7 @@ public final class FastFileSearchNativeBridge {
     * @throws IllegalStateException 若原生库尚未加载（{@link #isLoaded()} 为 {@code false}）
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static int searchMft(String rootDir, String pattern,
                                 int maxResults, BiConsumer<String, Long> callback) {
         checkLoaded();
@@ -180,7 +180,7 @@ public final class FastFileSearchNativeBridge {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static void cancel() {
         if (!loaded) {
             return;
@@ -202,7 +202,7 @@ public final class FastFileSearchNativeBridge {
     * @return 原生库已加载且可用返回 {@code true}，否则返回 {@code false}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static boolean isLoaded() {
         return loaded;
     }
@@ -220,7 +220,7 @@ public final class FastFileSearchNativeBridge {
     *
     * @param consumer consumer
     * @return 创建callbackstub的结果
-     */
+    */
     private static MemorySegment createCallbackStub(BiConsumer<String, Long> consumer) {
         try {
             var lookup = MethodHandles.lookup();
@@ -242,7 +242,7 @@ public final class FastFileSearchNativeBridge {
     * @param pathPtr 路径ptr
     * @param length 长度
     * @param consumer consumer
-     */
+    */
     private static void upcallCallback(MemorySegment pathPtr, long length, BiConsumer<String, Long> consumer) {
         if (pathPtr.equals(MemorySegment.NULL)) { return; }
         String path = pathPtr.reinterpret(length).getString(0, StandardCharsets.UTF_8);

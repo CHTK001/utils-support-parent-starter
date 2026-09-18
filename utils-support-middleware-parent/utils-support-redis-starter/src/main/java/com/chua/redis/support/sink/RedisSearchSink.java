@@ -29,62 +29,62 @@ public class RedisSearchSink implements DataSink {
 
     /**
     * FT.创建 命令
-     */
+    */
     private static final ProtocolCommand FT_CREATE = () -> SafeEncoder.encode("FT.CREATE");
 
     /**
     * FT.信息 命令
-     */
+    */
     private static final ProtocolCommand FT_INFO = () -> SafeEncoder.encode("FT.INFO");
 
     /**
     * 索引名前缀
-     */
+    */
     private static final String IDX_PREFIX = "idx:ds:";
 
     /**
     * 文档键前缀
-     */
+    */
     private static final String DOC_PREFIX = "ds:";
 
     /**
     * 已建过索引的 topic 集合（线程安全）
-     */
+    */
     private final Map<String, Boolean> indexCreated = new ConcurrentHashMap<>();
 
     /**
     * Redis 主机，默认 {@code 127.0.0.1}
-     */
+    */
     private String host = "127.0.0.1";
 
     /**
     * Redis 端口，默认 6379
-     */
+    */
     private int port = 6379;
 
     /**
     * 鉴权密码，空 表示无密码
-     */
+    */
     private String password;
 
     /**
     * 数据库编号
-     */
+    */
     private int database = 0;
 
     /**
     * 连接超时（毫秒）
-     */
+    */
     private int timeout = 3000;
 
     /**
     * Jedis 连接池
-     */
+    */
     private JedisPool pool;
 
     /**
     * 默认构造函数（SPI 框架使用）
-     */
+    */
     public RedisSearchSink() {
     }
 
@@ -92,7 +92,7 @@ public class RedisSearchSink implements DataSink {
     * 设置 Redis 主机。
     *
     * @param host IP 或域名
-     */
+    */
     public void setHost(String host) {
         this.host = host;
     }
@@ -101,7 +101,7 @@ public class RedisSearchSink implements DataSink {
     * 设置 Redis 端口。
     *
     * @param port 端口号
-     */
+    */
     public void setPort(int port) {
         this.port = port;
     }
@@ -110,7 +110,7 @@ public class RedisSearchSink implements DataSink {
     * 设置鉴权密码。
     *
     * @param password 密码
-     */
+    */
     public void setPassword(String password) {
         this.password = password;
     }
@@ -119,14 +119,14 @@ public class RedisSearchSink implements DataSink {
     * 设置数据库编号。
     *
     * @param database 数据库编号（0~15）
-     */
+    */
     public void setDatabase(int database) {
         this.database = database;
     }
 
     /**
     * @return SPI 类型 {@code redis-search}
-     */
+    */
     @Override
     public String type() {
         return "redis-search";
@@ -134,7 +134,7 @@ public class RedisSearchSink implements DataSink {
 
     /**
     * 启动连接池。
-     */
+    */
     @Override
     public void start() {
         JedisPoolConfig config = new JedisPoolConfig();
@@ -151,7 +151,7 @@ public class RedisSearchSink implements DataSink {
 
     /**
     * 关闭连接池。
-     */
+    */
     @Override
     public void stop() {
         if (pool != null && !pool.isClosed()) {
@@ -165,7 +165,7 @@ public class RedisSearchSink implements DataSink {
     * @param envelope 数据信封
     * @param config   附加配置（当前未使用）
     * @return true 表示写入成功
-     */
+    */
     @Override
     public boolean write(DataEnvelope envelope, Map<String, Object> config) {
         if (pool == null || pool.isClosed()) {
@@ -201,7 +201,7 @@ public class RedisSearchSink implements DataSink {
     * @param jedis      Jedis 连接
     * @param indexName  索引名
     * @param sample     索引结构推断使用的样本数据
-     */
+    */
     private void tryCreateIndex(Jedis jedis, String indexName, Map<String, Object> sample) {
         try {
             jedis.sendCommand(FT_INFO, SafeEncoder.encode(indexName));
@@ -237,7 +237,7 @@ public class RedisSearchSink implements DataSink {
     *
     * @param data 原始数据
     * @return 字符串形式的新 映射
-     */
+    */
     private static Map<String, String> convertToStringMap(Map<String, Object> data) {
         Map<String, String> result = new java.util.LinkedHashMap<>();
         for (Map.Entry<String, Object> entry : data.entrySet()) {
@@ -250,7 +250,7 @@ public class RedisSearchSink implements DataSink {
 
     /**
     * @return 始终返回 空（Redis 不接入 Engine）
-     */
+    */
     @Override
     public EngineDataSource<?> getDataSource() {
         return null;

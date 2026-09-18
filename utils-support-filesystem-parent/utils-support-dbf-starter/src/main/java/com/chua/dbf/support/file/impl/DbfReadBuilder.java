@@ -17,7 +17,7 @@ public class DbfReadBuilder extends ReadBuilder {
     /**
     * 创建 dbf读取构建器 实例
     * @param file 文件
-     */
+    */
     public DbfReadBuilder(File file) {
         super(file);
     }
@@ -26,7 +26,7 @@ public class DbfReadBuilder extends ReadBuilder {
     * Rows
     *
     * @return rows的结果
-     */
+    */
     public List<Map<String, Object>> rows() {
         List<Map<String, Object>> result = new ArrayList<>();
         try (DBFReader reader = new DBFReader(new FileInputStream(file))) {

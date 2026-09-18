@@ -17,7 +17,7 @@ public interface WeatherProvider {
     * 获取数据源名称。
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -25,6 +25,6 @@ public interface WeatherProvider {
     *
     * @param city 城市名（如 "北京"、"Beijing"）
     * @return 天气信息；数据源不可达或城市不存在时返回 空
-     */
+    */
     WeatherInfo getWeather(String city);
 }

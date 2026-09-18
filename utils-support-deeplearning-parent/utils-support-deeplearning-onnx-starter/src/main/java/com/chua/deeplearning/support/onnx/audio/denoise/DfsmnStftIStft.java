@@ -28,7 +28,9 @@ class DfsmnStftIStft {
     /** torch 分析窗（hamming periodic=false） */
     private final float[] analysisWindow;
 
-    /** librosa 合成窗（hamming periodic，unshifted，与 librosa.istft 一致） */
+    /**
+    * librosa 合成窗（hamming periodic，unshifted，与 librosa.istft 一致）
+    */
     private final float[] synthWindow;
 
     /** 创建 dfsmnstftistft 实例 */
@@ -42,7 +44,7 @@ class DfsmnStftIStft {
     *
     * @param signal 单声道时域信号
     * @return 频谱 [帧][961][2]，每帧每频点 {real, imag}
-     */
+    */
     float[][][] stft(float[] signal) {
         int frames = numFrames(signal.length);
         float[][][] out = new float[frames][N_FREQ][2];
@@ -68,7 +70,7 @@ class DfsmnStftIStft {
     * @param masks    mask [帧][961]
     * @param length   输出信号长度
     * @return 时域信号
-     */
+    */
     float[] istft(float[][][] spectrum, float[][] masks, int length) {
         int frames = spectrum.length;
         int expectedLen = N_FFT + HOP_LENGTH * (frames - 1);
@@ -108,7 +110,7 @@ class DfsmnStftIStft {
     *
     * @param numSamples 样本数
     * @return 帧数
-     */
+    */
     static int numFrames(int numSamples) {
         if (numSamples < N_FFT) {
             return 0;
@@ -119,7 +121,7 @@ class DfsmnStftIStft {
     /**
     * torch.hamming_窗口(N, periodic=false)：0.54 - 0.46·COS(2πn/(N-1))。
     * @return 构建torchhamming窗口的结果
-     */
+    */
     private static float[] buildTorchHammingWindow() {
         float[] w = new float[N_FFT];
         double a = 2.0 * Math.PI / (N_FFT - 1);
@@ -134,7 +136,7 @@ class DfsmnStftIStft {
     * <p>periodic hamming：0.54 - 0.46·cos(2πn/N)。与 librosa.istft 内部
     * 获取_窗口(窗口, win_长度, fftbins=True) 一致，不做 ifftshift。</p>
     * @return 构建librosaifftShift窗口的结果
-     */
+    */
     private static float[] buildLibrosaIfftShiftWindow() {
         float[] w = new float[N_FFT];
         double a = 2.0 * Math.PI / N_FFT;

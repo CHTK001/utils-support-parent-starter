@@ -46,27 +46,27 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
 
     /**
     *                   
-     */
+    */
     private static final int INPUT_SIZE = 256;
 
     /**
     * 镜像net
-     */
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
     * 镜像net
-     */
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
     *             
-     */
+    */
     private static final String[] GENDER_CLASSES = {"Male", "Female"};
 
     /**
     *             
-     */
+    */
     private static final String[] RACE_CLASSES = {
             // White",   //
            
@@ -264,7 +264,7 @@ public class AgeRaceGenderTranslator implements Translator<Image, HumanPredictRe
     *
     * @param age                
     * @return           [0.0, 1.0]
-     */
+    */
     private float calculateAgeConfidence(int age) {
         //                      0-116                               
         if (age < 0 || age > 116) {

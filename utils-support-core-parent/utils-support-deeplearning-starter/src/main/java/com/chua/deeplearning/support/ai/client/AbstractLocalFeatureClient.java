@@ -24,22 +24,22 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
 
     /**
     * 引擎名称（提供者）
-     */
+    */
     protected final String engine;
 
     /**
     * 识别引擎实例
-     */
+    */
     protected final IdentificationEngine identificationEngine;
 
     /**
     * 当前模型名称
-     */
+    */
     protected String model;
 
     /**
     * 输出向量维度
-     */
+    */
     protected Integer dimensions;
 
     /**
@@ -47,7 +47,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     *
     * @param engine  引擎名称，如 "onnx"、"pytorch"、"llama"
     * @param setting 客户端配置
-     */
+    */
     protected AbstractLocalFeatureClient(String engine, FeatureClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -82,7 +82,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     * 否则返回显式指定的模型名。</p>
     *
     * @return 模型名称
-     */
+    */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;
@@ -132,7 +132,7 @@ public abstract class AbstractLocalFeatureClient implements FeatureClient {
     * @param result    翻译器输出
     * @param modelName 模型名称
     * @return float 向量
-     */
+    */
     private static float[] toFloatArray(Object result, String modelName) {
         if (result instanceof float[] floats) {
             return floats;

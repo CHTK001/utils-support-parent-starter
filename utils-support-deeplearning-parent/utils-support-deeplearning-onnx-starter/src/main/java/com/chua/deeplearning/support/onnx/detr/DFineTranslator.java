@@ -60,7 +60,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -166,7 +166,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     * sigmoid。
     * @param x x
     * @return sigmoid的结果
-     */
+    */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
@@ -179,7 +179,7 @@ public class DFineTranslator implements Translator<Image, DetectedObjects> {
     * 创建 Translator（支持外部阈值覆盖）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public DFineTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {
             float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);

@@ -81,27 +81,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
      /**
      * Lucene 索引目录映射表，键为表名，值为 目录 实例。
-      */
+     */
     private final Map<String, Directory> indexDirectories = new ConcurrentHashMap<>();
 
     /**
     * 默认索引目录名称。
-     */
+    */
     private String defaultIndexName;
 
     /**
     * SQL 表达式解析器，将 SQL WHERE 子句解析为 AST。
-     */
+    */
     private final SqlExpressionParser sqlParser = new SqlExpressionParser();
 
     /**
     * Lucene 分析器，用于全文检索。
-     */
+    */
     private final StandardAnalyzer analyzer = new StandardAnalyzer();
 
     /**
     * 构造 Lucene 引擎，使用内存目录存储索引。
-     */
+    */
     public LuceneEngine() {
         this(null);
     }
@@ -112,14 +112,14 @@ import java.util.concurrent.ConcurrentHashMap;
     * 如果为 空，使用 byte缓冲目录（内存）。</p>
     *
     * @param indexPath 索引根目录路径，空 表示内存目录
-     */
+    */
     public LuceneEngine(Path indexPath) {
         this.indexPath = indexPath;
     }
 
     /**
     * 索引根目录路径，空 表示使用内存目录
-     */
+    */
     private final Path indexPath;
 
     // ==================== Engine 接口实现 ====================
@@ -132,7 +132,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param dataSource 数据源封装实例
     * @param <T>        底层源类型
     * @return this
-     */
+    */
     @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         dataSources.put(name, (EngineDataSource<Object>) dataSource);
@@ -147,7 +147,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param name 数据源名称
     * @return this
-     */
+    */
     @Override
     public Engine setDefaultDataSourceName(String name) {
         this.defaultDataSourceName = name;
@@ -160,7 +160,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param dataSourceName 数据源名称
     * @return null
-     */
+    */
     @Override
     public SqlExecutor getExecutor(String dataSourceName) {
         return null;
@@ -171,7 +171,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * <p>Lucene 引擎不使用 JDBC，始终返回 null。</p>
     *
     * @return null
-     */
+    */
     @Override
     public SqlExecutor getExecutor() {
         return null;
@@ -183,7 +183,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param name 数据源名称
     * @param <T>  底层源类型
     * @return 数据源封装实例，不存在则返回 空
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource(String name) {
@@ -195,7 +195,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param <T> 底层源类型
     * @return 默认数据源封装实例
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> EngineDataSource<T> getDataSource() {
@@ -208,7 +208,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param dataSourceName 数据源名称
     * @return null
-     */
+    */
     @Override
     public Dialect getDialect(String dataSourceName) {
         return null;
@@ -216,7 +216,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     /**
     * 关闭引擎，释放所有索引目录资源。
-     */
+    */
     @Override
     public void close() {
         for (Directory dir : indexDirectories.values()) {
@@ -243,7 +243,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entities    实体对象列表
     * @param <T>         实体类型
     * @return 索引的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> void index(Class<T> entityClass, List<T> entities) {
         String tableName = getTableName(entityClass);
@@ -269,7 +269,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param queryString 搜索查询字符串
     * @param <T>         实体类型
     * @return 匹配的实体列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> List<T> search(Class<T> entityClass, String queryString) {
         String tableName = getTableName(entityClass);
@@ -297,7 +297,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 匹配的实体列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String tableName, Query luceneQuery, Class<T> entityClass) {
         Directory directory = indexDirectories.get(tableName);
@@ -324,7 +324,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param fieldNames 需要建立全文索引的字段名称（Lucene 引擎暂按实体全字段索引，此参数保留以兼容接口）
     * @param <T> 实体类型
     * @return 创建fulltext索引的结果
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
@@ -339,7 +339,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T> 实体类型
     * @return 匹配的实体列表
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass) {
@@ -355,7 +355,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param limit 最大返回条数
     * @param <T> 实体类型
     * @return 匹配的实体列表
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
@@ -374,7 +374,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param fieldNames 需要删除索引的字段名称（Lucene 引擎按表级删除，此参数保留以兼容接口）
     * @param <T> 实体类型
     * @return 掉落fulltext索引的结果
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
@@ -401,7 +401,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T>        实体类型
     * @return 分页结果
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> Page<T> searchPage(String tableName, Query luceneQuery,
                                   int pageNum, int pageSize, Class<T> entityClass) {
@@ -440,7 +440,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param groupByCols 群体bycols
     * @return 群体by的结果
-     */
+    */
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -482,7 +482,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param where where
         * @param params 参数
         * @return where的结果
-         */
+        */
         public GroupByQueryWrapper<T> where(String where, Object... params) {
             this.where = where;
             this.params = params;
@@ -495,7 +495,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param col col
         * @param asc asc
         * @return 订单by的结果
-         */
+        */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
@@ -506,7 +506,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * 列表
         *
         * @return 列表的结果
-         */
+        */
         public List<Map<String, Object>> list() {
             List<T> entities = engine.executeNewQuery(where, params, entityClass, 0, 0);
             return groupEntities(entities, groupByCols);
@@ -518,7 +518,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param pn pn
         * @param ps ps
         * @return page的结果
-         */
+        */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<T> all = engine.executeNewQuery(where, params, entityClass, 0, 0);
             List<Map<String, Object>> grouped = groupEntities(all, groupByCols);
@@ -536,7 +536,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param entities 实体
         * @param groupByCols 群体bycols
         * @return 群体实体的结果
-         */
+        */
         private static <T> List<Map<String, Object>> groupEntities(List<T> entities, List<String> groupByCols) {
             if (entities.isEmpty() || groupByCols.isEmpty()) {
                 return Collections.emptyList();
@@ -599,7 +599,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param obj obj
         * @param fieldName 字段名称
         * @return 获取字段值的结果
-         */
+        */
         private static Object getFieldValue(Object obj, String fieldName) {
             if (obj == null || fieldName == null) {
                 return null;
@@ -634,7 +634,7 @@ import java.util.concurrent.ConcurrentHashMap;
         *
         * @param value 值
         * @return 转为comparable的结果
-         */
+        */
         private static Comparable toComparable(Object value) {
             if (value == null) {
                 return null;
@@ -652,7 +652,7 @@ import java.util.concurrent.ConcurrentHashMap;
         * @param a a
         * @param b b
         * @return compare空的结果
-         */
+        */
         private static int compareNullable(Comparable a, Comparable b) {
             if (a == null && b == null) {
                 return 0;
@@ -686,7 +686,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 查询结果列表
-     */
+    */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> data = getData(entityClass);
@@ -730,7 +730,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param where where
     * @param params 参数
     * @return resolvePlaceholders的结果
-     */
+    */
     protected String resolvePlaceholders(String where, Object[] params) {
         if (params == null || params.length == 0) {
             return where;
@@ -760,7 +760,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param node 节点
     * @param entityClass 实体类
     * @return 构建查询的结果
-     */
+    */
     protected Query buildQuery(BTreeNode node, Class<?> entityClass) {
         return switch (node.getType()) {
             case LOGIC -> {
@@ -786,7 +786,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param node 节点
     * @param entityClass 实体类
     * @return 构建comparison的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private Query buildComparison(BTreeNode node, Class<?> entityClass) {
         String field = node.getLeft().asString();
@@ -842,7 +842,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param value 值
     * @param entityClass 实体类
     * @return exact查询的结果
-     */
+    */
     private Query exactQuery(String field, Object value, Class<?> entityClass) {
         Class<?> type = resolveFieldType(field, entityClass);
         if (type == null) {
@@ -871,7 +871,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
     /**
     * 范围查询（>, >=, <, <=, BETWEEN）。
-     */
+    */
     private Query rangeQuery(String field, Object low, Object high,
                              boolean lowIncl, boolean highIncl, Class<?> entityClass) {
         Class<?> type = resolveFieldType(field, entityClass);
@@ -957,7 +957,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param fieldName 字段名称
     * @param entityClass 实体类
     * @return resolve字段类型的结果
-     */
+    */
     private Class<?> resolveFieldType(String fieldName, Class<?> entityClass) {
         java.lang.reflect.Field f = ReflectUtils.findField(entityClass, fieldName);
         return f != null ? f.getType() : null;
@@ -967,7 +967,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * 解析 入 列表字符串 {@code ('a','b')} 或 {@code (1,2,3)} 为值列表。
     * @param list 列表
     * @return 解析入列表的结果
-     */
+    */
     private List<Object> parseInList(String list) {
         List<Object> result = new ArrayList<>();
         String trimmed = list.trim();
@@ -1013,7 +1013,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param value 值
     * @param type 类型
     * @return 转为轮次millis的结果
-     */
+    */
     private static long toEpochMillis(Object value, Class<?> type) {
         if (type == Date.class) {
             return ((Date) value).getTime();
@@ -1037,7 +1037,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 数据列表
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> List<T> getData(Class<T> entityClass) {
@@ -1054,7 +1054,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 表名
-     */
+    */
     @Override
     public <T> String getTableName(Class<T> entityClass) {
         var simpleName = entityClass.getSimpleName();
@@ -1075,7 +1075,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param tableName 表名
     * @return Directory 实例
-     */
+    */
     Directory getOrCreateDirectory(String tableName) {
         return indexDirectories.computeIfAbsent(tableName, name -> {
             try {
@@ -1203,7 +1203,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param params 参数
     * @param entityClass 实体类
     * @return 构建查询从where的结果
-     */
+    */
     protected <T> Query buildQueryFromWhere(String where, Object[] params, Class<T> entityClass) {
         if (where == null || where.trim().isEmpty()) {
             return new MatchAllDocsQuery();
@@ -1220,7 +1220,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param params 参数
     * @param entityClass 实体类
     * @return 搜索文档的结果
-     */
+    */
     private <T> List<Document> searchDocuments(String where, Object[] params, Class<T> entityClass) throws IOException {
         Query query = buildQueryFromWhere(where, params, entityClass);
         Directory directory = getOrCreateDirectory(getTableName(entityClass));
@@ -1241,7 +1241,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param doc doc
     * @param fieldName 字段名称
     * @param value 值
-     */
+    */
     static void addFieldToDoc(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));
@@ -1296,7 +1296,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类类型
     * @param <T>         实体类型
     * @return 实体对象列表
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> List<T> documentToEntities(DirectoryReader reader, ScoreDoc[] scoreDocs, Class<T> entityClass) {
         List<T> results = new ArrayList<>(scoreDocs.length);

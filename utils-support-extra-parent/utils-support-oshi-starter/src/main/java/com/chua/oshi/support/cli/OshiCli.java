@@ -24,7 +24,7 @@ public final class OshiCli {
 
     /**
     * oshicli。
-     */
+    */
     private OshiCli() {
     }
 
@@ -48,7 +48,7 @@ public final class OshiCli {
     * 主入口。
     *
     * @param args 命令行参数
-     */
+    */
     public static void main(String[] args) {
         if (args.length == 0) {
             COMMANDS[0].execute(CommandLine.parse(new String[0]));
@@ -84,7 +84,7 @@ public final class OshiCli {
 
     /**
     * printusage。
-     */
+    */
     private static void printUsage() {
         System.out.println(PROGRAM + " — OSHI CLI dashboard (v" + VERSION + ")\n");
         System.out.printf("  %-10s  %s%n", "command", "description");

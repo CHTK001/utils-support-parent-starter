@@ -76,7 +76,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     * @param image 源图像
     * @return PNG 字节
     * @throws IOException 编码失败时抛出
-     */
+    */
     private byte[] toPng(BufferedImage image) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             if (!ImageIO.write(image, "png", out)) {
@@ -91,7 +91,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param message 提示信息
     * @return 完整 HTML
-     */
+    */
     private String emptyHtml(String message) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\"><style>"
                 + "body{margin:0;background:#f8f9fa;color:#666;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif}"
@@ -104,7 +104,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param bytes 字节数
     * @return 可读大小
-     */
+    */
     private String formatSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
@@ -114,7 +114,7 @@ public class PsdPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 原始文本
     * @return 转义后文本
-     */
+    */
     private String escape(String text) {
         return text == null ? "" : text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }

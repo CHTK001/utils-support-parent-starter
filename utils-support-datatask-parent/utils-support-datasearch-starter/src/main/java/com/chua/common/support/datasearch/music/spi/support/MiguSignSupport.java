@@ -29,7 +29,7 @@ public final class MiguSignSupport {
     * @param keyword keyword
     * @param timestamp 时间戳
     * @return 头部的结果
-     */
+    */
     public static Map<String, String> headers(String keyword, String timestamp) {
         String sign = md5(keyword + SIGNATURE_MD5 + "yyapp2d16148780a1dcc7408e06336b98cfd50" + DEVICE_ID + timestamp);
         Map<String, String> headers = new LinkedHashMap<>();
@@ -46,7 +46,7 @@ public final class MiguSignSupport {
     *
     * @param text 文本
     * @return md5的结果
-     */
+    */
     private static String md5(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");

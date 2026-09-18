@@ -17,12 +17,14 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
+        <!-- 注释掉 datalake-sink-api-starter，因为它不在本地 Maven 仓库里
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datalake-sink-api-starter</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-queue</artifactId>
@@ -32,6 +34,12 @@
             <artifactId>utils-support-fory-starter</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datalake-sink-starter</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
@@ -44,4 +52,3 @@
         </dependency>
     </dependencies>
 </project>
-

@@ -546,13 +546,13 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     /**
-    * 构建空命令的失败结果并通知回调。
-    *
-    * @param command   命令字符串
-    * @param startTime 起始时间戳
-    * @param callback  逐行回调
-    * @return 错误结果
-    */
+            * 构建空命令的失败结果并通知回调。
+            *
+            * @param command   命令字符串
+            * @param startTime 起始时间戳
+            * @param callback  逐行回调
+            * @return 错误结果
+            */
     private static CmdResult invalidCommandResult(String command, long startTime, LineCallback callback) {
         CmdResult result = errorResult(command, startTime, new IllegalArgumentException(ERR_INVALID_COMMAND));
         callback.onError(command, result.getThrowable());
@@ -868,8 +868,8 @@ public class ProcessCmdExecutor implements CmdExecutor {
     }
 
     /**
-    * 逐行读取流并回调的线程，用于实时输出场景
-    */
+        * 逐行读取流并回调的线程，用于实时输出场景
+        */
     static class LineStreamGobbler extends Thread {
         /**
         * 待读取的输入流

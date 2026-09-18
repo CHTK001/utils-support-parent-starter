@@ -35,7 +35,7 @@ public class DependencyDetector {
     /**
     * 创建 dependencydetector 实例
     * @param processingEnv 处理env
-     */
+    */
     public DependencyDetector(ProcessingEnvironment processingEnv) {
         this.elementUtils = processingEnv.getElementUtils();
     }
@@ -45,7 +45,7 @@ public class DependencyDetector {
     *
     * @param className 类全限定名
     * @return 如果类存在返回 true，否则返回 false
-     */
+    */
     public boolean isPresent(String className) {
         return cache.computeIfAbsent(className, name -> {
             TypeElement typeElement = elementUtils.getTypeElement(name);

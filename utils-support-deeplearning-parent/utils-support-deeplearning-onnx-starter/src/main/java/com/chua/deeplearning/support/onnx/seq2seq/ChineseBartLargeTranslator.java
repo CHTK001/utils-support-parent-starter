@@ -110,7 +110,7 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -127,7 +127,7 @@ public class ChineseBartLargeTranslator implements Translator<String, String> {
     * @param root 根
     * @param name 名称
     * @return find文件的结果
-     */
+    */
     private static Path findFile(Path root, String name) {
         Path p = root.resolve(name);
         if (Files.exists(p)) {

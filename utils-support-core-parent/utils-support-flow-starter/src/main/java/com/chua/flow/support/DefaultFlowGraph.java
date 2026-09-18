@@ -34,24 +34,24 @@ public class DefaultFlowGraph implements FlowGraph {
 
     /**
     * 底层流程
-     */
+    */
     private final DefaultFlow flow;
 
     /**
     * 当前连线游标节点 标识
-     */
+    */
     private String cursor;
 
     /**
     * 起始节点 标识
-     */
+    */
     private String startNodeId;
 
     /**
     * 以指定流程创建编排图。
     *
     * @param flow 底层流程
-     */
+    */
     public DefaultFlowGraph(DefaultFlow flow) {
         this.flow = flow;
     }
@@ -140,7 +140,7 @@ public class DefaultFlowGraph implements FlowGraph {
     * 校验节点是否已注册到流程。
     *
     * @param nodeId 节点 标识
-     */
+    */
     private void checkNode(String nodeId) {
         if (!flow.containsNode(nodeId)) {
             throw new FlowException("节点未添加，请先调用 addNode: " + nodeId);

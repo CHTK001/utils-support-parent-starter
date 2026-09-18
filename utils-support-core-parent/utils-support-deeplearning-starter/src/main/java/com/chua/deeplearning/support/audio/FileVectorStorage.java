@@ -43,29 +43,29 @@ public class FileVectorStorage implements VectorStorage {
 
     /**
     * 维度
-     */
+    */
     private final int dimension;
 
     /**
     * 持久化文件路径
-     */
+    */
     private final Path file;
 
     /**
     * 内存索引：标识 → 向量（链接哈希映射 保持插入序）
-     */
+    */
     private final Map<String, float[]> store = new LinkedHashMap<>();
 
     /**
     * 读写锁
-     */
+    */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
     * 文件向量storage。
     * @param dimension 维度
     * @param file 文件
-     */
+    */
     private FileVectorStorage(int dimension, Path file) {
         this.dimension = dimension;
         this.file = file;
@@ -78,7 +78,7 @@ public class FileVectorStorage implements VectorStorage {
     * @param dimension 向量维度
     * @param directory 持久化目录（自动创建）
     * @return 存储实例
-     */
+    */
     public static FileVectorStorage create(int dimension, Path directory) {
         try {
             Files.createDirectories(directory);
@@ -232,7 +232,7 @@ public class FileVectorStorage implements VectorStorage {
     * 校验维度
     *
     * @param vector 向量
-     */
+    */
     private void checkDim(float[] vector) {
         if (vector.length != dimension) {
             throw new IllegalArgumentException(
@@ -243,7 +243,7 @@ public class FileVectorStorage implements VectorStorage {
 
     /**
     * 关闭存储（写操作已实时落盘，此处仅标记）。
-     */
+    */
     @Override
     public void close() {
         // 写操作已实时落盘

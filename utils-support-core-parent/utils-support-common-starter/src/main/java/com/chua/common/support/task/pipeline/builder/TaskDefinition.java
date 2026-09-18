@@ -542,33 +542,33 @@ public class TaskDefinition {
     }
 
     /**
-    * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
-    *
-    * <p>环境参数与 {@link #params(Map)} 的区别：</p>
-    * <ul>
-    *   <li><strong>params</strong> — JSON 构建时传入的静态参数，执行时注入到 {@code ctx.nodeLocalData}</li>
-    *   <li><strong>env</strong> — 节点定义时配置的运行时环境参数，存储在节点自身的 env 属性中，
-    *       执行时通过 {@code ctx.getNodeLocalValue("env")} 或 {@code node.getEnv()} 获取，
-    *       适用于模型路径、阈值等需要根据上下文动态判断的环境配置</li>
-    * </ul>
-    *
-    * <p>用法示例：</p>
-    * <pre>{@code
-    * .taskStart("ocr", ctx -> {
-    *     String modelPath = ctx.getNodeLocalValue("env.modelPath");
-    *     double threshold = ctx.getNodeLocalValue("env.threshold");
-    *     // 根据环境参数执行不同逻辑
-    *     return null;
-    * })
-    * .env(Map.of("modelPath", "/models/ocr-v3.onnx", "threshold", 0.85))
-    * .taskEnd()
-    * }</pre>路径", "/模型/ocr-v3.onnx", "阈值", 0.85))
-    * .任务结束()
-    * }</pre>
-    *
-    * @param env 环境参数映射
-    * @return this
-    */
+            * 设置节点环境参数（运行时环境配置，如模型路径、阈值等）。
+            *
+            * <p>环境参数与 {@link #params(Map)} 的区别：</p>
+            * <ul>
+            *   <li><strong>params</strong> — JSON 构建时传入的静态参数，执行时注入到 {@code ctx.nodeLocalData}</li>
+            *   <li><strong>env</strong> — 节点定义时配置的运行时环境参数，存储在节点自身的 env 属性中，
+            *       执行时通过 {@code ctx.getNodeLocalValue("env")} 或 {@code node.getEnv()} 获取，
+            *       适用于模型路径、阈值等需要根据上下文动态判断的环境配置</li>
+            * </ul>
+            *
+            * <p>用法示例：</p>
+            * <pre>{@code
+            * .taskStart("ocr", ctx -> {
+            *     String modelPath = ctx.getNodeLocalValue("env.modelPath");
+            *     double threshold = ctx.getNodeLocalValue("env.threshold");
+            *     // 根据环境参数执行不同逻辑
+            *     return null;
+            * })
+            * .env(Map.of("modelPath", "/models/ocr-v3.onnx", "threshold", 0.85))
+            * .taskEnd()
+            * }</pre>路径", "/模型/ocr-v3.onnx", "阈值", 0.85))
+            * .任务结束()
+            * }</pre>
+            *
+            * @param env 环境参数映射
+            * @return this
+            */
     public TaskDefinition env(Map<String, Object> env) {
         this.env = env;
         return this;

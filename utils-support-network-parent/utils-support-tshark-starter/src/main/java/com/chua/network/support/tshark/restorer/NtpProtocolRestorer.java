@@ -67,7 +67,7 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param mode mode
     * @return 转为mode名称的结果
-     */
+    */
     private static String toModeName(int mode) {
         return switch (mode) {
             case 0 -> "Reserved";
@@ -87,7 +87,7 @@ public class NtpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param li li
     * @return 转为leap名称的结果
-     */
+    */
     private static String toLeapName(int li) {
         return switch (li) {
             case 0 -> "NoWarning";

@@ -58,69 +58,69 @@ public class FtpClient implements AutoCloseable {
 
     /**
     * 默认 FTP 端口
-     */
+    */
     private static final int DEFAULT_FTP_PORT = 21;
 
     /**
     * 默认连接超时（毫秒）
-     */
+    */
     private static final int DEFAULT_CONNECT_TIMEOUT = 30000;
 
     /**
     * FTP 服务器主机地址
-     */
+    */
     private final String host;
 
     /**
     * FTP 服务器端口号
-     */
+    */
     private final int port;
 
     /**
     * 登录用户名
-     */
+    */
     private final String username;
 
     /**
     * 登录密码
-     */
+    */
     private final String password;
 
     /**
     * 是否使用被动模式
-     */
+    */
     private final boolean passive;
 
     /**
     * 是否使用二进制传输模式
-     */
+    */
     private final boolean binary;
 
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private final int connectTimeout;
 
     /**
     * 是否启用 SSL/TLS（FTPS 模式）
-     */
+    */
     private final boolean ssl;
 
     /**
     * 是否隐式 SSL 模式（true=端口 990 直接 TLS，false=显式 认证 TLS）
-     */
+    */
     private final boolean implicit;
 
     /**
     * Apache Commons Net FTP 客户端实例
-     */
+    */
     private FTPClient ftpClient;
 
     /**
     * 创建 ftp客户端 实例。
     *
     * @param b 构建器
-     */
+    */
     private FtpClient(Builder b) {
         this.host = b.host;
         this.port = b.port;
@@ -139,7 +139,7 @@ public class FtpClient implements AutoCloseable {
     * 创建构建器。
     *
     * @return 新构建器实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -151,7 +151,7 @@ public class FtpClient implements AutoCloseable {
     * @param username 用户名
     * @param password 密码
     * @return 未连接的客户端实例
-     */
+    */
     public static FtpClient create(String host, String username, String password) {
         return builder().host(host).username(username).password(password).build();
     }
@@ -163,7 +163,7 @@ public class FtpClient implements AutoCloseable {
     * @param username 用户名
     * @param password 密码
     * @return 未连接的客户端实例
-     */
+    */
     public static FtpClient createFtps(String host, String username, String password) {
         return builder().host(host).username(username).password(password).ssl(true).build();
     }
@@ -174,7 +174,7 @@ public class FtpClient implements AutoCloseable {
     * 连接到 FTP/FTPS 服务器并完成登录认证。
     *
     * @return 当前实例，支持链式调用
-     */
+    */
     public FtpClient connect() {
         try {
             if (ssl) {
@@ -198,7 +198,7 @@ public class FtpClient implements AutoCloseable {
 
     /**
     * 断开连接并释放资源。
-     */
+    */
     public void disconnect() {
         try {
             if (ftpClient != null && ftpClient.isConnected()) {
@@ -214,7 +214,7 @@ public class FtpClient implements AutoCloseable {
     @Override
     /**
     * 关闭连接（auto关闭 实现）。
-     */
+    */
     public void close() {
         disconnect();
     }
@@ -225,7 +225,7 @@ public class FtpClient implements AutoCloseable {
     * 上传文件操作。
     *
     * @return 上传操作实例
-     */
+    */
     public UploadOperation upload() {
         return new UploadOperation(this);
     }
@@ -234,7 +234,7 @@ public class FtpClient implements AutoCloseable {
     * 下载文件操作。
     *
     * @return 下载操作实例
-     */
+    */
     public DownloadOperation download() {
         return new DownloadOperation(this);
     }
@@ -243,7 +243,7 @@ public class FtpClient implements AutoCloseable {
     * 列出目录内容操作。
     *
     * @return 列目录操作实例
-     */
+    */
     public ListOperation ls() {
         return new ListOperation(this);
     }
@@ -252,7 +252,7 @@ public class FtpClient implements AutoCloseable {
     * 切换目录操作。
     *
     * @return 切换目录操作实例
-     */
+    */
     public CdOperation cd() {
         return new CdOperation(this);
     }
@@ -261,7 +261,7 @@ public class FtpClient implements AutoCloseable {
     * 创建目录操作。
     *
     * @return 创建目录操作实例
-     */
+    */
     public MkdirOperation mkdir() {
         return new MkdirOperation(this);
     }
@@ -270,7 +270,7 @@ public class FtpClient implements AutoCloseable {
     * 删除文件操作。
     *
     * @return 删除文件操作实例
-     */
+    */
     public RmOperation rm() {
         return new RmOperation(this);
     }
@@ -279,7 +279,7 @@ public class FtpClient implements AutoCloseable {
     * 删除目录操作。
     *
     * @return 删除目录操作实例
-     */
+    */
     public RmdirOperation rmdir() {
         return new RmdirOperation(this);
     }
@@ -288,7 +288,7 @@ public class FtpClient implements AutoCloseable {
     * 重命名文件/目录操作。
     *
     * @return 重命名操作实例
-     */
+    */
     public RenameOperation rename() {
         return new RenameOperation(this);
     }
@@ -297,7 +297,7 @@ public class FtpClient implements AutoCloseable {
     * 获取当前工作目录。
     *
     * @return 当前工作目录路径
-     */
+    */
     public String pwd() {
         try {
             return ftpClient.printWorkingDirectory();
@@ -311,7 +311,7 @@ public class FtpClient implements AutoCloseable {
     *
     * @param path 远程路径
     * @return true 表示存在
-     */
+    */
     public boolean exists(String path) {
         try {
             FTPFile[] files = ftpClient.listFiles(path);
@@ -326,7 +326,7 @@ public class FtpClient implements AutoCloseable {
     *
     * @param path 远程文件路径
     * @return 文件大小，获取失败返回 -1
-     */
+    */
     public long size(String path) {
         try {
             return ftpClient.listFiles(path)[0].getSize();
@@ -340,7 +340,7 @@ public class FtpClient implements AutoCloseable {
     *
     * @param binary true 二进制模式，false ASCII 模式
     * @return 当前实例，支持链式调用
-     */
+    */
     public FtpClient setBinary(boolean binary) {
         try {
             ftpClient.setFileType(binary ? FTP.BINARY_FILE_TYPE : FTP.ASCII_FILE_TYPE);
@@ -354,7 +354,7 @@ public class FtpClient implements AutoCloseable {
     * 获取底层 ftp客户端（高级用法）。
     *
     * @return Apache Commons Net ftp客户端 实例
-     */
+    */
     FTPClient getFtpClient() {
         return ftpClient;
     }
@@ -368,28 +368,28 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class UploadOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 本地上传文件路径
-         */
+        */
         private String localPath;
 
         /**
         * 远程目标文件路径
-         */
+        */
         private String remotePath;
 
         /**
         * 本地输入流（与 本地路径 二选一）
-         */
+        */
         private InputStream inputStream;
 
         UploadOperation(FtpClient client) {
@@ -401,7 +401,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 本地文件路径
         * @return 当前操作实例
-         */
+        */
         public UploadOperation local(String p) {
             this.localPath = p;
             return this;
@@ -412,7 +412,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 远程文件路径
         * @return 当前操作实例
-         */
+        */
         public UploadOperation remote(String p) {
             this.remotePath = p;
             return this;
@@ -423,7 +423,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param in 输入流
         * @return 当前操作实例
-         */
+        */
         public UploadOperation stream(InputStream in) {
             this.inputStream = in;
             return this;
@@ -431,7 +431,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行上传操作。
-         */
+        */
         public void exec() {
             try {
                 InputStream in = inputStream;
@@ -463,28 +463,28 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class DownloadOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 远程文件路径
-         */
+        */
         private String remotePath;
 
         /**
         * 本地保存文件路径
-         */
+        */
         private String localPath;
 
         /**
         * 本地输出流（与 本地路径 二选一）
-         */
+        */
         private OutputStream outputStream;
 
         DownloadOperation(FtpClient client) {
@@ -496,7 +496,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 远程文件路径
         * @return 当前操作实例
-         */
+        */
         public DownloadOperation remote(String p) {
             this.remotePath = p;
             return this;
@@ -507,7 +507,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 本地文件路径
         * @return 当前操作实例
-         */
+        */
         public DownloadOperation local(String p) {
             this.localPath = p;
             return this;
@@ -518,7 +518,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param out 输出流
         * @return 当前操作实例
-         */
+        */
         public DownloadOperation stream(OutputStream out) {
             this.outputStream = out;
             return this;
@@ -526,7 +526,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行下载操作。
-         */
+        */
         public void exec() {
             try {
                 OutputStream out = outputStream;
@@ -563,18 +563,18 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class ListOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 要列出的目录路径，默认当前目录
-         */
+        */
         private String path = ".";
 
         ListOperation(FtpClient client) {
@@ -586,7 +586,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 目录路径
         * @return 当前操作实例
-         */
+        */
         public ListOperation path(String p) {
             this.path = p;
             return this;
@@ -596,7 +596,7 @@ public class FtpClient implements AutoCloseable {
         * 执行列目录操作。
         *
         * @return 文件/目录名称列表
-         */
+        */
         public List<String> exec() {
             try {
                 FTPFile[] files = client.getFtpClient().listFiles(path);
@@ -620,18 +620,18 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.43
-     */
+    */
     @Getter
     public static class CdOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 目标目录路径
-         */
+        */
         private String path;
 
         CdOperation(FtpClient client) {
@@ -643,7 +643,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 目录路径
         * @return 当前操作实例
-         */
+        */
         public CdOperation path(String p) {
             this.path = p;
             return this;
@@ -653,7 +653,7 @@ public class FtpClient implements AutoCloseable {
         * 执行切换目录操作。
         *
         * @return 当前操作实例，支持链式调用
-         */
+        */
         public CdOperation exec() {
             try {
                 boolean success = client.getFtpClient().changeWorkingDirectory(path);
@@ -677,18 +677,18 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class MkdirOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 要创建的目录路径
-         */
+        */
         private String path;
 
         MkdirOperation(FtpClient client) {
@@ -700,7 +700,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 目录路径
         * @return 当前操作实例
-         */
+        */
         public MkdirOperation path(String p) {
             this.path = p;
             return this;
@@ -708,7 +708,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行创建目录操作。
-         */
+        */
         public void exec() {
             try {
                 client.getFtpClient().makeDirectory(path);
@@ -726,18 +726,18 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class RmOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 要删除的文件路径
-         */
+        */
         private String path;
 
         RmOperation(FtpClient client) {
@@ -749,7 +749,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 文件路径
         * @return 当前操作实例
-         */
+        */
         public RmOperation path(String p) {
             this.path = p;
             return this;
@@ -757,7 +757,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行删除文件操作。
-         */
+        */
         public void exec() {
             try {
                 client.getFtpClient().deleteFile(path);
@@ -775,18 +775,18 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.43
-     */
+    */
     @Getter
     public static class RmdirOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 要删除的目录路径
-         */
+        */
         private String path;
 
         RmdirOperation(FtpClient client) {
@@ -798,7 +798,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 目录路径
         * @return 当前操作实例
-         */
+        */
         public RmdirOperation path(String p) {
             this.path = p;
             return this;
@@ -806,7 +806,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行删除目录操作。
-         */
+        */
         public void exec() {
             try {
                 client.getFtpClient().removeDirectory(path);
@@ -824,23 +824,23 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     @Getter
     public static class RenameOperation {
 
         /**
         * 关联的 FTP 客户端
-         */
+        */
         private final FtpClient client;
 
         /**
         * 原文件名
-         */
+        */
         private String oldPath;
 
         /**
         * 新文件名
-         */
+        */
         private String newPath;
 
         RenameOperation(FtpClient client) {
@@ -852,7 +852,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 原路径
         * @return 当前操作实例
-         */
+        */
         public RenameOperation from(String p) {
             this.oldPath = p;
             return this;
@@ -863,7 +863,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 新路径
         * @return 当前操作实例
-         */
+        */
         public RenameOperation to(String p) {
             this.newPath = p;
             return this;
@@ -871,7 +871,7 @@ public class FtpClient implements AutoCloseable {
 
         /**
         * 执行重命名操作。
-         */
+        */
         public void exec() {
             try {
                 client.getFtpClient().rename(oldPath, newPath);
@@ -889,52 +889,52 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static class Builder {
 
         /**
         * FTP 服务器主机地址
-         */
+        */
         private String host;
 
         /**
         * FTP 服务器端口号，默认 21
-         */
+        */
         private int port = DEFAULT_FTP_PORT;
 
         /**
         * 登录用户名
-         */
+        */
         private String username;
 
         /**
         * 登录密码
-         */
+        */
         private String password;
 
         /**
         * 是否使用被动模式，默认 true
-         */
+        */
         private boolean passive = true;
 
         /**
         * 是否使用二进制传输模式，默认 true
-         */
+        */
         private boolean binary = true;
 
         /**
         * 连接超时时间（毫秒），默认 30000
-         */
+        */
         private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
 
         /**
         * 是否启用 SSL/TLS（FTPS 模式），默认 false
-         */
+        */
         private boolean ssl;
 
         /**
         * 是否隐式 SSL 模式，默认 false（显式）
-         */
+        */
         private boolean implicit;
 
         /**
@@ -942,7 +942,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param h 服务器地址
         * @return 当前构建器
-         */
+        */
         public Builder host(String h) {
             this.host = h;
             return this;
@@ -953,7 +953,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 端口号
         * @return 当前构建器
-         */
+        */
         public Builder port(int p) {
             this.port = p;
             return this;
@@ -964,7 +964,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param u 用户名
         * @return 当前构建器
-         */
+        */
         public Builder username(String u) {
             this.username = u;
             return this;
@@ -975,7 +975,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param p 密码
         * @return 当前构建器
-         */
+        */
         public Builder password(String p) {
             this.password = p;
             return this;
@@ -986,7 +986,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param v true 使用被动模式
         * @return 当前构建器
-         */
+        */
         public Builder passive(boolean v) {
             this.passive = v;
             return this;
@@ -997,7 +997,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param v true 使用二进制模式
         * @return 当前构建器
-         */
+        */
         public Builder binary(boolean v) {
             this.binary = v;
             return this;
@@ -1008,7 +1008,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param t 超时毫秒数
         * @return 当前构建器
-         */
+        */
         public Builder connectTimeout(int t) {
             this.connectTimeout = t;
             return this;
@@ -1019,7 +1019,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param v true 启用 FTPS
         * @return 当前构建器
-         */
+        */
         public Builder ssl(boolean v) {
             this.ssl = v;
             return this;
@@ -1030,7 +1030,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param v true 隐式模式（端口 990 直接 TLS）
         * @return 当前构建器
-         */
+        */
         public Builder implicit(boolean v) {
             this.implicit = v;
             return this;
@@ -1041,7 +1041,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @return FTP 客户端实例
         * @throws IllegalArgumentException 参数不合法时抛出
-         */
+        */
         public FtpClient build() {
             if (host == null) {
                 throw new IllegalArgumentException("host 不能为空");
@@ -1060,7 +1060,7 @@ public class FtpClient implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static class FtpClientException extends RuntimeException {
 
         /**
@@ -1068,7 +1068,7 @@ public class FtpClient implements AutoCloseable {
         *
         * @param msg   异常消息
         * @param cause 原始异常
-         */
+        */
         public FtpClientException(String msg, Throwable cause) {
             super(msg, cause);
         }

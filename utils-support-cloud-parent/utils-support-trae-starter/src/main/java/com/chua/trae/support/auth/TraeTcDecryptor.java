@@ -57,7 +57,7 @@ public final class TraeTcDecryptor {
 
     /**
     * 私有构造，防止实例化。
-     */
+    */
     private TraeTcDecryptor() {
         throw new UnsupportedOperationException("TraeTcDecryptor is a static utility");
     }
@@ -67,7 +67,7 @@ public final class TraeTcDecryptor {
     *
     * @param value 基础64 字符串或明文，不可为 空
     * @return true 表示是 tc 加密串，需解密
-     */
+    */
     public static boolean isTcEncrypted(String value) {
         if (value == null || value.isEmpty()) {
             return false;
@@ -94,7 +94,7 @@ public final class TraeTcDecryptor {
     * @param base64Value 基础64 编码的 tc 加密串，不可为 空
     * @return 解密后的明文 JSON 字符串
     * @throws TcDecryptException 当解密失败或哈希校验不通过时
-     */
+    */
     public static String decrypt(String base64Value) {
         if (base64Value == null || base64Value.isEmpty()) {
             throw new TcDecryptException("base64Value must not be empty");
@@ -144,13 +144,13 @@ public final class TraeTcDecryptor {
     * 判断是否为 tc 加密格式的 tc 解密异常。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class TcDecryptException extends RuntimeException {
         /**
         * 创建异常。
         *
         * @param message 消息
-         */
+        */
         public TcDecryptException(String message) { super(message); }
 
         /**
@@ -158,7 +158,7 @@ public final class TraeTcDecryptor {
         *
         * @param message 消息
         * @param cause 原因
-         */
+        */
         public TcDecryptException(String message, Throwable cause) { super(message, cause); }
     }
 
@@ -167,7 +167,7 @@ public final class TraeTcDecryptor {
     *
     * @param arr 整数数组
     * @return 字节数组
-     */
+    */
     private static byte[] toBytes(int[] arr) {
         byte[] out = new byte[arr.length];
         for (int i = 0; i < arr.length; i++) {
@@ -182,7 +182,7 @@ public final class TraeTcDecryptor {
     * @param a 数组 A
     * @param b 数组 B
     * @return 异或结果
-     */
+    */
     private static byte[] xor(byte[] a, byte[] b) {
         byte[] out = new byte[a.length];
         for (int i = 0; i < a.length; i++) {
@@ -197,7 +197,7 @@ public final class TraeTcDecryptor {
     * @param a 前段
     * @param b 后段
     * @return 拼接结果
-     */
+    */
     private static byte[] concat(byte[] a, byte[] b) {
         byte[] out = new byte[a.length + b.length];
         System.arraycopy(a, 0, out, 0, a.length);
@@ -210,7 +210,7 @@ public final class TraeTcDecryptor {
     *
     * @param input 输入字节
     * @return 64 字节摘要
-     */
+    */
     private static byte[] sha512(byte[] input) {
         try {
             return MessageDigest.getInstance("SHA-512").digest(input);

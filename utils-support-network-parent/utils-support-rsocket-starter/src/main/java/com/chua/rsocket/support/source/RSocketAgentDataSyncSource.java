@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* r套接字 智能体 数据源
+* rSocket Agent 数据源
 * <p>Server 侧通过 RSocket request-stream / fire-and-forget 与 Agent 交互。</p>
 *
 * @author CH
@@ -24,32 +24,32 @@ import java.util.Map;
 public class RSocketAgentDataSyncSource implements DataSyncSource {
 
     /**
-    * 智能体 标识
-     */
+    * Agent 标识
+    */
     private final String agentId;
     /**
     * 源 标识
-     */
+    */
     private final String sourceId;
     /**
     * 主机地址
-     */
+    */
     private final String host;
     /**
     * 端口号
-     */
+    */
     private final int port;
 
     /**
-    * 创建 r套接字智能体数据同步源 实例
-    * @param agentId 智能体标识
+    * 创建 rSocketAgent数据同步源 实例
+    * @param agentId Agent标识
     * @param agentId 字符串
     * @param agentId 字符串
     * @param port int
     * @param sourceId 源标识
     * @param host 主机
     * @param port 端口
-     */
+    */
     public RSocketAgentDataSyncSource(String agentId, String sourceId, String host, int port) {
         this.agentId = agentId;
         this.sourceId = sourceId;
@@ -58,11 +58,11 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     /**
-    * 创建 r套接字智能体数据同步源 实例
-    * @param agentId 智能体标识
+    * 创建 rSocketAgent数据同步源 实例
+    * @param agentId Agent标识
     * @param agentId 字符串
     * @param sourceId 源标识
-     */
+    */
     public RSocketAgentDataSyncSource(String agentId, String sourceId) {
         this(agentId, sourceId, "localhost", 8080);
     }
@@ -80,7 +80,7 @@ public class RSocketAgentDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 智能体id */
+    /** Agentid */
     public String agentId() {
         return agentId;
     }

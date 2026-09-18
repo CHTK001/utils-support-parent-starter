@@ -43,10 +43,10 @@ public class SkillShMcpProvider extends SkillShProvider implements McpProvider {
     }
 
     /**
-     * 列出已安装项。
-     *
-     * @return 安装状态
-     */
+    * 列出已安装项。
+    *
+    * @return 安装状态
+    */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new HashMap<>();
         result.put(PREFIX + "search", true);
@@ -59,11 +59,11 @@ public class SkillShMcpProvider extends SkillShProvider implements McpProvider {
     }
 
     /**
-     * skills.sh MCP 客户端实现。
-     *
-     * @author CH
-     * @since 4.0.0.45
-     */
+    * skills.sh MCP 客户端实现。
+    *
+    * @author CH
+    * @since 4.0.0.45
+    */
     protected class SkillShMcpClient implements McpClient {
         /** initialized */
         private volatile boolean initialized = false;

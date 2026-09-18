@@ -33,22 +33,22 @@ public class PandocEnvironment {
 
     /**
     * Pandoc 下载版本
-     */
+    */
     private static final String PANDOC_VERSION = "3.6.4";
 
     /**
     * Pandoc GitHub 发布页面
-     */
+    */
     private static final String GITHUB_RELEASE = "https://github.com/jgm/pandoc/releases/download/" + PANDOC_VERSION;
 
     /**
     * 检测是否安装 Pandoc 的缓存结果
-     */
+    */
     private static Boolean pandocAvailable;
 
     /**
     * 缓存的 Pandoc 可执行文件路径
-     */
+    */
     private static String pandocPath;
 
     /**
@@ -57,7 +57,7 @@ public class PandocEnvironment {
     * <p>检测当前系统中是否存在 pandoc，如果不存在则尝试自动安装。</p>
     *
     * @return pandoc 可执行文件的路径
-     */
+    */
     public static String getPandocPath() {
         if (pandocAvailable != null && pandocAvailable) {
             return pandocPath;
@@ -85,7 +85,7 @@ public class PandocEnvironment {
     * 在系统 路径 中查找 pandoc
     *
     * @return pandoc 路径，未找到返回 空
-     */
+    */
     private static String findPandoc() {
         String osName = System.getProperty("os.name").toLowerCase();
         String cmd = osName.contains("win") ? "where pandoc" : "which pandoc";
@@ -137,7 +137,7 @@ public class PandocEnvironment {
     * <p>先通过包管理器安装，失败后回退到直接下载。</p>
     *
     * @return 安装后的 pandoc 路径，失败返回 空
-     */
+    */
     private static String installPandoc() {
         try {
             log.info("检测系统包管理器...");
@@ -168,7 +168,7 @@ public class PandocEnvironment {
     /**
     * 通过直接下载方式安装 Pandoc
     * @return install从directdownload的结果
-     */
+    */
     private static String installFromDirectDownload() {
         String osName = System.getProperty("os.name").toLowerCase();
         String arch = System.getProperty("os.arch").toLowerCase();
@@ -190,7 +190,7 @@ public class PandocEnvironment {
     * 在 窗口 上安装 Pandoc
     * @param arch Arch Linux Linux
     * @return install窗口的结果
-     */
+    */
     private static String installWindows(String arch) throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-windows-x86_64.msi";
         String downloadUrl = GITHUB_RELEASE + "/" + fileName;
@@ -233,7 +233,7 @@ public class PandocEnvironment {
     /**
     * 打印 窗口 手动安装指引
     * @param downloadUrl downloadurl
-     */
+    */
     private static void printWindowsManualGuide(String downloadUrl) {
         String homeDir = System.getProperty("user.home");
         String targetPath = homeDir + "\\AppData\\Local\\Pandoc";
@@ -250,7 +250,7 @@ public class PandocEnvironment {
     /**
     * 在 macOS 上安装 Pandoc
     * @return installMacOs的结果
-     */
+    */
     private static String installMacOs() throws Exception {
         String fileName = "pandoc-" + PANDOC_VERSION + "-macOS.dmg";
         String downloadUrl = GITHUB_RELEASE + "/" + fileName;
@@ -288,7 +288,7 @@ public class PandocEnvironment {
     /**
     * 打印 macOS 手动安装指引
     * @param downloadUrl downloadurl
-     */
+    */
     private static void printMacManualGuide(String downloadUrl) {
         log.warn("========== Pandoc 手动安装指引 ==========");
         log.warn("下载地址: {}", downloadUrl);
@@ -302,7 +302,7 @@ public class PandocEnvironment {
     * 在 Linux 上安装 Pandoc
     * @param arch Arch Linux Linux
     * @return installLinux的结果
-     */
+    */
     private static String installLinux(String arch) throws Exception {
         String archSuffix = arch.contains("64") ? "amd64" : "arm64";
         String fileName = "pandoc-" + PANDOC_VERSION + "-linux-" + archSuffix + ".tar.gz";
@@ -354,7 +354,7 @@ public class PandocEnvironment {
     * 打印 Linux 手动安装指引
     * @param downloadUrl downloadurl
     * @param archSuffix Arch Linux Linux后缀
-     */
+    */
     private static void printLinuxManualGuide(String downloadUrl, String archSuffix) {
         log.warn("========== Pandoc 手动安装指引 ==========");
         log.warn("下载地址: {}", downloadUrl);
@@ -371,7 +371,7 @@ public class PandocEnvironment {
     * 打印通用手动安装指引 (不支持的操作系统)
     * @param osName os名称
     * @param arch Arch Linux Linux
-     */
+    */
     private static void logManualInstallGuide(String osName, String arch) {
         log.warn("========== Pandoc 手动安装指引 ==========");
         log.warn("不支持的操作系统: {} ({})", osName, arch);
@@ -391,7 +391,7 @@ public class PandocEnvironment {
     * 递归删除目录
     *
     * @param path 目录路径
-     */
+    */
     private static void deleteDirectory(Path path) throws Exception {
         if (Files.isDirectory(path)) {
             try (var walk = Files.walk(path)) {
@@ -408,7 +408,7 @@ public class PandocEnvironment {
     *
     * @param downloadUrl 下载地址
     * @param targetPath  目标文件路径
-     */
+    */
     private static void downloadFile(String downloadUrl, Path targetPath) throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, new TrustManager[]{new X509TrustManager() {
@@ -417,20 +417,20 @@ public class PandocEnvironment {
             *
             * @param chain chain
             * @param authType 认证类型
-             */
+            */
             public void checkClientTrusted(X509Certificate[] chain, String authType) {}
             /**
             * 校验服务端信任
             *
             * @param chain chain
             * @param authType 认证类型
-             */
+            */
             public void checkServerTrusted(X509Certificate[] chain, String authType) {}
             /**
             * 获取acceptedissuers
             *
             * @return 获取acceptedissuers的结果
-             */
+            */
             public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
         }}, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());

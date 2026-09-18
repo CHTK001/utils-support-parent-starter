@@ -30,7 +30,7 @@ public class NettyHttpSyncFlow implements SyncFlow {
     * @param setting setting
     * @param serverUrl 字符串
     * @param serverUrl 服务端url
-     */
+    */
     public NettyHttpSyncFlow(com.chua.common.support.network.server.ServerSetting setting, String serverUrl) {
         this.server = new NettyHttpSyncServer(setting);
         this.client = new NettyHttpSyncClient(serverUrl);
@@ -39,7 +39,7 @@ public class NettyHttpSyncFlow implements SyncFlow {
     /**
     * 创建 nettyhttp同步流 实例
     * @param serverUrl 服务端url
-     */
+    */
     public NettyHttpSyncFlow(String serverUrl) {
         this.server = null;
         this.client = new NettyHttpSyncClient(serverUrl);
@@ -48,7 +48,7 @@ public class NettyHttpSyncFlow implements SyncFlow {
     /**
     * 创建 nettyhttp同步流 实例
     * @param setting setting
-     */
+    */
     public NettyHttpSyncFlow(com.chua.common.support.network.server.ServerSetting setting) {
         this.server = new NettyHttpSyncServer(setting);
         this.client = null;
@@ -159,7 +159,7 @@ public class NettyHttpSyncFlow implements SyncFlow {
     * 通知监听器
     *
     * @param action 动作
-     */
+    */
     private void notifyListeners(java.util.function.Consumer<SyncFlowListener> action) {
         for (SyncFlowListener listener : listeners) {
             try {

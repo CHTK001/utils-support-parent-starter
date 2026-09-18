@@ -45,7 +45,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     *
     * @param modelPath sentencepiece 模型路径
     * @throws IOException 解析失败
-     */
+    */
     public void load(Path modelPath) throws IOException {
         try (InputStream in = Files.newInputStream(modelPath)) {
             load(in.readAllBytes());
@@ -56,7 +56,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     * 从字节数组加载词表。
     *
     * @param proto 模型Proto.io 原始字节
-     */
+    */
     public void load(byte[] proto) {
         int offset = 0;
         while (offset < proto.length) {
@@ -94,7 +94,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     *
     * @param text 输入文本
     * @return token 标识 数组
-     */
+    */
     public int[] encode(String text) {
         List<String> segments = splitUserDefined(text);
         List<Integer> ids = new ArrayList<>();
@@ -239,7 +239,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     * 是否用户defined。
     * @param segment segment
     * @return 是否用户defined的结果
-     */
+    */
     }
 
     private boolean isUserDefined(String segment) {
@@ -251,7 +251,7 @@ public class MossSentencePieceBpe implements AutoCloseable {
     * @param offset 偏移量
     * @param length 长度
     * @return 读取intle的结果
-     */
+    */
     }
 
     private void parsePiece(byte[] data, int offset, int length) {

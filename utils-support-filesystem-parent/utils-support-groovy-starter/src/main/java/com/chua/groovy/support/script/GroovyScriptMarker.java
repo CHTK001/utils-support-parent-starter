@@ -49,7 +49,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     /**
     * 默认 Groovy 编译器配置（UTF-8 编码）。
     * <p>每个实例使用独立的 CompilerConfiguration 副本，避免多脚本共享配置导致缓存污染。</p>
-     */
+    */
     private static final CompilerConfiguration DEFAULT_CONFIG = new CompilerConfiguration();
 
     static {
@@ -58,30 +58,30 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
 
     /**
     * Groovy 编译器配置
-     */
+    */
     private final CompilerConfiguration config;
 
     /**
     * 最后一次编译生成的 类 类型
-     */
+    */
     private Class<?> compiledClass;
 
     /**
     * 最后一次编译脚本时使用的类加载器
-     */
+    */
     private ClassLoader lastClassLoader;
 
     /**
     * 上一次使用的类加载器，用于在热重载时主动清理其 Groovy 内部缓存。
     * <p>当新的 GroovyClassLoader 被创建后，旧的 ClassLoader 被保存到此字段，
     * 供 {@link #cleanupPreviousClassLoader()} 调用 clear缓存() 释放 Metaspace。</p>
-     */
+    */
     private volatile ClassLoader previousClassLoader;
 
     /**
     * 构造 Groovy 脚本标记器，使用默认编译器配置。
     * <p>每个实例创建独立的 CompilerConfiguration 副本，避免共享配置导致的缓存污染。</p>
-     */
+    */
     public GroovyScriptMarker() {
         this.config = new CompilerConfiguration(DEFAULT_CONFIG);
     }
@@ -90,7 +90,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     * 构造 Groovy 脚本标记器。
     *
     * @param config 编译器配置，为 空 时使用默认配置
-     */
+    */
     public GroovyScriptMarker(CompilerConfiguration config) {
         this.config = config != null ? new CompilerConfiguration(config) : new CompilerConfiguration(DEFAULT_CONFIG);
     }
@@ -102,7 +102,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     * <p>若传入的 classLoader 是 {@link GroovyClassLoader} 则复用；
     * 否则新建 groovy类加载。每次创建新 类加载 时，
     * 旧的 类加载 被保存到 {@link #previousClassLoader} 供后续清理。</p>
-     */
+    */
     public synchronized Object createObject(Listener listener, ClassLoader classLoader, Object[] args) {
         if (listener == null) {
             return null;
@@ -155,7 +155,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     * 获取编译器配置。
     *
     * @return 编译器配置实例
-     */
+    */
     public CompilerConfiguration getCompilerConfiguration() {
         return config;
     }
@@ -167,7 +167,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     * 类信息 反射缓存，帮助 Metaspace 内存回收。</p>
     *
     * <p>仅在 previousClassLoader 是 GroovyClassLoader 实例时执行清理。</p>
-     */
+    */
     public void cleanupPreviousClassLoader() {
         ClassLoader prev = this.previousClassLoader;
         if (prev instanceof GroovyClassLoader groovyCL) {
@@ -190,7 +190,7 @@ public class GroovyScriptMarker extends AbstractScriptMarker {
     * <p>关闭前先调用 {@code clearCache()} 清理 Groovy 内部缓存。</p>
     *
     * @param loader 待关闭的类加载器
-     */
+    */
     private static void closeSilently(GroovyClassLoader loader) {
         if (loader == null) {
             return;

@@ -27,18 +27,18 @@ public class PrometheusMetric {
 
     /**
     * 标签维度(包含 __名称__)
-     */
+    */
     @Builder.Default
     private Map<String, String> metric = new LinkedHashMap<>(); // 指标
 
     /**
     * 即时值(向量)
-     */
+    */
     private Double value;
 
     /**
     * 序列值(matrix, 有序时间戳+值)
-     */
+    */
     @Builder.Default
     /** 值 */
     private List<Sample> values = new ArrayList<>();
@@ -47,7 +47,7 @@ public class PrometheusMetric {
     * 获取指标名(__名称__)
     *
     * @return 指标名, 无则空串
-     */
+    */
     public String getName() {
         return metric == null ? "" : metric.getOrDefault("__name__", "");
     }
@@ -60,7 +60,7 @@ public class PrometheusMetric {
     * @author CH
     * @since 4.0.0.42
     * @return 样本的结果
-     */
+    */
     public record Sample(long timestamp, double value) {
     }
 }

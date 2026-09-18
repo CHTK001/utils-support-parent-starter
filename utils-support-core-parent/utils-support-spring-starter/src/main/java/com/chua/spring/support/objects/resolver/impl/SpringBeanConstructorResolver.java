@@ -31,7 +31,7 @@ public class SpringBeanConstructorResolver implements BeanConstructorResolver {
     * @param typeProvider 类型提供者
     * @param nameProvider 名称提供者
     * @param beanDefinition Beandefinition
-     */
+    */
     public Object resolve(Class<?> paramType, String paramName, Annotation[] annotations,
                           Function<Class<?>, Object> typeProvider,
                           Function<String, Object> nameProvider,

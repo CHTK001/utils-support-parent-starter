@@ -14,25 +14,25 @@ public interface DataSyncSink {
 
     /**
     * Sink 实例 标识。
-     */
+    */
     String SINK_ID = "sinkId";
 
     /**
     * Sink 实例唯一标识。
     *
     * @return Sink 标识
-     */
+    */
     String sinkId();
 
     /**
     * 写入数据流。
     *
     * @param data 数据流
-     */
+    */
     void write(Flux<Map<String, Object>> data);
 
     /**
     * 关闭 Sink，释放资源。
-     */
+    */
     void close();
 }

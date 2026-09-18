@@ -25,8 +25,8 @@ public final class VideoProviderRegistry {
     private VideoProviderRegistry() {}
 
     /**
-     * 构造函数中自动加载封禁名单（资源文件缺失时忽略）。
-     */
+    * 构造函数中自动加载封禁名单（资源文件缺失时忽略）。
+    */
     static {
         initBlockedResources();
     }
@@ -35,7 +35,7 @@ public final class VideoProviderRegistry {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     public enum BlockReason {
         BLOCKED("被封禁"),
@@ -51,7 +51,7 @@ public final class VideoProviderRegistry {
         * @return 标签的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public String label() { return label; }
     }
 
@@ -66,44 +66,44 @@ public final class VideoProviderRegistry {
         private String note;
 
         /**
-         * 获取名称。
-         * @return 获取名称的结果
-         */
+        * 获取名称。
+        * @return 获取名称的结果
+        */
         public String getName() { return name; }
         /**
-         * 设置名称。
-         * @param name 名称
-         */
+        * 设置名称。
+        * @param name 名称
+        */
         public void setName(String name) { this.name = name; }
         /**
-         * 获取ReasonML。
-         * @return 获取ReasonML的结果
-         */
+        * 获取ReasonML。
+        * @return 获取ReasonML的结果
+        */
         public String getReason() { return reason; }
         /**
-         * 设置ReasonML。
-         * @param reason 原因
-         */
+        * 设置ReasonML。
+        * @param reason 原因
+        */
         public void setReason(String reason) { this.reason = reason; }
         /**
-         * 获取blockedat。
-         * @return 获取blockedat的结果
-         */
+        * 获取blockedat。
+        * @return 获取blockedat的结果
+        */
         public String getBlockedAt() { return blockedAt; }
         /**
-         * 设置blockedat。
-         * @param blockedAt 封禁时间
-         */
+        * 设置blockedat。
+        * @param blockedAt 封禁时间
+        */
         public void setBlockedAt(String blockedAt) { this.blockedAt = blockedAt; }
         /**
-         * 获取备注。
-         * @return 获取备注的结果
-         */
+        * 获取备注。
+        * @return 获取备注的结果
+        */
         public String getNote() { return note; }
         /**
-         * 设置备注。
-         * @param note 备注
-         */
+        * 设置备注。
+        * @param note 备注
+        */
         public void setNote(String note) { this.note = note; }
     }
 
@@ -134,7 +134,7 @@ public final class VideoProviderRegistry {
     *
     * @param name 名称
     * @param reason ReasonMLML
-     */
+    */
     public static void block(String name, BlockReason reason) {
         BLOCKED_PROVIDERS.put(name, reason);
     }
@@ -145,7 +145,7 @@ public final class VideoProviderRegistry {
     * @param name 名称
     * @param reason ReasonMLML
     * @param detail detail
-     */
+    */
     public static void block(String name, BlockReason reason, String detail) {
         BLOCKED_PROVIDERS.put(name, reason);
     }
@@ -155,7 +155,7 @@ public final class VideoProviderRegistry {
     *
     * @param name 名称
     * @return 是否blocked的结果
-     */
+    */
     public static boolean isBlocked(String name) {
         return BLOCKED_PROVIDERS.containsKey(name);
     }
@@ -165,7 +165,7 @@ public final class VideoProviderRegistry {
     *
     * @param name 名称
     * @return 获取blockReasonML的结果
-     */
+    */
     public static BlockReason getBlockReason(String name) {
         return BLOCKED_PROVIDERS.get(name);
     }
@@ -174,7 +174,7 @@ public final class VideoProviderRegistry {
     * 获取所有被封 提供者 名称
     *
     * @return 获取blocked名称的结果
-     */
+    */
     public static Set<String> getBlockedNames() {
         return Collections.unmodifiableSet(BLOCKED_PROVIDERS.keySet());
     }
@@ -183,7 +183,7 @@ public final class VideoProviderRegistry {
     * 解除封禁
     *
     * @param name 名称
-     */
+    */
     public static void unblock(String name) {
         BLOCKED_PROVIDERS.remove(name);
     }
@@ -197,14 +197,14 @@ public final class VideoProviderRegistry {
         @JsonProperty("blocked")
         private List<BlockedEntry> blocked;
         /**
-        * 获取blocked。
-        * @return 获取blocked的结果
-         */
+    * 获取blocked。
+    * @return 获取blocked的结果
+    */
         public List<BlockedEntry> getBlocked() { return blocked; }
         /**
         * 设置blocked。
         * @param blocked blocked
-         */
+        */
         public void setBlocked(List<BlockedEntry> blocked) { this.blocked = blocked; }
     }
 }

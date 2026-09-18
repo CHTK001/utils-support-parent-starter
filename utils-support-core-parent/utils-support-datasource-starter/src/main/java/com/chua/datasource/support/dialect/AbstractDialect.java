@@ -27,7 +27,7 @@ public abstract class AbstractDialect implements Dialect {
     /**
     * 方言配置属性，可通过 Spring {@code application.properties}、环境变量或构造参数注入。
     * <p>外部传入的 properties 优先级高于内置 .env 文件。</p>
-     */
+    */
     protected Properties properties;
 
     /** 内存中的默认值缓存，避免重复从 属性 读取 */
@@ -36,7 +36,7 @@ public abstract class AbstractDialect implements Dialect {
     /**
     * 从类路径 {@code META-INF/dialect-env/{className-lowercase}.env} 加载默认配置。
     * <p>例如 {@code MysqlDialect} → {@code mysql.env}，{@code PostgresqlDialect} → {@code postgresql.env}。</p>
-     */
+    */
     protected AbstractDialect() {
         this.properties = loadDefaultEnv();
     }
@@ -45,7 +45,7 @@ public abstract class AbstractDialect implements Dialect {
     * 从类路径加载方言默认配置文件。
     *
     * @return 加载后的 属性，文件不存在时返回空 属性
-     */
+    */
     protected Properties loadDefaultEnv() {
         String simpleName = getClass().getSimpleName().toLowerCase();
         String resourceName = "META-INF/dialect-env/" + simpleName + ".env";
@@ -90,7 +90,7 @@ public abstract class AbstractDialect implements Dialect {
     * <p>例如 {@code java.sql.Types.VARCHAR} → {@code "VARCHAR"}，未知类型 → {@code "UNKNOWN"}。</p>
     * @param jdbcType JDBC类型
     * @return jdbc类型名称的结果
-     */
+    */
     protected static String jdbcTypeName(int jdbcType) {
         return switch (jdbcType) {
             case java.sql.Types.BIGINT       -> "BIGINT";
@@ -155,7 +155,7 @@ public abstract class AbstractDialect implements Dialect {
     * @param key          配置键
     * @param defaultValue 默认值
     * @return 配置值
-     */
+    */
     protected String config(String key, String defaultValue) {
         String cacheKey = key;
         if (configCache.containsKey(cacheKey)) {
@@ -176,7 +176,7 @@ public abstract class AbstractDialect implements Dialect {
     * 获取方言配置属性（合并了内置 .env + 外部注入）。
     *
     * @return 属性集合
-     */
+    */
     public Properties getProperties() {
         return properties;
     }
@@ -187,7 +187,7 @@ public abstract class AbstractDialect implements Dialect {
     *
     * @param properties 外部属性集合
     * @return this
-     */
+    */
     public AbstractDialect withProperties(Properties properties) {
  // 合并：先存 .env 默认值，再被外部 属性 覆盖
         Properties merged = new Properties(this.properties);
@@ -204,7 +204,7 @@ public abstract class AbstractDialect implements Dialect {
     *
     * @param value 原始值
     * @return 转义后的值，null 原样返回
-     */
+    */
     protected static String escape(String value) {
         return value == null ? null : value.replace("'", "''");
     }

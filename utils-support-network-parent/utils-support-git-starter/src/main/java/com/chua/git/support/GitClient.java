@@ -100,42 +100,42 @@ public class GitClient implements AutoCloseable {
 
     /**
     * 远程仓库 HTTP(S) 地址，clone 和 push 时使用。
-     */
+    */
     private final String remoteUrl;
 
     /**
     * 本地 Git 仓库所在目录路径。
-     */
+    */
     private final java.nio.file.Path localPath;
 
     /**
     * HTTPS 认证用户名。
-     */
+    */
     private final String username;
 
     /**
     * HTTPS 认证密码或 事假 Access 令牌。
-     */
+    */
     private final String password;
 
     /**
     * SSH 私钥文件绝对路径。
-     */
+    */
     private final String sshPrivateKeyPath;
 
     /**
     * SSH 私钥加密短语，可选。
-     */
+    */
     private final String sshPassphrase;
 
     /**
     * 缓存的 jgit Git 实例，{@code volatile} 配合 DCL 使用。
-     */
+    */
     private volatile Git git;
 
     /**
     * 可重入锁，保证 {@link #open()} 方法的高并发安全。
-     */
+    */
     private final ReentrantLock lock = new ReentrantLock();
 
     // ==================== 构造与工厂方法 ====================
@@ -143,7 +143,7 @@ public class GitClient implements AutoCloseable {
     /**
     * 私有构造，通过 构建器 构建。
     * @param builder 构建器
-     */
+    */
     private GitClient(Builder builder) {
         this.remoteUrl = builder.remoteUrl;
         this.localPath = builder.localPath;
@@ -157,7 +157,7 @@ public class GitClient implements AutoCloseable {
     * 创建 构建器，支持链式配置各项参数。
     *
     * @return 新的 构建器 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -167,7 +167,7 @@ public class GitClient implements AutoCloseable {
     *
     * @param localPath 本地仓库路径
     * @return 新的 Git客户端 实例
-     */
+    */
     public static GitClient ofLocal(java.nio.file.Path localPath) {
         return builder().localPath(localPath).build();
     }
@@ -183,7 +183,7 @@ public class GitClient implements AutoCloseable {
     *
     * @return 当前 Git客户端（链式）
     * @throws GitClientException 如果目录不是有效的 Git 仓库
-     */
+    */
     public GitClient open() {
         if (git != null) {
             return this;
@@ -223,7 +223,7 @@ public class GitClient implements AutoCloseable {
     * 返回缓存的 jgit Git 实例（如未打开则先调用 打开）。
     *
     * @return JGit Git 对象
-     */
+    */
     public Git getGit() {
         if (git == null) {
             open();
@@ -235,7 +235,7 @@ public class GitClient implements AutoCloseable {
     * 返回 jgit 仓库 对象。
     *
     * @return Repository 实例
-     */
+    */
     public Repository getRepository() {
         return getGit().getRepository();
     }
@@ -244,7 +244,7 @@ public class GitClient implements AutoCloseable {
     * 构造 HTTPS 凭据提供者。
     *
     * @return {@link 用户名密码凭证提供者}，若未设置凭据则返回 空
-     */
+    */
     public org.eclipse.jgit.transport.CredentialsProvider getCredentialsProvider() {
         if (username != null && password != null) {
             return new org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider(username, password);
@@ -256,16 +256,27 @@ public class GitClient implements AutoCloseable {
     * 获取远程仓库 URL。
     *
     * @return 远程 URL（可能为 nullptr）
-     */
+    */
     public String getRemoteUrl() {
         return remoteUrl;
+    }
+
+    /**
+    * 获取 HTTPS 访问令牌（密码或 Personal Access Token）。
+    *
+    * <p>CI 平台（GitHub Actions / Gitee Go）操作使用此令牌作为 bearer 凭据。</p>
+    *
+    * @return 访问令牌，可能为 null
+    */
+    public String getAccessToken() {
+        return password;
     }
 
     /**
     * 获取本地仓库路径。
     *
     * @return 本地路径
-     */
+    */
     public java.nio.file.Path getLocalPath() {
         return localPath;
     }
@@ -282,7 +293,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return FetchOperation 链式构建器
-     */
+    */
     public FetchOperation pull() {
         return new FetchOperation(this);
     }
@@ -297,7 +308,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return BranchOperation 链式构建器
-     */
+    */
     public BranchOperation branch() {
         return new BranchOperation(this);
     }
@@ -310,7 +321,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>    * }</pre>
     *
     * @return CloneOperation 链式构建器
-     */
+    */
     public CloneOperation cloneOp() {
         return new CloneOperation(this);
     }
@@ -324,7 +335,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return PushOperation 链式构建器
-     */
+    */
     public PushOperation push() {
         return new PushOperation(this);
     }
@@ -344,7 +355,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return DeployOperation 链式构建器
-     */
+    */
     public DeployOperation deploy() {
         return new DeployOperation(this);
     }
@@ -357,7 +368,7 @@ public class GitClient implements AutoCloseable {
     * }</pre> }</pre>
     *
     * @return LogOperation 链式构建器
-     */
+    */
     public LogOperation log() {
         return new LogOperation(this);
     }
@@ -372,7 +383,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return StatusOperation 链式构建器
-     */
+    */
     public StatusOperation status() {
         return new StatusOperation(this);
     }
@@ -386,7 +397,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>}</pre>
     *
     * @return CommitOperation 链式构建器
-     */
+    */
     public CommitOperation commit() {
         return new CommitOperation(this);
     }
@@ -402,7 +413,7 @@ public class GitClient implements AutoCloseable {
     * }</pre>
     *
     * @return TagOperation 链式构建器
-     */
+    */
     public TagOperation tag() {
         return new TagOperation(this);
     }
@@ -413,7 +424,7 @@ public class GitClient implements AutoCloseable {
     * 无进度监听拉取。
     * @param listener 监听器
     * @return 拉手的结果
-     */
+    */
     public com.chua.git.support.model.PullResult pull(GitFileListener listener) {
         return pull(listener, null);
     }
@@ -424,7 +435,7 @@ public class GitClient implements AutoCloseable {
     * @param listener         文件变更监听器，用于 diff 回调；为 空 则跳过 diff
     * @param progressListener 进度监听器，透传至 jgit 进步监控；可为 空
     * @return PullResult 包含更新状态、引用数、消息
-     */
+    */
     public com.chua.git.support.model.PullResult pull(GitFileListener listener, GitProgressListener progressListener) {
         try {
             Repository repo = getRepository();
@@ -461,7 +472,7 @@ public class GitClient implements AutoCloseable {
     * @param before 之前
     * @param after 之后
     * @param listener 监听器
-     */
+    */
     private void diffAndNotify(Repository repo, ObjectId before, ObjectId after, GitFileListener listener) {
         try (ObjectReader reader = repo.newObjectReader(); RevWalk revWalk = new RevWalk(repo)) {
             AbstractTreeIterator oldTree = new CanonicalTreeParser(null, reader, before);
@@ -482,7 +493,7 @@ public class GitClient implements AutoCloseable {
     * 将 jgit 的 diffentry.改变类型 映射到外部枚举。
     * @param ct ct
     * @return 映射改变类型的结果
-     */
+    */
     private GitFileEvent.ChangeType mapChangeType(DiffEntry.ChangeType ct) {
         switch (ct) {
             case ADD:      return GitFileEvent.ChangeType.ADD;
@@ -503,7 +514,7 @@ public class GitClient implements AutoCloseable {
     *
     * @since 4.0.0.42
     * @author CH
-     */
+    */
     public static class Builder {
 
         /** 远端 URL */
@@ -524,7 +535,7 @@ public class GitClient implements AutoCloseable {
         *
         * @param remoteUrl 远程url
         * @return 远程url的结果
-         */
+        */
         public Builder remoteUrl(String remoteUrl) {
             this.remoteUrl = remoteUrl;
             return this;
@@ -534,7 +545,7 @@ public class GitClient implements AutoCloseable {
         *
         * @param localPath 本地路径
         * @return 本地路径的结果
-         */
+        */
         public Builder localPath(java.nio.file.Path localPath) {
             this.localPath = localPath;
             return this;
@@ -546,7 +557,7 @@ public class GitClient implements AutoCloseable {
         * @param username 用户名
         * @param password 密码或 Access 令牌
         * @return 凭证的结果
-         */
+        */
         public Builder credentials(String username, String password) {
             this.username = username;
             this.password = password;
@@ -559,7 +570,7 @@ public class GitClient implements AutoCloseable {
         * @param privateKeyPath 私钥文件绝对路径
         * @param passphrase     私钥密码（无密码可传空串）
         * @return ssh键的结果
-         */
+        */
         public Builder sshKey(String privateKeyPath, String passphrase) {
             this.sshPrivateKeyPath = privateKeyPath;
             this.sshPassphrase = passphrase;
@@ -569,7 +580,7 @@ public class GitClient implements AutoCloseable {
         /**
         * 检查必要参数后构造 git客户端。
         * @return 构建的结果
-         */
+        */
         public GitClient build() {
             if (localPath == null) {
                 throw new IllegalArgumentException("localPath 不能为空");

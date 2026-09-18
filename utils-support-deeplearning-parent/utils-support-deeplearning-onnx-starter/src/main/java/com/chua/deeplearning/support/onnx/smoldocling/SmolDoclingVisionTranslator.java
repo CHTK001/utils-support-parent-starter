@@ -37,7 +37,7 @@ public class SmolDoclingVisionTranslator implements Translator<Image, SmolDoclin
     /**
     *                         
     *                                mask                       512x512
-     */
+    */
     private static final int INPUT_IMAGE_SIZE = 512;
 
     @Override

@@ -25,7 +25,7 @@ public class SafeTensorEmbeddingClient extends AbstractLocalEmbeddingClient {
     * 构造 safetensor 文本嵌入客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorEmbeddingClient(EmbeddingClientSetting setting) {
         super("safetensors", setting);
     }

@@ -24,7 +24,7 @@ public class JRebelSign {
 
     /**
     * jrebel 私钥（PKCS8 格式）
-     */
+    */
     private static final String PRIVATE_KEY =
             "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALrznBxfPFSgBx8g" +
             "oicpgKJHxJsQp1zh7gk3JYdGSr5eS4G3BiiZ+uvmD+nFJpGLQh4YBHhVjhBRTcPF" +
@@ -43,7 +43,7 @@ public class JRebelSign {
 
     /**
     * 服务器 RSA 私钥（生成签名）
-     */
+    */
     private static final BigInteger PRIVATE_EXPONENT = new BigInteger(
             "73aborea1r8et31vbk4rkpvjk7a39upgrhqaqndj3t3i1meok3j0c3jt8d1vni173" +
             "mb82vnvekhpodpgghgpjl6ctaocq7g88g4cj3h4p6c54t9b4r3qvf35ggtb76o46h" +
@@ -52,7 +52,7 @@ public class JRebelSign {
 
     /**
     * RSA 模数
-     */
+    */
     private static final BigInteger MODULUS = new BigInteger(
             "v3p5s0k6d8c1e2d4l0j3b5n1r5s8k3b5d0l8c5j1n7r1p3k5d3c8j5b5s0l0p1k8" +
             "d5c3j1b0s5l3p8k0d1c6j4b2s7l5p3k7d4c2j0b8s4l2p6k2d9c7j3b1s6l4p2k1" +
@@ -61,7 +61,7 @@ public class JRebelSign {
 
     /**
     * RSA 私钥对象
-     */
+    */
     private PrivateKey privateKey;
 
     /** 创建 jrebel标志 实例 */
@@ -71,7 +71,7 @@ public class JRebelSign {
 
     /**
     * 初始化私钥
-     */
+    */
     private void initPrivateKey() {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(PRIVATE_KEY);
@@ -90,7 +90,7 @@ public class JRebelSign {
     *
     * @param content 待签名内容
     * @return Base64 编码的签名
-     */
+    */
     public String sign(String content) {
         try {
             if (privateKey != null) {
@@ -112,7 +112,7 @@ public class JRebelSign {
     *
     * @param content 待签名内容
     * @return 签名字符串
-     */
+    */
     private String generateSignature(String content) {
         try {
             byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
@@ -134,7 +134,7 @@ public class JRebelSign {
     * @param validFrom        有效期开始时间
     * @param validUntil       有效期结束时间
     * @return 签名字符串
-     */
+    */
     public String toLeaseCreateJson(long clientRandomness, String guid, boolean offline,
                                     String validFrom, String validUntil) {
         StringBuilder sb = new StringBuilder();

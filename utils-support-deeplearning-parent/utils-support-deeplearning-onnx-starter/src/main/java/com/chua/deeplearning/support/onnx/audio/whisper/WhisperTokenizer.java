@@ -30,7 +30,9 @@ public class WhisperTokenizer {
     /** 映射器 */
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /** 完整 vocab 大小（51864 = BPE 50257 + 特殊 令牌 1607） */
+    /**
+    * 完整 vocab 大小（51864 = BPE 50257 + 特殊 令牌 1607）
+    */
     public static final int VOCAB_SIZE = 51864;
 
     /** 令牌 标识 → 令牌 字符串（含 Ġ 前导空格标记） */
@@ -48,7 +50,7 @@ public class WhisperTokenizer {
     * @param idToToken 令牌 标识 → 令牌 字符串 数组
     * @param tokenToId 令牌 字符串 → 令牌 标识 映射
     * @param vocabSize vocab 大小
-     */
+    */
     private WhisperTokenizer(String[] idToToken, Map<String, Integer> tokenToId, int vocabSize) {
         this.idToToken = idToToken;
         this.tokenToId = tokenToId;
@@ -60,7 +62,7 @@ public class WhisperTokenizer {
     *
     * @param vocabJson vocab.json 路径
     * @return tokenizer 实例
-     */
+    */
     public static WhisperTokenizer load(Path vocabJson) throws IOException {
         return load(vocabJson, vocabJson.resolveSibling("tokenizer.json"));
     }
@@ -71,7 +73,7 @@ public class WhisperTokenizer {
     * @param vocabJson  vocab.json 路径
     * @param tokJson    tokenizer.json 路径
     * @return tokenizer 实例
-     */
+    */
     public static WhisperTokenizer load(Path vocabJson, Path tokJson) throws IOException {
  // 1. 加载 BPE vocab（自动识别方向：标识→令牌 或 令牌→标识）
         Map<Integer, String> idToTokenMap = new HashMap<>();
@@ -132,7 +134,7 @@ public class WhisperTokenizer {
     * Vocab 获取大小
     *
     * @return vocab大小的结果
-     */
+    */
     public int vocabSize() {
         return vocabSize;
     }
@@ -142,7 +144,7 @@ public class WhisperTokenizer {
     *
     * @param token 令牌
     * @return 令牌转为id的结果
-     */
+    */
     public int tokenToId(String token) {
         Integer id = tokenToId.get(token);
         return id == null ? -1 : id;
@@ -153,7 +155,7 @@ public class WhisperTokenizer {
     *
     * @param id 标识
     * @return id转为令牌的结果
-     */
+    */
     public String idToToken(int id) {
         if (id < 0 || id >= vocabSize) {
             return null;
@@ -171,7 +173,7 @@ public class WhisperTokenizer {
     *
     * @param ids 令牌 标识 序列
     * @return 解码后的字符串（已过滤特殊 令牌）
-     */
+    */
     public String decode(int[] ids) {
         StringBuilder sb = new StringBuilder();
         for (int id : ids) {
@@ -198,7 +200,7 @@ public class WhisperTokenizer {
     *
     * @param token 令牌
     * @return 是否special的结果
-     */
+    */
     private static boolean isSpecial(String token) {
         return token.startsWith("<") && token.endsWith(">");
     }
@@ -206,7 +208,7 @@ public class WhisperTokenizer {
     /**
     * Whisper 特殊 令牌 常量（与 huggingface whisper tokenizer 一致）。
     * 来源: 配置.json bos_令牌_标识=50257, eos_令牌_标识=50256
-     */
+    */
 
     /** 启动 的 转写 */
     public static final int SOT = 50257;
@@ -227,7 +229,7 @@ public class WhisperTokenizer {
     *
     * @param key 键
     * @return 是否int键的结果
-     */
+    */
     private static boolean isIntKey(String key) {
         if (key == null || key.isEmpty()) {
             return false;

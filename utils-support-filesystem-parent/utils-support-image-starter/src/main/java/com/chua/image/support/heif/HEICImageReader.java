@@ -25,7 +25,7 @@ public class HEICImageReader extends ImageReader {
     /**
     * heic镜像读取。
     * @param spi spi
-     */
+    */
     public HEICImageReader(HEICImageReaderSpi spi) {
         super(spi);
     }

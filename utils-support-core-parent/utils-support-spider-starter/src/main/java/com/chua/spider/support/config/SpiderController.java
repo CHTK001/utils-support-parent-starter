@@ -27,14 +27,14 @@ public class SpiderController {
 
     /**
     * 爬虫定义存储
-     */
+    */
     private final SpiderDefinitionStore store;
 
     /**
     * 构造爬虫控制器。
     *
     * @param store 爬虫定义存储
-     */
+    */
     public SpiderController(SpiderDefinitionStore store) {
         this.store = store;
     }
@@ -46,7 +46,7 @@ public class SpiderController {
     * @param pageSize 每页条数
     * @param keyword  关键字（可选）
     * @return 分页结果
-     */
+    */
     @GetMapping("/page")
     public Result<SpiderDefinitionStore.PageResult<SpiderDefinition>> page(
             @RequestParam(defaultValue = "1") int pageNo,
@@ -60,7 +60,7 @@ public class SpiderController {
     *
     * @param spiderCode 爬虫编码
     * @return 爬虫定义，不存在时返回 空
-     */
+    */
     @GetMapping("/detail")
     public Result<SpiderDefinition> detail(@RequestParam String spiderCode) {
         return ok(store.get(spiderCode));
@@ -71,7 +71,7 @@ public class SpiderController {
     *
     * @param definition 爬虫定义
     * @return 保存后的爬虫定义
-     */
+    */
     @PostMapping("/save")
     public Result<SpiderDefinition> save(@RequestBody SpiderDefinition definition) {
         return ok(store.save(definition));
@@ -82,7 +82,7 @@ public class SpiderController {
     *
     * @param spiderCode 爬虫编码
     * @return 操作结果
-     */
+    */
     @DeleteMapping("/delete")
     public Result<Map<String, Object>> delete(@RequestParam String spiderCode) {
         boolean removed = store.remove(spiderCode);
@@ -97,7 +97,7 @@ public class SpiderController {
     * @param spiderCode   爬虫编码
     * @param spiderStatus 状态（0 禁用 / 1 启用）
     * @return 操作结果
-     */
+    */
     @PostMapping("/status")
     public Result<Map<String, Object>> status(@RequestParam String spiderCode,
                                                @RequestParam int spiderStatus) {
@@ -113,14 +113,14 @@ public class SpiderController {
     * @param data 业务数据
     * @param <T>  数据类型
     * @return 统一响应
-     */
+    */
     private static <T> Result<T> ok(T data) {
         return new Result<>("00000", data, "success", true);
     }
 
     /**
     * 统一响应结构，与前端 返回结果 类型一致。
-     */
+    */
     public record Result<T>(
             String code,
             T data,

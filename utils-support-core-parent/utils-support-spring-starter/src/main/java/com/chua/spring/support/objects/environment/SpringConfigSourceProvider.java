@@ -52,7 +52,7 @@ public class SpringConfigSourceProvider implements ConfigSourceProvider {
     * {@link com.chua.common.support.config.source.PropertySource} 的适配器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class SpringPropertySourceAdapter implements com.chua.common.support.config.source.PropertySource {
 
         /** 名称 */

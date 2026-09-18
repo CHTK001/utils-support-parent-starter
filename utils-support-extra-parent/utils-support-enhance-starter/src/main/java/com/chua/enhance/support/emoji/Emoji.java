@@ -16,39 +16,39 @@ public class Emoji {
 
     /**
     * Unicode 编码
-     */
+    */
     private String unicode;
 
     /**
     * 别名列表
-     */
+    */
     private List<String> aliases = new ArrayList<>();
 
     /**
     * HTML 十六进制实体
-     */
+    */
     private String hexHtml;
 
     /**
     * HTML 十进制实体
-     */
+    */
     private String decimalHtml;
 
     /**
     * 描述
-     */
+    */
     private String description;
 
     /**
     * 表情符号列表
-     */
+    */
     private List<String> emoticons = new ArrayList<>();
 
     /**
     * 获取emojichar
     *
     * @return 获取emojichar的结果
-     */
+    */
     public String getEmojiChar() {
         return unicode;
     }
@@ -57,7 +57,7 @@ public class Emoji {
     * 获取decimalsurrogatehtml
     *
     * @return 获取decimalsurrogatehtml的结果
-     */
+    */
     public String getDecimalSurrogateHtml() {
         return getDecimalHtml();
     }
@@ -66,7 +66,7 @@ public class Emoji {
     * 获取hexhtmlshort
     *
     * @return 获取hexhtmlshort的结果
-     */
+    */
     public String getHexHtmlShort() {
         return getHexHtml();
     }
@@ -75,7 +75,7 @@ public class Emoji {
     * 获取decimalhtmlshort
     *
     * @return 获取decimalhtmlshort的结果
-     */
+    */
     public String getDecimalHtmlShort() {
         return getDecimalHtml();
     }
@@ -84,7 +84,7 @@ public class Emoji {
     * 获取Emoticons
     *
     * @return 获取emoticons的结果
-     */
+    */
     public List<String> getEmoticons() {
         return emoticons;
     }
@@ -93,7 +93,7 @@ public class Emoji {
     * 获取 HTML 十六进制实体
     *
     * @return HTML 十六进制实体字符串
-     */
+    */
     public String getHexHtml() {
         if (hexHtml != null) {
             return hexHtml;
@@ -113,7 +113,7 @@ public class Emoji {
     * 获取 HTML 十进制实体
     *
     * @return HTML 十进制实体字符串
-     */
+    */
     public String getDecimalHtml() {
         if (decimalHtml != null) {
             return decimalHtml;

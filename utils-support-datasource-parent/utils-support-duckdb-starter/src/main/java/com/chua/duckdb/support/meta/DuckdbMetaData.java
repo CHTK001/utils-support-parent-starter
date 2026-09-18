@@ -27,7 +27,7 @@ public class DuckdbMetaData extends AbstractMetaData {
     * 构造方法。
     *
     * @param engine 引擎实例
-     */
+    */
     public DuckdbMetaData(Engine engine) {
         super(engine);
     }

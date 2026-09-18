@@ -32,26 +32,26 @@ public final class EngineUpdateSqlExecutor {
 
     /**
     * 更新 语句解析正则
-     */
+    */
     private static final Pattern UPDATE = Pattern.compile(
             "(?is)^\\s*UPDATE\\s+(?:(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s*\\.\\s*)?(?:`([^`]+)`|([A-Za-z_][\\w$]*))\\s+SET\\s+(.+?)(?:\\s+WHERE\\s+(.+))?\\s*$"
     );
 
     /**
     * SQL 更新 关键字
-     */
+    */
     private static final String SQL_UPDATE_KEYWORD = "UPDATE";
 
     /**
     * 已注册的引擎方案列表
-     */
+    */
     private final List<DataScheme> schemes;
 
     /**
     * 构造路由执行器。
     *
     * @param schemes 已注册的引擎方案列表
-     */
+    */
     public EngineUpdateSqlExecutor(List<DataScheme> schemes) {
         this.schemes = schemes != null ? schemes : List.of();
     }
@@ -61,7 +61,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param sql 原始 SQL
     * @return 影响行数；不可路由返回 空
-     */
+    */
     public Integer tryExecute(String sql) {
         if (sql == null) {
             return null;
@@ -104,7 +104,7 @@ public final class EngineUpdateSqlExecutor {
     * @param sets 设置
     * @param wheres wheres
     * @return 执行更新的结果
-     */
+    */
     private int executeUpdate(SourceDataTable source, Map<String, Object> sets, Map<String, Object> wheres) {
         Engine engine = source.getEngine();
         Class<?> entityClass = source.getEntityClass();
@@ -126,7 +126,7 @@ public final class EngineUpdateSqlExecutor {
     * @param schema 模式
     * @param table table
     * @return resolveTable的结果
-     */
+    */
     private SourceDataTable resolveTable(String schema, String table) {
         String tableKey = table == null ? null : table.toLowerCase(Locale.ROOT);
         for (DataScheme scheme : schemes) {
@@ -155,7 +155,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param part part
     * @return 解析assignments的结果
-     */
+    */
     private static Map<String, Object> parseAssignments(String part) {
         Map<String, Object> map = new LinkedHashMap<>();
         for (String seg : splitTopLevel(part, ',')) {
@@ -177,7 +177,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param where where
     * @return 解析和equals的结果
-     */
+    */
     private static Map<String, Object> parseAndEquals(String where) {
         Map<String, Object> map = new LinkedHashMap<>();
         // 仅支持 AND 连接的 col = val
@@ -200,7 +200,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param seg seg
     * @return 索引的assign的结果
-     */
+    */
     private static int indexOfAssign(String seg) {
         boolean inStr = false;
         for (int i = 0; i < seg.length(); i++) {
@@ -224,7 +224,7 @@ public final class EngineUpdateSqlExecutor {
     * @param text 文本
     * @param sep sep
     * @return 分割top级别的结果
-     */
+    */
     private static List<String> splitTopLevel(String text, char sep) {
         List<String> parts = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
@@ -257,7 +257,7 @@ public final class EngineUpdateSqlExecutor {
     * @param text 文本
     * @param keyword keyword
     * @return 分割top级别的结果
-     */
+    */
     private static List<String> splitTopLevel(String text, String keyword) {
         List<String> parts = new ArrayList<>();
         String upper = text.toUpperCase(Locale.ROOT);
@@ -291,7 +291,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param ident ident
     * @return unquoteIdent的结果
-     */
+    */
     private static String unquoteIdent(String ident) {
         if (ident == null) {
             return null;
@@ -311,7 +311,7 @@ public final class EngineUpdateSqlExecutor {
     *
     * @param raw raw
     * @return 解析字面量的结果
-     */
+    */
     private static Object parseLiteral(String raw) {
         if (raw == null) {
             return null;
@@ -352,7 +352,7 @@ public final class EngineUpdateSqlExecutor {
     * @param a a
     * @param b b
     * @return 第一个的结果
-     */
+    */
     private static String first(String a, String b) {
         return a != null ? a : b;
     }

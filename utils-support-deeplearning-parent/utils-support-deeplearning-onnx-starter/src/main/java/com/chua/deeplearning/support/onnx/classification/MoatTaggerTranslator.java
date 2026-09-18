@@ -42,7 +42,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     * moattaggertranslator。
     * @param topk topk
     * @param csvPath csv路径
-     */
+    */
     private final Path csvPath;
 
     public MoatTaggerTranslator() {
@@ -145,7 +145,7 @@ public class MoatTaggerTranslator implements Translator<Image, Classifications> 
     * 加载csv。
     * @param csv csv
     * @return 加载csv的结果
-     */
+    */
     private static List<String> loadCsv(Path csv) throws Exception {
         List<String> names = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(csv), StandardCharsets.UTF_8))) {

@@ -51,18 +51,18 @@ public class CrushUsageParser extends BaseUsageParser {
     private static final long EPOCH_SECONDS_TO_MILLIS = 1000L;
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "crush"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "crush"}
+    */
     @Override
     public String name() {
         return PROVIDER_CRUSH;
     }
 
     /**
-     * 流式解析全部项目的会话用量。
-     */
+    * 流式解析全部项目的会话用量。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> databases = listProjectDatabases();
@@ -76,10 +76,10 @@ public class CrushUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
-     *
-     * @return crush.db 文件列表；索引缺失或无有效条目时为空
-     */
+    * 从 projects.json 索引收集所有存在 crush.db 的项目路径。
+    *
+    * @return crush.db 文件列表；索引缺失或无有效条目时为空
+    */
     private List<Path> listProjectDatabases() {
         List<Path> result = new ArrayList<>();
         if (!Files.exists(PROJECTS_INDEX)) {
@@ -108,11 +108,11 @@ public class CrushUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析单个项目数据库的会话聚合用量。
-     *
-     * @param db crush.db 文件路径
-     * @return 用量记录流
-     */
+    * 流式解析单个项目数据库的会话聚合用量。
+    *
+    * @param db crush.db 文件路径
+    * @return 用量记录流
+    */
     private Flux<AiUsage> streamDatabase(Path db) {
         SqliteReactorEngine engine = new SqliteReactorEngine()
                 .addDataSource("crush-" + System.identityHashCode(db), db.toString());
@@ -125,12 +125,12 @@ public class CrushUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将 sessions 表行映射为会话级聚合用量记录。
-     *
-     * @param row sessions 行
-     * @param db  来源数据库路径
-     * @return 用量记录
-     */
+    * 将 sessions 表行映射为会话级聚合用量记录。
+    *
+    * @param row sessions 行
+    * @param db  来源数据库路径
+    * @return 用量记录
+    */
     private AiUsage toAiUsage(Map<String, Object> row, Path db) {
         int promptTokens = asInt(row.get("prompt_tokens"));
         int completionTokens = asInt(row.get("completion_tokens"));

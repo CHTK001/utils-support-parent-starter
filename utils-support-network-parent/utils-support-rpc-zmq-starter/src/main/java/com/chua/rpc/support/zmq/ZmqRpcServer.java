@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
 * zeromq RPC 服务端实现（jeromq，纯 Java 无需原生依赖）。
 *
-* <p><b>传输模型</b>：基于 <strong>ROUTER 套接字</strong>的多对多异步消息模型。
-* 每个客户端（{@link ZmqRpcClient} 的 DEALER 套接字）发给服务端的消息，
+* <p><b>传输模型</b>：基于 <strong>ROUTER Socket</strong>的多对多异步消息模型。
+* 每个客户端（{@link ZmqRpcClient} 的 DEALER Socket）发给服务端的消息，
 * ROUTER 会自动为其附加对端标识符（identity）帧，从而支持：
 * <ul>
 *   <li>多客户端并发接入，每个连接使用独立的 identity 路由回包</li>
@@ -71,117 +71,117 @@ public class ZmqRpcServer implements RpcServer {
 
     /**
     * 未配置端口时的默认监听端口
-     */
+    */
     private static final int DEFAULT_PORT = 5555;
 
     /**
     * 单次 {@code recv} 阻塞等待的最长时间（毫秒），用于终止循环检测
-     */
+    */
     private static final int RECV_TIMEOUT = 100;
 
     /**
     * 服务名（接口全限定名）→ 服务实现对象
-     */
+    */
     private final Map<String, Object> services = new ConcurrentHashMap<>();
 
     /**
     * 服务方法缓存：避免每次请求都走 {@code getMethod} 反射查找（热路径开销）
-     */
+    */
     private final Map<MethodKey, java.lang.reflect.Method> methodCache = new ConcurrentHashMap<>();
 
     /**
     * 启动状态（防止 {@link #afterPropertiesSet()} 重复启动）
-     */
+    */
     private final AtomicBoolean state = new AtomicBoolean(false);
 
     /**
     * 关闭标记（收包/分发线程退出条件）
-     */
+    */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
     * 累计请求总数
-     */
+    */
     private final AtomicLong totalRequests = new AtomicLong();
 
     /**
     * 累计成功响应数
-     */
+    */
     private final AtomicLong successRequests = new AtomicLong();
 
     /**
     * 累计失败响应数（业务异常/解析失败）
-     */
+    */
     private final AtomicLong failureRequests = new AtomicLong();
 
     /**
     * 当前在途请求数
-     */
+    */
     private final AtomicLong activeRequests = new AtomicLong();
 
     /**
     * 服务启动时间戳（毫秒）
-     */
+    */
     private final long startTime = System.currentTimeMillis();
 
     /**
     * 监听主机
-     */
+    */
     private final String host;
 
     /**
     * 监听端口
-     */
+    */
     private final int port;
 
     /**
     * 业务线程池核心线程数
-     */
+    */
     private final int threads;
 
     /**
     * 请求/响应编解码器（SPI 序列化）
-     */
+    */
     private final RpcSerialization rpcSerialization;
 
     /**
     * 监听地址，如 {@code tcp://0.0.0.0:5555}
-     */
+    */
     private String bindAddress = "tcp://0.0.0.0:5555";
 
     /**
     * 注册中心配置列表（用于服务发现 SPI 初始化）
-     */
+    */
     private final List<RpcRegistryConfig> registryConfigs;
 
     /**
     * APP 名称（用于服务发现路径拼接）
-     */
+    */
     private final String appName;
 
     /**
     * 服务发现实例（SPI 加载，可为 {@code null} 表示纯直连模式）
-     */
+    */
     private ServiceDiscovery serviceDiscovery;
 
     /**
     * ZMQ 上下文（线程安全，复用）
-     */
+    */
     private ZContext zContext;
 
     /**
-    * ROUTER 接收套接字
-     */
+    * ROUTER 接收Socket
+    */
     private ZMQ.Socket routerSocket;
 
     /**
     * 业务线程池
-     */
+    */
     private java.util.concurrent.ExecutorService executorService;
 
     /**
     * 收包线程
-     */
+    */
     private Thread recvThread;
 
     /**
@@ -191,7 +191,7 @@ public class ZmqRpcServer implements RpcServer {
     * 为 {@code null} 或 协议 为 "direct"/"NAT"/空时走直连
     * @param protocolConfig  协议配置（端口 / 线程数 / 序列化），可为 {@code null}
     * @param name            应用名（用于服务发现路径拼接）
-     */
+    */
     public ZmqRpcServer(List<RpcRegistryConfig> registryConfigs, RpcProtocolConfig protocolConfig, String name) {
         this.registryConfigs = registryConfigs;
         this.appName = name;
@@ -233,7 +233,7 @@ public class ZmqRpcServer implements RpcServer {
     /**
     * 初始化服务发现：遍历注册中心配置，协议 为注册中心类型（ZooKeeper/nacos 等）时
     * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
-     */
+    */
     private void initServiceDiscovery() {
         if (registryConfigs == null || registryConfigs.isEmpty()) {
             return;
@@ -285,7 +285,7 @@ public class ZmqRpcServer implements RpcServer {
 
     /**
     * 收包主循环：阻塞接收 ROUTER 消息，拆帧后提交到业务线程池执行。
-     */
+    */
     private void recvLoop() {
         while (!closed.get()) {
             try {
@@ -319,7 +319,7 @@ public class ZmqRpcServer implements RpcServer {
     *
     * @param identity   对端标识符帧（ROUTER 路由回包用）
     * @param requestData 请求帧字节
-     */
+    */
     private void process(byte[] identity, byte[] requestData) {
         try {
             RpcRequest request = rpcSerialization.deserializeRequest(requestData);
@@ -349,7 +349,7 @@ public class ZmqRpcServer implements RpcServer {
     *
     * @param request RPC 请求
     * @return RPC 响应，业务异常也会被捕获并包装为失败响应
-     */
+    */
     private RpcResponse invoke(RpcRequest request) {
         RpcResponse response = new RpcResponse();
         try {
@@ -379,7 +379,7 @@ public class ZmqRpcServer implements RpcServer {
     *
     * @param identity 对端标识符
     * @param response RPC 响应
-     */
+    */
     private void sendResponse(byte[] identity, RpcResponse response) throws Exception {
         synchronized (routerSocket) {
             byte[] responseData = rpcSerialization.serialize(response);
@@ -398,7 +398,7 @@ public class ZmqRpcServer implements RpcServer {
     * @param request RPC 请求
     * @return 已解析的方法
     * @throws NoSuchMethodException 方法不存在时抛出
-     */
+    */
     private java.lang.reflect.Method resolveMethod(Object service, RpcRequest request) throws NoSuchMethodException {
         String[] typeNames = request.getParamTypes();
         MethodKey key = new MethodKey(request.getService(), request.getMethod(), typeNames);
@@ -418,7 +418,7 @@ public class ZmqRpcServer implements RpcServer {
     *
     * @param typeNames 类型名数组
     * @return 类型数组
-     */
+    */
     private Class<?>[] resolveParamTypes(String[] typeNames) {
         if (typeNames == null) {
             return new Class<?>[0];
@@ -435,7 +435,7 @@ public class ZmqRpcServer implements RpcServer {
     *
     * @param e 异常
     * @return 错误响应
-     */
+    */
     private RpcResponse buildErrorResponse(Exception e) {
         RpcResponse err = new RpcResponse();
         err.setSuccess(false);
@@ -493,7 +493,7 @@ public class ZmqRpcServer implements RpcServer {
             try {
                 routerSocket.close();
             } catch (Exception ignored) {
-                // 关闭时忽略套接字异常
+                // 关闭时忽略Socket异常
             }
         }
         if (zContext != null) {
@@ -520,7 +520,7 @@ public class ZmqRpcServer implements RpcServer {
     * @param method     方法名
     * @param paramTypes 参数类型名数组
     * @return 方法键的结果
-     */
+    */
     private record MethodKey(String service, String method, String[] paramTypes) {
         @Override
         /** 判断相等 */

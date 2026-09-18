@@ -85,7 +85,7 @@ public class PostgreSqlProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为类型名称的结果
-     */
+    */
     private static String toTypeName(char type) {
         return switch (type) {
             case 'Q' -> "Query";

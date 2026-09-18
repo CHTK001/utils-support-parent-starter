@@ -20,7 +20,7 @@ public interface ScreenCature extends AutoCloseable {
     * @param height 采集高度
     * @param fps 目标帧率
     * @return 初始化成功返回 true
-     */
+    */
     boolean init(int width, int height, int fps);
 
     /**
@@ -28,26 +28,26 @@ public interface ScreenCature extends AutoCloseable {
     * <p>Frame 的 image[0]=Y, image[1]=U, image[2]=V 为 DirectByteBuffer，零拷贝。</p>
     *
     * @return YUV420P 格式的 帧，失败返回 空
-     */
+    */
     Frame grabFrame();
 
     /**
     * 获取采集宽度。
     *
     * @return 采集宽度
-     */
+    */
     int getWidth();
 
     /**
     * 获取采集高度。
     *
     * @return 采集高度
-     */
+    */
     int getHeight();
 
     /**
     * 释放资源。
-     */
+    */
     @Override
     void close();
 }

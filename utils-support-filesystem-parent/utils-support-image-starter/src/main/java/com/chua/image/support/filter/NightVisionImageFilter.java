@@ -60,12 +60,12 @@ public class NightVisionImageFilter extends AbstractImageFilter{
 
     /**
     * 饱和度增强因子
-     */
+    */
     private static final double SATURATION_FACTOR = 1.2;
 
     /**
     * 亮度减少量
-     */
+    */
     private static final int BRIGHTNESS_REDUCTION = 50;
 
     /**
@@ -77,7 +77,7 @@ public class NightVisionImageFilter extends AbstractImageFilter{
     * @param src 源图像
     * @param dst 目标图像（此参数未使用）
     * @return 应用夜视效果后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         BufferedImage nightVisionImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

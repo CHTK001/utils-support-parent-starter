@@ -29,27 +29,27 @@ public class ChronicleActiveCollector implements ActiveCollector {
 
     /**
     * 运行状态
-     */
+    */
     private volatile boolean running;
 
     /**
     * 数据处理器
-     */
+    */
     private DataHandler handler;
 
     /**
     * Topic 与 Pipeline 标识 映射
-     */
+    */
     protected final Map<String, String> topicToPipeline = new ConcurrentHashMap<>();
 
     /**
     * 已订阅的 Topic
-     */
+    */
     protected final Set<String> subscribedTopics = new CopyOnWriteArraySet<>();
 
     /**
     * 采集线程
-     */
+    */
     private Thread collectorThread;
 
     @Override
@@ -79,7 +79,7 @@ public class ChronicleActiveCollector implements ActiveCollector {
 
     /**
     * 轮询 Chronicle 队列 并处理消息。
-     */
+    */
     private void pollLoop() {
         while (running) {
             try {
@@ -170,7 +170,7 @@ public class ChronicleActiveCollector implements ActiveCollector {
     *
     * @param topic   主题
     * @param payload 消息内容
-     */
+    */
     public void simulateMessage(String topic, String payload) {
         String pipelineId = topicToPipeline.get(topic);
         if (pipelineId == null) {

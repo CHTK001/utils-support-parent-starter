@@ -21,12 +21,12 @@ public final class AudioUtils {
 
     /**
     * 工具类统一目标采样率（16khz）
-     */
+    */
     public static final int TARGET_SAMPLE_RATE = 16000;
 
     /**
     * 音频工具。
-     */
+    */
     private AudioUtils() {
     }
 
@@ -38,7 +38,7 @@ public final class AudioUtils {
     * @param path 音频路径
     * @return 16kHz 单声道采样
     * @throws Exception 解码失败
-     */
+    */
     public static float[] loadMono16k(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();
@@ -70,7 +70,7 @@ public final class AudioUtils {
     * @param sourceRate 源采样率
     * @param targetRate 目标采样率
     * @return 重采样结果
-     */
+    */
     public static float[] resample(float[] samples, float sourceRate, float targetRate) {
         if (Math.abs(sourceRate - targetRate) < 1F) {
             return samples.clone();
@@ -93,7 +93,7 @@ public final class AudioUtils {
     * @param a 向量 a
     * @param b 向量 b
     * @return 相似度 [-1,1]
-     */
+    */
     public static double cosine(float[] a, float[] b) {
         double dot = 0;
         double na = 0;
@@ -111,7 +111,7 @@ public final class AudioUtils {
     * 就地 L2 归一化。
     *
     * @param v 待归一化向量
-     */
+    */
     public static void l2Normalize(float[] v) {
         double n = norm(v);
         if (n > 1e-12) {
@@ -126,7 +126,7 @@ public final class AudioUtils {
     *
     * @param v 输入向量
     * @return 模长
-     */
+    */
     public static double norm(float[] v) {
         double s = 0;
         for (float x : v) {
@@ -142,7 +142,7 @@ public final class AudioUtils {
     * @param sampleRate 采样率
     * @return 完整 WAV 字节（含 RIFF 头）
     * @throws Exception 封装失败
-     */
+    */
     public static byte[] toWavBytes(float[] samples, int sampleRate) throws Exception {
         ByteArrayOutputStream pcmOut = new ByteArrayOutputStream(samples.length * 2);
         for (float v : samples) {
@@ -166,7 +166,7 @@ public final class AudioUtils {
     * @param in 输入流
     * @return 字节数组
     * @throws Exception 读取失败
-     */
+    */
     public static byte[] readAll(AudioInputStream in) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buf = new byte[8192];
@@ -185,7 +185,7 @@ public final class AudioUtils {
     * @param sampleRate 采样率
     * @return 已登记删除的临时文件路径
     * @throws Exception 写入失败
-     */
+    */
     public static Path writeTempWav(String prefix, float[] samples, int sampleRate) throws Exception {
         Path tmp = Files.createTempFile(prefix, ".wav");
         tmp.toFile().deleteOnExit();

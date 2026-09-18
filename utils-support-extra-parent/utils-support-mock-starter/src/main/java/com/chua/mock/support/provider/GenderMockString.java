@@ -23,7 +23,7 @@ public class GenderMockString implements MockString {
     * 性别池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] GENDERS = {"男", "女"};
 
     @Override

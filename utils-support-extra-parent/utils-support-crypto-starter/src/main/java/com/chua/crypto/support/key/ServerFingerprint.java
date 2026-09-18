@@ -30,17 +30,17 @@ public final class ServerFingerprint {
 
     /**
     * 指纹固定项的系统属性名
-     */
+    */
     public static final String PROPERTY_SERVER_ID = "chua.crypto.server-id";
 
     /**
     * 指纹固定项的环境变量名
-     */
+    */
     public static final String ENV_SERVER_ID = "CHUA_CRYPTO_SERVER_ID";
 
     /**
     * 指纹分隔符
-     */
+    */
     private static final String SEPARATOR = "|";
 
     private final String fingerprint; // fingerprint
@@ -49,7 +49,7 @@ public final class ServerFingerprint {
     * 私有构造，由工厂方法创建
     *
     * @param fingerprint SHA-256 指纹十六进制串
-     */
+    */
     private ServerFingerprint(String fingerprint) {
         this.fingerprint = fingerprint;
     }
@@ -58,7 +58,7 @@ public final class ServerFingerprint {
     * 采集当前服务器指纹。优先使用显式固定的 服务端id，否则自动采集硬件特征。
     *
     * @return 服务器指纹
-     */
+    */
     public static ServerFingerprint capture() {
         String pinned = System.getProperty(PROPERTY_SERVER_ID);
         if (pinned == null || pinned.isBlank()) {
@@ -75,7 +75,7 @@ public final class ServerFingerprint {
     *
     * @param serverId 固定标识
     * @return 服务器指纹
-     */
+    */
     public static ServerFingerprint of(String serverId) {
         return new ServerFingerprint(sha256Hex("pinned" + SEPARATOR + serverId));
     }
@@ -84,7 +84,7 @@ public final class ServerFingerprint {
     * 获取指纹十六进制串
     *
     * @return SHA-256 十六进制指纹
-     */
+    */
     public String value() {
         return fingerprint;
     }
@@ -93,7 +93,7 @@ public final class ServerFingerprint {
     * 采集本机特征列表：主机名、非虚拟网卡 MAC（排序）、OS、架构、CPU 核数
     *
     * @return 特征列表
-     */
+    */
     private static List<String> collectAttributes() {
         List<String> attributes = new ArrayList<>();
         attributes.add(System.getProperty("os.name", "unknown-os"));
@@ -114,7 +114,7 @@ public final class ServerFingerprint {
     * 采集启用状态的非回环物理网卡 MAC 地址并排序，保证跨次启动稳定
     *
     * @return MAC 地址列表（可能为空，如纯容器环境）
-     */
+    */
     private static List<String> collectMacAddresses() {
         List<String> macs = new ArrayList<>();
         try {
@@ -146,7 +146,7 @@ public final class ServerFingerprint {
     *
     * @param data 原文
     * @return 十六进制摘要
-     */
+    */
     private static String sha256Hex(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

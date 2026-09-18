@@ -27,7 +27,7 @@ public class HtmlWatermarkRemover {
     *   <li>包含水印关键字的 HTML 注释</li>
     *   <li>包含水印关键字的 script 标签及其内容</li>
     * </ul>
-     */
+    */
     private static final Pattern[] WATERMARK_PATTERNS = {
         Pattern.compile("(?i)(?:eval|trial|watermark|demo).*?\\{[^}]*\\}", Pattern.DOTALL),
         Pattern.compile("(?i)<div[^>]*(?:eval|trial|watermark|demo)[^>]*>.*?</div>", Pattern.DOTALL),
@@ -48,7 +48,7 @@ public class HtmlWatermarkRemover {
     *   <li>Demo - 演示版本标识</li>
     *   <li>Evaluation - 评估版本标识</li>
     * </ul>
-     */
+    */
     private static final String[] WATERMARK_TEXTS = {
         "Evaluation Only", "Created with Aspose", "Aspose",
         "Trial Version", "Watermark", "Demo", "Evaluation"
@@ -61,7 +61,7 @@ public class HtmlWatermarkRemover {
     *
     * @param htmlContent HTML 原始内容
     * @return 删除水印后的 HTML 内容
-     */
+    */
     public static String removeWatermark(String htmlContent) {
         if (htmlContent == null || htmlContent.isEmpty()) {
             return htmlContent;
@@ -91,7 +91,7 @@ public class HtmlWatermarkRemover {
     * @param htmlContent  HTML 内容
     * @param watermarkText 水印文本
     * @return 删除后的 HTML 内容
-     */
+    */
     private static String removeWatermarkText(String htmlContent, String watermarkText) {
         if (htmlContent == null || !htmlContent.contains(watermarkText)) {
             return htmlContent;
@@ -120,7 +120,7 @@ public class HtmlWatermarkRemover {
     *
     * @param htmlBytes HTML 字节数组
     * @return 删除水印后的 HTML 字节数组
-     */
+    */
     public static byte[] removeWatermark(byte[] htmlBytes) {
         if (htmlBytes == null || htmlBytes.length == 0) {
             return htmlBytes;

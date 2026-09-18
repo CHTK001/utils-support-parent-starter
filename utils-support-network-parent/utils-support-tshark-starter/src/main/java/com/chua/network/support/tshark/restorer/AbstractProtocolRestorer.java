@@ -27,7 +27,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     *
     * @param protocolInfo 协议信息
     * @return 字节数组，若不存在返回 空
-     */
+    */
     protected static byte[] bytes(Map<String, Object> protocolInfo) {
         if (protocolInfo == null) {
             return new byte[0];
@@ -49,7 +49,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     * @param protocolInfo 协议信息
     * @param key           字段名
     * @return 字符串值，不存在返回 空
-     */
+    */
     protected static String string(Map<String, Object> protocolInfo, String key) {
         if (protocolInfo == null) {
             return null;
@@ -64,7 +64,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     * @param protocolInfo 协议信息
     * @param layerName    layer 名称
     * @return true 表示包含
-     */
+    */
     protected static boolean contains(Map<String, Object> protocolInfo, String layerName) {
         return protocolInfo != null && protocolInfo.containsKey(layerName);
     }
@@ -74,7 +74,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     *
     * @param data 原始字节
     * @return 可读字符串
-     */
+    */
     protected static String toText(byte[] data) {
         if (data == null || data.length == 0) {
             return "";
@@ -98,7 +98,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     *
     * @param data 字节数组
     * @return UTF-8 字符串
-     */
+    */
     protected static String utf8(byte[] data) {
         if (data == null) {
             return "";
@@ -112,7 +112,7 @@ public abstract class AbstractProtocolRestorer implements ProtocolRestorer {
     * @param protocolInfo 协议信息
     * @param rawData      原始字节
     * @return true 表示可还原
-     */
+    */
     @Override
     public boolean canRestore(Map<String, Object> protocolInfo, byte[] rawData) {
         return protocolInfo != null && !protocolInfo.isEmpty();

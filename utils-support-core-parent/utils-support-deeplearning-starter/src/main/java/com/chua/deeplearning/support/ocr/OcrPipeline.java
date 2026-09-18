@@ -60,110 +60,110 @@ public class OcrPipeline {
 
     /**
     * 节点：裁剪
-     */
+    */
     private static final String NODE_CROP = "crop";
 
     /**
     * 节点：方向矫正
-     */
+    */
     private static final String NODE_CORRECT = "correct";
 
     /**
     * 节点：文字高清修复
-     */
+    */
     private static final String NODE_ENHANCE = "enhance";
 
     /**
     * 节点：文字识别
-     */
+    */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
     * 节点：收集结果
-     */
+    */
     private static final String NODE_COLLECT = "collect";
 
     /**
     * 节点：终止
-     */
+    */
     private static final String NODE_END = "end";
 
     /**
     * 文字检测器
-     */
+    */
     private final ImageDetector detector;
 
     /**
     * 文字识别器
-     */
+    */
     private final OcrRecognizer recognizer;
 
     /**
     * 方向矫正翻译器，可为 空
-     */
+    */
     private final ITranslator<Object, Object> direction;
 
     /**
     * 文字高清化翻译器，可为 空
-     */
+    */
     private final ITranslator<Object, Object> enhancer;
 
     /**
     * 是否在识别管线内启用文字高清化
-     */
+    */
     private final boolean enhanceInPipeline;
 
     /**
     * 是否按阅读顺序排序
-     */
+    */
     private final boolean sortReadingOrder;
 
     /**
     * 最低识别置信度（0 不过滤）
-     */
+    */
     private final float minConfidence;
 
     /**
     * 裁剪框四周扩展像素数
-     */
+    */
     private final int cropPadding;
 
     /**
     * 裁剪块最小高度（低于此值自动放大 2 倍），单位像素
-     */
+    */
     private final int cropMinHeight;
 
     /**
     * 大角度矫正阈值（度）：检测框角度绝对值超过该值时，
     * 按旋转矩形扶正裁剪（croprotated），否则轴对齐裁剪直接 rec。
     * 小于 0 表示禁用大角度矫正。
-     */
+    */
     private final float cropRotateThreshold;
 
     /**
     * 质量门控：是否在识别前评估图像清晰度，质量差（模糊）时
     * 跳过方向矫正并启用文字高清修复。
-     */
+    */
     private final boolean qualityGate;
 
     /**
     * 清晰度阈值：模糊度评分低于该值判定为模糊（经验值 100）。
-     */
+    */
     private final float blurThreshold;
 
     /**
     * 检测输出是否应用 sigmoid（部分模型输出 logits 需激活，默认 false）
-     */
+    */
     private final boolean sigmoidDetect;
 
     /**
     * 识别输出是否应用 sigmoid（默认 false）
-     */
+    */
     private final boolean sigmoidRecognize;
 
     /**
     * 识别管线实例
-     */
+    */
     private final Pipeline pipeline;
 
     /**
@@ -181,7 +181,7 @@ public class OcrPipeline {
     * @param cropRotateThreshold 大角度矫正阈值（度），负值禁用
     * @param qualityGate         是否启用质量门控（模糊图优先进修复）
     * @param blurThreshold       清晰度阈值（低于视为模糊）
-     */
+    */
     public OcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                        ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                        boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
@@ -209,7 +209,7 @@ public class OcrPipeline {
     * 构建器。
     *
     * @return Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -218,79 +218,79 @@ public class OcrPipeline {
     * 链式构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 检测器
-         */
+        */
         private ImageDetector detector;
 
         /**
         * 识别器
-         */
+        */
         private OcrRecognizer recognizer;
 
         /**
         * 方向矫正模型 标识，可为 空
-         */
+        */
         private String direction;
 
         /**
         * 文字高清化模型 标识，可为 空
-         */
+        */
         private String enhancer;
 
         /**
         * 是否按阅读顺序排序
-         */
+        */
         private boolean sortReadingOrder = true;
 
         /**
         * 是否在识别管线内启用文字高清化
-         */
+        */
         private boolean enhanceInPipeline;
 
         /**
         * 最低识别置信度
-         */
+        */
         private float minConfidence;
 
         /**
         * 裁剪框四周扩展像素数（默认 2）
-         */
+        */
         private int cropPadding = 2;
 
         /**
         * 裁剪块最小高度，低于此值自动放大 2 倍（默认 40）
-         */
+        */
         private int cropMinHeight = 40;
 
         /**
         * 大角度矫正阈值（度）：检测框角度绝对值超过该值时按旋转矩形扶正裁剪。
         * 默认 25°：rec 对 ±20° 内倾斜鲁棒（实测 -17° 直接识别即正确），
         * 仅对超过 25° 的大倾斜做旋转扶正。
-         */
+        */
         private float cropRotateThreshold = 25f;
 
         /**
         * 质量门控：模糊图（清晰度低于 blur阈值）跳过方向矫正并优先进修复（默认关闭）
-         */
+        */
         private boolean qualityGate;
 
         /**
         * 清晰度阈值：模糊度评分低于该值判定为模糊（默认 100，与 opencv镜像qualityassessor 一致）
-         */
+        */
         private float blurThreshold = 100f;
 
         /**
         * 检测输出是否应用 sigmoid（默认 false）
-         */
+        */
         private boolean sigmoidDetect;
 
         /**
         * 识别输出是否应用 sigmoid（默认 false）
-         */
+        */
         private boolean sigmoidRecognize;
 
         /**
@@ -298,7 +298,7 @@ public class OcrPipeline {
         *
         * @param detector 检测器实例
         * @return this
-         */
+        */
         public Builder detector(ImageDetector detector) {
             this.detector = detector;
             return this;
@@ -309,7 +309,7 @@ public class OcrPipeline {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder detector(String modelId) {
             this.detector = ImageDetector.create(modelId);
             return this;
@@ -320,7 +320,7 @@ public class OcrPipeline {
         *
         * @param recognizer 识别器实例
         * @return this
-         */
+        */
         public Builder recognizer(OcrRecognizer recognizer) {
             this.recognizer = recognizer;
             return this;
@@ -331,7 +331,7 @@ public class OcrPipeline {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder recognizer(String modelId) {
             this.recognizer = OcrRecognizer.create(modelId);
             return this;
@@ -342,7 +342,7 @@ public class OcrPipeline {
         *
         * @param modelId 模型 标识，如 "pp-word-rotate"
         * @return this
-         */
+        */
         public Builder direction(String modelId) {
             this.direction = modelId;
             return this;
@@ -353,7 +353,7 @@ public class OcrPipeline {
         *
         * @param modelId 模型 标识，如 "文本-bsr"
         * @return this
-         */
+        */
         public Builder enhancer(String modelId) {
             this.enhancer = modelId;
             return this;
@@ -364,7 +364,7 @@ public class OcrPipeline {
         *
         * @param sortReadingOrder true 排序
         * @return this
-         */
+        */
         public Builder sortReadingOrder(boolean sortReadingOrder) {
             this.sortReadingOrder = sortReadingOrder;
             return this;
@@ -375,7 +375,7 @@ public class OcrPipeline {
         *
         * @param enhanceInPipeline true 启用
         * @return this
-         */
+        */
         public Builder enhanceInPipeline(boolean enhanceInPipeline) {
             this.enhanceInPipeline = enhanceInPipeline;
             return this;
@@ -386,7 +386,7 @@ public class OcrPipeline {
         *
         * @param minConfidence 阈值 0~1
         * @return this
-         */
+        */
         public Builder minConfidence(float minConfidence) {
             this.minConfidence = minConfidence;
             return this;
@@ -397,7 +397,7 @@ public class OcrPipeline {
         *
         * @param cropPadding 扩展像素数
         * @return this
-         */
+        */
         public Builder cropPadding(int cropPadding) {
             this.cropPadding = cropPadding;
             return this;
@@ -408,7 +408,7 @@ public class OcrPipeline {
         *
         * @param cropMinHeight 最小高度（像素）
         * @return this
-         */
+        */
         public Builder cropMinHeight(int cropMinHeight) {
             this.cropMinHeight = cropMinHeight;
             return this;
@@ -422,7 +422,7 @@ public class OcrPipeline {
         *
         * @param cropRotateThreshold 阈值（度），如 15
         * @return this
-         */
+        */
         public Builder cropRotateThreshold(float cropRotateThreshold) {
             this.cropRotateThreshold = cropRotateThreshold;
             return this;
@@ -436,7 +436,7 @@ public class OcrPipeline {
         *
         * @param qualityGate true 启用
         * @return this
-         */
+        */
         public Builder qualityGate(boolean qualityGate) {
             this.qualityGate = qualityGate;
             return this;
@@ -447,7 +447,7 @@ public class OcrPipeline {
         *
         * @param blurThreshold 阈值，默认 100
         * @return this
-         */
+        */
         public Builder blurThreshold(float blurThreshold) {
             this.blurThreshold = blurThreshold;
             return this;
@@ -458,7 +458,7 @@ public class OcrPipeline {
         *
         * @param sigmoidDetect true 应用 sigmoid
         * @return this
-         */
+        */
         public Builder sigmoidDetect(boolean sigmoidDetect) {
             this.sigmoidDetect = sigmoidDetect;
             return this;
@@ -469,7 +469,7 @@ public class OcrPipeline {
         *
         * @param sigmoidRecognize true 应用 sigmoid
         * @return this
-         */
+        */
         public Builder sigmoidRecognize(boolean sigmoidRecognize) {
             this.sigmoidRecognize = sigmoidRecognize;
             return this;
@@ -479,7 +479,7 @@ public class OcrPipeline {
         * 构建。
         *
         * @return OcrPipeline
-         */
+        */
         public OcrPipeline build() {
             return new OcrPipeline(detector, recognizer,
                     createTranslator(direction), createTranslator(enhancer),
@@ -494,7 +494,7 @@ public class OcrPipeline {
         *
         * @param modelId 模型 标识，可为 空
         * @return 翻译器或 空
-         */
+        */
         @SuppressWarnings("unchecked")
         private static ITranslator<Object, Object> createTranslator(String modelId) {
             if (modelId == null || modelId.isBlank()) {
@@ -513,7 +513,7 @@ public class OcrPipeline {
     * 按旋转矩形中心扶正后裁剪（croprotated），避免倾斜文字识别失败。</p>
     *
     * @return 管线实例
-     */
+    */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("ocr-recognize")
                 .task(NODE_CROP, ctx -> {
@@ -584,7 +584,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 文本
-     */
+    */
     public String recognize(byte[] imageData) {
         return recognizeDetail(imageData).stream()
                 .map(OcrResult::text)
@@ -597,7 +597,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 结果列表
-     */
+    */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return recognizeDetailWithImage(imageData).results();
     }
@@ -609,7 +609,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 矫正后图 + 结果
-     */
+    */
     public OcrRecognizeResult recognizeDetailWithImage(byte[] imageData) {
         byte[] corrected = correct(imageData);
         List<OcrResult> result = recognizeFrom(corrected);
@@ -624,7 +624,7 @@ public class OcrPipeline {
     * @author CH
     * @since 4.0.0.42
     * @return ocrrecognize结果的结果
-     */
+    */
     public record OcrRecognizeResult(byte[] image, List<OcrResult> results) {
     }
 
@@ -633,7 +633,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 结果列表
-     */
+    */
     private List<OcrResult> recognizeFrom(byte[] imageData) {
         byte[] prepared = autoInvertIfDark(imageData);
         List<DetectionInfo> boxes = detector.detect(prepared);
@@ -678,7 +678,7 @@ public class OcrPipeline {
     * 对单个文本块执行识别管线。
     *
     * @param oc 上下文
-     */
+    */
     private void runSingle(OcrContext oc) {
         PipelineContext<OcrContext> ctx = new PipelineContext<>(pipeline.getId(), oc);
         ctx.setAttribute("ocr", oc);
@@ -694,7 +694,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 矫正后图片
-     */
+    */
     public byte[] correct(byte[] imageData) {
         if (direction == null) {
             return imageData;
@@ -736,7 +736,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 修复后图片，未配置时原样返回
-     */
+    */
     public byte[] enhance(byte[] imageData) {
         if (enhancer == null) {
             return imageData;
@@ -761,7 +761,7 @@ public class OcrPipeline {
     *
     * @param imageData 图像字节
     * @return {方向, 概率}
-     */
+    */
     private String[] classifyBytesProb(byte[] imageData) {
         Object r = direction.translate(imageData);
         if (r instanceof DirectionInfo info) {
@@ -797,7 +797,7 @@ public class OcrPipeline {
     * @param crop     裁剪图
     * @param minHeight 最小高度阈值（像素）
     * @return 放大后图；无需放大时原样返回
-     */
+    */
     private static byte[] upscaleIfSmall(byte[] crop, int minHeight) {
         if (crop == null) {
             return null;
@@ -830,7 +830,7 @@ public class OcrPipeline {
     *
     * @param imageData 图片
     * @return 处理后图片
-     */
+    */
     private static byte[] autoInvertIfDark(byte[] imageData) {
         try {
             Mat src = ImageUtils.decode(imageData);
@@ -862,7 +862,7 @@ public class OcrPipeline {
     *
     * @param img 图像
     * @return PNG 字节
-     */
+    */
     private static byte[] toBytes(BufferedImage img) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ImageIO.write(img, "png", bos);
@@ -877,7 +877,7 @@ public class OcrPipeline {
     *
     * @param ctx 管线上下文
     * @return OCR 上下文
-     */
+    */
     @SuppressWarnings("unchecked")
     private static OcrContext current(PipelineContext<?> ctx) {
         return (OcrContext) ctx.getAttribute("ocr");
@@ -889,7 +889,7 @@ public class OcrPipeline {
     * <p>动态从 {@link ModelRegistry} 注册表获取全部模型，按能力接口与模型名称约定归类。</p>
     *
     * @return 能力分组 → 模型 标识 列表
-     */
+    */
     public Map<String, List<String>> listModels() {
         try {
             ModelRegistry.discoverAll();
@@ -915,7 +915,7 @@ public class OcrPipeline {
     *
     * @param entry 注册表条目
     * @return 能力分组；无法识别时返回 空
-     */
+    */
     private static String groupOf(ModelRegistry.Entry entry) {
         String name = entry.modelId() == null ? "" : entry.modelId().toLowerCase();
         Class<?> cap = entry.capabilityInterface();
@@ -946,7 +946,7 @@ public class OcrPipeline {
     * @param name 名称（小写）
     * @param keys 关键字列表
     * @return 命中任一返回 true
-     */
+    */
     private static boolean nameContains(String name, String... keys) {
         for (String key : keys) {
             if (name.contains(key)) {
@@ -960,7 +960,7 @@ public class OcrPipeline {
     * 获取检测器。
     *
     * @return ImageDetector
-     */
+    */
     public ImageDetector detector() {
         return detector;
     }
@@ -969,7 +969,7 @@ public class OcrPipeline {
     * 获取识别器。
     *
     * @return OcrRecognizer
-     */
+    */
     public OcrRecognizer recognizer() {
         return recognizer;
     }
@@ -978,7 +978,7 @@ public class OcrPipeline {
     * 检测输出是否应用 sigmoid。
     *
     * @return true 应用
-     */
+    */
     public boolean sigmoidDetect() {
         return sigmoidDetect;
     }
@@ -987,7 +987,7 @@ public class OcrPipeline {
     * 识别输出是否应用 sigmoid。
     *
     * @return true 应用
-     */
+    */
     public boolean sigmoidRecognize() {
         return sigmoidRecognize;
     }
@@ -1000,7 +1000,7 @@ public class OcrPipeline {
     *
     * @param imageData 原图
     * @return 标注后 JPEG 字节
-     */
+    */
     public byte[] toDrawer(byte[] imageData) {
         byte[] corrected = correct(imageData);
         List<DetectionInfo> allBoxes = detector.detect(corrected);
@@ -1024,7 +1024,7 @@ public class OcrPipeline {
     * {@link DrawerPipeline#onProcess(java.util.function.BiConsumer)} 观察进度。</p>
     *
     * @return DrawerPipeline 实例
-     */
+    */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(minConfidence);
     }

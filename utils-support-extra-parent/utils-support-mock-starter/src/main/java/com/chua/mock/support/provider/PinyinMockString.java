@@ -22,7 +22,7 @@ public class PinyinMockString implements MockString {
 
     /**
     * 姓氏拼音池
-     */
+    */
     private static final String[] SURNAMES = {
             "Zhang", "Li", "Wang", "Zhao", "Liu", "Chen", "Yang", "Huang", "Zhou", "Wu",
             "Xu", "Sun", "Ma", "Zhu", "Hu", "Guo", "He", "Gao", "Lin", "Luo", "Zheng", "Liang"
@@ -31,7 +31,7 @@ public class PinyinMockString implements MockString {
     * 名字拼音池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] GIVEN_NAMES = {
             "Wei", "Fang", "Na", "Min", "Jing", "Li", "Qiang", "Lei", "Jun", "Yang",
             "Yong", "Yan", "Jie", "Juan", "Tao", "Ming", "Chao", "Xiu", "Xia", "Ping",

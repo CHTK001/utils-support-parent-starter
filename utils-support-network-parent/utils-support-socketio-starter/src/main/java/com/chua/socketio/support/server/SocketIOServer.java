@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 套接字.IO 嵌入式服务器，轻量级实现。
+* Socket.IO 嵌入式服务器，轻量级实现。
 * <p>
 * 继承 {@link AbstractServer}，支持 {@link ServerFilter} 过滤器链、
 * {@link com.chua.common.support.objects.annotation.OnOpen @OnOpen}、
@@ -64,23 +64,23 @@ public class SocketIOServer extends AbstractServer {
 
     /**
     * Netty-Socket.IO 服务器实例
-     */
+    */
     private com.corundumstudio.socketio.SocketIOServer delegate;
 
     /**
     * 运行标记，替代 Netty-Socket.IO 不存在的 是否running() 方法
-     */
+    */
     private volatile boolean delegateRunning;
 
     /**
     * 主题到 服务端处理器 的映射
-     */
+    */
     private final Map<String, ServerHandler> messageHandlers = new ConcurrentHashMap<>();
 
     /**
-    * 创建 套接字io服务端 实例
+    * 创建 Socketio服务端 实例
     * @param setting setting
-     */
+    */
     public SocketIOServer(ServerSetting setting) {
         super(setting);
     }
@@ -143,7 +143,7 @@ public class SocketIOServer extends AbstractServer {
     *
     * @param handler 处理器对象
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     @Override
     public SocketIOServer registerBean(Object handler) {
         super.registerBean(handler);
@@ -174,7 +174,7 @@ public class SocketIOServer extends AbstractServer {
     * @param topic   主题名称
     * @param handler 消息处理器
     * @return 当前服务器实例，支持链式调用
-     */
+    */
     public SocketIOServer onSubscribe(String topic, ServerHandler handler) {
         messageHandlers.put(topic, handler);
         registerMapping("/" + topic, handler);
@@ -191,7 +191,7 @@ public class SocketIOServer extends AbstractServer {
     *
     * @param topic   主题名称
     * @param payload 消息内容
-     */
+    */
     public void publish(String topic, String payload) {
         if (delegate != null && delegateRunning) {
             delegate.getBroadcastOperations().sendEvent(topic, payload);
@@ -204,8 +204,8 @@ public class SocketIOServer extends AbstractServer {
     *
     * @param topic      主题名称
     * @param data       消息内容
-    * @param ackRequest 套接字.IO ACK 请求
-     */
+    * @param ackRequest Socket.IO ACK 请求
+    */
     private void handleMessage(String topic, String data, com.corundumstudio.socketio.AckRequest ackRequest) {
         ServerHandler handler = messageHandlers.get(topic);
         if (handler == null) {
@@ -230,7 +230,7 @@ public class SocketIOServer extends AbstractServer {
     * 调用标注了指定注解的方法。
     *
     * @param annotationType 注解类型
-     */
+    */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
             return;
@@ -263,7 +263,7 @@ public class SocketIOServer extends AbstractServer {
     * @param bean   目标对象
     * @param method 目标方法
     * @return ServerHandler 实例
-     */
+    */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         method.setAccessible(true);
         return (request, response) -> {
@@ -299,23 +299,23 @@ public class SocketIOServer extends AbstractServer {
     // ==================== 轻量请求/响应适配 ====================
 
     /**
-    * 轻量 套接字.IO 请求适配。
+    * 轻量 Socket.IO 请求适配。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class SimpleServerRequest implements com.chua.common.support.network.server.request.ServerRequest {
 
         /**
         * topic
-         */
+        */
         private final String topic;
         /**
         * 数据内容
-         */
+        */
         private final String body;
         /**
         * attributes
-         */
+        */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         SimpleServerRequest(String topic, String body) {
@@ -427,27 +427,27 @@ public class SocketIOServer extends AbstractServer {
     }
 
     /**
-    * 轻量 套接字.IO 响应适配。
-    * @author CH
-    * @since 4.0.0
-     */
+        * 轻量 Socket.IO 响应适配。
+        * @author CH
+        * @since 4.0.0
+        */
     private static class SimpleServerResponse implements com.chua.common.support.network.server.response.ServerResponse {
 
         /**
         * 结束
-         */
+        */
         private volatile boolean ended;
         /**
         * committed
-         */
+        */
         private volatile boolean committed;
         /**
         * 状态
-         */
+        */
         private int status = 200;
         /**
         * 结果
-         */
+        */
         private Object result;
 
         @Override

@@ -27,19 +27,19 @@ public class CloudflareClient {
 
     /**
     * 配置
-     */
+    */
     private final CloudflareConfig config;
 
     /**
     * HTTP 客户端（复用 common-starter 的 HTTP客户端 抽象）
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * 用配置构造客户端。
     *
     * @param config 配置
-     */
+    */
     public CloudflareClient(CloudflareConfig config) {
         this(config, HttpClientFactory.getClient());
     }
@@ -49,7 +49,7 @@ public class CloudflareClient {
     *
     * @param config     配置
     * @param httpClient HTTP 客户端
-     */
+    */
     public CloudflareClient(CloudflareConfig config, HttpClient httpClient) {
         if (config == null) {
             throw new IllegalArgumentException("CloudflareConfig must not be null");
@@ -68,7 +68,7 @@ public class CloudflareClient {
     * @param path    API 路径（不含 baseurl），如 {@code "/accounts/{aid}/d1/database/{标识}/查询"}
     * @param payload 请求体（可空），将被序列化为 JSON
     * @return Cloudflare 响应 {@code result} 字段
-     */
+    */
     public Object call(HttpMethod method, String path, Object payload) {
         ClientRequest request = ClientRequest.of(config.getBaseUrl() + path, method);
         request.setHeaders(headers());
@@ -94,7 +94,7 @@ public class CloudflareClient {
     *
     * @param path API 路径
     * @return 响应 结果 字段
-     */
+    */
     public Object get(String path) {
         return call(HttpMethod.GET, path, null);
     }
@@ -105,7 +105,7 @@ public class CloudflareClient {
     * @param path    API 路径
     * @param payload 请求体
     * @return 响应 结果 字段
-     */
+    */
     public Object post(String path, Object payload) {
         return call(HttpMethod.POST, path, payload);
     }
@@ -114,7 +114,7 @@ public class CloudflareClient {
     * 构建带 Bearer 令牌 的请求头。
     *
     * @return 头信息
-     */
+    */
     private HttpHeader headers() {
         HttpHeader header = HttpHeader.create();
         header.add("Authorization", "Bearer " + config.getToken());
@@ -129,7 +129,7 @@ public class CloudflareClient {
     *
     * @param body 响应体 JSON 字符串
     * @return result 字段（对象/映射/列表 等）
-     */
+    */
     @SuppressWarnings("unchecked")
     private Object parseResult(String body) {
         Map<String, Object> root = Json.fromJson(body, Map.class);
@@ -147,7 +147,7 @@ public class CloudflareClient {
     * 获取配置。
     *
     * @return 配置
-     */
+    */
     public CloudflareConfig getConfig() {
         return config;
     }

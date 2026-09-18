@@ -26,87 +26,87 @@ import java.util.Arrays;
 public final class IbdLobReader {
 
     /**
-     * MySQL 8.0 新格式的 LOB 首页页类型。
-     */
+    * MySQL 8.0 新格式的 LOB 首页页类型。
+    */
     private static final int FIL_PAGE_TYPE_LOB_FIRST = 24;
 
     /**
-     * 首页里第一个索引项的偏移。
-     */
+    * 首页里第一个索引项的偏移。
+    */
     private static final int FIRST_PAGE_ENTRY_OFFSET = 96;
 
     /**
-     * 索引项长度。
-     */
+    * 索引项长度。
+    */
     private static final int INDEX_ENTRY_SIZE = 60;
 
     /**
-     * 索引项内「数据页号」字段的偏移。
-     */
+    * 索引项内「数据页号」字段的偏移。
+    */
     private static final int ENTRY_PAGE_NO_OFFSET = 48;
 
     /**
-     * 索引项内「数据长度（低 16 位是标志）」字段的偏移。
-     */
+    * 索引项内「数据长度（低 16 位是标志）」字段的偏移。
+    */
     private static final int ENTRY_DATA_LEN_OFFSET = 52;
 
     /**
-     * 索引项内 {@code next} 指针（页 4 字节 + 偏移 2 字节）的偏移。
-     */
+    * 索引项内 {@code next} 指针（页 4 字节 + 偏移 2 字节）的偏移。
+    */
     private static final int ENTRY_NEXT_OFFSET = 6;
 
     /**
-     * 首页内联数据的偏移。
-     */
+    * 首页内联数据的偏移。
+    */
     private static final int FIRST_PAGE_DATA_OFFSET = 696;
 
     /**
-     * 普通数据页里内容的偏移。
-     */
+    * 普通数据页里内容的偏移。
+    */
     private static final int DATA_PAGE_DATA_OFFSET = 49;
 
     /**
-     * 旧格式数据页里内容的偏移。
-     */
+    * 旧格式数据页里内容的偏移。
+    */
     private static final int LEGACY_DATA_OFFSET = IbdConstants.FIL_HEADER_SIZE;
 
     /**
-     * 单条链表的遍历上限，防止坏页造成死循环。
-     */
+    * 单条链表的遍历上限，防止坏页造成死循环。
+    */
     private static final int MAX_LOB_PAGES = 1 << 20;
 
     /**
-     * 链表结束标志。
-     */
+    * 链表结束标志。
+    */
     private static final long FIL_NULL = 0xFFFFFFFFL;
 
     /**
-     * 表空间读取器。
-     */
+    * 表空间读取器。
+    */
     private final IbdTablespace tablespace;
 
     /**
-     * 页大小。
-     */
+    * 页大小。
+    */
     private final int pageSize;
 
     /**
-     * 构造溢出页读取器。
-     *
-     * @param tablespace 表空间
-     */
+    * 构造溢出页读取器。
+    *
+    * @param tablespace 表空间
+    */
     public IbdLobReader(IbdTablespace tablespace) {
         this.tablespace = tablespace;
         this.pageSize = tablespace.pageSize();
     }
 
     /**
-     * 按 20 字节外部引用读出完整内容。
-     *
-     * @param reference 行内的 20 字节引用
-     * @return 字段内容
-     * @throws IOException 读取失败
-     */
+    * 按 20 字节外部引用读出完整内容。
+    *
+    * @param reference 行内的 20 字节引用
+    * @return 字段内容
+    * @throws IOException 读取失败
+    */
     public byte[] read(byte[] reference) throws IOException {
         if (reference == null || reference.length < IbdConstants.BTR_EXTERN_FIELD_REF_SIZE) {
             return reference == null ? new byte[0] : reference;
@@ -127,13 +127,13 @@ public final class IbdLobReader {
     }
 
     /**
-     * 读 MySQL 8.0 新格式（{@code LOB_FIRST} + 索引项链表）。
-     *
-     * @param firstPage   首页内容
-     * @param firstPageNo 首页页号
-     * @return 完整内容
-     * @throws IOException 读取失败
-     */
+    * 读 MySQL 8.0 新格式（{@code LOB_FIRST} + 索引项链表）。
+    *
+    * @param firstPage   首页内容
+    * @param firstPageNo 首页页号
+    * @return 完整内容
+    * @throws IOException 读取失败
+    */
     private byte[] readNewFormat(byte[] firstPage, long firstPageNo) throws IOException {
         byte[] out = new byte[0];
         if (firstPage.length < FIRST_PAGE_ENTRY_OFFSET + INDEX_ENTRY_SIZE) {
@@ -169,12 +169,12 @@ public final class IbdLobReader {
     }
 
     /**
-     * 读旧格式（数据直接跟在页头后面，按 {@code FIL_PAGE_NEXT} 串页）。
-     *
-     * @param firstPageNo 首页页号
-     * @return 完整内容
-     * @throws IOException 读取失败
-     */
+    * 读旧格式（数据直接跟在页头后面，按 {@code FIL_PAGE_NEXT} 串页）。
+    *
+    * @param firstPageNo 首页页号
+    * @return 完整内容
+    * @throws IOException 读取失败
+    */
     private byte[] readLegacyFormat(long firstPageNo) throws IOException {
         byte[] out = new byte[0];
         long pageNo = firstPageNo;
@@ -194,13 +194,13 @@ public final class IbdLobReader {
     }
 
     /**
-     * 从页里安全截取一段。
-     *
-     * @param page   页内容
-     * @param offset 起始偏移
-     * @param length 期望长度
-     * @return 截取结果（超出页尾时自动截短）
-     */
+    * 从页里安全截取一段。
+    *
+    * @param page   页内容
+    * @param offset 起始偏移
+    * @param length 期望长度
+    * @return 截取结果（超出页尾时自动截短）
+    */
     private static byte[] slice(byte[] page, int offset, int length) {
         if (offset >= page.length || length <= 0) {
             return new byte[0];
@@ -210,12 +210,12 @@ public final class IbdLobReader {
     }
 
     /**
-     * 拼接两段字节。
-     *
-     * @param left  前一段
-     * @param right 后一段
-     * @return 拼接结果
-     */
+    * 拼接两段字节。
+    *
+    * @param left  前一段
+    * @param right 后一段
+    * @return 拼接结果
+    */
     private static byte[] concat(byte[] left, byte[] right) {
         if (right.length == 0) {
             return left;
@@ -227,10 +227,10 @@ public final class IbdLobReader {
     }
 
     /**
-     * 页大小。
-     *
-     * @return 页大小
-     */
+    * 页大小。
+    *
+    * @return 页大小
+    */
     public int pageSize() {
         return pageSize;
     }

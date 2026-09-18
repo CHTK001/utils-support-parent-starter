@@ -52,7 +52,7 @@ public class GooseConversationParser implements ConversationParser {
     * 返回 SPI 名称。
     *
     * @return {@code "goose"}
-     */
+    */
     @Override
     public String name() {
         return "goose";
@@ -63,11 +63,11 @@ public class GooseConversationParser implements ConversationParser {
     * @param value 值
     * @param fallback 降级
      /**
-      * 流消息。
-      * @return 流消息的结果
-     * @return 第一个nonblank的结果
-     * @param raw raw
-     */
+    * 流消息。
+    * @return 流消息的结果
+    * @return 第一个nonblank的结果
+    * @param raw raw
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         if (!Files.exists(DB_PATH)) {
@@ -94,7 +94,7 @@ public class GooseConversationParser implements ConversationParser {
             * @return 转为消息的结果
             * @param value 值
             * @param fallback 降级
-             */
+            */
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
@@ -131,7 +131,7 @@ public class GooseConversationParser implements ConversationParser {
     * safe解析。
     * @param raw raw
     * @return safe解析的结果
-     */
+    */
     }
 
     private JsonNode safeParse(String raw) {

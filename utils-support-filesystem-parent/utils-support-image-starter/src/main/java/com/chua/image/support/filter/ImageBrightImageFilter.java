@@ -42,7 +42,7 @@ public class ImageBrightImageFilter extends AbstractImageFilter {
 
     /**
     * 默认亮度增加值
-     */
+    */
     private static final int DEFAULT_BRIGHTNESS_INCREASE = 10;
 
     /**
@@ -54,7 +54,7 @@ public class ImageBrightImageFilter extends AbstractImageFilter {
     * @param src 源图像
     * @param dst 目标图像（此参数未使用，方法会创建新图像）
     * @return 亮度增强后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
  // 注意：这里应该使用类型_INT_RGB而不是类型_BYTE_GRAY，因为我们要保持彩色

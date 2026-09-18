@@ -62,72 +62,72 @@ public class MavenClient implements AutoCloseable {
 
     /**
     * 项目 pom.xml 路径
-     */
+    */
     private final String projectPath;
 
     /**
     * Maven 目标列表
-     */
+    */
     private final List<String> goals;
 
     /**
     * 激活的 配置文件 列表
-     */
+    */
     private final List<String> profiles;
 
     /**
     * 是否跳过测试
-     */
+    */
     private final boolean skipTests;
 
     /**
     * 是否静默模式
-     */
+    */
     private final boolean quiet;
 
     /**
     * 是否调试模式
-     */
+    */
     private final boolean debug;
 
     /**
     * 是否离线模式
-     */
+    */
     private final boolean offline;
 
     /**
     * JDK 版本
-     */
+    */
     private final String jdkVersion;
 
     /**
     * 编译进度回调
-     */
+    */
     private final MavenCompilerProgress progressCallback;
 
     /**
     * 编译生命周期回调
-     */
+    */
     private final MavenCompilerCallback compilerCallback;
 
     /**
     * 自定义属性
-     */
+    */
     private final Properties properties;
 
     /**
     * 编译器退出常量
-     */
+    */
     private static final int EXIT_SUCCESS = 0;
 
     /**
     * 默认 Maven 目标
-     */
+    */
     private static final String DEFAULT_GOAL = "compile";
 
     /**
     * 编译阶段进度阈值
-     */
+    */
     private static final int PROGRESS_VALIDATION = 5;
     /** 进步_resolve */
     private static final int PROGRESS_RESOLVE = 15;
@@ -142,7 +142,7 @@ public class MavenClient implements AutoCloseable {
 
     /**
     * Maven 输出解析正则
-     */
+    */
     private static final Pattern BUILD_SUCCESS_PATTERN = Pattern.compile("BUILD\\s+SUCCESS");
     /** 构建_失败_模式 */
     private static final Pattern BUILD_FAILURE_PATTERN = Pattern.compile("BUILD\\s+FAILURE");
@@ -174,7 +174,7 @@ public class MavenClient implements AutoCloseable {
     * 创建 Maven客户端构建器 构建器
     *
     * @return Builder 构建器
-     */
+    */
     public static MavenClientBuilder create() {
         return new MavenClientBuilder();
     }
@@ -185,7 +185,7 @@ public class MavenClient implements AutoCloseable {
     * 执行编译（同步阻塞）
     *
     * @return 编译结果
-     */
+    */
     public MavenCompileResult execute() {
         return doExecute(new ArrayList<>(goals));
     }
@@ -194,7 +194,7 @@ public class MavenClient implements AutoCloseable {
     * 执行编译（异步）
     *
     * @return Future 编译结果的 期货
-     */
+    */
     public Future<MavenCompileResult> executeAsync() {
         java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor(
                 Thread.ofVirtual().factory()
@@ -207,7 +207,7 @@ public class MavenClient implements AutoCloseable {
     *
     * @param goal 目标
     * @return 编译结果
-     */
+    */
     public MavenCompileResult execute(String goal) {
         return doExecute(List.of(goal));
     }
@@ -217,7 +217,7 @@ public class MavenClient implements AutoCloseable {
     *
     * @param goals 目标列表
     * @return 编译结果
-     */
+    */
     public MavenCompileResult execute(String... goals) {
         return doExecute(List.of(goals));
     }
@@ -235,7 +235,7 @@ public class MavenClient implements AutoCloseable {
     *
     * @param builder 构建器
     * @return 编译结果
-     */
+    */
     static MavenCompileResult execute(MavenClientBuilder builder) {
         MavenClient client = new MavenClient(builder);
         return client.doExecute(client.goals);
@@ -248,7 +248,7 @@ public class MavenClient implements AutoCloseable {
     *
     * @param effectiveGoals 有效目标
     * @return 编译结果
-     */
+    */
     private MavenCompileResult doExecute(List<String> effectiveGoals) {
         Instant start = Instant.now();
 
@@ -363,7 +363,7 @@ public class MavenClient implements AutoCloseable {
     * @param exitCode           Maven 退出码
     * @param executionException 执行异常（可能为 空）
     * @return 错误列表
-     */
+    */
     private List<String> buildErrorList(String output, int exitCode, Exception executionException) {
         List<String> errors = new ArrayList<>();
         if (exitCode != EXIT_SUCCESS) {
@@ -393,7 +393,7 @@ public class MavenClient implements AutoCloseable {
     * @param line             输出行
     * @param previousPercent 当前进度
     * @return 新的进度百分比
-     */
+    */
     private int parseProgress(String line, int previousPercent) {
         if (line.contains("Scanning for projects")) {
             return PROGRESS_VALIDATION;
@@ -423,7 +423,7 @@ public class MavenClient implements AutoCloseable {
     * 解析 Maven 安装路径
     *
     * @return Maven 安装目录路径，找不到返回 空
-     */
+    */
     private String resolveMavenHome() {
         // 1. 检查系统属性
         String path = System.getProperty("maven.home");
@@ -474,7 +474,7 @@ public class MavenClient implements AutoCloseable {
     * @param output   输出
     * @param duration 耗时
     * @param exitCode 退出码
-     */
+    */
     private void logResult(boolean success, String output, long duration, int exitCode) {
         if (success) {
             log.info("[maven] Maven 编译成功 [{}] 耗时: {}ms", projectPath, duration);
@@ -496,7 +496,7 @@ public class MavenClient implements AutoCloseable {
     * 通知开始
     *
     * @param projectPath 项目路径
-     */
+    */
     private void notifyStart(String projectPath) {
         if (compilerCallback != null) {
             try {
@@ -512,7 +512,7 @@ public class MavenClient implements AutoCloseable {
     *
     * @param message 消息
     * @param percent 百分比
-     */
+    */
     private void notifyProgress(String message, int percent) {
         if (progressCallback != null) {
             try {
@@ -527,7 +527,7 @@ public class MavenClient implements AutoCloseable {
     * 通知完成
     *
     * @param result 编译结果
-     */
+    */
     private void notifyComplete(MavenCompileResult result) {
         if (compilerCallback != null) {
             try {
@@ -542,7 +542,7 @@ public class MavenClient implements AutoCloseable {
     * 通知成功
     *
     * @param result 编译结果
-     */
+    */
     private void notifySuccess(MavenCompileResult result) {
         if (compilerCallback != null) {
             try {
@@ -557,7 +557,7 @@ public class MavenClient implements AutoCloseable {
     * 通知失败
     *
     * @param result 编译结果
-     */
+    */
     private void notifyFailure(MavenCompileResult result) {
         if (compilerCallback != null) {
             try {
@@ -574,14 +574,14 @@ public class MavenClient implements AutoCloseable {
     * Maven 客户端异常
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class MavenClientException extends RuntimeException {
         /**
         * 构造异常
         *
         * @param message 消息
         * @param cause   原因
-         */
+        */
         public MavenClientException(String message, Throwable cause) {
             super(message, cause);
         }

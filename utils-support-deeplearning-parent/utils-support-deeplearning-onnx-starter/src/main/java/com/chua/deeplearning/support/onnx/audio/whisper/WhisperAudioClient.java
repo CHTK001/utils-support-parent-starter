@@ -36,32 +36,32 @@ public class WhisperAudioClient implements VirtualClient {
 
     /**
     * 默认模型名
-     */
+    */
     private static final String DEFAULT_MODEL = "whisper-tiny";
 
     /**
     * 类路径 资源根路径
-     */
+    */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
     * 模型缓存根目录（相对 {@code deeplearning.model.cache-dir} 或 {@code %TEMP%}）
-     */
+    */
     private static final String CACHE_ROOT = "audio/asr/";
 
     /**
     * 临时音频文件名前缀
-     */
+    */
     private static final String TMP_AUDIO_PREFIX = "whisper-audio-";
 
     /**
     * 临时音频文件名后缀
-     */
+    */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /**
     * 任务 标识 前缀
-     */
+    */
     private static final String TASK_ID_PREFIX = "whisper-";
 
     /** 设置 */
@@ -105,7 +105,7 @@ public class WhisperAudioClient implements VirtualClient {
     /**
     * 创建 whisper音频客户端 实例
     * @param setting setting
-     */
+    */
     public WhisperAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -274,7 +274,7 @@ public class WhisperAudioClient implements VirtualClient {
     * 未配置时回落 {@code %TEMP%}。
     *
     * @return 缓存根目录
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
@@ -284,7 +284,7 @@ public class WhisperAudioClient implements VirtualClient {
     * 解析音频路径
     *
     * @return resolve音频路径的结果
-     */
+    */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

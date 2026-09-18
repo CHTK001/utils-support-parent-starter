@@ -21,19 +21,19 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
 
     /**
     * 原始sevenz文件
-     */
+    */
     private final SevenZFile sevenZFile;
 
     /**
     * 当前条目
-     */
+    */
     private SevenZArchiveEntry currentEntry;
 
     /**
     * 构造7Z归档输入流适配器
     *
     * @param sevenZFile commons-compress的sevenz文件
-     */
+    */
     SevenZArchiveInputStreamAdapter(SevenZFile sevenZFile) {
         this.sevenZFile = sevenZFile;
     }
@@ -44,7 +44,7 @@ class SevenZArchiveInputStreamAdapter implements ArchiveInputStream {
     * 获取下一个entry
     *
     * @return 获取下一个entry的结果
-     */
+    */
     public ArchiveEntry getNextEntry() throws IOException {
         currentEntry = sevenZFile.getNextEntry();
         if (currentEntry == null) {

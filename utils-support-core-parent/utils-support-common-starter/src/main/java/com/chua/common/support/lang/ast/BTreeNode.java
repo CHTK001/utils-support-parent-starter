@@ -53,8 +53,8 @@ public class BTreeNode {
 
     /** 节点类型 */
     /**
-    * 类型
-    */
+        * 类型
+        */
     private final Type type;
 
     /** 运算符或列名或函数名 */

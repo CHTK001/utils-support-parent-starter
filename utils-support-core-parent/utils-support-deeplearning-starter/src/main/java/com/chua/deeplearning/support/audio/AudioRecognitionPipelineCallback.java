@@ -16,7 +16,7 @@ public interface AudioRecognitionPipelineCallback {
     * VAD 切分完成回调。
     *
     * @param segments VAD 切分的语音片段
-     */
+    */
     default void onVad(List<SpeakerSegment> segments) {
     }
 
@@ -24,7 +24,7 @@ public interface AudioRecognitionPipelineCallback {
     * 说话人嵌入提取完成回调。
     *
     * @param embeddings 说话人嵌入向量
-     */
+    */
     default void onEmbedding(float[][] embeddings) {
     }
 
@@ -32,7 +32,7 @@ public interface AudioRecognitionPipelineCallback {
     * 说话人聚类完成回调。
     *
     * @param assignments 说话人分配结果
-     */
+    */
     default void onCluster(String[] assignments) {
     }
 
@@ -40,7 +40,7 @@ public interface AudioRecognitionPipelineCallback {
     * ASR 转写完成回调。
     *
     * @param transcripts 转写结果
-     */
+    */
     default void onTranscribe(String[] transcripts) {
     }
 
@@ -49,7 +49,7 @@ public interface AudioRecognitionPipelineCallback {
     *
     * @param result 最终结果
     * @param elapsedMs 耗时毫秒
-     */
+    */
     default void onComplete(List<SpeakerSegment> result, long elapsedMs) {
     }
 }

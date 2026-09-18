@@ -88,7 +88,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     /**
     * 创建 Linuxjournald提供者 实例
     * @param bridge bridge
-     */
+    */
     public LinuxJournaldProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getLinuxRegistry();
@@ -135,7 +135,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     * 是否journald可用
     *
     * @return 是否journald可用的结果
-     */
+    */
     private boolean isJournaldAvailable() {
         try {
             bindFunctions();
@@ -150,7 +150,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param query 查询
     * @return 搜索viajournald的结果
-     */
+    */
     private List<LogEntry> searchViaJournald(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         MemorySegment journal = null;
@@ -251,7 +251,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     * @param arena arena
     * @param field 字段
     * @return 获取journal字段的结果
-     */
+    */
     private String getJournalField(MemorySegment journal, Arena arena, String field) {
         try {
             MemorySegment dataPtr = arena.allocate(ValueLayout.ADDRESS);
@@ -291,7 +291,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param priorityStr prioritystr
     * @return 解析journalpriority的结果
-     */
+    */
     private LogLevel parseJournalPriority(String priorityStr) {
         if (priorityStr == null) {
             return LogLevel.INFO;
@@ -317,7 +317,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param tsStr tsstr
     * @return 格式化时间戳的结果
-     */
+    */
     private String formatTimestamp(String tsStr) {
         if (tsStr == null) {
             return "unknown";
@@ -335,7 +335,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param query 查询
     * @return 搜索viavar日志的结果
-     */
+    */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         log.debug("Searching /var/log files with pattern={}", query.pattern());
         List<LogEntry> results = new ArrayList<>();
@@ -381,7 +381,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     * @param line 线
     * @param source 源
     * @return 解析日志线的结果
-     */
+    */
     private LogEntry parseLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -406,7 +406,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param line 线
     * @return detect级别从消息的结果
-     */
+    */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -429,7 +429,7 @@ public class LinuxJournaldProvider implements SystemLogProvider {
     *
     * @param glob glob
     * @return compile模式的结果
-     */
+    */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {

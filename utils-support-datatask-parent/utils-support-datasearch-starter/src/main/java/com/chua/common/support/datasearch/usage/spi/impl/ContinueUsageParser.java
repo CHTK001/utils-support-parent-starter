@@ -52,18 +52,18 @@ public class ContinueUsageParser extends BaseUsageParser {
     private static final String INDEX_FILE = "sessions.json";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "continue"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "continue"}
+    */
     @Override
     public String name() {
         return "continue";
     }
 
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-     */
+    * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+    */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -71,10 +71,10 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析全部 Continue 会话文件并提取令牌用量。
-     *
-     * @return 用量记录列表，每个含 usage 数据的会话一条
-     */
+    * 解析全部 Continue 会话文件并提取令牌用量。
+    *
+    * @return 用量记录列表，每个含 usage 数据的会话一条
+    */
     @Override
     protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
@@ -96,10 +96,10 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从索引文件加载 sessionId 到创建时间（epoch 毫秒）映射。
-     *
-     * @return sessionId 到创建时间的映射；文件缺失时返回空表
-     */
+    * 从索引文件加载 sessionId 到创建时间（epoch 毫秒）映射。
+    *
+    * @return sessionId 到创建时间的映射；文件缺失时返回空表
+    */
     private Map<String, Long> loadDateIndex() {
         Map<String, Long> index = new HashMap<>();
         Path indexFile = SESSIONS_DIR.resolve(INDEX_FILE);
@@ -124,12 +124,12 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析单个 Continue 会话文件为一条 AiUsage 记录。
-     *
-     * @param file      会话 JSON 文件路径
-     * @param dateIndex sessionId 到创建时间（epoch 毫秒）映射
-     * @return 解析结果；无 usage 数据时为空
-     */
+    * 解析单个 Continue 会话文件为一条 AiUsage 记录。
+    *
+    * @param file      会话 JSON 文件路径
+    * @param dateIndex sessionId 到创建时间（epoch 毫秒）映射
+    * @return 解析结果；无 usage 数据时为空
+    */
     private java.util.Optional<AiUsage> parseSession(Path file, Map<String, Long> dateIndex) {
         try {
             JsonNode node = Json.parse(Files.readString(file));
@@ -166,11 +166,11 @@ public class ContinueUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从会话 history 中提取首条 assistant 消息的模型名。
-     *
-     * @param history history 数组节点
-     * @return 模型名；无时返回 null
-     */
+    * 从会话 history 中提取首条 assistant 消息的模型名。
+    *
+    * @param history history 数组节点
+    * @return 模型名；无时返回 null
+    */
     private String firstModel(JsonNode history) {
         if (history.isMissingValue() || !history.isArray()) {
             return null;

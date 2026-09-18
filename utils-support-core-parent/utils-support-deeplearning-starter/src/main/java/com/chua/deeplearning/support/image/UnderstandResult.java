@@ -20,7 +20,7 @@ public class UnderstandResult {
     *
     * @param task 执行的任务类型
     * @param text 模型返回文本，可为 空（自动 修剪 为 空）
-     */
+    */
     public UnderstandResult(UnderstandTask task, String text) {
         this.task = task;
         this.text = text != null ? text.trim() : "";
@@ -30,7 +30,7 @@ public class UnderstandResult {
     * 获取任务类型。
     *
     * @return 任务类型
-     */
+    */
     public UnderstandTask getTask() {
         return task;
     }
@@ -39,7 +39,7 @@ public class UnderstandResult {
     * 获取识别文本。
     *
     * @return 识别文本
-     */
+    */
     public String getText() {
         return text;
     }
@@ -48,7 +48,7 @@ public class UnderstandResult {
     * 判断是否有有效结果（非空文本）。
     *
     * @return 有有效结果返回 true
-     */
+    */
     public boolean hasResult() {
         return text != null && !text.isBlank();
     }

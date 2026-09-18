@@ -60,13 +60,13 @@ public class MysqlVectorStorageProvider implements VectorStorageProvider {
     * @param dataSource  JDBC 数据源
     * @param properties  向量存储配置
     * @return mysql向量storageprops的结果
-     */
+    */
     public record MysqlVectorStorageProps(DataSource dataSource, MysqlVectorStorageProperties properties) {
         /**
         * 便捷构造。
         * @param dataSource 数据源
         * @return mysql向量storageprops的结果
-         */
+        */
         public MysqlVectorStorageProps(DataSource dataSource) {
             this(dataSource, new MysqlVectorStorageProperties());
         }

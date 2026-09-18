@@ -64,7 +64,7 @@ public class MinioFileStorage extends AbstractFileStorage {
     /**
     * 创建 minio文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public MinioFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.minioClient = MinioClient.builder()

@@ -15,7 +15,7 @@ public interface LayoutPipelineCallback {
     *
     * @param imageData 原始图像
     * @param processed 预处理后的图像
-     */
+    */
     default void onPreprocess(byte[] imageData, byte[] processed) {
     }
 
@@ -23,7 +23,7 @@ public interface LayoutPipelineCallback {
     * 版面识别完成回调。
     *
     * @param result 版面识别结果
-     */
+    */
     default void onRecognize(Object result) {
     }
 }

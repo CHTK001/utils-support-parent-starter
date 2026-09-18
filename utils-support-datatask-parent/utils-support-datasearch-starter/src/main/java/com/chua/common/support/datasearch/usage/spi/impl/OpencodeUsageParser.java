@@ -36,7 +36,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
     /**
     * resolvedb路径。
     * @return resolvedb路径的结果
-     */
+    */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -50,7 +50,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
     *
     * @param rs R
     * @return 转为AIusage的结果
-     */
+    */
     private static final String SQL_MESSAGES =
             "SELECT time_created, "
             + "CAST(json_extract(data, '$.providerID') AS TEXT), "
@@ -66,7 +66,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
             * 名称。
             * @return 名称的结果
             * @param rs R
-             */
+            */
             + "WHERE CAST(json_extract(data, '$.tokens.input') AS INTEGER) > 0 "
             + "   OR CAST(json_extract(data, '$.tokens.output') AS INTEGER) > 0 "
             + "ORDER BY time_created ASC";
@@ -74,7 +74,7 @@ public class OpencodeUsageParser extends BaseUsageParser {
     /**
     * 名称。
     * @return 名称的结果
-     */
+    */
     @Override
     public String name() {
         return "opencode";

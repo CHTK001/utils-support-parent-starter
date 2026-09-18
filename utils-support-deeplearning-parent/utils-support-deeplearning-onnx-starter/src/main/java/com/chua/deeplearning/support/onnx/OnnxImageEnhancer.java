@@ -13,7 +13,7 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     /**
     * 创建 onnx镜像enhancer 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxImageEnhancer(String apiKey) {
     }
 
@@ -28,7 +28,7 @@ public class OnnxImageEnhancer implements ImageEnhancer {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "onnx-gfpgan";
     }

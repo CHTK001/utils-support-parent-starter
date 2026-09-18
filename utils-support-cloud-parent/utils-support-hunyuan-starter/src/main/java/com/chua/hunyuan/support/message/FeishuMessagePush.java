@@ -70,7 +70,7 @@ public class FeishuMessagePush implements MessagePush {
     /**
     * 创建 feishu消息push 实例
     * @param environment 环境
-     */
+    */
     public FeishuMessagePush(MessageEnvironment environment) {
         this.environment = environment;
     }
@@ -85,7 +85,7 @@ public class FeishuMessagePush implements MessagePush {
     /**
     * 发送
     * @param request 请求
-     */
+    */
     public MessageResponse send(MessageRequest request) throws Exception {
         long start = System.currentTimeMillis();
 
@@ -161,7 +161,7 @@ public class FeishuMessagePush implements MessagePush {
     * @param templateId templateid
     * @param to 转为
     * @param params 参数
-     */
+    */
     public MessageResponse sendTemplate(String templateId, String to, Map<String, String> params) throws Exception {
         MessageRequest request = MessageRequest.builder()
                 .to(to)
@@ -181,7 +181,7 @@ public class FeishuMessagePush implements MessagePush {
     /**
     * 获取Template
     * @param templateId templateid
-     */
+    */
     public TemplateInfo getTemplate(String templateId) {
         return templates.get(templateId);
     }
@@ -189,7 +189,7 @@ public class FeishuMessagePush implements MessagePush {
     /**
     * 注册Template
     * @param template template
-     */
+    */
     public void registerTemplate(TemplateInfo template) {
         templates.put(template.id(), template);
     }

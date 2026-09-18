@@ -29,30 +29,30 @@ public class KcpSyncClient implements SyncClient {
 
     /**
     * 服务端 URL（kcp://主机:端口）
-     */
+    */
     private final String serverUrl;
     /**
     * 客户端标识
-     */
+    */
     private final String clientId;
     /**
     * 底层 KCP 客户端实例
-     */
+    */
     private KcpClient kcpClient;
     /**
     * 是否已连接
-     */
+    */
     private boolean connected;
 
     /**
     * 连接前注册的订阅缓存（topic -> 处理器），连接成功后统一应用
-     */
+    */
     private final Map<String, SyncMessageHandler> pendingSubscriptions = new ConcurrentHashMap<>();
 
     /**
     * 创建 kcp同步客户端 实例
     * @param serverUrl 服务端url
-     */
+    */
     public KcpSyncClient(String serverUrl) {
         this("kcp-sync-client", serverUrl);
     }
@@ -62,7 +62,7 @@ public class KcpSyncClient implements SyncClient {
     * @param clientId 客户端标识
     * @param clientId 字符串
     * @param serverUrl 服务端url
-     */
+    */
     public KcpSyncClient(String clientId, String serverUrl) {
         this.clientId = clientId;
         this.serverUrl = serverUrl;
@@ -111,7 +111,7 @@ public class KcpSyncClient implements SyncClient {
     * @param topic topic
     * @param message 消息
     * @return 执行的结果
-     */
+    */
     public String execute(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -126,7 +126,7 @@ public class KcpSyncClient implements SyncClient {
     * @param message 消息
     * @param timeoutMs 超时ms
     * @return 执行的结果
-     */
+    */
     public String execute(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -140,7 +140,7 @@ public class KcpSyncClient implements SyncClient {
     * @param topic topic
     * @param message 消息
     * @return 执行异步的结果
-     */
+    */
     public CompletableFuture<String> executeAsync(String topic, Object message) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -157,7 +157,7 @@ public class KcpSyncClient implements SyncClient {
     * @param message 消息
     * @param timeoutMs 超时ms
     * @return 执行异步的结果
-     */
+    */
     public CompletableFuture<String> executeAsync(String topic, Object message, long timeoutMs) {
         if (!isConnected()) {
             CompletableFuture<String> failed = new CompletableFuture<>();
@@ -172,7 +172,7 @@ public class KcpSyncClient implements SyncClient {
     *
     * @param topic   主题
     * @param message 消息内容
-     */
+    */
     @Override
     public void send(String topic, Object message) {
         if (!isConnected()) {
@@ -186,7 +186,7 @@ public class KcpSyncClient implements SyncClient {
     *
     * @param topic topic
     * @param message 消息
-     */
+    */
     public void publish(String topic, Object message) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -198,7 +198,7 @@ public class KcpSyncClient implements SyncClient {
     * 添加同步事件监听器。
     *
     * @param listener 监听器
-     */
+    */
     @Override
     public void addListener(SyncFlowListener listener) {
         if (kcpClient != null) {
@@ -210,7 +210,7 @@ public class KcpSyncClient implements SyncClient {
     * 移除同步事件监听器。
     *
     * @param listener 监听器
-     */
+    */
     @Override
     public void removeListener(SyncFlowListener listener) {
  // kcp客户端 不支持按实例移除监听器，空实现保持接口契约
@@ -220,7 +220,7 @@ public class KcpSyncClient implements SyncClient {
     * 获取客户端元数据。
     *
     * @return 元数据映射
-     */
+    */
     @Override
     public Map<String, Object> getMetadata() {
         return kcpClient != null ? kcpClient.getMetadata() : Map.of();
@@ -252,7 +252,7 @@ public class KcpSyncClient implements SyncClient {
     *
     * @param listener 监听器
     * @return 当前实例
-     */
+    */
     public KcpSyncClient onFlow(SyncFlowListener listener) {
         if (!isConnected()) {
             throw new IllegalStateException("KCP 未连接");
@@ -265,7 +265,7 @@ public class KcpSyncClient implements SyncClient {
     * 注册客户端元数据。
     *
     * @param meta 元数据
-     */
+    */
     public void register(Map<String, Object> meta) {
         if (kcpClient != null) {
             meta.forEach((k, v) -> kcpClient.getMetadata().put(k, v));
@@ -282,7 +282,7 @@ public class KcpSyncClient implements SyncClient {
     * 获取客户端id
     *
     * @return 获取客户端id的结果
-     */
+    */
     public String getClientId() {
         return clientId;
     }
@@ -291,7 +291,7 @@ public class KcpSyncClient implements SyncClient {
     * 获取服务端url
     *
     * @return 获取服务端url的结果
-     */
+    */
     public String getServerUrl() {
         return serverUrl;
     }

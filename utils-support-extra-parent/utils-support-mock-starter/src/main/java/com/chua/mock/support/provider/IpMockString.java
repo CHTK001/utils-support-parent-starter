@@ -24,7 +24,7 @@ public class IpMockString implements MockString {
     * 首个网段上界（不含，223 避免广播与保留地址）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int FIRST_OCTET_MAX = 223;
 
     @Override

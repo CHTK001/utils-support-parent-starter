@@ -18,7 +18,7 @@ public interface VlmClient {
     *
     * @param name 扩展名，对应 服务提供者 注册的实现
     * @return VLM 客户端实例
-     */
+    */
     static VlmClient create(String name) {
         return ServiceProvider.of(VlmClient.class).getNewExtension(name);
     }
@@ -28,7 +28,7 @@ public interface VlmClient {
     *
     * @param model 模型标识（如 florence2、通义千问-vl）
     * @return 当前客户端实例（链式调用）
-     */
+    */
     VlmClient model(String model);
 
     /**
@@ -37,6 +37,6 @@ public interface VlmClient {
     * @param imageData 图像字节数据
     * @param task      理解任务类型
     * @return 理解结果
-     */
+    */
     UnderstandResult understand(byte[] imageData, UnderstandTask task);
 }

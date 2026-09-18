@@ -21,6 +21,6 @@ public interface ProxyTargetResolver {
     *
     * @param remoteAddr 客户端地址（可为 空）
     * @return Discovery 对象，返回 空 表示无法解析
-     */
+    */
     Discovery resolve(InetSocketAddress remoteAddr);
 }

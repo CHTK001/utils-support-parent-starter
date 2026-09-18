@@ -34,14 +34,14 @@ public class YesCaptchaClient implements CaptchaParser {
     * withpersistence。
     * @param taskPersistence 任务persistence
     * @return withPersistence的结果
-     */
+    */
     private final CaptchaSetting setting;
     private TaskPersistence taskPersistence; // 任务persistence
 
     /**
     * yescaptcha客户端。
     * @param setting setting
-     */
+    */
     public YesCaptchaClient(CaptchaSetting setting) {
         this.setting = setting;
     }
@@ -58,7 +58,7 @@ public class YesCaptchaClient implements CaptchaParser {
         * 查询结果。
         * @param taskId 任务标识
         * @return 查询结果的结果
-         */
+        */
         body.put("clientKey", setting.getApiToken());
         body.put("task", buildTask(options));
         return createTask(body);
@@ -73,7 +73,7 @@ public class YesCaptchaClient implements CaptchaParser {
                 * 获取balance。
                 * @return 获取balance的结果
                 * @param options 期权
-                 */
+                */
                 return cached.get();
             }
         }
@@ -117,7 +117,7 @@ public class YesCaptchaClient implements CaptchaParser {
         * 映射转为yescaptcha类型。
         * @param captchaType captcha类型
         * @return 映射转为yescaptcha类型的结果
-         */
+        */
         putIfNotBlank(task, "websiteAction", options.get("action"));
         putIfNotBlank(task, "proxy", options.get("proxy"));
         return task;
@@ -144,7 +144,7 @@ public class YesCaptchaClient implements CaptchaParser {
             * @param body 主体
             * @return 创建任务的结果
             * @param taskId 任务id
-             */
+            */
             default:
                 return "NoCaptchaTaskProxyless";
         }
@@ -232,7 +232,7 @@ public class YesCaptchaClient implements CaptchaParser {
                 * @param map 映射
                 * @param key 键
                 * @param value 值
-                 */
+                */
                 .build();
     }
 

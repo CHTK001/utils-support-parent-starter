@@ -34,7 +34,7 @@ public class ConversationMessage {
     *
     * <p>text = 正文文本；thinking = 思考块（内容为空）；
     * tool_use = 工具调用（内容为工具名）；tool_结果 = 工具结果（内容为空）。</p>
-     */
+    */
     private String contentType;
 
     /** 文本内容（仅 文本 块有值） */

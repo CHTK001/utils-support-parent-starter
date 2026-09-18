@@ -34,12 +34,12 @@ public class ProtobufSerialization implements Serialization {
 
     /**
     * 模式 实例缓存池，按实体类类型缓存 模式 实例
-     */
+    */
     private static final ConcurrentHashMap<Class<?>, Schema<?>> SCHEMA_POOL = new ConcurrentHashMap<>();
 
     /**
     * 链接缓冲 线程局部变量，避免每次序列化都分配新缓冲区
-     */
+    */
     private static final ThreadLocal<LinkedBuffer> BUFFER_THREAD_LOCAL =
             ThreadLocal.withInitial(() -> LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE));
 
@@ -72,7 +72,7 @@ public class ProtobufSerialization implements Serialization {
     * @param data 数据
     * @param type 类型
     * @return deserialize的结果
-     */
+    */
     public <T> T deserialize(byte[] data, Class<T> type) throws Exception {
         if (data == null || data.length == 0) {
             return null;
@@ -85,7 +85,7 @@ public class ProtobufSerialization implements Serialization {
 
     /**
     * 清除所有 模式 实例缓存。
-     */
+    */
     public static void clearPool() {
         SCHEMA_POOL.clear();
     }

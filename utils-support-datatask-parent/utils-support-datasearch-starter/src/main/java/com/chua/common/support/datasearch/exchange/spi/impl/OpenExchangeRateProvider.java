@@ -55,7 +55,7 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
     * @param from 源币种（ISO 4217，如 USD、CNY）
     * @param to   目标币种（ISO 4217，如 USD、CNY）
     * @return 汇率；数据源不可达或币种不存在时返回 空
-     */
+    */
     @Override
     public BigDecimal getRate(String from, String to) {
         if (from == null || to == null) {
@@ -77,7 +77,7 @@ public class OpenExchangeRateProvider implements ExchangeRateProvider {
     *
     * @param base 基准币种，当前统一以 USD 为基准缓存（任意币对经 获取rate 换算）
     * @return 币种 -> 汇率（1 单位 USD 可兑换数量）；失败时返回上次缓存或空表
-     */
+    */
     @Override
     public Map<String, Double> getRates(String base) {
         if (!cachedRates.isEmpty() && System.currentTimeMillis() - cachedAt < CACHE_TTL_MILLIS) {

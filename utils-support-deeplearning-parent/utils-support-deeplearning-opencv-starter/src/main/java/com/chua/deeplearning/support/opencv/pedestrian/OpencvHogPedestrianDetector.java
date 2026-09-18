@@ -27,17 +27,17 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
 
     /**
     * HOG 描述子。
-     */
+    */
     private final HOGDescriptor hog;
 
     /**
     * 命中阈值。
-     */
+    */
     private final double hitThreshold;
 
     /**
     * 构造行人检测器。
-     */
+    */
     public OpencvHogPedestrianDetector() {
         this(0.0);
     }
@@ -46,7 +46,7 @@ public class OpencvHogPedestrianDetector extends OpencvModelTranslator {
     * 构造行人检测器。
     *
     * @param hitThreshold 命中阈值
-     */
+    */
     public OpencvHogPedestrianDetector(double hitThreshold) {
         super("opencv-pedestrian-hog");
         this.hitThreshold = hitThreshold;

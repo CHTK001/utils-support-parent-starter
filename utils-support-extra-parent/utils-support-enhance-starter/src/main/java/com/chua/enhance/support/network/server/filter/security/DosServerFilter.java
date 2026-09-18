@@ -29,11 +29,11 @@ public class DosServerFilter implements ServerFilter {
 
     /**
     * 默认最大请求数
-     */
+    */
     private static final int DEFAULT_MAX_REQUESTS = 100;
     /**
     * 默认时间窗口（秒）
-     */
+    */
     private static final int DEFAULT_WINDOW_SECONDS = 60;
 
     /** 最大值Requests */
@@ -43,11 +43,11 @@ public class DosServerFilter implements ServerFilter {
 
     /**
     * IP → 请求计数
-     */
+    */
     private final Map<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
     /**
     * IP → 窗口起始时间戳
-     */
+    */
     private final Map<String, Long> windowStartTimes = new ConcurrentHashMap<>();
 
     @Override
@@ -102,7 +102,7 @@ public class DosServerFilter implements ServerFilter {
     * 解析客户端真实 IP，优先从 X-远期-For 头获取。
     * @param request 请求
     * @return resolve客户端ip的结果
-     */
+    */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {

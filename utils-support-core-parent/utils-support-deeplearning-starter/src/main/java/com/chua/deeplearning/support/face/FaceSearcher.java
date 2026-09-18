@@ -35,17 +35,17 @@ public class FaceSearcher {
 
     /**
     * 特征提取器。
-     */
+    */
     private final FeatureExtractor featureExtractor;
 
     /**
     * 向量库。
-     */
+    */
     private final VectorStorage vectorStorage;
 
     /**
     * 检索管线。
-     */
+    */
     private final SearchPipeline searchPipeline;
 
     /**
@@ -53,7 +53,7 @@ public class FaceSearcher {
     *
     * @param featureExtractor 特征提取器
     * @param vectorStorage    向量存储
-     */
+    */
     public FaceSearcher(FeatureExtractor featureExtractor, VectorStorage vectorStorage) {
         this.featureExtractor = Objects.requireNonNull(featureExtractor, "featureExtractor");
         this.vectorStorage = Objects.requireNonNull(vectorStorage, "vectorStorage");
@@ -64,7 +64,7 @@ public class FaceSearcher {
     * 链式构建器。
     *
     * @return builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -73,17 +73,17 @@ public class FaceSearcher {
     * 人脸检索构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 特征提取器。
-         */
+        */
         private FeatureExtractor featureExtractor;
 
         /**
         * 向量库。
-         */
+        */
         private VectorStorage vectorStorage;
 
         /**
@@ -91,7 +91,7 @@ public class FaceSearcher {
         *
         * @param featureExtractor 特征提取器
         * @return this
-         */
+        */
         public Builder featureExtractor(FeatureExtractor featureExtractor) {
             this.featureExtractor = featureExtractor;
             return this;
@@ -102,7 +102,7 @@ public class FaceSearcher {
         *
         * @param modelId 模型 标识
         * @return this
-         */
+        */
         public Builder featureExtractor(String modelId) {
             this.featureExtractor = FeatureExtractor.create(modelId);
             return this;
@@ -113,7 +113,7 @@ public class FaceSearcher {
         *
         * @param vectorStorage 向量库
         * @return this
-         */
+        */
         public Builder vectorStorage(VectorStorage vectorStorage) {
             this.vectorStorage = vectorStorage;
             return this;
@@ -123,7 +123,7 @@ public class FaceSearcher {
         * 构建。
         *
         * @return FaceSearcher
-         */
+        */
         public FaceSearcher build() {
             return new FaceSearcher(featureExtractor, vectorStorage);
         }
@@ -134,7 +134,7 @@ public class FaceSearcher {
     *
     * @param imageData 人脸图（建议已裁剪）
     * @return 特征向量
-     */
+    */
     public float[] extract(byte[] imageData) {
         float[] feature = featureExtractor.extract(imageData);
         if (feature == null) {
@@ -149,7 +149,7 @@ public class FaceSearcher {
     * @param id        人员/业务 标识
     * @param imageData 人脸图
     * @return 是否成功
-     */
+    */
     public boolean enroll(String id, byte[] imageData) {
         return vectorStorage.add(id, extract(imageData));
     }
@@ -160,7 +160,7 @@ public class FaceSearcher {
     * @param id      业务 标识
     * @param feature 特征
     * @return 是否成功
-     */
+    */
     public boolean enroll(String id, float[] feature) {
         return vectorStorage.add(id, feature);
     }
@@ -173,7 +173,7 @@ public class FaceSearcher {
     * @param metadata  元数据
     * @param content   附加文本
     * @return 是否成功
-     */
+    */
     public boolean enroll(String id, byte[] imageData, Map<String, Object> metadata, String content) {
         return vectorStorage.add(new Vector(id, extract(imageData),
                 metadata == null ? Map.of() : metadata, content));
@@ -185,7 +185,7 @@ public class FaceSearcher {
     * @param imageData 查询图
     * @param topK      返回条数
     * @return 命中列表
-     */
+    */
     public List<FaceSearchHit> search(byte[] imageData, int topK) {
         List<Vector> vectors = searchPipeline.search(imageData, topK);
         if (vectors == null || vectors.isEmpty()) {
@@ -213,7 +213,7 @@ public class FaceSearcher {
     * @param feature 查询特征
     * @param topK    返回条数
     * @return 命中列表
-     */
+    */
     public List<FaceSearchHit> search(float[] feature, int topK) {
         List<Vector> vectors = vectorStorage.search(feature, Math.max(1, topK));
         if (vectors == null || vectors.isEmpty()) {
@@ -239,7 +239,7 @@ public class FaceSearcher {
     * 特征提取器。
     *
     * @return FeatureExtractor
-     */
+    */
     public FeatureExtractor featureExtractor() {
         return featureExtractor;
     }
@@ -248,7 +248,7 @@ public class FaceSearcher {
     * 向量库。
     *
     * @return VectorStorage
-     */
+    */
     public VectorStorage vectorStorage() {
         return vectorStorage;
     }

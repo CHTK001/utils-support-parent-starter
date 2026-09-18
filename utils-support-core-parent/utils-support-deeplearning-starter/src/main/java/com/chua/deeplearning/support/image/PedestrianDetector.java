@@ -23,7 +23,7 @@ public interface PedestrianDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static PedestrianDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(PedestrianDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -34,7 +34,7 @@ public interface PedestrianDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default PedestrianDetector provider(String provider) {
         return this;
     }
@@ -44,7 +44,7 @@ public interface PedestrianDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default PedestrianDetector model(String model) {
         return this;
     }
@@ -55,7 +55,7 @@ public interface PedestrianDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static PedestrianDetector create(String name) {
         return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -67,7 +67,7 @@ public interface PedestrianDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.PedestrianDetector.class);
     }
@@ -79,7 +79,7 @@ public interface PedestrianDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static PedestrianDetector create(String name, ModelSetting setting) {
         return new DefaultPedestrianDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -89,7 +89,7 @@ public interface PedestrianDetector {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     default PedestrianDetector threshold(float threshold) {
         return this;
     }
@@ -99,7 +99,7 @@ public interface PedestrianDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default PedestrianDetector modelPath(String path) {
         return this;
     }
@@ -109,7 +109,7 @@ public interface PedestrianDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default PedestrianDetector device(String device) {
         return this;
     }
@@ -119,7 +119,7 @@ public interface PedestrianDetector {
     *
     * @param imageData 图像字节数组
     * @return 检测结果
-     */
+    */
     List<DetectionInfo> detect(byte[] imageData);
 
     /**
@@ -127,7 +127,7 @@ public interface PedestrianDetector {
     *
     * @param imageData 图像字节数组
     * @return 数量
-     */
+    */
     default int count(byte[] imageData) {
         return detect(imageData).size();
     }
@@ -143,34 +143,34 @@ class DefaultPedestrianDetector implements PedestrianDetector {
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 置信度阈值。
-     */
+    */
     private float threshold = 0.5f;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = "cpu";
 
     DefaultPedestrianDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -213,7 +213,7 @@ class DefaultPedestrianDetector implements PedestrianDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public List<DetectionInfo> detect(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class);

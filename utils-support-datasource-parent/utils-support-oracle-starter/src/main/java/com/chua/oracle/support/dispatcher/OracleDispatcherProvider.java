@@ -29,30 +29,30 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
     * 主题与 Sink 的映射，每个主题对应一个多播 Sink
-     */
+    */
     private final Map<String, Sinks.Many<Object>> sinkMap = new ConcurrentHashMap<>();
 
     /**
     * 主题与订阅定义列表的映射
-     */
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
     * 是否已关闭
-     */
+    */
     private volatile boolean closed = false;
 
     /**
     * 创建 oracledispatcher提供者 实例
     * @param config 配置
-     */
+    */
     public OracleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
 
     /**
     * 无参构造，使用默认配置，供 SPI 自动实例化。
-     */
+    */
     public OracleDispatcherProvider() {
         this(DispatcherConfig.builder().build());
     }
@@ -62,7 +62,7 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     *
     * @param topic 目标主题，格式为 oracle.cdc.<schema>.<table>
     * @param body  变更事件 JSON 字符串
-     */
+    */
     @Override
     public void publish(String topic, Object body) {
         if (closed) {
@@ -83,7 +83,7 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     * 注册 Oracle CDC 主题订阅。
     *
     * @param definition 订阅定义，主题列表中的每个主题应符合 oracle.cdc.<schema>.<table> 格式
-     */
+    */
     @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -109,7 +109,7 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
     * 取消指定订阅定义在目标主题上的注册关系。
     *
     * @param definition 待取消的订阅定义对象
-     */
+    */
     @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -126,7 +126,7 @@ public class OracleDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
     * 关闭 Oracle CDC 分发器，完成所有 Sink 的结束信号发送并清空注册状态。
-     */
+    */
     @Override
     public void close() {
         closed = true;

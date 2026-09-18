@@ -102,7 +102,7 @@ public class ParaformerTranslator {
     *
     * @param modelDir 模型目录（含 模型.int8.onnx、令牌.txt）
     * @throws Exception 加载失败
-     */
+    */
     public void prepare(Path modelDir) throws Exception {
         Path modelPath = findOnnx(modelDir);
         Path tokensPath = modelDir.resolve("tokens.txt");
@@ -131,7 +131,7 @@ public class ParaformerTranslator {
     * 读取 ONNX metadata：LFR 参数与 CMVN 向量。
     *
     * @throws Exception 读取失败
-     */
+    */
     private void readMetadata() throws Exception {
         Map<String, String> meta = session.getMetadata().getCustomMetadata();
         if (meta.containsKey(META_NEG_MEAN) && meta.containsKey(META_INV_STDDEV)) {
@@ -146,7 +146,7 @@ public class ParaformerTranslator {
     *
     * @param value 逗号分隔字符串
     * @return float 数组
-     */
+    */
     private static float[] parseFloats(String value) {
         String[] parts = value.split(",");
         float[] result = new float[parts.length];
@@ -162,7 +162,7 @@ public class ParaformerTranslator {
     * @param dir 模型目录
     * @return ONNX 文件路径，找不到返回 空
     * @throws IOException 列目录失败
-     */
+    */
     private static Path findOnnx(Path dir) throws IOException {
         try (var stream = Files.list(dir)) {
             return stream
@@ -178,7 +178,7 @@ public class ParaformerTranslator {
     * @param audioPath 音频文件路径
     * @return 识别文本
     * @throws Exception 处理失败
-     */
+    */
     public String transcribe(Path audioPath) throws Exception {
         if (!prepared) {
             throw new IllegalStateException("ParaformerTranslator not prepared");
@@ -240,7 +240,7 @@ public class ParaformerTranslator {
     * @param path 音频文件路径
     * @return 样本数组
     * @throws Exception 读取失败
-     */
+    */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();

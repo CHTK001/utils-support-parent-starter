@@ -34,7 +34,7 @@ public record FlowSnapshot(
     * 计算本次执行总耗时。
     *
     * @return 耗时（毫秒）
-     */
+    */
     public long duration() {
         return endAt - startAt;
     }
@@ -43,7 +43,7 @@ public record FlowSnapshot(
     * 计算本次执行总耗时的可读形式。
     *
     * @return 可读耗时，如 "235ms"
-     */
+    */
     public String durationText() {
         return Duration.ofMillis(duration()).toString();
     }

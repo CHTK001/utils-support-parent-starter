@@ -402,18 +402,18 @@ class DefaultProxyProvider<T> implements ProxyProvider<T> {
     }
 
     /**
-    * 包装注解拦截器。
-    * <p>
-    * 遍历方法上的所有注解，按注解全限定名从 SPI 注册表中查找
-    * {@link MethodAnnotationIntercept} 实现，匹配到的拦截器按 order 优先级
-    * 包装成洋葱调用链。
-    * </p>
-    *
-    * @param method      被调用的方法
-    * @param proxyMethod 代理方法的封装信息
-    * @param next        下一个调用环节
-    * @return 包装后的调用链
-    */
+            * 包装注解拦截器。
+            * <p>
+            * 遍历方法上的所有注解，按注解全限定名从 SPI 注册表中查找
+            * {@link MethodAnnotationIntercept} 实现，匹配到的拦截器按 order 优先级
+            * 包装成洋葱调用链。
+            * </p>
+            *
+            * @param method      被调用的方法
+            * @param proxyMethod 代理方法的封装信息
+            * @param next        下一个调用环节
+            * @return 包装后的调用链
+            */
     private MethodInvocation wrapAnnotations(Method method, ProxyMethod proxyMethod, MethodInvocation next) {
         Annotation[] annotations = method.getAnnotations();
         if (annotations.length == 0) {

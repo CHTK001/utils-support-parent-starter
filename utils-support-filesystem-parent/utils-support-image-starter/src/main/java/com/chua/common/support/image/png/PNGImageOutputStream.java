@@ -75,7 +75,7 @@ abstract class PNGImageOutputStream extends ImageOutputStreamImpl {
     * If flush之前() 失败 we 尝试 转为 access 启动采购订单 入 最终
     * block 的 写入_IDAT(). We should 更新 启动采购订单 转为 avoid
     * 索引出的bound异常 while seek() 是否 happening.
-             */
+    */
             this.startPos = stream.getStreamPosition();
             throw e;
         }

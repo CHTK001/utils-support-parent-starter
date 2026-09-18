@@ -6,47 +6,71 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
 /**
-* 点滤镜抽象基类
-*
-* 提供基于像素点的图像滤镜处理功能。此类专门用于处理每个像素点独立的滤镜效果，
-* 如颜色调整、亮度对比度调整、色彩变换等。接口设计与传统的rgb镜像过滤器兼容。
-*
-* 主要特点：
-* - 逐像素处理：对每个像素点独立进行滤镜处理
-* - 高性能优化：针对不同图像类型进行优化处理
-* - 内存友好：避免不必要的图像格式转换
-* - 易于扩展：子类只需实现过滤器rgb方法即可
-*
-* 适用场景：
-* - 颜色调整滤镜（亮度、对比度、饱和度）
-* - 色彩变换滤镜（灰度、负片、复古等）
-* - 阈值处理滤镜（二值化、色彩分离等）
-* - 简单特效滤镜（像素化、马赛克等）
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * 点滤镜抽象基类
+ *
+ * 提供基于像素点的图像滤镜处理功能。此类专门用于处理每个像素点独立的滤镜效果，
+ * 如颜色调整、亮度对比度调整、色彩变换等。接口设计与传统的rgb镜像过滤器兼容。
+ *
+ * 主要特点：
+ * - 逐像素处理：对每个像素点独立进行滤镜处理
+ * - 高性能优化：针对不同图像类型进行优化处理
+ * - 内存友好：避免不必要的图像格式转换
+ * - 易于扩展：子类只需实现过滤器rgb方法即可
+ *
+ * 适用场景：
+ * - 颜色调整滤镜（亮度、对比度、饱和度）
+ * - 色彩变换滤镜（灰度、负片、复古等）
+ * - 阈值处理滤镜（二值化、色彩分离等）
+ * - 简单特效滤镜（像素化、马赛克等）
+ *
+ * <h3>子类实现指南</h3>
+ * <ol>
+ *   <li>实现抽象方法 {@link #filterRgb(int, int, int)}：接收单个 ARGB 像素值，
+ *       返回处理后的 ARGB 像素值（可参考 {@link ImageGrayscaleFilter}、
+ *       {@link ImageNegativeImageFilter} 等现有实现）。</li>
+ *   <li>本基类已实现 {@link #filter(BufferedImage, BufferedImage)}：逐行遍历，
+ *       对每个像素调用 filterRgb，子类<b>无需</b>重写 filter 方法。</li>
+ *   <li>若滤镜需要处理索引颜色模型（1 位/8 位调色板图），
+ *       在构造器中设置 {@code canFilterIndexColorModel = true}。</li>
+ *   <li>可选重写 {@link #setDimensions(int, int)}：在处理开始前做额外初始化。</li>
+ * </ol>
+ *
+ * <h3>典型子类</h3>
+ * <ul>
+ *   <li>{@link ImageGrayscaleFilter}（grayscale）：NTSC 灰度转换</li>
+ *   <li>{@link ImageNegativeImageFilter}（negative）：负片反转</li>
+ * </ul>
+ *
+ * <h3>字段说明</h3>
+ * <ul>
+ *   <li><b>canFilterIndexColorModel</b>（默认 false）：是否允许处理索引颜色模型。
+ *       为 false 时，遇到 1 位/8 位调色板图会按默认行为处理。</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 public abstract class AbstractImagePointFilter extends AbstractImageFilter {
 
     /**
     * 是否可以过滤索引颜色模型
-     */
+    */
     protected boolean canFilterIndexColorModel = false;
 
     /**
     * 常量：256，颜色值计算
-     */
+    */
     public static final int MAX_256 = NumberConstant.MAX_256;
 
     /**
     * 常量：128，颜色值计算
-     */
+    */
     public static final int MAX_128 = NumberConstant.MAX_128;
 
     /**
     * 常量：255，颜色值计算
-     */
+    */
     public static final int MAX_255 = NumberConstant.MAX_255;
 
     /**
@@ -58,7 +82,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     * @param src 源图像
     * @param dst 目标图像，可以为空
     * @return 处理后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
@@ -105,7 +129,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     * @param y   像素的Y坐标
     * @param rgb 原始ARGB像素值
     * @return 处理后的ARGB像素值
-     */
+    */
     public abstract int filterRgb(int x, int y, int rgb);
 
     /**
@@ -115,7 +139,7 @@ public abstract class AbstractImagePointFilter extends AbstractImageFilter {
     *
     * @param width  图像宽度
     * @param height 图像高度
-     */
+    */
     public void setDimensions(int width, int height) {
         // 默认实现为空，子类可根据需要重写
     }

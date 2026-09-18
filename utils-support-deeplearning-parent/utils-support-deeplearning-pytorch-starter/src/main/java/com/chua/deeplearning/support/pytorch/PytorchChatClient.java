@@ -26,7 +26,7 @@ public class PytorchChatClient extends AbstractLocalChatClient {
     * 构造 pytorch 对话客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public PytorchChatClient(ChatClientSetting setting) {
         super("pytorch", setting);
     }

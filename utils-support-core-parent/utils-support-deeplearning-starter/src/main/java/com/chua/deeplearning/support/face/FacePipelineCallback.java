@@ -19,7 +19,7 @@ public interface FacePipelineCallback {
     *
     * @param imageData 原始场景图
     * @param boxes     检测到的人脸框列表
-     */
+    */
     default void onDetect(byte[] imageData, List<PredictRectangle> boxes) {
     }
 
@@ -29,7 +29,7 @@ public interface FacePipelineCallback {
     * @param faceIndex 人脸索引（从0开始）
     * @param box       人脸框
     * @param aligned   对齐后的512×512人脸图
-     */
+    */
     default void onAlign(int faceIndex, PredictRectangle box, byte[] aligned) {
     }
 
@@ -38,7 +38,7 @@ public interface FacePipelineCallback {
     *
     * @param faceIndex 人脸索引
     * @param restored  修复后的512×512人脸图
-     */
+    */
     default void onRestore(int faceIndex, byte[] restored) {
     }
 }

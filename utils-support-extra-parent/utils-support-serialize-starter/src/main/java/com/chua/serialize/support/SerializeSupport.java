@@ -26,12 +26,12 @@ public class SerializeSupport {
 
     /**
     * 自动序列化提供者实例，用于管理序列化器的注册和获取。
-     */
+    */
     private static final AutoSerializerProvider PROVIDER = new AutoSerializerProvider();
 
     /**
     * 私有构造函数，防止外部实例化该类。
-     */
+    */
     private SerializeSupport() {
         // 禁止实例化
     }
@@ -44,7 +44,7 @@ public class SerializeSupport {
     * @param clazz 要序列化的目标类型
     * @param <T>   泛型类型，必须是 Serializable 接口
     * @return 返回配置好的 序列化器流 对象
-     */
+    */
     public static <T extends Serializable> SerializerFlow createFlow(Class<T> clazz) {
         AutoSerializer<T> autoSerializer = new AutoSerializer<>(clazz);
         return new SerializerFlow(PROVIDER, autoSerializer);
@@ -58,7 +58,7 @@ public class SerializeSupport {
     * @param clazz 要序列化的目标类型
     * @param <T>   泛型类型，必须是 Serializable 接口
     * @return 返回 kryo序列化器 实例
-     */
+    */
     public static <T extends Serializable> KryoSerializer<T> createKryo(Class<T> clazz) {
         return new KryoSerializer<>(clazz);
     }
@@ -72,7 +72,7 @@ public class SerializeSupport {
     * @param maxSize 对象池的最大容量
     * @param <T>    泛型类型，必须是 Serializable 接口
     * @return 返回 kryo游泳池管理器 实例
-     */
+    */
     public static <T extends Serializable> KryoPoolManager<T> createPool(Class<T> clazz, int maxSize) {
         return KryoPoolManager.getInstance(clazz, maxSize);
     }
@@ -85,7 +85,7 @@ public class SerializeSupport {
     * @param clazz 要序列化的目标类型
     * @param <T>   泛型类型，必须是 Serializable 接口
     * @return 返回 kryo游泳池管理器 实例
-     */
+    */
     public static <T extends Serializable> KryoPoolManager<T> createPool(Class<T> clazz) {
         return KryoPoolManager.getInstance(clazz);
     }
@@ -103,7 +103,7 @@ public class SerializeSupport {
     * @param clazz 要序列化的目标类型
     * @param <T>   泛型类型，必须是 Serializable 接口
     * @return 返回 auto序列化器 实例
-     */
+    */
     public static <T extends Serializable> AutoSerializer<T> createAuto(Class<T> clazz) {
         return new AutoSerializer<>(clazz);
     }
@@ -116,7 +116,7 @@ public class SerializeSupport {
     * @param clazz 要获取序列化器的目标类型
     * @param <T>   泛型类型，必须是 Serializable 接口
     * @return 返回对应的 序列化器 实例
-     */
+    */
     public static <T extends Serializable> Serializer<T> getSerializer(Class<T> clazz) {
         return PROVIDER.getSerializer(clazz);
     }
@@ -125,7 +125,7 @@ public class SerializeSupport {
     * 获取当前的自动序列化提供者实例。
     *
     * @return 返回 auto序列化器提供者 实例
-     */
+    */
     public static AutoSerializerProvider getProvider() {
         return PROVIDER;
     }
@@ -135,7 +135,7 @@ public class SerializeSupport {
     * <p>
     * 调用此方法后需要重新初始化相关组件。
     * 适用于测试环境或需要释放资源的场景。
-     */
+    */
     public static void clearAll() {
         PROVIDER.clearCache();
         com.chua.serialize.support.pool.KryoPoolManager.clearAll();

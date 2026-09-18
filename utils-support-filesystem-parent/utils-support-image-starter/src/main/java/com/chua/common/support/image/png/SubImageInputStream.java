@@ -29,7 +29,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     * @param stream 父图像流
     * @param length 子图像流的长度
     * @throws IOException 如果在初始化过程中发生 I/O 错误
-     */
+    */
     public SubImageInputStream(ImageInputStream stream, int length)
         throws IOException {
         this.stream = stream;
@@ -42,7 +42,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     *
     * @return 读取的字节，如果达到子图像流的末尾则返回 -1
     * @throws IOException 如果在读取过程中发生 I/O 错误
-     */
+    */
     public int read() throws IOException {
         if (length <= 0) {
             return -1;
@@ -60,7 +60,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     * @param len 要读取的最大字节数
     * @return 实际读取的字节数，如果达到子图像流的末尾则返回 -1
     * @throws IOException 如果在读取过程中发生 I/O 错误
-     */
+    */
     public int read(byte[] b, int off, int len) throws IOException {
         if (length <= 0) {
             return -1;
@@ -75,7 +75,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     * 返回子图像流的长度。
     *
     * @return 子图像流的长度
-     */
+    */
     public long length() {
         return startingLength;
     }
@@ -85,7 +85,7 @@ final class SubImageInputStream extends ImageInputStreamImpl {
     *
     * @param pos 子图像流中的新位置
     * @throws IOException 如果在设置位置过程中发生 I/O 错误
-     */
+    */
     public void seek(long pos) throws IOException {
         stream.seek(pos - startingPos);
         streamPos = pos;

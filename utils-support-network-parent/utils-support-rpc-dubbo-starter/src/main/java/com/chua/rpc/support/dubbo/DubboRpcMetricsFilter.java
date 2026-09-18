@@ -29,7 +29,7 @@ public class DubboRpcMetricsFilter implements Filter {
     * @param invocation 调用信息（方法名、参数、服务标识）
     * @return 调用结果
     * @throws RpcException Dubbo 远程调用异常
-     */
+    */
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         String methodKey = buildMethodKey(invoker, invocation);
@@ -63,7 +63,7 @@ public class DubboRpcMetricsFilter implements Filter {
     * @param invoker    Dubbo 服务代理
     * @param invocation 调用信息
     * @return 方法键
-     */
+    */
     private String buildMethodKey(Invoker<?> invoker, Invocation invocation) {
         Class<?> iface = invoker != null && invoker.getInterface() != null ? invoker.getInterface() : Object.class;
         return iface.getName() + "." + (invocation != null ? invocation.getMethodName() : "unknown");

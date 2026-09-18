@@ -49,7 +49,7 @@ public class DefaultQrCode extends AbstractQrCode {
     /**
     * 创建 默认qr编码 实例
     * @param setting setting
-     */
+    */
     public DefaultQrCode(QrSetting setting) {
         super(setting);
     }
@@ -94,7 +94,7 @@ public class DefaultQrCode extends AbstractQrCode {
     * @param bitMatrix QR码的位矩阵表示
     * @return QR码图像
     * @throws IOException 生成图像时发生IO错误
-     */
+    */
     private BufferedImage getBufferedImage(QrCodeOptions codeOptions, QrSetting setting, QRCode qrCode, BitMatrixEx bitMatrix) throws IOException {
         // 如果未设置背景风格，使用默认风格生成QR码图像
         return ServiceProvider.of(CodeProduct.class).getNewExtension(DEFAULT).create(codeOptions, bitMatrix, qrCode, setting);
@@ -106,7 +106,7 @@ public class DefaultQrCode extends AbstractQrCode {
     * 对 zxing 的 qr编码writer 进行扩展, 解决白边过多的问题
     * <p/>
     * 源码参考 {@link com.google.zxing.qrcode.QRCodeWriter#encode(String, BarcodeFormat, int, int, Map)}
-     */
+    */
     QRCode code(QrCodeOptions qrCodeConfig) throws WriterException {
         ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.L;
         if (qrCodeConfig.getHints() != null) {
@@ -124,7 +124,7 @@ public class DefaultQrCode extends AbstractQrCode {
     * @param codeOptions qr编码期权对象，包含QR码的自定义选项如大小、边框和Logo
     * @return BitMatrixEx对象，包含编码后的QR码图像
     * @throws WriterException 如果编码过程中发生错误。
-     */
+    */
     BitMatrixEx encode(QRCode code, QrCodeOptions codeOptions) throws WriterException {
         int quietZone = 1;
         // 检查是否提供了自定义的安静区大小
@@ -150,7 +150,7 @@ public class DefaultQrCode extends AbstractQrCode {
     *
     * @param bitMatrixEx 钻头matrixex对象，包含QR码图像
     * @param logoOptions Logo选项，如果存在，则清除相应区域
-     */
+    */
     private static void clearLogo(BitMatrixEx bitMatrixEx, QrCodeOptions.LogoOptions logoOptions) {
         if (logoOptions == null) {
             return;
@@ -179,7 +179,7 @@ public class DefaultQrCode extends AbstractQrCode {
     * @param height 目标高度
     * @param quietZone 安静区大小，取值范围 [0, 4]
     * @return BitMatrixEx对象，包含调整后的QR码图像
-     */
+    */
     private static BitMatrixEx renderResult(QRCode code, int width, int height, int quietZone) {
         ByteMatrix input = code.getMatrix();
         if (input == null) {
@@ -241,7 +241,7 @@ public class DefaultQrCode extends AbstractQrCode {
     * @param qrCodeSize 二维码大小
     * @param expectSize 期望输出大小
     * @return 返回缩放比例, <= 0 则表示不缩放, 否则指定缩放参数
-     */
+    */
     private static int calculateScale(int qrCodeSize, int expectSize) {
         if (qrCodeSize >= expectSize) {
             return 0;

@@ -15,7 +15,7 @@ public class WavDecoder {
 
     /**
     * 默认采样率（纯 PCM 假定值）。
-     */
+    */
     private static final int DEFAULT_SAMPLE_RATE = 48000;
 
     /**
@@ -24,7 +24,7 @@ public class WavDecoder {
     * @param data            输入字节（wav 或纯 pcm）
     * @param targetSampleRate 目标采样率
     * @return float 单声道样本
-     */
+    */
     public static float[] decodeToFloat(byte[] data, int targetSampleRate) {
         if (DfsmnAnsTranslator.isWav(data)) {
             return decodeWav(data, targetSampleRate);
@@ -47,7 +47,7 @@ public class WavDecoder {
     * @param data 数据
     * @param targetSampleRate Target样本rate
     * @return decodeWav的结果
-     */
+    */
     private static float[] decodeWav(byte[] data, int targetSampleRate) {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         // 定位 fmt 子块
@@ -112,7 +112,7 @@ public class WavDecoder {
     * @param srcRate 源采样率
     * @param dstRate 目标采样率
     * @return 重采样后样本
-     */
+    */
     private static float[] resample(float[] samples, int srcRate, int dstRate) {
         if (srcRate == dstRate || samples.length == 0) {
             return samples;
@@ -141,7 +141,7 @@ public class WavDecoder {
     * @param channels      声道数
     * @param bitsPerSample 位深
     * @return 44 字节 WAV 头
-     */
+    */
     public static byte[] buildWavHeader(int dataSize, int sampleRate, int channels, int bitsPerSample) {
         int byteRate = sampleRate * channels * bitsPerSample / 8;
         int blockAlign = channels * bitsPerSample / 8;

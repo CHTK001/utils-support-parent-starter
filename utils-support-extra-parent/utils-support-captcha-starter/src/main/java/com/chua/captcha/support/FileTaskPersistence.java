@@ -27,29 +27,29 @@ public class FileTaskPersistence implements TaskPersistence {
 
     /**
     * 字段分隔符
-     */
+    */
     private static final String SEPARATOR = "|";
 
     /**
     * 持久化文件路径
-     */
+    */
     private final Path filePath;
 
     /**
     * 内存缓存（保持写入顺序）
-     */
+    */
     private final Map<String, CaptchaResponse> cache = new LinkedHashMap<>();
 
     /**
     * 是否已从文件加载到缓存
-     */
+    */
     private boolean loaded = false;
 
     /**
     * 构造文件持久化实例
     *
     * @param filePath 持久化文件路径
-     */
+    */
     public FileTaskPersistence(String filePath) {
         this.filePath = Paths.get(filePath);
     }
@@ -79,7 +79,7 @@ public class FileTaskPersistence implements TaskPersistence {
 
     /**
     * 从文件加载缓存（仅首次调用生效）
-     */
+    */
     private void ensureLoaded() {
         if (loaded) {
             return;
@@ -116,7 +116,7 @@ public class FileTaskPersistence implements TaskPersistence {
 
     /**
     * 将缓存全量写回文件
-     */
+    */
     private void persist() {
         try {
             Path parent = filePath.getParent();

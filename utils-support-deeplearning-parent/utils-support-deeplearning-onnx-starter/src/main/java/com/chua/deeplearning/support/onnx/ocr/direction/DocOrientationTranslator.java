@@ -89,7 +89,7 @@ public class DocOrientationTranslator implements ITranslator<byte[], DirectionIn
     *
     * @param imageData 镜像数据
     * @return classify的结果
-     */
+    */
     private DirectionInfo classify(byte[] imageData) {
         try {
             ImageUtils.load();

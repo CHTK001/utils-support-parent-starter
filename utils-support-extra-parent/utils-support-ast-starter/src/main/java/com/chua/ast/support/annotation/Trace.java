@@ -23,11 +23,11 @@ public @interface Trace {
 
     /**
     * 是否在入口打印参数值
-     */
+    */
     boolean includeArgs() default false;
 
     /**
     * 最大追踪层级，0 表示不限制
-     */
+    */
     int depth() default 0;
 }

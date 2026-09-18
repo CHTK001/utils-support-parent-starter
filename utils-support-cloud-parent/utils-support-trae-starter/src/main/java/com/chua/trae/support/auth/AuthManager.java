@@ -35,7 +35,9 @@ public class AuthManager {
 
     /** Trae 版本：cn 或 sg，不可为 空 */
     private final String edition;
-    /** Trae 数据目录（storage.json 所在 用户/全局storage 路径），可为 空 */
+    /**
+    * Trae 数据目录（storage.json 所在 用户/全局storage 路径），可为 空
+    */
     private final String dataDir;
     /** 手动 JWT 令牌，可为 空（优先于 数据dir 读取） */
     private final String manualToken;
@@ -57,7 +59,7 @@ public class AuthManager {
     * @param userRegion 用户区域（CN/SG/US）
     * @param account 账号名
     * @param edition 版本来源：cn / sg / manual
-     */
+    */
     public record AuthSnapshot(
         String token,
         String refreshToken,
@@ -77,7 +79,7 @@ public class AuthManager {
     * @param dataDir Trae 数据目录，可为 空（使用 manual令牌 时）
     * @param manualToken 手动 JWT 令牌，可为 空
     * @param apiHost API 主机地址，手动 令牌 场景必填
-     */
+    */
     public AuthManager(String edition, String dataDir, String manualToken, String apiHost) {
         this.edition = (edition != null ? edition : "cn").toLowerCase();
         this.dataDir = dataDir;
@@ -90,7 +92,7 @@ public class AuthManager {
     *
     * @param traeDataDir Trae 安装数据目录（如 C:\用户\xxx\app数据\Roaming\Trae CN），不可为 空
     * @return 新的 认证管理器 实例
-     */
+    */
     public AuthManager fromTraeDataDir(Path traeDataDir) {
         Objects.requireNonNull(traeDataDir, "traeDataDir must not be null");
         return new AuthManager(this.edition,
@@ -103,7 +105,7 @@ public class AuthManager {
     *
     * @return 认证快照，不可为 空
     * @throws AuthException 当无法读取认证信息或 令牌 格式无效时
-     */
+    */
     public synchronized AuthSnapshot getAuth() throws AuthException {
         if (cached != null && !isExpired(cached)) {
             return cached;
@@ -164,7 +166,7 @@ public class AuthManager {
     * @param token JWT 格式 令牌，必须以 eyj 开头
     * @return 认证快照
     * @throws AuthException 当 令牌 格式无效时
-     */
+    */
     private AuthSnapshot parseManualToken(String token) throws AuthException {
         try {
             String[] parts = token.split("\\.");
@@ -195,7 +197,7 @@ public class AuthManager {
     *
     * @param auth 认证快照，可为 空
     * @return true 表示已过期或无法判断
-     */
+    */
     public static boolean isExpired(AuthSnapshot auth) {
         if (auth == null || auth.expiredAt() == null) {
             return true;
@@ -211,7 +213,7 @@ public class AuthManager {
     /**
     * 清除认证缓存，下次 获取认证 时重新加载。
     * 线程安全。
-     */
+    */
     public synchronized void invalidate() {
         cached = null;
     }
@@ -221,7 +223,7 @@ public class AuthManager {
     *
     * @param s 基础64 字符串，不可为 空
     * @return 补齐后的字符串
-     */
+    */
     private static String padBase64(String s) {
         int mod = s.length() % 4;
         if (mod == 0) {
@@ -234,13 +236,13 @@ public class AuthManager {
     * 认证异常，读取/解析认证信息失败时抛出。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class AuthException extends Exception {
         /**
         * 创建认证异常。
         *
         * @param message 异常消息
-         */
+        */
         public AuthException(String message) { super(message); }
 
         /**
@@ -248,7 +250,7 @@ public class AuthManager {
         *
         * @param message 异常消息
         * @param cause 原因
-         */
+        */
         public AuthException(String message, Throwable cause) { super(message, cause); }
     }
 }

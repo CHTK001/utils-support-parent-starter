@@ -31,7 +31,7 @@ public class SolrSearchEngine implements SearchEngine {
     /**
     * 创建 Solr搜索engine 实例
     * @param engine engine
-     */
+    */
     public SolrSearchEngine(SolrEngine engine) {
         this.engine = engine;
     }

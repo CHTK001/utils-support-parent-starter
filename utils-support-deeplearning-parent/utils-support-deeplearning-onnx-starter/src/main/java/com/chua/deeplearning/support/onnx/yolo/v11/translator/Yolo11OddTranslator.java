@@ -57,39 +57,39 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
 
     /**
     *                      
-     */
+    */
     private final int maxBoxes;
 
     /**
     *                
-     */
+    */
     private final float threshold;
 
     /**
     * NMS       
-     */
+    */
     private final float nmsThreshold;
 
     /**
     *                   
-     */
+    */
     private final List<String> classes;
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *              -                   
     *
     * @param classes                   
-     */
+    */
     public Yolo11OddTranslator() {
         this(defaultClasses(1024));
     }
@@ -97,7 +97,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     /**
     * 创建 Yolo11oddtranslator 实例
     * @param classes classes
-     */
+    */
     public Yolo11OddTranslator(List<String> classes) {
         this(1024, 1024, 0.25f, 0.45f, classes, 8400);
     }
@@ -110,7 +110,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param threshold                   
     * @param nmsThreshold NMS       
     * @param classes                        
-     */
+    */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold, List<String> classes) {
         this(width, height, threshold, nmsThreshold, classes, 8400);
     }
@@ -124,7 +124,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param nmsThreshold NMS       
     * @param classes                        
     * @param maxBoxes                          
-     */
+    */
     public Yolo11OddTranslator(int width, int height, float threshold, float nmsThreshold,
                                 List<String> classes, int maxBoxes) {
         this.width = width;
@@ -143,7 +143,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param ctx                     
     * @param input             
     * @return              NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
@@ -181,7 +181,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param ctx                    
     * @param list              nd列表
     * @return OBB             
-     */
+    */
     @Override
     public ObbResult processOutput(TranslatorContext ctx, NDList list) {
         var imageWidth = (Integer) ctx.getAttachment("width");
@@ -207,7 +207,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param top                   padding
     * @param list                       
     * @return OBB             
-     */
+    */
     private ObbResult processFromBoxOutput(int imageWidth, int imageHeight, int processedWidth, int processedHeight,
                                            float scale, int left, int top, NDList list) {
  // [cx, cy, w, h, 类_scores..., angle]
@@ -268,7 +268,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     * @param boxes                       
     * @param iouThreshold iou
     * @return                         
-     */
+    */
     private List<YoloRotatedBox> rotatedNMS(List<YoloRotatedBox> boxes, double iouThreshold) {
         var keep = new ArrayList<YoloRotatedBox>();
         var removed = new boolean[boxes.size()];
@@ -315,7 +315,7 @@ public class Yolo11OddTranslator implements Translator<Image, ObbResult> {
     *
     * @return STACK             
     * @param size 大小
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

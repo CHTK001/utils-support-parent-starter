@@ -34,54 +34,54 @@ public class ZhipuImageClient implements ImageClient {
 
     /**
     * 智谱 cogview 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     /**
     * HTTP 客户端
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * 客户端配置
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前图片宽度
-     */
+    */
     private Integer width;
 
     /**
     * 当前图片高度
-     */
+    */
     private Integer height;
 
     /**
     * 当前提示词
-     */
+    */
     private String prompt;
 
     /**
     * 当前质量等级
-     */
+    */
     private String quality;
 
     /**
     * 当前风格
-     */
+    */
     private String style;
 
     /**
     * 构造智谱 cogview 图片生成客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public ZhipuImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -203,7 +203,7 @@ public BufferedImage generate(String prompt) {
     * @param json 智谱返回的 JSON 响应
     * @return BufferedImage 对象
     * @throws IOException 下载或解析失败
-     */
+    */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
@@ -251,7 +251,7 @@ public BufferedImage generate(String prompt) {
     * 构建图片尺寸字符串
     *
     * @return 如 "1024x1024"
-     */
+    */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
@@ -262,7 +262,7 @@ public BufferedImage generate(String prompt) {
     * 规范化 API 基础地址
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -279,7 +279,7 @@ public BufferedImage generate(String prompt) {
     *
     * @param input 原始字符串
     * @return 转义后的字符串
-     */
+    */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

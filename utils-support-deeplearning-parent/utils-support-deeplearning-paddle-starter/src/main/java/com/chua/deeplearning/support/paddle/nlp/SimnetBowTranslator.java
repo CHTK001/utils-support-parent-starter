@@ -28,12 +28,12 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
 
     /**
     * 词表。
-     */
+    */
     private final Map<String, Long> word2Id = new HashMap<>();
 
     /**
     * unk。
-     */
+    */
     private long unkId;
 
     @Override
@@ -67,7 +67,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     *
     * @param model 模型
     * @return 打开的结果
-     */
+    */
     private InputStream open(Model model) throws IOException {
         String[] names = {"vocab.txt", "assets/vocab.txt", "word_dict.txt"};
         for (String n : names) {
@@ -97,7 +97,7 @@ public class SimnetBowTranslator implements Translator<String[][], float[]> {
     * @param tokens 令牌
     * @param name 名称
     * @return 转为标识的结果
-     */
+    */
     private NDArray toIds(NDManager manager, String[] tokens, String name) {
         List<Long> ids = new ArrayList<>();
         if (tokens != null) {

@@ -36,18 +36,18 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     private OrtEnvironment ortEnv; // ortenv
     /**
     * 深度anythingorttranslator。
-     */
+    */
     private OrtSession session;
     private volatile boolean initialized; // 初始化
 
     /**
     * 深度anythingorttranslator。
-     */
+    */
     public DepthAnythingOrtTranslator() {
         /**
         * 深度anythingorttranslator。
         * @param modelId 模型标识
-         */
+        */
         this("depth-anything");
     }
 
@@ -58,7 +58,7 @@ public class DepthAnythingOrtTranslator implements ITranslator<byte[], byte[]>, 
     * @return 名称的结果
     * @param imageBytes 镜像bytes
     * @param input 输入
-     */
+    */
     }
 
     @Override

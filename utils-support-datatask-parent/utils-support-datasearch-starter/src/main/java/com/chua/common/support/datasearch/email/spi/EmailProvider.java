@@ -20,14 +20,14 @@ public interface EmailProvider {
     * 获取数据源名称。
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
     * 创建一个临时邮箱地址。
     *
     * @return 邮箱地址；创建失败返回 空
-     */
+    */
     String createEmail();
 
     /**
@@ -35,7 +35,7 @@ public interface EmailProvider {
     *
     * @param email 邮箱地址
     * @return 邮件列表（按时间倒序）；查询失败返回空列表
-     */
+    */
     List<EmailInfo> fetchEmails(String email);
 
     /**
@@ -43,7 +43,7 @@ public interface EmailProvider {
     *
     * @param email 邮箱地址
     * @return 第一封邮件；无邮件时返回 空
-     */
+    */
     default EmailInfo fetchFirstEmail(String email) {
         List<EmailInfo> emails = fetchEmails(email);
         return emails != null && !emails.isEmpty() ? emails.getFirst() : null;

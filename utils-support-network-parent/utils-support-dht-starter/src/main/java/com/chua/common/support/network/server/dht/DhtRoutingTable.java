@@ -23,17 +23,17 @@ public class DhtRoutingTable {
 
     /**
     * 本地节点的 标识
-     */
+    */
     private final KademliaNodeId selfId;
 
     /**
     * K 值（每个 Bucket 的最大容量）
-     */
+    */
     private final int k;
 
     /**
     * 160 个 K-Bucket 数组
-     */
+    */
     private final KBucket[] buckets;
 
     /**
@@ -41,7 +41,7 @@ public class DhtRoutingTable {
     *
     * @param selfId 本地节点 标识
     * @param k      K 值（每个 Bucket 容量）
-     */
+    */
     public DhtRoutingTable(KademliaNodeId selfId, int k) {
         this.selfId = selfId;
         this.k = k;
@@ -60,7 +60,7 @@ public class DhtRoutingTable {
     *
     * @param peer 要插入的节点
     * @return 插入成功返回 true
-     */
+    */
     public synchronized boolean insert(DhtPeer peer) {
         if (peer.getHost() == null || "0.0.0.0".equals(peer.getHost())) {
             return false;
@@ -94,7 +94,7 @@ public class DhtRoutingTable {
     *
     * @param nodeId 要查找的节点 标识
     * @return 找到的 dhtpeer，未找到返回 空
-     */
+    */
     public synchronized DhtPeer findPeer(String nodeId) {
         int bucketIndex = selfId.getBucketIndex(KademliaNodeId.fromHex(nodeId));
         KBucketEntry entry = buckets[bucketIndex].find(nodeId);
@@ -105,7 +105,7 @@ public class DhtRoutingTable {
     * 根据节点 标识 从路由表中移除节点。
     *
     * @param nodeId 要移除的节点 标识
-     */
+    */
     public synchronized void removePeer(String nodeId) {
         int bucketIndex = selfId.getBucketIndex(KademliaNodeId.fromHex(nodeId));
         buckets[bucketIndex].remove(nodeId);
@@ -121,7 +121,7 @@ public class DhtRoutingTable {
     * @param target 目标节点 标识
     * @param count  需要的节点数量
     * @return 最近节点的列表
-     */
+    */
     public synchronized List<DhtPeer> findClosestPeers(KademliaNodeId target, int count) {
         List<DhtPeer> result = new ArrayList<>();
         int bucketIndex = selfId.getBucketIndex(target);
@@ -157,7 +157,7 @@ public class DhtRoutingTable {
     * @param result   结果列表
     * @param bucket   源 Bucket
     * @param maxCount 最大添加数量
-     */
+    */
     private void addBucketPeers(List<DhtPeer> result, KBucket bucket, int maxCount) {
         for (DhtPeer p : bucket.getAllPeers()) {
             if (result.size() >= maxCount) {
@@ -173,7 +173,7 @@ public class DhtRoutingTable {
     * 获取路由表中所有节点。
     *
     * @return 全部节点列表
-     */
+    */
     public synchronized List<DhtPeer> getAllPeers() {
         List<DhtPeer> all = new ArrayList<>();
         for (KBucket bucket : buckets) {
@@ -186,7 +186,7 @@ public class DhtRoutingTable {
     * 获取路由表中的节点总数。
     *
     * @return 节点总数
-     */
+    */
     public synchronized int totalPeers() {
         int count = 0;
         for (KBucket bucket : buckets) {
@@ -199,7 +199,7 @@ public class DhtRoutingTable {
     * 获取路由表中所有节点的 标识 集合。
     *
     * @return 节点 标识 的 设置
-     */
+    */
     public synchronized Set<String> getAllPeerIds() {
         Set<String> ids = new HashSet<>();
         for (KBucket bucket : buckets) {

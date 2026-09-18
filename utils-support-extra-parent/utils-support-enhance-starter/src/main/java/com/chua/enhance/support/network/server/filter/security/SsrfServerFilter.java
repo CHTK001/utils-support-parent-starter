@@ -30,12 +30,12 @@ public class SsrfServerFilter implements ServerFilter {
 
     /**
     * 允许的域名白名单
-     */
+    */
     private final Set<String> allowedDomains = new HashSet<>();
 
     /**
     * 是否阻止内网地址
-     */
+    */
     private boolean blockInternal = true;
 
     @Override
@@ -88,7 +88,7 @@ public class SsrfServerFilter implements ServerFilter {
     * 检查 URL 中的主机是否在白名单中且不是内网地址。
     * @param url url
     * @return 是否allowed主机的结果
-     */
+    */
     private boolean isAllowedHost(String url) {
         try {
             URI uri = URI.create(url);
@@ -119,7 +119,7 @@ public class SsrfServerFilter implements ServerFilter {
     * 判断是否为内网地址。
     * @param host 主机
     * @return 是否内部地址的结果
-     */
+    */
     private boolean isInternalAddress(String host) {
         if ("localhost".equals(host) || "127.0.0.1".equals(host) || "::1".equals(host)) {
             return true;

@@ -24,12 +24,12 @@ public abstract class AbstractMetaSearch implements MetaSearch {
 
     /**
     * 元数据入口
-     */
+    */
     protected final AbstractMetaData metaData;
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
@@ -37,7 +37,7 @@ public abstract class AbstractMetaSearch implements MetaSearch {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     protected AbstractMetaSearch(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;

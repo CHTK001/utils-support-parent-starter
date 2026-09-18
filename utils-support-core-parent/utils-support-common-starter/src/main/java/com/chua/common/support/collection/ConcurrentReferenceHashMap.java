@@ -813,8 +813,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 可在 {@link Segment} 上执行的 {@link Segment#doTask 任务}。
-    */
+        * 可在 {@link Segment} 上执行的 {@link Segment#doTask 任务}。
+        */
     private abstract class AbstractTask<T> {
 
         /** 选项列表 */
@@ -878,8 +878,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 允许任务访问 {@link Segment} 中的条目。
-    */
+        * 允许任务访问 {@link Segment} 中的条目。
+        */
     private interface Entries<V> {
 
         /**
@@ -941,8 +941,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 内部 Entry 迭代器实现。
-    */
+        * 内部 Entry 迭代器实现。
+        */
     private class EntryIterator implements Iterator<Map.Entry<K, V>> {
 
         /** 分段索引 */
@@ -1038,8 +1038,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 可执行的重构类型。
-    */
+        * 可执行的重构类型。
+        */
     protected enum Restructure {
         /** 必要时重构 */
         WHEN_NECESSARY,
@@ -1049,9 +1049,9 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 用于管理 {@link Reference 引用} 的策略类。
-    * 如果需要支持其他引用类型，可以重写此类。
-    */
+        * 用于管理 {@link Reference 引用} 的策略类。
+        * 如果需要支持其他引用类型，可以重写此类。
+        */
     protected class ReferenceManager {
 
         /** 引用队列 */
@@ -1136,8 +1136,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
 
     /**
-    * 针对 {@link WeakReference 弱引用} 的内部 {@link Reference} 实现。
-    */
+        * 针对 {@link WeakReference 弱引用} 的内部 {@link Reference} 实现。
+        */
     private static final class WeakEntryReference<K, V> extends WeakReference<Entry<K, V>> implements Reference<K, V> {
 
         /** 哈希值 */

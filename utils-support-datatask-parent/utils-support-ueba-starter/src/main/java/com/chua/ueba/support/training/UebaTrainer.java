@@ -89,7 +89,7 @@ public class UebaTrainer {
     * @param pythonCommand  Python 解释器，不能为 空 或空白
     * @param resumeDir      续训来源目录（已有模型/checkpoint），允许为 空（空 表示从零训练）
     * @throws IllegalArgumentException 当任一参数不合法时
-     */
+    */
     public UebaTrainer(UebaConfig config, Path configSource, Path dataCsv, Path outputDir,
                        int epochs, int batchSize, double learningRate, String pythonCommand,
                        Path resumeDir) {
@@ -124,7 +124,7 @@ public class UebaTrainer {
     *
     * @return 训练结果
     * @throws UncheckedIOException 当产物落盘失败时
-     */
+    */
     public TrainingResult prepare() {
         try {
             Files.createDirectories(outputDir);
@@ -148,7 +148,7 @@ public class UebaTrainer {
     *
     * @return 训练结果，包含已执行的命令
     * @throws IllegalStateException 当 Python 执行失败或超时时
-     */
+    */
     public TrainingResult execute() {
         TrainingResult prepared = prepare();
         try {
@@ -187,7 +187,7 @@ public class UebaTrainer {
     *
     * @return 落盘后的配置路径
     * @throws IOException 当写入失败时
-     */
+    */
     private Path materializeConfig() throws IOException {
         Path target = outputDir.resolve(DERIVED_CONFIG_FILE);
         if (configSource != null && Files.isRegularFile(configSource)) {
@@ -203,7 +203,7 @@ public class UebaTrainer {
     *
     * @param paramsFile 目标文件
     * @throws IOException 当写入失败时
-     */
+    */
     private void writeParams(Path paramsFile) throws IOException {
         String content = String.format(Locale.ROOT,
                 "epochs: %d%nbatchSize: %d%nlearningRate: %s%ndataCsv: %s%n",
@@ -216,7 +216,7 @@ public class UebaTrainer {
     *
     * @return 脚本文件路径
     * @throws IOException 当复制失败时
-     */
+    */
     private Path copyScript() throws IOException {
         Path scriptFile = outputDir.resolve("train_ueba.py");
         try (InputStream in = getClass().getClassLoader().getResourceAsStream(TRAINING_SCRIPT_RESOURCE)) {
@@ -234,7 +234,7 @@ public class UebaTrainer {
     * @param scriptFile 训练脚本路径
     * @param configFile 配置路径
     * @return 完整命令字符串
-     */
+    */
     private String buildCommand(Path scriptFile, Path configFile) {
         List<String> parts = new ArrayList<>(12);
         parts.add(quote(pythonCommand));
@@ -256,7 +256,7 @@ public class UebaTrainer {
     *
     * @param command 命令字符串
     * @return 参数列表
-     */
+    */
     private static List<String> parseCommand(String command) {
         List<String> result = new ArrayList<>(8);
         StringBuilder current = new StringBuilder();
@@ -285,7 +285,7 @@ public class UebaTrainer {
     *
     * @param value 原始值
     * @return 包裹后的值
-     */
+    */
     private static String quote(String value) {
         if (value.indexOf(' ') >= 0 || value.indexOf('\t') >= 0) {
             return "\"" + value + "\"";

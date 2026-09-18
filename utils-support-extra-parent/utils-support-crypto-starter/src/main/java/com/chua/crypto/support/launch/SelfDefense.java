@@ -12,7 +12,7 @@ import java.util.Locale;
 *
 * <h2>1. Agent 注入检测</h2>
 * 检查 JVM 输入参数中的 {@code -javaagent/-agentpath/-agentlib}；
-* 加密发行包正常启动不应携带任何 智能体。
+* 加密发行包正常启动不应携带任何 Agent。
 *
 * <h2>2. 字节码工具包加载扫描</h2>
 * 后台守护线程周期性扫描线程栈中已加载类的包名，命中已知注入/转储工具
@@ -36,12 +36,12 @@ public final class SelfDefense {
 
     /**
     * 防护模式系统属性
-     */
+    */
     public static final String PROP_GUARD = "chua.crypto.guard";
 
     /**
     * 已知注入/转储工具的包名前缀特征
-     */
+    */
     private static final String[] SUSPICIOUS_PACKAGES = {
             "net.bytebuddy",
             "org.jacoco.agent",
@@ -53,13 +53,13 @@ public final class SelfDefense {
 
     /**
     * 私有构造
-     */
+    */
     private SelfDefense() {
     }
 
     /**
-    * 安装防护：立即执行一次 智能体 参数检测，并按需启动后台扫描线程
-     */
+    * 安装防护：立即执行一次 Agent 参数检测，并按需启动后台扫描线程
+    */
     public static void install() {
         String mode = guardMode();
         if ("off".equals(mode)) {
@@ -73,17 +73,17 @@ public final class SelfDefense {
     * 解析防护模式
     *
     * @return off / warn / strict
-     */
+    */
     private static String guardMode() {
         String mode = System.getProperty(PROP_GUARD, "warn");
         return mode == null ? "warn" : mode.toLowerCase(Locale.ROOT);
     }
 
     /**
-    * 检测 JVM 输入参数中的 智能体 注入
+    * 检测 JVM 输入参数中的 Agent 注入
     *
     * @param mode 防护模式
-     */
+    */
     private static void checkAgentArguments(String mode) {
         try {
             RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
@@ -106,7 +106,7 @@ public final class SelfDefense {
     * 启动后台工具包加载扫描守护线程
     *
     * @param mode 防护模式
-     */
+    */
     private static void startToolkitScanner(String mode) {
         Thread scanner = new Thread(() -> {
             while (true) {
@@ -126,7 +126,7 @@ public final class SelfDefense {
     * 扫描全部线程栈帧所属类的包名是否命中特征
     *
     * @param mode 防护模式
-     */
+    */
     private static void scanStacks(String mode) {
         try {
             for (Thread thread : Thread.getAllStackTraces().keySet()) {
@@ -150,7 +150,7 @@ public final class SelfDefense {
     *
     * @param mode    防护模式
     * @param message 事件描述
-     */
+    */
     private static void respond(String mode, String message) {
         System.err.println("[chua-crypto-guard] " + message);
         if ("strict".equals(mode)) {

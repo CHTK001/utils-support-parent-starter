@@ -16,7 +16,7 @@ public class DefaultConfigureObjectContext implements ConfigureObjectContext {
     * 构造函数，接收上下文配置项（当前实现忽略）。
     *
     * @param setting 对象上下文配置项
-     */
+    */
     public DefaultConfigureObjectContext(ObjectContextSetting setting) {
     }
 
@@ -36,14 +36,14 @@ public class DefaultConfigureObjectContext implements ConfigureObjectContext {
     * 初始化上下文（默认实现为空操作）。
     *
     * @param setting 对象上下文配置项
-     */
+    */
     @Override
     public void initialize(ObjectContextSetting setting) {
     }
 
     /**
     * @return 默认实现始终返回 空
-     */
+    */
     @Override
     public com.chua.common.support.objects.environment.Environment getEnvironment() {
         return null;
@@ -51,7 +51,7 @@ public class DefaultConfigureObjectContext implements ConfigureObjectContext {
 
     /**
     * @return 新建的空 mappingbeandefinition注册 实例
-     */
+    */
     @Override
     public com.chua.common.support.objects.register.impl.MappingBeanDefinitionRegister getMappingBeanDefinitionRegister() {
         return new com.chua.common.support.objects.register.impl.MappingBeanDefinitionRegister();

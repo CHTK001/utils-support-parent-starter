@@ -31,18 +31,18 @@ import java.util.function.Function;
 * zeromq RPC 客户端实现（jeromq，纯 Java 无需原生依赖）。
 *
 * <p>与 {@link ZmqRpcServer}（ROUTER）配套使用，客户端维护一个 <strong>DEALER
-* 套接字</strong>连接服务端。DEALER 支持异步收发：发送序列化后的
+* Socket</strong>连接服务端。DEALER 支持异步收发：发送序列化后的
 * {@link RpcRequest} 单帧报文，服务端按连接处理并回包。</p>
 *
-* <p><b>并发模型</b>：每个 DEALER 套接字在 JeroMQ 内维护独立的收发线程与
-* 消息队列，多个调用线程共享同一套接字时，通过请求 标识 帧区分响应归属——但为
+* <p><b>并发模型</b>：每个 DEALER Socket在 JeroMQ 内维护独立的收发线程与
+* 消息队列，多个调用线程共享同一Socket时，通过请求 标识 帧区分响应归属——但为
 * 保持与 {@link RpcSerialization} 单帧报文的简洁性，当前实现采用<b>每个目标接口
-* 一个独立套接字 + 请求锁</b>的同步模型，避免响应串扰。</p>
+* 一个独立Socket + 请求锁</b>的同步模型，避免响应串扰。</p>
 *
 * <p><b>容错</b>：调用失败时按 {@link RpcConsumerConfig} 配置进行有限次重试
 * 并递增退避；业务异常（服务端已执行并返回）不重试，直接抛出。</p>
 *
-* <p><b>响应式超时</b>：套接字接收超时取自消费者配置的 {@code timeout}，
+* <p><b>响应式超时</b>：Socket接收超时取自消费者配置的 {@code timeout}，
 * 防止服务端无响应时无限阻塞调用线程。</p>
 *
 * <p><b>服务发现</b>：构造器传入的 {@link RpcRegistryConfig} 中 protocol 为注册中心类型
@@ -63,68 +63,68 @@ public class ZmqRpcClient implements RpcClient {
 
     /**
     * 未配置连接地址时的默认端点
-     */
+    */
     private static final String DEFAULT_ADDRESS = "tcp://localhost:5555";
 
     /**
     * 未配置时的默认重试间隔（毫秒）
-     */
+    */
     private static final int DEFAULT_RETRY_DELAY = 100;
 
     /**
     * 目标服务地址，如 {@code tcp://127.0.0.1:5555}；直连模式下生效，
     * 注册中心模式下为空并在调用时动态解析
-     */
+    */
     private final String serverAddress;
 
     /**
     * 注册中心配置列表（用于服务发现 SPI 初始化）
-     */
+    */
     private final List<RpcRegistryConfig> registryConfigs;
 
     /**
     * APP 名称（用于服务发现路径查询）
-     */
+    */
     private final String appName;
 
     /**
     * 服务发现实例（SPI 加载，可为 {@code null} 表示纯直连模式）
-     */
+    */
     private final ServiceDiscovery serviceDiscovery;
 
     /**
     * 消费者全局配置
-     */
+    */
     private final RpcConsumerConfig consumerConfig;
 
     /**
     * 是否启用同 JVM 直调：目标服务已在本进程注册时直接调用本地对象，跳过 ZMQ 网络与序列化
-     */
+    */
     private final boolean inlineEnabled;
 
     /**
     * 调用超时（毫秒）
-     */
+    */
     private final int recvTimeout;
 
     /**
     * 请求/响应编解码器
-     */
+    */
     private final RpcSerialization rpcSerialization;
 
     /**
     * ZMQ 上下文（线程安全，复用）
-     */
+    */
     private final ZContext zContext;
 
     /**
-    * 目标接口 → 独立 DEALER 套接字（避免多接口共享套接字产生路由串扰）
-     */
+    * 目标接口 → 独立 DEALER Socket（避免多接口共享Socket产生路由串扰）
+    */
     private final Map<Class<?>, ZMQ.Socket> socketCache = new ConcurrentHashMap<>();
 
     /**
     * 目标接口 → 动态代理缓存
-     */
+    */
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     /**
@@ -134,7 +134,7 @@ public class ZmqRpcClient implements RpcClient {
     * 为 {@code null} 或 协议 为 "direct"/"zmq"/空时取第一个地址直连
     * @param consumerConfig  消费者配置（超时 / 重试 / 重试间隔），可为 {@code null}
     * @param name            应用名（用于服务发现路径查询）
-     */
+    */
     public ZmqRpcClient(List<RpcRegistryConfig> registryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
         this.registryConfigs = registryConfigs;
@@ -158,7 +158,7 @@ public class ZmqRpcClient implements RpcClient {
     * 通过 SPI 加载 {@link ServiceDiscovery} 并启动。
     *
     * @return 服务发现实例，纯直连模式下返回 {@code null}
-     */
+    */
     private ServiceDiscovery initServiceDiscovery() {
         if (registryConfigs == null || registryConfigs.isEmpty()) {
             return null;
@@ -189,7 +189,7 @@ public class ZmqRpcClient implements RpcClient {
     *
     * @param address 注册中心配置中的地址，可为 {@code null}
     * @return 规范的 ZMQ 端点；地址为空时返回 {@code null}
-     */
+    */
     private static String normalizeAddress(String address) {
         if (address == null || address.isBlank()) {
             return null;
@@ -207,9 +207,9 @@ public class ZmqRpcClient implements RpcClient {
     /**
     * 获取远程代理
     *
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 获取的结果
-     */
+    */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type ->
                 ProxyUtils.newProxy((Class<T>) type, type.getClassLoader(),
@@ -217,11 +217,11 @@ public class ZmqRpcClient implements RpcClient {
     }
 
     /**
-    * 获取（或创建）目标接口对应的独立 DEALER 套接字。
+    * 获取（或创建）目标接口对应的独立 DEALER Socket。
     *
     * @param targetType 目标接口
-    * @return DEALER 套接字
-     */
+    * @return DEALER Socket
+    */
     private ZMQ.Socket ensureSocket(Class<?> targetType) {
         return socketCache.computeIfAbsent(targetType, type -> {
             String endpoint = resolveServerAddress(targetType);
@@ -239,7 +239,7 @@ public class ZmqRpcClient implements RpcClient {
     *
     * @param targetType 目标接口
     * @return ZMQ 端点地址，无法解析时抛出异常
-     */
+    */
     private String resolveServerAddress(Class<?> targetType) {
         if (serviceDiscovery != null) {
             String path = "/" + appName + "/" + targetType.getName();
@@ -260,19 +260,19 @@ public class ZmqRpcClient implements RpcClient {
     * 远程调用实现：rpcinvoker 通过 {@link RpcSerialization} 完成请求序列化与响应反序列化。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class RpcInvoker implements Function<ProxyMethod, Object> {
 
         /**
-        * 目标接口（用于套接字复用）
-         */
+        * 目标接口（用于Socket复用）
+        */
         private final Class<?> targetType;
 
         /**
         * 构造器。
         *
         * @param targetType 目标接口
-         */
+        */
         RpcInvoker(Class<?> targetType) {
             this.targetType = targetType;
         }
@@ -324,7 +324,7 @@ public class ZmqRpcClient implements RpcClient {
         * @param proxyMethod 代理方法上下文
         * @return 调用结果
         * @throws Exception 传输或反序列化异常
-         */
+        */
         private Object doInvoke(ProxyMethod proxyMethod) throws Exception {
             RpcRequest request = new RpcRequest();
             request.setService(targetType.getName());
@@ -357,7 +357,7 @@ public class ZmqRpcClient implements RpcClient {
         * @param localService 本机服务对象
         * @param proxyMethod  代理方法
         * @return 调用结果
-         */
+        */
         private Object invokeLocal(Object localService, ProxyMethod proxyMethod) {
             try {
                 java.lang.reflect.Method method = proxyMethod.getMethod();
@@ -384,7 +384,7 @@ public class ZmqRpcClient implements RpcClient {
             try {
                 socket.close();
             } catch (Exception ignored) {
-                // 关闭时忽略套接字异常
+                // 关闭时忽略Socket异常
             }
         }
         socketCache.clear();

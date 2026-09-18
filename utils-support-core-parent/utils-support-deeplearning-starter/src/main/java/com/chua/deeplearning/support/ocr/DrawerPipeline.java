@@ -26,7 +26,7 @@ public class DrawerPipeline {
     * @param total 总检测框数
     * @author CH
     * @since 4.0.0
-     */
+    */
     @FunctionalInterface
     public interface ProcessCallback {
         /**
@@ -37,33 +37,33 @@ public class DrawerPipeline {
         * @param conf  置信度
         * @param index 当前索引
         * @param total 总数
-         */
+        */
         void onProcess(DetectionInfo box, String text, float conf, int index, int total);
     }
 
     /**
     * 矫正后的目标图
-     */
+    */
     private byte[] corrected;
 
     /**
     * 待标注的检测框列表
-     */
+    */
     private final List<DetectionInfo> boxes = new ArrayList<>();
 
     /**
     * 对应的标签列表
-     */
+    */
     private final List<String> labels = new ArrayList<>();
 
     /**
     * 最小置信度阈值
-     */
+    */
     private float minConfidence;
 
     /**
     * 进度回调
-     */
+    */
     private ProcessCallback callback;
 
     /**
@@ -71,7 +71,7 @@ public class DrawerPipeline {
     *
     * @param minConfidence 最小置信度
     * @return DrawerPipeline的结果
-     */
+    */
     public DrawerPipeline(float minConfidence) {
         this.minConfidence = minConfidence;
     }
@@ -81,7 +81,7 @@ public class DrawerPipeline {
     *
     * @param corrected 矫正后图片
     * @return this
-     */
+    */
     public DrawerPipeline target(byte[] corrected) {
         this.corrected = corrected;
         return this;
@@ -93,7 +93,7 @@ public class DrawerPipeline {
     * @param allBoxes 检测框列表
     * @param results  识别结果列表
     * @return this
-     */
+    */
     public DrawerPipeline boxes(List<DetectionInfo> allBoxes, List<OcrResult> results) {
         this.boxes.clear();
         this.labels.clear();
@@ -136,7 +136,7 @@ public class DrawerPipeline {
     *
     * @param callback 回调函数
     * @return this
-     */
+    */
     public DrawerPipeline onProcess(ProcessCallback callback) {
         this.callback = callback;
         return this;
@@ -146,7 +146,7 @@ public class DrawerPipeline {
     * 清空当前标注结果。
     *
     * @return this
-     */
+    */
     public DrawerPipeline clean() {
         boxes.clear();
         labels.clear();
@@ -157,7 +157,7 @@ public class DrawerPipeline {
     * 完成绘制，返回标注图。
     *
     * @return 标注后 JPEG 字节；无目标图时返回空数组
-     */
+    */
     public byte[] done() {
         if (corrected == null) {
             return new byte[0];
@@ -169,7 +169,7 @@ public class DrawerPipeline {
     * 获取当前检测框列表。
     *
     * @return 检测框列表
-     */
+    */
     public List<DetectionInfo> boxes() {
         return boxes;
     }
@@ -178,7 +178,7 @@ public class DrawerPipeline {
     * 获取当前标签列表。
     *
     * @return 标签列表
-     */
+    */
     public List<String> labels() {
         return labels;
     }

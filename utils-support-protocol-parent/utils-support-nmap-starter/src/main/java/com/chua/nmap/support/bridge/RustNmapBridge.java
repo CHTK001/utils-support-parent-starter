@@ -28,7 +28,7 @@ public class RustNmapBridge {
 
     /**
     * 加载原生动态库（classpath /native/{platform}/ 下提取并加载），线程安全。
-     */
+    */
     public static synchronized void loadLibrary() {
         if (loaded) {
             return;
@@ -51,7 +51,7 @@ public class RustNmapBridge {
     * 检查原生库是否已加载
     *
     * @return 是否已加载
-     */
+    */
     public static boolean isLoaded() {
         return loaded;
     }
@@ -60,7 +60,7 @@ public class RustNmapBridge {
     * 获取加载错误
     *
     * @return 加载错误，如果没有错误则返回null
-     */
+    */
     public static Throwable getLoadError() {
         return loadError;
     }
@@ -69,7 +69,7 @@ public class RustNmapBridge {
     * 确保原生库已加载
     *
     * @throws UnsupportedOperationException 如果原生库未加载
-     */
+    */
     public static void ensureLoaded() {
         if (!loaded) {
             throw new UnsupportedOperationException(
@@ -88,7 +88,7 @@ public class RustNmapBridge {
     * @param timeout     超时时间（毫秒）
     * @param concurrency 并发数
     * @return JSON格式的扫描结果
-     */
+    */
     public static native String scanTcpPorts(String host, int[] ports, int timeout, int concurrency);
 
     /**
@@ -100,7 +100,7 @@ public class RustNmapBridge {
     * @param timeout     超时时间（毫秒）
     * @param concurrency 并发数
     * @return JSON格式的扫描结果
-     */
+    */
     public static native String scanTcpPortRange(String host, int startPort, int endPort,
                                                   int timeout, int concurrency);
 
@@ -112,7 +112,7 @@ public class RustNmapBridge {
     * @param timeout     超时时间（毫秒）
     * @param concurrency 并发数
     * @return JSON格式的扫描结果
-     */
+    */
     public static native String scanUdpPorts(String host, int[] ports, int timeout, int concurrency);
 
     /**
@@ -122,7 +122,7 @@ public class RustNmapBridge {
     * @param port    端口号
     * @param timeout 超时时间（毫秒）
     * @return 端口状态（0=open, 1=关闭, 2=过滤器, -1=错误）
-     */
+    */
     public static native int scanSingleTcpPort(String host, int port, int timeout);
 
     // ==================== 主机发现 ====================
@@ -133,7 +133,7 @@ public class RustNmapBridge {
     * @param host    目标主机
     * @param timeout 超时时间（毫秒）
     * @return JSON格式的主机信息
-     */
+    */
     public static native String pingHost(String host, int timeout);
 
     /**
@@ -143,7 +143,7 @@ public class RustNmapBridge {
     * @param timeout     超时时间（毫秒）
     * @param concurrency 并发数
     * @return JSON格式的存活主机列表
-     */
+    */
     public static native String scanSubnet(String subnet, int timeout, int concurrency);
 
     /**
@@ -154,7 +154,7 @@ public class RustNmapBridge {
     * @param timeout     超时时间（毫秒）
     * @param concurrency 并发数
     * @return JSON格式的存活主机列表
-     */
+    */
     public static native String scanIpRange(String startIp, String endIp, int timeout, int concurrency);
 
     // ==================== 服务识别 ====================
@@ -166,7 +166,7 @@ public class RustNmapBridge {
     * @param port    端口号
     * @param timeout 超时时间（毫秒）
     * @return JSON格式的服务信息
-     */
+    */
     public static native String detectService(String host, int port, int timeout);
 
     /**
@@ -176,7 +176,7 @@ public class RustNmapBridge {
     * @param port    端口号
     * @param timeout 超时时间（毫秒）
     * @return Banner字符串
-     */
+    */
     public static native String getBanner(String host, int port, int timeout);
 
     // ==================== 系统指纹 ====================
@@ -187,7 +187,7 @@ public class RustNmapBridge {
     * @param host    目标主机
     * @param timeout 超时时间（毫秒）
     * @return JSON格式的OS信息
-     */
+    */
     public static native String detectOs(String host, int timeout);
 
     /**
@@ -196,7 +196,7 @@ public class RustNmapBridge {
     * @param host    目标主机
     * @param timeout 超时时间（毫秒）
     * @return TTL值，-1表示错误
-     */
+    */
     public static native int getTtl(String host, int timeout);
 
     // ==================== 工具方法 ====================
@@ -206,7 +206,7 @@ public class RustNmapBridge {
     *
     * @param hostname 主机名
     * @return IP地址，null表示解析失败
-     */
+    */
     public static native String resolveHostname(String hostname);
 
     /**
@@ -214,7 +214,7 @@ public class RustNmapBridge {
     *
     * @param ip IP地址
     * @return 主机名，null表示查询失败
-     */
+    */
     public static native String reverseDns(String ip);
 
     /**
@@ -222,7 +222,7 @@ public class RustNmapBridge {
     *
     * @param ip IP地址
     * @return 是否有效
-     */
+    */
     public static native boolean isValidIp(String ip);
 
     /**
@@ -230,21 +230,21 @@ public class RustNmapBridge {
     *
     * @param subnet 子网（CIDR格式）
     * @return 是否有效
-     */
+    */
     public static native boolean isValidSubnet(String subnet);
 
     /**
     * 获取本机IP地址列表
     *
     * @return JSON格式的IP列表
-     */
+    */
     public static native String getLocalIps();
 
     /**
     * 获取本机MAC地址
     *
     * @return MAC地址，null表示获取失败
-     */
+    */
     public static native String getLocalMac();
 
     // ==================== 版本信息 ====================
@@ -253,6 +253,6 @@ public class RustNmapBridge {
     * 获取Rust Nmap库版本
     *
     * @return 版本字符串
-     */
+    */
     public static native String getVersion();
 }

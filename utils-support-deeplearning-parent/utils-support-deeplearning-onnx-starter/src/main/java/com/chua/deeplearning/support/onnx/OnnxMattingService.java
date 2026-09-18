@@ -13,7 +13,7 @@ public class OnnxMattingService implements MattingService {
     /**
     * 创建 onnxmatting服务 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxMattingService(String apiKey) {
     }
 
@@ -28,7 +28,7 @@ public class OnnxMattingService implements MattingService {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "modnet";
     }

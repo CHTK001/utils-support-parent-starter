@@ -27,7 +27,7 @@ public record GitFileEvent(ChangeType changeType, String filePath) {
     * 变更类型枚举。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public enum ChangeType {
         /** 文件新增 */
         ADD,

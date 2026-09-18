@@ -19,11 +19,11 @@ public enum KeyLifecycle {
 
     /**
     * 一次性读取即销毁（仅对可擦除载体生效，如密钥文件）
-     */
+    */
     ONE_TIME,
 
     /**
     * 持久化
-     */
+    */
     PERSISTENT
 }

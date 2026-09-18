@@ -147,7 +147,7 @@ public class TcpProxyServer extends AbstractProxyServer {
     * <p>复用父类 {@link AbstractProxyServer#forwardBidirectional} 进行高效双向数据传输，
     * 自动获得 TCP_NODELAY、64KB 转发缓冲、CompletableFuture 并发转发。</p>
     *
-    * @param clientSocket 客户端套接字
+    * @param clientSocket 客户端Socket
     */
     @Override
     protected void handleConnection(Socket clientSocket) {

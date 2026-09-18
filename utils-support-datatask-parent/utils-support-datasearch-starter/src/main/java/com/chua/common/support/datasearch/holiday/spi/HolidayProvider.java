@@ -20,7 +20,7 @@ public interface HolidayProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -28,7 +28,7 @@ public interface HolidayProvider {
     *
     * @param date 日期
     * @return 是否法定节假日
-     */
+    */
     boolean isHoliday(LocalDate date);
 
     /**
@@ -38,7 +38,7 @@ public interface HolidayProvider {
     *
     * @param date 日期
     * @return 是否上班日
-     */
+    */
     boolean isWorkday(LocalDate date);
 
     /**
@@ -46,7 +46,7 @@ public interface HolidayProvider {
     *
     * @param date 日期
     * @return 节假日信息，非节假日为 空
-     */
+    */
     HolidayInfo getHoliday(LocalDate date);
 
     /**
@@ -54,6 +54,6 @@ public interface HolidayProvider {
     *
     * @param year 年份，如 2026
     * @return 节假日信息列表（含法定节假日与调休补班）
-     */
+    */
     List<HolidayInfo> getHolidays(int year);
 }

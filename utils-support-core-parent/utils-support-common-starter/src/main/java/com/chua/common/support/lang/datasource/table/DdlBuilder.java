@@ -67,8 +67,8 @@ public class DdlBuilder {
     /** 表名称 */
     private final String tableName;
     /**
-    * Schema 名
-    */
+        * Schema 名
+        */
     private String schema;
     /** Comment */
     private String comment;

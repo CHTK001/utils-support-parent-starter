@@ -29,7 +29,7 @@ public class LockAutoConfiguration {
 
     /**
     * 默认锁名称
-     */
+    */
     private static final String DEFAULT_LOCK_NAME = "default";
 
     /**
@@ -37,7 +37,7 @@ public class LockAutoConfiguration {
     *
     * @param lockProperties 锁配置属性
     * @return LockProvider 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public LockProvider lockProvider(LockProperties lockProperties) {
@@ -53,7 +53,7 @@ public class LockAutoConfiguration {
     * 创建分布式锁拦截器。
     *
     * @return DistributedLockIntercept 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public DistributedLockIntercept distributedLockIntercept() {
@@ -65,7 +65,7 @@ public class LockAutoConfiguration {
     *
     * @param intercept 分布式锁拦截器
     * @return DistributedLockAdvisor 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {

@@ -30,7 +30,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     * @param metaData meta数据
     * @param engine redi搜索engine
     * @param engine engine
-     */
+    */
     public RedisSearchMeta(AbstractMetaData metaData, RediSearchEngine engine) {
         super(metaData, engine);
         this.searchEngine = new RedisSearchEngineImpl(engine);
@@ -82,7 +82,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
     * @return 优化的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public boolean optimize(String indexName) {
         return true;
     }
@@ -174,7 +174,7 @@ public class RedisSearchMeta extends AbstractMetaSearch {
         * @return 执行的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);

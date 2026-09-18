@@ -83,7 +83,7 @@ public interface Engine {
     * @param pageHandle 页面句柄
     * @param options    PDF 配置选项（margin, 格式化, page范围 等），可为 空
     * @return PDF 文件的 基础64 编码字符串
-     */
+    */
     String printPageToPdf(long pageHandle, Map<String, Object> options);
 
     /**
@@ -95,14 +95,14 @@ public interface Engine {
     * @return PNG 图片的 基础64 编码字符串
     * @author CH
     * @since 4.0.0
-     */
+    */
     String convertHtmlToPng(long pageHandle, String html);
     /**
     * 响应数据类。
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     class ResponseData {
         public final int status; // 状态
@@ -114,7 +114,7 @@ public interface Engine {
         * @param url url
         * @author CH
         * @since 4.0.0
-         */
+        */
         public ResponseData(int status, String url) {
             this.status = status;
             this.url = url;
@@ -129,7 +129,7 @@ public interface Engine {
         * api响应数据。
         * @param status 状态
         * @param body 主体
-         */
+        */
         public ApiResponseData(int status, String body) {
             this.status = status;
             this.body = body;

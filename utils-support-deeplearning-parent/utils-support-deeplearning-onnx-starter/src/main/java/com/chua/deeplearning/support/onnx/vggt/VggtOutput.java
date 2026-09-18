@@ -23,24 +23,24 @@ public class VggtOutput {
     * -        (rotation quaternion)
     * -              (opacity)
     * -              (SH coefficients)             
-     */
+    */
     private float[] gaussianData;
 
     /**
     *             
     * <p>
     * [num_gaussians, 特征_dim]
-     */
+    */
     private long[] shape;
 
     /**
     * 3D                  
-     */
+    */
     private int numGaussians;
 
     /**
     *                            
-     */
+    */
     private int featureDimension;
 
     /**
@@ -48,7 +48,7 @@ public class VggtOutput {
     *
     * @param gaussianData                   
     * @param shape             
-     */
+    */
     public VggtOutput(float[] gaussianData, long[] shape) {
         this.gaussianData = gaussianData;
         this.shape = shape;
@@ -72,7 +72,7 @@ public class VggtOutput {
     *             
     *
     * @return true                       3D       
-     */
+    */
     public boolean isValid() {
         return gaussianData != null && gaussianData.length > 0 && numGaussians > 0;
     }
@@ -81,7 +81,7 @@ public class VggtOutput {
     *                               
     *
     * @return             
-     */
+    */
     public long getDataSizeBytes() {
         return gaussianData != null ? (long) gaussianData.length * Float.BYTES : 0;
     }

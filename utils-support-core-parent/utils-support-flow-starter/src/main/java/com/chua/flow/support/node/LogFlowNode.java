@@ -24,7 +24,7 @@ public class LogFlowNode implements LogNode {
 
     /**
     * 默认日志级别
-     */
+    */
     private static final String DEFAULT_LEVEL = "info";
 
     /**
@@ -33,7 +33,7 @@ public class LogFlowNode implements LogNode {
     * <p>读取 message 与 level 属性，按指定级别输出日志。</p>
     *
     * @param context 当前流程上下文
-     */
+    */
     @Override
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();

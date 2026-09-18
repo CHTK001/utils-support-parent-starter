@@ -53,28 +53,28 @@ public class DuanJuWangResourceProvider extends AbstractResourceProvider {
     private static final int MIN_TITLE_LENGTH = 3;
 
     /**
-     * 创建 duanjuw资源提供器 实例（无参构造，使用默认数据源）。
-     */
+    * 创建 duanjuw资源提供器 实例（无参构造，使用默认数据源）。
+    */
     public DuanJuWangResourceProvider() {
         super();
     }
 
     /**
-     * 创建 duanjuw资源提供器 实例。
-     *
-     * @param vs 视频数据源，不能为 null
-     */
+    * 创建 duanjuw资源提供器 实例。
+    *
+    * @param vs 视频数据源，不能为 null
+    */
     public DuanJuWangResourceProvider(VideoSource vs) {
         super(vs);
     }
 
     @Override
     /**
-     * 搜索resource。
-     *
-     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
-     * @return 搜索resource的结果；站点失效（非短剧特征/403）时返回错误结果
-     */
+    * 搜索resource。
+    *
+    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+    * @return 搜索resource的结果；站点失效（非短剧特征/403）时返回错误结果
+    */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {
@@ -110,12 +110,12 @@ public class DuanJuWangResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 解析HTML。
-     * <p>提取短剧条目链接，排除导航菜单项与短词，去重后写入 results。</p>
-     *
-     * @param html 响应 HTML 文本，不能为 null
-     * @param results 结果列表，方法内追加条目，不能为 null
-     */
+    * 解析HTML。
+    * <p>提取短剧条目链接，排除导航菜单项与短词，去重后写入 results。</p>
+    *
+    * @param html 响应 HTML 文本，不能为 null
+    * @param results 结果列表，方法内追加条目，不能为 null
+    */
     private void parseHtml(String html, List<VideoInfoResult> results) {
         Set<String> seen = new LinkedHashSet<>(MAX_RESULT_COUNT);
         Matcher m = TITLE_LINK_PATTERN.matcher(html);

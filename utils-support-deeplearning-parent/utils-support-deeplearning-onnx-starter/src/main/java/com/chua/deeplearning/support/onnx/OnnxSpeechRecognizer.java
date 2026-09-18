@@ -17,33 +17,33 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
 
     /**
     * 模型名称
-     */
+    */
     private String modelName;
 
     /**
     * 语言
-     */
+    */
     private String lang = "zh";
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 采样率
-     */
+    */
     private int sampleRate = 16000;
 
     /**
     * 运行设备
-     */
+    */
     private String device = "cpu";
 
     /**
     * 创建 onnx语音recognizer 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxSpeechRecognizer(String apiKey) {
     }
 
@@ -58,7 +58,7 @@ public class OnnxSpeechRecognizer implements SpeechRecognizer {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SpeechRecognizer.listModels());

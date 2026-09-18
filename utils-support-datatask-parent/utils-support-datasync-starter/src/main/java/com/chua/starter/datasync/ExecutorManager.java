@@ -14,12 +14,12 @@ public interface ExecutorManager {
 
     /**
     * 启动所有执行器。
-     */
+    */
     void start();
 
     /**
     * 关闭所有执行器。
-     */
+    */
     void stop();
 
     /**
@@ -27,6 +27,6 @@ public interface ExecutorManager {
     *
     * @param topic 主题标识
     * @return ReactorDataSyncExecutor 实例
-     */
+    */
     ReactorDataSyncExecutor getExecutor(String topic);
 }

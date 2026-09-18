@@ -95,7 +95,7 @@ public class QuarkusServerHandlerAnnotationParser
     *
     * @param method 目标方法
     * @return HTTP 方法集合，空集合表示匹配所有方法，空 表示跳过
-     */
+    */
     private Set<HttpMethod> resolveHttpMethods(Method method) {
         Set<HttpMethod> result = new HashSet<>();
         if (method.isAnnotationPresent(GET.class)) {
@@ -125,7 +125,7 @@ public class QuarkusServerHandlerAnnotationParser
     * @param prefix 类级路径
     * @param suffix 方法级路径
     * @return 拼接后的完整路径
-     */
+    */
     private static String joinPath(String prefix, String suffix) {
         if (prefix.isEmpty()) {
             return suffix.startsWith("/") ? suffix : "/" + suffix;

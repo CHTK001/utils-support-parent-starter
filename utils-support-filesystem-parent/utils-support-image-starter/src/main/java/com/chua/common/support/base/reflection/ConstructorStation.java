@@ -16,7 +16,7 @@ public class ConstructorStation {
     *
     * @param constructor constructor
     * @return 新instance的结果
-     */
+    */
     public static <T> T newInstance(Constructor<T> constructor) {
         return newInstance(constructor, new Object[0]);
     }
@@ -28,7 +28,7 @@ public class ConstructorStation {
     * @param constructor constructor
     * @param args 参数
     * @return 新instance的结果
-     */
+    */
     public static <T> T newInstance(Constructor<T> constructor, Object... args) {
         if (constructor == null) {
             throw new IllegalArgumentException("constructor 不能为 null");

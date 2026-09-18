@@ -33,7 +33,7 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
     * 返回 SPI 名称。
     *
     * @return {@code "claude-code"}
-     */
+    */
     @Override
     public String name() {
         return "claude-code";
@@ -43,7 +43,7 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
     * 返回会话文件根目录。
     *
     * @return {@code ~/.claude/projects}
-     */
+    */
     @Override
     protected Path rootDir() {
         return PROJECTS_DIR;
@@ -53,7 +53,7 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
     * 返回会话文件后缀。
     *
     * @return {@code ".jsonl"}
-     */
+    */
     @Override
     protected String fileSuffix() {
         return ".jsonl";
@@ -64,11 +64,11 @@ public class ClaudeCodeConversationParser extends AbstractJsonlConversationParse
     * @param ts ts
     * @return 解析instant转为millis的结果
      /**
-      * 解析线。
-      * @param line 线
-      * @return 解析线的结果
-      * @param ts ts
-     */
+    * 解析线。
+    * @param line 线
+    * @return 解析线的结果
+    * @param ts ts
+    */
     @Override
     protected List<ConversationMessage> parseLine(String line) {
         if (line.isBlank()) {

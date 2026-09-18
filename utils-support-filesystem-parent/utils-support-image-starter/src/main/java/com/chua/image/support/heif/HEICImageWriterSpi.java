@@ -25,7 +25,7 @@ public class HEICImageWriterSpi extends ImageWriterSpi {
 
     /**
     * heic镜像writerspi。
-     */
+    */
     public HEICImageWriterSpi() {
         super(VENDOR, VERSION, NAMES, SUFFIXES, MIMES,
                 HEICImageWriter.class.getName(),

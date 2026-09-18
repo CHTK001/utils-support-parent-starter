@@ -39,7 +39,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     /**
     * 创建 文件storagedownload服务端过滤器 实例
     * @param setting setting
-     */
+    */
     public FileStorageDownloadServerFilter(FileStorageSetting setting) {
         super(setting);
     }
@@ -49,7 +49,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param setting setting
     * @param java Java
     * @param cacheDir 缓存dir
-     */
+    */
     public FileStorageDownloadServerFilter(FileStorageSetting setting, java.nio.file.Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
     }
@@ -86,7 +86,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleDownload(ServerRequest request, ServerResponse response) throws Exception {
  // 从 路径 解析文件路径：/{bucket}/{filepath}
         String key = resolveFilepath(request);
@@ -135,7 +135,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param request 请求
     * @param response 响应
     * @param flashTokenOrCmd flash令牌或CMD
-     */
+    */
     private void handleFlash(ServerRequest request, ServerResponse response, String flashTokenOrCmd) throws Exception {
         FlashTokenService svc = getFlashService();
 
@@ -211,7 +211,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param mime mime
     * @param fileName 文件名
     * @param rangeHeader 范围头部
-     */
+    */
     private void handleRange(ServerRequest request, ServerResponse response,
                              com.chua.common.support.storage.result.GetObjectResult getResult,
                              String mime, String fileName, String rangeHeader) throws IOException {
@@ -244,7 +244,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param request 请求
     * @param key 键
     * @return resolve文件名称的结果
-     */
+    */
     private static String resolveFileName(ServerRequest request, String key) {
         String filename = request.getParam("filename");
         if (!StringUtils.isEmpty(filename)) {
@@ -261,7 +261,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     *
     * @param key 键
     * @return 获取ext的结果
-     */
+    */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -275,7 +275,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param header 头部
     * @param len len
     * @return 解析范围的结果
-     */
+    */
     private static Range parseRange(String header, long len) {
         String h = header.trim();
         if (!h.startsWith("bytes=")) {
@@ -303,7 +303,7 @@ public class FileStorageDownloadServerFilter extends AbstractFileStorageServerFi
     * @param start 启动
     * @param end 结束
     * @return 范围的结果
-     */
+    */
     private record Range(long start, long end) {
     }
 }

@@ -32,7 +32,7 @@ public interface SpiderFetcher {
     *
     * @param request 爬取请求，包含 URL、头信息、请求方法等
     * @return 爬取响应，包含状态码、内容和可能的错误信息
-     */
+    */
     SpiderResponse fetch(SpiderRequest request);
 
     /**
@@ -43,7 +43,7 @@ public interface SpiderFetcher {
     * 空数组表示支持所有类型。
     *
     * @return 支持的内容类型数组
-     */
+    */
     default String[] supportedContentTypes() {
         return new String[0];
     }

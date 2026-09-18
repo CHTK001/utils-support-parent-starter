@@ -24,32 +24,32 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
     * JPEG 编码格式名称
-     */
+    */
     private static final String FORMAT_JPEG = "JPEG";
 
     /**
     * 默认图片质量 0.8
-     */
+    */
     private static final double DEFAULT_QUALITY = 0.8;
 
     /**
     * JPEG 编码格式名称
-     */
+    */
     private static final String CODEC_NAME_JPEG = "jpeg";
 
     /**
     * JPEG 图片质量
-     */
+    */
     private double quality = DEFAULT_QUALITY;
 
     /**
     * 编码器是否已启动
-     */
+    */
     private boolean started = true;
 
     /**
     * 空构造。
-     */
+    */
     public JpegVideoEncoder() {
     }
 
@@ -59,7 +59,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public JpegVideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
@@ -70,7 +70,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public JpegVideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
@@ -81,7 +81,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     * 使用可变参数构造，前三个参数分别为宽高和帧率。
     *
     * @param args 可变参数数组
-     */
+    */
     public JpegVideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -99,7 +99,7 @@ public class JpegVideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width width
     * @param height height
     * @param fps fps
-     */
+    */
     public synchronized void init(int width, int height, int fps) {
         // 重置编码质量为默认值
         this.quality = DEFAULT_QUALITY;

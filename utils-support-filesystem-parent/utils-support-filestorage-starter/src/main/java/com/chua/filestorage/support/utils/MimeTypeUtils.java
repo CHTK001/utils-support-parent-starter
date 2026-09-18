@@ -200,7 +200,7 @@ public final class MimeTypeUtils {
     *
     * @param extension 扩展名（不带点，如 "pdf"）
     * @return MIME 类型，找不到返回 "application/octet-流"
-     */
+    */
     public static String getMimeType(String extension) {
         if (extension == null) {
             return "application/octet-stream";
@@ -214,7 +214,7 @@ public final class MimeTypeUtils {
     *
     * @param filename 文件名（如 "report.pdf"）
     * @return MIME 类型
-     */
+    */
     public static String getMimeTypeFromFilename(String filename) {
         if (filename == null || !filename.contains(".")) {
             return "application/octet-stream";
@@ -228,7 +228,7 @@ public final class MimeTypeUtils {
     *
     * @param mime MIME 类型
     * @return true 表示支持
-     */
+    */
     public static boolean isBrowserPreviewSupported(String mime) {
         return mime != null && BROWSER_PREVIEW_MIMES.contains(mime);
     }
@@ -238,7 +238,7 @@ public final class MimeTypeUtils {
     *
     * @param extension 扩展名（不带点）
     * @return true 表示支持
-     */
+    */
     public static boolean isPluginPreviewSupported(String extension) {
         return extension != null && PLUGIN_PREVIEW_EXTENSIONS.contains(extension.toLowerCase(Locale.ENGLISH));
     }
@@ -248,7 +248,7 @@ public final class MimeTypeUtils {
     *
     * @param extension 扩展名（不带点）
     * @return true 表示可转换
-     */
+    */
     public static boolean isConvertableToPdf(String extension) {
         return extension != null && CONVERTABLE_TO_PDF_EXTENSIONS.contains(extension.toLowerCase(Locale.ENGLISH));
     }
@@ -258,7 +258,7 @@ public final class MimeTypeUtils {
     *
     * @param mime MIME 类型
     * @return true 表示支持
-     */
+    */
     public static boolean isRangeSupported(String mime) {
         return mime != null && RANGE_SUPPORTED_MIMES.contains(mime);
     }

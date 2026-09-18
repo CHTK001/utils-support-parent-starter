@@ -57,7 +57,7 @@ public record FileInfo(
     * @param lastModified 最后一个modified
     * @param isDirectory 是否目录
     * @param extension 延伸
-     */
+    */
     public FileInfo(String name, String path, long size, String sizeFormatted,
                     String parentDir, double percentage, long lastModified, boolean isDirectory,
                     String extension) {

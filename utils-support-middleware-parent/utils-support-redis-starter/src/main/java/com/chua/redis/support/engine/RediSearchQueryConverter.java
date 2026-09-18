@@ -21,7 +21,7 @@ public class RediSearchQueryConverter {
     * @param sqlWhere SQL WHERE 子句
     * @param params   参数列表
     * @return RediSearch 查询字符串
-     */
+    */
     public String convertToQuery(String sqlWhere, List<Object> params) {
         if (sqlWhere == null || sqlWhere.trim().isEmpty()) {
             return "*";
@@ -50,7 +50,7 @@ public class RediSearchQueryConverter {
     * @param expr 条件表达式
     * @param ph   参数持有者
     * @param out  输出缓冲区
-     */
+    */
     private void parse(String expr, ParamHolder ph, StringBuilder out) {
         expr = expr.trim();
         if (expr.isEmpty()) {
@@ -95,7 +95,7 @@ public class RediSearchQueryConverter {
     *
     * @param expr SQL 表达式
     * @return 分割后的子表达式列表
-     */
+    */
     private List<String> splitTopLevel(String expr) {
         List<String> parts = new ArrayList<>();
         int depth = 0;
@@ -128,7 +128,7 @@ public class RediSearchQueryConverter {
     *
     * @param expr SQL 表达式
     * @return "|" 或 " "
-     */
+    */
     private String detectTopLevelOp(String expr) {
         if (expr.toUpperCase().contains(" OR ")) {
             return "|";
@@ -142,7 +142,7 @@ public class RediSearchQueryConverter {
     * @param cond 单个条件
     * @param ph   参数持有者
     * @param out  输出缓冲区
-     */
+    */
     private void convertCondition(String cond, ParamHolder ph, StringBuilder out) {
         cond = cond.trim();
 
@@ -246,35 +246,35 @@ public class RediSearchQueryConverter {
     * <p>按顺序提供 SQL 参数值，记录上一个值用于范围查询。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class ParamHolder {
 
         /**
 
-         * * 参数列表
+        * * 参数列表
 
-         */
+        */
         final List<Object> params;
 
         /**
 
-         * * 当前参数索引
+        * * 当前参数索引
 
-         */
+        */
         int idx;
 
         /**
 
-         * * 上一个参数值
+        * * 上一个参数值
 
-         */
+        */
         Object prev;
 
         /**
         * 创建参数持有者。
         *
         * @param params 参数列表
-         */
+        */
         ParamHolder(List<Object> params) {
             this.params = params;
             this.idx = 0;
@@ -284,7 +284,7 @@ public class RediSearchQueryConverter {
         * 获取下一个参数值。
         *
         * @return 参数值
-         */
+        */
         Object next() {
             if (idx < params.size()) {
                 prev = params.get(idx);
@@ -299,7 +299,7 @@ public class RediSearchQueryConverter {
         * 获取上一个参数值。
         *
         * @return 上一个参数值
-         */
+        */
         Object nextPrev() {
             return prev;
         }

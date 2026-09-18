@@ -32,7 +32,7 @@ public record LogEntry(
     *
     * @param commit jgit revcommit 对象
     * @return LogEntry
-     */
+    */
     public static LogEntry from(RevCommit commit) {
         PersonIdent author = commit.getAuthorIdent();
         String sha = commit.name();

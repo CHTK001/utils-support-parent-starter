@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* 智能体 离线技能提供者抽象基类。
+* Agent 离线技能提供者抽象基类。
 *
 * <p>每个具体 agent（Cursor、Claude Code、Codex 等）子类声明自己的配置目录
 * 与 SPI 名称，扫描 {@code <configDir>/skills、rules、commands} 下的 SKILL.md 技能。</p>
@@ -25,33 +25,33 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
 
     /**
     * 用户主目录
-     */
+    */
     protected static final Path USER_HOME = Paths.get(System.getProperty("user.home", "."));
 
     /**
     * 配置目录相对路径（如 .Cursor、.claude）。
     *
     * @return 配置目录
-     */
+    */
     protected abstract String configDir();
 
     /**
-    * 工作区级 智能体 返回 true（如 编码buddy），主目录级返回 false。
+    * 工作区级 Agent 返回 true（如 编码buddy），主目录级返回 false。
     *
     * @return 是否工作区级
-     */
+    */
     protected boolean workspaceBased() {
         return false;
     }
 
     /**
-     * 技能扫描根目录列表。
-     *
-     * <p>默认返回 {@code USER_HOME/&#60;configDir&#62;)} 目录；
-     * workspaceBased 的智能体返回工作区目录。</p>
-     *
-     * @return 技能根目录列表
-     */
+    * 技能扫描根目录列表。
+    *
+    * <p>默认返回 {@code USER_HOME/&#60;configDir&#62;)} 目录；
+    * workspaceBased 的Agent返回工作区目录。</p>
+    *
+    * @return 技能根目录列表
+    */
     protected List<Path> skillRoots() {
         if (workspaceBased()) {
             Path base = findWorkspaceConfig();
@@ -84,7 +84,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     *
     * @param base   配置根目录
     * @param result 结果收集器
-     */
+    */
     private void scanDirs(Path base, List<SkillDefinition> result) {
         if (!Files.isDirectory(base)) {
             return;
@@ -122,10 +122,10 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-    * 工作区级 智能体 向上查找配置目录（如 .codebuddy）。
+    * 工作区级 Agent 向上查找配置目录（如 .codebuddy）。
     *
     * @return 找到的配置根目录；未找到返回 空
-     */
+    */
     private Path findWorkspaceConfig() {
         Path current = Paths.get("").toAbsolutePath();
         for (int i = 0; i < 64 && current != null; i++) {
@@ -139,20 +139,20 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     }
 
     /**
-     * 解析 SKILL.md 文件为 skilldefinition。
-     *
-     * <p>描述提取优先级：</p>
-     * <ol>
-     *   <li>YAML front-matter（{@code ---} 包围块）内的 {@code description:} 字段</li>
-     *   <li>正文中首个 {@code description:} 行（兼容无 front-matter 的写法）</li>
-     *   <li>正文首个 Markdown 标题（{@code ##} 起）</li>
-     *   <li>空串</li>
-     * </ol>
-     *
-     * @param skillMdFile SKILL.md 文件路径
-     * @param skillName   技能名称（目录名）
-     * @return SkillDefinition 实例；解析失败返回 空
-      */
+    * 解析 SKILL.md 文件为 skilldefinition。
+    *
+    * <p>描述提取优先级：</p>
+    * <ol>
+    *   <li>YAML front-matter（{@code ---} 包围块）内的 {@code description:} 字段</li>
+    *   <li>正文中首个 {@code description:} 行（兼容无 front-matter 的写法）</li>
+    *   <li>正文首个 Markdown 标题（{@code ##} 起）</li>
+    *   <li>空串</li>
+    * </ol>
+    *
+    * @param skillMdFile SKILL.md 文件路径
+    * @param skillName   技能名称（目录名）
+    * @return SkillDefinition 实例；解析失败返回 空
+    */
      private SkillDefinition parseSkillMd(Path skillMdFile, String skillName) {
          try {
              String content = Files.readString(skillMdFile, StandardCharsets.UTF_8);
@@ -164,11 +164,11 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      }
 
      /**
-      * 从 SKILL.md 内容提取描述文本（三级回退）。
-      *
-      * @param content 文件内容
-      * @return 描述；无内容时返回 空串
-       */
+     * 从 SKILL.md 内容提取描述文本（三级回退）。
+     *
+     * @param content 文件内容
+     * @return 描述；无内容时返回 空串
+     */
      private static String extractDescription(String content) {
          if (content == null || content.isBlank()) {
              return "";
@@ -203,14 +203,14 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
      }
 
      /**
-      * 解析 YAML front-matter 块内的 description 字段。
-      *
-      * <p>仅解析简单 {@code key: value} 形式，支持双引号/单引号包裹值；
-      * 块结束于第二个 {@code ---}（或文件尾）。</p>
-      *
-      * @param lines 全文行列表
-      * @return description 值；未找到返回 空串
-       */
+     * 解析 YAML front-matter 块内的 description 字段。
+     *
+     * <p>仅解析简单 {@code key: value} 形式，支持双引号/单引号包裹值；
+     * 块结束于第二个 {@code ---}（或文件尾）。</p>
+     *
+     * @param lines 全文行列表
+     * @return description 值；未找到返回 空串
+     */
      private static String parseFrontMatterDescription(List<String> lines) {
          for (int i = 1; i < lines.size(); i++) {
              String line = lines.get(i);
@@ -247,7 +247,7 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
     *
     * @param skillName 技能名（目录名或去掉扩展名的 .md 文件名）
     * @return 落盘路径；找不到返回 空
-     */
+    */
     @Override
     public Path resolveSkillPath(String skillName) {
         if (skillName == null || skillName.isBlank()) {
@@ -267,11 +267,11 @@ public abstract class AbstractAgentSkillOfflineProvider implements SkillOfflineP
 
     /**
     * 在单个配置根目录下查找指定技能。
-     *
-     * @param base      配置根目录
-     * @param skillName 技能名
-     * @return 匹配路径；不存在返回 null
-     */
+    *
+    * @param base      配置根目录
+    * @param skillName 技能名
+    * @return 匹配路径；不存在返回 null
+    */
     private Path findSkillInBase(Path base, String skillName) {
         for (String sub : new String[]{"skills", "rules", "commands"}) {
             Path dir = base.resolve(sub);

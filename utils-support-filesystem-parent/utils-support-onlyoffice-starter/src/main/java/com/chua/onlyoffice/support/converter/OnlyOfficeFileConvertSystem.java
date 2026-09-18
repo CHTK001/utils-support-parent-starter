@@ -28,7 +28,7 @@ public class OnlyOfficeFileConvertSystem implements FileConvertSystem {
 
     /**
     * 支持的源文件格式列表
-     */
+    */
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx");
 
     @Override

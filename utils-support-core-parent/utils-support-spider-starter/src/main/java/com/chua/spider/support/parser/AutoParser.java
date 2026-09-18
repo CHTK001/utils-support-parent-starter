@@ -38,7 +38,7 @@ public class AutoParser implements SpiderParser {
 
     /**
     * 可用的 Parser 实现列表，按优先级排序
-     */
+    */
     private final List<SpiderParser> parsers;
 
     /**
@@ -48,7 +48,7 @@ public class AutoParser implements SpiderParser {
     * autoparser 自身，{@code collectNew()} 会递归实例化 autoparser，
     * 导致无限递归（stackoverflow错误）。因此这里直接遍历服务定义，
     * 显式排除自身后再实例化。</p>
-     */
+    */
     public AutoParser() {
         ServiceProvider<SpiderParser> provider = ServiceProvider.of(SpiderParser.class);
  // 遍历所有服务定义，排除 autoparser 自身，再实例化，避免递归死循环
@@ -102,7 +102,7 @@ public class AutoParser implements SpiderParser {
     * @param s s
     * @param max 最大
     * @return truncate的结果
-     */
+    */
     private static String truncate(String s, int max) {
         if (s == null) {
             return "";

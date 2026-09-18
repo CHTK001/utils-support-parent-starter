@@ -41,7 +41,7 @@ public class ApngUtils {
     *
     * @param inputStream 输入流
     * @return 是否为 APNG 格式
-     */
+    */
     public static boolean isApngFormat(InputStream inputStream) {
         try {
             // 读取文件头部分字节
@@ -74,7 +74,7 @@ public class ApngUtils {
     * 检查是否为 PNG 文件签名
     * @param header 头部
     * @return 是否png签名的结果
-     */
+    */
     private static boolean isPngSignature(byte[] header) {
         if (header.length < 8) {
             return false;
@@ -95,7 +95,7 @@ public class ApngUtils {
     * 检查是否包含 actl 块
     * @param data 数据
     * @return containsActlChunk的结果
-     */
+    */
     private static boolean containsActlChunk(byte[] data) {
         // 简单检查是否包含 "acTL" 字符串
         String dataStr = new String(data);
@@ -107,7 +107,7 @@ public class ApngUtils {
     *
     * @param inputStream 输入流
     * @return 动画信息
-     */
+    */
     public static ApngInfo getApngInfo(InputStream inputStream) {
         try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
             Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("APNG");
@@ -143,7 +143,7 @@ public class ApngUtils {
     *
     * @param inputStream 输入流
     * @return 帧列表
-     */
+    */
     public static List<BufferedImage> extractFrames(InputStream inputStream) {
         List<BufferedImage> frames = new ArrayList<>();
         
@@ -184,7 +184,7 @@ public class ApngUtils {
     * @param frames 帧列表
     * @param delays 延迟时间列表（毫秒）
     * @return APNG 字节数组
-     */
+    */
     public static byte[] createApng(List<BufferedImage> frames, List<Integer> delays) {
         if (frames.isEmpty()) {
             return new byte[0];
@@ -243,7 +243,7 @@ public class ApngUtils {
     *
     * @param image 原始图像
     * @return 优化后的图像
-     */
+    */
     public static BufferedImage optimizeImage(BufferedImage image) {
         if (image == null) {
             return null;
@@ -269,7 +269,7 @@ public class ApngUtils {
     * @param width 目标宽度
     * @param height 目标高度
     * @return 调整后的图像
-     */
+    */
     public static BufferedImage resizeImage(BufferedImage image, int width, int height) {
         if (image == null || width <= 0 || height <= 0) {
             return image;
@@ -287,7 +287,7 @@ public class ApngUtils {
     *
     * @param data APNG 数据
     * @return 是否有效
-     */
+    */
     public static boolean validateApng(byte[] data) {
         if (data == null || data.length < 8) {
             return false;
@@ -304,7 +304,7 @@ public class ApngUtils {
     * APNG 信息类
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class ApngInfo {
         /** 帧数量 */
         private final int frameCount;
@@ -320,7 +320,7 @@ public class ApngUtils {
         * @param frameCount int
         * @param width width
         * @param height height
-         */
+        */
         public ApngInfo(int frameCount, int width, int height) {
             this.frameCount = frameCount;
             this.width = width;
@@ -331,7 +331,7 @@ public class ApngUtils {
         * 获取帧计算数量
         *
         * @return 获取帧数量的结果
-         */
+        */
         public int getFrameCount() {
             return frameCount;
         }
@@ -340,7 +340,7 @@ public class ApngUtils {
         * 获取Width
         *
         * @return 获取width的结果
-         */
+        */
         public int getWidth() {
             return width;
         }
@@ -349,7 +349,7 @@ public class ApngUtils {
         * 获取Height
         *
         * @return 获取height的结果
-         */
+        */
         public int getHeight() {
             return height;
         }
@@ -358,7 +358,7 @@ public class ApngUtils {
         * 是否Animated
         *
         * @return 是否animated的结果
-         */
+        */
         public boolean isAnimated() {
             return frameCount > 1;
         }

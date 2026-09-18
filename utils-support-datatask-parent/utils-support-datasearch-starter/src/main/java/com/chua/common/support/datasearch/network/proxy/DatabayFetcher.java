@@ -19,7 +19,7 @@ public class DatabayFetcher implements ProxyFetcher {
 
     /**
     * Databay API URL
-     */
+    */
     private static final String URL = "https://databay.com/api/v1/proxy-list"
             + "?protocol=http&anonymity=elite&format=json&limit=20";
 

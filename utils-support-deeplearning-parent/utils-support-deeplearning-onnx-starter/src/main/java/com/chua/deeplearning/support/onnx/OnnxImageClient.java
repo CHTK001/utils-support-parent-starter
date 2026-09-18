@@ -34,7 +34,7 @@ public class OnnxImageClient extends AbstractLocalImageClient {
     * 构造 ONNX 文生图客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OnnxImageClient(ImageClientSetting setting) {
         super("onnx", setting);
     }

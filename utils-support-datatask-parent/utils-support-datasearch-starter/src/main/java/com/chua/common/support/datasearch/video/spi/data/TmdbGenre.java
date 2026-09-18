@@ -39,7 +39,7 @@ public enum TmdbGenre {
     * 通过 标识 取中文名，找不到返回 空
     * @param id 标识
     * @return 获取名称byid的结果
-     */
+    */
     public static String getNameById(int id) {
         TmdbGenre[] values = TmdbGenre.values();
 
@@ -55,7 +55,7 @@ public enum TmdbGenre {
     * 获取标识
     *
     * @return 获取id的结果
-     */
+    */
     public int getId() {
         return id;
     }
@@ -64,7 +64,7 @@ public enum TmdbGenre {
     * 获取名称
     *
     * @return 获取名称的结果
-     */
+    */
     public String getName() {
         return name;
     }

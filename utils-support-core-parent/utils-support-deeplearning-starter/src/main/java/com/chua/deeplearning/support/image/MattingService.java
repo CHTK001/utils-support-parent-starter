@@ -32,7 +32,7 @@ public interface MattingService {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static MattingService create(String provider, String apiKey) {
         return ServiceProvider.of(MattingService.class)
                 .getNewExtension(provider, apiKey);
@@ -43,7 +43,7 @@ public interface MattingService {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default MattingService provider(String provider) {
         return this;
     }
@@ -53,7 +53,7 @@ public interface MattingService {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default MattingService model(String model) {
         return this;
     }
@@ -63,7 +63,7 @@ public interface MattingService {
     *
     * @param name 模型名称
     * @return 抠图服务
-     */
+    */
     static MattingService create(String name) {
         return new DefaultMattingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -74,7 +74,7 @@ public interface MattingService {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 抠图服务
-     */
+    */
     static MattingService create(String name, ModelSetting setting) {
         return new DefaultMattingService(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -84,6 +84,6 @@ public interface MattingService {
     *
     * @param imageData 图像字节
     * @return 透明 PNG 字节
-     */
+    */
     byte[] matte(byte[] imageData);
 }

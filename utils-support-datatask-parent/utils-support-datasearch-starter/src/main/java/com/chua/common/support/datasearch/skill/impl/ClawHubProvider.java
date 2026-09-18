@@ -40,43 +40,43 @@ public class ClawHubProvider {
     protected static final String PREFIX = "";
 
     /**
-     * 获取提供者名称。
-     *
-     * @return 名称
-     */
+    * 获取提供者名称。
+    *
+    * @return 名称
+    */
     public String name() {
         return NAME;
     }
 
     /**
-     * 安装（远程市场，记录日志）。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 安装结果
-     */
+    * 安装（远程市场，记录日志）。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 安装结果
+    */
     public boolean install(String clientId, String skillId) {
         log.info("ClawHub 安装请求: clientId={}, skillId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 卸载。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 卸载结果
-     */
+    * 卸载。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 卸载结果
+    */
     public boolean uninstall(String clientId, String skillId) {
         log.info("ClawHub 卸载请求: clientId={}, skillId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 获取 MCP 工具描述符列表。
-     *
-     * @return 工具描述符
-     */
+    * 获取 MCP 工具描述符列表。
+    *
+    * @return 工具描述符
+    */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
                 new McpToolDescriptor(PREFIX + "search", "搜索 ClawHub 技能市场",
@@ -87,10 +87,10 @@ public class ClawHubProvider {
     }
 
     /**
-     * 构建搜索 SkillDefinition。
-     *
-     * @return 搜索技能
-     */
+    * 构建搜索 SkillDefinition。
+    *
+    * @return 搜索技能
+    */
     protected SkillDefinition searchSkill() {
         return new SkillDefinition(
                 PREFIX + "search",
@@ -101,11 +101,11 @@ public class ClawHubProvider {
     }
 
     /**
-     * 处理搜索：当前无公开 API，返回市场主页提示。
-     *
-     * @param args 参数
-     * @return 搜索结果
-     */
+    * 处理搜索：当前无公开 API，返回市场主页提示。
+    *
+    * @param args 参数
+    * @return 搜索结果
+    */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
         Map<String, Object> result = new LinkedHashMap<>();
@@ -116,11 +116,11 @@ public class ClawHubProvider {
     }
 
     /**
-     * 将 MCP 工具调用结果转换为 Skill 调用结果。
-     *
-     * @param mcpResult MCP 结果
-     * @return Skill 结果
-     */
+    * 将 MCP 工具调用结果转换为 Skill 调用结果。
+    *
+    * @param mcpResult MCP 结果
+    * @return Skill 结果
+    */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
             return SkillResult.success(mcpResult.getContent());

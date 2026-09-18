@@ -15,7 +15,7 @@ public class CsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     *
     * @param sinkId Sink 实例 标识
     * @param filePath CSV 文件路径
-     */
+    */
     public CsvDataSyncAgentSink(String sinkId, String filePath) {
         this(sinkId, filePath, false);
     }
@@ -26,7 +26,7 @@ public class CsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     * @param sinkId Sink 实例 标识
     * @param filePath CSV 文件路径
     * @param append 是否追加模式
-     */
+    */
     public CsvDataSyncAgentSink(String sinkId, String filePath, boolean append) {
         super(sinkId, filePath, ",", append);
     }

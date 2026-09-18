@@ -19,7 +19,7 @@ public class CraftAgentsUsageParser extends AgentSessionUsageParser {
     /**
     * Craft 仅识别 {@code session.jsonl} 命名的会话文件，
     * 跳过 sessions/&lt;id&gt;/ 下其他产物（日志、元数据等）。
-     */
+    */
     @Override
     protected String transcriptExtension() {
         return ".jsonl";

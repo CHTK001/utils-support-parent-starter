@@ -52,14 +52,14 @@ public class ModelscopeHubClient {
     * 构造 Hub 客户端。
     *
     * @param token 模型scope 访问令牌（个人中心 -> 访问令牌）。允许为空，但下载公开仓库/调用无鉴权 API 仍可工作。
-     */
+    */
     public ModelscopeHubClient(String token) {
         this.token = token;
     }
 
     /**
     * 构造无鉴权客户端（仅可访问公开仓库）。
-     */
+    */
     public ModelscopeHubClient() {
         this(null);
     }
@@ -69,7 +69,7 @@ public class ModelscopeHubClient {
     *
     * @param repoId 形如 {@code owner/repo-name}
     * @return 文件路径列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public List<String> listFiles(String repoId) {
         String url = ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/api/v1/models/" + repoId + "/repo/files";
@@ -107,7 +107,7 @@ public class ModelscopeHubClient {
     * @param repoId 形如 {@code owner/repo-name}
     * @param pathInRepo 仓库内文件路径（如 {@code config.json}）
     * @param target 本地保存路径
-     */
+    */
     public void downloadFile(String repoId, String pathInRepo, Path target) {
         String url = ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/" + repoId
                 + "/resolve/master/" + pathInRepo;
@@ -140,7 +140,7 @@ public class ModelscopeHubClient {
     * @param repoId 形如 {@code owner/repo-name}
     * @param localDir 本地目标父目录（仓库会克隆到其下子目录）
     * @return 克隆后的仓库根目录
-     */
+    */
     public Path downloadSnapshot(String repoId, Path localDir) {
         if (!Files.exists(localDir)) {
             try {
@@ -172,7 +172,7 @@ public class ModelscopeHubClient {
     *
     * @param repoId 形如 {@code my-org/my-model}
     * @param localRepoPath 本地 Git 仓库根目录
-     */
+    */
     public void uploadSnapshot(String repoId, Path localRepoPath) {
         if (!Files.exists(localRepoPath.resolve(".git"))) {
             throw new IllegalArgumentException("本地路径不是 git 仓库（缺少 .git 目录）: " + localRepoPath);
@@ -200,13 +200,11 @@ public class ModelscopeHubClient {
 
     /**
     * 构建带鉴权信息的 Git URL。
-    * @return 构建认证头部的结果
-     /**
-      * 构建authenticatedgiturl。
-      * @param repoId repoid
-      * @return 构建authenticatedgiturl的结果
-      */
-     */
+    * 有 token 时嵌入 oauth2 凭据用于 pull/push；无 token 时返回匿名公开地址。
+    *
+    * @param repoId 仓库标识，如 "owner/name"
+    * @return 完整的 git 克隆/推送地址
+    */
     private String buildAuthenticatedGitUrl(String repoId) {
         if (token == null || token.isBlank()) {
             return ModelscopeConstants.DEFAULT_HUB_BASE_URL + "/" + repoId + ".git";
@@ -227,7 +225,7 @@ public class ModelscopeHubClient {
     * @param cmd 命令与参数
     * @param workDir 工作目录
     * @return 进程退出码
-     */
+    */
     private int exec(List<String> cmd, Path workDir) {
         try {
             log.info("[modelscope-hub] exec: {} (cwd={})", String.join(" ", cmd), workDir);

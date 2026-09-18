@@ -17,7 +17,7 @@ public class ChatException extends Exception {
     * 创建聊天异常（无状态码）。
     *
     * @param message 错误消息，不可为 空
-     */
+    */
     public ChatException(String message) {
         super(Objects.requireNonNull(message, "message must not be null"));
         this.statusCode = 0;
@@ -28,7 +28,7 @@ public class ChatException extends Exception {
     *
     * @param message 错误消息，不可为 空
     * @param cause 原因
-     */
+    */
     public ChatException(String message, Throwable cause) {
         super(Objects.requireNonNull(message, "message must not be null"), cause);
         this.statusCode = 0;
@@ -39,7 +39,7 @@ public class ChatException extends Exception {
     *
     * @param statusCode HTTP 状态码（如 401/429/4011）
     * @param message 错误消息，不可为 空
-     */
+    */
     public ChatException(int statusCode, String message) {
         super(Objects.requireNonNull(message, "message must not be null"));
         this.statusCode = statusCode;
@@ -51,7 +51,7 @@ public class ChatException extends Exception {
     * @param statusCode HTTP 状态码
     * @param message 错误消息，不可为 空
     * @param cause 原因
-     */
+    */
     public ChatException(int statusCode, String message, Throwable cause) {
         super(Objects.requireNonNull(message, "message must not be null"), cause);
         this.statusCode = statusCode;
@@ -61,6 +61,6 @@ public class ChatException extends Exception {
     * HTTP 状态码。
     *
     * @return 状态码，0 表示非 HTTP 错误
-     */
+    */
     public int statusCode() { return statusCode; }
 }

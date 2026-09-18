@@ -22,7 +22,7 @@ public class BulkheadAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * @param intercept intercept
     * @author CH
     * @since 4.0.0
-     */
+    */
     public BulkheadAdvisor(BulkheadIntercept intercept) {
         super(new BulkheadAdvice(intercept));
     }

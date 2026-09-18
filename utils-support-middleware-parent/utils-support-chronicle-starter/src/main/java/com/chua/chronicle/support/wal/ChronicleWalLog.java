@@ -58,7 +58,7 @@ public class ChronicleWalLog implements WalLog {
     /**
     * 创建 chroniclewal日志 实例
     * @param config 配置
-     */
+    */
     public ChronicleWalLog(WalConfig config) {
         this.config = config;
         Path dir = resolveDir(config);
@@ -82,7 +82,7 @@ public class ChronicleWalLog implements WalLog {
     *
     * @param config 配置
     * @return resolveDir的结果
-     */
+    */
     private Path resolveDir(WalConfig config) {
         Path walDir = config.walDir();
         if (walDir != null) {

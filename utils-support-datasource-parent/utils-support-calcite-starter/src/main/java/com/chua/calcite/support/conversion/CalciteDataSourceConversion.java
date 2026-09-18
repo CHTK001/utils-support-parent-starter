@@ -27,17 +27,17 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
 
     /**
     * Calcite 连接 URL
-     */
+    */
     private static final String CALCITE_URL = "jdbc:calcite:";
 
     /**
     * Calcite lex 属性键
-     */
+    */
     private static final String CALCITE_LEX = "lex";
 
     /**
     * Calcite lex 属性值（MySQL 方言）
-     */
+    */
     private static final String CALCITE_LEX_MYSQL = "MYSQL";
 
     @Override
@@ -59,19 +59,19 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
     * 封装 Calcite 数据源逻辑的内部类。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class CalciteDataSource implements DataSource {
 
         /**
         * 被聚合的数据源列表
-         */
+        */
         private final List<DataSource> delegates;
 
         /**
         * 构造内部 Calcite 数据源。
         *
         * @param delegates 被聚合的数据源列表
-         */
+        */
         CalciteDataSource(List<DataSource> delegates) {
             this.delegates = delegates;
         }
@@ -106,7 +106,7 @@ public class CalciteDataSourceConversion implements DataSourceConversion {
         *
         * @param iface iface
         * @return unwrap的结果
-         */
+        */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;

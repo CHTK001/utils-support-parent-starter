@@ -68,7 +68,7 @@ public class ZmqInvoker implements Invoker {
     * @param isNew    是否创建新的 RPC 客户端（不复用缓存）
     * @param <T>      接口泛型
     * @return 远程代理实例
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> T createProxy(Class<T> apiClass, boolean isNew) {
         String baseUrl = resolveBaseUrl(apiClass);
@@ -99,7 +99,7 @@ public class ZmqInvoker implements Invoker {
     *
     * @param clazz 接口类型
     * @return 端点地址，未配置时返回空字符串
-     */
+    */
     private static String resolveBaseUrl(Class<?> clazz) {
         for (String annClass : CLASS_LEVEL_ANNOTATIONS) {
             try {
@@ -135,7 +135,7 @@ public class ZmqInvoker implements Invoker {
     *
     * @param ann 注解实例
     * @return 提取到的值，无法解析时返回空字符串
-     */
+    */
     private static String extractAnnotationValue(Annotation ann) {
         try {
             java.lang.reflect.Method m = ann.getClass().getMethod("value");

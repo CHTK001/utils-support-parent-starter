@@ -58,64 +58,64 @@ public class DeployOperation {
 
     /**
     * 所属 git客户端。
-     */
+    */
     private final GitClient client;
 
     /**
     * 项目 pom.xml 路径（相对仓库根目录）。
-     */
+    */
     private String projectPath = "pom.xml";
 
     /**
     * Maven 目标列表。
-     */
+    */
     private List<String> goals = List.of("clean", "compile", "package");
 
     /**
     * Maven 配置文件 列表。
-     */
+    */
     private List<String> profiles = List.of();
 
     /**
     * 是否跳过测试。
-     */
+    */
     private boolean skipTests = true;
 
     /**
     * JDK 版本。
-     */
+    */
     private String jdkVersion;
 
     /**
     * 部署目标路径。
-     */
+    */
     private String deployTargetPath;
 
     /**
     * 文件变更监听器。
-     */
+    */
     private GitFileListener fileListener;
 
     /**
     * Git 操作进度监听器。
-     */
+    */
     private GitProgressListener gitProgressListener;
 
     /**
     * 自定义部署器（刷新 SPI 自动发现）。
-     */
+    */
     private Deployer customDeployer;
 
     /**
     * 异步标志。
-     */
+    */
     private boolean asyncMode;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 所属 Git客户端
-     */
+    */
     public DeployOperation(GitClient client) {
         this.client = client;
     }
@@ -127,7 +127,7 @@ public class DeployOperation {
     *
     * @param projectPath 相对仓库根目录的 pom.xml 路径（默认 "pom.xml"）
     * @return 当前操作实例
-     */
+    */
     public DeployOperation projectPath(String projectPath) {
         this.projectPath = projectPath;
         return this;
@@ -138,7 +138,7 @@ public class DeployOperation {
     *
     * @param goals 目标（如 "clean"、"compile"、"包"）
     * @return 当前操作实例
-     */
+    */
     public DeployOperation goals(String... goals) {
         this.goals = List.of(goals);
         return this;
@@ -149,7 +149,7 @@ public class DeployOperation {
     *
     * @param profiles 配置文件 列表
     * @return 当前操作实例
-     */
+    */
     public DeployOperation profiles(String... profiles) {
         this.profiles = List.of(profiles);
         return this;
@@ -160,7 +160,7 @@ public class DeployOperation {
     *
     * @param skipTests true 跳过测试
     * @return 当前操作实例
-     */
+    */
     public DeployOperation skipTests(boolean skipTests) {
         this.skipTests = skipTests;
         return this;
@@ -171,7 +171,7 @@ public class DeployOperation {
     *
     * @param jdkVersion 版本字符串（如 "25"）
     * @return 当前操作实例
-     */
+    */
     public DeployOperation jdkVersion(String jdkVersion) {
         this.jdkVersion = jdkVersion;
         return this;
@@ -182,7 +182,7 @@ public class DeployOperation {
     *
     * @param targetPath 目标路径
     * @return 当前操作实例
-     */
+    */
     public DeployOperation deployTarget(String targetPath) {
         this.deployTargetPath = targetPath;
         return this;
@@ -193,7 +193,7 @@ public class DeployOperation {
     *
     * @param listener 监听器
     * @return 当前操作实例
-     */
+    */
     public DeployOperation fileListener(GitFileListener listener) {
         this.fileListener = listener;
         return this;
@@ -204,7 +204,7 @@ public class DeployOperation {
     *
     * @param listener 进度监听器
     * @return 当前操作实例
-     */
+    */
     public DeployOperation gitProgressListener(GitProgressListener listener) {
         this.gitProgressListener = listener;
         return this;
@@ -215,7 +215,7 @@ public class DeployOperation {
     *
     * @param deployer 部署器实现
     * @return 当前操作实例
-     */
+    */
     public DeployOperation deployer(Deployer deployer) {
         this.customDeployer = deployer;
         return this;
@@ -225,7 +225,7 @@ public class DeployOperation {
     * 设为异步模式。
     *
     * @return 当前操作实例
-     */
+    */
     public DeployOperation async() {
         this.asyncMode = true;
         return this;
@@ -237,7 +237,7 @@ public class DeployOperation {
     * 执行完整流水线：拉手 → 查找 deployer → deploy。
     *
     * @return 同步模式返回 {@link DeployResult}，异步模式返回 {@link CompletableFuture}{@code <DeployResult>}
-     */
+    */
     @SuppressWarnings("unchecked")
     public Object execute() {
         if (asyncMode) {
@@ -256,7 +256,7 @@ public class DeployOperation {
     * </ol>
     *
     * @return 部署结果
-     */
+    */
     private DeployResult doDeploy() {
         long start = System.currentTimeMillis();
 
@@ -291,7 +291,7 @@ public class DeployOperation {
     /**
     * 根据链式配置构造 {@link DeployConfig}。
     * @return 构建配置的结果
-     */
+    */
     private DeployConfig buildConfig() {
         return new DeployConfig(projectPath, goals, profiles, skipTests, jdkVersion, deployTargetPath);
     }
@@ -303,7 +303,7 @@ public class DeployOperation {
     * 并匹配 支持。通过 {@code META-INF/extensions} 文件注册实现。</p>
     * @param config 配置
     * @return findDeployer的结果
-     */
+    */
     private Deployer findDeployer(DeployConfig config) {
         if (customDeployer != null) {
             return customDeployer;

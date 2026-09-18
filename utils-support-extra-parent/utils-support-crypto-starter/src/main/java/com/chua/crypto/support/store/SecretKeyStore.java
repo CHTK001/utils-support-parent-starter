@@ -30,7 +30,7 @@ public interface SecretKeyStore extends AutoCloseable {
     *
     * @param setting 加密配置
     * @return 密钥材料；载体不存在时返回 空
-     */
+    */
     SecretKeyMaterial load(CryptoSetting setting);
 
     /**
@@ -38,7 +38,7 @@ public interface SecretKeyStore extends AutoCloseable {
     *
     * @param material 密钥材料
     * @param setting  加密配置
-     */
+    */
     void save(SecretKeyMaterial material, CryptoSetting setting);
 
     /**
@@ -46,19 +46,19 @@ public interface SecretKeyStore extends AutoCloseable {
     *
     * @param setting 加密配置
     * @return true 表示载体已存在
-     */
+    */
     boolean exists(CryptoSetting setting);
 
     /**
     * 销毁载体（安全擦除后删除）
     *
     * @param setting 加密配置
-     */
+    */
     void destroy(CryptoSetting setting);
 
     /**
     * 释放资源，默认空实现
-     */
+    */
     @Override
     default void close() {
     }

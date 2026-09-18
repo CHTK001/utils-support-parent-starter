@@ -12,16 +12,16 @@ import lombok.Data;
 public class SystemLoad {
     /**
     * 1 分钟负载平均值
-     */
+    */
     private double load1;
 
     /**
     * 5 分钟负载平均值
-     */
+    */
     private double load5;
 
     /**
     * 15 分钟负载平均值
-     */
+    */
     private double load15;
 }

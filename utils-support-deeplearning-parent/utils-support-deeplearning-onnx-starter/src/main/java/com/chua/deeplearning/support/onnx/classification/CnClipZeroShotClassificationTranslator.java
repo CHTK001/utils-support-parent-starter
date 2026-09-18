@@ -78,7 +78,9 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     /** Candidates */
     private List<String> candidates = DEFAULT_CANDIDATES;
 
-    /** 创建 cnclipzeroshotclassificationtranslator 实例 */
+    /**
+    * 创建 cnclipzeroshotclassificationtranslator 实例
+    */
     public CnClipZeroShotClassificationTranslator() {
         this(Collections.emptyMap());
     }
@@ -86,7 +88,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     /**
     * 创建 cnclipzeroshotclassificationtranslator 实例
     * @param arguments 参数
-     */
+    */
     public CnClipZeroShotClassificationTranslator(Map<String, ?> arguments) {
         String rawCandidates = readArgument(arguments, "candidates");
         this.requestedCandidates = parseCandidates(rawCandidates);
@@ -186,7 +188,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param vec vec
     * @return normalize的结果
-     */
+    */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -209,7 +211,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     * @param a a
     * @param b b
     * @return cosine相似度的结果
-     */
+    */
     private static float cosineSimilarity(float[] a, float[] b) {
         float dot = 0f;
         int len = Math.min(a.length, b.length);
@@ -225,7 +227,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     * @param ids 标识
     * @param maxLen 最大len
     * @return truncate的结果
-     */
+    */
     private static long[] truncate(long[] ids, int maxLen) {
         if (ids.length <= maxLen) {
             return ids;
@@ -240,7 +242,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -255,7 +257,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     * @param modelRoot 模型根
     * @param names 名称
     * @return resolve第一个existing的结果
-     */
+    */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -271,7 +273,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     *
     * @param raw raw
     * @return 解析candidates的结果
-     */
+    */
     private static List<String> parseCandidates(@Nullable String raw) {
         if (raw == null || raw.isBlank()) {
             return Collections.emptyList();
@@ -292,7 +294,7 @@ public class CnClipZeroShotClassificationTranslator implements Translator<Image,
     * @param arguments 参数
     * @param key 键
     * @return 读取参数的结果
-     */
+    */
     private static String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null) {
             return null;

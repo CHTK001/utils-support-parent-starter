@@ -15,20 +15,20 @@ public interface DataSyncFieldMapping {
     * 获取源字段名。
     *
     * @return 源字段名
-     */
+    */
     String sourceField();
 
     /**
     * 获取目标字段名。
     *
     * @return 目标字段名
-     */
+    */
     String targetField();
 
     /**
     * 获取类型转换器。
     *
     * @return 类型转换器
-     */
+    */
     String converter();
 }

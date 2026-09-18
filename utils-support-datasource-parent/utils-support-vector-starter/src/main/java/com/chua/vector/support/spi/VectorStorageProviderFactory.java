@@ -72,7 +72,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     *
     * @param props 用户配置
     * @return 实际使用的后端类型
-     */
+    */
     private VectorStorageProperties.Backend resolveBackend(VectorStorageProperties props) {
         // forceCpu=true：直接走 CPU，跳过 GPU 检测
         if (props.forceCpu()) {
@@ -103,7 +103,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     * @param props props
     * @param backendName backend名称
     * @return 尝试或降级的结果
-     */
+    */
     private VectorStorageProperties.Backend tryOrFallback(VectorStorageProperties props, String backendName) {
         try {
             VectorStorageProperties.Backend selected = selectBackend(backendName);
@@ -125,7 +125,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     * 尝试获取 GPU，不可用时抛出异常（requiregpu=true 场景）。
     * @param props props
     * @return 选择gpu或抛出的结果
-     */
+    */
     private VectorStorageProperties.Backend selectGpuOrThrow(VectorStorageProperties props) {
         VectorStorageProperties.Backend backend = selectBestBackend(props);
         if (backend == VectorStorageProperties.Backend.CUVS) {
@@ -144,7 +144,7 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     *
     * @return 选中的后端类型
     * @param props props
-     */
+    */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBestBackend(VectorStorageProperties props) {
         List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());
@@ -168,11 +168,11 @@ public class VectorStorageProviderFactory implements VectorStorageProvider {
     }
 
     /**
-     * 根据名称选择对应后端（内部方法，不抛异常）。
-     *
-     * @param properties 属性
-     * @return 转为属性的结果
-     */
+    * 根据名称选择对应后端（内部方法，不抛异常）。
+    *
+    * @param properties 属性
+    * @return 转为属性的结果
+    */
     @SuppressWarnings("unchecked")
     private VectorStorageProperties.Backend selectBackend(String name) {
         List<RuntimeDetector> detectors = new ArrayList<>(ServiceProvider.of(RuntimeDetector.class).collect());

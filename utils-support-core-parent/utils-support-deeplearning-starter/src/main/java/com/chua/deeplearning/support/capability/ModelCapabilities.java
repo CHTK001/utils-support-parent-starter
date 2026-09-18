@@ -158,13 +158,13 @@ public final class ModelCapabilities {
     /** RAG 检索增强 */
     /** RAG */
     public static final String RAG = "rag";
-    /** 智能体 智能体 */
-    /** 智能体 */
+    /** Agent Agent */
+    /** Agent */
     public static final String AGENT = "agent";
 
     /**
     * 能力接口 → 能力标签 映射。
-     */
+    */
     private static final Map<Class<?>, String> CAPABILITY_LABELS = Map.ofEntries(
             Map.entry(FaceDetector.class, DETECT),
             Map.entry(EyeDetector.class, EYE_DETECT),
@@ -212,7 +212,7 @@ public final class ModelCapabilities {
     *
     * @param capabilityInterface 能力接口，可能为 空
     * @return 能力标签；无法识别返回 空
-     */
+    */
     public static String labelOf(Class<?> capabilityInterface) {
         if (capabilityInterface == null) {
             return null;
@@ -234,7 +234,7 @@ public final class ModelCapabilities {
     * 获取全部能力标签。
     *
     * @return 能力标签列表
-     */
+    */
     public static List<String> allLabels() {
         return List.copyOf(new java.util.LinkedHashSet<>(CAPABILITY_LABELS.values()));
     }

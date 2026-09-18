@@ -77,7 +77,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width int
     * @param height height
     * @param fps fps
-     */
+    */
     public H266VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
@@ -89,7 +89,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width Integer
     * @param height height
     * @param fps fps
-     */
+    */
     public H266VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
@@ -99,7 +99,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     /**
     * 创建 H266视频编码器 实例
     * @param args 参数
-     */
+    */
     public H266VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -118,7 +118,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param height height
     * @param fps fps
     * @return 初始化的结果
-     */
+    */
     public boolean init(int width, int height, int fps) {
         close();
         this.width = ensureEven(width);
@@ -156,7 +156,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param v v
     * @return ensureEven的结果
-     */
+    */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
@@ -191,7 +191,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param w w
     * @param h h
     * @param f f
-     */
+    */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
             init(w, h, f);
@@ -247,7 +247,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param frame 帧
     * @return encode内部的结果
-     */
+    */
     private byte[] encodeInternal(Frame frame) {
         if (!started || recorder == null) {
             return new byte[0];
@@ -313,7 +313,7 @@ public class H266VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param src src
     * @return ensureBgr的结果
-     */
+    */
     private static BufferedImage ensureBgr(BufferedImage src) {
         if (src.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             return src;

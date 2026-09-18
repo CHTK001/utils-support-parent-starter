@@ -20,7 +20,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
 
     /**
     * 实际数据消费者（由外部接入业务逻辑）
-     */
+    */
     private final Consumer<DataEnvelope> consumer;
 
     /**
@@ -29,7 +29,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     * @param subscriberId 订阅器 标识
     * @param offsetFlow   偏移量流 门面
     * @param consumer     实际数据消费函数
-     */
+    */
     public RealTimeDatalakeSubscriber(
             String subscriberId,
             OffsetFlow offsetFlow,
@@ -51,7 +51,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     *
     * @param envelope envelope
     * @return push的结果
-     */
+    */
     public Mono<Void> push(DataEnvelope envelope) {
         if (envelope == null) {
             return Mono.empty();
@@ -72,7 +72,7 @@ public class RealTimeDatalakeSubscriber extends AbstractDatalakeSubscriber {
     *
     * @param envelopes envelope 数据流
     * @return 表示批量推送完成的 {@link Mono}
-     */
+    */
     public Mono<Void> pushBatch(Flux<DataEnvelope> envelopes) {
         if (envelopes == null) {
             return Mono.empty();

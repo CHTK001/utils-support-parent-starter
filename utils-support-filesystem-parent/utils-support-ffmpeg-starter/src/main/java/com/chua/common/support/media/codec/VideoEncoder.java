@@ -18,26 +18,26 @@ public interface VideoEncoder {
     * 获取编码器名称。
     *
     * @return 编码器名称
-     */
+    */
     String getCodecName();
 
     /**
     * 获取编码器标识。
     *
     * @return FFmpeg 编解码器标识
-     */
+    */
     int getCodecId();
 
     /**
     * 是否启用硬件加速。
     *
     * @return true 表示硬件加速已启用
-     */
+    */
     boolean isHardwareAccelerated();
 
     /**
     * 请求下一个帧为关键帧。
-     */
+    */
     void forceKeyFrame();
 
     /**
@@ -45,7 +45,7 @@ public interface VideoEncoder {
     *
     * @param frame YUV420P 格式的 帧
     * @return 编码后的字节数组
-     */
+    */
     byte[] encode(Frame frame);
 
     /**
@@ -53,7 +53,7 @@ public interface VideoEncoder {
     *
     * @param image 缓冲镜像 格式的输入帧
     * @return 编码后的字节数组
-     */
+    */
     default byte[] encode(BufferedImage image) {
         Java2DFrameConverter converter = new Java2DFrameConverter();
         Frame frame = converter.getFrame(image);
@@ -67,7 +67,7 @@ public interface VideoEncoder {
     * @param width 帧宽度
     * @param height 帧高度
     * @return 编码后的字节数组
-     */
+    */
     default byte[] encode(ByteBuffer bgrData, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         byte[] pixels = new byte[bgrData.remaining()];
@@ -80,12 +80,12 @@ public interface VideoEncoder {
     * 动态调整编码质量（CRF 或等效），默认不处理。
     *
     * @param crf CRF 值（18-35，越低质量越高）
-     */
+    */
     default void setCrf(int crf) {
     }
 
     /**
     * 释放编码器资源。
-     */
+    */
     void close();
 }

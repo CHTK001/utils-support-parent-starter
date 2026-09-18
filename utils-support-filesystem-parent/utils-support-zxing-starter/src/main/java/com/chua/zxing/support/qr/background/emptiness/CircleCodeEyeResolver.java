@@ -26,7 +26,7 @@ public class CircleCodeEyeResolver implements CodeEyeResolver{
     /**
     * 创建 circle编码eye解析器 实例
     * @param unitWidth unitwidth
-     */
+    */
     public CircleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;
     }

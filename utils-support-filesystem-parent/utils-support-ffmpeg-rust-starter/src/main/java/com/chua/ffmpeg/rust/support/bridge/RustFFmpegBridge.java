@@ -26,7 +26,7 @@ public final class RustFFmpegBridge {
     * ???????????
     *
     * @return true ?????
-     */
+    */
     public static boolean isLoaded() {
         try {
             NativeVideoCodec.getVersion();
@@ -40,7 +40,7 @@ public final class RustFFmpegBridge {
     * ??????????
     *
     * @return ??????????? 空
-     */
+    */
     public static Throwable getLoadError() {
         try {
             NativeVideoCodec.getVersion();
@@ -54,7 +54,7 @@ public final class RustFFmpegBridge {
     * ???????????
     *
     * @return ?????
-     */
+    */
     public static String getVersion() {
         return "native-video-codec-" + NativeVideoCodec.getVersion();
     }
@@ -67,7 +67,7 @@ public final class RustFFmpegBridge {
     * @param height ????
     * @param fps ??
     * @return ????????
-     */
+    */
     public static byte[] h264Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h264EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
         if (encoder == 0) {
@@ -88,7 +88,7 @@ public final class RustFFmpegBridge {
     * @param height ????
     * @param fps ??
     * @return ????????
-     */
+    */
     public static byte[] h265Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h265EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
         if (encoder == 0) {
@@ -109,7 +109,7 @@ public final class RustFFmpegBridge {
     * @param height ????
     * @param fps ??
     * @return ????????
-     */
+    */
     public static byte[] h266Encode(byte[] bgr24, int width, int height, int fps) {
         long encoder = NativeVideoCodec.h266EncoderCreate(width, height, Math.max(1, fps), 23, 1, 1);
         if (encoder == 0) {
@@ -129,7 +129,7 @@ public final class RustFFmpegBridge {
     * @param width ????
     * @param height ????
     * @return ????????
-     */
+    */
     public static byte[] h264Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h264DecoderCreate(width, height);
         if (decoder == 0) {
@@ -150,7 +150,7 @@ public final class RustFFmpegBridge {
     * @param width ????
     * @param height ????
     * @return ????????
-     */
+    */
     public static byte[] h265Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h265DecoderCreate(width, height);
         if (decoder == 0) {
@@ -171,7 +171,7 @@ public final class RustFFmpegBridge {
     * @param width ????
     * @param height ????
     * @return ????????
-     */
+    */
     public static byte[] h266Decode(byte[] packet, int width, int height) {
         long decoder = NativeVideoCodec.h266DecoderCreate(width, height);
         if (decoder == 0) {
@@ -191,7 +191,7 @@ public final class RustFFmpegBridge {
     * ?? natffmpeg ??/?????????
     *
     * @return true ?????
-     */
+    */
     public static boolean isStreamLoaded() {
         return NativeFFmpeg.isLoaded();
     }
@@ -207,7 +207,7 @@ public final class RustFFmpegBridge {
     * @param height     ?????0 ???
     * @param fps        ???0 ???
     * @return 0 ????
-     */
+    */
     public static int pushStream(String inputUrl, String streamUrl,
                                   String videoCodec, String audioCodec,
                                   int width, int height, int fps) {
@@ -229,7 +229,7 @@ public final class RustFFmpegBridge {
     * @param fps        ???0 ???
     * @param callback   ?????
     * @return 0 ????
-     */
+    */
     public static int pushStreamWithCallback(String inputUrl, String streamUrl,
                                               String videoCodec, String audioCodec,
                                               int width, int height, int fps,
@@ -261,7 +261,7 @@ public final class RustFFmpegBridge {
     * @param outputPath ??????
     * @param duration   ????????0 ??????
     * @return 0 ????
-     */
+    */
     public static int pullStream(String streamUrl, String outputPath, double duration) {
         if (!NativeFFmpeg.isLoaded()) {
             throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
@@ -277,7 +277,7 @@ public final class RustFFmpegBridge {
     * @param duration   ????????0 ??????
     * @param callback   ?????
     * @return 0 ????
-     */
+    */
     public static int pullStreamWithCallback(String streamUrl, String outputPath,
                                               double duration,
                                               Consumer<FrameInfo> callback) {
@@ -305,7 +305,7 @@ public final class RustFFmpegBridge {
     *
     * @param inputUrl ?? URL ?????
     * @return ?????????? -1
-     */
+    */
     public static double getStreamDuration(String inputUrl) {
         if (!NativeFFmpeg.isLoaded()) {
             return -1;
@@ -330,7 +330,7 @@ public final class RustFFmpegBridge {
     * @param removeVideo ???????
     * @param removeAudio ???????
     * @return 0 ????
-     */
+    */
     public static int convertFile(String inputUrl, String outputPath,
                                    String videoCodec, String audioCodec,
                                    int width, int height, int fps,
@@ -350,7 +350,7 @@ public final class RustFFmpegBridge {
     * @param timestampMs ???????
     * @param outputPath  ??????
     * @return 0 ????
-     */
+    */
     public static int captureFrame(String inputUrl, long timestampMs, String outputPath) {
         if (!NativeFFmpeg.isLoaded()) {
             throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
@@ -364,7 +364,7 @@ public final class RustFFmpegBridge {
     * @param inputPaths ??????????????
     * @param outputPath ??????
     * @return 0 ????
-     */
+    */
     public static int concatFiles(String inputPaths, String outputPath) {
         if (!NativeFFmpeg.isLoaded()) {
             throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
@@ -377,7 +377,7 @@ public final class RustFFmpegBridge {
     *
     * @param inputUrl ?? URL ?????
     * @return JSON ???????????? 空
-     */
+    */
     public static String getStreamMediaInfo(String inputUrl) {
         if (!NativeFFmpeg.isLoaded()) {
             return null;
@@ -394,7 +394,7 @@ public final class RustFFmpegBridge {
     * @param outputPath ??????
     * @param angle      ?????90/180/270?
     * @return 0 ????
-     */
+    */
     public static int rotate(String inputUrl, String outputPath, int angle) {
         if (!NativeFFmpeg.isLoaded()) {
             throw new UnsupportedOperationException("NativeFFmpeg library not loaded: " + NativeFFmpeg.getLoadError());
@@ -413,7 +413,7 @@ public final class RustFFmpegBridge {
     * @param x             ?? X ??
     * @param y             ?? Y ??
     * @return 0 ????
-     */
+    */
     public static int addWatermark(String inputUrl, String watermarkPath,
                                    String outputPath, int x, int y) {
         if (!NativeFFmpeg.isLoaded()) {
@@ -432,7 +432,7 @@ public final class RustFFmpegBridge {
     * @param fps          ??
     * @param imagePattern ??????????? "帧_%06d.jpg"?
     * @return 0 ????
-     */
+    */
     public static int imagesToVideo(String imageDir, String outputPath,
                                     int fps, String imagePattern) {
         if (!NativeFFmpeg.isLoaded()) {

@@ -21,22 +21,22 @@ public abstract class AbstractMetaIndex implements MetaIndex {
 
     /**
     * 元数据入口
-     */
+    */
     protected final AbstractMetaData metaData;
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
     * 当前索引名
-     */
+    */
     protected String indexName;
 
     /**
     * 所属表名
-     */
+    */
     protected String tableName;
 
     /**
@@ -44,7 +44,7 @@ public abstract class AbstractMetaIndex implements MetaIndex {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     protected AbstractMetaIndex(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;
@@ -56,7 +56,7 @@ public abstract class AbstractMetaIndex implements MetaIndex {
     * @param metaData  元数据入口
     * @param engine    引擎实例
     * @param indexName 索引名
-     */
+    */
     protected AbstractMetaIndex(AbstractMetaData metaData, Engine engine, String indexName) {
         this.metaData = metaData;
         this.engine = engine;

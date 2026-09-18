@@ -24,7 +24,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
 
     /**
     * 放大倍数（元数据，推理不依赖）。
-     */
+    */
     private final int scale;
 
     /** 创建 realesrgantranslator 实例 */
@@ -35,7 +35,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     /**
     * 创建 realesrgantranslator 实例
     * @param scale scale
-     */
+    */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;
     }

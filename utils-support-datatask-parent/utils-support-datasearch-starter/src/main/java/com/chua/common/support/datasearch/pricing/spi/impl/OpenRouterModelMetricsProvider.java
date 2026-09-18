@@ -40,7 +40,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     * 从 打开router 拉取全部模型指标。
     *
     * @return 模型指标列表；接口不可达或结构变化时返回空列表
-     */
+    */
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String json = fetchUrl(OPENROUTER_URL);
@@ -62,7 +62,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     * @param json API 响应
     * @return 模型指标列表
     * @throws Exception JSON 解析失败时抛出
-     */
+    */
     private List<ModelDefinition> parseOpenRouter(String json) throws Exception {
         JsonNode root = MAPPER.readTree(json);
         JsonNode data = root.path("data");
@@ -124,7 +124,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     *
     * @param node 价格节点
     * @return 每百万 令牌 价格；缺失/非数值/零时返回 空
-     */
+    */
     private BigDecimal perMillion(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -145,7 +145,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     *
     * @param node 价格节点
     * @return 单次价格；缺失/非数值/零时返回 空
-     */
+    */
     private BigDecimal perImage(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -166,7 +166,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     *
     * @param node 模态数组节点
     * @return 模态列表；非数组时返回空列表
-     */
+    */
     private List<String> modalities(JsonNode node) {
         List<String> result = new ArrayList<>();
         if (node == null || !node.isArray()) {
@@ -184,7 +184,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     * @param architecture 架构节点
     * @param modality     模态名（如 镜像）
     * @return 包含返回 true
-     */
+    */
     private boolean containsModality(JsonNode architecture, String modality) {
         JsonNode mods = architecture.path("input_modalities");
         if (!mods.isArray()) {
@@ -203,7 +203,7 @@ public class OpenRouterModelMetricsProvider extends AbstractModelMetricsProvider
     *
     * @param node 数值节点
     * @return 数值；缺失/非数值返回 空
-     */
+    */
     private BigDecimal number(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

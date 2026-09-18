@@ -46,84 +46,84 @@ public class XunfeiChatClient implements ChatClient {
 
     /**
     * 默认 API 地址（V3.1）
-     */
+    */
     private static final String DEFAULT_HOST = "https://spark-api.xf-yun.com/v3.1/chat";
 
     /**
     * 默认超时时间（秒）
-     */
+    */
     private static final long DEFAULT_TIMEOUT_SECONDS = 90;
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 构造讯飞星火对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public XunfeiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -287,7 +287,7 @@ public class XunfeiChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualHost = resolveHost();
@@ -443,12 +443,12 @@ public class XunfeiChatClient implements ChatClient {
     }
 
     /**
-    * 解析 API 主机地址
-    *
-    * <p>优先使用配置的 baseUrl，否则根据模型自动选择。
-    *
-    * @return API 主机地址
-     */
+            * 解析 API 主机地址
+            *
+            * <p>优先使用配置的 baseUrl，否则根据模型自动选择。
+            *
+            * @return API 主机地址
+            */
     private String resolveHost() {
         String url = setting.getBaseUrl();
         if (StringUtils.isNotEmpty(url)) {
@@ -471,7 +471,7 @@ public class XunfeiChatClient implements ChatClient {
     * 解析模型领域参数
     *
     * @return 领域名称
-     */
+    */
     private String resolveDomain() {
         String m = model != null ? model : "spark-3.5";
         if (m.contains("4.0") || m.contains("v4")) {
@@ -491,7 +491,7 @@ public class XunfeiChatClient implements ChatClient {
     *
     * @param proxyStr 代理地址字符串
     * @return Proxy 对象
-     */
+    */
     private static Proxy parseProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;

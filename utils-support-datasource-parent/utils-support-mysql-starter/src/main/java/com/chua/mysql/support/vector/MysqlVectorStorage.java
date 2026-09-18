@@ -67,7 +67,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     * @param dataSource  JDBC 数据源
     * @param dimension   向量维度
     * @param algorithm   比较算法（COSINE / EUCLIDEAN / DOT）
-     */
+    */
     public MysqlVectorStorage(DataSource dataSource, int dimension, VectorCompareAlgorithm algorithm) {
         super(dimension, algorithm);
         this.dataSource = dataSource;
@@ -83,7 +83,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     * @param dimension   向量维度
     * @param algorithm   比较算法
     * @param properties  配置属性（表名、列名等）
-     */
+    */
     public MysqlVectorStorage(DataSource dataSource, int dimension,
                                VectorCompareAlgorithm algorithm,
                                MysqlVectorStorageProperties properties) {
@@ -132,7 +132,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
 
     /**
     * 确保向量表已创建；失败时自动降级到内存存储。
-     */
+    */
     private synchronized void ensureSchema() {
         if (schemaInitialized) {
             return;
@@ -155,7 +155,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     /**
     * 返回实际使用的存储实例（原生存储或降级后的内存存储）。
     * @return resolved的结果
-     */
+    */
     private com.chua.common.support.vector.VectorStorage resolved() {
         if (fallback != null) {
             return fallback;
@@ -168,7 +168,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     * 根据当前算法构建 SQL 订单 BY 子句。
     * <p>使用 MySQL 内置向量函数，对 JSON 存储的向量进行相似度排序。</p>
     * @return 构建订单clause的结果
-     */
+    */
     private String buildOrderClause() {
         String algoName = getAlgorithm().name().toUpperCase();
         return switch (algoName) {
@@ -185,7 +185,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     * 将 float 数组序列化为 MySQL JSON 数组字符串。
     * @param vector 向量
     * @return floatarray转为json的结果
-     */
+    */
     private static String floatArrayToJson(float[] vector) {
         if (vector == null || vector.length == 0) {
             return "[]";
@@ -206,7 +206,7 @@ public class MysqlVectorStorage extends AbstractVectorStorage {
     * 将 MySQL JSON 数组字符串反序列化为 float 数组。
     * @param json json
     * @return jsonarray转为floatarray的结果
-     */
+    */
     private static float[] jsonArrayToFloatArray(String json) {
         if (json == null || json.isBlank()) {
             return null;

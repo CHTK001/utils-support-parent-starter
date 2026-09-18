@@ -69,7 +69,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -78,7 +78,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
         * 创建 Translator（支持外部阈值覆盖）。
         *
         * @param configuration 检测配置（可空）
-     */
+        */
     public FacePluginDetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {
@@ -188,7 +188,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     *
     * @param v v
     * @return clip的结果
-     */
+    */
     private float clip(float v) {
         return Math.max(0f, Math.min(1f, v));
     }
@@ -197,7 +197,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     * Generate 默认 SSD priors for 输入 320x240.
     * Mirrors box_工具.generate_priors(特征_映射_w_h_列表, shrinkage_列表, 镜像_大小, 最小_boxes).
     * @return generatePriors的结果
-     */
+    */
     private float[] generatePriors() {
         int[] featureW = {40, 20, 10, 5};
         int[] featureH = {30, 15, 8, 4};
@@ -250,7 +250,7 @@ public class FacePluginDetectTranslator implements Translator<Image, DetectedObj
     * @param rect rect
     * @param score score
     * @return Candidate的结果
-     */
+    */
     private record Candidate(Rectangle rect, float score) {
     }
 }

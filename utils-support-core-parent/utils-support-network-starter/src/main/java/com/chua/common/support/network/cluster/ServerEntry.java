@@ -41,7 +41,7 @@ public class ServerEntry {
     * @param host 主机
     * @param port 端口
     * @return http的结果
-     */
+    */
     public static ServerEntry http(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "http", null);
     }
@@ -52,7 +52,7 @@ public class ServerEntry {
     * @param host 主机
     * @param port 端口
     * @return tcp的结果
-     */
+    */
     public static ServerEntry tcp(String servicePath, String host, int port) {
         return new ServerEntry(servicePath, host, port, "tcp", null);
     }
@@ -61,7 +61,7 @@ public class ServerEntry {
     * 校验参数合法性。
     *
     * @throws IllegalArgumentException 参数非法时抛出
-     */
+    */
     public void validate() {
         if (servicePath == null || servicePath.isBlank()) {
             throw new IllegalArgumentException("servicePath 不能为空");
@@ -81,7 +81,7 @@ public class ServerEntry {
     /**
     * 获取规范化协议名。
     * @return normalized协议的结果
-     */
+    */
     public String normalizedProtocol() {
         return protocol == null || protocol.isBlank() ? "http" : protocol.toLowerCase();
     }

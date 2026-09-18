@@ -25,17 +25,17 @@ public class EngineDataSchema implements DataScheme {
 
     /**
     * 方案名称
-     */
+    */
     private final String name;
 
     /**
     * 引擎实例
-     */
+    */
     private final Engine engine;
 
     /**
     * 数据表列表
-     */
+    */
     private final List<DataTable> tables;
 
     /**
@@ -43,7 +43,7 @@ public class EngineDataSchema implements DataScheme {
     *
     * @param name   方案名称
     * @param engine 引擎实例
-     */
+    */
     public EngineDataSchema(String name, Engine engine) {
         this.name = name;
         this.engine = engine;
@@ -55,7 +55,7 @@ public class EngineDataSchema implements DataScheme {
     *
     * @param entityClass 实体类类型
     * @return 当前实例
-     */
+    */
     public EngineDataSchema addEntity(Class<?> entityClass) {
         return addEntity(entityClass.getSimpleName(), entityClass);
     }
@@ -66,7 +66,7 @@ public class EngineDataSchema implements DataScheme {
     * @param tableName   表名
     * @param entityClass 实体类类型
     * @return 当前实例
-     */
+    */
     public EngineDataSchema addEntity(String tableName, Class<?> entityClass) {
         String key = tableName != null ? tableName : entityClass.getSimpleName();
         tables.add(new SourceDataTable(key, engine, entityClass));
@@ -79,7 +79,7 @@ public class EngineDataSchema implements DataScheme {
     *
     * @param entityClasses 实体类列表
     * @return 当前实例
-     */
+    */
     public EngineDataSchema addEntities(Class<?>... entityClasses) {
         if (entityClasses != null) {
             for (Class<?> ec : entityClasses) {
@@ -92,7 +92,7 @@ public class EngineDataSchema implements DataScheme {
     /**
     * 底层引擎（供 SQL 更新 路由等使用）。
     * @return 获取engine的结果
-     */
+    */
     public Engine getEngine() {
         return engine;
     }

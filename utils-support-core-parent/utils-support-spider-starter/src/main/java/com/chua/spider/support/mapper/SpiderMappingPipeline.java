@@ -54,7 +54,7 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     * @param consumer    类型化回调
     * @param <T>         POJO 类型
     * @return 映射管道实例
-     */
+    */
     public static <T> SpiderMappingPipeline<T> of(Class<T> targetClass, Consumer<T> consumer) {
         return new SpiderMappingPipeline<>(targetClass, consumer, null, null);
     }
@@ -68,7 +68,7 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
     * @param aiApiKey    API 键
     * @param <T>         POJO 类型
     * @return 映射管道实例
-     */
+    */
     public static <T> SpiderMappingPipeline<T> of(Class<T> targetClass, Consumer<T> consumer,
                                                   String aiProvider, String aiApiKey) {
         return new SpiderMappingPipeline<>(targetClass, consumer, aiProvider, aiApiKey);
@@ -76,7 +76,7 @@ public class SpiderMappingPipeline<T> implements SpiderPipeline {
 
     /**
     * 构造器。
-     */
+    */
     private SpiderMappingPipeline(Class<T> targetClass, Consumer<T> consumer,
                                   String aiProvider, String aiApiKey) {
         this.targetClass = targetClass;

@@ -23,7 +23,7 @@ public interface OcrRecognizer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static OcrRecognizer create(String provider, String apiKey) {
         return ServiceProvider.of(OcrRecognizer.class)
                 .getNewExtension(provider, apiKey);
@@ -34,7 +34,7 @@ public interface OcrRecognizer {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default OcrRecognizer provider(String provider) {
         return this;
     }
@@ -44,7 +44,7 @@ public interface OcrRecognizer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default OcrRecognizer model(String model) {
         return this;
     }
@@ -54,7 +54,7 @@ public interface OcrRecognizer {
     *
     * @param name 模型名称
     * @return 识别器
-     */
+    */
     static OcrRecognizer create(String name) {
         return new DefaultOcrRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +66,7 @@ public interface OcrRecognizer {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.ocr.OcrRecognizer.class);
     }
@@ -78,7 +78,7 @@ public interface OcrRecognizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 识别器
-     */
+    */
     static OcrRecognizer create(String name, ModelSetting setting) {
         return new DefaultOcrRecognizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -88,7 +88,7 @@ public interface OcrRecognizer {
     *
     * @param lang 语言代码
     * @return this
-     */
+    */
     OcrRecognizer lang(String lang);
 
     /**
@@ -96,7 +96,7 @@ public interface OcrRecognizer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     OcrRecognizer modelPath(String path);
 
     /**
@@ -104,7 +104,7 @@ public interface OcrRecognizer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     OcrRecognizer device(String device);
 
     /**
@@ -112,7 +112,7 @@ public interface OcrRecognizer {
     *
     * @param useGpu 是否使用 GPU
     * @return this
-     */
+    */
     OcrRecognizer useGpu(boolean useGpu);
 
     /**
@@ -120,7 +120,7 @@ public interface OcrRecognizer {
     *
     * @param imageData 图像数据
     * @return 识别文字
-     */
+    */
     String recognize(byte[] imageData);
 
     /**
@@ -128,7 +128,7 @@ public interface OcrRecognizer {
     *
     * @param imageData 图像数据
     * @return 识别结果详情列表
-     */
+    */
     List<OcrResult> recognizeDetail(byte[] imageData);
 
     /**
@@ -136,7 +136,7 @@ public interface OcrRecognizer {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     default OcrRecognizer threshold(float threshold) {
         return this;
     }
@@ -152,52 +152,52 @@ class DefaultOcrRecognizer implements OcrRecognizer {
 
     /**
     * 默认识别语言（中文）。
-     */
+    */
     private static final String DEFAULT_LANG = "zh";
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     /**
     * 置信度阈值（空 表示使用模型默认值）。
-     */
+    */
     private Float threshold;
 
     private final IdentificationEngine engine; // engine
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     private final ModelSetting setting;
 
     /**
     * 识别语言。
-     */
+    */
     private String lang = DEFAULT_LANG;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
     * 是否使用 GPU。
-     */
+    */
     private boolean useGpu;
 
     /**
@@ -206,7 +206,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultOcrRecognizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -261,7 +261,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognize的结果
-     */
+    */
     public String recognize(byte[] imageData) {
  // 优先走 字符串 路径（单行 rec 模型返回纯文本）
         try {
@@ -298,7 +298,7 @@ class DefaultOcrRecognizer implements OcrRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognizeDetail的结果
-     */
+    */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<OcrResult>> t =
                 (ITranslator<byte[], List<OcrResult>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

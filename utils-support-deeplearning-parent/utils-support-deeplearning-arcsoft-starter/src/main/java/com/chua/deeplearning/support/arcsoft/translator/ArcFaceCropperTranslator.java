@@ -29,7 +29,7 @@ public class ArcFaceCropperTranslator implements ITranslator<Object, BufferedIma
     /**
     * 创建 arcfacecroppertranslator 实例
     * @param faceEngine faceengine
-     */
+    */
     public ArcFaceCropperTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }

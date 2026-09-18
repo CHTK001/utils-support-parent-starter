@@ -42,7 +42,7 @@ public class NatsDispatcherProvider extends AbstractDispatcherProvider {
     /**
     * 创建 NATSdispatcher提供者 实例
     * @param config 配置
-     */
+    */
     public NatsDispatcherProvider(DispatcherConfig config) {
         super(config);
     }

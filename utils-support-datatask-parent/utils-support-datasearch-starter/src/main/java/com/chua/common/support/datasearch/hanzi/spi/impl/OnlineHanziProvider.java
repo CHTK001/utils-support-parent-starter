@@ -65,7 +65,7 @@ public class OnlineHanziProvider implements HanziProvider {
     * 构造一个指定数据源地址的提供器。
     *
     * @param url 汉字 JSON 数据源地址
-     */
+    */
     public OnlineHanziProvider(String url) {
         this.url = url;
         this.httpClient = HttpClientFactory.getClient();
@@ -123,7 +123,7 @@ public class OnlineHanziProvider implements HanziProvider {
     * @param text 文本
     * @param kw kw
     * @return contains的结果
-     */
+    */
     private static boolean contains(String text, String kw) {
         return text != null && text.contains(kw);
     }
@@ -132,7 +132,7 @@ public class OnlineHanziProvider implements HanziProvider {
     * 加载索引（惰性 + 在线失败回退内置）
     *
     * @return 加载索引的结果
-     */
+    */
     private Map<String, HanziInfo> loadIndex() {
         Map<String, HanziInfo> cached = index;
         if (!cached.isEmpty()) {
@@ -175,7 +175,7 @@ public class OnlineHanziProvider implements HanziProvider {
     *
     * @param n n
     * @return 解析的结果
-     */
+    */
     private static HanziInfo parse(JsonNode n) {
         if (n == null || !n.isObject()) {
             return null;
@@ -196,7 +196,7 @@ public class OnlineHanziProvider implements HanziProvider {
     * @param n n
     * @param k k
     * @return 文本的结果
-     */
+    */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -205,7 +205,7 @@ public class OnlineHanziProvider implements HanziProvider {
     /**
     * 内置常见汉字兜底数据（在线不可用时的核心词条）。
     * @return 构建降级的结果
-     */
+    */
     private static List<HanziInfo> buildFallback() {
         List<HanziInfo> list = new ArrayList<>();
         add(list, "中", "zhōng", "丨", "4", "方位词，跟四周的距离相等；中心。", "中间、中心");

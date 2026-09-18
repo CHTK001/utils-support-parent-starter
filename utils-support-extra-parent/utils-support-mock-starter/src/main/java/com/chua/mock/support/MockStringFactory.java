@@ -32,12 +32,12 @@ public final class MockStringFactory {
 
     /**
     * mock字符串 SPI 服务提供者
-     */
+    */
     private static final ServiceProvider<MockString> PROVIDER = ServiceProvider.of(MockString.class);
 
     /**
     * 私有构造方法，防止实例化。
-     */
+    */
     private MockStringFactory() {
     }
 
@@ -49,7 +49,7 @@ public final class MockStringFactory {
     *
     * @param name 生成器名称（如 名称、phone、email、uuid 等）
     * @return 生成器实例；名称未注册时返回 空
-     */
+    */
     @Nullable
     public static MockString getMockString(@Nullable String name) {
         if (!isSupport(name)) {
@@ -63,7 +63,7 @@ public final class MockStringFactory {
     *
     * @param name 生成器名称
     * @return true 表示存在
-     */
+    */
     public static boolean isSupport(@Nullable String name) {
         return null != name && PROVIDER.isSupport(name);
     }
@@ -72,7 +72,7 @@ public final class MockStringFactory {
     * 获取全部已注册的生成器名称集合。
     *
     * @return 名称集合
-     */
+    */
     @Nonnull
     public static List<String> names() {
         return new ArrayList<>(PROVIDER.getExtensions());
@@ -83,7 +83,7 @@ public final class MockStringFactory {
     *
     * @param name 生成器名称
     * @return 生成的字符串数据；生成器不存在时返回 空
-     */
+    */
     @Nullable
     public static String generate(@Nullable String name) {
         MockString mockString = getMockString(name);
@@ -99,7 +99,7 @@ public final class MockStringFactory {
     * @param name        生成器名称
     * @param environment Mock 环境/上下文
     * @return 生成的字符串数据；生成器不存在或环境为 空 时返回 空
-     */
+    */
     @Nullable
     public static String generate(@Nullable String name, @Nullable MockEnvironment environment) {
         MockString mockString = getMockString(name);
@@ -115,7 +115,7 @@ public final class MockStringFactory {
     * @param name   生成器名称
     * @param length 生成长度
     * @return 生成的字符串数据；生成器不存在时返回 空
-     */
+    */
     @Nullable
     public static String generate(@Nullable String name, int length) {
         return generate(name, MockEnvironment.of(length));
@@ -127,7 +127,7 @@ public final class MockStringFactory {
     * @param name    生成器名称
     * @param keyword 生成关键词
     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 空
-     */
+    */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword) {
         if (null == keyword || keyword.isEmpty()) {
@@ -143,7 +143,7 @@ public final class MockStringFactory {
     * @param keyword 生成关键词
     * @param length  生成长度
     * @return 生成的字符串数据；生成器不存在或关键词为空时返回 空
-     */
+    */
     @Nullable
     public static String generate(@Nullable String name, @Nullable String keyword, int length) {
         if (null == keyword || keyword.isEmpty()) {
@@ -158,7 +158,7 @@ public final class MockStringFactory {
     * @param name  生成器名称
     * @param count 生成数量
     * @return 生成的字符串数据列表；生成器不存在时返回空列表
-     */
+    */
     @Nonnull
     public static List<String> generateList(@Nullable String name, int count) {
         return generateList(name, count, MockEnvironment.of());
@@ -171,7 +171,7 @@ public final class MockStringFactory {
     * @param count       生成数量
     * @param environment Mock 环境/上下文
     * @return 生成的字符串数据列表；生成器不存在或数量小于 1 时返回空列表
-     */
+    */
     @Nonnull
     public static List<String> generateList(@Nullable String name, int count, @Nullable MockEnvironment environment) {
         MockString mockString = getMockString(name);

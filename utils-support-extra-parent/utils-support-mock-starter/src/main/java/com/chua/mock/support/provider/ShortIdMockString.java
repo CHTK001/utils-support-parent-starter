@@ -22,18 +22,18 @@ public class ShortIdMockString implements MockString {
 
     /**
     * 基础62 字符池
-     */
+    */
     private static final char[] CHARS =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     /**
     * 默认长度下界
-     */
+    */
     private static final int DEFAULT_MIN = 6;
     /**
     * 默认长度上界
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int DEFAULT_MAX = 12;
 
     @Override

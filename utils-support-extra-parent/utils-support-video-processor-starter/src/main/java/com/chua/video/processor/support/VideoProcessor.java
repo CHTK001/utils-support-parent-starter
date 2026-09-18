@@ -14,7 +14,7 @@ public class VideoProcessor {
     * @param inputPath 输入路径
     * @param outputDir 输出dir
     * @return transcode转为hls的结果
-     */
+    */
     public static boolean transcodeToHls(String inputPath, String outputDir) {
         VideoProcessorBridge.ensureLoaded();
         return VideoProcessorBridge.transcodeToHls(inputPath, outputDir);
@@ -24,7 +24,7 @@ public class VideoProcessor {
     * 获取版本
     *
     * @return 获取版本的结果
-     */
+    */
     public static String getVersion() {
         VideoProcessorBridge.ensureLoaded();
         return VideoProcessorBridge.getVersion();
@@ -34,7 +34,7 @@ public class VideoProcessor {
     * 是否可用
     *
     * @return 是否可用的结果
-     */
+    */
     public static boolean isAvailable() {
         return VideoProcessorBridge.isLoaded();
     }
@@ -43,7 +43,7 @@ public class VideoProcessor {
     * Main
     *
     * @param args 参数
-     */
+    */
     public static void main(String[] args) {
         if (args.length < 2) {
             System.err.println("Usage: java VideoProcessor <input> <output_dir>");

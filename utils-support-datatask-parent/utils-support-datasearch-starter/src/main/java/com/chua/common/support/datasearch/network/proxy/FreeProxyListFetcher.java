@@ -19,12 +19,12 @@ public class FreeProxyListFetcher implements ProxyFetcher {
 
     /**
     * 免费代理列表 URL
-     */
+    */
     private static final String URL = "https://free-proxy-list.net/";
 
     /**
     * IP 和端口正则
-     */
+    */
     private static final Pattern PROXY_PATTERN = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})</td><td>(\\d{2,5})");
 
     @Override

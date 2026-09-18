@@ -14,7 +14,7 @@ public class TranslatorRegistry {
 
     /**
     * 名称到翻译器的映射
-     */
+    */
     private final Map<String, ITranslator<?, ?>> registry = new ConcurrentHashMap<>();
 
     /**
@@ -22,7 +22,7 @@ public class TranslatorRegistry {
     *
     * @param name       翻译器名称
     * @param translator 翻译器实例
-     */
+    */
     public void register(String name, ITranslator<?, ?> translator) {
         registry.put(name, translator);
     }
@@ -34,7 +34,7 @@ public class TranslatorRegistry {
     * @param <I>  输入类型
     * @param <O>  输出类型
     * @return 翻译器实例
-     */
+    */
     @SuppressWarnings("unchecked")
     public <I, O> ITranslator<I, O> get(String name) {
         return (ITranslator<I, O>) registry.get(name);
@@ -44,7 +44,7 @@ public class TranslatorRegistry {
     * 获取所有已注册的翻译器。
     *
     * @return 名称到翻译器的不可变视图
-     */
+    */
     public Map<String, ITranslator<?, ?>> all() {
         return registry;
     }

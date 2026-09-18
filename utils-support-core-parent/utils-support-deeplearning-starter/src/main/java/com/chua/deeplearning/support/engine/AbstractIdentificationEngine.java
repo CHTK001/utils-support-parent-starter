@@ -27,42 +27,42 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
 
     /**
     * 模型名称到定义的映射
-     */
+    */
     protected final Map<String, TranslatorModelDefinition> modelMap = new ConcurrentHashMap<>();
 
     /**
     * 默认 提供者 名称
-     */
+    */
     private static final String DEFAULT_PROVIDER = "onnx";
 
     /**
     * 提供者 名称：pytorch
-     */
+    */
     private static final String PROVIDER_PYTORCH = "pytorch";
 
     /**
     * 提供者 名称：Safetensors
-     */
+    */
     private static final String PROVIDER_SAFETENSORS = "safetensors";
 
     /**
     * 提供者 名称：PaddlePaddle
-     */
+    */
     private static final String PROVIDER_PADDLE = "paddle";
 
     /**
     * 提供者 名称：tensor流
-     */
+    */
     private static final String PROVIDER_TENSORFLOW = "tensorflow";
 
     /**
     * 类路径 前缀
-     */
+    */
     private static final String CLASSPATH_PREFIX = "classpath:";
 
     /**
     * 构造引擎，自动执行 SPI 模型发现。
-     */
+    */
     static {
         ServiceProvider.CACHE.clear();
     }
@@ -75,7 +75,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
 
     /**
     * 通过 模型registry 静态注册 + SPI 模型提供者 发现模型定义。
-     */
+    */
     private void discoverModels() {
         try {
             ModelRegistry.discoverAll();
@@ -220,7 +220,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     * @param name 名称
     * @param target Target
     * @return 获取的结果
-     */
+    */
     public <T> T get(String name, Class<T> target) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -242,7 +242,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     * @param target Target
     * @param options 期权
     * @return 获取的结果
-     */
+    */
     public <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
         TranslatorModelDefinition def = modelMap.get(name);
         if (def == null) {
@@ -265,7 +265,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     *
     * @param target Target
     * @return 获取的结果
-     */
+    */
     public <T> T get(Class<T> target) {
         for (TranslatorModelDefinition def : modelMap.values()) {
             Object translator = def.getTranslator();
@@ -282,7 +282,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     * 若无则返回默认匿名实例。</p>
     *
     * @return IdentificationEngine 实例
-     */
+    */
     public static IdentificationEngine getInstance() {
         if (INSTANCE == null) {
             synchronized (AbstractIdentificationEngine.class) {
@@ -313,7 +313,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     *
     * @param entry 模型注册条目
     * @return 能力标签列表（可为空列表）
-     */
+    */
     private static List<String> capabilityLabels(ModelRegistry.Entry entry) {
         List<String> labels = new ArrayList<>();
         String label = com.chua.deeplearning.support.capability.ModelCapabilities.labelOf(entry.capabilityInterface());
@@ -348,7 +348,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     * @param name 名称
     * @param keywords keywords
     * @return 名称contains的结果
-     */
+    */
     private static boolean nameContains(String name, String... keywords) {
         for (String keyword : keywords) {
             if (name.contains(keyword)) {
@@ -363,7 +363,7 @@ public abstract class AbstractIdentificationEngine implements IdentificationEngi
     *
     * @param relativePath relative路径
     * @return resolve提供者的结果
-     */
+    */
     private static String resolveProvider(String relativePath) {
         if (relativePath == null) {
             return DEFAULT_PROVIDER;

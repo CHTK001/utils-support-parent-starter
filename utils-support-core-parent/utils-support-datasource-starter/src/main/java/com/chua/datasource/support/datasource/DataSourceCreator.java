@@ -20,7 +20,7 @@ public interface DataSourceCreator {
     * @param name       数据源名称
     * @param dataSource JDBC 数据源
     * @return this
-     */
+    */
     DataSourceCreator addDataSource(String name, DataSource dataSource);
 
     /**
@@ -28,7 +28,7 @@ public interface DataSourceCreator {
     *
     * @param scheme 数据方案
     * @return this
-     */
+    */
     DataSourceCreator addScheme(DataScheme scheme);
 
     /**
@@ -37,6 +37,6 @@ public interface DataSourceCreator {
     * @param schemaName 方案名
     * @param table      数据表
     * @return this
-     */
+    */
     DataSourceCreator addTable(String schemaName, DataTable table);
 }

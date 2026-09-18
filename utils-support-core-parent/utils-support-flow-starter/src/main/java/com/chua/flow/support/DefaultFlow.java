@@ -33,19 +33,19 @@ public class DefaultFlow implements Flow {
 
     /**
     * 流程定义图模型
-     */
+    */
     private final FlowDefinition definition;
 
     /**
     * 节点 标识 到节点实例的映射
-     */
+    */
     private final Map<String, FlowNode> nodes = new LinkedHashMap<>();
 
     /**
     * 以指定 标识 创建流程。
     *
     * @param id 流程 标识
-     */
+    */
     public DefaultFlow(String id) {
         this.definition = new FlowDefinition();
         this.definition.setId(id);
@@ -58,7 +58,7 @@ public class DefaultFlow implements Flow {
     * 未注册的节点类型直接报错，避免运行期才发现配置错误。</p>
     *
     * @param definition 流程定义图模型
-     */
+    */
     public DefaultFlow(FlowDefinition definition) {
         this.definition = definition;
         for (FlowDefinition.FlowNodeDef node : definition.getNodes()) {
@@ -138,7 +138,7 @@ public class DefaultFlow implements Flow {
     * 获取流程定义图模型。
     *
     * @return 流程定义
-     */
+    */
     public FlowDefinition getDefinition() {
         return definition;
     }
@@ -148,7 +148,7 @@ public class DefaultFlow implements Flow {
     *
     * @param nodeId 节点 标识
     * @return 节点属性，节点不存在时返回空属性
-     */
+    */
     public FlowProps nodeProps(String nodeId) {
         FlowDefinition.FlowNodeDef node = definition.findNode(nodeId);
         if (node == null) {
@@ -164,7 +164,7 @@ public class DefaultFlow implements Flow {
     * 全部节点都有入边时回退取第一个节点。</p>
     *
     * @return 起始节点 标识，无节点时返回 空
-     */
+    */
     String resolveStartNodeId() {
         if (definition.getNodes().isEmpty()) {
             return null;

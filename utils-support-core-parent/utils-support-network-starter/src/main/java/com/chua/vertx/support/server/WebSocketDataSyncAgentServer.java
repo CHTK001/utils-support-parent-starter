@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
-* WebSocket 数据同步 智能体 服务端
+* WebSocket 数据同步 Agent 服务端
 * <p>运行在 DataSyncServer 侧，接受 WebSocket 连接，管理 Agent 注册、心跳、数据拉取。</p>
 *
 * <pre>{@code
@@ -45,33 +45,33 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
 
     /**
     * 监听端口
-     */
+    */
     private final int port;
 
     /**
-    * 服务器套接字
-     */
+    * 服务器Socket
+    */
     private ServerSocket serverSocket;
 
     /**
     * 线程池
-     */
+    */
     private ExecutorService executor;
 
     /**
-    * 智能体 连接映射（智能体标识 -> Connection）
-     */
+    * Agent 连接映射（Agent标识 -> Connection）
+    */
     private final Map<String, Connection> connections = new ConcurrentHashMap<>();
 
     /**
     * 响应等待器（请求标识 -> completable期货）
-     */
+    */
     private final Map<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
 
     /**
-    * 创建 web套接字数据同步智能体服务端 实例
+    * 创建 webSocket数据同步Agent服务端 实例
     * @param port 端口
-     */
+    */
     public WebSocketDataSyncAgentServer(int port) {
         super("websocket");
         this.port = port;
@@ -132,8 +132,8 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     /**
     * 处理Connection
     *
-    * @param socket 套接字
-     */
+    * @param socket Socket
+    */
     private void handleConnection(Socket socket) {
         String agentId = null;
         try {
@@ -213,10 +213,10 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     /**
     * 发送请求
     *
-    * @param agentId 智能体标识
+    * @param agentId Agent标识
     * @param request 请求
     * @return 发送请求的结果
-     */
+    */
     public String sendRequest(String agentId, String request) {
         Connection conn = connections.get(agentId);
         if (conn == null) {
@@ -243,7 +243,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     *
     * @param in 入
     * @return 读取文本帧的结果
-     */
+    */
     private static String readTextFrame(InputStream in) throws IOException {
         int b0 = in.read();
         if (b0 < 0) {
@@ -304,7 +304,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     *
     * @param out 出
     * @param payload payload
-     */
+    */
     private static void writeTextFrame(OutputStream out, String payload) throws IOException {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         out.write(0x81);
@@ -328,13 +328,13 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     /**
-    * computeweb套接字accept
+    * computewebSocketaccept
     *
     * @param key 键
-    * @return computeweb套接字accept的结果
+    * @return computewebSocketaccept的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -342,9 +342,9 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     public static class Connection {
-        /** 套接字 */
+        /** Socket */
         private final Socket socket;
-        /** 智能体标识 */
+        /** Agent标识 */
         private final String agentId;
         /** 来源标识 */
         private final String sourceId;
@@ -359,7 +359,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         * 发送文本帧
         *
         * @param text 文本
-         */
+        */
         public void sendTextFrame(String text) throws IOException {
             synchronized (socket) {
                 writeTextFrame(socket.getOutputStream(), text);
@@ -367,16 +367,16 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
         }
 
         /**
-        * 获取智能体标识
+        * 获取Agent标识
         *
-        * @return 获取智能体id的结果
-         */
+        * @return 获取Agentid的结果
+        */
         public String getAgentId() { return agentId; }
         /**
         * 获取源标识
         *
         * @return 获取源id的结果
-         */
+        */
         public String getSourceId() { return sourceId; }
         /** 关闭 */
         public void close() {
@@ -385,7 +385,7 @@ public class WebSocketDataSyncAgentServer extends DefaultDataSyncAgentServer {
     }
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
-        /** 智能体标识 */
+        /** Agent标识 */
         private final String agentId;
         /** 来源标识 */
         private final String sourceId;

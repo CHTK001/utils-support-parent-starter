@@ -39,7 +39,7 @@ public class KiloConversationParser implements ConversationParser {
     /**
     * resolvedb路径。
     * @return resolvedb路径的结果
-     */
+    */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -58,7 +58,7 @@ public class KiloConversationParser implements ConversationParser {
     * 返回 SPI 名称。
     *
     * @return {@code "kilo"}
-     */
+    */
     @Override
     public String name() {
         return "kilo";
@@ -69,10 +69,10 @@ public class KiloConversationParser implements ConversationParser {
     * @param value 值
     * @return asStr的结果
      /**
-      * 流消息。
-      * @return 流消息的结果
-     * @param raw raw
-     */
+    * 流消息。
+    * @return 流消息的结果
+    * @param raw raw
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         if (!Files.exists(DB_PATH)) {
@@ -87,7 +87,7 @@ public class KiloConversationParser implements ConversationParser {
                 * 转为消息。
                 * @param row row
                 * @return 转为消息的结果
-                 */
+                */
                 .doOnComplete(() -> log.info("[kilo] conversation stream complete"));
     }
 
@@ -120,7 +120,7 @@ public class KiloConversationParser implements ConversationParser {
                 * @param raw raw
                 * @return extract模型id的结果
                 * @param value 值
-                 */
+                */
                 .build();
     }
 

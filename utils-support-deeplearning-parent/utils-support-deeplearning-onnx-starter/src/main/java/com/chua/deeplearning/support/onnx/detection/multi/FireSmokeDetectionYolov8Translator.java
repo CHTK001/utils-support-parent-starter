@@ -30,12 +30,12 @@ public class FireSmokeDetectionYolov8Translator extends AbstractMultiClassYolov8
 
     /**
     * 类别资源路径（类路径）。
-     */
+    */
     public static final String CLASS_NAMES_RESOURCE = "vision/fire-smoke/yolov8n/class.names.txt";
 
     /**
     * 默认 2 类。
-     */
+    */
     public static final List<String> DEFAULT_CLASSES = Arrays.asList(
             "fire",
             "smoke"
@@ -53,7 +53,7 @@ public class FireSmokeDetectionYolov8Translator extends AbstractMultiClassYolov8
     * @param threshold float
     * @param threshold 阈值
     * @param nmsThreshold nms阈值
-     */
+    */
     public FireSmokeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

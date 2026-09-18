@@ -19,37 +19,37 @@ public class OcrContext {
 
     /**
     * 原始图像数据。
-     */
+    */
     private final byte[] imageData;
 
     /**
     * 检测框序列（已按阅读顺序排序）。
-     */
+    */
     private final List<DetectionInfo> boxes;
 
     /**
     * 当前处理下标，由外层循环驱动。
-     */
+    */
     private int index;
 
     /**
     * 当前检测框。
-     */
+    */
     private DetectionInfo currentBox;
 
     /**
     * 当前裁剪文本块图像。
-     */
+    */
     private byte[] currentCrop;
 
     /**
     * 已收集的识别结果。
-     */
+    */
     private final List<OcrResult> results = new ArrayList<>();
 
     /**
     * 图像是否模糊（质量门控判定），模糊时强制启用文字高清修复。
-     */
+    */
     private boolean blurry;
 
     /**
@@ -57,7 +57,7 @@ public class OcrContext {
     *
     * @param imageData 原始图像
     * @param boxes     检测框序列
-     */
+    */
     public OcrContext(byte[] imageData, List<DetectionInfo> boxes) {
         this.imageData = imageData;
         this.boxes = boxes == null ? List.of() : boxes;
@@ -67,7 +67,7 @@ public class OcrContext {
     * 是否模糊。
     *
     * @return true 表示模糊
-     */
+    */
     public boolean blurry() {
         return blurry;
     }
@@ -76,7 +76,7 @@ public class OcrContext {
     * 设置模糊标记。
     *
     * @param blurry 模糊标记
-     */
+    */
     public void blurry(boolean blurry) {
         this.blurry = blurry;
     }
@@ -85,7 +85,7 @@ public class OcrContext {
     * 是否有下一个文本块。
     *
     * @return true 表示进入下一个
-     */
+    */
     public boolean advance() {
         if (index >= boxes.size()) {
             return false;
@@ -98,7 +98,7 @@ public class OcrContext {
     * 原始图像。
     *
     * @return 图像字节
-     */
+    */
     public byte[] imageData() {
         return imageData;
     }
@@ -107,7 +107,7 @@ public class OcrContext {
     * 当前检测框。
     *
     * @return 检测框
-     */
+    */
     public DetectionInfo currentBox() {
         return currentBox;
     }
@@ -116,7 +116,7 @@ public class OcrContext {
     * 当前裁剪文本块。
     *
     * @return 文本块图像
-     */
+    */
     public byte[] currentCrop() {
         return currentCrop;
     }
@@ -125,7 +125,7 @@ public class OcrContext {
     * 设置当前裁剪文本块。
     *
     * @param crop 文本块图像
-     */
+    */
     public void currentCrop(byte[] crop) {
         this.currentCrop = crop;
     }
@@ -134,7 +134,7 @@ public class OcrContext {
     * 追加识别结果。
     *
     * @param result 结果
-     */
+    */
     public void addResult(OcrResult result) {
         if (result != null) {
             results.add(result);
@@ -145,7 +145,7 @@ public class OcrContext {
     * 已收集的识别结果。
     *
     * @return 结果列表
-     */
+    */
     public List<OcrResult> results() {
         return List.copyOf(results);
     }
@@ -154,7 +154,7 @@ public class OcrContext {
     * 检测框数量。
     *
     * @return 数量
-     */
+    */
     public int size() {
         return boxes.size();
     }
@@ -163,7 +163,7 @@ public class OcrContext {
     * 当前框转换为矩形。
     *
     * @return 矩形
-     */
+    */
     public PredictRectangle currentRectangle() {
         DetectionInfo box = currentBox;
         if (box == null) {

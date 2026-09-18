@@ -56,27 +56,27 @@ public class SpringBootObjectContext implements ObjectContext {
 
     /**
     * Spring 应用上下文引用
-     */
+    */
     private final ApplicationContext applicationContext;
 
     /**
     * 本地 Beandefinitionregistry（用于非 Spring 管理的 Bean）
-     */
+    */
     private final BeanDefinitionRegistry localRegistry;
 
     /**
     * 环境配置
-     */
+    */
     private Environment environment;
 
     /**
     * 事件发布器，每个 springboot对象上下文 实例独立持有
-     */
+    */
     private final EventPublisher eventPublisher = new EventPublisher();
 
     /**
     * 是否已关闭
-     */
+    */
     private volatile boolean closed = false;
 
     /**
@@ -84,7 +84,7 @@ public class SpringBootObjectContext implements ObjectContext {
     *
     * @param applicationContext Spring application上下文
     * @param config             容器配置
-     */
+    */
     public SpringBootObjectContext(ApplicationContext applicationContext, ObjectContextConfig config) {
         this.applicationContext = applicationContext;
         this.localRegistry = new BeanDefinitionRegistry();
@@ -249,7 +249,7 @@ public class SpringBootObjectContext implements ObjectContext {
     * @param beanName       Bean 名称
     * @param bean           Bean 实例
     * @param annotationType 注解类型
-     */
+    */
     private void collectMethodDefinitions(List<MethodDefinition> result, String beanName, Object bean,
                                           Class<? extends Annotation> annotationType) {
         if (bean == null) {
@@ -454,7 +454,7 @@ public class SpringBootObjectContext implements ObjectContext {
     * 获取 Spring application上下文。
     *
     * @return Spring application上下文
-     */
+    */
     public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
@@ -463,7 +463,7 @@ public class SpringBootObjectContext implements ObjectContext {
 
     /**
     * 关闭上下文，释放资源。
-     */
+    */
     @Override
     public void close() {
         if (closed) {
@@ -495,7 +495,7 @@ public class SpringBootObjectContext implements ObjectContext {
     * Spring 环境 适配器 — 将 Spring 的 环境 适配为 对象上下文 的 环境。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class SpringBootEnvironment implements Environment {
 
         /** springenv */

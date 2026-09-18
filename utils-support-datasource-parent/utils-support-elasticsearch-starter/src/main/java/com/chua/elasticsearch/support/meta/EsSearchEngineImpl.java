@@ -30,7 +30,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     /**
     * 创建 es搜索engineimpl 实例
     * @param engine engine
-     */
+    */
     public EsSearchEngineImpl(ElasticsearchEngine engine) {
         this.engine = engine;
     }
@@ -140,7 +140,7 @@ public class EsSearchEngineImpl implements SearchEngine {
     *
     * @param type 类型
     * @return 构建财产的结果
-     */
+    */
     private Property buildProperty(String type) {
         if (type == null) {
             return PropertyBuilders.text(b -> b);

@@ -16,7 +16,7 @@ public class LambdaUtils {
 
     /**
     * 缓存：类 → (方法引用类 → 属性名)。
-     */
+    */
     private static final Map<Class<?>, Map<String, String>> CACHE = new ConcurrentHashMap<>();
 
     /**
@@ -25,7 +25,7 @@ public class LambdaUtils {
     * @param func 方法引用
     * @param <T>  实体类型
     * @return 属性名（驼峰），解析失败返回 空
-     */
+    */
     public static <T> String resolveObject(SFunction<T, ?> func) {
         try {
             // [P3C 1.10 豁免] 序列化 writeReplace 方法句柄
@@ -58,7 +58,7 @@ public class LambdaUtils {
     * @param func 方法引用
     * @param <T>  实体类型
     * @return 数据库列名（下划线），解析失败返回 空
-     */
+    */
     public static <T> String resolveColumn(SFunction<T, ?> func) {
         String field = resolveObject(func);
         if (field == null || field.isEmpty()) {

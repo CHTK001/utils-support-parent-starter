@@ -20,7 +20,7 @@ public class JVectorVectorStorageProvider implements VectorStorageProvider {
     * SPI 名称。
     *
     * @return "jvector"
-     */
+    */
     @Override
     public String name() {
         return "jvector";
@@ -32,7 +32,7 @@ public class JVectorVectorStorageProvider implements VectorStorageProvider {
     * @param dimension 维度
     * @param algorithm algorithm
     * @param properties 属性
-     */
+    */
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,
                                 Object properties) {

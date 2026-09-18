@@ -30,7 +30,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     /**
     * 创建 redis服务discovery 实例
     * @param discoveryOption discovery期权
-     */
+    */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption) {
         super(discoveryOption);
     }
@@ -40,7 +40,7 @@ public class RedisServiceDiscovery extends AbstractServiceDiscovery {
     * @param discoveryOption discovery期权
     * @param clusterName 字符串
     * @param clusterName cluster名称
-     */
+    */
     public RedisServiceDiscovery(DiscoveryOption discoveryOption, String clusterName) {
         super(discoveryOption, clusterName);
     }

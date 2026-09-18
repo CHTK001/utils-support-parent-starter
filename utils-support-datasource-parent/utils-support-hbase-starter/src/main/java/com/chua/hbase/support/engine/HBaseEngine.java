@@ -44,7 +44,7 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
     * 默认列族
-     */
+    */
     public static final String DEFAULT_FAMILY = "cf";
 
     /**
@@ -54,7 +54,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param dataSource 数据源封装
     * @param <T>        底层类型
     * @return this
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
@@ -80,7 +80,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param name   数据源名称
     * @param quorum 形如 {@code 172.16.0.40:2181}
     * @return this
-     */
+    */
     public HBaseEngine addDataSource(String name, String quorum) {
         dataSources.put(name, (EngineDataSource<Object>) (Object)
                 new HBaseEngineDataSource(name, quorum, connect(quorum)));
@@ -91,11 +91,11 @@ public class HBaseEngine extends AbstractEngine {
     }
 
     /**
-     * 由 quorum 串创建真实连接。
-     *
-     * @param quorum ZK 地址串，形如 {@code host:port}
-     * @return 连接的结果
-     */
+    * 由 quorum 串创建真实连接。
+    *
+    * @param quorum ZK 地址串，形如 {@code host:port}
+    * @return 连接的结果
+    */
     private static Connection connect(String quorum) {
         String host = quorum;
         String port = "2181";
@@ -135,7 +135,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param table  表名
     * @param family 列族
     * @return this
-     */
+    */
     public HBaseEngine createTable(String table, String family) {
         try (var admin = conn().getAdmin()) {
             TableName tn = TableName.valueOf(table);
@@ -157,7 +157,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param family   列族
     * @param values   列限定符 -> 字符串值
     * @return this
-     */
+    */
     public HBaseEngine put(String table, String rowKey, String family, Map<String, String> values) {
         try (Table t = conn().getTable(TableName.valueOf(table))) {
             Put p = new Put(Bytes.toBytes(rowKey));
@@ -176,7 +176,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param rowKey 行键
     * @param family 列族
     * @return 列限定符 -> 字符串值；行不存在返回空 映射
-     */
+    */
     public Map<String, String> get(String table, String rowKey, String family) {
         try (Table t = conn().getTable(TableName.valueOf(table))) {
             Result r = t.get(new Get(Bytes.toBytes(rowKey)));
@@ -193,7 +193,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param family     列族
     * @param rowPrefix  行键前缀，可为 空
     * @return 行列表，每行含 {@code __row} 键为行键
-     */
+    */
     public java.util.List<Map<String, String>> scan(String table, String family, String rowPrefix) {
         try (Table t = conn().getTable(TableName.valueOf(table));
              ResultScanner scanner = t.getScanner(buildScan(family, rowPrefix))) {
@@ -217,7 +217,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param table  表名
     * @param rowKey 行键
     * @return this
-     */
+    */
     public HBaseEngine deleteRow(String table, String rowKey) {
         try (Table t = conn().getTable(TableName.valueOf(table))) {
             t.delete(new Delete(Bytes.toBytes(rowKey)));
@@ -232,7 +232,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param family family
     * @param rowPrefix row前缀
     * @return 构建扫描的结果
-     */
+    */
     private static Scan buildScan(String family, String rowPrefix) {
         Scan s = new Scan();
         s.addFamily(Bytes.toBytes(family));
@@ -247,7 +247,7 @@ public class HBaseEngine extends AbstractEngine {
     * 前缀+1 用于 扫描 停止row（包含式边界处理）。
     * @param prefix 前缀
     * @return increment前缀的结果
-     */
+    */
     private static String incrementPrefix(String prefix) {
         byte[] b = Bytes.toBytes(prefix);
         for (int i = b.length - 1; i >= 0; i--) {
@@ -264,7 +264,7 @@ public class HBaseEngine extends AbstractEngine {
     * @param r r
     * @param family family
     * @return 转为映射的结果
-     */
+    */
     private static Map<String, String> toMap(Result r, String family) {
         Map<String, String> m = new LinkedHashMap<>();
         if (r.isEmpty()) {
@@ -287,7 +287,7 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
     * HBase 无 SQL：请使用 放入/获取/扫描/删除row 领域 API。
-     */
+    */
     @Override
     public <T> Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException(
@@ -296,7 +296,7 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
     * HBase 无 SQL：请使用 扫描()。
-     */
+    */
     @Override
     protected <T> java.util.List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         throw new UnsupportedOperationException(
@@ -305,7 +305,7 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
     * HBase 无 更新。
-     */
+    */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         throw new UnsupportedOperationException(
@@ -314,7 +314,7 @@ public class HBaseEngine extends AbstractEngine {
 
     /**
     * HBase 无 SQL 删除：请使用 删除row()。
-     */
+    */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
         throw new UnsupportedOperationException(

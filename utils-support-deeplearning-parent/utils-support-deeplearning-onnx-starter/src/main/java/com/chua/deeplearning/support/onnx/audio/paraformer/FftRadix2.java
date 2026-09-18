@@ -32,7 +32,7 @@ class FftRadix2 {
     * 构造指定长度的 FFT。
     *
     * @param n 长度，必须为 2 的幂
-     */
+    */
     FftRadix2(int n) {
         if ((n & (n - 1)) != 0) {
             throw new IllegalArgumentException("n must be a power of two: " + n);
@@ -57,7 +57,7 @@ class FftRadix2 {
     *
     * @param real 输入实部（长度 n），返回实部
     * @param imag 输出虚部（长度 n）
-     */
+    */
     void transform(float[] real, float[] imag) {
         for (int i = 0; i < n; i++) {
             int j = rev[i];

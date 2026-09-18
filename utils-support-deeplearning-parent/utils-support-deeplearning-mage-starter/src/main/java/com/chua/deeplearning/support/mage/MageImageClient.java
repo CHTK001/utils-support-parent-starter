@@ -79,74 +79,74 @@ public class MageImageClient implements ImageClient {
 
     /**
     * 默认服务地址
-     */
+    */
     private static final String DEFAULT_URL = "http://127.0.0.1:7861";
 
     /**
     * 默认生成模型
-     */
+    */
     private static final String DEFAULT_MODEL = "mage-flow-turbo";
 
     /**
     * 读超时（毫秒）：扩散模型推理 + 首次加载权重可能耗时较长
-     */
+    */
     private static final long READ_TIMEOUT_MILLIS = 300_000L;
 
     /**
     * 客户端配置
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 当前使用的模型 标识
-     */
+    */
     private String model;
 
     /**
     * 输出宽度（像素），16 的倍数
-     */
+    */
     private Integer width;
 
     /**
     * 输出高度（像素），16 的倍数
-     */
+    */
     private Integer height;
 
     /**
     * 正向提示词（未通过方法参数传入时使用此值）
-     */
+    */
     private String prompt;
 
     /**
     * 反向提示词
-     */
+    */
     private String negativePrompt;
 
     /**
     * 随机种子；空 表示由服务端随机
-     */
+    */
     private Long seed;
 
     /**
     * 去噪步数；覆盖模型默认值（基础 30 / RL 20 / Turbo 4）
-     */
+    */
     private Integer steps;
 
     /**
     * CFG 引导系数；Turbo 模型应为 1.0
-     */
+    */
     private Double cfg;
 
     /**
     * 编辑参考图列表（字节数据）；非空时 generate 走图像编辑接口
-     */
+    */
     private final List<byte[]> referenceImages = new ArrayList<>();
 
     /**
     * 构造 Mage 图像生成客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public MageImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -211,7 +211,7 @@ public class MageImageClient implements ImageClient {
     *
     * @param cfg CFG 引导系数
     * @return 当前客户端实例
-     */
+    */
     public ImageClient cfg(double cfg) {
         this.cfg = cfg;
         return this;
@@ -322,7 +322,7 @@ public class MageImageClient implements ImageClient {
     * @param path 请求路径（用于错误信息）
     * @return 解码后的图片
     * @throws RuntimeException 响应数据缺失或解码失败时抛出
-     */
+    */
     @SuppressWarnings("unchecked")
     private BufferedImage parseFirstImage(String json, String path) {
         Map<String, Object> root;
@@ -353,7 +353,7 @@ public class MageImageClient implements ImageClient {
     * 构建 授权 头。
     *
     * @return 已配置 app键 时返回 Bearer 头，否则返回空串（不携带认证）
-     */
+    */
     private String buildAuthHeader() {
         String appKey = setting.getAppKey();
         return (appKey == null || appKey.isBlank()) ? "" : "Bearer " + appKey;
@@ -366,7 +366,7 @@ public class MageImageClient implements ImageClient {
     * 未配置时使用默认地址 {@value DEFAULT_URL}。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -383,7 +383,7 @@ public class MageImageClient implements ImageClient {
 
     /**
     * Mage-流 全家族模型定义。
-     */
+    */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()
                     .id("mage-flow-base").name("Mage-Flow Base").provider("mage")

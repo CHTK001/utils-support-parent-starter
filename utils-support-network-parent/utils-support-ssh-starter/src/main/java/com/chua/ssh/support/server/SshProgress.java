@@ -28,7 +28,7 @@ public class SshProgress implements AutoCloseable {
 
     /**
     * 委托对象
-     */
+    */
     private final ProgressBar delegate;
 
     /**
@@ -37,7 +37,7 @@ public class SshProgress implements AutoCloseable {
     * @param response  SSH 响应
     * @param taskName  任务名称
     * @param total     总进度值
-     */
+    */
     public SshProgress(SshCommandResponse response, String taskName, long total) {
         this(response, taskName, total, 80);
     }
@@ -49,7 +49,7 @@ public class SshProgress implements AutoCloseable {
     * @param taskName       任务名称
     * @param total          总进度值
     * @param maxBarLength   进度条最大字符宽度
-     */
+    */
     public SshProgress(SshCommandResponse response, String taskName, long total, int maxBarLength) {
         this.delegate = new ProgressBarBuilder()
                 .setTaskName(taskName)
@@ -66,7 +66,7 @@ public class SshProgress implements AutoCloseable {
     *
     * @param n 步进数
     * @return this
-     */
+    */
     public SshProgress stepBy(long n) {
         delegate.stepBy(n);
         return this;
@@ -76,7 +76,7 @@ public class SshProgress implements AutoCloseable {
     * 步进 1。
     *
     * @return this
-     */
+    */
     public SshProgress step() {
         delegate.step();
         return this;
@@ -87,7 +87,7 @@ public class SshProgress implements AutoCloseable {
     *
     * @param n 目标进度
     * @return this
-     */
+    */
     public SshProgress stepTo(long n) {
         delegate.stepTo(n);
         return this;
@@ -98,7 +98,7 @@ public class SshProgress implements AutoCloseable {
     *
     * @param msg 附加消息
     * @return this
-     */
+    */
     public SshProgress extraMessage(String msg) {
         delegate.setExtraMessage(msg);
         return this;
@@ -106,7 +106,7 @@ public class SshProgress implements AutoCloseable {
 
     /**
     * 完成进度条。
-     */
+    */
     public void done() {
         delegate.close();
     }
@@ -115,7 +115,7 @@ public class SshProgress implements AutoCloseable {
     * 完成进度条并输出完成信息。
     *
     * @param message 完成信息
-     */
+    */
     public void done(String message) {
         delegate.close();
     }

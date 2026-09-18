@@ -68,17 +68,17 @@ public class GsonJsonProvider implements JsonProvider {
 
     /**
     * Gson 实例（线程安全，配置后不可变）
-     */
+    */
     private final Gson gson;
 
     /**
     * 美化输出 Gson 实例
-     */
+    */
     private final Gson prettyGson;
 
     /**
     * 构造 gsonjson提供者，注册统一门户注解适配策略与日期格式。
-     */
+    */
     public GsonJsonProvider() {
  // 统一注解 @json名称 → Gson 字段名；@jsonignore → 双向忽略；
  // 注册 Java.时间 / 日期 类型适配器（Gson 默认不支持 Java.时间，需显式注册）
@@ -109,7 +109,7 @@ public class GsonJsonProvider implements JsonProvider {
     * @param formatter 日期时间格式化器
     * @param <T>       Java.时间 类型
     * @return Gson 类型适配器
-     */
+    */
     @SuppressWarnings("unchecked")
     private static <T> TypeAdapter<T> dateTimeAdapter(DateTimeFormatter formatter) {
         return new TypeAdapter<T>() {
@@ -140,10 +140,10 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-    * 统一注解 {@link JsonName} 的 Gson 字段命名策略适配器。
-    * @author CH
-    * @since 4.0.0
-     */
+            * 统一注解 {@link JsonName} 的 Gson 字段命名策略适配器。
+            * @author CH
+            * @since 4.0.0
+            */
     static class JsonNameFieldNamingStrategy implements FieldNamingStrategy {
 
         @Override
@@ -158,10 +158,10 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-    * 统一注解 {@link JsonIgnore} 的 Gson 排除策略适配器。
-    * @author CH
-    * @since 4.0.0
-     */
+        * 统一注解 {@link JsonIgnore} 的 Gson 排除策略适配器。
+        * @author CH
+        * @since 4.0.0
+        */
     static class JsonIgnoreExclusionStrategy implements ExclusionStrategy {
 
         @Override
@@ -519,11 +519,11 @@ public class GsonJsonProvider implements JsonProvider {
     }
 
     /**
-    * 读取输入流为字符串。
-    *
-    * @param stream 输入流
-    * @return 字符串内容
-     */
+        * 读取输入流为字符串。
+        *
+        * @param stream 输入流
+        * @return 字符串内容
+        */
     private String readString(InputStream stream) {
         try (InputStreamReader reader = new InputStreamReader(stream, UTF_8)) {
             StringBuilder sb = new StringBuilder();

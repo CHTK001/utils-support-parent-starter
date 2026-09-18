@@ -11,13 +11,13 @@ import java.util.Properties;
 public class Postgresql10Dialect extends SqlDialect {
 
     /**
-     * 支持版本。
-     */
+    * 支持版本。
+    */
     public static final String VERSION = "PostgreSQL 10+";
 
     /**
-     * 构造 PostgreSQL 10+ 方言代理。
-     */
+    * 构造 PostgreSQL 10+ 方言代理。
+    */
     public Postgresql10Dialect() {
         super("postgresql10");
     }

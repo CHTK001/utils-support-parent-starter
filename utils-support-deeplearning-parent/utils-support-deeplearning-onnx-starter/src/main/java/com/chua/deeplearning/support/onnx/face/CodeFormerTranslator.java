@@ -128,7 +128,7 @@ public class CodeFormerTranslator implements Translator<Image, Image> {
     *
     * @param v 模型输出值（通常约 [0,1]，需反归一化）
     * @return [0,255] 整数
-     */
+    */
     private static int clamp255(float v) {
         float val = (v * STD[0] + MEAN[0]) * 255.0f;
         if (val < 0) {

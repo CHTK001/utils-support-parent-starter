@@ -13,7 +13,7 @@ public class OnnxTextTranslator implements TextTranslator {
     /**
     * 创建 onnx文本translator 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxTextTranslator(String apiKey) {
     }
 
@@ -28,7 +28,7 @@ public class OnnxTextTranslator implements TextTranslator {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "opus-mt-zh-en";
     }

@@ -95,7 +95,7 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
     * @param clazz         类类型
     * @param classPrefix   类级前缀（点号分隔）
     * @param result        处理器列表
-     */
+    */
     private static void parseClassMethods(ObjectContext objectContext, Class<?> clazz,
                                           String classPrefix, List<ServerHandler> result) {
         for (Method method : clazz.getDeclaredMethods()) {
@@ -124,7 +124,7 @@ public class ShellMethodServerHandlerParser implements ServerHandlerAnnotationPa
     *
     * @param clazz 类
     * @return 点号分隔的前缀，无注解返回空字符串
-     */
+    */
     private static String extractClassPrefix(Class<?> clazz) {
         ShellMethod classAnn = clazz.getAnnotation(ShellMethod.class);
         if (classAnn == null) {

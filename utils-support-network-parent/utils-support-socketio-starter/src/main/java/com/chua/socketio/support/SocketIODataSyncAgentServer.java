@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* Socket.IO 数据同步 智能体 服务端
+* Socket.IO 数据同步 Agent 服务端
 * <p>运行在 DataSyncServer 侧，通过 SocketIO 管理 Agent 连接，支持事件拉取和推送。</p>
 *
 * @author CH
@@ -21,17 +21,17 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
 
     /**
     * 端口号
-     */
+    */
     private final int port;
     /**
     * 服务器实例
-     */
+    */
     private com.corundumstudio.socketio.SocketIOServer server;
 
     /**
-    * 创建 套接字io数据同步智能体服务端 实例
+    * 创建 Socketio数据同步Agent服务端 实例
     * @param port 端口
-     */
+    */
     public SocketIODataSyncAgentServer(int port) {
         super("socketio");
         this.port = port;
@@ -84,12 +84,12 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
     /**
     * 转换转为源
     *
-    * @param agent 智能体
+    * @param agent Agent
     * @param data 数据
     * @return 转换转为源的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public DataSyncSource convertToSource(DataSyncAgent agent, Object data) {
         if (agent == null) {
             return null;
@@ -106,16 +106,16 @@ public class SocketIODataSyncAgentServer extends com.chua.starter.datasync.agent
 
     private static class SimpleDataSyncAgent implements DataSyncAgent {
         /**
-        * 智能体 标识
-         */
+        * Agent 标识
+        */
         private final String agentId;
         /**
         * 源 标识
-         */
+        */
         private final String sourceId;
         /**
         * 客户端实例
-         */
+        */
         private final com.corundumstudio.socketio.SocketIOClient client;
 
         SimpleDataSyncAgent(String agentId, String sourceId, com.corundumstudio.socketio.SocketIOClient client) {

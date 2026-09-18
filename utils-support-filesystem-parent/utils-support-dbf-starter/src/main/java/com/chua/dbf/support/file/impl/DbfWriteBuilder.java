@@ -21,7 +21,7 @@ public class DbfWriteBuilder extends WriteBuilder {
     /**
     * 创建 dbf写入构建器 实例
     * @param file 文件
-     */
+    */
     public DbfWriteBuilder(File file) {
         super(file);
     }
@@ -41,7 +41,7 @@ public class DbfWriteBuilder extends WriteBuilder {
     * 写入
     *
     * @param rows rows
-     */
+    */
     public void write(List<Map<String, Object>> rows) {
         pending.add(rows);
         finish();
@@ -101,7 +101,7 @@ public class DbfWriteBuilder extends WriteBuilder {
     *
     * @param rows rows
     * @return resolveColumns的结果
-     */
+    */
     private List<String> resolveColumns(List<Map<String, Object>> rows) {
         if (headerColumns != null) {
             return headerColumns;

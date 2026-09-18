@@ -54,7 +54,7 @@ public final class FileSearchService {
     * 获取全局单例
     *
     * @return 服务实例
-     */
+    */
     public static FileSearchService getInstance() {
         if (INSTANCE == null) {
             synchronized (FileSearchService.class) {
@@ -70,7 +70,7 @@ public final class FileSearchService {
     * 服务是否可用
     *
     * @return true 表示可用
-     */
+    */
     public boolean isAvailable() {
         return provider != null;
     }
@@ -80,7 +80,7 @@ public final class FileSearchService {
     *
     * @param criteria 搜索条件
     * @return 文件列表
-     */
+    */
     public List<FileInfo> search(FileSearchCriteria criteria) {
         if (!isAvailable()) {
             log.warn("FileSearchService not available");
@@ -100,7 +100,7 @@ public final class FileSearchService {
     * @param rootPath 根目录
     * @param pattern  通配符模式
     * @return 文件列表
-     */
+    */
     public List<FileInfo> searchByName(String rootPath, String pattern) {
         return search(FileSearchCriteria.builder()
                 .rootPath(rootPath)
@@ -115,7 +115,7 @@ public final class FileSearchService {
     * @param minSize  最小大小（字节）
     * @param maxSize  最大大小（字节）
     * @return 文件列表
-     */
+    */
     public List<FileInfo> searchBySize(String rootPath, long minSize, long maxSize) {
         return search(FileSearchCriteria.builder()
                 .rootPath(rootPath)
@@ -129,7 +129,7 @@ public final class FileSearchService {
     *
     * @param rootPath 根目录
     * @return 目录树文件列表
-     */
+    */
     public List<FileInfo> getTree(String rootPath) {
         return search(FileSearchCriteria.builder()
                 .rootPath(rootPath)

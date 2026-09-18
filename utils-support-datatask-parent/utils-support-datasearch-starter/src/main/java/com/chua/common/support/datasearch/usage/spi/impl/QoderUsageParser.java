@@ -69,10 +69,10 @@ public class QoderUsageParser extends BaseUsageParser {
     * 返回 the SPI 名称 for Qoder.
     *
     * @return {@code "qoder"}
-     */
+    */
     /**
     * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
-     */
+    */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -87,7 +87,7 @@ public class QoderUsageParser extends BaseUsageParser {
     * 解析 全部 Qoder 会话 transcripts 和 extracts 账单 抵免.
     *
     * @return list 的 aiusage records, one per assistant 响应
-     */
+    */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(PROJECTS_DIR)) {
             log.debug("[qoder] projects dir not found: {} (Qoder CLI not installed)", PROJECTS_DIR);
@@ -120,7 +120,7 @@ public class QoderUsageParser extends BaseUsageParser {
     * @param file   路径 转为 the 会话 JSONL 文件
     * @param result accumulator 列表 for 解析 records
     * @throws IOException if the 文件 cannot be 读取
-     */
+    */
     private void parseJsonlFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
@@ -138,11 +138,11 @@ public class QoderUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将单条转录 JSON 行转换为 AiUsage 记录；仅处理带真实 token 的 assistant 响应。
-     *
-     * @param node 解析后的 JSON 行
-     * @return 用量记录；非目标行时 empty
-     */
+    * 将单条转录 JSON 行转换为 AiUsage 记录；仅处理带真实 token 的 assistant 响应。
+    *
+    * @param node 解析后的 JSON 行
+    * @return 用量记录；非目标行时 empty
+    */
     private java.util.Optional<AiUsage> parseNode(JsonNode node) {
         if (!"assistant".equals(node.get("type").toStringValue())) {
             return java.util.Optional.empty();

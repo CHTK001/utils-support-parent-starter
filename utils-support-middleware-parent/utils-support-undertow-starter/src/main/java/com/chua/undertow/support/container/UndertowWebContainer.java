@@ -55,19 +55,19 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
     * Undertow 服务器实例
-     */
+    */
     private Undertow undertow;
     /**
     * Servlet 容器实例
-     */
+    */
     private ServletContainer servletContainer;
     /**
     * 已部署应用集合，键 为上下文路径
-     */
+    */
     private final Map<String, DeploymentManager> deployments = new ConcurrentHashMap<>();
     /**
     * 路径处理器
-     */
+    */
     private final PathHandler pathHandler = Handlers.path();
 
     @Override
@@ -109,7 +109,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     * 部署 WAR 文件。
     * @param archivePath Arch Linux Linux路径
     * @param contextPath 上下文路径
-     */
+    */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         File warFile = resolveFile(archivePath);
         DeploymentInfo deploymentInfo = new DeploymentInfo()
@@ -142,7 +142,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     * 部署 Fat JAR（Spring Boot 等可执行 JAR）。
     * @param archivePath Arch Linux Linux路径
     * @param contextPath 上下文路径
-     */
+    */
     private void deployFatJar(String archivePath, String contextPath) throws Exception {
         File jarFile = resolveFile(archivePath);
         DeploymentInfo deploymentInfo = new DeploymentInfo()
@@ -167,7 +167,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     * 作为静态资源部署。
     * @param archivePath Arch Linux Linux路径
     * @param contextPath 上下文路径
-     */
+    */
     private void deployResource(String archivePath, String contextPath) throws Exception {
         File resourceFile = resolveFile(archivePath);
         ResourceHandler resourceHandler;
@@ -251,7 +251,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
 
     /**
     * 构建处理器链。
-     */
+    */
     private void buildHandlers() {
         // 部署所有待部署单元到路径处理器
         if (setting.getDeployUnits() != null) {
@@ -275,7 +275,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     /**
     * 配置 SSL/TLS。
     * @param builder 构建器
-     */
+    */
     private void configureSsl(Undertow.Builder builder) {
         WebContainerSetting.SslConfig ssl = setting.getSsl();
         if (ssl == null || !ssl.isEnabled()) {
@@ -311,7 +311,7 @@ public class UndertowWebContainer extends AbstractWebContainer {
     * 解析文件路径。
     * @param path 路径
     * @return resolve文件的结果
-     */
+    */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {
             String resourcePath = path.substring("classpath:".length());

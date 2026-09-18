@@ -15,6 +15,6 @@ public @interface TableDefinition {
 
     /**
     * 表名。
-     */
+    */
     String value();
 }

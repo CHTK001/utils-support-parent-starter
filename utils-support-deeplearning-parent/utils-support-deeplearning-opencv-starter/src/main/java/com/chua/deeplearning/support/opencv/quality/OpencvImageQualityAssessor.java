@@ -21,22 +21,22 @@ public class OpencvImageQualityAssessor extends OpencvModelTranslator {
 
     /**
     * 模糊阈值，低于该值视为模糊。
-     */
+    */
     private final double blurThreshold;
 
     /**
     * 最低亮度。
-     */
+    */
     private final double minBrightness;
 
     /**
     * 最高亮度。
-     */
+    */
     private final double maxBrightness;
 
     /**
     * 构造评估器。
-     */
+    */
     public OpencvImageQualityAssessor() {
         this(100.0, 40.0, 220.0);
     }
@@ -47,7 +47,7 @@ public class OpencvImageQualityAssessor extends OpencvModelTranslator {
     * @param blurThreshold  模糊阈值
     * @param minBrightness  最低亮度
     * @param maxBrightness  最高亮度
-     */
+    */
     public OpencvImageQualityAssessor(double blurThreshold, double minBrightness, double maxBrightness) {
         super("opencv-image-quality");
         this.blurThreshold = blurThreshold;

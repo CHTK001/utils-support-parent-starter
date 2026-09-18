@@ -48,7 +48,7 @@ public class ZhipuVideoClient implements VideoClient {
     /**
     * 创建 zhipu视频客户端 实例
     * @param setting setting
-     */
+    */
     public ZhipuVideoClient(VideoClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -106,7 +106,7 @@ public class ZhipuVideoClient implements VideoClient {
     *
     * @param image 镜像
     * @return 引用镜像的结果
-     */
+    */
     public VideoClient referenceImage(BufferedImage image) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -173,7 +173,7 @@ public class ZhipuVideoClient implements VideoClient {
     *
     * @param taskId 任务标识
     * @return 查询任务的结果
-     */
+    */
     public VideoResponse queryTask(String taskId) {
         if (taskId == null || taskId.isBlank()) {
             throw new IllegalArgumentException("任务 ID 不能为空");
@@ -225,7 +225,7 @@ public class ZhipuVideoClient implements VideoClient {
     *
     * @param taskStatus 任务状态
     * @return 映射状态的结果
-     */
+    */
     private VideoResponse.Status mapStatus(String taskStatus) {
         if (taskStatus == null) {
             return VideoResponse.Status.PENDING;

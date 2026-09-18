@@ -39,6 +39,6 @@ public abstract class IpcProtocolServer implements ProtocolServer {
     * @param path   请求路径
     * @param body   请求体
     * @return 响应字符串
-     */
+    */
     public abstract String handleMessage(String source, String path, String body);
 }

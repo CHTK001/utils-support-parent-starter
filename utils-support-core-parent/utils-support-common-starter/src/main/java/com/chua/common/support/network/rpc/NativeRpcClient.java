@@ -250,12 +250,12 @@ public class NativeRpcClient implements RpcClient {
         }
 
         /**
-        * 同 JVM 直调：反射调用本机已注册的服务对象，零网络、零序列化。
-        *
-        * @param localService 本机服务对象
-        * @param pm           代理方法
-        * @return 调用结果
-        */
+    * 同 JVM 直调：反射调用本机已注册的服务对象，零网络、零序列化。
+    *
+    * @param localService 本机服务对象
+    * @param pm           代理方法
+    * @return 调用结果
+    */
         private Object invokeLocal(Object localService, ProxyMethod pm) {
             try {
                 java.lang.reflect.Method m = pm.getMethod();

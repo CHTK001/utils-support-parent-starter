@@ -41,7 +41,7 @@ public class CnIdCardRecognizer {
     * cnid卡片recognizer。
     * @param detectModel detect模型
     * @param recModel rec模型
-     */
+    */
     private final String recModel;
 
     public CnIdCardRecognizer() {
@@ -108,7 +108,7 @@ public class CnIdCardRecognizer {
         * detect卡片。
         * @param imageData 镜像数据
         * @return detect卡片的结果
-         */
+        */
         }
         return results;
     }
@@ -130,7 +130,7 @@ public class CnIdCardRecognizer {
             * @return recognize文本的结果
             * @param cards 卡片
             * @param modelId 模型id
-             */
+            */
             return null;
         }
     }
@@ -174,7 +174,7 @@ public class CnIdCardRecognizer {
     * @return 获取probabilities的结果
     * @param data 数据
     * @param img img
-     */
+    */
     }
 
     private List<Double> getProbabilities(DetectedObjects cards) throws Exception {

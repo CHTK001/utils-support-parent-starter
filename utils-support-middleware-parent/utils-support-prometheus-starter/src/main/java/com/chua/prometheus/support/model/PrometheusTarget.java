@@ -22,36 +22,36 @@ public class PrometheusTarget {
 
     /**
     * 抓取目标地址
-     */
+    */
     private String scrapeUrl;
 
     /**
     * 所属 作业
-     */
+    */
     private String job;
 
     /**
     * 目标实例
-     */
+    */
     private String instance;
 
     /**
     * 健康状态: up / down / unknown
-     */
+    */
     private String health;
 
     /**
     * 最近一次抓取错误
-     */
+    */
     private String lastError;
 
     /**
     * 最近抓取时间(毫秒)
-     */
+    */
     private long lastScrape;
 
     /**
     * 抓取时长(毫秒)
-     */
+    */
     private double scrapeDuration;
 }

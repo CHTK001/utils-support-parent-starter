@@ -27,12 +27,12 @@ public class TransformFlowNode implements TransformNode {
 
     /**
     * 当前数据取值标识
-     */
+    */
     private static final String SOURCE_CURRENT = "current";
 
     /**
     * 上下文属性取值前缀
-     */
+    */
     private static final String SOURCE_ATTRIBUTE_PREFIX = "attribute:";
 
     /**
@@ -41,7 +41,7 @@ public class TransformFlowNode implements TransformNode {
     * <p>按 source 属性解析取值来源，将结果写入当前数据。</p>
     *
     * @param context 当前流程上下文
-     */
+    */
     @Override
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();
@@ -56,7 +56,7 @@ public class TransformFlowNode implements TransformNode {
     * @param source  取值来源标识
     * @param context 当前流程上下文
     * @return 解析后的值
-     */
+    */
     private Object resolveSource(String source, FlowContext context) {
         if (source == null || SOURCE_CURRENT.equals(source)) {
             return context.getData();

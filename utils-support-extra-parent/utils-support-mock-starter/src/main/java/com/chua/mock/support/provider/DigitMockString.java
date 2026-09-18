@@ -23,7 +23,7 @@ public class DigitMockString implements MockString {
     * 数字池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final char[] DIGITS = "0123456789".toCharArray();
 
     @Override

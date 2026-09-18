@@ -37,7 +37,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     *
     * @param table 表名
     * @return this
-     */
+    */
     @Override
     public IndexManager.CreateIndexStep onTable(String table) {
         this.table = table;
@@ -49,7 +49,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     *
     * @param column 列名或逗号分隔的多列
     * @return this
-     */
+    */
     @Override
     public IndexManager.CreateIndexStep field(String column) {
         this.column = column;
@@ -61,7 +61,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     *
     * @param column 列名或逗号分隔的多列
     * @return this
-     */
+    */
     @Override
     public IndexManager.CreateIndexStep onColumn(String column) {
         this.column = column;
@@ -73,7 +73,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     *
     * @param algorithm 算法名
     * @return this
-     */
+    */
     @Override
     public IndexManager.CreateIndexStep type(String algorithm) {
         this.algorithm = algorithm;
@@ -85,7 +85,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
     *
     * @param algorithm 算法名
     * @return this
-     */
+    */
     @Override
     public IndexManager.CreateIndexStep using(String algorithm) {
         this.algorithm = algorithm;
@@ -94,7 +94,7 @@ public class OracleCreateIndexStep implements IndexManager.CreateIndexStep {
 
     /**
     * 执行 创建 索引 语句。
-     */
+    */
     @Override
     public void execute() {
         StringBuilder sb = new StringBuilder("CREATE INDEX ");

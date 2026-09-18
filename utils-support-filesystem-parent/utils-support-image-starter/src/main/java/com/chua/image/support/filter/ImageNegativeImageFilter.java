@@ -58,7 +58,7 @@ public class ImageNegativeImageFilter extends AbstractImageFilter {
     * @param src 源图像
     * @param dst 目标图像（此参数未使用）
     * @return 应用负片效果后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
  // 注意：这里应该使用类型_INT_RGB来保持彩色效果

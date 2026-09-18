@@ -73,7 +73,7 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
             if (data[i] == 'O' && data[i + 1] == 'b' && data[i + 2] == 'j' &&
                 data[i + 3] == 'e' && data[i + 4] == 'c' && data[i + 5] == 't' &&
                 data[i + 6] == 's' && data[i + 7] == 0) {
@@ -90,7 +90,7 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
     * @param info 信息
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(FbxInfo info, long fileSize) {
@@ -130,7 +130,7 @@ public class FbxPreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     private String escapeHtml(String text) {

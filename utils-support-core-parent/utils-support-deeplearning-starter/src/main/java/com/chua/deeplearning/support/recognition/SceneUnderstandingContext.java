@@ -15,19 +15,19 @@ public class SceneUnderstandingContext {
 
     /**
     * 当前图像数据。
-     */
+    */
     private final byte[] imageData;
 
     /**
     * 已收集的理解结果。
-     */
+    */
     private final List<Object> results = new ArrayList<>();
 
     /**
     * 构造。
     *
     * @param imageData 图像数据
-     */
+    */
     public SceneUnderstandingContext(byte[] imageData) {
         this.imageData = imageData;
     }
@@ -36,7 +36,7 @@ public class SceneUnderstandingContext {
     * 当前图像数据。
     *
     * @return 图像字节
-     */
+    */
     public byte[] currentImage() {
         return imageData;
     }
@@ -45,7 +45,7 @@ public class SceneUnderstandingContext {
     * 追加理解结果。
     *
     * @param result 结果
-     */
+    */
     public void addResult(Object result) {
         if (result != null) {
             results.add(result);
@@ -56,7 +56,7 @@ public class SceneUnderstandingContext {
     * 已收集的理解结果。
     *
     * @return 结果列表
-     */
+    */
     public List<Object> results() {
         return List.copyOf(results);
     }

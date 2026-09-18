@@ -47,18 +47,18 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     /**
     * CLIP                            
     * 打开AI CLIP
-     */
+    */
     private static final float[] IMAGE_MEAN = {0.48145466f, 0.4578275f, 0.40821073f};
 
     /**
     * CLIP                               
     * 打开AI CLIP
-     */
+    */
     private static final float[] IMAGE_STD = {0.26862954f, 0.26130258f, 0.27577711f};
 
     /**
     *                         
-     */
+    */
     private static final int IMAGE_SIZE = 224;
 
     /**
@@ -68,7 +68,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     * </p>
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) {
         log.debug("[CLIP][      ] Translator             ");
@@ -89,7 +89,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     * @param input             
     * @return              NDList                   [1, 3, 224, 224]          
     * @throws Exception                         
-     */
+    */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) throws Exception {
@@ -135,7 +135,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     * @param ctx                    
     * @param list                 nd列表
     * @return                         
-     */
+    */
     @Override
     @Nonnull
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -152,7 +152,7 @@ public class ClipImageFeatureTranslator implements Translator<Image, float[]> {
     *                   
     *
     * @return null                     
-     */
+    */
     @Override
     @Nullable
     public Batchifier getBatchifier() {

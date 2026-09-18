@@ -27,7 +27,7 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * 创建 collapsibleadvisor 实例。
     *
     * @param intercept 折叠拦截器实例
-     */
+    */
     public CollapsibleAdvisor(CollapsibleIntercept intercept) {
         super(new CollapsibleAdvice(intercept));
     }
@@ -46,7 +46,7 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * @param method      候选方法（可能是接口方法或代理方法）
     * @param targetClass 目标类型（可为代理类，内部还原为用户类），可为 空
     * @return 折叠注解，未标注返回 空
-     */
+    */
     private static Collapsible findCollapsible(Method method, Class<?> targetClass) {
         Collapsible annotation = method.getAnnotation(Collapsible.class);
         if (annotation != null) {
@@ -65,18 +65,18 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * 折叠通知，将 AOP 调用适配为折叠拦截器的统一入参。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class CollapsibleAdvice implements MethodInterceptor {
 
         /**
         * 折叠拦截器
-         */
+        */
         private final CollapsibleIntercept intercept;
 
         /**
         * collapsibleadvice。
         * @param intercept intercept
-         */
+        */
         private CollapsibleAdvice(CollapsibleIntercept intercept) {
             this.intercept = intercept;
         }
@@ -106,7 +106,7 @@ public class CollapsibleAdvisor extends StaticMethodMatcherPointcutAdvisor {
         *
         * @param target 代理对象（可为 空）
         * @return 目标用户类，无法解析时返回 空
-         */
+        */
         private static Class<?> resolveTargetClass(Object target) {
             if (target instanceof org.springframework.aop.framework.Advised) {
                 return ((org.springframework.aop.framework.Advised) target).getTargetSource().getTargetClass();

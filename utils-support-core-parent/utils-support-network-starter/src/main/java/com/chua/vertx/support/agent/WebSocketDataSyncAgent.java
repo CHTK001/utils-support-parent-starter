@@ -32,52 +32,52 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class WebSocketDataSyncAgent implements DataSyncAgent {
 
     /**
-     * Agent ID
-     */
+    * Agent ID
+    */
     private final String agentId;
 
     /**
-     * 数据源 ID
-     */
+    * 数据源 ID
+    */
     private final String sourceId;
 
     /**
-     * Server WebSocket 地址
-     */
+    * Server WebSocket 地址
+    */
     private final String serverUri;
 
     /**
-     * 数据源
-     */
+    * 数据源
+    */
     private final DataSyncSource source;
 
     /**
-     * WebSocket 连接
-     */
+    * WebSocket 连接
+    */
     private WebSocket webSocket;
 
     /**
-     * HTTP 客户端
-     */
+    * HTTP 客户端
+    */
     private HttpClient httpClient;
 
     /**
-     * 运行标志
-     */
+    * 运行标志
+    */
     private volatile boolean running = false;
 
     /**
-     * 消息监听队列
-     */
+    * 消息监听队列
+    */
     private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
     /**
-     * 创建 WebSocketDataSyncAgent 实例
-     * @param agentId agentId
-     * @param String String
-     * @param String String
-     * @param DataSyncSource DataSyncSource
-     */
+    * 创建 WebSocketDataSyncAgent 实例
+    * @param agentId agentId
+    * @param String String
+    * @param String String
+    * @param DataSyncSource DataSyncSource
+    */
     public WebSocketDataSyncAgent(String agentId, String sourceId, String serverUri, DataSyncSource source) {
         this.agentId = agentId;
         this.sourceId = sourceId;

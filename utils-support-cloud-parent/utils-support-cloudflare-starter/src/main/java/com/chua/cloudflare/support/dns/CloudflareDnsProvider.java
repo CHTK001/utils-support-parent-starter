@@ -47,7 +47,7 @@ public class CloudflareDnsProvider implements DnsProvider {
 
     /**
     * Cloudflare API 客户端
-     */
+    */
     private CloudflareClient client;
 
     /**
@@ -56,7 +56,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     * @param type 类型
     * @return 列表records的结果
     * @param config 配置
-     */
+    */
     private String zoneId;
 
     @Override
@@ -78,7 +78,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     * 添加record。
     * @param record record
     * @return 添加record的结果
-     */
+    */
     }
 
     @Override
@@ -106,7 +106,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     * @return 移除record的结果
     * @param name 名称
     * @param type 类型
-     */
+    */
     }
 
     @Override
@@ -151,7 +151,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     *
     * @param zoneName 区域名称（主域名）
     * @return 区域 标识
-     */
+    */
     @SuppressWarnings("unchecked")
     private String resolveZoneId(String zoneName) {
         if (zoneName == null || zoneName.isEmpty()) {
@@ -175,7 +175,7 @@ public class CloudflareDnsProvider implements DnsProvider {
     *
     * @param map Cloudflare 记录
     * @return DNS 记录
-     */
+    */
     private DnsRecord toRecord(Map<String, Object> map) {
         DnsRecord.DnsRecordBuilder builder = DnsRecord.builder()
                 .name(str(map.get("name")))
@@ -198,14 +198,14 @@ public class CloudflareDnsProvider implements DnsProvider {
     *
     * @param obj 对象
     * @return 字符串，null 时返回 空
-     */
+    */
     private String str(Object obj) {
         return obj == null ? null : obj.toString();
     }
 
     /**
     * 确保客户端与区域已就绪。
-     */
+    */
     private void ensureReady() {
         if (client == null) {
             throw new IllegalStateException("请先调用 config 配置 DNS 提供者");

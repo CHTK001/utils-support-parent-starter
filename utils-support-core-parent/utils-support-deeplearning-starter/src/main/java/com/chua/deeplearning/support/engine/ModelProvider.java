@@ -17,6 +17,6 @@ public interface ModelProvider {
     * 获取模型定义。
     *
     * @return 模型定义
-     */
+    */
     TranslatorModelDefinition getDefinition();
 }

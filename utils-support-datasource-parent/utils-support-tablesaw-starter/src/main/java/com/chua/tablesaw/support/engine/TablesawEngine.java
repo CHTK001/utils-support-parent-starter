@@ -57,7 +57,7 @@ public class TablesawEngine implements Engine {
     * <p>
     * 键 为数据源名称或表名，值 为对应的 Tablesaw Table 对象。
     * </p>
-     */
+    */
     private final Map<String, Table> tables = new ConcurrentHashMap<>();
 
     /**
@@ -65,7 +65,7 @@ public class TablesawEngine implements Engine {
     * <p>
     * 存储所有通过 {@link #addDataSource(String, EngineDataSource)} 注册的数据源。
     * </p>
-     */
+    */
     private final Map<String, EngineDataSource<Object>> dataSources = new ConcurrentHashMap<>();
 
     /**
@@ -73,7 +73,7 @@ public class TablesawEngine implements Engine {
     * <p>
     * 当未指定数据源名称时，使用此名称对应的数据源进行操作。
     * </p>
-     */
+    */
     private String defaultDataSourceName;
 
     @Override
@@ -97,7 +97,7 @@ public class TablesawEngine implements Engine {
     * 获取默认数据源名称。
     *
     * @return 默认数据源名称
-     */
+    */
     @Override
     public String getDefaultDataSourceName() {
         return defaultDataSourceName;
@@ -115,7 +115,7 @@ public class TablesawEngine implements Engine {
     * @param data 数据列表
     * @param <T>  数据类型
     * @return this
-     */
+    */
     public <T> Engine store(String name, List<T> data) {
         if (CollectionUtils.isEmpty(data)) {
             return this;
@@ -226,7 +226,7 @@ public class TablesawEngine implements Engine {
     * @param entity 实体对象
     * @param getter getter 方法
     * @return 属性值，调用失败返回 null
-     */
+    */
     private static Object invokeGetter(Object entity, Method getter) {
         try {
             return ReflectUtils.invoke(entity, getter.getName(), Object.class);
@@ -278,7 +278,7 @@ public class TablesawEngine implements Engine {
     * @param name    数据源名称
     * @param csvPath CSV 文件路径
     * @return 当前引擎实例，支持链式调用
-     */
+    */
     public TablesawEngine load(String name, String csvPath) {
         return load(name, csvPath, null);
     }
@@ -290,7 +290,7 @@ public class TablesawEngine implements Engine {
     * @param csvPath CSV 文件路径
     * @param charset 文件编码（如 UTF-8、GBK），为 空 时使用系统默认编码
     * @return 当前引擎实例，支持链式调用
-     */
+    */
     public TablesawEngine load(String name, String csvPath, String charset) {
         try {
             Table table;
@@ -320,7 +320,7 @@ public class TablesawEngine implements Engine {
     * @param name        数据源名称
     * @param inputStream CSV 数据输入流
     * @return 当前引擎实例，支持链式调用
-     */
+    */
     public TablesawEngine load(String name, InputStream inputStream) {
         try {
             Table table = Table.read().csv(inputStream);
@@ -340,7 +340,7 @@ public class TablesawEngine implements Engine {
     *
     * @param name 表名或数据源名称
     * @return Tablesaw Table 对象，不存在则返回 空
-     */
+    */
     public Table getTable(String name) {
         return tables.get(name);
     }
@@ -349,7 +349,7 @@ public class TablesawEngine implements Engine {
     * 获取默认 Tablesaw 表格
     *
     * @return 默认的 Tablesaw Table 对象
-     */
+    */
     public Table getTable() {
         return tables.get(defaultDataSourceName);
     }
@@ -358,7 +358,7 @@ public class TablesawEngine implements Engine {
     * 获取所有已加载的表名
     *
     * @return 表名集合
-     */
+    */
     public Set<String> tableNames() {
         return tables.keySet();
     }
@@ -483,7 +483,7 @@ public class TablesawEngine implements Engine {
     *
     * @param column Lambda 方法引用
     * @return 属性名字符串，解析失败返回 空
-     */
+    */
     private String resolveLambdaColumn(SFunction<?, ?> column) {
         if (column == null) {
             return null;
@@ -517,7 +517,7 @@ public class TablesawEngine implements Engine {
     * @param wrapper 查询包装器
     * @param <T>     实体类型
     * @return 查询结果列表
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper) {
         Table table = resolveTable(wrapper.getEntityClass());
@@ -563,7 +563,7 @@ public class TablesawEngine implements Engine {
     * @param orderBys 排序字段列表，格式为 "字段名称 ASC" 或 "字段名称 DESC"
     * @param <T>      对象类型
     * @return 负数表示 a < b，正数表示 a > b，相等返回 0
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
@@ -600,7 +600,7 @@ public class TablesawEngine implements Engine {
     * @param conditions 条件列表
     * @param <T>        实体类型
     * @return 组合后的 Predicate
-     */
+    */
     private <T> Predicate<T> conditionsToPredicate(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
             return t -> true;
@@ -621,7 +621,7 @@ public class TablesawEngine implements Engine {
     * @param c   条件对象
     * @param <T> 实体类型
     * @return 对应的 Predicate
-     */
+    */
     @SuppressWarnings("unchecked")
     private <T> Predicate<T> conditionToPredicate(Condition c) {
         if (c.isNested()) {
@@ -653,7 +653,7 @@ public class TablesawEngine implements Engine {
     * @param op   操作符
     * @param val  操作数值
     * @return 匹配结果
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean evaluate(Object prop, String op, Object val) {
         switch (op) {
@@ -751,7 +751,7 @@ public class TablesawEngine implements Engine {
     * @param prop 属性值
     * @param val  目标值
     * @return 是否相等
-     */
+    */
     private boolean eq(Object prop, Object val) {
         if (prop == null) {
             return val == null;
@@ -777,7 +777,7 @@ public class TablesawEngine implements Engine {
     * @param prop    属性值字符串
     * @param pattern 匹配模式
     * @return 是否匹配
-     */
+    */
     private boolean likeMatch(String prop, String pattern) {
         String p = pattern.replace("%", "").toLowerCase();
         if (pattern.startsWith("%") && pattern.endsWith("%")) {
@@ -800,7 +800,7 @@ public class TablesawEngine implements Engine {
     * @param pageSize 每页大小
     * @param <T>      实体类型
     * @return 分页结果
-     */
+    */
     private <T> Page<T> executePage(LambdaQueryWrapper<T> wrapper, int pageNum, int pageSize) {
         List<T> all = executeQuery(wrapper);
         int total = all.size();
@@ -823,7 +823,7 @@ public class TablesawEngine implements Engine {
     *
     * @param entityClass 实体类类型
     * @return Tablesaw Table 对象，未找到返回 空
-     */
+    */
     private Table resolveTable(Class<?> entityClass) {
         String name = getTableName(entityClass);
         Table table = tables.get(name);
@@ -842,7 +842,7 @@ public class TablesawEngine implements Engine {
     * @param columnNames 列名列表
     * @param <T>         实体类型
     * @return 实体对象
-     */
+    */
     private <T> T rowToEntity(
             Row row,
             Class<T> entityClass,
@@ -873,7 +873,7 @@ public class TablesawEngine implements Engine {
     * @param column     列名
     * @param targetType 目标类型
     * @return 转换后的值
-     */
+    */
     private static Object getRowValue(Row row, String column, Class<?> targetType) {
         if (row.isMissing(column)) {
             return null;
@@ -906,7 +906,7 @@ public class TablesawEngine implements Engine {
     * @param entityClass 实体类类型
     * @param columnNames 列名列表
     * @return 列名小写到 setter 方法的映射表
-     */
+    */
     private static Map<String, Method> resolveSetters(Class<?> entityClass, List<String> columnNames) {
         Map<String, Method> setters = new HashMap<>();
         Set<String> lowerCols = new HashSet<>();
@@ -938,7 +938,7 @@ public class TablesawEngine implements Engine {
     *
     * @param entityClass 实体类类型
     * @return 转换后的表名
-     */
+    */
     private static String getTableName(Class<?> entityClass) {
         String simpleName = entityClass.getSimpleName();
         StringBuilder sb = new StringBuilder();
@@ -960,7 +960,7 @@ public class TablesawEngine implements Engine {
     * @param bean  对象实例
     * @param field 字段名
     * @return 属性值，获取失败返回 空
-     */
+    */
     private static Object getPropertyValue(Object bean, String field) {
         try {
             String getter = "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1);

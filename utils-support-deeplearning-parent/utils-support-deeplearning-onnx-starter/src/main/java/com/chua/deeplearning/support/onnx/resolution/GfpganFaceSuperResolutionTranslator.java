@@ -81,7 +81,7 @@ public class GfpganFaceSuperResolutionTranslator implements Translator<Image, Im
     * clampu8。
     * @param v v
     * @return clampU8的结果
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(-1f, Math.min(1f, v));
         return (int) Math.round((x + 1f) / 2f * 255f);

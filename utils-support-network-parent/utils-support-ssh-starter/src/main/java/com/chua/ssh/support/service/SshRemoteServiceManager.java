@@ -32,23 +32,23 @@ import java.nio.file.Path;
 public class SshRemoteServiceManager implements RemoteServiceManager {
 
     /**
-     * 默认远程部署目录。
-     */
+    * 默认远程部署目录。
+    */
     private static final String DEFAULT_REMOTE_DIR = "/opt/sip-server";
 
     /**
-     * SSH 客户端。
-     */
+    * SSH 客户端。
+    */
     private SshClient sshClient;
 
     /**
-     * SFTP 客户端（上传 jar 用）。
-     */
+    * SFTP 客户端（上传 jar 用）。
+    */
     private SftpClient sftpClient;
 
     /**
-     * 当前配置。
-     */
+    * 当前配置。
+    */
     private SshConfig config;
 
     @Override
@@ -86,11 +86,11 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 同步执行远程命令并返回输出（供远程主机诊断/配置使用）。
-     *
-     * @param command 要执行的命令
-     * @return 命令输出（stdout 为空时回退 stderr）
-     */
+    * 同步执行远程命令并返回输出（供远程主机诊断/配置使用）。
+    *
+    * @param command 要执行的命令
+    * @return 命令输出（stdout 为空时回退 stderr）
+    */
     public String execCommand(String command) {
         return execAndWait(command);
     }
@@ -170,8 +170,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     // ========== 私有方法 ==========
 
     /**
-     * 校验 SSH 连接是否已建立，未连接时抛出异常。
-     */
+    * 校验 SSH 连接是否已建立，未连接时抛出异常。
+    */
     private void requireConnected() {
         if (sshClient == null || !sshClient.isConnected()) {
             throw new IllegalStateException("[service-remote] SSH 未连接，请先调用 connect()");
@@ -179,11 +179,11 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在远程主机上同步执行命令并返回输出。
-     *
-     * @param cmd 要执行的命令
-     * @return 命令输出（stdout 为空时回退 stderr）
-     */
+    * 在远程主机上同步执行命令并返回输出。
+    *
+    * @param cmd 要执行的命令
+    * @return 命令输出（stdout 为空时回退 stderr）
+    */
     private String execAndWait(String cmd) {
         requireConnected();
         try {
@@ -196,11 +196,11 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 在远程主机后台执行命令并返回进程 PID。
-     *
-     * @param cmd 后台启动命令
-     * @return 进程 PID，解析失败返回 -1
-     */
+    * 在远程主机后台执行命令并返回进程 PID。
+    *
+    * @param cmd 后台启动命令
+    * @return 进程 PID，解析失败返回 -1
+    */
     private long execDetach(String cmd) {
         requireConnected();
         try {
@@ -218,11 +218,11 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 将本地 jar 上传到远程路径。
-     *
-     * @param localPath  本地 jar 路径
-     * @param remotePath 远程目标路径（含文件名）
-     */
+    * 将本地 jar 上传到远程路径。
+    *
+    * @param localPath  本地 jar 路径
+    * @param remotePath 远程目标路径（含文件名）
+    */
     private void uploadJarIfNeeded(String localPath, String remotePath) {
         if (localPath == null || localPath.isBlank()) {
             return;
@@ -243,8 +243,8 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 懒加载 SFTP 客户端，仅首次上传时建立连接。
-     */
+    * 懒加载 SFTP 客户端，仅首次上传时建立连接。
+    */
     private void ensureSftp() {
         if (sftpClient != null) {
             return;
@@ -261,11 +261,11 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
-     *
-     * @param jarPath 原始 jar 路径
-     * @return 归一化远程路径
-     */
+    * 规范化为绝对远程路径：相对路径拼接到默认部署目录。
+    *
+    * @param jarPath 原始 jar 路径
+    * @return 归一化远程路径
+    */
     private static String normalizeRemotePath(String jarPath) {
         if (jarPath == null) {
             return DEFAULT_REMOTE_DIR + "/app.jar";
@@ -278,25 +278,25 @@ public class SshRemoteServiceManager implements RemoteServiceManager {
     }
 
     /**
-     * 替换模板中的占位符 token。
-     *
-     * @param template 模板字符串
-     * @param token    占位符（如 {jar}）
-     * @param value    替换值
-     * @return 替换后的字符串
-     */
+    * 替换模板中的占位符 token。
+    *
+    * @param template 模板字符串
+    * @param token    占位符（如 {jar}）
+    * @param value    替换值
+    * @return 替换后的字符串
+    */
     private static String replaceToken(String template, String token, String value) {
         return template == null ? value : template.replace(token, value);
     }
 
     /**
-     * 构建 systemd unit 文件内容。
-     *
-     * @param serviceName 服务名
-     * @param jarPath     jar 远程路径（用于推断工作目录）
-     * @param startCmd    启动命令
-     * @return unit 文件文本
-     */
+    * 构建 systemd unit 文件内容。
+    *
+    * @param serviceName 服务名
+    * @param jarPath     jar 远程路径（用于推断工作目录）
+    * @param startCmd    启动命令
+    * @return unit 文件文本
+    */
     private static String buildSystemdUnit(String serviceName, String jarPath, String startCmd) {
         return "[Unit]\n" +
                "Description=" + serviceName + "\n" +

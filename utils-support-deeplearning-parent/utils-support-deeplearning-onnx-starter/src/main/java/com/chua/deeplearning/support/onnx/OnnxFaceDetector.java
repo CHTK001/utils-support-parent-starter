@@ -46,7 +46,7 @@ public class OnnxFaceDetector implements FaceDetector {
     /**
     * 创建 onnxfacedetector 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxFaceDetector(String apiKey) {
         this.apiKey = apiKey;
     }

@@ -37,7 +37,7 @@ public class OnnxOcrPipeline {
     * @param blurThreshold blur阈值
     * @param sigmoidDetect sigmoiddetect
     * @param sigmoidRecognize sigmoidrecognize
-     */
+    */
     public OnnxOcrPipeline(ImageDetector detector, OcrRecognizer recognizer,
                            ITranslator<Object, Object> direction, ITranslator<Object, Object> enhancer,
                            boolean enhanceInPipeline, boolean sortReadingOrder, float minConfidence,
@@ -55,7 +55,7 @@ public class OnnxOcrPipeline {
     *
     * @param imageData 镜像数据
     * @return recognize的结果
-     */
+    */
     public String recognize(byte[] imageData) {
         return delegate.recognize(imageData);
     }
@@ -65,7 +65,7 @@ public class OnnxOcrPipeline {
     *
     * @param imageData 镜像数据
     * @return recognizeDetail的结果
-     */
+    */
     public List<OcrResult> recognizeDetail(byte[] imageData) {
         return delegate.recognizeDetail(imageData);
     }
@@ -75,7 +75,7 @@ public class OnnxOcrPipeline {
     *
     * @param imageData 镜像数据
     * @return recognizedetailwith镜像的结果
-     */
+    */
     public OcrPipeline.OcrRecognizeResult recognizeDetailWithImage(byte[] imageData) {
         return delegate.recognizeDetailWithImage(imageData);
     }
@@ -85,7 +85,7 @@ public class OnnxOcrPipeline {
     *
     * @param imageData 镜像数据
     * @return correct的结果
-     */
+    */
     public byte[] correct(byte[] imageData) {
         return delegate.correct(imageData);
     }
@@ -95,7 +95,7 @@ public class OnnxOcrPipeline {
     *
     * @param imageData 镜像数据
     * @return 增强的结果
-     */
+    */
     public byte[] enhance(byte[] imageData) {
         return delegate.enhance(imageData);
     }
@@ -104,7 +104,7 @@ public class OnnxOcrPipeline {
     * Detector
     *
     * @return detector的结果
-     */
+    */
     public ImageDetector detector() {
         return delegate.detector();
     }
@@ -113,7 +113,7 @@ public class OnnxOcrPipeline {
     * Recognizer
     *
     * @return recognizer的结果
-     */
+    */
     public OcrRecognizer recognizer() {
         return delegate.recognizer();
     }

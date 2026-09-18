@@ -25,7 +25,7 @@ public record OcrResult(
     * @param confidence 信心
     * @param boundingBox boundingbox
     * @return ocr结果的结果
-     */
+    */
     public OcrResult(String text, float confidence, PredictRectangle boundingBox) {
         this(text, confidence, boundingBox, 0f);
     }

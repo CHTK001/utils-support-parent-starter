@@ -24,16 +24,16 @@ public interface QrCode {
     }
 
     /**
-    * 生成二维码/条形码
-    *
-    * @param content  编码内容
-    * @param type     码类型
-    * @param width    宽度（像素）
-    * @param height   高度（像素）
-    * @param format   图片格式（如 png、jpg）
-    * @param output   输出文件
-    * @throws Exception 生成失败
-    */
+        * 生成二维码/条形码
+        *
+        * @param content  编码内容
+        * @param type     码类型
+        * @param width    宽度（像素）
+        * @param height   高度（像素）
+        * @param format   图片格式（如 png、jpg）
+        * @param output   输出文件
+        * @throws Exception 生成失败
+        */
     void encode(String content, BarcodeType type, int width, int height,
                 String format, File output) throws Exception;
 

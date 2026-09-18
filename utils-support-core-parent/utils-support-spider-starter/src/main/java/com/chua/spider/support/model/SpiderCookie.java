@@ -20,30 +20,30 @@ public class SpiderCookie {
 
     /**
     * Cookie 名称。
-     */
+    */
     private String name;
 
     /**
     * Cookie 值。
-     */
+    */
     private String value;
 
     /**
     * 域名。
     *
     * <p>为空表示不限域名。</p>
-     */
+    */
     private String domain;
 
     /**
     * 路径。
     *
     * <p>为空时使用默认路径 {@code /}。</p>
-     */
+    */
     private String path;
 
     /**
     * 是否仅 HTTPS 发送。
-     */
+    */
     private Boolean secure;
 }

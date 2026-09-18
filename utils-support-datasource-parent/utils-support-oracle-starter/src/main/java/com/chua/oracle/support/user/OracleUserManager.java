@@ -36,7 +36,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     * 返回 SPI 扩展键：{@code oracle}
     *
     * @return "oracle"
-     */
+    */
     @Override
     public String type() {
         return "oracle";
@@ -46,7 +46,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     * 设置 JDBC 数据源，由 SPI 工厂自动调用。
     *
     * @param dataSource 数据源
-     */
+    */
     @Override
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -56,7 +56,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     * 查询 Oracle 数据库中所有用户（需要 DBA 权限访问 dba_用户 视图）。
     *
     * @return 用户信息列表
-     */
+    */
     @Override
     public List<UserInfo> listUsers() {
         List<UserInfo> list = new ArrayList<>();
@@ -80,7 +80,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     *
     * @param username 用户名
     * @return 创建用户的链式步骤对象
-     */
+    */
     @Override
     public CreateUserStep createUser(String username) {
         return new OracleCreateUserStep(dataSource, username);
@@ -91,7 +91,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     *
     * @param username 用户名
     * @return 执行步骤对象
-     */
+    */
     @Override
     public DropUserStep dropUser(String username) {
         return () -> {
@@ -109,7 +109,7 @@ public class OracleUserManager implements UserManager, DataSourceAware {
     *
     * @param username 用户名
     * @return 修改用户的链式步骤对象
-     */
+    */
     @Override
     public AlterUserStep alterUser(String username) {
         return new OracleAlterUserStep(dataSource, username);

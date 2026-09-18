@@ -36,42 +36,42 @@ public class SshDeployTarget implements MavenDeployTarget {
 
     /**
     * SSH 主机
-     */
+    */
     private final String host;
 
     /**
     * SSH 端口
-     */
+    */
     private final int port;
 
     /**
     * 用户名
-     */
+    */
     private final String username;
 
     /**
     * 密码
-     */
+    */
     private final String password;
 
     /**
     * 远程部署根目录
-     */
+    */
     private final String remoteRoot;
 
     /**
     * SFTP 客户端
-     */
+    */
     private Object sftpClient;
 
     /**
     * 是否已连接
-     */
+    */
     private boolean ready;
 
     /**
     * 部署回调
-     */
+    */
     private MavenDeployCallback callback;
 
     /**
@@ -82,7 +82,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     * @param username   用户名
     * @param password   密码
     * @param remoteRoot 远程根目录
-     */
+    */
     public SshDeployTarget(String host, int port, String username, String password, String remoteRoot) {
         this.host = host;
         this.port = port;
@@ -98,7 +98,7 @@ public class SshDeployTarget implements MavenDeployTarget {
     * @param username   用户名
     * @param password   密码
     * @param remoteRoot 远程根目录
-     */
+    */
     public SshDeployTarget(String host, String username, String password, String remoteRoot) {
         this(host, 22, username, password, remoteRoot);
     }
@@ -255,7 +255,7 @@ public class SshDeployTarget implements MavenDeployTarget {
 
     /**
     * 确保已连接
-     */
+    */
     private void ensureReady() {
         if (!ready) {
             throw new MavenDeployException("SSH 部署目标未连接，请先调用 connect()");

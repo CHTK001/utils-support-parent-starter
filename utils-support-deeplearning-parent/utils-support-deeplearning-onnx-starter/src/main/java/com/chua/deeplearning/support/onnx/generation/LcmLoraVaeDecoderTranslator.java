@@ -33,17 +33,17 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *              -                   
-     */
+    */
     public LcmLoraVaeDecoderTranslator() {
         this(512, 512);
     }
@@ -53,7 +53,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public LcmLoraVaeDecoderTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -68,7 +68,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     * @param ctx                     
     * @param input        nd列表
     * @return                         
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, NDList input) {
         // VAE                                           
@@ -93,7 +93,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     * @param ctx                    
     * @param list              nd列表
     * @return                   
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
@@ -126,7 +126,7 @@ public class LcmLoraVaeDecoderTranslator implements Translator<NDList, Image> {
     *                   
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

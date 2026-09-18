@@ -44,30 +44,18 @@ public class ClusterManager {
     /** 分组 标识 */
     private final String groupId;
     /**
-    * 已注册的 服务端entry（含本节点与远端目标）
-    *
-     /**
-    * cluster管理器。
-    * @param discovery discovery
-    * @param balance balance
-      */
-     * @param discovery discovery
-     * @param balance balance
-     * @param selfNodeId self节点标识
-     */
+    * 已注册的服务端 entry 列表（含本节点自身与远端目标）。
+    * 注册后的服务端通过 Scatter 自动扩散到集群，无需手动维护节点表。
+    */
     private final List<ServerEntry> entries = new ArrayList<>();
 
     /**
-    * cluster管理器。
-    * @param discovery discovery
-    * @param balance balance
-    * @param selfNodeId self节点id
-     /**
-      * cluster管理器。
-      * @param discovery discovery
-      * @param balance balance
-      */
-     */
+    * 双参构造器。
+    * 使用散列发现的默认自身节点标识，委托给三参构造器实现。
+    *
+    * @param discovery 散列服务发现实例，不能为空
+    * @param balance   负载均衡策略（weight/round/random），为空时回落 weight
+    */
     public ClusterManager(ScatterServiceDiscovery discovery, String balance) {
         this(discovery, balance, null);
     }
@@ -84,7 +72,7 @@ public class ClusterManager {
     *
     * @param entry 服务元数据
     * @return 当前实例（链式调用）
-     */
+    */
     public ClusterManager addServer(ServerEntry entry) {
         if (entry == null) {
             return this;
@@ -103,7 +91,7 @@ public class ClusterManager {
     *
     * @param entries 服务元数据列表
     * @return 当前实例
-     */
+    */
     public ClusterManager addServers(List<ServerEntry> entries) {
         if (entries == null) {
             return this;
@@ -118,7 +106,7 @@ public class ClusterManager {
     * 获取指定服务路径下的全部节点。
     * @param servicePath 服务路径
     * @return 节点的结果
-     */
+    */
     public Set<Discovery> nodes(String servicePath) {
         return discovery.getServiceAll(servicePath);
     }
@@ -129,7 +117,7 @@ public class ClusterManager {
     * @param scatterId scatterid
     * @param protocol 协议
     * @return 节点的结果
-     */
+    */
     public Set<Discovery> nodes(String servicePath, String scatterId, String protocol) {
         return discovery.getServiceAll(servicePath).stream()
                 .filter(d -> scatterId == null || scatterId.equals(d.getScatterId()))
@@ -144,7 +132,7 @@ public class ClusterManager {
     * @param scatterId   业务分组
     * @param protocol    协议（http/tcp）
     * @return 目标节点，无可用节点返回 空
-     */
+    */
     public Discovery route(String servicePath, String scatterId, String protocol) {
         if (selfNodeId == null || selfNodeId.isBlank()) {
             return discovery.getService(servicePath, scatterId, balance, protocol);
@@ -166,7 +154,7 @@ public class ClusterManager {
 
     /**
     * 构建故障退避的 TCP 代理目标解析器。
-     */
+    */
     public com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver
             tcpResolver(String servicePath, String scatterId) {
         return new com.chua.common.support.network.server.proxy.DiscoveryProxyTargetResolver(
@@ -179,7 +167,7 @@ public class ClusterManager {
     * @param scatterId scatterid
     * @param protocol 协议
     * @return healthy数量的结果
-     */
+    */
     public int healthyCount(String servicePath, String scatterId, String protocol) {
         return nodes(servicePath, scatterId, protocol).size();
     }
@@ -190,7 +178,7 @@ public class ClusterManager {
     * @param scatterId scatterid
     * @param target Target
     * @return 是否healthy的结果
-     */
+    */
     public boolean isHealthy(String servicePath, String scatterId, Discovery target) {
         if (target == null) {
             return false;
@@ -206,7 +194,7 @@ public class ClusterManager {
     /**
     * 获取已注册的所有服务元数据。
     * @return 获取entries的结果
-     */
+    */
     public List<ServerEntry> getEntries() {
         return List.copyOf(entries);
     }
@@ -214,7 +202,7 @@ public class ClusterManager {
     /**
     * 便捷：获取集群全部节点列表。
     * @return 全部节点的结果
-     */
+    */
     public List<Discovery> allNodes() {
         return discovery.getServiceAll("/").stream().toList();
     }
@@ -224,7 +212,7 @@ public class ClusterManager {
     *
     * @param entry entry
     * @return 转为discovery的结果
-     */
+    */
     private Discovery toDiscovery(ServerEntry entry) {
         String proto = entry.normalizedProtocol();
         String serverId = entry.getHost() + ":" + entry.getPort();

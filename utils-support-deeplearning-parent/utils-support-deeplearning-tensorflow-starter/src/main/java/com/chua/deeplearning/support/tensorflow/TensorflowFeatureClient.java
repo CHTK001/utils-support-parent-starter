@@ -26,7 +26,7 @@ public class TensorflowFeatureClient extends AbstractLocalFeatureClient {
     * 构造 tensor流 图像理解客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public TensorflowFeatureClient(FeatureClientSetting setting) {
         super("tensorflow", setting);
     }

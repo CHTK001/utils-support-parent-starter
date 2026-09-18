@@ -96,7 +96,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     * @param action 动作
     * @param packageId 包标识
     * @return 执行命令的结果
-     */
+    */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
@@ -123,11 +123,11 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * 解析npm输出
-    *
-    * @param output 输出
-    * @return 解析npm输出的结果
-     */
+            * 解析npm输出
+            *
+            * @param output 输出
+            * @return 解析npm输出的结果
+            */
     private List<SoftwareInfo> parseNpmOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -158,7 +158,7 @@ public class NpmSoftwareProvider implements SoftwareProvider {
     * @param json json
     * @param key 键
     * @return extractjson值的结果
-     */
+    */
     private String extractJsonValue(String json, String key) {
         String searchKey = "\"" + key + "\"";
         int keyIndex = json.indexOf(searchKey);

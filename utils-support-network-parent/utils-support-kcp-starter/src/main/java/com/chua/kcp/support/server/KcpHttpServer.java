@@ -23,18 +23,18 @@ public class KcpHttpServer extends AbstractServer {
 
     /**
     * KCP 会话标识（conv），两端保持一致
-     */
+    */
     public static final int KCP_CONV = 0x48455054;
 
     /**
     * 底层 KCP 服务器实例
-     */
+    */
     private KcpServer kcpServer;
 
     /**
     * 创建 kcphttp服务端 实例
     * @param setting setting
-     */
+    */
     public KcpHttpServer(ServerSetting setting) {
         super(setting);
     }

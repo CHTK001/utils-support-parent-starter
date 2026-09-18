@@ -36,84 +36,84 @@ import java.util.Map;
 public final class IbdRecordCursor {
 
     /**
-     * 页内容。
-     */
+    * 页内容。
+    */
     private final byte[] page;
 
     /**
-     * 页大小。
-     */
+    * 页大小。
+    */
     private final int pageSize;
 
     /**
-     * 字段值的「向后」读游标（从 origin 递增）。
-     */
+    * 字段值的「向后」读游标（从 origin 递增）。
+    */
     private int forward;
 
     /**
-     * NULL 位图与变长长度的「向前」读游标（从 origin-5 递减）。
-     */
+    * NULL 位图与变长长度的「向前」读游标（从 origin-5 递减）。
+    */
     private int backward;
 
     /**
-     * 当前记录头。
-     */
+    * 当前记录头。
+    */
     private Header header;
 
     /**
-     * 记录头解析结果。
-     *
-     * @param origin     记录数据起点
-     * @param infoBits   信息位（第 0 位为删除标记）
-     * @param nOwned     该记录在页目录里拥有的槽数
-     * @param heapNo     堆序号（0=infimum，1=supremum）
-     * @param recordType 记录类型（0 普通 / 1 节点指针 / 2 infimum / 3 supremum）
-     * @param nextOffset {@code REC_NEXT} 原始值（相对本记录 origin 的有符号偏移）
-     * @param level      所在页的 B+ 树层高
-     */
+    * 记录头解析结果。
+    *
+    * @param origin     记录数据起点
+    * @param infoBits   信息位（第 0 位为删除标记）
+    * @param nOwned     该记录在页目录里拥有的槽数
+    * @param heapNo     堆序号（0=infimum，1=supremum）
+    * @param recordType 记录类型（0 普通 / 1 节点指针 / 2 infimum / 3 supremum）
+    * @param nextOffset {@code REC_NEXT} 原始值（相对本记录 origin 的有符号偏移）
+    * @param level      所在页的 B+ 树层高
+    */
     public record Header(int origin, int infoBits, int nOwned, int heapNo,
                          int recordType, int nextOffset, int level) {
 
         /**
-         * 是否为用户记录（普通记录且未被标记删除）。
-         *
-         * @return 是返回 true
-         */
+        * 是否为用户记录（普通记录且未被标记删除）。
+        *
+        * @return 是返回 true
+        */
         public boolean userRecord() {
             return recordType == IbdConstants.REC_STATUS_ORDINARY && (infoBits & 0x1) == 0;
         }
 
         /**
-         * 下一条记录的 origin。
-         *
-         * @return 下一条记录的 origin
-         */
+        * 下一条记录的 origin。
+        *
+        * @return 下一条记录的 origin
+        */
         public int nextOrigin() {
             return origin + nextOffset;
         }
     }
 
     /**
-     * 构造游标。
-     *
-     * @param page     页内容
-     * @param pageSize 页大小
-     */
+    * 构造游标。
+    *
+    * @param page     页内容
+    * @param pageSize 页大小
+    */
     public IbdRecordCursor(byte[] page, int pageSize) {
         this.page = page;
         this.pageSize = pageSize;
     }
 
     /**
-     * 按 {@code REC_NEXT} 链把一页里的记录头全部读出来。
-     *
-     * <p>链从 infimum（origin 99）开始，到 supremum（{@code REC_NEXT == 0}）结束，
-     * 因此结果里包含这两条哨兵记录；调用方用 {@link Header#userRecord()} 过滤即可。</p>
-     *
-     * @param page     页内容
-     * @param pageSize 页大小
-     * @return 记录头列表（含 infimum / supremum）
-     */
+    * 按 {@code REC_NEXT} 链把一页里的记录头全部读出来。
+    *
+    * <p>链从 infimum（origin 99）开始，到 supremum（{@code REC_NEXT == 0}）结束，
+    * 因此结果里包含这两条哨兵记录；调用方用 {@link Header#userRecord()} 过滤即可。</p>
+    *
+    * @param page     页内容
+    * @param pageSize 页大小
+    * @return 记录头列表（含 infimum / supremum）
+    */
     public static List<Header> chain(byte[] page, int pageSize) {
         List<Header> headers = new ArrayList<>();
         int origin = IbdConstants.PAGE_NEW_INFIMUM;
@@ -134,11 +134,11 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 定位到某条记录的 origin 并解析其记录头。
-     *
-     * @param origin 记录数据起点
-     * @return 本对象（便于链式调用）
-     */
+    * 定位到某条记录的 origin 并解析其记录头。
+    *
+    * @param origin 记录数据起点
+    * @return 本对象（便于链式调用）
+    */
     public IbdRecordCursor at(int origin) {
         this.forward = origin;
         this.backward = origin - IbdConstants.REC_HEADER_SIZE;
@@ -147,28 +147,28 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 取当前记录头。
-     *
-     * @return 记录头
-     */
+    * 取当前记录头。
+    *
+    * @return 记录头
+    */
     public Header header() {
         return header;
     }
 
     /**
-     * 解析 5 字节记录头。
-     *
-     * <p>前 <b>3</b> 字节拼成一个 24 位字（大端）：高 4 位是信息位、接着 4 位是页目录拥有数、
-     * 再 13 位是堆序号、低 3 位是记录类型。第 3-4 字节是相对本记录 origin 的
-     * <b>有符号</b>下一记录偏移。</p>
-     *
-     * <p><b>踩过的坑</b>：一开始只取了前 2 字节当 16 位字，结果类型位落到了堆序号中间 ——
-     * 表现是 supremum 被认成普通记录，遍历时多读一条垃圾记录，SDI 解压直接报
-     * 「unknown compression method」。</p>
-     *
-     * @param origin 记录数据起点
-     * @return 记录头
-     */
+    * 解析 5 字节记录头。
+    *
+    * <p>前 <b>3</b> 字节拼成一个 24 位字（大端）：高 4 位是信息位、接着 4 位是页目录拥有数、
+    * 再 13 位是堆序号、低 3 位是记录类型。第 3-4 字节是相对本记录 origin 的
+    * <b>有符号</b>下一记录偏移。</p>
+    *
+    * <p><b>踩过的坑</b>：一开始只取了前 2 字节当 16 位字，结果类型位落到了堆序号中间 ——
+    * 表现是 supremum 被认成普通记录，遍历时多读一条垃圾记录，SDI 解压直接报
+    * 「unknown compression method」。</p>
+    *
+    * @param origin 记录数据起点
+    * @return 记录头
+    */
     private Header parseHeader(int origin) {
         int base = origin - IbdConstants.REC_HEADER_SIZE;
         if (base < 0 || origin > pageSize) {
@@ -181,13 +181,13 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 把当前记录还原成一行数据。
-     *
-     * @param columns 记录里的字段顺序（来自索引定义，<b>不是</b>建表顺序）
-     * @param lob     溢出页读取器；为 {@code null} 时遇到溢出字段会抛异常
-     * @return 列名 → 值（{@code null} 表示 SQL NULL）
-     * @throws IOException 读溢出页失败
-     */
+    * 把当前记录还原成一行数据。
+    *
+    * @param columns 记录里的字段顺序（来自索引定义，<b>不是</b>建表顺序）
+    * @param lob     溢出页读取器；为 {@code null} 时遇到溢出字段会抛异常
+    * @return 列名 → 值（{@code null} 表示 SQL NULL）
+    * @throws IOException 读溢出页失败
+    */
     public Map<String, Object> readRow(List<IbdColumn> columns, IbdLobReader lob) throws IOException {
         int nullableCount = 0;
         for (IbdColumn column : columns) {
@@ -248,10 +248,10 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 向前（低地址方向）读一个字节。
-     *
-     * @return 字节值（0-255）
-     */
+    * 向前（低地址方向）读一个字节。
+    *
+    * @return 字节值（0-255）
+    */
     private int readBackwardByte() {
         backward--;
         if (backward < 0) {
@@ -261,11 +261,11 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 向前（低地址方向）读若干字节，并按大端解释为整数。
-     *
-     * @param count 字节数
-     * @return 无符号整数值
-     */
+    * 向前（低地址方向）读若干字节，并按大端解释为整数。
+    *
+    * @param count 字节数
+    * @return 无符号整数值
+    */
     private long readBackwardInt(int count) {
         backward -= count;
         if (backward < 0) {
@@ -279,11 +279,11 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 读一个变长字段的长度前缀。
-     *
-     * @param column 字段定义
-     * @return 字段内容字节数
-     */
+    * 读一个变长字段的长度前缀。
+    *
+    * @param column 字段定义
+    * @return 字段内容字节数
+    */
     private int readVariableLength(IbdColumn column) {
         int first = readBackwardByte();
         if (!column.big()) {
@@ -297,11 +297,11 @@ public final class IbdRecordCursor {
     }
 
     /**
-     * 向后（高地址方向）读若干字节。
-     *
-     * @param count 字节数
-     * @return 字节内容
-     */
+    * 向后（高地址方向）读若干字节。
+    *
+    * @param count 字节数
+    * @return 字节内容
+    */
     private byte[] readForward(int count) {
         if (count < 0 || forward + count > pageSize) {
             throw new IllegalStateException("读字段内容越界: offset=" + forward

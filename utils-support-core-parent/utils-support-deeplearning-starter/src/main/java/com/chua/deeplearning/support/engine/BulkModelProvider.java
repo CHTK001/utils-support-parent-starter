@@ -17,6 +17,6 @@ public interface BulkModelProvider extends ModelProvider {
     * 获取所有模型定义。
     *
     * @return 模型定义列表
-     */
+    */
     List<TranslatorModelDefinition> getAll();
 }

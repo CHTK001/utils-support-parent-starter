@@ -31,7 +31,7 @@ public class UtilsSpringConfiguration {
     * Distributed锁Intercept
     *
     * @return distributed锁intercept的结果
-     */
+    */
     public DistributedLockIntercept distributedLockIntercept() {
         return new DistributedLockIntercept();
     }
@@ -43,7 +43,7 @@ public class UtilsSpringConfiguration {
     *
     * @param intercept intercept
     * @return distributed锁advisor的结果
-     */
+    */
     public DistributedLockAdvisor distributedLockAdvisor(DistributedLockIntercept intercept) {
         return new DistributedLockAdvisor(intercept);
     }
@@ -54,7 +54,7 @@ public class UtilsSpringConfiguration {
     * Collapse拦截
     *
     * @return collapsibleIntercept的结果
-     */
+    */
     public CollapsibleIntercept collapsibleIntercept() {
         return new CollapsibleIntercept();
     }
@@ -66,7 +66,7 @@ public class UtilsSpringConfiguration {
     *
     * @param intercept intercept
     * @return collapsibleAdvisor的结果
-     */
+    */
     public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {
         return new CollapsibleAdvisor(intercept);
     }

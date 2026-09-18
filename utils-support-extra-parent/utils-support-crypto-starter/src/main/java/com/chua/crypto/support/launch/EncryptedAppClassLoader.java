@@ -36,7 +36,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
 
     /**
     * fatjar 应用类根前缀（springboot 结构）
-     */
+    */
     private static final String BOOT_CLASSES_PREFIX = "BOOT-INF/classes/";
 
     static {
@@ -45,17 +45,17 @@ public class EncryptedAppClassLoader extends URLClassLoader {
 
     /**
     * 加密程序包文件
-     */
+    */
     private final JarFile jar;
 
     /**
     * 主密钥分片（堆中不存完整密钥）
-     */
+    */
     private final byte[][] masterShards;
 
     /**
     * 解密资源 URL 处理器
-     */
+    */
     private final Handler handler = new Handler();
 
     /**
@@ -65,7 +65,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * @param master  主密钥（32 字节，构造后即分片并清零入参）
     * @param parent  父加载器（依赖包加载器）
     * @throws IOException jar 打开失败
-     */
+    */
     public EncryptedAppClassLoader(File jarFile, byte[] master, ClassLoader parent) throws IOException {
         super(new URL[0], parent);
         this.jar = new JarFile(jarFile);
@@ -117,7 +117,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     *
     * @param entryName 条目全名
     * @return 明文输入流；条目不存在返回 空
-     */
+    */
     InputStream openDecryptedStream(String entryName) {
         JarEntry entry = jar.getJarEntry(entryName);
         if (entry == null) {
@@ -136,7 +136,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * @param entry 条目
     * @return 明文字节
     * @throws IOException 读取失败
-     */
+    */
     private byte[] entryBytes(JarEntry entry) throws IOException {
         byte[] raw = readAll(jar.getInputStream(entry));
         if (!PayloadCipher.isEncryptedEntry(raw)) {
@@ -154,7 +154,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * 定义包（若尚未定义）
     *
     * @param className 类全名
-     */
+    */
     private void defineOrReusePackage(String className) {
         int dot = className.lastIndexOf('.');
         if (dot <= 0) {
@@ -171,7 +171,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     *
     * @param path 相对路径
     * @return 候选列表
-     */
+    */
     private java.util.List<String> candidates(String path) {
         java.util.List<String> list = new java.util.ArrayList<>(2);
         list.add(path);
@@ -184,7 +184,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     *
     * @param entryName 条目名
     * @return chkres 协议 URL
-     */
+    */
     private URL toChkUrl(String entryName) {
         try {
             String spec = "chkres://chua/" + java.net.URLEncoder.encode(entryName, StandardCharsets.UTF_8);
@@ -200,7 +200,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * @param in 输入流
     * @return 字节
     * @throws IOException 读取失败
-     */
+    */
     private static byte[] readAll(InputStream in) throws IOException {
         try (InputStream input = in) {
             return input.readAllBytes();
@@ -211,7 +211,7 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * 解密资源协议处理器
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class Handler extends URLStreamHandler {
 
         @Override
@@ -224,13 +224,13 @@ public class EncryptedAppClassLoader extends URLClassLoader {
     * 条目内容连接：获取输入流 返回解密字节流
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class ChkURLConnection extends URLConnection {
 
         /**
         * chkurlconnection。
         * @param url url
-         */
+        */
         protected ChkURLConnection(URL url) {
             super(url);
         }

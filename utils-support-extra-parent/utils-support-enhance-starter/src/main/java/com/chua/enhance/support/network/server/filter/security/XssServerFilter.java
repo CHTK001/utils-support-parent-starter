@@ -30,14 +30,14 @@ public class XssServerFilter implements ServerFilter {
 
     /**
     * XSS 脚本标签正则
-     */
+    */
     private static final Pattern SCRIPT_PATTERN = Pattern.compile(
             "<\\s*script[^>]*>.*?<\\s*/\\s*script[^>]*>",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
     * XSS 事件属性正则
-     */
+    */
     private static final Pattern EVENT_PATTERN = Pattern.compile(
             "\\bon\\w+\\s*=\\s*[\"'][^\"']*[\"']",
             Pattern.CASE_INSENSITIVE);
@@ -76,7 +76,7 @@ public class XssServerFilter implements ServerFilter {
     *
     * @param contentType 内容类型
     * @return 是否文本内容的结果
-     */
+    */
     private boolean isTextContent(String contentType) {
         if (contentType == null) {
             return true;
@@ -91,7 +91,7 @@ public class XssServerFilter implements ServerFilter {
     *
     * @param input 输入
     * @return sanitize的结果
-     */
+    */
     private String sanitize(String input) {
         if (input == null) {
             return null;

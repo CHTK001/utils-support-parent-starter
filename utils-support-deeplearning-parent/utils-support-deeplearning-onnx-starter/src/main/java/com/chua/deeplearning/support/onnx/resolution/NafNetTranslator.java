@@ -33,27 +33,27 @@ public class NafNetTranslator implements Translator<Image, Image> {
 
     /**
     * nafnet                                                                 0
-     */
+    */
     private static final int MIN_SIZE = 384;
 
     /**
     * nafnet
-     */
+    */
     private static final int SIZE_ALIGN = 64;
 
     /**
     * nafnet ONNX nd管理器
-     */
+    */
     private NDManager manager;
 
     /**
     *                                                      
-     */
+    */
     private int origWidth;
 
     /**
     *                                                      
-     */
+    */
     private int origHeight;
 
     @Override
@@ -138,7 +138,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     *
     * @param v 浮点像素值
     * @return 0-255 整数
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);
@@ -151,7 +151,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     * @param w     目标宽
     * @param h     目标高
     * @return 缩放后的图（尺寸一致时返回原图）
-     */
+    */
     private static BufferedImage resizeIfNeeded(BufferedImage src, int w, int h) {
         if (src.getWidth() == w && src.getHeight() == h) {
             return src;
@@ -169,7 +169,7 @@ public class NafNetTranslator implements Translator<Image, Image> {
     *
     * @param size                       
     * @return                                
-     */
+    */
     private static int alignSize(int size) {
         if (size < MIN_SIZE) {
             return MIN_SIZE;

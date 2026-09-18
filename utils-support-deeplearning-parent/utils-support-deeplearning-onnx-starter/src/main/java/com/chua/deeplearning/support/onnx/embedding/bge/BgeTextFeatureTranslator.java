@@ -140,7 +140,7 @@ public class BgeTextFeatureTranslator implements ITranslator<String, float[]> {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         translator.close();
         tokenizer = null;

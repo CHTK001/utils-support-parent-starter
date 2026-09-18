@@ -15,14 +15,14 @@ public class HeifNativeEncoder {
 
     /**
     * heifNAT编码器。
-     */
+    */
     private HeifNativeEncoder() {}
 
     /**
     * encode。
     * @param image 镜像
     * @param output 输出
-     */
+    */
     public static void encode(BufferedImage image, ImageOutputStream output) throws IOException {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -55,7 +55,7 @@ public class HeifNativeEncoder {
     * @param out 出
     * @param type 类型
     * @param data 数据
-     */
+    */
     private static void writeBox(ByteArrayOutputStream out, String type, byte[] data) throws IOException {
         int size = 8 + data.length;
         out.write(intToBytes(size));
@@ -67,7 +67,7 @@ public class HeifNativeEncoder {
     * int转为bytes。
     * @param value 值
     * @return int转为bytes的结果
-     */
+    */
     private static byte[] intToBytes(int value) {
         return new byte[]{
             (byte)((value >> 24) & 0xFF),
@@ -82,7 +82,7 @@ public class HeifNativeEncoder {
     * @param w w
     * @param h h
     * @return 构建hinfbox的结果
-     */
+    */
     private static byte[] buildHinfBox(int w, int h) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         safeWrite(bos, new byte[]{0, 0, 0, 0});
@@ -98,7 +98,7 @@ public class HeifNativeEncoder {
     * @param w w
     * @param h h
     * @return 构建ispebox的结果
-     */
+    */
     private static byte[] buildIspeBox(int w, int h) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         safeWrite(bos, new byte[]{0, 0, 0, 0});
@@ -112,7 +112,7 @@ public class HeifNativeEncoder {
     * safe写入。
     * @param out 出
     * @param data 数据
-     */
+    */
     private static void safeWrite(ByteArrayOutputStream out, byte[] data) {
         out.write(data, 0, data.length);
     }
@@ -122,7 +122,7 @@ public class HeifNativeEncoder {
     * @param image 镜像
     * @param quality quality
     * @return 转为jpegbytes的结果
-     */
+    */
     private static byte[] toJpegBytes(BufferedImage image, float quality) throws IOException {
         // Convert to RGB for JPEG encoding (JPEG does not support alpha or indexed color)
         BufferedImage rgb;

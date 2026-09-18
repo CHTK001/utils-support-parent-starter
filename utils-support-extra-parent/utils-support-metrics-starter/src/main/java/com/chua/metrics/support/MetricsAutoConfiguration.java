@@ -27,7 +27,7 @@ public class MetricsAutoConfiguration {
     *
     * @param properties 配置属性
     * @return MetricsService 实例
-     */
+    */
     @Bean(destroyMethod = "close")
     public MetricsService metricsService(MetricsProperties properties) {
         if (!properties.isEnabled()) {

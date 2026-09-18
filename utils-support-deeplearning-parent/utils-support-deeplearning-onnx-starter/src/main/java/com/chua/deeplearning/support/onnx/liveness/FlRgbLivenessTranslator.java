@@ -27,7 +27,7 @@ public class FlRgbLivenessTranslator implements Translator<Image, Float> {
 
     /**
     * 输入尺寸。
-     */
+    */
     private static final int INPUT_SIZE = 112;
 
     @Override

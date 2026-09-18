@@ -51,7 +51,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     private OrtEnvironment ortEnv; // ortenv
     /**
     * prepare。
-     */
+    */
     private OrtSession visionSession;
     private OrtSession embedSession; // embed会话
     private OrtSession decoderSession; // 解码器会话
@@ -82,7 +82,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
         /**
         * download模型。
         * @param modelDir 模型dir
-         */
+        */
         embedSession = ortEnv.createSession(embedPath.toString(), opts);
         decoderSession = ortEnv.createSession(decoderPath.toString(), opts);
         log.info("[Florence-2] Model loaded: vision={} embed={} decoder={}", visionPath, embedPath, decoderPath);
@@ -126,14 +126,14 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             * @param tokens 令牌
             * @param encoderHidden 编码器hidden
             * @param taskPrompt 任务提示符
-             */
+            */
             float[] pixels = preprocessImage(imageData);
             float[][] encoderHidden = inferVision(pixels);
             /**
             * preprocess镜像。
             * @param imageData 镜像数据
             * @return preprocess镜像的结果
-             */
+            */
             return generate(encoderHidden, taskPrompt).trim();
         } catch (Exception e) { throw new RuntimeException("Florence-2 inference failed: " + e.getMessage(), e); }
     }
@@ -165,7 +165,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
             * inferVision。
             * @param pixels pixels
             * @return inferVision的结果
-             */
+            */
             return pixels;
         } finally { src.release(); }
     }
@@ -281,7 +281,7 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     * floatarray从2D。
     * @param m m
     * @return floatArrayFrom2D的结果
-     */
+    */
     private static float[] floatArrayFrom2D(float[][] m) { int r = m.length, c = m[0].length; float[] flat = new float[r * c]; for (int i = 0; i < r; i++) System.arraycopy(m[i], 0, flat, i * c, c); return flat; }
     /**
     * argmax。
@@ -289,15 +289,15 @@ public class Florence2Translator implements ITranslator<Object[], String> {
     * @param offset 偏移量
     * @param vocabSize vocab大小
     * @return argmax的结果
-     */
+    */
     private static int argmax(float[] logits, int offset, int vocabSize) { int maxIdx = 0; float maxVal = Float.NEGATIVE_INFINITY; for (int i = 0; i < vocabSize; i++) { float v = logits[offset + i]; if (v > maxVal) { maxVal = v; maxIdx = i; } } return maxIdx; }
     /**
     * 关闭。
-     */
+    */
     public void close() { prepared = false; if (tokenizer != null) { try { tokenizer.close(); } catch (Exception ignored) {} tokenizer = null; } closeS(visionSession); closeS(embedSession); closeS(decoderSession); }
     /**
     * 关闭s。
     * @param s s
-     */
+    */
     private static void closeS(OrtSession s) { if (s != null) { try { s.close(); } catch (Exception ignored) {} } }
 }

@@ -24,47 +24,47 @@ public class PeerWireClient implements AutoCloseable {
 
     /**
     * BT 协议握手标识。
-     */
+    */
     private static final byte[] PROTOCOL = "BitTorrent protocol".getBytes(StandardCharsets.US_ASCII);
 
     /**
     * 保留字节，启用扩展协议（BEP 10）。
-     */
+    */
     private static final byte[] RESERVED = new byte[]{0, 0, 0, 0, 0, 0x10, 0, 0};
 
     /**
     * 扩展消息 标识（用于 ut_metadata）。
-     */
+    */
     private static final int EXTENDED_MSG_ID = 20;
 
     /**
-    * TCP 套接字。
-     */
+    * TCP Socket。
+    */
     private final Socket socket;
 
     /**
-    * 套接字输入流。
-     */
+    * Socket输入流。
+    */
     private final InputStream in;
 
     /**
-    * 套接字输出流。
-     */
+    * Socket输出流。
+    */
     private final OutputStream out;
 
     /**
     * 操作截止时间戳（毫秒）。
-     */
+    */
     private final long deadline;
 
     /**
     * ut_metadata 扩展消息 标识（由对等体分配，-1 表示未知）。
-     */
+    */
     private int utMetadataId = -1;
 
     /**
     * 对等体报告的元数据大小（字节）。
-     */
+    */
     private long peerMetadataSize;
 
     /**
@@ -74,7 +74,7 @@ public class PeerWireClient implements AutoCloseable {
     * @param infoHash 20 字节 infohash
     * @param timeoutMs 超时时间（毫秒）
     * @throws IOException 连接或握手失败
-     */
+    */
     public PeerWireClient(InetSocketAddress address, byte[] infoHash, int timeoutMs) throws IOException {
         byte[] peerId = new byte[20];
         ThreadLocalRandom.current().nextBytes(peerId);
@@ -96,7 +96,7 @@ public class PeerWireClient implements AutoCloseable {
     * @param infoHash 本地 infohash
     * @param peerId   本地 peer 标识
     * @throws IOException 握手失败
-     */
+    */
     private void doHandshake(byte[] infoHash, byte[] peerId) throws IOException {
         out.write(PROTOCOL.length);
         out.write(PROTOCOL);
@@ -128,7 +128,7 @@ public class PeerWireClient implements AutoCloseable {
     * 等待对等体发送扩展握手消息。
     *
     * @throws IOException 超时或握手失败
-     */
+    */
     private void waitForExtHandshake() throws IOException {
         while (deadlineOk()) {
             Frame frame = readFrame();
@@ -150,7 +150,7 @@ public class PeerWireClient implements AutoCloseable {
     * 解析扩展握手消息。
     *
     * @param data Bencode 编码的握手数据
-     */
+    */
     @SuppressWarnings("unchecked")
     private void parseExtHandshake(byte[] data) {
         Map<String, Object> dict = (Map<String, Object>)
@@ -172,7 +172,7 @@ public class PeerWireClient implements AutoCloseable {
     * 获取 ut_metadata 扩展消息 标识。
     *
     * @return 扩展消息 标识，-1 表示未知
-     */
+    */
     public int getUtMetadataId() {
         return utMetadataId;
     }
@@ -181,7 +181,7 @@ public class PeerWireClient implements AutoCloseable {
     * 获取对等体报告的元数据大小。
     *
     * @return 元数据大小（字节）
-     */
+    */
     public long getPeerMetadataSize() {
         return peerMetadataSize;
     }
@@ -192,7 +192,7 @@ public class PeerWireClient implements AutoCloseable {
     * @param extMsgId 扩展消息 标识
     * @param payload  消息负载
     * @throws IOException 发送失败
-     */
+    */
     public void sendExtendedMessage(int extMsgId, byte[] payload) throws IOException {
         byte[] buf = new byte[1 + payload.length];
         buf[0] = (byte) extMsgId;
@@ -205,7 +205,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @param metadataSize 本地元数据大小
     * @throws IOException 发送失败
-     */
+    */
     public void sendExtHandshake(long metadataSize) throws IOException {
         Map<String, Object> m = new java.util.LinkedHashMap<>();
         m.put("ut_metadata", 1L);
@@ -220,7 +220,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @return Frame 实例，超时或连接关闭返回 空
     * @throws IOException 读取失败
-     */
+    */
     public Frame readFrame() throws IOException {
         if (!deadlineOk()) {
             return null;
@@ -247,7 +247,7 @@ public class PeerWireClient implements AutoCloseable {
     * @param id     消息 标识
     * @param payload 消息负载
     * @throws IOException 写入失败
-     */
+    */
     private void writeMessage(int id, byte[] payload) throws IOException {
         int total = payload.length + 1;
         out.write(new byte[]{
@@ -264,7 +264,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @return 整数，连接关闭返回 -1
     * @throws IOException 读取失败
-     */
+    */
     private int readInt() throws IOException {
         int b0 = checkedRead();
         int b1 = checkedRead();
@@ -281,7 +281,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @return 字节值，连接关闭抛出 eof异常
     * @throws IOException 读取失败
-     */
+    */
     private int checkedRead() throws IOException {
         waitAvailable(1);
         int b = in.read();
@@ -296,7 +296,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @param buf 目标缓冲区
     * @throws IOException 读取失败或连接关闭
-     */
+    */
     private void checkedReadFully(byte[] buf) throws IOException {
         int off = 0;
         while (off < buf.length) {
@@ -314,7 +314,7 @@ public class PeerWireClient implements AutoCloseable {
     *
     * @param needed 需要的字节数
     * @throws IOException 超时
-     */
+    */
     private void waitAvailable(int needed) throws IOException {
         while (deadlineOk() && in.available() < needed) {
             try {
@@ -333,14 +333,14 @@ public class PeerWireClient implements AutoCloseable {
     * 检查是否仍在截止时间内。
     *
     * @return 未超时返回 true
-     */
+    */
     private boolean deadlineOk() {
         return System.currentTimeMillis() < deadline;
     }
 
     /**
-    * 关闭套接字连接。
-     */
+    * 关闭Socket连接。
+    */
     @Override
     public void close() {
         try {
@@ -353,17 +353,17 @@ public class PeerWireClient implements AutoCloseable {
     * BT 消息帧。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Frame {
 
         /**
         * 消息 标识。
-         */
+        */
         public final int id;
 
         /**
         * 消息负载。
-         */
+        */
         public final byte[] payload;
 
         /**
@@ -371,7 +371,7 @@ public class PeerWireClient implements AutoCloseable {
         *
         * @param id     消息 标识
         * @param payload 消息负载
-         */
+        */
         Frame(int id, byte[] payload) {
             this.id = id;
             this.payload = payload;

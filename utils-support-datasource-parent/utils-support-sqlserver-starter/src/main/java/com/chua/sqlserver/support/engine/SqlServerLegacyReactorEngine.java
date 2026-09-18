@@ -20,58 +20,30 @@ import java.util.regex.Pattern;
  @Spi("sqlserver-legacy")
 public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
 
-    /**
-    * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-    * @param table table
-    * @param cols cols
-    * @param vals vals
-    * @return 插入的结果
-    * @param where where
-     /**
-      * 添加数据源。
-      * @param name 名称
-      * @param host 主机
-      * @param port 端口
-      * @param database database
-      * @param username 用户名
-      * @param password 密码
-      * @return 添加数据源的结果
-      */
-     * @param params 参数
-     */
+    /** 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线） */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     private final SqlServerLegacyEngine delegate = new SqlServerLegacyEngine(); // delegate
 
     /**
-    * 添加数据源。
-    * @param name 名称
-    * @param host 主机
-    * @param port 端口
-    * @param database database
+    * 添加一个 SQL Server 数据源（便捷重载）。
+    * 委托给底层传统引擎注册数据源，若数据源可用则同步注册到响应式数据源表。
+    *
+    * @param name     数据源名称
+    * @param host     主机地址
+    * @param port     端口
+    * @param database 数据库名
     * @param username 用户名
     * @param password 密码
-    * @return 添加数据源的结果
-     */
+    * @return 当前引擎实例（链式调用）
+    */
     public SqlServerLegacyReactorEngine addDataSource(String name, String host, int port, String database, String username, String password) {
         delegate.addDataSource(name, host, port, database, username, password);
         EngineDataSource<?> ds = delegate.getDataSource(name);
-        /**
-        * 查询全部。
-        * @param table table
-        * @return 查询全部的结果
-        * @param cols cols
-        * @param vals vals
-         */
         if (ds != null) {
             registerJdbcDataSource(name, ds.url(), username, password);
         }
         return this;
-    /**
-    * 查询全部。
-    * @param table table
-    * @return 查询全部的结果
-     */
     }
 
     public Flux<Map<String, Object>> queryAll(String table) {
@@ -82,7 +54,7 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     * @param where where
     * @param params 参数
     * @return 查询where的结果
-     */
+    */
     }
 
     public Flux<Map<String, Object>> queryWhere(String table, String where, Object... params) {
@@ -112,7 +84,7 @@ public class SqlServerLegacyReactorEngine extends JdbcReactorEngine {
     * @param id 待校验标识符
     * @return 去除首尾空白后的标识符
     * @throws IllegalArgumentException 标识符非法时抛出
-     */
+    */
     private String safeIdentifier(String id) {
         if (id == null) {
             throw new IllegalArgumentException("SQL 标识符不能为空");

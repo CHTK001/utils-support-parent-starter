@@ -47,12 +47,12 @@ public class DatabaseUsageParser extends BaseUsageParser {
 
     /**
     * Parser 名称标识
-     */
+    */
     public static final String NAME = "database";
 
     /**
     * 默认查询 SQL（适配 sys_AI_usage 表结构）
-     */
+    */
     private static final String DEFAULT_QUERY_SQL =
             "SELECT sys_ai_usage_provider, sys_ai_usage_model," +
             "       sys_ai_usage_prompt_tokens, sys_ai_usage_completion_tokens," +
@@ -65,7 +65,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
 
     /**
     * 默认字段映射
-     */
+    */
     private static final Map<String, String> DEFAULT_FIELD_MAPPING = new LinkedHashMap<>();
     static {
         DEFAULT_FIELD_MAPPING.put("provider", "sys_ai_usage_provider");
@@ -81,17 +81,17 @@ public class DatabaseUsageParser extends BaseUsageParser {
 
     /**
     * JDBC 模板
-     */
+    */
     private final JdbcTemplate jdbcTemplate;
 
     /**
     * 查询 SQL
-     */
+    */
     private final String querySql;
 
     /**
     * 字段映射
-     */
+    */
     private final Map<String, String> fieldMapping;
 
     /**
@@ -100,7 +100,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     * @param dataSource 数据源
     * @param querySql   自定义查询 SQL
     * @param fieldMapping 字段映射配置
-     */
+    */
     public DatabaseUsageParser(
             DataSource dataSource,
             @org.springframework.beans.factory.annotation.Value("${ai.usage.database.query-sql:}") String querySql,
@@ -143,7 +143,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     * 将数据库行映射为 AIusage 对象。
     * @param row row
     * @return 映射转为AIusage的结果
-     */
+    */
     private AiUsage mapToAiUsage(Map<String, Object> row) {
         AiUsage.AiUsageBuilder builder = AiUsage.builder();
 
@@ -199,7 +199,7 @@ public class DatabaseUsageParser extends BaseUsageParser {
     * 获取映射后的列名。
     * @param field 字段
     * @return 获取mappedcolumn的结果
-     */
+    */
     private String getMappedColumn(String field) {
         return fieldMapping.getOrDefault(field, field);
     }

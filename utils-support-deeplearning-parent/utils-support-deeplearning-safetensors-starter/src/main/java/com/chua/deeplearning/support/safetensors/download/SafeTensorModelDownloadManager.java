@@ -29,7 +29,7 @@ public class SafeTensorModelDownloadManager {
     /**
     * 创建 safetensor模型download管理器 实例
     * @param client 客户端
-     */
+    */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client) {
         String root = System.getProperty("safetensor.model.root", "D:/safetensor_models");
         this.modelRoot = Path.of(root);
@@ -41,7 +41,7 @@ public class SafeTensorModelDownloadManager {
     * @param client 客户端
     * @param modelRoot 路径
     * @param modelRoot 模型根
-     */
+    */
     public SafeTensorModelDownloadManager(SafeTensorServiceClient client, Path modelRoot) {
         this.modelRoot = modelRoot;
         this.client = client;
@@ -54,7 +54,7 @@ public class SafeTensorModelDownloadManager {
     * @param source 来源（modelscope / huggingface）
     * @param revision 版本（可选）
     * @return 模型本地路径
-     */
+    */
     public String ensureModel(String modelName, String source, String revision) {
         String localName = modelName.replace("/", "_");
         Path modelPath = modelRoot.resolve(localName);
@@ -82,7 +82,7 @@ public class SafeTensorModelDownloadManager {
     * @param revision revision
     * @param targetPath Target路径
     * @return downloadDirect的结果
-     */
+    */
     private String downloadDirect(String modelName, String source, String revision, Path targetPath) {
         try {
             Files.createDirectories(targetPath);

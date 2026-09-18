@@ -36,37 +36,37 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class DingTalkBuilder implements BotClient.Builder {
 
         /**
         * 平台凭证 令牌
-         */
+        */
         private String token;
 
         /**
         * 密钥
-         */
+        */
         private String secret;
 
         /**
         * 基础 URL
-         */
+        */
         private String baseUrl;
 
         /**
         * 连接超时时间（毫秒）
-         */
+        */
         private long connectTimeoutMillis = 10_000;
 
         /**
         * 读取超时时间（毫秒）
-         */
+        */
         private long readTimeoutMillis = 30_000;
 
         /**
         * 配置加载器
-         */
+        */
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
@@ -93,7 +93,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param token 令牌
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             return this;
@@ -114,7 +114,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param token 令牌
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
@@ -128,7 +128,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param token 令牌
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -141,7 +141,7 @@ public class DingTalkBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param token 令牌
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;

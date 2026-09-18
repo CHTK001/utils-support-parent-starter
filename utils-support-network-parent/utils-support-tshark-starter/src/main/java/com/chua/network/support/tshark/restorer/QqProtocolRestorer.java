@@ -69,7 +69,7 @@ public class QqProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param command 命令
     * @return 转为命令名称的结果
-     */
+    */
     private static String toCommandName(int command) {
         return switch (command) {
             case 0x0001 -> "LoginConfirm";

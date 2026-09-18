@@ -26,19 +26,19 @@ public class SofaRpcClient implements RpcClient {
 
     /**
     * registry 配置
-     */
+    */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
     * rpc Consumer 配置
-     */
+    */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
     * application 配置
-     */
+    */
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
     /**
     * consumer 缓存
-     */
+    */
     private final Map<Class<?>, ConsumerConfig<?>> consumerCache = new ConcurrentHashMap<>();
 
     /**
@@ -48,7 +48,7 @@ public class SofaRpcClient implements RpcClient {
     * @param name 字符串
     * @param consumerConfig consumer配置
     * @param name 名称
-     */
+    */
     public SofaRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.rpcConsumerConfig = consumerConfig;
         applicationConfig.setAppName(name);
@@ -72,9 +72,9 @@ public class SofaRpcClient implements RpcClient {
     /**
     * 获取
     *
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 获取的结果
-     */
+    */
     public <T> T get(Class<T> targetType) {
         ConsumerConfig<T> config = (ConsumerConfig<T>) consumerCache.computeIfAbsent(targetType, type -> {
             ConsumerConfig<T> c = new ConsumerConfig<>();

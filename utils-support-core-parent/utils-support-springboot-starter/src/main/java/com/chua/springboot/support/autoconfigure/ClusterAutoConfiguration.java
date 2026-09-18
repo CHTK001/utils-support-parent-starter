@@ -47,7 +47,7 @@ public class ClusterAutoConfiguration {
     *   <li>scatterId 未配置(仍为 "default") → 取 spring.application.name</li>
     *   <li>nodeId 未配置 → ip:port 保证同机多实例唯一</li>
     * </ul>
-     */
+    */
     private void autoDetect() {
         // 1. host: Spring server.address > chua.cluster.host > NetUtils 探测
         String springHost = environment.getProperty("server.address");
@@ -80,7 +80,7 @@ public class ClusterAutoConfiguration {
     /**
     * cluster服务端。
     * @return cluster服务端的结果
-     */
+    */
     public ClusterServer clusterServer() throws Exception {
         autoDetect();
         ClusterProperties props = clusterProperties;

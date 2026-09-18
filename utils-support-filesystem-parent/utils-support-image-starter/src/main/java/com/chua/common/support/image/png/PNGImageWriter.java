@@ -27,7 +27,7 @@ import java.util.zip.DeflaterOutputStream;
 public final class PNGImageWriter extends ImageWriter {
     /**
     * 默认hotp生成器 compression 级别 = 4 ie medium compression
-     */
+    */
     private static final int DEFAULT_COMPRESSION_LEVEL = 4;
 
     ImageOutputStream stream = null; // 流
@@ -36,22 +36,22 @@ public final class PNGImageWriter extends ImageWriter {
 
     /**
     * Whether a sequence 是否 存在 written.
-     */
+    */
     private boolean isWritingSequence = false;
 
     /**
     * Whether the 头部 是否包含 been written.
-     */
+    */
     private boolean wroteSequenceHeader = false;
 
     /**
     * The 索引 的 the 镜像 存在 written.
-     */
+    */
     private int imageIndex = 0;
 
     /**
     * The 索引 的 当前 sequence 数字.
-     */
+    */
     private int nextSequenceNumber = 0;
 
  // Factors 从 the 镜像写入参数
@@ -112,7 +112,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * 创建 png镜像writer 实例
     * @param originatingProvider originating提供者
-     */
+    */
     public PNGImageWriter(ImageWriterSpi originatingProvider) {
         super(originatingProvider);
     }
@@ -121,7 +121,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * 设置输出
     * @param output 输出
-     */
+    */
     public void setOutput(Object output) {
         super.setOutput(output);
         if (output != null) {
@@ -146,7 +146,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * 获取默认流式输出Metadata
     * @param param 参数
-     */
+    */
     public IIOMetadata getDefaultStreamMetadata(ImageWriteParam param) {
         
         return null;
@@ -158,7 +158,7 @@ public final class PNGImageWriter extends ImageWriter {
     * 获取默认镜像metadata
     * @param imageType 镜像类型
     * @param param 参数
-     */
+    */
     public IIOMetadata getDefaultImageMetadata(ImageTypeSpecifier imageType,
                                                ImageWriteParam param) {
         PNGMetadata m = new PNGMetadata();
@@ -171,7 +171,7 @@ public final class PNGImageWriter extends ImageWriter {
     * 转换流式输出Metadata
     * @param inData 入数据
     * @param param 参数
-     */
+    */
     public IIOMetadata convertStreamMetadata(IIOMetadata inData,
                                              ImageWriteParam param) {
         
@@ -185,7 +185,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param inData 入数据
     * @param imageType 镜像类型
     * @param param 参数
-     */
+    */
     public IIOMetadata convertImageMetadata(IIOMetadata inData,
                                             ImageTypeSpecifier imageType,
                                             ImageWriteParam param) {
@@ -542,7 +542,7 @@ public final class PNGImageWriter extends ImageWriter {
     * Deflate
     * @param b b
     * @return deflate的结果
-     */
+    */
     private byte[] deflate(byte[] b) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DeflaterOutputStream dos = new DeflaterOutputStream(baos);
@@ -660,7 +660,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param yOffset y偏移量
     * @param xSkip x跳过
     * @param ySkip y跳过
-     */
+    */
     private void encodePass(ImageOutputStream os,
                             RenderedImage image,
                             int xOffset, int yOffset,
@@ -830,7 +830,7 @@ public final class PNGImageWriter extends ImageWriter {
     * 写入IDAT
     * @param image 镜像
     * @param deflaterLevel deflater级别
-     */
+    */
     private void write_IDAT(RenderedImage image, int deflaterLevel)
         throws IOException
     {
@@ -869,7 +869,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param s0 s0
     * @param s1 s1
     * @return equals的结果
-     */
+    */
     private boolean equals(int[] s0, int[] s1) {
         if (s0 == null || s1 == null) {
             return false;
@@ -890,7 +890,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * 初始化scaletables
     * @param sampleSize 样本大小
-     */
+    */
     private void initializeScaleTables(int[] sampleSize) {
         int bitDepth = metadata.IHDR_bitDepth;
 
@@ -944,7 +944,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param streamMetadata 流metadata
     * @param image 镜像
     * @param param 参数
-     */
+    */
     public void write(IIOMetadata streamMetadata,
                       IIOImage image,
                       ImageWriteParam param) throws IIOException {
@@ -983,7 +983,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param image 镜像
     * @param deflaterLevel deflater级别
     * @param currentSequence 当前sequence
-     */
+    */
     private void write_fdAT(RenderedImage image, int deflaterLevel, int currentSequence)
             throws IOException
     {
@@ -1013,7 +1013,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * 写入 fcTL
     * @param metadata metadata
-     */
+    */
     private void write_fcTL(PNGMetadata metadata) throws IOException {
         if (metadata.fcTL_present) {
             ChunkStream cs = new ChunkStream(PNGImageReader.fcTL_TYPE, stream);
@@ -1042,7 +1042,7 @@ public final class PNGImageWriter extends ImageWriter {
     /**
     * Prepare写入Sequence
     * @param streamMetadata 流metadata
-     */
+    */
     public void prepareWriteSequence(IIOMetadata streamMetadata) throws IOException {
 
         if (stream == null) {
@@ -1059,7 +1059,7 @@ public final class PNGImageWriter extends ImageWriter {
     * @param image 镜像
     * @param param 参数
     * @param acTL_present actl_present
-     */
+    */
     private void writeToSequence0(IIOImage image, ImageWriteParam param, boolean acTL_present) throws IOException {
 
         if (stream == null) {
@@ -1282,7 +1282,7 @@ public final class PNGImageWriter extends ImageWriter {
     * 写入转为sequence
     * @param image 镜像
     * @param param 参数
-     */
+    */
     public void writeToSequence(IIOImage image, ImageWriteParam param) throws IOException {
         writeToSequence0(image, param, true);
     }

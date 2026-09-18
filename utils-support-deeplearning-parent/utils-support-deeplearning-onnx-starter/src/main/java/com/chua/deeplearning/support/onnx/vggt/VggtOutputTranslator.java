@@ -25,7 +25,7 @@ public class VggtOutputTranslator implements Translator<Image, VggtOutput> {
 
     /**
     *                         
-     */
+    */
     private static final int INPUT_SIZE = 518;
 
     @Override

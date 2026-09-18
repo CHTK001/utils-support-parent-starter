@@ -95,7 +95,7 @@ public final class WekaInstanceData {
     * @return 数据对象
     * @throws NullPointerException 当特征列为 空 时
     * @throws WekaException        当特征列为空集合时
-     */
+    */
     public static WekaInstanceData of(List<FeatureColumn> features, List<Map<String, Object>> rows) {
         return new WekaInstanceData(features, null, null, rows);
     }
@@ -109,7 +109,7 @@ public final class WekaInstanceData {
     * @return 分类数据对象
     * @throws NullPointerException 当特征列为 空 时
     * @throws WekaException        当特征列为空集合或标签列名为空白时
-     */
+    */
     public static WekaInstanceData classification(List<FeatureColumn> features, String labelColumn,
             List<Map<String, Object>> rows) {
         return new WekaInstanceData(features, labelColumn, null, rows);
@@ -124,7 +124,7 @@ public final class WekaInstanceData {
     * @return 回归数据对象
     * @throws NullPointerException 当特征列为 空 时
     * @throws WekaException        当特征列为空集合或目标列名为空白时
-     */
+    */
     public static WekaInstanceData regression(List<FeatureColumn> features, String targetColumn,
             List<Map<String, Object>> rows) {
         return new WekaInstanceData(features, null, targetColumn, rows);
@@ -136,7 +136,7 @@ public final class WekaInstanceData {
     * @param labelColumn 标签列名，不能为空白字符串
     * @return 分类数据对象
     * @throws WekaException 当标签列名为空白时
-     */
+    */
     public WekaInstanceData withLabelColumn(String labelColumn) {
         return new WekaInstanceData(features, labelColumn, null, rows);
     }
@@ -147,7 +147,7 @@ public final class WekaInstanceData {
     * @param targetColumn 目标列名，不能为空白字符串
     * @return 回归数据对象
     * @throws WekaException 当目标列名为空白时
-     */
+    */
     public WekaInstanceData withTargetColumn(String targetColumn) {
         return new WekaInstanceData(features, null, targetColumn, rows);
     }
@@ -156,7 +156,7 @@ public final class WekaInstanceData {
     * 判断当前数据是否为分类场景（是否已设置标签列）。
     *
     * @return true 表示已设置标签列
-     */
+    */
     public boolean hasLabel() {
         return labelColumn != null;
     }
@@ -165,7 +165,7 @@ public final class WekaInstanceData {
     * 判断当前数据是否为回归场景（是否已设置目标列）。
     *
     * @return true 表示已设置目标列
-     */
+    */
     public boolean hasTarget() {
         return targetColumn != null;
     }
@@ -174,7 +174,7 @@ public final class WekaInstanceData {
     * 判断当前数据是否具备标签列或目标列（两者满足其一即可转换 Weka 实例）。
     *
     * @return true 表示已设置标签列或目标列
-     */
+    */
     public boolean hasTargetOrLabel() {
         return hasLabel() || hasTarget();
     }
@@ -183,7 +183,7 @@ public final class WekaInstanceData {
     * 获取目标列名（回归目标列优先，其次分类标签列）。
     *
     * @return 目标列名；标签列与目标列均未设置时返回 空
-     */
+    */
     public String targetName() {
         return targetColumn != null ? targetColumn : labelColumn;
     }
@@ -194,7 +194,7 @@ public final class WekaInstanceData {
     * <p>供模型在预测阶段按相同的名义值顺序构建实例。</p>
     *
     * @return 列名 -> 取值列表（保持首次出现顺序）
-     */
+    */
     public Map<String, List<String>> nominalValues() {
         var map = new LinkedHashMap<String, List<String>>(features.size() + 1);
         for (FeatureColumn feature : features) {
@@ -213,7 +213,7 @@ public final class WekaInstanceData {
     *
     * @return Weka 实例
     * @throws WekaException 未设置标签 / 目标列，或数值列内容非法
-     */
+    */
     public Instances toWekaInstances() {
         if (!hasTargetOrLabel()) {
             throw new WekaException("请先指定标签列或目标列（withLabelColumn / withTargetColumn）");
@@ -248,7 +248,7 @@ public final class WekaInstanceData {
     * @return 属性值数组
     * @throws NullPointerException 当实例容器为 空 时
     * @throws WekaException        数值列内容非法
-     */
+    */
     public static double[] toAttributeValues(Instances ins, Map<String, Object> row) {
         Objects.requireNonNull(ins, "ins must not be null");
         var values = new double[ins.numAttributes()];
@@ -269,28 +269,15 @@ public final class WekaInstanceData {
     }
 
     /**
-    * 解析数值列取值（数字 直接取值，可解析的 字符串 按 double 解析）。
+    * 解析数值列取值。
+    * 数字类型直接取 double 值；字符串类型按 double 解析（去除首尾空白）。
     *
-    * @param name  列名（仅用于异常信息），不能为 空
-    * @param value 原始值，须为 数字 或可解析为 double 的 字符串，不能为 空
+    * @param name  列名（仅用于异常信息），不能为空
+    * @param value 原始值，须为数字或可解析为 double 的字符串，不能为空
     * @return 解析后的 double 值
-    * @throws NullPointerException 当列名或取值为 空 时
-    * @throws WekaException        值无法解析为数值
-    * @param columnName column名称
-     /**
-      * numeric值。
-      * @param name 名称
-      * @param value 值
-      * @return numeric值的结果
-      */
-      * @param columnName column名称
-     /**
-     * numeric值。
-     * @param name 名称
-     * @param value 值
-     * @return numeric值的结果
-      */
-     */
+    * @throws NullPointerException 当列名或取值为空时
+    * @throws WekaException        当值无法解析为数值或类型不匹配时
+    */
     public static double numericValue(String name, Object value) {
         Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(value, "value must not be null");

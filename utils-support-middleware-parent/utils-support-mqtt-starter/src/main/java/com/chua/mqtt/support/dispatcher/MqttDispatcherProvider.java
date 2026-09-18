@@ -39,18 +39,18 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
 
     /**
     * 默认客户端 标识 前缀，后接当前时间戳以保证唯一性
-     */
+    */
     private static final String DEFAULT_CLIENT_ID_PREFIX = "mqtt-dispatcher-";
 
     /**
     * Eclipse Paho MQTT 客户端，管理与 Broker 的连接、发布和订阅
-     */
+    */
     private MqttClient client;
 
     /**
     * 主题 -> 分发定义列表 的映射表。
     * 一个主题可被多个分发器订阅，使用 副本on写入array列表 保证遍历时的线程安全。
-     */
+    */
     private final Map<String, List<DispatcherDefinition>> definitionMap = new ConcurrentHashMap<>();
 
     /**
@@ -62,7 +62,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     *
     * @param config 分发器配置，必须包含 Broker URL
     * @throws RuntimeException 如果连接 Broker 失败
-     */
+    */
     public MqttDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
@@ -113,7 +113,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     *
     * @param topic 目标主题名称，不能为空
     * @param body  消息体，为 空 时发布空消息
-     */
+    */
     @Override
     public void publish(String topic, Object body) {
         try {
@@ -132,7 +132,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     * </p>
     *
     * @param definition 分发定义，包含待订阅的主题列表
-     */
+    */
     @Override
     public void subscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -154,7 +154,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     * </p>
     *
     * @param definition 分发定义，包含待取消订阅的主题列表
-     */
+    */
     @Override
     public void unsubscribe(DispatcherDefinition definition) {
         for (var topic : definition.getTopics()) {
@@ -180,7 +180,7 @@ public class MqttDispatcherProvider extends AbstractDispatcherProvider {
     * 依次执行：断开 MQTT 连接 -> 关闭客户端 -> 清空本地订阅映射表。
     * 如果连接已断开或关闭过程中发生异常，仅记录警告并继续执行后续清理。
     * </p>
-     */
+    */
     @Override
     public void close() {
         try {

@@ -33,7 +33,7 @@ public interface SpiderAiParser {
     *
     * @param result 爬取解析结果，需包含 文本 字段
     * @return AI 总结文本，失败时返回空字符串
-     */
+    */
     String summarize(SpiderResult result);
 
     /**
@@ -45,7 +45,7 @@ public interface SpiderAiParser {
     * @param result 爬取解析结果
     * @param schema 模式 描述，如 "{\"title\": \"\", \"作者\": \"\", \"日期\": \"\"}"
     * @return 提取的字段键值对
-     */
+    */
     Map<String, Object> extract(SpiderResult result, String schema);
 
     /**
@@ -54,7 +54,7 @@ public interface SpiderAiParser {
     * @param result     爬取解析结果
     * @param categories 候选分类列表，如 ["科技", "财经", "体育", "娱乐"]
     * @return 最佳匹配的分类名称
-     */
+    */
     String classify(SpiderResult result, String[] categories);
 
     /**
@@ -63,6 +63,6 @@ public interface SpiderAiParser {
     * @param result      爬取解析结果
     * @param targetLang  目标语言代码，如 "zh-CN"、"en"、"ja"
     * @return 翻译后的文本
-     */
+    */
     String translate(SpiderResult result, String targetLang);
 }

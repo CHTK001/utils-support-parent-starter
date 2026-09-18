@@ -24,13 +24,13 @@ public class IdCardMockString implements MockString {
 
     /**
     * 出生日期范围下界（包含）
-     */
+    */
     private static final String BIRTHDAY_MIN = "1960-01-01";
     /**
     * 出生日期范围上界（包含）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String BIRTHDAY_MAX = "2005-12-31";
 
     @Override

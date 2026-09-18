@@ -25,27 +25,27 @@ public class QiniuChatClient implements ChatClient {
 
     /**
     * 七牛云暂不支持 AI 对话的提示消息
-     */
+    */
     private static final String NOT_SUPPORTED_MSG = "七牛云暂不支持 AI 对话";
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     @Override
@@ -122,7 +122,7 @@ public class QiniuChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {

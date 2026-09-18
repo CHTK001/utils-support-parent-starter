@@ -42,7 +42,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
     /**
     * 列表。
     * @return 列表的结果
-     */
+    */
     @Override
     public <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass) {
         return new ReactorLambdaQueryWrapper<T>(delegate, entityClass) {
@@ -54,7 +54,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
                 * @param clazz clazz
                 * @param pn pn
                 * @param ps ps
-                 */
+                */
                 return Flux.fromIterable(doQuery(entityClass));
             /**
             * one。
@@ -62,7 +62,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
             * @param clazz clazz
             * @param pn pn
             * @param ps ps
-             */
+            */
             }
 
             @Override
@@ -156,7 +156,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
     * @param name 表名
     * @param data 行数据
     * @return 当前引擎
-     */
+    */
     public InMemoryReactorEngine store(String name, java.util.List<?> data) {
         delegate.store(name, data);
         return this;
@@ -164,7 +164,7 @@ public class InMemoryReactorEngine implements ReactorEngine {
 
     /**
     * 关闭引擎，释放内存数据。
-     */
+    */
     public void close() {
         delegate.close();
     }

@@ -15,7 +15,7 @@ public class LanzouException extends RuntimeException {
     * 构造异常。
     *
     * @param message 异常信息
-     */
+    */
     public LanzouException(String message) {
         super(message);
     }
@@ -25,7 +25,7 @@ public class LanzouException extends RuntimeException {
     *
     * @param message 异常信息
     * @param cause   根因
-     */
+    */
     public LanzouException(String message, Throwable cause) {
         super(message, cause);
     }

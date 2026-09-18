@@ -14,7 +14,7 @@ public class OpusMtEnDeTranslationTranslator extends OpusMtTranslationTranslator
 
     /**
     * opusmtende翻译translator。
-     */
+    */
     public OpusMtEnDeTranslationTranslator() {
         super("opus-mt-en-de", null, HF_BASE_URL);
     }

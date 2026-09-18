@@ -36,12 +36,12 @@ public class AutoFetcher implements SpiderFetcher {
 
     /**
     * 可用的 Fetcher 实现列表，按优先级排序
-     */
+    */
     private final List<SpiderFetcher> fetchers;
 
     /**
     * 默认构造器，从 SPI 收集所有可用的 Fetcher 实现。
-     */
+    */
     public AutoFetcher() {
         ServiceProvider<SpiderFetcher> provider = ServiceProvider.of(SpiderFetcher.class);
         // 过滤掉自身，避免递归死循环

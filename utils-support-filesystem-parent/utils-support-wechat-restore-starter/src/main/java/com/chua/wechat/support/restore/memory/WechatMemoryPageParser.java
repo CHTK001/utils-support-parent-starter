@@ -45,38 +45,38 @@ import java.util.Map;
 public final class WechatMemoryPageParser {
 
     /**
-     * 页大小
-     */
+    * 页大小
+    */
     public static final int PAGE_SIZE = 4096;
 
     /**
-     * SQLCipher 保留区（IV 16 字节 + HMAC 64 字节）
-     */
+    * SQLCipher 保留区（IV 16 字节 + HMAC 64 字节）
+    */
     public static final int RESERVE = 80;
 
     /**
-     * 页可用区大小
-     */
+    * 页可用区大小
+    */
     public static final int USABLE = PAGE_SIZE - RESERVE;
 
     /**
-     * 单个单元格内联 payload 上限
-     */
+    * 单个单元格内联 payload 上限
+    */
     public static final int MAX_LOCAL = USABLE - 35;
 
     /**
-     * 溢出时保留的最小内联 payload
-     */
+    * 溢出时保留的最小内联 payload
+    */
     public static final int MIN_LOCAL = ((USABLE - 12) * 32 / 255) - 23;
 
     /**
-     * 叶子表页类型字节
-     */
+    * 叶子表页类型字节
+    */
     private static final int PAGE_TYPE_LEAF_TABLE = 0x0D;
 
     /**
-     * 单页最多单元格数（防伪页）
-     */
+    * 单页最多单元格数（防伪页）
+    */
     private static final int MAX_CELLS = 1200;
 
     private WechatMemoryPageParser() {
@@ -84,54 +84,54 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 叶子表页。
-     *
-     * @param address 该页在目标进程中的起始地址
-     * @param strict  是否通过严格铺满校验
-     * @param records 解析出的记录
-     */
+    * 叶子表页。
+    *
+    * @param address 该页在目标进程中的起始地址
+    * @param strict  是否通过严格铺满校验
+    * @param records 解析出的记录
+    */
     public record LeafPage(long address, boolean strict, List<LeafRecord> records) {
     }
 
     /**
-     * 一条记录。
-     *
-     * @param rowid       行号
-     * @param values      各列的值（已转成字符串，NULL 为空串）
-     * @param serialTypes SQLite 序列类型
-     */
+    * 一条记录。
+    *
+    * @param rowid       行号
+    * @param values      各列的值（已转成字符串，NULL 为空串）
+    * @param serialTypes SQLite 序列类型
+    */
     public record LeafRecord(long rowid, String[] values, int[] serialTypes) {
 
         /**
-         * 列数。
-         *
-         * @return 列数
-         */
+        * 列数。
+        *
+        * @return 列数
+        */
         public int columnCount() {
             return values.length;
         }
     }
 
     /**
-     * 表结构（从 {@code sqlite_master} 的 CREATE TABLE 语句还原）。
-     *
-     * @param name         表名
-     * @param columns      列名
-     * @param declarations 列声明类型
-     * @param ddl          原始 CREATE TABLE 语句（重建库时直接使用）
-     */
+    * 表结构（从 {@code sqlite_master} 的 CREATE TABLE 语句还原）。
+    *
+    * @param name         表名
+    * @param columns      列名
+    * @param declarations 列声明类型
+    * @param ddl          原始 CREATE TABLE 语句（重建库时直接使用）
+    */
     public record TableSchema(String name, List<String> columns, List<String> declarations,
                               String ddl) {
     }
 
     /**
-     * 在缓冲区里滑窗扫描叶子表页。
-     *
-     * @param buffer      内存缓冲
-     * @param baseAddress 缓冲区起始地址（用于回填页地址）
-     * @param decodeBlob  是否解压 blob 列
-     * @return 叶子页列表
-     */
+    * 在缓冲区里滑窗扫描叶子表页。
+    *
+    * @param buffer      内存缓冲
+    * @param baseAddress 缓冲区起始地址（用于回填页地址）
+    * @param decodeBlob  是否解压 blob 列
+    * @return 叶子页列表
+    */
     public static List<LeafPage> scan(byte[] buffer, long baseAddress, boolean decodeBlob) {
         List<LeafPage> pages = new ArrayList<>();
         if (buffer == null || buffer.length < PAGE_SIZE) {
@@ -178,14 +178,14 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 检查偏移处是否是一个合法的叶子表页。
-     *
-     * @param buffer       缓冲
-     * @param offset       页起始偏移
-     * @param cellsOut     输出：单元格数
-     * @param contentOut   输出：内容区起点
-     * @return 0=非法；1=严格；2=宽松
-     */
+    * 检查偏移处是否是一个合法的叶子表页。
+    *
+    * @param buffer       缓冲
+    * @param offset       页起始偏移
+    * @param cellsOut     输出：单元格数
+    * @param contentOut   输出：内容区起点
+    * @return 0=非法；1=严格；2=宽松
+    */
     private static int inspectPage(byte[] buffer, int offset, int[] cellsOut, int[] contentOut) {
         if (offset + PAGE_SIZE > buffer.length) {
             return 0;
@@ -254,13 +254,13 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 按 SQLite 规则计算单元格总长度，并把内联 payload 长度写入 {@code out[1]}。
-     *
-     * @param buffer 缓冲
-     * @param at     单元格起始偏移
-     * @param out    输出：out[0]=payload 总长，out[1]=内联长度
-     * @return 单元格字节数；-1 表示非法
-     */
+    * 按 SQLite 规则计算单元格总长度，并把内联 payload 长度写入 {@code out[1]}。
+    *
+    * @param buffer 缓冲
+    * @param at     单元格起始偏移
+    * @param out    输出：out[0]=payload 总长，out[1]=内联长度
+    * @return 单元格字节数；-1 表示非法
+    */
     private static int cellSize(byte[] buffer, int at, int[] out) {
         int[] pos = {at};
         long payload = varint(buffer, pos);
@@ -290,16 +290,16 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 解析一条记录。
-     *
-     * @param buffer     缓冲
-     * @param at         payload 起始偏移
-     * @param length     内联 payload 长度
-     * @param payloadLen payload 总长（用于判断是否走溢出页）
-     * @param rowid      行号
-     * @param decodeBlob 是否解压 blob 列
-     * @return 记录；非法返回 null
-     */
+    * 解析一条记录。
+    *
+    * @param buffer     缓冲
+    * @param at         payload 起始偏移
+    * @param length     内联 payload 长度
+    * @param payloadLen payload 总长（用于判断是否走溢出页）
+    * @param rowid      行号
+    * @param decodeBlob 是否解压 blob 列
+    * @return 记录；非法返回 null
+    */
     private static LeafRecord decodeRecord(byte[] buffer, int at, int length, long payloadLen,
                                            long rowid, boolean decodeBlob) {
         int end = at + length;
@@ -404,11 +404,11 @@ public final class WechatMemoryPageParser {
     // ==================== schema 还原与表归属 ====================
 
     /**
-     * 从记录里扫出 {@code sqlite_master} 的 CREATE TABLE 语句，建立表模型。
-     *
-     * @param records 全部记录
-     * @return 表名 → 表结构
-     */
+    * 从记录里扫出 {@code sqlite_master} 的 CREATE TABLE 语句，建立表模型。
+    *
+    * @param records 全部记录
+    * @return 表名 → 表结构
+    */
     public static Map<String, TableSchema> buildSchema(Collection<LeafRecord> records) {
         Map<String, TableSchema> tables = new LinkedHashMap<>();
         for (LeafRecord record : records) {
@@ -434,11 +434,11 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 解析 CREATE TABLE 语句。
-     *
-     * @param ddl 语句
-     * @return 表结构；无法解析返回 null
-     */
+    * 解析 CREATE TABLE 语句。
+    *
+    * @param ddl 语句
+    * @return 表结构；无法解析返回 null
+    */
     private static TableSchema parseCreateTable(String ddl) {
         int leftParen = ddl.indexOf('(');
         int rightParen = ddl.lastIndexOf(')');
@@ -494,11 +494,11 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 按顶层逗号切分（忽略括号内、引号内的逗号）。
-     *
-     * @param text 文本
-     * @return 片段列表
-     */
+    * 按顶层逗号切分（忽略括号内、引号内的逗号）。
+    *
+    * @param text 文本
+    * @return 片段列表
+    */
     private static List<String> splitTopLevel(String text) {
         List<String> out = new ArrayList<>(16);
         int depth = 0;
@@ -537,11 +537,11 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 去掉标识符两侧的引号。
-     *
-     * @param text 文本
-     * @return 去引号后的文本
-     */
+    * 去掉标识符两侧的引号。
+    *
+    * @param text 文本
+    * @return 去引号后的文本
+    */
     private static String unquote(String text) {
         String result = text.trim();
         if (result.length() >= 2) {
@@ -556,16 +556,16 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 判断记录属于哪张表。
-     *
-     * <p><b>冲突数是硬约束，打分只用于同冲突数时排序。</b>只按「列数匹配 + 类型相容度打分」
-     * 会让列数恰好相同的表吞掉无关记录 —— 实测 14 列的记录<b>全部</b>被塞进
-     * {@code transferTable}（485 行误报），改成以冲突数为硬约束后收敛到 1 行真实记录。</p>
-     *
-     * @param record  记录
-     * @param schemas 表模型
-     * @return 表名；无法判定返回 null
-     */
+    * 判断记录属于哪张表。
+    *
+    * <p><b>冲突数是硬约束，打分只用于同冲突数时排序。</b>只按「列数匹配 + 类型相容度打分」
+    * 会让列数恰好相同的表吞掉无关记录 —— 实测 14 列的记录<b>全部</b>被塞进
+    * {@code transferTable}（485 行误报），改成以冲突数为硬约束后收敛到 1 行真实记录。</p>
+    *
+    * @param record  记录
+    * @param schemas 表模型
+    * @return 表名；无法判定返回 null
+    */
     public static String attribute(LeafRecord record, Map<String, TableSchema> schemas) {
         String best = null;
         int bestConflicts = Integer.MAX_VALUE;
@@ -602,12 +602,12 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 声明类型与实际序列类型的相容度。
-     *
-     * @param declaration 声明类型
-     * @param type        序列类型
-     * @return 2=吻合，1=可接受，0=冲突
-     */
+    * 声明类型与实际序列类型的相容度。
+    *
+    * @param declaration 声明类型
+    * @param type        序列类型
+    * @return 2=吻合，1=可接受，0=冲突
+    */
     private static int compat(String declaration, int type) {
         if (type == 0) {
             return 1;
@@ -639,12 +639,12 @@ public final class WechatMemoryPageParser {
     // ==================== 基础读取 ====================
 
     /**
-     * 读取 varint（SQLite 变长整数，最多 9 字节）。
-     *
-     * @param buffer 缓冲
-     * @param pos    读写位置（会前移）
-     * @return 值；越界或超长返回 -1
-     */
+    * 读取 varint（SQLite 变长整数，最多 9 字节）。
+    *
+    * @param buffer 缓冲
+    * @param pos    读写位置（会前移）
+    * @return 值；越界或超长返回 -1
+    */
     private static long varint(byte[] buffer, int[] pos) {
         long result = 0;
         for (int i = 0; i < 9; i++) {
@@ -665,12 +665,12 @@ public final class WechatMemoryPageParser {
     }
 
     /**
-     * 读大端 16 位整数。
-     *
-     * @param buffer 缓冲
-     * @param at     偏移
-     * @return 值
-     */
+    * 读大端 16 位整数。
+    *
+    * @param buffer 缓冲
+    * @param at     偏移
+    * @return 值
+    */
     private static int u16(byte[] buffer, int at) {
         return ((buffer[at] & 0xFF) << 8) | (buffer[at + 1] & 0xFF);
     }

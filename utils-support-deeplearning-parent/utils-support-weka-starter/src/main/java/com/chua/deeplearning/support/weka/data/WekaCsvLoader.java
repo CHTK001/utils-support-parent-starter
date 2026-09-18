@@ -36,7 +36,7 @@ public final class WekaCsvLoader {
 
     /**
     * wekacsv加载。
-     */
+    */
     private WekaCsvLoader() {
         throw new UnsupportedOperationException("工具类，禁止实例化");
     }
@@ -48,7 +48,7 @@ public final class WekaCsvLoader {
     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
     * @throws NullPointerException 当文件路径为 空 时
     * @throws WekaException        文件读取失败或数据行为空
-     */
+    */
     public static WekaInstanceData load(Path csvFile) {
         return load(csvFile, true);
     }
@@ -61,7 +61,7 @@ public final class WekaCsvLoader {
     * @return 数据对象（特征类型已自动推断，未指定标签 / 目标列）
     * @throws NullPointerException 当文件路径为 空 时
     * @throws WekaException        文件读取失败或数据行为空
-     */
+    */
     public static WekaInstanceData load(Path csvFile, boolean hasHeader) {
         Objects.requireNonNull(csvFile, "csvFile must not be null");
         List<String> lines;
@@ -128,7 +128,7 @@ public final class WekaCsvLoader {
     *
     * @param value 值
     * @return stripBOM的结果
-     */
+    */
     private static String stripBom(String value) {
         return value.startsWith("\uFEFF") ? value.substring(1) : value;
     }
@@ -138,7 +138,7 @@ public final class WekaCsvLoader {
     *
     * @param line CSV 行
     * @return 字段列表
-     */
+    */
     private static List<String> splitLine(String line) {
         List<String> out = new ArrayList<>();
         StringBuilder sb = new StringBuilder();

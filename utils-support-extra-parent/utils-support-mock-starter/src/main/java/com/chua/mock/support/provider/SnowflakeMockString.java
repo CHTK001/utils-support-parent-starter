@@ -22,13 +22,13 @@ public class SnowflakeMockString implements MockString {
 
     /**
     * 上次时间戳
-     */
+    */
     private long lastTimestamp = -1L;
     /**
     * 序列号
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private long sequence = 0L;
 
     @Override
@@ -54,7 +54,7 @@ public class SnowflakeMockString implements MockString {
     *
     * @param last 当前时间戳
     * @return 下一毫秒时间戳
-     */
+    */
     private long waitNextMillis(long last) {
         long time = System.currentTimeMillis();
         while (time <= last) {

@@ -34,7 +34,9 @@ public class WhisperMelExtractor {
     /** Mel 通道数 */
     /** N_mels */
     public static final int N_MELS = 80;
-    /** STFT 帧数：1 + (480000 / 160) = 3001, 但用 center padding 后实际是 3000 */
+    /**
+    * STFT 帧数：1 + (480000 / 160) = 3001, 但用 center padding 后实际是 3000
+    */
     /** N_帧 */
     public static final int N_FRAMES = 3000;
 
@@ -56,7 +58,7 @@ public class WhisperMelExtractor {
     *
     * @param audio float 数组，任意长度（会自动 pad/修剪 到 30s）
     * @return (80, 3000) float32 日志-mel
-     */
+    */
     public float[][] extract(float[] audio) {
         // 1. 截断到 30s；中心零填充（与参考实现一致：pad N_FFT/2 零，不预补满 30s）
         int inputLen = Math.min(audio.length, N_SAMPLES);
@@ -136,7 +138,7 @@ public class WhisperMelExtractor {
     *
     * @param mag mag
     * @return applyMelFilterbank的结果
-     */
+    */
     private float[][] applyMelFilterbank(float[][] mag) {
         float[][] mel = new float[N_MELS][mag[0].length];
         int nFreq = mag.length;
@@ -183,7 +185,7 @@ public class WhisperMelExtractor {
     *
     * @param hz hz
     * @return hz转为mel的结果
-     */
+    */
     private static float hzToMel(float hz) {
         return (float) (2595.0 * Math.log10(1.0 + hz / 700.0));
     }
@@ -193,7 +195,7 @@ public class WhisperMelExtractor {
     *
     * @param mel mel
     * @return mel转为hz的结果
-     */
+    */
     private static float melToHz(float mel) {
         return (float) (700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0));
     }

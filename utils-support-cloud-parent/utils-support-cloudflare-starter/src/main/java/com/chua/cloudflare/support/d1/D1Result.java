@@ -43,7 +43,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
     *
     * @param raw 单个 结果 元素（映射 类型）
     * @return D1Result
-     */
+    */
     @SuppressWarnings("unchecked")
     public static D1Result parse(Object raw) {
         if (!(raw instanceof Map<?, ?> map)) {
@@ -61,7 +61,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
     *
     * @param raw 批量 结果（列表 类型）
     * @return 每条 SQL 对应的 D1结果
-     */
+    */
     public static List<D1Result> parseBatch(Object raw) {
         var results = new ArrayList<D1Result>();
         if (raw instanceof List<?> list) {
@@ -79,7 +79,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
     *
     * @param raw 结果 节点（列表&lt;映射&gt;）
     * @return 行列表
-     */
+    */
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> parseResults(Object raw) {
         var out = new ArrayList<Map<String, Object>>();
@@ -96,7 +96,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
     /**
     * 获取 最后一个_row_标识（如适用）。
     * @return 获取最后一个rowid的结果
-     */
+    */
     public Object getLastRowId() {
         return meta.get("last_row_id");
     }
@@ -104,7 +104,7 @@ public record D1Result(Map<String, Object> meta, List<Map<String, Object>> rows,
     /**
     * 获取受影响行数。
     * @return 获取改变的结果
-     */
+    */
     public Object getChanges() {
         return meta.get("changes");
     }

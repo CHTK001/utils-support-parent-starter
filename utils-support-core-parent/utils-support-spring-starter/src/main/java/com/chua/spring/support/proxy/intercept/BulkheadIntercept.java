@@ -73,7 +73,7 @@ public class BulkheadIntercept extends AbstractMethodAnnotationIntercept impleme
     * @param annotation  隔离注解
     * @param proxyMethod 被拦截的方法信息
     * @return 回退方法的返回值，找不到时返回 空
-     */
+    */
     private Object resolveFallback(Bulkhead annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);
     }

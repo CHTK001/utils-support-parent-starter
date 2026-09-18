@@ -49,23 +49,23 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
     /**
     * j向量 向量类型支持实例
-     */
+    */
     private static final VectorTypeSupport VTS =
             VectorizationProvider.getInstance().getVectorTypeSupport();
 
     /**
     * 存储配置
-     */
+    */
     private final JVectorStorageProperties properties;
 
     /**
     * jvector 相似度函数
-     */
+    */
     private final VectorSimilarityFunction similarity;
 
     /**
     * 当前存储策略
-     */
+    */
     private StorageStrategy delegate;
 
     /**
@@ -73,7 +73,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     *
     * @param dimension 向量维度
     * @param algorithm 相似度算法
-     */
+    */
     public JVectorVectorStorage(int dimension, VectorCompareAlgorithm algorithm) {
         this(dimension, algorithm, null);
     }
@@ -84,7 +84,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     * @param dimension 向量维度
     * @param algorithm 相似度算法
     * @param properties 存储配置
-     */
+    */
     public JVectorVectorStorage(int dimension,
                                 VectorCompareAlgorithm algorithm,
                                 JVectorStorageProperties properties) {
@@ -98,7 +98,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     * 创建当前模式对应的存储策略。
     *
     * @return 存储策略实例
-     */
+    */
     private StorageStrategy createStrategy() {
         return switch (properties.getMode()) {
             case MEMORY -> new EagerMemoryStrategy(dimension(), similarity, properties, getAlgorithm());
@@ -169,7 +169,7 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     * @return 转为j向量sim的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static VectorSimilarityFunction toJVectorSim(VectorCompareAlgorithm algo) {
         if (algo == null) {
             return VectorSimilarityFunction.EUCLIDEAN;
@@ -242,41 +242,20 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         @Override
-         /**
-         * 执行搜索。
-         * @param query 查询
-         * @param topK topk
-         * @return 执行搜索的结果
-          */
-         * 执行搜索
-         *
-         * @param candidates candidates
-         * @param query 查询
-         * @param algo algo
-         * @param topK topk
-         * @return reRank的结果
-         */
+        /**
+        * 执行向量搜索。
+        * 优先走图搜索（HNSW），配置了重排算法时再对结果二次排序；空数据集直接返回空列表。
+        *
+        * @param query 查询向量，不能为空
+        * @param topK  返回的最大结果数
+        * @return 按相似度排序的向量列表
+        */
         public synchronized List<Vector> doSearch(float[] query, int topK) {
-            /**
-            * 图计算搜索。
-            * @param query 查询
-            * @param fetchK 获取k
-            * @return 图计算搜索的结果
-            * @param candidates candidates
-            * @param algo algo
-            * @param topK topK
-             */
             if (vectors.isEmpty()) {
                 return List.of();
             }
             var algo = algorithm;
             List<Vector> graphResults = graphSearch(query, topK * 5);
-            /**
-            * 图计算搜索。
-            * @param query 查询
-            * @param fetchK 获取k
-            * @return 图计算搜索的结果
-             */
             return algo != null ? reRank(graphResults, query, algo, topK) : graphResults;
         }
 
@@ -322,17 +301,13 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
         }
 
         /**
-        * 暴力线性扫描，使用当前配置的算法计算距离并选出 topk。
-        * @param query 查询
-         /**
-          * bruteforce搜索。
-          * @param query 查询
-          * @param topK topk
-          * @return bruteforce搜索的结果
-          */
-         * @param topK topk
-         * @return bruteForceCosine的结果
-         */
+        * 暴力线性扫描，使用当前配置的算法计算距离并选出 topK。
+        * 遍历全部向量与查询向量计算距离，按距离排序取前 topK 个候选。
+        *
+        * @param query 查询向量
+        * @param topK  返回的最大结果数
+        * @return 按距离排序的向量列表
+        */
         private List<Vector> bruteForceSearch(float[] query, int topK) {
             var algo = algorithm;
             if (algo == null) {
@@ -506,11 +481,11 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
 
 
     /**
-    * diskstrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
-    *
-    * @author CH
-    * @since 4.0.0
-     */
+        * diskstrategy: ON_DISK 模式，将内存构建的图持久化到磁盘，支持加载回来搜索。
+        *
+        * @author CH
+        * @since 4.0.0
+        */
     private static class DiskStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
         private final int dimension;
@@ -780,12 +755,12 @@ public class JVectorVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-    * largerthan内存strategy: LARGER_THAN_内存 模式，使用 PQ 压缩向量构建图，
-    * 搜索时使用两阶段策略（粗排 + 精排）。
-    *
-    * @author CH
-    * @since 4.0.0
-     */
+        * largerthan内存strategy: LARGER_THAN_内存 模式，使用 PQ 压缩向量构建图，
+        * 搜索时使用两阶段策略（粗排 + 精排）。
+        *
+        * @author CH
+        * @since 4.0.0
+        */
     private static class LargerThanMemoryStrategy extends AbstractIdOrdinalStorage implements StorageStrategy {
         /** 向量维度 */
         private final int dimension;

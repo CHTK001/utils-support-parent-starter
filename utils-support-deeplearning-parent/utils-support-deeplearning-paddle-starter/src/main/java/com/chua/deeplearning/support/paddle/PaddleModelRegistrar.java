@@ -112,7 +112,7 @@ public class PaddleModelRegistrar implements ModelRegistrar {
     * @param outputType 输出类型
     * @param capability capability
     * @param relativePath relative路径
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

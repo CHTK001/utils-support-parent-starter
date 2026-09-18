@@ -30,29 +30,29 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
 
     /**
     * 服务器指标收集器，用于获取运行时计数。
-     */
+    */
     private final ServerMetrics metrics;
 
     /**
     * 健康检查端点路径。
-     */
+    */
     private final String healthPath;
 
     /**
     * 指标查询端点路径。
-     */
+    */
     private final String metricsPath;
 
     /**
     * 延迟直方图图表端点路径。
-     */
+    */
     private final String latencyHistogramPath;
 
     /**
     * 构造内置端点过滤器，使用默认端点路径。
     *
     * @param metrics 服务器指标收集器
-     */
+    */
     public BuiltinEndpointFilter(ServerMetrics metrics) {
         this(metrics, "/health", "/metrics", "/metrics/latency-histogram.svg");
     }
@@ -63,7 +63,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     * @param metrics     服务器指标收集器
     * @param healthPath  健康检查端点路径
     * @param metricsPath 指标查询端点路径
-     */
+    */
     public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath) {
         this(metrics, healthPath, metricsPath, "/metrics/latency-histogram.svg");
     }
@@ -75,7 +75,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     * @param healthPath           健康检查端点路径
     * @param metricsPath          指标查询端点路径
     * @param latencyHistogramPath 延迟直方图端点路径
-     */
+    */
     public BuiltinEndpointFilter(ServerMetrics metrics, String healthPath, String metricsPath,
                                  String latencyHistogramPath) {
         this.metrics = metrics;
@@ -127,7 +127,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     * 处理健康检查请求，返回服务器运行状态。
     *
     * @param response 响应对象
-     */
+    */
     private void handleHealth(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
         Map<String, Object> body = new LinkedHashMap<>(6);
         BeanUtils.copyProperties(metrics, body);
@@ -144,7 +144,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     * 处理指标查询请求，返回运行时计数器。
     *
     * @param response 响应对象
-     */
+    */
     private void handleMetrics(com.chua.common.support.network.server.response.ServerResponse response) throws Exception {
         Map<String, Object> body = new LinkedHashMap<>(12);
         BeanUtils.copyProperties(metrics, body);
@@ -166,7 +166,7 @@ public class BuiltinEndpointFilter implements com.chua.common.support.network.se
     * 均在访问本端点时临时创建，不会进入请求处理热路径。</p>
     *
     * @param response 响应对象
-     */
+    */
     private void handleLatencyHistogram(com.chua.common.support.network.server.response.ServerResponse response) {
         Map<String, Long> histogram = metrics.getLatencyHistogram();
         List<Map.Entry<String, Long>> entries = new ArrayList<>(histogram.entrySet());

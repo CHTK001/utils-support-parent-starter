@@ -30,7 +30,7 @@ public class GenerationApiModel3DGenerator {
     *
     * @param config 3D 生成配置
     * @return 文生 3D 生成器
-     */
+    */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "text-to-3d-enable", havingValue = "true", matchIfMissing = true)
     public TextTo3DGenerator textTo3DGenerator(Model3DConfig config) {
@@ -42,7 +42,7 @@ public class GenerationApiModel3DGenerator {
     *
     * @param config 3D 生成配置
     * @return 图生 3D 生成器
-     */
+    */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "image-to-3d-enable", havingValue = "true", matchIfMissing = true)
     public ImageTo3DGenerator imageTo3DGenerator(Model3DConfig config) {
@@ -54,7 +54,7 @@ public class GenerationApiModel3DGenerator {
     *
     * @param config 3D 生成配置
     * @return 草图生 3D 生成器
-     */
+    */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "sketch-to-3d-enable", havingValue = "true", matchIfMissing = true)
     public SketchTo3DGenerator sketchTo3DGenerator(Model3DConfig config) {
@@ -66,7 +66,7 @@ public class GenerationApiModel3DGenerator {
     *
     * @param config 3D 生成配置
     * @return 通用 3D 生成器
-     */
+    */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "generator-enable", havingValue = "true", matchIfMissing = true)
     public Model3DGenerator model3DGenerator(Model3DConfig config) {
@@ -78,7 +78,7 @@ public class GenerationApiModel3DGenerator {
     *
     * @param config 3D 生成配置
     * @return 3D 模型风格化器
-     */
+    */
     @Bean
     @ConditionalOnProperty(prefix = "chua.deeplearning.core", name = "stylizer-enable", havingValue = "true", matchIfMissing = true)
     public Model3DStylizer model3DStylizer(Model3DConfig config) {

@@ -21,7 +21,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
 
     /**
     * 检测/短边分辨率。
-     */
+    */
     private final int detectResolution;
 
     /** 创建 镜像文本父resolutiontranslator 实例 */
@@ -32,7 +32,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     /**
     * 创建 镜像文本父resolutiontranslator 实例
     * @param detectResolution detectresolution
-     */
+    */
     public ImageTextSuperResolutionTranslator(int detectResolution) {
         this.detectResolution = detectResolution;
     }

@@ -24,16 +24,16 @@ public class RedisDeduplicator implements Deduplicator {
 
     /**
 
-     * * 默认 TTL，5 分钟
+    * * 默认 TTL，5 分钟
 
-     */
+    */
     private static final long DEFAULT_TTL_MS = 5 * 60 * 1000L;
 
     /**
 
-      * * Redis 键 前缀
+    * * Redis 键 前缀
 
-     */
+    */
     private static final String KEY_PREFIX = "dedup:";
 
     /** Redisson */
@@ -44,7 +44,7 @@ public class RedisDeduplicator implements Deduplicator {
     /**
     * 创建 redisdeduplicator 实例
     * @param redisson redisson
-     */
+    */
     public RedisDeduplicator(RedissonClient redisson) {
         this(redisson, DEFAULT_TTL_MS);
     }
@@ -54,7 +54,7 @@ public class RedisDeduplicator implements Deduplicator {
     * @param redisson redisson
     * @param ttlMs long
     * @param ttlMs ttlms
-     */
+    */
     public RedisDeduplicator(RedissonClient redisson, long ttlMs) {
         this.redisson = redisson;
         this.ttlMs = ttlMs;

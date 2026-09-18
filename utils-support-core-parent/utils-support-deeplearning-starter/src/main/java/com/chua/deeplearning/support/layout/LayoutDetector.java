@@ -23,7 +23,7 @@ public interface LayoutDetector {
     * 使用默认模型创建版面检测器。
     *
     * @return 检测器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -31,7 +31,7 @@ public interface LayoutDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static LayoutDetector create(String provider, String apiKey) {
         return ServiceProvider.of(LayoutDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -42,7 +42,7 @@ public interface LayoutDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default LayoutDetector provider(String provider) {
         return this;
     }
@@ -52,7 +52,7 @@ public interface LayoutDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default LayoutDetector model(String model) {
         return this;
     }
@@ -61,7 +61,7 @@ public interface LayoutDetector {
     * 创建
     *
     * @return 创建的结果
-     */
+    */
     static LayoutDetector create() {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), "", ModelSetting.builder().build());
     }
@@ -71,7 +71,7 @@ public interface LayoutDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static LayoutDetector create(String name) {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -83,7 +83,7 @@ public interface LayoutDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.layout.LayoutDetector.class);
     }
@@ -95,7 +95,7 @@ public interface LayoutDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static LayoutDetector create(String name, ModelSetting setting) {
         return new DefaultLayoutDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -105,7 +105,7 @@ public interface LayoutDetector {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     LayoutDetector threshold(float threshold);
 
     /**
@@ -113,7 +113,7 @@ public interface LayoutDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     LayoutDetector modelPath(String path);
 
     /**
@@ -121,7 +121,7 @@ public interface LayoutDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     LayoutDetector device(String device);
 
     /**
@@ -129,7 +129,7 @@ public interface LayoutDetector {
     *
     * @param useGpu 是否使用 GPU
     * @return this
-     */
+    */
     LayoutDetector useGpu(boolean useGpu);
 
     /**
@@ -137,7 +137,7 @@ public interface LayoutDetector {
     *
     * @param imageData 图像数据
     * @return 按区域类型分组的检测框
-     */
+    */
     Map<String, List<PredictRectangle>> detect(byte[] imageData);
 
     /**
@@ -149,7 +149,7 @@ public interface LayoutDetector {
     * @param imageData 图像数据
     * @return Markdown 格式的文档内容
     * @throws UnsupportedOperationException 若模型不支持文本输出
-     */
+    */
     String parse(byte[] imageData);
 }
 
@@ -164,44 +164,44 @@ class DefaultLayoutDetector implements LayoutDetector {
     
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 检测阈值。
-     */
+    */
     private Float threshold;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
     * 是否使用 GPU。
-     */
+    */
     private boolean useGpu;
 
     DefaultLayoutDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -251,7 +251,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public Map<String, List<PredictRectangle>> detect(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {
@@ -277,7 +277,7 @@ class DefaultLayoutDetector implements LayoutDetector {
     *
     * @param imageData 镜像数据
     * @return 解析的结果
-     */
+    */
     public String parse(byte[] imageData) {
         ITranslator<byte[], Object> t = (ITranslator<byte[], Object>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
         if (t == null) {

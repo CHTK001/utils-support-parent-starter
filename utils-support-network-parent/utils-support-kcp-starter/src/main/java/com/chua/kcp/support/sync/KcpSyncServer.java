@@ -27,19 +27,19 @@ public class KcpSyncServer extends AbstractServer implements SyncServer, SyncPro
 
     /**
     * 默认客户端连接地址
-     */
+    */
     private static final String DEFAULT_URL = "kcp://127.0.0.1:19380";
 
     /**
     * 底层 KCP 消息服务器
-     */
+    */
     private final KcpServer delegate;
 
     /**
     * 创建 KCP 同步服务端。
     *
     * @param setting 服务端配置
-     */
+    */
     public KcpSyncServer(ServerSetting setting) {
         super(setting);
         this.delegate = new KcpServer(setting);

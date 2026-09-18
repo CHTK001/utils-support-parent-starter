@@ -62,7 +62,7 @@ public class MiniMindTokenizer {
     * @param vocab vocab
     * @param addedTokens 添加令牌
     * @param merges 合并
-     */
+    */
     private MiniMindTokenizer(Map<String, Integer> vocab,
                               Map<String, Integer> addedTokens,
                               List<String> merges) {
@@ -105,7 +105,7 @@ public class MiniMindTokenizer {
     * 从 tokenizer.json 路径加载
     * @param tokenizerJson tokenizerjson
     * @return 加载的结果
-     */
+    */
     public static MiniMindTokenizer load(Path tokenizerJson) throws IOException {
         try (InputStream in = Files.newInputStream(tokenizerJson)) {
             return loadFromJson(in);
@@ -116,7 +116,7 @@ public class MiniMindTokenizer {
     * 从 输入流 加载（用于 类路径 资源）
     * @param in 入
     * @return 加载从json的结果
-     */
+    */
     public static MiniMindTokenizer loadFromJson(InputStream in) throws IOException {
         JsonNode root = MAPPER.readTree(in);
         JsonNode model = root.get("model");
@@ -163,7 +163,7 @@ public class MiniMindTokenizer {
     * Vocab获取大小
     *
     * @return vocab大小的结果
-     */
+    */
     public int vocabSize() {
         return vocabSize;
     }
@@ -173,7 +173,7 @@ public class MiniMindTokenizer {
     *
     * @param token 令牌
     * @return 添加令牌id的结果
-     */
+    */
     public int addedTokenId(String token) {
         Integer id = addedTokens.get(token);
         return id == null ? -1 : id;
@@ -190,7 +190,7 @@ public class MiniMindTokenizer {
     * </p>
     * @param text 文本
     * @return encode的结果
-     */
+    */
     public int[] encode(String text) {
         if (text == null || text.isEmpty()) {
             return new int[0];
@@ -234,7 +234,7 @@ public class MiniMindTokenizer {
     * </p>
     * @param ids 标识
     * @return decode的结果
-     */
+    */
     public String decode(int[] ids) {
         StringBuilder sb = new StringBuilder();
         for (int id : ids) {
@@ -250,7 +250,7 @@ public class MiniMindTokenizer {
     * byte级别 pre-tokenize：按 GPT-2 风格切分。
     * 使用一个简单但可用的正则：
     * - 's|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+
-     */
+    */
     private static final Pattern BYTE_LEVEL_PATTERN = Pattern.compile(
             "'s|'t|'re|'ve|'m|'ll|'d"
                     + "| ?[\\p{L}]+"
@@ -265,7 +265,7 @@ public class MiniMindTokenizer {
     *
     * @param text 文本
     * @return byte级别pretokenize的结果
-     */
+    */
     private List<String> byteLevelPreTokenize(String text) {
         List<String> tokens = new ArrayList<>();
         java.util.regex.Matcher m = BYTE_LEVEL_PATTERN.matcher(text);
@@ -289,7 +289,7 @@ public class MiniMindTokenizer {
     * 对单个 word 做 BPE 合并
     * @param word word
     * @return bpe的结果
-     */
+    */
     private List<String> bpe(String word) {
         if (word.isEmpty()) {
             return Collections.emptyList();
@@ -333,7 +333,7 @@ public class MiniMindTokenizer {
     * 把 byte级别 令牌 字符串（printable unicode 序列）反向映射回 bytes，再按 UTF-8 解码。
     * @param text 文本
     * @return byte级别decode的结果
-     */
+    */
     private String byteLevelDecode(String text) {
         byte[] bytes = new byte[text.length()];
         int len = 0;

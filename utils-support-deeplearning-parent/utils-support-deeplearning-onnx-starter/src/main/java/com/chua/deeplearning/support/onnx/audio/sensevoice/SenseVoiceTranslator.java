@@ -48,28 +48,28 @@ public class SenseVoiceTranslator {
 
     /**
     * 目标采样率
-     */
+    */
     private static final int SAMPLE_RATE = 16000;
 
     /**
     * fbank 特征维数
-     */
+    */
     private static final int FEATURE_DIM = 80;
 
     /**
     * FFT 长度（kaldi round-转为-pow2=false 时直接用 帧len=400，
     * sherpa knf 使用 N=帧len 即 400 点 rfft；此处与 Python 基准保持 512 一致）
-     */
+    */
     private static final int FFT_N = 512;
 
     /**
     * blank 令牌 标识
-     */
+    */
     private static final int BLANK_ID = 0;
 
     /**
     * 特殊标记集合（不参与文本输出）
-     */
+    */
     private static final Set<String> SPECIAL_TOKENS = Set.of(
             "<|zh|>", "<|en|>", "<|yue|>", "<|ja|>", "<|ko|>", "<|nospeech|>",
             "<|NEUTRAL|>", "<|HAPPY|>", "<|SAD|>", "<|ANGRY|>", "<|FEARFUL|>", "<|DISGUSTED|>", "<|SURPRISED|>",
@@ -103,7 +103,7 @@ public class SenseVoiceTranslator {
     *
     * @param modelDir 含 模型.int8.onnx 与 令牌.txt 的目录
     * @throws Exception 初始化失败
-     */
+    */
     public synchronized void prepare(Path modelDir) throws Exception {
         if (prepared) {
             return;
@@ -133,7 +133,7 @@ public class SenseVoiceTranslator {
     * 及 LFR 参数，覆盖硬编码占位值。
     *
     * @param session 已创建的 ORT 会话
-     */
+    */
     private void applyModelMetadata(OrtSession session) throws OrtException {
         Map<String, String> meta = session.getMetadata().getCustomMetadata();
         if (meta == null || meta.isEmpty()) {
@@ -163,7 +163,7 @@ public class SenseVoiceTranslator {
     * 是否已初始化
     *
     * @return 是否prepared的结果
-     */
+    */
     public boolean isPrepared() {
         return prepared;
     }
@@ -174,7 +174,7 @@ public class SenseVoiceTranslator {
     * @param dir dir
     * @param names 名称
     * @return 第一个existing的结果
-     */
+    */
     private static Path firstExisting(Path dir, String... names) {
         for (String n : names) {
             Path p = dir.resolve(n);
@@ -189,7 +189,7 @@ public class SenseVoiceTranslator {
     * 加载 标识→令牌 词表（令牌.txt 格式：令牌 空格 标识）
     *
     * @param tokensPath 令牌路径
-     */
+    */
     private void loadVocab(Path tokensPath) throws IOException {
         this.vocab = new HashMap<>(4096);
         for (String line : Files.readAllLines(tokensPath)) {
@@ -212,7 +212,7 @@ public class SenseVoiceTranslator {
 
     /**
     * 初始化 hardcoded metadata.
-     */
+    */
     private void initHardcodedMetadata() {
         this.lfrWindowSize = 7;
         this.lfrWindowShift = 6;
@@ -237,7 +237,7 @@ public class SenseVoiceTranslator {
     * @param csv csv
     * @param mapper 映射器
     * @return 解析floatarray的结果
-     */
+    */
     private static float[] parseFloatArray(String csv, ObjectMapper mapper) {
         try {
             JsonNode arr = mapper.readTree("[" + csv + "]");
@@ -258,7 +258,7 @@ public class SenseVoiceTranslator {
     * @param key 键
     * @param def def
     * @return int或默认的结果
-     */
+    */
     private static int intOrDefault(Map<String, String> meta, String key, int def) {
         String v = meta.get(key);
         if (v == null || v.isBlank()) {
@@ -278,7 +278,7 @@ public class SenseVoiceTranslator {
     * @param language 语言代码（zh/en/ja/ko/yue/auto），空 或 auto 自动检测
     * @return 转写文本
     * @throws Exception 推理失败
-     */
+    */
     public String transcribe(Path audioPath, String language) throws Exception {
         return transcribeRich(audioPath, language).text;
     }
@@ -293,7 +293,7 @@ public class SenseVoiceTranslator {
     * @param language 语言代码（zh/en/ja/ko/yue/auto），空 或 auto 自动检测
     * @return 富文本结果
     * @throws Exception 推理失败
-     */
+    */
     public RichResult transcribeRich(Path audioPath, String language) throws Exception {
         if (!prepared) {
             throw new IllegalStateException("请先调用 prepare()");
@@ -346,7 +346,9 @@ public class SenseVoiceTranslator {
         public final String text;
         /** 检测到的语种（zh/en/ja/ko/yue/nospeech/auto） */
         public final String language;
-        /** 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN） */
+        /**
+    * 情感（NEUTRAL/HAPPY/SAD/ANGRY/FEARFUL/DISGUSTED/SURPRISED/EMO_UNKNOWN）
+    */
         public final String emotion;
         /** 事件标签（语音/BGM/Laughter/...） */
         public final List<String> events;
@@ -357,7 +359,7 @@ public class SenseVoiceTranslator {
         * @param language language
         * @param emotion 情绪
         * @param events 事件
-         */
+        */
         public RichResult(String text, String language, String emotion, List<String> events) {
             this.text = text;
             this.language = language;
@@ -370,7 +372,7 @@ public class SenseVoiceTranslator {
     * 解析 CTC 标识 序列：抽取语种/情感/事件特殊 令牌，剩余拼接为文本。
     * @param ids 标识
     * @return 解析rich的结果
-     */
+    */
     private RichResult parseRich(List<Integer> ids) {
         StringBuilder sb = new StringBuilder();
         String lang = null;
@@ -407,7 +409,7 @@ public class SenseVoiceTranslator {
     *
     * @param language language
     * @return resolveLanguage的结果
-     */
+    */
     private int resolveLanguage(String language) {
         if (language != null && !language.isBlank()) {
             Integer id = langIds.get(language.trim().toLowerCase());
@@ -425,7 +427,7 @@ public class SenseVoiceTranslator {
     * @param logits logits
     * @param vocabSize vocab大小
     * @return greedyCtc的结果
-     */
+    */
     private List<Integer> greedyCtc(float[] logits, int vocabSize) {
         List<Integer> ids = new ArrayList<>();
         int frames = logits.length / vocabSize;
@@ -453,7 +455,7 @@ public class SenseVoiceTranslator {
     *
     * @param ids 标识
     * @return detokenize的结果
-     */
+    */
     private String detokenize(List<Integer> ids) {
         StringBuilder sb = new StringBuilder();
         for (int id : ids) {
@@ -474,7 +476,7 @@ public class SenseVoiceTranslator {
     *
     * @param samples 单声道采样
     * @return [T, 80] 日志-mel 特征
-     */
+    */
     private double[][] computeFbank(float[] samples) {
         int frameLen = 400;
         int frameShift = 160;
@@ -551,7 +553,7 @@ public class SenseVoiceTranslator {
     * @param sampleRate 样本rate
     * @param nBins nbins
     * @return 构建kaldimel过滤器的结果
-     */
+    */
     private static double[][] buildKaldiMelFilters(int sampleRate, int nBins) {
         double[][] filters = new double[nBins][FEATURE_DIM];
         int fftBins = FFT_N / 2 + 1;
@@ -591,7 +593,7 @@ public class SenseVoiceTranslator {
     *
     * @param hz hz
     * @return hz转为mel的结果
-     */
+    */
     private static double hzToMel(double hz) {
         return 1127.0 * Math.log(1.0 + hz / 700.0);
     }
@@ -601,7 +603,7 @@ public class SenseVoiceTranslator {
     *
     * @param mel mel
     * @return mel转为hertz的结果
-     */
+    */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.exp(mel / 1127.0) - 1.0);
     }
@@ -611,7 +613,7 @@ public class SenseVoiceTranslator {
     *
     * @param feat80 [T, 80] 特征
     * @return [T', 560] 超帧
-     */
+    */
     private float[][] applyLfr(double[][] feat80) {
         int total = feat80.length;
         // funasr LFR 公式：T' = ceil((T-window)/shift)+1；尾部复制最后一帧补齐 (T'-1)*shift+window-T
@@ -644,7 +646,7 @@ public class SenseVoiceTranslator {
     * 就地应用 CMVN：x = (x + negmean) * invstddev
     *
     * @param x x
-     */
+    */
     private void applyCmvn(float[][] x) {
         if (negMean.length == 0 || invStddev.length == 0) {
             return;
@@ -662,7 +664,7 @@ public class SenseVoiceTranslator {
     * @param path 音频路径
     * @return 采样数组
     * @throws Exception 解码失败
-     */
+    */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();
@@ -716,7 +718,7 @@ public class SenseVoiceTranslator {
     *
     * @param mat mat
     * @return flatten的结果
-     */
+    */
     private static float[] flatten(float[][] mat) {
         int total = 0;
         for (float[] row : mat) {
@@ -736,7 +738,7 @@ public class SenseVoiceTranslator {
     *
     * @param t t
     * @return 转为floatarray的结果
-     */
+    */
     private static float[] toFloatArray(OnnxTensor t) {
         FloatBuffer fb = t.getFloatBuffer();
         float[] arr = new float[fb.remaining()];
@@ -749,7 +751,7 @@ public class SenseVoiceTranslator {
     *
     * @param re 实部（就地修改）
     * @param im 虚部（就地修改）
-     */
+    */
     private static void fftRadix2(double[] re, double[] im) {
         int n = re.length;
         int j = 0;

@@ -23,7 +23,7 @@ public class ZodiacMockString implements MockString {
     * 十二生肖池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] ZODIACS = {"鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"};
 
     @Override

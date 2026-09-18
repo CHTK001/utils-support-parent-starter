@@ -12,57 +12,108 @@ import javax.annotation.Nullable;
 
 
 /**
-* lama 图像修复滤镜
-*
-* 基于 lama (Large Mask Inpainting) 深度学习模型的智能图像修复滤镜。
-* lama 是一种先进的图像修复技术，能够高质量地填补图像中的缺失区域，
-* 移除不需要的对象，并智能地生成符合上下文的内容。
-*
-* 技术特点：
-* - 基于深度学习的图像修复算法
-* - 支持大面积区域的智能填充
-* - 保持图像的纹理和结构一致性
-* - 高质量的边缘融合效果
-* - 支持多种掩码输入模式
-*
-* 主要功能：
-* - 智能图像修复：自动填补图像中的缺失或损坏区域
-* - 对象移除：移除图像中不需要的对象并智能填充背景
-* - 多种掩码模式：支持 Alpha 通道、颜色检测、自定义掩码
-* - 高质量输出：基于深度学习的高质量图像生成
-* - 批量处理：支持批量图像修复操作
-*
-* 应用场景：
-* - 照片修复：修复老照片中的划痕和缺失部分
-* - 对象移除：从照片中移除不需要的人物或物体
-* - 图像清理：清除图像中的水印、文字或标记
-* - 艺术创作：为艺术作品填充创意内容
-* - 产品摄影：清理产品照片中的瑕疵
-*
-* 使用要求：
-* 1. 添加 ONNX Runtime 依赖
-* 2. 下载 lama ONNX 模型文件
-* 3. 配置模型路径和推理参数
-* 4. 准备输入图像和对应的掩码
-*
-* 依赖配置：
-* <pre>
-* &lt;dependency&gt;
-*     &lt;groupId&gt;com.microsoft.onnxruntime&lt;/groupId&gt;
-*     &lt;artifactId&gt;onnxruntime&lt;/artifactId&gt;
-*     &lt;version&gt;1.17.1&lt;/version&gt;
-* &lt;/dependency&gt;
-* </pre>
-*
-* 性能特点：
-* - GPU 加速支持（如果可用）
-* - 内存优化的推理过程
-* - 支持不同分辨率的图像
-* - 可配置的推理参数
-*
-* @author CH
-* @版本 1.0.0
-* @since 2024/7/29
+ * lama 图像修复滤镜
+ *
+ * 基于 lama (Large Mask Inpainting) 深度学习模型的智能图像修复滤镜。
+ * lama 是一种先进的图像修复技术，能够高质量地填补图像中的缺失区域，
+ * 移除不需要的对象，并智能地生成符合上下文的内容。
+ *
+ * 技术特点：
+ * - 基于深度学习的图像修复算法
+ * - 支持大面积区域的智能填充
+ * - 保持图像的纹理和结构一致性
+ * - 高质量的边缘融合效果
+ * - 支持多种掩码输入模式
+ *
+ * 主要功能：
+ * - 智能图像修复：自动填补图像中的缺失或损坏区域
+ * - 对象移除：移除图像中不需要的对象并智能填充背景
+ * - 多种掩码模式：支持 Alpha 通道、颜色检测、自定义掩码
+ * - 高质量输出：基于深度学习的高质量图像生成
+ * - 批量处理：支持批量图像修复操作
+ *
+ * 应用场景：
+ * - 照片修复：修复老照片中的划痕和缺失部分
+ * - 对象移除：从照片中移除不需要的人物或物体
+ * - 图像清理：清除图像中的水印、文字或标记
+ * - 艺术创作：为艺术作品填充创意内容
+ * - 产品摄影：清理产品照片中的瑕疵
+ *
+ * <h3>使用要求</h3>
+ * <ol>
+ *   <li>添加 ONNX Runtime 依赖</li>
+ *   <li>下载 lama ONNX 模型文件</li>
+ *   <li>配置模型路径和推理参数</li>
+ *   <li>准备输入图像和对应的掩码</li>
+ * </ol>
+ *
+ * <h3>依赖配置</h3>
+ * <pre>
+ * &lt;dependency&gt;
+ *     &lt;groupId&gt;com.microsoft.onnxruntime&lt;/groupId&gt;
+ *     &lt;artifactId&gt;onnxruntime&lt;/artifactId&gt;
+ *     &lt;version&gt;1.17.1&lt;/version&gt;
+ * &lt;/dependency&gt;
+ * </pre>
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认配置（CPU，512x512 输入）
+ * LaMaImageFilter lama = new LaMaImageFilter("model/lama.onnx");
+ *
+ * // GPU 加速 + 高质量
+ * LaMaImageFilter lama = new LaMaImageFilter(LaMaConfiguration.createHighQuality("model/lama.onnx"))
+ *         .enableGpu();
+ *
+ * // 自动检测白色区域并移除（水印清除）
+ * LaMaImageFilter lama = new LaMaImageFilter(LaMaConfiguration.createAutoMask(
+ *         "model/lama.onnx", new int[]{255, 255, 255}));
+ *
+ * BufferedImage result = lama.converter(srcImage);
+ *
+ * // 用完关闭（释放 ONNX 资源）
+ * lama.close();
+ * }</pre>
+ *
+ * <h3>参数说明（构造器 + 链式方法）</h3>
+ * <ul>
+ *   <li><b>modelPath</b>（构造器参数，必填）：ONNX 模型文件路径。
+ *       所有工厂方法（{@code createDefault/createHighQuality/createFast/createGpu/createAutoMask}）
+ *       都以此为核心参数。</li>
+ *   <li><b>config</b>：完整配置对象（{@link LaMaConfiguration}），
+ *       控制输入尺寸、线程数、GPU、mask 策略、后处理等，详见 LaMaConfiguration 文档。</li>
+ *   <li><b>customMask</b>（{@link #setCustomMask(BufferedImage)}）：自定义 mask 图像，
+ *       白色区域将被修复。优先级高于自动 mask 策略。</li>
+ * </ul>
+ *
+ * <h3>链式方法说明</h3>
+ * <ul>
+ *   <li><b>setModelPath(String)</b>：设置/更新模型路径，自动重载推理器</li>
+ *   <li><b>setInputSize(int)</b>：设置输入尺寸（512/1024 等）</li>
+ *   <li><b>enableAutoMask(int[] targetColor, int tolerance)</b>：启用自动 mask 生成（按颜色检测）</li>
+ *   <li><b>enableAlphaMask()</b>：使用 Alpha 通道作为 mask</li>
+ *   <li><b>enableGpu()</b>：启用 GPU 加速（需 GPU 版 ONNX Runtime）</li>
+ *   <li><b>setPostProcessing(boolean, int)</b>：启用后处理 + 羽化半径</li>
+ * </ul>
+ *
+ * <h3>性能特点</h3>
+ * <ul>
+ *   <li>GPU 加速支持（如果可用）</li>
+ *   <li>内存优化的推理过程</li>
+ *   <li>支持不同分辨率的图像</li>
+ *   <li>可配置的推理参数</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>实现 {@link AutoCloseable}，用完后必须调用 {@code close()} 释放 ONNX 资源</li>
+ *   <li>修复失败时返回原图（不抛异常），便于流水线容错</li>
+ *   <li>输出格式默认为 PNG</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2024/7/29
  */
 @Slf4j
 @Spi("lama")
@@ -71,23 +122,23 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
     /**
     * lama配置
-     */
+    */
     private LaMaConfiguration config;
 
     /**
     * ONNX推理器
-     */
+    */
     private LaMaOnnxInfer inferEngine;
 
     /**
     * 自定义mask图像
-     */
+    */
     private BufferedImage customMask;
 
     /**
     * 默认构造函数
     * 需要后续调用设置配置()方法设置配置
-     */
+    */
     public LaMaImageFilter() {
         // 默认构造函数，需要后续设置配置
     }
@@ -96,7 +147,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 构造函数
     *
     * @param modelPath ONNX模型文件路径
-     */
+    */
     public LaMaImageFilter(String modelPath) {
         this(LaMaConfiguration.createDefault(modelPath));
     }
@@ -105,7 +156,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 构造函数
     *
     * @param config lama配置
-     */
+    */
     public LaMaImageFilter(LaMaConfiguration config) {
         setConfig(config);
     }
@@ -115,7 +166,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param config lama配置
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter setConfig(LaMaConfiguration config) {
         this.config = config;
         
@@ -141,7 +192,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param mask mask图像，白色区域将被修复
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter setCustomMask(BufferedImage mask) {
         this.customMask = mask;
         return this;
@@ -152,7 +203,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param modelPath ONNX模型文件路径
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter setModelPath(String modelPath) {
         if (config == null) {
             config = LaMaConfiguration.createDefault(modelPath);
@@ -167,7 +218,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param size 输入尺寸
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter setInputSize(int size) {
         ensureConfigExists();
         config.setInputSize(size);
@@ -180,7 +231,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * @param targetColor 目标颜色（RGB）
     * @param tolerance   颜色容差
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter enableAutoMask(int[] targetColor, int tolerance) {
         ensureConfigExists();
         config.setAutoGenerateMask(true)
@@ -193,7 +244,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 启用alpha通道作为mask
     *
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter enableAlphaMask() {
         ensureConfigExists();
         config.setUseAlphaAsMask(true);
@@ -204,7 +255,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 启用GPU加速
     *
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter enableGpu() {
         ensureConfigExists();
         config.setUseGpu(true);
@@ -217,7 +268,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * @param enablePostProcessing 是否启用后处理
     * @param featherRadius       羽化半径
     * @return 当前实例
-     */
+    */
     public LaMaImageFilter setPostProcessing(boolean enablePostProcessing, int featherRadius) {
         ensureConfigExists();
         config.setEnablePostProcessing(enablePostProcessing)
@@ -278,7 +329,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 获取配置信息
     *
     * @return 配置对象
-     */
+    */
     public LaMaConfiguration getConfig() {
         return config;
     }
@@ -287,7 +338,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 获取推理器信息
     *
     * @return 推理器信息
-     */
+    */
     public String getInferenceInfo() {
         if (inferEngine == null) {
             return "推理器未初始化";
@@ -299,7 +350,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * 检查是否已准备就绪
     *
     * @return 是否可以使用
-     */
+    */
     public boolean isReady() {
         return inferEngine != null && inferEngine.isInitialized();
     }
@@ -307,7 +358,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     /**
     * 预热模型
     * 使用小图像进行一次推理以预热模型，提高后续推理速度
-     */
+    */
     public void warmUp() {
         if (!isReady()) {
             throw new IllegalStateException("推理器未初始化");
@@ -331,7 +382,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
     /**
     * 确保配置存在
-     */
+    */
     private void ensureConfigExists() {
         if (config == null) {
             throw new IllegalStateException("配置未设置，请先调用setConfig()或setModelPath()");
@@ -340,7 +391,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
 
     /**
     * 清理资源
-     */
+    */
     public void cleanup() {
         if (inferEngine != null) {
             inferEngine.close();
@@ -361,7 +412,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param modelPath 模型路径
     * @return LaMa滤镜实例
-     */
+    */
     public static LaMaImageFilter createDefault(String modelPath) {
         return new LaMaImageFilter(modelPath);
     }
@@ -371,7 +422,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param modelPath 模型路径
     * @return 高质量LaMa滤镜实例
-     */
+    */
     public static LaMaImageFilter createHighQuality(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createHighQuality(modelPath));
     }
@@ -381,7 +432,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param modelPath 模型路径
     * @return 快速LaMa滤镜实例
-     */
+    */
     public static LaMaImageFilter createFast(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createFast(modelPath));
     }
@@ -391,7 +442,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     *
     * @param modelPath 模型路径
     * @return GPU加速LaMa滤镜实例
-     */
+    */
     public static LaMaImageFilter createGpu(String modelPath) {
         return new LaMaImageFilter(LaMaConfiguration.createGpu(modelPath));
     }
@@ -402,7 +453,7 @@ public class LaMaImageFilter extends AbstractImageFilter implements AutoCloseabl
     * @param modelPath   模型路径
     * @param targetColor 目标颜色
     * @return 自动mask lama滤镜实例
-     */
+    */
     public static LaMaImageFilter createAutoMask(String modelPath, int[] targetColor) {
         return new LaMaImageFilter(LaMaConfiguration.createAutoMask(modelPath, targetColor));
     }

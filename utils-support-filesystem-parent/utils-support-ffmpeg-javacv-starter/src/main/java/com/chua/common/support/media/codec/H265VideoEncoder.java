@@ -27,107 +27,107 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
     * ffmpeg 帧录制器
-     */
+    */
     private FFmpegFrameRecorder recorder;
 
     /**
     * 内存输出流
-     */
+    */
     private ByteArrayOutputStream memoryStream;
 
     /**
     * 视频宽度
-     */
+    */
     private int width;
 
     /**
     * 视频高度
-     */
+    */
     private int height;
 
     /**
     * 帧率
-     */
+    */
     private int fps;
 
     /**
     * 是否请求关键帧
-     */
+    */
     private boolean keyFrameRequested;
 
     /**
     * 时间戳计数器
-     */
+    */
     private long pts;
 
     /**
     * 编码器是否已启动
-     */
+    */
     private boolean started;
 
     /**
     * 已编码帧索引
-     */
+    */
     private long frameIndex;
 
     /**
     * 缓冲镜像 转换器
-     */
+    */
     private Java2DFrameConverter bufferedImageConverter;
 
     /**
     * H.265 编码格式名称
-     */
+    */
     private static final String CODEC_NAME_H265 = "h265";
 
     /**
     * H.265 编码格式标识
-     */
+    */
     private static final String FORMAT_H265 = "hevc";
 
     /**
     * 内存输出流初始容量（字节）
-     */
+    */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
     * GOP 大小（关键帧间隔）
-     */
+    */
     private static final int GOP_SIZE = 150;
 
     /**
     * H.265 编码 preset 选项的 键（"preset"）
-     */
+    */
     private static final String KEY_PRESET = "preset";
 
     /**
     * H.265 编码 tune 选项的 键（"tune"）
-     */
+    */
     private static final String KEY_TUNE = "tune";
 
     /**
     * H.265 编码 配置文件 选项的 键（"配置文件"）
-     */
+    */
     private static final String KEY_PROFILE = "profile";
 
     /**
     * H.265 编码 preset 值（"ultrafast"）
-     */
+    */
     private static final String VAL_PRESET = "ultrafast";
 
     /**
     * H.265 编码 tune 值（"zerolatency"）
-     */
+    */
     private static final String VAL_TUNE = "zerolatency";
 
     /**
     * H.265 编码 配置文件 值（"main"）
-     */
+    */
     private static final String VAL_PROFILE = "main";
 
     /**
     * 空构造。
-     */
+    */
     public H265VideoEncoder() {
     }
 
@@ -137,7 +137,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public H265VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
@@ -148,7 +148,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public H265VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
@@ -159,7 +159,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * 使用可变参数构造，前三个参数分别为宽高和帧率。
     *
     * @param args 可变参数数组
-     */
+    */
     public H265VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -177,7 +177,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width width
     * @param height height
     * @param fps fps
-     */
+    */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = ensureEven(width);
@@ -209,7 +209,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param v 原始数值
     * @return 调整后的偶数
-     */
+    */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
@@ -244,7 +244,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param w w
     * @param h h
     * @param f f
-     */
+    */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || recorder == null) {
             init(w, h, f);
@@ -301,7 +301,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param frame 输入帧
     * @return 编码后的字节数组
     * @throws Exception 编码异常
-     */
+    */
     private byte[] encodeInternal(Frame frame) throws Exception {
         long captureSize = memoryStream.size();
         if (keyFrameRequested) {
@@ -324,7 +324,7 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param src 源图像
     * @return BGR 格式图像
-     */
+    */
     private static BufferedImage ensureBgr(BufferedImage src) {
         if (src.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             return src;
@@ -362,18 +362,18 @@ public class H265VideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
     * 内存输出流适配器。
-     */
+    */
     static final class MemoryOutputStream extends OutputStream {
         /**
         * 底层字节数组输出流
-         */
+        */
         private final ByteArrayOutputStream backing;
 
         /**
         * 构造内存输出流。
         *
         * @param backing 底层字节数组输出流
-         */
+        */
         MemoryOutputStream(ByteArrayOutputStream backing) {
             this.backing = backing;
         }

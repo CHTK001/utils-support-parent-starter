@@ -24,6 +24,6 @@ public interface PipelineEngine {
     *
     * @param pipelineId 管线标识
     * @param envelope   待处理的数据信封
-     */
+    */
     void execute(String pipelineId, DataEnvelope envelope);
 }

@@ -25,7 +25,7 @@ public final class HeifLibraryLoader {
 
     /**
     * heif 库加载。
-     */
+    */
     private HeifLibraryLoader() {
     }
 

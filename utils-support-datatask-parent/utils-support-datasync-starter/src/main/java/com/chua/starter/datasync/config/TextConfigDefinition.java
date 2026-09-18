@@ -15,6 +15,6 @@ public interface TextConfigDefinition extends DataSyncConfigDefinition {
     * 获取文本配置内容。
     *
     * @return 文本配置
-     */
+    */
     String text();
 }

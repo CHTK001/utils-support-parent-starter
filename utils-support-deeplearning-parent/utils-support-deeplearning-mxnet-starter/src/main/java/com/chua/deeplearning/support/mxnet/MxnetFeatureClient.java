@@ -26,7 +26,7 @@ public class MxnetFeatureClient extends AbstractLocalFeatureClient {
     * 构造 mxnet 图像理解客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public MxnetFeatureClient(FeatureClientSetting setting) {
         super("mxnet", setting);
     }

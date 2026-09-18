@@ -143,7 +143,7 @@ public class PostgresqlSearchEngineImpl implements SearchEngine {
     * @param columns 搜索列列表
     * @param keyword 关键词
     * @return SQL 条件片段
-     */
+    */
     public static String tsQueryCondition(List<String> columns, String keyword) {
         if (columns == null || columns.isEmpty()) {
             return "1=0";

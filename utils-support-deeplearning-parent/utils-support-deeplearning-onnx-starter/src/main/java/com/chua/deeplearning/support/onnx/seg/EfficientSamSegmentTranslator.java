@@ -47,32 +47,32 @@ public class EfficientSamSegmentTranslator {
 
     /**
     * 图像编码器输入边长（1024）
-     */
+    */
     private static final int INPUT_SIZE = 1024;
 
     /**
     * 图像编码器输出的特征图边长（64）
-     */
+    */
     private static final int EMBED_SIZE = 64;
 
     /**
     * 掩码候选数量（efficientsam 输出 3 个候选）
-     */
+    */
     private static final int NUM_MASKS = 3;
 
     /**
     * 资源目录前缀（jar 内）
-     */
+    */
     private static final String RESOURCE_BASE = "vision/seg/efficient-sam/onnx/";
 
     /**
     * 图像编码器模型文件名
-     */
+    */
     private static final String ENCODER_FILE = "efficientsam_ti_encoder.onnx";
 
     /**
     * 掩码解码器模型文件名
-     */
+    */
     private static final String DECODER_FILE = "efficientsam_ti_decoder.onnx";
 
     /** ONNX 运行时环境 */
@@ -85,7 +85,7 @@ public class EfficientSamSegmentTranslator {
 
     /**
     * 当前依赖上下文（原图尺寸），由 segment 串行使用
-     */
+    */
     private int srcWidth;
     /** 源图像高度 */
     /** SRC高度 */
@@ -135,7 +135,7 @@ public class EfficientSamSegmentTranslator {
     * @param input 输入图像
     * @param box   提示框 [x1, y1, x2, y2]（原图像素坐标）
     * @return 灰度掩码图（0=背景，255=前景）
-     */
+    */
     public Image segment(Image input, float[] box) throws Exception {
         if (box == null || box.length != 4) {
             throw new IllegalArgumentException("box 必须为 [x1, y1, x2, y2]");
@@ -160,7 +160,7 @@ public class EfficientSamSegmentTranslator {
     * extendscale
     *
     * @param input 输入
-     */
+    */
     private void extendScale(Image input) {
         srcWidth = input.getWidth();
         srcHeight = input.getHeight();
@@ -171,7 +171,7 @@ public class EfficientSamSegmentTranslator {
     * efficientsam 编码器接收 [0,1] 归一化 RGB。
     * @param input 输入
     * @return preprocess的结果
-     */
+    */
     private float[][] preprocess(Image input) {
         BufferedImage src = toBufferedImage(input);
 
@@ -196,7 +196,7 @@ public class EfficientSamSegmentTranslator {
     *
     * @param normalized normalized
     * @return encode的结果
-     */
+    */
     private float[][][][] encode(float[][] normalized) {
         long[] shape = new long[]{1, 3, INPUT_SIZE, INPUT_SIZE};
         try (OnnxTensor imageTensor = OnnxTensor.createTensor(ortEnv, FloatBuffer.wrap(flatten(normalized)), shape)) {
@@ -217,7 +217,7 @@ public class EfficientSamSegmentTranslator {
     * @param labels 标签
     * @param origSize orig大小
     * @param iouOut iou出
-     */
+    */
     private float[][][][][] decode(float[][][][] embeddings, float[][] coords,
                                    float[][] labels, long[] origSize, float[] iouOut) {
         long[] embShape = new long[]{1, 256, EMBED_SIZE, EMBED_SIZE};
@@ -251,7 +251,7 @@ public class EfficientSamSegmentTranslator {
     * efficientsam 解码器期望原图像素坐标（不缩放）。
     * @param box box
     * @return 转为pointcoords的结果
-     */
+    */
     private float[][] toPointCoords(float[] box) {
         float x1 = Math.min(box[0], box[2]);
         float y1 = Math.min(box[1], box[3]);
@@ -268,7 +268,7 @@ public class EfficientSamSegmentTranslator {
     *
     * @param scores scores
     * @return argmax的结果
-     */
+    */
     private int argmax(float[] scores) {
         int best = 0;
         for (int i = 1; i < scores.length; i++) {
@@ -283,7 +283,7 @@ public class EfficientSamSegmentTranslator {
     * 掩码 [H,W]（logits，已在原图尺寸）→ sigmoid 阈值 0.5 → 灰度图 [0/255]。
     * @param mask mask
     * @return mask转为镜像的结果
-     */
+    */
     private BufferedImage maskToImage(float[][] mask) {
         int w = mask[0].length;
         int h = mask.length;
@@ -303,7 +303,7 @@ public class EfficientSamSegmentTranslator {
     *
     * @param input 输入
     * @return 转为缓冲镜像的结果
-     */
+    */
     private BufferedImage toBufferedImage(Image input) {
         if (input == null) {
             throw new IllegalArgumentException("EfficientSAM 输入图像为空");
@@ -324,7 +324,7 @@ public class EfficientSamSegmentTranslator {
     *
     * @param arr arr
     * @return flatten的结果
-     */
+    */
     private static float[] flatten(float[][] arr) {
         int n = 0;
         for (float[] row : arr) {
@@ -345,7 +345,7 @@ public class EfficientSamSegmentTranslator {
     *
     * @param arr arr
     * @return flatten4的结果
-     */
+    */
     private static float[] flatten4(float[][][][] arr) {
         int n = 0;
         for (float[][][] a : arr) {
@@ -371,7 +371,7 @@ public class EfficientSamSegmentTranslator {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (encoderSession != null) {

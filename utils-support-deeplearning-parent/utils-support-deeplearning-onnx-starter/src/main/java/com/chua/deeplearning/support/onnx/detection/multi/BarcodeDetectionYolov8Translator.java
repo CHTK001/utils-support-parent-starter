@@ -30,12 +30,12 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
 
     /**
     * 类别资源路径（类路径）。
-     */
+    */
     public static final String CLASS_NAMES_RESOURCE = "vision/barcode/yolov8n/class.names.txt";
 
     /**
     * 默认 5 类（与 类.名称.txt 保持一致）。
-     */
+    */
     public static final List<String> DEFAULT_CLASSES = Arrays.asList(
             "qr_code",
             "code_39",
@@ -56,7 +56,7 @@ public class BarcodeDetectionYolov8Translator extends AbstractMultiClassYolov8Tr
     * @param threshold float
     * @param threshold 阈值
     * @param nmsThreshold nms阈值
-     */
+    */
     public BarcodeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

@@ -56,7 +56,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * onnx通义千问translator。
     * @param modelId 模型id
     * @param useGpu useGpu
-     */
+    */
     }
 
     public OnnxQwenTranslator(String modelId, boolean useGpu) {
@@ -76,7 +76,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * @param dir dir
     * @param fileName 文件名称
     * @param url url
-     */
+    */
     private static void downloadIfMissing(Path dir, String fileName, String url) throws Exception {
         if (dir == null) {
             return;
@@ -206,7 +206,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * 对话。
     * @param userPrompt 用户提示符
     * @return 对话的结果
-     */
+    */
     public String chat(String userPrompt) throws Exception {
         prepare();
         String chat = "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
@@ -290,7 +290,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     /**
     * 空past。
     * @return 空past的结果
-     */
+    */
     private Map<String, OnnxTensor> emptyPast() throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
         for (int layer = 0; layer < nLayers; layer++) {
@@ -308,7 +308,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * collectpast。
     * @param result 结果
     * @return collectPast的结果
-     */
+    */
     private Map<String, OnnxTensor> collectPast(OrtSession.Result result) throws Exception {
         Map<String, OnnxTensor> m = new HashMap<>();
         for (int layer = 0; layer < nLayers; layer++) {
@@ -324,7 +324,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * 是否eos。
     * @param id 标识
     * @return 是否eos的结果
-     */
+    */
     private boolean isEos(int id) {
         return eosTokenId >= 0 && id == eosTokenId;
     }
@@ -382,7 +382,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * 范围。
     * @param n n
     * @return 范围的结果
-     */
+    */
     }
 
     private static long[] range(int n) {
@@ -397,7 +397,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * @param tokens 令牌
     * @param promptLen 提示符len
     * @return 下一个令牌的结果
-     */
+    */
     }
 
     private int nextToken(float[] logits, java.util.List<Long> tokens, int promptLen) {
@@ -426,7 +426,7 @@ public class OnnxQwenTranslator implements ITranslator<String, String>, AutoClos
     * @param k k
     * @return 样本的结果
     * @param logits logits
-     */
+    */
     }
 
     private int sample(float[] scores, float temp, int k) {

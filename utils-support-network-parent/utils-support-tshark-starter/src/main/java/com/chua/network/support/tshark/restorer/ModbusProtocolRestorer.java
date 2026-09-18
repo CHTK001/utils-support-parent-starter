@@ -65,7 +65,7 @@ public class ModbusProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param fc 函数计算
     * @return 转为function名称的结果
-     */
+    */
     private static String toFunctionName(int fc) {
         return switch (fc) {
             case 0x01 -> "ReadCoils";

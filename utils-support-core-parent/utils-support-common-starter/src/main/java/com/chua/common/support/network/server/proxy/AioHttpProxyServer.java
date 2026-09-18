@@ -559,8 +559,8 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-    * 结束客户端连接(幂等):关通道并扣减计数。
-    */
+        * 结束客户端连接(幂等):关通道并扣减计数。
+        */
     private void finishClient(ClientCtx ctx) {
         if (ctx.closed) {
             return;
@@ -934,10 +934,10 @@ public class AioHttpProxyServer extends AbstractServer {
     }
 
     /**
-    * 获取活跃连接数。
-    *
-    * @return 活跃连接数
-    */
+        * 获取活跃连接数。
+        *
+        * @return 活跃连接数
+        */
     public int getActiveConnections() {
         return activeConnections.get();
     }

@@ -65,7 +65,7 @@ public class ImageTransparentFilter extends AbstractImageFilter{
     * @param src 源图像，包含需要处理的像素数据
     * @param dst 目标图像，用于存储过滤后的结果，可以为空
     * @return 处理后的透明度过滤图像，当前实现返回null
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

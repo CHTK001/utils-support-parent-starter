@@ -239,9 +239,9 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-    * 递归删除目录
-    * @param dir dir
-    */
+                * 递归删除目录
+                * @param dir dir
+                */
     private void deleteDirectory(Path dir) throws IOException {
         if (!Files.exists(dir)) {
             return;
@@ -264,11 +264,11 @@ public class DefaultDailyBackupStrategy implements BackupStrategy {
     }
 
     /**
-    * Glob 模式匹配
-    * @param fileName 文件名称
-    * @param pattern 模式
-    * @return 匹配模式的结果
-    */
+            * Glob 模式匹配
+            * @param fileName 文件名称
+            * @param pattern 模式
+            * @return 匹配模式的结果
+            */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return true;

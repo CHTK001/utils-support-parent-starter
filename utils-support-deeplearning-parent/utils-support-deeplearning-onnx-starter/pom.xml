@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -253,9 +253,7 @@
 
         <!-- 音频模型（wespeaker/campplus/wav2vec2/sensevoice）：从 utils-support-models-parent 独立仓库构建，本地 maven repo install 后自动可用；downloadUrl 作为网络备用（HF: chtk/chua-dl-models） -->
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wespeaker</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-campplus</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-wav2vec2-base</artifactId><version>${project.version}</version><scope>test</scope></dependency>
-        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
+                        <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-sensevoice</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-zipformer-zh</artifactId><version>${project.version}</version><scope>test</scope></dependency>
         <dependency><groupId>com.chua</groupId><artifactId>utils-support-models-onnx-paddleocrv6-tiny</artifactId><version>4.0.0.42</version><scope>test</scope></dependency>
         <!-- WeMM-Embedding 多模态嵌入模型（2B/4B/9B）：文本分支 ONNX，供 WeMMEmbeddingClient 测试 -->

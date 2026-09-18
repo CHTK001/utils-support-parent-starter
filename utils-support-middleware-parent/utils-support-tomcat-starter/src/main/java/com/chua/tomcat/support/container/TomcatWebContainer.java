@@ -89,7 +89,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     * 先解压 WAR 到独立目录，再部署解压后的目录（避免 fixdocbase 失败）。
     * @param archivePath Arch Linux Linux路径
     * @param contextPath 上下文路径
-     */
+    */
     private void deployWar(String archivePath, String contextPath) throws Exception {
         var warFile = resolveFile(archivePath);
  // 部署目录：使用固定独立路径，避免 docbase 路径解析冲突
@@ -193,7 +193,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /**
     * 配置 Tomcat 引擎参数。
-     */
+    */
     private void configureTomcat() {
         tomcat.setHostname(setting.getHost());
         tomcat.setPort(setting.getPort());
@@ -247,7 +247,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /**
     * 配置 SSL/TLS。
-     */
+    */
     private void configureSsl() {
         WebContainerSetting.SslConfig ssl = setting.getSsl();
         if (ssl == null || !ssl.isEnabled()) {
@@ -280,7 +280,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
 
     /**
     * 部署在初始化时注册但延迟到启动时执行的单元。
-     */
+    */
     private void deployPendingUnits() {
         if (setting.getDeployUnits() == null) {
             return;
@@ -302,7 +302,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     * @param path 路径
     * @param ctxPath ctx路径
     * @param type 类型
-     */
+    */
     private void deployWarSafely(String path, String ctxPath, DeployUnitType type) {
         try {
             deployWar(path, ctxPath);
@@ -316,7 +316,7 @@ public class TomcatWebContainer extends AbstractWebContainer {
     * 解析文件路径，支持文件系统路径和 类路径 前缀。
     * @param path 路径
     * @return resolve文件的结果
-     */
+    */
     private File resolveFile(String path) {
         if (path.startsWith("classpath:")) {
             String resourcePath = path.substring("classpath:".length());

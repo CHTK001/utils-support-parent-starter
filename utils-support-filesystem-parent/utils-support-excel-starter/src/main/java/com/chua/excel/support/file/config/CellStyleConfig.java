@@ -300,12 +300,12 @@ public class CellStyleConfig {
     // ==================== 应用样式到 POI CellStyle ====================
 
     /**
-     * 将配置应用并创建 {@link CellStyle}。
-     * <p>内部方法，由 ExcelWriteBuilder 调用。</p>
-     *
-     * @param workbook 工作簿
-     * @return POI CellStyle 实例
-     */
+    * 将配置应用并创建 {@link CellStyle}。
+    * <p>内部方法，由 ExcelWriteBuilder 调用。</p>
+    *
+    * @param workbook 工作簿
+    * @return POI CellStyle 实例
+    */
     public CellStyle applyTo(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -395,15 +395,15 @@ public class CellStyleConfig {
     // ==================== 颜色应用（POI 类型感知） ====================
 
     /**
-     * 判断颜色字符串是否为六位 RGB 格式。
-     */
+    * 判断颜色字符串是否为六位 RGB 格式。
+    */
     private static boolean isHexRgb(String color) {
         return color != null && color.matches("[0-9A-Fa-f]{6}");
     }
 
     /**
-     * 将六位 RGB 字符串转为 XSSFColor。
-     */
+    * 将六位 RGB 字符串转为 XSSFColor。
+    */
     private static XSSFColor hexToXssfColor(String hex) {
         Color awt = Color.decode("#" + hex);
         return new XSSFColor(new byte[]{
@@ -414,8 +414,8 @@ public class CellStyleConfig {
     }
 
     /**
-     * 获取 IndexedColors 索引，支持名称或 RGB 十六进制回退。
-     */
+    * 获取 IndexedColors 索引，支持名称或 RGB 十六进制回退。
+    */
     private static short indexedColor(String color) {
         if (color == null || color.isEmpty()) {
             return IndexedColors.BLACK.getIndex();
@@ -430,8 +430,8 @@ public class CellStyleConfig {
     }
 
     /**
-     * 对字体应用颜色，XSSFWorkbook 下支持 RGB，否则回退 IndexedColors。
-     */
+    * 对字体应用颜色，XSSFWorkbook 下支持 RGB，否则回退 IndexedColors。
+    */
     private void applyFontColor(Font font, Workbook workbook) {
         if (workbook instanceof XSSFWorkbook && isHexRgb(fontColor)) {
             XSSFFont xssfFont = (XSSFFont) font;
@@ -442,8 +442,8 @@ public class CellStyleConfig {
     }
 
     /**
-     * 对单元格背景应用颜色。
-     */
+    * 对单元格背景应用颜色。
+    */
     private void applyFillColor(CellStyle style, Workbook workbook) {
         if (style instanceof XSSFCellStyle xssfStyle && isHexRgb(backgroundColor)) {
             xssfStyle.setFillForegroundColor(hexToXssfColor(backgroundColor));

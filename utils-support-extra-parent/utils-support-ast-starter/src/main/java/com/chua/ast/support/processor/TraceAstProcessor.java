@@ -82,7 +82,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     * @param methodName 方法名称
     * @param methodElement 方法element
     * @param trace 追踪
-     */
+    */
     private void applyTraceTransform(com.sun.source.tree.MethodTree methodTree,
             String className, String packageName, String methodName,
             ExecutableElement methodElement, Trace trace) throws Exception {
@@ -138,7 +138,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     * 构建参数字符串：名称=" + 名称 + ", age=" + age
     * @param methodElement 方法element
     * @return 构建参数expression的结果
-     */
+    */
     private String buildArgsExpression(ExecutableElement methodElement) {
         List<? extends VariableElement> params = methodElement.getParameters();
         if (params.isEmpty()) { return null; }
@@ -163,7 +163,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     *
     * @param type 类型
     * @return 是否字符串类型的结果
-     */
+    */
     private boolean isStringType(TypeMirror type) {
         String name = type.toString();
         return "java.lang.String".equals(name) || "java.lang.CharSequence".equals(name);
@@ -173,7 +173,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
 
     /**
     * 追踪上下文.设置最大深度(N)
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildSetMaxDepthStmt(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, int depth) {
 
@@ -187,7 +187,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
 
     /**
     * 追踪上下文.push(类名称, 包名称, 方法名称) 或 追踪上下文.pushwith参数(...)
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildPushStmt(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names,
             String className, String packageName, String methodName, String argsExpr) {
@@ -213,7 +213,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
 
     /**
     * 解析参数表达式字符串，构建 AST 节点
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpression parseArgsExpression(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String expr) {
 
@@ -258,7 +258,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     * @param methodElement 方法element
     * @param TypeElement 类型element
     * @param typeElement 类型element
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpressionStatement buildCall(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names,
             String className, String methodName) {
@@ -280,7 +280,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     * @param methodElement 方法element
     * @param TypeElement 类型element
     * @param typeElement 类型element
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCExpression buildQualifiedName(
             com.sun.tools.javac.tree.TreeMaker maker, com.sun.tools.javac.util.Names names, String qualifiedName) {
 
@@ -297,7 +297,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     *
     * @param methodElement 方法element
     * @return 获取简单类名称的结果
-     */
+    */
     private String getSimpleClassName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         if (enclosing instanceof TypeElement typeElement) {
@@ -311,7 +311,7 @@ public final class TraceAstProcessor extends AbstractProcessor {
     *
     * @param methodElement 方法element
     * @return 获取包名称的结果
-     */
+    */
     private String getPackageName(ExecutableElement methodElement) {
         Element enclosing = methodElement.getEnclosingElement();
         while (enclosing != null && !(enclosing instanceof TypeElement)) {

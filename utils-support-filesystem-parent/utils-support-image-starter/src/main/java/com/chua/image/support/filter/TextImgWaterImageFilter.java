@@ -6,6 +6,8 @@ import com.chua.common.support.constant.Position;
 import com.chua.common.support.image.ImagePoint;
 import com.chua.common.support.utils.BufferedImageUtils;
 import com.chua.common.support.utils.IoUtils;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,12 +20,53 @@ import javax.annotation.Nullable;
 
 
 /**
-* 水印
-*
-* @author CH
-* @since 4.0.0
+ * 文本 + 图片水印滤镜
+ *
+ * 在图像上同时叠加"文字水印"和"图片水印"，用于版权标识、Logo 标注等。
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 文字 + 图片（图片水印在右下角）
+ * TextImgWaterImageFilter filter = new TextImgWaterImageFilter(
+ *         "© 2026 CH", logoBytes, Position.LEFT_TOP);
+ * BufferedImage watermarked = filter.converter(src);
+ *
+ * // 图片水印位置通过 imagePoint 偏移控制
+ * TextImgWaterImageFilter filter = new TextImgWaterImageFilter(
+ *         "CH", logoBytes, new ImagePoint(50, 50));
+ * }</pre>
+ *
+ * <h3>参数说明（构造器）</h3>
+ * <ul>
+ *   <li><b>text</b>：文字水印内容</li>
+ *   <li><b>imageBytes</b>：图片水印的字节内容（PNG/JPG 等，ImageIO 可读）</li>
+ *   <li><b>position</b>：文字 + 图片水印共用的四角位置，默认 RIGHT_BOTTOM</li>
+ *   <li><b>fontSize / color / font</b>：文字样式，默认 18 号白色黑体</li>
+ *   <li><b>imagePoint</b>：图片水印的坐标偏移（像素），默认 (20, 20)</li>
+ * </ul>
+ *
+ * <h3>链式设置（@Setter 生成，支持链式）</h3>
+ * <pre>{@code
+ * new TextImgWaterImageFilter("text", bytes, position)
+ *     .setText("CH")
+ *     .setImagePoint(new ImagePoint(10, 10))
+ *     .setFontSize(24);
+ * }</pre>
+ * <p>注：imageBytes 为 final 字段，仅可通过构造器设置。</p>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>图片水印尺寸较大时会遮挡主图，建议使用 64×64 以内的小图</li>
+ *   <li>输出为 TYPE_INT_RGB（不透明），原图 Alpha 通道丢失</li>
+ *   <li>本类标记为 {@code @SpiIgnore}，不注册到 SPI</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @SpiIgnore
+@Accessors(chain = true)
+@Setter
 public class TextImgWaterImageFilter extends AbstractImageFilter {
 
     /** DEFAULFON缩放比例 */
@@ -32,15 +75,15 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     private static final Font DEFAULT_FONT = new Font("黑体", Font.PLAIN, DEFAULT_FONT_SIZE);
     /** DEFAUL水印位置点 */
     private static final ImagePoint DEFAULT_POINT = new ImagePoint(20, 20);
-    /** 镜像水印图片字节数组 */
+    /** 镜像水印图片字节数组（final，仅可通过构造器设置） */
     private final byte[] imageBytes;
     /** 文本内容 */
     private String text;
-    /** 位置 */
+    /** 水印位置 */
     private Position position = Position.RIGHT_BOTTOM;
-    /** 字体缩放比例 */
+    /** 字体大小 */
     private int fontSize = DEFAULT_FONT_SIZE;
-    /** 颜色 */
+    /** 文字颜色 */
     private Color color = Color.WHITE;
     /** 字体 */
     private Font font = DEFAULT_FONT;
@@ -53,7 +96,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param text 文本
     * @param stream 流
     * @param position 位置
-     */
+    */
     public TextImgWaterImageFilter(String text, InputStream stream, Position position) throws IOException {
         this.text = text;
         this.position = position;
@@ -65,7 +108,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param text 文本
     * @param imageBytes 镜像bytes
     * @param position 位置
-     */
+    */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position) {
         this.text = text;
         this.position = position;
@@ -77,7 +120,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param text 文本
     * @param stream 流
     * @param imagePoint 镜像point
-     */
+    */
     public TextImgWaterImageFilter(String text, InputStream stream, ImagePoint imagePoint) throws IOException {
         this.text = text;
         this.imagePoint = imagePoint;
@@ -89,7 +132,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param text 文本
     * @param imageBytes 镜像bytes
     * @param imagePoint 镜像point
-     */
+    */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, ImagePoint imagePoint) {
         this.text = text;
         this.imagePoint = imagePoint;
@@ -105,7 +148,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param color color
     * @param font font
     * @param imagePoint 镜像point
-     */
+    */
     public TextImgWaterImageFilter(String text, byte[] imageBytes, Position position, int fontSize, Color color, Font font, ImagePoint imagePoint) {
         this.text = text;
         this.imageBytes = imageBytes;
@@ -124,7 +167,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param fontSize 文字大小
     * @return 字符串占用的宽度
     * @author Shendi <a href='tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=1711680493'>QQ</a>
-     */
+    */
     public static int getStrWidth(String str, int fontSize) {
         char[] chars = str.toCharArray();
         int fontSize2 = fontSize / 2;
@@ -159,7 +202,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param src src
     * @param dst dst
     * @return 水过滤器的结果
-     */
+    */
     private BufferedImage waterFilter(BufferedImage src, BufferedImage dst) {
         int w = src.getWidth(), h = src.getHeight();
 
@@ -187,7 +230,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param imagePoint 位置
     * @param width width
     * @param height height
-     */
+    */
     private void imageImageCountProcess(Graphics2D g, byte[] imageBytes, int width, int height, ImagePoint imagePoint) {
         BufferedImage image;
         try (ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes)) {
@@ -230,7 +273,7 @@ public class TextImgWaterImageFilter extends AbstractImageFilter {
     * @param width 宽
     * @param height 高
     * @param direction 位置
-     */
+    */
     private void imageCountProcess(Graphics2D g, String text, int width, int height, Position direction) {
  // 降低_RIGHT
         switch (direction) {

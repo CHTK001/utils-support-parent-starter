@@ -51,13 +51,13 @@ public class SmbFileStorage extends AbstractFileStorage {
 
     /**
     * smb 客户端
-     */
+    */
     private final SmbClient smbClient;
 
     /**
     * 创建 smb文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public SmbFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
 
@@ -221,7 +221,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     *
     * @param key 键
     * @return normalize键的结果
-     */
+    */
     private static String normalizeKey(String key) {
         if (key == null) {
             return "/";
@@ -234,7 +234,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     *
     * @param key 键
     * @return extract名称的结果
-     */
+    */
     private static String extractName(String key) {
         int i = key.lastIndexOf('/');
         return i >= 0 ? key.substring(i + 1) : key;
@@ -245,7 +245,7 @@ public class SmbFileStorage extends AbstractFileStorage {
     *
     * @param key 键
     * @return extract路径的结果
-     */
+    */
     private static String extractPath(String key) {
         int i = key.lastIndexOf('/');
         return i > 0 ? key.substring(0, i) : "/";

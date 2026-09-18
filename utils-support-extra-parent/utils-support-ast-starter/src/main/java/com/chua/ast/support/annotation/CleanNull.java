@@ -34,6 +34,6 @@ public @interface CleanNull {
     * 需要清洗的关键词列表，默认清洗 "空"、"N/A"、"undefined"、"-"、"--"
     *
     * @return 关键词数组
-     */
+    */
     String[] value() default {"null", "N/A", "undefined", "-", "--"};
 }

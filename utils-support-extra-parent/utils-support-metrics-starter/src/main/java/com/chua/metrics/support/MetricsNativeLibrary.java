@@ -29,32 +29,32 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
     * 当前 NAT 库的 symbollookup（Panama 加载lookup）
-     */
+    */
     private static final SymbolLookup LOADER_LOOKUP;
 
     /**
     * 系统 Linker
-     */
+    */
     private static final Linker LINKER = Linker.nativeLinker();
 
     /**
     * 启动采样器方法句柄
-     */
+    */
     private static final MethodHandle START_SAMPLER;
 
     /**
     * 停止采样器方法句柄
-     */
+    */
     private static final MethodHandle STOP_SAMPLER;
 
     /**
     * 查询快照字节长度方法句柄
-     */
+    */
     private static final MethodHandle SNAPSHOT_SIZE;
 
     /**
     * 拉取快照方法句柄
-     */
+    */
     private static final MethodHandle GET_SNAPSHOT;
 
     static {
@@ -85,14 +85,14 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
     * 采样器是否已启动
-     */
+    */
     private volatile boolean started;
 
     /**
     * 尝试加载 NAT 库并返回实例；加载失败时返回 空 并记录错误日志。
     *
     * @return MetricsNativeLibrary 实例（失败时为 空）
-     */
+    */
     public static MetricsNativeLibrary create() {
         try {
             return new MetricsNativeLibrary();
@@ -104,7 +104,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
     * 私有构造函数。
-     */
+    */
     private MetricsNativeLibrary() {
         this.started = false;
     }
@@ -114,7 +114,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
     *
     * @param intervalMs 采样间隔（毫秒），必须大于 0
     * @throws IllegalArgumentException 当 间隔ms &lt;= 0
-     */
+    */
     public void start(long intervalMs) {
         if (started) {
             return;
@@ -134,7 +134,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
     * 拉取当前快照的 UTF-8 字符串表示。
     *
     * @return 快照内容；未启动或拉取失败返回 空
-     */
+    */
     public String poll() {
         if (!started) {
             throw new IllegalStateException("采样器未启动，请先调用 start()");
@@ -161,7 +161,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
     * 停止采样器（幂等）。
-     */
+    */
     public void stop() {
         if (started) {
             try {
@@ -175,7 +175,7 @@ public class MetricsNativeLibrary implements AutoCloseable {
 
     /**
     * 关闭资源，等价于 {@link #stop()}。
-     */
+    */
     @Override
     public void close() {
         stop();

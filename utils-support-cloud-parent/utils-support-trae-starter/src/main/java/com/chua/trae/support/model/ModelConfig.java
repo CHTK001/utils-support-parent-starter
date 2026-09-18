@@ -42,7 +42,7 @@ public record ModelConfig(
     * @param multimodal 是否多模态
     * @param reasoning 是否推理模型
     * @param tier 档位号（1-5）
-     */
+    */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ModelEntry(
         @JsonProperty("function") String function,
@@ -57,7 +57,7 @@ public record ModelConfig(
         * 获取后端配置名，缺省回退到 function。
         *
         * @return 配置名，不可为 空
-         */
+        */
         public String configName() {
             return config_name != null ? config_name : function;
         }
@@ -69,7 +69,7 @@ public record ModelConfig(
     * @param name 档位名称（旗舰/强力/中等/轻量/最轻）
     * @param models 该档位包含的模型列表
     * @param description 档位描述
-     */
+    */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record TierDef(
         @JsonProperty("name") String name,
@@ -86,7 +86,7 @@ public record ModelConfig(
     * @param raceFlag 是否同档竞速
     * @param fallbackModel 兜底模型
     * @param mappings 旧版降级链映射
-     */
+    */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record FallbackConfig(
         @JsonProperty("autoFallback") Boolean autoFlag,
@@ -100,35 +100,35 @@ public record ModelConfig(
         * 是否启用自动降级。
         *
         * @return true 表示启用
-         */
+        */
         public boolean autoFallback() { return autoFlag != null && autoFlag; }
 
         /**
         * 是否启用分档降级。
         *
         * @return true 表示启用
-         */
+        */
         public boolean tieredFallback() { return tieredFlag != null && tieredFlag; }
 
         /**
         * 是否同档竞速。
         *
         * @return true 表示启用
-         */
+        */
         public boolean raceWithinTier() { return raceFlag != null && raceFlag; }
 
         /**
         * 排队阈值，默认 300。
         *
         * @return 阈值
-         */
+        */
         public int queueThreshold() { return queueThresholdValue != null ? queueThresholdValue : 300; }
 
         /**
         * 兜底模型，默认 glm-5。
         *
         * @return 兜底模型名
-         */
+        */
         public String fallbackModel() { return fallbackModel != null ? fallbackModel : "glm-5"; }
     }
 
@@ -140,7 +140,7 @@ public record ModelConfig(
     * @param truncationTextThreshold 截断检测文本阈值
     * @param truncationSimilarityThreshold 截断相似度阈值
     * @param maxTokensLimit 最大 令牌 上限
-     */
+    */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Settings(
         @JsonProperty("autoContinue") Boolean autoContinue,

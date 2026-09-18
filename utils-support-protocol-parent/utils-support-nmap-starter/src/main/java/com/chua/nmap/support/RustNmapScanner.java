@@ -347,7 +347,7 @@ public class RustNmapScanner implements NmapScanner {
     * @param stateCode 状态码 (0=open, 1=closed, 2=filtered, -1=error)
     * @param protocol 协议
     * @return 端口信息
-     */
+    */
     private PortInfo parsePortStateResult(int port, int stateCode, String protocol) {
         PortInfo portInfo = new PortInfo();
         portInfo.setPort(port);
@@ -389,7 +389,7 @@ public class RustNmapScanner implements NmapScanner {
     
     /**
     * 从JSON结果解析主机信息
-     */
+    */
     private void parseHostInfoFromJson(HostInfo hostInfo, String json) {
         // Simple JSON parsing - in production use a proper JSON library
         if (json.contains("hostname")) {

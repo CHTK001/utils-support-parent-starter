@@ -20,7 +20,7 @@ public class OnnxSpeechEnhancer implements SpeechEnhancer {
     * 创建 onnx语音enhancer 实例。
     *
     * @param apiKey API 密钥（本地引擎可空）
-     */
+    */
     public OnnxSpeechEnhancer(String apiKey) {
     }
 
@@ -34,7 +34,7 @@ public class OnnxSpeechEnhancer implements SpeechEnhancer {
     * 解析模型名。
     *
     * @return 模型名
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "dfsmn-ans";
     }

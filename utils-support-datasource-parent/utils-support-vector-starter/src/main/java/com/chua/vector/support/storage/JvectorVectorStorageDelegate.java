@@ -28,7 +28,7 @@ public class JvectorVectorStorageDelegate extends AbstractVectorStorage {
     * @param dimension 向量维度
     * @param algorithm 比较算法
     * @param props     向量存储配置属性
-     */
+    */
     public JvectorVectorStorageDelegate(int dimension, VectorCompareAlgorithm algorithm,
                                          VectorStorageProperties props) {
         super(dimension, algorithm);
@@ -42,7 +42,7 @@ public class JvectorVectorStorageDelegate extends AbstractVectorStorage {
     * @param algorithm 比较算法
     * @param props     配置属性
     * @return JVector 存储实例
-     */
+    */
     private static JVectorVectorStorage createJvectorStorage(int dimension,
                                                               VectorCompareAlgorithm algorithm,
                                                               VectorStorageProperties props) {
@@ -59,7 +59,7 @@ public class JvectorVectorStorageDelegate extends AbstractVectorStorage {
     *
     * @param mode 内部枚举值
     * @return 对应的 j向量 存储模式
-     */
+    */
     private static JVectorStorageProperties.Mode toJvectorMode(VectorStorageProperties.JvectorMode mode) {
         return switch (mode) {
             case ON_DISK -> JVectorStorageProperties.Mode.ON_DISK;

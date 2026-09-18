@@ -41,7 +41,7 @@ public class ColumnConfig {
     * 使用字段名创建列配置。
     *
     * @param fieldName 数据 映射 中的 键
-     */
+    */
     private ColumnConfig(String fieldName) {
         this.fieldName = fieldName;
     }
@@ -51,7 +51,7 @@ public class ColumnConfig {
     *
     * @param fieldName 字段名
     * @return ColumnConfig 实例
-     */
+    */
     public static ColumnConfig of(String fieldName) {
         return new ColumnConfig(fieldName);
     }
@@ -63,7 +63,7 @@ public class ColumnConfig {
     *
     * @param displayName 显示名
     * @return 当前构建器
-     */
+    */
     public ColumnConfig displayName(String displayName) {
         this.displayName = displayName;
         return this;
@@ -74,7 +74,7 @@ public class ColumnConfig {
     *
     * @param width 列宽
     * @return 当前构建器
-     */
+    */
     public ColumnConfig width(int width) {
         this.width = width;
         return this;
@@ -85,7 +85,7 @@ public class ColumnConfig {
     *
     * @param style 单元格样式
     * @return 当前构建器
-     */
+    */
     public ColumnConfig style(CellStyleConfig style) {
         this.style = style;
         return this;
@@ -96,7 +96,7 @@ public class ColumnConfig {
     *
     * @param headerStyle 表头样式
     * @return 当前构建器
-     */
+    */
     public ColumnConfig headerStyle(CellStyleConfig headerStyle) {
         this.headerStyle = headerStyle;
         return this;
@@ -106,7 +106,7 @@ public class ColumnConfig {
     * 隐藏该列。
     *
     * @return 当前构建器
-     */
+    */
     public ColumnConfig hidden() {
         this.hidden = true;
         return this;
@@ -118,7 +118,7 @@ public class ColumnConfig {
     * 获取字段名称
     *
     * @return 获取字段名称的结果
-     */
+    */
     public String getFieldName() {
         return fieldName;
     }
@@ -127,7 +127,7 @@ public class ColumnConfig {
     * 获取display名称
     *
     * @return 获取display名称的结果
-     */
+    */
     public String getDisplayName() {
         return displayName != null ? displayName : fieldName;
     }
@@ -136,7 +136,7 @@ public class ColumnConfig {
     * 获取Width
     *
     * @return 获取width的结果
-     */
+    */
     public Integer getWidth() {
         return width;
     }
@@ -145,7 +145,7 @@ public class ColumnConfig {
     * 获取Style
     *
     * @return 获取style的结果
-     */
+    */
     public CellStyleConfig getStyle() {
         return style;
     }
@@ -154,7 +154,7 @@ public class ColumnConfig {
     * 获取头部style
     *
     * @return 获取头部style的结果
-     */
+    */
     public CellStyleConfig getHeaderStyle() {
         return headerStyle;
     }
@@ -163,7 +163,7 @@ public class ColumnConfig {
     * 是否Hidden
     *
     * @return 是否hidden的结果
-     */
+    */
     public boolean isHidden() {
         return hidden;
     }

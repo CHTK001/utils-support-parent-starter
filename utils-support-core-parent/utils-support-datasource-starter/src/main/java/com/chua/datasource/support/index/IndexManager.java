@@ -15,7 +15,7 @@ public interface IndexManager {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface CreateIndexStep {
 
         CreateIndexStep onTable(String table);
@@ -36,7 +36,7 @@ public interface IndexManager {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface DropIndexStep {
 
         DropIndexStep onTable(String table);
@@ -48,7 +48,7 @@ public interface IndexManager {
     * 返回 SPI 扩展键。
     *
     * @return 数据库类型标识
-     */
+    */
     String type();
 
     /**
@@ -56,7 +56,7 @@ public interface IndexManager {
     *
     * @param table 表名
     * @return 索引名列表
-     */
+    */
     List<String> listIndexes(String table);
 
     /**
@@ -64,7 +64,7 @@ public interface IndexManager {
     *
     * @param indexName 索引名
     * @return 创建索引步骤
-     */
+    */
     CreateIndexStep createIndex(String indexName);
 
     /**
@@ -72,6 +72,6 @@ public interface IndexManager {
     *
     * @param indexName 索引名
     * @return 删除索引步骤
-     */
+    */
     DropIndexStep dropIndex(String indexName);
 }

@@ -60,7 +60,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     /**
     * zipformerzh音频客户端。
     * @param setting setting
-     */
+    */
     public ZipformerZhAudioClient(AudioClientSetting setting) {
         this.setting = setting;
     }
@@ -175,10 +175,10 @@ public class ZipformerZhAudioClient implements VirtualClient {
     }
 
      /**
-     * ensureprepared。从 类路径 嵌入资源或 HF 下载模型到缓存目录
-     *
-     * @param modelDir 模型dir
-     */
+    * ensureprepared。从 类路径 嵌入资源或 HF 下载模型到缓存目录
+    *
+    * @param modelDir 模型dir
+    */
     private void ensurePrepared() {
         if (prepared) {
             return;
@@ -240,7 +240,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     /**
     * 模型dir。
     * @return 模型dir的结果
-     */
+    */
     private Path modelDir() throws IOException {
         String prop = System.getProperty("speech.loop.zipformer-zh.dir");
         if (prop != null && !prop.isBlank()) {
@@ -254,7 +254,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     /**
     * resolve音频路径。
     * @return resolve音频路径的结果
-     */
+    */
     private Path resolveAudioPath() {
         if (setting.getAudioPath() != null) {
             return setting.getAudioPath();
@@ -283,7 +283,7 @@ public class ZipformerZhAudioClient implements VirtualClient {
     /**
     * 缓存根。
     * @return 缓存根的结果
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");

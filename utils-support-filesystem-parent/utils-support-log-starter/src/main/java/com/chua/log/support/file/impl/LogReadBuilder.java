@@ -37,7 +37,7 @@ public class LogReadBuilder extends ReadBuilder {
 
     /**
     * 常见日志时间戳格式列表（按优先级降序匹配）
-     */
+    */
     private static final DateTimeFormatter[] DEFAULT_TIMESTAMP_FORMATS = {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss,SSS"),
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"),
@@ -74,7 +74,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 构造日志读取构建器。
     *
     * @param file 日志文件
-     */
+    */
     public LogReadBuilder(File file) {
         super(file);
     }
@@ -86,7 +86,7 @@ public class LogReadBuilder extends ReadBuilder {
     *
     * @param keyword 要匹配的关键词
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder grep(String keyword) {
         this.keyword = keyword;
         this.regexPattern = null;
@@ -99,7 +99,7 @@ public class LogReadBuilder extends ReadBuilder {
     * @param pattern 正则表达式
     * @param regex   是否启用正则模式（{@code true} 为正则，{@code false} 为普通字符串）
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder grep(String pattern, boolean regex) {
         if (regex) {
             this.regexPattern = Pattern.compile(pattern);
@@ -115,7 +115,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 启用反转匹配（类似 {@code grep -v}），仅返回不匹配的行。
     *
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder invertMatch() {
         this.invertMatch = true;
         return this;
@@ -126,7 +126,7 @@ public class LogReadBuilder extends ReadBuilder {
     *
     * @param lines 行数
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder tail(int lines) {
         this.tailLines = Math.max(0, lines);
         return this;
@@ -137,7 +137,7 @@ public class LogReadBuilder extends ReadBuilder {
     *
     * @param from 起始时间（含）
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder timeFrom(LocalDateTime from) {
         this.timeFrom = from;
         return this;
@@ -148,7 +148,7 @@ public class LogReadBuilder extends ReadBuilder {
     *
     * @param to 结束时间（含）
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder timeTo(LocalDateTime to) {
         this.timeTo = to;
         return this;
@@ -160,7 +160,7 @@ public class LogReadBuilder extends ReadBuilder {
     * @param from 起始时间
     * @param to   结束时间
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder timeRange(LocalDateTime from, LocalDateTime to) {
         this.timeFrom = from;
         this.timeTo = to;
@@ -181,7 +181,7 @@ public class LogReadBuilder extends ReadBuilder {
     *
     * @param pattern {@link DateTimeFormatter} 格式
     * @return 当前构建器
-     */
+    */
     public LogReadBuilder withTimestampFormat(String pattern) {
         this.timestampFormat = DateTimeFormatter.ofPattern(pattern);
         return this;
@@ -200,7 +200,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 读取日志文件全部行，应用已设置的过滤条件。
     *
     * @return 过滤后的行列表
-     */
+    */
     public List<String> lines() {
         List<String> allLines = readAllLines();
         if (allLines.isEmpty()) {
@@ -231,7 +231,7 @@ public class LogReadBuilder extends ReadBuilder {
     * <p>注意：tail 和 时间过滤 在流式模式下可能不准确（需要回溯）。</p>
     *
     * @return 行文本流
-     */
+    */
     @Override
     public java.util.stream.Stream<String> streamLines() {
         return lines().stream();
@@ -260,7 +260,7 @@ public class LogReadBuilder extends ReadBuilder {
     /**
     * 从文件读取全部行。
     * @return 读取全部线的结果
-     */
+    */
     private List<String> readAllLines() {
         List<String> result = new ArrayList<>();
         if (file == null || !file.exists() || !file.isFile()) {
@@ -282,7 +282,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 应用 grep 关键词 / 正则过滤。
     * @param lines 线
     * @return applygrep过滤器的结果
-     */
+    */
     private List<String> applyGrepFilter(List<String> lines) {
         if (keyword == null && regexPattern == null) {
             return lines;
@@ -305,7 +305,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 应用时间范围过滤。
     * @param lines 线
     * @return apply时间过滤器的结果
-     */
+    */
     private List<String> applyTimeFilter(List<String> lines) {
         if (timeFrom == null && timeTo == null) {
             return lines;
@@ -319,7 +319,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 判断行内的时间戳是否在指定时间范围内。
     * @param line 线
     * @return 是否within时间范围的结果
-     */
+    */
     private boolean isWithinTimeRange(String line) {
         LocalDateTime lineTime = extractTimestamp(line);
         if (lineTime == null) {
@@ -340,7 +340,7 @@ public class LogReadBuilder extends ReadBuilder {
     * <p>遍历默认格式列表，取第一个匹配的格式进行解析。</p>
     * @param line 线
     * @return extract时间戳的结果
-     */
+    */
     private LocalDateTime extractTimestamp(String line) {
         if (line == null || line.isEmpty()) {
             return null;
@@ -372,7 +372,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 应用 tail 截取尾部 N 行。
     * @param lines 线
     * @return applyTail的结果
-     */
+    */
     private List<String> applyTail(List<String> lines) {
         if (tailLines <= 0 || lines.size() <= tailLines) {
             return lines;
@@ -386,7 +386,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 逐行回调读取（流式不缓存所有行到内存）。
     *
     * @param lineHandler 每行处理函数
-     */
+    */
     public void readLines(java.util.function.Consumer<String> lineHandler) {
         if (file == null || !file.exists() || !file.isFile()) {
             return;
@@ -407,7 +407,7 @@ public class LogReadBuilder extends ReadBuilder {
     * 判断单行是否通过 grep 过滤。
     * @param line 线
     * @return 通过grep的结果
-     */
+    */
     private boolean passesGrep(String line) {
         if (keyword == null && regexPattern == null) {
             return true;

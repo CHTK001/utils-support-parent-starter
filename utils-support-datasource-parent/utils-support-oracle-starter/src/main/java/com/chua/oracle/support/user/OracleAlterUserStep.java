@@ -43,7 +43,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     *
     * @param password 新密码
     * @return this
-     */
+    */
     @Override
     public UserManager.AlterUserStep withPassword(String password) {
         this.password = password;
@@ -55,7 +55,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     *
     * @param host 忽略
     * @return this
-     */
+    */
     @Override
     public UserManager.AlterUserStep withHost(String host) {
         return this;
@@ -67,7 +67,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     * @param privilege 权限名（如 创建 会话、选择 任意 TABLE）
     * @param database  忽略（Oracle 中直接对用户授权）
     * @return this
-     */
+    */
     @Override
     public UserManager.AlterUserStep withGrant(String privilege, String database) {
         grants.add("GRANT " + privilege + " TO " + username);
@@ -80,7 +80,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
     * @param privilege 权限名
     * @param database  忽略
     * @return this
-     */
+    */
     @Override
     public UserManager.AlterUserStep withRevoke(String privilege, String database) {
         revokes.add("REVOKE " + privilege + " FROM " + username);
@@ -89,7 +89,7 @@ public class OracleAlterUserStep implements UserManager.AlterUserStep {
 
     /**
     * 依次执行修改密码（如有）、授权、回收操作。
-     */
+    */
     @Override
     public void execute() {
         try (var c = dataSource.getConnection();

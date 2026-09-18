@@ -28,7 +28,7 @@ public class LaMaImageUtils {
     * @param image  输入图像
     * @param config 配置参数
     * @return 标准化后的图像数据 [C, H, W] 格式
-     */
+    */
     public static float[] imageToTensor(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
         
@@ -74,7 +74,7 @@ public class LaMaImageUtils {
     * @param tensorData 输出张量数据 [C, H, W] 格式
     * @param config     配置参数
     * @return 转换后的图像
-     */
+    */
     public static BufferedImage tensorToImage(float[] tensorData, LaMaConfiguration config) {
         int size = config.getInputSize();
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
@@ -114,7 +114,7 @@ public class LaMaImageUtils {
     * @param image  输入图像
     * @param config 配置参数
     * @return mask数据 [H, W] 格式，1表示需要修复的区域
-     */
+    */
     public static float[] generateMask(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
         
@@ -133,7 +133,7 @@ public class LaMaImageUtils {
     * @param image 镜像
     * @param config 配置
     * @return generatemask从alpha的结果
-     */
+    */
     private static float[] generateMaskFromAlpha(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
         BufferedImage resized = resizeImage(image, size, size);
@@ -160,7 +160,7 @@ public class LaMaImageUtils {
     * @param image 镜像
     * @param config 配置
     * @return generatemask从color的结果
-     */
+    */
     private static float[] generateMaskFromColor(BufferedImage image, LaMaConfiguration config) {
         int size = config.getInputSize();
         BufferedImage resized = resizeImage(image, size, size);
@@ -199,7 +199,7 @@ public class LaMaImageUtils {
     * @param width  目标宽度
     * @param height 目标高度
     * @return 调整后的图像
-     */
+    */
     public static BufferedImage resizeImage(BufferedImage image, int width, int height) {
         BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = resized.createGraphics();
@@ -220,7 +220,7 @@ public class LaMaImageUtils {
     *
     * @param image 输入图像
     * @return RGB格式图像
-     */
+    */
     public static BufferedImage convertToRGB(BufferedImage image) {
         if (image.getType() == BufferedImage.TYPE_INT_RGB) {
             return image;
@@ -247,7 +247,7 @@ public class LaMaImageUtils {
     * @param mask     修复mask
     * @param radius   羽化半径
     * @return 羽化后的图像
-     */
+    */
     public static BufferedImage applyFeathering(BufferedImage original, BufferedImage inpainted, 
                                                float[] mask, int radius) {
         if (radius <= 0) {
@@ -285,7 +285,7 @@ public class LaMaImageUtils {
     * @param height height
     * @param radius radius
     * @return 创建featheredmask的结果
-     */
+    */
     private static float[] createFeatheredMask(float[] mask, int width, int height, int radius) {
         float[] feathered = mask.clone();
         
@@ -326,7 +326,7 @@ public class LaMaImageUtils {
     * @param pixel2 pixel2
     * @param alpha alpha
     * @return blendPixels的结果
-     */
+    */
     private static int blendPixels(int pixel1, int pixel2, float alpha) {
         int r1 = (pixel1 >> 16) & 0xFF;
         int g1 = (pixel1 >> 8) & 0xFF;
@@ -349,7 +349,7 @@ public class LaMaImageUtils {
     * @param image  输入图像
     * @param config 配置参数
     * @return 优化后的图像
-     */
+    */
     public static BufferedImage applyPostProcessing(BufferedImage image, LaMaConfiguration config) {
         if (!config.isEnablePostProcessing()) {
             return image;
@@ -368,7 +368,7 @@ public class LaMaImageUtils {
     * 应用锐化滤镜
     * @param image 镜像
     * @return applySharpen的结果
-     */
+    */
     private static BufferedImage applySharpen(BufferedImage image) {
         // 简单的锐化核
         float[] sharpenKernel = {
@@ -384,7 +384,7 @@ public class LaMaImageUtils {
     * 应用颜色校正
     * @param image 镜像
     * @return applyColorCorrection的结果
-     */
+    */
     private static BufferedImage applyColorCorrection(BufferedImage image) {
         // 简单的对比度和亮度调整
         BufferedImage corrected = new BufferedImage(
@@ -418,7 +418,7 @@ public class LaMaImageUtils {
     * @param kernel kernel
     * @param kernelSize kernel大小
     * @return applyConvolution的结果
-     */
+    */
     private static BufferedImage applyConvolution(BufferedImage image, float[] kernel, int kernelSize) {
         int width = image.getWidth();
         int height = image.getHeight();

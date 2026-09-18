@@ -20,7 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 爬虫拦截过滤器，基于 用户-智能体 识别并拦截爬虫请求，并检测客户端的周期性重复请求。
+* 爬虫拦截过滤器，基于 用户-Agent 识别并拦截爬虫请求，并检测客户端的周期性重复请求。
 *
 * <p><b>User-Agent 拦截：</b>内置常见爬虫特征关键词（搜索引擎爬虫、下载工具、HTTP 客户端库等），
 * 命中后默认返回 403 拦截；可通过配置关闭拦截仅记录日志。</p>
@@ -48,8 +48,8 @@ import java.util.concurrent.TimeUnit;
 public class CrawlerServerFilter implements ServerFilter {
 
     /**
-    * 默认爬虫 用户-智能体 特征关键词
-     */
+    * 默认爬虫 用户-Agent 特征关键词
+    */
     private static final Set<String> DEFAULT_UA_KEYWORDS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "googlebot", "bingbot", "yandexbot", "baiduspider", "sogou", "360spider", "bytespider",
             "petalbot", "duckduckbot", "ia_archiver", "mj12bot", "ahrefsbot", "semrushbot", "dotbot",
@@ -62,35 +62,35 @@ public class CrawlerServerFilter implements ServerFilter {
 
     /**
     * 默认启用
-     */
+    */
     private static final boolean DEFAULT_ENABLED = true;
     /**
-    * 默认启用 用户-智能体 拦截
-     */
+    * 默认启用 用户-Agent 拦截
+    */
     private static final boolean DEFAULT_BLOCK_ENABLED = true;
     /**
     * 默认拦截状态码
-     */
+    */
     private static final int DEFAULT_BLOCK_STATUS = 403;
     /**
     * 默认启用周期性重复请求检测
-     */
+    */
     private static final boolean DEFAULT_PERIOD_ENABLED = true;
     /**
     * 默认窗口内相同请求次数阈值
-     */
+    */
     private static final int DEFAULT_PERIOD_MIN_TIMES = 5;
     /**
     * 默认检测窗口（秒）
-     */
+    */
     private static final int DEFAULT_PERIOD_WINDOW_SECONDS = 60;
     /**
     * 默认周期判定阈值
-     */
+    */
     private static final double DEFAULT_PERIOD_MAX_INTERVAL_RATIO = 1.5;
     /**
     * 默认清理周期（秒）
-     */
+    */
     private static final long DEFAULT_CLEANUP_INTERVAL_SECONDS = 300;
 
     /** 是否启用 */
@@ -111,18 +111,18 @@ public class CrawlerServerFilter implements ServerFilter {
     private long cleanupIntervalSeconds = DEFAULT_CLEANUP_INTERVAL_SECONDS;
 
     /**
-    * 爬虫 用户-智能体 关键词集合（内置 + 自定义）
-     */
+    * 爬虫 用户-Agent 关键词集合（内置 + 自定义）
+    */
     private final Set<String> uaKeywords = new HashSet<>(DEFAULT_UA_KEYWORDS);
 
     /**
     * 客户端周期请求记录：键 = IP|方法|URI → 窗口内请求时间戳队列
-     */
+    */
     private final Map<String, Deque<Long>> periodRecords = new ConcurrentHashMap<>();
 
     /**
     * 过期记录清理任务
-     */
+    */
     private ScheduledExecutorService cleanupExecutor;
 
     @Override
@@ -223,11 +223,11 @@ public class CrawlerServerFilter implements ServerFilter {
     }
 
     /**
-    * 判断 用户-智能体 是否命中爬虫特征关键词。
+    * 判断 用户-Agent 是否命中爬虫特征关键词。
     *
-    * @param userAgent 用户-智能体 请求头值
+    * @param userAgent 用户-Agent 请求头值
     * @return true 表示命中爬虫特征
-     */
+    */
     private boolean isCrawler(String userAgent) {
         String ua = userAgent.toLowerCase();
         for (String keyword : uaKeywords) {
@@ -242,7 +242,7 @@ public class CrawlerServerFilter implements ServerFilter {
     * 检测同一个客户端是否周期性请求相同地址，命中时仅记录日志。
     * @param request 请求
     * @param clientIp 客户端ip
-     */
+    */
     private void detectPeriodicRequest(ServerRequest request, String clientIp) {
         String uri = request.getUri();
         if (uri == null || uri.isEmpty()) {
@@ -272,7 +272,7 @@ public class CrawlerServerFilter implements ServerFilter {
     * 判断时间戳队列的相邻请求间隔是否呈现规律周期（最大间隔 / 最小间隔 ≤ 阈值）。
     * @param times 时间
     * @return 是否periodic的结果
-     */
+    */
     private boolean isPeriodic(Deque<Long> times) {
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
@@ -296,7 +296,7 @@ public class CrawlerServerFilter implements ServerFilter {
     *
     * @param times 时间
     * @return 最小间隔的结果
-     */
+    */
     private long minInterval(Deque<Long> times) {
         long min = Long.MAX_VALUE;
         Long prev = null;
@@ -314,7 +314,7 @@ public class CrawlerServerFilter implements ServerFilter {
     *
     * @param times 时间
     * @return 最大间隔的结果
-     */
+    */
     private long maxInterval(Deque<Long> times) {
         long max = Long.MIN_VALUE;
         Long prev = null;
@@ -329,7 +329,7 @@ public class CrawlerServerFilter implements ServerFilter {
 
     /**
     * 启动过期记录清理任务，防止内存无界增长。
-     */
+    */
     private void startCleanup() {
         cleanupExecutor = ThreadUtils.newSingleThreadScheduledExecutor(r -> {
             Thread thread = new Thread(r, "crawler-filter-cleanup");
@@ -342,7 +342,7 @@ public class CrawlerServerFilter implements ServerFilter {
 
     /**
     * 清理最后一次访问已超出检测窗口的周期请求记录。
-     */
+    */
     private void cleanupExpired() {
         long now = System.currentTimeMillis();
         long windowMillis = periodWindowSeconds * 1000L;
@@ -358,7 +358,7 @@ public class CrawlerServerFilter implements ServerFilter {
     * 解析客户端真实 IP，优先从 X-远期-For 头获取。
     * @param request 请求
     * @return resolve客户端ip的结果
-     */
+    */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {

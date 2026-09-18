@@ -49,7 +49,7 @@ public class ObjectContextAutoConfiguration {
     *
     * @param applicationContext Spring 应用上下文
     * @return SpringBootObjectContext 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public SpringBootObjectContext springBootObjectContext(ApplicationContext applicationContext) {

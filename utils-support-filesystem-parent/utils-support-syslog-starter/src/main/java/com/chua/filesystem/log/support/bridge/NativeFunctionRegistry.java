@@ -28,7 +28,9 @@ public final class NativeFunctionRegistry {
     private final Linker linker;
     /** 符号查找表，用于按名称解析原生函数地址 */
     private final SymbolLookup lookup;
-    /** 方法处理 句柄缓存，键 为「函数名@方法描述符」，避免重复 downcall 绑定 */
+    /**
+    * 方法处理 句柄缓存，键 为「函数名@方法描述符」，避免重复 downcall 绑定
+    */
     private final Map<String, MethodHandle> handleCache;
 
     /**
@@ -41,7 +43,7 @@ public final class NativeFunctionRegistry {
     * @param lookup 已加载原生库的符号查找表，不允许为 {@code null}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public NativeFunctionRegistry(SymbolLookup lookup) {
         this.linker = Linker.nativeLinker();
         this.lookup = lookup;
@@ -61,7 +63,7 @@ public final class NativeFunctionRegistry {
     * @return 已绑定符号查找表的注册表实例；若所有加载方式均失败则返回 {@code null}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static NativeFunctionRegistry ofLibrary(String libraryName) {
         try {
             NativeUtils.load(libraryName, null);
@@ -85,7 +87,7 @@ public final class NativeFunctionRegistry {
     * @return 对应的下行调用 {@link MethodHandle}；若符号未找到则返回 {@code null}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public MethodHandle register(String name, FunctionDescriptor descriptor) {
         return handleCache.computeIfAbsent(key(name, descriptor), k -> {
             var symbol = lookup.find(name);
@@ -109,7 +111,7 @@ public final class NativeFunctionRegistry {
     * @throws UnsatisfiedLinkError 当指定符号在原生库中不存在时
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public MethodHandle require(String name, FunctionDescriptor descriptor) {
         MethodHandle handle = register(name, descriptor);
         if (handle == null) {
@@ -127,7 +129,7 @@ public final class NativeFunctionRegistry {
     * @return 若存在该符号返回 {@code true}，否则返回 {@code false}
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public boolean hasSymbol(String name) {
         return lookup.find(name).isPresent();
     }
@@ -138,7 +140,7 @@ public final class NativeFunctionRegistry {
     * @return 用于按名称解析原生函数地址的 {@link SymbolLookup} 实例
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public SymbolLookup getSymbolLookup() {
         return lookup;
     }
@@ -149,7 +151,7 @@ public final class NativeFunctionRegistry {
     * @return JVM 全局共享的 {@link Linker} 实例
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public Linker getLinker() {
         return linker;
     }
@@ -163,7 +165,7 @@ public final class NativeFunctionRegistry {
     * @param name        原生函数名
     * @param descriptor  函数描述符
     * @return 形如 {@code name@(...)descriptor} 的缓存键字符串
-     */
+    */
     private static String key(String name, FunctionDescriptor descriptor) {
         return name + "@" + descriptor.toMethodType().toMethodDescriptorString();
     }

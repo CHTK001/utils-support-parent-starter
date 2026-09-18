@@ -55,10 +55,10 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     * 返回 the SPI 名称 for joy编码.
     *
     * @return {@code "joycode"}
-     */
+    */
     /**
     * 响应式流式入口：订阅时才执行装载，配合 限制rate/取 可控制内存水位。
-     */
+    */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -73,7 +73,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     * 解析 全部 joy编码 日志 文件 和 extracts 上下文-大小 estimates.
     *
     * @return list 的 estimated aiusage records (estimated = true)
-     */
+    */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(JOYCODE_LOG_DIR)) {
             log.debug("[joycode] log dir not found: {}", JOYCODE_LOG_DIR);
@@ -106,7 +106,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     * @param file   路径 转为 the 日志 文件
     * @param result accumulator 列表 for 解析 records
     * @throws IOException if the 文件 cannot be 读取
-     */
+    */
     private void parseLogFile(Path file, List<AiUsage> result) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             String line;
@@ -121,7 +121,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     *
     * @param line   the 日志 线 转为 inspect
     * @param result accumulator 列表 for 解析 records
-     */
+    */
     private void parseLine(String line, List<AiUsage> result) {
         Matcher nonMsgMatcher = NON_MSG_TOKENS.matcher(line);
         if (!nonMsgMatcher.find()) {
@@ -153,7 +153,7 @@ public class JoyCodeUsageParser extends BaseUsageParser {
     *
     * @param line the 日志 线
     * @return epoch millis at day 启动, 或 0L When.js.js absent 或 malformed
-     */
+    */
     private long extractDayStart(String line) {
         Matcher m = TIMESTAMP.matcher(line);
         if (m.find()) {

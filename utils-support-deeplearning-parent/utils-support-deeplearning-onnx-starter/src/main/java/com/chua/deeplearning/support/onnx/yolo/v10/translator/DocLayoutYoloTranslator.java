@@ -71,7 +71,7 @@ public class DocLayoutYoloTranslator implements Translator<Image, DetectedObject
     *          https://github.com/opendatalab/DocLayout-YOLO
     * <p>
     * 10                            
-     */
+    */
 public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
             "title", // 0 -
             "plain_text", // 1 -
@@ -87,47 +87,47 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
 
     /**
     * doclayout-YOLO        1024
-     */
+    */
     private static final int DEFAULT_INPUT_SIZE = 1280;
 
     /**
     *                      
-     */
+    */
     private static final float DEFAULT_THRESHOLD = 0.2f;
 
     /**
     *                   
-     */
+    */
     private final int inputSize;
 
     /**
     *                
-     */
+    */
     private final float threshold;
 
     /**
     *             
-     */
+    */
     private final List<String> classes;
 
     /**
     *                      
-     */
+    */
     private final boolean normalizeCoordinates;
 
     /**
     *                   
-     */
+    */
     private int imageWidth;
     /** 图像高度 */
     /** 图片高度 */
     private int imageHeight;
 
         /**
-        * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
-        *
-        * @param configuration 检测配置（可空）
-     */
+    * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
+    *
+    * @param configuration 检测配置（可空）
+    */
     public DocLayoutYoloTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this(DEFAULT_INPUT_SIZE,
                 configuration == null ? DEFAULT_THRESHOLD
@@ -146,7 +146,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *              -                      
     *
     * @param inputSize                                  
-     */
+    */
     public DocLayoutYoloTranslator(int inputSize) {
         this(inputSize, DEFAULT_THRESHOLD, DOCSTRUCTBENCH_CLASSES);
     }
@@ -156,7 +156,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *
     * @param inputSize                   
     * @param threshold                
-     */
+    */
     public DocLayoutYoloTranslator(int inputSize, float threshold) {
         this(inputSize, threshold, DOCSTRUCTBENCH_CLASSES);
     }
@@ -167,7 +167,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     * @param inputSize                   
     * @param threshold                
     * @param classes               
-     */
+    */
     public DocLayoutYoloTranslator(int inputSize, float threshold, List<String> classes) {
         this.inputSize = inputSize;
         this.threshold = threshold;
@@ -184,7 +184,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     * @param input             
     * @return              NDList
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         //                         
@@ -233,7 +233,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     * @param list              nd列表
     * @return             
     * @throws Exception             
-     */
+    */
     @Override
     public DetectedObjects processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
@@ -365,7 +365,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *        YOLO       
     *
     * @return "DocLayout-YOLO"
-     */
+    */
     public String getYoloVersion() {
         return "DocLayout-YOLO";
     }
@@ -374,7 +374,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *                   
     *
     * @return                   
-     */
+    */
     public String getModelDescription() {
         return "DocLayout-YOLO Document Layout Detection (DocStructBench) - " +
                 "Supports 10 document element types: " +
@@ -385,7 +385,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *                            
     *
     * @return                   
-     */
+    */
     public static int[] getRecommendedSizes() {
         return new int[]{640, 800, 1024, 1280};
     }
@@ -394,7 +394,7 @@ public static final List<String> DOCSTRUCTBENCH_CLASSES = Arrays.asList(
     *                            
     *
     * @return DocStructBench                         
-     */
+    */
     public static List<String> getSupportedClasses() {
         return DOCSTRUCTBENCH_CLASSES;
     }

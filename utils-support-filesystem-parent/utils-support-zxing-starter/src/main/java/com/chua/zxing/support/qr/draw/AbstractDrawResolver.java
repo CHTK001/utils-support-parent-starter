@@ -56,7 +56,7 @@ public abstract class AbstractDrawResolver implements DrawResolver {
     * @param bitMatrix 钻头matrix
     * @param drawOptions draw期权
     * @param setting setting
-     */
+    */
     public AbstractDrawResolver(Graphics2D g2,
                                 Color detectInnerColor,
                                 Color detectOutColor,

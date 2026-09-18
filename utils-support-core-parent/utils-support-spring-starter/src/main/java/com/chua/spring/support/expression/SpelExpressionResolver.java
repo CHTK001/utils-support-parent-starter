@@ -33,17 +33,17 @@ public class SpelExpressionResolver implements ExpressionResolver {
 
     /**
     * spel 表达式前缀标识
-     */
+    */
     private static final String PREFIX = "#{";
 
     /**
     * spel 表达式后缀标识
-     */
+    */
     private static final String SUFFIX = "}";
 
     /**
     * spel 表达式解析器，线程安全可复用
-     */
+    */
     private final ExpressionParser parser = new SpelExpressionParser();
 
     @Override
@@ -77,7 +77,7 @@ public class SpelExpressionResolver implements ExpressionResolver {
     * @param root      根对象
     * @param variables 上下文变量
     * @return 求值上下文
-     */
+    */
     private StandardEvaluationContext createEvaluationContext(Object root, Map<String, Object> variables) {
         StandardEvaluationContext context = new StandardEvaluationContext();
         if (SpringBeanUtils.getApplicationContextOrNull() != null) {

@@ -26,24 +26,24 @@ public abstract class AbstractMetaData implements MetaData {
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
     * 当前 catalog
-     */
+    */
     protected String catalog;
 
     /**
     * 当前 模式
-     */
+    */
     protected String schema;
 
     /**
     * 构造方法。
     *
     * @param engine 引擎实例
-     */
+    */
     protected AbstractMetaData(Engine engine) {
         this.engine = engine;
     }
@@ -116,7 +116,7 @@ public abstract class AbstractMetaData implements MetaData {
     * 获取当前 catalog。
     *
     * @return catalog 名称
-     */
+    */
     public String getCatalog() {
         return catalog;
     }
@@ -125,7 +125,7 @@ public abstract class AbstractMetaData implements MetaData {
     * 获取当前 模式。
     *
     * @return schema 名称
-     */
+    */
     public String getSchema() {
         return schema;
     }
@@ -134,7 +134,7 @@ public abstract class AbstractMetaData implements MetaData {
     * 获取引擎实例。
     *
     * @return 引擎实例
-     */
+    */
     public Engine getEngine() {
         return engine;
     }

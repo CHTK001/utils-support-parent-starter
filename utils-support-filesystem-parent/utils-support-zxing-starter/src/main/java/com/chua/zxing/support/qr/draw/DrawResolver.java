@@ -15,6 +15,6 @@ public interface DrawResolver {
 
     /**
     * 绘制图形的方法。
-     */
+    */
     void draw();
 }

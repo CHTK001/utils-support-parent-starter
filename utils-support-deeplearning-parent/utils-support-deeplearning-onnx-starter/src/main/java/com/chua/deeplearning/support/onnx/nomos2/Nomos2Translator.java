@@ -45,7 +45,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
     * @param input                       
     * @return NDList               
     * @throws Exception                
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         if (log.isDebugEnabled()) {
@@ -83,7 +83,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
     * @param list nd列表
     * @return Image               
     * @throws Exception                
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) throws Exception {
         if (log.isDebugEnabled()) {
@@ -126,7 +126,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
     *
     * @param v 浮点像素值
     * @return 0-255 整数
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);
@@ -139,7 +139,7 @@ public class Nomos2Translator implements Translator<Image, Image> {
     * </p>
     *
     * @return Batchifier          
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return null;

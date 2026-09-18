@@ -84,7 +84,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     * @param i i
     * @param j j
     * @param codePointStyle 编码pointstyle
-     */
+    */
     private void render(Graphics2D g, Color whiteColor, Color blackColor, BufferedImage bufferedImage, byte[][] rect, int i, int j, CodePointStyle codePointStyle) {
         if (rect[i][j] == 1) {
             // 画黑色的点
@@ -112,7 +112,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     * @param startY 启动y
     * @param version 版本
     * @param fillPositionDetectionShapeModel fill位置detectionshape模型
-     */
+    */
     private static void fillPositionDetectionShape(Graphics2D g, Color eyeDf,Color lf, Color lb, int qrCodeWidth, int startX, int startY, int version,
                                                    CodeEyeStyle fillPositionDetectionShapeModel) {
         ServiceProvider.of(CodeEyeResolver.class).getNewExtension(fillPositionDetectionShapeModel)
@@ -123,7 +123,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     *
     * @param version 二维码的版本号，范围从1到20
     * @return 返回二维码的大小，如果版本号超出范围，则返回0
-     */
+    */
     public static int size(int version) {
         // 根据二维码版本计算其大小
         if (version >= 1 && version <= 20) {
@@ -140,7 +140,7 @@ public class EmptinessBackgroundResolver implements BackgroundResolver {
     * @param x 指定位置的x坐标
     * @param y 指定位置的y坐标
     * @return 如果指定位置为固定模块，则返回true，否则返回false
-     */
+    */
     private static boolean isFixed(int size, int x, int y) {
         // 判断位置是否为固定模块
         if (x < 8 && y < 8) {

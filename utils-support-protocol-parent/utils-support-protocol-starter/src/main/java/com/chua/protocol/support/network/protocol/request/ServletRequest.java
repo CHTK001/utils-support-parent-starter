@@ -27,7 +27,7 @@ public interface ServletRequest {
     * 获取所有请求头（键 → 值）。
     *
     * @return 请求头映射，大小写不敏感
-     */
+    */
     Map<String, String> getHeaders();
 
     /** 获取所有请求头名称枚举 */
@@ -38,7 +38,7 @@ public interface ServletRequest {
     *
     * @param name 头名称
     * @return 头值，无则为 {@code null}
-     */
+    */
     String getHeader(String name);
 
     /** 获取 HTTP 方法（如 获取 / POST） */

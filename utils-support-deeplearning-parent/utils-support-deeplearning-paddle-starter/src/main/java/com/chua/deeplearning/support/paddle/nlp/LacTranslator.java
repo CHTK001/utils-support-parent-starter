@@ -29,27 +29,27 @@ public class LacTranslator implements Translator<String, String[][]> {
 
     /**
     * 词 → 标识。
-     */
+    */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
     * 标识 → 标签。
-     */
+    */
     private final Map<String, String> id2LabelDict = new HashMap<>();
 
     /**
     * 全角半角替换。
-     */
+    */
     private final Map<String, String> wordReplaceDict = new HashMap<>();
 
     /**
     * OOV 标识。
-     */
+    */
     private String oovId;
 
     /**
     * 原始输入。
-     */
+    */
     private String input;
 
     @Override
@@ -66,7 +66,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     * 加载worddic
     *
     * @param model 模型
-     */
+    */
     private void loadWordDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/word.dic", "word.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -87,7 +87,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     * 加载标签dic
     *
     * @param model 模型
-     */
+    */
     private void loadTagDic(Model model) throws IOException {
         try (InputStream is = open(model, "lac/tag.dic", "tag.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -106,7 +106,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     * 加载b
     *
     * @param model 模型
-     */
+    */
     private void loadQ2b(Model model) {
         try (InputStream is = open(model, "lac/q2b.dic", "q2b.dic")) {
             for (String word : Utils.readLines(is, true)) {
@@ -131,7 +131,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     * @param model 模型
     * @param names 名称
     * @return 打开的结果
-     */
+    */
     private InputStream open(Model model, String... names) throws IOException {
         for (String name : names) {
             try {
@@ -170,7 +170,7 @@ public class LacTranslator implements Translator<String, String[][]> {
     * @param ndArray ndarray
     * @param begin 开始
     * @param end 结束
-     */
+    */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
             Class<?> pp = ReflectUtils.forName("ai.djl.paddlepaddle.engine.PpNDArray");

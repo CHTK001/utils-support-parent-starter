@@ -62,7 +62,7 @@ public class FtpProtocolRestorer extends AbstractProtocolRestorer {
     * 判断是否为 FTP 响应（3 位数字 + 空格 + 文本）。
     * @param text 文本
     * @return 是否ftp响应的结果
-     */
+    */
     private static boolean isFtpResponse(String text) {
         return text.length() >= 4
                 && Character.isDigit(text.charAt(0))

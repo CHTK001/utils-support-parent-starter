@@ -36,24 +36,24 @@ public class LocalDeployTarget implements MavenDeployTarget {
 
     /**
     * 目标根目录
-     */
+    */
     private final String rootDir;
 
     /**
     * 是否已连接
-     */
+    */
     private boolean ready;
 
     /**
     * 部署回调
-     */
+    */
     private MavenDeployCallback callback;
 
     /**
     * 构造本地部署目标
     *
     * @param rootDir 目标根目录路径
-     */
+    */
     public LocalDeployTarget(String rootDir) {
         this.rootDir = rootDir;
     }
@@ -146,14 +146,14 @@ public class LocalDeployTarget implements MavenDeployTarget {
     * 获取根目录路径
     *
     * @return 根目录
-     */
+    */
     public String getRootDir() {
         return rootDir;
     }
 
     /**
     * 确保已连接
-     */
+    */
     private void ensureReady() {
         if (!ready) {
             throw new MavenDeployException("部署目标未连接，请先调用 connect()");

@@ -31,7 +31,7 @@ public class DepthAnythingImageFilter implements ImageFilter {
     /**
     * translator。
     * @return translator的结果
-     */
+    */
     private ITranslator<Object, Object> translator() {
         if (translator == null) {
             synchronized (this) {

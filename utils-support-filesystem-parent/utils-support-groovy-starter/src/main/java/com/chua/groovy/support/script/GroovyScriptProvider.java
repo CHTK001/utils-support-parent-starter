@@ -30,17 +30,17 @@ public class GroovyScriptProvider implements ScriptProvider {
 
     /**
     * 脚本路径 -> 文件script监听器 缓存
-     */
+    */
     private final Map<Path, Listener> listenerCache = new ConcurrentHashMap<>();
 
     /**
     * 脚本路径 -> groovyshell 缓存，复用 Shell 避免每次创建新 类加载
-     */
+    */
     private final Map<Path, GroovyShell> shellCache = new ConcurrentHashMap<>();
 
     /**
     * @return 引擎名称 {@code groovy}
-     */
+    */
     @Override
     public String engineName() {
         return "groovy";
@@ -51,7 +51,7 @@ public class GroovyScriptProvider implements ScriptProvider {
     *
     * @param scriptPath 脚本路径
     * @return true 表示加载成功
-     */
+    */
     @Override
     public boolean loadScript(Path scriptPath) {
         try {
@@ -72,7 +72,7 @@ public class GroovyScriptProvider implements ScriptProvider {
     * @param scriptPath 脚本路径
     * @param context    绑定上下文（可为 映射 或其他对象）
     * @return 脚本求值结果
-     */
+    */
     @Override
     public Object executeScript(Path scriptPath, Object context) {
         Listener listener = listenerCache.computeIfAbsent(scriptPath, FileScriptListener::new);
@@ -108,7 +108,7 @@ public class GroovyScriptProvider implements ScriptProvider {
     * 释放 源缓存 和 类信息 反射缓存，帮助 Metaspace 内存回收。</p>
     *
     * @param scriptPath 脚本路径
-     */
+    */
     @Override
     public void unloadScript(Path scriptPath) {
         GroovyShell shell = shellCache.remove(scriptPath);
@@ -127,7 +127,7 @@ public class GroovyScriptProvider implements ScriptProvider {
     *
     * @param scriptPath 脚本路径
     * @return true 表示已加载
-     */
+    */
     @Override
     public boolean isLoaded(Path scriptPath) {
         return listenerCache.containsKey(scriptPath);

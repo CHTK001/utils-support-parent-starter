@@ -50,7 +50,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -86,14 +86,14 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
     /**
     * 共享实例（避免多实例重复提取模型 / 创建 会话）。
-     */
+    */
     private static volatile CardCorrectionTranslator shared;
 
     /**
     * 获取共享实例。
     *
     * @return 共享实例
-     */
+    */
     public static CardCorrectionTranslator shared() {
         if (shared == null) {
             synchronized (CardCorrectionTranslator.class) {
@@ -176,7 +176,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     *
     * @param imageData 原图
     * @return 矫正后的卡片图（PNG），未检测到卡片返回 空
-     */
+    */
     public byte[] correct(byte[] imageData) {
         try {
             prepare();
@@ -232,7 +232,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     *
     * @param imageData 原图
     * @return 四边形列表，每项 4×2（角点 [x,y]），未检测到返回空列表
-     */
+    */
     public List<float[][]> detectQuads(byte[] imageData) {
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);
@@ -250,7 +250,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     * 对已解码的 Mat 检测卡片四边形（原图坐标）。
     * @param src src
     * @return detectQuadsOn的结果
-     */
+    */
     private List<float[][]> detectQuadsOn(Mat src) {
         try {
             srcWidth = src.cols();
@@ -291,7 +291,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     * @param wh wh
     * @param reg reg
     * @return decodeCorners的结果
-     */
+    */
     private List<float[][]> decodeCorners(float[][] hm, float[][][] wh, float[][][] reg) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
@@ -318,7 +318,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     * @param hm         热图 [H][W]
     * @param threshold  置信度阈值
     * @return 峰值 (y,x) 列表，按置信度降序
-     */
+    */
     private List<int[]> findPeaks(float[][] hm, float threshold) {
         List<int[]> peaks = new ArrayList<>();
         List<Float> vals = new ArrayList<>();
@@ -362,7 +362,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     * @param x x
     * @param y y
     * @return 是否本地最大的结果
-     */
+    */
     private boolean isLocalMax(float[][] hm, int x, int y) {
         float v = hm[y][x];
         for (int dy = -1; dy <= 1; dy++) {
@@ -384,7 +384,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     *
     * @param value 值
     * @return 转为mat2d的结果
-     */
+    */
     private float[][] toMat2D(Object value) {
         // 输入 [1, C, H, W]，单通道 C=1 → 返回 [H][W]
         float[][][][] arr4 = (float[][][][]) value;
@@ -405,7 +405,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     *
     * @param value 值
     * @return 转为mat3d的结果
-     */
+    */
     private float[][][] toMat3D(Object value) {
         float[][][][] arr4 = (float[][][][]) value;
         return arr4[0];
@@ -413,7 +413,7 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {
@@ -429,10 +429,10 @@ public class CardCorrectionTranslator implements ITranslator<byte[], List<Detect
     }
 
 /**
-* 创建 Translator（支持外部阈值覆盖）。
-*
-* @param configuration 检测配置（可空）
-     */
+        * 创建 Translator（支持外部阈值覆盖）。
+        *
+        * @param configuration 检测配置（可空）
+        */
     public CardCorrectionTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {

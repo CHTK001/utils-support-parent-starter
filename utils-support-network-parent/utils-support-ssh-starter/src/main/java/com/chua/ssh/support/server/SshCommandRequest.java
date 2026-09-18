@@ -25,22 +25,22 @@ public class SshCommandRequest implements ServerRequest {
 
     /**
     * 原始命令行字符串
-     */
+    */
     private final String commandLine;
 
     /**
     * 命令名称（第一个单词）
-     */
+    */
     private final String commandName;
 
     /**
     * 命令参数数组（不含命令名）
-     */
+    */
     private final String[] args;
 
     /**
     * 请求属性映射
-     */
+    */
     private final Map<String, Object> attributes = new HashMap<>();
 
     /**
@@ -49,7 +49,7 @@ public class SshCommandRequest implements ServerRequest {
     * 第一个位置参数作为命令名，其余位置参数作为命令参数。</p>
     *
     * @param commandLine 用户输入的完整命令行字符串
-     */
+    */
     public SshCommandRequest(String commandLine) {
         this.commandLine = commandLine != null ? commandLine.trim() : "";
         String[] parsed = parse(this.commandLine);
@@ -65,7 +65,7 @@ public class SshCommandRequest implements ServerRequest {
     *
     * @param line 命令行字符串
     * @return 令牌数组
-     */
+    */
     private static String[] parse(String line) {
         String[] tokens = StringUtils.tokenizeToStringArray(line, " \t");
         if (tokens.length == 0) {
@@ -149,7 +149,7 @@ public class SshCommandRequest implements ServerRequest {
     * 获取命令参数数组。
     *
     * @return 参数数组副本
-     */
+    */
     public String[] getArgs() {
         return args.clone();
     }

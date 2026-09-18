@@ -25,7 +25,7 @@ public class SafeTensorImageClient extends AbstractLocalImageClient {
     * 构造 safetensor 文生图客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorImageClient(ImageClientSetting setting) {
         super("safetensors", setting);
     }

@@ -71,7 +71,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -92,7 +92,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     public static class PoseResult {
         /** 边界框坐标 */
@@ -164,11 +164,11 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     }
 
     /**
-    * 检测图像中的姿态关键点（byte[] 输入，打开cv 预处理）。
-    *
-    * @param imageData 图像字节
-    * @return 姿态结果列表
-     */
+        * 检测图像中的姿态关键点（byte[] 输入，打开cv 预处理）。
+        *
+        * @param imageData 图像字节
+        * @return 姿态结果列表
+        */
     public List<PoseResult> detectBytes(byte[] imageData) {
         try {
             prepare();
@@ -216,7 +216,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     *
     * @param data 数据
     * @return decode的结果
-     */
+    */
     private List<PoseResult> decode(float[][] data) {
         float scaleX = (float) srcWidth / INPUT_SIZE;
         float scaleY = (float) srcHeight / INPUT_SIZE;
@@ -279,7 +279,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     * @param a a
     * @param b b
     * @return iou的结果
-     */
+    */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -301,7 +301,7 @@ public class YoloV8nPoseTranslator implements ITranslator<byte[], List<PoseKeypo
     *
     * @param configuration 检测配置（可空）
     * @return YoloV8nPoseTranslator的结果
-     */
+    */
     public YoloV8nPoseTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {
             float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);

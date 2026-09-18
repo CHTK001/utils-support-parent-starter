@@ -26,32 +26,32 @@ public class DefaultFieldMappingConverter implements FieldMappingConverter {
 
     /**
     * 转换类型：转换为字符串
-     */
+    */
     private static final String CONVERT_TO_STRING = "tostring";
 
     /**
     * 转换类型：转换为整数
-     */
+    */
     private static final String CONVERT_TO_INTEGER = "tointeger";
 
     /**
     * 转换类型：转换为长整型
-     */
+    */
     private static final String CONVERT_TO_LONG = "tolong";
 
     /**
     * 转换类型：转换为双精度浮点数
-     */
+    */
     private static final String CONVERT_TO_DOUBLE = "todouble";
 
     /**
     * 转换类型：转换为布尔值
-     */
+    */
     private static final String CONVERT_TO_BOOLEAN = "toboolean";
 
     /**
     * 转换类型：转换为日期
-     */
+    */
     private static final String CONVERT_TO_DATE = "todate";
 
     @Override

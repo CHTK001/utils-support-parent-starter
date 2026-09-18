@@ -29,22 +29,22 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
 
     /**
     * 默认输入尺寸。
-     */
+    */
     private static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
     * 默认置信度阈值。
-     */
+    */
     private static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
     * 默认 NMS 阈值。
-     */
+    */
     private static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /**
     * COCO 80 类。
-     */
+    */
     private static final List<String> COCO_CLASSES = List.of(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
             "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
@@ -59,27 +59,27 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
 
     /**
     * 输入尺寸。
-     */
+    */
     private final int inputSize;
 
     /**
     * 置信度阈值。
-     */
+    */
     private final float threshold;
 
     /**
     * NMS 阈值。
-     */
+    */
     private final float nmsThreshold;
 
     /**
     * 类别列表。
-     */
+    */
     private final List<String> classes;
 
     /**
     * 默认构造（COCO 80 类）。
-     */
+    */
     public PytorchYoloTranslator() {
         this(DEFAULT_INPUT_SIZE, DEFAULT_THRESHOLD, DEFAULT_NMS_THRESHOLD, COCO_CLASSES);
     }
@@ -91,7 +91,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     * @param threshold    置信度阈值
     * @param nmsThreshold NMS 阈值
     * @param classes      类别列表
-     */
+    */
     public PytorchYoloTranslator(int inputSize, float threshold, float nmsThreshold, List<String> classes) {
         this.inputSize = inputSize;
         this.threshold = threshold;
@@ -244,7 +244,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     * @param probabilities 置信度
     * @param threshold     iou 阈值
     * @return 保留索引
-     */
+    */
     private static List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float threshold) {
         int n = boxes.size();
         List<Integer> order = new ArrayList<>(n);
@@ -282,7 +282,7 @@ public class PytorchYoloTranslator implements Translator<Image, DetectedObjects>
     * @param a 框 A
     * @param b 框 B
     * @return IoU
-     */
+    */
     private static double iou(Rectangle a, Rectangle b) {
         double x1 = Math.max(a.getX(), b.getX());
         double y1 = Math.max(a.getY(), b.getY());

@@ -23,7 +23,7 @@ public class SentenceMockString implements MockString {
     * 中文句子池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] SENTENCES = {
             "今天天气不错，适合出门走走。",
             "坚持就是胜利，努力终有回报。",

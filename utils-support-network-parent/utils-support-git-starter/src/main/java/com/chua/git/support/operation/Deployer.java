@@ -37,7 +37,7 @@ public interface Deployer {
     * 部署器显示名称。
     *
     * @return 名称标识（如 "Maven"、"Gradle"、"Docker"）
-     */
+    */
     String name();
 
     /**
@@ -45,7 +45,7 @@ public interface Deployer {
     *
     * @param config 部署配置
     * @return true 表示该部署器可处理此配置
-     */
+    */
     boolean supports(DeployConfig config);
 
     /**
@@ -54,6 +54,6 @@ public interface Deployer {
     * @param gitClient 已打开的 Git客户端，提供本地仓库路径
     * @param config    部署配置
     * @return 部署结果
-     */
+    */
     DeployResult deploy(GitClient gitClient, DeployConfig config);
 }

@@ -26,7 +26,7 @@ public record DeployResult(
     * @param artifacts artifacts
     * @param durationMs 持续时间ms
     * @return 成功的结果
-     */
+    */
     public static DeployResult success(String message, java.util.List<String> artifacts, long durationMs) {
         return new DeployResult(true, message, artifacts, durationMs);
     }
@@ -35,7 +35,7 @@ public record DeployResult(
     * 创建失败结果（耗时默认 0）。
     * @param message 消息
     * @return 失败的结果
-     */
+    */
     public static DeployResult failure(String message) {
         return new DeployResult(false, message, java.util.List.of(), 0L);
     }
@@ -45,7 +45,7 @@ public record DeployResult(
     * @param message 消息
     * @param durationMs 持续时间ms
     * @return 失败的结果
-     */
+    */
     public static DeployResult failure(String message, long durationMs) {
         return new DeployResult(false, message, java.util.List.of(), durationMs);
     }

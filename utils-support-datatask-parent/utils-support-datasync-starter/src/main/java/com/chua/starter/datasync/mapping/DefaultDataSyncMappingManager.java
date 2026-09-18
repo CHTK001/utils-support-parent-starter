@@ -21,7 +21,7 @@ public class DefaultDataSyncMappingManager implements DataSyncMappingManager {
 
     /**
     * 映射注册表
-     */
+    */
     private final Map<String, DataSyncMapping> mappings = new ConcurrentHashMap<>();
 
     @Override

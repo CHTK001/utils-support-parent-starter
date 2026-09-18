@@ -269,8 +269,8 @@ public abstract class AbstractPooledClient<T> implements PooledObjectClient<T> {
 
 
     /**
-    * 关闭并清理池
-    */
+            * 关闭并清理池
+            */
     private void closePool() {
         if (objectPool != null) {
             try {

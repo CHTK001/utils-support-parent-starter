@@ -25,6 +25,18 @@
             <groupId>org.influxdb</groupId>
             <artifactId>influxdb-java</artifactId>
             <version>2.25</version>
+            <exclusions>
+                <!-- retrofit/converter-moshi 仅旧版 InfluxDB 客户端内部使用，
+                     本模块统一走 OkHttp 原生调用；离线环境下固定版本缺失，排除后由 okhttp 承载 HTTP 能力 -->
+                <exclusion>
+                    <groupId>com.squareup.retrofit2</groupId>
+                    <artifactId>retrofit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.squareup.retrofit2</groupId>
+                    <artifactId>converter-moshi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

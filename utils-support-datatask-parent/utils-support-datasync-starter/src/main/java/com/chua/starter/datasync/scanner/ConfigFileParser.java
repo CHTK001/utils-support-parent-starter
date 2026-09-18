@@ -15,7 +15,7 @@ public interface ConfigFileParser {
     *
     * @param file 文件路径
     * @return true 表示支持解析
-     */
+    */
     boolean supports(Path file);
 
     /**
@@ -24,6 +24,6 @@ public interface ConfigFileParser {
     * @param file 文件路径
     * @return 配置定义
     * @throws Exception 解析异常
-     */
+    */
     com.chua.starter.datasync.config.DataSyncConfigDefinition parse(Path file) throws Exception;
 }

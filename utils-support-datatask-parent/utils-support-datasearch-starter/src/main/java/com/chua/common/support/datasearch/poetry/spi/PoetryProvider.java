@@ -19,14 +19,14 @@ public interface PoetryProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
     * 获取随机诗词。
     *
     * @return 随机诗词
-     */
+    */
     PoetryInfo random();
 
     /**
@@ -35,7 +35,7 @@ public interface PoetryProvider {
     * @param author 作者名（如：李白）
     * @param limit  返回条数上限（小于等于 0 时返回全部）
     * @return 该作者的诗词列表
-     */
+    */
     List<PoetryInfo> byAuthor(String author, int limit);
 
     /**
@@ -44,6 +44,6 @@ public interface PoetryProvider {
     * @param keyword 关键词
     * @param limit   返回条数上限（小于等于 0 时返回全部）
     * @return 匹配的诗词列表
-     */
+    */
     List<PoetryInfo> search(String keyword, int limit);
 }

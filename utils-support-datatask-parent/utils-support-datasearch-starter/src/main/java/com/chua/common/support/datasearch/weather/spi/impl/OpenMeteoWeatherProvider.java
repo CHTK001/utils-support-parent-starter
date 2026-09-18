@@ -97,7 +97,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     * @param city 城市名
     * @return 天气实体；解析失败返回 空
     * @throws Exception 网络或解析异常
-     */
+    */
     private WeatherInfo fetch(String city) throws Exception {
         // 1) 城市 → 经纬度
         String geoJson = HttpClientFactory.of(String.format(GEO_URL, encode(city)))
@@ -176,7 +176,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     *
     * @param city 城市名
     * @return 编码结果
-     */
+    */
     private String encode(String city) {
         try {
             return java.net.URLEncoder.encode(city, java.nio.charset.StandardCharsets.UTF_8);
@@ -190,7 +190,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     *
     * @param code WMO 代码
     * @return 描述
-     */
+    */
     private String describeWmo(int code) {
         if (code == 0) {
             return "晴";
@@ -233,7 +233,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     *
     * @param node 数值节点
     * @return 数值；缺失/非数值返回 空
-     */
+    */
     private Double num(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
@@ -246,7 +246,7 @@ public class OpenMeteoWeatherProvider implements WeatherProvider {
     *
     * @param node 数值节点
     * @return 整数；缺失/非数值返回 空
-     */
+    */
     private Integer intVal(JsonNode node) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;

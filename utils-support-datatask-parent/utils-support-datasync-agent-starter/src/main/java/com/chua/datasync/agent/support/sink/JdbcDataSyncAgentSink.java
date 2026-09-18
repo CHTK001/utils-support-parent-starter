@@ -46,7 +46,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     private volatile boolean initialized = false;
 
     /**
-    * 创建 jdbc数据同步智能体sink 实例
+    * 创建 jdbc数据同步Agentsink 实例
     * @param sinkId sinkid
     * @param sinkId 字符串
     * @param sinkId 字符串
@@ -58,13 +58,13 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * @param username 用户名
     * @param password 密码
     * @param sql SQL
-     */
+    */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this(sinkId, jdbcUrl, username, password, sql, 100, columnNames);
     }
 
     /**
-    * 创建 jdbc数据同步智能体sink 实例
+    * 创建 jdbc数据同步Agentsink 实例
     * @param sinkId sinkid
     * @param sinkId 字符串
     * @param sinkId 字符串
@@ -78,7 +78,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * @param password 密码
     * @param sql SQL
     * @param batchSize 批量大小
-     */
+    */
     public JdbcDataSyncAgentSink(String sinkId, String jdbcUrl, String username, String password, String sql, int batchSize, String... columnNames) {
         this.sinkId = sinkId;
         this.jdbcUrl = jdbcUrl;
@@ -97,7 +97,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * @param user 用户
     * @param pass 通过
     * @return 创建数据源的结果
-     */
+    */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -145,7 +145,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * @param ps ps
     * @param conn conn
     * @param totalCount total数量
-     */
+    */
     private void processBatch(java.util.List<Map<String, Object>> batch, PreparedStatement ps, Connection conn, AtomicLong totalCount) {
         try {
             for (Map<String, Object> row : batch) {
@@ -172,7 +172,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     *
     * @param error 错误
     * @param conn conn
-     */
+    */
     private void handleError(Throwable error, Connection conn) {
         log.error("[JdbcDataSyncAgentSink] " + DataSyncErrorCode.DB_WRITE_FAILED.formatWithCode(sinkId, sql, error.getMessage()), error);
         rollbackQuietly(conn);
@@ -184,7 +184,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * @param conn conn
     * @param ps ps
     * @param totalCount total数量
-     */
+    */
     private void handleComplete(Connection conn, PreparedStatement ps, long totalCount) {
         log.info("[JdbcDataSyncAgentSink] 写入完成, sinkId={}, totalCount={}", sinkId, totalCount);
         closeQuietly(ps);
@@ -195,7 +195,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * 回滚Quietly
     *
     * @param conn conn
-     */
+    */
     private void rollbackQuietly(Connection conn) {
         if (conn != null) {
             try {
@@ -209,7 +209,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * 关闭Quietly
     *
     * @param stmt stmt
-     */
+    */
     private void closeQuietly(Statement stmt) {
         if (stmt != null) {
             try {
@@ -223,7 +223,7 @@ public class JdbcDataSyncAgentSink implements DataSyncAgentSink, Directional {
     * 关闭Quietly
     *
     * @param conn conn
-     */
+    */
     private void closeQuietly(Connection conn) {
         if (conn != null) {
             try {

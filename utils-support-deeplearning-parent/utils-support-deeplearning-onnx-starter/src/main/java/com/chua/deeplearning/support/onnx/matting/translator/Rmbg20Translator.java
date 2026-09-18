@@ -28,42 +28,42 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
 
     /**
     *                              
-     */
+    */
     private static final int DEFAULT_TARGET_SIZE = 1024;
 
     /**
     *              
-     */
+    */
     private final MattingTranslator.MattingMode mode;
 
     /**
     *              
-     */
+    */
     private final int targetWidth;
 
     /**
     *              
-     */
+    */
     private final int targetHeight;
 
     /**
     *              
-     */
+    */
     private int width;
 
     /**
     *              
-     */
+    */
     private int height;
 
     /**
     *                              
-     */
+    */
     private BufferedImage originalImage;
 
     /**
     *              
-     */
+    */
     public Rmbg20Translator() {
         this(MattingTranslator.MattingMode.RGBA, resolveTargetSize(null));
     }
@@ -72,7 +72,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *                              
     *
     * @param arguments                     
-     */
+    */
     public Rmbg20Translator(Map<String, ?> arguments) {
         this(resolveMode(arguments), resolveTargetSize(arguments));
     }
@@ -82,7 +82,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param mode          
     * @param targetSize          
-     */
+    */
     private Rmbg20Translator(MattingTranslator.MattingMode mode, int targetSize) {
         this.mode = mode;
         this.targetWidth = targetSize;
@@ -95,7 +95,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     * @param ctx                               {@code NDManager}          
     * @param input                                RGB          
     * @return                                            {@code [1, 3, H, W]}
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         width = input.getWidth();
@@ -148,7 +148,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     * @param ctx                    
     * @param list                                                                 {@code [1, C, H, W]}     {@code [C, H, W}
     * @return                                                 
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         NDArray alpha = list.getFirst();
@@ -207,7 +207,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param alphaMask alphamask
     * @return 创建alphaonly镜像的结果
-     */
+    */
     private Image createAlphaOnlyImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -225,7 +225,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param alphaMask alphamask
     * @return 创建rgba镜像的结果
-     */
+    */
     private Image createRgbaImage(BufferedImage alphaMask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {
@@ -244,7 +244,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     * @param alphaMask alphamask
     * @param bgValue bg值
     * @return 创建rgb镜像的结果
-     */
+    */
     private Image createRgbImage(BufferedImage alphaMask, int bgValue) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -269,7 +269,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     * @param alpha alpha
     * @param inverseAlpha inversealpha
     * @return blend通道的结果
-     */
+    */
     private int blendChannel(int foreground, int background, int alpha, int inverseAlpha) {
         return (foreground * alpha + background * inverseAlpha + 127) / 255;
     }
@@ -279,7 +279,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param value 值
     * @return 转为alpha255的结果
-     */
+    */
     private int toAlpha255(float value) {
         float clipped = Math.max(0f, Math.min(1f, value));
         return Math.round(clipped * 255f);
@@ -290,7 +290,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param arguments 参数
     * @return resolveMode的结果
-     */
+    */
     private static MattingTranslator.MattingMode resolveMode(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return MattingTranslator.MattingMode.RGBA;
@@ -313,7 +313,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *
     * @param arguments 参数
     * @return resolveTarget大小的结果
-     */
+    */
     private static int resolveTargetSize(Map<String, ?> arguments) {
         Object configured = arguments == null ? null : arguments.get("targetSize");
         if (configured == null) {
@@ -334,7 +334,7 @@ public final class Rmbg20Translator implements Translator<Image, Image> {
     *                           
     *
     * @return Batchifier          
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return null;

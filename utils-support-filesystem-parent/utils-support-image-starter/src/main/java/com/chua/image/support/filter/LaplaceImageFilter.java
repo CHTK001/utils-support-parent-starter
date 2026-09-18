@@ -48,14 +48,40 @@ import javax.annotation.Nullable;
 * - 图像预处理：为后续处理准备高质量图像
 * - 印刷出版：提高印刷图像的清晰度
 *
-* 使用建议：
-* - 对于噪声较多的图像，建议先进行降噪处理
-* - 可根据图像特点选择合适的处理强度
-* - 建议与其他滤镜组合使用以获得最佳效果
-*
-* @author CH
-* @版本 1.0.0
-* @since 2024/10/2
+ * 使用建议：
+ * - 对于噪声较多的图像，建议先进行降噪处理
+ * - 可根据图像特点选择合适的处理强度
+ * - 建议与其他滤镜组合使用以获得最佳效果
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认：拉普拉斯叠加（filter() 行为，最常用）
+ * BufferedImage sharp = new LaplaceImageFilter().converter(src);
+ *
+ * // 其它处理模式（直接调方法，不走 SPI）
+ * BufferedImage base = laplace.laplaceProcess(src);   // 纯拉普拉斯边缘
+ * BufferedImage edge = laplace.sobelProcess(src);      // Sobel 边缘
+ * BufferedImage mean = laplace.meanValueProcess(src);  // 5x5 均值平滑
+ * BufferedImage math = laplace.mathProcess(src);       // 拉普拉斯+均值 数学组合
+ * BufferedImage gamma = laplace.gammaProcess(src);     // 上面的组合 + 伽马校正
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li>无配置参数（行为固定）。各 {@code xxxProcess} 方法返回不同的处理结果，
+ *       可按需组合（如先 meanValueProcess 降噪再 gammaProcess 锐化）。</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>默认 {@link #filter(BufferedImage, BufferedImage)} 走 laplaceAddProcess（锐化）</li>
+ *   <li>边缘 1 像素不参与卷积（边界保留原值）</li>
+ *   <li>对噪声敏感，噪点多的图建议先降噪</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2024/10/2
  */
 @Spi("laplace")
 @SpiDescribe("拉普拉斯图像锐化滤镜")
@@ -69,7 +95,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     * @param src 源图像
     * @param dst 目标图像（此参数未使用）
     * @return 处理后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         
@@ -85,7 +111,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     *
     * @param src 源图像
     * @return 拉普拉斯处理后的图像
-     */
+    */
     public BufferedImage laplaceProcess(BufferedImage src) {
 
         // 拉普拉斯算子
@@ -192,7 +218,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     *
     * @param src 源图像
     * @return 拉普拉斯叠加处理后的图像
-     */
+    */
     public BufferedImage laplaceAddProcess(BufferedImage src) {
 
         // 拉普拉斯算子
@@ -297,7 +323,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     *
     * @param src src
     * @return sobel处理的结果
-     */
+    */
     public BufferedImage sobelProcess(BufferedImage src) {
 
  // Sobel算子（来自 镜像处理器工具 统一定义）
@@ -438,7 +464,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     * 均值滤波 *
     * @param src src
     * @return mean值处理的结果
-     */
+    */
     public BufferedImage meanValueProcess(BufferedImage src) {
 
         // 已经索贝尔处理的图像
@@ -509,7 +535,7 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     * 数学运算
     * @param src src
     * @return math处理的结果
-     */
+    */
     public BufferedImage mathProcess(BufferedImage src) {
 
         // 获取经拉普拉斯运算后与原图叠加的图片
@@ -605,10 +631,10 @@ public class LaplaceImageFilter extends AbstractImageFilter{
     }
 
     /**
-    * 伽马变化
-    * @param src src
-    * @return gamma处理的结果
-     */
+                * 伽马变化
+                * @param src src
+                * @return gamma处理的结果
+                */
     public BufferedImage gammaProcess(BufferedImage src) {
 
         BufferedImage image = this.mathProcess(src);

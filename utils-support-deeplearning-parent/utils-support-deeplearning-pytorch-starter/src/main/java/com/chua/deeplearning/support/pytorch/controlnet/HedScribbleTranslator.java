@@ -21,17 +21,17 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
 
     /**
     * 输入分辨率。
-     */
+    */
     private final int resolution;
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     /** 创建 hedscribbletranslator 实例 */
@@ -42,7 +42,7 @@ public class HedScribbleTranslator implements Translator<Image, Image> {
     /**
     * 创建 hedscribbletranslator 实例
     * @param resolution resolution
-     */
+    */
     public HedScribbleTranslator(int resolution) {
         this.resolution = resolution;
     }

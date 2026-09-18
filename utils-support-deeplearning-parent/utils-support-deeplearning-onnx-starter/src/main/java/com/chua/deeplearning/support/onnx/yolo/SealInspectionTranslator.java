@@ -19,18 +19,18 @@ public class SealInspectionTranslator extends YoloTranslator {
 
     /**
     * sealinspectiontranslator。
-     */
+    */
     private static final List<String> SEAL_4_CLASSES = Arrays.asList("公章", "个人章", "审核章", "其他");
 
     /**
     * SealInspectionTranslator。
-     */
+    */
     public SealInspectionTranslator() {
         this(null);
     /**
     * sealinspectiontranslator。
     * @param arguments 参数
-     */
+    */
     }
 
     public SealInspectionTranslator(Map<String, ?> arguments) {
@@ -39,7 +39,7 @@ public class SealInspectionTranslator extends YoloTranslator {
     * resolve输入大小。
     * @param arguments 参数
     * @return resolve输入大小的结果
-     */
+    */
     }
 
     private static int resolveInputSize(Map<String, ?> arguments) {
@@ -51,7 +51,7 @@ public class SealInspectionTranslator extends YoloTranslator {
     * resolve阈值。
     * @param arguments 参数
     * @return resolve阈值的结果
-     */
+    */
     }
 
     private static float resolveThreshold(Map<String, ?> arguments) {

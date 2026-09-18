@@ -82,13 +82,61 @@ public class RocksDbEngineUnitTest {
     @Test
     void testWriteBatch() {
         byte[] op0 = {(byte) 0};
+        byte[] op1 = {(byte) 1};
         byte[][][] ops = new byte[][][] {
                 {op0, "bk1".getBytes(), "bv1".getBytes()},
                 {op0, "bk2".getBytes(), "bv2".getBytes()},
+                {op0, "bk3".getBytes(), "bv3".getBytes()},
+                {op1, "bk3".getBytes(), null},
         };
         engine.writeBatch("default", List.of(ops));
         assertEquals("bv1", new String(engine.getBytes("default", "bk1".getBytes())));
         assertEquals("bv2", new String(engine.getBytes("default", "bk2".getBytes())));
+        assertNull(engine.getBytes("default", "bk3".getBytes()), "writeBatch 的 delete 分支 应 移除 键");
+    }
+
+    @Test
+    void testBytesPersistAcrossEngineRestart() throws Exception {
+        // 字节 KV 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
+        Path dbDir = tempDir.resolve("rocksdb_bytes_restart");
+        Files.createDirectories(dbDir);
+        RocksDbEngine e1 = new RocksDbEngine();
+        e1.addDataSource("default", dbDir.toString());
+        e1.putBytes("default", "pk".getBytes(), "pv".getBytes());
+        e1.deleteBytes("default", "pk".getBytes());
+        e1.putBytes("default", "pk".getBytes(), "pv2".getBytes());
+        e1.close();
+
+        RocksDbEngine e2 = new RocksDbEngine();
+        e2.addDataSource("default", dbDir.toString());
+        try {
+            assertEquals("pv2", new String(e2.getBytes("default", "pk".getBytes())),
+                    "字节 值 应 持久化 到 RocksDB 文件");
+        } finally {
+            e2.close();
+        }
+    }
+
+    @Test
+    void testDocumentsPersistAcrossEngineRestart() throws Exception {
+        // 文档 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
+        Path dbDir = tempDir.resolve("rocksdb_doc_restart");
+        Files.createDirectories(dbDir);
+        RocksDbEngine e1 = new RocksDbEngine();
+        e1.addDataSource("default", dbDir.toString());
+        e1.insert("articles", Map.of("id", "d1", "title", "hello world"));
+        e1.close();
+
+        RocksDbEngine e2 = new RocksDbEngine();
+        e2.addDataSource("default", dbDir.toString());
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> found = e2.findById("articles", "d1", (Class<Map<String, Object>>) (Class<?>) Map.class);
+            assertNotNull(found, "文档 应 持久化 到 RocksDB 文件");
+            assertEquals("hello world", found.get("title"));
+        } finally {
+            e2.close();
+        }
     }
 
     // ==================== 字符串 KV（KvEngine） ====================
@@ -117,6 +165,32 @@ public class RocksDbEngineUnitTest {
         long v2 = engine.incr("counter");
         assertEquals(1, v1);
         assertEquals(2, v2);
+    }
+
+    @Test
+    void testStringKvPersistAcrossEngineRestart() throws Exception {
+        // 字符串 KV 真 的 落盘 验证：关 引擎 → 重开 同 目录 → 读 回
+        Path dbDir = tempDir.resolve("rocksdb_strkv_restart");
+        Files.createDirectories(dbDir);
+        RocksDbEngine e1 = new RocksDbEngine();
+        e1.addDataSource("default", dbDir.toString());
+        e1.put("user:1", "Alice");
+        e1.put("user:2", "Bob");
+        e1.incr("counter");
+        e1.incr("counter");
+        e1.close();
+
+        RocksDbEngine e2 = new RocksDbEngine();
+        e2.addDataSource("default", dbDir.toString());
+        try {
+            assertEquals("Alice", e2.get("user:1"), "字符串 KV 应 持久化 到 RocksDB 文件");
+            assertEquals("Bob", e2.get("user:2"));
+            assertEquals("2", e2.get("counter"), "incr 计数 应 已 持久化");
+            Map<String, String> byPrefix = e2.findAllByPrefix("user:");
+            assertEquals(2, byPrefix.size(), "前缀 扫描 应 命中 2 条 字符串 KV");
+        } finally {
+            e2.close();
+        }
     }
 
     @Test
@@ -212,6 +286,8 @@ public class RocksDbEngineUnitTest {
         public String name;
         /** 年龄 */
         public Integer age;
+        /** 部门编号（多 词 驼峰 字段，验证 snake → camel 映射） */
+        public Integer deptId;
 
         /** 空 构造 器 */
         public User() {
@@ -232,6 +308,11 @@ public class RocksDbEngineUnitTest {
             return age;
         }
 
+        /** 获取deptId */
+        public Integer getDeptId() {
+            return deptId;
+        }
+
         /** 设置name */
         public void setName(String name) {
             this.name = name;
@@ -241,6 +322,11 @@ public class RocksDbEngineUnitTest {
         public void setAge(Integer age) {
             this.age = age;
         }
+
+        /** 设置deptId */
+        public void setDeptId(Integer deptId) {
+            this.deptId = deptId;
+        }
     }
 
     @Test
@@ -249,10 +335,12 @@ public class RocksDbEngineUnitTest {
         u1.id = 1;
         u1.name = "Alice";
         u1.age = 30;
+        u1.deptId = 100;
         User u2 = new User();
         u2.id = 2;
         u2.name = "Bob";
         u2.age = 25;
+        u2.deptId = 200;
         engine.store("user", List.of(u1, u2));
 
         List<User> all = engine.query(User.class).list();
@@ -261,6 +349,43 @@ public class RocksDbEngineUnitTest {
         List<User> filtered = engine.query(User.class).eq(User::getAge, 25).list();
         assertEquals(1, filtered.size(), "ORM 条件 查询 应 命中 1 条");
         assertEquals("Bob", filtered.getFirst().name);
+    }
+
+    @Test
+    void testOrmQueryWithSnakeCaseColumn() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        u1.deptId = 100;
+        User u2 = new User();
+        u2.id = 2;
+        u2.name = "Bob";
+        u2.age = 25;
+        u2.deptId = 200;
+        engine.store("user", List.of(u1, u2));
+
+        // lambda 渲染 的 WHERE 列 为 下划线 dept_id，应 映射 回 实体 字段 deptId
+        List<User> filtered = engine.query(User.class).eq(User::getDeptId, 200).list();
+        assertEquals(1, filtered.size(), "snake_case 列 名 dept_id 应 命中 实体 字段 deptId");
+        assertEquals("Bob", filtered.getFirst().name);
+    }
+
+    @Test
+    void testOrmUpdateWithSnakeCaseColumn() {
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        u1.deptId = 100;
+        engine.store("user", List.of(u1));
+
+        int affected = engine.update(User.class).set(User::getDeptId, 999).eq(User::getDeptId, 100).update();
+        assertEquals(1, affected, "ORM 更新 应 影响 1 行");
+
+        List<User> all = engine.query(User.class).list();
+        assertEquals(1, all.size());
+        assertEquals(999, all.getFirst().deptId, "更新 后 deptId 应 为 999");
     }
 
     @Test
@@ -310,6 +435,206 @@ public class RocksDbEngineUnitTest {
         List<User> first = engine.query(User.class).eq(User::getId, 1).list();
         assertEquals(1, first.size());
         assertEquals("Alice", first.getFirst().name, "RocksDB 持久化 数据 应 被 再次 查询 命中");
+    }
+
+    @Test
+    void testOrmRealPersistenceAcrossEngineRestart() throws Exception {
+        // 验证 ORM 数据 真正 落盘 到 RocksDB（而非 仅 内存）：
+        // 写入 → 关闭 引擎 → 重新 打开 同 目录 引擎 → 查询 仍 命中
+        Path dbDir = tempDir.resolve("rocksdb_orm_restart");
+        Files.createDirectories(dbDir);
+        RocksDbEngine e1 = new RocksDbEngine();
+        e1.addDataSource("default", dbDir.toString());
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "Alice";
+        u1.age = 30;
+        u1.deptId = 100;
+        e1.store("user", List.of(u1));
+        e1.update(User.class).set(User::getAge, 31).eq(User::getId, 1).update();
+        e1.close();
+
+        // 同 目录 重新 打开，数据 仍 在
+        RocksDbEngine e2 = new RocksDbEngine();
+        e2.addDataSource("default", dbDir.toString());
+        try {
+            List<User> all = e2.query(User.class).list();
+            assertEquals(1, all.size(), "重新 打开 RocksDB 后 应 命中 已 持久化 行");
+            assertEquals("Alice", all.getFirst().name);
+            assertEquals(31, all.getFirst().age, "更新 值 应 已 持久化");
+            assertEquals(100, all.getFirst().deptId);
+        } finally {
+            e2.close();
+        }
+    }
+
+    // ==================== 并发 回归（竞态 修复 验证） ====================
+
+    @Test
+    void testIncrConcurrentNoLostUpdates() throws InterruptedException {
+        int threads = 8;
+        int perThread = 500;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        List<Thread> workers = new java.util.ArrayList<>();
+        for (int i = 0; i < threads; i++) {
+            Thread t = new Thread(() -> {
+                try {
+                    start.await();
+                    for (int j = 0; j < perThread; j++) {
+                        engine.incr("ctr");
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    done.countDown();
+                }
+            });
+            workers.add(t);
+            t.start();
+        }
+        start.countDown();
+        assertTrue(done.await(30, java.util.concurrent.TimeUnit.SECONDS));
+        for (Thread w : workers) {
+            w.join();
+        }
+        assertEquals((long) threads * perThread, Long.parseLong(engine.get("ctr")),
+                "并发 incr 不 应 丢失 计数（H1 修复 验证）");
+    }
+
+    @Test
+    void testOrmStoreAutoSeqConcurrentNoDuplicateKeys() throws Exception {
+        // 实体 无 id 字段 → 走 自增 序号；并 发 写入 不 应 产生 重复 行 键（H2 修复 验证）
+        // 表名 使用 实体 自身 表名，保证 后续 query 能 命中
+        int threads = 8;
+        int perThread = 50;
+        String table = RocksDbOrmStore.resolveEntityTableName(NoIdDoc.class);
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        for (int i = 0; i < threads; i++) {
+            final int base = i;
+            Thread t = new Thread(() -> {
+                try {
+                    start.await();
+                    for (int j = 0; j < perThread; j++) {
+                        NoIdDoc d = new NoIdDoc();
+                        d.name = "d" + base + "-" + j;
+                        engine.store(table, List.of(d));
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    done.countDown();
+                }
+            });
+            t.start();
+        }
+        start.countDown();
+        assertTrue(done.await(30, java.util.concurrent.TimeUnit.SECONDS));
+        // 字节 级 验证：ORM 前缀 下 实体 行 键 数量 应 为 400（排除 __seq__ 计数 键）
+        List<java.util.Map.Entry<byte[], byte[]>> rawRows = engine.scanBytes("default", "ORM:noiddoc:".getBytes());
+        long entityRows = rawRows.stream()
+                .filter(e -> !new String(e.getKey(), java.nio.charset.StandardCharsets.UTF_8).endsWith("__seq__"))
+                .count();
+        assertEquals(threads * perThread, entityRows,
+                "并 发 自增 序号 写入 应 产生 " + threads * perThread + " 条 不 重复 实体 行 键，实际 " + entityRows);
+        assertEquals(threads * perThread, engine.query(NoIdDoc.class).list().size(),
+                "并 发 自增 序号 写入 不 应 产生 重复 行 键 导致 行 丢失（H2 修复 验证）");
+    }
+
+    @Test
+    void testFtsConcurrentInsertNoLostDocs() throws InterruptedException {
+        // 并 发 插入 含 相同 token 的 文档，FTS 不 应 丢 任 何 文档（C1 修复 验证）
+        int threads = 4;
+        int perThread = 25;
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch done = new java.util.concurrent.CountDownLatch(threads);
+        for (int i = 0; i < threads; i++) {
+            final int base = i;
+            Thread t = new Thread(() -> {
+                try {
+                    start.await();
+                    for (int j = 0; j < perThread; j++) {
+                        engine.insert("concurrent_docs",
+                                Map.of("id", "c" + base + "-" + j, "content", "shared world token"));
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    done.countDown();
+                }
+            });
+            t.start();
+        }
+        start.countDown();
+        assertTrue(done.await(30, java.util.concurrent.TimeUnit.SECONDS));
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> hits = engine.search("shared", (Class<Map<String, Object>>) (Class<?>) Map.class);
+        assertEquals(threads * perThread, hits.size(),
+                "并 发 插入 后 FTS 不 应 丢 任 何 文档（C1 修复 验证）");
+    }
+
+    /** 无 id 字段 的 测试 实体（验证 自增 序号 路径） */
+    public static class NoIdDoc {
+        /** 名称 */
+        public String name;
+
+        /** 空 构造 器 */
+        public NoIdDoc() {
+        }
+
+        /** 获取name */
+        public String getName() {
+            return name;
+        }
+
+        /** 设置name */
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    @Test
+    void testOrmQueryLimitOffsetPaging() {
+        // 分页 验证：limit/offset 由 基类 processQueryResult 统一 截取
+        for (int i = 1; i <= 10; i++) {
+            User u = new User();
+            u.id = i;
+            u.name = "u" + i;
+            u.age = i;
+            engine.store("user", List.of(u));
+        }
+        List<User> page2 = engine.query(User.class).limit(3).offset(4).list();
+        assertEquals(3, page2.size(), "limit(3).offset(4) 应 返回 3 条");
+        // 显式 id 键 按 字面 量 字典 序 排 列：1,10,2,3,4,5,6,7,8,9，位 置 4 对 应 id=4
+        assertEquals("u4", page2.getFirst().name, "字典 序 位 置 4 对 应 id=4");
+        assertEquals("u5", page2.get(1).name);
+        assertEquals("u6", page2.getLast().name);
+    }
+
+    @Test
+    void testOrmQueryLimitOffsetBeyondEnd() {
+        // offset 超 出 总 行数 时 返回 空 列表（不 抛 异常）
+        User u1 = new User();
+        u1.id = 1;
+        u1.name = "A";
+        u1.age = 30;
+        engine.store("user", List.of(u1));
+        List<User> beyond = engine.query(User.class).limit(5).offset(99).list();
+        assertTrue(beyond.isEmpty(), "offset 超 出 总 行数 应 返回 空");
+    }
+
+    @Test
+    void testOrmQueryCount() {
+        // count() 终端 方法 验证
+        for (int i = 1; i <= 5; i++) {
+            User u = new User();
+            u.id = i;
+            u.name = "u" + i;
+            u.age = i;
+            engine.store("user", List.of(u));
+        }
+        long total = engine.query(User.class).count();
+        assertEquals(5, total, "count() 应 返回 总 行数");
+        long filtered = engine.query(User.class).eq(User::getAge, 3).count();
+        assertEquals(1, filtered, "count() 带 条件 应 命中 1 行");
     }
 
     // ==================== SPI 注册 ====================

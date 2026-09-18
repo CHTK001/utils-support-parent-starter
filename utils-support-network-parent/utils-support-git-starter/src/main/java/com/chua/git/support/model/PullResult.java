@@ -24,7 +24,7 @@ public record PullResult(boolean updated, int fetchedRefs, String messages) {
     * 快速创建"最新"结果。
     *
     * @return 一个指示无更新需要的 拉手结果
-     */
+    */
     public static PullResult noUpdate() {
         return new PullResult(false, 0, "Already up to date.");
     }
@@ -33,7 +33,7 @@ public record PullResult(boolean updated, int fetchedRefs, String messages) {
     * 根据 成功 状态总结一句话输出。
     *
     * @return 内容概述："Updated." 或 "No 更新."
-     */
+    */
     @Override
     public String toString() {
         return updated ? messages : "No update.";

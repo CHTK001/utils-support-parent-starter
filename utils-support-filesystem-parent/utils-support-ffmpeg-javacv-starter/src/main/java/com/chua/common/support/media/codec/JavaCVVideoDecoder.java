@@ -24,47 +24,47 @@ public class JavaCVVideoDecoder implements VideoDecoder {
 
     /**
     * 当前解码器使用的 codec 标识
-     */
+    */
     private volatile int codecId;
 
     /**
     * 视频宽度
-     */
+    */
     private volatile int width;
 
     /**
     * 视频高度
-     */
+    */
     private volatile int height;
 
     /**
     * 解码器是否已初始化
-     */
+    */
     private volatile boolean initialized;
 
     /**
     * 解码调用次数统计
-     */
+    */
     private final AtomicInteger decodeCalls = new AtomicInteger(0);
 
     /**
     * 空返回次数统计
-     */
+    */
     private final AtomicInteger emptyReturns = new AtomicInteger(0);
 
     /**
     * H.264 编码格式标识
-     */
+    */
     private static final String FORMAT_H264 = "h264";
 
     /**
     * H.265 编码格式标识
-     */
+    */
     private static final String FORMAT_H265 = "hevc";
 
     /**
     * H.266 编码格式标识
-     */
+    */
     private static final String FORMAT_H266 = "h266";
 
     @Override
@@ -119,7 +119,7 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     *
     * @param codecId 编解码器标识
     * @return FFmpeg 格式名称
-     */
+    */
     private static String getFormat(int codecId) {
         switch (codecId) {
             case 27:
@@ -165,7 +165,7 @@ public class JavaCVVideoDecoder implements VideoDecoder {
     *
     * @param frame ffmpeg 帧
     * @return ARGB 格式的 byte缓冲，转换失败返回 空
-     */
+    */
     private static ByteBuffer frameToByteBuffer(Frame frame) {
         if (frame.image == null || frame.image.length == 0) {
             return null;

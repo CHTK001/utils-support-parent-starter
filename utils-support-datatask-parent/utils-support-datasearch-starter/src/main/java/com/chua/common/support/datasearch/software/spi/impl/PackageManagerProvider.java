@@ -44,7 +44,7 @@ public class PackageManagerProvider {
     /**
     * 获取提供者名称
     * @return 名称的结果
-     */
+    */
     public String name() {
         return NAME;
     }
@@ -54,7 +54,7 @@ public class PackageManagerProvider {
     * @param clientId 客户端标识
     * @param skillId skillid
     * @return install的结果
-     */
+    */
     public boolean install(String clientId, String skillId) {
         log.info("PackageManager 安装: clientId={}, skillId={}", clientId, skillId);
         return true;
@@ -65,7 +65,7 @@ public class PackageManagerProvider {
     * @param clientId 客户端标识
     * @param skillId skillid
     * @return uninstall的结果
-     */
+    */
     public boolean uninstall(String clientId, String skillId) {
         log.info("PackageManager 卸载: clientId={}, skillId={}", clientId, skillId);
         return true;
@@ -74,7 +74,7 @@ public class PackageManagerProvider {
     /**
     * 获取所有已安装（始终全部可用）
     * @return 列表installed的结果
-     */
+    */
     public Map<String, Boolean> listInstalled() {
         Map<String, Boolean> result = new LinkedHashMap<>();
         for (McpToolDescriptor td : toolDescriptors()) {
@@ -86,7 +86,7 @@ public class PackageManagerProvider {
     /**
     * 列出当前可用的客户端
     * @return 列表可用的结果
-     */
+    */
     public List<String> listAvailable() {
         return List.of(NAME);
     }
@@ -97,7 +97,7 @@ public class PackageManagerProvider {
     * tooldescriptors
     *
     * @return toolDescriptors的结果
-     */
+    */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
                 new McpToolDescriptor(PREFIX + "search",
@@ -132,7 +132,7 @@ public class PackageManagerProvider {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     protected class PackageManagerMcpClient implements McpClient {
         /** initialized */
@@ -179,11 +179,11 @@ public class PackageManagerProvider {
     // ==================== 工具处理 ====================
 
     /**
-    * 处理搜索
-    *
-    * @param args 参数
-    * @return 处理搜索的结果
-     */
+        * 处理搜索
+        *
+        * @param args 参数
+        * @return 处理搜索的结果
+        */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String keyword = (String) args.get("keyword");
         List<SoftwareInfo> results = searchSoftware(keyword);
@@ -199,7 +199,7 @@ public class PackageManagerProvider {
     *
     * @param args 参数
     * @return 处理install的结果
-     */
+    */
     protected McpToolResult handleInstall(Map<String, Object> args) {
         String packageId = (String) args.get("packageId");
         boolean ok = installSoftware(packageId);
@@ -212,7 +212,7 @@ public class PackageManagerProvider {
     *
     * @param args 参数
     * @return 处理uninstall的结果
-     */
+    */
     protected McpToolResult handleUninstall(Map<String, Object> args) {
         String packageId = (String) args.get("packageId");
         boolean ok = uninstallSoftware(packageId);
@@ -224,7 +224,7 @@ public class PackageManagerProvider {
     * 处理列表管理器
     *
     * @return 处理列表管理器的结果
-     */
+    */
     protected McpToolResult handleListManagers() {
         List<PackageManager.Type> pms = detectAvailable();
         List<Map<String, Object>> items = new ArrayList<>();
@@ -243,7 +243,7 @@ public class PackageManagerProvider {
     * Software搜索Skill
     *
     * @return software搜索skill的结果
-     */
+    */
     protected SkillDefinition softwareSearchSkill() {
         return new SkillDefinition(PREFIX + "search",
                 "搜索系统软件包，自动检测可用的包管理器（winget/brew/apt/choco 等）并搜索",
@@ -255,7 +255,7 @@ public class PackageManagerProvider {
     * softwareinstallskill
     *
     * @return softwareInstallSkill的结果
-     */
+    */
     protected SkillDefinition softwareInstallSkill() {
         return new SkillDefinition(PREFIX + "install",
                 "安装系统软件包",
@@ -267,7 +267,7 @@ public class PackageManagerProvider {
     * softwareuninstallskill
     *
     * @return softwareUninstallSkill的结果
-     */
+    */
     protected SkillDefinition softwareUninstallSkill() {
         return new SkillDefinition(PREFIX + "uninstall",
                 "卸载系统软件包",
@@ -279,7 +279,7 @@ public class PackageManagerProvider {
     * 列表包管理器skill
     *
     * @return 列表包管理器skill的结果
-     */
+    */
     protected SkillDefinition listPackageManagersSkill() {
         return new SkillDefinition(PREFIX + "list_managers",
                 "列出当前系统可用的包管理器",
@@ -292,7 +292,7 @@ public class PackageManagerProvider {
     *
     * @param mcpResult mcp结果
     * @return 转为skill结果的结果
-     */
+    */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
             return SkillResult.success(mcpResult.getContent());
@@ -307,7 +307,7 @@ public class PackageManagerProvider {
     *
     * @param keyword keyword
     * @return 搜索software的结果
-     */
+    */
     protected List<SoftwareInfo> searchSoftware(String keyword) {
         List<SoftwareInfo> results = new ArrayList<>();
         List<PackageManager.Type> availablePms = detectAvailable();
@@ -331,7 +331,7 @@ public class PackageManagerProvider {
     *
     * @param packageId 包标识
     * @return installSoftware的结果
-     */
+    */
     protected boolean installSoftware(String packageId) {
         log.info("开始安装软件包: {}", packageId);
         CmdResult result = PackageManager.install(packageId, new LineCallback() {
@@ -362,11 +362,11 @@ public class PackageManagerProvider {
     }
 
     /**
-    * uninstallsoftware
-    *
-    * @param packageId 包标识
-    * @return uninstallSoftware的结果
-     */
+            * uninstallsoftware
+            *
+            * @param packageId 包标识
+            * @return uninstallSoftware的结果
+            */
     protected boolean uninstallSoftware(String packageId) {
         log.info("开始卸载软件包: {}", packageId);
         List<PackageManager.Type> availablePms = detectAvailable();
@@ -404,10 +404,10 @@ public class PackageManagerProvider {
     // ==================== 包管理器搜索 ====================
 
     /**
-    * detect可用
-    *
-    * @return detect可用的结果
-     */
+            * detect可用
+            *
+            * @return detect可用的结果
+            */
     protected List<PackageManager.Type> detectAvailable() {
         List<PackageManager.Type> available = PackageManager.detect();
         log.info("检测到 {} 个可用包管理器: {}", available.size(),
@@ -421,7 +421,7 @@ public class PackageManagerProvider {
     * @param pm pm
     * @param keyword keyword
     * @return 搜索with的结果
-     */
+    */
     protected List<SoftwareInfo> searchWith(PackageManager.Type pm, String keyword) {
         String searchCmd = getSearchCommand(pm, keyword);
         log.info("  [{}] 执行搜索: {}", pm.getCommand(), searchCmd);
@@ -458,12 +458,12 @@ public class PackageManagerProvider {
     }
 
     /**
-    * 获取搜索命令
-    *
-    * @param pm pm
-    * @param keyword keyword
-    * @return 获取搜索命令的结果
-     */
+            * 获取搜索命令
+            *
+            * @param pm pm
+            * @param keyword keyword
+            * @return 获取搜索命令的结果
+            */
     protected String getSearchCommand(PackageManager.Type pm, String keyword) {
         return switch (pm) {
             case WINGET -> "winget search \"" + keyword + "\" --accept-source-agreements";
@@ -482,7 +482,7 @@ public class PackageManagerProvider {
     * @param pm pm
     * @param packageId 包标识
     * @return 获取uninstall命令的结果
-     */
+    */
     protected String getUninstallCommand(PackageManager.Type pm, String packageId) {
         return switch (pm) {
             case WINGET -> "winget uninstall --id " + packageId + " --silent";
@@ -503,7 +503,7 @@ public class PackageManagerProvider {
     * @param pm pm
     * @param output 输出
     * @return 解析搜索输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseSearchOutput(PackageManager.Type pm, String output) {
         return switch (pm) {
             case WINGET -> parseWingetOutput(output);
@@ -520,7 +520,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析winget输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseWingetOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");
@@ -552,7 +552,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析choco输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseChocoOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");
@@ -576,7 +576,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析brew输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseBrewOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");
@@ -595,7 +595,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析apt输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseAptOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");
@@ -620,7 +620,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析yum输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseYumOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");
@@ -652,7 +652,7 @@ public class PackageManagerProvider {
     *
     * @param output 输出
     * @return 解析apk输出的结果
-     */
+    */
     protected List<SoftwareInfo> parseApkOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         String[] lines = output.split("\\r?\\n");

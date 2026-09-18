@@ -69,7 +69,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     * 构造一个指定数据源地址的提供器。
     *
     * @param url 成语 JSON 数据源地址
-     */
+    */
     public OnlineIdiomProvider(String url) {
         this.url = url;
         this.httpClient = HttpClientFactory.getClient();
@@ -154,7 +154,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     * @param text 文本
     * @param kw kw
     * @return contains的结果
-     */
+    */
     private static boolean contains(String text, String kw) {
         return text != null && text.contains(kw);
     }
@@ -163,7 +163,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     * 加载索引（惰性 + 在线失败回退内置）
     *
     * @return 加载索引的结果
-     */
+    */
     private Map<String, IdiomInfo> loadIndex() {
         Map<String, IdiomInfo> cached = index;
         if (!cached.isEmpty()) {
@@ -205,7 +205,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     * 加载首字索引（基于已加载的词形索引）
     *
     * @return 加载第一个char索引的结果
-     */
+    */
     private Map<String, List<IdiomInfo>> loadFirstCharIndex() {
         Map<String, List<IdiomInfo>> cached = firstCharIndex;
         if (!cached.isEmpty()) {
@@ -235,7 +235,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     *
     * @param n n
     * @return 解析的结果
-     */
+    */
     private static IdiomInfo parse(JsonNode n) {
         if (n == null || !n.isObject()) {
             return null;
@@ -256,7 +256,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     * @param n n
     * @param k k
     * @return 文本的结果
-     */
+    */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -265,7 +265,7 @@ public class OnlineIdiomProvider implements IdiomProvider {
     /**
     * 内置常见成语兜底数据（在线不可用时的核心词条）。
     * @return 构建降级的结果
-     */
+    */
     private static List<IdiomInfo> buildFallback() {
         List<IdiomInfo> list = new ArrayList<>();
         add(list, "守株待兔", "shǒu zhū dài tù", "szdt", "《韩非子·五蠹》", "比喻不主动努力，而存万一的侥幸心理，希望得到意外的收获。", "学习不能守株待兔，需要脚踏实地。");

@@ -19,7 +19,7 @@ public class OcrItem {
     * 获取ocrbox
     *
     * @return 获取ocrbox的结果
-     */
+    */
     public OcrBox getOcrBox() {
         return ocrBox;
     }
@@ -28,7 +28,7 @@ public class OcrItem {
     * 设置ocrbox
     *
     * @param ocrBox ocrbox
-     */
+    */
     public void setOcrBox(OcrBox ocrBox) {
         this.ocrBox = ocrBox;
     }
@@ -37,7 +37,7 @@ public class OcrItem {
     * 获取Score
     *
     * @return 获取score的结果
-     */
+    */
     public float getScore() {
         return score;
     }
@@ -46,7 +46,7 @@ public class OcrItem {
     * 设置Score
     *
     * @param score score
-     */
+    */
     public void setScore(float score) {
         this.score = score;
     }

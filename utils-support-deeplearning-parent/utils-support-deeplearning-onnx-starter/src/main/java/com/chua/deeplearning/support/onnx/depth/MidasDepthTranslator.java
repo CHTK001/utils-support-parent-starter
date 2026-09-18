@@ -33,32 +33,32 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     
     /**
     *             
-     */
+    */
     protected Batchifier batchifier = Batchifier.STACK;
 
     /**
     *                   
-     */
+    */
     private int width;
 
     /**
     *                   
-     */
+    */
     private int height;
 
     /**
     *                          512
-     */
+    */
     private int detectResolution = 512;
 
     /**
     *                          512
-     */
+    */
     private int imageResolution = 512;
 
     /**
     *                   
-     */
+    */
     public MidasDepthTranslator() {
         this(MODEL_IMAGE_SIZE, MODEL_IMAGE_SIZE);
     }
@@ -68,7 +68,7 @@ public class MidasDepthTranslator implements Translator<Image, Image> {
     *
     * @param detectResolution                
     * @param imageResolution                 
-     */
+    */
     public MidasDepthTranslator(int detectResolution, int imageResolution) {
         this.detectResolution = detectResolution;
         this.imageResolution = imageResolution;

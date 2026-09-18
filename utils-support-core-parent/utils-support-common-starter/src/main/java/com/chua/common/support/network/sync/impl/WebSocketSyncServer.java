@@ -50,7 +50,7 @@ public class WebSocketSyncServer extends com.chua.common.support.network.server.
     }
 
     /**
-    * 服务器套接字
+    * 服务器Socket
     */
     private ServerSocket serverSocket;
 

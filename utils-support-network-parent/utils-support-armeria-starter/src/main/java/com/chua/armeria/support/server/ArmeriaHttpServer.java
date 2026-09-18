@@ -43,13 +43,13 @@ public class ArmeriaHttpServer extends AbstractServer {
 
     /**
     * Armeria 服务端实例
-     */
+    */
     private com.linecorp.armeria.server.Server server;
 
     /**
     * 创建 armeriahttp服务端 实例
     * @param setting setting
-     */
+    */
     public ArmeriaHttpServer(ServerSetting setting) {
         super(setting);
     }
@@ -68,7 +68,7 @@ public class ArmeriaHttpServer extends AbstractServer {
 
     /**
     * 请求处理线程池，使用虚拟线程避免阻塞 事件 循环
-     */
+    */
     private final java.util.concurrent.ExecutorService requestExecutor =
             java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
@@ -145,47 +145,47 @@ public class ArmeriaHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class ArmeriaServerResponse implements ServerResponse {
 
         /**
         * Armeria 服务请求上下文
-         */
+        */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
 
         /**
         * HTTP 状态码，默认 200
-         */
+        */
         private int status = 200;
 
         /**
         * 响应体字节数组
-         */
+        */
         private byte[] body;
 
         /**
         * 响应头键值对
-         */
+        */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
 
         /**
         * 内容-类型 值
-         */
+        */
         private String contentType;
 
         /**
         * 是否已提交（禁止修改）
-         */
+        */
         private boolean committed;
 
         /**
         * 是否已结束
-         */
+        */
         private boolean ended;
 
         /**
         * 响应结果对象（供后续序列化使用）
-         */
+        */
         private Object result;
 
         ArmeriaServerResponse(com.linecorp.armeria.server.ServiceRequestContext ctx) {
@@ -355,7 +355,7 @@ public class ArmeriaHttpServer extends AbstractServer {
 
         /**
         * 标记 Armeria 层面的响应为已完成，禁止后续修改。
-         */
+        */
         void endArmeria() {
             if (committed) {
                 return;
@@ -368,7 +368,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         * 构建 Armeria {@link AggregatedHttpResponse}。
         *
         * @return 聚合响应对象
-         */
+        */
         AggregatedHttpResponse buildAggregatedResponse() {
             ResponseHeadersBuilder hdrs = ResponseHeaders.builder(status);
             headers.forEach((k, v) -> hdrs.add(k, v));
@@ -387,7 +387,7 @@ public class ArmeriaHttpServer extends AbstractServer {
         *
         * @param r 处理器 通过 设置结果 设置的结果对象
         * @return 派生的响应体字节；r 为 空 返回 空
-         */
+        */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
                 return null;
@@ -415,26 +415,26 @@ public class ArmeriaHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class ArmeriaServerRequest implements ServerRequest {
 
         /**
         * Armeria 服务请求上下文
-         */
+        */
         private final com.linecorp.armeria.server.ServiceRequestContext ctx;
         /**
         * 聚合后的 HTTP 请求
-         */
+        */
         private final com.linecorp.armeria.common.AggregatedHttpRequest aggReq;
 
         /**
         * 请求体字节数组
-         */
+        */
         private byte[] bodyBytes;
 
         /**
         * 请求属性映射
-         */
+        */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         ArmeriaServerRequest(

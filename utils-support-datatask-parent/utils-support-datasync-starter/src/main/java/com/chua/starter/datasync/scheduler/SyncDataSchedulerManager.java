@@ -14,14 +14,14 @@ public interface SyncDataSchedulerManager {
     * 添加映射。
     *
     * @param mapping 映射配置
-     */
+    */
     void addMapping(DataSyncMapping mapping);
 
     /**
     * 移除映射。
     *
     * @param mappingId 映射 标识
-     */
+    */
     void removeMapping(String mappingId);
 
     /**
@@ -29,24 +29,24 @@ public interface SyncDataSchedulerManager {
     *
     * @param mappingId 映射 标识
     * @return 映射配置
-     */
+    */
     DataSyncMapping getMapping(String mappingId);
 
     /**
     * 获取所有映射。
     *
     * @return 映射列表
-     */
+    */
     java.util.List<DataSyncMapping> getMappings();
 
     /**
     * 启动调度器。
-     */
+    */
     void start();
 
     /**
     * 停止调度器。
-     */
+    */
     void stop();
 
     /**
@@ -56,7 +56,7 @@ public interface SyncDataSchedulerManager {
     * 用于一次性任务、无 型调度或测试驱动。</p>
     *
     * @param mappingId 映射 标识
-     */
+    */
     default void trigger(String mappingId) {
         throw new UnsupportedOperationException("当前调度器不支持手动触发: " + mappingId);
     }

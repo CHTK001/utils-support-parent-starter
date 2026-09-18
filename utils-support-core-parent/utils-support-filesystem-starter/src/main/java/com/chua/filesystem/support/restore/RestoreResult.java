@@ -30,61 +30,61 @@ public class RestoreResult {
 
     /**
     * 是否成功
-     */
+    */
     private boolean success;
 
     /**
     * 恢复的库名
-     */
+    */
     private String schemaName;
 
     /**
     * 恢复的表名
-     */
+    */
     private String tableName;
 
     /**
     * 恢复的行数
-     */
+    */
     @Builder.Default
     /** 行数量 */
     private long rowCount = 0;
 
     /**
     * 执行耗时（毫秒）
-     */
+    */
     @Builder.Default
     /** 持续时间 */
     private long duration = 0;
 
     /**
     * 是否恢复了表结构
-     */
+    */
     private boolean structureRestored;
 
     /**
     * 是否恢复了数据
-     */
+    */
     private boolean dataRestored;
 
     /**
     * 执行的DDL语句
-     */
+    */
     private String ddl;
 
     /**
     * 错误信息
-     */
+    */
     private String errorMessage;
 
     /**
     * 异常对象
-     */
+    */
     private Throwable exception;
 
     /**
     * 警告信息列表
-     */
+    */
     @Builder.Default
     /** 警告 */
     private List<String> warnings = new ArrayList<>();
@@ -95,7 +95,7 @@ public class RestoreResult {
     * @param tableName table名称
     * @param rowCount row数量
     * @return 成功的结果
-     */
+    */
     public static RestoreResult success(String schemaName, String tableName, long rowCount) {
         return RestoreResult.builder()
                 .success(true)
@@ -113,7 +113,7 @@ public class RestoreResult {
     * @param tableName table名称
     * @param ddl ddl
     * @return 结构成功的结果
-     */
+    */
     public static RestoreResult structureSuccess(String schemaName, String tableName, String ddl) {
         return RestoreResult.builder()
                 .success(true)
@@ -131,7 +131,7 @@ public class RestoreResult {
     * @param tableName table名称
     * @param rowCount row数量
     * @return 数据成功的结果
-     */
+    */
     public static RestoreResult dataSuccess(String schemaName, String tableName, long rowCount) {
         return RestoreResult.builder()
                 .success(true)
@@ -147,7 +147,7 @@ public class RestoreResult {
     * 创建失败结果
     * @param errorMessage 错误消息
     * @return 失败的结果
-     */
+    */
     public static RestoreResult failure(String errorMessage) {
         return RestoreResult.builder()
                 .success(false)
@@ -160,7 +160,7 @@ public class RestoreResult {
     * @param errorMessage 错误消息
     * @param exception 异常
     * @return 失败的结果
-     */
+    */
     public static RestoreResult failure(String errorMessage, Throwable exception) {
         return RestoreResult.builder()
                 .success(false)
@@ -173,7 +173,7 @@ public class RestoreResult {
     * 添加警告信息
     * @param warning 警告
     * @return 添加警告的结果
-     */
+    */
     public RestoreResult addWarning(String warning) {
         if (this.warnings == null) {
             this.warnings = new ArrayList<>();
@@ -185,7 +185,7 @@ public class RestoreResult {
     /**
     * 是否有警告
     * @return 是否包含警告的结果
-     */
+    */
     public boolean hasWarnings() {
         return warnings != null && !warnings.isEmpty();
     }

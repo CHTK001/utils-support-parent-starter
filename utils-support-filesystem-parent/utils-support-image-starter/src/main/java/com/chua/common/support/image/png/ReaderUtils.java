@@ -139,7 +139,7 @@ final class ReaderUtils {
     *
     * @return 一个包含 6 个 {@code int} 的数组，表示将被更新区域的
     * 目标最小 X、最小 Y、宽度、高度、X 周期和 Y 周期。
-     */
+    */
     public static int[] computeUpdatedPixels(Rectangle sourceRegion,
                                              Point destinationOffset,
                                              int dstMinX,
@@ -196,7 +196,7 @@ final class ReaderUtils {
     * @return array 的 大小 长度 When.js.js decode succeeeds
     *
     * @throws IOException if decoding 的 流 失败
-     */
+    */
     public static byte[] staggeredReadByteStream(ImageInputStream iis,
         int length) throws IOException {
         final int UNIT_SIZE = 1024000;

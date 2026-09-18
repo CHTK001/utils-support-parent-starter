@@ -468,12 +468,12 @@ public class ZipFileSystem implements FileSystem {
     }
 
     /**
-    * ZIP 文件写入构建器。
-    *
-    * <p>支持链式调用添加文件、流、字节数组到压缩包。</p>
-    *
-    * @since 1.0.0
-    */
+        * ZIP 文件写入构建器。
+        *
+        * <p>支持链式调用添加文件、流、字节数组到压缩包。</p>
+        *
+        * @since 1.0.0
+        */
     public static class ZipWriteBuilder extends WriteBuilder {
 
         /** ZIP 条目列表 */
@@ -764,8 +764,8 @@ public class ZipFileSystem implements FileSystem {
             /** 条目名称 */
             private final String entryName;
             /**
-            * 数据源
-            */
+        * 数据源
+        */
             private final File source;
             /** 输入流 */
             private final InputStream inputStream;

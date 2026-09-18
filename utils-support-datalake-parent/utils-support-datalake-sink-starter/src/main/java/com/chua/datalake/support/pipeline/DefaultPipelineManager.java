@@ -65,7 +65,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *   <li>支持未来版本的热重载（reloadPipeline）</li>
     *   <li>作为 compiledCache 的"权威来源"</li>
     * </ol>
-     */
+    */
     private final Map<String, String> store = new ConcurrentHashMap<>();
 
     /**
@@ -81,7 +81,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *
     * <p><b>注意</b>：若外部通过 {@link #store} 直接修改 JSON（如反射），缓存可能过期。
     * 正常情况下只通过 {@link #savePipeline} 写入，缓存始终一致。</p>
-     */
+    */
     private final Map<String, PipelineConfig> compiledCache = new ConcurrentHashMap<>();
 
     /**
@@ -89,14 +89,14 @@ public class DefaultPipelineManager implements PipelineManager {
     *
     * <p>当管线配置被重新保存时，通知引擎失效对应的 Sink 编译缓存，
     * 确保新配置立即生效。</p>
-     */
+    */
     private DefaultPipelineEngine engine;
 
     /**
     * 设置关联的执行引擎，用于配置变更时的缓存失效通知。
     *
     * @param engine 执行引擎实例
-     */
+    */
     public void setEngine(DefaultPipelineEngine engine) {
         this.engine = engine;
     }
@@ -109,7 +109,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *
     * @param pipelineId 管线唯一标识
     * @param jsonDsl    管线 DSL 的 JSON 字符串
-     */
+    */
     @Override
     public void savePipeline(String pipelineId, String jsonDsl) {
  // 先写原始 存储（保证即使编译失败，原始数据也不丢失）
@@ -137,7 +137,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *
     * @param pipelineId 管线 标识
     * @return 原始 JSON 字符串，未注册则返回 空
-     */
+    */
     @Override
     public String getPipeline(String pipelineId) {
         if (pipelineId == null) {
@@ -158,7 +158,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *
     * @param pipelineId 管线 标识
     * @return 编译后的 pipeline配置，未注册或解析失败返回 空
-     */
+    */
     public PipelineConfig getCompiledPipeline(String pipelineId) {
         if (pipelineId == null) {
             return null;
@@ -187,7 +187,7 @@ public class DefaultPipelineManager implements PipelineManager {
     * 删除一条管线配置及其编译缓存。
     *
     * @param pipelineId 管线 标识
-     */
+    */
     @Override
     public void deletePipeline(String pipelineId) {
         store.remove(pipelineId);
@@ -198,7 +198,7 @@ public class DefaultPipelineManager implements PipelineManager {
     * 返回所有已注册管线的 标识 集合（不可修改）。
     *
     * @return 管线 标识 集合
-     */
+    */
     @Override
     public Iterable<String> pipelineIds() {
         if (store == null) {
@@ -215,7 +215,7 @@ public class DefaultPipelineManager implements PipelineManager {
     *   <li>配置热更新：清除缓存后，下次 getCompiledPipeline 会重新从 store 编译</li>
     *   <li>测试清理：避免不同测试用例之间的缓存污染</li>
     * </ul>
-     */
+    */
     public void clearCompiledCache() {
         compiledCache.clear();
     }
@@ -224,7 +224,7 @@ public class DefaultPipelineManager implements PipelineManager {
     * 返回当前编译缓存中的管线数量。
     *
     * @return 已编译管线数
-     */
+    */
     public int compiledCacheSize() {
         return compiledCache.size();
     }

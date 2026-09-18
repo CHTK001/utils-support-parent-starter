@@ -26,7 +26,7 @@ public class PaddleFeatureClient extends AbstractLocalFeatureClient {
     * 构造 飞桨 特征提取客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public PaddleFeatureClient(FeatureClientSetting setting) {
         super("paddle", setting);
     }

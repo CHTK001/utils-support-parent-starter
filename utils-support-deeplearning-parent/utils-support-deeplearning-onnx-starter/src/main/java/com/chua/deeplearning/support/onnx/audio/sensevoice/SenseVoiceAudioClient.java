@@ -34,37 +34,37 @@ public class SenseVoiceAudioClient implements VirtualClient {
 
     /**
     * 默认模型名
-     */
+    */
     private static final String DEFAULT_MODEL = "sensevoice-small";
 
     /**
     * 类路径 资源根路径
-     */
+    */
     private static final String RESOURCE_BASE = "audio/asr/";
 
     /**
     * JAR 内资源目录名
-     */
+    */
     private static final String RESOURCE_DIR = "sensevoice-small";
 
     /**
     * 缓存根相对路径
-     */
+    */
     private static final String CACHE_ROOT = "audio/asr/";
 
     /**
     * 临时音频文件前缀
-     */
+    */
     private static final String TMP_AUDIO_PREFIX = "sensevoice-audio-";
 
     /**
     * 临时音频文件后缀
-     */
+    */
     private static final String TMP_AUDIO_SUFFIX = ".wav";
 
     /**
     * 任务 标识 前缀
-     */
+    */
     private static final String TASK_ID_PREFIX = "sensevoice-";
 
     /** 配置 */
@@ -88,7 +88,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
     * 构造客户端。
     *
     * @param setting 配置
-     */
+    */
     public SenseVoiceAudioClient(AudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -242,7 +242,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
     * 未配置时回落 {@code %TEMP%}。
     *
     * @return 缓存根目录
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
@@ -252,7 +252,7 @@ public class SenseVoiceAudioClient implements VirtualClient {
     * 将 bytes/流 输入物化为临时文件
     *
     * @return resolve音频路径的结果
-     */
+    */
     private Path resolveAudioPath() {
         if (audioPath != null) {
             return audioPath;

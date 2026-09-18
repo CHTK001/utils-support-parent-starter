@@ -50,7 +50,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
     *
     * @param modelPath 模型路径
-     */
+    */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
@@ -118,7 +118,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
 
     /**
     * ensureprepared。
-     */
+    */
     private void ensurePrepared() throws Exception {
         if (prepared) {
             return;
@@ -147,7 +147,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     * resolve模型路径。
     * @param pathStr 路径str
     * @return resolve模型路径的结果
-     */
+    */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
             return null;
@@ -174,7 +174,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     * decode转为pcm。
     * @param audioData 音频数据
     * @return decode转为pcm的结果
-     */
+    */
     private float[] decodeToPcm(byte[] audioData) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(
@@ -209,7 +209,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     *
     * @param samples 样本
     * @return computeFbank80的结果
-     */
+    */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -275,7 +275,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     * 构建kaldimel过滤器。
     * @param nFreq nfreq
     * @return 构建kaldimel过滤器的结果
-     */
+    */
     private double[][] buildKaldiMelFilters(int nFreq) {
         double lowFreq = 20.0;
         double highFreq = 8000.0;
@@ -315,7 +315,7 @@ public class CampplusEmbeddingTranslator implements ITranslator<byte[], float[]>
     * fft。
     * @param re re
     * @param im im
-     */
+    */
     private void fft(double[] re, double[] im) {
         int n = re.length;
         if (n == 0) {

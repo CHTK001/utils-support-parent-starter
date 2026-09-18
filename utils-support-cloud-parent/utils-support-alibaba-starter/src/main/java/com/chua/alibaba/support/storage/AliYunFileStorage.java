@@ -40,7 +40,7 @@ public class AliYunFileStorage extends AbstractFileStorage {
     /**
     * 创建 aliyun文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public AliYunFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);

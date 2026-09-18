@@ -19,23 +19,23 @@ public class OnnxSmileDetector implements SmileDetector {
 
     /**
     * 模型名称
-     */
+    */
     private String modelName;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备
-     */
+    */
     private String device = "cpu";
 
     /**
     * 创建 onnxsmiledetector 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxSmileDetector(String apiKey) {
     }
 
@@ -50,7 +50,7 @@ public class OnnxSmileDetector implements SmileDetector {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + SmileDetector.listModels());

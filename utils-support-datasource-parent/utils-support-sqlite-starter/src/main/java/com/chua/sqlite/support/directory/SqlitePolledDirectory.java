@@ -56,29 +56,29 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
 
     /**
     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-     */
+    */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     /**
     * JDBC 连接 URL，如 {@code jdbc:sqlite:/data/test.db}
-     */
+    */
     private final String jdbcUrl;
 
     /**
     * 轮询时执行的 SQL 查询语句
-     */
+    */
     private final String querySql;
 
     /**
     * 作为唯一键的列在查询结果中的索引（从 1 开始），
     * 用于识别同一行数据
-     */
+    */
     private final int keyColumnIndex;
 
     /**
     * 作为修改时间戳的列在查询结果中的索引（从 1 开始），
     * 用于判断数据是否已更新
-     */
+    */
     private final int tsColumnIndex;
 
     /**
@@ -87,7 +87,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     * @param listenPath  逻辑路径（用于事件标识，通常为表名）
     * @param environment 环境配置，必须包含 JDBC.url 属性
     * @throws IllegalArgumentException 如果 JDBC.url 未配置
-     */
+    */
     public SqlitePolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         super(listenPath);
         this.jdbcUrl = environment.getProperty("jdbc.url");
@@ -114,7 +114,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     *
     * @param path 逻辑路径（当前实现中未使用，查询 SQL 已由构造器确定）
     * @return 编码后的行快照列表
-     */
+    */
     @Override
     protected List<String> listAndModified(String path) {
         List<String> rows = new ArrayList<>();
@@ -144,7 +144,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     *
     * @param item 编码后的快照字符串
     * @return 唯一键值
-     */
+    */
     @Override
     protected String getFileName(String item) {
         int sep = item.indexOf('|');
@@ -161,7 +161,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     *
     * @param item 编码后的快照字符串
     * @return 修改时间戳（毫秒）或变更标识
-     */
+    */
     @Override
     protected Long getModified(String item) {
         int sep = item.indexOf('|');
@@ -181,7 +181,7 @@ public class SqlitePolledDirectory extends DiffPolledDirectory<String> {
     * @param id 待校验标识符
     * @return 去除首尾空白后的标识符
     * @throws IllegalArgumentException 标识符非法时抛出
-     */
+    */
     private String safeIdentifier(String id) {
         if (id == null) {
             throw new IllegalArgumentException("SQL 标识符不能为空");

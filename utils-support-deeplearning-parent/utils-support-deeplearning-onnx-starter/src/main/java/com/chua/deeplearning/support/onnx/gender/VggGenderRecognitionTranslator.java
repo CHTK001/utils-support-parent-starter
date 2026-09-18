@@ -38,24 +38,24 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
 
     /**
     *                   
-     */
+    */
     private static final int IMAGE_SIZE = 224;
 
     /**
     *                
-     */
+    */
     private static final int CHANNELS = 3;
 
     /**
     *             
-     */
+    */
     private static final String[] GENDER_LABELS = {"Female", "Male"};
 
     /**
     *                 -                
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) {
         log.info("VggGenderRecognitionTranslator                ");
@@ -74,7 +74,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     * @param ctx                   
     * @param input             
     * @return NDList                   
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         try {
@@ -136,7 +136,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     * @param ctx                   
     * @param list                 nd列表
     * @return                             "Male"   
-     */
+    */
     @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         try {
@@ -197,7 +197,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     *
     * @param array             
     * @return                   
-     */
+    */
     private int argMax(float[] array) {
         if (array.length == 0) {
             return -1;
@@ -220,7 +220,7 @@ public class VggGenderRecognitionTranslator implements Translator<Image, Predict
     *        Batchifier
     *
     * @return Batchifier.STACK
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

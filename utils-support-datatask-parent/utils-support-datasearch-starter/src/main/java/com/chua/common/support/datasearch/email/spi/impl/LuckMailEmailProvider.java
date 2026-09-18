@@ -35,7 +35,7 @@ public class LuckMailEmailProvider implements EmailProvider {
 
     /**
     * luckmailemail提供者。
-     */
+    */
     public LuckMailEmailProvider() {
         this.apiKey = resolveEnv("LUCKMAIL_API_KEY", "");
         this.apiSecret = resolveEnv("LUCKMAIL_API_SECRET", "");
@@ -95,7 +95,7 @@ public class LuckMailEmailProvider implements EmailProvider {
     * @param key 键
     * @param def def
     * @return resolveEnv的结果
-     */
+    */
     private static String resolveEnv(String key, String def) {
         String v = System.getenv(key);
         return v != null && !v.isBlank() ? v : def;

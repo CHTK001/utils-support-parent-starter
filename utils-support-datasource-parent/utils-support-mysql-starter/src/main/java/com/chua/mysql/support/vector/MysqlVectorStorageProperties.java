@@ -25,9 +25,9 @@ public record MysqlVectorStorageProperties(
     private static final String DEFAULT_VECTOR_COLUMN = "vec";
 
     /**
-    * 无参构造，使用默认列名和表名。
-    * @return mysql向量storage属性的结果
-     */
+        * 无参构造，使用默认列名和表名。
+        * @return mysql向量storage属性的结果
+        */
     public MysqlVectorStorageProperties() {
         this(DEFAULT_TABLE, DEFAULT_ID_COLUMN, DEFAULT_VECTOR_COLUMN);
     }
@@ -37,7 +37,7 @@ public record MysqlVectorStorageProperties(
     *
     * @param obj 配置对象
     * @return 配置属性，为 空 时返回默认实例
-     */
+    */
     public static MysqlVectorStorageProperties of(Object obj) {
         if (obj instanceof MysqlVectorStorageProperties props) {
             return props;

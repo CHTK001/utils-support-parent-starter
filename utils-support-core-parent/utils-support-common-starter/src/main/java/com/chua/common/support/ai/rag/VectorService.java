@@ -37,11 +37,11 @@ public interface VectorService {
     }
 
     /**
-    * 单文本向量化。
-    *
-    * @param text 待向量化的文本
-    * @return 浮点数向量
-    */
+            * 单文本向量化。
+            *
+            * @param text 待向量化的文本
+            * @return 浮点数向量
+            */
     float[] embed(String text);
 
     /**

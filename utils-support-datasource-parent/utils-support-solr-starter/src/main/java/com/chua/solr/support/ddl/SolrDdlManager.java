@@ -39,7 +39,7 @@ public class SolrDdlManager implements DslManager {
     * 构造管理器。
     *
     * @param client 绑定 /Solr 根路径的客户端
-     */
+    */
     public SolrDdlManager(SolrClient client) {
         this.client = client;
     }
@@ -55,7 +55,7 @@ public class SolrDdlManager implements DslManager {
     *
     * @param numShards numshards
     * @return numShards的结果
-     */
+    */
     public SolrDdlManager numShards(int numShards) {
         this.numShards = numShards;
         return this;
@@ -66,7 +66,7 @@ public class SolrDdlManager implements DslManager {
     *
     * @param replicationFactor replicationfactor
     * @return replicationFactor的结果
-     */
+    */
     public SolrDdlManager replicationFactor(int replicationFactor) {
         this.replicationFactor = replicationFactor;
         return this;
@@ -141,7 +141,7 @@ public class SolrDdlManager implements DslManager {
     /**
     * 真正创建集合（结构性 DDL 执行）。
     * @param collectionName 集合名称
-     */
+    */
     public void createCollection(String collectionName) throws Exception {
         CollectionAdminRequest.Create.createCollection(collectionName, numShards, replicationFactor)
                 .process(client);
@@ -152,7 +152,7 @@ public class SolrDdlManager implements DslManager {
     * @param collectionName 集合名称
     * @param fieldName 字段名称
     * @param fieldType 字段类型
-     */
+    */
     public void addField(String collectionName, String fieldName, String fieldType) throws Exception {
         new SchemaRequest.AddField(java.util.Map.of("name", fieldName, "type", fieldType))
                 .process(client, collectionName);
@@ -161,7 +161,7 @@ public class SolrDdlManager implements DslManager {
     /**
     * 删除集合。
     * @param collectionName 集合名称
-     */
+    */
     public void dropCollection(String collectionName) throws Exception {
         CollectionAdminRequest.deleteCollection(collectionName).process(client);
     }
@@ -172,7 +172,7 @@ public class SolrDdlManager implements DslManager {
     * 读取columns。
     * @param tableName table名称
     * @return 读取columns的结果
-     */
+    */
     private List<ColumnDef> readColumns(String tableName) {
         List<ColumnDef> columns = new ArrayList<>();
         try {
@@ -201,7 +201,7 @@ public class SolrDdlManager implements DslManager {
     *
     * @param solrBaseUrl Solrbaseurl
     * @return 的的结果
-     */
+    */
     public static SolrDdlManager of(String solrBaseUrl) {
         return new SolrDdlManager(new HttpSolrClient.Builder(solrBaseUrl).build());
     }

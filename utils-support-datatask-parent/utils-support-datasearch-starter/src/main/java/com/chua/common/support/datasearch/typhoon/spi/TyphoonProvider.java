@@ -20,14 +20,14 @@ public interface TyphoonProvider {
     * 获取数据源名称。
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
     * 获取当前活跃台风列表。
     *
     * @return 活跃台风列表；数据源不可达时返回空列表
-     */
+    */
     List<TyphoonActivity> getActiveTyphoons();
 
     /**
@@ -35,6 +35,6 @@ public interface TyphoonProvider {
     *
     * @param tfid 台风编号（如 202618）
     * @return 台风详情；数据源不可达或编号不存在时返回 空
-     */
+    */
     TyphoonDetail getTyphoon(String tfid);
 }

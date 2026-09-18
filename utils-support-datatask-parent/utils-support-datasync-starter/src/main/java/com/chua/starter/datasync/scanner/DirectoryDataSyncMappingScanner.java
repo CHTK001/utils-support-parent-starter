@@ -31,7 +31,7 @@ public class DirectoryDataSyncMappingScanner {
 
     /**
     * 轮询间隔（毫秒）
-     */
+    */
     private static final long POLL_INTERVAL_MS = 2000;
 
     /** 映射管理器 */
@@ -50,7 +50,7 @@ public class DirectoryDataSyncMappingScanner {
     * @param mappingManager mapping管理器
     * @param config 配置
     * @param parsers parsers
-     */
+    */
     public DirectoryDataSyncMappingScanner(DataSyncMappingManager mappingManager,
                                            DirectoryConfigDefinition config,
                                            List<ConfigFileParser> parsers) {
@@ -66,7 +66,7 @@ public class DirectoryDataSyncMappingScanner {
 
     /**
     * 启动扫描并监听目录变化。
-     */
+    */
     public void start() {
         Path dir = Path.of(config.directoryPath());
         if (!Files.isDirectory(dir)) {
@@ -79,7 +79,7 @@ public class DirectoryDataSyncMappingScanner {
 
     /**
     * 停止扫描并关闭监听。
-     */
+    */
     public void stop() {
         executor.shutdown();
         try {
@@ -95,7 +95,7 @@ public class DirectoryDataSyncMappingScanner {
     * 扫描全部
     *
     * @param dir dir
-     */
+    */
     private void scanAll(Path dir) {
         try {
             Files.walk(dir).filter(Files::isRegularFile).forEach(file -> {
@@ -129,7 +129,7 @@ public class DirectoryDataSyncMappingScanner {
     * Watch
     *
     * @param dir dir
-     */
+    */
     private void watch(Path dir) {
         try {
             watchService = FileSystems.getDefault().newWatchService();

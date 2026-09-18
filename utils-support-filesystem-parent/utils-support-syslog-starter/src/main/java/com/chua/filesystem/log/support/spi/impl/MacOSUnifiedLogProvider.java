@@ -88,7 +88,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param query 查询
     * @return 搜索via日志show的结果
-     */
+    */
     private List<LogEntry> searchViaLogShow(LogQuery query) {
         List<String> args = new ArrayList<>();
         args.add(LOG_SHOW_CMD);
@@ -154,7 +154,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param query 查询
     * @return 构建predicate的结果
-     */
+    */
     private String buildPredicate(LogQuery query) {
         StringBuilder sb = new StringBuilder();
         String p = query.pattern() != null ? query.pattern() : "";
@@ -184,7 +184,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param line 线
     * @return 解析日志show线的结果
-     */
+    */
     private LogEntry parseLogShowLine(String line) {
         if (line == null || line.isBlank()) { return null; }
         try {
@@ -224,7 +224,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param query 查询
     * @return 搜索viavar日志的结果
-     */
+    */
     private List<LogEntry> searchViaVarLog(LogQuery query) {
         List<LogEntry> results = new ArrayList<>();
         Pattern regex = compilePattern(query.pattern());
@@ -267,7 +267,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     * @param line 线
     * @param source 源
     * @return 解析var日志线的结果
-     */
+    */
     private LogEntry parseVarLogLine(String line, String source) {
         if (line == null || line.isBlank()) { return null; }
         String timestamp = "unknown";
@@ -285,7 +285,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param line 线
     * @return detect级别从消息的结果
-     */
+    */
     private LogLevel detectLevelFromMessage(String line) {
         if (line == null) {
             return LogLevel.INFO;
@@ -311,7 +311,7 @@ public class MacOSUnifiedLogProvider implements SystemLogProvider {
     *
     * @param glob glob
     * @return compile模式的结果
-     */
+    */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) { return null; }
         try {

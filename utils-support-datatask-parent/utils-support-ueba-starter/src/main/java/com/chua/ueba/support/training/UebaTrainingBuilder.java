@@ -90,7 +90,7 @@ public final class UebaTrainingBuilder {
     * @param config UEBA 配置，不能为 空
     * @return 当前构建器
     * @throws IllegalArgumentException 当 配置 为 空 时
-     */
+    */
     public UebaTrainingBuilder config(UebaConfig config) {
         Objects.requireNonNull(config, "config must not be null");
         this.config = config;
@@ -105,7 +105,7 @@ public final class UebaTrainingBuilder {
     * @return 当前构建器
     * @throws IllegalArgumentException 当 路径 为 空 时
     * @throws UncheckedIOException     当配置文件读取失败时
-     */
+    */
     public UebaTrainingBuilder config(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         this.config = UebaConfig.load(path);
@@ -119,7 +119,7 @@ public final class UebaTrainingBuilder {
     * @param file 配置文件路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 文件 为 空 或空白时
-     */
+    */
     public UebaTrainingBuilder configFile(String file) {
         if (file == null || file.isBlank()) {
             throw new IllegalArgumentException("file 不能为 null 或空白");
@@ -133,7 +133,7 @@ public final class UebaTrainingBuilder {
     * @param resource 类路径 资源路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 resource 为 空/空白或资源不存在时
-     */
+    */
     public UebaTrainingBuilder configResource(String resource) {
         if (resource == null || resource.isBlank()) {
             throw new IllegalArgumentException("resource 不能为 null 或空白");
@@ -151,12 +151,12 @@ public final class UebaTrainingBuilder {
     }
 
     /**
-    * 设置训练数据 CSV 路径（列：时间戳,ip,路径,方法,状态,用户_智能体,响应_时间,响应_大小）。
+    * 设置训练数据 CSV 路径（列：时间戳,ip,路径,方法,状态,用户_Agent,响应_时间,响应_大小）。
     *
     * @param dataCsv 训练数据路径，不能为 空
     * @return 当前构建器
     * @throws IllegalArgumentException 当 数据csv 为 空 或文件不存在时
-     */
+    */
     public UebaTrainingBuilder data(Path dataCsv) {
         Objects.requireNonNull(dataCsv, "dataCsv must not be null");
         if (!Files.isRegularFile(dataCsv)) {
@@ -172,7 +172,7 @@ public final class UebaTrainingBuilder {
     * @param dataFile 训练数据文件路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 数据文件 为 空 或空白时
-     */
+    */
     public UebaTrainingBuilder data(String dataFile) {
         if (dataFile == null || dataFile.isBlank()) {
             throw new IllegalArgumentException("dataFile 不能为 null 或空白");
@@ -185,7 +185,7 @@ public final class UebaTrainingBuilder {
     *
     * @param events 流量事件列表，允许为空
     * @return 当前构建器
-     */
+    */
     public UebaTrainingBuilder events(List<TrafficEvent> events) {
         List<TrafficEvent> safeEvents = events == null ? List.of() : events;
         this.dataCsv = serializeEvents(safeEvents);
@@ -197,7 +197,7 @@ public final class UebaTrainingBuilder {
     *
     * @param outputDir 输出目录，允许为 空（使用默认目录）
     * @return 当前构建器
-     */
+    */
     public UebaTrainingBuilder outputDir(Path outputDir) {
         this.outputDir = outputDir;
         return this;
@@ -208,7 +208,7 @@ public final class UebaTrainingBuilder {
     *
     * @param outputDir 输出目录，允许为 空 或空白
     * @return 当前构建器
-     */
+    */
     public UebaTrainingBuilder outputDir(String outputDir) {
         if (outputDir == null || outputDir.isBlank()) {
             this.outputDir = null;
@@ -223,7 +223,7 @@ public final class UebaTrainingBuilder {
     * @param epochs 训练轮数，必须大于 0
     * @return 当前构建器
     * @throws IllegalArgumentException 当 轮次 小于等于 0 时
-     */
+    */
     public UebaTrainingBuilder epochs(int epochs) {
         if (epochs <= 0) {
             throw new IllegalArgumentException("epochs 必须大于 0, 实际: " + epochs);
@@ -238,7 +238,7 @@ public final class UebaTrainingBuilder {
     * @param batchSize 批大小，必须大于 0
     * @return 当前构建器
     * @throws IllegalArgumentException 当 批量大小 小于等于 0 时
-     */
+    */
     public UebaTrainingBuilder batchSize(int batchSize) {
         if (batchSize <= 0) {
             throw new IllegalArgumentException("batchSize 必须大于 0, 实际: " + batchSize);
@@ -253,7 +253,7 @@ public final class UebaTrainingBuilder {
     * @param learningRate 学习率，必须大于 0
     * @return 当前构建器
     * @throws IllegalArgumentException 当 学习rate 小于等于 0 时
-     */
+    */
     public UebaTrainingBuilder learningRate(double learningRate) {
         if (learningRate <= 0.0d) {
             throw new IllegalArgumentException("learningRate 必须大于 0, 实际: " + learningRate);
@@ -268,7 +268,7 @@ public final class UebaTrainingBuilder {
     * @param pythonCommand Python 解释器，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 Python命令 为 空 或空白时
-     */
+    */
     public UebaTrainingBuilder python(String pythonCommand) {
         if (pythonCommand == null || pythonCommand.isBlank()) {
             throw new IllegalArgumentException("pythonCommand 不能为 null 或空白");
@@ -284,7 +284,7 @@ public final class UebaTrainingBuilder {
     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 空
     * @return 当前构建器
     * @throws IllegalArgumentException 当 resumedir 为 空 时
-     */
+    */
     public UebaTrainingBuilder resume(Path resumeDir) {
         Objects.requireNonNull(resumeDir, "resumeDir must not be null");
         this.resumeDir = resumeDir;
@@ -297,7 +297,7 @@ public final class UebaTrainingBuilder {
     * @param resumeDir 已有模型目录或 checkpoint 文件路径，不能为 空 或空白
     * @return 当前构建器
     * @throws IllegalArgumentException 当 resumedir 为 空 或空白时
-     */
+    */
     public UebaTrainingBuilder resume(String resumeDir) {
         if (resumeDir == null || resumeDir.isBlank()) {
             throw new IllegalArgumentException("resumeDir 不能为 null 或空白");
@@ -310,7 +310,7 @@ public final class UebaTrainingBuilder {
     *
     * @return 训练管线，绝不为 空
     * @throws IllegalArgumentException 当配置未设置或训练数据未设置时
-     */
+    */
     public UebaTrainer build() {
         if (config == null) {
             configResource(DEFAULT_CONFIG_RESOURCE);
@@ -328,7 +328,7 @@ public final class UebaTrainingBuilder {
     *
     * @param events 事件列表
     * @return CSV 文件路径
-     */
+    */
     private static Path serializeEvents(List<TrafficEvent> events) {
         try {
             Path tmp = Files.createTempFile("ueba-train-", ".csv");
@@ -357,7 +357,7 @@ public final class UebaTrainingBuilder {
     *
     * @param value 字段值，允许为 空
     * @return 转义后的字段值
-     */
+    */
     private static String csv(String value) {
         if (value == null) {
             return "";

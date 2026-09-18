@@ -28,6 +28,6 @@ public interface SpiderUrlFilter {
     *
     * @param request 待过滤的爬取请求，包含 URL 和深度信息
     * @return true 表示允许爬取，false 表示忽略此链接
-     */
+    */
     boolean accept(SpiderRequest request);
 }

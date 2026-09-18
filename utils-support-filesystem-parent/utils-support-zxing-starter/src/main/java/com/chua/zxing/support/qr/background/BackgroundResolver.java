@@ -28,7 +28,7 @@ public interface BackgroundResolver {
     * @param qrCode 包含QR码数据的对象
     * @param bitMatrix QR码的位矩阵表示
     * @return 根据设置和提供的QR码数据生成的带背景的BufferedImage对象
-     */
+    */
     BufferedImage resolve(QrSetting setting, BackgroundSetting backgroundSetting, BufferedImage image, QRCode qrCode, BitMatrixEx bitMatrix);
 }
 

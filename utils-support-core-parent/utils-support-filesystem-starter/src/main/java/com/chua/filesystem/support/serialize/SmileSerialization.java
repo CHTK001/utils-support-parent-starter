@@ -20,7 +20,7 @@ public class SmileSerialization implements Serialization {
 
     /**
     * 线程安全：对象映射器 是线程安全的（配置后不再修改）
-     */
+    */
     private static final ObjectMapper MAPPER = new ObjectMapper(new SmileFactory());
 
     @Override

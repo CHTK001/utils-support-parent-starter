@@ -22,7 +22,7 @@ public class SolrMetaData extends DefaultMetaData {
     /**
     * 创建 Solrmeta数据 实例
     * @param engine engine
-     */
+    */
     public SolrMetaData(SolrEngine engine) {
         super(engine);
     }

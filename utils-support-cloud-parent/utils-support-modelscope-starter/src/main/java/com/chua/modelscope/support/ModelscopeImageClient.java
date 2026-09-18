@@ -63,7 +63,7 @@ public class ModelscopeImageClient implements ImageClient {
 
     /**
     * 默认生成模型（魔搭公开的高质量文生图模型）
-     */
+    */
     private static final String DEFAULT_MODEL = "Qwen/Qwen-Image";
 
     private final ImageClientSetting setting; // setting
@@ -81,7 +81,7 @@ public class ModelscopeImageClient implements ImageClient {
     /**
     * modelscope镜像客户端。
     * @param setting setting
-     */
+    */
     public ModelscopeImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -134,27 +134,13 @@ public class ModelscopeImageClient implements ImageClient {
     }
 
     /**
-    * 设置 CFG 引导系数（模型scope 字段名 guidance_scale）。
+    * 设置 CFG 引导系数（modelscope 字段名 guidance_scale）。
+    * 该值越高生成结果越贴合提示词，越低则更具创造性。
     *
     * @param guidance CFG 引导系数
-    * @return 当前客户端实例
-    * @param json json
-     /**
-       * guidancescale。
-      * @param guidance guidance
-      * @return guidanceScale的结果
-      */
-     * @param taskId 任务标识
-     * @param prompt 提示符
-     * @param strength strength
-     * @param image 镜像
-     */
+    * @return 当前客户端实例（链式调用）
+    */
     public ImageClient guidanceScale(double guidance) {
-        /**
-        * 引用镜像。
-        * @param image 镜像
-        * @return 引用镜像的结果
-         */
         this.guidanceScale = guidance;
         return this;
     }
@@ -185,7 +171,7 @@ public class ModelscopeImageClient implements ImageClient {
     * control类型。
     * @param controlType control类型
     * @return control类型的结果
-     */
+    */
     }
 
     @Override
@@ -195,7 +181,7 @@ public class ModelscopeImageClient implements ImageClient {
     * quality。
     * @param quality quality
     * @return quality的结果
-     */
+    */
     }
 
     @Override
@@ -206,7 +192,7 @@ public class ModelscopeImageClient implements ImageClient {
     * style。
     * @param style style
     * @return style的结果
-     */
+    */
     }
 
     @Override
@@ -219,7 +205,7 @@ public class ModelscopeImageClient implements ImageClient {
     * @return generate的结果
     * @param json json
     * @param taskId 任务id
-     */
+    */
     }
 
     @Override
@@ -460,7 +446,7 @@ public class ModelscopeImageClient implements ImageClient {
 
     /**
     * 模型scope 知名图像生成模型清单（节选自魔搭 模型 页面）。
-     */
+    */
     private static final List<ModelDefinition> MODELS = List.of(
             ModelDefinition.builder()
                     .id("Qwen/Qwen-Image").name("Qwen-Image").provider("modelscope")

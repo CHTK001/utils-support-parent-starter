@@ -44,7 +44,7 @@ public class SkillsmpProvider {
     /**
     * 获取提供者名称
     * @return 名称的结果
-     */
+    */
     public String name() {
         return NAME;
     }
@@ -54,7 +54,7 @@ public class SkillsmpProvider {
     * @param clientId 客户端标识
     * @param skillId skillid
     * @return install的结果
-     */
+    */
     public boolean install(String clientId, String skillId) {
         log.info("SkillsMP 安装请求: clientId={}, skillOrToolId={}", clientId, skillId);
         return true;
@@ -65,7 +65,7 @@ public class SkillsmpProvider {
     * @param clientId 客户端标识
     * @param skillId skillid
     * @return uninstall的结果
-     */
+    */
     public boolean uninstall(String clientId, String skillId) {
         log.info("SkillsMP 卸载请求: clientId={}, skillOrToolId={}", clientId, skillId);
         return true;
@@ -74,7 +74,7 @@ public class SkillsmpProvider {
     /**
     * 获取 MCP 工具描述符列表
     * @return toolDescriptors的结果
-     */
+    */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
                 new McpToolDescriptor(PREFIX + "search", "搜索 SkillsMP 技能市场，查找和发现 AI 技能",
@@ -90,7 +90,7 @@ public class SkillsmpProvider {
     /**
     * 构建搜索 skilldefinition
     * @return 搜索skill的结果
-     */
+    */
     protected SkillDefinition searchSkill() {
         return new SkillDefinition(
                 PREFIX + "search",
@@ -109,7 +109,7 @@ public class SkillsmpProvider {
     * 处理搜索工具调用
     * @param args 参数
     * @return 处理搜索的结果
-     */
+    */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
         int page = args.containsKey("page") ? ((Number) args.get("page")).intValue() : 1;
@@ -132,7 +132,7 @@ public class SkillsmpProvider {
     * @param limit 限制
     * @param sortBy 排序by
     * @return callApi的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     protected Map<String, Object> callApi(String search, int page, int limit, String sortBy) throws Exception {
         String url = API_BASE + "?page=" + page + "&limit=" + limit + "&sortBy=" + sortBy
@@ -177,7 +177,7 @@ public class SkillsmpProvider {
     * 将 MCP 工具调用结果转换为 Skill 调用结果
     * @param mcpResult mcp结果
     * @return 转为skill结果的结果
-     */
+    */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
             return SkillResult.success(mcpResult.getContent());
@@ -189,7 +189,7 @@ public class SkillsmpProvider {
     * skillsmp MCP 客户端实现
     * @author CH
     * @since 4.0.0
-     */
+    */
     protected class SkillsmpMcpClient implements McpClient {
         /** initialized */
         private volatile boolean initialized = false;

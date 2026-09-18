@@ -42,7 +42,7 @@ public class FaceLandmarkTranslator implements Translator<Image, float[]> {
     *
     * @param points points
     * @return std的结果
-     */
+    */
     private float std(NDArray points) {
         float[] arr = points.toType(ai.djl.ndarray.types.DataType.FLOAT32, false).toFloatArray();
         double sum = 0;

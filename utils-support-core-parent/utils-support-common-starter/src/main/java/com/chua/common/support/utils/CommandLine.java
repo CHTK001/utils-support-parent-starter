@@ -267,7 +267,7 @@ public class CommandLine {
  * @param index 索引
  * @param token 令牌
  * @return consume值的结果
-*/
+ */
 private int consumeValue(int index, String token) {
   String value = null;
   String key = token;

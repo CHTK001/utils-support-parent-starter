@@ -22,7 +22,7 @@ public class PpWordRotateTranslator implements Translator<Image, Classifications
 
     /**
     * 类别。
-     */
+    */
     private final List<String> classes = Arrays.asList("No Rotate", "Rotate");
 
     @Override

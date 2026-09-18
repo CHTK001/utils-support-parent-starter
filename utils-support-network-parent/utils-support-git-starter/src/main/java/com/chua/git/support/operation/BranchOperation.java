@@ -37,14 +37,14 @@ public class BranchOperation {
 
     /**
     * 所属 git客户端。
-     */
+    */
     private final GitClient client;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 所属 Git客户端
-     */
+    */
     public BranchOperation(GitClient client) {
         this.client = client;
     }
@@ -53,7 +53,7 @@ public class BranchOperation {
     * 列出所有分支（本地 + 远程）。
     *
     * @return 分支信息列表，可能为空列表
-     */
+    */
     public List<BranchInfo> listAll() {
         try {
             List<Ref> refs = client.getGit()
@@ -72,7 +72,7 @@ public class BranchOperation {
     * 仅列出本地分支。
     *
     * @return 本地分支列表
-     */
+    */
     public List<BranchInfo> listLocal() {
         return listAll().stream()
                 .filter(b -> !b.isRemote())
@@ -83,7 +83,7 @@ public class BranchOperation {
     * 仅列出远程分支。
     *
     * @return 远程分支列表
-     */
+    */
     public List<BranchInfo> listRemote() {
         return listAll().stream()
                 .filter(BranchInfo::isRemote)
@@ -95,7 +95,7 @@ public class BranchOperation {
     *
     * @return 当前分支信息
     * @throws GitClientException 若仓库处于 detached HEAD 状态（无分支指向）
-     */
+    */
     public BranchInfo current() {
         try {
             Repository repo = client.getRepository();
@@ -119,7 +119,7 @@ public class BranchOperation {
     *
     * @param branch 分支名称（如 "main"、"develop"）
     * @return 当前操作实例
-     */
+    */
     public BranchOperation checkout(String branch) {
         try {
             client.open();
@@ -138,7 +138,7 @@ public class BranchOperation {
     *
     * @param branch 新分支名称
     * @return 当前操作实例
-     */
+    */
     public BranchOperation checkoutCreate(String branch) {
         try {
             client.open();
@@ -159,7 +159,7 @@ public class BranchOperation {
     * @param branch     新分支名称
     * @param startPoint 起点引用（如 "main"、"v1.0"、提交 SHA）
     * @return 当前操作实例
-     */
+    */
     public BranchOperation create(String branch, String startPoint) {
         try {
             client.open();
@@ -179,7 +179,7 @@ public class BranchOperation {
     *
     * @param branch 分支名称
     * @return 当前操作实例
-     */
+    */
     public BranchOperation delete(String branch) {
         try {
             client.open();
@@ -198,7 +198,7 @@ public class BranchOperation {
     *
     * @param branch 分支名称
     * @return 当前操作实例
-     */
+    */
     public BranchOperation deleteForce(String branch) {
         try {
             client.open();
@@ -219,7 +219,7 @@ public class BranchOperation {
     * <p>遍历 {@code .git/config} 中的 [remote] 段获取 url 值。</p>
     *
     * @return 远程 URL 列表，通常只有一条
-     */
+    */
     public List<String> remoteUrls() {
         try {
             List<String> urls = new ArrayList<>();

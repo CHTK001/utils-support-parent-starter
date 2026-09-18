@@ -31,6 +31,6 @@ public interface GitFileListener {
     * 若需去重，监听者可自行维护已处理文件的 设置。</p>
     *
     * @param event 变更事件详情
-     */
+    */
     void onChanged(GitFileEvent event);
 }

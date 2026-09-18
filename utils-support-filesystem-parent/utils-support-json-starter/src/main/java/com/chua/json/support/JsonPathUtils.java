@@ -73,7 +73,7 @@ public class JsonPathUtils {
 
     /**
     * 默认配置：Jackson 序列化 + 路径不存在时返回 空
-     */
+    */
     private static final Configuration DEFAULT_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
             .mappingProvider(new JacksonMappingProvider())
@@ -82,7 +82,7 @@ public class JsonPathUtils {
 
     /**
     * 严格配置：路径不存在时抛出异常
-     */
+    */
     private static final Configuration STRICT_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
             .mappingProvider(new JacksonMappingProvider())
@@ -90,7 +90,7 @@ public class JsonPathUtils {
 
     /**
     * 可读的解析上下文（带默认配置）
-     */
+    */
     private static final ParseContext PARSE_CTX = JsonPath.using(DEFAULT_CONFIG);
 
     /** 创建 json路径工具 实例 */
@@ -116,7 +116,7 @@ public class JsonPathUtils {
     * @param jsonPath json路径 表达式，如 {@code "$.store.book[0].title"}
     * @param <T>      返回值类型
     * @return JSONPath 指向的值，路径不存在时返回 空
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T read(String json, String jsonPath) {
         return PARSE_CTX.parse(json).read(jsonPath);
@@ -137,7 +137,7 @@ public class JsonPathUtils {
     * @param type     目标类型
     * @param <T>      返回值类型
     * @return 解析后的值，路径不存在时返回 空
-     */
+    */
     public static <T> T read(String json, String jsonPath, Class<T> type) {
         return PARSE_CTX.parse(json).read(jsonPath, type);
     }
@@ -157,7 +157,7 @@ public class JsonPathUtils {
     * @param typeRef  类型引用
     * @param <T>      返回值类型
     * @return 解析后的值
-     */
+    */
     public static <T> T read(String json, String jsonPath, TypeRef<T> typeRef) {
         return PARSE_CTX.parse(json).read(jsonPath, typeRef);
     }
@@ -169,7 +169,7 @@ public class JsonPathUtils {
     * @param jsonPath json路径 表达式
     * @param <T>      返回值类型
     * @return JSONPath 指向的值
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T read(InputStream input, String jsonPath) {
         return PARSE_CTX.parse(input).read(jsonPath);
@@ -189,7 +189,7 @@ public class JsonPathUtils {
     * @param jsonPath json路径 表达式，应指向数组或产生多个结果的路径
     * @param <T>      列表元素类型
     * @return 解析后的列表，路径不存在返回空列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> List<T> readList(String json, String jsonPath) {
         return PARSE_CTX.parse(json).read(jsonPath);
@@ -201,7 +201,7 @@ public class JsonPathUtils {
     * @param json     JSON 字符串
     * @param jsonPath json路径 表达式，应指向 JSON 对象
     * @return 解析后的 映射，路径不存在返回空 映射
-     */
+    */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> readMap(String json, String jsonPath) {
         return PARSE_CTX.parse(json).read(jsonPath);
@@ -223,7 +223,7 @@ public class JsonPathUtils {
     * @param jsonPath json路径 表达式
     * @param value    要设置的新值
     * @return 设置后的 JSON 字符串
-     */
+    */
     public static String set(String json, String jsonPath, Object value) {
         return PARSE_CTX.parse(json).set(jsonPath, value).jsonString();
     }
@@ -239,7 +239,7 @@ public class JsonPathUtils {
     * @param json     JSON 字符串
     * @param jsonPath json路径 表达式
     * @return 删除后的 JSON 字符串
-     */
+    */
     public static String delete(String json, String jsonPath) {
         return PARSE_CTX.parse(json).delete(jsonPath).jsonString();
     }
@@ -259,7 +259,7 @@ public class JsonPathUtils {
     * @param jsonPath json路径 表达式，应指向数组
     * @param value    要添加的元素
     * @return 添加后的 JSON 字符串
-     */
+    */
     public static String add(String json, String jsonPath, Object value) {
         return PARSE_CTX.parse(json).add(jsonPath, value).jsonString();
     }
@@ -278,7 +278,7 @@ public class JsonPathUtils {
     * @param key      键名
     * @param value    键值
     * @return 设置后的 JSON 字符串
-     */
+    */
     public static String put(String json, String jsonPath, String key, Object value) {
         return PARSE_CTX.parse(json).put(jsonPath, key, value).jsonString();
     }
@@ -297,7 +297,7 @@ public class JsonPathUtils {
     * @param json     JSON 字符串
     * @param jsonPath json路径 表达式
     * @return 路径存在返回 true，否则返回 false
-     */
+    */
     public static boolean isExist(String json, String jsonPath) {
         try {
             return PARSE_CTX.parse(json).read(jsonPath) != null;
@@ -318,7 +318,7 @@ public class JsonPathUtils {
     * @param json     JSON 字符串
     * @param jsonPath json路径 表达式，应指向数组或字符串
     * @return 数组长度或字符串长度，路径不存在返回 0
-     */
+    */
     public static int length(String json, String jsonPath) {
         Object value = read(json, jsonPath);
         if (value == null) {
@@ -350,7 +350,7 @@ public class JsonPathUtils {
     *
     * @param json JSON 字符串
     * @return DocumentContext，支持链式调用
-     */
+    */
     public static DocumentContext parse(String json) {
         return PARSE_CTX.parse(json);
     }
@@ -372,7 +372,7 @@ public class JsonPathUtils {
     * @param <T>      返回值类型
     * @return JSONPath 指向的值
     * @throws com.jayway.jsonpath.PathNotFoundException 路径不存在时抛出
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T readStrict(String json, String jsonPath) {
         return JsonPath.using(STRICT_CONFIG).parse(json).read(jsonPath);
@@ -394,7 +394,7 @@ public class JsonPathUtils {
     * @param config   自定义配置
     * @param <T>      返回值类型
     * @return JSONPath 指向的值
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T read(String json, String jsonPath, Configuration config) {
         return JsonPath.using(config).parse(json).read(jsonPath);
@@ -404,7 +404,7 @@ public class JsonPathUtils {
     * 获取默认配置实例。
     *
     * @return 默认 配置
-     */
+    */
     public static Configuration getDefaultConfig() {
         return DEFAULT_CONFIG;
     }

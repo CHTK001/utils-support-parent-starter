@@ -44,14 +44,14 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     * 会话根目录（{@code <home>/sessions}）。子类负责提供。
     *
     * @return 会话根目录
-     */
+    */
     protected abstract Path sessionRoot();
 
     /**
     * 会话转录文件扩展名。
     *
     * @return 扩展名（默认 {@code .jsonl}）
-     */
+    */
     protected String transcriptExtension() {
         return ".jsonl";
     }
@@ -60,7 +60,7 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     * 响应式流式入口：惰性扫描会话根并逐行解析用量信封。
     *
     * @return 用量记录流
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listTranscripts();
@@ -86,7 +86,7 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     * 枚举会话转录文件；支持嵌套子目录与扁平文件两种布局。
     *
     * @return 转录文件列表
-     */
+    */
     private List<Path> listTranscripts() {
         Path root = sessionRoot();
         if (!Files.isDirectory(root)) {
@@ -117,7 +117,7 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     *
     * @param line JSONL 行
     * @return 用量记录或 empty
-     */
+    */
     protected Optional<AiUsage> parseLine(String line) {
         JsonNode node = Json.parse(line);
         JsonNode usage = node.get("usage");
@@ -155,7 +155,7 @@ public abstract class AgentSessionUsageParser extends BaseUsageParser {
     * 默认模型标签（信封缺失模型字段时使用）。
     *
     * @return 默认模型标签
-     */
+    */
     protected String defaultModelLabel() {
         return name() + "-unknown";
     }

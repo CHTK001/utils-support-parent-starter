@@ -24,7 +24,7 @@ public class WhiteAndBlackTankUtils {
     * @param outsideImg 表
     * @param insideImg  里
     * @param path       生成路径
-     */
+    */
     public static void run(File outsideImg, File insideImg, String path) {
         try {
             Color[][] outside = ImgRgbUtils.getPixels(ImageIO.read(outsideImg));
@@ -51,7 +51,7 @@ public class WhiteAndBlackTankUtils {
     * @param colorsF 表图
     * @param colorsB 里图
     * @return
-     */
+    */
     private static Color[][] GrayMerge(Color[][] colorsF, Color[][] colorsB) {
         int h = colorsF.length;
         int w = colorsF[0].length;
@@ -84,7 +84,7 @@ public class WhiteAndBlackTankUtils {
     * @param B      Blue比重
     * @param Light  亮度
     * @return
-     */
+    */
     private static void GetGrayScale(Color[][] colors, float A, float R, float G, float B, float Light) {
         float r = R / (R + G + B);
         float g = G / (R + G + B);

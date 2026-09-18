@@ -54,39 +54,39 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
 
     /**
     * 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
     * 默认模型名称
-     */
+    */
     private static final String DEFAULT_MODEL = "text-embedding-3-small";
 
     /**
     * 默认向量维度
-     */
+    */
     private static final int DEFAULT_DIMENSIONS = 1536;
 
     /**
     * 客户端配置
-     */
+    */
     private final EmbeddingClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 输出向量维度
-     */
+    */
     private Integer dimensions;
 
     /**
     * 构造 打开AI 嵌入向量客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OpenAiEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -198,7 +198,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     * 创建 打开AI HTTP 客户端。
     *
     * @return OpenAI 客户端实例
-     */
+    */
     private OpenAIClient createClient() {
         OpenAIOkHttpClient.Builder clientBuilder = OpenAIOkHttpClient.builder()
                 .apiKey(setting.getAppKey())
@@ -217,7 +217,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     *
     * @param texts 待向量化的文本数组
     * @return 请求参数
-     */
+    */
     private EmbeddingCreateParams buildEmbeddingParams(String[] texts) {
         String actualModel = model != null ? model : DEFAULT_MODEL;
         EmbeddingCreateParams.Builder paramsBuilder = EmbeddingCreateParams.builder()
@@ -246,7 +246,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     *
     * @param vectors 浮点数向量列表
     * @return Embedding 列表
-     */
+    */
     private static List<EmbeddingResponse.Embedding> buildEmbeddingList(List<float[]> vectors) {
         AtomicInteger idx = new AtomicInteger(0);
         List<EmbeddingResponse.Embedding> embeddings = new ArrayList<>(vectors.size());
@@ -267,7 +267,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     * @param duration  请求耗时（毫秒）
     * @param startTime 请求开始时间戳
     * @return 用量信息
-     */
+    */
     private AiUsage buildUsage(CreateEmbeddingResponse response, long duration, long startTime) {
         String actualModel = model != null ? model : DEFAULT_MODEL;
         AiUsage.AiUsageBuilder usageBuilder = AiUsage.builder()
@@ -289,7 +289,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     * 构建空文本的默认响应。
     *
     * @return 空向量响应
-     */
+    */
     private EmbeddingResponse buildEmptyResponse() {
         return EmbeddingResponse.builder()
                 .embeddings(List.of(EmbeddingResponse.Embedding.builder()
@@ -305,7 +305,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     *
     * @param response 打开AI 原始响应
     * @return 浮点数向量列表
-     */
+    */
     private static List<float[]> parseEmbeddings(CreateEmbeddingResponse response) {
         if (response == null || response.data() == null || response.data().isEmpty()) {
             return List.of();
@@ -333,7 +333,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     * <p>移除末尾多余的斜杠，若未配置则使用默认地址。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -348,7 +348,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     /**
     * 获取当前维度（有配置值则用配置值，否则使用默认值）。
     * @return 维度的结果
-     */
+    */
     private int dimension() {
         return dimensions != null ? dimensions : DEFAULT_DIMENSIONS;
     }
@@ -358,7 +358,7 @@ public class OpenAiEmbeddingClient implements EmbeddingClient {
     *
     * @param proxyStr 代理地址字符串，支持 http://、socks5:// 格式
     * @return Proxy 对象，解析失败时返回 空
-     */
+    */
     private static Proxy resolveProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return null;

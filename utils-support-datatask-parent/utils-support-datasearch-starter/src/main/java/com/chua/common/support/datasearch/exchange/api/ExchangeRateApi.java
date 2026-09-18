@@ -19,7 +19,7 @@ public interface ExchangeRateApi {
     * 查询以 USD 为基准的全量汇率。
     *
     * @return 汇率响应实体（含 rates 表）
-     */
+    */
     @RequestMethod(value = "/v6/latest/USD", method = "GET")
     ExchangeRateResponse latestUsd();
 }

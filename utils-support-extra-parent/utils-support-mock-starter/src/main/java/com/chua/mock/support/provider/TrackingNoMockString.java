@@ -24,7 +24,7 @@ public class TrackingNoMockString implements MockString {
     * 快递公司前缀池（空串表示无前缀）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] PREFIXES = {"SF", "YT", "ZT", "YD", "JD", "STO", "YTO", ""};
 
     @Override

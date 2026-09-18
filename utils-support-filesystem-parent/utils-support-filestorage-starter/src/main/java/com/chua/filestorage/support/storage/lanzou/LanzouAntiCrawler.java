@@ -29,7 +29,7 @@ final class LanzouAntiCrawler {
 
     /**
     * 位置置换表，长度 40，对应 参数1 的 40 个十六进制字符。
-     */
+    */
     private static final int[] POSITION_TABLE = {
             0xF, 0x23, 0x1D, 0x18, 0x21, 0x10, 0x1, 0x26,
             0xA, 0x9, 0x13, 0x1F, 0x28, 0x1B, 0x16, 0x17,
@@ -40,12 +40,12 @@ final class LanzouAntiCrawler {
 
     /**
     * 异或密钥，由 WAF 脚本硬编码。
-     */
+    */
     private static final String XOR_KEY = "3000176000856006061501533003690027800375";
 
     /**
     * 参数1 提取正则，兼容单双引号。
-     */
+    */
     private static final Pattern ARG1_PATTERN =
             Pattern.compile("arg1\\s*=\\s*['\"]([0-9A-Fa-f]+)['\"]");
 
@@ -58,7 +58,7 @@ final class LanzouAntiCrawler {
     *
     * @param html 响应正文
     * @return true 表示需要计算 acw_sc__v2 后重试
-     */
+    */
     static boolean isChallenge(String html) {
         if (html == null || html.isEmpty()) {
             return false;
@@ -71,7 +71,7 @@ final class LanzouAntiCrawler {
     *
     * @param html 挑战页 HTML
     * @return acw_sc__v2 值；无法解析时返回 空
-     */
+    */
     static String resolve(String html) {
         if (html == null) {
             return null;
@@ -94,7 +94,7 @@ final class LanzouAntiCrawler {
     *
     * @param arg 长度为 40 的十六进制串
     * @return 还原后的字符串
-     */
+    */
     private static String unsbox(String arg) {
         char[] result = new char[POSITION_TABLE.length];
         for (int i = 0; i < POSITION_TABLE.length; i++) {
@@ -111,7 +111,7 @@ final class LanzouAntiCrawler {
     * @param input 输入十六进制串
     * @param key   密钥十六进制串
     * @return 异或后的十六进制串
-     */
+    */
     private static String hexXor(String input, String key) {
         int length = Math.min(input.length(), key.length());
         StringBuilder builder = new StringBuilder();

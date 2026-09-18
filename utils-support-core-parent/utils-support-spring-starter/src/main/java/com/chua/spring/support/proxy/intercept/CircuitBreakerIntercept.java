@@ -80,7 +80,7 @@ public class CircuitBreakerIntercept extends AbstractMethodAnnotationIntercept i
     * @param annotation  熔断注解
     * @param proxyMethod 被拦截的方法信息
     * @return 回退方法的返回值，找不到回退方法时返回 空
-     */
+    */
     private Object resolveFallback(CircuitBreaker annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);
     }

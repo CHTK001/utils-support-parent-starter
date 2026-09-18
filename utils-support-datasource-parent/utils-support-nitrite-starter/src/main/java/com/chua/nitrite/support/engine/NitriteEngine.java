@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param name 数据源名称
     * @param filePath 数据库文件路径
     * @return this
-     */
+    */
     public NitriteEngine addDataSource(String name, String filePath) {
         MVStoreModule storeModule = MVStoreModule.withConfig()
                 .filePath(filePath)
@@ -68,7 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param name 数据源名称
     * @return Nitrite 实例
-     */
+    */
     public Nitrite getNitrite(String name) {
         return databases.get(name);
     }
@@ -80,7 +80,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param <T> 实体类型
     * @return ObjectRepository
-     */
+    */
     public <T> ObjectRepository<T> getRepository(String name, Class<T> entityClass) {
         Nitrite nitrite = databases.get(name);
         if (nitrite == null) {
@@ -100,7 +100,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param limit 限制
     * @param offset 偏移量
     * @return 执行新查询的结果
-     */
+    */
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<T> memoryData = getData(entityClass);
         if (!memoryData.isEmpty()) {
@@ -125,7 +125,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param fieldNames 字段名称
     * @return 创建fulltext索引的结果
-     */
+    */
     public <T> void createFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -150,7 +150,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param query 查询
     * @param entityClass 实体类
     * @return 搜索的结果
-     */
+    */
     public <T> List<T> search(String query, Class<T> entityClass) {
         return search(query, entityClass, Integer.MAX_VALUE);
     }
@@ -164,7 +164,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param limit 限制
     * @return 搜索的结果
-     */
+    */
     public <T> List<T> search(String query, Class<T> entityClass, int limit) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -196,7 +196,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param entityClass 实体类
     * @param fieldNames 字段名称
     * @return 掉落fulltext索引的结果
-     */
+    */
     public <T> void dropFulltextIndex(Class<T> entityClass, String... fieldNames) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -221,7 +221,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param collection 集合
     * @param document 文档
     * @return 插入的结果
-     */
+    */
     public <T> T insert(String collection, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -242,7 +242,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param id 标识
     * @param documentClass 文档类
     * @return findById的结果
-     */
+    */
     public <T> T findById(String collection, Object id, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -267,7 +267,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param id 标识
     * @param document 文档
     * @return 更新的结果
-     */
+    */
     public <T> T update(String collection, Object id, T document) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -328,7 +328,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param collection 集合
     * @param businessId 业务 标识
     * @return 匹配的文档，未找到返回 空
-     */
+    */
     private static Document findDocByIdField(NitriteCollection collection, Object businessId) {
         for (Document doc : collection.find()) {
             Object value = doc.get("id");
@@ -347,7 +347,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param collection 集合
     * @param documentClass 文档类
     * @return find全部的结果
-     */
+    */
     public <T> List<T> findAll(String collection, Class<T> documentClass) {
         Nitrite nitrite = currentDatabase();
         if (nitrite == null) {
@@ -367,7 +367,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * 获取当前默认数据源对应的 Nitrite 实例。
     *
     * @return Nitrite 实例
-     */
+    */
     private Nitrite currentDatabase() {
         if (defaultDataSourceName == null) {
             if (databases.isEmpty()) {
@@ -384,7 +384,7 @@ import java.util.concurrent.ConcurrentHashMap;
     *
     * @param source 源对象
     * @return Nitrite 文档
-     */
+    */
     private static Document toDocument(Object source) {
         if (source instanceof Document doc) {
             return doc;
@@ -406,7 +406,7 @@ import java.util.concurrent.ConcurrentHashMap;
     * @param documentClass 目标类型
     * @param <T> 目标泛型
     * @return 目标类型实例
-     */
+    */
     @SuppressWarnings("unchecked")
     private static <T> T fromDocument(Document document, Class<T> documentClass) {
         if (documentClass == null) {

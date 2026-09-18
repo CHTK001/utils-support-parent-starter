@@ -32,7 +32,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * 获取bindir
     *
     * @return 获取bindir的结果
-     */
+    */
     private Path getBinDir() {
         return ffmpegFile.getParentFile().toPath();
     }
@@ -64,7 +64,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param outputStream 输出流
     * @param inputFormat 输入格式化
     * @param outputFormat 输出格式化
-     */
+    */
     public void convertVideo(InputStream inputStream, OutputStream outputStream,
                              String inputFormat, String outputFormat) throws IOException {
         if (!available) {
@@ -231,7 +231,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param duration 持续时间
     * @param width width
     * @param fps fps
-     */
+    */
     public void videoToGif(File videoInput, File gifOutput, double startTime, double duration,
                            int width, int fps) throws IOException {
         if (!available) {
@@ -290,7 +290,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStream(String input, String streamUrl, FFmpegOptions options,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -325,7 +325,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param streamUrl 流url
     * @param options 期权
     * @param callback callback
-     */
+    */
     public void pushStreamWithFrames(String input, String streamUrl, FFmpegOptions options,
                                      Consumer<FrameInfo> callback) throws IOException {
  // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 进步监听器 提供帧号和时间戳
@@ -356,7 +356,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStream(String streamUrl, File output, double duration,
                            Consumer<FrameInfo> callback) throws IOException {
         if (!available) {
@@ -388,7 +388,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param output 输出
     * @param duration 持续时间
     * @param callback callback
-     */
+    */
     public void pullStreamWithFrames(String streamUrl, File output, double duration,
                                      Consumer<FrameInfo> callback) throws IOException {
  // Jaffree 基于命令行调用，无法获取帧图像数据，但仍可通过 进步监听器 提供帧号和时间戳
@@ -476,7 +476,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param format 格式化
     * @param extra extra
     * @return 构建输出的结果
-     */
+    */
     private UrlOutput buildOutput(java.nio.file.Path path, String format, String... extra) {
         UrlOutput out = UrlOutput.toPath(path);
         if (format != null) {
@@ -493,7 +493,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     *
     * @param output 输出
     * @return resolv格式化的结果
-     */
+    */
     private String resolvFormat(File output) {
         String n = output.getName(); int d = n.lastIndexOf('.'); return d > 0 ? n.substring(d + 1) : null;
     }
@@ -504,7 +504,7 @@ public class JaffreeFFmpegProcessor extends AbstractFFmpegProcessor {
     * @param targetFormat Target格式化
     * @param opts opts
     * @return resolv格式化的结果
-     */
+    */
     private String resolvFormat(String targetFormat, FFmpegOptions opts) {
         return targetFormat != null ? targetFormat : "mp3";
     }

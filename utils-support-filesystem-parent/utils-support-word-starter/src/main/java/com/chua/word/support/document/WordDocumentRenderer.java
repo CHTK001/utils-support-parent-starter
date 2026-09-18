@@ -59,7 +59,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     *
     * @param doc doc
     * @param data 数据
-     */
+    */
     private void writeTitle(XWPFDocument doc, DocumentData data) {
         XWPFParagraph titlePara = doc.createParagraph();
         titlePara.setAlignment(ParagraphAlignment.CENTER);
@@ -74,7 +74,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     *
     * @param doc doc
     * @param data 数据
-     */
+    */
     private void writeMeta(XWPFDocument doc, DocumentData data) {
         addInfoLine(doc, "数据库: " + nullToEmpty(data.getDatabaseName()));
     addInfoLine(doc, "产品: " + nullToEmpty(data.getProductName()) + " " + nullToEmpty(data.getProductVersion()));
@@ -90,7 +90,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     *
     * @param doc doc
     * @param data 数据
-     */
+    */
     private void writeTables(XWPFDocument doc, DocumentData data) {
         if (data.getTables() == null) {
             return;
@@ -148,7 +148,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     *
     * @param doc doc
     * @param text 文本
-     */
+    */
     private void addInfoLine(XWPFDocument doc, String text) {
         XWPFParagraph para = doc.createParagraph();
         XWPFRun run = para.createRun();
@@ -161,7 +161,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     * style头部row
     *
     * @param row row
-     */
+    */
     private void styleHeaderRow(XWPFTableRow row) {
         for (int i = 0; i < row.getTableCells().size(); i++) {
             XWPFTableCell cell = row.getCell(i);
@@ -188,7 +188,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     * 设置tableborders
     *
     * @param table table
-     */
+    */
     private void setTableBorders(XWPFTable table) {
         CTTbl ctTbl = table.getCTTbl();
         CTTblPr tblPr = ctTbl.getTblPr() != null ? ctTbl.getTblPr() : ctTbl.addNewTblPr();
@@ -209,7 +209,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     * @param size 大小
     * @param type 类型
     * @param color color
-     */
+    */
     private void setBorder(CTBorder border, String size, STBorder.Enum type, String color) {
         border.setSz(BigInteger.valueOf(Long.parseLong(size)));
         border.setVal(type);
@@ -222,7 +222,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     * @param row row
     * @param cellIndex cell索引
     * @param value 值
-     */
+    */
     private void setCellValue(XWPFTableRow row, int cellIndex, String value) {
         XWPFTableCell cell = row.getCell(cellIndex);
         if (cell != null) {
@@ -235,7 +235,7 @@ public class WordDocumentRenderer implements DocumentProvider {
     *
     * @param value 值
     * @return 空转为空的结果
-     */
+    */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }

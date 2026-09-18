@@ -25,7 +25,7 @@ public class SafeTensorFeatureClient extends AbstractLocalFeatureClient {
     * 构造 safetensor 特征提取客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorFeatureClient(FeatureClientSetting setting) {
         super("safetensors", setting);
     }

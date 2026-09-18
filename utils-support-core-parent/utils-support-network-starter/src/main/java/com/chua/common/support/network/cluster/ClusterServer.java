@@ -34,7 +34,7 @@ public class ClusterServer implements AutoCloseable {
     * @param setting setting
     * @param node 节点
     * @param manager 管理器
-     */
+    */
     private ClusterServer(ClusterSetting setting, ClusterNode node, ClusterManager manager) {
         this.setting = setting;
         this.node = node;
@@ -45,14 +45,14 @@ public class ClusterServer implements AutoCloseable {
     * 开始构建集群服务器。
     *
     * @return 构建器的结果
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
     * 启动节点：启动 HTTP/TCP 代理入口并注册服务到集群。
-     */
+    */
     public void start() throws Exception {
         node.start();
         log.info("ClusterServer 已加入集群: nodeId={}, scatterId={}, httpPort={}, tcpPort={}",
@@ -64,19 +64,18 @@ public class ClusterServer implements AutoCloseable {
     * 集群管理器（路由/视图/故障退避；路由排除本节点）。
     *
     * @return 管理器的结果
-     */
+    */
     public ClusterManager manager() {
         return manager;
     }
 
-     /**
-     * discovery。
-     * @return discovery的结果
-      */
-     * 暴露服务发现（注册/查询集群服务）。
-     *
-     * @return 获取scatter端口的结果
-     */
+    /**
+    * 暴露服务发现能力（注册/查询集群服务）。
+    * 返回本节点持有的 Scatter 无中心化服务发现实例，
+    * 用于向集群注册本节点服务以及查询远端节点服务。
+    *
+    * @return 散列服务发现实例
+    */
     public com.chua.common.support.scatter.ScatterServiceDiscovery discovery() {
         return node.discovery();
     }
@@ -106,7 +105,7 @@ public class ClusterServer implements AutoCloseable {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     public static class Builder {
 
@@ -115,7 +114,7 @@ public class ClusterServer implements AutoCloseable {
 
         /**
         * 构建器。
-         */
+        */
         private Builder() {
         }
 
@@ -124,7 +123,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param nodeId 节点标识
         * @return 节点id的结果
-         */
+        */
         public Builder nodeId(String nodeId) {
             setting.setNodeId(nodeId);
             return this;
@@ -135,7 +134,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param host 主机
         * @return 主机的结果
-         */
+        */
         public Builder host(String host) {
             setting.setHost(host);
             return this;
@@ -146,7 +145,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param port 端口
         * @return 端口的结果
-         */
+        */
         public Builder port(int port) {
             setting.setPort(port);
             return this;
@@ -157,7 +156,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param scatterId scatterid
         * @return scatterId的结果
-         */
+        */
         public Builder scatterId(String scatterId) {
             setting.setScatterId(scatterId);
             return this;
@@ -168,7 +167,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param clusterId clusterid
         * @return clusterId的结果
-         */
+        */
         public Builder clusterId(String clusterId) {
             setting.setClusterId(clusterId);
             return this;
@@ -179,7 +178,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param seeds seeds
         * @return seeds的结果
-         */
+        */
         public Builder seeds(String... seeds) {
             setting.setSeeds(java.util.Arrays.asList(seeds));
             return this;
@@ -190,7 +189,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param paths 路径
         * @return 服务路径的结果
-         */
+        */
         public Builder servicePaths(List<String> paths) {
             setting.setServicePaths(paths);
             return this;
@@ -201,7 +200,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param enabled 已启用
         * @return http已启用的结果
-         */
+        */
         public Builder httpEnabled(boolean enabled) {
             setting.setHttpEnabled(enabled);
             return this;
@@ -212,7 +211,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param enabled 已启用
         * @return tcp已启用的结果
-         */
+        */
         public Builder tcpEnabled(boolean enabled) {
             setting.setTcpEnabled(enabled);
             return this;
@@ -223,7 +222,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param balance balance
         * @return balance的结果
-         */
+        */
         public Builder balance(String balance) {
             setting.setBalance(balance);
             return this;
@@ -234,7 +233,7 @@ public class ClusterServer implements AutoCloseable {
         *
         * @param millis millis
         * @return 超时millis的结果
-         */
+        */
         public Builder timeoutMillis(long millis) {
             setting.setTimeoutMillis(millis);
             return this;
@@ -248,7 +247,7 @@ public class ClusterServer implements AutoCloseable {
         * @param port        目标端口
         * @param protocol    协议：http / tcp / udp
         * @return 添加服务端的结果
-         */
+        */
         public Builder addServer(String servicePath, String host, int port, String protocol) {
             entries.add(new ServerEntry(servicePath, host, port, protocol, null));
             return this;
@@ -260,7 +259,7 @@ public class ClusterServer implements AutoCloseable {
         * @param host 主机
         * @param port 端口
         * @return 添加服务端的结果
-         */
+        */
         public Builder addServer(String servicePath, String host, int port) {
             return addServer(servicePath, host, port, "http");
         }
@@ -277,7 +276,7 @@ public class ClusterServer implements AutoCloseable {
         /**
         * 构建集群服务器实例（未启动）。
         * @return 构建的结果
-         */
+        */
         public ClusterServer build() throws Exception {
             setting.setServerEntries(new ArrayList<>(entries));
             ClusterNode node = new ClusterNode(setting);

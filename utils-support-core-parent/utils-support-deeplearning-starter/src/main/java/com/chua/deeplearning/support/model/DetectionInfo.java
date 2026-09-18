@@ -41,7 +41,7 @@ public record DetectionInfo(
     * @param width      宽度
     * @param height     高度
     * @return detection信息的结果
-     */
+    */
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height) {
         this(label, confidence, x, y, width, height, 0f, width, height, x + width / 2f, y + height / 2f);
     }
@@ -57,7 +57,7 @@ public record DetectionInfo(
     * @param height     高度
     * @param angle      旋转角度（度）
     * @return detection信息的结果
-     */
+    */
     public DetectionInfo(String label, float confidence, float x, float y, float width, float height, float angle) {
         this(label, confidence, x, y, width, height, angle, width, height, x + width / 2f, y + height / 2f);
     }

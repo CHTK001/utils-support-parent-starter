@@ -46,24 +46,24 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
 
     /**
     * 默认命名空间名称
-     */
+    */
     private static final String DEFAULT_NAMESPACE = "application";
 
     /**
     * Apollo 配置对象，用于获取和监听配置变更
-     */
+    */
     private Config apolloConfig;
 
     /**
     * 当前使用的命名空间
-     */
+    */
     private String namespace;
 
     /**
     * 构造 Apollo 配置中心。
     *
     * @param configCenterSetting 配置中心连接设置（地址通过 Apollo 的 app.属性 或环境变量配置）
-     */
+    */
     public ApolloConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -173,7 +173,7 @@ public class ApolloConfigCenter extends AbstractConfigCenter {
     *
     * @param ns 命名空间名称
     * @return Apollo 配置 对象；如果参数为空则返回当前 配置
-     */
+    */
     private Config getConfigForNamespace(String ns) {
         if (StringUtils.isBlank(ns) || ns.equals(namespace)) {
             return apolloConfig;

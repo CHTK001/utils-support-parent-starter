@@ -36,7 +36,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     * @param sourceId 源标识
     * @param inputId  输入标识
     * @param filePath 文件路径
-     */
+    */
     public FileSystemDataSyncSource(String sourceId, String inputId, String filePath) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -81,7 +81,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     * 解析 JSON 内容，支持数组或单对象。
     * @param content 内容
     * @return 解析json的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseJson(String content) {
         List<Map<String, Object>> rows = new ArrayList<>();
@@ -122,7 +122,7 @@ public class FileSystemDataSyncSource implements DataSyncAgentSource {
     * 解析 YAML 内容，支持文档列表或单对象。
     * @param content 内容
     * @return 解析yaml的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> parseYaml(String content) {
         List<Map<String, Object>> rows = new ArrayList<>();

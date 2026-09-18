@@ -70,7 +70,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     /**
     * 创建 窗口事件日志提供者 实例
     * @param bridge bridge
-     */
+    */
     public WindowsEventLogProvider(SystemLogBridge bridge) {
         if (bridge != null) {
             this.registry = bridge.getWin32Registry();
@@ -228,7 +228,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     * @param num num
     * @param e e
     * @param e e
-     */
+    */
     public static int parseEventLogRecords(
             MemorySegment buffer, int bytesRead,
             String source,
@@ -288,7 +288,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     * @param recordOffset record偏移量
     * @param stringOffset 字符串偏移量
     * @return extract字符串的结果
-     */
+    */
     public static String extractString(MemorySegment buffer, int recordOffset, int stringOffset) {
         int stringsStart = recordOffset + stringOffset;
         if (stringsStart <= 0 || stringsStart >= (int) buffer.byteSize()) {
@@ -311,7 +311,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     *
     * @param eventType 事件类型
     * @return 映射事件类型转为级别的结果
-     */
+    */
     public static LogLevel mapEventTypeToLevel(short eventType) {
         return switch (eventType) {
             case 1  -> LogLevel.ERROR;
@@ -326,7 +326,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     *
     * @param glob glob
     * @return compile模式的结果
-     */
+    */
     private Pattern compilePattern(String glob) {
         if (glob == null || glob.isEmpty()) {
             return null;
@@ -370,7 +370,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     *
     * @param handleObj 处理obj
     * @return coerce转为内存segment的结果
-     */
+    */
     private static MemorySegment coerceToMemorySegment(Object handleObj) {
         if (handleObj instanceof MemorySegment seg) {
             return seg;
@@ -385,7 +385,7 @@ public class WindowsEventLogProvider implements SystemLogProvider {
     * 获取最后一个记录错误
     *
     * @return 获取最后一个错误的结果
-     */
+    */
     private int getLastError() {
         if (getLastErrorHandle == null) {
             return 0;

@@ -75,7 +75,7 @@ public final class SqliteHookConnection implements AutoCloseable {
     /**
     * 设置变更事件回调。每次 {@link #exec(String)} 后自动触发。
     * @param consumer consumer
-     */
+    */
     public void onEvent(Consumer<SqliteChangeEvent> consumer) {
         this.eventConsumer = consumer;
     }
@@ -85,7 +85,7 @@ public final class SqliteHookConnection implements AutoCloseable {
     *
     * @return SQLite 返回 编码，0 表示成功
     * @param sql SQL
-     */
+    */
     public int exec(String sql) {
         try (var arena = Arena.ofConfined()) {
             int rc = (int) HOOK_EXEC_HANDLE.invoke(handle, arena.allocateFrom(sql, StandardCharsets.UTF_8));
@@ -99,30 +99,14 @@ public final class SqliteHookConnection implements AutoCloseable {
     /**
     * 同步排空事件缓冲区，返回所有已缓存但未消费的事件。
     * 调用后缓冲区清空，事件已推送给回调。
-    * @param json json
-     /**
-      * drain。
-      * @return drain的结果
-      */
-     * @param key 键
-     * @return extractLong的结果
-     * @param name 名称
-     * @param desc desc
-     */
+    *
+    * @return 本次排空的变更事件列表（缓冲区快照）
+    */
     public List<SqliteChangeEvent> drain() {
         drainBufferSync();
         List<SqliteChangeEvent> snapshot = new ArrayList<>(eventBuffer);
-        /**
-        * 关闭。
-        * @param name 名称
-        * @param desc desc
-        * @return bind的结果
-         */
         eventBuffer.clear();
         return snapshot;
-    /**
-    * 关闭。
-     */
     }
 
     @Override
@@ -130,14 +114,14 @@ public final class SqliteHookConnection implements AutoCloseable {
         /**
         * 是否打开。
         * @return 是否打开的结果
-         */
+        */
         try { HOOK_CLOSE_HANDLE.invoke(handle); } catch (Throwable ignored) {}
     }
 
     public boolean isOpen() {
         /**
         * drain缓冲同步。
-         */
+        */
         return handle != null && !handle.equals(MemorySegment.NULL);
     }
 
@@ -197,7 +181,7 @@ public final class SqliteHookConnection implements AutoCloseable {
         * 解析事件。
         * @param json json
         * @return 解析事件的结果
-         */
+        */
         return LINKER.downcallHandle(sym, desc);
     }
 
@@ -229,7 +213,7 @@ public final class SqliteHookConnection implements AutoCloseable {
         * @param json json
         * @param key 键
         * @return extract字符串的结果
-         */
+        */
         }
     }
 

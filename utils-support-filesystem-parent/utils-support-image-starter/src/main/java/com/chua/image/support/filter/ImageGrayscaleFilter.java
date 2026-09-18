@@ -57,7 +57,7 @@ public class ImageGrayscaleFilter extends AbstractImagePointFilter {
     * 构造函数
     *
     * 初始化灰度滤镜，设置支持索引颜色模型处理。
-     */
+    */
     public ImageGrayscaleFilter() {
         canFilterIndexColorModel = true;
     }
@@ -71,7 +71,7 @@ public class ImageGrayscaleFilter extends AbstractImagePointFilter {
     * @param y   像素的 Y 坐标（此参数未使用）
     * @param rgb 原始 ARGB 像素值
     * @return 转换后的灰度 ARGB 像素值
-     */
+    */
     @Override
     public int filterRgb(int x, int y, int rgb) {
         // 提取 Alpha 通道，保持不变

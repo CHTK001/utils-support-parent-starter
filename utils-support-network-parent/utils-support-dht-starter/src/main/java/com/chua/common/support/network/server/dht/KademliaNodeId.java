@@ -20,18 +20,18 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
 
     /**
     * 节点 标识 的总位数（160 位）
-     */
+    */
     public static final int ID_LENGTH = 160;
     /**
     * 节点 标识 的原始字节数组（20 字节，克隆保护）。
-     */
+    */
     private final byte[] id;
 
     /**
     * 使用指定的 20 字节数组构造节点 标识。
     *
     * @param id 20 字节的节点 标识 原始字节
-     */
+    */
     public KademliaNodeId(byte[] id) {
         if (id.length != ID_LENGTH / 8) {
             throw new IllegalArgumentException("ID must be 20 bytes");
@@ -43,7 +43,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     * 生成一个随机的节点 标识（基于 SHA-1 哈希当前纳秒时间和随机数）。
     *
     * @return 随机生成的 kademlia节点标识 实例
-     */
+    */
     public static KademliaNodeId random() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -59,7 +59,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     *
     * @param str 用于生成 标识 的源字符串
     * @return KademliaNodeId 实例
-     */
+    */
     public static KademliaNodeId fromString(String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -74,7 +74,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     *
     * @param hex 40 字符的十六进制字符串
     * @return KademliaNodeId 实例
-     */
+    */
     public static KademliaNodeId fromHex(String hex) {
         byte[] bytes = new byte[20];
         for (int i = 0; i < 20; i++) {
@@ -87,7 +87,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     * 获取节点 标识 的原始字节数组（克隆副本）。
     *
     * @return 20 字节数组
-     */
+    */
     public byte[] getBytes() {
         return id.clone();
     }
@@ -96,7 +96,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     * 将节点 标识 转换为 biginteger 用于数值比较和距离计算。
     *
     * @return BigInteger 表示
-     */
+    */
     public BigInteger getInt() {
         return new BigInteger(1, id);
     }
@@ -106,7 +106,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     *
     * @param other 另一个节点 标识
     * @return XOR 结果作为新的 kademlia节点标识
-     */
+    */
     public KademliaNodeId xor(KademliaNodeId other) {
         byte[] result = new byte[id.length];
         for (int i = 0; i < id.length; i++) {
@@ -123,7 +123,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     *
     * @param other 目标节点 标识
     * @return K-Bucket 索引（0 ~ 159）
-     */
+    */
     public int getBucketIndex(KademliaNodeId other) {
         KademliaNodeId xored = this.xor(other);
         for (int i = 0; i < ID_LENGTH; i++) {
@@ -141,7 +141,7 @@ public class KademliaNodeId implements Comparable<KademliaNodeId> {
     *
     * @param other 另一个节点 标识
     * @return XOR 距离的 钻头 长度
-     */
+    */
     public int getDistance(KademliaNodeId other) {
         BigInteger d = this.getInt().xor(other.getInt());
         return d.bitLength();

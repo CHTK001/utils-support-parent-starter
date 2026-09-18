@@ -49,7 +49,7 @@ public interface ReactorEngine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 响应式查询包装器
-     */
+    */
     <T> ReactorLambdaQueryWrapper<T> query(Class<T> entityClass);
 
     /**
@@ -58,7 +58,7 @@ public interface ReactorEngine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 响应式更新包装器
-     */
+    */
     <T> ReactorLambdaUpdateWrapper<T> update(Class<T> entityClass);
 
     /**
@@ -67,7 +67,7 @@ public interface ReactorEngine {
     * @param entityClass 实体类
     * @param <T>         实体类型
     * @return 响应式删除包装器
-     */
+    */
     <T> ReactorLambdaDeleteWrapper<T> delete(Class<T> entityClass);
 
     /**
@@ -76,7 +76,7 @@ public interface ReactorEngine {
     * @param sql    SQL 语句
     * @param params 参数列表
     * @return 查询结果行 Flux
-     */
+    */
     Flux<Map<String, Object>> query(String sql, Object... params);
 
     /**
@@ -87,7 +87,7 @@ public interface ReactorEngine {
     * @param params  参数列表
     * @param <T>     行类型
     * @return 类型化结果 Flux
-     */
+    */
     <T> Flux<T> query(String sql, Class<T> rowType, Object... params);
 
     /**
@@ -96,7 +96,7 @@ public interface ReactorEngine {
     * @param sql    SQL 语句
     * @param params 参数列表
     * @return 受影响行数 Mono
-     */
+    */
     Mono<Integer> execute(String sql, Object... params);
 
     /**
@@ -105,7 +105,7 @@ public interface ReactorEngine {
     * @param sql         SQL 模板
     * @param batchParams 批量参数列表
     * @return 每批影响行数 Flux
-     */
+    */
     Flux<Integer> batch(String sql, List<Object[]> batchParams);
 
     /**
@@ -113,7 +113,7 @@ public interface ReactorEngine {
     *
     * @param type SPI 扩展键（如 "MySQL"、"sqlite"、"duckdb"）
     * @return 响应式引擎实例
-     */
+    */
     static ReactorEngine create(String type) {
         return com.chua.common.support.spi.ServiceProvider.of(ReactorEngine.class).getExtension(type);
     }

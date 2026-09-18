@@ -16,12 +16,12 @@ public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
 
     /**
     * 引擎实例。
-     */
+    */
     private final AbstractEngine engine;
 
     /**
     * 实体类类型。
-     */
+    */
     private final Class<T> entityClass;
 
     /**
@@ -29,7 +29,7 @@ public class EngineDeleteWrapper<T> extends LambdaDeleteWrapper<T> {
     *
     * @param engine      引擎实例
     * @param entityClass 实体类类型
-     */
+    */
     public EngineDeleteWrapper(AbstractEngine engine, Class<T> entityClass) {
         super(entityClass);
         this.engine = engine;

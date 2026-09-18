@@ -71,123 +71,123 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     // ==================== 配置常量 ====================
 
     /**
-     * 键 engine 名称
-     */
+    * 键 engine 名称
+    */
     private static final String KEY_ENGINE_NAME = "symmetric.engine.name";
     /**
-     * 键 db 类型
-     */
+    * 键 db 类型
+    */
     private static final String KEY_DB_TYPE = "symmetric.db.type";
     /**
-     * 键 group 标识
-     */
+    * 键 group 标识
+    */
     private static final String KEY_GROUP_ID = "symmetric.group.id";
     /**
-     * 键 external 标识
-     */
+    * 键 external 标识
+    */
     private static final String KEY_EXTERNAL_ID = "symmetric.external.id";
     /**
-     * 键 registration URL
-     */
+    * 键 registration URL
+    */
     private static final String KEY_REGISTRATION_URL = "symmetric.registration.url";
     /**
-     * 键 sync URL
-     */
+    * 键 sync URL
+    */
     private static final String KEY_SYNC_URL = "symmetric.sync.url";
     /**
-     * 键 主机
-     */
+    * 键 主机
+    */
     private static final String KEY_HOST = "db.host";
     /**
-     * 键 端口
-     */
+    * 键 端口
+    */
     private static final String KEY_PORT = "db.port";
     /**
-     * 键 用户名
-     */
+    * 键 用户名
+    */
     private static final String KEY_USERNAME = "db.username";
     /**
-     * 键 密码
-     */
+    * 键 密码
+    */
     private static final String KEY_PASSWORD = "db.password";
     /**
-     * 键 database
-     */
+    * 键 database
+    */
     private static final String KEY_DATABASE = "db.name";
     /**
-     * 键 table include 列表
-     */
+    * 键 table include 列表
+    */
     private static final String KEY_TABLE_INCLUDE_LIST = "symmetric.table.include.list";
     /**
-     * 键 auto create tables
-     */
+    * 键 auto create tables
+    */
     private static final String KEY_AUTO_CREATE_TABLES = "symmetric.auto.create.tables";
     /**
-     * 键 初始 加载
-     */
+    * 键 初始 加载
+    */
     private static final String KEY_INITIAL_LOAD = "symmetric.initial.load";
     /**
-     * 键 auto 注册
-     */
+    * 键 auto 注册
+    */
     private static final String KEY_AUTO_REGISTER = "symmetric.auto.register";
     /**
-     * 键 auto setup
-     */
+    * 键 auto setup
+    */
     private static final String KEY_AUTO_SETUP = "symmetric.auto.setup";
 
     // ==================== 默认值 ====================
 
     /**
-     * 默认 group 标识
-     */
+    * 默认 group 标识
+    */
     private static final String DEFAULT_GROUP_ID = "default";
     /**
-     * 默认 auto create
-     */
+    * 默认 auto create
+    */
     private static final String DEFAULT_AUTO_CREATE = "true";
     /**
-     * 默认 初始 加载
-     */
+    * 默认 初始 加载
+    */
     private static final String DEFAULT_INITIAL_LOAD = "false";
     /**
-     * 默认 auto 注册
-     */
+    * 默认 auto 注册
+    */
     private static final String DEFAULT_AUTO_REGISTER = "true";
 
     // ==================== 实例字段 ====================
 
     /**
-     * listen Path
-     */
+    * listen Path
+    */
     private final String listenPath;
     /**
-     * environment
-     */
+    * environment
+    */
     private final DirectoryPollerEnvironment environment;
     /**
-     * 监听器列表
-     */
+    * 监听器列表
+    */
     private final List<PolledListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
-     * engine
-     */
+    * engine
+    */
     private ISymmetricEngine engine;
     /**
-     * 执行器 Service
-     */
+    * 执行器 Service
+    */
     private ExecutorService executorService;
     /**
-     * running
-     */
+    * running
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * 构造 SymmetricDS 同步轮询器。
-     *
-     * @param listenPath  逻辑路径
-     * @param environment 环境配置
-     */
+    * 构造 SymmetricDS 同步轮询器。
+    *
+    * @param listenPath  逻辑路径
+    * @param environment 环境配置
+    */
     public SymmetricPolledDirectory(String listenPath, DirectoryPollerEnvironment environment) {
         this.listenPath = listenPath;
         this.environment = environment;
@@ -244,11 +244,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 自动配置数据库环境。
-     *
-     * <p>当 symmetric.auto.setup=true 时，根据数据库类型通过 SPI 加载对应的环境配置器，
-     * 自动完成所需权限授予等操作。</p>
-     */
+    * 自动配置数据库环境。
+    *
+    * <p>当 symmetric.auto.setup=true 时，根据数据库类型通过 SPI 加载对应的环境配置器，
+    * 自动完成所需权限授予等操作。</p>
+    */
     private void autoSetupEnvironment() {
         String autoSetup = environment.getString(KEY_AUTO_SETUP, "false");
         if (!"true".equalsIgnoreCase(autoSetup)) {
@@ -280,10 +280,10 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 构建 SymmetricDS 配置属性。
-     *
-     * @return 配置属性对象
-     */
+    * 构建 SymmetricDS 配置属性。
+    *
+    * @return 配置属性对象
+    */
     private Properties buildConfig() {
         String engineName = getRequiredConfig(KEY_ENGINE_NAME, "symmetric.engine.name is required");
         String dbType = environment.getString(KEY_DB_TYPE, "");
@@ -337,11 +337,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 通过 SPI 解析数据库连接器配置。
-     *
-     * @param dbType 数据库类型
-     * @return 连接器配置实例，未找到返回 null
-     */
+    * 通过 SPI 解析数据库连接器配置。
+    *
+    * @param dbType 数据库类型
+    * @return 连接器配置实例，未找到返回 null
+    */
     private SymmetricConnectorConfig resolveConnectorConfig(String dbType) {
         if (dbType.isEmpty()) {
             return null;
@@ -359,8 +359,8 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 通用数据库配置。
-     */
+    * 通用数据库配置。
+    */
     private void configureGenericDb(Properties props) {
         String host = environment.getString(KEY_HOST, "localhost");
         String port = environment.getString(KEY_PORT, "");
@@ -375,8 +375,8 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 配置触发器与路由规则。
-     */
+    * 配置触发器与路由规则。
+    */
     private void configureTriggerRouters() {
         if (engine == null) {
             return;
@@ -415,8 +415,8 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 执行初始全量加载。
-     */
+    * 执行初始全量加载。
+    */
     private void performInitialLoad() {
         if (engine == null) {
             return;
@@ -431,10 +431,10 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 监控数据变更。
-     *
-     * <p>轮询 SymmetricDS 的 outgoing batch，通过 PolledListener 转发变更事件。</p>
-     */
+    * 监控数据变更。
+    *
+    * <p>轮询 SymmetricDS 的 outgoing batch，通过 PolledListener 转发变更事件。</p>
+    */
     private void monitorDataChanges() {
         while (running.get()) {
             try {
@@ -452,8 +452,8 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 检查 outgoing batch。
-     */
+    * 检查 outgoing batch。
+    */
     private void checkOutgoingBatches() {
         try {
             IOutgoingBatchService outgoingBatchService = engine.getOutgoingBatchService();
@@ -477,10 +477,10 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 分发 batch 事件到监听器。
-     *
-     * @param batch SymmetricDS outgoing batch
-     */
+    * 分发 batch 事件到监听器。
+    *
+    * @param batch SymmetricDS outgoing batch
+    */
     private void dispatchBatchEvent(OutgoingBatch batch) {
         try {
             String table = batch.getChannelId();
@@ -503,11 +503,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 从完整表名中提取表名。
-     *
-     * @param fullTableName 完整表名，格式 schema.table 或 table
-     * @return 表名
-     */
+    * 从完整表名中提取表名。
+    *
+    * @param fullTableName 完整表名，格式 schema.table 或 table
+    * @return 表名
+    */
     private String extractTableName(String fullTableName) {
         if (fullTableName.contains(".")) {
             return fullTableName.substring(fullTableName.lastIndexOf('.') + 1);
@@ -516,11 +516,11 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 从完整表名中提取 schema。
-     *
-     * @param fullTableName 完整表名
-     * @return schema 名称，若不存在返回 null
-     */
+    * 从完整表名中提取 schema。
+    *
+    * @param fullTableName 完整表名
+    * @return schema 名称，若不存在返回 null
+    */
     private String extractSchemaName(String fullTableName) {
         if (fullTableName.contains(".")) {
             return fullTableName.substring(0, fullTableName.lastIndexOf('.'));
@@ -529,12 +529,12 @@ public class SymmetricPolledDirectory implements PolledDirectory {
     }
 
     /**
-     * 获取必填配置项。
-     *
-     * @param key          配置键
-     * @param errorMessage 错误信息
-     * @return 配置值
-     */
+    * 获取必填配置项。
+    *
+    * @param key          配置键
+    * @param errorMessage 错误信息
+    * @return 配置值
+    */
     private String getRequiredConfig(String key, String errorMessage) {
         String value = environment.getString(key, "");
         if (value == null || value.isEmpty()) {

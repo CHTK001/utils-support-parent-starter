@@ -77,7 +77,7 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
     * @param proxyMethod 被拦截的方法信息
     * @return 回退方法的返回值
     * @throws IllegalStateException 无回退方法时抛出
-     */
+    */
     private Object onRejected(RateLimiter annotation, ProxyMethod proxyMethod) throws Throwable {
         Object fallbackResult = resolveFallback(annotation, proxyMethod);
         if (fallbackResult != null) {
@@ -92,7 +92,7 @@ public class RateLimiterIntercept extends AbstractMethodAnnotationIntercept impl
     * @param annotation  限流注解
     * @param proxyMethod 被拦截的方法信息
     * @return 回退方法的返回值，找不到时返回 空
-     */
+    */
     private Object resolveFallback(RateLimiter annotation, ProxyMethod proxyMethod) {
         return FallbackResolver.resolve(annotation.fallback(), proxyMethod);
     }

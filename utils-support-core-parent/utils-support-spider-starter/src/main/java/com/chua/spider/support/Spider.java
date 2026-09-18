@@ -70,7 +70,7 @@ public interface Spider {
     * 内置了所有组件的默认实现，可以直接调用 {@code .addUrl(url).run()} 开始爬取。
     *
     * @return 爬虫构建器
-     */
+    */
     static Builder create() {
         return new DefaultSpider.DefaultSpiderBuilder();
     }
@@ -88,7 +88,7 @@ public interface Spider {
     *   <li><b>LinkExtractor</b> 提取新链接继续爬取</li>
     * </ol>
     * 阻塞直至所有爬取任务完成。
-     */
+    */
     void run();
 
     /**
@@ -106,7 +106,7 @@ public interface Spider {
     * }</pre>
     *
     * @return 本次爬虫执行的全部结果
-     */
+    */
     List<SpiderResult> runSync();
 
     /**
@@ -134,14 +134,14 @@ public interface Spider {
     * @param trigger 触发策略
     * @return 已调度的任务实例，可用于取消
     * @see com.chua.common.support.task.scheduler.JdkSchedulerProvider
-     */
+    */
     ScheduledTask scheduler(Trigger trigger);
 
     /**
     * 停止爬虫。
     *
     * <p>优雅停止，等待当前正在处理的请求完成后退出。
-     */
+    */
     void stop();
 
     /**
@@ -149,14 +149,14 @@ public interface Spider {
     *
     * @param url 待爬取的 URL
     * @return 当前爬虫实例
-     */
+    */
     Spider addUrl(String url);
 
     /**
     * 获取爬取结果列表。
     *
     * @return 所有已处理的爬取结果
-     */
+    */
     List<SpiderResult> getResults();
 
     /**
@@ -167,15 +167,15 @@ public interface Spider {
     * 用户只需关注需要定制的部分。
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface Builder {
 
         /**
         * 设置站点配置。
         *
-        * @param site 目标站点配置（域名、请求间隔、用户-智能体、最大深度等）
+        * @param site 目标站点配置（域名、请求间隔、用户-Agent、最大深度等）
         * @return 当前构建器
-         */
+        */
         Builder site(SpiderSite site);
 
         /**
@@ -190,7 +190,7 @@ public interface Spider {
         *
         * @param name SPI 名称
         * @return 当前构建器
-         */
+        */
         Builder fetcher(String name);
 
         /**
@@ -198,7 +198,7 @@ public interface Spider {
         *
         * @param fetcher 抓取器实例
         * @return 当前构建器
-         */
+        */
         Builder fetcher(SpiderFetcher fetcher);
 
         /**
@@ -213,7 +213,7 @@ public interface Spider {
         *
         * @param name SPI 名称
         * @return 当前构建器
-         */
+        */
         Builder parser(String name);
 
         /**
@@ -221,7 +221,7 @@ public interface Spider {
         *
         * @param parser 解析器实例
         * @return 当前构建器
-         */
+        */
         Builder parser(SpiderParser parser);
 
         /**
@@ -229,7 +229,7 @@ public interface Spider {
         *
         * @param linkExtractor 链接提取器实例
         * @return 当前构建器
-         */
+        */
         Builder linkExtractor(SpiderLinkExtractor linkExtractor);
 
         /**
@@ -239,7 +239,7 @@ public interface Spider {
         *
         * @param filter URL 过滤器实例
         * @return 当前构建器
-         */
+        */
         Builder urlFilter(SpiderUrlFilter filter);
 
         /**
@@ -247,7 +247,7 @@ public interface Spider {
         *
         * @param scheduler 调度器实例
         * @return 当前构建器
-         */
+        */
         Builder scheduler(SpiderScheduler scheduler);
 
         /**
@@ -255,7 +255,7 @@ public interface Spider {
         *
         * @param deduplicator 去重器实例
         * @return 当前构建器
-         */
+        */
         Builder deduplicator(Deduplicator deduplicator);
 
         /**
@@ -266,7 +266,7 @@ public interface Spider {
         * @param name   SPI 名称
         * @param apiKey AI 服务商 API 键
         * @return 当前构建器
-         */
+        */
         Builder aiParser(String name, String apiKey);
 
         /**
@@ -276,7 +276,7 @@ public interface Spider {
         *
         * @param pipeline Pipeline 实例
         * @return 当前构建器
-         */
+        */
         Builder pipeline(SpiderPipeline pipeline);
 
         /**
@@ -286,7 +286,7 @@ public interface Spider {
         *
         * @param name SPI 名称
         * @return 当前构建器
-         */
+        */
         Builder pipeline(String name);
 
         /**
@@ -296,7 +296,7 @@ public interface Spider {
         *
         * @param consumer 结果处理器
         * @return 当前构建器
-         */
+        */
         Builder pipeline(Consumer<SpiderResult> consumer);
 
         /**
@@ -328,7 +328,7 @@ public interface Spider {
         * @param consumer    类型化回调
         * @param <T>         POJO 类型
         * @return 当前构建器
-         */
+        */
         <T> Builder as(Class<T> targetClass, Consumer<T> consumer);
 
         /**
@@ -343,7 +343,7 @@ public interface Spider {
         * @param consumer    类型化回调
         * @param <T>         POJO 类型
         * @return 当前构建器
-         */
+        */
         <T> Builder as(Class<T> targetClass, String aiProvider, String aiApiKey, Consumer<T> consumer);
 
         /**
@@ -354,7 +354,7 @@ public interface Spider {
         *
         * @param request 完整的爬取请求配置
         * @return 当前构建器
-         */
+        */
         Builder addRequest(SpiderRequest request);
 
         /**
@@ -365,7 +365,7 @@ public interface Spider {
         *
         * @param url 种子 URL
         * @return 当前构建器
-         */
+        */
         Builder addUrl(String url);
 
         /**
@@ -375,21 +375,21 @@ public interface Spider {
         *
         * @param threads 线程数
         * @return 当前构建器
-         */
+        */
         Builder threads(int threads);
 
         /**
         * 构建爬虫实例。
         *
         * @return Spider 实例
-         */
+        */
         Spider build();
 
         /**
         * 构建并直接运行爬虫。
         *
         * <p>等同于 {@code build().run()}，方便一步到位的调用。
-         */
+        */
         default void run() {
             build().run();
         }

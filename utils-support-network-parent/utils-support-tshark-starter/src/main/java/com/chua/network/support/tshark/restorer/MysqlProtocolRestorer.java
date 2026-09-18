@@ -83,7 +83,7 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param data 数据
     * @return 解析服务端版本的结果
-     */
+    */
     private static String parseServerVersion(byte[] data) {
         if (data.length < 5) {
             return "?";
@@ -102,7 +102,7 @@ public class MysqlProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param cmd CMD
     * @return 转为命令名称的结果
-     */
+    */
     private static String toCommandName(int cmd) {
         return switch (cmd) {
             case 0x00 -> "COM_SLEEP";

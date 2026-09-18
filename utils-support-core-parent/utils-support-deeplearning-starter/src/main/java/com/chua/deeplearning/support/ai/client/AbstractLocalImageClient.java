@@ -29,37 +29,37 @@ public abstract class AbstractLocalImageClient implements ImageClient {
 
     /**
     * 引擎名称（提供者）
-     */
+    */
     protected final String engine;
 
     /**
     * 识别引擎实例
-     */
+    */
     protected final IdentificationEngine identificationEngine;
 
     /**
     * 当前模型名称
-     */
+    */
     protected String model;
 
     /**
     * 生成宽度
-     */
+    */
     protected Integer width;
 
     /**
     * 生成高度
-     */
+    */
     protected Integer height;
 
     /**
     * 当前提示词
-     */
+    */
     protected String prompt;
 
     /**
     * 随机种子
-     */
+    */
     protected Long seed;
 
     /**
@@ -67,7 +67,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     *
     * @param engine  引擎名称，如 "onnx"、"pytorch"
     * @param setting 客户端配置
-     */
+    */
     protected AbstractLocalImageClient(String engine, ImageClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -114,7 +114,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     * 否则返回显式指定的模型名。</p>
     *
     * @return 模型名称
-     */
+    */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;
@@ -153,7 +153,7 @@ public abstract class AbstractLocalImageClient implements ImageClient {
     * @param result    翻译器输出
     * @param modelName 模型名称
     * @return BufferedImage
-     */
+    */
     private static BufferedImage toBufferedImage(Object result, String modelName) {
         if (result instanceof BufferedImage image) {
             return image;

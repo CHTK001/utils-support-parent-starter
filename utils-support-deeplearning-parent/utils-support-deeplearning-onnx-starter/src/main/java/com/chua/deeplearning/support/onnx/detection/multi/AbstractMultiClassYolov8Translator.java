@@ -47,17 +47,17 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
 
     /**
     * 默认输入尺寸：yolov8 @ 640。
-     */
+    */
     protected static final int DEFAULT_INPUT_SIZE = 640;
 
     /**
     * 默认置信度阈值。
-     */
+    */
     protected static final float DEFAULT_THRESHOLD = 0.25f;
 
     /**
     * 默认 NMS iou 阈值。
-     */
+    */
     protected static final float DEFAULT_NMS_THRESHOLD = 0.45f;
 
     /** 输入尺寸 */
@@ -90,7 +90,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     * @param threshold float
     * @param threshold 阈值
     * @param nmsThreshold nms阈值
-     */
+    */
     protected AbstractMultiClassYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         if (inputSize <= 0) {
             throw new IllegalArgumentException("inputSize 必须 > 0: " + inputSize);
@@ -112,19 +112,19 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     /**
     * 类路径 资源路径。
     * @return 类名称resource路径的结果
-     */
+    */
     protected abstract String classNamesResourcePath();
 
     /**
     * 资源缺失时回退的类别列表。
     * @return 默认类名称的结果
-     */
+    */
     protected abstract List<String> defaultClassNames();
 
     /**
     * 当前 Translator 实际加载的类别列表（不可变）。
     * @return actual类名称的结果
-     */
+    */
     public List<String> actualClassNames() {
         return classes;
     }
@@ -133,7 +133,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     * 加载类名称
     *
     * @return 加载类名称的结果
-     */
+    */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(classNamesResourcePath())) {
@@ -296,7 +296,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     /**
     * 当前 Translator 实际输入尺寸。
     * @return 获取输入大小的结果
-     */
+    */
     public int getInputSize() {
         return inputSize;
     }
@@ -306,7 +306,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     *
     * @param x x
     * @return sigmoid的结果
-     */
+    */
     private static float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
@@ -317,7 +317,7 @@ public abstract class AbstractMultiClassYolov8Translator implements Translator<I
     * @param ctx ctx
     * @param array array
     * @return 转为normalizedchw的结果
-     */
+    */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

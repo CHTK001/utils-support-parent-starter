@@ -38,7 +38,7 @@ public interface FaceClarityDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static FaceClarityDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(FaceClarityDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -49,7 +49,7 @@ public interface FaceClarityDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default FaceClarityDetector provider(String provider) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface FaceClarityDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default FaceClarityDetector model(String model) {
         return this;
     }
@@ -69,7 +69,7 @@ public interface FaceClarityDetector {
     *
     * @param name 模型名称（如 "opencv-face-quality"）
     * @return 实例
-     */
+    */
     static FaceClarityDetector create(String name) {
         return new DefaultFaceClarityDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -78,7 +78,7 @@ public interface FaceClarityDetector {
     * 查询该能力下全部可用模型。
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry
                 .getModelIdsByCapability(com.chua.deeplearning.support.face.FaceQualityAssessor.class);
@@ -90,7 +90,7 @@ public interface FaceClarityDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 实例
-     */
+    */
     static FaceClarityDetector create(String name, ModelSetting setting) {
         return new DefaultFaceClarityDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -100,7 +100,7 @@ public interface FaceClarityDetector {
     *
     * @param threshold 阈值（Laplacian 方差低于该值视为模糊）
     * @return this
-     */
+    */
     FaceClarityDetector blurThreshold(double threshold);
 
     /**
@@ -108,7 +108,7 @@ public interface FaceClarityDetector {
     *
     * @param ratio 最小面积比 0~1
     * @return this
-     */
+    */
     FaceClarityDetector minFaceRatio(float ratio);
 
     /**
@@ -116,7 +116,7 @@ public interface FaceClarityDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     FaceClarityDetector modelPath(String path);
 
     /**
@@ -124,7 +124,7 @@ public interface FaceClarityDetector {
     *
     * @param device 设备（"cpu"/"cuda"）
     * @return this
-     */
+    */
     FaceClarityDetector device(String device);
 
     /**
@@ -132,7 +132,7 @@ public interface FaceClarityDetector {
     *
     * @param imageData 图片字节数组
     * @return 人脸质量信息（含人脸数、尺寸、模糊度、亮度及是否合格）
-     */
+    */
     FaceQualityInfo assess(byte[] imageData);
 
     /**
@@ -140,7 +140,7 @@ public interface FaceClarityDetector {
     *
     * @param imageData 图片字节数组
     * @return true 表示人脸清晰且合格
-     */
+    */
     default boolean isAcceptable(byte[] imageData) {
         FaceQualityInfo info = assess(imageData);
         return info.faceOk() && info.sizeOk() && info.sharpnessOk() && info.brightnessOk();
@@ -157,53 +157,53 @@ class DefaultFaceClarityDetector implements FaceClarityDetector {
 
     /**
     * 默认模糊阈值
-     */
+    */
     private static final double DEFAULT_BLUR_THRESHOLD = 80.0;
 
     /**
     * 默认最小人脸面积比
-     */
+    */
     private static final float DEFAULT_MIN_FACE_RATIO = 0.05f;
 
     /**
     * 默认设备
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 清晰度检测模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置
-     */
+    */
     @SuppressWarnings("unused")
     private final ModelSetting setting; // setting
 
     /**
     * 模糊度阈值
-     */
+    */
     private double blurThreshold = DEFAULT_BLUR_THRESHOLD;
 
     /**
     * 最小人脸面积比
-     */
+    */
     private float minFaceRatio = DEFAULT_MIN_FACE_RATIO;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     DefaultFaceClarityDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -253,7 +253,7 @@ class DefaultFaceClarityDetector implements FaceClarityDetector {
     *
     * @param imageData 镜像数据
     * @return 评定的结果
-     */
+    */
     public FaceQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], FaceQualityInfo> t =
                 (ITranslator<byte[], FaceQualityInfo>) engine.get(modelName, ITranslator.class);

@@ -59,7 +59,7 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 数据
     * @param offset 偏移量
     * @return mac转为字符串的结果
-     */
+    */
     private static String macToString(byte[] data, int offset) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 6; i++) {
@@ -77,7 +77,7 @@ public class ArpProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 数据
     * @param offset 偏移量
     * @return ip转为字符串的结果
-     */
+    */
     private static String ipToString(byte[] data, int offset) {
         return (data[offset] & 0xff) + "."
                 + (data[offset + 1] & 0xff) + "."

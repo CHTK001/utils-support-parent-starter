@@ -23,7 +23,7 @@ public class CsvDataSyncAgentSource extends DelimitedDataSyncAgentSource impleme
     * @param sourceId 源 实例 标识
     * @param inputId 输入标识
     * @param filePath CSV 文件路径
-     */
+    */
     public CsvDataSyncAgentSource(String sourceId, String inputId, String filePath) {
         this(sourceId, inputId, filePath, ",");
     }
@@ -35,7 +35,7 @@ public class CsvDataSyncAgentSource extends DelimitedDataSyncAgentSource impleme
     * @param inputId 输入标识
     * @param filePath CSV 文件路径
     * @param delimiter 定界符，默认","
-     */
+    */
     public CsvDataSyncAgentSource(String sourceId, String inputId, String filePath, String delimiter) {
         super(sourceId, inputId, filePath, delimiter);
     }

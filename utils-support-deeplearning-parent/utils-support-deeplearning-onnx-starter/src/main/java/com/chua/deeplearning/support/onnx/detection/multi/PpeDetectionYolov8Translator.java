@@ -30,12 +30,12 @@ public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Transl
 
     /**
     * 类别资源路径（类路径）。
-     */
+    */
     public static final String CLASS_NAMES_RESOURCE = "vision/ppe/yolov8n/class.names.txt";
 
     /**
     * 默认 3 类。
-     */
+    */
     public static final List<String> DEFAULT_CLASSES = Arrays.asList(
             "helmet",
             "vest",
@@ -54,7 +54,7 @@ public class PpeDetectionYolov8Translator extends AbstractMultiClassYolov8Transl
     * @param threshold float
     * @param threshold 阈值
     * @param nmsThreshold nms阈值
-     */
+    */
     public PpeDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

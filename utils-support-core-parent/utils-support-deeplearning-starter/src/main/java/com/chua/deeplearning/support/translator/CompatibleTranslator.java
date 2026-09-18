@@ -17,6 +17,6 @@ public interface CompatibleTranslator<I, O> extends ITranslator<I, O> {
     * 获取旧版翻译器实例（用于反射和适配）。
     *
     * @return 翻译器实例
-     */
+    */
     Object getDelegate();
 }

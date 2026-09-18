@@ -29,7 +29,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     public JdbcMetaTable(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
@@ -40,7 +40,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     * @param metaData  元数据入口
     * @param engine    引擎实例
     * @param tableName 表名
-     */
+    */
     public JdbcMetaTable(AbstractMetaData metaData, Engine engine, String tableName) {
         super(metaData, engine, tableName);
     }
@@ -50,7 +50,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @param tableName 表名
     * @return 建表链式构建器
-     */
+    */
     @Override
     public TableCreateBuilder create(String tableName) {
         return new JdbcTableCreateBuilder(this, tableName);
@@ -60,7 +60,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     * 删除当前表。
     *
     * @return 是否成功
-     */
+    */
     @Override
     public boolean drop() {
         if (tableName == null) {
@@ -74,7 +74,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @param newName 新表名
     * @return 是否成功
-     */
+    */
     @Override
     public boolean rename(String newName) {
         if (tableName == null) {
@@ -88,7 +88,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @param sql SQL 语句
     * @return 是否成功
-     */
+    */
     protected boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -105,7 +105,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     * @param tableName 表名
     * @param columns   列定义
     * @return 表定义
-     */
+    */
     protected TableDef buildTableDef(String tableName, List<ColumnDef> columns) {
         TableDef def = new TableDef();
         def.setName(tableName);
@@ -118,7 +118,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @param name 标识符
     * @return 引用后的标识符
-     */
+    */
     protected String quote(String name) {
         Dialect dialect = resolveDialect();
         if (dialect != null) {
@@ -131,7 +131,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     * 解析方言。
     *
     * @return 方言实例
-     */
+    */
     protected Dialect resolveDialect() {
         String name = engine.getDefaultDataSourceName();
         if (name == null) {
@@ -146,7 +146,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @return 连接
     * @throws SQLException 获取失败
-     */
+    */
     protected Connection getConnection() throws SQLException {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -164,32 +164,32 @@ public class JdbcMetaTable extends AbstractMetaTable {
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public static class JdbcTableCreateBuilder implements TableCreateBuilder {
 
         /**
         * 父表元数据
-         */
+        */
         private final JdbcMetaTable metaTable;
 
         /**
         * 表名
-         */
+        */
         private final String tableName;
 
         /**
         * 列定义
-         */
+        */
         private final List<ColumnDef> columns = new ArrayList<>();
 
         /**
         * 联合主键
-         */
+        */
         private final List<String> primaryKeys = new ArrayList<>();
 
         /**
         * 表注释
-         */
+        */
         private String tableComment;
 
         /**
@@ -197,7 +197,7 @@ public class JdbcMetaTable extends AbstractMetaTable {
         *
         * @param metaTable 父表元数据
         * @param tableName 表名
-         */
+        */
         public JdbcTableCreateBuilder(JdbcMetaTable metaTable, String tableName) {
             this.metaTable = metaTable;
             this.tableName = tableName;

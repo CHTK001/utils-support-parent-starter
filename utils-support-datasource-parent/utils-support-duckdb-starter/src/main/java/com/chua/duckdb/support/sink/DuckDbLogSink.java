@@ -28,7 +28,7 @@ public class DuckDbLogSink implements DataSink {
 
     /**
     * 数据湖_日志 表 DDL：追踪_标识 / pipeline_标识 / topic / 日志_键 / 日志_值 / 日志_时间戳 / 创建_at
-     */
+    */
     private static final String TABLE_DDL = """
             CREATE TABLE IF NOT EXISTS datalake_log (
                 id BIGSERIAL,
@@ -44,7 +44,7 @@ public class DuckDbLogSink implements DataSink {
 
     /**
     * 插入日志行的 SQL
-     */
+    */
     private static final String INSERT_SQL = """
             INSERT INTO datalake_log (trace_id, pipeline_id, topic, log_key, log_value, log_timestamp)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -52,17 +52,17 @@ public class DuckDbLogSink implements DataSink {
 
     /**
     * JDBC 连接串（默认内嵌 duckdb）
-     */
+    */
     private String jdbcUrl = "jdbc:duckdb:";
 
     /**
     * 当前数据库连接
-     */
+    */
     private Connection connection;
 
     /**
     * 默认构造函数（SPI 框架使用）
-     */
+    */
     public DuckDbLogSink() {
     }
 
@@ -70,7 +70,7 @@ public class DuckDbLogSink implements DataSink {
     * 设置 JDBC 连接串。
     *
     * @param jdbcUrl JDBC:duckdb:... 或 JDBC:duckdb:/路径/转为/文件.db
-     */
+    */
     public void setJdbcUrl(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
     }

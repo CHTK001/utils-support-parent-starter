@@ -20,13 +20,13 @@ public interface DataSourceConversion {
     * @param dataSources 物理数据源列表
     * @param environment 环境配置
     * @return 逻辑数据源
-     */
+    */
     DataSource convert(List<DataSource> dataSources, DataSourceEnvironment environment);
 
     /**
     * 转换器类型标识。
     *
     * @return 类型名称（如 CALCITE、SHARDINGV5）
-     */
+    */
     String type();
 }

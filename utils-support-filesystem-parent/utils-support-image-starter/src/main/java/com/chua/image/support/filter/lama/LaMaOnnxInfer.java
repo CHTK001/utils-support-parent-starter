@@ -53,7 +53,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     * 构造函数
     *
     * @param config lama配置
-     */
+    */
     public LaMaOnnxInfer(LaMaConfiguration config) {
         this.config = config;
         this.config.validate();
@@ -62,7 +62,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
 
     /**
     * 初始化ONNX Runtime
-     */
+    */
     private void initialize() {
         try {
             // 使用反射加载ONNX Runtime类，避免编译时依赖
@@ -145,7 +145,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     *
     * @param image 输入图像
     * @return 修复后的图像
-     */
+    */
     public BufferedImage infer(BufferedImage image) {
         return infer(image, null);
     }
@@ -156,7 +156,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     * @param image 输入图像
     * @param mask  修复mask（可选）
     * @return 修复后的图像
-     */
+    */
     public BufferedImage infer(BufferedImage image, BufferedImage mask) {
         if (!initialized) {
             throw new IllegalStateException("推理器未初始化");
@@ -222,7 +222,7 @@ public class LaMaOnnxInfer implements AutoCloseable {
     * @param imageData 图像数据
     * @param maskData  mask数据
     * @return 推理结果
-     */
+    */
     private float[] runInference(float[] imageData, float[] maskData) throws Exception {
         Class<?> onnxTensorClass = ClassUtils.forName("ai.onnxruntime.OnnxTensor");
         Class<?> ortSessionClass = ClassUtils.forName("ai.onnxruntime.OrtSession");
@@ -317,7 +317,7 @@ if (tensorValue instanceof float[][][]) {
     * 展平3D数组
     * @param array3D array3D
     * @return flatten3DArray的结果
-     */
+    */
     private float[] flatten3DArray(float[][][] array3D) {
         int channels = array3D[0].length;
         int spatial = array3D[0][0].length;
@@ -335,7 +335,7 @@ if (tensorValue instanceof float[][][]) {
     * 展平2D数组
     * @param array2D array2D
     * @return flatten2DArray的结果
-     */
+    */
     private float[] flatten2DArray(float[][] array2D) {
         int height = array2D.length;
         int width = array2D[0].length;
@@ -353,7 +353,7 @@ if (tensorValue instanceof float[][][]) {
     * 检查推理器是否已初始化
     *
     * @return 是否已初始化
-     */
+    */
     public boolean isInitialized() {
         return initialized;
     }
@@ -362,7 +362,7 @@ if (tensorValue instanceof float[][][]) {
     * 获取配置信息
     *
     * @return 配置对象
-     */
+    */
     public LaMaConfiguration getConfig() {
         return config;
     }
@@ -371,7 +371,7 @@ if (tensorValue instanceof float[][][]) {
     * 获取模型信息
     *
     * @return 模型信息字符串
-     */
+    */
     public String getModelInfo() {
         if (!initialized) {
             return "推理器未初始化";

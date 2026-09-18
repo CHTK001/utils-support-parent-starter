@@ -21,7 +21,7 @@ public class DispatcherAutoConfiguration {
     * 内存分发器提供者。
     *
     * @return DispatcherProvider 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public DispatcherProvider memoryDispatcherProvider() {

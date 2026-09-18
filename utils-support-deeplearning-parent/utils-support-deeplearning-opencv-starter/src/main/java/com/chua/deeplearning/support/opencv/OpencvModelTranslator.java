@@ -30,14 +30,14 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
 
     /**
     * 模型名称，对应模型标识。
-     */
+    */
     private final String modelName;
 
     /**
     * 构造翻译器并确保原生库已加载。
     *
     * @param modelName 模型名称
-     */
+    */
     protected OpencvModelTranslator(String modelName) {
         OpencvNative.ensureLoaded();
         this.modelName = modelName;
@@ -60,7 +60,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param input 输入对象，通常为 byte[]（图像字节数组）
     * @return 业务输出对象
-     */
+    */
     protected abstract Object doTranslate(Object input);
 
     /**
@@ -68,7 +68,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param imageBytes 图像字节数组
     * @return OpenCV Mat 对象
-     */
+    */
     protected static Mat bytesToMat(byte[] imageBytes) {
         if (imageBytes == null || imageBytes.length == 0) {
             throw new IllegalArgumentException("图像字节数组为空");
@@ -85,7 +85,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param image 缓冲镜像 对象
     * @return OpenCV Mat 对象
-     */
+    */
     protected static Mat bufferedToMat(BufferedImage image) {
         if (image == null) {
             throw new IllegalArgumentException("图像对象为空");
@@ -102,7 +102,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param mat 打开cv Mat 对象
     * @return PNG 格式字节数组
-     */
+    */
     protected static byte[] matToBytes(Mat mat) {
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("Mat 对象为空");
@@ -115,7 +115,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param mat 打开cv Mat 对象
     * @return BufferedImage 对象
-     */
+    */
     protected static BufferedImage matToBufferedImage(Mat mat) {
         if (mat == null || mat.empty()) {
             throw new IllegalArgumentException("Mat 对象为空");
@@ -145,7 +145,7 @@ public abstract class OpencvModelTranslator implements ITranslator<Object, Objec
     *
     * @param modelPath 模型路径（文件系统绝对/相对路径，或 类路径 路径）
     * @return 模型文件的 文件 对象
-     */
+    */
     public static File resolveModelPath(String modelPath) {
         if (modelPath == null || modelPath.isBlank()) {
             throw new IllegalArgumentException("模型路径为空");

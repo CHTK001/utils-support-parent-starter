@@ -29,12 +29,12 @@ public class FlXcLivenessTranslator implements Translator<Image, Float> {
 
     /**
     * 输入尺寸。
-     */
+    */
     private static final int INPUT_SIZE = 112;
 
     /**
     * 通道数（4 帧 × 3）。
-     */
+    */
     private static final int CHANNELS = 12;
 
     @Override

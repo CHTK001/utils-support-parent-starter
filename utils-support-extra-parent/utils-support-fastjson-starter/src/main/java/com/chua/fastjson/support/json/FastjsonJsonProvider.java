@@ -411,7 +411,7 @@ public class FastjsonJsonProvider implements JsonProvider {
     *
     * @param type 目标类型
     * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
-     */
+    */
     private static boolean hasUnifiedAnnotations(Class<?> type) {
         for (Field field : ClassUtils.getFields(type)) {
             if (field.isAnnotationPresent(JsonName.class)
@@ -428,7 +428,7 @@ public class FastjsonJsonProvider implements JsonProvider {
     *
     * @param reader 读取器
     * @return 字符串内容
-     */
+    */
     private String readString(Reader reader) {
         StringBuilder sb = new StringBuilder();
         char[] buffer = new char[1024];
@@ -448,7 +448,7 @@ public class FastjsonJsonProvider implements JsonProvider {
     *
     * @param stream 输入流
     * @return 字符串内容
-     */
+    */
     private String readString(InputStream stream) {
         return readString(new InputStreamReader(stream, UTF_8));
     }

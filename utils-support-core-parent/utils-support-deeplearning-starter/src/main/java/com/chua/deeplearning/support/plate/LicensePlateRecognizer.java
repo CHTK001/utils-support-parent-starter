@@ -23,7 +23,7 @@ public interface LicensePlateRecognizer {
     *
     * @param name 模型名称
     * @return 识别器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -31,7 +31,7 @@ public interface LicensePlateRecognizer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static LicensePlateRecognizer create(String provider, String apiKey) {
         return ServiceProvider.of(LicensePlateRecognizer.class)
                 .getNewExtension(provider, apiKey);
@@ -42,7 +42,7 @@ public interface LicensePlateRecognizer {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default LicensePlateRecognizer provider(String provider) {
         return this;
     }
@@ -52,7 +52,7 @@ public interface LicensePlateRecognizer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default LicensePlateRecognizer model(String model) {
         return this;
     }
@@ -62,7 +62,7 @@ public interface LicensePlateRecognizer {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static LicensePlateRecognizer create(String name) {
         return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -74,7 +74,7 @@ public interface LicensePlateRecognizer {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.plate.LicensePlateRecognizer.class);
     }
@@ -86,7 +86,7 @@ public interface LicensePlateRecognizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 识别器
-     */
+    */
     static LicensePlateRecognizer create(String name, ModelSetting setting) {
         return new DefaultLicensePlateRecognizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -96,7 +96,7 @@ public interface LicensePlateRecognizer {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     LicensePlateRecognizer threshold(float threshold);
 
     /**
@@ -104,7 +104,7 @@ public interface LicensePlateRecognizer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     LicensePlateRecognizer modelPath(String path);
 
     /**
@@ -112,7 +112,7 @@ public interface LicensePlateRecognizer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     LicensePlateRecognizer device(String device);
 
     /**
@@ -120,7 +120,7 @@ public interface LicensePlateRecognizer {
     *
     * @param imageData 车牌图像数据
     * @return 车牌号码
-     */
+    */
     String recognize(byte[] imageData);
 
     /**
@@ -128,7 +128,7 @@ public interface LicensePlateRecognizer {
     *
     * @param imageData 车牌图像数据
     * @return 检测信息列表
-     */
+    */
     List<DetectionInfo> recognizeDetail(byte[] imageData);
 
     /**
@@ -136,7 +136,7 @@ public interface LicensePlateRecognizer {
     *
     * @param imageData 车牌图像数据
     * @return 车牌结果（号码、颜色）
-     */
+    */
     PlateResult recognizePlate(byte[] imageData);
 }
 
@@ -151,39 +151,39 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 识别阈值。
-     */
+    */
     private Float threshold;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -192,7 +192,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultLicensePlateRecognizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -233,7 +233,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognize的结果
-     */
+    */
     public String recognize(byte[] imageData) {
         return recognizePlate(imageData).plateNo();
     }
@@ -245,7 +245,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognizeDetail的结果
-     */
+    */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -262,7 +262,7 @@ class DefaultLicensePlateRecognizer implements LicensePlateRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognize铭牌的结果
-     */
+    */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

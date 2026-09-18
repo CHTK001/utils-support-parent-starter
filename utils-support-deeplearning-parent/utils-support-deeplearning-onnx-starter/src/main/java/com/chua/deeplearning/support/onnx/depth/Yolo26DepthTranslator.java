@@ -51,7 +51,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
     *
     * @param modelPath 模型文件绝对路径
-     */
+    */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
@@ -71,7 +71,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     *
     * @param imageBytes 输入图像字节数组
     * @return 深度估计结果（距离单位：米）
-     */
+    */
     public DepthResult estimateDepth(byte[] imageBytes) {
         try {
             ensurePrepared();
@@ -228,7 +228,7 @@ public class Yolo26DepthTranslator implements ITranslator<byte[], byte[]>, AutoC
     * @param y y
     * @param x x
     * @return 样本深度的结果
-     */
+    */
     private static float sampleDepth(float[][] depth, int h, int w, float y, float x) {
         int y0 = Math.min(h - 1, Math.max(0, (int) Math.floor(y)));
         int x0 = Math.min(w - 1, Math.max(0, (int) Math.floor(x)));

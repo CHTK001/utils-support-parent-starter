@@ -24,7 +24,7 @@ public final class ArcFaceEngineFactory {
     * 若 SDK 动态库加载失败或环境异常，将抛出运行时异常。</p>
     *
     * @return 新创建的 {@link FaceEngine} 实例
-     */
+    */
     public static FaceEngine create() {
         return new FaceEngine();
     }

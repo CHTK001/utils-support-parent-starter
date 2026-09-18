@@ -238,13 +238,13 @@ public final class CmdExecutors {
     }
 
     /**
-    * 异步执行命令（带超时），返回 {@link CompletableFuture}。
-    *
-    * @param command 要执行的命令
-    * @param timeout 超时时间值
-    * @param unit    超时时间单位
-    * @return CompletableFuture 封装的结果
-    */
+            * 异步执行命令（带超时），返回 {@link CompletableFuture}。
+            *
+            * @param command 要执行的命令
+            * @param timeout 超时时间值
+            * @param unit    超时时间单位
+            * @return CompletableFuture 封装的结果
+            */
     public static CompletableFuture<CmdResult> executeAsync(String command, long timeout, TimeUnit unit) {
         CompletableFuture<CmdResult> future = new CompletableFuture<>();
         executeAsync(command, timeout, unit, new CmdCallback() {
@@ -266,12 +266,12 @@ public final class CmdExecutors {
     // ==================== 实时输出执行 ====================
 
     /**
-    * 同步执行命令并通过回调逐行接收输出
-    *
-    * @param command  要执行的命令
-    * @param callback 逐行输出回调
-    * @return 命令执行结果
-    */
+            * 同步执行命令并通过回调逐行接收输出
+            *
+            * @param command  要执行的命令
+            * @param callback 逐行输出回调
+            * @return 命令执行结果
+            */
     public static CmdResult executeWithOutput(String command, LineCallback callback) {
         return getExecutor().executeWithOutput(command, callback);
     }

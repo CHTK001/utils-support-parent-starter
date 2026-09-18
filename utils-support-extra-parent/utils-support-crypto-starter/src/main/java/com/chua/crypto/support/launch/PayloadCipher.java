@@ -36,62 +36,62 @@ public final class PayloadCipher {
 
     /**
     * 程序包条目魔数：CHKJ
-     */
+    */
     public static final byte[] MAGIC_ENTRY = {'C', 'H', 'K', 'J'};
 
     /**
     * 密钥封装块魔数：CHKF
-     */
+    */
     public static final byte[] MAGIC_KEY_BLOB = {'C', 'H', 'K', 'F'};
 
     /**
     * 格式版本
-     */
+    */
     private static final byte VERSION = 1;
 
     /**
     * 策略标志：服务器绑定
-     */
+    */
     private static final byte FLAG_SERVER_BOUND = 0x01;
 
     /**
     * 头部长度：魔数4+版本1+标志1+密钥标识8+盐16+IV12
-     */
+    */
     private static final int BLOB_PREFIX = 6 + 8 + 16 + 12;
 
     /**
     * 尾部 HMAC 长度
-     */
+    */
     private static final int MAC_LEN = 32;
 
     /**
     * 盐长度
-     */
+    */
     private static final int SALT_LEN = 16;
 
     /**
     * IV 长度
-     */
+    */
     private static final int IV_LEN = 12;
 
     /**
     * 密钥 标识 长度
-     */
+    */
     private static final int KEY_ID_LEN = 8;
 
     /**
     * PBKDF2 迭代次数（与主模块 键protector 一致）
-     */
+    */
     private static final int PBKDF2_ITERATIONS = 210_000;
 
     /**
     * GCM 标签长度（位）
-     */
+    */
     private static final int GCM_TAG_BITS = 128;
 
     /**
     * 私有构造
-     */
+    */
     private PayloadCipher() {
     }
 
@@ -100,7 +100,7 @@ public final class PayloadCipher {
     *
     * @param data 条目原始字节
     * @return true 表示已加密
-     */
+    */
     public static boolean isEncryptedEntry(byte[] data) {
         return startsWith(data, MAGIC_ENTRY);
     }
@@ -111,7 +111,7 @@ public final class PayloadCipher {
     * @param master 主密钥
     * @param data   密文字节
     * @return 明文
-     */
+    */
     public static byte[] decryptEntry(byte[] master, byte[] data) {
         requireMagic(data, MAGIC_ENTRY, "程序包条目缺少 CHKJ 标记");
         return gcm(master, Arrays.copyOfRange(data, MAGIC_ENTRY.length + 1,
@@ -128,7 +128,7 @@ public final class PayloadCipher {
     * @param pin           口令（习俗 必需；服务端_BOUND 可选作 pepper）
     * @param serverId      固定服务器标识（可空；覆盖自动指纹）
     * @return 32 字节主密钥
-     */
+    */
     public static byte[] unwrapMaster(byte[] expectedMagic, byte[] blob, char[] pin, String serverId) {
         requireLength(blob, BLOB_PREFIX + MAC_LEN, "密钥块长度非法");
         requireMagic(blob, expectedMagic, "密钥块魔数不匹配");
@@ -157,7 +157,7 @@ public final class PayloadCipher {
     * @param serverId    固定服务器标识（可空）
     * @param salt        盐
     * @return 32 字节 KEK
-     */
+    */
     public static byte[] deriveKek(boolean serverBound, char[] secret, String serverId, byte[] salt) {
         String password;
         if (serverBound) {
@@ -189,7 +189,7 @@ public final class PayloadCipher {
     *
     * @param pinned 固定标识（非空时直接哈希该值）
     * @return SHA-256 十六进制串
-     */
+    */
     public static String fingerprint(String pinned) {
         if (pinned != null && !pinned.isBlank()) {
             return sha256Hex("pinned|" + pinned.trim());
@@ -237,7 +237,7 @@ public final class PayloadCipher {
     * @param data 数据
     * @param mode 模式
     * @return 结果
-     */
+    */
     private static byte[] gcm(byte[] key, byte[] iv, byte[] data, int mode) {
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -254,7 +254,7 @@ public final class PayloadCipher {
     * @param key  密钥
     * @param data 数据
     * @return 摘要
-     */
+    */
     private static byte[] hmac(byte[] key, byte[] data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -270,7 +270,7 @@ public final class PayloadCipher {
     *
     * @param data 原文
     * @return 十六进制串
-     */
+    */
     private static String sha256Hex(String data) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -290,7 +290,7 @@ public final class PayloadCipher {
     * @param data 数据
     * @param magic 魔法
     * @return 启动with的结果
-     */
+    */
     private static boolean startsWith(byte[] data, byte[] magic) {
         if (data == null || data.length < magic.length) {
             return false;
@@ -308,7 +308,7 @@ public final class PayloadCipher {
     * @param data 数据
     * @param magic 魔法
     * @param message 消息
-     */
+    */
     private static void requireMagic(byte[] data, byte[] magic, String message) {
         if (!startsWith(data, magic)) {
             throw new IllegalStateException(message);
@@ -320,7 +320,7 @@ public final class PayloadCipher {
     * @param data 数据
     * @param min 最小
     * @param message 消息
-     */
+    */
     private static void requireLength(byte[] data, int min, String message) {
         if (data == null || data.length < min) {
             throw new IllegalStateException(message);
@@ -333,7 +333,7 @@ public final class PayloadCipher {
     * @param from 从
     * @param length 长度
     * @return slice的结果
-     */
+    */
     private static byte[] slice(byte[] source, int from, int length) {
         return Arrays.copyOfRange(source, from, from + length);
     }

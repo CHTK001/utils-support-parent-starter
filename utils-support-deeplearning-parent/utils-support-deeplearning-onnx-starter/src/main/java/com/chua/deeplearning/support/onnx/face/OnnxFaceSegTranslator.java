@@ -29,29 +29,29 @@ public class OnnxFaceSegTranslator implements Translator<Image, Image> {
 
     /**
     * mask 类别映射（0/255 二值）：0 表示排除（背景/颈部/眼镜/口罩/衣领）。
-     */
+    */
     private static final int[] MASK_COLORMAP = {
             0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 255, 0, 0, 0
     };
 
     /**
     * 输入均值。
-     */
+    */
     private static final float[] MEAN = {0.5f, 0.5f, 0.5f};
 
     /**
     * 输入标准差。
-     */
+    */
     private static final float[] STD = {0.5f, 0.5f, 0.5f};
 
     /**
     * 输入尺寸。
-     */
+    */
     private static final int INPUT_SIZE = 512;
 
     /**
     * 黑边去除像素数。
-     */
+    */
     private static final int THRESHOLD = 10;
 
     @Override

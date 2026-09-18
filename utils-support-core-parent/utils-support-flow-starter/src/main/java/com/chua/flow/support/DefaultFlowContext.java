@@ -31,67 +31,67 @@ public class DefaultFlowContext implements FlowContext {
 
     /**
     * 默认单节点最大执行次数上限
-     */
+    */
     private static final int DEFAULT_MAX_LOOP_COUNT = 100;
 
     /**
     * 所属流程 标识
-     */
+    */
     private final String flowId;
 
     /**
     * 所属流程，用于读取节点配置属性
-     */
+    */
     private final DefaultFlow flow;
 
     /**
     * 当前正在执行的节点 标识
-     */
+    */
     private String currentNodeId;
 
     /**
     * 当前处理数据
-     */
+    */
     private Object data;
 
     /**
     * 上下文属性映射，保持插入顺序
-     */
+    */
     private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     /**
     * 手动指定的下一节点 标识
-     */
+    */
     private String nextNodeId;
 
     /**
     * 当前流转动作
-     */
+    */
     private Action action = Action.NEXT;
 
     /**
     * 执行轨迹：按序记录全部已执行节点 标识
-     */
+    */
     private final List<String> executionTrace = new ArrayList<>();
 
     /**
     * 执行轨迹记录：按序记录每个节点的输入输出快照
-     */
+    */
     private final List<FlowTrace> traces = new ArrayList<>();
 
     /**
     * 节点 标识 到累计执行次数的映射
-     */
+    */
     private final Map<String, Integer> executeCounts = new LinkedHashMap<>();
 
     /**
     * 单节点最大执行次数上限
-     */
+    */
     private int maxLoopCount = DEFAULT_MAX_LOOP_COUNT;
 
     /**
     * 挂起时待执行的后续节点快照
-     */
+    */
     private final List<String> pendingSnapshot = new ArrayList<>();
 
     /**
@@ -99,7 +99,7 @@ public class DefaultFlowContext implements FlowContext {
     *
     * @param flowId 流程 标识
     * @param flow   所属流程
-     */
+    */
     public DefaultFlowContext(String flowId, DefaultFlow flow) {
         this.flowId = flowId;
         this.flow = flow;
@@ -154,7 +154,7 @@ public class DefaultFlowContext implements FlowContext {
     *
     * @param key 键
     * @return 获取attribute的结果
-     */
+    */
     public <T> T getAttribute(String key) {
         return (T) attributes.get(key);
     }
@@ -232,21 +232,21 @@ public class DefaultFlowContext implements FlowContext {
     * 获取当前流转动作。
     *
     * @return 流转动作
-     */
+    */
     public Action getAction() {
         return action;
     }
 
     /**
     * 清除流转动作，恢复为默认继续执行。
-     */
+    */
     public void clearAction() {
         this.action = Action.NEXT;
     }
 
     /**
     * 清除手动指定的下一节点 标识。
-     */
+    */
     public void clearNextNodeId() {
         this.nextNodeId = null;
     }
@@ -260,7 +260,7 @@ public class DefaultFlowContext implements FlowContext {
     * @param nodeId 节点 标识
     * @param input  节点执行前当前数据
     * @param output 节点执行后当前数据
-     */
+    */
     public void recordExecution(String nodeId, Object input, Object output) {
         executionTrace.add(nodeId);
         executeCounts.merge(nodeId, 1, Integer::sum);
@@ -274,7 +274,7 @@ public class DefaultFlowContext implements FlowContext {
     *
     * @param nodeId 节点 标识
     * @return 已达上限返回 true，否则返回 false
-     */
+    */
     public boolean isLoopLimitReached(String nodeId) {
         return getExecuteCount(nodeId) >= maxLoopCount;
     }
@@ -285,7 +285,7 @@ public class DefaultFlowContext implements FlowContext {
     * <p>供暂停/恢复时查看当前节点之后的待执行目标。</p>
     *
     * @param pendingNodeIds 待执行节点 标识 列表
-     */
+    */
     public void snapshotPending(List<String> pendingNodeIds) {
         pendingSnapshot.clear();
         pendingSnapshot.addAll(pendingNodeIds);

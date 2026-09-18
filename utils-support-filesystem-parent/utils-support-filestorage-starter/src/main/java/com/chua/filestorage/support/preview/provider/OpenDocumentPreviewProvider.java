@@ -20,7 +20,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的 打开文档 扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED_EXTS = Set.of("odt", "ods", "odp");
 
     /** Base64 内嵌 打开文档 预览允许的最大字节数（约 20 MB） */
@@ -30,7 +30,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     * @param ext  文件扩展名
     * @param mime MIME 类型（当前忽略）
     * @return true 表示支持预览
-     */
+    */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());
@@ -67,7 +67,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     * @param b64 b64
     * @param type 类型
     * @return 构建previewhtml的结果
-     */
+    */
     private String buildPreviewHtml(String b64, String type) {
         String fileName = "uploaded." + type;
         String mimeType = getMimeType(type);
@@ -109,7 +109,7 @@ public class OpenDocumentPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param type 类型
     * @return 获取mime类型的结果
-     */
+    */
     private String getMimeType(String type) {
         return switch (type) {
             case "odt" -> "application/vnd.oasis.opendocument.text";
