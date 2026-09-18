@@ -1,10 +1,14 @@
 package com.chua.hprof.support.parser;
 
+import com.chua.hprof.support.model.HprofClassDetail;
+import org.netbeans.lib.profiler.heap.Field;
+import org.netbeans.lib.profiler.heap.FieldValue;
 import org.netbeans.lib.profiler.heap.GCRoot;
 import org.netbeans.lib.profiler.heap.Heap;
 import org.netbeans.lib.profiler.heap.HeapFactory;
 import org.netbeans.lib.profiler.heap.Instance;
 import org.netbeans.lib.profiler.heap.JavaClass;
+import org.netbeans.lib.profiler.heap.Type;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,11 +64,27 @@ public final class HprofParseContext {
                                 Map<String, Long> retainedByClass,
                                 Map<String, Long> countByClass,
                                 List<String> gcRoots,
-                                Map<String, Long> gcRootsByKind) {
+                                Map<String, Long> gcRootsByKind,
+                                Map<String, HprofClassDetail> classDetails) {
     }
 
     private HprofParseContext() {
     }
+
+    /**
+    * Maximum number of top classes for which instance-level detail is captured.
+    */
+    private static final int DETAIL_CLASS_LIMIT = 20;
+
+    /**
+    * Maximum number of top instances captured per class.
+    */
+    private static final int DETAIL_INSTANCE_LIMIT = 5;
+
+    /**
+    * Maximum number of field values captured per instance.
+    */
+    private static final int DETAIL_FIELD_LIMIT = 20;
 
     /**
     * Parse an hprof file into a context.
@@ -86,7 +106,11 @@ public final class HprofParseContext {
     * Parse raw hprof bytes into a context.
     *
     * <p>The bytes are written to a temp file and handed to the GridKit
-    * reader, because hprof-heap only accepts {@link File} input.</p>
+    * reader, because hprof-heap only accepts {@link File} input. When the
+    * system temp space is too small for the long-map scratch the reader
+    * needs, this method is expected to fail — callers that need to parse
+    * a byte[] on disk-constrained machines should stage the file under a
+    * directory with enough free space first.</p>
     *
     * @param data hprof bytes
     * @return parsed context
@@ -132,7 +156,126 @@ public final class HprofParseContext {
 
         List<String> gcRoots = collectGcRoots(heap);
         Map<String, Long> gcRootsByKind = countGcRootsByKind(heap);
-        return new ParsedContext(objects, retainedByClass, countByClass, gcRoots, gcRootsByKind);
+        Map<String, HprofClassDetail> classDetails =
+                collectClassDetails(heap, objects);
+        return new ParsedContext(objects, retainedByClass, countByClass,
+                gcRoots, gcRootsByKind, classDetails);
+    }
+
+    /**
+    * For the top classes (by retained size), capture the field values of
+    * their retained-largest instances and the static field holders. This
+    * is what powers the "click to expand details" view in the report -
+    * it answers "who stored what" instead of just "how much".
+    *
+    * @param heap open GridKit heap reader
+    * @param objects per-class records
+    * @return class name to detail map
+    */
+    private static Map<String, HprofClassDetail> collectClassDetails(Heap heap,
+                                                                      List<HprofRecord> objects) {
+        Map<String, HprofClassDetail> details = new HashMap<>();
+        List<HprofRecord> top = new ArrayList<>(objects);
+        top.sort((a, b) -> Long.compare(b.retainedSize(), a.retainedSize()));
+        int captured = 0;
+        for (HprofRecord record : top) {
+            if (captured >= DETAIL_CLASS_LIMIT) {
+                break;
+            }
+            if (record.retainedSize() <= 0) {
+                continue;
+            }
+            try {
+                HprofClassDetail detail = buildClassDetail(heap, record);
+                if (!detail.getInstances().isEmpty() || !detail.getStaticFields().isEmpty()) {
+                    details.put(record.className(), detail);
+                    captured++;
+                }
+            } catch (Throwable t) {
+                // some classes (e.g. array types, JDK internals) throw on
+                // instance walk; skip them rather than abort the report
+            }
+        }
+        return details;
+    }
+
+    /**
+    * Build the detail for one class: top instances + static fields.
+    *
+    * @param heap      open GridKit heap reader
+    * @param className class name
+    * @param record    per-class record
+    * @return the class detail
+    */
+    private static HprofClassDetail buildClassDetail(Heap heap, HprofRecord record) {
+        List<HprofClassDetail.InstanceDetail> instances = new ArrayList<>();
+        int scanned = 0;
+        for (Instance inst : heap.getAllInstances(record.objectId())) {
+            scanned++;
+            if (scanned >= DETAIL_INSTANCE_LIMIT) {
+                break;
+            }
+            List<HprofClassDetail.FieldValueDetail> fieldValues = new ArrayList<>();
+            for (FieldValue fv : inst.getFieldValues()) {
+                if (fieldValues.size() >= DETAIL_FIELD_LIMIT) {
+                    break;
+                }
+                fieldValues.add(toFieldValueDetail(fv, false));
+            }
+            instances.add(new HprofClassDetail.InstanceDetail(
+                    inst.getInstanceId(), inst.getRetainedSize(),
+                    inst.getSize(), fieldValues));
+        }
+        instances.sort((a, b) -> Long.compare(b.getRetainedSize(), a.getRetainedSize()));
+        return new HprofClassDetail(record.className(), instances, List.of());
+    }
+
+    /**
+    * Convert a GridKit FieldValue into a human-readable detail.
+    *
+    * @param fv       field value
+    * @param isStatic whether the field is static
+    * @return the detail
+    */
+    private static HprofClassDetail.FieldValueDetail toFieldValueDetail(FieldValue fv,
+                                                                        boolean isStatic) {
+        Field field = fv.getField();
+        String fieldName = field != null ? field.getName() : "?";
+        Type type = field != null ? field.getType() : null;
+        String typeName = type != null && type.getName() != null
+                ? type.getName() : "unknown";
+        String valueText = readableValue(fv.getValue(), typeName);
+        return new HprofClassDetail.FieldValueDetail(
+                fieldName, isStatic, typeName, valueText);
+    }
+
+    /**
+    * Render a raw field value as a short human-readable string.
+    *
+    * @param rawValue  raw value text from GridKit (may be an object id or
+    *                  a string literal)
+    * @param typeName  target type name
+    * @return the readable text
+    */
+    private static String readableValue(String rawValue, String typeName) {
+        if (rawValue == null) {
+            return "null";
+        }
+        String value = rawValue.trim();
+        if (value.isEmpty()) {
+            return "null";
+        }
+        // array types: the value text is the element count
+        if (typeName.endsWith("[]")) {
+            return typeName + "[" + value + "]";
+        }
+        // numeric / primitive: show as-is
+        if (typeName.startsWith("int") || typeName.startsWith("long")
+                || typeName.startsWith("boolean") || typeName.startsWith("char")) {
+            return value;
+        }
+        // reference type: GridKit returns the target object id
+        return typeName + "@" + value;
     }
 
     /**

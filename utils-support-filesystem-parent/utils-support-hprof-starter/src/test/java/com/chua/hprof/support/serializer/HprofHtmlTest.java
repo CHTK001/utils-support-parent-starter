@@ -40,7 +40,7 @@ class HprofHtmlTest {
                 List.of(top), histogram, topRetained,
                 List.of("sticky class:java.lang.Class"),
                 Map.of("sticky class", 40L, "thread object", 600L, "JNI global", 1500L),
-                totalRetained, 3_600_000L);
+                Map.of(), totalRetained, 3_600_000L);
     }
 
     /**
