@@ -25,6 +25,12 @@ import com.lark.oapi.core.cache.LocalCache;
 import com.lark.oapi.core.response.RawResponse;
 import com.lark.oapi.core.token.AccessTokenType;
 import com.lark.oapi.core.utils.Jsons;
+import com.lark.oapi.event.EventDispatcher;
+import com.lark.oapi.service.im.ImService;
+import com.lark.oapi.service.im.v1.model.EventMessage;
+import com.lark.oapi.service.im.v1.model.MentionEvent;
+import com.lark.oapi.service.im.v1.model.P2MessageReceiveV1;
+import com.lark.oapi.service.im.v1.model.P2MessageReceiveV1Data;
 import com.lark.oapi.service.im.v1.model.CreateImageReq;
 import com.lark.oapi.service.im.v1.model.CreateImageReqBody;
 import com.lark.oapi.service.im.v1.model.CreateImageResp;
@@ -86,9 +92,14 @@ public class FeishuBotClient implements BotClient {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-    * 事件轮询线程
+    * 事件长连接客户端
     */
-    private volatile Thread eventThread;
+    private volatile com.lark.oapi.ws.Client wsClient;
+
+    /**
+    * Bot 自身的 open_id，start 时解析，用于判定 mentionedBot
+    */
+    private volatile String botOpenId;
 
     /**
     * 是否使用 Webhook 模式
@@ -111,26 +122,6 @@ public class FeishuBotClient implements BotClient {
     * 用户存储实例
     */
     private BotUserStore userStore = new InMemoryBotUserStore();
-
-    /**
-    * 退避初始等待时间（毫秒）
-    */
-    private static final long BACKOFF_INITIAL_MS = 1_000;
-
-    /**
-    * 退避最大等待时间（毫秒）
-    */
-    private static final long BACKOFF_MAX_MS = 30_000;
-
-    /**
-    * 退避倍增系数
-    */
-    private static final double BACKOFF_MULTIPLIER = 2.0;
-
-    /**
-    * 事件轮询间隔（毫秒）
-    */
-    private static final long POLL_INTERVAL_MS = 1_000;
 
     @Override
     /**
@@ -429,23 +420,48 @@ public class FeishuBotClient implements BotClient {
                     "appSecret is required");
         }
 
+        // SDK 的 openBaseUrl 期望域名根(如 https://open.feishu.cn)，
+        // 路径自带 /open-apis 后缀时需剥离，否则重复拼接 404
+        String sdkBaseUrl = baseUrl.endsWith("/open-apis")
+                ? baseUrl.substring(0,
+                        baseUrl.length() - "/open-apis".length())
+                : baseUrl;
+
         this.client = Client.newBuilder(appId, appSecret)
-                .openBaseUrl(baseUrl)
+                .openBaseUrl(sdkBaseUrl)
                 .tokenCache(LocalCache.getInstance())
                 .requestTimeout(readTimeoutMillis,
                         TimeUnit.MILLISECONDS)
                 .build();
+
+        resolveBotOpenId();
 
         running.set(true);
 
         if (webhookVerifyToken == null
                 || webhookVerifyToken.isBlank()) {
             useWebhookMode = false;
-            eventThread = new Thread(this::pollEvents,
-                    "feishu-event-poller");
-            eventThread.setDaemon(true);
-            eventThread.start();
-            log.info("Feishu Bot client started in polling mode");
+            EventDispatcher dispatcher = EventDispatcher
+                    .newBuilder("", "")
+                    .onP2MessageReceiveV1(
+                            new ImService.P2MessageReceiveV1Handler() {
+                                @Override
+                                public void handle(
+                                        P2MessageReceiveV1 event) {
+                                    handleReceiveEvent(event);
+                                }
+                            })
+                    .build();
+            com.lark.oapi.ws.Client ws
+                    = new com.lark.oapi.ws.Client
+                            .Builder(appId, appSecret)
+                            .eventHandler(dispatcher)
+                            .autoReconnect(true)
+                            .build();
+            wsClient = ws;
+            ws.start();
+            log.info("Feishu Bot client started"
+                    + " in long-connection mode");
         } else {
             useWebhookMode = true;
             log.info("Feishu Bot client started in webhook mode");
@@ -458,11 +474,8 @@ public class FeishuBotClient implements BotClient {
     /** 停止 */
     public void stop() {
         running.set(false);
-        Thread t = eventThread;
-        if (t != null) {
-            t.interrupt();
-            eventThread = null;
-        }
+        // SDK 2.4.19 的 ws.Client 未暴露 close,只能释放引用
+        wsClient = null;
         client = null;
         log.info("Feishu Bot client stopped");
     }
@@ -1250,132 +1263,57 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-    * 轮询事件
-    */
-    @SuppressWarnings("unchecked")
-    private void pollEvents() {
-        long backoff = BACKOFF_INITIAL_MS;
-        while (running.get()) {
-            try {
-                RawResponse resp = client.post(
-                        baseUrl + "/im/v1/messages/delta",
-                        null,
-                        AccessTokenType.Tenant);
-                if (resp.getStatusCode() != 200) {
-                    backoff = sleepBackoff(backoff);
-                    continue;
-                }
-                Map<String, Object> body = Jsons.DEFAULT.fromJson(
-                        new String(resp.getBody(),
-                                StandardCharsets.UTF_8),
-                        Map.class);
-                if (body == null) {
-                    backoff = sleepBackoff(backoff);
-                    continue;
-                }
-                int code = toInt(body.get("code"), -1);
-                if (code != 0) {
-                    backoff = sleepBackoff(backoff);
-                    continue;
-                }
-                backoff = BACKOFF_INITIAL_MS;
-                Map<String, Object> data
-                        = (Map<String, Object>) body.get("data");
-                if (data == null) {
-                    sleep(POLL_INTERVAL_MS);
-                    continue;
-                }
-                List<Map<String, Object>> events
-                        = (List<Map<String, Object>>) data.get(
-                        "items");
-                if (events == null || events.isEmpty()) {
-                    sleep(POLL_INTERVAL_MS);
-                    continue;
-                }
-                for (Map<String, Object> event : events) {
-                    handleEvent(event);
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            } catch (Exception e) {
-                backoff = sleepBackoff(backoff);
-                notifyError(e);
-                log.error("Error polling events: {}",
-                        e.getMessage(), e);
-            }
-        }
-    }
-
-    /**
-    * 计算下一次轮询的退避等待时间并休眠。
-    * 按指数退避倍增当前等待时间，但封顶不超过最大退避时长，避免长时间阻塞。
+    * 处理长连接推送的接收消息事件
     *
-    * @param currentBackoff 当前退避等待时间（毫秒）
-    * @return 退避后的下一次等待时间（毫秒）
+    * @param event 消息接收事件
     */
-    private long sleepBackoff(long currentBackoff) {
-        long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
-        sleep(wait);
-        return (long) Math.min(currentBackoff * BACKOFF_MULTIPLIER, BACKOFF_MAX_MS);
-    }
-
-    /**
-    * 处理单个事件
-    * @param event 事件
-    */
-    @SuppressWarnings("unchecked")
-    private void handleEvent(Map<String, Object> event) {
+    private void handleReceiveEvent(P2MessageReceiveV1 event) {
         try {
-            String eventType
-                    = (String) event.get("event_type");
-            if (!"im.message.receive_v1".equals(eventType)) {
+            P2MessageReceiveV1Data data = event.getEvent();
+            if (data == null || data.getMessage() == null) {
                 return;
             }
-            Map<String, Object> eventData
-                    = (Map<String, Object>) event.get("event");
-            if (eventData == null) {
-                return;
-            }
-            Map<String, Object> message
-                    = (Map<String, Object>) eventData.get(
-                    "message");
-            if (message == null) {
-                return;
-            }
-            String chatType
-                    = (String) message.get("chat_type");
-            String msgId = (String) message.get(
-                    "message_id");
-            String msgType = (String) message.get(
-                    "message_type");
-            String chatId = (String) message.get("chat_id");
-            Map<String, Object> sender
-                    = (Map<String, Object>) eventData.get(
-                    "sender");
+            EventMessage message = data.getMessage();
             String fromUser = null;
-            if (sender != null) {
-                Object senderId = sender.get("sender_id");
-                if (senderId instanceof Map) {
-                    fromUser = (String) ((Map<?, ?>) senderId)
-                            .get("open_id");
+            if (data.getSender() != null
+                    && data.getSender().getSenderId() != null) {
+                fromUser = data.getSender()
+                        .getSenderId().getOpenId();
+            }
+            boolean group
+                    = "group".equals(message.getChatType());
+            List<String> mentionedIds = new ArrayList<>();
+            MentionEvent[] mentions = message.getMentions();
+            if (mentions != null) {
+                for (MentionEvent mention : mentions) {
+                    mentionedIds.add(mention.getId() != null
+                            ? mention.getId().getOpenId()
+                            : mention.getKey());
                 }
             }
-            BotInboundMessage.Type type
-                    = mapMessageType(msgType);
-            String content = extractContent(message, msgType);
-            BotInboundMessage inbound = BotInboundMessage
-                    .builder()
-                    .msgId(msgId)
-                    .type(type)
-                    .content(content)
-                    .fromUser(fromUser)
-                    .fromGroup("group".equals(chatType))
-                    .chatId("group".equals(chatType)
-                            ? chatId
-                            : null)
-                    .createTime(System.currentTimeMillis())
-                    .build();
+            BotInboundMessage.BotInboundMessageBuilder builder
+                    = BotInboundMessage.builder()
+                            .msgId(message.getMessageId())
+                            .type(mapMessageType(
+                                    message.getMessageType()))
+                            .content(extractContent(
+                                    message.getContent(),
+                                    message.getMessageType()))
+                            .fromUser(fromUser)
+                            .fromGroup(group)
+                            .chatId(group
+                                    ? message.getChatId()
+                                    : null)
+                            .eventType("im.message.receive_v1")
+                            .mentionedList(mentionedIds)
+                            .createTime(
+                                    System.currentTimeMillis());
+            String self = botOpenId;
+            if (group && self != null) {
+                builder.mentionedBot(
+                        mentionedIds.contains(self));
+            }
+            BotInboundMessage inbound = builder.build();
             if (fromUser != null) {
                 userStore.upsert(BotUserInfo.builder()
                         .userId(fromUser)
@@ -1440,7 +1378,7 @@ public class FeishuBotClient implements BotClient {
             String receiveId, String content) {
         try {
             CreateMessageReq req = new CreateMessageReq();
-            req.setReceiveIdType("chat_id");
+            req.setReceiveIdType(receiveIdType(receiveId));
             Map<String, String> contentMap = new HashMap<>();
             contentMap.put("text", content);
             CreateMessageReqBody body = new CreateMessageReqBody();
@@ -1621,7 +1559,7 @@ public class FeishuBotClient implements BotClient {
             Map<String, String> contentMap = new HashMap<>();
             contentMap.put("image_key", imageKey);
             CreateMessageReq req = new CreateMessageReq();
-            req.setReceiveIdType("chat_id");
+            req.setReceiveIdType(receiveIdType(receiveId));
             CreateMessageReqBody body = new CreateMessageReqBody();
             body.setReceiveId(receiveId);
             body.setMsgType("image");
@@ -1648,21 +1586,18 @@ public class FeishuBotClient implements BotClient {
 
     /**
     * 提取消息内容
+    *
+    * @param contentStr 内容 JSON 字符串
+    * @param msgType    消息类型
+    * @return 提取出的文本内容
     */
     @SuppressWarnings("unchecked")
-    private String extractContent(Map<String, Object> message,
+    private String extractContent(String contentStr,
             String msgType) {
-        if (message == null || msgType == null) {
+        if (contentStr == null || msgType == null) {
             return "";
         }
         try {
-            Object contentObj = message.get("content");
-            if (contentObj == null) {
-                return "";
-            }
-            String contentStr = contentObj instanceof String
-                    ? (String) contentObj
-                    : Jsons.DEFAULT.toJson(contentObj);
             Map<String, Object> contentMap = Jsons.DEFAULT
                     .fromJson(contentStr, Map.class);
             if (contentMap == null) {
@@ -1711,17 +1646,42 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-    * 转为int
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 转为int的结果
+    * 调 bot/v3/info 解析 Bot 自身 open_id，用于判定 mentionedBot；失败仅记日志
     */
-    private static int toInt(Object value, int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
+    @SuppressWarnings("unchecked")
+    private void resolveBotOpenId() {
+        try {
+            RawResponse resp = client.get(
+                    baseUrl + "/bot/v3/info",
+                    null,
+                    AccessTokenType.Tenant);
+            Map<String, Object> body = Jsons.DEFAULT.fromJson(
+                    new String(resp.getBody(),
+                            StandardCharsets.UTF_8),
+                    Map.class);
+            if (body != null
+                    && body.get("bot") instanceof Map) {
+                Object id = ((Map<?, ?>) body.get("bot"))
+                        .get("open_id");
+                if (id instanceof String) {
+                    botOpenId = (String) id;
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve bot open_id: {}",
+                    e.getMessage());
         }
-        return defaultValue;
+    }
+
+    /**
+    * 按 ID 前缀推断 receive_id_type：oc_ 开头为群 chat_id，其余按用户 open_id
+    *
+    * @param receiveId 接收者 ID
+    * @return receive_id_type 取值
+    */
+    private static String receiveIdType(String receiveId) {
+        return receiveId != null && receiveId.startsWith("oc_")
+                ? "chat_id" : "open_id";
     }
 
     /**
@@ -1736,19 +1696,6 @@ public class FeishuBotClient implements BotClient {
             } catch (Exception ignored) {
                 // 忽略监听器异常
             }
-        }
-    }
-
-    /**
-    * Sleep
-    *
-    * @param millis millis
-    */
-    private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }

@@ -118,6 +118,12 @@ public class BotInboundMessage {
     private List<String> mentionedList;
 
     /**
+    * 消息是否 @ 了 Bot 自身
+    * <p>null 表示平台侧未提供该判定</p>
+    */
+    private Boolean mentionedBot;
+
+    /**
     * 原始字段
     * <p>支持扩展</p>
     */
