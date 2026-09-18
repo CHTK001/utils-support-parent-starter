@@ -51,149 +51,149 @@ public class QqBotClient implements BotClient {
 
     /**
     * 应用 标识
-     */
+    */
     private String appId;
 
     /**
     * 应用密钥
-     */
+    */
     private String appSecret;
 
     /**
     * 机器人 令牌
-     */
+    */
     private String botToken;
 
     /**
     * API 基础地址
-     */
+    */
     private String baseUrl = "https://api.sgroup.qq.com";
 
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private long connectTimeoutMillis = 10_000;
 
     /**
     * 读取超时时间（毫秒）
-     */
+    */
     private long readTimeoutMillis = 30_000;
 
     /**
     * Webhook 验证 令牌
-     */
+    */
     private String webhookVerifyToken;
 
     /**
     * 事件意图标识
-     */
+    */
     private int[] intents;
 
     /**
     * HTTP 客户端实例
-     */
+    */
     private volatile HttpClient httpClient;
 
     /**
     * WebSocket 实例
-     */
+    */
     private volatile WebSocket webSocket;
 
     /**
     * 运行状态标识
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
     * 是否使用 Webhook 模式
-     */
+    */
     private volatile boolean useWebhookMode;
 
     /**
     * 访问令牌
-     */
+    */
     private volatile String accessToken;
 
     /**
     * 会话 标识
-     */
+    */
     private volatile String sessionId;
 
     /**
     * 最后收到的序列号
-     */
+    */
     private final AtomicInteger lastSeq = new AtomicInteger(0);
 
     /**
     * 心跳调度执行器
-     */
+    */
     private ScheduledExecutorService heartbeatExecutor;
 
     /**
     * 配置加载器
-     */
+    */
     private ConfigSaveOrLoader configSaveOrLoader;
 
     /**
     * 消息监听器列表
-     */
+    */
     private final List<BotMessageListener> messageListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 错误监听器列表
-     */
+    */
     private final List<BotErrorListener> errorListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 用户存储实例
-     */
+    */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     /**
     * WebSocket Hello 操作码
-     */
+    */
     private static final int WS_OP_HELLO = 10;
 
     /**
     * WebSocket 心跳 ACK 操作码
-     */
+    */
     private static final int WS_OP_HEARTBEAT_ACK = 11;
 
     /**
     * WebSocket Identify 操作码
-     */
+    */
     private static final int WS_OP_IDENTIFY = 2;
 
     /**
     * WebSocket Dispatch 操作码
-     */
+    */
     private static final int WS_OP_DISPATCH = 0;
 
     /**
     * WebSocket Reconnect 操作码
-     */
+    */
     private static final int WS_OP_RECONNECT = 7;
 
     /**
     * WebSocket Invalid 会话 操作码
-     */
+    */
     private static final int WS_OP_INVALID_SESSION = 9;
 
     /**
     * 退避初始等待时间（毫秒）
-     */
+    */
     private static final long BACKOFF_INITIAL_MS = 1_000;
 
     /**
     * 退避最大等待时间（毫秒）
-     */
+    */
     private static final long BACKOFF_MAX_MS = 30_000;
 
     /**
     * 退避倍增系数
-     */
+    */
     private static final double BACKOFF_MULTIPLIER = 2.0;
 
     @Override
@@ -202,7 +202,7 @@ public class QqBotClient implements BotClient {
     * @param token 令牌
     * @param secret secret
     * @param encodingAesKey 编码aes键
-     */
+    */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (StringUtils.isNotEmpty(token)) {
@@ -412,7 +412,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
@@ -589,7 +589,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
@@ -601,7 +601,7 @@ public class QqBotClient implements BotClient {
     *
     * @param intents 意图数组
     * @return this
-     */
+    */
     public QqBotClient intents(int... intents) {
         this.intents = intents;
         return this;
@@ -612,7 +612,7 @@ public class QqBotClient implements BotClient {
     *
     * @param token 验证 令牌
     * @return this
-     */
+    */
     public QqBotClient webhookVerifyToken(String token) {
         this.webhookVerifyToken = token;
         return this;
@@ -673,7 +673,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 建立 WebSocket 连接
-     */
+    */
     private void connectWebSocket() {
         Thread wsThread = new Thread(() -> {
             long backoff = BACKOFF_INITIAL_MS;
@@ -712,7 +712,7 @@ public class QqBotClient implements BotClient {
     /**
     * 获取访问令牌
     * @return 获取access令牌的结果
-     */
+    */
     private String getAccessToken() throws Exception {
         if (botToken != null && !botToken.isBlank()) {
             return "QQBot " + botToken;
@@ -752,7 +752,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 获取网关 URL
-     */
+    */
     private String getGatewayUrl(String authToken)
             throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
@@ -778,7 +778,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 发送 Identify 帧
-     */
+    */
     private void identify() {
         if (webSocket == null) {
             return;
@@ -802,7 +802,7 @@ public class QqBotClient implements BotClient {
     * 获取effective认证令牌
     *
     * @return 获取effective认证令牌的结果
-     */
+    */
     private String getEffectiveAuthToken() {
         if (botToken != null && !botToken.isBlank()) {
             return "QQBot " + botToken;
@@ -814,7 +814,7 @@ public class QqBotClient implements BotClient {
     * 将意图数组按位或合并
     * @param array array
     * @return 或的结果
-     */
+    */
     private int or(int[] array) {
         if (array == null || array.length == 0) {
             return 0;
@@ -831,12 +831,12 @@ public class QqBotClient implements BotClient {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class WebSocketListener implements WebSocket.Listener {
 
         /**
         * 文本缓冲区
-         */
+        */
         private final StringBuilder textBuffer
                 = new StringBuilder();
 
@@ -903,9 +903,9 @@ public class QqBotClient implements BotClient {
     }
 
     /**
-    * 处理 WebSocket 消息
-    * @param rawMessage raw消息
-     */
+        * 处理 WebSocket 消息
+        * @param rawMessage raw消息
+        */
     @SuppressWarnings("unchecked")
     private void handleWsMessage(String rawMessage) {
         Map<String, Object> frame = Json.fromJson(rawMessage,
@@ -948,7 +948,7 @@ public class QqBotClient implements BotClient {
     /**
     * 启动心跳
     * @param intervalMs 间隔ms
-     */
+    */
     private void startHeartbeat(long intervalMs) {
         if (heartbeatExecutor != null) {
             heartbeatExecutor.shutdownNow();
@@ -969,7 +969,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 发送心跳确认
-     */
+    */
     private void sendHeartbeatAck() {
         sendWsMessage("{\"op\":" + WS_OP_HEARTBEAT_ACK
                 + ",\"d\":" + lastSeq.get() + "}");
@@ -977,7 +977,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 重连 WebSocket
-     */
+    */
     private void reconnectWebSocket() {
         WebSocket ws = webSocket;
         if (ws != null) {
@@ -994,7 +994,7 @@ public class QqBotClient implements BotClient {
     /**
     * 发送 WebSocket 消息
     * @param message 消息
-     */
+    */
     private void sendWsMessage(String message) {
         WebSocket ws = webSocket;
         if (ws != null) {
@@ -1004,7 +1004,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 处理业务事件
-     */
+    */
     @SuppressWarnings("unchecked")
     private void handleEvent(String eventType,
             Map<String, Object> data) {
@@ -1047,7 +1047,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 将事件映射为入站消息
-     */
+    */
     @SuppressWarnings("unchecked")
     private BotInboundMessage mapEventToMessage(
             String eventType,
@@ -1112,7 +1112,7 @@ public class QqBotClient implements BotClient {
     * 解析时间戳
     * @param timestamp 时间戳
     * @return 解析时间戳的结果
-     */
+    */
     private long parseTimestamp(String timestamp) {
         try {
             return Long.parseLong(timestamp) * 1000;
@@ -1126,7 +1126,7 @@ public class QqBotClient implements BotClient {
     * 发送文本
     * @param toUser 转为用户
     * @param content 内容
-     */
+    */
     public BotSendResult sendText(String toUser,
             String content) {
         return send(BotOutboundMessage.text(toUser, content));
@@ -1240,7 +1240,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser,
             String content) {
@@ -1253,7 +1253,7 @@ public class QqBotClient implements BotClient {
     * 发送镜像
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.image(toUser, mediaPath));
@@ -1361,7 +1361,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser,
             String mediaPath) {
@@ -1374,7 +1374,7 @@ public class QqBotClient implements BotClient {
     * 发送Voice
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.voice(toUser, mediaPath));
@@ -1387,7 +1387,7 @@ public class QqBotClient implements BotClient {
     * @param mediaPath media路径
     * @param title title
     * @param desc desc
-     */
+    */
     public BotSendResult sendVideo(String toUser,
             String mediaPath,
             String title,
@@ -1404,7 +1404,7 @@ public class QqBotClient implements BotClient {
     * 发送文件
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
         return sendFileViaUpload(toUser, mediaPath);
@@ -1546,7 +1546,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
@@ -1556,7 +1556,7 @@ public class QqBotClient implements BotClient {
     * 发送文本内部
     * @param toUser 转为用户
     * @param content 内容
-     */
+    */
     private BotSendResult sendTextInternal(String toUser,
             String content) {
         JsonObject body = new JsonObject()
@@ -1647,7 +1647,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
         JsonObject body = new JsonObject()
@@ -1733,7 +1733,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     private BotSendResult sendGroupMentionInternal(
             String groupId,
             String content,
@@ -1759,7 +1759,7 @@ public class QqBotClient implements BotClient {
     * 发送镜像内部
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     private BotSendResult sendImageInternal(String toUser,
             String mediaPath) {
         try {
@@ -1787,7 +1787,7 @@ public class QqBotClient implements BotClient {
     * 发送voice内部
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     private BotSendResult sendVoiceInternal(String toUser,
             String mediaPath) {
         try {
@@ -1863,7 +1863,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     private BotSendResult sendFileViaUpload(
             String toUser, String mediaPath) {
         try {
@@ -1891,7 +1891,7 @@ public class QqBotClient implements BotClient {
 
     /**
     * 上传文件
-     */
+    */
     private String uploadFile(String toUser,
             String mediaPath) throws Exception {
         String boundary = "--" + UUID.randomUUID()
@@ -1941,7 +1941,7 @@ public class QqBotClient implements BotClient {
     * @param path 路径
     * @param body 主体
     * @return 发送api的结果
-     */
+    */
     private BotSendResult sendApi(String path, JsonObject body) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -2059,7 +2059,7 @@ public class QqBotClient implements BotClient {
     * 发送转为分组
     * @param groupId 群体标识
     * @param content 内容
-     */
+    */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         return send(BotOutboundMessage.groupText(groupId, content));
@@ -2094,7 +2094,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId,
             String content) {
@@ -2128,7 +2128,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -2164,7 +2164,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotClient addMessageListener(
             BotMessageListener listener) {
         if (listener != null) {
@@ -2188,7 +2188,7 @@ public class QqBotClient implements BotClient {
     * @param n n
     * @param e e
     * @param ignored ignored
-     */
+    */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -2209,7 +2209,7 @@ public class QqBotClient implements BotClient {
     *
     * @param challengeToken 挑战令牌
     * @return 验证结果
-     */
+    */
     public String verifyChallenge(String challengeToken) {
         if (webhookVerifyToken == null) {
             return challengeToken;
@@ -2223,7 +2223,7 @@ public class QqBotClient implements BotClient {
     * 是否使用 Webhook 模式
     *
     * @return true 表示使用 Webhook 模式
-     */
+    */
     public boolean isUseWebhookMode() {
         return useWebhookMode;
     }
@@ -2233,7 +2233,7 @@ public class QqBotClient implements BotClient {
     *
     * @param currentBackoff 当前退避
     * @return sleep退避的结果
-     */
+    */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
         try {
@@ -2252,7 +2252,7 @@ public class QqBotClient implements BotClient {
     * @param value 值
     * @param defaultValue 默认值
     * @return 转为int的结果
-     */
+    */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number n) {
             return n.intValue();
@@ -2264,7 +2264,7 @@ public class QqBotClient implements BotClient {
     * 通知记录错误
     *
     * @param e e
-     */
+    */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {

@@ -21,7 +21,7 @@ public class AutoSerializerProvider implements SerializerProvider {
 
     /**
     * 序列化器缓存，键 为实体类类型，值 为对应的 auto序列化器 实例
-     */
+    */
     private final Map<Class<?>, AutoSerializer<?>> serializerCache = new ConcurrentHashMap<>();
 
     /**
@@ -33,7 +33,7 @@ public class AutoSerializerProvider implements SerializerProvider {
     * @param type 目标实体类类型
     * @param <T>  泛型类型
     * @return 对应的 序列化器 实例
-     */
+    */
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends Serializable> Serializer<T> getSerializer(Class<T> type) {
@@ -46,7 +46,7 @@ public class AutoSerializerProvider implements SerializerProvider {
     * @param type 目标实体类类型
     * @param <T>  泛型类型
     * @return 对应的 auto序列化器 实例
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T extends Serializable> AutoSerializer<T> getAutoSerializer(Class<T> type) {
         return (AutoSerializer<T>) serializerCache.computeIfAbsent(type, t -> new AutoSerializer(t));
@@ -55,7 +55,7 @@ public class AutoSerializerProvider implements SerializerProvider {
     /**
     * 清除所有缓存的序列化器实例。
     * 适用于测试环境或需要释放资源的场景。
-     */
+    */
     public void clearCache() {
         serializerCache.clear();
     }
@@ -64,7 +64,7 @@ public class AutoSerializerProvider implements SerializerProvider {
     * 获取当前缓存的序列化器数量。
     *
     * @return 缓存中的序列化器数量
-     */
+    */
     public int getCacheSize() {
         return serializerCache.size();
     }

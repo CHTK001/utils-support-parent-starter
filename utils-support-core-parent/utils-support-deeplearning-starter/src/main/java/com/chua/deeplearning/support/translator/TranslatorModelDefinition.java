@@ -21,29 +21,29 @@ public class TranslatorModelDefinition {
 
     /**
     * 模型基本定义
-     */
+    */
     private final ModelDefinition modelDefinition;
 
     /**
     * 翻译器实例
-     */
+    */
     private final ITranslator<?, ?> translator;
 
     /**
     * 模型文件大小（字节）
-     */
+    */
     private final long modelSize;
 
     /**
     * 模型配置参数
-     */
+    */
     private final Map<String, Object> config;
 
     /**
     * 获取模型名称。
     *
     * @return 名称
-     */
+    */
     public String getName() {
         return modelDefinition != null ? modelDefinition.getName() : null;
     }
@@ -52,7 +52,7 @@ public class TranslatorModelDefinition {
     * 获取模型提供方。
     *
     * @return 提供方
-     */
+    */
     public String getProvider() {
         return modelDefinition != null ? modelDefinition.getProvider() : null;
     }
@@ -61,7 +61,7 @@ public class TranslatorModelDefinition {
     * 获取模型文件路径。
     *
     * @return 路径
-     */
+    */
     public String modelPath() {
         if (config != null) {
             return (String) config.get("path");

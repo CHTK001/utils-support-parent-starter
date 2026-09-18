@@ -36,17 +36,17 @@ public class SpiderProxyChecker {
 
     /**
     * 测试超时（秒）
-     */
+    */
     private static final int TEST_TIMEOUT_SECONDS = 5;
 
     /**
     * 探测目标 URL（仅测代理链路：能 TCP 握手即视为连通）
-     */
+    */
     private static final String PROBE_URL = "http://www.gstatic.com/generate_204";
 
     /**
     * 代理池存储
-     */
+    */
     private final SpiderProxyPoolStore poolStore;
 
     /**
@@ -54,7 +54,7 @@ public class SpiderProxyChecker {
     *
     * @param poolCode 代理池编码
     * @return 每个节点测试结果，含 summary
-     */
+    */
     public Map<String, Object> testPool(String poolCode) {
         SpiderProxyPool pool = poolStore.get(poolCode);
         if (pool == null) {
@@ -82,7 +82,7 @@ public class SpiderProxyChecker {
     *
     * @param proxy 代理节点
     * @return 测试结果 { ok, 主机, 端口, 状态, elapsedms, 错误 }
-     */
+    */
     private Map<String, Object> testOne(SpiderProxy proxy) {
         long start = System.currentTimeMillis();
         Map<String, Object> r = new LinkedHashMap<>();
@@ -121,12 +121,12 @@ public class SpiderProxyChecker {
     *
     * <p>JDK 25 javac 对 {@code ProxySelector.of(Proxy)} 重载解析为
     * {@code of(InetSocketAddress)}，为此显式继承 ProxySelector 避免歧义。</p>
-     */
+    */
     private static final class SingleProxySelector extends ProxySelector {
 
         /**
         * 唯一的代理
-         */
+        */
         private final Proxy proxy;
 
         SingleProxySelector(Proxy proxy) {

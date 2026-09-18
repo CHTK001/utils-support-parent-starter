@@ -34,7 +34,7 @@ public class MediaTypeFactory {
     *
     * @param name 名称
     * @return 获取media类型的结果
-     */
+    */
     public static MediaType getMediaType(String name) {
         MediaType mt = MEDIA_TYPES.get(name.toLowerCase());
         if (mt == null) {
@@ -48,7 +48,7 @@ public class MediaTypeFactory {
     *
     * @param name 名称
     * @return 获取media类型空的结果
-     */
+    */
     public static MediaType getMediaTypeNullable(String name) {
         if (name == null || name.trim().isEmpty()) {
             return null;

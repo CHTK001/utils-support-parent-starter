@@ -53,19 +53,19 @@ public class HibernateDdlManager implements DslManager {
 
     /**
     * 数据源，用于通过 JDBC 元数据读取表结构
-     */
+    */
     private DataSource dataSource;
 
     /**
     * 数据库方言，用于生成数据库感知的 DDL；未设置时通过 JDBC URL 自动检测
-     */
+    */
     private Dialect dialect;
 
     /**
     * 设置数据源。
     *
     * @param dataSource JDBC 数据源
-     */
+    */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -74,7 +74,7 @@ public class HibernateDdlManager implements DslManager {
     * 获取数据源。
     *
     * @return JDBC 数据源
-     */
+    */
     public DataSource getDataSource() {
         return dataSource;
     }
@@ -85,7 +85,7 @@ public class HibernateDdlManager implements DslManager {
     * 会自动通过 JDBC URL 检测方言。</p>
     *
     * @param dialect 数据库方言实例
-     */
+    */
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
     }
@@ -94,7 +94,7 @@ public class HibernateDdlManager implements DslManager {
     * 获取当前使用的方言。
     *
     * @return 方言实例（可能为 空）
-     */
+    */
     public Dialect getDialect() {
         return dialect;
     }
@@ -104,7 +104,7 @@ public class HibernateDdlManager implements DslManager {
     * <p>如果已手动设置方言，直接返回；否则通过 JDBC URL 自动匹配已注册的 Dialect SPI。</p>
     *
     * @return 方言实例（检测失败返回 空）
-     */
+    */
     private Dialect resolveDialect() {
         if (dialect != null) {
             return dialect;
@@ -150,7 +150,7 @@ public class HibernateDdlManager implements DslManager {
     *
     * @param dialectUrl 方言的 URL 模板
     * @return 协议前缀，解析失败返回 空
-     */
+    */
     private String extractJdbcProtocol(String dialectUrl) {
         if (dialectUrl == null || !dialectUrl.startsWith("jdbc:")) {
             return null;
@@ -213,7 +213,7 @@ public class HibernateDdlManager implements DslManager {
     * @param schema 模式
     * @param table table
     * @return resolveactual模式的结果
-     */
+    */
     private String resolveActualSchema(DatabaseMetaData meta, String catalog, String schema, String table) throws Exception {
         if (schema != null) {
             return schema;
@@ -345,7 +345,7 @@ public class HibernateDdlManager implements DslManager {
     *
     * @param value 原始字符串
     * @return 转义后的字符串（单引号替换为两个单引号）
-     */
+    */
     private String escapeSqlString(String value) {
         if (value == null) {
             return "";

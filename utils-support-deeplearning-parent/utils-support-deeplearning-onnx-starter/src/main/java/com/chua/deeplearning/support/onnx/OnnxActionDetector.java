@@ -24,7 +24,7 @@ public class OnnxActionDetector implements ActionDetector {
     * @param apiKey api键
     * @return resolve模型的结果
     * @param model 模型
-     */
+    */
     private String device = "cpu";
 
     public OnnxActionDetector(String apiKey) {

@@ -20,57 +20,57 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
 
     /**
     * 编码器原生句柄
-     */
+    */
     private long encoderHandle;
 
     /**
     * 视频宽度
-     */
+    */
     private int width;
 
     /**
     * 视频高度
-     */
+    */
     private int height;
 
     /**
     * 帧率
-     */
+    */
     private int fps;
 
     /**
     * 编码器是否已启动
-     */
+    */
     private boolean started;
 
     /**
     * H.264 编码格式名称
-     */
+    */
     private static final String CODEC_NAME_H264 = "h264";
 
     /**
     * H.264 编解码器标识
-     */
+    */
     private static final int AV_CODEC_ID_H264 = 27;
 
     /**
     * 默认画质值
-     */
+    */
     private static final int DEFAULT_QUALITY = 23;
 
     /**
     * 默认 preset 值
-     */
+    */
     private static final int DEFAULT_PRESET = 1;
 
     /**
     * 默认 配置文件 值
-     */
+    */
     private static final int DEFAULT_PROFILE = 1;
 
     /**
     * 空构造。
-     */
+    */
     public RustH264VideoEncoder() {
     }
 
@@ -80,7 +80,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public RustH264VideoEncoder(int width, int height, int fps) {
         init(width, height, fps);
     }
@@ -91,7 +91,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width 视频宽度
     * @param height 视频高度
     * @param fps 帧率
-     */
+    */
     public RustH264VideoEncoder(Integer width, Integer height, Integer fps) {
         if (width != null && height != null && fps != null) {
             init(width, height, fps);
@@ -102,7 +102,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     * 使用可变参数构造，前三个参数分别为宽高和帧率。
     *
     * @param args 可变参数数组
-     */
+    */
     public RustH264VideoEncoder(Object... args) {
         if (args != null && args.length >= 3
                 && args[0] instanceof Number
@@ -120,7 +120,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param width width
     * @param height height
     * @param fps fps
-     */
+    */
     public synchronized void init(int width, int height, int fps) {
         close();
         this.width = width;
@@ -160,7 +160,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     * @param w w
     * @param h h
     * @param f f
-     */
+    */
     private void ensureInitialized(int w, int h, int f) {
         if (!started || encoderHandle == 0) {
             init(w, h, f);
@@ -223,7 +223,7 @@ public class RustH264VideoEncoder implements VideoEncoder, EncodesFrame {
     *
     * @param image 源图像
     * @return BGR24 字节数组
-     */
+    */
     private static byte[] ensureBgrBytes(BufferedImage image) {
         if (image.getType() == BufferedImage.TYPE_3BYTE_BGR) {
             byte[] pixels = new byte[image.getWidth() * image.getHeight() * 3];

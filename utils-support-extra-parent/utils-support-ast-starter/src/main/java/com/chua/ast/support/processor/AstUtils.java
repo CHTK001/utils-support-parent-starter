@@ -31,7 +31,7 @@ public final class AstUtils {
     *
     * @param processingEnv 编译处理环境
     * @return javac 上下文 实例
-     */
+    */
     public static com.sun.tools.javac.util.Context getContext(ProcessingEnvironment processingEnv) {
         // 方式 1：从 JavacProcessingEnvironment 获取 Context（JDK 25+ 支持 getContext() 方法）
         try {
@@ -80,7 +80,7 @@ public final class AstUtils {
     *
     * @param processingEnv 编译处理环境
     * @return TreeMaker 实例
-     */
+    */
     public static com.sun.tools.javac.tree.TreeMaker getTreeMaker(ProcessingEnvironment processingEnv) {
         return com.sun.tools.javac.tree.TreeMaker.instance(getContext(processingEnv));
     }
@@ -90,7 +90,7 @@ public final class AstUtils {
     *
     * @param processingEnv 编译处理环境
     * @return Names 实例
-     */
+    */
     public static com.sun.tools.javac.util.Names getNames(ProcessingEnvironment processingEnv) {
         return com.sun.tools.javac.util.Names.instance(getContext(processingEnv));
     }
@@ -100,7 +100,7 @@ public final class AstUtils {
     *
     * @param methodTree 方法树节点
     * @return JCMethodDecl 实例，转换失败返回 空
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCMethodDecl asJcMethodDecl(com.sun.source.tree.Tree methodTree) {
         if (methodTree instanceof com.sun.tools.javac.tree.JCTree.JCMethodDecl jc) {
             return jc;
@@ -115,7 +115,7 @@ public final class AstUtils {
     * @param names 名称 实例
     * @param paramName 参数名称
     * @return 标识符表达式
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCIdent makeIdent(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             String paramName) {
@@ -127,7 +127,7 @@ public final class AstUtils {
     *
     * @param maker 树maker 实例
     * @return null 字面量
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCLiteral makeNullLiteral(com.sun.tools.javac.tree.TreeMaker maker) {
         return maker.Literal(com.sun.tools.javac.code.TypeTag.BOT, null);
     }
@@ -139,7 +139,7 @@ public final class AstUtils {
     * @param left 左操作数
     * @param right 右操作数
     * @return 相等比较表达式
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCBinary makeEq(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.tree.JCTree.JCExpression left,
             com.sun.tools.javac.tree.JCTree.JCExpression right) {
@@ -153,7 +153,7 @@ public final class AstUtils {
     * @param value 字面量值字符串
     * @param type 类型镜像
     * @return 字面量 AST 表达式
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCExpression makeLiteral(com.sun.tools.javac.tree.TreeMaker maker,
             String value,
             TypeMirror type) {
@@ -181,7 +181,7 @@ public final class AstUtils {
     * 去除数值后缀（如 100L -> 100, 3.14f -> 3.14）
     * @param value 值
     * @return strip后缀的结果
-     */
+    */
     private static String stripSuffix(String value) {
         if (value == null || value.isEmpty()) { return value; }
         char last = value.charAt(value.length() - 1);
@@ -198,7 +198,7 @@ public final class AstUtils {
     * @param lhs 左值标识符
     * @param rhs 右值表达式
     * @return 赋值表达式语句
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCExpressionStatement makeAssign(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.tree.JCTree.JCExpression lhs,
             com.sun.tools.javac.tree.JCTree.JCExpression rhs) {
@@ -210,7 +210,7 @@ public final class AstUtils {
     *
     * @param jcMethod 方法声明
     * @param stmt 要插入的语句
-     */
+    */
     public static void prependToMethodBody(com.sun.tools.javac.tree.JCTree.JCMethodDecl jcMethod,
             com.sun.tools.javac.tree.JCTree.JCStatement stmt) {
         if (jcMethod.body == null) { return; }
@@ -229,7 +229,7 @@ public final class AstUtils {
     *
     * @param jcMethod 方法声明
     * @param stmt 要追加的语句
-     */
+    */
     public static void appendToMethodBody(com.sun.tools.javac.tree.JCTree.JCMethodDecl jcMethod,
             com.sun.tools.javac.tree.JCTree.JCStatement stmt) {
         if (jcMethod.body == null) { return; }
@@ -248,7 +248,7 @@ public final class AstUtils {
     *
     * @param type 类型镜像
     * @return 如果是 字符串 类型返回 true，否则返回 false
-     */
+    */
     public static boolean isStringType(TypeMirror type) {
         String ts = type.toString();
         return "java.lang.String".equals(ts) || "java.lang.CharSequence".equals(ts);
@@ -259,7 +259,7 @@ public final class AstUtils {
     *
     * @param type 类型镜像
     * @return 如果是基本类型或包装类型返回 true，否则返回 false
-     */
+    */
     public static boolean isPrimitiveOrWrapper(TypeMirror type) {
         return switch (type.getKind()) {
             case BOOLEAN, BYTE, SHORT, INT, LONG, CHAR, FLOAT, DOUBLE -> true;
@@ -282,7 +282,7 @@ public final class AstUtils {
     *
     * @param type 类型镜像
     * @return 如果是引用类型返回 true，否则返回 false
-     */
+    */
     public static boolean isReferenceType(TypeMirror type) {
         return !type.getKind().isPrimitive();
     }
@@ -294,7 +294,7 @@ public final class AstUtils {
     * @param names 名称 实例
     * @param bodyStatement 方法体语句
     * @return toString 方法声明
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCMethodDecl createToStringMethod(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.util.Names names,
             com.sun.tools.javac.tree.JCTree.JCStatement bodyStatement) {
@@ -332,7 +332,7 @@ public final class AstUtils {
     * @param maker 树maker 实例
     * @param expr 返回表达式
     * @return return 语句
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCReturn makeReturn(com.sun.tools.javac.tree.TreeMaker maker,
             com.sun.tools.javac.tree.JCTree.JCExpression expr) {
         return maker.Return(expr);
@@ -343,7 +343,7 @@ public final class AstUtils {
     *
     * @param jcMethod 方法声明
     * @return 所属的类声明节点
-     */
+    */
     public static com.sun.tools.javac.tree.JCTree.JCClassDecl getEnclosingClassDecl(com.sun.tools.javac.tree.JCTree.JCMethodDecl jcMethod) {
         com.sun.tools.javac.tree.JCTree parent = jcMethod;
         while (parent != null) {
@@ -367,7 +367,7 @@ public final class AstUtils {
     *
     * @param classDecl 类声明
     * @param member 要添加的成员
-     */
+    */
     public static void addClassMember(com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl,
             com.sun.tools.javac.tree.JCTree member) {
 
@@ -386,7 +386,7 @@ public final class AstUtils {
     * @param classDecl 类声明
     * @param fieldName 字段名称
     * @return 如果存在该字段返回 true，否则返回 false
-     */
+    */
     public static boolean hasField(com.sun.tools.javac.tree.JCTree.JCClassDecl classDecl,
             String fieldName) {
         for (com.sun.tools.javac.tree.JCTree def : classDecl.defs) {

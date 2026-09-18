@@ -34,7 +34,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     public SqliteMetaSearch(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
         this.searchEngine = new SqliteSearchEngineImpl((com.chua.sqlite.support.engine.SqliteEngine) engine);
@@ -96,7 +96,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     private class SqliteCreateIndexBuilder implements SearchIndexCreateBuilder {
 
@@ -180,7 +180,7 @@ public class SqliteMetaSearch extends AbstractMetaSearch {
         * @return normalize字段类型的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         private String normalizeFieldType(String type) {
             if (type == null) {
                 return "text";

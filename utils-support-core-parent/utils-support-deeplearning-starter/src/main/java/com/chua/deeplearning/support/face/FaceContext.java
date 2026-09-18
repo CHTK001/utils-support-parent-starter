@@ -22,72 +22,72 @@ public class FaceContext {
 
     /**
     * 原始场景图。
-     */
+    */
     private final byte[] imageData;
 
     /**
     * 全部检测框。
-     */
+    */
     private final List<PredictRectangle> boxes;
 
     /**
     * 当前处理的人脸框索引。
-     */
+    */
     private int index;
 
     /**
     * 已产出的人脸检测命中（检测管线）。
-     */
+    */
     private final List<FaceDetectionHit> detectionHits = new ArrayList<>();
 
     /**
     * 已产出的人脸识别命中（识别管线）。
-     */
+    */
     private final List<FaceIdentifyHit> identifyHits = new ArrayList<>();
 
     /**
     * 当前人脸框。
-     */
+    */
     private PredictRectangle currentBox;
 
     /**
     * 当前人脸裁剪图。
-     */
+    */
     private byte[] currentFace;
 
     /**
     * 当前人脸活体结果（live / score）。
-     */
+    */
     private boolean currentLive = true;
 
     /**
     * 当前人脸活体分数。
-     */
+    */
     private float currentLiveScore = 1.0f;
 
     /**
     * 当前人脸特征向量。
-     */
+    */
     private float[] currentFeature;
 
     /**
     * 当前人脸检索命中（识别管线）。
-     */
+    */
     private List<FaceSearchHit> currentHits = List.of();
 
     /**
     * 当前对齐后人脸图。
-     */
+    */
     private byte[] currentAlignedFace;
 
     /**
     * 当前修复后人脸图。
-     */
+    */
     private byte[] currentRestoredFace;
 
     /**
     * 当前高清化后人脸图。
-     */
+    */
     private byte[] currentEnhancedFace;
 
     /**
@@ -95,7 +95,7 @@ public class FaceContext {
     *
     * @param imageData 原始场景图
     * @param boxes     全部检测框
-     */
+    */
     public FaceContext(byte[] imageData, List<PredictRectangle> boxes) {
         this.imageData = imageData;
         this.boxes = boxes == null ? List.of() : new ArrayList<>(boxes);
@@ -105,7 +105,7 @@ public class FaceContext {
     * 原始场景图。
     *
     * @return 图片字节
-     */
+    */
     public byte[] imageData() {
         return imageData;
     }
@@ -114,7 +114,7 @@ public class FaceContext {
     * 全部检测框。
     *
     * @return 框列表
-     */
+    */
     public List<PredictRectangle> boxes() {
         return boxes;
     }
@@ -123,7 +123,7 @@ public class FaceContext {
     * 是否有待处理的人脸。
     *
     * @return true 表示还有下一张人脸
-     */
+    */
     public boolean hasNext() {
         return index < boxes.size();
     }
@@ -132,7 +132,7 @@ public class FaceContext {
     * 推进到下一张人脸，重置单人中间状态。
     *
     * @return true 表示成功推进
-     */
+    */
     public boolean advance() {
         if (!hasNext()) {
             return false;
@@ -153,7 +153,7 @@ public class FaceContext {
     * 当前人脸框。
     *
     * @return 当前框，未推进时为 空
-     */
+    */
     public PredictRectangle currentBox() {
         return currentBox;
     }
@@ -162,7 +162,7 @@ public class FaceContext {
     * 设置当前人脸裁剪图。
     *
     * @param face 裁剪图
-     */
+    */
     public void currentFace(byte[] face) {
         this.currentFace = face;
     }
@@ -171,7 +171,7 @@ public class FaceContext {
     * 当前人脸裁剪图。
     *
     * @return 裁剪图
-     */
+    */
     public byte[] currentFace() {
         return currentFace;
     }
@@ -181,7 +181,7 @@ public class FaceContext {
     *
     * @param live  是否活体
     * @param score 活体分数
-     */
+    */
     public void currentLive(boolean live, float score) {
         this.currentLive = live;
         this.currentLiveScore = score;
@@ -191,7 +191,7 @@ public class FaceContext {
     * 当前人脸是否活体。
     *
     * @return 活体标记
-     */
+    */
     public boolean currentLive() {
         return currentLive;
     }
@@ -200,7 +200,7 @@ public class FaceContext {
     * 当前人脸活体分数。
     *
     * @return 分数
-     */
+    */
     public float currentLiveScore() {
         return currentLiveScore;
     }
@@ -209,7 +209,7 @@ public class FaceContext {
     * 设置当前人脸特征向量。
     *
     * @param feature 特征
-     */
+    */
     public void currentFeature(float[] feature) {
         this.currentFeature = feature;
     }
@@ -218,7 +218,7 @@ public class FaceContext {
     * 当前人脸特征向量。
     *
     * @return 特征
-     */
+    */
     public float[] currentFeature() {
         return currentFeature;
     }
@@ -227,7 +227,7 @@ public class FaceContext {
     * 设置当前人脸检索命中。
     *
     * @param hits 检索命中
-     */
+    */
     public void currentHits(List<FaceSearchHit> hits) {
         this.currentHits = hits == null ? List.of() : hits;
     }
@@ -236,7 +236,7 @@ public class FaceContext {
     * 当前人脸检索命中。
     *
     * @return 检索命中列表
-     */
+    */
     public List<FaceSearchHit> currentHits() {
         return currentHits;
     }
@@ -245,7 +245,7 @@ public class FaceContext {
     * 设置当前对齐后人脸图。
     *
     * @param face 对齐人脸图
-     */
+    */
     public void currentAlignedFace(byte[] face) {
         this.currentAlignedFace = face;
     }
@@ -254,7 +254,7 @@ public class FaceContext {
     * 当前对齐后人脸图。
     *
     * @return 对齐人脸图
-     */
+    */
     public byte[] currentAlignedFace() {
         return currentAlignedFace;
     }
@@ -263,7 +263,7 @@ public class FaceContext {
     * 设置当前修复后人脸图。
     *
     * @param face 修复人脸图
-     */
+    */
     public void currentRestoredFace(byte[] face) {
         this.currentRestoredFace = face;
     }
@@ -272,7 +272,7 @@ public class FaceContext {
     * 当前修复后人脸图。
     *
     * @return 修复人脸图
-     */
+    */
     public byte[] currentRestoredFace() {
         return currentRestoredFace;
     }
@@ -281,7 +281,7 @@ public class FaceContext {
     * 设置当前高清化后人脸图。
     *
     * @param face 高清人脸图
-     */
+    */
     public void currentEnhancedFace(byte[] face) {
         this.currentEnhancedFace = face;
     }
@@ -290,7 +290,7 @@ public class FaceContext {
     * 当前高清化后人脸图。
     *
     * @return 高清人脸图
-     */
+    */
     public byte[] currentEnhancedFace() {
         return currentEnhancedFace;
     }
@@ -299,7 +299,7 @@ public class FaceContext {
     * 记录一次检测命中。
     *
     * @param hit 命中
-     */
+    */
     public void addDetectionHit(FaceDetectionHit hit) {
         this.detectionHits.add(hit);
     }
@@ -308,7 +308,7 @@ public class FaceContext {
     * 检测命中列表。
     *
     * @return 命中列表
-     */
+    */
     public List<FaceDetectionHit> detectionHits() {
         return detectionHits;
     }
@@ -317,7 +317,7 @@ public class FaceContext {
     * 记录一次识别命中。
     *
     * @param hit 命中
-     */
+    */
     public void addIdentifyHit(FaceIdentifyHit hit) {
         this.identifyHits.add(hit);
     }
@@ -326,7 +326,7 @@ public class FaceContext {
     * 识别命中列表。
     *
     * @return 命中列表
-     */
+    */
     public List<FaceIdentifyHit> identifyHits() {
         return identifyHits;
     }

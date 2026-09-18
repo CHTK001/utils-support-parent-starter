@@ -30,7 +30,7 @@ public class OnnxVlmClient implements VlmClient {
     *
     * @param model 模型标识（如 florence2）
     * @return 当前实例
-     */
+    */
     @Override
     public VlmClient model(String model) {
         this.modelName = model;
@@ -45,7 +45,7 @@ public class OnnxVlmClient implements VlmClient {
     * @return 理解结果，包含任务和文本
     * @throws IllegalStateException 当模型未在 模型registry 中注册时
     * @throws RuntimeException      当推理过程发生异常时
-     */
+    */
     @Override
     public UnderstandResult understand(byte[] imageData, UnderstandTask task) {
         try {

@@ -18,26 +18,26 @@ public class RateLimiterProperties {
 
     /**
     * 配置前缀
-     */
+    */
     public static final String PRE = "plugin.rate-limiter";
 
     /**
     * 是否启用限流自动配置
-     */
+    */
     private boolean enabled = true;
 
     /**
     * 限流器名称
-     */
+    */
     private String name = "default";
 
     /**
     * 每秒许可数（QPS）
-     */
+    */
     private double permitsPerSecond = 1000D;
 
     /**
     * 预热时间（秒），大于 0 时启用平滑预热模式
-     */
+    */
     private long warmupPeriod;
 }

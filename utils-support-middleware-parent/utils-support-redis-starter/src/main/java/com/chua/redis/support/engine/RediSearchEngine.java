@@ -113,7 +113,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param ql     Redis 命令行（如 {@code DEL user:1}）
     * @param params 附加参数列表
     * @return 受影响行数
-     */
+    */
     public int execute(String ql, Object... params) {
         if (ql == null || ql.isBlank()) {
             throw new IllegalArgumentException("Redis 命令不能为空");
@@ -263,7 +263,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param entityClass 实体类
     * @param groupByCols 群体bycols
     * @return 群体by的结果
-     */
+    */
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
     }
@@ -307,7 +307,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return eq的结果
-         */
+        */
         public GroupByQueryWrapper<T> eq(String col, Object val) {
             where.add("@" + escape(col) + ":[" + escapeValue(val) + " " + escapeValue(val) + "]");
             return this;
@@ -319,7 +319,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return ne的结果
-         */
+        */
         public GroupByQueryWrapper<T> ne(String col, Object val) {
             where.add("-@" + escape(col) + ":[" + escapeValue(val) + " " + escapeValue(val) + "]");
             return this;
@@ -331,7 +331,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return gt的结果
-         */
+        */
         public GroupByQueryWrapper<T> gt(String col, Object val) {
             where.add("@" + escape(col) + ":[(" + escapeValue(val) + " +inf]");
             return this;
@@ -343,7 +343,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return ge的结果
-         */
+        */
         public GroupByQueryWrapper<T> ge(String col, Object val) {
             where.add("@" + escape(col) + ":[" + escapeValue(val) + " +inf]");
             return this;
@@ -355,7 +355,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return lt的结果
-         */
+        */
         public GroupByQueryWrapper<T> lt(String col, Object val) {
             where.add("@" + escape(col) + ":[-inf (" + escapeValue(val) + "]");
             return this;
@@ -367,7 +367,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param val val
         * @return le的结果
-         */
+        */
         public GroupByQueryWrapper<T> le(String col, Object val) {
             where.add("@" + escape(col) + ":[-inf " + escapeValue(val) + "]");
             return this;
@@ -379,7 +379,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param pattern 模式
         * @return like的结果
-         */
+        */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
             String p = pattern;
             if (p.contains("%")) {
@@ -401,7 +401,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param vals vals
         * @return 入的结果
-         */
+        */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
             StringBuilder sb = new StringBuilder();
             sb.append("@").append(escape(col)).append(":(");
@@ -423,7 +423,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param col col
         * @param asc asc
         * @return 订单by的结果
-         */
+        */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
@@ -435,7 +435,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         *
         * @param limit 限制
         * @return 限制的结果
-         */
+        */
         public GroupByQueryWrapper<T> limit(int limit) {
             this.limit = Math.max(1, limit);
             return this;
@@ -446,7 +446,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         *
         * @param offset 偏移量
         * @return 偏移量的结果
-         */
+        */
         public GroupByQueryWrapper<T> offset(int offset) {
             this.offset = Math.max(0, offset);
             return this;
@@ -456,7 +456,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * 列表
         *
         * @return 列表的结果
-         */
+        */
         public List<Map<String, Object>> list() {
             return executeGroupBy();
         }
@@ -467,7 +467,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * @param pn pn
         * @param ps ps
         * @return page的结果
-         */
+        */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<Map<String, Object>> all = executeGroupBy();
             int from = (pn - 1) * ps;
@@ -483,7 +483,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
         * 执行分组By
         *
         * @return 执行群体by的结果
-         */
+        */
         private List<Map<String, Object>> executeGroupBy() {
             try (Jedis jedis = engine.getPool(engine.getDefaultDataSourceName()).getResource()) {
                 String indexName = "idx:" + engine.getKeyPrefix(entityClass);
@@ -533,7 +533,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param entityClass 实体类
     * @return 查询新的结果
-     */
+    */
     public <T> LambdaQueryWrapper<T> queryNew(Class<T> entityClass) {
         return new LambdaQueryWrapper<>(entityClass);
     }
@@ -543,7 +543,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param entityClass 实体类
     * @return 更新新的结果
-     */
+    */
     public <T> LambdaUpdateWrapper<T> updateNew(Class<T> entityClass) {
         return new LambdaUpdateWrapper<>(entityClass);
     }
@@ -553,7 +553,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param entityClass 实体类
     * @return 删除新的结果
-     */
+    */
     public <T> LambdaDeleteWrapper<T> deleteNew(Class<T> entityClass) {
         return new LambdaDeleteWrapper<>(entityClass);
     }
@@ -563,7 +563,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param wrapper 包装器
     * @return 执行的结果
-     */
+    */
     public <T> List<T> execute(LambdaQueryWrapper<T> wrapper) {
         QuerySql<T> sql = wrapper.buildSql();
         return executeNewQuery(sql.whereClause(), sql.params().toArray(), wrapper.getEntityClass());
@@ -574,7 +574,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param wrapper 包装器
     * @return 执行的结果
-     */
+    */
     public int execute(LambdaUpdateWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.UpdateSql<?> sql = wrapper.buildSql();
         return executeNewUpdate(sql.whereClause(), sql.params().toArray());
@@ -585,7 +585,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param wrapper 包装器
     * @return 执行的结果
-     */
+    */
     public int execute(LambdaDeleteWrapper<?> wrapper) {
         com.chua.common.support.lang.datasource.engine.wrapper.DeleteSql<?> sql = wrapper.buildSql();
         return executeNewDelete(sql.whereClause(), sql.params().toArray());
@@ -599,7 +599,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param wrapper 包装器
     * @param entityClass 实体类
     * @return 执行查询的结果
-     */
+    */
     private <T> List<T> executeQuery(LambdaQueryWrapper<T> wrapper, Class<T> entityClass) {
         QuerySql<T> sql = wrapper.buildSql();
         return executeNewQuery(sql.whereClause(), sql.params().toArray(), entityClass);
@@ -612,7 +612,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param params 参数
     * @param entityClass 实体类
     * @return 执行新查询的结果
-     */
+    */
     private <T> List<T> executeNewQuery(String whereClause, Object[] params, Class<T> entityClass) {
         String keyPrefix = getKeyPrefix(entityClass);
         try (Jedis jedis = getPool(defaultDataSourceName).getResource()) {
@@ -667,7 +667,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param val val
     * @param value 值
     * @param value 值
-     */
+    */
     private <T> Page<T> executePage(
             LambdaQueryWrapper<T> wrapper,
             Class<T> entityClass, int pageNum, int pageSize) {
@@ -684,7 +684,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param wrapper 包装器
     * @return 执行更新的结果
-     */
+    */
     private <T> int executeUpdate(LambdaUpdateWrapper<T> wrapper) {
         return 0;
     }
@@ -694,7 +694,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param wrapper 包装器
     * @return 执行删除的结果
-     */
+    */
     private <T> int executeDelete(LambdaDeleteWrapper<T> wrapper) {
         return 0;
     }
@@ -705,7 +705,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param sql SQL
     * @param params 参数
     * @return 执行新更新的结果
-     */
+    */
     private int executeNewUpdate(String sql, Object[] params) {
         return 0;
     }
@@ -716,7 +716,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param sql SQL
     * @param params 参数
     * @return 执行新删除的结果
-     */
+    */
     private int executeNewDelete(String sql, Object[] params) {
         return 0;
     }
@@ -730,7 +730,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param index 索引
     * @param query 查询
     * @return 构建ft搜索参数的结果
-     */
+    */
     private byte[][] buildFtSearchArgs(String index, String query) {
         return new byte[][]{
                 SafeEncoder.encode(index),
@@ -749,7 +749,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param entityClass 实体类
     * @param jedis jedis
     * @return 映射ft搜索响应的结果
-     */
+    */
     private <T> List<T> mapFtSearchResponse(Object response, Class<T> entityClass, Jedis jedis) {
         List<T> result = new ArrayList<>();
         if (response == null) {
@@ -782,7 +782,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     * @param sortAsc 排序asc
     * @param offset 偏移量
     * @param limit 限制
-     */
+    */
     private static byte[][] buildFtAggregateArgs(String index, String query, List<String> groupByCols,
                                                   String sortCol, boolean sortAsc, int offset, int limit) {
         List<byte[]> args = new ArrayList<>();
@@ -818,7 +818,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param response 响应
     * @return 解析aggregate响应的结果
-     */
+    */
     private static List<Map<String, Object>> parseAggregateResponse(Object response) {
         List<Map<String, Object>> result = new ArrayList<>();
         if (response == null) {
@@ -862,7 +862,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param value 值
     * @return escape的结果
-     */
+    */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -879,7 +879,7 @@ public class RediSearchEngine extends RedisEngine implements Engine {
     *
     * @param value 值
     * @return escape值的结果
-     */
+    */
     private static String escapeValue(Object value) {
         if (value == null) {
             return "";

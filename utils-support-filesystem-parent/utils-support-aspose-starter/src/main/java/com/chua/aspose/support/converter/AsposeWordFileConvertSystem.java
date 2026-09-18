@@ -30,17 +30,17 @@ public class AsposeWordFileConvertSystem implements FileConvertSystem {
 
     /**
     * 支持的源文件格式列表
-     */
+    */
     private static final List<String> SOURCES = List.of("doc", "docx", "dot", "dotx", "docm", "dotm", "wps");
 
     /**
     * 支持的目标文件格式列表
-     */
+    */
     private static final List<String> TARGETS = List.of("pdf", "doc", "docx", "dot", "dotx", "html", "htm", "txt", "rtf", "epub", "odt", "xps");
 
     /**
     * 格式与 Aspose.Words 保存格式化 常量映射表
-     */
+    */
     private static final Map<String, Integer> FORMAT_MAP = Map.ofEntries(
         Map.entry("doc", SaveFormat.DOC), Map.entry("docx", SaveFormat.DOCX),
         Map.entry("dot", SaveFormat.DOT), Map.entry("dotx", SaveFormat.DOTX),

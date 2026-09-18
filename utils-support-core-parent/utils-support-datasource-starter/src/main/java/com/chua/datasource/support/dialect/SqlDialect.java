@@ -37,7 +37,7 @@ public class SqlDialect extends AbstractDialect {
     * 构造 SQL 方言，自动加载 {@code META-INF/dialect-env/{protocol}.env}。
     *
     * @param protocol 协议名（如 {@code mysql}、{@code postgresql}、{@code oracle}）
-     */
+    */
     public SqlDialect(String protocol) {
         this.protocol = protocol;
         // AbstractDialect 无参构造器先于本构造器执行并虚调用 loadDefaultEnv()，此时 protocol 为空，
@@ -50,7 +50,7 @@ public class SqlDialect extends AbstractDialect {
     *
     * @param protocol     协议名
     * @param properties   外部属性（优先级高于 .env）
-     */
+    */
     public SqlDialect(String protocol, Properties properties) {
         this.protocol = protocol;
         this.properties = loadDefaultEnv();
@@ -91,7 +91,7 @@ public class SqlDialect extends AbstractDialect {
     *
     * @param key 配置键
     * @return 第一个字符或空格
-     */
+    */
     private char firstChar(String key) {
         String v = config(key, "");
         if (v.isEmpty()) {
@@ -114,7 +114,7 @@ public class SqlDialect extends AbstractDialect {
     *
     * @param key 配置键
     * @return 解析后的布尔值，key 不存在返回 空
-     */
+    */
     private Boolean configBool(String key) {
         String v = config(key, null);
         if (v == null) {
@@ -328,7 +328,7 @@ public class SqlDialect extends AbstractDialect {
     * @param schema         模式 名称，空 或空时不追加
     * @param schemaColumn   模式 列名
     * @return 追加条件后的 SQL
-     */
+    */
     private String buildWithSchema(String template, String schema, String schemaColumn) {
         if (schema == null || schema.isEmpty()) {
             return template;
@@ -342,10 +342,10 @@ public class SqlDialect extends AbstractDialect {
     // ==================== 配置加载 ====================
 
     /**
-     * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
-     *
-     * @return 加载后的属性，文件不存在时返回空属性
-     */
+    * 从类路径加载 {@code META-INF/dialect-env/{protocol}.env}。
+    *
+    * @return 加载后的属性，文件不存在时返回空属性
+    */
     @Override
     protected Properties loadDefaultEnv() {
         String resourceName = "META-INF/dialect-env/" + protocol + ".env";

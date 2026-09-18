@@ -15,7 +15,7 @@ public interface UserManager {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface CreateUserStep {
 
         CreateUserStep withPassword(String password);
@@ -30,7 +30,7 @@ public interface UserManager {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface AlterUserStep {
 
         AlterUserStep withPassword(String password);
@@ -49,7 +49,7 @@ public interface UserManager {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     interface DropUserStep {
 
         void execute();
@@ -59,14 +59,14 @@ public interface UserManager {
     * 返回 SPI 扩展键。
     *
     * @return 数据库类型标识
-     */
+    */
     String type();
 
     /**
     * 查询所有用户。
     *
     * @return 用户信息列表
-     */
+    */
     List<UserInfo> listUsers();
 
     /**
@@ -74,7 +74,7 @@ public interface UserManager {
     *
     * @param username 用户名
     * @return 创建用户步骤
-     */
+    */
     CreateUserStep createUser(String username);
 
     /**
@@ -82,7 +82,7 @@ public interface UserManager {
     *
     * @param username 用户名
     * @return 删除用户步骤
-     */
+    */
     DropUserStep dropUser(String username);
 
     /**
@@ -90,6 +90,6 @@ public interface UserManager {
     *
     * @param username 用户名
     * @return 修改用户步骤
-     */
+    */
     AlterUserStep alterUser(String username);
 }

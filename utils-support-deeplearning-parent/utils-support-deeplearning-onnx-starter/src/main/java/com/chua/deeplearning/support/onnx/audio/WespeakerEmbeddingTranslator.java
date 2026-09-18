@@ -53,7 +53,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     /**
     * 设置模型文件路径（仅供 模型registry 在 SPI 实例化后注入使用）。
     * @param modelPath 模型路径
-     */
+    */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
@@ -120,7 +120,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
 
     /**
     * ensureprepared。
-     */
+    */
     private void ensurePrepared() throws Exception {
         if (prepared) {
             return;
@@ -147,7 +147,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * resolve模型路径。
     * @param pathStr 路径str
     * @return resolve模型路径的结果
-     */
+    */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
             return null;
@@ -174,7 +174,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * decode转为pcm。
     * @param audioData 音频数据
     * @return decode转为pcm的结果
-     */
+    */
     private float[] decodeToPcm(byte[] audioData) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(
@@ -209,7 +209,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     *
     * @param samples 样本
     * @return computeFbank80的结果
-     */
+    */
     private double[][] computeFbank80(float[] samples) {
         int nFreq = FFT_N / 2 + 1;
         int frames = Math.max(1, (samples.length - FRAME_LEN) / FRAME_SHIFT + 1);
@@ -264,7 +264,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * 构建kaldimel过滤器。
     * @param nFreq nfreq
     * @return 构建kaldimel过滤器的结果
-     */
+    */
     private static double[][] buildKaldiMelFilters(int nFreq) {
         double[][] filters = new double[nFreq][FEATURE_DIM];
 
@@ -307,7 +307,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * hz转为mel。
     * @param hz hz
     * @return hz转为mel的结果
-     */
+    */
     private static double hzToMel(double hz) {
         return 2595.0 * Math.log10(1.0 + hz / 700.0);
     }
@@ -316,7 +316,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * mel转为hertz。
     * @param mel mel
     * @return mel转为hertz的结果
-     */
+    */
     private static double melToHertz(double mel) {
         return 700.0 * (Math.pow(10.0, mel / 2595.0) - 1.0);
     }
@@ -326,7 +326,7 @@ public class WespeakerEmbeddingTranslator implements ITranslator<byte[], float[]
     * @param inRe 入re
     * @param outRe 出re
     * @param outIm 出im
-     */
+    */
     private static void fftRadix2(double[] inRe, double[] outRe, double[] outIm) {
         int n = inRe.length;
         for (int i = 0; i < n; i++) {

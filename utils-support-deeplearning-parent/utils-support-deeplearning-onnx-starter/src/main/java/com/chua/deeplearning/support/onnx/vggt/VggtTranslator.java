@@ -38,12 +38,12 @@ public class VggtTranslator implements Translator<Image, Image> {
 
     /**
     *                         
-     */
+    */
     private static final int INPUT_SIZE = 512;
 
     /**
     * 上下文           3D
-     */
+    */
     public static final String VGGT_OUTPUT_KEY = "vggt_3d_output";
 
     @Override
@@ -122,7 +122,7 @@ public class VggtTranslator implements Translator<Image, Image> {
     *
     * @param manager nd管理器
     * @return             
-     */
+    */
     private Image createPlaceholderImage(NDManager manager) {
         //                                              
         //        uint8                    [0, 255]   HWC       

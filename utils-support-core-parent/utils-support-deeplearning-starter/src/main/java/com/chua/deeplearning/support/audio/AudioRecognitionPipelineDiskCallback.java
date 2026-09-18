@@ -25,7 +25,7 @@ public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPip
         /**
         * on嵌入。
         * @param embeddings 嵌入
-         */
+        */
         log.info("[audio-callback] VAD 切分完成：{} 个语音片段", segments.size());
     }
 
@@ -34,7 +34,7 @@ public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPip
         /**
         * oncluster。
         * @param assignments assignments
-         */
+        */
         log.info("[audio-callback] 说话人嵌入提取完成：{} 个片段", embeddings.length);
     }
 
@@ -47,7 +47,7 @@ public class AudioRecognitionPipelineDiskCallback implements AudioRecognitionPip
         * @return 去重数量的结果
         * @param result 结果
         * @param elapsedMs elapsedms
-         */
+        */
         log.info("[audio-callback] 说话人聚类完成：{} 个说话人", distinctCount(assignments));
     }
 

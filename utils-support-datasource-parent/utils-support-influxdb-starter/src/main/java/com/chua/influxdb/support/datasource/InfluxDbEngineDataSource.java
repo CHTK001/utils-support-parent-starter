@@ -14,32 +14,32 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
 
     /**
     * 数据源名称
-     */
+    */
     private final String name;
 
     /**
     * 官方客户端
-     */
+    */
     private final InfluxDB source;
 
     /**
     * 连接地址
-     */
+    */
     private final String url;
 
     /**
     * 用户名
-     */
+    */
     private final String username;
 
     /**
     * 密码
-     */
+    */
     private final String password;
 
     /**
     * 数据库名
-     */
+    */
     private final String database;
 
     /**
@@ -51,7 +51,7 @@ public class InfluxDbEngineDataSource implements EngineDataSource<InfluxDB> {
     * @param password 密码
     * @param database 数据库
     * @param source   influxdb 客户端
-     */
+    */
     public InfluxDbEngineDataSource(String name, String url, String username,
                                     String password, String database, InfluxDB source) {
         this.name = name;

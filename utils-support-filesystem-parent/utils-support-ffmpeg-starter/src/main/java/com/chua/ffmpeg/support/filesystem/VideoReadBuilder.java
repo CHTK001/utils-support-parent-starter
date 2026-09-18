@@ -26,7 +26,7 @@ public class VideoReadBuilder extends ReadBuilder {
     * @param file 文件
     * @param processor ffmpeg处理器
     * @param processor 处理器
-     */
+    */
     public VideoReadBuilder(File file, FFmpegProcessor processor) {
         super(file);
         this.processor = processor;
@@ -43,7 +43,7 @@ public class VideoReadBuilder extends ReadBuilder {
     * 获取视频文件的完整媒体信息。
     *
     * @return 媒体信息（包含视频/音频流详情）
-     */
+    */
     public FFmpegMediaInfo info() {
         try {
             if (processor != null) {
@@ -59,7 +59,7 @@ public class VideoReadBuilder extends ReadBuilder {
     * 获取视频时长（秒）。
     *
     * @return 视频时长
-     */
+    */
     public double duration() {
         try {
             if (processor != null) {

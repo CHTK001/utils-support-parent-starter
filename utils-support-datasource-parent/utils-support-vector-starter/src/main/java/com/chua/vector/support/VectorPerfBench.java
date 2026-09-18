@@ -28,13 +28,13 @@ public class VectorPerfBench {
     /**
     * main。
     * @param args 参数
-     */
+    */
     private static Path benchDir;
 
     /**
     * main。
     * @param args 参数
-     */
+    */
     public static void main(String[] args) throws Exception {
         benchDir = Files.createTempDirectory("vector-perf-bench-");
         System.out.println("============================================================");
@@ -48,7 +48,7 @@ public class VectorPerfBench {
     * 运行全部。
     * @param name 名称
     * @param factory 工厂
-     */
+    */
     }
 
     private static void runAll() {
@@ -116,7 +116,7 @@ public class VectorPerfBench {
     * @param fmt fmt
     * @param args 参数
     * @param s s
-     */
+    */
                 long searchNs = 0;
                 for (int round = 0; round < MEASURE_ROUNDS; round++) {
                     VectorStorage s = factory.create();
@@ -149,7 +149,7 @@ public class VectorPerfBench {
     * 随机向量。
     * @param dim dim
     * @return 随机向量的结果
-     */
+    */
     }
 
     private static float[] randomVector(int dim) {
@@ -162,7 +162,7 @@ public class VectorPerfBench {
     * resolve。
     * @param name 名称
     * @return resolve的结果
-     */
+    */
     }
 
     private static Path resolve(String name) throws Exception {
@@ -176,7 +176,7 @@ public class VectorPerfBench {
     * @since 4.0.0
     * @param fmt fmt
     * @param args 参数
-     */
+    */
     }
 
     private static void deleteRecursively(Path dir) {

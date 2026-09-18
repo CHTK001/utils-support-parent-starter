@@ -38,7 +38,7 @@ public class MysqlMetaPermission implements MetaPermission {
     * 列表。
     * @return 列表的结果
     * @param dataSource 数据源
-     */
+    */
     public MysqlMetaPermission(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -73,7 +73,7 @@ public class MysqlMetaPermission implements MetaPermission {
                 * 转为用户。
                 * @param username 用户名
                 * @return 转为用户的结果
-                 */
+                */
                 .toList();
     }
 
@@ -84,7 +84,7 @@ public class MysqlMetaPermission implements MetaPermission {
         * ontable。
         * @param tableName table名称
         * @return onTable的结果
-         */
+        */
         return this;
     }
 
@@ -96,7 +96,7 @@ public class MysqlMetaPermission implements MetaPermission {
         * @param tableName table名称
         * @param columnName column名称
         * @return onColumn的结果
-         */
+        */
         return this;
     }
 
@@ -106,7 +106,7 @@ public class MysqlMetaPermission implements MetaPermission {
         * grant。
         * @param privileges privileges
         * @return grant的结果
-         */
+        */
         return this;
     }
 
@@ -124,7 +124,7 @@ public class MysqlMetaPermission implements MetaPermission {
     * @return strip引述的结果
     * @param ds ds
     * @param sql sql
-     */
+    */
     }
 
     private static String stripQuote(String raw) {
@@ -147,11 +147,11 @@ public class MysqlMetaPermission implements MetaPermission {
 
     // ==================== Inner Steps ====================
     /**
-     * GrantStep类。
-     *
-     * @author CH
-     * @since 4.0.0
-     */
+    * GrantStep类。
+    *
+    * @author CH
+    * @since 4.0.0
+    */
 
     private static class GrantStep implements GrantBuilder {
         private final DataSource dataSource; // 数据源
@@ -181,8 +181,8 @@ public class MysqlMetaPermission implements MetaPermission {
     }
 
     /**
-     * RevokeStep类。
-     */
+    * RevokeStep类。
+    */
     private static class RevokeStep implements RevokeBuilder {
         private final DataSource dataSource; // 数据源
         private final String privileges; // privileges

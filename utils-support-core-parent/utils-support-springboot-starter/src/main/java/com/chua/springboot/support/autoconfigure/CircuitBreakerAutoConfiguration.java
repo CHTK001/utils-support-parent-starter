@@ -25,7 +25,7 @@ public class CircuitBreakerAutoConfiguration {
     * 熔断中断提供者
     *
     * @return 熔断中断提供者的结果
-     */
+    */
     public CircuitBreakerProvider circuitBreakerProvider() {
         return new InMemoryCircuitBreakerProvider("default", 5, 2, 60000);
     }
@@ -36,7 +36,7 @@ public class CircuitBreakerAutoConfiguration {
     * 熔断中断intercept
     *
     * @return 熔断中断intercept的结果
-     */
+    */
     public CircuitBreakerIntercept circuitBreakerIntercept() {
         return new CircuitBreakerIntercept();
     }
@@ -48,7 +48,7 @@ public class CircuitBreakerAutoConfiguration {
     *
     * @param intercept intercept
     * @return 熔断中断advisor的结果
-     */
+    */
     public CircuitBreakerAdvisor circuitBreakerAdvisor(CircuitBreakerIntercept intercept) {
         return new CircuitBreakerAdvisor(intercept);
     }

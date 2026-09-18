@@ -32,7 +32,7 @@ public class DefaultModel3D implements Model3D {
     * @param byte byte
     * @param data 数据
     * @param format 格式化
-     */
+    */
     public DefaultModel3D(String name, Model3DFormat format, byte[] data) {
         this.name = name;
         this.format = format;

@@ -33,12 +33,12 @@ public class Gpt2Translator implements Translator<String, Classifications> {
 
     /**
     * GPT-2                               128
-     */
+    */
     private static final int MAX_LENGTH = 128;
 
     /**
     * huggingface
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
@@ -127,7 +127,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     * @param modelPath             
     * @param fileName              
     * @return                        path，       空
-     */
+    */
     private static Path findFile(Path modelPath, String fileName) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) {
@@ -146,7 +146,7 @@ public class Gpt2Translator implements Translator<String, Classifications> {
     * @param arr                 
     * @param k           top-K   
     * @return top-K       
-     */
+    */
     private static int[] topKIndices(float[] arr, int k) {
         int n = arr.length;
         int[] indices = new int[k];

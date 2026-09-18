@@ -39,7 +39,9 @@ class DfsmnKaldiFbank {
     /** mel 低频截止（Hz） */
     private static final float LOW_FREQ = 20.0f;
 
-    /** mel 高频截止（Hz，torchaudio 默认 high_freq=0 → Nyquist） */
+    /**
+    * mel 高频截止（Hz，torchaudio 默认 high_freq=0 → Nyquist）
+    */
     private static final float HIGH_FREQ = SAMPLE_RATE / 2.0f;
 
     /** pre-emphasis 系数 */
@@ -72,7 +74,7 @@ class DfsmnKaldiFbank {
     * 创建 dfsmnkaldifbank 实例。
     *
     * @param dither dither 系数
-     */
+    */
     DfsmnKaldiFbank(float dither) {
         this.window = buildHammingWindow();
         this.melBanks = buildMelBanks();
@@ -84,7 +86,7 @@ class DfsmnKaldiFbank {
     *
     * @param samples 48khz 单声道样本（幅值约 ±32768）
     * @return (num_frames, 120) 扁平数组
-     */
+    */
     float[] extract(float[] samples) {
         int numFrames = numFrames(samples.length);
         float[] features = new float[numFrames * N_MELS];
@@ -149,7 +151,7 @@ class DfsmnKaldiFbank {
     *
     * @param numSamples 样本总数
     * @return 帧数
-     */
+    */
     static int numFrames(int numSamples) {
         if (numSamples < WINDOW_SIZE) {
             return 0;
@@ -161,7 +163,7 @@ class DfsmnKaldiFbank {
     * 构造非周期 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
     *
     * @return 窗口系数
-     */
+    */
     private static float[] buildHammingWindow() {
         float[] w = new float[WINDOW_SIZE];
         double a = 2.0 * Math.PI / (WINDOW_SIZE - 1);
@@ -175,7 +177,7 @@ class DfsmnKaldiFbank {
     * 构造 kaldi mel 滤波器组（120 bins，20 ~ 23600Hz，htk 公式）。
     *
     * @return [120][1025] 权重矩阵
-     */
+    */
     private static float[][] buildMelBanks() {
         float nyquist = 0.5f * SAMPLE_RATE;
         if (HIGH_FREQ <= 0) {
@@ -210,7 +212,7 @@ class DfsmnKaldiFbank {
     *
     * @param freq 频率（Hz）
     * @return mel 值
-     */
+    */
     private static float melScale(float freq) {
         return (float) (1127.0 * Math.log(1.0 + freq / 700.0));
     }

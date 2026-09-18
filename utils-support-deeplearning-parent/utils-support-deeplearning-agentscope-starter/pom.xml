@@ -22,6 +22,15 @@
             <groupId>com.openai</groupId>
             <artifactId>openai-java</artifactId>
         </dependency>
+        <!-- openai-java 4.x 顶层 jar 为聚合 stub，实际类位于 openai-java-core / openai-java-client-okhttp，显式声明保证编译类路径完整 -->
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java-client-okhttp</artifactId>
+        </dependency>
 <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>

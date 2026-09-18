@@ -47,89 +47,89 @@ public class FeishuBotClient implements BotClient {
 
     /**
     * 应用 标识
-     */
+    */
     private String appId;
 
     /**
     * 应用密钥
-     */
+    */
     private String appSecret;
 
     /**
     * API 基础地址
-     */
+    */
     private String baseUrl = "https://open.feishu.cn/open-apis";
 
     /**
     * 连接超时时间（毫秒）
-     */
+    */
     private long connectTimeoutMillis = 10_000;
 
     /**
     * 读取超时时间（毫秒）
-     */
+    */
     private long readTimeoutMillis = 30_000;
 
     /**
     * Webhook 验证 令牌
-     */
+    */
     private String webhookVerifyToken;
 
     /**
     * 飞书开放平台客户端实例
-     */
+    */
     private volatile Client client;
 
     /**
     * 运行状态标识
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
     * 事件轮询线程
-     */
+    */
     private volatile Thread eventThread;
 
     /**
     * 是否使用 Webhook 模式
-     */
+    */
     private volatile boolean useWebhookMode;
 
     /**
     * 消息监听器列表
-     */
+    */
     private final List<BotMessageListener> messageListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 错误监听器列表
-     */
+    */
     private final List<BotErrorListener> errorListeners
             = new CopyOnWriteArrayList<>();
 
     /**
     * 用户存储实例
-     */
+    */
     private BotUserStore userStore = new InMemoryBotUserStore();
 
     /**
     * 退避初始等待时间（毫秒）
-     */
+    */
     private static final long BACKOFF_INITIAL_MS = 1_000;
 
     /**
     * 退避最大等待时间（毫秒）
-     */
+    */
     private static final long BACKOFF_MAX_MS = 30_000;
 
     /**
     * 退避倍增系数
-     */
+    */
     private static final double BACKOFF_MULTIPLIER = 2.0;
 
     /**
     * 事件轮询间隔（毫秒）
-     */
+    */
     private static final long POLL_INTERVAL_MS = 1_000;
 
     @Override
@@ -138,7 +138,7 @@ public class FeishuBotClient implements BotClient {
     * @param token 令牌
     * @param secret secret
     * @param encodingAesKey 编码aes键
-     */
+    */
     public BotClient configure(String token, String secret,
             String encodingAesKey) {
         if (token != null && !token.isEmpty()) {
@@ -284,7 +284,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public BotClient connectTimeoutMillis(
             long connectTimeoutMillis) {
         this.connectTimeoutMillis = connectTimeoutMillis;
@@ -401,7 +401,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public BotClient configSaveOrLoader(
             ConfigSaveOrLoader configSaveOrLoader) {
         return this;
@@ -412,7 +412,7 @@ public class FeishuBotClient implements BotClient {
     *
     * @param token 验证 令牌
     * @return this
-     */
+    */
     public FeishuBotClient webhookVerifyToken(String token) {
         this.webhookVerifyToken = token;
         return this;
@@ -576,7 +576,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public CompletableFuture<BotSendResult> sendTextAsync(
             String toUser, String content) {
         return CompletableFuture.supplyAsync(
@@ -588,7 +588,7 @@ public class FeishuBotClient implements BotClient {
     * 发送镜像
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendImage(String toUser,
             String mediaPath) {
         return send(BotOutboundMessage.image(toUser, mediaPath));
@@ -685,7 +685,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public CompletableFuture<BotSendResult> sendImageAsync(
             String toUser, String mediaPath) {
         return CompletableFuture.supplyAsync(
@@ -697,7 +697,7 @@ public class FeishuBotClient implements BotClient {
     * 发送Voice
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendVoice(String toUser,
             String mediaPath) {
         log.warn("Feishu bot does not support voice messages");
@@ -712,7 +712,7 @@ public class FeishuBotClient implements BotClient {
     * @param mediaPath media路径
     * @param title title
     * @param desc desc
-     */
+    */
     public BotSendResult sendVideo(String toUser,
             String mediaPath, String title, String desc) {
         log.warn(
@@ -727,7 +727,7 @@ public class FeishuBotClient implements BotClient {
     * 发送文件
     * @param toUser 转为用户
     * @param mediaPath media路径
-     */
+    */
     public BotSendResult sendFile(String toUser,
             String mediaPath) {
         log.warn(
@@ -856,7 +856,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public CompletableFuture<BotSendResult> sendAsync(
             BotOutboundMessage message) {
         return CompletableFuture.supplyAsync(() -> send(message));
@@ -925,7 +925,7 @@ public class FeishuBotClient implements BotClient {
     * 发送转为分组
     * @param groupId 群体标识
     * @param content 内容
-     */
+    */
     public BotSendResult sendToGroup(String groupId,
             String content) {
         return send(BotOutboundMessage.groupText(groupId, content));
@@ -999,7 +999,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public CompletableFuture<BotSendResult> sendToGroupAsync(
             String groupId, String content) {
         return CompletableFuture.supplyAsync(
@@ -1071,7 +1071,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public BotSendResult sendToGroupMention(
             String groupId,
             String content,
@@ -1146,7 +1146,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public BotClient addMessageListener(
             BotMessageListener listener) {
         if (listener != null) {
@@ -1209,7 +1209,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     public BotClient removeMessageListener(
             BotMessageListener listener) {
         messageListeners.remove(listener);
@@ -1230,7 +1230,7 @@ public class FeishuBotClient implements BotClient {
     *
     * @param challengeToken 挑战令牌
     * @return 验证结果
-     */
+    */
     public String verifyChallenge(String challengeToken) {
         if (webhookVerifyToken == null) {
             return challengeToken;
@@ -1244,14 +1244,14 @@ public class FeishuBotClient implements BotClient {
     * 是否使用 Webhook 模式
     *
     * @return true 表示使用 Webhook 模式
-     */
+    */
     public boolean isUseWebhookMode() {
         return useWebhookMode;
     }
 
     /**
     * 轮询事件
-     */
+    */
     @SuppressWarnings("unchecked")
     private void pollEvents() {
         long backoff = BACKOFF_INITIAL_MS;
@@ -1308,22 +1308,22 @@ public class FeishuBotClient implements BotClient {
     }
 
     /**
-    * sleep退避
+    * 计算下一次轮询的退避等待时间并休眠。
+    * 按指数退避倍增当前等待时间，但封顶不超过最大退避时长，避免长时间阻塞。
     *
-    * @param currentBackoff 当前退避
-    * @return sleep退避的结果
-     */
+    * @param currentBackoff 当前退避等待时间（毫秒）
+    * @return 退避后的下一次等待时间（毫秒）
+    */
     private long sleepBackoff(long currentBackoff) {
         long wait = Math.min(currentBackoff, BACKOFF_MAX_MS);
         sleep(wait);
-        return (long) Math.min(currentBackoff
-                 * 退避_MULTIPLIER, 退避_最大_MS);
+        return (long) Math.min(currentBackoff * BACKOFF_MULTIPLIER, BACKOFF_MAX_MS);
     }
 
     /**
     * 处理单个事件
     * @param event 事件
-     */
+    */
     @SuppressWarnings("unchecked")
     private void handleEvent(Map<String, Object> event) {
         try {
@@ -1435,7 +1435,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     private BotSendResult sendTextInternal(
             String receiveId, String content) {
         try {
@@ -1499,7 +1499,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     private BotSendResult sendGroupTextInternal(
             String groupId, String content) {
         try {
@@ -1533,7 +1533,7 @@ public class FeishuBotClient implements BotClient {
 
     /**
     * 发送群组 @ 提及消息
-     */
+    */
     @SuppressWarnings("unchecked")
     private BotSendResult sendGroupMentionInternal(
             String groupId,
@@ -1595,7 +1595,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     private BotSendResult sendImageInternal(
             String receiveId, String mediaPath) {
         try {
@@ -1648,7 +1648,7 @@ public class FeishuBotClient implements BotClient {
 
     /**
     * 提取消息内容
-     */
+    */
     @SuppressWarnings("unchecked")
     private String extractContent(Map<String, Object> message,
             String msgType) {
@@ -1689,7 +1689,7 @@ public class FeishuBotClient implements BotClient {
     * @param ignored ignored
     * @param millis millis
     * @param e e
-     */
+    */
     private static BotInboundMessage.Type mapMessageType(
             String msgType) {
         if (msgType == null) {
@@ -1716,7 +1716,7 @@ public class FeishuBotClient implements BotClient {
     * @param value 值
     * @param defaultValue 默认值
     * @return 转为int的结果
-     */
+    */
     private static int toInt(Object value, int defaultValue) {
         if (value instanceof Number) {
             return ((Number) value).intValue();
@@ -1728,7 +1728,7 @@ public class FeishuBotClient implements BotClient {
     * 通知记录错误
     *
     * @param e e
-     */
+    */
     private void notifyError(Throwable e) {
         for (BotErrorListener listener : errorListeners) {
             try {
@@ -1743,7 +1743,7 @@ public class FeishuBotClient implements BotClient {
     * Sleep
     *
     * @param millis millis
-     */
+    */
     private void sleep(long millis) {
         try {
             Thread.sleep(millis);

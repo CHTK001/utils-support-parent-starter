@@ -9,17 +9,17 @@ public class SuperImageSuperResolution {
 
     /**
     * tensor流 超分辨率模型名称
-     */
+    */
     private static final String MODEL_NAME = "tf-super-resolution";
 
     /**
     * 图像增强器
-     */
+    */
     private final com.chua.deeplearning.support.image.ImageEnhancer enhancer;
 
     /**
     * 构造 tensor流 超分辨率实例。
-     */
+    */
     public SuperImageSuperResolution() {
         this.enhancer = com.chua.deeplearning.support.image.ImageEnhancer.create(MODEL_NAME);
     }
@@ -29,7 +29,7 @@ public class SuperImageSuperResolution {
     *
     * @param path 模型路径
     * @return this
-     */
+    */
     public SuperImageSuperResolution modelPath(String path) {
         this.enhancer.modelPath(path);
         return this;
@@ -40,7 +40,7 @@ public class SuperImageSuperResolution {
     *
     * @param device 设备名称（如 cpu、gpu）
     * @return this
-     */
+    */
     public SuperImageSuperResolution device(String device) {
         this.enhancer.device(device);
         return this;
@@ -51,7 +51,7 @@ public class SuperImageSuperResolution {
     *
     * @param imageData 输入图像字节数组
     * @return 高分辨率图像字节数组
-     */
+    */
     public byte[] superResolution(byte[] imageData) {
         return this.enhancer.enhance(imageData);
     }

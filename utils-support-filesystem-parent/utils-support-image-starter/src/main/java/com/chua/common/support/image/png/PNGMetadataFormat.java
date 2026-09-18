@@ -568,7 +568,7 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     * 是否可以节点appear
     * @param elementName element名称
     * @param imageType 镜像类型
-     */
+    */
     public boolean canNodeAppear(String elementName,
                                  ImageTypeSpecifier imageType) {
         return true;
@@ -578,7 +578,7 @@ public class PNGMetadataFormat extends IIOMetadataFormatImpl {
     * 获取Instance
     *
     * @return 获取instance的结果
-     */
+    */
     public static synchronized IIOMetadataFormat getInstance() {
         if (instance == null) {
             instance = new PNGMetadataFormat();

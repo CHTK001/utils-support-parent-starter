@@ -49,62 +49,62 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
 
     /**
     * 折叠配置
-     */
+    */
     private final CollapseConfig config;
 
     /**
     * 批量执行函数
-     */
+    */
     private final CollapseBatchFunction<INPUT, OUTPUT> batchFunction;
 
     /**
     * 折叠结果映射器（结果拆分回填模式），与批量执行函数二选一
-     */
+    */
     private final CollapseResultMapper<INPUT, OUTPUT> resultMapper;
 
     /**
     * 收集调度线程（单线程，负责批量出队与补收）
-     */
+    */
     private final ExecutorService dispatcher;
 
     /**
     * 批量执行线程（负责执行分组后的批量逻辑）
-     */
+    */
     private final ExecutorService batchExecutor;
 
     /**
     * 待处理任务队列
-     */
+    */
     private final Queue<Task<INPUT, OUTPUT>> queue = new ConcurrentLinkedQueue<>();
 
     /**
     * 收集调度状态：保证同一时刻仅有一个收集者在执行
-     */
+    */
     private final AtomicBoolean processing = new AtomicBoolean(false);
 
     /**
     * 关闭状态
-     */
+    */
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
     * 执行 调用次数
-     */
+    */
     private final AtomicLong executedCount = new AtomicLong();
 
     /**
     * 真实批量执行次数
-     */
+    */
     private final AtomicLong batchExecutionCount = new AtomicLong();
 
     /**
     * 批次大小累计（用于计算平均批次）
-     */
+    */
     private final AtomicLong batchSizeAccumulator = new AtomicLong();
 
     /**
     * 最大批次大小
-     */
+    */
     private final AtomicInteger maxBatchSize = new AtomicInteger();
 
     /**
@@ -112,7 +112,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     *
     * @param config        折叠配置
     * @param batchFunction 批量执行函数
-     */
+    */
     public DefaultCollapseExecutor(CollapseConfig config, CollapseBatchFunction<INPUT, OUTPUT> batchFunction) {
         this(config, batchFunction, null);
     }
@@ -122,7 +122,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     *
     * @param config       折叠配置
     * @param resultMapper 折叠结果映射器
-     */
+    */
     public DefaultCollapseExecutor(CollapseConfig config, CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
         this(config, null, Objects.requireNonNull(resultMapper, "resultMapper must not be null."));
     }
@@ -133,7 +133,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * @param config        折叠配置
     * @param batchFunction 批量执行函数（广播模式），可为空
     * @param resultMapper  折叠结果映射器（拆分回填模式），可为空
-     */
+    */
     private DefaultCollapseExecutor(CollapseConfig config,
                                     CollapseBatchFunction<INPUT, OUTPUT> batchFunction,
                                     CollapseResultMapper<INPUT, OUTPUT> resultMapper) {
@@ -162,7 +162,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 记录一次真实批量执行（指标统计）。
     *
     * @param size 批次大小
-     */
+    */
     private void recordBatch(int size) {
         batchExecutionCount.incrementAndGet();
         batchSizeAccumulator.addAndGet(size);
@@ -177,7 +177,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * {@code mergeRate} 合并率（1 - 真实执行/调用，越高折叠收益越大）。</p>
     *
     * @return 指标映射
-     */
+    */
     @Override
     public Map<String, Object> metrics() {
         long executed = executedCount.get();
@@ -209,7 +209,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 状态校验。
     *
     * @throws IllegalStateException 执行器已关闭时抛出
-     */
+    */
     private void checkState() {
         if (closed.get()) {
             throw new IllegalStateException("CollapseExecutor[" + config.getName() + "] has been closed.");
@@ -218,7 +218,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
 
     /**
     * 触发收集调度：CAS 抢占调度权，抢占成功后将批量收集动作提交至调度线程。
-     */
+    */
     private void schedule() {
         if (processing.compareAndSet(false, true)) {
             dispatcher.execute(this::dispatch);
@@ -227,7 +227,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
 
     /**
     * 批量收集与分发：单次收集不足阈值时补收一次，随后按入参分组并提交批量执行。
-     */
+    */
     private void dispatch() {
         try {
             Collection<Task<INPUT, OUTPUT>> tasks = collect();
@@ -249,7 +249,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 收集批次：出队全部任务，不足阈值且未关闭时按配置补收一次。
     *
     * @return 本批次任务
-     */
+    */
     private Collection<Task<INPUT, OUTPUT>> collect() {
         List<Task<INPUT, OUTPUT>> collected = drainOnce();
         if (!closed.get() && collected.size() < config.getWaitThreshold()) {
@@ -268,7 +268,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 一次性出队全部任务。
     *
     * @return 出队的任务列表
-     */
+    */
     private List<Task<INPUT, OUTPUT>> drainOnce() {
         List<Task<INPUT, OUTPUT>> tasks = new ArrayList<>();
         Task<INPUT, OUTPUT> task;
@@ -286,7 +286,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     *
     * @param tasks 批次任务
     * @return 分组结果，组间有序
-     */
+    */
     private Collection<Collection<Task<INPUT, OUTPUT>>> grouping(Collection<Task<INPUT, OUTPUT>> tasks) {
         if (config.isMergeAll()) {
             Collection<Collection<Task<INPUT, OUTPUT>>> whole = new ArrayList<>(1);
@@ -317,7 +317,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 执行单个分组：调用一次批量函数，并将结果（或异常）广播给组内全部任务。
     *
     * @param group 同入参的任务组
-     */
+    */
     private void runGroup(Collection<Task<INPUT, OUTPUT>> group) {
         if (resultMapper != null) {
             runMapped(group);
@@ -341,7 +341,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 整批合并回填：调用一次结果映射器，将合并结果按调用者逐项回填。
     *
     * @param group 整批任务（合并全部 模式下即全部调用）
-     */
+    */
     private void runMapped(Collection<Task<INPUT, OUTPUT>> group) {
         List<INPUT> inputs = collectInputs(group);
         recordBatch(group.size());
@@ -375,7 +375,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     *
     * @param group 任务组
     * @return 入参列表
-     */
+    */
     private static <INPUT, OUTPUT> List<INPUT> collectInputs(Collection<Task<INPUT, OUTPUT>> group) {
         List<INPUT> inputs = new ArrayList<>(group.size());
         for (Task<INPUT, OUTPUT> task : group) {
@@ -390,7 +390,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * @param task 本次调用任务
     * @return 调用结果
     * @throws Throwable 执行异常（解除 执行异常 包装）
-     */
+    */
     private OUTPUT await(Task<INPUT, OUTPUT> task) throws Throwable {
         try {
             return task.future().get();
@@ -403,7 +403,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 等待指定毫秒后补收。
     *
     * @param millis 等待毫秒数
-     */
+    */
     private static void pause(long millis) {
         try {
             TimeUnit.MILLISECONDS.sleep(millis);
@@ -416,7 +416,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * 判断当前运行时是否支持虚拟线程（JDK 21+）。
     *
     * @return 支持返回 true
-     */
+    */
     private static boolean isVirtualThreadAvailable() {
         try {
             Thread.ofVirtual();
@@ -432,7 +432,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * @param name          执行器名称
     * @param virtualThread 是否使用虚拟线程
     * @return 单线程调度池
-     */
+    */
     private static ExecutorService createDispatcher(String name, boolean virtualThread) {
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-collect", 0).factory();
@@ -447,7 +447,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * @param name          执行器名称
     * @param virtualThread 是否使用虚拟线程
     * @return 批量执行线程池
-     */
+    */
     private static ExecutorService createBatchExecutor(String name, boolean virtualThread) {
         if (virtualThread) {
             ThreadFactory factory = Thread.ofVirtual().name(name + "-batch", 0).factory();
@@ -458,24 +458,24 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
 
     /**
     * 平台守护线程工厂。
-     */
+    */
     private static final class PlatformDaemonThreadFactory implements ThreadFactory {
 
         /**
         * 线程名称前缀
-         */
+        */
         private final String prefix;
 
         /**
         * 线程序号
-         */
+        */
         private final AtomicInteger sequence = new AtomicInteger(0);
 
         /**
         * platformdaemonthread工厂。
         * @param prefix 前缀
         * @return platformdaemonthread工厂的结果
-         */
+        */
         private PlatformDaemonThreadFactory(String prefix) {
             this.prefix = prefix;
         }
@@ -496,7 +496,7 @@ public class DefaultCollapseExecutor<INPUT, OUTPUT> implements CollapseExecutor<
     * @param future 结果句柄
     * @param <INPUT>  单次调用的入参类型
     * @param <OUTPUT> 批量返回类型
-     */
+    */
     private record Task<INPUT, OUTPUT>(INPUT input, CompletableFuture<OUTPUT> future) {
     }
 }

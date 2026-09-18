@@ -19,24 +19,55 @@ import javax.annotation.Nullable;
 
 
 /**
-* 我的世界(Minecraft)风格滤镜
-* <p>
-* 模拟Minecraft游戏的像素化画风特点：
-* 1. 像素化效果
-* 2. 颜色量化
-* 3. 方块化处理
-* 4. 对比度增强
-* 5. 饱和度调整
-* 
-* 算法特点：
-* - 像素化：将图像转换为低分辨率的像素块
-* - 颜色量化：减少颜色数量，模拟游戏调色板
-* - 边缘锐化：增强方块边缘的清晰度
-* - 对比度提升：让颜色更加鲜明
-* - 饱和度调整：模拟游戏中的色彩风格
-*
-* @author CH
-* @since 2024/12/20
+ * 我的世界(Minecraft)风格滤镜
+ * <p>
+ * 模拟Minecraft游戏的像素化画风特点：
+ * 1. 像素化效果
+ * 2. 颜色量化
+ * 3. 方块化处理
+ * 4. 对比度增强
+ * 5. 饱和度调整
+ *
+ * 算法特点：
+ * - 像素化：将图像转换为低分辨率的像素块
+ * - 颜色量化：减少颜色数量，模拟游戏调色板
+ * - 边缘锐化：增强方块边缘的清晰度
+ * - 对比度提升：让颜色更加鲜明
+ * - 饱和度调整：模拟游戏中的色彩风格
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认 Minecraft 风格
+ * BufferedImage mc = new MinecraftStyleImageFilter().converter(src);
+ *
+ * // 粗像素块 + 关闭方块边框
+ * MinecraftStyleImageFilter filter = new MinecraftStyleImageFilter()
+ *         .setPixelBlockSize(16)
+ *         .setBlockEffect(false);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>pixelBlockSize</b>（默认 8，范围 2-20）：像素块大小，值越大越像素化</li>
+ *   <li><b>colorQuantizationLevel</b>（默认 4，范围 2-8）：颜色量化级别，值越小颜色越少</li>
+ *   <li><b>contrastEnhancement</b>（默认 1.5，范围 0.5-3.0）：对比度增强系数</li>
+ *   <li><b>saturationAdjustment</b>（默认 1.3，范围 0.5-2.0）：饱和度调整系数</li>
+ *   <li><b>brightnessAdjustment</b>（默认 5，范围 -50 到 50）：亮度调整</li>
+ *   <li><b>edgeSharpening</b>（默认 true）：是否启用边缘锐化</li>
+ *   <li><b>sharpenStrength</b>（默认 1.0，范围 0.0-2.0）：锐化强度</li>
+ *   <li><b>blockEffect</b>（默认 true）：是否启用方块边框效果</li>
+ *   <li><b>blockBorderStrength</b>（默认 0.3，范围 0.0-1.0）：方块边框强度</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出格式默认为 PNG</li>
+ *   <li>与 {@link PixelStyleImageFilter} 的区别：本滤镜侧重"平均色填充 + 方块边框"
+ *       （Minecraft 风），后者侧重"中心像素采样 + 复古调色板"（像素游戏风）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -48,52 +79,52 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     /**
     * 像素块大小 (2-20)
     * 控制像素化的程度，值越大越像素化
-     */
+    */
     private int pixelBlockSize = 8;
 
     /**
     * 颜色量化级别 (2-8)
     * 每个颜色通道的量化级别，值越小颜色越少
-     */
+    */
     private int colorQuantizationLevel = 4;
 
     /**
     * 对比度增强系数 (0.5-3.0)
     * 增强图像对比度，让颜色更加鲜明
-     */
+    */
     private double contrastEnhancement = 1.5;
 
     /**
     * 饱和度调整系数 (0.5-2.0)
     * 调整颜色饱和度，模拟游戏风格
-     */
+    */
     private double saturationAdjustment = 1.3;
 
     /**
     * 亮度调整 (-50 到 50)
     * 整体亮度调整
-     */
+    */
     private int brightnessAdjustment = 5;
 
     /**
     * 是否启用边缘锐化
-     */
+    */
     private boolean edgeSharpening = true;
 
     /**
     * 锐化强度 (0.0-2.0)
-     */
+    */
     private double sharpenStrength = 1.0;
 
     /**
     * 是否启用方块效果
     * 在像素化基础上增加方块边框效果
-     */
+    */
     private boolean blockEffect = true;
 
     /**
     * 方块边框强度 (0.0-1.0)
-     */
+    */
     private double blockBorderStrength = 0.3;
 
     @Override
@@ -161,7 +192,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * 应用像素化效果
     * @param src src
     * @return applyPixelation的结果
-     */
+    */
     private BufferedImage applyPixelation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -207,7 +238,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * 应用颜色量化
     * @param src src
     * @return applyColorQuantization的结果
-     */
+    */
     private BufferedImage applyColorQuantization(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -246,7 +277,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * 增强对比度和饱和度
     * @param src src
     * @return 增强contrast和saturation的结果
-     */
+    */
     private BufferedImage enhanceContrastAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -285,7 +316,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * 应用锐化效果
     * @param src src
     * @return applySharpen的结果
-     */
+    */
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -344,7 +375,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * 应用方块效果
     * @param src src
     * @return applyBlockEffect的结果
-     */
+    */
     private BufferedImage applyBlockEffect(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -401,7 +432,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * @param rgb rgb
     * @param factor factor
     * @return darkenColor的结果
-     */
+    */
     private int darkenColor(int rgb, double factor) {
         int alpha = (rgb >> 24) & 0xFF;
         int red = (rgb >> 16) & 0xFF;
@@ -444,7 +475,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * @param g g
     * @param b b
     * @return rgb转为hsv的结果
-     */
+    */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;
@@ -481,7 +512,7 @@ public class MinecraftStyleImageFilter extends AbstractImageFilter {
     * @param s s
     * @param v v
     * @return hsv转为rgb的结果
-     */
+    */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;
         int c = (int) (v * s * 255);

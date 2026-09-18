@@ -47,12 +47,12 @@ public class MiniLMEmbeddingTranslator {
 
     /**
     * 嵌入维度（384 维，与 全部-minilm-L6-v2 一致）
-     */
+    */
     public static final int HIDDEN_SIZE = 384;
 
     /**
     * 默认最大序列长度（含 [CLS]/[SEP]）
-     */
+    */
     public static final int DEFAULT_MAX_LEN = 128;
 
     /** 资源基础路径 - int8 量化版（默认） */
@@ -79,7 +79,7 @@ public class MiniLMEmbeddingTranslator {
 
     /**
     * 创建 int8 量化版 Translator（默认，速度快，~22MB）
-     */
+    */
     public MiniLMEmbeddingTranslator() {
         this(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
     }
@@ -89,7 +89,7 @@ public class MiniLMEmbeddingTranslator {
     *
     * @param resourceBase 资源基础路径（如 {@code nlp/embedding/minilm/}）
     * @param modelFile    模型文件名（如 {@code model_quantized.onnx}）
-     */
+    */
     public MiniLMEmbeddingTranslator(String resourceBase, String modelFile) {
         this.resourceBase = resourceBase;
         this.modelFile = modelFile;
@@ -98,7 +98,7 @@ public class MiniLMEmbeddingTranslator {
     /**
     * 创建 fp32 未量化版 Translator（精度更高，~90MB）
     * @return fp32的结果
-     */
+    */
     public static MiniLMEmbeddingTranslator fp32() {
         return new MiniLMEmbeddingTranslator(RESOURCE_BASE_FP32, MODEL_FILE_FP32);
     }
@@ -106,7 +106,7 @@ public class MiniLMEmbeddingTranslator {
     /**
     * 创建 int8 量化版 Translator（默认，速度快，~22MB）
     * @return int8的结果
-     */
+    */
     public static MiniLMEmbeddingTranslator int8() {
         return new MiniLMEmbeddingTranslator(RESOURCE_BASE_INT8, MODEL_FILE_INT8);
     }
@@ -160,7 +160,7 @@ public class MiniLMEmbeddingTranslator {
     * @param text    输入文本
     * @param maxLen  最大序列长度（必须 ≥ 2，包含 [CLS]/[SEP]）
     * @return 长度 384 的 float 数组
-     */
+    */
     public float[] embed(String text, int maxLen) throws Exception {
         if (maxLen < 2) {
             throw new IllegalArgumentException("maxLen 必须 >= 2");
@@ -204,7 +204,7 @@ public class MiniLMEmbeddingTranslator {
     * @param attentionMask attentionmask
     * @param seqLen seqlen
     * @return mean游泳池的结果
-     */
+    */
     private float[] meanPool(float[][] seqVec, long[] attentionMask, int seqLen) {
         float[] sum = new float[HIDDEN_SIZE];
         int count = 0;
@@ -239,7 +239,7 @@ public class MiniLMEmbeddingTranslator {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

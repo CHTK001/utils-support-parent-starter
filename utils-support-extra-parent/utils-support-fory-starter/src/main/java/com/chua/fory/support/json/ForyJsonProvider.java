@@ -55,7 +55,7 @@ public class ForyJsonProvider implements JsonProvider {
 
     /**
     * foryjson 实例（线程安全，配置后不可变）
-     */
+    */
     private static final ForyJson FORY_JSON = ForyJson.builder().build();
 
     @Override
@@ -410,7 +410,7 @@ public class ForyJsonProvider implements JsonProvider {
     *
     * @param type 目标类型
     * @return true 表示携带门户注解，需走 {@link JsonBeanMapper} 桥接
-     */
+    */
     private static boolean hasUnifiedAnnotations(Class<?> type) {
         for (Field field : ClassUtils.getFields(type)) {
             if (field.isAnnotationPresent(JsonName.class)
@@ -427,7 +427,7 @@ public class ForyJsonProvider implements JsonProvider {
     *
     * @param elementType 元素类型
     * @return ParameterizedType
-     */
+    */
     private static Type parameterizedListType(Class<?> elementType) {
         return new ParameterizedType() {
             @Override
@@ -451,11 +451,11 @@ public class ForyJsonProvider implements JsonProvider {
     }
 
     /**
-    * 读取 Reader 为字符串。
-    *
-    * @param reader 读取器
-    * @return 字符串内容
-     */
+            * 读取 Reader 为字符串。
+            *
+            * @param reader 读取器
+            * @return 字符串内容
+            */
     private String readString(Reader reader) {
         StringBuilder sb = new StringBuilder();
         char[] buffer = new char[1024];
@@ -475,7 +475,7 @@ public class ForyJsonProvider implements JsonProvider {
     *
     * @param stream 输入流
     * @return 字符串内容
-     */
+    */
     private String readString(InputStream stream) {
         return readString(new InputStreamReader(stream, UTF_8));
     }

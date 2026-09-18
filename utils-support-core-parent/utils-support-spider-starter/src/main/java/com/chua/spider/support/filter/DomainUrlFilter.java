@@ -33,12 +33,12 @@ public class DomainUrlFilter implements SpiderUrlFilter {
 
     /**
     * 允许的域名集合
-     */
+    */
     private final Set<String> allowedDomains = new HashSet<>();
 
     /**
     * 默认构造器，不限制域名（接受所有 URL）。
-     */
+    */
     public DomainUrlFilter() {
     }
 
@@ -46,7 +46,7 @@ public class DomainUrlFilter implements SpiderUrlFilter {
     * 构造器，指定允许爬取的域名。
     *
     * @param domains 允许的域名列表，如 "example.com"
-     */
+    */
     public DomainUrlFilter(String... domains) {
         if (domains != null) {
             this.allowedDomains.addAll(Arrays.asList(domains));
@@ -58,7 +58,7 @@ public class DomainUrlFilter implements SpiderUrlFilter {
     *
     * @param domain 域名，如 "example.com"
     * @return 当前过滤器实例
-     */
+    */
     public DomainUrlFilter addDomain(String domain) {
         if (domain != null) {
             this.allowedDomains.add(domain.toLowerCase());

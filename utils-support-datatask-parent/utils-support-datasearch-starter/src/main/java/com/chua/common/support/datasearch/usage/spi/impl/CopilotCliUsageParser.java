@@ -60,24 +60,26 @@ public class CopilotCliUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_COPILOT_CLI = "copilot-cli";
 
-    /** nano-AIU → USD: 10_000_000_000 ticks per dollar. */
+    /**
+    * nano-AIU → USD: 10_000_000_000 ticks per dollar.
+    */
     private static final BigDecimal NANO_AIU_PER_USD =
             BigDecimal.valueOf(10_000_000_000L);
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "copilot-cli"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "copilot-cli"}
+    */
     @Override
     public String name() {
         return PROVIDER_COPILOT_CLI;
     }
 
     /**
-     * 响应式流式入口：惰性扫描各会话的 events.jsonl，仅提取
-     * {@code session.shutdown} 事件的逐模型用量。
-     */
+    * 响应式流式入口：惰性扫描各会话的 events.jsonl，仅提取
+    * {@code session.shutdown} 事件的逐模型用量。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listEventFiles();
@@ -95,10 +97,10 @@ public class CopilotCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 枚举 {@code ~/.copilot/session-state/&#42;/events.jsonl}。
-     *
-     * @return 事件文件列表
-     */
+    * 枚举 {@code ~/.copilot/session-state/&#42;/events.jsonl}。
+    *
+    * @return 事件文件列表
+    */
     private List<Path> listEventFiles() {
         if (!Files.isDirectory(SESSION_STATE_DIR)) {
             return List.of();
@@ -116,11 +118,11 @@ public class CopilotCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析单个 events.jsonl，仅处理携带 modelMetrics 的 session.shutdown 事件。
-     *
-     * @param file 事件文件
-     * @return 用量记录流
-     */
+    * 解析单个 events.jsonl，仅处理携带 modelMetrics 的 session.shutdown 事件。
+    *
+    * @param file 事件文件
+    * @return 用量记录流
+    */
     private Flux<AiUsage> streamEventFile(Path file) {
         return streamLines(file)
                 .map(line -> parseLineSafe(line, sessionKey(file)))
@@ -129,23 +131,23 @@ public class CopilotCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 会话标识：session-state 下的会话目录名。
-     *
-     * @param file events.jsonl 文件
-     * @return 会话目录名
-     */
+    * 会话标识：session-state 下的会话目录名。
+    *
+    * @param file events.jsonl 文件
+    * @return 会话目录名
+    */
     private String sessionKey(Path file) {
         Path parent = file.getParent();
         return parent != null ? parent.getFileName().toString() : file.toString();
     }
 
     /**
-     * 解析单行；session.shutdown 事件产出 per-model 用量记录。
-     *
-     * @param line           单行 JSON
-     * @param sessionFileKey 会话标识（session-state 目录名）
-     * @return 用量记录列表（多模型会话逐模型各一条）
-     */
+    * 解析单行；session.shutdown 事件产出 per-model 用量记录。
+    *
+    * @param line           单行 JSON
+    * @param sessionFileKey 会话标识（session-state 目录名）
+    * @return 用量记录列表（多模型会话逐模型各一条）
+    */
     private List<AiUsage> parseLineSafe(String line, String sessionFileKey) {
         if (line.isBlank()) {
             return List.of();
@@ -195,16 +197,16 @@ public class CopilotCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将单模型指标转换为 AiUsage；无用量时返回 null。
-     *
-     * @param modelId 模型名
-     * @param metrics modelMetrics 条目（已转为扁平 Map）
-     * @param totalNanoAiu 会话级 nano-AIU（模型级缺失时兜底）
-     * @param totalApiDurationMs 会话级 API 耗时
-     * @param startTime 事件时间戳（毫秒）
-     * @param requestId 会话级请求 id
-     * @return 用量记录或 null
-     */
+    * 将单模型指标转换为 AiUsage；无用量时返回 null。
+    *
+    * @param modelId 模型名
+    * @param metrics modelMetrics 条目（已转为扁平 Map）
+    * @param totalNanoAiu 会话级 nano-AIU（模型级缺失时兜底）
+    * @param totalApiDurationMs 会话级 API 耗时
+    * @param startTime 事件时间戳（毫秒）
+    * @param requestId 会话级请求 id
+    * @return 用量记录或 null
+    */
     private AiUsage toAiUsage(String modelId, Map<String, Object> metrics,
                               long totalNanoAiu, long totalApiDurationMs,
                               long startTime, String requestId) {

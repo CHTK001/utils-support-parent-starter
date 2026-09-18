@@ -24,7 +24,7 @@ public final class Ueba {
 
     /**
     * 私有构造，防止实例化。
-     */
+    */
     private Ueba() {
     }
 
@@ -32,7 +32,7 @@ public final class Ueba {
     * 创建分析引擎构建器。
     *
     * @return 引擎构建器，可链式配置后调用 {@code build()}
-     */
+    */
     public static UebaEngineBuilder engine() {
         return new UebaEngineBuilder();
     }
@@ -41,7 +41,7 @@ public final class Ueba {
     * 创建训练管线构建器。
     *
     * @return 训练构建器，可链式配置后调用 {@code build()} / {@code execute()}
-     */
+    */
     public static UebaTrainingBuilder training() {
         return new UebaTrainingBuilder();
     }

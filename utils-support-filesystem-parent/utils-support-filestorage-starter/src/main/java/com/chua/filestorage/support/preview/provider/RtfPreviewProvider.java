@@ -34,14 +34,14 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     * @return 支持的结果
     * @param rtf rtf
     * @param content 内容
-     */
+    */
     private static final Pattern RTF_GROUP = Pattern.compile("\\\\[a-z]+\\d*\\s?");
     private static final Pattern RTF_SPECIAL = Pattern.compile("\\\\['{}\\\\~_-]");
     private static final Pattern RTF_CONTROL = Pattern.compile("\\\\[a-zA-Z]+\\d*\\s?");
 
     /**
-     * 不含正文的 RTF 目标组：字体表、颜色表、样式表、文档元信息、图片数据等
-     */
+    * 不含正文的 RTF 目标组：字体表、颜色表、样式表、文档元信息、图片数据等
+    */
     private static final Set<String> SKIP_GROUPS = Set.of(
             "fonttbl", "colortbl", "stylesheet", "info", "pict", "filetbl", "datastore");
 /**
@@ -218,7 +218,7 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     * escapehtml。
     * @param text 文本
     * @return escapeHtml的结果
-     */
+    */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -230,7 +230,7 @@ public class RtfPreviewProvider implements FileStoragePreviewProvider {
     * human大小。
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

@@ -41,7 +41,7 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     /**
     * Roo 的模型名在 {@code api_conversation_history.json} 中，不在 per-turn 载荷里。
     * 取历史文件中最后一次出现的 {@code <model>} 标签作为模型归属。
-     */
+    */
     @Override
     protected com.chua.common.support.ai.AiUsage toAiUsage(Map<String, Object> msg, String taskId, long fallbackTime) {
         com.chua.common.support.ai.AiUsage usage = super.toAiUsage(msg, taskId, fallbackTime);
@@ -86,7 +86,7 @@ public class RooCodeExtensionUsageParser extends VscodeExtensionTaskUsageParser 
     *
     * @param historyFile 历史 JSONL 文件
     * @return 模型名；文件缺失或无标签时返回 null
-     */
+    */
     private String extractLastModelFromHistory(Path historyFile) {
         if (!java.nio.file.Files.isRegularFile(historyFile)) {
             return null;

@@ -63,7 +63,7 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为类型名称的结果
-     */
+    */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "EchoReply";
@@ -89,7 +89,7 @@ public class IcmpProtocolRestorer extends AbstractProtocolRestorer {
     * @param type 类型
     * @param code 编码
     * @return 转为编码名称的结果
-     */
+    */
     private static String toCodeName(int type, int code) {
         if (type == 3) {
             return switch (code) {

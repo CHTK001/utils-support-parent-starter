@@ -28,12 +28,12 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
 
     /**
     * 是否使用空格字符。
-     */
+    */
     private final boolean useSpaceChar;
 
     /**
     * 字符表。
-     */
+    */
     private List<String> table;
 
     /** 创建 ppword认可translator 实例 */
@@ -44,7 +44,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     /**
     * 创建 ppword认可translator 实例
     * @param useSpaceChar usespacechar
-     */
+    */
     public PpWordRecognitionTranslator(boolean useSpaceChar) {
         this.useSpaceChar = useSpaceChar;
     }
@@ -69,7 +69,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     *
     * @param model 模型
     * @return 打开vocabulary的结果
-     */
+    */
     private InputStream openVocabulary(Model model) throws IOException {
         String[] candidates = {
                 "ppocr_keys_v1.txt",
@@ -93,7 +93,7 @@ public class PpWordRecognitionTranslator implements Translator<Image, String> {
     public String processOutput(TranslatorContext ctx, NDList list) {
         StringBuilder sb = new StringBuilder();
         NDArray tokens = list.singletonOrThrow();
-        long[] indices = tokens.getFirst().argMax(1).toLongArray();
+        long[] indices = tokens.argMax(1).toLongArray();
         boolean[] selection = new boolean[indices.length];
         Arrays.fill(selection, true);
         for (int i = 1; i < indices.length; i++) {

@@ -57,15 +57,15 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     private static final long MAX_PREVIEW_CONTENT_BYTES = 512L * 1024 * 1024;
 
     /**
-     * 文件预览提供者列表
-     */
+    * 文件预览提供者列表
+    */
     private final List<FileStoragePreviewProvider> previewProviders;
 
     /**
     * 创建 文件storageview服务端过滤器 实例。
     *
     * @param setting  文件存储配置，不能为 空
-     */
+    */
     public FileStorageViewServerFilter(FileStorageSetting setting) {
         super(setting);
         this.previewProviders = ServiceProvider.of(FileStoragePreviewProvider.class).getNewExtensions(null);
@@ -76,7 +76,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param setting  文件存储配置，不能为 空
     * @param cacheDir PDF 缓存目录；为 空 时不启用 PDF 缓存
-     */
+    */
     public FileStorageViewServerFilter(FileStorageSetting setting, Path cacheDir) {
         super(setting, new PreviewPdfCache(cacheDir));
         this.previewProviders = ServiceProvider.of(FileStoragePreviewProvider.class).getNewExtensions(null);
@@ -89,7 +89,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param response 响应
     * @param chain    过滤链
     * @throws Exception 处理失败
-     */
+    */
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         String preview = request.getParam("preview");
@@ -212,7 +212,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param mime MIME 类型
     * @return true 表示属于图片 / 音视频
-     */
+    */
     private boolean isMediaType(String mime) {
         if (mime == null) {
             return false;
@@ -234,7 +234,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param ops      文件操作设置，可为 空；包含尺寸、格式等滤镜参数
     * @return 处理后的图片字节；文件不存在或处理失败时返回 空
     * @throws Exception 读取或过滤失败
-     */
+    */
     private byte[] streamAndFilterImage(ServerRequest request, ServerResponse response,
                                         FileStorage storage, String key, String ext, FileOperationSetting ops) throws Exception {
         var getResult = storage.getObject(key);
@@ -257,7 +257,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param key     对象键
     * @return 内容字节；对象不存在返回 空；超过上限返回 空
     * @throws Exception 读取失败
-     */
+    */
     private byte[] readContent(FileStorage storage, String key) throws Exception {
         var getResult = storage.getObject(key);
         if (getResult == null || getResult.getInputStream() == null) {
@@ -276,7 +276,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param getResult 存储对象读取结果
     * @return 内容字节；超过上限或文件不存在返回 空
     * @throws IOException 读取失败
-     */
+    */
     private byte[] readWithLimit(GetObjectResult getResult)
             throws IOException {
         if (getResult.getMetadata() != null
@@ -302,7 +302,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param ext     文件扩展名
     * @param ops     文件操作设置
     * @return PDF 字节；转换失败时返回 空
-     */
+    */
     private byte[] convertAndCachePdf(FileStorage storage, String key, String ext, FileOperationSetting ops) {
         String cacheKey = key + buildOpsSuffix(ops);
  // 使用 获取或转换 实现并发去重：同一文件并发请求只触发一次转换
@@ -343,7 +343,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     * @param ext  文件扩展名
     * @param mime MIME 类型
     * @return 匹配的提供者；未找到时返回 空
-     */
+    */
     private FileStoragePreviewProvider findProvider(String ext, String mime) {
         for (FileStoragePreviewProvider p : previewProviders) {
             if (p.supports(ext, mime)) {
@@ -362,7 +362,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param result 预览结果
     * @return 完整 HTML 页面字符串
-     */
+    */
     private String wrapPreviewPage(PreviewResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
@@ -405,7 +405,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param result 预览结果
     * @return 沙箱 iframe HTML
-     */
+    */
     private String buildSandboxedIframe(PreviewResult result) {
         StringBuilder inner = new StringBuilder();
         inner.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\">")
@@ -431,7 +431,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param key 对象键（含路径）
     * @return 小写扩展名；无扩展名时返回空串
-     */
+    */
     private static String getExt(String key) {
         if (key == null || !key.contains(".")) {
             return "";
@@ -450,7 +450,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param ops 文件操作设置
     * @return 缓存键后缀
-     */
+    */
     private static String buildOpsSuffix(FileOperationSetting ops) {
         if (ops == null || !ops.hasOperation()) {
             return "";
@@ -479,7 +479,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param sb sb
     * @param value 值
-     */
+    */
     private static void appendField(StringBuilder sb, String value) {
         if (value != null) {
             sb.append(value.length()).append(value);
@@ -491,7 +491,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param sb sb
     * @param value 值
-     */
+    */
     private static void appendIntField(StringBuilder sb, Integer value) {
         if (value != null) {
             String s = String.valueOf(value);
@@ -504,7 +504,7 @@ public class FileStorageViewServerFilter extends AbstractFileStorageServerFilter
     *
     * @param sb sb
     * @param value 值
-     */
+    */
     private static void appendFloatField(StringBuilder sb, Float value) {
         if (value != null && value > 0) {
             String s = String.valueOf(value);

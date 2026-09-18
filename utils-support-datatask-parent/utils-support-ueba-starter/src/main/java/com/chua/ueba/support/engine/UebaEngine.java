@@ -109,7 +109,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param config UEBA 配置，不能为 空，且必须包含 特征/auto编码器/lstm/risk
     * @throws IllegalArgumentException 当配置缺失必要段落时
-     */
+    */
     public UebaEngine(UebaConfig config) {
         this(config, true);
     }
@@ -120,7 +120,7 @@ public class UebaEngine implements AutoCloseable {
     * @param config      UEBA 配置，不能为 空，且必须包含 特征/auto编码器/lstm/risk
     * @param enableLlm   是否启用 minimind 语义解释
     * @throws IllegalArgumentException 当配置缺失必要段落时
-     */
+    */
     public UebaEngine(UebaConfig config, boolean enableLlm) {
         Objects.requireNonNull(config, "config must not be null");
         validateConfig(config);
@@ -147,7 +147,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param config 配置对象，不能为 空
     * @throws IllegalArgumentException 当 特征/auto编码器/lstm/risk 缺失时
-     */
+    */
     private static void validateConfig(UebaConfig config) {
         if (config.getFeatures() == null || config.getFeatures().isEmpty()) {
             throw new IllegalArgumentException("config.features 不能为空");
@@ -169,7 +169,7 @@ public class UebaEngine implements AutoCloseable {
     * @return 使用默认配置的引擎实例
     * @throws IllegalStateException 当 类路径 缺少 ueba-配置.yaml 时
     * @throws UncheckedIOException 当配置文件读取失败时
-     */
+    */
     public static UebaEngine loadDefault() {
         try (InputStream in = UebaEngine.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_RESOURCE)) {
             if (in == null) {
@@ -187,7 +187,7 @@ public class UebaEngine implements AutoCloseable {
     * @param event 流量事件，不能为 空
     * @return 综合分析结果，绝不为 空
     * @throws IllegalArgumentException 当 事件 为 空 时
-     */
+    */
     public UebaResult analyze(TrafficEvent event) {
         if (event == null) {
             throw new IllegalArgumentException("event must not be null");
@@ -221,7 +221,7 @@ public class UebaEngine implements AutoCloseable {
     * @param entityId 实体标识
     * @param window   窗口事件列表
     * @return IP 异常结果，绝不为 空
-     */
+    */
     private IpAnomalyResult detectIp(String entityId, List<TrafficEvent> window) {
         if (autoEncoder.isAvailable()) {
             try {
@@ -252,7 +252,7 @@ public class UebaEngine implements AutoCloseable {
     * {@code mean + k * std}。Warm-up（样本不足）期间返回无穷大，不误报。</p>
     *
     * @return 当前异常阈值
-     */
+    */
     private double resolveAeThreshold() {
         double threshold = config.getAutoEncoder().getThreshold();
         if (threshold > 0.0d) {
@@ -271,7 +271,7 @@ public class UebaEngine implements AutoCloseable {
     * @param threshold 异常阈值
     * @param anomalous 是否异常
     * @return 判定原因文本
-     */
+    */
     private static String buildAeReason(double err, double threshold, boolean anomalous) {
         if (anomalous) {
             return String.format("AutoEncoder 重建误差 %.4f 超过阈值 %.4f", err, threshold);
@@ -284,7 +284,7 @@ public class UebaEngine implements AutoCloseable {
 
     /**
     * 在线统计（Welford 算法），用于自适应异常阈值。
-     */
+    */
     private static final class OnlineStats {
 
         /** 样本数 */
@@ -300,7 +300,7 @@ public class UebaEngine implements AutoCloseable {
         * 更新一个样本。
         *
         * @param value 样本值
-         */
+        */
         void update(double value) {
             count++;
             double delta = value - mean;
@@ -313,7 +313,7 @@ public class UebaEngine implements AutoCloseable {
         * 是否已过学习期。
         *
         * @return true 表示样本数达到 {@link UebaEngine#AE_MIN_SAMPLES}
-         */
+        */
         boolean isWarmedUp() {
             return count >= AE_MIN_SAMPLES;
         }
@@ -322,7 +322,7 @@ public class UebaEngine implements AutoCloseable {
         * 当前均值。
         *
         * @return 均值，无样本时返回 0
-         */
+        */
         double mean() {
             return count == 0L ? 0.0d : mean;
         }
@@ -331,7 +331,7 @@ public class UebaEngine implements AutoCloseable {
         * 当前样本标准差（样本标准差，除以 n-1）。
         *
         * @return 标准差，样本数小于 2 时返回 0
-         */
+        */
         double std() {
             if (count < 2L) {
                 return 0.0d;
@@ -347,7 +347,7 @@ public class UebaEngine implements AutoCloseable {
     * @param threshold 异常阈值
     * @param anomalous 是否异常
     * @return 异常等级
-     */
+    */
     private static IpAnomalyResult.AnomalyLevel mapAeLevel(double err, double threshold, boolean anomalous) {
         if (!anomalous) {
             return IpAnomalyResult.AnomalyLevel.NORMAL;
@@ -371,7 +371,7 @@ public class UebaEngine implements AutoCloseable {
     * @param entityId 实体标识
     * @param window   窗口事件列表
     * @return 行为画像，绝不为 空
-     */
+    */
     private BehaviorProfile analyzeBehavior(String entityId, List<TrafficEvent> window) {
         if (lstm.isAvailable()) {
             try {
@@ -405,7 +405,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param classIndex 类别下标
     * @return 类别标签，越界或标签列表为空时返回 "normal"
-     */
+    */
     private String classLabel(int classIndex) {
         List<String> labels = config.getLstm().getClassLabels();
         if (labels != null && !labels.isEmpty() && classIndex >= 0 && classIndex < labels.size()) {
@@ -419,7 +419,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param label 类别标签
     * @return 风险分值，范围 [0, 1]
-     */
+    */
     private static double classRisk(String label) {
         return switch (label) {
             case "attack" -> ATTACK_RISK;
@@ -435,7 +435,7 @@ public class UebaEngine implements AutoCloseable {
     * @param behavior  行为画像，不能为 空
     * @return 综合风险分数，范围 [0, 1]
     * @throws IllegalArgumentException 当任一参数为 空 时
-     */
+    */
     private double computeRisk(IpAnomalyResult ipAnomaly, BehaviorProfile behavior) {
         Objects.requireNonNull(ipAnomaly, "ipAnomaly must not be null");
         Objects.requireNonNull(behavior, "behavior must not be null");
@@ -453,7 +453,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param score 风险分数，范围 [0, 1]
     * @return 风险等级
-     */
+    */
     private UebaResult.RiskLevel classifyRisk(double score) {
         if (score >= config.getRisk().getHighThreshold()) {
             return UebaResult.RiskLevel.HIGH;
@@ -474,7 +474,7 @@ public class UebaEngine implements AutoCloseable {
     * @param behavior  行为画像
     * @param riskScore 综合风险分数
     * @return 模板解释文本
-     */
+    */
     private static String templateExplain(IpAnomalyResult ipAnomaly, BehaviorProfile behavior, double riskScore) {
         String level = ipAnomaly.getLevel() == null ? "NORMAL" : ipAnomaly.getLevel().name();
         return String.format("实体 %s：IP 异常等级 %s，行为类别 %s，综合风险 %.2f。",
@@ -486,7 +486,7 @@ public class UebaEngine implements AutoCloseable {
     *
     * @param event 流量事件，不能为 空
     * @return 实体标识
-     */
+    */
     private static String entityKey(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         if (event.getIp() != null && !event.getIp().isBlank()) {
@@ -505,14 +505,14 @@ public class UebaEngine implements AutoCloseable {
     * @param min   下界
     * @param max   上界
     * @return 钳制后的值
-     */
+    */
     private static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
 
     /**
     * 释放全部模型与跟踪器资源。
-     */
+    */
     @Override
     public void close() {
         autoEncoder.close();

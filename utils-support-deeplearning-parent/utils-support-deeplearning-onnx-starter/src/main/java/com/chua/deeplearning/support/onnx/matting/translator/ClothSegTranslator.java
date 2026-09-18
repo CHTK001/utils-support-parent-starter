@@ -31,7 +31,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
 
     /**
     * clothsegtranslator。
-     */
+    */
     public ClothSegTranslator() {
     }
 
@@ -103,7 +103,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     * 转为缓冲镜像。
     * @param input 输入
     * @return 转为缓冲镜像的结果
-     */
+    */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage bi) {
@@ -118,7 +118,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     * @param tw tw
     * @param th th
     * @return resize转为的结果
-     */
+    */
     private BufferedImage resizeTo(Image input, int tw, int th) {
         BufferedImage src = toBufferedImage(input);
         if (src.getWidth() == tw && src.getHeight() == th) {
@@ -136,7 +136,7 @@ public final class ClothSegTranslator implements Translator<Image, Image> {
     * 创建rgba镜像。
     * @param mask mask
     * @return 创建rgba镜像的结果
-     */
+    */
     private Image createRgbaImage(BufferedImage mask) {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < height; y++) {

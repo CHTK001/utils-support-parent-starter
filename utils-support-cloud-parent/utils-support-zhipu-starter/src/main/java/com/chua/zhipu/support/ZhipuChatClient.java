@@ -40,84 +40,84 @@ public class ZhipuChatClient implements ChatClient {
 
     /**
     * 智谱 GLM 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     /**
     * Zhipu SDK 客户端
-     */
+    */
     private final ClientV3 client;
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 构造智谱 GLM 对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public ZhipuChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -258,7 +258,7 @@ public class ZhipuChatClient implements ChatClient {
     *
     * @param prompt 用户输入
     * @return 包含文本与用量的响应
-     */
+    */
     private ChatSyncResponse chatSyncInternal(String prompt) {
         StringBuilder result = new StringBuilder();
         AiUsage[] usageHolder = new AiUsage[1];
@@ -294,7 +294,7 @@ public class ZhipuChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -396,7 +396,7 @@ public class ZhipuChatClient implements ChatClient {
     *
     * @param value 原始内容
     * @return 去除首尾引号后的内容
-     */
+    */
     private static String unquote(String value) {
         if (value == null || value.isEmpty()) {
             return value;
@@ -413,7 +413,7 @@ public class ZhipuChatClient implements ChatClient {
     * <p>Zhipu SDK 内部使用 OkHttp，需通过系统属性设置代理。
     *
     * @param proxyStr 代理字符串，如 http://127.0.0.1:8080
-     */
+    */
     private static void setupProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return;

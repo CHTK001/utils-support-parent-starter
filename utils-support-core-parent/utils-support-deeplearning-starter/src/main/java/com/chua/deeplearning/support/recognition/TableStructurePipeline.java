@@ -39,39 +39,39 @@ public class TableStructurePipeline {
 
     /**
     * 节点：识别
-     */
+    */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
     * 节点：收集
-     */
+    */
     private static final String NODE_COLLECT = "collect";
 
     /**
     * 节点：终止
-     */
+    */
     private static final String NODE_END = "end";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 表格结构模型名称。
-     */
+    */
     private final String model;
 
     /**
     * 识别管线实例。
-     */
+    */
     private final Pipeline pipeline;
 
     /**
     * 构造识别管线。
     *
     * @param model 模型名称
-     */
+    */
     public TableStructurePipeline(String model) {
         this.engine = AbstractIdentificationEngine.getInstance();
         this.model = Objects.requireNonNull(model, "model");
@@ -82,7 +82,7 @@ public class TableStructurePipeline {
     * 构建器。
     *
     * @return builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -91,12 +91,12 @@ public class TableStructurePipeline {
     * 链式构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 模型名称。
-         */
+        */
         private String model;
 
         /**
@@ -104,7 +104,7 @@ public class TableStructurePipeline {
         *
         * @param model 模型
         * @return this
-         */
+        */
         public Builder model(String model) {
             this.model = model;
             return this;
@@ -114,7 +114,7 @@ public class TableStructurePipeline {
         * 构建。
         *
         * @return TableStructurePipeline
-         */
+        */
         public TableStructurePipeline build() {
             return new TableStructurePipeline(model);
         }
@@ -124,7 +124,7 @@ public class TableStructurePipeline {
     * 编排识别管线（识别 → 收集）。
     *
     * @return 管线实例
-     */
+    */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("table-structure-recognize")
                 .task(NODE_RECOGNIZE, ctx -> {
@@ -146,7 +146,7 @@ public class TableStructurePipeline {
     *
     * @param imageData 图像
     * @return 表格结构结果（各模型输出类型不同）
-     */
+    */
     public Object recognizeSingle(byte[] imageData) {
         if (imageData == null) {
             return null;
@@ -165,7 +165,7 @@ public class TableStructurePipeline {
     *
     * @param imageData 图像
     * @return 结果列表
-     */
+    */
     public List<Object> recognize(byte[] imageData) {
         TableStructureContext tc = new TableStructureContext(imageData);
         PipelineContext<TableStructureContext> ctx = new PipelineContext<>(pipeline.getId(), tc);
@@ -180,7 +180,7 @@ public class TableStructurePipeline {
     *
     * @param ctx 管线上下文
     * @return 上下文
-     */
+    */
     @SuppressWarnings("unchecked")
     private static TableStructureContext current(PipelineContext<?> ctx) {
         return (TableStructureContext) ctx.getAttribute("table");
@@ -190,7 +190,7 @@ public class TableStructurePipeline {
     * 枚举可用表格结构模型。
     *
     * @return 能力分组 → 模型 标识 列表
-     */
+    */
     public Map<String, List<String>> listModels() {
         try {
             ModelRegistry.discoverAll();
@@ -215,7 +215,7 @@ public class TableStructurePipeline {
     * 创建标注管线，支持一键绘制检测结果。
     *
     * @return DrawerPipeline 实例
-     */
+    */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }

@@ -86,7 +86,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     * 构建过滤Chain
     *
     * @return 构建过滤器chain的结果
-     */
+    */
     private List<FileStorageFilterSetting.ImageFilterConfig> buildFilterChain() {
         String chainStr = System.getProperty(PREFIX + "chain", "");
         if (chainStr.isBlank()) {
@@ -103,7 +103,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     * 构建exclude路径模式
     *
     * @return 构建exclude路径模式的结果
-     */
+    */
     private List<Pattern> buildExcludePathPatterns() {
         String paths = System.getProperty(PREFIX + "exclude.paths", "");
         if (paths.isBlank()) {
@@ -120,7 +120,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     * 构建exclude延伸
     *
     * @return 构建exclude延伸的结果
-     */
+    */
     private Set<String> buildExcludeExtensions() {
         String exts = System.getProperty(PREFIX + "exclude.extensions", "svg");
         return java.util.Arrays.stream(exts.split(","))
@@ -135,7 +135,7 @@ public class JdkFileStorageFilterSetting implements FileStorageFilterSetting {
     *
     * @param ant Ant
     * @return ant转为regex的结果
-     */
+    */
     private String antToRegex(String ant) {
         return ant
                 .replace("**", "<<<DOUBLESTAR>>>")

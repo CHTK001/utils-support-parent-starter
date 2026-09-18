@@ -74,18 +74,18 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "kimi"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "kimi"}
+    */
     @Override
     public String name() {
         return PROVIDER_KIMI;
     }
 
     /**
-     * 响应式流式入口：惰性扫描全部 wire.jsonl，仅提取 StatusUpdate 用量。
-     */
+    * 响应式流式入口：惰性扫描全部 wire.jsonl，仅提取 StatusUpdate 用量。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listWireFiles();
@@ -105,10 +105,10 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 枚举 sessions 目录下全部 wire.jsonl。
-     *
-     * @return wire 文件列表
-     */
+    * 枚举 sessions 目录下全部 wire.jsonl。
+    *
+    * @return wire 文件列表
+    */
     private List<Path> listWireFiles() {
         if (!Files.isDirectory(sessionsDir)) {
             return List.of();
@@ -125,10 +125,10 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从 {@code config.toml} 解析默认模型名。
-     *
-     * @return 模型名；缺失时 {@code kimi-for-coding}
-     */
+    * 从 {@code config.toml} 解析默认模型名。
+    *
+    * @return 模型名；缺失时 {@code kimi-for-coding}
+    */
     private String resolveDefaultModel() {
         try {
             String raw = Files.readString(configPath);
@@ -145,13 +145,13 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析单个 wire 文件；相同 message_id 仅保留首条。
-     *
-     * @param file    wire 文件
-     * @param model   默认模型名
-     * @param seenIds 已处理的 message_id 集合
-     * @return 用量记录流
-     */
+    * 流式解析单个 wire 文件；相同 message_id 仅保留首条。
+    *
+    * @param file    wire 文件
+    * @param model   默认模型名
+    * @param seenIds 已处理的 message_id 集合
+    * @return 用量记录流
+    */
     private Flux<AiUsage> streamWireFile(Path file, String model, Set<String> seenIds) {
         return streamLines(file)
                 .map(line -> parseLine(line, model, seenIds))
@@ -159,13 +159,13 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析单行 StatusUpdate；非用量行、重复 id、全零计数返回 null。
-     *
-     * @param line    单行 JSON
-     * @param model   默认模型名
-     * @param seenIds 已处理的 message_id 集合
-     * @return 用量记录或 null
-     */
+    * 解析单行 StatusUpdate；非用量行、重复 id、全零计数返回 null。
+    *
+    * @param line    单行 JSON
+    * @param model   默认模型名
+    * @param seenIds 已处理的 message_id 集合
+    * @return 用量记录或 null
+    */
     private AiUsage parseLine(String line, String model, Set<String> seenIds) {
         if (line.isBlank()) {
             return null;
@@ -224,11 +224,11 @@ public class KimiUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 时间戳归一：秒/毫秒 epoch 数值转毫秒；ISO 字符串转毫秒。
-     *
-     * @param node 时间戳节点
-     * @return epoch 毫秒；无法解析返回 0
-     */
+    * 时间戳归一：秒/毫秒 epoch 数值转毫秒；ISO 字符串转毫秒。
+    *
+    * @param node 时间戳节点
+    * @return epoch 毫秒；无法解析返回 0
+    */
     private long toMillis(JsonNode node) {
         if (node == null || node.isMissingValue()) {
             return 0L;

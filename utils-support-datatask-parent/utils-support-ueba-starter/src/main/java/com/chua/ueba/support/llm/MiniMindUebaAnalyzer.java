@@ -45,7 +45,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
 
     /**
     * 模型是否可用
-     */
+    */
     private final boolean available;
 
     /**
@@ -53,7 +53,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * <p>
     * 模型加载失败仅记录警告，实例仍可使用模板解释能力。
     * </p>
-     */
+    */
     public MiniMindUebaAnalyzer() {
         ZooModel<String, String> loaded = null;
         boolean ok = false;
@@ -80,7 +80,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * @return 加载完成的模型
     * @throws IOException    当模型文件缺失时
     * @throws ModelException 当 DJL 模型加载失败时
-     */
+    */
     private static ZooModel<String, String> buildModel(Path dir) throws IOException, ModelException {
         if (dir == null || !Files.isDirectory(dir)) {
             throw new IOException("MiniMind 模型目录不存在: " + dir);
@@ -98,7 +98,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * 是否可用（模型已加载）。
     *
     * @return true 表示 minimind 可用
-     */
+    */
     public boolean isAvailable() {
         return available;
     }
@@ -111,7 +111,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * @param riskScore 综合风险分数，范围 [0, 1]
     * @return 解释文本；模型不可用时返回模板解释，绝不为 空
     * @throws IllegalArgumentException 当 ipanomaly 或 行为 为 空 时
-     */
+    */
     public String explain(IpAnomalyResult ipAnomaly, BehaviorProfile behavior, double riskScore) {
         Objects.requireNonNull(ipAnomaly, "ipAnomaly must not be null");
         Objects.requireNonNull(behavior, "behavior must not be null");
@@ -138,7 +138,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * @param behavior  行为画像
     * @param riskScore 综合风险分数
     * @return 提示词文本
-     */
+    */
     private static String buildPrompt(IpAnomalyResult ipAnomaly, BehaviorProfile behavior, double riskScore) {
         String level = ipAnomaly.getLevel() == null ? NORMAL_LEVEL : ipAnomaly.getLevel().name();
         String paths = String.join(", ", truncate(behavior.getRecentPaths()));
@@ -167,7 +167,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     * @param behavior  行为画像
     * @param riskScore 综合风险分数
     * @return 模板解释文本
-     */
+    */
     private static String buildTemplate(IpAnomalyResult ipAnomaly, BehaviorProfile behavior, double riskScore) {
         String level = ipAnomaly.getLevel() == null ? NORMAL_LEVEL : ipAnomaly.getLevel().name();
         return String.format("实体 %s：IP 异常等级 %s（原因：%s），行为类别 %s（置信度 %.2f），综合风险 %.2f。",
@@ -181,7 +181,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
     *
     * @param paths 路径列表，允许为 空
     * @return 截取后的列表，绝不为 空
-     */
+    */
     private static List<String> truncate(List<String> paths) {
         if (paths == null || paths.isEmpty()) {
             return List.of();
@@ -191,7 +191,7 @@ public class MiniMindUebaAnalyzer implements AutoCloseable {
 
     /**
     * 释放模型资源。
-     */
+    */
     @Override
     public void close() {
         if (model != null) {

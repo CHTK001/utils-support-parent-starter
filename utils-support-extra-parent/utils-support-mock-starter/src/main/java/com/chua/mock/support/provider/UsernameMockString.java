@@ -22,18 +22,18 @@ public class UsernameMockString implements MockString {
 
     /**
     * 用户名字符池（小写字母 + 数字）
-     */
+    */
     private static final char[] CHARS =
             "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
     /**
     * 默认最短用户名长度
-     */
+    */
     private static final int DEFAULT_MIN = 6;
     /**
     * 默认最长用户名长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int DEFAULT_MAX = 16;
 
     @Override

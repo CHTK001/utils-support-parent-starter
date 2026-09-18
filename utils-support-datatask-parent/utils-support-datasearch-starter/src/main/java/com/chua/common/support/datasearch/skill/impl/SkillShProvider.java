@@ -42,43 +42,43 @@ public class SkillShProvider {
     protected static final String API_BASE = "https://skills.sh/api/search";
 
     /**
-     * 获取提供者名称。
-     *
-     * @return 名称
-     */
+    * 获取提供者名称。
+    *
+    * @return 名称
+    */
     public String name() {
         return NAME;
     }
 
     /**
-     * 安装（MCP/Skill 通用），skills.sh 为远程市场，无需本地安装。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 安装结果
-     */
+    * 安装（MCP/Skill 通用），skills.sh 为远程市场，无需本地安装。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 安装结果
+    */
     public boolean install(String clientId, String skillId) {
         log.info("Skills.sh 安装请求: clientId={}, skillOrToolId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 卸载（MCP/Skill 通用）。
-     *
-     * @param clientId 客户端标识
-     * @param skillId  技能标识
-     * @return 卸载结果
-     */
+    * 卸载（MCP/Skill 通用）。
+    *
+    * @param clientId 客户端标识
+    * @param skillId  技能标识
+    * @return 卸载结果
+    */
     public boolean uninstall(String clientId, String skillId) {
         log.info("Skills.sh 卸载请求: clientId={}, skillOrToolId={}", clientId, skillId);
         return true;
     }
 
     /**
-     * 获取 MCP 工具描述符列表。
-     *
-     * @return 工具描述符
-     */
+    * 获取 MCP 工具描述符列表。
+    *
+    * @return 工具描述符
+    */
     public static List<McpToolDescriptor> toolDescriptors() {
         return List.of(
                 new McpToolDescriptor(PREFIX + "search", "搜索 skills.sh 技能市场，查找和发现 AI 技能",
@@ -91,10 +91,10 @@ public class SkillShProvider {
     }
 
     /**
-     * 构建搜索 SkillDefinition。
-     *
-     * @return 搜索技能
-     */
+    * 构建搜索 SkillDefinition。
+    *
+    * @return 搜索技能
+    */
     protected SkillDefinition searchSkill() {
         return new SkillDefinition(
                 PREFIX + "search",
@@ -109,11 +109,11 @@ public class SkillShProvider {
     }
 
     /**
-     * 处理搜索工具调用。
-     *
-     * @param args 参数
-     * @return 搜索结果
-     */
+    * 处理搜索工具调用。
+    *
+    * @param args 参数
+    * @return 搜索结果
+    */
     protected McpToolResult handleSearch(Map<String, Object> args) {
         String search = (String) args.get("search");
         int limit = args.containsKey("limit") ? ((Number) args.get("limit")).intValue() : 20;
@@ -128,14 +128,14 @@ public class SkillShProvider {
     }
 
     /**
-     * 调用 skills.sh API。
-     *
-     * @param search 搜索关键词
-     * @param limit  每页数量
-     * @param offset 偏移量
-     * @return 搜索结果
-     * @throws Exception 传输或解析异常
-     */
+    * 调用 skills.sh API。
+    *
+    * @param search 搜索关键词
+    * @param limit  每页数量
+    * @param offset 偏移量
+    * @return 搜索结果
+    * @throws Exception 传输或解析异常
+    */
     @SuppressWarnings("unchecked")
     protected Map<String, Object> callApi(String search, int limit, int offset) throws Exception {
         String url = API_BASE + "?q=" + encode(search)
@@ -182,11 +182,11 @@ public class SkillShProvider {
     }
 
     /**
-     * 将 MCP 工具调用结果转换为 Skill 调用结果。
-     *
-     * @param mcpResult MCP 结果
-     * @return Skill 结果
-     */
+    * 将 MCP 工具调用结果转换为 Skill 调用结果。
+    *
+    * @param mcpResult MCP 结果
+    * @return Skill 结果
+    */
     protected SkillResult toSkillResult(McpToolResult mcpResult) {
         if (mcpResult.isSuccess()) {
             return SkillResult.success(mcpResult.getContent());

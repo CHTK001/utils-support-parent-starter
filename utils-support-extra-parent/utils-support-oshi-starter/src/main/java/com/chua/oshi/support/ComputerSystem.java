@@ -15,21 +15,21 @@ public class ComputerSystem {
 
     /**
     * 系统制造商（如 Dell, Lenovo, Apple）。
-     */
+    */
     private String manufacturer;
 
     /**
     * 系统型号（如 XPS 15 9520）。
-     */
+    */
     private String model;
 
     /**
     * 系统 UUID。
-     */
+    */
     private String uuid;
 
     /**
     * 系统序列号。
-     */
+    */
     private String serialNumber;
 }

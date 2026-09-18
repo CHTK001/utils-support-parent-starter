@@ -43,17 +43,17 @@ public class JavaCVScreenCapture implements ScreenCature {
     * 复用的 BGR/BGRA 字节数组，避免每帧分配 2.7MB 堆内存造成 GC 压力。
     * 在 初始化() 中按 (width * 通道 * height) 分配，副本帧 复用同一份。
     * 仅本线程访问，但加 volatile 保证可见性。
-     */
+    */
     private volatile byte[] reusableBgrBuf;
 
     /**
     * 复用的 byte缓冲 视图，持有对 {@link #reusableBgrBuf} 的引用。
-     */
+    */
     private volatile java.nio.ByteBuffer reusableBgrByteBuffer;
 
     /**
     * 复用的 帧 对象，避免每帧 新 帧() 带来的分配。
-     */
+    */
     private volatile Frame reusableResultFrame;
 
     @Override
@@ -133,7 +133,7 @@ public class JavaCVScreenCapture implements ScreenCature {
     * 在非 8 字节对齐的 allocatedirect 缓冲区上崩溃。</p>
     * @param src src
     * @return 副本帧的结果
-     */
+    */
     private Frame copyFrame(Frame src) {
         try {
             int channels = src.imageChannels > 0 ? src.imageChannels : 3;

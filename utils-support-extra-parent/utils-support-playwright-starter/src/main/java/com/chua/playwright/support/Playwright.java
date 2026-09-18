@@ -44,6 +44,6 @@ public class Playwright {
     /**
     * 铬。
     * @return 铬的结果
-     */
+    */
     public BrowserType chromium() { return new BrowserType(getEngine()); }
 }

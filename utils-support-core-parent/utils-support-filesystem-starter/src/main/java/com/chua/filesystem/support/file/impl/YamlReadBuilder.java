@@ -20,7 +20,7 @@ public class YamlReadBuilder extends ReadBuilder {
     /**
     * 创建 yaml读取构建器 实例
     * @param file 文件
-     */
+    */
     public YamlReadBuilder(File file) {
         super(file);
     }
@@ -36,7 +36,7 @@ public class YamlReadBuilder extends ReadBuilder {
     * 读取 YAML 文件并返回 映射 格式的数据。
     *
     * @return 解析后的 映射，空文件或读取失败时返回空 映射
-     */
+    */
     public Map<String, Object> toMap() {
         try (Reader reader = new InputStreamReader(new FileInputStream(file), charset)) {
             return new Yaml().load(reader);

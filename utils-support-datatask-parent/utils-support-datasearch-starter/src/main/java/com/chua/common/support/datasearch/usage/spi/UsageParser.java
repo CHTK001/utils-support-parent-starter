@@ -23,13 +23,13 @@ public interface UsageParser {
     * 禁止一次性全量装载进内存。</p>
     *
     * @return 用量记录流
-     */
+    */
     Flux<AiUsage> streamAll();
 
     /**
     * 当前解析器标识（如 "opencode"、"codex++"）。
     *
     * @return SPI 名称
-     */
+    */
     String name();
 }

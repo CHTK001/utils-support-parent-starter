@@ -42,18 +42,20 @@ public final class ImageUtils {
 
     /**
     * 打开cv 是否已加载（静态单例，进程内只加载一次）。
-     */
+    */
     private static volatile boolean loaded;
 
     /** JPEG 文件结束标记（EOI）：0xff 0Adobe Adobe XD9 */
     private static final byte[] JPEG_EOF = {(byte) 0xFF, (byte) 0xD9};
 
-    /** PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前 */
+    /**
+    * PNG IEND 块类型签名：49 45 4E 44（"IEND"），位于文件末尾 CRC 之前
+    */
     private static final byte[] PNG_EOF = {(byte) 0x49, (byte) 0x45, (byte) 0x4E, (byte) 0x44};
 
     /**
     * 工具类私有构造，防止实例化。
-     */
+    */
     private ImageUtils() {
     }
 
@@ -61,7 +63,7 @@ public final class ImageUtils {
     * 获取按优先级自动降级的图像处理器代理。
     *
     * @return 图像处理器代理
-     */
+    */
     private static ImageProcessor processor() {
         return ImageProcessors.getProcessor();
     }
@@ -71,7 +73,7 @@ public final class ImageUtils {
     *
     * <p>统一在此管理 {@code nu.pattern.OpenCV.loadLocally()}，
     * 各 translator 一律调用本方法，避免散落的重复加载。</p>
-     */
+    */
     public static void load() {
         if (!loaded) {
             synchronized (ImageUtils.class) {
@@ -89,7 +91,7 @@ public final class ImageUtils {
     * @param image DJL 图像
     * @param size  目标尺寸（正方形）
     * @return [3, 大小, 大小] float 像素
-     */
+    */
     public static float[] toTensor(Image image, int size) {
         TensorOptions options = new TensorOptions(image, size, null, null, false);
         return toTensor(options);
@@ -103,7 +105,7 @@ public final class ImageUtils {
     * @param mean  均值（可为 空）
     * @param std   标准差（可为 空）
     * @return [3, 大小, 大小] float 像素
-     */
+    */
     public static float[] toTensorCenterCrop(Image image, int size, float[] mean, float[] std) {
         TensorOptions options = new TensorOptions(image, size, mean, std, true);
         return toTensor(options);
@@ -117,7 +119,7 @@ public final class ImageUtils {
     * @param mean  均值（可为 空）
     * @param std   标准差（可为 空）
     * @return [3, 大小, 大小] float 像素
-     */
+    */
     public static float[] toTensorResize(Image image, int size, float[] mean, float[] std) {
         TensorOptions options = new TensorOptions(image, size, mean, std, false);
         return toTensor(options);
@@ -128,7 +130,7 @@ public final class ImageUtils {
     *
     * @param options 张量转换选项，包含图像、尺寸、均值、标准差和裁剪策略
     * @return [3, 大小, 大小] float 像素
-     */
+    */
     public static float[] toTensor(TensorOptions options) {
         load();
         BufferedImage buffered = (BufferedImage) options.image().getWrappedImage();
@@ -183,7 +185,7 @@ public final class ImageUtils {
     *
     * @param image 图像
     * @return Mat
-     */
+    */
     /**
     * 缓冲镜像 → Mat（BGR）。
     *
@@ -191,7 +193,7 @@ public final class ImageUtils {
     *
     * @param image 图像
     * @return Mat
-     */
+    */
     public static Mat toMat(BufferedImage image) {
         load();
         int w = image.getWidth();
@@ -224,7 +226,7 @@ public final class ImageUtils {
     *
     * @param mat Mat（BGR）
     * @return BufferedImage
-     */
+    */
     public static BufferedImage toBufferedImage(Mat mat) {
         load();
         if (mat == null || mat.empty()) {
@@ -257,7 +259,7 @@ public final class ImageUtils {
     * @param height        目标高
     * @param interpolation 插值方式（Imgproc.INTER_*）
     * @return 缩放后的新 Mat
-     */
+    */
     public static Mat resize(Mat src, int width, int height, int interpolation) {
         load();
         Mat resized = new Mat();
@@ -273,7 +275,7 @@ public final class ImageUtils {
     * @param height        目标高
     * @param interpolation 插值方式（Imgproc.INTER_*）
     * @return 缩放后的 缓冲镜像
-     */
+    */
     public static BufferedImage resize(BufferedImage image, int width, int height, int interpolation) {
         Mat src = toMat(image);
         try {
@@ -299,7 +301,7 @@ public final class ImageUtils {
     * @param height        目标高
     * @param interpolation 插值方式（Imgproc.INTER_*，SPI 实现采用其默认插值）
     * @return 缩放后 PNG 字节
-     */
+    */
     public static byte[] resize(byte[] imageData, int width, int height, int interpolation) {
         try {
             Map<String, Object> params = new HashMap<>(3);
@@ -319,7 +321,7 @@ public final class ImageUtils {
     * @param height        目标高
     * @param interpolation 插值方式
     * @return 缩放后 PNG 字节
-     */
+    */
     private static byte[] resizeLocal(byte[] imageData, int width, int height, int interpolation) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -340,7 +342,7 @@ public final class ImageUtils {
     * @param options 裁剪选项，包含源 Mat 和像素坐标尺寸
     * @return 裁剪后的新 Mat
     * @param src src
-     */
+    */
     public static Mat crop(Mat src, ImageCropOptions options) {
         load();
         int left = clamp(options.x(), 0, src.cols() - 1);
@@ -358,7 +360,7 @@ public final class ImageUtils {
     *
     * @param options 裁剪选项，包含图像字节和像素坐标尺寸
     * @return 裁剪后 PNG 字节
-     */
+    */
     public static byte[] crop(ImageCropOptions options) {
         try {
             Map<String, Object> params = new HashMap<>(4);
@@ -381,7 +383,7 @@ public final class ImageUtils {
     * @param width     宽度
     * @param height    高度
     * @return 裁剪后 PNG 字节
-     */
+    */
     private static byte[] cropLocal(byte[] imageData, int x, int y, int width, int height) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -406,7 +408,7 @@ public final class ImageUtils {
     * @param width     宽度
     * @param height    高度
     * @return 裁剪后 PNG 字节
-     */
+    */
     public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
         return cropLocal(imageData, x, y, width, height);
     }
@@ -420,7 +422,7 @@ public final class ImageUtils {
     * @param width     宽度
     * @param height    高度
     * @return 裁剪后 PNG 字节
-     */
+    */
     public static byte[] cropNormalizedOrPixel(byte[] imageData, float x, float y, float width, float height) {
         return cropNormalizedOrPixel(new NormalizedCropOptions(imageData, x, y, width, height));
     }
@@ -435,7 +437,7 @@ public final class ImageUtils {
     * @param rh        旋转矩形高
     * @param angle     旋转角度（度）
     * @return 扶正后 PNG 字节
-     */
+    */
     public static byte[] cropRotated(byte[] imageData, float cx, float cy, float rw, float rh, float angle) {
         return cropRotated(new RotatedCropOptions(imageData, cx, cy, rw, rh, angle));
     }
@@ -445,7 +447,7 @@ public final class ImageUtils {
     *
     * @param options 裁剪选项，包含图像字节和坐标（归一化或像素）
     * @return 裁剪后 PNG 字节
-     */
+    */
     public static byte[] cropNormalizedOrPixel(NormalizedCropOptions options) {
         Mat src = decode(options.imageData());
         if (src == null || src.empty()) {
@@ -491,7 +493,7 @@ public final class ImageUtils {
     * @param min   下限
     * @param max   上限
     * @return 限定后的数值
-     */
+    */
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -501,7 +503,7 @@ public final class ImageUtils {
     *
     * @param imageData 图像字节
     * @return BufferedImage，解码失败返回 空
-     */
+    */
     public static BufferedImage toBufferedImage(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -519,7 +521,7 @@ public final class ImageUtils {
     *
     * @param imageData 图像字节
     * @return Mat，解码失败返回 空
-     */
+    */
     public static Mat decode(byte[] imageData) {
         load();
         if (imageData == null || imageData.length == 0) {
@@ -543,7 +545,7 @@ public final class ImageUtils {
     *
     * @param imageData 图像字节
     * @return true 表示末尾 EOF 标记匹配，图像数据大概率完整；false 表示截断或格式未知
-     */
+    */
     public static boolean hasValidEof(byte[] imageData) {
         if (imageData == null || imageData.length == 0) {
             return false;
@@ -570,7 +572,7 @@ public final class ImageUtils {
     * @param mat Mat
     * @return PNG 字节
     * @param bi bi
-     */
+    */
     public static byte[] encode(java.awt.image.BufferedImage bi) {
         try {
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
@@ -590,7 +592,7 @@ public static byte[] encode(Mat mat) {
     * @param mat    Mat
     * @param format 图像格式（.png / .jpg）
     * @return 图像字节
-     */
+    */
     public static byte[] encode(Mat mat, String format) {
         load();
         MatOfByte mob = new MatOfByte();
@@ -607,7 +609,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param options 裁剪选项，包含原图字节和旋转矩形参数
     * @return 扶正后 rw x rh 的 PNG 字节；处理失败返回原图
-     */
+    */
     public static byte[] cropRotated(RotatedCropOptions options) {
         Mat src = decode(options.imageData());
         if (src == null || src.empty()) {
@@ -650,7 +652,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 图像字节
     * @param scale     缩放倍数
     * @return 放大后 PNG 字节
-     */
+    */
     public static byte[] upscale(byte[] imageData, double scale) {
         Mat src = decode(imageData);
         if (src == null) {
@@ -676,7 +678,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 图像字节
     * @param degree    90/180/270
     * @return 旋转后 PNG 字节
-     */
+    */
     public static byte[] rotate(byte[] imageData, int degree) {
         try {
             Map<String, Object> params = new HashMap<>(1);
@@ -693,7 +695,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 图像字节
     * @param degree    90/180/270
     * @return 旋转后 PNG 字节
-     */
+    */
     private static byte[] rotateLocal(byte[] imageData, int degree) {
         Mat src = decode(imageData);
         if (src == null) {
@@ -722,7 +724,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 图像字节
     * @param angle     旋转角度（度），正=顺时针
     * @return 扶正后 PNG 字节；处理失败返回原图
-     */
+    */
     public static byte[] deskew(byte[] imageData, float angle) {
         try {
             load();
@@ -756,7 +758,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param imageData 图像字节
     * @return true 表示深色背景
-     */
+    */
     public static boolean isDarkBackground(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null) {
@@ -788,7 +790,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param imageData 图像字节
     * @return 模糊度评分，解码失败返回 0
-     */
+    */
     public static double blurScore(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -820,7 +822,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param imageData 图像字节
     * @return 平均亮度，解码失败返回 0
-     */
+    */
     public static double meanGray(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -846,7 +848,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param imageData 图像字节
     * @return 对比度，解码失败返回 0
-     */
+    */
     public static double stdDevGray(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null || src.empty()) {
@@ -873,7 +875,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 图像字节
     * @param threshold 清晰度阈值，低于视为模糊（经验值 100）
     * @return true 表示模糊
-     */
+    */
     public static boolean isBlurry(byte[] imageData, double threshold) {
         return blurScore(imageData) < threshold;
     }
@@ -883,7 +885,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param imageData 图像字节
     * @return 反色后 PNG 字节；浅背景原样返回
-     */
+    */
     public static byte[] invertIfDark(byte[] imageData) {
         Mat src = decode(imageData);
         if (src == null) {
@@ -916,7 +918,7 @@ public static byte[] encode(Mat mat) {
 
     /**
     * FFHQ 512×512 标准 5 点模板（左眼、右眼、鼻、左嘴角、右嘴角）。
-     */
+    */
     private static final double[][] FACE_TEMPLATE_512 = {
             {192.98138, 239.94708},
             {318.90277, 240.1936},
@@ -935,7 +937,7 @@ public static byte[] encode(Mat mat) {
     * @param keypoints 源人脸 5 点（像素坐标，顺序：左眼、右眼、鼻、左嘴角、右嘴角）
     * @param outSize   输出边长（512）
     * @return 对齐后的 Mat
-     */
+    */
     public static Mat alignFace(Mat src, java.util.List<float[]> keypoints, int outSize) {
         load();
         if (keypoints == null || keypoints.size() < 5) {
@@ -963,7 +965,7 @@ public static byte[] encode(Mat mat) {
     *
     * @param keypoints 源人脸 5 点（像素坐标，顺序：左眼、右眼、鼻、左嘴角、右嘴角）
     * @return 2×3 仿射矩阵 Mat（调用方负责 release）
-     */
+    */
     public static Mat estimateFaceAffine512(java.util.List<float[]> keypoints) {
         load();
         if (keypoints == null || keypoints.size() < 5) {
@@ -985,7 +987,7 @@ public static byte[] encode(Mat mat) {
     * @param softMask     人脸软 mask Mat（512×512，单通道 0~255 灰度）
     * @param affine       对齐时使用的 2×3 仿射矩阵
     * @return 融合后的新 Mat（BGR，原图尺寸）
-     */
+    */
     public static Mat pasteFace(Mat background, Mat restoredFace, Mat softMask, Mat affine) {
         load();
         int w = background.cols();
@@ -1058,7 +1060,7 @@ public static byte[] encode(Mat mat) {
     * @param srcPoints 源 5 点（像素坐标）
     * @param dstPoints 目标 5 点（模板坐标）
     * @return 2×3 仿射矩阵 Mat
-     */
+    */
     public static Mat estimateAffine5Point(java.util.List<float[]> srcPoints, double[][] dstPoints) {
         // 构造 10 行 × 7 列（6 未知数 + 1 常数）方程
         Mat a = new Mat(10, 6, org.opencv.core.CvType.CV_64F);
@@ -1110,7 +1112,7 @@ public static byte[] encode(Mat mat) {
     * @param boxes     检测结果（含角度/rw/rh/cx/cy）
     * @param labels    对应每个框的文本标签（可为 空）
     * @return 标注后 JPEG 字节
-     */
+    */
     public static byte[] drawDetectionsWithLabels(byte[] imageData, List<DetectionInfo> boxes, List<String> labels) {
         load();
         Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);
@@ -1193,7 +1195,7 @@ public static byte[] encode(Mat mat) {
     * @param imageData 原图
     * @param boxes     检测结果
     * @return 标注后 JPEG 字节
-     */
+    */
     public static byte[] drawDetections(byte[] imageData, List<DetectionInfo> boxes) {
         load();
         Mat src = org.opencv.imgcodecs.Imgcodecs.imdecode(new MatOfByte(imageData), org.opencv.imgcodecs.Imgcodecs.IMREAD_COLOR);

@@ -92,7 +92,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     * extract日期时间。
     * @param line 线
     * @return extract日期时间的结果
-     */
+    */
     private String extractDateTime(String line) {
         // 处理 DTSTART:20240101T120000Z 或 DTSTART;VALUE=DATE:20240101
     /**
@@ -102,7 +102,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
         int colonIdx = line.indexOf(':');
         if (colonIdx < 0) {
             return line;
@@ -129,7 +129,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     * @param events 事件
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(List<CalendarEvent> events, long fileSize) {
@@ -186,7 +186,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     * @param text 文本
     * @param maxLen 最大len
     * @return truncate的结果
-     */
+    */
     }
 
     private String truncate(String text, int maxLen) {
@@ -201,7 +201,7 @@ public class CalendarPreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     private String escapeHtml(String text) {

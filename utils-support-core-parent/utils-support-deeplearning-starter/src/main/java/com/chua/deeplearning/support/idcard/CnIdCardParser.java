@@ -32,7 +32,7 @@ public class CnIdCardParser {
     *
     * @param text PaddleOCR 识别的身份证正面或反面文字
     * @return 解析结果
-     */
+    */
     public CnIdCardResult parse(String text) {
         if (text == null || text.isBlank()) {
             return null;
@@ -111,29 +111,12 @@ public class CnIdCardParser {
     }
 
     /**
-    * 从多行 OCR 结果中合并解析
+    * 从多行 OCR 识别结果中合并解析身份证号。
+    * 将各非空行以换行拼接后统一解析，容忍 OCR 输出的换行与空白噪声。
     *
-    * @param lines OCR 识别的每一行文字
-    * @return 解析结果
-    * @param s s
-     /**
-      * 解析线。
-      * @param lines 线
-      * @return 解析线的结果
-      */
-      * @param s s
-     /**
-     * 解析线。
-     * @param lines 线
-     * @return 解析线的结果
-      */
-      * @param s s
-     /**
-     * 解析线。
-     * @param lines 线
-     * @return 解析线的结果
-      */
-     */
+    * @param lines OCR 识别的每一行文字，允许为 null 或含空白行
+    * @return 身份证解析结果
+    */
     public CnIdCardResult parseLines(String... lines) {
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {

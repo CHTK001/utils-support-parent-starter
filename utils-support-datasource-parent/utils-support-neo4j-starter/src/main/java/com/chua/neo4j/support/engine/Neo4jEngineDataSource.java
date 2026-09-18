@@ -31,32 +31,32 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
 
     /**
     * 数据源名称，在 {@link com.chua.common.support.lang.datasource.engine.Engine} 中唯一标识
-     */
+    */
     private final String name;
 
     /**
     * Neo4j 螺栓 驱动实例
-     */
+    */
     private final Driver driver;
 
     /**
     * 数据库方言（Neo4j 是图数据库，不使用 SQL 方言）
-     */
+    */
     private Dialect dialect;
 
     /**
     * 连接 URI
-     */
+    */
     private String url;
 
     /**
     * 用户名
-     */
+    */
     private String username;
 
     /**
     * 密码
-     */
+    */
     private String password;
 
     /**
@@ -64,7 +64,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     *
     * @param name   数据源名称
     * @param driver Neo4j 螺栓 驱动实例
-     */
+    */
     public Neo4jEngineDataSource(String name, Driver driver) {
         this.name = name;
         this.driver = driver;
@@ -78,7 +78,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * @param url      连接 URI
     * @param username 用户名
     * @param password 密码
-     */
+    */
     public Neo4jEngineDataSource(String name, Driver driver, String url, String username, String password) {
         this.name = name;
         this.driver = driver;
@@ -91,7 +91,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * 获取数据源名称。
     *
     * @return 名称
-     */
+    */
     @Override
     public String name() {
         return name;
@@ -101,7 +101,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * 获取 Neo4j 螺栓 驱动实例。
     *
     * @return 驱动对象
-     */
+    */
     @Override
     public Driver getSource() {
         return driver;
@@ -115,7 +115,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     *
     * @param source 新的数据源对象
     * @return this
-     */
+    */
     @SuppressWarnings("unchecked")
     @Override
     public EngineDataSource<Driver> setSource(Object source) {
@@ -129,7 +129,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * </p>
     *
     * @return null
-     */
+    */
     @Override
     public Dialect getDialect() {
         return dialect;
@@ -140,7 +140,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     *
     * @param dialect 方言实例
     * @return this
-     */
+    */
     @Override
     public EngineDataSource<Driver> setDialect(Dialect dialect) {
         this.dialect = dialect;
@@ -151,7 +151,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * 获取连接 URI。
     *
     * @return URI 字符串
-     */
+    */
     @Override
     public String url() {
         return url;
@@ -161,7 +161,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * 获取用户名。
     *
     * @return 用户名
-     */
+    */
     @Override
     public String username() {
         return username;
@@ -171,7 +171,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
     * 获取密码。
     *
     * @return 密码
-     */
+    */
     @Override
     public String password() {
         return password;
@@ -179,7 +179,7 @@ public class Neo4jEngineDataSource implements EngineDataSource<Driver> {
 
     /**
     * 关闭数据源，释放 Neo4j 驱动资源。
-     */
+    */
     @Override
     public void close() {
         if (driver != null) {

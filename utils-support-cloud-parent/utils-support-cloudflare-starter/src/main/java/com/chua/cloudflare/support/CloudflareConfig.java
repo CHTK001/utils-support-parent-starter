@@ -22,26 +22,26 @@ public class CloudflareConfig implements Serializable {
 
     /**
     * API 令牌 或 账户 API 键。访问 D1 推荐使用 API 令牌。
-     */
+    */
     private String token;
 
     /**
     * 账户 标识（账户 标识），D1 REST 接口路径需要。
-     */
+    */
     private String accountId;
 
     /**
     * 默认数据库 标识（D1 database_标识）。
-     */
+    */
     private String databaseId;
 
     /**
     * API 基础地址。Cloudflare 固定为 {@code https://api.cloudflare.com/client/v4}。
-     */
+    */
     private String baseUrl = "https://api.cloudflare.com/client/v4";
 
     /**
     * 单次请求超时（毫秒）。
-     */
+    */
     private long timeoutMs = 30_000L;
 }

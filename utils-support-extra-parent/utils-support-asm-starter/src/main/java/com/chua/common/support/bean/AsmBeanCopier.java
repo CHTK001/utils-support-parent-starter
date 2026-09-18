@@ -80,9 +80,9 @@ public class AsmBeanCopier implements BeanCopier {
     * generatecopier
     *
     * @param sourceClass 源类
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @return generateCopier的结果
-     */
+    */
     private BeanCopier generateCopier(Class<?> sourceClass, Class<?> targetClass) {
         try {
             Map<String, PropertyDescriptor> sourceReads = new LinkedHashMap<>();
@@ -115,9 +115,9 @@ public class AsmBeanCopier implements BeanCopier {
     /**
     * 创建copier类
     * @param sourceClass 源类
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @param matched 匹配
-     */
+    */
     private BeanCopier createCopierClass(Class<?> sourceClass, Class<?> targetClass,
                                           List<PropertyPair> matched) throws Exception {
         String generatedName = "com/chua/common/support/bean/GeneratedCopier_"
@@ -324,7 +324,7 @@ public class AsmBeanCopier implements BeanCopier {
     * @param clazz clazz
     * @param reads 读取
     * @param writes 写入
-     */
+    */
     private void resolveProperties(Class<?> clazz,
                                     Map<String, PropertyDescriptor> reads,
                                     Map<String, PropertyDescriptor> writes) {
@@ -349,7 +349,7 @@ public class AsmBeanCopier implements BeanCopier {
     * @return 获取财产名称的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static String getPropertyName(Method getter) {
         String name = getter.getName();
         if (name.startsWith("get") && name.length() > 3) {
@@ -375,7 +375,7 @@ public class AsmBeanCopier implements BeanCopier {
     * 生成的字节码类的类加载器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class GeneratedClassLoader extends ClassLoader {
         GeneratedClassLoader(ClassLoader parent) {
             super(parent);

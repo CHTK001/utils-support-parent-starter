@@ -24,17 +24,17 @@ public class ColorizationTranslator implements Translator<Image, Image> {
 
     /**
     * 模型输入尺寸。
-     */
+    */
     private static final int SIZE = 256;
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     @Override

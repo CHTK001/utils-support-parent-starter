@@ -16,7 +16,7 @@ public interface DebeziumConnectorConfig {
     * 返回连接器实现类全限定名。
     *
     * @return 连接器类名
-     */
+    */
     String connectorClass();
 
     /**
@@ -24,6 +24,6 @@ public interface DebeziumConnectorConfig {
     *
     * @param props       Debezium 属性容器
     * @param environment 目录poller 环境
-     */
+    */
     void configure(Properties props, DirectoryPollerEnvironment environment);
 }

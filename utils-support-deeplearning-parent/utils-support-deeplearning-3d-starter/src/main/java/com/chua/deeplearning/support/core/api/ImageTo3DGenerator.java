@@ -23,7 +23,7 @@ public interface ImageTo3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(byte[] image, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 
     /**
@@ -35,6 +35,6 @@ public interface ImageTo3DGenerator {
     * @param quality      质量（draft / 标准 / high）
     * @return 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D generate(byte[][] images, Model3DFormat format, Model3DStyle style, String quality) throws IOException;
 }

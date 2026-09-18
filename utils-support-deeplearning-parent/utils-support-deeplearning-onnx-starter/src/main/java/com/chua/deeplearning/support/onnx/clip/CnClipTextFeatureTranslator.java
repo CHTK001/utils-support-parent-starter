@@ -75,7 +75,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -90,7 +90,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     * @param modelRoot 模型根
     * @param names 名称
     * @return resolve第一个existing的结果
-     */
+    */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -107,7 +107,7 @@ public class CnClipTextFeatureTranslator implements Translator<String, float[]> 
     * @param ids 标识
     * @param maxLen 最大len
     * @return truncate的结果
-     */
+    */
     private static long[] truncate(long[] ids, int maxLen) {
         long[] out = new long[maxLen];
         System.arraycopy(ids, 0, out, 0, Math.min(ids.length, maxLen));

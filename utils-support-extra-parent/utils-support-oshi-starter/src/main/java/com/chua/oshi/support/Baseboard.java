@@ -13,21 +13,21 @@ public class Baseboard {
 
     /**
     * 主板制造商。
-     */
+    */
     private String manufacturer;
 
     /**
     * 主板型号。
-     */
+    */
     private String model;
 
     /**
     * 主板版本。
-     */
+    */
     private String version;
 
     /**
     * 主板序列号。
-     */
+    */
     private String serialNumber;
 }

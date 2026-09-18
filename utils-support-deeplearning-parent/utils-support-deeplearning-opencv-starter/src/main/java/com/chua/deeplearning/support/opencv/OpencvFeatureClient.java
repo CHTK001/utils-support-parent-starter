@@ -26,7 +26,7 @@ public class OpencvFeatureClient extends AbstractLocalFeatureClient {
     * 构造 打开cv 图像理解客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OpencvFeatureClient(FeatureClientSetting setting) {
         super("opencv", setting);
     }

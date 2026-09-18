@@ -30,7 +30,7 @@ public interface SpiderScheduler {
     * 和 {@link com.chua.common.support.task.deduplicate.Deduplicator} 的去重检查。
     *
     * @param request 待爬取的请求
-     */
+    */
     void enqueue(SpiderRequest request);
 
     /**
@@ -39,27 +39,27 @@ public interface SpiderScheduler {
     * <p>如果队列为空，返回 null。调度器应在此方法中控制请求间隔。
     *
     * @return 下一个待爬取的请求，队列为空时返回 空
-     */
+    */
     SpiderRequest dequeue();
 
     /**
     * 判断队列中是否还有未处理的请求。
     *
     * @return 还有待处理请求时返回 true
-     */
+    */
     boolean hasNext();
 
     /**
     * 获取队列中的剩余请求数。
     *
     * @return 待处理请求的数量
-     */
+    */
     int size();
 
     /**
     * 清空队列。
     *
     * <p>重置调度器状态，清除所有待处理请求。
-     */
+    */
     void clear();
 }

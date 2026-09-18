@@ -22,7 +22,7 @@ public class RealIoRunner {
     *
     * @param args 运行参数
     * @throws Exception 当认证失败或网络异常时
-     */
+    */
     public static void main(String[] args) throws Exception {
         String model = "glm-5.2";
         for (String arg : args) {

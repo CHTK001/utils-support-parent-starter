@@ -26,17 +26,17 @@ public class PlaywrightScreenshot {
 
     /**
     * 默认 超时时间
-     */
+    */
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 
     /**
     * 默认 navigation 超时时间
-     */
+    */
     private static final Duration DEFAULT_NAVIGATION_TIMEOUT = Duration.ofSeconds(60);
 
     /**
     * Playwright 版本，浏览器下载地址使用
-     */
+    */
     private static final String PLAYWRIGHT_VERSION = "1.49.0";
 
     /**
@@ -44,7 +44,7 @@ public class PlaywrightScreenshot {
     *
     * @param url     页面地址
     * @param outFile 输出文件路径
-     */
+    */
     public static void screenshot(String url, String outFile) {
         screenshot(url, outFile, null);
     }
@@ -55,7 +55,7 @@ public class PlaywrightScreenshot {
     * @param url     页面地址
     * @param outFile 输出文件路径
     * @param options 配置回调，可设置视口大小、等待条件等
-     */
+    */
     public static void screenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
         ScreenshotConfig config = new ScreenshotConfig();
         config.setBaseUrl(url);
@@ -121,7 +121,7 @@ public class PlaywrightScreenshot {
     *
     * @param url     页面地址
     * @param outFile 输出文件路径
-     */
+    */
     public static void fullPageScreenshot(String url, String outFile) {
         screenshot(url, outFile, config -> config.setFullPage(true));
     }
@@ -132,7 +132,7 @@ public class PlaywrightScreenshot {
     * @param url     页面地址
     * @param outFile 输出文件路径
     * @param options 配置回调
-     */
+    */
     public static void fullPageScreenshot(String url, String outFile, Consumer<ScreenshotConfig> options) {
         screenshot(url, outFile, config -> {
             config.setFullPage(true);
@@ -146,7 +146,7 @@ public class PlaywrightScreenshot {
     * 打印 Playwright 浏览器手动安装指引
     *
     * <p>当自动安装失败时，打印下载地址和放置路径，方便离线环境手动安装。</p>
-     */
+    */
     public static void printManualInstallGuide() {
         String osName = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
@@ -195,7 +195,7 @@ public class PlaywrightScreenshot {
     *
     * @param page   Playwright Page 对象
     * @param config 截图配置
-     */
+    */
     private static void waitForPageLoad(Page page, ScreenshotConfig config) {
         String waitSelector = config.getWaitSelector();
         long waitTimeout = config.getWaitTimeout();
@@ -230,62 +230,62 @@ public class PlaywrightScreenshot {
     * 截图配置
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class ScreenshotConfig {
         /**
         * viewport Width
-         */
+        */
         private int viewportWidth = 1280;
         /**
         * viewport Height
-         */
+        */
         private int viewportHeight = 720;
         /**
         * 完整 Page
-         */
+        */
         private boolean fullPage = false;
         /**
         * wait Selector
-         */
+        */
         private String waitSelector;
         /**
         * wait超时时间
-         */
+        */
         private long waitTimeout = 30000;
         /**
         * extrawait（毫秒）
-         */
+        */
         private long extraWaitMillis = 0;
         /**
         * 区域
-         */
+        */
         private String locale = "zh-CN";
         /**
         * timezone 标识
-         */
+        */
         private String timezoneId = "Asia/Shanghai";
         /**
         * 基础地址
-         */
+        */
         private String baseUrl;
         /**
         * extra Http 头部
-         */
+        */
         private java.util.Map<String, String> extraHttpHeaders;
         /**
         * slow Mo
-         */
+        */
         private long slowMo = 0;
         /**
         * 浏览器可执行文件路径
-         */
+        */
         private String executablePath;
 
         /**
         * 获取viewportwidth
         *
         * @return 获取viewportwidth的结果
-         */
+        */
         public int getViewportWidth() {
             return viewportWidth;
         }
@@ -295,7 +295,7 @@ public class PlaywrightScreenshot {
         *
         * @param viewportWidth viewportwidth
         * @return 设置viewportwidth的结果
-         */
+        */
         public ScreenshotConfig setViewportWidth(int viewportWidth) {
             this.viewportWidth = viewportWidth;
             return this;
@@ -305,7 +305,7 @@ public class PlaywrightScreenshot {
         * 获取viewportheight
         *
         * @return 获取viewportheight的结果
-         */
+        */
         public int getViewportHeight() {
             return viewportHeight;
         }
@@ -315,7 +315,7 @@ public class PlaywrightScreenshot {
         *
         * @param viewportHeight viewportheight
         * @return 设置viewportheight的结果
-         */
+        */
         public ScreenshotConfig setViewportHeight(int viewportHeight) {
             this.viewportHeight = viewportHeight;
             return this;
@@ -325,7 +325,7 @@ public class PlaywrightScreenshot {
         * 获取完整page
         *
         * @return 获取完整page的结果
-         */
+        */
         public boolean getFullPage() {
             return fullPage;
         }
@@ -335,7 +335,7 @@ public class PlaywrightScreenshot {
         *
         * @param fullPage 完整page
         * @return 设置完整page的结果
-         */
+        */
         public ScreenshotConfig setFullPage(boolean fullPage) {
             this.fullPage = fullPage;
             return this;
@@ -345,7 +345,7 @@ public class PlaywrightScreenshot {
         * 获取waitselector
         *
         * @return 获取waitselector的结果
-         */
+        */
         public String getWaitSelector() {
             return waitSelector;
         }
@@ -355,7 +355,7 @@ public class PlaywrightScreenshot {
         *
         * @param waitSelector waitselector
         * @return 设置waitselector的结果
-         */
+        */
         public ScreenshotConfig setWaitSelector(String waitSelector) {
             this.waitSelector = waitSelector;
             return this;
@@ -365,7 +365,7 @@ public class PlaywrightScreenshot {
         * 获取wait超时
         *
         * @return 获取wait超时的结果
-         */
+        */
         public long getWaitTimeout() {
             return waitTimeout;
         }
@@ -375,7 +375,7 @@ public class PlaywrightScreenshot {
         *
         * @param waitTimeout wait超时
         * @return 设置wait超时的结果
-         */
+        */
         public ScreenshotConfig setWaitTimeout(long waitTimeout) {
             this.waitTimeout = waitTimeout;
             return this;
@@ -385,7 +385,7 @@ public class PlaywrightScreenshot {
         * 获取extrawaitmillis
         *
         * @return 获取extrawaitmillis的结果
-         */
+        */
         public long getExtraWaitMillis() {
             return extraWaitMillis;
         }
@@ -395,7 +395,7 @@ public class PlaywrightScreenshot {
         *
         * @param extraWaitMillis extrawaitmillis
         * @return 设置extrawaitmillis的结果
-         */
+        */
         public ScreenshotConfig setExtraWaitMillis(long extraWaitMillis) {
             this.extraWaitMillis = extraWaitMillis;
             return this;
@@ -405,7 +405,7 @@ public class PlaywrightScreenshot {
         * 获取区域
         *
         * @return 获取区域的结果
-         */
+        */
         public String getLocale() {
             return locale;
         }
@@ -415,7 +415,7 @@ public class PlaywrightScreenshot {
         *
         * @param locale 区域
         * @return 设置区域的结果
-         */
+        */
         public ScreenshotConfig setLocale(String locale) {
             this.locale = locale;
             return this;
@@ -425,7 +425,7 @@ public class PlaywrightScreenshot {
         * 获取timezoneid
         *
         * @return 获取timezoneid的结果
-         */
+        */
         public String getTimezoneId() {
             return timezoneId;
         }
@@ -435,7 +435,7 @@ public class PlaywrightScreenshot {
         *
         * @param timezoneId timezoneid
         * @return 设置timezoneid的结果
-         */
+        */
         public ScreenshotConfig setTimezoneId(String timezoneId) {
             this.timezoneId = timezoneId;
             return this;
@@ -445,7 +445,7 @@ public class PlaywrightScreenshot {
         * 获取baseurl
         *
         * @return 获取baseurl的结果
-         */
+        */
         public String getBaseUrl() {
             return baseUrl;
         }
@@ -455,7 +455,7 @@ public class PlaywrightScreenshot {
         *
         * @param baseUrl baseurl
         * @return 设置baseurl的结果
-         */
+        */
         public ScreenshotConfig setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
             return this;
@@ -465,7 +465,7 @@ public class PlaywrightScreenshot {
         * 获取extrahttp头部
         *
         * @return 获取extrahttp头部的结果
-         */
+        */
         public java.util.Map<String, String> getExtraHttpHeaders() {
             return extraHttpHeaders;
         }
@@ -475,7 +475,7 @@ public class PlaywrightScreenshot {
         *
         * @param extraHttpHeaders extrahttp头部
         * @return 设置extrahttp头部的结果
-         */
+        */
         public ScreenshotConfig setExtraHttpHeaders(java.util.Map<String, String> extraHttpHeaders) {
             this.extraHttpHeaders = extraHttpHeaders;
             return this;
@@ -485,7 +485,7 @@ public class PlaywrightScreenshot {
         * 获取slowmo
         *
         * @return 获取slowmo的结果
-         */
+        */
         public long getSlowMo() {
             return slowMo;
         }
@@ -495,7 +495,7 @@ public class PlaywrightScreenshot {
         *
         * @param slowMo slowmo
         * @return 设置slowmo的结果
-         */
+        */
         public ScreenshotConfig setSlowMo(long slowMo) {
             this.slowMo = slowMo;
             return this;
@@ -505,7 +505,7 @@ public class PlaywrightScreenshot {
         * 获取executable路径
         *
         * @return 获取executable路径的结果
-         */
+        */
         public String getExecutablePath() {
             return executablePath;
         }
@@ -515,7 +515,7 @@ public class PlaywrightScreenshot {
         *
         * @param executablePath executable路径
         * @return 设置executable路径的结果
-         */
+        */
         public ScreenshotConfig setExecutablePath(String executablePath) {
             this.executablePath = executablePath;
             return this;

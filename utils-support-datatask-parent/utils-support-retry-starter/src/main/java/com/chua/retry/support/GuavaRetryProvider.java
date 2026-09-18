@@ -60,7 +60,7 @@ public class GuavaRetryProvider extends AbstractRetryProvider {
     *
     * @param config 配置
     * @return 转为waitstrategy的结果
-     */
+    */
     private static com.github.rholder.retry.WaitStrategy toWaitStrategy(RetryConfig config) {
         return switch (config.getBackoffStrategy()) {
             case FIXED -> WaitStrategies.fixedWait(config.getDelay(), TimeUnit.MILLISECONDS);

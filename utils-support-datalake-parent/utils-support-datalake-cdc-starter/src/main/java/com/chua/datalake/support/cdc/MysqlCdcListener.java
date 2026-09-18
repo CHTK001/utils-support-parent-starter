@@ -65,7 +65,7 @@ public class MysqlCdcListener {
     /**
     * mysqlcdc监听器。
     * @param builder 构建器
-     */
+    */
     private MysqlCdcListener(Builder builder) {
         this.host = builder.host;
         this.port = builder.port;
@@ -81,14 +81,14 @@ public class MysqlCdcListener {
     * 创建构建器。
     *
     * @return 新构建器
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
     * 启动 CDC 监听。
-     */
+    */
     public void start() {
         if (running) {
             return;
@@ -115,7 +115,7 @@ public class MysqlCdcListener {
 
     /**
     * 停止 CDC 监听。
-     */
+    */
     public void stop() {
         if (!running || client == null) {
             return;
@@ -133,7 +133,7 @@ public class MysqlCdcListener {
     * 处理 binlog 事件。
     *
     * @param event 事件
-     */
+    */
     private void handleEvent(Event event) {
         EventData eventData = event.getData();
         if (eventData == null) {
@@ -190,7 +190,7 @@ public class MysqlCdcListener {
     * 发布事件到 pipelineengine。
     *
     * @param data 事件数据
-     */
+    */
     private void publishEvent(Map<String, Object> data) {
         try {
             DataEnvelope envelope = DataEnvelope.builder()
@@ -212,7 +212,7 @@ public class MysqlCdcListener {
     * 返回已处理事件数。
     *
     * @return 事件计数
-     */
+    */
     public long getEventCount() {
         return eventCount.get();
     }
@@ -221,7 +221,7 @@ public class MysqlCdcListener {
     * 是否运行中。
     *
     * @return true 表示已启动
-     */
+    */
     public boolean isRunning() {
         return running;
     }
@@ -232,7 +232,7 @@ public class MysqlCdcListener {
     * MySQL CDC 监听器构建器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
         private String host = "127.0.0.1"; // 主机
         private int port = 3306; // 端口
@@ -247,55 +247,55 @@ public class MysqlCdcListener {
         * 主机。
         * @param host 主机
         * @return 主机的结果
-         */
+        */
         public Builder host(String host) { this.host = host; return this; }
         /**
         * 端口。
         * @param port 端口
         * @return 端口的结果
-         */
+        */
         public Builder port(int port) { this.port = port; return this; }
         /**
         * 用户名。
         * @param username 用户名
         * @return 用户名的结果
-         */
+        */
         public Builder username(String username) { this.username = username; return this; }
         /**
         * 密码。
         * @param password 密码
         * @return 密码的结果
-         */
+        */
         public Builder password(String password) { this.password = password; return this; }
         /**
         * 服务端id。
         * @param serverId 服务端标识
         * @return 服务端id的结果
-         */
+        */
         public Builder serverId(int serverId) { this.serverId = serverId; return this; }
         /**
         * tableid。
         * @param tableId tableid
         * @return tableId的结果
-         */
+        */
         public Builder tableId(Long tableId) { this.tableId = tableId; return this; }
         /**
         * pipelineid。
         * @param pipelineId pipelineid
         * @return pipelineId的结果
-         */
+        */
         public Builder pipelineId(String pipelineId) { this.pipelineId = pipelineId; return this; }
         /**
         * pipelineengine。
         * @param engine engine
         * @return pipelineEngine的结果
-         */
+        */
         public Builder pipelineEngine(PipelineEngine engine) { this.pipelineEngine = engine; return this; }
 
         /**
         * 构建。
         * @return 构建的结果
-         */
+        */
         public MysqlCdcListener build() {
             if (pipelineId == null || pipelineEngine == null) {
                 throw new IllegalArgumentException("pipelineId 和 pipelineEngine 不能为空");

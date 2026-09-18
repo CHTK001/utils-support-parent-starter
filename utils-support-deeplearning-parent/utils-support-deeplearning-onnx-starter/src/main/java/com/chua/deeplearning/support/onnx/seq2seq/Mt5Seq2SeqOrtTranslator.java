@@ -14,7 +14,7 @@ public class Mt5Seq2SeqOrtTranslator extends T5Seq2SeqOrtTranslator {
 
     /**
     * 无参构造，使用内置 mt5-small 模型定义。
-     */
+    */
     public Mt5Seq2SeqOrtTranslator() {
         super(Seq2SeqModelDefinition.MT5_SMALL);
     }

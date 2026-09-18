@@ -19,14 +19,14 @@ public interface IdentificationEngine {
     * 获取所有可用模型列表。
     *
     * @return 模型定义列表
-     */
+    */
     List<ModelDefinition> getModels();
 
     /**
     * 获取所有翻译器模型列表。
     *
     * @return 翻译器模型定义列表
-     */
+    */
     List<TranslatorModelDefinition> getTranslatorModels();
 
     /**
@@ -36,7 +36,7 @@ public interface IdentificationEngine {
     * @param target 目标类型
     * @param <T>    泛型
     * @return 模型实例
-     */
+    */
     <T> T get(String name, Class<T> target);
 
     /**
@@ -51,7 +51,7 @@ public interface IdentificationEngine {
     * @param options 运行参数键值对（可空）
     * @param <T>     泛型
     * @return 模型实例
-     */
+    */
     default <T> T get(String name, Class<T> target, java.util.Map<String, Object> options) {
         return get(name, target);
     }
@@ -62,7 +62,7 @@ public interface IdentificationEngine {
     * @param target 目标类型
     * @param <T>    泛型
     * @return 模型实例
-     */
+    */
     <T> T get(Class<T> target);
 
     /**
@@ -75,7 +75,7 @@ public interface IdentificationEngine {
     *
     * @param capabilityInterface 能力接口（可为 空，返回全部）
     * @return 模型名称列表
-     */
+    */
     List<String> getModelNamesByCapability(Class<?> capabilityInterface);
 
     /**
@@ -83,14 +83,14 @@ public interface IdentificationEngine {
     *
     * @param capability 能力标签（如 {@code detect} / {@code feature} / {@code classify}）
     * @return 模型名称列表
-     */
+    */
     List<String> getModelNamesByCapability(String capability);
 
     /**
     * 注册翻译器模型。
     *
     * @param definition 模型定义
-     */
+    */
     void register(TranslatorModelDefinition definition);
 
     /**
@@ -98,14 +98,14 @@ public interface IdentificationEngine {
     * <p>通过 SPI 自动发现已注册的引擎实现（如 ONNX），若不存在则返回默认匿名引擎。</p>
     *
     * @return 识别引擎实例
-     */
+    */
     static IdentificationEngine create() {
         return AbstractIdentificationEngine.getInstance();
     }
 
     /**
     * 释放所有模型资源。
-     */
+    */
     void close();
 
     /**
@@ -113,7 +113,7 @@ public interface IdentificationEngine {
     *
     * @param name 引擎名称
     * @return 识别引擎实例
-     */
+    */
     static IdentificationEngine of(String name) {
         return AbstractIdentificationEngine.getInstance();
     }

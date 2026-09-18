@@ -28,14 +28,14 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
 
     /**
     * 委托的实际监听器。
-     */
+    */
     private final GitProgressListener listener;
 
     /**
     * 构造适配器。
     *
     * @param listener 进度监听器，非空
-     */
+    */
     public ProgressMonitorAdapter(GitProgressListener listener) {
         this.listener = listener;
     }
@@ -44,7 +44,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     * 操作开始。
     *
     * @param totalTasks 总任务数
-     */
+    */
     @Override
     public void start(int totalTasks) {
         listener.onBegin(totalTasks);
@@ -55,7 +55,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     *
     * @param title     任务名称，如 "远程: 数量 对象"
     * @param totalWork 总工作量，-1 → 未知
-     */
+    */
     @Override
     public void beginTask(String title, int totalWork) {
         listener.onTaskBegin(title, totalWork);
@@ -65,7 +65,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     * 进度更新。
     *
     * @param completed 自上次 更新 之后的增量
-     */
+    */
     @Override
     public void update(int completed) {
         listener.onUpdate(completed);
@@ -73,7 +73,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
 
     /**
     * 任务结束。
-     */
+    */
     @Override
     public void endTask() {
         listener.onTaskEnd();
@@ -83,7 +83,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     * 是否取消。
     *
     * @return {@code true} 中止
-     */
+    */
     @Override
     public boolean isCancelled() {
         return listener.isCancelled();
@@ -93,7 +93,7 @@ public class ProgressMonitorAdapter implements ProgressMonitor {
     * （jgit 7.x 新增）忽略时长显示开关。
     *
     * @param enabled 是否显示
-     */
+    */
     @Override
     public void showDuration(boolean enabled) {
     }

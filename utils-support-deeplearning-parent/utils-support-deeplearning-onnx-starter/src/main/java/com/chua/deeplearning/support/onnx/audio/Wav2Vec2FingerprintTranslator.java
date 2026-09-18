@@ -89,26 +89,26 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     private String modelPath;
 
     /**
-     * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
-     *
-     * @param modelPath 模型路径
-     */
+    * 设置模型文件路径（仅供 ModelRegistry 在 SPI 实例化后注入使用）。
+    *
+    * @param modelPath 模型路径
+    */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
 
     /**
-     * 构造翻译器。
-     *
-     * @param modelPath ONNX 模型文件路径（可为 classpath 资源或文件系统绝对路径）
-     */
+    * 构造翻译器。
+    *
+    * @param modelPath ONNX 模型文件路径（可为 classpath 资源或文件系统绝对路径）
+    */
     public Wav2Vec2FingerprintTranslator(String modelPath) {
         this.modelPath = modelPath;
     }
 
     /**
-     * 无参构造器，供反射实例化使用。
-     */
+    * 无参构造器，供反射实例化使用。
+    */
     public Wav2Vec2FingerprintTranslator() {
         this.modelPath = null;
     }
@@ -119,19 +119,19 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 初始化 ONNX 会话并推断模型结构参数。
-     *
-     * <p>首次调用 {@link #translate(byte[])} 时自动触发初始化（懒加载）。
-     * 初始化过程：
-     * <ol>
-     *   <li>加载 ONNX 模型文件到 {@link OrtSession}</li>
-     *   <li>读取第一个输入节点张量的 shape，推断 hidden_size 和 max_input_length</li>
-     *   <li>缓存结果供后续推理使用</li>
-     * </ol>
-     * </p>
-     *
-     * @throws Exception 若模型加载或结构推断失败
-     */
+    * 初始化 ONNX 会话并推断模型结构参数。
+    *
+    * <p>首次调用 {@link #translate(byte[])} 时自动触发初始化（懒加载）。
+    * 初始化过程：
+    * <ol>
+    *   <li>加载 ONNX 模型文件到 {@link OrtSession}</li>
+    *   <li>读取第一个输入节点张量的 shape，推断 hidden_size 和 max_input_length</li>
+    *   <li>缓存结果供后续推理使用</li>
+    * </ol>
+    * </p>
+    *
+    * @throws Exception 若模型加载或结构推断失败
+    */
     private void ensurePrepared() throws Exception {
         if (prepared) {
             return;
@@ -162,11 +162,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 通过一次 dummy 推理推断模型结构参数。
-     *
-     * <p>构造一个全零的 dummy 输入张量，执行一次前向推理，
-     * 从输出张量的 shape 中提取 hidden_size 和 max_input_length。</p>
-     */
+    * 通过一次 dummy 推理推断模型结构参数。
+    *
+    * <p>构造一个全零的 dummy 输入张量，执行一次前向推理，
+    * 从输出张量的 shape 中提取 hidden_size 和 max_input_length。</p>
+    */
     private void inferModelStructure() {
         try {
             String inputName = session.getInputNames().iterator().next();
@@ -194,11 +194,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 解析模型文件路径：优先尝试文件系统，其次尝试 classpath 资源。
-     *
-     * @param pathStr 模型路径字符串（绝对路径、相对路径或 classpath: 前缀）
-     * @return 本地 Path；不存在返回 null
-     */
+    * 解析模型文件路径：优先尝试文件系统，其次尝试 classpath 资源。
+    *
+    * @param pathStr 模型路径字符串（绝对路径、相对路径或 classpath: 前缀）
+    * @return 本地 Path；不存在返回 null
+    */
     private static Path resolveModelPath(String pathStr) {
         if (pathStr == null || pathStr.isBlank()) {
             return null;
@@ -239,21 +239,21 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 从音频字节数据中提取指纹特征向量。
-     *
-     * <p>执行流程：
-     * <ol>
-     *   <li>将 byte[] 解析为 16kHz 单声道 float 采样数组</li>
-     *   <li>若采样长度超过模型上限，截断至前 maxInputLength 个采样点</li>
-     *   <li>将采样数组 reshape 为 [1, seq_len] 的 ONNX 张量</li>
-     *   <li>执行 ONNX 推理，获取 last_hidden_state</li>
-     *   <li>对时间维度做全局平均池化，得到 fixed-dim 特征向量</li>
-     * </ol>
-     * </p>
-     *
-     * @param audioData 音频原始字节（WAV 或 PCM）
-     * @return 特征向量（维度 = hidden_size）
-     */
+    * 从音频字节数据中提取指纹特征向量。
+    *
+    * <p>执行流程：
+    * <ol>
+    *   <li>将 byte[] 解析为 16kHz 单声道 float 采样数组</li>
+    *   <li>若采样长度超过模型上限，截断至前 maxInputLength 个采样点</li>
+    *   <li>将采样数组 reshape 为 [1, seq_len] 的 ONNX 张量</li>
+    *   <li>执行 ONNX 推理，获取 last_hidden_state</li>
+    *   <li>对时间维度做全局平均池化，得到 fixed-dim 特征向量</li>
+    * </ol>
+    * </p>
+    *
+    * @param audioData 音频原始字节（WAV 或 PCM）
+    * @return 特征向量（维度 = hidden_size）
+    */
     @Override
     @SuppressWarnings("unchecked")
     public float[] translate(byte[] audioData) {
@@ -323,18 +323,18 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 将音频字节数组解码为 16kHz 单声道 float 采样数组。
-     *
-     * <p>支持以下输入格式：
-     * <ul>
-     *   <li>WAV 文件（自动解析 RIFF 头，支持 8-bit/16-bit/32-bit PCM 及 float）</li>
-     *   <li>裸 PCM 字节（假设为 16-bit 有符号小端，直接转换为 float）</li>
-     * </ul>
-     * 解码后统一重采样至 16kHz 单声道，采样值范围 [-1.0, 1.0]。</p>
-     *
-     * @param bytes 音频字节数组
-     * @return 16kHz 单声道 float 采样数组；解析失败返回 null
-     */
+    * 将音频字节数组解码为 16kHz 单声道 float 采样数组。
+    *
+    * <p>支持以下输入格式：
+    * <ul>
+    *   <li>WAV 文件（自动解析 RIFF 头，支持 8-bit/16-bit/32-bit PCM 及 float）</li>
+    *   <li>裸 PCM 字节（假设为 16-bit 有符号小端，直接转换为 float）</li>
+    * </ul>
+    * 解码后统一重采样至 16kHz 单声道，采样值范围 [-1.0, 1.0]。</p>
+    *
+    * @param bytes 音频字节数组
+    * @return 16kHz 单声道 float 采样数组；解析失败返回 null
+    */
     private static float[] decodeAudioToPcm(byte[] bytes) {
         if (bytes == null || bytes.length < 44) {
             return null;
@@ -349,11 +349,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 直接解析 WAV 文件头并提取 PCM 采样（高性能路径）。
-     *
-     * @param wavBytes WAV 文件字节
-     * @return 16kHz 单声道 float 采样；解析失败返回 null
-     */
+    * 直接解析 WAV 文件头并提取 PCM 采样（高性能路径）。
+    *
+    * @param wavBytes WAV 文件字节
+    * @return 16kHz 单声道 float 采样；解析失败返回 null
+    */
     private static float[] decodeWavDirect(byte[] wavBytes) {
         try {
             int audioFormat = readLeShort(wavBytes, 20);
@@ -402,11 +402,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 通过 Java Sound API 解码音频（通用兜底路径）。
-     *
-     * @param bytes 音频字节
-     * @return 16kHz 单声道 float 采样；失败返回 null
-     */
+    * 通过 Java Sound API 解码音频（通用兜底路径）。
+    *
+    * @param bytes 音频字节
+    * @return 16kHz 单声道 float 采样；失败返回 null
+    */
     private static float[] decodeViaJavaSound(byte[] bytes) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
@@ -427,12 +427,12 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 将 Java Sound 解码后的原始字节转换为 16kHz 单声道 float 数组。
-     *
-     * @param raw   原始采样字节
-     * @param fmt   音频格式信息
-     * @return float[] 采样数组
-     */
+    * 将 Java Sound 解码后的原始字节转换为 16kHz 单声道 float 数组。
+    *
+    * @param raw   原始采样字节
+    * @param fmt   音频格式信息
+    * @return float[] 采样数组
+    */
     private static float[] convertToPcmFloat(byte[] raw, AudioFormat fmt) {
         int sampleRate = (int) fmt.getSampleRate();
         int channels = fmt.getChannels();
@@ -468,13 +468,13 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 线性插值重采样：将音频从源采样率重采样到目标采样率。
-     *
-     * @param input      原始采样数组
-     * @param srcRate    源采样率
-     * @param dstRate    目标采样率
-     * @return 重采样后的 float 数组
-     */
+    * 线性插值重采样：将音频从源采样率重采样到目标采样率。
+    *
+    * @param input      原始采样数组
+    * @param srcRate    源采样率
+    * @param dstRate    目标采样率
+    * @return 重采样后的 float 数组
+    */
     private static float[] resample(float[] input, int srcRate, int dstRate) {
         int newLen = (int) Math.round((double) input.length * dstRate / srcRate);
         float[] output = new float[newLen];
@@ -489,11 +489,11 @@ public class Wav2Vec2FingerprintTranslator implements ITranslator<byte[], float[
     }
 
     /**
-     * 在字节流中查找 "data" 字节的偏移位置（用于 WAV 头解析）。
-     *
-     * @param bytes WAV 字节数组
-     * @return "data" 偏移量；未找到返回 -1
-     */
+    * 在字节流中查找 "data" 字节的偏移位置（用于 WAV 头解析）。
+    *
+    * @param bytes WAV 字节数组
+    * @return "data" 偏移量；未找到返回 -1
+    */
     private static int findDataChunkOffset(byte[] bytes) {
         String header = new String(bytes, 0, Math.min(bytes.length, 128));
         int idx = header.indexOf("data");

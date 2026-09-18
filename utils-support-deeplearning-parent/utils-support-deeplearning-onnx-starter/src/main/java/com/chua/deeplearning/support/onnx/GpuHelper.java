@@ -22,13 +22,13 @@ public final class GpuHelper {
 
     /**
     * gpu助手。
-     */
+    */
     private GpuHelper() {}
 
     /**
     * 鍒ゆ柇褰撳墠鍏ㄥ眬閰嶇疆鏄惁鍚敤 GPU銆?     *
     * @return true 琛ㄧず搴斾娇鐢?CUDA
-     */
+    */
     public static boolean isGpu() {
         return com.chua.deeplearning.support.ai.DetectionConfiguration.get().deviceIsGpu();
     }
@@ -36,7 +36,7 @@ public final class GpuHelper {
     /**
     * 濡傛灉鍏ㄥ眬閰嶇疆鍚敤浜?GPU锛屽垯鍚?会话期权 娣诲姞 CUDA 提供者銆?     * 鍒濆鍖栧け璐ユ椂闈欓粯鍥為€€ CPU銆?     *
     * @param opts ONNX Runtime 会话期权
-     */
+    */
     public static void apply(OrtSession.SessionOptions opts) {
         if (!isGpu()) {
             return;

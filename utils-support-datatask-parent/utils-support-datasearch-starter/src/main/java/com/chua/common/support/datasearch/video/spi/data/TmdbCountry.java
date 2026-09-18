@@ -16,7 +16,7 @@ public class TmdbCountry {
     *
     * @param iso 大Сд不敏感
     * @return 对Ӧ的本地名称，δ找到返?null
-     */
+    */
     public static String getNativeName(String iso) {
         if (iso == null) {
             return null;
@@ -32,7 +32,7 @@ public class TmdbCountry {
     * 与国家代码һһ对Ӧ的ö举，按需ɾ减
     * @author CH
     * @since 4.0.0
-     */
+    */
     public enum Code {
         AD("Andorra"),
         AE("United Arab Emirates"),
@@ -297,7 +297,7 @@ public class TmdbCountry {
         * NAT名称
         *
         * @return NAT名称的结果
-         */
+        */
         public String nativeName() {
             return nativeName;
         }

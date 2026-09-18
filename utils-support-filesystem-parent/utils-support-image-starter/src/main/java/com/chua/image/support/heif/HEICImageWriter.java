@@ -29,12 +29,12 @@ public class HEICImageWriter extends ImageWriter {
     /**
     * heic镜像writer。
     * @param spi spi
-     */
+    */
     public HEICImageWriter(HEICImageWriterSpi spi) {
         /**
         * 设置输出。
         * @param output 输出
-         */
+        */
         super(spi);
     }
 
@@ -52,7 +52,7 @@ public class HEICImageWriter extends ImageWriter {
         * @param metadata metadata
         * @param image 镜像
         * @param param 参数
-         */
+        */
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -81,7 +81,7 @@ public class HEICImageWriter extends ImageWriter {
     * @param metadata metadata
     * @param param 参数
     * @return 转换流metadata的结果
-     */
+    */
     }
 
     @Override
@@ -91,7 +91,7 @@ public class HEICImageWriter extends ImageWriter {
     * 获取默认流metadata。
     * @param param 参数
     * @return 获取默认流metadata的结果
-     */
+    */
     }
 
     @Override
@@ -107,7 +107,7 @@ public class HEICImageWriter extends ImageWriter {
     * @param index 索引
     * @return 获取镜像类型的结果
     * @param type 类型
-     */
+    */
     }
 
     public Iterator<ImageTypeSpecifier> getImageTypes(int index) throws IOException {

@@ -21,24 +21,24 @@ public class KBucketEntry implements Serializable {
 
     /**
     * 序列化版本号
-     */
+    */
     private static final long serialVersionUID = 1L;
 
     /**
     * 条目中包含的远程节点信息
-     */
+    */
     private DhtPeer peer;
 
     /**
     * 最近一次从该节点收到消息的时间戳（毫秒）
-     */
+    */
     private long lastSeen;
 
     /**
     * 使用指定节点创建条目，初始 最后一个seen 为当前系统时间。
     *
     * @param peer 远程节点
-     */
+    */
     public KBucketEntry(DhtPeer peer) {
         this.peer = peer;
         this.lastSeen = System.currentTimeMillis();
@@ -49,7 +49,7 @@ public class KBucketEntry implements Serializable {
     *
     * @param timeoutMs 超时阈值（毫秒）
     * @return 如果超时返回 true
-     */
+    */
     public boolean isStale(long timeoutMs) {
         return System.currentTimeMillis() - lastSeen > timeoutMs;
     }
@@ -59,7 +59,7 @@ public class KBucketEntry implements Serializable {
     * <p>
     * 如果 peer 为 空，则仅更新当前条目的 最后一个seen。
     * </p>
-     */
+    */
     public void refresh() {
         this.lastSeen = System.currentTimeMillis();
         if (null != peer) {

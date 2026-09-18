@@ -31,7 +31,7 @@ public class EsMeta extends AbstractMetaSearch {
     * @param metaData meta数据
     * @param engine elasticsearchengine
     * @param engine engine
-     */
+    */
     public EsMeta(AbstractMetaData metaData, ElasticsearchEngine engine) {
         super(metaData, engine);
         this.searchEngine = new EsSearchEngineImpl(engine);
@@ -89,7 +89,7 @@ public class EsMeta extends AbstractMetaSearch {
     * @return 优化的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public boolean optimize(String indexName) {
         try {
             ElasticsearchClient client = ((ElasticsearchEngine) engine).getClient();
@@ -190,7 +190,7 @@ public class EsMeta extends AbstractMetaSearch {
         * @return 执行的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public SearchIndexDef execute() {
             SearchIndexDef def = new SearchIndexDef();
             def.setName(indexName);

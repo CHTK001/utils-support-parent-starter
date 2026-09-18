@@ -58,7 +58,7 @@ public class KiloUsageParser extends BaseUsageParser {
     /**
     * resolvedb路径。
     * @return resolvedb路径的结果
-     */
+    */
     private static Path resolveDbPath() {
         String xdgDataHome = System.getenv("XDG_DATA_HOME");
         if (xdgDataHome != null && !xdgDataHome.isBlank()) {
@@ -69,7 +69,7 @@ public class KiloUsageParser extends BaseUsageParser {
 
     /**
     * v1 schema：助手行携带 data JSON，按 token 量筛选。
-     */
+    */
     private static final String SQL_V1 =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -84,7 +84,7 @@ public class KiloUsageParser extends BaseUsageParser {
 
     /**
     * v2 schema（session_message 表，type 列而非 role）。
-     */
+    */
     private static final String SQL_V2 =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -101,7 +101,7 @@ public class KiloUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "kilo"}
-     */
+    */
     @Override
     public String name() {
         return PROVIDER_KILO;
@@ -111,7 +111,7 @@ public class KiloUsageParser extends BaseUsageParser {
     * 流式解析全部助手用量记录：v1 {@code message} 表与 v2
     * {@code session_message} 表合并，两表并存时由下游按 (session, message)
     * 去重，避免过渡期双计。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -138,7 +138,7 @@ public class KiloUsageParser extends BaseUsageParser {
     *
     * @param row 数据库行
     * @return 用量记录
-     */
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));
         JsonNode tokens = parseJsonOrEmpty(rawTokens);
@@ -181,7 +181,7 @@ public class KiloUsageParser extends BaseUsageParser {
     *
     * @param raw 原始字符串
     * @return 解析结果；失败返回缺失值节点
-     */
+    */
     private JsonNode parseJsonOrEmpty(String raw) {
         if (raw == null || raw.isBlank()) {
             return JsonNode.valueOf(null);

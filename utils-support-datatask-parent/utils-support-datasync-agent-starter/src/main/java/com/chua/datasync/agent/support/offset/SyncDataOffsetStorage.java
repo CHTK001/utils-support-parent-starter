@@ -21,27 +21,27 @@ public interface SyncDataOffsetStorage {
     * @param sourceId 源 标识
     * @param defaultValue 默认值（读取失败时返回）
     * @return 偏移量
-     */
+    */
     SyncDataOffset read(String sourceId, SyncDataOffset defaultValue);
 
     /**
     * 写入偏移量。
     *
     * @param offset 偏移量
-     */
+    */
     void write(SyncDataOffset offset);
 
     /**
     * 删除指定 源 的偏移量。
     *
     * @param sourceId 源 标识
-     */
+    */
     void delete(String sourceId);
 
     /**
     * 列出所有偏移量。
     *
     * @return 偏移量列表
-     */
+    */
     List<SyncDataOffset> listAll();
 }

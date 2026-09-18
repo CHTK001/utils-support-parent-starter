@@ -21,12 +21,12 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
 
     /**
     * 限流器名称
-     */
+    */
     private final String name;
 
     /**
     * Sentinel 资源名称
-     */
+    */
     private final String resourceName;
 
     /** 创建 sentinelrate限制提供者 实例 */
@@ -37,7 +37,7 @@ public class SentinelRateLimiterProvider implements RateLimiterProvider {
     /**
     * 创建 sentinelrate限制提供者 实例
     * @param name 名称
-     */
+    */
     public SentinelRateLimiterProvider(String name) {
         this.name = name;
         this.resourceName = name;

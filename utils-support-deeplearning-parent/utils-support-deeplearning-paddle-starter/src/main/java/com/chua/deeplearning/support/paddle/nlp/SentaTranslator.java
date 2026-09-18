@@ -29,12 +29,12 @@ public class SentaTranslator implements Translator<String[], float[]> {
 
     /**
     * 词到 标识。
-     */
+    */
     private final Map<String, String> word2IdDict = new HashMap<>();
 
     /**
     * 未知词 标识。
-     */
+    */
     private String unkId = "";
 
     @Override
@@ -61,7 +61,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     *
     * @param model 模型
     * @return 打开vocab的结果
-     */
+    */
     private InputStream openVocab(Model model) throws IOException {
         String[] candidates = {"assets/vocab.txt", "vocab.txt", "word_dict.txt"};
         for (String name : candidates) {
@@ -97,7 +97,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     * @param input 输入
     * @param lod lod
     * @return tokenize的结果
-     */
+    */
     private List<Long> tokenize(String[] input, List<Long> lod) {
         List<Long> wordIds = new ArrayList<>();
         for (String word : input) {
@@ -114,7 +114,7 @@ public class SentaTranslator implements Translator<String[], float[]> {
     * @param ndArray ndarray
     * @param begin 开始
     * @param end 结束
-     */
+    */
     private void trySetLod(NDArray ndArray, long begin, long end) {
         try {
  // 飞桨 lod：若运行时为 ppndarray 则设置

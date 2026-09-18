@@ -36,7 +36,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
 
     /**
     * KINETICS400                      400      
-     */
+    */
     public static final String RAW_LABELS = "'abseiling','air_drumming','answering_questions','applauding','applying_cream','archery'," +
             "'arm_wrestling','arranging_flowers','assembling_computer','auctioning','baby_waking_up','baking_cookies'," +
             "'balloon_blowing','bandaging','barbequing','bartending','beatboxing','bee_keeping','belly_dancing'," +
@@ -104,17 +104,17 @@ public class CommonActionTranslator implements Translator<Image, Classifications
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *                         
-     */
+    */
     private String[] labels;
 
     /**
@@ -122,7 +122,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public CommonActionTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -130,7 +130,7 @@ public class CommonActionTranslator implements Translator<Image, Classifications
 
     /**
     *                      224x224   
-     */
+    */
     public CommonActionTranslator() {
         this(224, 224);
     }

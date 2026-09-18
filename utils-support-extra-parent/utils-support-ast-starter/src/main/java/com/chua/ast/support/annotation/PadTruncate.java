@@ -39,20 +39,20 @@ public @interface PadTruncate {
     * 最小长度，字符串长度小于此值时进行填充
     *
     * @return 最小长度
-     */
+    */
     int start() default 0;
 
     /**
     * 最大长度，字符串长度大于此值时进行截断
     *
     * @return 最大长度
-     */
+    */
     int end() default Integer.MAX_VALUE;
 
     /**
     * 填充字符，默认为空格
     *
     * @return 填充字符
-     */
+    */
     char padChar() default ' ';
 }

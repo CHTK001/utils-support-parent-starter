@@ -34,7 +34,7 @@ public class OnnxChatClient extends AbstractLocalChatClient {
     * 构造 ONNX 对话客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OnnxChatClient(ChatClientSetting setting) {
         super("onnx", setting);
     }

@@ -50,7 +50,7 @@ public final class OnnxImageProcessor {
     * @param mean      减去的均值（每通道相同），RGB 顺序
     * @param scale     缩放因子（典型 1.0f 或 1/128.0f）
     * @return          [1, 通道, height, width] 的 nd列表
-     */
+    */
     public static NDList toModelInput(Image image, int width, int height,
                                        int channels, boolean grayscale,
                                        float mean, float scale, NDManager ctxManager) {
@@ -73,7 +73,7 @@ public final class OnnxImageProcessor {
 
     /**
     * 仅做 HWC float 数组提取（不创建 nd列表）。
-     */
+    */
     public static float[] toChwFloat(Image image, int width, int height, int channels,
                                       boolean grayscale, float scale) {
         BufferedImage src = unwrap(image);
@@ -90,7 +90,7 @@ public final class OnnxImageProcessor {
     * 缓冲镜像 包装，其他实现如有不同可由调用方重写。
     * @param image 镜像
     * @return unwrap的结果
-     */
+    */
     private static BufferedImage unwrap(Image image) {
         Object wrapped = image.getWrappedImage();
         if (wrapped instanceof BufferedImage bi) {
@@ -109,7 +109,7 @@ public final class OnnxImageProcessor {
     * @param w w
     * @param h h
     * @return resizeFast的结果
-     */
+    */
     private static BufferedImage resizeFast(BufferedImage src, int w, int h) {
         int type = src.getType() == BufferedImage.TYPE_CUSTOM
                 ? BufferedImage.TYPE_INT_RGB : src.getType();
@@ -131,7 +131,7 @@ public final class OnnxImageProcessor {
     * 直接读取 缓冲镜像 像素并填充到 CHW float 数组。
     * 对常见类型（3BYTE_BGR / INT_RGB / INT_ARGB / BYTE_GRAY）走快速路径，
     * 其他类型回退到 {@code getRGB()}。
-     */
+    */
     private static void fillChw(BufferedImage img, float[] chw,
                                  int channels, boolean grayscale,
                                  float mean, float scale) {
@@ -159,7 +159,7 @@ public final class OnnxImageProcessor {
 
     /**
     * 类型_3BYTE_BGR：数据缓冲byte，每个像素 3 字节 (B, G, R)。
-     */
+    */
     private static void fillChwBgr(BufferedImage img, float[] chw,
                                     int w, int h, float mean, float scale) {
         byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
@@ -180,7 +180,7 @@ public final class OnnxImageProcessor {
 
     /**
     * 类型_INT_RGB / 类型_INT_ARGB：数据缓冲int，每个像素 4 字节 (R, G, B, A/PAD)。
-     */
+    */
     private static void fillChwArgb(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale,
                                      boolean hasAlpha) {
@@ -202,7 +202,7 @@ public final class OnnxImageProcessor {
 
     /**
     * 类型_BYTE_GRAY：数据缓冲byte，每像素 1 字节。
-     */
+    */
     private static void fillChwGray(BufferedImage img, float[] chw,
                                      int w, int h, float mean, float scale) {
         byte[] data = ((java.awt.image.DataBufferByte) img.getRaster().getDataBuffer()).getData();
@@ -213,7 +213,7 @@ public final class OnnxImageProcessor {
 
     /**
     * 回退路径：调用 获取rgb 逐像素（慢但兼容所有 缓冲镜像 类型）。
-     */
+    */
     private static void fillChwGeneric(BufferedImage img, float[] chw,
                                         int w, int h, int channels,
                                         boolean grayscale, float mean, float scale) {

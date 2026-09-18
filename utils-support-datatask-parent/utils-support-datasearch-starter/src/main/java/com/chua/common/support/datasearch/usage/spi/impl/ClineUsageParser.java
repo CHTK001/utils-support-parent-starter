@@ -50,17 +50,17 @@ public class ClineUsageParser extends BaseUsageParser {
             System.getProperty("user.home"), ".cline", "data", "sessions");
 
     /**
-     * Returns the SPI name for Cline.
-     *
-     * @return {@code "cline"}
-     */
+    * Returns the SPI name for Cline.
+    *
+    * @return {@code "cline"}
+    */
     public String name() {
         return "cline";
     }
 
     /**
-     * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
-     */
+    * 响应式流式入口：订阅时才执行装载，配合 limitRate/take 可控制内存水位。
+    */
     @Override
     public reactor.core.publisher.Flux<AiUsage> streamAll() {
         return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(parseAll()))
@@ -68,10 +68,10 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Parses all Cline CLI session files and extracts token usage.
-     *
-     * @return list of AiUsage records, one per completed session
-     */
+    * Parses all Cline CLI session files and extracts token usage.
+    *
+    * @return list of AiUsage records, one per completed session
+    */
     @Override protected List<AiUsage> parseAll() {
         if (!Files.isDirectory(SESSIONS_DIR)) {
             log.debug("[cline] sessions dir not found: {}", SESSIONS_DIR);
@@ -91,11 +91,11 @@ public class ClineUsageParser extends BaseUsageParser {
     }
 
     /**
-     * Parses a single Cline session file into an AiUsage record.
-     *
-     * @param file path to the session JSON file
-     * @return the parsed AiUsage, or empty if the file has no usage data
-     */
+    * Parses a single Cline session file into an AiUsage record.
+    *
+    * @param file path to the session JSON file
+    * @return the parsed AiUsage, or empty if the file has no usage data
+    */
     private java.util.Optional<AiUsage> parseSession(Path file) {
         try {
             JsonNode node = Json.parse(Files.readString(file));

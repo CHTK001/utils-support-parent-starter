@@ -23,7 +23,7 @@ public interface ImageClassifier {
     *
     * @param name 模型名称
     * @return 分类器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -31,7 +31,7 @@ public interface ImageClassifier {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static ImageClassifier create(String provider, String apiKey) {
         return ServiceProvider.of(ImageClassifier.class)
                 .getNewExtension(provider, apiKey);
@@ -42,7 +42,7 @@ public interface ImageClassifier {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default ImageClassifier provider(String provider) {
         return this;
     }
@@ -52,7 +52,7 @@ public interface ImageClassifier {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default ImageClassifier model(String model) {
         return this;
     }
@@ -62,7 +62,7 @@ public interface ImageClassifier {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static ImageClassifier create(String name) {
         return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -74,7 +74,7 @@ public interface ImageClassifier {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.ImageClassifier.class);
     }
@@ -86,7 +86,7 @@ public interface ImageClassifier {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 分类器
-     */
+    */
     static ImageClassifier create(String name, ModelSetting setting) {
         return new DefaultImageClassifier(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -96,7 +96,7 @@ public interface ImageClassifier {
     *
     * @param k 返回的分类数
     * @return this
-     */
+    */
     ImageClassifier topK(int k);
 
     /**
@@ -104,7 +104,7 @@ public interface ImageClassifier {
     *
     * @param path 路径
     * @return this
-     */
+    */
     ImageClassifier modelPath(String path);
 
     /**
@@ -112,7 +112,7 @@ public interface ImageClassifier {
     *
     * @param device 设备
     * @return this
-     */
+    */
     ImageClassifier device(String device);
 
     /**
@@ -120,7 +120,7 @@ public interface ImageClassifier {
     *
     * @param imageData 图像数据
     * @return 类别名称
-     */
+    */
     String classify(byte[] imageData);
 
     /**
@@ -129,7 +129,7 @@ public interface ImageClassifier {
     * @param imageData 图像数据
     * @param k         返回的类别数
     * @return 分类信息列表
-     */
+    */
     List<DetectionInfo> classifyTopK(byte[] imageData, int k);
 
     /**
@@ -137,7 +137,7 @@ public interface ImageClassifier {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     default ImageClassifier threshold(float threshold) {
         return this;
     }
@@ -153,49 +153,49 @@ class DefaultImageClassifier implements ImageClassifier {
 
     /**
     * 默认 Top-K 值。
-     */
+    */
     private static final int DEFAULT_TOP_K = 5;
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     /**
     * 置信度阈值（空 表示使用模型默认值）。
-     */
+    */
     private Float threshold;
 
     private final IdentificationEngine engine; // engine
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * Top-K 分类数。
-     */
+    */
     private int topK = DEFAULT_TOP_K;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -204,7 +204,7 @@ class DefaultImageClassifier implements ImageClassifier {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultImageClassifier(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -252,7 +252,7 @@ class DefaultImageClassifier implements ImageClassifier {
     *
     * @param imageData 镜像数据
     * @return classify的结果
-     */
+    */
     public String classify(byte[] imageData) {
         ITranslator<byte[], String> t =
                 (ITranslator<byte[], String>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));
@@ -270,7 +270,7 @@ class DefaultImageClassifier implements ImageClassifier {
     * @param imageData 镜像数据
     * @param k k
     * @return classifyTopK的结果
-     */
+    */
     public List<DetectionInfo> classifyTopK(byte[] imageData, int k) {
         ITranslator<byte[], List<DetectionInfo>> t =
                 (ITranslator<byte[], List<DetectionInfo>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

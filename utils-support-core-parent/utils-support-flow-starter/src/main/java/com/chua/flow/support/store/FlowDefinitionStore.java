@@ -21,7 +21,7 @@ public interface FlowDefinitionStore {
     * <p>以定义 ID 为键，已存在时覆盖更新。</p>
     *
     * @param definition 流程定义
-     */
+    */
     void save(FlowDefinition definition);
 
     /**
@@ -29,7 +29,7 @@ public interface FlowDefinitionStore {
     *
     * @param flowId 流程 标识
     * @return 流程定义，不存在时返回 空
-     */
+    */
     FlowDefinition get(String flowId);
 
     /**
@@ -37,13 +37,13 @@ public interface FlowDefinitionStore {
     *
     * @param flowId 流程 标识
     * @return 删除成功返回 true
-     */
+    */
     boolean remove(String flowId);
 
     /**
     * 查询全部流程定义。
     *
     * @return 流程定义列表
-     */
+    */
     List<FlowDefinition> list();
 }

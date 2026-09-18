@@ -37,47 +37,47 @@ public class MmsTtsTranslator {
 
     /**
     * 输出采样率（MMS-TTS 固定 16000Hz）
-     */
+    */
     private static final int SAMPLE_RATE = 16000;
 
     /**
     * 默认最大输入长度
-     */
+    */
     private static final int MAX_INPUT_LENGTH = 512;
 
     /**
     * 类路径 资源根路径
-     */
+    */
     private static final String RESOURCE_BASE = "audio/tts/mms-tts-eng/";
 
     /**
     * 模型文件名
-     */
+    */
     private static final String MODEL_FILE = "model_quantized.onnx";
 
     /**
     * tokenizer 词表文件名
-     */
+    */
     private static final String VOCAB_FILE = "tokenizer.json";
 
     /**
     * 未知 令牌 标识
-     */
+    */
     private static final int UNK_ID = 38;
 
     /**
     * 空格在词表中的 令牌（VITS 用 "_" 表示空格）
-     */
+    */
     private static final String SPACE_TOKEN = "_";
 
     /**
     * 模型缓存根目录
-     */
+    */
     private static final String CACHE_ROOT = "audio/tts/";
 
     /**
     * 字符 → 令牌 标识 映射
-     */
+    */
     private Map<Character, Integer> charToId;
 
     /** ONNX 运行时环境 */
@@ -90,7 +90,7 @@ public class MmsTtsTranslator {
 
     /**
     * 构造合成器。
-     */
+    */
     public MmsTtsTranslator() {
     }
 
@@ -98,7 +98,7 @@ public class MmsTtsTranslator {
     * 准备模型（懒加载）。
     *
     * @throws Exception 准备异常
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (prepared) {
             return;
@@ -132,7 +132,7 @@ public class MmsTtsTranslator {
     * 未配置时回落 {@code %TEMP%}。
     *
     * @return 缓存根目录
-     */
+    */
     private static String cacheRoot() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         return (prop != null && !prop.isBlank()) ? prop.trim() : System.getProperty("java.io.tmpdir");
@@ -143,7 +143,7 @@ public class MmsTtsTranslator {
     *
     * @param vocabPath tokenizer.json 路径
     * @throws Exception 加载异常
-     */
+    */
     private void loadVocab(Path vocabPath) throws Exception {
         charToId = new LinkedHashMap<>();
         try (InputStream in = Files.newInputStream(vocabPath)) {
@@ -178,7 +178,7 @@ public class MmsTtsTranslator {
     *
     * @param s 从 "vocab" 后的字符串
     * @return 匹配大括号的下标（相对于 s）
-     */
+    */
     private static int findMatchingBrace(String s) {
         int depth = 0;
         boolean inStr = false;
@@ -213,7 +213,7 @@ public class MmsTtsTranslator {
     *
     * @param s 原始字符串
     * @return 反转义后
-     */
+    */
     private static String unescape(String s) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
@@ -247,7 +247,7 @@ public class MmsTtsTranslator {
     *
     * @param text 文本
     * @return token 标识
-     */
+    */
     private long[] encode(String text) {
         java.util.ArrayList<Long> ids = new java.util.ArrayList<>();
         for (int i = 0; i < text.length(); i++) {
@@ -279,7 +279,7 @@ public class MmsTtsTranslator {
     *
     * @param text 输入文本
     * @return WAV 音频字节
-     */
+    */
     public byte[] synthesize(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -303,7 +303,7 @@ public class MmsTtsTranslator {
     * @param mask attention mask
     * @return 波形数据
     * @throws Exception 推理异常
-     */
+    */
     private float[] inferWaveform(long[] ids, long[] mask) throws Exception {
         long[] shape = new long[]{1, ids.length};
         try (ai.onnxruntime.OnnxTensor tIds = ai.onnxruntime.OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(ids), shape);
@@ -330,7 +330,7 @@ public class MmsTtsTranslator {
     * @param rate    采样率
     * @return WAV 字节
     * @throws Exception 转换异常
-     */
+    */
     private static byte[] toWav(float[] samples, int rate) throws Exception {
         byte[] pcm = new byte[samples.length * 2];
         for (int i = 0; i < samples.length; i++) {
@@ -348,7 +348,7 @@ public class MmsTtsTranslator {
 
     /**
     * 关闭资源。
-     */
+    */
     public void close() {
         if (session != null) {
             try {

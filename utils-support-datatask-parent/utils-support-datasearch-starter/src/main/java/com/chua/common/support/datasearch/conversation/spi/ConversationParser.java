@@ -18,13 +18,13 @@ public interface ConversationParser {
     * 流式解析全部会话消息（响应式，支持背压）。
     *
     * @return 消息记录流
-     */
+    */
     Flux<ConversationMessage> streamMessages();
 
     /**
     * 当前解析器标识（如 "claude-编码"、"qoder"）。
     *
     * @return SPI 名称
-     */
+    */
     String name();
 }

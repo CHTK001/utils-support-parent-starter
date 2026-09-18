@@ -45,34 +45,21 @@ public class SqlServerLegacyEngine extends JdbcEngine {
 
     /** jtds URL 默认参数：游标模式读取结果集 */
     private static final String DEFAULT_JTDS_SELECT_METHOD = "cursor";
-    /**
-    * 默认最大连接数
-    *
-     /**
-    * 添加数据源。
-    * @param name 名称
-    * @param host 主机
-    * @param port 端口
-    * @param database database
-    * @param username 用户名
-    * @param password 密码
-    * @return 添加数据源的结果
-      */
-     * @param options 期权
-     * @return 添加数据源的结果
-     */
+    /** 默认最大连接数 */
     private static final int DEFAULT_MAX_POOL_SIZE = 10;
 
     /**
-    * 添加数据源。
-    * @param name 名称
-    * @param host 主机
-    * @param port 端口
-    * @param database database
+    * 添加一个 SQL Server 数据源（便捷重载）。
+    * 将主机/端口/库名/账号等参数封装为 DataSourceOptions 后委托给主方法。
+    *
+    * @param name     数据源名称
+    * @param host     主机地址
+    * @param port     端口
+    * @param database 数据库名
     * @param username 用户名
     * @param password 密码
-    * @return 添加数据源的结果
-     */
+    * @return 当前引擎实例（链式调用）
+    */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
         DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null, null);
         return addDataSource(options);

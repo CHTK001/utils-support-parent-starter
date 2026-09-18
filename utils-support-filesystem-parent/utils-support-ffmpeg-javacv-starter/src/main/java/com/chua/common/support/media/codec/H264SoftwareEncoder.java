@@ -32,92 +32,92 @@ public class H264SoftwareEncoder implements VideoEncoder {
 
     /**
     * 最大编码宽度（1080p）
-     */
+    */
     private static final int MAX_WIDTH = 1920;
 
     /**
     * 最大编码高度（1080p）
-     */
+    */
     private static final int MAX_HEIGHT = 1080;
 
     /**
     * GOP 大小（关键帧间隔）
-     */
+    */
     private static final int GOP_SIZE = 150;
 
     /**
     * 内存输出流初始容量
-     */
+    */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
     * ffmpeg 帧录制器
-     */
+    */
     private FFmpegFrameRecorder recorder;
 
     /**
     * 内存输出流
-     */
+    */
     private ByteArrayOutputStream memoryStream;
 
     /**
     * 色彩空间转换上下文（缩放用）
-     */
+    */
     private SwsContext swsCtx;
 
     /**
     * 缩放后的 av帧
-     */
+    */
     private org.bytedeco.ffmpeg.avutil.AVFrame swsFrame;
 
     /**
     * 缩放帧缓冲区
-     */
+    */
     private BytePointer swsFrameBuf;
 
     /**
     * 编码宽度（≤1080p）
-     */
+    */
     private int encWidth;
 
     /**
     * 编码高度（≤1080p）
-     */
+    */
     private int encHeight;
 
     /**
     * 目标帧率
-     */
+    */
     private int fps;
 
     /**
     * 帧时间戳
-     */
+    */
     private long pts;
 
     /**
     * 是否请求了关键帧
-     */
+    */
     private boolean keyFrameRequested;
 
     /**
     * 是否已启动
-     */
+    */
     private boolean started;
 
     /**
     * 帧计数器
-     */
+    */
     private long frameIndex;
 
     /**
     * CRF 值（18-35，越低质量越高）
-     */
+    */
     private int crf = 23;
 
     /**
     * 空构造。
-     */
+    */
     public H264SoftwareEncoder() {
     }
 
@@ -127,7 +127,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     * @param width  输入宽度
     * @param height 输入高度
     * @param fps    目标帧率
-     */
+    */
     private void init(int width, int height, int fps) {
         close();
         this.encWidth = Math.min(ensureEven(width), MAX_WIDTH);
@@ -218,7 +218,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     * @param frame 输入 YUV 帧
     * @return 编码后的 H264 数据
     * @throws Exception 编码异常
-     */
+    */
     private byte[] encodeFrame(Frame frame) throws Exception {
         int inW = frame.imageWidth;
         int inH = frame.imageHeight;
@@ -275,7 +275,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     * 确保缩放帧缓冲区已分配。
     *
     * @return AVFrame 实例
-     */
+    */
     private org.bytedeco.ffmpeg.avutil.AVFrame ensureSwsFrame() {
         if (swsFrame == null) {
             swsFrame = org.bytedeco.ffmpeg.global.avutil.av_frame_alloc();
@@ -297,7 +297,7 @@ public class H264SoftwareEncoder implements VideoEncoder {
     *
     * @param captureSize 提取前的流大小
     * @return 编码帧字节数组
-     */
+    */
     private byte[] extractFrameBytes(long captureSize) {
         byte[] all = memoryStream.toByteArray();
         int len = all.length - (int) captureSize;
@@ -352,26 +352,26 @@ public class H264SoftwareEncoder implements VideoEncoder {
     *
     * @param v 原始数值
     * @return 调整后的偶数
-     */
+    */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
 
     /**
     * 内存输出流适配器。
-     */
+    */
     private static final class MemoryOutputStream extends OutputStream {
 
         /**
         * 底层字节数组输出流
-         */
+        */
         private final ByteArrayOutputStream backing;
 
         /**
         * 构造内存输出流。
         *
         * @param backing 底层字节数组输出流
-         */
+        */
         MemoryOutputStream(ByteArrayOutputStream backing) {
             this.backing = backing;
         }

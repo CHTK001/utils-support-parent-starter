@@ -31,7 +31,7 @@ public interface SpiderParser {
     *
     * @param response 爬取响应，包含原始内容和内容类型
     * @return 解析结果，包含标题、文本、结构化数据等；无法解析时返回 空
-     */
+    */
     SpiderResult parse(SpiderResponse response);
 
     /**
@@ -41,6 +41,6 @@ public interface SpiderParser {
     * 如 {@code "text/html"}、{@code "application/json"} 等。
     *
     * @return 支持的内容类型数组
-     */
+    */
     String[] supportedContentTypes();
 }

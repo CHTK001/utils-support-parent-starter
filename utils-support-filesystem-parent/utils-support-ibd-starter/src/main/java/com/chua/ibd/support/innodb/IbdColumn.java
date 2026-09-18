@@ -24,140 +24,140 @@ import java.util.List;
 public final class IbdColumn {
 
     /**
-     * 事务 id 系统列名。
-     */
+    * 事务 id 系统列名。
+    */
     public static final String COL_DB_TRX_ID = "DB_TRX_ID";
 
     /**
-     * 回滚指针系统列名。
-     */
+    * 回滚指针系统列名。
+    */
     public static final String COL_DB_ROLL_PTR = "DB_ROLL_PTR";
 
     /**
-     * 隐藏行 id 系统列名。
-     */
+    * 隐藏行 id 系统列名。
+    */
     public static final String COL_DB_ROW_ID = "DB_ROW_ID";
 
     /**
-     * {@code DB_TRX_ID} 的实际存储宽度。
-     */
+    * {@code DB_TRX_ID} 的实际存储宽度。
+    */
     private static final int SIZE_TRX_ID = 6;
 
     /**
-     * {@code DB_ROLL_PTR} 的实际存储宽度。
-     */
+    * {@code DB_ROLL_PTR} 的实际存储宽度。
+    */
     private static final int SIZE_ROLL_PTR = 7;
 
     /**
-     * {@code DB_ROW_ID} 的实际存储宽度。
-     */
+    * {@code DB_ROW_ID} 的实际存储宽度。
+    */
     private static final int SIZE_ROW_ID = 6;
 
     /**
-     * 十进制「每 9 位一组」对应的字节数表。
-     */
+    * 十进制「每 9 位一组」对应的字节数表。
+    */
     private static final int[] DIG2BYTES = {0, 1, 1, 2, 2, 3, 3, 4, 4, 4};
 
     /**
-     * 列名。
-     */
+    * 列名。
+    */
     private final String name;
 
     /**
-     * 列类型。
-     */
+    * 列类型。
+    */
     private final IbdColumnType type;
 
     /**
-     * 是否允许 NULL。
-     */
+    * 是否允许 NULL。
+    */
     private final boolean nullable;
 
     /**
-     * 是否无符号。
-     */
+    * 是否无符号。
+    */
     private final boolean unsigned;
 
     /**
-     * 最大字节长度（{@code VARCHAR(45)} utf8mb4 为 180）。
-     */
+    * 最大字节长度（{@code VARCHAR(45)} utf8mb4 为 180）。
+    */
     private final long charLength;
 
     /**
-     * 排序规则 id。
-     */
+    * 排序规则 id。
+    */
     private final long collationId;
 
     /**
-     * 小数秒精度（{@code DATETIME(3)} 为 3）。
-     */
+    * 小数秒精度（{@code DATETIME(3)} 为 3）。
+    */
     private final int datetimePrecision;
 
     /**
-     * 数值精度（{@code DECIMAL(4,2)} 为 4）。
-     */
+    * 数值精度（{@code DECIMAL(4,2)} 为 4）。
+    */
     private final int numericPrecision;
 
     /**
-     * 数值标度（{@code DECIMAL(4,2)} 为 2）。
-     */
+    * 数值标度（{@code DECIMAL(4,2)} 为 2）。
+    */
     private final int numericScale;
 
     /**
-     * ENUM / SET 的候选值（已从 SDI 的 base64 还原）。
-     */
+    * ENUM / SET 的候选值（已从 SDI 的 base64 还原）。
+    */
     private final List<String> elements;
 
     /**
-     * 原始类型文本，如 {@code smallint unsigned}。
-     */
+    * 原始类型文本，如 {@code smallint unsigned}。
+    */
     private final String typeText;
 
     /**
-     * 是否自增。
-     */
+    * 是否自增。
+    */
     private final boolean autoIncrement;
 
     /**
-     * 是否为隐藏列（系统列或不可见列）。
-     */
+    * 是否为隐藏列（系统列或不可见列）。
+    */
     private final boolean hidden;
 
     /**
-     * 默认值文本（可能为空）。
-     */
+    * 默认值文本（可能为空）。
+    */
     private final String defaultValue;
 
     /**
-     * 是否有默认值。
-     */
+    * 是否有默认值。
+    */
     private final boolean hasDefault;
 
     /**
-     * 列注释。
-     */
+    * 列注释。
+    */
     private final String comment;
 
     /**
-     * 构造列定义。
-     *
-     * @param name              列名
-     * @param type              列类型
-     * @param nullable          是否允许 NULL
-     * @param unsigned          是否无符号
-     * @param charLength        最大字节长度
-     * @param collationId       排序规则 id
-     * @param datetimePrecision 小数秒精度
-     * @param numericPrecision  数值精度
-     * @param numericScale      数值标度
-     * @param elements          ENUM / SET 候选值
-     * @param typeText          原始类型文本
-     * @param autoIncrement     是否自增
-     * @param hidden            是否隐藏列
-     * @param defaultValue      默认值文本
-     * @param hasDefault        是否有默认值
-     * @param comment           列注释
-     */
+    * 构造列定义。
+    *
+    * @param name              列名
+    * @param type              列类型
+    * @param nullable          是否允许 NULL
+    * @param unsigned          是否无符号
+    * @param charLength        最大字节长度
+    * @param collationId       排序规则 id
+    * @param datetimePrecision 小数秒精度
+    * @param numericPrecision  数值精度
+    * @param numericScale      数值标度
+    * @param elements          ENUM / SET 候选值
+    * @param typeText          原始类型文本
+    * @param autoIncrement     是否自增
+    * @param hidden            是否隐藏列
+    * @param defaultValue      默认值文本
+    * @param hasDefault        是否有默认值
+    * @param comment           列注释
+    */
     @SuppressWarnings("checkstyle:ParameterNumber")
     public IbdColumn(String name, IbdColumnType type, boolean nullable, boolean unsigned,
                      long charLength, long collationId, int datetimePrecision,
@@ -183,184 +183,184 @@ public final class IbdColumn {
     }
 
     /**
-     * 列名。
-     *
-     * @return 列名
-     */
+    * 列名。
+    *
+    * @return 列名
+    */
     public String name() {
         return name;
     }
 
     /**
-     * 列类型。
-     *
-     * @return 列类型
-     */
+    * 列类型。
+    *
+    * @return 列类型
+    */
     public IbdColumnType type() {
         return type;
     }
 
     /**
-     * 是否允许 NULL。
-     *
-     * @return 允许返回 true
-     */
+    * 是否允许 NULL。
+    *
+    * @return 允许返回 true
+    */
     public boolean nullable() {
         return nullable;
     }
 
     /**
-     * 是否无符号。
-     *
-     * @return 无符号返回 true
-     */
+    * 是否无符号。
+    *
+    * @return 无符号返回 true
+    */
     public boolean unsigned() {
         return unsigned;
     }
 
     /**
-     * 最大字节长度。
-     *
-     * @return 最大字节长度
-     */
+    * 最大字节长度。
+    *
+    * @return 最大字节长度
+    */
     public long charLength() {
         return charLength;
     }
 
     /**
-     * 排序规则 id。
-     *
-     * @return 排序规则 id
-     */
+    * 排序规则 id。
+    *
+    * @return 排序规则 id
+    */
     public long collationId() {
         return collationId;
     }
 
     /**
-     * 小数秒精度。
-     *
-     * @return 小数秒精度
-     */
+    * 小数秒精度。
+    *
+    * @return 小数秒精度
+    */
     public int datetimePrecision() {
         return datetimePrecision;
     }
 
     /**
-     * 数值精度。
-     *
-     * @return 数值精度
-     */
+    * 数值精度。
+    *
+    * @return 数值精度
+    */
     public int numericPrecision() {
         return numericPrecision;
     }
 
     /**
-     * 数值标度。
-     *
-     * @return 数值标度
-     */
+    * 数值标度。
+    *
+    * @return 数值标度
+    */
     public int numericScale() {
         return numericScale;
     }
 
     /**
-     * ENUM / SET 候选值。
-     *
-     * @return 候选值列表
-     */
+    * ENUM / SET 候选值。
+    *
+    * @return 候选值列表
+    */
     public List<String> elements() {
         return elements;
     }
 
     /**
-     * 原始类型文本。
-     *
-     * @return 如 {@code smallint unsigned}
-     */
+    * 原始类型文本。
+    *
+    * @return 如 {@code smallint unsigned}
+    */
     public String typeText() {
         return typeText;
     }
 
     /**
-     * 是否自增。
-     *
-     * @return 自增返回 true
-     */
+    * 是否自增。
+    *
+    * @return 自增返回 true
+    */
     public boolean autoIncrement() {
         return autoIncrement;
     }
 
     /**
-     * 是否为隐藏列。
-     *
-     * @return 隐藏返回 true
-     */
+    * 是否为隐藏列。
+    *
+    * @return 隐藏返回 true
+    */
     public boolean hidden() {
         return hidden;
     }
 
     /**
-     * 默认值文本。
-     *
-     * @return 默认值；无则返回 {@code null}
-     */
+    * 默认值文本。
+    *
+    * @return 默认值；无则返回 {@code null}
+    */
     public String defaultValue() {
         return defaultValue;
     }
 
     /**
-     * 是否有默认值。
-     *
-     * @return 有返回 true
-     */
+    * 是否有默认值。
+    *
+    * @return 有返回 true
+    */
     public boolean hasDefault() {
         return hasDefault;
     }
 
     /**
-     * 列注释。
-     *
-     * @return 注释
-     */
+    * 列注释。
+    *
+    * @return 注释
+    */
     public String comment() {
         return comment;
     }
 
     /**
-     * 是否为 InnoDB 系统列（{@code DB_TRX_ID} / {@code DB_ROLL_PTR} / {@code DB_ROW_ID}）。
-     *
-     * @return 是系统列返回 true
-     */
+    * 是否为 InnoDB 系统列（{@code DB_TRX_ID} / {@code DB_ROLL_PTR} / {@code DB_ROW_ID}）。
+    *
+    * @return 是系统列返回 true
+    */
     public boolean systemColumn() {
         return COL_DB_TRX_ID.equals(name) || COL_DB_ROLL_PTR.equals(name) || COL_DB_ROW_ID.equals(name);
     }
 
     /**
-     * 是否变长存储（记录里带长度前缀）。
-     *
-     * @return 变长返回 true
-     */
+    * 是否变长存储（记录里带长度前缀）。
+    *
+    * @return 变长返回 true
+    */
     public boolean variableLength() {
         return type.isVariableLength();
     }
 
     /**
-     * 长度前缀是否<b>可能</b>是 2 字节。
-     *
-     * <p>只有最大字节长度 &gt; 255 的列才有这个资格；实际是 1 还是 2 字节还要看
-     * 具体值（见 {@link IbdRecordCursor}）。</p>
-     *
-     * @return 可能为 2 字节返回 true
-     */
+    * 长度前缀是否<b>可能</b>是 2 字节。
+    *
+    * <p>只有最大字节长度 &gt; 255 的列才有这个资格；实际是 1 还是 2 字节还要看
+    * 具体值（见 {@link IbdRecordCursor}）。</p>
+    *
+    * @return 可能为 2 字节返回 true
+    */
     public boolean big() {
         return charLength > 255;
     }
 
     /**
-     * 定长列的字节宽度。
-     *
-     * @return 定长宽度；变长或未知类型返回 {@code -1}
-     */
+    * 定长列的字节宽度。
+    *
+    * @return 定长宽度；变长或未知类型返回 {@code -1}
+    */
     public int fixedSize() {
         switch (name) {
             case COL_DB_TRX_ID:
@@ -418,50 +418,50 @@ public final class IbdColumn {
     }
 
     /**
-     * 小数秒占用的字节数。
-     *
-     * @return 小数秒字节数（精度 0 时为 0）
-     */
+    * 小数秒占用的字节数。
+    *
+    * @return 小数秒字节数（精度 0 时为 0）
+    */
     public int fractionalBytes() {
         return datetimePrecision <= 0 ? 0 : (datetimePrecision + 1) / 2;
     }
 
     /**
-     * 该列文本使用的字符集。
-     *
-     * @return 字符集；二进制列返回 {@code null}（调用方应输出十六进制）
-     */
+    * 该列文本使用的字符集。
+    *
+    * @return 字符集；二进制列返回 {@code null}（调用方应输出十六进制）
+    */
     public Charset charset() {
         return charsetOf(collationId);
     }
 
     /**
-     * 该列文本使用的 MySQL 字符集名。
-     *
-     * @return 如 {@code utf8mb4}；二进制列为 {@code binary}
-     */
+    * 该列文本使用的 MySQL 字符集名。
+    *
+    * @return 如 {@code utf8mb4}；二进制列为 {@code binary}
+    */
     public String charsetName() {
         return charsetNameOf(collationId);
     }
 
     /**
-     * 按 MySQL 的紧凑二进制规则计算 {@code DECIMAL(p,s)} 的字节数。
-     *
-     * @param precision 精度
-     * @param scale     标度
-     * @return 字节数
-     */
+    * 按 MySQL 的紧凑二进制规则计算 {@code DECIMAL(p,s)} 的字节数。
+    *
+    * @param precision 精度
+    * @param scale     标度
+    * @return 字节数
+    */
     public static int decimalBinarySize(int precision, int scale) {
         int intg = precision - scale;
         return (intg / 9) * 4 + DIG2BYTES[intg % 9] + (scale / 9) * 4 + DIG2BYTES[scale % 9];
     }
 
     /**
-     * 计算 {@code SET} 的字节数。
-     *
-     * @param elementCount 元素个数
-     * @return 1、2、3、4 或 8
-     */
+    * 计算 {@code SET} 的字节数。
+    *
+    * @param elementCount 元素个数
+    * @return 1、2、3、4 或 8
+    */
     public static int setBinarySize(int elementCount) {
         for (int size : new int[]{1, 2, 3, 4, 8}) {
             if (elementCount <= size * 8) {
@@ -472,13 +472,13 @@ public final class IbdColumn {
     }
 
     /**
-     * 由排序规则 id 推出 MySQL 字符集名。
-     *
-     * <p>只覆盖常见字符集；其余一律按 {@code utf8mb4} 处理。</p>
-     *
-     * @param collationId 排序规则 id
-     * @return 字符集名；{@code 63}（binary）返回 {@code binary}
-     */
+    * 由排序规则 id 推出 MySQL 字符集名。
+    *
+    * <p>只覆盖常见字符集；其余一律按 {@code utf8mb4} 处理。</p>
+    *
+    * @param collationId 排序规则 id
+    * @return 字符集名；{@code 63}（binary）返回 {@code binary}
+    */
     public static String charsetNameOf(long collationId) {
         switch ((int) collationId) {
             case 63:
@@ -565,14 +565,14 @@ public final class IbdColumn {
     }
 
     /**
-     * 由排序规则 id 推出 Java 字符集。
-     *
-     * <p>只覆盖常见字符集；其余一律按 UTF-8 处理（解码失败会以替换字符兜底，
-     * 不会因为一个坏字节丢掉整行数据）。</p>
-     *
-     * @param collationId 排序规则 id
-     * @return 字符集；{@code 63}（binary）返回 {@code null}
-     */
+    * 由排序规则 id 推出 Java 字符集。
+    *
+    * <p>只覆盖常见字符集；其余一律按 UTF-8 处理（解码失败会以替换字符兜底，
+    * 不会因为一个坏字节丢掉整行数据）。</p>
+    *
+    * @param collationId 排序规则 id
+    * @return 字符集；{@code 63}（binary）返回 {@code null}
+    */
     public static Charset charsetOf(long collationId) {
         String name = charsetNameOf(collationId);
         switch (name) {
@@ -591,11 +591,11 @@ public final class IbdColumn {
     }
 
     /**
-     * 把 MySQL 字符集名映射成 Java 字符集名（差异较大的才需要映射）。
-     *
-     * @param mysqlName MySQL 字符集名
-     * @return Java 字符集名
-     */
+    * 把 MySQL 字符集名映射成 Java 字符集名（差异较大的才需要映射）。
+    *
+    * @param mysqlName MySQL 字符集名
+    * @return Java 字符集名
+    */
     private static String javaCharsetName(String mysqlName) {
         switch (mysqlName) {
             case "ujis":
@@ -638,11 +638,11 @@ public final class IbdColumn {
     }
 
     /**
-     * 按名字取字符集，取不到时退回 UTF-8。
-     *
-     * @param name 字符集名
-     * @return 字符集
-     */
+    * 按名字取字符集，取不到时退回 UTF-8。
+    *
+    * @param name 字符集名
+    * @return 字符集
+    */
     private static Charset charsetOrUtf8(String name) {
         try {
             return Charset.forName(name);

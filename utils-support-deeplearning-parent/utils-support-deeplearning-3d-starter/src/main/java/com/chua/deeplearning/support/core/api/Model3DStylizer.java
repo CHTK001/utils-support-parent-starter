@@ -21,6 +21,6 @@ public interface Model3DStylizer {
     * @param resolution   分辨率
     * @return 风格化后的 3D 模型
     * @throws IOException IO 异常
-     */
+    */
     Model3D stylize(Model3D model, Model3DStyle style, int resolution) throws IOException;
 }

@@ -15,17 +15,17 @@ public class NllbDecoder2Translator implements NoBatchifyTranslator<NDList, Caus
 
     /**
     * 层数。
-     */
+    */
     private static final int NUM_LAYERS = 12;
 
     /**
     * 注意力头组数。
-     */
+    */
     private static final int NUM_KV = 4;
 
     /**
     * past_键_值 元组名。
-     */
+    */
     private final String tupleName;
 
     /** 创建 nllb解码器2Translator 实例 */

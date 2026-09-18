@@ -22,17 +22,17 @@ public class Vgg16ActionTranslator implements Translator<Image, Classifications>
 
     /**
     * 输入图像宽度（像素）
-     */
+    */
     private static final int DEFAULT_WIDTH = 224;
 
     /**
     * 输入图像高度（像素）
-     */
+    */
     private static final int DEFAULT_HEIGHT = 224;
 
     /**
     * 类别标签文件名
-     */
+    */
     private static final String DEFAULT_SYNSET_FILE = "classes.txt";
 
     /** 委托对象 */
@@ -47,7 +47,7 @@ public class Vgg16ActionTranslator implements Translator<Image, Classifications>
     /**
     * 创建 Vgg16动作translator 实例
     * @param arguments 参数
-     */
+    */
     public Vgg16ActionTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
         if (arguments != null && !arguments.isEmpty()) {

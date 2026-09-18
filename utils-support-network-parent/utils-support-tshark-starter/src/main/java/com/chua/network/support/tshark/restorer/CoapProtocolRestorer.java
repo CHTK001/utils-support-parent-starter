@@ -72,7 +72,7 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为类型名称的结果
-     */
+    */
     private static String toTypeName(int type) {
         return switch (type) {
             case 0 -> "CON";
@@ -89,7 +89,7 @@ public class CoapProtocolRestorer extends AbstractProtocolRestorer {
     * @param cls cls
     * @param detail detail
     * @return 转为编码名称的结果
-     */
+    */
     private static String toCodeName(int cls, int detail) {
         if (cls == 0) {
             return switch (detail) {

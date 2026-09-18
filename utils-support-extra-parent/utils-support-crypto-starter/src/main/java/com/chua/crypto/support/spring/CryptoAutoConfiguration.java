@@ -33,7 +33,7 @@ public class CryptoAutoConfiguration {
     *
     * @param properties chua.加密货币.* 配置
     * @return 已初始化的加密门面
-     */
+    */
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public Crypto crypto(CryptoProperties properties) {

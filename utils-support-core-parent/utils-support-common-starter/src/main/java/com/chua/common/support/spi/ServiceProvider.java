@@ -617,15 +617,15 @@ public interface ServiceProvider<T> {
     }
 
     /**
-    * 获取按优先级自动降级的服务代理实例（复用已注册实例）。
-    *
-    * <p>返回的代理对象实现了服务接口，调用任一方法时按优先级（{@link SpiOrder} 大者优先）
-    * 依次尝试已注册的实现；当前实现失败（抛出异常）时自动降级到下一优先级实现。
-    * 全部失败则抛出最后一个异常。</p>
-    *
-    * @param name 服务名称
-    * @return 服务代理，未找到任何实现时返回 空
-    */
+            * 获取按优先级自动降级的服务代理实例（复用已注册实例）。
+            *
+            * <p>返回的代理对象实现了服务接口，调用任一方法时按优先级（{@link SpiOrder} 大者优先）
+            * 依次尝试已注册的实现；当前实现失败（抛出异常）时自动降级到下一优先级实现。
+            * 全部失败则抛出最后一个异常。</p>
+            *
+            * @param name 服务名称
+            * @return 服务代理，未找到任何实现时返回 空
+            */
     @Nullable
     default T getExtensionFactory(@Nullable String name) {
         List<T> instances = (name == null || name.isEmpty())
@@ -713,15 +713,15 @@ public interface ServiceProvider<T> {
     }
 
     /**
-    * 判断服务实例是否可用。
-    *
-    * <p>优先调用实例的 {@code available()} 方法（存在时）；不可用则跳过，实现自动降级。
-    * 代理拦截到调用目标方法时需排除 {@code available}/{@code name} 等元信息方法。</p>
-    *
-    * @param instance 服务实例
-    * @param proxyMethod 当前代理调用
-    * @return true 表示可用
-    */
+            * 判断服务实例是否可用。
+            *
+            * <p>优先调用实例的 {@code available()} 方法（存在时）；不可用则跳过，实现自动降级。
+            * 代理拦截到调用目标方法时需排除 {@code available}/{@code name} 等元信息方法。</p>
+            *
+            * @param instance 服务实例
+            * @param proxyMethod 当前代理调用
+            * @return true 表示可用
+            */
     default boolean isAvailable(@Nonnull T instance, @Nonnull ProxyMethod proxyMethod) {
         String methodName = proxyMethod.getMethodName();
         if (methodName == null || "available".equals(methodName)) {

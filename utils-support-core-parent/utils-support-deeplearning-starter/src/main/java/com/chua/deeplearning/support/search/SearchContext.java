@@ -16,22 +16,22 @@ public class SearchContext {
 
     /**
     * 原始图像数据。
-     */
+    */
     private final byte[] imageData;
 
     /**
     * 查询特征。
-     */
+    */
     private float[] feature;
 
     /**
     * 检索 Top-K。
-     */
+    */
     private final int topK;
 
     /**
     * 命中向量列表。
-     */
+    */
     private List<Vector> vectors = List.of();
 
     /**
@@ -39,7 +39,7 @@ public class SearchContext {
     *
     * @param imageData 原始图像
     * @param topK      检索条数
-     */
+    */
     public SearchContext(byte[] imageData, int topK) {
         this.imageData = imageData;
         this.topK = Math.max(1, topK);
@@ -49,7 +49,7 @@ public class SearchContext {
     * 原始图像。
     *
     * @return 图像字节
-     */
+    */
     public byte[] imageData() {
         return imageData;
     }
@@ -58,7 +58,7 @@ public class SearchContext {
     * 查询特征。
     *
     * @return 特征
-     */
+    */
     public float[] feature() {
         return feature;
     }
@@ -67,7 +67,7 @@ public class SearchContext {
     * 设置查询特征。
     *
     * @param feature 特征
-     */
+    */
     public void feature(float[] feature) {
         this.feature = feature;
     }
@@ -76,7 +76,7 @@ public class SearchContext {
     * 检索条数。
     *
     * @return Top-K
-     */
+    */
     public int topK() {
         return topK;
     }
@@ -85,7 +85,7 @@ public class SearchContext {
     * 命中向量。
     *
     * @return 向量列表
-     */
+    */
     public List<Vector> vectors() {
         return vectors;
     }
@@ -94,7 +94,7 @@ public class SearchContext {
     * 设置命中向量。
     *
     * @param vectors 向量列表
-     */
+    */
     public void vectors(List<Vector> vectors) {
         this.vectors = vectors == null ? List.of() : vectors;
     }

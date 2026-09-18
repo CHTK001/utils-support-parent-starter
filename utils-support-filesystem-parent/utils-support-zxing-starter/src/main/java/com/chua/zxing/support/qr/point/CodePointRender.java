@@ -23,7 +23,7 @@ public interface CodePointRender {
     * @param pointSetting Qr码的设置包含生成Qr码所需的所有配置，如尺寸、颜色、错误修正级别等。
     * 该参数决定了qr编码gen包装器对象的生成方式。
     * @throws IOException io异常
-     */
+    */
     void render(QrCodeGenWrapper.Builder builder, CodePointSetting pointSetting) throws IOException;
 
 }

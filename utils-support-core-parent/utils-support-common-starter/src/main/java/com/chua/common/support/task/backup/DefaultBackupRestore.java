@@ -248,11 +248,11 @@ public class DefaultBackupRestore implements BackupRestore {
     }
 
     /**
-    * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
-    * @param fileName 文件名称
-    * @param pattern 模式
-    * @return 匹配模式的结果
-    */
+            * 判断文件名是否命中 Glob 模式；模式为空视为全部命中。
+            * @param fileName 文件名称
+            * @param pattern 模式
+            * @return 匹配模式的结果
+            */
     private boolean matchPattern(String fileName, String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return true;

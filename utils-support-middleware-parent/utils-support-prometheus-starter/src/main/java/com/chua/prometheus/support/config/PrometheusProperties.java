@@ -18,26 +18,26 @@ public class PrometheusProperties {
 
     /**
     * 是否启用
-     */
+    */
     private boolean enabled = true;
 
     /**
     * 服务地址
-     */
+    */
     private String url = "http://localhost:9090";
 
     /**
     * 用户名(可选, 用于 基础 认证)
-     */
+    */
     private String username;
 
     /**
     * 密码(可选)
-     */
+    */
     private String password;
 
     /**
     * 请求超时(毫秒)
-     */
+    */
     private int timeoutMs = 5_000;
 }

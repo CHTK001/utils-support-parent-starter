@@ -56,7 +56,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param url url
     * @return 获取json的结果
-     */
+    */
     protected JsonNode getJson(String url) {
         return getJson(url, null);
     }
@@ -67,7 +67,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param url url
     * @param customizer customizer
     * @return 获取json的结果
-     */
+    */
     protected JsonNode getJson(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -90,7 +90,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param url url
     * @return 获取文本的结果
-     */
+    */
     protected String getText(String url) {
         return getText(url, null);
     }
@@ -101,7 +101,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param url url
     * @param customizer customizer
     * @return 获取文本的结果
-     */
+    */
     protected String getText(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -126,7 +126,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param body 主体
     * @param customizer customizer
     * @return postJson的结果
-     */
+    */
     protected JsonNode postJson(String url, Object body, Consumer<HttpClientBuilder> customizer) {
         String jsonBody;
         try {
@@ -159,7 +159,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param form form
     * @param customizer customizer
     * @return postForm的结果
-     */
+    */
     protected JsonNode postForm(String url, Map<String, ?> form, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -190,7 +190,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param url url
     * @param customizer customizer
     * @return 获取响应的结果
-     */
+    */
     protected ClientResponse getResponse(String url, Consumer<HttpClientBuilder> customizer) {
         try {
             HttpClientBuilder builder = HttpClientFactory.of(url)
@@ -214,7 +214,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param hotKeywords hotkeywords
     * @param featuredPlaylists 特征playlists
     * @return overview的的结果
-     */
+    */
     protected MusicOverview overviewOf(List<String> hotKeywords, List<MusicPlaylistSummary> featuredPlaylists) {
         return MusicOverview.builder()
                 .hotKeywords(hotKeywords == null ? List.of() : hotKeywords)
@@ -231,7 +231,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param total total
     * @param tracks tracks
     * @return 搜索结果的结果
-     */
+    */
     protected MusicSearchResult searchResult(String keyword, int page, int pageSize, long total, List<MusicTrackSummary> tracks) {
         return MusicSearchResult.builder()
                 .source(getSource().getCode())
@@ -249,7 +249,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param node 节点
     * @param fields 字段
     * @return 文本的结果
-     */
+    */
     protected String text(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? "" : current.asText("");
@@ -261,7 +261,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param node 节点
     * @param fields 字段
     * @return integer的结果
-     */
+    */
     protected int integer(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0 : current.asInt(0);
@@ -273,7 +273,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param node 节点
     * @param fields 字段
     * @return long值的结果
-     */
+    */
     protected long longValue(JsonNode node, String... fields) {
         JsonNode current = path(node, fields);
         return current == null || current.isMissingNode() || current.isNull() ? 0L : current.asLong(0L);
@@ -285,7 +285,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param node 节点
     * @param fields 字段
     * @return 路径的结果
-     */
+    */
     protected JsonNode path(JsonNode node, String... fields) {
         JsonNode current = node;
         for (String field : fields) {
@@ -302,7 +302,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param node 节点
     * @return elements的结果
-     */
+    */
     protected List<JsonNode> elements(JsonNode node) {
         if (node == null || !node.isArray()) {
             return List.of();
@@ -317,7 +317,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param value 值
     * @return encode的结果
-     */
+    */
     protected String encode(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
     }
@@ -327,7 +327,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param values 值
     * @return 第一个nonblank的结果
-     */
+    */
     protected String firstNonBlank(String... values) {
         for (String value : values) {
             if (StringUtils.hasText(value)) {
@@ -342,7 +342,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     *
     * @param response 响应
     * @param url url
-     */
+    */
     protected void assertOk(ClientResponse response, String url) {
         if (response == null || !response.isSuccess()) {
             throw new IllegalStateException("音乐接口请求失败: " + url);
@@ -353,7 +353,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * 连接超时millis
     *
     * @return 连接超时millis的结果
-     */
+    */
     protected int connectTimeoutMillis() {
         return resolveTimeoutMillis(CONNECT_TIMEOUT_PROPERTY, CONNECT_TIMEOUT_ENV, DEFAULT_CONNECT_TIMEOUT_MILLIS);
     }
@@ -362,7 +362,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * 读取超时millis
     *
     * @return 读取超时millis的结果
-     */
+    */
     protected int readTimeoutMillis() {
         return resolveTimeoutMillis(READ_TIMEOUT_PROPERTY, READ_TIMEOUT_ENV, DEFAULT_READ_TIMEOUT_MILLIS);
     }
@@ -374,7 +374,7 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     * @param envName env名称
     * @param defaultValue 默认值
     * @return resolve超时millis的结果
-     */
+    */
     private int resolveTimeoutMillis(String propertyName, String envName, int defaultValue) {
         String configured = System.getProperty(propertyName);
         if (!StringUtils.hasText(configured)) {

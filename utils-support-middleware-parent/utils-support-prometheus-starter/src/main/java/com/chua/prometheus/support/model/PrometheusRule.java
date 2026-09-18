@@ -22,41 +22,41 @@ public class PrometheusRule {
 
     /**
     * 规则名
-     */
+    */
     private String name;
 
     /**
     * promql 表达式
-     */
+    */
     private String query;
 
     /**
     * 告警级别: alert / record
-     */
+    */
     private String type;
 
     /**
     * 状态: firing / pending / inactive
-     */
+    */
     private String state;
 
     /**
     * 规则文件
-     */
+    */
     private String ruleFile;
 
     /**
     * 健康状态
-     */
+    */
     private String health;
 
     /**
     * 上次评估错误
-     */
+    */
     private String lastError;
 
     /**
     * 持续时间(秒)
-     */
+    */
     private double duration;
 }

@@ -73,7 +73,7 @@ public class FastSamSegmentTranslator {
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -130,7 +130,7 @@ public class FastSamSegmentTranslator {
     *
     * @param input 输入
     * @return segment的结果
-     */
+    */
     public Image segment(Image input) throws Exception {
         prepare();
         srcWidth = input.getWidth();
@@ -177,7 +177,7 @@ public class FastSamSegmentTranslator {
     * @param detections detections
     * @param protos Proto.io.io
     * @return postprocess的结果
-     */
+    */
     private Image postprocess(float[] detections, float[][][] protos) throws Exception {
         int numPreds = detections.length / 37;
         int numDetections = 0;
@@ -271,7 +271,7 @@ public class FastSamSegmentTranslator {
     * @param scores scores
     * @param threshold 阈值
     * @return nms的结果
-     */
+    */
     private int[] nms(float[][] boxes, float[] scores, float threshold) {
         int n = boxes.length;
         Integer[] idx = new Integer[n];
@@ -311,7 +311,7 @@ public class FastSamSegmentTranslator {
     * @param a a
     * @param b b
     * @return iou的结果
-     */
+    */
     private float iou(float[] a, float[] b) {
         float x1 = Math.max(a[0], b[0]);
         float y1 = Math.max(a[1], b[1]);
@@ -328,7 +328,7 @@ public class FastSamSegmentTranslator {
     *
     * @param input 输入
     * @return 转为缓冲镜像的结果
-     */
+    */
     private BufferedImage toBufferedImage(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof BufferedImage b) {
@@ -347,7 +347,7 @@ public class FastSamSegmentTranslator {
     * 创建 Translator（支持外部阈值覆盖）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public FastSamSegmentTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         if (null != configuration) {
             float t = configuration.optFloat(com.chua.deeplearning.support.ai.DetectionConfiguration.KEY_THRESHOLD, -1f);

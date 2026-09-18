@@ -35,19 +35,19 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
 
     /**
     * ND                        ndarray
-     */
+    */
     private NDManager manager;
 
     /**
     *                                                                
-     */
+    */
     private final int detectResolution = 512;
 
     /**
     *                                           
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) {
         this.manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "OnnxRuntime");
@@ -67,7 +67,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     * @param ctx                     
     * @param input             
     * @return                         NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         if (log.isDebugEnabled()) {
@@ -122,7 +122,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     * @param ctx                    
     * @param list                nd列表
     * @return                               
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         if (log.isDebugEnabled()) {
@@ -162,7 +162,7 @@ public class ImageTextSuperResolutionTranslator implements Translator<Image, Ima
     *                      
     *
     * @return                               STACK      
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

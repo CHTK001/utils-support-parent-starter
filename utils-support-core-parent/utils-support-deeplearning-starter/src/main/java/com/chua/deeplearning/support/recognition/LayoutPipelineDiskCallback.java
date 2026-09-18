@@ -18,14 +18,14 @@ public class LayoutPipelineDiskCallback implements LayoutPipelineCallback {
 
     /**
     * 输出目录。
-     */
+    */
     private final Path outputDir;
 
     /**
     * 构造磁盘回调。
     *
     * @param outputDir 输出目录
-     */
+    */
     public LayoutPipelineDiskCallback(Path outputDir) {
         this.outputDir = outputDir;
         try {
@@ -50,7 +50,7 @@ public class LayoutPipelineDiskCallback implements LayoutPipelineCallback {
     *
     * @param data 图片字节
     * @param name 文件名
-     */
+    */
     private void write(byte[] data, String name) {
         try {
             Path path = outputDir.resolve(name);

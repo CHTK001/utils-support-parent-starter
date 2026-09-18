@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-* 将压缩专用 {@link ChatClient} 适配为 智能体scope 的 {@link Model} 接口。
+* 将压缩专用 {@link ChatClient} 适配为 Agentscope 的 {@link Model} 接口。
 *
 * <p>供 {@link com.chua.common.support.ai.agent.AgentContextCompressionService}
 * 在偏差矫正阶段调用，使用独立的高阶模型进行基线总结和上下文矫正。
@@ -43,7 +43,7 @@ public class CompressionChatClientModelAdapter implements Model {
     * @param compressionChatClient compression对话客户端
     * @param modelName 字符串
     * @param modelName 模型名称
-     */
+    */
     public CompressionChatClientModelAdapter(ChatClient compressionChatClient, String modelName) {
         this.compressionChatClient = compressionChatClient;
         this.modelName = modelName != null ? modelName : "compression-model";
@@ -82,7 +82,7 @@ public class CompressionChatClientModelAdapter implements Model {
     *
     * @param messages 消息
     * @return extract最后一个用户提示符的结果
-     */
+    */
     private static String extractLastUserPrompt(List<Msg> messages) {
         if (messages == null || messages.isEmpty()) {
             return "";

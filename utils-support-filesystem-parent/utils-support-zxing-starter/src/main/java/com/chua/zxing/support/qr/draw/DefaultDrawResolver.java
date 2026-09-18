@@ -36,7 +36,7 @@ public class DefaultDrawResolver extends AbstractDrawResolver {
     * @param bitMatrix 钻头matrix
     * @param drawOptions draw期权
     * @param setting setting
-     */
+    */
     public DefaultDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig,
             BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);

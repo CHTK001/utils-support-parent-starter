@@ -46,7 +46,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     * 处理参数
     *
     * @param paramElement 参数element
-     */
+    */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -99,7 +99,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     *
     * @param type 类型
     * @return 是否字符串类型的结果
-     */
+    */
     private boolean isStringType(TypeMirror type) {
         if (type.getKind() != TypeKind.DECLARED) {
             return false;
@@ -115,7 +115,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     * @param paramName 参数名称
     * @param minLength 最小长度
     * @param maxLength 最大长度
-     */
+    */
     private JCTree.JCStatement buildPadTruncateStatement(TreeMaker maker, Names names,
                                                           String paramName, int minLength, int maxLength) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
@@ -183,7 +183,7 @@ public final class PadTruncateAstProcessor extends AbstractAstProcessor {
     *
     * @param body 主体
     * @param stmt stmt
-     */
+    */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

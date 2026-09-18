@@ -35,22 +35,22 @@ public final class ConfigFileCipher {
 
     /**
     * 整文件加密标记行
-     */
+    */
     public static final String MARKER = "#!CHKF-CONFIG:1";
 
     /**
     * 单值加密前缀
-     */
+    */
     public static final String VALUE_PREFIX = "ENC(";
 
     /**
     * 单值加密后缀
-     */
+    */
     public static final String VALUE_SUFFIX = ")";
 
     /**
     * 私有构造
-     */
+    */
     private ConfigFileCipher() {
     }
 
@@ -59,7 +59,7 @@ public final class ConfigFileCipher {
     *
     * @param file 配置文件
     * @return true 表示首行为加密标记
-     */
+    */
     public static boolean isEncrypted(Path file) {
         try {
             if (!Files.exists(file)) {
@@ -85,7 +85,7 @@ public final class ConfigFileCipher {
     * @param crypto    已初始化的加密门面
     * @param keepBackup 是否保留明文备份(*.bak)
     * @return 写入的密文文件路径
-     */
+    */
     public static Path encryptFile(Path file, Crypto crypto, boolean keepBackup) {
         requireInitialized(crypto);
         try {
@@ -111,7 +111,7 @@ public final class ConfigFileCipher {
     * @param file   密文配置文件
     * @param crypto 已初始化的加密门面
     * @return 明文内容
-     */
+    */
     public static String decryptFile(Path file, Crypto crypto) {
         requireInitialized(crypto);
         try {
@@ -136,7 +136,7 @@ public final class ConfigFileCipher {
     * @param target 明文输出路径
     * @param crypto 已初始化的加密门面
     * @return 输出路径
-     */
+    */
     public static Path decryptToFile(Path source, Path target, Crypto crypto) {
         try {
             Files.writeString(target, decryptFile(source, crypto), StandardCharsets.UTF_8);
@@ -152,7 +152,7 @@ public final class ConfigFileCipher {
     * @param value  明文值
     * @param crypto 已初始化的加密门面
     * @return ENC(Base64密文)
-     */
+    */
     public static String encryptValue(String value, Crypto crypto) {
         requireInitialized(crypto);
         return VALUE_PREFIX + crypto.encryptToString(value) + VALUE_SUFFIX;
@@ -164,7 +164,7 @@ public final class ConfigFileCipher {
     * @param value  配置原始值
     * @param crypto 已初始化的加密门面
     * @return 明文值或原值
-     */
+    */
     public static String decryptValue(String value, Crypto crypto) {
         if (!isEncryptedValue(value)) {
             return value;
@@ -179,7 +179,7 @@ public final class ConfigFileCipher {
     *
     * @param value 配置值
     * @return true 表示已包裹加密
-     */
+    */
     public static boolean isEncryptedValue(String value) {
         if (value == null || value.length() <= VALUE_PREFIX.length() + VALUE_SUFFIX.length()) {
             return false;
@@ -193,7 +193,7 @@ public final class ConfigFileCipher {
     *
     * @param text 待校验文本
     * @return true 表示合法
-     */
+    */
     private static boolean isBase64(String text) {
         try {
             Base64.getDecoder().decode(text.trim());
@@ -207,7 +207,7 @@ public final class ConfigFileCipher {
     * 校验加密门面已初始化
     *
     * @param crypto 加密门面
-     */
+    */
     private static void requireInitialized(Crypto crypto) {
         if (crypto == null || !crypto.isInitialized()) {
             throw new CryptoException("加密门面尚未初始化，请先调用 initialize()/build()");

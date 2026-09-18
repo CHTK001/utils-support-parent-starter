@@ -43,7 +43,7 @@ public class ClickHouseEngine extends JdbcEngine {
     * @param username 用户名
     * @param password 密码
     * @return 当前引擎实例
-     */
+    */
     public Engine addDataSource(String name, String host, int port, String database, String username, String password) {
         DataSourceOptions options = new DataSourceOptions(name, host, port, database, username, password, null);
         return addDataSource(options);
@@ -54,7 +54,7 @@ public class ClickHouseEngine extends JdbcEngine {
     *
     * @param options 数据源选项，包含连接信息和可选隧道
     * @return 当前引擎实例
-     */
+    */
     public Engine addDataSource(DataSourceOptions options) {
         if (options == null) {
             throw new IllegalArgumentException("options must not be null");

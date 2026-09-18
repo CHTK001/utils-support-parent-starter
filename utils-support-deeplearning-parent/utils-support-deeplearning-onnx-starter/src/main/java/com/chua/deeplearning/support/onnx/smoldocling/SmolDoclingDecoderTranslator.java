@@ -38,22 +38,22 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
 
     /**
     *                                               30       
-     */
+    */
     private static final int NUM_LAYERS = 30;
 
     /**
     *                   
-     */
+    */
     private static final int NUM_ATTENTION_HEADS = 9;
 
     /**
     * KV                
-     */
+    */
     private static final int NUM_KEY_VALUE_HEADS = 3;
 
     /**
     *                   
-     */
+    */
     private static final int HEAD_DIM = 64;
 
     @Override
@@ -210,27 +210,27 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     *                
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     public static class DecoderInput {
         /**
         *                                                       
-         */
+        */
         private NDArray inputsEmbeds;
 
         /**
         *                
-         */
+        */
         private NDArray attentionMask;
 
         /**
         *             
-         */
+        */
         private NDArray positionIds;
 
         /**
         * Past 键 值   KV
-         */
+        */
         private Map<String, NDArray> pastKeyValues;
 
         /**
@@ -239,7 +239,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         * @param inputsEmbeds              
         * @param attentionMask                
         * @param positionIds               
-         */
+        */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds) {
             this.inputsEmbeds = inputsEmbeds;
             this.attentionMask = attentionMask;
@@ -254,7 +254,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         * @param attentionMask                
         * @param positionIds               
         * @param pastKeyValues KV       
-         */
+        */
         public DecoderInput(NDArray inputsEmbeds, NDArray attentionMask, NDArray positionIds,
                             Map<String, NDArray> pastKeyValues) {
             this.inputsEmbeds = inputsEmbeds;
@@ -268,22 +268,22 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
     *                      
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     public static class DecoderStepOutput {
         /**
         * logits       
-         */
+        */
         private long[] shape;
 
         /**
         * logits       
-         */
+        */
         private float[] logits;
 
         /**
         *              KV                   
-         */
+        */
         private Map<String, NDArray> pastKeyValues;
 
         /**
@@ -291,7 +291,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         *
         * @param shape  logits       
         * @param logits logits       
-         */
+        */
         public DecoderStepOutput(long[] shape, float[] logits) {
             this.shape = shape;
             this.logits = logits;
@@ -304,7 +304,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         * @param shape        logits       
         * @param logits       logits       
         * @param pastKeyValues              KV       
-         */
+        */
         public DecoderStepOutput(long[] shape, float[] logits, Map<String, NDArray> pastKeyValues) {
             this.shape = shape;
             this.logits = logits;
@@ -315,7 +315,7 @@ public class SmolDoclingDecoderTranslator implements Translator<SmolDoclingDecod
         *                   
         *
         * @return             
-         */
+        */
         public int getVocabSize() {
             return (int) shape[shape.length - 1];
         }

@@ -60,32 +60,32 @@ public class GreptimeDbEngine extends AbstractEngine {
 
     /**
     * 默认 MySQL 协议端口（greptimedb 约定：4000=HTTP，4001=gRPC，4002=MySQL）
-     */
+    */
     private static final int DEFAULT_MYSQL_PORT = 4002;
 
     /**
     * 缺省数据库名
-     */
+    */
     private static final String DEFAULT_DATABASE = "public";
 
     /**
     * 实体字段映射缓存：类 -> (snake_大小写 列名 -> 字段)
-     */
+    */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
     * 安全 SQL 标识符校验规则（仅字母 / 数字 / 下划线）
-     */
+    */
     private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_]+$");
 
     /**
     * 覆盖用的 JDBC URL；为空时按 gRPC 端点主机 + 4002 端口推导。
-     */
+    */
     private volatile String jdbcUrlOverride;
 
     /**
     * JDBC 客户端缓存及其构建参数指纹（变更时自动重建）。
-     */
+    */
     private volatile GreptimeJdbcClient jdbcClient;
     private volatile String jdbcClientFingerprint; // JDBC客户端fingerprint
 
@@ -94,7 +94,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param jdbcUrl 形如 {@code jdbc:mysql://host:4002/public?useSSL=false}
     * @return this
-     */
+    */
     public GreptimeDbEngine setJdbcUrl(String jdbcUrl) {
         this.jdbcUrlOverride = jdbcUrl;
         this.jdbcClient = null;
@@ -108,7 +108,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param table 表数据（由 SDK {@link Table} 构建）
     * @return 写入结果 期货
-     */
+    */
     public CompletableFuture<Result<WriteOk, Err>> write(Table table) {
         return client().write(table);
     }
@@ -118,7 +118,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param tables 表数据
     * @return 写入结果 期货
-     */
+    */
     public CompletableFuture<Result<WriteOk, Err>> write(Table... tables) {
         return client().write(tables);
     }
@@ -128,7 +128,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * <p>若默认数据源缺失（如引擎被复用后状态残留），回退到任意已注册的 GreptimeDB 数据源。</p>
     *
     * @return GreptimeDB 客户端
-     */
+    */
     public GreptimeDB client() {
         return datasource().getSource();
     }
@@ -157,7 +157,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param dataSource 数据源封装
     * @param <T>        底层类型
     * @return this
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
@@ -190,7 +190,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param username  用户名（为空表示无鉴权）
     * @param password  密码
     * @return this
-     */
+    */
     public GreptimeDbEngine addDataSource(String name, String endpoint,
                                           String database, String username, String password) {
         GreptimeDB grpcClient = GreptimeDbClient.create(endpoint, database, username, password);
@@ -207,7 +207,7 @@ public class GreptimeDbEngine extends AbstractEngine {
 
     /**
     * 覆盖父类：WHERE / 订单 BY 全部下推为真实参数化 SQL，不做内存重排。
-     */
+    */
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public <T> List<T> executeQuery(com.chua.common.support.lang.datasource.engine.wrapper.LambdaQueryWrapper<T> wrapper,
@@ -234,7 +234,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param entityClass 实体类型
     * @param <T>         实体类型参数
     * @return 实体列表
-     */
+    */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         return doQuery(entityClass, normalizeColumns(where == null ? "" : where.trim(), entityClass),
@@ -250,7 +250,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param orderBy     订单 BY 子句，可为空串
     * @param <T>         实体类型参数
     * @return 实体列表
-     */
+    */
     private <T> List<T> doQuery(Class<T> entityClass, String where, List<Object> params, String orderBy) {
         String table = getTableName(entityClass);
         StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM ").append(table);
@@ -283,7 +283,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param expr expr
     * @param entityClass 实体类
     * @return normalizeColumns的结果
-     */
+    */
     private String normalizeColumns(String expr, Class<?> entityClass) {
         if (expr == null || expr.isEmpty()) {
             return expr;
@@ -302,7 +302,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param entityClass 实体类型
     * @return 规则列表，元素为 [变体, 真实列名]
-     */
+    */
     private List<String[]> columnAliasRules(Class<?> entityClass) {
         Map<String, Field> fields = fieldsOf(entityClass);
         List<String[]> rules = new ArrayList<>();
@@ -322,7 +322,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param rules     规则容器
     * @param variant   变体名
     * @param canonical 真实列名
-     */
+    */
     private void addRule(List<String[]> rules, String variant, String canonical) {
         if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
                 && rules.stream().noneMatch(r -> r[0].equals(variant))) {
@@ -336,7 +336,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * 获取默认数据源的真实 SQL 执行器（MySQL 协议 JDBC）。
     *
     * @return SQL 执行器；未配置数据源时返回 空
-     */
+    */
     @Override
     public com.chua.common.support.lang.datasource.engine.executor.SqlExecutor getExecutor() {
         return getExecutor(getDefaultDataSourceName());
@@ -347,7 +347,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param n 数据源名称
     * @return SQL 执行器；数据源不存在时返回 空
-     */
+    */
     @Override
     public com.chua.common.support.lang.datasource.engine.executor.SqlExecutor getExecutor(String n) {
         EngineDataSource<Object> ds = n == null ? null : dataSources.get(n);
@@ -361,7 +361,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * 基于 MySQL 协议 JDBC 连接的通用 SQL 执行器适配器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     class JdbcExecutorAdapter implements com.chua.common.support.lang.datasource.engine.executor.SqlExecutor {
 
         /**
@@ -370,7 +370,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param sql    含 {@code ?} 占位符的 SQL
         * @param params 参数
         * @return 行列表，键为列名
-         */
+        */
         @Override
         public List<Map<String, Object>> query(String sql, Object... params) {
             JdbcResult r = execQuery(sql, params);
@@ -393,7 +393,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param params      参数
         * @param <T>         实体类型参数
         * @return 实体列表
-         */
+        */
         @Override
         public <T> List<T> query(String sql, Class<T> entityClass, Object... params) {
             JdbcResult r = execQuery(sql, params);
@@ -412,7 +412,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param page    分页参数
         * @param params  参数
         * @return 行映射列表
-         */
+        */
         @Override
         public List<Map<String, Object>> queryPage(String sql,
                 com.chua.common.support.lang.datasource.dialect.Pagination page, Object... params) {
@@ -429,7 +429,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param sql    SQL
         * @param params 参数
         * @return 影响行数
-         */
+        */
         @Override
         public int execute(String sql, Object... params) {
             try {
@@ -445,7 +445,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param sql       SQL
         * @param paramList 每行参数
         * @return 各行影响行数
-         */
+        */
         @Override
         public int[] batch(String sql, List<Object[]> paramList) {
             try {
@@ -460,7 +460,7 @@ public class GreptimeDbEngine extends AbstractEngine {
         * @param sql SQL
         * @param params 参数
         * @return 执行查询的结果
-         */
+        */
         private JdbcResult execQuery(String sql, Object[] params) {
             try {
                 return jdbc().query(sql, params == null ? List.of() : Arrays.asList(params));
@@ -494,7 +494,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     /**
     * greptimedb 为时序库，不存在 更新 语句：
     * 相同 标签 + 时间戳再次 插入 即为整行覆盖（upsert）。
-     */
+    */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         throw new UnsupportedOperationException(
@@ -504,7 +504,7 @@ public class GreptimeDbEngine extends AbstractEngine {
 
     /**
     * 引擎数据一律经 {@link #write} 真实落库，禁止内存旁路存储。
-     */
+    */
     @Override
     public <T> Engine store(String name, List<T> data) {
         throw new UnsupportedOperationException(
@@ -518,7 +518,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param clazz 实体类型
     * @return 列名 -> 字段 映射
-     */
+    */
     private static Map<String, Field> fieldsOf(Class<?> clazz) {
         return FIELD_CACHE.computeIfAbsent(clazz, c -> {
             Map<String, Field> map = new ConcurrentHashMap<>();
@@ -536,7 +536,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param name 驼峰属性名
     * @return snake_case 列名
-     */
+    */
     private static String camelToSnake(String name) {
         StringBuilder sb = new StringBuilder();
         for (char ch : name.toCharArray()) {
@@ -573,7 +573,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param v    数据库原始值，非 空
     * @param type 目标字段类型
     * @return 转换后的值
-     */
+    */
     private static Object convert(Object v, Class<?> type) {
         // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
         Object converted = Converter.convertIfNecessary(v, type);
@@ -597,7 +597,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     *
     * @param v 时间值
     * @return epoch 毫秒数
-     */
+    */
     private static long toEpochMilli(Object v) {
         if (v instanceof Timestamp t) {
             return t.getTime();
@@ -637,7 +637,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * 获取当前数据源数据库名，缺省 {@code public}。
     *
     * @return 数据库名
-     */
+    */
     private String database() {
         String db = datasource().database();
         return db == null || db.isEmpty() ? DEFAULT_DATABASE : db;
@@ -647,7 +647,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * 获取（或按配置指纹重建）查询/删除共用的 JDBC 客户端。
     *
     * @return JDBC 客户端
-     */
+    */
     private synchronized GreptimeJdbcClient jdbc() {
         String fingerprint = resolveJdbcUrl()
                 + "|" + Objects.requireNonNullElse(datasource().username(), "")
@@ -668,7 +668,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     /**
     * 推导 JDBC URL：优先显式覆盖值；否则取 gRPC 端点主机 + 默认 4002 端口。
     * @return resolveJdbcUrl的结果
-     */
+    */
     private String resolveJdbcUrl() {
         String overrideValue = jdbcUrlOverride;
         if (overrideValue != null && !overrideValue.isEmpty()) {
@@ -687,7 +687,7 @@ public class GreptimeDbEngine extends AbstractEngine {
     * @param id 待校验标识符
     * @return 去除首尾空白后的标识符
     * @throws IllegalArgumentException 标识符非法时抛出
-     */
+    */
     private String safeIdentifier(String id) {
         if (id == null) {
             throw new IllegalArgumentException("SQL 标识符不能为空");
@@ -701,7 +701,7 @@ public class GreptimeDbEngine extends AbstractEngine {
 
     /**
     * 关闭引擎：释放数据源与 JDBC 连接资源。
-     */
+    */
     @Override
     public void close() {
         super.close();

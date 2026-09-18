@@ -21,78 +21,108 @@ import com.chua.common.support.utils.RgbOptions;
 
 
 /**
-* 图像滤镜抽象基类
-*
-* 提供图像滤镜处理的基础实现，包含图像数据处理、颜色空间转换、
-* 像素操作等通用功能。所有具体的图像滤镜都应继承此类。
-*
-* 主要功能：
-* - 图像数据初始化和预处理
-* - RGB 和 HSL 颜色空间转换
-* - 像素级别的读写操作
-* - GIF 动画处理支持
-* - 图像格式识别和转换
-*
-* 技术特点：
-* - 支持多种图像格式（JPEG、PNG、GIF等）
-* - 提供高效的像素操作方法
-* - 内置颜色空间转换算法
-* - 支持动态图像处理
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * 图像滤镜抽象基类
+ *
+ * 提供图像滤镜处理的基础实现，包含图像数据处理、颜色空间转换、
+ * 像素操作等通用功能。所有具体的图像滤镜都应继承此类。
+ *
+ * 主要功能：
+ * - 图像数据初始化和预处理
+ * - RGB 和 HSL 颜色空间转换
+ * - 像素级别的读写操作
+ * - GIF 动画处理支持
+ * - 图像格式识别和转换
+ *
+ * 技术特点：
+ * - 支持多种图像格式（JPEG、PNG、GIF等）
+ * - 提供高效的像素操作方法
+ * - 内置颜色空间转换算法
+ * - 支持动态图像处理
+ *
+ * <h3>继承本类的子类</h3>
+ * <ul>
+ *   <li>{@link AbstractImagePointFilter}：逐像素点滤镜基类（filterRgb 抽象方法）</li>
+ *   <li>{@link AbstractImageClientFilter}：AI 客户端滤镜基类（注入 ImageClient）</li>
+ *   <li>各具体滤镜：{@link ImageMosaicFilter}、{@link MosaicArtImageFilter}、
+ *       {@link PixelStyleImageFilter}、{@link BscAdjustImageFilter} 等</li>
+ * </ul>
+ *
+ * <h3>子类实现指南</h3>
+ * <ol>
+ *   <li>实现 {@link #filter(BufferedImage, BufferedImage)}：核心滤镜逻辑。
+ *       src 为源图，dst 可能为 null（由本类创建兼容目标图），返回处理结果。</li>
+ *   <li>可选重写 {@link #getImageFormat()}：决定流式输出的编码格式（默认 null=按 name）。</li>
+ *   <li>可选重写 {@link #getImageFormat(String)}：按文件名推断格式（如 .jpg→jpeg）。</li>
+ *   <li>使用受保护字段 {@code width/height/rArr/gArr/bArr}：由
+ *       {@link #initial(BufferedImage)} 在 {@link #converter(BufferedImage)} 时填充。</li>
+ * </ol>
+ *
+ * <h3>典型用法（调用方视角）</h3>
+ * <pre>{@code
+ * // 单图转换
+ * BufferedImage out = filter.converter(srcBufferedImage);
+ *
+ * // 流式转换（自动识别 GIF 逐帧处理）
+ * OutputStream out = filter.converter(imageInputStream);
+ *
+ * // 指定输出格式
+ * filter.getImageFormat("a.jpg");  // 后续流式输出为 jpeg
+ * }</pre>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 public abstract class AbstractImageFilter implements ImageFilter {
 
     /**
     * 图像宽度
-     */
+    */
     protected int width;
 
     /**
     * 图像高度
-     */
+    */
     protected int height;
 
     /**
     * 红色通道数据数组
-     */
+    */
     protected byte[] rArr;
 
     /**
     * 绿色通道数据数组
-     */
+    */
     protected byte[] gArr;
 
     /**
     * 蓝色通道数据数组
-     */
+    */
     protected byte[] bArr;
 
     /**
     * 安全随机数生成器，需要随机效果的滤镜
-     */
+    */
     protected SecureRandom randomNumbers = new SecureRandom();
 
     /**
     * 图像格式名称
-     */
+    */
     private String name;
 
     /**
     * 常量：1/60，HSL颜色空间转换
-     */
+    */
     public static final double CLO_60 = 1.0 / 60.0;
 
     /**
     * 常量：1/255，颜色值归一化
-     */
+    */
     public static final double CLO_255 = 1.0 / 255.0;
 
     /**
     * 临时RGB颜色值，颜色空间转换
-     */
+    */
     public int tr = 0, tg = 0, tb = 0;
 
     /**
@@ -101,7 +131,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param image 需要处理的缓冲镜像对象
     * @return 处理后的BufferedImage对象
     * @throws IOException 处理过程中可能发生的IO异常
-     */
+    */
     @Override
     public BufferedImage converter(BufferedImage image) throws IOException {
         initial(image);
@@ -115,7 +145,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * 为后续的滤镜处理做准备。
     *
     * @param image 待处理的图像对象
-     */
+    */
     protected void initial(BufferedImage image) {
         width = image.getWidth();
         height = image.getHeight();
@@ -134,7 +164,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * 便于后续的颜色处理和滤镜算法应用。
     *
     * @param input ARGB格式的像素数据数组
-     */
+    */
     private void backFillData(int[] input) {
         int c = 0, r = 0, g = 0, b = 0;
         int length = input.length;
@@ -159,7 +189,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param image 输入流形式的图像数据
     * @return 处理后的图像数据输出流
     * @throws IOException 处理过程中可能发生的IO异常
-     */
+    */
     @Override
     public OutputStream converter(InputStream image) throws IOException {
         try(InputStream is = image) {
@@ -198,7 +228,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     *
     * @param name 图像格式名称
     * @return 图像格式名称
-     */
+    */
     @Override
     public String getImageFormat(String name) {
         this.name = name;
@@ -209,7 +239,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * 获取当前设置的图像格式
     *
     * @return 图像格式名称
-     */
+    */
     @Override
     public String getImageFormat() {
         
@@ -226,7 +256,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param src        源图像
     * @param colorModel 目标颜色模型，可以为空
     * @return 新创建的兼容图像
-     */
+    */
     public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel colorModel) {
         if (colorModel == null) {
             colorModel = src.getColorModel();
@@ -242,7 +272,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param src 源图像
     * @param dst 目标图像，可以为空
     * @return 处理后的图像
-     */
+    */
     abstract public BufferedImage filter(BufferedImage src, BufferedImage dst);
 
     /**
@@ -250,7 +280,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     *
     * @param src 源图像
     * @return 图像的边界矩形
-     */
+    */
     public Rectangle2D getBounds2D(BufferedImage src) {
         return new Rectangle(0, 0, src.getWidth(), src.getHeight());
     }
@@ -264,7 +294,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param srcPt 源点坐标
     * @param dstPt 目标点坐标，可以为空
     * @return 变换后的点坐标
-     */
+    */
     public Point2D getPoint2D(Point2D srcPt, Point2D dstPt) {
         if (dstPt == null) {
             dstPt = new Point2D.Double();
@@ -287,7 +317,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param pixels 存储像素数据的数组，可以为空
     * @return ARGB格式的像素数据数组
     * @see #setRgb
-     */
+    */
     public int[] getRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
         int type = image.getType();
         if (type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_INT_RGB) {
@@ -309,7 +339,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param height 像素区域的高度
     * @param pixels ARGB格式的像素数据数组
     * @see #getRgb
-     */
+    */
     public void setRgb(BufferedImage image, int x, int y, int width, int height, int[] pixels) {
         int type = image.getType();
         if (type == BufferedImage.TYPE_INT_ARGB || type == BufferedImage.TYPE_INT_RGB) {
@@ -325,7 +355,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param index 颜色通道索引：0-红色，1-绿色，2-蓝色
     * @return 对应颜色通道的字节数组
     * @throws IllegalArgumentException 当索引值无效时抛出异常
-     */
+    */
     public byte[] toColorByte(int index) {
         if (index == 0) {
             return rArr;
@@ -342,7 +372,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * 将RGB颜色通道数据转换为缓冲镜像
     *
     * @return 根据当前RGB数据创建的BufferedImage对象
-     */
+    */
     public BufferedImage toBitmap() {
         int[] pixels = new int[width * height];
         BufferedImage bitmap = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -357,7 +387,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param red   红色通道数据
     * @param green 绿色通道数据
     * @param blue  蓝色通道数据
-     */
+    */
     public void putRgb(byte[] red, byte[] green, byte[] blue) {
         System.arraycopy(red, 0, rArr, 0, red.length);
         System.arraycopy(green, 0, gArr, 0, green.length);
@@ -373,7 +403,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param r      红色通道数据
     * @param g      绿色通道数据
     * @param b      蓝色通道数据
-     */
+    */
     public void setRgb(int width, int height, int[] pixels, byte[] r, byte[] g, byte[] b) {
         for (int i = 0; i < width * height; i++) {
             pixels[i] = 0xff000000 | ((r[i] & 0xff) << 16) | ((g[i] & 0xff) << 8) | b[i] & 0xff;
@@ -389,7 +419,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     *
     * @param hsl RGB颜色值数组，格式为[R, G, B]，取值范围0-255
     * @return HSL颜色值数组，格式为[H, S, L]，其中H取值0-360，S和L取值0-255
-     */
+    */
     public double[] rgb2Hsl(int[] hsl) {
         double min, max, dif, sum;
         double f1, f2;
@@ -469,7 +499,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     *
     * @param hsl HSL颜色值数组，格式为[H, S, L]，其中H取值0-360，S和L取值0-255
     * @return RGB颜色值数组，格式为[R, G, B]，取值范围0-255
-     */
+    */
     public int[] hsl2Rgb(double[] hsl) {
         double h, s, l;
         // [0];  // 色相
@@ -560,7 +590,7 @@ public abstract class AbstractImageFilter implements ImageFilter {
     * @param src  源图像
     * @param dest 目标图像（此参数未使用）
     * @return 新创建的RGB格式图像
-     */
+    */
     public BufferedImage creatCompatibleDestImage(BufferedImage src, BufferedImage dest) {
         return new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
     }

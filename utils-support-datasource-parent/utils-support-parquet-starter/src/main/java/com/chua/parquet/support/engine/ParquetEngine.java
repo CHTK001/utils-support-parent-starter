@@ -50,12 +50,12 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 实体字段映射缓存：类 -> (snake_大小写 列名 -> 字段)
-     */
+    */
     private static final Map<Class<?>, Map<String, Field>> FIELD_CACHE = new ConcurrentHashMap<>();
 
     /**
     * 支持的简单类型集合
-     */
+    */
     private static final List<Class<?>> SUPPORTED = Arrays.asList(
             String.class, boolean.class, Boolean.class,
             int.class, Integer.class, long.class, Long.class,
@@ -63,7 +63,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 基础目录；添加数据源 后赋值
-     */
+    */
     private volatile String baseDir;
 
     /**
@@ -73,7 +73,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param dataSource 目录路径字符串或 文件
     * @param <T>        底层类型
     * @return this
-     */
+    */
     @Override
     public <T> Engine addDataSource(String name, EngineDataSource<T> dataSource) {
         Object source = dataSource.getSource();
@@ -93,7 +93,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param name   数据源名称
     * @param srcDir Parquet 文件基础目录
     * @return this
-     */
+    */
     public ParquetEngine addDataSource(String name, String srcDir) {
         setBaseDir(srcDir);
         return this;
@@ -102,7 +102,7 @@ public class ParquetEngine extends AbstractEngine {
     /**
     * 初始化并校验基础目录。
     * @param dirPath dir路径
-     */
+    */
     private void setBaseDir(String dirPath) {
         baseDir = dirPath;
         File dir = new File(dirPath);
@@ -115,7 +115,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 将实体列表写入 Parquet 文件（覆盖写），即真实持久化。
-     */
+    */
     @Override
     public <T> Engine store(String name, List<T> data) {
         try {
@@ -141,7 +141,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 读取真实文件后按 WHERE 过滤（排序/分页由父类完成）。
-     */
+    */
     @Override
     protected <T> List<T> executeNewQuery(String where, Object[] params, Class<T> entityClass, int limit, int offset) {
         List<GenericRecord> records = readAll(getTableName(entityClass));
@@ -174,7 +174,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 读出真实文件数据、按条件更新字段后整体写回，返回真实更新行数。
-     */
+    */
     @Override
     public <T> int executeUpdate(UpdateSql<T> sql) {
         try {
@@ -221,7 +221,7 @@ public class ParquetEngine extends AbstractEngine {
 
     /**
     * 读出真实文件数据、删除命中行后写回，返回真实删除行数。
-     */
+    */
     @Override
     public <T> int executeDelete(DeleteSql<T> sql) {
         try {
@@ -253,7 +253,7 @@ public class ParquetEngine extends AbstractEngine {
     * 读取整表实体列表（文件不存在时返回空表）。
     * @param entityClass 实体类
     * @return 执行读取的结果
-     */
+    */
     private <T> List<T> doRead(Class<T> entityClass) {
         return executeNewQuery("", new Object[0], entityClass, 0, 0);
     }
@@ -265,7 +265,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param entityClass 实体类
     * @param data 数据
     * @return 写入全部的结果
-     */
+    */
     private <T> void writeAll(String table, Class<?> entityClass, List<?> data) throws IOException {
         Schema schema = schemaFor(entityClass);
         File target = new File(baseDir, table + ".parquet");
@@ -300,7 +300,7 @@ public class ParquetEngine extends AbstractEngine {
     * 读取整表 Parquet 文件（不存在返回空表）。
     * @param table table
     * @return 读取全部的结果
-     */
+    */
     private List<GenericRecord> readAll(String table) {
         File file = new File(baseDir, table + ".parquet");
         List<GenericRecord> out = new ArrayList<>();
@@ -323,7 +323,7 @@ public class ParquetEngine extends AbstractEngine {
     * 本地文件 输出文件 实现。
     * @param file 文件
     * @return 本地输出的结果
-     */
+    */
     private static OutputFile localOutput(File file) {
         return new OutputFile() {
             @Override
@@ -353,7 +353,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param file 文件
     * @param overwrite overwrite
     * @return 流的结果
-     */
+    */
     private static PositionOutputStream stream(File file, boolean overwrite) throws IOException {
         if (file.exists() && !overwrite) {
             throw new IOException("文件已存在: " + file);
@@ -397,7 +397,7 @@ public class ParquetEngine extends AbstractEngine {
     * 本地文件 输入文件 实现。
     * @param file 文件
     * @return 本地输入的结果
-     */
+    */
     private static InputFile localInput(File file) {
         return new InputFile() {
             @Override
@@ -477,7 +477,7 @@ public class ParquetEngine extends AbstractEngine {
     * 按实体受支持字段构建 Avro 模式（忽略不支持类型字段）。
     * @param clazz clazz
     * @return 模式for的结果
-     */
+    */
     private Schema schemaFor(Class<?> clazz) {
         List<Schema.Field> fields = new ArrayList<>();
         for (Map.Entry<String, Field> e : fieldsOf(clazz).entrySet()) {
@@ -511,7 +511,7 @@ public class ParquetEngine extends AbstractEngine {
     * 实体字段 -> snake_大小写 列名映射缓存。
     * @param clazz clazz
     * @return 字段的的结果
-     */
+    */
     private static Map<String, Field> fieldsOf(Class<?> clazz) {
         return FIELD_CACHE.computeIfAbsent(clazz, c -> {
             Map<String, Field> map = new ConcurrentHashMap<>();
@@ -531,7 +531,7 @@ public class ParquetEngine extends AbstractEngine {
     * 驼峰转 snake_大小写。
     * @param name 名称
     * @return camel转为snake的结果
-     */
+    */
     private static String camelToSnake(String name) {
         StringBuilder sb = new StringBuilder();
         for (char ch : name.toCharArray()) {
@@ -549,7 +549,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param expr expr
     * @param entityClass 实体类
     * @return normalizeColumns的结果
-     */
+    */
     private String normalizeColumns(String expr, Class<?> entityClass) {
         if (expr == null || expr.isEmpty()) {
             return expr;
@@ -576,7 +576,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param rules rules
     * @param variant variant
     * @param canonical canonical
-     */
+    */
     private void addRule(List<String[]> rules, String variant, String canonical) {
         if (variant != null && !variant.isEmpty() && !variant.equals(canonical)
                 && rules.stream().noneMatch(r -> r[0].equals(variant))) {
@@ -589,7 +589,7 @@ public class ParquetEngine extends AbstractEngine {
     * @param v v
     * @param type 类型
     * @return 转换的结果
-     */
+    */
     private static Object convert(Object v, Class<?> type) {
         // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
         Object converted = Converter.convertIfNecessary(v, type);

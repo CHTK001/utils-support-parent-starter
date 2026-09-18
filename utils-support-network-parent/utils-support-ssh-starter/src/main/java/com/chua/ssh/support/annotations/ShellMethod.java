@@ -45,21 +45,21 @@ public @interface ShellMethod {
     * 类级别时为路径前缀（如 {@code "/file"}）。</p>
     *
     * @return 命令名称或路径前缀
-     */
+    */
     String value();
 
     /**
     * 命令描述，用于 help 和文档。
     *
     * @return 命令描述
-     */
+    */
     String description() default "";
 
     /**
     * 命令的 HTTP 方法等效值（可选）。
     *
     * @return 方法名，默认为空
-     */
+    */
     String method() default "";
 
     /**
@@ -67,6 +67,6 @@ public @interface ShellMethod {
     * <p>可选值：table、plain、list、md、kv、card、tree、barchart、json，默认空表示自动检测。</p>
     *
     * @return 视图解析器名称
-     */
+    */
     String produce() default "";
 }

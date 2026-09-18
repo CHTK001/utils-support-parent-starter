@@ -24,7 +24,7 @@ public interface PlateDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static PlateDetector create(String name) {
         return new DefaultPlateDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -36,7 +36,7 @@ public interface PlateDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.plate.PlateDetector.class);
     }
@@ -48,7 +48,7 @@ public interface PlateDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static PlateDetector create(String name, ModelSetting setting) {
         return new DefaultPlateDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -58,7 +58,7 @@ public interface PlateDetector {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     PlateDetector threshold(float threshold);
 
     /**
@@ -66,7 +66,7 @@ public interface PlateDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     PlateDetector modelPath(String path);
 
     /**
@@ -74,7 +74,7 @@ public interface PlateDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     PlateDetector device(String device);
 
     /**
@@ -82,7 +82,7 @@ public interface PlateDetector {
     *
     * @param imageData 图像数据
     * @return 车牌框列表
-     */
+    */
     List<PredictRectangle> detect(byte[] imageData);
 
     /**
@@ -90,7 +90,7 @@ public interface PlateDetector {
     *
     * @param imageData 图像数据
     * @return 检测信息列表
-     */
+    */
     List<DetectionInfo> detectInfo(byte[] imageData);
 
     /**
@@ -98,7 +98,7 @@ public interface PlateDetector {
     *
     * @param imageData 图像数据
     * @return 车牌数量
-     */
+    */
     int plateCount(byte[] imageData);
 }
 
@@ -113,42 +113,42 @@ class DefaultPlateDetector implements PlateDetector {
     
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 车牌标签名称。
-     */
+    */
     private static final String PLATE_LABEL = "plate";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     private final ModelSetting setting;
 
     /**
     * 检测阈值。
-     */
+    */
     private Float threshold;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -157,7 +157,7 @@ class DefaultPlateDetector implements PlateDetector {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultPlateDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -198,7 +198,7 @@ class DefaultPlateDetector implements PlateDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class, DetectOptions.of(threshold, null));

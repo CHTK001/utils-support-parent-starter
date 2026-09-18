@@ -39,7 +39,7 @@ public enum PanType {
     *
     * @param code 编码
     * @return 从编码的结果
-     */
+    */
     public static PanType fromCode(String code) {
         if (code == null) {
             return OTHERS;
@@ -56,7 +56,7 @@ public enum PanType {
     * 获取编码
     *
     * @return 获取编码的结果
-     */
+    */
     public String getCode() {
         return code;
     }
@@ -65,7 +65,7 @@ public enum PanType {
     * 获取名称
     *
     * @return 获取名称的结果
-     */
+    */
     public String getName() {
         return name;
     }
@@ -74,7 +74,7 @@ public enum PanType {
     * 是否magnet类型
     *
     * @return 是否magnet类型的结果
-     */
+    */
     public boolean isMagnetType() {
         return this == MAGNET || this == ED2K;
     }
@@ -83,7 +83,7 @@ public enum PanType {
     * 是否pan类型
     *
     * @return 是否pan类型的结果
-     */
+    */
     public boolean isPanType() {
         return !isMagnetType() && this != OTHERS;
     }

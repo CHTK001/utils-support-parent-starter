@@ -57,98 +57,98 @@ public class JarEncryptor {
 
     /**
     * 打包内嵌密钥块条目名
-     */
+    */
     public static final String KEY_BLOB_ENTRY = CryptoLauncher.KEY_BLOB_ENTRY;
 
     /**
     * 原始主类清单属性
-     */
+    */
     public static final String ATTR_ORIGINAL_MAIN = CryptoLauncher.ATTR_ORIGINAL_MAIN;
 
     /**
     * SpringBoot 真实主类属性名
-     */
+    */
     public static final String START_CLASS_ATTR = "Start-Class";
 
     /**
     * 引导器主类名
-     */
+    */
     private static final String LAUNCHER_CLASS = CryptoLauncher.class.getName();
 
     /**
     * 引导器包路径前缀（保持明文注入）
-     */
+    */
     private static final String LAUNCH_PACKAGE = "com/chua/crypto/support/launch/";
 
     /**
     * fatjar 依赖目录前缀
-     */
+    */
     private static final String BOOT_LIB_PREFIX = "BOOT-INF/lib/";
 
     /**
     * 需剔除的签名文件模式
-     */
+    */
     private static final Pattern SIGNATURE_FILE = Pattern.compile("^META-INF/.*\\.(SF|DSA|RSA|EC)$");
 
     /**
     * 配置文件条目模式（encrypt配置 开启时生效）
-     */
+    */
     private static final Pattern CONFIG_ENTRY =
             Pattern.compile("^(application|bootstrap)[-.\\w]*\\.(yml|yaml|properties)$");
 
     /**
     * 源程序包
-     */
+    */
     private Path source;
 
     /**
     * 输出加密包
-     */
+    */
     private Path output;
 
     /**
     * 已初始化的加密门面
-     */
+    */
     private Crypto crypto;
 
     /**
     * 是否同时加密配置文件
-     */
+    */
     private boolean encryptConfig;
 
     /**
     * 是否加密依赖包(BOOT-INF/lib/*.jar)，默认加密；关闭后依赖包明文保留
-     */
+    */
     private boolean encryptLibs = true;
 
     /**
     * 是否对应用 类 做混淆处理（剥离调试信息）
-     */
+    */
     private boolean obfuscate;
 
     /**
     * 混淆时是否重命名私有成员（需自行评估反射兼容性）
-     */
+    */
     private boolean renamePrivates;
 
     /**
     * 源包是否为 springboot 布局（执行 期间判定）
-     */
+    */
     private boolean springBootLayout;
 
     /**
     * 是否内嵌密钥封装块（默认 true；关闭后包必须依赖 校验服务器/私钥文件/管道 获取密钥）
-     */
+    */
     private boolean embedKeyBlob = true;
 
     /**
     * 明文保留前缀排除列表
-     */
+    */
     private final List<String> excludes = new ArrayList<>();
 
     /**
     * 私有构造，统一从 {@link #create()} 进入
-     */
+    */
     private JarEncryptor() {
     }
 
@@ -156,7 +156,7 @@ public class JarEncryptor {
     * 创建链式构建入口
     *
     * @return 加密器
-     */
+    */
     public static JarEncryptor create() {
         return new JarEncryptor();
     }
@@ -166,7 +166,7 @@ public class JarEncryptor {
     *
     * @param source 源 jar 路径
     * @return 当前对象
-     */
+    */
     public JarEncryptor source(String source) {
         this.source = Path.of(source);
         return this;
@@ -177,7 +177,7 @@ public class JarEncryptor {
     *
     * @param source 源 jar 路径
     * @return 当前对象
-     */
+    */
     public JarEncryptor source(Path source) {
         this.source = source;
         return this;
@@ -188,7 +188,7 @@ public class JarEncryptor {
     *
     * @param output 输出路径
     * @return 当前对象
-     */
+    */
     public JarEncryptor output(String output) {
         this.output = Path.of(output);
         return this;
@@ -199,7 +199,7 @@ public class JarEncryptor {
     *
     * @param output 输出路径
     * @return 当前对象
-     */
+    */
     public JarEncryptor output(Path output) {
         this.output = output;
         return this;
@@ -210,7 +210,7 @@ public class JarEncryptor {
     *
     * @param crypto 加密门面
     * @return 当前对象
-     */
+    */
     public JarEncryptor crypto(Crypto crypto) {
         this.crypto = crypto;
         return this;
@@ -221,7 +221,7 @@ public class JarEncryptor {
     *
     * @param encryptConfig true 表示加密 application/bootstrap 等配置条目
     * @return 当前对象
-     */
+    */
     public JarEncryptor encryptConfig(boolean encryptConfig) {
         this.encryptConfig = encryptConfig;
         return this;
@@ -232,7 +232,7 @@ public class JarEncryptor {
     *
     * @param encryptLibs false 表示 BOOT-INF/lib/*.jar 明文保留
     * @return 当前对象
-     */
+    */
     public JarEncryptor encryptLibs(boolean encryptLibs) {
         this.encryptLibs = encryptLibs;
         return this;
@@ -243,7 +243,7 @@ public class JarEncryptor {
     *
     * @param obfuscate true 表示启用
     * @return 当前对象
-     */
+    */
     public JarEncryptor obfuscate(boolean obfuscate) {
         this.obfuscate = obfuscate;
         return this;
@@ -254,7 +254,7 @@ public class JarEncryptor {
     *
     * @param renamePrivates true 表示启用
     * @return 当前对象
-     */
+    */
     public JarEncryptor renamePrivates(boolean renamePrivates) {
         this.renamePrivates = renamePrivates;
         return this;
@@ -266,7 +266,7 @@ public class JarEncryptor {
     * @param embedKeyBlob false 表示不内嵌，运行期必须提供外部密钥来源
     *                     （校验服务器/私钥文件）
     * @return 当前对象
-     */
+    */
     public JarEncryptor embedKeyBlob(boolean embedKeyBlob) {
         this.embedKeyBlob = embedKeyBlob;
         return this;
@@ -277,7 +277,7 @@ public class JarEncryptor {
     *
     * @param prefixes 前缀列表（如 BOOT-INF/类/静态/）
     * @return 当前对象
-     */
+    */
     public JarEncryptor exclude(String... prefixes) {
         excludes.addAll(Arrays.asList(prefixes));
         return this;
@@ -287,7 +287,7 @@ public class JarEncryptor {
     * 执行打包加密
     *
     * @return 输出加密包路径
-     */
+    */
     public Path execute() {
         validate();
         springBootLayout = isSpringBootLayout();
@@ -317,7 +317,7 @@ public class JarEncryptor {
     *
     * @param out 目标流
     * @throws IOException 载荷注入失败
-     */
+    */
     private void injectLaunchPayload(JarOutputStream out) throws IOException {
         ClassLoader classLoader = JarEncryptor.class.getClassLoader();
         for (Class<?> type : List.of(CryptoLauncher.class,
@@ -337,7 +337,7 @@ public class JarEncryptor {
     * @param classLoader 类路径资源加载器
     * @param type        目标类
     * @throws IOException 写入失败
-     */
+    */
     private void writeClassHierarchy(JarOutputStream out, ClassLoader classLoader, Class<?> type) throws IOException {
         String resource = type.getName().replace('.', '/') + ".class";
         try (InputStream in = classLoader.getResourceAsStream(resource)) {
@@ -357,7 +357,7 @@ public class JarEncryptor {
 
     /**
     * 参数校验
-     */
+    */
     private void validate() {
         if (source == null || !Files.exists(source)) {
             throw new com.chua.crypto.support.CryptoException("源程序包不存在");
@@ -379,7 +379,7 @@ public class JarEncryptor {
     *
     * @param jarPath 包路径
     * @return true 表示可执行
-     */
+    */
     private boolean isFatJar(Path jarPath) {
         try (JarFile jar = new JarFile(jarPath.toFile())) {
             Manifest manifest = jar.getManifest();
@@ -394,7 +394,7 @@ public class JarEncryptor {
     * 判断源包是否为 SpringBoot 布局（存在 BOOT-INF/classes）
     *
     * @return true 表示 SpringBoot 布局
-     */
+    */
     private boolean isSpringBootLayout() {
         try (JarFile jar = new JarFile(source.toFile())) {
             return jar.getEntry("BOOT-INF/classes/") != null;
@@ -408,7 +408,7 @@ public class JarEncryptor {
     *
     * @param name 条目名
     * @return true 表示应用 类
-     */
+    */
     private boolean isAppClass(String name) {
         if (!name.endsWith(".class") || name.startsWith(LAUNCH_PACKAGE)) {
             return false;
@@ -422,7 +422,7 @@ public class JarEncryptor {
     * @param original 原清单
     * @return 新清单
     * @throws IOException 清单缺失
-     */
+    */
     private Manifest patchManifest(Manifest original) throws IOException {
         if (original == null) {
             throw new IOException("源程序包缺少 MANIFEST.MF");
@@ -447,7 +447,7 @@ public class JarEncryptor {
     * 生成内嵌主密钥封装块（CHKF 格式，策略取自当前加密门面设置）
     *
     * @return 封装块字节
-     */
+    */
     private byte[] buildKeyBlob() {
         return com.chua.crypto.support.key.KeyBlobCodec.encode(
                 new byte[]{'C', 'H', 'K', 'F'},
@@ -462,7 +462,7 @@ public class JarEncryptor {
     * @param input 源包
     * @param entry 条目
     * @throws IOException 读写失败
-     */
+    */
     private void copyEntry(JarOutputStream out, JarFile input, JarEntry entry) throws IOException {
         String name = entry.getName();
         if (entry.isDirectory()) {
@@ -498,7 +498,7 @@ public class JarEncryptor {
     *
     * @param name 条目名
     * @return true 表示跳过混淆
-     */
+    */
     private boolean springBootLayoutExcluded(String name) {
         return excludes.stream().anyMatch(prefix ->
                 name.startsWith(prefix) && name.endsWith(".class"));
@@ -510,7 +510,7 @@ public class JarEncryptor {
     * @param name 条目名
     * @param raw  条目内容
     * @return true 表示保留明文
-     */
+    */
     private boolean shouldKeepPlain(String name, byte[] raw) {
         // 引导器必须明文（先于类加载器工作）
         if (name.startsWith(LAUNCH_PACKAGE)) {
@@ -534,7 +534,7 @@ public class JarEncryptor {
     *
     * @param path 条目路径
     * @return 文件名
-     */
+    */
     private String lastSegment(String path) {
         int slash = path.lastIndexOf('/');
         return slash >= 0 ? path.substring(slash + 1) : path;
@@ -547,7 +547,7 @@ public class JarEncryptor {
     * @param name  条目名
     * @param bytes 内容
     * @throws IOException 写出失败
-     */
+    */
     private void writeEntry(JarOutputStream out, String name, byte[] bytes) throws IOException {
         JarEntry entry = new JarEntry(name);
         entry.setTime(System.currentTimeMillis());
@@ -562,7 +562,7 @@ public class JarEncryptor {
     * @param manifest 清单
     * @return 字节
     * @throws IOException 序列化失败
-     */
+    */
     private byte[] toManifestBytes(Manifest manifest) throws IOException {
         var buffer = new java.io.ByteArrayOutputStream();
         manifest.write(buffer);
@@ -575,7 +575,7 @@ public class JarEncryptor {
     * @param in 输入流
     * @return 字节
     * @throws IOException 读取失败
-     */
+    */
     private byte[] readAll(InputStream in) throws IOException {
         try (InputStream input = in) {
             return input.readAllBytes();

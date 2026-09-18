@@ -14,7 +14,7 @@ public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
     /**
     * 创建 默认数据湖http客户端 实例
     * @param baseUrl baseurl
-     */
+    */
     public DefaultDatalakeHttpClient(String baseUrl) {
         super(baseUrl);
     }
@@ -25,7 +25,7 @@ public class DefaultDatalakeHttpClient extends DatalakeHttpClient {
     * @param sql  SQL 字符串
     * @param args 参数列表
     * @return 结果列表（默认空列表）
-     */
+    */
     public List<Map<String, Object>> queryAsList(String sql, Object... args) {
         return java.util.Collections.emptyList();
     }

@@ -63,7 +63,7 @@ public class TencentCosFileStorage extends AbstractFileStorage {
     /**
     * 创建 tencentcos文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public TencentCosFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         BasicCOSCredentials credentials = new BasicCOSCredentials(accessKeyId, accessKeySecret);

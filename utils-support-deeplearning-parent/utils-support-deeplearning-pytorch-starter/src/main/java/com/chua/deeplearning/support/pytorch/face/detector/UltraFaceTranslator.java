@@ -25,52 +25,52 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /**
     * 默认方差。
-     */
+    */
     private static final double[] DEFAULT_VARIANCE = {0.1d, 0.2d};
 
     /**
     * BGR 均值。
-     */
+    */
     private static final float[] BGR_MEAN = {104f, 117f, 123f};
 
     /**
     * 置信度阈值。
-     */
+    */
     private final double confThresh;
 
     /**
     * NMS 阈值。
-     */
+    */
     private final double nmsThresh;
 
     /**
     * Top-K。
-     */
+    */
     private final int topK;
 
     /**
     * 输入宽。
-     */
+    */
     private final int inputWidth;
 
     /**
     * 输入高。
-     */
+    */
     private final int inputHeight;
 
     /**
     * 方差。
-     */
+    */
     private final double[] variance;
 
     /**
     * 锚框尺度。
-     */
+    */
     private final int[][] scales;
 
     /**
     * 特征步长。
-     */
+    */
     private final int[] steps;
 
     /** 创建 ultrafacetranslator 实例 */
@@ -83,7 +83,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param confThresh confthresh
     * @param confThresh double
     * @param nmsThresh nmsthresh
-     */
+    */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this.confThresh = confThresh;
         this.nmsThresh = nmsThresh;
@@ -181,7 +181,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param array array
     * @return squeezeBatch的结果
-     */
+    */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             return array.squeeze(0);
@@ -197,7 +197,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param scales scales
     * @param steps steps
     * @return boxRecover的结果
-     */
+    */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
         for (int index = 0; index < steps.length; index++) {
@@ -228,7 +228,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param value 值
     * @return clip的结果
-     */
+    */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
@@ -239,7 +239,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param origin origin
     * @param size 大小
     * @return clip大小的结果
-     */
+    */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
@@ -256,7 +256,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param rectangle rectangle
     * @param probability probability
     * @return Candidate的结果
-     */
+    */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

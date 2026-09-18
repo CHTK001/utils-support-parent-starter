@@ -23,7 +23,7 @@ public interface FieldMappingConverter {
     * @param targetField   目标字段名
     * @param converter     转换器标识（如 "转为字符串", "转为integer" 等）
     * @return 转换后的值
-     */
+    */
     Object convert(Object value, String sourceField, String targetField, String converter);
 
     /**
@@ -34,7 +34,7 @@ public interface FieldMappingConverter {
     * @param record    原始数据记录
     * @param mappings  字段映射列表
     * @return 转换后的数据记录（只包含成功映射的字段）
-     */
+    */
     default Map<String, Object> applyMappings(Map<String, Object> record, List<DataSyncFieldMapping> mappings) {
         if (record == null || CollectionUtils.isEmpty(mappings)) {
             return record;

@@ -77,7 +77,7 @@ public class ApngDecoder {
     *
     * @param is 输入流，不能为空
     * @throws IOException 解析失败时抛出
-     */
+    */
     public void read(@Nonnull InputStream is) throws IOException {
         DataInputStream in = new DataInputStream(is);
 
@@ -164,7 +164,7 @@ public class ApngDecoder {
     /**
     * 解码所有帧：zlib 解压 → 逐行 unfilter → 按 fcTL 合成到画布。
     * @param frameDataList 帧数据列表
-     */
+    */
     private void decodeFrames(List<FrameData> frameDataList) throws IOException {
         if (frameDataList.isEmpty()) {
             return;
@@ -212,7 +212,7 @@ public class ApngDecoder {
     * @param w       帧宽
     * @param h       帧高
     * @return RGBA 图像
-     */
+    */
     private BufferedImage decodeFrameData(byte[] rawData, int w, int h) throws IOException {
         byte[] unfiltered = inflate(rawData);
         int bpp = 4; // RGBA
@@ -248,7 +248,7 @@ public class ApngDecoder {
     * zlib 解压。
     * @param data 数据
     * @return inflate的结果
-     */
+    */
     private static byte[] inflate(byte[] data) throws IOException {
         Inflater inflater = new Inflater();
         try {
@@ -336,7 +336,7 @@ public class ApngDecoder {
     * @param w w
     * @param h h
     * @return 新Canvas的结果
-     */
+    */
     private static BufferedImage newCanvas(int w, int h) {
         return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     }
@@ -344,7 +344,7 @@ public class ApngDecoder {
     /**
     * clearCanvas。
     * @param image 镜像
-     */
+    */
     private static void clearCanvas(BufferedImage image) {
         int[] pixels = ((java.awt.image.DataBufferInt) image.getRaster().getDataBuffer()).getData();
         java.util.Arrays.fill(pixels, 0);
@@ -357,7 +357,7 @@ public class ApngDecoder {
     * @param y y
     * @param w w
     * @param h h
-     */
+    */
     private static void clearRegion(BufferedImage image, int x, int y, int w, int h) {
         for (int yy = y; yy < y + h && yy < image.getHeight(); yy++) {
             for (int xx = x; xx < x + w && xx < image.getWidth(); xx++) {
@@ -370,7 +370,7 @@ public class ApngDecoder {
     * 副本镜像。
     * @param src src
     * @return 副本镜像的结果
-     */
+    */
     private static BufferedImage copyImage(BufferedImage src) {
         BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
         int[] pixels = ((java.awt.image.DataBufferInt) dst.getRaster().getDataBuffer()).getData();
@@ -391,7 +391,7 @@ public class ApngDecoder {
     * @param src src
     * @param srcAlpha srcalpha
     * @return blendOver的结果
-     */
+    */
     private static void compositeFrame(BufferedImage canvas, BufferedImage frame,
                                        int x, int y, int blendOp) {
         int w = Math.min(frame.getWidth(), canvas.getWidth() - x);
@@ -431,7 +431,7 @@ public class ApngDecoder {
 
     /**
     * fcTL 帧控制块。
-     */
+    */
     private static final class FrameControl {
         int width;
         int height;
@@ -453,7 +453,7 @@ public class ApngDecoder {
 
     /**
     * 单帧数据：帧控制 + 压缩数据。
-     */
+    */
     private static final class FrameData {
         FrameControl control;
         ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -462,7 +462,7 @@ public class ApngDecoder {
         *
         * @param data 数据
         * @return 解析帧control的结果
-         */
+        */
         boolean added;
     }
 
@@ -497,7 +497,7 @@ public class ApngDecoder {
     * @param data 数据
     * @param offset 偏移量
     * @return 读取intbe的结果
-     */
+    */
     private static int readIntBE(byte[] data, int offset) {
         return ((data[offset] & 0xFF) << 24)
                 | ((data[offset + 1] & 0xFF) << 16)
@@ -511,7 +511,7 @@ public class ApngDecoder {
     * 获取帧数量。
     *
     * @return 帧数量，未解析时返回 0
-     */
+    */
     public int getFrameCount() {
         return frames.size();
     }
@@ -521,7 +521,7 @@ public class ApngDecoder {
     *
     * @param index 帧索引
     * @return 帧图像
-     */
+    */
     @Nonnull
     public BufferedImage getFrame(int index) {
         return frames.get(index);
@@ -532,7 +532,7 @@ public class ApngDecoder {
     *
     * @param index 帧索引
     * @return 延迟毫秒数
-     */
+    */
     public int getDelay(int index) {
         return delays.get(index);
     }
@@ -541,7 +541,7 @@ public class ApngDecoder {
     * 获取循环次数，0 表示无限循环。
     *
     * @return 循环次数
-     */
+    */
     public int getLoopCount() {
         return loopCount;
     }
@@ -550,7 +550,7 @@ public class ApngDecoder {
     * 获取画布宽度。
     *
     * @return 宽度
-     */
+    */
     public int getWidth() {
         return width;
     }
@@ -559,7 +559,7 @@ public class ApngDecoder {
     * 获取画布高度。
     *
     * @return 高度
-     */
+    */
     public int getHeight() {
         return height;
     }
@@ -568,7 +568,7 @@ public class ApngDecoder {
     * 判断是否为动画（含 actl 块）。
     *
     * @return true 表示 APNG
-     */
+    */
     public boolean isAnimated() {
         return animated;
     }
@@ -577,7 +577,7 @@ public class ApngDecoder {
     * 是否已成功解析。
     *
     * @return true 表示已解析
-     */
+    */
     public boolean isRead() {
         return read;
     }

@@ -26,7 +26,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     /**
     * 创建 onnx执照铭牌recognizer 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxLicensePlateRecognizer(String apiKey) {
     }
 
@@ -41,7 +41,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov5-plate-detect";
     }
@@ -50,7 +50,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     * 铭牌detect模型
     *
     * @return 铭牌detect模型的结果
-     */
+    */
     private String plateDetectModel() {
         String m = resolveModel();
         if (m.contains("-detect")) {
@@ -66,7 +66,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     * 铭牌rec模型
     *
     * @return 铭牌rec模型的结果
-     */
+    */
     private String plateRecModel() {
         String m = resolveModel();
         if (m.contains("-recognize")) {
@@ -113,7 +113,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognizeDetail的结果
-     */
+    */
     public List<DetectionInfo> recognizeDetail(byte[] imageData) {
         return ImageDetector.create(plateDetectModel())
                 .threshold(threshold).modelPath(modelPath).device(device).detect(imageData);
@@ -126,7 +126,7 @@ public class OnnxLicensePlateRecognizer implements LicensePlateRecognizer {
     *
     * @param imageData 镜像数据
     * @return recognize铭牌的结果
-     */
+    */
     public PlateResult recognizePlate(byte[] imageData) {
         ITranslator<byte[], PlateResult> t =
                 (ITranslator<byte[], PlateResult>) AbstractIdentificationEngine.getInstance()

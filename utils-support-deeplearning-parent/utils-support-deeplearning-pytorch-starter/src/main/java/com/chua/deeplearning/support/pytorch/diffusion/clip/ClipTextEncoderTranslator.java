@@ -24,17 +24,17 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
 
     /**
     * CLIP 最大 令牌 长度。
-     */
+    */
     private static final int MAX_LENGTH = 77;
 
     /**
     * 本地 tokenizer 目录（可选）。
-     */
+    */
     private final String tokenizerPath;
 
     /**
     * huggingface tokenizer。
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /** 创建 clip文本编码器translator 实例 */
@@ -45,7 +45,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     /**
     * 创建 clip文本编码器translator 实例
     * @param tokenizerPath tokenizer路径
-     */
+    */
     public ClipTextEncoderTranslator(String tokenizerPath) {
         this.tokenizerPath = tokenizerPath;
     }
@@ -71,7 +71,7 @@ public class ClipTextEncoderTranslator implements NoBatchifyTranslator<String, N
     * 解析tokenizer路径
     *
     * @return resolvetokenizer路径的结果
-     */
+    */
     private Path resolveTokenizerPath() {
         if (tokenizerPath != null && !tokenizerPath.isBlank()) {
             Path p = Paths.get(tokenizerPath);

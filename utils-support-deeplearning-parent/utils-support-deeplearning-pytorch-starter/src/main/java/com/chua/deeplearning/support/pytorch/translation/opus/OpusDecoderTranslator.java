@@ -16,17 +16,17 @@ public class OpusDecoderTranslator implements NoBatchifyTranslator<NDList, Causa
 
     /**
     * 层数。
-     */
+    */
     private static final int NUM_LAYERS = 6;
 
     /**
     * 注意力头组数。
-     */
+    */
     private static final int NUM_ATTENTION_HEADS = 4;
 
     /**
     * past_键_值 元组名。
-     */
+    */
     private final String tupleName;
 
     /** 创建 opus解码器translator 实例 */

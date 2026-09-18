@@ -21,7 +21,7 @@ public class PostgresqlMetaData extends JdbcMetaData {
     /**
     * postgresqlmeta数据。
     * @param engine engine
-     */
+    */
     public PostgresqlMetaData(Engine engine) {
         super(engine);
     }

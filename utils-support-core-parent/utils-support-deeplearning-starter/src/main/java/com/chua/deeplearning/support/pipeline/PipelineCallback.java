@@ -16,7 +16,7 @@ public interface PipelineCallback {
     *
     * @param stepName  步骤名称（如 "detect", "recognize", "align"）
     * @param stageData 该步骤的中间数据（图像字节、文本等）
-     */
+    */
     default void onStep(String stepName, Object stageData) {
     }
 
@@ -26,7 +26,7 @@ public interface PipelineCallback {
     * @param stepName  步骤名称
     * @param index     多实例索引（如第几张人脸、第几行文字）
     * @param stageData 该步骤的中间数据
-     */
+    */
     default void onStep(String stepName, int index, Object stageData) {
     }
 
@@ -35,7 +35,7 @@ public interface PipelineCallback {
     *
     * @param result    最终结果
     * @param elapsedMs 耗时毫秒
-     */
+    */
     default void onComplete(Object result, long elapsedMs) {
     }
 
@@ -44,7 +44,7 @@ public interface PipelineCallback {
     *
     * @param stepName 异常发生的步骤
     * @param error    异常信息
-     */
+    */
     default void onError(String stepName, String error) {
     }
 }

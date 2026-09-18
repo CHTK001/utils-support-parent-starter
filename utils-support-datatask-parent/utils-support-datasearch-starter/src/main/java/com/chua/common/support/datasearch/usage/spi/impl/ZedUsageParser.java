@@ -42,10 +42,10 @@ public class ZedUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-     * 解析 threads.db 路径（按平台）。
-     *
-     * @return 数据库路径
-     */
+    * 解析 threads.db 路径（按平台）。
+    *
+    * @return 数据库路径
+    */
     private static Path resolveDbPath() {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) {
@@ -74,18 +74,18 @@ public class ZedUsageParser extends BaseUsageParser {
             "SELECT id, data, NULL AS updated_at FROM threads ORDER BY id ASC";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "zed"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "zed"}
+    */
     @Override
     public String name() {
         return PROVIDER_ZED;
     }
 
     /**
-     * 响应式流式入口：流出各 thread 的用量；缺 updated_at 列时降级。
-     */
+    * 响应式流式入口：流出各 thread 的用量；缺 updated_at 列时降级。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -102,11 +102,11 @@ public class ZedUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将 thread 行映射为用量记录；压缩行或全零返回 null。
-     *
-     * @param row 数据库行
-     * @return 用量记录或 null
-     */
+    * 将 thread 行映射为用量记录；压缩行或全零返回 null。
+    *
+    * @param row 数据库行
+    * @return 用量记录或 null
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String json = asJsonString(row.get("data"));
         if (json == null || !json.trim().startsWith("{")) {
@@ -146,14 +146,14 @@ public class ZedUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析逐请求用量：request_token_usage 为数组时仅取末条
-     * （累计语义），为 map 时取各模型用量之和。
-     *
-     * @param threadId  thread id
-     * @param requests  request_token_usage 节点
-     * @param updatedAt thread 更新时间（毫秒）
-     * @return 用量记录；无有效数据返回 null
-     */
+    * 解析逐请求用量：request_token_usage 为数组时仅取末条
+    * （累计语义），为 map 时取各模型用量之和。
+    *
+    * @param threadId  thread id
+    * @param requests  request_token_usage 节点
+    * @param updatedAt thread 更新时间（毫秒）
+    * @return 用量记录；无有效数据返回 null
+    */
     private AiUsage toPerRequest(String threadId, JsonNode requests, long updatedAt) {
         if (requests.isMissingValue()) {
             return null;
@@ -201,19 +201,19 @@ public class ZedUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 构建用量记录。
-     *
-     * @param threadId   thread id
-     * @param requestId  请求 id
-     * @param model      模型名
-     * @param input      非缓存输入
-     * @param output     输出
-     * @param cacheRead  缓存读取
-     * @param cacheWrite 缓存写入
-     * @param reasoning  推理令牌
-     * @param updatedAt  时间戳（毫秒）
-     * @return 用量记录
-     */
+    * 构建用量记录。
+    *
+    * @param threadId   thread id
+    * @param requestId  请求 id
+    * @param model      模型名
+    * @param input      非缓存输入
+    * @param output     输出
+    * @param cacheRead  缓存读取
+    * @param cacheWrite 缓存写入
+    * @param reasoning  推理令牌
+    * @param updatedAt  时间戳（毫秒）
+    * @return 用量记录
+    */
     private AiUsage build(String threadId, String requestId, String model,
                           int input, int output, int cacheRead, int cacheWrite,
                           int reasoning, long updatedAt) {
@@ -235,11 +235,11 @@ public class ZedUsageParser extends BaseUsageParser {
     }
 
     /**
-     * BLOB/字符串列转 JSON 文本；非文本返回 null。
-     *
-     * @param value 列值
-     * @return UTF-8 文本或 null
-     */
+    * BLOB/字符串列转 JSON 文本；非文本返回 null。
+    *
+    * @param value 列值
+    * @return UTF-8 文本或 null
+    */
     private String asJsonString(Object value) {
         if (value instanceof byte[] bytes) {
             return new String(bytes, StandardCharsets.UTF_8);

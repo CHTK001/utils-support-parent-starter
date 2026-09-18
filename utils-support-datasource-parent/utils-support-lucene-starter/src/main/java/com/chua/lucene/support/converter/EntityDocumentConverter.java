@@ -25,7 +25,7 @@ public final class EntityDocumentConverter {
 
     /**
     * 私有构造。
-     */
+    */
     private EntityDocumentConverter() {
     }
 
@@ -35,7 +35,7 @@ public final class EntityDocumentConverter {
     * @param entity   实体对象
     * @param fieldName 字段名
     * @return 字段值
-     */
+    */
     private static Object getFieldValue(Object entity, String fieldName) {
         if (entity == null || fieldName == null) {
             return null;
@@ -48,7 +48,7 @@ public final class EntityDocumentConverter {
     *
     * @param entity 实体对象
     * @return Lucene 文档
-     */
+    */
     @SuppressWarnings("unchecked")
     public static Document toDocument(Object entity) {
         if (entity == null) {
@@ -84,7 +84,7 @@ public final class EntityDocumentConverter {
     * @param entityClass 实体类
     * @param <T>        实体类型
     * @return 实体对象
-     */
+    */
     @SuppressWarnings("unchecked")
     public static <T> T toEntity(Document doc, Class<T> entityClass) {
         if (doc == null || entityClass == null) {
@@ -111,7 +111,7 @@ public final class EntityDocumentConverter {
     * @param doc       Lucene 文档
     * @param fieldName 字段名
     * @param value     字段值
-     */
+    */
     private static void addField(Document doc, String fieldName, Object value) {
         if (value instanceof String str) {
             doc.add(new StringField(fieldName, str, org.apache.lucene.document.Field.Store.YES));
@@ -163,7 +163,7 @@ public final class EntityDocumentConverter {
     * @param fieldName 字段名
     * @param valueStr 字符串值
     * @param fieldType 字段类型
-     */
+    */
     private static void setFieldValue(Object entity, String fieldName, String valueStr, Class<?> fieldType) {
         // 统一走 Converter 工具做类型转换，禁止手写逐类型分支（P3C 四十二）
         Object converted = Converter.convertIfNecessary(valueStr, fieldType);

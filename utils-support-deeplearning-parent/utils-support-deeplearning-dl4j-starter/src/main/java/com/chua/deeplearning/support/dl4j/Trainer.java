@@ -26,7 +26,7 @@ public interface Trainer {
     * }</pre>
     *
     * @return 链式训练管道
-     */
+    */
     default ChainedTrainer fluent() {
         return ChainedTrainer.of(this);
     }
@@ -41,7 +41,7 @@ public interface Trainer {
     * @param listener     进度回调（可为 {@link TrainListener#NOOP}）
     * @return 训练结果
     * @throws Exception 训练过程中发生异常
-     */
+    */
     TrainResult train(TrainArgument argument,
                       String modelPath,
                       String savePath,

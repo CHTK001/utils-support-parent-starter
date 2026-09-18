@@ -249,13 +249,13 @@ public class ClassPathAnyResourceFinder extends AbstractResourceFinder {
     }
 
     /**
-    * 枚举所有类路径下匹配的 URL（非通配场景）。
-    *
-    * <p>当路径为空时，额外扫描所有 JAR 根以支持全量枚举。</p>
-    *
-    * @param name 含 {@code classpath*:} 前缀的完整路径
-    * @return 资源集合
-    */
+                * 枚举所有类路径下匹配的 URL（非通配场景）。
+                *
+                * <p>当路径为空时，额外扫描所有 JAR 根以支持全量枚举。</p>
+                *
+                * @param name 含 {@code classpath*:} 前缀的完整路径
+                * @return 资源集合
+                */
     private Set<Resource> findAllClassPathResources(String name) {
         Set<Resource> result = new LinkedHashSet<>();
         Set<String> additionalCollections = new HashSet<>();

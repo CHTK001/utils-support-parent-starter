@@ -67,27 +67,27 @@ public class AlibabaCasProvider implements AcmeProvider {
 
     /**
     * 阿里云 CAS 客户端
-     */
+    */
     private Client client;
     /**
     * 联系邮箱
-     */
+    */
     private String email;
     /**
     * 证书产品编码
-     */
+    */
     private String productCode;
     /**
     * 缓存 domain → 订单id 的映射，避免重复下单
-     */
+    */
     private final Map<String, Long> orderIdCache = new ConcurrentHashMap<>();
     /**
     * 缓存 订单id → instanceid 的映射（CAS 签发需要 instanceid）
-     */
+    */
     private final Map<Long, String> instanceIdCache = new ConcurrentHashMap<>();
     /**
     * 缓存 订单id → csr（续签用）
-     */
+    */
     private final Map<Long, String> csrCache = new ConcurrentHashMap<>();
 
     /**
@@ -102,7 +102,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param eabKid access键secret
     * @param eabHmacKey 证书产品编码（product编码），如 digicert-free-1-free（默认免费版）
     * @return 连接结果
-     */
+    */
     @Override
     public AcmeConnectionResult connect(String serverUrl, String email, String privateKeyPem,
                                         String eabKid, String eabHmacKey) {
@@ -146,7 +146,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param domains 域名
     * @param challengeType HTTP-01 / DNS-01，可选
     * @return 验证信息列表
-     */
+    */
     @Override
     public List<AcmeValidationInfo> getValidationInfo(List<String> domains, String challengeType) {
         if (client == null) {
@@ -207,7 +207,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param domains 域名
     * @param challengeType CSR PEM 或 challenge类型 字符串
     * @return 证书结果
-     */
+    */
     @Override
     public AcmeCertificateResult requestCertificate(List<String> domains, String challengeType) {
         if (client == null) {
@@ -268,7 +268,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param domains 域名
     * @param challengeType CSR PEM
     * @return 证书结果
-     */
+    */
     @Override
     public AcmeCertificateResult renewCertificate(List<String> domains, String challengeType) {
         if (client == null) {
@@ -299,7 +299,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param certificatePem 证书 PEM（当前未使用，仅占位）
     * @return 是否成功
-     */
+    */
     @Override
     public boolean revokeCertificate(String certificatePem) {
         if (client == null) {
@@ -316,7 +316,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param certificateId 阿里云证书 标识
     * @param instanceId 实例 标识
     * @return 是否成功
-     */
+    */
     public boolean revokeCertificateWithId(Long certificateId, String instanceId) {
         if (client == null) {
             return false;
@@ -341,7 +341,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * 阿里云账号体系无 EAB 私钥。
     *
     * @return 固定返回 空
-     */
+    */
     @Override
     public String getAccountPrivateKeyPem() {
         return null;
@@ -364,7 +364,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param regionId 地域 标识（如 cn-hangzhou）
     * @return 服务接入点域名
-     */
+    */
     private String resolveEndpoint(String regionId) {
         if (regionId == null || regionId.isEmpty()) {
             return "cas.aliyuncs.com";
@@ -381,7 +381,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param domain domain
     * @param csr csr
     * @return 创建订单id的结果
-     */
+    */
     private Long createOrderId(String domain, String csr) throws Exception {
         return orderIdCache.computeIfAbsent(domain + "|" + (csr == null ? "" : csr), key -> {
             try {
@@ -414,7 +414,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param orderId 订单标识
     * @return 查询instanceid的结果
-     */
+    */
     private String queryInstanceId(Long orderId) throws Exception {
         if (orderId == null) {
             return null;
@@ -446,7 +446,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param orderId 订单标识
     * @return poll证书detail的结果
-     */
+    */
     private GetCertificateDetailResponse pollCertificateDetail(Long orderId) throws Exception {
         int maxAttempts = 60;
         while (maxAttempts-- > 0) {
@@ -484,7 +484,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param body 主体
     * @return 连接证书chain的结果
-     */
+    */
     private String joinCertificateChain(GetCertificateDetailResponseBody body) {
         StringBuilder sb = new StringBuilder();
         String leaf = body.getCertIdentifier();
@@ -515,7 +515,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     * @param validateType 校验类型
     * @param fallback 降级
     * @return 转为challenge类型的结果
-     */
+    */
     private String toChallengeType(String validateType, String fallback) {
         if (validateType == null || validateType.isEmpty()) {
             return fallback == null ? "DNS-01" : fallback;
@@ -535,7 +535,7 @@ public class AlibabaCasProvider implements AcmeProvider {
     *
     * @param s s
     * @return 是否csrpem的结果
-     */
+    */
     private boolean isCsrPem(String s) {
         return s != null && s.contains("-----BEGIN CERTIFICATE REQUEST-----");
     }

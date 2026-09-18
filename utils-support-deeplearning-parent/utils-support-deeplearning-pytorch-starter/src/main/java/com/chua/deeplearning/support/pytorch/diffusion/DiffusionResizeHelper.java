@@ -20,7 +20,7 @@ public final class DiffusionResizeHelper {
     * @param w          原宽
     * @param resolution 目标短边分辨率
     * @return [height, width]
-     */
+    */
     public static int[] resize64(double h, double w, double resolution) {
         double k = resolution / Math.min(h, w);
         h *= k;

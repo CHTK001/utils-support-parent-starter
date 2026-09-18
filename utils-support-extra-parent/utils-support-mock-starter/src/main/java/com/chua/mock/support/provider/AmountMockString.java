@@ -23,13 +23,13 @@ public class AmountMockString implements MockString {
 
     /**
     * 最小金额（分）
-     */
+    */
     private static final long MIN_CENTS = 100L;
     /**
     * 最大金额（分，不含）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final long MAX_CENTS = 100_000_000L;
 
     @Override

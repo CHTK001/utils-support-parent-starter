@@ -28,17 +28,17 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
 
     /**
     * 源文件格式
-     */
+    */
     private static final String SOURCE_TYPE = "ibd";
 
     /**
     * 目标文件格式
-     */
+    */
     private static final String TARGET_TYPE = "sql";
 
     /**
     * 命令执行超时时间（秒）
-     */
+    */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
@@ -71,7 +71,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     *
     * @param ibdFile 待转换的 IBD 文件对象
     * @return 生成的 SQL 字符串内容
-     */
+    */
     private String executeIbd2Sql(File ibdFile) throws Exception {
         String python = findPython();
         String command = python + " -m ibd2sql \"" + ibdFile.getAbsolutePath() + "\" --ddl --sql";
@@ -90,7 +90,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     *
     * @param src 源文件源
     * @return 对应的 文件 对象
-     */
+    */
     private File toFile(FileSource src) throws IOException {
         if (src.isPath()) {
             return new File(src.getPath());
@@ -106,7 +106,7 @@ public class IbdToSqlFileConvertSystem implements FileConvertSystem {
     * <p>根据操作系统类型尝试不同的命令名称（python、python3、py）。</p>
     *
     * @return 找到的 Python 命令名称
-     */
+    */
     private static String findPython() {
         String osName = System.getProperty("os.name").toLowerCase();
         String[] candidates = osName.contains("win")

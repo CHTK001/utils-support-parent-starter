@@ -20,7 +20,7 @@ public interface SoftwareProvider {
     * 获取软件源名称
     *
     * @return 软件源名称
-     */
+    */
     String name();
 
     /**
@@ -28,7 +28,7 @@ public interface SoftwareProvider {
     *
     * @param keyword 搜索关键词
     * @return 软件信息列表
-     */
+    */
     List<SoftwareInfo> search(String keyword);
 
     /**
@@ -36,7 +36,7 @@ public interface SoftwareProvider {
     *
     * @param packageId 包 标识
     * @return 是否安装成功
-     */
+    */
     default boolean install(String packageId) {
         return false;
     }
@@ -46,7 +46,7 @@ public interface SoftwareProvider {
     *
     * @param packageId 包 标识
     * @return 是否卸载成功
-     */
+    */
     default boolean uninstall(String packageId) {
         return false;
     }

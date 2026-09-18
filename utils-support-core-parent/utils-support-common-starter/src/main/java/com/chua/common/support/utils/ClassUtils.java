@@ -2770,15 +2770,15 @@ public class ClassUtils {
         return rs;
     }
     /**
-    * 获取指定类的所有泛型类型参数（解析泛型父类或接口，结果缓存于 {@link #ACTUAL}）。
-    *
-    * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
-    * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
-    *
-    * @param clazz 目标类，为 null 时返回空数组
-    * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
-    * @since 2024/12/21
-    */
+            * 获取指定类的所有泛型类型参数（解析泛型父类或接口，结果缓存于 {@link #ACTUAL}）。
+            *
+            * <p>例如 {@code List<String>} 返回 {@code [String.class]}，
+            * {@code Map<String, Integer>} 返回 {@code [String.class, Integer.class]}。</p>
+            *
+            * @param clazz 目标类，为 null 时返回空数组
+            * @return 泛型类型参数数组，无泛型信息或解析失败时返回空数组
+            * @since 2024/12/21
+            */
     /**
     * 获取对象的泛型实际类型参数（按索引）。
     *
@@ -3165,12 +3165,12 @@ public class ClassUtils {
  // 简类名工具
     // ----------------------------------------------------------------------
     /**
-    * 获取对象的简类名（不含包名），对象为 null 时返回指定默认值。
-    *
-    * @param object      目标对象，可以为 null
-    * @param valueIfNull 对象为 null 时返回的值
-    * @return 对象类名的简名，对象为 null 时返回 valueIfNull
-    */
+        * 获取对象的简类名（不含包名），对象为 null 时返回指定默认值。
+        *
+        * @param object      目标对象，可以为 null
+        * @param valueIfNull 对象为 null 时返回的值
+        * @return 对象类名的简名，对象为 null 时返回 valueIfNull
+        */
     public static String getShortClassName(final Object object, final String valueIfNull) {
         if (object == null) {
             return valueIfNull;

@@ -60,14 +60,14 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * 扩展 id 前缀列表（匹配 globalStorage 下的扩展目录）。
     *
     * @return 扩展 id 前缀（如 {@code "kilocode"}、{@code "rooveterinaryinc"}）
-     */
+    */
     protected abstract List<String> extensionIdPrefixes();
 
     /**
     * 任务目录名（globalStorage/&lt;ext-id&gt;/ 之下的目录）。
     *
     * @return 任务目录名（如 {@code "tasks"}）
-     */
+    */
     protected abstract String taskDirName();
 
     /**
@@ -76,7 +76,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * <p>子类无需再自行覆写转接 {@link #fromTaskFiles()}。</p>
     *
     * @return 用量记录流
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         return fromTaskFiles();
@@ -86,7 +86,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * 扫描全部 IDE 安装并解析任务文件（子类可直接复用）。
     *
     * @return 用量记录流
-     */
+    */
     protected Flux<AiUsage> fromTaskFiles() {
         List<Map<Path, String>> batches = collectTaskFiles();
         if (batches.isEmpty()) {
@@ -103,14 +103,14 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 收集全部 IDE 安装下的任务文件（按 globalStorage 根分组）。
-     *
-     * <p>每个 globalStorage 根扫描扩展目录：目录名匹配 {@link #extensionIdPrefixes()}
-     * 前缀之一即视为本扩展安装，取其下的 {@code <taskDirName>}/&lt;task-uuid&gt;/
-     * 作为任务目录。各批次 value 为「任务文件 → 任务 id」映射。</p>
-     *
-     * @return 任务文件批次（批次内 key 为任务文件，value 为任务 id）
-     */
+    * 收集全部 IDE 安装下的任务文件（按 globalStorage 根分组）。
+    *
+    * <p>每个 globalStorage 根扫描扩展目录：目录名匹配 {@link #extensionIdPrefixes()}
+    * 前缀之一即视为本扩展安装，取其下的 {@code <taskDirName>}/&lt;task-uuid&gt;/
+    * 作为任务目录。各批次 value 为「任务文件 → 任务 id」映射。</p>
+    *
+    * @return 任务文件批次（批次内 key 为任务文件，value 为任务 id）
+    */
     protected List<Map<Path, String>> collectTaskFiles() {
         List<String> prefixes = extensionIdPrefixes();
         List<Map<Path, String>> batches = new ArrayList<>();
@@ -143,12 +143,12 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 在 globalStorage 根下查找匹配任一扩展 id 前缀的扩展目录。
-     *
-     * @param globalStorage globalStorage 根
-     * @param prefixes 扩展 id 前缀列表
-     * @return 匹配到的扩展目录；无匹配或读取失败时返回 null
-     */
+    * 在 globalStorage 根下查找匹配任一扩展 id 前缀的扩展目录。
+    *
+    * @param globalStorage globalStorage 根
+    * @param prefixes 扩展 id 前缀列表
+    * @return 匹配到的扩展目录；无匹配或读取失败时返回 null
+    */
     private static Path resolveExtensionDir(Path globalStorage, List<String> prefixes) {
         try (Stream<Path> stream = Files.list(globalStorage)) {
             List<Path> candidates = stream
@@ -173,7 +173,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * 覆盖主流产品名。找不到任何安装时返回空列表（解析器安静跳过）。</p>
     *
     * @return 存在的 globalStorage 根目录列表
-     */
+    */
     protected List<Path> enumerateGlobalStorageRoots() {
         String appData = System.getenv("APPDATA");
         if (appData == null || appData.isBlank()) {
@@ -191,7 +191,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
 
     /**
     * VS Code 系 IDE 的 AppData 产品目录候选列表。
-     */
+    */
     protected static final String[] VSCODE_APPDATA_CANDIDATES = {
             "Code", "Cursor", "VSCodium", "CodeBuddy", "CodeBuddyCN", "Windsurf",
             "Trae", "TraeCN", "Insiders"
@@ -203,7 +203,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * @param root globalStorage 根（{@code <IDE>/User/globalStorage}）
     * @param taskFiles 任务文件及其所属任务 id
     * @return 解析出的用量记录
-     */
+    */
     protected List<AiUsage> parseTaskFiles(Path root, Map<Path, String> taskFiles) {
         List<AiUsage> result = new ArrayList<>();
         for (Map.Entry<Path, String> entry : taskFiles.entrySet()) {
@@ -233,7 +233,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     * @param taskId 任务 id（作为 requestId）
     * @param fallbackTime 任务文件 mtime（毫秒，时间戳缺失时兜底）
     * @return 用量记录或 null
-     */
+    */
     protected AiUsage toAiUsage(Map<String, Object> msg, String taskId, long fallbackTime) {
         if (!"assistant".equals(asStr(msg.get("role")))) {
             return null;
@@ -276,7 +276,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     *
     * @param msg 消息对象
     * @return 模型名
-     */
+    */
     protected String extractModelName(Map<String, Object> msg) {
         String model = asStr(msg.get("model"));
         if (!model.isBlank()) {
@@ -301,7 +301,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
     *
     * @param raw JSON 文本
     * @return 消息列表（不可解析时为空）
-     */
+    */
     private static List<Map<String, Object>> parseMessagesArray(String raw) {
         com.chua.common.support.lang.json.JsonNode node =
                 com.chua.common.support.lang.json.Json.parse(raw);
@@ -324,7 +324,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
 
     /**
     * 文件毫秒时间解析器（mtime 兜底）。
-     */
+    */
     static final class FileTimeResolver {
 
         private FileTimeResolver() {
@@ -335,7 +335,7 @@ public abstract class VscodeExtensionTaskUsageParser extends BaseUsageParser {
         *
         * @param file 文件
         * @return mtime 毫秒或 0
-         */
+        */
         static long millisOf(Path file) {
             try {
                 return Files.getLastModifiedTime(file).toMillis();

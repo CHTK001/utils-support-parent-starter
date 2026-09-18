@@ -42,6 +42,7 @@
         <module>utils-support-filestorage-starter</module>
         <module>utils-support-geoip2-starter</module>
         <module>utils-support-log-starter</module>
+        <module>utils-support-hprof-starter</module>
     </modules>
     <dependencies>
         <dependency>

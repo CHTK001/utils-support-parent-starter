@@ -41,10 +41,10 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
     private static final Path DB_PATH = resolveDbPath();
 
     /**
-     * 解析 anythingllm.db 路径（按平台）。
-     *
-     * @return 数据库路径
-     */
+    * 解析 anythingllm.db 路径（按平台）。
+    *
+    * @return 数据库路径
+    */
     private static Path resolveDbPath() {
         String override = System.getenv("ANYTHINGLLM_DB");
         if (override != null && !override.isBlank()) {
@@ -81,18 +81,18 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
                     + "ORDER BY id ASC";
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "anythingllm"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "anythingllm"}
+    */
     @Override
     public String name() {
         return PROVIDER_ANYTHINGLLM;
     }
 
     /**
-     * 响应式流式入口：流出 workspace_chats 的逐消息用量。
-     */
+    * 响应式流式入口：流出 workspace_chats 的逐消息用量。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -107,11 +107,11 @@ public class AnythingLlmUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 将 workspace_chats 行映射为用量记录。
-     *
-     * @param row 数据库行
-     * @return 用量记录
-     */
+    * 将 workspace_chats 行映射为用量记录。
+    *
+    * @param row 数据库行
+    * @return 用量记录
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int prompt = asInt(row.get("prompt_tokens"));
         int completion = asInt(row.get("completion_tokens"));

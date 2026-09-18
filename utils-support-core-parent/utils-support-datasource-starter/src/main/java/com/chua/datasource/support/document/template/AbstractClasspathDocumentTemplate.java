@@ -24,21 +24,21 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
 
     /**
     * 占位符正则
-     */
+    */
     private static final Pattern PLACEHOLDER = Pattern.compile("#([\\w.]+)#");
 
     /**
     * HTML 模板资源路径
     *
     * @return classpath 路径
-     */
+    */
     protected abstract String htmlTemplatePath();
 
     /**
     * Markdown 模板资源路径
     *
     * @return classpath 路径
-     */
+    */
     protected abstract String markdownTemplatePath();
 
     /**
@@ -47,7 +47,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     * @param data   文档数据
     * @param config 导出配置
     * @return HTML 文本
-     */
+    */
     @Override
     public String renderHtml(DocumentData data, DocumentExportConfig config) {
         if (config != null && config.getCustomHtmlTemplate() != null && !config.getCustomHtmlTemplate().isBlank()) {
@@ -62,7 +62,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     * @param data   文档数据
     * @param config 导出配置
     * @return Markdown 文本
-     */
+    */
     @Override
     public String renderMarkdown(DocumentData data, DocumentExportConfig config) {
         return resolve(loadTemplate(markdownTemplatePath()), buildVariables(data, config));
@@ -74,7 +74,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     * @param data   文档数据
     * @param config 导出配置
     * @return 变量表
-     */
+    */
     protected Map<String, Object> buildVariables(DocumentData data, DocumentExportConfig config) {
         Map<String, Object> vars = new LinkedHashMap<>();
         vars.put("title", nullToEmpty(data.getTitle()));
@@ -98,7 +98,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     *
     * @param data 文档数据
     * @return JSON
-     */
+    */
     protected String toDataJson(DocumentData data) {
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("title", data.getTitle());
@@ -268,7 +268,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     *
     * @param data 文档数据
     * @return markdown
-     */
+    */
     protected String toTablesMarkdown(DocumentData data) {
         StringBuilder sb = new StringBuilder();
         if (data.getTables() == null) {
@@ -306,7 +306,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     *
     * @param path 资源路径
     * @return 模板文本
-     */
+    */
     protected String loadTemplate(String path) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         if (cl == null) {
@@ -332,7 +332,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     * @param template 模板
     * @param vars     变量
     * @return 结果
-     */
+    */
     protected String resolve(String template, Map<String, Object> vars) {
         Matcher matcher = PLACEHOLDER.matcher(template);
         StringBuilder sb = new StringBuilder();
@@ -350,7 +350,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     *
     * @param value 值
     * @return 空转为空的结果
-     */
+    */
     private static String nullToEmpty(String value) {
         return value == null ? "" : value;
     }
@@ -361,7 +361,7 @@ public abstract class AbstractClasspathDocumentTemplate implements DocumentTempl
     * @param value 值
     * @param defaultValue 默认值
     * @return 空转为空的结果
-     */
+    */
     private static String nullToEmpty(String value, String defaultValue) {
         return (value == null || value.isBlank()) ? defaultValue : value;
     }

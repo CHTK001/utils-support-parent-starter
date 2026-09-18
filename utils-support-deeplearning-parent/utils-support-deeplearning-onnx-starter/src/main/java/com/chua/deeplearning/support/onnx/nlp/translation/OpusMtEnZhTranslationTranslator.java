@@ -13,7 +13,7 @@ public class OpusMtEnZhTranslationTranslator extends OpusMtTranslationTranslator
 
     /**
     * jar 内资源根目录（嵌入式）。
-     */
+    */
     private static final String RESOURCE_BASE = "nlp/translation/opus_mt_en_zh/";
 
     /** 创建 opusmtenzh翻译translator 实例 */

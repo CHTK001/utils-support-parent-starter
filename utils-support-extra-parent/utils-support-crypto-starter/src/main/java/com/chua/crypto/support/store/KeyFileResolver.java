@@ -27,17 +27,17 @@ public final class KeyFileResolver {
 
     /**
     * 默认密钥文件相对目录
-     */
+    */
     private static final String DEFAULT_DIR = ".chua/crypto";
 
     /**
     * 默认密钥文件名
-     */
+    */
     private static final String DEFAULT_FILE = "master.key";
 
     /**
     * 私有构造
-     */
+    */
     private KeyFileResolver() {
     }
 
@@ -46,7 +46,7 @@ public final class KeyFileResolver {
     *
     * @param configured 配置的路径（允许 空/空白）
     * @return 规范化绝对路径
-     */
+    */
     public static Path resolve(String configured) {
         if (configured == null || configured.isBlank()) {
             return defaultKeyFile();
@@ -69,7 +69,7 @@ public final class KeyFileResolver {
     * 默认密钥文件路径
     *
     * @return {user.home}/.chua/crypto/master.key
-     */
+    */
     public static Path defaultKeyFile() {
         return Paths.get(System.getProperty("user.home"), DEFAULT_DIR, DEFAULT_FILE)
                 .toAbsolutePath().normalize();
@@ -80,7 +80,7 @@ public final class KeyFileResolver {
     *
     * @param relative 相对路径
     * @return 候选列表（工作目录、Jar 目录、用户目录）
-     */
+    */
     private static List<Path> candidates(Path relative) {
         List<Path> candidates = new ArrayList<>();
         candidates.add(Paths.get(System.getProperty("user.dir")).resolve(relative));
@@ -103,7 +103,7 @@ public final class KeyFileResolver {
     * </ul>
     *
     * @return Jar 目录；无法确定时返回 空
-     */
+    */
     static Path jarDirectory() {
         try {
             URI location = KeyFileResolver.class.getProtectionDomain().getCodeSource().getLocation().toURI();
@@ -130,7 +130,7 @@ public final class KeyFileResolver {
     *
     * @param file 目标文件
     * @throws IOException 目录创建失败时抛出
-     */
+    */
     public static void ensureParent(Path file) throws IOException {
         Path parent = file.getParent();
         if (parent != null && !Files.exists(parent)) {

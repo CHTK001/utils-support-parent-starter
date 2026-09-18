@@ -96,7 +96,7 @@ public class AudioRecognitionPipeline {
     /**
     * 私有构造，通过 {@link Builder} 创建实例。
     * @param builder 构建器
-     */
+    */
     private AudioRecognitionPipeline(Builder builder) {
         this.speakerEmbeddingModel = builder.speakerEmbeddingModel;
         this.asrModel = builder.asrModel;
@@ -109,7 +109,7 @@ public class AudioRecognitionPipeline {
     * 创建构建器。
     *
     * @return Builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -122,7 +122,7 @@ public class AudioRecognitionPipeline {
     *
     * @param audioData 音频原始字节（WAV/PCM）
     * @return 按时间排序的最终说话人片段列表
-     */
+    */
     public List<SpeakerSegment> recognize(byte[] audioData) {
         long t0 = System.currentTimeMillis();
         AudioRecognitionContext ctx = AudioRecognitionContext.builder()
@@ -201,7 +201,7 @@ public class AudioRecognitionPipeline {
     *
     * @param path 音频文件路径
     * @return 最终说话人片段列表
-     */
+    */
     public List<SpeakerSegment> recognize(java.nio.file.Path path) {
         try {
             byte[] data = java.nio.file.Files.readAllBytes(path);
@@ -215,7 +215,7 @@ public class AudioRecognitionPipeline {
     * 设置音频识别管线回调。
     *
     * @param callback 回调实例
-     */
+    */
     public void setCallback(AudioRecognitionPipelineCallback callback) {
         this.callback = callback;
     }
@@ -224,7 +224,7 @@ public class AudioRecognitionPipeline {
     * 获取音频识别管线回调。
     *
     * @return 回调实例，可能为 空
-     */
+    */
     public AudioRecognitionPipelineCallback callback() {
         return this.callback;
     }
@@ -236,7 +236,7 @@ public class AudioRecognitionPipeline {
     *
     * @param audioData 音频字节
     * @return 初步语音片段列表
-     */
+    */
     private List<SpeakerSegment> performVad(byte[] audioData) {
         var diarizer = new DefaultSpeakerDiarizer(engine, "energy-vad",
                 com.chua.deeplearning.support.config.ModelSetting.builder().build());
@@ -256,7 +256,7 @@ public class AudioRecognitionPipeline {
     * @param audioData    原始音频字节
     * @param vadSegments  VAD 切分结果
     * @return 二维数组 嵌入[i] 对应 vadsegments.获取(i) 的嵌入向量
-     */
+    */
     private float[][] extractSpeakerEmbeddings(byte[] audioData, List<SpeakerSegment> vadSegments) {
         float[] pcm = DefaultSpeakerDiarizer.decodePcmWav(audioData);
         if (pcm == null) {
@@ -312,7 +312,7 @@ public class AudioRecognitionPipeline {
     * @param embeddings  嵌入向量数组
     * @param segmentCount 片段总数（可能与 嵌入 行数不同，以 嵌入 为准）
     * @return 每个片段归属的说话人 标识 数组
-     */
+    */
     private String[] kMeansCluster(float[][] embeddings, int segmentCount) {
         int n = embeddings.length;
         if (n == 0) {
@@ -393,7 +393,7 @@ public class AudioRecognitionPipeline {
     * 返回出现过的不同说话人 标识 集合。
     * @param assignments assignments
     * @return 去重assignments的结果
-     */
+    */
     private java.util.Set<String> distinctAssignments(String[] assignments) {
         java.util.Set<String> set = new java.util.LinkedHashSet<>();
         for (String a : assignments) {
@@ -407,7 +407,7 @@ public class AudioRecognitionPipeline {
     /**
     * 对浮点向量做 L2 归一化（原地修改）。
     * @param vec vec
-     */
+    */
     private static void l2NormalizeInPlace(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -427,7 +427,7 @@ public class AudioRecognitionPipeline {
     * @param vec vec
     * @param centers centers
     * @return argmaxCosine的结果
-     */
+    */
     private static int argmaxCosine(float[] vec, float[][] centers) {
         l2NormalizeInPlace(vec);
         int bestK = 0;
@@ -451,7 +451,7 @@ public class AudioRecognitionPipeline {
     * @param audioData   原始音频字节
     * @param vadSegments VAD 切分结果
     * @return 各片段的转录文本数组（与 vadsegments 一一对应）
-     */
+    */
     private String[] transcribeSegments(byte[] audioData, List<SpeakerSegment> vadSegments) {
         ITranslator<byte[], String> asrTranslator =
                 (ITranslator<byte[], String>) engine.get(asrModel, ITranslator.class);
@@ -501,7 +501,7 @@ public class AudioRecognitionPipeline {
     * @param vadSegments vadsegments
     * @param pcm pcm
     * @return transcribevia音频客户端的结果
-     */
+    */
     private String[] transcribeViaAudioClient(List<SpeakerSegment> vadSegments, float[] pcm) {
         VirtualClient client;
         try {
@@ -567,7 +567,7 @@ public class AudioRecognitionPipeline {
     *
     * @param ctx 音频识别上下文
     * @return 合并后的最终片段列表
-     */
+    */
     private List<SpeakerSegment> mergeAdjacentSegments(AudioRecognitionContext ctx) {
         List<SpeakerSegment> vadSegs = ctx.getVadSegments();
         String[] assignments = ctx.getSpeakerAssignments();
@@ -621,7 +621,7 @@ public class AudioRecognitionPipeline {
     * @param samples  float 采样数组
     * @param sampleRate 采样率
     * @return WAV 字节数组
-     */
+    */
     private static byte[] pcmToWavBytes(float[] samples, int sampleRate) {
         int numChannels = 1;
         int bitsPerSample = 16;
@@ -661,7 +661,7 @@ public class AudioRecognitionPipeline {
     * @param buf buf
     * @param off off
     * @param src src
-     */
+    */
     private static void writeBytes(byte[] buf, int off, byte[] src) {
         System.arraycopy(src, 0, buf, off, src.length);
     }
@@ -671,7 +671,7 @@ public class AudioRecognitionPipeline {
     * @param buf buf
     * @param off off
     * @param val val
-     */
+    */
     private static void writeInt(byte[] buf, int off, int val) {
         buf[off] = (byte) (val & 0xff);
         buf[off + 1] = (byte) ((val >> 8) & 0xff);
@@ -684,7 +684,7 @@ public class AudioRecognitionPipeline {
     * @param buf buf
     * @param off off
     * @param val val
-     */
+    */
     private static void writeShort(byte[] buf, int off, short val) {
         buf[off] = (byte) (val & 0xff);
         buf[off + 1] = (byte) ((val >> 8) & 0xff);
@@ -696,7 +696,7 @@ public class AudioRecognitionPipeline {
     * 链式构建器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
         /** 说话人嵌入模型 标识，空 则跳过嵌入/聚类步骤 */
         private String speakerEmbeddingModel;
@@ -712,7 +712,7 @@ public class AudioRecognitionPipeline {
         * 不设置则跳过说话人聚类，每个 VAD 片段单独分配一个 标识。
         * @param speakerEmbeddingModel speaker嵌入模型
         * @return speaker嵌入模型的结果
-         */
+        */
         public Builder speakerEmbeddingModel(String speakerEmbeddingModel) {
             this.speakerEmbeddingModel = speakerEmbeddingModel;
             return this;
@@ -724,7 +724,7 @@ public class AudioRecognitionPipeline {
         * 不设置则不执行转写，最终片段的 transcript 字段为空。
         * @param asrModel asr模型
         * @return asr模型的结果
-         */
+        */
         public Builder asrModel(String asrModel) {
             this.asrModel = asrModel;
             return this;
@@ -734,7 +734,7 @@ public class AudioRecognitionPipeline {
         * 设置最大说话人数上限。
         * @param maxSpeakers 最大speakers
         * @return 最大speakers的结果
-         */
+        */
         public Builder maxSpeakers(Integer maxSpeakers) {
             this.maxSpeakers = maxSpeakers;
             return this;
@@ -745,7 +745,7 @@ public class AudioRecognitionPipeline {
         * 默认 500ms，即两个同说话人片段之间若有 &lt;= 500ms 静音则合并。
         * @param minSegmentMs 最小segmentms
         * @return 最小segmentms的结果
-         */
+        */
         public Builder minSegmentMs(int minSegmentMs) {
             this.minSegmentMs = minSegmentMs;
             return this;
@@ -754,7 +754,7 @@ public class AudioRecognitionPipeline {
         /**
         * 构建管线实例。
         * @return 构建的结果
-         */
+        */
         public AudioRecognitionPipeline build() {
             return new AudioRecognitionPipeline(this);
         }

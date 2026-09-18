@@ -17,7 +17,7 @@ public class ApplicationAwareApplicationContextInitializer implements Applicatio
     * 初始化应用上下文，将 application上下文 设置到 springBean工具
     *
     * @param applicationContext 可配置的应用上下文
-     */
+    */
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         SpringBeanUtils.setApplicationContext(applicationContext);

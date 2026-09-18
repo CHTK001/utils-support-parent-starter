@@ -34,29 +34,29 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
 
     /**
     * 是否启用引用跟踪（支持循环引用 / 共享引用对象图）
-     */
+    */
     private static final boolean REF_TRACKING = true;
 
     /**
     * Fury 实例缓存池，按实体类类型缓存 Fury 实例
-     */
+    */
     private static final ConcurrentHashMap<Class<?>, Fury> FURY_POOL = new ConcurrentHashMap<>();
 
     /**
     * 全局 Fury 实例计数器
-     */
+    */
     private static final AtomicInteger POOL_COUNTER = new AtomicInteger(0);
 
     /**
     * 目标实体类类型
-     */
+    */
     private final Class<T> clazz;
 
     /**
     * 创建指定类型的 Fory 序列化器。
     *
     * @param clazz 要序列化的目标类型
-     */
+    */
     public ForySerializer(Class<T> clazz) {
         this.clazz = clazz;
     }
@@ -69,7 +69,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     * </p>
     *
     * @return Fury 实例
-     */
+    */
     private Fury getFury() {
         return FURY_POOL.computeIfAbsent(clazz, k -> {
             Fury fury = Fury.builder()
@@ -88,7 +88,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param object 待序列化的对象，空 返回空字节数组
     * @return 序列化后的字节数组
-     */
+    */
     @Override
     public byte[] serialize(T object) {
         if (object == null) {
@@ -102,7 +102,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param bytes 序列化后的字节数组，空 或空数组返回 空
     * @return 反序列化后的对象
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public T deserialize(byte[] bytes) {
@@ -115,7 +115,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     /**
     * 清除所有 Fury 实例缓存。
     * 适用于测试环境或需要释放资源的场景。
-     */
+    */
     public static void clearPool() {
         FURY_POOL.clear();
         log.info("[ForyPool] All Fury instances cleared");
@@ -125,7 +125,7 @@ public class ForySerializer<T extends Serializable> implements Serializer<T> {
     * 获取当前缓存的 Fury 实例数量。
     *
     * @return Fury 实例数量
-     */
+    */
     public static int getPoolSize() {
         return FURY_POOL.size();
     }

@@ -46,9 +46,9 @@ public class WeMMEmbeddingClient implements EmbeddingClient {
     private volatile String resolvedModel;
 
     /**
-     * 创建 WeMMEmbeddingClient 实例
-     * @param setting setting
-     */
+    * 创建 WeMMEmbeddingClient 实例
+    * @param setting setting
+    */
     public WeMMEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
     }

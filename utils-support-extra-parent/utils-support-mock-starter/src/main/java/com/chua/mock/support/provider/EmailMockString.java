@@ -21,25 +21,25 @@ public class EmailMockString implements MockString {
 
     /**
     * 用户名随机字符池（小写字母 + 数字）
-     */
+    */
     private static final char[] USERNAME_CHARS =
             "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
     /**
     * 常用邮箱域名池
-     */
+    */
     private static final String[] DOMAINS = {
             "qq.com", "163.com", "126.com", "sina.com", "foxmail.com",
             "gmail.com", "outlook.com", "yahoo.com", "hotmail.com", "icloud.com"
     };
     /**
     * 用户名长度区间 [5, 12]
-     */
+    */
     private static final int USERNAME_MIN = 5;
     /**
     * 用户名长度上界
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int USERNAME_MAX = 13;
 
     @Override

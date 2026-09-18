@@ -46,10 +46,14 @@ public class ILinkBotClient implements BotClient {
     /** i链接 机器人 API 基础地址 */
     private static final String DEFAULT_BASE_URL = "https://ilinkai.weixin.qq.com";
 
-    /** i链接 应用标识（官方 openclaw-weixin 包.json ilink_appid） */
+    /**
+    * i链接 应用标识（官方 openclaw-weixin 包.json ilink_appid）
+    */
     private static final String ILINK_APP_ID = "bot";
 
-    /** i链接 应用客户端版本（0x00MMNNPP：major<<16 | minor<<8 | patch），2.4.6 -> 132102 */
+    /**
+    * i链接 应用客户端版本（0x00MMNNPP：major<<16 | minor<<8 | patch），2.4.6 -> 132102
+    */
     private static final int ILINK_APP_CLIENT_VERSION = 132102;
 
     /** 渠道版本（openclaw-weixin 包版本） */
@@ -102,7 +106,7 @@ public class ILinkBotClient implements BotClient {
 
     /**
     * 创建 i链接机器人客户端
-     */
+    */
     public ILinkBotClient() {
     }
 
@@ -111,7 +115,7 @@ public class ILinkBotClient implements BotClient {
     *
     * @param listener 监听器
     * @return this
-     */
+    */
     public ILinkBotClient qrcodeListener(QrcodeListener listener) {
         this.qrcodeListener = listener;
         return this;
@@ -129,7 +133,7 @@ public class ILinkBotClient implements BotClient {
     * </ol></p>
     *
     * @return botId，登录失败返回 空
-     */
+    */
     public String loginWithQR() {
         try {
             // Step 1: 获取登录二维码
@@ -195,7 +199,7 @@ public class ILinkBotClient implements BotClient {
 
     /**
     * 启动消息轮询（阻塞式，建议在独立线程调用）。
-     */
+    */
     public void startPolling() {
         running.set(true);
         while (running.get()) {
@@ -225,7 +229,7 @@ public class ILinkBotClient implements BotClient {
 
     /**
     * 停止运行。
-     */
+    */
     public void shutdown() {
         running.set(false);
         log.info("[ILink] 已停止");
@@ -388,7 +392,7 @@ public class ILinkBotClient implements BotClient {
     * @param body   文本内容
     * @return 发送结果
     * @param content 内容
-     */
+    */
     private BotSendResult sendWithToken(String toUser, String content) {
         try {
             JsonObject msg = new JsonObject();
@@ -436,7 +440,7 @@ public class ILinkBotClient implements BotClient {
     *
     * @param content 文本内容
     * @return 文本内容字符串
-     */
+    */
     private String buildTextBody(String content) {
         return content;
     }
@@ -448,7 +452,7 @@ public class ILinkBotClient implements BotClient {
     * @param mediaType 媒体类型
     * @param mediaPath 媒体路径
     * @return 发送结果
-     */
+    */
     private BotSendResult sendMedia(String toUser, String mediaType, String mediaPath) {
         return BotSendResult.fail(-1, "媒体发送暂不支持");
     }
@@ -460,7 +464,7 @@ public class ILinkBotClient implements BotClient {
     * 请求体携带 基础_信息 与 获取_更新_buf 游标。</p>
     *
     * @return 入站消息列表
-     */
+    */
     private List<BotInboundMessage> pollMessages() {
         List<BotInboundMessage> result = new ArrayList<>();
         try {
@@ -530,7 +534,7 @@ public class ILinkBotClient implements BotClient {
     *
     * @param msg 消息映射
     * @return 文本内容或空字符串
-     */
+    */
     private String extractNestedText(Map<String, Object> msg) {
         var itemList = msg.get("item_list");
         if (!(itemList instanceof List<?> list)) { return ""; }
@@ -553,7 +557,7 @@ public class ILinkBotClient implements BotClient {
     * @param path API 路径
     * @param body 请求体对象
     * @return 响应映射，解析失败返回空 映射
-     */
+    */
     private Map<String, Object> apiPost(String path, Object body) {
         ClientRequest request = ClientRequest.of(baseUrl + path, HttpMethod.POST)
                 .header("Content-Type", "application/json");
@@ -568,7 +572,7 @@ public class ILinkBotClient implements BotClient {
     *
     * @param pathAndQuery 带查询参数的路径
     * @return 响应映射，解析失败返回空 映射
-     */
+    */
     private Map<String, Object> apiGet(String pathAndQuery) {
         ClientRequest request = ClientRequest.of(baseUrl + pathAndQuery, HttpMethod.GET);
         request.setConnectTimeout(connectTimeoutMillis);
@@ -586,7 +590,7 @@ public class ILinkBotClient implements BotClient {
     *
     * <p>仅当已登录（token 非空）时附加 bot_token 鉴权；X-WECHAT-UIN 每次随机生成。</p>
     * @param request 请求
-     */
+    */
     private void applyAuthHeaders(ClientRequest request) {
         request.setConnectTimeout(connectTimeoutMillis);
         request.setReadTimeout(readTimeoutMillis);
@@ -601,7 +605,7 @@ public class ILinkBotClient implements BotClient {
     /**
     * 附加 i链接 应用标识头（官方 openclaw-weixin 协议要求）。
     * @param request 请求
-     */
+    */
     private static void applyCommonHeaders(ClientRequest request) {
         request.header("iLink-App-Id", ILINK_APP_ID);
         request.header("iLink-App-ClientVersion", String.valueOf(ILINK_APP_CLIENT_VERSION));
@@ -610,7 +614,7 @@ public class ILinkBotClient implements BotClient {
     /**
     * 生成 X-WECHAT-UIN：随机 uint32 → 基础64。
     * @return wechatUin的结果
-     */
+    */
     private static String wechatUin() {
  // 协议：4 随机 bytes → uint32 十进制字符串 → 基础64
         int v = new Random().nextInt();
@@ -624,7 +628,7 @@ public class ILinkBotClient implements BotClient {
     *
     * @param body JSON 字符串
     * @return 解析结果，异常时返回 {@link Map#of()}
-     */
+    */
     private static Map<String, Object> safeParse(String body) {
         try {
             return Json.fromJson(body);
@@ -638,7 +642,7 @@ public class ILinkBotClient implements BotClient {
     * @param map 映射
     * @param key 键
     * @return 获取字符串的结果
-     */
+    */
     private static String getString(Map<String, Object> map, String key) {
         if (map == null || !map.containsKey(key)) {
             return null;
@@ -653,7 +657,7 @@ public class ILinkBotClient implements BotClient {
     * @param key 键
     * @param defaultVal 默认val
     * @return intVal的结果
-     */
+    */
     private static int intVal(Map<String, Object> map, String key, int defaultVal) {
         if (map == null || !map.containsKey(key)) {
             return defaultVal;
@@ -674,7 +678,7 @@ public class ILinkBotClient implements BotClient {
     * @param map 映射
     * @param keys 键
     * @return 第一个nonblank的结果
-     */
+    */
     private static String firstNonBlank(Map<String, Object> map, String... keys) {
         if (map == null) {
             return null;
@@ -692,7 +696,7 @@ public class ILinkBotClient implements BotClient {
     * 安静休眠。
     *
     * @param millis 毫秒数
-     */
+    */
     private static void sleepQuietly(long millis) {
         try { Thread.sleep(millis); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }

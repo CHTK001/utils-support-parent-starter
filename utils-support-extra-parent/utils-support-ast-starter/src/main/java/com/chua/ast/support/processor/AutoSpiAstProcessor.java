@@ -59,38 +59,38 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
 
     /**
     * SPI 索引文件目录
-     */
+    */
     private static final String EXTENSIONS_PATH = "META-INF/extensions/";
 
     /**
     * common-starter {@code @Spi} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
-     */
+    */
     private static final String SPI_ANNOTATION = "com.chua.common.support.spi.annotations.Spi";
 
     /**
     * common-starter {@code @Extension} 注解全限定名（按字符串匹配，避免 ast 模块依赖 common-starter）
-     */
+    */
     private static final String EXTENSION_ANNOTATION = "com.chua.common.support.spi.annotations.Extension";
 
     /**
     * 索引内容：接口全限定名 -> 配置行集合（去重、有序）
-     */
+    */
     private final Map<String, SortedSet<String>> index = new LinkedHashMap<>();
 
     /**
     * 注解派生别名的实现类：类全限定名 -> {@code @Spi}/{@code @Extension} 注解派生别名集合
     * <p>用于清理历史构建遗留的冗余 {@code 别名=类名} 行（运行时忽略这些别名，且会与新的发现行叠加导致重复注册）。</p>
-     */
+    */
     private final Map<String, Set<String>> annotationDerivedAliases = new LinkedHashMap<>();
 
     /**
     * 编译期消息输出
-     */
+    */
     private Messager messager;
 
     /**
     * 元素工具（用于获取接口的二进制名，保证与运行时 {@code Class.getTypeName()} 一致）
-     */
+    */
     private javax.lang.model.util.Elements elementUtils;
 
     @Override
@@ -121,7 +121,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * 收集单个标注了 {@code @AutoSpi} 的实现类
     *
     * @param implElement 实现类元素
-     */
+    */
     private void collect(TypeElement implElement) {
         ElementKind kind = implElement.getKind();
         if (kind != ElementKind.CLASS && kind != ElementKind.ENUM) {
@@ -198,7 +198,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * @param annotation  注解实例
     * @param implElement 实现类元素
     * @return 接口全限定名列表
-     */
+    */
     private List<String> readInterfaces(AutoSpi annotation, TypeElement implElement) {
         List<String> result = new ArrayList<>();
         String[] explicit = annotation.value();
@@ -223,7 +223,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param fqn 接口全限定名（点分或 {@code $} 分隔均可）
     * @return 归一化后的接口名
-     */
+    */
     private String normalizeInterfaceName(String fqn) {
         TypeElement resolved = elementUtils.getTypeElement(fqn);
         if (resolved != null && resolved.getKind() == ElementKind.INTERFACE) {
@@ -237,7 +237,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param type   当前类型
     * @param result 结果集合
-     */
+    */
     private void collectInterfaces(TypeElement type, Set<String> result) {
         for (TypeMirror ifaceMirror : type.getInterfaces()) {
             if (ifaceMirror instanceof DeclaredType declared && declared.asElement() instanceof TypeElement iface
@@ -263,7 +263,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param implElement 实现类元素
     * @return true 表示存在 {@code @Spi} / {@code @Extension}
-     */
+    */
     private boolean hasSpiOrExtension(TypeElement implElement) {
         for (AnnotationMirror mirror : implElement.getAnnotationMirrors()) {
             String fqn = mirror.getAnnotationType().toString();
@@ -279,7 +279,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param implElement 实现类元素
     * @return 注解声明的名称列表
-     */
+    */
     private List<String> readAnnotationAliases(TypeElement implElement) {
         List<String> result = new ArrayList<>();
         for (AnnotationMirror mirror : implElement.getAnnotationMirrors()) {
@@ -296,7 +296,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param mirror 注解镜像
     * @return 属性值列表
-     */
+    */
     private List<String> readAnnotationValue(AnnotationMirror mirror) {
         List<String> result = new ArrayList<>();
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry
@@ -324,7 +324,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param fqn 全限定名或二进制名
     * @return 简单名
-     */
+    */
     private String simpleName(String fqn) {
         int lastDot = fqn.lastIndexOf('.');
         int lastDollar = fqn.lastIndexOf('$');
@@ -337,7 +337,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param fqn 全限定名
     * @return true 表示为 JDK 内置类型
-     */
+    */
     private boolean isJdkType(String fqn) {
         return fqn.startsWith("java.") || fqn.startsWith("javax.")
                 || fqn.startsWith("jdk.") || fqn.startsWith("sun.")
@@ -351,7 +351,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * 先读取已存在的索引文件内容（不存在则忽略），再追加本次生成的新条目并自动去重
     * （相同行只保留一份），保证不破坏手动维护的既有配置。
     * </p>
-     */
+    */
     private void generateIndexFiles() {
         Filer filer = processingEnv.getFiler();
         for (Map.Entry<String, SortedSet<String>> entry : index.entrySet()) {
@@ -379,7 +379,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * 注解派生名的行——运行时读取类注解后这些行别名会被忽略，且与新的发现行叠加会造成重复注册。</p>
     *
     * @param merged 已合并的配置行集合（原地清理）
-     */
+    */
     private void pruneStaleAliasLines(Set<String> merged) {
         if (annotationDerivedAliases.isEmpty()) {
             return;
@@ -403,7 +403,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
     * @param merged   目标集合（保留原有行顺序）
     * @return true 表示文件已存在并读取成功；false 表示文件不存在
-     */
+    */
     private boolean readExisting(Filer filer, String fileName, Set<String> merged) {
         try {
             FileObject existing = filer.getResource(StandardLocation.CLASS_OUTPUT, "", fileName);
@@ -430,7 +430,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * @param fileName 索引文件路径（{@code META-INF/extensions/...}）
     * @param lines    合并后的配置行集合
     * @param exists   文件是否已存在（仅用于提示语）
-     */
+    */
     private void writeIndexFile(Filer filer, String fileName, Set<String> lines, boolean exists) {
         try {
             FileObject fileObject = filer.createResource(StandardLocation.CLASS_OUTPUT, "", fileName);
@@ -467,7 +467,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     * @param fileObject 文件对象
     * @param lines      配置行集合
     * @throws IOException 写入失败
-     */
+    */
     private void writeLines(FileObject fileObject, Set<String> lines) throws IOException {
         try (OutputStream output = fileObject.openOutputStream()) {
             StringBuilder sb = new StringBuilder();
@@ -483,7 +483,7 @@ public final class AutoSpiAstProcessor extends AbstractProcessor {
     *
     * @param message 警告信息
     * @param element 关联元素
-     */
+    */
     private void warn(String message, Element element) {
         messager.printMessage(Diagnostic.Kind.WARNING, message, element);
     }

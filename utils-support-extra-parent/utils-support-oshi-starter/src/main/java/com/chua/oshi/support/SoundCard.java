@@ -13,16 +13,16 @@ public class SoundCard {
 
     /**
     * 声卡名称。
-     */
+    */
     private String name;
 
     /**
     * 声卡厂商。
-     */
+    */
     private String vendor;
 
     /**
     * 驱动版本。
-     */
+    */
     private String driverVersion;
 }

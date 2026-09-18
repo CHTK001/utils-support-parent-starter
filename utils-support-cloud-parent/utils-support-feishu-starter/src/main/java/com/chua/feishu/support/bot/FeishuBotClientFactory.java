@@ -36,32 +36,32 @@ public class FeishuBotClientFactory implements BotClient.Factory {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class FeishuBuilder implements BotClient.Builder {
 
         /**
         * 应用 标识
-         */
+        */
         private String appId;
 
         /**
         * 应用密钥
-         */
+        */
         private String appSecret;
 
         /**
         * 基础 URL
-         */
+        */
         private String baseUrl;
 
         /**
         * 连接超时时间（毫秒）
-         */
+        */
         private long connectTimeoutMillis = 10_000;
 
         /**
         * 读取超时时间（毫秒）
-         */
+        */
         private long readTimeoutMillis = 30_000;
 
         @Override
@@ -88,7 +88,7 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             return this;
@@ -109,7 +109,7 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
@@ -123,7 +123,7 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -136,7 +136,7 @@ public class FeishuBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             return this;

@@ -59,7 +59,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     * RAR归档输入流适配器
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class RarArchiveInputStreamAdapter implements ArchiveInputStream {
         /** Archive */
         private final Archive archive;
@@ -91,7 +91,7 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
         * 获取下一个entry
         *
         * @return 获取下一个entry的结果
-         */
+        */
         public ArchiveEntry getNextEntry() throws IOException {
             // 关闭当前条目流
             if (currentEntryStream != null) {
@@ -224,10 +224,10 @@ public class RarCompressArchiveInputStream implements CompressArchiveInputStream
     }
 
     /**
-    * RAR归档条目适配器
-    * @author CH
-    * @since 4.0.0
-     */
+        * RAR归档条目适配器
+        * @author CH
+        * @since 4.0.0
+        */
     private static class RarArchiveEntryAdapter implements ArchiveEntry {
         /** 文件头部 */
         private final FileHeader fileHeader;

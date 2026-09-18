@@ -22,7 +22,7 @@ public interface TextTranslator {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static TextTranslator create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(TextTranslator.class)
                 .getNewExtension(provider, apiKey);
@@ -33,7 +33,7 @@ public interface TextTranslator {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default TextTranslator provider(String provider) {
         return this;
     }
@@ -43,7 +43,7 @@ public interface TextTranslator {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default TextTranslator model(String model) {
         return this;
     }
@@ -54,7 +54,7 @@ public interface TextTranslator {
     *
     * @param name 模型名称
     * @return 翻译器
-     */
+    */
     static TextTranslator create(String name) {
         return new DefaultTextTranslator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +66,7 @@ public interface TextTranslator {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.nlp.TextTranslator.class);
     }
@@ -78,7 +78,7 @@ public interface TextTranslator {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 翻译器
-     */
+    */
     static TextTranslator create(String name, ModelSetting setting) {
         return new DefaultTextTranslator(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -88,7 +88,7 @@ public interface TextTranslator {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default TextTranslator modelPath(String path) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface TextTranslator {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default TextTranslator device(String device) {
         return this;
     }
@@ -108,7 +108,7 @@ public interface TextTranslator {
     *
     * @param text 源文本
     * @return 译文
-     */
+    */
     String translate(String text);
 }
 
@@ -122,29 +122,29 @@ class DefaultTextTranslator implements TextTranslator {
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = "cpu";
 
     DefaultTextTranslator(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -180,7 +180,7 @@ class DefaultTextTranslator implements TextTranslator {
     *
     * @param text 文本
     * @return translate的结果
-     */
+    */
     public String translate(String text) {
         ITranslator<String, String> t =
                 (ITranslator<String, String>) engine.get(modelName, ITranslator.class);

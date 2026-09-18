@@ -16,39 +16,39 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
 
     /**
     * 默认人脸检测模型路径
-     */
+    */
     private static final String FACE_MODEL_PATH = "models/opencv/haarcascade_frontalface_default.xml";
 
     /**
     * 清晰度检测模型名称
-     */
+    */
     private String modelName;
 
     /**
     * 模糊度阈值
-     */
+    */
     private double blurThreshold = 80.0;
 
     /**
     * 最小人脸面积比
-     */
+    */
     private float minFaceRatio = 0.05f;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备
-     */
+    */
     private String device = "cpu";
 
     /**
     * SPI 构造函数。
     *
     * @param apiKey API 密钥（本地引擎忽略）
-     */
+    */
     public OpencvFaceClarityDetector(String apiKey) {
     }
 
@@ -63,7 +63,7 @@ public class OpencvFaceClarityDetector implements FaceClarityDetector {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "opencv-face-quality";
     }

@@ -37,7 +37,7 @@ public class QrCodeRenderUtils {
     * @param qrImg
     * @param logoOptions
     * @return
-     */
+    */
     public static BufferedImage drawLogo(BufferedImage qrImg, QrCodeOptions.LogoOptions logoOptions) {
         final int qrWidth = qrImg.getWidth();
         final int qrHeight = qrImg.getHeight();
@@ -109,7 +109,7 @@ public class QrCodeRenderUtils {
     * @param qrImg
     * @param frontImgOptions
     * @return
-     */
+    */
     public static BufferedImage drawFrontImg(BufferedImage qrImg, QrCodeOptions.FrontImgOptions frontImgOptions) {
         final int qrWidth = qrImg.getWidth();
         final int qrHeight = qrImg.getHeight();
@@ -144,7 +144,7 @@ public class QrCodeRenderUtils {
     * drawfrontgifimg
     * @param qrImg qrimg
     * @param frontImgOptions frontimg期权
-     */
+    */
     public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawFrontGifImg(BufferedImage qrImg,
                                                                                         QrCodeOptions.FrontImgOptions frontImgOptions) {
         final int qrWidth = qrImg.getWidth();
@@ -189,7 +189,7 @@ public class QrCodeRenderUtils {
     * @param qrImg        二维码图
     * @param bgImgOptions 背景图信息
     * @return
-     */
+    */
     public static BufferedImage drawBackground(BufferedImage qrImg, QrCodeOptions.BgImgOptions bgImgOptions) {
         final int qrWidth = qrImg.getWidth();
         final int qrHeight = qrImg.getHeight();
@@ -245,7 +245,7 @@ public class QrCodeRenderUtils {
     * @param qrImg
     * @param bgImgOptions
     * @return
-     */
+    */
     public static java.util.List<ImmutablePair<BufferedImage, Integer>> drawGifBackground(BufferedImage qrImg,
                                                                                           QrCodeOptions.BgImgOptions bgImgOptions) {
         final int qrWidth = qrImg.getWidth();
@@ -310,7 +310,7 @@ public class QrCodeRenderUtils {
     * @param bitMatrix 二维码的位矩阵表示，编码阶段生成的矩阵
     * @param setting 二维码的绘制设置，包含边框大小、颜色等绘制细节
     * @return BufferedImage 表示生成的二维码图片
-     */
+    */
     public static BufferedImage drawQrInfo(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrSetting setting) {
         int qrWidth = bitMatrix.getWidth();
         int qrHeight = bitMatrix.getHeight();
@@ -380,7 +380,7 @@ public class QrCodeRenderUtils {
     * @param bitMatrix 钻头matrix
     * @param drawOptions draw期权
     * @param setting setting
-     */
+    */
     private static void doRegisterDrawStyle(Graphics2D g2,
                                             Color detectInnerColor,
                                             Color detectOutColor,
@@ -405,7 +405,7 @@ public class QrCodeRenderUtils {
     * @param qrCodeConfig qr编码配置
     * @param bitMatrix 钻头matrix
     * @param qrCode qr编码
-     */
+    */
     private static BufferedImage scaleQr2RealSize(QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix,
                                                   BufferedImage qrCode) {
         // 矩阵对应的宽高
@@ -418,7 +418,7 @@ public class QrCodeRenderUtils {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
         int realQrCodeWidth = qrCodeConfig.getW();
         int realQrCodeHeight = qrCodeConfig.getH();
         if (qrCodeWidth != realQrCodeWidth || qrCodeHeight != realQrCodeHeight) {
@@ -431,15 +431,15 @@ public class QrCodeRenderUtils {
     public enum DetectLocation {
         /**
         * 左上角
-         */
+        */
         LT,
         /**
         * 左下角
-         */
+        */
         LD,
         /**
         * 右上角
-         */
+        */
         RT,
         NONE {
             @Override
@@ -452,10 +452,10 @@ public class QrCodeRenderUtils {
         };
 
         /**
-        * detectedarea
-        *
-        * @return detectedArea的结果
-         */
+            * detectedarea
+            *
+            * @return detectedArea的结果
+            */
         public boolean detectedArea() {
             return true;
         }
@@ -470,7 +470,7 @@ public class QrCodeRenderUtils {
     * @param matrixH          二维码矩阵高
     * @param detectCornerSize 探测图形的大小
     * @return
-     */
+    */
     public static QrCodeRenderHelper.DetectLocation inDetectCornerArea(int x, int y, int matrixW, int matrixH, int detectCornerSize) {
         if (x < detectCornerSize && y < detectCornerSize) {
             // 左上角
@@ -499,7 +499,7 @@ public class QrCodeRenderUtils {
     * @param matrixH          二维码矩阵高
     * @param detectCornerSize 探测图形的大小
     * @return
-     */
+    */
     public static boolean inOuterDetectCornerArea(int x, int y, int matrixW, int matrixH, int detectCornerSize) {
         // 外层的框
         return x == 0 || x == detectCornerSize - 1 || x == matrixW - 1 || x == matrixW - detectCornerSize || y == 0 ||
@@ -523,7 +523,7 @@ public class QrCodeRenderUtils {
     * @param y                目标点y坐标
     * @param detectOutColor   探测图形外边圈的颜色
     * @param detectInnerColor 探测图形内部圈的颜色
-     */
+    */
     public static void drawDetectImg(QrCodeOptions qrCodeConfig, Graphics2D g2, BitMatrixEx bitMatrix, int matrixW,
                                      int matrixH, int leftPadding, int topPadding, int infoSize, int detectCornerSize, int x, int y,
                                      Color detectOutColor, Color detectInnerColor, QrCodeRenderHelper.DetectLocation detectLocation) {
@@ -564,7 +564,7 @@ public class QrCodeRenderUtils {
     * @param infoSize 信息大小
     * @param x x
     * @param y y
-     */
+    */
     public static void drawQrDotBgImg(QrCodeOptions qrCodeConfig, Graphics2D g2, int leftPadding, int topPadding,
                                       int infoSize, int x, int y) {
         // 如果没有指定二维码中0点对应的背景图，则不做任何处理
@@ -591,7 +591,7 @@ public class QrCodeRenderUtils {
     * @param infoSize     二维码矩阵中一个点对应的像素大小
     * @param x            目标点x坐标
     * @param y            目标点y坐标
-     */
+    */
     public static void drawQrDotImg(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle, Graphics2D g2,
                                     BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
 
@@ -614,7 +614,7 @@ public class QrCodeRenderUtils {
     * @param infoSize     二维码矩阵中一个点对应的像素大小
     * @param x            目标点x坐标
     * @param y            目标点y坐标
-     */
+    */
     public static void drawGeometricFigure(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle,
                                            Graphics2D g2, BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
         if (!qrCodeConfig.getDrawOptions().isEnableScale()) {
@@ -662,7 +662,7 @@ public class QrCodeRenderUtils {
     * @param infoSize     二维码矩阵中一个点对应的像素大小
     * @param x            目标点x坐标
     * @param y            目标点y坐标
-     */
+    */
     public static void drawSpecialImg(QrCodeOptions qrCodeConfig, QrCodeOptions.DrawStyle drawStyle, Graphics2D g2,
                                       BitMatrixEx bitMatrix, int leftPadding, int topPadding, int infoSize, int x, int y) {
         // 针对图片扩展的方式，支持更加灵活的填充方式
@@ -700,7 +700,7 @@ public class QrCodeRenderUtils {
     * @param x         起始点x
     * @param y         起始点y
     * @return
-     */
+    */
     public static int getMaxRow(ByteMatrix bitMatrix, int x, int y) {
         int cnt = 1;
         while (++y < bitMatrix.getHeight()) {
@@ -719,7 +719,7 @@ public class QrCodeRenderUtils {
     * @param x         起始点x
     * @param y         起始点y
     * @return
-     */
+    */
     public static int getMaxCol(ByteMatrix bitMatrix, int x, int y) {
         int cnt = 1;
         while (++x < bitMatrix.getWidth()) {
@@ -740,7 +740,7 @@ public class QrCodeRenderUtils {
     * @param maxRow 最大row
     * @param maxCol 最大col
     * @return 获取可用大小的结果
-     */
+    */
     public static java.util.List<DotSize> getAvailableSize(ByteMatrix bitMatrix, int x, int y, int maxRow, int maxCol) {
         if (maxRow == 1) {
             return Collections.singletonList(DotSize.create(1, maxCol));

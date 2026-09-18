@@ -27,7 +27,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
 
     /**
     * 客户端实例
-     */
+    */
     private final OkHttpClient client;
 
     /** 创建 okhttp执行器 实例 */
@@ -107,7 +107,7 @@ public class OkHttpExecutor implements HttpClientExecutor {
     *
     * @param okResp okresp
     * @return 转为客户端响应的结果
-     */
+    */
     private ClientResponse toClientResponse(Response okResp) throws IOException {
         ClientResponse resp = new ClientResponse();
         resp.setStatusCode(okResp.code());

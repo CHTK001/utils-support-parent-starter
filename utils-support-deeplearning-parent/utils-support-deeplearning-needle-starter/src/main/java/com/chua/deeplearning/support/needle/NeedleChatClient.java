@@ -51,29 +51,29 @@ public class NeedleChatClient implements ChatClient {
 
     /**
     * 默认最大生成 令牌 数
-     */
+    */
     private static final int DEFAULT_MAX_TOKENS = 256;
 
     /**
     * 系统提示词（环境事实）
-     */
+    */
     private String system;
 
     /**
     * 当前模型名称
-     */
+    */
     private String model;
 
     /**
     * 最大生成 令牌 数
-     */
+    */
     private int maxTokens = DEFAULT_MAX_TOKENS;
 
     /**
     * 构造 Needle 对话客户端。
     *
     * @param setting 客户端配置（可为 空）
-     */
+    */
     public NeedleChatClient(ChatClientSetting setting) {
         if (setting != null) {
             this.model = setting.getModel();
@@ -119,7 +119,7 @@ public class NeedleChatClient implements ChatClient {
     * @param prompt 提示符
     * @param timeoutMillis 超时millis
     * @return 对话同步的结果
-     */
+    */
     public String chatSync(String prompt, long timeoutMillis) {
         NeedleNative.init(system, "[]", null);
         String raw = NeedleNative.complete(prompt, maxTokens);
@@ -165,7 +165,7 @@ public class NeedleChatClient implements ChatClient {
     *
     * @param raw 引擎原始输出
     * @return 用户可读的文本响应
-     */
+    */
     @SuppressWarnings("unchecked")
     private String extractText(String raw) {
         if (raw == null || raw.isBlank()) {

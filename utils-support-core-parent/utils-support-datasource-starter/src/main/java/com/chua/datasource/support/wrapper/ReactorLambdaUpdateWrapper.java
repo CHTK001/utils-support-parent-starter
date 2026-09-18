@@ -35,12 +35,12 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
 
     /**
     * 底层同步引擎
-     */
+    */
     private final Engine engine;
 
     /**
     * 设置 值映射：列名 → 新值
-     */
+    */
     private final Map<String, Object> setValues = new LinkedHashMap<>();
 
     /**
@@ -48,7 +48,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     *
     * @param engine      底层引擎
     * @param entityClass 实体类
-     */
+    */
     public ReactorLambdaUpdateWrapper(Engine engine, Class<T> entityClass) {
         super(entityClass);
         this.engine = engine;
@@ -59,7 +59,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * @param column column
     * @param value 值
     * @return 设置的结果
-     */
+    */
     public ReactorLambdaUpdateWrapper<T> set(SFunction<T, ?> column, Object value) {
         setValues.put(resolveColumn(column), value);
         return this;
@@ -70,7 +70,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * @param column column
     * @param value 值
     * @return 设置的结果
-     */
+    */
     public ReactorLambdaUpdateWrapper<T> set(String column, Object value) {
         setValues.put(column, value);
         return this;
@@ -80,7 +80,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * 获取 设置 值映射。
     *
     * @return SET 值映射（列名 → 新值）
-     */
+    */
     public Map<String, Object> getSetValues() {
         return setValues;
     }
@@ -88,7 +88,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     /**
     * 构建更新 SQL 信息。
     * @return 构建sql的结果
-     */
+    */
     public UpdateSql<T> buildSql() {
         List<Object> params = new ArrayList<>();
         StringBuilder setSb = new StringBuilder();
@@ -108,7 +108,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * 执行更新操作，返回受影响行数的 Mono。
     *
     * @return 受影响行数 Mono
-     */
+    */
     public Mono<Integer> update() {
         return Mono.fromCallable(this::doUpdate)
                 .subscribeOn(Schedulers.boundedElastic());
@@ -117,7 +117,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     /**
     * 同步执行更新（内部使用）。
     * @return 执行更新的结果
-     */
+    */
     private int doUpdate() {
         UpdateSql<T> sql = buildSql();
         String tableName = com.chua.datasource.support.engine.AbstractEngine.resolveTableName(entityClass);
@@ -145,7 +145,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * 构建 WHERE 子句和参数列表。
     * @param sb sb
     * @param params 参数
-     */
+    */
     protected void buildWhere(StringBuilder sb, List<Object> params) {
         for (int i = 0; i < conditions.size(); i++) {
             if (i > 0) {
@@ -160,7 +160,7 @@ public class ReactorLambdaUpdateWrapper<T> extends AbstractLambdaWrapper<T, Reac
     * @param sb sb
     * @param params 参数
     * @param c c
-     */
+    */
     protected void renderCondition(StringBuilder sb, List<Object> params, Condition c) {
         if (c.isNested()) {
             sb.append("(");

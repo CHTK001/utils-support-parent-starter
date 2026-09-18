@@ -22,7 +22,7 @@ public class EnglishNameMockString implements MockString {
 
     /**
     * 英文名池
-     */
+    */
     private static final String[] FIRST_NAMES = {
             "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph",
             "Thomas", "Charles", "Olivia", "Emma", "Ava", "Sophia", "Isabella", "Mia",
@@ -32,7 +32,7 @@ public class EnglishNameMockString implements MockString {
     * 英文姓氏池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] LAST_NAMES = {
             "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
             "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson"

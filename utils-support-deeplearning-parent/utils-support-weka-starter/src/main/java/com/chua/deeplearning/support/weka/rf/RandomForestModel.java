@@ -68,7 +68,7 @@ public final class RandomForestModel implements Serializable {
     * @param forest forest
     * @param options 期权
     * @param domain domain
-     */
+    */
     private RandomForestModel(RandomForest forest, RandomForestOptions options, ModelDomain domain) {
         this.forest = forest;
         this.options = options;
@@ -82,7 +82,7 @@ public final class RandomForestModel implements Serializable {
     * @param options 训练参数，不能为 空
     * @param domain  建模域快照，不能为 空
     * @return 模型实例
-     */
+    */
     public static RandomForestModel create(RandomForestOptions options, ModelDomain domain) {
         Objects.requireNonNull(options, "options must not be null");
         Objects.requireNonNull(domain, "domain must not be null");
@@ -108,7 +108,7 @@ public final class RandomForestModel implements Serializable {
     *
     * @param trainingData 训练实例，不能为 空
     * @throws WekaException 训练失败
-     */
+    */
     public void train(Instances trainingData) {
         Objects.requireNonNull(trainingData, "trainingData must not be null");
         try {
@@ -123,7 +123,7 @@ public final class RandomForestModel implements Serializable {
     *
     * @param rows 预测数据行，不能为 空
     * @return 实例容器
-     */
+    */
     public Instances instancesFor(List<Map<String, Object>> rows) {
         Objects.requireNonNull(rows, "rows must not be null");
         var attrs = new ArrayList<Attribute>(domain.features().size() + 1);
@@ -155,7 +155,7 @@ public final class RandomForestModel implements Serializable {
     * @param instance 预测实例，不能为 空
     * @return 分类场景为标签索引，回归场景为预测值
     * @throws WekaException 预测失败
-     */
+    */
     public double predictRaw(Instance instance) {
         Objects.requireNonNull(instance, "instance must not be null");
         try {
@@ -171,7 +171,7 @@ public final class RandomForestModel implements Serializable {
     * @param instance 预测实例，不能为 空
     * @return 类别概率分布；回归场景无分布，返回 {@link Optional#empty()}
     * @throws WekaException 预测失败
-     */
+    */
     public Optional<double[]> predictDistribution(Instance instance) {
         Objects.requireNonNull(instance, "instance must not be null");
         try {
@@ -187,7 +187,7 @@ public final class RandomForestModel implements Serializable {
     * @param trainingData 训练实例，不能为 空
     * @return 按重要性降序排列的重要性列表
     * @throws WekaException 计算失败
-     */
+    */
     public List<FeatureImportance> featureImportances(Instances trainingData) {
         Objects.requireNonNull(trainingData, "trainingData must not be null");
         double[] raw;
@@ -221,7 +221,7 @@ public final class RandomForestModel implements Serializable {
     *
     * @param file 目标文件，不能为 空
     * @throws WekaException 写入失败
-     */
+    */
     public void save(Path file) {
         Objects.requireNonNull(file, "file must not be null");
         try (var oos = new ObjectOutputStream(new FileOutputStream(file.toFile()))) {
@@ -237,7 +237,7 @@ public final class RandomForestModel implements Serializable {
     * @param file 模型文件，不能为 空
     * @return 模型实例
     * @throws WekaException 读取失败或文件不是本模块序列化的模型
-     */
+    */
     public static RandomForestModel load(Path file) {
         Objects.requireNonNull(file, "file must not be null");
         try (var ois = new ObjectInputStream(new FileInputStream(file.toFile()))) {

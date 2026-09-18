@@ -35,7 +35,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     * @param dimension  向量维度
     * @param algorithm  比较算法
     * @param properties 存储配置属性
-     */
+    */
     public CuvsVectorStorage(int dimension, VectorCompareAlgorithm algorithm,
                               VectorStorageProperties properties) {
         super(dimension, algorithm);
@@ -47,7 +47,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     * 根据索引类型创建对应的策略实例。
     *
     * @return 索引策略实例
-     */
+    */
     private IndexStrategy createStrategy() {
         return switch (properties.indexType()) {
             case BRUTE_FORCE -> new BruteForceStrategy();
@@ -95,7 +95,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     * 内部策略接口，统一 添加/搜索/关闭 等操作。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private interface IndexStrategy {
         boolean add(String id, float[] vector);
         List<Vector> search(float[] query, int topK);
@@ -112,7 +112,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     private class BruteForceStrategy implements IndexStrategy {
         private final List<float[]> vectors = new ArrayList<>(); // 向量
@@ -189,7 +189,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     private class CagraStrategy implements IndexStrategy {
         private Object index; // 索引
@@ -249,7 +249,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         * @param query 查询向量
         * @param topK  返回数量
         * @return 排序后的向量列表
-         */
+        */
         private List<Vector> fallbackSearch(float[] query, int topK) {
             if (rawVectors.isEmpty()) {
                 return List.of();
@@ -269,7 +269,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
         /**
         * 确保 GPU 索引已构建（线程安全，单例缓存）。
-         */
+        */
         private synchronized void ensureIndexBuilt() {
             if (indexBuilt || index != null || rawVectors.isEmpty() || building) {
                 return;
@@ -304,7 +304,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
 
         /**
         * 释放 GPU 资源。
-         */
+        */
         private void releaseResources() {
             if (resources != null) {
                 try {
@@ -317,10 +317,10 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         }
 
         /**
-         * 根据算法映射 cuvs 距离类型。
-         *
-         * @return cuVS 距离类型枚举值
-         */
+        * 根据算法映射 cuvs 距离类型。
+        *
+        * @return cuVS 距离类型枚举值
+        */
         @SuppressWarnings("unchecked")
         private Object cuvsDistanceType() throws Exception {
             VectorCompareAlgorithm algo = getAlgorithm();
@@ -404,7 +404,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     * @param constants 常量
     * @param name 名称
     * @return findenumby名称的结果
-     */
+    */
 
     private class HnswStrategy implements IndexStrategy {
         private Object index; // 索引
@@ -417,7 +417,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         * @param id 标识
         * @param vector 向量
         * @return 添加的结果
-         */
+        */
         private volatile boolean building = false;
 
         @Override
@@ -435,7 +435,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
         * @param query 查询
         * @param topK topk
         * @return 搜索的结果
-         */
+        */
         }
 
         @Override
@@ -472,7 +472,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             * @param query 查询
             * @param topK topk
             * @return 降级搜索的结果
-             */
+            */
             }
         }
 
@@ -492,7 +492,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
                     (Double) b.metadata().get("score")));
             /**
             * ensure索引built。
-             */
+            */
             return all.subList(0, Math.min(topK, all.size()));
         }
 
@@ -527,7 +527,7 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
             * @param constants 常量
             * @param name 名称
             * @return findenumby名称的结果
-             */
+            */
             }
         }
 
@@ -617,13 +617,13 @@ public class CuvsVectorStorage extends AbstractVectorStorage {
     }
 
     /**
-     * 两阶段重排序：先用 cuvs 原生算法粗筛 topk×5，再用自定义算法精排取 topk。
-     *
-     * @param candidates 候选向量
-     * @param query 查询向量
-     * @param topK 取 topK
-     * @return 重排序结果
-     */
+    * 两阶段重排序：先用 cuvs 原生算法粗筛 topk×5，再用自定义算法精排取 topk。
+    *
+    * @param candidates 候选向量
+    * @param query 查询向量
+    * @param topK 取 topK
+    * @return 重排序结果
+    */
     private List<Vector> reRank(List<Vector> candidates, float[] query, int topK) {
         var algo = getAlgorithm();
         if (algo == null || candidates.size() <= topK) {

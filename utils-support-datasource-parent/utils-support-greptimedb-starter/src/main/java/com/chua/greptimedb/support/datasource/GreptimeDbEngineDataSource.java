@@ -17,32 +17,32 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
 
     /**
     * 数据源名称
-     */
+    */
     private final String name;
 
     /**
     * 底层 gRPC 客户端
-     */
+    */
     private GreptimeDB source;
 
     /**
     * 连接端点
-     */
+    */
     private final String url;
 
     /**
     * 用户名
-     */
+    */
     private final String username;
 
     /**
     * 密码
-     */
+    */
     private final String password;
 
     /**
     * 数据库名
-     */
+    */
     private final String database;
 
     /**
@@ -54,7 +54,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     * @param password 密码
     * @param database 数据库名
     * @param source   greptimedb 客户端
-     */
+    */
     public GreptimeDbEngineDataSource(String name, String url, String username,
                                        String password, String database, GreptimeDB source) {
         this.name = name;
@@ -83,7 +83,7 @@ public class GreptimeDbEngineDataSource implements EngineDataSource<GreptimeDB> 
     *
     * @param source 源
     * @return 设置源的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     public EngineDataSource<GreptimeDB> setSource(Object source) {
         if (source instanceof GreptimeDB client) {

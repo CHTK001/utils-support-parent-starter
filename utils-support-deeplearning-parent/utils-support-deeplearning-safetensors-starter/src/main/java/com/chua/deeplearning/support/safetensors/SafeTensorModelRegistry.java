@@ -32,20 +32,20 @@ public final class SafeTensorModelRegistry {
     * @author CH
     * @param description 模型描述
     * @return 模型entry的结果
-     */
+    */
     public record ModelEntry(String id, String type, String source, String description) {
     }
 
     /**
     * 所有注册模型的不可变列表。
-     */
+    */
     private static final List<ModelEntry> ALL_MODELS = buildRegistry();
 
     /**
     * 获取所有注册的模型。
     *
     * @return 模型列表
-     */
+    */
     public static List<ModelEntry> allModels() {
         return ALL_MODELS;
     }
@@ -55,7 +55,7 @@ public final class SafeTensorModelRegistry {
     *
     * @param type 模型类型
     * @return 匹配的模型列表
-     */
+    */
     public static List<ModelEntry> byType(String type) {
         return ALL_MODELS.stream().filter(e -> e.type.equals(type)).toList();
     }
@@ -65,7 +65,7 @@ public final class SafeTensorModelRegistry {
     *
     * @param id 模型标识
     * @return 匹配的模型条目
-     */
+    */
     public static Optional<ModelEntry> byId(String id) {
         return ALL_MODELS.stream().filter(e -> e.id.equals(id)).findFirst();
     }
@@ -74,7 +74,7 @@ public final class SafeTensorModelRegistry {
     * 获取所有不重复的模型类型。
     *
     * @return 类型集
-     */
+    */
     public static Set<String> allTypes() {
         Set<String> types = new LinkedHashSet<>();
         for (ModelEntry e : ALL_MODELS) {
@@ -88,7 +88,7 @@ public final class SafeTensorModelRegistry {
     *
     * @param modelId 模型 标识
     * @return 模型类型，未找到时返回 "llm"
-     */
+    */
     public static String resolveType(String modelId) {
         if (modelId == null) {
             return "llm";
@@ -101,7 +101,7 @@ public final class SafeTensorModelRegistry {
     *
     * @param name 名称
     * @return guess类型的结果
-     */
+    */
     private static String guessType(String name) {
         if (name.contains("qwen") || name.contains("llama") || name.contains("minimind") || name.contains("phi")) {
             if (name.contains("minimind-3v")) {
@@ -167,7 +167,7 @@ public final class SafeTensorModelRegistry {
     * 构建Registry
     *
     * @return 构建registry的结果
-     */
+    */
     private static List<ModelEntry> buildRegistry() {
         List<ModelEntry> list = new ArrayList<>();
 

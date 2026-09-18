@@ -32,12 +32,12 @@ public class WebviewNativeWindow implements WebViewWindow {
 
     /**
     * 底层 Webview 实例。
-     */
+    */
     private Webview webview;
 
     /**
     * 运行事件循环的线程。
-     */
+    */
     private Thread runThread;
 
     /**
@@ -47,7 +47,7 @@ public class WebviewNativeWindow implements WebViewWindow {
     * @param title  窗口标题
     * @param width  窗口宽度
     * @param height 窗口高度
-     */
+    */
     @Override
     public void open(String url, String title, int width, int height) {
         try {
@@ -68,7 +68,7 @@ public class WebviewNativeWindow implements WebViewWindow {
 
     /**
     * 关闭 webview 窗口并释放资源。
-     */
+    */
     @Override
     public void close() {
         if (this.webview != null) {

@@ -35,43 +35,43 @@ public class PdfWriteBuilder extends WriteBuilder {
 
     /**
     * PDF 文档标题
-     */
+    */
     private String title;
 
     /**
     * PDF 文档作者
-     */
+    */
     private String author;
 
     /**
     * 模板文件流
-     */
+    */
     private InputStream templateStream;
 
     /**
     * 字体大小，默认 12
-     */
+    */
     private float fontSize = 12;
 
     /**
     * 左边距，默认 50
-     */
+    */
     private float leftMargin = 50;
 
     /**
     * 顶部起始位置，默认 750
-     */
+    */
     private float topMargin = 750;
 
     /**
     * 行间距，默认 16
-     */
+    */
     private float lineSpacing = 16;
 
     /**
     * 创建 pdf写入构建器 实例
     * @param file 文件
-     */
+    */
     public PdfWriteBuilder(File file) {
         super(file);
     }
@@ -81,7 +81,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param title 文档标题
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder title(String title) {
         this.title = title;
         return this;
@@ -92,7 +92,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param author 文档作者
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder author(String author) {
         this.author = author;
         return this;
@@ -103,7 +103,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param size 字体大小
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder fontSize(float size) {
         this.fontSize = size;
         return this;
@@ -114,7 +114,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param margin 左边距
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder leftMargin(float margin) {
         this.leftMargin = margin;
         return this;
@@ -125,7 +125,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param margin 顶部起始位置
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder topMargin(float margin) {
         this.topMargin = margin;
         return this;
@@ -136,7 +136,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param spacing 行间距
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder lineSpacing(float spacing) {
         this.lineSpacing = spacing;
         return this;
@@ -147,7 +147,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param stream 模板文件流
     * @return 当前构建器
-     */
+    */
     public PdfWriteBuilder withTemplate(InputStream stream) {
         this.templateStream = stream;
         return this;
@@ -158,7 +158,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param lines 文本行列表
     * @return 写入的结果
-     */
+    */
     public PdfWriteBuilder write(List<String> lines) {
         pending.add(lines);
         return this;
@@ -176,7 +176,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     *
     * @param rows 映射 数据列表
     * @return 写入映射的结果
-     */
+    */
     public PdfWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
         return this;
@@ -186,7 +186,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     * 实时写入文本行。
     *
     * @param lines 文本行列表
-     */
+    */
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
@@ -203,7 +203,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     * 实时写入 映射 数据。
     *
     * @param rows 映射 数据列表
-     */
+    */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
@@ -275,7 +275,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     * 设置Metadata
     *
     * @param doc doc
-     */
+    */
     private void setMetadata(PDDocument doc) {
         PDDocumentInformation info = new PDDocumentInformation();
         if (title != null) {
@@ -291,7 +291,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     * 执行写入文本
     *
     * @param lines 线
-     */
+    */
     private void doWriteText(List<String> lines) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);
@@ -321,7 +321,7 @@ public class PdfWriteBuilder extends WriteBuilder {
     * 执行写入映射
     *
     * @param rows rows
-     */
+    */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (PDDocument doc = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.A4);

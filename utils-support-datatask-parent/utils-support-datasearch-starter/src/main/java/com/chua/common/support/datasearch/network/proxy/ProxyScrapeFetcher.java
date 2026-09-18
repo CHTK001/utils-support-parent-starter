@@ -20,7 +20,7 @@ public class ProxyScrapeFetcher implements ProxyFetcher {
 
     /**
     * 代理scrape API URL（HTTP Elite 代理）
-     */
+    */
     private static final String URL = "https://api.proxyscrape.com/v4/free-proxy-list/get"
             + "?request=displayproxies&protocol=http&anonymity=elite&proxy_format=protocolipport&format=json";
 

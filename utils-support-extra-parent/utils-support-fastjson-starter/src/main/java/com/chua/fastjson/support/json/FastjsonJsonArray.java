@@ -18,7 +18,7 @@ public class FastjsonJsonArray extends JsonArray {
 
     /**
     * 默认构造函数，创建一个新的空 fastjsonjsonarray。
-     */
+    */
     public FastjsonJsonArray() {
     }
 
@@ -26,7 +26,7 @@ public class FastjsonJsonArray extends JsonArray {
     * 从 集合 构造 fastjsonjsonarray，将集合中的所有元素添加到当前数组中。
     *
     * @param collection 源 集合
-     */
+    */
     public FastjsonJsonArray(Collection collection) {
         super(collection);
     }

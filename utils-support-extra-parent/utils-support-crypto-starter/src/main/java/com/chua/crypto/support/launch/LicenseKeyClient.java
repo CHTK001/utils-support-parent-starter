@@ -36,22 +36,22 @@ public final class LicenseKeyClient {
 
     /**
     * 签名响应版本前缀
-     */
+    */
     public static final String SIGNED_PREFIX = "v1.";
 
     /**
     * 指纹字段的合法形态：64 位十六进制
-     */
+    */
     private static final Pattern FINGERPRINT_PATTERN = Pattern.compile("\"fingerprint\"\\s*:\\s*\"([0-9a-fA-F]{64})\"");
 
     /**
     * 最大重试次数（首次 + 2 次重试）
-     */
+    */
     private static final int MAX_ATTEMPTS = 3;
 
     /**
     * 私有构造
-     */
+    */
     private LicenseKeyClient() {
     }
 
@@ -64,7 +64,7 @@ public final class LicenseKeyClient {
     * @param secret      响应签名密钥（可为 空；生产环境必须配置并与服务端一致）
     * @return 封装块字节（交由 unwrapmaster 解封）
     * @throws IllegalStateException 未注册/签名校验失败/网络失败
-     */
+    */
     public static byte[] fetch(String licenseUrl, String appId, String fingerprint, char[] secret) {
         validateFingerprint(fingerprint);
         byte[] body = postWithRetry(licenseUrl, buildBody(appId, fingerprint));
@@ -77,7 +77,7 @@ public final class LicenseKeyClient {
     * @param appId       应用标识
     * @param fingerprint 指纹
     * @return JSON 字符串
-     */
+    */
     static String buildBody(String appId, String fingerprint) {
         return "{\"appId\":\"" + escape(appId) + "\",\"fingerprint\":\"" + fingerprint + "\"}";
     }
@@ -88,7 +88,7 @@ public final class LicenseKeyClient {
     * @param licenseUrl 地址
     * @param json       请求体
     * @return 成功响应体
-     */
+    */
     private static byte[] postWithRetry(String licenseUrl, String json) {
         IllegalStateException last = null;
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -132,7 +132,7 @@ public final class LicenseKeyClient {
     * @param body   响应体
     * @param secret 签名密钥（可空）
     * @return 封装块字节
-     */
+    */
     public static byte[] parseResponse(byte[] body, char[] secret) {
         if (body == null || body.length == 0) {
             throw new IllegalStateException("校验服务器响应为空");
@@ -164,7 +164,7 @@ public final class LicenseKeyClient {
     * 校验指纹形态，防止非法输入注入请求
     *
     * @param fingerprint 指纹
-     */
+    */
     static void validateFingerprint(String fingerprint) {
         if (fingerprint == null || !FINGERPRINT_PATTERN.matcher(
                 "{\"fingerprint\":\"" + fingerprint + "\"}").find()) {
@@ -178,7 +178,7 @@ public final class LicenseKeyClient {
     * @param secret 密钥
     * @param data   数据
     * @return 摘要
-     */
+    */
     private static byte[] hmac(char[] secret, byte[] data) {
         try {
             javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
@@ -194,7 +194,7 @@ public final class LicenseKeyClient {
     * 要求签名场景必须提供 secret
     *
     * @param secret secret
-     */
+    */
     private static void requireSecret(char[] secret) {
         if (secret == null || secret.length == 0) {
             throw new IllegalStateException("服务端返回签名响应，但未配置 chua.crypto.license-secret");
@@ -205,7 +205,7 @@ public final class LicenseKeyClient {
     * JSON 字符串转义
     * @param value 值
     * @return escape的结果
-     */
+    */
     private static String escape(String value) {
         return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
     }

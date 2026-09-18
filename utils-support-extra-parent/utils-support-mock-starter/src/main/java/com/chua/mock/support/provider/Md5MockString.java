@@ -26,7 +26,7 @@ public class Md5MockString implements MockString {
     * 随机内容长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int CONTENT_LENGTH = 16;
 
     @Override
@@ -47,7 +47,7 @@ public class Md5MockString implements MockString {
     *
     * @param bytes 字节数组
     * @return 十六进制字符串
-     */
+    */
     private static String hex(byte[] bytes) {
         StringBuilder builder = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {

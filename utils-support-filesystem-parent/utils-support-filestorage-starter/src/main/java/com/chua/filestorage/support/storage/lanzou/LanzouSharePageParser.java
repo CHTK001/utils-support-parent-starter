@@ -34,37 +34,37 @@ final class LanzouSharePageParser {
 
     /**
     * 二级 iframe 提取，无密码分享页使用。
-     */
+    */
     private static final Pattern IFRAME_PATTERN =
             Pattern.compile("<iframe[^>]*\\bsrc\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
 
     /**
     * AJAX 提交地址提取，蓝奏云固定为 /ajaxm.PHP。
-     */
+    */
     private static final Pattern AJAX_URL_PATTERN =
             Pattern.compile("url\\s*:\\s*['\"](/ajaxm\\.php[^'\"]*)['\"]");
 
     /**
     * AJAX 数据 块提取。
-     */
+    */
     private static final Pattern DATA_BLOCK_PATTERN =
             Pattern.compile("data\\s*:\\s*\\{([^{}]*?action[^{}]*?)}", Pattern.DOTALL);
 
     /**
     * 有密码形态下的 标志 提取（skdklds='...'）。
-     */
+    */
     private static final Pattern SIGN_PATTERN =
             Pattern.compile("skdklds\\s*=\\s*['\"]([^'\"]+)['\"]");
 
     /**
     * 数据 块内 键:值 提取（值可带引号或不带）。
-     */
+    */
     private static final Pattern KV_PATTERN =
             Pattern.compile("(\\w+)\\s*:\\s*['\"]?([^,'\"}]+?)['\"]?\\s*(?:,|})");
 
     /**
     * 页面内变量定义提取，用于还原随机变量名。
-     */
+    */
     private static final Pattern VAR_PATTERN =
             Pattern.compile("var\\s+(\\w+)\\s*=\\s*['\"]([^'\"]*)['\"]");
 
@@ -80,7 +80,7 @@ final class LanzouSharePageParser {
     * @param shareBaseUrl 分享页 URL（用于拼接相对地址与 Referer）
     * @param password     分享密码（公开分享传 空 或空串）
     * @return 直链信息
-     */
+    */
     static LanzouShareInfo parse(LanzouHttp http, String mainHtml, String shareBaseUrl, String password) {
         // 形态二：无密码，iframe 二级页
         String iframeSrc = matchFirst(IFRAME_PATTERN, mainHtml, 1);
@@ -111,7 +111,7 @@ final class LanzouSharePageParser {
     * @param iframeUrl iframeurl
     * @param password 密码
     * @return 解析iframe的结果
-     */
+    */
     private static LanzouShareInfo parseIframe(LanzouHttp http, String iframeHtml, String iframeUrl, String password) {
         String ajaxPath = matchFirst(AJAX_URL_PATTERN, iframeHtml, 1);
         if (ajaxPath == null) {
@@ -130,7 +130,7 @@ final class LanzouSharePageParser {
     * @param html HTML
     * @param password 密码
     * @return resolveAJAX参数的结果
-     */
+    */
     private static Map<String, String> resolveAjaxParams(String html, String password) {
         Map<String, String> params = new LinkedHashMap<>();
         String block = matchFirst(DATA_BLOCK_PATTERN, html, 1);
@@ -162,7 +162,7 @@ final class LanzouSharePageParser {
     * @param html HTML
     * @param name 名称
     * @return lookupVar的结果
-     */
+    */
     private static String lookupVar(String html, String name) {
         Matcher m = VAR_PATTERN.matcher(html);
         while (m.find()) {
@@ -177,7 +177,7 @@ final class LanzouSharePageParser {
     * 解析下载接口响应为直链信息。
     * @param resp resp
     * @return resolveDownload的结果
-     */
+    */
     private static LanzouShareInfo resolveDownload(String resp) {
         JsonObject json = Json.getJsonObject(resp);
         if (json == null || json.isEmpty()) {
@@ -206,7 +206,7 @@ final class LanzouSharePageParser {
     * @param html HTML
     * @param group 群体
     * @return 匹配第一个的结果
-     */
+    */
     private static String matchFirst(Pattern p, String html, int group) {
         if (html == null) {
             return null;
@@ -220,7 +220,7 @@ final class LanzouSharePageParser {
     * @param path 路径
     * @param base 基础
     * @return 转为absolute的结果
-     */
+    */
     private static String toAbsolute(String path, String base) {
         if (path.startsWith("http")) {
             return path;
@@ -232,7 +232,7 @@ final class LanzouSharePageParser {
     * 提取协议+域名。
     * @param url url
     * @return origin的结果
-     */
+    */
     private static String origin(String url) {
         int idx = url.indexOf("//");
         if (idx < 0) {

@@ -21,13 +21,13 @@ public class ColorMockString implements MockString {
 
     /**
     * 十六进制字符池
-     */
+    */
     private static final char[] HEX = "0123456789abcdef".toCharArray();
     /**
     * 颜色值长度（# + 6 位）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int LENGTH = 7;
 
     @Override

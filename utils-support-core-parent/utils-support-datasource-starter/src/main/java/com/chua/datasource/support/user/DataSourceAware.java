@@ -14,6 +14,6 @@ public interface DataSourceAware {
     * 设置数据源。
     *
     * @param dataSource JDBC 数据源
-     */
+    */
     void setDataSource(DataSource dataSource);
 }

@@ -41,83 +41,83 @@ import java.util.Locale;
 public final class WechatMemoryAccess implements AutoCloseable {
 
     /**
-     * 进程查询信息权限
-     */
+    * 进程查询信息权限
+    */
     private static final int PROCESS_QUERY_INFORMATION = 0x0400;
 
     /**
-     * 进程内存读取权限
-     */
+    * 进程内存读取权限
+    */
     private static final int PROCESS_VM_READ = 0x0010;
 
     /**
-     * 已提交的内存页
-     */
+    * 已提交的内存页
+    */
     private static final int MEM_COMMIT = 0x1000;
 
     /**
-     * 私有内存（堆 / 栈）
-     */
+    * 私有内存（堆 / 栈）
+    */
     private static final int MEM_PRIVATE = 0x20000;
 
     /**
-     * 不可访问页
-     */
+    * 不可访问页
+    */
     private static final int PAGE_NOACCESS = 0x01;
 
     /**
-     * 线程栈守卫页 —— 读取会破坏目标进程栈保护，必须跳过
-     */
+    * 线程栈守卫页 —— 读取会破坏目标进程栈保护，必须跳过
+    */
     private static final int PAGE_GUARD = 0x100;
 
     /**
-     * 只读页
-     */
+    * 只读页
+    */
     private static final int PAGE_READONLY = 0x02;
 
     /**
-     * 读写页
-     */
+    * 读写页
+    */
     private static final int PAGE_READWRITE = 0x04;
 
     /**
-     * 写时复制页
-     */
+    * 写时复制页
+    */
     private static final int PAGE_WRITECOPY = 0x08;
 
     /**
-     * 可执行 + 只读
-     */
+    * 可执行 + 只读
+    */
     private static final int PAGE_EXECUTE_READ = 0x20;
 
     /**
-     * 可执行 + 读写
-     */
+    * 可执行 + 读写
+    */
     private static final int PAGE_EXECUTE_READWRITE = 0x40;
 
     /**
-     * 可执行 + 写时复制
-     */
+    * 可执行 + 写时复制
+    */
     private static final int PAGE_EXECUTE_WRITECOPY = 0x80;
 
     /**
-     * 保护属性掩码（低 8 位）
-     */
+    * 保护属性掩码（低 8 位）
+    */
     private static final int PROTECT_MASK = 0xFF;
 
     /**
-     * 单次读取的最大字节数（64MB），超过则分片
-     */
+    * 单次读取的最大字节数（64MB），超过则分片
+    */
     private static final int MAX_READ_CHUNK = 64 << 20;
 
     /**
-     * 用户态地址上界
-     */
+    * 用户态地址上界
+    */
     private static final long MAX_USER_ADDRESS = 0x7FFFFFFFFFFFL;
 
     /**
-     * MEMORY_BASIC_INFORMATION 结构大小（64 位）
-     */
+    * MEMORY_BASIC_INFORMATION 结构大小（64 位）
+    */
     private static final long MBI_SIZE = 48L;
 
     private static volatile MethodHandle openProcessHandle;
@@ -131,13 +131,13 @@ public final class WechatMemoryAccess implements AutoCloseable {
     private static volatile Arena kernelArena;
 
     /**
-     * 进程句柄
-     */
+    * 进程句柄
+    */
     private final long handle;
 
     /**
-     * 进程号
-     */
+    * 进程号
+    */
     private final int pid;
 
     private WechatMemoryAccess(long handle, int pid) {
@@ -146,20 +146,20 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 是否支持内存访问（仅 Windows）。
-     *
-     * @return Windows 平台返回 true
-     */
+    * 是否支持内存访问（仅 Windows）。
+    *
+    * @return Windows 平台返回 true
+    */
     public static boolean isSupported() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
     }
 
     /**
-     * 打开微信进程。
-     *
-     * @param pid 进程号
-     * @return 访问器；失败返回 null
-     */
+    * 打开微信进程。
+    *
+    * @param pid 进程号
+    * @return 访问器；失败返回 null
+    */
     public static WechatMemoryAccess open(int pid) {
         if (!isSupported()) {
             log.warn("内存访问仅支持 Windows 平台");
@@ -182,21 +182,21 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 进程号。
-     *
-     * @return 进程号
-     */
+    * 进程号。
+    *
+    * @return 进程号
+    */
     public int pid() {
         return pid;
     }
 
     /**
-     * 枚举已提交且可读的内存区域。
-     *
-     * <p>{@code PAGE_GUARD} 与 {@code PAGE_NOACCESS} 区域会被直接排除。</p>
-     *
-     * @return 区域列表
-     */
+    * 枚举已提交且可读的内存区域。
+    *
+    * <p>{@code PAGE_GUARD} 与 {@code PAGE_NOACCESS} 区域会被直接排除。</p>
+    *
+    * @return 区域列表
+    */
     public List<Region> regions() {
         List<Region> regions = new ArrayList<>(4096);
         try (Arena arena = Arena.ofConfined()) {
@@ -229,13 +229,13 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 判断保护属性是否允许读取。
-     *
-     * <p>{@code PAGE_GUARD} 必须排除：读取它会在目标进程内触发守卫页违例。</p>
-     *
-     * @param protect 保护属性
-     * @return 可读返回 true
-     */
+    * 判断保护属性是否允许读取。
+    *
+    * <p>{@code PAGE_GUARD} 必须排除：读取它会在目标进程内触发守卫页违例。</p>
+    *
+    * @param protect 保护属性
+    * @return 可读返回 true
+    */
     private static boolean canRead(int protect) {
         if ((protect & PAGE_GUARD) != 0 || (protect & PAGE_NOACCESS) != 0) {
             return false;
@@ -247,15 +247,15 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 读取内存。
-     *
-     * <p>纯只读操作，不修改目标进程任何页属性。读取失败（区域被释放、越界等）返回 null，
-     * 由调用方决定跳过还是终止。</p>
-     *
-     * @param address 起始地址
-     * @param length  长度（字节）
-     * @return 读到的字节；失败返回 null
-     */
+    * 读取内存。
+    *
+    * <p>纯只读操作，不修改目标进程任何页属性。读取失败（区域被释放、越界等）返回 null，
+    * 由调用方决定跳过还是终止。</p>
+    *
+    * @param address 起始地址
+    * @param length  长度（字节）
+    * @return 读到的字节；失败返回 null
+    */
     public byte[] read(long address, int length) {
         if (length <= 0) {
             return null;
@@ -267,12 +267,12 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 分片读取超大区域。
-     *
-     * @param address 起始地址
-     * @param length  总长度
-     * @return 读到的字节；失败返回 null
-     */
+    * 分片读取超大区域。
+    *
+    * @param address 起始地址
+    * @param length  总长度
+    * @return 读到的字节；失败返回 null
+    */
     private byte[] readChunked(long address, int length) {
         byte[] all = new byte[length];
         int done = 0;
@@ -292,12 +292,12 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 单次读取。
-     *
-     * @param address 起始地址
-     * @param length  长度
-     * @return 读到的字节；失败返回 null
-     */
+    * 单次读取。
+    *
+    * @param address 起始地址
+    * @param length  长度
+    * @return 读到的字节；失败返回 null
+    */
     private byte[] readOnce(long address, int length) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment buffer = arena.allocate(length);
@@ -333,10 +333,10 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 初始化本地调用句柄（幂等）。
-     *
-     * @throws Throwable 初始化失败
-     */
+    * 初始化本地调用句柄（幂等）。
+    *
+    * @throws Throwable 初始化失败
+    */
     private static synchronized void initNative() throws Throwable {
         if (openProcessHandle != null) {
             return;
@@ -358,13 +358,13 @@ public final class WechatMemoryAccess implements AutoCloseable {
     }
 
     /**
-     * 内存区域描述。
-     *
-     * @param base      起始地址
-     * @param size      大小
-     * @param protect   保护属性
-     * @param privateMem 是否私有内存（堆 / 栈）；false 表示映射区（DLL / 共享内存）
-     */
+    * 内存区域描述。
+    *
+    * @param base      起始地址
+    * @param size      大小
+    * @param protect   保护属性
+    * @param privateMem 是否私有内存（堆 / 栈）；false 表示映射区（DLL / 共享内存）
+    */
     public record Region(long base, long size, int protect, boolean privateMem) {
     }
 }

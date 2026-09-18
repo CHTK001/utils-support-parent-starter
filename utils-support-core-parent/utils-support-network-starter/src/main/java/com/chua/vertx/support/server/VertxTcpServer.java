@@ -58,7 +58,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     /**
     * 创建 vertxtcp服务端 实例
     * @param setting setting
-     */
+    */
     public VertxTcpServer(ServerSetting setting) {
         super(setting);
     }
@@ -149,10 +149,10 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 处理套接字
+    * 处理Socket
     *
-    * @param socket 套接字
-     */
+    * @param socket Socket
+    */
     private void handleSocket(NetSocket socket) {
         String clientKey = socket.remoteAddress() != null ? socket.remoteAddress().toString() : "";
         JdkTcpServer.TcpHandler handler = findHandler(clientKey);
@@ -208,9 +208,9 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 net套接字。
-    * @param socket 套接字
-     */
+    * 通过 过滤器 Chain 处理请求（URL 路由模式），将完整 HTTP 响应写回 netSocket。
+    * @param socket Socket
+    */
     private void processViaFilterChain(NetSocket socket) {
         try {
             byte[] frame = readFrame(new NetSocketInputStream(socket));
@@ -246,29 +246,13 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     }
 
     /**
-    * 读取一帧（与 jdktcp客户端 长度帧协议对称：4 字节长度头 + scatter帧 主体）。
+    * 从输入流读取一帧数据。
+    * 帧协议与 jdktcp 客户端保持对称：前 4 字节为大端序长度头，随后为 scatter 帧主体。
     *
-    * @param in 输入流
-    * @return 完整帧字节，EOF 返回 空
-    * @param buf buf
-     /**
-      * 读取帧。
-      * @param in 入
-      * @return 读取帧的结果
-      */
-      * @param buf buf
-     /**
-     * 读取帧。
-     * @param in 入
-     * @return 读取帧的结果
-      */
-      * @param buf buf
-     /**
-     * 读取帧。
-     * @param in 入
-     * @return 读取帧的结果
-      */
-     */
+    * @param in 输入流，不能为空
+    * @return 完整帧字节；读取到 EOF 时返回 null
+    * @throws IOException 帧长度头不完整或帧长度越界时抛出
+    */
     private static byte[] readFrame(InputStream in) throws IOException {
         byte[] lenBytes = new byte[4];
         int n = readFully(in, lenBytes);
@@ -305,7 +289,7 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     *
     * @param clientKey 客户端键
     * @return find处理器的结果
-     */
+    */
     private JdkTcpServer.TcpHandler findHandler(String clientKey) {
         JdkTcpServer.TcpHandler handler = handlers.get(clientKey);
         if (handler != null) {
@@ -326,15 +310,17 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
     * @param name   连接标识(支持 "*" 通配与地址前缀匹配)
     * @param handler 处理器
     * @return 当前实例
-     */
+    */
     public VertxTcpServer registerHandler(String name, JdkTcpServer.TcpHandler handler) {
         handlers.put(name, handler);
         return this;
     }
 
-    /** 基于 net套接字 的 输入流(阻塞读,虚拟线程专用)。 */
+    /** 基于 netSocket 的 输入流(阻塞读,虚拟线程专用)。 */
     private static final class NetSocketInputStream extends InputStream {
-        /** 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing */
+        /**
+    * 数据段:一次性拷贝 Vert.x 缓冲 的 backing bytes,避免 per-byte boxing
+    */
         private static final class Segment {
             final byte[] data;
             int pos;
@@ -342,9 +328,11 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
         /** 结束哨兵(关闭信号) */
         private static final Segment EOS = new Segment(new byte[0]);
-        /** 套接字 */
+        /** Socket */
         private final NetSocket socket;
-        /** 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询) */
+        /**
+        * 数据段队列:链接阻塞队列.取() 自带 锁支持.park 阻塞(替代 Thread.sleep 轮询)
+        */
         private final LinkedBlockingQueue<Segment> queue = new LinkedBlockingQueue<>();
         /** Closed */
         private volatile boolean closed;
@@ -411,11 +399,13 @@ public class VertxTcpServer extends AbstractServer implements com.chua.common.su
         }
     }
 
-    /** 基于 net套接字 的 输出流(阻塞写,虚拟线程专用)。 */
+    /** 基于 netSocket 的 输出流(阻塞写,虚拟线程专用)。 */
     private static final class NetSocketOutputStream extends OutputStream {
-        /** 套接字 */
+        /** Socket */
         private final NetSocket socket;
-        /** 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 套接字（避免逐字节 Vert.x 调用） */
+        /**
+        * 攒批缓冲：写入(int)/小块写入先入缓冲，flush 时一次性写 Socket（避免逐字节 Vert.x 调用）
+        */
         private final byte[] buf = new byte[8192];
         private int pos;
 

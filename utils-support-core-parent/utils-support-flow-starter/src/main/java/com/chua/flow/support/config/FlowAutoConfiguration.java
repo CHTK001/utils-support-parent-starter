@@ -28,7 +28,7 @@ public class FlowAutoConfiguration {
     * <p>默认使用内存实现，可通过自定义 {@link FlowDefinitionStore} Bean 覆盖。</p>
     *
     * @return 流程定义存储
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public FlowDefinitionStore flowDefinitionStore() {
@@ -39,7 +39,7 @@ public class FlowAutoConfiguration {
     * 注册流程实例注册中心。
     *
     * @return 流程实例注册中心
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public FlowInstanceRegistry flowInstanceRegistry() {
@@ -52,7 +52,7 @@ public class FlowAutoConfiguration {
     * @param definitionStore  流程定义存储
     * @param instanceRegistry 流程实例注册中心
     * @return 流程控制器
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public FlowController flowController(FlowDefinitionStore definitionStore,

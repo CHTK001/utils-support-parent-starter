@@ -20,13 +20,13 @@ public class OfdReadBuilder extends ReadBuilder {
     /**
     * 创建 ofd读取构建器 实例
     * @param file 文件
-     */
+    */
     public OfdReadBuilder(File file) { super(file); }
 
     /**
     * 提取 OFD 文档的纯文本内容。
     * @return 文本的结果
-     */
+    */
     public String text() {
         StringBuilder sb = new StringBuilder();
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {

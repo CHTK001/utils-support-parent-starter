@@ -41,7 +41,7 @@ public final class SystemLogBridge {
     * 获取Instance
     *
     * @return 获取instance的结果
-     */
+    */
     public static SystemLogBridge getInstance() {
         return INSTANCE;
     }
@@ -70,7 +70,7 @@ public final class SystemLogBridge {
     * 获取winregistry
     *
     * @return 获取win32registry的结果
-     */
+    */
     public NativeFunctionRegistry getWin32Registry() {
         return win32Registry;
     }
@@ -79,7 +79,7 @@ public final class SystemLogBridge {
     * 获取Linuxregistry
     *
     * @return 获取Linuxregistry的结果
-     */
+    */
     public NativeFunctionRegistry getLinuxRegistry() {
         return linuxRegistry;
     }
@@ -88,7 +88,7 @@ public final class SystemLogBridge {
     * 创建提供者
     *
     * @return 创建提供者的结果
-     */
+    */
     public SystemLogProvider createProvider() {
         if (PlatformSystems.isWindows()) {
             return new WindowsEventLogProvider(this);
@@ -106,7 +106,7 @@ public final class SystemLogBridge {
     * 初始化窗口
     *
     * @return 初始化窗口的结果
-     */
+    */
     private NativeFunctionRegistry initializeWindows() {
         try {
             return NativeFunctionRegistry.ofLibrary("Advapi32");
@@ -120,7 +120,7 @@ public final class SystemLogBridge {
     * 初始化Linux
     *
     * @return 初始化Linux的结果
-     */
+    */
     private NativeFunctionRegistry initializeLinux() {
         try {
             return NativeFunctionRegistry.ofLibrary("systemd");

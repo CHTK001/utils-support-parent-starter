@@ -22,7 +22,7 @@ public interface DepthEstimator {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static DepthEstimator create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(DepthEstimator.class)
                 .getNewExtension(provider, apiKey);
@@ -33,7 +33,7 @@ public interface DepthEstimator {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default DepthEstimator provider(String provider) {
         return this;
     }
@@ -43,7 +43,7 @@ public interface DepthEstimator {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default DepthEstimator model(String model) {
         return this;
     }
@@ -54,7 +54,7 @@ public interface DepthEstimator {
     *
     * @param name 模型名称
     * @return 估计器
-     */
+    */
     static DepthEstimator create(String name) {
         return new DefaultDepthEstimator(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -66,7 +66,7 @@ public interface DepthEstimator {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.image.DepthEstimator.class);
     }
@@ -78,7 +78,7 @@ public interface DepthEstimator {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 估计器
-     */
+    */
     static DepthEstimator create(String name, ModelSetting setting) {
         return new DefaultDepthEstimator(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -88,7 +88,7 @@ public interface DepthEstimator {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default DepthEstimator modelPath(String path) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface DepthEstimator {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default DepthEstimator device(String device) {
         return this;
     }
@@ -108,7 +108,7 @@ public interface DepthEstimator {
     *
     * @param imageData 输入图像字节数组
     * @return 深度图字节数组
-     */
+    */
     byte[] estimate(byte[] imageData);
 }
 
@@ -122,29 +122,29 @@ class DefaultDepthEstimator implements DepthEstimator {
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = "cpu";
 
     DefaultDepthEstimator(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -180,7 +180,7 @@ class DefaultDepthEstimator implements DepthEstimator {
     *
     * @param imageData 镜像数据
     * @return estimate的结果
-     */
+    */
     public byte[] estimate(byte[] imageData) {
         ITranslator<byte[], byte[]> t =
                 (ITranslator<byte[], byte[]>) engine.get(modelName, ITranslator.class);

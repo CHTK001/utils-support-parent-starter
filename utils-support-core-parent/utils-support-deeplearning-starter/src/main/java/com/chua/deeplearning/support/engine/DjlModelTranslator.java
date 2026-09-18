@@ -27,17 +27,17 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型工厂。
-     */
+    */
     private final DjlModelFactory factory;
 
     /**
     * DJL Translator 输入是否为图像（处理输入 第一参数为 {@link Image}）。
-     */
+    */
     private final boolean imageInput;
 
     /**
@@ -46,7 +46,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     * @param modelName     模型名称
     * @param modelPath     模型路径
     * @param djlTranslator DJL Translator
-     */
+    */
     public DjlModelTranslator(String modelName, Path modelPath, Translator<?, ?> djlTranslator) {
         this(modelName, modelPath, null, djlTranslator);
     }
@@ -58,7 +58,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     * @param modelPath     模型路径
     * @param engineName    引擎名称
     * @param djlTranslator DJL Translator
-     */
+    */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName, Translator<?, ?> djlTranslator) {
         this(modelName, modelPath, engineName, null, djlTranslator);
     }
@@ -71,7 +71,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     * @param engineName     引擎名称
     * @param deviceSetting  设备设置：auto / cpu / gpu / cuda，可为 空
     * @param djlTranslator  DJL Translator
-     */
+    */
     public DjlModelTranslator(String modelName, Path modelPath, String engineName,
                               String deviceSetting, Translator<?, ?> djlTranslator) {
         this.modelName = modelName;
@@ -87,7 +87,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     *
     * @param djlTranslator DJL Translator
     * @return true 表示图像输入
-     */
+    */
     private static boolean isImageInput(Translator<?, ?> djlTranslator) {
         if (djlTranslator == null) {
             return false;
@@ -161,7 +161,7 @@ public class DjlModelTranslator implements ITranslator<Object, Object>, AutoClos
     * @param imgW   输入图像宽（0 表示未知，按原样返回归一化值）
     * @param imgH   输入图像高
     * @return 适配后的输出
-     */
+    */
     private Object adaptOutput(Object result, int imgW, int imgH) {
         if (result instanceof ai.djl.modality.cv.Image image) {
             // 图像输出模型（人脸修复/超分/抠图等）：转 byte[]（PNG，保留 alpha）

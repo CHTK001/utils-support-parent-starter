@@ -29,7 +29,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 运行时启动器 — 软件管理与 智能体 注入的主入口。
+* 运行时启动器 — 软件管理与 Agent 注入的主入口。
 *
 * <p>支持链式操作：下载 &gt; 安装 main &gt; 注入 agent &gt; 启动服务 &gt; 打开 shell。</p>
 *
@@ -51,37 +51,37 @@ public class RuntimeBoot {
 
     /**
     * 日志
-     */
+    */
     private static final Logger LOG = Logger.getLogger(RuntimeBoot.class.getName());
     /**
     * 配置
-     */
+    */
     private final BootConfig config;
 
     /**
     * 运行时管理器
-     */
+    */
     private RuntimeManager manager;
 
     /**
     * APM 启动器
-     */
+    */
     private ApmBootstrap apm;
 
     /**
     * Shell 服务器
-     */
+    */
     private TelnetServer shell;
 
     /**
     * 是否已运行
-     */
+    */
     private boolean running;
 
     /**
     * 创建 runtimeboot 实例
     * @param config 配置
-     */
+    */
     private RuntimeBoot(BootConfig config) {
         this.config = config;
         this.manager = new DefaultRuntimeManager();
@@ -93,7 +93,7 @@ public class RuntimeBoot {
     * 创建启动器。
     *
     * @return 启动器
-     */
+    */
     public static RuntimeBoot create() {
         return create(BootConfig.builder().build());
     }
@@ -103,7 +103,7 @@ public class RuntimeBoot {
     *
     * @param config 配置
     * @return 启动器
-     */
+    */
     public static RuntimeBoot create(BootConfig config) {
         return new RuntimeBoot(config);
     }
@@ -113,7 +113,7 @@ public class RuntimeBoot {
     *
     * @param artifact 工件
     * @return 自身
-     */
+    */
     public RuntimeBoot withArtifact(RuntimeArtifact artifact) {
         manager.registerOrReplace(artifact);
         return this;
@@ -124,29 +124,29 @@ public class RuntimeBoot {
     *
     * @param service 服务配置
     * @return 自身
-     */
+    */
     public RuntimeBoot withService(ManagedService service) {
         config.setService(service);
         return this;
     }
 
     /**
-    * 设置 智能体 路径。
+    * 设置 Agent 路径。
     *
-    * @param agentPath 智能体 路径
+    * @param agentPath Agent 路径
     * @return 自身
-     */
+    */
     public RuntimeBoot withAgent(Path agentPath) {
         config.setAgentPath(agentPath);
         return this;
     }
 
     /**
-    * 设置 智能体 选项。
+    * 设置 Agent 选项。
     *
-    * @param options 智能体 选项
+    * @param options Agent 选项
     * @return 自身
-     */
+    */
     public RuntimeBoot withAgentOptions(String options) {
         config.setAgentOptions(options);
         return this;
@@ -157,7 +157,7 @@ public class RuntimeBoot {
     *
     * @param port 端口
     * @return 自身
-     */
+    */
     public RuntimeBoot withShellPort(int port) {
         config.setShellPort(port);
         return this;
@@ -167,7 +167,7 @@ public class RuntimeBoot {
     * 注册 Shell 自定义命令（APM 查看）。
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot withApmCommand() {
         shell.register(new ApmCommand(apm));
         return this;
@@ -178,7 +178,7 @@ public class RuntimeBoot {
     *
     * @param handler 自定义处理器
     * @return 自身
-     */
+    */
     public RuntimeBoot withHandler(Plugin handler) {
         apm.addHandler(handler);
         return this;
@@ -188,7 +188,7 @@ public class RuntimeBoot {
     * 链式步骤：下载工件。
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot install() {
         String id = config.getArtifact().getId();
         if (manager.getArtifact(id) != null) {
@@ -213,10 +213,10 @@ public class RuntimeBoot {
     }
 
     /**
-    * 链式步骤：注入 智能体 到正在运行的 JVM。
-    *
-    * @return 自身
-     */
+                * 链式步骤：注入 Agent 到正在运行的 JVM。
+                *
+                * @return 自身
+                */
     public RuntimeBoot attachAgent() {
         Path agentPath = config.getAgentPath();
         if (agentPath == null || !Files.exists(agentPath)) {
@@ -246,7 +246,7 @@ public class RuntimeBoot {
     * （适用于 {@code java -jar} 运行的嵌套加载场景）。</p>
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot attachSelf() {
         // 1. 定位 agent jar
         Path agentPath = config.getAgentPath();
@@ -287,7 +287,7 @@ public class RuntimeBoot {
     * <p>方案 B（回退）：通过 classloader 找 RuntimeAgent 的代码源。</p>
     *
     * @return agent jar 物理路径；定位不到返回 {@code null}
-     */
+    */
     private static Path resolveSelfAgentPath() {
         // 方案 A：扫 classpath jar
         try {
@@ -338,7 +338,7 @@ public class RuntimeBoot {
     *
     * @param fatJar 外层 fat jar
     * @return 解压后的 agent jar 物理路径；找不到返回 {@code null}
-     */
+    */
     private static Path extractAgentFromFatJar(Path fatJar) {
         try {
             java.util.jar.JarFile outer = new java.util.jar.JarFile(fatJar.toFile());
@@ -377,7 +377,7 @@ public class RuntimeBoot {
     * 链式步骤：启动 Shell。
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot startShell() {
         try {
             shell.start(config.getShellPort());
@@ -391,7 +391,7 @@ public class RuntimeBoot {
     * 链式步骤：启动 APM。
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot startApm() {
         apm.start();
         return this;
@@ -401,7 +401,7 @@ public class RuntimeBoot {
     * 链式步骤：注册为系统服务并启动。
     *
     * @return 自身
-     */
+    */
     public RuntimeBoot startAsService() {
         String id = config.getArtifact().getId();
         RuntimeStatus status = manager.status(id);
@@ -419,7 +419,7 @@ public class RuntimeBoot {
 
     /**
     * 链式步骤：运行（阻塞）。
-     */
+    */
     public void run() {
         if (running) {
             LOG.log(Level.WARNING, "已运行");
@@ -441,7 +441,7 @@ public class RuntimeBoot {
 
     /**
     * 停止所有组件。
-     */
+    */
     public void shutdown() {
         LOG.log(Level.INFO, "关闭 Runtime...");
         if (shell != null) {
@@ -462,7 +462,7 @@ public class RuntimeBoot {
     * 获取运行时管理器。
     *
     * @return RuntimeManager
-     */
+    */
     public RuntimeManager getManager() {
         return manager;
     }
@@ -471,7 +471,7 @@ public class RuntimeBoot {
     * 获取 APM 启动器。
     *
     * @return ApmBootstrap
-     */
+    */
     public ApmBootstrap getApm() {
         return apm;
     }
@@ -480,7 +480,7 @@ public class RuntimeBoot {
     * 获取 Shell 服务器。
     *
     * @return TelnetServer
-     */
+    */
     public TelnetServer getShell() {
         return shell;
     }
@@ -490,52 +490,52 @@ public class RuntimeBoot {
     *
     * @since 4.0.0.42
     * @author CH
-     */
+    */
     @Data
     @Builder
     public static class BootConfig {
 
         /**
         * 工件
-         */
+        */
         @Builder.Default
         /** Artifact */
         private RuntimeArtifact artifact = RuntimeArtifact.builder().id("default").build();
 
         /**
         * 服务配置
-         */
+        */
         private ManagedService service;
 
         /**
-        * 智能体 JAR 路径
-         */
+        * Agent JAR 路径
+        */
         private Path agentPath;
 
         /**
-        * 智能体 选项
-         */
+        * Agent 选项
+        */
         @Builder.Default
         /** Agentoptions */
         private String agentOptions = "";
 
         /**
         * 目标 PID
-         */
+        */
         @Builder.Default
         /** PID */
         private int pid = 0;
 
         /**
         * Shell 端口
-         */
+        */
         @Builder.Default
         /** Shell端口 */
         private int shellPort = 4567;
 
         /**
         * 插件目录
-         */
+        */
         @Builder.Default
         /** 插件目录 */
         private Path pluginDir = Paths.get("plugins");

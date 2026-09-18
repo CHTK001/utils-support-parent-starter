@@ -18,13 +18,13 @@ public interface DrawPointResolver {
     *
     * @param x 绘制QR码的起始x坐标
     * @param y 绘制QR码的起始y坐标
-     */
+    */
     void draw(int x, int y);
 
     /**
     * 绘制结束钩子：用于需要二阶段合并/后处理的码点实现。
     * 默认空实现，避免对现有实现产生影响。
-     */
+    */
     default void finish() {
     }
 }

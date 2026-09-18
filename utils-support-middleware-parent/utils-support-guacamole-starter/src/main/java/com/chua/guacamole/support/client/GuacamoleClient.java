@@ -107,7 +107,7 @@ public class GuacamoleClient {
     /**
     * 创建 guacamole客户端 实例
     * @param b 构建器，不能为 空
-     */
+    */
     private GuacamoleClient(Builder b) {
         this.guacdHost = b.guacdHost;
         this.guacdPort = b.guacdPort;
@@ -123,7 +123,7 @@ public class GuacamoleClient {
     * 创建客户端（guacd 与 Web 前端均默认本机）。
     *
     * @return GuacamoleClient 实例
-     */
+    */
     public static GuacamoleClient create() {
         return builder().build();
     }
@@ -134,7 +134,7 @@ public class GuacamoleClient {
     * @param guacdHost guacd 服务器地址，不能为空
     * @param guacdPort guacd 服务器端口
     * @return GuacamoleClient 实例
-     */
+    */
     public static GuacamoleClient create(String guacdHost, int guacdPort) {
         return builder().guacdHost(guacdHost).guacdPort(guacdPort).build();
     }
@@ -143,7 +143,7 @@ public class GuacamoleClient {
     * 创建 构建器。
     *
     * @return Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -155,7 +155,7 @@ public class GuacamoleClient {
     *
     * @param host guacd 服务器地址，不能为 空
     * @return 当前实例（链式调用）
-     */
+    */
     public GuacamoleClient guacdHost(String host) {
         this.guacdHost = Objects.requireNonNull(host, "guacdHost 不能为 null");
         return this;
@@ -167,7 +167,7 @@ public class GuacamoleClient {
     * @param port guacd 服务器端口，范围 1-65535
     * @return 当前实例（链式调用）
     * @throws GuacamoleClientException 端口越界时
-     */
+    */
     public GuacamoleClient guacdPort(int port) {
         checkPort(port);
         this.guacdPort = port;
@@ -179,7 +179,7 @@ public class GuacamoleClient {
     *
     * @param host Web 前端地址，不能为 空
     * @return 当前实例（链式调用）
-     */
+    */
     public GuacamoleClient webHost(String host) {
         this.webHost = Objects.requireNonNull(host, "webHost 不能为 null");
         return this;
@@ -191,7 +191,7 @@ public class GuacamoleClient {
     * @param port Web 前端端口，范围 1-65535
     * @return 当前实例（链式调用）
     * @throws GuacamoleClientException 端口越界时
-     */
+    */
     public GuacamoleClient webPort(int port) {
         checkPort(port);
         this.webPort = port;
@@ -203,7 +203,7 @@ public class GuacamoleClient {
     *
     * @param path 上下文路径（如 /guacamole），允许 空（空 时按默认路径处理）
     * @return 当前实例（链式调用）
-     */
+    */
     public GuacamoleClient contextPath(String path) {
         this.contextPath = path;
         return this;
@@ -213,7 +213,7 @@ public class GuacamoleClient {
     * 返回 guacd 协议代理地址。
     *
     * @return 形如 {@code host:port}
-     */
+    */
     public String guacdAddress() {
         return guacdHost + ":" + guacdPort;
     }
@@ -222,7 +222,7 @@ public class GuacamoleClient {
     * 返回 Guacamole Web 前端入口 URL（不含短链 fragment）。
     *
     * @return 形如 {@code http://host:port/guacamole/}
-     */
+    */
     public String webUrl() {
         var path = contextPath == null ? DEFAULT_CONTEXT_PATH : contextPath;
         if (!path.startsWith("/")) {
@@ -240,7 +240,7 @@ public class GuacamoleClient {
     * 进入远控连接参数登记链。
     *
     * @return 登记操作链
-     */
+    */
     public IssueOperation issue() {
         return new IssueOperation(this);
     }
@@ -249,7 +249,7 @@ public class GuacamoleClient {
     * 进入 RDP 连接参数登记链（协议已预置 RDP）。
     *
     * @return 登记操作链
-     */
+    */
     public IssueOperation rdp() {
         return issue().protocol(RemoteProtocol.RDP);
     }
@@ -258,7 +258,7 @@ public class GuacamoleClient {
     * 进入 VNC 连接参数登记链（协议已预置 VNC）。
     *
     * @return 登记操作链
-     */
+    */
     public IssueOperation vnc() {
         return issue().protocol(RemoteProtocol.VNC);
     }
@@ -267,7 +267,7 @@ public class GuacamoleClient {
     * 进入 SSH 连接参数登记链（协议已预置 SSH）。
     *
     * @return 登记操作链
-     */
+    */
     public IssueOperation ssh() {
         return issue().protocol(RemoteProtocol.SSH);
     }
@@ -281,7 +281,7 @@ public class GuacamoleClient {
     * @param token 由 {@link IssueOperation#issue()} 签发的短 令牌，不能为 空 或空白
     * @return 形如 {@code http://host:port/guacamole/#token=xxxxxxxx}
     * @throws GuacamoleClientException 令牌 为空白时
-     */
+    */
     public String url(String token) {
         if (token == null || token.isBlank()) {
             throw new GuacamoleClientException("token 不能为空");
@@ -297,7 +297,7 @@ public class GuacamoleClient {
     *
     * @param token 短 令牌，允许 空（空/空白直接返回空）
     * @return 连接参数集；token 未知或已过期时为空
-     */
+    */
     public Optional<RemoteSpec> resolve(String token) {
         if (token == null || token.isBlank()) {
             return Optional.empty();
@@ -315,7 +315,7 @@ public class GuacamoleClient {
     * <p>仅对尚未过期清除的 token 生效；已被清除的 token 无法复活，需重新 {@link #issue()}。</p>
     *
     * @return 实际续期的 令牌 数量
-     */
+    */
     public int refreshTokens() {
         var count = 0;
         for (var holder : tokens.values()) {
@@ -330,7 +330,7 @@ public class GuacamoleClient {
     * 返回已登记的短 令牌 数量（含已过期未清除的）。
     *
     * @return token 数量
-     */
+    */
     public int tokenCount() {
         return tokens.size();
     }
@@ -344,7 +344,7 @@ public class GuacamoleClient {
     *
     * @param spec 连接参数集，不能为 空
     * @return 短 令牌
-     */
+    */
     private String register(RemoteSpec spec) {
         Objects.requireNonNull(spec, "spec 不能为 null");
         for (var attempt = 0; attempt < TOKEN_MAX_RETRY; attempt++) {
@@ -361,7 +361,7 @@ public class GuacamoleClient {
     * 生成随机短 令牌（16 位十六进制小写字符）。
     *
     * @return 短 令牌
-     */
+    */
     private static String newToken() {
         var bytes = new byte[TOKEN_BYTES];
         RANDOM.nextBytes(bytes);
@@ -376,7 +376,7 @@ public class GuacamoleClient {
     * <p>guacd 与 Web 前端均默认本机；短 token 有效期默认 1 小时。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
         /** guacd 服务器地址，默认本机 */
         private String guacdHost = DEFAULT_GUACD_HOST;
@@ -396,7 +396,7 @@ public class GuacamoleClient {
         *
         * @param host guacd 服务器地址，不允许 空 或空白
         * @return 当前构建器
-         */
+        */
         public Builder guacdHost(String host) {
             this.guacdHost = host;
             return this;
@@ -407,7 +407,7 @@ public class GuacamoleClient {
         *
         * @param port guacd 服务器端口
         * @return 当前构建器
-         */
+        */
         public Builder guacdPort(int port) {
             this.guacdPort = port;
             return this;
@@ -418,7 +418,7 @@ public class GuacamoleClient {
         *
         * @param host Web 前端地址，不允许 空 或空白
         * @return 当前构建器
-         */
+        */
         public Builder webHost(String host) {
             this.webHost = host;
             return this;
@@ -429,7 +429,7 @@ public class GuacamoleClient {
         *
         * @param port Web 前端端口
         * @return 当前构建器
-         */
+        */
         public Builder webPort(int port) {
             this.webPort = port;
             return this;
@@ -440,7 +440,7 @@ public class GuacamoleClient {
         *
         * @param path 上下文路径（如 /guacamole）
         * @return 当前构建器
-         */
+        */
         public Builder contextPath(String path) {
             this.contextPath = path;
             return this;
@@ -453,7 +453,7 @@ public class GuacamoleClient {
         * @return 当前构建器
         * @throws NullPointerException ttl 为 空 时
         * @throws GuacamoleClientException ttl 为负时
-         */
+        */
         public Builder tokenTtl(Duration ttl) {
             Objects.requireNonNull(ttl, "tokenTtl 不能为 null");
             if (ttl.isNegative()) {
@@ -468,7 +468,7 @@ public class GuacamoleClient {
         *
         * @return GuacamoleClient 实例
         * @throws GuacamoleClientException guacd 或 Web 前端地址为空白、端口越界时
-         */
+        */
         public GuacamoleClient build() {
             if (guacdHost == null || guacdHost.isBlank()) {
                 throw new GuacamoleClientException("guacd 服务器地址不能为空");
@@ -491,7 +491,7 @@ public class GuacamoleClient {
     * {@link #issue()} 将参数集登记进客户端内部短链登记表并签发短 token。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class IssueOperation {
         /** 客户端 */
         private final GuacamoleClient client;
@@ -512,7 +512,7 @@ public class GuacamoleClient {
         * 创建登记操作链。
         *
         * @param client 所属客户端，不能为 空
-         */
+        */
         IssueOperation(GuacamoleClient client) {
             this.client = client;
         }
@@ -522,7 +522,7 @@ public class GuacamoleClient {
         *
         * @param protocol 协议，不能为 空
         * @return 当前操作链
-         */
+        */
         public IssueOperation protocol(RemoteProtocol protocol) {
             this.protocol = Objects.requireNonNull(protocol, "protocol 不能为 null");
             return this;
@@ -534,7 +534,7 @@ public class GuacamoleClient {
         * @param protocol 协议参数值（rdp/vnc/ssh/telnet，忽略大小写）
         * @return 当前操作链
         * @throws GuacamoleClientException 不支持的协议值
-         */
+        */
         public IssueOperation protocol(String protocol) {
             return protocol(RemoteProtocol.of(protocol));
         }
@@ -544,7 +544,7 @@ public class GuacamoleClient {
         *
         * @param host 远控服务器地址，{@link #issue()} 前必须非空
         * @return 当前操作链
-         */
+        */
         public IssueOperation host(String host) {
             this.host = host;
             return this;
@@ -556,7 +556,7 @@ public class GuacamoleClient {
         * @param port 远控服务器端口，范围 1-65535
         * @return 当前操作链
         * @throws GuacamoleClientException 端口越界时
-         */
+        */
         public IssueOperation port(int port) {
             checkPort(port);
             this.port = port;
@@ -568,7 +568,7 @@ public class GuacamoleClient {
         *
         * @param username 用户名，可为 空
         * @return 当前操作链
-         */
+        */
         public IssueOperation username(String username) {
             this.username = username;
             return this;
@@ -579,7 +579,7 @@ public class GuacamoleClient {
         *
         * @param password 密码，可为 空
         * @return 当前操作链
-         */
+        */
         public IssueOperation password(String password) {
             this.password = password;
             return this;
@@ -591,7 +591,7 @@ public class GuacamoleClient {
         * @param key 参数名，空 时忽略
         * @param value 参数值，空 时忽略
         * @return 当前操作链
-         */
+        */
         public IssueOperation param(String key, String value) {
             if (key != null && value != null) {
                 params.put(key, value);
@@ -604,7 +604,7 @@ public class GuacamoleClient {
         *
         * @param params 参数集合，空 时忽略；其中的 空 键值对会被过滤
         * @return 当前操作链
-         */
+        */
         public IssueOperation params(Map<String, String> params) {
             if (params != null) {
                 params.forEach(this::param);
@@ -619,7 +619,7 @@ public class GuacamoleClient {
         *
         * @return 短 令牌
         * @throws GuacamoleClientException 远控服务器地址未设置时
-         */
+        */
         public String issue() {
             if (host == null || host.isBlank()) {
                 throw new GuacamoleClientException("远控服务器地址（host）未设置");
@@ -647,7 +647,7 @@ public class GuacamoleClient {
     * @param params Guacamole 扩展参数，可为 空（空 时规范化为空不可变 映射）
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     public record RemoteSpec(
             RemoteProtocol protocol,
             String host,
@@ -658,7 +658,7 @@ public class GuacamoleClient {
     ) {
         /**
         * 规范构造器：校验必填字段并将扩展参数规范化为不可变 映射。
-         */
+        */
         public RemoteSpec {
             Objects.requireNonNull(protocol, "protocol 不能为 null");
             Objects.requireNonNull(host, "host 不能为 null");
@@ -669,7 +669,7 @@ public class GuacamoleClient {
         * 返回生效端口（未设置端口时取协议默认端口）。
         *
         * @return 端口号
-         */
+        */
         public int effectivePort() {
             return port != null ? port : protocol.getDefaultPort();
         }
@@ -683,7 +683,7 @@ public class GuacamoleClient {
     * <p>每个协议携带 guacd 参数值与默认端口号。</p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     public enum RemoteProtocol {
         /** RDP 远程桌面 */
         RDP("rdp", 3389),
@@ -704,7 +704,7 @@ public class GuacamoleClient {
         *
         * @param value guacd 参数值
         * @param defaultPort 默认端口
-         */
+        */
         RemoteProtocol(String value, int defaultPort) {
             this.value = value;
             this.defaultPort = defaultPort;
@@ -714,7 +714,7 @@ public class GuacamoleClient {
         * 返回 guacd 参数值。
         *
         * @return 参数值
-         */
+        */
         public String getValue() {
             return value;
         }
@@ -723,7 +723,7 @@ public class GuacamoleClient {
         * 返回默认端口。
         *
         * @return 默认端口
-         */
+        */
         public int getDefaultPort() {
             return defaultPort;
         }
@@ -734,7 +734,7 @@ public class GuacamoleClient {
         * @param value 协议参数值（rdp/vnc/ssh/telnet，忽略大小写）
         * @return 协议
         * @throws GuacamoleClientException 不支持的协议值
-         */
+        */
         public static RemoteProtocol of(String value) {
             for (RemoteProtocol protocol : values()) {
                 if (protocol.value.equalsIgnoreCase(value)) {
@@ -751,12 +751,12 @@ public class GuacamoleClient {
     * Guacamole 客户端异常。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class GuacamoleClientException extends RuntimeException {
         /**
         * 创建 guacamole客户端异常 实例
         * @param message 消息
-         */
+        */
         public GuacamoleClientException(String message) {
             super(message);
         }
@@ -766,7 +766,7 @@ public class GuacamoleClient {
         * @param message 消息
         * @param cause Throwable
         * @param cause cause
-         */
+        */
         public GuacamoleClientException(String message, Throwable cause) {
             super(message, cause);
         }
@@ -779,7 +779,7 @@ public class GuacamoleClient {
     *
     * @param port 待校验端口号
     * @throws GuacamoleClientException 端口号越界时
-     */
+    */
     private static void checkPort(int port) {
         if (port < 1 || port > 65535) {
             throw new GuacamoleClientException("端口越界（1-65535）: " + port);
@@ -791,7 +791,7 @@ public class GuacamoleClient {
     *
     * @param value 原始值
     * @return 编码后的值
-     */
+    */
     private static String enc(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }

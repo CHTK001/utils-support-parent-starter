@@ -19,7 +19,7 @@ public class EncryptedPropertySource extends EnumerablePropertySource<PropertySo
 
     /**
     * 加密门面
-     */
+    */
     private final Crypto crypto;
 
     /**
@@ -27,7 +27,7 @@ public class EncryptedPropertySource extends EnumerablePropertySource<PropertySo
     *
     * @param delegate 被包装的 财产源
     * @param crypto   已初始化的加密门面
-     */
+    */
     public EncryptedPropertySource(PropertySource<?> delegate, Crypto crypto) {
         super(delegate.getName(), delegate);
         this.crypto = crypto;
@@ -37,7 +37,7 @@ public class EncryptedPropertySource extends EnumerablePropertySource<PropertySo
     * 返回全部属性名（透传）
     *
     * @return 属性名数组
-     */
+    */
     @Override
     public String[] getPropertyNames() {
         if (getSource() instanceof EnumerablePropertySource<?> enumerable) {
@@ -51,7 +51,7 @@ public class EncryptedPropertySource extends EnumerablePropertySource<PropertySo
     *
     * @param name 属性名
     * @return 属性值
-     */
+    */
     @Override
     public Object getProperty(String name) {
         Object value = getSource().getProperty(name);

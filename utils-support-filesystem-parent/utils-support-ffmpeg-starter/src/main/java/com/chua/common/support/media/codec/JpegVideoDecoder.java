@@ -27,7 +27,7 @@ public class JpegVideoDecoder implements VideoDecoder {
 
     /**
     * 默认构造器（SPI 使用）。
-     */
+    */
     public JpegVideoDecoder() {
     }
 

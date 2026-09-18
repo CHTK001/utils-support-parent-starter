@@ -14,6 +14,6 @@ public interface SymmetricEnvironmentSetup {
     * 自动配置数据库环境（建表、初始化等）。
     *
     * @param environment 环境配置
-     */
+    */
     void setup(DirectoryPollerEnvironment environment);
 }

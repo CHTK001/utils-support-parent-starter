@@ -37,22 +37,22 @@ public class CronExpression {
 
     /**
     * 字段分隔符正则。
-     */
+    */
     private static final String FIELD_DELIMITER = "\\s+";
 
     /**
     * 列表分隔符。
-     */
+    */
     private static final String LIST_DELIMITER = ",";
 
     /**
     * 是否使用 6 字段 石英石 格式（含秒）。
-     */
+    */
     private final boolean hasSeconds;
 
     /**
     * Cron 表达式原文。
-     */
+    */
     private final String expression;
 
     /** 秒 */
@@ -70,7 +70,7 @@ public class CronExpression {
 
     /**
     * DOM / DOW 是否为通配（影响 或 / 和 语义判定）。
-     */
+    */
     private final boolean domIsAny;
     /** DOWISANY */
     private final boolean dowIsAny;
@@ -79,7 +79,7 @@ public class CronExpression {
     * 构造并解析 cron 表达式。
     *
     * @param expression cron 文本
-     */
+    */
     public CronExpression(String expression) {
         if (StringUtils.isEmpty(expression)) {
             throw new IllegalArgumentException("cron expression must not be empty");
@@ -115,7 +115,7 @@ public class CronExpression {
     * 判定字段是否为通配（{@code *} 或 {@code ?}）。
     * @param field 字段
     * @return 是否wildcard的结果
-     */
+    */
     private static boolean isWildcard(String field) {
         if (StringUtils.isEmpty(field)) {
             return true;
@@ -131,7 +131,7 @@ public class CronExpression {
     *
     * @param base 基准时间（不含本次）
     * @return 下次触发时间；找不到返回 空
-     */
+    */
     public LocalDateTime nextAfter(LocalDateTime base) {
         ZonedDateTime cursor = base.atZone(ZoneId.systemDefault());
         if (hasSeconds) {
@@ -157,7 +157,7 @@ public class CronExpression {
     *
     * @param zdt 待测试时间
     * @return 是否匹配
-     */
+    */
     public boolean matches(ZonedDateTime zdt) {
         if (!months.contains(zdt.getMonthValue())) {
             return false;
@@ -194,7 +194,7 @@ public class CronExpression {
     * @param min 最小
     * @param max 最大
     * @return 解析字段的结果
-     */
+    */
     private Field parseField(String expr, int min, int max) {
         if ("*".equals(expr) || "?".equals(expr)) {
             return Field.any(min, max);
@@ -238,7 +238,7 @@ public class CronExpression {
 
     /**
     * Cron 字段（位图表示）。
-     */
+    */
     private static final class Field {
 
         /** 最小值 */
@@ -254,7 +254,7 @@ public class CronExpression {
         * @param min int
         * @param max 最大
         * @return 字段的结果
-         */
+        */
         private Field(int min, int max) {
             this.min = min;
             this.max = max;
@@ -267,7 +267,7 @@ public class CronExpression {
         * @param min 最小
         * @param max 最大
         * @return 任意的结果
-         */
+        */
         static Field any(int min, int max) {
             Field f = new Field(min, max);
             Arrays.fill(f.bits, true);
@@ -281,7 +281,7 @@ public class CronExpression {
         * @param max 最大
         * @param step step
         * @return step的结果
-         */
+        */
         static Field step(int start, int max, int step) {
             Field f = new Field(0, max);
             for (int v = start; v <= max; v += step) {
@@ -297,7 +297,7 @@ public class CronExpression {
         * @param max 最大
         * @param values 值
         * @return 列表的结果
-         */
+        */
         static Field list(int min, int max, int[] values) {
             Field f = new Field(min, max);
             for (int v : values) {
@@ -316,7 +316,7 @@ public class CronExpression {
         * @param max 最大
         * @param value 值
         * @return fixed的结果
-         */
+        */
         static Field fixed(int min, int max, int value) {
             Field f = new Field(min, max);
             f.bits[value - min] = true;

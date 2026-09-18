@@ -82,7 +82,9 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     private int imageWidth;
     private int imageHeight; // 镜像height
 
-    /** 创建 yolouniowtranslator 实例（默认阈值 0.25 / NMS 0.5） */
+    /**
+    * 创建 yolouniowtranslator 实例（默认阈值 0.25 / NMS 0.5）
+    */
     public YoloUniowTranslator() {
         this(DEFAULT_THRESHOLD, DEFAULT_NMS);
     }
@@ -92,7 +94,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param threshold    置信度阈值
     * @param nmsThreshold NMS iou 阈值
-     */
+    */
     public YoloUniowTranslator(float threshold, float nmsThreshold) {
         this.threshold = threshold;
         this.nmsThreshold = nmsThreshold;
@@ -107,7 +109,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param path 嵌入文件路径（float32 数组，N×512）
     * @return this
-     */
+    */
     public YoloUniowTranslator embeddings(Path path) {
         this.textFeatures = loadEmbeddings(path);
         return this;
@@ -226,7 +228,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     * @param clsData cls数据
     * @param boxData box数据
     * @return decodeDetections的结果
-     */
+    */
     private DetectedObjects decodeDetections(float[] clsData, float[] boxData) {
         int numAnchors = clsData.length / classes.size();
         int numClasses = classes.size();
@@ -322,7 +324,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     /**
     * 从 类路径 加载类别名列表。
     * @return 加载类名称的结果
-     */
+    */
     private List<String> loadClassNames() {
         List<String> result = new ArrayList<>();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(CLASS_NAMES_RESOURCE)) {
@@ -355,7 +357,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     * 从 类路径 资源加载文本嵌入（float32 数组）。
     * @param resource resource
     * @return 加载嵌入的结果
-     */
+    */
     private float[] loadEmbeddings(String resource) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resource)) {
             if (is == null) {
@@ -409,7 +411,7 @@ public class YoloUniowTranslator implements Translator<Image, DetectedObjects> {
     * @param ctx ctx
     * @param array array
     * @return 转为normalizedchw的结果
-     */
+    */
     private NDArray toNormalizedChw(TranslatorContext ctx, NDArray array) {
         Shape shape = array.getShape();
         if (shape.dimension() != 3) {

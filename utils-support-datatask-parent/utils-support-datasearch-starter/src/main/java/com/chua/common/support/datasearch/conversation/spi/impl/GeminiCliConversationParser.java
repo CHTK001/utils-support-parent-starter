@@ -41,7 +41,7 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
     * 返回 SPI 名称。
     *
     * @return {@code "gemini-cli"}
-     */
+    */
     @Override
     public String name() {
         return "gemini-cli";
@@ -51,7 +51,7 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
     * 返回会话文件根目录。
     *
     * @return {@code ~/.gemini/tmp}
-     */
+    */
     @Override
     protected Path rootDir() {
         return GEMINI_TMP;
@@ -61,7 +61,7 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
     * 返回会话文件后缀。
     *
     * @return {@code ".jsonl"}
-     */
+    */
     @Override
     protected String fileSuffix() {
         return ".jsonl";
@@ -72,11 +72,11 @@ public class GeminiCliConversationParser extends AbstractJsonlConversationParser
     * @param ts ts
     * @return 解析instant转为millis的结果
      /**
-      * 解析线。
-      * @param line 线
-      * @return 解析线的结果
-      * @param ts ts
-     */
+    * 解析线。
+    * @param line 线
+    * @return 解析线的结果
+    * @param ts ts
+    */
     @Override
     protected List<ConversationMessage> parseLine(String line) {
         if (line.isBlank()) {

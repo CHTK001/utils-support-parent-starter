@@ -12,7 +12,7 @@ public abstract class AbstractOnnxTranslator<I, O> implements ITranslator<I, O> 
     /**
     * 创建 抽象onnxtranslator 实例
     * @param modelName 模型名称
-     */
+    */
     protected AbstractOnnxTranslator(String modelName) { this.modelName = modelName; }
     @Override public String name() { return modelName; }
     @Override public O translate(I input) { return runInference(input); }

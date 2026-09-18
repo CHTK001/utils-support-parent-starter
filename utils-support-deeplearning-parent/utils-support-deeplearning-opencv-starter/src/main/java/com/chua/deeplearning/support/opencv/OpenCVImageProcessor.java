@@ -36,7 +36,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
     /**
     * 是否已成功加载 打开cv 原生库
-     */
+    */
     private static volatile boolean loaded = false;
 
     static {
@@ -85,7 +85,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * 解码图像字节为 打开cv Mat
     * @param data 数据
     * @return imdecode的结果
-     */
+    */
     private Mat imdecode(byte[] data) {
         try (CloseableMob mob = closeableMob(data)) {
             return Imgcodecs.imdecode(mob, Imgcodecs.IMREAD_UNCHANGED);
@@ -97,7 +97,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param mat mat
     * @param params 参数
     * @return imencode的结果
-     */
+    */
     private byte[] imencode(Mat mat, Map<String, Object> params) {
         String format = params != null && params.get("format") != null
                 ? params.get("format").toString() : "png";
@@ -109,14 +109,11 @@ public class OpenCVImageProcessor implements ImageProcessor {
     }
 
     /**
-    * 将 {@link MatOfByte} 包装为 {@link AutoCloseable}，支持 尝试-with-resources。
-    * @return 关闭mob的结果
-     /**
-      * 关闭mob。
-      * @param data 数据
-      * @return 关闭mob的结果
-      */
-     */
+    * 将 {@link MatOfByte} 包装为 {@link AutoCloseable}，支持 try-with-resources。
+    *
+    * @param data 编码输出数据
+    * @return 可自动释放的 MatOfByte 包装实例
+    */
     private static CloseableMob closeableMob(byte[] data) {
         return new CloseableMob(data);
     }
@@ -129,7 +126,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * 可自动释放的 {@link MatOfByte} 包装器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class CloseableMob extends MatOfByte implements AutoCloseable {
         CloseableMob(byte[] data) {
             super(data);
@@ -150,7 +147,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return resize的结果
-     */
+    */
     private Mat resize(Mat src, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 200);
         int height = ImageProcessorUtils.toInt(params.get("height"), 200);
@@ -163,7 +160,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * 转为灰度图像
     * @param src src
     * @return grayscale的结果
-     */
+    */
     private Mat grayscale(Mat src) {
         Mat dst = new Mat();
         Imgproc.cvtColor(src, dst, Imgproc.COLOR_BGR2GRAY);
@@ -175,7 +172,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return rotate的结果
-     */
+    */
     private Mat rotate(Mat src, Map<String, Object> params) {
         int angle = ImageProcessorUtils.toInt(params.get("angle"), 90) % 360;
         if (angle < 0) {
@@ -218,7 +215,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return crop的结果
-     */
+    */
     private Mat crop(Mat src, Map<String, Object> params) {
         int x = ImageProcessorUtils.toInt(params.get("x"), 0);
         int y = ImageProcessorUtils.toInt(params.get("y"), 0);
@@ -239,7 +236,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return blur的结果
-     */
+    */
     private Mat blur(Mat src, Map<String, Object> params) {
         int sigma = ImageProcessorUtils.toInt(params.get("sigma"), 3);
         int ksize = Math.max(1, sigma) * 2 + 1;
@@ -253,7 +250,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return flip的结果
-     */
+    */
     private Mat flip(Mat src, Map<String, Object> params) {
         String axis = params.get("axis") != null ? params.get("axis").toString() : "h";
         Mat dst = new Mat();
@@ -267,7 +264,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return brightness的结果
-     */
+    */
     private Mat brightness(Mat src, Map<String, Object> params) {
         int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         Mat dst = new Mat();
@@ -280,7 +277,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return contrast的结果
-     */
+    */
     private Mat contrast(Mat src, Map<String, Object> params) {
         int value = ImageProcessorUtils.toInt(params.get("value"), 10);
         double alpha = (259.0 * (value + 255.0)) / (255.0 * (259.0 - value));
@@ -294,7 +291,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src src
     * @param params 参数
     * @return border的结果
-     */
+    */
     private Mat border(Mat src, Map<String, Object> params) {
         int width = ImageProcessorUtils.toInt(params.get("width"), 1);
         width = Math.max(0, width);
@@ -320,7 +317,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * 阈值2（Canny 高阈值，默认 150），
     *               direction（sobel 方向：h / v / both，默认 both）
     * @return 边缘检测后的灰度图像
-     */
+    */
     private Mat edge(Mat src, Map<String, Object> params) {
         String method = params.get("method") != null ? params.get("method").toString() : "canny";
         Mat gray = new Mat();
@@ -386,7 +383,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     * @param src    源图像
     * @param params 参数
     * @return 绘制了匹配框的源图像（或原始图像）
-     */
+    */
     private Mat templateMatch(Mat src, Map<String, Object> params) {
         // 获取模板图像
         Object templateObj = params.get("template");
@@ -496,7 +493,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     *
     * @param methodStr 方法名称
     * @return OpenCV 匹配方法常量
-     */
+    */
     private int parseMatchMethod(String methodStr) {
         return switch (methodStr.toLowerCase()) {
             case "sqdiff" -> Imgproc.TM_SQDIFF;

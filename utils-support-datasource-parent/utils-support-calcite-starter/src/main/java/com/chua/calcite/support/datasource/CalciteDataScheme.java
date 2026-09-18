@@ -18,19 +18,19 @@ public class CalciteDataScheme implements DataScheme {
 
     /**
     * 方案名称。
-     */
+    */
     private final String name;
 
     /**
     * 数据表列表。
-     */
+    */
     private final List<DataTable> tables;
 
     /**
     * 构造函数，初始化方案名称和空的表列表。
     *
     * @param name 方案名称
-     */
+    */
     public CalciteDataScheme(String name) {
         this.name = name;
         this.tables = new ArrayList<>();
@@ -41,7 +41,7 @@ public class CalciteDataScheme implements DataScheme {
     *
     * @param table 要添加的数据表
     * @return 当前实例，支持链式调用
-     */
+    */
     public CalciteDataScheme addTable(DataTable table) {
         tables.add(table);
         return this;

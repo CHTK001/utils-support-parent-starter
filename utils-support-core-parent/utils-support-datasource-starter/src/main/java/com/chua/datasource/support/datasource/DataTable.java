@@ -15,27 +15,27 @@ public interface DataTable {
     * 获取表名。
     *
     * @return 表名
-     */
+    */
     String getName();
 
     /**
     * 获取列名列表。
     *
     * @return 列名
-     */
+    */
     List<String> getColumnNames();
 
     /**
     * 获取全部数据。
     *
     * @return 行数据
-     */
+    */
     List<Map<String, Object>> getData();
 
     /**
     * 获取行数。
     *
     * @return 行数
-     */
+    */
     long getRowCount();
 }

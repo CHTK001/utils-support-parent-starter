@@ -27,12 +27,12 @@ public class SealDetectionYolov8Translator extends AbstractSingleClassYolov8Tran
 
     /**
     * 类别资源路径（类路径）。
-     */
+    */
     public static final String CLASS_NAMES_RESOURCE = "vision/seal/yolov8n/class.names.txt";
 
     /**
     * 默认构造：640×640、0.25 阈值、0.45 NMS。
-     */
+    */
     public SealDetectionYolov8Translator() {
         super();
     }
@@ -43,7 +43,7 @@ public class SealDetectionYolov8Translator extends AbstractSingleClassYolov8Tran
     * @param inputSize    输入尺寸
     * @param threshold    置信度阈值
     * @param nmsThreshold NMS iou 阈值
-     */
+    */
     public SealDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

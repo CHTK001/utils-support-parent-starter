@@ -53,14 +53,14 @@ public class ZCodeUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "zcode"}
-     */
+    */
     public String name() {
         return "zcode";
     }
 
     /**
-     * 流式解析全部模型请求用量记录。
-     */
+    * 流式解析全部模型请求用量记录。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {

@@ -36,7 +36,7 @@ public class CollapseAutoConfiguration {
     *
     * @param properties 折叠全局默认配置
     * @return CollapsibleIntercept 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public CollapsibleIntercept collapsibleIntercept(CollapseProperties properties) {
@@ -48,7 +48,7 @@ public class CollapseAutoConfiguration {
     *
     * @param properties 折叠全局默认配置
     * @return CollapseConfig 实例
-     */
+    */
     private static CollapseConfig toGlobalConfig(CollapseProperties properties) {
         CollapseConfig config = new CollapseConfig();
         config.setWaitThreshold(properties.getWaitThreshold());
@@ -61,7 +61,7 @@ public class CollapseAutoConfiguration {
     *
     * @param intercept 折叠拦截器
     * @return CollapsibleAdvisor 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public CollapsibleAdvisor collapsibleAdvisor(CollapsibleIntercept intercept) {

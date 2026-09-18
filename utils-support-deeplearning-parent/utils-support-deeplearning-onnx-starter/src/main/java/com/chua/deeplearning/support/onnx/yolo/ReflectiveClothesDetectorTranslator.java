@@ -16,7 +16,7 @@ public class ReflectiveClothesDetectorTranslator extends YoloTranslator {
 
     /**
     * reflectiveclothesdetectortranslator。
-     */
+    */
     public ReflectiveClothesDetectorTranslator() {
         super(640, 0.05f, 0.50f, REFLECTIVE_CLOTHES_2_CLASSES, true);
     }
@@ -29,7 +29,7 @@ public class ReflectiveClothesDetectorTranslator extends YoloTranslator {
     * 创建 Translator（支持外部阈值覆盖，未提供时使用内置默认值）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public ReflectiveClothesDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.05f

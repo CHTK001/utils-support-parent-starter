@@ -46,64 +46,64 @@ import java.util.Set;
 public final class WechatMemoryMessages {
 
     /**
-     * 输出的消息文件名
-     */
+    * 输出的消息文件名
+    */
     public static final String FILE_NAME = "messages.csv";
 
     /**
-     * 输出的 id 映射文件名
-     */
+    * 输出的 id 映射文件名
+    */
     public static final String ID_MAP_FILE_NAME = "id_map.csv";
 
     /**
-     * 输出的 HTML 报告文件名
-     */
+    * 输出的 HTML 报告文件名
+    */
     public static final String REPORT_FILE_NAME = "report.html";
 
     /**
-     * CSV 表头
-     */
+    * CSV 表头
+    */
     private static final String CSV_HEADER =
             "page,cluster,sender_id,sender_username,sender_name,create_time,local_type,message_content";
 
     /**
-     * {@code Msg_*} 表里 {@code real_sender_id} 的列序号
-     */
+    * {@code Msg_*} 表里 {@code real_sender_id} 的列序号
+    */
     private static final int COL_REAL_SENDER_ID = 4;
 
     /**
-     * {@code Msg_*} 表里 {@code create_time} 的列序号
-     */
+    * {@code Msg_*} 表里 {@code create_time} 的列序号
+    */
     private static final int COL_CREATE_TIME = 5;
 
     /**
-     * {@code Msg_*} 表里 {@code local_type} 的列序号
-     */
+    * {@code Msg_*} 表里 {@code local_type} 的列序号
+    */
     private static final int COL_LOCAL_TYPE = 2;
 
     /**
-     * {@code Msg_*} 表里 {@code message_content} 的列序号
-     */
+    * {@code Msg_*} 表里 {@code message_content} 的列序号
+    */
     private static final int COL_CONTENT = 12;
 
     /**
-     * {@code contact} 表里 {@code username} 的列序号
-     */
+    * {@code contact} 表里 {@code username} 的列序号
+    */
     private static final int CONTACT_USERNAME = 1;
 
     /**
-     * {@code contact} 表里 {@code remark} 的列序号
-     */
+    * {@code contact} 表里 {@code remark} 的列序号
+    */
     private static final int CONTACT_REMARK = 8;
 
     /**
-     * {@code contact} 表里 {@code nick_name} 的列序号
-     */
+    * {@code contact} 表里 {@code nick_name} 的列序号
+    */
     private static final int CONTACT_NICK_NAME = 11;
 
     /**
-     * HTML 报告里单条正文的最大长度（防止个别超长 XML 把页面撑爆）
-     */
+    * HTML 报告里单条正文的最大长度（防止个别超长 XML 把页面撑爆）
+    */
     private static final int MAX_CONTENT = 4000;
 
     private WechatMemoryMessages() {
@@ -111,29 +111,29 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 解析出的一条可读消息。
-     *
-     * @param page        来源页标识（{@code pid#地址}；同一页属于同一张会话表）
-     * @param cluster     归属库簇标识
-     * @param senderId    库内自增的 {@code real_sender_id}
-     * @param username    发送者用户名（未解析出来为空串）
-     * @param displayName 显示名（备注优先，其次昵称）
-     * @param createTime  秒级时间戳
-     * @param localType   消息类型
-     * @param content     消息正文
-     * @param fingerprint 去重指纹（{@code rowid + SOH + 各列}），跨次扫描累积时用它判重。
-     *                    注意<b>不含页地址</b> —— 页地址每次运行都会变，不能作为身份
-     */
+    * 解析出的一条可读消息。
+    *
+    * @param page        来源页标识（{@code pid#地址}；同一页属于同一张会话表）
+    * @param cluster     归属库簇标识
+    * @param senderId    库内自增的 {@code real_sender_id}
+    * @param username    发送者用户名（未解析出来为空串）
+    * @param displayName 显示名（备注优先，其次昵称）
+    * @param createTime  秒级时间戳
+    * @param localType   消息类型
+    * @param content     消息正文
+    * @param fingerprint 去重指纹（{@code rowid + SOH + 各列}），跨次扫描累积时用它判重。
+    *                    注意<b>不含页地址</b> —— 页地址每次运行都会变，不能作为身份
+    */
     public record Message(String page, String cluster, String senderId, String username,
                           String displayName, String createTime, String localType, String content,
                           String fingerprint) {
 
         /**
-         * 计算消息指纹。
-         *
-         * @param record 原始记录
-         * @return 指纹
-         */
+        * 计算消息指纹。
+        *
+        * @param record 原始记录
+        * @return 指纹
+        */
         static String fingerprintOf(WechatMemoryExtractor.ExtractedRecord record) {
             StringBuilder sb = new StringBuilder(64).append(record.rowid()).append('\u0001');
             String[] values = record.values();
@@ -148,13 +148,13 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 输出可读消息视图（CSV）与 id 映射表。
-     *
-     * @param result  提取结果
-     * @param outDir  输出目录
-     * @return 写出的消息行数
-     * @throws Exception 写文件失败
-     */
+    * 输出可读消息视图（CSV）与 id 映射表。
+    *
+    * @param result  提取结果
+    * @param outDir  输出目录
+    * @return 写出的消息行数
+    * @throws Exception 写文件失败
+    */
     public static int write(WechatMemoryExtractor.ExtractResult result, File outDir) throws Exception {
         Files.createDirectories(outDir.toPath());
         List<Message> messages = resolve(result);
@@ -167,13 +167,13 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 把已解析好的消息写成 CSV。
-     *
-     * @param messages 消息列表（调用方保证已排序）
-     * @param outFile  目标文件
-     * @return 写出的消息行数
-     * @throws Exception 写文件失败
-     */
+    * 把已解析好的消息写成 CSV。
+    *
+    * @param messages 消息列表（调用方保证已排序）
+    * @param outFile  目标文件
+    * @return 写出的消息行数
+    * @throws Exception 写文件失败
+    */
     public static int writeCsv(List<Message> messages, File outFile) throws Exception {
         File parent = outFile.getParentFile();
         if (parent != null) {
@@ -190,26 +190,26 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 输出自包含的 HTML 聊天记录报告（无需任何外部资源，双击即可看）。
-     *
-     * @param result  提取结果
-     * @param outFile 目标 HTML 文件
-     * @return 报告里的消息条数
-     * @throws Exception 写文件失败
-     */
+    * 输出自包含的 HTML 聊天记录报告（无需任何外部资源，双击即可看）。
+    *
+    * @param result  提取结果
+    * @param outFile 目标 HTML 文件
+    * @return 报告里的消息条数
+    * @throws Exception 写文件失败
+    */
     public static int writeHtml(WechatMemoryExtractor.ExtractResult result, File outFile)
             throws Exception {
         return writeHtml(resolve(result), outFile);
     }
 
     /**
-     * 把已解析好的消息写成自包含 HTML 报告。
-     *
-     * @param messages 消息列表
-     * @param outFile  目标 HTML 文件
-     * @return 报告里的消息条数
-     * @throws Exception 写文件失败
-     */
+    * 把已解析好的消息写成自包含 HTML 报告。
+    *
+    * @param messages 消息列表
+    * @param outFile  目标 HTML 文件
+    * @return 报告里的消息条数
+    * @throws Exception 写文件失败
+    */
     public static int writeHtml(List<Message> messages, File outFile) throws Exception {
         File parent = outFile.getParentFile();
         if (parent != null) {
@@ -222,11 +222,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 解析出全部可读消息（按时间升序，时间缺失的排在最后）。
-     *
-     * @param result 提取结果
-     * @return 消息列表
-     */
+    * 解析出全部可读消息（按时间升序，时间缺失的排在最后）。
+    *
+    * @param result 提取结果
+    * @return 消息列表
+    */
     static List<Message> resolve(WechatMemoryExtractor.ExtractResult result) {
         Map<String, String> displayNames = collectDisplayNames(result);
 
@@ -281,11 +281,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 统计去重后的消息页数。
-     *
-     * @param messages 消息列表
-     * @return 页数
-     */
+    * 统计去重后的消息页数。
+    *
+    * @param messages 消息列表
+    * @return 页数
+    */
     private static long distinctPages(List<Message> messages) {
         Set<String> pages = new HashSet<>();
         for (Message message : messages) {
@@ -295,11 +295,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 统计未解析出发送者的条数。
-     *
-     * @param messages 消息列表
-     * @return 条数
-     */
+    * 统计未解析出发送者的条数。
+    *
+    * @param messages 消息列表
+    * @return 条数
+    */
     private static long countUnresolved(List<Message> messages) {
         long count = 0;
         for (Message message : messages) {
@@ -311,13 +311,13 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 为一个消息页挑选库簇。
-     *
-     * @param pageKey  页标识（{@code pid#地址}）
-     * @param senders  该页全部 {@code real_sender_id}
-     * @param clusters 全部库簇
-     * @return 最匹配的库簇；无法判定返回 null
-     */
+    * 为一个消息页挑选库簇。
+    *
+    * @param pageKey  页标识（{@code pid#地址}）
+    * @param senders  该页全部 {@code real_sender_id}
+    * @param clusters 全部库簇
+    * @return 最匹配的库簇；无法判定返回 null
+    */
     private static WechatMemoryExtractor.IdCluster resolveCluster(
             String pageKey, Set<Integer> senders,
             List<WechatMemoryExtractor.IdCluster> clusters) {
@@ -357,11 +357,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 从 {@code contact} 表收集显示名。
-     *
-     * @param result 提取结果
-     * @return username → 显示名（备注优先，其次昵称）
-     */
+    * 从 {@code contact} 表收集显示名。
+    *
+    * @param result 提取结果
+    * @return username → 显示名（备注优先，其次昵称）
+    */
     private static Map<String, String> collectDisplayNames(WechatMemoryExtractor.ExtractResult result) {
         Map<String, String> names = new LinkedHashMap<>();
         for (WechatMemoryExtractor.ExtractedRecord record : result.records()) {
@@ -383,12 +383,12 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 输出各库簇的 id → username 映射，便于人工核对归属是否正确。
-     *
-     * @param result  提取结果
-     * @param outFile 目标文件
-     * @throws Exception 写文件失败
-     */
+    * 输出各库簇的 id → username 映射，便于人工核对归属是否正确。
+    *
+    * @param result  提取结果
+    * @param outFile 目标文件
+    * @throws Exception 写文件失败
+    */
     public static void writeIdMap(WechatMemoryExtractor.ExtractResult result, File outFile)
             throws Exception {
         StringBuilder csv = new StringBuilder("cluster,pid,page,sender_id,username\n");
@@ -404,11 +404,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 渲染自包含的 HTML 报告。
-     *
-     * @param messages 消息列表
-     * @return HTML 文本
-     */
+    * 渲染自包含的 HTML 报告。
+    *
+    * @param messages 消息列表
+    * @return HTML 文本
+    */
     private static String renderHtml(List<Message> messages) {
         String self = detectSelf(messages);
         StringBuilder data = new StringBuilder("[");
@@ -438,13 +438,13 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 找出「本人」的用户名：id=1 且形如 {@code wxid_} 的那个。
-     *
-     * <p>每个库的 id=1 都是「自己」，但不同库的 id 空间独立，所以要按用户名而不是 id 来判定。</p>
-     *
-     * @param messages 消息列表
-     * @return 本人用户名；找不到返回 null
-     */
+    * 找出「本人」的用户名：id=1 且形如 {@code wxid_} 的那个。
+    *
+    * <p>每个库的 id=1 都是「自己」，但不同库的 id 空间独立，所以要按用户名而不是 id 来判定。</p>
+    *
+    * @param messages 消息列表
+    * @return 本人用户名；找不到返回 null
+    */
     private static String detectSelf(List<Message> messages) {
         for (Message message : messages) {
             if ("1".equals(message.senderId()) && message.username().startsWith("wxid_")) {
@@ -455,12 +455,12 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 取整型列值。
-     *
-     * @param values 值数组
-     * @param index  列序号
-     * @return 整型值；越界或非数字返回 null
-     */
+    * 取整型列值。
+    *
+    * @param values 值数组
+    * @param index  列序号
+    * @return 整型值；越界或非数字返回 null
+    */
     private static Integer intValue(String[] values, int index) {
         String value = text(values, index);
         if (value.isEmpty()) {
@@ -474,12 +474,12 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 取字符串列值。
-     *
-     * @param values 值数组
-     * @param index  列序号
-     * @return 列值；越界返回空串
-     */
+    * 取字符串列值。
+    *
+    * @param values 值数组
+    * @param index  列序号
+    * @return 列值；越界返回空串
+    */
     private static String text(String[] values, int index) {
         if (values == null || index < 0 || index >= values.length || values[index] == null) {
             return "";
@@ -488,12 +488,12 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 解析长整型。
-     *
-     * @param value        文本
-     * @param defaultValue 缺省值
-     * @return 解析结果
-     */
+    * 解析长整型。
+    *
+    * @param value        文本
+    * @param defaultValue 缺省值
+    * @return 解析结果
+    */
     private static long parseLong(String value, long defaultValue) {
         if (value == null || value.isEmpty()) {
             return defaultValue;
@@ -506,11 +506,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 组装一行 CSV。
-     *
-     * @param values 各列
-     * @return CSV 行（含换行）
-     */
+    * 组装一行 CSV。
+    *
+    * @param values 各列
+    * @return CSV 行（含换行）
+    */
     private static String csvRow(String[] values) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
@@ -523,11 +523,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 转义 CSV 字段。消息正文常含逗号、引号与换行，必须整体加引号。
-     *
-     * @param value 原值
-     * @return 转义后的值
-     */
+    * 转义 CSV 字段。消息正文常含逗号、引号与换行，必须整体加引号。
+    *
+    * @param value 原值
+    * @return 转义后的值
+    */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -541,11 +541,11 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 把字符串编码成 JSON 字面量（用于内嵌到 HTML 的 {@code <script>} 里）。
-     *
-     * @param value 原值
-     * @return JSON 字面量
-     */
+    * 把字符串编码成 JSON 字面量（用于内嵌到 HTML 的 {@code <script>} 里）。
+    *
+    * @param value 原值
+    * @return JSON 字面量
+    */
     private static String json(String value) {
         if (value == null) {
             return "\"\"";
@@ -592,33 +592,33 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 解析页标识里的进程号。
-     *
-     * @param key 页标识
-     * @return 进程号
-     */
+    * 解析页标识里的进程号。
+    *
+    * @param key 页标识
+    * @return 进程号
+    */
     private static int pidOf(String key) {
         int at = key.indexOf('#');
         return at < 0 ? 0 : Integer.parseInt(key.substring(0, at));
     }
 
     /**
-     * 解析页标识里的地址。
-     *
-     * @param key 页标识
-     * @return 地址
-     */
+    * 解析页标识里的地址。
+    *
+    * @param key 页标识
+    * @return 地址
+    */
     private static long addressOf(String key) {
         int at = key.indexOf('#');
         return at < 0 ? 0 : Long.parseLong(key.substring(at + 1));
     }
 
     /**
-     * 把时间戳格式化成可读文本（缺省保留原值）。
-     *
-     * @param epochSeconds 秒级时间戳
-     * @return 可读时间；非法返回空串
-     */
+    * 把时间戳格式化成可读文本（缺省保留原值）。
+    *
+    * @param epochSeconds 秒级时间戳
+    * @return 可读时间；非法返回空串
+    */
     static String formatTime(String epochSeconds) {
         long seconds = parseLong(epochSeconds, -1L);
         if (seconds <= 0) {
@@ -631,10 +631,10 @@ public final class WechatMemoryMessages {
     }
 
     /**
-     * 自包含 HTML 模板（无外部资源，双击即可查看）。
-     *
-     * <p>样式与脚本都内联；数据通过 {@code __DATA__} 占位符注入。</p>
-     */
+    * 自包含 HTML 模板（无外部资源，双击即可查看）。
+    *
+    * <p>样式与脚本都内联；数据通过 {@code __DATA__} 占位符注入。</p>
+    */
     private static final String TEMPLATE = String.join("\n",
             "<!DOCTYPE html>",
             "<html lang=\"zh-CN\"><head><meta charset=\"utf-8\">",

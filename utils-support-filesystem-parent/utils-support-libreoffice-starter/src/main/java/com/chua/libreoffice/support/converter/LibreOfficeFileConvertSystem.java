@@ -29,7 +29,7 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
 
     /**
     * 支持的源文件格式列表
-     */
+    */
     private static final List<String> SOURCES = List.of("doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp");
 
     @Override
@@ -75,7 +75,7 @@ public class LibreOfficeFileConvertSystem implements FileConvertSystem {
     * @param in     输入流
     * @param suffix 文件后缀
     * @return 临时文件绝对路径
-     */
+    */
     private static String writeTemp(InputStream in, String suffix) throws IOException {
         File f = File.createTempFile("lo_", suffix);
         try (OutputStream os = new FileOutputStream(f)) {

@@ -19,25 +19,58 @@ import javax.annotation.Nullable;
 
 
 /**
-* 吉卜力工作室风格滤镜
-* <p>
-* 专门模拟吉卜力工作室动画电影的精致画风特点：
-* 1. 精细的色彩分层处理
-* 2. 手绘质感模拟
-* 3. 自然光影效果
-* 4. 温暖而丰富的色调
-* 5. 细腻的边缘处理
-* 6. 梦幻氛围营造
-* 
-* 算法特点：
-* - 多层色彩处理：模拟手绘动画的分层上色
-* - 自然光影：模拟自然光线的柔和过渡
-* - 色彩和谐：创造温暖和谐的色彩搭配
-* - 边缘艺术化：模拟手绘线条的自然感
-* - 氛围渲染：营造吉卜力特有的梦幻氛围
-*
-* @author CH
-* @since 2024/12/20
+ * 吉卜力工作室风格滤镜
+ * <p>
+ * 专门模拟吉卜力工作室动画电影的精致画风特点：
+ * 1. 精细的色彩分层处理
+ * 2. 手绘质感模拟
+ * 3. 自然光影效果
+ * 4. 温暖而丰富的色调
+ * 5. 细腻的边缘处理
+ * 6. 梦幻氛围营造
+ *
+ * 算法特点：
+ * - 多层色彩处理：模拟手绘动画的分层上色
+ * - 自然光影：模拟自然光线的柔和过渡
+ * - 色彩和谐：创造温暖和谐的色彩搭配
+ * - 边缘艺术化：模拟手绘线条的自然感
+ * - 氛围渲染：营造吉卜力特有的梦幻氛围
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认吉卜力工作室风格
+ * BufferedImage ghibli = new GhibliStudioImageFilter().converter(src);
+ *
+ * // 自定义参数
+ * GhibliStudioImageFilter filter = new GhibliStudioImageFilter()
+ *         .setColorLayeringStrength(0.8)
+ *         .setHandDrawnTextureStrength(0.5)
+ *         .setDreamyAtmosphereStrength(0.4);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>colorLayeringStrength</b>（默认 0.7，范围 0.0-1.0）：色彩分层强度</li>
+ *   <li><b>handDrawnTextureStrength</b>（默认 0.4，范围 0.0-1.0）：手绘质感强度</li>
+ *   <li><b>naturalLightingStrength</b>（默认 0.6，范围 0.0-1.0）：自然光影强度</li>
+ *   <li><b>warmToneEnhancement</b>（默认 1.4，范围 0.0-2.0）：暖色调增强</li>
+ *   <li><b>saturationBoost</b>（默认 1.3，范围 0.0-2.0）：饱和度提升</li>
+ *   <li><b>contrastSoftening</b>（默认 0.3，范围 0.0-1.0）：对比度柔化</li>
+ *   <li><b>edgeArtisticStrength</b>（默认 0.5，范围 0.0-1.0）：边缘艺术化强度</li>
+ *   <li><b>dreamyAtmosphereStrength</b>（默认 0.3，范围 0.0-1.0）：梦幻氛围强度</li>
+ *   <li><b>brightnessAdjustment</b>（默认 8，范围 -20 到 20）：亮度微调</li>
+ *   <li><b>colorHarmonyStrength</b>（默认 0.6，范围 0.0-1.0）：色彩和谐强度</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出格式默认为 JPEG（不透明），原图 Alpha 通道丢失</li>
+ *   <li>与 {@link StudioGhibliStyleImageFilter} 是两套独立实现，
+ *       本滤镜侧重"手绘纹理 + 自然光"，后者侧重"暖色调 + 柔光"。</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -49,61 +82,61 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     /**
     * 色彩分层强度 (0.0-1.0)
     * 控制色彩分层的明显程度
-     */
+    */
     private double colorLayeringStrength = 0.7;
 
     /**
     * 手绘质感强度 (0.0-1.0)
     * 模拟手绘纹理的强度
-     */
+    */
     private double handDrawnTextureStrength = 0.4;
 
     /**
     * 自然光影强度 (0.0-1.0)
     * 模拟自然光线效果的强度
-     */
+    */
     private double naturalLightingStrength = 0.6;
 
     /**
     * 暖色调增强 (0.0-2.0)
     * 增强暖色调的程度
-     */
+    */
     private double warmToneEnhancement = 1.4;
 
     /**
     * 饱和度提升 (0.0-2.0)
     * 提升色彩饱和度
-     */
+    */
     private double saturationBoost = 1.3;
 
     /**
     * 对比度柔化 (0.0-1.0)
     * 柔化对比度的程度
-     */
+    */
     private double contrastSoftening = 0.3;
 
     /**
     * 边缘艺术化强度 (0.0-1.0)
     * 边缘艺术化处理的强度
-     */
+    */
     private double edgeArtisticStrength = 0.5;
 
     /**
     * 梦幻氛围强度 (0.0-1.0)
     * 梦幻氛围效果的强度
-     */
+    */
     private double dreamyAtmosphereStrength = 0.3;
 
     /**
     * 亮度微调 (-20 到 20)
     * 整体亮度的微调
-     */
+    */
     private int brightnessAdjustment = 8;
 
     /**
     * 色彩和谐度 (0.0-1.0)
     * 色彩和谐处理的强度
-     */
+    */
     private double colorHarmonyStrength = 0.6;
 
     @Override
@@ -175,7 +208,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 模拟动画中的分层上色技术
     * @param src src
     * @return applyColorLayering的结果
-     */
+    */
     private BufferedImage applyColorLayering(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -216,7 +249,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 增强暖色调和饱和度
     * @param src src
     * @return 增强warmtone和saturation的结果
-     */
+    */
     private BufferedImage enhanceWarmToneAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -265,7 +298,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用自然光影效果
     * @param src src
     * @return applynatural照明的结果
-     */
+    */
     private BufferedImage applyNaturalLighting(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -307,7 +340,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用柔和对比度
     * @param src src
     * @return applySoftContrast的结果
-     */
+    */
     private BufferedImage applySoftContrast(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -340,7 +373,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用艺术化边缘处理
     * @param src src
     * @return applyArtisticEdges的结果
-     */
+    */
     private BufferedImage applyArtisticEdges(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -393,7 +426,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * @param x x
     * @param y y
     * @return calculateArtisticEdgeStrength的结果
-     */
+    */
     private double calculateArtisticEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
         int centerGray = ImageProcessorUtils.luminance(centerRgb);
@@ -444,7 +477,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用手绘质感
     * @param src src
     * @return applyHandDrawnTexture的结果
-     */
+    */
     private BufferedImage applyHandDrawnTexture(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -482,7 +515,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用色彩和谐处理
     * @param src src
     * @return applyColorHarmony的结果
-     */
+    */
     private BufferedImage applyColorHarmony(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -530,7 +563,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * 应用梦幻氛围
     * @param src src
     * @return applyDreamyAtmosphere的结果
-     */
+    */
     private BufferedImage applyDreamyAtmosphere(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -575,7 +608,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * @param g g
     * @param b b
     * @return rgb转为hsv的结果
-     */
+    */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;
@@ -612,7 +645,7 @@ public class GhibliStudioImageFilter extends AbstractImageFilter {
     * @param s s
     * @param v v
     * @return hsv转为rgb的结果
-     */
+    */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;
         int c = (int) (v * s * 255);

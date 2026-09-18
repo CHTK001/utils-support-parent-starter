@@ -118,7 +118,7 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为消息类型名称的结果
-     */
+    */
     private static String toMessageTypeName(int type) {
         return switch (type) {
             case 1 -> "DISCOVER";
@@ -138,7 +138,7 @@ public class DhcpProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param ip ip
     * @return ip转为字符串的结果
-     */
+    */
     private static String ipToString(int ip) {
         return ((ip >> 24) & 0xff) + "."
                 + ((ip >> 16) & 0xff) + "."

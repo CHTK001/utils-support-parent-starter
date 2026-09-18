@@ -20,7 +20,7 @@ public class ForySerialization implements Serialization {
 
     /**
     * 全局共享 Fury 实例（调用方通过 同步 保证线程安全）
-     */
+    */
     private static final Fury FURY = Fury.builder()
             .withLanguage(Language.JAVA)
             .withRefTracking(true)
@@ -32,7 +32,7 @@ public class ForySerialization implements Serialization {
     * 获取共享 Fury 实例。
     *
     * @return Fury 实例
-     */
+    */
     private static Fury fury() {
         return FURY;
     }
@@ -62,7 +62,7 @@ public class ForySerialization implements Serialization {
     * @param type 目标类型（仅用于返回类型约束）
     * @param <T>  目标类型泛型
     * @return 反序列化后的对象
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialize(byte[] data, Class<T> type) {

@@ -80,7 +80,7 @@ public class AlibabaChatClient implements ChatClient {
     /**
     * 创建 alibaba对话客户端 实例
     * @param setting setting
-     */
+    */
     public AlibabaChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -95,7 +95,7 @@ public class AlibabaChatClient implements ChatClient {
     *
     * @param setting setting
     * @return 构建generation的结果
-     */
+    */
     private static Generation buildGeneration(ChatClientSetting setting) {
         var proxyStr = setting.getProxy();
         if (proxyStr == null || proxyStr.isBlank()) {
@@ -110,7 +110,7 @@ public class AlibabaChatClient implements ChatClient {
     *
     * @param proxyStr 代理str
     * @return 构建connection期权的结果
-     */
+    */
     private static ConnectionOptions buildConnectionOptions(String proxyStr) {
         String hostPort;
         if (proxyStr.startsWith("socks5://") || proxyStr.startsWith("socks://")) {
@@ -269,7 +269,7 @@ public class AlibabaChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -381,7 +381,7 @@ public class AlibabaChatClient implements ChatClient {
     * @param prompt 提示符
     * @param actualSystem actual系统
     * @return 构建消息的结果
-     */
+    */
     private List<Message> buildMessages(String prompt, String actualSystem) {
         var messages = new ArrayList<Message>();
         if (actualSystem != null && !actualSystem.isEmpty()) {

@@ -22,21 +22,21 @@ public class DataSourceEnvironment {
 
     /**
     * 连接池名称
-     */
+    */
     private String poolName;
 
     /**
     * 数据库类型
-     */
+    */
     private String databaseType;
 
     /**
     * 命名空间 / 模式
-     */
+    */
     private String schema;
 
     /**
     * 额外属性
-     */
+    */
     private Map<String, Object> properties;
 }

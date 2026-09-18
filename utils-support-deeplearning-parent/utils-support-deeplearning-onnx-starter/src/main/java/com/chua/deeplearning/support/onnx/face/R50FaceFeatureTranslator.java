@@ -26,7 +26,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
 
     /**
     * 模型输入尺寸（arcface 448x448x3 NHWC）
-     */
+    */
     private static final int INPUT_SIZE = 448;
 
     @Override
@@ -74,7 +74,7 @@ public class R50FaceFeatureTranslator implements Translator<Image, float[]> {
     * {@inheritDoc}
     *
     * <p>返回 {@code null}（单输入无需 batch，避免 OnnxRuntime NDArray 的 stack 不受支持）。</p>
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return null;

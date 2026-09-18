@@ -26,7 +26,7 @@ public class PytorchEmbeddingClient extends AbstractLocalEmbeddingClient {
     * 构造 pytorch 文本嵌入客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public PytorchEmbeddingClient(EmbeddingClientSetting setting) {
         super("pytorch", setting);
     }

@@ -30,7 +30,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     * 返回会话文件根目录。
     *
     * @return 根目录路径
-     */
+    */
     protected abstract Path rootDir();
 
     /**
@@ -38,7 +38,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     * 多数据源变体（如国际版/国内版并存）可重写。
     *
     * @return 根目录列表
-     */
+    */
     protected List<Path> rootDirs() {
         return List.of(rootDir());
     }
@@ -47,7 +47,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     * 返回会话文件后缀过滤条件。
     *
     * @return 后缀（含点号，如 {@code ".jsonl"}）
-     */
+    */
     protected abstract String fileSuffix();
 
     /**
@@ -57,7 +57,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     *
     * @param line 文件中的一行
     * @return 解析出的消息列表
-     */
+    */
     protected abstract List<ConversationMessage> parseLine(String line);
 
     /**
@@ -66,10 +66,10 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     * @param file 文件
     * @return 流文件的结果
      /**
-      * 流消息。
-      * @return 流消息的结果
-      * @param file 文件
-     */
+    * 流消息。
+    * @return 流消息的结果
+    * @param file 文件
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         List<Path> files = listTranscripts();
@@ -107,7 +107,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     * 解析线safe。
     * @param line 线
     * @return 解析线safe的结果
-     */
+    */
     private List<ConversationMessage> parseLineSafe(String line) {
         try {
             return parseLine(line);
@@ -120,7 +120,7 @@ public abstract class AbstractJsonlConversationParser implements ConversationPar
     /**
     * 列表transcripts。
     * @return 列表transcripts的结果
-     */
+    */
     private List<Path> listTranscripts() {
         List<Path> files = new java.util.ArrayList<>();
         for (Path root : rootDirs()) {

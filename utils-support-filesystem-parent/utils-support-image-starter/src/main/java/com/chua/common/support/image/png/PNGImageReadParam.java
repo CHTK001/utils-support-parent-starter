@@ -14,7 +14,7 @@ public final class PNGImageReadParam extends ImageReadParam {
     * 判断是否强制读取IDAT块
     *
     * @return boolean 表示是否强制读取IDAT块的布尔值
-     */
+    */
     public boolean isForceReadIDAT() {
         return forceReadIDAT;
     }
@@ -23,14 +23,14 @@ public final class PNGImageReadParam extends ImageReadParam {
     * 设置是否强制读取IDAT块
     *
     * @param forceReadIDAT 布尔值 表示是否强制读取IDAT块的布尔值
-     */
+    */
     public void setForceReadIDAT(boolean forceReadIDAT) {
         this.forceReadIDAT = forceReadIDAT;
     }
 
     /**
     * force读取idat变量用于存储是否强制读取IDAT块的设置默认为false，即不强制读取
-     */
+    */
     private boolean forceReadIDAT = false;
 
 }

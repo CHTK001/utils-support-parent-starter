@@ -25,7 +25,7 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
     /**
     * 创建 rate限制advisor 实例
     * @param intercept intercept
-     */
+    */
     public RateLimiterAdvisor(RateLimiterIntercept intercept) {
         super(new RateLimiterAdvice(intercept));
     }
@@ -35,11 +35,11 @@ public class RateLimiterAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * Matches
     *
     * @param method 方法
-    * @param targetClass Target类
+    * @param targetClass 目标类
     * @return 匹配的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(RateLimiter.class);
     }

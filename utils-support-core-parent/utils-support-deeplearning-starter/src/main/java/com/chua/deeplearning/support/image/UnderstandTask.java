@@ -51,7 +51,7 @@ public enum UnderstandTask {
     * 获取 提示符 前缀。
     *
     * @return prompt 前缀字符串
-     */
+    */
     public String prompt() {
         return prompt;
     }
@@ -61,7 +61,7 @@ public enum UnderstandTask {
     *
     * @param input 输入文本，替换 提示符 中的 {输入} 占位符
     * @return 完整 提示符
-     */
+    */
     public String promptWithInput(String input) {
         return prompt.replace("{input}", input);
     }

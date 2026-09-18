@@ -25,34 +25,34 @@ public class JRebelLicenseService {
 
     /**
     * 服务器 GUID
-     */
+    */
     private static final String SERVER_GUID = "a]\\%Qq@Yq/4~}Z^sT";
 
     /**
     * 操作成功状态码
-     */
+    */
     private static final String STATUS_SUCCESS = "SUCCESS";
 
     /**
     * 默认许可证有效期（天）
-     */
+    */
     private static final int DEFAULT_VALID_DAYS = 180;
 
     /**
     * 日期时间格式
-     */
+    */
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                     .withZone(ZoneId.of("UTC"));
 
     /**
     * 签名工具
-     */
+    */
     private final JRebelSign jRebelSign;
 
     /**
     * 许可证缓存
-     */
+    */
     private final Map<String, LicenseInfo> licenseCache = new ConcurrentHashMap<>();
 
     /** 创建 jrebel执照服务 实例 */
@@ -65,7 +65,7 @@ public class JRebelLicenseService {
     *
     * @param clientId 客户端标识
     * @return GUID
-     */
+    */
     public String generateGuid(String clientId) {
         if (clientId == null || clientId.isEmpty()) {
             return UUID.randomUUID().toString().toUpperCase();
@@ -81,7 +81,7 @@ public class JRebelLicenseService {
     * @param guid             许可证 GUID
     * @param offline          是否离线
     * @return 租约响应 JSON
-     */
+    */
     public Map<String, Object> createLeaseResponse(long clientRandomness, String username,
                                                    String guid, boolean offline) {
         Instant now = Instant.now();
@@ -129,7 +129,7 @@ public class JRebelLicenseService {
     *
     * @param guid 许可证 GUID
     * @return 验证结果
-     */
+    */
     public Map<String, Object> validateLease(String guid) {
         Map<String, Object> response = new HashMap<>();
 
@@ -169,7 +169,7 @@ public class JRebelLicenseService {
     * 创建 ping 响应
     *
     * @return ping 响应
-     */
+    */
     public Map<String, Object> createPingResponse() {
         Map<String, Object> response = new HashMap<>();
         response.put("serverVersion", "3.2.4");
@@ -190,7 +190,7 @@ public class JRebelLicenseService {
     *
     * @param guid 许可证 GUID
     * @return 是否成功
-     */
+    */
     public boolean releaseLease(String guid) {
         LicenseInfo removed = licenseCache.remove(guid);
         if (removed != null) {
@@ -204,7 +204,7 @@ public class JRebelLicenseService {
     * 获取缓存的许可证数量
     *
     * @return 数量
-     */
+    */
     public int getCachedLicenseCount() {
         return licenseCache.size();
     }
@@ -213,27 +213,27 @@ public class JRebelLicenseService {
     * 许可证信息
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class LicenseInfo {
         /**
         * 许可证 GUID
-         */
+        */
         private final String guid;
         /**
         * 用户名
-         */
+        */
         private final String username;
         /**
         * 生效时间
-         */
+        */
         private final String validFrom;
         /**
         * 失效时间
-         */
+        */
         private final String validUntil;
         /**
         * 是否离线许可证
-         */
+        */
         private final boolean offline;
 
         /**
@@ -243,7 +243,7 @@ public class JRebelLicenseService {
         * @param validFrom valid从
         * @param validUntil validuntil
         * @param offline offline
-         */
+        */
         public LicenseInfo(String guid, String username, String validFrom,
                            String validUntil, boolean offline) {
             this.guid = guid;
@@ -257,7 +257,7 @@ public class JRebelLicenseService {
         * 获取Guid
         *
         * @return 获取guid的结果
-         */
+        */
         public String getGuid() {
             return guid;
         }
@@ -266,7 +266,7 @@ public class JRebelLicenseService {
         * 获取用户名
         *
         * @return 获取用户名的结果
-         */
+        */
         public String getUsername() {
             return username;
         }
@@ -275,7 +275,7 @@ public class JRebelLicenseService {
         * 获取Valid从创建
         *
         * @return 获取valid从的结果
-         */
+        */
         public String getValidFrom() {
             return validFrom;
         }
@@ -284,7 +284,7 @@ public class JRebelLicenseService {
         * 获取validuntil
         *
         * @return 获取validuntil的结果
-         */
+        */
         public String getValidUntil()        {
             return validUntil;
         }
@@ -293,7 +293,7 @@ public class JRebelLicenseService {
         * 是否Offline
         *
         * @return 是否offline的结果
-         */
+        */
         public boolean isOffline() {
             return offline;
         }

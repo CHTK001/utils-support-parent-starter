@@ -22,17 +22,17 @@ public abstract class AbstractMetaView implements MetaView {
 
     /**
     * 元数据入口
-     */
+    */
     protected final AbstractMetaData metaData;
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
     * 当前视图名
-     */
+    */
     protected String viewName;
 
     /**
@@ -40,7 +40,7 @@ public abstract class AbstractMetaView implements MetaView {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     protected AbstractMetaView(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;
@@ -52,7 +52,7 @@ public abstract class AbstractMetaView implements MetaView {
     * @param metaData 元数据入口
     * @param engine   引擎实例
     * @param viewName 视图名
-     */
+    */
     protected AbstractMetaView(AbstractMetaData metaData, Engine engine, String viewName) {
         this.metaData = metaData;
         this.engine = engine;

@@ -292,7 +292,7 @@ public class SolrEngine extends AbstractEngine {
     * @param entityClass 实体类
     * @param groupByCols 分组字段列表（至少一个）
     * @return 分组查询包装器
-     */
+    */
     @SafeVarargs
     public final <T> GroupByQueryWrapper<T> groupBy(Class<T> entityClass, String... groupByCols) {
         return new GroupByQueryWrapper<>(this, entityClass, groupByCols);
@@ -340,7 +340,7 @@ public class SolrEngine extends AbstractEngine {
         *
         * @param cols cols
         * @return 选择的结果
-         */
+        */
         public GroupByQueryWrapper<T> select(String... cols) {
             selectCols.addAll(List.of(cols));
             return this;
@@ -352,7 +352,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return eq的结果
-         */
+        */
         public GroupByQueryWrapper<T> eq(String col, Object val) {
             where.add(escape(col) + ":" + escapeValue(val));
             return this;
@@ -364,7 +364,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return ne的结果
-         */
+        */
         public GroupByQueryWrapper<T> ne(String col, Object val) {
             where.add("-" + escape(col) + ":" + escapeValue(val));
             return this;
@@ -376,7 +376,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return gt的结果
-         */
+        */
         public GroupByQueryWrapper<T> gt(String col, Object val) {
             where.add(escape(col) + ":{" + escapeValue(val) + " TO *}");
             return this;
@@ -388,7 +388,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return ge的结果
-         */
+        */
         public GroupByQueryWrapper<T> ge(String col, Object val) {
             where.add(escape(col) + ":[" + escapeValue(val) + " TO *]");
             return this;
@@ -400,7 +400,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return lt的结果
-         */
+        */
         public GroupByQueryWrapper<T> lt(String col, Object val) {
             where.add(escape(col) + ":{* TO " + escapeValue(val) + "}");
             return this;
@@ -412,7 +412,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param val val
         * @return le的结果
-         */
+        */
         public GroupByQueryWrapper<T> le(String col, Object val) {
             where.add(escape(col) + ":[* TO " + escapeValue(val) + "]");
             return this;
@@ -424,7 +424,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param pattern 模式
         * @return like的结果
-         */
+        */
         public GroupByQueryWrapper<T> like(String col, String pattern) {
             String p = pattern;
             if (p.contains("%")) {
@@ -446,7 +446,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param vals vals
         * @return 入的结果
-         */
+        */
         public GroupByQueryWrapper<T> in(String col, Collection<?> vals) {
             StringBuilder sb = new StringBuilder();
             sb.append(escape(col)).append(":(");
@@ -468,7 +468,7 @@ public class SolrEngine extends AbstractEngine {
         * @param col col
         * @param asc asc
         * @return 订单by的结果
-         */
+        */
         public GroupByQueryWrapper<T> orderBy(String col, boolean asc) {
             this.sortCol = col;
             this.sortAsc = asc;
@@ -480,7 +480,7 @@ public class SolrEngine extends AbstractEngine {
         *
         * @param limit 限制
         * @return 限制的结果
-         */
+        */
         public GroupByQueryWrapper<T> limit(int limit) {
             this.limit = Math.max(1, limit);
             return this;
@@ -491,7 +491,7 @@ public class SolrEngine extends AbstractEngine {
         *
         * @param offset 偏移量
         * @return 偏移量的结果
-         */
+        */
         public GroupByQueryWrapper<T> offset(int offset) {
             this.offset = Math.max(0, offset);
             return this;
@@ -501,7 +501,7 @@ public class SolrEngine extends AbstractEngine {
         * 列表
         *
         * @return 列表的结果
-         */
+        */
         public List<Map<String, Object>> list() {
             return executeGroupBy();
         }
@@ -512,7 +512,7 @@ public class SolrEngine extends AbstractEngine {
         * @param pn pn
         * @param ps ps
         * @return page的结果
-         */
+        */
         public Page<Map<String, Object>> page(int pn, int ps) {
             List<Map<String, Object>> all = executeGroupBy();
             int from = (pn - 1) * ps;
@@ -528,7 +528,7 @@ public class SolrEngine extends AbstractEngine {
         * 执行分组By
         *
         * @return 执行群体by的结果
-         */
+        */
         private List<Map<String, Object>> executeGroupBy() {
             SolrClient sc = engine.getClient();
             if (sc == null || groupByCols.isEmpty()) {
@@ -573,7 +573,7 @@ public class SolrEngine extends AbstractEngine {
     * @param offset 偏移量
     * @param limit 限制
     * @return 构建jsonfacet的结果
-     */
+    */
     private static String buildJsonFacet(List<String> cols, int idx, int offset, int limit) {
         if (idx >= cols.size()) {
             return "{\"count\":\"*\"}";
@@ -648,11 +648,11 @@ public class SolrEngine extends AbstractEngine {
     * @param sc sc
     * @param url url
     * @param value 值
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @param num num
     * @param str str
     * @param ignored ignored
-     */
+    */
     private static List<Map<String, Object>> parseFacetResponse(
             Object facets, List<String> groupByCols, int depth) {
         /* solrj 对 /query 的响应中 facets 是普通 Map（非 NestableJsonFacet），
@@ -662,7 +662,7 @@ public class SolrEngine extends AbstractEngine {
 
     /**
     * 以裸 映射/名称列表 结构递归解析 json.facet 分组结果。
-     */
+    */
     private static List<Map<String, Object>> parseFacetsFromMap(
             Object facetsNode, List<String> groupByCols, int depth) {
         List<Map<String, Object>> result = new ArrayList<>();
@@ -695,7 +695,7 @@ public class SolrEngine extends AbstractEngine {
     * @param node 节点
     * @param key 键
     * @return 子的结果
-     */
+    */
     private static Object child(Object node, String key) {
         if (node instanceof Map) {
             return ((Map<?, ?>) node).get(key);
@@ -840,7 +840,7 @@ public class SolrEngine extends AbstractEngine {
     * @param entityClass 实体类
     * @param conditions 条件
     * @return 搜索的结果
-     */
+    */
     private <T> List<T> search(Class<T> entityClass, List<Condition> conditions) {
         return search(entityClass, conditions, 0, 1000).list();
     }
@@ -857,7 +857,7 @@ public class SolrEngine extends AbstractEngine {
     * @param start 启动
     * @param rows rows
     * @return 搜索的结果
-     */
+    */
     private <T> SearchResult<T> search(Class<T> entityClass, List<Condition> conditions, int start, int rows) {
         SolrClient sc = getClient();
         if (sc == null) {
@@ -907,7 +907,7 @@ public class SolrEngine extends AbstractEngine {
     *
     * @param conditions 条件
     * @return 构建Solr查询的结果
-     */
+    */
     static String buildSolrQuery(List<Condition> conditions) {
         if (CollectionUtils.isEmpty(conditions)) {
             return "*:*";
@@ -928,7 +928,7 @@ public class SolrEngine extends AbstractEngine {
     *
     * @param c c
     * @return 构建条件查询的结果
-     */
+    */
     static String buildConditionQuery(Condition c) {
         if (c.isNested()) {
             List<Condition> nested = c.getNested();
@@ -1045,7 +1045,7 @@ public class SolrEngine extends AbstractEngine {
     *
     * @param value 值
     * @return escape的结果
-     */
+    */
     private static String escape(String value) {
         if (value == null) {
             return "";
@@ -1085,7 +1085,7 @@ public class SolrEngine extends AbstractEngine {
     *
     * @param value 值
     * @return escape值的结果
-     */
+    */
     private static String escapeValue(Object value) {
         if (value == null) {
             return "\\*";
@@ -1102,7 +1102,7 @@ public class SolrEngine extends AbstractEngine {
     * 获取 DDL 管理器入口（与 meta() 同模式）。
     * 将集合映射为 tabledef、模式 字段映射为 columndef。
     * @return ddl的结果
-     */
+    */
     public com.chua.datasource.support.ddl.DslManager ddl() {
         return new com.chua.solr.support.ddl.SolrDdlManager(getClient());
     }
@@ -1111,7 +1111,7 @@ public class SolrEngine extends AbstractEngine {
     * 获取客户端
     *
     * @return 获取客户端的结果
-     */
+    */
     public SolrClient getClient() {
         if (client != null) {
             return client;
@@ -1137,9 +1137,9 @@ public class SolrEngine extends AbstractEngine {
     * 转换值
     *
     * @param value 值
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 转换值的结果
-     */
+    */
     private Object convertValue(Object value, Class<?> targetType) {
         if (value == null) {
             return null;

@@ -22,17 +22,17 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
 
     /**
     * 元数据入口
-     */
+    */
     protected final AbstractMetaData metaData;
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
     * 当前存储过程名
-     */
+    */
     protected String procedureName;
 
     /**
@@ -40,7 +40,7 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     protected AbstractMetaProcedure(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;
@@ -52,7 +52,7 @@ public abstract class AbstractMetaProcedure implements MetaProcedure {
     * @param metaData     元数据入口
     * @param engine       引擎实例
     * @param procedureName 存储过程名
-     */
+    */
     protected AbstractMetaProcedure(AbstractMetaData metaData, Engine engine, String procedureName) {
         this.metaData = metaData;
         this.engine = engine;

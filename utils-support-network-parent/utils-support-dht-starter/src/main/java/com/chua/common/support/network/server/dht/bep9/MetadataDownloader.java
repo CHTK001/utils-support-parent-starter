@@ -21,17 +21,17 @@ public class MetadataDownloader {
 
     /**
     * 元数据块大小（字节），与 BEP 9 规范一致。
-     */
+    */
     private static final int BLOCK_SIZE = 16384;
 
     /**
     * 单个块的最大重试次数。
-     */
+    */
     private static final int MAX_RETRIES = 2;
 
     /**
     * 下载取消标志。
-     */
+    */
     private volatile boolean cancelled;
 
     /**
@@ -41,7 +41,7 @@ public class MetadataDownloader {
     * @param infoHash 20 字节 infohash
     * @param timeoutMs 超时时间（毫秒）
     * @return 下载结果
-     */
+    */
     public MetadataResult download(InetSocketAddress peer, byte[] infoHash, int timeoutMs) {
         this.cancelled = false;
         long deadline = System.currentTimeMillis() + timeoutMs;
@@ -109,7 +109,7 @@ public class MetadataDownloader {
     * @param deadline 截止时间戳（毫秒）
     * @return 块数据，失败返回 空
     * @throws Exception 下载异常
-     */
+    */
     private byte[] downloadPiece(PeerWireClient client, int utId, int piece, long deadline) throws Exception {
         Map<String, Object> req = new LinkedHashMap<>();
         req.put("msg_type", 0L);
@@ -147,7 +147,7 @@ public class MetadataDownloader {
     * @param expectedPiece 期望的块索引
     * @param extMsgId     扩展消息 标识
     * @return 块数据，不匹配或异常返回 空
-     */
+    */
     private byte[] tryExtractPiece(byte[] payload, int expectedPiece, int extMsgId) {
         if (payload.length < 2) {
             return null;
@@ -193,7 +193,7 @@ public class MetadataDownloader {
     * @param data  Bencode 字节数组
     * @param start 起始索引
     * @return 字典结束位置（'e' 的位置），无效返回 -1
-     */
+    */
     static int findDictEnd(byte[] data, int start) {
         if (start >= data.length || data[start] != 'd') {
             return -1;
@@ -234,7 +234,7 @@ public class MetadataDownloader {
     *
     * @param metadata 完整元数据字节数组
     * @return 种子名称，失败返回 "unknown"
-     */
+    */
     @SuppressWarnings("unchecked")
     private String parseName(byte[] metadata) {
         try {
@@ -275,7 +275,7 @@ public class MetadataDownloader {
     *
     * @param obj 值对象
     * @return 字符串，不匹配返回 空
-     */
+    */
     private String str(Object obj) {
         if (obj instanceof byte[]) {
             return new String((byte[]) obj, StandardCharsets.UTF_8);
@@ -288,7 +288,7 @@ public class MetadataDownloader {
 
     /**
     * 取消正在进行的下载。
-     */
+    */
     public void cancel() {
         this.cancelled = true;
     }
@@ -297,27 +297,27 @@ public class MetadataDownloader {
     * 元数据下载结果。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class MetadataResult {
 
         /**
         * 是否下载成功。
-         */
+        */
         public final boolean ok;
 
         /**
         * 错误信息（失败时非空）。
-         */
+        */
         public final String error;
 
         /**
         * 种子名称（成功时非空）。
-         */
+        */
         public final String name;
 
         /**
         * 原始元数据字节数组（成功时非空）。
-         */
+        */
         public final byte[] raw;
 
         /**
@@ -327,7 +327,7 @@ public class MetadataDownloader {
         * @param error 错误信息
         * @param name  种子名称
         * @param raw   原始元数据
-         */
+        */
         private MetadataResult(boolean ok, String error, String name, byte[] raw) {
             this.ok = ok;
             this.error = error;
@@ -341,7 +341,7 @@ public class MetadataDownloader {
         * @param name 种子名称
         * @param raw  原始元数据
         * @return MetadataResult 实例
-         */
+        */
         static MetadataResult ok(String name, byte[] raw) {
             return new MetadataResult(true, null, name, raw);
         }
@@ -351,7 +351,7 @@ public class MetadataDownloader {
         *
         * @param error 错误信息
         * @return MetadataResult 实例
-         */
+        */
         static MetadataResult err(String error) {
             return new MetadataResult(false, error, null, null);
         }

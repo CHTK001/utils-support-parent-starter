@@ -21,7 +21,7 @@ public class FruitClassificationTranslator extends SiglipZeroShotClassificationT
             * fruitclassificationtranslator。
             * @param candidates candidates
             * @return 构建参数的结果
-             */
+            */
             "papaya,passion fruit,coconut,avocado,chanoy";
 
     public FruitClassificationTranslator() {

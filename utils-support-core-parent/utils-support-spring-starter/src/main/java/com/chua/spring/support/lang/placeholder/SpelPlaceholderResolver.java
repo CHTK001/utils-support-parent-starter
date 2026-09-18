@@ -31,7 +31,7 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
 
     /**
     * spel 表达式解析器，线程安全，可复用
-     */
+    */
     private final ExpressionParser parser = new SpelExpressionParser();
 
     @Override
@@ -66,7 +66,7 @@ public class SpelPlaceholderResolver implements PlaceholderResolver {
     * {@code @beanName} 引用容器 Bean；非 Spring 环境仅支持纯表达式求值。</p>
     *
     * @return 绑定 Bean 解析器的求值上下文
-     */
+    */
     private StandardEvaluationContext createEvaluationContext() {
         StandardEvaluationContext context = new StandardEvaluationContext();
         if (SpringBeanUtils.getApplicationContextOrNull() != null) {

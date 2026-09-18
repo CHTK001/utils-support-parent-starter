@@ -32,7 +32,7 @@ public class VideoSearchService {
     *
     * @param search 搜索参数
     * @return 聚合分页结果（各源结果合并，total 为各源之和）
-     */
+    */
     public ReturnPageResult<VideoInfoResult> search(VideoSearch search) {
         List<VideoInfoResult> all = new ArrayList<>();
         long total = 0;

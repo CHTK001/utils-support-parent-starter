@@ -31,7 +31,7 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
 
     /**
     * 响应式流式入口：通过 sqlitereactorengine 流出会话记录。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -55,7 +55,7 @@ public class CodexPlusPlusUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "codex++"}
-     */
+    */
     @Override
     public String name() {
         return "codex++";

@@ -23,7 +23,7 @@ public interface EyeDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static EyeDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(EyeDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -34,7 +34,7 @@ public interface EyeDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default EyeDetector provider(String provider) {
         return this;
     }
@@ -44,7 +44,7 @@ public interface EyeDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default EyeDetector model(String model) {
         return this;
     }
@@ -55,7 +55,7 @@ public interface EyeDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static EyeDetector create(String name) {
         return new DefaultEyeDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -67,7 +67,7 @@ public interface EyeDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.EyeDetector.class);
     }
@@ -79,7 +79,7 @@ public interface EyeDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static EyeDetector create(String name, ModelSetting setting) {
         return new DefaultEyeDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -89,7 +89,7 @@ public interface EyeDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default EyeDetector modelPath(String path) {
         return this;
     }
@@ -99,7 +99,7 @@ public interface EyeDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default EyeDetector device(String device) {
         return this;
     }
@@ -109,7 +109,7 @@ public interface EyeDetector {
     *
     * @param imageData 图像字节数组
     * @return 眼睛框列表
-     */
+    */
     List<PredictRectangle> detect(byte[] imageData);
 
     /**
@@ -117,7 +117,7 @@ public interface EyeDetector {
     *
     * @param imageData 图像字节数组
     * @return 数量
-     */
+    */
     default int eyeCount(byte[] imageData) {
         return detect(imageData).size();
     }
@@ -133,29 +133,29 @@ class DefaultEyeDetector implements EyeDetector {
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = "cpu";
 
     DefaultEyeDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -191,7 +191,7 @@ class DefaultEyeDetector implements EyeDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);

@@ -98,7 +98,7 @@ public class GoSoftwareProvider implements SoftwareProvider {
     * @param action 动作
     * @param packageId 包标识
     * @return 执行命令的结果
-     */
+    */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
@@ -125,11 +125,11 @@ public class GoSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * 解析go输出
-    *
-    * @param output 输出
-    * @return 解析go输出的结果
-     */
+            * 解析go输出
+            *
+            * @param output 输出
+            * @return 解析go输出的结果
+            */
     private List<SoftwareInfo> parseGoOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {

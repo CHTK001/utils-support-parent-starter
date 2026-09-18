@@ -143,7 +143,7 @@ public class H2SearchEngineImpl implements SearchEngine {
     /**
     * 获取 数据源（用于全文检索查询）。
     * @return 获取conn的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
         Engine eng = engine;
@@ -170,7 +170,7 @@ public class H2SearchEngineImpl implements SearchEngine {
     * 因此这里直接大写化以匹配 H2 内部存储形式，避免引号导致的大小写敏感问题。
     * @param name 名称
     * @return escape的结果
-     */
+    */
     private static String escape(String name) {
         if (name == null) {
             return "";

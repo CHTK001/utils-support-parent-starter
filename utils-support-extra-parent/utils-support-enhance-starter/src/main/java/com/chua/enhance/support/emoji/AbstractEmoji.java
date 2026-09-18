@@ -28,7 +28,7 @@ public abstract class AbstractEmoji {
     * @param hex hex
     * @param asSurrogate assurrogate
     * @return html助手的结果
-     */
+    */
     protected static String htmlHelper(String text, boolean hex, boolean asSurrogate) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {

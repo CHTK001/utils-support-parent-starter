@@ -37,42 +37,42 @@ public class DatalakeServerBuilder {
 
     /**
     * 管线配置管理器
-     */
+    */
     private PipelineManager pipelineManager;
 
     /**
     * sink 注册表
-     */
+    */
     private final Map<String, DataSink> sinkRegistry = new ConcurrentHashMap<>();
 
     /**
     * 外部注入的 数据同步服务端
-     */
+    */
     private DataSyncServer dataSyncServer;
 
     /**
     * dispatcher提供者 实例
-     */
+    */
     private DispatcherProvider dispatcher;
 
     /**
     * Chronicle 共享目录（用于跨进程通信）
-     */
+    */
     private String dataPath;
 
     /**
     * 偏移量 门面
-     */
+    */
     private OffsetFlow offsetFlow;
 
     /**
     * 启动期注入的 API 服务端
-     */
+    */
     private Server apiServer;
 
     /**
     * 私有构造，强制使用 {@link #builder()} 创建。
-     */
+    */
     private DatalakeServerBuilder() {
     }
 
@@ -80,7 +80,7 @@ public class DatalakeServerBuilder {
     * 创建构建器实例
     *
     * @return 新构建器
-     */
+    */
     public static DatalakeServerBuilder builder() {
         return new DatalakeServerBuilder();
     }
@@ -90,7 +90,7 @@ public class DatalakeServerBuilder {
     *
     * @param pipelineManager 管线管理器实例
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder pipelineManager(PipelineManager pipelineManager) {
         this.pipelineManager = pipelineManager;
         return this;
@@ -101,7 +101,7 @@ public class DatalakeServerBuilder {
     *
     * @param sink 待注册的 sink
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder registerSink(DataSink sink) {
         this.sinkRegistry.put(sink.type(), sink);
         return this;
@@ -112,7 +112,7 @@ public class DatalakeServerBuilder {
     *
     * @param sinks sink 集合
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder sinks(Map<String, DataSink> sinks) {
         this.sinkRegistry.putAll(sinks);
         return this;
@@ -123,7 +123,7 @@ public class DatalakeServerBuilder {
     *
     * @param dataSyncServer 数据同步服务端 实例
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder dataSyncServer(DataSyncServer dataSyncServer) {
         this.dataSyncServer = dataSyncServer;
         return this;
@@ -134,7 +134,7 @@ public class DatalakeServerBuilder {
     *
     * @param dataPath 数据路径
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder dataPath(String dataPath) {
         this.dataPath = dataPath;
         return this;
@@ -145,7 +145,7 @@ public class DatalakeServerBuilder {
     *
     * @param apiServer API 服务端 实例
     * @return 当前构建器
-     */
+    */
     public DatalakeServerBuilder apiServer(Server apiServer) {
         this.apiServer = apiServer;
         return this;
@@ -155,7 +155,7 @@ public class DatalakeServerBuilder {
     * 构建 数据湖服务端 实例
     *
     * @return 已配置的服务器
-     */
+    */
     public DatalakeServer build() {
         if (pipelineManager == null) {
             pipelineManager = new DefaultPipelineManager();

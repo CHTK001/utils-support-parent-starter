@@ -52,7 +52,7 @@ public class MimoUsageParser extends BaseUsageParser {
     * ~/.local/share。
     *
     * @return MiMo 数据库路径
-     */
+    */
     private static Path resolveDbPath() {
         String appData = System.getenv("APPDATA");
         if (appData != null && !appData.isBlank()) {
@@ -70,7 +70,7 @@ public class MimoUsageParser extends BaseUsageParser {
     * 仅统计 MiMo 自身轮次（providerID 为 mimo / xiaomi），排除镜像进来的
     * anthropic/openai/google 行——那些已由各自的 Claude / Codex / Gemini
     * 解析器计数，纳入本解析器会双计。
-     */
+    */
     private static final String SQL_MESSAGES =
             "SELECT time_created, "
                     + "json_extract(data, '$.providerID') AS providerID, "
@@ -87,7 +87,7 @@ public class MimoUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "mimo"}
-     */
+    */
     @Override
     public String name() {
         return PROVIDER_MIMO;
@@ -95,7 +95,7 @@ public class MimoUsageParser extends BaseUsageParser {
 
     /**
     * 流式解析 MiMo 自身轮次的用量记录。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -115,7 +115,7 @@ public class MimoUsageParser extends BaseUsageParser {
     *
     * @param row 数据库行
     * @return 用量记录
-     */
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         String rawTokens = asStr(row.get("tokens"));
         int input = 0, output = 0, reasoning = 0, cacheRead = 0, cacheWrite = 0;

@@ -52,7 +52,7 @@ public class TraeHttpClient {
     /**
     * Traehttp客户端。
     * @param builder 构建器
-     */
+    */
     private TraeHttpClient(Builder builder) {
         Objects.requireNonNull(builder.authManager, "authManager is required");
         this.authManager = builder.authManager;
@@ -79,7 +79,7 @@ public class TraeHttpClient {
     * HTTP 客户端 构建器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
         /** 认证管理器，必填 */
         private AuthManager authManager;
@@ -101,7 +101,7 @@ public class TraeHttpClient {
         *
         * @param authManager 认证实例，不可为 空
         * @return 当前 构建器
-         */
+        */
         public Builder authManager(AuthManager authManager) { this.authManager = authManager; return this; }
 
         /**
@@ -109,7 +109,7 @@ public class TraeHttpClient {
         *
         * @param apiHost 主机地址，不可为 空
         * @return 当前 构建器
-         */
+        */
         public Builder apiHost(String apiHost) { this.apiHost = apiHost; return this; }
 
         /**
@@ -117,7 +117,7 @@ public class TraeHttpClient {
         *
         * @param appId 应用标识
         * @return 当前 构建器
-         */
+        */
         public Builder appId(String appId) { this.appId = appId; return this; }
 
         /**
@@ -125,7 +125,7 @@ public class TraeHttpClient {
         *
         * @param v 版本号
         * @return 当前 构建器
-         */
+        */
         public Builder ideVersion(String v) { this.ideVersion = v; return this; }
 
         /**
@@ -133,7 +133,7 @@ public class TraeHttpClient {
         *
         * @param v 版本码
         * @return 当前 构建器
-         */
+        */
         public Builder ideVersionCode(String v) { this.ideVersionCode = v; return this; }
 
         /**
@@ -142,7 +142,7 @@ public class TraeHttpClient {
         * @param host 代理主机
         * @param port 代理端口
         * @return 当前 构建器
-         */
+        */
         public Builder httpProxy(String host, int port) { this.httpProxy = host; this.proxyPort = port; return this; }
 
         /**
@@ -150,7 +150,7 @@ public class TraeHttpClient {
         *
         * @return 配置完成的 Traehttp客户端
         * @throws IllegalStateException 当 认证管理器 未设置时
-         */
+        */
         public TraeHttpClient build() {
             if (authManager == null) {
                 throw new IllegalStateException("authManager is required");
@@ -165,7 +165,7 @@ public class TraeHttpClient {
     *
     * @param auth 认证快照，不可为 空
     * @return 请求头 映射，有序
-     */
+    */
     public Map<String, String> buildHeaders(AuthManager.AuthSnapshot auth) {
         Objects.requireNonNull(auth, "auth must not be null");
         String traceId = UUID.randomUUID().toString().replace("-", "");
@@ -197,7 +197,7 @@ public class TraeHttpClient {
     * @param body JSON 请求体
     * @param streaming 是否流式请求（true 时附加 Accept: 文本/事件-流）
     * @return 构造好的 请求 对象
-     */
+    */
     public Request buildRequest(String url, Map<String, String> headers, String body, boolean streaming) {
         Objects.requireNonNull(url, "url must not be null");
         Objects.requireNonNull(headers, "headers must not be null");
@@ -219,20 +219,20 @@ public class TraeHttpClient {
     * 获取底层 OkHttp 实例。
     *
     * @return 原始 OkHttp 客户端
-     */
+    */
     public OkHttpClient rawClient() { return client; }
 
     /**
     * 获取 API 主机地址。
     *
     * @return 主机 URL
-     */
+    */
     public String apiHost() { return apiHost; }
 
     /**
     * 获取认证管理器。
     *
     * @return AuthManager 实例
-     */
+    */
     public AuthManager authManager() { return authManager; }
 }

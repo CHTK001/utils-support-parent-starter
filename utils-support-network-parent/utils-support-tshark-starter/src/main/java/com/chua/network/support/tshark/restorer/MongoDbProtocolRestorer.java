@@ -68,7 +68,7 @@ public class MongoDbProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param op op
     * @return 转为op编码名称的结果
-     */
+    */
     private static String toOpCodeName(int op) {
         return switch (op) {
             case 2004 -> "OP_QUERY";

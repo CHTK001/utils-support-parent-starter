@@ -24,7 +24,7 @@ public class ForgeStyleApiModel3DGenerator extends AbstractApiModel3DGenerator {
     /**
     * 创建 forgestyleapi模型3d生成器 实例
     * @param config 配置
-     */
+    */
     public ForgeStyleApiModel3DGenerator(Model3DConfig config) {
         super(config);
     }

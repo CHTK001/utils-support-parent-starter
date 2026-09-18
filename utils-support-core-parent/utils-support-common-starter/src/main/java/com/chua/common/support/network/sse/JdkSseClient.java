@@ -172,8 +172,8 @@ public class JdkSseClient implements SseClient {
     }
 
     /**
-    * 已关闭的空连接（用于错误路径）
-    */
+        * 已关闭的空连接（用于错误路径）
+        */
     private static final class ClosedSseConnection implements SseConnection {
 
         /**
@@ -194,11 +194,11 @@ public class JdkSseClient implements SseClient {
     }
 
     /**
-    * 根据请求体构建 BodyPublisher
-    *
-    * @param request SSE 请求参数
-    * @return BodyPublisher
-    */
+        * 根据请求体构建 BodyPublisher
+        *
+        * @param request SSE 请求参数
+        * @return BodyPublisher
+        */
     private static HttpRequest.BodyPublisher bodyPublisher(SseRequest request) {
         String body = request.getBody();
         if (body == null || body.isEmpty()) {

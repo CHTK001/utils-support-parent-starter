@@ -22,7 +22,7 @@ public interface RegionProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -31,7 +31,7 @@ public interface RegionProvider {
     * <p>列表中每个节点均携带 {@code level}/{@code parent}，可据此还原层级关系。
     *
     * @return 行政区划列表
-     */
+    */
     List<RegionInfo> getRegions();
 
     /**
@@ -41,7 +41,7 @@ public interface RegionProvider {
     *
     * @param maxLevel 最大层级（1~4）
     * @return 行政区划列表
-     */
+    */
     List<RegionInfo> getRegions(int maxLevel);
 
     /**
@@ -51,7 +51,7 @@ public interface RegionProvider {
     *
     * @param parentAdcode 父级行政区划代码
     * @return 下级行政区划列表
-     */
+    */
     List<RegionInfo> getChildren(String parentAdcode);
 
     /**
@@ -62,6 +62,6 @@ public interface RegionProvider {
     *
     * @param maxLevel 最大层级（1~4）
     * @return 以「中国」为根、嵌套 children 的行政区划树
-     */
+    */
     RegionInfo getTree(int maxLevel);
 }

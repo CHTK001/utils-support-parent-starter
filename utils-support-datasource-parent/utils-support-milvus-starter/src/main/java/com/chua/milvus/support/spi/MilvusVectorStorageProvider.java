@@ -20,7 +20,7 @@ public class MilvusVectorStorageProvider implements VectorStorageProvider {
     * SPI 名称。
     *
     * @return "milvus"
-     */
+    */
     @Override
     public String name() {
         return "milvus";
@@ -32,7 +32,7 @@ public class MilvusVectorStorageProvider implements VectorStorageProvider {
     * @param dimension 维度
     * @param algorithm algorithm
     * @param properties 属性
-     */
+    */
     public VectorStorage create(int dimension,
                                 VectorCompareAlgorithm algorithm,
                                 Object properties) {

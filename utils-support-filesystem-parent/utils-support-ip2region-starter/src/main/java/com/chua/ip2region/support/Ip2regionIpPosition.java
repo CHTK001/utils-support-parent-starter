@@ -23,27 +23,27 @@ public class Ip2regionIpPosition implements IpPosition {
 
     /**
     * 默认数据库文件路径
-     */
+    */
     private static final String DEFAULT_DB = "ip2region.xdb";
 
     /**
     * xdb 文件完整数据
-     */
+    */
     private final byte[] data;
 
     /**
     * 索引区起始位置
-     */
+    */
     private final long indexBegin;
 
     /**
     * 索引区结束位置
-     */
+    */
     private final long indexEnd;
 
     /**
     * 使用默认路径构造。
-     */
+    */
     public Ip2regionIpPosition() {
         this(DEFAULT_DB);
     }
@@ -52,7 +52,7 @@ public class Ip2regionIpPosition implements IpPosition {
     * 指定数据库文件路径构造。
     *
     * @param dbPath xdb 数据库文件路径
-     */
+    */
     public Ip2regionIpPosition(String dbPath) {
         try {
             byte[] buf = Files.readAllBytes(Path.of(dbPath));
@@ -119,7 +119,7 @@ public class Ip2regionIpPosition implements IpPosition {
     * 读取 4 字节无符号整数（小端序）。
     * @param offset 偏移量
     * @return 读取int的结果
-     */
+    */
     private long readInt(int offset) {
         return (data[offset] & 0xFFL)
              | ((data[offset + 1] & 0xFFL) << 8)
@@ -132,7 +132,7 @@ public class Ip2regionIpPosition implements IpPosition {
     * @param offset 偏移量
     * @param buffer 缓冲
     * @return 读取字符串的结果
-     */
+    */
     private String readString(int offset, byte[] buffer) {
         int end = offset;
         while (end < buffer.length && buffer[end] != 0) {
@@ -145,7 +145,7 @@ public class Ip2regionIpPosition implements IpPosition {
     * 将 IP 地址转换为长整型。
     * @param ip ip
     * @return ip转为long的结果
-     */
+    */
     private static long ipToLong(String ip) {
         String[] parts = ip.split("\\.");
         long result = 0;

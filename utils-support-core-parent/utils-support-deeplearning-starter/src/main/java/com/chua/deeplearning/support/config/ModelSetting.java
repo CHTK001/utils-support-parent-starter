@@ -15,11 +15,11 @@ public class ModelSetting {
 
     /**
     * 模型文件路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备（如 "cpu"、"gpu"）
-     */
+    */
     private String device;
 }

@@ -34,23 +34,23 @@ public class DubboRpcServer implements RpcServer {
 
     /**
     * registry 配置
-     */
+    */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
     * 协议 配置
-     */
+    */
     private final List<ProtocolConfig> protocolConfigs = new ArrayList<>();
     /**
     * 服务 配置
-     */
+    */
     private final List<ServiceConfig<?>> serviceConfigs = new ArrayList<>();
     /**
     * 状态
-     */
+    */
     private final AtomicBoolean state = new AtomicBoolean(false);
     /**
     * application 配置
-     */
+    */
     private final ApplicationConfig applicationConfig;
 
     /**
@@ -60,7 +60,7 @@ public class DubboRpcServer implements RpcServer {
     * @param name 字符串
     * @param protocolConfig 协议配置
     * @param name 名称
-     */
+    */
     public DubboRpcServer(List<RpcRegistryConfig> rpcRegistryConfigs, RpcProtocolConfig protocolConfig, String name) {
         applicationConfig = DubboConfigs.get(name);
         initRegistries(rpcRegistryConfigs);
@@ -71,7 +71,7 @@ public class DubboRpcServer implements RpcServer {
     * 初始化Registries
     *
     * @param configs 配置
-     */
+    */
     private void initRegistries(List<RpcRegistryConfig> configs) {
         if (configs == null) {
             return;
@@ -100,7 +100,7 @@ public class DubboRpcServer implements RpcServer {
     * 初始化协议
     *
     * @param config 配置
-     */
+    */
     private void initProtocol(RpcProtocolConfig config) {
         if (config == null) {
             return;

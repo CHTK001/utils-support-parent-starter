@@ -23,7 +23,7 @@ public record KimiChatResult(
     * 判断是否成功。
     *
     * @return true 表示成功
-     */
+    */
     public boolean isSuccess() {
         return errorMessage == null;
     }

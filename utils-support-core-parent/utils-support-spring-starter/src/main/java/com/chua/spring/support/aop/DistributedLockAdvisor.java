@@ -26,7 +26,7 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * 构造函数。
     *
     * @param intercept 分布式锁拦截器实例
-     */
+    */
     public DistributedLockAdvisor(DistributedLockIntercept intercept) {
         super(new DistributedLockAdvice(intercept));
     }
@@ -37,7 +37,7 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * @param method      待检查的方法对象
     * @param targetClass 目标类的类型信息
     * @return 如果方法包含 {@link DistributedLock} 注解则返回 true，否则返回 false
-     */
+    */
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
         return method.isAnnotationPresent(DistributedLock.class);
@@ -47,19 +47,19 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
     * {@link DistributedLock} 注解的 Spring AOP Advice 实现类。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class DistributedLockAdvice implements MethodInterceptor {
 
         /**
         * 分布式锁拦截器实例，用于执行具体的锁定逻辑。
-         */
+        */
         private final DistributedLockIntercept intercept;
 
         /**
         * 构造方法。
         *
         * @param intercept 分布式锁拦截器实例
-         */
+        */
         DistributedLockAdvice(DistributedLockIntercept intercept) {
             this.intercept = intercept;
         }
@@ -74,7 +74,7 @@ public class DistributedLockAdvisor extends StaticMethodMatcherPointcutAdvisor {
         * @param invocation AOP 方法调用上下文
         * @return 方法执行结果
         * @throws Throwable 执行过程中可能抛出的异常
-         */
+        */
         @Override
         public Object invoke(org.aopalliance.intercept.MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();

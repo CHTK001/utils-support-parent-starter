@@ -30,7 +30,7 @@ final class SafeTensorImageUtils {
     *
     * @param input 图像输入
     * @return base64 编码字符串
-     */
+    */
     static String toBase64(Object input) {
         if (input instanceof String text) {
             String normalized = normalizeBase64(text);
@@ -52,7 +52,7 @@ final class SafeTensorImageUtils {
     * @param input 输入
     * @return BufferedImage
     * @throws IOException IO 异常
-     */
+    */
     static BufferedImage toBufferedImage(Object input) throws IOException {
         if (input instanceof BufferedImage bi) {
             return bi;
@@ -84,7 +84,7 @@ final class SafeTensorImageUtils {
     *
     * @param text 输入字符串
     * @return 规范化后的 基础64，如果非 基础64 则返回 空
-     */
+    */
     private static String normalizeBase64(String text) {
         if (text == null || text.isBlank()) {
             return null;

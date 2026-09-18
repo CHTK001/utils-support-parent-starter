@@ -31,32 +31,32 @@ public class OpencvModelProvider implements BulkModelProvider {
 
     /**
     * 模型提供方。
-     */
+    */
     private static final String PROVIDER = "opencv";
 
     /**
     * 人脸模型路径。
-     */
+    */
     private static final String FACE = "models/opencv/haarcascade_frontalface_default.xml";
 
     /**
     * 眼睛模型路径。
-     */
+    */
     private static final String EYE = "models/opencv/haarcascade_eye.xml";
 
     /**
     * 微笑模型路径。
-     */
+    */
     private static final String SMILE = "models/opencv/haarcascade_smile.xml";
 
     /**
     * 全身模型路径。
-     */
+    */
     private static final String FULLBODY = "models/opencv/haarcascade_fullbody.xml";
 
     /**
     * 侧脸模型路径。
-     */
+    */
     private static final String PROFILE = "models/opencv/haarcascade_profileface.xml";
 
     @Override
@@ -93,7 +93,7 @@ public class OpencvModelProvider implements BulkModelProvider {
     * @param modelId   模型 标识
     * @param modelPath 模型路径，可为空
     * @param supplier  翻译器工厂
-     */
+    */
     private void add(List<TranslatorModelDefinition> list,
                      String modelId,
                      String modelPath,

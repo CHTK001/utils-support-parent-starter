@@ -23,7 +23,7 @@ public class ImgRgbUtils {
     *
     * @param image
     * @return
-     */
+    */
     public static Color[][] getPixels(BufferedImage image) {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -42,7 +42,7 @@ public class ImgRgbUtils {
     *
     * @param pixels
     * @return
-     */
+    */
     public static BufferedImage toImage(Color[][] pixels) {
         int h = pixels.length;
         int w = pixels[0].length;
@@ -61,7 +61,7 @@ public class ImgRgbUtils {
     * @param targetWidth Targetwidth
     * @param targetHeight Targetheight
     * @return resize镜像的结果
-     */
+    */
     public static BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
         Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_AREA_AVERAGING);
         BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
@@ -75,7 +75,7 @@ public class ImgRgbUtils {
     * @param colors
     * @param Light  亮度
     * @return
-     */
+    */
     public static void GetGrayScaleHalf(Color[][] colors, float Light) {
         for (int x = 0; x < colors.length; x++) {
             for (int y = 0; y < colors[x].length; y++) {

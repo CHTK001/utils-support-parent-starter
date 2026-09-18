@@ -51,7 +51,7 @@ public class SepiaToneImageFilter extends AbstractImageFilter {
     * @param src 源图像
     * @param dst 目标图像（此参数未使用）
     * @return 应用棕褐色调效果后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
@@ -102,7 +102,7 @@ tb = inPixels[index] & 0xff;
     * 生成0.5到1.0之间的随机数，模拟老照片的颗粒感。
     *
     * @return 随机噪声值，范围[0.5, 1.0]
-     */
+    */
     private double noise() {
         return Math.random() * 0.5 + 0.5;
     }
@@ -116,7 +116,7 @@ tb = inPixels[index] & 0xff;
     * @param dest  目标颜色值（棕褐色调变换后的值）
     * @param src   源颜色值（原始颜色值）
     * @return 混合后的颜色值
-     */
+    */
     private double colorBlend(double scale, double dest, double src) {
         return (scale * dest + (1.0 - scale) * src);
     }

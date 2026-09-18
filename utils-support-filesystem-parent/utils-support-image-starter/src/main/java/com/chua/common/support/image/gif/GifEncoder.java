@@ -85,7 +85,7 @@ public class GifEncoder {
     * for subsequent 帧 (applies 转为 最后一个 帧 添加).
     *
     * @param ms 间隔时间，单位毫秒
-     */
+    */
     public void setDelay(int ms) {
         delay = Math.round(ms / 10.0f);
     }
@@ -96,7 +96,7 @@ public class GifEncoder {
     * color 是否包含 been 设置, otherwise 2.
     *
     * @param code int disposal 编码.
-     */
+    */
     public void setDispose(int code) {
         if (code >= 0) {
             dispose = code;
@@ -110,7 +110,7 @@ public class GifEncoder {
     * 镜像 是否 添加.
     *
     * @param iter int 数字 的 iterations.
-     */
+    */
     public void setRepeat(int iter) {
         if (iter >= 0) {
             repeat = iter;
@@ -127,7 +127,7 @@ public class GifEncoder {
     * May be 设置 转为 空 转为 indicate no transparent color.
     *
     * @param c Color 转为 be treated as transparent on display.
-     */
+    */
     public void setTransparent(Color c) {
         setTransparent(c, false);
     }
@@ -146,7 +146,7 @@ public class GifEncoder {
     *
     * @param c          Color 转为 be treated as transparent on display.
     * @param exactMatch If exact匹配 是否 设置 转为 true, transparent color 索引 是否 搜索 with exact 匹配
-     */
+    */
     public void setTransparent(Color c, boolean exactMatch) {
         transparent = c;
         transparentExactMatch = exactMatch;
@@ -164,7 +164,7 @@ public class GifEncoder {
     * which will 默认 转为 black.
     *
     * @param c Color 转为 be treated as background on display.
-     */
+    */
     public void setBackground(Color c) {
         background = c;
     }
@@ -178,7 +178,7 @@ public class GifEncoder {
     *
     * @param im 缓冲镜像 containing 帧 转为 写入.
     * @return true if successful.
-     */
+    */
     public boolean addFrame(BufferedImage im) {
         if ((im == null) || !started) {
             return false;
@@ -230,7 +230,7 @@ public class GifEncoder {
     * closed.
     *
     * @return is ok
-     */
+    */
     public boolean finish() {
         if (!started) {
             return false;
@@ -266,7 +266,7 @@ public class GifEncoder {
     * {@code setDelay(1000/fps)}.
     *
     * @param fps float 帧 rate (帧 per second)
-     */
+    */
     public void setFrameRate(float fps) {
         Float s0 = 0f;
         if (s0.equals(fps)) {
@@ -283,7 +283,7 @@ public class GifEncoder {
     * than 20 执行 not yield significant improvements 入 速度.
     *
     * @param quality int greater than 0.
-     */
+    */
     public void setQuality(int quality) {
         if (quality < 1) {
             quality = 1;
@@ -298,7 +298,7 @@ public class GifEncoder {
     *
     * @param w int 帧 width.
     * @param h int 帧 width.
-     */
+    */
     public void setSize(int w, int h) {
         if (started && !firstFrame) {
             return;
@@ -320,7 +320,7 @@ public class GifEncoder {
     *
     * @param os 输出流 on which GIF 镜像 are written.
     * @return false if initial 写入 失败.
-     */
+    */
     public boolean start(OutputStream os) {
         if (os == null) {
             return false;
@@ -342,7 +342,7 @@ public class GifEncoder {
     *
     * @param file 字符串 containing 输出 文件 名称.
     * @return false if 打开 或 initial 写入 失败.
-     */
+    */
     public boolean start(String file) {
         boolean ok;
         try {
@@ -359,14 +359,14 @@ public class GifEncoder {
     * 是否启动
     *
     * @return 是否启动的结果
-     */
+    */
     public boolean isStarted() {
         return started;
     }
 
     /**
     * 分析 镜像 colors 和 创建 color 映射.
-     */
+    */
     protected void analyzePixels() {
         int len = pixels.length;
         int nPix = len / 3;
@@ -404,7 +404,7 @@ public class GifEncoder {
     *
     * @param c Color
     * @return index
-     */
+    */
     protected int findClosest(Color c) {
         if (colorTab == null) {
             return -1;
@@ -437,7 +437,7 @@ public class GifEncoder {
     *
     * @param c 颜色
     * @return 颜色是否存在
-     */
+    */
     boolean isColorUsed(Color c) {
         return findExact(c) != -1;
     }
@@ -447,7 +447,7 @@ public class GifEncoder {
     *
     * @param c Color
     * @return index
-     */
+    */
     protected int findExact(Color c) {
         if (colorTab == null) {
             return -1;
@@ -470,7 +470,7 @@ public class GifEncoder {
 
     /**
     * Extracts 镜像 pixels into byte array "pixels"
-     */
+    */
     protected void getImagePixels() {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -495,7 +495,7 @@ public class GifEncoder {
     * 写入 Graphic Control 延伸
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writeGraphicCtrlExt() throws IOException {
         out.write(0x21);
 
@@ -541,7 +541,7 @@ public class GifEncoder {
     * 写入 镜像 Descriptor
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writeImageDesc() throws IOException {
         out.write(0x2c);
 
@@ -577,7 +577,7 @@ public class GifEncoder {
     * 写入 逻辑 屏幕 Descriptor
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writeLsd() throws IOException {
         writeShort(width);
         writeShort(height);
@@ -591,7 +591,7 @@ public class GifEncoder {
     * repeat 数量.
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writeNetscapeExt() throws IOException {
         out.write(0x21);
 
@@ -615,7 +615,7 @@ public class GifEncoder {
     * 写入 color table
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writePalette() throws IOException {
         out.write(colorTab, 0, colorTab.length);
         int n = (3 * 256) - colorTab.length;
@@ -628,7 +628,7 @@ public class GifEncoder {
     * Encodes 和 写入 pixel 数据
     *
     * @throws IOException IO异常
-     */
+    */
     protected void writePixels() throws IOException {
         LzwEncoder encoder = new LzwEncoder(width, height, indexedPixels, colorDepth);
         encoder.encode(out);
@@ -639,7 +639,7 @@ public class GifEncoder {
     *
     * @param value 16 位值
     * @throws IOException IO异常
-     */
+    */
     protected void writeShort(int value) throws IOException {
         out.write(value & 0xff);
         out.write((value >> 8) & 0xff);
@@ -650,7 +650,7 @@ public class GifEncoder {
     *
     * @param s 字符串
     * @throws IOException IO异常
-     */
+    */
     protected void writeString(String s) throws IOException {
         for (int i = 0; i < s.length(); i++) {
             out.write((byte) s.charAt(i));

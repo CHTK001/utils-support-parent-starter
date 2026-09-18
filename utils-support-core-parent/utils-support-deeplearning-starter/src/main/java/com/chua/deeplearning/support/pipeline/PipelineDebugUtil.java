@@ -44,7 +44,7 @@ public class PipelineDebugUtil {
     *
     * @param stepName 步骤名
     * @param data     图片字节或可转为图片的对象
-     */
+    */
     public void snapshot(String stepName, Object data) {
         if (!enabled || data == null) {
             return;
@@ -64,33 +64,13 @@ public class PipelineDebugUtil {
     }
 
     /**
-    * 保存步骤快照（带索引）。
+    * 保存带索引的步骤快照。
+    * 在步骤名后追加 "_索引" 作为唯一快照名，委托给无索引版本落盘。
     *
-    * @param stepName 步骤名
-    * @param index    索引
-    * @param data     图片数据
-    * @return 转为bytes的结果
-     /**
-      * snapshot。
-      * @param stepName step名称
-      * @param index 索引
-      * @param data 数据
-      */
-      * @return 转为bytes的结果
-     /**
-     * snapshot。
-     * @param stepName step名称
-     * @param index 索引
-     * @param data 数据
-      */
-      * @return 转为bytes的结果
-     /**
-     * snapshot。
-     * @param stepName step名称
-     * @param index 索引
-     * @param data 数据
-      */
-     */
+    * @param stepName 步骤名称
+    * @param index    步骤索引
+    * @param data     图片/数组数据
+    */
     public void snapshot(String stepName, int index, Object data) {
         snapshot(stepName + "_" + index, data);
     }

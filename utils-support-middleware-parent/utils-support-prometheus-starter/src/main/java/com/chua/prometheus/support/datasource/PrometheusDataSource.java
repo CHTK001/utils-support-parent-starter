@@ -18,17 +18,17 @@ public class PrometheusDataSource implements EngineDataSource<PrometheusClient> 
 
     /**
     * 数据源名称
-     */
+    */
     private final String name;
 
     /**
     * 底层客户端
-     */
+    */
     private PrometheusClient client;
 
     /**
     * 连接 URL
-     */
+    */
     private final String url;
 
     /**
@@ -37,7 +37,7 @@ public class PrometheusDataSource implements EngineDataSource<PrometheusClient> 
     * @param name   数据源名称
     * @param url    Prometheus 地址
     * @param client 客户端
-     */
+    */
     public PrometheusDataSource(String name, String url, PrometheusClient client) {
         this.name = name;
         this.url = url;

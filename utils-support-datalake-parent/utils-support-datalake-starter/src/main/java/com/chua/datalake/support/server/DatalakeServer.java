@@ -25,42 +25,42 @@ public class DatalakeServer {
 
     /**
     * 管线配置管理器
-     */
+    */
     private final PipelineManager pipelineManager;
 
     /**
     * 管线执行引擎
-     */
+    */
     private final PipelineEngine pipelineEngine;
 
     /**
     * 数据分发器
-     */
+    */
     private final DispatcherProvider dispatcher;
 
     /**
     * Sink 管理器
-     */
+    */
     private final SinkManager sinkManager;
 
     /**
     * 订阅管理器
-     */
+    */
     private final SubscriberManager subscriberManager;
 
     /**
     * 偏移量 门面
-     */
+    */
     private final OffsetFlow offsetFlow;
 
     /**
     * API 服务器
-     */
+    */
     private final Server apiServer;
 
     /**
     * 运行状态
-     */
+    */
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
@@ -74,7 +74,7 @@ public class DatalakeServer {
     * @param apiServer api服务端
     * @param true true
     * @param false false
-     */
+    */
     public DatalakeServer(
             PipelineManager pipelineManager,
             PipelineEngine pipelineEngine,
@@ -94,7 +94,7 @@ public class DatalakeServer {
 
     /**
     * 启动 数据湖 服务
-     */
+    */
     public void start() {
         if (!running.compareAndSet(false, true)) {
             return;
@@ -108,7 +108,7 @@ public class DatalakeServer {
 
     /**
     * 停止 数据湖 服务
-     */
+    */
     public void stop() {
         if (!running.compareAndSet(true, false)) {
             return;
@@ -129,7 +129,7 @@ public class DatalakeServer {
     /**
     * 返回 pipeline管理器
     * @return 获取pipeline管理器的结果
-     */
+    */
     public PipelineManager getPipelineManager() {
         return pipelineManager;
     }
@@ -137,7 +137,7 @@ public class DatalakeServer {
     /**
     * 返回 pipelineengine
     * @return 获取pipelineengine的结果
-     */
+    */
     public PipelineEngine getPipelineEngine() {
         return pipelineEngine;
     }

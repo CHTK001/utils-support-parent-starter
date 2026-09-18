@@ -36,27 +36,27 @@ public class JsonRpcClient implements RpcClient {
 
     /**
     * 未配置时的默认重试间隔（毫秒）
-     */
+    */
     private static final int DEFAULT_RETRY_DELAY = 100;
 
     /**
     * 目标服务地址
-     */
+    */
     private final URL serviceUrl;
 
     /**
     * 消费者全局配置
-     */
+    */
     private final RpcConsumerConfig consumerConfig;
 
     /**
     * 目标接口 → 独立 HTTP 客户端（避免 {@code service} 路由字段跨接口串扰）
-     */
+    */
     private final Map<Class<?>, JsonRpcHttpClient> clientCache = new ConcurrentHashMap<>();
 
     /**
     * 目标接口 → 动态代理缓存
-     */
+    */
     private final Map<Class<?>, Object> proxyCache = new ConcurrentHashMap<>();
 
     /**
@@ -66,7 +66,7 @@ public class JsonRpcClient implements RpcClient {
     * @param name 字符串
     * @param consumerConfig consumer配置
     * @param name 名称
-     */
+    */
     public JsonRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerConfig, String name) {
         this.consumerConfig = consumerConfig;
         String address = rpcRegistryConfigs != null && !rpcRegistryConfigs.isEmpty()
@@ -84,9 +84,9 @@ public class JsonRpcClient implements RpcClient {
     /**
     * 获取
     *
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 获取的结果
-     */
+    */
     public <T> T get(Class<T> targetType) {
         return (T) proxyCache.computeIfAbsent(targetType, type -> {
             Class<T> t = (Class<T>) type;
@@ -100,7 +100,7 @@ public class JsonRpcClient implements RpcClient {
     *
     * @param targetType 目标接口
     * @return 独立客户端实例
-     */
+    */
     private JsonRpcHttpClient ensureClient(Class<?> targetType) {
         return clientCache.computeIfAbsent(targetType, type -> {
             JsonRpcHttpClient client = new JsonRpcHttpClient(serviceUrl);
@@ -114,7 +114,7 @@ public class JsonRpcClient implements RpcClient {
     * 读取连接超时（毫秒），未配置时取默认 {@code 3000}。
     *
     * @return 连接超时毫秒数
-     */
+    */
     private int defaultConnectTimeout() {
         return consumerConfig != null && consumerConfig.getConnectTimeout() != null
                 ? consumerConfig.getConnectTimeout() : 3000;
@@ -124,7 +124,7 @@ public class JsonRpcClient implements RpcClient {
     * 读取调用超时（毫秒），未配置时取默认 {@code 10000}。
     *
     * @return 调用超时毫秒数
-     */
+    */
     private int defaultTimeout() {
         return consumerConfig != null && consumerConfig.getTimeout() != null
                 ? consumerConfig.getTimeout() : 10000;
@@ -135,12 +135,12 @@ public class JsonRpcClient implements RpcClient {
     * 并按消费者配置进行有限次网络重试。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class RpcInvoker implements Function<ProxyMethod, Object> {
 
         /**
         * 目标接口（用于路由与超时配置）
-         */
+        */
         private final Class<?> targetType;
 
         RpcInvoker(Class<?> targetType) {
@@ -186,7 +186,7 @@ public class JsonRpcClient implements RpcClient {
         *
         * @param throwable 原始异常
         * @return 最底层异常
-         */
+        */
         private Throwable unwrap(Throwable throwable) {
             Throwable cur = throwable;
             while (cur.getCause() != null && cur.getCause() != cur) {
@@ -200,7 +200,7 @@ public class JsonRpcClient implements RpcClient {
         *
         * @param proxyMethod 代理方法
         * @return 执行invoke的结果
-         */
+        */
         private Object doInvoke(ProxyMethod proxyMethod) throws Throwable {
             JsonRpcHttpClient client = ensureClient(targetType);
             Map<String, String> headers = buildHeaders();
@@ -219,7 +219,7 @@ public class JsonRpcClient implements RpcClient {
     * 构造服务治理请求头（版本 / 分组 / 令牌）。
     *
     * @return 请求头集合，可能为空
-     */
+    */
     private Map<String, String> buildHeaders() {
         Map<String, String> headers = new HashMap<>(16);
         if (consumerConfig != null) {

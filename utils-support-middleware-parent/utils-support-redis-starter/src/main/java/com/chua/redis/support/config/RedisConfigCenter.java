@@ -48,16 +48,16 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
     /**
 
-     * * Jedis 连接池实例
+    * * Jedis 连接池实例
 
-     */
+    */
     private JedisPool jedisPool;
 
     /**
     * 构造 Redis 配置中心。
     *
     * @param configCenterSetting 配置中心连接设置（地址、密码、超时等）
-     */
+    */
     public RedisConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -150,7 +150,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param address Redis 地址字符串
     * @return [host, 端口]
-     */
+    */
     private String[] parseRedisAddress(String address) {
         if (StringUtils.isBlank(address)) {
             return new String[]{"localhost", "6379"};
@@ -172,7 +172,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param profile 环境标识，为数字时作为数据库索引
     * @return Redis 数据库索引，默认 0
-     */
+    */
     private int parseDatabase(String profile) {
         if (StringUtils.isBlank(profile)) {
             return 0;
@@ -189,7 +189,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     * 创建 Jedis 连接池配置。
     *
     * @return 连接池配置
-     */
+    */
     private JedisPoolConfig createPoolConfig() {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
 
@@ -213,12 +213,12 @@ public class RedisConfigCenter extends AbstractConfigCenter {
 
     /**
 
-     * * 测试 Redis 连接是否正常。
+    * * 测试 Redis 连接是否正常。
 
-     */
+    */
     /**
     * 测试connection。
-     */
+    */
     private void testConnection() {
         try (Jedis jedis = jedisPool.getResource()) {
             String pong = jedis.ping();
@@ -244,7 +244,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     * @param configContent 配置内容字符串
     * @param dataId        配置标识（用于日志）
     * @return 解析后的键值映射
-     */
+    */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 尝试 JSON 格式解析
@@ -271,7 +271,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param content 配置内容
     * @return true-是 JSON 格式
-     */
+    */
     private boolean isJsonContent(String content) {
         String trimmed = content.trim();
         return (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
@@ -284,7 +284,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param content 配置内容
     * @return true-是 属性 格式
-     */
+    */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
     }
@@ -295,7 +295,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param content JSON 格式的字符串
     * @return 键值映射
-     */
+    */
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJsonContent(String content) {
         try {
@@ -328,7 +328,7 @@ public class RedisConfigCenter extends AbstractConfigCenter {
     *
     * @param content 属性 格式的字符串
     * @return 键值映射
-     */
+    */
     private Map<String, Object> parsePropertiesContent(String content) {
         Map<String, Object> result = new HashMap<>();
         Properties properties = new Properties();

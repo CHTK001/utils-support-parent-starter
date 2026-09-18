@@ -20,7 +20,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
 
     /**
     * 命名参数占位符匹配（{@code :name}）
-     */
+    */
     private static final Pattern NAMED_PARAM = Pattern.compile(":([a-zA-Z_][a-zA-Z0-9_]*)");
 
     /**
@@ -28,7 +28,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     *
     * @param params 参数列表（可空/可 空）
     * @return D1SqlParameter
-     */
+    */
     public static D1SqlParameter ofPositional(Object[] params) {
         return new D1SqlParameter(params == null ? new Object[0] : params, Map.of());
     }
@@ -38,7 +38,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     *
     * @param named 参数映射
     * @return D1SqlParameter
-     */
+    */
     public static D1SqlParameter ofNamed(Map<String, Object> named) {
         return new D1SqlParameter(new Object[0], named == null ? Map.of() : new HashMap<>(named));
     }
@@ -47,7 +47,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     * 获取位置参数（{@code ?} 占位符）。
     *
     * @return 位置参数数组（不为 空）
-     */
+    */
     public Object[] getPositional() {
         return positional == null ? new Object[0] : positional;
     }
@@ -56,7 +56,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     * 获取命名参数映射。
     *
     * @return 命名参数 映射
-     */
+    */
     public Map<String, Object> getNamed() {
         return named == null ? Map.of() : named;
     }
@@ -66,7 +66,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     *
     * @param sql SQL 语句（用于解析命名参数顺序）
     * @return 参数数组
-     */
+    */
     public Object toJson(String sql) {
         if (named != null && !named.isEmpty()) {
             return resolveNamedOrder(sql);
@@ -79,7 +79,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     *
     * @param sql SQL 语句
     * @return 按顺序排列的参数值数组
-     */
+    */
     private Object[] resolveNamedOrder(String sql) {
         List<Object> ordered = new ArrayList<>();
         Matcher matcher = NAMED_PARAM.matcher(sql);
@@ -96,7 +96,7 @@ public record D1SqlParameter(Object[] positional, Map<String, Object> named) {
     * 是否存在参数。
     *
     * @return true 表示有位置或命名参数
-     */
+    */
     public boolean hasParams() {
         return (positional != null && positional.length > 0)
                 || (named != null && !named.isEmpty());

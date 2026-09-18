@@ -30,12 +30,12 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
 
     /**
     * waifu2x ONNX nd管理器
-     */
+    */
     private NDManager manager;
 
     /**
     * 最近一次输入的 padding（输出侧裁剪用）
-     */
+    */
     private int lastPadH;
     private int lastPadW; // 最后一个padw
 
@@ -122,7 +122,7 @@ public class Waifu2xTranslator implements Translator<Image, Image> {
     *
     * @param v 浮点像素值
     * @return 0-255 整数
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);

@@ -49,7 +49,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     * @param epubBytes epubbytes
     * @return extractChapters的结果
     * @param html html
-     */
+    */
     }
 
     private List<String> extractChapters(byte[] epubBytes) throws IOException {
@@ -121,7 +121,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     * @param chapters chapters
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     private String buildHtml(List<String> chapters, long fileSize) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -169,7 +169,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     * @param text 文本
     * @param maxLen 最大len
     * @return truncate的结果
-     */
+    */
     private String truncate(String text, int maxLen) {
         if (text.length() <= maxLen) {
             return text;
@@ -181,7 +181,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     * escapehtml。
     * @param text 文本
     * @return escapeHtml的结果
-     */
+    */
     private String escapeHtml(String text) {
         if (text == null) {
             return "";
@@ -193,7 +193,7 @@ public class EpubPreviewProvider implements FileStoragePreviewProvider {
     * human大小。
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

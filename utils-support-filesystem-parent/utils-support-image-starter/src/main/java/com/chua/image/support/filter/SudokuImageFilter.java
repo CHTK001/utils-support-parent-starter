@@ -40,15 +40,39 @@ import javax.annotation.Nullable;
 * - 教学演示：构图原理展示
 * - 图像分析：区域划分和标记
 *
-* 参数说明：
-* - solid: 分割线的粗细，单位为像素
-*   - 1-3: 细线条，适合精细效果
-*   - 4-8: 中等线条，适合一般使用
-*   - 9+: 粗线条，适合强调效果
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * 参数说明：
+ * - solid: 分割线的粗细，单位为像素
+ *   - 1-3: 细线条，适合精细效果
+ *   - 4-8: 中等线条，适合一般使用
+ *   - 9+: 粗线条，适合强调效果
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认线宽 5px
+ * BufferedImage grid = new SudokuImageFilter().converter(src);
+ *
+ * // 指定线宽 3px
+ * BufferedImage grid = new SudokuImageFilter(3).converter(src);
+ *
+ * // 链式风格（solid 为 final，返回新实例）
+ * BufferedImage grid = new SudokuImageFilter().withSolid(8).converter(src);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>solid</b>（默认 5）：分割线粗细（像素），建议 1-20。
+ *       输出图为白底，9 个等大的子图块之间露出白色网格线。</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出图为白底（TYPE_INT_RGB），原图 Alpha 通道丢失</li>
+ *   <li>网格尺寸按 1/3 整除计算，宽或高非 3 的倍数时最后一条边会被截断</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 @Spi("Sudoku")
 @SpiDescribe("九宫格网格滤镜")
@@ -56,14 +80,14 @@ public class SudokuImageFilter extends AbstractImageFilter{
 
     /**
     * 分割线的粗细（像素）
-     */
+    */
     private final int solid;
 
     /**
     * 默认构造函数
     *
     * 使用默认的线条粗细（5像素）创建九宫格滤镜。
-     */
+    */
     public SudokuImageFilter() {
         this(5);
     }
@@ -72,9 +96,28 @@ public class SudokuImageFilter extends AbstractImageFilter{
     * 带参数的构造函数
     *
     * @param solid 分割线的粗细，单位为像素，建议范围1-20
-     */
+    */
     public SudokuImageFilter(int solid) {
         this.solid = solid;
+    }
+
+    /**
+    * 获取分割线粗细
+    *
+    * @return 分割线的粗细（像素）
+    */
+    public int getSolid() {
+        return solid;
+    }
+
+    /**
+    * 设置分割线粗细（返回新实例，支持链式风格使用）
+    *
+    * @param solid 分割线的粗细，单位为像素，建议范围1-20
+    * @return 具有新分割线粗细的九宫格滤镜实例
+    */
+    public SudokuImageFilter withSolid(int solid) {
+        return new SudokuImageFilter(solid);
     }
 
     @Override

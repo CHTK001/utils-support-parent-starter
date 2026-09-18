@@ -34,14 +34,14 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
     *
     * @param encodedKeyword encodedkeyword
     * @return 搜索url的结果
-     */
+    */
     protected abstract String searchUrl(String encodedKeyword);
 
     /**
     * 结果行正则：群体(1)=链接，群体(2)=标题，群体(3)=大小
     *
     * @return 结果模式的结果
-     */
+    */
     protected abstract Pattern resultPattern();
 
     /**
@@ -50,7 +50,7 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
     * @param m m
     * @param keyword keyword
     * @return 构建结果的结果
-     */
+    */
     protected VideoInfoResult buildResult(Matcher m, String keyword) {
         VideoInfoResult v = new VideoInfoResult();
         v.setVideoUrl(m.group(1));
@@ -63,7 +63,7 @@ public abstract class HtmlScraperResourceProvider extends AbstractResourceProvid
     /**
     * htmlscraperresource提供者。
     * @param vs vs
-     */
+    */
     public HtmlScraperResourceProvider(com.chua.common.support.datasearch.video.model.VideoSource vs) { super(vs); }
 
     @Override

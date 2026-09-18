@@ -195,10 +195,10 @@ public class TxtFileSystem implements FileSystem {
     }
 
     /**
-    * TXT 文件写入构建器。
-    *
-    * @since 4.0.0.42
-    */
+        * TXT 文件写入构建器。
+        *
+        * @since 4.0.0.42
+        */
     @Slf4j
     public static class TxtWriteBuilder extends WriteBuilder {
 

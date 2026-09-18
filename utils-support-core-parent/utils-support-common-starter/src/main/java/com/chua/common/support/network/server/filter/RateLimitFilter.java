@@ -60,11 +60,11 @@ public class RateLimitFilter implements ServerFilter {
     }
 
     /**
-    * 创建全局限流过滤器。
-    *
-    * @param providerName SPI 提供者名称（如 "guava"）
-    * @param qps          每秒最大请求数
-    */
+        * 创建全局限流过滤器。
+        *
+        * @param providerName SPI 提供者名称（如 "guava"）
+        * @param qps          每秒最大请求数
+        */
     public RateLimitFilter(String providerName, double qps) {
         this(providerName, qps, KeyStrategy.GLOBAL, null);
     }

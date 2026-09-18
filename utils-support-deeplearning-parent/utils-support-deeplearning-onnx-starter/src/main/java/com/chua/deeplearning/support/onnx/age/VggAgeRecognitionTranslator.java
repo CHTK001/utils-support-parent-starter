@@ -43,24 +43,24 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
 
     /**
     *                   
-     */
+    */
     private static final int IMAGE_SIZE = 224;
 
     /**
     *                
-     */
+    */
     private static final int CHANNELS = 3;
 
     /**
     *                0-100       
-     */
+    */
     private static final int AGE_RANGE = 101;
 
     /**
     *                 -                
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) {
         LOGGER.info("VggAgeRecognitionTranslator                ");
@@ -79,7 +79,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     * @param ctx                   
     * @param input             
     * @return NDList                   
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         try {
@@ -141,7 +141,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     * @param ctx                   
     * @param list                 nd列表
     * @return                          "25.5    "   
-     */
+    */
     @Override
     public PredictResult processOutput(TranslatorContext ctx, NDList list) {
         try {
@@ -199,7 +199,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     *
     * @param probs 0-100                         
     * @return                   
-     */
+    */
     private double calculateWeightedAge(float[] probs) {
         //                            
         int maxIndex = 0;
@@ -224,7 +224,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     *
     * @param probs             
     * @return                
-     */
+    */
     private double getMaxProbability(float[] probs) {
         float max = 0f;
         for (float prob : probs) {
@@ -239,7 +239,7 @@ public class VggAgeRecognitionTranslator implements Translator<Image, PredictRes
     *        Batchifier
     *
     * @return Batchifier.STACK
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

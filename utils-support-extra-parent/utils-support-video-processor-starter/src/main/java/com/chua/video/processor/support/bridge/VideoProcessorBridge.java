@@ -36,7 +36,7 @@ public class VideoProcessorBridge {
     * 是否加载
     *
     * @return 是否加载的结果
-     */
+    */
     public static boolean isLoaded() {
         return loaded;
     }
@@ -45,7 +45,7 @@ public class VideoProcessorBridge {
     * 获取加载记录错误
     *
     * @return 获取加载错误的结果
-     */
+    */
     public static Throwable getLoadError() {
         return loadError;
     }
@@ -65,13 +65,13 @@ public class VideoProcessorBridge {
     * @param inputPath 输入路径
     * @param outputDir 输出dir
     * @return transcode转为hls的结果
-     */
+    */
     public static native boolean transcodeToHls(String inputPath, String outputDir);
 
     /**
     * 获取版本
     *
     * @return 获取版本的结果
-     */
+    */
     public static native String getVersion();
 }

@@ -106,7 +106,7 @@ public class MqttProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param type 类型
     * @return 转为数据包类型名称的结果
-     */
+    */
     private static String toPacketTypeName(int type) {
         return switch (type) {
             case 1 -> "CONNECT";

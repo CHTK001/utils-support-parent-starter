@@ -21,17 +21,17 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
 
     /**
     * 输出分辨率。
-     */
+    */
     private final int imageResolution;
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     /** 创建 线artanimetranslator 实例 */
@@ -42,7 +42,7 @@ public class LineArtAnimeTranslator implements Translator<Image, Image> {
     /**
     * 创建 线artanimetranslator 实例
     * @param imageResolution 镜像resolution
-     */
+    */
     public LineArtAnimeTranslator(int imageResolution) {
         this.imageResolution = imageResolution;
     }

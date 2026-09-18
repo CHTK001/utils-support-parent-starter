@@ -39,22 +39,22 @@ public class SpiderFlowNode implements SpiderNode {
 
     /**
     * 结果上下文属性键：爬取结果列表
-     */
+    */
     private static final String RESULT_KEY = "spider.result";
 
     /**
     * 默认并发线程数
-     */
+    */
     private static final int DEFAULT_THREADS = 1;
 
     /**
     * 默认请求间隔（毫秒）
-     */
+    */
     private static final int DEFAULT_INTERVAL = 1000;
 
     /**
     * 默认重试次数
-     */
+    */
     private static final int DEFAULT_RETRY_TIMES = 3;
 
     /**
@@ -65,7 +65,7 @@ public class SpiderFlowNode implements SpiderNode {
     * 种子 URL 为空时抛出异常，由引擎标记实例失败。</p>
     *
     * @param context 当前流程上下文
-     */
+    */
     @Override
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();
@@ -89,7 +89,7 @@ public class SpiderFlowNode implements SpiderNode {
     * @param urls  种子 URL 列表
     * @param props 节点属性
     * @return 爬虫构建器
-     */
+    */
     private Spider.Builder buildSpider(List<String> urls, FlowProps props) {
         Spider.Builder builder = Spider.create();
         for (String url : urls) {

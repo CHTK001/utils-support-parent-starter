@@ -56,7 +56,7 @@ public class CrushConversationParser implements ConversationParser {
     * 返回 SPI 名称。
     *
     * @return {@code "crush"}
-     */
+    */
     @Override
     public String name() {
         return "crush";
@@ -67,11 +67,11 @@ public class CrushConversationParser implements ConversationParser {
     * @param value 值
     * @param fallback 降级
      /**
-      * 流消息。
-      * @return 流消息的结果
-     * @return 第一个nonblank的结果
-     * @param raw raw
-     */
+    * 流消息。
+    * @return 流消息的结果
+    * @return 第一个nonblank的结果
+    * @param raw raw
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         List<Path> databases = listProjectDatabases();
@@ -83,7 +83,7 @@ public class CrushConversationParser implements ConversationParser {
         /**
         * 列表projectdatabases。
         * @return 列表projectdatabases的结果
-         */
+        */
         return Flux.fromIterable(databases)
                 .flatMap(this::streamDatabase, 2);
     }
@@ -115,7 +115,7 @@ public class CrushConversationParser implements ConversationParser {
         * 流database。
         * @param db db
         * @return 流database的结果
-         */
+        */
         }
         return result;
     }
@@ -144,7 +144,7 @@ public class CrushConversationParser implements ConversationParser {
               * @param db db
               * @return 转为消息的结果
               * @param raw raw
-               */
+              */
               return Flux.empty();
           });
     }
@@ -194,7 +194,7 @@ public class CrushConversationParser implements ConversationParser {
         * @param value 值
         * @return asStr的结果
         * @param fallback 降级
-         */
+        */
         }
     }
 

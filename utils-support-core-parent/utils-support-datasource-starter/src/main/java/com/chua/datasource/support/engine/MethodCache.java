@@ -22,6 +22,28 @@ final class MethodCache {
     private static final Map<Class<?>, Map<String, MethodHandle>> GETTERS = new ConcurrentHashMap<>(); // GETTERS
     private static final Map<Class<?>, Map<String, MethodHandle>> SETTERS = new ConcurrentHashMap<>(); // SETTERS
 
+    /**
+    * 哨兵 值：缓存 未 命中 的 方法（{@code computeIfAbsent} 不 允许 存 null，
+    * 用 此 哨兵 标记 负 缓存，避免 缺失 字段 每 次 都 重 做 全 量 反射 扫描）。
+    */
+    private static final MethodHandle MISSING = buildMissingSentinel();
+
+    /**
+    * 构造 哨兵 句柄（一 个 永远 不 会 被 调 用 的 合法 句柄，仅 用 于 负 缓存 标记）。
+    *
+    * @return 哨兵 句柄
+    */
+    private static MethodHandle buildMissingSentinel() {
+        try {
+            // 用 Object.hashCode 的 实例 句柄 作为 占位（合法 句柄，但 永 不 会 被
+            // getValue/setValue 实际 调 用——它们 在 读到 哨兵 时 直接 返回 null 走 降级 路径）
+            return java.lang.invoke.MethodHandles.lookup()
+                    .findVirtual(Object.class, "hashCode", java.lang.invoke.MethodType.methodType(int.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            throw new IllegalStateException("无法 构造 哨兵 MethodHandle", e);
+        }
+    }
+
     /** 创建 方法缓存 实例 */
     private MethodCache() {
     }
@@ -32,7 +54,7 @@ final class MethodCache {
     * @param obj obj
     * @param field 字段
     * @return 获取值的结果
-     */
+    */
     static Object getValue(Object obj, String field) {
         MethodHandle mh = getter(obj.getClass(), field);
         if (mh != null) {
@@ -63,7 +85,7 @@ final class MethodCache {
     * @param obj obj
     * @param field 字段
     * @param value 值
-     */
+    */
     static void setValue(Object obj, String field, Object value) {
         MethodHandle mh = setter(obj.getClass(), field);
         if (mh != null) {
@@ -91,10 +113,14 @@ final class MethodCache {
     * @param clazz clazz
     * @param field 字段
     * @return getter的结果
-     */
+    */
     private static MethodHandle getter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = GETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
-        return classCache.computeIfAbsent(field, k -> findGetter(clazz, field));
+        MethodHandle cached = classCache.computeIfAbsent(field, k -> {
+            MethodHandle mh = findGetter(clazz, field);
+            return mh != null ? mh : MISSING;
+        });
+        return cached == MISSING ? null : cached;
     }
 
     /**
@@ -103,10 +129,14 @@ final class MethodCache {
     * @param clazz clazz
     * @param field 字段
     * @return setter的结果
-     */
+    */
     private static MethodHandle setter(Class<?> clazz, String field) {
         Map<String, MethodHandle> classCache = SETTERS.computeIfAbsent(clazz, k -> new ConcurrentHashMap<>());
-        return classCache.computeIfAbsent(field, k -> findSetter(clazz, field));
+        MethodHandle cached = classCache.computeIfAbsent(field, k -> {
+            MethodHandle mh = findSetter(clazz, field);
+            return mh != null ? mh : MISSING;
+        });
+        return cached == MISSING ? null : cached;
     }
 
     /**
@@ -115,7 +145,7 @@ final class MethodCache {
     * @param clazz clazz
     * @param field 字段
     * @return findGetter的结果
-     */
+    */
     private static MethodHandle findGetter(Class<?> clazz, String field) {
         String camel = toCamelCase(field);
         MethodType mt = MethodType.methodType(Object.class, Object.class);
@@ -143,7 +173,7 @@ final class MethodCache {
     * @param clazz clazz
     * @param field 字段
     * @return findSetter的结果
-     */
+    */
     private static MethodHandle findSetter(Class<?> clazz, String field) {
         String camel = toCamelCase(field);
         String setter = "set" + Character.toUpperCase(camel.charAt(0)) + camel.substring(1);
@@ -162,7 +192,7 @@ final class MethodCache {
     *
     * @param name 名称
     * @return 转为camel大小写的结果
-     */
+    */
     private static String toCamelCase(String name) {
         StringBuilder sb = new StringBuilder();
         boolean upper = false;

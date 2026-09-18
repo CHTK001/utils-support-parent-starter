@@ -13,7 +13,7 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     /**
     * 创建 onnx镜像captioning 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxImageCaptioning(String apiKey) {
     }
 
@@ -28,7 +28,7 @@ public class OnnxImageCaptioning implements ImageCaptioning {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "vit-gpt2-captioning";
     }

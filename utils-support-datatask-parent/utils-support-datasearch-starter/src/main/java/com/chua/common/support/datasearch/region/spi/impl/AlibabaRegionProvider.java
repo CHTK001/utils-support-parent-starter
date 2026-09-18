@@ -44,12 +44,12 @@ public class AlibabaRegionProvider implements RegionProvider {
 
     /**
     * 会话级缓存：adcode -> 下级列表
-     */
+    */
     private static final Map<String, List<RegionInfo>> CACHE = new ConcurrentHashMap<>();
 
     /**
     * 默认层级（由构造决定）
-     */
+    */
     private final int defaultLevel;
 
     /** HTTP客户端 */
@@ -64,7 +64,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     * 构造一个指定默认层级的提供器。
     *
     * @param defaultLevel 默认最大层级（1~4），建议 2（省+市）以保证响应速度
-     */
+    */
     public AlibabaRegionProvider(int defaultLevel) {
         this.defaultLevel = defaultLevel;
         this.httpClient = HttpClientFactory.getClient();
@@ -112,7 +112,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     * @param node 节点
     * @param cur cur
     * @param max 最大
-     */
+    */
     private void build(RegionInfo node, int cur, int max) {
         if (cur >= max) {
             node.setChildren(Collections.emptyList());
@@ -130,7 +130,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     *
     * @param node 节点
     * @param out 出
-     */
+    */
     private void flatten(RegionInfo node, List<RegionInfo> out) {
         if (node.getAdcode() != null && !"100000".equals(node.getAdcode()) && node.getLevel() > 0) {
             out.add(node);
@@ -147,7 +147,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     *
     * @param adcode adcode
     * @return 获取children的结果
-     */
+    */
     private List<RegionInfo> fetchChildren(String adcode) {
         List<RegionInfo> cached = CACHE.get(adcode);
         if (cached != null) {
@@ -174,7 +174,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     *
     * @param json json
     * @return 解析的结果
-     */
+    */
     private List<RegionInfo> parse(String json) {
         List<RegionInfo> list = new ArrayList<>();
         try {
@@ -205,7 +205,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     *
     * @param lv lv
     * @return 映射级别的结果
-     */
+    */
     private static int mapLevel(String lv) {
         if (lv == null) {
             return 0;
@@ -230,7 +230,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     * @param n n
     * @param k k
     * @return 文本的结果
-     */
+    */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -241,7 +241,7 @@ public class AlibabaRegionProvider implements RegionProvider {
     *
     * @param c c
     * @return 解析center的结果
-     */
+    */
     private static double[] parseCenter(JsonNode c) {
         if (c == null || !c.isArray() || c.size() < 2) {
             return new double[]{0, 0};

@@ -22,7 +22,7 @@ public interface FaceQualityAssessor {
     *
     * @param name 模型名称
     * @return 评估器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -30,7 +30,7 @@ public interface FaceQualityAssessor {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static FaceQualityAssessor create(String provider, String apiKey) {
         return ServiceProvider.of(FaceQualityAssessor.class)
                 .getNewExtension(provider, apiKey);
@@ -41,7 +41,7 @@ public interface FaceQualityAssessor {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default FaceQualityAssessor provider(String provider) {
         return this;
     }
@@ -51,7 +51,7 @@ public interface FaceQualityAssessor {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default FaceQualityAssessor model(String model) {
         return this;
     }
@@ -61,7 +61,7 @@ public interface FaceQualityAssessor {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static FaceQualityAssessor create(String name) {
         return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -73,7 +73,7 @@ public interface FaceQualityAssessor {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceQualityAssessor.class);
     }
@@ -85,7 +85,7 @@ public interface FaceQualityAssessor {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 评估器
-     */
+    */
     static FaceQualityAssessor create(String name, ModelSetting setting) {
         return new DefaultFaceQualityAssessor(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -95,7 +95,7 @@ public interface FaceQualityAssessor {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     default FaceQualityAssessor blurThreshold(double threshold) {
         return this;
     }
@@ -105,7 +105,7 @@ public interface FaceQualityAssessor {
     *
     * @param ratio 最小面积比 0~1
     * @return this
-     */
+    */
     default FaceQualityAssessor minFaceRatio(float ratio) {
         return this;
     }
@@ -115,7 +115,7 @@ public interface FaceQualityAssessor {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default FaceQualityAssessor modelPath(String path) {
         return this;
     }
@@ -125,7 +125,7 @@ public interface FaceQualityAssessor {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default FaceQualityAssessor device(String device) {
         return this;
     }
@@ -135,7 +135,7 @@ public interface FaceQualityAssessor {
     *
     * @param imageData 图像字节数组
     * @return 质量信息
-     */
+    */
     FaceQualityInfo assess(byte[] imageData);
 
     /**
@@ -143,7 +143,7 @@ public interface FaceQualityAssessor {
     *
     * @param imageData 图像字节数组
     * @return true 表示质量合格
-     */
+    */
     default boolean isAcceptable(byte[] imageData) {
         FaceQualityInfo info = assess(imageData);
         return info.faceOk() && info.sizeOk() && info.sharpnessOk() && info.brightnessOk();
@@ -160,39 +160,39 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模糊阈值。
-     */
+    */
     private double blurThreshold = 80.0;
 
     /**
     * 最小人脸面积比。
-     */
+    */
     private float minFaceRatio = 0.05f;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = "cpu";
 
     DefaultFaceQualityAssessor(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -242,7 +242,7 @@ class DefaultFaceQualityAssessor implements FaceQualityAssessor {
     *
     * @param imageData 镜像数据
     * @return 评定的结果
-     */
+    */
     public FaceQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], FaceQualityInfo> t =
                 (ITranslator<byte[], FaceQualityInfo>) engine.get(modelName, ITranslator.class);

@@ -50,7 +50,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
 
     /**
     * 构造文本特征提取器
-     */
+    */
     public VitH14TextTranslator() {
     }
 
@@ -59,7 +59,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     *
     * @param ctx 翻译上下文
     * @throws Exception 准备异常
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws Exception {
         Path modelRoot = resolveModelRoot(ctx.getModel().getModelPath());
@@ -79,7 +79,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     * @param ctx   翻译上下文
     * @param input 中文文本
     * @return NDList 包含 输入_标识 [1, 52]
-     */
+    */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) {
@@ -97,7 +97,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     * @param ctx  翻译上下文
     * @param list nd列表 包含 文本_特征 [1, 1024]
     * @return 1024 维特征向量
-     */
+    */
     @Override
     @Nonnull
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -114,7 +114,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     /**
     * 获取batchifier。
     * @return 获取batchifier的结果
-     */
+    */
     public Batchifier getBatchifier() {
         return null;
     }
@@ -125,7 +125,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     * @param a 特征向量 A
     * @param b 特征向量 B
     * @return 余弦相似度 [-1, 1]
-     */
+    */
     public static float cosineSimilarity(float[] a, float[] b) {
         if (a.length != b.length) {
             throw new IllegalArgumentException("向量维度不匹配: " + a.length + " vs " + b.length);
@@ -146,7 +146,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Paths.get("models/onnx");
@@ -161,7 +161,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     * @param modelRoot 模型根
     * @param names 名称
     * @return resolve第一个existing的结果
-     */
+    */
     private static Path resolveFirstExisting(Path modelRoot, String... names) throws IOException {
         for (String name : names) {
             Path p = modelRoot.resolve(name);
@@ -178,7 +178,7 @@ public class VitH14TextTranslator implements Translator<String, float[]> {
     * @param ids 标识
     * @param maxLen 最大len
     * @return truncate的结果
-     */
+    */
     private static long[] truncate(long[] ids, int maxLen) {
         long[] out = new long[maxLen];
         System.arraycopy(ids, 0, out, 0, Math.min(ids.length, maxLen));

@@ -15,20 +15,20 @@ public class SubscriberManager {
 
     /**
     * 构造订阅管理器
-     */
+    */
     public SubscriberManager() {
     }
 
     /**
     * 启动订阅管理器
-     */
+    */
     public void start() {
         log.info("[datalake-server] SubscriberManager 启动");
     }
 
     /**
     * 停止订阅管理器
-     */
+    */
     public void stop() {
         log.info("[datalake-server] SubscriberManager 停止");
     }

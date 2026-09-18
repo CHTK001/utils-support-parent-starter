@@ -31,7 +31,7 @@ public record FaceIdentifyHit(
     * @param feature 特征
     * @param hits    命中
     * @return FaceIdentifyHit的结果
-     */
+    */
     public FaceIdentifyHit(PredictRectangle box, float[] feature, List<FaceSearchHit> hits) {
         this(box, feature, hits, true, 1.0f);
     }
@@ -40,7 +40,7 @@ public record FaceIdentifyHit(
     * 取第一命中 标识。
     *
     * @return id 或 空
-     */
+    */
     public String bestId() {
         if (hits == null || hits.isEmpty()) {
             return null;
@@ -52,7 +52,7 @@ public record FaceIdentifyHit(
     * 取第一命中分数。
     *
     * @return score
-     */
+    */
     public double bestScore() {
         if (hits == null || hits.isEmpty()) {
             return 0d;
@@ -64,7 +64,7 @@ public record FaceIdentifyHit(
     * 第一命中元数据。
     *
     * @return metadata
-     */
+    */
     public Map<String, Object> bestMetadata() {
         if (hits == null || hits.isEmpty() || hits.getFirst().metadata() == null) {
             return Collections.emptyMap();

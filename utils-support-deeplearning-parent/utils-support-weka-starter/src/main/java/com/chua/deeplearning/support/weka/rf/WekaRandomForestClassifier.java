@@ -77,7 +77,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param options 随机森林参数，传 {@code null} 使用默认值
     * @return 训练完成的模型
     * @throws WekaException 数据缺少标签列、数据行不足或训练失败
-     */
+    */
     public RandomForestModel train(WekaInstanceData data, RandomForestOptions options) {
         Objects.requireNonNull(data, "data must not be null");
         if (!data.hasLabel()) {
@@ -96,7 +96,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param row   预测数据行（列名 -> 值，可缺省标签列），不能为 空
     * @return 分类结果（标签 + 概率分布）
     * @throws WekaException 模型未训练或预测失败
-     */
+    */
     public ClassificationResult predict(RandomForestModel model, Map<String, Object> row) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(row, "row must not be null");
@@ -129,7 +129,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param rows  预测数据行，不能为 空
     * @return 分类结果列表（与输入顺序一致）
     * @throws WekaException 模型未训练或预测失败
-     */
+    */
     public List<ClassificationResult> predictBatch(RandomForestModel model, List<Map<String, Object>> rows) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(rows, "rows must not be null");
@@ -171,7 +171,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param data  评估数据，不能为 空
     * @return 评估报告（准确率 + Kappa）
     * @throws WekaException 评估失败
-     */
+    */
     public EvaluationReport evaluate(RandomForestModel model, WekaInstanceData data) {
         return evaluate(model, data, 10);
     }
@@ -184,7 +184,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param numFolds 折数（至少 2，推荐 10），取值小于 2 时按 2 处理
     * @return 评估报告
     * @throws WekaException 数据量不足或评估失败
-     */
+    */
     public EvaluationReport evaluate(RandomForestModel model, WekaInstanceData data, int numFolds) {
         Objects.requireNonNull(model, "model must not be null");
         Objects.requireNonNull(data, "data must not be null");
@@ -215,7 +215,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param samples    样本行（列名 -> 值），至少 2 行，不能为 空
     * @return SPI 模型（可对预测行做预测 / 评估 / 保存）
     * @throws WekaException 参数非法或训练失败
-     */
+    */
     @Override
     public Model train(String labelColumn, List<Map<String, Object>> samples) {
         Objects.requireNonNull(labelColumn, "labelColumn must not be null");
@@ -239,7 +239,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     * @param labelColumn 标签列名（排除项），不能为 空 / 空白
     * @return 特征列定义列表（至少 1 列）
     * @throws WekaException 样本行不包含任何特征列
-     */
+    */
     private static List<FeatureColumn> inferFeatures(List<Map<String, Object>> samples, String labelColumn) {
         var names = new LinkedHashSet<String>();
         for (var row : samples) {
@@ -266,7 +266,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     *
     * @param value 原始值
     * @return true 表示数值语义
-     */
+    */
     private static boolean isNumericValue(Object value) {
         if (value instanceof Number) {
             return true;
@@ -289,7 +289,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
     *
     * @author CH
     * @since 4.0.0.42
-     */
+    */
     private static final class TaskModel implements Model, Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -305,7 +305,7 @@ public class WekaRandomForestClassifier implements ClassifierTask, Serializable 
         * @param task 任务
         * @param model 模型
         * @return 任务模型的结果
-         */
+        */
         private TaskModel(WekaRandomForestClassifier task, RandomForestModel model) {
             this.task = task;
             this.model = model;

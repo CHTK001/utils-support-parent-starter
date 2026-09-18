@@ -29,12 +29,12 @@ public class PathTraversalServerFilter implements ServerFilter {
 
     /**
     * 路径遍历特征字符串
-     */
+    */
     private static final String TRAVERSAL_PATTERN = "..";
 
     /**
     * 当前工作目录，用于规范化路径校验
-     */
+    */
     private static final String ROOT_PATH = new File("").getAbsolutePath();
 
     @Override
@@ -79,7 +79,7 @@ public class PathTraversalServerFilter implements ServerFilter {
     *
     * @param path 路径
     * @return 是否traversal的结果
-     */
+    */
     private boolean isTraversal(String path) {
         return path.contains(TRAVERSAL_PATTERN) || path.contains("\\\\");
     }

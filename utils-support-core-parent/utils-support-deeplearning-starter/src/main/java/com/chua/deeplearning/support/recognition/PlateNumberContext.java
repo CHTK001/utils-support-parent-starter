@@ -19,32 +19,32 @@ public class PlateNumberContext {
 
     /**
     * 原始图像数据。
-     */
+    */
     private final byte[] imageData;
 
     /**
     * 检测框序列。
-     */
+    */
     private final List<PredictRectangle> boxes;
 
     /**
     * 当前处理下标，由外层循环驱动。
-     */
+    */
     private int index;
 
     /**
     * 当前检测框。
-     */
+    */
     private PredictRectangle currentBox;
 
     /**
     * 当前裁剪车牌图像。
-     */
+    */
     private byte[] currentCrop;
 
     /**
     * 已收集的识别结果。
-     */
+    */
     private final List<PlateResult> results = new ArrayList<>();
 
     /**
@@ -52,7 +52,7 @@ public class PlateNumberContext {
     *
     * @param imageData 原始图像
     * @param boxes     检测框序列
-     */
+    */
     public PlateNumberContext(byte[] imageData, List<PredictRectangle> boxes) {
         this.imageData = imageData;
         this.boxes = boxes == null ? List.of() : boxes;
@@ -62,7 +62,7 @@ public class PlateNumberContext {
     * 是否有下一个车牌。
     *
     * @return true 表示进入下一个
-     */
+    */
     public boolean advance() {
         if (index >= boxes.size()) {
             return false;
@@ -75,7 +75,7 @@ public class PlateNumberContext {
     * 原始图像。
     *
     * @return 图像字节
-     */
+    */
     public byte[] imageData() {
         return imageData;
     }
@@ -84,7 +84,7 @@ public class PlateNumberContext {
     * 当前检测框。
     *
     * @return 检测框
-     */
+    */
     public PredictRectangle currentBox() {
         return currentBox;
     }
@@ -93,7 +93,7 @@ public class PlateNumberContext {
     * 当前裁剪车牌图像。
     *
     * @return 车牌图像
-     */
+    */
     public byte[] currentCrop() {
         return currentCrop;
     }
@@ -102,7 +102,7 @@ public class PlateNumberContext {
     * 设置当前裁剪车牌图像。
     *
     * @param crop 车牌图像
-     */
+    */
     public void currentCrop(byte[] crop) {
         this.currentCrop = crop;
     }
@@ -111,7 +111,7 @@ public class PlateNumberContext {
     * 追加识别结果。
     *
     * @param result 结果
-     */
+    */
     public void addResult(PlateResult result) {
         if (result != null) {
             results.add(result);
@@ -122,7 +122,7 @@ public class PlateNumberContext {
     * 已收集的识别结果。
     *
     * @return 结果列表
-     */
+    */
     public List<PlateResult> results() {
         return List.copyOf(results);
     }

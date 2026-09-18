@@ -34,7 +34,7 @@ public class OnnxEmbeddingClient extends AbstractLocalEmbeddingClient {
     * 构造 ONNX 文本嵌入客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OnnxEmbeddingClient(EmbeddingClientSetting setting) {
         super("onnx", setting);
     }

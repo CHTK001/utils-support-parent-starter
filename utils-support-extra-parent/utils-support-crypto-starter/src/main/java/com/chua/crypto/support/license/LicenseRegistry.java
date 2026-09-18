@@ -25,7 +25,7 @@ public interface LicenseRegistry {
     *
     * @param fingerprint 指纹十六进制串
     * @return 封装块字节；未注册返回 空
-     */
+    */
     byte[] lookup(String fingerprint);
 
     /**
@@ -33,7 +33,7 @@ public interface LicenseRegistry {
     *
     * @param fingerprint 指纹十六进制串
     * @param blob        私钥封装块
-     */
+    */
     void register(String fingerprint, byte[] blob);
 
     /**
@@ -41,7 +41,7 @@ public interface LicenseRegistry {
     *
     * @param fingerprint 指纹
     * @return true 表示存在且已移除
-     */
+    */
     boolean revoke(String fingerprint);
 
     /**
@@ -49,13 +49,13 @@ public interface LicenseRegistry {
     *
     * @param fingerprint 指纹
     * @return true 表示已注册
-     */
+    */
     boolean contains(String fingerprint);
 
     /**
     * 全部注册项快照（管理端展示用）
     *
     * @return 只读映射：指纹 -> 基础64(封装块)
-     */
+    */
     Map<String, String> snapshot();
 }

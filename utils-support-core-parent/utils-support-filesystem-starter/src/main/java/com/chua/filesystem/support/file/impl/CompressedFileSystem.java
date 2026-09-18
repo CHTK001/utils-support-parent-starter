@@ -56,7 +56,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param zipPath 压缩路径
     * @param readOnly 布尔值
     * @param readOnly 读取only
-     */
+    */
     private CompressedFileSystem(Path zipPath, boolean readOnly) {
         this.zipPath = zipPath;
         this.readOnly = readOnly;
@@ -67,7 +67,7 @@ public class CompressedFileSystem implements AutoCloseable {
     *
     * @param zipPath 压缩 文件路径
     * @return CompressedFileSystem 实例
-     */
+    */
     public static CompressedFileSystem create(Path zipPath) {
         return new CompressedFileSystem(zipPath, false);
     }
@@ -77,7 +77,7 @@ public class CompressedFileSystem implements AutoCloseable {
     *
     * @param zipPath 压缩 文件路径
     * @return CompressedFileSystem 实例
-     */
+    */
     public static CompressedFileSystem open(Path zipPath) {
         return new CompressedFileSystem(zipPath, true);
     }
@@ -89,7 +89,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param entryName   压缩包内的路径
     * @return 当前实例（支持链式调用）
     * @throws IOException IO 异常
-     */
+    */
     public CompressedFileSystem addFile(Path source, String entryName) throws IOException {
         checkWritable();
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
@@ -107,7 +107,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param entryName 压缩包内的路径
     * @return 当前实例
     * @throws IOException IO 异常
-     */
+    */
     public CompressedFileSystem addBytes(byte[] data, String entryName) throws IOException {
         checkWritable();
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zipPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND))) {
@@ -125,7 +125,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param entryName 压缩包内的路径
     * @return 当前实例
     * @throws IOException IO 异常
-     */
+    */
     public CompressedFileSystem addString(String content, String entryName) throws IOException {
         return addBytes(content.getBytes(java.nio.charset.StandardCharsets.UTF_8), entryName);
     }
@@ -135,7 +135,7 @@ public class CompressedFileSystem implements AutoCloseable {
     *
     * @return 文件名列表
     * @throws IOException IO 异常
-     */
+    */
     public List<String> list() throws IOException {
         List<String> files = new ArrayList<>();
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
@@ -154,7 +154,7 @@ public class CompressedFileSystem implements AutoCloseable {
     *
     * @param targetDir 目标目录
     * @throws IOException IO 异常
-     */
+    */
     public void extractAll(Path targetDir) throws IOException {
         Files.createDirectories(targetDir);
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
@@ -177,7 +177,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param entryName 压缩包内的文件路径
     * @param target    提取目标路径
     * @throws IOException IO 异常
-     */
+    */
     public void extract(String entryName, Path target) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
             ZipEntry entry;
@@ -198,7 +198,7 @@ public class CompressedFileSystem implements AutoCloseable {
     * @param entryName 压缩包内的文件路径
     * @return 文件内容
     * @throws IOException IO 异常
-     */
+    */
     public byte[] readBytes(String entryName) throws IOException {
         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath))) {
             ZipEntry entry;
@@ -214,7 +214,7 @@ public class CompressedFileSystem implements AutoCloseable {
     /**
     * 获取压缩包文件路径
     * @return 获取路径的结果
-     */
+    */
     public Path getPath() {
         return zipPath;
     }

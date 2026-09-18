@@ -36,7 +36,7 @@ public class AnimeRealClsTranslator implements Translator<Image, Classifications
     /**
     * 创建 animerealclstranslator 实例
     * @param arguments 参数
-     */
+    */
     public AnimeRealClsTranslator(Map<String, ?> arguments) {
         Map<String, Object> options = new LinkedHashMap<>();
         if (arguments != null && !arguments.isEmpty()) {

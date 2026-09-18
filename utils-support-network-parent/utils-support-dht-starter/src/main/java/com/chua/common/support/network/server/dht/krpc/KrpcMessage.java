@@ -21,32 +21,32 @@ public class KrpcMessage {
 
     /**
     * 事务 标识
-     */
+    */
     public String t;
 
     /**
     * 消息类型：'q' 查询，'r' 响应，'e' 错误
-     */
+    */
     public char y;
 
     /**
     * 查询类型（仅 y='Q' 时有值，如 "ping"、"查找_节点"）
-     */
+    */
     public String q;
 
     /**
     * 查询参数（仅 y='q' 时有值）
-     */
+    */
     public Map<String, Object> a;
 
     /**
     * 响应数据（仅 y='r' 时有值）
-     */
+    */
     public Map<String, Object> r;
 
     /**
     * 错误信息 [错误码, 错误描述]（仅 y='e' 时有值）
-     */
+    */
     public List<Long> e;
 
     /**
@@ -54,7 +54,7 @@ public class KrpcMessage {
     *
     * @param data Bencode 字节数组
     * @return KrpcMessage 实例
-     */
+    */
     public static KrpcMessage parse(byte[] data) {
         @SuppressWarnings("unchecked")
         Map<String, Object> map = (Map<String, Object>) BencodeCodec.decode(data);
@@ -88,7 +88,7 @@ public class KrpcMessage {
     * 编码为 Bencode 格式字节数组。
     *
     * @return Bencode 字节数组
-     */
+    */
     public byte[] encode() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("t", t != null ? t : "00");
@@ -109,7 +109,7 @@ public class KrpcMessage {
     *
     * @param key 参数名
     * @return 参数字符串值
-     */
+    */
     public String getString(String key) {
         return bytesOrString(get(key));
     }
@@ -119,7 +119,7 @@ public class KrpcMessage {
     *
     * @param key 参数名
     * @return 参数字节数组
-     */
+    */
     public byte[] getBytes(String key) {
         Object v = get(key);
         if (v instanceof String) {
@@ -133,7 +133,7 @@ public class KrpcMessage {
     *
     * @param key 参数名
     * @return 长整型值
-     */
+    */
     public Long getLong(String key) {
         Object v = get(key);
         return v instanceof Number ? ((Number) v).longValue() : null;
@@ -144,7 +144,7 @@ public class KrpcMessage {
     *
     * @param key 参数名
     * @return 值对象
-     */
+    */
     private Object get(String key) {
         Map<String, Object> m = y == 'q' ? a : r;
         return m != null ? m.get(key) : null;
@@ -155,7 +155,7 @@ public class KrpcMessage {
     *
     * @param key   参数名
     * @param value 参数值
-     */
+    */
     public void put(String key, Object value) {
         Map<String, Object> m = y == 'q' ? a : r;
         if (m == null) {
@@ -174,7 +174,7 @@ public class KrpcMessage {
     *
     * @param v 值对象
     * @return 字符串表示
-     */
+    */
     static String bytesOrString(Object v) {
         if (v == null) {
             return null;

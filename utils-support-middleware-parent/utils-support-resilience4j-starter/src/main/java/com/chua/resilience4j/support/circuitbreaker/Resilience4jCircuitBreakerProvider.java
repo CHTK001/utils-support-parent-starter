@@ -28,7 +28,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
 
     /**
     * 调用开始时间（纳秒），由 {@link #tryAcquire()} 记录。
-     */
+    */
     private final AtomicLong callStartNs = new AtomicLong(-1);
 
     /**
@@ -40,7 +40,7 @@ public class Resilience4jCircuitBreakerProvider implements CircuitBreakerProvide
     * @param failureThreshold 失败阈值
     * @param successThreshold 成功阈值
     * @param waitDuration wait持续时间
-     */
+    */
     public Resilience4jCircuitBreakerProvider(String name, int failureThreshold, int successThreshold, long waitDuration) {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
                 .failureRateThreshold((float) failureThreshold / 100)

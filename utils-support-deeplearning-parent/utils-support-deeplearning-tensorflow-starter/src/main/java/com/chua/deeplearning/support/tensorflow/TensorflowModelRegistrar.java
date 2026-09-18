@@ -58,7 +58,7 @@ public class TensorflowModelRegistrar implements ModelRegistrar {
     * @param outputType         输出类型
     * @param capability         能力接口
     * @param relativePath       相对路径
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {

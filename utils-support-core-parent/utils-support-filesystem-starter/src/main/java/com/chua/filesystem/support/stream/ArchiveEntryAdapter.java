@@ -17,14 +17,14 @@ public class ArchiveEntryAdapter implements ArchiveEntry {
 
     /**
     * 原始Arch Linux Linuxentry（commons-compress）
-     */
+    */
     private final org.apache.commons.compress.archivers.ArchiveEntry delegate;
 
     /**
     * 构造函数
     *
     * @param delegate commons-compress的Arch Linux Linux Linuxentry
-     */
+    */
     public ArchiveEntryAdapter(org.apache.commons.compress.archivers.ArchiveEntry delegate) {
         this.delegate = delegate;
     }
@@ -35,7 +35,7 @@ public class ArchiveEntryAdapter implements ArchiveEntry {
     * 获取名称
     *
     * @return 获取名称的结果
-     */
+    */
     public String getName() {
         return delegate.getName();
     }

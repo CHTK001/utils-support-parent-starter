@@ -10,37 +10,61 @@ import javax.annotation.Nullable;
 
 
 /**
-* BSC 图像调整滤镜
-*
-* BSC (Brightness, Saturation, Contrast) 滤镜提供对图像亮度、饱和度和对比度的
-* 综合调整功能。通过 HSL 颜色空间转换实现精确的颜色调整。
-*
-* 技术原理：
-* - RGB 到 HSL 颜色空间转换
-* - 在 HSL 空间中调整亮度和饱和度
-* - 在 RGB 空间中调整对比度
-* - HSL 到 RGB 颜色空间逆转换
-*
-* 调整参数：
-* - 亮度 (Brightness)：控制图像的明暗程度
-* - 饱和度 (Saturation)：控制颜色的鲜艳程度
-* - 对比度 (Contrast)：控制明暗对比的强度
-*
-* 参数范围：
-* - 所有参数以百分比形式输入（-100 到 +100）
-* - 0 表示不调整，正值增强，负值减弱
-* - 内部自动转换为乘法因子（0.0 到 2.0）
-*
-* 应用场景：
-* - 照片后期处理：调整照片的色彩和明暗
-* - 图像增强：改善图像的视觉效果
-* - 色彩校正：修正图像的色彩偏差
-* - 艺术效果：创建特定的视觉风格
-* - 显示适配：为不同显示设备优化图像
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * BSC 图像调整滤镜
+ *
+ * BSC (Brightness, Saturation, Contrast) 滤镜提供对图像亮度、饱和度和对比度的
+ * 综合调整功能。通过 HSL 颜色空间转换实现精确的颜色调整。
+ *
+ * 技术原理：
+ * - RGB 到 HSL 颜色空间转换
+ * - 在 HSL 空间中调整亮度和饱和度
+ * - 在 RGB 空间中调整对比度
+ * - HSL 到 RGB 颜色空间逆转换
+ *
+ * 调整参数：
+ * - 亮度 (Brightness)：控制图像的明暗程度
+ * - 饱和度 (Saturation)：控制颜色的鲜艳程度
+ * - 对比度 (Contrast)：控制明暗对比的强度
+ *
+ * 参数范围：
+ * - 所有参数以百分比形式输入（-100 到 +100）
+ * - 0 表示不调整，正值增强，负值减弱
+ * - 内部自动转换为乘法因子（0.0 到 2.0）
+ *
+ * 应用场景：
+ * - 照片后期处理：调整照片的色彩和明暗
+ * - 图像增强：改善图像的视觉效果
+ * - 色彩校正：修正图像的色彩偏差
+ * - 艺术效果：创建特定的视觉风格
+ * - 显示适配：为不同显示设备优化图像
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 亮 +20%、饱和 +15%、对比 +10%
+ * BscAdjustImageFilter bsc = new BscAdjustImageFilter()
+ *         .setBrightness(20)
+ *         .setSaturation(15)
+ *         .setContrast(10);
+ * BufferedImage result = bsc.converter(src);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>brightness</b>（默认 0）：亮度调整百分比，-100 到 +100</li>
+ *   <li><b>saturation</b>（默认 0）：饱和度调整百分比，-100 到 +100</li>
+ *   <li><b>contrast</b>（默认 0）：对比度调整百分比，-100 到 +100</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>三个参数相互独立，可任意组合</li>
+ *   <li>0 值表示不调整；内部转换为乘法因子 1.0（无效果）</li>
+ *   <li>正值增强、负值减弱，绝对值越大效果越明显</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 @Spi("bsc")
 @SpiDescribe("亮度饱和度对比度调整滤镜")
@@ -48,24 +72,24 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
 
     /**
     * 亮度调整值，范围 -100 到 +100
-     */
+    */
     private double brightness;
 
     /**
     * 对比度调整值，范围 -100 到 +100
-     */
+    */
     private double contrast;
 
     /**
     * 饱和度调整值，范围 -100 到 +100
-     */
+    */
     private double saturation;
 
     /**
     * 获取亮度调整值
     *
     * @return 亮度调整值，范围 -100 到 +100
-     */
+    */
     public double getBrightness() {
         return brightness;
     }
@@ -74,16 +98,18 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     * 设置亮度调整值
     *
     * @param brightness 亮度调整值，范围 -100 到 +100，0表示不调整
-     */
-    public void setBrightness(double brightness) {
+    * @return 当前滤镜实例，支持链式调用
+    */
+    public BscAdjustImageFilter setBrightness(double brightness) {
         this.brightness = brightness;
+        return this;
     }
 
     /**
     * 获取饱和度调整值
     *
     * @return 饱和度调整值，范围 -100 到 +100
-     */
+    */
     public double getSaturation() {
         return saturation;
     }
@@ -92,16 +118,18 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     * 设置饱和度调整值
     *
     * @param saturation 饱和度调整值，范围 -100 到 +100，0表示不调整
-     */
-    public void setSaturation(double saturation) {
+    * @return 当前滤镜实例，支持链式调用
+    */
+    public BscAdjustImageFilter setSaturation(double saturation) {
         this.saturation = saturation;
+        return this;
     }
 
     /**
     * 获取对比度调整值
     *
     * @return 对比度调整值，范围 -100 到 +100
-     */
+    */
     public double getContrast() {
         return contrast;
     }
@@ -110,9 +138,11 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     * 设置对比度调整值
     *
     * @param contrast 对比度调整值，范围 -100 到 +100，0表示不调整
-     */
-    public void setContrast(double contrast) {
+    * @return 当前滤镜实例，支持链式调用
+    */
+    public BscAdjustImageFilter setContrast(double contrast) {
         this.contrast = contrast;
+        return this;
     }
 
     /**
@@ -124,7 +154,7 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     * @param src  源图像
     * @param dest 目标图像，可以为 空
     * @return 调整后的图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dest) {
         // 处理参数，将百分比转换为乘法因子
@@ -208,7 +238,7 @@ public class BscAdjustImageFilter extends AbstractImageFilter {
     *
     * 将百分比形式的调整参数转换为乘法因子。
     * 输入范围 -100 到 +100，转换为 0.0 到 2.0 的乘法因子。
-     */
+    */
     public void handleParameters() {
         contrast = (1.0 + contrast / 100.0);
         brightness = (1.0 + brightness / 100.0);

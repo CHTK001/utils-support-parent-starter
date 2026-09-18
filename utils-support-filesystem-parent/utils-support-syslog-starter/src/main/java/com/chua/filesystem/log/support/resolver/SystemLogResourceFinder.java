@@ -47,12 +47,12 @@ public class SystemLogResourceFinder implements ResourceFinder {
 
     /**
     * 协议 名称
-     */
+    */
     public static final String PROTOCOL = "syslog";
 
     /**
     * 提供者, lazily 初始化
-     */
+    */
     private volatile SystemLogProvider provider;
 
     @Override
@@ -83,7 +83,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     *
     * @param raw raw
     * @return 解析查询的结果
-     */
+    */
     private LogQuery parseQuery(String raw) {
         if (raw == null) {
             return null;
@@ -109,7 +109,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     *
     * @param s s
     * @return 解析globstyle的结果
-     */
+    */
     private LogQuery parseGlobStyle(String s) {
         int maxResults = 100;
         String order = LogQuery.ORDER_DESC;
@@ -153,7 +153,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     *
     * @param withGlob withglob
     * @return 解析查询参数style的结果
-     */
+    */
     private LogQuery parseQueryParamStyle(String withGlob) {
         String queryString;
         int qmarkIdx = withGlob.indexOf('?');
@@ -212,7 +212,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     * 获取或创建提供者
     *
     * @return 获取或创建提供者的结果
-     */
+    */
     private SystemLogProvider getOrCreateProvider() {
         if (provider != null) {
             return provider;
@@ -244,7 +244,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     *
     * @param entry entry
     * @return 转为resource的结果
-     */
+    */
     private Resource toResource(LogEntry entry) {
         String content = String.format("[%s] [%s] [%s] %s",
                 entry.timestamp(),
@@ -262,7 +262,7 @@ public class SystemLogResourceFinder implements ResourceFinder {
     * @param entry entry
     * @param content 内容
     * @return 虚拟resourceimpl的结果
-     */
+    */
     private record VirtualResourceImpl(LogEntry entry, byte[] content) implements Resource {
 
         @Override
@@ -307,11 +307,11 @@ public class SystemLogResourceFinder implements ResourceFinder {
     }
 
     /**
-    * Url解码
-    *
-    * @param s s
-    * @return urlDecode的结果
-     */
+        * Url解码
+        *
+        * @param s s
+        * @return urlDecode的结果
+        */
     private static String urlDecode(String s) {
         if (s == null) {
             return null;

@@ -34,27 +34,27 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
 
     /**
     *                                        
-     */
+    */
     private static final int INPUT_SIZE = 512;
 
     /**
     *                      
-     */
+    */
     private static final float NORMALIZE_MAX = 255.0f;
 
     /**
     *                         
-     */
+    */
     private static final float DENORMALIZE_MULTIPLIER = 127.5f;
 
     /**
     *                                                 
-     */
+    */
     private int originalWidth;
 
     /**
     *                                                 
-     */
+    */
     private int originalHeight;
 
     /**
@@ -63,7 +63,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     * @param ctx                               {@code NDManager}          
     * @param input                                RGB          
     * @return                                            {@code [1, 3, INPUT_SIZE, INPUT_SIZE]}
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         originalWidth = input.getWidth();
@@ -105,7 +105,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     * @param ctx                    
     * @param list                                                                 {@code [1, C, H, W]}     {@code [C, H, W}
     * @return                                                 
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         var manager = ctx.getNDManager();
@@ -158,7 +158,7 @@ public class ImageToLineDrawingTranslator implements Translator<Image, Image> {
     * </p>
     *
     * @return                   
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

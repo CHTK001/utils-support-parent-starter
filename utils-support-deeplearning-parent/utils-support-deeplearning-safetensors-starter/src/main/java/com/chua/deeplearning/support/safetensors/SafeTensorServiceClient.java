@@ -26,17 +26,17 @@ public class SafeTensorServiceClient {
 
     /**
     * 服务基础 URL。
-     */
+    */
     private final String baseUrl;
 
     /**
     * HTTP 客户端（Java 11+ 内置）。
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * Jackson JSON 映射器。
-     */
+    */
     private final ObjectMapper mapper;
 
     /**
@@ -44,7 +44,7 @@ public class SafeTensorServiceClient {
     *
     * @param host Python 服务主机
     * @param port Python 服务端口
-     */
+    */
     public SafeTensorServiceClient(String host, int port) {
         this.baseUrl = "http://" + host + ":" + port;
         this.httpClient = HttpClient.newBuilder()
@@ -58,7 +58,7 @@ public class SafeTensorServiceClient {
     * 健康检查。
     *
     * @return true 表示服务正常
-     */
+    */
     public boolean health() {
         try {
             var req = HttpRequest.newBuilder()
@@ -82,7 +82,7 @@ public class SafeTensorServiceClient {
     * @param input     输入数据
     * @param params    推理参数
     * @return 推理结果
-     */
+    */
     public Map<String, Object> infer(String modelName, String modelType,
                                      Map<String, Object> input, Map<String, Object> params) {
         try {
@@ -121,7 +121,7 @@ public class SafeTensorServiceClient {
     * @param input     输入数据
     * @param params    训练参数
     * @return 训练结果
-     */
+    */
     public Map<String, Object> train(String modelName, String modelType,
                                      Map<String, Object> input, Map<String, Object> params) {
         try {
@@ -157,7 +157,7 @@ public class SafeTensorServiceClient {
     * @param source    下载源（modelscope / huggingface）
     * @param revision  版本号
     * @return 下载结果
-     */
+    */
     public Map<String, Object> downloadModel(String modelName, String source, String revision) {
         try {
             var body = Map.of(

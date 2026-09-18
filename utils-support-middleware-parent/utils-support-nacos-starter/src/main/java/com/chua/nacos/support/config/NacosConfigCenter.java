@@ -49,24 +49,24 @@ public class NacosConfigCenter extends AbstractConfigCenter {
 
     /**
     * 默认分组名称
-     */
+    */
     private static final String DEFAULT_GROUP = "DEFAULT_GROUP";
 
     /**
     * Nacos 配置服务实例
-     */
+    */
     private ConfigService configService;
 
     /**
     * 配置内容缓存，键 为 "数据id:群体"
-     */
+    */
     private final Map<String, Map<String, Object>> configContentCache = new ConcurrentHashMap<>();
 
     /**
     * 构造 Nacos 配置中心。
     *
     * @param configCenterSetting 配置中心连接设置（地址、命名空间、认证等）
-     */
+    */
     public NacosConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -288,7 +288,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     * @param configContent 配置内容
     * @param dataId        配置标识（用于确定解析格式）
     * @return 解析后的键值映射
-     */
+    */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 根据文件后缀选择解析方式
@@ -322,7 +322,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     * @param dataId  配置标识
     * @param content 配置内容
     * @return true-应使用 YAML 解析
-     */
+    */
     private boolean isYamlConfig(String dataId, String content) {
         if (dataId != null) {
             String lower = dataId.toLowerCase();
@@ -339,7 +339,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     * @param dataId  配置标识
     * @param content 配置内容
     * @return true-应使用 属性 解析
-     */
+    */
     private boolean isPropertiesConfig(String dataId, String content) {
         if (dataId != null) {
             String lower = dataId.toLowerCase();
@@ -355,7 +355,7 @@ public class NacosConfigCenter extends AbstractConfigCenter {
     *
     * @param config 配置映射
     * @return YAML 格式字符串
-     */
+    */
     private String convertToYaml(Map<String, Object> config) {
         if (config == null || config.isEmpty()) {
             return "";

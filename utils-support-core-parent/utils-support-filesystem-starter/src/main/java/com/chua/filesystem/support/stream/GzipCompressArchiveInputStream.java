@@ -28,7 +28,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     * 判断是否支持
     * @param file 文件
     * @return isSupport
-     */
+    */
     @Override
     public boolean isSupport(File file) {
         if (file == null) {
@@ -47,7 +47,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     * @param char char
     * @param password 密码
     * @return createInputStream
-     */
+    */
     @Override
     public ArchiveInputStream createInputStream(InputStream inputStream, File file, @Nullable char[] password) throws IOException {
         // GZ 格式不支持密码
@@ -62,7 +62,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     /**
     * 获取格式化名称
     * @return getFormatName
-     */
+    */
     @Override
     public String getFormatName() {
         return "gz";
@@ -76,27 +76,27 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     * </p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class GzipArchiveInputStreamAdapter implements ArchiveInputStream {
 
         /**
         * 原始gzipcompressor输入流
-         */
+        */
         private final GzipCompressorInputStream gzipInputStream;
 
         /**
         * 文件对象（用于获取条目名称）
-         */
+        */
         private final File file;
 
         /**
         * 当前条目（GZ格式只有一个条目）
-         */
+        */
         private ArchiveEntry currentEntry;
 
         /**
         * 是否已读取条目
-         */
+        */
         private boolean entryRead = false;
 
         /**
@@ -104,7 +104,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         *
         * @param gzipInputStream commons-compress的gzipcompressor输入流
         * @param file            压缩文件
-         */
+        */
         GzipArchiveInputStreamAdapter(GzipCompressorInputStream gzipInputStream, File file) {
             this.gzipInputStream = gzipInputStream;
             this.file = file;
@@ -113,7 +113,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 获取下一个entry
         * @return getNextEntry
-         */
+        */
         @Override
         @Nullable
         public ArchiveEntry getNextEntry() throws IOException {
@@ -136,7 +136,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 读取
         * @return read
-         */
+        */
         @Override
         public int read() throws IOException {
             return gzipInputStream.read();
@@ -146,7 +146,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         * 读取
         * @param b b
         * @return read
-         */
+        */
         @Override
         public int read(byte[] b) throws IOException {
             return gzipInputStream.read(b);
@@ -158,7 +158,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         * @param off off
         * @param len len
         * @return read
-         */
+        */
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             return gzipInputStream.read(b, off, len);
@@ -168,7 +168,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         * 获取跳过
         * @param n n
         * @return skip
-         */
+        */
         @Override
         public long skip(long n) throws IOException {
             return gzipInputStream.skip(n);
@@ -177,7 +177,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 获取可用
         * @return available
-         */
+        */
         @Override
         public int available() throws IOException {
             return gzipInputStream.available();
@@ -186,7 +186,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * mark
         * @param readlimit readlimit
-         */
+        */
         @Override
         public void mark(int readlimit) {
             gzipInputStream.mark(readlimit);
@@ -194,7 +194,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
 
         /**
         * 重置
-         */
+        */
         @Override
         public void reset() throws IOException {
             gzipInputStream.reset();
@@ -203,7 +203,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 获取mark支持
         * @return markSupported
-         */
+        */
         @Override
         public boolean markSupported() {
             return gzipInputStream.markSupported();
@@ -211,7 +211,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
 
         /**
         * 关闭
-         */
+        */
         @Override
         public void close() throws IOException {
             gzipInputStream.close();
@@ -225,7 +225,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
     * </p>
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class GzipEntryAdapter implements ArchiveEntry {
 
         /** 名称 */
@@ -238,7 +238,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 获取名称
         * @return getName
-         */
+        */
         @Override
         public String getName() {
             return name;
@@ -247,7 +247,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 判断是否目录
         * @return isDirectory
-         */
+        */
         @Override
         public boolean isDirectory() {
             return false;
@@ -256,7 +256,7 @@ public class GzipCompressArchiveInputStream implements CompressArchiveInputStrea
         /**
         * 获取大小
         * @return getSize
-         */
+        */
 @Override
         public long getSize() {
             return -1;

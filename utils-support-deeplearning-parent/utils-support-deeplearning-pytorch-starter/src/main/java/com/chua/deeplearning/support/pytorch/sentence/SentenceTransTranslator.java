@@ -27,17 +27,17 @@ public class SentenceTransTranslator implements Translator<String, float[]> {
 
     /**
     * 最大序列长度。
-     */
+    */
     private final int maxSequenceLength = 128;
 
     /**
     * 词表。
-     */
+    */
     private DefaultVocabulary vocabulary;
 
     /**
     * BERT 分词器。
-     */
+    */
     private BertFullTokenizer tokenizer;
 
     @Override

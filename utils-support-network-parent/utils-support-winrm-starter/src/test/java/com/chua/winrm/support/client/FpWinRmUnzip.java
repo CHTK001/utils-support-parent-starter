@@ -1,0 +1,28 @@
+﻿package com.chua.winrm.support.client;
+
+import com.chua.winrm.support.client.WinRmExecClient;
+
+/**
+ * 杩滅▼瑙ｅ帇 jdk.zip 骞跺畾浣?java銆? */
+public class FpWinRmUnzip {
+    public static void main(String[] args) throws Exception {
+        WinRmExecClient winrm = WinRmExecClient.builder()
+                .host("172.16.9.194").port(5985)
+                .username("lenovo").password("123")
+                .authenticationScheme("NTLM")
+                .build();
+        winrm.connect();
+        System.out.println("=== connected ===");
+
+        // 瑙ｅ帇 jdk.zip
+        var r1 = winrm.exec().command("powershell -Command \"Expand-Archive -Path C:\\jdk\\jdk.zip -DestinationPath C:\\jdk -Force\"").execute();
+        System.out.println("瑙ｅ帇: exit=" + r1.exitCode() + " stdout=[" + r1.stdout() + "] stderr=[" + r1.stderr() + "]");
+
+        // 鏌ユ壘 java.exe
+        var r2 = winrm.exec().command("cmd.exe /c dir /b /s C:\\jdk\\java.exe").execute();
+        System.out.println("鏌ユ壘 java.exe: [" + r2.stdout() + "]");
+
+        winrm.close();
+        System.exit(0);
+    }
+}

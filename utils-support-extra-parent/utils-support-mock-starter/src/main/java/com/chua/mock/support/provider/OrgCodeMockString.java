@@ -23,13 +23,13 @@ public class OrgCodeMockString implements MockString {
 
     /**
     * 主体码字符集
-     */
+    */
     private static final String CHARS = "0123456789ABCDEFGHJKLMNPQRTUWXY";
     /**
     * 校验权重（8 位主体码）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int[] WEIGHTS = {3, 7, 9, 10, 5, 8, 4, 2};
 
     @Override
@@ -47,7 +47,7 @@ public class OrgCodeMockString implements MockString {
     *
     * @param body 8 位主体码
     * @return 校验位字符（0-9 或 X）
-     */
+    */
     private static char checkCode(StringBuilder body) {
         int sum = 0;
         for (int i = 0; i < WEIGHTS.length; i++) {

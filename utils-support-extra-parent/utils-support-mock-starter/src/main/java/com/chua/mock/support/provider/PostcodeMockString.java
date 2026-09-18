@@ -24,7 +24,7 @@ public class PostcodeMockString implements MockString {
     * 邮编固定长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int LENGTH = 6;
 
     @Override

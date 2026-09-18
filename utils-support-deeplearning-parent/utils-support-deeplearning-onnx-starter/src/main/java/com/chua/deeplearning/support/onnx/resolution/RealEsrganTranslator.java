@@ -40,17 +40,17 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
 
     /**
     *                                                             
-     */
+    */
     private final int scale;
 
     /**
     * ndarray
-     */
+    */
     private NDManager manager;
 
     /**
     *                              
-     */
+    */
     public RealEsrganTranslator() {
         this(4);
     }
@@ -59,7 +59,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     *                              
     *
     * @param scale                   2     4   
-     */
+    */
     public RealEsrganTranslator(int scale) {
         this.scale = scale;
     }
@@ -136,7 +136,7 @@ public class RealEsrganTranslator implements Translator<Image, Image> {
     *
     * @param v 浮点像素值
     * @return 0-255 整数
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(1.0f, v));
         return (int) Math.round(x * 255.0f);

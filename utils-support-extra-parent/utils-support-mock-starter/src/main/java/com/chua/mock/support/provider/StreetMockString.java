@@ -23,7 +23,7 @@ public class StreetMockString implements MockString {
     * 街道名池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] STREETS = {
             "人民路", "中山路", "解放路", "建设路", "和平路", "新华路", "青年路", "朝阳路",
             "长江路", "黄河路", "文化路", "体育路", "东湖路", "西湖路", "南京路", "北京路",

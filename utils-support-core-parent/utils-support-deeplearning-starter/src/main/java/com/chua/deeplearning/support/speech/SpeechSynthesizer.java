@@ -20,7 +20,7 @@ public interface SpeechSynthesizer {
     *
     * @param name 模型名称
     * @return 合成器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -28,7 +28,7 @@ public interface SpeechSynthesizer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static SpeechSynthesizer create(String provider, String apiKey) {
         return ServiceProvider.of(SpeechSynthesizer.class)
                 .getNewExtension(provider, apiKey);
@@ -39,7 +39,7 @@ public interface SpeechSynthesizer {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default SpeechSynthesizer provider(String provider) {
         return this;
     }
@@ -49,7 +49,7 @@ public interface SpeechSynthesizer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default SpeechSynthesizer model(String model) {
         return this;
     }
@@ -59,7 +59,7 @@ public interface SpeechSynthesizer {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static SpeechSynthesizer create(String name) {
         return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -71,7 +71,7 @@ public interface SpeechSynthesizer {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.speech.SpeechSynthesizer.class);
     }
@@ -83,7 +83,7 @@ public interface SpeechSynthesizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 合成器
-     */
+    */
     static SpeechSynthesizer create(String name, ModelSetting setting) {
         return new DefaultSpeechSynthesizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -93,7 +93,7 @@ public interface SpeechSynthesizer {
     *
     * @param lang 语言代码
     * @return this
-     */
+    */
     SpeechSynthesizer lang(String lang);
 
     /**
@@ -101,7 +101,7 @@ public interface SpeechSynthesizer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     SpeechSynthesizer modelPath(String path);
 
     /**
@@ -109,7 +109,7 @@ public interface SpeechSynthesizer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     SpeechSynthesizer device(String device);
 
     /**
@@ -117,7 +117,7 @@ public interface SpeechSynthesizer {
     *
     * @param speed 语速倍率
     * @return this
-     */
+    */
     SpeechSynthesizer speed(float speed);
 
     /**
@@ -125,7 +125,7 @@ public interface SpeechSynthesizer {
     *
     * @param pitch 音调倍率
     * @return this
-     */
+    */
     SpeechSynthesizer pitch(float pitch);
 
     /**
@@ -133,7 +133,7 @@ public interface SpeechSynthesizer {
     *
     * @param text 文字内容
     * @return 音频数据
-     */
+    */
     byte[] synthesize(String text);
 }
 
@@ -147,64 +147,64 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
 
     /**
     * 默认合成语言（中文）。
-     */
+    */
     private static final String DEFAULT_LANG = "zh";
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 默认语速。
-     */
+    */
     private static final float DEFAULT_SPEED = 1.0f;
 
     /**
     * 默认音调。
-     */
+    */
     private static final float DEFAULT_PITCH = 1.0f;
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 合成语言。
-     */
+    */
     private String lang = DEFAULT_LANG;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
     * 语速。
-     */
+    */
     private float speed = DEFAULT_SPEED;
 
     /**
     * 音调。
-     */
+    */
     private float pitch = DEFAULT_PITCH;
 
     /**
@@ -213,7 +213,7 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultSpeechSynthesizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -268,7 +268,7 @@ class DefaultSpeechSynthesizer implements SpeechSynthesizer {
     *
     * @param text 文本
     * @return 综合的结果
-     */
+    */
     public byte[] synthesize(String text) {
         ITranslator<String, byte[]> t =
                 (ITranslator<String, byte[]>) engine.get(modelName, ITranslator.class);

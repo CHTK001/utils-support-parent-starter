@@ -49,44 +49,44 @@ public class FetchOperation {
 
     /**
     * 所属 git客户端。
-     */
+    */
     private final GitClient client;
 
     /**
     * 异步标记：为 true 时 {@link #execute()} 返回 completable期货。
-     */
+    */
     private boolean asyncMode;
 
     /**
     * 定时轮询间隔（秒），默认 30。
-     */
+    */
     private long watchInterval = 30;
 
     /**
     * 轮询间隔单位，默认 时间unit.SECONDS。
-     */
+    */
     private TimeUnit watchTimeUnit = TimeUnit.SECONDS;
 
     /**
     * 文件变更监听器，不为 空 时执行 diff。
-     */
+    */
     private GitFileListener watchListener;
 
     /**
     * 进度监听器，透传到底层 jgit 进步监控。
-     */
+    */
     private GitProgressListener progressListener;
 
     /**
     * 定时拉取使用的调度线程。
-     */
+    */
     private ScheduledExecutorService scheduler;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 所属 Git客户端
-     */
+    */
     public FetchOperation(GitClient client) {
         this.client = client;
     }
@@ -97,7 +97,7 @@ public class FetchOperation {
     * 标记为异步模式：{@link #execute()} 将返回 {@link CompletableFuture}。
     *
     * @return 当前操作实例（链式衔接）
-     */
+    */
     public FetchOperation async() {
         this.asyncMode = true;
         return this;
@@ -108,7 +108,7 @@ public class FetchOperation {
     *
     * @param listener 进度监听器，非空
     * @return 当前操作实例
-     */
+    */
     public FetchOperation progressListener(GitProgressListener listener) {
         this.progressListener = listener;
         return this;
@@ -120,7 +120,7 @@ public class FetchOperation {
     * @param interval 间隔数值
     * @param unit     时间单位
     * @return 当前操作实例
-     */
+    */
     public FetchOperation interval(long interval, TimeUnit unit) {
         this.watchInterval = interval;
         this.watchTimeUnit = unit;
@@ -132,7 +132,7 @@ public class FetchOperation {
     *
     * @param listener 文件变更监听器，非 空
     * @return 当前操作实例
-     */
+    */
     public FetchOperation listener(GitFileListener listener) {
         this.watchListener = listener;
         return this;
@@ -144,7 +144,7 @@ public class FetchOperation {
     * 执行一次拉取。
     *
     * @return 同步模式返回 {@link PullResult}，异步模式返回 {@link CompletableFuture}{@code <PullResult>}
-     */
+    */
     public Object execute() {
         if (asyncMode) {
             return CompletableFuture.supplyAsync(() -> client.pull(watchListener, progressListener));
@@ -161,7 +161,7 @@ public class FetchOperation {
     * <p>必须先调用 {@link #listener(GitFileListener)} 后再调用该方法。</p>
     *
     * @throws GitClientException 如果未设置监听器
-     */
+    */
     public void start() {
         if (watchListener == null) {
             throw new GitClientException("监听器不能为空，请先调用 listener()");
@@ -184,7 +184,7 @@ public class FetchOperation {
 
     /**
     * 停止由 {@link #start()} 启动的定时拉取。
-     */
+    */
     public void stop() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow();

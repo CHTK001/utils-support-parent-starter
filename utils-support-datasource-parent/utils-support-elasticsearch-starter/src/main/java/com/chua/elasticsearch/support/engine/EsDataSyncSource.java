@@ -21,37 +21,37 @@ public class EsDataSyncSource implements DataSyncSource {
 
     /**
     * 默认批大小
-     */
+    */
     private static final int DEFAULT_BATCH = 1000;
 
     /**
     * 标识 字段名
-     */
+    */
     private static final String ID = "id";
 
     /**
     * 底层 ES 引擎
-     */
+    */
     private final ElasticsearchEngine engine;
 
     /**
     * 目标索引名
-     */
+    */
     private final String indexName;
 
     /**
     * 源标识
-     */
+    */
     private final String sourceId;
 
     /**
-    * 智能体 标识
-     */
+    * Agent 标识
+    */
     private final String agentId;
 
     /**
     * 批大小
-     */
+    */
     private final int batchSize;
 
     /**
@@ -60,9 +60,9 @@ public class EsDataSyncSource implements DataSyncSource {
     * @param engine    ES 引擎
     * @param indexName 索引名
     * @param sourceId  源标识
-    * @param agentId   智能体 标识
+    * @param agentId   Agent 标识
     * @param batchSize 批大小
-     */
+    */
     private EsDataSyncSource(ElasticsearchEngine engine, String indexName,
                              String sourceId, String agentId, int batchSize) {
         this.engine = engine;
@@ -78,9 +78,9 @@ public class EsDataSyncSource implements DataSyncSource {
     * @param engine    ES 引擎
     * @param indexName 索引名
     * @param sourceId  源标识
-    * @param agentId   智能体 标识
+    * @param agentId   Agent 标识
     * @return 实例
-     */
+    */
     public static EsDataSyncSource output(ElasticsearchEngine engine, String indexName,
                                           String sourceId, String agentId) {
         return new EsDataSyncSource(engine, indexName, sourceId, agentId, DEFAULT_BATCH);
@@ -92,10 +92,10 @@ public class EsDataSyncSource implements DataSyncSource {
     * @param engine    ES 引擎
     * @param indexName 索引名
     * @param sourceId  源标识
-    * @param agentId   智能体 标识
+    * @param agentId   Agent 标识
     * @param batchSize 批大小
     * @return 实例
-     */
+    */
     public static EsDataSyncSource output(ElasticsearchEngine engine, String indexName,
                                           String sourceId, String agentId, int batchSize) {
         return new EsDataSyncSource(engine, indexName, sourceId, agentId, batchSize);
@@ -114,7 +114,7 @@ public class EsDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 智能体id */
+    /** Agentid */
     public String agentId() {
         return agentId;
     }

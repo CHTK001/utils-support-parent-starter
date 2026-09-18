@@ -27,7 +27,7 @@ public class GitClientException extends RuntimeException {
     * 使用错误消息构造异常。
     *
     * @param message 错误描述
-     */
+    */
     public GitClientException(String message) {
         super(message);
     }
@@ -37,7 +37,7 @@ public class GitClientException extends RuntimeException {
     *
     * @param message 错误描述
     * @param cause   原始异常，便于调用方通过 {@link #getCause()} 获取 jgit 等底层异常
-     */
+    */
     public GitClientException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -30,7 +30,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 创建 pdf读取构建器 实例
     * @param file 文件
-     */
+    */
     public PdfReadBuilder(File file) {
         super(file);
     }
@@ -39,14 +39,14 @@ public class PdfReadBuilder extends ReadBuilder {
     * 起始页（从 1 开始）
     * @param page page
     * @return 启动page的结果
-     */
+    */
     public PdfReadBuilder startPage(int page) { this.startPage = page; return this; }
 
     /**
     * 结束页
     * @param page page
     * @return 结束page的结果
-     */
+    */
     public PdfReadBuilder endPage(int page) { this.endPage = page; return this; }
 
     @Override
@@ -59,7 +59,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 提取 PDF 文档的全部文本内容
     * @return 文本的结果
-     */
+    */
     public String text() {
         try (PDDocument doc = Loader.loadPDF(file)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -79,7 +79,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 按页读取文本
     * @return pages的结果
-     */
+    */
     public List<String> pages() {
         List<String> result = new ArrayList<>();
         try (PDDocument doc = Loader.loadPDF(file)) {
@@ -112,7 +112,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 元数据
     * @return metadata的结果
-     */
+    */
     public PDDocumentInformation metadata() {
         try (PDDocument doc = Loader.loadPDF(file)) {
             return doc.getDocumentInformation();
@@ -122,7 +122,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 标题
     * @return title的结果
-     */
+    */
     public String title() {
         var info = metadata();
         return info != null ? info.getTitle() : null;
@@ -131,7 +131,7 @@ public class PdfReadBuilder extends ReadBuilder {
     /**
     * 页数
     * @return page数量的结果
-     */
+    */
     public int pageCount() {
         try (PDDocument doc = Loader.loadPDF(file)) {
             return doc.getNumberOfPages();

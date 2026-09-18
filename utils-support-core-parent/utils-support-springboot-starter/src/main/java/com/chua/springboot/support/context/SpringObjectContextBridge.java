@@ -27,7 +27,7 @@ final class SpringObjectContextBridge {
 
     /**
     * 已注册到 Spring 的 Bean名称 缓存，键 = Bean名称，值 = Bean 实例引用
-     */
+    */
     private static final ConcurrentMap<String, Object> REGISTERED = new ConcurrentHashMap<>();
 
     /** 创建 spring对象上下文bridge 实例 */
@@ -40,7 +40,7 @@ final class SpringObjectContextBridge {
     *
     * @param applicationContext Spring 容器
     * @param bean               待注册对象
-     */
+    */
     public static void registerIfAbsent(ApplicationContext applicationContext, Object bean) {
         if (applicationContext == null || bean == null) {
             return;
@@ -80,7 +80,7 @@ final class SpringObjectContextBridge {
     *
     * @param beanClass Bean 类型
     * @return beanName
-     */
+    */
     private static String resolveBeanName(Class<?> beanClass) {
         if (beanClass == null) {
             return null;

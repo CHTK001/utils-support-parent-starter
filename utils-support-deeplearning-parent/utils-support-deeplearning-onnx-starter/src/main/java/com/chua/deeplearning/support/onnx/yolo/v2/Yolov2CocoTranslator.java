@@ -45,38 +45,38 @@ public class Yolov2CocoTranslator implements Translator<Image, DetectedObjects> 
 
     /**
     *                                        
-     */
+    */
     private final int inputSize;
 
     /**
     *                
-     */
+    */
     private final float threshold;
 
     /**
     * NMS (Non-Maximum Suppression)       
-     */
+    */
     private final float nmsThreshold;
 
     /**
     * COCO                      
-     */
+    */
     private static final int NUM_CLASSES = 80;
 
     /**
     * 锚栓 boxes
-     */
+    */
     private static final int NUM_ANCHORS = 5;
 
     /**
     *                      13x13   
-     */
+    */
     private static final int GRID_SIZE = 13;
 
     /**
     * yolov2     锚栓 boxes         ,
     * COCO                                   锚栓
-     */
+    */
 private static final float[][] ANCHORS = {
         {1.3221f, 1.73145f}, // 锚栓 0
         {3.19275f, 4.00944f}, // 锚栓 1
@@ -87,12 +87,12 @@ private static final float[][] ANCHORS = {
 
     /**
     * COCO                      
-     */
+    */
     private final List<String> classes;
 
     /**
     *                                     
-     */
+    */
     private int imageWidth;
     /** 图像高度 */
     /** 图片高度 */
@@ -100,7 +100,7 @@ private static final float[][] ANCHORS = {
 
     /**
     *                                     
-     */
+    */
     public Yolov2CocoTranslator() {
         this(416, 0.3f, 0.45f);
     }
@@ -111,7 +111,7 @@ private static final float[][] ANCHORS = {
     * @param inputSize                      
     * @param threshold                   
     * @param nmsThreshold NMS       
-     */
+    */
     public Yolov2CocoTranslator(int inputSize, float threshold, float nmsThreshold) {
         this.inputSize = inputSize;
         this.threshold = threshold;
@@ -268,7 +268,7 @@ private static final float[][] ANCHORS = {
     *
     * @param x          
     * @return sigmoid(x)
-     */
+    */
     private float sigmoid(float x) {
         return (float) (1.0 / (1.0 + Math.exp(-x)));
     }
@@ -282,7 +282,7 @@ private static final float[][] ANCHORS = {
     * @param probabilities             
     * @param nmsThreshold  NMS       
     * @return                      
-     */
+    */
     private List<Integer> nms(List<BoundingBox> boxes, List<Double> probabilities, float nmsThreshold) {
         List<Integer> indices = new ArrayList<>();
         if (boxes.isEmpty()) {
@@ -330,7 +330,7 @@ private static final float[][] ANCHORS = {
     * @param box1           1
     * @param box2           2
     * @return IoU    
-     */
+    */
     private double calculateIoU(BoundingBox box1, BoundingBox box2) {
         Rectangle rect1 = box1.getBounds();
         Rectangle rect2 = box2.getBounds();
@@ -352,7 +352,7 @@ private static final float[][] ANCHORS = {
     *        COCO                      
     *
     * @return                   
-     */
+    */
     private List<String> loadCocoClasses() {
         // COCO           80          
         String[] cocoClasses = {
@@ -388,7 +388,7 @@ private static final float[][] ANCHORS = {
     * Batchifier.STACK                    [1, C, H, W] = [1, 3, 416, 416]
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

@@ -21,26 +21,26 @@ public class FileStorageWatermarkSetting {
 
     /**
     * 是否启用水印。
-     */
+    */
     @Builder.Default
     /** 是否启用 */
     private boolean enabled = false;
 
     /**
     * 水印类型：文本 | 镜像
-     */
+    */
     @Builder.Default
     /** 类型 */
     private String type = "text";
 
     /**
     * 文字水印内容（类型=文本 时有效）。
-     */
+    */
     private String text;
 
     /**
     * 图片水印 URL（类型=镜像 时有效）。
-     */
+    */
     private String imageUrl;
 
     /**
@@ -59,68 +59,68 @@ public class FileStorageWatermarkSetting {
     *   <li>TILE（平铺）</li>
     * </ul>
     * </p>
-     */
+    */
     @Builder.Default
     /** 位置 */
     private String position = "BOTTOM_RIGHT";
 
     /**
     * 文字大小（类型=文本 时有效）。
-     */
+    */
     @Builder.Default
     /** Font尺寸 */
     private int fontSize = 24;
 
     /**
     * 文字颜色（CSS 格式，如 "rgba(0,0,0,0.3)"）。
-     */
+    */
     @Builder.Default
     /** 颜色 */
     private String color = "rgba(180,180,180,0.3)";
 
     /**
     * 字体名称（类型=文本 时有效）。
-     */
+    */
     private String fontFamily;
 
     /**
     * 透明度 0.0 ~ 1.0。
-     */
+    */
     @Builder.Default
     /** Opacity */
     private float opacity = 0.3f;
 
     /**
     * X 方向偏移（像素）。
-     */
+    */
     @Builder.Default
     /** 偏移X坐标 */
     private int offsetX = 20;
 
     /**
     * Y 方向偏移（像素）。
-     */
+    */
     @Builder.Default
     /** 偏移Y坐标 */
     private int offsetY = 20;
 
     /**
     * 旋转角度（度）。
-     */
+    */
     @Builder.Default
     /** Rotation */
     private float rotation = 0f;
 
     /**
     * 平铺时 X 间距（像素）。
-     */
+    */
     @Builder.Default
     /** tilespacingx坐标 */
     private int tileSpacingX = 50;
 
     /**
     * 平铺时 Y 间距（像素）。
-     */
+    */
     @Builder.Default
     /** tilespacingy坐标 */
     private int tileSpacingY = 50;

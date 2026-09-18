@@ -48,7 +48,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
     * 默认构造函数
-     */
+    */
     public ImageFormatConvertFileSystem() {
         super();
     }
@@ -57,7 +57,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param file 文件对象
-     */
+    */
     public ImageFormatConvertFileSystem(File file) {
         super(file);
     }
@@ -66,7 +66,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param filePath 文件路径
-     */
+    */
     public ImageFormatConvertFileSystem(String filePath) {
         super(filePath);
     }
@@ -84,7 +84,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     * @param outputStream 输出流
     * @param sourceFile 源文件
     * @param targetFile Target文件
-     */
+    */
     protected void doConvert(InputStream inputStream, OutputStream outputStream,
                              File sourceFile, File targetFile) throws IOException {
         try {
@@ -109,7 +109,7 @@ public class ImageFormatConvertFileSystem extends AbstractConvertFileSystem {
     * @param sourceFormat 源格式化
     * @param targetFormat Target格式化
     * @return 是否支持格式化的结果
-     */
+    */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
         if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {

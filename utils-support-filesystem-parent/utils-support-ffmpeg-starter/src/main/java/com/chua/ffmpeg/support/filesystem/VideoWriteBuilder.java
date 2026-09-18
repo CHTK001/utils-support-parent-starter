@@ -40,7 +40,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * @param file 文件
     * @param processor ffmpeg处理器
     * @param processor 处理器
-     */
+    */
     public VideoWriteBuilder(File file, FFmpegProcessor processor) {
         super(file);
         this.processor = processor;
@@ -50,7 +50,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置视频编码器（libx264, libx265, h264_nvenc）
     * @param codec codec
     * @return 视频codec的结果
-     */
+    */
     public VideoWriteBuilder videoCodec(String codec) {
         this.videoCodec = codec;
         return this;
@@ -60,7 +60,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置音频编码器（aac, mp3, libopus）
     * @param codec codec
     * @return 音频codec的结果
-     */
+    */
     public VideoWriteBuilder audioCodec(String codec) {
         this.audioCodec = codec;
         return this;
@@ -70,7 +70,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置视频码率（如 "2M", "5000k"）
     * @param bitrate bitrate
     * @return 视频bitrate的结果
-     */
+    */
     public VideoWriteBuilder videoBitrate(String bitrate) {
         this.videoBitrate = bitrate;
         return this;
@@ -80,7 +80,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置音频码率（如 "128k", "320k"）
     * @param bitrate bitrate
     * @return 音频bitrate的结果
-     */
+    */
     public VideoWriteBuilder audioBitrate(String bitrate) {
         this.audioBitrate = bitrate;
         return this;
@@ -90,7 +90,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置帧率
     * @param fps fps
     * @return fps的结果
-     */
+    */
     public VideoWriteBuilder fps(int fps) {
         this.fps = fps;
         return this;
@@ -101,7 +101,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * @param width width
     * @param height height
     * @return resolution的结果
-     */
+    */
     public VideoWriteBuilder resolution(int width, int height) {
         this.width = width;
         this.height = height;
@@ -112,7 +112,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 设置 CRF 质量（0-51，越小质量越高）
     * @param quality quality
     * @return quality的结果
-     */
+    */
     public VideoWriteBuilder quality(int quality) {
         this.quality = quality;
         return this;
@@ -122,7 +122,7 @@ public class VideoWriteBuilder extends WriteBuilder {
     * 执行视频格式转换。
     *
     * @param inputFile 源视频文件
-     */
+    */
     public void write(File inputFile) {
         try {
             if (processor == null) {

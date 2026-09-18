@@ -38,22 +38,22 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
 
     /**
     *                      Donut                
-     */
+    */
     private static final int IMAGE_WIDTH = 2560;
 
     /**
     *                      Donut                
-     */
+    */
     private static final int IMAGE_HEIGHT = 1920;
 
     /**
     * 镜像net
-     */
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
     * 镜像net
-     */
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
@@ -61,7 +61,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     *
     * @param ctx                   
     * @throws Exception                         
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) throws Exception {
         log.info("[Donut][         ]                                  ");
@@ -81,7 +81,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     * @param image              
     * @return NDList                    [1, 3, 1920, 2560]
     * @throws Exception                      
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image image) throws Exception {
         var manager = ctx.getNDManager();
@@ -107,7 +107,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     * @param list                   
     * @return Donut                                         JSON       
     * @throws Exception                      
-     */
+    */
     @Override
     public DonutResult processOutput(TranslatorContext ctx, NDList list) throws Exception {
         var output = list.singletonOrThrow();
@@ -196,7 +196,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     * @param manager nd管理器
     * @param image               
     * @return                          [1, 3, 1920, 2560]
-     */
+    */
     private NDArray processImage(NDManager manager, Image image) {
         var img = image.toNDArray(manager, Image.Flag.COLOR);
 
@@ -224,7 +224,7 @@ public class DonutTranslator implements Translator<Image, DonutResult> {
     *
     * @param tokenIds 令牌 标识
     * @return                   
-     */
+    */
     private String decodeTokens(long[] tokenIds) {
         if (tokenIds == null || tokenIds.length == 0) {
             return "";

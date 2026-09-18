@@ -53,14 +53,14 @@ public class GooseUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "goose"}
-     */
+    */
     public String name() {
         return "goose";
     }
 
     /**
-     * 流式解析全部用量台账记录。
-     */
+    * 流式解析全部用量台账记录。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {

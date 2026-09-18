@@ -57,7 +57,9 @@ public class LmStudioUsageParser extends BaseUsageParser {
 
     private static final String PROVIDER_LMSTUDIO = "lmstudio";
 
-    /** 匹配 usage 块起点：行首/对象成员位置的 {@code "usage" : {...}}。 */
+    /**
+    * 匹配 usage 块起点：行首/对象成员位置的 {@code "usage" : {...}}。
+    */
     private static final Pattern USAGE_MARKER = Pattern.compile(
             "\"usage\"\\s*:\\s*\\{", Pattern.MULTILINE);
 
@@ -69,7 +71,9 @@ public class LmStudioUsageParser extends BaseUsageParser {
     private static final Pattern MODEL_FIELD = Pattern.compile(
             "\"model\"\\s*:\\s*\"([^\"]+)\"");
 
-    /** 匹配时间戳行：{@code [2026-07-04 12:34:56][...]}。 */
+    /**
+    * 匹配时间戳行：{@code [2026-07-04 12:34:56][...]}。
+    */
     private static final Pattern TIMESTAMP_LINE = Pattern.compile(
             "^\\[(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\][\\s\\S]*$",
             Pattern.MULTILINE);
@@ -83,18 +87,18 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 返回 SPI 名称。
-     *
-     * @return {@code "lmstudio"}
-     */
+    * 返回 SPI 名称。
+    *
+    * @return {@code "lmstudio"}
+    */
     @Override
     public String name() {
         return PROVIDER_LMSTUDIO;
     }
 
     /**
-     * 流式解析全部 LM Studio server-log 文件中的 usage 事件。
-     */
+    * 流式解析全部 LM Studio server-log 文件中的 usage 事件。
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         Path logDir = LMSTUDIO_HOME.resolve("server-logs");
@@ -125,11 +129,11 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 流式解析单个日志文件：每个 usage 块发出一条记录。
-     *
-     * @param file 日志文件
-     * @return 用量记录流
-     */
+    * 流式解析单个日志文件：每个 usage 块发出一条记录。
+    *
+    * @param file 日志文件
+    * @return 用量记录流
+    */
     private Flux<AiUsage> streamLogFile(Path file) {
         return Flux.defer(() -> {
             List<AiUsage> records = new ArrayList<>();
@@ -156,12 +160,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 从窗口文本中提取所有 usage 块对应的记录。
-     *
-     * @param window   窗口文本
-     * @param file     来源文件（用于 fingerprint 去重）
-     * @param records  结果累积列表
-     */
+    * 从窗口文本中提取所有 usage 块对应的记录。
+    *
+    * @param window   窗口文本
+    * @param file     来源文件（用于 fingerprint 去重）
+    * @param records  结果累积列表
+    */
     private void extractUsages(StringBuilder window, Path file, List<AiUsage> records) {
         String text = window.toString();
         Matcher usageMatcher = USAGE_MARKER.matcher(text);
@@ -232,12 +236,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 取 JSON 对象内平衡括号匹配的结束位置。
-     *
-     * @param text  完整文本
-     * @param open  起始 {@code { } 下标
-     * @return 配对 {@code } } 下标；未闭合时 -1
-     */
+    * 取 JSON 对象内平衡括号匹配的结束位置。
+    *
+    * @param text  完整文本
+    * @param open  起始 {@code { } 下标
+    * @return 配对 {@code } } 下标；未闭合时 -1
+    */
     private int matchingBrace(String text, int open) {
         int depth = 0;
         boolean inString = false;
@@ -270,12 +274,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 取前缀文本中最后一次匹配到的分组 1。
-     *
-     * @param pattern 匹配模式
-     * @param prefix  前缀文本
-     * @return 最后一次匹配；无则 null
-     */
+    * 取前缀文本中最后一次匹配到的分组 1。
+    *
+    * @param pattern 匹配模式
+    * @param prefix  前缀文本
+    * @return 最后一次匹配；无则 null
+    */
     private String lastMatch(Pattern pattern, String prefix) {
         if (prefix == null || prefix.isEmpty()) {
             return null;
@@ -289,12 +293,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 取前缀中最近的时间戳行。
-     *
-     * @param prefix 前缀文本
-     * @param file   来源文件（时间戳缺失时用其 mtime）
-     * @return epoch 毫秒；无法解析时 0
-     */
+    * 取前缀中最近的时间戳行。
+    *
+    * @param prefix 前缀文本
+    * @param file   来源文件（时间戳缺失时用其 mtime）
+    * @return epoch 毫秒；无法解析时 0
+    */
     private Long parseLatestTimestamp(String prefix, Path file) {
         Matcher matcher = TIMESTAMP_LINE.matcher(prefix);
         String found = null;
@@ -322,12 +326,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 取 JsonNode 中第一个存在的 key 的 int 值。
-     *
-     * @param node 节点
-     * @param keys 候选键
-     * @return int 值；全缺 0
-     */
+    * 取 JsonNode 中第一个存在的 key 的 int 值。
+    *
+    * @param node 节点
+    * @param keys 候选键
+    * @return int 值；全缺 0
+    */
     private int toInt(JsonNode node, String... keys) {
         if (node == null || node.isMissingValue()) {
             return 0;
@@ -342,12 +346,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 取 JsonNode 中第一个存在的 key 对应的子节点。
-     *
-     * @param node 节点
-     * @param keys 候选键
-     * @return 子节点；全缺返回缺失值节点
-     */
+    * 取 JsonNode 中第一个存在的 key 对应的子节点。
+    *
+    * @param node 节点
+    * @param keys 候选键
+    * @return 子节点；全缺返回缺失值节点
+    */
     private JsonNode firstPresent(JsonNode node, String... keys) {
         if (node == null || node.isMissingValue()) {
             return JsonNode.valueOf(null);
@@ -362,12 +366,12 @@ public class LmStudioUsageParser extends BaseUsageParser {
     }
 
     /**
-     * clamp 到 [0, max]。
-     *
-     * @param max  上界
-     * @param value 值
-     * @return 截断后的值
-     */
+    * clamp 到 [0, max]。
+    *
+    * @param max  上界
+    * @param value 值
+    * @return 截断后的值
+    */
     private int clamp(int max, int value) {
         return Math.max(0, Math.min(max, value));
     }

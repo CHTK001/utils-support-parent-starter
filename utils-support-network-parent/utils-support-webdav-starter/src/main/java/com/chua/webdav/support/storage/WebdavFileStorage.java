@@ -46,17 +46,17 @@ public class WebdavFileStorage extends AbstractFileStorage {
 
     /**
     * sardine
-     */
+    */
     private final Sardine sardine;
     /**
     * 基础地址
-     */
+    */
     private final String baseUrl;
 
     /**
     * 创建 webdav文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public WebdavFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
         this.sardine = SardineFactory.begin(accessKeyId, accessKeySecret);
@@ -69,7 +69,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     *
     * @param key 键
     * @return 完整url的结果
-     */
+    */
     private String fullUrl(String key) {
         return baseUrl + key;
     }
@@ -101,7 +101,7 @@ public class WebdavFileStorage extends AbstractFileStorage {
     /**
     * 确保父目录存在，不存在则递归创建。
     * @param key 键
-     */
+    */
     private void ensureParentPath(String key) throws IOException {
         if (!key.contains("/")) {
             return;

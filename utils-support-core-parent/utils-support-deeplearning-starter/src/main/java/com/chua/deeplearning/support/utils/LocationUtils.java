@@ -28,7 +28,7 @@ public final class LocationUtils {
     *
     * @param array ndarray
     * @return Image
-     */
+    */
     public static Image getImage(NDArray array) {
         return ImageFactory.getInstance().fromNDArray(array);
     }
@@ -40,7 +40,7 @@ public final class LocationUtils {
     * @param modelPath   路径
     * @param isDirectory 是否目录
     * @return URL 列表
-     */
+    */
     public static List<String> getUrl(String modelPath, boolean isDirectory) {
         if (modelPath == null || modelPath.isBlank()) {
             return Collections.emptyList();

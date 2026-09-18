@@ -80,7 +80,7 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 数据
     * @param offset 偏移量
     * @return 解析长度的结果
-     */
+    */
     private static int parseLength(byte[] data, int offset) {
         int value = 0;
         int idx = offset;
@@ -104,7 +104,7 @@ public class RedisProtocolRestorer extends AbstractProtocolRestorer {
     * @param data 数据
     * @param offset 偏移量
     * @return 解析long的结果
-     */
+    */
     private static long parseLong(byte[] data, int offset) {
         long value = 0;
         boolean negative = false;

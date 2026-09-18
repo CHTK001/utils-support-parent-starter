@@ -18,7 +18,7 @@ public class FastjsonJsonObject extends JsonObject {
 
     /**
     * 构造一个空的 fastjsonjson对象。
-     */
+    */
     public FastjsonJsonObject() {
     }
 
@@ -26,7 +26,7 @@ public class FastjsonJsonObject extends JsonObject {
     * 通过指定的 映射 构造 fastjsonjson对象。
     *
     * @param m 包含初始数据的 映射，如果为 空 则不做任何操作。
-     */
+    */
     public FastjsonJsonObject(Map m) {
         super(m);
     }

@@ -28,17 +28,17 @@ public class ResNet50InferenceModel {
 
     /**
     * Rnet50 图片大小。
-     */
+    */
     public static final int IMG_SIZE = 224;
 
     /**
     * 特征向量维度（Rnet50 flatten_1 层输出）。
-     */
+    */
     public static final int FEATURE_DIMENSION = 2048;
 
     /**
     * 比对匹配阈值。
-     */
+    */
     private static final float MATCH_THRESHOLD = 0.5f;
 
     private final ComputationGraph model; // 模型
@@ -54,7 +54,7 @@ public class ResNet50InferenceModel {
     * @param modelPath 模型文件路径
     * @param labels    类别标签列表
     * @throws IOException 模型加载失败
-     */
+    */
     public ResNet50InferenceModel(String modelPath, List<String> labels) throws IOException {
         File modelFile = new File(modelPath);
         if (!modelFile.exists()) {
@@ -75,7 +75,7 @@ public class ResNet50InferenceModel {
     *
     * @param modelPath 模型文件路径
     * @throws IOException 模型加载失败
-     */
+    */
     public ResNet50InferenceModel(String modelPath) throws IOException {
         this(modelPath, List.of());
     }
@@ -86,7 +86,7 @@ public class ResNet50InferenceModel {
     * @param image 打开cv Mat 图片
     * @return 分类预测结果
     * @throws IOException 图片处理异常
-     */
+    */
     public ClassPrediction classify(Mat image) throws IOException {
         if (labels == null || labels.isEmpty()) {
             throw new IllegalStateException("分类需要标签列表，构造时未指定");
@@ -105,7 +105,7 @@ public class ResNet50InferenceModel {
     * @param image 打开cv Mat 图片
     * @return 2048 维特征向量
     * @throws IOException 图片处理异常
-     */
+    */
     public float[] extractFeature(Mat image) throws IOException {
  // 移除 函数计算1000 输出层，以 flatten_1 为输出（2048 维）
         ComputationGraph embeddingModel = new TransferLearning.GraphBuilder(model)
@@ -127,7 +127,7 @@ public class ResNet50InferenceModel {
     * @param image2 第二张图片
     * @return 比对结果（含相似度、特征向量、是否匹配）
     * @throws IOException 图片处理异常
-     */
+    */
     public ComparisonResult compare(Mat image1, Mat image2) throws IOException {
         float[] feature1 = extractFeature(image1);
         float[] feature2 = extractFeature(image2);
@@ -141,7 +141,7 @@ public class ResNet50InferenceModel {
     * @param a 特征向量 A
     * @param b 特征向量 B
     * @return 相似度（0.0 ~ 1.0）
-     */
+    */
     public static float cosineSimilarity(float[] a, float[] b) {
         if (a.length != b.length) {
             throw new IllegalArgumentException(

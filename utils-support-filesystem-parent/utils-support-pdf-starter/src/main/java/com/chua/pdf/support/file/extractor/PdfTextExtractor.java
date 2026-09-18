@@ -64,7 +64,7 @@ public class PdfTextExtractor implements TextExtractor {
     * 解析 PDF 书签（大纲），建立 页码 → 章节名称 的映射。
     * @param doc doc
     * @return resolveBookmarks的结果
-     */
+    */
     private Map<Integer, String> resolveBookmarks(PDDocument doc) throws IOException {
         Map<Integer, String> pageToSection = new java.util.LinkedHashMap<>();
         PDDocumentOutline outline = doc.getDocumentCatalog().getDocumentOutline();
@@ -85,7 +85,7 @@ public class PdfTextExtractor implements TextExtractor {
     * @param doc            加载的PDF文档对象 (pd文档)
     * @param pageToSection  用于存储页码到章节名称映射的有序映射
     * @param parentSection  当前节点的父级章节路径字符串
-     */
+    */
     private void collectBookmarks(PDOutlineNode node,
                                   PDDocument doc,
                                   Map<Integer, String> pageToSection,

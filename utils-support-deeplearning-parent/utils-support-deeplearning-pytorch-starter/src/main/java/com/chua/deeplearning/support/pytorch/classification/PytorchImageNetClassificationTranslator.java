@@ -32,22 +32,22 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
 
     /**
     * 输入边长。
-     */
+    */
     private static final int IMAGE_SIZE = 224;
 
     /**
     * 镜像net 均值。
-     */
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
     * 镜像net 标准差。
-     */
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     /**
     * 运行时标签。
-     */
+    */
     private List<String> runtimeLabels = Collections.emptyList();
 
     @Override
@@ -104,7 +104,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     *
     * @param modelPath 模型路径
     * @return 标签列表
-     */
+    */
     private static List<String> loadLabels(Path modelPath) {
         if (modelPath == null) {
             return Collections.emptyList();
@@ -130,7 +130,7 @@ public class PytorchImageNetClassificationTranslator implements Translator<Image
     *
     * @param size 数量
     * @return 标签
-     */
+    */
     private static List<String> defaultLabels(int size) {
         return IntStream.range(0, Math.max(size, 0))
                 .mapToObj(i -> "class_" + i)

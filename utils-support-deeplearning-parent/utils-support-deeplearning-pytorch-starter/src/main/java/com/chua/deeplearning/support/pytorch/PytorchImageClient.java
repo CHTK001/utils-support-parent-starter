@@ -26,7 +26,7 @@ public class PytorchImageClient extends AbstractLocalImageClient {
     * 构造 pytorch 文生图客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public PytorchImageClient(ImageClientSetting setting) {
         super("pytorch", setting);
     }

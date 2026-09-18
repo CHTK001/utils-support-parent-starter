@@ -17,12 +17,12 @@ public final class KeyShard {
 
     /**
     * 分片数量
-     */
+    */
     public static final int SHARDS = 3;
 
     /**
     * 私有构造
-     */
+    */
     private KeyShard() {
     }
 
@@ -31,7 +31,7 @@ public final class KeyShard {
     *
     * @param key 主密钥
     * @return 分片数组
-     */
+    */
     public static byte[][] shard(byte[] key) {
         byte[][] shards = new byte[SHARDS][key.length];
         for (int i = 0; i < SHARDS - 1; i++) {
@@ -53,7 +53,7 @@ public final class KeyShard {
     *
     * @param shards 分片数组
     * @return 还原的主密钥副本
-     */
+    */
     public static byte[] join(byte[][] shards) {
         byte[] key = new byte[shards[0].length];
         for (byte[] shard : shards) {
@@ -68,7 +68,7 @@ public final class KeyShard {
     * 销毁全部分片
     *
     * @param shards 分片数组
-     */
+    */
     public static void wipe(byte[][] shards) {
         for (byte[] shard : shards) {
             Arrays.fill(shard, (byte) 0);
@@ -79,7 +79,7 @@ public final class KeyShard {
     * 清零单个数组
     *
     * @param data 数组
-     */
+    */
     public static void wipe(byte[] data) {
         if (data != null) {
             Arrays.fill(data, (byte) 0);
@@ -88,6 +88,6 @@ public final class KeyShard {
 
     /**
     * 安全随机源
-     */
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
 }

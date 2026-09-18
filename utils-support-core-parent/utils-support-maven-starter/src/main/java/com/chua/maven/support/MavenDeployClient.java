@@ -62,18 +62,18 @@ public class MavenDeployClient {
 
     /**
     * 编译结果
-     */
+    */
     private final MavenCompileResult result;
 
     /**
     * 部署回调
-     */
+    */
     private MavenDeployCallback deployCallback;
 
     /**
     * 创建 mavendeploy客户端 实例
     * @param result 结果
-     */
+    */
     public MavenDeployClient(MavenCompileResult result) {
         this.result = result;
     }
@@ -83,7 +83,7 @@ public class MavenDeployClient {
     *
     * @param result 编译结果
     * @return 部署客户端
-     */
+    */
     public static MavenDeployClient from(MavenCompileResult result) {
         return new MavenDeployClient(result);
     }
@@ -93,7 +93,7 @@ public class MavenDeployClient {
     *
     * @param callback 回调
     * @return this
-     */
+    */
     public MavenDeployClient onDeploy(MavenDeployCallback callback) {
         this.deployCallback = callback;
         return this;
@@ -103,7 +103,7 @@ public class MavenDeployClient {
     * 获取编译结果
     *
     * @return 编译结果
-     */
+    */
     public MavenCompileResult getResult() {
         return result;
     }
@@ -112,7 +112,7 @@ public class MavenDeployClient {
     * 是否可以部署
     *
     * @return true 编译成功且有产物
-     */
+    */
     public boolean canDeploy() {
         return result.isSuccess() && result.hasArtifacts();
     }
@@ -124,7 +124,7 @@ public class MavenDeployClient {
     *
     * @param target 部署目标（如 本地deployTarget、sshdeployTarget）
     * @return 部署后的文件列表（目标路径）
-     */
+    */
     public List<String> deployTo(MavenDeployTarget target) {
         if (!canDeploy()) {
             throw new MavenDeployException("无法部署: 编译失败或无产物");
@@ -182,7 +182,7 @@ public class MavenDeployClient {
     *
     * @param targetDir 目标目录
     * @return 部署后的文件列表
-     */
+    */
     public List<String> deployTo(String targetDir) {
         return deployTo(new LocalDeployTarget(targetDir));
     }
@@ -192,7 +192,7 @@ public class MavenDeployClient {
     *
     * @param targetFilePath 目标文件完整路径
     * @return 目标文件路径
-     */
+    */
     public String deployToFile(String targetFilePath) {
         if (!canDeploy()) {
             throw new MavenDeployException("无法部署: 编译失败或无产物");
@@ -229,7 +229,7 @@ public class MavenDeployClient {
     *
     * @param newName 新文件名
     * @return 重命名后的文件路径
-     */
+    */
     public String rename(String newName) {
         String sourcePath = result.getMainArtifact();
         if (sourcePath == null) {
@@ -253,7 +253,7 @@ public class MavenDeployClient {
     * 通知开始
     *
     * @param info 信息
-     */
+    */
     private void notifyStart(String info) {
         if (deployCallback != null) {
             try {
@@ -269,7 +269,7 @@ public class MavenDeployClient {
     *
     * @param message 消息
     * @param percent percent
-     */
+    */
     private void notifyProgress(String message, int percent) {
         if (deployCallback != null) {
             try {
@@ -284,7 +284,7 @@ public class MavenDeployClient {
     * 通知成功
     *
     * @param deployedPaths deployed路径
-     */
+    */
     private void notifySuccess(List<String> deployedPaths) {
         if (deployCallback != null) {
             try {
@@ -299,7 +299,7 @@ public class MavenDeployClient {
     * 通知失败
     *
     * @param exception 异常
-     */
+    */
     private void notifyFailure(Exception exception) {
         if (deployCallback != null) {
             try {

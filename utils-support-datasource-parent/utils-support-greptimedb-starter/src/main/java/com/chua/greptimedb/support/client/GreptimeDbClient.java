@@ -17,7 +17,7 @@ public final class GreptimeDbClient {
 
     /**
     * greptimedb客户端。
-     */
+    */
     private GreptimeDbClient() {
     }
 
@@ -30,7 +30,7 @@ public final class GreptimeDbClient {
     * @param username  用户名（为空表示无鉴权）
     * @param password  密码
     * @return GreptimeDB 客户端实例
-     */
+    */
     public static GreptimeDB create(String endpoint, String database, String username, String password) {
         AuthInfo authInfo = (username == null || username.isEmpty())
                 ? AuthInfo.noAuthorization()
@@ -45,7 +45,7 @@ public final class GreptimeDbClient {
     * 关闭 greptimedb 客户端并释放资源。
     *
     * @param client 客户端实例
-     */
+    */
     public static void close(GreptimeDB client) {
         if (client != null) {
             try {

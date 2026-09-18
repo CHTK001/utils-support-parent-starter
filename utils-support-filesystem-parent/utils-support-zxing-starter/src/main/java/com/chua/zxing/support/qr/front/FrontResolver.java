@@ -26,7 +26,7 @@ public interface FrontResolver {
     * @param bufferedImage 缓冲图像
     * @return {@link 缓冲镜像}
     * @throws IOException io异常
-     */
+    */
     BufferedImage resolve(BufferedImage bufferedImage, FrontSetting frontSetting, QrSetting setting) throws IOException;
 
 }

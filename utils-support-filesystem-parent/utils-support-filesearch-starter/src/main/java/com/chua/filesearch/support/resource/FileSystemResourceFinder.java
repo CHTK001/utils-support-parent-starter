@@ -28,18 +28,18 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
 
     /**
     * 文件系统协议前缀 {@value}。
-     */
+    */
     private static final String FILESYSTEM_URL_PREFIX = "filesystem:";
     /**
     * 文件系统全量协议前缀 {@value}。
-     */
+    */
     private static final String FILESYSTEM_URL_ALL_PREFIX = "filesystem*:";
 
     /**
     * 使用指定配置构造查找器。
     *
     * @param configuration 查找配置
-     */
+    */
     public FileSystemResourceFinder(ResourceConfiguration configuration) {
         super(configuration);
     }
@@ -59,7 +59,7 @@ public class FileSystemResourceFinder extends AbstractResourceFinder {
     *
     * @param fullName 含 {@code filesystem:} 或 {@code filesystem*:} 前缀的完整模式
     * @return 匹配资源集合
-     */
+    */
     private Set<Resource> findPathMatchingResources(String fullName) {
         Set<Resource> result = ConcurrentHashMap.newKeySet();
 

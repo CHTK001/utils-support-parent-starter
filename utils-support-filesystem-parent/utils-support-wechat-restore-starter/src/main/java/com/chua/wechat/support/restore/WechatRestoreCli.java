@@ -59,8 +59,8 @@ import java.util.Map;
 public final class WechatRestoreCli {
 
     /**
-     * 帮助文本
-     */
+    * 帮助文本
+    */
     private static final String USAGE = String.join(System.lineSeparator(),
             "微信数据还原命令行工具",
             "",
@@ -104,22 +104,22 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 命令行入口。
-     *
-     * @param args 参数
-     */
+    * 命令行入口。
+    *
+    * @param args 参数
+    */
     public static void main(String[] args) {
         System.exit(run(args, System.out, System.err));
     }
 
     /**
-     * 可测试的执行入口。
-     *
-     * @param args 参数
-     * @param out  标准输出
-     * @param err  错误输出
-     * @return 退出码
-     */
+    * 可测试的执行入口。
+    *
+    * @param args 参数
+    * @param out  标准输出
+    * @param err  错误输出
+    * @return 退出码
+    */
     public static int run(String[] args, PrintStream out, PrintStream err) {
         Options options;
         try {
@@ -160,14 +160,14 @@ public final class WechatRestoreCli {
     // ==================== 探测 ====================
 
     /**
-     * 列出数据源下的数据库并探测加密形态。
-     *
-     * @param source  数据源
-     * @param options 选项
-     * @param out     标准输出
-     * @param err     错误输出
-     * @return 退出码
-     */
+    * 列出数据源下的数据库并探测加密形态。
+    *
+    * @param source  数据源
+    * @param options 选项
+    * @param out     标准输出
+    * @param err     错误输出
+    * @return 退出码
+    */
     private static int listDatabases(File source, Options options, PrintStream out, PrintStream err) {
         List<File> databases = collectDatabases(source);
         if (databases.isEmpty()) {
@@ -230,15 +230,15 @@ public final class WechatRestoreCli {
     // ==================== 还原 ====================
 
     /**
-     * 执行还原。
-     *
-     * @param source  数据源
-     * @param options 选项
-     * @param out     标准输出
-     * @param err     错误输出
-     * @return 退出码
-     * @throws Exception 还原异常
-     */
+    * 执行还原。
+    *
+    * @param source  数据源
+    * @param options 选项
+    * @param out     标准输出
+    * @param err     错误输出
+    * @return 退出码
+    * @throws Exception 还原异常
+    */
     private static int restore(File source, Options options, PrintStream out, PrintStream err) throws Exception {
         DataRestoreConfig config = buildConfig(options);
         out.println("数据源   : " + source.getAbsolutePath());
@@ -295,18 +295,18 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 明文数据库直导：无需密钥，逐个用 JDBC 导出器输出 CSV / SQL / Excel。
-     *
-     * <p>微信的 {@code key_info.db} 等库本身不加密，这条路径让「只拿到明文库」的场景
-     * 也能一键导出，而不必伪造一个密钥走 SQLCipher 分支。</p>
-     *
-     * @param databases 明文数据库
-     * @param config    还原配置
-     * @param out       标准输出
-     * @param err       错误输出
-     * @return 退出码
-     * @throws Exception 导出异常
-     */
+    * 明文数据库直导：无需密钥，逐个用 JDBC 导出器输出 CSV / SQL / Excel。
+    *
+    * <p>微信的 {@code key_info.db} 等库本身不加密，这条路径让「只拿到明文库」的场景
+    * 也能一键导出，而不必伪造一个密钥走 SQLCipher 分支。</p>
+    *
+    * @param databases 明文数据库
+    * @param config    还原配置
+    * @param out       标准输出
+    * @param err       错误输出
+    * @return 退出码
+    * @throws Exception 导出异常
+    */
     private static int exportPlainDatabases(List<File> databases, DataRestoreConfig config,
                                             PrintStream out, PrintStream err) throws Exception {
         out.println("形态     : 全部为明文 SQLite（无需密钥）");
@@ -348,12 +348,12 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 复制 SQLite 附属文件（{@code -wal} / {@code -shm}），不存在时忽略。
-     *
-     * @param source 源数据库
-     * @param copy   副本数据库
-     * @param suffix 附属文件后缀
-     */
+    * 复制 SQLite 附属文件（{@code -wal} / {@code -shm}），不存在时忽略。
+    *
+    * @param source 源数据库
+    * @param copy   副本数据库
+    * @param suffix 附属文件后缀
+    */
     private static void copySidecar(File source, File copy, String suffix) {
         File sidecar = new File(source.getParentFile(), source.getName() + suffix);
         if (!sidecar.isFile()) {
@@ -368,10 +368,10 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 递归删除临时目录。
-     *
-     * @param dir 目录
-     */
+    * 递归删除临时目录。
+    *
+    * @param dir 目录
+    */
     private static void deleteRecursively(File dir) {
         File[] children = dir.listFiles();
         if (children != null) {
@@ -385,17 +385,17 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 通过内存扫描获取密钥（免重启微信）。
-     *
-     * <p>先跑扫描器自检——只有自检通过，"未命中" 结论才可信；再挑一个加密库作扫描目标，
-     * 逐个微信进程扫描直到命中。</p>
-     *
-     * @param source  数据源
-     * @param options 选项
-     * @param out     标准输出
-     * @param err     错误输出
-     * @return 64 位十六进制密钥，未获取到返回 null
-     */
+    * 通过内存扫描获取密钥（免重启微信）。
+    *
+    * <p>先跑扫描器自检——只有自检通过，"未命中" 结论才可信；再挑一个加密库作扫描目标，
+    * 逐个微信进程扫描直到命中。</p>
+    *
+    * @param source  数据源
+    * @param options 选项
+    * @param out     标准输出
+    * @param err     错误输出
+    * @return 64 位十六进制密钥，未获取到返回 null
+    */
     private static String acquireKeyByScan(File source, Options options, PrintStream out, PrintStream err) {
         out.println("密钥获取 : 扫描微信进程内存（免重启）");
         if (!WechatMemoryKeyScanner.isSupported()) {
@@ -451,12 +451,12 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 解析可用密钥文本（显式 {@code --key} 优先，其次密钥文件，再次 {@code <输出目录>/key.txt}）。
-     *
-     * @param options   选项
-     * @param outputDir 输出目录
-     * @return 64 位十六进制密钥，未解析到返回 null
-     */
+    * 解析可用密钥文本（显式 {@code --key} 优先，其次密钥文件，再次 {@code <输出目录>/key.txt}）。
+    *
+    * @param options   选项
+    * @param outputDir 输出目录
+    * @return 64 位十六进制密钥，未解析到返回 null
+    */
     private static String resolveKeyText(Options options, File outputDir) {
         if (options.key != null && options.key.trim().matches("^[0-9a-fA-F]{64}$")) {
             return options.key.trim();
@@ -466,11 +466,11 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 由命令行选项构建还原配置。
-     *
-     * @param options 选项
-     * @return 还原配置
-     */
+    * 由命令行选项构建还原配置。
+    *
+    * @param options 选项
+    * @return 还原配置
+    */
     private static DataRestoreConfig buildConfig(Options options) {
         File outputDir = new File(options.out == null ? "wechat-restore-out" : options.out);
         Map<String, Object> ext = new HashMap<>(16);
@@ -522,14 +522,14 @@ public final class WechatRestoreCli {
     // ==================== 工具方法 ====================
 
     /**
-     * 递归收集数据库文件（排除 {@code -wal} / {@code -shm}、临时文件与还原器自己的产物目录）。
-     *
-     * <p>跳过 {@code wechat-restore-out}：缺省输出目录就在数据源内部，
-     * 里面的 {@code decrypted} 子目录放着上一次解出的明文库，不排除就会被当成数据源重复导出。</p>
-     *
-     * @param source 数据源（文件或目录）
-     * @return 按体积升序排列的数据库文件
-     */
+    * 递归收集数据库文件（排除 {@code -wal} / {@code -shm}、临时文件与还原器自己的产物目录）。
+    *
+    * <p>跳过 {@code wechat-restore-out}：缺省输出目录就在数据源内部，
+    * 里面的 {@code decrypted} 子目录放着上一次解出的明文库，不排除就会被当成数据源重复导出。</p>
+    *
+    * @param source 数据源（文件或目录）
+    * @return 按体积升序排列的数据库文件
+    */
     static List<File> collectDatabases(File source) {
         List<File> result = new ArrayList<>(32);
         if (source.isFile()) {
@@ -558,11 +558,11 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 判断是否微信数据库文件。
-     *
-     * @param file 文件
-     * @return 是数据库返回 true
-     */
+    * 判断是否微信数据库文件。
+    *
+    * @param file 文件
+    * @return 是数据库返回 true
+    */
     private static boolean isDatabase(File file) {
         if (!file.isFile()) {
             return false;
@@ -575,12 +575,12 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 计算相对路径用于展示。
-     *
-     * @param root 根
-     * @param file 文件
-     * @return 相对路径，失败时返回绝对路径
-     */
+    * 计算相对路径用于展示。
+    *
+    * @param root 根
+    * @param file 文件
+    * @return 相对路径，失败时返回绝对路径
+    */
     private static String relative(File root, File file) {
         try {
             File base = root.isDirectory() ? root : root.getParentFile();
@@ -594,11 +594,11 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 人类可读的体积。
-     *
-     * @param bytes 字节数
-     * @return 形如 {@code 1.2 MB}
-     */
+    * 人类可读的体积。
+    *
+    * @param bytes 字节数
+    * @return 形如 {@code 1.2 MB}
+    */
     private static String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";
@@ -614,11 +614,11 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 读取密钥文件（兼容整行 hex 与 {@code key=...} 形式）。
-     *
-     * @param file 密钥文件
-     * @return 密钥文本，读取失败返回 null
-     */
+    * 读取密钥文件（兼容整行 hex 与 {@code key=...} 形式）。
+    *
+    * @param file 密钥文件
+    * @return 密钥文本，读取失败返回 null
+    */
     static String readKeyFile(File file) {
         if (file == null || !file.isFile()) {
             return null;
@@ -644,8 +644,8 @@ public final class WechatRestoreCli {
     }
 
     /**
-     * 命令行选项。
-     */
+    * 命令行选项。
+    */
     static final class Options {
         String source;
         String dataDir;
@@ -670,11 +670,11 @@ public final class WechatRestoreCli {
         boolean help;
 
         /**
-         * 解析命令行参数。
-         *
-         * @param args 参数
-         * @return 选项对象
-         */
+        * 解析命令行参数。
+        *
+        * @param args 参数
+        * @return 选项对象
+        */
         static Options parse(String[] args) {
             Options options = new Options();
             for (int i = 0; i < args.length; i++) {
@@ -780,13 +780,13 @@ public final class WechatRestoreCli {
         }
 
         /**
-         * 取下一个参数值。
-         *
-         * @param args 参数数组
-         * @param index 下标
-         * @param name 选项名
-         * @return 值
-         */
+        * 取下一个参数值。
+        *
+        * @param args 参数数组
+        * @param index 下标
+        * @param name 选项名
+        * @return 值
+        */
         private static String value(String[] args, int index, String name) {
             if (index >= args.length) {
                 throw new IllegalArgumentException("选项缺少取值: " + name);

@@ -27,7 +27,7 @@ public class AnimalTranslator implements Translator<Image, Classifications> {
 
     /**
     * 类别列表。
-     */
+    */
     private List<String> classes;
 
     @Override

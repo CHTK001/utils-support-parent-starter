@@ -25,37 +25,37 @@ public class OpencvCascadeDetector extends OpencvModelTranslator {
 
     /**
     * 级联模型路径。
-     */
+    */
     private final String modelPath;
 
     /**
     * 类别标签。
-     */
+    */
     private final String label;
 
     /**
     * 级联分类器。
-     */
+    */
     private final CascadeClassifier classifier;
 
     /**
     * 默认置信度。
-     */
+    */
     private static final float DEFAULT_CONFIDENCE = 1.0f;
 
     /**
     * 缩放因子。
-     */
+    */
     private final double scaleFactor;
 
     /**
     * 最小邻域数。
-     */
+    */
     private final int minNeighbors;
 
     /**
     * 最小目标尺寸。
-     */
+    */
     private final Size minSize;
 
     /**
@@ -68,7 +68,7 @@ public class OpencvCascadeDetector extends OpencvModelTranslator {
     * @param minNeighbors 最小邻域
     * @param minWidth    最小宽
     * @param minHeight   最小高
-     */
+    */
     public OpencvCascadeDetector(String modelName,
                                  String modelPath,
                                  String label,

@@ -18,7 +18,7 @@ public class ILinkBotClientFactory implements BotClient.Factory {
     * 创建 i链接机器人客户端 实例。
     *
     * @return BotClient 实例
-     */
+    */
     @Override
     public BotClient create() {
         return new ILinkBotClient();
@@ -28,7 +28,7 @@ public class ILinkBotClientFactory implements BotClient.Factory {
     * 创建 构建器。
     *
     * @return Builder 实例
-     */
+    */
     @Override
     public Builder builder() {
         return new Builder();
@@ -38,7 +38,7 @@ public class ILinkBotClientFactory implements BotClient.Factory {
     * i链接 机器人 客户端构建器。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder implements BotClient.Builder {
 
         /** 客户端实例 */

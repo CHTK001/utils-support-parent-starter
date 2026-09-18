@@ -33,49 +33,49 @@ import java.util.Map;
 public final class IbdTableReader implements Closeable {
 
     /**
-     * 表空间。
-     */
+    * 表空间。
+    */
     private final IbdTablespace tablespace;
 
     /**
-     * 表定义。
-     */
+    * 表定义。
+    */
     private final IbdTableDefinition definition;
 
     /**
-     * 溢出页读取器。
-     */
+    * 溢出页读取器。
+    */
     private final IbdLobReader lobReader;
 
     /**
-     * 渲染 {@code TIMESTAMP} 用的时区。
-     */
+    * 渲染 {@code TIMESTAMP} 用的时区。
+    */
     private final ZoneId zone;
 
     /**
-     * 被标记删除（未 purge）的记录数。
-     */
+    * 被标记删除（未 purge）的记录数。
+    */
     private long deletedRows;
 
     /**
-     * 打开表空间并读出表定义。
-     *
-     * @param file {@code .ibd} 文件
-     * @return 读取器，使用后需关闭
-     * @throws IOException 文件无效或没有表定义
-     */
+    * 打开表空间并读出表定义。
+    *
+    * @param file {@code .ibd} 文件
+    * @return 读取器，使用后需关闭
+    * @throws IOException 文件无效或没有表定义
+    */
     public static IbdTableReader open(File file) throws IOException {
         return open(file, ZoneId.systemDefault());
     }
 
     /**
-     * 打开表空间并读出表定义。
-     *
-     * @param file {@code .ibd} 文件
-     * @param zone 渲染 {@code TIMESTAMP} 用的时区
-     * @return 读取器，使用后需关闭
-     * @throws IOException 文件无效或没有表定义
-     */
+    * 打开表空间并读出表定义。
+    *
+    * @param file {@code .ibd} 文件
+    * @param zone 渲染 {@code TIMESTAMP} 用的时区
+    * @return 读取器，使用后需关闭
+    * @throws IOException 文件无效或没有表定义
+    */
     public static IbdTableReader open(File file, ZoneId zone) throws IOException {
         IbdTablespace tablespace = IbdTablespace.open(file);
         try {
@@ -88,12 +88,12 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 构造读取器。
-     *
-     * @param tablespace 表空间
-     * @param definition 表定义
-     * @param zone       时区
-     */
+    * 构造读取器。
+    *
+    * @param tablespace 表空间
+    * @param definition 表定义
+    * @param zone       时区
+    */
     private IbdTableReader(IbdTablespace tablespace, IbdTableDefinition definition, ZoneId zone) {
         this.tablespace = tablespace;
         this.definition = definition;
@@ -102,28 +102,28 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 表定义。
-     *
-     * @return 表定义
-     */
+    * 表定义。
+    *
+    * @return 表定义
+    */
     public IbdTableDefinition definition() {
         return definition;
     }
 
     /**
-     * 表空间。
-     *
-     * @return 表空间
-     */
+    * 表空间。
+    *
+    * @return 表空间
+    */
     public IbdTablespace tablespace() {
         return tablespace;
     }
 
     /**
-     * 输出用的列名（用户列，按建表顺序；已剔除 {@code DB_TRX_ID} 等系统列）。
-     *
-     * @return 列名列表
-     */
+    * 输出用的列名（用户列，按建表顺序；已剔除 {@code DB_TRX_ID} 等系统列）。
+    *
+    * @return 列名列表
+    */
     public List<String> columnNames() {
         List<IbdColumn> columns = definition.userColumns();
         List<String> names = new ArrayList<>(columns.size());
@@ -134,20 +134,20 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 输出用的列定义（用户列，按建表顺序）。
-     *
-     * @return 列定义列表
-     */
+    * 输出用的列定义（用户列，按建表顺序）。
+    *
+    * @return 列定义列表
+    */
     public List<IbdColumn> columns() {
         return definition.userColumns();
     }
 
     /**
-     * 读出全部行数据（按聚簇索引）。
-     *
-     * @return 行数据，列名 → 值；{@code null} 表示 SQL NULL
-     * @throws IOException 读取失败
-     */
+    * 读出全部行数据（按聚簇索引）。
+    *
+    * @return 行数据，列名 → 值；{@code null} 表示 SQL NULL
+    * @throws IOException 读取失败
+    */
     public List<Map<String, Object>> readAll() throws IOException {
         IbdIndex clustered = definition.clusteredIndex();
         if (clustered == null) {
@@ -157,12 +157,12 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 读出某个索引的全部行数据。
-     *
-     * @param index 索引（通常用聚簇索引，它包含所有列）
-     * @return 行数据
-     * @throws IOException 读取失败
-     */
+    * 读出某个索引的全部行数据。
+    *
+    * @param index 索引（通常用聚簇索引，它包含所有列）
+    * @return 行数据
+    * @throws IOException 读取失败
+    */
     public List<Map<String, Object>> readAll(IbdIndex index) throws IOException {
         List<IbdColumn> recordColumns = index.columns();
         List<String> outputColumns = columnNames();
@@ -192,11 +192,11 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 估算行数（把叶子页记录数加起来，不做字段解码，用于日志与进度）。
-     *
-     * @return 估算行数
-     * @throws IOException 读取失败
-     */
+    * 估算行数（把叶子页记录数加起来，不做字段解码，用于日志与进度）。
+    *
+    * @return 估算行数
+    * @throws IOException 读取失败
+    */
     public long estimateRowCount() throws IOException {
         IbdIndex clustered = definition.clusteredIndex();
         if (clustered == null) {
@@ -210,19 +210,19 @@ public final class IbdTableReader implements Closeable {
     }
 
     /**
-     * 被标记删除（未 purge）的记录数，由 {@link #readAll()} 统计。
-     *
-     * @return 记录数
-     */
+    * 被标记删除（未 purge）的记录数，由 {@link #readAll()} 统计。
+    *
+    * @return 记录数
+    */
     public long deletedRows() {
         return deletedRows;
     }
 
     /**
-     * 渲染 {@code TIMESTAMP} 用的时区。
-     *
-     * @return 时区
-     */
+    * 渲染 {@code TIMESTAMP} 用的时区。
+    *
+    * @return 时区
+    */
     public ZoneId zone() {
         return zone;
     }

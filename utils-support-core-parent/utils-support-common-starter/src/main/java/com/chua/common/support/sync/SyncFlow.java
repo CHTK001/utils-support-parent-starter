@@ -233,11 +233,11 @@ public class SyncFlow implements AutoCloseable {
     }
 
     /**
-    * 启动生产线程
-    * <p>每个输入端一个线程，循环读取批次写入数据中心；背压时等待。</p>
-    *
-    * @return 生产完成计数器
-    */
+            * 启动生产线程
+            * <p>每个输入端一个线程，循环读取批次写入数据中心；背压时等待。</p>
+            *
+            * @return 生产完成计数器
+            */
     private CountDownLatch startProducers() {
         CountDownLatch latch = new CountDownLatch(inputs.size());
         producerExecutor = ThreadUtils.newDaemonFixedThreadPool(inputs.size(), "sync-flow-" + name + "-producer");

@@ -22,23 +22,23 @@ public class WechatMockString implements MockString {
 
     /**
     * 字母池
-     */
+    */
     private static final char[] LETTERS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     /**
     * 字符池（字母 + 数字 + 下划线）
-     */
+    */
     private static final char[] CHARS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_".toCharArray();
     /**
     * 默认长度下界
-     */
+    */
     private static final int DEFAULT_MIN = 6;
     /**
     * 默认长度上界
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int DEFAULT_MAX = 20;
 
     @Override

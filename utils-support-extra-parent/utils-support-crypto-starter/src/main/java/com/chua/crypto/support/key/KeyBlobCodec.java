@@ -25,48 +25,48 @@ public final class KeyBlobCodec {
 
     /**
     * 载体格式版本号
-     */
+    */
     public static final byte VERSION = 1;
 
     /**
     * 策略标志位：服务器绑定
-     */
+    */
     public static final byte FLAG_SERVER_BOUND = 0x01;
 
     /**
     * 头部长度：魔数(4)+版本(1)+标志(1)
-     */
+    */
     public static final int PREFIX_BYTES = 6;
 
     /**
     * 密钥 标识 长度（字节）
-     */
+    */
     public static final int KEY_ID_BYTES = SecretKeyMaterial.KEY_ID_LENGTH_BYTES;
 
     /**
     * 固定段长度：头部(6)+密钥标识(8)+盐(16)+IV(12)
-     */
+    */
     public static final int FIXED_HEADER_BYTES = PREFIX_BYTES + KEY_ID_BYTES
             + KeyProtector.SALT_BYTES + KeyProtector.GCM_IV_BYTES;
 
     /**
     * 尾部 HMAC 长度（字节）
-     */
+    */
     public static final int TRAILING_MAC_BYTES = KeyProtector.MAC_BYTES;
 
     /**
     * 最小合法长度：固定段 + HMAC
-     */
+    */
     public static final int MIN_LENGTH = FIXED_HEADER_BYTES + TRAILING_MAC_BYTES;
 
     /**
     * 随机源
-     */
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
     * 私有构造
-     */
+    */
     private KeyBlobCodec() {
     }
 
@@ -77,7 +77,7 @@ public final class KeyBlobCodec {
     * @param material 主密钥材料
     * @param setting  加密配置（策略/口令/服务器标识）
     * @return 封装后的完整二进制块
-     */
+    */
     public static byte[] encode(byte[] magic, SecretKeyMaterial material, CryptoSetting setting) {
         byte[] salt = new byte[KeyProtector.SALT_BYTES];
         RANDOM.nextBytes(salt);
@@ -113,7 +113,7 @@ public final class KeyBlobCodec {
     * @param blob    二进制密钥块
     * @param setting 加密配置（提供口令/服务器标识；策略以块内标志为准）
     * @return 解封出的主密钥材料
-     */
+    */
     public static SecretKeyMaterial decode(byte[] magic, byte[] blob, CryptoSetting setting) {
         if (blob == null || blob.length < MIN_LENGTH) {
             throw new CryptoException("密钥块已损坏（长度不足）");
@@ -146,7 +146,7 @@ public final class KeyBlobCodec {
     * @param data  数据
     * @param magic 魔数
     * @return true 表示匹配
-     */
+    */
     public static boolean startsWithMagic(byte[] data, byte[] magic) {
         if (data == null || data.length < magic.length) {
             return false;
@@ -164,7 +164,7 @@ public final class KeyBlobCodec {
     *
     * @param magic 期望魔数
     * @param blob  密钥块
-     */
+    */
     private static void verifyHeader(byte[] magic, byte[] blob) {
         for (int i = 0; i < Math.min(magic.length, 4); i++) {
             if (blob[i] != magic[i]) {
@@ -183,7 +183,7 @@ public final class KeyBlobCodec {
     * @param offset 起始偏移
     * @param data   数据
     * @return 新偏移
-     */
+    */
     private static int append(byte[] target, int offset, byte[] data) {
         System.arraycopy(data, 0, target, offset, data.length);
         return offset + data.length;
@@ -196,7 +196,7 @@ public final class KeyBlobCodec {
     * @param from   起始下标
     * @param length 长度
     * @return 副本
-     */
+    */
     private static byte[] slice(byte[] source, int from, int length) {
         return Arrays.copyOfRange(source, from, from + length);
     }

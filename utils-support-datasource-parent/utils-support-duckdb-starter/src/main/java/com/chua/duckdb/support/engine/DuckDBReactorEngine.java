@@ -23,7 +23,7 @@ public class DuckDBReactorEngine extends JdbcReactorEngine {
 
     /**
     * 创建 duckdb 响应式引擎，内部持有同步 {@link DuckDBEngine}。
-     */
+    */
     public DuckDBReactorEngine() {
         super(new DuckDBEngine());
     }
@@ -34,7 +34,7 @@ public class DuckDBReactorEngine extends JdbcReactorEngine {
     * @param name    数据源名称
     * @param jdbcUrl duckdb JDBC 连接串
     * @return 当前引擎实例
-     */
+    */
     public DuckDBReactorEngine addDataSource(String name, String jdbcUrl) {
         ((DuckDBEngine) delegate).addDataSource(name, jdbcUrl);
  // 注册纯 JDBC 数据源（duckdb 无 R2DBC 驱动），执行/查询 走 JDBC 路径

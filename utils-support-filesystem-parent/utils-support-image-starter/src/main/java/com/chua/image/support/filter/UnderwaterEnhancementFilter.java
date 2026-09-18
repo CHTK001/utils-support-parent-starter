@@ -19,23 +19,55 @@ import javax.annotation.Nullable;
 
 
 /**
-* 水下增强滤镜
-* <p>
-* 专门用于增强水下图像的滤镜，主要解决水下图像的以下问题：
-* 1. 蓝绿色偏色问题
-* 2. 对比度低
-* 3. 细节模糊
-* 4. 颜色饱和度不足
-* 
-* 算法特点：
-* - 白平衡校正：消除蓝绿色调偏移
-* - 对比度增强：提升图像层次感
-* - 颜色补偿：恢复红色通道信息
-* - 细节锐化：增强图像清晰度
-* - 饱和度调整：提升颜色鲜艳度
-*
-* @author CH
-* @since 2024/12/20
+ * 水下增强滤镜
+ * <p>
+ * 专门用于增强水下图像的滤镜，主要解决水下图像的以下问题：
+ * 1. 蓝绿色偏色问题
+ * 2. 对比度低
+ * 3. 细节模糊
+ * 4. 颜色饱和度不足
+ *
+ * 算法特点：
+ * - 白平衡校正：消除蓝绿色调偏移
+ * - 对比度增强：提升图像层次感
+ * - 颜色补偿：恢复红色通道信息
+ * - 细节锐化：增强图像清晰度
+ * - 饱和度调整：提升颜色鲜艳度
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认水下增强
+ * BufferedImage enhanced = new UnderwaterEnhancementFilter().converter(src);
+ *
+ * // 自定义参数
+ * UnderwaterEnhancementFilter filter = new UnderwaterEnhancementFilter()
+ *         .setRedEnhancement(1.8)
+ *         .setBlueReduction(0.5)
+ *         .setSharpenEnabled(true)
+ *         .setSharpenStrength(1.0);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>redEnhancement</b>（默认 1.5，范围 0.0-2.0）：红色通道增强系数，补偿水下红光衰减</li>
+ *   <li><b>blueReduction</b>（默认 0.7，范围 0.0-1.0）：蓝色通道衰减系数</li>
+ *   <li><b>greenReduction</b>（默认 0.8，范围 0.0-1.0）：绿色通道衰减系数</li>
+ *   <li><b>contrastEnhancement</b>（默认 1.3，范围 0.0-3.0）：对比度增强系数</li>
+ *   <li><b>saturationEnhancement</b>（默认 1.2，范围 0.0-2.0）：饱和度增强系数</li>
+ *   <li><b>brightnessAdjustment</b>（默认 10，范围 -100 到 100）：亮度调整</li>
+ *   <li><b>sharpenEnabled</b>（默认 true）：是否启用锐化处理</li>
+ *   <li><b>sharpenStrength</b>（默认 0.5，范围 0.0-2.0）：锐化强度</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>redEnhancement 值越大红色补偿越强，但过高会导致红色过饱和</li>
+ *   <li>blueReduction / greenReduction 值越小衰减越明显，
+ *       建议根据水下的蓝绿色偏程度调节（0.5-0.9 之间）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -47,47 +79,47 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     /**
     * 红色通道增强系数 (0.0-2.0)
     * 用于补偿水下环境中红光衰减的问题
-     */
+    */
     private double redEnhancement = 1.5;
 
     /**
     * 蓝色通道衰减系数 (0.0-1.0)
     * 用于减少水下图像的蓝色偏移
-     */
+    */
     private double blueReduction = 0.7;
 
     /**
     * 绿色通道衰减系数 (0.0-1.0)
     * 用于减少水下图像的绿色偏移
-     */
+    */
     private double greenReduction = 0.8;
 
     /**
     * 对比度增强系数 (0.0-3.0)
     * 用于提升图像的对比度
-     */
+    */
     private double contrastEnhancement = 1.3;
 
     /**
     * 饱和度增强系数 (0.0-2.0)
     * 用于提升颜色饱和度
-     */
+    */
     private double saturationEnhancement = 1.2;
 
     /**
     * 亮度调整系数 (-100 到 100)
     * 用于调整图像整体亮度
-     */
+    */
     private int brightnessAdjustment = 10;
 
     /**
     * 是否启用锐化处理
-     */
+    */
     private boolean sharpenEnabled = true;
 
     /**
     * 锐化强度 (0.0-2.0)
-     */
+    */
     private double sharpenStrength = 0.5;
 
     @Override
@@ -150,7 +182,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     * 主要解决水下图像的蓝绿色偏移问题
     * @param src src
     * @return 执行colorcorrection的结果
-     */
+    */
     private BufferedImage performColorCorrection(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -184,7 +216,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     * 调整对比度和亮度
     * @param src src
     * @return adjustcontrast和brightness的结果
-     */
+    */
     private BufferedImage adjustContrastAndBrightness(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -216,7 +248,7 @@ public class UnderwaterEnhancementFilter extends AbstractImageFilter {
     * 增强饱和度
     * @param src src
     * @return 增强saturation的结果
-     */
+    */
     private BufferedImage enhanceSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -251,7 +283,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     * 应用锐化滤镜
     * @param src src
     * @return applySharpen的结果
-     */
+    */
     private BufferedImage applySharpen(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -337,7 +369,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     * @param g g
     * @param b b
     * @return rgb转为hsv的结果
-     */
+    */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;
@@ -374,7 +406,7 @@ hsv[1] = Math.min(1.0f, (float) (hsv[1] * saturationEnhancement));
     * @param s s
     * @param v v
     * @return hsv转为rgb的结果
-     */
+    */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;
         int c = (int) (v * s * 255);

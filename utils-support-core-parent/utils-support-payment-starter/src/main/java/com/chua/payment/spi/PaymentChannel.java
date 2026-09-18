@@ -36,7 +36,7 @@ public interface PaymentChannel {
     *
     * @param request 支付请求
     * @return 支付响应
-     */
+    */
     PaymentResponse pay(PaymentRequest request);
 
     /**
@@ -44,7 +44,7 @@ public interface PaymentChannel {
     *
     * @param request 查询请求
     * @return 查询响应
-     */
+    */
     default PaymentResponse query(PaymentRequest request) {
         throw new UnsupportedOperationException();
     }
@@ -54,7 +54,7 @@ public interface PaymentChannel {
     *
     * @param request 关闭请求
     * @return 关闭响应
-     */
+    */
     default PaymentResponse close(PaymentRequest request) {
         throw new UnsupportedOperationException();
     }
@@ -64,7 +64,7 @@ public interface PaymentChannel {
     *
     * @param request 退款请求
     * @return 退款响应
-     */
+    */
     default PaymentResponse refund(PaymentRequest request) {
         throw new UnsupportedOperationException();
     }
@@ -74,7 +74,7 @@ public interface PaymentChannel {
     *
     * @param name 渠道名称，如 "alipay"、"tenpay"
     * @return PaymentChannel 实例
-     */
+    */
     static PaymentChannel getChannel(String name) {
         return ServiceProvider.of(PaymentChannel.class)
                 .getExtension(name);

@@ -41,34 +41,34 @@ public class DrawerPipeline {
 
     /**
     * 目标图（待标注原图）。
-     */
+    */
     private byte[] targetImage;
 
     /**
     * 待标注的检测框列表。
-     */
+    */
     private final List<DetectionInfo> boxes = new ArrayList<>();
 
     /**
     * 对应的标签列表。
-     */
+    */
     private final List<String> labels = new ArrayList<>();
 
     /**
     * 最小置信度阈值。
-     */
+    */
     private float minConfidence;
 
     /**
     * 进度回调：参数为（当前序号, 总数）。
-     */
+    */
     private BiConsumer<Integer, Integer> progress;
 
     /**
     * 构造标注管线。
     *
     * @param minConfidence 最小置信度
-     */
+    */
     public DrawerPipeline(float minConfidence) {
         this.minConfidence = minConfidence;
     }
@@ -78,7 +78,7 @@ public class DrawerPipeline {
     *
     * @param corrected 目标图字节
     * @return this
-     */
+    */
     public DrawerPipeline target(byte[] corrected) {
         this.targetImage = corrected;
         return this;
@@ -92,7 +92,7 @@ public class DrawerPipeline {
     *
     * @param progress 回调
     * @return this
-     */
+    */
     public DrawerPipeline onProcess(BiConsumer<Integer, Integer> progress) {
         this.progress = progress;
         return this;
@@ -102,7 +102,7 @@ public class DrawerPipeline {
     * 清空当前标注结果与进度回调。
     *
     * @return this
-     */
+    */
     public DrawerPipeline clean() {
         boxes.clear();
         labels.clear();
@@ -116,7 +116,7 @@ public class DrawerPipeline {
     * @param box   检测框
     * @param label 标签（可为 空）
     * @return this
-     */
+    */
     public DrawerPipeline box(DetectionInfo box, String label) {
         if (box == null) {
             return this;
@@ -137,7 +137,7 @@ public class DrawerPipeline {
     * @param boxList 检测框列表
     * @param labelList 标签列表（与检测框一一对应）
     * @return this
-     */
+    */
     public DrawerPipeline boxes(List<DetectionInfo> boxList, List<? extends String> labelList) {
         if (boxList == null) {
             return this;
@@ -156,7 +156,7 @@ public class DrawerPipeline {
     * @param boxList 检测框列表
     * @param labelList 标签列表（与检测框一一对应）
     * @return this
-     */
+    */
     public DrawerPipeline predictBoxes(List<PredictRectangle> boxList, List<? extends String> labelList) {
         if (boxList == null) {
             return this;
@@ -177,7 +177,7 @@ public class DrawerPipeline {
     * <p>未设置目标图时返回空数组。绘制过程触发进度回调。</p>
     *
     * @return 标注后 PNG 字节
-     */
+    */
     public byte[] done() {
         if (targetImage == null || targetImage.length == 0) {
             return new byte[0];
@@ -198,7 +198,7 @@ public class DrawerPipeline {
     * 一键绘制（语义别名，与 {@link #done()} 一致）。
     *
     * @return 标注后 PNG 字节
-     */
+    */
     public byte[] draw() {
         return done();
     }
@@ -207,7 +207,7 @@ public class DrawerPipeline {
     * 当前检测框列表。
     *
     * @return 检测框列表
-     */
+    */
     public List<DetectionInfo> boxes() {
         return List.copyOf(boxes);
     }
@@ -216,7 +216,7 @@ public class DrawerPipeline {
     * 当前标签列表。
     *
     * @return 标签列表
-     */
+    */
     public List<String> labels() {
         return List.copyOf(labels);
     }
@@ -225,7 +225,7 @@ public class DrawerPipeline {
     * 目标图是否已设置。
     *
     * @return true 已设置
-     */
+    */
     public boolean hasTarget() {
         return targetImage != null && targetImage.length > 0;
     }

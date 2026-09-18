@@ -445,8 +445,8 @@ public class JdkWebSocketServer extends AbstractServer {
     private static class SimpleServerRequest implements ServerRequest {
 
         /**
-        * 主题
-        */
+    * 主题
+    */
         private final String topic;
         /**
         * 请求体

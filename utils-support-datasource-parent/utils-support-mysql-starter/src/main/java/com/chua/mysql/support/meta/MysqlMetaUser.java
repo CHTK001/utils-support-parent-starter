@@ -31,12 +31,12 @@ public class MysqlMetaUser implements MetaUser {
     /**
     * mysqlmeta用户。
     * @param dataSource 数据源
-     */
+    */
     public MysqlMetaUser(DataSource dataSource) {
         /**
         * 列表。
         * @return 列表的结果
-         */
+        */
         this.dataSource = dataSource;
     }
 
@@ -70,7 +70,7 @@ public class MysqlMetaUser implements MetaUser {
         * @return alter的结果
         * @param ds ds
         * @param sql sql
-         */
+        */
         return new CreateStep(dataSource, username);
     }
 
@@ -96,11 +96,11 @@ public class MysqlMetaUser implements MetaUser {
 
     // ==================== Inner Steps ====================
     /**
-     * 创建step类。
-     *
-     * @author CH
-     * @since 4.0.0
-     */
+    * 创建step类。
+    *
+    * @author CH
+    * @since 4.0.0
+    */
 
     private static class CreateStep implements UserCreateBuilder {
         private final DataSource dataSource; // 数据源
@@ -135,8 +135,8 @@ public class MysqlMetaUser implements MetaUser {
     }
 
     /**
-     * AlterStep类。
-     */
+    * AlterStep类。
+    */
     private static class AlterStep implements UserAlterBuilder {
         private final DataSource dataSource; // 数据源
         private final String username; // 用户名

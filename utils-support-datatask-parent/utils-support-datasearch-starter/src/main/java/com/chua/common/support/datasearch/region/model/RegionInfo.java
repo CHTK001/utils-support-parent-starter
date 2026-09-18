@@ -21,42 +21,42 @@ public class RegionInfo {
 
     /**
     * 行政区划代码（adcode，6 位数字）
-     */
+    */
     private final String adcode;
 
     /**
     * 行政区划名称
-     */
+    */
     private final String name;
 
     /**
     * 层级：1=省级 2=市级 3=区县级 4=街道乡镇级
-     */
+    */
     private final int level;
 
     /**
     * 层级名称：province/city/district/street
-     */
+    */
     private final String levelName;
 
     /**
     * 上级行政区划代码（省级为 空）
-     */
+    */
     private final String parent;
 
     /**
     * 中心点经度
-     */
+    */
     private final double lng;
 
     /**
     * 中心点纬度
-     */
+    */
     private final double lat;
 
     /**
     * 下级行政区划（按需装载，可能为空）
-     */
+    */
     private List<RegionInfo> children;
 
     /**
@@ -74,7 +74,7 @@ public class RegionInfo {
     * @param parent 父
     * @param lng lng
     * @param lat lat
-     */
+    */
     public RegionInfo(String adcode, String name, int level, String levelName, String parent, double lng, double lat) {
         this.adcode = adcode;
         this.name = name;
@@ -89,7 +89,7 @@ public class RegionInfo {
     * 获取Adcode
     *
     * @return 获取adcode的结果
-     */
+    */
     public String getAdcode() {
         return adcode;
     }
@@ -98,7 +98,7 @@ public class RegionInfo {
     * 获取名称
     *
     * @return 获取名称的结果
-     */
+    */
     public String getName() {
         return name;
     }
@@ -107,7 +107,7 @@ public class RegionInfo {
     * 获取级别
     *
     * @return 获取级别的结果
-     */
+    */
     public int getLevel() {
         return level;
     }
@@ -116,7 +116,7 @@ public class RegionInfo {
     * 获取级别名称
     *
     * @return 获取级别名称的结果
-     */
+    */
     public String getLevelName() {
         return levelName;
     }
@@ -125,7 +125,7 @@ public class RegionInfo {
     * 获取父
     *
     * @return 获取父的结果
-     */
+    */
     public String getParent() {
         return parent;
     }
@@ -134,7 +134,7 @@ public class RegionInfo {
     * 获取Lng
     *
     * @return 获取lng的结果
-     */
+    */
     public double getLng() {
         return lng;
     }
@@ -143,7 +143,7 @@ public class RegionInfo {
     * 获取Lat
     *
     * @return 获取lat的结果
-     */
+    */
     public double getLat() {
         return lat;
     }
@@ -152,7 +152,7 @@ public class RegionInfo {
     * 获取Children
     *
     * @return 获取children的结果
-     */
+    */
     public List<RegionInfo> getChildren() {
         return children;
     }
@@ -161,7 +161,7 @@ public class RegionInfo {
     * 设置Children
     *
     * @param children children
-     */
+    */
     public void setChildren(List<RegionInfo> children) {
         this.children = children;
     }
@@ -170,7 +170,7 @@ public class RegionInfo {
     * 转换为 映射 用于 JSON 序列化
     *
     * @return Map 表示
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("adcode", adcode);

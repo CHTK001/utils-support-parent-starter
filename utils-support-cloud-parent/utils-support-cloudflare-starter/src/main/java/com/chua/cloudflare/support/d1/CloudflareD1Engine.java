@@ -50,19 +50,19 @@ public class CloudflareD1Engine {
 
     /**
     * Cloudflare API 客户端
-     */
+    */
     private final CloudflareClient client;
 
     /**
     * 默认数据库 标识（优先取 {@code client.getConfig().getDatabaseId()}，单库场景免传）
-     */
+    */
     private final String defaultDatabaseId;
 
     /**
     * 用 Cloudflare 客户端构造，自动使用配置中的默认 databaseid。
     *
     * @param client Cloudflare 客户端
-     */
+    */
     public CloudflareD1Engine(CloudflareClient client) {
         this(client, null);
     }
@@ -72,7 +72,7 @@ public class CloudflareD1Engine {
     *
     * @param client         Cloudflare 客户端
     * @param databaseId     数据库 标识，传 空 使用 配置 中的 databaseid
-     */
+    */
     public CloudflareD1Engine(CloudflareClient client, String databaseId) {
         if (client == null) {
             throw new IllegalArgumentException("CloudflareClient must not be null");
@@ -87,7 +87,7 @@ public class CloudflareD1Engine {
     * @param sql   SQL 语句，可含 ? 占位符或 :名称 命名参数
     * @param params 参数值，按出现顺序绑定 ?；或 映射 用于 :名称
     * @return D1 元数据（含 最后一个_row_标识、改变 等）
-     */
+    */
     public D1Result execute(String sql, Object... params) {
         return executeWithParams(sql, D1SqlParameter.ofPositional(params));
     }
@@ -98,7 +98,7 @@ public class CloudflareD1Engine {
     * @param sql   SQL 语句
     * @param named 命名参数映射
     * @return D1 元数据
-     */
+    */
     public D1Result execute(String sql, Map<String, Object> named) {
         return executeWithParams(sql, D1SqlParameter.ofNamed(named));
     }
@@ -110,7 +110,7 @@ public class CloudflareD1Engine {
     * @param params 参数（同 执行）
     * @param <T>   返回类型
     * @return 结果列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> query(String sql, Object... params) {
         D1Result result = executeWithParams(sql, D1SqlParameter.ofPositional(params));
@@ -123,7 +123,7 @@ public class CloudflareD1Engine {
     * @param sql   SQL 语句
     * @param named 命名参数
     * @return 结果列表
-     */
+    */
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> query(String sql, Map<String, Object> named) {
         D1Result result = executeWithParams(sql, D1SqlParameter.ofNamed(named));
@@ -135,7 +135,7 @@ public class CloudflareD1Engine {
     *
     * @param statements 多条语句
     * @return 最后一条语句的元数据（或聚合）
-     */
+    */
     public List<D1Result> batch(List<D1Statement> statements) {
         D1BatchRequest request = D1BatchRequest.of(resolveDatabaseId(), statements);
         Object raw = client.post(d1QueryPath(), request.toJson());
@@ -148,7 +148,7 @@ public class CloudflareD1Engine {
     * @param sql    SQL 模板，每条一次
     * @param paramsList 与每条 SQL 对应的参数列表
     * @return 每条的结果
-     */
+    */
     public List<D1Result> multi(String sql, List<Object[]> paramsList) {
         var statements = new java.util.ArrayList<D1Statement>();
         for (var params : paramsList) {
@@ -162,7 +162,7 @@ public class CloudflareD1Engine {
     * @param sql SQL
     * @param params 参数
     * @return 执行with参数的结果
-     */
+    */
     private D1Result executeWithParams(String sql, D1SqlParameter params) {
         var stmt = new D1Statement(sql, params);
         Object raw = client.post(d1QueryPath(), stmt.toJson());
@@ -176,7 +176,7 @@ public class CloudflareD1Engine {
     /**
     * 解析实际使用的 databaseid。
     * @return resolveDatabaseId的结果
-     */
+    */
     private String resolveDatabaseId() {
         String id = defaultDatabaseId != null
                 ? defaultDatabaseId
@@ -190,7 +190,7 @@ public class CloudflareD1Engine {
     /**
     * D1 查询 API 路径（占位符由 账户id 填充）。
     * @return d1查询路径的结果
-     */
+    */
     private String d1QueryPath() {
         return "/accounts/" + client.getConfig().getAccountId() + "/d1/database/"
                 + resolveDatabaseId() + "/query";
@@ -200,7 +200,7 @@ public class CloudflareD1Engine {
     * 获取底层 Cloudflare 客户端。
     *
     * @return 客户端
-     */
+    */
     public CloudflareClient getClient() {
         return client;
     }

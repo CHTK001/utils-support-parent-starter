@@ -49,17 +49,17 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     /**
     * CLIP                                  
     *   CLIP Vision                               77
-     */
+    */
     private static final int MAX_SEQUENCE_LENGTH = 77;
 
     /**
     * 令牌 ids
-     */
+    */
     private static final long DEFAULT_PAD_TOKEN_ID = 1L;
 
     /**
     * huggingface
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /**
@@ -70,7 +70,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     *
     * @param ctx                   
     * @throws IOException              tokenizer       
-     */
+    */
     @Override
     public void prepare(@Nonnull TranslatorContext ctx) throws IOException {
         try {
@@ -120,7 +120,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     * @param input             
     * @return              NDList                   [1, sequence_长度]     输入_标识
     * @throws Exception                   
-     */
+    */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull String input) throws Exception {
@@ -156,7 +156,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     * @param ctx                    
     * @param list                 nd列表          文本_embeds
     * @return                            512       
-     */
+    */
     @Override
     @Nonnull
     public float[] processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -179,7 +179,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     *
     * @param list nd列表
     * @return                               
-     */
+    */
     private NDArray selectEmbeddingOutput(NDList list) {
         if (list == null || list.isEmpty()) {
             throw new IllegalStateException("CLIP                         ");
@@ -206,7 +206,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     *                   
     *
     * @return null                     
-     */
+    */
     @Override
     @Nullable
     public Batchifier getBatchifier() {
@@ -218,7 +218,7 @@ public class ClipTextFeatureTranslator implements Translator<String, float[]> {
     *
     * @param tokenIds                  
     * @return                            MAX_SEQUENCE_LENGTH       
-     */
+    */
     private long[] normalizeTokenIds(long[] tokenIds) {
         if (tokenIds == null || tokenIds.length == 0) {
             long[] padded = new long[MAX_SEQUENCE_LENGTH];

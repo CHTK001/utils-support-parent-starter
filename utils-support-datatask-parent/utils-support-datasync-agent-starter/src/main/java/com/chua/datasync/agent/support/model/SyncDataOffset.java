@@ -31,7 +31,7 @@ public class SyncDataOffset implements Serializable {
     * @param offsetValue 偏移量值
     * @param timestamp 时间戳
     * @param mappingId mappingid
-     */
+    */
     public SyncDataOffset(String sourceId, Object offsetValue, long timestamp, String mappingId) {
         this.sourceId = sourceId;
         this.offsetValue = offsetValue;
@@ -43,7 +43,7 @@ public class SyncDataOffset implements Serializable {
     * 源id
     *
     * @return 源id的结果
-     */
+    */
     public String sourceId() {
         return sourceId;
     }
@@ -52,7 +52,7 @@ public class SyncDataOffset implements Serializable {
     * 偏移量值
     *
     * @return 偏移量值的结果
-     */
+    */
     public Object offsetValue() {
         return offsetValue;
     }
@@ -61,7 +61,7 @@ public class SyncDataOffset implements Serializable {
     * 时间戳
     *
     * @return 时间戳的结果
-     */
+    */
     public long timestamp() {
         return timestamp;
     }
@@ -70,7 +70,7 @@ public class SyncDataOffset implements Serializable {
     * mappingid
     *
     * @return mappingId的结果
-     */
+    */
     public String mappingId() {
         return mappingId;
     }

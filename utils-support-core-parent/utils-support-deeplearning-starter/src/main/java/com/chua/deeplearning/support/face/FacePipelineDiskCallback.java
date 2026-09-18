@@ -20,14 +20,14 @@ public class FacePipelineDiskCallback implements FacePipelineCallback {
 
     /**
     * 输出目录。
-     */
+    */
     private final Path outputDir;
 
     /**
     * 构造磁盘回调。
     *
     * @param outputDir 输出目录
-     */
+    */
     public FacePipelineDiskCallback(Path outputDir) {
         this.outputDir = outputDir;
         try {
@@ -57,7 +57,7 @@ public class FacePipelineDiskCallback implements FacePipelineCallback {
     *
     * @param data 图片字节
     * @param name 文件名
-     */
+    */
     private void write(byte[] data, String name) {
         try {
             Path path = outputDir.resolve(name);

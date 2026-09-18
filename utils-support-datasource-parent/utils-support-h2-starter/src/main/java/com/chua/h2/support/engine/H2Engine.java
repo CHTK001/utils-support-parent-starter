@@ -50,7 +50,7 @@ public class H2Engine extends JdbcEngine {
     * @param name    数据源名称
     * @param jdbcUrl H2 JDBC 连接串
     * @return 当前引擎实例
-     */
+    */
     public Engine addDataSource(String name, String jdbcUrl) {
         HikariDataSource ds = new HikariDataSource();
         ds.setJdbcUrl(jdbcUrl);
@@ -92,7 +92,7 @@ public class H2Engine extends JdbcEngine {
     * }</pre>/pre>
     *
     * @return H2CleanupPlugin 实例
-     */
+    */
     public H2CleanupPlugin cleanup() {
         return new H2CleanupPlugin(this);
     }

@@ -28,7 +28,7 @@ public class SolrDataSyncSource implements DataSyncSource {
     private final String collectionName;
     /** 来源标识 */
     private final String sourceId;
-    /** 智能体id */
+    /** Agentid */
     private final String agentId;
     /** 批量尺寸 */
     private final int batchSize;
@@ -38,9 +38,9 @@ public class SolrDataSyncSource implements DataSyncSource {
     * @param engine engine
     * @param collectionName 集合名称
     * @param sourceId 源标识
-    * @param agentId 智能体标识
+    * @param agentId Agent标识
     * @param batchSize 批量大小
-     */
+    */
     private SolrDataSyncSource(SolrEngine engine, String collectionName,
                                String sourceId, String agentId, int batchSize) {
         this.engine = engine;
@@ -55,8 +55,8 @@ public class SolrDataSyncSource implements DataSyncSource {
     * @param engine engine
     * @param collectionName 集合名称
     * @param sourceId 源标识
-    * @param agentId 智能体标识
-     */
+    * @param agentId Agent标识
+    */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId) {
         return new SolrDataSyncSource(engine, collectionName, sourceId, agentId, DEFAULT_BATCH);
@@ -67,9 +67,9 @@ public class SolrDataSyncSource implements DataSyncSource {
     * @param engine engine
     * @param collectionName 集合名称
     * @param sourceId 源标识
-    * @param agentId 智能体标识
+    * @param agentId Agent标识
     * @param batchSize 批量大小
-     */
+    */
     public static SolrDataSyncSource output(SolrEngine engine, String collectionName,
                                             String sourceId, String agentId, int batchSize) {
         return new SolrDataSyncSource(engine, collectionName, sourceId, agentId, batchSize);
@@ -88,7 +88,7 @@ public class SolrDataSyncSource implements DataSyncSource {
     }
 
     @Override
-    /** 智能体id */
+    /** Agentid */
     public String agentId() {
         return agentId;
     }

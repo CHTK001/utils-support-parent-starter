@@ -17,7 +17,7 @@ public final class ReactiveUsageStreams {
 
     /**
     * 响应式usage流。
-     */
+    */
     private ReactiveUsageStreams() {
     }
 
@@ -27,7 +27,7 @@ public final class ReactiveUsageStreams {
     * @param parsers     解析器列表
     * @param concurrency 并发度（同时处于抓取/解析状态的解析器数量）
     * @return 合并后的用量记录流
-     */
+    */
     public static Flux<AiUsage> merge(List<? extends UsageParser> parsers, int concurrency) {
         return Flux.fromIterable(parsers)
                 .flatMap(p -> p.streamAll()
@@ -39,7 +39,7 @@ public final class ReactiveUsageStreams {
     * 串行合并（逐个解析器顺序产出）。
     * @param parsers parsers
     * @return 连接的结果
-     */
+    */
     public static Flux<AiUsage> concat(List<? extends UsageParser> parsers) {
         return Flux.fromIterable(parsers).concatMap(UsageParser::streamAll);
     }

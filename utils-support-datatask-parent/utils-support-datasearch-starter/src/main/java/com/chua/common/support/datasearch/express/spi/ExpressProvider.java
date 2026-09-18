@@ -20,7 +20,7 @@ public interface ExpressProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -28,7 +28,7 @@ public interface ExpressProvider {
     *
     * @param trackingNo 快递单号
     * @return 物流轨迹列表（识别失败或无轨迹时返回空列表）
-     */
+    */
     List<ExpressTrace> query(String trackingNo);
 
     /**
@@ -37,6 +37,6 @@ public interface ExpressProvider {
     * @param companyCode 快递公司编码（如 sf、yd、zt、ems）
     * @param trackingNo  快递单号
     * @return 物流轨迹列表
-     */
+    */
     List<ExpressTrace> query(String companyCode, String trackingNo);
 }

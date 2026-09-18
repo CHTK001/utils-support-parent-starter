@@ -23,7 +23,7 @@ public class ConstellationMockString implements MockString {
     * 十二星座池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] CONSTELLATIONS = {
             "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座",
             "天秤座", "天蝎座", "射手座", "摩羯座", "水瓶座", "双鱼座"

@@ -325,7 +325,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param body 主体
     * @return post标志的结果
-     */
+    */
     private JsonNode postSigned(Object body) {
         String json;
         try {
@@ -342,7 +342,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     * 获取hotkeywords
     *
     * @return 获取hotkeywords的结果
-     */
+    */
     private List<String> fetchHotKeywords() {
         JsonNode root = postJson(MUSICU_URL, Map.of(
                 "comm", Map.of("ct", "19", "cv", "1803", "guid", "0", "tmeAppID", "qqmusic", "uin", "0", "wid", "0"),
@@ -364,7 +364,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param songId songid
     * @return 获取lyrics的结果
-     */
+    */
     private String fetchLyrics(String songId) {
         Map<String, Object> lyricParam = new LinkedHashMap<>();
         lyricParam.put("format", "json");
@@ -398,7 +398,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     * @param mediaMid mediamid
     * @param quality quality
     * @return 获取流url的结果
-     */
+    */
     private String fetchStreamUrl(String songMid, String mediaMid, String quality) {
         String filename;
         if ("flac".equals(quality)) {
@@ -437,7 +437,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param item item
     * @return 选择quality的结果
-     */
+    */
     private String selectQuality(JsonNode item) {
         JsonNode file = item.path("file");
         if (file.path("size_flac").asLong(0L) > 0) {
@@ -454,7 +454,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param item item
     * @return 转为tracksummary的结果
-     */
+    */
     private MusicTrackSummary toTrackSummary(JsonNode item) {
         if (!StringUtils.hasText(text(item, "file", "media_mid"))) {
             return null;
@@ -479,7 +479,7 @@ public class TencentMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     * @param array array
     * @param field 字段
     * @return 连接名称的结果
-     */
+    */
     private String joinNames(JsonNode array, String field) {
         List<String> values = new ArrayList<>();
         for (JsonNode item : elements(array)) {

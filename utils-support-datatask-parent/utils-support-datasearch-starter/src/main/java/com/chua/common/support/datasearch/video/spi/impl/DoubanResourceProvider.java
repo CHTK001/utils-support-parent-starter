@@ -45,28 +45,28 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
 
     /**
     * 日志对象。
-     */
+    */
     private static final Logger log = LoggerFactory.getLogger(DoubanResourceProvider.class);
 
     /**
     * 豆瓣搜索接口地址前缀。
-     */
+    */
     private static final String DOUBAN_SEARCH_URL = "https://www.douban.com/search?cat=1002&q=";
 
     /**
     * 请求超时时间，单位毫秒。
-     */
+    */
     private static final int TIMEOUT = 10000;
 
     /**
-    * 模拟浏览器的 用户-智能体。
-     */
+    * 模拟浏览器的 用户-Agent。
+    */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
     /**
     * 构造豆瓣资源提供者。
-     */
+    */
     public DoubanResourceProvider() {
         super();
     }
@@ -75,7 +75,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * 构造豆瓣资源提供者。
     *
     * @param videoSource 视频数据源
-     */
+    */
     public DoubanResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
@@ -128,7 +128,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param keyword 关键词
     * @return 完整搜索 URL
-     */
+    */
     private String buildSearchUrl(String keyword) {
         return DOUBAN_SEARCH_URL + URLEncoder.encode(keyword, StandardCharsets.UTF_8);
     }
@@ -139,7 +139,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param results     结果列表
     * @param videoSearch 搜索参数
     * @return 分页结果
-     */
+    */
     private ReturnPageResult<VideoInfoResult> buildPageResult(
             List<VideoInfoResult> results, VideoSearch videoSearch) {
         int size = results.size();
@@ -163,7 +163,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param item        搜索结果 DOM 元素
     * @param videoSearch 搜索参数
     * @return 视频信息对象，解析失败返回 空
-     */
+    */
     private VideoInfoResult parseSearchItem(Element item, VideoSearch videoSearch) {
         try {
             Element titleElement = item.selectFirst("div.title h3 a");
@@ -195,7 +195,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param item 搜索结果 DOM 元素
     * @return 评分字符串，缺失时返回“暂无评分”
-     */
+    */
     private String parseRating(Element item) {
         Element ratingElement = item.selectFirst("div.rating_nums");
         if (ratingElement != null) {
@@ -209,7 +209,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param item 搜索结果 DOM 元素
     * @return 简介字符串，缺失时返回空串
-     */
+    */
     private String parseDescription(Element item) {
         Element descElement = item.selectFirst("div.content p");
         if (descElement != null) {
@@ -223,7 +223,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param item 搜索结果 DOM 元素
     * @return 封面 URL，缺失时返回空串
-     */
+    */
     private String parseCover(Element item) {
         Element coverElement = item.selectFirst("div.pic img");
         if (coverElement != null) {
@@ -240,7 +240,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param detailUrl 详情页 URL
     * @return Jsoup 文档，获取失败返回 空
-     */
+    */
     private Document fetchDetailPage(String detailUrl) {
         try {
             TimeUnit.MILLISECONDS.sleep(500);
@@ -277,7 +277,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param description 简介
     * @param coverUrl   封面 URL
     * @return 完整的视频信息对象
-     */
+    */
     private VideoInfoResult parseDetailPage(Document detailDoc, String title,
                                             String rating, String description, String coverUrl) {
         String actualRating = parseDetailRating(detailDoc);
@@ -296,7 +296,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param detailDoc 详情页 DOM
     * @return 评分字符串，解析失败返回“暂无评分”
-     */
+    */
     private String parseDetailRating(Document detailDoc) {
         try {
             return detailDoc.expectFirst(
@@ -318,7 +318,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param area     制片国家/地区
     * @param language 语言
     * @param alias    又名
-     */
+    */
     private record InfoFields(
             String director,
             String writer,
@@ -335,7 +335,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param infoText 信息 纯文本
     * @return 解析出的字段集合
-     */
+    */
     private InfoFields parseInfoText(String infoText) {
         String director = extractBetween(infoText, "导演:", "编剧:", "主演:");
         String writer = extractBetween(infoText, "编剧:", "主演:");
@@ -359,7 +359,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param start  起始标记（含）
     * @param ends   结束标记列表
     * @return 提取值，找不到返回空字符串
-     */
+    */
     private String extractBetween(String text, String start, String... ends) {
         if (!text.contains(start)) {
             return "";
@@ -381,7 +381,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param infoText 信息 文本
     * @return 年份字符串
-     */
+    */
     private String extractYear(String infoText) {
         if (!infoText.contains("上映日期:")) {
             return "";
@@ -408,7 +408,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param infoText 信息 文本
     * @return 语言字符串
-     */
+    */
     private String extractLanguage(String infoText) {
         if (!infoText.contains("语言:")) {
             return "";
@@ -427,7 +427,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     *
     * @param infoText 信息 文本
     * @return 又名字符串
-     */
+    */
     private String extractAlias(String infoText) {
         if (!infoText.contains("又名:")) {
             return "";
@@ -451,7 +451,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param coverUrl   封面 URL
     * @param fields     解析字段集合
     * @return 视频信息对象
-     */
+    */
     private VideoInfoResult buildVideoInfo(String title, String rating,
                                            String description, String coverUrl, InfoFields fields) {
         VideoInfoResult videoInfo = new VideoInfoResult();
@@ -487,7 +487,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     * @param description 简介
     * @param coverUrl   封面 URL
     * @return 视频信息对象
-     */
+    */
     private VideoInfoResult buildVideoInfo(String title, String rating,
                                            String description, String coverUrl) {
         VideoInfoResult videoInfo = new VideoInfoResult();

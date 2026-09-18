@@ -41,27 +41,27 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
 
     /**
     * 本地缓存键前缀
-     */
+    */
     protected static final String PRICING_KEY_PREFIX = "pricing/";
 
     /**
     * 本地缓存键后缀
-     */
+    */
     protected static final String PRICING_KEY_SUFFIX = ".json";
 
     /**
     * 类路径 资源根路径
-     */
+    */
     private static final String CLASSPATH_ROOT = "pricing/";
 
     /**
     * 模型 标识 最大长度，超出视为无效行
-     */
+    */
     private static final int MAX_MODEL_ID_LENGTH = 128;
 
     /**
-    * 默认浏览器 用户-智能体
-     */
+    * 默认浏览器 用户-Agent
+    */
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36";
 
@@ -78,7 +78,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     /**
     * 创建 抽象模型指标提供者 实例
     * @param configSaveOrLoader 配置保存或加载
-     */
+    */
     protected AbstractModelMetricsProvider(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }
@@ -138,7 +138,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * 若厂商有公开定价 API，子类可覆写此方法直接调用线上接口。</p>
     *
     * @return 模型定价列表
-     */
+    */
     public List<ModelDefinition> fetchOnlinePricing() {
         return readClasspathPricing();
     }
@@ -147,7 +147,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * 从 类路径 内置 JSON 文件读取定价列表（兜底）。
     *
     * @return classpath 中的定价列表
-     */
+    */
     protected List<ModelDefinition> readClasspathPricing() {
         String path = CLASSPATH_ROOT + name() + PRICING_KEY_SUFFIX;
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
@@ -175,7 +175,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param url 定价页面地址
     * @param currency 币种（如 CNY/USD）
     * @return 模型定价列表
-     */
+    */
     protected List<ModelDefinition> scrapeTablePricing(String url, String currency) {
         String html = fetchUrl(url);
         Map<String, ModelDefinition> result = new LinkedHashMap<>();
@@ -194,7 +194,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param html 页面 HTML
     * @param currency 币种
     * @param result 收集结果
-     */
+    */
     private void collectPagePricing(String html, String currency, Map<String, ModelDefinition> result) {
         try {
             Document doc = Jsoup.parse(html);
@@ -212,7 +212,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param table 表格元素
     * @param currency 币种
     * @param result 收集结果，按模型 标识 去重
-     */
+    */
     private void collectTablePricing(Element table, String currency, Map<String, ModelDefinition> result) {
         Element headerRow = findHeaderRow(table);
         if (headerRow == null) {
@@ -242,7 +242,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     *
     * @param table 表格元素
     * @return 表头行元素，表格无行时返回 空
-     */
+    */
     private Element findHeaderRow(Element table) {
         Elements theadRows = table.select("thead > tr");
         if (!theadRows.isEmpty()) {
@@ -262,7 +262,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     *
     * @param headerRow 表头行元素
     * @return 表头文本列表
-     */
+    */
     private List<String> headerCells(Element headerRow) {
         Elements cells = headerRow.select("th");
         if (cells.isEmpty()) {
@@ -281,7 +281,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param headers 表头文本列表
     * @return 列索引数组 [模型col, 输入col, 输出col]，输出col 可为 -1；
     * 无法识别模型名称列时返回 空
-     */
+    */
     private int[] detectColumns(List<String> headers) {
         int modelCol = -1;
         int inputCol = -1;
@@ -323,7 +323,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param cols 列索引数组 [模型col, 输入col, 输出col]
     * @param currency 币种
     * @return 模型定义，行无效时返回 空
-     */
+    */
     private ModelDefinition parseTableRow(Element row, int[] cols, String currency) {
         Elements cells = row.select("td");
         int modelCol = cols[0];
@@ -379,7 +379,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param text 单元格原始文本
     * @param currency 目标币种（如 CNY/USD）
     * @return true 表示符号与目标币种矛盾，应跳过该行
-     */
+    */
     private boolean isContradictingCurrency(String text, String currency) {
         if (text == null || text.isEmpty()) {
             return false;
@@ -403,7 +403,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     *
     * @param text 单元格文本
     * @return 单价数值，无法解析时返回 空；免费标记返回 0
-     */
+    */
     private BigDecimal parsePrice(String text) {
         if (text == null) {
             return null;
@@ -430,7 +430,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * @param text 合并单元格文本
     * @param label 价格标签正则（如"输入"）
     * @return 价格数值，未匹配时返回 空
-     */
+    */
     private BigDecimal extractLabelledPrice(String text, String label) {
         Matcher matcher = Pattern.compile(label + "[^0-9.$]{0,8}([$￥]?)([0-9]+(?:\\.[0-9]+)?)").matcher(text);
         return matcher.find() ? new BigDecimal(matcher.group(2)) : null;
@@ -445,7 +445,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     *
     * @param url 页面地址
     * @return HTML 字符串，请求失败返回 空
-     */
+    */
     protected String fetchUrl(String url) {
         try {
             return HttpClientFactory.of(url)
@@ -462,7 +462,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     *
     * @param json JSON 数组字符串
     * @return 模型定价列表
-     */
+    */
     protected List<ModelDefinition> parseJsonPricing(String json) {
         if (json == null || json.isEmpty()) {
             return Collections.emptyList();
@@ -484,7 +484,7 @@ public abstract class AbstractModelMetricsProvider implements ModelMetricsProvid
     * 设置配置加载器。
     *
     * @param configSaveOrLoader 配置加载器
-     */
+    */
     public void setConfigSaveOrLoader(ConfigSaveOrLoader configSaveOrLoader) {
         this.configSaveOrLoader = configSaveOrLoader;
     }

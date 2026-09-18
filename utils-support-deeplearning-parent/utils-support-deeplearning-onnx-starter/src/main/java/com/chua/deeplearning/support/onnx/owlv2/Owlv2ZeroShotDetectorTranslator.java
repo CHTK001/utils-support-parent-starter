@@ -148,7 +148,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     /**
     * 创建 Owlv2zeroshotdetectortranslator 实例
     * @param configuration 配置
-     */
+    */
     public Owlv2ZeroShotDetectorTranslator(DetectionConfiguration configuration) {
         DetectionConfiguration cfg = configuration == null ? DetectionConfiguration.DEFAULT : configuration;
         this.threshold = readDouble(cfg.systemOption(), "threshold", DEFAULT_THRESHOLD);
@@ -178,7 +178,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     * @param ctx ctx
     * @param input 输入
     * @return 处理输入的结果
-     */
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
         BufferedImage original = (BufferedImage) input.getWrappedImage();
         originalWidth = original.getWidth();
@@ -218,7 +218,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     * @param ctx ctx
     * @param list 列表
     * @return 处理输出的结果
-     */
+    */
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         if (lowInformationImage) {
             return emptyDetections();
@@ -285,7 +285,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     * 获取Batchifier
     *
     * @return 获取batchifier的结果
-     */
+    */
     public Batchifier getBatchifier() {
         return null;
     }
@@ -294,7 +294,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     * 加载preprocessor配置
     *
     * @param configPath 配置路径
-     */
+    */
     private void loadPreprocessorConfig(Path configPath) throws IOException {
         JsonNode root = OBJECT_MAPPER.readTree(configPath.toFile());
         JsonNode size = root.path("size");
@@ -329,7 +329,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     *
     * @param label 标签
     * @return normalizeCandidate的结果
-     */
+    */
     private String normalizeCandidate(String label) {
         if (!CHINESE_PATTERN.matcher(label).matches()) {
             return label.trim().toLowerCase(Locale.ROOT);
@@ -370,7 +370,7 @@ public class Owlv2ZeroShotDetectorTranslator implements Translator<Image, Detect
     *
     * @param image 镜像
     * @return letterbox的结果
-     */
+    */
     private BufferedImage letterbox(BufferedImage image) {
         double widthScale = inputWidth / (double) image.getWidth();
         double heightScale = inputHeight / (double) image.getHeight();
@@ -400,7 +400,7 @@ finally {
     * @param boxesArray boxesarray
     * @param boxIndex box索引
     * @return decodeRectangle的结果
-     */
+    */
     private Rectangle decodeRectangle(NDArray boxesArray, int boxIndex) {
         double centerX = boxesArray.getFloat(boxIndex, 0) * inputWidth;
         double centerY = boxesArray.getFloat(boxIndex, 1) * inputHeight;
@@ -438,7 +438,7 @@ finally {
     *
     * @param candidates candidates
     * @return applyNms的结果
-     */
+    */
     private List<DetectionCandidate> applyNms(List<DetectionCandidate> candidates) {
         if (candidates.isEmpty()) {
             return Collections.emptyList();
@@ -466,7 +466,7 @@ finally {
     * @param first 第一个
     * @param second second
     * @return calculateIoU的结果
-     */
+    */
     private double calculateIoU(Rectangle first, Rectangle second) {
         double x1 = Math.max(first.getX(), second.getX());
         double y1 = Math.max(first.getY(), second.getY());
@@ -482,7 +482,7 @@ finally {
     *
     * @param image 镜像
     * @return 是否low信息镜像的结果
-     */
+    */
     private boolean isLowInformationImage(BufferedImage image) {
         long samples = 0L;
         double sum = 0d;
@@ -515,7 +515,7 @@ finally {
     * @param node 节点
     * @param defaults 默认
     * @return 读取floatarray的结果
-     */
+    */
     private float[] readFloatArray(JsonNode node, float[] defaults) {
         if (node == null || !node.isArray() || node.size() != defaults.length) {
             return defaults;
@@ -532,7 +532,7 @@ finally {
     *
     * @param rawCandidates rawcandidates
     * @return 解析candidates的结果
-     */
+    */
     private List<String> parseCandidates(String rawCandidates) {
         if (StringUtils.isBlank(rawCandidates)) {
             return Collections.emptyList();
@@ -553,7 +553,7 @@ finally {
     * @param arguments 参数
     * @param key 键
     * @return 读取参数的结果
-     */
+    */
     private String readArgument(Map<String, ?> arguments, String key) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -569,7 +569,7 @@ finally {
     * @param key 键
     * @param defaultValue 默认值
     * @return 读取double的结果
-     */
+    */
     private double readDouble(Map<String, ?> arguments, String key, double defaultValue) {
         String value = readArgument(arguments, key);
         if (StringUtils.isBlank(value)) {
@@ -587,7 +587,7 @@ finally {
     *
     * @param candidate candidate
     * @return 格式化提示符的结果
-     */
+    */
     private String formatPrompt(String candidate) {
         return candidate;
     }
@@ -597,7 +597,7 @@ finally {
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -620,7 +620,7 @@ finally {
     * @param root 根
     * @param name 名称
     * @return resolverequired文件的结果
-     */
+    */
     private Path resolveRequiredFile(Path root, String name) throws IOException {
         Path file = root.resolve(name);
         if (Files.exists(file)) {
@@ -634,7 +634,7 @@ finally {
     *
     * @param value 值
     * @return sigmoid的结果
-     */
+    */
     private double sigmoid(double value) {
         if (value >= 0d) {
             double exp = Math.exp(-value);
@@ -651,7 +651,7 @@ finally {
     * @param min 最小
     * @param max 最大
     * @return clip的结果
-     */
+    */
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -660,7 +660,7 @@ finally {
     * 空detections
     *
     * @return 空detections的结果
-     */
+    */
     private DetectedObjects emptyDetections() {
         return new DetectedObjects(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
@@ -672,7 +672,7 @@ finally {
     * @param score score
     * @param rectangle rectangle
     * @return DetectionCandidate的结果
-     */
+    */
     private record DetectionCandidate(String label, double score, Rectangle rectangle) {
     }
 }

@@ -878,12 +878,12 @@ public class DefaultQuick implements Quick {
     }
 
     /**
-    * 列表 构造器默认实现。
-    *
-    * @param <E> 元素类型
-    * @author CH
-    * @since 4.0.0
-    */
+        * 列表 构造器默认实现。
+        *
+        * @param <E> 元素类型
+        * @author CH
+        * @since 4.0.0
+        */
     static class DefaultListBuilder<E> implements ListBuilder<E> {
 
         /**
@@ -929,14 +929,14 @@ public class DefaultQuick implements Quick {
     }
 
     /**
-    * Table 构造器默认实现。
-    *
-    * @param <R> 行类型（Comparable）
-    * @param <C> 列类型（Comparable）
-    * @param <V> 值类型
-    * @author CH
-    * @since 4.0.0
-    */
+        * Table 构造器默认实现。
+        *
+        * @param <R> 行类型（Comparable）
+        * @param <C> 列类型（Comparable）
+        * @param <V> 值类型
+        * @author CH
+        * @since 4.0.0
+        */
     static class DefaultTableBuilder<R extends Comparable<? super R>, C extends Comparable<? super C>, V> implements TableBuilder<R, C, V> {
 
         /**

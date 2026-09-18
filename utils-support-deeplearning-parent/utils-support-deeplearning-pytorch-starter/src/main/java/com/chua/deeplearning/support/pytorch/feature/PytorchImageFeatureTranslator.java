@@ -24,17 +24,17 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
 
     /**
     * 输入边长。
-     */
+    */
     private static final int IMAGE_SIZE = 224;
 
     /**
     * 镜像net 均值。
-     */
+    */
     private static final float[] MEAN = {0.485f, 0.456f, 0.406f};
 
     /**
     * 镜像net 标准差。
-     */
+    */
     private static final float[] STD = {0.229f, 0.224f, 0.225f};
 
     @Override
@@ -78,7 +78,7 @@ public class PytorchImageFeatureTranslator implements Translator<Image, float[]>
     *
     * @param feature 特征向量
     * @return 归一化后的向量
-     */
+    */
     private static float[] l2Normalize(float[] feature) {
         double sum = 0;
         for (float v : feature) {

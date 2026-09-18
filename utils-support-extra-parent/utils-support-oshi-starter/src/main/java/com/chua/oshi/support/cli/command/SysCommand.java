@@ -197,7 +197,7 @@ public final class SysCommand extends AbstractCommand {
     * 格式化hz。
     * @param hz hz
     * @return 格式化hz的结果
-     */
+    */
     private static String formatHz(long hz) {
         if (hz >= 1_000_000_000L) {
             return String.format("%.2f GHz", hz / 1_000_000_000.0);
@@ -212,7 +212,7 @@ public final class SysCommand extends AbstractCommand {
     * 格式化持续时间。
     * @param seconds seconds
     * @return 格式化持续时间的结果
-     */
+    */
     private static String formatDuration(long seconds) {
         if (seconds < 0) {
             return "N/A";

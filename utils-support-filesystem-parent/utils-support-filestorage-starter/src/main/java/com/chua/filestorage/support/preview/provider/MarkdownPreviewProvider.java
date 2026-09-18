@@ -25,60 +25,60 @@ import java.util.regex.Pattern;
 public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
 
     /**
-     * 行内代码：`code`
-     */
+    * 行内代码：`code`
+    */
     private static final Pattern INLINE_CODE_PATTERN = Pattern.compile("`([^`]+)`");
 
     /**
-     * 加粗：**text**
-     */
+    * 加粗：**text**
+    */
     private static final Pattern BOLD_PATTERN = Pattern.compile("\\*\\*([^*]+)\\*\\*");
 
     /**
-     * 斜体：*text* 或 _text_
-     */
+    * 斜体：*text* 或 _text_
+    */
     private static final Pattern ITALIC_PATTERN = Pattern.compile("\\*([^*\\s][^*]*?)\\*|_([^_\\s][^_]*?)_");
 
     /**
-     * 行内链接：[text](url)
-     */
+    * 行内链接：[text](url)
+    */
     private static final Pattern LINK_PATTERN = Pattern.compile("\\[([^\\]]+)]\\(([^)\\s]+)\\)");
 
     /**
-     * 有序列表前缀：1. 
-     */
+    * 有序列表前缀：1. 
+    */
     private static final Pattern ORDERED_LIST_PATTERN = Pattern.compile("^\\d+\\.\\s+(.*)$");
 
     /**
-     * 占位符前后缀，保护已抽取的行内代码与链接不被二次转换
-     */
+    * 占位符前后缀，保护已抽取的行内代码与链接不被二次转换
+    */
     private static final String PLACEHOLDER_PREFIX = "\u0000md";
     private static final String PLACEHOLDER_SUFFIX = "\u0000";
 
     /**
-     * 判断是否支持 Markdown 文件预览。
-     *
-     * @param extension 文件扩展名（如 md）
-     * @param mimeType  MIME 类型（如 text/markdown）
-     * @return true 表示支持 Markdown 预览
-     */
+    * 判断是否支持 Markdown 文件预览。
+    *
+    * @param extension 文件扩展名（如 md）
+    * @param mimeType  MIME 类型（如 text/markdown）
+    * @return true 表示支持 Markdown 预览
+    */
     @Override
     public boolean supports(String extension, String mimeType) {
         return "md".equalsIgnoreCase(extension) || "text/markdown".equals(mimeType);
     }
 
     /**
-     * 将 Markdown 内容渲染为 HTML 并返回预览结果。
-     *
-     * <p>支持段落、标题、代码块、列表、链接等基础 Markdown 语法。
-     * 链接 URL 经 {@link #safeUrl} 过滤危险协议，属性值经 {@link #escapeAttr} 转义。</p>
-     *
-     * @param content    原始字节
-     * @param extension  扩展名
-     * @param mimeType   MIME 类型
-     * @return 预览结果，含 HTML 内容 + 内嵌 CSS
-     * @throws IOException 读取失败
-     */
+    * 将 Markdown 内容渲染为 HTML 并返回预览结果。
+    *
+    * <p>支持段落、标题、代码块、列表、链接等基础 Markdown 语法。
+    * 链接 URL 经 {@link #safeUrl} 过滤危险协议，属性值经 {@link #escapeAttr} 转义。</p>
+    *
+    * @param content    原始字节
+    * @param extension  扩展名
+    * @param mimeType   MIME 类型
+    * @return 预览结果，含 HTML 内容 + 内嵌 CSS
+    * @throws IOException 读取失败
+    */
     @Override
     public PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException {
         String md = new String(content, StandardCharsets.UTF_8);
@@ -106,7 +106,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param md md
     * @return render转为html的结果
-     */
+    */
     private static String renderToHtml(String md) {
         StringBuilder sb = new StringBuilder();
         boolean inCodeBlock = false;
@@ -262,7 +262,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param s s
     * @return escapeHtml的结果
-     */
+    */
     private static String escapeHtml(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
@@ -272,7 +272,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param s s
     * @return escapeAttr的结果
-     */
+    */
     private static String escapeAttr(String s) {
         return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;");
     }
@@ -283,7 +283,7 @@ public class MarkdownPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param url url
     * @return 安全URL的结果
-     */
+    */
     private static String safeUrl(String url) {
         if (url == null || url.isEmpty()) {
             return "#";

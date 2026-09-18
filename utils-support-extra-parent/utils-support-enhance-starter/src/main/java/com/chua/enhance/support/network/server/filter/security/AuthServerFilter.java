@@ -29,22 +29,22 @@ public class AuthServerFilter implements ServerFilter {
 
     /**
     * 默认认证头名称
-     */
+    */
     private static final String DEFAULT_AUTH_HEADER = "Authorization";
 
     /**
     * 认证头名称
-     */
+    */
     private String authHeader = DEFAULT_AUTH_HEADER;
 
     /**
     * 有效 令牌 白名单
-     */
+    */
     private final Set<String> validTokens = new HashSet<>();
 
     /**
     * 排除路径集合
-     */
+    */
     private final Set<String> excludePaths = new HashSet<>();
 
     @Override
@@ -110,7 +110,7 @@ public class AuthServerFilter implements ServerFilter {
     *
     * @param path 路径
     * @return 是否excluded的结果
-     */
+    */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

@@ -59,7 +59,7 @@ public @interface AutoSpi {
     * }</pre>
     *
     * @return SPI 接口全限定名数组
-     */
+    */
     String[] value() default {};
 
     /**
@@ -82,6 +82,6 @@ public @interface AutoSpi {
     * }</pre>e>
     *
     * @return 扩展名（别名）数组
-     */
+    */
     String[] name() default {};
 }

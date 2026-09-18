@@ -33,7 +33,7 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
     *
     * @param table 表名（Oracle 忽略此参数）
     * @return this
-     */
+    */
     @Override
     public IndexManager.DropIndexStep onTable(String table) {
         this.table = table;
@@ -42,7 +42,7 @@ public class OracleDropIndexStep implements IndexManager.DropIndexStep {
 
     /**
     * 执行 掉落 索引 语句。
-     */
+    */
     @Override
     public void execute() {
         try (var c = dataSource.getConnection(); var s = c.createStatement()) {

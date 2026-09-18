@@ -29,12 +29,12 @@ public final class DeviceSelector {
 
     /**
     * 设备设置系统属性名
-     */
+    */
     public static final String PROP = "deeplearning.device";
 
     /**
     * onnxruntime_gpu 独有原生库（CPU 版构件不含 CUDA/tensorrt 提供者）
-     */
+    */
     private static final String[] ORT_GPU_MARKERS = {
             "ai/onnxruntime/native/win-x64/onnxruntime_providers_cuda.dll",
             "ai/onnxruntime/native/linux-x64/libonnxruntime_providers_cuda.so",
@@ -42,17 +42,17 @@ public final class DeviceSelector {
 
     /**
     * nvidia-smi 探测超时（秒）
-     */
+    */
     private static final int DETECT_TIMEOUT_SECONDS = 3;
 
     /**
     * 探测结果缓存：空=未探测，"gpu"/"cpu"=已探测
-     */
+    */
     private static final AtomicReference<String> DETECTED = new AtomicReference<>();
 
     /**
     * deviceselector。
-     */
+    */
     private DeviceSelector() {
     }
 
@@ -61,7 +61,7 @@ public final class DeviceSelector {
     *
     * @param setting 调用方显式设备设置，可为 空
     * @return "gpu" 或 "cpu"（auto 模式下保证返回本机可用的设备）
-     */
+    */
     public static String resolve(String setting) {
         String normalized = normalize(setting);
         if ("cpu".equals(normalized)) {
@@ -79,7 +79,7 @@ public final class DeviceSelector {
     *
     * @param setting 显式设置，可为 空
     * @return cpu / gpu / auto（缺省）
-     */
+    */
     private static String normalize(String setting) {
         String value = (setting == null || setting.isBlank())
                 ? System.getProperty(PROP, "auto")
@@ -99,7 +99,7 @@ public final class DeviceSelector {
     * {@code onnxruntime_gpu} 构件（CPU 版构件无法启用 CUDA EP）。</p>
     *
     * @return true 表示 GPU 可用
-     */
+    */
     public static boolean isGpuUsable() {
         String cached = DETECTED.get();
         if (cached != null) {
@@ -122,7 +122,7 @@ public final class DeviceSelector {
 
     /**
     * NVIDIA GPU 探测结果缓存：空=未探测
-     */
+    */
     private static final AtomicReference<GpuInfo> GPU_INFO = new AtomicReference<>();
 
     /**
@@ -131,13 +131,13 @@ public final class DeviceSelector {
     * @param name          显卡型号，如 "NVIDIA geforce GTX 1650"
     * @param totalVramMb   总显存（MB），未知为 -1
     * @return gpu信息的结果
-     */
+    */
     public record GpuInfo(String name, long totalVramMb) {
     }
 
     /**
     * 清除缓存，下次探测重新执行。
-     */
+    */
     public static void refresh() {
         DETECTED.set(null);
         GPU_INFO.set(null);
@@ -147,7 +147,7 @@ public final class DeviceSelector {
     * 探测本机 NVIDIA GPU 型号与总显存。
     *
     * @return GPU 信息；无 NVIDIA GPU 或探测失败返回 空
-     */
+    */
     public static GpuInfo detectGpu() {
         if (!isGpuUsable()) {
             return null;
@@ -203,7 +203,7 @@ public final class DeviceSelector {
     * 获取本机 GPU 总显存（MB）。
     *
     * @return 显存大小（MB）；无 GPU 或探测失败返回 -1
-     */
+    */
     public static long gpuTotalVramMb() {
         GpuInfo info = detectGpu();
         return info == null ? -1 : info.totalVramMb();
@@ -213,7 +213,7 @@ public final class DeviceSelector {
     * 获取本机 GPU 型号名称。
     *
     * @return 型号名；无 GPU 返回 空
-     */
+    */
     public static String gpuName() {
         GpuInfo info = detectGpu();
         return info == null ? null : info.name();
@@ -223,7 +223,7 @@ public final class DeviceSelector {
     * 通过 nvidia-smi 探测 NVIDIA 驱动。
     *
     * @return true 表示命令执行成功且有输出
-     */
+    */
     private static boolean isNvidiaDriverPresent() {
         for (String[] cmd : new String[][]{{"nvidia-smi", "-L"}, {"nvidia-smi.exe", "-L"}}) {
             try {
@@ -255,7 +255,7 @@ public final class DeviceSelector {
     * （CPU 版构件不含，API 类则两个构件都有、不可作标记）。</p>
     *
     * @return true 表示存在 GPU 版构件
-     */
+    */
     private static boolean hasOrtGpuArtifact() {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         if (loader == null) {

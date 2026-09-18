@@ -21,7 +21,7 @@ public final class TrainerFactory {
 
     /**
     * trainer工厂。
-     */
+    */
     private TrainerFactory() {
     }
 
@@ -29,7 +29,7 @@ public final class TrainerFactory {
     * 获取当前训练器实现。
     *
     * @return 训练器
-     */
+    */
     public static Trainer get() {
         Trainer t = current;
         if (t == null) {
@@ -47,7 +47,7 @@ public final class TrainerFactory {
     * 替换当前训练器实现（例如注入 Spring 管理或自定义实现的 Bean）。
     *
     * @param trainer 新训练器；传 空 恢复默认
-     */
+    */
     public static void setCurrent(Trainer trainer) {
         synchronized (TrainerFactory.class) {
             current = trainer;
@@ -58,7 +58,7 @@ public final class TrainerFactory {
     * 便捷入口：以当前训练器构建一条链式训练管道。
     *
     * @return 链式训练管道
-     */
+    */
     public static ChainedTrainer fluent() {
         return get().fluent();
     }

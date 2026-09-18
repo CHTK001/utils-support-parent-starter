@@ -34,22 +34,22 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
 
     /**
     * BERT-squad
-     */
+    */
     private static final int MAX_LENGTH = 384;
 
     /**
     * BERT [CLS] 令牌 标识
-     */
+    */
     private static final int CLS_TOKEN_ID = 101;
 
     /**
     * BERT [SEP] 令牌 标识
-     */
+    */
     private static final int SEP_TOKEN_ID = 102;
 
     /**
     * BERT [UNK] 令牌 标识
-     */
+    */
     private static final int UNK_TOKEN_ID = 100;
 
     @Override
@@ -156,7 +156,7 @@ public class BertSquadTranslator implements Translator<Map<String, String>, Stri
     *
     * @param token                   
     * @return                             BERT vocab 标识
-     */
+    */
     private long hashToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return UNK_TOKEN_ID;

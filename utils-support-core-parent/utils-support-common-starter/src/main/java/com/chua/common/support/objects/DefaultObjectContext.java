@@ -140,9 +140,9 @@ public class DefaultObjectContext implements ObjectContext {
     }
 
     /**
-    * 为注册中心中所有 Beandefinition 设置容器回调，
-    * 使其在构造器注入和字段注入时能从容器查找依赖。
-    */
+        * 为注册中心中所有 Beandefinition 设置容器回调，
+        * 使其在构造器注入和字段注入时能从容器查找依赖。
+        */
     private void configureAllBeanDefinitionProviders() {
         BeanDefinitionRegistry reg = this.registry;
         if (reg == null) {
@@ -551,9 +551,9 @@ public class DefaultObjectContext implements ObjectContext {
     // ==================== 生命周期 ====================
 
     /**
-    * 关闭容器，销毁所有 Bean 并清理相关状态。
-    * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
-    */
+        * 关闭容器，销毁所有 Bean 并清理相关状态。
+        * <p>幂等：重复调用安全。关闭后所有查找类方法返回 null/empty，注册类方法抛出 {@link com.chua.common.support.objects.exception.BeanDefinitionException}。</p>
+        */
     @Override
     public void close() {
         if (closed) {

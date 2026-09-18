@@ -23,7 +23,7 @@ public class JavaEngine implements Engine {
     /**
     * alloc。
     * @return alloc的结果
-     */
+    */
     final Map<Long, Object> registry = new ConcurrentHashMap<>();
     private long nextHandle = 1; // 下一个处理
 /**
@@ -32,9 +32,9 @@ public class JavaEngine implements Engine {
 * @param handle 处理
 * @param type 类型
  /**
-   * alloc。
-   * @return alloc的结果
-  */
+ * alloc。
+ * @return alloc的结果
+ */
  */
 
     private synchronized long alloc() { return nextHandle++; }
@@ -170,7 +170,7 @@ public class JavaEngine implements Engine {
     * @param handle 处理
     * @param selector selector
     * @return 查询selector全部的结果
-     */
+    */
     public List<Long> querySelectorAll(long handle, String selector) {
         com.microsoft.playwright.Page page = get(handle, com.microsoft.playwright.Page.class);
         List<com.microsoft.playwright.ElementHandle> els = page.querySelectorAll(selector);

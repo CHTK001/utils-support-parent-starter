@@ -44,23 +44,23 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
 
     /**
     * 默认 Redis 连接地址
-     */
+    */
     private static final String DEFAULT_REDIS_URL = "redis://127.0.0.1:6379";
 
     /**
     * 默认超时时间（秒）
-     */
+    */
     private static final long DEFAULT_TIMEOUT_SECONDS = 5;
 
     /**
     * 底层响应式引擎
-     */
+    */
     private final RedisReactorEngine engine;
 
     /**
     * 使用默认配置创建 redis客户端。
     * 连接地址为 {@value #DEFAULT_REDIS_URL}。
-     */
+    */
     public RedisClient() {
         this(DEFAULT_REDIS_URL);
     }
@@ -69,7 +69,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * 使用指定地址创建 redis客户端。
     *
     * @param url Redis 连接地址（如 Redis://127.0.0.1:6379）
-     */
+    */
     public RedisClient(String url) {
         this(url, null);
     }
@@ -79,7 +79,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param url      Redis 连接地址
     * @param password 密码（可为 空）
-     */
+    */
     public RedisClient(String url, String password) {
         this.engine = new RedisReactorEngine();
         if (password != null && !password.isEmpty()) {
@@ -95,7 +95,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * 使用已有引擎创建 redis客户端（不管理引擎生命周期）。
     *
     * @param engine 已有的 redisreactorengine 实例
-     */
+    */
     public RedisClient(RedisReactorEngine engine) {
         this.engine = engine;
     }
@@ -103,7 +103,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     /**
     * 创建构建器。
     * @return 构建器的结果
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -115,7 +115,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 键对应的值；键不存在时返回 空
-     */
+    */
     @Override
     public String get(String key) {
         return engine.get(key).block();
@@ -126,7 +126,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key   键
     * @param value 值
-     */
+    */
     @Override
     public void put(String key, String value) {
         engine.set(key, value).block();
@@ -138,7 +138,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param key   键
     * @param value 值
     * @param ttl   过期时长
-     */
+    */
     @Override
     public void put(String key, String value, Duration ttl) {
         engine.setex(key, value, ttl.getSeconds()).block();
@@ -149,7 +149,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 存在返回 true
-     */
+    */
     @Override
     public boolean containsKey(String key) {
         return Boolean.TRUE.equals(engine.exists(key).block());
@@ -160,7 +160,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 删除成功返回 true
-     */
+    */
     @Override
     public boolean delete(String key) {
         return Boolean.TRUE.equals(engine.delete(key).block());
@@ -171,7 +171,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 递增后的最新值
-     */
+    */
     @Override
     public long incr(String key) {
         Long result = engine.incr(key).block();
@@ -183,7 +183,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 剩余秒数；键不存在返回 -2，存在但无过期返回 -1
-     */
+    */
     @Override
     public long ttl(String key) {
         Long result = engine.ttl(key).block();
@@ -195,7 +195,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key     键
     * @param seconds 过期秒数
-     */
+    */
     @Override
     public void expire(String key, long seconds) {
         engine.setex(key, "dummy_" + System.nanoTime(), seconds).block();
@@ -206,7 +206,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param prefix 键前缀
     * @return 匹配前缀的键值对映射；无匹配时返回空 映射
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, String> findAllByPrefix(String prefix) {
@@ -234,7 +234,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 值 Mono，不存在返回空 Mono
-     */
+    */
     public Mono<String> reactiveGet(String key) {
         return engine.get(key);
     }
@@ -245,7 +245,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param key   键
     * @param value 值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> reactiveSet(String key, String value) {
         return engine.set(key, value);
     }
@@ -257,7 +257,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param value 值
     * @param ttl   过期时长（秒）
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> reactiveSetex(String key, String value, long ttl) {
         return engine.setex(key, value, ttl);
     }
@@ -267,7 +267,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 存在返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> reactiveExists(String key) {
         return engine.exists(key);
     }
@@ -277,7 +277,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 删除成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> reactiveDelete(String key) {
         return engine.delete(key);
     }
@@ -287,7 +287,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 递增后的值 Mono
-     */
+    */
     public Mono<Long> reactiveIncr(String key) {
         return engine.incr(key);
     }
@@ -297,7 +297,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 递减后的值 Mono
-     */
+    */
     public Mono<Long> reactiveDecr(String key) {
         return engine.decr(key);
     }
@@ -307,7 +307,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 键
     * @return 剩余秒数 Mono
-     */
+    */
     public Mono<Long> reactiveTtl(String key) {
         return engine.ttl(key);
     }
@@ -317,7 +317,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param prefix 键前缀
     * @return 匹配键值对 Flux
-     */
+    */
     public Flux<Map.Entry<String, String>> reactiveFindAllByPrefix(String prefix) {
         return engine.scanKeys(prefix + "*")
                 .flatMap(key -> engine.get(key)
@@ -330,7 +330,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param command Redis 命令字符串（如 "获取 mykey"）
     * @return 结果 Mono
-     */
+    */
     public Mono<Object> reactiveExecCommand(String command) {
         return engine.execCommand(command);
     }
@@ -340,7 +340,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param commands 命令列表，每项为 "CMD 参数1 参数2 ..." 格式
     * @return 结果列表 Flux
-     */
+    */
     public Flux<Object> reactiveExecBatch(List<String> commands) {
         return engine.execBatch(commands);
     }
@@ -351,7 +351,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param key   哈希键
     * @param field 字段名
     * @return 字段值 Mono
-     */
+    */
     public Mono<String> reactiveHget(String key, String field) {
         return engine.hget(key, field);
     }
@@ -363,7 +363,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param field 字段名
     * @param value 字段值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> reactiveHset(String key, String field, String value) {
         return engine.hset(key, field, value);
     }
@@ -373,7 +373,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 哈希键
     * @return 字段值对 Flux
-     */
+    */
     public Flux<Map.Entry<String, String>> reactiveHgetall(String key) {
         return engine.hgetall(key);
     }
@@ -385,7 +385,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @param start 起始索引
     * @param end   结束索引
     * @return 元素列表 Flux
-     */
+    */
     public Flux<String> reactiveLrange(String key, long start, long end) {
         return engine.lrange(key, start, end);
     }
@@ -395,14 +395,14 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     *
     * @param key 集合键
     * @return 成员列表 Flux
-     */
+    */
     public Flux<String> reactiveSmembers(String key) {
         return engine.smembers(key);
     }
 
     /**
     * 关闭引擎，释放 Lettuce 连接资源。
-     */
+    */
     public void close() {
         engine.close();
         log.info("RedisClient 已关闭");
@@ -414,7 +414,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
     * @since 4.0.0
     * @return 构建的结果
     * @param timeoutMs 超时ms
-     */
+    */
     public static class Builder {
         private String host = "127.0.0.1"; // 主机
         private int port = 6379; // 端口
@@ -424,14 +424,14 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
         * 主机。
         * @param host 主机
         * @return 主机的结果
-         */
+        */
         private long timeoutMs = 5000;
 
         /**
         * 主机。
         * @param host 主机
         * @return 主机的结果
-         */
+        */
         public Builder host(String host) {
             this.host = host;
             return this;
@@ -439,7 +439,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
         * 端口。
         * @param port 端口
         * @return 端口的结果
-         */
+        */
         }
 
         public Builder port(int port) {
@@ -449,7 +449,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
         * 密码。
         * @param password 密码
         * @return 密码的结果
-         */
+        */
         }
 
         public Builder password(String password) {
@@ -460,7 +460,7 @@ public class RedisClient implements KvEngine, java.lang.AutoCloseable {
         * @param database database
         * @return database的结果
         * @param timeoutMs 超时ms
-         */
+        */
         }
 
         public Builder database(int database) {

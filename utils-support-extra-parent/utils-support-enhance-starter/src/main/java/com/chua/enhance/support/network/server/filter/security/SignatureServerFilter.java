@@ -35,11 +35,11 @@ public class SignatureServerFilter implements ServerFilter {
 
     /**
     * 默认签名头名称
-     */
+    */
     private static final String DEFAULT_SIGNATURE_HEADER = "X-Signature";
     /**
     * 默认签名算法
-     */
+    */
     private static final String DEFAULT_ALGORITHM = "HMAC-SHA256";
 
     /** Secret */
@@ -112,7 +112,7 @@ public class SignatureServerFilter implements ServerFilter {
     *
     * @param data 数据
     * @return compute签名的结果
-     */
+    */
     private String computeSignature(byte[] data) {
         try {
             if ("HMAC-SHA256".equalsIgnoreCase(algorithm)) {
@@ -141,7 +141,7 @@ public class SignatureServerFilter implements ServerFilter {
     *
     * @param path 路径
     * @return 是否excluded的结果
-     */
+    */
     private boolean isExcluded(String path) {
         if (path == null) {
             return false;

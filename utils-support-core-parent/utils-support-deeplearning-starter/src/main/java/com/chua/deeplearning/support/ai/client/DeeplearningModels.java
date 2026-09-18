@@ -30,7 +30,7 @@ public final class DeeplearningModels {
     *
     * @param engine 引擎名称，如 "onnx"、"pytorch"、"飞桨"、"tensorflow"、"llama"
     * @return 模型定义列表
-     */
+    */
     public static List<ModelDefinition> models(String engine) {
         if (engine == null || engine.isBlank()) {
             return List.of();
@@ -48,7 +48,7 @@ public final class DeeplearningModels {
     * 获取全部已注册模型。
     *
     * @return 模型定义列表
-     */
+    */
     public static List<ModelDefinition> all() {
         return AbstractIdentificationEngine.getInstance().getModels();
     }
@@ -61,7 +61,7 @@ public final class DeeplearningModels {
     * @param inputType  输入类型（可为 空 表示不限制）
     * @param outputType 输出类型（可为 空 表示不限制）
     * @return 模型定义列表
-     */
+    */
     public static List<ModelDefinition> models(String engine, Class<?> inputType, Class<?> outputType) {
         List<ModelDefinition> result = new ArrayList<>();
         for (ModelDefinition def : AbstractIdentificationEngine.getInstance().getModels()) {
@@ -86,7 +86,7 @@ public final class DeeplearningModels {
     *
     * @param modelId 模型标识
     * @return 模型定义，不存在返回 空
-     */
+    */
     public static ModelDefinition byId(String modelId) {
         if (modelId == null || modelId.isBlank()) {
             return null;
@@ -103,7 +103,7 @@ public final class DeeplearningModels {
     * 获取引擎注册表中的模型数量。
     *
     * @return 模型数量
-     */
+    */
     public static int count() {
         return AbstractIdentificationEngine.getInstance().getModels().size();
     }
@@ -113,7 +113,7 @@ public final class DeeplearningModels {
     *
     * @param engine 引擎名称
     * @return 模型 标识 列表
-     */
+    */
     public static List<String> modelIds(String engine) {
         List<String> ids = new ArrayList<>();
         for (ModelDefinition def : models(engine)) {
@@ -133,7 +133,7 @@ public final class DeeplearningModels {
     * @param engine        引擎名称（如 "onnx"）
     * @param deviceSetting 设备设置：auto / cpu / gpu / cuda，可为 空（走系统属性，缺省 auto）
     * @return 推荐模型 标识；无可用模型返回 空
-     */
+    */
     public static String recommended(String engine, String deviceSetting) {
         if (engine == null || engine.isBlank()) {
             return null;

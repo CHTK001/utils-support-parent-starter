@@ -21,9 +21,9 @@ import static org.bytedeco.ffmpeg.global.swscale.sws_scale;
 import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
 
 /**
-* 鍩轰簬 NVENC (h264_nvenc) 鐨勭‖浠?H.264 缂栫爜鍣ㄣ€?*
-* <p>浣跨敤 FFmpegFrameRecorder 灏佽锛岄€氳繃 {@code setVideoCodecName("h264_nvenc")} 寮哄埗鎸囧畾纭欢鍔犻€熴€?/p>
-* <p>浠呮帴鍙?YUV420P 鏍煎紡鐨?Frame锛岃緭鍏ュ垎杈ㄧ巼瓒呰繃 1080p 鏃惰嚜鍔ㄧ缉鏀惧埌 1080p銆?/p>
+ * 基于 NVENC (h264_nvenc) 的硬件 H.264 编码器。
+ * <p>使用 FFmpegFrameRecorder 封装，通过 {@code setVideoCodecName(h264_nvenc)} 强制指定硬件加速。</p>
+ * <p>仅接受 YUV420P 格式的 Frame，输入分辨率超过 1080p 时自动缩放到 1080p。</p>
 *
 * @author CH
 * @since 4.0.0.42
@@ -33,124 +33,124 @@ import static org.bytedeco.ffmpeg.global.swscale.SWS_BILINEAR;
 public class H264NvencEncoder implements VideoEncoder {
 
     /**
-    * 鏈€澶х紪鐮佸搴︼紙1080p锛?     */
+    */
     private static final int MAX_WIDTH = 1920;
 
     /**
-    * 鏈€澶х紪鐮侀珮搴︼紙1080p锛?     */
+    */
     private static final int MAX_HEIGHT = 1080;
 
     /**
-    * GOP 澶у皬锛堝叧閿抚闂撮殧锛?     */
+    */
     private static final int GOP_SIZE = 150;
 
     /**
-    * 鍐呭瓨杈撳嚭娴佸垵濮嬪閲?     */
+    */
     private static final int MEMORY_STREAM_INITIAL_CAPACITY = 64 * 1024;
 
     /**
-    * ffmpeg 甯у綍鍒跺櫒
-     */
+    * ffmpeg 帧录制器
+    */
     private FFmpegFrameRecorder recorder;
 
     /**
-    * 鍐呭瓨杈撳嚭娴?     */
+    */
     private ByteArrayOutputStream memoryStream;
 
     /**
-    * 鍐呭瓨娴?鐨勬墿灞?holder锛屽厑璁?drain 閮ㄥ垎瀛楄妭骞?reset 閬垮厤鍙嶅鍏ㄩ噺澶嶅埗銆?     */
+    */
     private DrainableByteArrayOutputStream memoryStreamHolder;
 
     /**
-    * 鑹插僵绌洪棿杞崲涓婁笅鏂囷紙缂╂斁鐢級
-     */
+    * 色彩空间转换上下文（缩放用）
+    */
     private SwsContext swsCtx;
 
     /**
-    * 缂╂斁杈撳嚭甯х紦鍐插尯
-     */
+    * 缩放输出帧缓冲区
+    */
     private java.nio.ByteBuffer scaledBuf;
 
     /**
-    * 缂栫爜瀹藉害锛堚墹1080p锛?     */
+    */
     private int encWidth;
 
     /**
-    * 缂栫爜楂樺害锛堚墹1080p锛?     */
+    */
     private int encHeight;
 
     /**
-    * 鐩爣甯х巼
-     */
+    * 目标帧率
+    */
     private int fps;
 
     /**
-    * 甯ф椂闂存埑
-     */
+    * 帧时间戳
+    */
     private long pts;
 
     /**
-    * 鏄惁璇锋眰浜嗗叧閿抚
-     */
+    * 是否请求了关键帧
+    */
     private boolean keyFrameRequested;
 
     /**
-    * 鏄惁宸插惎鍔?     */
+    */
     private boolean started;
 
     /**
-    * 甯ц鏁板櫒
-     */
+    * 帧计数器
+    */
     private long frameIndex;
 
     /**
-    * 涓婁竴涓叧閿抚绱㈠紩
-     */
+    * 上一个关键帧索引
+    */
     private long lastKeyFrameIndex = -1;
 
     /**
-    * 涓婁竴甯х殑 NAL 棣栧瓧鑺?     */
+    */
     private int prevFirstNalType = -1;
 
     /**
-    * NVENC 鏄惁鍦ㄤ笅涓€甯у己鍒?IDR锛堥€氳繃 forced-idr 鏈熸潈 鎴?av_opt_璁剧疆锛?     */
+    */
     private boolean pendingForceIdr;
 
     /**
-    * 绱Н鐨?NAL 缂撳啿鍖猴紝鐢ㄤ簬缂撳瓨褰撳墠 GOP 鍐呮墍鏈?NAL
-     */
+    * 累积的 NAL 缓冲区，用于缓存当前 GOP 内所有 NAL
+    */
     private final java.io.ByteArrayOutputStream gopBuffer = new java.io.ByteArrayOutputStream(256 * 1024);
 
     /**
-    * 涓婃 flush 鏃?gop缂撳啿 瀛楄妭鏁?     */
+    */
     private int lastGopSize = 0;
 
     /**
-    * 涓婃 flush 鏃舵槸鍚﹀寘鍚?IDR
-     */
+    * 上次 flush 时是否包含 IDR
+    */
     private boolean lastGopHasIdr = false;
 
     /**
-    * 缂栫爜鍣ㄥ悕绉帮紙灏濊瘯涓嶅悓骞冲彴锛?     */
+    */
     private String codecName;
 
     /**
-    * 鍙嶅皠鑾峰彇鐨?av鏍煎紡鍖栦笂涓嬫枃 瀛楁
-     */
+    * 反射获取的 av格式化上下文 字段
+    */
     private Field ocField;
 
     /**
-    * 鍙嶅皠鑾峰彇鐨?avcodec涓婁笅鏂?瀛楁
-     */
+    * 反射获取的 avcodec上下文 字段
+    */
     private Field videoCField;
 
     /**
-    * 浠庣紪鐮佸櫒 extradata 鎻愬彇鐨?SPS/PPS锛圓nnex B 鏍煎紡锛夛紝鐢ㄤ簬鎷兼帴鍒板叧閿抚澶撮儴
-     */
+    * 从编码器 extradata 提取的 SPS/PPS（Annex B 格式），用于拼接到关键帧头部
+    */
     private byte[] spsPpsAnnexB;
 
     /**
-    * 绌烘瀯閫犮€?     */
+    */
     public H264NvencEncoder() {
         ocField = ReflectUtils.findField(FFmpegFrameRecorder.class, "oc");
         videoCField = ReflectUtils.findField(FFmpegFrameRecorder.class, "video_c");
@@ -160,11 +160,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 鍒濆鍖?NVENC 缂栫爜鍣ㄣ€?    *
-    * @param width  杈撳叆瀹藉害
-    * @param height 杈撳叆楂樺害
-    * @param fps    鐩爣甯х巼
-     */
+    * 初始化 NVENC 编码器。
+    *
+    * @param width  输入宽度
+    * @param height 输入高度
+    * @param fps    目标帧率
+    */
     private void init(int width, int height, int fps) {
         close();
         this.encWidth = Math.min(ensureEven(width), MAX_WIDTH);
@@ -176,22 +177,26 @@ public class H264NvencEncoder implements VideoEncoder {
         this.memoryStreamHolder = new DrainableByteArrayOutputStream(MEMORY_STREAM_INITIAL_CAPACITY);
         this.memoryStream = memoryStreamHolder.asByteArrayOutputStream();
 
-        // 鎸夊钩鍙颁紭鍏堢骇灏濊瘯纭欢缂栫爜鍣?        // 娉ㄦ剰锛歜ytedeco ffmpeg 7.1.1-1.5.12 鐨?h264_nvenc 鍦ㄦ湰鏈哄垵濮嬪寲鎴愬姛浣嗕笉宸ヤ綔锛坋ncodedLen=0锛夛紝
-        // 鍥犳璺宠繃 nvenc锛岀洿鎺ュ皾璇?qsv/amf/vaapi銆?        String[] candidates = {"h264_qsv", "h264_amf", "h264_videotoolbox", "h264_vaapi", "h264_nvenc"};
-        for (String name : candidates) {
+         // 按平台优先级尝试硬件编码器
+         // 注意：bytedeco ffmpeg 7.1.1-1.5.12 的 h264_nvenc 在本机初始化成功但不工作（encodedLen=0），
+         // 因此跳过 nvenc，直接尝试 qsv/amf/vaapi。
+         String[] candidates = {"h264_qsv", "h264_amf", "h264_videotoolbox", "h264_vaapi", "h264_nvenc"};
+         for (String name : candidates) {
             if (tryInitCodec(name)) {
                 this.codecName = name;
                 this.started = true;
-                log.info("[H264NvencEncoder] 宸插惎鍔? {} {}x{} {}fps", name, encWidth, encHeight, fps);
+                 log.info("[H264NvencEncoder] 已启动: {} {}x{} {}fps", name, encWidth, encHeight, fps);
                 return;
             }
         }
-        log.warn("[H264NvencEncoder] 鎵€鏈夌‖浠剁紪鐮佸櫒鍧囦笉鍙敤");
+         log.warn("[H264NvencEncoder] 所有硬件编码器均不可用");
     }
     /**
-    * 灏濊瘯鍒濆鍖栨寚瀹氱紪鐮佸櫒銆?    *
-    * @param codecName 缂栫爜鍣ㄥ悕绉?    * @return 鍒濆鍖栨垚鍔熻繑鍥?true
-     */
+    * 尝试初始化指定编码器。
+    *
+    * @param codecName 编码器名称
+    * @return 初始化成功返回 true
+    */
     private boolean tryInitCodec(String codecName) {
         try {
             FFmpegFrameRecorder r = new FFmpegFrameRecorder(
@@ -215,13 +220,13 @@ public class H264NvencEncoder implements VideoEncoder {
             if (spsPpsAnnexB == null) {
                 clearGlobalHeader();
             }
-            log.info("[H264NvencEncoder] {} 鍒濆鍖栨垚鍔?loaded-from={} format=h264",
+             log.info("[H264NvencEncoder] {} 初始化成功 loaded-from={} format=h264",
                     codecName,
                     getClass().getProtectionDomain() != null && getClass().getProtectionDomain().getCodeSource() != null
                             ? getClass().getProtectionDomain().getCodeSource().getLocation() : "unknown");
             return true;
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] {} 鍒濆鍖栧け璐? {}", codecName, e.getMessage());
+             log.warn("[H264NvencEncoder] {} 初始化失败: {}", codecName, e.getMessage());
             if (recorder != null) {
                 try { recorder.stop(); } catch (Throwable ignored) {}
                 try { recorder.release(); } catch (Throwable ignored) {}
@@ -232,25 +237,25 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 鑾峰彇codec鍚嶇О */
+     /** 获取codec名称 */
     public String getCodecName() {
         return codecName != null ? codecName : "none";
     }
 
     @Override
-    /** 鑾峰彇codecid */
+     /** 获取codecid */
     public int getCodecId() {
         return org.bytedeco.ffmpeg.global.avcodec.AV_CODEC_ID_H264;
     }
 
     @Override
-    /** 鏄惁hardware鍔犻€?*/
+     /** 是否hardware加速 */
     public boolean isHardwareAccelerated() {
         return true;
     }
 
     @Override
-    /** force閿抚 */
+     /** force键帧 */
     public synchronized void forceKeyFrame() {
         this.keyFrameRequested = true;
         this.pendingForceIdr = true;
@@ -258,7 +263,9 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 閫氳繃 NVENC 绉佹湁閫夐」 {@code forced-idr} 寮哄埗涓嬩竴涓?IDR 甯с€?    * 浼樺厛灏濊瘯 {@code av_opt_set}锛屽け璐ユ椂鍥為€€鍒?{@code av_dict_set}銆?     */
+     * 通过 NVENC 私有选项 {@code forced-idr} 强制下一个 IDR 帧。
+     * 优先尝试 {@code av_opt_set}，失败时回落到 {@code av_dict_set}。
+     */
     private void forceNvencIdr() {
         if (videoCField == null || recorder == null) {
             return;
@@ -273,12 +280,12 @@ public class H264NvencEncoder implements VideoEncoder {
             org.bytedeco.ffmpeg.global.avutil.av_dict_free(opts);
             log.info("[H264NvencEncoder] forced-idr dict_set rc={}", r1);
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] forceNvencIdr 澶辫触: {}", e.getMessage());
+             log.warn("[H264NvencEncoder] forceNvencIdr 失败: {}", e.getMessage());
         }
     }
 
     @Override
-    /** 缂栫爜 */
+     /** 编码 */
     public synchronized byte[] encode(Frame frame) {
         if (frame == null) {
             return new byte[0];
@@ -297,16 +304,19 @@ public class H264NvencEncoder implements VideoEncoder {
         try {
             return encodeFrame(frame);
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] 缂栫爜澶辫触: {}", e.getMessage());
+             log.warn("[H264NvencEncoder] 编码失败: {}", e.getMessage());
             return new byte[0];
         }
     }
 
     /**
-    * 缂栫爜鍗曞抚 YUV420P 鏁版嵁銆?    * <p>
-    * 绛栫暐锛氱疮绉?NVENC 鐨勮繛缁?NAL 杈撳嚭锛屾瘡閬囧埌 IDR NAL 灏辨妸涓婃绱Н鐨勫唴瀹逛綔涓?GOP 鍧楄繑鍥烇紙鍚?SPS/PPS/IDR锛夛紝鍏朵粬鏃堕棿杩斿洖绌恒€?    * 杩欐牱淇濊瘉鍓嶇姣忔鏀跺埌鐨勯兘鏄畬鏁?GOP 鐨?IDR + SEI + IDR slice銆?    * </p>
-    *
-    * @param frame 杈撳叆 YUV 甯?    * @return 缂栫爜鍚庣殑 H264 鏁版嵁锛堝惈瀹屾暣 GOP IDR锛夛紝鎴栫┖锛堜腑闂寸殑 P/SEI 甯э級
+     * 编码单帧 YUV420P 数据。
+     * <p>
+     * 策略：累积 NVENC 的连续 NAL 输出，每遇到 IDR NAL 就把上次累积的内容作为 GOP 块返回（含 SPS/PPS/IDR），其他时间返回空。
+     * 这样保证前端每次收到的都是完整 GOP 的 IDR + SEI + IDR slice。</p>
+     *
+     * @param frame 输入 YUV 帧
+     * @return 编码后的 H264 数据（含完整 GOP IDR），或空（中间的 P/SEI 帧）
      */
     private byte[] encodeFrame(Frame frame) throws Exception {
         long t0 = System.nanoTime();
@@ -336,8 +346,9 @@ public class H264NvencEncoder implements VideoEncoder {
         flushOutput();
         long t3 = System.nanoTime();
 
-        // 淇 O(n虏) 鍐呭瓨鎷疯礉锛氫互鍓嶆瘡娆?toByteArray() 澶嶅埗鏁翠釜绱 buffer锛?0s 鍚?100MB+锛夛紝
- // 鐒跺悗 绯荤粺.arraycopy 鎴彇澧為噺銆傛敼涓轰粠 鍐呭瓨娴乭older 璇诲彇澧為噺鍚?reset銆?        long totalLen = memoryStream.size();
+         // 修复 O(n方) 内存拷贝：以前每次 toByteArray() 复制整个累计 buffer（30s 后 100MB+），
+         // 然后 系统.arraycopy 截取增量。改为从 内存流holder 读取增量后 reset。
+        long totalLen = memoryStream.size();
         long len = totalLen - captureSize;
         byte[] frameBytes;
         if (len <= 0) {
@@ -368,7 +379,8 @@ public class H264NvencEncoder implements VideoEncoder {
             }
         }
 
-        // 淇锛氭瘡甯ч兘杩斿洖锛堜笉鍐嶄粎鍦?IDR 鏃惰繑鍥烇級銆係PS/PPS 浠呭湪棣栧抚鎴?IDR 鏃舵嫾鎺ュ埌澶撮儴銆? // P 甯т笉瑙ｇ爜涓嶅奖鍝嶆祻瑙堝櫒浣跨敤鈥斺€斿墠绔?webcodecs/webassembly 瑙ｇ爜鍣?鑳芥纭鐞?I/P 甯ф祦銆?        byte[] result;
+         // 修复：每帧都返回（不再仅在 IDR 时返回）。SPS/PPS 仅在首帧或 IDR 时拼接到头部。
+        byte[] result;
         if (hasIdr && spsPpsAnnexB != null) {
             result = new byte[spsPpsAnnexB.length + frameBytes.length];
             System.arraycopy(spsPpsAnnexB, 0, result, 0, spsPpsAnnexB.length);
@@ -381,9 +393,12 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 妫€鏌ュ抚鏁版嵁涓槸鍚﹀寘鍚寚瀹氱被鍨嬬殑 NAL銆?    *
-    * @param data H264 鏁版嵁锛圓nnex B 鏍煎紡锛?    * @param nalType NAL 绫诲瀷锛?-31锛?    * @return true 琛ㄧず鍖呭惈
-     */
+    * 检查帧数据中是否包含指定类型的 NAL。
+    *
+    * @param data H264 数据（Annex B 格式）
+    * @param nalType NAL 类型（1-31）
+    * @return true 表示包含
+    */
     private static boolean containsNalType(byte[] data, int nalType) {
         if (data == null || data.length < 5) {
             return false;
@@ -405,9 +420,10 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 浠庡抚鏁版嵁涓壂鎻?NAL 鎻愬彇 SPS锛?x67锛夊拰 PPS锛?x68锛夈€?    *
-    * @param data 甯у師濮?H264 鏁版嵁锛圓nnex B 鏍煎紡锛屽惈 00 00 00 01 璧峰鐮侊級
-     */
+    * 从帧数据中扫描 NAL 提取 SPS（0x67）和 PPS（0x68）。
+    *
+    * @param data 帧原始 H264 数据（Annex B 格式，含 00 00 00 01 起始码）
+    */
     private void extractSpsPpsFromFrame(byte[] data) {
         if (data == null || data.length < 8) {
             return;
@@ -459,16 +475,17 @@ public class H264NvencEncoder implements VideoEncoder {
             System.arraycopy(sps, 0, combined, 0, sps.length);
             System.arraycopy(pps, 0, combined, sps.length, pps.length);
             this.spsPpsAnnexB = combined;
-            log.info("[H264NvencEncoder] 浠?IDR 甯ф暟鎹腑鎻愬彇鍒?SPS ({}B) + PPS ({}B)", sps.length, pps.length);
+             log.info("[H264NvencEncoder] 从 IDR 帧数据中提取到 SPS ({}B) + PPS ({}B)", sps.length, pps.length);
         }
     }
 
     /**
-    * bytes杞负hex
+    * bytes转为hex
     *
-    * @param data 鏁版嵁
-    * @param n n
-    * @return bytes杞负hex鐨勭粨鏋?     */
+    * @param data 数据
+    * @param n 长度
+    * @return bytes转为hex的结果
+    */
     private static String bytesToHex(byte[] data, int n) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < n; i++) {
@@ -478,7 +495,8 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 娓呴櫎 AV_CODEC_FLAG_鍏ㄥ眬_澶撮儴 鏍囧織锛屽己鍒剁紪鐮佸櫒鍦ㄦ瘡甯т腑鍐欏叆 SPS/PPS銆?     */
+    * 清除 AV_CODEC_FLAG_全局_头部 标志，强制编码器在每帧中写入 SPS/PPS。
+    */
     private void clearGlobalHeader() {
         if (videoCField == null || recorder == null) {
             return;
@@ -490,12 +508,13 @@ public class H264NvencEncoder implements VideoEncoder {
                 videoC.flags(flags & ~(1 << 22));
             }
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] clearGlobalHeader 澶辫触: {}", e.getMessage());
+             log.warn("[H264NvencEncoder] clearGlobalHeader 失败: {}", e.getMessage());
         }
     }
 
     /**
-    * 浠庣紪鐮佸櫒 extradata 涓彁鍙?SPS/PPS 骞惰浆鎹负 Annex B 鏍煎紡銆?     */
+    * 从编码器 extradata 中提取 SPS/PPS 并转换为 Annex B 格式。
+    */
     private void loadSpsPpsFromExtradata() {
         if (videoCField == null || recorder == null) {
             return;
@@ -508,17 +527,18 @@ public class H264NvencEncoder implements VideoEncoder {
             BytePointer extradata = videoC.extradata();
             int extradataSize = videoC.extradata_size();
             if (extradata == null || extradataSize < 7) {
-                log.warn("[H264NvencEncoder] extradata 涓虹┖鎴栬繃灏? {}", extradataSize);
+                 log.warn("[H264NvencEncoder] extradata 为空或过少: {}", extradataSize);
                 return;
             }
             byte[] data = new byte[extradataSize];
             extradata.get(data);
- // avcc 鏍煎紡: 5 瀛楄妭澶?+ SPS 鍒楄〃 + PPS 鍒楄〃
+  // avcc 格式: 5 字节头 + SPS 列表 + PPS 列表
             if (data[0] != 1) {
                 log.warn("[H264NvencEncoder] extradata version != 1: {}", data[0]);
                 return;
             }
- // numsps 鍦?鏁版嵁[5] 鐨勪綆 5 浣?            int numSPS = data[5] & 0x1f;
+   // numsps 在 数据[5] 的低 5 位
+            int numSPS = data[5] & 0x1f;
             int pos = 6;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             for (int i = 0; i < numSPS; i++) {
@@ -535,7 +555,7 @@ public class H264NvencEncoder implements VideoEncoder {
                 pos += spsLen;
             }
             if (pos + 1 > data.length) {
-                log.warn("[H264NvencEncoder] extradata 缂哄皯 PPS 鍒楄〃: {}", data.length);
+                 log.warn("[H264NvencEncoder] extradata 缺少 PPS 列表: {}", data.length);
                 return;
             }
             int numPPS = data[pos] & 0x1f;
@@ -554,14 +574,15 @@ public class H264NvencEncoder implements VideoEncoder {
                 pos += ppsLen;
             }
             spsPpsAnnexB = baos.toByteArray();
-            log.info("[H264NvencEncoder] 鎴愬姛鎻愬彇 SPS/PPS, 澶у皬: {} 瀛楄妭", spsPpsAnnexB.length);
+             log.info("[H264NvencEncoder] 成功提取 SPS/PPS, 大小: {} 字节", spsPpsAnnexB.length);
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] 鍔犺浇 SPS/PPS 澶辫触: {}", e.getMessage());
+             log.warn("[H264NvencEncoder] 加载 SPS/PPS 失败: {}", e.getMessage());
         }
     }
 
     /**
-    * 鍒锋柊 AVIO 杈撳嚭缂撳啿鍖猴紝纭繚缂栫爜鏁版嵁鍐欏叆 鍐呭瓨娴併€?     */
+    * 刷新 AVIO 输出缓冲区，确保编码数据写入 内存流。
+    */
     private void flushOutput() {
         if (ocField == null || recorder == null) {
             return;
@@ -572,15 +593,18 @@ public class H264NvencEncoder implements VideoEncoder {
                 org.bytedeco.ffmpeg.global.avformat.avio_flush(oc.pb());
             }
         } catch (Throwable e) {
-            log.warn("[H264NvencEncoder] flushOutput 澶辫触: {}", e.getMessage());
+             log.warn("[H264NvencEncoder] flushOutput 失败: {}", e.getMessage());
         }
     }
 
     /**
-    * 缂╂斁 YUV420P 甯у埌鐩爣灏哄銆?    *
-    * @param frame 杈撳叆甯?    * @param inW   杈撳叆瀹藉害
-    * @param inH   杈撳叆楂樺害
-    * @return 缂╂斁鍚庣殑 甯?     */
+    * 缩放 YUV420P 帧到目标尺寸。
+    *
+    * @param frame 输入帧
+    * @param inW   输入宽度
+    * @param inH   输入高度
+    * @return 缩放后的 帧
+    */
     private Frame scaleFrame(Frame frame, int inW, int inH) {
         BytePointer srcData;
         if (frame.image[0] instanceof java.nio.ByteBuffer buf) {
@@ -589,7 +613,7 @@ public class H264NvencEncoder implements VideoEncoder {
             srcData = new BytePointer(new org.bytedeco.javacpp.Pointer(frame.image[0]).position(0));
         }
 
-        // 鍒嗛厤鎴栧鐢ㄧ缉鏀剧紦鍐插尯
+         // 分配或复用缩放缓冲区
         int ySize = encWidth * encHeight;
         int uSize = (encWidth / 2) * (encHeight / 2);
         int totalSize = ySize + uSize * 2;
@@ -598,7 +622,8 @@ public class H264NvencEncoder implements VideoEncoder {
         }
         scaledBuf.clear();
 
- // sws_scale 杈撳嚭鍒颁复鏃?av甯?        org.bytedeco.ffmpeg.avutil.AVFrame tmpFrame = org.bytedeco.ffmpeg.global.avutil.av_frame_alloc();
+  // sws_scale 输出到临时 av帧
+        org.bytedeco.ffmpeg.avutil.AVFrame tmpFrame = org.bytedeco.ffmpeg.global.avutil.av_frame_alloc();
         int size = org.bytedeco.ffmpeg.global.avutil.av_image_get_buffer_size(
                 avutil.AV_PIX_FMT_YUV420P, encWidth, encHeight, 1);
         BytePointer tmpBuf = new BytePointer(org.bytedeco.ffmpeg.global.avutil.av_malloc(size));
@@ -617,7 +642,8 @@ public class H264NvencEncoder implements VideoEncoder {
         sws_scale(sws, new PointerPointer(srcData), new IntPointer(srcStride),
                 0, inH, new PointerPointer(tmpFrame), tmpFrame.linesize());
 
- // 澶嶅埗鍒?javacv 甯?        byte[] plane = new byte[Math.max(ySize, uSize)];
+  // 复制到 javacv 帧
+        byte[] plane = new byte[Math.max(ySize, uSize)];
         new BytePointer(tmpFrame.data(0)).get(plane, 0, ySize);
         scaledBuf.put(plane, 0, ySize);
         new BytePointer(tmpFrame.data(1)).get(plane, 0, uSize);
@@ -638,12 +664,13 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     @Override
-    /** 璁剧疆Crf */
+    /** 设置Crf */
     public synchronized void setCrf(int crf) {
- // NVENC 閫氳繃 閽诲ご_rate 鎺у埗璐ㄩ噺锛宺ecorder 涓嶇洿鎺ユ敮鎸佸姩鎬佷慨鏀?    }
+        // NVENC 通过 rc-buf-size / rate 控制质量，recorder 不直接支持动态修改 CRF，故此处为占位实现
+    }
 
     @Override
-    /** 鍏抽棴 */
+    /** 关闭 */
     public synchronized void close() {
         if (!started) {
             return;
@@ -665,62 +692,76 @@ public class H264NvencEncoder implements VideoEncoder {
     }
 
     /**
-    * 纭繚鏁板€间负鍋舵暟銆?    *
-    * @param v 鍘熷鏁板€?    * @return 璋冩暣鍚庣殑鍋舵暟
-     */
+    * 确保数值为偶数（YUV420P 要求宽高为偶数）。
+    *
+    * @param v 原始数值
+    * @return 调整后的偶数
+    */
     private static int ensureEven(int v) {
         return v + (v & 1);
     }
 
     /**
-    * 鍐呭瓨杈撳嚭娴侀€傞厤鍣ㄣ€?     */
+    * 内存输出流适配器。
+    */
     private static final class MemoryOutputStream extends OutputStream {
 
         /**
-        * 搴曞眰瀛楄妭鏁扮粍杈撳嚭娴?         */
+        * 底层字节数组输出流
+        */
         private final ByteArrayOutputStream backing;
 
         /**
-        * 鏋勯€犲唴瀛樿緭鍑烘祦銆?        *
-        * @param backing 搴曞眰瀛楄妭鏁扮粍杈撳嚭娴?         */
+        * 构造内存输出流。
+        *
+        * @param backing 底层字节数组输出流
+        */
         MemoryOutputStream(ByteArrayOutputStream backing) {
             this.backing = backing;
         }
 
         @Override
-        /** 鍐欏叆 */
+        /** 写入单字节 */
         public void write(int b) {
             backing.write(b);
         }
 
         @Override
-        /** 鍐欏叆 */
+        /** 写入字节区间 */
         public void write(byte[] b, int off, int len) {
             backing.write(b, off, len);
         }
 
         @Override
-        /** 鍏抽棴 */
+        /** 关闭（不做实际处理，由持有者管理生命周期） */
         public void close() {
         }
     }
 
     /**
-    * 鍙閲忔帓鍑猴紙drain锛夊瓧鑺傜殑 bytearray杈撳嚭娴併€?    * <p>
-    * 瑙ｅ喅 H264nvenc缂栫爜鍣?鏃у疄鐜颁腑 {@code memoryStream.toByteArray() + System.arraycopy}
-    * 甯︽潵鐨?O(n虏) 鍐呭瓨鎷疯礉闂锛氭瘡娆＄紪鐮佷竴甯у墠锛岀紪鐮佸櫒璁板綍 {@code memoryStream.size()}锛?    * 缂栫爜 + flush 涔嬪悗闇€瑕佽鍙栧閲忓苟娓呯┖銆傚鏋滅洿鎺ヨ皟鐢?{@code toByteArray()}锛?    * 30 绉掑悗绱 缂撳啿 杈惧埌 100MB+ 鍚庯紝姣忔閮戒細瀹屾暣澶嶅埗 100MB銆?    * </p>
-    * <p>
-    * 鏈被閫氳繃 {@link #drain(int, int)} 鐩存帴璇诲彇骞舵竻绌烘寚瀹氬尯闂达紝閬垮厤閲嶅鎵弿銆?    * </p>
-     */
+        * 可增量排空（drain）字节的 bytearray 输出流。
+        * <p>
+        * 解决 H264nvenc 编码器旧实现中 {@code memoryStream.toByteArray() + System.arraycopy}
+        * 带来的 O(n²) 内存拷贝问题：每次编码一帧前，编码器记录 {@code memoryStream.size()}；
+        * 编码 + flush 之后需要读取增量并清空。如果直接调用 {@code toByteArray()}，
+        * 30 秒后累计 缓冲 达到 100MB+ 后，每次都会完整复制 100MB。
+        * </p>
+        * <p>
+        * 本类通过 {@link #drain(int, int)} 直接读取并清空指定区间，避免重复扫描。
+        * </p>
+        */
     private static final class DrainableByteArrayOutputStream extends ByteArrayOutputStream {
         DrainableByteArrayOutputStream(int capacity) {
             super(capacity);
         }
 
         /**
-        * 璇诲彇 [鍋忕Щ閲? 鍋忕Щ閲?闀垮害) 鍖洪棿鐨勫瓧鑺傚苟 reset() 娓呯┖鏁翠釜绱鍖恒€?        *
-        * @param offset 鍋忕Щ閲?        * @param length 闀垮害
-        * @return drain鐨勭粨鏋?         */
+        * 读取 [偏移量, 偏移量+长度) 区间的字节并 reset() 清空整个累计区。
+        *
+        * @param offset 偏移量
+        * @param length 长度
+        * @return drain 的字节数组
+        */
         synchronized byte[] drain(int offset, int length) {
             byte[] out = new byte[length];
             System.arraycopy(this.buf, offset, out, 0, length);
@@ -728,7 +769,7 @@ public class H264NvencEncoder implements VideoEncoder {
             return out;
         }
 
-        /** 鏆撮湶搴曞眰 bytearray杈撳嚭娴?瑙嗗浘锛堢敤浜?鍐呭瓨杈撳嚭娴?閫傞厤锛夈€?*/
+        /** 暴露底层 bytearray 输出流视图（用于 内存输出流 适配）。 */
         ByteArrayOutputStream asByteArrayOutputStream() {
             return this;
         }

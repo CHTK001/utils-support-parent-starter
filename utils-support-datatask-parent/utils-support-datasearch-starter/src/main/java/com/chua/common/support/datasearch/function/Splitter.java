@@ -16,7 +16,7 @@ public class Splitter {
     /**
     * 创建 Splitter 实例
     * @param delimiter delimiter
-     */
+    */
     private Splitter(String delimiter) {
         this.delimiter = delimiter;
     }
@@ -26,7 +26,7 @@ public class Splitter {
     *
     * @param delimiter delimiter
     * @return on的结果
-     */
+    */
     public static Splitter on(String delimiter) {
         return new Splitter(delimiter);
     }
@@ -36,7 +36,7 @@ public class Splitter {
     *
     * @param input 输入
     * @return 分割转为列表的结果
-     */
+    */
     public List<String> splitToList(String input) {
         if (input == null || input.isEmpty()) {
             return Collections.emptyList();

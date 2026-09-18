@@ -27,7 +27,7 @@ public class PpOcrDetMediumTranslator extends PpOcrDetTranslator {
     * 创建 Translator（支持外部阈值覆盖）。
     *
     * @param configuration 检测配置（可空）
-     */
+    */
     public PpOcrDetMediumTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         super("ocr/PP-OCRv6/medium/det_infer/", "paddleocrv6-medium-det");
         if (null != configuration) {

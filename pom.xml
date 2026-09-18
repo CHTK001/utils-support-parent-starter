@@ -89,6 +89,7 @@
         <jsr305.version>3.0.2</jsr305.version>
         <parquet.avro.version>1.15.2</parquet.avro.version>
         <cuvs.version>24.10.0</cuvs.version>
+        <ollama4j.version>1.1.7</ollama4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -380,6 +381,11 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>1.21.1</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ollama4j</groupId>
+                <artifactId>ollama4j</artifactId>
+                <version>${ollama4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.nanohttpd</groupId>
@@ -1217,6 +1223,16 @@
                 <version>4.63.1</version>
             </dependency>
             <dependency>
+                <groupId>com.openai</groupId>
+                <artifactId>openai-java-core</artifactId>
+                <version>4.63.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.openai</groupId>
+                <artifactId>openai-java-client-okhttp</artifactId>
+                <version>4.63.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-sse</artifactId>
                 <version>5.0.0-alpha.16</version>
@@ -1430,13 +1446,8 @@
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
-                <version>1.70</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.70</version>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>1.80</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -1983,6 +1994,13 @@
             <url>https://packages.aliyun.com/6a62fa1d287d37b037a68ee8/maven/2676178-snapshot-fwajpk</url>
             <releases><enabled>true</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <name>JitPack Repository</name>
+            <url>https://jitpack.io</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
     <build>

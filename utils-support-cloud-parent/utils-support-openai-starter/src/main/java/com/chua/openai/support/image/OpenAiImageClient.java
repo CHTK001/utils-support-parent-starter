@@ -53,49 +53,49 @@ public class OpenAiImageClient implements ImageClient {
 
     /**
     * 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
     * 客户端配置
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 当前使用的模型名称（如 dall-e-3、dall-e-2）
-     */
+    */
     private String model;
 
     /**
     * 生成图片宽度（像素）
-     */
+    */
     private Integer width;
 
     /**
     * 生成图片高度（像素）
-     */
+    */
     private Integer height;
 
     /**
     * 提示词（未通过方法参数传入时使用此值）
-     */
+    */
     private String prompt;
 
     /**
     * 图片质量（如 "标准"、"hd"），仅 DALL-E 3 支持
-     */
+    */
     private String quality;
 
     /**
     * 图片风格（如 "vivid"、"natural"），仅 DALL-E 3 支持
-     */
+    */
     private String style;
 
     /**
     * 构造 打开AI 图片生成客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OpenAiImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -181,7 +181,7 @@ public class OpenAiImageClient implements ImageClient {
     * @param json 打开AI 返回的 JSON 响应字符串
     * @return 生成的图片
     * @throws RuntimeException 图片数据为空、URL 为空、下载失败或解析失败时抛出
-     */
+    */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) {
         // 解析 JSON 响应，提取图片 URL
@@ -236,7 +236,7 @@ public class OpenAiImageClient implements ImageClient {
     * 如 {@code "1024x1024"}。未设置时默认返回 {@code "1024x1024"}。
     *
     * @return 尺寸字符串
-     */
+    */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
@@ -249,7 +249,7 @@ public class OpenAiImageClient implements ImageClient {
     * <p>移除末尾多余的斜杠，若未配置则使用默认地址。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

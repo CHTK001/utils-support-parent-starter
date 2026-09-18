@@ -23,7 +23,7 @@ public class NDArrayUtils {
     *
     * @param mat 输入的 打开cv Mat 矩阵，每行代表一个点，第一列为 x 坐标，第二列为 y 坐标
     * @return 转换后的 mat的point 轮廓对象
-     */
+    */
     public static MatOfPoint matToMatOfPoint(Mat mat) {
         int rows = mat.rows();
         MatOfPoint matOfPoint = new MatOfPoint();
@@ -43,7 +43,7 @@ public class NDArrayUtils {
     *
     * @param ndArray 输入的 float 类型 ndarray，要求为二维形状 (rows, cols)
     * @return 转换后的 float[][] 二维数组
-     */
+    */
     public static float[][] floatNDArrayToArray(NDArray ndArray) {
         int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
@@ -63,7 +63,7 @@ public class NDArrayUtils {
     *
     * @param mat 输入的单通道 打开cv Mat 矩阵
     * @return 转换后的 double[][] 二维数组
-     */
+    */
     public static double[][] matToDoubleArray(Mat mat) {
         int rows = mat.rows();
         int cols = mat.cols();
@@ -84,7 +84,7 @@ public class NDArrayUtils {
     *
     * @param mat 输入的单通道 Mat 矩阵
     * @return 转换后的 float[][] 二维数组
-     */
+    */
     public static float[][] matToFloatArray(Mat mat) {
         int rows = mat.rows();
         int cols = mat.cols();
@@ -105,7 +105,7 @@ public class NDArrayUtils {
     *
     * @param mat 输入的单通道 Mat 矩阵
     * @return 转换后的 byte[][] 二维数组
-     */
+    */
     public static byte[][] matToUint8Array(Mat mat) {
         int rows = mat.rows();
         int cols = mat.cols();
@@ -127,7 +127,7 @@ public class NDArrayUtils {
     * @param ndArray 输入的 float 类型 ndarray，形状为二维 (rows, cols)
     * @param cvType  打开cv Mat 的数据类型，如 cv类型.CV_32F
     * @return 转换后的 打开cv Mat 对象
-     */
+    */
     public static Mat floatNDArrayToMat(NDArray ndArray, int cvType) {
         int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
@@ -147,7 +147,7 @@ public class NDArrayUtils {
     *
     * @param ndArray 输入的 float 类型 ndarray，形状为二维 (rows, cols)
     * @return 转换后的 CV_32F 类型 Mat 对象
-     */
+    */
     public static Mat floatNDArrayToMat(NDArray ndArray) {
         int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
@@ -169,7 +169,7 @@ public class NDArrayUtils {
     *
     * @param ndArray 输入的 uint8 类型 ndarray，形状为二维 (rows, cols)
     * @return 转换后的 CV_8U 类型 Mat 对象
-     */
+    */
     public static Mat uint8NDArrayToMat(NDArray ndArray) {
         int rows = (int) (ndArray.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         int cols = (int) (ndArray.getShape().get(1));
@@ -190,7 +190,7 @@ public class NDArrayUtils {
     *
     * @param arr 输入的 float[][] 二维数组
     * @return 转换后的 CV_32F 类型 Mat 对象
-     */
+    */
     public static Mat floatArrayToMat(float[][] arr) {
         int rows = arr.length;
         int cols = arr[0].length;
@@ -210,7 +210,7 @@ public class NDArrayUtils {
     *
     * @param arr 输入的 byte[][] 二维数组
     * @return 转换后的 CV_8U 类型 Mat 对象
-     */
+    */
     public static Mat uint8ArrayToMat(byte[][] arr) {
         int rows = arr.length;
         int cols = arr[0].length;
@@ -230,7 +230,7 @@ public class NDArrayUtils {
     *
     * @param points DJL 关键点列表
     * @return 转换后的 Mat 对象，形状为 (points.大小(), 2)，类型为 CV_32F
-     */
+    */
     public static Mat toMat(List<ai.djl.modality.cv.output.Point> points) {
         Mat mat = new Mat(points.size(), 2, CvType.CV_32F);
         for (int i = 0; i < points.size(); i++) {
@@ -251,7 +251,7 @@ public class NDArrayUtils {
     *
     * @param array 输入的 ndarray 对象
     * @return 转换后的 float[] 数组
-     */
+    */
     public static float[] safeToFloatArray(NDArray array) {
         try {
             return array.toFloatArray();

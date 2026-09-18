@@ -41,17 +41,17 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
 
     /**
     *                   
-     */
+    */
     private final int width;
 
     /**
     *                   
-     */
+    */
     private final int height;
 
     /**
     *              -                   
-     */
+    */
     public LcmLoraUnetTranslator() {
         this(512, 512);
     }
@@ -61,7 +61,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     *
     * @param width                    
     * @param height                   
-     */
+    */
     public LcmLoraUnetTranslator(int width, int height) {
         this.width = width;
         this.height = height;
@@ -76,7 +76,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     * @param ctx                     
     * @param input             
     * @return              NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
         var manager = ctx.getNDManager();
@@ -109,7 +109,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     * @param ctx                    
     * @param list              nd列表
     * @return                
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         try (NDManager manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch")) {
@@ -142,7 +142,7 @@ public class LcmLoraUnetTranslator implements Translator<Image, Image> {
     *                   
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

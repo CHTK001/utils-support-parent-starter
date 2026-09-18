@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Spi("netty-websocket")
 public class NettyWebSocketSyncServer extends com.chua.common.support.network.server.AbstractServer implements SyncServer {
 
-    /** 服务器套接字 */
+    /** 服务器Socket */
     private ServerSocket serverSocket;
     /** 执行器 */
     private ExecutorService executor;
@@ -39,9 +39,9 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     private final AtomicInteger connectionIdSeq = new AtomicInteger();
 
     /**
-    * 创建 nettyweb套接字同步服务端 实例
+    * 创建 nettywebSocket同步服务端 实例
     * @param setting setting
-     */
+    */
     public NettyWebSocketSyncServer(ServerSetting setting) {
         super(setting);
     }
@@ -172,7 +172,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     * 处理Connection
     *
     * @param conn conn
-     */
+    */
     private void handleConnection(Connection conn) {
         try {
             if (!performHandshake(conn)) {
@@ -192,7 +192,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     *
     * @param conn conn
     * @return 执行handshake的结果
-     */
+    */
     private boolean performHandshake(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         ByteArrayOutputStream reqBuf = new ByteArrayOutputStream();
@@ -233,7 +233,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     * 读取帧
     *
     * @param conn conn
-     */
+    */
     private void readFrames(Connection conn) throws IOException {
         InputStream in = conn.socket.getInputStream();
         while (!conn.socket.isClosed() && !Thread.currentThread().isInterrupted()) {
@@ -295,11 +295,11 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     }
 
     /**
-    * computeweb套接字accept
+    * computewebSocketaccept
     *
     * @param key 键
-    * @return computeweb套接字accept的结果
-     */
+    * @return computewebSocketaccept的结果
+    */
     private String computeWebSocketAccept(String key) throws Exception {
         String combined = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -312,7 +312,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     *
     * @param payload payload
     * @return 构建文本帧的结果
-     */
+    */
     private static byte[] buildTextFrame(String payload) throws Exception {
         byte[] data = payload.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -342,7 +342,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     * 关闭Connection
     *
     * @param conn conn
-     */
+    */
     private void closeConnection(Connection conn) {
         try {
             conn.close();
@@ -360,7 +360,7 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     * 通知监听器
     *
     * @param action 动作
-     */
+    */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {
@@ -372,13 +372,13 @@ public class NettyWebSocketSyncServer extends com.chua.common.support.network.se
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
             }
         }
     }
 
     private static class Connection {
-        Socket socket; // 套接字
+        Socket socket; // Socket
         OutputStream out; // 出
         String sessionId; // 会话标识
 

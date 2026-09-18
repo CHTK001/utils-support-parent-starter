@@ -26,7 +26,7 @@ public class QpsServerFilter implements ServerFilter {
 
     /**
     * 默认每秒最大请求数
-     */
+    */
     private static final int DEFAULT_MAX_QPS = 1000;
 
     /** 最大值QPS */
@@ -34,12 +34,12 @@ public class QpsServerFilter implements ServerFilter {
 
     /**
     * 当前秒的请求计数
-     */
+    */
     private final AtomicLong counter = new AtomicLong(0);
 
     /**
     * 当前窗口起始时间戳
-     */
+    */
     private volatile long windowStartTime = System.currentTimeMillis();
 
     @Override

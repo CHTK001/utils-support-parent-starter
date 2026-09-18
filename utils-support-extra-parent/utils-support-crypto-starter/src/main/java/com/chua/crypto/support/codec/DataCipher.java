@@ -29,32 +29,32 @@ public final class DataCipher {
 
     /**
     * 程序包加密条目魔数：Chua 键 Jar
-     */
+    */
     public static final byte[] MAGIC_TAGGED = {'C', 'H', 'K', 'J'};
 
     /**
     * 密文格式版本号
-     */
+    */
     private static final byte FORMAT_VERSION = 1;
 
     /**
     * IV 长度（字节）
-     */
+    */
     private static final int IV_BYTES = 12;
 
     /**
     * GCM 认证标签长度（位）
-     */
+    */
     private static final int TAG_BITS = 128;
 
     /**
     * 随机源
-     */
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
     * 私有构造
-     */
+    */
     private DataCipher() {
     }
 
@@ -64,7 +64,7 @@ public final class DataCipher {
     * @param key       主密钥（32 字节）
     * @param plaintext 明文
     * @return [CHKJ][版本][IV][密文]
-     */
+    */
     public static byte[] encryptTagged(byte[] key, byte[] plaintext) {
         byte[] body = encrypt(key, plaintext);
         byte[] out = new byte[MAGIC_TAGGED.length + body.length];
@@ -79,7 +79,7 @@ public final class DataCipher {
     * @param key       主密钥
     * @param encrypted [CHKJ][版本][IV][密文]
     * @return 明文
-     */
+    */
     public static byte[] decryptTagged(byte[] key, byte[] encrypted) {
         if (encrypted == null || !startsWith(encrypted, MAGIC_TAGGED)) {
             throw new CryptoException("密文缺少 CHKJ 标记");
@@ -92,7 +92,7 @@ public final class DataCipher {
     *
     * @param data 数据
     * @return true 表示已加密
-     */
+    */
     public static boolean isTagged(byte[] data) {
         return startsWith(data, MAGIC_TAGGED);
     }
@@ -103,7 +103,7 @@ public final class DataCipher {
     * @param data  数据
     * @param magic 前缀
     * @return true 表示匹配
-     */
+    */
     private static boolean startsWith(byte[] data, byte[] magic) {
         if (data == null || data.length < magic.length) {
             return false;
@@ -122,7 +122,7 @@ public final class DataCipher {
     * @param key      主密钥（32 字节）
     * @param plaintext 明文
     * @return [版本][IV][密文] 二进制
-     */
+    */
     public static byte[] encrypt(byte[] key, byte[] plaintext) {
         if (plaintext == null) {
             throw new CryptoException("待加密数据不能为空");
@@ -152,7 +152,7 @@ public final class DataCipher {
     * @param key      主密钥（32 字节）
     * @param encrypted [版本][IV][密文] 二进制
     * @return 明文
-     */
+    */
     public static byte[] decrypt(byte[] key, byte[] encrypted) {
         if (encrypted == null || encrypted.length < 1 + IV_BYTES + 16) {
             throw new CryptoException("密文格式非法或已损坏");
@@ -177,7 +177,7 @@ public final class DataCipher {
     * @param key       主密钥
     * @param plaintext 明文字符串（UTF-8）
     * @return Base64 密文
-     */
+    */
     public static String encryptToString(byte[] key, String plaintext) {
         return Base64.getEncoder()
                 .encodeToString(encrypt(key, plaintext.getBytes(StandardCharsets.UTF_8)));
@@ -189,7 +189,7 @@ public final class DataCipher {
     * @param key       主密钥
     * @param ciphertext 基础64 密文
     * @return 明文字符串
-     */
+    */
     public static String decryptToString(byte[] key, String ciphertext) {
         return new String(decrypt(key, Base64.getDecoder().decode(ciphertext)), StandardCharsets.UTF_8);
     }

@@ -37,7 +37,7 @@ public class GroovyScriptDefinition extends AbstractScriptDefinition {
 
     /**
     * 构造空的 Groovy 脚本定义。
-     */
+    */
     public GroovyScriptDefinition() {
     }
 
@@ -46,7 +46,7 @@ public class GroovyScriptDefinition extends AbstractScriptDefinition {
     *
     * @param name      Bean 名称
     * @param scriptPath 脚本文件路径
-     */
+    */
     public GroovyScriptDefinition(String name, Path scriptPath) {
         setName(name);
         setListener(new FileScriptListener(scriptPath));
@@ -59,7 +59,7 @@ public class GroovyScriptDefinition extends AbstractScriptDefinition {
     * @param name          Bean 名称
     * @param scriptUrl     脚本内容 URL
     * @param periodMillis  轮询周期，单位毫秒
-     */
+    */
     public GroovyScriptDefinition(String name, URL scriptUrl, long periodMillis) {
         setName(name);
         setListener(new UrlScriptListener(scriptUrl, periodMillis));
@@ -72,7 +72,7 @@ public class GroovyScriptDefinition extends AbstractScriptDefinition {
     * @param name      Bean 名称
     * @param scriptPath 脚本文件路径
     * @return GroovyScriptDefinition 实例
-     */
+    */
     public static GroovyScriptDefinition of(String name, Path scriptPath) {
         return new GroovyScriptDefinition(name, scriptPath);
     }
@@ -84,7 +84,7 @@ public class GroovyScriptDefinition extends AbstractScriptDefinition {
     * @param scriptUrl     脚本内容 URL
     * @param periodMillis  轮询周期，单位毫秒
     * @return GroovyScriptDefinition 实例
-     */
+    */
     public static GroovyScriptDefinition of(String name, URL scriptUrl, long periodMillis) {
         return new GroovyScriptDefinition(name, scriptUrl, periodMillis);
     }

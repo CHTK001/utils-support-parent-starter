@@ -50,7 +50,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     /**
     * 构造函数
     * 初始化 镜像读取spi 的基本信息
-     */
+    */
     public PNGImageReaderSpi() {
         super(vendorName,
                 version,
@@ -75,7 +75,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     *
     * @param locale 本地化设置，返回相应语言的描述信息
     * @return 返回描述信息字符串
-     */
+    */
     public String getDescription(Locale locale) {
         return "PNG/APNG image reader";
     }
@@ -86,7 +86,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     * @param input 输入对象，通常是一个 镜像输入流 对象
     * @return 如果可以解码，则返回 true；否则返回 false
     * @throws IOException 如果发生 I/O 错误
-     */
+    */
     public boolean canDecodeInput(Object input) throws IOException {
  // 检查输入对象是否为 镜像输入流 类型
         if (!(input instanceof ImageInputStream stream)) {
@@ -123,7 +123,7 @@ public class PNGImageReaderSpi extends ImageReaderSpi {
     *
     * @param extension 扩展对象，可以为空
     * @return 返回新PNGImageReader 实例
-     */
+    */
     public ImageReader createReaderInstance(Object extension) {
         return new PNGImageReader(this);
     }

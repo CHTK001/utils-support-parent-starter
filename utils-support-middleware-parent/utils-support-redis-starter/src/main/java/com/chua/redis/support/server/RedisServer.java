@@ -38,12 +38,12 @@ public class RedisServer {
 
     /**
     * 底层嵌入式 Redis 服务器
-     */
+    */
     private final redis.embedded.RedisServer delegate;
 
     /**
     * 服务器端口
-     */
+    */
     private final int port;
 
     /**
@@ -51,7 +51,7 @@ public class RedisServer {
     * @param delegate delegate
     * @param port int
     * @param port 端口
-     */
+    */
     private RedisServer(redis.embedded.RedisServer delegate, int port) {
         this.delegate = delegate;
         this.port = port;
@@ -61,7 +61,7 @@ public class RedisServer {
     * 创建默认端口 (6379) 的 Redis 服务器。
     *
     * @return RedisServer 实例
-     */
+    */
     public static RedisServer create() {
         return create(6379);
     }
@@ -71,7 +71,7 @@ public class RedisServer {
     *
     * @param port 端口号
     * @return RedisServer 实例
-     */
+    */
     public static RedisServer create(int port) {
         return builder().port(port).build();
     }
@@ -80,7 +80,7 @@ public class RedisServer {
     * 创建 构建器。
     *
     * @return Builder 实例
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -89,7 +89,7 @@ public class RedisServer {
     * 启动 Redis 服务器。
     *
     * @return 当前实例，支持链式调用
-     */
+    */
     public RedisServer start() {
         try {
             delegate.start();
@@ -104,7 +104,7 @@ public class RedisServer {
     * 停止 Redis 服务器。
     *
     * @return 当前实例，支持链式调用
-     */
+    */
     public RedisServer stop() {
         try {
             delegate.stop();
@@ -119,7 +119,7 @@ public class RedisServer {
     * 判断服务器是否正在运行。
     *
     * @return 运行中返回 true
-     */
+    */
     public boolean isActive() {
         return delegate.isActive();
     }
@@ -128,7 +128,7 @@ public class RedisServer {
     * 获取 Redis 连接地址。
     *
     * @return redis://127.0.0.1:{port}
-     */
+    */
     public String getAddress() {
         return "redis://127.0.0.1:" + port;
     }
@@ -137,14 +137,14 @@ public class RedisServer {
     * 获取 Redis 连接 URL（兼容 Jedis/Redisson）。
     *
     * @return redis://127.0.0.1:{port}
-     */
+    */
     public String getUrl() {
         return getAddress();
     }
 
     /**
     * 关闭服务器（实现 auto关闭）。
-     */
+    */
     public void close() {
         stop();
     }
@@ -153,7 +153,7 @@ public class RedisServer {
     * 构建器 模式创建 redis服务端。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class Builder {
         /** 端口 */
         private int port = 6379;
@@ -166,7 +166,7 @@ public class RedisServer {
         * 设置端口，默认 6379
         * @param port 端口
         * @return 端口的结果
-         */
+        */
         public Builder port(int port) {
             this.port = port;
             return this;
@@ -176,7 +176,7 @@ public class RedisServer {
         * 设置最大内存，如 "256mb"
         * @param maxMemory 最大内存
         * @return 最大内存的结果
-         */
+        */
         public Builder maxMemory(String maxMemory) {
             this.maxMemory = maxMemory;
             return this;
@@ -186,7 +186,7 @@ public class RedisServer {
         * 设置额外 Redis 配置参数
         * @param args 参数
         * @return 参数的结果
-         */
+        */
         public Builder args(String... args) {
             this.args = args;
             return this;
@@ -196,7 +196,7 @@ public class RedisServer {
         * 构建 redis服务端 实例。
         *
         * @return RedisServer
-         */
+        */
         public RedisServer build() {
             try {
                 redis.embedded.RedisServerBuilder redisBuilder = redis.embedded.RedisServer.builder()

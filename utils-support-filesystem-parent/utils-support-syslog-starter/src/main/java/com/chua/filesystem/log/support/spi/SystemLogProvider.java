@@ -26,20 +26,20 @@ public interface SystemLogProvider {
     *
     * @param query 查询条件 (支持通配符、级别过滤、分页)
     * @return 匹配的日志条目列表，按时间降序排列
-     */
+    */
     List<LogEntry> search(LogQuery query);
 
     /**
     * 获取当前平台可用的日志源列表
     *
     * @return 日志源名称列表
-     */
+    */
     List<String> getSources();
 
     /**
     * 判断当前提供者是否适配当前运行平台
     *
     * @return true 表示当前平台支持
-     */
+    */
     boolean isPlatformSupported();
 }

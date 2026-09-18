@@ -24,7 +24,7 @@ public class ConditionFlowNode implements ConditionNode {
 
     /**
     * 当前数据取值标识
-     */
+    */
     private static final String KEY_CURRENT = "current";
 
     /**
@@ -39,7 +39,7 @@ public class ConditionFlowNode implements ConditionNode {
     *
     * @param context 当前流程上下文
     * @return 条件判断结果
-     */
+    */
     @Override
     public boolean test(FlowContext context) {
         FlowProps props = context.currentNodeProps();
@@ -62,7 +62,7 @@ public class ConditionFlowNode implements ConditionNode {
     * @param key     取值键
     * @param context 当前流程上下文
     * @return 取值结果
-     */
+    */
     private Object resolveValue(String key, FlowContext context) {
         if (key == null) {
             return null;

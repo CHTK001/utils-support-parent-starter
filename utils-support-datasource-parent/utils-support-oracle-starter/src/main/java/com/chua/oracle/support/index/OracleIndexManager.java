@@ -29,7 +29,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     * 返回 SPI 扩展键：{@code oracle}
     *
     * @return "oracle"
-     */
+    */
     @Override
     public String type() {
         return "oracle";
@@ -39,7 +39,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     * 设置 JDBC 数据源，由 SPI 工厂自动调用。
     *
     * @param dataSource 数据源
-     */
+    */
     @Override
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -50,7 +50,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     *
     * @param table 表名（自动转换为大写）
     * @return 索引名列表
-     */
+    */
     @Override
     public List<String> listIndexes(String table) {
         List<String> list = new ArrayList<>();
@@ -75,7 +75,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     *
     * @param indexName 索引名
     * @return 创建索引的链式步骤对象
-     */
+    */
     @Override
     public CreateIndexStep createIndex(String indexName) {
         return new OracleCreateIndexStep(dataSource, indexName);
@@ -86,7 +86,7 @@ public class OracleIndexManager implements IndexManager, DataSourceAware {
     *
     * @param indexName 索引名
     * @return 删除索引的链式步骤对象
-     */
+    */
     @Override
     public DropIndexStep dropIndex(String indexName) {
         return new OracleDropIndexStep(dataSource, indexName);

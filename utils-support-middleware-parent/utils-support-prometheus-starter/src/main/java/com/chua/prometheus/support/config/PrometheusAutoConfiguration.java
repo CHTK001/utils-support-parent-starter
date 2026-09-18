@@ -30,7 +30,7 @@ public class PrometheusAutoConfiguration {
     *
     * @param properties 配置
     * @return 客户端
-     */
+    */
     @Bean(destroyMethod = "close")
     @ConditionalOnMissingBean
     public PrometheusClient prometheusClient(PrometheusProperties properties) {
@@ -50,7 +50,7 @@ public class PrometheusAutoConfiguration {
     *
     * @param client 默认客户端
     * @return 引擎
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public PrometheusEngine prometheusEngine(PrometheusClient client) {

@@ -27,7 +27,7 @@ public record FaceSearchHit(
     * @param id    标识
     * @param score 分数
     * @return face搜索hit的结果
-     */
+    */
     public FaceSearchHit(String id, double score) {
         this(id, score, null, Collections.emptyMap(), null);
     }

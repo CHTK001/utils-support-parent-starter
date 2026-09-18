@@ -82,7 +82,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param classIndex   预测类别下标，范围 [0, num类)
     * @param probabilities softmax 后的各类别概率，长度等于 num类，和为 1
     * @return 预测的结果
-     */
+    */
     public record Prediction(int classIndex, float[] probabilities) {
     }
 
@@ -92,7 +92,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param seqLen     序列长度，必须大于 0，与训练模型输入一致
     * @param numNumeric 每步数值特征数量，必须大于 0，与训练模型输入一致
     * @param numClasses 类别数量，必须大于 0，与训练模型输出一致
-     */
+    */
     public LstmAttentionBehaviorTranslator(int seqLen, int numNumeric, int numClasses) {
         this(seqLen, numNumeric, numClasses, DEFAULT_MODEL_FILE, null);
     }
@@ -105,7 +105,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param numClasses   类别数量，必须大于 0，与训练模型输出一致
     * @param modelFile    模型文件名，不能为 空 或空字符串
     * @param explicitPath 显式模型文件路径，允许为 空
-     */
+    */
     public LstmAttentionBehaviorTranslator(int seqLen, int numNumeric, int numClasses,
                                            String modelFile, String explicitPath) {
         if (seqLen <= 0) {
@@ -131,7 +131,7 @@ public class LstmAttentionBehaviorTranslator {
     * 初始化并加载 ONNX 模型，线程安全且只加载一次。
     *
     * @throws IOException 当模型文件不存在或创建 ONNX Runtime 会话失败时
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (session != null) {
             return;
@@ -154,7 +154,7 @@ public class LstmAttentionBehaviorTranslator {
     *
     * @return 模型文件路径；未找到时返回 空
     * @throws IOException 当临时目录创建失败或 类路径 资源提取失败时
-     */
+    */
     private Path resolveModelPath() throws IOException {
         if (explicitPath != null) {
             Path p = Paths.get(explicitPath);
@@ -201,7 +201,7 @@ public class LstmAttentionBehaviorTranslator {
     * 判断模型是否可用（可加载、可推理）。
     *
     * @return true 表示模型已就绪
-     */
+    */
     public boolean isAvailable() {
         try {
             prepare();
@@ -219,7 +219,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param sequenceNumeric 数值特征序列，长度必须等于 seqlen，每个元素长度必须等于 numnumeric
     * @return 预测结果，包含类别下标与各类别概率
     * @throws Exception 当模型不可用、输入维度不匹配或推理失败时
-     */
+    */
     public Prediction predict(int[] sequenceIds, float[][] sequenceNumeric) throws Exception {
         prepare();
         if (sequenceIds == null || sequenceIds.length != seqLen) {
@@ -264,7 +264,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param inputNames    模型输入名列表，顺序与导出一致
     * @param idsTensor     标识 序列张量
     * @param numericTensor 数值序列张量
-     */
+    */
     private void putInputs(Map<String, OnnxTensor> inputs, String[] inputNames,
                            OnnxTensor idsTensor, OnnxTensor numericTensor) {
         if (inputNames.length <= 1) {
@@ -298,7 +298,7 @@ public class LstmAttentionBehaviorTranslator {
     * @param dim    类别数量
     * @return logits 向量
     * @throws Exception 当输出读取失败、类型不支持或维度不匹配时
-     */
+    */
     private float[] readLogits(OrtSession.Result result, int dim) throws Exception {
         Object value = result.get(0).getValue(); // [P3C 四十一 豁免] OrtSession.Result 模型输出索引（非 List/Collection）
         if (value instanceof float[][] matrix) {
@@ -322,7 +322,7 @@ public class LstmAttentionBehaviorTranslator {
     *
     * @param logits 原始 logits 向量，长度必须大于 0
     * @return 归一化概率向量，长度与 logits 一致，元素和约为 1
-     */
+    */
     private static float[] softmax(float[] logits) {
         float max = logits[0];
         for (int i = 1; i < logits.length; i++) {
@@ -347,7 +347,7 @@ public class LstmAttentionBehaviorTranslator {
     *
     * @param probabilities 概率向量，长度必须大于 0
     * @return 最大概率对应的下标
-     */
+    */
     private static int argmax(float[] probabilities) {
         int maxIdx = 0;
         float maxVal = probabilities[0];
@@ -362,7 +362,7 @@ public class LstmAttentionBehaviorTranslator {
 
     /**
     * 释放底层 ONNX Runtime 会话与环境。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

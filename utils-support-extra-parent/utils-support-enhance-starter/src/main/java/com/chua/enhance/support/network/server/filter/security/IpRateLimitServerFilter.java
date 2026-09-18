@@ -28,11 +28,11 @@ public class IpRateLimitServerFilter implements ServerFilter {
 
     /**
     * 默认令牌桶容量
-     */
+    */
     private static final int DEFAULT_BUCKET_CAPACITY = 50;
     /**
     * 默认每秒补充令牌数
-     */
+    */
     private static final int DEFAULT_REFILL_RATE = 10;
 
     /** 存储桶容量 */
@@ -42,7 +42,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
 
     /**
     * IP → 令牌桶
-     */
+    */
     private final ConcurrentHashMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 
     @Override
@@ -88,7 +88,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @return resolve客户端ip的结果
-     */
+    */
     private String resolveClientIp(ServerRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {
@@ -106,7 +106,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
     * 令牌桶实现，支持按时间补充令牌。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class TokenBucket {
         /** 容量 */
         private final int capacity;
@@ -128,7 +128,7 @@ public class IpRateLimitServerFilter implements ServerFilter {
         * 尝试consume
         *
         * @return 尝试consume的结果
-         */
+        */
         synchronized boolean tryConsume() {
             refill();
             long current = tokens.get();

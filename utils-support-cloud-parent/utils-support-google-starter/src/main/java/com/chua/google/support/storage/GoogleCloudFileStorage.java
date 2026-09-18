@@ -40,7 +40,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 创建 googlecloud文件storage 实例
     * @param bucketSetting bucketsetting
-     */
+    */
     public GoogleCloudFileStorage(BucketSetting bucketSetting) {
         super(bucketSetting);
  // 凭据解析策略：优先使用 access键secret 作为服务账号 JSON 密钥，失败时降级为 ADC
@@ -70,7 +70,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     *
     * @param secret 密钥内容（JSON 字符串或任意字符串）
     * @return 解析后的凭据，不会为 空
-     */
+    */
     private static Credentials resolveCredentials(String secret) {
         // 尝试将 secret 作为服务账号 JSON 密钥解析
         if (secret != null && !secret.isEmpty()) {
@@ -100,7 +100,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 放入对象
     * @param request 请求
-     */
+    */
     public PutObjectResult putObject(PutObjectRequest request) {
         try {
             String key = request.getKey();
@@ -126,7 +126,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 获取对象
     * @param request 请求
-     */
+    */
     public GetObjectResult getObject(GetObjectRequest request) {
         try {
             String key = request.getKey();
@@ -160,7 +160,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 获取对象
     * @param key 键
-     */
+    */
     public GetObjectResult getObject(String key) {
         String name = key.contains("/") ? key.substring(key.lastIndexOf('/') + 1) : key;
         String path = key.contains("/") ? key.substring(0, key.lastIndexOf('/')) : "";
@@ -171,7 +171,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 删除对象
     * @param key 键
-     */
+    */
     public DeleteObjectResult deleteObject(String key) {
         try {
             storage.delete(BlobId.of(bucket, key));
@@ -190,7 +190,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * exist对象
     * @param request 请求
-     */
+    */
     public ExistObjectResult existObject(ExistObjectRequest request) {
         try {
             Blob blob = storage.get(BlobId.of(bucket, request.getKey()));
@@ -210,7 +210,7 @@ public class GoogleCloudFileStorage extends AbstractFileStorage {
     /**
     * 列表对象
     * @param request 请求
-     */
+    */
     public ListObjectResult listObject(ListObjectRequest request) {
         try {
             // 构建 GCS 列表选项：前缀 + 页大小

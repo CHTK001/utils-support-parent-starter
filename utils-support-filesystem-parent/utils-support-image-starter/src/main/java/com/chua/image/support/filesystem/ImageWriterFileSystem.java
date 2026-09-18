@@ -45,7 +45,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     /**
     * 创建 镜像writer文件系统 实例
     * @param file 文件
-     */
+    */
     public ImageWriterFileSystem(File file) {
         super(file);
     }
@@ -53,7 +53,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     /**
     * 创建 镜像writer文件系统 实例
     * @param filePath 文件路径
-     */
+    */
     public ImageWriterFileSystem(String filePath) {
         super(filePath);
     }
@@ -71,7 +71,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     *
     * @param file 文件
     * @return 是否支持的结果
-     */
+    */
     public boolean isSupport(File file) {
         if (file == null) {
             return false;
@@ -185,7 +185,7 @@ public class ImageWriterFileSystem extends AbstractWriter {
     * 解析格式化
     *
     * @return resolve格式化的结果
-     */
+    */
     private String resolveFormat() {
         if (file == null) {
             return "png";

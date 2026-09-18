@@ -71,7 +71,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     * @param content 文档字节
     * @return 预览结果
     * @throws IOException 解析失败时抛出
-     */
+    */
     private PreviewResult previewDoc(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("Word 文档预览"));
@@ -104,7 +104,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     * @param content 工作簿字节
     * @return 预览结果
     * @throws IOException 解析失败时抛出
-     */
+    */
     private PreviewResult previewXls(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("Excel 工作簿预览"));
@@ -127,7 +127,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param body  输出缓冲区
     * @param sheet 工作表
-     */
+    */
     private void renderSheet(StringBuilder body, HSSFSheet sheet) {
         String name = sheet.getSheetName();
         body.append("<div class=\"sheet\"><div class=\"sheet-head\">").append(escape(name)).append("</div>");
@@ -161,7 +161,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param cell 单元格
     * @return 单元格文本
-     */
+    */
     private String formatCell(HSSFCell cell) {
         switch (cell.getCellType()) {
             case STRING:
@@ -187,7 +187,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     * @param content 演示文稿字节
     * @return 预览结果
     * @throws IOException 解析失败时抛出
-     */
+    */
     private PreviewResult previewPpt(byte[] content) throws IOException {
         StringBuilder body = new StringBuilder();
         body.append(header("PowerPoint 演示文稿预览"));
@@ -228,7 +228,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param title 标题
     * @return 头部 HTML
-     */
+    */
     private String header(String title) {
         return "<div class=\"header\"><h1>" + escape(title) + "</h1></div>";
     }
@@ -238,7 +238,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param body 页面主体
     * @return 完整 HTML
-     */
+    */
     private String page(String body) {
         return "<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">"
                 + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>"
@@ -264,7 +264,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param message 提示文本
     * @return 提示 HTML（不含外边页面）
-     */
+    */
     private String unavailableHtml(String message) {
         return header("文件预览") + "<div class=\"unavail\">" + escape(message) + "</div>";
     }
@@ -274,7 +274,7 @@ public class OldOfficePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 原始文本
     * @return 转义后文本
-     */
+    */
     private String escape(String text) {
         return text == null ? "" : StringUtils.escapeHtml(text);
     }

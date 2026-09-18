@@ -57,7 +57,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     * 构造一个指定接口地址模板的提供器。
     *
     * @param urlTemplate 含 {@code %s} 号码占位符的接口地址，如 {@code https://host/api?phone=%s}
-     */
+    */
     public OnlinePhoneLocationProvider(String urlTemplate) {
         this.urlTemplate = urlTemplate;
         this.httpClient = HttpClientFactory.getClient();
@@ -84,7 +84,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     *
     * @param phone phone
     * @return 获取online的结果
-     */
+    */
     private PhoneLocationInfo fetchOnline(String phone) {
         try {
             ClientResponse resp = httpClient.get(String.format(urlTemplate, phone));
@@ -115,7 +115,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     *
     * @param phone phone
     * @return lookup降级的结果
-     */
+    */
     private PhoneLocationInfo lookupFallback(String phone) {
         String prefix4 = phone.substring(0, 4);
         PhoneLocationInfo hit = PREFIX_TABLE.get(prefix4);
@@ -135,7 +135,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     *
     * @param prefix 前缀
     * @return carrierByPrefix3的结果
-     */
+    */
     private static String carrierByPrefix3(String prefix) {
         if (prefix.startsWith("13") || prefix.startsWith("15") || prefix.startsWith("18")) {
             return "中国移动";
@@ -155,7 +155,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     * @param n n
     * @param k k
     * @return 文本的结果
-     */
+    */
     private static String text(JsonNode n, String k) {
         JsonNode v = n.get(k);
         return v == null ? "" : v.asText();
@@ -164,7 +164,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     /**
     * 内置常用号码段前缀表（前 4 位 -> 属地）。
     * @return 构建前缀table的结果
-     */
+    */
     private static Map<String, PhoneLocationInfo> buildPrefixTable() {
         Map<String, PhoneLocationInfo> map = new HashMap<>();
         add(map, "1380", "北京市", "北京市", "中国移动");
@@ -215,7 +215,7 @@ public class OnlinePhoneLocationProvider implements PhoneLocationProvider {
     * @param province province
     * @param city city
     * @param carrier carrier
-     */
+    */
     private static void add(Map<String, PhoneLocationInfo> map, String prefix, String province, String city, String carrier) {
         map.put(prefix, new PhoneLocationInfo("", province, city, carrier, "", ""));
     }

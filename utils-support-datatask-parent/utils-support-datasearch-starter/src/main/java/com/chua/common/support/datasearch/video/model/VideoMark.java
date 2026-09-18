@@ -25,7 +25,7 @@ public class VideoMark {
     * 获取视频标记类型
     *
     * @return 获取视频mark类型的结果
-     */
+    */
     public String getVideoMarkType() {
         return videoMarkType;
     }
@@ -34,7 +34,7 @@ public class VideoMark {
     * 设置视频标记类型
     *
     * @param videoMarkType 视频mark类型
-     */
+    */
     public void setVideoMarkType(String videoMarkType) {
         this.videoMarkType = videoMarkType;
     }
@@ -43,7 +43,7 @@ public class VideoMark {
     * 获取视频标记People
     *
     * @return 获取视频markpeople的结果
-     */
+    */
     public Integer getVideoMarkPeople() {
         return videoMarkPeople;
     }
@@ -52,7 +52,7 @@ public class VideoMark {
     * 设置视频标记People
     *
     * @param videoMarkPeople 视频markpeople
-     */
+    */
     public void setVideoMarkPeople(Integer videoMarkPeople) {
         this.videoMarkPeople = videoMarkPeople;
     }
@@ -61,7 +61,7 @@ public class VideoMark {
     * 获取视频标记Score
     *
     * @return 获取视频markscore的结果
-     */
+    */
     public BigDecimal getVideoMarkScore() {
         return videoMarkScore;
     }
@@ -70,7 +70,7 @@ public class VideoMark {
     * 设置视频标记Score
     *
     * @param videoMarkScore 视频markscore
-     */
+    */
     public void setVideoMarkScore(BigDecimal videoMarkScore) {
         this.videoMarkScore = videoMarkScore;
     }

@@ -25,7 +25,7 @@ public class SafeTensorTextToAudioClient extends AbstractLocalTextToAudioClient 
     * 构造 safetensor 语音合成客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public SafeTensorTextToAudioClient(TextToAudioClientSetting setting) {
         super("safetensors", setting);
     }

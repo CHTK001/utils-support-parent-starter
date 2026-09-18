@@ -41,7 +41,7 @@ public class MemorySqlParser {
     * @param rows   从 表对应的行引用列表
     * @param params 绑定参数
     * @return 结果行集合
-     */
+    */
     public List<java.util.Map<String, Object>> executeQuery(String sql, List<?> rows, Object[] params) {
         SelectStmt stmt = parseSelect(sql);
         stmt.bind(params == null ? List.of() : java.util.Arrays.asList(params));
@@ -53,7 +53,7 @@ public class MemorySqlParser {
     *
     * @param sql DML 语句
     * @return 计划
-     */
+    */
     public DmlPlan parseDml(String sql) {
         TokenStream ts = new TokenStream(sql);
         switch (ts.peek().toUpperCase(Locale.ROOT)) {
@@ -73,7 +73,7 @@ public class MemorySqlParser {
     *
     * @param sql 选择 语句
     * @return 语句对象
-     */
+    */
     public SelectStmt parseSelect(String sql) {
         TokenStream ts = new TokenStream(sql);
         expectKeyword(ts, "SELECT");
@@ -122,7 +122,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 表达式树节点
-     */
+    */
     private Node parseOr(TokenStream ts) {
         Node left = parseAnd(ts);
         while (matchKeyword(ts, "OR")) {
@@ -136,7 +136,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 表达式树节点
-     */
+    */
     private Node parseAnd(TokenStream ts) {
         Node left = parseSimple(ts);
         while (matchKeyword(ts, "AND")) {
@@ -150,7 +150,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 谓词节点
-     */
+    */
     private Node parseSimple(TokenStream ts) {
         if (match(ts, "(")) {
             Node inner = parseOr(ts);
@@ -198,7 +198,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 插入计划
-     */
+    */
     private DmlPlan parseInsert(TokenStream ts) {
         expectKeyword(ts, "INSERT");
         expectKeyword(ts, "INTO");
@@ -228,7 +228,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 更新计划
-     */
+    */
     private DmlPlan parseUpdate(TokenStream ts) {
         expectKeyword(ts, "UPDATE");
         UpdatePlan plan = new UpdatePlan();
@@ -250,7 +250,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 删除计划
-     */
+    */
     private DmlPlan parseDelete(TokenStream ts) {
         expectKeyword(ts, "DELETE");
         expectKeyword(ts, "FROM");
@@ -269,7 +269,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @param kw 期望关键字
-     */
+    */
     private static void expectKeyword(TokenStream ts, String kw) {
         if (!matchKeyword(ts, kw)) {
             throw new IllegalArgumentException("期望 " + kw + " 但得到: "
@@ -283,7 +283,7 @@ public class MemorySqlParser {
     * @param ts 词法流
     * @param kw 关键字（忽略大小写）
     * @return 是否命中
-     */
+    */
     private static boolean matchKeyword(TokenStream ts, String kw) {
         if (!ts.eof() && ts.peek().equalsIgnoreCase(kw)) {
             ts.next();
@@ -298,7 +298,7 @@ public class MemorySqlParser {
     * @param ts     词法流
     * @param symbol 符号字面量
     * @return 是否命中
-     */
+    */
     private static boolean match(TokenStream ts, String symbol) {
         if (!ts.eof() && ts.peek().equals(symbol)) {
             ts.next();
@@ -312,7 +312,7 @@ public class MemorySqlParser {
     *
     * @param ts     词法流
     * @param symbol 期望符号
-     */
+    */
     private static void consume(TokenStream ts, String symbol) {
         if (!match(ts, symbol)) {
             throw new IllegalArgumentException("期望 " + symbol + " 但得到: "
@@ -325,7 +325,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 标识符
-     */
+    */
     private static String consumeIdentifier(TokenStream ts) {
         if (ts.eof()) {
             throw new IllegalArgumentException("意外的语句结尾");
@@ -342,7 +342,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 整数值
-     */
+    */
     private static int consumeInt(TokenStream ts) {
         String t = ts.next();
         try {
@@ -357,7 +357,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 运算符字面量
-     */
+    */
     private static String consumeOperator(TokenStream ts) {
         String t = ts.next();
         switch (t) {
@@ -379,7 +379,7 @@ public class MemorySqlParser {
     *
     * @param ts 词法流
     * @return 值对象或 参数记号笔 占位
-     */
+    */
     private Object consumeValueOrParam(TokenStream ts) {
         if (match(ts, "?")) {
             return new ParamMarker();

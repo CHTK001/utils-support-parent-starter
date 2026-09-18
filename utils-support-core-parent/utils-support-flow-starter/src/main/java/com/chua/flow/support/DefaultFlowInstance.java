@@ -42,57 +42,57 @@ public class DefaultFlowInstance implements FlowInstance {
 
     /**
     * 上下文属性键：运行参数映射
-     */
+    */
     private static final String PARAMS_ATTRIBUTE_KEY = "params";
 
     /**
     * 默认单节点最大执行次数上限
-     */
+    */
     private static final int DEFAULT_MAX_LOOP_COUNT = 100;
 
     /**
     * 顺序边标签（空字符串表示默认顺序边）
-     */
+    */
     private static final String DEFAULT_EDGE_LABEL = "";
 
     /**
     * 所属流程
-     */
+    */
     private final DefaultFlow flow;
 
     /**
     * 起始节点 标识
-     */
+    */
     private final String startNodeId;
 
     /**
     * 实例唯一标识
-     */
+    */
     private final String instanceId;
 
     /**
     * 实例当前状态
-     */
+    */
     private FlowStatus status;
 
     /**
     * 实例唯一执行上下文，首次运行时创建后不再重建
-     */
+    */
     private DefaultFlowContext context;
 
     /**
     * 待执行节点队列，挂起时冻结，恢复后继续消费
-     */
+    */
     private final Deque<String> pendingNodes = new ArrayDeque<>();
 
     /**
     * 创建实例时携带的初始参数
-     */
+    */
     private final Map<String, Object> initialParams;
 
     /**
     * 单节点最大执行次数上限，运行 创建上下文时应用
-     */
+    */
     private int maxLoopCount = DEFAULT_MAX_LOOP_COUNT;
 
     /**
@@ -101,7 +101,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * @param flow          所属流程
     * @param startNodeId   起始节点 标识
     * @param initialParams 初始参数
-     */
+    */
     public DefaultFlowInstance(DefaultFlow flow, String startNodeId,
                                Map<String, Object> initialParams) {
         this.flow = flow;
@@ -121,7 +121,7 @@ public class DefaultFlowInstance implements FlowInstance {
     *
     * @param maxLoopCount 执行次数上限
     * @return 当前实例
-     */
+    */
     public FlowInstance maxLoopCount(int maxLoopCount) {
         this.maxLoopCount = maxLoopCount > 0 ? maxLoopCount : DEFAULT_MAX_LOOP_COUNT;
         return this;
@@ -208,7 +208,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * 校验实例是否可运行。
     *
     * <p>已结束（完成/失败/终止）的实例不允许再次运行。</p>
-     */
+    */
     private void checkRunnable() {
         if (status == FlowStatus.COMPLETED || status == FlowStatus.FAILED
                 || status == FlowStatus.TERMINATED) {
@@ -223,7 +223,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * 供节点按需读取。</p>
     *
     * @param params 运行参数
-     */
+    */
     private void mergeParams(Map<String, Object> params) {
         if (params == null || context == null) {
             return;
@@ -242,7 +242,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * 执行完成或遇到出口节点时进入完成状态，
     * 节点挂起时冻结队列进入挂起状态，异常时标记失败并向上抛出。
     * 每调度一个节点记录执行轨迹，达到单节点执行次数上限判定死循环终止。</p>
-     */
+    */
     private void execute() {
         try {
             while (status == FlowStatus.RUNNING) {
@@ -304,7 +304,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * 将目标节点按顺序放入队列尾部。
     *
     * @param targets 目标节点 标识 列表
-     */
+    */
     private void enqueue(List<String> targets) {
         for (String target : targets) {
             pendingNodes.addLast(target);
@@ -317,7 +317,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * @param nodeId 条件节点 标识
     * @param result 判断结果
     * @return 目标节点 标识 列表，未配置分支时返回空列表
-     */
+    */
     private List<String> branchTargets(String nodeId, boolean result) {
         String label = result ? "true" : "false";
         return targetsOf(nodeId, label);
@@ -328,7 +328,7 @@ public class DefaultFlowInstance implements FlowInstance {
     *
     * @param nodeId 节点 标识
     * @return 目标节点 标识 列表，无顺序边时返回空列表
-     */
+    */
     private List<String> orderTargets(String nodeId) {
         return targetsOf(nodeId, DEFAULT_EDGE_LABEL);
     }
@@ -339,7 +339,7 @@ public class DefaultFlowInstance implements FlowInstance {
     * @param nodeId 源节点 标识
     * @param label  边标签
     * @return 目标节点 标识 列表
-     */
+    */
     private List<String> targetsOf(String nodeId, String label) {
         List<String> result = new ArrayList<>();
         for (FlowDefinition.FlowEdgeDef edge : flow.getDefinition().getEdges()) {

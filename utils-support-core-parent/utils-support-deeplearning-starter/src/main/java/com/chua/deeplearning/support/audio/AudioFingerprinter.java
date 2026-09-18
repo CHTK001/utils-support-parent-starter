@@ -64,7 +64,7 @@ public interface AudioFingerprinter {
     * @param apiKey   API 密钥；本地引擎（ONNX/pytorch）可传入空字符串
     * @return 新建的指纹提取器实例
     * @throws IllegalArgumentException 若未找到对应 提供者 的实现
-     */
+    */
     static AudioFingerprinter create(String provider, String apiKey) {
         return ServiceProvider.of(AudioFingerprinter.class)
                 .getNewExtension(provider, apiKey);
@@ -75,7 +75,7 @@ public interface AudioFingerprinter {
     *
     * @param provider 提供者 标识
     * @return this
-     */
+    */
     default AudioFingerprinter provider(String provider) {
         return this;
     }
@@ -88,7 +88,7 @@ public interface AudioFingerprinter {
     *
     * @param model 模型标识，如 "wav2vec2-zh"
     * @return this
-     */
+    */
     default AudioFingerprinter model(String model) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface AudioFingerprinter {
     *
     * @param name 模型名称
     * @return 指纹提取器实例
-     */
+    */
     static AudioFingerprinter create(String name) {
         return new DefaultAudioFingerprinter(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -111,7 +111,7 @@ public interface AudioFingerprinter {
     * 常用于前端下拉框或能力清单展示。</p>
     *
     * @return 模型 标识 列表，如 ["wav2vec2-zh", "wespeaker-resnet34"]
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.AudioFingerprinter.class);
     }
@@ -122,7 +122,7 @@ public interface AudioFingerprinter {
     * @param name    模型名称
     * @param setting 模型配置（路径、设备等）
     * @return 指纹提取器实例
-     */
+    */
     static AudioFingerprinter create(String name, ModelSetting setting) {
         return new DefaultAudioFingerprinter(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -134,7 +134,7 @@ public interface AudioFingerprinter {
     *
     * @param path 模型路径
     * @return this
-     */
+    */
     AudioFingerprinter modelPath(String path);
 
     /**
@@ -145,7 +145,7 @@ public interface AudioFingerprinter {
     *
     * @param device 设备标识
     * @return this
-     */
+    */
     AudioFingerprinter device(String device);
 
     /**
@@ -156,7 +156,7 @@ public interface AudioFingerprinter {
     *
     * @param sampleRate 采样率，默认 16000
     * @return this
-     */
+    */
     AudioFingerprinter sampleRate(int sampleRate);
 
     /**
@@ -167,7 +167,7 @@ public interface AudioFingerprinter {
     *
     * @param normalize {@code true} 启用归一化，{@code false} 关闭
     * @return this
-     */
+    */
     AudioFingerprinter normalize(boolean normalize);
 
     /**
@@ -184,7 +184,7 @@ public interface AudioFingerprinter {
     * @return 特征向量，L2 归一化后模长为 1；若归一化关闭则返回原始向量
     * @throws IllegalStateException 若指定模型未在引擎中注册
     * @throws RuntimeException      若音频解码或模型推理失败
-     */
+    */
     float[] extract(byte[] audioData);
 
     /**
@@ -195,6 +195,6 @@ public interface AudioFingerprinter {
     * @param path 音频文件路径
     * @return 特征向量
     * @throws RuntimeException 若文件读取失败
-     */
+    */
     float[] extract(java.nio.file.Path path);
 }

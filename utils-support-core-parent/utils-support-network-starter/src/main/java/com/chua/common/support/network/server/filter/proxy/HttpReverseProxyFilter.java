@@ -95,7 +95,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -112,7 +112,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         Discovery discovery = ServerAttribute.getBackendDiscovery(request);
@@ -130,7 +130,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     * @param request 请求
     * @param response 响应
     * @param completionFuture 完成期货
-     */
+    */
     private void proxyAsync(Discovery discovery, ServerRequest request, ServerResponse response,
                             CompletableFuture<Void> completionFuture) {
         String host = discovery.getHost();
@@ -169,7 +169,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     *
     * @param request 请求
     * @param req req
-     */
+    */
     private void copyHeaders(ServerRequest request, HttpClientRequest req) {
         if (request.getHeaders() != null) {
             for (Map.Entry<String, String> entry : request.getHeaders().toMap().entrySet()) {
@@ -188,7 +188,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     * @param resp resp
     * @param response 响应
     * @param completionFuture 完成期货
-     */
+    */
     private void handleBackendResponse(HttpClientResponse resp, ServerResponse response,
                                        CompletableFuture<Void> completionFuture) {
         if (response.isEnded()) {
@@ -227,7 +227,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     *
     * @param request 请求
     * @return extract路径的结果
-     */
+    */
     private String extractPath(ServerRequest request) {
         String path = request.getPath();
         if (path == null) {
@@ -246,7 +246,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     * @param response 响应
     * @param code 编码
     * @param msg msg
-     */
+    */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);
@@ -260,7 +260,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     *
     * @param future 期货
     * @param value 值
-     */
+    */
     private static void complete(CompletableFuture<Void> future, Void value) {
         if (future != null) {
             future.complete(value);
@@ -272,7 +272,7 @@ public class HttpReverseProxyFilter implements ServerFilter, ReactiveServerFilte
     *
     * @param future 期货
     * @param cause cause
-     */
+    */
     private static void completeExceptionally(CompletableFuture<Void> future, Throwable cause) {
         if (future != null) {
             future.completeExceptionally(cause);

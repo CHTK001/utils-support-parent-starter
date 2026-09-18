@@ -17,15 +17,15 @@ public class MetadataDownloader {
     * 下载结果。
     * @author CH
     * @since 4.0.0
-     */
+    */
     public static class MetadataResult {
         /**
         * 是否下载成功
-         */
+        */
         public boolean ok;
         /**
         * 解析到的种子名称
-         */
+        */
         public String name;
 
         /** 创建 metadata结果 实例 */
@@ -39,7 +39,7 @@ public class MetadataDownloader {
         * @param ok ok
         * @param name 字符串
         * @param name 名称
-         */
+        */
         public MetadataResult(boolean ok, String name) {
             this.ok = ok;
             this.name = name;
@@ -49,7 +49,7 @@ public class MetadataDownloader {
     /**
     * 构造元数据下载器。
     * @return MetadataDownloader的结果
-     */
+    */
     public MetadataDownloader() {
     }
 
@@ -60,7 +60,7 @@ public class MetadataDownloader {
     * @param infoHash 信息哈希
     * @param timeoutMs 超时时间（毫秒）
     * @return 下载结果
-     */
+    */
     public MetadataResult download(InetSocketAddress peer, byte[] infoHash, int timeoutMs) {
         // 骨架实现：未连接实际 BT peer-wire 协议，直接返回失败结果
         return new MetadataResult(false, null);

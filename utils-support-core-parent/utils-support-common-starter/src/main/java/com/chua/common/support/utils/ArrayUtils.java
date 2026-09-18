@@ -1850,11 +1850,11 @@ public class ArrayUtils {
     }
 
     /**
-    * 排序
-    * @param values 值
-    * @param sortedFields 排序字段
-    * @param direction direction
-    */
+        * 排序
+        * @param values 值
+        * @param sortedFields 排序字段
+        * @param direction direction
+        */
     public static String[] sort(String[] values,
                                 String[] sortedFields,
                                 SortDirection direction) {

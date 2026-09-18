@@ -28,7 +28,7 @@ public class H2CleanupPlugin {
     * 构造方法。
     *
     * @param engine H2 引擎
-     */
+    */
     public H2CleanupPlugin(Engine engine) {
         this.engine = engine;
     }
@@ -40,7 +40,7 @@ public class H2CleanupPlugin {
     * </p>
     *
     * @return 清理的表数量
-     */
+    */
     public int cleanup() {
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -67,7 +67,7 @@ public class H2CleanupPlugin {
     *
     * @param prefix 表名前缀
     * @return 清理的表数量
-     */
+    */
     public int cleanupByPrefix(String prefix) {
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -90,7 +90,7 @@ public class H2CleanupPlugin {
     * 清空所有用户表数据（保留表结构）。
     *
     * @return 清理的行数
-     */
+    */
     public int truncateAll() {
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -116,7 +116,7 @@ public class H2CleanupPlugin {
     /**
     * 获取connection。
     * @return 获取connection的结果
-     */
+    */
     private Connection getConnection() throws SQLException {
         DataSource ds = getDataSource();
         if (ds == null) {
@@ -129,7 +129,7 @@ public class H2CleanupPlugin {
     /**
     * 获取数据源。
     * @return 获取数据源的结果
-     */
+    */
     private DataSource getDataSource() {
         var dsObj = engine.getDataSource();
         return dsObj != null ? (DataSource) dsObj.getSource() : null;
@@ -139,7 +139,7 @@ public class H2CleanupPlugin {
     * 删除所有用户索引（H2 2.x 无 文本 索引，按普通索引清理）。
     * @param conn conn
     * @return 掉落全部用户索引的结果
-     */
+    */
     private int dropAllUserIndexes(Connection conn) throws SQLException {
         List<String> indexes = new ArrayList<>();
         try (Statement stmt = conn.createStatement();
@@ -161,7 +161,7 @@ public class H2CleanupPlugin {
     * <p>H2 2.x 中用户表的 TABLE_TYPE 为 'BASE TABLE'（SQL 标准值）。</p>
     * @param conn conn
     * @return 获取用户table名称的结果
-     */
+    */
     private List<String> getUserTableNames(Connection conn) throws SQLException {
         List<String> tables = new ArrayList<>();
         String excludePattern = "(?i)(information_schema|system_|INFORMATION_SCHEMA|flyway_schema_history|schema_)";
@@ -183,7 +183,7 @@ public class H2CleanupPlugin {
     * 删除所有用户表。
     * @param conn conn
     * @return 掉落全部用户tables的结果
-     */
+    */
     private int dropAllUserTables(Connection conn) throws SQLException {
         List<String> tables = getUserTableNames(conn);
         for (String table : tables) {
@@ -196,7 +196,7 @@ public class H2CleanupPlugin {
     * 删除指定表。
     * @param conn conn
     * @param tableName table名称
-     */
+    */
     private void dropTable(Connection conn, String tableName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("DROP TABLE IF EXISTS \"" + tableName + "\"");
@@ -209,7 +209,7 @@ public class H2CleanupPlugin {
     * 删除指定索引。
     * @param conn conn
     * @param indexName 索引名称
-     */
+    */
     private void dropIndex(Connection conn, String indexName) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("DROP INDEX IF EXISTS \"" + indexName + "\"");

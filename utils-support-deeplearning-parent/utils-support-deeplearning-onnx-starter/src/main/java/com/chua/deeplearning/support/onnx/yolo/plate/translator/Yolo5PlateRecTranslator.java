@@ -34,62 +34,62 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
     * 输入宽度。
-     */
+    */
     private static final int INPUT_W = 168;
 
     /**
     * 输入高度。
-     */
+    */
     private static final int INPUT_H = 48;
 
     /**
     * 归一化均值（yaml mean: 0.588）。
-     */
+    */
     private static final float MEAN = 0.588f;
 
     /**
     * 归一化标准差（yaml std: 0.193）。
-     */
+    */
     private static final float STD = 0.193f;
 
     /**
     * 字符集（yaml 名称，索引 0 为 blank）。
-     */
+    */
     private static final String CHARS = "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品";
 
     /**
     * 车牌颜色类别。
-     */
+    */
     private static final String[] COLORS = {"black", "blue", "green", "white", "yellow"};
 
     /**
     * jar 内模型资源目录。
-     */
+    */
     private static final String RESOURCE_BASE = "vision/detection/yolov5_plate/";
 
     /**
     * 模型文件名。
-     */
+    */
     private static final String MODEL_FILE = "yolov5_plate_rec_color.onnx";
 
     /**
     * ONNX 运行时环境。
-     */
+    */
     private OrtEnvironment ortEnv;
 
     /**
     * 识别会话。
-     */
+    */
     private OrtSession session;
 
     /**
     * 是否已加载。
-     */
+    */
     private volatile boolean loaded;
 
     /**
     * Prepare。
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -138,7 +138,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     *
     * @param imageData 原图（应为检测到的车牌裁剪块）
     * @return 车牌识别结果
-     */
+    */
     private PlateResult recognize(byte[] imageData) throws Exception {
         ImageUtils.load();
         Mat src = ImageUtils.decode(imageData);
@@ -182,7 +182,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     *
     * @param logits 概率 [21][78]
     * @return 车牌号
-     */
+    */
     private String decodeCtc(float[][] logits) {
         StringBuilder sb = new StringBuilder();
         int last = 0;
@@ -208,7 +208,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     *
     * @param logits 颜色 logits [5]
     * @return 颜色名
-     */
+    */
     private String decodeColor(float[] logits) {
         int best = 0;
         float bestScore = Float.NEGATIVE_INFINITY;
@@ -225,7 +225,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     * 转二维数组 [steps][classes]。
     * @param value 值
     * @return 转为mat2d的结果
-     */
+    */
     private float[][] toMat2D(Object value) {
         if (value instanceof float[][][][] arr4) {
             return (float[][]) arr4[0][0];
@@ -241,7 +241,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
     * 转一维向量 [classes]。
     * @param value 值
     * @return 转为向量的结果
-     */
+    */
     private float[] toVector(Object value) {
         if (value instanceof float[][][][] arr4) {
             return arr4[0][0][0];
@@ -257,7 +257,7 @@ public class Yolo5PlateRecTranslator implements ITranslator<byte[], PlateResult>
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

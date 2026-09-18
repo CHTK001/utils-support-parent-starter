@@ -56,12 +56,12 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /**
     * 模型资源目录（tiny / medium 通用）。
-     */
+    */
     private final String resourceBase;
 
     /**
     * 模型名称（用于 NAT加载 缓存隔离）。
-     */
+    */
     private final String modelName;
 
     /** ONNX 运行时环境 */
@@ -75,7 +75,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /**
     * 默认使用 PP-ocrv6 tiny 资源。
-     */
+    */
     public PpWordExtractorTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/", "paddleocrv6-rec");
     }
@@ -85,7 +85,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     *
     * @param resourceBase 模型资源目录（jar 内路径）
     * @param modelName    模型名称
-     */
+    */
     public PpWordExtractorTranslator(String resourceBase, String modelName) {
         this.resourceBase = resourceBase;
         this.modelName = modelName;
@@ -126,7 +126,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     *
     * @param ymlPath 推理.yml 路径
     * @return 字符表（index 0 为 blank，其余为字符）
-     */
+    */
     private static List<String> loadCharacterDict(Path ymlPath) throws Exception {
         List<String> lines = Files.readAllLines(ymlPath);
         List<String> chars = new ArrayList<>();
@@ -181,7 +181,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     *
     * @param imageData 镜像数据
     * @return recognize的结果
-     */
+    */
     private String recognize(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -242,7 +242,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     * CTC 解码：每步取 argmax，去掉连续重复和 blank（索引 0）。
     * @param seqProbs seqprobs
     * @return decode的结果
-     */
+    */
     private String decode(float[][] seqProbs) {
         StringBuilder sb = new StringBuilder();
         int prevIdx = -1;
@@ -264,7 +264,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
     *
     * @param arr arr
     * @return 参数最大的结果
-     */
+    */
     private int argMax(float[] arr) {
         int idx = 0;
         float best = arr[0];
@@ -279,7 +279,7 @@ public class PpWordExtractorTranslator implements ITranslator<byte[], String> {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

@@ -114,7 +114,7 @@ public class WebSocketProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param opcode opcode
     * @return 转为opcode名称的结果
-     */
+    */
     private static String toOpcodeName(int opcode) {
         return switch (opcode) {
             case 0x0 -> "Continuation";

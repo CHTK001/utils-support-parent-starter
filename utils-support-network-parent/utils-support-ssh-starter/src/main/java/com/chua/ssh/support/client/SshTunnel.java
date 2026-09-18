@@ -18,32 +18,32 @@ public class SshTunnel implements Tunnel {
 
     /**
     * ssh 客户端
-     */
+    */
     private final SshClient sshClient;
     /**
     * definition
-     */
+    */
     private final SshClient.TunnelDefinition definition;
     /**
     * bind 地址
-     */
+    */
     private final String bindAddress;
 
     /**
     * tracker
-     */
+    */
     private AutoCloseable tracker;
     /**
     * 打开
-     */
+    */
     private volatile boolean open;
     /**
     * callback
-     */
+    */
     private Consumer<TunnelInfo> callback;
     /**
     * actual 端口
-     */
+    */
     private int actualPort = -1;
 
     /**
@@ -53,7 +53,7 @@ public class SshTunnel implements Tunnel {
     * @param definition definition
     * @param bindAddress 字符串
     * @param bindAddress bind地址
-     */
+    */
     public SshTunnel(SshClient sshClient, SshClient.TunnelDefinition definition, String bindAddress) {
         this.sshClient = sshClient;
         this.definition = definition;
@@ -162,7 +162,7 @@ public class SshTunnel implements Tunnel {
     *
     * @param type 类型
     * @return 转为tunnel类型的结果
-     */
+    */
     private static TunnelType toTunnelType(SshClient.TunnelDefinition.Type type) {
         if (type == null) {
             return null;

@@ -16,52 +16,52 @@ public class HoroscopeInfo {
 
     /**
     * 星座（如：白羊座）
-     */
+    */
     private final String sign;
 
     /**
     * 运势类型：today / week / month
-     */
+    */
     private final String type;
 
     /**
     * 综合运势指数（百分制）
-     */
+    */
     private final int overall;
 
     /**
     * 爱情运势指数（百分制）
-     */
+    */
     private final int love;
 
     /**
     * 事业运势指数（百分制）
-     */
+    */
     private final int career;
 
     /**
     * 财运指数（百分制）
-     */
+    */
     private final int wealth;
 
     /**
     * 健康指数（百分制）
-     */
+    */
     private final int health;
 
     /**
     * 幸运数字
-     */
+    */
     private final String luckyNumber;
 
     /**
     * 幸运颜色
-     */
+    */
     private final String luckyColor;
 
     /**
     * 运势描述
-     */
+    */
     private final String description;
 
     /**
@@ -77,7 +77,7 @@ public class HoroscopeInfo {
     * @param luckyNumber 幸运数字
     * @param luckyColor  幸运颜色
     * @param description 运势描述
-     */
+    */
     public HoroscopeInfo(String sign, String type, int overall, int love, int career,
                          int wealth, int health, String luckyNumber, String luckyColor, String description) {
         this.sign = sign;
@@ -96,7 +96,7 @@ public class HoroscopeInfo {
     * 获取星座
     *
     * @return 获取标志的结果
-     */
+    */
     public String getSign() {
         return sign;
     }
@@ -105,7 +105,7 @@ public class HoroscopeInfo {
     * 获取运势类型
     *
     * @return 获取类型的结果
-     */
+    */
     public String getType() {
         return type;
     }
@@ -114,7 +114,7 @@ public class HoroscopeInfo {
     * 获取综合运势指数
     *
     * @return 获取overall的结果
-     */
+    */
     public int getOverall() {
         return overall;
     }
@@ -123,7 +123,7 @@ public class HoroscopeInfo {
     * 获取爱情运势指数
     *
     * @return 获取love的结果
-     */
+    */
     public int getLove() {
         return love;
     }
@@ -132,7 +132,7 @@ public class HoroscopeInfo {
     * 获取事业运势指数
     *
     * @return 获取career的结果
-     */
+    */
     public int getCareer() {
         return career;
     }
@@ -141,7 +141,7 @@ public class HoroscopeInfo {
     * 获取财运指数
     *
     * @return 获取wealth的结果
-     */
+    */
     public int getWealth() {
         return wealth;
     }
@@ -150,7 +150,7 @@ public class HoroscopeInfo {
     * 获取健康指数
     *
     * @return 获取健康的结果
-     */
+    */
     public int getHealth() {
         return health;
     }
@@ -159,7 +159,7 @@ public class HoroscopeInfo {
     * 获取幸运数字
     *
     * @return 获取lucky数字的结果
-     */
+    */
     public String getLuckyNumber() {
         return luckyNumber;
     }
@@ -168,7 +168,7 @@ public class HoroscopeInfo {
     * 获取幸运颜色
     *
     * @return 获取luckycolor的结果
-     */
+    */
     public String getLuckyColor() {
         return luckyColor;
     }
@@ -177,7 +177,7 @@ public class HoroscopeInfo {
     * 获取运势描述
     *
     * @return 获取description的结果
-     */
+    */
     public String getDescription() {
         return description;
     }
@@ -186,7 +186,7 @@ public class HoroscopeInfo {
     * 转换为 映射 用于 JSON 序列化
     *
     * @return Map 表示
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("sign", sign);

@@ -18,11 +18,41 @@ import javax.annotation.Nullable;
 
 
 /**
-* 大小滤镜
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * 按目标宽高自适应缩放滤镜
+ *
+ * 将图像缩放到"适配"指定目标宽高范围内：
+ * <ul>
+ *   <li>横图（宽 ≥ 高）：优先按宽适配，若高度仍超出目标高度则再按高度适配</li>
+ *   <li>竖图（高 > 宽）：优先按高适配，若宽度仍超出目标宽度则再按宽度适配</li>
+ * </ul>
+ * 与 {@link ImageSizedFilter}（纯等比缩小）不同，本滤镜保证输出图
+ * 的两个边都不超过目标宽高，适用于"上传缩略图""列表图适配"等场景。
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 缩放到 800x600 以内（保持比例）
+ * BufferedImage fit = new ImageWidthFilter(800, 600).converter(src);
+ *
+ * // 链式设置
+ * BufferedImage fit2 = new ImageWidthFilter()
+ *         .setWidth(400).setHeight(300).converter(src);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>width</b>（默认 100）：目标宽度上限（像素）</li>
+ *   <li><b>height</b>（默认 100）：目标高度上限（像素）</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出为 TYPE_INT_RGB，会丢失原图透明度。</li>
+ *   <li>原图比目标尺寸更小时，仍会按目标宽高强行放大（SCALE_DEFAULT 插值）。</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -41,7 +71,7 @@ public class ImageWidthFilter extends AbstractImageFilter {
     * 创建 镜像width过滤器 实例
     * @param width width
     * @param height height
-     */
+    */
     public ImageWidthFilter(int width, int height) {
         this.width = width;
         this.height = height;
@@ -57,13 +87,15 @@ public class ImageWidthFilter extends AbstractImageFilter {
 
 
     /**
-    * 按比例对图片进行缩放. 检测图片是横图还是竖图
+    * 按目标宽高自适应缩放
     *
-    * @param width  缩放后的宽
-    * @param height 缩放后的高
+    * 横图优先按宽适配、超出再按高适配；竖图反之。
+    *
+    * @param width  目标宽（像素）
+    * @param height 目标高（像素）
     * @param img    缓冲镜像
-    * @return zoomby大小的结果
-     */
+    * @return 缩放后的 TYPE_INT_RGB 图像
+    */
     public static BufferedImage zoomBySize(int width, int height, BufferedImage img) {
         //横向图
         if (img.getWidth() >= img.getHeight()) {
@@ -104,12 +136,15 @@ public class ImageWidthFilter extends AbstractImageFilter {
     }
 
     /**
-    * 缩放比率计算
+    * 计算缩放比率
     *
-    * @param divisor  divisor
-    * @param dividend dividend
-    * @return calculateZoomRatio的结果
-     */
+    * 用 6 位小数精度计算 divisor ÷ dividend，
+    * 用于把"目标尺寸"换算成"等比缩放系数"。
+    *
+    * @param divisor  除数（目标尺寸）
+    * @param dividend 被除数（当前尺寸）
+    * @return 缩放比率
+    */
     public static double calculateZoomRatio(int divisor, int dividend) {
         return BigDecimal.valueOf(divisor).divide(BigDecimal.valueOf(dividend), 6, RoundingMode.HALF_UP).doubleValue();
     }

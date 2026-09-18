@@ -22,31 +22,31 @@ public class HardwareConfig {
 
     /**
     * 设备类型：cpu / gpu（缺省 auto，由运行时按本机探测决定）
-     */
+    */
     @Builder.Default
     private final String device = "auto"; // device
 
     /**
     * GPU 运行所需最低显存（MB）。用于判断服务器 GPU 显存上限是否支持该模型。
-     */
+    */
     private final long minVramMb;
 
     /**
     * 是否推荐。同一能力类型可同时推荐多个，运行时按服务器配置从推荐列表中挑选。
-     */
+    */
     @Builder.Default
     private final boolean recommended = false; // recommended
 
     /**
     * 便于日志/展示的描述信息，可为 空
-     */
+    */
     private final String description;
 
     /**
     * 设备类型。
     *
     * @return cpu / gpu / auto
-     */
+    */
     public String device() {
         return device;
     }
@@ -55,7 +55,7 @@ public class HardwareConfig {
     * GPU 运行所需最低显存（MB）。
     *
     * @return 显存大小
-     */
+    */
     public long minVramMb() {
         return minVramMb;
     }
@@ -64,7 +64,7 @@ public class HardwareConfig {
     * 是否作为对应能力类型的推荐模型。
     *
     * @return true 表示推荐
-     */
+    */
     public boolean recommended() {
         return recommended;
     }
@@ -73,7 +73,7 @@ public class HardwareConfig {
     * 便于日志/展示的描述信息。
     *
     * @return 描述信息，可为 空
-     */
+    */
     public String description() {
         return description;
     }
@@ -82,7 +82,7 @@ public class HardwareConfig {
     * 判断该配置是否面向 GPU 运行。
     *
     * @return true 表示面向 GPU
-     */
+    */
     public boolean isGpu() {
         return "gpu".equalsIgnoreCase(device);
     }
@@ -91,7 +91,7 @@ public class HardwareConfig {
     * 判断该配置是否可用（无 GPU 显存要求时总是可用）。
     *
     * @return true 表示可用
-     */
+    */
     public boolean isUsable() {
         return minVramMb <= 0;
     }

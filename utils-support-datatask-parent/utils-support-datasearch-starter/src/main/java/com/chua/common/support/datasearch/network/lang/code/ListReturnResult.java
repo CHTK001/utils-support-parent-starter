@@ -33,7 +33,7 @@ public class ListReturnResult<T> implements Serializable {
     *
     * @param data 数据
     * @return ok的结果
-     */
+    */
     public static <T> ListReturnResult<T> ok(List<T> data) {
         return new ListReturnResult<>(data, null, true);
     }
@@ -42,7 +42,7 @@ public class ListReturnResult<T> implements Serializable {
     * 空
     *
     * @return 空的结果
-     */
+    */
     public static <T> ListReturnResult<T> empty() {
         return new ListReturnResult<T>(Collections.<T>emptyList(), null, true);
     }
@@ -52,7 +52,7 @@ public class ListReturnResult<T> implements Serializable {
     *
     * @param message 消息
     * @return 错误的结果
-     */
+    */
     public static <T> ListReturnResult<T> error(String message) {
         return new ListReturnResult<T>(null, message, false);
     }

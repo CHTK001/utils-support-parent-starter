@@ -33,17 +33,17 @@ public class GeoLite2IpPosition implements IpPosition {
 
     /**
     * 默认数据库文件路径（类路径 资源名）
-     */
+    */
     private static final String DEFAULT_DB = "GeoLite2-City.mmdb";
 
     /**
     * geolite2 数据库读取器（线程安全，可复用）
-     */
+    */
     private final DatabaseReader reader;
 
     /**
     * 使用默认 类路径 路径构造。
-     */
+    */
     public GeoLite2IpPosition() {
         this(findDefaultResource());
     }
@@ -52,7 +52,7 @@ public class GeoLite2IpPosition implements IpPosition {
     * 指定数据库文件路径构造。
     *
     * @param dbPath geolite2-City.mmdb 文件路径
-     */
+    */
     public GeoLite2IpPosition(String dbPath) {
         try {
             this.reader = new DatabaseReader.Builder(Path.of(dbPath).toFile()).build();
@@ -65,7 +65,7 @@ public class GeoLite2IpPosition implements IpPosition {
     * 使用输入流构造（适合从 类路径 或网络加载）。
     *
     * @param mmdbStream geolite2-City.mmdb 输入流
-     */
+    */
     public GeoLite2IpPosition(InputStream mmdbStream) {
         try {
             this.reader = new DatabaseReader.Builder(mmdbStream).build();
@@ -95,7 +95,7 @@ public class GeoLite2IpPosition implements IpPosition {
 
     /**
     * 经纬度 → 城市信息（geolite2 不支持反向地理编码，返回空对象）。
-     */
+    */
     @Override
     public GeoCity reverseGeocode(double latitude, double longitude) {
         return GeoCity.EMPTY;
@@ -105,7 +105,7 @@ public class GeoLite2IpPosition implements IpPosition {
     * 将 geolite2 响应映射为 {@link IpLocation}。
     * @param response 响应
     * @return 映射响应的结果
-     */
+    */
     private static IpLocation mapResponse(CityResponse response) {
         IpLocation location = new IpLocation();
         Country country = response.getCountry();
@@ -132,7 +132,7 @@ public class GeoLite2IpPosition implements IpPosition {
     /**
     * 从 类路径 加载默认 geolite2-City.mmdb 资源。
     * @return find默认resource的结果
-     */
+    */
     private static String findDefaultResource() {
         URL resource = GeoLite2IpPosition.class.getClassLoader()
                 .getResource(DEFAULT_DB);

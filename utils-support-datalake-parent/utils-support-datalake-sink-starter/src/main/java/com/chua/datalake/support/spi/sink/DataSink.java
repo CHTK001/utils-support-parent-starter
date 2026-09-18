@@ -24,17 +24,17 @@ public interface DataSink {
     * 返回 Sink 类型标识，同时对应发布到 dispatcher提供者 的 topic
     *
     * @return 类型标识（例如 "JDBC"、"real-时间"、"stats"、"日志"）
-     */
+    */
     String type();
 
     /**
     * 启动 Sink，建立资源连接
-     */
+    */
     void start();
 
     /**
     * 停止 Sink，释放资源
-     */
+    */
     void stop();
 
     /**
@@ -43,7 +43,7 @@ public interface DataSink {
     * @param envelope 携带待处理数据的 数据envelope
     * @param config   可由管线配置传入的附加参数
     * @return true 表示处理成功，false 表示注册失败
-     */
+    */
     boolean write(DataEnvelope envelope, Map<String, Object> config);
 
     /**
@@ -51,6 +51,6 @@ public interface DataSink {
     * 存储型 Sink 返回 数据源，访问型 Sink 返回 空。
     *
     * @return EngineDataSource 或 空
-     */
+    */
     EngineDataSource<?> getDataSource();
 }

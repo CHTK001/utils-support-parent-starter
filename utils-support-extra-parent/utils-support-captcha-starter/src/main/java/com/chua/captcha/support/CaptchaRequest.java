@@ -19,39 +19,39 @@ public class CaptchaRequest {
 
     /**
     * 验证码类型
-     */
+    */
     private CaptchaType type;
 
     /**
     * 目标页面 URL
-     */
+    */
     private String url;
 
     /**
     * 目标网站 site键
-     */
+    */
     private String siteKey;
 
     /**
     * recaptcha v3 使用的 动作 参数
-     */
+    */
     private String action;
 
     /**
     * 代理地址
-     */
+    */
     private String proxy;
 
     /**
     * 任务超时时间（毫秒），默认 180000ms（3 分钟）
-     */
+    */
     @Builder.Default
     /** 超时 */
     private long timeout = 180000;
 
     /**
     * 轮询间隔（毫秒），默认 3000ms（3 秒）
-     */
+    */
     @Builder.Default
     /** Poll间隔 */
     private long pollInterval = 3000;

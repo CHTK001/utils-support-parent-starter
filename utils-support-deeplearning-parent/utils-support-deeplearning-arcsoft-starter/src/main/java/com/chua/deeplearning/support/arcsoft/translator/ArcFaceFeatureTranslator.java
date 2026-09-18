@@ -29,7 +29,7 @@ public class ArcFaceFeatureTranslator implements ITranslator<Object, float[]> {
     /**
     * 创建 arcface特征translator 实例
     * @param faceEngine faceengine
-     */
+    */
     public ArcFaceFeatureTranslator(FaceEngine faceEngine) {
         this.faceEngine = faceEngine;
     }

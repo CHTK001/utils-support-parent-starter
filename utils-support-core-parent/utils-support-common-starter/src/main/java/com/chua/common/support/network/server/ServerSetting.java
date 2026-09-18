@@ -420,10 +420,10 @@ public class ServerSetting {
     }
 
     /**
-    * SSL/TLS 配置。
-    *
-    * @since 4.0.0.42
-    */
+        * SSL/TLS 配置。
+        *
+        * @since 4.0.0.42
+        */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -524,10 +524,10 @@ public class ServerSetting {
     }
 
     /**
-    * HTTP 协议专用配置。
-    *
-    * @since 4.0.0.42
-    */
+        * HTTP 协议专用配置。
+        *
+        * @since 4.0.0.42
+        */
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

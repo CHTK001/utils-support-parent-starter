@@ -12,21 +12,21 @@ import lombok.Data;
 public class CpuCore {
     /**
     * 核心 标识（从 0 开始）
-     */
+    */
     private int id;
 
     /**
     * CPU 使用率（百分比，0-100）
-     */
+    */
     private float usage;
 
     /**
     * CPU 频率（Hz）
-     */
+    */
     private long frequency;
 
     /**
     * CPU 名称/型号
-     */
+    */
     private String name;
 }

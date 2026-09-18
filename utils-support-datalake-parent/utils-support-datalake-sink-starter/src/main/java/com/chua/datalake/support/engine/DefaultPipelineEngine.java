@@ -79,7 +79,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * <p>注意：当 manager 为 {@link DefaultPipelineManager} 实例时，
     * 可调用 {@link DefaultPipelineManager#getCompiledPipeline} 获取编译缓存，
     * 避免重复 JSON 解析。</p>
-     */
+    */
     private final PipelineManager pipelineManager;
 
     /**
@@ -87,7 +87,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * <p>此 Map 在引擎启动时构建，运行期通常不变（仅增不减），
     * 因此并发读取是安全的。</p>
-     */
+    */
     private final Map<String, DataSink> sinkRegistry;
 
     /**
@@ -95,7 +95,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * <p>当前实现中未被 DefaultPipelineEngine 直接使用，
     * 保留以支持未来通过 Dispatcher 路由的扩展场景。</p>
-     */
+    */
     private final DispatcherProvider dispatcher;
 
     /**
@@ -111,7 +111,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * <p><b>设计理由</b>：将"按 type 字符串查找 Sink"的 O(N) HashMap 查找，
     * 预编译为数组顺序遍历，消除 执行() 路径上的所有 映射 查找开销。</p>
-     */
+    */
     private final Map<String, CompiledSink[]> sinkCompileCache = new ConcurrentHashMap<>();
 
     /**
@@ -120,7 +120,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * <p>原代码：envelope.addTrace("[Sink] written to type=" + type)
     * 优化后：envelope.添加追踪(追踪_SINK_OK_前缀 + 类型)
     * 减少约 50% 的字符串分配量。</p>
-     */
+    */
     private static final String TRACE_SINK_OK_PREFIX = "[Sink] written to type=";
     private static final String TRACE_SINK_FAIL_PREFIX = "[Sink][ERROR] "; // 追踪sink失败前缀
 
@@ -130,7 +130,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * @param pipelineManager 管线配置管理器（建议使用 {@link DefaultPipelineManager} 以启用编译缓存）
     * @param sinkRegistry    Sink 注册表（类型 → 实例）
     * @param dispatcher      数据分发器（当前预留，暂不使用）
-     */
+    */
     public DefaultPipelineEngine(
             PipelineManager pipelineManager,
             Map<String, DataSink> sinkRegistry,
@@ -161,7 +161,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * @param pipelineId 管线 标识
     * @param envelope   数据信封
-     */
+    */
     @Override
     public void execute(String pipelineId, DataEnvelope envelope) {
  // 快速失败：空 envelope 直接返回，避免后续 空pointer
@@ -245,7 +245,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * @param stage 管线阶段配置
     * @return 编译后的 compiledsink 数组
-     */
+    */
     private CompiledSink[] compileSinks(PipelineStageConfig stage) {
         List<Map<String, Object>> sinks = stage.getSink();
         if (sinks == null || sinks.isEmpty()) {
@@ -286,7 +286,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * <p>下次 execute 调用时会自动重新编译并缓存。</p>
     *
     * @param pipelineId 管线 标识
-     */
+    */
     public void invalidateSinkCache(String pipelineId) {
         sinkCompileCache.remove(pipelineId);
     }
@@ -299,7 +299,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *   <li>系统重启或重新初始化时</li>
     *   <li>测试清理场景</li>
     * </ul>
-     */
+    */
     public void invalidateAllSinkCache() {
         sinkCompileCache.clear();
     }
@@ -310,7 +310,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * <p>在管线配置被重新保存后调用，确保下次执行时使用新配置。</p>
     *
     * @param pipelineId 管线 标识
-     */
+    */
     public void invalidatePipelineSinkCache(String pipelineId) {
         sinkCompileCache.remove(pipelineId);
     }
@@ -327,7 +327,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     *
     * <p><b>不可变性</b>：所有字段均为 final，数组创建后不会被修改，
     * 因此可安全地在多线程间共享。</p>
-     */
+    */
     private static final class CompiledSink {
         final String type;
         final DataSink sink;
@@ -344,7 +344,7 @@ public class DefaultPipelineEngine implements PipelineEngine {
     * 空的 compiledsink 数组单例。
     *
     * <p>避免在 compileSinks 返回空列表时重复创建数组对象。</p>
-     */
+    */
     private static final class CompiledSinkArray {
         static final CompiledSink[] EMPTY = new CompiledSink[0];
     }

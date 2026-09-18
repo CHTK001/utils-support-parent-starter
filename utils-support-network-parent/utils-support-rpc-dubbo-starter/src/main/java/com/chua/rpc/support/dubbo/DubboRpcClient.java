@@ -27,23 +27,23 @@ public class DubboRpcClient implements RpcClient {
 
     /**
     * registry 配置
-     */
+    */
     private final List<RegistryConfig> registryConfigs = new ArrayList<>();
     /**
     * application 配置
-     */
+    */
     private final ApplicationConfig applicationConfig;
     /**
     * consumer 配置
-     */
+    */
     private final ConsumerConfig consumerConfig;
     /**
     * rpc Consumer 配置
-     */
+    */
     private final RpcConsumerConfig rpcConsumerConfig;
     /**
     * 引用 缓存
-     */
+    */
     private final Map<Class<?>, ReferenceConfig<?>> referenceCache = new ConcurrentHashMap<>();
 
     /**
@@ -53,7 +53,7 @@ public class DubboRpcClient implements RpcClient {
     * @param name 字符串
     * @param consumerCfg consumercfg
     * @param name 名称
-     */
+    */
     public DubboRpcClient(List<RpcRegistryConfig> rpcRegistryConfigs, RpcConsumerConfig consumerCfg, String name) {
         this.rpcConsumerConfig = consumerCfg;
         applicationConfig = DubboConfigs.get(name);
@@ -84,7 +84,7 @@ public class DubboRpcClient implements RpcClient {
     *
     * @param cfg cfg
     * @return 构建consumer配置的结果
-     */
+    */
     private ConsumerConfig buildConsumerConfig(RpcConsumerConfig cfg) {
         if (cfg == null) {
             return null;
@@ -108,9 +108,9 @@ public class DubboRpcClient implements RpcClient {
     /**
     * 获取
     *
-    * @param targetType Target类型
+    * @param targetType 目标类型
     * @return 获取的结果
-     */
+    */
     public <T> T get(Class<T> targetType) {
         ReferenceConfig<T> reference = (ReferenceConfig<T>) referenceCache.computeIfAbsent(targetType, type -> {
             ReferenceConfig<T> ref = new ReferenceConfig<>();

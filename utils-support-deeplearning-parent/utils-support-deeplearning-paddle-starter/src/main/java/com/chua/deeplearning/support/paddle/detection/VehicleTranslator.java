@@ -30,17 +30,17 @@ public class VehicleTranslator implements Translator<Image, DetectedObjects> {
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     /**
     * 类别名。
-     */
+    */
     private List<String> className;
 
     @Override

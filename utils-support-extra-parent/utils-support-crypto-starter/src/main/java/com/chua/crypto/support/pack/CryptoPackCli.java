@@ -33,7 +33,7 @@ public final class CryptoPackCli {
 
     /**
     * 私有构造
-     */
+    */
     private CryptoPackCli() {
     }
 
@@ -42,7 +42,7 @@ public final class CryptoPackCli {
     *
     * @param args 参数
     * @throws Exception 打包失败
-     */
+    */
     public static void main(String[] args) throws Exception {
         Map<String, String> opts = parse(args);
 
@@ -91,7 +91,7 @@ public final class CryptoPackCli {
     *
     * @param args 原始参数
     * @return 键值表（布尔开关值为 "true"）
-     */
+    */
     private static Map<String, String> parse(String[] args) {
         Map<String, String> opts = new HashMap<>();
         for (int i = 0; i < args.length; i++) {

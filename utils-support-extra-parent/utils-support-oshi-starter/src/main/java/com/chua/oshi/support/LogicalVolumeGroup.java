@@ -13,21 +13,21 @@ public class LogicalVolumeGroup {
 
     /**
     * 卷组名称。
-     */
+    */
     private String name;
 
     /**
     * 物理卷名称列表。
-     */
+    */
     private String[] physicalVolumes;
 
     /**
     * 卷组总容量（字节）。
-     */
+    */
     private long totalSize;
 
     /**
     * 卷组可用容量（字节）。
-     */
+    */
     private long freeSpace;
 }

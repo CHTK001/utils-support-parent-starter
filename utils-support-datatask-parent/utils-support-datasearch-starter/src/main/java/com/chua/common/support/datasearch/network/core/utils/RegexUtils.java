@@ -17,7 +17,7 @@ public class RegexUtils {
     *
     * @param text 文本
     * @return 获取第一个数字的结果
-     */
+    */
     public static Integer getFirstNumber(String text) {
         if (text == null || text.isEmpty()) {
             return null;

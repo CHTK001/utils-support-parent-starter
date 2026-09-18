@@ -33,7 +33,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     /**
     * 创建 nettyhttp同步服务端 实例
     * @param setting setting
-     */
+    */
     public NettyHttpSyncServer(ServerSetting setting) {
         super(setting);
     }
@@ -157,7 +157,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     * @param topics topics
     * @param timeout 超时
     * @return 拉手消息的结果
-     */
+    */
     private String pullMessage(String[] topics, int timeout) {
         long deadline = System.currentTimeMillis() + timeout * 1000L;
         while (System.currentTimeMillis() < deadline) {
@@ -183,7 +183,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     * @param exchange exchange
     * @param code 编码
     * @param body 主体
-     */
+    */
     private void sendResponse(com.sun.net.httpserver.HttpExchange exchange, int code, String body) throws IOException {
         byte[] bytes = body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -199,7 +199,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     * @param body 主体
     * @param key 键
     * @return extract参数的结果
-     */
+    */
     private String extractParam(String body, String key) {
         String pattern = "\"" + key + "\"";
         int idx = body.indexOf(pattern);
@@ -223,7 +223,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     *
     * @param query 查询
     * @return 解析查询的结果
-     */
+    */
     private Map<String, String> parseQuery(String query) {
         Map<String, String> params = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -249,7 +249,7 @@ public class NettyHttpSyncServer extends com.chua.common.support.network.server.
     * 通知监听器
     *
     * @param action 动作
-     */
+    */
     private void notifyListener(java.util.function.Consumer<SyncServerListener> action) {
         for (SyncServerListener listener : listeners) {
             try {

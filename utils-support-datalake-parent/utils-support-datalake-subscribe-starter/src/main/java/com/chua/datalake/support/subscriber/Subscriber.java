@@ -13,13 +13,13 @@ public interface Subscriber {
 
     /**
     * 返回订阅器唯一 标识
-     */
+    */
     String subscriberId();
 
     /**
     * 推送一条数据
     *
     * @param payload 推送数据载荷
-     */
+    */
     void onPush(PushPayload payload);
 }

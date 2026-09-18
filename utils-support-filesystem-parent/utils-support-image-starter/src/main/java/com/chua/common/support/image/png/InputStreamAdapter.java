@@ -19,7 +19,7 @@ final class InputStreamAdapter extends InputStream {
     * 构造函数，初始化镜像输入流
     *
     * @param stream 镜像输入流实例，需要被适配的流
-     */
+    */
     public InputStreamAdapter(ImageInputStream stream) {
         super();
 
@@ -31,7 +31,7 @@ final class InputStreamAdapter extends InputStream {
     *
     * @return int 下一个字节的整数值，如果到达流的末尾则返回-1
     * @throws IOException 如果在读取过程中发生I/O错误
-     */
+    */
     public int read() throws IOException {
         return stream.read();
     }
@@ -44,7 +44,7 @@ final class InputStreamAdapter extends InputStream {
     * @param len 要读取的最大字节数
     * @return int 实际读取的字节数，如果到达流的末尾则返回-1
     * @throws IOException 如果在读取过程中发生I/O错误
-     */
+    */
     public int read(byte[] b, int off, int len) throws IOException {
         return stream.read(b, off, len);
     }

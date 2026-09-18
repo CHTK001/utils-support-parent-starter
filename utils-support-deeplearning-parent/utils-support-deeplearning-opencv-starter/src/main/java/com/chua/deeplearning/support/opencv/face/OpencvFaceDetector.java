@@ -29,39 +29,39 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
 
     /**
     * Haar 级联分类器模型文件路径。
-     */
+    */
     private final String modelPath;
 
     /**
     * 打开cv 人脸检测级联分类器。
-     */
+    */
     private final CascadeClassifier classifier;
 
     /**
     * 检测置信度（Haar 级联无置信度输出，固定为 1.0）。
-     */
+    */
     private static final float DEFAULT_CONFIDENCE = 1.0f;
 
     /**
     * 图像缩放因子，用于加速检测。
-     */
+    */
     private static final double SCALE_FACTOR = 1.1;
 
     /**
     * 最小邻域数量，用于过滤误检。
-     */
+    */
     private static final int MIN_NEIGHBORS = 3;
 
     /**
     * 最小人脸尺寸（像素）。
-     */
+    */
     private static final Size MIN_FACE_SIZE = new Size(30, 30);
 
     /**
     * 构造人脸检测翻译器。
     *
     * @param modelPath Haar 级联分类器模型文件路径（支持文件系统路径或 类路径 路径）
-     */
+    */
     public OpencvFaceDetector(String modelPath) {
         super("opencv-face-detector");
         this.modelPath = modelPath;
@@ -78,7 +78,7 @@ public class OpencvFaceDetector extends OpencvModelTranslator {
     *
     * @param input 输入对象，必须为 byte[]（图像字节数组）
     * @return 检测到的人脸列表
-     */
+    */
     @Override
     protected Object doTranslate(Object input) {
         if (!(input instanceof byte[] imageBytes)) {

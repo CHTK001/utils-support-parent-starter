@@ -15,11 +15,11 @@ public enum KeyStoreType {
 
     /**
     * 密钥文件载体
-     */
+    */
     FILE,
 
     /**
     * 纯内存载体
-     */
+    */
     MEMORY
 }

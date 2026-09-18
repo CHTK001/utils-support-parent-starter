@@ -19,6 +19,6 @@ public interface DetectionConfigurable {
     * 注入运行参数（仅首次实例化前生效）。
     *
     * @param options 参数键值对（阈值 / iou阈值 / 输入大小 / candidates 等）
-     */
+    */
     void configure(Map<String, Object> options);
 }

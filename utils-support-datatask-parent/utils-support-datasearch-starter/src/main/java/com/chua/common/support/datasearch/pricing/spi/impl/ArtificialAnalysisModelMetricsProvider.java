@@ -47,7 +47,9 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     private static final Pattern ANCHOR =
             Pattern.compile("\\\\\"model\\\\\":\\{\\\\\"slug\\\\\":\\\\\\\"");
 
-    /** 目录条目：{"slug":"x","名称":"y",...,"creator":{"标识":"...","名称":"z","logo":"/img/logos/x.SVG"}} */
+    /**
+    * 目录条目：{"slug":"x","名称":"y",...,"creator":{"标识":"...","名称":"z","logo":"/img/logos/x.SVG"}}
+    */
     private static final Pattern CATALOG_ENTRY = Pattern.compile(
             "\\{\"slug\":\"([^\"]+)\",\"name\":\"([^\"]*)\"([^\\[]*?)"
                     + "\"creator\":\\{\"id\":\"[^\"]*\",\"name\":\"([^\"]*)\",\"logo\":\"([^\"]*)\"");
@@ -60,7 +62,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     * 从排行榜抓取全量模型指标与价格。
     *
     * @return 模型指标列表，页面不可达或结构变化时返回空列表
-     */
+    */
     @Override
     public List<ModelDefinition> fetchOnlinePricing() {
         String html = fetchUrl(LEADERBOARD_URL);
@@ -95,7 +97,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     *
     * @param html 页面原始 HTML（含转义）
     * @return 按 slug 去重后的模型指标列表
-     */
+    */
     private List<ModelDefinition> parseFlightData(String html) {
         // 目录：slug -> [displayName, creatorName, logo]
         Map<String, String[]> catalog = new LinkedHashMap<>();
@@ -204,7 +206,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     *
     * @param html 模型页原始 HTML（含转义）
     * @return slug -> 活跃参数(十亿)
-     */
+    */
     private Map<String, BigDecimal> parseActiveParams(String html) {
         Map<String, BigDecimal> result = new LinkedHashMap<>();
         String esc = html.replace("\\\"", "\"");
@@ -225,7 +227,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     *
     * @param html 模型页原始 HTML（含转义）
     * @return slug -> 思考等级
-     */
+    */
     private Map<String, String> parseReasoningEfforts(String html) {
         Map<String, String> result = new LinkedHashMap<>();
         String esc = html.replace("\\\"", "\"");
@@ -244,7 +246,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     * @param window 窗口文本
     * @param key 字段键的转义正则片段
     * @return 数值，缺失或为 空 字面量时返回 空
-     */
+    */
     private BigDecimal num(String window, String key) {
         Matcher m = Pattern.compile(key + "(-?[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)").matcher(window);
         if (!m.find()) { return null; }
@@ -261,7 +263,7 @@ public class ArtificialAnalysisModelMetricsProvider extends AbstractModelMetrics
     * @param s 窗口文本
     * @param regex 正则
     * @return 第一个捕获组，未匹配返回 空
-     */
+    */
     private String group1(String s, String regex) {
         Matcher m = Pattern.compile(regex).matcher(s);
         return m.find() ? m.group(1) : null;

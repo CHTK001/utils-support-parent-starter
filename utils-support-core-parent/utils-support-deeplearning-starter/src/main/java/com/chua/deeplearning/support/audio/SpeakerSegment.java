@@ -63,21 +63,21 @@ public record SpeakerSegment(
         float confidence
 ) {
     /**
-    * 便捷构造器，省略置信度参数，默认取 1.0。
-    *
-    * @param speakerId    说话人标识
-    * @param startTimeMs  起始时间（毫秒）
-    * @param endTimeMs    结束时间（毫秒）
-    * @param transcript   转录文本，可为 空
-    * @return SpeakerSegment的结果
-     */
+        * 便捷构造器，省略置信度参数，默认取 1.0。
+        *
+        * @param speakerId    说话人标识
+        * @param startTimeMs  起始时间（毫秒）
+        * @param endTimeMs    结束时间（毫秒）
+        * @param transcript   转录文本，可为 空
+        * @return SpeakerSegment的结果
+        */
     public SpeakerSegment(String speakerId, long startTimeMs, long endTimeMs, String transcript) {
         this(speakerId, startTimeMs, endTimeMs, transcript, 1.0f);
     }
 
     /**
     * 全参紧凑构造器：置信度为 nan 时回退为 1.0。
-     */
+    */
     public SpeakerSegment {
         confidence = Float.isNaN(confidence) ? 1.0f : confidence;
     }
@@ -86,7 +86,7 @@ public record SpeakerSegment(
     * 返回该片段的持续时间（毫秒）。
     *
     * @return 时长（endTimeMs - 启动时间ms），若结束时间早于起始时间则返回 0
-     */
+    */
     public long durationMs() {
         return Math.max(0L, endTimeMs - startTimeMs);
     }
@@ -95,7 +95,7 @@ public record SpeakerSegment(
     * 返回该片段的持续时间（秒，保留两位小数）。
     *
     * @return 时长（秒），精度到 0.01s
-     */
+    */
     public double durationSec() {
         return Math.round(durationMs() / 10.0) / 100.0;
     }
@@ -105,7 +105,7 @@ public record SpeakerSegment(
     *
     * @param other 待比较的另一个片段
     * @return {@code true} 表示两个片段的时间区间存在交集
-     */
+    */
     public boolean overlapsWith(SpeakerSegment other) {
         return this.startTimeMs < other.endTimeMs && this.endTimeMs > other.startTimeMs;
     }
@@ -116,7 +116,7 @@ public record SpeakerSegment(
     * @param startMs 查询区间起始（毫秒）
     * @param endMs   查询区间结束（毫秒）
     * @return {@code true} 表示该片段与 [启动ms, 结束ms] 有交集
-     */
+    */
     public boolean intersects(long startMs, long endMs) {
         return this.startTimeMs < endMs && this.endTimeMs > startMs;
     }

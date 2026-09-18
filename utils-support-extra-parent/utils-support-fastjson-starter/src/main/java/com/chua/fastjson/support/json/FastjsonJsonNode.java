@@ -18,7 +18,7 @@ public class FastjsonJsonNode extends JsonNode {
     * 使用原始值构造 fastjsonjson节点。
     *
     * @param value 原始 JSON 值
-     */
+    */
     public FastjsonJsonNode(Object value) {
         super(value);
     }

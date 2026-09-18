@@ -29,7 +29,7 @@ public class IniReadBuilder extends ReadBuilder {
     /**
     * 创建 ini读取构建器 实例
     * @param file 文件
-     */
+    */
     public IniReadBuilder(File file) {
         super(file);
     }
@@ -45,7 +45,7 @@ public class IniReadBuilder extends ReadBuilder {
     * 读取 INI 文件原始内容字符串。
     *
     * @return 文件内容
-     */
+    */
     @Override
     public String asString() {
         try {
@@ -59,7 +59,7 @@ public class IniReadBuilder extends ReadBuilder {
     * 读取 INI 文件为嵌套 映射 结构（Section → {键 → 值}）。
     *
     * @return Section 名称到属性 映射 的映射
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public Map<String, Object> toMap() {
@@ -78,7 +78,7 @@ public class IniReadBuilder extends ReadBuilder {
     * <p>每个 Section 展开为一行 Map，包含 {@code __section__} 字段标识 Section 名。</p>
     *
     * @return 行数据列表（每行一个 Section 的属性 + __section__）
-     */
+    */
     public List<Map<String, Object>> rows() {
         String content = asString();
         if (content.isEmpty()) {
@@ -107,7 +107,7 @@ public class IniReadBuilder extends ReadBuilder {
     * 获取 INI 文件中的所有 Section 名称。
     *
     * @return Section 名称集合
-     */
+    */
     public Set<String> sections() {
         String content = asString();
         if (content.isEmpty()) {
@@ -121,7 +121,7 @@ public class IniReadBuilder extends ReadBuilder {
     *
     * @param sectionName Section 名称
     * @return 属性 映射，Section 不存在时返回空 映射
-     */
+    */
     public Map<String, String> section(String sectionName) {
         Map<String, Map<String, String>> nested = IniParser.parseToNestedMap(asString());
         return nested.getOrDefault(sectionName, Map.of());

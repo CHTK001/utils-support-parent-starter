@@ -32,7 +32,7 @@ public class RateLimiterAutoConfiguration {
     *
     * @param rateLimiterProperties 限流配置属性
     * @return RateLimiterProvider 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public RateLimiterProvider rateLimiterProvider(RateLimiterProperties rateLimiterProperties) {
@@ -52,7 +52,7 @@ public class RateLimiterAutoConfiguration {
     * 创建限流拦截器。
     *
     * @return RateLimiterIntercept 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public RateLimiterIntercept rateLimiterIntercept() {
@@ -64,7 +64,7 @@ public class RateLimiterAutoConfiguration {
     *
     * @param intercept 限流拦截器
     * @return RateLimiterAdvisor 实例
-     */
+    */
     @Bean
     @ConditionalOnMissingBean
     public RateLimiterAdvisor rateLimiterAdvisor(RateLimiterIntercept intercept) {

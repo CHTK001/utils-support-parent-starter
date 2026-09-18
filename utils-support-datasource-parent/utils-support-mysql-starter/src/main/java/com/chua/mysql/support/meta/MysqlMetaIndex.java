@@ -26,7 +26,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     * @param metaData meta数据
     * @param engine Engine
     * @param engine engine
-     */
+    */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
@@ -38,7 +38,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     * @param indexName 字符串
     * @param engine engine
     * @param indexName 索引名称
-     */
+    */
     protected MysqlMetaIndex(AbstractMetaData metaData, Engine engine, String indexName) {
         super(metaData, engine, indexName);
     }
@@ -121,7 +121,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     * 获取Connection
     *
     * @return 获取connection的结果
-     */
+    */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -139,7 +139,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     *
     * @param name 名称
     * @return 引述的结果
-     */
+    */
     private String quote(String name) {
         return "`" + name + "`";
     }
@@ -151,7 +151,7 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     * @return 执行更新的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -267,11 +267,11 @@ public class MysqlMetaIndex extends AbstractMetaIndex {
     }
 
     /**
-    * escapesql
-    *
-    * @param value 值
-    * @return escapeSql的结果
-     */
+        * escapesql
+        *
+        * @param value 值
+        * @return escapeSql的结果
+        */
     private static String escapeSql(String value) {
         if (value == null) {
             return "";

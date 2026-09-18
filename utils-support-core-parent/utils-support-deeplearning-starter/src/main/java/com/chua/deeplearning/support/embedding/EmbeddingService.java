@@ -22,7 +22,7 @@ public interface EmbeddingService {
     *
     * @param name 模型名称
     * @return EmbeddingService 实例
-     */
+    */
     static EmbeddingService create(String name) {
         return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -34,7 +34,7 @@ public interface EmbeddingService {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.embedding.EmbeddingService.class);
     }
@@ -46,7 +46,7 @@ public interface EmbeddingService {
     * @param name    模型名称
     * @param setting 模型配置
     * @return EmbeddingService 实例
-     */
+    */
     static EmbeddingService create(String name, ModelSetting setting) {
         return new DefaultEmbeddingService(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -56,7 +56,7 @@ public interface EmbeddingService {
     *
     * @param path 模型路径
     * @return this
-     */
+    */
     default EmbeddingService modelPath(String path) {
         return this;
     }
@@ -66,7 +66,7 @@ public interface EmbeddingService {
     *
     * @param device 设备名称（如 "cpu"、"gpu"）
     * @return this
-     */
+    */
     default EmbeddingService device(String device) {
         return this;
     }
@@ -76,7 +76,7 @@ public interface EmbeddingService {
     *
     * @param text 文本内容
     * @return 特征向量
-     */
+    */
     float[] embed(String text);
 
     /**
@@ -84,7 +84,7 @@ public interface EmbeddingService {
     *
     * @param imageData 图像字节数据
     * @return 特征向量
-     */
+    */
     float[] embed(byte[] imageData);
 
     /**
@@ -92,7 +92,7 @@ public interface EmbeddingService {
     *
     * @param texts 文本列表
     * @return 特征向量列表
-     */
+    */
     List<float[]> embedBatch(List<String> texts);
 }
 
@@ -106,39 +106,39 @@ class DefaultEmbeddingService implements EmbeddingService {
 
     /**
     * 识别引擎实例
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 计算设备，默认 CPU
-     */
+    */
     private String device = DEVICE_CPU;
 
     /**
     * 默认设备：CPU
-     */
+    */
     private static final String DEVICE_CPU = "cpu";
 
     /**
     * 错误信息：模型未注册
-     */
+    */
     private static final String MSG_MODEL_NOT_REGISTERED = "模型未注册: ";
 
     /**
@@ -147,7 +147,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultEmbeddingService(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -181,7 +181,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     *
     * @param text 文本
     * @return embed的结果
-     */
+    */
     public float[] embed(String text) {
         ITranslator<String, float[]> t =
                 (ITranslator<String, float[]>) engine.get(modelName, ITranslator.class);
@@ -198,7 +198,7 @@ class DefaultEmbeddingService implements EmbeddingService {
     *
     * @param imageData 镜像数据
     * @return embed的结果
-     */
+    */
     public float[] embed(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);

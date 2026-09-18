@@ -34,27 +34,27 @@ public class SpiderTimerService {
 
     /**
     * 默认调度池大小。
-     */
+    */
     private static final int DEFAULT_POOL_SIZE = 4;
 
     /**
     * 扫描间隔（秒）：每分钟扫描一次所有定时任务。
-     */
+    */
     private static final int SCAN_INTERVAL_SECONDS = 60;
 
     /**
     * 调度线程池
-     */
+    */
     private final ScheduledExecutorService scheduler;
 
     /**
     * 爬虫定义存储
-     */
+    */
     private final SpiderDefinitionStore definitionStore;
 
     /**
     * 任务回调：接收到时执行爬虫逻辑
-     */
+    */
     private Consumer<SpiderDefinition> taskHandler = def -> {
  // 默认空实现，由调用方通过 设置任务处理器 注入
         log.info("[spider-config] 到期: spiderCode={}", def.getSpiderCode());
@@ -62,18 +62,18 @@ public class SpiderTimerService {
 
     /**
     * 已注册的调度任务：蜘蛛编码 -> 调度期货
-     */
+    */
     private final Map<String, ScheduledFuture<?>> futures = new ConcurrentHashMap<>();
 
     /**
     * 扫描线程的 期货（用于 关闭 时取消）
-     */
+    */
     private ScheduledFuture<?> scanFuture;
 
     /**
     * 创建 蜘蛛定时器服务 实例
     * @param definitionStore definition存储
-     */
+    */
     public SpiderTimerService(SpiderDefinitionStore definitionStore) {
         this.scheduler = Executors.newScheduledThreadPool(DEFAULT_POOL_SIZE,
                 r -> {
@@ -88,14 +88,14 @@ public class SpiderTimerService {
     * 设置任务处理器。
     *
     * @param handler 任务回调
-     */
+    */
     public void setTaskHandler(Consumer<SpiderDefinition> handler) {
         this.taskHandler = handler == null ? def -> {} : handler;
     }
 
     /**
     * 启动调度：注册扫描任务，每分钟刷新一次所有启用定时的爬虫。
-     */
+    */
     @PostConstruct
     public void start() {
         if (scanFuture != null) {
@@ -109,7 +109,7 @@ public class SpiderTimerService {
 
     /**
     * 停止调度：取消所有任务与扫描线程。
-     */
+    */
     @PreDestroy
     public void stop() {
         if (scanFuture != null) {
@@ -126,7 +126,7 @@ public class SpiderTimerService {
     * 重新扫描所有爬虫定义，根据最新的 cron 表达式重排调度。
     *
     * <p>每分钟被扫描任务调用一次。每次只更新发生变化的任务。</p>
-     */
+    */
     public void rescheduleAll() {
         try {
             SpiderDefinitionStore.PageResult<SpiderDefinition> page =
@@ -150,7 +150,7 @@ public class SpiderTimerService {
     * 调度或更新单个任务。
     *
     * @param def 爬虫定义
-     */
+    */
     private void scheduleOrUpdate(SpiderDefinition def) {
         try {
             CronExpression cron = new CronExpression(def.getSpiderScheduleCron());
@@ -185,7 +185,7 @@ public class SpiderTimerService {
     * 取消指定爬虫的调度任务。
     *
     * @param spiderCode 爬虫编码
-     */
+    */
     private void cancel(String spiderCode) {
         ScheduledFuture<?> existing = futures.remove(spiderCode);
         if (existing != null) {

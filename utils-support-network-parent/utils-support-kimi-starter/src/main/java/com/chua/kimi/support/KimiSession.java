@@ -28,57 +28,57 @@ public class KimiSession implements AutoCloseable {
 
     /**
     * 令牌 刷新提前量（秒），在过期前 5 分钟提前刷新。
-     */
+    */
     private static final long REFRESH_BUFFER_SECONDS = 300;
 
     /**
     * 读取超时时间（毫秒）。
-     */
+    */
     private static final int READ_TIMEOUT_MS = 120000;
 
     /**
     * 连接超时时间（毫秒）。
-     */
+    */
     private static final int CONNECT_TIMEOUT_MS = 30000;
 
     /**
     * 基础地址。
-     */
+    */
     private final String baseUrl;
 
     /**
     * 原始 令牌（app键）。
-     */
+    */
     private final String rawToken;
 
     /**
     * 当前 access 令牌。
-     */
+    */
     private volatile String accessToken;
 
     /**
     * 当前 access 令牌 过期时间（轮次 秒，0 表示未知）。
-     */
+    */
     private volatile long expiresAt;
 
     /**
     * 当前 令牌 类型：JWT / refresh。
-     */
+    */
     private volatile String tokenType;
 
     /**
     * 设备 标识（客户端持久化身份）。
-     */
+    */
     private final String deviceId;
 
     /**
     * 会话 标识。
-     */
+    */
     private final String sessionId;
 
     /**
     * 令牌 刷新互斥锁。
-     */
+    */
     private final ReentrantLock refreshLock = new ReentrantLock();
 
     /**
@@ -86,7 +86,7 @@ public class KimiSession implements AutoCloseable {
     *
     * @param appKey  原始 令牌（JWT 或 refresh 令牌）
     * @param baseUrl 基础地址，空 时用默认值
-     */
+    */
     public KimiSession(String appKey, String baseUrl) {
         this.rawToken = appKey == null ? "" : appKey.strip();
         this.baseUrl = (baseUrl == null || baseUrl.isBlank()) ? KimiProtocol.BASE_URL : stripTrailingSlash(baseUrl);
@@ -110,7 +110,7 @@ public class KimiSession implements AutoCloseable {
     *
     * @return access 令牌
     * @throws RuntimeException 令牌 刷新失败时抛出
-     */
+    */
     public String getAccessToken() {
         if (needsRefresh()) {
             refreshLock.lock();
@@ -130,7 +130,7 @@ public class KimiSession implements AutoCloseable {
     * JWT 令牌 直接使用，过期后由调用方重新提供。
     *
     * @return true 需要刷新
-     */
+    */
     private boolean needsRefresh() {
         if (!"refresh".equals(tokenType)) {
             return false;
@@ -145,7 +145,7 @@ public class KimiSession implements AutoCloseable {
     * 使用 refresh 令牌 换取新的 access 令牌。
     *
     * @throws RuntimeException 刷新失败时抛出
-     */
+    */
     private void doRefresh() {
         if (rawToken.isEmpty()) {
             throw new RuntimeException("Kimi token 未配置");
@@ -192,7 +192,7 @@ public class KimiSession implements AutoCloseable {
     *
     * @param encodedBody 连接 编码后的请求字节
     * @return HTTP 响应
-     */
+    */
     public ClientResponse postChat(byte[] encodedBody) {
         Map<String, String> extra = buildHeaders();
         extra.put("Content-Type", "application/connect+json");
@@ -209,7 +209,7 @@ public class KimiSession implements AutoCloseable {
     * 完整请求头（含认证）。
     *
     * @return 请求头映射
-     */
+    */
     public Map<String, String> buildHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept", "*/*");
@@ -234,7 +234,7 @@ public class KimiSession implements AutoCloseable {
     * 认证请求头（不含 device 指纹，用于 令牌 刷新）。
     *
     * @return 请求头映射
-     */
+    */
     private Map<String, String> buildAuthHeaders() {
         Map<String, String> headers = new HashMap<>();
         headers.put("Accept-Language", "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7");
@@ -247,10 +247,10 @@ public class KimiSession implements AutoCloseable {
     }
 
     /**
-    * 构建浏览器指纹 用户-智能体。
+    * 构建浏览器指纹 用户-Agent。
     *
     * @return User-Agent 字符串
-     */
+    */
     private static String buildUserAgent() {
         return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                 + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
@@ -261,7 +261,7 @@ public class KimiSession implements AutoCloseable {
     *
     * @param url 原始地址
     * @return 去末尾斜杠后的地址
-     */
+    */
     private static String stripTrailingSlash(String url) {
         if (url == null) {
             return "";
@@ -279,7 +279,7 @@ public class KimiSession implements AutoCloseable {
     * @param text 文本
     * @param max  最大长度
     * @return 截断后的文本
-     */
+    */
     private static String truncate(String text, int max) {
         if (text == null) {
             return "";
@@ -290,7 +290,7 @@ public class KimiSession implements AutoCloseable {
     /**
     * 服务器地址（用户可配置）。
     * @return 获取baseurl的结果
-     */
+    */
     public String getBaseUrl() {
         return baseUrl;
     }

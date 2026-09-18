@@ -35,84 +35,84 @@ public class GoogleChatClient implements ChatClient {
 
     /**
     * Gemini 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://generativelanguage.googleapis.com/v1beta";
 
     /**
     * Google Gen AI 客户端
-     */
+    */
     private final Client client;
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 构造 Google Gemini 对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public GoogleChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -274,7 +274,7 @@ public class GoogleChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         String actualModel = model != null ? model : "gemini-1.5-pro";
@@ -399,7 +399,7 @@ public class GoogleChatClient implements ChatClient {
     * 通过系统属性配置 HTTP 代理
     *
     * @param proxyStr 代理地址，支持 http://、socks5:// 格式，可为空
-     */
+    */
     private static void applyProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return;

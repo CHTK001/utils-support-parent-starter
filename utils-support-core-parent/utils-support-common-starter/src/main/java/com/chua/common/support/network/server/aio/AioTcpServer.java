@@ -82,8 +82,8 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 管道模式处理器契约(纯异步)。
-    */
+        * 管道模式处理器契约(纯异步)。
+        */
     @FunctionalInterface
     public interface RawPipeHandler {
         /**
@@ -432,11 +432,11 @@ public class AioTcpServer extends AbstractServer implements TcpServer {
     }
 
     /**
-    * 阻塞式 Future 读适配器(虚拟线程上零平台线程占用)。
-    *
-    * @param channel 通道
-    * @return 输入流
-    */
+        * 阻塞式 Future 读适配器(虚拟线程上零平台线程占用)。
+        *
+        * @param channel 通道
+        * @return 输入流
+        */
     public static InputStream newBlockingReader(AsynchronousSocketChannel channel) {
         return new InputStream() {
             final ByteBuffer buf = ByteBuffer.allocate(8192);

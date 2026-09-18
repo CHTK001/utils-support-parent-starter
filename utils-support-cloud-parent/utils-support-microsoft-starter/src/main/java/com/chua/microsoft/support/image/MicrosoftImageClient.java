@@ -33,74 +33,74 @@ public class MicrosoftImageClient implements ImageClient {
 
     /**
     * Azure 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.azure.com";
 
     /**
     * API 版本参数
-     */
+    */
     private static final String API_VERSION = "2024-02-01";
 
     /**
     * HTTP 客户端
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * 客户端配置
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前图片宽度
-     */
+    */
     private Integer width;
 
     /**
     * 当前图片高度
-     */
+    */
     private Integer height;
 
     /**
     * 当前提示词
-     */
+    */
     private String prompt;
 
     /**
     * 当前反向提示词
-     */
+    */
     private String negativePrompt;
 
     /**
     * 当前质量等级
-     */
+    */
     private String quality;
 
     /**
     * 当前风格
-     */
+    */
     private String style;
 
     /**
     * 当前随机种子
-     */
+    */
     private Long seed;
 
     /**
     * 当前推理步数
-     */
+    */
     private Integer steps;
 
     /**
     * 构造 Azure 打开AI DALL-E 图片生成客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public MicrosoftImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -244,7 +244,7 @@ public BufferedImage generate(String prompt) {
     * @param json Azure 打开AI 返回的 JSON 响应
     * @return BufferedImage 对象
     * @throws IOException 下载或解析失败
-     */
+    */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
@@ -298,7 +298,7 @@ public BufferedImage generate(String prompt) {
     * 构建图片尺寸字符串
     *
     * @return 如 "1024x1024"
-     */
+    */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
@@ -309,7 +309,7 @@ public BufferedImage generate(String prompt) {
     * 规范化 API 基础地址
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -326,7 +326,7 @@ public BufferedImage generate(String prompt) {
     *
     * @param input 原始字符串
     * @return 转义后的字符串
-     */
+    */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

@@ -23,19 +23,19 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
 
     /**
     * 本地 safetensor服务 网关主机
-     */
+    */
     private static final String HOST = "localhost";
 
     /**
     * 本地 safetensor服务 网关端口
-     */
+    */
     private static final int PORT = 8765;
 
     /**
     * 返回首个可用模型定义。
     *
     * @return TranslatorModelDefinition 或 空
-     */
+    */
     @Override
     public TranslatorModelDefinition getDefinition() {
         List<TranslatorModelDefinition> all = getAll();
@@ -44,7 +44,7 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
 
     /**
     * @return SafeTensorModelRegistry 中所有模型对应的 translator模型definition 列表
-     */
+    */
     @Override
     public List<TranslatorModelDefinition> getAll() {
         try {
@@ -80,7 +80,7 @@ public class SafeTensorBulkModelProvider implements BulkModelProvider {
     *
     * @param entry 模型条目
     * @return ITranslator 实例
-     */
+    */
     private ITranslator<?, ?> createTranslator(SafeTensorModelRegistry.ModelEntry entry) {
         return new SafeTensorModelTranslator(HOST, PORT, entry.id(), entry.type());
     }

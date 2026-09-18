@@ -29,7 +29,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     * * 构造 Translator，支持从外部传入参数键值对。     *     * @param configuration 检测配置，可空；未提供时使用默认值
     *
     * @param arguments 参数
-     */
+    */
     private static final int TOP_K = 200;
     private static final double EYE_DIST_THRESHOLD = 5; // eyedist阈值
     private static final double[] VARIANCE = {0.1, 0.2}; // VARIANCE
@@ -64,12 +64,12 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
 
     /**
     * 输入图像宽。
-     */
+    */
     private int width;
 
     /**
     * 输入图像高。
-     */
+    */
     private int height;
 
     @Override
@@ -153,7 +153,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
             }
             // 眼睛距离过滤（关键点归一化，乘图像尺寸转像素）
             double eyeDist = Math.sqrt(Math.pow(c.kp[2] - c.kp[0], 2) + Math.pow(c.kp[3] - c.kp[1], 2))
-                    * Math.max(width, height);
+    * Math.max(width, height);
             if (eyeDist < EYE_DIST_THRESHOLD) {
                 continue;
             }
@@ -176,7 +176,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     * @param c c
     * @param nb nb
     * @return iouPixels的结果
-     */
+    */
     private double iouPixels(Candidate c, Rectangle nb) {
         double s1 = c.w * c.h;
         double s2 = nb.getWidth() * nb.getHeight();
@@ -199,7 +199,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     * @param scales scales
     * @param steps steps
     * @return boxRecover的结果
-     */
+    */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> boxes = new ArrayList<>();
         for (int idx = 0; idx < steps.length; idx++) {
@@ -224,7 +224,7 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     * ndarray 转二维 float 数组（处理 批量 维）。
     * @param array array
     * @return to2d的结果
-     */
+    */
     private static float[][] to2d(NDArray array) {
         Shape shape = array.getShape();
         float[] flat = array.toFloatArray();
@@ -250,14 +250,14 @@ public class OnnxRetinaFaceTranslator implements Translator<Image, DetectedObjec
     /**
     * 空结果。
     * @return 空的结果
-     */
+    */
     private static DetectedObjects empty() {
         return new DetectedObjects(List.of(), List.of(), List.of());
     }
 
     /**
     * 候选框（像素坐标）。
-     */
+    */
     private static final class Candidate {
         final double x;
         final double y;

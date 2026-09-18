@@ -25,17 +25,17 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
 
     /**
     * 输入尺寸（固定 512x512）。
-     */
+    */
     private static final int INPUT_SIZE = 512;
 
     /**
     * 原始图像宽。
-     */
+    */
     private int originalWidth;
 
     /**
     * 原始图像高。
-     */
+    */
     private int originalHeight;
 
     @Override
@@ -96,7 +96,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     *
     * @param v v
     * @return clip的结果
-     */
+    */
     private static int clip(float v) {
         return Math.max(0, Math.min(255, Math.round(v)));
     }
@@ -106,7 +106,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     *
     * @param input 输入
     * @return hwcPixels的结果
-     */
+    */
     private static float[] hwcPixels(Image input) {
         Object wrapped = input.getWrappedImage();
         if (wrapped instanceof java.awt.image.BufferedImage bi) {
@@ -133,7 +133,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     * @param dw dw
     * @param dh dh
     * @return resizeHwc的结果
-     */
+    */
     private static float[] resizeHwc(float[] src, int sw, int sh, int dw, int dh) {
         float[] out = new float[dw * dh * 3];
         float xs = (float) sw / dw;
@@ -159,7 +159,7 @@ public class AnimeGanV2NchwTranslator implements Translator<Image, Image> {
     * @param dw dw
     * @param dh dh
     * @return resize缓冲的结果
-     */
+    */
     private static java.awt.image.BufferedImage resizeBuffered(java.awt.image.BufferedImage src, int dw, int dh) {
         return ImageUtils.resize(src, dw, dh, org.opencv.imgproc.Imgproc.INTER_CUBIC);
     }

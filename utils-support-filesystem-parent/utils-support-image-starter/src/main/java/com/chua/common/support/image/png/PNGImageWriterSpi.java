@@ -54,7 +54,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
 
     /**
     * 构造函数，初始化 镜像writerspi 的基类信息。
-     */
+    */
     public PNGImageWriterSpi() {
         super(vendorName,
                 version,
@@ -79,7 +79,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     *
     * @param type 图像类型说明
     * @return 如果可以编码，则返回 true；否则返回 false
-     */
+    */
     public boolean canEncodeImage(ImageTypeSpecifier type) {
         SampleModel sampleModel = type.getSampleModel();
         ColorModel colorModel = type.getColorModel();
@@ -122,7 +122,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     *
     * @param locale 本地化信息，返回相应语言的描述
     * @return 服务提供者的描述信息
-     */
+    */
     public String getDescription(Locale locale) {
         return "PNG/APNG image writer";
     }
@@ -132,7 +132,7 @@ public class PNGImageWriterSpi extends ImageWriterSpi {
     *
     * @param extension 扩展对象，创建特定的写入器实例
     * @return 创建的写入器实例
-     */
+    */
     public ImageWriter createWriterInstance(Object extension) {
         return new PNGImageWriter(this);
     }

@@ -21,17 +21,17 @@ public class BigGANTranslator implements Translator<Long, Image> {
 
     /**
     * 截断系数，控制生成多样性。
-     */
+    */
     private final float truncation;
 
     /**
     * 噪声向量维度。
-     */
+    */
     private final int noiseSize;
 
     /**
     * 默认 128 分辨率。
-     */
+    */
     public BigGANTranslator() {
         this(128, 0.4f);
     }
@@ -41,7 +41,7 @@ public class BigGANTranslator implements Translator<Long, Image> {
     *
     * @param size       输出分辨率 128/256/512
     * @param truncation 截断系数
-     */
+    */
     public BigGANTranslator(int size, float truncation) {
         if (size == 128) {
             this.noiseSize = 120;

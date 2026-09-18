@@ -43,19 +43,19 @@ public class LogOperation {
 
     /**
     * 所属 git客户端。
-     */
+    */
     private final GitClient client;
 
     /**
     * 数量限制。
-     */
+    */
     private int maxCount = Integer.MAX_VALUE;
 
     /**
     * 构建操作实例（仅框架内部调用）。
     *
     * @param client 所属 Git客户端
-     */
+    */
     public LogOperation(GitClient client) {
         this.client = client;
     }
@@ -65,7 +65,7 @@ public class LogOperation {
     *
     * @param count 最大返回条数
     * @return 当前操作实例
-     */
+    */
     public LogOperation limit(int count) {
         this.maxCount = count;
         return this;
@@ -77,7 +77,7 @@ public class LogOperation {
     * 查询全部提交日志。
     *
     * @return 提交日志列表（从新到旧）
-     */
+    */
     public List<LogEntry> list() {
         return doList(null, null);
     }
@@ -87,7 +87,7 @@ public class LogOperation {
     *
     * @param count 最大返回条数
     * @return 提交日志列表（从新到旧）
-     */
+    */
     public List<LogEntry> list(int count) {
         this.maxCount = count;
         return doList(null, null);
@@ -99,7 +99,7 @@ public class LogOperation {
     * @param fromRef 起点引用（较新，如 "v1.0"、"HEAD"）
     * @param toRef   终点引用（较旧，如 "v0.9"）
     * @return 提交日志列表
-     */
+    */
     public List<LogEntry> listBetween(String fromRef, String toRef) {
         return doList(fromRef, toRef);
     }
@@ -111,7 +111,7 @@ public class LogOperation {
     * @param fromRef 从ref
     * @param toRef 转为ref
     * @return 执行列表的结果
-     */
+    */
     private List<LogEntry> doList(String fromRef, String toRef) {
         try {
             client.open();
@@ -159,7 +159,7 @@ public class LogOperation {
     * @param repo repo
     * @param ref ref
     * @return resolveRef的结果
-     */
+    */
     private ObjectId resolveRef(Repository repo, String ref) throws Exception {
         ObjectId oid = repo.resolve(ref);
         if (oid == null) {

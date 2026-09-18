@@ -59,7 +59,7 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
     * 因为检测水平边缘使用 Y 梯度方向的卷积核。</p>
     *
     * @see ImageProcessorUtils#SOBEL_Y
-     */
+    */
     public static final int[] SOBEL_X = ImageProcessorUtils.SOBEL_Y;
     
     /**
@@ -69,7 +69,7 @@ public class ImageFindEdgeFilter extends AbstractImageFilter {
     * 因为检测垂直边缘使用 X 梯度方向的卷积核。</p>
     *
     * @see ImageProcessorUtils#SOBEL_X
-     */
+    */
     public static final int[] SOBEL_Y = ImageProcessorUtils.SOBEL_X;
 
     @Override

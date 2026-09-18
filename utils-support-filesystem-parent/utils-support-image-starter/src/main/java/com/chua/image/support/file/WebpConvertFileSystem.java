@@ -41,12 +41,12 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
     * 支持的图片格式（除 webp 外）
-     */
+    */
     private static final String[] SUPPORTED_FORMATS = {"jpeg", "jpg", "png", "bmp", "gif", "ico"};
 
     /**
     * 默认构造函数
-     */
+    */
     public WebpConvertFileSystem() {
         super();
     }
@@ -63,7 +63,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param file 文件对象
-     */
+    */
     public WebpConvertFileSystem(File file) {
         super(file);
     }
@@ -72,7 +72,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param filePath 文件路径
-     */
+    */
     public WebpConvertFileSystem(String filePath) {
         super(filePath);
     }
@@ -104,7 +104,7 @@ public class WebpConvertFileSystem extends AbstractConvertFileSystem {
     * @param sourceFormat 源格式化
     * @param targetFormat Target格式化
     * @return 是否支持格式化的结果
-     */
+    */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         // 相同格式不需要转换
         if (sourceFormat != null && sourceFormat.equalsIgnoreCase(targetFormat)) {

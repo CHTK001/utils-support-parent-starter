@@ -63,7 +63,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
 
     /**
     * tinafacetranslator。
-     */
+    */
     public TinaFaceTranslator() {
     }
 
@@ -195,7 +195,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param value 值
     * @return sigmoid的结果
-     */
+    */
     private static double sigmoid(float value) {
         return 1.0d / (1.0d + Math.exp(-value));
     }
@@ -205,7 +205,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param value 值
     * @return clip的结果
-     */
+    */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
@@ -214,7 +214,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     * 空
     *
     * @return 空的结果
-     */
+    */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
@@ -232,7 +232,7 @@ public class TinaFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param rectangle rectangle
     * @param score score
     * @return Candidate的结果
-     */
+    */
     private record Candidate(Rectangle rectangle, double score) {
     }
 }

@@ -30,13 +30,13 @@ import java.util.Map;
 public class WordWriteBuilder extends WriteBuilder {
     /**
     * 模板文件流
-     */
+    */
     private InputStream templateStream;
 
     /**
     * 创建 word写入构建器 实例
     * @param file 文件
-     */
+    */
     public WordWriteBuilder(File file) {
         super(file);
     }
@@ -46,7 +46,7 @@ public class WordWriteBuilder extends WriteBuilder {
     *
     * @param stream 模板文件流
     * @return 当前构建器
-     */
+    */
     public WordWriteBuilder withTemplate(InputStream stream) {
         this.templateStream = stream;
         return this;
@@ -57,7 +57,7 @@ public class WordWriteBuilder extends WriteBuilder {
     *
     * @param lines 文本行列表
     * @return 写入的结果
-     */
+    */
     public WordWriteBuilder write(List<String> lines) {
         pending.add(lines);
         return this;
@@ -75,7 +75,7 @@ public class WordWriteBuilder extends WriteBuilder {
     *
     * @param rows 映射 数据列表
     * @return 写入映射的结果
-     */
+    */
     public WordWriteBuilder writeMap(List<Map<String, Object>> rows) {
         pending.add(rows);
         return this;
@@ -85,7 +85,7 @@ public class WordWriteBuilder extends WriteBuilder {
     * 实时写入文本行。
     *
     * @param lines 文本行列表
-     */
+    */
     public void writeAndFlush(List<String> lines) {
         callback.onStart();
         callback.onBeginWrite();
@@ -102,7 +102,7 @@ public class WordWriteBuilder extends WriteBuilder {
     * 实时写入 映射 数据。
     *
     * @param rows 映射 数据列表
-     */
+    */
     public void writeAndFlushMap(List<Map<String, Object>> rows) {
         callback.onStart();
         callback.onBeginWrite();
@@ -167,7 +167,7 @@ public class WordWriteBuilder extends WriteBuilder {
     * 执行写入文本
     *
     * @param lines 线
-     */
+    */
     private void doWriteText(List<String> lines) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;
@@ -190,7 +190,7 @@ public class WordWriteBuilder extends WriteBuilder {
     * 执行写入映射
     *
     * @param rows rows
-     */
+    */
     private void doWriteMap(List<Map<String, Object>> rows) {
         try (XWPFDocument doc = new XWPFDocument()) {
             int written = 0;

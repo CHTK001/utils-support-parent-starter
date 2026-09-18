@@ -25,7 +25,7 @@ public class FileSyncDataOffsetStorage implements SyncDataOffsetStorage {
     /**
     * 创建 文件同步数据偏移量storage 实例
     * @param storageDir storagedir
-     */
+    */
     public FileSyncDataOffsetStorage(Path storageDir) {
         this.storageDir = storageDir;
         try {

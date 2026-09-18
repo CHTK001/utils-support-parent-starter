@@ -27,7 +27,7 @@ public class MysqlMetaView extends AbstractMetaView {
     * @param metaData meta数据
     * @param engine Engine
     * @param engine engine
-     */
+    */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
     }
@@ -39,7 +39,7 @@ public class MysqlMetaView extends AbstractMetaView {
     * @param viewName 字符串
     * @param engine engine
     * @param viewName view名称
-     */
+    */
     protected MysqlMetaView(AbstractMetaData metaData, Engine engine, String viewName) {
         super(metaData, engine, viewName);
     }
@@ -116,7 +116,7 @@ public class MysqlMetaView extends AbstractMetaView {
     * @param schema 模式
     * @param viewName view名称
     * @return 读取viewdefinition的结果
-     */
+    */
     protected String readViewDefinition(Connection conn, String schema, String viewName) throws Exception {
         String sql = "SHOW CREATE VIEW " + quote(schema != null ? schema + "." + viewName : viewName);
         try (java.sql.Statement stmt = conn.createStatement();
@@ -132,7 +132,7 @@ public class MysqlMetaView extends AbstractMetaView {
     * 获取Connection
     *
     * @return 获取connection的结果
-     */
+    */
     protected Connection getConnection() throws Exception {
         EngineDataSource<?> eds = engine.getDataSource(engine.getDefaultDataSourceName());
         if (eds == null) {
@@ -150,7 +150,7 @@ public class MysqlMetaView extends AbstractMetaView {
     *
     * @param name 名称
     * @return 引述的结果
-     */
+    */
     private String quote(String name) {
         return "`" + name + "`";
     }
@@ -162,7 +162,7 @@ public class MysqlMetaView extends AbstractMetaView {
     * @return 执行更新的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private boolean executeUpdate(String sql) {
         try (Connection conn = getConnection();
              java.sql.Statement stmt = conn.createStatement()) {
@@ -234,7 +234,7 @@ public class MysqlMetaView extends AbstractMetaView {
         * @return 执行的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public ViewDef execute() {
             if (definition == null || definition.isEmpty()) {
                 throw new IllegalStateException("视图定义不能为空");

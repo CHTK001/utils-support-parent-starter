@@ -22,7 +22,7 @@ public class OnnxPoseEstimator implements PoseEstimator {
     /**
     * 创建 onnxposeestimator 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxPoseEstimator(String apiKey) {
     }
 
@@ -37,7 +37,7 @@ public class OnnxPoseEstimator implements PoseEstimator {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "yolov8n-pose";
     }

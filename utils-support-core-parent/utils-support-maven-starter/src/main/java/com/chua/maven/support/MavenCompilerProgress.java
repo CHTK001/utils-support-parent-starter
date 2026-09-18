@@ -30,6 +30,6 @@ public interface MavenCompilerProgress {
     *
     * @param message 当前进度描述信息
     * @param percent 当前进度百分比（0-100）
-     */
+    */
     void onProgress(String message, int percent);
 }

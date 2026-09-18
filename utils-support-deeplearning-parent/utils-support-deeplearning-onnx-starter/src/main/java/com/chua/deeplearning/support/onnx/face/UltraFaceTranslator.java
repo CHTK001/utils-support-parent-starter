@@ -67,7 +67,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
     * 创建 ultrafacetranslator 实例
     * @param configuration 配置
-     */
+    */
     public UltraFaceTranslator(DetectionConfiguration configuration) {
         this(configuration == null ? null : configuration.loadModelName());
     }
@@ -77,7 +77,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param confThresh confthresh
     * @param confThresh double
     * @param nmsThresh nmsthresh
-     */
+    */
     public UltraFaceTranslator(double confThresh, double nmsThresh) {
         this(confThresh, nmsThresh, "slim");
     }
@@ -89,7 +89,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param int int
     * @param inputSize 输入大小
     * @param nmsThresh nmsthresh
-     */
+    */
     public UltraFaceTranslator(double confThresh, double nmsThresh, int[] inputSize) {
         this(confThresh, nmsThresh, inputSize[0], inputSize[1], DEFAULT_VARIANCE,
                 new int[][]{{10, 16, 24}, {32, 48}, {64, 96}, {128, 192, 256}},
@@ -99,7 +99,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     /**
     * 创建 ultrafacetranslator 实例
     * @param modelName 模型名称
-     */
+    */
     private UltraFaceTranslator(String modelName) {
         this(0.2d, 0.3d, modelName);
     }
@@ -111,7 +111,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param modelName 字符串
     * @param nmsThresh nmsthresh
     * @param modelName 模型名称
-     */
+    */
     private UltraFaceTranslator(double confThresh, double nmsThresh, String modelName) {
         String normalized = modelName == null ? "" : modelName.toLowerCase(Locale.ROOT);
         if ("scrfd_2_5g_bnkps".equals(normalized) || "scrfd_2.5g_bnkps".equals(normalized)
@@ -159,7 +159,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param scales scales
     * @param steps steps
     * @param topK topk
-     */
+    */
     private UltraFaceTranslator(double confThresh, double nmsThresh, int inputWidth, int inputHeight,
                                 double[] variance, int[][] scales, int[] steps, int topK) {
         this.confThresh = confThresh;
@@ -283,7 +283,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param array array
     * @return squeezeBatch的结果
-     */
+    */
     private NDArray squeezeBatch(NDArray array) {
         if (array != null && array.getShape().dimension() == 3 && array.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
             return array.squeeze(0);
@@ -299,7 +299,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param scales scales
     * @param steps steps
     * @return boxRecover的结果
-     */
+    */
     private double[][] boxRecover(int width, int height, int[][] scales, int[] steps) {
         List<double[]> defaultBoxes = new ArrayList<>();
         for (int index = 0; index < steps.length; index++) {
@@ -331,7 +331,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     *
     * @param value 值
     * @return clip的结果
-     */
+    */
     private double clip(double value) {
         return Math.max(0d, Math.min(1d, value));
     }
@@ -342,7 +342,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param origin origin
     * @param size 大小
     * @return clip大小的结果
-     */
+    */
     private double clipSize(double origin, double size) {
         return Math.max(0d, Math.min(1d - clip(origin), size));
     }
@@ -360,7 +360,7 @@ public class UltraFaceTranslator implements Translator<Image, DetectedObjects> {
     * @param rectangle rectangle
     * @param probability probability
     * @return Candidate的结果
-     */
+    */
     private record Candidate(Rectangle rectangle, double probability) {
     }
 }

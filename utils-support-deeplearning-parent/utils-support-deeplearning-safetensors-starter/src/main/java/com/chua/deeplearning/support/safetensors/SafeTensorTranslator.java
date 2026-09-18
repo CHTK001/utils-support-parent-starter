@@ -22,17 +22,17 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
 
     /**
     * HTTP 客户端
-     */
+    */
     private final SafeTensorServiceClient client;
 
     /**
     * 模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 模型类型（默认 face_detection）
-     */
+    */
     private final String modelType;
 
     /**
@@ -40,7 +40,7 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     *
     * @param host safetensor服务 主机
     * @param port safetensor服务 端口
-     */
+    */
     public SafeTensorTranslator(String host, int port) {
         this(host, port, "facade-face", "face_detection");
     }
@@ -50,7 +50,7 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     * @param port      safetensor服务 端口
     * @param modelName 模型名称
     * @param modelType 模型类型
-     */
+    */
     public SafeTensorTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
         this.modelName = modelName;
@@ -68,7 +68,7 @@ public class SafeTensorTranslator implements ITranslator<byte[], List<PredictRec
     *
     * @param input 图像字节数组
     * @return PredictRectangle 列表
-     */
+    */
     @Override
     public List<PredictRectangle> translate(byte[] input) {
         if (input == null || input.length == 0) {

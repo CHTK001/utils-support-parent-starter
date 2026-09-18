@@ -99,7 +99,7 @@ public class LamaInpaintingTranslator implements Translator<Image, Image> {
     * @param width     图像宽度
     * @param height    图像高度
     * @return 二值掩码 ndarray，形状 [1, 1, H, W]，值域 [0, 1]
-     */
+    */
     private static NDArray extractMask(NDManager manager, Image image, int width, int height) {
         BufferedImage buffered = (BufferedImage) image.getWrappedImage();
         int[] rgba = buffered.getRGB(0, 0, width, height, null, 0, width);

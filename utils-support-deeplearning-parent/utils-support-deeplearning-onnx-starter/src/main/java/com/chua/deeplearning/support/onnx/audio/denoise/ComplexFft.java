@@ -18,7 +18,7 @@ class ComplexFft {
     *
     * @param real 输入实部（长度 n），返回实部
     * @param imag 输入虚部（长度 n），返回虚部
-     */
+    */
     static void fft(float[] real, float[] imag) {
         int n = real.length;
         if (isPowerOfTwo(n)) {
@@ -34,7 +34,7 @@ class ComplexFft {
     *
     * @param real 输入实部（长度 n），返回实部
     * @param imag 输入虚部（长度 n），返回虚部
-     */
+    */
     static void ifft(float[] real, float[] imag) {
         int n = real.length;
         for (int i = 0; i < n; i++) {
@@ -53,7 +53,7 @@ class ComplexFft {
     *
     * @param signal 实数信号（长度 n）
     * @return [n/2+1][2] 频谱，每行 {real, imag}
-     */
+    */
     static float[][] rfft(float[] signal) {
         int n = signal.length;
         float[] real = signal.clone();
@@ -74,7 +74,7 @@ class ComplexFft {
     * @param spectrum [n/2+1][2] 频谱，每行 {real, imag}
     * @param n        输出信号长度（与原 STFT 的 n_fft 一致）
     * @return 实数信号（长度 n）
-     */
+    */
     static float[] irfft(float[][] spectrum, int n) {
         float[] real = new float[n];
         float[] imag = new float[n];
@@ -103,7 +103,7 @@ class ComplexFft {
     * @param imag 虚部
     * @param n    长度（2 的幂）
     * @param inv  inverse 时输出除以 N
-     */
+    */
     private static void radix2(float[] real, float[] imag, int n, boolean inv) {
         int bits = Integer.numberOfTrailingZeros(n);
         for (int i = 0; i < n; i++) {
@@ -155,7 +155,7 @@ class ComplexFft {
     *
     * @param real 实部
     * @param imag 虚部
-     */
+    */
     private static void bluestein(float[] real, float[] imag) {
         int n = real.length;
         int m = 1;
@@ -206,7 +206,7 @@ class ComplexFft {
     * @param aimag 虚部
     * @param breal 实部
     * @param bimag 虚部
-     */
+    */
     private static void convolve(float[] areal, float[] aimag, float[] breal, float[] bimag) {
         int m = areal.length;
         radix2(areal, aimag, m, false);

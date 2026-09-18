@@ -37,89 +37,89 @@ public class ZaiChatClient implements ChatClient {
 
     /**
     * Z.AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.z.ai/v1";
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * Z.AI SDK 客户端
-     */
+    */
     private final ZaiClient zaiClient;
 
     /**
     * 对话服务
-     */
+    */
     private final ChatService chatService;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 构造 Z.AI 对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public ZaiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -276,7 +276,7 @@ public class ZaiChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -372,7 +372,7 @@ public class ZaiChatClient implements ChatClient {
     * 规范化 API 基础地址
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -388,7 +388,7 @@ public class ZaiChatClient implements ChatClient {
     * 通过系统属性配置代理
     *
     * @param proxyStr 代理字符串
-     */
+    */
     private static void applyProxy(String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return;

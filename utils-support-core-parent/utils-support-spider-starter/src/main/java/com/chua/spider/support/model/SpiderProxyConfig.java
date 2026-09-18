@@ -23,30 +23,30 @@ public class SpiderProxyConfig {
 
     /**
     * 代理主机（IP 或域名）。
-     */
+    */
     private String proxyHost;
 
     /**
     * 代理端口。
-     */
+    */
     private Integer proxyPort;
 
     /**
     * 代理协议。
     *
     * <p>HTTP / HTTPS / SOCKS5，默认 HTTP。</p>
-     */
+    */
     @Builder.Default
     /** 代理协议 */
     private String proxyProtocol = "HTTP";
 
     /**
     * 代理认证用户名（可选）。
-     */
+    */
     private String proxyUsername;
 
     /**
     * 代理认证密码（可选）。
-     */
+    */
     private String proxyPassword;
 }

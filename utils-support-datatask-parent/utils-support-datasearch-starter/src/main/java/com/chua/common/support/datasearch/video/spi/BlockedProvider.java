@@ -13,7 +13,7 @@ public final class BlockedProvider {
 
     /**
     * blocked提供者。
-     */
+    */
     private BlockedProvider() {}
 
     /**
@@ -21,7 +21,7 @@ public final class BlockedProvider {
     *
     * @param providerName 提供者名称
     * @return blocked的结果
-     */
+    */
     public static ReturnPageResult<VideoInfoResult> blocked(String providerName) {
         VideoProviderRegistry.BlockReason reason = VideoProviderRegistry.getBlockReason(providerName);
         String msg = "provider [" + providerName + "] 已封禁"
@@ -35,7 +35,7 @@ public final class BlockedProvider {
     *
     * @param providerName 提供者名称
     * @return 空的结果
-     */
+    */
     public static ReturnPageResult<VideoInfoResult> empty(String providerName) {
         VideoProviderRegistry.block(providerName, VideoProviderRegistry.BlockReason.RATE_LIMITED);
         String msg = "provider [" + providerName + "] 返回空结果，已标记为 RATE_LIMITED";

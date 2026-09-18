@@ -29,7 +29,7 @@ public final class UebaConfigSerializer {
 
     /**
     * 私有构造，防止实例化。
-     */
+    */
     private UebaConfigSerializer() {
     }
 
@@ -40,7 +40,7 @@ public final class UebaConfigSerializer {
     * @param config 配置对象，不能为 空
     * @throws IllegalArgumentException 当任一参数为 空 时
     * @throws UncheckedIOException     当写入失败时
-     */
+    */
     public static void write(Path target, UebaConfig config) {
         Objects.requireNonNull(target, "target must not be null");
         Objects.requireNonNull(config, "config must not be null");
@@ -60,7 +60,7 @@ public final class UebaConfigSerializer {
     *
     * @param config 配置对象，不能为 空
     * @return 纯结构 映射
-     */
+    */
     private static Map<String, Object> toPlainMap(UebaConfig config) {
         Map<String, Object> root = new LinkedHashMap<>(8);
         root.put("features", features(config.getFeatures()));
@@ -76,7 +76,7 @@ public final class UebaConfigSerializer {
     *
     * @param defs 特征定义列表，允许为 空
     * @return 纯结构列表
-     */
+    */
     private static List<Object> features(List<FeatureDefinition> defs) {
         List<Object> result = new ArrayList<>();
         if (defs == null) {
@@ -101,7 +101,7 @@ public final class UebaConfigSerializer {
     *
     * @param ae auto编码器 配置，允许为 空
     * @return 纯结构 映射，ae 为 空 时返回空 映射
-     */
+    */
     private static Map<String, Object> autoEncoder(UebaConfig.AutoEncoder ae) {
         Map<String, Object> map = new LinkedHashMap<>(4);
         if (ae == null) {
@@ -119,7 +119,7 @@ public final class UebaConfigSerializer {
     *
     * @param lstm LSTM 配置，允许为 空
     * @return 纯结构 映射，lstm 为 空 时返回空 映射
-     */
+    */
     private static Map<String, Object> lstm(UebaConfig.Lstm lstm) {
         Map<String, Object> map = new LinkedHashMap<>(6);
         if (lstm == null) {
@@ -139,7 +139,7 @@ public final class UebaConfigSerializer {
     *
     * @param risk 风险配置，允许为 空
     * @return 纯结构 映射，risk 为 空 时返回空 映射
-     */
+    */
     private static Map<String, Object> risk(UebaConfig.Risk risk) {
         Map<String, Object> map = new LinkedHashMap<>(4);
         if (risk == null) {
@@ -157,7 +157,7 @@ public final class UebaConfigSerializer {
     *
     * @param preprocessing 预处理配置，允许为 空
     * @return 纯结构 映射，preprocessing 为 空 时返回空 映射
-     */
+    */
     private static Map<String, Object> preprocessing(UebaConfig.Preprocessing preprocessing) {
         Map<String, Object> map = new LinkedHashMap<>(2);
         if (preprocessing == null) {
@@ -185,7 +185,7 @@ public final class UebaConfigSerializer {
     *
     * @param scaler 归一化参数，允许为 空
     * @return 纯结构 映射，scaler 为 空 时返回空 映射
-     */
+    */
     private static Map<String, Object> scaler(UebaConfig.Scaler scaler) {
         Map<String, Object> map = new LinkedHashMap<>(4);
         if (scaler == null) {

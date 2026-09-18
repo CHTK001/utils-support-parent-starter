@@ -50,144 +50,144 @@ public class KimiChatClient implements ChatClient {
 
     /**
     * 默认模型。
-     */
+    */
     private static final String DEFAULT_MODEL = "kimi-k2.6";
 
     /**
     * 默认场景标识。
-     */
+    */
     private static final String DEFAULT_SCENARIO = "SCENARIO_K2D5";
 
     /**
     * 思考阶段标识。
-     */
+    */
     private static final String STAGE_NAME_THINKING = "STAGE_NAME_THINKING";
 
     /**
     * 会话客户端。
-     */
+    */
     private final KimiSession session;
 
     /**
     * 远程 对话 标识（多轮上下文）。
-     */
+    */
     private String remoteChatId;
 
     /**
     * 最后一条 assistant 消息 标识（多轮上下文）。
-     */
+    */
     private String lastAssistantMessageId;
 
     /**
     * 临时会话 标识。
-     */
+    */
     private String requestConversationId;
 
     /**
     * 客户端配置。
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前模型。
-     */
+    */
     private String model;
 
     /**
     * 当前温度。
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数。
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词。
-     */
+    */
     private String system;
 
     /**
     * 会话字符串 标识。
-     */
+    */
     private String conversationId;
 
     /**
     * 额外请求体参数。
-     */
+    */
     private Map<String, Object> extraBody;
 
     /**
     * topp 参数。
-     */
+    */
     private Double topP;
 
     /**
     * 停止 参数。
-     */
+    */
     private List<String> stop;
 
     /**
     * seed 参数。
-     */
+    */
     private Long seed;
 
     /**
     * 响应格式化 参数。
-     */
+    */
     private String responseFormat;
 
     /**
     * 图片 URL 列表。
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 附件列表。
-     */
+    */
     private final List<Attachment> attachments = new ArrayList<>();
 
     /**
     * 工具列表。
-     */
+    */
     private final List<ChatTool> tools = new ArrayList<>();
 
     /**
     * toolchoice 参数。
-     */
+    */
     private String toolChoice;
 
     /**
     * 是否启用思考。
-     */
+    */
     private boolean thinking;
 
     /**
     * 是否启用智能搜索。
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器。
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 对话历史消息列表。
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录。
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 构造 Kimi 逆向代理对话客户端。
     *
     * @param setting 客户端配置，其中 app键 为 令牌 串
-     */
+    */
     public KimiChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel() != null ? setting.getModel() : DEFAULT_MODEL;
@@ -398,7 +398,7 @@ public class KimiChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         long startTime = System.currentTimeMillis();
@@ -509,7 +509,7 @@ public class KimiChatClient implements ChatClient {
     * @param height height
     * @param quality quality
     * @param refImageKey ref镜像键
-     */
+    */
     public ImageGenerationResult generateImage(String prompt, String ratio, int n,
                                                int width, int height, String quality,
                                                String refImageKey) {
@@ -532,7 +532,7 @@ public class KimiChatClient implements ChatClient {
     * @param cameraMovement 摄像头移动
     * @param refImageKey ref镜像键
     * @param timeoutSeconds 超时seconds
-     */
+    */
     public VideoGenerationResult generateVideo(String prompt, String ratio,
                                                String cameraMovement, String refImageKey,
                                                int timeoutSeconds) {
@@ -564,7 +564,7 @@ public class KimiChatClient implements ChatClient {
     *
     * @param data 完整响应字节
     * @return 解析结果
-     */
+    */
     private KimiChatResult parseFrames(byte[] data) {
         StringBuilder text = new StringBuilder();
         StringBuilder thinking = new StringBuilder();
@@ -629,7 +629,7 @@ try {
     *
     * @param event 事件 JSON
     * @return thinking / answer / 空
-     */
+    */
     private static String extractPhase(JsonObject event) {
         JsonObject block = event.getJsonObject("block");
         Object stagesObj = block.getObject("multiStage");
@@ -662,7 +662,7 @@ try {
     * @param event 事件 JSON
     * @param phase 阶段
     * @return 内容，无则返回 空
-     */
+    */
     private static String extractContent(JsonObject event, String phase) {
         JsonObject block = event.getJsonObject("block");
         JsonObject textObj = block.getJsonObject("text");
@@ -681,7 +681,7 @@ try {
     *
     * @param event 事件 JSON
     * @return 思考内容
-     */
+    */
     private static String extractThink(JsonObject event) {
         JsonObject block = event.getJsonObject("block");
         Object thinkObj = block.getObject("think");
@@ -699,7 +699,7 @@ try {
     * @param prompt 当前问题
     * @param system 系统提示词
     * @return 组装后的文本
-     */
+    */
     private String formatMessages(List<ChatMessage> msgs, String prompt, String system) {
         StringBuilder body = new StringBuilder();
         if (system != null && !system.isBlank()) {
@@ -738,7 +738,7 @@ try {
     * @param text   回答文本
     * @param prompt 提示词
     * @return 图片列表
-     */
+    */
     private static List<ImageGenerationResult.GeneratedImage> extractImagesFromText(String text, String prompt) {
         List<ImageGenerationResult.GeneratedImage> images = new ArrayList<>();
         if (text == null || text.isEmpty()) {

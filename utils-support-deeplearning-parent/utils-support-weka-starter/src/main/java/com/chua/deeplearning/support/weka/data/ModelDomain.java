@@ -28,7 +28,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, boole
     /**
     * 紧凑构造器：校验 特征 / Target名称 / nominal值 非空，
     * 并将 特征 固化为不可变列表、nominal值 固化为不可变 映射 拷贝。
-     */
+    */
     public ModelDomain {
         Objects.requireNonNull(features, "features must not be null");
         Objects.requireNonNull(targetName, "targetName must not be null");
@@ -43,7 +43,7 @@ public record ModelDomain(List<FeatureColumn> features, String targetName, boole
     * @param data 数据对象（须已指定标签列或目标列）
     * @return 建模域快照
     * @throws WekaException 数据未指定标签 / 目标列
-     */
+    */
     public static ModelDomain of(WekaInstanceData data) {
         Objects.requireNonNull(data, "data must not be null");
         if (!data.hasTargetOrLabel()) {

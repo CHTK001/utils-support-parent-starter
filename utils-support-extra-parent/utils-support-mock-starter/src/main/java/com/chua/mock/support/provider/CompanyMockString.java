@@ -22,13 +22,13 @@ public class CompanyMockString implements MockString {
 
     /**
     * 城市前缀池
-     */
+    */
     private static final String[] CITIES = {
             "北京", "上海", "广州", "深圳", "杭州", "南京", "成都", "武汉", "长沙", "厦门"
     };
     /**
     * 核心词池
-     */
+    */
     private static final String[] CORES = {
             "华科", "天辰", "星河", "云帆", "瑞丰", "金桥", "创新", "联动", "方舟", "蓝海",
             "智联", "恒信", "卓越", "世纪", "东方", "未来", "环球", "嘉禾", "远航", "星辰"
@@ -37,7 +37,7 @@ public class CompanyMockString implements MockString {
     * 行业词池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] INDUSTRIES = {
             "科技", "网络", "信息", "智能", "数据", "软件", "电子", "文化", "传媒", "实业"
     };

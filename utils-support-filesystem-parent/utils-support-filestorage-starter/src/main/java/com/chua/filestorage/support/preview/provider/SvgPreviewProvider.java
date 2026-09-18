@@ -22,35 +22,37 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的 SVG 扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED_EXTS = Set.of("svg");
 
-    /** Base64 内嵌 SVG 预览允许的最大字节数（约 8 MB，避免生成超大 HTML 页面） */
+    /**
+    * Base64 内嵌 SVG 预览允许的最大字节数（约 8 MB，避免生成超大 HTML 页面）
+    */
     private static final long MAX_SVG_PREVIEW_BYTES = 8L * 1024 * 1024;
 
     /**
-     * 判断是否支持指定扩展名的文件预览。
-     *
-     * @param ext  文件扩展名
-     * @param mime MIME 类型（当前忽略）
-     * @return true 表示支持 SVG 预览
-     */
+    * 判断是否支持指定扩展名的文件预览。
+    *
+    * @param ext  文件扩展名
+    * @param mime MIME 类型（当前忽略）
+    * @return true 表示支持 SVG 预览
+    */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED_EXTS.contains(ext.toLowerCase());
     }
 
     /**
-     * 生成 SVG 文件的增强预览页面。
-     *
-     * <p>将 SVG 内容以 Base64 内嵌到 data-URI 图片中，通过缩放工具栏实现矢量图形交互预览。
-     * 超过 {@link #MAX_SVG_PREVIEW_BYTES} 时返回提示页面，避免生成超大 HTML。</p>
-     *
-     * @param content 原始字节
-     * @param ext     扩展名
-     * @param mime    MIME 类型（当前忽略）
-     * @return 预览结果，含 HTML 内容 + 内嵌 CSS
-     */
+    * 生成 SVG 文件的增强预览页面。
+    *
+    * <p>将 SVG 内容以 Base64 内嵌到 data-URI 图片中，通过缩放工具栏实现矢量图形交互预览。
+    * 超过 {@link #MAX_SVG_PREVIEW_BYTES} 时返回提示页面，避免生成超大 HTML。</p>
+    *
+    * @param content 原始字节
+    * @param ext     扩展名
+    * @param mime    MIME 类型（当前忽略）
+    * @return 预览结果，含 HTML 内容 + 内嵌 CSS
+    */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) {
         if (content.length > MAX_SVG_PREVIEW_BYTES) {
@@ -83,7 +85,7 @@ public class SvgPreviewProvider implements FileStoragePreviewProvider {
     * @param svgContent SVG内容
     * @param b64 b64
     * @return 构建previewhtml的结果
-     */
+    */
     private String buildPreviewHtml(String svgContent, String b64) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>SVG Preview</title></head><body>");

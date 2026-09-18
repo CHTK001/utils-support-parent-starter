@@ -23,7 +23,7 @@ public interface SmileDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static SmileDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(SmileDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -34,7 +34,7 @@ public interface SmileDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default SmileDetector provider(String provider) {
         return this;
     }
@@ -44,7 +44,7 @@ public interface SmileDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default SmileDetector model(String model) {
         return this;
     }
@@ -55,7 +55,7 @@ public interface SmileDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static SmileDetector create(String name) {
         return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -67,7 +67,7 @@ public interface SmileDetector {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.SmileDetector.class);
     }
@@ -79,7 +79,7 @@ public interface SmileDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static SmileDetector create(String name, ModelSetting setting) {
         return new DefaultSmileDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -89,7 +89,7 @@ public interface SmileDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     SmileDetector modelPath(String path);
 
     /**
@@ -97,7 +97,7 @@ public interface SmileDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     SmileDetector device(String device);
 
     /**
@@ -105,7 +105,7 @@ public interface SmileDetector {
     *
     * @param imageData 图像字节数组
     * @return 微笑框列表
-     */
+    */
     List<PredictRectangle> detect(byte[] imageData);
 
     /**
@@ -113,7 +113,7 @@ public interface SmileDetector {
     *
     * @param imageData 图像字节数组
     * @return true 表示微笑
-     */
+    */
     default boolean isSmiling(byte[] imageData) {
         return !detect(imageData).isEmpty();
     }
@@ -129,34 +129,34 @@ class DefaultSmileDetector implements SmileDetector {
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -165,7 +165,7 @@ class DefaultSmileDetector implements SmileDetector {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultSmileDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -199,7 +199,7 @@ class DefaultSmileDetector implements SmileDetector {
     *
     * @param imageData 镜像数据
     * @return detect的结果
-     */
+    */
     public List<PredictRectangle> detect(byte[] imageData) {
         ITranslator<byte[], List<PredictRectangle>> t =
                 (ITranslator<byte[], List<PredictRectangle>>) engine.get(modelName, ITranslator.class);

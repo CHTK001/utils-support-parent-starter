@@ -31,7 +31,7 @@ public final class TencentSignSupport {
     *
     * @param text 文本
     * @return 标志的结果
-     */
+    */
     public static String sign(String text) {
         String hash = sha1(text).toUpperCase();
         String part1 = pick(hash, PART_1_INDEXES);
@@ -56,7 +56,7 @@ public final class TencentSignSupport {
     * @param hash 哈希
     * @param indexes 索引
     * @return pick的结果
-     */
+    */
     private static String pick(String hash, int[] indexes) {
         StringBuilder builder = new StringBuilder();
         int last = hash.length() - 1;
@@ -74,7 +74,7 @@ public final class TencentSignSupport {
     *
     * @param text 文本
     * @return sha1的结果
-     */
+    */
     private static String sha1(String text) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-1");

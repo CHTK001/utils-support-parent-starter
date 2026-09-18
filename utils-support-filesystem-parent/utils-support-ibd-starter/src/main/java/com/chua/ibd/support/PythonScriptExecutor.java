@@ -18,12 +18,12 @@ public class PythonScriptExecutor implements ScriptExecutor {
 
     /**
     * Python 解释器路径
-     */
+    */
     private final String pythonPath;
 
     /**
     * 执行超时（毫秒）
-     */
+    */
     private final long timeoutMillis;
 
     /** 创建 pythonscript执行器 实例 */
@@ -34,7 +34,7 @@ public class PythonScriptExecutor implements ScriptExecutor {
     /**
     * 创建 pythonscript执行器 实例
     * @param pythonPath Python路径
-     */
+    */
     public PythonScriptExecutor(String pythonPath) {
         this(pythonPath, 60000);
     }
@@ -44,7 +44,7 @@ public class PythonScriptExecutor implements ScriptExecutor {
     * @param pythonPath Python路径
     * @param timeoutMillis long
     * @param timeoutMillis 超时millis
-     */
+    */
     public PythonScriptExecutor(String pythonPath, long timeoutMillis) {
         this.pythonPath = pythonPath;
         this.timeoutMillis = timeoutMillis;

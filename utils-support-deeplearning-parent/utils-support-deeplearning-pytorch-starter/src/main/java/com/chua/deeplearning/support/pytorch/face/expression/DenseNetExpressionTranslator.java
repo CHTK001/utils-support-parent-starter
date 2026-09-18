@@ -41,7 +41,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     /**
     * 创建 densenetexpressiontranslator 实例
     * @param imageSize 镜像大小
-     */
+    */
     public DenseNetExpressionTranslator(int imageSize) {
         this.imageSize = imageSize;
     }
@@ -94,7 +94,7 @@ public class DenseNetExpressionTranslator implements Translator<Image, Classific
     *
     * @param size 大小
     * @return 默认标签的结果
-     */
+    */
     private static List<String> defaultLabels(int size) {
         List<String> labels = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {

@@ -38,7 +38,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
 
     /**
     * 窄注解 类 → 宽注解全限定名，weak哈希映射 键 随类加载器回收自动清理。
-     */
+    */
     private final java.util.Map<Class<? extends Annotation>, String> aliasCache = new WeakHashMap<>();
 
     @Override
@@ -64,7 +64,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     *
     * <p>Fallback：若包目录不可直接访问，使用已知候选全限定名列表，
     * 同样通过反射检查元注解关系，不硬编码映射内容。</p>
-     */
+    */
     @SuppressWarnings("unchecked")
     private void discoverAliases() {
         if (!aliasCache.isEmpty()) {
@@ -110,7 +110,7 @@ public class SpringMvcAnnotationDefinitionResolver implements AnnotationDefiniti
     * 尝试加载单个候选注解：通过反射检查是否被 @请求mapping 元注解标注。
     * @param className 类名称
     * @param requestMappingClass 请求mapping类
-     */
+    */
     @SuppressWarnings("unchecked")
     private void loadIfMappingAlias(String className, Class<?> requestMappingClass) {
         try {

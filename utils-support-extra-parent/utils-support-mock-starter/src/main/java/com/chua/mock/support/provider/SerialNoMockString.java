@@ -26,7 +26,7 @@ public class SerialNoMockString implements MockString {
     * 时间戳格式
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final DateTimeFormatter TIMESTAMP =
             DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 

@@ -17,22 +17,22 @@ public class PoetryInfo {
 
     /**
     * 标题（如：静夜思）
-     */
+    */
     private final String title;
 
     /**
     * 作者（如：李白）
-     */
+    */
     private final String author;
 
     /**
     * 朝代（如：唐代）
-     */
+    */
     private final String dynasty;
 
     /**
     * 正文段落（每句或每行）
-     */
+    */
     private final List<String> paragraphs;
 
     /**
@@ -42,7 +42,7 @@ public class PoetryInfo {
     * @param author     作者
     * @param dynasty    朝代
     * @param paragraphs 正文段落
-     */
+    */
     public PoetryInfo(String title, String author, String dynasty, List<String> paragraphs) {
         this.title = title;
         this.author = author;
@@ -54,7 +54,7 @@ public class PoetryInfo {
     * 获取标题
     *
     * @return 获取title的结果
-     */
+    */
     public String getTitle() {
         return title;
     }
@@ -63,7 +63,7 @@ public class PoetryInfo {
     * 获取作者
     *
     * @return 获取作者的结果
-     */
+    */
     public String getAuthor() {
         return author;
     }
@@ -72,7 +72,7 @@ public class PoetryInfo {
     * 获取朝代
     *
     * @return 获取dynasty的结果
-     */
+    */
     public String getDynasty() {
         return dynasty;
     }
@@ -81,7 +81,7 @@ public class PoetryInfo {
     * 获取正文段落
     *
     * @return 获取paragraphs的结果
-     */
+    */
     public List<String> getParagraphs() {
         return paragraphs;
     }
@@ -90,7 +90,7 @@ public class PoetryInfo {
     * 获取正文全文（段落以换行连接）
     *
     * @return 全文
-     */
+    */
     public String getContent() {
         if (paragraphs == null || paragraphs.isEmpty()) {
             return "";
@@ -102,7 +102,7 @@ public class PoetryInfo {
     * 转换为 映射 用于 JSON 序列化
     *
     * @return Map 表示
-     */
+    */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("title", title);

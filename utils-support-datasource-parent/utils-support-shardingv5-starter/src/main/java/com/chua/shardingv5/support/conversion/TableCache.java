@@ -29,7 +29,7 @@ public class TableCache {
     * @param dataSources 数据源
     * @param cacheSeconds int
     * @param cacheSeconds 缓存seconds
-     */
+    */
     public TableCache(List<DataSource> dataSources, int cacheSeconds) {
         this.dataSources = dataSources;
         this.cacheSeconds = cacheSeconds;
@@ -40,7 +40,7 @@ public class TableCache {
     *
     * @param prefix 前缀
     * @return 获取tables的结果
-     */
+    */
     public List<String> getTables(String prefix) {
         var now = System.currentTimeMillis();
         var entry = cache.get(prefix);
@@ -69,7 +69,7 @@ public class TableCache {
     *
     * @param prefix 前缀
     * @return 扫描tables的结果
-     */
+    */
     private List<String> scanTables(String prefix) {
         var all = new LinkedHashSet<String>();
         var pat = Pattern.compile("^" + Pattern.quote(prefix) + ".+");

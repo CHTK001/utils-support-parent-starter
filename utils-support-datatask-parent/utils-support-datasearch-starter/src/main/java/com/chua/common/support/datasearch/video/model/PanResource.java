@@ -48,7 +48,7 @@ public class PanResource {
     * @param panType pan类型
     * @param url url
     * @param panType pan类型
-     */
+    */
     public PanResource(String title, String url, PanType panType) {
         this();
         this.title = title;
@@ -67,7 +67,7 @@ public class PanResource {
     * @param panType pan类型
     * @param size 大小
     * @param source 源
-     */
+    */
     public PanResource(String title, String url, PanType panType, String size, String source) {
         this(title, url, panType);
         this.size = size;
@@ -78,7 +78,7 @@ public class PanResource {
     * 获取Title
     *
     * @return 获取title的结果
-     */
+    */
     public String getTitle() {
         return title;
     }
@@ -87,7 +87,7 @@ public class PanResource {
     * 设置Title
     *
     * @param title title
-     */
+    */
     public void setTitle(String title) {
         this.title = title;
     }
@@ -96,7 +96,7 @@ public class PanResource {
     * 获取Url
     *
     * @return 获取url的结果
-     */
+    */
     public String getUrl() {
         return url;
     }
@@ -105,7 +105,7 @@ public class PanResource {
     * 设置Url
     *
     * @param url url
-     */
+    */
     public void setUrl(String url) {
         this.url = url;
     }
@@ -114,7 +114,7 @@ public class PanResource {
     * 获取pan类型
     *
     * @return 获取pan类型的结果
-     */
+    */
     public PanType getPanType() {
         return panType;
     }
@@ -123,7 +123,7 @@ public class PanResource {
     * 设置pan类型
     *
     * @param panType pan类型
-     */
+    */
     public void setPanType(PanType panType) {
         this.panType = panType;
     }
@@ -132,7 +132,7 @@ public class PanResource {
     * 获取获取大小
     *
     * @return 获取大小的结果
-     */
+    */
     public String getSize() {
         return size;
     }
@@ -141,7 +141,7 @@ public class PanResource {
     * 设置获取大小
     *
     * @param size 大小
-     */
+    */
     public void setSize(String size) {
         this.size = size;
     }
@@ -150,7 +150,7 @@ public class PanResource {
     * 获取Description
     *
     * @return 获取description的结果
-     */
+    */
     public String getDescription() {
         return description;
     }
@@ -159,7 +159,7 @@ public class PanResource {
     * 设置Description
     *
     * @param description description
-     */
+    */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -168,7 +168,7 @@ public class PanResource {
     * 获取发布时间
     *
     * @return 获取发布时间的结果
-     */
+    */
     public LocalDateTime getPublishTime() {
         return publishTime;
     }
@@ -177,7 +177,7 @@ public class PanResource {
     * 设置发布时间
     *
     * @param publishTime 发布时间
-     */
+    */
     public void setPublishTime(LocalDateTime publishTime) {
         this.publishTime = publishTime;
     }
@@ -186,7 +186,7 @@ public class PanResource {
     * 获取源
     *
     * @return 获取源的结果
-     */
+    */
     public String getSource() {
         return source;
     }
@@ -195,7 +195,7 @@ public class PanResource {
     * 设置源
     *
     * @param source 源
-     */
+    */
     public void setSource(String source) {
         this.source = source;
     }
@@ -204,7 +204,7 @@ public class PanResource {
     * 获取Score
     *
     * @return 获取score的结果
-     */
+    */
     public Double getScore() {
         return score;
     }
@@ -213,7 +213,7 @@ public class PanResource {
     * 设置Score
     *
     * @param score score
-     */
+    */
     public void setScore(Double score) {
         this.score = score;
     }
@@ -222,7 +222,7 @@ public class PanResource {
     * 获取extract编码
     *
     * @return 获取extract编码的结果
-     */
+    */
     public String getExtractCode() {
         return extractCode;
     }
@@ -231,7 +231,7 @@ public class PanResource {
     * 设置extract编码
     *
     * @param extractCode extract编码
-     */
+    */
     public void setExtractCode(String extractCode) {
         this.extractCode = extractCode;
     }
@@ -240,7 +240,7 @@ public class PanResource {
     * 获取Valid
     *
     * @return 获取valid的结果
-     */
+    */
     public Boolean getValid() {
         return valid;
     }
@@ -249,7 +249,7 @@ public class PanResource {
     * 设置Valid
     *
     * @param valid valid
-     */
+    */
     public void setValid(Boolean valid) {
         this.valid = valid;
     }
@@ -258,7 +258,7 @@ public class PanResource {
     * 获取创建时间
     *
     * @return 获取创建时间的结果
-     */
+    */
     public LocalDateTime getCreateTime() {
         return createTime;
     }
@@ -267,7 +267,7 @@ public class PanResource {
     * 设置创建时间
     *
     * @param createTime 创建时间
-     */
+    */
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }

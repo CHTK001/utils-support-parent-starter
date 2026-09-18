@@ -37,49 +37,49 @@ public class BaiduImageClient implements ImageClient {
 
     /**
     * 百度文心一格默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://aip.baidubce.com";
 
     /**
     * HTTP 客户端
-     */
+    */
     private final HttpClient httpClient;
 
     /**
     * 客户端配置
-     */
+    */
     private final ImageClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前图片宽度
-     */
+    */
     private Integer width;
 
     /**
     * 当前图片高度
-     */
+    */
     private Integer height;
 
     /**
     * 当前提示词
-     */
+    */
     private String prompt;
 
     /**
     * 当前风格
-     */
+    */
     private String style;
 
     /**
     * 构造百度文心一格图片生成客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public BaiduImageClient(ImageClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -183,7 +183,7 @@ public class BaiduImageClient implements ImageClient {
     * @return access_token 字符串
     * @throws IOException 网络请求异常
     * @throws InterruptedException 请求被中断
-     */
+    */
     private String getAccessToken() throws IOException, InterruptedException {
         String tokenUrl = normalizeBaseUrl() + "/oauth/2.0/token?grant_type=client_credentials"
                 + "&client_id=" + URLEncoder.encode(setting.getAppKey(), StandardCharsets.UTF_8.name())
@@ -212,7 +212,7 @@ public class BaiduImageClient implements ImageClient {
     * @param json 百度返回的 JSON 响应
     * @return BufferedImage 对象
     * @throws IOException 下载或解析失败
-     */
+    */
     @SuppressWarnings("unchecked")
     private BufferedImage parseAndDownloadImage(String json) throws IOException {
         Map<String, Object> root = com.chua.common.support.lang.json.Json.fromJson(json, Map.class);
@@ -260,7 +260,7 @@ public class BaiduImageClient implements ImageClient {
     * 构建图片尺寸字符串
     *
     * @return 如 "1024x1024"
-     */
+    */
     private String buildSize() {
         int w = width != null ? width : 1024;
         int h = height != null ? height : 1024;
@@ -271,7 +271,7 @@ public class BaiduImageClient implements ImageClient {
     * 规范化 API 基础地址
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {
@@ -288,7 +288,7 @@ public class BaiduImageClient implements ImageClient {
     *
     * @param input 原始字符串
     * @return 转义后的字符串
-     */
+    */
     private static String escapeJson(String input) {
         return input.replace("\\", "\\\\")
                 .replace("\"", "\\\"")

@@ -27,7 +27,7 @@ public interface SpeechEnhancer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static SpeechEnhancer create(String provider, String apiKey) {
         return ServiceProvider.of(SpeechEnhancer.class)
                 .getNewExtension(provider, apiKey);
@@ -38,7 +38,7 @@ public interface SpeechEnhancer {
     *
     * @param name 模型名称
     * @return 增强器
-     */
+    */
     static SpeechEnhancer create(String name) {
         return new DefaultSpeechEnhancer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -49,7 +49,7 @@ public interface SpeechEnhancer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 增强器
-     */
+    */
     static SpeechEnhancer create(String name, ModelSetting setting) {
         return new DefaultSpeechEnhancer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -58,7 +58,7 @@ public interface SpeechEnhancer {
     * 查询该能力下全部可用模型。
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return ModelRegistry.getModelIdsByCapability(SpeechEnhancer.class);
     }
@@ -68,7 +68,7 @@ public interface SpeechEnhancer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default SpeechEnhancer model(String model) {
         return this;
     }
@@ -78,7 +78,7 @@ public interface SpeechEnhancer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     default SpeechEnhancer modelPath(String path) {
         return this;
     }
@@ -88,7 +88,7 @@ public interface SpeechEnhancer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     default SpeechEnhancer device(String device) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface SpeechEnhancer {
     *
     * @param audioData 输入音频字节数组（wav/pcm）
     * @return 输出音频字节数组（降噪后）
-     */
+    */
     byte[] enhance(byte[] audioData);
 }
 
@@ -143,7 +143,7 @@ class DefaultSpeechEnhancer implements SpeechEnhancer {
     * @return 模型路径的结果
     * @param audioData 音频数据
     * @param device device
-     */
+    */
     }
 
     @Override

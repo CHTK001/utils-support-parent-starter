@@ -27,14 +27,14 @@ public class DefaultReactorEngine implements ReactorEngine {
 
     /**
     * 被包装的同步引擎
-     */
+    */
     protected final Engine delegate;
 
     /**
     * 用同步引擎构造响应式包装。
     *
     * @param delegate 同步引擎
-     */
+    */
     public DefaultReactorEngine(Engine delegate) {
         if (delegate == null) {
             throw new IllegalArgumentException("Engine must not be null");
@@ -46,7 +46,7 @@ public class DefaultReactorEngine implements ReactorEngine {
     * 获取被包装的同步引擎。
     *
     * @return 同步引擎
-     */
+    */
     public Engine getDelegate() {
         return delegate;
     }

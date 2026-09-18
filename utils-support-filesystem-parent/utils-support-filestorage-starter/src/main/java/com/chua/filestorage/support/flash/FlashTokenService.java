@@ -40,7 +40,7 @@ public class FlashTokenService {
     * @param flashDir flashdir
     * @param expireSeconds long
     * @param expireSeconds expireseconds
-     */
+    */
     public FlashTokenService(Path flashDir, long expireSeconds) {
         this.flashDir = flashDir;
         this.expireSeconds = expireSeconds > 0 ? expireSeconds : 600;
@@ -55,7 +55,7 @@ public class FlashTokenService {
     * 创建一个闪图 令牌，返回生成的 令牌 字符串。
     *
     * @return token
-     */
+    */
     public String createToken() throws IOException {
         String token = UUID.randomUUID().toString().replace("-", "");
         Path marker = flashDir.resolve(token);
@@ -69,7 +69,7 @@ public class FlashTokenService {
     *
     * @param token 令牌 字符串
     * @return true 表示有效
-     */
+    */
     public boolean validateToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return false;
@@ -91,7 +91,7 @@ public class FlashTokenService {
     *
     * @param token 令牌 字符串
     * @return true 表示消费成功（删除成功）
-     */
+    */
     public boolean consumeToken(String token) {
         if (StringUtils.isEmpty(token)) {
             return false;
@@ -110,7 +110,7 @@ public class FlashTokenService {
 
     /**
     * 清理所有过期的 记号笔 文件。
-     */
+    */
     public void cleanExpired() {
         long cutoff = System.currentTimeMillis() - expireSeconds * 1000;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(flashDir)) {

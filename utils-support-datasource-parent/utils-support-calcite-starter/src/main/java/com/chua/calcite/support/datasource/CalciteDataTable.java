@@ -22,22 +22,22 @@ public class CalciteDataTable implements DataTable {
 
     /**
     * 数据表的名称。
-     */
+    */
     private final String name;
 
     /**
     * 列名列表。
-     */
+    */
     private final List<String> columnNames;
 
     /**
     * 列类型列表。
-     */
+    */
     private final List<Class<?>> columnTypes;
 
     /**
     * 行数据列表，每行是一个键值对映射。
-     */
+    */
     private final List<Map<String, Object>> data;
 
     /**
@@ -46,7 +46,7 @@ public class CalciteDataTable implements DataTable {
     * @param name          表名
     * @param columnNames   列名集合
     * @param columnTypes   列类型集合
-     */
+    */
     public CalciteDataTable(String name, List<String> columnNames, List<Class<?>> columnTypes) {
         this.name = name;
         this.columnNames = List.copyOf(columnNames);
@@ -58,7 +58,7 @@ public class CalciteDataTable implements DataTable {
     * 获取列类型列表。
     *
     * @return 列类型列表
-     */
+    */
     public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
@@ -68,7 +68,7 @@ public class CalciteDataTable implements DataTable {
     *
     * @param values 列对应的值数组
     * @return 当前实例，支持链式调用
-     */
+    */
     public CalciteDataTable addRow(Object... values) {
         Map<String, Object> row = new LinkedHashMap<>();
         int size = Math.min(columnNames.size(), values.length);

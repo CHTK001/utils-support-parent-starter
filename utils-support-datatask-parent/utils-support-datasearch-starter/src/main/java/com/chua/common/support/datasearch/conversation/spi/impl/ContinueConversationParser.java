@@ -54,7 +54,7 @@ public class ContinueConversationParser implements ConversationParser {
     * 返回 SPI 名称。
     *
     * @return {@code "continue"}
-     */
+    */
     @Override
     public String name() {
         return "continue";
@@ -65,10 +65,10 @@ public class ContinueConversationParser implements ConversationParser {
     * @param entry entry
     * @param sessionId 会话标识
      /**
-      * 流消息。
-      * @return 流消息的结果
-     * @return 解析entry的结果
-     */
+    * 流消息。
+    * @return 流消息的结果
+    * @return 解析entry的结果
+    */
     @Override
     public Flux<ConversationMessage> streamMessages() {
         List<Path> files = listSessionFiles();
@@ -84,7 +84,7 @@ public class ContinueConversationParser implements ConversationParser {
                         /**
                         * 列表会话文件。
                         * @return 列表会话文件的结果
-                         */
+                        */
                         4);
     }
 
@@ -106,7 +106,7 @@ public class ContinueConversationParser implements ConversationParser {
         * @return 解析文件的结果
         * @param entry entry
         * @param sessionId 会话id
-         */
+        */
         }
     }
 

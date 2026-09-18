@@ -17,7 +17,7 @@ public class TrainException extends RuntimeException {
     * 创建异常。
     *
     * @param message 错误信息
-     */
+    */
     public TrainException(String message) {
         super(message);
     }
@@ -27,7 +27,7 @@ public class TrainException extends RuntimeException {
     *
     * @param message 错误信息
     * @param cause   原始原因
-     */
+    */
     public TrainException(String message, Throwable cause) {
         super(message, cause);
     }

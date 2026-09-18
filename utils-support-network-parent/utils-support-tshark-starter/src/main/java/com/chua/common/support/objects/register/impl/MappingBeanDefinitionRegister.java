@@ -16,7 +16,7 @@ public class MappingBeanDefinitionRegister {
 
     /**
     * 已注册的映射定义列表
-     */
+    */
     private final List<MappingDefinition> mappings = new ArrayList<>();
 
     /**
@@ -25,7 +25,7 @@ public class MappingBeanDefinitionRegister {
     * @param path   请求路径
     * @param method 请求方法（当前仅作占位）
     * @return 命中的 mappingdefinition，未命中返回 期权.空()
-     */
+    */
     public Optional<MappingDefinition> findMappingDefinition(String path, String method) {
         for (MappingDefinition mapping : mappings) {
             Optional<MappingDefinition> found = checkMatch(mapping, path, method);
@@ -43,7 +43,7 @@ public class MappingBeanDefinitionRegister {
     * @param path    请求路径
     * @param method  请求方法
     * @return 命中返回 期权.的(mapping)，否则返回 空
-     */
+    */
     private Optional<MappingDefinition> checkMatch(MappingDefinition mapping, String path, String method) {
         String[] urls = mapping.getUrls();
         for (String url : urls) {
@@ -61,7 +61,7 @@ public class MappingBeanDefinitionRegister {
     * @param requestPath    请求路径
     * @param requestMethod  请求方法（当前忽略）
     * @return true 表示命中
-     */
+    */
     private boolean matchUrl(String mappedUrl, String requestPath, String requestMethod) {
         if ("/".equals(mappedUrl) && ("/".equals(requestPath) || "".equals(requestPath))) {
             return true;
@@ -73,7 +73,7 @@ public class MappingBeanDefinitionRegister {
     * 设置上下文路径（默认实现为空操作，留作扩展）。
     *
     * @param contextPath 上下文路径
-     */
+    */
     public void setContextPath(String contextPath) {
     }
 
@@ -81,7 +81,7 @@ public class MappingBeanDefinitionRegister {
     * 注册一条映射定义。
     *
     * @param mappingDefinition 待注册的映射定义
-     */
+    */
     public void registerMapping(MappingDefinition mappingDefinition) {
         mappings.add(mappingDefinition);
     }
@@ -90,7 +90,7 @@ public class MappingBeanDefinitionRegister {
     * 批量注册映射定义。
     *
     * @param mappingDefinitions 待注册的映射定义列表
-     */
+    */
     public void registerMappings(List<MappingDefinition> mappingDefinitions) {
         mappings.addAll(mappingDefinitions);
     }
@@ -99,7 +99,7 @@ public class MappingBeanDefinitionRegister {
     * 按路径移除所有匹配的映射定义。
     *
     * @param path 路径
-     */
+    */
     public void removeMapping(String path) {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
@@ -116,7 +116,7 @@ public class MappingBeanDefinitionRegister {
     *
     * @param path   路径
     * @param method HTTP 方法
-     */
+    */
     public void removeMapping(String path, com.chua.common.support.network.http.HttpMethod method) {
         mappings.removeIf(m -> {
             for (String url : m.getUrls()) {
@@ -133,7 +133,7 @@ public class MappingBeanDefinitionRegister {
     *
     * @param path 路径
     * @return true 表示已注册
-     */
+    */
     public boolean hasMapping(String path) {
         return mappings.stream().anyMatch(m -> {
             for (String url : m.getUrls()) {
@@ -151,21 +151,21 @@ public class MappingBeanDefinitionRegister {
     * @param path   路径
     * @param method HTTP 方法
     * @return true 表示已注册
-     */
+    */
     public boolean hasMapping(String path, com.chua.common.support.network.http.HttpMethod method) {
         return hasMapping(path);
     }
 
     /**
     * @return 已注册的映射定义数量
-     */
+    */
     public int getMappingCount() {
         return mappings.size();
     }
 
     /**
     * 清空所有已注册的映射定义。
-     */
+    */
     public void clearMappings() {
         mappings.clear();
     }

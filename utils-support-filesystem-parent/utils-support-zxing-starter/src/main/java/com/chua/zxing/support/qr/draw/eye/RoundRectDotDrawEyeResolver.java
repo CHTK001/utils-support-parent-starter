@@ -38,7 +38,7 @@ public class RoundRectDotDrawEyeResolver extends AbstractDrawEyeResolver {
     * @param detectOutColor detect出color
     * @param detectInnerColor detect内部color
     * @param codeEyeSetting 编码eyesetting
-     */
+    */
     public RoundRectDotDrawEyeResolver(QrCodeOptions qrCodeConfig,
                                        Graphics2D g2,
                                        BitMatrixEx bitMatrix,

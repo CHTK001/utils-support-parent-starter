@@ -18,6 +18,6 @@ public interface FileSearchProvider {
     *
     * @param criteria 搜索条件
     * @return 文件列表
-     */
+    */
     List<FileInfo> searchFiles(FileSearchCriteria criteria);
 }

@@ -166,7 +166,7 @@ public class MailTmEmailProvider implements EmailProvider {
     * 随机前缀。
     * @param length 长度
     * @return 随机前缀的结果
-     */
+    */
     private static String randomPrefix(int length) {
         String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder(length);

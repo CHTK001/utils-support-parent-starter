@@ -49,12 +49,12 @@ public class ImageSupportUtils {
 
     /**
     * 格式别名映射：别名 → 标准名称
-     */
+    */
     private static final Map<String, String> FORMAT_ALIASES = new LinkedHashMap<>();
 
     /**
     * 需要排除的格式名称集合（由专门的转换器处理）
-     */
+    */
     private static final Set<String> EXCLUDED_FORMATS = Set.of(
             "webp", "raw", "cr2", "nef", "arw", "raf", "orf", "rw2", "dng"
     );
@@ -82,7 +82,7 @@ public class ImageSupportUtils {
     * 收集它们声明的文件后缀名。返回的格式名称已去重且均转为小写。
     *
     * @return 可读取的图片格式名称数组，不会返回 {@code null}
-     */
+    */
     public static String[] supportReader() {
         IIORegistry registry = IIORegistry.getDefaultInstance();
         Iterator<ImageReaderSpi> providers = registry.getServiceProviders(ImageReaderSpi.class, false);
@@ -112,7 +112,7 @@ public class ImageSupportUtils {
     * 收集它们声明的格式名称。返回的格式名称已去重且均转为小写。
     *
     * @return 可写入的图片格式名称数组，不会返回 {@code null}
-     */
+    */
     public static String[] supportWriter() {
         IIORegistry registry = IIORegistry.getDefaultInstance();
         Iterator<ImageWriterSpi> providers = registry.getServiceProviders(ImageWriterSpi.class, false);
@@ -139,7 +139,7 @@ public class ImageSupportUtils {
     *
     * @param format 格式名称（如 "png"、"jpg"）
     * @return 如果可以读取返回 {@code true}
-     */
+    */
     public static boolean isReadable(String format) {
         if (format == null) {
             return false;
@@ -153,7 +153,7 @@ public class ImageSupportUtils {
     *
     * @param format 格式名称（如 "png"、"jpg"）
     * @return 如果可以写入返回 {@code true}
-     */
+    */
     public static boolean isWritable(String format) {
         if (format == null) {
             return false;
@@ -167,7 +167,7 @@ public class ImageSupportUtils {
     *
     * @param format 格式名称
     * @return 如果是排除格式返回 {@code true}
-     */
+    */
     public static boolean isExcluded(String format) {
         if (format == null) {
             return false;
@@ -187,7 +187,7 @@ public class ImageSupportUtils {
     *
     * @param format 原始格式名称
     * @return 标准化后的格式名称，如果未找到别名则返回原名称的小写形式
-     */
+    */
     public static String normalizeFormat(String format) {
         if (format == null || format.isEmpty()) {
             return "png";
@@ -209,7 +209,7 @@ public class ImageSupportUtils {
     * @param format       目标格式名称
     * @param outputStream 目标输出流
     * @throws IOException 写入失败
-     */
+    */
     public static void saveToStream(BufferedImage image, String format, OutputStream outputStream) throws IOException {
         String normalizedFormat = normalizeFormat(format);
 
@@ -239,7 +239,7 @@ public class ImageSupportUtils {
     *
     * @param image 源图片
     * @return RGB 格式的图片
-     */
+    */
     public static BufferedImage toRgbImage(BufferedImage image) {
         if (image.getType() == BufferedImage.TYPE_INT_RGB
                 || image.getType() == BufferedImage.TYPE_3BYTE_BGR) {
@@ -257,7 +257,7 @@ public class ImageSupportUtils {
     * 获取所有支持的格式名称集合（包含别名，不包含排除格式）。
     *
     * @return 去重的标准化格式名称集合
-     */
+    */
     public static Set<String> getAllSupportedFormats() {
         Set<String> formats = new LinkedHashSet<>();
         Stream.of(supportReader(), supportWriter())
@@ -273,7 +273,7 @@ public class ImageSupportUtils {
     *
     * @param file 文件对象
     * @return 标准化后的格式名称，无法推断时返回 "png"
-     */
+    */
     public static String getFormatFromFile(File file) {
         if (file == null) {
             return "png";

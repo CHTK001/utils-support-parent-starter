@@ -13,7 +13,7 @@ public final class ImageCropUtils {
 
     /**
     * 私有构造，防止实例化。
-     */
+    */
     private ImageCropUtils() {
     }
 
@@ -26,7 +26,7 @@ public final class ImageCropUtils {
     * @param width     宽
     * @param height    高
     * @return 裁剪图 PNG 字节
-     */
+    */
     public static byte[] crop(byte[] imageData, int x, int y, int width, int height) {
         return ImageUtils.crop(new ImageCropOptions(imageData, x, y, width, height));
     }
@@ -38,7 +38,7 @@ public final class ImageCropUtils {
     * @param imageData 原图
     * @param box       框
     * @return 裁剪图
-     */
+    */
     public static byte[] crop(byte[] imageData, PredictRectangle box) {
         if (box == null) {
             return imageData;
@@ -52,7 +52,7 @@ public final class ImageCropUtils {
     * @param imageData 原图
     * @param info      检测结果
     * @return 裁剪图
-     */
+    */
     public static byte[] crop(byte[] imageData, DetectionInfo info) {
         if (info == null) {
             return imageData;

@@ -120,7 +120,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param payload 明文参数
     * @return 响应根节点
-     */
+    */
     private JsonNode postEncrypted(Map<String, Object> payload) {
         Map<String, String> enc = NeteaseCryptoSupport.weapi(payload);
         return postForm(SEARCH_URL, enc, builder -> builder
@@ -133,7 +133,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param item 歌曲节点
     * @return 摘要；缺 标识 时返回 空
-     */
+    */
     private MusicTrackSummary toTrackSummary(JsonNode item) {
         String trackId = text(item, "id");
         if (trackId.isEmpty()) {
@@ -155,7 +155,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     *
     * @param item 歌单节点
     * @return 摘要
-     */
+    */
     private MusicPlaylistSummary toPlaylistSummary(JsonNode item) {
         return MusicPlaylistSummary.builder()
                 .playlistId(text(item, "id"))
@@ -175,7 +175,7 @@ public class NeteaseMusicSourceProvider extends AbstractHttpMusicSourceProvider 
     * @param array 数组节点
     * @param field 字段名
     * @return 逗号分隔字符串
-     */
+    */
     private String joinNames(JsonNode array, String field) {
         List<String> values = new ArrayList<>();
         for (JsonNode item : elements(array)) {

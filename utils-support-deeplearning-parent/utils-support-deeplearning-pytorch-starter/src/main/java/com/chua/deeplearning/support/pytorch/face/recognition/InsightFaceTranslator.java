@@ -59,7 +59,7 @@ public class InsightFaceTranslator implements Translator<Image, float[]> {
     *
     * @param features 特征
     * @return l2Normalize的结果
-     */
+    */
     private static float[] l2Normalize(float[] features) {
         double sum = 0.0;
         for (float f : features) {

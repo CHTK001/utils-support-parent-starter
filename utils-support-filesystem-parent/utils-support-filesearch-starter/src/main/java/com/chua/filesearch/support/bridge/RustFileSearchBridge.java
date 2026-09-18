@@ -28,7 +28,7 @@ public final class RustFileSearchBridge {
 
     /**
     * 加载原生动态库。线程安全，重复调用无副作用。
-     */
+    */
     public static synchronized void loadLibrary() {
         if (loaded) {
             return;
@@ -55,7 +55,7 @@ public final class RustFileSearchBridge {
     * 查询是否已加载原生库。
     *
     * @return 已加载返回 true
-     */
+    */
     public static boolean isLoaded() { return loaded; }
 
  // JNI NAT ??? Rust DLL ???????
@@ -66,7 +66,7 @@ public final class RustFileSearchBridge {
     * @param max 最大
     * @param cb cb
     * @return 搜索by名称的结果
-     */
+    */
     public static native int searchByName(String root, String pattern, int max, Consumer<FileResultData> cb);
     /**
     * 获取树。
@@ -75,7 +75,7 @@ public final class RustFileSearchBridge {
     * @param max 最大
     * @param cb cb
     * @return 获取树的结果
-     */
+    */
     public static native int getTree(String root, int depth, int max, Consumer<FileResultData> cb);
     /**
     * 搜索by大小。
@@ -85,7 +85,7 @@ public final class RustFileSearchBridge {
     * @param max 最大
     * @param cb cb
     * @return 搜索by大小的结果
-     */
+    */
     public static native int searchBySize(String root, long minSize, long maxSize, int max, Consumer<FileResultData> cb);
     /**
     * 搜索by路径。
@@ -94,16 +94,16 @@ public final class RustFileSearchBridge {
     * @param max 最大
     * @param cb cb
     * @return 搜索by路径的结果
-     */
+    */
     public static native int searchByPath(String root, String pattern, int max, Consumer<FileResultData> cb);
     /**
     * 获取版本。
     * @return 获取版本的结果
-     */
+    */
     public static native String getVersion();
     /**
     * cancel。
-     */
+    */
     public static native void cancel();
 
     // ===== ?? API =====
@@ -115,7 +115,7 @@ public final class RustFileSearchBridge {
     * @param maxResults   最大返回结果数
     * @param callback     每个匹配文件的回调
     * @return 匹配数量
-     */
+    */
     public static int searchByNameSafe(String rootPath, String namePattern, int maxResults,
                                         Consumer<FileResultData> callback) {
         loadLibrary();
@@ -130,7 +130,7 @@ public final class RustFileSearchBridge {
     * @param maxResults 最大返回结果数
     * @param callback   每个节点的回调
     * @return 遍历节点数量
-     */
+    */
     public static int getTreeSafe(String rootPath, int maxDepth, int maxResults,
                                    Consumer<FileResultData> callback) {
         loadLibrary();

@@ -1,0 +1,30 @@
+[
+{
+  "name": "com.chua.hprof.support.converter.HprofToJsonFileConvertSystem",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.hprof.support.converter.HprofToMarkdownFileConvertSystem",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+},
+{
+  "name": "com.chua.hprof.support.model.HprofObject",
+  "allDeclaredConstructors": true,
+  "allPublicConstructors": true,
+  "allDeclaredMethods": true,
+  "allPublicMethods": true,
+  "allDeclaredFields": true,
+  "allPublicFields": true
+}
+
+]

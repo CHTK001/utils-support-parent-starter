@@ -66,17 +66,17 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
 
     /**
     *                   
-     */
+    */
     private static final int INPUT_SIZE = 448;
 
     /**
     * Top-K             
-     */
+    */
     private final int topk;
 
     /**
     *                   
-     */
+    */
     private List<String> classes;
 
     /** 低信息输入标记 */
@@ -87,7 +87,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     *              -              Top-K
     *
     * @param classes                   
-     */
+    */
     public ClTaggerTranslator() {
         this(defaultClasses(DEFAULT_CLASS_COUNT), 10);
     }
@@ -95,7 +95,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     /**
     * 创建 cltaggertranslator 实例
     * @param classes classes
-     */
+    */
     public ClTaggerTranslator(List<String> classes) {
         this(classes, 10);
     }
@@ -105,7 +105,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     *
     * @param classes                   
     * @param topk    Top-K             
-     */
+    */
     public ClTaggerTranslator(List<String> classes, int topk) {
         this.classes = new ArrayList<>(classes);
         this.topk = topk;
@@ -141,7 +141,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     * @param input             
     * @return              NDList
     * @throws Exception             
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) throws Exception {
         var manager = ctx.getNDManager();
@@ -176,7 +176,7 @@ public class ClTaggerTranslator implements Translator<Image, Classifications> {
     * @param list              nd列表
     * @return             
     * @throws Exception             
-     */
+    */
     @Override
     public Classifications processOutput(TranslatorContext ctx, NDList list) throws Exception {
         try {
@@ -202,7 +202,7 @@ finally {
     *                   
     *
     * @return STACK             
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;
@@ -213,7 +213,7 @@ finally {
     *
     * @param size 大小
     * @return 默认类的结果
-     */
+    */
     private static List<String> defaultClasses(int size) {
         return IntStream.range(0, size)
                 .mapToObj(index -> "tag-" + index)
@@ -225,7 +225,7 @@ finally {
     *
     * @param classes 类
     * @return lookslike默认类的结果
-     */
+    */
     private static boolean looksLikeDefaultClasses(List<String> classes) {
         return classes != null
                 && !classes.isEmpty()
@@ -237,7 +237,7 @@ finally {
     *
     * @param array array
     * @return 是否low信息的结果
-     */
+    */
     private static boolean isLowInformation(NDArray array) {
         NDArray floatArray = array.toType(DataType.FLOAT32, false);
         float min = floatArray.min().toFloatArray()[0];
@@ -250,7 +250,7 @@ finally {
     *
     * @param modelPath 模型路径
     * @return resolve模型根的结果
-     */
+    */
     private static Path resolveModelRoot(Path modelPath) {
         if (modelPath == null) {
             return Path.of(".");
@@ -267,7 +267,7 @@ finally {
     *
     * @param tagMappingPath 标签mapping路径
     * @return 加载标签mapping的结果
-     */
+    */
     private static List<String> loadTagMapping(Path tagMappingPath) throws IOException {
         Map<String, TagMappingEntry> rawMapping = OBJECT_MAPPER.readValue(tagMappingPath.toFile(),
                 new TypeReference<Map<String, TagMappingEntry>>() {
@@ -293,7 +293,7 @@ finally {
     * @param tag 标签
     * @param category 分类
     * @return 标签mappingentry的结果
-     */
+    */
     private record TagMappingEntry(String tag, String category) {
     }
 }

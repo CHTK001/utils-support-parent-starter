@@ -47,59 +47,59 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
 
     /**
     * 打开AI 默认 API 地址
-     */
+    */
     private static final String DEFAULT_URL = "https://api.openai.com/v1";
 
     /**
     * 默认 TTS 模型
-     */
+    */
     private static final String DEFAULT_MODEL = "tts-1";
 
     /**
     * 默认发音人
-     */
+    */
     private static final String DEFAULT_VOICE = "alloy";
 
     /**
     * 默认输出格式
-     */
+    */
     private static final String DEFAULT_FORMAT = "mp3";
 
     /**
     * 客户端配置
-     */
+    */
     private final TextToAudioClientSetting setting;
 
     /**
     * 当前模型
-     */
+    */
     private String model;
 
     /**
     * 当前发音人
-     */
+    */
     private String voice;
 
     /**
     * 当前输出格式
-     */
+    */
     private String format;
 
     /**
     * 当前语速
-     */
+    */
     private Double speed;
 
     /**
     * 当前文本
-     */
+    */
     private String text;
 
     /**
     * 构造 打开AI TTS 客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OpenAiTextToAudioClient(TextToAudioClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -249,7 +249,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     *
     * @param path API 路径（含前导斜杠）
     * @return 请求构建器
-     */
+    */
     private HttpClientBuilder newBuilder(String path) {
         HttpClientBuilder builder = HttpClientFactory.of(normalizeBaseUrl())
                 .path(path)
@@ -269,7 +269,7 @@ public class OpenAiTextToAudioClient implements TextToAudioClient {
     * 规范化 API 基础地址。
     *
     * @return 规范化后的 URL
-     */
+    */
     private String normalizeBaseUrl() {
         String url = setting.getBaseUrl();
         if (url == null || url.isBlank()) {

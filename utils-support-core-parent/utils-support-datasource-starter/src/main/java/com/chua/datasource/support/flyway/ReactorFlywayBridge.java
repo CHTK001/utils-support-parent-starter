@@ -33,7 +33,7 @@ public class ReactorFlywayBridge implements Engine {
     * 构造桥接适配器。
     *
     * @param delegate 目标响应式引擎
-     */
+    */
     public ReactorFlywayBridge(JdbcReactorEngine delegate) {
         this.delegate = delegate;
     }

@@ -58,7 +58,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     * 获取共享实例。
     *
     * @return 实例
-     */
+    */
     public static DfsmnAnsTranslator getInstance() {
         if (shared == null) {
             synchronized (DfsmnAnsTranslator.class) {
@@ -72,7 +72,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
 
     /**
     * 构造 dfsmnanstranslator 实例（dither=1.0，模型scope 默认）。
-     */
+    */
     public DfsmnAnsTranslator() {
         this.fbank = new DfsmnKaldiFbank();
     }
@@ -81,7 +81,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     * 构造 dfsmnanstranslator 实例。
     *
     * @param dither fbank dither 系数（0 关闭，供确定性测试）
-     */
+    */
     DfsmnAnsTranslator(float dither) {
         this.fbank = new DfsmnKaldiFbank(dither);
     }
@@ -161,7 +161,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     * @param fbankFeatures fbank 特征
     * @param frames       帧数
     * @return 增强后时域信号
-     */
+    */
     private float[] runInference(float[] samples, float[] fbankFeatures, int frames) {
         try {
             long[] shape = {1, frames, N_MELS};
@@ -191,7 +191,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     * @param tensor tensor
     * @param frames 帧
     * @return 读取masks的结果
-     */
+    */
     private float[][] readMasks(OnnxTensor tensor, int frames) throws Exception {
         float[] flat = tensor.getFloatBuffer().array();
         int total = frames * N_MASK;
@@ -210,7 +210,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     *
     * @param data 音频字节
     * @return true 表示 wav
-     */
+    */
     static boolean isWav(byte[] data) {
         return data.length > 12
                 && data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F'
@@ -222,7 +222,7 @@ public class DfsmnAnsTranslator implements ITranslator<byte[], byte[]> {
     *
     * @param pcm pcm 样本
     * @return 字节数组
-     */
+    */
     private static byte[] toLeBytes(short[] pcm) {
         byte[] out = new byte[pcm.length * 2];
         ByteBuffer bb = ByteBuffer.wrap(out).order(ByteOrder.LITTLE_ENDIAN);

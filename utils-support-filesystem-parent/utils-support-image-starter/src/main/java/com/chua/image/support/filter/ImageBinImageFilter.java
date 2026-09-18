@@ -10,10 +10,32 @@ import javax.annotation.Nullable;
 
 
 /**
-* 二值化
-*
-* @author CH
-* @since 4.0.0
+ * 二值化（黑白）滤镜
+ *
+ * 将彩色图像转换为纯黑白（1 位）二值图像：
+ * 先用 3×3 邻域均值 + 固定阈值（130）判定每个像素的黑白，
+ * 输出 TYPE_BYTE_BINARY 图像。
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * BufferedImage bin = new ImageBinImageFilter().converter(src);
+ * }</pre>
+ *
+ * <h3>效果说明</h3>
+ * <ul>
+ *   <li>适合印章识别、扫描文档清理、高对比度图标处理</li>
+ *   <li>阈值固定为 130，无法调节；需要可调阈值时建议参考
+ *       {@link com.chua.common.support.image.ImageProcessorUtils} 自行实现</li>
+ *   <li>输出为 1 位黑白图，打印/扫描场景下文件体积很小</li>
+ * </ul>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li>无配置参数（行为固定：邻域均值 + 阈值 130）</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("Bin")
 @SpiDescribe("二值化滤镜")
@@ -23,7 +45,7 @@ public class ImageBinImageFilter extends AbstractImageFilter {
     *
     * @param i i
     * @return 获取镜像rgb的结果
-     */
+    */
     private static int getImageRgb(int i) {
         String argb = Integer.toHexString(i);
         int r = Integer.parseInt(argb.substring(2, 4), 16);
@@ -41,7 +63,7 @@ public class ImageBinImageFilter extends AbstractImageFilter {
     * @param w w
     * @param h h
     * @return 获取gray的结果
-     */
+    */
     public static int getGray(int[][] gray, int x, int y, int w, int h) {
         int rs = gray[x][y]
                 + (x == 0 ? 255 : gray[x - 1][y])

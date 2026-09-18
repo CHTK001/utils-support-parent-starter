@@ -36,22 +36,22 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     /**
     * 最小输入高度（保底：即使原图很矮，也保证输入不小于该高度，输出至少 4 倍于它，
     * 避免超分后文字仍模糊）。
-     */
+    */
     private static final int MIN_INPUT_HEIGHT = 24;
 
     /**
     * 输入宽度上限（超宽文本块按比例整体缩小，防内存爆炸）。
-     */
+    */
     private static final int MAX_RESIZED_WIDTH = 2048;
 
     /**
     * 最终放大倍数（相对原图），默认 2x；可配置为 4x。
-     */
+    */
     private int scale = 2;
 
     /**
     * 无参构造（默认 2x）。
-     */
+    */
     public TextBsrTranslator() {
     }
 
@@ -59,7 +59,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     * 指定放大倍数构造。
     *
     * @param scale 放大倍数（1~4）
-     */
+    */
     public TextBsrTranslator(int scale) {
         this.scale = Math.max(1, Math.min(4, scale));
     }
@@ -68,7 +68,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     * 获取放大倍数。
     *
     * @return 放大倍数
-     */
+    */
     public int getScale() {
         return scale;
     }
@@ -77,7 +77,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     * 设置放大倍数。
     *
     * @param scale 放大倍数（1~4）
-     */
+    */
     public void setScale(int scale) {
         this.scale = Math.max(1, Math.min(4, scale));
     }
@@ -152,7 +152,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     *
     * @param imageData 镜像数据
     * @return 增强的结果
-     */
+    */
     private BufferedImage enhance(byte[] imageData) {
         try {
             ImageUtils.load();
@@ -221,7 +221,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
     * @param width width
     * @param height height
     * @return 转为缓冲镜像的结果
-     */
+    */
     private BufferedImage toBufferedImage(float[][][] data, int width, int height) {
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++) {
@@ -240,7 +240,7 @@ public class TextBsrTranslator implements ITranslator<byte[], BufferedImage> {
 
     /**
     * 关闭底层 ONNX 会话。
-     */
+    */
     public synchronized void close() {
         try {
             if (session != null) {

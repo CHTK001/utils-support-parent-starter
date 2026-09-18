@@ -30,7 +30,7 @@ public class JsonPathImpl implements JsonPath {
 
     /**
     * 默认配置：Jackson 序列化 + 路径不存在时返回 空
-     */
+    */
     private static final Configuration DEFAULT_CONFIG = Configuration.builder()
             .jsonProvider(new JacksonJsonProvider())
             .mappingProvider(new JacksonMappingProvider())
@@ -39,12 +39,12 @@ public class JsonPathImpl implements JsonPath {
 
     /**
     * 可读的解析上下文
-     */
+    */
     private static final ParseContext PARSE_CTX = com.jayway.jsonpath.JsonPath.using(DEFAULT_CONFIG);
 
     /**
     * 链式模式下存储的内部文档上下文
-     */
+    */
     private DocumentContext documentContext;
 
     // ==================== 一次性方法 ====================
@@ -245,7 +245,7 @@ public class JsonPathImpl implements JsonPath {
 
     /**
     * 检查链式模式下是否已调用 {@link #parse(String)}。
-     */
+    */
     private void ensureParsed() {
         if (documentContext == null) {
             throw new IllegalStateException("请先调用 parse(String) 解析 JSON 后再进行链式操作");

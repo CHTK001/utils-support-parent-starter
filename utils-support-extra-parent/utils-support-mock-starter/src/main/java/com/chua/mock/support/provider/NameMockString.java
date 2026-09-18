@@ -22,7 +22,7 @@ public class NameMockString implements MockString {
 
     /**
     * 百家姓姓氏池
-     */
+    */
     private static final String SURNAMES =
             "赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜" +
             "戚谢邹喻柏水窦章云苏潘葛奚范彭郎鲁韦昌马苗凤花方俞任袁柳酆鲍史唐" +
@@ -34,7 +34,7 @@ public class NameMockString implements MockString {
     * 常用名用字池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String GIVEN_NAMES =
             "伟芳娜敏静丽强磊军洋勇艳杰娟涛明超秀霞平刚桂英华金龙玉山" +
             "雪思宇飞浩楠雪晨阳欢欣怡雨佳琪语嫣欣怡子涵梓萱浩然嘉懿睿泽";

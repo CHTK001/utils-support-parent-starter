@@ -47,7 +47,7 @@ public final class PricingSyncer {
     *
     * @param loader 配置加载器
     * @return 同步成功的厂商数量
-     */
+    */
     public static int syncAllFromOnline(ConfigSaveOrLoader loader) {
         if (loader == null) {
             return 0;
@@ -75,7 +75,7 @@ public final class PricingSyncer {
     * @param loader  配置加载器
     * @param names   厂商名称（如 "openai", "zhipu"）
     * @return 同步成功的厂商数量
-     */
+    */
     public static int syncFromOnline(ConfigSaveOrLoader loader, String... names) {
         if (loader == null || names == null || names.length == 0) {
             return 0;
@@ -103,7 +103,7 @@ public final class PricingSyncer {
     *
     * @param loader 配置加载器
     * @return 全部定价列表
-     */
+    */
     public static List<ModelDefinition> loadAll(ConfigSaveOrLoader loader) {
         if (loader == null) {
             return Collections.emptyList();

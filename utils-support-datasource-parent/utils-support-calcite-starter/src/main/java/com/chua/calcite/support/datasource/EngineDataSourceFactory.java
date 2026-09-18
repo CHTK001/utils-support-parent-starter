@@ -23,12 +23,12 @@ public final class EngineDataSourceFactory {
 
     /**
     * 默认 模式 名称
-     */
+    */
     private static final String DEFAULT_SCHEMA = "file";
 
     /**
     * 私有构造，禁止实例化。
-     */
+    */
     private EngineDataSourceFactory() {
     }
 
@@ -39,7 +39,7 @@ public final class EngineDataSourceFactory {
     * @param schemaName    模式 名
     * @param entityClasses 实体类
     * @return 统一 数据源
-     */
+    */
     public static DataSource from(Engine engine, String schemaName, Class<?>... entityClasses) {
         Objects.requireNonNull(engine, "engine");
         Objects.requireNonNull(schemaName, "schemaName");
@@ -65,7 +65,7 @@ public final class EngineDataSourceFactory {
     * @param engine        文件引擎
     * @param entityClasses 实体类
     * @return 统一 数据源
-     */
+    */
     public static DataSource fromFile(FileEngine engine, Class<?>... entityClasses) {
         return from(engine, DEFAULT_SCHEMA, entityClasses);
     }
@@ -77,7 +77,7 @@ public final class EngineDataSourceFactory {
     * @param schemaName    模式 名
     * @param entityClasses 实体类
     * @return 统一 数据源
-     */
+    */
     public static DataSource fromFile(FileEngine engine, String schemaName, Class<?>... entityClasses) {
         return from(engine, schemaName, entityClasses);
     }
@@ -87,7 +87,7 @@ public final class EngineDataSourceFactory {
     *
     * @param entityClass 实体类
     * @return 表名
-     */
+    */
     static String toTableName(Class<?> entityClass) {
         String simpleName = entityClass.getSimpleName();
         StringBuilder sb = new StringBuilder();

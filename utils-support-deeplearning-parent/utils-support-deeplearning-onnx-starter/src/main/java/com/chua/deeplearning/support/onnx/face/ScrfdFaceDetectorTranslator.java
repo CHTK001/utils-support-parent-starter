@@ -47,7 +47,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     *
     * @param def def
     * @return eff阈值的结果
-     */
+    */
     private float effThreshold(float def) {
         return thresholdOverride > 0 ? thresholdOverride : def;
     }
@@ -117,7 +117,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     * @param bboxArray bboxarray
     * @param kpsArray kpsarray
     * @param stride stride
-     */
+    */
     private void decodeStride(List<Candidate> candidates, NDArray scoreArray, NDArray bboxArray, NDArray kpsArray, int stride) {
         float[] scores = scoreArray.toFloatArray();
         float[] boxes = bboxArray.toFloatArray();
@@ -158,7 +158,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     *
     * @param array array
     * @return squeezeBatch的结果
-     */
+    */
     private NDArray squeezeBatch(NDArray array) {
         return array;
     }
@@ -170,7 +170,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     * @param min 最小
     * @param max 最大
     * @return clamp的结果
-     */
+    */
     private float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -179,7 +179,7 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     * 空
     *
     * @return 空的结果
-     */
+    */
     private DetectedObjects empty() {
         return new DetectedObjects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
@@ -194,12 +194,12 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     * @param landmark landmark
     * @param score score
     * @return Candidate的结果
-     */
+    */
     private record Candidate(Landmark landmark, double score) {
         /**
         * rectangle。
         * @return rectangle的结果
-         */
+        */
         private Rectangle rectangle() { return landmark; }
     }
         /** 默认构造。 */
@@ -207,10 +207,10 @@ public class ScrfdFaceDetectorTranslator implements Translator<Image, DetectedOb
     }
 
 /**
-* 创建 Translator（支持外部阈值覆盖）。
-*
-* @param configuration 检测配置（可空）
-     */
+        * 创建 Translator（支持外部阈值覆盖）。
+        *
+        * @param configuration 检测配置（可空）
+        */
     public ScrfdFaceDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         this();
         if (null != configuration) {

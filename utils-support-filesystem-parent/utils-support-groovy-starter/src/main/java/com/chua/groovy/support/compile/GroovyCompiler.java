@@ -53,7 +53,7 @@ public class GroovyCompiler implements Compiler {
     * <ul>
     *   <li>源码编码：UTF-8</li>
     * </ul>
-     */
+    */
     private static final CompilerConfiguration CONFIG = new CompilerConfiguration();
 
     static {

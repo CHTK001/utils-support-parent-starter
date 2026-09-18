@@ -22,7 +22,7 @@ public interface FaceRecognizer {
     *
     * @param name 模型名称
     * @return 识别器
-     */
+    */
 
     /**
     * 通过 SPI 创建实例（提供者="onnx" 等）。
@@ -30,7 +30,7 @@ public interface FaceRecognizer {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static FaceRecognizer create(String provider, String apiKey) {
         return ServiceProvider.of(FaceRecognizer.class)
                 .getNewExtension(provider, apiKey);
@@ -41,7 +41,7 @@ public interface FaceRecognizer {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default FaceRecognizer provider(String provider) {
         return this;
     }
@@ -51,7 +51,7 @@ public interface FaceRecognizer {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default FaceRecognizer model(String model) {
         return this;
     }
@@ -61,7 +61,7 @@ public interface FaceRecognizer {
     *
     * @param name 名称
     * @return 创建的结果
-     */
+    */
     static FaceRecognizer create(String name) {
         return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -73,7 +73,7 @@ public interface FaceRecognizer {
     * 全部已注册模型，供统一能力清单与前端按能力筛选使用。</p>
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.face.FaceRecognizer.class);
     }
@@ -85,7 +85,7 @@ public interface FaceRecognizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 识别器
-     */
+    */
     static FaceRecognizer create(String name, ModelSetting setting) {
         return new DefaultFaceRecognizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -95,7 +95,7 @@ public interface FaceRecognizer {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     FaceRecognizer threshold(float threshold);
 
     /**
@@ -103,7 +103,7 @@ public interface FaceRecognizer {
     *
     * @param path 路径
     * @return this
-     */
+    */
     FaceRecognizer modelPath(String path);
 
     /**
@@ -111,7 +111,7 @@ public interface FaceRecognizer {
     *
     * @param device 设备
     * @return this
-     */
+    */
     FaceRecognizer device(String device);
 
     /**
@@ -119,7 +119,7 @@ public interface FaceRecognizer {
     *
     * @param imageData 图像数据
     * @return 特征向量
-     */
+    */
     float[] extractFeature(byte[] imageData);
 
     /**
@@ -128,7 +128,7 @@ public interface FaceRecognizer {
     * @param feature1 特征一
     * @param feature2 特征二
     * @return 余弦相似度
-     */
+    */
     float compare(float[] feature1, float[] feature2);
 
     /**
@@ -137,7 +137,7 @@ public interface FaceRecognizer {
     * @param imageData         查询图像
     * @param referenceFeatures 参考特征列表
     * @return 匹配的人脸特征列表
-     */
+    */
     List<FaceFeature> recognize(byte[] imageData, List<float[]> referenceFeatures);
 }
 
@@ -151,44 +151,44 @@ class DefaultFaceRecognizer implements FaceRecognizer {
 
     /**
     * 默认识别阈值。
-     */
+    */
     private static final float DEFAULT_THRESHOLD = 0.5f;
 
     /**
     * 默认运行设备（CPU）。
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 模型名称。
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置。
-     */
+    */
     @SuppressWarnings("unused")
     /** 设置 */
     private final ModelSetting setting;
 
     /**
     * 识别阈值。
-     */
+    */
     private float threshold = DEFAULT_THRESHOLD;
 
     /**
     * 模型路径。
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备。
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     /**
@@ -197,7 +197,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     * @param engine    识别引擎
     * @param modelName 模型名称
     * @param setting   模型配置
-     */
+    */
     DefaultFaceRecognizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -238,7 +238,7 @@ class DefaultFaceRecognizer implements FaceRecognizer {
     *
     * @param imageData 镜像数据
     * @return extract特征的结果
-     */
+    */
     public float[] extractFeature(byte[] imageData) {
         ITranslator<byte[], float[]> t =
                 (ITranslator<byte[], float[]>) engine.get(modelName, ITranslator.class);

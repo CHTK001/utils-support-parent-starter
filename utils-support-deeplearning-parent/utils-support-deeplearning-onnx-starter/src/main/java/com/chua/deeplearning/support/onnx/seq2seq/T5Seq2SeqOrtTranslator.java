@@ -38,77 +38,77 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
     /**
     * 重复惩罚系数（贪心解码降重复，过大会迫使选次优 令牌 或提前截止）。
-     */
+    */
     private static final float REPETITION_PENALTY = 1.3f;
 
     /**
     * 默认最小生成 令牌 数（达到前不停止，避免摘要过短）。
-     */
+    */
     private static final int DEFAULT_MIN_NEW_TOKENS = 10;
 
     /**
     * 默认最大生成 令牌 数（防止死循环）。
-     */
+    */
     private static final int DEFAULT_MAX_NEW_TOKENS = 128;
 
     /**
     * 模型定义（t5-small）。
-     */
+    */
     private final Seq2SeqModelDefinition def;
 
     /**
     * 最小生成 令牌 数。
-     */
+    */
     private int minNewTokens = DEFAULT_MIN_NEW_TOKENS;
 
     /**
     * 最大生成 令牌 数。
-     */
+    */
     private int maxNewTokens = DEFAULT_MAX_NEW_TOKENS;
 
     /**
     * 束搜索宽度；1 表示贪心解码。
-     */
+    */
     private int numBeams = 1;
 
     /**
     * 任务前缀（如 "总结: "），生成前拼接到输入；全局配置，空串表示不拼接。
-     */
+    */
     private static volatile String taskPrefix = "";
 
     /**
     * ONNX 运行时环境。
-     */
+    */
     private OrtEnvironment ortEnv;
 
     /**
     * 编码器会话。
-     */
+    */
     private OrtSession encoderSession;
 
     /**
     * 解码器会话（首步）。
-     */
+    */
     private OrtSession decoderSession;
 
     /**
     * 解码器历史会话（循环）。
-     */
+    */
     private OrtSession decoderPastSession;
 
     /**
     * 分词器。
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     /**
     * 是否已加载。
-     */
+    */
     private volatile boolean loaded;
 
     /**
     * 无参构造，使用内置 t5-small 模型定义。
-     */
+    */
     public T5Seq2SeqOrtTranslator() {
         this(Seq2SeqModelDefinition.T5_SMALL);
     }
@@ -117,7 +117,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 构造翻译器。
     *
     * @param def 模型定义
-     */
+    */
     protected T5Seq2SeqOrtTranslator(Seq2SeqModelDefinition def) {
         this.def = def;
     }
@@ -126,7 +126,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 设置任务前缀。
     *
     * @param prefix 任务前缀，如 "总结: "、""（不拼接）
-     */
+    */
     public static void setTaskPrefix(String prefix) {
         taskPrefix = prefix == null ? "" : prefix;
     }
@@ -135,7 +135,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 设置最小生成 令牌 数（达到前不会因 EOS 提前停止）。
     *
     * @param min 最小 令牌 数，小于 0 视为 0
-     */
+    */
     public void setMinNewTokens(int min) {
         this.minNewTokens = Math.max(0, min);
     }
@@ -144,7 +144,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 设置最大生成 令牌 数（超过后强制停止，防止死循环）。
     *
     * @param max 最大 令牌 数，小于 1 视为 1
-     */
+    */
     public void setMaxNewTokens(int max) {
         this.maxNewTokens = Math.max(1, max);
     }
@@ -153,7 +153,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 设置束搜索宽度；1 表示贪心解码。
     *
     * @param beams 束宽，小于 1 视为 1
-     */
+    */
     public void setNumBeams(int beams) {
         this.numBeams = Math.max(1, beams);
     }
@@ -162,7 +162,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * 获取注册模型标识。
     *
     * @return t5-seq2seq
-     */
+    */
     @Override
     public String name() {
         return def.modelId();
@@ -170,7 +170,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
     /**
     * 惰性加载模型与分词器。
-     */
+    */
     private synchronized void prepare() throws Exception {
         if (loaded) {
             return;
@@ -208,7 +208,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     *
     * @param text 输入文本（可含任务前缀，若未配置将由调用方拼接）
     * @return 生成结果
-     */
+    */
     @Override
     public String translate(String text) {
         if (text == null || text.isBlank()) {
@@ -252,7 +252,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param sourceMask  输入注意力掩码
     * @return 编码器隐藏状态（[srcLen * d模型]）
     * @throws Exception ORT 异常
-     */
+    */
     private float[] runEncoder(long[] sourceIds, long[] sourceMask) throws Exception {
         try (OnnxTensor tIds = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceIds), new long[]{1, sourceIds.length});
              OnnxTensor tMask = OnnxTensor.createTensor(ortEnv, LongBuffer.wrap(sourceMask), new long[]{1, sourceIds.length});
@@ -270,7 +270,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param encoderHidden 编码器隐藏状态
     * @return 生成的 令牌 标识 列表
     * @throws Exception ORT 异常
-     */
+    */
     private List<Long> runDecoder(long[] sourceIds, long[] sourceMask, float[] encoderHidden) throws Exception {
         List<Long> generated = new ArrayList<>();
         Set<String> pastInputs = decoderPastSession.getInputNames();
@@ -378,7 +378,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param name   输出名
     * @return float 数组
     * @throws Exception ORT 异常
-     */
+    */
     private float[] tensorData(OrtSession.Result result, String name) throws Exception {
         return ((OnnxTensor) result.get(name).get()).getFloatBuffer().array().clone();
     }
@@ -391,7 +391,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param allowEos 是否允许生成 EOS（false 表示达到最小长度前停止）
     * @return 下一个 令牌 标识
     * @throws Exception ORT 异常
-     */
+    */
     private long argmax(OrtSession.Result result, List<Long> gen, boolean allowEos) throws Exception {
         OnnxTensor logitsTensor = (OnnxTensor) result.get("logits").get();
         float[][][] logits = (float[][][]) logitsTensor.getValue();
@@ -428,7 +428,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     *
     * @param decoded 原始解码文本
     * @return 清洗后的文本
-     */
+    */
     private static String postProcess(String decoded) {
         if (decoded == null || decoded.isEmpty()) {
             return decoded;
@@ -445,7 +445,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
 
     /**
     * 关闭会话与分词器。
-     */
+    */
     @Override
     public void close() {
         for (OrtSession session : List.of(encoderSession, decoderSession, decoderPastSession)) {
@@ -476,7 +476,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param encoderHidden 编码器隐藏状态
     * @return 最优假设的 令牌 标识 列表
     * @throws Exception ORT 异常
-     */
+    */
     private List<Long> runDecoderBeam(long[] sourceIds, long[] sourceMask, float[] encoderHidden) throws Exception {
         int srcLen = sourceIds.length;
         Set<String> pastInputs = decoderPastSession.getInputNames();
@@ -613,7 +613,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     *
     * @param src 源 KV
     * @return 副本
-     */
+    */
     private static float[][][] cloneKv(float[][][] src) {
         float[][][] copy = new float[src.length][][];
         for (int i = 0; i < src.length; i++) {
@@ -634,7 +634,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param seen      已生成 令牌（重复惩罚）
     * @param allowEos  是否允许 EOS
     * @return token 标识 列表
-     */
+    */
     private List<Long> topKTokens(float[] row, int k, List<Long> seen, boolean allowEos) {
         int[] order = new int[row.length];
         for (int i = 0; i < order.length; i++) {
@@ -686,7 +686,7 @@ public class T5Seq2SeqOrtTranslator implements ITranslator<String, String>, Auto
     * @param decSeq   当前解码序列长度
     * @param finished 是否已结束（含 EOS）
     * @return Beam的结果
-     */
+    */
     private record Beam(List<Long> ids, float score, float[][][] dKv, int decSeq, boolean finished) {
     }
 }

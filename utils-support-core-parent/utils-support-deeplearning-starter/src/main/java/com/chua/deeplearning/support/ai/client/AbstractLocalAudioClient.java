@@ -29,32 +29,32 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
 
     /**
     * 引擎名称（提供者）
-     */
+    */
     protected final String engine;
 
     /**
     * 识别引擎实例
-     */
+    */
     protected final IdentificationEngine identificationEngine;
 
     /**
     * 当前模型名称
-     */
+    */
     protected String model;
 
     /**
     * 识别语言
-     */
+    */
     protected String language;
 
     /**
     * 音频路径
-     */
+    */
     protected Path audioPath;
 
     /**
     * 音频字节
-     */
+    */
     protected byte[] audio;
 
     /**
@@ -62,7 +62,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     *
     * @param engine  引擎名称，如 "onnx"
     * @param setting 客户端配置
-     */
+    */
     protected AbstractLocalAudioClient(String engine, AudioClientSetting setting) {
         this.engine = engine;
         this.identificationEngine = AbstractIdentificationEngine.getInstance();
@@ -119,7 +119,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     * 否则返回显式指定的模型名。</p>
     *
     * @return 模型名称
-     */
+    */
     protected String resolveModel() {
         if (model != null && !model.isBlank() && !"auto".equalsIgnoreCase(model)) {
             return model;
@@ -162,7 +162,7 @@ public abstract class AbstractLocalAudioClient implements VirtualClient {
     *
     * @return 音频字节
     * @throws Exception 读取失败
-     */
+    */
     private byte[] resolveAudio() throws Exception {
         if (audio != null) {
             return audio;

@@ -37,7 +37,7 @@ public class ResNet50TransferTrainer implements Trainer {
 
     /**
     * 默认保存模型文件名（保存路径 为目录时使用）。
-     */
+    */
     private static final String DEFAULT_MODEL_NAME = "NewResNet50.zip";
 
     @Override
@@ -174,7 +174,7 @@ public class ResNet50TransferTrainer implements Trainer {
     *
     * @param savePath 配置的保存路径（文件或目录）
     * @return 保存用模型文件
-     */
+    */
     private File resolveModelFile(String savePath) {
         File target = new File(savePath);
         if (target.isDirectory() || savePath.endsWith(File.separator)) {
@@ -197,7 +197,7 @@ public class ResNet50TransferTrainer implements Trainer {
     * @param progress 进度对象
     * @param listener 监听器（可为空）
     * @return 失败结果
-     */
+    */
     private TrainResult cancelled(TrainProgress progress, TrainListener listener) {
         progress.setStatus(TrainStatus.CANCELLED);
         if (listener != null) {

@@ -38,7 +38,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     public H2MetaSearch(AbstractMetaData metaData, Engine engine) {
         super(metaData, engine);
         this.engine = (H2Engine) engine;
@@ -91,7 +91,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class H2CreateIndexBuilder implements SearchIndexCreateBuilder {
 
         private final String indexName; // 索引名称
@@ -104,7 +104,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * 构造 H2 创建索引构建器。
         *
         * @param indexName 索引名称
-         */
+        */
         H2CreateIndexBuilder(String indexName) {
             this.indexName = indexName;
         }
@@ -117,7 +117,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * replicas。
         * @param replicas replicas
         * @return replicas的结果
-         */
+        */
         }
 
         @Override
@@ -129,7 +129,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * @param name 名称
         * @param type 类型
         * @return 字段的结果
-         */
+        */
         }
 
         @Override
@@ -145,7 +145,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * @param type 类型
         * @param config 配置
         * @return 字段的结果
-         */
+        */
         }
 
         @Override
@@ -165,7 +165,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * 字段。
         * @param fields 字段
         * @return 字段的结果
-         */
+        */
         }
 
         @Override
@@ -180,7 +180,7 @@ public class H2MetaSearch extends AbstractMetaSearch {
         * @since 4.0.0
         * @param type 类型
         * @param mappings mappings
-         */
+        */
         }
 
         @Override

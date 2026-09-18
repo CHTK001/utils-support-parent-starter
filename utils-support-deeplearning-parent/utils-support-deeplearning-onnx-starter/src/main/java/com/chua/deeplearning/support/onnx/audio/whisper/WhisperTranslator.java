@@ -82,7 +82,7 @@ public class WhisperTranslator {
     * Prepare
     *
     * @param modelDir 模型dir
-     */
+    */
     public void prepare(Path modelDir) throws Exception {
         Path onnxDir = modelDir.resolve("onnx");
         Path encoderPath = Files.isDirectory(onnxDir) ? findOnnx(onnxDir, "encoder_model") : null;
@@ -124,7 +124,7 @@ public class WhisperTranslator {
     * @param dir dir
     * @param prefix 前缀
     * @return findOnnx的结果
-     */
+    */
     private static Path findOnnx(Path dir, String prefix) throws IOException {
         try (var stream = Files.list(dir)) {
             Path result = stream
@@ -140,7 +140,7 @@ public class WhisperTranslator {
     * 从 类路径 jar 内按 音频/asr/whisper-tiny/ 路径解压到 模型dir。
     * 保留子目录结构（onnx/编码器_模型_quantized.onnx 等）。
     * @param modelDir 模型dir
-     */
+    */
     private static void extractFromJar(Path modelDir) throws Exception {
         final String basePath = "audio/asr/whisper-tiny";
         ClassLoader cl = WhisperTranslator.class.getClassLoader();
@@ -212,7 +212,7 @@ public class WhisperTranslator {
     *
     * @param audioPath 音频路径
     * @return transcribe的结果
-     */
+    */
     public String transcribe(Path audioPath) throws Exception {
         long start = System.currentTimeMillis();
         log.info("[Whisper] loadAudio start");
@@ -234,7 +234,7 @@ public class WhisperTranslator {
     *
     * @param mel mel
     * @return 执行transcribe的结果
-     */
+    */
     private String doTranscribe(float[][] mel) throws Exception {
 
         // encoder input: (1, 80, 3000) flat
@@ -263,7 +263,7 @@ public class WhisperTranslator {
     * 设置识别语言（zh/en 等）
     *
     * @param language language
-     */
+    */
     public void setLanguage(String language) {
         this.language = language;
     }
@@ -273,7 +273,7 @@ public class WhisperTranslator {
     *
     * @param encoderHidden 编码器hidden
     * @return greedyDecode的结果
-     */
+    */
     private int[] greedyDecode(float[] encoderHidden) {
         List<Integer> tokens = new ArrayList<>();
         tokens.add(WhisperTokenizer.SOT);
@@ -349,7 +349,7 @@ public class WhisperTranslator {
     * @param offset 偏移量
     * @param length 长度
     * @return argmax的结果
-     */
+    */
     private static int argmax(float[] arr, int offset, int length) {
         int idx = 0;
         float max = arr[offset];
@@ -368,7 +368,7 @@ public class WhisperTranslator {
     *
     * @param path 路径
     * @return 加载音频的结果
-     */
+    */
     public static float[] loadAudio(Path path) throws Exception {
         try (AudioInputStream in = AudioSystem.getAudioInputStream(new File(path.toUri()))) {
             AudioFormat fmt = in.getFormat();

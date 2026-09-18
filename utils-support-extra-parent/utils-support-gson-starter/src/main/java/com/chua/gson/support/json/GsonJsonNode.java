@@ -18,7 +18,7 @@ public class GsonJsonNode extends JsonNode {
     * 使用原始值构造 gsonjson节点。
     *
     * @param value 原始 JSON 值
-     */
+    */
     public GsonJsonNode(Object value) {
         super(value);
     }

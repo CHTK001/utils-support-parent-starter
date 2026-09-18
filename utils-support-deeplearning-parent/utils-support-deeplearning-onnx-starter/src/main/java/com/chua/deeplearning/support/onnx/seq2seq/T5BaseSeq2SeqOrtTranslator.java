@@ -14,7 +14,7 @@ public class T5BaseSeq2SeqOrtTranslator extends T5Seq2SeqOrtTranslator {
 
     /**
     * 无参构造，使用内置 t5-基础 模型定义。
-     */
+    */
     public T5BaseSeq2SeqOrtTranslator() {
         super(Seq2SeqModelDefinition.T5_BASE);
     }

@@ -33,30 +33,30 @@ public class ImageMockString implements MockString {
 
     /**
     * 常见图片宽度池
-     */
+    */
     private static final int[] WIDTHS = {640, 750, 800, 1024, 1280, 1920};
     /**
     * 常见图片高度池
-     */
+    */
     private static final int[] HEIGHTS = {480, 500, 600, 720, 768, 1080};
     /**
     * 最小尺寸（环境指定为有效正方形尺寸时的下限）
-     */
+    */
     private static final int SIZE_MIN = 10;
     /**
     * 最大尺寸（环境指定为有效正方形尺寸时的上限）
-     */
+    */
     private static final int SIZE_MAX = 2048;
     /**
     * 种子字符池
-     */
+    */
     private static final char[] SEED_CHARS =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
     /**
     * 默认种子长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int SEED_LENGTH = 8;
 
     @Override
@@ -86,7 +86,7 @@ public class ImageMockString implements MockString {
     * @param width       图片宽度
     * @param height      图片高度
     * @return 图片 URL
-     */
+    */
     private static String randomUrl(MockEnvironment environment, int width, int height) {
         String seed = randomSeed(environment);
         return "https://picsum.photos/seed/" + seed + "/" + width + "/" + height;
@@ -99,7 +99,7 @@ public class ImageMockString implements MockString {
     * @param width   图片宽度
     * @param height  图片高度
     * @return 图片 URL
-     */
+    */
     private static String keywordUrl(String keyword, int width, int height) {
         return "https://loremflickr.com/" + width + "/" + height + "/" + encode(keyword);
     }
@@ -109,7 +109,7 @@ public class ImageMockString implements MockString {
     *
     * @param keyword 关键词
     * @return 编码后的关键词
-     */
+    */
     private static String encode(String keyword) {
         try {
             return URLEncoder.encode(keyword, StandardCharsets.UTF_8.name());
@@ -123,7 +123,7 @@ public class ImageMockString implements MockString {
     *
     * @param environment Mock 环境
     * @return 种子字符串
-     */
+    */
     private static String randomSeed(MockEnvironment environment) {
         StringBuilder builder = new StringBuilder(SEED_LENGTH);
         for (int i = 0; i < SEED_LENGTH; i++) {

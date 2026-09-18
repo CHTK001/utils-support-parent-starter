@@ -63,7 +63,9 @@ public class FileViewerStaticFilter implements ServerFilter {
         MIME_TYPES = java.util.Collections.unmodifiableMap(m);
     }
 
-    /** 需要 long-ttl + immutable 缓存的文件类型（WebAssembly/工人/字体/主 JS bundle） */
+    /**
+    * 需要 long-ttl + immutable 缓存的文件类型（WebAssembly/工人/字体/主 JS bundle）
+    */
     private static final java.util.Set<String> IMMUTABLE_EXTS;
     static {
         java.util.Set<String> s = new java.util.HashSet<>();
@@ -132,7 +134,7 @@ public class FileViewerStaticFilter implements ServerFilter {
     * computeetag。
     * @param bytes bytes
     * @return computeEtag的结果
-     */
+    */
     private static String computeEtag(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -153,7 +155,7 @@ public class FileViewerStaticFilter implements ServerFilter {
     * 获取ext。
     * @param path 路径
     * @return 获取ext的结果
-     */
+    */
     private static String getExt(String path) {
         int dot = path.lastIndexOf('.');
         return dot > 0 ? path.substring(dot + 1).toLowerCase() : "";

@@ -25,19 +25,19 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
 
     /**
     * ND                        ndarray
-     */
+    */
     private NDManager manager;
 
     /**
     *                                                    
-     */
+    */
     private final int detectResolution = 512;
 
     /**
     *                                           
     *
     * @param ctx                   
-     */
+    */
     @Override
     public void prepare(TranslatorContext ctx) {
         this.manager = NDManager.newBaseManager(ctx.getNDManager().getDevice(), "PyTorch");
@@ -57,7 +57,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     * @param ctx                     
     * @param input             
     * @return                         NDList
-     */
+    */
     @Override
     public NDList processInput(TranslatorContext ctx, Image input) {
  // ndarray                        FLOAT32
@@ -99,7 +99,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     * @param ctx                    
     * @param list                nd列表
     * @return                               
-     */
+    */
     @Override
     public Image processOutput(TranslatorContext ctx, NDList list) {
         //                         
@@ -127,7 +127,7 @@ public class RealTextImageSuperResolutionTranslator implements Translator<Image,
     *                      
     *
     * @return                               STACK      
-     */
+    */
     @Override
     public Batchifier getBatchifier() {
         return Batchifier.STACK;

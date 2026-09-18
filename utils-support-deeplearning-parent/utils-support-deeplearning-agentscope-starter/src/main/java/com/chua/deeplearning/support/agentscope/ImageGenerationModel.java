@@ -17,7 +17,7 @@ import java.util.Base64;
 import java.util.List;
 
 /**
-* 将 镜像客户端 适配为 智能体scope 的 模型，使子 智能体 具备文生图能力。
+* 将 镜像客户端 适配为 Agentscope 的 模型，使子 Agent 具备文生图能力。
 *
 * <p>AgentScope 只认文本 Model，本适配器将图像生成结果转为 base64 文本返回。
 *
@@ -37,7 +37,7 @@ public class ImageGenerationModel implements Model {
     * @param imageClient 镜像客户端
     * @param modelName 字符串
     * @param modelName 模型名称
-     */
+    */
     public ImageGenerationModel(ImageClient imageClient, String modelName) {
         this.imageClient = imageClient;
         this.modelName = modelName != null ? modelName : "image-generation";
@@ -77,7 +77,7 @@ public class ImageGenerationModel implements Model {
     *
     * @param messages 消息
     * @return extract提示符的结果
-     */
+    */
     private static String extractPrompt(List<Msg> messages) {
         for (int i = messages.size() - 1; i >= 0; i--) {
             Msg msg = messages.get(i);
@@ -94,7 +94,7 @@ public class ImageGenerationModel implements Model {
     *
     * @param image 镜像
     * @return 转为base64png的结果
-     */
+    */
     private static String toBase64Png(BufferedImage image) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);

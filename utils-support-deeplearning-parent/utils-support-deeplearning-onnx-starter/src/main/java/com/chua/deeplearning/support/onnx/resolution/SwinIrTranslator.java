@@ -49,7 +49,7 @@ public class SwinIrTranslator implements Translator<Image, Image> {
 
     /**
     * swinir 模型固定输入尺寸（128x128）
-     */
+    */
     private static final int INPUT_SIZE = 128;
 
     @Override
@@ -125,7 +125,7 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     *
     * @param v 浮点像素值
     * @return 0-255 整数
-     */
+    */
     private static int clampU8(float v) {
         float x = Math.max(0.0f, Math.min(255.0f, v));
         return (int) Math.round(x);
@@ -138,7 +138,7 @@ public class SwinIrTranslator implements Translator<Image, Image> {
     * @param w   目标宽
     * @param h   目标高
     * @return 缩放后的图
-     */
+    */
     private static BufferedImage resize(BufferedImage src, int w, int h) {
         BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = out.createGraphics();

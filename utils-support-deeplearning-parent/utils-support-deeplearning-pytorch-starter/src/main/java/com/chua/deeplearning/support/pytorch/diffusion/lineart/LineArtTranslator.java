@@ -22,22 +22,22 @@ public class LineArtTranslator implements Translator<Image, Image> {
 
     /**
     * 输出分辨率。
-     */
+    */
     private final int imageResolution;
 
     /**
     * 检测分辨率。
-     */
+    */
     private final int detectResolution;
 
     /**
     * 原图宽。
-     */
+    */
     private int width;
 
     /**
     * 原图高。
-     */
+    */
     private int height;
 
     /** 创建 线arttranslator 实例 */
@@ -50,7 +50,7 @@ public class LineArtTranslator implements Translator<Image, Image> {
     * @param imageResolution 镜像resolution
     * @param imageResolution int
     * @param detectResolution detectresolution
-     */
+    */
     public LineArtTranslator(int imageResolution, int detectResolution) {
         this.imageResolution = imageResolution;
         this.detectResolution = detectResolution;

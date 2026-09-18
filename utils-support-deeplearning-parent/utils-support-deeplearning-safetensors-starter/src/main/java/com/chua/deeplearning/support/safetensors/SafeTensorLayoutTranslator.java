@@ -35,7 +35,7 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
     * @param port 端口
     * @param modelName 模型名称
     * @param modelType 模型类型
-     */
+    */
     public SafeTensorLayoutTranslator(String host, int port, String modelName, String modelType) {
         this.client = new SafeTensorServiceClient(host, port);
         this.modelName = modelName;
@@ -55,7 +55,7 @@ public class SafeTensorLayoutTranslator implements ITranslator<byte[], String> {
     *
     * @param input 输入
     * @return translate的结果
-     */
+    */
     public String translate(byte[] input) {
         if (input == null || input.length == 0) {
             return "";

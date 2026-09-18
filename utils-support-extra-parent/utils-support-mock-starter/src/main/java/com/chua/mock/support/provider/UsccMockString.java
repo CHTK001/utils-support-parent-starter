@@ -24,29 +24,29 @@ public class UsccMockString implements MockString {
 
     /**
     * 登记管理部门代码（1-9，1 为机构编制，5 为民政，9 为工商等）
-     */
+    */
     private static final Integer[] ADMIN_DEPARTMENTS = {1, 2, 3, 4, 5, 9};
     /**
     * 机构类别代码（1 企业法人、2 非法人企业、3 个体工商户、4 农民专业合作社）
-     */
+    */
     private static final Integer[] INSTITUTION_TYPES = {1, 2, 3, 4};
     /**
     * mod 31 字符集（排除易混淆的 I、O、S、V、Z）
-     */
+    */
     private static final String MOD31_CHARS = "0123456789ABCDEFGHJKLMNPQRTUWXY";
     /**
     * 组织机构代码校验权重（8 位主体码，MOD 11-2）
-     */
+    */
     private static final int[] ORG_WEIGHTS = {3, 7, 9, 10, 5, 8, 4, 2};
     /**
     * 统一社会信用代码校验权重（17 位，mod 31）
-     */
+    */
     private static final int[] USCC_WEIGHTS = {1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28};
     /**
     * 行政区划代码池（与 {@link CnIdCardUtils} 保持一致的真实区划）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] ADMIN_CODES = {
             "110000", "120000", "310000", "500000", "440100", "440300", "330100",
             "330200", "510100", "320100", "320500", "370100", "370200", "420100",
@@ -75,7 +75,7 @@ public class UsccMockString implements MockString {
     *
     * @param body 8 位主体码
     * @return 校验位字符（0-9 或 X）
-     */
+    */
     private static char orgCodeCheck(StringBuilder body) {
         int sum = 0;
         for (int i = 0; i < ORG_WEIGHTS.length; i++) {
@@ -91,7 +91,7 @@ public class UsccMockString implements MockString {
     *
     * @param body 前 17 位
     * @return 校验码字符
-     */
+    */
     private static char usccCheck(StringBuilder body) {
         int sum = 0;
         for (int i = 0; i < USCC_WEIGHTS.length; i++) {

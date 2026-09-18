@@ -26,7 +26,7 @@ public interface ActionDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static ActionDetector create(String provider, String apiKey) {
         return ServiceProvider.of(ActionDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -37,7 +37,7 @@ public interface ActionDetector {
     *
     * @param name 模型名称
     * @return 检测器
-     */
+    */
     static ActionDetector create(String name) {
         return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -48,7 +48,7 @@ public interface ActionDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 检测器
-     */
+    */
     static ActionDetector create(String name, ModelSetting setting) {
         return new DefaultActionDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -57,7 +57,7 @@ public interface ActionDetector {
     * 查询该能力下全部可用模型。
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return ModelRegistry.getModelIdsByCapability(ActionDetector.class);
     }
@@ -67,7 +67,7 @@ public interface ActionDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default ActionDetector model(String model) {
         return this;
     }
@@ -77,7 +77,7 @@ public interface ActionDetector {
     *
     * @param threshold 阈值
     * @return this
-     */
+    */
     ActionDetector threshold(float threshold);
 
     /**
@@ -85,7 +85,7 @@ public interface ActionDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     ActionDetector modelPath(String path);
 
     /**
@@ -93,7 +93,7 @@ public interface ActionDetector {
     *
     * @param device 设备
     * @return this
-     */
+    */
     ActionDetector device(String device);
 
     /**
@@ -101,7 +101,7 @@ public interface ActionDetector {
     *
     * @param videoData 视频文件数据
     * @return 动作检测结果列表
-     */
+    */
     List<ActionDetectionResult> detect(byte[] videoData);
 }
 
@@ -146,7 +146,7 @@ class DefaultActionDetector implements ActionDetector {
     * 阈值。
     * @param threshold 阈值
     * @return 阈值的结果
-     */
+    */
     }
 
     @Override
@@ -159,7 +159,7 @@ class DefaultActionDetector implements ActionDetector {
     * @return 模型路径的结果
     * @param videoData 视频数据
     * @param device device
-     */
+    */
     }
 
     @Override

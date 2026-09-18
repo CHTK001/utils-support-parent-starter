@@ -20,7 +20,7 @@ public interface TaskPersistence {
     *
     * @param taskId 任务 标识
     * @param response 验证码解析结果
-     */
+    */
     void save(String taskId, CaptchaResponse response);
 
     /**
@@ -28,14 +28,14 @@ public interface TaskPersistence {
     *
     * @param taskId 任务 标识
     * @return 缓存的结果，不存在时返回 期权.空()
-     */
+    */
     Optional<CaptchaResponse> query(String taskId);
 
     /**
     * 删除指定任务
     *
     * @param taskId 任务 标识
-     */
+    */
     void delete(String taskId);
 
     /**
@@ -43,7 +43,7 @@ public interface TaskPersistence {
     *
     * @param filePath 持久化文件路径
     * @return TaskPersistence 实例
-     */
+    */
     static TaskPersistence file(String filePath) {
         return new FileTaskPersistence(filePath);
     }

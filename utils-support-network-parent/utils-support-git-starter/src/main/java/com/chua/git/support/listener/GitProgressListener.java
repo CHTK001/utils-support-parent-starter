@@ -44,7 +44,7 @@ public interface GitProgressListener {
     * 实际每个任务再用 {@link #onTaskBegin} 汇报工作量。</p>
     *
     * @param totalTasks 总任务数
-     */
+    */
     void onBegin(int totalTasks);
 
     /**
@@ -56,7 +56,7 @@ public interface GitProgressListener {
     *
     * @param taskName  任务名称，通常来自远端服务器
     * @param totalWork 总工作量，-1 表示未知
-     */
+    */
     void onTaskBegin(String taskName, int totalWork);
 
     /**
@@ -65,19 +65,19 @@ public interface GitProgressListener {
     * <p>从 0 开始累计，直至 {@literal totalWork}。</p>
     *
     * @param work 当前进度数值
-     */
+    */
     void onUpdate(int work);
 
     /**
     * 当前任务结束。
-     */
+    */
     void onTaskEnd();
 
     /**
     * 全部任务完成，操作即将返回结果。
     *
     * <p>在操作成功或失败后均会回ending返回。</p>
-     */
+    */
     void onEnd();
 
     /**
@@ -87,7 +87,7 @@ public interface GitProgressListener {
     * 如果返回 {@value}true} 则中止当前操作。</p>
     *
     * @return true 表示取消
-     */
+    */
     default boolean isCancelled() {
         return false;
     }

@@ -45,27 +45,27 @@ public class LicenseServerFilter implements ServerFilter {
 
     /**
     * 默认注册表文件路径
-     */
+    */
     private static final String DEFAULT_REGISTRY = "licenses.txt";
 
     /**
     * 签名响应版本前缀（与 launch.执照键客户端 对应）
-     */
+    */
     private static final String SIGNED_PREFIX = "v1.";
 
     /**
     * 注册表
-     */
+    */
     private LicenseRegistry registry;
 
     /**
     * 响应签名密钥（为空则不下发签名）
-     */
+    */
     private char[] secret;
 
     /**
     * 默认构造：初始化 时从参数/默认路径加载注册表
-     */
+    */
     public LicenseServerFilter() {
     }
 
@@ -73,7 +73,7 @@ public class LicenseServerFilter implements ServerFilter {
     * 注册表注入构造（编程装配场景，初始化 不再覆盖）
     *
     * @param registry 已加载的注册表
-     */
+    */
     public LicenseServerFilter(LicenseRegistry registry) {
         this.registry = registry;
     }
@@ -83,7 +83,7 @@ public class LicenseServerFilter implements ServerFilter {
     *
     * @param registry       已加载的注册表
     * @param responseSecret 响应签名密钥（客户端 chua.加密货币.执照-secret 须一致）
-     */
+    */
     public LicenseServerFilter(LicenseRegistry registry, char[] responseSecret) {
         this.registry = registry;
         this.secret = responseSecret == null ? null : responseSecret.clone();
@@ -91,7 +91,7 @@ public class LicenseServerFilter implements ServerFilter {
 
     /**
     * 初始化：未注入注册表时按配置路径加载；读取签名密钥
-     */
+    */
     @Override
     public void init(ServerFilterConfig config) throws Exception {
         if (registry == null) {
@@ -109,7 +109,7 @@ public class LicenseServerFilter implements ServerFilter {
 
     /**
     * 处理校验请求：已注册下发私钥封装块并终止链，未注册 403
-     */
+    */
     @Override
     public void doFilter(ServerRequest request, ServerResponse response, ServerFilterChain chain) throws Exception {
         if (!"POST".equalsIgnoreCase(String.valueOf(request.getMethod()))) {
@@ -133,7 +133,7 @@ public class LicenseServerFilter implements ServerFilter {
 
     /**
     * 绑定路径
-     */
+    */
     @Override
     public String supportPath() {
         return "/license";
@@ -141,7 +141,7 @@ public class LicenseServerFilter implements ServerFilter {
 
     /**
     * 高优先级执行
-     */
+    */
     @Override
     public int getOrder() {
         return 10;
@@ -152,7 +152,7 @@ public class LicenseServerFilter implements ServerFilter {
     *
     * @param blob 私钥封装块
     * @return 摘要
-     */
+    */
     private byte[] hmac(byte[] blob) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -169,7 +169,7 @@ public class LicenseServerFilter implements ServerFilter {
     * @param json 请求体
     * @param field 字段名
     * @return 值或 空
-     */
+    */
     static String extract(String json, String field) {
         if (json == null) {
             return null;

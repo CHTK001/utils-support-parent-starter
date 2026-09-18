@@ -104,7 +104,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 创建 构建器。
     *
     * @return 构建器的结果
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -113,7 +113,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 创建默认管线实例（文件持久化）。
     *
     * @return 创建的结果
-     */
+    */
     public static VoiceprintPipeline create() {
         return builder().build();
     }
@@ -122,7 +122,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 创建链式入库操作。
     *
     * @return 创建enroll的结果
-     */
+    */
     public EnrollConfig createEnroll() {
         return new EnrollConfig(this);
     }
@@ -131,7 +131,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 创建链式检索操作。
     *
     * @return 创建搜索的结果
-     */
+    */
     public SearchConfig createSearch() {
         return new SearchConfig(this);
     }
@@ -167,7 +167,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     *
     * @param s 16khz 采样
     * @return 增强后采样
-     */
+    */
     private float[] denoise(float[] s) {
         try {
             float[] up = AudioUtils.resample(s, 16000, 48000);
@@ -190,7 +190,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * @param s    16khz 采样
     * @param type VAD 类型（"energy" / "silero" 等）
     * @return 语音段列表
-     */
+    */
     private static List<float[]> splitByVad(float[] s, String type) {
         return switch (type.toLowerCase()) {
             case "energy" -> splitByEnergy(s, 0.01f, 0.4f, 28f);
@@ -272,7 +272,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 已注册声纹数量。
     *
     * @return 大小的结果
-     */
+    */
     public int size() {
         return storage.size();
     }
@@ -294,7 +294,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * @param audioPath 音频路径
     * @return 音频的结果
     * @param label 标签
-     */
+    */
     public static final class EnrollConfig {
         private final VoiceprintPipeline parent;
         private String id;
@@ -305,7 +305,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * @return id的结果
         * @param audioPath 音频路径
         * @param label 标签
-         */
+        */
         private Path audioPath;
 
         EnrollConfig(VoiceprintPipeline parent) {
@@ -314,7 +314,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * id。
         * @param speakerId speakerId
         * @return id的结果
-         */
+        */
         }
 
         public EnrollConfig id(String speakerId) {
@@ -336,7 +336,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * 执行入库并返回管线实例（可继续链式）。
         *
         * @return 执行的结果
-         */
+        */
         public VoiceprintPipeline execute() throws Exception {
             if (id == null || audioPath == null) {
                 throw new IllegalStateException("id 和 audio 均为必填");
@@ -360,7 +360,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * @param queryPath 查询路径
     * @return 查询的结果
     * @param t t
-     */
+    */
     public static final class SearchConfig {
         private final VoiceprintPipeline parent;
         private int topK = 5;
@@ -371,7 +371,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * @return topK的结果
         * @param queryPath 查询路径
         * @param t t
-         */
+        */
         private Path queryPath;
 
         SearchConfig(VoiceprintPipeline parent) {
@@ -380,7 +380,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * topK。
         * @param k k
         * @return topK的结果
-         */
+        */
         }
 
         public SearchConfig topK(int k) {
@@ -402,7 +402,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         * 执行检索，返回匹配结果。
         *
         * @return 执行的结果
-         */
+        */
         public List<Match> execute() throws Exception {
             if (queryPath == null) {
                 throw new IllegalStateException("query 为必填");
@@ -429,7 +429,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * @param similarity 相似度
     * @param metadata metadata
     * @return 匹配的结果
-     */
+    */
     public record Match(String speakerId, double similarity, Map<String, Object> metadata) {
     }
 
@@ -437,7 +437,7 @@ public class VoiceprintPipeline implements AutoCloseable {
     * 声纹库默认持久化目录。
     *
     * @return 默认目录的结果
-     */
+    */
     private static Path defaultDirectory() {
         String prop = System.getProperty("deeplearning.model.cache-dir");
         Path base = (prop != null && !prop.isBlank())
@@ -456,10 +456,10 @@ public class VoiceprintPipeline implements AutoCloseable {
         private String vadType;
 
         /**
-        * embedder。
-        * @param e e
-        * @return embedder的结果
-         */
+    * embedder。
+    * @param e e
+    * @return embedder的结果
+    */
         public Builder embedder(CampplusEmbedding e) {
             this.embedder = e;
             return this;
@@ -559,7 +559,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         *
         * @param maxResults 最大结果
         * @return 最大的结果
-         */
+        */
         public Builder max(int maxResults) {
             this.maxResults = Math.max(1, maxResults);
             return this;
@@ -575,7 +575,7 @@ public class VoiceprintPipeline implements AutoCloseable {
         *
         * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表）
         * @return this
-         */
+        */
         public Builder denoise(String modelId) {
             this.denoiseEnhancer = modelId != null ? SpeechEnhancer.create(modelId) : null;
             return this;

@@ -22,13 +22,13 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的 CAD 扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED_EXTS = Set.of(
             "dwg", "dgn", "step", "stp", "iges", "igs", "brep");
 
     /**
     * 扩展名 → 格式名称映射
-     */
+    */
     private static final java.util.Map<String, String> FORMAT_NAMES = java.util.Map.of(
             "dwg", "AutoCAD DWG",
             "dgn", "MicroStation DGN",
@@ -96,7 +96,7 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
     * 根据扩展名返回推荐软件提示
     * @param ext ext
     * @return 获取softwarehint的结果
-     */
+    */
     private String getSoftwareHint(String ext) {
         return switch (ext) {
             case "dwg" -> "AutoCAD、FreeCAD、LibreCAD、ODA File Converter";
@@ -112,7 +112,7 @@ public class CadPreviewProvider implements FileStoragePreviewProvider {
     * 人类可读的文件大小
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
     private String humanSize(long bytes) {
         if (bytes < 1024) {
             return bytes + " B";

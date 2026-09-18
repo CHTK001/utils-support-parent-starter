@@ -605,12 +605,12 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
             }
 
             /**
-            * 调用
-            *
-            * @param t t
-            * @param proxyMethod 代理方法
-            * @return invoke的结果
-            */
+    * 调用
+    *
+    * @param t t
+    * @param proxyMethod 代理方法
+    * @return invoke的结果
+    */
             private Object invoke(T t, ProxyMethod proxyMethod) {
                 return proxyMethod.getValue(t);
             }
@@ -789,8 +789,8 @@ public class DefaultServiceProvider<T> implements ServiceProvider<T>, Initializi
         defaultResolvers.add(new CustomServiceResolver());
         defaultResolvers.add(new SamePackageServiceResolver());
         /**
-        * 动态加载扩展解析器：script加载服务解析器 (utils-support-extension-starter)
-        */
+    * 动态加载扩展解析器：script加载服务解析器 (utils-support-extension-starter)
+    */
         ClassUtils.isPresent("com.chua.extension.support.spi.resolver.ScriptLoaderServiceResolver", ServiceResolver.class, defaultResolvers::add);
 
         /**

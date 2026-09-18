@@ -21,7 +21,7 @@ public class QqwryIpPosition implements IpPosition {
 
     /**
     * 使用默认路径构造。
-     */
+    */
     public QqwryIpPosition() {
         this(DEFAULT_DB);
     }
@@ -30,7 +30,7 @@ public class QqwryIpPosition implements IpPosition {
     * 指定数据库文件路径构造。
     *
     * @param dbPath 数据库文件路径
-     */
+    */
     public QqwryIpPosition(String dbPath) {
         try {
             this.reader = new QQWryReader(dbPath);

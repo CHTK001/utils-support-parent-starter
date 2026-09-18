@@ -17,7 +17,7 @@ public final class OpencvNative {
 
     /**
     * 是否已完成原生库加载。
-     */
+    */
     private static volatile boolean loaded = false;
 
     /** 创建 opencvNAT 实例 */
@@ -27,7 +27,7 @@ public final class OpencvNative {
     /**
     * 确保 打开cv 原生库已加载。
     * <p>线程安全，可重复调用。</p>
-     */
+    */
     public static void ensureLoaded() {
         if (loaded) {
             return;

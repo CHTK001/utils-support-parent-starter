@@ -72,7 +72,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     * @param target 已合并的结果，首次调用为 空
     * @param src    当前数据源的命中记录
     * @return 合并后的结果
-     */
+    */
     private ModelDefinition merge(ModelDefinition target, ModelDefinition src) {
         if (target == null) {
             target = new ModelDefinition();
@@ -120,7 +120,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     * @param sourceValue  源值
     * @param targetSetter 目标赋值
     * @param <T>          字段类型
-     */
+    */
     private <T> void fillIfNull(java.util.function.Supplier<T> targetGetter, T sourceValue,
                                 java.util.function.Consumer<T> targetSetter) {
         if (sourceValue == null) {
@@ -141,7 +141,7 @@ public class DataSearchModelPricingProvider implements ModelPricingProvider {
     * @param targetGetter 目标取值
     * @param sourceValue  源值
     * @param targetSetter 目标赋值
-     */
+    */
     private void mergeBoolean(java.util.function.Supplier<Boolean> targetGetter, Boolean sourceValue,
                               java.util.function.Consumer<Boolean> targetSetter) {
         if (sourceValue == null) {

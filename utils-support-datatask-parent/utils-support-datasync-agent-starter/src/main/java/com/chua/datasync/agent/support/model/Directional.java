@@ -15,6 +15,6 @@ public interface Directional {
     * 获取方向。
     *
     * @return 方向
-     */
+    */
     Direction direction();
 }

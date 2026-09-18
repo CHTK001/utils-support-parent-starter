@@ -35,12 +35,12 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
 
     /**
     *              
-     */
+    */
     private static final int INPUT_SIZE = 800;
 
     /**
     *                                      
-     */
+    */
     private static final List<String> LABELS = List.of(
             "abstract",
             "algorithm",
@@ -71,37 +71,37 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
 
     /**
     *                          
-     */
+    */
     private final Float configuredScoreThreshold;
 
     /**
     *              
-     */
+    */
     private float scoreThreshold;
 
     /**
     *                              
-     */
+    */
     private int width;
 
     /**
     *                              
-     */
+    */
     private int height;
 
     /**
     * AWT 缩放类型。
-     */
+    */
     private int scale;
 
     /**
     *                              
-     */
+    */
     private boolean lowInformationInput;
 
     /**
     *              
-     */
+    */
     public PpDocLayoutTranslator() {
         this(Collections.emptyMap());
     }
@@ -110,7 +110,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *              
     *
     * @param arguments                     
-     */
+    */
     public PpDocLayoutTranslator(Map<String, ?> arguments) {
         this.configuredScoreThreshold = extractThreshold(arguments);
         this.scoreThreshold = 0.5f;
@@ -122,7 +122,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     * @param ctx translator上下文
     * @param input                       
     * @return NDList               
-     */
+    */
     @Override
     @Nonnull
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Image input) {
@@ -162,7 +162,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     * @param ctx translator上下文
     * @param list nd列表
     * @return DetectedObjects          
-     */
+    */
     @Override
     @Nonnull
     public DetectedObjects processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
@@ -230,7 +230,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *                           
     *
     * @return Batchifier          
-     */
+    */
     @Override
     @Nullable
     public Batchifier getBatchifier() {
@@ -243,7 +243,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     * @param list 列表
     * @param rows rows
     * @return determine数量的结果
-     */
+    */
     private int determineCount(NDList list, NDArray rows) {
         int maxCount = (int) rows.getShape().get(0); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
         if (list.size() < 2 || list.get(1) == null || list.get(1).isEmpty()) {
@@ -273,7 +273,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *
     * @param arguments 参数
     * @return extract阈值的结果
-     */
+    */
     private Float extractThreshold(Map<String, ?> arguments) {
         if (arguments == null || arguments.isEmpty()) {
             return null;
@@ -296,7 +296,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *
     * @param modelPath 模型路径
     * @return resolve默认阈值的结果
-     */
+    */
     private float resolveDefaultThreshold(Path modelPath) {
         String path = modelPath == null ? "" : modelPath.toString().replace('\\', '/').toLowerCase();
         if (path.contains("pp-doclayoutv3")) {
@@ -310,7 +310,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *
     * @param buf buf
     * @return 是否low信息缓冲的结果
-     */
+    */
     private boolean isLowInformationBuffered(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -341,7 +341,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     *
     * @param buf 缓冲镜像
     * @return CHW 数组，长度 3 * H * W
-     */
+    */
     private float[] toChwFloats(java.awt.image.BufferedImage buf) {
         int w = buf.getWidth();
         int h = buf.getHeight();
@@ -368,7 +368,7 @@ public class PpDocLayoutTranslator implements Translator<Image, DetectedObjects>
     * @param min 最小
     * @param max 最大
     * @return clip的结果
-     */
+    */
     private float clip(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
     }

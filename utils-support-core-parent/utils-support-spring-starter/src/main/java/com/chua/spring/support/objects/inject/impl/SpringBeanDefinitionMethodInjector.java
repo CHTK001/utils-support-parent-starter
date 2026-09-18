@@ -35,7 +35,7 @@ public class SpringBeanDefinitionMethodInjector implements BeanDefinitionMethodI
     * @param beanDefinition Beandefinition
     * @param beanProvider Bean提供者
     * @param typeProvider 类型提供者
-     */
+    */
     public void inject(Method method, Object instance, BeanDefinition beanDefinition,
                        Function<String, Object> beanProvider,
                        Function<Class<?>, Object> typeProvider) {

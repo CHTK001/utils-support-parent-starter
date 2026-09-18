@@ -15,33 +15,59 @@ import javax.annotation.Nullable;
 
 
 /**
-* 马赛克图像滤镜
-*
-* 实现马赛克效果的图像滤镜，将图像分割成规则的矩形块，
-* 每个块使用其中心像素的颜色进行填充，产生像素化的视觉效果。
-*
-* 技术原理：
-* - 将图像按指定大小分割成矩形网格
-* - 计算每个网格的中心像素位置
-* - 使用中心像素的颜色填充整个网格
-* - 处理边界网格的特殊情况
-*
-* 视觉效果：
-* - 降低图像分辨率和细节
-* - 产生像素化的艺术效果
-* - 可调节的马赛克块大小
-* - 保持图像的整体色彩和构图
-*
-* 应用场景：
-* - 隐私保护：模糊敏感信息
-* - 艺术效果：创建像素艺术风格
-* - 游戏开发：复古像素游戏风格
-* - 图像压缩：极度压缩的预览效果
-* - 创意设计：现代数字艺术效果
-*
-* @author CH
-* @版本 1.0.0
-* @since 2021/6/11
+ * 马赛克图像滤镜
+ *
+ * 实现马赛克效果的图像滤镜，将图像分割成规则的矩形块，
+ * 每个块使用其中心像素的颜色进行填充，产生像素化的视觉效果。
+ *
+ * 技术原理：
+ * - 将图像按指定大小分割成矩形网格
+ * - 计算每个网格的中心像素位置
+ * - 使用中心像素的颜色填充整个网格
+ * - 处理边界网格的特殊情况
+ *
+ * 视觉效果：
+ * - 降低图像分辨率和细节
+ * - 产生像素化的艺术效果
+ * - 可调节的马赛克块大小
+ * - 保持图像的整体色彩和构图
+ *
+ * 应用场景：
+ * - 隐私保护：模糊敏感信息
+ * - 艺术效果：创建像素艺术风格
+ * - 游戏开发：复古像素游戏风格
+ * - 图像压缩：极度压缩的预览效果
+ * - 创意设计：现代数字艺术效果
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认 8x8 马赛克
+ * BufferedImage mosaic = new ImageMosaicFilter().converter(src);
+ *
+ * // 指定块大小 16
+ * BufferedImage mosaic = new ImageMosaicFilter(16).converter(src);
+ *
+ * // 链式
+ * BufferedImage mosaic = new ImageMosaicFilter().setSize(32).converter(src);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>size</b>（默认 8）：马赛克块的边长（像素）。值越大块越粗；
+ *       建议 2-64。输出图与原图同尺寸。</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出为 TYPE_INT_RGB（不透明），原图 Alpha 通道丢失</li>
+ *   <li>若想用"目录里的图片"替代马赛克块（贴图马赛克艺术），
+ *       请使用 {@link MosaicArtImageFilter}；
+ *       若想要"像素游戏风"（低色数+复古调色板），请使用 {@link PixelStyleImageFilter}。</li>
+ * </ul>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2021/6/11
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -52,12 +78,12 @@ public class ImageMosaicFilter extends AbstractImageFilter {
 
     /**
     * 马赛克块的大小（像素），默认为8x8像素
-     */
+    */
     private int size = 8;
 
     /**
     * 默认构造函数，使用默认的马赛克块大小（8像素）
-     */
+    */
     public ImageMosaicFilter() {
     }
 
@@ -65,7 +91,7 @@ public class ImageMosaicFilter extends AbstractImageFilter {
     * 构造函数，指定马赛克块大小
     *
     * @param size 马赛克块的大小（像素），必须大于0
-     */
+    */
     public ImageMosaicFilter(int size) {
         this.size = size;
     }
@@ -79,7 +105,7 @@ public class ImageMosaicFilter extends AbstractImageFilter {
     * @param src    源图像
     * @param image1 目标图像（此参数未使用）
     * @return 应用马赛克效果后的图像，如果参数无效则返回原图像
-     */
+    */
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage image1) {
         BufferedImage mosaicImage = new BufferedImage(src.getWidth(), src.getHeight(), TYPE_INT_RGB);

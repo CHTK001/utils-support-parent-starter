@@ -37,84 +37,84 @@ public class TencentHunyuanChatClient implements ChatClient {
 
     /**
     * 腾讯混元默认地域
-     */
+    */
     private static final String DEFAULT_REGION = "ap-guangzhou";
 
     /**
     * 腾讯混元 SDK 客户端
-     */
+    */
     private final HunyuanClient client;
 
     /**
     * 客户端配置
-     */
+    */
     private final ChatClientSetting setting;
 
     /**
     * 当前使用的模型名称
-     */
+    */
     private String model;
 
     /**
     * 当前温度参数
-     */
+    */
     private Double temperature;
 
     /**
     * 当前最大 令牌 数
-     */
+    */
     private Integer maxTokens;
 
     /**
     * 当前系统提示词
-     */
+    */
     private String system;
 
     /**
     * 当前会话 标识
-     */
+    */
     private String sessionId;
 
     /**
     * 对话历史消息列表
-     */
+    */
     private final List<ChatMessage> history = new ArrayList<>();
 
     /**
     * 外部传入的完整历史记录
-     */
+    */
     private List<ChatMessage> externalHistory;
 
     /**
     * 图片附件 URL 列表
-     */
+    */
     private final List<String> imageUrls = new ArrayList<>();
 
     /**
     * 是否启用深度思考
-     */
+    */
     private boolean thinking;
 
     /**
     * 深度思考力度
-     */
+    */
     private String thinkingEffort;
 
     /**
     * 是否启用智能搜索
-     */
+    */
     private boolean smartSearch;
 
     /**
     * 技能管理器
-     */
+    */
     private SkillManager skillManager;
 
     /**
     * 构造腾讯混元对话客户端
     *
     * @param setting 客户端配置
-     */
+    */
     public TencentHunyuanChatClient(ChatClientSetting setting) {
         this.setting = setting;
         this.model = setting.getModel();
@@ -270,7 +270,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     * @param consumer consumer
     * @param onComplete on完成
     * @param onError on错误
-     */
+    */
     public void chat(String prompt, Consumer<ChatResponse> consumer,
                      Runnable onComplete, Consumer<Throwable> onError) {
         try {
@@ -339,7 +339,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     *
     * @param prompt 当前用户消息内容
     * @return 混元 消息 数组
-     */
+    */
     private Message[] buildMessages(String prompt) {
         List<Message> messages = new ArrayList<>();
         String actualSystem = system;
@@ -373,7 +373,7 @@ public class TencentHunyuanChatClient implements ChatClient {
     *
     * @param httpProfile 腾讯云 SDK HTTP 配置
     * @param proxyStr    代理地址
-     */
+    */
     private static void applyProxy(HttpProfile httpProfile, String proxyStr) {
         if (proxyStr == null || proxyStr.isBlank()) {
             return;

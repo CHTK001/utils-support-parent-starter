@@ -54,67 +54,67 @@ import java.util.regex.Pattern;
 public final class WechatNativeExporter {
 
     /**
-     * SQL 导出默认表名
-     */
+    * SQL 导出默认表名
+    */
     private static final String DEFAULT_TABLE_NAME = "wechat_message";
 
     /**
-     * 消息分页大小（与 Wechat-Export 一致）
-     */
+    * 消息分页大小（与 Wechat-Export 一致）
+    */
     private static final int PAGE_SIZE = 500;
 
     /**
-     * ZSTD 帧魔数（小端 0xFD2FB528）
-     */
+    * ZSTD 帧魔数（小端 0xFD2FB528）
+    */
     private static final long ZSTD_MAGIC = 0xFD2FB528L;
 
     /**
-     * ZSTD 解压输出上限（16 MB），防止异常数据耗尽内存
-     */
+    * ZSTD 解压输出上限（16 MB），防止异常数据耗尽内存
+    */
     private static final int MAX_ZSTD_OUTPUT = 16 * 1024 * 1024;
 
     /**
-     * 解压文本保留的最大长度（与 Wechat-Export 一致）
-     */
+    * 解压文本保留的最大长度（与 Wechat-Export 一致）
+    */
     private static final int MAX_TEXT_LENGTH = 10000;
 
     /**
-     * 可能携带 ZSTD 压缩内容的字段
-     */
+    * 可能携带 ZSTD 压缩内容的字段
+    */
     private static final String[] COMPRESSED_FIELDS = {"message_content", "compress_content"};
 
     /**
-     * 会话标识字段候选（按优先级）
-     */
+    * 会话标识字段候选（按优先级）
+    */
     private static final String[] SESSION_ID_KEYS = {"username", "wxid", "id"};
 
     /**
-     * 会话显示名字段候选（按优先级）
-     */
+    * 会话显示名字段候选（按优先级）
+    */
     private static final String[] SESSION_NAME_KEYS = {"display_name", "display", "name", "nickname", "remark"};
 
     /**
-     * XML title 提取正则
-     */
+    * XML title 提取正则
+    */
     private static final Pattern TITLE_PATTERN = Pattern.compile("<title>(.*?)</title>", Pattern.DOTALL);
 
     /**
-     * 工具类禁止实例化。
-     */
+    * 工具类禁止实例化。
+    */
     private WechatNativeExporter() {
         throw new UnsupportedOperationException("工具类不允许实例化");
     }
 
     /**
-     * 执行原生导出。
-     *
-     * @param runtimeDir  WCDB 原生库目录
-     * @param sessionDb   微信 session.db 文件
-     * @param myWxid      当前账号标识（用于标记 is_mine），可为 null
-     * @param key         64 位十六进制数据库密钥
-     * @param config      还原配置
-     * @return 还原结果
-     */
+    * 执行原生导出。
+    *
+    * @param runtimeDir  WCDB 原生库目录
+    * @param sessionDb   微信 session.db 文件
+    * @param myWxid      当前账号标识（用于标记 is_mine），可为 null
+    * @param key         64 位十六进制数据库密钥
+    * @param config      还原配置
+    * @return 还原结果
+    */
     public static DataRestoreResult export(File runtimeDir, File sessionDb, String myWxid,
                                            String key, DataRestoreConfig config) throws Exception {
         List<File> outputFiles = new ArrayList<>(32);
@@ -173,13 +173,13 @@ public final class WechatNativeExporter {
     // ==================== 会话与消息加载 ====================
 
     /**
-     * 加载并过滤会话列表。
-     *
-     * @param bridge 原生桥接器
-     * @param handle 账号库句柄
-     * @param config 还原配置
-     * @return 过滤后的会话列表
-     */
+    * 加载并过滤会话列表。
+    *
+    * @param bridge 原生桥接器
+    * @param handle 账号库句柄
+    * @param config 还原配置
+    * @return 过滤后的会话列表
+    */
     private static List<SessionInfo> loadSessions(WcdbNativeBridge bridge, long handle,
                                                   DataRestoreConfig config) {
         String sessionsJson = bridge.getSessions(handle);
@@ -221,15 +221,15 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 分页加载单会话全部消息，并完成显示名解析与压缩内容解压。
-     *
-     * @param bridge  原生桥接器
-     * @param handle  账号库句柄
-     * @param session 会话信息
-     * @param myWxid  当前账号标识
-     * @param config  还原配置
-     * @return 消息行数据
-     */
+    * 分页加载单会话全部消息，并完成显示名解析与压缩内容解压。
+    *
+    * @param bridge  原生桥接器
+    * @param handle  账号库句柄
+    * @param session 会话信息
+    * @param myWxid  当前账号标识
+    * @param config  还原配置
+    * @return 消息行数据
+    */
     private static List<Map<String, Object>> loadMessages(WcdbNativeBridge bridge, long handle,
                                                           SessionInfo session, String myWxid,
                                                           DataRestoreConfig config) {
@@ -273,14 +273,14 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 消息增强：ZSTD 解压、发送者显示名替换、本人消息标记。
-     *
-     * @param bridge   原生桥接器
-     * @param handle   账号库句柄
-     * @param session  会话信息
-     * @param messages 消息列表（原地修改）
-     * @param myWxid   当前账号标识
-     */
+    * 消息增强：ZSTD 解压、发送者显示名替换、本人消息标记。
+    *
+    * @param bridge   原生桥接器
+    * @param handle   账号库句柄
+    * @param session  会话信息
+    * @param messages 消息列表（原地修改）
+    * @param myWxid   当前账号标识
+    */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static void enrichMessages(WcdbNativeBridge bridge, long handle, SessionInfo session,
                                        List<Map<String, Object>> messages, String myWxid) {
@@ -315,13 +315,13 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 调用原生接口批量解析发送者显示名。
-     *
-     * @param bridge  原生桥接器
-     * @param handle  账号库句柄
-     * @param senders 发送者标识集合
-     * @return 标识到显示名的映射
-     */
+    * 调用原生接口批量解析发送者显示名。
+    *
+    * @param bridge  原生桥接器
+    * @param handle  账号库句柄
+    * @param senders 发送者标识集合
+    * @return 标识到显示名的映射
+    */
     private static Map<String, String> resolveDisplayNames(WcdbNativeBridge bridge, long handle,
                                                            Set<String> senders) {
         Map<String, String> result = new LinkedHashMap<>();
@@ -344,10 +344,10 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 解压消息中的 ZSTD 压缩字段（与 wcdb_server.js 逻辑一致）。
-     *
-     * @param message 消息行
-     */
+    * 解压消息中的 ZSTD 压缩字段（与 wcdb_server.js 逻辑一致）。
+    *
+    * @param message 消息行
+    */
     private static void decompressCompressedFields(Map<String, Object> message) {
         for (String field : COMPRESSED_FIELDS) {
             Object value = message.get(field);
@@ -383,17 +383,17 @@ public final class WechatNativeExporter {
     // ==================== 文件输出 ====================
 
     /**
-     * 写出单个会话的数据文件（CSV / EXCEL）。
-     *
-     * @param outputDir     输出目录
-     * @param usedFileNames 已占用文件名集合（去重用）
-     * @param session       会话信息
-     * @param messages      消息行数据
-     * @param format        输出格式
-     * @param config        还原配置
-     * @return 输出文件
-     * @throws Exception 写入异常
-     */
+    * 写出单个会话的数据文件（CSV / EXCEL）。
+    *
+    * @param outputDir     输出目录
+    * @param usedFileNames 已占用文件名集合（去重用）
+    * @param session       会话信息
+    * @param messages      消息行数据
+    * @param format        输出格式
+    * @param config        还原配置
+    * @return 输出文件
+    * @throws Exception 写入异常
+    */
     private static File writeSessionFile(File outputDir, Set<String> usedFileNames,
                                          SessionInfo session, List<Map<String, Object>> messages,
                                          ExportFormat format, DataRestoreConfig config) throws Exception {
@@ -423,14 +423,14 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 写出 SQL 汇总脚本。
-     *
-     * @param outputDir 输出目录
-     * @param sqlRows   全部会话消息行
-     * @param config    还原配置
-     * @return SQL 文件
-     * @throws Exception 写入异常
-     */
+    * 写出 SQL 汇总脚本。
+    *
+    * @param outputDir 输出目录
+    * @param sqlRows   全部会话消息行
+    * @param config    还原配置
+    * @return SQL 文件
+    * @throws Exception 写入异常
+    */
     private static File writeSqlFile(File outputDir, List<Map<String, Object>> sqlRows,
                                      DataRestoreConfig config) throws Exception {
         if (sqlRows.isEmpty()) {
@@ -449,12 +449,12 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 向 SQL 汇总行集合追加单会话消息（附加会话标识列）。
-     *
-     * @param sqlRows  汇总行集合
-     * @param session  会话信息
-     * @param messages 消息行数据
-     */
+    * 向 SQL 汇总行集合追加单会话消息（附加会话标识列）。
+    *
+    * @param sqlRows  汇总行集合
+    * @param session  会话信息
+    * @param messages 消息行数据
+    */
     private static void appendSqlRows(List<Map<String, Object>> sqlRows, SessionInfo session,
                                       List<Map<String, Object>> messages) {
         for (Map<String, Object> message : messages) {
@@ -468,13 +468,13 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 生成不重复的输出文件名。
-     *
-     * @param usedFileNames 已占用文件名集合
-     * @param baseName      基础文件名
-     * @param extension     扩展名（含点）
-     * @return 唯一文件名
-     */
+    * 生成不重复的输出文件名。
+    *
+    * @param usedFileNames 已占用文件名集合
+    * @param baseName      基础文件名
+    * @param extension     扩展名（含点）
+    * @return 唯一文件名
+    */
     private static String uniqueFileName(Set<String> usedFileNames, String baseName, String extension) {
         String candidate = baseName + extension;
         int suffix = 1;
@@ -489,12 +489,12 @@ public final class WechatNativeExporter {
     // ==================== ZSTD 与编码工具 ====================
 
     /**
-     * 解压 ZSTD 字节数组（帧头携带解压后大小时直接解码，否则走流式解码）。
-     *
-     * @param source ZSTD 压缩字节
-     * @return 解压后的字节
-     * @throws Exception 解压异常或输出超限时抛出
-     */
+    * 解压 ZSTD 字节数组（帧头携带解压后大小时直接解码，否则走流式解码）。
+    *
+    * @param source ZSTD 压缩字节
+    * @return 解压后的字节
+    * @throws Exception 解压异常或输出超限时抛出
+    */
     private static byte[] zstdDecompress(byte[] source) throws Exception {
         long expectedSize = Zstd.decompressedSize(source);
         if (expectedSize > 0 && expectedSize < MAX_ZSTD_OUTPUT) {
@@ -515,11 +515,11 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 解析十六进制字符串为字节数组。
-     *
-     * @param hex 十六进制文本
-     * @return 字节数组；格式非法返回 null
-     */
+    * 解析十六进制字符串为字节数组。
+    *
+    * @param hex 十六进制文本
+    * @return 字节数组；格式非法返回 null
+    */
     private static byte[] parseHex(String hex) {
         String text = hex.trim();
         if (text.length() % 2 != 0) {
@@ -542,12 +542,12 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 小端读取 4 字节无符号整数。
-     *
-     * @param bytes 字节数组
-     * @param offset 起始偏移
-     * @return int 值
-     */
+    * 小端读取 4 字节无符号整数。
+    *
+    * @param bytes 字节数组
+    * @param offset 起始偏移
+    * @return int 值
+    */
     private static int readIntLe(byte[] bytes, int offset) {
         return (bytes[offset] & 0xFF)
                 | ((bytes[offset + 1] & 0xFF) << 8)
@@ -558,12 +558,12 @@ public final class WechatNativeExporter {
     // ==================== 配置工具 ====================
 
     /**
-     * 从 Map 中按候选键名取第一个非空字符串。
-     *
-     * @param map 原始 Map
-     * @param keys 候选键名
-     * @return 字符串值，全部缺失返回 null
-     */
+    * 从 Map 中按候选键名取第一个非空字符串。
+    *
+    * @param map 原始 Map
+    * @param keys 候选键名
+    * @return 字符串值，全部缺失返回 null
+    */
     private static String pickString(Map<?, ?> map, String[] keys) {
         for (String key : keys) {
             Object value = map.get(key);
@@ -575,12 +575,12 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 解析 options 中的逗号分隔名单。
-     *
-     * @param config 还原配置
-     * @param key    options 键名
-     * @return 名单集合
-     */
+    * 解析 options 中的逗号分隔名单。
+    *
+    * @param config 还原配置
+    * @param key    options 键名
+    * @return 名单集合
+    */
     private static Set<String> parseNameList(DataRestoreConfig config, String key) {
         Object value = config.getOptions().get(key);
         if (value == null) {
@@ -597,12 +597,12 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 解析 long 类型 options 值。
-     *
-     * @param value        原始值
-     * @param defaultValue 解析失败时的默认值
-     * @return long 值
-     */
+    * 解析 long 类型 options 值。
+    *
+    * @param value        原始值
+    * @param defaultValue 解析失败时的默认值
+    * @return long 值
+    */
     private static long parseLongOption(Object value, long defaultValue) {
         if (value instanceof Number number) {
             return number.longValue();
@@ -618,11 +618,11 @@ public final class WechatNativeExporter {
     }
 
     /**
-     * 会话信息载体。
-     *
-     * @param username    会话标识（wxid / 群 id）
-     * @param displayName 会话显示名
-     */
+    * 会话信息载体。
+    *
+    * @param username    会话标识（wxid / 群 id）
+    * @param displayName 会话显示名
+    */
     private record SessionInfo(String username, String displayName) {
     }
 }

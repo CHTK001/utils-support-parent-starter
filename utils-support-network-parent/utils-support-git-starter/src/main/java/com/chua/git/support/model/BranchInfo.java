@@ -30,7 +30,7 @@ public record BranchInfo(String name, String shortName, String objectId, boolean
     *
     * @param ref 来自 {@link org.eclipse.jgit.api.Git#branchList()} 的引用
     * @return 分支信息
-     */
+    */
     public static BranchInfo from(Ref ref) {
         String name = ref.getName();
         boolean isRemote = name.startsWith("refs/remotes/");

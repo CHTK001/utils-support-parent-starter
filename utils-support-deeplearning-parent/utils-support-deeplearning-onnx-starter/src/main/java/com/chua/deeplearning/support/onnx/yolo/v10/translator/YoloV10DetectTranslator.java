@@ -17,7 +17,7 @@ public class YoloV10DetectTranslator extends DocLayoutYoloTranslator {
 
     /**
     * COCO 80 类。
-     */
+    */
     public static final List<String> COCO_CLASSES = Arrays.asList(
             "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck",
             "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench",
@@ -36,7 +36,7 @@ public class YoloV10DetectTranslator extends DocLayoutYoloTranslator {
         * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
         *
         * @param configuration 检测配置（可空）
-     */
+        */
     public YoloV10DetectTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.2f

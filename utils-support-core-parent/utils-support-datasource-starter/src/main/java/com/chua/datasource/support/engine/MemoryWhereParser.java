@@ -26,7 +26,7 @@ public class MemoryWhereParser {
     * @param params      参数值列表
     * @param <T>         实体类型
     * @return 谓词
-     */
+    */
     public <T> Predicate<T> parse(String whereClause, List<Object> params) {
         if (whereClause == null || whereClause.trim().isEmpty()) {
             return t -> true;
@@ -42,7 +42,7 @@ public class MemoryWhereParser {
     * @param params 参数
     * @param idxHolder 参数索引持有者（int[0]），子分组递归时共享推进
     * @return 解析条件的结果
-     */
+    */
     private <T> Predicate<T> parseConditions(String where, List<Object> params, int[] idxHolder) {
         Predicate<T> result = t -> true;
         String remaining = where.trim();
@@ -265,7 +265,7 @@ public class MemoryWhereParser {
     * @param fieldValue 字段值
     * @param paramValue 参数值
     * @return 转换转为匹配的结果
-     */
+    */
     private Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
             return paramValue;
@@ -310,7 +310,7 @@ public class MemoryWhereParser {
     * @param obj obj
     * @param field 字段
     * @return 获取字段值的结果
-     */
+    */
     private <T> Object getFieldValue(T obj, String field) {
         return MethodCache.getValue(obj, field);
     }

@@ -25,7 +25,7 @@ public class GpuLlama3ChatClient extends AbstractLocalChatClient {
     * 构造 GPU Llama3 对话客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public GpuLlama3ChatClient(ChatClientSetting setting) {
         super("gpu-llama3", setting);
     }

@@ -65,17 +65,17 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
 
     /**
     * 已注册的 JDBC 数据源（名称 -> 数据源）
-     */
+    */
     private final Map<String, DataSource> dataSources = new LinkedHashMap<>();
 
     /**
     * 已注册的 数据scheme 虚拟库列表
-     */
+    */
     private final List<DataScheme> schemes = new ArrayList<>();
 
     /**
     * Calcite 连接属性
-     */
+    */
     private final Properties calciteProps = new Properties();
 
     {
@@ -91,7 +91,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     * 创建一个新的 {@code CalciteDataSourceCreator} 实例。
     *
     * @return 新的创建器实例
-     */
+    */
     public static CalciteDataSourceCreator newCreator() {
         return new CalciteDataSourceCreator();
     }
@@ -160,7 +160,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     * 创建
     *
     * @return 创建的结果
-     */
+    */
     public DataSource create() {
         return new UnifiedCalciteDataSource(
                 new LinkedHashMap<>(this.dataSources),
@@ -177,7 +177,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     * 统一的 Calcite 数据源，内部封装了 JDBC 数据源和虚拟表的聚合逻辑。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class UnifiedCalciteDataSource implements DataSource {
 
         /** 数据源 */
@@ -266,7 +266,7 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
         *
         * @param iface iface
         * @return unwrap的结果
-         */
+        */
         public <T> T unwrap(Class<T> iface) throws SQLException {
             if (iface.isInstance(this)) {
                 return (T) this;
@@ -310,10 +310,10 @@ public class CalciteDataSourceCreator implements DataSourceCreator {
     }
 
     /**
-    * 将 数据scheme 映射为 Calcite 模式，为每个 数据table 提供 scannabletable。
-    * @author CH
-    * @since 4.0.0
-     */
+        * 将 数据scheme 映射为 Calcite 模式，为每个 数据table 提供 scannabletable。
+        * @author CH
+        * @since 4.0.0
+        */
     private static class DataSchemeSchema extends AbstractSchema {
 
         /** table映射 */

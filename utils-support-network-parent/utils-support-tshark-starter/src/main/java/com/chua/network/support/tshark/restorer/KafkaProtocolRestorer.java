@@ -64,7 +64,7 @@ public class KafkaProtocolRestorer extends AbstractProtocolRestorer {
     *
     * @param apiKey api键
     * @return 转为api键名称的结果
-     */
+    */
     private static String toApiKeyName(int apiKey) {
         return switch (apiKey) {
             case 0 -> "Produce";

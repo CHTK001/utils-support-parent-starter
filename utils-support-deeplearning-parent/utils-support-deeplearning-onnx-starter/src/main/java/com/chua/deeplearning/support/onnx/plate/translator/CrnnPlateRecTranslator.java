@@ -103,7 +103,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     *
     * @param preds preds
     * @return decode铭牌的结果
-     */
+    */
     private String decodePlate(int[] preds) {
         int pre = 0;
         List<Integer> newPreds = new ArrayList<>();
@@ -128,7 +128,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     *
     * @param raw raw
     * @return normalize铭牌文本的结果
-     */
+    */
     private String normalizePlateText(String raw) {
         if (raw == null || raw.isBlank()) {
             return "";
@@ -176,7 +176,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     *
     * @param text 文本
     * @return findprovince索引的结果
-     */
+    */
     private int findProvinceIndex(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (isProvince(text.charAt(i))) {
@@ -191,7 +191,7 @@ public class CrnnPlateRecTranslator implements Translator<Image, PlateResult> {
     *
     * @param c c
     * @return 是否province的结果
-     */
+    */
     private boolean isProvince(char c) {
         return PROVINCES.indexOf(c) >= 0;
     }

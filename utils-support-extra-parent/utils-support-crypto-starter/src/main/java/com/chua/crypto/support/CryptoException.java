@@ -15,7 +15,7 @@ public class CryptoException extends RuntimeException {
     * 构造异常
     *
     * @param message 脱敏后的错误描述
-     */
+    */
     public CryptoException(String message) {
         super(message);
     }
@@ -25,7 +25,7 @@ public class CryptoException extends RuntimeException {
     *
     * @param message 脱敏后的错误描述
     * @param cause   根因（打印前请确认不包含敏感信息）
-     */
+    */
     public CryptoException(String message, Throwable cause) {
         super(message, cause);
     }

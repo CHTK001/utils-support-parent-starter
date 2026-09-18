@@ -19,7 +19,7 @@ public interface HanziProvider {
     * 获取数据源名称
     *
     * @return 数据源名称
-     */
+    */
     String name();
 
     /**
@@ -29,7 +29,7 @@ public interface HanziProvider {
     *
     * @param character 单个汉字（如：中）
     * @return 汉字信息；不存在返回 空
-     */
+    */
     HanziInfo get(String character);
 
     /**
@@ -38,13 +38,13 @@ public interface HanziProvider {
     * @param keyword 关键词
     * @param limit   返回条数上限（小于等于 0 时返回全部）
     * @return 匹配的汉字列表
-     */
+    */
     List<HanziInfo> search(String keyword, int limit);
 
     /**
     * 获取随机汉字。
     *
     * @return 随机汉字
-     */
+    */
     HanziInfo random();
 }

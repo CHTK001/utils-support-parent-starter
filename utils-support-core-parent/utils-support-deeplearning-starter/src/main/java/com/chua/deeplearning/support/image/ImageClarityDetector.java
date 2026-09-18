@@ -39,7 +39,7 @@ public interface ImageClarityDetector {
     * @param provider 提供者 名称
     * @param apiKey   API 密钥（本地引擎可空）
     * @return 实例
-     */
+    */
     static ImageClarityDetector create(String provider, String apiKey) {
         return com.chua.common.support.spi.ServiceProvider.of(ImageClarityDetector.class)
                 .getNewExtension(provider, apiKey);
@@ -50,7 +50,7 @@ public interface ImageClarityDetector {
     *
     * @param provider 提供者 名称
     * @return this
-     */
+    */
     default ImageClarityDetector provider(String provider) {
         return this;
     }
@@ -60,7 +60,7 @@ public interface ImageClarityDetector {
     *
     * @param model 模型名称
     * @return this
-     */
+    */
     default ImageClarityDetector model(String model) {
         return this;
     }
@@ -70,7 +70,7 @@ public interface ImageClarityDetector {
     *
     * @param name 模型名称（如 "opencv-镜像-quality"、"nima"）
     * @return 实例
-     */
+    */
     static ImageClarityDetector create(String name) {
         return new DefaultImageClarityDetector(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -79,7 +79,7 @@ public interface ImageClarityDetector {
     * 查询该能力下全部可用模型。
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry
                 .getModelIdsByCapability(ImageQualityAssessor.class);
@@ -91,7 +91,7 @@ public interface ImageClarityDetector {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 实例
-     */
+    */
     static ImageClarityDetector create(String name, ModelSetting setting) {
         return new DefaultImageClarityDetector(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -101,7 +101,7 @@ public interface ImageClarityDetector {
     *
     * @param threshold 阈值（Laplacian 方差低于该值视为模糊，推荐 80~150）
     * @return this
-     */
+    */
     ImageClarityDetector blurThreshold(double threshold);
 
     /**
@@ -109,7 +109,7 @@ public interface ImageClarityDetector {
     *
     * @param path 路径
     * @return this
-     */
+    */
     ImageClarityDetector modelPath(String path);
 
     /**
@@ -117,7 +117,7 @@ public interface ImageClarityDetector {
     *
     * @param device 设备（"cpu"/"cuda"）
     * @return this
-     */
+    */
     ImageClarityDetector device(String device);
 
     /**
@@ -125,7 +125,7 @@ public interface ImageClarityDetector {
     *
     * @param imageData 图片字节数组
     * @return 质量信息（含模糊度/亮度/对比度及是否清晰）
-     */
+    */
     ImageQualityInfo assess(byte[] imageData);
 
     /**
@@ -133,7 +133,7 @@ public interface ImageClarityDetector {
     *
     * @param imageData 图片字节数组
     * @return true 表示清晰度合格
-     */
+    */
     default boolean isAcceptable(byte[] imageData) {
         return assess(imageData).sharpnessOk();
     }
@@ -149,43 +149,43 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
 
     /**
     * 默认模糊阈值
-     */
+    */
     private static final double DEFAULT_BLUR_THRESHOLD = 100.0;
 
     /**
     * 默认设备
-     */
+    */
     private static final String DEFAULT_DEVICE = "cpu";
 
     /**
     * 识别引擎
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 清晰度检测模型名称
-     */
+    */
     private final String modelName;
 
     /**
     * 模型配置
-     */
+    */
     @SuppressWarnings("unused")
     private final ModelSetting setting; // setting
 
     /**
     * 模糊度阈值
-     */
+    */
     private double blurThreshold = DEFAULT_BLUR_THRESHOLD;
 
     /**
     * 模型路径
-     */
+    */
     private String modelPath;
 
     /**
     * 运行设备
-     */
+    */
     private String device = DEFAULT_DEVICE;
 
     DefaultImageClarityDetector(IdentificationEngine engine, String modelName, ModelSetting setting) {
@@ -228,7 +228,7 @@ class DefaultImageClarityDetector implements ImageClarityDetector {
     *
     * @param imageData 镜像数据
     * @return 评定的结果
-     */
+    */
     public ImageQualityInfo assess(byte[] imageData) {
         ITranslator<byte[], ImageQualityInfo> t =
                 (ITranslator<byte[], ImageQualityInfo>) engine.get(modelName, ITranslator.class);

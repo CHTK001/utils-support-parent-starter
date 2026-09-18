@@ -42,7 +42,7 @@ public class ImageDrawResolver extends AbstractDrawResolver{
     * @param qrCodeConfig qr编码配置
     * @param bitMatrix 钻头matrix
     * @param setting setting
-     */
+    */
     public ImageDrawResolver(Graphics2D g2, Color detectInnerColor, Color detectOutColor, QrCodeOptions qrCodeConfig, BitMatrixEx bitMatrix, QrCodeOptions.DrawOptions drawOptions, QrSetting setting) {
         super(g2, detectInnerColor, detectOutColor, qrCodeConfig, bitMatrix, drawOptions, setting);
     }

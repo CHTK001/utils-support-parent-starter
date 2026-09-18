@@ -19,7 +19,7 @@ public class ProxyHttpClient {
     /**
     * 获取。
     * @return 获取的结果
-     */
+    */
     public static HttpClient get() {
         if (client == null) {
             synchronized (ProxyHttpClient.class) {

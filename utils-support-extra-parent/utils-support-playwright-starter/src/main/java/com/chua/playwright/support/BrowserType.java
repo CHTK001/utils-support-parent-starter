@@ -19,14 +19,14 @@ public class BrowserType {
     /**
     * launch。
     * @return launch的结果
-     */
+    */
     public Browser launch() { return launch(null); }
 
     /**
     * launch。
     * @param options 期权
     * @return launch的结果
-     */
+    */
     public Browser launch(Map<String, Object> options) {
         boolean headless = true;
         String executablePath = null;

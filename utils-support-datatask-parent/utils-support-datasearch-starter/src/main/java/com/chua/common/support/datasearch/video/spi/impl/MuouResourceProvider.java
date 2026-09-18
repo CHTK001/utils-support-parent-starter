@@ -83,30 +83,30 @@ public class MuouResourceProvider extends AbstractResourceProvider {
             org.slf4j.LoggerFactory.getLogger(MuouResourceProvider.class);
 
     /**
-     * 创建 muou资源提供器 实例（无参构造，使用默认数据源）。
-     */
+    * 创建 muou资源提供器 实例（无参构造，使用默认数据源）。
+    */
     public MuouResourceProvider() {
         super();
     }
 
     /**
-     * 创建 muou资源提供器 实例。
-     *
-     * @param vs 视频数据源，不能为 null
-     */
+    * 创建 muou资源提供器 实例。
+    *
+    * @param vs 视频数据源，不能为 null
+    */
     public MuouResourceProvider(VideoSource vs) {
         super(vs);
     }
 
     @Override
     /**
-     * 搜索resource。
-     * <p>两阶段抓取：搜索页提取视频标识，再逐条访问详情页提取网盘链接。
-     * 海外站经代理客户端访问，连接超时或命中停服公告时自动标记站点不可用。</p>
-     *
-     * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
-     * @return 搜索resource的结果；无匹配网盘链接时返回空结果，站点不可用时返回错误结果
-     */
+    * 搜索resource。
+    * <p>两阶段抓取：搜索页提取视频标识，再逐条访问详情页提取网盘链接。
+    * 海外站经代理客户端访问，连接超时或命中停服公告时自动标记站点不可用。</p>
+    *
+    * @param videoSearch 视频搜索，keyword 不能为空，为 null/空时返回错误结果
+    * @return 搜索resource的结果；无匹配网盘链接时返回空结果，站点不可用时返回错误结果
+    */
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String kw = videoSearch.getKeyword();
         if (!StringUtils.hasText(kw)) {
@@ -178,13 +178,13 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 获取detail。
-     * <p>访问指定视频详情页并组装 视频信息结果（标题 + 网盘链接 + 详情页 URL）。</p>
-     *
-     * @param client 代理客户端，不能为 null
-     * @param id 视频标识，数字字符串，不能为 null
-     * @return 视频信息结果；请求异常或解析失败时返回 空（调用方需判空）
-     */
+    * 获取detail。
+    * <p>访问指定视频详情页并组装 视频信息结果（标题 + 网盘链接 + 详情页 URL）。</p>
+    *
+    * @param client 代理客户端，不能为 null
+    * @param id 视频标识，数字字符串，不能为 null
+    * @return 视频信息结果；请求异常或解析失败时返回 空（调用方需判空）
+    */
     private VideoInfoResult fetchDetail(HttpClient client, String id) {
         try {
             String url = String.format(DETAIL_URL, id);
@@ -214,12 +214,12 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 提取标题。
-     * <p>优先 h1 标签，缺失时退化到 title 标签（剔除站点后缀）。</p>
-     *
-     * @param html 详情页 HTML，不能为 null
-     * @return 标题文本；均缺失时返回占位值 未命名
-     */
+    * 提取标题。
+    * <p>优先 h1 标签，缺失时退化到 title 标签（剔除站点后缀）。</p>
+    *
+    * @param html 详情页 HTML，不能为 null
+    * @return 标题文本；均缺失时返回占位值 未命名
+    */
     private String extractTitle(String html) {
         Matcher m = TITLE_H1_PATTERN.matcher(html);
         if (m.find()) {
@@ -233,12 +233,12 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 提取netdisk链接。
-     * <p>按网盘类型逐个扫描 HTML，拼接 类型=链接 形式的文本。</p>
-     *
-     * @param html 详情页 HTML，不能为 null
-     * @return 链接拼接文本；无任何网盘链接时返回 空串
-     */
+    * 提取netdisk链接。
+    * <p>按网盘类型逐个扫描 HTML，拼接 类型=链接 形式的文本。</p>
+    *
+    * @param html 详情页 HTML，不能为 null
+    * @return 链接拼接文本；无任何网盘链接时返回 空串
+    */
     private String extractNetdiskLinks(String html) {
         StringBuilder sb = new StringBuilder(256);
         appendLinks(sb, QUARK, "夸克", html);
@@ -255,14 +255,14 @@ public class MuouResourceProvider extends AbstractResourceProvider {
     }
 
     /**
-     * 追加链接。
-     * <p>按指定模式扫描 HTML，去重后以 类型=链接 形式追加到 sb。</p>
-     *
-     * @param sb 目标字符串构建器，不能为 null
-     * @param p 链接匹配模式，不能为 null
-     * @param type 网盘类型标签（用于输出前缀），不能为 null
-     * @param html 待扫描 HTML，不能为 null
-     */
+    * 追加链接。
+    * <p>按指定模式扫描 HTML，去重后以 类型=链接 形式追加到 sb。</p>
+    *
+    * @param sb 目标字符串构建器，不能为 null
+    * @param p 链接匹配模式，不能为 null
+    * @param type 网盘类型标签（用于输出前缀），不能为 null
+    * @param html 待扫描 HTML，不能为 null
+    */
     private void appendLinks(StringBuilder sb, Pattern p, String type, String html) {
         Set<String> seen = new LinkedHashSet<>(8);
         Matcher m = p.matcher(html);

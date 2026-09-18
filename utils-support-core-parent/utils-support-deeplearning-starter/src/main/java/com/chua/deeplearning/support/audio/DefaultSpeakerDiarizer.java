@@ -63,13 +63,15 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     private static final String DEFAULT_DEVICE = "cpu";
     /** 默认目标采样率：16khz（语音处理标准） */
     private static final int DEFAULT_SAMPLE_RATE = 16000;
-    /** 每帧分析时长：25ms（约 400 个 16khz 采样点，语音处理的行业标准帧长） */
+    /**
+    * 每帧分析时长：25ms（约 400 个 16khz 采样点，语音处理的行业标准帧长）
+    */
     private static final long DEFAULT_SEGMENT_MS = 25L;
     /**
     * 能量阈值：短时能量低于此值判定为静音。
     * <p>能量计算公式：E = (1/N) * sum(x[i]^2)，x[i] 为归一化采样值 [-1, 1]。
     * 0.002 对应 RMS ≈ 0.045，约为安静房间的底色噪声水平。</p>
-     */
+    */
     private static final double DEFAULT_energy_THRESHOLD = 0.002d;
     /** 最小有效语音片段时长：80ms。短于此值的片段视为噪声/咔嗒声，予以丢弃 */
     private static final long DEFAULT_MIN_SPEECH_MS = 80L;
@@ -77,7 +79,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * 静音分割阈值：200ms。
     * <p>若两个语音片段之间的静音间隔超过此值，认为是不同说话人切换；
     * 短于此值的静音视为同一说话人内的呼吸间隙。</p>
-     */
+    */
     private static final long DEFAULT_SILENCE_THRESHOLD_MS = 200L;
 
     // ==================== 成员字段 ====================
@@ -116,7 +118,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * @param engine    推理引擎（预留，当前 VAD 不直接使用）
     * @param modelName 模型 标识（当前版本仅作日志标记）
     * @param setting   模型配置（当前版本不使用，保留以兼容未来扩展）
-     */
+    */
     public DefaultSpeakerDiarizer(IdentificationEngine engine, String modelName, ModelSetting setting) {
         this.engine = engine;
         this.modelName = modelName;
@@ -169,7 +171,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * @param audioData 音频原始字节（支持 WAV 或裸 PCM）
     * @return 按时间排序的说话人片段列表
     * @throws IllegalArgumentException 若音频数据过短或格式无法解析
-     */
+    */
     @Override
     public List<SpeakerSegment> diarize(byte[] audioData) {
         // 参数校验：WAV 文件头至少 44 字节
@@ -258,7 +260,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * @param path 音频文件路径
     * @return 说话人片段列表
     * @throws RuntimeException 若文件读取失败
-     */
+    */
     @Override
     public List<SpeakerSegment> diarize(Path path) {
         try {
@@ -284,7 +286,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     *
     * @param wavData WAV 文件字节数组
     * @return PCM float 数组；若格式不支持或解析失败返回 空
-     */
+    */
     static float[] decodePcmWav(byte[] wavData) {
         // 基本合法性检查：WAV 文件头至少 44 字节
         if (wavData == null || wavData.length < 44) {
@@ -349,7 +351,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     *
     * @param data WAV 字节数组
     * @return "data" 在数组中的偏移量；未找到返回 -1
-     */
+    */
     private static int findDataOffset(byte[] data) {
         String str = new String(data, 0, Math.min(data.length, 64));
         int idx = str.indexOf("data");
@@ -361,7 +363,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * @param b b
     * @param off off
     * @return 读取leint的结果
-     */
+    */
     private static int readLeInt(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8) |
                 ((b[off + 2] & 0xff) << 16) | ((b[off + 3] & 0xff) << 24);
@@ -372,7 +374,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     * @param b b
     * @param off off
     * @return 读取leshort的结果
-     */
+    */
     private static int readLeShort(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
     }
@@ -388,7 +390,7 @@ public class DefaultSpeakerDiarizer implements SpeakerDiarizer {
     *
     * @param bytes WAV 字节数组
     * @return 16kHz 单声道 float 采样数组；解析失败返回 空
-     */
+    */
     static float[] wavBytesToPcm(byte[] bytes) {
         try {
  // 使用 bytearray输入流 包装字节数组，避免创建临时文件

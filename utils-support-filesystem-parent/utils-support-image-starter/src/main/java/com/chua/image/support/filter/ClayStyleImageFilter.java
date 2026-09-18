@@ -20,24 +20,54 @@ import javax.annotation.Nullable;
 
 
 /**
-* 黏土风格滤镜
-* <p>
-* 模拟黏土材质的视觉效果，创造柔和、温暖的定格动画风格：
-* 1. 表面平滑化处理
-* 2. 颜色简化和统一
-* 3. 暖色调调整
-* 4. 对比度柔化
-* 5. 黏土质感模拟
-* 
-* 算法特点：
-* - 双边滤波：保持边缘的同时平滑表面
-* - 颜色量化：减少颜色层次，营造统一感
-* - 暖色调增强：模拟黏土的自然色彩
-* - 对比度降低：营造柔和的视觉效果
-* - 质感添加：模拟黏土的细微粗糙感
-*
-* @author CH
-* @since 2024/12/20
+ * 黏土风格滤镜
+ * <p>
+ * 模拟黏土材质的视觉效果，创造柔和、温暖的定格动画风格：
+ * 1. 表面平滑化处理
+ * 2. 颜色简化和统一
+ * 3. 暖色调调整
+ * 4. 对比度柔化
+ * 5. 黏土质感模拟
+ *
+ * 算法特点：
+ * - 双边滤波：保持边缘的同时平滑表面
+ * - 颜色量化：减少颜色层次，营造统一感
+ * - 暖色调增强：模拟黏土的自然色彩
+ * - 对比度降低：营造柔和的视觉效果
+ * - 质感添加：模拟黏土的细微粗糙感
+ *
+ * <h3>典型用法</h3>
+ * <pre>{@code
+ * // 默认黏土风格
+ * BufferedImage clay = new ClayStyleImageFilter().converter(src);
+ *
+ * // 自定义参数
+ * ClayStyleImageFilter filter = new ClayStyleImageFilter()
+ *         .setSmoothingStrength(0.8)
+ *         .setColorSimplificationLevel(8)
+ *         .setClayTextureStrength(0.3);
+ * }</pre>
+ *
+ * <h3>参数说明</h3>
+ * <ul>
+ *   <li><b>smoothingStrength</b>（默认 0.6，范围 0.0-1.0）：表面平滑强度</li>
+ *   <li><b>colorSimplificationLevel</b>（默认 12，范围 4-32）：颜色简化级别</li>
+ *   <li><b>warmToneShift</b>（默认 0.3，范围 0.0-1.0）：暖色调偏移</li>
+ *   <li><b>contrastReduction</b>（默认 0.3，范围 0.0-1.0）：对比度降低程度</li>
+ *   <li><b>clayTextureStrength</b>（默认 0.2，范围 0.0-1.0）：黏土质感强度</li>
+ *   <li><b>edgePreservation</b>（默认 0.4，范围 0.0-1.0）：边缘保持强度</li>
+ *   <li><b>brightnessAdjustment</b>（默认 5，范围 -30 到 30）：亮度调整</li>
+ *   <li><b>saturationAdjustment</b>（默认 0.9，范围 0.5-1.5）：饱和度调整</li>
+ * </ul>
+ *
+ * <h3>注意事项</h3>
+ * <ul>
+ *   <li>输出格式默认为 JPEG（不透明），原图 Alpha 通道丢失</li>
+ *   <li>随机质感使用 {@link java.util.Random}（非固定种子），每次运行结果略有不同</li>
+ * </ul>
+ *
+ * @author CH
+ * @since 2024/12/20
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -49,49 +79,49 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     /**
     * 表面平滑强度 (0.0-1.0)
     * 控制表面平滑化的程度
-     */
+    */
     private double smoothingStrength = 0.6;
 
     /**
     * 颜色简化级别 (4-32)
     * 每个颜色通道的量化级别，值越小颜色越简化
-     */
+    */
     private int colorSimplificationLevel = 12;
 
     /**
     * 暖色调偏移 (0.0-1.0)
     * 向暖色调方向的偏移程度
-     */
+    */
     private double warmToneShift = 0.3;
 
     /**
     * 对比度降低程度 (0.0-1.0)
     * 降低对比度以营造柔和感
-     */
+    */
     private double contrastReduction = 0.3;
 
     /**
     * 黏土质感强度 (0.0-1.0)
     * 添加黏土质感的强度
-     */
+    */
     private double clayTextureStrength = 0.2;
 
     /**
     * 边缘保持强度 (0.0-1.0)
     * 在平滑时保持边缘的程度
-     */
+    */
     private double edgePreservation = 0.4;
 
     /**
     * 亮度调整 (-30 到 30)
     * 整体亮度微调
-     */
+    */
     private int brightnessAdjustment = 5;
 
     /**
     * 饱和度调整 (0.5-1.5)
     * 调整颜色饱和度
-     */
+    */
     private double saturationAdjustment = 0.9;
 
     /** 随机数生成器 */
@@ -109,7 +139,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     /**
     * 获取镜像格式化
     * @param name 名称
-     */
+    */
     public String getImageFormat(String name) {
         if (name == null) {
             return getImageFormat();
@@ -130,7 +160,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * 过滤
     * @param src src
     * @param dst dst
-     */
+    */
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -164,7 +194,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * 使用简化的双边滤波保持边缘的同时平滑表面
     * @param src src
     * @return applySurfaceSmoothing的结果
-     */
+    */
     private BufferedImage applySurfaceSmoothing(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -211,7 +241,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * @param src src
     * @param dst dst
     * @param strength strength
-     */
+    */
     private void applyGaussianBlur(BufferedImage src, BufferedImage dst, double strength) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -274,7 +304,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * @param x x
     * @param y y
     * @return calculateEdgeStrength的结果
-     */
+    */
     private double calculateEdgeStrength(BufferedImage src, int x, int y) {
         int centerRgb = src.getRGB(x, y);
         int centerGray = ImageProcessorUtils.luminance(centerRgb);
@@ -301,7 +331,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * @param color2 color2
     * @param factor factor
     * @return blendColors的结果
-     */
+    */
     private int blendColors(int color1, int color2, double factor) {
         int alpha1 = (color1 >> 24) & 0xFF;
         int red1 = (color1 >> 16) & 0xFF;
@@ -325,7 +355,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * 简化颜色
     * @param src src
     * @return simplifyColors的结果
-     */
+    */
     private BufferedImage simplifyColors(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -363,7 +393,7 @@ public class ClayStyleImageFilter extends AbstractImageFilter {
     * 调整暖色调
     * @param src src
     * @return adjustWarmTone的结果
-     */
+    */
     private BufferedImage adjustWarmTone(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -405,7 +435,7 @@ if (hsv[1] > 0.1) {
     /**
     * 转换器
     * @param image 镜像
-     */
+    */
     public OutputStream converter(InputStream image) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -431,7 +461,7 @@ if (hsv[1] > 0.1) {
     * 调整对比度和饱和度
     * @param src src
     * @return adjustcontrast和saturation的结果
-     */
+    */
     private BufferedImage adjustContrastAndSaturation(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -471,7 +501,7 @@ if (hsv[1] > 0.1) {
     * 添加黏土质感
     * @param src src
     * @return 添加claytexture的结果
-     */
+    */
     private BufferedImage addClayTexture(BufferedImage src) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -508,7 +538,7 @@ if (hsv[1] > 0.1) {
     * @param g g
     * @param b b
     * @return rgb转为hsv的结果
-     */
+    */
     private float[] rgbToHsv(int r, int g, int b) {
         float rf = r / 255.0f;
         float gf = g / 255.0f;
@@ -545,7 +575,7 @@ if (hsv[1] > 0.1) {
     * @param s s
     * @param v v
     * @return hsv转为rgb的结果
-     */
+    */
     private int[] hsvToRgb(float h, float s, float v) {
         h *= 360;
         int c = (int) (v * s * 255);

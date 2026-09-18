@@ -28,7 +28,7 @@ public class RedisSearchEngineImpl implements SearchEngine {
     /**
     * 创建 redis搜索engineimpl 实例
     * @param engine engine
-     */
+    */
     public RedisSearchEngineImpl(RediSearchEngine engine) {
         this.engine = engine;
     }

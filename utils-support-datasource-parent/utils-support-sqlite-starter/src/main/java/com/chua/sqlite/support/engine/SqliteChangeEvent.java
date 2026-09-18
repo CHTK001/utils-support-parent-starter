@@ -15,7 +15,7 @@ public final class SqliteChangeEvent {
     * @return 获取类型的结果
     * @param table table
     * @param rowId rowid
-     */
+    */
 
     public enum Type { INSERT, UPDATE, DELETE }
 
@@ -26,7 +26,7 @@ public final class SqliteChangeEvent {
     * @param table table
     * @param rowId rowid
     * @return sqlite改变事件的结果
-     */
+    */
     private final String table;
     private final long rowId; // rowid
 
@@ -36,7 +36,7 @@ public final class SqliteChangeEvent {
     * @param table table
     * @param rowId rowId
     * @return sqlite改变事件的结果
-     */
+    */
     private SqliteChangeEvent(Type type, String table, long rowId) {
         this.type = type;
         this.table = table;
@@ -45,7 +45,7 @@ public final class SqliteChangeEvent {
         * @param table table
         * @param rowId rowid
         * @return 插入的结果
-         */
+        */
         this.rowId = rowId;
     }
 
@@ -55,7 +55,7 @@ public final class SqliteChangeEvent {
         * @param table table
         * @param rowId rowid
         * @return 更新的结果
-         */
+        */
         return new SqliteChangeEvent(Type.INSERT, table, rowId);
     }
 
@@ -71,12 +71,12 @@ public final class SqliteChangeEvent {
     /**
     * 获取table。
     * @return 获取table的结果
-     */
+    */
     public String getTable() { return table; }
     /**
     * 获取rowid。
     * @return 获取rowid的结果
-     */
+    */
     public long getRowId() { return rowId; }
 
     @Override

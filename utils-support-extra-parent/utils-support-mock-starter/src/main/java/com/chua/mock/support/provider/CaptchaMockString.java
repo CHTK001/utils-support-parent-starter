@@ -22,14 +22,14 @@ public class CaptchaMockString implements MockString {
 
     /**
     * 验证码字符池（剔除 0/O/1/I/L 等易混淆字符）
-     */
+    */
     private static final char[] CHARS =
             "23456789ABCDEFGHJKMNPQRSTUVWXYZ".toCharArray();
     /**
     * 默认验证码长度
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final int DEFAULT_LENGTH = 4;
 
     @Override

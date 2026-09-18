@@ -94,7 +94,7 @@ public class SystemLogService {
     * 获取Instance
     *
     * @return 获取instance的结果
-     */
+    */
     public static SystemLogService getInstance() {
         if (INSTANCE == null) {
             synchronized (SystemLogService.class) {
@@ -110,7 +110,7 @@ public class SystemLogService {
     * 是否可用
     *
     * @return 是否可用的结果
-     */
+    */
     public boolean isAvailable() {
         return provider != null && provider.isPlatformSupported();
     }
@@ -120,7 +120,7 @@ public class SystemLogService {
     *
     * @param pattern 模式
     * @return 搜索的结果
-     */
+    */
     public List<LogEntry> search(String pattern) {
         return search(pattern, null);
     }
@@ -131,7 +131,7 @@ public class SystemLogService {
     * @param pattern 模式
     * @param minLevel 最小级别
     * @return 搜索的结果
-     */
+    */
     public List<LogEntry> search(String pattern, LogLevel minLevel) {
         return search(pattern, minLevel, 100);
     }
@@ -143,7 +143,7 @@ public class SystemLogService {
     * @param minLevel 最小级别
     * @param maxResults 最大结果
     * @return 搜索的结果
-     */
+    */
     public List<LogEntry> search(String pattern, LogLevel minLevel, int maxResults) {
         LogQuery query = LogQuery.builder()
                 .pattern(pattern)
@@ -158,7 +158,7 @@ public class SystemLogService {
     *
     * @param query 查询
     * @return 搜索的结果
-     */
+    */
     public List<LogEntry> search(LogQuery query) {
         if (!isAvailable()) {
             log.warn("SystemLogService not available on {}", PlatformSystems.getOsName());
@@ -176,7 +176,7 @@ public class SystemLogService {
     * 获取源
     *
     * @return 获取源的结果
-     */
+    */
     public List<String> getSources() {
         if (!isAvailable()) {
             return Collections.emptyList();
@@ -188,7 +188,7 @@ public class SystemLogService {
     * 获取提供者
     *
     * @return 获取提供者的结果
-     */
+    */
     public SystemLogProvider getProvider() {
         return provider;
     }

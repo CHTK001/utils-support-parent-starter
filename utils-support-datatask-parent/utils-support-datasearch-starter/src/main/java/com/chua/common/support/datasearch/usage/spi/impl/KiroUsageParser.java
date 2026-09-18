@@ -44,7 +44,7 @@ public class KiroUsageParser extends BaseUsageParser {
     * 解析 Kiro SQLite 数据库路径（按操作系统与安装形态）。
     *
     * @return DB 文件路径
-     */
+    */
     private static Path resolveDbPath() {
         String osName = System.getProperty("os.name", "").toLowerCase();
         if (osName.contains("win")) {
@@ -70,7 +70,7 @@ public class KiroUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "kiro"}
-     */
+    */
     @Override
     public String name() {
         return PROVIDER_KIRO;
@@ -78,7 +78,7 @@ public class KiroUsageParser extends BaseUsageParser {
 
     /**
     * 流式解析全部用量事件。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         if (!Files.exists(DB_PATH)) {
@@ -97,7 +97,7 @@ public class KiroUsageParser extends BaseUsageParser {
     *
     * @param row 数据库行
     * @return AiUsage 记录
-     */
+    */
     private AiUsage toAiUsage(Map<String, Object> row) {
         int inputTokens = asInt(row.get("input_tokens"));
         int outputTokens = asInt(row.get("output_tokens"));

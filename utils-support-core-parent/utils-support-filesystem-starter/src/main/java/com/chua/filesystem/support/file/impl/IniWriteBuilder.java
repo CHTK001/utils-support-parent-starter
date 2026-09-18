@@ -24,7 +24,7 @@ public class IniWriteBuilder extends WriteBuilder {
     * 构造函数。
     *
     * @param file 目标文件
-     */
+    */
     public IniWriteBuilder(File file) {
         super(file);
     }
@@ -34,7 +34,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param charset 字符集名称
     * @return this
-     */
+    */
     @Override
     public IniWriteBuilder withCharset(String charset) {
         super.withCharset(charset);
@@ -46,7 +46,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param data INI 数据（映射 或 列表&lt;映射&gt;）
     * @return this
-     */
+    */
     @SuppressWarnings("unchecked")
     @Override
     public IniWriteBuilder write(Object data) {
@@ -56,7 +56,7 @@ public class IniWriteBuilder extends WriteBuilder {
 
     /**
     * 完成写入并关闭底层输出流。
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public void finish() {
@@ -99,7 +99,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param map 待判断的 映射
     * @return true 表示嵌套 Section 结构
-     */
+    */
     private boolean isNestedSectionMap(Map<String, Object> map) {
         for (Map.Entry<String, Object> e : map.entrySet()) {
             if (e.getValue() instanceof Map) {
@@ -114,7 +114,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param sb       字符串构建器
     * @param sections Section 数据
-     */
+    */
     private void writeNestedMap(StringBuilder sb, Map<String, Map<String, String>> sections) {
         for (Map.Entry<String, Map<String, String>> section : sections.entrySet()) {
             String sectionName = section.getKey();
@@ -139,7 +139,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param sb   字符串构建器
     * @param data 单层属性数据
-     */
+    */
     private void writeFlatMap(StringBuilder sb, Map<String, Object> data) {
         if (!testRow(data)) {
             return;
@@ -155,7 +155,7 @@ public class IniWriteBuilder extends WriteBuilder {
     *
     * @param sb   字符串构建器
     * @param rows 行数据列表
-     */
+    */
     private void writeRowList(StringBuilder sb, List<Map<String, Object>> rows) {
         for (Map<String, Object> row : rows) {
             if (!testRow(row)) {

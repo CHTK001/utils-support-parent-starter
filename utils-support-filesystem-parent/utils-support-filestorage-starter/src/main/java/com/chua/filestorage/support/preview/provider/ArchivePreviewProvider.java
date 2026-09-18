@@ -36,7 +36,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的压缩包扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED = Set.of(
             "zip", "rar", "tar", "gz", "tgz", "tar.gz", "bz2", "tbz2", "tar.bz2",
             "xz", "txz", "tar.xz", "7z", "zst", "tzst", "tar.zst", "lz4", "tar.lz4", "lzma", "tar.lzma",
@@ -44,19 +44,19 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 纯压缩流扩展名（不视为容器，无条目概念）
-     */
+    */
     private static final Set<String> COMPRESSOR_ONLY = Set.of("gz", "bz2", "xz", "zst", "lz4", "lzma");
 
     /**
     * 单条目解压结果最大字节数，防御 7z/压缩条目解压炸弹拖垮内存
-     */
+    */
     private static final int MAX_EXTRACT_ENTRY_BYTES = 128 * 1024 * 1024;
 
     /**
     * @param ext  文件扩展名
     * @param mime MIME 类型（当前忽略）
     * @return true 表示支持预览
-     */
+    */
     @Override
     public boolean supports(String ext, String mime) {
         if (ext == null) {
@@ -74,7 +74,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param mime    MIME 类型（当前忽略）
     * @return 预览结果，包含树形 HTML 与内联样式
     * @throws IOException 读取压缩包失败
-     */
+    */
     @Override
     public PreviewResult preview(byte[] content, String ext, String mime) throws IOException {
         if (content == null || ext == null) {
@@ -164,7 +164,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * 构建压缩包下钻脚本：点击文件条目跳转至内层预览。
     *
     * @return 内联 JS 代码
-     */
+    */
     private String buildDrillJs() {
         return "window.addEventListener('DOMContentLoaded',function(){"
                 + "var files=document.querySelectorAll('.file[data-path]');"
@@ -185,7 +185,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param ext     压缩包扩展名（小写）
     * @param path    目标条目完整路径
     * @return 条目内容字节；条目不存在或解析失败时返回 空
-     */
+    */
     public static byte[] extractFile(byte[] content, String ext, String path) {
         if (content == null || ext == null || path == null) {
             return null;
@@ -218,7 +218,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param content 压缩包字节
     * @param path    目标条目完整路径
     * @return 条目内容字节；条目不存在时返回 空
-     */
+    */
     private static byte[] extractFrom7z(byte[] content, String path) {
         Path tmp = null;
         try {
@@ -266,7 +266,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param entry 7z 归档条目
     * @return 修改时间；无时间戳时返回 空
-     */
+    */
     private static Date safeLastModifiedDate(org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry) {
         try {
             return entry.getLastModifiedDate();
@@ -281,7 +281,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param in     压缩条目输入流
     * @param limit  最大字节数
     * @return 条目内容字节；超过上限时仅返回前 limit 字节
-     */
+    */
     private static byte[] readEntryLimited(InputStream in, int limit) throws IOException {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(limit)) {
             byte[] buffer = new byte[8192];
@@ -306,7 +306,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param ext 文件扩展名
     * @return 解压后的输入流
     * @throws IOException 创建解压器失败
-     */
+    */
     private static InputStream wrapDecompressor(InputStream in, String ext) throws IOException {
         String compType = compressorOf(ext);
         if (compType != null) {
@@ -324,7 +324,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param ext 文件扩展名
     * @return 解压器类型（如 gz、bzip2、xz、zstd、lz4、lzma）；不支持时返回 空
-     */
+    */
     private static String compressorOf(String ext) {
         return switch (ext) {
             case "tgz", "tar.gz" -> "gz";
@@ -345,7 +345,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param dirs      目录数量
     * @param totalSize 文件总大小
     * @return 树形 HTML 片段
-     */
+    */
     private String buildHtml(String ext, List<EntryInfo> entries, int dirs, long totalSize) {
         java.util.Map<String, List<EntryInfo>> dirMap = new java.util.TreeMap<>();
         List<EntryInfo> rootFiles = new ArrayList<>();
@@ -388,7 +388,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param sb   输出缓冲区
     * @param name 文件显示名
     * @param fe   文件条目信息
-     */
+    */
     private void renderFile(StringBuilder sb, String name, EntryInfo fe) {
         String eExt = extFromName(name);
         sb.append("<div class=\"file\" data-path=\"").append(StringUtils.escapeAttr(fe.name)).append("\"><span class=\"icon\">");
@@ -408,7 +408,7 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     *
     * @param name 文件名
     * @return 扩展名；无扩展名时返回 空
-     */
+    */
     private static String extFromName(String name) {
         String ext = FileUtils.getExtension(name);
         return ext == null || ext.isEmpty() ? null : ext.toLowerCase(Locale.ENGLISH);
@@ -422,6 +422,6 @@ public class ArchivePreviewProvider implements FileStoragePreviewProvider {
     * @param date         最后修改时间（可为空）
     * @param compressOnly 是否为纯压缩流条目（无文件信息）
     * @return entry信息的结果
-     */
+    */
     private record EntryInfo(String name, long size, Date date, boolean compressOnly) {}
 }

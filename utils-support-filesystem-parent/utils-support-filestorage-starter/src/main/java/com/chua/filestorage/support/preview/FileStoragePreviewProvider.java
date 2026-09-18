@@ -23,7 +23,7 @@ public interface FileStoragePreviewProvider {
     * @param extension 文件扩展名（小写，不包含点，如 "docx"、"pdf"、"md"）
     * @param mimeType  MIME 类型（如 "application/pdf"）
     * @return true 表示可以处理
-     */
+    */
     boolean supports(String extension, String mimeType);
 
     /**
@@ -34,6 +34,6 @@ public interface FileStoragePreviewProvider {
     * @param mimeType  MIME 类型
     * @return 预览结果
     * @throws IOException 转换失败时抛出
-     */
+    */
     PreviewResult preview(byte[] content, String extension, String mimeType) throws IOException;
 }

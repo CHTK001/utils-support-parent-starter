@@ -55,7 +55,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     * 解析shp。
     * @param data 数据
     * @return 解析shp的结果
-     */
+    */
     private ShpInfo parseShp(byte[] data) {
         ShpInfo info = new ShpInfo();
 
@@ -100,7 +100,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     * @since 4.0.0
     * @param bytes bytes
     * @return human大小的结果
-     */
+    */
         buf.position(36);
         info.xmin = buf.getDouble();
         info.ymin = buf.getDouble();
@@ -113,7 +113,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     * @param info 信息
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(ShpInfo info, long fileSize) {
@@ -160,7 +160,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     * @param ext ext
     * @param fileSize 文件大小
     * @return 构建简单html的结果
-     */
+    */
     }
 
     private String buildSimpleHtml(String ext, long fileSize) {
@@ -195,7 +195,7 @@ public class ShapefilePreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     private String escapeHtml(String text) {

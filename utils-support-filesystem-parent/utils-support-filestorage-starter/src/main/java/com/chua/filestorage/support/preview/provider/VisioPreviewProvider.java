@@ -20,14 +20,14 @@ public class VisioPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的 Visio 扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED = Set.of("vsdx", "vsd", "vdx", "vssx", "vstx");
 
     /**
     * @param ext  文件扩展名
     * @param mime MIME 类型（当前忽略）
     * @return true 表示支持预览
-     */
+    */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED.contains(ext.toLowerCase(Locale.ENGLISH));

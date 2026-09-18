@@ -10,21 +10,21 @@ public interface ProtocolServer {
 
     /**
     * @return 协议类型
-     */
+    */
     ProtocolType getProtocolType();
 
     /**
     * @return 服务器 URL
-     */
+    */
     String getServerUrl();
 
     /**
     * 启动服务器（如需）。
-     */
+    */
     void startIfNeeded();
 
     /**
     * 关闭服务器。
-     */
+    */
     void shutdown();
 }

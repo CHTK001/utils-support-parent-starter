@@ -23,12 +23,12 @@ public abstract class AbstractRestore implements Restore {
 
     /**
     * 数据库配置选项
-     */
+    */
     protected final DataSourceOptions databaseOptions;
 
     /**
     * 恢复设置
-     */
+    */
     protected RestoreSetting restoreSetting;
 
     /**
@@ -36,7 +36,7 @@ public abstract class AbstractRestore implements Restore {
     *
     * @param databaseOptions 数据库配置选项
     * @param restoreSetting  恢复设置
-     */
+    */
     public AbstractRestore(DataSourceOptions databaseOptions, RestoreSetting restoreSetting) {
         this.databaseOptions = databaseOptions;
         this.restoreSetting = restoreSetting;
@@ -150,7 +150,7 @@ public abstract class AbstractRestore implements Restore {
     * 获取文件扩展名
     * @param file 文件
     * @return 获取文件延伸的结果
-     */
+    */
     protected String getFileExtension(File file) {
         String name = file.getName();
         int dotIndex = name.lastIndexOf('.');

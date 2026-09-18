@@ -27,12 +27,12 @@ public class TableDetectionYolov8Translator extends AbstractSingleClassYolov8Tra
 
     /**
     * 类别资源路径（类路径）。
-     */
+    */
     public static final String CLASS_NAMES_RESOURCE = "vision/table/yolov8n/class.names.txt";
 
     /**
     * 默认构造：640×640、0.25 阈值、0.45 NMS。
-     */
+    */
     public TableDetectionYolov8Translator() {
         super();
     }
@@ -43,7 +43,7 @@ public class TableDetectionYolov8Translator extends AbstractSingleClassYolov8Tra
     * @param inputSize    输入尺寸
     * @param threshold    置信度阈值
     * @param nmsThreshold NMS iou 阈值
-     */
+    */
     public TableDetectionYolov8Translator(int inputSize, float threshold, float nmsThreshold) {
         super(inputSize, threshold, nmsThreshold);
     }

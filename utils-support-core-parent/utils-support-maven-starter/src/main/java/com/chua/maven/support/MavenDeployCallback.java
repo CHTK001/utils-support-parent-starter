@@ -40,7 +40,7 @@ public interface MavenDeployCallback {
     * 部署开始回调
     *
     * @param projectPath 项目路径
-     */
+    */
     default void onDeployStart(String projectPath) {
     }
 
@@ -49,7 +49,7 @@ public interface MavenDeployCallback {
     *
     * @param message 当前进度描述
     * @param percent 进度百分比（0-100）
-     */
+    */
     default void onDeployProgress(String message, int percent) {
     }
 
@@ -57,7 +57,7 @@ public interface MavenDeployCallback {
     * 部署成功回调
     *
     * @param deployedPaths 部署后的文件路径列表
-     */
+    */
     default void onDeploySuccess(List<String> deployedPaths) {
     }
 
@@ -65,7 +65,7 @@ public interface MavenDeployCallback {
     * 部署失败回调
     *
     * @param exception 异常信息
-     */
+    */
     default void onDeployFailure(Exception exception) {
     }
 }

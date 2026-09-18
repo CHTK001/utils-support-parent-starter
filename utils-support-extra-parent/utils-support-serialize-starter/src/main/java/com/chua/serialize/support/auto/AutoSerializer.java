@@ -38,15 +38,15 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
 
     /**
     * 序列化器降级链
-     */
+    */
     private final List<Serializer<T>> serializers;
     /**
     * 当前使用的序列化器索引（用于轮询均衡负载）
-     */
+    */
     private final AtomicReference<Integer> currentIndex = new AtomicReference<>(0);
     /**
     * 目标实体类类型
-     */
+    */
     private final Class<T> clazz;
 
     /**
@@ -58,7 +58,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param clazz              目标实体类类型
     * @param fallbackSerializers 额外的降级序列化器（可选）
-     */
+    */
     public AutoSerializer(Class<T> clazz, Serializer<T>... fallbackSerializers) {
         this.clazz = clazz;
         this.serializers = new CopyOnWriteArrayList<>();
@@ -85,7 +85,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     * 创建默认降级链的自动序列化器。
     *
     * @param clazz 目标实体类类型
-     */
+    */
     public AutoSerializer(Class<T> clazz) {
         this(clazz, null);
     }
@@ -99,7 +99,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param object 待序列化的对象
     * @return 序列化后的字节数组
-     */
+    */
     @Override
     public byte[] serialize(T object) {
         int start = currentIndex.get();
@@ -127,7 +127,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param bytes 序列化后的字节数组
     * @return 反序列化后的对象
-     */
+    */
     @Override
     @SuppressWarnings("unchecked")
     public T deserialize(byte[] bytes) {
@@ -151,7 +151,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     * 获取当前降级链中的序列化器数量。
     *
     * @return 序列化器数量
-     */
+    */
     public int getSerializerCount() {
         return serializers.size();
     }
@@ -160,7 +160,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     * 获取所有降级序列化器的名称列表。
     *
     * @return 序列化器名称列表
-     */
+    */
     public List<String> getSerializerNames() {
         return serializers.stream()
                 .map(s -> s.getClass().getSimpleName())
@@ -172,7 +172,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param serializer 自定义序列化器
     * @return 是否添加成功
-     */
+    */
     public boolean addSerializer(Serializer<T> serializer) {
         return serializers.add(serializer);
     }
@@ -182,7 +182,7 @@ public class AutoSerializer<T extends Serializable> implements Serializer<T> {
     *
     * @param serializer 要移除的序列化器
     * @return 是否移除成功
-     */
+    */
     public boolean removeSerializer(Serializer<T> serializer) {
         return serializers.remove(serializer);
     }

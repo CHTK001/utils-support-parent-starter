@@ -37,7 +37,7 @@ public class VertxHttpProxyServer extends AbstractServer {
 
     /**
     * 后端地址解析器
-     */
+    */
     private final ProxyTargetResolver<InetSocketAddress> targetResolver;
 
     /** Vertx */
@@ -50,7 +50,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     /**
     * 创建 vertxhttp代理服务端 实例
     * @param setting setting
-     */
+    */
     public VertxHttpProxyServer(ServerSetting setting) {
         super(setting);
  // 与 tcp代理服务端 一致：SPI 加载时 解析器 未提供，拒绝所有连接，调用方自行注入
@@ -62,7 +62,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     * @param setting setting
     * @param targetResolver 代理Target解析器
     * @param targetResolver Target解析器
-     */
+    */
     public VertxHttpProxyServer(ServerSetting setting, ProxyTargetResolver<InetSocketAddress> targetResolver) {
         super(setting);
         this.targetResolver = targetResolver;
@@ -71,9 +71,9 @@ public class VertxHttpProxyServer extends AbstractServer {
     /**
     * 创建 vertxhttp代理服务端 实例
     * @param setting setting
-    * @param backend inet套接字地址
+    * @param backend inetSocket地址
     * @param backend backend
-     */
+    */
     public VertxHttpProxyServer(ServerSetting setting, InetSocketAddress backend) {
         super(setting);
         this.targetResolver = remote -> backend;
@@ -138,7 +138,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     * 代理处理：解析后端 → HTTP客户端 转发 → 回传响应。
     *
     * @param front 前端请求
-     */
+    */
     private void handleProxy(HttpServerRequest front) {
         InetSocketAddress backend;
         try {
@@ -180,7 +180,7 @@ public class VertxHttpProxyServer extends AbstractServer {
     *
     * @param resp      前端响应
     * @param backResp  后端响应
-     */
+    */
     private void forwardResponse(HttpServerResponse resp,
                                  io.vertx.core.http.HttpClientResponse backResp) {
         resp.setStatusCode(backResp.statusCode());

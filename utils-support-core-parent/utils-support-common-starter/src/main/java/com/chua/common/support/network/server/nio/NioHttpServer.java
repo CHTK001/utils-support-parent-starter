@@ -1014,8 +1014,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-    * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
-    */
+        * WebSocket 消息响应（与 JdkWebSocketServer.SimpleServerResponse 行为一致）。
+        */
     private static final class WsServerResponse implements ServerResponse {
         /** Connection */
         private final WsConnection connection;
@@ -1073,8 +1073,8 @@ public class NioHttpServer extends AbstractServer {
     }
 
     /**
-    * 判断是否保持连接
-    */
+        * 判断是否保持连接
+        */
     private boolean shouldKeepAlive(NioServerRequest request, NioServerResponse response) {
         if (response.isChannelClosed()) {
             return false;

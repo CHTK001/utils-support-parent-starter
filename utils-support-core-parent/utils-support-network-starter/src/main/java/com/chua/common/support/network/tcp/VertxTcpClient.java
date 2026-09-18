@@ -29,7 +29,7 @@ public class VertxTcpClient implements TcpClient {
 
     /**
     * vertxtcp客户端。
-     */
+    */
     public VertxTcpClient() {
         this.vertx = Vertx.vertx(new VertxOptions()
                 .setEventLoopPoolSize(Math.max(Runtime.getRuntime().availableProcessors(), 2))

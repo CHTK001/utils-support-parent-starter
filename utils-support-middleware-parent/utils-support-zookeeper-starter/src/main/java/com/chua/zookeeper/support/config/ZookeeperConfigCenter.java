@@ -43,14 +43,14 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
 
     /**
     * Curator ZooKeeper 客户端框架实例
-     */
+    */
     private CuratorFramework curatorFramework;
 
     /**
     * 构造 ZooKeeper 配置中心。
     *
     * @param configCenterSetting 配置中心连接设置（地址、认证、超时等）
-     */
+    */
     public ZookeeperConfigCenter(ConfigCenterSetting configCenterSetting) {
         super(configCenterSetting);
     }
@@ -177,7 +177,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     * @param configContent 配置内容字符串
     * @param dataId        配置标识（用于日志）
     * @return 解析后的键值映射
-     */
+    */
     private Map<String, Object> parseConfigContent(String configContent, String dataId) {
         try {
             // 尝试 YAML 格式解析
@@ -210,7 +210,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     *
     * @param content 配置内容
     * @return true-是 YAML 格式
-     */
+    */
     private boolean isYamlContent(String content) {
         return content.contains(":") && (content.contains("\n") || content.contains("  "));
     }
@@ -221,7 +221,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     *
     * @param content 配置内容
     * @return true-是 属性 格式
-     */
+    */
     private boolean isPropertiesContent(String content) {
         return content.contains("=") && content.contains("\n");
     }
@@ -231,7 +231,7 @@ public class ZookeeperConfigCenter extends AbstractConfigCenter {
     *
     * @param content 属性 格式的字符串
     * @return 键值映射
-     */
+    */
     private Map<String, Object> parsePropertiesContent(String content) {
         Map<String, Object> result = new HashMap<>();
         String[] lines = content.split("\n");

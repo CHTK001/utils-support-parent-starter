@@ -58,46 +58,46 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
 
     /**
     * MMS-TTS 模型名
-     */
+    */
     private static final String MMS_TTS_MODEL = "mms-tts-eng";
 
     /**
     * Pocket-TTS 模型名（Kyutai 流匹配 TTS）
-     */
+    */
     private static final String POCKET_TTS_MODEL = "pocket-tts";
 
     /**
     * VITS-icefall 中文 TTS 模型名（AISHELL3 多说话人）
-     */
+    */
     private static final String VITS_ICEEFALL_ZH_MODEL = "vits-icefall-zh";
 
     /**
     * 内嵌的 MMS-TTS 合成器（懒加载）
-     */
+    */
     private MmsTtsTranslator mmsTtsTranslator;
 
     /**
     * 内嵌的 Pocket-TTS 合成器（懒加载）
-     */
+    */
     private PocketTtsTranslator pocketTtsTranslator;
 
     /**
     * 内嵌的 VITS-icefall 中文合成器（懒加载）
-     */
+    */
     private VitsTtsTranslator vitsTtsTranslator;
 
     /**
     * 说话人指定（voice 参数）。
     * VITS 模型：说话人名称或 标识（如 "SSB0005" 或 "0"）。
     * Pocket-TTS：参考音频文件路径（用于零样本声音克隆）。
-     */
+    */
     private String voice;
 
     /**
     * 构造 ONNX 语音合成客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public OnnxTextToAudioClient(TextToAudioClientSetting setting) {
         super("onnx", setting);
         this.voice = setting != null ? setting.getVoice() : null;
@@ -113,7 +113,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     * 获取 VITS 说话人名称列表（供前端下拉选项使用）。
     *
     * @return 说话人名称列表
-     */
+    */
     public List<String> getVitsSpeakerNames() {
         ensureVits();
         return vitsTtsTranslator.speakerNames();
@@ -121,7 +121,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
 
     /**
     * 确保 VITS translator 已初始化。
-     */
+    */
     private void ensureVits() {
         synchronized (this) {
             if (vitsTtsTranslator == null) {
@@ -135,7 +135,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     * 无法解析回退 0。
     *
     * @return 说话人 标识
-     */
+    */
     private int resolveSpeakerId() {
         if (voice != null && !voice.isBlank()) {
             try {
@@ -157,7 +157,7 @@ public class OnnxTextToAudioClient extends AbstractLocalTextToAudioClient {
     * 加载参考音频字节（Pocket-TTS 声音克隆用）。
     *
     * @return 参考音频 WAV 字节；voice 为空或非文件路径时返回 空
-     */
+    */
     private byte[] loadRefAudio() {
         if (voice == null || voice.isBlank()) {
             return null;

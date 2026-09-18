@@ -77,7 +77,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "antigravity"}
-     */
+    */
     @Override
     public String name() {
         return PROVIDER_ANTIGRAVITY;
@@ -85,7 +85,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
 
     /**
     * 流式解析全部 Antigravity 转录文件。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> transcripts = listTranscripts();
@@ -106,7 +106,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     * 枚举三个变体目录下的全部 transcript.jsonl。
     *
     * @return 转录文件列表
-     */
+    */
     private List<Path> listTranscripts() {
         List<Path> files = new ArrayList<>();
         for (String variant : VARIANT_SUBDIRS) {
@@ -137,7 +137,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param file 转录文件
     * @return 估算用量记录流
-     */
+    */
     private Flux<AiUsage> streamTranscript(Path file) {
         return Flux.defer(() -> {
             List<AiUsage> records = new ArrayList<>();
@@ -211,7 +211,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param transcript 转录文件路径
     * @return 归一化模型名；无则 null
-     */
+    */
     private String readDefaultModel(Path transcript) {
         try {
             Path dir = transcript;
@@ -244,7 +244,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param content 用户输入内容
     * @return 归一化模型名；无则 null
-     */
+    */
     private String extractModelSelection(String content) {
         if (content == null || content.isBlank()) {
             return null;
@@ -261,7 +261,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param modelName 原始模型名
     * @return 归一化结果；空则 null
-     */
+    */
     private static String normalizeAntigravityModel(String modelName) {
         if (modelName == null || modelName.isBlank()) {
             return null;
@@ -294,7 +294,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param event 事件节点
     * @return 估算 token 数
-     */
+    */
     private long contextTokensOf(JsonNode event) {
         long tokens = estimateTokens(event.get("content").toStringValue());
         if ("PLANNER_RESPONSE".equals(event.get("type").toStringValue())) {
@@ -308,7 +308,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param node 工具调用节点
     * @return 字符串形式
-     */
+    */
     private String serialize(JsonNode node) {
         if (node == null || node.isMissingValue() || !node.isValueNode()) {
             return "";
@@ -325,7 +325,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param text 文本
     * @return 估算 token 数
-     */
+    */
     private long estimateTokens(String text) {
         if (text == null || text.isEmpty()) {
             return 0L;
@@ -348,7 +348,7 @@ public class AntigravityUsageParser extends BaseUsageParser {
     *
     * @param c 字符
     * @return 是否 CJK
-     */
+    */
     private static boolean isCjk(char c) {
         int code = c;
         return (code >= 0x3400 && code <= 0x4DBF)

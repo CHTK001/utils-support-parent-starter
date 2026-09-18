@@ -21,7 +21,7 @@ public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
     * @param databaseId 数据库 标识（可空，使用默认）
     * @param statements 多条语句
     * @return 请求对象
-     */
+    */
     public static D1BatchRequest of(String databaseId, List<D1Statement> statements) {
         return new D1BatchRequest(statements, null);
     }
@@ -32,7 +32,7 @@ public record D1BatchRequest(List<D1Statement> statements, Boolean sequential) {
     * <p>{@code {"batch": [{"sql":..., "params":...}, ...]}}</p>
     *
     * @return JSON 节点
-     */
+    */
     public Object toJson() {
         var list = new ArrayList<Object>(statements.size());
         for (var s : statements) {

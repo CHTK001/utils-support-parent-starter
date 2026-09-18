@@ -19,7 +19,7 @@ public interface ModelMetricsProvider {
     * 获取数据源名称。
     *
     * @return 数据源标识
-     */
+    */
     String name();
 
     /**
@@ -28,11 +28,11 @@ public interface ModelMetricsProvider {
     * <p>优先从本地文件缓存加载，本地无文件时返回空列表。</p>
     *
     * @return 模型指标列表
-     */
+    */
     List<ModelDefinition> getMetrics();
 
     /**
     * 从线上 API 同步指标数据并持久化到本地文件。
-     */
+    */
     void syncFromOnline();
 }

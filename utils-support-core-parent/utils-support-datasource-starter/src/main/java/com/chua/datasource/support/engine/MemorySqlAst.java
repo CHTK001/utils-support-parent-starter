@@ -20,7 +20,7 @@ final class MemorySqlAst {
 
     /**
     * 内存sqlast。
-     */
+    */
     private MemorySqlAst() {
     }
 
@@ -30,19 +30,19 @@ final class MemorySqlAst {
     abstract static class Node {
 
         /**
-        * 对行求值。
-        *
-        * @param row 行对象（映射 或 Bean）
-        * @param p   参数提供器
-        * @return 布真
-         */
+    * 对行求值。
+    *
+    * @param row 行对象（映射 或 Bean）
+    * @param p   参数提供器
+    * @return 布真
+    */
         /**
         * 对行求值。
         *
         * @param row 行对象（映射 或 Bean）
         * @param p   参数游标
         * @return 布真结果
-         */
+        */
         abstract boolean eval(Object row, ParamProvider p);
     }
 
@@ -53,12 +53,12 @@ final class MemorySqlAst {
         private final Node right;
 
         /**
-        * 构造二元节点。
-        *
-        * @param op    运算符（和/或/= /!=/<>/</<=/>/>=）
-        * @param left  左子树
-        * @param right 右子树
-         */
+    * 构造二元节点。
+    *
+    * @param op    运算符（和/或/= /!=/<>/</<=/>/>=）
+    * @param left  左子树
+    * @param right 右子树
+    */
         BinaryNode(String op, Node left, Node right) {
             this.op = op.toUpperCase(Locale.ROOT);
             this.left = left;
@@ -105,10 +105,10 @@ final class MemorySqlAst {
         private final Node child;
 
         /**
-        * 构造取反节点。
-        *
-        * @param child 子谓词
-         */
+    * 构造取反节点。
+    *
+    * @param child 子谓词
+    */
         NotNode(Node child) {
             this.child = child;
         }
@@ -124,10 +124,10 @@ final class MemorySqlAst {
         private final String name;
 
         /**
-        * 构造列引用。
-        *
-        * @param name 列名
-         */
+    * 构造列引用。
+    *
+    * @param name 列名
+    */
         ColumnNode(String name) {
             this.name = name;
         }
@@ -136,7 +136,7 @@ final class MemorySqlAst {
         * 获取列名。
         *
         * @return 列名
-         */
+        */
         String name() {
             return name;
         }
@@ -152,10 +152,10 @@ final class MemorySqlAst {
         private final Object value;
 
         /**
-        * 构造字面量节点。
-        *
-        * @param value 字面值或 参数记号笔 占位
-         */
+    * 构造字面量节点。
+    *
+    * @param value 字面值或 参数记号笔 占位
+    */
         LiteralNode(Object value) {
             this.value = value;
         }
@@ -169,7 +169,7 @@ final class MemorySqlAst {
         * 获取内部原始值。
         *
         * @return 原始值（可能为 参数记号笔）
-         */
+        */
         Object value() {
             return value;
         }
@@ -180,7 +180,7 @@ final class MemorySqlAst {
         * @param v 待解析对象（字面量节点 / 参数记号笔 / 原始值）
         * @param p 参数游标，空 时占位返回 空
         * @return 解析后的值
-     */
+        */
     static Object unwrap(Object v, ParamProvider p) {
             if (v instanceof ParamMarker) {
                 return p == null ? null : p.next();
@@ -198,11 +198,11 @@ final class MemorySqlAst {
         private final boolean notNull;
 
         /**
-        * 构造空值判断节点。
-        *
-        * @param col     目标列
-        * @param notNull true 表示 是否 NOT 空
-         */
+    * 构造空值判断节点。
+    *
+    * @param col     目标列
+    * @param notNull true 表示 是否 NOT 空
+    */
         IsNullNode(ColumnNode col, boolean notNull) {
             this.col = col;
             this.notNull = notNull;
@@ -222,12 +222,12 @@ final class MemorySqlAst {
         private final Object hi;
 
         /**
-        * 构造闭区间判断节点。
-        *
-        * @param col 目标列
-        * @param lo  下界（可为占位）
-        * @param hi  上界（可为占位）
-         */
+    * 构造闭区间判断节点。
+    *
+    * @param col 目标列
+    * @param lo  下界（可为占位）
+    * @param hi  上界（可为占位）
+    */
         BetweenNode(ColumnNode col, Object lo, Object hi) {
             this.col = col;
             this.lo = lo;
@@ -251,11 +251,11 @@ final class MemorySqlAst {
         private final List<Object> values;
 
         /**
-        * 构造 入 列表节点。
-        *
-        * @param col    目标列
-        * @param values 候选值集合（元素可为占位）
-         */
+    * 构造 入 列表节点。
+    *
+    * @param col    目标列
+    * @param values 候选值集合（元素可为占位）
+    */
         InNode(ColumnNode col, List<Object> values) {
             this.col = col;
             this.values = values;
@@ -283,11 +283,11 @@ final class MemorySqlAst {
         private final String pattern;
 
         /**
-        * 构造 LIKE 节点。
-        *
-        * @param col     目标列
-        * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
-         */
+    * 构造 LIKE 节点。
+    *
+    * @param col     目标列
+    * @param pattern 模式串，仅支持 % 通配（前缀/后缀/包含）
+    */
         LikeNode(ColumnNode col, String pattern) {
             this.col = col;
             this.pattern = pattern;
@@ -326,11 +326,11 @@ final class MemorySqlAst {
         final boolean desc;
 
         /**
-        * 构造排序项。
-        *
-        * @param column 列名
-        * @param desc   是否降序
-         */
+    * 构造排序项。
+    *
+    * @param column 列名
+    * @param desc   是否降序
+    */
         OrderItem(String column, boolean desc) {
             this.column = column;
             this.desc = desc;
@@ -345,10 +345,10 @@ final class MemorySqlAst {
     interface ParamProvider {
 
         /**
-        * 消费下一个绑定参数。
-        *
-        * @return 参数值，耗尽返回 空
-         */
+    * 消费下一个绑定参数。
+    *
+    * @return 参数值，耗尽返回 空
+    */
         Object next();
     }
 
@@ -383,10 +383,10 @@ final class MemorySqlAst {
         private List<Object> boundParams;
 
         /**
-        * 绑定 ? 参数列表。
-        *
-        * @param params 参数值集合，空 视为空集
-         */
+    * 绑定 ? 参数列表。
+    *
+    * @param params 参数值集合，空 视为空集
+    */
         void bind(List<Object> params) {
             this.boundParams = params == null ? List.of() : params;
         }
@@ -395,7 +395,7 @@ final class MemorySqlAst {
         * 创建独立的按序参数游标（每行求值需新建以保证绑定值一致）。
         *
         * @return 游标提供器
-         */
+        */
         ParamProvider provider() {
             return new ParamProvider() {
                 private int idx;
@@ -412,7 +412,7 @@ final class MemorySqlAst {
         *
         * @param rows 行引用
         * @return 结果行
-         */
+        */
         public List<Map<String, Object>> evaluate(List<?> rows) {
             List<?> filtered = rows;
             if (where != null) {
@@ -449,7 +449,7 @@ final class MemorySqlAst {
         * 依据 订单bys 构建多列比较器（空 值排最前）。
         *
         * @return 行比较器
-         */
+        */
         private Comparator<Object> buildComparator() {
             return (a, b) -> {
                 for (OrderItem ob : orderBys) {
@@ -478,7 +478,7 @@ final class MemorySqlAst {
         *
         * @param row 行对象
         * @return 投影后的有序映射
-         */
+        */
         private Map<String, Object> project(Object row) {
             Map<String, Object> out = new LinkedHashMap<>();
             if (selectAll) {
@@ -502,10 +502,10 @@ final class MemorySqlAst {
         Node where;
 
         /**
-        * 表名。
-        *
-        * @return 目标表
-         */
+    * 表名。
+    *
+    * @return 目标表
+    */
         public String table() {
             return table;
         }
@@ -514,7 +514,7 @@ final class MemorySqlAst {
         * 匹配谓词。
         *
         * @return WHERE 树或 空
-         */
+        */
         public Node where() {
             return where;
         }
@@ -530,10 +530,10 @@ final class MemorySqlAst {
         final List<List<Object>> rows = new ArrayList<>();
 
         /**
-        * 列清单。
-        *
-        * @return 列名列表
-         */
+    * 列清单。
+    *
+    * @return 列名列表
+    */
         public List<String> columns() {
             return columns;
         }
@@ -542,7 +542,7 @@ final class MemorySqlAst {
         * 待插入值行。
         *
         * @return 值行集合
-         */
+        */
         public List<List<Object>> rows() {
             return rows;
         }
@@ -555,10 +555,10 @@ final class MemorySqlAst {
         final Map<String, Object> sets = new LinkedHashMap<>();
 
         /**
-        * 设置 赋值。
-        *
-        * @return 列到值的映射
-         */
+    * 设置 赋值。
+    *
+    * @return 列到值的映射
+    */
         public Map<String, Object> sets() {
             return sets;
         }
@@ -577,7 +577,7 @@ final class MemorySqlAst {
     * @param params        ? 绑定参数
     * @param tableResolver 表行引用解析器（惰性调用一次；内存引擎可在此建空表）
     * @return 影响行数
-     */
+    */
     public static int executeDml(DmlPlan plan, List<Object> params, java.util.function.Supplier<List<Object>> tableResolver) {
         java.util.Objects.requireNonNull(plan, "plan must not be null");
         List<Object> safeParams = params == null ? List.of() : params;
@@ -609,7 +609,7 @@ final class MemorySqlAst {
     *
     * @param plan     DML 计划
     * @param provider 共享参数游标
-     */
+    */
     public static void bindPlanParams(DmlPlan plan, ParamProvider provider) {
         if (plan instanceof InsertPlan ins) {
             for (List<Object> row : ins.rows()) {
@@ -625,7 +625,7 @@ final class MemorySqlAst {
     *
     * @param params 绑定参数
     * @return 游标提供器
-     */
+    */
     public static ParamProvider rowProvider(List<Object> params) {
         java.util.concurrent.atomic.AtomicInteger idx = new java.util.concurrent.atomic.AtomicInteger();
         return () -> idx.get() < params.size() ? params.get(idx.getAndIncrement()) : null;
@@ -637,7 +637,7 @@ final class MemorySqlAst {
     * @param plan 插入计划
     * @param rows 目标行引用
     * @return 影响行数
-     */
+    */
     public static int applyInsert(InsertPlan plan, List<Object> rows) {
         for (List<Object> values : plan.rows()) {
             LinkedHashMap<String, Object> rowMap = new LinkedHashMap<>();
@@ -667,7 +667,7 @@ final class MemorySqlAst {
     * @param rows   目标行引用
     * @param params 绑定参数（WHERE 占位逐行重置消费）
     * @return 影响行数
-     */
+    */
     public static int applyUpdate(UpdatePlan plan, List<Object> rows, List<Object> params) {
         int affected = 0;
         for (Object row : rows) {
@@ -693,7 +693,7 @@ final class MemorySqlAst {
     * @param rows   目标行引用
     * @param params 绑定参数
     * @return 影响行数
-     */
+    */
     public static int applyDelete(DeletePlan plan, List<Object> rows, List<Object> params) {
         int before = rows.size();
         rows.removeIf(row -> plan.where() == null || plan.where().eval(row, rowProvider(params)));
@@ -709,7 +709,7 @@ final class MemorySqlAst {
     * @param row 行对象
     * @param p   参数游标
     * @return 求值结果
-     */
+    */
     static Object value(Node n, Object row, ParamProvider p) {
         if (n instanceof ColumnNode) {
             return RowAccessor.value(row, ((ColumnNode) n).name());
@@ -727,7 +727,7 @@ final class MemorySqlAst {
     * @param a 左值
     * @param b 右值
     * @return 比较结果
-     */
+    */
     static int compare(Object a, Object b) {
         if (a instanceof Number && b instanceof Number) {
             double da = ((Number) a).doubleValue();

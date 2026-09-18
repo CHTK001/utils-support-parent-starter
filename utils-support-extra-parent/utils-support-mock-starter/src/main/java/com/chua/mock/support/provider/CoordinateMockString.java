@@ -24,21 +24,21 @@ public class CoordinateMockString implements MockString {
 
     /**
     * 经度下界（包含）
-     */
+    */
     private static final double LNG_MIN = 73.0;
     /**
     * 经度上界（不包含）
-     */
+    */
     private static final double LNG_MAX = 136.0;
     /**
     * 纬度下界（包含）
-     */
+    */
     private static final double LAT_MIN = 18.0;
     /**
     * 纬度上界（不包含）
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final double LAT_MAX = 54.0;
 
     @Override

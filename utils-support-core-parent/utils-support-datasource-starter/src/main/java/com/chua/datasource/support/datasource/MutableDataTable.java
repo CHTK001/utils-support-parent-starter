@@ -14,23 +14,23 @@ public class MutableDataTable implements DataTable {
 
     /**
     * 表名。
-     */
+    */
     private final String name;
 
     /**
     * 列名列表。
-     */
+    */
     private final List<String> columnNames;
 
     /**
     * 行数据列表。
-     */
+    */
     private final List<Map<String, Object>> data;
 
     /**
     * 创建 mutable数据table 实例
     * @param name 名称
-     */
+    */
     public MutableDataTable(String name) {
         this.name = name;
         this.columnNames = new ArrayList<>();
@@ -41,7 +41,7 @@ public class MutableDataTable implements DataTable {
     * 添加列。
     *
     * @param column 列名
-     */
+    */
     public void addColumn(String column) {
         columnNames.add(column);
     }
@@ -50,7 +50,7 @@ public class MutableDataTable implements DataTable {
     * 添加行。
     *
     * @param row 行数据
-     */
+    */
     public void addRow(Map<String, Object> row) {
         data.add(row);
     }

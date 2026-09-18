@@ -14,7 +14,7 @@ public class BartZhSeq2SeqOrtTranslator extends T5Seq2SeqOrtTranslator {
 
     /**
     * 无参构造，使用中文 BART-large 模型定义。
-     */
+    */
     public BartZhSeq2SeqOrtTranslator() {
         super(Seq2SeqModelDefinition.BART_ZH);
     }

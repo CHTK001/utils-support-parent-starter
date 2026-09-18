@@ -31,7 +31,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
     * 默认最大序列长度
-     */
+    */
     private static final int DEFAULT_MAX_LEN = 512;
 
     /** 设置 */
@@ -48,7 +48,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
     * jar 内打包的资源目录（离线版），空 表示自动下载版
-     */
+    */
     private String embeddedBase;
     /** 嵌入式模型名称 */
     /** Embedded模型 */
@@ -59,7 +59,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
     * 本地模型目录（自动下载版经 registry 解析后传入）
-     */
+    */
     private Path localModelRoot;
     /** 嵌入式本地目录 */
     /** Embedded本地目录 */
@@ -70,7 +70,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     /**
     * 创建 bge嵌入客户端 实例
     * @param setting setting
-     */
+    */
     public BgeEmbeddingClient(EmbeddingClientSetting setting) {
         this.setting = setting;
         this.embeddedModel = "model.onnx";
@@ -84,7 +84,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     *
     * @param model 模型
     * @return resolveEmbeddedBase的结果
-     */
+    */
     private String resolveEmbeddedBase(String model) {
         if (model == null) {
             return null;
@@ -144,7 +144,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
 
     /**
     * 将 registry 解析到的模型路径适配为本地可加载形式。
-     */
+    */
     private void translateModel() throws Exception {
         if (embeddedBase != null) {
             translator = new BgeEmbeddingTranslator();
@@ -184,7 +184,7 @@ public class BgeEmbeddingClient implements EmbeddingClient {
     * 设置本地模型目录（自动下载版）。
     *
     * @param path 模型文件或目录
-     */
+    */
     public void setLocalModel(Path path) {
         this.localModelRoot = path;
         resetLoaded();

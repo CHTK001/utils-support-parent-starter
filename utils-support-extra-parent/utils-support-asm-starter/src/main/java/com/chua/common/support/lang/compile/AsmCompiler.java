@@ -81,7 +81,7 @@ public class AsmCompiler implements Compiler {
     * 字符串源文件对象，将 Java 源码字符串包装为 java文件对象
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class StringSource extends SimpleJavaFileObject {
         /** 代码 */
         private final String code;
@@ -99,10 +99,10 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-    * 内存字节码对象，将编译后的 .类 字节码保存在内存中
-    * @author CH
-    * @since 4.0.0
-     */
+        * 内存字节码对象，将编译后的 .类 字节码保存在内存中
+        * @author CH
+        * @since 4.0.0
+        */
     static class InMemoryByteCode extends SimpleJavaFileObject {
         /** 字节数组输出流 */
         private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -130,10 +130,10 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-    * 内存类加载器，负责将内存中的字节码定义为 类 对象
-    * @author CH
-    * @since 4.0.0
-     */
+        * 内存类加载器，负责将内存中的字节码定义为 类 对象
+        * @author CH
+        * @since 4.0.0
+        */
     static class InMemoryClassLoader extends ClassLoader {
         /** 字节码缓存映射 */
         private final Map<String, InMemoryByteCode> bytecodes = new HashMap<>();
@@ -170,10 +170,10 @@ public class AsmCompiler implements Compiler {
     }
 
     /**
-    * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
-    * @author CH
-    * @since 4.0.0
-     */
+        * 内存文件管理器，将编译器输出的字节码重定向到内存而非磁盘文件
+        * @author CH
+        * @since 4.0.0
+        */
     static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
         /** 类加载器 */
         private final InMemoryClassLoader classLoader;
@@ -196,7 +196,7 @@ public class AsmCompiler implements Compiler {
         * @param className 类名称
         * @param kind 种类
         * @param sibling sibling
-         */
+        */
         public JavaFileObject getJavaFileForOutput(Location location, String className,
                                                     JavaFileObject.Kind kind, FileObject sibling) {
             InMemoryByteCode bc = new InMemoryByteCode(className);

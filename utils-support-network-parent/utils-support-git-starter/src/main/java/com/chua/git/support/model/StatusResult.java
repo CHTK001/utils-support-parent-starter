@@ -30,7 +30,7 @@ public record StatusResult(
     * 工作区是否干净（无任何变更）。
     *
     * @return 无 staged / unstaged / untracked 变更时返回 true
-     */
+    */
     public boolean isClean() {
         return indexToWorkTree.values().stream().noneMatch(l -> !l.isEmpty())
                 && workTreeToIndex.values().stream().noneMatch(l -> !l.isEmpty())

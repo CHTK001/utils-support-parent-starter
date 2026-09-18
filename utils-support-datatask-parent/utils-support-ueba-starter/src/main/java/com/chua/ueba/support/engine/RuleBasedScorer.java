@@ -103,7 +103,7 @@ public class RuleBasedScorer {
     *
     * @param featureExtractor 特征提取器，不能为 空
     * @throws IllegalArgumentException 当 特征extractor 为 空 时
-     */
+    */
     public RuleBasedScorer(FeatureExtractor featureExtractor) {
         Objects.requireNonNull(featureExtractor, "featureExtractor must not be null");
         this.featureExtractor = featureExtractor;
@@ -121,7 +121,7 @@ public class RuleBasedScorer {
     * @param window   窗口事件列表，允许为空
     * @return IP 异常评分结果
     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
-     */
+    */
     public IpAnomalyResult scoreIp(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
@@ -177,7 +177,7 @@ public class RuleBasedScorer {
     * @param window   窗口事件列表，允许为空
     * @return 行为画像结果
     * @throws IllegalArgumentException 当 实体标识 为 空 或空白时
-     */
+    */
     public BehaviorProfile scoreBehavior(String entityId, List<TrafficEvent> window) {
         if (entityId == null || entityId.isBlank()) {
             throw new IllegalArgumentException("entityId 不能为 null 或空白");
@@ -237,7 +237,7 @@ public class RuleBasedScorer {
     *
     * @param score 规则分数，范围 [0, 1]
     * @return 异常等级
-     */
+    */
     private static IpAnomalyResult.AnomalyLevel mapLevel(double score) {
         if (score >= IP_HIGH_THRESHOLD) {
             return IpAnomalyResult.AnomalyLevel.HIGH;
@@ -256,7 +256,7 @@ public class RuleBasedScorer {
     *
     * @param score 行为分数，范围 [0, 1]
     * @return 类别标签
-     */
+    */
     private static String labelOf(double score) {
         if (score >= BEHAVIOR_ATTACK_THRESHOLD) {
             return "attack";
@@ -272,7 +272,7 @@ public class RuleBasedScorer {
     *
     * @param label 类别标签
     * @return 类别下标，未命中时返回默认值
-     */
+    */
     private int classIndexOf(String label) {
         List<String> labels = configClassLabels();
         int idx = labels.indexOf(label);
@@ -283,7 +283,7 @@ public class RuleBasedScorer {
     * 获取配置或默认类别标签。
     *
     * @return 类别标签列表
-     */
+    */
     private List<String> configClassLabels() {
         UebaConfig.Lstm lstmConfig = featureExtractor.config().getLstm();
         if (lstmConfig != null && lstmConfig.getClassLabels() != null && !lstmConfig.getClassLabels().isEmpty()) {
@@ -297,7 +297,7 @@ public class RuleBasedScorer {
     *
     * @param events 事件列表
     * @return 路径列表（最多 5 条），绝不为 空
-     */
+    */
     static List<String> recentPaths(List<TrafficEvent> events) {
         List<String> paths = new ArrayList<>(5);
         int size = events.size();
@@ -315,7 +315,7 @@ public class RuleBasedScorer {
     *
     * @param event 流量事件，不能为 空
     * @return true 表示命中敏感路径
-     */
+    */
     private static boolean isSensitivePath(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         String path = event.getPath();
@@ -336,7 +336,7 @@ public class RuleBasedScorer {
     *
     * @param event 流量事件，不能为 空
     * @return true 表示夜间访问
-     */
+    */
     private static boolean isNightAccess(TrafficEvent event) {
         Objects.requireNonNull(event, "event must not be null");
         LocalDateTime dt = LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getTimestamp()), ZONE);
@@ -349,7 +349,7 @@ public class RuleBasedScorer {
     *
     * @param name 特征名
     * @return 特征定义，窗口与归一化均不生效
-     */
+    */
     private com.chua.ueba.support.config.FeatureDefinition featureOf(String name) {
         return com.chua.ueba.support.config.FeatureDefinition.builder()
                 .name(name)

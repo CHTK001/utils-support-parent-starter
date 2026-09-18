@@ -24,37 +24,37 @@ public class RedisDataTable implements DataTable {
 
     /**
     * 表名
-     */
+    */
     private final String name;
 
     /**
     * Redis 连接池
-     */
+    */
     private final JedisPool jedisPool;
 
     /**
     * 键 模式（如 用户:*）
-     */
+    */
     private final String keyPattern;
 
     /**
     * 列名列表
-     */
+    */
     private final List<String> columnNames;
 
     /**
     * 列类型列表
-     */
+    */
     private final List<Class<?>> columnTypes;
 
     /**
     * 行数据缓存
-     */
+    */
     private final List<Map<String, Object>> rows;
 
     /**
     * 是否已初始化
-     */
+    */
     private boolean initialized;
 
     // ---------------------------------------------------------------
@@ -67,7 +67,7 @@ public class RedisDataTable implements DataTable {
     * @param name       表名
     * @param jedisPool  Redis 连接池
     * @param keyPattern 键 匹配模式（如 {@code user:*})
-     */
+    */
     public RedisDataTable(String name, JedisPool jedisPool, String keyPattern) {
         this.name = name;
         this.jedisPool = jedisPool;
@@ -84,7 +84,7 @@ public class RedisDataTable implements DataTable {
 
     /**
     * 扫描 Redis 并加载数据。
-     */
+    */
     private void ensureLoaded() {
         if (initialized) {
             return;
@@ -144,10 +144,10 @@ public class RedisDataTable implements DataTable {
 
     @Override
     /**
-     * 获取column名称
-     *
-     * @return column名称列表
-     */
+    * 获取column名称
+    *
+    * @return column名称列表
+    */
     public List<String> getColumnNames() {
         ensureLoaded();
         return Collections.unmodifiableList(columnNames);

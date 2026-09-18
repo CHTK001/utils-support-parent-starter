@@ -348,10 +348,10 @@ public final class CliRequest {
     }
 
     /**
-    * 把累积的参数转换为数组。
-    *
-    * @return 参数数组
-    */
+                * 把累积的参数转换为数组。
+                *
+                * @return 参数数组
+                */
     @Nonnull
     private String[] toArgArray() {
         return args.toArray(new String[0]);

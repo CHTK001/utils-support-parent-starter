@@ -50,7 +50,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     /**
     * 创建 chronicledispatcher提供者 实例
     * @param config 配置
-     */
+    */
     public ChronicleDispatcherProvider(DispatcherConfig config) {
         super(config);
     }
@@ -59,7 +59,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     * 内存队列消费循环（Chronicle 不可用时的降级路径）。
     *
     * @param topic 主题
-     */
+    */
     private void startMemoryConsumer(String topic) {
         var queue = memoryFallback.computeIfAbsent(topic, t -> new java.util.concurrent.ConcurrentLinkedQueue<>());
         executor.submit(() -> {
@@ -90,7 +90,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     *
     * @param topic topic
     * @return 获取或创建队列的结果
-     */
+    */
     private ChronicleQueue getOrCreateQueue(String topic) {
         try {
             return queueMap.computeIfAbsent(topic, t -> {
@@ -147,7 +147,7 @@ public class ChronicleDispatcherProvider extends AbstractDispatcherProvider {
     * 开始Consumer
     *
     * @param topic topic
-     */
+    */
     private void startConsumer(String topic) {
         ChronicleQueue queue;
         try {
@@ -203,7 +203,7 @@ executor.submit(() -> {
     * @param text 文本
     * @param definition definition
     * @return deserialize的结果
-     */
+    */
     private Object deserialize(String text, DispatcherDefinition definition) {
         try {
             Class<?> type = inferType(definition);
@@ -228,7 +228,7 @@ executor.submit(() -> {
     * </p>
     * @param definition definition
     * @return infer类型的结果
-     */
+    */
     private Class<?> inferType(DispatcherDefinition definition) {
         try {
             // 优先使用显式指定的消息体类型，避免泛型擦除导致类型丢失
@@ -278,7 +278,7 @@ executor.submit(() -> {
     * extract第一个类型参数。
     * @param type 类型
     * @return extract第一个类型参数的结果
-     */
+    */
     private Class<?> extractFirstTypeArg(java.lang.reflect.Type type) {
         if (type instanceof java.lang.reflect.ParameterizedType pt) {
             java.lang.reflect.Type[] args = pt.getActualTypeArguments();
@@ -317,7 +317,7 @@ executor.submit(() -> {
     * 序列化工具：使用 Jackson（Fury 二进制与 Chronicle Wire bytes() 不兼容）
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class ChronicleQueueSerializer {
         final com.fasterxml.jackson.databind.ObjectMapper mapper; // 映射器
 

@@ -28,47 +28,47 @@ public class LayoutPipeline {
 
     /**
     * 节点：预处理。
-     */
+    */
     private static final String NODE_PREPROCESS = "preprocess";
 
     /**
     * 节点：识别。
-     */
+    */
     private static final String NODE_RECOGNIZE = "recognize";
 
     /**
     * 节点：收集。
-     */
+    */
     private static final String NODE_COLLECT = "collect";
 
     /**
     * 节点：终止。
-     */
+    */
     private static final String NODE_END = "end";
 
     /**
     * 识别引擎。
-     */
+    */
     private final IdentificationEngine engine;
 
     /**
     * 版面模型名称。
-     */
+    */
     private final String model;
 
     /**
     * 图像预处理管线，可为 空（不预处理）。
-     */
+    */
     private final ImagePipeline imagePipeline;
 
     /**
     * 识别管线实例。
-     */
+    */
     private final Pipeline pipeline;
 
     /**
     * 版面分析管线回调。
-     */
+    */
     private LayoutPipelineCallback callback;
 
     /**
@@ -76,7 +76,7 @@ public class LayoutPipeline {
     *
     * @param model         模型名称
     * @param imagePipeline 图像预处理管线，可为 空
-     */
+    */
     public LayoutPipeline(String model, ImagePipeline imagePipeline) {
         this.engine = AbstractIdentificationEngine.getInstance();
         this.model = Objects.requireNonNull(model, "model");
@@ -88,7 +88,7 @@ public class LayoutPipeline {
     * 构建器。
     *
     * @return builder
-     */
+    */
     public static Builder builder() {
         return new Builder();
     }
@@ -97,17 +97,17 @@ public class LayoutPipeline {
     * 链式构建器。
     *
     * @since 4.0.0.42
-     */
+    */
     public static final class Builder {
 
         /**
         * 模型名称。
-         */
+        */
         private String model;
 
         /**
         * 图像预处理管线，默认 空（不预处理）。
-         */
+        */
         private ImagePipeline imagePipeline;
 
         /**
@@ -115,7 +115,7 @@ public class LayoutPipeline {
         *
         * @param model 模型
         * @return this
-         */
+        */
         public Builder model(String model) {
             this.model = model;
             return this;
@@ -129,7 +129,7 @@ public class LayoutPipeline {
         *
         * @param imagePipeline 图像管线，可为 空
         * @return this
-         */
+        */
         public Builder imagePipeline(ImagePipeline imagePipeline) {
             this.imagePipeline = imagePipeline;
             return this;
@@ -140,7 +140,7 @@ public class LayoutPipeline {
         *
         * @param grayscale true 启用灰度化
         * @return this
-         */
+        */
         public Builder grayscale(boolean grayscale) {
             return imagePipeline(ImagePipeline.builder().grayscale(grayscale).build());
         }
@@ -149,7 +149,7 @@ public class LayoutPipeline {
         * 构建。
         *
         * @return LayoutPipeline
-         */
+        */
         public LayoutPipeline build() {
             return new LayoutPipeline(model, imagePipeline);
         }
@@ -159,7 +159,7 @@ public class LayoutPipeline {
     * 编排识别管线（预处理 → 识别 → 收集）。
     *
     * @return 管线实例
-     */
+    */
     private Pipeline buildPipeline() {
         return PipelineBuilder.newBuilder("layout-analyze")
                 .task(NODE_PREPROCESS, ctx -> {
@@ -193,7 +193,7 @@ public class LayoutPipeline {
     *
     * @param imageData 图像
     * @return 版面结果（各模型输出类型不同）
-     */
+    */
     public Object recognizeSingle(byte[] imageData) {
         if (imageData == null) {
             return null;
@@ -219,7 +219,7 @@ public class LayoutPipeline {
     *
     * @param imageData 图像
     * @return 结果列表
-     */
+    */
     public List<Object> recognize(byte[] imageData) {
         LayoutContext lc = new LayoutContext(imageData);
         PipelineContext<LayoutContext> ctx = new PipelineContext<>(pipeline.getId(), lc);
@@ -233,7 +233,7 @@ public class LayoutPipeline {
     * 设置版面分析管线回调。
     *
     * @param callback 回调实例
-     */
+    */
     public void setCallback(LayoutPipelineCallback callback) {
         this.callback = callback;
     }
@@ -242,7 +242,7 @@ public class LayoutPipeline {
     * 获取版面分析管线回调。
     *
     * @return 回调实例，可能为 空
-     */
+    */
     public LayoutPipelineCallback callback() {
         return this.callback;
     }
@@ -252,7 +252,7 @@ public class LayoutPipeline {
     *
     * @param ctx 管线上下文
     * @return 上下文
-     */
+    */
     @SuppressWarnings("unchecked")
     private static LayoutContext current(PipelineContext<?> ctx) {
         return (LayoutContext) ctx.getAttribute("layout");
@@ -262,7 +262,7 @@ public class LayoutPipeline {
     * 枚举可用版面分析模型。
     *
     * @return 能力分组 → 模型 标识 列表
-     */
+    */
     public Map<String, List<String>> listModels() {
         try {
             ModelRegistry.discoverAll();
@@ -287,7 +287,7 @@ public class LayoutPipeline {
     * 创建标注管线，支持一键绘制检测结果。
     *
     * @return DrawerPipeline 实例
-     */
+    */
     public DrawerPipeline withInitDrawer() {
         return new DrawerPipeline(0.5f);
     }

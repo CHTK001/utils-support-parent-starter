@@ -137,7 +137,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param subPath sub路径
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void dispatch(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         if (subPath.isEmpty() || "/".equals(subPath)) {
             write(response, 200, "ok", index());
@@ -207,7 +207,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleIdiom(String action, ServerRequest request, ServerResponse response) throws Exception {
         IdiomProvider provider = loadFirst(IdiomProvider.class);
         if (provider == null) {
@@ -241,7 +241,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handlePoetry(String action, ServerRequest request, ServerResponse response) throws Exception {
         PoetryProvider provider = loadFirst(PoetryProvider.class);
         if (provider == null) {
@@ -269,7 +269,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleHanzi(String action, ServerRequest request, ServerResponse response) throws Exception {
         HanziProvider provider = loadFirst(HanziProvider.class);
         if (provider == null) {
@@ -297,7 +297,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleHoliday(String action, ServerRequest request, ServerResponse response) throws Exception {
         HolidayProvider provider = loadFirst(HolidayProvider.class);
         if (provider == null) {
@@ -341,7 +341,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param subPath sub路径
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleRegion(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         RegionProvider provider = loadFirst(RegionProvider.class);
         if (provider == null) {
@@ -365,7 +365,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleExchange(String action, ServerRequest request, ServerResponse response) throws Exception {
         ExchangeRateProvider provider = loadFirst(ExchangeRateProvider.class);
         if (provider == null) {
@@ -400,7 +400,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param subPath sub路径
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleTyphoon(String subPath, ServerRequest request, ServerResponse response) throws Exception {
         TyphoonProvider provider = loadFirst(TyphoonProvider.class);
         if (provider == null) {
@@ -420,7 +420,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleLocation(String action, ServerRequest request, ServerResponse response) throws Exception {
         LocationProvider provider = loadFirst(LocationProvider.class);
         if (provider == null) {
@@ -445,7 +445,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param action 动作
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleGeocode(String action, ServerRequest request, ServerResponse response) throws Exception {
         GeocodeProvider provider = loadFirst(GeocodeProvider.class);
         if (provider == null) {
@@ -481,7 +481,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handlePhone(ServerRequest request, ServerResponse response) throws Exception {
         PhoneLocationProvider provider = loadFirst(PhoneLocationProvider.class);
         if (provider == null) {
@@ -496,7 +496,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleHoroscope(ServerRequest request, ServerResponse response) throws Exception {
         HoroscopeProvider provider = loadFirst(HoroscopeProvider.class);
         if (provider == null) {
@@ -511,7 +511,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleWeather(ServerRequest request, ServerResponse response) throws Exception {
         WeatherProvider provider = loadFirst(WeatherProvider.class);
         if (provider == null) {
@@ -526,7 +526,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void handleExpress(ServerRequest request, ServerResponse response) throws Exception {
         ExpressProvider provider = loadFirst(ExpressProvider.class);
         if (provider == null) {
@@ -546,7 +546,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param type 类型
     * @return 加载第一个的结果
-     */
+    */
     private static <T> T loadFirst(Class<T> type) {
         Map<String, T> list = ServiceProvider.of(type).list();
         if (list == null || list.isEmpty()) {
@@ -560,7 +560,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param request 请求
     * @return 限制的结果
-     */
+    */
     private static int limit(ServerRequest request) {
         String value = request.getParam("limit");
         if (value == null || value.isBlank()) {
@@ -580,7 +580,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param name 名称
     * @param defaultValue 默认值
     * @return int参数的结果
-     */
+    */
     private static int intParam(ServerRequest request, String name, int defaultValue) {
         String value = request.getParam(name);
         if (value == null || value.isBlank()) {
@@ -600,7 +600,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * @param code 编码
     * @param msg msg
     * @param data 数据
-     */
+    */
     private static void write(ServerResponse response, int code, String msg, Object data) {
         Map<String, Object> body = new LinkedHashMap<>(3);
         body.put("code", code);
@@ -617,7 +617,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param obj obj
     * @return 转为jsonable的结果
-     */
+    */
     private static Object toJsonable(Object obj) {
         if (obj == null) {
             return null;
@@ -654,7 +654,7 @@ public class DataSearchServerFilter implements ServerFilter {
     *
     * @param list 列表
     * @return 转为jsonable列表的结果
-     */
+    */
     private static List<Object> toJsonableList(List<?> list) {
         List<Object> result = new ArrayList<>();
         if (list != null) {
@@ -669,7 +669,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * 接口索引
     *
     * @return 索引的结果
-     */
+    */
     private static Map<String, Object> index() {
         Map<String, Object> map = new LinkedHashMap<>(32);
         map.put("page", "/datasearch/page");
@@ -708,7 +708,7 @@ public class DataSearchServerFilter implements ServerFilter {
     * 响应内置演示页面
     *
     * @param response 响应
-     */
+    */
     private void servePage(ServerResponse response) {
         response.setStatus(200);
         response.setContentType("text/html; charset=utf-8");

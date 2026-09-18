@@ -83,13 +83,13 @@ public class KimiCodeUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 解析单行；仅提取 step.end 用量事件。
-     *
-     * @param line      单行 JSON
-     * @param model     模型名
-     * @param seenUuids 已处理的 step uuid 集合
-     * @return 用量记录；非目标行返回 null
-     */
+    * 解析单行；仅提取 step.end 用量事件。
+    *
+    * @param line      单行 JSON
+    * @param model     模型名
+    * @param seenUuids 已处理的 step uuid 集合
+    * @return 用量记录；非目标行返回 null
+    */
     private AiUsage parseLine(String line, String model, Set<String> seenUuids) {
         if (line.isBlank()) {
             return null;

@@ -29,28 +29,28 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     *
     * @since 4.0.0.42
     * @author CH
-     */
+    */
     @Data
     public static class SnapshotWrapper {
         /**
         * 原始指标快照
-         */
+        */
         private MetricsSnapshot snapshot;
 
         /**
         * 时间戳
-         */
+        */
         private long timestamp;
     }
 
     /**
     * JSON 解析器
-     */
+    */
     private final MetricsJsonParser parser = new MetricsJsonParser();
 
     /**
     * native 库实例
-     */
+    */
     private final MetricsNativeLibrary nativeLib;
 
     /**
@@ -58,7 +58,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     *
     * @param intervalMs native 内部采样间隔（毫秒）
     * @return 指标服务的结果
-     */
+    */
     public MetricsService(long intervalMs) {
         super("/metrics");
         this.nativeLib = Objects.requireNonNull(
@@ -72,7 +72,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     * 启动轮询，使用默认执行器。
     *
     * @param environment 轮询环境配置
-     */
+    */
     public void start(DirectoryPollerEnvironment environment) {
         super.start(environment, null);
     }
@@ -121,7 +121,7 @@ public class MetricsService extends DiffPolledDirectory<MetricsService.SnapshotW
     * 获取当前最新的指标快照。
     *
     * @return 指标快照，无数据时返回 空
-     */
+    */
     public MetricsSnapshot getCurrentSnapshot() {
         List<SnapshotWrapper> dataList = listAndModified("/metrics");
         if (dataList.isEmpty()) {

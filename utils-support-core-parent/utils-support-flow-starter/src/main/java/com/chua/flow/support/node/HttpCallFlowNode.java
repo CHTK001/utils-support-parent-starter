@@ -38,22 +38,22 @@ public class HttpCallFlowNode implements HttpCallNode {
 
     /**
     * 结果上下文属性键：响应体
-     */
+    */
     private static final String RESULT_KEY = "http.result";
 
     /**
     * 结果上下文属性键：响应状态码
-     */
+    */
     private static final String STATUS_KEY = "http.status";
 
     /**
     * 默认请求方法
-     */
+    */
     private static final String DEFAULT_METHOD = "GET";
 
     /**
     * 请求超时时间（秒）
-     */
+    */
     private static final int REQUEST_TIMEOUT_SECONDS = 30;
 
     /**
@@ -63,7 +63,7 @@ public class HttpCallFlowNode implements HttpCallNode {
     * 请求失败时抛出运行时异常，由引擎标记实例失败。</p>
     *
     * @param context 当前流程上下文
-     */
+    */
     @Override
     public void execute(FlowContext context) {
         FlowProps props = context.currentNodeProps();
@@ -88,7 +88,7 @@ public class HttpCallFlowNode implements HttpCallNode {
     * @param headers 请求头映射
     * @param body    请求体
     * @return 响应结果
-     */
+    */
     private HttpResponse<String> send(String url, String method,
                                       Map<String, Object> headers, String body) {
         try {

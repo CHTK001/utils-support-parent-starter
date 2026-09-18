@@ -78,9 +78,9 @@ public class AgentRetryConfig {
     }
 
     /**
-    * 重试条件函数式接口。
-    * @author CH
-    */
+        * 重试条件函数式接口。
+        * @author CH
+        */
     @FunctionalInterface
     public interface RetryPredicate {
         /**

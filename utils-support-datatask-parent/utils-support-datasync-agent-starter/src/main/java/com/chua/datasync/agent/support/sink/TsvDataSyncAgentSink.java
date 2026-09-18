@@ -13,7 +13,7 @@ public class TsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     *
     * @param sinkId Sink 实例 标识
     * @param filePath TSV 文件路径
-     */
+    */
     public TsvDataSyncAgentSink(String sinkId, String filePath) {
         this(sinkId, filePath, true);
     }
@@ -24,7 +24,7 @@ public class TsvDataSyncAgentSink extends DelimitedDataSyncAgentSink {
     * @param sinkId Sink 实例 标识
     * @param filePath TSV 文件路径
     * @param append 是否追加模式
-     */
+    */
     public TsvDataSyncAgentSink(String sinkId, String filePath, boolean append) {
         super(sinkId, filePath, "\t", append);
     }

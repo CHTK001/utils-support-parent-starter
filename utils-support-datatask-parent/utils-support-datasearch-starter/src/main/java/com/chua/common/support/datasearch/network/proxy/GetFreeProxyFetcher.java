@@ -21,12 +21,12 @@ public class GetFreeProxyFetcher implements ProxyFetcher {
 
     /**
     * 免费代理列表 URL
-     */
+    */
     private static final String URL = "https://getfreeproxy.com/";
 
     /**
     * 匹配代理 IP 和端口（支持 HTML 表格和 JSON 格式）
-     */
+    */
     private static final Pattern PATTERN = Pattern.compile(
             "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})[\":\\s]*(\\d{2,5})");
 

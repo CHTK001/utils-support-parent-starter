@@ -27,19 +27,19 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
 
     /**
     * HTTP 客户端
-     */
+    */
     private final DatalakeHttpClient client;
 
     /**
     * 默认数据源名称
-     */
+    */
     private final String defaultName = "datalake";
 
     /**
     * 构造。
     *
     * @param baseUrl 数据湖-启动 提供的 API 服务地址
-     */
+    */
     public HttpDatalakeQueryEngine(String baseUrl) {
         this.client = new DatalakeHttpClient(baseUrl);
     }
@@ -132,7 +132,7 @@ public class HttpDatalakeQueryEngine implements com.chua.common.support.lang.dat
     * SQL 执行器：内部委托 HTTP 客户端。
     * @author CH
     * @since 4.0.0
-     */
+    */
     private class HttpSqlExecutor implements SqlExecutor {
 
         @Override

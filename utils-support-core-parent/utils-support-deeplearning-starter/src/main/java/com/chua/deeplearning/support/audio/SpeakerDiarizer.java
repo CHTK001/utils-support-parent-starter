@@ -70,7 +70,7 @@ public interface SpeakerDiarizer {
     * @param provider 引擎提供商，如 "onnx"
     * @param apiKey   API 密钥；本地引擎可传入空字符串
     * @return 新建实例
-     */
+    */
     static SpeakerDiarizer create(String provider, String apiKey) {
         return ServiceProvider.of(SpeakerDiarizer.class)
                 .getNewExtension(provider, apiKey);
@@ -78,7 +78,7 @@ public interface SpeakerDiarizer {
 
     /**
     * 设置 SPI 提供者（链式调用）。
-     */
+    */
     default SpeakerDiarizer provider(String provider) {
         return this;
     }
@@ -88,7 +88,7 @@ public interface SpeakerDiarizer {
     *
     * @param model 模型标识，须在 模型registry 中以 speakerdiarizer.类 注册
     * @return this
-     */
+    */
     default SpeakerDiarizer model(String model) {
         return this;
     }
@@ -98,7 +98,7 @@ public interface SpeakerDiarizer {
     *
     * @param name 模型名称
     * @return 说话人分离实例
-     */
+    */
     static SpeakerDiarizer create(String name) {
         return new DefaultSpeakerDiarizer(AbstractIdentificationEngine.getInstance(), name, ModelSetting.builder().build());
     }
@@ -107,7 +107,7 @@ public interface SpeakerDiarizer {
     * 查询当前引擎下所有已注册的说话人分离模型 标识 列表。
     *
     * @return 模型 标识 列表
-     */
+    */
     static List<String> listModels() {
         return com.chua.deeplearning.support.engine.ModelRegistry.getModelIdsByCapability(com.chua.deeplearning.support.audio.SpeakerDiarizer.class);
     }
@@ -118,7 +118,7 @@ public interface SpeakerDiarizer {
     * @param name    模型名称
     * @param setting 模型配置
     * @return 说话人分离实例
-     */
+    */
     static SpeakerDiarizer create(String name, ModelSetting setting) {
         return new DefaultSpeakerDiarizer(AbstractIdentificationEngine.getInstance(), name, setting);
     }
@@ -128,7 +128,7 @@ public interface SpeakerDiarizer {
     *
     * @param path 模型路径
     * @return this
-     */
+    */
     SpeakerDiarizer modelPath(String path);
 
     /**
@@ -136,7 +136,7 @@ public interface SpeakerDiarizer {
     *
     * @param device 设备标识
     * @return this
-     */
+    */
     SpeakerDiarizer device(String device);
 
     /**
@@ -147,7 +147,7 @@ public interface SpeakerDiarizer {
     *
     * @param sampleRate 采样率，默认 16000
     * @return this
-     */
+    */
     SpeakerDiarizer sampleRate(int sampleRate);
 
     /**
@@ -158,7 +158,7 @@ public interface SpeakerDiarizer {
     *
     * @param maxSpeakers 最大说话人数，0 表示不限制
     * @return this
-     */
+    */
     SpeakerDiarizer maxSpeakers(int maxSpeakers);
 
     /**
@@ -169,7 +169,7 @@ public interface SpeakerDiarizer {
     *
     * @param audioData 音频原始字节
     * @return 按时间排序的说话人片段列表，每个片段含说话人 标识 和时间戳
-     */
+    */
     List<SpeakerSegment> diarize(byte[] audioData);
 
     /**
@@ -177,7 +177,7 @@ public interface SpeakerDiarizer {
     *
     * @param path 音频文件路径
     * @return 按时间排序的说话人片段列表
-     */
+    */
     List<SpeakerSegment> diarize(java.nio.file.Path path);
 }
 

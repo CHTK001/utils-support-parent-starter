@@ -96,7 +96,7 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     * @param action 动作
     * @param packageId 包标识
     * @return 执行命令的结果
-     */
+    */
     private boolean executeCommand(String cmd, String action, String packageId) {
         CmdResult result = CmdExecutors.executeWithOutput(cmd, 120, TimeUnit.SECONDS, new LineCallback() {
             @Override
@@ -123,11 +123,11 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     }
 
     /**
-    * 解析vcpkg输出
-    *
-    * @param output 输出
-    * @return 解析vcpkg输出的结果
-     */
+            * 解析vcpkg输出
+            *
+            * @param output 输出
+            * @return 解析vcpkg输出的结果
+            */
     private List<SoftwareInfo> parseVcpkgOutput(String output) {
         List<SoftwareInfo> results = new ArrayList<>();
         try {
@@ -171,7 +171,7 @@ public class VcpkgSoftwareProvider implements SoftwareProvider {
     *
     * @param s s
     * @return lookslike版本的结果
-     */
+    */
     private boolean looksLikeVersion(String s) {
         return s != null && s.matches(".*\\d.*") && !s.contains("/");
     }

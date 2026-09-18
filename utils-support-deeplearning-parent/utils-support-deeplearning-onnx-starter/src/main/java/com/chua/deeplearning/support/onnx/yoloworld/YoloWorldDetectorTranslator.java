@@ -65,7 +65,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     private final int inputSize; // 输入大小
     /**
     * yoloworlddetectortranslator。
-     */
+    */
     
     private ClipTextFeatureTranslator clipTextTranslator; // clip文本translator
     /**
@@ -115,7 +115,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * @param ctx ctx
     * @param classes 类
     * @return generate文本嵌入的结果
-     */
+    */
     private NDArray generateTextEmbeddings(TranslatorContext ctx, List<String> classes) throws Exception {
         NDManager manager = ctx.getNDManager();
         int numClasses = classes.isEmpty() ? 80 : classes.size();
@@ -268,7 +268,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * 构建习俗标签。
     * @param numClasses num类
     * @return 构建习俗标签的结果
-     */
+    */
     private String[] buildCustomLabels(int numClasses) {
         String[] labels = new String[Math.max(numClasses, customClasses.size())];
         for (int i = 0; i < customClasses.size(); i++) {
@@ -324,7 +324,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * @param tw tw
     * @param th th
     * @return letterbox的结果
-     */
+    */
     private BufferedImage letterbox(BufferedImage src, int tw, int th) {
         int sw = src.getWidth(), sh = src.getHeight();
         float scale = Math.min((float) tw / sw, (float) th / sh);
@@ -348,7 +348,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * @param args 参数
     * @param key 键
     * @return 读取参数的结果
-     */
+    */
     private static String readArgument(Map<String, ?> args, String key) {
         if (args == null || args.isEmpty()) {
             return null;
@@ -362,7 +362,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * @param key 键
     * @param d d
     * @return 读取double的结果
-     */
+    */
     private static double readDouble(Map<String, ?> args, String key, double d) {
         String v = readArgument(args, key);
         if (v == null || v.trim().isEmpty()) {
@@ -376,7 +376,7 @@ public class YoloWorldDetectorTranslator implements Translator<Image, DetectedOb
     * @param key 键
     * @param d d
     * @return 读取int的结果
-     */
+    */
     private static int readInt(Map<String, ?> args, String key, int d) {
         String v = readArgument(args, key);
         if (v == null || v.trim().isEmpty()) {

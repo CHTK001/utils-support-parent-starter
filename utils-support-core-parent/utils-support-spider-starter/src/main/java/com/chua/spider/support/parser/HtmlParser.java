@@ -32,7 +32,7 @@ public class HtmlParser implements SpiderParser {
 
     /**
     * 支持的内容类型前缀
-     */
+    */
     private static final String[] SUPPORTED_TYPES = {"text/html", "application/xhtml+xml"};
 
     @Override
@@ -89,7 +89,7 @@ public class HtmlParser implements SpiderParser {
     *
     * @param doc HTML 文档
     * @return 页面标题，找不到时返回空字符串
-     */
+    */
     private String extractTitle(Document doc) {
         String title = doc.title();
         if (StringUtils.isNotEmpty(title)) {
@@ -109,7 +109,7 @@ public class HtmlParser implements SpiderParser {
     *
     * @param doc HTML 文档
     * @return 结构化元数据键值对
-     */
+    */
     private Map<String, Object> extractMeta(Document doc) {
         Map<String, Object> meta = new LinkedHashMap<>();
 

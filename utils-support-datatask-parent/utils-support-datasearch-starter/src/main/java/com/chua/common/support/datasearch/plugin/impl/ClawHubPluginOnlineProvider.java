@@ -29,10 +29,10 @@ public class ClawHubPluginOnlineProvider implements PluginOnlineProvider {
     }
 
     /**
-     * 获取市场主页地址。
-     *
-     * @return 市场主页
-     */
+    * 获取市场主页地址。
+    *
+    * @return 市场主页
+    */
     public String url() {
         return MARKET_URL;
     }

@@ -38,19 +38,19 @@ public class PpOcrOpencvTranslator {
     private Path modelFile; // 模型文件
     /**
     * ppocropencvtranslator。
-     */
+    */
     private Net net;
 
     /**
     * PpOcrOpencvTranslator。
-     */
+    */
     public PpOcrOpencvTranslator() {
         this("ocr/PP-OCRv6/tiny/rec_infer/inference.onnx", "ocr/PP-OCRv6/tiny/rec_infer/inference.yml");
     /**
     * ppocropencvtranslator。
     * @param modelResourcePath 模型resource路径
     * @param dictResourcePath dictresource路径
-     */
+    */
     }
 
     public PpOcrOpencvTranslator(String modelResourcePath, String dictResourcePath) {
@@ -62,7 +62,7 @@ public class PpOcrOpencvTranslator {
     * @param resourcePath resource路径
     * @return 加载characterdict的结果
     * @param imageData 镜像数据
-     */
+    */
     }
 
     private static List<String> loadCharacterDict(String resourcePath) {
@@ -152,7 +152,7 @@ public class PpOcrOpencvTranslator {
     * ctcdecode。
     * @param probs probs
     * @return ctcDecode的结果
-     */
+    */
     private String ctcDecode(Mat probs) {
  // 打开cv DNN 输出 shape: [1, seqlen, num类]
         // probs.total() = 1 * seqLen * numClasses
@@ -228,7 +228,7 @@ public class PpOcrOpencvTranslator {
 
     /**
     * ensure模型。
-     */
+    */
     private void ensureModel() {
         if (net != null) {
             return;
@@ -255,7 +255,7 @@ public class PpOcrOpencvTranslator {
     * decode镜像。
     * @param data 数据
     * @return decode镜像的结果
-     */
+    */
     private static Mat decodeImage(byte[] data) {
         Mat mob = new Mat();
         try {
@@ -267,7 +267,7 @@ public class PpOcrOpencvTranslator {
 
     /**
     * 关闭。
-     */
+    */
     public void close() {
         // net lifecycle managed by GC (OpenCV Java binding)
         if (modelFile != null) { modelFile.toFile().delete(); modelFile = null; }

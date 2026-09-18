@@ -53,7 +53,7 @@ public class InMemoryEngine extends AbstractEngine {
     * 为当前全部已存表构建二级索引，加速后续等值条件查询。
     *
     * @return 当前引擎实例
-     */
+    */
     public InMemoryEngine index() {
         for (Map.Entry<String, List<?>> e : dataStores.entrySet()) {
             buildIndex(e.getKey(), e.getValue());
@@ -67,7 +67,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param name 名称
     * @param data 数据
     * @return 构建索引的结果
-     */
+    */
     private <T> void buildIndex(String name, List<T> data) {
         if (data == null || data.isEmpty()) {
             return;
@@ -94,7 +94,7 @@ public class InMemoryEngine extends AbstractEngine {
     *
     * @param clazz clazz
     * @return 获取getters的结果
-     */
+    */
     private static List<String> getGetters(Class<?> clazz) {
         List<String> fields = new ArrayList<>();
         for (var m : clazz.getMethods()) {
@@ -144,7 +144,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param sql    选择 语句（支持 WHERE/订单 BY/限制/数量(*)）
     * @param params ? 绑定参数
     * @return 结果行
-     */
+    */
     public List<Map<String, Object>> querySql(String sql, Object... params) {
         String table = extractTable(sql);
         List<?> rows = dataStores.getOrDefault(table, Collections.emptyList());
@@ -157,7 +157,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param sql    DML 语句
     * @param params ? 绑定参数
     * @return 影响行数
-     */
+    */
     public int executeSql(String sql, Object... params) {
         Objects.requireNonNull(sql, "sql must not be null");
         var plan = new MemorySqlParser().parseDml(sql);
@@ -171,7 +171,7 @@ public class InMemoryEngine extends AbstractEngine {
     *
     * @param table 表名
     * @return 可变行引用列表
-     */
+    */
     private List<Object> mutableRowsFor(String table) {
         dataStores.computeIfAbsent(table, k -> new ArrayList<>());
         @SuppressWarnings("unchecked")
@@ -185,7 +185,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param sql 选择 语句
     * @return 表名
     * @throws IllegalArgumentException 缺少 从 子句时抛出
-     */
+    */
     private static String extractTable(String sql) {
         java.util.regex.Matcher m = java.util.regex.Pattern
                 .compile("(?i)FROM\\s+([\\w]+)").matcher(sql);
@@ -229,7 +229,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param conditions 条件
     * @param data 数据
     * @return 尝试索引lookup的结果
-     */
+    */
     private <T> List<T> tryIndexLookup(Class<T> clazz, List<Condition> conditions, List<T> data) {
         Condition first = conditions.getFirst();
         if (!"=".equals(first.getOperator())) {
@@ -261,7 +261,7 @@ public class InMemoryEngine extends AbstractEngine {
     *
     * @param data 数据
     * @return find索引for数据的结果
-     */
+    */
     private <T> Map<String, Map<Object, List<Object>>> findIndexForData(List<T> data) {
         for (Map.Entry<String, Map<String, Map<Object, List<Object>>>> e : indexes.entrySet()) {
             for (Map.Entry<String, Map<Object, List<Object>>> fe : e.getValue().entrySet()) {
@@ -331,7 +331,7 @@ public class InMemoryEngine extends AbstractEngine {
     *
     * @param conditions 条件
     * @return 构建predicate的结果
-     */
+    */
     private static <T> Predicate<T> buildPredicate(List<Condition> conditions) {
         Predicate<T> result = t -> true;
         for (Condition c : conditions) {
@@ -346,7 +346,7 @@ public class InMemoryEngine extends AbstractEngine {
     *
     * @param c c
     * @return 转为predicate的结果
-     */
+    */
     private static <T> Predicate<T> toPredicate(Condition c) {
         String field = c.getColumnName();
         String op = c.getOperator();
@@ -385,7 +385,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param fieldVal 字段val
     * @param paramVal 参数val
     * @return compare的结果
-     */
+    */
     private static int compare(Comparable fieldVal, Object paramVal) {
         if (fieldVal == null) {
             return -1;
@@ -400,7 +400,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param fieldVal 字段val
     * @param patternVal 模式val
     * @return like的结果
-     */
+    */
     private static boolean like(Object fieldVal, Object patternVal) {
         if (fieldVal == null || patternVal == null) {
             return false;
@@ -416,7 +416,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @param fieldValue 字段值
     * @param paramValue 参数值
     * @return 转换转为匹配的结果
-     */
+    */
     private static Object convertToMatch(Object fieldValue, Object paramValue) {
         if (fieldValue == null || paramValue == null) {
             return paramValue;
@@ -464,7 +464,7 @@ public class InMemoryEngine extends AbstractEngine {
     * @return compare订单的结果
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static <T> int compareOrdered(T a, T b, List<String> orderBys) {
         for (String ob : orderBys) {
             String[] parts = ob.trim().split("\\s+");
@@ -518,7 +518,7 @@ public class InMemoryEngine extends AbstractEngine {
         * @return page的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public Page<T> page(int pn, int ps) {
             return evaluatePage(this, pn, ps);
         }
@@ -536,7 +536,7 @@ public class InMemoryEngine extends AbstractEngine {
         * @return 更新的结果
         * @author CH
         * @since 4.0.0
-         */
+        */
         public int update() {
             return evaluateUpdate(this);
         }

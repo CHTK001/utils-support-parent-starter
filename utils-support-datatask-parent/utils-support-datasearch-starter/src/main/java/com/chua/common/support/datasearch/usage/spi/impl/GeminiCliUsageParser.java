@@ -51,14 +51,14 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     * 返回 SPI 名称。
     *
     * @return {@code "gemini-cli"}
-     */
+    */
     public String name() {
         return "gemini-cli";
     }
 
     /**
     * 流式解析全部转录文件中的模型响应用量事件。
-     */
+    */
     @Override
     public Flux<AiUsage> streamAll() {
         List<Path> files = listTranscripts();
@@ -100,12 +100,12 @@ public class GeminiCliUsageParser extends BaseUsageParser {
     }
 
     /**
-     * 读取转录首行中的会话 id；该行随后不再进入下游解析。
-     *
-     * @param reader 已读到首行的读取器
-     * @return 首行携带的 sessionId；缺失或非法时 ""
-     * @throws java.io.IOException 读取失败
-     */
+    * 读取转录首行中的会话 id；该行随后不再进入下游解析。
+    *
+    * @param reader 已读到首行的读取器
+    * @return 首行携带的 sessionId；缺失或非法时 ""
+    * @throws java.io.IOException 读取失败
+    */
     private String readSessionId(java.io.BufferedReader reader) throws IOException {
         String first = reader.readLine();
         if (first == null || first.isBlank()) {
@@ -122,7 +122,7 @@ public class GeminiCliUsageParser extends BaseUsageParser {
         * @param line 线
         * @param sessionId 会话标识
         * @return 解析线safe的结果
-         */
+        */
         }
     }
 

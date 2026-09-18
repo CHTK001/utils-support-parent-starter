@@ -45,12 +45,12 @@ public class FlowController {
 
     /**
     * 流程定义存储
-     */
+    */
     private final FlowDefinitionStore definitionStore;
 
     /**
     * 流程实例注册中心
-     */
+    */
     private final FlowInstanceRegistry instanceRegistry;
 
     /**
@@ -58,7 +58,7 @@ public class FlowController {
     *
     * @param definitionStore  流程定义存储
     * @param instanceRegistry 流程实例注册中心
-     */
+    */
     public FlowController(FlowDefinitionStore definitionStore,
                           FlowInstanceRegistry instanceRegistry) {
         this.definitionStore = definitionStore;
@@ -70,7 +70,7 @@ public class FlowController {
     *
     * @param definition 流程定义
     * @return 保存后的流程定义
-     */
+    */
     @PostMapping
     public ResponseEntity<FlowDefinition> save(@RequestBody FlowDefinition definition) {
         definitionStore.save(definition);
@@ -82,7 +82,7 @@ public class FlowController {
     *
     * @param flowId 流程 标识
     * @return 流程定义，不存在时返回 404
-     */
+    */
     @GetMapping("/{flowId}")
     public ResponseEntity<FlowDefinition> get(@PathVariable String flowId) {
         FlowDefinition definition = definitionStore.get(flowId);
@@ -96,7 +96,7 @@ public class FlowController {
     * 查询全部流程定义。
     *
     * @return 流程定义列表
-     */
+    */
     @GetMapping("/list")
     public ResponseEntity<List<FlowDefinition>> list() {
         return ResponseEntity.ok(definitionStore.list());
@@ -107,7 +107,7 @@ public class FlowController {
     *
     * @param flowId 流程 标识
     * @return 操作结果
-     */
+    */
     @DeleteMapping("/{flowId}")
     public ResponseEntity<Map<String, Object>> remove(@PathVariable String flowId) {
         boolean removed = definitionStore.remove(flowId);
@@ -121,7 +121,7 @@ public class FlowController {
     *
     * @param json 流程定义 JSON 字符串
     * @return 解析后的流程定义
-     */
+    */
     @PostMapping("/import")
     public ResponseEntity<FlowDefinition> importJson(@RequestBody String json) {
         FlowDefinition definition = com.chua.common.support.task.flow.FlowJson.fromJson(json);
@@ -134,7 +134,7 @@ public class FlowController {
     *
     * @param flowId 流程 标识
     * @return 流程定义 JSON 字符串
-     */
+    */
     @GetMapping("/{flowId}/export")
     public ResponseEntity<String> exportJson(@PathVariable String flowId) {
         FlowDefinition definition = definitionStore.get(flowId);
@@ -152,7 +152,7 @@ public class FlowController {
     * @param flowId 流程 标识
     * @param params 运行参数
     * @return 运行结果摘要（实例 标识、状态、流程 标识）
-     */
+    */
     @PostMapping("/{flowId}/run")
     public ResponseEntity<Map<String, Object>> run(@PathVariable String flowId,
                                                    @RequestBody(required = false)
@@ -173,7 +173,7 @@ public class FlowController {
     *
     * @param instanceId 实例 标识
     * @return 恢复结果摘要
-     */
+    */
     @PostMapping("/instance/{instanceId}/resume")
     public ResponseEntity<Map<String, Object>> resume(@PathVariable String instanceId) {
         FlowInstance instance = instanceRegistry.get(instanceId);
@@ -188,7 +188,7 @@ public class FlowController {
     * 查询全部节点类型。
     *
     * @return 节点类型元信息列表
-     */
+    */
     @GetMapping("/node/types")
     public ResponseEntity<List<FlowNodeMetadata>> nodeTypes() {
         return ResponseEntity.ok(FlowEngine.listNodeTypes());
@@ -199,7 +199,7 @@ public class FlowController {
     *
     * @param instance 流程实例
     * @return 结果摘要映射
-     */
+    */
     private Map<String, Object> buildResult(FlowInstance instance) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("instanceId", instance.getInstanceId());

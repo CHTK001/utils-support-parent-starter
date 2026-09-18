@@ -20,14 +20,14 @@ public class RedisReactiveKvEngine {
 
     /**
     * 底层响应式引擎
-     */
+    */
     private final RedisReactorEngine engine;
 
     /**
     * 使用指定引擎构造响应式 KV 引擎。
     *
     * @param engine 底层 redisreactorengine 实例
-     */
+    */
     public RedisReactiveKvEngine(RedisReactorEngine engine) {
         this.engine = engine;
     }
@@ -37,7 +37,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 值 Mono，不存在返回空 Mono
-     */
+    */
     public Mono<String> get(String key) {
         return engine.get(key);
     }
@@ -48,7 +48,7 @@ public class RedisReactiveKvEngine {
     * @param key   键
     * @param value 值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> set(String key, String value) {
         return engine.set(key, value);
     }
@@ -60,7 +60,7 @@ public class RedisReactiveKvEngine {
     * @param value 值
     * @param ttl   过期时长（秒）
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> setex(String key, String value, long ttl) {
         return engine.setex(key, value, ttl);
     }
@@ -70,7 +70,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 存在返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> exists(String key) {
         return engine.exists(key);
     }
@@ -80,7 +80,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 删除成功返回 Mono.TRUE
-     */
+    */
     public Mono<Boolean> delete(String key) {
         return engine.delete(key);
     }
@@ -90,7 +90,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 递增后的值 Mono
-     */
+    */
     public Mono<Long> incr(String key) {
         return engine.incr(key);
     }
@@ -100,7 +100,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 递减后的值 Mono
-     */
+    */
     public Mono<Long> decr(String key) {
         return engine.decr(key);
     }
@@ -110,7 +110,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 键
     * @return 剩余秒数 Mono，-1 表示无过期，-2 表示键不存在
-     */
+    */
     public Mono<Long> ttl(String key) {
         return engine.ttl(key);
     }
@@ -121,7 +121,7 @@ public class RedisReactiveKvEngine {
     * @param key   哈希键
     * @param field 字段名
     * @return 字段值 Mono
-     */
+    */
     public Mono<String> hget(String key, String field) {
         return engine.hget(key, field);
     }
@@ -133,7 +133,7 @@ public class RedisReactiveKvEngine {
     * @param field 字段名
     * @param value 字段值
     * @return 完成 Mono
-     */
+    */
     public Mono<Void> hset(String key, String field, String value) {
         return engine.hset(key, field, value);
     }
@@ -143,7 +143,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 哈希键
     * @return 字段值对 Flux
-     */
+    */
     public Flux<Map.Entry<String, String>> hgetall(String key) {
         return engine.hgetall(key);
     }
@@ -153,7 +153,7 @@ public class RedisReactiveKvEngine {
     *
     * @param pattern 匹配模式（如 "用户:*"）
     * @return 匹配的键 Flux
-     */
+    */
     public Flux<String> scanKeys(String pattern) {
         return engine.scanKeys(pattern);
     }
@@ -163,7 +163,7 @@ public class RedisReactiveKvEngine {
     *
     * @param prefix 键前缀（如 "用户:"）
     * @return 匹配键值对 Flux
-     */
+    */
     public Flux<Map.Entry<String, String>> findAllByPrefix(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
             return Flux.empty();
@@ -180,7 +180,7 @@ public class RedisReactiveKvEngine {
     * @param key    列表键
     * @param values 值数组
     * @return 列表长度 Mono
-     */
+    */
     public Mono<Long> lpush(String key, String... values) {
         return engine.lpush(key, values);
     }
@@ -192,7 +192,7 @@ public class RedisReactiveKvEngine {
     * @param start 起始索引
     * @param end   结束索引
     * @return 元素列表 Flux
-     */
+    */
     public Flux<String> lrange(String key, long start, long end) {
         return engine.lrange(key, start, end);
     }
@@ -202,7 +202,7 @@ public class RedisReactiveKvEngine {
     *
     * @param key 集合键
     * @return 成员列表 Flux
-     */
+    */
     public Flux<String> smembers(String key) {
         return engine.smembers(key);
     }
@@ -213,7 +213,7 @@ public class RedisReactiveKvEngine {
     * @param key    集合键
     * @param values 值数组
     * @return 新增成员数 Mono
-     */
+    */
     public Mono<Long> sadd(String key, String... values) {
         return engine.sadd(key, values);
     }
@@ -223,7 +223,7 @@ public class RedisReactiveKvEngine {
     *
     * @param command Redis 命令字符串
     * @return 结果 Mono
-     */
+    */
     public Mono<Object> execCommand(String command) {
         return engine.execCommand(command);
     }
@@ -233,7 +233,7 @@ public class RedisReactiveKvEngine {
     *
     * @param commands 命令列表
     * @return 结果列表 Flux
-     */
+    */
     public Flux<Object> execBatch(List<String> commands) {
         return engine.execBatch(commands);
     }

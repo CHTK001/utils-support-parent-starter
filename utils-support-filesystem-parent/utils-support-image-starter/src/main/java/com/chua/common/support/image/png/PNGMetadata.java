@@ -378,7 +378,7 @@ public class PNGMetadata extends IIOMetadata implements Cloneable {
     * 最后一个解码文本块的数据结构上,其中时间以
     * RFC1123 格式化编码。通过更新文本块的数据结构,
     * 我们也确保 png 图像写入器会在输出中写入图像创建时间。
-     */
+    */
     public boolean tEXt_creation_time_present;
     /** 文本_创建_时间_iter */
     private ListIterator<String> tEXt_creation_time_iter = null;
@@ -408,11 +408,11 @@ public boolean tRNS_present;
     public int tRNS_blue;
 
  // ztxt chunk
-    /** Z坐标txt_keyword */
+    /** Z 轴txt_keyword */
     public ArrayList<String> zTXt_keyword = new ArrayList<String>();
-    /** Z坐标txt_compressionmethod */
+    /** Z 轴txt_compressionmethod */
     public ArrayList<Integer> zTXt_compressionMethod = new ArrayList<Integer>();
-    /** Z坐标txt_文本 */
+    /** Z 轴txt_文本 */
     public ArrayList<String> zTXt_text = new ArrayList<String>();
 
  // actl chunk
@@ -478,7 +478,7 @@ public boolean tRNS_present;
               * @param target Target
               * @param methodName 方法名称
               * @return invoke布尔值的结果
-               */
+              */
               null, null);
     }
 
@@ -503,7 +503,7 @@ public boolean tRNS_present;
     *
     * @param imageType 图像类型
     * @param numBands numbands
-     */
+    */
     public void initialize(ImageTypeSpecifier imageType, int numBands) {
         initialize(imageType.getColorModel(), imageType.getSampleModel(), numBands);
     }
@@ -515,7 +515,7 @@ public boolean tRNS_present;
     * @param colorModel color模型
     * @param sampleModel 样本模型
     * @param numBands numbands
-     */
+    */
     public void initialize(ColorModel colorModel, SampleModel sampleModel, int numBands) {
 
  // 初始化 IHDR_bitDepth
@@ -682,7 +682,7 @@ public boolean tRNS_present;
     * 是否读取Only
     *
     * @return 是否仅读取的结果
-     */
+    */
     public boolean isReadOnly() {
         return false;
     }
@@ -692,7 +692,7 @@ public boolean tRNS_present;
     *
     * @param in 入
     * @return clonebytesarray列表的结果
-     */
+    */
     private ArrayList<byte[]> cloneBytesArrayList(ArrayList<byte[]> in) {
         if (in == null) {
             return null;
@@ -710,7 +710,7 @@ public boolean tRNS_present;
     * Clone
     *
     * @return clone的结果
-     */
+    */
     public Object clone() {
         PNGMetadata metadata;
         try {
@@ -731,7 +731,7 @@ public boolean tRNS_present;
     *
     * @param formatName 格式化名称
     * @return 获取as树的结果
-     */
+    */
     public Node getAsTree(String formatName) {
         if (formatName.equals(nativeMetadataFormatName)) {
             return getNativeTree();
@@ -747,7 +747,7 @@ public boolean tRNS_present;
     * 获取NAT树
     *
     * @return 获取NAT树的结果
-     */
+    */
     private Node getNativeTree() {
  // scratch 节点
  // 空;
@@ -1142,7 +1142,7 @@ public boolean tRNS_present;
     * 获取num通道
     *
     * @return 获取num通道的结果
-     */
+    */
     private int getNumChannels() {
  // Determine 数字 的 通道
         // Be careful about palette color with transparency
@@ -1158,7 +1158,7 @@ public boolean tRNS_present;
     * 获取标准chroma节点
     *
     * @return 获取标准chroma节点的结果
-     */
+    */
     public IIOMetadataNode getStandardChromaNode() {
         IIOMetadataNode chroma_node = new IIOMetadataNode("Chroma");
  // scratch 节点
@@ -1237,7 +1237,7 @@ public boolean tRNS_present;
     * 获取标准compression节点
     *
     * @return 获取标准compression节点的结果
-     */
+    */
     public IIOMetadataNode getStandardCompressionNode() {
         IIOMetadataNode compression_node = new IIOMetadataNode("Compression");
  // scratch 节点
@@ -1266,7 +1266,7 @@ public boolean tRNS_present;
     * @param s s
     * @param times 时间
     * @return repeat的结果
-     */
+    */
     private String repeat(String s, int times) {
         if (times == 1) {
             return s;
@@ -1284,7 +1284,7 @@ public boolean tRNS_present;
     * 获取标准数据节点
     *
     * @return 获取标准数据节点的结果
-     */
+    */
     public IIOMetadataNode getStandardDataNode() {
         IIOMetadataNode data_node = new IIOMetadataNode("Data");
  // scratch 节点
@@ -1336,7 +1336,7 @@ public boolean tRNS_present;
     * 获取标准维度节点
     *
     * @return 获取标准维度节点的结果
-     */
+    */
     public IIOMetadataNode getStandardDimensionNode() {
         IIOMetadataNode dimension_node = new IIOMetadataNode("Dimension");
  // scratch 节点
@@ -1382,7 +1382,7 @@ public boolean tRNS_present;
     * 获取标准文档节点
     *
     * @return 获取标准文档节点的结果
-     */
+    */
     public IIOMetadataNode getStandardDocumentNode() {
         IIOMetadataNode document_node = null;
 
@@ -1427,7 +1427,7 @@ public boolean tRNS_present;
     * 获取标准文本节点
     *
     * @return 获取标准文本节点的结果
-     */
+    */
     public IIOMetadataNode getStandardTextNode() {
         int numEntries = tEXt_keyword.size() +
             iTXt_keyword.size() + zTXt_keyword.size();
@@ -1481,7 +1481,7 @@ public boolean tRNS_present;
     * 获取标准transparency节点
     *
     * @return 获取标准transparency节点的结果
-     */
+    */
     public IIOMetadataNode getStandardTransparencyNode() {
         IIOMetadataNode transparency_node =
             new IIOMetadataNode("Transparency");
@@ -2305,12 +2305,12 @@ public boolean tRNS_present;
     * permitted 入 keywords.
     *
     * 参见: http://www.w3.org/TR/PNG/#11keywords
-     */
+    */
     /**
     * 是否为有效关键字。
     * @param s s
     * @return 是否为有效关键字的结果
-     */
+    */
     private boolean isValidKeyword(String s) {
         int len = s.length();
         if (len < 1 || len >= 80) {
@@ -2336,7 +2336,7 @@ public boolean tRNS_present;
     * @param s s
     * @param isLineFeedAllowed 是否线feedallowed
     * @return 是否为 ISO 拉丁字符的结果
-     */
+    */
     private boolean isISOLatin(String s, boolean isLineFeedAllowed) {
         int len = s.length();
         for (int i = 0; i < len; i++) {
@@ -2595,7 +2595,7 @@ public boolean tRNS_present;
     * 更新标准/文档/图像创建时间并编码
     * 与最后一个解码的含创建时间的文本块相同
     * 时间
-                         */
+    */
                         initImageCreationTime(year, month, day, hour, mins, sec);
                         encodeImageCreationTimeToTextChunk();
                     }
@@ -2738,7 +2738,7 @@ public boolean tRNS_present;
     * 设置创建时间chunk
     *
     * @param iter iter
-     */
+    */
     private void setCreationTimeChunk(ListIterator<String> iter) {
         // Check for iterator's valid state
         if (iter != null && iter.hasNext()) {
@@ -2751,7 +2751,7 @@ public boolean tRNS_present;
     * 设置encoded时间
     *
     * @param encodedTime encoded时间
-     */
+    */
     private void setEncodedTime(String encodedTime) {
         if (tEXt_creation_time_iter != null
                 && tEXt_creation_time_iter.hasNext()
@@ -2767,7 +2767,7 @@ public boolean tRNS_present;
     * 获取encoded时间
     *
     * @return 获取encoded时间的结果
-     */
+    */
     private String getEncodedTime() {
         String encodedTime = null;
         if (tEXt_creation_time_iter != null
@@ -2784,7 +2784,7 @@ public boolean tRNS_present;
     *
     * @param encodedTime encoded时间
     * @return 解析encoded时间的结果
-     */
+    */
     private OffsetDateTime parseEncodedTime(String encodedTime) {
         OffsetDateTime retVal = null;
         boolean timeDecoded = false;

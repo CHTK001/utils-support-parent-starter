@@ -113,7 +113,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     *
     * @param type 类型镜像
     * @return 如果是 auto关闭 返回 true，否则返回 false
-     */
+    */
     private boolean isAutoCloseable(TypeMirror type) {
         TypeElement autoCloseableElement = pe.getElementUtils()
                 .getTypeElement("java.lang.AutoCloseable");
@@ -138,7 +138,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     * }</pre>     *
     * @param methodTree 方法树节点
     * @param paramName  参数名称
-     */
+    */
     @SuppressWarnings("unchecked")
     private void applyAutoCloseTransform(com.sun.source.tree.MethodTree methodTree,
                                          String paramName) throws Exception {
@@ -180,7 +180,7 @@ public final class AutoCloseAstProcessor extends AbstractProcessor {
     * @param names     名称 实例
     * @param paramName 参数名称
     * @return finally 代码块
-     */
+    */
     private com.sun.tools.javac.tree.JCTree.JCBlock buildFinallyBlock(com.sun.tools.javac.tree.TreeMaker maker,
                                                                       com.sun.tools.javac.util.Names names,
                                                                       String paramName) {

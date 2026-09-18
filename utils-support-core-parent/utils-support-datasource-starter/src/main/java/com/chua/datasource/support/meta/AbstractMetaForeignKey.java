@@ -21,17 +21,17 @@ public abstract class AbstractMetaForeignKey implements MetaForeignKey {
 
     /**
     * 元数据入口
-     */
+    */
     protected final AbstractMetaData metaData;
 
     /**
     * 引擎实例
-     */
+    */
     protected final Engine engine;
 
     /**
     * 所属表名
-     */
+    */
     protected String tableName;
 
     /**
@@ -39,7 +39,7 @@ public abstract class AbstractMetaForeignKey implements MetaForeignKey {
     *
     * @param metaData 元数据入口
     * @param engine   引擎实例
-     */
+    */
     protected AbstractMetaForeignKey(AbstractMetaData metaData, Engine engine) {
         this.metaData = metaData;
         this.engine = engine;
@@ -51,7 +51,7 @@ public abstract class AbstractMetaForeignKey implements MetaForeignKey {
     * @param metaData 元数据入口
     * @param engine   引擎实例
     * @param tableName 表名
-     */
+    */
     protected AbstractMetaForeignKey(AbstractMetaData metaData, Engine engine, String tableName) {
         this.metaData = metaData;
         this.engine = engine;

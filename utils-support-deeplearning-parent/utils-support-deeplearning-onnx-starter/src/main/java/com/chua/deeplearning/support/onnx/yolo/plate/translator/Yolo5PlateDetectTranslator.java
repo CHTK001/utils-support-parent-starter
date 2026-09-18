@@ -49,37 +49,37 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
 
     /**
     *                             640x640   
-     */
+    */
     private final int inputSize;
 
     /**
     *                      
-     */
+    */
     private final float minConfThreshold;
 
     /**
     * IOU       
-     */
+    */
     private final float iouThreshold;
 
     /**
     *                      
-     */
+    */
     private final float confThreshold;
 
     /**
     *                   
-     */
+    */
     private final int topK;
 
     /**
     *                   
-     */
+    */
     private int imageWidth;
 
     /**
     *                   
-     */
+    */
     private int imageHeight;
 
     /**
@@ -91,7 +91,7 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     * - iou阈值: 0.5
     * - topk: 100
     * </p>
-     */
+    */
     public Yolo5PlateDetectTranslator() {
         this(640, 0.3f, 0.5f, 100);
     }
@@ -100,7 +100,7 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     * 映射
     *
     * @param arguments             
-     */
+    */
     public Yolo5PlateDetectTranslator(Map<String, ?> arguments) {
         this.confThreshold = arguments.containsKey("confThreshold")
                 ? Float.parseFloat(arguments.get("confThreshold").toString())
@@ -128,7 +128,7 @@ public class Yolo5PlateDetectTranslator implements Translator<Image, DetectedObj
     * @param confThreshold                  [0.0, 1.0]
     * @param iouThreshold   IOU        [0.0, 1.0]
     * @param topK                             
-     */
+    */
     public Yolo5PlateDetectTranslator(int inputSize, float confThreshold, float iouThreshold, int topK) {
         this.inputSize = inputSize;
         this.minConfThreshold = 0.3f;

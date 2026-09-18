@@ -45,23 +45,23 @@ public class QuarkusHttpServer extends AbstractServer {
 
     /**
     * Vert.x 实例
-     */
+    */
     private Vertx vertx;
 
     /**
     * Vert.x HTTP 服务器
-     */
+    */
     private io.vertx.core.http.HttpServer server;
 
     /**
     * 是否使用 事件循环 线程（响应式模式）。
-     */
+    */
     private boolean reactive;
 
     /**
     * 创建 quarkushttp服务端 实例
     * @param setting setting
-     */
+    */
     public QuarkusHttpServer(ServerSetting setting) {
         super(setting);
     }
@@ -154,7 +154,7 @@ public class QuarkusHttpServer extends AbstractServer {
     *
     * @param request 请求
     * @param response 响应
-     */
+    */
     private void doHandle(QuarkusServerRequest request, QuarkusServerResponse response) {
         try {
             handleRequest(request, response);
@@ -190,45 +190,45 @@ public class QuarkusHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     static class QuarkusServerResponse implements ServerResponse {
 
         /**
         * ctx
-         */
+        */
         private final RoutingContext ctx;
         /**
         * 状态
-         */
+        */
         private int status = 200;
         /**
         * 数据内容
-         */
+        */
         private byte[] body;
         /**
         * 头部
-         */
+        */
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         /**
         * 内容 类型
-         */
+        */
         private String contentType;
         /**
         * committed
-         */
+        */
         private boolean committed;
         /**
         * 结束
-         */
+        */
         private boolean ended;
         /**
         * 结果
-         */
+        */
         private Object result;
         /**
         * sse Mode
-         */
+        */
         private boolean sseMode;
 
         QuarkusServerResponse(RoutingContext ctx) {
@@ -480,7 +480,7 @@ public class QuarkusHttpServer extends AbstractServer {
         *
         * @param r 处理器 通过 设置结果 设置的结果对象
         * @return 派生的响应体字节；r 为 空 返回 空
-         */
+        */
         private static byte[] resolveResult(Object r) {
             if (r == null) {
                 return null;
@@ -503,21 +503,21 @@ public class QuarkusHttpServer extends AbstractServer {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     static class QuarkusServerRequest implements ServerRequest {
 
         /**
         * ctx
-         */
+        */
         private final RoutingContext ctx;
         /**
         * 内容 Bytes
-         */
+        */
         private byte[] bodyBytes;
         /**
         * attributes
-         */
+        */
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
         QuarkusServerRequest(RoutingContext ctx) {

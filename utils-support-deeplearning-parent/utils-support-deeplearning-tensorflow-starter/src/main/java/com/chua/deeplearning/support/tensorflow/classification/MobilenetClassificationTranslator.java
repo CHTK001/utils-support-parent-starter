@@ -26,39 +26,39 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
 
     /**
     * 默认输入图像边长（像素）
-     */
+    */
     private static final int DEFAULT_IMAGE_SIZE = 224;
 
     /**
     * 归一化分母
-     */
+    */
     private static final float NORM_DENOMINATOR = 127.5f;
 
     /**
     * 归一化偏移量
-     */
+    */
     private static final float NORM_OFFSET = 1.0f;
 
     /**
     * 类别标签候选文件名列表
-     */
+    */
     private static final String[] LABEL_CANDIDATES = {
             "synset.txt", "labels.txt", "label_list.txt", "imagenet_classes.txt"
     };
 
     /**
     * 输入图像边长（像素）
-     */
+    */
     private final int imageSize;
 
     /**
     * 镜像net 类别名称列表
-     */
+    */
     private List<String> classes;
 
     /**
     * 构造 mobilenet 分类 Translator，使用默认输入尺寸 224。
-     */
+    */
     public MobilenetClassificationTranslator() {
         this(DEFAULT_IMAGE_SIZE);
     }
@@ -67,7 +67,7 @@ public class MobilenetClassificationTranslator implements Translator<Image, Clas
     * 构造 mobilenet 分类 Translator。
     *
     * @param imageSize 输入图像边长（像素）
-     */
+    */
     public MobilenetClassificationTranslator(int imageSize) {
         this.imageSize = imageSize;
     }

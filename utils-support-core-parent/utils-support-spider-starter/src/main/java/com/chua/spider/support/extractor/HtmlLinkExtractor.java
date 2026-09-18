@@ -32,7 +32,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
 
     /**
     * 需要排除的链接协议前缀
-     */
+    */
     private static final String[] EXCLUDED_PROTOCOLS = {
             "javascript:", "mailto:", "tel:", "sms:", "file:", "data:", "blob:"
     };
@@ -84,7 +84,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     *
     * @param href 链接 URL
     * @return true 表示有效链接
-     */
+    */
     private boolean isValidLink(String href) {
         if (StringUtils.isEmpty(href)) {
             return false;
@@ -113,7 +113,7 @@ public class HtmlLinkExtractor implements SpiderLinkExtractor {
     *
     * @param url 原始 URL
     * @return 标准化后的 URL
-     */
+    */
     private String normalizeUrl(String url) {
         if (url == null) {
             return null;

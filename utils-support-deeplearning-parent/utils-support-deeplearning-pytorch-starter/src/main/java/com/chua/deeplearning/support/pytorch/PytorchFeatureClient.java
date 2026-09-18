@@ -26,7 +26,7 @@ public class PytorchFeatureClient extends AbstractLocalFeatureClient {
     * 构造 pytorch 特征提取客户端。
     *
     * @param setting 客户端配置
-     */
+    */
     public PytorchFeatureClient(FeatureClientSetting setting) {
         super("pytorch", setting);
     }

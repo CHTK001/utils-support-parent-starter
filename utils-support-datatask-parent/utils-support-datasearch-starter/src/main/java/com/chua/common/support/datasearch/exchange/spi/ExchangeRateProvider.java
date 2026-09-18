@@ -19,7 +19,7 @@ public interface ExchangeRateProvider {
     * 当前汇率数据源名称。
     *
     * @return 数据源标识
-     */
+    */
     String name();
 
     /**
@@ -28,7 +28,7 @@ public interface ExchangeRateProvider {
     * @param from 源币种（ISO 4217，如 USD、CNY）
     * @param to   目标币种（ISO 4217，如 USD、CNY）
     * @return 汇率；数据源不可达或币种不存在时返回 空
-     */
+    */
     BigDecimal getRate(String from, String to);
 
     /**
@@ -36,6 +36,6 @@ public interface ExchangeRateProvider {
     *
     * @param base 基准币种（ISO 4217）
     * @return 币种 -> 汇率（1 单位 基础 可兑换的数量）；失败返回空表
-     */
+    */
     Map<String, Double> getRates(String base);
 }

@@ -53,7 +53,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param root nbformat 根节点
     * @return 笔记本标题；未找到时返回默认标题
-     */
+    */
     private String readTitle(JsonNode root) {
         JsonNode cells = root.path("cells");
         if (cells.isArray()) {
@@ -77,7 +77,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param root nbformat 根节点
     * @return 单元格信息列表
-     */
+    */
     private List<CellInfo> parseCells(JsonNode root) {
         List<CellInfo> cells = new ArrayList<>();
         JsonNode cellNodes = root.path("cells");
@@ -105,7 +105,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param cell 单元格节点
     * @return 拼接后的源码；缺失时返回 空
-     */
+    */
     private String readSource(JsonNode cell) {
         JsonNode sourceNode = cell.path("source");
         if (sourceNode.isMissingNode() || sourceNode.isNull()) {
@@ -131,7 +131,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param outputsNode 输出数组节点
     * @return 输出内容列表
-     */
+    */
     private List<String> readOutputs(JsonNode outputsNode) {
         List<String> outputs = new ArrayList<>();
         if (!outputsNode.isArray()) {
@@ -173,7 +173,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     * @param outputs 输出容器
     * @param output  输出节点
     * @param field   文本字段名
-     */
+    */
     private void appendTextOutput(List<String> outputs, JsonNode output, String field) {
         JsonNode text = output.path(field);
         if (text.isTextual()) {
@@ -196,7 +196,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param outputs 输出容器
     * @param output  输出节点
-     */
+    */
     private void appendDataOutput(List<String> outputs, JsonNode output) {
         JsonNode data = output.path("data");
         if (!data.isObject()) {
@@ -226,7 +226,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     * @param cells 单元格列表
     * @param size  文件大小
     * @return 完整 HTML
-     */
+    */
     private String buildHtml(String title, List<CellInfo> cells, long size) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html><html lang=\"zh-CN\"><head><meta charset=\"utf-8\">");
@@ -271,7 +271,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param sb   输出缓冲区
     * @param cell 单元格信息
-     */
+    */
     private void renderCell(StringBuilder sb, CellInfo cell) {
         boolean isMarkdown = "markdown".equals(cell.type);
         sb.append("<div class=\"cell\"><div class=\"cell-head\">");
@@ -301,7 +301,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param source Markdown 源码
     * @return 渲染后的 HTML 片段
-     */
+    */
     private String renderMarkdown(String source) {
         StringBuilder sb = new StringBuilder();
         List<String> lines = new ArrayList<>(List.of(source.split("\r?\n")));
@@ -348,7 +348,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 行内文本
     * @return 渲染后的 HTML 片段
-     */
+    */
     private String renderInline(String text) {
         String inner = escape(text);
         inner = inner.replaceAll("\\*\\*(.+?)\\*\\*", "<strong>$1</strong>");
@@ -361,7 +361,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param text 原始文本
     * @return 转义后的文本
-     */
+    */
     private String escape(String text) {
         return StringUtils.escapeHtml(text);
     }
@@ -371,7 +371,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     *
     * @param bytes 字节数
     * @return 格式化后的大小文本
-     */
+    */
     private String readableSize(long bytes) {
         return com.chua.common.support.utils.FileUtils.readableFileSize(bytes);
     }
@@ -384,7 +384,7 @@ public class JupyterPreviewProvider implements FileStoragePreviewProvider {
     * @param outputs        代码输出内容列表
     * @param executionCount 执行计数（-1 表示未执行）
     * @return cell信息的结果
-     */
+    */
     private record CellInfo(String type, String source, List<String> outputs, int executionCount) {
     }
 }

@@ -18,8 +18,8 @@ public interface DhtCrawlListener {
     * 当发现新的 infohash 时触发回调。
     *
     * @param infohash 发现的 infohash 值
-    * @param source 消息来源的 套接字 地址
-     */
+    * @param source 消息来源的 Socket 地址
+    */
     default void onInfohash(String infohash, InetSocketAddress source) {
     }
 
@@ -28,7 +28,7 @@ public interface DhtCrawlListener {
     *
     * @param infohash 对应的 infohash
     * @param peers 收集到的 peer 节点列表
-     */
+    */
     default void onPeers(String infohash, List<DhtPeer> peers) {
     }
 }

@@ -43,32 +43,32 @@ public class GoogleColabClient implements AutoCloseable {
 
     /**
     * 默认区域
-     */
+    */
     public static final String DEFAULT_LOCATION = "us-central1";
 
     /**
     * 执行状态轮询间隔（毫秒）
-     */
+    */
     private static final long POLL_INTERVAL_MILLIS = 5_000L;
 
     /**
     * Vertex AI notebook服务 客户端
-     */
+    */
     private final NotebookServiceClient client;
 
     /**
     * GCP 项目 标识
-     */
+    */
     private final String projectId;
 
     /**
     * 区域
-     */
+    */
     private final String location;
 
     /**
     * 资源父路径：projects/{project}/位置/{位置}
-     */
+    */
     private final String parent;
 
     /**
@@ -77,7 +77,7 @@ public class GoogleColabClient implements AutoCloseable {
     * @param projectId          GCP 项目 标识
     * @param location           区域，如 us-中央1、asia-east1
     * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
-     */
+    */
     public GoogleColabClient(String projectId, String location, String serviceAccountJson) {
         this.projectId = projectId;
         this.location = location != null && !location.isBlank() ? location : DEFAULT_LOCATION;
@@ -99,7 +99,7 @@ public class GoogleColabClient implements AutoCloseable {
     *
     * @param projectId          GCP 项目 标识
     * @param serviceAccountJson 服务账号 JSON 密钥内容，为空时使用 ADC 凭据链
-     */
+    */
     public GoogleColabClient(String projectId, String serviceAccountJson) {
         this(projectId, DEFAULT_LOCATION, serviceAccountJson);
     }
@@ -115,7 +115,7 @@ public class GoogleColabClient implements AutoCloseable {
     *
     * @param secret 密钥内容（JSON 字符串或任意字符串）
     * @return 解析后的凭据，不会为 空
-     */
+    */
     private static Credentials resolveCredentials(String secret) {
         if (secret != null && !secret.isBlank()) {
             String trimmed = secret.trim();
@@ -140,7 +140,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 查询运行时列表
     *
     * @return 当前项目与区域下的全部 Notebook 运行时
-     */
+    */
     public List<RuntimeInfo> listRuntimes() {
         List<RuntimeInfo> result = new ArrayList<>();
         for (NotebookRuntime runtime : client.listNotebookRuntimes(parent).iterateAll()) {
@@ -160,7 +160,7 @@ public class GoogleColabClient implements AutoCloseable {
     *
     * @param runtimeId 运行时 标识
     * @return 运行时信息
-     */
+    */
     public RuntimeInfo getRuntime(String runtimeId) {
         NotebookRuntime runtime = client.getNotebookRuntime(runtimeName(runtimeId));
         return RuntimeInfo.builder()
@@ -176,7 +176,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 启动运行时（阻塞直至启动完成）
     *
     * @param runtimeId 运行时 标识
-     */
+    */
     public void startRuntime(String runtimeId) {
         awaitQuietly(client.startNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
@@ -185,7 +185,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 停止运行时（阻塞直至停止完成）
     *
     * @param runtimeId 运行时 标识
-     */
+    */
     public void stopRuntime(String runtimeId) {
         awaitQuietly(client.stopNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
@@ -194,7 +194,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 删除运行时（阻塞直至删除完成）
     *
     * @param runtimeId 运行时 标识
-     */
+    */
     public void deleteRuntime(String runtimeId) {
         awaitQuietly(client.deleteNotebookRuntimeAsync(runtimeName(runtimeId)));
     }
@@ -203,7 +203,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 查询运行时模板列表
     *
     * @return 当前项目与区域下的全部运行时模板
-     */
+    */
     public List<TemplateInfo> listRuntimeTemplates() {
         List<TemplateInfo> result = new ArrayList<>();
         for (NotebookRuntimeTemplate template : client.listNotebookRuntimeTemplates(parent).iterateAll()) {
@@ -228,7 +228,7 @@ public class GoogleColabClient implements AutoCloseable {
     * @param templateId       运行时模板 标识 或完整资源名
     * @param displayName      作业显示名称
     * @return 执行作业信息
-     */
+    */
     public ExecutionInfo executeNotebook(String notebookUri, String outputUri,
                                          String templateId, String displayName) {
         String jobId = "exec-" + java.util.UUID.randomUUID();
@@ -255,7 +255,7 @@ public class GoogleColabClient implements AutoCloseable {
     *
     * @param executionId 执行作业 标识
     * @return 执行作业信息
-     */
+    */
     public ExecutionInfo getExecution(String executionId) {
         NotebookExecutionJob job = client.getNotebookExecutionJob(executionName(executionId));
         return toExecutionInfo(job);
@@ -265,7 +265,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 查询执行作业列表
     *
     * @return 全部执行作业
-     */
+    */
     public List<ExecutionInfo> listExecutions() {
         List<ExecutionInfo> result = new ArrayList<>();
         for (NotebookExecutionJob job : client.listNotebookExecutionJobs(parent).iterateAll()) {
@@ -280,7 +280,7 @@ public class GoogleColabClient implements AutoCloseable {
     * @param executionId 执行作业 标识
     * @param timeoutMillis 最长等待时间（毫秒），超时后返回当前状态
     * @return 最新执行作业信息
-     */
+    */
     public ExecutionInfo waitExecution(String executionId, long timeoutMillis) {
         long deadline = System.currentTimeMillis() + timeoutMillis;
         ExecutionInfo info = getExecution(executionId);
@@ -300,37 +300,31 @@ public class GoogleColabClient implements AutoCloseable {
     * 删除执行作业
     *
     * @param executionId 执行作业 标识
-     */
+    */
     public void deleteExecution(String executionId) {
         awaitQuietly(client.deleteNotebookExecutionJobAsync(executionName(executionId)));
     }
 
     /**
-    * 判断执行状态是否为终态
+    * 判断执行状态是否为终态（成功/失败/取消/过期/部分成功）。
     *
     * @param state 状态名
     * @return 是否终态
-    * @param future 期货
-     /**
-      * 是否terminal。
-      * @param state 状态
-      * @return 是否terminal的结果
-      */
-     * @param resourceName resource名称
-     */
+    */
     private boolean isTerminal(String state) {
         return JobState.JOB_STATE_SUCCEEDED.name().equals(state)
                 || JobState.JOB_STATE_FAILED.name().equals(state)
                 || JobState.JOB_STATE_CANCELLED.name().equals(state)
                 || JobState.JOB_STATE_EXPIRED.name().equals(state)
                 || JobState.JOB_STATE_PARTIALLY_SUCCEEDED.name().equals(state);
-    /**
-    * 转为执行信息。
-    * @param job 作业
-    * @return 转为执行信息的结果
-     */
     }
 
+    /**
+    * 转为执行信息。
+    *
+    * @param job 作业
+    * @return 转为执行信息的结果
+    */
     private ExecutionInfo toExecutionInfo(NotebookExecutionJob job) {
         return ExecutionInfo.builder()
                 .name(job.getName())
@@ -341,11 +335,6 @@ public class GoogleColabClient implements AutoCloseable {
                 .gcsOutputUri(job.getGcsOutputUri())
                 .createTime(job.hasCreateTime() ? String.valueOf(job.getCreateTime()) : null)
                 .build();
-    /**
-    * runtime名称。
-    * @param runtimeId runtimeid
-    * @return runtime名称的结果
-     */
     }
 
     private String runtimeName(String runtimeId) {
@@ -354,7 +343,7 @@ public class GoogleColabClient implements AutoCloseable {
     * templateresource。
     * @param templateId templateid
     * @return templateResource的结果
-     */
+    */
     }
 
     private String templateResource(String templateId) {
@@ -365,7 +354,7 @@ public class GoogleColabClient implements AutoCloseable {
     * @return 执行名称的结果
     * @param future 期货
     * @param resourceName resource名称
-     */
+    */
     }
 
     private String executionName(String executionId) {
@@ -399,7 +388,7 @@ public class GoogleColabClient implements AutoCloseable {
     * 运行时信息
     * @author CH
     * @since 4.0.0
-     */
+    */
     @Data
     @Builder
     public static class RuntimeInfo {
@@ -421,10 +410,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 运行时模板信息
-    * @author CH
-    * @since 4.0.0
-     */
+        * 运行时模板信息
+        * @author CH
+        * @since 4.0.0
+        */
     @Data
     @Builder
     public static class TemplateInfo {
@@ -440,10 +429,10 @@ public class GoogleColabClient implements AutoCloseable {
     }
 
     /**
-    * 执行作业信息
-    * @author CH
-    * @since 4.0.0
-     */
+        * 执行作业信息
+        * @author CH
+        * @since 4.0.0
+        */
     @Data
     @Builder
     public static class ExecutionInfo {

@@ -40,9 +40,9 @@ public class VertxWebSocketServer extends AbstractServer {
     private final List<ServerWebSocket> connections = new CopyOnWriteArrayList<>();
 
     /**
-    * 创建 vertxweb套接字服务端 实例
+    * 创建 vertxwebSocket服务端 实例
     * @param setting setting
-     */
+    */
     public VertxWebSocketServer(ServerSetting setting) {
         super(setting);
     }
@@ -199,7 +199,7 @@ public class VertxWebSocketServer extends AbstractServer {
     * @param topic topic
     * @param handler 处理器
     * @return on订阅的结果
-     */
+    */
     public VertxWebSocketServer onSubscribe(String topic, ServerHandler handler) {
         topicHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>()).add(handler);
         return this;
@@ -210,7 +210,7 @@ public class VertxWebSocketServer extends AbstractServer {
     *
     * @param topic topic
     * @param payload payload
-     */
+    */
     public void publish(String topic, String payload) {
         String text = topic + "\n" + payload;
         for (ServerWebSocket ws : connections) {
@@ -226,7 +226,7 @@ public class VertxWebSocketServer extends AbstractServer {
     * @param bean Bean
     * @param method 方法
     * @return 创建消息处理器的结果
-     */
+    */
     private ServerHandler createMessageHandler(Object bean, Method method) {
         // 可访问性由下方 ReflectUtils.invoke（MethodHandle 私有查找）统一处理，不再原生 setAccessible
         return (request, response) -> {
@@ -266,7 +266,7 @@ public class VertxWebSocketServer extends AbstractServer {
     * @param annotationType 注解类型
     * @author CH
     * @since 4.0.0
-     */
+    */
     private void invokeAnnotatedMethods(Class<? extends Annotation> annotationType) {
         if (getObjectContext() == null) {
             return;
@@ -408,7 +408,7 @@ public class VertxWebSocketServer extends AbstractServer {
         * @param value 值
         * @author CH
         * @since 4.0.0
-         */
+        */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }

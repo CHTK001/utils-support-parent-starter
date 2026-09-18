@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>utils-support-filesystem-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>utils-support-hprof-starter</artifactId>
+    <name>Utils Support HPROF Starter</name>
+    <description>HPROF memory dump module: hprof to json / markdown conversion and MCP provider</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- GridKit hprof-heap: NetBeans PerfLib HPROF backend that backs
+              Eclipse MAT. Correctly parses 64-bit JDK heap dumps
+              (8-byte record lengths and identifiers). -->
+        <dependency>
+            <groupId>org.gridkit.jvmtool</groupId>
+            <artifactId>hprof-heap</artifactId>
+            <version>0.16</version>
+        </dependency>
+
+        <!-- Jackson: hprof structured data to JSON serializer -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

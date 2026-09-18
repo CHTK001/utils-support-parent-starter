@@ -42,18 +42,18 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
 
     /**
     *                       128
-     */
+    */
     private static final int MAX_LENGTH = 128;
 
     /**
     * MNLI                          
     *   ENTAILMENT / NEUTRAL / CONTRADICTION
-     */
+    */
     private static final List<String> NLI_LABELS = List.of("ENTAILMENT", "NEUTRAL", "CONTRADICTION");
 
     /**
     * huggingface
-     */
+    */
     private HuggingFaceTokenizer tokenizer;
 
     @Override
@@ -83,7 +83,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     * @param ctx ctx
     * @param input 输入
     * @return 处理输入的结果
-     */
+    */
     public NDList processInput(@Nonnull TranslatorContext ctx, @Nonnull Map<String, String> input) {
         if (tokenizer == null) {
             throw new IllegalStateException("HuggingFaceTokenizer             ");
@@ -120,7 +120,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     * @param ctx ctx
     * @param list 列表
     * @return 处理输出的结果
-     */
+    */
     public Classifications processOutput(@Nonnull TranslatorContext ctx, @Nonnull NDList list) {
         NDArray logits = list.singletonOrThrow();
         if (logits.getShape().dimension() == 2 && logits.getShape().get(0) == 1) { // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
@@ -144,7 +144,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     * @param text                          
     * @param candidateLabels                   
     * @return                                        
-     */
+    */
     public static Classifications zeroShotClassify(
             ai.djl.inference.Predictor<Map<String, String>, Classifications> predictor,
             String text,
@@ -180,7 +180,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     * 获取Batchifier
     *
     * @return 获取batchifier的结果
-     */
+    */
     public Batchifier getBatchifier() {
         return null;
     }
@@ -190,7 +190,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     *
     * @param modelPath             
     * @return                        path，       空
-     */
+    */
     private static Path findTokenizerPath(Path modelPath) {
         Path root = Files.isDirectory(modelPath) ? modelPath : modelPath.getParent();
         if (root == null) {
@@ -214,7 +214,7 @@ public class MobileBertZeroShotClassificationTranslator implements Translator<Ma
     *
     * @param logits                      
     * @return softmax              
-     */
+    */
     private static double[] softmax(float[] logits) {
         double max = Double.NEGATIVE_INFINITY;
         for (float l : logits) {

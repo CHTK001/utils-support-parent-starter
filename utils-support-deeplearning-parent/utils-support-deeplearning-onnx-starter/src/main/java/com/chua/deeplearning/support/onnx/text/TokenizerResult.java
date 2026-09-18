@@ -26,7 +26,7 @@ public record TokenizerResult(
     * 输入标识
     *
     * @return inputIds              
-     */
+    */
     public long[] getInputIds() {
         return inputIds;
     }
@@ -35,7 +35,7 @@ public record TokenizerResult(
     * attentionmask                     mask
     *
     * @return attentionMask          
-     */
+    */
     public long[] getAttentionMask() {
         return attentionMask;
     }
@@ -44,7 +44,7 @@ public record TokenizerResult(
     * 令牌
     *
     * @return validTokenCount         
-     */
+    */
     public int getValidTokenCount() {
         return validTokenCount;
     }
@@ -53,7 +53,7 @@ public record TokenizerResult(
     * 输入标识
     *
     * @return                     
-     */
+    */
     public int getSequenceLength() {
         return inputIds != null ? inputIds.length : 0;
     }
@@ -62,7 +62,7 @@ public record TokenizerResult(
     *                   
     *
     * @return true                       
-     */
+    */
     public boolean isValid() {
         return validTokenCount > 0;
     }

@@ -41,7 +41,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
 
     /**
     * 默认构造函数
-     */
+    */
     public GifToApngConvertFileSystem() {
         super();
     }
@@ -50,7 +50,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param file 文件对象
-     */
+    */
     public GifToApngConvertFileSystem(File file) {
         super(file);
     }
@@ -59,7 +59,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * 构造函数
     *
     * @param filePath 文件路径
-     */
+    */
     public GifToApngConvertFileSystem(String filePath) {
         super(filePath);
     }
@@ -102,7 +102,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param sourceFormat 源格式化
     * @param targetFormat Target格式化
     * @return 是否支持格式化的结果
-     */
+    */
     protected boolean isSupportFormat(String sourceFormat, String targetFormat) {
         if (sourceFormat == null || targetFormat == null) {
             return false;
@@ -128,7 +128,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param inputStream 输入流
     * @return 动画帧列表
     * @throws Exception 读取异常
-     */
+    */
     private List<AnimationFrame> readGifFrames(InputStream inputStream) throws Exception {
         List<AnimationFrame> frames = new ArrayList<>();
 
@@ -174,7 +174,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param reader 图像读取器
     * @param frameIndex 帧索引
     * @return 延迟时间（毫秒）
-     */
+    */
     private int getGifFrameDelay(ImageReader reader, int frameIndex) {
         try {
             IIOMetadata metadata = reader.getImageMetadata(frameIndex);
@@ -210,7 +210,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param parent 父
     * @param nodeName 节点名称
     * @return find节点的结果
-     */
+    */
     private org.w3c.dom.Node findNode(org.w3c.dom.Node parent, String nodeName) {
         if (parent.getNodeName().equals(nodeName)) {
             return parent;
@@ -232,7 +232,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     *
     * @param image 原始图像
     * @return 高质量图像
-     */
+    */
     private BufferedImage convertToHighQuality(BufferedImage image) {
         // 如果已经是 ARGB 格式，直接返回
         if (image.getType() == BufferedImage.TYPE_INT_ARGB) {
@@ -253,7 +253,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param frames 动画帧列表
     * @param outputStream 输出流
     * @throws Exception 写入异常
-     */
+    */
     private void writeApngAnimation(List<AnimationFrame> frames, OutputStream outputStream) throws Exception {
 
         try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
@@ -291,7 +291,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param writer 图像写入器
     * @param frames 动画帧列表
     * @throws Exception 写入异常
-     */
+    */
     private void writeAnimatedPng(ImageWriter writer, List<AnimationFrame> frames) throws Exception {
         try {
             // 尝试写入动画序列
@@ -330,7 +330,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * @param metadata 元数据
     * @param delay 延迟时间（毫秒）
     * @param frameIndex 帧索引
-     */
+    */
     private void configureApngMetadata(IIOMetadata metadata, int delay, int frameIndex) {
         try {
             // 这里可以设置 APNG 特定的元数据
@@ -354,7 +354,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
     * 动画帧数据类
     * @author CH
     * @since 4.0.0
-     */
+    */
     private static class AnimationFrame {
         /** 图片 */
         private final BufferedImage image;
@@ -366,7 +366,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
         * @param image 镜像
         * @param delay int
         * @param delay 延迟
-         */
+        */
         public AnimationFrame(BufferedImage image, int delay) {
             this.image = image;
             this.delay = delay;
@@ -376,7 +376,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
         * 获取镜像
         *
         * @return 获取镜像的结果
-         */
+        */
         public BufferedImage getImage() {
             return image;
         }
@@ -385,7 +385,7 @@ public class GifToApngConvertFileSystem extends AbstractConvertFileSystem {
         * 获取延迟
         *
         * @return 获取延迟的结果
-         */
+        */
         public int getDelay() {
             return delay;
         }

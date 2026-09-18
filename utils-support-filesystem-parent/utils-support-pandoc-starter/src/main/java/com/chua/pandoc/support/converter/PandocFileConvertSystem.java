@@ -33,7 +33,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
     /**
     * 支持的源文件格式列表
-     */
+    */
     private static final List<String> SOURCES = List.of(
         "md", "markdown", "html", "htm", "xhtml", "docx", "epub", "latex", "tex",
         "rst", "org", "textile", "mediawiki", "opml", "creole", "commonmark", "gfm",
@@ -42,7 +42,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
     /**
     * 支持的目标文件格式列表
-     */
+    */
     private static final List<String> TARGETS = List.of(
         "md", "markdown", "html", "htm", "xhtml", "html5", "docx", "epub", "epub3",
         "latex", "tex", "pdf", "rst", "org", "textile", "mediawiki", "opml", "creole",
@@ -52,17 +52,17 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
     /**
     * 源格式集合
-     */
+    */
     private static final Set<String> SOURCE_SET = Set.copyOf(SOURCES);
 
     /**
     * 目标格式集合
-     */
+    */
     private static final Set<String> TARGET_SET = Set.copyOf(TARGETS);
 
     /**
     * 文件扩展名到 Pandoc 格式名的映射
-     */
+    */
     private static final List<FormatMapping> FORMAT_MAPPINGS = List.of(
         new FormatMapping("md", "markdown"),
         new FormatMapping("markdown", "markdown"),
@@ -100,7 +100,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
 
     /**
     * 超时时间（秒）
-     */
+    */
     private static final long COMMAND_TIMEOUT_SECONDS = 300L;
 
     @Override
@@ -199,7 +199,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     *
     * @param extension 文件扩展名
     * @return Pandoc 格式名
-     */
+    */
     private String toPandocFormat(String extension) {
         String ext = extension.toLowerCase();
         for (FormatMapping mapping : FORMAT_MAPPINGS) {
@@ -215,7 +215,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     *
     * @param source 文件源
     * @return 格式后缀
-     */
+    */
     private String getSourceFormat(FileSource source) {
         if (source.isPath()) {
             String name = source.getPath();
@@ -231,7 +231,7 @@ public class PandocFileConvertSystem implements FileConvertSystem {
     * @param extension 文件扩展名
     * @param format    Pandoc 格式名
     * @return 格式化mapping的结果
-     */
+    */
     private record FormatMapping(String extension, String format) {
     }
 }

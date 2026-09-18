@@ -34,42 +34,42 @@ public class QqBotClientFactory implements BotClient.Factory {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
     static class QqBuilder implements BotClient.Builder {
 
         /**
         * 应用 标识
-         */
+        */
         private String appId;
 
         /**
         * 应用密钥
-         */
+        */
         private String appSecret;
 
         /**
         * 机器人 令牌
-         */
+        */
         private String botToken;
 
         /**
         * 基础 URL
-         */
+        */
         private String baseUrl;
 
         /**
         * 连接超时时间（毫秒）
-         */
+        */
         private long connectTimeoutMillis = 10_000;
 
         /**
         * 读取超时时间（毫秒）
-         */
+        */
         private long readTimeoutMillis = 30_000;
 
         /**
         * 配置加载器
-         */
+        */
         private ConfigSaveOrLoader configSaveOrLoader;
 
         @Override
@@ -96,7 +96,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder encodingAesKey(
                 String encodingAesKey) {
             this.botToken = encodingAesKey;
@@ -118,7 +118,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder connectTimeoutMillis(
                 long connectTimeoutMillis) {
             this.connectTimeoutMillis = connectTimeoutMillis;
@@ -132,7 +132,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder readTimeoutMillis(
                 long readTimeoutMillis) {
             this.readTimeoutMillis = readTimeoutMillis;
@@ -145,7 +145,7 @@ public class QqBotClientFactory implements BotClient.Factory {
         * @param configSaveOrLoader 配置保存或加载
         * @param appId appid
         * @param baseUrl baseurl
-         */
+        */
         public BotClient.Builder configSaveOrLoader(
                 ConfigSaveOrLoader configSaveOrLoader) {
             this.configSaveOrLoader = configSaveOrLoader;

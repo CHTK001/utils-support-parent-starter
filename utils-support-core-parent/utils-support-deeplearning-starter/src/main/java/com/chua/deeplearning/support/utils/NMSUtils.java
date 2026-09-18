@@ -25,7 +25,7 @@ public class NMSUtils {
     * @param scores      置信度分数 ndarray，形状为 (N,) 或 (N, 1)，每个候选框对应一个分数
     * @param iouThreshold iou 重叠阈值，超过此值的框将被抑制
     * @return 保留的候选框索引数组
-     */
+    */
     public static int[] nms(NDArray boxes, NDArray scores, float iouThreshold) {
         if (boxes.isEmpty()) {
             return new int[0];
@@ -82,7 +82,7 @@ public class NMSUtils {
     * @param iouThreshold iou 阈值，超过此值的框将被抑制
     * @param manager nd管理器 用于创建临时 ndarray
     * @return 保留的候选框全局索引 ndarray
-     */
+    */
     public static NDArray batchedNms(NDArray boxes, NDArray scores, NDArray idxs, float iouThreshold, NDManager manager) {
         List<NDArray> keepList = new ArrayList<>();
 
@@ -99,12 +99,12 @@ public class NMSUtils {
             int[] keepIndices = mtcnnNms(batchBoxes, batchScores, iouThreshold);
 
             if (keepIndices.length > 0) {
- // 将 批量 内索引映射为全局索引
-                NDArray globalIndices = manager.arange(boxes.getShape().get(0)); // [P3C 四十一 豁免] 张量形状维度下标（Shape 维度数组，非集合首元素）
+                // 将 批量 内索引映射为全局索引
+                // [P3C 四十一 豁免] boxes.getShape().get(0) 为张量形状维度的下标访问（Shape 维度数组，非集合首元素）
+                NDArray globalIndices = manager.arange(boxes.getShape().get(0))
                         .get(mask)
                         .toType(DataType.INT64, false)
                         .get(manager.create(keepIndices));
-
                 keepList.add(globalIndices);
             }
         }
@@ -122,7 +122,7 @@ public class NMSUtils {
     * @param scores 置信度分数 ndarray，形状为 (N,) 或 (N, 1)，每个框对应一个分数
     * @param iouThreshold iou 阈值，超过此值的框将被抑制
     * @return 保留的候选框索引数组
-     */
+    */
     public static int[] mtcnnNms(NDArray boxes, NDArray scores, float iouThreshold) {
         if (boxes.isEmpty()) {
             return new int[0];
@@ -184,7 +184,7 @@ public class NMSUtils {
     * @param nmsThreshold nms阈值
     * @param rect1 rect1
     * @param rect2 rect2
-     */
+    */
     public static List<Integer> nms(
             List<ai.djl.modality.cv.output.BoundingBox> boxes,
             List<Double> probabilities,
@@ -225,7 +225,7 @@ public class NMSUtils {
     * calculateiou
     * @param rect1 rect1
     * @param rect2 rect2
-     */
+    */
     private static double calculateIoU(
             ai.djl.modality.cv.output.Rectangle rect1,
             ai.djl.modality.cv.output.Rectangle rect2) {

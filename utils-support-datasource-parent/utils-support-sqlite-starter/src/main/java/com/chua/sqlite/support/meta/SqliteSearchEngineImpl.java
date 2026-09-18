@@ -27,19 +27,10 @@ public class SqliteSearchEngineImpl implements SearchEngine {
 
     /**
     * 构造方法。
+    * 持有 SQLite 引擎实例，用于获取 JDBC 连接与数据源。
     *
-    * @param engine 引擎实例
-    * @return 列表索引的结果
-     /**
-    * sqlite搜索engineimpl。
-    * @param engine engine
-      */
-      * @return 列表索引的结果
-     /**
-     * sqlite搜索engineimpl。
-     * @param engine engine
-      */
-     */
+    * @param engine SQLite 引擎实例，不能为空
+    */
     public SqliteSearchEngineImpl(SqliteEngine engine) {
         this.engine = engine;
     }
@@ -150,7 +141,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     /**
     * 获取默认数据源。
     * @return 获取数据源的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     private DataSource getDataSource() {
         Engine engine = this.engine;
@@ -164,7 +155,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     /**
     * 获取 JDBC 连接。
     * @return 获取jdbcconnection的结果
-     */
+    */
     private Connection getJdbcConnection() throws SQLException {
         return getDataSource().getConnection();
     }
@@ -173,7 +164,7 @@ public class SqliteSearchEngineImpl implements SearchEngine {
     * 转义标识符（表名/列名），防止 SQL 注入。
     * @param name 名称
     * @return escapeIdentifier的结果
-     */
+    */
     private static String escapeIdentifier(String name) {
         if (name == null) {
             return "\"\"";

@@ -615,7 +615,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     * @param outputType 输出类型
     * @param capability capability
     * @param relativePath relative路径
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath) {
@@ -635,7 +635,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     * @param downloadUrl downloadurl
     * @param compress compress
     * @param downloadFileName download文件名称
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,
@@ -657,7 +657,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     * @param downloadMirrors downloadmirrors
     * @param compress compress
     * @param downloadFileName download文件名称
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,
@@ -682,7 +682,7 @@ public class OnnxModelRegistrar implements ModelRegistrar {
     * @param compress compress
     * @param downloadFileName download文件名称
     * @param hardwareConfig hardware配置
-     */
+    */
     private static void reg(String modelId, String translatorClassName,
                             Class<?> inputType, Class<?> outputType,
                             Class<?> capability, String relativePath,

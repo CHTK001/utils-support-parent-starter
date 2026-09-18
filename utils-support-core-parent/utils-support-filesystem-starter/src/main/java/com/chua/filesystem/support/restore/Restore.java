@@ -57,7 +57,7 @@ public interface Restore extends AutoCloseable {
     * @param databaseOptions 数据库选项，定义了与数据库相关的配置
     * @param restoreSetting  恢复选项，定义了恢复操作的特定配置
     * @return 恢复对象实例
-     */
+    */
     static Restore createRestore(String name, DataSourceOptions databaseOptions, RestoreSetting restoreSetting) {
         return ServiceProvider.of(Restore.class).getNewExtension(name, databaseOptions, restoreSetting);
     }
@@ -68,7 +68,7 @@ public interface Restore extends AutoCloseable {
     * @param name            恢复的名称
     * @param databaseOptions 数据库选项
     * @return 恢复对象实例
-     */
+    */
     static Restore createRestore(String name, DataSourceOptions databaseOptions) {
         return createRestore(name, databaseOptions, RestoreSetting.builder().build());
     }
@@ -82,7 +82,7 @@ public interface Restore extends AutoCloseable {
     * @param sourceFile 源文件（如IBD文件、SQL文件等）
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restore(File sourceFile) throws Exception;
 
     /**
@@ -92,7 +92,7 @@ public interface Restore extends AutoCloseable {
     * @param fileName    文件名（确定文件类型）
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restore(InputStream inputStream, String fileName) throws Exception;
 
     /**
@@ -101,7 +101,7 @@ public interface Restore extends AutoCloseable {
     * @param sourceFile 源文件
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restoreStructure(File sourceFile) throws Exception;
 
     /**
@@ -113,7 +113,7 @@ public interface Restore extends AutoCloseable {
     * @param sourceFile 源文件
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restoreData(File sourceFile) throws Exception;
 
     /**
@@ -123,7 +123,7 @@ public interface Restore extends AutoCloseable {
     * @param targetTable 目标表名
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restoreToTable(File sourceFile, String targetTable) throws Exception;
 
     /**
@@ -134,19 +134,19 @@ public interface Restore extends AutoCloseable {
     * @param targetTable  目标表名
     * @return RestoreResult 恢复结果
     * @throws Exception 恢复过程中可能抛出的异常
-     */
+    */
     RestoreResult restoreToTable(File sourceFile, String targetSchema, String targetTable) throws Exception;
 
     /**
     * 升级恢复设置
     *
     * @param restoreSetting 新的恢复设置
-     */
+    */
     void upgrade(RestoreSetting restoreSetting);
 
     /**
     * 关闭恢复服务，释放资源
-     */
+    */
     @Override
     void close() throws Exception;
 }

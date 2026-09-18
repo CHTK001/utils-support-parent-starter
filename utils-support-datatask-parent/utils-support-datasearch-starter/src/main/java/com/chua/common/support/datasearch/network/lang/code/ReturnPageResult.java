@@ -32,7 +32,7 @@ public class ReturnPageResult<T> implements Serializable {
     *
     * @param data 数据
     * @return 的的结果
-     */
+    */
     public static <T> ReturnPageResult<T> of(PageResult<T> data) {
         return new ReturnPageResult<>(data, null, true);
     }
@@ -42,7 +42,7 @@ public class ReturnPageResult<T> implements Serializable {
     *
     * @param data 数据
     * @return ok的结果
-     */
+    */
     public static <T> ReturnPageResult<T> ok(PageResult<T> data) {
         return of(data);
     }
@@ -52,7 +52,7 @@ public class ReturnPageResult<T> implements Serializable {
     *
     * @param message 消息
     * @return 错误的结果
-     */
+    */
     public static <T> ReturnPageResult<T> error(String message) {
         return new ReturnPageResult<T>(null, message, false);
     }
@@ -61,7 +61,7 @@ public class ReturnPageResult<T> implements Serializable {
     * 空
     *
     * @return 空的结果
-     */
+    */
     public static <T> ReturnPageResult<T> empty() {
         return new ReturnPageResult<T>(PageResult.<T>empty(), null, true);
     }

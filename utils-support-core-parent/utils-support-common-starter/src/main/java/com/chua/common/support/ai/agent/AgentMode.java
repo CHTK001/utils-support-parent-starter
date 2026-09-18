@@ -4,7 +4,7 @@ package com.chua.common.support.ai.agent;
 /**
 * Agent 执行模式
 *
-* <p>定义智能体的多种执行编排策略。不同模式对子 Agent 的使用方式不同：
+* <p>定义Agent的多种执行编排策略。不同模式对子 Agent 的使用方式不同：
 *
 * <ul>
 *   <li><b>SINGLE</b> — 忽略子 Agent，主 Agent 直接处理</li>

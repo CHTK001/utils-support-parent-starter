@@ -2,6 +2,8 @@
 
 国密算法支持模块：SM2、SM3、SM4 等基于 BouncyCastle 的加密实现
 
+> 依赖的 BouncyCastle 已统一升级为 jdk18on 1.80（bcprov/bcpkix）。
+
 ---
 
 ## 快速开始
@@ -44,4 +46,6 @@
 ```
 utils-support-jdk15on-starter
 ├── utils-support-common-starter
+├── bcpkix-jdk18on (1.80)
+└── bcprov-jdk18on (1.80)
 ```

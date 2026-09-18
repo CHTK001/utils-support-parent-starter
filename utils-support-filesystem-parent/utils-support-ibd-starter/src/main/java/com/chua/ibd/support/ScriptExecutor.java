@@ -19,13 +19,13 @@ public interface ScriptExecutor {
     * @param scriptPath 脚本文件路径
     * @param context    上下文参数
     * @return 脚本执行结果
-     */
+    */
     String execute(Path scriptPath, Map<String, Object> context);
 
     /**
     * 获取支持的脚本扩展名
     *
     * @return 扩展名（如 ".py"、".Groovy"）
-     */
+    */
     String getExtension();
 }

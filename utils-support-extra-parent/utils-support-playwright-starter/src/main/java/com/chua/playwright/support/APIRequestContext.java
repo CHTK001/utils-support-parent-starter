@@ -6,11 +6,11 @@ import com.chua.playwright.support.spi.Engine;
 * 双模式 {@code APIRequestContext}。
 * @author CH
  /**
-   * api请求上下文类。
-   *
-   * @author CH
-   * @since 4.0.0
-  */
+ * api请求上下文类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
    * @return 状态的结果
  */
 public class APIRequestContext {
@@ -30,27 +30,27 @@ public class APIRequestContext {
     * @param url url
     * @param body 主体
     * @return post的结果
-     */
+    */
     public ApiResponse get(String url) { return fetch("apiGet", url, null); }
     /**
     * 放入。
     * @param url url
     * @param body 主体
     * @return 放入的结果
-     */
+    */
     public ApiResponse post(String url, Object body) { return fetch("apiPost", url, body); }
     /**
     * 删除。
     * @param url url
     * @return 删除的结果
     * @param body 主体
-     */
+    */
     public ApiResponse put(String url, Object body) { return fetch("apiPut", url, body); }
     /**
     * 删除。
     * @param url url
     * @return 删除的结果
-     */
+    */
     public ApiResponse delete(String url) { return fetch("apiDelete", url, null); }
 /**
 * 获取。
@@ -85,7 +85,7 @@ public class APIRequestContext {
         /**
         * 主体。
         * @return 主体的结果
-         */
+        */
         public String body() { return body; }
     }
 }

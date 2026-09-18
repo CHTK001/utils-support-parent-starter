@@ -24,7 +24,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     /**
     * 创建 felixosgibundle 实例
     * @param bundle bundle
-     */
+    */
     public FelixOsgiBundle(Bundle bundle) {
         this.bundle = bundle;
     }
@@ -101,7 +101,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     * @param type 类型
     * @param service 服务
     * @return 注册服务的结果
-     */
+    */
     public <T> void registerService(Class<T> type, T service) {
         ServiceRegistration<?> registration = bundle.getBundleContext()
                 .registerService(type.getName(), service, null);
@@ -116,7 +116,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     * @param type 类型
     * @param service 服务
     * @return 注销服务的结果
-     */
+    */
     public <T> void unregisterService(Class<T> type, T service) {
         registrations.removeIf(reg -> {
             try {
@@ -148,7 +148,7 @@ public class FelixOsgiBundle implements OsgiBundle {
     *
     * @param type 类型
     * @return 获取服务的结果
-     */
+    */
     public <T> List<T> getServices(Class<T> type) {
         try {
             org.osgi.framework.ServiceReference<?>[] refs =

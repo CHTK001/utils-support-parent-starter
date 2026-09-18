@@ -53,7 +53,7 @@ public final class ChainedTrainer {
     * @param savePath     保存路径
     * @param dataRootPath 数据根目录
     * @param listener     回调
-     */
+    */
     private ChainedTrainer(Trainer trainer, TrainArgument argument,
                            String modelPath, String savePath,
                            String dataRootPath, TrainListener listener) {
@@ -70,7 +70,7 @@ public final class ChainedTrainer {
     * 从默认迁移学习训练器构建一条训练管道。
     *
     * @return 训练管道
-     */
+    */
     public static ChainedTrainer of() {
         return new ChainedTrainer(new ResNet50TransferTrainer(),
                 null, null, null, null, null);
@@ -81,7 +81,7 @@ public final class ChainedTrainer {
     *
     * @param trainer 底层训练器
     * @return 训练管道
-     */
+    */
     public static ChainedTrainer of(Trainer trainer) {
         return new ChainedTrainer(trainer, null, null, null, null, null);
     }
@@ -94,7 +94,7 @@ public final class ChainedTrainer {
     * @param modelPath    预训练模型路径
     * @param savePath     保存路径
     * @param dataRootPath 数据根目录
-     */
+    */
     public static ChainedTrainer of(Trainer trainer, TrainArgument argument,
                                     String modelPath, String savePath, String dataRootPath) {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, null);
@@ -104,7 +104,7 @@ public final class ChainedTrainer {
     * 分支：从当前管道派生出新管道（可继续修改超参数而不影响源管道）。
     *
     * @return 新管道
-     */
+    */
     public ChainedTrainer branch() {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, listener);
     }
@@ -114,7 +114,7 @@ public final class ChainedTrainer {
     *
     * @param dataRootPath 数据根目录
     * @return 新管道
-     */
+    */
     public ChainedTrainer data(String dataRootPath) {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, listener);
     }
@@ -124,7 +124,7 @@ public final class ChainedTrainer {
     *
     * @param savePath 保存路径
     * @return 新管道
-     */
+    */
     public ChainedTrainer saveTo(String savePath) {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, listener);
     }
@@ -134,7 +134,7 @@ public final class ChainedTrainer {
     *
     * @param resumePath 续训练模型路径
     * @return 新管道
-     */
+    */
     public ChainedTrainer resume(String resumePath) {
         return withArgument(a -> a.setResumeModelPath(resumePath));
     }
@@ -144,7 +144,7 @@ public final class ChainedTrainer {
     *
     * @param modelPath 预训练模型路径
     * @return 新管道
-     */
+    */
     public ChainedTrainer model(String modelPath) {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, listener);
     }
@@ -154,7 +154,7 @@ public final class ChainedTrainer {
     *
     * @param argument 超参数
     * @return 新管道
-     */
+    */
     public ChainedTrainer argument(TrainArgument argument) {
         return new ChainedTrainer(trainer, argument == null ? TrainArgument.defaults() : copy(argument),
                 modelPath, savePath, dataRootPath, listener);
@@ -165,7 +165,7 @@ public final class ChainedTrainer {
     *
     * @param epochs 迭代周期
     * @return 新管道
-     */
+    */
     public ChainedTrainer epochs(int epochs) {
         return withArgument(a -> a.setEpoch(epochs));
     }
@@ -175,7 +175,7 @@ public final class ChainedTrainer {
     *
     * @param batchSize 批次大小
     * @return 新管道
-     */
+    */
     public ChainedTrainer batchSize(int batchSize) {
         return withArgument(a -> a.setBatchSize(batchSize));
     }
@@ -185,7 +185,7 @@ public final class ChainedTrainer {
     *
     * @param nClasses 分类数
     * @return 新管道
-     */
+    */
     public ChainedTrainer classifier(int nClasses) {
         return withArgument(a -> a.setNClasses(nClasses));
     }
@@ -195,7 +195,7 @@ public final class ChainedTrainer {
     *
     * @param learningRate 学习率
     * @return 新管道
-     */
+    */
     public ChainedTrainer learningRate(double learningRate) {
         return withArgument(a -> a.setLearningRate(learningRate));
     }
@@ -205,7 +205,7 @@ public final class ChainedTrainer {
     *
     * @param momentum 动量
     * @return 新管道
-     */
+    */
     public ChainedTrainer momentum(double momentum) {
         return withArgument(a -> a.setLrMomentum(momentum));
     }
@@ -215,7 +215,7 @@ public final class ChainedTrainer {
     *
     * @param percent 训练集占比
     * @return 新管道
-     */
+    */
     public ChainedTrainer trainPercent(int percent) {
         return withArgument(a -> a.setTrainPercent(percent));
     }
@@ -225,7 +225,7 @@ public final class ChainedTrainer {
     *
     * @param listener 监听器
     * @return 新管道
-     */
+    */
     public ChainedTrainer listener(TrainListener listener) {
         return new ChainedTrainer(trainer, argument, modelPath, savePath, dataRootPath, listener);
     }
@@ -236,7 +236,7 @@ public final class ChainedTrainer {
     * @return 训练结果
     * @throws IllegalStateException 数据根目录或保存路径缺失
     * @throws Exception             训练失败
-     */
+    */
     public TrainResult fit() throws Exception {
         if (dataRootPath == null || dataRootPath.isBlank()) {
             throw new IllegalStateException("请先通过 .data(path) 指定训练数据根目录");
@@ -251,7 +251,7 @@ public final class ChainedTrainer {
     * 终端操作：以当前配置执行训练，并把底层异常包装为运行时异常（方便回调/线程中调用）。
     *
     * @return 训练结果
-     */
+    */
     public TrainResult fitUnchecked() {
         try {
             return fit();
@@ -264,7 +264,7 @@ public final class ChainedTrainer {
     * 对参数副本执行的链式命令（同一终端调用内部复用）。
     * @author CH
     * @since 4.0.0
-     */
+    */
     @FunctionalInterface
     private interface ArgumentConsumer {
         void apply(TrainArgument copy);
@@ -275,7 +275,7 @@ public final class ChainedTrainer {
     *
     * @param consumer 修改器
     * @return 新管道
-     */
+    */
     private ChainedTrainer withArgument(ArgumentConsumer consumer) {
         TrainArgument copy = copy(argument);
         consumer.apply(copy);
@@ -287,7 +287,7 @@ public final class ChainedTrainer {
     *
     * @param source 源配置
     * @return 副本
-     */
+    */
     private static TrainArgument copy(TrainArgument source) {
         TrainArgument copy = new TrainArgument();
         copy.setEpoch(source.getEpoch());
@@ -306,21 +306,21 @@ public final class ChainedTrainer {
     * 可读的属性访问器（内部使用，便于调试/打印）。
     *
     * @return 当前数据根目录
-     */
+    */
     public String dataRoot() {
         return dataRootPath;
     }
 
     /**
     * @return 底层训练器
-     */
+    */
     public Trainer trainer() {
         return trainer;
     }
 
     /**
     * @return 当前超参数副本
-     */
+    */
     public TrainArgument arguments() {
         return copy(argument);
     }

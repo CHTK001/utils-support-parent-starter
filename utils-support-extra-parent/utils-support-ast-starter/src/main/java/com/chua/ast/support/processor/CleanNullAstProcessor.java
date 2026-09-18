@@ -46,7 +46,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     * 处理参数
     *
     * @param paramElement 参数element
-     */
+    */
     private void processParameter(VariableElement paramElement) {
         Element enclosing = paramElement.getEnclosingElement();
         if (!(enclosing instanceof ExecutableElement methodElement)) {
@@ -96,7 +96,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     *
     * @param element element
     * @return 是否字符串类型的结果
-     */
+    */
     private boolean isStringType(VariableElement element) {
         TypeMirror type = element.asType();
         if (type.getKind() != TypeKind.DECLARED) {
@@ -113,7 +113,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     * @param paramName 参数名称
     * @param keywords keywords
     * @param isString 是否字符串
-     */
+    */
     private JCTree.JCStatement buildCleanStatement(TreeMaker maker, Names names,
                                                      String paramName, String[] keywords, boolean isString) {
         JCTree.JCIdent paramIdent = maker.Ident(names.fromString(paramName));
@@ -170,7 +170,7 @@ public final class CleanNullAstProcessor extends AbstractAstProcessor {
     *
     * @param body 主体
     * @param stmt stmt
-     */
+    */
     private void prependStatement(JCTree.JCBlock body, JCTree.JCStatement stmt) {
         body.stats = body.stats.prepend(stmt);
     }

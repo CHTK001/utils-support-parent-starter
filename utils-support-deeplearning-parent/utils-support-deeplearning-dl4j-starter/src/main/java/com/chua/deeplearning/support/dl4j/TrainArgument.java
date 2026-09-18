@@ -26,54 +26,54 @@ public class TrainArgument implements Serializable {
 
     /**
     * 迭代周期（轮次）。
-     */
+    */
     private Integer epoch;
 
     /**
     * 批次大小（批量 大小）。
-     */
+    */
     private Integer batchSize;
 
     /**
     * 分类数量（类别数，迁移学习输出层维度）。
-     */
+    */
     private Integer nClasses;
 
     /**
     * 图像分类标签（训练完成后由数据目录自动推导并回填）。
-     */
+    */
     private String classLabels;
 
     /**
     * 目标检测分类标签（预留）。
-     */
+    */
     private String detLabels;
 
     /**
     * 续训练模型路径。指定后从该已训练模型继续微调（不指定则使用默认预训练模型）。
-     */
+    */
     private String resumeModelPath;
 
     /**
     * 学习率（默认 1e-3）。
-     */
+    */
     private Double learningRate;
 
     /**
     * 动量（默认 0.9）。
-     */
+    */
     private Double lrMomentum;
 
     /**
     * 训练集占比（0~100，剩余作为测试集，默认 70）。
-     */
+    */
     private Integer trainPercent;
 
     /**
     * 创建默认训练超参数配置。
     *
     * @return 默认配置
-     */
+    */
     public static TrainArgument defaults() {
         return TrainArgument.builder()
                 .epoch(10)
@@ -93,7 +93,7 @@ public class TrainArgument implements Serializable {
     *
     * @param source 源配置，仅非空字段生效
     * @return 合并后的当前对象
-     */
+    */
     public TrainArgument merge(TrainArgument source) {
         if (source == null) {
             return this;

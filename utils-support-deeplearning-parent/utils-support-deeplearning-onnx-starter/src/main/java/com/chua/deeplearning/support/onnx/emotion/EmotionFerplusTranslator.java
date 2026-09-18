@@ -43,7 +43,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     /**
     * 创建 情绪ferplustranslator 实例
     * @param emotionLabels 情绪标签
-     */
+    */
     public EmotionFerplusTranslator(String[] emotionLabels) {
         this.emotionLabels = emotionLabels;
     }
@@ -102,7 +102,7 @@ public class EmotionFerplusTranslator implements Translator<Image, PredictResult
     *        softmax       
     * @param logits logits
     * @return softmax的结果
-     */
+    */
     private float[] softmax(float[] logits) {
         float max = 0.0f;
         if (logits.length > 0) {

@@ -48,7 +48,7 @@ public class PocketTtsTokenizer {
     *
     * @param vocabPath vocab.json 文件路径
     * @throws IOException IO 异常
-     */
+    */
     public void load(Path vocabPath) throws IOException {
         String content = Files.readString(vocabPath, StandardCharsets.UTF_8);
         parseVocab(content);
@@ -60,7 +60,7 @@ public class PocketTtsTokenizer {
     * 解析 vocab.json 内容（简单 JSON 对象格式）。
     *
     * @param json JSON 字符串
-     */
+    */
     private void parseVocab(String json) {
         String inner = json.trim();
         if (inner.startsWith("{")) {
@@ -94,7 +94,7 @@ public class PocketTtsTokenizer {
     *
     * @param text 输入文本
     * @return token 标识 数组
-     */
+    */
     public long[] encode(String text) {
         if (text == null || text.isBlank()) {
             return new long[]{(long) unkId};
@@ -148,7 +148,7 @@ public class PocketTtsTokenizer {
     * 获取词表大小。
     *
     * @return 词表大小
-     */
+    */
     public int vocabSize() {
         return vocab.size();
     }
@@ -158,7 +158,7 @@ public class PocketTtsTokenizer {
     *
     * @param list 元素列表
     * @return long 数组
-     */
+    */
     private static long[] toLongArray(List<Long> list) {
         long[] arr = new long[list.size()];
         for (int i = 0; i < list.size(); i++) {

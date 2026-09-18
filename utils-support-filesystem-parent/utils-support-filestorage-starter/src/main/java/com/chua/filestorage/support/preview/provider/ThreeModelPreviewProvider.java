@@ -20,14 +20,14 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
 
     /**
     * 支持的 3D 模型扩展名（小写）
-     */
+    */
     private static final Set<String> SUPPORTED = Set.of("glb", "gltf", "obj", "stl", "dxf");
 
     /**
     * @param ext  文件扩展名
     * @param mime MIME 类型（当前忽略）
     * @return true 表示支持预览
-     */
+    */
     @Override
     public boolean supports(String ext, String mime) {
         return ext != null && SUPPORTED.contains(ext.toLowerCase(Locale.ENGLISH));
@@ -64,7 +64,7 @@ public class ThreeModelPreviewProvider implements FileStoragePreviewProvider {
     * @param b64 b64
     * @param ext ext
     * @return 构建script的结果
-     */
+    */
     private String buildScript(String b64, String ext) {
         return "(async function(){var b='" + b64 + "';var e='" + ext.toLowerCase() + "';" +
  // 基础64 → array缓冲

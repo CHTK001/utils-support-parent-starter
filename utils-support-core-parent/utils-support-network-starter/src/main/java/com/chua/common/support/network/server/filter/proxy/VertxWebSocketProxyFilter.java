@@ -98,7 +98,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public void doFilter(ServerRequest request, ServerResponse response,
                          ServerFilterChain chain) throws Exception {
         if (tryProxyWebSocket(request, response)) {
@@ -113,7 +113,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     * @param request 请求
     * @param response 响应
     * @param chain chain
-     */
+    */
     public CompletionStage<Void> doFilter(ServerRequest request, ServerResponse response,
                                           ReactiveFilterChain chain) {
         if (tryProxyWebSocket(request, response)) {
@@ -126,8 +126,8 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     * 尝试 WebSocket 反向代理。成功返回 true（请求已被接管），否则返回 false。
     * @param request 请求
     * @param response 响应
-    * @return 尝试代理web套接字的结果
-     */
+    * @return 尝试代理webSocket的结果
+    */
     private boolean tryProxyWebSocket(ServerRequest request, ServerResponse response) {
         String upgrade = request.getHeader("Upgrade");
         if (upgrade == null || !upgrade.equalsIgnoreCase("websocket")) {
@@ -177,7 +177,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     * 建立客户端与后端之间的双向帧管道。
     * @param clientWs 客户端ws
     * @param backendWs backendws
-     */
+    */
     private void pipe(ServerWebSocket clientWs, WebSocket backendWs) {
         clientWs.frameHandler(frame -> {
             if (!backendWs.isClosed()) {
@@ -209,7 +209,7 @@ public class VertxWebSocketProxyFilter implements ServerFilter, ReactiveServerFi
     * @param response 响应
     * @param code 编码
     * @param msg msg
-     */
+    */
     private void sendError(ServerResponse response, int code, String msg) {
         if (!response.isEnded()) {
             response.setStatus(code);

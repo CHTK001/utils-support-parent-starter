@@ -33,47 +33,47 @@ public final class KeyProtector {
 
     /**
     * KEK/主密钥位数
-     */
+    */
     public static final int KEY_BITS = 256;
 
     /**
     * PBKDF2 迭代次数（OWASP 2024 推荐 60 万，兼顾启动耗时取 21 万）
-     */
+    */
     public static final int PBKDF2_ITERATIONS = 210_000;
 
     /**
     * GCM IV 长度（字节）
-     */
+    */
     public static final int GCM_IV_BYTES = 12;
 
     /**
     * GCM 认证标签长度（位）
-     */
+    */
     public static final int GCM_TAG_BITS = 128;
 
     /**
     * 盐长度（字节）
-     */
+    */
     public static final int SALT_BYTES = 16;
 
     /**
     * HMAC 输出长度（字节）
-     */
+    */
     public static final int MAC_BYTES = 32;
 
     /**
     * 盐值随机源（每次封装独立加盐）
-     */
+    */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
     * 口令拼接分隔符（服务端_BOUND 策略下指纹与 pepper 的连接符）
-     */
+    */
     private static final String SEP = "::";
 
     /**
     * 私有构造
-     */
+    */
     private KeyProtector() {
     }
 
@@ -84,7 +84,7 @@ public final class KeyProtector {
     * @param setting 加密配置（提供口令与服务器标识覆盖项）
     * @param salt    盐
     * @return 32 字节 KEK
-     */
+    */
     public static byte[] deriveKek(KeyPolicy policy, CryptoSetting setting, byte[] salt) {
         char[] password = buildPassword(policy, setting);
         try {
@@ -104,7 +104,7 @@ public final class KeyProtector {
     * @param policy  密钥策略
     * @param setting 加密配置
     * @return 口令字符数组（调用后由派生方清零）
-     */
+    */
     private static char[] buildPassword(KeyPolicy policy, CryptoSetting setting) {
         if (policy == KeyPolicy.CUSTOM) {
             requireSecret(setting);
@@ -126,7 +126,7 @@ public final class KeyProtector {
     * 校验 习俗 策略必须提供口令
     *
     * @param setting 加密配置
-     */
+    */
     private static void requireSecret(CryptoSetting setting) {
         if (setting.getSecret() == null || setting.getSecret().length == 0) {
             throw new CryptoException("CUSTOM 密钥策略要求提供自定义口令(secret)");
@@ -137,7 +137,7 @@ public final class KeyProtector {
     * 生成随机盐
     *
     * @return 16 字节盐
-     */
+    */
     public static byte[] randomSalt() {
         byte[] salt = new byte[SALT_BYTES];
         RANDOM.nextBytes(salt);
@@ -148,7 +148,7 @@ public final class KeyProtector {
     * 生成随机 GCM IV
     *
     * @return 12 字节 IV
-     */
+    */
     public static byte[] randomIv() {
         byte[] iv = new byte[GCM_IV_BYTES];
         RANDOM.nextBytes(iv);
@@ -162,7 +162,7 @@ public final class KeyProtector {
     * @param iv       GCM IV
     * @param masterKey 明文主密钥
     * @return 密文(含认证标签)
-     */
+    */
     public static byte[] wrap(byte[] kek, byte[] iv, byte[] masterKey) {
         return gcm(kek, iv, masterKey, Cipher.ENCRYPT_MODE);
     }
@@ -174,7 +174,7 @@ public final class KeyProtector {
     * @param iv  GCM IV
     * @param wrapped 密文
     * @return 明文主密钥
-     */
+    */
     public static byte[] unwrap(byte[] kek, byte[] iv, byte[] wrapped) {
         return gcm(kek, iv, wrapped, Cipher.DECRYPT_MODE);
     }
@@ -187,7 +187,7 @@ public final class KeyProtector {
     * @param data 数据
     * @param mode Cipher 模式
     * @return 结果字节
-     */
+    */
     private static byte[] gcm(byte[] kek, byte[] iv, byte[] data, int mode) {
         try {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
@@ -204,7 +204,7 @@ public final class KeyProtector {
     * @param kek  作为 HMAC 密钥的 KEK
     * @param data 待校验数据
     * @return 32 字节摘要
-     */
+    */
     public static byte[] mac(byte[] kek, byte[] data) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -221,7 +221,7 @@ public final class KeyProtector {
     * @param expected 期望摘要
     * @param actual   实际摘要
     * @return true 表示一致
-     */
+    */
     public static boolean verifyMac(byte[] expected, byte[] actual) {
         return MessageDigest.isEqual(expected, actual);
     }

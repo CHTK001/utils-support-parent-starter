@@ -118,7 +118,7 @@ public class ParaformerFbankExtractor {
     *
     * @param negMean   负均值数组，长度为 80
     * @param invStddev 逆标准差数组，长度为 80
-     */
+    */
     public void setCmvn(float[] negMean, float[] invStddev) {
         this.negMean = negMean;
         this.invStddev = invStddev;
@@ -131,7 +131,7 @@ public class ParaformerFbankExtractor {
     *
     * @param samples 16khz 单声道样本（int16 范围，约 ±32768）
     * @return (frames, 560) 扁平 float 数组，每帧 560 维
-     */
+    */
     public float[] extract(float[] samples) {
         float[][] fbank = computeFbank(samples);
         float[] lfr = applyLfr(fbank);
@@ -146,7 +146,7 @@ public class ParaformerFbankExtractor {
     *
     * @param inputFrames fbank 帧数
     * @return LFR 输出帧数
-     */
+    */
     public static int lfrFrames(int inputFrames) {
         if (inputFrames == 0) {
             return 0;
@@ -159,7 +159,7 @@ public class ParaformerFbankExtractor {
     *
     * @param samples 16khz 单声道样本
     * @return (frames, 80) 特征矩阵
-     */
+    */
     private float[][] computeFbank(float[] samples) {
         int numFrames = numFrames(samples.length);
         float[][] features = new float[numFrames][N_MELS];
@@ -212,7 +212,7 @@ public class ParaformerFbankExtractor {
     *
     * @param fbank (帧, 80) 特征矩阵
     * @return 扁平 (lfr帧 * 560) 数组
-     */
+    */
     private float[] applyLfr(float[][] fbank) {
         int inputFrames = fbank.length;
         int outputFrames = lfrFrames(inputFrames);
@@ -241,7 +241,7 @@ public class ParaformerFbankExtractor {
     * CMVN 归一化：对每个 80 维块执行 (x + neg_mean) × inv_stddev。
     *
     * @param features 扁平特征数组（LFR 后）
-     */
+    */
     private void applyCmvn(float[] features) {
         int dim = negMean.length;
         for (int i = 0; i < features.length; i++) {
@@ -255,7 +255,7 @@ public class ParaformerFbankExtractor {
     *
     * @param numSamples 样本总数
     * @return 帧数
-     */
+    */
     private static int numFrames(int numSamples) {
         if (numSamples < WINDOW_SIZE) {
             return 0;
@@ -267,7 +267,7 @@ public class ParaformerFbankExtractor {
     * 去除直流分量（减去均值）。
     *
     * @param buf 帧数据，原地修改
-     */
+    */
     private static void removeDcOffset(float[] buf) {
         float sum = 0.0f;
         for (float v : buf) {
@@ -284,7 +284,7 @@ public class ParaformerFbankExtractor {
     *
     * @param padded 补零后的 512 样本
     * @return 257 维 power 谱
-     */
+    */
     private float[] powerSpectrum(float[] padded) {
         FftRadix2 fft = new FftRadix2(PADDED_WINDOW_SIZE);
         float[] real = padded;
@@ -302,7 +302,7 @@ public class ParaformerFbankExtractor {
     * 构造 hamming 窗：0.54 - 0.46·COS(2πi/(N-1))。
     *
     * @return 400 维窗口系数
-     */
+    */
     private static float[] buildWindow() {
         float[] w = new float[WINDOW_SIZE];
         double a = 2.0 * Math.PI / (WINDOW_SIZE - 1);
@@ -316,7 +316,7 @@ public class ParaformerFbankExtractor {
     * 构造 kaldi mel 滤波器组（80 bins，20~8000Hz，htk 公式）。
     *
     * @return 滤波器组权重与偏移
-     */
+    */
     private static MelBank buildMelBank() {
         float nyquist = 0.5f * SAMPLE_RATE;
         float fftBinWidth = SAMPLE_RATE / PADDED_WINDOW_SIZE;
@@ -365,7 +365,7 @@ public class ParaformerFbankExtractor {
     *
     * @param freq 频率（Hz）
     * @return mel 值
-     */
+    */
     private static float melScale(float freq) {
         return (float) (1127.0 * Math.log(1.0 + freq / 700.0));
     }
@@ -376,7 +376,7 @@ public class ParaformerFbankExtractor {
     * @param weights 每行权重数组
     * @param offsets 每行起始 fft bin
     * @return MelBank的结果
-     */
+    */
     private record MelBank(float[][] weights, int[] offsets) {
     }
 }

@@ -46,7 +46,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     * 解析v卡片。
     * @param vcf vcf
     * @return 解析v卡片的结果
-     */
+    */
     }
 
     private List<ContactInfo> parseVCard(String vcf) {
@@ -110,7 +110,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     * extract值。
     * @param line 线
     * @return extract值的结果
-     */
+    */
     }
 
     private String extractValue(String line) {
@@ -124,7 +124,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     * @param contacts contacts
     * @param fileSize 文件大小
     * @return 构建html的结果
-     */
+    */
     }
 
     private String buildHtml(List<ContactInfo> contacts, long fileSize) {
@@ -205,7 +205,7 @@ public class VCardPreviewProvider implements FileStoragePreviewProvider {
     * @author CH
     * @since 4.0.0
     * @param bytes bytes
-     */
+    */
     }
 
     private String escapeHtml(String text) {

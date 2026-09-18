@@ -214,7 +214,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param config 文档配置
     * @return true 表示解析全部 模式
-     */
+    */
     private static boolean isAllMode(DocumentConfig config) {
         if (config.getOptions() == null) {
             return false;
@@ -234,7 +234,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param config 文档配置
     * @return schema 名称集合，空 表示全部
-     */
+    */
     private static Set<String> resolveSchemas(DocumentConfig config) {
         if (config.getOptions() == null) {
             return null;
@@ -262,7 +262,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param config 文档配置
     * @return 版本号字符串
-     */
+    */
     private static String resolveVersion(DocumentConfig config) {
         if (config.getOptions() == null) {
             return "1.0.0";
@@ -279,7 +279,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param url JDBC 连接 URL
     * @return 数据库名，无法提取返回 空
-     */
+    */
     private static String extractCatalog(String url) {
         int idx = url.indexOf('?');
         String base = idx > 0 ? url.substring(0, idx) : url;
@@ -299,7 +299,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     * @param catalog 数据库目录
     * @param schemas 模式 名称集合
     * @return 数据库名称
-     */
+    */
     private static String buildDbName(String catalog, Set<String> schemas) {
         if (schemas.size() == 1) {
             return schemas.iterator().next();
@@ -315,7 +315,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param c 列数据
     * @return 列 构建器
-     */
+    */
     private static ColumnData.ColumnDataBuilder toBuilder(ColumnData c) {
         return ColumnData.builder()
                 .ordinalPosition(c.getOrdinalPosition())
@@ -334,7 +334,7 @@ public class DatabaseDocumentParser implements DocumentParser {
     *
     * @param rule JDBC 规则编码
     * @return 规则文本
-     */
+    */
     private static String resolveRule(short rule) {
         return switch (rule) {
             case DatabaseMetaData.importedKeyCascade -> "CASCADE";

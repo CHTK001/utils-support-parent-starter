@@ -18,7 +18,7 @@ public class VisDroneSmallDetectorTranslator extends YoloTranslator {
         * 创建 Translator（支持运行参数覆盖阈值，未提供的键使用内置默认值）。
         *
         * @param configuration 检测配置（可空）
-     */
+        */
     public VisDroneSmallDetectorTranslator(com.chua.deeplearning.support.ai.DetectionConfiguration configuration) {
         super(640,
                 configuration == null ? 0.10f

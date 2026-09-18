@@ -130,7 +130,7 @@ public enum DataSyncErrorCode {
     * 获取错误码数字。
     *
     * @return 错误码
-     */
+    */
     public int code() {
         return code;
     }
@@ -139,7 +139,7 @@ public enum DataSyncErrorCode {
     * 获取格式化模板。
     *
     * @return 模板字符串
-     */
+    */
     public String template() {
         return template;
     }
@@ -149,7 +149,7 @@ public enum DataSyncErrorCode {
     *
     * @param args 参数
     * @return 格式化后的错误消息
-     */
+    */
     public String format(Object... args) {
         if (args == null || args.length == 0) {
             return template;
@@ -165,7 +165,7 @@ public enum DataSyncErrorCode {
     * 获取完整错误码字符串。
     *
     * @return DSYNC-{code} 格式的字符串
-     */
+    */
     public String codeString() {
         return "DSYNC-" + code;
     }
@@ -175,7 +175,7 @@ public enum DataSyncErrorCode {
     *
     * @param args 参数
     * @return 格式化的错误消息，含错误码前缀
-     */
+    */
     public String formatWithCode(Object... args) {
         return codeString() + " " + format(args);
     }

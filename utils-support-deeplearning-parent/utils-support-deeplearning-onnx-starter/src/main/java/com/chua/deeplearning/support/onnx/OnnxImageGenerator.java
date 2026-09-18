@@ -17,13 +17,13 @@ public class OnnxImageGenerator implements ImageGenerator {
 
     /**
     * 模型名称
-     */
+    */
     private String modelName;
 
     /**
     * 创建 onnx镜像生成器 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxImageGenerator(String apiKey) {
     }
 
@@ -38,7 +38,7 @@ public class OnnxImageGenerator implements ImageGenerator {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         if (modelName == null) {
             throw new IllegalStateException("未指定模型，请通过 .model(\"模型ID\") 显式指定，可用模型: " + ImageGenerator.listModels());

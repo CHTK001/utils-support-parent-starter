@@ -88,7 +88,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
         if (shared == null) {
             /**
             * prepare。
-             */
+            */
             synchronized (C3DActionDetectionTranslator.class) {
                 if (shared == null) {
                     shared = new C3DActionDetectionTranslator();
@@ -129,7 +129,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                 * @return 名称的结果
                 * @param frames 帧
                 * @param videoData 视频数据
-                 */
+                */
                 OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
                 opts.setIntraOpNumThreads(Math.min(4, Runtime.getRuntime().availableProcessors()));
                 this.session = ortEnv.createSession(cache.resolve(MODEL_FILE).toString(), opts);
@@ -257,7 +257,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         * @param predBboxes predBboxes
                         * @param predScores predScores
                         * @param timestamp 时间戳
-                         */
+                        */
                         data[2 * chStride + pixelOffset] = (float) pixel[2];
                     }
                 }
@@ -333,7 +333,7 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                         * @param detections detections
                         * @param threshold 阈值
                         * @return nms的结果
-                         */
+                        */
                         timestamp, ACTION_NAMES[d.classId], d.score,
                         d.x1, d.y1, d.x2 - d.x1, d.y2 - d.y1));
             }
@@ -368,14 +368,14 @@ private static final int INPUT_CHANNELS = 3; // 输入通道
                     * @param y2 y2
                     * @param score score
                     * @param classId 类id
-                     */
+                    */
                     suppressed[j] = true;
                 /**
                 * computeIou。
                 * @param a a
                 * @param b b
                 * @return computeIou的结果
-                 */
+                */
                 }
             }
         }

@@ -33,51 +33,51 @@ public record SqlCipherProfile(String name, int pageSize, String kdfAlgorithm, i
                                String hmacAlgorithm, int hmacSize) {
 
     /**
-     * salt 字节数（数据库首部明文区）
-     */
+    * salt 字节数（数据库首部明文区）
+    */
     public static final int SALT_SIZE = 16;
 
     /**
-     * AES-CBC 初始化向量字节数
-     */
+    * AES-CBC 初始化向量字节数
+    */
     public static final int IV_SIZE = 16;
 
     /**
-     * AES-256 密钥字节数
-     */
+    * AES-256 密钥字节数
+    */
     public static final int KEY_SIZE = 32;
 
     /**
-     * AES 分组字节数
-     */
+    * AES 分组字节数
+    */
     public static final int AES_BLOCK_SIZE = 16;
 
     /**
-     * 最小合法页大小
-     */
+    * 最小合法页大小
+    */
     private static final int MIN_PAGE_SIZE = 512;
 
     /**
-     * 最大合法页大小
-     */
+    * 最大合法页大小
+    */
     private static final int MAX_PAGE_SIZE = 65536;
 
     /**
-     * 候选档案（按探测优先级排列）。
-     *
-     * <p>第一项为微信 4.x 实测口径；第二项为同族 SQLCipher 4 的 1024 页变体，
-     * 仅作兼容探测，命中与否以页面 HMAC 校验结果为准。</p>
-     */
+    * 候选档案（按探测优先级排列）。
+    *
+    * <p>第一项为微信 4.x 实测口径；第二项为同族 SQLCipher 4 的 1024 页变体，
+    * 仅作兼容探测，命中与否以页面 HMAC 校验结果为准。</p>
+    */
     private static final List<SqlCipherProfile> CANDIDATES = List.of(
             new SqlCipherProfile("wechat-4", 4096, "PBKDF2WithHmacSHA512", 256000, "HmacSHA512", 64),
             new SqlCipherProfile("sqlcipher-4", 1024, "PBKDF2WithHmacSHA512", 256000, "HmacSHA512", 64)
     );
 
     /**
-     * 紧凑构造器：校验参数自洽性。
-     *
-     * @throws IllegalArgumentException 页大小越界或密文长度非 AES 分组整数倍时抛出
-     */
+    * 紧凑构造器：校验参数自洽性。
+    *
+    * @throws IllegalArgumentException 页大小越界或密文长度非 AES 分组整数倍时抛出
+    */
     public SqlCipherProfile {
         if (pageSize < MIN_PAGE_SIZE || pageSize > MAX_PAGE_SIZE) {
             throw new IllegalArgumentException("非法页大小: " + pageSize);
@@ -98,47 +98,47 @@ public record SqlCipherProfile(String name, int pageSize, String kdfAlgorithm, i
     }
 
     /**
-     * 每页保留区字节数（IV + HMAC）。
-     *
-     * @return 保留区字节数，微信 4.x 为 80
-     */
+    * 每页保留区字节数（IV + HMAC）。
+    *
+    * @return 保留区字节数，微信 4.x 为 80
+    */
     public int reserveSize() {
         return IV_SIZE + hmacSize;
     }
 
     /**
-     * 非首页的密文区字节数。
-     *
-     * @return 密文区字节数，微信 4.x 为 4016
-     */
+    * 非首页的密文区字节数。
+    *
+    * @return 密文区字节数，微信 4.x 为 4016
+    */
     public int cipherSize() {
         return pageSize - reserveSize();
     }
 
     /**
-     * 指定页的密文区字节数。
-     *
-     * @param firstPage 是否首页（首页需额外扣除 16 字节 salt）
-     * @return 密文区字节数，微信 4.x 首页为 4000、其余页为 4016
-     */
+    * 指定页的密文区字节数。
+    *
+    * @param firstPage 是否首页（首页需额外扣除 16 字节 salt）
+    * @return 密文区字节数，微信 4.x 首页为 4000、其余页为 4016
+    */
     public int cipherSize(boolean firstPage) {
         return firstPage ? cipherSize() - SALT_SIZE : cipherSize();
     }
 
     /**
-     * 是否启用页面 HMAC 校验。
-     *
-     * @return HMAC 长度大于 0 返回 true
-     */
+    * 是否启用页面 HMAC 校验。
+    *
+    * @return HMAC 长度大于 0 返回 true
+    */
     public boolean hmacEnabled() {
         return hmacSize > 0;
     }
 
     /**
-     * 获取候选档案列表（按探测优先级）。
-     *
-     * @return 不可变候选列表
-     */
+    * 获取候选档案列表（按探测优先级）。
+    *
+    * @return 不可变候选列表
+    */
     public static List<SqlCipherProfile> candidates() {
         return CANDIDATES;
     }

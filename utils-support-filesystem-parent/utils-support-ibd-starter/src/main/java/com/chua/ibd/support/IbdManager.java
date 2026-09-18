@@ -33,29 +33,29 @@ public class IbdManager {
 
     /**
     * 资源路径前缀（JAR 内）
-     */
+    */
     private final String resourcePrefix;
 
     /**
     * 工作目录（解压目标）
-     */
+    */
     private final Path workDir;
 
     /**
     * 已解压的资源缓存
-     */
+    */
     private final Map<String, Path> extractedResources = new ConcurrentHashMap<>();
 
     /**
     * 脚本提供者
-     */
+    */
     private ScriptExecutor scriptExecutor;
 
     /**
     * 创建 IBD 管理器
     *
     * @param resourcePrefix JAR 内资源路径前缀（如 "ibd"）
-     */
+    */
     public IbdManager(String resourcePrefix) {
         this.resourcePrefix = resourcePrefix;
         this.workDir = Path.of(System.getProperty("java.io.tmpdir"), "ibd-" + resourcePrefix);
@@ -65,7 +65,7 @@ public class IbdManager {
     * 使用指定工作目录创建
     * @param resourcePrefix resource前缀
     * @param workDir workdir
-     */
+    */
     public IbdManager(String resourcePrefix, Path workDir) {
         this.resourcePrefix = resourcePrefix;
         this.workDir = workDir;
@@ -75,7 +75,7 @@ public class IbdManager {
     * 创建 IBD 管理器（便捷方法）
     * @param resourcePrefix resource前缀
     * @return 创建的结果
-     */
+    */
     public static IbdManager create(String resourcePrefix) {
         return new IbdManager(resourcePrefix);
     }
@@ -84,7 +84,7 @@ public class IbdManager {
     * 初始化：解压 JAR 内资源到工作目录
     *
     * @throws IOException 解压失败时抛出
-     */
+    */
     public void init() throws IOException {
         Files.createDirectories(workDir);
         extractResources();
@@ -95,7 +95,7 @@ public class IbdManager {
     *
     * @param resourceName 资源名称（如 "配置.json"、"script/处理.py"）
     * @return 资源文件路径
-     */
+    */
     public Path getResource(String resourceName) {
         return workDir.resolve(resourceName);
     }
@@ -103,7 +103,7 @@ public class IbdManager {
     /**
     * 获取所有已解压的资源
     * @return 获取extractedresources的结果
-     */
+    */
     public Map<String, Path> getExtractedResources() {
         return extractedResources;
     }
@@ -111,7 +111,7 @@ public class IbdManager {
     /**
     * 获取工作目录
     * @return 获取workdir的结果
-     */
+    */
     public Path getWorkDir() {
         return workDir;
     }
@@ -119,7 +119,7 @@ public class IbdManager {
     /**
     * 设置脚本执行器
     * @param executor 执行器
-     */
+    */
     public void setScriptExecutor(ScriptExecutor executor) {
         this.scriptExecutor = executor;
     }
@@ -130,7 +130,7 @@ public class IbdManager {
     * @param scriptName 脚本名称（如 "处理.py"）
     * @param context    上下文参数
     * @return 脚本执行结果
-     */
+    */
     public String executeScript(String scriptName, Map<String, Object> context) {
         if (scriptExecutor == null) {
             throw new IllegalStateException("未配置脚本执行器，请调用 setScriptExecutor()");
@@ -141,7 +141,7 @@ public class IbdManager {
 
     /**
     * 从 JAR 内解压资源
-     */
+    */
     private void extractResources() throws IOException {
         String classPath = getClass().getProtectionDomain()
                 .getCodeSource().getLocation().getPath();
@@ -159,7 +159,7 @@ public class IbdManager {
     * extract从jar
     *
     * @param jarPath jar路径
-     */
+    */
     private void extractFromJar(String jarPath) throws IOException {
         Path jar = Path.of(jarPath);
         try (var fs = FileSystems.newFileSystem(jar)) {
@@ -185,10 +185,10 @@ public class IbdManager {
     }
 
     /**
-    * extract从类路径
-    *
-    * @param classPath 类路径
-     */
+                * extract从类路径
+                *
+                * @param classPath 类路径
+                */
     private void extractFromClasspath(String classPath) {
  // 类路径 目录模式下，资源已在原位，无需解压
     }

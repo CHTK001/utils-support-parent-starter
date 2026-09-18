@@ -23,7 +23,7 @@ public class NetAddress {
     *
     * @param host 主机地址
     * @param port 端口号
-     */
+    */
     public NetAddress(String host, int port) {
         this.host = host;
         this.port = port;
@@ -34,7 +34,7 @@ public class NetAddress {
     *
     * @param address 格式 {@code host:port} 或仅 {@code host}（端口默认 0）
     * @return 解析后的 net地址
-     */
+    */
     public static NetAddress of(String address) {
         if (address == null || address.isBlank()) {
             return new NetAddress();
@@ -52,7 +52,7 @@ public class NetAddress {
     * 获取主机地址
     *
     * @return 获取主机的结果
-     */
+    */
     public String getHost() {
         return host;
     }
@@ -61,7 +61,7 @@ public class NetAddress {
     * 设置主机地址
     *
     * @param host 主机
-     */
+    */
     public void setHost(String host) {
         this.host = host;
     }
@@ -70,7 +70,7 @@ public class NetAddress {
     * 获取端口号
     *
     * @return 获取端口的结果
-     */
+    */
     public int getPort() {
         return port;
     }
@@ -79,7 +79,7 @@ public class NetAddress {
     * 设置端口号
     *
     * @param port 端口
-     */
+    */
     public void setPort(int port) {
         this.port = port;
     }

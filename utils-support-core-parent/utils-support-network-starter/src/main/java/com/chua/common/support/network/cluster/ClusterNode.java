@@ -60,7 +60,7 @@ public class ClusterNode implements AutoCloseable {
     /**
     * cluster节点。
     * @param clusterSetting clustersetting
-     */
+    */
     public ClusterNode(ClusterSetting clusterSetting) throws Exception {
         this.clusterSetting = clusterSetting;
         this.scatterId = clusterSetting.getScatterId() == null || clusterSetting.getScatterId().isBlank()
@@ -79,7 +79,7 @@ public class ClusterNode implements AutoCloseable {
 
     /**
     * 启动节点：绑定端口 → 启动 discovery 定时任务 → 启动 HTTP/TCP 代理 → 注册服务。
-     */
+    */
     public void start() throws Exception {
  // ① 先启动 节点服务端，确定 scatter 通信端口
         this.nodeServer = new TcpScatterBuilder(clusterSetting.toScatterSetting())
@@ -145,7 +145,7 @@ public class ClusterNode implements AutoCloseable {
     * 解析实际使用的服务路径列表。
     *
     * @return resolve服务路径的结果
-     */
+    */
     private List<String> resolveServicePaths() {
         List<String> paths = clusterSetting.getServicePaths();
         if (paths == null || paths.isEmpty()) {
@@ -210,7 +210,7 @@ public class ClusterNode implements AutoCloseable {
     /**
     * discovery。
     * @return discovery的结果
-     */
+    */
     public ScatterServiceDiscovery discovery() {
         return discovery;
     }
@@ -218,7 +218,7 @@ public class ClusterNode implements AutoCloseable {
     /**
     * 获取http端口。
     * @return 获取http端口的结果
-     */
+    */
     public int getHttpPort() {
         return httpPort;
     }
@@ -226,7 +226,7 @@ public class ClusterNode implements AutoCloseable {
     /**
     * 获取tcp端口。
     * @return 获取tcp端口的结果
-     */
+    */
     public int getTcpPort() {
         return tcpPort;
     }
@@ -234,7 +234,7 @@ public class ClusterNode implements AutoCloseable {
     /**
     * 获取scatter端口。
     * @return 获取scatter端口的结果
-     */
+    */
     public int getScatterPort() {
         return scatterPort;
     }

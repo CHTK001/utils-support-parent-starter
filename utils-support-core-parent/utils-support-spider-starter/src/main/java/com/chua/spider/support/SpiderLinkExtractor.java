@@ -29,7 +29,7 @@ public interface SpiderLinkExtractor {
     *
     * @param response 爬取响应，包含原始内容和内容类型
     * @return 提取出的链接 URL 列表，按发现顺序排列
-     */
+    */
     List<String> extract(SpiderResponse response);
 
     /**
@@ -39,7 +39,7 @@ public interface SpiderLinkExtractor {
     * 空数组表示支持所有类型。
     *
     * @return 支持的内容类型数组
-     */
+    */
     default String[] supportedContentTypes() {
         return new String[0];
     }

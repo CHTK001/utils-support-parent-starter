@@ -19,7 +19,7 @@ public class DirectionInfo {
     * @param name 名称
     * @param probability double
     * @param probability probability
-     */
+    */
     public DirectionInfo(String name, double probability) {
         this.name = name;
         this.probability = probability;
@@ -29,7 +29,7 @@ public class DirectionInfo {
     * 获取名称
     *
     * @return 获取名称的结果
-     */
+    */
     public String getName() {
         return name;
     }
@@ -38,7 +38,7 @@ public class DirectionInfo {
     * 获取Probability
     *
     * @return 获取probability的结果
-     */
+    */
     public double getProbability() {
         return probability;
     }

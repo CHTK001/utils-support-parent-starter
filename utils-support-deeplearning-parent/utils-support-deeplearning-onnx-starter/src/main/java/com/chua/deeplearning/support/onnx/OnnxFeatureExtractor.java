@@ -21,7 +21,7 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     /**
     * 创建 onnx特征extractor 实例
     * @param apiKey API密钥
-     */
+    */
     public OnnxFeatureExtractor(String apiKey) {
     }
 
@@ -36,7 +36,7 @@ public class OnnxFeatureExtractor implements FeatureExtractor {
     * 解析模型
     *
     * @return resolve模型的结果
-     */
+    */
     private String resolveModel() {
         return modelName != null ? modelName : "dino-v2";
     }

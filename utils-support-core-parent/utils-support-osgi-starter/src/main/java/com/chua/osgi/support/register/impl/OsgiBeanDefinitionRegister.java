@@ -38,7 +38,7 @@ public class OsgiBeanDefinitionRegister extends BeanSingletonRegistry implements
     * 设置 osgi 启动器（由 Spring 注入，替代静态持有）。
     *
     * @param osgiLauncher osgi 启动器
-     */
+    */
     public void setOsgiLauncher(OsgiLauncher osgiLauncher) {
         this.osgiLauncher = osgiLauncher;
     }

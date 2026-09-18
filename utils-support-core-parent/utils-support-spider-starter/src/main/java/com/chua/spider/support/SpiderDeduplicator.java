@@ -19,7 +19,7 @@ public final class SpiderDeduplicator {
 
     /**
     * 工具类防实例化。
-     */
+    */
     private SpiderDeduplicator() {
     }
 }

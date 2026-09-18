@@ -26,7 +26,7 @@ public class RectangleCodeEyeResolver implements CodeEyeResolver{
     /**
     * 创建 rectangle编码eye解析器 实例
     * @param unitWidth unitwidth
-     */
+    */
     public RectangleCodeEyeResolver(int unitWidth) {
         this.unitWidth = unitWidth;
     }

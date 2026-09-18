@@ -32,7 +32,7 @@ public class CaptchaRunClient implements CaptchaParser {
     /**
     * 创建 captcha运行客户端 实例
     * @param setting setting
-     */
+    */
     public CaptchaRunClient(CaptchaSetting setting) {
         this.setting = setting;
     }
@@ -42,7 +42,7 @@ public class CaptchaRunClient implements CaptchaParser {
     *
     * @param taskPersistence 任务persistence
     * @return withPersistence的结果
-     */
+    */
     public CaptchaRunClient withPersistence(TaskPersistence taskPersistence) {
         this.taskPersistence = taskPersistence;
         return this;
@@ -94,7 +94,7 @@ public class CaptchaRunClient implements CaptchaParser {
     * 获取用户信息
     *
     * @return 获取用户信息的结果
-     */
+    */
     public Map<String, Object> getUserInfo() {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/users/self");
@@ -112,7 +112,7 @@ public class CaptchaRunClient implements CaptchaParser {
     * 获取Balance
     *
     * @return 获取balance的结果
-     */
+    */
     public double getBalance() {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/users/self/wallet");
@@ -137,7 +137,7 @@ public class CaptchaRunClient implements CaptchaParser {
     *
     * @param url url
     * @return 执行获取的结果
-     */
+    */
     private String doGet(String url) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
@@ -164,7 +164,7 @@ public class CaptchaRunClient implements CaptchaParser {
     * @param url url
     * @param body 主体
     * @return 执行post的结果
-     */
+    */
     private String doPost(String url, Map<String, Object> body) throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(setting.getConnectTimeout()))
@@ -191,7 +191,7 @@ public class CaptchaRunClient implements CaptchaParser {
     *
     * @param body 主体
     * @return 创建任务的结果
-     */
+    */
     private String createTask(Map<String, Object> body) {
         try {
             String json = doPost(setting.getApiUrl() + "/v2/tasks", body);
@@ -210,7 +210,7 @@ public class CaptchaRunClient implements CaptchaParser {
     *
     * @param taskId 任务标识
     * @return 获取任务结果的结果
-     */
+    */
     private CaptchaResponse getTaskResult(String taskId) {
         try {
             String json = doGet(setting.getApiUrl() + "/v2/tasks/" + taskId);
@@ -270,7 +270,7 @@ public class CaptchaRunClient implements CaptchaParser {
     * @param map 映射
     * @param key 键
     * @param value 值
-     */
+    */
     private static void putIfNotBlank(Map<String, Object> map, String key, String value) {
         if (StringUtils.isNotBlank(value)) {
             map.put(key, value);

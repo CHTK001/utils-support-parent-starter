@@ -402,8 +402,8 @@ public class JacksonJsonProvider implements JsonProvider {
             PropertyFilter filter = new SimpleBeanPropertyFilter() {
 
                 /**
-                * 判断字段是否应该作为属性序列化
-                */
+    * 判断字段是否应该作为属性序列化
+    */
                 @Override
                 public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws IOException {
                     // 如果字段名在忽略列表中，则跳过该字段

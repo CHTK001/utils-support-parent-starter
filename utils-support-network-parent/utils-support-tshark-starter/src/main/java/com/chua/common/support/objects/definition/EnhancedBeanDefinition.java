@@ -36,7 +36,7 @@ public interface EnhancedBeanDefinition {
     *
     * @author CH
     * @since 4.0.0
-     */
+    */
 
     interface MethodDefinition {
     }

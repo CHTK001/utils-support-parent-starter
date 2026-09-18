@@ -42,7 +42,7 @@ public class SpiderFieldMapper {
 
     /**
     * 构造器（不使用 AI 提取）。
-     */
+    */
     public SpiderFieldMapper() {
         this.chatClient = null;
     }
@@ -52,7 +52,7 @@ public class SpiderFieldMapper {
     *
     * @param aiProvider AI 服务商名称，如 "openai"、"deepseek"
     * @param aiApiKey   API 键
-     */
+    */
     public SpiderFieldMapper(String aiProvider, String aiApiKey) {
         if (aiProvider != null && aiApiKey != null) {
             this.chatClient = ChatClient.create(
@@ -70,7 +70,7 @@ public class SpiderFieldMapper {
     * @param result 结果
     * @param clazz clazz
     * @return 映射的结果
-     */
+    */
     @SuppressWarnings("unchecked")
     public <T> T map(SpiderResult result, Class<T> clazz) {
         try {
@@ -126,7 +126,7 @@ public class SpiderFieldMapper {
     * @param html HTML
     * @param annotation 注解
     * @return extractBySelector的结果
-     */
+    */
     private String extractBySelector(String html, SpiderField annotation) {
         if (StringUtils.isEmpty(html)) {
             return null;
@@ -151,7 +151,7 @@ public class SpiderFieldMapper {
 
     /**
     * 通过 AI 批量提取字段值。
-     */
+    */
     private Map<String, String> extractByAi(SpiderResult result, Class<?> clazz,
                                              Map<String, String> aiFields) {
         Map<String, String> results = new LinkedHashMap<>();
@@ -198,7 +198,7 @@ public class SpiderFieldMapper {
     * 解析 JSON 响应，优先使用 Jackson，失败时回退到手动解析。
     * @param json json
     * @param results 结果
-     */
+    */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void parseJsonResponse(String json, Map<String, String> results) {
         // 清理 JSON 包裹
@@ -251,7 +251,7 @@ public class SpiderFieldMapper {
     * @param instance instance
     * @param field 字段
     * @param value 值
-     */
+    */
     private void setFieldValue(Object instance, Field field, String value) {
         try {
             Class<?> type = field.getType();

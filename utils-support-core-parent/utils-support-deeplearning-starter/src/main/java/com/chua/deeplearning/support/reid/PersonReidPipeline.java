@@ -31,24 +31,24 @@ public class PersonReidPipeline {
 
     /**
     * 特征提取器
-     */
+    */
     private final FeatureExtractor extractor;
 
     /**
     * 行人检测器（可为 空，不检测直接提特征）
-     */
+    */
     private final ImageDetector detector;
 
     /**
     * 向量入库设施（可选；注入后启用持久化 enroll/搜索）
-     */
+    */
     private final VectorStorage storage;
 
     /**
     * 构造 reid 管线。
     *
     * @param extractor 特征提取模型（如 clip-镜像-特征、resnet50-特征 等）
-     */
+    */
     public PersonReidPipeline(FeatureExtractor extractor) {
         this(extractor, null);
     }
@@ -58,7 +58,7 @@ public class PersonReidPipeline {
     *
     * @param extractor 特征提取模型
     * @param detector  行人检测模型（可为 空）
-     */
+    */
     public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector) {
         this(extractor, detector, null);
     }
@@ -69,7 +69,7 @@ public class PersonReidPipeline {
     * @param extractor 特征提取模型
     * @param detector  行人检测模型（可为 空）
     * @param storage   向量库；为 空 时使用本地文件库
-     */
+    */
     public PersonReidPipeline(FeatureExtractor extractor, ImageDetector detector,
             VectorStorage storage) {
         this.extractor = extractor;
@@ -81,7 +81,7 @@ public class PersonReidPipeline {
     * 默认文件向量库（512 维，与 reid 特征一致）。
     *
     * @return 存储实例
-     */
+    */
     private static VectorStorage defaultStorage() {
         try {
             Path dir = Path.of(System.getProperty("java.io.tmpdir"), "chua-reid");
@@ -99,7 +99,7 @@ public class PersonReidPipeline {
     * @param label   标签/路径
     * @param bbox    检测框（可为 空）
     * @return GalleryEntry的结果
-     */
+    */
     public record GalleryEntry(float[] feature, String label, DetectionInfo bbox) {}
 
     /**
@@ -109,7 +109,7 @@ public class PersonReidPipeline {
     * @param score  相似度（0~1）
     * @param bbox   检测框
     * @return 搜索结果的结果
-     */
+    */
     public record SearchResult(String label, float score, DetectionInfo bbox) {}
 
     /**
@@ -117,7 +117,7 @@ public class PersonReidPipeline {
     *
     * @param imageData 图像
     * @return 特征向量
-     */
+    */
     public float[] extract(byte[] imageData) {
         return extractor.extract(imageData);
     }
@@ -128,7 +128,7 @@ public class PersonReidPipeline {
     * @param images  图库图像列表
     * @param labels  对应标签列表
     * @return 图库特征条目
-     */
+    */
     public List<GalleryEntry> buildGallery(List<byte[]> images, List<String> labels) {
         List<GalleryEntry> gallery = new ArrayList<>();
         for (int i = 0; i < images.size(); i++) {
@@ -146,7 +146,7 @@ public class PersonReidPipeline {
     * @param gallery   图库
     * @param topK      返回数量
     * @return 排序结果
-     */
+    */
     public List<SearchResult> search(float[] queryFeat, List<GalleryEntry> gallery, int topK) {
         if (queryFeat == null || gallery == null || gallery.isEmpty()) {
             return List.of();
@@ -182,7 +182,7 @@ public class PersonReidPipeline {
     * @param gallery    图库特征条目
     * @param topK      返回数量
     * @return 排序结果
-     */
+    */
     public List<SearchResult> search(byte[] queryImage, List<GalleryEntry> gallery, int topK) {
         float[] queryFeat = extractor.extract(queryImage);
         return search(queryFeat, gallery, topK);
@@ -192,7 +192,7 @@ public class PersonReidPipeline {
     * L2 归一化。
     * @param vec vec
     * @return normalize的结果
-     */
+    */
     private static float[] normalize(float[] vec) {
         float norm = 0f;
         for (float v : vec) {
@@ -214,7 +214,7 @@ public class PersonReidPipeline {
     * @param a a
     * @param b b
     * @return dot的结果
-     */
+    */
     private static float dot(float[] a, float[] b) {
         float sum = 0f;
         int len = Math.min(a.length, b.length);
@@ -230,7 +230,7 @@ public class PersonReidPipeline {
     * @param id 行人标识
     * @param imageData 行人图片
     * @throws IllegalStateException 入库失败
-     */
+    */
     public void enroll(String id, byte[] imageData) {
         float[] feature = extract(imageData);
         if (!storage.add(id, feature)) {
@@ -244,7 +244,7 @@ public class PersonReidPipeline {
     * @param imageData 待测图片
     * @param topK 返回条数
     * @return 匹配列表（按相似度降序）
-     */
+    */
     public List<Vector> searchFromStorage(byte[] imageData, int topK) {
         float[] feature = extract(imageData);
         return storage.search(feature, topK);

@@ -82,7 +82,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 获取原始 osgi bundle上下文（服务注册表访问入口，供框架外组件按名查找 osgi 服务）
     *
     * @return 获取框架bundle上下文的结果
-     */
+    */
     public org.osgi.framework.BundleContext getFrameworkBundleContext() {
         return frameworkContext;
     }
@@ -106,7 +106,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 添加监听器
     *
     * @param listener 监听器
-     */
+    */
     public void addListener(BundleLifecycleListener listener) {
         listeners.add(listener);
     }
@@ -115,7 +115,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 移除监听器
     *
     * @param listener 监听器
-     */
+    */
     public void removeListener(BundleLifecycleListener listener) {
         listeners.remove(listener);
     }
@@ -124,7 +124,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * firebundleinstalled
     *
     * @param symbolicName symbolic名称
-     */
+    */
     private void fireBundleInstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleInstalled(symbolicName));
     }
@@ -133,7 +133,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * firebundle启动
     *
     * @param symbolicName symbolic名称
-     */
+    */
     private void fireBundleStarted(String symbolicName) {
         listeners.forEach(l -> l.onBundleStarted(symbolicName));
     }
@@ -142,7 +142,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * firebundlestopped
     *
     * @param symbolicName symbolic名称
-     */
+    */
     private void fireBundleStopped(String symbolicName) {
         listeners.forEach(l -> l.onBundleStopped(symbolicName));
     }
@@ -152,7 +152,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     *
     * @param symbolicName symbolic名称
     * @param newVersion 新版本
-     */
+    */
     private void fireBundleUpdated(String symbolicName, String newVersion) {
         listeners.forEach(l -> l.onBundleUpdated(symbolicName, newVersion));
     }
@@ -161,7 +161,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * firebundleuninstalled
     *
     * @param symbolicName symbolic名称
-     */
+    */
     private void fireBundleUninstalled(String symbolicName) {
         listeners.forEach(l -> l.onBundleUninstalled(symbolicName));
     }
@@ -172,7 +172,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * @param symbolicName symbolic名称
     * @param oldState 旧状态
     * @param newState 新状态
-     */
+    */
     private void fireBundleStateChanged(String symbolicName, String oldState, String newState) {
         listeners.forEach(l -> l.onBundleStateChanged(symbolicName, oldState, newState));
     }
@@ -181,7 +181,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 是否Auto开始installedbundles
     *
     * @return 是否auto启动installedbundles的结果
-     */
+    */
     public boolean isAutoStartInstalledBundles() {
         return autoStartInstalledBundles;
     }
@@ -190,7 +190,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 设置Auto开始installedbundles
     *
     * @param autoStart auto启动
-     */
+    */
     public void setAutoStartInstalledBundles(boolean autoStart) {
         this.autoStartInstalledBundles = autoStart;
     }
@@ -330,7 +330,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     *
     * @param symbolicName symbolic名称
     * @return 获取bundle的结果
-     */
+    */
     public OsgiBundle getBundle(String symbolicName) {
         List<OsgiBundle> bundles = getBundles();
         return bundles.stream()
@@ -344,7 +344,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     *
     * @param state 状态
     * @return 获取bundlesby状态的结果
-     */
+    */
     public List<OsgiBundle> getBundlesByState(String state) {
         return getBundles().stream()
                 .filter(b -> b.getState().equals(state))
@@ -355,7 +355,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 获取活跃bundles
     *
     * @return 获取活跃bundles的结果
-     */
+    */
     public List<OsgiBundle> getActiveBundles() {
         return getBundlesByState("ACTIVE");
     }
@@ -364,7 +364,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 获取Bundle计算数量
     *
     * @return 获取bundle数量的结果
-     */
+    */
     public long getBundleCount() {
         return getBundles().size();
     }
@@ -373,7 +373,7 @@ public class FelixOsgiLauncher implements OsgiLauncher, BundleStateQuery {
     * 获取框架stats
     *
     * @return 获取框架stats的结果
-     */
+    */
     public Map<String, Object> getFrameworkStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("active", isActive());

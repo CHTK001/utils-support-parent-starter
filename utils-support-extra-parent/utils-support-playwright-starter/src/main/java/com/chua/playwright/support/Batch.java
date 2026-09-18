@@ -18,7 +18,7 @@ public class Batch {
 
     /**
     * 批量。
-     */
+    */
     private final Engine engine;
     private final List<Map<String, Object>> commands = new ArrayList<>(); // 命令
     private final List<String> names = new ArrayList<>(); // 名称
@@ -32,7 +32,7 @@ public class Batch {
     /**
     * 大小。
     * @return 大小的结果
-     */
+    */
     public Batch() {
         this.engine = Playwright.getEngine();
     /**
@@ -40,27 +40,27 @@ public class Batch {
     * @param headless headless
     * @return launch的结果
     * @param stop 停止
-     */
+    */
     }
 
     public Batch stopOnError(boolean stop) { this.stopOnError = stop; return this; }
     /**
     * 大小。
     * @return 大小的结果
-     */
+    */
     public int size() { return commands.size(); }
 
     /**
     * launch。
     * @param headless headless
     * @return launch的结果
-     */
+    */
     public int launch(boolean headless) {
         /**
         * 新page。
         * @param targetHandle Target处理
         * @return 新page的结果
-         */
+        */
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("headless", headless);
         return add("launch", null, p);
@@ -72,7 +72,7 @@ public class Batch {
     * gotoPage。
     * @param pageHandle page处理
     * @param url url
-     */
+    */
     public void gotoPage(int pageHandle, String url) {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("url", url);
@@ -81,7 +81,7 @@ public class Batch {
         * @param handle 处理
         * @param selector selector
         * @param value 值
-         */
+        */
         add("goto", pageHandle, p);
     }
 
@@ -118,7 +118,7 @@ public class Batch {
     * @param action 动作
     * @param handle 处理
     * @param params 参数
-     */
+    */
     public void raw(String action, Integer handle, Map<String, Object> params) {
         add(action, handle, params);
     }
@@ -128,9 +128,9 @@ public class Batch {
     * 当 {@code stopOnError=true} 时，遇到异常立即停止并抛出。
     * @param action 动作
      /**
-      * 执行。
-      * @return 执行的结果
-      */
+    * 执行。
+    * @return 执行的结果
+    */
      * @param handle 处理
      * @param params 参数
      * @return 添加的结果
@@ -138,7 +138,7 @@ public class Batch {
      /**
      * 执行。
      * @return 执行的结果
-      */
+     */
      */
     public List<Object> execute() {
         List<Object> results = new ArrayList<>();

@@ -51,7 +51,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     /**
     * 创建 抽象api模型3d生成器 实例
     * @param config 配置
-     */
+    */
     protected AbstractApiModel3DGenerator(Model3DConfig config) {
         this.config = config;
         this.objectMapper = new ObjectMapper();
@@ -133,7 +133,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * @param style style
     * @param quality quality
     * @return 构建文本请求主体的结果
-     */
+    */
     protected abstract String buildTextRequestBody(String prompt, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
@@ -143,7 +143,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * @param style style
     * @param quality quality
     * @return 构建镜像请求主体的结果
-     */
+    */
     protected abstract String buildImageRequestBody(byte[] image, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
@@ -153,7 +153,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * @param style style
     * @param quality quality
     * @return 构建multiview请求主体的结果
-     */
+    */
     protected abstract String buildMultiViewRequestBody(byte[][] images, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
@@ -164,7 +164,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * @param style style
     * @param quality quality
     * @return 构建sketch请求主体的结果
-     */
+    */
     protected abstract String buildSketchRequestBody(byte[] sketch, String description, Model3DFormat format, Model3DStyle style, String quality);
 
     /**
@@ -173,14 +173,14 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * @param style style
     * @param resolution resolution
     * @return 构建stylize请求主体的结果
-     */
+    */
     protected abstract String buildStylizeRequestBody(Model3D model, Model3DStyle style, int resolution);
 
     /**
     * 执行 POST 请求
     * @param requestBody 请求主体
     * @return 执行post的结果
-     */
+    */
     protected byte[] doPost(String requestBody) throws IOException {
         RequestBody body = RequestBody.create(requestBody, JSON);
         Request.Builder builder = new Request.Builder()
@@ -211,7 +211,7 @@ public abstract class AbstractApiModel3DGenerator implements Model3DGenerator, T
     * 从 JSON 响应中解析结果
     * @param json json
     * @return 解析结果从json的结果
-     */
+    */
     protected byte[] parseResultFromJson(String json) throws IOException {
         try {
             JsonNode root = objectMapper.readTree(json);

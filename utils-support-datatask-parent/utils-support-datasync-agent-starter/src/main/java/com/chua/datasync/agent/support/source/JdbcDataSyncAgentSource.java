@@ -43,7 +43,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     private final HikariDataSource dataSource;
 
     /**
-    * 创建 jdbc数据同步智能体源 实例
+    * 创建 jdbc数据同步Agent源 实例
     * @param sourceId 源标识
     * @param sourceId 字符串
     * @param sourceId 字符串
@@ -57,7 +57,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     * @param username 用户名
     * @param password 密码
     * @param sql SQL
-     */
+    */
     public JdbcDataSyncAgentSource(String sourceId, String inputId, String jdbcUrl, String username, String password, String sql, String... columnNames) {
         this.sourceId = sourceId;
         this.inputId = inputId;
@@ -76,7 +76,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     * @param user 用户
     * @param pass 通过
     * @return 创建数据源的结果
-     */
+    */
     private HikariDataSource createDataSource(String url, String user, String pass) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -165,7 +165,7 @@ public class JdbcDataSyncAgentSource implements DataSyncAgentSource, Directional
     *
     * @param offsetValue 偏移量值
     * @return 构建sqlwith偏移量的结果
-     */
+    */
     private String buildSqlWithOffset(Object offsetValue) {
         if (offsetValue == null) {
             return sql;

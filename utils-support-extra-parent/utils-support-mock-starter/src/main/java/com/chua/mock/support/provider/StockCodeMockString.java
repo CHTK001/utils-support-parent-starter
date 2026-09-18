@@ -24,7 +24,7 @@ public class StockCodeMockString implements MockString {
     * A 股代码段前缀池
     * @param environment 环境
     * @return 获取字符串的结果
-     */
+    */
     private static final String[] PREFIXES = {"600", "601", "603", "605", "000", "001", "002", "003", "300", "301"};
 
     @Override

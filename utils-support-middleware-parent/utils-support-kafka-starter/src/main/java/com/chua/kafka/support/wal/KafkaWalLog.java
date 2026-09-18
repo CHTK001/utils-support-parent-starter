@@ -55,7 +55,7 @@ public class KafkaWalLog implements WalLog {
     /**
     * 创建 kafkawal日志 实例
     * @param config 配置
-     */
+    */
     public KafkaWalLog(WalConfig config) {
         this.config = config;
         this.topic = config.namespace();
@@ -106,7 +106,7 @@ public class KafkaWalLog implements WalLog {
     *
     * @param record record
     * @return extractLsn的结果
-     */
+    */
     private long extractLsn(ConsumerRecord<String, byte[]> record) {
         try {
             String key = record.key();
@@ -120,7 +120,7 @@ public class KafkaWalLog implements WalLog {
     * checkpoint路径
     *
     * @return checkpoint路径的结果
-     */
+    */
     private Path checkpointPath() {
         Path dir = config.walDir() != null ? config.walDir() : Path.of(System.getProperty("java.io.tmpdir"), "wal");
         return dir.resolve(topic).resolve(CHECKPOINT_FILE);

@@ -46,68 +46,68 @@ public final class AsrPipeline {
 
     /**
     * 目标采样率
-     */
+    */
     private static final int TARGET_SR = 16000;
 
     /**
     * 默认静音阈值（RMS）
-     */
+    */
     private static final float DEFAULT_SILENCE_RMS = 0.01F;
 
     /**
     * 默认最短语音段（秒）
-     */
+    */
     private static final float DEFAULT_MIN_SEG = 0.4F;
 
     /**
     * 默认最大段长（秒），超长强制切分
-     */
+    */
     private static final float DEFAULT_MAX_SEG = 28F;
 
     /**
     * 引擎 标识（必选）
-     */
+    */
     private final String engineId;
 
     /**
     * 识别语言（可选，whisper 类多语言引擎建议显式指定）
-     */
+    */
     private final String language;
 
     /**
     * VAD 类型（空 表示不做 VAD）。
-     */
+    */
     private final String vadType;
 
     /**
     * 降噪增强器（空 表示不降噪）。
-     */
+    */
     private final SpeechEnhancer denoiseEnhancer;
 
     /**
     * 是否启用文本后处理（可选，默认开）
-     */
+    */
     private final boolean postProcess;
 
     /**
     * VAD 静音 RMS 门限
-     */
+    */
     private final float silenceRms;
 
     /**
     * 最短有效语音段（秒）
-     */
+    */
     private final float minSegSec;
 
     /**
     * 最大段长（秒）
-     */
+    */
     private final float maxSegSec;
 
     /**
     * asrpipeline。
     * @param b b
-     */
+    */
     private AsrPipeline(Builder b) {
         this.engineId = b.engineId;
         this.language = b.language;
@@ -124,7 +124,7 @@ public final class AsrPipeline {
     *
     * @param engineId 必选：ASR 引擎 标识（moonshine / whisper-tiny / paraformer-zh-small 等）
     * @return 构建器
-     */
+    */
     public static Builder builder(String engineId) {
         return new Builder(engineId);
     }
@@ -135,7 +135,7 @@ public final class AsrPipeline {
     * @param wavPath 输入音频
     * @return 全文转写结果；无语音时返回空串
     * @throws Exception 管线失败
-     */
+    */
     public String transcribe(Path wavPath) throws Exception {
         long t0 = System.currentTimeMillis();
         float[] samples = AudioUtils.loadMono16k(wavPath);
@@ -188,7 +188,7 @@ public final class AsrPipeline {
     * @param s    16khz 单声道采样
     * @param type VAD 类型（"energy" / "silero" 等）
     * @return 语音段列表
-     */
+    */
     private List<float[]> splitByVad(float[] s, String type) {
         return switch (type.toLowerCase()) {
             case "energy" -> splitByEnergy(s, silenceRms, minSegSec, maxSegSec);
@@ -207,7 +207,7 @@ public final class AsrPipeline {
     * @param minSegSec   最短语音段秒数
     * @param maxSegSec   最大段长秒数
     * @return 语音段列表
-     */
+    */
     static List<float[]> splitByEnergy(float[] s, float silenceRms, float minSegSec, float maxSegSec) {
         int frame = (int) (0.03F * TARGET_SR);
         int minSeg = (int) (minSegSec * TARGET_SR);
@@ -261,7 +261,7 @@ public final class AsrPipeline {
     *
     * @param s 16khz 单声道采样
     * @return 分块列表
-     */
+    */
     private List<float[]> forceSplit(float[] s) {
         int maxSeg = (int) (maxSegSec * TARGET_SR);
         if (s.length <= maxSeg) {
@@ -284,7 +284,7 @@ public final class AsrPipeline {
     * @param off 起始偏移
     * @param len 帧长
     * @return RMS 值
-     */
+    */
     private static float rms(float[] s, int off, int len) {
         double sum = 0;
         for (int i = off; i < off + len; i++) {
@@ -301,7 +301,7 @@ public final class AsrPipeline {
     *
     * @param s 16khz 采样
     * @return 增强后采样
-     */
+    */
     private float[] denoise(float[] s) {
         try {
             float[] up = AudioUtils.resample(s, TARGET_SR, 48000);
@@ -323,7 +323,7 @@ public final class AsrPipeline {
     *
     * @param text 原始文本
     * @return 后处理文本
-     */
+    */
     static String postProcess(String text) {
         String t = text.replaceAll("\\s+", " ").trim();
         if (!t.isEmpty() && Character.isLetter(t.charAt(0))) {
@@ -334,54 +334,54 @@ public final class AsrPipeline {
 
     /**
     * 构建器。
-     */
+    */
     public static final class Builder {
 
         /**
         * 引擎 标识（必选）
-         */
+        */
         private final String engineId;
 
         /**
         * 识别语言（可选）
-         */
+        */
         private String language;
 
         /**
         * VAD 类型（空 表示不做 VAD）
-         */
+        */
         private String vadType;
 
         /**
         * 降噪增强器（空 表示不降噪）
-         */
+        */
         private SpeechEnhancer denoiseEnhancer;
 
         /**
         * 启用文本后处理（默认 true）
-         */
+        */
         private boolean postProcess = true;
 
         /**
         * 静音 RMS 门限（默认 0.01）
-         */
+        */
         private float silenceRms = DEFAULT_SILENCE_RMS;
 
         /**
         * 最短语音段秒数（默认 0.4）
-         */
+        */
         private float minSegSec = DEFAULT_MIN_SEG;
 
         /**
         * 最大段长秒数（默认 28）
-         */
+        */
         private float maxSegSec = DEFAULT_MAX_SEG;
 
         /**
         * 构建器。
         * @param engineId engineid
         * @return 构建器的结果
-         */
+        */
         private Builder(String engineId) {
             if (engineId == null || engineId.isBlank()) {
                 throw new IllegalArgumentException("engineId 为必选项");
@@ -394,7 +394,7 @@ public final class AsrPipeline {
         *
         * @param language 语言代码
         * @return 构建器
-         */
+        */
         public Builder language(String language) {
             this.language = language;
             return this;
@@ -410,7 +410,7 @@ public final class AsrPipeline {
         *
         * @param type VAD 类型（"energy" 等），空 关闭
         * @return 构建器
-         */
+        */
         public Builder vad(String type) {
             this.vadType = type;
             return this;
@@ -426,7 +426,7 @@ public final class AsrPipeline {
         *
         * @param modelId 模型 标识（对应 {@link SpeechEnhancer} 注册表），空 关闭
         * @return 构建器
-         */
+        */
         public Builder denoise(String modelId) {
             this.denoiseEnhancer = modelId != null ? SpeechEnhancer.create(modelId) : null;
             return this;
@@ -437,7 +437,7 @@ public final class AsrPipeline {
         *
         * @param enable 是否启用
         * @return 构建器
-         */
+        */
         public Builder postProcess(boolean enable) {
             this.postProcess = enable;
             return this;
@@ -448,7 +448,7 @@ public final class AsrPipeline {
         *
         * @param threshold 门限值
         * @return 构建器
-         */
+        */
         public Builder silenceRms(float threshold) {
             this.silenceRms = threshold;
             return this;
@@ -459,7 +459,7 @@ public final class AsrPipeline {
         *
         * @param sec 秒数
         * @return 构建器
-         */
+        */
         public Builder minSegment(float sec) {
             this.minSegSec = sec;
             return this;
@@ -470,7 +470,7 @@ public final class AsrPipeline {
         *
         * @param sec 秒数
         * @return 构建器
-         */
+        */
         public Builder maxSegment(float sec) {
             this.maxSegSec = sec;
             return this;
@@ -480,7 +480,7 @@ public final class AsrPipeline {
         * 构建管线实例。
         *
         * @return 管线实例
-         */
+        */
         public AsrPipeline build() {
             return new AsrPipeline(this);
         }

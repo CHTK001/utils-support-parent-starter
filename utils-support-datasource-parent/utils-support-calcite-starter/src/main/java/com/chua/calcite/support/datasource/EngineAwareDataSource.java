@@ -25,12 +25,12 @@ public final class EngineAwareDataSource implements DataSource {
 
     /**
     * 委托的真实数据源
-     */
+    */
     private final DataSource delegate;
 
     /**
     * 更新 路由执行器
-     */
+    */
     private final EngineUpdateSqlExecutor updateExecutor;
 
     /**
@@ -38,7 +38,7 @@ public final class EngineAwareDataSource implements DataSource {
     *
     * @param delegate 真实数据源
     * @param schemes  引擎方案列表
-     */
+    */
     public EngineAwareDataSource(DataSource delegate, List<DataScheme> schemes) {
         this.delegate = delegate;
         this.updateExecutor = new EngineUpdateSqlExecutor(schemes);
@@ -61,7 +61,7 @@ public final class EngineAwareDataSource implements DataSource {
     *
     * @param conn conn
     * @return wrapConnection的结果
-     */
+    */
     private Connection wrapConnection(Connection conn) {
         return (Connection) ReflectUtils.newProxy(
                 Connection.class.getClassLoader(),
@@ -110,7 +110,7 @@ public final class EngineAwareDataSource implements DataSource {
         *
         * @param st st
         * @return wrap对账单的结果
-         */
+        */
         private Statement wrapStatement(Statement st) {
             return (Statement) ReflectUtils.newProxy(
                     Statement.class.getClassLoader(),
@@ -146,7 +146,7 @@ public final class EngineAwareDataSource implements DataSource {
         *
         * @param rows rows
         * @return fixed更新prepared对账单的结果
-         */
+        */
         private Object fixedUpdatePreparedStatement(int rows) {
             return ReflectUtils.newProxy(
                     java.sql.PreparedStatement.class.getClassLoader(),

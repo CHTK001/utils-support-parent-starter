@@ -14,17 +14,17 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
 
     /**
     * 数据源名称
-     */
+    */
     private final String name;
 
     /**
     * HBase 连接
-     */
+    */
     private final Connection source;
 
     /**
     * 连接描述（quorum 串）
-     */
+    */
     private final String url;
 
     /**
@@ -33,7 +33,7 @@ public class HBaseEngineDataSource implements EngineDataSource<Connection> {
     * @param name   数据源名称
     * @param url    连接描述，如 {@code 172.16.0.40:2181}
     * @param source HBase 连接
-     */
+    */
     public HBaseEngineDataSource(String name, String url, Connection source) {
         this.name = name;
         this.url = url;

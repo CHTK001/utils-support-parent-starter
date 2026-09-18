@@ -17,7 +17,7 @@ public class WekaException extends RuntimeException {
     * 以错误信息创建 Weka 运行时异常。
     *
     * @param message 错误信息描述，可为 空（等价于无消息异常）
-     */
+    */
     public WekaException(String message) {
         super(message);
     }
@@ -27,7 +27,7 @@ public class WekaException extends RuntimeException {
     *
     * @param message 错误信息描述，可为 空（等价于无消息异常）
     * @param cause   原始异常原因（如 Weka 底层受检异常），可为 空
-     */
+    */
     public WekaException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -22,7 +22,7 @@ public class EsMetaData extends DefaultMetaData {
     /**
     * 创建 esmeta数据 实例
     * @param engine engine
-     */
+    */
     public EsMetaData(ElasticsearchEngine engine) {
         super(engine);
     }
