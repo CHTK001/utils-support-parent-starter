@@ -201,3 +201,5 @@ out_tmp_check/
 utils-support-models-parent/
 /src/test/resources/.env  
 .env* 
+# 443MB 模型权重超出 gitee/github 单文件限额,仅保留本地不入库
+**/seg/birefnet/birefnet_large_1024.onnx
