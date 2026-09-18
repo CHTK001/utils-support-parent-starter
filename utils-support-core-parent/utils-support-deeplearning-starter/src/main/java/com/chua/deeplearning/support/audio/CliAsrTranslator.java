@@ -24,6 +24,11 @@ import java.util.concurrent.TimeoutException;
  * 依赖系统 {@code curl}，在无法完成证书吊销校验的环境下不可用。
  * 本类负责 音频落盘 → 进程调用 → 回收文本。</p>
  *
+ * <p>执行分两级：模型已在本地成文件时优先复用 {@link CliAsrServer}（常驻 {@code serve} 进程 +
+ * OpenAI 兼容 HTTP 接口），避免每次调用重新付引擎 warmup 与模型缺页加载（本机 CPU 稳态下
+ * 9.2s 音频约 3.9s 对 2.1s）；服务启动失败、进程中途退出或请求出错时，自动回退到每次新起进程的
+ * {@code transcribe} 路径，两者产出的文本一致。</p>
+ *
  * <p>用法：</p>
  * <pre>{@code
  *   ITranslator<byte[], String> t =
@@ -122,20 +127,60 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
         Files.write(wav, audio);
         try {
             String m = resolveModelArg();
-            String[] args;
-            if (m != null && !m.isBlank()) {
-                args = jsonOutput
-                        ? new String[]{"transcribe", wav.toString(), "--model", m, "--json"}
-                        : new String[]{"transcribe", wav.toString(), "--model", m};
-            } else {
-                args = jsonOutput ? new String[]{"transcribe", wav.toString(), "--json"}
-                        : new String[]{"transcribe", wav.toString()};
+            String out = transcribeViaServer(exe, wav, m);
+            if (out == null) {
+                out = transcribeViaProcess(exe, wav, m);
             }
-            String out = CliModelRunner.run(exe, args, 300L);
             return jsonOutput ? out : normalize(out);
         } finally {
             Files.deleteIfExists(wav);
         }
+    }
+
+    /**
+    * 优先走常驻服务会话；不适用或失败返回 {@code null}，由调用方回退单进程
+    *
+    * @param exe CLI 可执行文件
+    * @param wav 落盘后的音频
+    * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
+    * @return 转写结果；不适用时返回 {@code null}
+    */
+    private String transcribeViaServer(Path exe, Path wav, String m) {
+        if (m == null || m.isBlank() || !Files.isRegularFile(Path.of(m))) {
+            return null;
+        }
+        CliAsrServer server = CliAsrServer.acquire(exe, m);
+        if (server == null) {
+            return null;
+        }
+        try {
+            return server.transcribe(wav, jsonOutput);
+        } catch (Exception e) {
+            log.warn("[cli-asr] 常驻服务转写失败，回退单进程调用: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+    * 单进程 transcribe 调用（原始路径，每次新起进程）
+    *
+    * @param exe CLI 可执行文件
+    * @param wav 落盘后的音频
+    * @param m   CLI 模型取值（本地路径或短名），无模型时为 {@code null}
+    * @return stdout 原文
+    * @throws Exception 定位/进程/超时 失败
+    */
+    private String transcribeViaProcess(Path exe, Path wav, String m) throws Exception {
+        String[] args;
+        if (m != null && !m.isBlank()) {
+            args = jsonOutput
+                    ? new String[]{"transcribe", wav.toString(), "--model", m, "--json"}
+                    : new String[]{"transcribe", wav.toString(), "--model", m};
+        } else {
+            args = jsonOutput ? new String[]{"transcribe", wav.toString(), "--json"}
+                    : new String[]{"transcribe", wav.toString()};
+        }
+        return CliModelRunner.run(exe, args, 300L);
     }
 
     /** ModelRegistrar SPI 是否已扫描（避免每次转写重复扫资源） */
@@ -147,7 +192,7 @@ public class CliAsrTranslator implements ITranslator<byte[], String> {
     * 本地模型文件并传其绝对路径——CLI 自带的下载依赖系统 {@code curl}，在无法完成证书吊销
     * 校验的环境下不可用。未注册或取不到文件时原样透传，CLI 原生短名与本地路径均可用。</p>
     *
-    * @return CLI {@code --model} 取值；无模型时为 空
+    * @return CLI {@code --model} 取值；无模型时为 {@code null}
     */
     private String resolveModelArg() {
         if (model == null || model.isBlank()) {
